@@ -150,7 +150,7 @@ class _OrderBody extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${line.quantity} ×',
+                        isolate('${line.quantity} ×'),
                         style: theme.textTheme.titleSmall,
                       ),
                       const SizedBox(width: 10),
@@ -167,7 +167,7 @@ class _OrderBody extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      Text(line.unit.formatted),
+                      Text(isolate(line.unit.formatted)),
                     ],
                   ),
                 ),

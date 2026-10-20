@@ -194,6 +194,8 @@ class AuthController extends Notifier<AuthState> {
       await ref.read(offlineCacheProvider).clear();
       // 28 Their tickets too.
       await ref.read(sharedPreferencesProvider).remove(ticketWalletKey);
+      // 63 And their member codes.
+      await ref.read(sharedPreferencesProvider).remove(membershipWalletKey);
     } on Object {
       // No preferences (tests without them): nothing was kept.
     }

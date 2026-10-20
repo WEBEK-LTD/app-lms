@@ -406,6 +406,9 @@ class AppFeatures {
     this.articles = false,
     this.listings = false,
     this.inquiries = false,
+    this.questions = false,
+    this.reviews = false,
+    this.memberCheckIn = false,
     this.appUsers = false,
     this.notifications = false,
     this.media = false,
@@ -426,6 +429,9 @@ class AppFeatures {
     articles: boolean(json, 'articles'),
     listings: boolean(json, 'listings'),
     inquiries: boolean(json, 'inquiries'),
+    questions: boolean(json, 'questions'),
+    reviews: boolean(json, 'reviews'),
+    memberCheckIn: boolean(json, 'member_check_in'),
     appUsers: boolean(json, 'app_users'),
     notifications: boolean(json, 'notifications'),
     media: boolean(json, 'media'),
@@ -445,6 +451,15 @@ class AppFeatures {
   final bool articles;
   final bool listings;
   final bool inquiries;
+
+  /// 63 Students' questions in courses managed in Yallapp (Messages).
+  final bool questions;
+
+  /// 63 Reviews of courses managed in Yallapp (Catalog & content).
+  final bool reviews;
+
+  /// 63 A gym's members checked in at the door (Bookings).
+  final bool memberCheckIn;
   final bool appUsers;
   final bool notifications;
   final bool media;
@@ -453,6 +468,9 @@ class AppFeatures {
   final bool builds;
 
   bool get catalog => products || courses || articles || listings;
+
+  /// 63 The Inbox tab: a listing's conversations, course questions, reviews.
+  bool get inbox => inquiries || questions || reviews;
 }
 
 class AppSummary {
@@ -669,6 +687,7 @@ class TodayCounts {
     this.appointments,
     this.tickets,
     this.checkIns,
+    this.memberCheckIns,
     this.donations,
     this.newUsers,
     this.appOpens,
@@ -679,6 +698,7 @@ class TodayCounts {
     appointments: optInt(json, 'appointments'),
     tickets: optInt(json, 'tickets'),
     checkIns: optInt(json, 'check_ins'),
+    memberCheckIns: optInt(json, 'member_check_ins'),
     donations: optInt(json, 'donations'),
     newUsers: optInt(json, 'new_users'),
     appOpens: optInt(json, 'app_opens'),
@@ -688,6 +708,9 @@ class TodayCounts {
   final int? appointments;
   final int? tickets;
   final int? checkIns;
+
+  /// 63 A gym's members who came in today.
+  final int? memberCheckIns;
   final int? donations;
   final int? newUsers;
 
@@ -710,7 +733,8 @@ class NeedsYou {
     noticeId: optInt(json, 'notice_id'),
   );
 
-  /// orders_in_progress, appointments_to_confirm, unanswered_messages, notice.
+  /// orders_in_progress, appointments_to_confirm, unanswered_messages,
+  /// questions_to_answer (63), notice.
   final String kind;
   final int count;
   final String title;
@@ -2208,4 +2232,296 @@ class License {
 
   /// Renewing, changing plans and storage packs: on yallapp.com.tr only.
   final String manageUrl;
+}
+
+// 63 Course questions and reviews, and a gym's members at the door.
+
+class Question {
+  const Question({
+    required this.id,
+    required this.courseId,
+    required this.courseTitle,
+    required this.person,
+    required this.text,
+    required this.status,
+    required this.answerCount,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory Question.fromJson(Json json) => Question(
+    id: integer(json, 'id'),
+    courseId: integer(json, 'course_id'),
+    courseTitle: str(json, 'course_title'),
+    person: str(json, 'person'),
+    text: str(json, 'text'),
+    status: str(json, 'status', 'open'),
+    answerCount: integer(json, 'answer_count'),
+    createdAt: date(json, 'created_at'),
+    updatedAt: date(json, 'updated_at'),
+  );
+
+  final int id;
+  final int courseId;
+  final String courseTitle;
+  final String person;
+  final String text;
+
+  /// open (waiting for the business) or answered.
+  final String status;
+  final int answerCount;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  bool get open => status == 'open';
+}
+
+class QuestionAnswer {
+  const QuestionAnswer({
+    required this.id,
+    required this.fromBusiness,
+    required this.name,
+    required this.text,
+    required this.createdAt,
+  });
+
+  factory QuestionAnswer.fromJson(Json json) => QuestionAnswer(
+    id: integer(json, 'id'),
+    fromBusiness: str(json, 'from') == 'business',
+    name: str(json, 'name'),
+    text: str(json, 'text'),
+    createdAt: date(json, 'created_at'),
+  );
+
+  final int id;
+  final bool fromBusiness;
+  final String name;
+  final String text;
+  final DateTime createdAt;
+}
+
+class QuestionDetail {
+  const QuestionDetail({required this.question, required this.answers});
+
+  factory QuestionDetail.fromJson(Json json) => QuestionDetail(
+    question: Question.fromJson(json),
+    answers: listOf(json, 'answers', QuestionAnswer.fromJson),
+  );
+
+  final Question question;
+  final List<QuestionAnswer> answers;
+}
+
+class QuestionsPage {
+  const QuestionsPage({required this.page, required this.open});
+
+  factory QuestionsPage.fromJson(Json json) => QuestionsPage(
+    page: Paged.fromJson(json, Question.fromJson),
+    open: integer(json, 'open'),
+  );
+
+  final Paged<Question> page;
+
+  /// Questions waiting for the business.
+  final int open;
+}
+
+class ReviewReply {
+  const ReviewReply({required this.text, required this.createdAt});
+
+  final String text;
+  final DateTime createdAt;
+}
+
+class Review {
+  const Review({
+    required this.id,
+    required this.courseId,
+    required this.courseTitle,
+    required this.person,
+    required this.rating,
+    required this.text,
+    required this.hidden,
+    required this.createdAt,
+    this.reply,
+  });
+
+  factory Review.fromJson(Json json) {
+    final reply = optObject(json, 'reply');
+    return Review(
+      id: integer(json, 'id'),
+      courseId: integer(json, 'course_id'),
+      courseTitle: str(json, 'course_title'),
+      person: str(json, 'person'),
+      rating: integer(json, 'rating', 5).clamp(1, 5),
+      text: str(json, 'text'),
+      hidden: boolean(json, 'hidden'),
+      createdAt: date(json, 'created_at'),
+      reply: reply == null
+          ? null
+          : ReviewReply(
+              text: str(reply, 'text'),
+              createdAt: date(reply, 'created_at'),
+            ),
+    );
+  }
+
+  final int id;
+  final int courseId;
+  final String courseTitle;
+  final String person;
+  final int rating;
+  final String text;
+
+  /// Hidden from others; its author still sees it.
+  final bool hidden;
+  final DateTime createdAt;
+  final ReviewReply? reply;
+}
+
+class ReviewsPage {
+  const ReviewsPage({
+    required this.page,
+    required this.rating,
+    required this.ratingCount,
+  });
+
+  factory ReviewsPage.fromJson(Json json) => ReviewsPage(
+    page: Paged.fromJson(json, Review.fromJson),
+    rating: optNumber(json, 'rating'),
+    ratingCount: integer(json, 'rating_count'),
+  );
+
+  final Paged<Review> page;
+
+  /// The average of the reviews shown in the app; null without any.
+  final double? rating;
+  final int ratingCount;
+}
+
+class Member {
+  const Member({
+    required this.membershipId,
+    required this.name,
+    required this.planName,
+    required this.status,
+    this.phone,
+    this.endsAt,
+    this.creditsLeft,
+    this.checkedInAt,
+  });
+
+  factory Member.fromJson(Json json) => Member(
+    membershipId: integer(json, 'membership_id'),
+    name: str(json, 'name'),
+    phone: optStr(json, 'phone'),
+    planName: str(json, 'plan_name'),
+    status: str(json, 'status', 'active'),
+    endsAt: optDate(json, 'ends_at'),
+    creditsLeft: optInt(json, 'credits_left'),
+    checkedInAt: optDate(json, 'checked_in_at'),
+  );
+
+  final int membershipId;
+  final String name;
+  final String? phone;
+  final String planName;
+
+  /// active, expired or cancelled.
+  final String status;
+  final DateTime? endsAt;
+
+  /// Null for unlimited classes.
+  final int? creditsLeft;
+
+  /// When they came in today; null when not yet.
+  final DateTime? checkedInAt;
+}
+
+class MembersPage {
+  const MembersPage({required this.page, required this.timeZone});
+
+  factory MembersPage.fromJson(Json json) => MembersPage(
+    page: Paged.fromJson(json, Member.fromJson),
+    timeZone: str(json, 'time_zone'),
+  );
+
+  final Paged<Member> page;
+  final String timeZone;
+}
+
+class MemberCheckIn {
+  const MemberCheckIn({
+    required this.outcome,
+    required this.admitted,
+    required this.message,
+    this.member,
+  });
+
+  factory MemberCheckIn.fromJson(Json json) {
+    final member = optObject(json, 'member');
+    return MemberCheckIn(
+      outcome: str(json, 'outcome'),
+      admitted: boolean(json, 'admitted'),
+      message: str(json, 'message'),
+      member: member == null ? null : Member.fromJson(member),
+    );
+  }
+
+  /// admitted, already_in, expired, cancelled, not_started, no_credits,
+  /// not_found, forged, not_a_code.
+  final String outcome;
+  final bool admitted;
+  final String message;
+
+  /// Its `checkedInAt` is today's check-in (now when admitted).
+  final Member? member;
+}
+
+class MemberVisit {
+  const MemberVisit({
+    required this.id,
+    required this.membershipId,
+    required this.name,
+    required this.planName,
+    required this.checkedInAt,
+    required this.by,
+  });
+
+  factory MemberVisit.fromJson(Json json) => MemberVisit(
+    id: integer(json, 'id'),
+    membershipId: integer(json, 'membership_id'),
+    name: str(json, 'name'),
+    planName: str(json, 'plan_name'),
+    checkedInAt: date(json, 'checked_in_at'),
+    by: str(json, 'by'),
+  );
+
+  final int id;
+  final int membershipId;
+  final String name;
+  final String planName;
+  final DateTime checkedInAt;
+  final String by;
+}
+
+class MemberVisits {
+  const MemberVisits({
+    required this.date,
+    required this.timeZone,
+    required this.count,
+    required this.items,
+  });
+
+  factory MemberVisits.fromJson(Json json) => MemberVisits(
+    date: str(json, 'date'),
+    timeZone: str(json, 'time_zone'),
+    count: integer(json, 'count'),
+    items: listOf(json, 'items', MemberVisit.fromJson),
+  );
+
+  final String date;
+  final String timeZone;
+  final int count;
+  final List<MemberVisit> items;
 }

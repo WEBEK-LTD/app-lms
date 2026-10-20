@@ -60,6 +60,12 @@ class FakeOwnerApi implements OwnerApi {
   final _users = <String, List<AppUser>>{};
   final _sent = <String, List<SentNotification>>{};
   final _scheduled = <String, List<ScheduledNotification>>{};
+  // 63 Course questions and reviews, a gym's members and today's check-ins.
+  final _questions = <String, List<QuestionDetail>>{};
+  final _reviews = <String, List<Review>>{};
+  final _members = <String, List<Member>>{};
+  final _visits = <String, List<MemberVisit>>{};
+  final _memberCodes = <String, int>{};
   // 60 Team members: the person's role here, their businesses, the owner's team.
   TeamRole role = TeamRole.owner;
   var businesses = const <Business>[];
@@ -76,6 +82,12 @@ class FakeOwnerApi implements OwnerApi {
   static const academyId = '55555555-5555-4555-8555-555555555555';
   static const homesId = '66666666-6666-4666-8666-666666666666';
   static const newsId = '77777777-7777-4777-8777-777777777777';
+  // 63 A gym, for members at the door.
+  static const gymId = '88888888-8888-4888-8888-888888888888';
+
+  /// Sara Adel's member code (membership 1 of the gym), typed and as a QR.
+  static const memberCode = 'Q4MZ7KP2XH9D';
+  static const memberQr = 'YM1.1.$memberCode';
 
   static const ticketCode = 'YT1.A7K2-9QXM.3f9a1c';
 
@@ -130,6 +142,23 @@ class FakeOwnerApi implements OwnerApi {
       formatted:
           '$sign$symbol$whole.${(cents.abs() % 100).toString().padLeft(2, '0')}',
     );
+  }
+
+  /// lib/media/quota.ts formatBytes: "49 MB", "1.5 GB", "20 GB".
+  static String sizeText(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    const units = ['KB', 'MB', 'GB', 'TB'];
+    var value = bytes / 1024;
+    var unit = 0;
+    while (value >= 1024 && unit < units.length - 1) {
+      value /= 1024;
+      unit++;
+    }
+    final whole = value >= 100 || value == value.roundToDouble();
+    final text = whole
+        ? value.round().toString()
+        : value.toStringAsFixed(1).replaceFirst(RegExp(r'\.0$'), '');
+    return '$text ${units[unit]}';
   }
 
   DateTime _ago(Duration d) => now.subtract(d).toUtc();
@@ -233,6 +262,8 @@ class FakeOwnerApi implements OwnerApi {
         features: const AppFeatures(
           orders: true,
           courses: true,
+          questions: true,
+          reviews: true,
           appUsers: true,
           notifications: true,
           media: true,
@@ -278,6 +309,32 @@ class FakeOwnerApi implements OwnerApi {
         ),
       ),
     ];
+
+    apps.add(
+      AppSummary(
+        id: gymId,
+        name: 'Pulse Gym',
+        type: 'booking',
+        vertical: 'fitness',
+        typeName: 'Gym & fitness',
+        backend: 'hosted',
+        state: AccountState.active,
+        plan: plan,
+        features: const AppFeatures(
+          orders: true,
+          appointments: true,
+          memberCheckIn: true,
+          appUsers: true,
+          notifications: true,
+          media: true,
+          analytics: true,
+          preview: true,
+          builds: true,
+        ),
+      ),
+    );
+    _seedCommunity();
+    _seedGym();
 
     devicesList
       ..clear()
@@ -1037,6 +1094,9 @@ class FakeOwnerApi implements OwnerApi {
             articles: a.features.articles && has('catalog'),
             listings: a.features.listings && has('catalog'),
             inquiries: a.features.inquiries && has('messages'),
+            questions: a.features.questions && has('messages'),
+            reviews: a.features.reviews && has('catalog'),
+            memberCheckIn: a.features.memberCheckIn && has('bookings'),
             appUsers: a.features.appUsers && has('app_users'),
             notifications: a.features.notifications && has('notifications'),
             media: a.features.media && has('media'),
@@ -1237,6 +1297,9 @@ class FakeOwnerApi implements OwnerApi {
     final unanswered = (_inquiries[appId] ?? const [])
         .where((i) => i.inquiry.unread > 0)
         .length;
+    final questions = f.questions
+        ? (_questions[appId] ?? const []).where((q) => q.question.open).length
+        : 0;
     return Today(
       date: _day(now),
       timeZone: 'Europe/Istanbul',
@@ -1249,6 +1312,9 @@ class FakeOwnerApi implements OwnerApi {
             : null,
         tickets: f.events ? 12 : null,
         checkIns: f.checkIn ? 24 : null,
+        memberCheckIns: f.memberCheckIn
+            ? (_visits[appId] ?? const []).length
+            : null,
         donations: f.donations ? 9 : null,
         newUsers: f.appUsers ? 7 : null,
         appOpens: f.analytics ? 342 : null,
@@ -1259,19 +1325,33 @@ class FakeOwnerApi implements OwnerApi {
           NeedsYou(
             kind: 'orders_in_progress',
             count: processing,
-            title: '$processing orders in progress',
+            title: processing == 1
+                ? '1 order in progress'
+                : '$processing orders in progress',
           ),
         if (toConfirm > 0)
           NeedsYou(
             kind: 'appointments_to_confirm',
             count: toConfirm,
-            title: '$toConfirm appointments to confirm',
+            title: toConfirm == 1
+                ? '1 appointment to confirm'
+                : '$toConfirm appointments to confirm',
           ),
         if (unanswered > 0)
           NeedsYou(
             kind: 'unanswered_messages',
             count: unanswered,
-            title: '$unanswered unanswered messages',
+            title: unanswered == 1
+                ? '1 conversation waiting for your reply'
+                : '$unanswered conversations waiting for your reply',
+          ),
+        if (questions > 0)
+          NeedsYou(
+            kind: 'questions_to_answer',
+            count: questions,
+            title: questions == 1
+                ? '1 course question to answer'
+                : '$questions course questions to answer',
           ),
         if (app.state == AccountState.expired)
           const NeedsYou(
@@ -2014,12 +2094,13 @@ class FakeOwnerApi implements OwnerApi {
 
   Storage _storage(String appId) {
     final used = (_media[appId] ?? const []).fold(0, (n, m) => n + m.sizeBytes);
-    const limit = 20 * 1000 * 1000 * 1000;
+    const limit = 20 * 1024 * 1024 * 1024;
     return Storage(
       usedBytes: used,
       limitBytes: limit,
-      used: '${(used / 1e9).toStringAsFixed(1)} GB',
-      limit: '20 GB',
+      // 63 As the server writes sizes: MB under a GB ("49 MB of 20 GB").
+      used: sizeText(used),
+      limit: sizeText(limit),
       full: used >= limit,
       manageUrl: 'https://yallapp.com.tr/dashboard/media',
     );
@@ -2238,6 +2319,509 @@ class FakeOwnerApi implements OwnerApi {
       ],
     );
     return list[i];
+  }
+
+  // 63 Course questions and reviews
+
+  void _seedCommunity() {
+    QuestionAnswer answer(int id, String name, String text, Duration ago) =>
+        QuestionAnswer(
+          id: id,
+          fromBusiness: name == 'Nile Academy',
+          name: name,
+          text: text,
+          createdAt: _ago(ago),
+        );
+    QuestionDetail question(
+      int id,
+      int courseId,
+      String course,
+      String person,
+      String text,
+      Duration ago,
+      List<QuestionAnswer> answers,
+    ) {
+      final open = answers.isEmpty || !answers.last.fromBusiness;
+      return QuestionDetail(
+        question: Question(
+          id: id,
+          courseId: courseId,
+          courseTitle: course,
+          person: person,
+          text: text,
+          status: open ? 'open' : 'answered',
+          answerCount: answers.length,
+          createdAt: _ago(ago),
+          updatedAt: answers.isEmpty ? _ago(ago) : answers.last.createdAt,
+        ),
+        answers: answers,
+      );
+    }
+
+    _questions[academyId] = [
+      question(
+        31,
+        1,
+        'Arabic for Beginners',
+        'Omar Said',
+        'Is there a worksheet for the alphabet lesson? I would like to practise writing the letters.',
+        const Duration(minutes: 40),
+        const [],
+      ),
+      question(
+        32,
+        2,
+        'Business English',
+        'Selin Koç',
+        'Can I join the live session on Thursday if I am still on lesson 3?',
+        const Duration(hours: 3),
+        [
+          answer(
+            1,
+            'Nile Academy',
+            'Yes! Everyone in the course is welcome.',
+            const Duration(hours: 2),
+          ),
+          answer(
+            2,
+            'Selin Koç',
+            'Great, and will it be recorded?',
+            const Duration(hours: 1),
+          ),
+        ],
+      ),
+      question(
+        33,
+        1,
+        'Arabic for Beginners',
+        'Huda Kamal',
+        'How long should each lesson take me?',
+        const Duration(days: 2),
+        [
+          answer(
+            3,
+            'Nile Academy',
+            'About 20 minutes, plus 10 minutes of practice.',
+            const Duration(days: 1),
+          ),
+        ],
+      ),
+    ];
+    _reviews[academyId] = [
+      Review(
+        id: 41,
+        courseId: 1,
+        courseTitle: 'Arabic for Beginners',
+        person: 'Fatma Şahin',
+        rating: 5,
+        text: 'Clear lessons and kind feedback. I can read signs now!',
+        hidden: false,
+        createdAt: _ago(const Duration(hours: 5)),
+      ),
+      Review(
+        id: 42,
+        courseId: 2,
+        courseTitle: 'Business English',
+        person: 'Youssef Adel',
+        rating: 4,
+        text: 'Very practical. A few more examples for emails would help.',
+        hidden: false,
+        createdAt: _ago(const Duration(days: 1)),
+        reply: ReviewReply(
+          text: 'Thank you, Youssef! New email examples arrive next week.',
+          createdAt: _ago(const Duration(hours: 20)),
+        ),
+      ),
+      Review(
+        id: 43,
+        courseId: 1,
+        courseTitle: 'Arabic for Beginners',
+        person: 'Aylin Kara',
+        rating: 3,
+        text: 'Good, but the videos are a bit fast for me.',
+        hidden: false,
+        createdAt: _ago(const Duration(days: 3)),
+      ),
+      Review(
+        id: 44,
+        courseId: 2,
+        courseTitle: 'Business English',
+        person: 'Unknown visitor',
+        rating: 1,
+        text: 'Visit my page for cheap followers!!!',
+        hidden: true,
+        createdAt: _ago(const Duration(days: 4)),
+      ),
+    ];
+  }
+
+  QuestionDetail _ownQuestion(String appId, int questionId) {
+    final found = (_questions[appId] ?? const [])
+        .where((q) => q.question.id == questionId)
+        .firstOrNull;
+    if (found == null) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+    return found;
+  }
+
+  @override
+  Future<QuestionsPage> questions(
+    String appId, {
+    String? status,
+    int page = 1,
+  }) async {
+    await _call('questions');
+    _app(appId, (f) => f.questions);
+    final all = [
+      for (final q in _questions[appId] ?? const <QuestionDetail>[])
+        if (status == null || q.question.status == status) q.question,
+    ]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    return QuestionsPage(
+      page: _page(all, page, 20),
+      open: (_questions[appId] ?? const [])
+          .where((q) => q.question.open)
+          .length,
+    );
+  }
+
+  @override
+  Future<QuestionDetail> question(String appId, int questionId) async {
+    await _call('question');
+    _app(appId, (f) => f.questions);
+    return _ownQuestion(appId, questionId);
+  }
+
+  @override
+  Future<QuestionDetail> answerQuestion(
+    String appId,
+    int questionId,
+    String text,
+  ) async {
+    await _call('answerQuestion');
+    final app = _app(appId, (f) => f.questions);
+    final value = text.trim();
+    if (value.isEmpty) {
+      throw const ApiException(
+        code: ApiException.invalidRequest,
+        message: 'Write your answer.',
+        statusCode: 400,
+      );
+    }
+    final old = _ownQuestion(appId, questionId);
+    final at = DateTime.now().toUtc();
+    final q = old.question;
+    final updated = QuestionDetail(
+      question: Question(
+        id: q.id,
+        courseId: q.courseId,
+        courseTitle: q.courseTitle,
+        person: q.person,
+        text: q.text,
+        status: 'answered',
+        answerCount: q.answerCount + 1,
+        createdAt: q.createdAt,
+        updatedAt: at,
+      ),
+      answers: [
+        ...old.answers,
+        QuestionAnswer(
+          id: _nextId++,
+          fromBusiness: true,
+          name: app.name,
+          text: value,
+          createdAt: at,
+        ),
+      ],
+    );
+    final list = _questions[appId]!;
+    list[list.indexOf(old)] = updated;
+    return updated;
+  }
+
+  Review _ownReview(String appId, int reviewId) {
+    final found = (_reviews[appId] ?? const [])
+        .where((r) => r.id == reviewId)
+        .firstOrNull;
+    if (found == null) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+    return found;
+  }
+
+  Review _saveReview(
+    String appId,
+    Review r, {
+    bool? hidden,
+    ReviewReply? reply,
+    bool clearReply = false,
+  }) {
+    final updated = Review(
+      id: r.id,
+      courseId: r.courseId,
+      courseTitle: r.courseTitle,
+      person: r.person,
+      rating: r.rating,
+      text: r.text,
+      hidden: hidden ?? r.hidden,
+      createdAt: r.createdAt,
+      reply: clearReply ? null : (reply ?? r.reply),
+    );
+    final list = _reviews[appId]!;
+    list[list.indexOf(r)] = updated;
+    return updated;
+  }
+
+  @override
+  Future<ReviewsPage> reviews(
+    String appId, {
+    String filter = 'all',
+    int page = 1,
+  }) async {
+    await _call('reviews');
+    _app(appId, (f) => f.reviews);
+    final every = _reviews[appId] ?? const <Review>[];
+    final all = [
+      for (final r in every)
+        if (filter == 'all' ||
+            (filter == 'hidden' && r.hidden) ||
+            (filter == 'unreplied' && !r.hidden && r.reply == null))
+          r,
+    ];
+    final shown = every.where((r) => !r.hidden).toList();
+    final sum = shown.fold(0, (n, r) => n + r.rating);
+    return ReviewsPage(
+      page: _page(all, page, 20),
+      rating: shown.isEmpty ? null : (sum / shown.length * 10).round() / 10,
+      ratingCount: shown.length,
+    );
+  }
+
+  @override
+  Future<Review> setReviewHidden(
+    String appId,
+    int reviewId,
+    bool hidden,
+  ) async {
+    await _call('setReviewHidden');
+    _app(appId, (f) => f.reviews);
+    return _saveReview(appId, _ownReview(appId, reviewId), hidden: hidden);
+  }
+
+  @override
+  Future<Review> replyReview(String appId, int reviewId, String text) async {
+    await _call('replyReview');
+    _app(appId, (f) => f.reviews);
+    final value = text.trim();
+    if (value.isEmpty) {
+      throw const ApiException(
+        code: ApiException.invalidRequest,
+        message: 'Write your reply.',
+        statusCode: 400,
+      );
+    }
+    return _saveReview(
+      appId,
+      _ownReview(appId, reviewId),
+      reply: ReviewReply(text: value, createdAt: DateTime.now().toUtc()),
+    );
+  }
+
+  @override
+  Future<Review> deleteReviewReply(String appId, int reviewId) async {
+    await _call('deleteReviewReply');
+    _app(appId, (f) => f.reviews);
+    return _saveReview(appId, _ownReview(appId, reviewId), clearReply: true);
+  }
+
+  // 63 A gym's members at the door
+
+  void _seedGym() {
+    Member member(
+      int id,
+      String name,
+      String plan, {
+      String status = 'active',
+      int endsIn = 20,
+      int? credits,
+      String? phone,
+    }) => Member(
+      membershipId: id,
+      name: name,
+      phone: phone,
+      planName: plan,
+      status: status,
+      endsAt: endsIn == 0 ? null : now.add(Duration(days: endsIn)).toUtc(),
+      creditsLeft: credits,
+    );
+    _members[gymId] = [
+      member(1, 'Sara Adel', 'Monthly unlimited', phone: '+20 100 111 2223'),
+      member(2, 'Karim Nabil', 'Yearly unlimited', endsIn: 240),
+      member(3, 'Mona Hassan', '10-class pack', endsIn: 0, credits: 4),
+      member(4, 'Ahmed Fouad', 'Monthly unlimited', phone: '+20 100 555 1234'),
+      member(
+        5,
+        'Layla Samir',
+        'Monthly unlimited',
+        status: 'expired',
+        endsIn: -3,
+      ),
+      member(6, 'Tarek Ali', '10-class pack', endsIn: 0, credits: 0),
+    ];
+    for (final m in _members[gymId]!) {
+      _memberCodes[m.membershipId == 1
+              ? memberCode
+              : 'M${m.membershipId}XKP7QZ2HD9'.substring(0, 12)] =
+          m.membershipId;
+    }
+    MemberVisit visit(
+      int id,
+      int membership,
+      String name,
+      String plan,
+      int minutes,
+    ) => MemberVisit(
+      id: id,
+      membershipId: membership,
+      name: name,
+      planName: plan,
+      checkedInAt: _ago(Duration(minutes: minutes)),
+      by: 'Layla',
+    );
+    _visits[gymId] = [
+      visit(1, 2, 'Karim Nabil', 'Yearly unlimited', 25),
+      visit(2, 3, 'Mona Hassan', '10-class pack', 70),
+      visit(3, 4, 'Ahmed Fouad', 'Monthly unlimited', 130),
+    ];
+  }
+
+  Member _withVisit(Member m) => Member(
+    membershipId: m.membershipId,
+    name: m.name,
+    phone: m.phone,
+    planName: m.planName,
+    status: m.status,
+    endsAt: m.endsAt,
+    creditsLeft: m.creditsLeft,
+    checkedInAt: (_visits[gymId] ?? const <MemberVisit>[])
+        .where((v) => v.name == m.name)
+        .firstOrNull
+        ?.checkedInAt,
+  );
+
+  @override
+  Future<MembersPage> members(
+    String appId, {
+    String? query,
+    int page = 1,
+  }) async {
+    await _call('members');
+    _app(appId, (f) => f.memberCheckIn);
+    final q = (query ?? '').trim().toLowerCase();
+    final all =
+        [
+          for (final m in _members[appId] ?? const <Member>[])
+            if (q.isEmpty ||
+                m.name.toLowerCase().contains(q) ||
+                (m.phone ?? '')
+                    .replaceAll(' ', '')
+                    .contains(q.replaceAll(' ', '')))
+              _withVisit(m),
+        ]..sort(
+          (a, b) =>
+              (a.status == 'active' ? 0 : 1) - (b.status == 'active' ? 0 : 1),
+        );
+    return MembersPage(page: _page(all, page, 20), timeZone: 'Africa/Cairo');
+  }
+
+  @override
+  Future<MemberCheckIn> checkInMember(
+    String appId, {
+    String? code,
+    int? membershipId,
+  }) async {
+    await _call('checkInMember');
+    _app(appId, (f) => f.memberCheckIn);
+    MemberCheckIn refused(String outcome, String message, [Member? m]) =>
+        MemberCheckIn(
+          outcome: outcome,
+          admitted: false,
+          message: message,
+          member: m,
+        );
+    var id = membershipId;
+    if (id == null) {
+      final value = (code ?? '').trim();
+      if (value.startsWith('YM1.')) {
+        final parts = value.split('.');
+        final claimed = parts.length == 3 ? int.tryParse(parts[1]) : null;
+        if (claimed == null) {
+          return refused('not_a_code', "That isn't a member code");
+        }
+        if (_memberCodes[parts[2]] != claimed) {
+          return refused('forged', "This code wasn't made by your app");
+        }
+        id = claimed;
+      } else {
+        final typed = value.toUpperCase().replaceAll(RegExp(r'[\s-]'), '');
+        if (!RegExp(r'^[A-Z0-9]{12}$').hasMatch(typed)) {
+          return refused('not_a_code', "That isn't a member code");
+        }
+        id = _memberCodes[typed];
+      }
+    }
+    final m = (_members[appId] ?? const <Member>[])
+        .where((x) => x.membershipId == id)
+        .firstOrNull;
+    if (m == null) return refused('not_found', 'No membership has this code');
+    final withVisit = _withVisit(m);
+    if (m.status == 'cancelled') {
+      return refused('cancelled', 'This membership was cancelled', withVisit);
+    }
+    if (m.status == 'expired') {
+      return refused('expired', 'This membership has ended', withVisit);
+    }
+    if (m.creditsLeft == 0) {
+      return refused(
+        'no_credits',
+        'No classes left on this membership',
+        withVisit,
+      );
+    }
+    if (withVisit.checkedInAt != null) {
+      return refused('already_in', 'Already checked in today', withVisit);
+    }
+    final at = DateTime.now().toUtc();
+    _visits[appId] = [
+      MemberVisit(
+        id: _nextId++,
+        membershipId: m.membershipId,
+        name: m.name,
+        planName: m.planName,
+        checkedInAt: at,
+        by: 'You',
+      ),
+      ...?_visits[appId],
+    ];
+    return MemberCheckIn(
+      outcome: 'admitted',
+      admitted: true,
+      message: 'Welcome in',
+      member: _withVisit(m),
+    );
+  }
+
+  @override
+  Future<MemberVisits> memberCheckIns(String appId, {String? date}) async {
+    await _call('memberCheckIns');
+    _app(appId, (f) => f.memberCheckIn);
+    final items = List.of(_visits[appId] ?? const <MemberVisit>[]);
+    return MemberVisits(
+      date: date ?? _day(now),
+      timeZone: 'Africa/Cairo',
+      count: items.length,
+      items: items,
+    );
   }
 
   // App users

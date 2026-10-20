@@ -32,7 +32,7 @@ import { isLanguageCode } from "@/lib/i18n/locales";
 import { stringPack } from "@/lib/i18n/packs";
 import { etagValues } from "@/lib/pages/plugin";
 import { receiveCrashReports } from "@/lib/crashes/service";
-import { pushNewBooking, pushNewMessage } from "@/lib/owner/push";
+import { pushNewBooking, pushNewMessage, pushNewQuestion, pushNewReview } from "@/lib/owner/push";
 import { pushOwnerSafely } from "@/lib/owner/push-env";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -159,6 +159,13 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
           const appName = app.appName ?? getDashT(lang)("emails.yourAppName");
           await pushOwnerSafely((d) => pushNewMessage(d, app, { inquiryId: inquiry.id, listing, name: user.name, text }));
           await sendTemplate("new_inquiry", owner.email, newInquiryMailValues({ listing, user, text, appName, url, lang }), { lang });
+        },
+        // 63 A course question or review reaches the business's phones (Yallapp Business).
+        onQuestion: async ({ question, course, user, text, followUp }) => {
+          await pushOwnerSafely((d) => pushNewQuestion(d, app, { question, course, name: user.name, text, followUp }));
+        },
+        onReview: async ({ review, course, user }) => {
+          await pushOwnerSafely((d) => pushNewReview(d, app, { review, course, name: user.name }));
         },
       }),
     },

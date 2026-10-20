@@ -139,7 +139,7 @@ class OrderCard extends StatelessWidget {
             Text(
               kitchen == null
                   ? customer
-                  : '$customer · ${kitchen.type == 'delivery' ? l10n.delivery : l10n.pickup}',
+                  : '${isolate(customer)} · ${kitchen.type == 'delivery' ? l10n.delivery : l10n.pickup}',
               style: theme.textTheme.titleSmall,
             ),
           const SizedBox(height: 2),

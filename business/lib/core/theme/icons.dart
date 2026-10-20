@@ -98,6 +98,10 @@ abstract final class AppIcons {
   static const team = Symbols.groups_rounded;
   static const invite = Symbols.person_add_rounded;
   static const business = Symbols.storefront_rounded;
+  // 63 Course questions, members at the door.
+  static const question = Symbols.contact_support_rounded;
+  static const members = Symbols.card_membership_rounded;
+  static const markAllRead = Symbols.done_all_rounded;
 }
 
 /// Icons that point a way (back, forward, send) turn round in Arabic.

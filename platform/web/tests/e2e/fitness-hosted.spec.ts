@@ -215,3 +215,51 @@ test("the timetable lists who's coming; calling a class off frees spots, gives c
   await own.goto("/dashboard/publishing");
   if (await own.getByText("For the store reviewers (optional)").isVisible()) await expect(own.getByText(/3\.1\.3\(e\)/)).toBeVisible();
 });
+
+test("63 members show their code at the door; the desk lets each in once a day, by code or by name, and the phone too", async ({ request }) => {
+  const mine = (await (await request.get(`${api}/me/memberships`, { headers: members.Ada!.headers })).json()).items[0] as { member_code: { code: string; qr_payload: string } };
+  expect(mine.member_code.code).toMatch(/^[A-HJ-NP-Z2-9]{12}$/);
+  expect(mine.member_code.qr_payload).toMatch(/^YM1\.\d+\.[A-HJ-NP-Z2-9]{12}$/);
+  const typed = mine.member_code.code.match(/.{4}/g)!.join("-").toLowerCase();
+
+  await own.getByRole("navigation", { name: "Dashboard" }).getByRole("link", { name: "Member check-in" }).click();
+  await expect(own.getByRole("heading", { level: 1, name: "Member check-in" })).toBeVisible();
+  await expect(own.getByTestId("member-count")).toHaveText("Nobody has checked in today yet.");
+  await own.getByLabel("Member code").fill(typed);
+  await own.getByRole("button", { name: "Check in", exact: true }).click();
+  await expect(own.getByTestId("member-result")).toContainText("Welcome in");
+  await expect(own.getByTestId("member-result")).toContainText("Ada");
+  // Scanned again (its QR code), the same day: in already, with when.
+  await own.getByLabel("Member code").fill(mine.member_code.qr_payload);
+  await own.getByRole("button", { name: "Check in", exact: true }).click();
+  await expect(own.getByTestId("member-result")).toContainText("Already checked in today at");
+  await own.getByLabel("Member code").fill("ZZZZ-ZZZZ-ZZZZ");
+  await own.getByRole("button", { name: "Check in", exact: true }).click();
+  await expect(own.getByTestId("member-result")).toContainText("No membership has this code");
+
+  // By name.
+  await own.getByLabel("Name, mobile number or email").fill("Burak");
+  await own.getByRole("button", { name: "Find" }).click();
+  await own.getByTestId("member-matches").getByRole("button", { name: "Check in Burak" }).click();
+  await expect(own.getByTestId("member-matches").getByTestId("member-result")).toContainText("Welcome in");
+  await own.reload();
+  await expect(own.getByTestId("member-count")).toHaveText("2 members came in today");
+  await expect(own.getByTestId("member-visits")).toContainText("Burak");
+
+  // The owner's phone (Yallapp Business): today's count, and the door.
+  const signedIn = await request.post(`${E2E.baseURL}/api/owner/v1/auth/sign-in`, { data: { email: client.email, password: client.password, device: { name: "Desk phone", platform: "android" } } });
+  expect(signedIn.status()).toBe(200);
+  const phone = { authorization: `Bearer ${((await signedIn.json()) as { access_token: string }).access_token}` };
+  const appId = api.split("/").pop()!;
+  const ownerApi = `${E2E.baseURL}/api/owner/v1/apps/${appId}`;
+  expect((await (await request.get(`${ownerApi}/today`, { headers: phone })).json()).counts).toMatchObject({ member_check_ins: 2 });
+  const cem = (await (await request.get(`${api}/me/memberships`, { headers: members.Cem!.headers })).json()).items[0] as { member_code: { qr_payload: string } };
+  const door = await (await request.post(`${ownerApi}/members/check-in`, { headers: phone, data: { code: cem.member_code.qr_payload } })).json();
+  expect(door).toMatchObject({ outcome: "admitted", admitted: true, message: "Welcome in", member: { name: "Cem", plan_name: "Monthly unlimited" } });
+  const twice = await (await request.post(`${ownerApi}/members/check-in`, { headers: { ...phone, "accept-language": "tr" }, data: { code: cem.member_code.qr_payload } })).json();
+  expect(twice).toMatchObject({ outcome: "already_in", admitted: false });
+  expect(twice.message).toMatch(/zaten giriş yaptı/);
+  const visits = await (await request.get(`${ownerApi}/members/check-ins`, { headers: phone })).json();
+  expect(visits).toMatchObject({ count: 3 });
+  expect(visits.items.map((v: { name: string }) => v.name).sort()).toEqual(["Ada", "Burak", "Cem"]);
+});

@@ -61,12 +61,19 @@ PushTarget pushTarget(Map<String, dynamic> data) {
   final order = id('order_id');
   final appointment = value('appointment_id');
   final inquiry = id('inquiry_id');
+  // 63 A course question opens itself; a review, the Inbox's reviews.
+  final question = id('question_id');
+  final review = value('review_id');
   final location = order != null
       ? Paths.order(order)
       : appointment != null
       ? Paths.appointments
       : inquiry != null
       ? Paths.inquiry(inquiry)
+      : question != null
+      ? Paths.question(question)
+      : review != null
+      ? Paths.inboxTab('reviews')
       : value('build_id') != null
       ? Paths.builds
       : value('donation_id') != null

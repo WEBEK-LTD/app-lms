@@ -78,6 +78,15 @@ class MoreScreen extends ConsumerWidget {
         tile(AppIcons.events, l10n.events, () => context.go(Paths.events)),
       if (f.checkIn)
         tile(AppIcons.scan, l10n.scanTickets, () => context.push(Paths.scan())),
+      // 63 A gym's door and its members.
+      if (f.memberCheckIn) ...[
+        tile(
+          AppIcons.scan,
+          l10n.scanMembers,
+          () => context.push(Paths.memberScan),
+        ),
+        tile(AppIcons.members, l10n.members, () => context.push(Paths.members)),
+      ],
       if (f.donations && !inTabs.contains(Paths.donations))
         tile(
           AppIcons.donations,

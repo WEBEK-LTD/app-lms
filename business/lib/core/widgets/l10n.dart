@@ -3,6 +3,11 @@ import 'package:intl/intl.dart';
 
 import '../../l10n/app_localizations.dart';
 
+/// 63 A run kept whole inside a line of the other direction ("2 × Chicken
+/// shawarma" in an Arabic line, a customer's name, a price): a Unicode
+/// first-strong isolate, so its words and numbers stay together and in order.
+String isolate(String text) => '\u2068$text\u2069';
+
 extension L10nContext on BuildContext {
   AppLocalizations get l10n => AppLocalizations.of(this);
   String get lang => Localizations.localeOf(this).languageCode;

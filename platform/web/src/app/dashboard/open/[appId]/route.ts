@@ -10,6 +10,10 @@ const PAGES: Record<string, string> = {
   setup: "/dashboard/setup",
   // 58 Yallapp Business sends owners here to buy storage (never in the app).
   media: "/dashboard/media",
+  // 63 Course questions and reviews, and a gym's door.
+  questions: "/dashboard/courses/questions",
+  reviews: "/dashboard/courses/reviews",
+  "check-in": "/dashboard/members/check-in",
 };
 
 /**

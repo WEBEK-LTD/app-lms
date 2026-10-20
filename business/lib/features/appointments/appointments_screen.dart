@@ -85,16 +85,16 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> {
 
 String appointmentStatusLabel(BuildContext context, Appointment a) {
   final l10n = context.l10n;
-  return a.statusLabel ??
-      switch (a.status) {
-        'pending' => l10n.apptPending,
-        'approved' => l10n.apptApproved,
-        'rejected' => l10n.apptRejected,
-        'cancelled' => l10n.statusCancelled,
-        'completed' => l10n.statusCompleted,
-        'no_show' => l10n.apptNoShow,
-        _ => a.status,
-      };
+  // 63 The app's own words for the statuses it knows.
+  return switch (a.status) {
+    'pending' => l10n.apptPending,
+    'approved' => l10n.apptApproved,
+    'rejected' => l10n.apptRejected,
+    'cancelled' => l10n.statusCancelled,
+    'completed' => l10n.statusCompleted,
+    'no_show' => l10n.apptNoShow,
+    _ => a.statusLabel ?? a.status,
+  };
 }
 
 String appointmentActionLabel(BuildContext context, String status) {
@@ -199,7 +199,7 @@ class AppointmentCard extends ConsumerWidget {
                   children: [
                     Text(a.customerName, style: theme.textTheme.titleSmall),
                     Text(
-                      '${a.service} · ${a.staff}',
+                      '${isolate(a.service)} · ${isolate(a.staff)}',
                       style: theme.textTheme.bodySmall,
                     ),
                   ],
@@ -259,10 +259,10 @@ class AppointmentCard extends ConsumerWidget {
             Text(a.customerName, style: Theme.of(sheet).textTheme.titleLarge),
             const SizedBox(height: 4),
             Text(
-              '${context.day(a.localDate)} · ${a.localTime} · ${a.price.formatted}',
+              '${context.day(a.localDate)} · ${isolate(a.localTime)} · ${isolate(a.price.formatted)}',
             ),
             Text(
-              '${a.service} · ${a.staff}',
+              '${isolate(a.service)} · ${isolate(a.staff)}',
               style: Theme.of(sheet).textTheme.bodySmall,
             ),
             const SizedBox(height: 8),

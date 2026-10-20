@@ -73,7 +73,14 @@ const BEFORE = {
   },
   contentNav: {
     catalog: ["Your shop", ["/dashboard/catalog", "Products", "inventory_2"], ["/dashboard/orders", "Orders", "receipt_long"]],
-    courses: ["Your school", ["/dashboard/courses", "Courses", "school"], ["/dashboard/orders", "Orders", "receipt_long"]],
+    // 63 With the students' questions and reviews.
+    courses: [
+      "Your school",
+      ["/dashboard/courses", "Courses", "school"],
+      ["/dashboard/courses/questions", "Questions", "help"],
+      ["/dashboard/courses/reviews", "Reviews", "star"],
+      ["/dashboard/orders", "Orders", "receipt_long"],
+    ],
     bookings: ["Your bookings", ["/dashboard/services", "Services & team", "groups"], ["/dashboard/appointments", "Appointments", "event_available"]],
     listings: ["Your properties", ["/dashboard/listings", "Listings", "home_work"], ["/dashboard/inquiries", "Inquiries", "forum"]],
   },

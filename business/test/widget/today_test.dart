@@ -62,7 +62,8 @@ void main() {
     await TestApp().pump(tester);
     await tapOn(tester, find.text('Bab Al Sham'));
     await tapOn(tester, find.text('Bosphorus Homes'));
-    expect(find.text('1 unanswered messages'), findsOneWidget);
+    // 63 In the app's words, with its plural.
+    expect(find.text('1 conversation waiting for your reply'), findsOneWidget);
     expect(find.widgetWithText(NavigationDestination, 'Inbox'), findsOneWidget);
     expect(
       find.widgetWithText(NavigationDestination, 'Listings'),

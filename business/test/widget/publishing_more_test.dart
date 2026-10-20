@@ -117,7 +117,8 @@ void main() {
     await app.pump(tester);
     await push(tester, app, '/settings/notifications');
     expect(find.text('New orders'), findsOneWidget);
-    expect(find.textContaining('reviews'), findsNothing);
+    // 63 Reviews of courses push too now.
+    expect(find.text('New reviews'), findsOneWidget);
     await tapOn(tester, find.widgetWithText(SwitchListTile, 'Builds'));
     expect(app.api.preferences.isOn(PushKind.buildFinished), isFalse);
     expect(app.api.preferences.isOn(PushKind.newOrder), isTrue);

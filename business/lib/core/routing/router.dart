@@ -16,6 +16,9 @@ import '../../features/events/events_screen.dart';
 import '../../features/events/scanner_screen.dart';
 import '../../features/inbox/inbox_screen.dart';
 import '../../features/inbox/inquiry_screen.dart';
+import '../../features/inbox/question_screen.dart';
+import '../../features/members/member_scanner_screen.dart';
+import '../../features/members/members_screen.dart';
 import '../../features/media/media_screen.dart';
 import '../../features/team/team_screen.dart';
 import '../../features/more/devices_screen.dart';
@@ -167,8 +170,17 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: Paths.inbox,
-            builder: (_, _) => const InboxScreen(),
+            builder: (_, s) =>
+                InboxScreen(initialTab: s.uri.queryParameters['tab']),
             routes: [
+              // 63 A student's question in a course.
+              GoRoute(
+                path: 'questions/:id',
+                parentNavigatorKey: rootNavigatorKey,
+                builder: (_, s) => QuestionScreen(
+                  questionId: int.parse(s.pathParameters['id']!),
+                ),
+              ),
               GoRoute(
                 path: ':id',
                 parentNavigatorKey: rootNavigatorKey,
@@ -197,6 +209,9 @@ final routerProvider = Provider<GoRouter>((ref) {
           topicId: int.parse(s.uri.queryParameters['topic'] ?? '0'),
         ),
       ),
+      // 63 A gym's door and its members.
+      full(Paths.memberScan, (_) => const MemberScannerScreen()),
+      full(Paths.members, (_) => const MembersScreen()),
       full(Paths.media, (_) => const MediaScreen()),
       full(Paths.users, (_) => const UsersScreen()),
       full(Paths.notify, (_) => const NotifyScreen()),

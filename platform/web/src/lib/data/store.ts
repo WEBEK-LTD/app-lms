@@ -58,6 +58,8 @@ import type { Article, ArticleCategory, ArticleInput, NewsSettings } from "./typ
 import type { CheckInResult, EventInput, EventRecord, EventSettings, EventTicket, TicketClaim, TicketClaimRefusal, TicketType, TicketTypeInput } from "./types";
 // 34 Yallapp sign-in for own API apps
 import type { AppAuthKey } from "./types";
+// 63
+import type { CourseAnswer, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 // 29 Charity & donations
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
 import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, DonationSettings, DonationStatus } from "./types";
@@ -352,6 +354,45 @@ export interface DataStore {
   updateMembership(appId: string, id: number, patch: MembershipPatch): Promise<void>;
   /** Adds classes to a membership with credits (unlimited ones stay unlimited). */
   addMembershipCredits(appId: string, id: number, credits: number, now: Date): Promise<void>;
+  /**
+   * 63 Checks a member in for the day: once per app user and day (the
+   * database's unique key), so of two scans at once one wins; the other gets
+   * the check-in that is there.
+   */
+  checkInMember(input: Omit<MemberCheckIn, "id">): Promise<{ ok: true; checkIn: MemberCheckIn } | { ok: false; checkIn: MemberCheckIn }>;
+  /** 63 A day's check-ins (the gym's day), the latest first. */
+  listMemberCheckIns(appId: string, day: string): Promise<MemberCheckIn[]>;
+  /** 63 How many members came in on the gym's day. */
+  countMemberCheckInsOnDay(appId: string, day: string): Promise<number>;
+  /**
+   * 63 A page of the app's memberships (or of these app users'), those that
+   * can get in now first (active, started, not ended), then newest first.
+   */
+  listMembershipsPage(input: { appId: string; userIds?: number[]; now: Date; offset: number; limit: number }): Promise<{ items: Membership[]; total: number }>;
+  /** 63 The membership whose member code has this hash (an indexed lookup). */
+  findMembershipByCodeHash(appId: string, codeHash: string): Promise<Membership | null>;
+  /** 63 Memberships that can get in now and whose code hash isn't stored yet (made before it was). */
+  listMembershipsWithoutCodeHash(appId: string, now: Date, limit: number): Promise<Membership[]>;
+  setMembershipCodeHash(appId: string, id: number, codeHash: string): Promise<void>;
+
+  // 63 Course questions and reviews (lib/courses/community.ts)
+  /** Writes or replaces the student's review of the course (one each); the business's reply and hiding stay. */
+  saveCourseReview(input: { appId: string; courseId: number; userId: number; rating: number; text: string; now: Date }): Promise<CourseReview>;
+  getCourseReview(appId: string, id: number): Promise<CourseReview | null>;
+  getCourseReviewOf(appId: string, courseId: number, userId: number): Promise<CourseReview | null>;
+  /** Newest first. `hidden` filters by it; `unreplied`: without a reply. */
+  listCourseReviews(input: { appId: string; courseIds?: number[]; hidden?: boolean; unreplied?: boolean; offset: number; limit: number }): Promise<{ items: CourseReview[]; total: number }>;
+  /** How many shown reviews each course has of each rating. */
+  countCourseRatings(appId: string): Promise<{ courseId: number; rating: number; count: number }[]>;
+  updateCourseReview(appId: string, id: number, patch: CourseReviewPatch): Promise<void>;
+  createCourseQuestion(input: CourseQuestionInput): Promise<CourseQuestion>;
+  getCourseQuestion(appId: string, id: number): Promise<CourseQuestion | null>;
+  /** `created`: newest question first (the app); `updated`: latest activity first (the business). */
+  listCourseQuestions(input: { appId: string; courseIds?: number[]; status?: CourseQuestionStatus; order: "created" | "updated"; offset: number; limit: number }): Promise<{ items: CourseQuestion[]; total: number }>;
+  /** Adds an answer and sets the question's status and time, together. */
+  addCourseAnswer(input: Omit<CourseAnswer, "id">, status: CourseQuestionStatus): Promise<CourseAnswer>;
+  /** Oldest first. */
+  listCourseAnswers(appId: string, questionId: number): Promise<CourseAnswer[]>;
 
   /** Enrols once; false when they already were. */
   enrollInCourse(input: CourseEnrollment): Promise<boolean>;

@@ -234,6 +234,9 @@ class FakeScanner implements CameraScanner {
   final torch = ValueNotifier<bool?>(false);
   int torchToggles = 0;
 
+  /// 63 The phone refused the camera: the screen shows its message instead.
+  bool denied = false;
+
   /// What the camera "sees".
   void see(String code) => _onCode?.call(code);
 
@@ -244,6 +247,7 @@ class FakeScanner implements CameraScanner {
     Widget Function(BuildContext) onDenied,
   ) {
     _onCode = onCode;
+    if (denied) return onDenied(context);
     return Container(key: const ValueKey('camera'), color: Colors.black);
   }
 

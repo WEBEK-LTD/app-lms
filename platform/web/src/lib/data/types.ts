@@ -1328,9 +1328,77 @@ export interface Membership {
   orderId: number | null;
   createdAt: Date;
   updatedAt: Date;
+  /** 63 The hash of its member code (lib/bookings/member-codes.ts), once the code was shown or used; null before. */
+  codeHash?: string | null;
 }
 
 export type MembershipPatch = Partial<Pick<Membership, "status" | "endsAt" | "updatedAt">>;
+
+/**
+ * 63 A member checked in at the door of a gym: once a member (the app's user)
+ * a day in the gym's time zone, whatever membership or phone did it.
+ */
+export interface MemberCheckIn {
+  id: number;
+  appId: string;
+  membershipId: number;
+  userId: number;
+  /** The gym's day, YYYY-MM-DD. */
+  day: string;
+  at: Date;
+  /** Who let them in (the dashboard's or Yallapp Business's person). */
+  byName: string;
+}
+
+// 63 Questions and reviews of courses managed in the dashboard.
+
+/** A student's review of a course; one per student and course. */
+export interface CourseReview {
+  id: number;
+  appId: string;
+  courseId: number;
+  userId: number;
+  rating: number;
+  text: string;
+  /** Hidden by the business: only its author sees it. */
+  hidden: boolean;
+  /** The business's public reply. */
+  replyText: string | null;
+  replyAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type CourseReviewPatch = Partial<Pick<CourseReview, "hidden" | "replyText" | "replyAt" | "updatedAt">>;
+
+/** `open`: waiting for the business (new, or the student wrote again after its answer). */
+export type CourseQuestionStatus = "open" | "answered";
+
+export interface CourseQuestion {
+  id: number;
+  appId: string;
+  courseId: number;
+  userId: number;
+  text: string;
+  status: CourseQuestionStatus;
+  /** Counted from its answers when read (a deleted student's answers go with their account). */
+  answerCount: number;
+  createdAt: Date;
+  /** The latest question or answer. */
+  updatedAt: Date;
+}
+
+export type CourseQuestionInput = Omit<CourseQuestion, "id" | "answerCount">;
+
+/** An answer under a question: a student's (`userId`), or the business's (`userId` null). */
+export interface CourseAnswer {
+  id: number;
+  appId: string;
+  questionId: number;
+  userId: number | null;
+  text: string;
+  createdAt: Date;
+}
 
 // Courses managed in the dashboard (connector "courses").
 
@@ -1924,6 +1992,9 @@ export interface DemoPurgeCounts {
   tickets: number;
   /** 29 Demo donations (nothing was charged; campaign totals never counted them). */
   donations: number;
+  /** 63 Visitors' course questions (with their answers) and reviews. */
+  questions: number;
+  reviews: number;
 }
 
 // 23 News & blog apps: articles written in the dashboard

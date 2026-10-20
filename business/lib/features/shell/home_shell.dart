@@ -61,7 +61,8 @@ List<NavTab> tabsFor(BuildContext context, AppSummary app) {
   return [
     NavTab(Paths.today, AppIcons.today, l10n.today),
     ?work,
-    if (app.features.inquiries) NavTab(Paths.inbox, AppIcons.inbox, l10n.inbox),
+    // 63 Also course questions and reviews.
+    if (app.features.inbox) NavTab(Paths.inbox, AppIcons.inbox, l10n.inbox),
     if (app.features.analytics) NavTab(Paths.stats, AppIcons.stats, l10n.stats),
     NavTab(Paths.more, AppIcons.more, l10n.more),
   ];

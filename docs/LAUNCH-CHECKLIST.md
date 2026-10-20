@@ -509,6 +509,21 @@ The app itself (`business/`, see its README). Store listings go under
       sidebar and Yallapp Business show only Orders, then remove them and
       check the website and the phone sign out.
 
+## 7n. Course questions and reviews, and a gym's door (Phase 63)
+
+- [ ] Apply migration `0046_members_and_course_community.sql` after `0045`
+      (`member_check_ins`, `course_reviews`, `course_questions`,
+      `course_answers`). Nothing else to set: member codes are made from
+      `SIGNING_SECRET` (changing it changes every member code, as it does
+      ticket QR codes), and the pushes use Yallapp Business's Firebase
+      project (7k).
+- [ ] After deploying: on a test academy, ask a question and write a review
+      from the app, answer and reply from Yallapp Business, check the app
+      shows both; on a test gym, open My membership in the app, scan its QR
+      code from Yallapp Business's Scan members and from Dashboard ›
+      Members › Member check-in, and check the second scan says "Already
+      checked in today".
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |

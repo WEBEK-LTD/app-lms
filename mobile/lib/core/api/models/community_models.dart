@@ -235,7 +235,21 @@ class RatingSummary {
   final Map<int, int> counts;
 }
 
-enum ReviewStatus { approved, pending }
+/// 63 `hidden`: the business hid it from others (only its author gets it).
+enum ReviewStatus { approved, pending, hidden }
+
+/// 63 The business's public reply under a review.
+class ReviewReply {
+  const ReviewReply({required this.text, required this.createdAt});
+
+  factory ReviewReply.fromJson(Json json) => ReviewReply(
+    text: optString(json, 'text') ?? '',
+    createdAt: reqDate(json, 'created_at'),
+  );
+
+  final String text;
+  final DateTime createdAt;
+}
 
 class Review {
   const Review({
@@ -246,6 +260,7 @@ class Review {
     required this.createdAt,
     required this.status,
     required this.mine,
+    this.reply,
   });
 
   factory Review.fromJson(Json json) => Review(
@@ -260,6 +275,7 @@ class Review {
       ReviewStatus.approved,
     ),
     mine: boolOr(json, 'mine', false),
+    reply: optObject(json, 'reply', ReviewReply.fromJson),
   );
 
   final int id;
@@ -269,6 +285,7 @@ class Review {
   final DateTime createdAt;
   final ReviewStatus status;
   final bool mine;
+  final ReviewReply? reply;
 }
 
 /// `GET /courses/{id}/reviews`.

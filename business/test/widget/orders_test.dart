@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:yallapp_business/core/api/fake_owner_api.dart';
 import 'package:yallapp_business/core/api/models.dart';
 import 'package:yallapp_business/core/routing/router.dart';
+import 'package:yallapp_business/core/widgets/l10n.dart';
 
 import '../support/nav.dart';
 import '../support/test_app.dart';
@@ -17,8 +18,14 @@ void main() {
     await tapOn(tester, find.widgetWithText(NavigationDestination, 'Orders'));
     expect(find.text('#1042'), findsOneWidget);
     expect(find.text('#1041'), findsOneWidget);
-    expect(find.text('Sara Hassan · Pickup'), findsOneWidget);
-    expect(find.text('2 × Chicken shawarma, 2 × Fresh lemonade'), findsWidgets);
+    // 63 Names and items are kept whole in either direction.
+    expect(find.text('${isolate('Sara Hassan')} · Pickup'), findsOneWidget);
+    expect(
+      find.text(
+        '${isolate('2 × Chicken shawarma')}, ${isolate('2 × Fresh lemonade')}',
+      ),
+      findsWidgets,
+    );
 
     await tapOn(tester, find.widgetWithText(FilledButton, 'Accept'));
     expect(app.api.calls, contains('changeOrderStatus:preparing'));

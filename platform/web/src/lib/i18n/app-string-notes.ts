@@ -395,6 +395,25 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "الحصص التي تتضمنها الخطة.",
     tr: "Bir planın içerdiği dersler.",
   },
+  // 63 A gym member's code at the door, and the business's answers to reviews.
+  "Under a gym member's QR code on the membership screen.": {
+    ar: "تحت رمز QR الخاص بعضو النادي في شاشة العضوية.",
+    tr: "Üyelik ekranında spor salonu üyesinin QR kodunun altında.",
+  },
+  "Read aloud for a gym member's QR code.": {
+    ar: "يُقرأ بصوت عالٍ لرمز QR الخاص بعضو النادي.",
+    tr: "Spor salonu üyesinin QR kodu için sesli okunur.",
+  },
+  "Above the business's reply under a course review.": {
+    en: "Above your reply under a course review.",
+    ar: "فوق ردك تحت تقييم دورة.",
+    tr: "Bir kurs değerlendirmesinin altındaki yanıtınızın üstünde.",
+  },
+  "Under the student's own review when the business hid it.": {
+    en: "Under a student's own review when you hid it.",
+    ar: "تحت تقييم الطالب نفسه عندما تخفيه.",
+    tr: "Gizlediğinizde öğrencinin kendi değerlendirmesinin altında.",
+  },
   "When a membership ends.": {
     ar: "موعد انتهاء الاشتراك.",
     tr: "Üyeliğin bittiği zaman.",

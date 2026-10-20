@@ -529,6 +529,101 @@ class HttpOwnerApi implements OwnerApi {
     await _post('${_app(appId)}/inquiries/$inquiryId/replies', {'text': text}),
   );
 
+  // 63 Course questions and reviews
+
+  @override
+  Future<QuestionsPage> questions(
+    String appId, {
+    String? status,
+    int page = 1,
+  }) async => QuestionsPage.fromJson(
+    await _get(
+      '${_app(appId)}/questions',
+      query: {'status': status, 'page': page},
+    ),
+  );
+
+  @override
+  Future<QuestionDetail> question(String appId, int questionId) async =>
+      QuestionDetail.fromJson(
+        await _get('${_app(appId)}/questions/$questionId'),
+      );
+
+  @override
+  Future<QuestionDetail> answerQuestion(
+    String appId,
+    int questionId,
+    String text,
+  ) async => QuestionDetail.fromJson(
+    await _post('${_app(appId)}/questions/$questionId/answers', {'text': text}),
+  );
+
+  @override
+  Future<ReviewsPage> reviews(
+    String appId, {
+    String filter = 'all',
+    int page = 1,
+  }) async => ReviewsPage.fromJson(
+    await _get(
+      '${_app(appId)}/reviews',
+      query: {'filter': filter, 'page': page},
+    ),
+  );
+
+  @override
+  Future<Review> setReviewHidden(
+    String appId,
+    int reviewId,
+    bool hidden,
+  ) async => Review.fromJson(
+    await _patch('${_app(appId)}/reviews/$reviewId', {'hidden': hidden}),
+  );
+
+  @override
+  Future<Review> replyReview(String appId, int reviewId, String text) async =>
+      Review.fromJson(
+        await _put('${_app(appId)}/reviews/$reviewId/reply', {'text': text}),
+      );
+
+  @override
+  Future<Review> deleteReviewReply(String appId, int reviewId) async =>
+      Review.fromJson(await _delete('${_app(appId)}/reviews/$reviewId/reply'));
+
+  // 63 Members at the door
+
+  @override
+  Future<MembersPage> members(
+    String appId, {
+    String? query,
+    int page = 1,
+  }) async => MembersPage.fromJson(
+    await _get(
+      '${_app(appId)}/members',
+      query: {
+        'q': (query == null || query.trim().isEmpty) ? null : query.trim(),
+        'page': page,
+      },
+    ),
+  );
+
+  @override
+  Future<MemberCheckIn> checkInMember(
+    String appId, {
+    String? code,
+    int? membershipId,
+  }) async => MemberCheckIn.fromJson(
+    await _post('${_app(appId)}/members/check-in', {
+      'code': ?code?.trim(),
+      'membership_id': ?membershipId,
+    }),
+  );
+
+  @override
+  Future<MemberVisits> memberCheckIns(String appId, {String? date}) async =>
+      MemberVisits.fromJson(
+        await _get('${_app(appId)}/members/check-ins', query: {'date': date}),
+      );
+
   // App users
 
   @override

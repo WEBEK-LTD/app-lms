@@ -131,7 +131,7 @@ class _RescheduleScreenState extends ConsumerState<RescheduleScreen> {
                 children: [
                   Text(a.customerName, style: theme.textTheme.titleSmall),
                   Text(
-                    '${a.service} · ${a.staff}',
+                    '${isolate(a.service)} · ${isolate(a.staff)}',
                     style: theme.textTheme.bodySmall,
                   ),
                   const SizedBox(height: 6),

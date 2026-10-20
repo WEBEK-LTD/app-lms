@@ -139,14 +139,18 @@ class _EventCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   const SizedBox(height: 8),
+                  // 63 An event without a limit says so (not a dash).
                   Text(
-                    l10n.ticketCounts(
-                      context.number(event.used),
-                      context.number(event.valid),
-                      event.capacity == null
-                          ? '—'
-                          : context.number(event.capacity!),
-                    ),
+                    event.capacity == null
+                        ? l10n.ticketCountsNoLimit(
+                            context.number(event.used),
+                            context.number(event.valid),
+                          )
+                        : l10n.ticketCounts(
+                            context.number(event.used),
+                            context.number(event.valid),
+                            context.number(event.capacity!),
+                          ),
                     style: theme.textTheme.bodySmall,
                   ),
                 ],

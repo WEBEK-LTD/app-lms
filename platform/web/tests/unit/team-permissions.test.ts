@@ -109,6 +109,24 @@ describe("60 what each part needs", () => {
     expect(PUSH_PERMISSION.new_message).toBe("messages");
     expect(PUSH_PERMISSION.payment_received).toBe("billing");
     expect(PUSH_PERMISSION.yallapp_updates).toBe("dashboard");
+    // 63 A course question is a message; a review is the catalog's.
+    expect(PUSH_PERMISSION.new_review).toBe("catalog");
+  });
+
+  it("63 guards course questions as Messages, reviews as Catalog & content and the gym's door as Bookings", () => {
+    expect(pathPermission("/dashboard/courses/questions")).toBe("messages");
+    expect(pathPermission("/dashboard/courses/questions/12")).toBe("messages");
+    expect(pathPermission("/dashboard/courses/reviews")).toBe("catalog");
+    expect(pathPermission("/dashboard/courses/12")).toBe("catalog");
+    expect(pathPermission("/dashboard/members/check-in")).toBe("bookings");
+    expect(APP_AREA_PERMISSION).toMatchObject({ questions: "messages", reviews: "catalog", memberCheckIn: "bookings" });
+    const school = appAreas({ connector: { kind: "courses" }, backend: "hosted", vertical: null, catalogSettings: null } as unknown as App);
+    expect(school).toMatchObject({ questions: true, reviews: true, memberCheckIn: false });
+    const gym = appAreas({ connector: { kind: "bookings" }, backend: "hosted", vertical: "fitness", catalogSettings: null } as unknown as App);
+    expect(gym).toMatchObject({ memberCheckIn: true, questions: false });
+    const messagesOnly = { role: "staff" as const, areas: ["messages" as const], appIds: null };
+    expect(allowedAreas(school, messagesOnly, A)).toMatchObject({ questions: true, reviews: false, courses: false });
+    expect(allowedAreas(gym, ordersOnly, A).memberCheckIn).toBe(false);
   });
 });
 

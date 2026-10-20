@@ -7,6 +7,8 @@ import { errorBody, match, notAllowed, notFound, OwnerError, route, type OwnerDe
 import * as insights from "./insights";
 import { acceptedLang, ownerLang } from "./lang";
 import * as library from "./library";
+import * as community from "./community";
+import * as members from "./members";
 import * as sales from "./sales";
 import * as team from "./team";
 import { teamCan } from "../team/permissions";
@@ -68,6 +70,17 @@ const ROUTES: Route[] = [
   route("GET", "apps/:app_id/inquiries", library.listInquiries),
   route("GET", "apps/:app_id/inquiries/:inquiry_id", library.getInquiry),
   route("POST", "apps/:app_id/inquiries/:inquiry_id/replies", library.replyInquiry),
+  // 63 Course questions and reviews, and a gym's members at the door.
+  route("GET", "apps/:app_id/questions", community.listQuestions),
+  route("GET", "apps/:app_id/questions/:question_id", community.getQuestion),
+  route("POST", "apps/:app_id/questions/:question_id/answers", community.answerQuestion),
+  route("GET", "apps/:app_id/reviews", community.listReviews),
+  route("PATCH", "apps/:app_id/reviews/:review_id", community.updateReview),
+  route("PUT", "apps/:app_id/reviews/:review_id/reply", community.replyReview),
+  route("DELETE", "apps/:app_id/reviews/:review_id/reply", community.deleteReviewReply),
+  route("GET", "apps/:app_id/members", members.listMembers),
+  route("POST", "apps/:app_id/members/check-in", members.checkInMember),
+  route("GET", "apps/:app_id/members/check-ins", members.listCheckIns),
   route("GET", "apps/:app_id/users", library.listAppUsers),
   route("GET", "apps/:app_id/analytics", insights.analytics),
   route("GET", "apps/:app_id/notifications", insights.listNotifications),

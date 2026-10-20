@@ -375,8 +375,17 @@ export const PAGE_TEXTS_AR: Record<string, string> = {
 
 /** Messages the hosted API answers with (errors, refusals). */
 export const SERVER_MESSAGES_AR: Record<string, string> = {
+  "Choose a rating from 1 to 5.": "اختر تقييمًا من 1 إلى 5.",
+  "Enroll in the course to review it.": "سجّل في الدورة لتقييمها.",
+  "Enroll in the course to see and ask questions.": "سجّل في الدورة لرؤية الأسئلة وطرحها.",
   "Lessons can't be saved for offline viewing in this app.": "لا يمكن حفظ الدروس للمشاهدة دون اتصال في هذا التطبيق.",
+  "Question not found.": "السؤال غير موجود.",
+  "The review isn't valid.": "التقييم غير صالح.",
   "This lesson's video plays from a video site, so it needs the internet.": "فيديو هذا الدرس يُعرض من موقع فيديو، لذا يحتاج إلى الإنترنت.",
+  "Use at most 2000 characters.": "استخدم 2000 حرف على الأكثر.",
+  "Write your answer.": "اكتب إجابتك.",
+  "Write your question.": "اكتب سؤالك.",
+  "You've written a lot in a short time. Please try again later.": "كتبت كثيرًا في وقت قصير. يُرجى المحاولة لاحقًا.",
   "{0} isn't taking new members right now. Please contact {1}.": "{0} لا يستقبل أعضاء جددًا حاليًا. يُرجى التواصل مع {1}.",
   "{0} is paused right now. Please contact {1} to bring it back.": "{0} متوقف مؤقتًا الآن. يُرجى التواصل مع {1} لإعادة تشغيله.",
   "Appointment not found.": "الموعد غير موجود.",

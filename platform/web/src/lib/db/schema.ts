@@ -28,6 +28,7 @@ import type {
   PushProvider,
   OwnerPushPreferences,
   ScheduledNotificationStatus,
+  CourseQuestionStatus,
   MoreStoresRow,
   AuditChanges,
   OwnerNoticeKind,
@@ -722,8 +723,14 @@ export const memberships = mysqlTable(
     orderId: bigint("order_id", { mode: "number", unsigned: true }),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
+    // 63 A hash of the member code (lib/bookings/member-codes.ts), so a typed code is one indexed lookup; set when the code is first shown or used.
+    codeHash: varchar("code_hash", { length: 32 }),
   },
-  (t) => [index("memberships_user_idx").on(t.appId, t.userId), uniqueIndex("memberships_order_unique").on(t.orderId)],
+  (t) => [
+    index("memberships_user_idx").on(t.appId, t.userId),
+    uniqueIndex("memberships_order_unique").on(t.orderId),
+    index("memberships_code_idx").on(t.appId, t.codeHash),
+  ],
 );
 
 /** Students of courses managed in the dashboard. */
@@ -1685,4 +1692,90 @@ export const scheduledNotifications = mysqlTable(
     updatedAt: time("updated_at").notNull(),
   },
   (t) => [index("scheduled_notifications_due_idx").on(t.status, t.sendAt), index("scheduled_notifications_app_idx").on(t.appId, t.status, t.sendAt)],
+);
+
+/**
+ * 63 A gym's members checked in at the door: one row per app user and day in
+ * the gym's time zone (the unique key makes two scans at once count once).
+ */
+export const memberCheckIns = mysqlTable(
+  "member_check_ins",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    membershipId: bigint("membership_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => memberships.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    day: varchar("day", { length: 10 }).notNull(),
+    at: time("at").notNull(),
+    byName: varchar("by_name", { length: 120 }).notNull(),
+  },
+  // The day's list and count read (app, day); the same key makes a member count once a day.
+  (t) => [uniqueIndex("member_check_ins_day_unique").on(t.appId, t.day, t.userId)],
+);
+
+/** 63 Students' reviews of courses managed in the dashboard: one per student and course. */
+export const courseReviews = mysqlTable(
+  "course_reviews",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    courseId: int("course_id").notNull(),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    rating: int("rating").notNull(),
+    text: text("text").notNull(),
+    hidden: boolean("hidden").notNull().default(false),
+    replyText: text("reply_text"),
+    replyAt: time("reply_at"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("course_reviews_student_unique").on(t.appId, t.courseId, t.userId), index("course_reviews_app_idx").on(t.appId, t.createdAt)],
+);
+
+/** 63 Questions students ask in courses managed in the dashboard. */
+export const courseQuestions = mysqlTable(
+  "course_questions",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    courseId: int("course_id").notNull(),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    text: text("text").notNull(),
+    status: varchar("status", { length: 16 }).notNull().$type<CourseQuestionStatus>(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("course_questions_course_idx").on(t.appId, t.courseId, t.createdAt), index("course_questions_app_idx").on(t.appId, t.status, t.updatedAt)],
+);
+
+/** 63 Answers under a question: a student's, or the business's (`user_id` null). */
+export const courseAnswers = mysqlTable(
+  "course_answers",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    questionId: bigint("question_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => courseQuestions.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true }).references(() => hostedUsers.id, { onDelete: "cascade" }),
+    text: text("text").notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("course_answers_question_idx").on(t.questionId, t.createdAt)],
 );

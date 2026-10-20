@@ -3510,4 +3510,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get courseOpenOnWebsite => 'Open on the website';
+
+  @override
+  String get membershipShowAtDoor => 'Show this at the door';
+
+  @override
+  String membershipQrLabel(String plan) {
+    return 'QR code of your $plan membership';
+  }
+
+  @override
+  String get reviewReplyTitle => 'Reply from the academy';
+
+  @override
+  String get reviewHiddenNote => 'Hidden by the academy. Only you can see it.';
 }

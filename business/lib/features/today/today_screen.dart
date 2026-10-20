@@ -228,8 +228,12 @@ class _Kpis extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final c = today.counts;
-    String money(List<Money> list) =>
-        list.isEmpty ? '0' : list.map((m) => m.formatted).join(' · ');
+    String money(List<Money> list) => list.isEmpty
+        ? '0'
+        // 63 Several currencies: each amount kept whole in Arabic.
+        : list.length == 1
+        ? list.single.formatted
+        : list.map((m) => isolate(m.formatted)).join(' · ');
     String count(int? n) => n == null ? '—' : context.number(n);
     final tiles = [
       if (app.features.orders)
@@ -246,6 +250,13 @@ class _Kpis extends StatelessWidget {
         Kpi(AppIcons.events, l10n.ticketsToday, count(c.tickets)),
       if (c.checkIns != null)
         Kpi(AppIcons.checkIns, l10n.checkInsToday, count(c.checkIns)),
+      // 63 A gym's members at the door.
+      if (c.memberCheckIns != null)
+        Kpi(
+          AppIcons.checkIns,
+          l10n.memberCheckInsToday,
+          count(c.memberCheckIns),
+        ),
       if (app.features.donations)
         Kpi(AppIcons.donations, l10n.donationsToday, money(today.donations)),
       if (c.newUsers != null)
@@ -341,7 +352,8 @@ class _NeedsYou extends StatelessWidget {
                 onTap: () => context.go(switch (item.kind) {
                   'orders_in_progress' => '${Paths.orders}?status=processing',
                   'appointments_to_confirm' => Paths.appointments,
-                  'unanswered_messages' => Paths.inbox,
+                  'unanswered_messages' => Paths.inboxTab('messages'),
+                  'questions_to_answer' => Paths.inboxTab('questions'),
                   _ => Paths.updates,
                 }),
                 child: Row(
@@ -357,13 +369,14 @@ class _NeedsYou extends StatelessWidget {
                         'orders_in_progress' => AppIcons.orders,
                         'appointments_to_confirm' => AppIcons.appointments,
                         'unanswered_messages' => AppIcons.inbox,
+                        'questions_to_answer' => AppIcons.question,
                         _ => AppIcons.notice,
                       }),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        item.title,
+                        needsYouTitle(context, item),
                         style: Theme.of(context).textTheme.titleSmall,
                       ),
                     ),
@@ -394,6 +407,20 @@ class _NeedsYou extends StatelessWidget {
   }
 }
 
+/// 63 What needs the owner, in the app's language with its plural (the
+/// account's notices keep the API's own words, already in the person's
+/// language).
+String needsYouTitle(BuildContext context, NeedsYou item) {
+  final l10n = context.l10n;
+  return switch (item.kind) {
+    'orders_in_progress' => l10n.needsOrdersInProgress(item.count),
+    'appointments_to_confirm' => l10n.needsToConfirm(item.count),
+    'unanswered_messages' => l10n.needsUnanswered(item.count),
+    'questions_to_answer' => l10n.needsQuestions(item.count),
+    _ => item.title,
+  };
+}
+
 class _QuickActions extends StatelessWidget {
   const _QuickActions({required this.app});
 
@@ -407,6 +434,9 @@ class _QuickActions extends StatelessWidget {
       if (f.kitchen) (AppIcons.kitchen, l10n.kitchenMode, Paths.kitchen),
       if (f.notifications) (AppIcons.notify, l10n.actionNotify, Paths.notify),
       if (f.checkIn) (AppIcons.scan, l10n.actionScan, Paths.scan()),
+      // 63 A gym's door, and its members by name.
+      if (f.memberCheckIn) (AppIcons.scan, l10n.actionScan, Paths.memberScan),
+      if (f.memberCheckIn) (AppIcons.members, l10n.members, Paths.members),
       if (f.media) (AppIcons.upload, l10n.actionUpload, Paths.media),
       if (f.preview) (AppIcons.preview, l10n.actionPreview, Paths.preview),
     ];

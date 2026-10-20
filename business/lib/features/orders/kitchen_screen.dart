@@ -210,12 +210,9 @@ class _KitchenCard extends StatelessWidget {
               child: Text.rich(
                 TextSpan(
                   children: [
+                    // 63 Quantity and name stay together in Arabic too.
                     TextSpan(
-                      text: '${line.quantity} × ',
-                      style: theme.textTheme.titleLarge,
-                    ),
-                    TextSpan(
-                      text: line.name,
+                      text: isolate('${line.quantity} × ${line.name}'),
                       style: theme.textTheme.titleLarge,
                     ),
                     if (line.options.isNotEmpty)

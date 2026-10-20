@@ -16,6 +16,10 @@ export const TEAM_ACTIONS = [
   "donation.refund",
   "appointment.status",
   "notification.sent",
+  "question.answer",
+  "review.reply",
+  "review.hide",
+  "review.show",
   "team.invite",
   "team.resend",
   "team.cancel",
@@ -99,4 +103,20 @@ export function recordAppointmentStatus(store: DataStore, input: { clientId: str
 
 export function recordNotificationSent(store: DataStore, input: { clientId: string; appId: string; actor: TeamActor; title: string }, now: Date): Promise<void> {
   return recordTeamActivity(store, { clientId: input.clientId, appId: input.appId, actor: input.actor, action: "notification.sent", target: { type: "notification" }, summary: `Sent "${input.title}" to the app's users` }, now);
+}
+
+/** 63 A course question answered, or a review replied to, hidden or shown again. */
+export function recordCommunity(
+  store: DataStore,
+  input: { clientId: string; appId: string; actor: TeamActor; what: "answer" | "reply" | "hide" | "show"; id: number; course: string },
+  now: Date,
+): Promise<void> {
+  const course = input.course.slice(0, 200);
+  const line = {
+    answer: { action: "question.answer", type: "question", summary: `Answered a question in "${course}"` },
+    reply: { action: "review.reply", type: "review", summary: `Replied to a review of "${course}"` },
+    hide: { action: "review.hide", type: "review", summary: `Hid a review of "${course}"` },
+    show: { action: "review.show", type: "review", summary: `Showed a review of "${course}" again` },
+  }[input.what] as { action: TeamAction; type: string; summary: string };
+  return recordTeamActivity(store, { clientId: input.clientId, appId: input.appId, actor: input.actor, action: line.action, target: { type: line.type, id: input.id }, summary: line.summary }, now);
 }

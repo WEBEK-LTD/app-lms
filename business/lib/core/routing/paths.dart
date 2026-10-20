@@ -28,6 +28,11 @@ abstract final class Paths {
       '/lesson?course=$courseId&topic=$topicId';
   static const media = '/media';
   static String inquiry(int id) => '/inbox/$id';
+  // 63 Course questions and reviews in the Inbox, a gym's door.
+  static String inboxTab(String tab) => '/inbox?tab=$tab';
+  static String question(int id) => '/inbox/questions/$id';
+  static const memberScan = '/scan/members';
+  static const members = '/members';
   static const users = '/users';
   static const notify = '/notify';
   static const preview = '/preview';

@@ -1219,7 +1219,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pushNewMessage => 'New messages';
 
   @override
-  String get pushNewMessageHelp => 'When someone writes about a listing.';
+  String get pushNewMessageHelp =>
+      'When someone writes about a listing, or a student asks in a course.';
 
   @override
   String get pushPayment => 'Payments';
@@ -1620,6 +1621,207 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterEmail => 'Enter their email.';
 
   @override
+  String get inboxMessages => 'Messages';
+
+  @override
+  String get inboxQuestions => 'Questions';
+
+  @override
+  String get inboxReviews => 'Reviews';
+
+  @override
+  String get questionsWaiting => 'Waiting for you';
+
+  @override
+  String get questionsAnswered => 'Answered';
+
+  @override
+  String get noQuestions => 'No questions here';
+
+  @override
+  String get noQuestionsText =>
+      'Questions students ask in your courses arrive here.';
+
+  @override
+  String inCourse(String course) {
+    return 'in $course';
+  }
+
+  @override
+  String get questionTitle => 'Question';
+
+  @override
+  String get writeAnswer => 'Write your answer';
+
+  @override
+  String get answerSent => 'Answer sent. The student is told.';
+
+  @override
+  String get reviewsAll => 'All';
+
+  @override
+  String get reviewsUnreplied => 'No reply';
+
+  @override
+  String get noReviews => 'No reviews here';
+
+  @override
+  String get noReviewsText =>
+      'Reviews students write about your courses arrive here.';
+
+  @override
+  String ratingOutOf(String rating) {
+    return '$rating out of 5';
+  }
+
+  @override
+  String get noRatingYet => 'No reviews shown in the app yet.';
+
+  @override
+  String get hiddenFromOthers => 'Hidden from others';
+
+  @override
+  String get hideReview => 'Hide';
+
+  @override
+  String get showReview => 'Show again';
+
+  @override
+  String get reviewHiddenDone => 'Hidden. Only its author sees it.';
+
+  @override
+  String get reviewShownDone => 'It shows in the app again.';
+
+  @override
+  String get replyToReview => 'Reply';
+
+  @override
+  String get changeReply => 'Change the reply';
+
+  @override
+  String get removeReply => 'Remove the reply';
+
+  @override
+  String get yourReply => 'Your reply';
+
+  @override
+  String get replyPublicHelp =>
+      'Everyone sees it under the review in your app.';
+
+  @override
+  String get replySaved => 'Reply saved';
+
+  @override
+  String get replyRemoved => 'Reply removed';
+
+  @override
+  String get pushNewReview => 'New reviews';
+
+  @override
+  String get pushNewReviewHelp => 'When a student reviews a course.';
+
+  @override
+  String get members => 'Members';
+
+  @override
+  String get scanMembers => 'Scan members';
+
+  @override
+  String get memberScanHint => 'Hold the member\'s QR code inside the frame.';
+
+  @override
+  String get memberCameraLabel => 'Camera, point it at the member\'s QR code';
+
+  @override
+  String get typeMemberCodeTitle => 'Check a member by their code';
+
+  @override
+  String get memberCodeLabel => 'Member code';
+
+  @override
+  String get findByName => 'Find by name';
+
+  @override
+  String get welcomeIn => 'Welcome in';
+
+  @override
+  String get alreadyInToday => 'Already in today';
+
+  @override
+  String alreadyInAt(String time) {
+    return 'Checked in today at $time';
+  }
+
+  @override
+  String get membershipEnded => 'Membership ended';
+
+  @override
+  String endedOn(String date) {
+    return 'Ended on $date';
+  }
+
+  @override
+  String get membershipCancelled => 'Membership cancelled';
+
+  @override
+  String get membershipNotStarted => 'Membership not started yet';
+
+  @override
+  String get noClassesLeft => 'No classes left';
+
+  @override
+  String get notAMemberCode => 'Not a member code of this app';
+
+  @override
+  String get memberNotFound => 'No membership has this code';
+
+  @override
+  String checkInNamed(String name) {
+    return 'Check in $name';
+  }
+
+  @override
+  String get searchMembers => 'Name or mobile number';
+
+  @override
+  String get noMembersFound => 'No members match this search';
+
+  @override
+  String get noMembers => 'No members yet';
+
+  @override
+  String get cameInToday => 'Came in today';
+
+  @override
+  String get nobodyInYet => 'Nobody has checked in today yet.';
+
+  @override
+  String checkedInBy(String time, String name) {
+    return '$time · by $name';
+  }
+
+  @override
+  String inAt(String time) {
+    return 'In at $time';
+  }
+
+  @override
+  String memberUntil(String date) {
+    return 'until $date';
+  }
+
+  @override
+  String get unlimitedClasses => 'Unlimited classes';
+
+  @override
+  String get memberCheckInsToday => 'Members in today';
+
+  @override
+  String ticketCountsNoLimit(String used, String left) {
+    return '$used in · $left to come · no capacity limit';
+  }
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }
@@ -1715,5 +1917,94 @@ class AppLocalizationsEn extends AppLocalizations {
       zero: 'Ends today',
     );
     return '$_temp0 ($date)';
+  }
+
+  @override
+  String classesLeftCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count classes left',
+      one: '1 class left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String answersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count answers',
+      one: '1 answer',
+      zero: 'No answers yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String membersInCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count members came in today',
+      one: '1 member came in today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewsAverage(String rating, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count reviews',
+      one: '1 review',
+    );
+    return '$rating out of 5 from $_temp0';
+  }
+
+  @override
+  String needsOrdersInProgress(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count orders in progress',
+      one: '1 order in progress',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsToConfirm(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count appointments to confirm',
+      one: '1 appointment to confirm',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsUnanswered(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count conversations waiting for your reply',
+      one: '1 conversation waiting for your reply',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsQuestions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count course questions to answer',
+      one: '1 course question to answer',
+    );
+    return '$_temp0';
   }
 }

@@ -629,7 +629,7 @@
   "pushNewBooking": "New bookings",
   "pushNewBookingHelp": "When an appointment is booked.",
   "pushNewMessage": "New messages",
-  "pushNewMessageHelp": "When someone writes about a listing.",
+  "pushNewMessageHelp": "When someone writes about a listing, or a student asks in a course.",
   "pushPayment": "Payments",
   "pushPaymentHelp": "Donations, and your payments to Yallapp.",
   "pushBuild": "Builds",
@@ -948,6 +948,135 @@
   "oneAreaAtLeast": "Choose at least one thing Staff can work on.",
   "enterName": "Enter their name.",
   "enterEmail": "Enter their email.",
+  "inboxMessages": "Messages",
+  "inboxQuestions": "Questions",
+  "inboxReviews": "Reviews",
+  "questionsWaiting": "Waiting for you",
+  "questionsAnswered": "Answered",
+  "noQuestions": "No questions here",
+  "noQuestionsText": "Questions students ask in your courses arrive here.",
+  "inCourse": "in {course}",
+  "@inCourse": {
+    "placeholders": {
+      "course": {
+        "type": "String"
+      }
+    }
+  },
+  "questionTitle": "Question",
+  "writeAnswer": "Write your answer",
+  "answerSent": "Answer sent. The student is told.",
+  "reviewsAll": "All",
+  "reviewsUnreplied": "No reply",
+  "noReviews": "No reviews here",
+  "noReviewsText": "Reviews students write about your courses arrive here.",
+  "ratingOutOf": "{rating} out of 5",
+  "@ratingOutOf": {
+    "placeholders": {
+      "rating": {
+        "type": "String"
+      }
+    }
+  },
+  "noRatingYet": "No reviews shown in the app yet.",
+  "hiddenFromOthers": "Hidden from others",
+  "hideReview": "Hide",
+  "showReview": "Show again",
+  "reviewHiddenDone": "Hidden. Only its author sees it.",
+  "reviewShownDone": "It shows in the app again.",
+  "replyToReview": "Reply",
+  "changeReply": "Change the reply",
+  "removeReply": "Remove the reply",
+  "yourReply": "Your reply",
+  "replyPublicHelp": "Everyone sees it under the review in your app.",
+  "replySaved": "Reply saved",
+  "replyRemoved": "Reply removed",
+  "pushNewReview": "New reviews",
+  "pushNewReviewHelp": "When a student reviews a course.",
+  "members": "Members",
+  "scanMembers": "Scan members",
+  "memberScanHint": "Hold the member's QR code inside the frame.",
+  "memberCameraLabel": "Camera, point it at the member's QR code",
+  "typeMemberCodeTitle": "Check a member by their code",
+  "memberCodeLabel": "Member code",
+  "findByName": "Find by name",
+  "welcomeIn": "Welcome in",
+  "alreadyInToday": "Already in today",
+  "alreadyInAt": "Checked in today at {time}",
+  "@alreadyInAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "membershipEnded": "Membership ended",
+  "endedOn": "Ended on {date}",
+  "@endedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "membershipCancelled": "Membership cancelled",
+  "membershipNotStarted": "Membership not started yet",
+  "noClassesLeft": "No classes left",
+  "notAMemberCode": "Not a member code of this app",
+  "memberNotFound": "No membership has this code",
+  "checkInNamed": "Check in {name}",
+  "@checkInNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "searchMembers": "Name or mobile number",
+  "noMembersFound": "No members match this search",
+  "noMembers": "No members yet",
+  "cameInToday": "Came in today",
+  "nobodyInYet": "Nobody has checked in today yet.",
+  "checkedInBy": "{time} · by {name}",
+  "@checkedInBy": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "inAt": "In at {time}",
+  "@inAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "memberUntil": "until {date}",
+  "@memberUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "unlimitedClasses": "Unlimited classes",
+  "memberCheckInsToday": "Members in today",
+  "ticketCountsNoLimit": "{used} in · {left} to come · no capacity limit",
+  "@ticketCountsNoLimit": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "left": {
+        "type": "String"
+      }
+    }
+  },
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {
@@ -1035,6 +1164,73 @@
         "type": "String"
       },
       "days": {
+        "type": "int"
+      }
+    }
+  },
+  "classesLeftCount": "{count, plural, =1{1 class left} other{{count} classes left}}",
+  "@classesLeftCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "answersCount": "{count, plural, =0{No answers yet} =1{1 answer} other{{count} answers}}",
+  "@answersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "membersInCount": "{count, plural, =1{1 member came in today} other{{count} members came in today}}",
+  "@membersInCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewsAverage": "{rating} out of 5 from {count, plural, =1{1 review} other{{count} reviews}}",
+  "@reviewsAverage": {
+    "placeholders": {
+      "rating": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "needsOrdersInProgress": "{count, plural, =1{1 order in progress} other{{count} orders in progress}}",
+  "@needsOrdersInProgress": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "needsToConfirm": "{count, plural, =1{1 appointment to confirm} other{{count} appointments to confirm}}",
+  "@needsToConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "needsUnanswered": "{count, plural, =1{1 conversation waiting for your reply} other{{count} conversations waiting for your reply}}",
+  "@needsUnanswered": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "needsQuestions": "{count, plural, =1{1 course question to answer} other{{count} course questions to answer}}",
+  "@needsQuestions": {
+    "placeholders": {
+      "count": {
         "type": "int"
       }
     }

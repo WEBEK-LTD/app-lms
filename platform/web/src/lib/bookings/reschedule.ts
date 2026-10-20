@@ -121,7 +121,7 @@ export function movedMessage(lang: Lang, appointment: Pick<BookingAppointment, "
 }
 
 /** The app's main language (its published pages', else the draft's), when it is one we write. */
-async function appLang(store: Pick<DataStore, "getAppLayout">, appId: string): Promise<Lang> {
+export async function appLang(store: Pick<DataStore, "getAppLayout">, appId: string): Promise<Lang> {
   const layout = await store.getAppLayout(appId);
   const lang = (layout?.published ?? layout?.draft)?.languages.default;
   return lang === "ar" || lang === "tr" ? lang : "en";

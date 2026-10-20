@@ -1516,6 +1516,66 @@ API and in Yallapp Business. The admin stays as it was (Yallapp's team).
   Yallapp Business's `tool/strings_e.py`. The admin's client page lists the
   team read-only, in English.
 
+## Course questions and reviews, and a gym's door (Phase 63)
+
+What the dashboard, the Owner API (Yallapp Business) and the customer's app
+do for the questions and reviews of courses managed in Yallapp and for a
+gym's members at the door, with one set of rules in `lib`.
+
+- **Questions and reviews** (`lib/courses/community.ts`, migration
+  `0046_members_and_course_community`: `course_questions`, `course_answers`,
+  `course_reviews`). The hosted courses connector serves the contract's
+  Community endpoints (`features.reviews` and `qna` are on): enrolled
+  students ask (20 questions and answers an hour per student), write again
+  under a question, and write or edit one review per course; the course
+  lists show the rating of the reviews shown. A question is `open` until the
+  business answers and again when a student writes under it; adding an
+  answer updates the question's status in one transaction (the question's
+  row first, so two answers at once can't deadlock); its answers are counted
+  when read, so a deleted student's answers (they go with the account) leave
+  the count. Students write or edit at most 20 reviews an hour. The
+  business answers in its name (the course's instructor, else the app's
+  name), and the student is told in the app's inbox and by push in the
+  app's language; it replies under a review (`Review.reply`, for everyone)
+  or hides one (`status: hidden`, only its author gets it). New questions
+  and follow-ups push `new_message` to people with Messages, a new review
+  `new_review` to people with Catalog & content (`pushNewQuestion`,
+  `pushNewReview`). Dashboard › Courses › Questions (Messages) and Reviews
+  (Catalog & content); the Owner API's `questions` and `reviews` paths
+  (features `questions`, `reviews`); Today's `questions_to_answer`; the
+  Team page's activity lines (`recordCommunity`). Visitors' questions and
+  reviews of demo academies are purged with their other activity.
+- **Member codes** (`lib/bookings/member-codes.ts`). The design of the
+  ticket codes (lib/events/codes.ts: the same 32 characters, 12 of them,
+  typed in groups of four, a key per app from the signing secret), but not
+  stored: a code is the first 60 bits of an HMAC of the app and the
+  membership with the app's key, so it can't be guessed, works only at its
+  own gym and needs no migration of existing memberships. The QR code holds
+  `YM1.<membership>.<code>`; a typed code is found among the gym's
+  memberships. `GET /me/memberships` gives `member_code` for an active
+  membership of a gym (vertical fitness); the customer's app keeps the list
+  on the phone (forgotten on sign-out), so the code shows offline. So a
+  typed code is one indexed lookup, `memberships.code_hash` keeps an HMAC of
+  the code (not the code) once it has been shown in the app or used at the
+  door; one with no hash yet is looked for once among the memberships that
+  can get in, then kept. The match is checked in constant time.
+- **The door** (`lib/bookings/door.ts`, `member_check_ins`). A code, a QR
+  code or a membership chosen by name: cancelled, ended, not started and
+  used-up class packs are refused with the reason; otherwise the store adds
+  a row keyed by (app, app user, the gym's day in its time zone), so a
+  member counts once a day whichever membership or phone did it, and of two
+  scans at once one wins and the other answers `already_in` with the time.
+  Dashboard › Members › Member check-in (camera where the browser reads QR
+  codes, typing, search by name, today's list; the camera scanner shared
+  with the events' Check-in), the Owner API's `members`, `members/check-in`
+  and `members/check-ins` (feature `member_check_in`, the Bookings area),
+  Today's `member_check_ins`, and Yallapp Business's Scan members and
+  Members. The day's list and Today's count read the gym's own day by the
+  same key; the members list is filtered, ordered (those who can get in
+  first) and paged by the database. Checking in never uses a class credit
+  (credits are for booking classes); a membership with credits and none left
+  is refused at the door.
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:

@@ -77,7 +77,7 @@ project.
 | `lib/core/session.dart` | Sign in, the biometric lock, pending/suspended states, the app switcher's choice, the language |
 | `lib/core/routing/` | Routes for every screen; the redirect from the session; pushes' deep links |
 | `lib/features/` | One folder per screen group: auth, account, today, orders (and Kitchen mode), appointments, events (and the scanner), donations, catalog, media, inbox, users, stats, notify, preview, builds, more |
-| `lib/l10n/` | `app_{en,ar,tr}.arb`, written by `tool/build_arb.py` from `tool/strings_*.py` (one row per string in the three languages; Phase 61's in `strings_d.py`, Phase 60's in `strings_e.py`), then `flutter gen-l10n` |
+| `lib/l10n/` | `app_{en,ar,tr}.arb`, written by `tool/build_arb.py` from `tool/strings_*.py` (one row per string in the three languages; Phase 61's in `strings_d.py`, Phase 60's in `strings_e.py`, Phase 63's in `strings_f.py`), then `flutter gen-l10n` |
 
 Roadmap 61 added the dark theme (Settings › Appearance: the phone's setting,
 light or dark, kept on the phone; colors from `YbColors` in
@@ -86,6 +86,17 @@ screen on while it is open (`wakelock_plus`, `KitchenWake`), moving an
 appointment to another free time (Appointments › Change time) and
 notifications sent later (Send notification › Later, with the scheduled ones
 to change or cancel).
+
+Roadmap 63 added course questions and reviews to the Inbox (tabs
+Messages, Questions, Reviews as the app and the person's role have them:
+answer a question, reply under a review, hide it or show it again), and a
+gym's door: Scan members (the member code in the customer's app, typed or
+as a QR code; once a member a day), Members (find by name and check in,
+today's check-ins) and Today's "Members in today". Statuses and "Needs you
+now" come from the app's own strings with their plurals; mixed-script lines
+keep each item whole in Arabic (`isolate`); the updates' Markdown shows
+bold, italic and links (`MarkdownText`). The demo has a gym (Pulse Gym)
+and the academy's questions and reviews.
 
 Each screen and quick action is shown only when the app has it
 (`AppSummary.features`): the second tab is the app's main tool (Events,

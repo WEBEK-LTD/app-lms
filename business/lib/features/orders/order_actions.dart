@@ -26,28 +26,28 @@ String orderActionLabel(BuildContext context, Order order, String status) {
   };
 }
 
-/// The order's status, or its kitchen step for a restaurant.
+/// The order's status, or its kitchen step for a restaurant. 63 Always in
+/// the app's language for the steps it knows; the API's label (already in
+/// the person's language) only for one it doesn't.
 String orderStatusLabel(BuildContext context, Order order) {
   final l10n = context.l10n;
   final kitchen = order.kitchen;
   if (kitchen != null && order.status == 'processing') {
-    return kitchen.stepLabel ??
-        switch (kitchen.step) {
-          'received' => l10n.stepNew,
-          'preparing' => l10n.stepPreparing,
-          'ready' => l10n.stepReady,
-          'out_for_delivery' => l10n.outForDelivery,
-          _ => kitchen.step,
-        };
+    return switch (kitchen.step) {
+      'received' => l10n.stepNew,
+      'preparing' => l10n.stepPreparing,
+      'ready' => l10n.stepReady,
+      'out_for_delivery' => l10n.outForDelivery,
+      _ => kitchen.stepLabel ?? kitchen.step,
+    };
   }
-  return order.statusLabel ??
-      switch (order.status) {
-        'processing' => l10n.statusProcessing,
-        'completed' => l10n.statusCompleted,
-        'cancelled' => l10n.statusCancelled,
-        'refunded' => l10n.statusRefunded,
-        _ => order.status,
-      };
+  return switch (order.status) {
+    'processing' => l10n.statusProcessing,
+    'completed' => l10n.statusCompleted,
+    'cancelled' => l10n.statusCancelled,
+    'refunded' => l10n.statusRefunded,
+    _ => order.statusLabel ?? order.status,
+  };
 }
 
 String orderTone(Order order) =>
@@ -138,6 +138,6 @@ class OrderActions extends ConsumerWidget {
   }
 }
 
-/// "2 × Shawarma, 1 × Lemonade".
+/// "2 × Shawarma, 1 × Lemonade", each item kept whole in either direction.
 String orderSummary(Order order) =>
-    order.lines.map((l) => '${l.quantity} × ${l.name}').join(', ');
+    order.lines.map((l) => isolate('${l.quantity} × ${l.name}')).join(', ');

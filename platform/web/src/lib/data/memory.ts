@@ -85,6 +85,7 @@ import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
 import type { DemoPurgeCounts } from "./types";
+import type { CourseAnswer, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 // 46 Links and crash reports
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
 import type { ApiWebhook, ApiWebhookPatch } from "./types";
@@ -568,6 +569,11 @@ export class MemoryStore implements DataStore {
       if (booking.appId === appId && booking.userId === id) booking.userId = null;
     }
     for (const [key, m] of this.memberships) if (m.appId === appId && m.userId === id) this.memberships.delete(key);
+    // 63 Their check-ins, reviews, questions and answers go with the account, as in the database.
+    for (const [key, c] of this.memberCheckIns) if (c.appId === appId && c.userId === id) this.memberCheckIns.delete(key);
+    for (const [key, r] of this.courseReviews) if (r.appId === appId && r.userId === id) this.courseReviews.delete(key);
+    for (const [key, q] of this.courseQuestions) if (q.appId === appId && q.userId === id) this.deleteQuestion(key);
+    for (const [key, a] of this.courseAnswers) if (a.appId === appId && a.userId === id) this.courseAnswers.delete(key);
     // 28 Tickets stay with the organiser, with their holder's name.
     for (const ticket of this.tickets.values()) {
       if (ticket.appId === appId && ticket.userId === id) ticket.userId = null;
@@ -1127,6 +1133,186 @@ export class MemoryStore implements DataStore {
     if (!membership || membership.appId !== appId || membership.creditsLeft === null) return;
     membership.creditsLeft = Math.max(0, membership.creditsLeft + credits);
     membership.updatedAt = now;
+  }
+
+  // 63 Members at the door
+
+  private memberCheckIns = new Map<number, MemberCheckIn>();
+  private nextMemberCheckInId = 1;
+
+  async checkInMember(input: Omit<MemberCheckIn, "id">): Promise<{ ok: true; checkIn: MemberCheckIn } | { ok: false; checkIn: MemberCheckIn }> {
+    const there = [...this.memberCheckIns.values()].find((c) => c.appId === input.appId && c.userId === input.userId && c.day === input.day);
+    if (there) return { ok: false, checkIn: clone(there) };
+    const row: MemberCheckIn = { ...clone(input), id: this.nextMemberCheckInId++ };
+    this.memberCheckIns.set(row.id, row);
+    return { ok: true, checkIn: clone(row) };
+  }
+
+  async listMemberCheckIns(appId: string, day: string): Promise<MemberCheckIn[]> {
+    return [...this.memberCheckIns.values()]
+      .filter((c) => c.appId === appId && c.day === day)
+      .sort((a, b) => b.at.getTime() - a.at.getTime() || b.id - a.id)
+      .map(clone);
+  }
+
+  async countMemberCheckInsOnDay(appId: string, day: string): Promise<number> {
+    return [...this.memberCheckIns.values()].filter((c) => c.appId === appId && c.day === day).length;
+  }
+
+  /** 63 Whether a membership can get in now (as the database orders them). */
+  private usable(m: Membership, now: Date): boolean {
+    return m.status === "active" && m.startsAt.getTime() <= now.getTime() && (m.endsAt === null || m.endsAt.getTime() > now.getTime());
+  }
+
+  async listMembershipsPage(input: { appId: string; userIds?: number[]; now: Date; offset: number; limit: number }): Promise<{ items: Membership[]; total: number }> {
+    const all = [...this.memberships.values()]
+      .filter((m) => m.appId === input.appId && (!input.userIds || input.userIds.includes(m.userId)))
+      .sort(
+        (a, b) =>
+          Number(!this.usable(a, input.now)) - Number(!this.usable(b, input.now)) || b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id,
+      );
+    return { items: all.slice(input.offset, input.offset + input.limit).map(clone), total: all.length };
+  }
+
+  async findMembershipByCodeHash(appId: string, codeHash: string): Promise<Membership | null> {
+    const found = [...this.memberships.values()].find((m) => m.appId === appId && m.codeHash === codeHash);
+    return found ? clone(found) : null;
+  }
+
+  async listMembershipsWithoutCodeHash(appId: string, now: Date, limit: number): Promise<Membership[]> {
+    return [...this.memberships.values()]
+      .filter((m) => m.appId === appId && !m.codeHash && this.usable(m, now))
+      .sort((a, b) => b.id - a.id)
+      .slice(0, limit)
+      .map(clone);
+  }
+
+  async setMembershipCodeHash(appId: string, id: number, codeHash: string): Promise<void> {
+    const m = this.memberships.get(id);
+    if (m && m.appId === appId) m.codeHash = codeHash;
+  }
+
+  // 63 Course questions and reviews
+
+  private courseReviews = new Map<number, CourseReview>();
+  private nextCourseReviewId = 1;
+  private courseQuestions = new Map<number, CourseQuestion>();
+  private nextCourseQuestionId = 1;
+  private courseAnswers = new Map<number, CourseAnswer>();
+  private nextCourseAnswerId = 1;
+
+  private deleteQuestion(id: number) {
+    this.courseQuestions.delete(id);
+    for (const [key, a] of this.courseAnswers) if (a.questionId === id) this.courseAnswers.delete(key);
+  }
+
+  async saveCourseReview(input: { appId: string; courseId: number; userId: number; rating: number; text: string; now: Date }): Promise<CourseReview> {
+    const there = [...this.courseReviews.values()].find((r) => r.appId === input.appId && r.courseId === input.courseId && r.userId === input.userId);
+    const row: CourseReview = there
+      ? { ...there, rating: input.rating, text: input.text, updatedAt: input.now }
+      : {
+          id: this.nextCourseReviewId++,
+          appId: input.appId,
+          courseId: input.courseId,
+          userId: input.userId,
+          rating: input.rating,
+          text: input.text,
+          hidden: false,
+          replyText: null,
+          replyAt: null,
+          createdAt: input.now,
+          updatedAt: input.now,
+        };
+    this.courseReviews.set(row.id, clone(row));
+    return clone(row);
+  }
+
+  async getCourseReview(appId: string, id: number): Promise<CourseReview | null> {
+    const row = this.courseReviews.get(id);
+    return row && row.appId === appId ? clone(row) : null;
+  }
+
+  async getCourseReviewOf(appId: string, courseId: number, userId: number): Promise<CourseReview | null> {
+    const row = [...this.courseReviews.values()].find((r) => r.appId === appId && r.courseId === courseId && r.userId === userId);
+    return row ? clone(row) : null;
+  }
+
+  async listCourseReviews(input: { appId: string; courseIds?: number[]; hidden?: boolean; unreplied?: boolean; offset: number; limit: number }): Promise<{ items: CourseReview[]; total: number }> {
+    const all = [...this.courseReviews.values()]
+      .filter(
+        (r) =>
+          r.appId === input.appId &&
+          (!input.courseIds || input.courseIds.includes(r.courseId)) &&
+          (input.hidden === undefined || r.hidden === input.hidden) &&
+          (!input.unreplied || r.replyText === null),
+      )
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
+    return { items: all.slice(input.offset, input.offset + input.limit).map(clone), total: all.length };
+  }
+
+  async countCourseRatings(appId: string): Promise<{ courseId: number; rating: number; count: number }[]> {
+    const counts = new Map<string, { courseId: number; rating: number; count: number }>();
+    for (const r of this.courseReviews.values()) {
+      if (r.appId !== appId || r.hidden) continue;
+      const key = `${r.courseId}:${r.rating}`;
+      const row = counts.get(key) ?? { courseId: r.courseId, rating: r.rating, count: 0 };
+      row.count++;
+      counts.set(key, row);
+    }
+    return [...counts.values()];
+  }
+
+  async updateCourseReview(appId: string, id: number, patch: CourseReviewPatch): Promise<void> {
+    const row = this.courseReviews.get(id);
+    if (row && row.appId === appId) this.courseReviews.set(id, clone({ ...row, ...patch }));
+  }
+
+  async createCourseQuestion(input: CourseQuestionInput): Promise<CourseQuestion> {
+    const row: CourseQuestion = { ...clone(input), id: this.nextCourseQuestionId++, answerCount: 0 };
+    this.courseQuestions.set(row.id, clone(row));
+    return row;
+  }
+
+  /** 63 The question with its answers counted now (a deleted student's answers go with their account). */
+  private counted(q: CourseQuestion): CourseQuestion {
+    let n = 0;
+    for (const a of this.courseAnswers.values()) if (a.questionId === q.id) n++;
+    return { ...clone(q), answerCount: n };
+  }
+
+  async getCourseQuestion(appId: string, id: number): Promise<CourseQuestion | null> {
+    const row = this.courseQuestions.get(id);
+    return row && row.appId === appId ? this.counted(row) : null;
+  }
+
+  async listCourseQuestions(input: {
+    appId: string;
+    courseIds?: number[];
+    status?: CourseQuestionStatus;
+    order: "created" | "updated";
+    offset: number;
+    limit: number;
+  }): Promise<{ items: CourseQuestion[]; total: number }> {
+    const at = (q: CourseQuestion) => (input.order === "created" ? q.createdAt : q.updatedAt).getTime();
+    const all = [...this.courseQuestions.values()]
+      .filter((q) => q.appId === input.appId && (!input.courseIds || input.courseIds.includes(q.courseId)) && (!input.status || q.status === input.status))
+      .sort((a, b) => at(b) - at(a) || b.id - a.id);
+    return { items: all.slice(input.offset, input.offset + input.limit).map((q) => this.counted(q)), total: all.length };
+  }
+
+  async addCourseAnswer(input: Omit<CourseAnswer, "id">, status: CourseQuestionStatus): Promise<CourseAnswer> {
+    const row: CourseAnswer = { ...clone(input), id: this.nextCourseAnswerId++ };
+    this.courseAnswers.set(row.id, clone(row));
+    const question = this.courseQuestions.get(input.questionId);
+    if (question && question.appId === input.appId) this.courseQuestions.set(question.id, { ...question, status, updatedAt: input.createdAt });
+    return row;
+  }
+
+  async listCourseAnswers(appId: string, questionId: number): Promise<CourseAnswer[]> {
+    return [...this.courseAnswers.values()]
+      .filter((a) => a.appId === appId && a.questionId === questionId)
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || a.id - b.id)
+      .map(clone);
   }
 
   async enrollInCourse(input: CourseEnrollment): Promise<boolean> {
@@ -2160,6 +2346,8 @@ export class MemoryStore implements DataStore {
       memberships: 0,
       tickets: 0,
       donations: 0,
+      questions: 0,
+      reviews: 0,
     };
     // 28 Tickets first: a ticket of a deleted order goes with it.
     for (const [id, ticket] of this.tickets) {
@@ -2179,7 +2367,21 @@ export class MemoryStore implements DataStore {
     for (const [id, membership] of this.memberships) {
       if (membership.appId === appId && old(membership.createdAt)) {
         this.memberships.delete(id);
+        for (const [key, c] of this.memberCheckIns) if (c.membershipId === id) this.memberCheckIns.delete(key);
         counts.memberships++;
+      }
+    }
+    // 63 Visitors' questions and reviews of demo academies.
+    for (const [id, question] of this.courseQuestions) {
+      if (question.appId === appId && old(question.createdAt)) {
+        this.deleteQuestion(id);
+        counts.questions++;
+      }
+    }
+    for (const [id, review] of this.courseReviews) {
+      if (review.appId === appId && old(review.createdAt)) {
+        this.courseReviews.delete(id);
+        counts.reviews++;
       }
     }
     for (const [id, donation] of this.donations) {

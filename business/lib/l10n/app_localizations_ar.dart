@@ -1216,7 +1216,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pushNewMessage => 'الرسائل الجديدة';
 
   @override
-  String get pushNewMessageHelp => 'عندما يكتب أحدهم بخصوص عقار.';
+  String get pushNewMessageHelp =>
+      'عندما يكتب أحدهم بخصوص عقار، أو يسأل طالب في دورة.';
 
   @override
   String get pushPayment => 'المدفوعات';
@@ -1616,6 +1617,204 @@ class AppLocalizationsAr extends AppLocalizations {
   String get enterEmail => 'أدخل بريده الإلكتروني.';
 
   @override
+  String get inboxMessages => 'الرسائل';
+
+  @override
+  String get inboxQuestions => 'الأسئلة';
+
+  @override
+  String get inboxReviews => 'التقييمات';
+
+  @override
+  String get questionsWaiting => 'بانتظارك';
+
+  @override
+  String get questionsAnswered => 'تمت الإجابة';
+
+  @override
+  String get noQuestions => 'لا أسئلة هنا';
+
+  @override
+  String get noQuestionsText => 'تصل هنا الأسئلة التي يطرحها الطلاب في دوراتك.';
+
+  @override
+  String inCourse(String course) {
+    return 'في $course';
+  }
+
+  @override
+  String get questionTitle => 'سؤال';
+
+  @override
+  String get writeAnswer => 'اكتب إجابتك';
+
+  @override
+  String get answerSent => 'أُرسلت الإجابة، ووصل الطالبَ إشعار.';
+
+  @override
+  String get reviewsAll => 'الكل';
+
+  @override
+  String get reviewsUnreplied => 'بلا رد';
+
+  @override
+  String get noReviews => 'لا تقييمات هنا';
+
+  @override
+  String get noReviewsText => 'تصل هنا التقييمات التي يكتبها الطلاب عن دوراتك.';
+
+  @override
+  String ratingOutOf(String rating) {
+    return '$rating من 5';
+  }
+
+  @override
+  String get noRatingYet => 'لا تقييمات ظاهرة في التطبيق بعد.';
+
+  @override
+  String get hiddenFromOthers => 'مخفي عن الآخرين';
+
+  @override
+  String get hideReview => 'إخفاء';
+
+  @override
+  String get showReview => 'إظهار مجددًا';
+
+  @override
+  String get reviewHiddenDone => 'أُخفي التقييم، ولا يراه إلا كاتبه.';
+
+  @override
+  String get reviewShownDone => 'يظهر في التطبيق مجددًا.';
+
+  @override
+  String get replyToReview => 'رد';
+
+  @override
+  String get changeReply => 'تغيير الرد';
+
+  @override
+  String get removeReply => 'حذف الرد';
+
+  @override
+  String get yourReply => 'ردك';
+
+  @override
+  String get replyPublicHelp => 'يراه الجميع تحت التقييم في تطبيقك.';
+
+  @override
+  String get replySaved => 'حُفظ الرد';
+
+  @override
+  String get replyRemoved => 'حُذف الرد';
+
+  @override
+  String get pushNewReview => 'تقييمات جديدة';
+
+  @override
+  String get pushNewReviewHelp => 'عندما يقيّم طالب دورة.';
+
+  @override
+  String get members => 'الأعضاء';
+
+  @override
+  String get scanMembers => 'امسح رموز الأعضاء';
+
+  @override
+  String get memberScanHint => 'ضع رمز QR الخاص بالعضو داخل الإطار.';
+
+  @override
+  String get memberCameraLabel => 'الكاميرا، وجّهها إلى رمز QR الخاص بالعضو';
+
+  @override
+  String get typeMemberCodeTitle => 'تحقّق من عضو برمزه';
+
+  @override
+  String get memberCodeLabel => 'رمز العضو';
+
+  @override
+  String get findByName => 'ابحث بالاسم';
+
+  @override
+  String get welcomeIn => 'أهلًا بك، تفضّل';
+
+  @override
+  String get alreadyInToday => 'حضر اليوم من قبل';
+
+  @override
+  String alreadyInAt(String time) {
+    return 'سجّل حضوره اليوم الساعة $time';
+  }
+
+  @override
+  String get membershipEnded => 'انتهت العضوية';
+
+  @override
+  String endedOn(String date) {
+    return 'انتهت في $date';
+  }
+
+  @override
+  String get membershipCancelled => 'أُلغيت العضوية';
+
+  @override
+  String get membershipNotStarted => 'لم تبدأ العضوية بعد';
+
+  @override
+  String get noClassesLeft => 'لا حصص متبقية';
+
+  @override
+  String get notAMemberCode => 'ليس رمز عضو لهذا التطبيق';
+
+  @override
+  String get memberNotFound => 'لا عضوية بهذا الرمز';
+
+  @override
+  String checkInNamed(String name) {
+    return 'تسجيل حضور $name';
+  }
+
+  @override
+  String get searchMembers => 'الاسم أو رقم الجوال';
+
+  @override
+  String get noMembersFound => 'لا أعضاء يطابقون هذا البحث';
+
+  @override
+  String get noMembers => 'لا أعضاء بعد';
+
+  @override
+  String get cameInToday => 'حضروا اليوم';
+
+  @override
+  String get nobodyInYet => 'لم يسجّل أحد حضوره اليوم بعد.';
+
+  @override
+  String checkedInBy(String time, String name) {
+    return '$time · بواسطة $name';
+  }
+
+  @override
+  String inAt(String time) {
+    return 'حضر الساعة $time';
+  }
+
+  @override
+  String memberUntil(String date) {
+    return 'حتى $date';
+  }
+
+  @override
+  String get unlimitedClasses => 'حصص غير محدودة';
+
+  @override
+  String get memberCheckInsToday => 'أعضاء حضروا اليوم';
+
+  @override
+  String ticketCountsNoLimit(String used, String left) {
+    return 'حضر $used · بانتظار $left · دون حد للسعة';
+  }
+
+  @override
   String minutesAgo(int count) {
     return 'قبل $count دقيقة';
   }
@@ -1736,5 +1935,119 @@ class AppLocalizationsAr extends AppLocalizations {
       zero: 'تنتهي اليوم',
     );
     return '$_temp0 ($date)';
+  }
+
+  @override
+  String classesLeftCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count حصة متبقية',
+      many: '$count حصة متبقية',
+      few: '$count حصص متبقية',
+      two: 'حصتان متبقيتان',
+      one: 'حصة واحدة متبقية',
+      zero: 'لا حصص متبقية',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String answersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count إجابة',
+      many: '$count إجابة',
+      few: '$count إجابات',
+      two: 'إجابتان',
+      one: 'إجابة واحدة',
+      zero: 'لا إجابات بعد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String membersInCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'حضر $count عضو اليوم',
+      many: 'حضر $count عضوًا اليوم',
+      few: 'حضر $count أعضاء اليوم',
+      two: 'حضر عضوان اليوم',
+      one: 'حضر عضو واحد اليوم',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewsAverage(String rating, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count تقييم',
+      many: '$count تقييمًا',
+      few: '$count تقييمات',
+      two: 'تقييمين',
+      one: 'تقييم واحد',
+    );
+    return '$rating من 5 من $_temp0';
+  }
+
+  @override
+  String needsOrdersInProgress(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طلب قيد التنفيذ',
+      many: '$count طلبًا قيد التنفيذ',
+      few: '$count طلبات قيد التنفيذ',
+      two: 'طلبان قيد التنفيذ',
+      one: 'طلب واحد قيد التنفيذ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsToConfirm(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count موعد بانتظار التأكيد',
+      many: '$count موعدًا بانتظار التأكيد',
+      few: '$count مواعيد بانتظار التأكيد',
+      two: 'موعدان بانتظار التأكيد',
+      one: 'موعد واحد بانتظار التأكيد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsUnanswered(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count محادثة بانتظار ردّك',
+      many: '$count محادثة بانتظار ردّك',
+      few: '$count محادثات بانتظار ردّك',
+      two: 'محادثتان بانتظار ردّك',
+      one: 'محادثة واحدة بانتظار ردّك',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsQuestions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count سؤال في الدورات بانتظار إجابتك',
+      many: '$count سؤالًا في الدورات بانتظار إجابتك',
+      few: '$count أسئلة في الدورات بانتظار إجابتك',
+      two: 'سؤالان في الدورات بانتظار إجابتك',
+      one: 'سؤال واحد في الدورات بانتظار إجابتك',
+    );
+    return '$_temp0';
   }
 }
