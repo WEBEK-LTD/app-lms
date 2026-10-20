@@ -437,6 +437,12 @@ the bytes: the media gate on the host takes the uploads and plays the files.
 
 ### If uploads fail
 
+- [ ] First open `https://yallapp.com.tr/media/ping`: it must answer
+      "Yallapp media gate 2". "Not found." there means the media folder still
+      has an older index.php (copy the current one; clear LiteSpeed's cache or
+      OPcache if the size on disk is already the new one). Every answer of the
+      current gate carries the `X-Yallapp-Media-Gate: 2` header.
+
 "Check the media server" says which step failed. Most often:
 
 - **HTTP 404 on the signed steps** ("the server answers these paths

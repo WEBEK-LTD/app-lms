@@ -109,6 +109,16 @@ export async function checkMediaGate(storage: MediaStorage, request: GateRequest
       status: r.response.status,
       message: `Step 1 of ${steps} (${what}) failed: HTTP ${r.response.status}, not the gate's own "Not found.". MEDIA_BASE_URL doesn't lead to the gate: check it ends in /media, that the reverse proxy keeps /media on the host (ProxyPass /media/ !), and that the gate's index.php and .htaccess are in the media folder (docs/LAUNCH-CHECKLIST.md 7j).`,
     };
+  // 64b The gate is this version (an old index.php left on the server doesn't know the new links).
+  r = await call(1, what, probe.replace(/\/v\/x$/, "/ping"), { method: "GET" });
+  if (isResult(r)) return r;
+  if (r.response.status !== 200 || !r.body.startsWith("Yallapp media gate 2"))
+    return {
+      ok: false,
+      step: 1,
+      status: r.response.status,
+      message: `Step 1 of ${steps} (${what}) failed: the media folder still has an older index.php (its /ping answered HTTP ${r.response.status}). Copy the current platform/web/deploy/media-host/index.php over it (docs/LAUNCH-CHECKLIST.md 7j); if you did, clear the server's cache (LiteSpeed, OPcache).`,
+    };
 
   // 2. A signed GET about a file that doesn't exist: the address and the secret.
   what = "asking about a file with a signed link";

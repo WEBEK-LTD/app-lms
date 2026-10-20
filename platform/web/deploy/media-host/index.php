@@ -71,6 +71,8 @@ function media_cors(array $config): void {
 	}
 }
 
+// 64b Which gate answered: an old index.php left on the server is told apart from this one.
+header('X-Yallapp-Media-Gate: 2');
 media_cors($config);
 $method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
 if ($method === 'OPTIONS') {
@@ -79,11 +81,28 @@ if ($method === 'OPTIONS') {
 }
 
 $prefix = rtrim((string) ($config['prefix'] ?? '/media'), '/');
-$uri    = (string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
-if ($prefix !== '' && strpos($uri, $prefix . '/') !== 0) {
+// 64b The address the visitor asked for. Some servers hand PHP the rewritten one
+// (…/index.php) in REQUEST_URI and keep the original elsewhere: the first that is
+// under the prefix and isn't this script wins.
+$uri = '';
+foreach (array('REQUEST_URI', 'REDIRECT_URL', 'UNENCODED_URL', 'HTTP_X_ORIGINAL_URL', 'HTTP_X_REWRITE_URL') as $source) {
+	$candidate = (string) parse_url((string) ($_SERVER[$source] ?? ''), PHP_URL_PATH);
+	if ($candidate !== '' && ($prefix === '' || strpos($candidate, $prefix . '/') === 0) && $candidate !== $prefix . '/index.php') {
+		$uri = $candidate;
+		break;
+	}
+}
+if ($uri === '') {
 	media_fail(404, 'Not found.');
 }
 $path = substr($uri, strlen($prefix));
+// 64b A check anyone may open: this gate is installed and sees the path as sent.
+if ($path === '/ping' && ($method === 'GET' || $method === 'HEAD')) {
+	header('Content-Type: text/plain; charset=utf-8');
+	header('Cache-Control: no-store');
+	echo "Yallapp media gate 2\n";
+	exit;
+}
 $uuid = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 $media_id = '';
 $ext      = '';

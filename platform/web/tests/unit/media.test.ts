@@ -185,6 +185,17 @@ function gateProtocol(name: string, gate: () => { base: string; request: (url: s
       expect(response.status).toBe(413);
     });
 
+    it("64b says it is this gate at /ping, and every answer names its version", async () => {
+      const { base, request } = gate();
+      const ping = await request(`${base}/ping`);
+      expect(ping.status).toBe(200);
+      expect(await ping.text()).toBe("Yallapp media gate 2\n");
+      expect(ping.headers.get("x-yallapp-media-gate")).toBe("2");
+      const unknown = await request(`${base}/v/x`);
+      expect(unknown.status).toBe(404);
+      expect(unknown.headers.get("x-yallapp-media-gate")).toBe("2");
+    });
+
     it("64b takes chunks by POST with any content type, the offset in the header or the query, and answers in JSON too", async () => {
       const { base, request, storage } = gate();
       const key = storageKeyOf(APP, "cccccccc-bbbb-4ccc-8ddd-eeeeeeeeeeee", "mp4");
