@@ -8,6 +8,7 @@ import { runDailyNotices } from "@/lib/notices";
 import { effectivePlans } from "@/lib/entitlements";
 import { cancelStaleUploads } from "@/lib/media/files";
 import { getMediaStorage } from "@/lib/media/storage";
+import { sweepMediaFolders } from "@/lib/media/sweep";
 import { noticeEndedPacks } from "@/lib/media/usage";
 
 /**
@@ -20,7 +21,9 @@ import { noticeEndedPacks } from "@/lib/media/usage";
  * days. 51 Then storage packs that ended are looked at (a notice and an
  * email when the files are over the storage left) and uploads left unfinished
  * for two days are cancelled. 58 Devices signed out of Yallapp Business by
- * time (their refresh token ended) are deleted. Safe to call again.
+ * time (their refresh token ended) are deleted. 62 The media server's
+ * folders of apps that no longer exist are removed after a week. Safe to
+ * call again.
  */
 export async function POST(request: Request): Promise<Response> {
   if (!hasBearerToken(request, internalJobSecret())) {
@@ -38,6 +41,10 @@ export async function POST(request: Request): Promise<Response> {
   const media = {
     storageNotices: (await noticeEndedPacks(deps, await effectivePlans(store))).length,
     uploadsCancelled: await cancelStaleUploads({ store, storage: getMediaStorage(), now }),
+    folders: await sweepMediaFolders({ store, storage: getMediaStorage(), now }).catch((e: unknown) => {
+      console.error(`[daily] media folders: ${e instanceof Error ? e.message : String(e)}`);
+      return null;
+    }),
   };
   // 58 Yallapp Business devices whose refresh token ended are forgotten.
   const ownerDevicesPurged = await store.purgeOwnerDevices(now);

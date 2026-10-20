@@ -1375,6 +1375,7 @@ paths:
       security: [{}, { bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/LessonId'
+        - $ref: '#/components/parameters/BoundMedia'
       responses:
         '200':
           description: Lesson
@@ -3070,6 +3071,16 @@ components:
       in: path
       required: true
       schema: { type: integer }
+    BoundMedia:
+      name: X-Yallapp-Bound-Media
+      in: header
+      required: false
+      description: >-
+        Roadmap 62. `1`: the app opens Yallapp Media links bound to the student (`Video`): with
+        a user token, the hosted API then signs the lesson's `upload` video for that token only.
+        Apps that don't send it (and the app preview in a browser) get links as before. Other
+        servers ignore it.
+      schema: { type: string, enum: ['1'] }
     LessonId:
       name: lesson_id
       in: path
@@ -3791,6 +3802,17 @@ components:
         for a new `url` before then, or when the player stops on an expired
         link, and carries on where it was. A media link that no longer
         exists leaves the lesson without `video`.
+
+        Roadmap 62: when the app sends `X-Yallapp-Bound-Media: 1` with a
+        user token, the hosted API binds the `url` to that student: it
+        carries a `t` parameter, and the media server plays it only to a
+        request with the same `Authorization: Bearer <access token>` the
+        lesson was asked with, so a copied link plays nowhere else. The app
+        opens such a link with that header; a refused one (403, after the
+        token was renewed) is fetched again like an expired one. Links to
+        save a lesson (`POST /lessons/{lesson_id}/download`) last 15 minutes
+        and aren't bound. WordPress sites (`POST /api/v1/licenses/media`)
+        give unbound links, shared for an hour between students.
       properties:
         source: { type: string, enum: [upload, youtube, vimeo, external, embed] }
         url: { type: [string, 'null'], format: uri, description: Signed and expiring for uploaded videos and for videos from the Yallapp Media library. }

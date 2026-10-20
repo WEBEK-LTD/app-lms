@@ -1587,6 +1587,15 @@ export interface PlatformSettingValues {
   switches: SwitchesSetting;
 }
 
+/** 62 The daily job's look at the media folders: folders of apps that no longer exist, and when each was first seen (lib/media/sweep.ts). */
+export interface MediaSweepSetting {
+  orphans: Record<string, string>;
+}
+
+export interface PlatformSettingValues {
+  mediaSweep: MediaSweepSetting;
+}
+
 
 // 11.3 Website content
 

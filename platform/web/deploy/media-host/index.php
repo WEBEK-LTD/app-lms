@@ -13,6 +13,13 @@
  *      never past `size` in all, at most max_chunk_bytes a request. The last one completes it.
  * - s  GET: what's on disk, as JSON (the platform's check after an upload).
  * - d  DELETE: removes the file and an unfinished upload.
+ * 62 On an app's whole folder:
+ *   /media/a/<app id>?expires=…&sig=…  DELETE: removes the folder and every file in it (an app
+ *                                      that no longer exists, src/lib/media/sweep.ts).
+ *   /media/l/apps?expires=…&sig=…      GET: the app folders on disk, as JSON {"apps": [...]}.
+ * 62 A `v` link for one student carries `t`: the first 52 bits of SHA-256 of their access token,
+ * as digits. It plays only to a request with `Authorization: Bearer <that token>` (the app sends
+ * it; Apache passes the header to PHP with `CGIPassAuth On`).
  * Files live outside the web root, in storage_dir/<app id>/<media id>.<ext> (an upload
  * in progress as .part). Settings come from config.php (config.sample.php); it is not in git.
  */
@@ -69,10 +76,19 @@ if ($prefix !== '' && strpos($uri, $prefix . '/') !== 0) {
 }
 $path = substr($uri, strlen($prefix));
 $uuid = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
-if (!preg_match('#^/(v|u|s|d)/(' . $uuid . ')/(' . $uuid . ')\.(mp4|mov|webm|jpg|png|webp|gif|pdf)$#', $path, $m)) {
+$media_id = '';
+$ext      = '';
+if (preg_match('#^/(v|u|s|d)/(' . $uuid . ')/(' . $uuid . ')\.(mp4|mov|webm|jpg|png|webp|gif|pdf)$#', $path, $m)) {
+	list(, $op, $app_id, $media_id, $ext) = $m;
+} elseif (preg_match('#^/a/(' . $uuid . ')$#', $path, $m)) {
+	$op     = 'a';
+	$app_id = $m[1];
+} elseif ($path === '/l/apps') {
+	$op     = 'l';
+	$app_id = '';
+} else {
 	media_fail(404, 'Not found.');
 }
-list(, $op, $app_id, $media_id, $ext) = $m;
 
 // The signature: every parameter but sig, sorted, digits only.
 $params = array();
@@ -99,11 +115,58 @@ if (!hash_equals($expected, $sig)) {
 if ((int) $params['expires'] < time()) {
 	media_fail(410, 'This link has expired.');
 }
+// 62 A link for one student: the request must carry their access token.
+if (isset($params['t'])) {
+	$auth = (string) ($_SERVER['HTTP_AUTHORIZATION'] ?? ($_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? ''));
+	if ($auth === '' && function_exists('getallheaders')) {
+		foreach (getallheaders() as $name => $value) {
+			if (strtolower((string) $name) === 'authorization') {
+				$auth = (string) $value;
+			}
+		}
+	}
+	$digest = preg_match('/^Bearer\s+(\S+)$/i', trim($auth), $b) ? (string) hexdec(substr(hash('sha256', $b[1]), 0, 13)) : '';
+	if ($digest === '' || !hash_equals($digest, (string) $params['t'])) {
+		media_fail(403, 'This link is for another student.');
+	}
+}
 
 $root = realpath((string) $config['storage_dir']);
 if ($root === false || !is_dir($root)) {
 	media_fail(503, 'Media storage is not available.');
 }
+// 62 An app's folder: removed with everything in it, or the list of folders.
+if ($op === 'l' && $method === 'GET') {
+	$apps = array();
+	foreach ((array) scandir($root) as $name) {
+		if (is_string($name) && preg_match('#^' . $uuid . '$#', $name) && is_dir($root . DIRECTORY_SEPARATOR . $name)) {
+			$apps[] = $name;
+		}
+	}
+	header('Content-Type: application/json');
+	header('Cache-Control: no-store');
+	echo json_encode(array('apps' => $apps));
+	exit;
+}
+if ($op === 'a' && $method === 'DELETE') {
+	$folder = $root . DIRECTORY_SEPARATOR . $app_id;
+	if (is_dir($folder)) {
+		foreach ((array) scandir($folder) as $name) {
+			$entry = $folder . DIRECTORY_SEPARATOR . $name;
+			if (is_string($name) && $name !== '.' && $name !== '..' && is_file($entry)) {
+				unlink($entry);
+			}
+		}
+		rmdir($folder);
+	}
+	http_response_code(204);
+	header('Cache-Control: no-store');
+	exit;
+}
+if ($op === 'a' || $op === 'l') {
+	media_fail(405, 'Method not allowed.');
+}
+
 $dir  = $root . DIRECTORY_SEPARATOR . $app_id;
 $file = $dir . DIRECTORY_SEPARATOR . $media_id . '.' . $ext;
 $part = $file . '.part';

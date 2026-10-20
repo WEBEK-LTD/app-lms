@@ -41,6 +41,10 @@ class FakeMedia implements MediaStorage {
     return { exists: this.complete.has(key), complete: this.complete.has(key), size: this.complete.has(key) ? 1024 : 0 };
   }
   async delete() {}
+  async deleteApp() {}
+  async listApps() {
+    return [];
+  }
 }
 
 async function owner(store: MemoryStore, email: string, plan: "growth" | "pro" = "pro"): Promise<{ user: User; client: Client }> {

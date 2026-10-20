@@ -17,6 +17,10 @@ export interface MediaStorage {
   /** What's on disk for `key`. */
   stat(key: string): Promise<{ exists: boolean; complete: boolean; size: number }>;
   delete(key: string): Promise<void>;
+  /** 62 Removes an app's whole folder: every file of an app that no longer exists. */
+  deleteApp(appId: string): Promise<void>;
+  /** 62 The app folders kept on disk. */
+  listApps(): Promise<string[]>;
 }
 
 export class MediaStorageError extends Error {}
@@ -45,6 +49,17 @@ class Gate implements MediaStorage {
   async delete(key: string) {
     if (this.disk) return this.disk.delete(key);
     await this.call("DELETE", this.link("d", key, 300).url);
+  }
+
+  async deleteApp(appId: string) {
+    if (this.disk) return this.disk.deleteApp(appId);
+    await this.call("DELETE", this.link("a", appId, 300).url);
+  }
+
+  async listApps() {
+    if (this.disk) return this.disk.listApps();
+    const body = (await (await this.call("GET", this.link("l", "apps", 300).url)).json()) as { apps?: unknown };
+    return Array.isArray(body.apps) ? body.apps.filter((id): id is string => typeof id === "string") : [];
   }
 
   private async call(method: string, url: string): Promise<Response> {
