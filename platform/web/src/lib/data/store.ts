@@ -72,6 +72,8 @@ import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, St
 // 10.7 Listings
 // 58 Yallapp Business
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
+// 60 Team members for clients
+import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
 export type ClientFilter = "all" | "pending" | "active" | "expired";
@@ -758,4 +760,34 @@ export interface DataStore {
   clearOwnerPushToken(token: string, exceptId: string | null): Promise<void>;
   /** Deletes devices whose refresh token ended before `now`; returns how many. */
   purgeOwnerDevices(now: Date): Promise<number>;
+  /** 60 Signs out a person's devices signed in to one client (a member removed from its team); returns how many. */
+  deleteOwnerDevicesOfClient(userId: string, clientId: string): Promise<number>;
+  /** 60 The devices signed in to a client, of anyone (the owner and the team): for pushes. */
+  listOwnerDevicesOfClient(clientId: string): Promise<OwnerDevice[]>;
+
+  // 60 Team members for clients (lib/team)
+  /** The client's members with their accounts, in the order they joined. */
+  listTeamMembers(clientId: string): Promise<TeamMemberRow[]>;
+  getTeamMember(clientId: string, userId: string): Promise<TeamMember | null>;
+  /** Every client a person is a member of (not their own), in the order they joined. */
+  listMembershipsOfUser(userId: string): Promise<TeamMember[]>;
+  /** Adds or replaces a member (client and user are the key). */
+  saveTeamMember(member: TeamMember): Promise<void>;
+  /** False when they weren't a member. */
+  deleteTeamMember(clientId: string, userId: string): Promise<boolean>;
+  createTeamInvitation(invitation: TeamInvitation): Promise<void>;
+  /** The client's invitation; never another client's. */
+  getTeamInvitation(clientId: string, id: string): Promise<TeamInvitation | null>;
+  getTeamInvitationByToken(tokenHash: string): Promise<TeamInvitation | null>;
+  /** Invitations neither accepted nor cancelled (expired ones too), newest first. */
+  listOpenTeamInvitations(clientId: string): Promise<TeamInvitation[]>;
+  updateTeamInvitation(clientId: string, id: string, patch: TeamInvitationPatch): Promise<void>;
+  /**
+   * Marks the invitation accepted only while it is open, unexpired and still
+   * has `tokenHash` (atomic: single use). False otherwise.
+   */
+  acceptTeamInvitation(id: string, tokenHash: string, now: Date): Promise<boolean>;
+  addTeamActivity(entry: Omit<TeamActivity, "id">): Promise<void>;
+  /** Newest first. */
+  listTeamActivity(clientId: string, input: { limit: number; offset?: number; actorId?: string }): Promise<{ items: TeamActivity[]; total: number }>;
 }

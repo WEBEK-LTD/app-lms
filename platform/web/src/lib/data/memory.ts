@@ -82,6 +82,7 @@ import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, D
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 import type { PublishingEvent, PublishingRequest } from "./types";
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
+import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 import type { DemoPurgeCounts } from "./types";
 // 46 Links and crash reports
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
@@ -2452,5 +2453,100 @@ export class MemoryStore implements DataStore {
     let count = 0;
     for (const [id, device] of this.ownerDevices) if (device.refreshExpiresAt.getTime() <= now.getTime() && this.ownerDevices.delete(id)) count += 1;
     return count;
+  }
+
+  async deleteOwnerDevicesOfClient(userId: string, clientId: string): Promise<number> {
+    let count = 0;
+    for (const [id, device] of this.ownerDevices) if (device.userId === userId && device.clientId === clientId && this.ownerDevices.delete(id)) count += 1;
+    return count;
+  }
+
+  async listOwnerDevicesOfClient(clientId: string): Promise<OwnerDevice[]> {
+    return [...this.ownerDevices.values()].filter((d) => d.clientId === clientId).map(clone);
+  }
+
+  // 60 Team members for clients
+
+  private teamMembers: TeamMember[] = [];
+  private teamInvitations = new Map<string, TeamInvitation>();
+  private teamActivity: TeamActivity[] = [];
+  private nextTeamActivityId = 1;
+
+  async listTeamMembers(clientId: string): Promise<TeamMemberRow[]> {
+    const rows: TeamMemberRow[] = [];
+    for (const member of this.teamMembers.filter((m) => m.clientId === clientId).sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())) {
+      const user = await this.getUserById(member.userId);
+      if (user) rows.push({ member: clone(member), user });
+    }
+    return rows;
+  }
+
+  async getTeamMember(clientId: string, userId: string): Promise<TeamMember | null> {
+    const member = this.teamMembers.find((m) => m.clientId === clientId && m.userId === userId);
+    return member ? clone(member) : null;
+  }
+
+  async listMembershipsOfUser(userId: string): Promise<TeamMember[]> {
+    return this.teamMembers
+      .filter((m) => m.userId === userId)
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+      .map(clone);
+  }
+
+  async saveTeamMember(member: TeamMember): Promise<void> {
+    const index = this.teamMembers.findIndex((m) => m.clientId === member.clientId && m.userId === member.userId);
+    if (index >= 0) this.teamMembers[index] = clone(member);
+    else this.teamMembers.push(clone(member));
+  }
+
+  async deleteTeamMember(clientId: string, userId: string): Promise<boolean> {
+    const before = this.teamMembers.length;
+    this.teamMembers = this.teamMembers.filter((m) => !(m.clientId === clientId && m.userId === userId));
+    return this.teamMembers.length < before;
+  }
+
+  async createTeamInvitation(invitation: TeamInvitation): Promise<void> {
+    this.teamInvitations.set(invitation.id, clone(invitation));
+  }
+
+  async getTeamInvitation(clientId: string, id: string): Promise<TeamInvitation | null> {
+    const invitation = this.teamInvitations.get(id);
+    return invitation && invitation.clientId === clientId ? clone(invitation) : null;
+  }
+
+  async getTeamInvitationByToken(tokenHash: string): Promise<TeamInvitation | null> {
+    for (const invitation of this.teamInvitations.values()) if (invitation.tokenHash === tokenHash) return clone(invitation);
+    return null;
+  }
+
+  async listOpenTeamInvitations(clientId: string): Promise<TeamInvitation[]> {
+    return [...this.teamInvitations.values()]
+      .filter((i) => i.clientId === clientId && !i.acceptedAt && !i.cancelledAt)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .map(clone);
+  }
+
+  async updateTeamInvitation(clientId: string, id: string, patch: TeamInvitationPatch): Promise<void> {
+    const invitation = this.teamInvitations.get(id);
+    if (invitation && invitation.clientId === clientId) Object.assign(invitation, clone(patch));
+  }
+
+  async acceptTeamInvitation(id: string, tokenHash: string, now: Date): Promise<boolean> {
+    const invitation = this.teamInvitations.get(id);
+    if (!invitation || invitation.tokenHash !== tokenHash || invitation.acceptedAt || invitation.cancelledAt || invitation.expiresAt.getTime() <= now.getTime()) return false;
+    invitation.acceptedAt = now;
+    return true;
+  }
+
+  async addTeamActivity(entry: Omit<TeamActivity, "id">): Promise<void> {
+    this.teamActivity.push({ ...clone(entry), id: this.nextTeamActivityId++ });
+  }
+
+  async listTeamActivity(clientId: string, input: { limit: number; offset?: number; actorId?: string }): Promise<{ items: TeamActivity[]; total: number }> {
+    const all = this.teamActivity
+      .filter((a) => a.clientId === clientId && (!input.actorId || a.actorId === input.actorId))
+      .sort((a, b) => b.at.getTime() - a.at.getTime() || b.id - a.id);
+    const offset = input.offset ?? 0;
+    return { items: all.slice(offset, offset + input.limit).map(clone), total: all.length };
   }
 }

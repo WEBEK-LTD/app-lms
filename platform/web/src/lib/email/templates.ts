@@ -56,7 +56,9 @@ export type EmailTemplateKey =
   | "payment_refunded"
   // 51 Media and storage
   | "storage_pack_added"
-  | "storage_pack_ended";
+  | "storage_pack_ended"
+  // 60 Team members for clients
+  | "team_invitation";
 
 export interface EmailTemplateDefinition {
   key: EmailTemplateKey;
@@ -530,6 +532,26 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       "Hello {{name}},\n\nOn {{date}}, your own email server couldn't send an email to someone using {{app_name}}:\n{{reason}}\n\n" +
       "So they still got it, we sent it from Yallapp's email address instead, with your app's name.\n\n" +
       "Check your email server's settings, then send a test email on App sign-in:\n{{sign_in_url}}" +
+      SIGNATURE,
+  },
+  {
+    key: "team_invitation",
+    name: "Team invitation",
+    description:
+      "60 To someone a client invited to their team (Dashboard › Team), in the invitee's dashboard language when they have an account, else the inviter's. The link works once, for 7 days.",
+    placeholders: [
+      { name: "name", description: "The invitee's name", sample: "Leyla Kaya" },
+      { name: "inviter", description: "Who invited them", sample: "Ada Lovelace" },
+      { name: "business", description: "The client's business (its app, or their name)", sample: "Ada Academy" },
+      { name: "role", description: "Manager or Staff, in the email's language", sample: "Staff" },
+      { name: "link", description: "The link to join (once, 7 days)", sample: "https://yallapp.com.tr/team/join?token=sample" },
+      { name: "expires", description: "When the link stops working", sample: "27 Oct 2026" },
+    ],
+    subject: "{{inviter}} invited you to {{business}} on Yallapp",
+    body:
+      "Hello {{name}},\n\n{{inviter}} invited you to work with them on {{business}} on Yallapp, as {{role}}.\n\n" +
+      "Open this link to join. You can set your password there, or sign in if you already use Yallapp:\n\n{{link}}\n\n" +
+      "The link works once, until {{expires}}. If you weren't expecting this, you can ignore this email." +
       SIGNATURE,
   },
 ];

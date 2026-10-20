@@ -96,6 +96,11 @@ export const RATE_LIMITS = {
   mediaUploads: { name: "media-uploads:app", limit: 200, windowSeconds: 60 * 60 },
   // 58 Yallapp Business renewing its tokens (POST /api/owner/v1/auth/refresh), per IP. Signing in counts with the website's (signInIp, signInEmail).
   ownerRefreshIp: { name: "owner-refresh:ip", limit: 60, windowSeconds: 10 * 60 },
+  // 60 Team invitations: per client (new ones and resends) and per invited address, across every client.
+  teamInviteClient: { name: "team-invite:client", limit: 20, windowSeconds: 60 * 60 },
+  teamInviteEmail: { name: "team-invite:email", limit: 5, windowSeconds: 24 * 60 * 60 },
+  // Joining with a link: per IP, like a sign-in.
+  teamJoinIp: { name: "team-join:ip", limit: 30, windowSeconds: 15 * 60 },
   // Not a limit: the codes a license sent today (UTC), for the admin's client page.
   signInCodesSent: { name: "codes:sent", limit: Number.MAX_SAFE_INTEGER, windowSeconds: 24 * 60 * 60 },
 } satisfies Record<string, RateLimitRule>;
