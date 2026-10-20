@@ -187,7 +187,7 @@ export function MediaUploader({ appId, accept, disabled }: { appId: string; acce
           update(job.key, { status: "failed", offset: at, message: e instanceof GateAnswer ? failed(failureOf(e.status), e.status) : t("media.dropping") });
           return;
         }
-        update(job.key, { message: t("media.lost"), offset: at });
+        update(job.key, { message: e instanceof GateAnswer ? null : t("media.lost"), offset: at });
         await wait(1000 * 2 ** (failures - 1));
         offset = (await serverOffset(job.url!).catch(() => ({ status: 0, offset: null }))).offset ?? at;
       }

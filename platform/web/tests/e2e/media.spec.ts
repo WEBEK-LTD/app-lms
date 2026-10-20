@@ -134,9 +134,10 @@ test("the owner uploads a video in chunks and a picture to Media", async () => {
   expect((await own.request.get(open.replace(/sig=[0-9a-f]{4}/, "sig=0000"))).status()).toBe(403);
 
   // Its own link: a picture opens for anyone, a lesson's video doesn't.
-  const videoId = open.split("/").pop()!.split(".")[0]!;
+  // 64b The file's ID is the segment before the extension: `/<app>/<id>/<ext>`.
+  const videoId = new URL(open).pathname.split("/").at(-2)!;
   const pictureOpen = (await files.locator('[data-media="Cover.png"]').getByRole("link", { name: "Open" }).getAttribute("href"))!;
-  const pictureId = pictureOpen.split("/").pop()!.split(".")[0]!;
+  const pictureId = new URL(pictureOpen).pathname.split("/").at(-2)!;
   const picture = await own.request.get(`/m/${pictureId}`, { maxRedirects: 0 });
   expect(picture.status()).toBe(302);
   expect(new URL(picture.headers().location!).pathname).toContain(`/media/v/`);
