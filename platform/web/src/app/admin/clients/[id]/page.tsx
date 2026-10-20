@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { describeAccess } from "@/lib/team/service";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -159,6 +160,8 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
     getSwitches(store),
     store.listAuditEntries({ clientId: client.id, offset: 0, limit: 20 }),
   ]);
+  // 60 The people who work with the client, read-only.
+  const [team, invitations] = await Promise.all([store.listTeamMembers(client.id), store.listOpenTeamInvitations(client.id)]);
   const account = clientAccountState(client, licenses, now);
   const entries: Entry[] = apps.map((app) => ({ key: app.id, app, license: licenses.find((l) => l.appId === app.id) ?? null }));
   const unassigned = licenses.find((l) => l.appId === null);
@@ -335,6 +338,35 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
           )}
         </Card>
       </div>
+
+      <Card id="h-client-team" title="The client's team">
+        {team.length === 0 && invitations.length === 0 ? (
+          <p className="m-0 text-sm text-muted">Only the owner works on this account.</p>
+        ) : (
+          <ul className="m-0 flex list-none flex-col gap-2 p-0 text-sm" data-testid="client-team">
+            {team.map(({ member, user: person }) => (
+              <li key={person.id} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 border-b border-line-soft pb-2 last:border-b-0">
+                <span className="font-semibold">{person.name}</span>
+                <span className="text-muted">{person.email}</span>
+                <span>{describeAccess(member, apps)}</span>
+                <span className="text-muted">
+                  joined {formatDate(member.createdAt)} · {person.lastSignInAt ? `last signed in ${formatDate(person.lastSignInAt)}` : "hasn't signed in"}
+                </span>
+              </li>
+            ))}
+            {invitations.map((i) => (
+              <li key={i.id} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 border-b border-line-soft pb-2 last:border-b-0">
+                <span className="font-semibold">{i.name}</span>
+                <span className="text-muted">{i.email}</span>
+                <span>{describeAccess(i, apps)}</span>
+                <span className="text-muted">
+                  invited {formatDate(i.sentAt)} · {i.expiresAt.getTime() <= now.getTime() ? "expired" : `link works until ${formatDate(i.expiresAt)}`}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
 
       <Card
         id="h-audit"
