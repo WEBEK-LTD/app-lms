@@ -137,7 +137,9 @@ export function pathPermission(href: string): TeamPermission {
   const path = href.split(/[?#]/)[0] ?? href;
   let best: (typeof DASHBOARD_PATHS)[number] | null = null;
   for (const entry of DASHBOARD_PATHS) {
-    if ((path === entry[0] || path.startsWith(`${entry[0]}/`)) && (!best || entry[0].length > best[0].length)) best = entry;
+    // The overview is only itself; every other entry covers its pages below.
+    const covers = path === entry[0] || (entry[0] !== "/dashboard" && path.startsWith(`${entry[0]}/`));
+    if (covers && (!best || entry[0].length > best[0].length)) best = entry;
   }
   // Anything else under /dashboard is the app's settings; addresses elsewhere (support) are for everyone.
   return best ? best[1] : path.startsWith("/dashboard") ? "settings" : "dashboard";

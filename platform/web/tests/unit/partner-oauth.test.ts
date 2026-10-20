@@ -1,4 +1,5 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { OWNER_ACCESS, type TeamAccess } from "@/lib/team/permissions";
 import { newApp } from "@/lib/app/setup";
 import type { App } from "@/lib/data/types";
 import { MemoryStore } from "@/lib/data/memory";
@@ -11,7 +12,7 @@ import { clearPlatformSettingsCache, encryptSetting } from "@/lib/settings/platf
 // 25 The OAuth callback of the Salla and Zid partner apps: the signed state, the signed-in owner, the partner app,
 // the code swap, the store check, and what is saved.
 
-const session = vi.hoisted(() => ({ context: null as null | { staff: null; client: { id: string; status: string }; apps: App[]; app: App | null } }));
+const session = vi.hoisted(() => ({ context: null as null | { staff: null; client: { id: string; status: string }; apps: App[]; app: App | null; access: TeamAccess } }));
 vi.mock("@/lib/auth/session", () => ({
   getClientContext: async () => session.context,
   mayUseDashboard: () => true,
@@ -76,7 +77,7 @@ describe("partner OAuth callback", () => {
     (globalThis as unknown as { __yallappStore?: Promise<MemoryStore> }).__yallappStore = Promise.resolve(store);
     app = newApp("client-1", null, NOW, "store");
     await store.createApp(app);
-    session.context = { staff: null, client: { id: "client-1", status: "active" }, apps: [app], app };
+    session.context = { staff: null, client: { id: "client-1", status: "active" }, apps: [app], app, access: OWNER_ACCESS };
     await savePartnerApp();
   });
 
@@ -116,10 +117,17 @@ describe("partner OAuth callback", () => {
     session.context = null;
     expect((await callback(`code=good-code&state=${state()}`)).status).toBe(401);
     const other = newApp("client-2", null, NOW, "store");
-    session.context = { staff: null, client: { id: "client-1", status: "active" }, apps: [app], app };
+    session.context = { staff: null, client: { id: "client-1", status: "active" }, apps: [app], app, access: OWNER_ACCESS };
     const response = await callback(`code=good-code&state=${state(other.id)}`);
     expect(response.status).toBe(403);
     expect(await response.text()).toContain("Not your app");
+  });
+
+  it("60 refuses someone on the team who isn't the owner", async () => {
+    session.context = { staff: null, client: { id: "client-1", status: "active" }, apps: [app], app, access: { role: "manager", areas: [], appIds: null } };
+    const response = await callback(`code=good-code&state=${state()}`);
+    expect(response.status).toBe(403);
+    expect(await response.text()).toContain("Ask the owner");
   });
 
   it("says when access wasn't given, the code was refused, the app isn't set up, or the store can't be read", async () => {
@@ -145,7 +153,7 @@ describe("partner OAuth callback", () => {
 
   it("refuses an app that isn't a Store app", async () => {
     const academy = newApp("client-1", null, NOW, "lms");
-    session.context = { staff: null, client: { id: "client-1", status: "active" }, apps: [app, academy], app };
+    session.context = { staff: null, client: { id: "client-1", status: "active" }, apps: [app, academy], app, access: OWNER_ACCESS };
     const response = await callback(`code=good-code&state=${state(academy.id)}`);
     expect(response.status).toBe(400);
     expect(await response.text()).toContain("Choose Store first");

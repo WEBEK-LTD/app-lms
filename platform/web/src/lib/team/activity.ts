@@ -83,7 +83,7 @@ export function recordRefund(store: DataStore, input: { clientId: string; appId:
   const what = input.kind === "order" ? `order ${orderNumber({ id: input.id })}` : `donation ${input.id}`;
   return recordTeamActivity(
     store,
-    { clientId: input.clientId, appId: input.appId, actor: input.actor, action: input.kind === "order" ? "order.refund" : "donation.refund", target: { type: input.kind, id: input.id }, summary: `Refunded ${input.amount} of ${what}` },
+    { clientId: input.clientId, appId: input.appId, actor: input.actor, action: input.kind === "order" ? "order.refund" : "donation.refund", target: { type: input.kind, id: input.id }, summary: `Refund of ${input.amount} for ${what}` },
     now,
   );
 }
