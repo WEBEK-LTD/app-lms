@@ -1,5 +1,5 @@
 import { courseSetup } from "../courses/setup";
-import { answerAsBusiness, ratingSummary, removeReviewReply, replyToReview, setReviewHidden } from "../courses/community";
+import { answerAsBusiness, countOpenQuestions, questionFilter, ratingSummary, removeReviewReply, replyToReview, setAnswerHidden, setQuestionHidden, setReviewHidden } from "../courses/community";
 import type { App, Course, CourseQuestion, CourseReview } from "../data/types";
 import { serviceAccountOf } from "../hosted/notify";
 import { recordCommunity } from "../team/activity";
@@ -29,6 +29,7 @@ function questionJson(q: CourseQuestion, course: Course | undefined, person: str
     person,
     text: q.text,
     status: q.status,
+    hidden: q.hidden,
     answer_count: q.answerCount,
     created_at: q.createdAt.toISOString(),
     updated_at: q.updatedAt.toISOString(),
@@ -39,15 +40,16 @@ export async function listQuestions(ctx: OwnerContext, params: Record<string, st
   const { app } = appScope(ctx, params.app_id, "questions");
   const page = paging(ctx.req.query);
   const status = ctx.req.query.get("status");
-  if (status !== null && status !== "open" && status !== "answered") throw invalid({ status: "The request isn't valid." });
+  if (status !== null && status !== "open" && status !== "answered" && status !== "hidden") throw invalid({ status: "The request isn't valid." });
   const { store } = ctx.deps;
+  // 64 Waiting and answered are the questions shown in the app; hidden ones have their own list.
   const [{ items, total }, open] = await Promise.all([
-    store.listCourseQuestions({ appId: app.id, ...(status ? { status } : {}), order: "updated", offset: page.offset, limit: page.perPage }),
-    store.listCourseQuestions({ appId: app.id, status: "open", order: "updated", offset: 0, limit: 1 }),
+    store.listCourseQuestions({ appId: app.id, ...questionFilter(status ?? "all"), order: "updated", offset: page.offset, limit: page.perPage }),
+    countOpenQuestions(store, app.id),
   ]);
   const all = courses(app);
   const people = await names(ctx, app.id, items.map((q) => q.userId));
-  return { status: 200, body: { ...pageJson(page, total), open: open.total, items: items.map((q) => questionJson(q, all.get(q.courseId), people.get(q.userId) ?? "")) } };
+  return { status: 200, body: { ...pageJson(page, total), open, items: items.map((q) => questionJson(q, all.get(q.courseId), people.get(q.userId) ?? "")) } };
 }
 
 async function ownQuestion(ctx: OwnerContext, params: Record<string, string>) {
@@ -71,6 +73,7 @@ async function questionDetail(ctx: OwnerContext, app: App, id: number) {
       from: a.userId === null ? "business" : "student",
       name: a.userId === null ? business : (people.get(a.userId) ?? ""),
       text: a.text,
+      hidden: a.hidden,
       created_at: a.createdAt.toISOString(),
     })),
   };
@@ -89,6 +92,38 @@ export async function answerQuestion(ctx: OwnerContext, params: Record<string, s
   if (!result.ok) throw invalid({ text: result.error });
   await recordCommunity(deps.store, { clientId: ctx.client.id, appId: app.id, actor: ctx.user, what: "answer", id: question.id, course: course?.title ?? "" }, deps.now);
   return { status: 201, body: await questionDetail(ctx, app, question.id) };
+}
+
+/** 64 Hides a question from others (its author still sees it), or shows it again. */
+export async function updateQuestion(ctx: OwnerContext, params: Record<string, string>): Promise<OwnerResult> {
+  const { app, question } = await ownQuestion(ctx, params);
+  const hidden = bodyObject(ctx.req.body).hidden;
+  if (typeof hidden !== "boolean") throw invalid({ hidden: "The request isn't valid." });
+  const { store, now } = ctx.deps;
+  if (hidden !== question.hidden) {
+    await setQuestionHidden(store, question, hidden);
+    const course = courses(app).get(question.courseId)?.title ?? "";
+    await recordCommunity(store, { clientId: ctx.client.id, appId: app.id, actor: ctx.user, what: hidden ? "hideQuestion" : "showQuestion", id: question.id, course }, now);
+  }
+  return { status: 200, body: await questionDetail(ctx, app, question.id) };
+}
+
+/** 64 Hides a student's answer from others (its author still sees it), or shows it again. */
+export async function updateAnswer(ctx: OwnerContext, params: Record<string, string>): Promise<OwnerResult> {
+  const { app, question } = await ownQuestion(ctx, params);
+  const answerId = intParam(params.answer_id);
+  const answer = (await ctx.deps.store.listCourseAnswers(app.id, question.id)).find((a) => a.id === answerId);
+  if (!answer) throw notFound();
+  const hidden = bodyObject(ctx.req.body).hidden;
+  if (typeof hidden !== "boolean") throw invalid({ hidden: "The request isn't valid." });
+  const { store, now } = ctx.deps;
+  if (hidden !== answer.hidden) {
+    const result = await setAnswerHidden(store, question, answer, hidden);
+    if (!result.ok) throw invalid({ hidden: result.error }, result.error);
+    const course = courses(app).get(question.courseId)?.title ?? "";
+    await recordCommunity(store, { clientId: ctx.client.id, appId: app.id, actor: ctx.user, what: hidden ? "hideAnswer" : "showAnswer", id: answer.id, course }, now);
+  }
+  return { status: 200, body: await questionDetail(ctx, app, question.id) };
 }
 
 // Reviews

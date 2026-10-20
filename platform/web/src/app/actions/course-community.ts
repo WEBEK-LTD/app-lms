@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { actorOf, clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
-import { answerAsBusiness, removeReviewReply, replyToReview, setReviewHidden } from "@/lib/courses/community";
+import { answerAsBusiness, removeReviewReply, replyToReview, setAnswerHidden, setQuestionHidden, setReviewHidden } from "@/lib/courses/community";
 import { courseSetup } from "@/lib/courses/setup";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
@@ -44,6 +44,48 @@ export async function answerQuestionAction(_: FormState, formData: FormData): Pr
   await recordCommunity(store, { clientId: context.client.id, appId: app.id, actor: actorOf(context), what: "answer", id: question.id, course: course?.title ?? "" }, now);
   revalidatePath("/dashboard/courses/questions", "layout");
   return { ok: true, message: "Your answer is in the app. The student was told." };
+}
+
+async function ownQuestion(formData: FormData) {
+  const context = await requireCoursesApp("messages");
+  const store = await getStore();
+  const id = Number(formData.get("id"));
+  const question = Number.isSafeInteger(id) ? await store.getCourseQuestion(context.app.id, id) : null;
+  return { context, store, question };
+}
+
+/** 64 Hides a question from everyone but its author, or shows it again. */
+export async function setQuestionHiddenAction(formData: FormData): Promise<void> {
+  const { context, store, question } = await ownQuestion(formData);
+  const hidden = formData.get("hidden") === "1";
+  if (question && question.hidden !== hidden) {
+    await setQuestionHidden(store, question, hidden);
+    await recordCommunity(
+      store,
+      { clientId: context.client.id, appId: context.app.id, actor: actorOf(context), what: hidden ? "hideQuestion" : "showQuestion", id: question.id, course: courseTitle(context.app, question.courseId) },
+      new Date(),
+    );
+  }
+  revalidatePath("/dashboard/courses/questions", "layout");
+}
+
+/** 64 Hides a student's answer from everyone but its author, or shows it again. */
+export async function setAnswerHiddenAction(formData: FormData): Promise<void> {
+  const { context, store, question } = await ownQuestion(formData);
+  const hidden = formData.get("hidden") === "1";
+  const answerId = Number(formData.get("answerId"));
+  const answer = question ? (await store.listCourseAnswers(context.app.id, question.id)).find((a) => a.id === answerId) : undefined;
+  if (question && answer && answer.hidden !== hidden) {
+    const result = await setAnswerHidden(store, question, answer, hidden);
+    if (result.ok) {
+      await recordCommunity(
+        store,
+        { clientId: context.client.id, appId: context.app.id, actor: actorOf(context), what: hidden ? "hideAnswer" : "showAnswer", id: answer.id, course: courseTitle(context.app, question.courseId) },
+        new Date(),
+      );
+    }
+  }
+  revalidatePath("/dashboard/courses/questions", "layout");
 }
 
 async function ownReview(formData: FormData) {

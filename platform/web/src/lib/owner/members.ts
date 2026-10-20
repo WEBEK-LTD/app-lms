@@ -1,8 +1,11 @@
 import { formatDate } from "@/i18n/format";
 import { isDay } from "../analytics/days";
-import { checkInMember as checkIn, dayVisits, findMembers, gymDay, type MemberCheckInAnswer } from "../bookings/door";
+import { checkInMember as checkIn, dayVisits, findMembers, gymDay, memberStatus, type MemberCheckInAnswer, type MemberRow } from "../bookings/door";
+import { freezeMembership, freezeOf, unfreezeMembership, type FreezeResult } from "../bookings/freeze";
 import { memberKey } from "../bookings/member-codes";
-import { bodyObject, invalid, iso, pageJson, paging, type OwnerContext, type OwnerResult } from "./http";
+import type { Membership } from "../data/types";
+import { recordFreeze } from "../team/activity";
+import { bodyObject, intParam, invalid, iso, notFound, OwnerError, pageJson, paging, type OwnerContext, type OwnerResult } from "./http";
 import { appScope } from "./sales";
 
 /** 63 A gym's members at the door, with the dashboard's rules (lib/bookings/door.ts). */
@@ -18,18 +21,25 @@ export async function listMembers(ctx: OwnerContext, params: Record<string, stri
     body: {
       ...pageJson(page, total),
       time_zone: gymDay(app, ctx.deps.now).zone,
-      items: items.map((row) => ({
-        membership_id: row.membership.id,
-        name: row.user?.name ?? "",
-        phone: row.user?.phone ?? null,
-        plan_name: row.membership.planName,
-        status: row.status,
-        starts_at: row.membership.startsAt.toISOString(),
-        ends_at: iso(row.membership.endsAt),
-        credits_left: row.membership.creditsLeft,
-        checked_in_at: iso(row.checkedInAt),
-      })),
+      items: items.map(memberJson),
     },
+  };
+}
+
+/** `Member` in docs/api/owner.yaml. */
+function memberJson(row: MemberRow) {
+  return {
+    membership_id: row.membership.id,
+    name: row.user?.name ?? "",
+    phone: row.user?.phone ?? null,
+    plan_name: row.membership.planName,
+    status: row.status,
+    starts_at: row.membership.startsAt.toISOString(),
+    ends_at: iso(row.membership.endsAt),
+    credits_left: row.membership.creditsLeft,
+    checked_in_at: iso(row.checkedInAt),
+    // 64 A freeze now or to come.
+    frozen: row.freeze ? { from: row.freeze.from.toISOString(), until: iso(row.freeze.until) } : null,
   };
 }
 
@@ -48,6 +58,8 @@ export function memberCheckInMessage(t: OwnerContext["t"], lang: OwnerContext["l
       return t("door.cancelled");
     case "not_started":
       return t("door.notStarted");
+    case "frozen":
+      return m?.frozenUntil ? t("door.frozenUntil", { date: formatDate(lang, m.frozenUntil, { day: "numeric", month: "short", year: "numeric", timeZone: zone }) }) : t("door.frozen");
     case "no_credits":
       return t("door.noCredits");
     case "forged":
@@ -75,7 +87,9 @@ export async function checkInMember(ctx: OwnerContext, params: Record<string, st
       outcome: answer.outcome,
       admitted: answer.outcome === "admitted",
       message: memberCheckInMessage(ctx.t, ctx.lang, answer, gymDay(app, now).zone),
-      member: m ? { membership_id: m.membershipId, name: m.name, plan_name: m.planName, ends_at: iso(m.endsAt), credits_left: m.creditsLeft, checked_in_at: iso(m.checkedInAt) } : null,
+      member: m
+        ? { membership_id: m.membershipId, name: m.name, plan_name: m.planName, ends_at: iso(m.endsAt), credits_left: m.creditsLeft, checked_in_at: iso(m.checkedInAt), frozen_until: iso(m.frozenUntil) }
+        : null,
     },
   };
 }
@@ -96,4 +110,39 @@ export async function listCheckIns(ctx: OwnerContext, params: Record<string, str
       items: visits.map((v) => ({ id: v.checkIn.id, membership_id: v.checkIn.membershipId, name: v.name, plan_name: v.planName, checked_in_at: v.checkIn.at.toISOString(), by: v.checkIn.byName })),
     },
   };
+}
+
+// 64 Freezing a membership (lib/bookings/freeze.ts), the Bookings area as the door.
+
+async function ownMembership(ctx: OwnerContext, params: Record<string, string>) {
+  const { app } = appScope(ctx, params.app_id, "memberCheckIn");
+  const membership = await ctx.deps.store.getMembership(app.id, intParam(params.membership_id));
+  if (!membership) throw notFound();
+  return { app, membership };
+}
+
+async function frozenAnswer(ctx: OwnerContext, app: Parameters<typeof gymDay>[0], before: Membership, result: FreezeResult, frozen: boolean): Promise<OwnerResult> {
+  const { store, now } = ctx.deps;
+  if (!result.ok) {
+    if (result.status === 409) throw new OwnerError(409, "invalid_status", Object.values(result.errors)[0] ?? "The request isn't valid.");
+    throw invalid(result.errors);
+  }
+  const user = await store.getHostedUser(app.id, before.userId);
+  await recordFreeze(store, { clientId: ctx.client.id, appId: app.id, actor: ctx.user, membershipId: before.id, name: user?.name ?? "", frozen }, now);
+  const m = result.membership;
+  const today = (await store.listMemberCheckIns(app.id, gymDay(app, now).day)).find((c) => c.userId === m.userId);
+  return { status: 200, body: memberJson({ membership: m, user, status: memberStatus(m, now), freeze: freezeOf(m, now), checkedInAt: today?.at ?? null }) };
+}
+
+export async function freezeMember(ctx: OwnerContext, params: Record<string, string>): Promise<OwnerResult> {
+  const { app, membership } = await ownMembership(ctx, params);
+  const body = bodyObject(ctx.req.body);
+  const result = await freezeMembership(ctx.deps.store, app, membership, { from: body.from, until: body.until }, ctx.deps.now);
+  return frozenAnswer(ctx, app, membership, result, true);
+}
+
+export async function unfreezeMember(ctx: OwnerContext, params: Record<string, string>): Promise<OwnerResult> {
+  const { app, membership } = await ownMembership(ctx, params);
+  const result = await unfreezeMembership(ctx.deps.store, app, membership, ctx.deps.now);
+  return frozenAnswer(ctx, app, membership, result, false);
 }

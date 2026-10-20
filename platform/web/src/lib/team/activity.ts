@@ -20,6 +20,12 @@ export const TEAM_ACTIONS = [
   "review.reply",
   "review.hide",
   "review.show",
+  "question.hide",
+  "question.show",
+  "answer.hide",
+  "answer.show",
+  "membership.freeze",
+  "membership.unfreeze",
   "team.invite",
   "team.resend",
   "team.cancel",
@@ -105,10 +111,17 @@ export function recordNotificationSent(store: DataStore, input: { clientId: stri
   return recordTeamActivity(store, { clientId: input.clientId, appId: input.appId, actor: input.actor, action: "notification.sent", target: { type: "notification" }, summary: `Sent "${input.title}" to the app's users` }, now);
 }
 
-/** 63 A course question answered, or a review replied to, hidden or shown again. */
+/** 63 A course question answered, or a review replied to, hidden or shown again; 64 a question or an answer hidden or shown again. */
 export function recordCommunity(
   store: DataStore,
-  input: { clientId: string; appId: string; actor: TeamActor; what: "answer" | "reply" | "hide" | "show"; id: number; course: string },
+  input: {
+    clientId: string;
+    appId: string;
+    actor: TeamActor;
+    what: "answer" | "reply" | "hide" | "show" | "hideQuestion" | "showQuestion" | "hideAnswer" | "showAnswer";
+    id: number;
+    course: string;
+  },
   now: Date,
 ): Promise<void> {
   const course = input.course.slice(0, 200);
@@ -117,6 +130,27 @@ export function recordCommunity(
     reply: { action: "review.reply", type: "review", summary: `Replied to a review of "${course}"` },
     hide: { action: "review.hide", type: "review", summary: `Hid a review of "${course}"` },
     show: { action: "review.show", type: "review", summary: `Showed a review of "${course}" again` },
+    hideQuestion: { action: "question.hide", type: "question", summary: `Hid a question in "${course}"` },
+    showQuestion: { action: "question.show", type: "question", summary: `Showed a question in "${course}" again` },
+    hideAnswer: { action: "answer.hide", type: "answer", summary: `Hid an answer in "${course}"` },
+    showAnswer: { action: "answer.show", type: "answer", summary: `Showed an answer in "${course}" again` },
   }[input.what] as { action: TeamAction; type: string; summary: string };
   return recordTeamActivity(store, { clientId: input.clientId, appId: input.appId, actor: input.actor, action: line.action, target: { type: line.type, id: input.id }, summary: line.summary }, now);
+}
+
+/** 64 A gym's membership frozen (from a day, until a day or not) or unfrozen, with the member's name. */
+export function recordFreeze(store: DataStore, input: { clientId: string; appId: string; actor: TeamActor; membershipId: number; name: string; frozen: boolean }, now: Date): Promise<void> {
+  const name = input.name.slice(0, 120);
+  return recordTeamActivity(
+    store,
+    {
+      clientId: input.clientId,
+      appId: input.appId,
+      actor: input.actor,
+      action: input.frozen ? "membership.freeze" : "membership.unfreeze",
+      target: { type: "membership", id: input.membershipId },
+      summary: input.frozen ? `Froze the membership of "${name}"` : `Unfroze the membership of "${name}"`,
+    },
+    now,
+  );
 }

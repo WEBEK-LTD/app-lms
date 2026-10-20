@@ -5,7 +5,7 @@ import { findLesson, lessonsOf, courseSetup, videoSource } from "../../courses/s
 import { randomToken, sha256Hex } from "../../crypto/tokens";
 import type { DataStore } from "../../data/store";
 import type { App, Course, CourseLesson, CourseQuestion, CourseReview, CourseSetup, HostedUser, LessonProgress } from "../../data/types";
-import { QUESTION_LIMIT, ratingSummary, readCommunityText, readReview, REVIEW_LIMIT } from "../../courses/community";
+import { answersFor, QUESTION_LIMIT, ratingSummary, readCommunityText, readReview, REVIEW_LIMIT } from "../../courses/community";
 import type { RateLimitRule } from "../../rate-limit";
 import { hitRateLimit } from "../../rate-limit";
 import { descriptionHtml, payUrl } from "./catalog";
@@ -563,7 +563,8 @@ export class CoursesConnector implements Connector {
   }
 
   private questionJson(q: CourseQuestion, user: HostedUser | null | undefined, mine: boolean) {
-    return { id: q.id, course_id: q.courseId, text: q.text, author: this.person(user), created_at: q.createdAt.toISOString(), answer_count: q.answerCount, mine };
+    // 64 A hidden question reaches its author only, who is told.
+    return { id: q.id, course_id: q.courseId, text: q.text, author: this.person(user), created_at: q.createdAt.toISOString(), answer_count: q.answerCount, mine, hidden: q.hidden };
   }
 
   private async questions(request: ConnectorRequest, c: Course | null): Promise<ConnectorResult> {
@@ -571,7 +572,14 @@ export class CoursesConnector implements Connector {
     if (refused) return refused;
     const page = intParam(request.query, "page", 1, 10_000);
     const perPage = intParam(request.query, "per_page", 20, 100);
-    const { items, total } = await this.deps.store.listCourseQuestions({ appId: this.deps.app.id, courseIds: [c!.id], order: "created", offset: (page - 1) * perPage, limit: perPage });
+    const { items, total } = await this.deps.store.listCourseQuestions({
+      appId: this.deps.app.id,
+      courseIds: [c!.id],
+      viewerId: request.user!.id,
+      order: "created",
+      offset: (page - 1) * perPage,
+      limit: perPage,
+    });
     const users = await this.users(items.map((q) => q.userId));
     return {
       status: 200,
@@ -604,7 +612,8 @@ export class CoursesConnector implements Connector {
     if (!request.user) return signIn();
     const question = Number.isSafeInteger(id) ? await this.deps.store.getCourseQuestion(this.deps.app.id, id) : null;
     const course = question ? this.course(question.courseId) : null;
-    if (!question || !course) return error(404, "not_found", "Question not found.");
+    // 64 A question the business hid is its author's only.
+    if (!question || !course || (question.hidden && question.userId !== request.user.id)) return error(404, "not_found", "Question not found.");
     const refused = await this.mayTalk(request, course);
     return refused ?? { question, course };
   }
@@ -613,7 +622,8 @@ export class CoursesConnector implements Connector {
     const found = await this.ownQuestion(request, id);
     if ("status" in found) return found;
     const { question, course } = found;
-    const answers = await this.deps.store.listCourseAnswers(this.deps.app.id, question.id);
+    // 64 Hidden answers reach their author only.
+    const answers = answersFor(await this.deps.store.listCourseAnswers(this.deps.app.id, question.id), request.user!.id);
     const users = await this.users([question.userId, ...answers.flatMap((a) => (a.userId === null ? [] : [a.userId]))]);
     return {
       status: 200,
@@ -625,6 +635,7 @@ export class CoursesConnector implements Connector {
           author: a.userId === null ? this.business(course) : this.person(users.get(a.userId)),
           created_at: a.createdAt.toISOString(),
           mine: a.userId === request.user!.id,
+          hidden: a.hidden,
         })),
       },
     };
@@ -640,8 +651,9 @@ export class CoursesConnector implements Connector {
     const { question, course } = found;
     // A student writing again: the question waits for the business again.
     const answer = await this.deps.store.addCourseAnswer({ appId: this.deps.app.id, questionId: question.id, userId: request.user!.id, text: read.text, createdAt: request.now }, "open");
-    await this.tell(() => this.deps.onQuestion?.({ question, course, user: request.user!, text: read.text, followUp: true }));
-    return { status: 201, body: { id: answer.id, text: answer.text, author: this.person(request.user), created_at: answer.createdAt.toISOString(), mine: true } };
+    // 64 A question the business hid isn't pushed to its phones again.
+    if (!question.hidden) await this.tell(() => this.deps.onQuestion?.({ question, course, user: request.user!, text: read.text, followUp: true }));
+    return { status: 201, body: { id: answer.id, text: answer.text, author: this.person(request.user), created_at: answer.createdAt.toISOString(), mine: true, hidden: false } };
   }
 
   /** The business hears of it; a failure never fails what the student did. */

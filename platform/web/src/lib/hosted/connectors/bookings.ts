@@ -2,6 +2,7 @@ import { freeTimes, staffFor } from "../../bookings/availability";
 import { busyTimes } from "../../bookings/busy";
 import { hasClasses } from "../../bookings/classes";
 import { checkAnswers, intakeFieldsJson } from "../../bookings/intake";
+import { freezeOf } from "../../bookings/freeze";
 import { membershipActive, membershipStatus } from "../../bookings/memberships";
 import { memberCodeJson, memberKey } from "../../bookings/member-codes";
 import { rememberMemberCode } from "../../bookings/door";
@@ -447,6 +448,8 @@ export class BookingsConnector implements Connector {
     too_late: [409, "too_late", "This class can no longer be booked in the app."],
     full: [409, "class_full", "This class is full. Please choose another one."],
     membership_required: [403, "membership_required", "You need a membership to book classes."],
+    // 64 Its only memberships are frozen (lib/bookings/freeze.ts).
+    membership_frozen: [403, "membership_frozen", "Your membership is frozen, so classes can't be booked until it's back."],
     no_credits: [403, "no_credits", "Your membership has no classes left."],
   };
 
@@ -542,6 +545,8 @@ export class BookingsConnector implements Connector {
       starts_at: m.startsAt.toISOString(),
       ends_at: m.endsAt ? m.endsAt.toISOString() : null,
       credits_left: m.creditsLeft,
+      // 64 A freeze now or to come (lib/bookings/freeze.ts); the app says "Frozen" and the door doesn't let them in.
+      frozen: frozenJson(m, now),
       // 63 A gym's member shows it at the door (Dashboard › Members › Check-in, Yallapp Business's scanner).
       member_code: this.deps.app.vertical === "fitness" && membershipActive(m, now) ? memberCodeJson(this.memberKey, this.deps.app.id, m.id) : null,
     };
@@ -564,4 +569,10 @@ export class BookingsConnector implements Connector {
     if (this.deps.app.vertical === "fitness") for (const m of active) await rememberMemberCode(this.deps.store, this.memberKey, this.deps.app.id, m);
     return { status: 200, body: { items: [...active, ...ended].map((m) => this.membershipJson(m, now)) } };
   }
+}
+
+/** 64 `Membership.frozen` in docs/api/openapi.yaml. */
+function frozenJson(m: Membership, now: Date): { from: string; until: string | null } | null {
+  const freeze = freezeOf(m, now);
+  return freeze ? { from: freeze.from.toISOString(), until: freeze.until ? freeze.until.toISOString() : null } : null;
 }

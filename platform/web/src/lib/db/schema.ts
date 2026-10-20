@@ -725,6 +725,9 @@ export const memberships = mysqlTable(
     updatedAt: time("updated_at").notNull(),
     // 63 A hash of the member code (lib/bookings/member-codes.ts), so a typed code is one indexed lookup; set when the code is first shown or used.
     codeHash: varchar("code_hash", { length: 32 }),
+    // 64 A freeze (lib/bookings/freeze.ts): from the start of a gym's day until the start of the day it's back (null: until unfrozen).
+    frozenFrom: time("frozen_from"),
+    frozenUntil: time("frozen_until"),
   },
   (t) => [
     index("memberships_user_idx").on(t.appId, t.userId),
@@ -1756,10 +1759,16 @@ export const courseQuestions = mysqlTable(
       .references(() => hostedUsers.id, { onDelete: "cascade" }),
     text: text("text").notNull(),
     status: varchar("status", { length: 16 }).notNull().$type<CourseQuestionStatus>(),
+    // 64 Hidden by the business: only its author sees it.
+    hidden: boolean("hidden").notNull().default(false),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
-  (t) => [index("course_questions_course_idx").on(t.appId, t.courseId, t.createdAt), index("course_questions_app_idx").on(t.appId, t.status, t.updatedAt)],
+  (t) => [
+    index("course_questions_course_idx").on(t.appId, t.courseId, t.createdAt),
+    index("course_questions_app_idx").on(t.appId, t.status, t.updatedAt),
+    index("course_questions_hidden_idx").on(t.appId, t.hidden, t.status, t.updatedAt),
+  ],
 );
 
 /** 63 Answers under a question: a student's, or the business's (`user_id` null). */
@@ -1775,6 +1784,8 @@ export const courseAnswers = mysqlTable(
       .references(() => courseQuestions.id, { onDelete: "cascade" }),
     userId: bigint("user_id", { mode: "number", unsigned: true }).references(() => hostedUsers.id, { onDelete: "cascade" }),
     text: text("text").notNull(),
+    // 64 Hidden by the business: only its author sees it.
+    hidden: boolean("hidden").notNull().default(false),
     createdAt: time("created_at").notNull(),
   },
   (t) => [index("course_answers_question_idx").on(t.questionId, t.createdAt)],

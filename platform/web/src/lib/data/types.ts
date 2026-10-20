@@ -1290,7 +1290,7 @@ export interface ClassBooking {
 }
 
 /** Why a spot wasn't booked. */
-export type BookClassFailure = "not_found" | "cancelled" | "too_late" | "full" | "membership_required" | "no_credits";
+export type BookClassFailure = "not_found" | "cancelled" | "too_late" | "full" | "membership_required" | "membership_frozen" | "no_credits";
 
 export type BookClassResult = { ok: true; booking: ClassBooking; session: ClassSession } | { ok: false; reason: BookClassFailure };
 
@@ -1330,6 +1330,13 @@ export interface Membership {
   updatedAt: Date;
   /** 63 The hash of its member code (lib/bookings/member-codes.ts), once the code was shown or used; null before. */
   codeHash?: string | null;
+  /**
+   * 64 A freeze (lib/bookings/freeze.ts): from the start of a gym's day
+   * until the start of the day it's back, or until unfrozen (`frozenUntil`
+   * null). Kept after a freeze with an end is over; null when none was set.
+   */
+  frozenFrom?: Date | null;
+  frozenUntil?: Date | null;
 }
 
 export type MembershipPatch = Partial<Pick<Membership, "status" | "endsAt" | "updatedAt">>;
@@ -1381,14 +1388,16 @@ export interface CourseQuestion {
   userId: number;
   text: string;
   status: CourseQuestionStatus;
-  /** Counted from its answers when read (a deleted student's answers go with their account). */
+  /** 64 Hidden by the business: only its author sees it in the app. */
+  hidden: boolean;
+  /** Counted from its answers when read (a deleted student's answers go with their account); 64 the hidden ones aren't. */
   answerCount: number;
   createdAt: Date;
   /** The latest question or answer. */
   updatedAt: Date;
 }
 
-export type CourseQuestionInput = Omit<CourseQuestion, "id" | "answerCount">;
+export type CourseQuestionInput = Omit<CourseQuestion, "id" | "answerCount" | "hidden">;
 
 /** An answer under a question: a student's (`userId`), or the business's (`userId` null). */
 export interface CourseAnswer {
@@ -1397,8 +1406,12 @@ export interface CourseAnswer {
   questionId: number;
   userId: number | null;
   text: string;
+  /** 64 Hidden by the business (a student's answer only): only its author sees it in the app. */
+  hidden: boolean;
   createdAt: Date;
 }
+
+export type CourseAnswerInput = Omit<CourseAnswer, "id" | "hidden">;
 
 // Courses managed in the dashboard (connector "courses").
 

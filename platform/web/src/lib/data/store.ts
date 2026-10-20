@@ -59,7 +59,7 @@ import type { CheckInResult, EventInput, EventRecord, EventSettings, EventTicket
 // 34 Yallapp sign-in for own API apps
 import type { AppAuthKey } from "./types";
 // 63
-import type { CourseAnswer, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
+import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 // 29 Charity & donations
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
 import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, DonationSettings, DonationStatus } from "./types";
@@ -374,6 +374,15 @@ export interface DataStore {
   /** 63 Memberships that can get in now and whose code hash isn't stored yet (made before it was). */
   listMembershipsWithoutCodeHash(appId: string, now: Date, limit: number): Promise<Membership[]>;
   setMembershipCodeHash(appId: string, id: number, codeHash: string): Promise<void>;
+  /**
+   * 64 Freezes an active membership from `from` until `until` (null: until
+   * unfrozen) and moves its end by `shiftDays`, in one conditional update:
+   * only while it's active and has no freeze now or to come (one of two at
+   * once wins). False when it didn't.
+   */
+  freezeMembership(appId: string, id: number, input: { from: Date; until: Date | null; shiftDays: number; now: Date }): Promise<boolean>;
+  /** 64 Removes the freeze that starts at `from` and moves the end by `shiftDays`, once (false when it changed meanwhile). */
+  unfreezeMembership(appId: string, id: number, input: { from: Date; shiftDays: number; now: Date }): Promise<boolean>;
 
   // 63 Course questions and reviews (lib/courses/community.ts)
   /** Writes or replaces the student's review of the course (one each); the business's reply and hiding stay. */
@@ -387,10 +396,26 @@ export interface DataStore {
   updateCourseReview(appId: string, id: number, patch: CourseReviewPatch): Promise<void>;
   createCourseQuestion(input: CourseQuestionInput): Promise<CourseQuestion>;
   getCourseQuestion(appId: string, id: number): Promise<CourseQuestion | null>;
-  /** `created`: newest question first (the app); `updated`: latest activity first (the business). */
-  listCourseQuestions(input: { appId: string; courseIds?: number[]; status?: CourseQuestionStatus; order: "created" | "updated"; offset: number; limit: number }): Promise<{ items: CourseQuestion[]; total: number }>;
+  /**
+   * `created`: newest question first (the app); `updated`: latest activity first (the business).
+   * 64 `hidden` filters by it; `viewerId`: the shown ones and that student's own (the app).
+   */
+  listCourseQuestions(input: {
+    appId: string;
+    courseIds?: number[];
+    status?: CourseQuestionStatus;
+    hidden?: boolean;
+    viewerId?: number;
+    order: "created" | "updated";
+    offset: number;
+    limit: number;
+  }): Promise<{ items: CourseQuestion[]; total: number }>;
   /** Adds an answer and sets the question's status and time, together. */
-  addCourseAnswer(input: Omit<CourseAnswer, "id">, status: CourseQuestionStatus): Promise<CourseAnswer>;
+  addCourseAnswer(input: CourseAnswerInput, status: CourseQuestionStatus): Promise<CourseAnswer>;
+  /** 64 Hides a question from everyone but its author, or shows it again; false when it isn't the app's. */
+  setCourseQuestionHidden(appId: string, id: number, hidden: boolean): Promise<boolean>;
+  /** 64 Hides a student's answer under the question, or shows it again; false when there's no such student's answer. */
+  setCourseAnswerHidden(appId: string, questionId: number, id: number, hidden: boolean): Promise<boolean>;
   /** Oldest first. */
   listCourseAnswers(appId: string, questionId: number): Promise<CourseAnswer[]>;
 

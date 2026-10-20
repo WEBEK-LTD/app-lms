@@ -1,7 +1,7 @@
 import type { Lang } from "@/i18n/config";
 import { appLang } from "../bookings/reschedule";
 import type { DataStore } from "../data/store";
-import type { App, Course, CourseAnswer, CourseQuestion, CourseReview } from "../data/types";
+import type { App, Course, CourseAnswer, CourseQuestion, CourseQuestionStatus, CourseReview } from "../data/types";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX } from "../hosted/notify";
 import { pushTarget, sendPush, type ServiceAccount } from "../hosted/push";
 import type { RateLimitRule } from "../rate-limit";
@@ -133,4 +133,39 @@ export async function removeReviewReply(store: DataStore, review: CourseReview, 
 /** Hides a review from everyone but its author, or shows it again. */
 export async function setReviewHidden(store: DataStore, review: CourseReview, hidden: boolean, now: Date): Promise<void> {
   await store.updateCourseReview(review.appId, review.id, { hidden, updatedAt: now });
+}
+
+/**
+ * 64 Hides a question from everyone but its author, or shows it again: a
+ * hidden question isn't in other students' lists or counts, and its author
+ * reads a note under it. Hiding doesn't answer it.
+ */
+export async function setQuestionHidden(store: DataStore, question: CourseQuestion, hidden: boolean): Promise<void> {
+  await store.setCourseQuestionHidden(question.appId, question.id, hidden);
+}
+
+/** 64 Hides a student's answer from everyone but its author, or shows it again (the business's own answers can't be hidden). */
+export async function setAnswerHidden(store: DataStore, question: CourseQuestion, answer: CourseAnswer, hidden: boolean): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (answer.userId === null) return { ok: false, error: "Your own answers can't be hidden." };
+  await store.setCourseAnswerHidden(question.appId, question.id, answer.id, hidden);
+  return { ok: true };
+}
+
+/** 64 What a student may see of a question's thread: the shown answers and their own. */
+export function answersFor(answers: CourseAnswer[], viewerId: number): CourseAnswer[] {
+  return answers.filter((a) => !a.hidden || a.userId === viewerId);
+}
+
+/** 64 The business's question lists: waiting and answered are the shown ones; hidden; or all. */
+export type QuestionFilter = "open" | "answered" | "hidden" | "all";
+
+export function questionFilter(filter: QuestionFilter): { status?: CourseQuestionStatus; hidden?: boolean } {
+  if (filter === "hidden") return { hidden: true };
+  if (filter === "all") return {};
+  return { status: filter, hidden: false };
+}
+
+/** 64 Questions waiting for the business (Today, the lists' counts): open and shown. */
+export async function countOpenQuestions(store: DataStore, appId: string): Promise<number> {
+  return (await store.listCourseQuestions({ appId, ...questionFilter("open"), order: "updated", offset: 0, limit: 1 })).total;
 }

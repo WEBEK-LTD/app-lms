@@ -8,7 +8,7 @@ import { orderNumber } from "../catalog/settings";
 import type { DataStore } from "../data/store";
 import type { Announcement, App, BookingAppointment, Build, CatalogOrder, Course, CourseQuestion, CourseReview, Donation, Listing, OwnerDevice, OwnerNotice, OwnerPushKind, User } from "../data/types";
 import { OWNER_ACCESS, PUSH_PERMISSION, teamCan, type TeamAccess, type TeamPermission } from "../team/permissions";
-import { memberAccess } from "../team/service";
+import { businessFor, businessName, memberAccess } from "../team/service";
 import { failureReason } from "../builds/view";
 import { pushTarget, sendPush, type ServiceAccount } from "../hosted/push";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX } from "../hosted/notify";
@@ -50,33 +50,44 @@ export interface Words {
 const wordsFor = (lang: Lang): Words => ({ lang, t: getDashT(lang), k: knownTranslator(lang) });
 const clip = (text: string, max: number) => (text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text);
 
+interface Recipient {
+  language: string | null | undefined;
+  device: OwnerDevice;
+  /** 64 The business's name as this person knows it (`Business.name`). */
+  business: string;
+}
+
 /**
- * The devices signed in to a client that want `kind`, still signed in, and
- * 60 whose person may see it: the owner, or someone on the team with
- * `permission` on the app (`appId`). Each with its person's language.
+ * The people of a client who may see a push: the owner, and 60 the team
+ * with `permission` on the app (`appId`). 64 Every phone each of them is
+ * signed in on that wants `kind`, whichever business it is working on (one
+ * the person still works on), so someone on several businesses hears of all
+ * of them. Each with its person's language and the business's name.
  */
-async function devicesFor(
-  store: DataStore,
-  clientId: string,
-  kind: OwnerPushKind,
-  permission: TeamPermission,
-  appId: string | null,
-  now: Date,
-): Promise<{ language: string | null | undefined; device: OwnerDevice }[]> {
+async function devicesFor(store: DataStore, clientId: string, kind: OwnerPushKind, permission: TeamPermission, appId: string | null, now: Date): Promise<Recipient[]> {
   const client = await store.getClientById(clientId);
-  if (!client) return [];
-  const wanting = (await store.listOwnerDevicesOfClient(clientId)).filter((d) => d.pushToken && d.pushPreferences?.[kind] !== false && d.refreshExpiresAt.getTime() > now.getTime());
-  const people = new Map<string, { user: User; access: TeamAccess } | null>();
-  const out: { language: string | null | undefined; device: OwnerDevice }[] = [];
-  for (const device of wanting) {
-    if (!people.has(device.userId)) {
-      const user = await store.getUserById(device.userId);
-      const member = user && user.id !== client.userId ? await store.getTeamMember(clientId, user.id) : null;
-      people.set(device.userId, user && (user.id === client.userId || member) ? { user, access: member ? memberAccess(member) : OWNER_ACCESS } : null);
+  const owner = client ? await store.getUserById(client.userId) : null;
+  if (!client || !owner) return [];
+  const people: { user: User; access: TeamAccess }[] = [
+    { user: owner, access: OWNER_ACCESS },
+    ...(await store.listTeamMembers(clientId)).filter((row) => row.user.id !== owner.id).map((row) => ({ user: row.user, access: memberAccess(row.member) })),
+  ];
+  const apps = await store.listAppsByClient(clientId);
+  const out: Recipient[] = [];
+  const seen = new Set<string>();
+  for (const { user, access } of people) {
+    if (!teamCan(access, permission, appId)) continue;
+    const name = businessName(owner, access.role === "owner" || access.appIds === null ? apps : apps.filter((a) => access.appIds!.includes(a.id)));
+    const works = new Map<string, boolean>([[clientId, true]]);
+    for (const device of await store.listOwnerDevices(user.id)) {
+      if (seen.has(device.id) || !device.pushToken || device.pushPreferences?.[kind] === false || device.refreshExpiresAt.getTime() <= now.getTime()) continue;
+      if (device.sessionVersion !== user.sessionVersion) continue;
+      // A phone on a business the person left is signed out there: nothing goes to it.
+      if (!works.has(device.clientId)) works.set(device.clientId, (await businessFor(store, user, device.clientId)) !== null);
+      if (!works.get(device.clientId)) continue;
+      seen.add(device.id);
+      out.push({ language: user.language, device, business: name });
     }
-    const person = people.get(device.userId);
-    if (!person || person.user.sessionVersion !== device.sessionVersion || !teamCan(person.access, permission, appId)) continue;
-    out.push({ language: person.user.language, device });
   }
   return out;
 }
@@ -94,15 +105,27 @@ export async function pushToOwner(
   try {
     const found = await devicesFor(deps.store, clientId, kind, permission, data.app_id ?? null, deps.now);
     if (found.length === 0) return 0;
-    const byLang = new Map<Lang, OwnerDevice[]>();
-    for (const { language, device } of found) {
+    // 64 One message per language and business name, with the name first on phones working on another business.
+    const groups = new Map<string, { lang: Lang; business: string; other: boolean; devices: OwnerDevice[] }>();
+    for (const { language, device, business } of found) {
       const lang = ownerLang(language, device.language);
-      byLang.set(lang, [...(byLang.get(lang) ?? []), device]);
+      const other = device.clientId !== clientId;
+      const key = JSON.stringify([lang, business, other]);
+      const group = groups.get(key) ?? { lang, business, other, devices: [] };
+      group.devices.push(device);
+      groups.set(key, group);
     }
     let sent = 0;
-    for (const [lang, devices] of byLang) {
-      const text = word(wordsFor(lang));
-      const message: OwnerPushMessage = { title: clip(text.title, NOTIFICATION_TITLE_MAX), body: clip(text.body, NOTIFICATION_BODY_MAX), data: { type: "owner", kind, ...data } };
+    for (const { lang, business, other, devices } of groups.values()) {
+      const words = wordsFor(lang);
+      const text = word(words);
+      const name = business === "Untitled app" ? words.k(business) : business;
+      const title = other ? `${name} · ${text.title}` : text.title;
+      const message: OwnerPushMessage = {
+        title: clip(title, NOTIFICATION_TITLE_MAX),
+        body: clip(text.body, NOTIFICATION_BODY_MAX),
+        data: { type: "owner", kind, ...data, business_id: clientId, business_name: name },
+      };
       await deps.capture?.({ to: devices.map((d) => d.id), message });
       if (!deps.account) continue;
       const result = await (deps.send ?? sendPush)(deps.account, devices.map(pushTarget), message, { now: deps.now });

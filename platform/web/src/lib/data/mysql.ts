@@ -9,7 +9,7 @@ import type { BuildConfig } from "../build-config/types";
 import * as schema from "../db/schema";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
 import type { AppAuthKey, AppLayoutRecord } from "./types";
-import type { CourseAnswer, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
+import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 import type { MoreStore, MoreStoresRow, PublishingEvent, PublishingRequest, PublishingTrack } from "./types";
 import type {
   AppPatch,
@@ -1508,8 +1508,9 @@ export class MysqlStore implements DataStore {
     const m = schema.memberships;
     if (input.userIds && input.userIds.length === 0) return { items: [], total: 0 };
     const where = and(eq(m.appId, input.appId), input.userIds ? inArray(m.userId, input.userIds) : undefined);
-    // Those that can get in now first (as lib/bookings/door.ts refusal(), less the credits).
-    const usable = sql`case when ${m.status} = 'active' and ${m.startsAt} <= ${input.now} and (${m.endsAt} is null or ${m.endsAt} > ${input.now}) then 0 else 1 end`;
+    // Those that can get in now first (as lib/bookings/door.ts refusal(), less the credits; 64 not frozen).
+    const notFrozen = sql`(${m.frozenFrom} is null or ${m.frozenFrom} > ${input.now} or ${m.frozenUntil} <= ${input.now})`;
+    const usable = sql`case when ${m.status} = 'active' and ${m.startsAt} <= ${input.now} and (${m.endsAt} is null or ${m.endsAt} > ${input.now}) and ${notFrozen} then 0 else 1 end`;
     const [items, [total]] = await Promise.all([
       this.run((db) => db.select().from(m).where(where).orderBy(usable, desc(m.createdAt), desc(m.id)).limit(input.limit).offset(input.offset)),
       this.run((db) => db.select({ n: count() }).from(m).where(where)),
@@ -1529,7 +1530,16 @@ export class MysqlStore implements DataStore {
       db
         .select()
         .from(m)
-        .where(and(eq(m.appId, appId), isNull(m.codeHash), eq(m.status, "active"), lte(m.startsAt, now), or(isNull(m.endsAt), gt(m.endsAt, now))))
+        // 64 With those frozen without an end, whose end waits (lib/bookings/memberships.ts membershipActive).
+        .where(
+          and(
+            eq(m.appId, appId),
+            isNull(m.codeHash),
+            eq(m.status, "active"),
+            lte(m.startsAt, now),
+            or(isNull(m.endsAt), gt(m.endsAt, now), and(lte(m.frozenFrom, now), isNull(m.frozenUntil))),
+          ),
+        )
         .orderBy(desc(m.id))
         .limit(limit),
     );
@@ -1538,6 +1548,36 @@ export class MysqlStore implements DataStore {
   async setMembershipCodeHash(appId: string, id: number, codeHash: string): Promise<void> {
     const m = schema.memberships;
     await this.run((db) => db.update(m).set({ codeHash }).where(and(eq(m.appId, appId), eq(m.id, id))));
+  }
+
+  /** 64 The end moved by whole days in the same statement (null stays null). */
+  private shiftedEnd(days: number) {
+    const m = schema.memberships;
+    return days ? sql`date_add(${m.endsAt}, interval ${days} day)` : sql`${m.endsAt}`;
+  }
+
+  async freezeMembership(appId: string, id: number, input: { from: Date; until: Date | null; shiftDays: number; now: Date }): Promise<boolean> {
+    const m = schema.memberships;
+    // Only while active with no freeze now or to come: of two at once, one moves the end.
+    const [result] = await this.run((db) =>
+      db
+        .update(m)
+        .set({ frozenFrom: input.from, frozenUntil: input.until, endsAt: this.shiftedEnd(input.shiftDays), updatedAt: input.now })
+        .where(and(eq(m.appId, appId), eq(m.id, id), eq(m.status, "active"), or(isNull(m.frozenFrom), lte(m.frozenUntil, input.now)))),
+    );
+    return result.affectedRows === 1;
+  }
+
+  async unfreezeMembership(appId: string, id: number, input: { from: Date; shiftDays: number; now: Date }): Promise<boolean> {
+    const m = schema.memberships;
+    // Only the freeze that was read, while it isn't over: of two at once, one moves the end.
+    const [result] = await this.run((db) =>
+      db
+        .update(m)
+        .set({ frozenFrom: null, frozenUntil: null, endsAt: this.shiftedEnd(input.shiftDays), updatedAt: input.now })
+        .where(and(eq(m.appId, appId), eq(m.id, id), eq(m.frozenFrom, input.from), or(isNull(m.frozenUntil), gt(m.frozenUntil, input.now)))),
+    );
+    return result.affectedRows === 1;
   }
 
   // 63 Course questions and reviews
@@ -1608,15 +1648,18 @@ export class MysqlStore implements DataStore {
   }
 
   async createCourseQuestion(input: CourseQuestionInput): Promise<CourseQuestion> {
-    const [result] = await this.run((db) => db.insert(schema.courseQuestions).values(input));
-    return { ...input, id: Number(result.insertId), answerCount: 0 };
+    const [result] = await this.run((db) => db.insert(schema.courseQuestions).values({ ...input, hidden: false }));
+    return { ...input, hidden: false, id: Number(result.insertId), answerCount: 0 };
   }
 
-  /** 63 A question's columns with its answers counted (a deleted student's answers go with their account). */
+  /** 63 A question's columns with its answers counted (a deleted student's answers go with their account; 64 hidden ones aren't counted). */
   private questionColumns() {
     const q = schema.courseQuestions;
     // Written out with the tables' names: inside the subquery an unqualified `id` would be the answer's.
-    return { ...getTableColumns(q), answerCount: sql<number>`(select count(*) from \`course_answers\` where \`course_answers\`.\`question_id\` = \`course_questions\`.\`id\`)`.mapWith(Number) };
+    return {
+      ...getTableColumns(q),
+      answerCount: sql<number>`(select count(*) from \`course_answers\` where \`course_answers\`.\`question_id\` = \`course_questions\`.\`id\` and \`course_answers\`.\`hidden\` = false)`.mapWith(Number),
+    };
   }
 
   async getCourseQuestion(appId: string, id: number): Promise<CourseQuestion | null> {
@@ -1635,13 +1678,22 @@ export class MysqlStore implements DataStore {
     appId: string;
     courseIds?: number[];
     status?: CourseQuestionStatus;
+    hidden?: boolean;
+    viewerId?: number;
     order: "created" | "updated";
     offset: number;
     limit: number;
   }): Promise<{ items: CourseQuestion[]; total: number }> {
     const q = schema.courseQuestions;
     if (input.courseIds && input.courseIds.length === 0) return { items: [], total: 0 };
-    const where = and(eq(q.appId, input.appId), input.courseIds ? inArray(q.courseId, input.courseIds) : undefined, input.status ? eq(q.status, input.status) : undefined);
+    const where = and(
+      eq(q.appId, input.appId),
+      input.courseIds ? inArray(q.courseId, input.courseIds) : undefined,
+      input.status ? eq(q.status, input.status) : undefined,
+      input.hidden !== undefined ? eq(q.hidden, input.hidden) : undefined,
+      // 64 A student sees the shown questions and their own.
+      input.viewerId !== undefined ? or(eq(q.hidden, false), eq(q.userId, input.viewerId)) : undefined,
+    );
     const order = input.order === "created" ? [desc(q.createdAt), desc(q.id)] : [desc(q.updatedAt), desc(q.id)];
     const [items, [total]] = await Promise.all([
       this.run((db) =>
@@ -1658,7 +1710,7 @@ export class MysqlStore implements DataStore {
     return { items, total: Number(total?.n ?? 0) };
   }
 
-  async addCourseAnswer(input: Omit<CourseAnswer, "id">, status: CourseQuestionStatus): Promise<CourseAnswer> {
+  async addCourseAnswer(input: CourseAnswerInput, status: CourseQuestionStatus): Promise<CourseAnswer> {
     const q = schema.courseQuestions;
     return this.run((db) =>
       db.transaction(async (tx) => {
@@ -1668,10 +1720,28 @@ export class MysqlStore implements DataStore {
           .update(q)
           .set({ status, updatedAt: input.createdAt })
           .where(and(eq(q.appId, input.appId), eq(q.id, input.questionId)));
-        const [result] = await tx.insert(schema.courseAnswers).values(input);
-        return { ...input, id: Number(result.insertId) };
+        const [result] = await tx.insert(schema.courseAnswers).values({ ...input, hidden: false });
+        return { ...input, hidden: false, id: Number(result.insertId) };
       }),
     );
+  }
+
+  async setCourseQuestionHidden(appId: string, id: number, hidden: boolean): Promise<boolean> {
+    const q = schema.courseQuestions;
+    const [found] = await this.run((db) => db.select({ id: q.id }).from(q).where(and(eq(q.appId, appId), eq(q.id, id))).limit(1));
+    if (!found) return false;
+    await this.run((db) => db.update(q).set({ hidden }).where(and(eq(q.appId, appId), eq(q.id, id))));
+    return true;
+  }
+
+  async setCourseAnswerHidden(appId: string, questionId: number, id: number, hidden: boolean): Promise<boolean> {
+    const a = schema.courseAnswers;
+    // A student's answer only: the business's own are never hidden.
+    const where = and(eq(a.appId, appId), eq(a.questionId, questionId), eq(a.id, id), isNotNull(a.userId));
+    const [found] = await this.run((db) => db.select({ id: a.id }).from(a).where(where).limit(1));
+    if (!found) return false;
+    await this.run((db) => db.update(a).set({ hidden }).where(where));
+    return true;
   }
 
   async listCourseAnswers(appId: string, questionId: number): Promise<CourseAnswer[]> {

@@ -505,6 +505,7 @@ export const SERVER_MESSAGES_AR: Record<string, string> = {
   "You sign in with this email address, so it can't be changed here.": "تسجّل الدخول بهذا البريد الإلكتروني، لذا لا يمكن تغييره هنا.",
   "You're already enrolled in this course.": "أنت مسجّل في هذه الدورة بالفعل.",
   "You've sent many messages in a short time. Please try again later.": "أرسلت رسائل كثيرة في وقت قصير. يُرجى المحاولة لاحقًا.",
+  "Your membership is frozen, so classes can't be booked until it's back.": "عضويتك مجمّدة، فلا يمكن حجز الحصص حتى تعود.",
   "Your membership has no classes left.": "لم يتبقَّ في عضويتك أي حصص.",
   "Your session has ended. Please sign in again.": "انتهت جلستك. يُرجى تسجيل الدخول مرة أخرى.",
   "Your verification has expired. Please start again.": "انتهت صلاحية التحقق. يُرجى البدء من جديد.",

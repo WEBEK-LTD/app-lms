@@ -312,6 +312,8 @@ describe("classes and memberships on the hosted API", () => {
         starts_at: now.toISOString(),
         ends_at: null,
         credits_left: 5,
+        // 64 Not frozen.
+        frozen: null,
         // 63 The member's code for the gym's door.
         member_code: { code: expect.stringMatching(/^[A-HJ-NP-Z2-9]{12}$/), qr_payload: expect.stringMatching(/^YM1\.\d+\.[A-HJ-NP-Z2-9]{12}$/) },
       },
