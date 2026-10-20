@@ -282,9 +282,22 @@ jobs:
       # APKs to try on a phone, signed with the debug key (they can't go to
       # Google Play): one against yallapp.com.tr, one on the demo's sample apps.
       # Pushes need the app's Firebase project (README), which these leave out.
+      # Pushes: the Firebase project's Android client options, from the repository's
+      # Actions variables (not secrets: they ship inside the app). Without them the
+      # APK works the same and says notifications aren't set up in this build.
       - name: Build the APK for yallapp.com.tr
+        env:
+          YB_FIREBASE_PROJECT_ID: ${{ vars.YB_FIREBASE_PROJECT_ID }}
+          YB_FIREBASE_SENDER_ID: ${{ vars.YB_FIREBASE_SENDER_ID }}
+          YB_FIREBASE_APP_ID_ANDROID: ${{ vars.YB_FIREBASE_APP_ID_ANDROID }}
+          YB_FIREBASE_API_KEY_ANDROID: ${{ vars.YB_FIREBASE_API_KEY_ANDROID }}
         run: |
-          flutter build apk --release
+          flutter build apk --release \
+            --dart-define=YB_FIREBASE_PROJECT_ID="$YB_FIREBASE_PROJECT_ID" \
+            --dart-define=YB_FIREBASE_SENDER_ID="$YB_FIREBASE_SENDER_ID" \
+            --dart-define=YB_FIREBASE_APP_ID_ANDROID="$YB_FIREBASE_APP_ID_ANDROID" \
+            --dart-define=YB_FIREBASE_API_KEY_ANDROID="$YB_FIREBASE_API_KEY_ANDROID"
+          if [ -n "$YB_FIREBASE_APP_ID_ANDROID" ]; then echo "Pushes: on (Firebase project $YB_FIREBASE_PROJECT_ID)"; else echo "Pushes: off (no YB_FIREBASE_* variables)"; fi
           mv build/app/outputs/flutter-apk/app-release.apk "$RUNNER_TEMP/yallapp-business.apk"
 
       - name: Build the demo APK
