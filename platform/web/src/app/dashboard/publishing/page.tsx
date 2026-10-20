@@ -35,27 +35,45 @@ import {
 import { kindOf, suggestedCategories, wordsOf } from "@/lib/app/kinds";
 import { reviewNotesFor } from "@/lib/publishing/review-notes";
 import { ChecklistForm, ListingForm } from "./forms";
-import { ALL_STORES_TEXT } from "@/lib/stores";
+import { localePath } from "@/i18n/paths";
+import { richText } from "@/i18n/rich";
+import { formatList } from "@/i18n/format";
+import { dashboardText } from "@/lib/dashboard-lang";
+import type { DashKey } from "@/i18n/dashboard";
+import type { PublishingStatus } from "@/lib/data/types";
 
-export const metadata: Metadata = { title: "Publishing" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await dashboardText()).t("publishing.title") };
+}
 
+/** The group of each step: a store's name, or "Push notifications" (a catalog key). */
 const GROUP: Record<string, string> = {
   android: "Google Play",
   ios: "App Store",
-  both: "Push notifications",
   galaxy: "Galaxy Store",
   huawei: "AppGallery",
   xiaomi: "Xiaomi GetApps",
 };
 
 /** 35, 36, 42 What the extra stores are, on the Publishing page. */
-const MORE_STORE_TEXT: Record<(typeof MORE_STORES)[number], string> = {
-  galaxy: "Samsung's own app store, on every Samsung Galaxy phone and tablet.",
-  huawei: "Huawei's app store, for Huawei phones without Google Play.",
-  xiaomi: "Xiaomi's app store, on Xiaomi, Redmi and POCO phones.",
+const MORE_STORE_TEXT: Record<(typeof MORE_STORES)[number], DashKey> = {
+  galaxy: "publishing.galaxyText",
+  huawei: "publishing.huaweiText",
+  xiaomi: "publishing.xiaomiText",
 };
 
-function Choice({ mode, title, text, points, disabled }: { mode: "self" | "managed"; title: string; text: string; points: string[]; disabled?: string }) {
+/** What each status means for the client (lib/publishing/steps.ts statusText), in the dashboard's language. */
+const STATUS_KEY: Record<PublishingStatus, DashKey> = {
+  waiting_client: "publishing.status.waiting",
+  accounts_ready: "publishing.status.accounts",
+  submitted: "publishing.status.submitted",
+  in_review: "publishing.status.review",
+  live: "publishing.status.live",
+  rejected: "publishing.status.rejected",
+};
+const REVIEWER = { android: "Google", ios: "Apple", galaxy: "Samsung", huawei: "Huawei", xiaomi: "Xiaomi" } as const;
+
+function Choice({ mode, title, text, points, disabled, saving }: { mode: "self" | "managed"; title: string; text: string; points: string[]; disabled?: string; saving: string }) {
   return (
     <form action={choosePublishingModeAction} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
       <input type="hidden" name="mode" value={mode} />
@@ -73,7 +91,7 @@ function Choice({ mode, title, text, points, disabled }: { mode: "self" | "manag
         ))}
       </ul>
       <div className="mt-auto pt-2">
-        <SubmitButton variant={mode === "managed" ? "primary" : "secondary"} className="h-11" disabled={Boolean(disabled)} pendingText="Saving…">
+        <SubmitButton variant={mode === "managed" ? "primary" : "secondary"} className="h-11" disabled={Boolean(disabled)} pendingText={saving}>
           {title}
         </SubmitButton>
         {disabled ? <span className="mt-1.5 block text-sm text-muted">{disabled}</span> : null}
@@ -85,6 +103,9 @@ function Choice({ mode, title, text, points, disabled }: { mode: "self" | "manag
 export default async function PublishingPage({ searchParams }: PageProps<"/dashboard/publishing">) {
   const { app, license } = await requireClient();
   if (!app) redirect("/dashboard/app-type");
+  const { t, k, lang } = await dashboardText();
+  const saving = t("common.saving");
+  const name = appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app);
   const query = await searchParams;
   const store = await getStore();
   const contact = await getContact();
@@ -93,19 +114,19 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
   const teamEmail = await publishingTeamEmail(store);
   const current = await appPlan(await getStore(), license, new Date());
   const allowed = canUseManagedPublishing(current);
-  const notIncluded = allowed ? undefined : `Not included in this app's plan. Upgrade it on ${licensePageName(app)}.`;
+  const notIncluded = allowed ? undefined : t("publishing.notIncluded", { page: k(licensePageName(app)) });
   const autoUpload = hasFeature(current, "auto_publish");
 
   // 41 Every store Yallapp publishes to.
   // 46 Links that open the app: the Play signing fingerprint and the Team ID live on their own page.
   const header = (
     <PageHeader
-      title="Publishing"
-      description={<>{appLabel(app)} on {ALL_STORES_TEXT}.</>}
+      title={t("publishing.title")}
+      description={t("publishing.intro", { app: name })}
       actions={
         <Link href="/dashboard/publishing/links" className={`${btn.secondary} h-10 px-4 text-sm`}>
           <Icon name="link" size={18} />
-          Links to your app
+          {t("publishing.links")}
         </Link>
       }
     />
@@ -114,10 +135,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
   const passwords = (
     <p className="m-0 flex gap-2 text-sm leading-relaxed text-ink-4">
       <Icon name="lock" size={20} className="text-muted" />
-      <span>
-        We never ask for your Google or Apple passwords. The accounts stay yours, in your name: you invite our team email, {teamEmail}, and you can remove
-        our access at any time.
-      </span>
+      <span>{richText(t("publishing.passwords"), { email: () => <bdi dir="ltr">{teamEmail}</bdi> })}</span>
     </p>
   );
 
@@ -127,32 +145,25 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
         {header}
         {query.error === "not-included" ? (
           <Notice tone="warn" icon="warning" role="alert">
-            Publishing for you isn&apos;t included in this app&apos;s plan. <Link href="/dashboard/license#change-plan">Upgrade the plan</Link> or <a href={contact.whatsappUrl}>message us on WhatsApp</a>.
+            {richText(t("publishing.notIncludedAlert"), { wa: (chunk) => <a href={contact.whatsappUrl}>{chunk}</a>, upgrade: (chunk) => <Link href="/dashboard/license#change-plan">{chunk}</Link> })}
           </Notice>
         ) : null}
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">How should your app get to the app stores? You can change your mind later.</p>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("publishing.howQuestion")}</p>
         <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]">
           <Choice
             mode="managed"
-            title="Publish it for me"
-            text="Our team publishes your app on the stores you choose and keeps it there, under your own developer accounts."
-            points={[
-              "You create your Google Play and Apple developer accounts, in your name: we show you how, step by step.",
-              "You invite our team email to them. No passwords.",
-              "We prepare the store listings, send the app for review and tell you each step by email.",
-            ]}
+            title={t("publishing.managed")}
+            text={t("publishing.managedText")}
+            points={[t("publishing.managedPoint1"), t("publishing.managedPoint2"), t("publishing.managedPoint3")]}
             disabled={notIncluded}
+            saving={saving}
           />
           <Choice
             mode="self"
-            title="I'll publish it myself"
-            text="You upload the files from Builds & downloads to your own store accounts, with our step-by-step guides."
-            points={[
-              "Download the Android App Bundle, the iOS app and the store assets.",
-              autoUpload
-                ? "Or add your store keys in App setup › Publishing and we upload every new build for you."
-                : "Follow our step-by-step guide for each store.",
-            ]}
+            title={t("publishing.self")}
+            text={t("publishing.selfText")}
+            points={[t("publishing.selfPoint1"), autoUpload ? t("publishing.selfPointAuto") : t("publishing.selfPointGuides")]}
+            saving={saving}
           />
         </div>
         {passwords}
@@ -167,40 +178,38 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
         {header}
         {query.chosen === "self" ? (
           <Notice tone="success" icon="check_circle" role="status">
-            Saved: you publish {appLabel(app)} yourself.
+            {t("publishing.savedSelf", { app: name })}
           </Notice>
         ) : null}
         <section aria-labelledby="h-self" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <h2 id="h-self" className="m-0 text-lg font-bold">
-            You publish it yourself
+            {t("publishing.selfTitle")}
           </h2>
-          <ol className="m-0 list-decimal space-y-2 pl-5 text-[15px] leading-relaxed marker:font-bold">
+          <ol className="m-0 list-decimal space-y-2 ps-5 text-[15px] leading-relaxed marker:font-bold">
+            <li>{richText(t("publishing.selfStep1"), { link: (chunk) => <Link href="/dashboard/builds">{chunk}</Link> })}</li>
             <li>
-              Download your files on <Link href="/dashboard/builds">Builds &amp; downloads</Link>: the App Bundle for Google Play, the iOS app and the store
-              assets.
+              {richText(t("publishing.selfStep2"), {
+                play: (chunk) => <Link href={localePath(lang, "/guides/google-play")}>{chunk}</Link>,
+                apple: (chunk) => <Link href={localePath(lang, "/guides/app-store")}>{chunk}</Link>,
+              })}
             </li>
-            <li>
-              Follow our guides: <Link href="/guides/google-play">Publish on Google Play</Link> and <Link href="/guides/app-store">Publish on the App Store</Link>.
-            </li>
-            <li>
-              More Android stores: <Link href="/dashboard/publishing/more-stores">Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps</Link>, with their
-              guides.
-            </li>
+            <li>{richText(t("publishing.selfStep3"), { link: (chunk) => <Link href="/dashboard/publishing/more-stores">{chunk}</Link> })}</li>
             {autoUpload ? (
               <li>
-                With your store keys in <Link href="/dashboard/setup?step=publishing">App setup › Publishing</Link>, we upload every new build for you.
-                {keys.play || keys.appStore ? " Your keys are saved." : " No key is saved yet."}
+                {richText(keys.play || keys.appStore ? t("publishing.selfStep4Saved") : t("publishing.selfStep4None"), {
+                  link: (chunk) => <Link href="/dashboard/setup?step=publishing">{chunk}</Link>,
+                })}
               </li>
             ) : null}
           </ol>
         </section>
         <form action={choosePublishingModeAction} className="flex flex-col gap-2 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <input type="hidden" name="mode" value="managed" />
-          <h2 className="m-0 text-lg font-bold">Would you rather we publish it?</h2>
-          <p className="m-0 text-[15px] text-ink-4">Our team publishes it under your own developer accounts. You only create the accounts and invite us.</p>
+          <h2 className="m-0 text-lg font-bold">{t("publishing.ratherWe")}</h2>
+          <p className="m-0 text-[15px] text-ink-4">{t("publishing.ratherWeText")}</p>
           <div>
-            <SubmitButton variant="secondary" className="h-10" disabled={Boolean(notIncluded)} pendingText="Saving…">
-              Publish it for me
+            <SubmitButton variant="secondary" className="h-10" disabled={Boolean(notIncluded)} pendingText={saving}>
+              {t("publishing.managed")}
             </SubmitButton>
             {notIncluded ? <span className="mt-1.5 block text-sm text-muted">{notIncluded}</span> : null}
           </div>
@@ -216,12 +225,12 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
   const suggested = suggestedCategories(app);
   const steps = stepsFor(request).map((step) => ({
     id: step.id,
-    title: step.title,
-    text: stepText(step, teamEmail),
-    links: step.links,
-    group: GROUP[step.store]!,
+    title: k(step.title),
+    text: k(stepText(step, teamEmail)),
+    links: step.links.map((link) => ({ ...link, label: k(link.label) })),
+    group: step.store === "both" ? t("publishing.groupPush") : GROUP[step.store]!,
     done: stepDone(request, step.id),
-    doneAt: request.checklist[step.id] ? formatDateTime(new Date(request.checklist[step.id]!)) : null,
+    doneAt: request.checklist[step.id] ? formatDateTime(new Date(request.checklist[step.id]!), lang) : null,
   }));
 
   return (
@@ -229,13 +238,13 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
       {header}
       {query.chosen === "managed" ? (
         <Notice tone="success" icon="check_circle" role="status">
-          Thanks! Our team has your request. Work through the steps below; we email you each time something changes.
+          {t("publishing.thanks")}
         </Notice>
       ) : null}
 
       <section aria-labelledby="h-status" className="flex flex-col gap-3">
         <h2 id="h-status" className="m-0 text-lg font-bold">
-          Where it stands
+          {t("publishing.whereStands")}
         </h2>
         <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
           {requestStores(request).map((which) => {
@@ -247,21 +256,27 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
                     <Icon name={STORE_ICON[which]} size={22} />
                     {STORE_TITLE[which]}
                   </span>
-                  <Badge tone={statusTone(track.status)}>{CLIENT_STATUS_LABEL[track.status]}</Badge>
+                  <Badge tone={statusTone(track.status)}>{k(CLIENT_STATUS_LABEL[track.status])}</Badge>
                 </div>
-                <p className="m-0 text-sm leading-relaxed text-ink-4">{statusText(which, track.status)}</p>
+                <p className="m-0 text-sm leading-relaxed text-ink-4">
+                  {lang === "en"
+                    ? statusText(which, track.status)
+                    : t(STATUS_KEY[track.status], { store: t("publishing.storeIn", { store: which }), reviewer: REVIEWER[which] })}
+                </p>
                 {track.note ? (
                   <p className="m-0 rounded-lg bg-sand px-3 py-2 text-sm leading-relaxed">
-                    <span className="font-semibold">Note from our team:</span> {track.note}
+                    {richText(t("publishing.noteFromTeam", { note: track.note }), { b: (chunk) => <span className="font-semibold">{chunk}</span> })}
                   </p>
                 ) : null}
                 {track.status === "live" && track.storeUrl ? (
                   <a href={track.storeUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm font-semibold">
-                    See it on {STORE_TITLE[which]}
+                    {t("publishing.seeOn", { store: STORE_TITLE[which] })}
                     <Icon name="open_in_new" size={16} />
                   </a>
                 ) : null}
-                <span className="text-xs text-muted">{track.updatedAt ? `Updated ${formatDateTime(track.updatedAt)}` : `Asked ${formatDateTime(request.requestedAt)}`}</span>
+                <span className="text-xs text-muted">
+                  {track.updatedAt ? t("publishing.updated", { date: formatDateTime(track.updatedAt, lang) }) : t("publishing.asked", { date: formatDateTime(request.requestedAt, lang) })}
+                </span>
               </section>
             );
           })}
@@ -271,26 +286,24 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
       {/* 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, when the client wants them too. */}
       <form action={chooseMoreStoresAction} aria-labelledby="h-more-stores" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-more-stores" className="m-0 text-lg font-bold">
-          More Android stores
+          {t("publishing.moreStores")}
         </h2>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          We can publish your Android app on these stores too, under your own accounts. Each one adds two steps to your list below.
-        </p>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("publishing.moreStoresText")}</p>
         <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
-          <legend className="sr-only">Also publish on</legend>
+          <legend className="sr-only">{t("publishing.alsoOn")}</legend>
           {MORE_STORES.map((which) => (
             <label key={which} className="flex cursor-pointer items-start gap-3 rounded-xl border border-line p-3.5">
               <input type="checkbox" name="store" value={which} defaultChecked={Boolean(request[which])} className="mt-1 h-4 w-4 accent-midnight" />
               <span className="flex flex-col gap-0.5">
                 <span className="text-[15px] font-bold">{STORE_TITLE[which]}</span>
-                <span className="text-sm text-ink-4">{MORE_STORE_TEXT[which]}</span>
+                <span className="text-sm text-ink-4">{t(MORE_STORE_TEXT[which])}</span>
               </span>
             </label>
           ))}
         </fieldset>
         <div>
-          <SubmitButton variant="secondary" className="h-10" pendingText="Saving…">
-            Save stores
+          <SubmitButton variant="secondary" className="h-10" pendingText={saving}>
+            {t("publishing.saveStores")}
           </SubmitButton>
         </div>
       </form>
@@ -299,20 +312,21 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-col gap-1">
             <h2 id="h-checklist" className="m-0 text-lg font-bold">
-              Your steps
+              {t("publishing.yourSteps")}
             </h2>
             <span className="text-sm text-muted">
-              {progress.done} of {progress.total} done
-              {request.readyAt ? ` · ready since ${formatDateTime(request.readyAt)}` : ""}
+              {request.readyAt
+                ? t("publishing.progressReady", { done: progress.done, total: progress.total, date: formatDateTime(request.readyAt, lang) })
+                : t("publishing.progress", { done: progress.done, total: progress.total })}
             </span>
           </div>
-          {progress.complete ? <Badge tone="success">All done</Badge> : null}
+          {progress.complete ? <Badge tone="success">{t("publishing.allDone")}</Badge> : null}
         </div>
-        <div className="h-2 rounded-full bg-ivory" role="progressbar" aria-valuemin={0} aria-valuemax={progress.total} aria-valuenow={progress.done} aria-label="Steps done">
+        <div className="h-2 rounded-full bg-ivory" role="progressbar" aria-valuemin={0} aria-valuemax={progress.total} aria-valuenow={progress.done} aria-label={t("publishing.stepsDone")}>
           <div className="h-full rounded-full bg-ember" style={{ width: `${(progress.done / progress.total) * 100}%` }} />
         </div>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          The fees go straight to Google and Apple, in your name; we never pay them for you or see your card. Tick each step when you&apos;ve done it.
+          {t("publishing.fees")}
         </p>
         <ChecklistForm steps={steps} firebaseBy={request.firebaseBy} />
         {passwords}
@@ -321,34 +335,35 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
       <section aria-labelledby="h-listing" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-col gap-1">
           <h2 id="h-listing" className="m-0 text-lg font-bold">
-            Store listing details
+            {t("publishing.listing")}
           </h2>
-          <span className="text-sm text-muted">What the stores show. The texts and screenshots come from your app setup.</span>
+          <span className="text-sm text-muted">{t("publishing.listingText")}</span>
         </div>
         <dl className="m-0 grid gap-x-6 gap-y-2.5 text-[15px] sm:grid-cols-[minmax(160px,auto)_1fr]">
           {[
-            ["App name on the stores", app.storeTitle],
-            ["Short description", app.shortDescription],
-            ["Full description", app.fullDescription ? `${app.fullDescription.slice(0, 160)}${app.fullDescription.length > 160 ? "…" : ""}` : null],
-            ["Support email", app.supportEmail],
-            ["Privacy policy URL", app.privacyUrl],
+            [t("publishing.storeName"), app.storeTitle],
+            [t("publishing.shortDescription"), app.shortDescription],
+            [t("publishing.fullDescription"), app.fullDescription ? `${app.fullDescription.slice(0, 160)}${app.fullDescription.length > 160 ? "…" : ""}` : null],
+            [t("publishing.supportEmail"), app.supportEmail],
+            [t("publishing.privacyUrl"), app.privacyUrl],
             [
-              "Screenshots",
-              `${app.phoneScreenshotIds.length} for Google Play, ${app.iphoneScreenshotIds.length} for the App Store${
-                app.phoneScreenshotIds.length + app.iphoneScreenshotIds.length === 0 ? " (we take them from your app if you don't add any)" : ""
-              }`,
+              t("publishing.screenshots"),
+              t(app.phoneScreenshotIds.length + app.iphoneScreenshotIds.length === 0 ? "publishing.screenshotNone" : "publishing.screenshotCount", {
+                play: app.phoneScreenshotIds.length,
+                apple: app.iphoneScreenshotIds.length,
+              }),
             ],
           ].map(([label, value]) => (
             <div key={label} className="contents">
               <dt className="font-semibold text-muted">{label}</dt>
-              <dd className="m-0 min-w-0 break-words">{value ?? <span className="text-danger">Missing</span>}</dd>
+              <dd className="m-0 min-w-0 break-words">{value ?? <span className="text-danger">{t("publishing.missing")}</span>}</dd>
             </div>
           ))}
         </dl>
         <div>
           <Link href="/dashboard/setup?step=listing" className={`${btn.secondary} h-10`}>
             <Icon name="edit" size={18} />
-            Edit texts and screenshots
+            {t("publishing.editTexts")}
           </Link>
         </div>
         <ListingForm
@@ -361,13 +376,13 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
           playCategories={PLAY_CATEGORIES}
           appStoreCategories={APP_STORE_CATEGORIES}
           reviewNote={kindOf(app).reviewNote}
-          ratingExample={wordsOf(app).ratingExample}
+          ratingExample={k(wordsOf(app).ratingExample)}
         />
         {missing.length ? (
-          <Notice icon="info">Still missing: {missing.join(", ")}.</Notice>
+          <Notice icon="info">{t("publishing.stillMissing", { items: formatList(lang, missing.map(k)) })}</Notice>
         ) : (
           <Notice tone="success" icon="check_circle">
-            Your listing details are complete.
+            {t("publishing.listingComplete")}
           </Notice>
         )}
       </section>
@@ -375,14 +390,14 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
       {events.length ? (
         <section aria-labelledby="h-history" className="flex flex-col gap-3 rounded-2xl border border-line bg-white px-4 py-5 sm:px-6">
           <h2 id="h-history" className="m-0 text-lg font-bold">
-            History
+            {t("publishing.history")}
           </h2>
           <ul className="m-0 flex list-none flex-col gap-2 p-0 text-sm">
             {events.map((event) => (
               <li key={event.id} className="flex flex-wrap gap-x-2 border-t border-line-soft pt-2 first:border-t-0 first:pt-0">
-                <span className="text-muted">{formatDateTime(event.at)}</span>
+                <span className="text-muted">{formatDateTime(event.at, lang)}</span>
                 <span className="font-semibold">
-                  {publishingEventLabel(event, "client")}
+                  {event.store === "mode" ? k(publishingEventLabel(event, "client")) : `${STORE_TITLE[event.store]}: ${k(CLIENT_STATUS_LABEL[event.status as PublishingStatus] ?? event.status)}`}
                 </span>
                 {event.note ? <span className="basis-full text-ink-4">{event.note}</span> : null}
               </li>
@@ -393,9 +408,9 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
 
       <form action={choosePublishingModeAction} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-white px-5 py-4">
         <input type="hidden" name="mode" value="self" />
-        <span className="text-sm text-ink-4">Changed your mind? You can publish the app yourself with our guides instead.</span>
-        <SubmitButton variant="ghost" className="h-10" pendingText="Saving…">
-          I&apos;ll publish it myself
+        <span className="text-sm text-ink-4">{t("publishing.changedMind")}</span>
+        <SubmitButton variant="ghost" className="h-10" pendingText={saving}>
+          {t("publishing.self")}
         </SubmitButton>
       </form>
     </>
