@@ -250,3 +250,15 @@ class FakePush implements PushService {
   @override
   Future<Map<String, dynamic>?> initial() async => launch;
 }
+
+/// The same app with its plan ended.
+AppSummary expire(AppSummary a) => AppSummary(
+  id: a.id,
+  name: a.name,
+  type: a.type,
+  typeName: a.typeName,
+  state: AccountState.expired,
+  features: a.features,
+  vertical: a.vertical,
+  backend: a.backend,
+);

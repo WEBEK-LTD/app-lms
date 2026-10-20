@@ -281,8 +281,8 @@ class _JobTile extends ConsumerWidget {
                     : errorMessage(context, error),
               _ => '${formatBytes(job.sent)} / ${formatBytes(job.size)}',
             }, style: Theme.of(context).textTheme.bodySmall),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+            Wrap(
+              alignment: WrapAlignment.end,
               children: [
                 if (job.status == UploadStatus.uploading)
                   TextButton.icon(
