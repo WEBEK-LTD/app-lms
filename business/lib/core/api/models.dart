@@ -160,16 +160,21 @@ class Me {
     required this.apps,
     required this.links,
     this.stateMessage,
+    this.business,
+    this.businesses = const [],
   });
 
   factory Me.fromJson(Json json) {
     final account = optObject(json, 'account') ?? const {};
+    final business = optObject(json, 'business');
     return Me(
       user: OwnerUser.fromJson(asJson(json['user'])),
       state: AccountState.parse(optStr(account, 'state')),
       stateMessage: optStr(account, 'message'),
       apps: listOf(json, 'apps', AppSummary.fromJson),
       links: MeLinks.fromJson(optObject(json, 'links') ?? const {}),
+      business: business == null ? null : Business.fromJson(business),
+      businesses: listOf(json, 'businesses', Business.fromJson),
     );
   }
 
@@ -181,13 +186,184 @@ class Me {
   final List<AppSummary> apps;
   final MeLinks links;
 
+  /// 60 The business this phone works on, and every one the person is on
+  /// (their own and the teams they joined).
+  final Business? business;
+  final List<Business> businesses;
+
+  /// 60 The person's role on this business (the owner's when unknown).
+  TeamRole get role => business?.role ?? TeamRole.owner;
+
   Me copyWith({OwnerUser? user, List<AppSummary>? apps}) => Me(
     user: user ?? this.user,
     state: state,
     stateMessage: stateMessage,
     apps: apps ?? this.apps,
     links: links,
+    business: business,
+    businesses: businesses,
   );
+}
+
+/// 60 A role on a business's team.
+enum TeamRole {
+  owner,
+  manager,
+  staff;
+
+  static TeamRole parse(String? value) =>
+      values.where((r) => r.name == value).firstOrNull ?? TeamRole.owner;
+}
+
+/// 60 What a Staff member can be given, in the dashboard's order.
+const teamAreas = [
+  'orders',
+  'bookings',
+  'events',
+  'donations',
+  'catalog',
+  'media',
+  'messages',
+  'app_users',
+  'analytics',
+  'notifications',
+];
+
+/// 60 A business the person works on.
+class Business {
+  const Business({
+    required this.id,
+    required this.name,
+    required this.role,
+    required this.state,
+  });
+
+  factory Business.fromJson(Json json) => Business(
+    id: str(json, 'id'),
+    name: str(json, 'name'),
+    role: TeamRole.parse(optStr(json, 'role')),
+    state: AccountState.parse(optStr(json, 'state')),
+  );
+
+  final String id;
+  final String name;
+  final TeamRole role;
+  final AccountState state;
+}
+
+/// 60 What the signed-in person may do on an app. A server without teams
+/// sends none: the owner's.
+class AppAccess {
+  const AppAccess({
+    this.role = TeamRole.owner,
+    this.areas = teamAreas,
+    this.license = true,
+    this.team = true,
+    this.settings = true,
+  });
+
+  factory AppAccess.fromJson(Json json) => AppAccess(
+    role: TeamRole.parse(optStr(json, 'role')),
+    areas: strings(json, 'areas'),
+    license: boolean(json, 'license'),
+    team: boolean(json, 'team'),
+    settings: boolean(json, 'settings'),
+  );
+
+  final TeamRole role;
+  final List<String> areas;
+
+  /// The plan, payments and storage packs: the owner only.
+  final bool license;
+  final bool team;
+
+  /// The app's settings: builds and publishing.
+  final bool settings;
+}
+
+/// 60 Someone on the team (the owner first).
+class TeamMember {
+  const TeamMember({
+    required this.userId,
+    required this.name,
+    required this.email,
+    required this.role,
+    required this.areas,
+    this.appIds,
+    this.joinedAt,
+    this.lastSignInAt,
+  });
+
+  factory TeamMember.fromJson(Json json) => TeamMember(
+    userId: str(json, 'user_id'),
+    name: str(json, 'name'),
+    email: str(json, 'email'),
+    role: TeamRole.parse(optStr(json, 'role')),
+    areas: strings(json, 'areas'),
+    appIds: json['app_ids'] == null ? null : strings(json, 'app_ids'),
+    joinedAt: optDate(json, 'joined_at'),
+    lastSignInAt: optDate(json, 'last_sign_in_at'),
+  );
+
+  final String userId;
+  final String name;
+  final String email;
+  final TeamRole role;
+  final List<String> areas;
+
+  /// Null for every app.
+  final List<String>? appIds;
+  final DateTime? joinedAt;
+  final DateTime? lastSignInAt;
+}
+
+/// 60 An invitation waiting to be accepted.
+class TeamInvitation {
+  const TeamInvitation({
+    required this.id,
+    required this.name,
+    required this.email,
+    required this.role,
+    required this.areas,
+    required this.sentAt,
+    required this.expiresAt,
+    required this.expired,
+    this.appIds,
+  });
+
+  factory TeamInvitation.fromJson(Json json) => TeamInvitation(
+    id: str(json, 'id'),
+    name: str(json, 'name'),
+    email: str(json, 'email'),
+    role: TeamRole.parse(optStr(json, 'role')),
+    areas: strings(json, 'areas'),
+    appIds: json['app_ids'] == null ? null : strings(json, 'app_ids'),
+    sentAt: date(json, 'sent_at'),
+    expiresAt: date(json, 'expires_at'),
+    expired: boolean(json, 'expired'),
+  );
+
+  final String id;
+  final String name;
+  final String email;
+  final TeamRole role;
+  final List<String> areas;
+  final List<String>? appIds;
+  final DateTime sentAt;
+  final DateTime expiresAt;
+  final bool expired;
+}
+
+class Team {
+  const Team({required this.members, required this.invitations});
+
+  factory Team.fromJson(Json json) => Team(
+    members: listOf(json, 'members', TeamMember.fromJson),
+    invitations: listOf(json, 'invitations', TeamInvitation.fromJson),
+  );
+
+  final List<TeamMember> members;
+  final List<TeamInvitation> invitations;
 }
 
 class PlanSummary {
@@ -291,6 +467,7 @@ class AppSummary {
     this.backend,
     this.iconUrl,
     this.plan,
+    this.access = const AppAccess(),
   });
 
   factory AppSummary.fromJson(Json json) => AppSummary(
@@ -304,6 +481,10 @@ class AppSummary {
     iconUrl: optStr(json, 'icon_url'),
     plan: PlanSummary.opt(json, 'plan'),
     features: AppFeatures.fromJson(optObject(json, 'features') ?? const {}),
+    access: switch (optObject(json, 'access')) {
+      final Json access => AppAccess.fromJson(access),
+      null => const AppAccess(),
+    },
   );
 
   final String id;
@@ -322,6 +503,9 @@ class AppSummary {
   final String? iconUrl;
   final PlanSummary? plan;
   final AppFeatures features;
+
+  /// 60 What the signed-in person may do on it.
+  final AppAccess access;
 
   bool get isRestaurant => vertical == 'restaurant' || features.kitchen;
   bool get hosted => backend == 'hosted';

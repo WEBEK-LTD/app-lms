@@ -46,7 +46,7 @@ const STEP_HREF: Record<string, string> = {
  * lasts an hour; a new one is made each time this page loads.
  */
 export default async function PreviewPage({ searchParams }: PageProps<"/dashboard/preview">) {
-  const { app, license } = await requireClient();
+  const { app, license } = await requireClient("dashboard");
   if (!app) redirect("/dashboard/app-type");
   const { t, k, lang } = await dashboardText();
   const store = await getStore();

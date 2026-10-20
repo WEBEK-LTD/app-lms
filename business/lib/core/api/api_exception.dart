@@ -88,6 +88,9 @@ class ApiException implements Exception {
   static const incomplete = 'incomplete';
   static const rateLimited = 'rate_limited';
 
+  /// 60 The person's role on the team doesn't allow it ("Ask the owner").
+  static const notAllowed = 'not_allowed';
+
   // The app's own codes.
   static const network = 'network_error';
   static const timeout = 'timeout';
@@ -106,6 +109,7 @@ class ApiException implements Exception {
 
   bool get isOffline => code == network || code == timeout;
   bool get isUnauthorized => statusCode == 401;
+  bool get isNotAllowed => code == notAllowed;
   bool get accountNotActive =>
       code == accountPending || code == accountSuspended;
 

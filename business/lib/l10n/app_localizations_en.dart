@@ -1457,6 +1457,169 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scheduledCancelled => 'Cancelled. It won\'t be sent.';
 
   @override
+  String get askOwner => 'Ask the owner';
+
+  @override
+  String get askOwnerText =>
+      'Your role on this team doesn\'t include this. Ask the owner of the business.';
+
+  @override
+  String get planOwnerOnly =>
+      'Only the owner of the business sees the plan, the storage and payments.';
+
+  @override
+  String get roleOwner => 'Owner';
+
+  @override
+  String get roleManager => 'Manager';
+
+  @override
+  String get roleStaff => 'Staff';
+
+  @override
+  String get roleManagerHelp =>
+      'Everything except the plan, payments, the team, and changing an app\'s type or where its content comes from.';
+
+  @override
+  String get roleStaffHelp => 'Only what you tick below.';
+
+  @override
+  String get areaOrders => 'Orders & kitchen';
+
+  @override
+  String get areaBookings => 'Bookings & appointments';
+
+  @override
+  String get areaEvents => 'Events & check-in';
+
+  @override
+  String get areaDonations => 'Donations';
+
+  @override
+  String get areaCatalog => 'Catalog & content';
+
+  @override
+  String get areaMedia => 'Media';
+
+  @override
+  String get areaMessages => 'Messages';
+
+  @override
+  String get areaAppUsers => 'App users';
+
+  @override
+  String get areaAnalytics => 'Analytics';
+
+  @override
+  String get areaNotifications => 'Notifications to app users';
+
+  @override
+  String get everything => 'Everything';
+
+  @override
+  String get allApps => 'All apps';
+
+  @override
+  String get switchBusiness => 'Switch business';
+
+  @override
+  String get businessesTitle => 'Your businesses';
+
+  @override
+  String roleOn(String role, String business) {
+    return '$role on $business';
+  }
+
+  @override
+  String get team => 'Team';
+
+  @override
+  String get teamIntro =>
+      'The people who work with you. Each signs in with their own email and password and sees only what their role allows.';
+
+  @override
+  String get you => 'You';
+
+  @override
+  String get invitationsWaiting => 'Invitations waiting';
+
+  @override
+  String invitationExpires(String date) {
+    return 'The link works until $date';
+  }
+
+  @override
+  String get invitationExpired => 'Expired';
+
+  @override
+  String get resendInvite => 'Send again';
+
+  @override
+  String get cancelInvite => 'Cancel invitation';
+
+  @override
+  String get inviteSentAgain => 'Invitation sent again.';
+
+  @override
+  String get inviteCancelled => 'Invitation cancelled.';
+
+  @override
+  String get inviteSomeone => 'Invite someone';
+
+  @override
+  String get inviteHelp =>
+      'We email them a link to join. It works once, for 7 days.';
+
+  @override
+  String get personName => 'Name';
+
+  @override
+  String get role => 'Role';
+
+  @override
+  String get whatStaff => 'What Staff can work on';
+
+  @override
+  String get sendInvite => 'Send invitation';
+
+  @override
+  String inviteSent(String email) {
+    return 'Invitation sent to $email.';
+  }
+
+  @override
+  String get changeAccess => 'Change access';
+
+  @override
+  String get accessSaved => 'Saved. It applies at once.';
+
+  @override
+  String get removeMember => 'Remove from the team';
+
+  @override
+  String removeMemberTitle(String name) {
+    return 'Remove $name?';
+  }
+
+  @override
+  String get removeMemberText =>
+      'They\'re signed out at once, on the website and on every phone.';
+
+  @override
+  String memberRemoved(String name) {
+    return '$name is off the team.';
+  }
+
+  @override
+  String get oneAreaAtLeast => 'Choose at least one thing Staff can work on.';
+
+  @override
+  String get enterName => 'Enter their name.';
+
+  @override
+  String get enterEmail => 'Enter their email.';
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }

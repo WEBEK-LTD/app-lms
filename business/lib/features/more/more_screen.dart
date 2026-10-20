@@ -9,7 +9,9 @@ import '../../core/theme/icons.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
+import '../../core/api/models.dart';
 import '../account/apps_screen.dart';
+import '../team/team_screen.dart';
 import '../shell/home_shell.dart';
 
 /// 59 More: the app's other tools, the account, settings, help and legal.
@@ -159,13 +161,36 @@ class MoreScreen extends ConsumerWidget {
             ListTile(
               leading: const Icon(AppIcons.person),
               title: Text(me.user.name),
-              subtitle: Text(me.user.email),
+              subtitle: Text(
+                // 60 Someone on the team sees their role on the business.
+                me.role == TeamRole.owner || me.business == null
+                    ? me.user.email
+                    : '${me.user.email}\n${l10n.roleOn(roleName(context, me.role), me.business!.name)}',
+              ),
             ),
-            tile(
-              AppIcons.plan,
-              l10n.planAndStorage,
-              () => context.push(Paths.plan),
-            ),
+            // 60 Someone on several businesses works on another one.
+            if (me.businesses.length > 1)
+              tile(
+                AppIcons.business,
+                l10n.switchBusiness,
+                () => showBusinessSwitcher(context, ref),
+                subtitle: me.business?.name,
+              ),
+            if (app.access.team)
+              tile(AppIcons.team, l10n.team, () => context.push(Paths.team)),
+            // 60 The plan, storage and payments are the owner's: the team asks them.
+            if (app.access.license)
+              tile(
+                AppIcons.plan,
+                l10n.planAndStorage,
+                () => context.push(Paths.plan),
+              )
+            else
+              ListTile(
+                leading: const Icon(AppIcons.lock),
+                title: Text(l10n.planAndStorage),
+                subtitle: Text('${l10n.askOwner}. ${l10n.planOwnerOnly}'),
+              ),
             tile(
               AppIcons.bell,
               l10n.updatesTitle,
@@ -329,5 +354,46 @@ class _BiometricTileState extends ConsumerState<_BiometricTile> {
               if (mounted) setState(() {});
             },
     );
+  }
+}
+
+/// 60 The businesses the person works on; choosing one reloads the app on it.
+Future<void> showBusinessSwitcher(BuildContext context, WidgetRef ref) async {
+  final me = ref.read(meProvider);
+  if (me == null) return;
+  final chosen = await showModalBottomSheet<String>(
+    context: context,
+    showDragHandle: true,
+    builder: (sheet) => SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Text(
+              sheet.l10n.businessesTitle,
+              style: Theme.of(sheet).textTheme.titleLarge,
+            ),
+          ),
+          for (final b in me.businesses)
+            ListTile(
+              leading: const Icon(AppIcons.business),
+              title: Text(b.name),
+              subtitle: Text(roleName(sheet, b.role)),
+              trailing: b.id == me.business?.id
+                  ? const Icon(AppIcons.check)
+                  : null,
+              onTap: () => Navigator.of(sheet).pop(b.id),
+            ),
+        ],
+      ),
+    ),
+  );
+  if (chosen == null || chosen == me.business?.id) return;
+  try {
+    await ref.read(sessionProvider.notifier).setBusiness(chosen);
+  } on Object catch (e) {
+    if (context.mounted) showError(context, e);
   }
 }

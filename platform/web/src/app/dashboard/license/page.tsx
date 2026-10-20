@@ -33,7 +33,7 @@ import { appLabel, licensePageName, usesPlugin } from "@/lib/app/label";
 import { siteMatch, siteRunsLine } from "@/lib/app/site-match";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { app } = await requireClient();
+  const { app } = await requireClient("billing");
   return { title: (await dashboardText()).k(licensePageName(app)) };
 }
 
@@ -70,7 +70,7 @@ function planLines(plan: PlanInfo, { t, num }: DashboardText): string[] {
 
 export default async function LicensePage({ searchParams }: PageProps<"/dashboard/license">) {
   const contact = await getContact();
-  const { license, state, app, apps, client } = await requireClient();
+  const { license, state, app, apps, client } = await requireClient("billing");
   const text = await dashboardText();
   const { t, k, lang } = text;
   const date = (d: Date | null | undefined) => formatDate(d, lang);

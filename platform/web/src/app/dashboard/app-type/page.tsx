@@ -17,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function AppTypePage({ searchParams }: PageProps<"/dashboard/app-type">) {
-  const context = await requireClient();
+  const context = await requireClient("apps");
   const { t, k } = await dashboardText();
   const query = await searchParams;
   // "Add an app": a new app for the same account, with its own plan. The account's first app is created here too.

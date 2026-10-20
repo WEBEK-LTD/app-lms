@@ -1591,6 +1591,75 @@ export const ownerDevices = mysqlTable(
   ],
 );
 
+// 60 Team members for clients (lib/team)
+
+/** Who works with a client besides its owner: role, areas and apps (lib/team/permissions.ts). */
+export const teamMembers = mysqlTable(
+  "team_members",
+  {
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    userId: id("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    role: varchar("role", { length: 16 }).notNull().$type<"manager" | "staff">(),
+    areas: jsonText<string[]>("areas").notNull(),
+    // Null: every app of the client.
+    appIds: jsonText<string[]>("app_ids"),
+    addedBy: varchar("added_by", { length: 191 }).notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.clientId, t.userId] }), index("team_members_user_idx").on(t.userId)],
+);
+
+/** Invitations to a client's team: the token's SHA-256, single use, 7 days. */
+export const teamInvitations = mysqlTable(
+  "team_invitations",
+  {
+    id: id("id").primaryKey(),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    email: varchar("email", { length: 191 }).notNull(),
+    name: varchar("name", { length: 120 }).notNull(),
+    role: varchar("role", { length: 16 }).notNull().$type<"manager" | "staff">(),
+    areas: jsonText<string[]>("areas").notNull(),
+    appIds: jsonText<string[]>("app_ids"),
+    tokenHash: varchar("token_hash", { length: 64 }).notNull(),
+    lang: varchar("lang", { length: 8 }).notNull(),
+    invitedBy: id("invited_by").notNull(),
+    expiresAt: time("expires_at").notNull(),
+    acceptedAt: time("accepted_at"),
+    cancelledAt: time("cancelled_at"),
+    sentAt: time("sent_at").notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [uniqueIndex("team_invitations_token_unique").on(t.tokenHash), index("team_invitations_client_idx").on(t.clientId, t.createdAt)],
+);
+
+/** What people on a client's team did (order steps, refunds, notifications sent, the team's changes). */
+export const teamActivity = mysqlTable(
+  "team_activity",
+  {
+    id: autoId("id").primaryKey(),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    appId: id("app_id"),
+    actorId: id("actor_id").references(() => users.id, { onDelete: "set null" }),
+    actorName: varchar("actor_name", { length: 120 }).notNull(),
+    actorEmail: varchar("actor_email", { length: 191 }).notNull(),
+    action: varchar("action", { length: 48 }).notNull(),
+    targetType: varchar("target_type", { length: 32 }).notNull(),
+    targetId: varchar("target_id", { length: 64 }),
+    summary: varchar("summary", { length: 500 }).notNull(),
+    at: time("at").notNull(),
+  },
+  (t) => [index("team_activity_client_idx").on(t.clientId, t.at), index("team_activity_actor_idx").on(t.actorId)],
+);
+
 /**
  * 61 Notifications to everyone who uses an app, sent later by the frequent
  * job (lib/hosted/scheduled-notifications.ts). A row is taken by one run

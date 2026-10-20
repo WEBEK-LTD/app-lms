@@ -38,6 +38,7 @@ async function handle(request: Request, { params }: RouteContext<"/api/owner/v1/
       paymentUrls: paymentApiUrls(),
       media: getMediaStorage(),
       mail: (key, to, values, app) => sendTemplate(key, to, values, { app }),
+      teamMail: (to, values, lang) => sendTemplate("team_invitation", to, values, { lang }),
     },
     {
       method: request.method,

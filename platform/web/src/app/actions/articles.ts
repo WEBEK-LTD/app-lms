@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { changeArticleStatus } from "@/lib/news/status";
 import { recordStaffChange } from "@/lib/admin/audit";
-import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
+import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { getBlobStore } from "@/lib/blobs";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
@@ -27,7 +27,7 @@ import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 /** An active client whose app's articles are written in the dashboard, or a redirect. */
 async function requireArticlesApp(): Promise<ClientContext & { app: App }> {
-  const context = await getClientContext();
+  const context = await clientFor("catalog");
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
   if (!context.app || context.app.connector?.kind !== "articles") redirect("/dashboard");

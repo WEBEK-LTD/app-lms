@@ -254,3 +254,24 @@ export const inviteAdminSchema = z.object({
   email,
   role: z.enum(["owner", "admin", "support", "viewer"], { error: "Choose a role." }),
 });
+
+// 60 Team members for clients: the owner's invitation (role, areas and apps are read by lib/team/permissions.ts readAccess).
+export const teamInviteSchema = z.object({
+  name: z.string().trim().min(2, "Enter their name.").max(120, "Use at most 120 characters."),
+  email,
+});
+
+/** Joining a team: a new account sets its name and password; an existing one gives its password. */
+export const teamJoinNewSchema = z
+  .object({
+    token: z.string().min(20, "This link is invalid.").max(200),
+    name: z.string().trim().min(2, "Enter your name.").max(120, "Use at most 120 characters."),
+    password,
+    confirm: z.string(),
+  })
+  .refine((value) => value.password === value.confirm, { message: "The passwords don't match.", path: ["confirm"] });
+
+export const teamJoinExistingSchema = z.object({
+  token: z.string().min(20, "This link is invalid.").max(200),
+  password: z.string().min(1, "Enter your password.").max(PASSWORD_MAX_LENGTH),
+});

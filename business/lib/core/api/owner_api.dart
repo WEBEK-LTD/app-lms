@@ -26,6 +26,26 @@ abstract class OwnerApi {
   Future<PushPreferences> setPushPreferences(PushPreferences preferences);
   Future<AppSummary> app(String appId);
 
+  // 60 Team members: the business this phone works on, and the owner's team.
+  Future<Me> setBusiness(String businessId);
+  Future<Team> team();
+  Future<TeamInvitation> inviteTeamMember({
+    required String name,
+    required String email,
+    required TeamRole role,
+    List<String> areas = const [],
+    List<String>? appIds,
+  });
+  Future<TeamInvitation> resendInvitation(String invitationId);
+  Future<void> cancelInvitation(String invitationId);
+  Future<TeamMember> updateTeamMember(
+    String userId, {
+    required TeamRole role,
+    List<String> areas = const [],
+    List<String>? appIds,
+  });
+  Future<void> removeTeamMember(String userId);
+
   // Updates
   Future<UpdatesList> updates();
   Future<int> markUpdatesRead({List<String> keys = const [], bool all = false});

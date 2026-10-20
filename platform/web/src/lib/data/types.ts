@@ -2324,7 +2324,7 @@ export interface OwnerDevice {
   lastSeenAt: Date;
 }
 
-export type OwnerDevicePatch = Partial<Pick<OwnerDevice, "name" | "appVersion" | "language" | "pushToken" | "pushProvider" | "pushPreferences" | "lastSeenAt">>;
+export type OwnerDevicePatch = Partial<Pick<OwnerDevice, "name" | "appVersion" | "language" | "pushToken" | "pushProvider" | "pushPreferences" | "lastSeenAt" | "clientId">>;
 
 // 61 Notifications to an app's users sent later, and today's numbers by query.
 
@@ -2362,4 +2362,72 @@ export type ScheduledNotificationPatch = Partial<Pick<ScheduledNotification, "ti
 export interface PaidTotals {
   count: number;
   totals: { currency: string; cents: number }[];
+}
+
+// 60 Team members for clients (lib/team)
+
+/** Someone who works with a client: their role there and what they may do (lib/team/permissions.ts). The owner has no row. */
+export interface TeamMember {
+  clientId: string;
+  userId: string;
+  role: "manager" | "staff";
+  /** Staff's areas (TeamArea); empty for managers, who have all of them. */
+  areas: string[];
+  /** The client's apps they work on; null for all of them. */
+  appIds: string[] | null;
+  /** Email of who invited them or last changed their access. */
+  addedBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface TeamMemberRow {
+  member: TeamMember;
+  user: User;
+}
+
+/**
+ * An invitation to a client's team: single use, for 7 days. The link carries
+ * a random token; only its SHA-256 is kept. Resending gives a new token (the
+ * old link stops working) and 7 more days.
+ */
+export interface TeamInvitation {
+  id: string;
+  clientId: string;
+  /** Lowercase. */
+  email: string;
+  name: string;
+  role: "manager" | "staff";
+  areas: string[];
+  appIds: string[] | null;
+  tokenHash: string;
+  /** The language of the email and the page it opens ("en", "ar" or "tr"). */
+  lang: string;
+  /** The user who invited (the owner, or Yallapp's team managing the dashboard). */
+  invitedBy: string;
+  expiresAt: Date;
+  acceptedAt: Date | null;
+  cancelledAt: Date | null;
+  sentAt: Date;
+  createdAt: Date;
+}
+
+export type TeamInvitationPatch = Partial<Pick<TeamInvitation, "name" | "role" | "areas" | "appIds" | "tokenHash" | "lang" | "expiresAt" | "cancelledAt" | "sentAt">>;
+
+/** One thing someone on a client's team did, for the Team page's activity (lib/team/activity.ts). */
+export interface TeamActivity {
+  id: number;
+  clientId: string;
+  appId: string | null;
+  /** Null once their account is gone. */
+  actorId: string | null;
+  actorName: string;
+  actorEmail: string;
+  /** A key from lib/team/activity.ts, like order.status. */
+  action: string;
+  targetType: string;
+  targetId: string | null;
+  /** One English line, like "Order 1042: Processing → Completed". */
+  summary: string;
+  at: Date;
 }

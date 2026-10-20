@@ -2,7 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
+import { actorOf, clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
+import { recordOrderStatus } from "@/lib/team/activity";
+import type { TeamPermission } from "@/lib/team/permissions";
 import { getBlobStore } from "@/lib/blobs";
 import { parseFulfilmentForm } from "@/lib/catalog/fulfilment";
 import { changeOrderStatus, inKitchen } from "@/lib/catalog/order-status";
@@ -34,8 +36,8 @@ const PRODUCT_IMAGES_MAX = 6;
   * `courses` also paid courses, 27 memberships and 28 paid tickets: card payments and orders; 29 with `campaigns`
   * also a charity's own payment keys), or a redirect.
  */
-async function requireCatalogApp(options: { courses?: boolean; campaigns?: boolean } = {}): Promise<ClientContext & { app: App }> {
-  const context = await getClientContext();
+async function requireCatalogApp(options: { courses?: boolean; campaigns?: boolean } = {}, permission: TeamPermission = "catalog"): Promise<ClientContext & { app: App }> {
+  const context = await clientFor(permission);
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
   const kind = context.app?.connector?.kind;
@@ -227,7 +229,7 @@ export async function saveFulfilmentAction(_: FormState, formData: FormData): Pr
  * call that changes nothing, then kept encrypted.
  */
 export async function savePaymentKeysAction(_: FormState, formData: FormData): Promise<FormState> {
-  const context = await requireCatalogApp({ courses: true, campaigns: true });
+  const context = await requireCatalogApp({ courses: true, campaigns: true }, "billing");
   const { app } = context;
   const provider = str(formData, "provider") || "iyzico";
   const sandbox = formData.get("sandbox") === "on";
@@ -291,7 +293,7 @@ const SUB_MERCHANT_FIELDS = ["type", "payeeName", "contactName", "email", "phone
  * team transfers each released share.
  */
 export async function joinMarketplaceAction(_: FormState, formData: FormData): Promise<FormState> {
-  const context = await requireCatalogApp({ courses: true });
+  const context = await requireCatalogApp({ courses: true }, "billing");
   const { app } = context;
   const values: Record<string, string> = {};
   for (const name of SUB_MERCHANT_FIELDS) values[name] = str(formData, name);
@@ -356,7 +358,7 @@ export async function joinMarketplaceAction(_: FormState, formData: FormData): P
 }
 
 export async function removePaymentKeysAction(): Promise<void> {
-  const context = await requireCatalogApp({ courses: true, campaigns: true });
+  const context = await requireCatalogApp({ courses: true, campaigns: true }, "billing");
   const { app } = context;
   await (await getStore()).updateApp(app.id, { catalogSettings: { ...catalogSettings(app), payment: null } }, new Date());
   await recordStaffChange(context, "Turned off the shop's card payments");
@@ -367,12 +369,17 @@ export async function removePaymentKeysAction(): Promise<void> {
 
 /** Completed or cancelled (orders/page.tsx); a restaurant's order moves with the kitchen's steps (moveOrderAction). */
 export async function setOrderStatusAction(formData: FormData): Promise<void> {
-  const { app } = await requireCatalogApp({ courses: true });
+  const context = await requireCatalogApp({ courses: true }, "orders");
+  const { app } = context;
   const store = await getStore();
   const id = Number(formData.get("id"));
   const status = String(formData.get("status"));
   const order = Number.isSafeInteger(id) ? await store.getCatalogOrder(app.id, id) : null;
-  if (order && !inKitchen(order)) await changeOrderStatus({ store, app, now: new Date(), key: encryptionKey(), urls: paymentApiUrls(), account: null }, order, status);
+  const now = new Date();
+  if (order && !inKitchen(order) && (await changeOrderStatus({ store, app, now, key: encryptionKey(), urls: paymentApiUrls(), account: null }, order, status))) {
+    // 60 Who moved it, on the Team page.
+    await recordOrderStatus(store, { clientId: context.client.id, appId: app.id, actor: actorOf(context), orderId: order.id, to: status }, now);
+  }
   refresh();
 }
 
@@ -382,13 +389,15 @@ export async function setOrderStatusAction(formData: FormData): Promise<void> {
  * customer is told. Completing a marketplace order releases the shop's share.
  */
 export async function moveOrderAction(formData: FormData): Promise<void> {
-  const { app } = await requireCatalogApp();
+  const context = await requireCatalogApp({}, "orders");
+  const { app } = context;
   const store = await getStore();
   const id = Number(formData.get("id"));
   const to = String(formData.get("to"));
   const order = Number.isSafeInteger(id) ? await store.getCatalogOrder(app.id, id) : null;
-  if (order && inKitchen(order)) {
-    await changeOrderStatus({ store, app, now: new Date(), key: encryptionKey(), urls: paymentApiUrls(), account: serviceAccountOf(app, encryptionKey()) }, order, to);
+  const now = new Date();
+  if (order && inKitchen(order) && (await changeOrderStatus({ store, app, now, key: encryptionKey(), urls: paymentApiUrls(), account: serviceAccountOf(app, encryptionKey()) }, order, to))) {
+    await recordOrderStatus(store, { clientId: context.client.id, appId: app.id, actor: actorOf(context), orderId: order.id, to }, now);
   }
   refresh();
 }

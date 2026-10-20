@@ -23,6 +23,17 @@ class PlanScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    // 60 The plan is the owner's; someone on the team is told to ask them.
+    if (ref.watch(currentAppProvider)?.access.license == false) {
+      return Scaffold(
+        appBar: AppBar(title: Text(l10n.planAndStorage)),
+        body: MessageState(
+          icon: AppIcons.lock,
+          title: l10n.askOwner,
+          text: l10n.planOwnerOnly,
+        ),
+      );
+    }
     final license = ref.watch(licenseProvider);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.planAndStorage)),

@@ -119,7 +119,7 @@ function Times({ build, now, text }: { build: Build; now: Date; text: DashboardT
 }
 
 export default async function BuildsPage({ searchParams }: PageProps<"/dashboard/builds">) {
-  const { app, license, state } = await requireClient();
+  const { app, license, state } = await requireClient("settings");
   if (!app) redirect("/dashboard/app-type");
   const { started, download, queued } = await searchParams;
   const text = await dashboardText();

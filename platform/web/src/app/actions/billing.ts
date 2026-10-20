@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { getClientContext, requestIp } from "@/lib/auth/session";
+import { clientFor, requestIp } from "@/lib/auth/session";
 import { cardPlans, readBilling, startPlanPayment, activateWithFreeCoupon } from "@/lib/billing/plan-payment";
 import { COUPON_CHECK_LIMIT, findCoupon, type CouponCheck } from "@/lib/billing/coupons";
 import { sendPlanPaidMail } from "@/lib/billing/plan-mail";
@@ -28,7 +28,7 @@ import { isPlan, planPriceOf } from "@/lib/plans";
  * payment activates or extends that app only.
  */
 export async function payPlanAction(_: FormState, formData: FormData): Promise<FormState> {
-  const context = await getClientContext();
+  const context = await clientFor("billing");
   if (!context) redirect("/sign-in");
   if (context.client.status === "suspended") return { message: "This account is suspended. Message us on WhatsApp." };
   const values: Record<string, string> = {};
@@ -131,7 +131,7 @@ export interface CouponState {
 
 /** Shows what a coupon takes off each plan the client can pay by card; the payment checks it again. */
 export async function checkCouponAction(_: CouponState, formData: FormData): Promise<CouponState> {
-  const context = await getClientContext();
+  const context = await clientFor("billing");
   if (!context) redirect("/sign-in");
   const code = String(formData.get("coupon") ?? "").trim();
   if (!code) return { error: "Enter a coupon code." };
@@ -169,7 +169,7 @@ export async function checkCouponAction(_: CouponState, formData: FormData): Pro
 
 /** The form names the app it was shown for; never change another app because the switcher moved in another tab. */
 async function contextFor(formData: FormData) {
-  const context = await getClientContext();
+  const context = await clientFor("billing");
   if (!context) redirect("/sign-in");
   if (String(formData.get("appId") ?? "") !== (context.app?.id ?? "")) redirect("/dashboard/license?plan_change=switched#change-plan");
   return context;
@@ -203,9 +203,14 @@ export async function cancelScheduledPlanAction(formData: FormData): Promise<voi
 
 /** Closes an owner notice on the dashboard (13.2, 13.4). Only the client's own. */
 export async function dismissNoticeAction(formData: FormData): Promise<void> {
-  const context = await getClientContext();
+  const context = await clientFor("settings");
   if (!context) redirect("/sign-in");
   const id = Number(formData.get("id"));
-  if (Number.isSafeInteger(id) && id > 0) await (await getStore()).updateOwnerNotice(context.client.id, id, { dismissedAt: new Date() });
+  if (Number.isSafeInteger(id) && id > 0) {
+    const store = await getStore();
+    // 60 Only a notice of an app this person may use.
+    const notice = (await store.listOwnerNotices({ clientId: context.client.id, open: true, limit: 100 })).find((n) => n.id === id);
+    if (notice && context.apps.some((a) => a.id === notice.appId)) await store.updateOwnerNotice(context.client.id, id, { dismissedAt: new Date() });
+  }
   revalidatePath("/dashboard", "layout");
 }

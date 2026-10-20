@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
+import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { classWhen, parseClassTemplate, syncClassSessions } from "@/lib/bookings/classes";
 import { membershipEnd, parseMembershipPlan } from "@/lib/bookings/memberships";
 import { bookingSetup } from "@/lib/bookings/setup";
@@ -16,7 +16,7 @@ import { hostedSettings } from "@/lib/hosted/service";
 
 /** 27 The Timetable, Membership plans and Members pages: bookings managed in the dashboard only. */
 async function requireBookingsApp(): Promise<ClientContext & { app: App }> {
-  const context = await getClientContext();
+  const context = await clientFor("bookings");
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
   if (!context.app || context.app.connector?.kind !== "bookings") redirect("/dashboard");

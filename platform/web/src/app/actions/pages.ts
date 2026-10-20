@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
+import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { App, AppLayoutRecord } from "@/lib/data/types";
 import { designById, designFits } from "@/lib/pages/designs";
@@ -25,7 +25,7 @@ export type LayoutSaveResult =
   | { ok: false; errors: string[] };
 
 async function requireLayoutApp(): Promise<ClientContext & { app: App }> {
-  const context = await getClientContext();
+  const context = await clientFor("settings");
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
   if (!context.app) redirect("/dashboard/app-type");

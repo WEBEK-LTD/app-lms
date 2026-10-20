@@ -1254,7 +1254,7 @@ and a browser test on memory and on MariaDB. Migration
 | [x] | 57.5 Dashboard › Announcements is the full list, "Updates from Yallapp" (same address, renamed in the menu): every announcement for the account, live or ended, also the ones closed on the overview, and the account items, newest first, with "New" on unread ones. The banner shows only announcements marked as a banner; its link reads "All updates from Yallapp". The help page's Announcements section explains the bell | `dashboard-bell.spec.ts`, `admin-content.spec.ts` |
 | [x] | 57.6 Counted by the layout on each load of the dashboard (no websockets, no polling); when the window comes back after a minute or more the bell asks again | Code review |
 | [x] | 57.7 Unit, MySQL and browser tests; the bell and announcement specs on memory and MariaDB; the full suites | `vitest`, `tsc`, `eslint`, `next build`, `playwright` |
-| [ ] | 57.8 Clients have one sign-in today (no team members of their own yet), so "per person" is the owner and our team members managing the dashboard; members, when they come, get their own read state with no change | When client team members are built |
+| [x] | 57.8 Clients have one sign-in today (no team members of their own yet), so "per person" is the owner and our team members managing the dashboard; members, when they come, get their own read state with no change | Phase 60: each team member reads for themselves |
 | [ ] | 57.9 Email clients when a Maintenance announcement is published (today the team ticks "Also email it to these clients now") | Owner's decision |
 | [x] | 57.10 The dashboard shows announcements in English until Phase 56 passes the user's language to `announcementText`; the emails stay English | Phase 56: the bell and the banner use the person's language; announcement emails stay as the team wrote them |
 | [ ] | 57.11 The bell counts only on a page load, a focus after a minute, or what the person does; a build that finishes while the dashboard stays open shows on the next load | Acceptable |
@@ -1333,6 +1333,46 @@ client, `flutter analyze` and `dart format`; the Mobile workflow checks it.
 | [ ] | 59.17 Course questions and reviews (Inbox has a listing's conversations only) and gym members at the door aren't in the Owner API, so the app shows nothing for them; moving an appointment and scheduled notifications came in Phase 61 | Phase 58.11, 58.12b |
 | [x] | 59.18 Kitchen mode keeps the screen awake: done in Phase 61 (61.7) | Phase 61 |
 | [ ] | 59.19 The store listings, screenshots and the App Store id: under Yallapp's own accounts once they exist | LAUNCH-CHECKLIST 7l |
+
+## Phase 60: Team members for clients
+
+The owner asked for the people who work with a business owner to have their
+own sign-in with limited access, in the dashboard, the Owner API and
+Yallapp Business. An owner invites someone by email (a link to join, once,
+for 7 days, in the invitee's or the owner's language; someone who already
+uses Yallapp joins with their own password) as a **Manager** (everything but
+License and payments, the team, adding or deleting apps and an app's type or
+content source) or **Staff** with the areas the owner ticks (Orders &
+kitchen, Bookings & appointments, Events & check-in, Donations, Catalog &
+content, Media, Messages, App users, Analytics, Notifications to app users),
+on all the business's apps or some. One permission helper
+(`lib/team/permissions.ts`) decides for every dashboard page, server action,
+download, the sidebar, the Owner API's routes and the pushes to phones.
+Removing someone signs them out everywhere at once. Who did what (order
+steps, refunds, appointments, notifications sent, the team's changes) is on
+the Team page. Proved with unit tests of the helper and of every guarded
+action group, the Owner API and the store on MariaDB, a browser test on
+memory and MariaDB, and the app's widget tests. Migration
+`drizzle/0045_team_members.sql`.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 60.1 Data: `team_members` (client, user, role, areas, apps), `team_invitations` (the token's SHA-256, 7 days, accepted or cancelled once, language), `team_activity`; memory and MySQL stores; one migration, `drizzle-kit generate --name ci-check` clean | `team-mysql.test.ts` (two acceptances at once: one wins), `team-service.test.ts` |
+| [x] | 60.2 The permission helper: roles, areas, owner-only (`billing`, `team`, `apps`), `settings` for owners and managers, apps per member; every dashboard page's address mapped (`DASHBOARD_PATHS`), every app area and push kind | `team-permissions.test.ts` (each role, each boundary, every page under `/dashboard` calls `requireClient` with its address's permission) |
+| [x] | 60.3 Every client server action asks `clientFor(permission)` first: products, orders, refunds, appointments, events, donations, catalog content, media (the picker for catalog and pages too), messages, notifications (also sent later), the app's settings, payment keys and plans (owner only), the type and website (owner only); the download routes and the partner OAuth callback too | `team-actions.test.ts` (every exported action of 26 files with its group's permission) |
+| [x] | 60.4 The client context: the signed-in person's access and businesses (their own first, then the teams they joined; the chosen one in `yallapp_business`, else the first active); a member limited to some apps sees only those; the bell and the overview show notices (only of the person's apps, closed only there too) and builds to owners and managers, payments to the owner | `team-service.test.ts`, `updates-mysql.test.ts`, `team-notices.test.ts` |
+| [x] | 60.5 Dashboard › Team (owner only): invite (name, email, role, areas, apps; at most 20 an hour per business and 5 a day per address), invitations waiting (send again with a new link, cancel), change access (applies at once), remove (signed out at once: the session version goes up, the business's phones are signed out), the activity; the join page in the invitation's language; the join link goes only to the invited address (never shown to the owner), and joining never sets a password on an account that exists (one without a password sets it with "Forgot your password?" first) nor makes an account for Yallapp's own team (checked before any account is made, also at the invitation); the business switcher and chooser (also on the waiting page) | `team-members.spec.ts`, `team-join.test.ts` |
+| [x] | 60.6 The sidebar only shows what the person may open; a page they may not open goes to the overview with "Your role here doesn't include that page"; Staff get their own overview with links to their areas; the plan's buttons, card payments, storage packs and the Website step say "Only the owner of this business can do this" | `team-members.spec.ts` (Staff with Orders: no License, Team, Analytics, Products; denied addresses) |
+| [x] | 60.7 The Owner API, contract first (`owner.yaml`): `Me.business`, `Me.businesses`, `AppSummary.access`, `features` masked by the role, `PUT /me/business`, the Team paths for the owner, 403 `not_allowed` on every path the role doesn't allow, 404 outside the member's apps; a device only while its person still works on its business | `owner-team.test.ts`, `owner-api.test.ts`, `team-members.spec.ts` |
+| [x] | 60.8 Pushes to the phones signed in to a business, of the owner and of members with the push's area on its app (a paid order to Orders, a donation to Donations, a payment to Yallapp to the owner, builds and notices to owners and managers, Yallapp's updates to everyone) | `owner-team.test.ts` |
+| [x] | 60.9 Activity: order steps, refunds, appointment steps and notifications sent, from the dashboard and the Owner API, and the team's own changes; one English line each, shown in the person's language | `team-service.test.ts` (every line in Arabic and Turkish) |
+| [x] | 60.10 Yallapp Business: screens and actions only as the role allows, "Ask the owner" for the plan and for `not_allowed`, switching business, the owner's Team screen (invite, invitations, change access, remove), English, Arabic and Turkish (`tool/strings_e.py`) | `team_test.dart`, `models_test.dart` |
+| [x] | 60.11 Admin › the client's page lists the client's team and invitations, read-only, in English | `team-members.spec.ts` |
+| [x] | 60.12 Every new dashboard string in English, Arabic and Turkish (`src/i18n/dashboard/team.ts`), the `team_invitation` email in the three; docs: ARCHITECTURE (team members), LAUNCH-CHECKLIST 7m (migration 0045) | `dashboard-i18n.test.ts`, `email-languages.test.ts` |
+| [ ] | 60.13 There is no "delete an app" in the dashboard yet; when it comes it is owner-only (`apps`) | When apps can be deleted |
+| [ ] | 60.14 Someone on several businesses gets pushes for the one their phone is switched to; the others' pushes wait until they switch | When members ask |
+| [ ] | 60.15 Removing someone ends all of their sessions, also those of their own business or other teams (one session version per person); they sign in again there | Acceptable |
+| [ ] | 60.16 The activity lists the newest 50 on the Team page; older entries stay in the database without a page to read them | When owners ask |
 
 ## Phase 61: Yallapp Business's open items, and the dashboard features they wait on
 

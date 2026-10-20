@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getClientContext, mayUseDashboard } from "@/lib/auth/session";
+import { contextCan, getClientContext, mayUseDashboard } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { donationsCsv } from "@/lib/donations/forms";
@@ -17,6 +17,8 @@ export async function GET(request: Request): Promise<Response> {
   const context = await getClientContext();
   if (!context) return NextResponse.redirect(new URL("/sign-in", appUrl()), 303);
   if (!mayUseDashboard(context)) return NextResponse.redirect(new URL("/pending", appUrl()), 303);
+  // 60 Only for whoever on the team may open the page it comes from.
+  if (!contextCan(context, "donations")) return new Response("Ask the owner for access.", { status: 403, headers: { "content-type": "text/plain; charset=utf-8" } });
   const app = context.app;
   if (!app || app.connector?.kind !== "campaigns") return new Response("Donations are for Charity & donations apps.", { status: 404 });
   const query = new URL(request.url).searchParams;

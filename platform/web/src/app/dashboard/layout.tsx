@@ -9,12 +9,15 @@ import { DashboardI18n, DocumentLang } from "@/components/dashboard-i18n";
 import { DashboardLanguage } from "@/components/dashboard-language";
 import { SignOutButton } from "@/components/sign-out";
 import { AppSwitcher } from "@/components/app-switcher";
+import { BusinessSwitcher } from "@/components/business-switcher";
 import { UpdatesBell } from "@/components/updates-bell";
 import { dashboardMessages, knownEnglish } from "@/i18n/dashboard";
 import { richText } from "@/i18n/rich";
 import { appLabel, licensePageName, MAX_APPS_PER_CLIENT } from "@/lib/app/label";
 import { appTypeName, contentNavOf, kindOf, usersLabelOf } from "@/lib/app/kinds";
-import { requireClient } from "@/lib/auth/session";
+import { contextCan, requireClient } from "@/lib/auth/session";
+import { pathPermission } from "@/lib/team/permissions";
+import type { DashKey } from "@/i18n/dashboard";
 import { getContact } from "@/lib/contact";
 import { bellWords, dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
@@ -30,7 +33,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const contact = await getContact();
   const context = await requireClient();
-  const { user, staff, app, apps, client, licenses, state } = context;
+  const { user, staff, member, app, apps, client, licenses, state, businesses } = context;
+  // 60 The person signed in: a team member shows as themselves.
+  const me = member ?? user;
   // 56 The signed-in person's language (our team member managing a dashboard sees it in their own).
   const text = await dashboardText();
   const { t, k, lang, dir } = text;
@@ -103,6 +108,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
       label: t("nav.account"),
       items: [
         { href: "/dashboard/license", label: k(licensePageName(app)), icon: "workspace_premium" },
+        // 60 The people who work with the owner.
+        { href: "/dashboard/team", label: t("team.nav"), icon: "groups" },
         // 57 The full list behind the bell (the address stays).
         { href: "/dashboard/announcements", label: t("nav.updates"), icon: "campaign" },
         // 58 Phones signed in to Yallapp Business with this account.
@@ -111,6 +118,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
       ],
     },
   ];
+  // 60 Only what the signed-in person may open (lib/team/permissions.ts); a group left empty goes.
+  const allowed = groups
+    .map((group) => ({ ...group, items: group.items.filter((item) => item.external || contextCan(context, pathPermission(item.href))) }))
+    .filter((group) => group.items.length);
   const bold = { b: (chunk: string) => <strong>{chunk}</strong> };
 
   return (
@@ -131,22 +142,34 @@ export default async function DashboardLayout({ children }: { children: React.Re
           }
           actions={<UpdatesBell initial={bell} />}
           switcher={
-            apps.length ? (
-              <AppSwitcher apps={switcherApps} current={app?.id ?? null} currentApp={currentApp} canAdd={apps.length < MAX_APPS_PER_CLIENT} />
+            apps.length || businesses.length ? (
+              <div className="flex flex-col gap-2.5">
+                {/* 60 Someone on several businesses picks which one. */}
+                {businesses.length ? (
+                  <BusinessSwitcher
+                    current={client.id}
+                    businesses={businesses.map((b) => ({ clientId: b.clientId, name: b.name === "Untitled app" ? k("Untitled app") : b.name, role: t(`team.roles.${b.role}` as DashKey) }))}
+                  />
+                ) : null}
+                {apps.length ? (
+                  <AppSwitcher apps={switcherApps} current={app?.id ?? null} currentApp={currentApp} canAdd={apps.length < MAX_APPS_PER_CLIENT && contextCan(context, "apps")} />
+                ) : null}
+              </div>
             ) : null
           }
-          groups={groups}
+          groups={allowed}
           footer={
             <div className="flex flex-col gap-2.5">
               <div className="flex items-center gap-3">
                 <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-ivory text-sm font-bold text-ink-3" aria-hidden="true">
-                  {(user.name.trim()[0] ?? "?").toUpperCase()}
+                  {(me.name.trim()[0] ?? "?").toUpperCase()}
                 </span>
                 <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="truncate text-sm font-semibold">{user.name}</span>
-                  <span className="truncate text-xs text-muted" title={user.email} dir="ltr">
-                    {user.email}
+                  <span className="truncate text-sm font-semibold">{me.name}</span>
+                  <span className="truncate text-xs text-muted" title={me.email} dir="ltr">
+                    {me.email}
                   </span>
+                  {member ? <span className="truncate text-xs text-muted">{t(`team.roles.${context.access.role}` as DashKey)}</span> : null}
                 </span>
               </div>
               {/* 56 The dashboard's language, saved for whoever is signed in. */}

@@ -30,7 +30,7 @@ export const dynamic = "force-dynamic";
  * published with it.
  */
 export default async function LanguagesPage({ searchParams }: PageProps<"/dashboard/languages">) {
-  const { app, license } = await requireClient();
+  const { app, license } = await requireClient("settings");
   const { t, lang: dashLang } = await dashboardText();
   const languageName = (code: string) => appLanguageName(code, dashLang);
   if (!app) {

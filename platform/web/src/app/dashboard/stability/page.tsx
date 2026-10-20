@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
  * the details and fixes them), with the rating prompt and crash report switches.
  */
 export default async function StabilityPage() {
-  const { app } = await requireClient();
+  const { app } = await requireClient("settings");
   if (!app) redirect("/dashboard/app-type");
   const stability = await stabilityOf(await getStore(), app.id, new Date());
   const off = app.crashReports === false;

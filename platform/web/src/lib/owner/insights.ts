@@ -15,6 +15,7 @@ import { planSummary } from "./account";
 import { bodyObject, intParam, invalid, notFound, OwnerError, rateLimited, type OwnerContext, type OwnerResult } from "./http";
 import { storageJson } from "./library";
 import { appScope } from "./sales";
+import { recordNotificationSent } from "../team/activity";
 
 /**
  * 58 How the app does and where it stands: Analytics (roadmap 44),
@@ -77,6 +78,8 @@ export async function sendNotification(ctx: OwnerContext, params: Record<string,
     if (result.limited) throw rateLimited(3600, result.message);
     throw invalid(result.errors);
   }
+  // 60 Who sent it, on the dashboard's Team page.
+  await recordNotificationSent(store, { clientId: ctx.client.id, appId: app.id, actor: ctx.user, title: typeof body.title === "string" ? body.title.trim() : "" }, now);
   return { status: 201, body: { message: ctx.k(result.message), pushed: result.pushed } };
 }
 

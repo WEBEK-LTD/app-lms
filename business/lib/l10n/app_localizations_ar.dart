@@ -1455,6 +1455,167 @@ class AppLocalizationsAr extends AppLocalizations {
   String get scheduledCancelled => 'أُلغي. لن يُرسَل.';
 
   @override
+  String get askOwner => 'اطلب من المالك';
+
+  @override
+  String get askOwnerText =>
+      'دورك في هذا الفريق لا يشمل ذلك. اطلبه من مالك النشاط.';
+
+  @override
+  String get planOwnerOnly => 'مالك النشاط وحده يرى الخطة والمساحة والمدفوعات.';
+
+  @override
+  String get roleOwner => 'المالك';
+
+  @override
+  String get roleManager => 'مدير';
+
+  @override
+  String get roleStaff => 'موظف';
+
+  @override
+  String get roleManagerHelp =>
+      'كل شيء عدا الخطة والمدفوعات والفريق، وتغيير نوع التطبيق أو مصدر محتواه.';
+
+  @override
+  String get roleStaffHelp => 'ما تحدده أدناه فقط.';
+
+  @override
+  String get areaOrders => 'الطلبات والمطبخ';
+
+  @override
+  String get areaBookings => 'الحجوزات والمواعيد';
+
+  @override
+  String get areaEvents => 'الفعاليات وتسجيل الحضور';
+
+  @override
+  String get areaDonations => 'التبرعات';
+
+  @override
+  String get areaCatalog => 'الكتالوج والمحتوى';
+
+  @override
+  String get areaMedia => 'الوسائط';
+
+  @override
+  String get areaMessages => 'الرسائل';
+
+  @override
+  String get areaAppUsers => 'مستخدمو التطبيق';
+
+  @override
+  String get areaAnalytics => 'الإحصاءات';
+
+  @override
+  String get areaNotifications => 'الإشعارات لمستخدمي التطبيق';
+
+  @override
+  String get everything => 'كل شيء';
+
+  @override
+  String get allApps => 'كل التطبيقات';
+
+  @override
+  String get switchBusiness => 'تبديل النشاط';
+
+  @override
+  String get businessesTitle => 'أنشطتك';
+
+  @override
+  String roleOn(String role, String business) {
+    return '$role في $business';
+  }
+
+  @override
+  String get team => 'الفريق';
+
+  @override
+  String get teamIntro =>
+      'الأشخاص الذين يعملون معك. يسجّل كل منهم الدخول ببريده وكلمة مروره، ولا يرى إلا ما يسمح به دوره.';
+
+  @override
+  String get you => 'أنت';
+
+  @override
+  String get invitationsWaiting => 'دعوات بانتظار القبول';
+
+  @override
+  String invitationExpires(String date) {
+    return 'يعمل الرابط حتى $date';
+  }
+
+  @override
+  String get invitationExpired => 'منتهية';
+
+  @override
+  String get resendInvite => 'أرسلها مجددًا';
+
+  @override
+  String get cancelInvite => 'إلغاء الدعوة';
+
+  @override
+  String get inviteSentAgain => 'أُرسلت الدعوة مجددًا.';
+
+  @override
+  String get inviteCancelled => 'أُلغيت الدعوة.';
+
+  @override
+  String get inviteSomeone => 'ادعُ شخصًا';
+
+  @override
+  String get inviteHelp =>
+      'نرسل إليه رابطًا بالبريد للانضمام. يعمل مرة واحدة لمدة 7 أيام.';
+
+  @override
+  String get personName => 'الاسم';
+
+  @override
+  String get role => 'الدور';
+
+  @override
+  String get whatStaff => 'ما يمكن للموظف العمل عليه';
+
+  @override
+  String get sendInvite => 'أرسل الدعوة';
+
+  @override
+  String inviteSent(String email) {
+    return 'أُرسلت الدعوة إلى $email.';
+  }
+
+  @override
+  String get changeAccess => 'تغيير الصلاحيات';
+
+  @override
+  String get accessSaved => 'تم الحفظ. يسري فورًا.';
+
+  @override
+  String get removeMember => 'إزالة من الفريق';
+
+  @override
+  String removeMemberTitle(String name) {
+    return 'إزالة $name؟';
+  }
+
+  @override
+  String get removeMemberText => 'يُسجَّل خروجه فورًا من الموقع ومن كل هاتف.';
+
+  @override
+  String memberRemoved(String name) {
+    return 'لم يعد $name في الفريق.';
+  }
+
+  @override
+  String get oneAreaAtLeast => 'اختر شيئًا واحدًا على الأقل يعمل عليه الموظف.';
+
+  @override
+  String get enterName => 'أدخل اسمه.';
+
+  @override
+  String get enterEmail => 'أدخل بريده الإلكتروني.';
+
+  @override
   String minutesAgo(int count) {
     return 'قبل $count دقيقة';
   }

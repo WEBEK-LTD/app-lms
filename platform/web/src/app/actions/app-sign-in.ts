@@ -3,7 +3,7 @@
 import { randomInt } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getClientContext, mayUseDashboard } from "@/lib/auth/session";
+import { clientFor, mayUseDashboard } from "@/lib/auth/session";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { getStore } from "@/lib/data";
 import type { App, HostedSettings } from "@/lib/data/types";
@@ -29,7 +29,7 @@ const FIELDS = ["signupAllowed", "askEmail", "askCity", "defaultCountryCode", "d
  * our team sets up: their choice applies once the site is ready.
  */
 async function signInContext(hostedOnly = false) {
-  const context = await getClientContext();
+  const context = await clientFor("settings");
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
   const app = context.app;
@@ -41,7 +41,7 @@ async function signInContext(hostedOnly = false) {
 
 /** 34 Who signs people in is chosen only for apps on their own API. */
 async function ownApiContext() {
-  const context = await getClientContext();
+  const context = await clientFor("settings");
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
   const app = context.app;

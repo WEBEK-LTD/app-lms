@@ -94,6 +94,10 @@ abstract final class AppIcons {
   static const appearance = Symbols.contrast_rounded;
   static const reschedule = Symbols.edit_calendar_rounded;
   static const scheduled = Symbols.schedule_send_rounded;
+  // 60 Team members.
+  static const team = Symbols.groups_rounded;
+  static const invite = Symbols.person_add_rounded;
+  static const business = Symbols.storefront_rounded;
 }
 
 /// Icons that point a way (back, forward, send) turn round in Arabic.

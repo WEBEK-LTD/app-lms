@@ -34,7 +34,7 @@ const EXAMPLE: Record<string, string> = {
  * Apple Team ID the link files need, and "Check links".
  */
 export default async function AppLinksPage() {
-  const { app, license } = await requireClient();
+  const { app, license } = await requireClient("settings");
   if (!app) redirect("/dashboard/app-type");
   const plan = await appPlan(await getStore(), license, new Date());
   const ios = hasFeature(plan, "ios");

@@ -48,7 +48,7 @@ function ItemLink({ item, label, text }: { item: UpdateItem; label: string | nul
  * newest first. Opening it marks them read for whoever is reading.
  */
 export default async function UpdatesPage() {
-  const context = await requireClient();
+  const context = await requireClient("dashboard");
   const text = await dashboardText();
   const { t } = text;
   const words = { lang: text.lang, k: text.k, date: (at: Date) => text.date(at), kind: (kind: UpdateItem["kind"]) => t(KIND_KEY[kind]) };

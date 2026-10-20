@@ -33,7 +33,7 @@ const ERRORS: Record<string, DashKey> = {
  * customer is told when it moves.
  */
 export default async function MoveAppointmentPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string; staff?: string; error?: string }> }) {
-  const { app } = await requireClient();
+  const { app } = await requireClient("bookings");
   const { t, lang } = await dashboardText();
   if (!app || app.connector?.kind !== "bookings") notFound();
   const { id } = await params;

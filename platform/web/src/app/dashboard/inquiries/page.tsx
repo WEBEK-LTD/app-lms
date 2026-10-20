@@ -16,7 +16,7 @@ const WHEN: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", hour:
 
 /** Messages from the app about the office's listings, latest first. */
 export default async function InquiriesPage({ searchParams }: { searchParams: Promise<{ status?: string; page?: string }> }) {
-  const { app } = await requireClient();
+  const { app } = await requireClient("messages");
   const { t, date } = await dashboardText();
   const when = (at: Date) => t("listings.utc", { time: date(at, WHEN) });
   if (!app || app.connector?.kind !== "listings") {

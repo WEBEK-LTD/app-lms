@@ -17,7 +17,7 @@ const DONATIONS_READ = 10_000;
 
 /** 29 The people who gave, by email address: how much, how often and to what. */
 export default async function DonorsPage() {
-  const { app } = await requireClient();
+  const { app } = await requireClient("donations");
   const { t, lang, num } = await dashboardText();
   if (!app || app.connector?.kind !== "campaigns") {
     return (

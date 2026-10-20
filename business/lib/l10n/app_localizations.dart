@@ -2710,6 +2710,300 @@ abstract class AppLocalizations {
   /// **'Cancelled. It won\'t be sent.'**
   String get scheduledCancelled;
 
+  /// No description provided for @askOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the owner'**
+  String get askOwner;
+
+  /// No description provided for @askOwnerText.
+  ///
+  /// In en, this message translates to:
+  /// **'Your role on this team doesn\'t include this. Ask the owner of the business.'**
+  String get askOwnerText;
+
+  /// No description provided for @planOwnerOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the owner of the business sees the plan, the storage and payments.'**
+  String get planOwnerOnly;
+
+  /// No description provided for @roleOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get roleOwner;
+
+  /// No description provided for @roleManager.
+  ///
+  /// In en, this message translates to:
+  /// **'Manager'**
+  String get roleManager;
+
+  /// No description provided for @roleStaff.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff'**
+  String get roleStaff;
+
+  /// No description provided for @roleManagerHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything except the plan, payments, the team, and changing an app\'s type or where its content comes from.'**
+  String get roleManagerHelp;
+
+  /// No description provided for @roleStaffHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Only what you tick below.'**
+  String get roleStaffHelp;
+
+  /// No description provided for @areaOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders & kitchen'**
+  String get areaOrders;
+
+  /// No description provided for @areaBookings.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookings & appointments'**
+  String get areaBookings;
+
+  /// No description provided for @areaEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'Events & check-in'**
+  String get areaEvents;
+
+  /// No description provided for @areaDonations.
+  ///
+  /// In en, this message translates to:
+  /// **'Donations'**
+  String get areaDonations;
+
+  /// No description provided for @areaCatalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog & content'**
+  String get areaCatalog;
+
+  /// No description provided for @areaMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'Media'**
+  String get areaMedia;
+
+  /// No description provided for @areaMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get areaMessages;
+
+  /// No description provided for @areaAppUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'App users'**
+  String get areaAppUsers;
+
+  /// No description provided for @areaAnalytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytics'**
+  String get areaAnalytics;
+
+  /// No description provided for @areaNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications to app users'**
+  String get areaNotifications;
+
+  /// No description provided for @everything.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything'**
+  String get everything;
+
+  /// No description provided for @allApps.
+  ///
+  /// In en, this message translates to:
+  /// **'All apps'**
+  String get allApps;
+
+  /// No description provided for @switchBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch business'**
+  String get switchBusiness;
+
+  /// No description provided for @businessesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your businesses'**
+  String get businessesTitle;
+
+  /// No description provided for @roleOn.
+  ///
+  /// In en, this message translates to:
+  /// **'{role} on {business}'**
+  String roleOn(String role, String business);
+
+  /// No description provided for @team.
+  ///
+  /// In en, this message translates to:
+  /// **'Team'**
+  String get team;
+
+  /// No description provided for @teamIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'The people who work with you. Each signs in with their own email and password and sees only what their role allows.'**
+  String get teamIntro;
+
+  /// No description provided for @you.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get you;
+
+  /// No description provided for @invitationsWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitations waiting'**
+  String get invitationsWaiting;
+
+  /// No description provided for @invitationExpires.
+  ///
+  /// In en, this message translates to:
+  /// **'The link works until {date}'**
+  String invitationExpires(String date);
+
+  /// No description provided for @invitationExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get invitationExpired;
+
+  /// No description provided for @resendInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Send again'**
+  String get resendInvite;
+
+  /// No description provided for @cancelInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel invitation'**
+  String get cancelInvite;
+
+  /// No description provided for @inviteSentAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation sent again.'**
+  String get inviteSentAgain;
+
+  /// No description provided for @inviteCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation cancelled.'**
+  String get inviteCancelled;
+
+  /// No description provided for @inviteSomeone.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite someone'**
+  String get inviteSomeone;
+
+  /// No description provided for @inviteHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'We email them a link to join. It works once, for 7 days.'**
+  String get inviteHelp;
+
+  /// No description provided for @personName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get personName;
+
+  /// No description provided for @role.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get role;
+
+  /// No description provided for @whatStaff.
+  ///
+  /// In en, this message translates to:
+  /// **'What Staff can work on'**
+  String get whatStaff;
+
+  /// No description provided for @sendInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Send invitation'**
+  String get sendInvite;
+
+  /// No description provided for @inviteSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation sent to {email}.'**
+  String inviteSent(String email);
+
+  /// No description provided for @changeAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Change access'**
+  String get changeAccess;
+
+  /// No description provided for @accessSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved. It applies at once.'**
+  String get accessSaved;
+
+  /// No description provided for @removeMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from the team'**
+  String get removeMember;
+
+  /// No description provided for @removeMemberTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}?'**
+  String removeMemberTitle(String name);
+
+  /// No description provided for @removeMemberText.
+  ///
+  /// In en, this message translates to:
+  /// **'They\'re signed out at once, on the website and on every phone.'**
+  String get removeMemberText;
+
+  /// No description provided for @memberRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is off the team.'**
+  String memberRemoved(String name);
+
+  /// No description provided for @oneAreaAtLeast.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose at least one thing Staff can work on.'**
+  String get oneAreaAtLeast;
+
+  /// No description provided for @enterName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter their name.'**
+  String get enterName;
+
+  /// No description provided for @enterEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter their email.'**
+  String get enterEmail;
+
   /// No description provided for @minutesAgo.
   ///
   /// In en, this message translates to:

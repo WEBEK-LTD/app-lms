@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordStaffChange } from "@/lib/admin/audit";
-import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
+import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { AppPatch } from "@/lib/data/store";
 import type { App, LinksCheckSnapshot } from "@/lib/data/types";
@@ -27,7 +27,7 @@ const LINKS_PAGE = "/dashboard/publishing/links";
 const LINK_CHECK_LIMIT = { name: "links-check:client", limit: 10, windowSeconds: 10 * 60 };
 
 async function requireApp(): Promise<ClientContext & { app: App }> {
-  const context = await getClientContext();
+  const context = await clientFor("settings");
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
   if (!context.app) redirect("/dashboard/app-type");

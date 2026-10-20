@@ -29,7 +29,7 @@ export const dynamic = "force-dynamic";
 
 /** 10.4: the app's pages, bottom tabs, look and languages, with a preview, drafts and publishing. */
 export default async function PagesPage() {
-  const { app, license } = await requireClient();
+  const { app, license } = await requireClient("settings");
   const { t } = await dashboardText();
   if (!app) {
     return (

@@ -1,4 +1,5 @@
 import type { ClientContext } from "./auth/session";
+import { OWNER_ACCESS, teamCan } from "./team/permissions";
 import { BELL_LIMIT, UPDATE_KIND_LABEL, type UpdateItem, type Updates, type UpdatesReader } from "./updates";
 
 /**
@@ -90,15 +91,17 @@ export function bellData(updates: Updates, words: BellWords = ENGLISH_BELL): Bel
   return { items: updates.current.slice(0, BELL_LIMIT).map((item) => bellItem(item, words)), unread: updates.unread, total: updates.current.length };
 }
 
-/** The person reading: the client, or our team member managing their dashboard (each has their own read state). */
-export function readerOf(context: Pick<ClientContext, "user" | "staff" | "client" | "apps" | "account" | "licenses">, lang = "en"): UpdatesReader {
+/** The person reading: the client, our team member managing their dashboard, or 60 someone on the client's team (each has their own read state). */
+export function readerOf(context: Pick<ClientContext, "user" | "staff" | "client" | "apps" | "account" | "licenses"> & Partial<Pick<ClientContext, "member" | "access">>, lang = "en"): UpdatesReader {
+  const access = context.access ?? OWNER_ACCESS;
   return {
-    userId: (context.staff ?? context.user).id,
+    userId: (context.staff ?? context.member ?? context.user).id,
     clientId: context.client.id,
     apps: context.apps,
     // The whole account: a plan or app type audience matches when any of its apps does.
     subject: { state: context.account, license: null, app: null, licenses: context.licenses, apps: context.apps },
     // 56 The dashboard's language: announcements written in it show in it, else in English.
     lang,
+    sees: { notices: teamCan(access, "settings"), builds: teamCan(access, "settings"), payments: teamCan(access, "billing") },
   };
 }

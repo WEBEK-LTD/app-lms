@@ -19,6 +19,8 @@ String errorMessage(BuildContext context, Object error) {
       ApiException.notAvailable => l10n.errorNotAvailable,
       ApiException.notFound => l10n.errorNotFound,
       ApiException.rateLimited => l10n.errorRateLimited,
+      // 60 The person's role on the team doesn't include it.
+      ApiException.notAllowed => l10n.askOwnerText,
       ApiException.accountPending ||
       ApiException.accountSuspended => l10n.errorAccount,
       _ => l10n.errorGeneric,

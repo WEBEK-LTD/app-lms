@@ -17,7 +17,7 @@ export function ArticleStatusBadge({ status, t }: { status: ArticleStatus; t: Da
 
 /** 23 Writing (id null) or editing an article. */
 export async function ArticlePage({ id, breaking }: { id: number | null; breaking?: string }) {
-  const { app } = await requireClient();
+  const { app } = await requireClient("catalog");
   if (!app || app.connector?.kind !== "articles") notFound();
   const store = await getStore();
   const [article, categories] = await Promise.all([id !== null ? store.getArticle(app.id, id) : Promise.resolve(null), store.listArticleCategories(app.id)]);

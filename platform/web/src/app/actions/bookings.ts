@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
+import { actorOf, clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
+import { recordAppointmentStatus } from "@/lib/team/activity";
 import { parseRules, parseService, parseStaff } from "@/lib/bookings/forms";
 import { parseIntakeField, parseStaffProfile } from "@/lib/bookings/intake";
 import { bookingSetup } from "@/lib/bookings/setup";
@@ -17,7 +18,7 @@ import type { FormState } from "@/lib/forms";
 
 /** A client whose bookings are managed in the dashboard, or a redirect. */
 async function requireBookingsApp(): Promise<ClientContext & { app: App }> {
-  const context = await getClientContext();
+  const context = await clientFor("bookings");
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
   if (!context.app || context.app.connector?.kind !== "bookings") redirect("/dashboard");
@@ -161,11 +162,16 @@ export async function changeIntakeFieldAction(formData: FormData): Promise<void>
 }
 
 export async function setAppointmentStatusAction(formData: FormData): Promise<void> {
-  const { app } = await requireBookingsApp();
+  const context = await requireBookingsApp();
+  const { app } = context;
   const store = await getStore();
   const id = Number(formData.get("id"));
   const appointment = Number.isSafeInteger(id) ? await store.getBookingAppointment(app.id, id) : null;
-  if (appointment) await changeAppointmentStatus(store, appointment, String(formData.get("status")), new Date());
+  const status = String(formData.get("status"));
+  const now = new Date();
+  if (appointment && (await changeAppointmentStatus(store, appointment, status, now))) {
+    await recordAppointmentStatus(store, { clientId: context.client.id, appId: app.id, actor: actorOf(context), appointmentId: appointment.id, to: status }, now);
+  }
   revalidatePath("/dashboard/appointments");
 }
 

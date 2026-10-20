@@ -3,7 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
+import { actorOf, clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
+import { recordRefund } from "@/lib/team/activity";
+import { formatCents } from "@/lib/catalog/money";
+import type { TeamPermission } from "@/lib/team/permissions";
 import { ORDER_KINDS } from "@/lib/app/areas";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
@@ -29,8 +32,8 @@ import {
  */
 
 
-async function requireApp(kinds: ReadonlySet<string>): Promise<ClientContext & { app: App }> {
-  const context = await getClientContext();
+async function requireApp(kinds: ReadonlySet<string>, permission: TeamPermission): Promise<ClientContext & { app: App }> {
+  const context = await clientFor(permission);
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
   if (!context.app || !kinds.has(context.app.connector?.kind ?? "")) redirect("/dashboard");
@@ -38,7 +41,7 @@ async function requireApp(kinds: ReadonlySet<string>): Promise<ClientContext & {
 }
 
 async function deps(context: ClientContext): Promise<RefundDeps> {
-  const who = context.staff ?? context.user;
+  const who = actorOf(context);
   return {
     store: await getStore(),
     key: encryptionKey(),
@@ -87,24 +90,33 @@ async function run(
 }
 
 export async function refundOrderAction(_: FormState, formData: FormData): Promise<FormState> {
-  const context = await requireApp(ORDER_KINDS);
+  const context = await requireApp(ORDER_KINDS, "orders");
   const d = await deps(context);
   const id = Number(formData.get("id"));
   const order = Number.isSafeInteger(id) ? await d.store.getCatalogOrder(context.app.id, id) : null;
   const options = order ? await orderRefundOptions(d, context.app, order) : null;
-  const state = await run(formData, options, (input) => refundOrder(d, context.app, order!, input));
+  const state = await run(formData, options, async (input) => {
+    const result = await refundOrder(d, context.app, order!, input);
+    // 60 Who refunded, on the Team page.
+    if (result.ok) await recordRefund(d.store, { clientId: context.client.id, appId: context.app.id, actor: actorOf(context), kind: "order", id: order!.id, amount: formatCents(input.cents, order!.currency) }, d.now);
+    return result;
+  });
   revalidatePath("/dashboard/orders");
   revalidatePath("/dashboard/events", "layout");
   return state;
 }
 
 export async function refundDonationAction(_: FormState, formData: FormData): Promise<FormState> {
-  const context = await requireApp(new Set(["campaigns"]));
+  const context = await requireApp(new Set(["campaigns"]), "donations");
   const d = await deps(context);
   const id = Number(formData.get("id"));
   const donation = Number.isSafeInteger(id) ? await d.store.getDonation(context.app.id, id) : null;
   const options = donation ? await donationRefundOptions(d, context.app, donation) : null;
-  const state = await run(formData, options, (input) => refundDonation(d, context.app, donation!, input));
+  const state = await run(formData, options, async (input) => {
+    const result = await refundDonation(d, context.app, donation!, input);
+    if (result.ok) await recordRefund(d.store, { clientId: context.client.id, appId: context.app.id, actor: actorOf(context), kind: "donation", id: donation!.id, amount: formatCents(input.cents, donation!.currency) }, d.now);
+    return result;
+  });
   revalidatePath("/dashboard/donations", "layout");
   revalidatePath("/dashboard/campaigns", "layout");
   return state;

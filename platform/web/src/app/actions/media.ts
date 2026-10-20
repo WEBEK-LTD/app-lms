@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordStaffChange } from "@/lib/admin/audit";
-import { getClientContext, mayUseDashboard, requestIp, type ClientContext } from "@/lib/auth/session";
+import { clientFor, mayUseDashboard, requestIp, type ClientContext } from "@/lib/auth/session";
+import type { TeamPermission } from "@/lib/team/permissions";
 import { readBilling } from "@/lib/billing/plan-payment";
 import { getStore } from "@/lib/data";
 import type { App, MediaFile, MediaKind } from "@/lib/data/types";
@@ -32,8 +33,8 @@ import { platformSetting, yallappPlanAccount } from "@/lib/settings/platform";
 
 type MediaContext = ClientContext & { app: App };
 
-async function mediaContext(): Promise<MediaContext> {
-  const context = await getClientContext();
+async function mediaContext(permission: TeamPermission | readonly TeamPermission[] = "media"): Promise<MediaContext> {
+  const context = await clientFor(permission);
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
   if (!context.app) redirect("/dashboard");
@@ -146,7 +147,7 @@ export interface PickableMedia {
 
 /** The app's ready files for a picker (lesson videos, pictures in pages, products and listings). */
 export async function listMediaAction(input: { kind: MediaKind }): Promise<{ items: PickableMedia[]; available: boolean }> {
-  const context = await mediaContext();
+  const context = await mediaContext(["media", "catalog", "settings"]);
   const storage = getMediaStorage();
   const files = await (await getStore()).listMediaFiles(context.app.id, { kind: input.kind, status: "ready", limit: 300 });
   return { items: files.map((f) => pickable(f, storage)), available: storage !== null };
@@ -166,7 +167,7 @@ function pickable(file: MediaFile, storage: ReturnType<typeof getMediaStorage>):
 
 /** A video picked for a page block: anyone with the app may watch it, so its link opens for everyone. */
 export async function shareMediaAction(input: { id: string }): Promise<{ ok: boolean }> {
-  const context = await mediaContext();
+  const context = await mediaContext(["media", "catalog", "settings"]);
   if (!isMediaId(input.id)) return { ok: false };
   const store = await getStore();
   const file = await store.getMediaFile(context.app.id, input.id);
@@ -177,7 +178,7 @@ export async function shareMediaAction(input: { id: string }): Promise<{ ok: boo
 
 /** Buys a storage pack by card: off to the provider's page. It runs until the plan's period ends. */
 export async function buyStorageAction(_: FormState, formData: FormData): Promise<FormState> {
-  const context = await mediaContext();
+  const context = await mediaContext("billing");
   const values: Record<string, string> = {};
   for (const name of ["offer", "city", "address"]) values[name] = String(formData.get(name) ?? "").trim();
   if (String(formData.get("appId") ?? "") !== context.app.id) {

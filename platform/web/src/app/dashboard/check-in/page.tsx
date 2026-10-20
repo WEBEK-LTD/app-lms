@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /** 28 Checking tickets at the door, on a phone: the events of today and the next days first. */
 export default async function CheckInPage() {
-  const { app } = await requireClient();
+  const { app } = await requireClient("events");
   const { t, lang } = await dashboardText();
   if (!app || app.connector?.kind !== "events") {
     return (

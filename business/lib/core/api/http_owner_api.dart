@@ -149,6 +149,62 @@ class HttpOwnerApi implements OwnerApi {
   Future<Me> setLanguage(String? language) async =>
       Me.fromJson(await _put('/me/language', {'language': language}));
 
+  // 60 Team members
+
+  @override
+  Future<Me> setBusiness(String businessId) async =>
+      Me.fromJson(await _put('/me/business', {'business_id': businessId}));
+
+  @override
+  Future<Team> team() async => Team.fromJson(await _get('/team'));
+
+  @override
+  Future<TeamInvitation> inviteTeamMember({
+    required String name,
+    required String email,
+    required TeamRole role,
+    List<String> areas = const [],
+    List<String>? appIds,
+  }) async => TeamInvitation.fromJson(
+    await _post('/team/invitations', {
+      'name': name,
+      'email': email,
+      'role': role.name,
+      'areas': areas,
+      'app_ids': appIds,
+    }),
+  );
+
+  @override
+  Future<TeamInvitation> resendInvitation(String invitationId) async =>
+      TeamInvitation.fromJson(
+        await _post(
+          '/team/invitations/${Uri.encodeComponent(invitationId)}/resend',
+        ),
+      );
+
+  @override
+  Future<void> cancelInvitation(String invitationId) =>
+      _delete('/team/invitations/${Uri.encodeComponent(invitationId)}');
+
+  @override
+  Future<TeamMember> updateTeamMember(
+    String userId, {
+    required TeamRole role,
+    List<String> areas = const [],
+    List<String>? appIds,
+  }) async => TeamMember.fromJson(
+    await _patch('/team/members/${Uri.encodeComponent(userId)}', {
+      'role': role.name,
+      'areas': areas,
+      'app_ids': appIds,
+    }),
+  );
+
+  @override
+  Future<void> removeTeamMember(String userId) =>
+      _delete('/team/members/${Uri.encodeComponent(userId)}');
+
   @override
   Future<List<Device>> devices() async =>
       listOf(await _get('/me/devices'), 'items', Device.fromJson);

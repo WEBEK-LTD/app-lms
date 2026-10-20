@@ -6,7 +6,9 @@ import { appLabel } from "../app/label";
 import { formatCents } from "../catalog/money";
 import { orderNumber } from "../catalog/settings";
 import type { DataStore } from "../data/store";
-import type { Announcement, App, BookingAppointment, Build, CatalogOrder, Donation, Listing, OwnerDevice, OwnerNotice, OwnerPushKind } from "../data/types";
+import type { Announcement, App, BookingAppointment, Build, CatalogOrder, Donation, Listing, OwnerDevice, OwnerNotice, OwnerPushKind, User } from "../data/types";
+import { OWNER_ACCESS, PUSH_PERMISSION, teamCan, type TeamAccess, type TeamPermission } from "../team/permissions";
+import { memberAccess } from "../team/service";
 import { failureReason } from "../builds/view";
 import { pushTarget, sendPush, type ServiceAccount } from "../hosted/push";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX } from "../hosted/notify";
@@ -48,31 +50,53 @@ export interface Words {
 const wordsFor = (lang: Lang): Words => ({ lang, t: getDashT(lang), k: knownTranslator(lang) });
 const clip = (text: string, max: number) => (text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text);
 
-/** The devices of a client's owner that want `kind`, with a push token and still signed in. */
-async function devicesFor(store: DataStore, clientId: string, kind: OwnerPushKind, now: Date): Promise<{ language: string | null | undefined; devices: OwnerDevice[] } | null> {
+/**
+ * The devices signed in to a client that want `kind`, still signed in, and
+ * 60 whose person may see it: the owner, or someone on the team with
+ * `permission` on the app (`appId`). Each with its person's language.
+ */
+async function devicesFor(
+  store: DataStore,
+  clientId: string,
+  kind: OwnerPushKind,
+  permission: TeamPermission,
+  appId: string | null,
+  now: Date,
+): Promise<{ language: string | null | undefined; device: OwnerDevice }[]> {
   const client = await store.getClientById(clientId);
-  const user = client ? await store.getUserById(client.userId) : null;
-  if (!client || !user) return null;
-  const devices = (await store.listOwnerDevices(user.id)).filter(
-    (d) => d.pushToken && d.pushPreferences?.[kind] !== false && d.refreshExpiresAt.getTime() > now.getTime() && d.sessionVersion === user.sessionVersion,
-  );
-  return { language: user.language, devices };
+  if (!client) return [];
+  const wanting = (await store.listOwnerDevicesOfClient(clientId)).filter((d) => d.pushToken && d.pushPreferences?.[kind] !== false && d.refreshExpiresAt.getTime() > now.getTime());
+  const people = new Map<string, { user: User; access: TeamAccess } | null>();
+  const out: { language: string | null | undefined; device: OwnerDevice }[] = [];
+  for (const device of wanting) {
+    if (!people.has(device.userId)) {
+      const user = await store.getUserById(device.userId);
+      const member = user && user.id !== client.userId ? await store.getTeamMember(clientId, user.id) : null;
+      people.set(device.userId, user && (user.id === client.userId || member) ? { user, access: member ? memberAccess(member) : OWNER_ACCESS } : null);
+    }
+    const person = people.get(device.userId);
+    if (!person || person.user.sessionVersion !== device.sessionVersion || !teamCan(person.access, permission, appId)) continue;
+    out.push({ language: person.user.language, device });
+  }
+  return out;
 }
 
-/** Sends one kind of push to a client's owner, worded per language; returns the phones it went to. */
+/** Sends one kind of push to the phones of a client (its owner, and 60 the team as their roles allow), worded per language; returns the phones it went to. */
 export async function pushToOwner(
   deps: OwnerPushDeps,
   clientId: string,
   kind: OwnerPushKind,
   word: (words: Words) => { title: string; body: string },
   data: Record<string, string>,
+  /** 60 Who may get it; by default the kind's (PUSH_PERMISSION). */
+  permission: TeamPermission = PUSH_PERMISSION[kind],
 ): Promise<number> {
   try {
-    const found = await devicesFor(deps.store, clientId, kind, deps.now);
-    if (!found || found.devices.length === 0) return 0;
+    const found = await devicesFor(deps.store, clientId, kind, permission, data.app_id ?? null, deps.now);
+    if (found.length === 0) return 0;
     const byLang = new Map<Lang, OwnerDevice[]>();
-    for (const device of found.devices) {
-      const lang = ownerLang(found.language, device.language);
+    for (const { language, device } of found) {
+      const lang = ownerLang(language, device.language);
       byLang.set(lang, [...(byLang.get(lang) ?? []), device]);
     }
     let sent = 0;
@@ -155,6 +179,7 @@ export function pushDonation(deps: OwnerPushDeps, app: App, donation: Donation):
       body: w.t("owner.push.donationBody", { app: appName(app, w), amount: formatCents(donation.amountCents, donation.currency), campaign: donation.campaignTitle }),
     }),
     { app_id: app.id, donation_id: String(donation.id) },
+    "donations",
   );
 }
 

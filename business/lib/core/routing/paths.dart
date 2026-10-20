@@ -37,4 +37,7 @@ abstract final class Paths {
   static const appearance = '/settings/appearance';
   static const notifications = '/settings/notifications';
   static const devices = '/settings/devices';
+
+  // 60 The owner's team.
+  static const team = '/team';
 }

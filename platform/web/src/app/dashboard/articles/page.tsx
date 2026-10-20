@@ -31,7 +31,7 @@ export default async function ArticlesPage({
 }: {
   searchParams: Promise<{ q?: string; status?: string; saved?: string; published?: string; breaking?: string; deleted?: string }>;
 }) {
-  const { app } = await requireClient();
+  const { app } = await requireClient("catalog");
   const { t, k, date } = await dashboardText();
   if (!app || app.connector?.kind !== "articles") {
     return (

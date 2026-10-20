@@ -20,7 +20,9 @@ import { REFUND_REASONS } from "../payments/refund";
 import { orderRefundOptions, readRefundForm, refundOrder, type RefundDeps } from "../refunds/service";
 import type { AccountState } from "../license/status";
 import { appStateOf, requireActive } from "./account";
-import { bodyObject, intParam, invalid, iso, notAvailable, notFound, OwnerError, pageJson, paging, type OwnerContext, type OwnerResult } from "./http";
+import { bodyObject, intParam, invalid, iso, notAllowed, notAvailable, notFound, OwnerError, pageJson, paging, type OwnerContext, type OwnerResult } from "./http";
+import { allowedAreas, APP_AREA_PERMISSION, teamCan } from "../team/permissions";
+import { recordAppointmentStatus, recordOrderStatus, recordRefund } from "../team/activity";
 
 /**
  * 58 One app of the signed-in client, and what sells or books in it:
@@ -39,11 +41,14 @@ export interface AppScope {
 /** The client's own app, or 404; with `area`, one the app has, or 404 `not_available`. */
 export function appScope(ctx: OwnerContext, appId: string | undefined, area?: keyof AppAreas): AppScope {
   requireActive(ctx);
+  // 60 Only the apps the person works on (a member may be limited to some).
   const app = ctx.apps.find((a) => a.id === appId);
   if (!app) throw notFound();
-  const areas = appAreas(app);
-  if (area && !areas[area]) throw notAvailable();
-  return { app, license: ctx.licenses.find((l) => l.appId === app.id) ?? null, state: appStateOf(ctx, app), areas };
+  const has = appAreas(app);
+  if (area && !has[area]) throw notAvailable();
+  // 60 What the app has and the person's role allows; the rest is 403 "Ask the owner".
+  if (area && !teamCan(ctx.access, APP_AREA_PERMISSION[area], app.id)) throw notAllowed();
+  return { app, license: ctx.licenses.find((l) => l.appId === app.id) ?? null, state: appStateOf(ctx, app), areas: allowedAreas(has, ctx.access, app.id) };
 }
 
 export function money(cents: number, currency: string) {
@@ -107,8 +112,8 @@ export async function today(ctx: OwnerContext, params: Record<string, string>): 
   await refreshAnalytics(store, app.id, now, [], day.zone);
   const sessions = await store.listAnalyticsDaily(app.id, day.date, day.date, ["sessions"]);
   counts.app_opens = sessions.reduce((sum, row) => sum + row.value, 0);
-  // The owner notices still open on the dashboard's overview for this app.
-  for (const notice of await store.listOwnerNotices({ clientId: ctx.client.id, appId: app.id, open: true, limit: 10 })) {
+  // The owner notices still open on the dashboard's overview for this app (60 for those with the app's settings).
+  for (const notice of teamCan(ctx.access, "settings", app.id) ? await store.listOwnerNotices({ clientId: ctx.client.id, appId: app.id, open: true, limit: 10 }) : []) {
     needs.push({ kind: "notice", count: 1, title: ctx.k(notice.title), notice_id: notice.id });
   }
   return { status: 200, body: { date: day.date, time_zone: day.zone, sales: totalsJson(sales), donations: totalsJson(given), counts, needs_you: needs } };
@@ -191,6 +196,8 @@ export async function changeOrder(ctx: OwnerContext, params: Record<string, stri
     status,
   );
   if (!moved) throw new OwnerError(409, "invalid_status", "This order can't move to that status.");
+  // 60 Who moved it, on the dashboard's Team page.
+  await recordOrderStatus(deps.store, { clientId: ctx.client.id, appId: app.id, actor: ctx.user, orderId: order.id, to: status }, deps.now);
   return { status: 200, body: await orderDetail(ctx, app, (await deps.store.getCatalogOrder(app.id, order.id))!) };
 }
 
@@ -210,6 +217,7 @@ export async function refund(ctx: OwnerContext, params: Record<string, string>):
   if (!parsed.ok) throw invalid(parsed.errors);
   const result = await refundOrder(d, app, order, parsed.input);
   if (!result.ok) throw new OwnerError(502, "provider_error", result.message);
+  await recordRefund(ctx.deps.store, { clientId: ctx.client.id, appId: app.id, actor: ctx.user, kind: "order", id: order.id, amount: formatCents(parsed.input.cents, order.currency) }, ctx.deps.now);
   return { status: 200, body: { message: ctx.k(result.message), order: await orderDetail(ctx, app, (await ctx.deps.store.getCatalogOrder(app.id, order.id))!) } };
 }
 
@@ -270,6 +278,7 @@ export async function changeAppointment(ctx: OwnerContext, params: Record<string
   const status = bodyObject(ctx.req.body).status;
   if (typeof status !== "string" || !status) throw invalid({ status: "The request isn't valid." });
   if (!(await changeAppointmentStatus(store, appointment, status, now))) throw new OwnerError(409, "invalid_status", "This appointment can't move to that status.");
+  await recordAppointmentStatus(store, { clientId: ctx.client.id, appId: app.id, actor: ctx.user, appointmentId: appointment.id, to: status }, now);
   return { status: 200, body: appointmentJson(ctx, (await store.getBookingAppointment(app.id, appointment.id))!, bookingSetup(app).rules.timezone) };
 }
 

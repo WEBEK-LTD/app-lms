@@ -3,11 +3,13 @@ import { localePath } from "@/i18n/paths";
 import * as account from "./account";
 import { authenticateRequest, refresh, signIn } from "./auth";
 import * as catalog from "./catalog";
-import { errorBody, match, OwnerError, route, type OwnerDeps, type OwnerRequest, type OwnerResult, type Route } from "./http";
+import { errorBody, match, notAllowed, notFound, OwnerError, route, type OwnerDeps, type OwnerRequest, type OwnerResult, type Route } from "./http";
 import * as insights from "./insights";
 import { acceptedLang, ownerLang } from "./lang";
 import * as library from "./library";
 import * as sales from "./sales";
+import * as team from "./team";
+import { teamCan } from "../team/permissions";
 import { getPlans } from "../settings/platform";
 
 /**
@@ -23,6 +25,8 @@ const ROUTES: Route[] = [
   route("POST", "auth/sign-out-all", account.signOutAll, { anyState: true }),
   route("GET", "me", account.getMe, { anyState: true }),
   route("PUT", "me/language", account.setLanguage, { anyState: true }),
+  // 60 Someone on several businesses works on another one.
+  route("PUT", "me/business", account.setBusiness, { anyState: true }),
   route("GET", "me/devices", account.listDevices, { anyState: true }),
   route("DELETE", "me/devices/:device_id", account.signOutDevice, { anyState: true }),
   route("PUT", "me/push-token", account.setPushToken, { anyState: true }),
@@ -74,7 +78,14 @@ const ROUTES: Route[] = [
   route("DELETE", "apps/:app_id/notifications/scheduled/:scheduled_id", insights.cancelScheduled),
   route("POST", "apps/:app_id/preview", insights.preview),
   route("GET", "apps/:app_id/builds", insights.builds),
-  route("GET", "apps/:app_id/license", insights.license),
+  route("GET", "apps/:app_id/license", insights.license, { permission: "billing" }),
+  // 60 The owner's team.
+  route("GET", "team", team.getTeam, { permission: "team" }),
+  route("POST", "team/invitations", team.invite, { permission: "team" }),
+  route("POST", "team/invitations/:invitation_id/resend", team.resend, { permission: "team" }),
+  route("DELETE", "team/invitations/:invitation_id", team.cancel, { permission: "team" }),
+  route("PATCH", "team/members/:user_id", team.update, { permission: "team" }),
+  route("DELETE", "team/members/:user_id", team.remove, { permission: "team" }),
 ];
 
 /** Paths that answer without a token. */
@@ -101,6 +112,13 @@ export async function handleOwner(deps: OwnerDeps, req: OwnerRequest): Promise<O
     const ctx = await authenticateRequest(deps, req);
     k = ctx.k;
     if (!found.route.anyState) account.requireActive(ctx);
+    // 60 What the route needs, on its app when it has one (an app outside the person's apps is 404, as another client's).
+    const permission = found.route.permission;
+    if (permission) {
+      const appId = found.params.app_id;
+      if (appId && !ctx.apps.some((a) => a.id === appId)) throw notFound();
+      if (!teamCan(ctx.access, permission, appId)) throw notAllowed();
+    }
     return await found.route.handler(ctx, found.params);
   } catch (error) {
     if (error instanceof OwnerError) return errorBody(error, k);

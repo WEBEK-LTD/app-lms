@@ -37,6 +37,7 @@ import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } fr
 import type { ApiWebhook, ApiWebhookPatch } from "./types";
 import type { PaymentRefund, RefundKind } from "./types";
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
+import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
 import { mergeCrash } from "../crashes/report";
 import type {
@@ -3121,6 +3122,115 @@ export class MysqlStore implements DataStore {
     const d = schema.ownerDevices;
     const [result] = await this.run((db) => db.delete(d).where(lte(d.refreshExpiresAt, now)));
     return result.affectedRows;
+  }
+
+  async deleteOwnerDevicesOfClient(userId: string, clientId: string): Promise<number> {
+    const d = schema.ownerDevices;
+    const [result] = await this.run((db) => db.delete(d).where(and(eq(d.userId, userId), eq(d.clientId, clientId))));
+    return result.affectedRows;
+  }
+
+  async listOwnerDevicesOfClient(clientId: string): Promise<OwnerDevice[]> {
+    const d = schema.ownerDevices;
+    return this.run((db) => db.select().from(d).where(eq(d.clientId, clientId)));
+  }
+
+  // 60 Team members for clients
+
+  async listTeamMembers(clientId: string): Promise<TeamMemberRow[]> {
+    const m = schema.teamMembers;
+    return this.run((db) =>
+      db.select({ member: m, user: schema.users }).from(m).innerJoin(schema.users, eq(schema.users.id, m.userId)).where(eq(m.clientId, clientId)).orderBy(asc(m.createdAt), asc(m.userId)),
+    );
+  }
+
+  async getTeamMember(clientId: string, userId: string): Promise<TeamMember | null> {
+    const m = schema.teamMembers;
+    const [row] = await this.run((db) => db.select().from(m).where(and(eq(m.clientId, clientId), eq(m.userId, userId))).limit(1));
+    return row ?? null;
+  }
+
+  async listMembershipsOfUser(userId: string): Promise<TeamMember[]> {
+    const m = schema.teamMembers;
+    return this.run((db) => db.select().from(m).where(eq(m.userId, userId)).orderBy(asc(m.createdAt), asc(m.clientId)));
+  }
+
+  async saveTeamMember(member: TeamMember): Promise<void> {
+    // The key and when they joined stay; the rest is replaced.
+    const set = { role: member.role, areas: member.areas, appIds: member.appIds, addedBy: member.addedBy, updatedAt: member.updatedAt };
+    await this.run((db) => db.insert(schema.teamMembers).values(member).onDuplicateKeyUpdate({ set }));
+  }
+
+  async deleteTeamMember(clientId: string, userId: string): Promise<boolean> {
+    const m = schema.teamMembers;
+    const [result] = await this.run((db) => db.delete(m).where(and(eq(m.clientId, clientId), eq(m.userId, userId))));
+    return result.affectedRows === 1;
+  }
+
+  async createTeamInvitation(invitation: TeamInvitation): Promise<void> {
+    await this.run((db) => db.insert(schema.teamInvitations).values(invitation));
+  }
+
+  async getTeamInvitation(clientId: string, id: string): Promise<TeamInvitation | null> {
+    const i = schema.teamInvitations;
+    const [row] = await this.run((db) => db.select().from(i).where(and(eq(i.clientId, clientId), eq(i.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async getTeamInvitationByToken(tokenHash: string): Promise<TeamInvitation | null> {
+    const i = schema.teamInvitations;
+    const [row] = await this.run((db) => db.select().from(i).where(eq(i.tokenHash, tokenHash)).limit(1));
+    return row ?? null;
+  }
+
+  async listOpenTeamInvitations(clientId: string): Promise<TeamInvitation[]> {
+    const i = schema.teamInvitations;
+    return this.run((db) =>
+      db
+        .select()
+        .from(i)
+        .where(and(eq(i.clientId, clientId), isNull(i.acceptedAt), isNull(i.cancelledAt)))
+        .orderBy(desc(i.createdAt), asc(i.id)),
+    );
+  }
+
+  async updateTeamInvitation(clientId: string, id: string, patch: TeamInvitationPatch): Promise<void> {
+    if (!Object.keys(patch).length) return;
+    const i = schema.teamInvitations;
+    await this.run((db) => db.update(i).set(patch).where(and(eq(i.clientId, clientId), eq(i.id, id))));
+  }
+
+  async acceptTeamInvitation(id: string, tokenHash: string, now: Date): Promise<boolean> {
+    const i = schema.teamInvitations;
+    const [result] = await this.run((db) =>
+      db
+        .update(i)
+        .set({ acceptedAt: now })
+        .where(and(eq(i.id, id), eq(i.tokenHash, tokenHash), isNull(i.acceptedAt), isNull(i.cancelledAt), gt(i.expiresAt, now))),
+    );
+    return result.affectedRows === 1;
+  }
+
+  async addTeamActivity(entry: Omit<TeamActivity, "id">): Promise<void> {
+    await this.run((db) => db.insert(schema.teamActivity).values(entry));
+  }
+
+  async listTeamActivity(clientId: string, input: { limit: number; offset?: number; actorId?: string }): Promise<{ items: TeamActivity[]; total: number }> {
+    const a = schema.teamActivity;
+    const where = input.actorId ? and(eq(a.clientId, clientId), eq(a.actorId, input.actorId)) : eq(a.clientId, clientId);
+    const [items, [counted]] = await Promise.all([
+      this.run((db) =>
+        db
+          .select()
+          .from(a)
+          .where(where)
+          .orderBy(desc(a.at), desc(a.id))
+          .limit(input.limit)
+          .offset(input.offset ?? 0),
+      ),
+      this.run((db) => db.select({ n: count() }).from(a).where(where)),
+    ]);
+    return { items, total: counted?.n ?? 0 };
   }
 
   // 61 Moving an appointment

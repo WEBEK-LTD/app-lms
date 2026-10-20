@@ -23,7 +23,7 @@ const ENDS: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", year:
 
 /** 29 A charity's campaigns, its card payments and how the app takes donations. */
 export default async function CampaignsPage({ searchParams }: { searchParams: Promise<{ saved?: string; published?: string; deleted?: string }> }) {
-  const { app } = await requireClient();
+  const { app } = await requireClient("donations");
   const { t, lang, date } = await dashboardText();
   if (!app || app.connector?.kind !== "campaigns") {
     return (

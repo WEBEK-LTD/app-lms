@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
  * works through the client's invitations instead (the Publishing page).
  */
 export default async function MoreStoresPage() {
-  const { app, license } = await requireClient();
+  const { app, license } = await requireClient("settings");
   if (!app) redirect("/dashboard/app-type");
   const store = await getStore();
   const plans = plansIn((await dashboardText()).lang, await effectivePlans(store));

@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
+import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
+import type { TeamPermission } from "@/lib/team/permissions";
 import { getBlobStore } from "@/lib/blobs";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
@@ -16,8 +17,8 @@ import { LISTING_IMAGE_MAX_BYTES, LISTING_IMAGES_MAX, parseListingForm, parseOff
 import { replyToInquiry, setListingStatus } from "@/lib/listings/office";
 
 /** An active client whose app is a Real estate app with listings in the dashboard, or a redirect. */
-async function requireListingsApp(): Promise<ClientContext & { app: App }> {
-  const context = await getClientContext();
+async function requireListingsApp(permission: TeamPermission = "catalog"): Promise<ClientContext & { app: App }> {
+  const context = await clientFor(permission);
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
   if (!context.app || context.app.connector?.kind !== "listings") redirect("/dashboard");
@@ -140,7 +141,7 @@ export async function saveOfficeAction(_: FormState, formData: FormData): Promis
 // Inquiries
 
 export async function replyInquiryAction(_: FormState, formData: FormData): Promise<FormState> {
-  const { app } = await requireListingsApp();
+  const { app } = await requireListingsApp("messages");
   const store = await getStore();
   const id = Number(formData.get("id"));
   const inquiry = Number.isSafeInteger(id) ? await store.getListingInquiry(app.id, id) : null;
@@ -156,7 +157,7 @@ export async function replyInquiryAction(_: FormState, formData: FormData): Prom
 }
 
 export async function setInquiryStatusAction(formData: FormData): Promise<void> {
-  const { app } = await requireListingsApp();
+  const { app } = await requireListingsApp("messages");
   const store = await getStore();
   const id = Number(formData.get("id"));
   const status = formData.get("status");

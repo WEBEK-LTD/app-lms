@@ -4,7 +4,7 @@ import { csvWords, localizedReport } from "@/lib/analytics/localize";
 import { loadReport, rangeFrom } from "@/lib/analytics/report";
 import { itemWord } from "@/lib/analytics/words";
 import { zoneOf } from "@/lib/analytics/zone";
-import { getClientContext, mayUseDashboard } from "@/lib/auth/session";
+import { contextCan, getClientContext, mayUseDashboard } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { appUrl } from "@/lib/env";
@@ -18,6 +18,8 @@ export async function GET(request: Request): Promise<Response> {
   const context = await getClientContext();
   if (!context) return NextResponse.redirect(new URL("/sign-in", appUrl()), 303);
   if (!mayUseDashboard(context)) return NextResponse.redirect(new URL("/pending", appUrl()), 303);
+  // 60 Only for whoever on the team may open the page it comes from.
+  if (!contextCan(context, "analytics")) return new Response("Ask the owner for access.", { status: 403, headers: { "content-type": "text/plain; charset=utf-8" } });
   const app = context.app;
   if (!app) return new Response("Not found.", { status: 404, headers: { "content-type": "text/plain; charset=utf-8" } });
   const query = new URL(request.url).searchParams;

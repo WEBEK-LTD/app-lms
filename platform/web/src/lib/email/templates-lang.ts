@@ -35,6 +35,7 @@ export type ClientEmailKey = Extract<
   | "storage_pack_ended"
   | "own_whatsapp_failed"
   | "own_email_failed"
+  | "team_invitation"
 >;
 
 const AR: Record<ClientEmailKey, TemplateText> = {
@@ -174,6 +175,14 @@ const AR: Record<ClientEmailKey, TemplateText> = {
       "تحقّق من إعدادات خادم البريد، ثم أرسل رسالة تجريبية من صفحة «تسجيل الدخول في التطبيق»:\n{{sign_in_url}}" +
       SIGNATURE_AR,
   },
+  team_invitation: {
+    subject: "دعاك {{inviter}} إلى {{business}} على Yallapp",
+    body:
+      "مرحبًا {{name}}،\n\nدعاك {{inviter}} للعمل معه على {{business}} في Yallapp بدور {{role}}.\n\n" +
+      "افتح هذا الرابط للانضمام. يمكنك تعيين كلمة المرور هناك، أو تسجيل الدخول إن كنت تستخدم Yallapp من قبل:\n\n{{link}}\n\n" +
+      "يعمل الرابط مرة واحدة حتى {{expires}}. إن لم تكن تتوقع هذه الدعوة، فيمكنك تجاهل هذه الرسالة." +
+      SIGNATURE_AR,
+  },
 };
 
 const TR: Record<ClientEmailKey, TemplateText> = {
@@ -311,6 +320,14 @@ const TR: Record<ClientEmailKey, TemplateText> = {
       "Merhaba {{name}},\n\n{{date}} tarihinde kendi e-posta sunucunuz {{app_name}} kullanan birine e-posta gönderemedi:\n{{reason}}\n\n" +
       "E-posta yine de ulaşsın diye onu uygulamanızın adıyla Yallapp'in e-posta adresinden gönderdik.\n\n" +
       "E-posta sunucunuzun ayarlarını kontrol edin, ardından Uygulamada giriş sayfasından bir test e-postası gönderin:\n{{sign_in_url}}" +
+      SIGNATURE_TR,
+  },
+  team_invitation: {
+    subject: "{{inviter}} sizi Yallapp'te {{business}} ekibine davet etti",
+    body:
+      "Merhaba {{name}},\n\n{{inviter}} sizi Yallapp'te {{business}} üzerinde {{role}} olarak birlikte çalışmaya davet etti.\n\n" +
+      "Katılmak için bu bağlantıyı açın. Orada parolanızı belirleyebilir ya da Yallapp'i zaten kullanıyorsanız giriş yapabilirsiniz:\n\n{{link}}\n\n" +
+      "Bağlantı bir kez ve {{expires}} tarihine kadar çalışır. Bu daveti beklemiyorsanız bu e-postayı yok sayabilirsiniz." +
       SIGNATURE_TR,
   },
 };

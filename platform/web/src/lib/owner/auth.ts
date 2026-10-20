@@ -8,6 +8,8 @@ import { hitRateLimit, RATE_LIMITS } from "../rate-limit";
 import { signInSchema } from "../validation";
 import { OwnerError, bodyObject, invalid, rateLimited, type OwnerContext, type OwnerDeps, type OwnerRequest } from "./http";
 import { acceptedLang, ownerLang } from "./lang";
+import { businessesOf, businessFor } from "../team/service";
+import { scopedApps } from "../team/permissions";
 import { accessKey, createAccessToken, newRefreshToken, readAccessToken, refreshHash } from "./tokens";
 
 /**
@@ -74,8 +76,10 @@ export async function signIn(deps: OwnerDeps, req: OwnerRequest) {
   if (!byIp.allowed || !byEmail.allowed) throw rateLimited(Math.max(byIp.allowed ? 0 : byIp.retryAfter, byEmail.allowed ? 0 : byEmail.retryAfter), TOO_MANY);
   const user = await authenticate(deps.store, parsed.data.email, parsed.data.password, deps.now);
   if (!user) throw new OwnerError(401, "invalid_credentials", "The email or password is incorrect.");
-  // Yallapp's own team works on the website (the admin); only client accounts get in.
-  const client = (await adminRoleOf(deps.store, user)) ? null : await deps.store.getClientByUserId(user.id);
+  // Yallapp's own team works on the website (the admin); only client accounts and 60 their teams get in.
+  const businesses = (await adminRoleOf(deps.store, user)) ? [] : await businessesOf(deps.store, user);
+  // Their own business first, else the first active team (`PUT /me/business` changes it).
+  const client = (businesses.find((b) => b.member === null) ?? businesses.find((b) => b.client.status === "active") ?? businesses[0])?.client ?? null;
   if (!client) throw new OwnerError(403, "use_website", "Yallapp Business is for the owners of apps on Yallapp. Use yallapp.com.tr to manage Yallapp.");
 
   const existing = await deps.store.listOwnerDevices(user.id);
@@ -111,7 +115,9 @@ export async function refresh(deps: OwnerDeps, req: OwnerRequest) {
   const hash = refreshHash(sent);
   const device = hash ? await deps.store.findOwnerDeviceByRefresh(hash) : null;
   if (!hash || !device || !safeEqual(device.refreshHash, hash)) throw invalidToken();
-  const [user, client] = await Promise.all([deps.store.getUserById(device.userId), deps.store.getClientById(device.clientId)]);
+  const user = await deps.store.getUserById(device.userId);
+  // 60 Only while they still work on the device's business (a removed member is signed out).
+  const client = user ? ((await businessFor(deps.store, user, device.clientId))?.client ?? null) : null;
   if (device.refreshExpiresAt.getTime() <= deps.now.getTime() || !user || !client || user.sessionVersion !== device.sessionVersion) {
     await deps.store.deleteOwnerDevice(device.userId, device.id);
     throw invalidToken();
@@ -127,11 +133,14 @@ export async function authenticateRequest(deps: OwnerDeps, req: OwnerRequest): P
   const deviceId = readAccessToken(req.token, accessKey(deps.signingSecret), deps.now);
   const device = deviceId ? await deps.store.getOwnerDevice(deviceId) : null;
   if (!device) throw invalidToken();
-  const [user, client] = await Promise.all([deps.store.getUserById(device.userId), deps.store.getClientById(device.clientId)]);
-  if (!user || !client || client.userId !== user.id || user.sessionVersion !== device.sessionVersion || device.refreshExpiresAt.getTime() <= deps.now.getTime()) {
+  const user = await deps.store.getUserById(device.userId);
+  // 60 The device's business: the person's own, or a team they're still on (removed: signed out at once).
+  const business = user ? await businessFor(deps.store, user, device.clientId) : null;
+  if (!user || !business || user.sessionVersion !== device.sessionVersion || device.refreshExpiresAt.getTime() <= deps.now.getTime()) {
     await deps.store.deleteOwnerDevice(device.userId, device.id);
     throw invalidToken();
   }
+  const client = business.client;
   const requested = acceptedLang(req.acceptLanguage);
   if (deps.now.getTime() - device.lastSeenAt.getTime() > SEEN_EVERY_MS || (requested && requested !== device.language)) {
     await deps.store.updateOwnerDevice(device.id, { lastSeenAt: deps.now, ...(requested ? { language: requested } : {}) });
@@ -140,7 +149,9 @@ export async function authenticateRequest(deps: OwnerDeps, req: OwnerRequest): P
 }
 
 export async function contextFor(deps: OwnerDeps, req: OwnerRequest, user: User, client: Client, device: OwnerDevice): Promise<OwnerContext> {
-  const [apps, licenses] = await Promise.all([deps.store.listAppsByClient(client.id), deps.store.listLicensesByClient(client.id)]);
+  const [allApps, licenses, businesses] = await Promise.all([deps.store.listAppsByClient(client.id), deps.store.listLicensesByClient(client.id), businessesOf(deps.store, user)]);
+  const business = businesses.find((b) => b.client.id === client.id);
+  if (!business) throw invalidToken();
   const lang = ownerLang(user.language, acceptedLang(req.acceptLanguage), device.language);
   return {
     deps,
@@ -148,7 +159,10 @@ export async function contextFor(deps: OwnerDeps, req: OwnerRequest, user: User,
     user,
     client,
     device,
-    apps,
+    access: business.access,
+    businesses,
+    // 60 A member limited to some apps works on those only (another is 404, like another client's).
+    apps: scopedApps(business.access, allApps),
     licenses,
     state: clientAccountState(client, licenses, deps.now),
     lang,

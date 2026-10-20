@@ -1,6 +1,6 @@
 "use server";
 
-import { getClientContext, mayUseDashboard } from "@/lib/auth/session";
+import { clientFor, mayUseDashboard } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { bellWords, dashboardText } from "@/lib/dashboard-lang";
 import { loadUpdates, markRead } from "@/lib/updates";
@@ -13,7 +13,7 @@ import { bellData, readerOf, type BellData } from "@/lib/updates-view";
  * dashboard's language.
  */
 export async function markUpdatesReadAction(input: { keys?: string[]; all?: boolean }): Promise<BellData | null> {
-  const context = await getClientContext();
+  const context = await clientFor("dashboard");
   if (!context || !mayUseDashboard(context)) return null;
   const store = await getStore();
   const text = await dashboardText();
@@ -26,7 +26,7 @@ export async function markUpdatesReadAction(input: { keys?: string[]; all?: bool
 
 /** 57 The bell again, when the window comes back into focus. */
 export async function loadBellAction(): Promise<BellData | null> {
-  const context = await getClientContext();
+  const context = await clientFor("dashboard");
   if (!context || !mayUseDashboard(context)) return null;
   const text = await dashboardText();
   return bellData(await loadUpdates(await getStore(), readerOf(context, text.lang), new Date()), bellWords(text));
