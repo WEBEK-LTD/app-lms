@@ -144,7 +144,7 @@ test("the Works with strip scrolls, pauses under the pointer and stands still fo
   await still.close();
 });
 
-test("the public site follows dark mode, the sign-in page stays light", async ({ browser }) => {
+test("the public site follows dark mode, and (73) the sign-in page too", async ({ browser }) => {
   // 41 Midnight page and Ivory text on public pages; the dark bands stay dark.
   const dark = await browser.newPage({ colorScheme: "dark" });
   await dark.goto("/pricing");
@@ -152,7 +152,7 @@ test("the public site follows dark mode, the sign-in page stays light", async ({
   expect(colors).toEqual({ body: "rgb(14, 13, 36)", text: "rgb(244, 239, 230)" });
   await expect(dark.getByRole("contentinfo")).toHaveCSS("background-color", "rgb(14, 13, 36)");
   await dark.goto("/sign-in");
-  expect(await dark.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe("rgb(244, 239, 230)");
+  expect(await dark.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe("rgb(14, 13, 36)");
   await dark.close();
 });
 

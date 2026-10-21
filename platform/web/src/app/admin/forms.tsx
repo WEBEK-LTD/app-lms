@@ -124,9 +124,15 @@ export function ClientDetailsForm({
       <Field label="Website (optional)" name="siteUrl" type="url" defaultValue={v.siteUrl ?? siteUrl} error={state.errors?.siteUrl} small />
       <div className="flex flex-col gap-1.5">
         <label htmlFor={`f-country-${clientId}`} className="text-sm font-semibold">
-          Country (prices, WhatsApp number, receipts)
+          Country
         </label>
-        <select id={`f-country-${clientId}`} name="country" defaultValue={v.country ?? country ?? ""} className="input input-sm">
+        <select
+          id={`f-country-${clientId}`}
+          name="country"
+          defaultValue={v.country ?? country ?? ""}
+          aria-describedby={`f-country-${clientId}-hint`}
+          className="input input-sm"
+        >
           <option value="">Not set: the visitor&apos;s country</option>
           {countries.map((c) => (
             <option key={c.code} value={c.code}>
@@ -134,6 +140,9 @@ export function ClientDetailsForm({
             </option>
           ))}
         </select>
+        <span id={`f-country-${clientId}-hint`} className="text-[13px] text-muted">
+          The currency of Yallapp&apos;s prices, our support number they see and their receipts&apos; time zone.
+        </span>
       </div>
       <SubmitButton variant="secondary" className="h-10" pendingText="Saving…">
         Save details
