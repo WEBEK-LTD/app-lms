@@ -10,6 +10,11 @@ import type { Lang } from "@/i18n/config";
  * its code names left out (tests/unit/phase62.test.ts lists those missing).
  */
 export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: string }> = {
+  "73 The button of a finished course whose progress can be cleared to take it again.": {
+    en: "The button of a finished course that the student can take again: it clears their progress in it.",
+    ar: "زر الدورة المكتملة التي يمكن للطالب أخذها من جديد: يمسح تقدّمه فيها.",
+    tr: "Öğrencinin yeniden alabileceği bitmiş bir kursun düğmesi: kurstaki ilerlemesini siler.",
+  },
   "The language's own name, shown in the language picker.": {
     ar: "اسم اللغة بلغتها نفسها، ويظهر في قائمة اختيار اللغة.",
     tr: "Dilin kendi dilindeki adı; dil seçicide görünür.",
