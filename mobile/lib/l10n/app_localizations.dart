@@ -5668,6 +5668,30 @@ abstract class AppLocalizations {
   /// **'View certificate'**
   String get viewCertificate;
 
+  /// 73 The button of a finished course whose progress can be cleared to take it again.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the course again'**
+  String get startCourseAgain;
+
+  /// No description provided for @startCourseAgainTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the course again?'**
+  String get startCourseAgainTitle;
+
+  /// No description provided for @startCourseAgainMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your progress in this course is cleared: the lessons you completed and where each video stopped. You stay enrolled and start from the first lesson.'**
+  String get startCourseAgainMessage;
+
+  /// No description provided for @startCourseAgainConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Start again'**
+  String get startCourseAgainConfirm;
+
   /// No description provided for @completedCourseLabel.
   ///
   /// In en, this message translates to:

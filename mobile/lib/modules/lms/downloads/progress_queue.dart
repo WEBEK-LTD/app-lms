@@ -114,6 +114,17 @@ class ProgressQueue {
 
   Future<void> clear() => _save(const []);
 
+  /// 73 Drops what waits for these lessons (a course started again).
+  Future<void> forgetLessons(Iterable<int> lessonIds) async {
+    final ids = lessonIds.toSet();
+    final all = items;
+    if (!all.any((i) => ids.contains(i.lessonId))) return;
+    await _save([
+      for (final i in all)
+        if (!ids.contains(i.lessonId)) i,
+    ]);
+  }
+
   /// Sends what's waiting. Stops at the first connection failure (the rest
   /// waits for the next try); an answer the server refuses (no longer
   /// enrolled, a watch requirement not met) is dropped. Returns how many

@@ -495,6 +495,9 @@ abstract class YallappApi {
   Future<List<Topic>> getCurriculum(int courseId);
   Future<Enrollment> enrollFree(int courseId);
 
+  /// 73 Clears the student's progress in a finished course, to take it again.
+  Future<Progress> restartCourse(int courseId);
+
   Future<Paged<MyCourse>> listMyCourses({
     MyCoursesStatus status = MyCoursesStatus.inProgress,
     int page = 1,
@@ -1155,6 +1158,14 @@ class HttpYallappApi implements YallappApi {
     '/courses/$courseId/enroll',
     _required,
     (data) => Enrollment.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<Progress> restartCourse(int courseId) => _send(
+    'POST',
+    '/courses/$courseId/restart',
+    _required,
+    (data) => Progress.fromJson(asJson(data)),
   );
 
   @override

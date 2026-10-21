@@ -21,6 +21,8 @@ abstract final class AppIcons {
   static const play = Symbols.play_arrow_rounded;
   static const pause = Symbols.pause_rounded;
   static const replay = Symbols.replay_rounded;
+  // 73 Start a finished course again.
+  static const restart = Symbols.restart_alt_rounded;
   static const playCircle = Symbols.play_circle_rounded;
   static const fullscreen = Symbols.fullscreen_rounded;
   static const fullscreenExit = Symbols.fullscreen_exit_rounded;

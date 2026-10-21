@@ -182,6 +182,7 @@ class CourseDetail extends CourseSummary {
     this.certificateUrl,
     this.passwordProtected = false,
     this.websiteUrl,
+    this.canRestart = false,
   });
 
   factory CourseDetail.fromJson(Json json) {
@@ -214,6 +215,7 @@ class CourseDetail extends CourseSummary {
       certificateUrl: optString(json, 'certificate_url'),
       passwordProtected: boolOr(json, 'password_protected', false),
       websiteUrl: optString(json, 'website_url'),
+      canRestart: boolOr(json, 'can_restart', false),
     );
   }
 
@@ -249,6 +251,10 @@ class CourseDetail extends CourseSummary {
 
   /// 62 The course's page on the website; null when it has none.
   final String? websiteUrl;
+
+  /// 73 A student who finished it can start it again
+  /// (`POST /courses/{id}/restart`). False from older servers.
+  final bool canRestart;
 }
 
 /// 30 What students learn, the requirements, who the course is for and what

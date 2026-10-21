@@ -2526,6 +2526,13 @@
   },
   "courseCompletedTitle": "You've completed this course",
   "viewCertificate": "View certificate",
+  "startCourseAgain": "Start the course again",
+  "@startCourseAgain": {
+    "description": "73 The button of a finished course whose progress can be cleared to take it again."
+  },
+  "startCourseAgainTitle": "Start the course again?",
+  "startCourseAgainMessage": "Your progress in this course is cleared: the lessons you completed and where each video stopped. You stay enrolled and start from the first lesson.",
+  "startCourseAgainConfirm": "Start again",
   "completedCourseLabel": "{title}, completed",
   "@completedCourseLabel": {
     "placeholders": {

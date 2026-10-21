@@ -3589,6 +3589,22 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('viewCertificate') ?? base.viewCertificate;
 
   @override
+  String get startCourseAgain =>
+      overlay.text('startCourseAgain') ?? base.startCourseAgain;
+
+  @override
+  String get startCourseAgainTitle =>
+      overlay.text('startCourseAgainTitle') ?? base.startCourseAgainTitle;
+
+  @override
+  String get startCourseAgainMessage =>
+      overlay.text('startCourseAgainMessage') ?? base.startCourseAgainMessage;
+
+  @override
+  String get startCourseAgainConfirm =>
+      overlay.text('startCourseAgainConfirm') ?? base.startCourseAgainConfirm;
+
+  @override
   String completedCourseLabel(String title) =>
       overlay.format('completedCourseLabel', {'title': title}) ??
       base.completedCourseLabel(title);

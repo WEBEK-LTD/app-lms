@@ -24,6 +24,7 @@ import '../../../core/widgets/common.dart';
 import '../../../core/format/dates.dart';
 import '../data/lms_providers.dart';
 import '../downloads/download_widgets.dart';
+import '../downloads/progress_queue.dart';
 import '../lesson/content/html_content.dart';
 import '../navigation.dart';
 import '../../../core/l10n/l10n.dart';
@@ -162,6 +163,42 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
     if (!open.remove(index)) open.add(index);
     _openTopics = open;
   });
+
+  /// 73 "Start the course again": asks first, clears the student's progress
+  /// on the server (and what waits to be sent from this phone), then opens
+  /// the first lesson.
+  Future<void> _restart(CourseDetail course) async {
+    final l10n = context.l10n;
+    final confirmed = await confirmAction(
+      context,
+      title: l10n.startCourseAgainTitle,
+      message: l10n.startCourseAgainMessage,
+      confirmLabel: l10n.startCourseAgainConfirm,
+    );
+    if (!confirmed || !mounted) return;
+    setState(() => _busy = true);
+    try {
+      await ref.read(yallappApiProvider).restartCourse(course.id);
+      final before =
+          ref.read(curriculumProvider(course.id)).value ?? const <Topic>[];
+      await ref.read(progressQueueProvider).forgetLessons([
+        for (final topic in before) ...topic.items.map((item) => item.id),
+      ]);
+      if (!mounted) return;
+      invalidateCourse(ref, course.id);
+      _openTopics = null;
+      final topics = await ref.read(curriculumProvider(course.id).future);
+      if (!mounted) return;
+      final first = nextItemToOpen(topics);
+      if (first != null) {
+        openCurriculumItem(context, first, courseId: course.id);
+      }
+    } on ApiException catch (e) {
+      if (mounted) showMessage(context, e.message);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
 
   void _continue(List<Topic>? topics, CourseDetail course) {
     final next = nextItemToOpen(topics ?? const <Topic>[]);
@@ -412,6 +449,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
               onReview: () =>
                   setState(() => _tab = tabs.indexOf(_CourseTab.curriculum)),
               onContinue: () => _continue(topics.value, course),
+              onRestart: () => _restart(course),
               onEnrollFree: () => _enrollFree(course),
               onCheckout: () => _checkout(course),
             ),
@@ -877,6 +915,7 @@ class _CtaBar extends StatelessWidget {
     required this.finished,
     required this.onReview,
     required this.onContinue,
+    required this.onRestart,
     required this.onEnrollFree,
     required this.onCheckout,
   });
@@ -889,6 +928,9 @@ class _CtaBar extends StatelessWidget {
   final bool finished;
   final VoidCallback onReview;
   final VoidCallback onContinue;
+
+  /// 73 "Start the course again", when the course allows it.
+  final VoidCallback onRestart;
   final VoidCallback onEnrollFree;
   final VoidCallback onCheckout;
 
@@ -896,6 +938,33 @@ class _CtaBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.palette;
     switch (cta) {
+      // 73 A finished course the student can take again: reviewing stays beside it.
+      case CourseCta.continueLearning when finished && course.canRestart:
+        return BottomActionBar(
+          child: Row(
+            children: [
+              Expanded(
+                child: SecondaryButton(
+                  key: const ValueKey('cta-review'),
+                  label: context.l10n.reviewCourse,
+                  icon: AppIcons.review,
+                  onPressed: busy ? null : onReview,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: PrimaryButton(
+                  key: const ValueKey('cta-restart'),
+                  label: context.l10n.startCourseAgain,
+                  icon: AppIcons.restart,
+                  height: 54,
+                  loading: busy,
+                  onPressed: onRestart,
+                ),
+              ),
+            ],
+          ),
+        );
       case CourseCta.continueLearning when finished:
         return BottomActionBar(
           child: PrimaryButton(
