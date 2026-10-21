@@ -175,17 +175,20 @@ class Link_Paths {
 			foreach ( self::EXCLUDED_QUERY as $key ) {
 				$components[] = array(
 					'?'       => array( $key => '*' ),
+					// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- A few IDs.
 					'exclude' => true,
 				);
 			}
 			// The home page itself, then the site's own paths.
 			$components[] = array(
 				'/'       => $base . '/',
+				// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- A few IDs.
 				'exclude' => true,
 			);
 			foreach ( self::EXCLUDED as $path ) {
 				$components[] = array(
 					'/'       => 0 === strpos( $path, '*' ) ? $path : $base . $path,
+					// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- A few IDs.
 					'exclude' => true,
 				);
 			}
@@ -196,10 +199,12 @@ class Link_Paths {
 				}
 				$components[] = array(
 					'/'       => $path . '/*',
+					// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- A few IDs.
 					'exclude' => true,
 				);
 				$components[] = array(
 					'/'       => $path,
+					// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- A few IDs.
 					'exclude' => true,
 				);
 			}

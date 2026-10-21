@@ -87,7 +87,7 @@ class BookingPress_Adapter extends Base_Adapter {
 		}
 		global $wpdb;
 		$settings = self::table( 'settings' );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- BookingPress's own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- BookingPress's own table.
 		return (string) $wpdb->get_var( $wpdb->prepare( "SELECT setting_value FROM {$settings} WHERE setting_name = %s AND setting_type = %s LIMIT 1", $name, $type ) );
 	}
 
@@ -105,7 +105,7 @@ class BookingPress_Adapter extends Base_Adapter {
 		}
 		global $wpdb;
 		$settings = self::table( 'customize_settings' );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- BookingPress's own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- BookingPress's own table.
 		return (string) $wpdb->get_var( $wpdb->prepare( "SELECT bookingpress_setting_value FROM {$settings} WHERE bookingpress_setting_name = %s AND bookingpress_setting_type = %s LIMIT 1", $name, $type ) );
 	}
 
@@ -227,7 +227,7 @@ class BookingPress_Adapter extends Base_Adapter {
 		global $wpdb;
 		$categories = self::table( 'categories' );
 		$services   = self::table( 'services' );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- BookingPress's own tables.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- BookingPress's own tables.
 		$rows = $wpdb->get_results( "SELECT c.bookingpress_category_id AS id, c.bookingpress_category_name AS name, c.bookingpress_category_position AS position, COUNT(s.bookingpress_service_id) AS services FROM {$categories} c INNER JOIN {$services} s ON s.bookingpress_category_id = c.bookingpress_category_id GROUP BY c.bookingpress_category_id, c.bookingpress_category_name, c.bookingpress_category_position ORDER BY c.bookingpress_category_position ASC, c.bookingpress_category_id ASC", ARRAY_A );
 		$out  = array();
 		foreach ( (array) $rows as $row ) {
@@ -265,8 +265,10 @@ class BookingPress_Adapter extends Base_Adapter {
 		$count    = "SELECT COUNT(*) FROM {$services} s WHERE {$where}";
 		$select   = "SELECT s.* FROM {$services} s WHERE {$where} ORDER BY s.bookingpress_service_position ASC, s.bookingpress_service_id ASC LIMIT %d OFFSET %d";
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- BookingPress's own table; values are placeholders.
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names come from $wpdb->prefix.
 		$total = (int) ( $params ? $wpdb->get_var( $wpdb->prepare( $count, $params ) ) : $wpdb->get_var( $count ) );
-		$rows  = $wpdb->get_results( $wpdb->prepare( $select, array_merge( $params, array( $per_page, $offset ) ) ), ARRAY_A );
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names come from $wpdb->prefix.
+		$rows = $wpdb->get_results( $wpdb->prepare( $select, array_merge( $params, array( $per_page, $offset ) ) ), ARRAY_A );
 		// phpcs:enable
 		$items = array();
 		foreach ( (array) $rows as $row ) {
@@ -305,7 +307,7 @@ class BookingPress_Adapter extends Base_Adapter {
 	private function service_row( $service_id ) {
 		global $wpdb;
 		$services = self::table( 'services' );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- BookingPress's own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- BookingPress's own table.
 		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$services} WHERE bookingpress_service_id = %d", (int) $service_id ), ARRAY_A );
 		return $row ? $row : null;
 	}
@@ -492,7 +494,7 @@ class BookingPress_Adapter extends Base_Adapter {
 			unset( $e );
 		}
 		$appointments = self::table( 'appointment_bookings' );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- BookingPress's own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- BookingPress's own table.
 		$id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT bookingpress_appointment_booking_id FROM {$appointments} WHERE bookingpress_entry_id = %d ORDER BY bookingpress_appointment_booking_id DESC LIMIT 1", $entry_id ) );
 		return $id ? $id : self::failed();
 	}
@@ -566,8 +568,10 @@ class BookingPress_Adapter extends Base_Adapter {
 		$offset       = ( max( 1, (int) $page ) - 1 ) * max( 1, (int) $per_page );
 		$appointments = self::table( 'appointment_bookings' );
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders -- BookingPress's own tables; the placeholders are in $where.
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names come from $wpdb->prefix.
 		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$appointments} a WHERE {$where}", (int) $user_id, $today, $today, $time ) );
-		$rows  = $wpdb->get_results( $wpdb->prepare( "SELECT a.* FROM {$appointments} a WHERE {$where} ORDER BY {$order}, a.bookingpress_appointment_booking_id ASC LIMIT %d OFFSET %d", (int) $user_id, $today, $today, $time, max( 1, (int) $per_page ), $offset ), ARRAY_A );
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names come from $wpdb->prefix.
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT a.* FROM {$appointments} a WHERE {$where} ORDER BY {$order}, a.bookingpress_appointment_booking_id ASC LIMIT %d OFFSET %d", (int) $user_id, $today, $today, $time, max( 1, (int) $per_page ), $offset ), ARRAY_A );
 		// phpcs:enable
 		$items = array();
 		foreach ( (array) $rows as $row ) {
@@ -590,7 +594,7 @@ class BookingPress_Adapter extends Base_Adapter {
 		global $wpdb;
 		$appointments = self::table( 'appointment_bookings' );
 		$customers    = self::customers_sql();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders -- BookingPress's own tables; the placeholder is in $customers.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders, PluginCheck.Security.DirectDB.UnescapedDBParameter -- BookingPress's own tables; the placeholder is in $customers.
 		$row = $wpdb->get_row( $wpdb->prepare( "SELECT a.* FROM {$appointments} a WHERE a.bookingpress_appointment_booking_id = %d AND {$customers}", (int) $appointment_id, (int) $user_id ), ARRAY_A );
 		return $row ? $this->row( $row ) : null;
 	}

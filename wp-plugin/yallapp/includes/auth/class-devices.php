@@ -59,7 +59,7 @@ class Devices {
 			'last_seen_at' => $now,
 		);
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Plugin table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Plugin table.
 		$existing = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE user_id = %d AND device_id = %s", $user_id, $device_id ) );
 		if ( $existing ) {
 			$wpdb->update( $table, $data, array( 'id' => (int) $existing ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
@@ -113,7 +113,7 @@ class Devices {
 	public function for_user( $user_id ) {
 		global $wpdb;
 		$table = Installer::tables()['devices'];
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Plugin table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Plugin table.
 		return (array) $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} WHERE user_id = %d ORDER BY last_seen_at DESC", $user_id ) );
 	}
 
@@ -126,7 +126,7 @@ class Devices {
 	public function get( $row_id ) {
 		global $wpdb;
 		$table = Installer::tables()['devices'];
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Plugin table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Plugin table.
 		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $row_id ) );
 		return $row ? $row : null;
 	}
@@ -231,7 +231,7 @@ class Devices {
 	public function push_user_ids() {
 		global $wpdb;
 		$table = Installer::tables()['devices'];
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Plugin table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Plugin table.
 		return array_map( 'intval', (array) $wpdb->get_col( "SELECT DISTINCT user_id FROM {$table} WHERE push_token IS NOT NULL AND push_token <> ''" ) );
 	}
 
@@ -273,7 +273,7 @@ class Devices {
 		}
 		$table        = Installer::tables()['devices'];
 		$placeholders = implode( ',', array_fill( 0, count( $user_ids ), '%d' ) );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Plugin table, placeholders built above.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Plugin table, placeholders built above.
 		$rows    = $wpdb->get_results( $wpdb->prepare( "SELECT push_token, push_provider, push_prefs FROM {$table} WHERE push_token IS NOT NULL AND push_token <> '' AND user_id IN ({$placeholders})", $user_ids ) );
 		$targets = array();
 		foreach ( (array) $rows as $row ) {

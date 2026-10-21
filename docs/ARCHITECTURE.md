@@ -23,8 +23,8 @@ Client's WordPress site                    Yallapp (WEBEK)
 - The **app** only talks to the **client's own WordPress site**. Student data
   never passes through Yallapp's servers. The exception is a hosted app for a
   client without WordPress (the hosted API, Phase 8 below).
-- The **plugin** talks to Yallapp only for license checks and plugin updates
-  (site URL, plugin version, license key), the app's layout, and, when
+- The **plugin** talks to Yallapp only for license checks (site URL, plugin
+  version, license key), the app's layout, media links and, when
   Yallapp sends the sign-in codes (the default), each code to deliver with
   its phone number, which the platform passes on and doesn't keep.
 - The **platform** stores client accounts, plans, licenses, app settings and
@@ -2124,6 +2124,29 @@ platform, its own API):
 - the activation email is `app_activated` (English, Arabic, Turkish): the
   app, plan and end date and the next step, without the key. The admin's
   "Email the license key again" sends that one for these apps.
+
+## The plugin on WordPress.org (Phase 76)
+
+From 0.4.8 the plugin follows WordPress.org's plugin guidelines, so it can
+be listed there (slug `yallapp`, contributor `yallapp`):
+
+- **No updates from Yallapp.** WordPress.org forbids a plugin updating
+  itself from elsewhere, so `License_Client` no longer adds itself to
+  WordPress's update list. Sites on 0.4.7 and earlier still update to 0.4.8
+  through `GET /api/v1/plugin/update` (Admin › Plugin releases); from 0.4.8,
+  WordPress updates the `yallapp/yallapp.php` folder from WordPress.org like
+  any listed plugin. The platform's endpoint stays for the older versions.
+- **Headers and readme.** The Plugin URI (`/docs/wordpress-plugin`) and the
+  Author URI (`yallapp.com.tr`) differ, as the upload form requires; the
+  readme says a Yallapp account is required and lists every external
+  service under "External services": Yallapp (what each call sends and
+  when), Firebase Cloud Messaging and Huawei Push Kit (only when their keys
+  are set), with their terms and privacy links.
+- **Plugin Check.** `bin/plugin-check.sh` builds the zip, installs it on a
+  dev site with WordPress.org's Plugin Check (2.1.0, from GitHub) and fails
+  on any error or warning; CI runs it on every plugin change ("Plugin Check
+  (WordPress.org)"). Queries on the LMS's, shop's and booking plugin's own
+  tables name those tables from `$wpdb->prefix`, which the ignores say.
 
 ## Demo apps (Phase 16)
 

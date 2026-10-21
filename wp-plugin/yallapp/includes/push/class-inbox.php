@@ -80,9 +80,12 @@ class Inbox {
 		$offset  = max( 0, ( (int) $page - 1 ) * (int) $per_page );
 
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Plugin table; $where is built with prepare().
-		$total  = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE {$where}" );
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names come from $wpdb->prefix.
+		$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE {$where}" );
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names come from $wpdb->prefix.
 		$unread = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE {$where} AND id > %d", $read_id ) );
-		$rows   = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} WHERE {$where} ORDER BY id DESC LIMIT %d OFFSET %d", (int) $per_page, $offset ) );
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names come from $wpdb->prefix.
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} WHERE {$where} ORDER BY id DESC LIMIT %d OFFSET %d", (int) $per_page, $offset ) );
 		// phpcs:enable
 
 		$items = array();
@@ -120,7 +123,7 @@ class Inbox {
 		global $wpdb;
 		$table  = Installer::tables()['notifications'];
 		$where  = $this->visible_to( $user_id, $course_ids );
-		$newest = (int) $wpdb->get_var( "SELECT MAX(id) FROM {$table} WHERE {$where}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Plugin table; $where is built with prepare().
+		$newest = (int) $wpdb->get_var( "SELECT MAX(id) FROM {$table} WHERE {$where}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Plugin table; $where is built with prepare().
 		if ( $newest > (int) get_user_meta( $user_id, self::READ_META, true ) ) {
 			update_user_meta( $user_id, self::READ_META, $newest );
 		}
@@ -150,7 +153,7 @@ class Inbox {
 	public function purge_old() {
 		global $wpdb;
 		$table = Installer::tables()['notifications'];
-		$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE created_at < %s", gmdate( 'Y-m-d H:i:s', time() - self::KEEP_DAYS * DAY_IN_SECONDS ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Plugin table.
+		$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE created_at < %s", gmdate( 'Y-m-d H:i:s', time() - self::KEEP_DAYS * DAY_IN_SECONDS ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Plugin table.
 	}
 
 	/**

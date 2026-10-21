@@ -47,7 +47,7 @@ jobs:
           match() { [ "$files" = all ] || grep -qE "$1" <<<"$files"; }
           {
             if match '^(wp-plugin/|\.github/workflows/ci\.yml$)'; then echo plugin=true; else echo plugin=false; fi
-            if match '^(build/|business/store/|brand/stores/|\.github/workflows/business-release\.yml$|wp-plugin/yallapp/tests/integration/run\.sh$|\.github/workflows/ci\.yml$)'; then echo pipeline=true; else echo pipeline=false; fi
+            if match '^(build/|business/store/|brand/stores/|\.github/workflows/business-release\.yml$|wp-plugin/yallapp/tests/integration/run\.sh$|wp-plugin/yallapp/bin/plugin-check\.sh$|\.github/workflows/ci\.yml$)'; then echo pipeline=true; else echo pipeline=false; fi
           } >> "$GITHUB_OUTPUT"
 
   api-contract:
@@ -123,6 +123,30 @@ jobs:
           name: yallapp-plugin
           path: ${{ steps.zip.outputs.path }}
           if-no-files-found: error
+
+  plugin-check:
+    # 76 WordPress.org's Plugin Check on the installable zip: the checks the plugin directory runs on an upload.
+    name: Plugin Check (WordPress.org)
+    needs: changes
+    if: needs.changes.outputs.plugin == 'true'
+    runs-on: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-24.04' || vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    defaults:
+      run:
+        working-directory: wp-plugin/yallapp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          extensions: pdo_sqlite, sqlite3, curl, mbstring, dom
+          tools: composer:v2
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/yallapp-dev
+          key: yallapp-dev-wp7.1.3-sqlite3.1.0-cli2.12.0-plugin-check2.1.0
+      - name: Plugin Check on the zip
+        run: bin/plugin-check.sh "$RUNNER_TEMP/plugin-check"
 
   plugin-unit:
     name: Plugin unit tests (PHP ${{ matrix.php }})
@@ -340,7 +364,7 @@ jobs:
       - name: Unit tests
         run: python -m unittest discover build/tests -v
       - name: Shell scripts
-        run: shellcheck build/scripts/*.sh build/runner/*.sh wp-plugin/yallapp/tests/integration/run.sh
+        run: shellcheck build/scripts/*.sh build/runner/*.sh wp-plugin/yallapp/tests/integration/run.sh wp-plugin/yallapp/bin/plugin-check.sh
       - name: Files host
         run: php -l build/files-host/index.php
       - uses: ruby/setup-ruby@v1

@@ -1842,3 +1842,20 @@ site our team sets up. Contract first (`platform.yaml`).
 | [x] | 75.4 Emails: `app_activated` in English, Arabic and Turkish, sent on activation (the team, a card payment) and by the admin's resend for these apps | `phase75.test.ts` |
 | [x] | 75.5 Docs: this phase, ARCHITECTURE | Review |
 
+## Phase 76: The plugin on WordPress.org
+
+The owner tried to submit the plugin to WordPress.org and the upload refused
+it: "Your plugin and author URIs are the same". WordPress.org's Plugin Check
+also found a self-updater (not allowed for listed plugins), a localhost
+address and 67 warnings. The chat (next phase) needs a new plugin version,
+so the plugin is made ready for WordPress.org first. The owner's WordPress.org
+account is `yallapp`.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 76.1 Plugin 0.4.8: Plugin URI `/docs/wordpress-plugin`, Author URI `yallapp.com.tr`; no updates from Yallapp (WordPress.org's own from now on; 0.4.7 and earlier still reach 0.4.8 through Admin › Plugin releases); Amelia's in-process request without a localhost address; the queries on other plugins' tables say their names come from `$wpdb->prefix` | `composer lint`, `php -l`, PHPUnit, the integration suites in CI |
+| [x] | 76.2 Readme: contributor `yallapp`, a Yallapp account required, Installation, External services (Yallapp, Firebase Cloud Messaging, Huawei Push Kit: what is sent, when, terms and privacy links), changelog | Plugin Check's readme checks |
+| [x] | 76.3 `bin/plugin-check.sh` and the CI job "Plugin Check (WordPress.org)": Plugin Check 2.1.0 on the zip, failing on any error or warning (0.4.7: 2 errors, 67 warnings; 0.4.8: none) | The script locally, CI |
+| [x] | 76.4 Docs: this phase, ARCHITECTURE, LAUNCH-CHECKLIST 7v | Review |
+| [ ] | 76.5 The owner: release 0.4.8 in Admin › Plugin releases, submit it to WordPress.org as `yallapp`, answer the review, then the first SVN commit | LAUNCH-CHECKLIST 7v |
+

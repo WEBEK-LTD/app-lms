@@ -751,8 +751,10 @@ class Tutor_Adapter implements Lms_Adapter {
 		global $wpdb;
 		$table = $wpdb->prefix . 'tutor_quiz_attempts';
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Tutor's table.
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names come from $wpdb->prefix.
 		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE user_id = %d AND attempt_status <> %s", $user_id, 'attempt_started' ) );
-		$rows  = $wpdb->get_results(
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names come from $wpdb->prefix.
+		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT * FROM {$table} WHERE user_id = %d AND attempt_status <> %s ORDER BY attempt_id DESC LIMIT %d OFFSET %d",
 				$user_id,
@@ -907,10 +909,13 @@ class Tutor_Adapter implements Lms_Adapter {
 				'total' => 0,
 			);
 		}
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names come from $wpdb->prefix.
 		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$orders} WHERE user_id = %d AND order_status <> 'trash'", $user_id ) );
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names come from $wpdb->prefix.
 		$rows  = $wpdb->get_results( $wpdb->prepare( "SELECT id, order_status, payment_status, total_price, created_at_gmt FROM {$orders} WHERE user_id = %d AND order_status <> 'trash' ORDER BY id DESC LIMIT %d OFFSET %d", $user_id, $per_page, max( 0, ( $page - 1 ) * $per_page ) ) );
 		$items = array();
 		foreach ( (array) $rows as $row ) {
+			// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names come from $wpdb->prefix.
 			$course_lines = $wpdb->get_results( $wpdb->prepare( "SELECT oi.item_id, p.post_title, p.post_type FROM {$lines} oi LEFT JOIN {$wpdb->posts} p ON p.ID = oi.item_id WHERE oi.order_id = %d", $row->id ) );
 			// phpcs:enable
 			$status  = $this->native_order_status( (string) $row->order_status, (string) $row->payment_status );
@@ -1610,7 +1615,7 @@ class Tutor_Adapter implements Lms_Adapter {
 			'desc' => 'question_id DESC',
 		);
 		$by    = $sql[ $order ] ?? 'question_order ASC';
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Tutor's table; $by is from a fixed list.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Tutor's table; $by is from a fixed list.
 		$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}tutor_quiz_questions WHERE quiz_id = %d ORDER BY {$by}", $quiz_id ) );
 		if ( 'rand' === $order ) {
 			shuffle( $rows );

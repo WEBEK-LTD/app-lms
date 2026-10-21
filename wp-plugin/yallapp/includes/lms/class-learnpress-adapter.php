@@ -1113,6 +1113,7 @@ class LearnPress_Adapter extends Base_Adapter {
 		}
 		$quiz_sql = $quiz_id ? $wpdb->prepare( ' AND ui.item_id = %d', $quiz_id ) : '';
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- LearnPress's result tables; $quiz_sql is prepared.
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names come from $wpdb->prefix.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT r.id, ui.item_id AS quiz_id, r.result, ui.end_time, ui.user_item_id,

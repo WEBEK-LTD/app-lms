@@ -1042,6 +1042,23 @@ never in a chat or an issue.
       under Done with its receipt PDF and the owner can't sign in. Switch the
       website and the dashboard to dark and back, on a phone too.
 
+## 7v. The plugin on WordPress.org (Phase 76)
+
+- [ ] Release plugin **0.4.8** (Admin › Plugin releases, the zip from the
+      merged change's "Plugin zip" CI artifact or `bin/build-zip.sh`), so
+      sites on 0.4.7 and earlier get it from Yallapp one last time.
+- [ ] Submit the same zip at https://wordpress.org/plugins/developers/add/,
+      signed in as **yallapp**. The upload's automatic checks are the ones
+      CI runs ("Plugin Check (WordPress.org)"); the slug asked for is
+      `yallapp`.
+- [ ] Answer the review team's email from the same account. When it is
+      approved, WordPress.org gives an SVN address: the first release is
+      committed there (`trunk/` and `tags/0.4.8/`), with the listing's icon
+      and banner in `assets/` (`brand/stores` has the icon).
+- [ ] From then on, every plugin release goes to WordPress.org's SVN (and
+      may still go to Admin › Plugin releases for the dashboard's download
+      button).
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |

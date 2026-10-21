@@ -71,7 +71,7 @@ class LatePoint_Adapter extends Base_Adapter {
 		}
 		global $wpdb;
 		$settings = self::table( 'settings' );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- LatePoint's own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- LatePoint's own table.
 		$value = $wpdb->get_var( $wpdb->prepare( "SELECT value FROM {$settings} WHERE name = %s LIMIT 1", $name ) );
 		return null === $value ? $fallback : maybe_unserialize( $value );
 	}
@@ -205,7 +205,7 @@ class LatePoint_Adapter extends Base_Adapter {
 		$categories = self::table( 'service_categories' );
 		$services   = self::table( 'services' );
 		$bookable   = self::bookable_sql();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- LatePoint's own tables.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- LatePoint's own tables.
 		$rows = $wpdb->get_results( "SELECT c.id, c.name, c.selection_image_id, c.order_number, COUNT(s.id) AS services FROM {$categories} c INNER JOIN {$services} s ON s.category_id = c.id AND {$bookable} GROUP BY c.id, c.name, c.selection_image_id, c.order_number ORDER BY c.order_number ASC, c.id ASC", ARRAY_A );
 		$out  = array();
 		foreach ( (array) $rows as $row ) {
@@ -243,8 +243,10 @@ class LatePoint_Adapter extends Base_Adapter {
 		$count    = "SELECT COUNT(*) FROM {$services} s WHERE {$where}";
 		$select   = "SELECT s.* FROM {$services} s WHERE {$where} ORDER BY s.order_number ASC, s.id ASC LIMIT %d OFFSET %d";
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- LatePoint's own tables; values are placeholders.
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names come from $wpdb->prefix.
 		$total = (int) ( $params ? $wpdb->get_var( $wpdb->prepare( $count, $params ) ) : $wpdb->get_var( $count ) );
-		$rows  = $wpdb->get_results( $wpdb->prepare( $select, array_merge( $params, array( $per_page, $offset ) ) ), ARRAY_A );
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names come from $wpdb->prefix.
+		$rows = $wpdb->get_results( $wpdb->prepare( $select, array_merge( $params, array( $per_page, $offset ) ) ), ARRAY_A );
 		// phpcs:enable
 		$items = array();
 		foreach ( (array) $rows as $row ) {
@@ -294,7 +296,7 @@ class LatePoint_Adapter extends Base_Adapter {
 	private function service_row( $service_id ) {
 		global $wpdb;
 		$services = self::table( 'services' );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- LatePoint's own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- LatePoint's own table.
 		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$services} s WHERE s.id = %d AND s.status = 'active' AND s.visibility = 'visible'", (int) $service_id ), ARRAY_A );
 		return $row ? $row : null;
 	}
@@ -335,10 +337,10 @@ class LatePoint_Adapter extends Base_Adapter {
 		$links    = self::table( 'agents_services' );
 		$services = self::table( 'services' );
 		if ( $service_id ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- LatePoint's own tables.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- LatePoint's own tables.
 			$rows = $wpdb->get_results( $wpdb->prepare( "SELECT DISTINCT a.* FROM {$agents} a INNER JOIN {$links} l ON l.agent_id = a.id WHERE l.service_id = %d AND a.status = 'active' ORDER BY a.first_name ASC, a.id ASC", (int) $service_id ), ARRAY_A );
 		} else {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- LatePoint's own tables.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- LatePoint's own tables.
 			$rows = $wpdb->get_results( "SELECT DISTINCT a.* FROM {$agents} a INNER JOIN {$links} l ON l.agent_id = a.id INNER JOIN {$services} s ON s.id = l.service_id AND s.status = 'active' AND s.visibility = 'visible' WHERE a.status = 'active' ORDER BY a.first_name ASC, a.id ASC", ARRAY_A );
 		}
 		$service = $service_id ? $this->service_row( $service_id ) : null;
@@ -368,7 +370,7 @@ class LatePoint_Adapter extends Base_Adapter {
 		global $wpdb;
 		$links  = self::table( 'agents_services' );
 		$prices = self::table( 'custom_prices' );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- LatePoint's own tables.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- LatePoint's own tables.
 		$row = $wpdb->get_row( $wpdb->prepare( "SELECT p.charge_amount, p.price_min FROM {$prices} p INNER JOIN {$links} l ON l.agent_id = p.agent_id AND l.service_id = p.service_id AND l.location_id = p.location_id AND l.is_custom_price = 1 WHERE p.agent_id = %d AND p.service_id = %d ORDER BY p.id ASC LIMIT 1", (int) $agent_id, (int) $service_id ), ARRAY_A );
 		return $row ? self::amount( $row ) : null;
 	}
@@ -384,7 +386,7 @@ class LatePoint_Adapter extends Base_Adapter {
 		global $wpdb;
 		$links     = self::table( 'agents_services' );
 		$locations = self::table( 'locations' );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- LatePoint's own tables.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- LatePoint's own tables.
 		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT l.location_id FROM {$links} l INNER JOIN {$locations} loc ON loc.id = l.location_id AND loc.status = 'active' WHERE l.agent_id = %d AND l.service_id = %d ORDER BY loc.order_number ASC, loc.id ASC LIMIT 1", (int) $agent_id, (int) $service_id ) );
 	}
 
@@ -499,7 +501,7 @@ class LatePoint_Adapter extends Base_Adapter {
 	private function customer( $user_id, $create = false ) {
 		global $wpdb;
 		$customers = self::table( 'customers' );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- LatePoint's own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- LatePoint's own table.
 		$id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$customers} WHERE wordpress_user_id = %d ORDER BY id ASC LIMIT 1", (int) $user_id ) );
 		if ( $id || ! $create || ! class_exists( '\\OsCustomerModel' ) ) {
 			return $id;
@@ -511,7 +513,7 @@ class LatePoint_Adapter extends Base_Adapter {
 		$email = (string) $user->user_email;
 		if ( is_email( $email ) ) {
 			// A customer who booked on the website with this email becomes this user's, as LatePoint does.
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- LatePoint's own table.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- LatePoint's own table.
 			$id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$customers} WHERE email = %s AND (wordpress_user_id IS NULL OR wordpress_user_id = 0) ORDER BY id ASC LIMIT 1", $email ) );
 			if ( $id ) {
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- LatePoint's own table.
@@ -756,8 +758,10 @@ class LatePoint_Adapter extends Base_Adapter {
 		$base     = self::bookings_sql();
 		$bookings = self::table( 'bookings' );
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders -- LatePoint's own tables; the placeholders are in $where.
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names come from $wpdb->prefix.
 		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$bookings} b WHERE {$where}", $customer, $now ) );
-		$rows  = $wpdb->get_results( $wpdb->prepare( "{$base} WHERE {$where} ORDER BY {$order}, b.id ASC LIMIT %d OFFSET %d", $customer, $now, max( 1, (int) $per_page ), $offset ), ARRAY_A );
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names come from $wpdb->prefix.
+		$rows = $wpdb->get_results( $wpdb->prepare( "{$base} WHERE {$where} ORDER BY {$order}, b.id ASC LIMIT %d OFFSET %d", $customer, $now, max( 1, (int) $per_page ), $offset ), ARRAY_A );
 		// phpcs:enable
 		$items = array();
 		foreach ( (array) $rows as $row ) {
@@ -783,7 +787,7 @@ class LatePoint_Adapter extends Base_Adapter {
 			return null;
 		}
 		$base = self::bookings_sql();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- LatePoint's own tables.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- LatePoint's own tables.
 		$row = $wpdb->get_row( $wpdb->prepare( "{$base} WHERE b.id = %d AND b.customer_id = %d", (int) $appointment_id, $customer ), ARRAY_A );
 		return $row ? $this->row( $row ) : null;
 	}
