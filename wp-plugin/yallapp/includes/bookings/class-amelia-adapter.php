@@ -107,7 +107,7 @@ class Amelia_Adapter extends Base_Adapter {
 		if ( $lite ) {
 			global $wpdb;
 			$users = self::table( 'users' );
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Amelia's own table; the same query as Amelia's.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Amelia's own table; the same query as Amelia's.
 			$this->only_provider = (int) $wpdb->get_var( "SELECT id FROM {$users} WHERE type = 'provider' AND status NOT LIKE 'disabled' ORDER BY id ASC LIMIT 1" );
 			// No employee at all: nothing can be booked, which an impossible ID keeps true.
 			$this->only_provider = $this->only_provider ? $this->only_provider : -1;
@@ -199,7 +199,7 @@ class Amelia_Adapter extends Base_Adapter {
 		$categories = self::table( 'categories' );
 		$services   = self::table( 'services' );
 		$provided   = $this->provided_sql();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Amelia's own tables.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Amelia's own tables.
 		$rows = $wpdb->get_results( "SELECT c.id, c.name, c.pictureFullPath AS image, COUNT(s.id) AS services FROM {$categories} c INNER JOIN {$services} s ON s.categoryId = c.id AND s.status = 'visible' AND s.`show` = 1 AND {$provided} WHERE c.status = 'visible' GROUP BY c.id, c.name, c.pictureFullPath, c.position ORDER BY c.position ASC, c.id ASC", ARRAY_A );
 		$out  = array();
 		foreach ( (array) $rows as $row ) {
@@ -247,8 +247,10 @@ class Amelia_Adapter extends Base_Adapter {
 		$count    = "SELECT COUNT(*) FROM {$services} s WHERE {$where}";
 		$select   = "SELECT s.* FROM {$services} s WHERE {$where} ORDER BY s.position ASC, s.id ASC LIMIT %d OFFSET %d";
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Amelia's own tables; values are placeholders.
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names come from $wpdb->prefix.
 		$total = (int) ( $params ? $wpdb->get_var( $wpdb->prepare( $count, $params ) ) : $wpdb->get_var( $count ) );
-		$rows  = $wpdb->get_results( $wpdb->prepare( $select, array_merge( $params, array( $per_page, $offset ) ) ), ARRAY_A );
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names come from $wpdb->prefix.
+		$rows = $wpdb->get_results( $wpdb->prepare( $select, array_merge( $params, array( $per_page, $offset ) ) ), ARRAY_A );
 		// phpcs:enable
 		$items = array();
 		foreach ( (array) $rows as $row ) {
@@ -287,7 +289,7 @@ class Amelia_Adapter extends Base_Adapter {
 	public function service( $service_id ) {
 		global $wpdb;
 		$services = self::table( 'services' );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Amelia's own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Amelia's own table.
 		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$services} WHERE id = %d AND status = 'visible' AND `show` = 1", (int) $service_id ), ARRAY_A );
 		if ( ! $row ) {
 			return null;
@@ -318,10 +320,10 @@ class Amelia_Adapter extends Base_Adapter {
 		$services = self::table( 'services' );
 		$bookable = $this->bookable_provider_sql();
 		if ( $service_id ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Amelia's own tables.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Amelia's own tables.
 			$rows = $wpdb->get_results( $wpdb->prepare( "SELECT u.*, ps.price AS own_price, s.price AS service_price FROM {$users} u INNER JOIN {$links} ps ON ps.userId = u.id INNER JOIN {$services} s ON s.id = ps.serviceId WHERE ps.serviceId = %d AND {$bookable} ORDER BY u.firstName ASC, u.id ASC", (int) $service_id ), ARRAY_A );
 		} else {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Amelia's own tables.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Amelia's own tables.
 			$rows = $wpdb->get_results( "SELECT DISTINCT u.* FROM {$users} u INNER JOIN {$links} ps ON ps.userId = u.id INNER JOIN {$services} s ON s.id = ps.serviceId AND s.status = 'visible' AND s.`show` = 1 WHERE {$bookable} ORDER BY u.firstName ASC, u.id ASC", ARRAY_A );
 		}
 		$out = array();
@@ -357,7 +359,8 @@ class Amelia_Adapter extends Base_Adapter {
 		}
 		try {
 			$container = require AMELIA_PATH . '/src/Infrastructure/ContainerConfig/container.php';
-			$uri       = 'http://127.0.0.1/';
+			// The request never leaves PHP: Amelia's controller only reads its method and query.
+			$uri = strtok( home_url( '/' ), '?' );
 			if ( 'GET' === $method && $params ) {
 				$uri .= '?' . http_build_query( $params );
 			}
@@ -441,7 +444,7 @@ class Amelia_Adapter extends Base_Adapter {
 	private function customer( $user_id, $create = false ) {
 		global $wpdb;
 		$users = self::table( 'users' );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Amelia's own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Amelia's own table.
 		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$users} WHERE externalId = %d AND type = 'customer' ORDER BY id ASC LIMIT 1", (int) $user_id ), ARRAY_A );
 		if ( $row || ! $create ) {
 			return $row ? $row : null;
@@ -562,7 +565,7 @@ class Amelia_Adapter extends Base_Adapter {
 	private function latest_booking( $customer_id ) {
 		global $wpdb;
 		$bookings = self::table( 'customer_bookings' );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Amelia's own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Amelia's own table.
 		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$bookings} WHERE customerId = %d ORDER BY id DESC LIMIT 1", (int) $customer_id ) );
 	}
 
@@ -645,8 +648,10 @@ class Amelia_Adapter extends Base_Adapter {
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders -- Amelia's own tables; the placeholders are in $where.
 		$bookings     = self::table( 'customer_bookings' );
 		$appointments = self::table( 'appointments' );
-		$total        = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$bookings} cb INNER JOIN {$appointments} a ON a.id = cb.appointmentId WHERE {$where}", (int) $customer['id'], $now ) );
-		$rows         = $wpdb->get_results( $wpdb->prepare( "{$base} WHERE {$where} ORDER BY {$order}, cb.id ASC LIMIT %d OFFSET %d", (int) $customer['id'], $now, max( 1, (int) $per_page ), $offset ), ARRAY_A );
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names come from $wpdb->prefix.
+		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$bookings} cb INNER JOIN {$appointments} a ON a.id = cb.appointmentId WHERE {$where}", (int) $customer['id'], $now ) );
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names come from $wpdb->prefix.
+		$rows = $wpdb->get_results( $wpdb->prepare( "{$base} WHERE {$where} ORDER BY {$order}, cb.id ASC LIMIT %d OFFSET %d", (int) $customer['id'], $now, max( 1, (int) $per_page ), $offset ), ARRAY_A );
 		// phpcs:enable
 		$items = array();
 		foreach ( (array) $rows as $row ) {
@@ -672,7 +677,7 @@ class Amelia_Adapter extends Base_Adapter {
 			return null;
 		}
 		$base = self::bookings_sql();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Amelia's own tables.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Amelia's own tables.
 		$row = $wpdb->get_row( $wpdb->prepare( "{$base} WHERE cb.id = %d AND cb.customerId = %d", (int) $appointment_id, (int) $customer['id'] ), ARRAY_A );
 		return $row ? $this->row( $row ) : null;
 	}

@@ -1,20 +1,27 @@
 === Yallapp ===
-Contributors: webek
+Contributors: yallapp
 Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.7
+Stable tag: 0.4.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Connects your WordPress academy to your Yallapp mobile apps.
+Connects your WordPress site to your Yallapp mobile apps.
 
 == Description ==
 
-Yallapp turns your WordPress academy into branded Android and iOS apps.
-This plugin exposes your courses, lessons, quizzes and student sign-in to
-your Yallapp apps through a secure REST API (`/wp-json/yallapp/v1`).
+Yallapp turns your WordPress academy, shop, booking or news site into
+branded Android and iOS apps. This plugin exposes your courses, lessons,
+quizzes, products, bookings, posts and sign-in to your Yallapp apps through
+a secure REST API (`/wp-json/yallapp/v1`).
+
+**A Yallapp account is required.** Yallapp builds and publishes the apps and
+runs the services below, on a paid plan; the plugin connects your site to
+it with your app's license key from your [Yallapp dashboard](https://yallapp.com.tr/dashboard).
+Without an active plan, the settings page works and the app shows that it is
+paused. Learn more at [yallapp.com.tr](https://yallapp.com.tr).
 
 Works with Tutor LMS (Free and Pro), LearnPress, LifterLMS, MasterStudy LMS,
 Sensei LMS and Masteriyo. Sign-in codes are sent by Yallapp on WhatsApp, or by
@@ -40,7 +47,64 @@ also sends the phone number and the code to deliver; Yallapp sends the message o
 WhatsApp and keeps neither. Codes are made on your site and kept there only as a
 hash, for 5 minutes. Push notifications go through your own Firebase project.
 
+== Installation ==
+
+1. Install and activate the plugin from Plugins › Add New, or upload the zip.
+2. Open Yallapp in the WordPress admin and paste the license key of your app from
+   your Yallapp dashboard (License & plugin).
+3. Choose your sign-in, notification and content settings, then build your app from
+   the Yallapp dashboard. The step-by-step guide:
+   [Install the WordPress plugin](https://yallapp.com.tr/docs/wordpress-plugin).
+
+== External services ==
+
+This plugin connects to the following services. Nothing is sent before you
+paste a license key, except where noted.
+
+= Yallapp (yallapp.com.tr) =
+
+Yallapp is the service that builds and runs your apps; the plugin needs it to work.
+
+* License checks (when you activate the key, every 12 hours, and when your Yallapp
+  dashboard asks the site to check again): the license key, your site's address,
+  the plugin and WordPress versions, which LMS, shop and booking plugins the
+  site runs, and the paths of your site's pages that open the app.
+* App pages (every 15 minutes and on request): the license key and site address,
+  to get the pages and look you published in your Yallapp dashboard.
+* Sign-in codes, when Yallapp sends them (the default): the phone number or email
+  address and the code to deliver, for each code a person asks for in the app.
+  Yallapp sends the message and keeps neither.
+* Videos from your Yallapp Media library: the license key, site address and the
+  media links, when a student opens or saves a lesson that uses one.
+
+Terms of use: https://yallapp.com.tr/terms
+Privacy policy: https://yallapp.com.tr/privacy
+
+= Firebase Cloud Messaging (Google) =
+
+Only when you add your Firebase service account in Settings › Notifications: the
+plugin signs in to Google (oauth2.googleapis.com) and sends each push notification
+(its title, text and link, and the device tokens of the people it goes to) to
+fcm.googleapis.com, when you or the site send a notification.
+
+Terms: https://firebase.google.com/terms
+Privacy: https://firebase.google.com/support/privacy
+
+= Huawei Push Kit =
+
+Only when you add your Huawei Push Kit details in Settings › Notifications: the
+plugin signs in to Huawei (oauth-login.cloud.huawei.com) and sends each push
+notification (its title, text and link, and the device tokens of the people on
+Huawei phones it goes to) to push-api.cloud.huawei.com.
+
+Terms: https://developer.huawei.com/consumer/en/devservice/term
+Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
+
 == Changelog ==
+
+= 0.4.8 =
+* Ready for WordPress.org: updates now come from WordPress.org like any other plugin, and the plugin no longer downloads updates from Yallapp. Sites on an earlier version get this one from Yallapp as before.
+* The readme lists the services the plugin connects to, what it sends and when.
 
 = 0.4.7 =
 * Start a course again: once a student has finished every lesson of a course, the app offers "Start the course again", which clears their progress in it (lessons completed, where each video stopped, and the quiz results the LMS keeps with the course) and opens the first lesson. It works with Tutor LMS, LearnDash, LifterLMS and Sensei LMS, and with LearnPress while the course allows retakes (each counts as one). MasterStudy and Masteriyo have no way for the plugin to reset a student's progress yet, so the app doesn't offer it there. Turn it off for a course with "Students can start this course again" in the course's "In the app" box (on by default). GET /courses/{id} says can_restart; POST /courses/{id}/restart starts it again.

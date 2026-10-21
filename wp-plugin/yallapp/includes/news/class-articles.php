@@ -240,6 +240,7 @@ class Articles {
 			array(
 				'taxonomy'   => 'category',
 				'hide_empty' => true,
+				// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- A few IDs.
 				'exclude'    => array( (int) get_option( 'default_category' ) ),
 			)
 		);
