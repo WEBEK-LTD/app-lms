@@ -118,7 +118,8 @@ export default defineConfig({
       APP_URL: E2E.baseURL,
       // E2E_DATABASE_URL runs the suite against a MySQL or MariaDB database (migrations applied first).
       ...(process.env.E2E_DATABASE_URL
-        ? { YALLAPP_DATA: "mysql", DATABASE_URL: process.env.E2E_DATABASE_URL, DATABASE_SSL: "disabled" }
+        ? // One server answers every test's requests on one connection: no limit on the queries waiting for it.
+          { YALLAPP_DATA: "mysql", DATABASE_URL: process.env.E2E_DATABASE_URL, DATABASE_SSL: "disabled", DATABASE_QUEUE_LIMIT: "0" }
         : { YALLAPP_DATA: "memory" }),
       YALLAPP_BLOBS: "fs",
       YALLAPP_BLOBS_DIR: ".data/e2e-blobs",

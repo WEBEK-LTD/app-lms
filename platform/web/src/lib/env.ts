@@ -260,6 +260,17 @@ export interface DatabaseConfig {
   url: string;
   ssl: "required" | "disabled";
   ca?: string;
+  /** How many queries may wait for the one connection; 0 = no limit. */
+  queueLimit?: number;
+}
+
+/** 50 queries waiting is plenty for one Netlify function; `next start` (the e2e suites) serves many requests on one pool. */
+export const DEFAULT_QUEUE_LIMIT = 50;
+
+/** DATABASE_QUEUE_LIMIT: a whole number, 0 for no limit; anything else keeps the default. */
+export function databaseQueueLimit(value: string | undefined): number {
+  const n = value === undefined ? NaN : Number(value.trim());
+  return Number.isInteger(n) && n >= 0 ? n : DEFAULT_QUEUE_LIMIT;
 }
 
 export function databaseConfig(): DatabaseConfig {
@@ -274,6 +285,7 @@ export function databaseConfig(): DatabaseConfig {
     url: required("DATABASE_URL"),
     ssl,
     ca: resolveDatabaseCa(read("DATABASE_CA")),
+    queueLimit: databaseQueueLimit(read("DATABASE_QUEUE_LIMIT")),
   };
 }
 

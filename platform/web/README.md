@@ -164,6 +164,7 @@ drizzle's `serial()`: its SQL doesn't run on MariaDB.
 | `YALLAPP_DATA` | no | `mysql` (default) or `memory` (local and tests only). |
 | `DATABASE_URL` | yes | `mysql://USER:PASSWORD@host.webek.org:3306/DATABASE` |
 | `DATABASE_SSL` | no | `required` (default). `disabled` is refused on Netlify. |
+| `DATABASE_QUEUE_LIMIT` | no | Queries that may wait for the database connection, 50 by default; `0` for no limit (the e2e suites on MariaDB). |
 | `DATABASE_CA` | no | The CA of the database server: `host.webek.org` for the bundled one (`src/lib/db/known-cas.json`), or a PEM (`\n` allowed for newlines). |
 | `SESSION_SECRET` | yes | 32+ random characters. Encrypts session cookies. |
 | `SIGNING_SECRET` | yes | 32+ random characters. Signs download links. |
