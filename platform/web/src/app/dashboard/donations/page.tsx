@@ -159,6 +159,13 @@ export default async function DonationsPage({ searchParams }: { searchParams: Pr
                       {d.status === "paid" && d.refundedCents ? (
                         <span className="text-[13px] text-muted">{k(refundedLine(d.refundedCents, d.amountCents, d.currency) ?? "")}</span>
                       ) : null}
+                      {/* 71 The donor's receipt, the same PDF they got by email. */}
+                      {d.status === "paid" || d.status === "refunded" ? (
+                        <a href={`/receipts/${d.receiptCode}/pdf`} download className="inline-flex items-center gap-1 text-[13px] font-semibold whitespace-nowrap">
+                          <Icon name="download" size={16} />
+                          {t("orders.receiptPdf")}
+                        </a>
+                      ) : null}
                     </span>
                   </td>
                 </tr>

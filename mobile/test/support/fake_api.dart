@@ -406,10 +406,13 @@ class FakeApi implements YallappApi {
     ];
   });
 
+  /// 71 What `GET /me/orders` answers.
+  List<Map<String, dynamic>> orders = [orderJson()];
+
   @override
   Future<Paged<Order>> listOrders({int page = 1}) => _answer(
     'listOrders',
-    () => Paged.fromJson(pageJson([orderJson()]), Order.fromJson),
+    () => Paged.fromJson(pageJson(orders), Order.fromJson),
   );
 
   Map<String, dynamic> order = orderJson();

@@ -1889,7 +1889,7 @@ export class MysqlStore implements DataStore {
     );
   }
 
-  async listPlanPayments(input: { clientId?: string; appId?: string; limit: number }): Promise<PlanPayment[]> {
+  async listPlanPayments(input: { clientId?: string; appId?: string; id?: string; limit: number }): Promise<PlanPayment[]> {
     return (await this.run((db) =>
       db
         .select()
@@ -1898,6 +1898,7 @@ export class MysqlStore implements DataStore {
           and(
             input.clientId ? eq(schema.planPayments.clientId, input.clientId) : undefined,
             input.appId ? eq(schema.planPayments.appId, input.appId) : undefined,
+            input.id ? eq(schema.planPayments.id, input.id) : undefined,
           ),
         )
         .orderBy(desc(schema.planPayments.createdAt))

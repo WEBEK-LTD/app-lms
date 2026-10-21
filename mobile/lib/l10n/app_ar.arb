@@ -857,6 +857,7 @@
   "noDonationsTitle": "لا توجد تبرعات بعد",
   "noDonationsMessage": "تظهر هنا التبرعات التي تقدمها وأنت مسجل الدخول، مع إيصالاتها.",
   "donationReceipt": "الإيصال",
+  "downloadReceipt": "تنزيل الإيصال",
   "donationSeeCampaign": "عرض الحملة",
   "notifyCampaignUpdates": "أخبار الحملات",
   "pageOpenNow": "مفتوح الآن",

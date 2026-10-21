@@ -11,6 +11,7 @@ import { getPlans } from "../settings/platform";
 import type { PlanPaymentOutcome } from "./plan-payment";
 import { formatAmount } from "./prices";
 import { PROVIDER_NAME } from "../payments/provider";
+import { planReceiptPdf, receiptAttachment } from "../receipts/service";
 import type { PlanPayment } from "../data/types";
 
 /** 52 "Paid: EGP 1,500 (about $30) by card through Kashier." and the receipt, for the activation and renewal emails; 56 in the email's language. */
@@ -37,6 +38,8 @@ export async function sendPlanPaidMail(store: DataStore, client: Client, outcome
   const appName = appLabel(outcome.activation.app);
   const lang = emailLangOf(user);
   const payment_line = paymentLine(outcome.payment, appUrl(), lang);
+  // 71 The receipt as a PDF, in the client's language; without it if it can't be made.
+  const attachments = await receiptAttachment(() => planReceiptPdf(store, outcome.payment, lang));
   await (
     outcome.activation.created
       ? sendTemplate(
@@ -51,8 +54,8 @@ export async function sendPlanPaidMail(store: DataStore, client: Client, outcome
             dashboard_url: dashboard,
             payment_line,
           },
-          { lang },
+          { lang, attachments },
         )
-      : sendTemplate("plan_renewed", user.email, { name: user.name, app_name: appName, plan, active_until: until, dashboard_url: dashboard, payment_line }, { lang })
+      : sendTemplate("plan_renewed", user.email, { name: user.name, app_name: appName, plan, active_until: until, dashboard_url: dashboard, payment_line }, { lang, attachments })
   ).catch((error: unknown) => console.error("[mail] payment email failed", error));
 }

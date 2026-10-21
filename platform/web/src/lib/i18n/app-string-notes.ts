@@ -564,6 +564,11 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "قسم الشرائح: الشريحة المعروضة، لقارئات الشاشة.",
     tr: "Kaydırıcı bloğu: hangi slaytın gösterildiği; ekran okuyucular için.",
   },
+  "71 Button on an order and a donation: downloads the receipt as a PDF (opens in the browser).": {
+    en: "Button on an order and a donation: downloads the receipt as a PDF (opens in the browser).",
+    ar: "زر على الطلب والتبرع: ينزّل الإيصال بصيغة PDF (يفتح في المتصفح).",
+    tr: "Sipariş ve bağış üzerindeki düğme: makbuzu PDF olarak indirir (tarayıcıda açılır).",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

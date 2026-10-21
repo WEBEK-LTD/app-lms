@@ -1917,6 +1917,19 @@ export interface PlatformSettingValues {
   publishing: PublishingSetting;
 }
 
+/**
+ * 71 What Yallapp's receipts say under its name (admin Settings › Invoices):
+ * the lines the team writes, like a legal name, an address or a tax number.
+ * None until the team sets them: nothing is made up.
+ */
+export interface InvoiceSetting {
+  lines: string[];
+}
+
+export interface PlatformSettingValues {
+  invoice: InvoiceSetting;
+}
+
 // 25 Salla and Zid stores
 
 /**

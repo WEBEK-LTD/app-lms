@@ -27,6 +27,7 @@ import {
   TestEmailForm,
   TestPaymentAccountForm,
 } from "./forms";
+import { InvoiceSettingForm } from "./invoice-form";
 import { isPaymentProvider, PROVIDER_NAME } from "@/lib/payments/provider";
 import { resetAppDefaultsAction } from "@/app/actions/app-defaults";
 import { BUILT_IN_APP_DEFAULTS } from "@/lib/pages/defaults";
@@ -101,6 +102,7 @@ export default async function SettingsPage() {
   const contact = settings.get("contact") as PlatformSetting<"contact"> | undefined;
   const appDefaults = settings.get("appDefaults") as PlatformSetting<"appDefaults"> | undefined;
   const publishing = settings.get("publishing") as PlatformSetting<"publishing"> | undefined;
+  const invoice = settings.get("invoice") as PlatformSetting<"invoice"> | undefined;
   const partnerApps = [
     {
       key: "sallaApp" as const,
@@ -177,6 +179,22 @@ export default async function SettingsPage() {
           <p className="m-0 text-sm text-muted">Now: the defaults.</p>
         )}
         <ContactForm whatsapp={contact?.value.whatsapp ?? DEFAULT_CONTACT.whatsapp} email={contact?.value.email ?? DEFAULT_CONTACT.email} />
+      </Section>
+
+      {/* 71 Receipts as PDF: what Yallapp's receipts say under its name. */}
+      <Section
+        id="h-invoice"
+        title="Invoices"
+        text="The receipts of plans and storage packs (a PDF in the payment email and in the dashboard) show Yallapp's name, Cairo, Egypt, the website and the contact details above. Add the company's legal details here when they should appear too."
+      >
+        {invoice ? (
+          <p className="m-0 text-sm text-muted">
+            Set here by {invoice.updatedBy}, {formatDateTime(invoice.updatedAt)}.
+          </p>
+        ) : (
+          <p className="m-0 text-sm text-muted">Now: no lines.</p>
+        )}
+        <InvoiceSettingForm lines={invoice?.value.lines ?? []} />
       </Section>
 
       <Section

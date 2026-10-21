@@ -4115,6 +4115,17 @@ components:
             has `status` `refunded` (and the label "Refunded"); a partly
             refunded one keeps its status, and the app shows this amount as
             "Refunded". Missing on older servers and on WordPress sites.
+        receipt_url:
+          type: [string, 'null']
+          format: uri
+          description: |
+            71 The order's receipt as a PDF, to download (apps without a
+            website, where the platform took the payment): the business, the
+            customer, the items, the amounts, how it was paid and what was
+            refunded. In the language the app asks for with `lang` (or the
+            browser's) when the app has it, else the app's main one. Works
+            without a token: the address is signed. Null or missing on older
+            servers and on WordPress sites (WooCommerce sends its own).
         created_at: { type: string, format: date-time }
         items:
           type: array
@@ -5956,6 +5967,15 @@ components:
         anonymous: { type: boolean }
         created_at: { type: string, format: date-time, description: 'When the payment was confirmed.' }
         receipt_url: { type: string, format: uri, description: 'The receipt as a web page, to open in the browser or share.' }
+        receipt_pdf_url:
+          type: [string, 'null']
+          format: uri
+          description: |
+            71 The same receipt as a PDF, to download: in the language the
+            app asks for with `lang` (or the browser's) when the app has it,
+            else the app's main one. Works without a token: the address holds
+            the receipt's own random code. Null or missing on older servers;
+            the app then offers only `receipt_url`.
         refunded_total:
           type: [string, 'null']
           example: ₺250.00

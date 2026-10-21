@@ -186,7 +186,9 @@ test("a shop refunds an order in part, then the rest, through Kashier", async ({
   await expect(done).toContainText("Refunded");
   await expect(done.getByRole("form", { name: /^Refund order/ })).toHaveCount(0);
   expect(kashier.refunds.map((r) => (r.body.transaction as Record<string, unknown>).amount)).toEqual([300, 1400]);
-  await expect.poll(async () => (await mailsTo(customer)).length).toBe(2);
+  // Two refund emails; 71 the order's receipt came first, when it was paid.
+  await expect.poll(async () => (await mailsTo(customer)).filter((m) => / refunded /.test(m.subject)).length).toBe(2);
+  expect((await mailsTo(customer)).filter((m) => /^Your receipt from .+ · order \d+$/.test(m.subject))).toHaveLength(1);
 
   // The team's audit log has both.
   await admin.goto("/admin/audit");

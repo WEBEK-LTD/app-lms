@@ -4,6 +4,7 @@ import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 import { solidPng } from "./png";
+import { expectReceiptAttached, pdfBehind } from "./receipts";
 
 /**
  * A Charity & donations app (roadmap 29): the charity adds its own iyzico
@@ -191,6 +192,9 @@ test("a supporter donates; the campaign moves once iyzico confirms, with a recei
   await page.goto(new URL(new URL(receiptUrl).pathname, E2E.baseURL).toString());
   await expect(page.getByRole("heading", { name: "Donation receipt" })).toBeVisible();
   await expect(page.getByText(donor.name)).toBeVisible();
+  // 71 The receipt as a PDF: on its page, and attached to the email.
+  await pdfBehind(page, "Download PDF", page.locator("main"));
+  await expectReceiptAttached(donor.email, /^Your donation to .+ · D-\d+$/);
 });
 
 test("the dashboard lists the donation, exports it and shows the donor", async () => {

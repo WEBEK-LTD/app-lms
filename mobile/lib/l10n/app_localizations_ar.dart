@@ -3243,6 +3243,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get donationReceipt => 'الإيصال';
 
   @override
+  String get downloadReceipt => 'تنزيل الإيصال';
+
+  @override
   String get donationSeeCampaign => 'عرض الحملة';
 
   @override

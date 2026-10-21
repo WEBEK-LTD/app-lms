@@ -924,6 +924,36 @@ never in a chat or an issue.
       the paused screen; delete a signed-in test account from that screen;
       extend the license and check the app comes back.
 
+## 7s. Receipts as PDF (Phase 71)
+
+- [ ] No migration. Deploy as usual: PDFKit is installed from
+      `package.json` and the fonts are already in `src/app/fonts/og`.
+- [ ] **Admin › Settings › Invoices**: if Yallapp's receipts should show the
+      company's legal details, write them there, one per line (legal name,
+      address, tax or registration number), exactly as registered. Until
+      then they show "Yallapp", "Cairo, Egypt", the website and the contact
+      details of the same page. Nothing else is printed about the company.
+- [ ] Decide with the accountant whether these receipts are enough or a
+      tax invoice is needed (Egypt's e-receipt, Turkey's e-Arşiv): they
+      have no tax lines (ROADMAP 71.10).
+- [ ] Tell clients with apps without a website that their customers now
+      get an **Order receipt** email with a PDF, in their app's name, that
+      shows their **Support email** (the store listing step) and **Support
+      WhatsApp** (App sign-in):
+      check they're filled in. The text is in Admin › Emails
+      (`order_receipt`).
+- [ ] Keep `SIGNING_SECRET` as it is: it signs the links to order receipts
+      in emails; changing it ends those links (the app gets new ones).
+- [ ] After deploying: pay a plan with Kashier's test account (with a
+      coupon), check the activation email has `receipt-YA-….pdf` attached
+      and that License › Payments › **Download PDF** gives the same, with
+      the dashboard in Arabic and in Turkish too; download it from Admin ›
+      Payments. Pay a test order and a test donation in a demo client's app
+      without a website: the customer's email has the PDF, and so does the
+      page after paying. Open the PDFs in Gmail, Outlook and a phone. If a
+      client uses their own email server for their app, send one through
+      it too (attachments must be allowed).
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |

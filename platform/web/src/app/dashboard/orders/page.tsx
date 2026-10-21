@@ -2,14 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { setOrderStatusAction } from "@/app/actions/catalog";
 import { SubmitButton } from "@/components/form";
-import { Badge, EmptyState, formatDateTime } from "@/components/ui";
+import { Icon } from "@/components/icon";
+import { Badge, EmptyState, btn, formatDateTime } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
 import { fulfilmentOf } from "@/lib/catalog/fulfilment";
 import { ORDER_STATUS_LABELS, orderNumber } from "@/lib/catalog/settings";
 import { getStore } from "@/lib/data";
 import type { CatalogOrder, CatalogOrderStatus } from "@/lib/data/types";
-import { encryptionKey } from "@/lib/env";
+import { encryptionKey, signingSecret } from "@/lib/env";
+import { orderReceiptUrl } from "@/lib/receipts/links";
 import { orderRefundOptions, refundedLine } from "@/lib/refunds/service";
 import { KitchenView } from "./kitchen";
 import { RefundSection } from "./refunds-view";
@@ -135,6 +137,13 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                     <StatusButton order={order} status="completed" label={t("orders.markCompleted")} />
                     <StatusButton order={order} status="cancelled" label={t("orders.cancelOrder")} />
                   </>
+                ) : null}
+                {/* 71 The customer's receipt, the same PDF they got by email. */}
+                {order.paidAt ? (
+                  <a href={orderReceiptUrl("", app.id, order.id, signingSecret())} download className={`${btn.secondary} h-9 px-3 text-sm`}>
+                    <Icon name="download" size={18} />
+                    {t("orders.receiptPdf")}
+                  </a>
                 ) : null}
               </div>
               <RefundSection

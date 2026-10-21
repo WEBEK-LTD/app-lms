@@ -54,6 +54,8 @@ export type EmailTemplateKey =
 
   // 47 Refunds from the dashboard
   | "payment_refunded"
+  // 71 Receipts as PDF
+  | "order_receipt"
   // 51 Media and storage
   | "storage_pack_added"
   | "storage_pack_ended"
@@ -457,6 +459,27 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       "Dear {{donor_name}},\n\nThank you for your donation to {{org_name}}.\n\n" +
       "Amount: {{amount}}\nCampaign: {{campaign}}\nDate: {{date}}\nReference: {{reference}}\n\n" +
       "Your receipt: {{receipt_url}}\n\nKeep this email for your records. If you have a question about your donation, contact {{org_name}} and give the reference above.",
+  },
+  {
+    // 71 Sent in the business's name, like the donation receipt, with the receipt's PDF attached.
+    key: "order_receipt",
+    name: "Order receipt",
+    description:
+      "To a customer when their order (products, a restaurant's order, tickets, a paid course or a membership) is paid (apps without a website), with the receipt as a PDF. Sent in the business's name, from the app's own email server when its owner set one.",
+    placeholders: [
+      { name: "org_name", description: "The business's name (the app's name)", sample: "Harbour Books" },
+      { name: "customer_name", description: "The customer's name", sample: "Elif Yılmaz" },
+      { name: "order_number", description: "The order's number", sample: "1042" },
+      { name: "total", description: "The order's total", sample: "₺450.00" },
+      { name: "order_lines", description: "One line per item with its options, and shipping (a restaurant's delivery fee)", sample: "Tulip vase × 1: ₺400.00\nShipping: ₺50.00" },
+      { name: "date", description: "The day the payment went through", sample: "14 October 2026" },
+      { name: "receipt_url", description: "The receipt as a PDF, to download again", sample: "https://yallapp.com.tr/receipts/orders/sample" },
+    ],
+    subject: "Your receipt from {{org_name}} · order {{order_number}}",
+    body:
+      "Dear {{customer_name}},\n\nThank you for your order from {{org_name}}. We received your payment.\n\n" +
+      "{{order_lines}}\nTotal: {{total}}\nDate: {{date}}\nOrder: {{order_number}}\n\n" +
+      "Your receipt: {{receipt_url}}\n\nKeep this email for your records. If you have a question about your order, contact {{org_name}} and give the order number above.",
   },
   {
     // 47 Sent in the business's name, like the donation receipt.

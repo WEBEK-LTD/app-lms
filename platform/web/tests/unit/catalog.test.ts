@@ -436,6 +436,10 @@ describe("catalog shop on the hosted API", () => {
         ],
       });
       expect(((await list()).body as { items: { refunded_total: unknown }[] }).items[0]!.refunded_total).toBeNull();
+      // 71 Its receipt as a PDF, from a signed link (tests/unit/receipts-routes.test.ts opens one).
+      expect(((await list()).body as { items: { receipt_url: unknown }[] }).items[0]!.receipt_url).toMatch(
+        new RegExp(`^https?://[^/]+/receipts/orders/${app.id}\\.${order.id}\\.[A-Za-z0-9_-]{43}$`),
+      );
       // 47 A refund in part shows as what was refunded; all of it turns the order "Refunded".
       const refund = (amountCents: number) =>
         store.recordRefund({

@@ -144,7 +144,7 @@ export function shapeArabic(text: string): string {
   return out;
 }
 
-// --- The bidirectional algorithm, for a right-to-left paragraph without embeddings.
+// --- The bidirectional algorithm, for a paragraph without embeddings (71: left-to-right paragraphs too).
 
 type BidiClass = "L" | "R" | "AL" | "EN" | "ES" | "ET" | "AN" | "CS" | "NSM" | "WS" | "ON";
 
@@ -169,14 +169,19 @@ function classOf(c: string): BidiClass {
 
 const MIRROR: Record<string, string> = { "(": ")", ")": "(", "[": "]", "]": "[", "{": "}", "}": "{", "<": ">", ">": "<", "«": "»", "»": "«", "‹": "›", "›": "‹" };
 
-/** Bidi levels of a right-to-left paragraph's characters: 1 for right to left, 2 for left to right (Latin, numbers). */
-function levelsOf(chars: string[]): number[] {
-  const types = chars.map(classOf);
+/**
+ * Bidi levels of a paragraph's characters. Right to left (`e` "R"): 1 for
+ * right to left, 2 for left to right (Latin, numbers). 71 Left to right
+ * (`e` "L"): 0 for left to right, 1 for right to left, 2 for numbers inside
+ * right-to-left text.
+ */
+function levelsOf(chars: string[], e: "L" | "R" = "R", forcedL: boolean[] = []): number[] {
+  const types = chars.map((c, i) => (forcedL[i] ? "L" : classOf(c)));
   const n = types.length;
-  // W1: a mark takes the type of what it's on (the paragraph's R at the start).
-  for (let i = 0; i < n; i++) if (types[i] === "NSM") types[i] = i === 0 ? "R" : types[i - 1]!;
+  // W1: a mark takes the type of what it's on (the paragraph's direction at the start).
+  for (let i = 0; i < n; i++) if (types[i] === "NSM") types[i] = i === 0 ? e : types[i - 1]!;
   // W2, W3: a European number after Arabic letters is an Arabic number; AL is R.
-  let strong: BidiClass = "R";
+  let strong: BidiClass = e;
   for (let i = 0; i < n; i++) {
     const t = types[i]!;
     if (t === "L" || t === "R" || t === "AL") strong = t;
@@ -200,14 +205,14 @@ function levelsOf(chars: string[]): number[] {
   // W6: other separators and terminators are neutral.
   for (let i = 0; i < n; i++) if (types[i] === "ES" || types[i] === "ET" || types[i] === "CS") types[i] = "ON";
   // W7: a European number after Latin text reads as Latin.
-  strong = "R";
+  strong = e;
   for (let i = 0; i < n; i++) {
     const t = types[i]!;
     if (t === "L" || t === "R") strong = t;
     else if (t === "EN" && strong === "L") types[i] = "L";
   }
   const direction = (t: BidiClass): "L" | "R" | null => (t === "L" ? "L" : t === "R" || t === "EN" || t === "AN" ? "R" : null);
-  // N0: a pair of brackets takes the paragraph's direction when it holds right-to-left text, else the direction around it.
+  // N0: a pair of brackets takes the paragraph's direction when it holds text in that direction, else the direction around it.
   const open: { at: number; close: string }[] = [];
   const pairs: [number, number][] = [];
   const CLOSE: Record<string, string> = { "(": ")", "[": "]", "{": "}" };
@@ -225,12 +230,13 @@ function levelsOf(chars: string[]): number[] {
   }
   for (const [from, to] of pairs.sort((x, y) => x[0] - y[0])) {
     const inside = types.slice(from + 1, to).map(direction);
+    const other = e === "R" ? "L" : "R";
     let resolved: "L" | "R" | null = null;
-    if (inside.includes("R")) resolved = "R";
-    else if (inside.includes("L")) {
+    if (inside.includes(e)) resolved = e;
+    else if (inside.includes(other)) {
       let j = from - 1;
       while (j >= 0 && direction(types[j]!) === null) j--;
-      resolved = j < 0 ? "R" : direction(types[j]!)!;
+      resolved = j < 0 ? e : direction(types[j]!)!;
     }
     if (resolved) types[from] = types[to] = resolved;
   }
@@ -239,13 +245,14 @@ function levelsOf(chars: string[]): number[] {
     if (direction(types[i]!) !== null) continue;
     let j = i;
     while (j < n && direction(types[j]!) === null) j++;
-    const before = i === 0 ? "R" : direction(types[i - 1]!);
-    const after = j === n ? "R" : direction(types[j]!);
-    const resolved: BidiClass = before === after ? before! : "R";
+    const before = i === 0 ? e : direction(types[i - 1]!);
+    const after = j === n ? e : direction(types[j]!);
+    const resolved: BidiClass = before === after ? before! : e;
     for (let k = i; k < j; k++) types[k] = resolved;
     i = j - 1;
   }
-  // I1, I2 on an odd (right-to-left) paragraph level.
+  // I1, I2 on an odd (right-to-left) paragraph level, or 71 an even one.
+  if (e === "L") return types.map((t) => (t === "L" ? 0 : t === "R" ? 1 : 2));
   return types.map((t) => (t === "R" ? 1 : 2));
 }
 
@@ -325,4 +332,69 @@ export function rtlWords(text: string): string[] {
 
 export function hasArabic(text: string): boolean {
   return ARABIC.test(text);
+}
+
+/** 71 A stretch of a line in one direction: its text in reading order, drawn right to left when `rtl`. */
+export interface BidiRun {
+  text: string;
+  rtl: boolean;
+}
+
+/**
+ * 71 A line as runs in visual order, left to right, for a renderer that
+ * shapes each run itself (the receipts' PDF, lib/receipts/pdf.ts: its font
+ * engine joins the letters with the font's own forms and lays a
+ * right-to-left run out from its end). Each run keeps its text in reading
+ * order and unshaped; the line's direction (`base`) decides where neutral
+ * characters go. The rules are `visualLine`'s (W1–W7, N0–N2, I1–I2, L2).
+ * Text between LRI and PDI (`ltrSpan`: a phone number, an email, an amount)
+ * reads left to right as one piece, its spaces and signs included; the marks
+ * themselves aren't drawn.
+ */
+export function bidiRuns(text: string, base: "rtl" | "ltr"): BidiRun[] {
+  const chars: string[] = [];
+  const forced: boolean[] = [];
+  let depth = 0;
+  for (const c of text.normalize("NFC")) {
+    if (c === LRI) depth++;
+    else if (c === PDI) depth = Math.max(0, depth - 1);
+    else {
+      chars.push(c);
+      forced.push(depth > 0);
+    }
+  }
+  if (!chars.length) return [];
+  const levels = levelsOf(chars, base === "rtl" ? "R" : "L", forced);
+  const runs: { text: string; level: number }[] = [];
+  chars.forEach((c, i) => {
+    const last = runs[runs.length - 1];
+    // A mark stays with its letter.
+    const level = last && MARK.test(c) ? last.level : levels[i]!;
+    if (last && last.level === level) last.text += c;
+    else runs.push({ text: c, level });
+  });
+  // L2: from the highest level down to 1, reverse each sequence of runs at that level or higher.
+  for (let level = Math.max(...runs.map((r) => r.level)); level >= 1; level--) {
+    for (let i = 0; i < runs.length; i++) {
+      if (runs[i]!.level < level) continue;
+      let j = i;
+      while (j < runs.length && runs[j]!.level >= level) j++;
+      runs.splice(i, j - i, ...runs.slice(i, j).reverse());
+      i = j - 1;
+    }
+  }
+  return runs.map((r) => ({ text: r.text, rtl: r.level % 2 === 1 }));
+}
+
+const LRI = "\u2066";
+const PDI = "\u2069";
+
+/** 71 Text that reads left to right as one piece inside a line of either direction (`bidiRuns`). */
+export function ltrSpan(text: string): string {
+  return `${LRI}${text}${PDI}`;
+}
+
+/** 71 A character as drawn in a right-to-left run: "(" is drawn ")". */
+export function mirrored(c: string): string {
+  return MIRROR[c] ?? c;
 }

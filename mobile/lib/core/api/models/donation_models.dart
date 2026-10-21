@@ -221,6 +221,7 @@ class Donation {
     required this.createdAt,
     required this.receiptUrl,
     this.refundedTotal,
+    this.receiptPdfUrl,
   });
 
   factory Donation.fromJson(Json json) => Donation(
@@ -235,6 +236,7 @@ class Donation {
     createdAt: reqDate(json, 'created_at'),
     receiptUrl: reqString(json, 'receipt_url'),
     refundedTotal: optString(json, 'refunded_total'),
+    receiptPdfUrl: optString(json, 'receipt_pdf_url'),
   );
 
   final int id;
@@ -250,6 +252,9 @@ class Donation {
 
   /// 47 What the charity refunded of it, formatted; null for nothing.
   final String? refundedTotal;
+
+  /// 71 The same receipt as a PDF, to download; null on older servers.
+  final String? receiptPdfUrl;
 }
 
 /// `POST /donations/checkout-link`.

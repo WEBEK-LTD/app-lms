@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Icon } from "@/components/icon";
-import { PageHeader, formatDate } from "@/components/ui";
+import { PageHeader, btn, formatDate } from "@/components/ui";
 import { appLabel } from "@/lib/app/label";
 import { requireClient } from "@/lib/auth/session";
 import { planReceiptRows, receiptNumber } from "@/lib/billing/receipt";
@@ -58,10 +58,17 @@ export default async function PlanReceiptPage({ params }: PageProps<"/dashboard/
           ))}
         </dl>
       </section>
-      <Link href="/dashboard/license" className="inline-flex items-center gap-1.5 text-[15px] font-semibold">
-        <Icon name="arrow_back" size={18} />
-        {t("license.backToPlan")}
-      </Link>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Link href="/dashboard/license" className="inline-flex items-center gap-1.5 text-[15px] font-semibold">
+          <Icon name="arrow_back" size={18} />
+          {t("license.backToPlan")}
+        </Link>
+        {/* 71 The same receipt as a PDF (the payment email has it attached too). */}
+        <a href={`/dashboard/license/receipts/${payment.id}/pdf`} download className={`${btn.primary} h-10 px-4 text-sm`}>
+          <Icon name="download" size={18} />
+          {t("license.downloadPdf")}
+        </a>
+      </div>
     </>
   );
 }

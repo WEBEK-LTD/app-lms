@@ -449,7 +449,7 @@ export interface DataStore {
   /** Pending to failed. */
   failPlanPayment(id: string): Promise<void>;
   /** Newest first; one client's, one app's, or everyone's. */
-  listPlanPayments(input: { clientId?: string; appId?: string; limit: number }): Promise<PlanPayment[]>;
+  listPlanPayments(input: { clientId?: string; appId?: string; /** 71 Only this one. */ id?: string; limit: number }): Promise<PlanPayment[]>;
   listPlatformSettings(): Promise<PlatformSetting[]>;
   /** Saves a setting, or removes it (back to the Netlify variables) when `value` is null. */
   setPlatformSetting<K extends PlatformSettingKey>(key: K, value: PlatformSettingValues[K] | null, updatedBy: string, now: Date): Promise<void>;

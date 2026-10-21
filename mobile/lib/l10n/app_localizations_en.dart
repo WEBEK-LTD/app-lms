@@ -3185,6 +3185,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get donationReceipt => 'Receipt';
 
   @override
+  String get downloadReceipt => 'Download receipt';
+
+  @override
   String get donationSeeCampaign => 'See the campaign';
 
   @override

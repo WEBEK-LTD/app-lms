@@ -6,7 +6,7 @@ import type { App } from "../data/types";
 import { appUrl, encryptionKey } from "../env";
 import { mailDelivered, sendMail } from "../mail";
 import { platformSetting } from "../settings/platform";
-import { appMailTarget, mailerWithFallback, recordOwnMailFailure, sendThroughServer, type MailMessage } from "./app-mail";
+import { appMailTarget, mailerWithFallback, recordOwnMailFailure, sendThroughServer, type MailAttachment, type MailMessage } from "./app-mail";
 import { emailTemplate, renderTemplate, type EmailTemplateKey, type RenderedEmail, type TemplateText, type TemplateValue } from "./templates";
 import { localizedDefault } from "./templates-lang";
 import { langOf, type Lang } from "@/i18n/config";
@@ -57,12 +57,14 @@ export async function sendTemplate(
   key: EmailTemplateKey,
   to: string,
   values: Record<string, TemplateValue>,
-  options: { app?: App; lang?: Lang } = {},
+  options: { app?: App; lang?: Lang; attachments?: MailAttachment[] } = {},
 ): Promise<RenderedEmail> {
   const store = await getStore();
   const email = await renderEmail(store, key, values, undefined, options.lang);
-  if (options.app) await sendAppMail(store, options.app, { to, ...email });
-  else await sendMail({ to, ...email });
+  // 71 A receipt's PDF goes with the payment emails.
+  const attachments = options.attachments?.length ? { attachments: options.attachments } : {};
+  if (options.app) await sendAppMail(store, options.app, { to, ...email, ...attachments });
+  else await sendMail({ to, ...email, ...attachments });
   return email;
 }
 

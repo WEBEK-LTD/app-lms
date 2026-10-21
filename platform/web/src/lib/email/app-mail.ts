@@ -29,11 +29,20 @@ const context = (appId: string) => `app-smtp:${appId}`;
 /** How long to wait for the server to answer (connecting, greeting, DNS). */
 export const MAIL_TIMEOUT_MS = 10_000;
 
+/** 71 A file sent with an email (a receipt's PDF). */
+export interface MailAttachment {
+  filename: string;
+  content: Buffer;
+  contentType: string;
+}
+
 export interface MailMessage {
   to: string;
   subject: string;
   text: string;
   html?: string;
+  /** 71 Files sent with it. */
+  attachments?: MailAttachment[];
 }
 
 /** Sends one email, or throws. */
@@ -79,6 +88,7 @@ export const nodemailerTransport: SmtpTransport = async (target, message) => {
       subject: message.subject,
       text: message.text,
       html: message.html,
+      attachments: message.attachments,
     });
   } finally {
     transport.close();

@@ -5242,6 +5242,12 @@ abstract class AppLocalizations {
   /// **'Receipt'**
   String get donationReceipt;
 
+  /// 71 Button on an order and a donation: downloads the receipt as a PDF (opens in the browser).
+  ///
+  /// In en, this message translates to:
+  /// **'Download receipt'**
+  String get downloadReceipt;
+
   /// No description provided for @donationSeeCampaign.
   ///
   /// In en, this message translates to:
