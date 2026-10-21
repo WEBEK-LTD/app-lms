@@ -1174,6 +1174,8 @@
   "twoStepWrong": "That code isn't right. Try again, or use a recovery code.",
   "twoStepVerify": "Verify and sign in",
   "twoStepOther": "Sign in with another account",
+  "whatsappInEgypt": "In Egypt",
+  "whatsappOutsideEgypt": "Outside Egypt",
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {

@@ -12,7 +12,8 @@ import { APP_STORES } from "@/lib/stores";
 import { getStore } from "@/lib/data";
 import { effectivePlans } from "@/lib/entitlements";
 import { visitorPriceView } from "@/lib/billing/display";
-import { getContact } from "@/lib/contact";
+import { getVisitorContact } from "@/lib/contact";
+import { WhatsAppLink } from "@/components/whatsapp-link";
 import { getSiteContent } from "@/lib/content/get";
 import { comparisonFor, featureGroupsFor, integrationGroupsFor, numberWordFor, planFor, screenAltFor, solutionsFor, stepsFor } from "@/lib/marketing-lang";
 import { DEFAULT_DESCRIPTION, organizationLd, siteMetadata, siteUrl, softwareLd, websiteLd } from "@/lib/seo";
@@ -26,7 +27,7 @@ export function homeMetadata(lang: Lang): Metadata {
 
 /** The landing page (32, 41, 52, 54), in any language (55). */
 export async function HomePage({ lang }: { lang: Lang }) {
-  const contact = await getContact();
+  const contact = await getVisitorContact();
   // 32 The same plans as the pricing page.
   const store = await getStore();
   // 52 Prices in the visitor's currency: pounds in Egypt, dollars elsewhere.
@@ -55,7 +56,7 @@ export async function HomePage({ lang }: { lang: Lang }) {
       <SiteHeader current="home" lang={lang} />
       <JsonLdScript
         data={[
-          organizationLd(base, { email: contact.email, whatsapp: contact.whatsappDisplay }),
+          organizationLd(base, { email: contact.email, whatsapp: contact.lines.international.display, whatsappEgypt: contact.lines.egypt.display }),
           websiteLd(base, lang),
           softwareLd(base, plans, view, lang === "en" ? undefined : lang),
         ]}
@@ -73,13 +74,14 @@ export async function HomePage({ lang }: { lang: Lang }) {
               <h1 className="m-0 text-[40px] leading-[1.04] font-extrabold tracking-[-1.5px] text-balance sm:text-[60px] sm:tracking-[-2px]">{text.title}</h1>
               <p className="m-0 max-w-[540px] text-lg leading-relaxed text-ink-4 sm:text-[19px]">{text.intro}</p>
               <div className="flex flex-wrap gap-3">
-                <a
-                  href={contact.whatsappUrl}
+                <WhatsAppLink
+                  lines={contact.lines}
+                  country={contact.country}
                   className="flex h-[54px] items-center gap-2.5 rounded-xl bg-midnight px-6 text-base font-bold text-white no-underline shadow-[0_12px_24px_-14px_rgba(14,13,36,0.6)] transition-colors hover:bg-ink-3 hover:text-white"
                 >
                   <WhatsAppMark size={20} />
                   {text.primaryCta}
-                </a>
+                </WhatsAppLink>
                 <Link
                   href={lp("/how-it-works")}
                   className="flex h-[54px] items-center gap-2 rounded-xl border border-line-button bg-white px-6 text-base font-semibold text-midnight no-underline transition-colors hover:border-midnight hover:text-midnight"

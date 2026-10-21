@@ -14,6 +14,7 @@ import '../../../../core/web/web_view.dart';
 import '../../../../core/widgets/buttons.dart';
 import '../video/embed_player.dart';
 import '../video/hosted_video.dart';
+import '../video/video_branding.dart';
 import 'embed_frame.dart';
 import 'embed_fullscreen_screen.dart';
 import 'embed_sizing.dart';
@@ -75,7 +76,10 @@ class _InlineEmbedState extends ConsumerState<InlineEmbed> {
     if (hosted == null || hosted.ownControls) return widget.embed;
     return Embed(
       placeholder: widget.embed.placeholder,
-      src: hosted.playerUrl().toString(),
+      // 72 The site's normal player unless the owner hides its branding.
+      src: hosted
+          .playerUrl(hideBranding: ref.read(hideVideoBrandingProvider))
+          .toString(),
       provider: widget.embed.provider,
       width: widget.embed.width,
       height: widget.embed.height,
@@ -164,7 +168,10 @@ class _InlineEmbedState extends ConsumerState<InlineEmbed> {
           clipBehavior: Clip.antiAlias,
           child: AspectRatio(
             aspectRatio: 16 / 9,
-            child: BrandlessVideo(video: hosted),
+            child: BrandlessVideo(
+              video: hosted,
+              siteControls: !ref.watch(hideVideoBrandingProvider),
+            ),
           ),
         ),
       );

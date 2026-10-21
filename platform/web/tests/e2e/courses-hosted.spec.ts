@@ -160,6 +160,22 @@ test("53 the owner blocks screenshots in course content, then in the whole app",
   expect((await config()).app.screen_protection).toBe("app");
 });
 
+test("72 videos play in the video site's own player until the owner hides its branding, at their own risk", async ({ request }) => {
+  const config = async () => (await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json()) as { app: { hide_video_branding: boolean } };
+  expect((await config()).app.hide_video_branding).toBe(false);
+  await own.goto("/dashboard/protection");
+  const section = own.getByRole("region", { name: "Videos from YouTube and other video sites" });
+  const hide = section.getByRole("checkbox", { name: /Hide the video site's branding \(at your own risk\)/ });
+  await expect(hide).not.toBeChecked();
+  await expect(section).toContainText("YouTube can block your videos from playing in the app");
+  await hide.check();
+  await section.getByRole("button", { name: "Save" }).click();
+  await expect(section.getByText("The app follows it the next time it opens.")).toBeVisible();
+  expect((await config()).app.hide_video_branding).toBe(true);
+  await own.reload();
+  await expect(section.getByRole("checkbox", { name: /Hide the video site's branding/ })).toBeChecked();
+});
+
 /**
  * 40 A stand-in for YouTube's IFrame Player API and its player (this machine can't reach YouTube): the player
  * draws a title bar, "Watch on YouTube" and a logo along its edges, like the real one.
@@ -186,7 +202,7 @@ const fakeYouTubePlayer = `<!doctype html><body style="margin:0;background:#000;
 <a href="https://www.youtube.com/watch?v=abc123" target="_blank" style="position:absolute;bottom:8px;left:8px;color:#fff">Watch on YouTube</a>
 <div style="position:absolute;bottom:8px;right:8px;background:red;color:#fff">YouTube</div></body>`;
 
-test("the app preview plays the YouTube lesson in the app's own player", async ({ browser }) => {
+test("the app preview plays the YouTube lesson in the app's own player (72: the owner hid the branding above)", async ({ browser }) => {
   await own.goto("/dashboard/preview");
   const link = (await own.getByRole("img", { name: /QR code that opens the preview/ }).getAttribute("data-qr"))!;
   const context = await browser.newContext({ viewport: { width: 390, height: 844 } });

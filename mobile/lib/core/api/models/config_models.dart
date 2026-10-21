@@ -517,6 +517,7 @@ class AppRules {
     this.reviewPrompt = true,
     this.crashReports = true,
     this.screenProtection,
+    this.hideVideoBranding = false,
   });
 
   factory AppRules.fromJson(Json json) => AppRules(
@@ -529,6 +530,7 @@ class AppRules {
       ScreenProtection.values,
       json['screen_protection'],
     ),
+    hideVideoBranding: boolOr(json, 'hide_video_branding', false),
   );
 
   final bool updateRequired;
@@ -545,6 +547,11 @@ class AppRules {
   /// 53 The owner's screen protection; null on older servers (see
   /// [AppConfig.screenProtection]).
   final ScreenProtection? screenProtection;
+
+  /// 72 The owner chose to hide the video sites' own players (their
+  /// branding and controls), at their own risk. Missing: false, each site's
+  /// normal player.
+  final bool hideVideoBranding;
 }
 
 enum AppearanceMode { system, light, dark }

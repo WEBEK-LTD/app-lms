@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { JsonLdScript } from "@/components/json-ld";
-import { currencyNote, PlanCards, storageText } from "@/components/plan-cards";
+import { analyticsEventsKeepText, analyticsKeepText, currencyNote, PlanCards, storageText } from "@/components/plan-cards";
 import { StoreName } from "@/components/brand-marks";
 import { Icon } from "@/components/icon";
 import { MarketingPage, Section, SectionTitle } from "@/components/marketing";
@@ -9,7 +9,8 @@ import { getSiteContent } from "@/lib/content/get";
 import { comparisonRows, FEATURED_PLAN, hasFeature, PLANS, planStores, type ComparisonRow, type ComparisonValue, type PlanInfo, type Plan } from "@/lib/plans";
 import { getStore } from "@/lib/data";
 import { effectivePlans } from "@/lib/entitlements";
-import { getContact } from "@/lib/contact";
+import { getVisitorContact } from "@/lib/contact";
+import { WhatsAppLink } from "@/components/whatsapp-link";
 import { visitorPriceView } from "@/lib/billing/display";
 import { planFor } from "@/lib/marketing-lang";
 import { siteMetadata, siteUrl, softwareLd } from "@/lib/seo";
@@ -41,6 +42,9 @@ function comparisonRowsFor(lang: Lang, plans: Record<Plan, PlanInfo>): Compariso
     { label: m.rowUsers, values: each((p) => limit(p.limits.appUsers, m.unlimited)) },
     { label: m.rowLanguages, values: each((p) => limit(p.limits.languages, m.all)) },
     { label: m.rowStorage, values: each((p) => (p.limits.storageGb === null ? m.unlimited : storageText(lang, p.limits.storageGb))) },
+    // 72 How long analytics are kept.
+    { label: m.rowAnalyticsDaily, values: each((p) => analyticsKeepText(lang, p.limits.analyticsMonths)) },
+    { label: m.rowAnalyticsEvents, values: each(() => analyticsEventsKeepText(lang)) },
     { label: m.rowPush, values: has("push") },
     { label: m.rowPages, values: each((p) => (hasFeature(p, "page_editor") ? m.fullEditor : m.templates)) },
     { label: m.rowCards, values: has("card_payments") },
@@ -81,7 +85,7 @@ function Cell({ value, plan, lang }: { value: ComparisonValue; plan: string; lan
  * 55 In any language; the prices are written the same way in each.
  */
 export async function PricingPage({ lang }: { lang: Lang }) {
-  const contact = await getContact();
+  const contact = await getVisitorContact();
   const store = await getStore();
   const [all, view] = await Promise.all([effectivePlans(store), visitorPriceView(store)]);
   const plans = PLANS.map((id) => planFor(lang, all[id]));
@@ -96,7 +100,7 @@ export async function PricingPage({ lang }: { lang: Lang }) {
         <PlanCards plans={plans} view={view} lang={lang} />
         <p className="m-0 text-[15px] text-ink-4">
           <span data-currency-note="">{currencyNote(view, lang)}</span>{" "}
-          {richText(m.eachApp, { link: (chunk) => <a href={contact.whatsappUrl}>{chunk}</a> })}
+          {richText(m.eachApp, { link: (chunk) => <WhatsAppLink lines={contact.lines} country={contact.country}>{chunk}</WhatsAppLink> })}
         </p>
       </Section>
       <Section tinted>

@@ -143,4 +143,23 @@ void main() {
       TeamRole.owner,
     );
   });
+
+  test('72 the help links: both WhatsApp numbers, or the one an older server sends', () {
+    final both = MeLinks.fromJson({
+      'dashboard': 'https://yallapp.com.tr/dashboard',
+      'support_whatsapp': 'https://wa.me/201042560010',
+      'support_whatsapp_egypt': 'https://wa.me/201042560010',
+      'support_whatsapp_international': 'https://wa.me/905446731942',
+      'support_email': 'info@yallapp.com.tr',
+    });
+    expect(both.bothWhatsapp, isTrue);
+    expect(both.supportWhatsappEgypt, 'https://wa.me/201042560010');
+    expect(both.supportWhatsappInternational, 'https://wa.me/905446731942');
+    final older = MeLinks.fromJson({
+      'dashboard': 'https://yallapp.com.tr/dashboard',
+      'support_whatsapp': 'https://wa.me/905446731942',
+    });
+    expect(older.bothWhatsapp, isFalse);
+    expect(older.supportWhatsapp, 'https://wa.me/905446731942');
+  });
 }

@@ -812,8 +812,10 @@ export interface DataStore {
   listAnalyticsEventDays(appId: string, fromDay: string): Promise<string[]>;
   /** Apps with raw events on `fromDay` or later. */
   listAnalyticsAppIds(fromDay: string): Promise<string[]>;
-  /** Deletes raw events of days before `beforeDay`; returns how many. */
-  purgeAnalyticsEvents(beforeDay: string): Promise<number>;
+  /** Deletes raw events of days before `beforeDay` (72 at most `limit` of them, for batches); returns how many. */
+  purgeAnalyticsEvents(beforeDay: string, limit?: number): Promise<number>;
+  /** 72 Deletes one app's daily totals of days before `beforeDay`, at most `limit` rows; returns how many. */
+  purgeAnalyticsDaily(appId: string, beforeDay: string, limit: number): Promise<number>;
 
   // 51 Videos and pictures hosted by Yallapp (lib/media)
   createMediaFile(file: MediaFile): Promise<void>;

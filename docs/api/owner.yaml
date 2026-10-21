@@ -2453,7 +2453,26 @@ components:
           required: [dashboard, support_whatsapp, support_email]
           properties:
             dashboard: { type: string, format: uri }
-            support_whatsapp: { type: [string, 'null'], format: uri }
+            support_whatsapp:
+              type: [string, 'null']
+              format: uri
+              description: >-
+                Yallapp's WhatsApp for this account (roadmap 72): the number for
+                customers in Egypt when the account's country is Egypt, else the
+                one for customers outside Egypt.
+            support_whatsapp_egypt:
+              type: [string, 'null']
+              format: uri
+              description: >-
+                Roadmap 72: Yallapp's WhatsApp for customers in Egypt, shown with
+                the label "In Egypt" next to `support_whatsapp_international`.
+                Missing on older servers: show `support_whatsapp` alone.
+            support_whatsapp_international:
+              type: [string, 'null']
+              format: uri
+              description: >-
+                Roadmap 72: Yallapp's WhatsApp for customers outside Egypt (label
+                "Outside Egypt"). Missing on older servers.
             support_email: { type: [string, 'null'] }
 
     AppSummary:

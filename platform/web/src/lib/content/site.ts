@@ -42,7 +42,8 @@ const PAGE_HEADER: ContentField[] = [
   { name: "intro", label: "Introduction", kind: "text", max: 400 },
 ];
 
-const CONTACT_HINT = "{{contact_email}}, {{contact_whatsapp}} and {{contact_whatsapp_url}} show the contact details from Settings.";
+const CONTACT_HINT =
+  "{{contact_email}}, {{contact_whatsapp}} and {{contact_whatsapp_url}} (the WhatsApp number outside Egypt), {{contact_whatsapp_egypt}} and {{contact_whatsapp_egypt_url}} (in Egypt) show the contact details from Settings.";
 
 const MARKDOWN_HINT =
   "Markdown: a blank line between paragraphs, ## for a heading, - for a list, **bold**, *italic*, `code` and [a link](https://…). HTML isn't allowed.";
@@ -404,7 +405,7 @@ const PLACEHOLDER_IN_TEXT = /\{\{([^{}]*)\}\}/g;
 function withoutCode(value: string): string {
   return value.replace(/^[ \t]*(```|~~~)[^\n]*\n[\s\S]*?(^[ \t]*\1[ \t]*$|(?![\s\S]))/gm, "").replace(/`[^`\n]*`/g, "");
 }
-const CONTACT_VALUES = ["contact_email", "contact_whatsapp", "contact_whatsapp_url"];
+const CONTACT_VALUES = ["contact_email", "contact_whatsapp", "contact_whatsapp_url", "contact_whatsapp_egypt", "contact_whatsapp_egypt_url"];
 
 /** Checks the admin's form for a page; the fields to save, or an error per field. */
 export function readContentForm(

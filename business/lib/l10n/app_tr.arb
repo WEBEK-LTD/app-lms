@@ -578,6 +578,8 @@
   "twoStepWrong": "Bu kod doğru değil. Yeniden deneyin ya da bir kurtarma kodu kullanın.",
   "twoStepVerify": "Doğrula ve giriş yap",
   "twoStepOther": "Başka bir hesapla giriş yapın",
+  "whatsappInEgypt": "Mısır'da",
+  "whatsappOutsideEgypt": "Mısır dışında",
   "minutesAgo": "{count} dk önce",
   "hoursAgo": "{count} sa önce",
   "donorsCount": "{count} bağışçı",

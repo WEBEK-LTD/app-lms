@@ -8,7 +8,7 @@ import { Badge, Notice, PageHeader, btn, formatDateTime } from "@/components/ui"
 import { appLabel, licensePageName } from "@/lib/app/label";
 import { hasStoreKeys } from "@/lib/app/setup";
 import { requireClient } from "@/lib/auth/session";
-import { getContact } from "@/lib/contact";
+import { getVisitorContact } from "@/lib/contact";
 import { getStore } from "@/lib/data";
 import { appPlan } from "@/lib/entitlements";
 import { hasFeature } from "@/lib/plans";
@@ -98,7 +98,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
   const name = appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app);
   const query = await searchParams;
   const store = await getStore();
-  const contact = await getContact();
+  const contact = await getVisitorContact();
   const request = await store.getPublishingRequest(app.id);
   const mode = app.publishingMode ?? request?.mode ?? null;
   const teamEmail = await publishingTeamEmail(store);

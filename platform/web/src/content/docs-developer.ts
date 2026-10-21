@@ -88,6 +88,7 @@ This is the smallest answer the app accepts for an Academy app. Store apps add \
 - \`app.update_required\`: true makes the app ask people to update (compare the \`app_version\` the app sends).
 - \`app.maintenance\`: true shows only \`app.maintenance_message\`.
 - \`app.screen_protection\`: \`off\`, \`content\` (lessons, quizzes and their attachments) or \`app\` (every screen) blocks screenshots and screen recording in the app.
+- \`app.hide_video_branding\`: true plays YouTube, Vimeo and Bunny Stream videos behind the app's own controls with the site's branding out of sight (at the owner's own risk: it may break YouTube's terms). Leave it out or false for each site's normal player.
 - \`purchases.enroll_button\` must be false when \`platform=ios\`.
 
 ## The sign-in flow, simply

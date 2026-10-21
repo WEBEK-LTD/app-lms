@@ -98,8 +98,12 @@ export const ANALYTICS_METRICS = [
 ] as const;
 export type AnalyticsMetric = (typeof ANALYTICS_METRICS)[number];
 
-/** Raw events are kept this many days; daily totals forever (until the app is deleted). */
-export const RAW_RETENTION_DAYS = 40;
+/**
+ * Raw events are kept this many days on every plan (72: 40 before). Daily
+ * totals are kept as long as the app's plan says (`PlanLimits.analyticsMonths`,
+ * lib/analytics/retention.ts), and go with the app.
+ */
+export const RAW_RETENTION_DAYS = 90;
 /** The phone drops events older than this, and so does the platform. */
 export const MAX_EVENT_AGE_DAYS = 7;
 /** At most this many keys per metric and day (items, screens, searches). */

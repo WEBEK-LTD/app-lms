@@ -364,16 +364,16 @@ describe("44 daily totals", () => {
     expect(value("done")).toBeGreaterThan(0);
   });
 
-  it("the nightly count counts the finished days and deletes raw events after 40 days, keeping the totals", async () => {
+  it("the nightly count counts the finished days and deletes raw events after 90 days (72: 40 before), keeping the totals", async () => {
     const store = new MemoryStore();
     const app = await appIn(store);
-    await store.insertAnalyticsEvents([row({ appId: app.id, day: "2026-10-18" }), row({ appId: app.id, day: "2026-09-08" }), row({ appId: app.id, day: "2026-09-10" })]);
-    await store.saveAnalyticsDaily(app.id, "2026-09-08", [{ metric: "active", key: "", label: null, value: 1 }]);
+    await store.insertAnalyticsEvents([row({ appId: app.id, day: "2026-10-18" }), row({ appId: app.id, day: "2026-07-10" }), row({ appId: app.id, day: "2026-07-25" })]);
+    await store.saveAnalyticsDaily(app.id, "2026-07-10", [{ metric: "active", key: "", label: null, value: 1 }]);
     const result = await runAnalyticsNightly(store, NOW);
     expect(result).toMatchObject({ apps: 1, purged: 1, finished: true });
-    expect(await store.listAnalyticsEvents(app.id, "2026-09-08")).toEqual([]);
-    expect(await store.listAnalyticsEvents(app.id, "2026-09-10")).toHaveLength(1);
-    expect((await store.listAnalyticsDaily(app.id, "2026-09-08", "2026-09-08"))[0]!.value).toBe(1);
+    expect(await store.listAnalyticsEvents(app.id, "2026-07-10")).toEqual([]);
+    expect(await store.listAnalyticsEvents(app.id, "2026-07-25")).toHaveLength(1);
+    expect((await store.listAnalyticsDaily(app.id, "2026-07-10", "2026-07-10"))[0]!.value).toBe(1);
     expect((await store.listAnalyticsDaily(app.id, "2026-10-18", "2026-10-18", ["active"]))[0]!.value).toBe(1);
     // Today is never marked as counted: it is counted again at each read.
     expect(await store.listAnalyticsDaily(app.id, TODAY, TODAY, ["done"])).toEqual([]);

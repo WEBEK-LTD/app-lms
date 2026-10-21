@@ -22,7 +22,7 @@ import { encryptionKey } from "@/lib/env";
 import { getPlans, yallappPlanAccount } from "@/lib/settings/platform";
 import { priceView } from "@/lib/billing/display";
 import { PROVIDER_NAME } from "@/lib/payments/provider";
-import { getContact } from "@/lib/contact";
+import { getVisitorContact } from "@/lib/contact";
 import { appLabel } from "@/lib/app/label";
 import { WhatsAppMark } from "@/components/brand-marks";
 import { AccountDeletion } from "@/components/account-deletion";
@@ -33,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /** 56 In the dashboard's language: the signed-in person's choice, else the language cookie, else English. */
 export default async function PendingPage({ searchParams }: PageProps<"/pending">) {
-  const contact = await getContact();
+  const contact = await getVisitorContact();
   const user = await getCurrentUser();
   if (!user) redirect(await signInPath());
   if (await getAdminRole()) redirect("/admin");

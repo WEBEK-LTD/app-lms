@@ -22,13 +22,14 @@ import { currentPlanId, planChangeFor, scheduledPlan } from "@/lib/billing/plan-
 import { effectivePlans } from "@/lib/entitlements";
 import { getSwitches } from "@/lib/switches";
 import { PlanPaymentForm } from "@/components/plan-payment-form";
+import { analyticsEventsKeepText, analyticsKeepText } from "@/components/plan-cards";
 import { getPlans, platformSetting, yallappPlanAccount } from "@/lib/settings/platform";
 import { priceView } from "@/lib/billing/display";
 import { formatAmount } from "@/lib/billing/prices";
 import { paymentWhat } from "@/lib/billing/receipt";
 import { plansIn } from "@/lib/marketing-lang";
 import { PROVIDER_NAME } from "@/lib/payments/provider";
-import { getContact } from "@/lib/contact";
+import { getVisitorContact } from "@/lib/contact";
 import { appLabel, licensePageName, usesPlugin } from "@/lib/app/label";
 import { siteMatch, siteRunsLine } from "@/lib/app/site-match";
 
@@ -54,14 +55,18 @@ const SUPPORT_KEY = {
 } as const;
 
 /** The few lines that tell the tiers apart, on a plan card. */
-function planLines(plan: PlanInfo, { t, num }: DashboardText): string[] {
-  const { appUsers, languages, storageGb } = plan.limits;
+function planLines(plan: PlanInfo, { t, num, lang }: DashboardText): string[] {
+  const { appUsers, languages, storageGb, analyticsMonths } = plan.limits;
   return [
     hasFeature(plan, "ios") ? t("license.lineAndroidIos") : t("license.lineAndroid"),
     appUsers === null ? t("license.lineUsersUnlimited") : t("license.lineUsers", { count: num(appUsers) }),
     languages === null ? t("license.lineLanguagesAll") : t("license.lineLanguages", { count: languages }),
     // 51
     storageGb === null ? t("license.lineStorageUnlimited") : t("license.lineStorage", { size: formatStorage(storageGb) }),
+    // 72 How long the app's analytics are kept.
+    analyticsMonths === null
+      ? t("license.lineAnalyticsForever", { days: analyticsEventsKeepText(lang) })
+      : t("license.lineAnalytics", { kept: analyticsKeepText(lang, analyticsMonths), days: analyticsEventsKeepText(lang) }),
     hasFeature(plan, "page_editor") ? t("license.lineEditor") : t("license.lineTemplates"),
     hasFeature(plan, "auto_publish") ? t("license.lineWePublish") : t("license.lineYouPublish"),
     t(SUPPORT_KEY[plan.limits.support]),
@@ -69,7 +74,7 @@ function planLines(plan: PlanInfo, { t, num }: DashboardText): string[] {
 }
 
 export default async function LicensePage({ searchParams }: PageProps<"/dashboard/license">) {
-  const contact = await getContact();
+  const contact = await getVisitorContact();
   const { license, state, app, apps, client } = await requireClient("billing");
   const text = await dashboardText();
   const { t, k, lang } = text;

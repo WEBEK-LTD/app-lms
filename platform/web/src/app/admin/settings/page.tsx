@@ -16,10 +16,8 @@ import {
   FawaterkSettingForm,
   IyzicoSettingForm,
   KashierSettingForm,
-  MarketplaceForm,
   OtpSettingForm,
   PartnerAppForm,
-  PaymentProviderForm,
   PlanBillingForm,
   PublishingSettingForm,
   SmtpSettingForm,
@@ -89,16 +87,13 @@ export default async function SettingsPage() {
   const otp = settings.get("otp") as PlatformSetting<"otp"> | undefined;
   const smtp = settings.get("smtp") as PlatformSetting<"smtp"> | undefined;
   const iyzico = settings.get("iyzico") as PlatformSetting<"iyzico"> | undefined;
-  // 37 Kashier and Fawaterk, and which account takes payments (iyzico until set).
+  // 37 Kashier and Fawaterk. 72 Only for Yallapp's own plan payments: the old marketplace's provider choice is gone.
   const kashier = settings.get("kashier") as PlatformSetting<"kashier"> | undefined;
   const fawaterk = settings.get("fawaterk") as PlatformSetting<"fawaterk"> | undefined;
-  const paymentProvider = settings.get("paymentProvider") as PlatformSetting<"paymentProvider"> | undefined;
-  const provider = paymentProvider && isPaymentProvider(paymentProvider.value.provider) ? paymentProvider.value.provider : "iyzico";
   const accounts = { iyzico: Boolean(iyzico), kashier: Boolean(kashier), fawaterk: Boolean(fawaterk) };
   // 52 Yallapp's own plans: their gateway (Kashier until set) and the pound-to-dollar rate.
   const billing = settings.get("billing") as PlatformSetting<"billing"> | undefined;
   const planProvider = billing && isPaymentProvider(billing.value.planProvider) ? billing.value.planProvider : "kashier";
-  const marketplace = settings.get("marketplace") as PlatformSetting<"marketplace"> | undefined;
   const contact = settings.get("contact") as PlatformSetting<"contact"> | undefined;
   const appDefaults = settings.get("appDefaults") as PlatformSetting<"appDefaults"> | undefined;
   const publishing = settings.get("publishing") as PlatformSetting<"publishing"> | undefined;
@@ -162,7 +157,7 @@ export default async function SettingsPage() {
       {smtp || envSmtp ? null : <SmtpMissingNotice what="Emails to the team (new publishing and set-up requests, build problems) aren't sent" settingsLink={false} />}
       <ReadOnly when={!can(adminRole, "settings.edit")} what="change platform settings">
 
-      <Section id="h-contact" title="Contact details" text="How clients reach Yallapp: shown on every page of the website, in the dashboard and in emails.">
+      <Section id="h-contact" title="Contact details" text="How clients reach Yallapp: shown on every page of the website, in the dashboard and in emails. People in Egypt get the Egyptian WhatsApp number, everyone else the other one; where there's room both are shown with their labels.">
         {contact ? (
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="m-0 text-sm text-muted">
@@ -178,7 +173,11 @@ export default async function SettingsPage() {
         ) : (
           <p className="m-0 text-sm text-muted">Now: the defaults.</p>
         )}
-        <ContactForm whatsapp={contact?.value.whatsapp ?? DEFAULT_CONTACT.whatsapp} email={contact?.value.email ?? DEFAULT_CONTACT.email} />
+        <ContactForm
+          whatsapp={contact?.value.whatsapp ?? DEFAULT_CONTACT.whatsapp}
+          whatsappEgypt={contact?.value.whatsappEgypt || DEFAULT_CONTACT.whatsappEgypt}
+          email={contact?.value.email ?? DEFAULT_CONTACT.email}
+        />
       </Section>
 
       {/* 71 Receipts as PDF: what Yallapp's receipts say under its name. */}
@@ -270,24 +269,10 @@ export default async function SettingsPage() {
         <PlanBillingForm provider={planProvider} rate={billing?.value.egpPerUsd ? String(billing.value.egpPerUsd) : ""} />
       </Section>
 
-      {/* 37 Which of Yallapp's accounts takes payments: iyzico, Kashier or Fawaterk. */}
-      <Section
-        id="h-payment-provider"
-        title="Yallapp's payment provider"
-        text="Which of Yallapp's merchant accounts below takes shop sales through Yallapp (the marketplace). Plans have their own gateway above. Payments already started finish with the account they started with."
-      >
-        <p className="m-0 text-sm text-muted">
-          Now: {PROVIDER_NAME[provider]}
-          {paymentProvider ? `, set by ${paymentProvider.updatedBy}, ${formatDateTime(paymentProvider.updatedAt)}` : " (the default)"}.
-          {accounts[provider] ? "" : ` Yallapp's ${PROVIDER_NAME[provider]} account isn't set: card payments are off.`}
-        </p>
-        <PaymentProviderForm provider={provider} />
-      </Section>
-
       <Section
         id="h-iyzico"
         title="Yallapp's iyzico account"
-        text="Yallapp's own iyzico merchant account (Türkiye), for plan payments and shops selling through Yallapp while iyzico is chosen above. Clients with their own account add their keys on their Products page."
+        text="Yallapp's own iyzico merchant account (Türkiye), for plan payments when iyzico is the gateway above. Clients take their own customers' payments in their own accounts, on their Products page: Yallapp never collects payments for them."
       >
         {iyzico ? (
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -356,29 +341,6 @@ export default async function SettingsPage() {
         {fawaterk ? <TestPaymentAccountForm provider="fawaterk" /> : null}
       </Section>
 
-      <Section
-        id="h-marketplace"
-        title="Shops selling through Yallapp"
-        text="Shops without their own payment account can sell through Yallapp's, with the provider above. With iyzico, iyzico registers each one as a sub-merchant (iyzico's marketplace must be on for Yallapp's account) and pays it each sale minus this commission once the order is completed. With Kashier or Fawaterk, the whole payment comes to Yallapp's account and the team transfers each released share to the shop's IBAN (listed on the Payments page)."
-      >
-        {marketplace ? (
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="m-0 text-sm text-muted">
-              On at {marketplace.value.commissionPercent}%{accounts[provider] ? "" : `, but it needs Yallapp's ${PROVIDER_NAME[provider]} account above`}. Set by {marketplace.updatedBy},{" "}
-              {formatDateTime(marketplace.updatedAt)}.
-            </p>
-            <form action={resetPlatformSettingAction}>
-              <input type="hidden" name="key" value="marketplace" />
-              <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
-                Turn off
-              </SubmitButton>
-            </form>
-          </div>
-        ) : (
-          <p className="m-0 text-sm text-muted">Now: off. Shops can only use their own payment account.</p>
-        )}
-        <MarketplaceForm commission={marketplace ? String(marketplace.value.commissionPercent) : ""} />
-      </Section>
 
       {/* 25 Store platforms connected with OAuth through Yallapp's partner apps. */}
       {partnerApps.map((p) => (

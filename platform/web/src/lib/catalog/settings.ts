@@ -12,7 +12,7 @@ import {
 import type { IyzicoKeys } from "../payments/iyzico";
 import type { PaymentAccount } from "../payments/provider";
 import type { PayoutDetails } from "./marketplace";
-import { platformSetting, yallappAccountFor, yallappPaymentAccount } from "../settings/platform";
+import { yallappAccountFor } from "../settings/platform";
 
 const paymentContext = (appId: string) => `app:payment:${appId}`;
 
@@ -22,12 +22,14 @@ export function catalogSettings(app: App): CatalogSettings {
 
 /**
  * 19 Whether the app's payment page can take a card payment: Card payments
- * are set up (the owner's own keys, 37 iyzico, Kashier or Fawaterk, or a marketplace account), or it's a
- * demo, whose payment page charges nothing. Products and paid courses aren't
- * offered for sale without it.
+ * are set up with the owner's own keys (37 iyzico, Kashier or Fawaterk), or
+ * it's a demo, whose payment page charges nothing. Products and paid courses
+ * aren't offered for sale without it. 72 A shop that had joined the old
+ * marketplace (selling through Yallapp's account) has no payments until it
+ * adds its own account: Yallapp never takes payments for its clients' sales.
  */
 export function paymentsSetUp(app: Pick<App, "catalogSettings" | "demo">): boolean {
-  return app.catalogSettings?.payment != null || app.demo === true;
+  return isOwnPayment(app.catalogSettings?.payment) || app.demo === true;
 }
 
 export function encryptPaymentKeys(appId: string, apiKey: string, secretKey: string, sandbox: boolean, key: Buffer): OwnIyzicoPayment {
@@ -134,33 +136,30 @@ export const ORDER_STATUS_LABELS: Record<CatalogOrder["status"], string> = {
   refunded: "Refunded",
 };
 
-/** Whether shops can sell through Yallapp's account (37 the provider the team chose), and Yallapp's commission. */
-export async function marketplaceTerms(store: DataStore, key: Buffer): Promise<{ account: PaymentAccount; commissionPercent: number } | null> {
-  const [account, setting] = await Promise.all([yallappPaymentAccount(store, key), platformSetting(store, "marketplace", { fresh: true })]);
-  return account && setting ? { account, commissionPercent: setting.value.commissionPercent } : null;
-}
-
 export interface CheckoutAccount {
   /** 37 The merchant account and its provider. */
   account: PaymentAccount;
-  /** Set when the shop sells through Yallapp's account (subMerchantKey: iyzico only, empty otherwise). */
+  /**
+   * Set only for an order of the old marketplace, started before Phase 72
+   * through Yallapp's account (subMerchantKey: iyzico only, empty
+   * otherwise), to confirm, refund or release it. New payments never have one.
+   */
   marketplace: { subMerchantKey: string; commissionPercent: number } | null;
 }
 
-/** The account a shop's payments go to; null when the shop can't take payments. */
-export async function checkoutAccount(store: DataStore, app: App, key: Buffer): Promise<CheckoutAccount | null> {
+/**
+ * The account a shop's payments go to: always the shop's own; null when the
+ * shop can't take payments. 72 Yallapp never collects payments for its
+ * clients: a shop that had joined the old marketplace gets null until it
+ * adds its own account.
+ */
+export async function checkoutAccount(_store: DataStore, app: App, key: Buffer): Promise<CheckoutAccount | null> {
   // 16 Demo apps never charge a card, whatever keys they have.
   if (app.demo) return null;
   const payment = catalogSettings(app).payment;
-  if (!payment) return null;
-  if (isOwnPayment(payment)) {
-    const account = ownPaymentAccount(app, key);
-    return account ? { account, marketplace: null } : null;
-  }
-  // 37 A shop joined with the provider Yallapp used then; it sells through Yallapp only while that is still Yallapp's provider.
-  const terms = await marketplaceTerms(store, key);
-  if (!terms || terms.account.provider !== marketplaceVia(payment) || terms.account.keys.sandbox !== payment.sandbox) return null;
-  return { account: terms.account, marketplace: { subMerchantKey: payment.subMerchantKey, commissionPercent: terms.commissionPercent } };
+  if (!isOwnPayment(payment)) return null;
+  const account = ownPaymentAccount(app, key);
+  return account ? { account, marketplace: null } : null;
 }
 
 /** Yallapp's commission on an amount, rounded to the cent. */

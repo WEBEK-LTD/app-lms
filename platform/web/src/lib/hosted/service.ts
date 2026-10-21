@@ -1,5 +1,6 @@
 import { randomInt } from "node:crypto";
 import { hostedScreenProtection } from "../app/screen-protection";
+import { hidesVideoBranding } from "../app/video-branding";
 import { toVertical } from "../app/kinds";
 import { hmacSha256, newId, randomToken, safeEqual, sha256Hex } from "../crypto/tokens";
 import { yallappLinkBase } from "../links/table";
@@ -373,6 +374,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
       review_prompt: app.reviewPrompt !== false,
       crash_reports: app.crashReports !== false,
       screen_protection: hostedScreenProtection(app),
+      // 72 The video sites' own players unless the owner hides them, at their own risk.
+      hide_video_branding: hidesVideoBranding(app),
     },
     // 46 Links that open the app: on Yallapp's link domain for apps without WordPress.
     links: { share_base_url: yallappLinkBase(ctx.platformUrl, app.id) },

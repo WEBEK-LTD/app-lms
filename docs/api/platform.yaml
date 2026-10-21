@@ -675,6 +675,15 @@ components:
                   items: { type: string, pattern: '^[A-Z0-9]{10}\.[A-Za-z0-9.-]+$', example: ABCDE12345.com.example.academy }
         review_prompt: { type: boolean, description: "46 Whether the app may ask for a rating (`Config.app.review_prompt`), as the owner chose. Missing means true." }
         crash_reports: { type: boolean, description: "46 Whether the app sends crash reports to Yallapp (`Config.app.crash_reports`), as the owner chose. Missing means true." }
+        hide_video_branding:
+          type: boolean
+          description: |
+            Roadmap 72. Whether the app hides the video sites' own players
+            (YouTube's, Vimeo's and the others' branding and controls), as the
+            app's owner chose in the dashboard, at their own risk: it may break
+            YouTube's terms. The plugin serves it as
+            `Config.app.hide_video_branding`. Missing means false: the app
+            shows each site's normal player.
         offline_downloads:
           type: [boolean, 'null']
           description: |

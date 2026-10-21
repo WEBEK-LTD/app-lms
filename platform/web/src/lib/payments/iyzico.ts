@@ -163,42 +163,7 @@ export async function retrieveCheckoutForm(
   };
 }
 
-export interface SubMerchantInput {
-  conversationId: string;
-  /** Our own ID for the shop. */
-  subMerchantExternalId: string;
-  subMerchantType: "PERSONAL" | "PRIVATE_COMPANY" | "LIMITED_OR_JOINT_STOCK_COMPANY";
-  /** The shop's name as iyzico shows it. */
-  name: string;
-  contactName: string;
-  contactSurname: string;
-  email: string;
-  gsmNumber: string;
-  address: string;
-  iban: string;
-  /** Turkish ID number: people and sole proprietors. */
-  identityNumber?: string;
-  /** Companies. */
-  taxOffice?: string;
-  taxNumber?: string;
-  legalCompanyTitle?: string;
-  currency: string;
-}
-
-/** Registers a shop as a sub-merchant of this (Yallapp's) account; returns its key. */
-export async function createSubMerchant(
-  keys: IyzicoKeys,
-  input: SubMerchantInput,
-  options: { fetcher?: Fetch; baseUrl?: string | null } = {},
-): Promise<string> {
-  const result = await post(keys, "/onboarding/submerchant", { locale: "en", ...input }, options);
-  if (result.status !== "success" || typeof result.subMerchantKey !== "string") {
-    throw new IyzicoError(result.errorMessage ?? "iyzico couldn't register the shop.");
-  }
-  return result.subMerchantKey;
-}
-
-/** Releases a marketplace item's share to its sub-merchant. */
+/** Releases an old marketplace item's share to its sub-merchant (orders from before Phase 72). */
 export async function approvePaymentItem(
   keys: IyzicoKeys,
   input: { conversationId: string; paymentTransactionId: string },

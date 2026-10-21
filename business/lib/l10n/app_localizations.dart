@@ -3568,6 +3568,18 @@ abstract class AppLocalizations {
   /// **'Sign in with another account'**
   String get twoStepOther;
 
+  /// No description provided for @whatsappInEgypt.
+  ///
+  /// In en, this message translates to:
+  /// **'In Egypt'**
+  String get whatsappInEgypt;
+
+  /// No description provided for @whatsappOutsideEgypt.
+  ///
+  /// In en, this message translates to:
+  /// **'Outside Egypt'**
+  String get whatsappOutsideEgypt;
+
   /// No description provided for @minutesAgo.
   ///
   /// In en, this message translates to:

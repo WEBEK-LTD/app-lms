@@ -14,10 +14,19 @@ export interface AnalyticsRange {
   to: string;
   days: number;
   previous: { from: string; to: string };
+  /** 72 The first day the app's plan keeps (null: all of them), and whether the range asked for started earlier and was cut there. */
+  keptFrom?: string | null;
+  limited?: boolean;
 }
 
 /** The range from the page's query (`range`, `from`, `to`); last 30 days by default. 47 Days are in the app's time zone. */
-export function rangeFrom(query: { range?: string | null; from?: string | null; to?: string | null }, now: Date, zone = "UTC"): AnalyticsRange {
+export function rangeFrom(
+  query: { range?: string | null; from?: string | null; to?: string | null },
+  now: Date,
+  zone = "UTC",
+  /** 72 The first day the app's plan keeps (lib/analytics/retention.ts): the range starts no earlier. */
+  keptFrom: string | null = null,
+): AnalyticsRange {
   const today = dayOf(now, zone);
   let preset = query.range ?? "30";
   let from: string;
@@ -31,8 +40,13 @@ export function rangeFrom(query: { range?: string | null; from?: string | null; 
     preset = String(n);
     from = addDays(today, -(n - 1));
   }
+  const limited = keptFrom !== null && from < keptFrom;
+  if (limited) {
+    from = keptFrom;
+    if (to < from) to = from;
+  }
   const days = daysBetween(from, to);
-  return { preset, from, to, days, previous: { from: addDays(from, -days), to: addDays(from, -1) } };
+  return { preset, from, to, days, previous: { from: addDays(from, -days), to: addDays(from, -1) }, keptFrom, limited };
 }
 
 export interface Kpis {

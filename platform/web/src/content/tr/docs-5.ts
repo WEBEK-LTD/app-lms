@@ -31,7 +31,7 @@ Fiziksel ürün içeren siparişler için bir **Kargo ücreti** belirleyin (ücr
 
 ## Ödemeler
 
-Müşteriler, sağlayıcınızın (iyzico, Kashier veya Fawaterk) güvenli sayfasında kartla öder. Kendi anahtarlarınızı ekleyin ya da Yallapp'in hesabı üzerinden satış yapın: [Kartla ödemeler](/docs/card-payments) sayfasına bakın.
+Müşteriler, sağlayıcınızın (iyzico, Kashier veya Fawaterk) güvenli sayfasında kartla öder. Kendi anahtarlarınızı ekleyin: [Kartla ödemeler](/docs/card-payments) sayfasına bakın.
 
 ## Siparişler
 
@@ -75,7 +75,7 @@ Kapalıyken uygulama **Şu an kapalı** yazar ve ne zaman açılacağınızı g�
 
 ## Ödemeler
 
-Müşteriler giriş yapar, ardından Android'de ve iPhone'da sağlayıcınızın (iyzico, Kashier veya Fawaterk) güvenli sayfasında kartla öder: yemek fiziksel bir üründür, bu yüzden Apple'ın kuralları buna izin verir. Kendi anahtarlarınızı ekleyin ya da Yallapp'in hesabı üzerinden satış yapın: [Kartla ödemeler](/docs/card-payments) sayfasına bakın.
+Müşteriler giriş yapar, ardından Android'de ve iPhone'da sağlayıcınızın (iyzico, Kashier veya Fawaterk) güvenli sayfasında kartla öder: yemek fiziksel bir üründür, bu yüzden Apple'ın kuralları buna izin verir. Kendi anahtarlarınızı ekleyin: [Kartla ödemeler](/docs/card-payments) sayfasına bakın.
 
 ## WooCommerce ile
 
@@ -84,7 +84,7 @@ WooCommerce ile satış yapan restoranlar menü ifadelerini kullanır ve ürün 
   },
   "card-payments": {
     title: "iyzico, Kashier veya Fawaterk ile kartla ödemeler",
-    description: "Web sitesi olmayan uygulamalarda kendi iyzico, Kashier veya Fawaterk hesabınızla ya da Yallapp'in hesabı üzerinden kartla ödeme alın.",
+    description: "Web sitesi olmayan uygulamalarda kendi iyzico, Kashier veya Fawaterk hesabınıza kartla ödeme alın.",
     body: `Web sitesi olmayan uygulamalar kartla ödemeleri **iyzico** (Türkiye), **Kashier** veya **Fawaterk** (Mısır) üzerinden alır: mağazalar siparişleri için, restoranlar ve kafeler, etkinlik düzenleyiciler biletler için, spor salonları üyelikler için, akademiler ücretli kurslar için ve hayır kurumları bağışlar için. Müşteriler kartlarını sağlayıcının güvenli sayfasına girer; Yallapp kartı asla görmez. Bir sipariş, ancak sağlayıcı ödemeyi tam o tutar ve para birimiyle onayladıktan sonra ödendi olarak işaretlenir: sağlayıcıya kendimiz sorarız, bu yüzden bir bağlantı açılarak ödeme taklit edilemez.
 
 ## Kendi ödeme hesabınızı kullanın
@@ -99,14 +99,9 @@ Fiyatlarınızı sağlayıcınızın kabul ettiği bir para biriminde belirleyin
 
 > Önce denemek için test anahtarını (**Sandbox keys**, **Test mode keys** veya **Staging key**) açın, sağlayıcının test anahtarlarını yapıştırın ve test kartlarıyla ödeyin. Canlı anahtarlarınızı yapıştırdığınızda kapatın: test ve canlı anahtarlar farklıdır.
 
-## Ödeme hesabınız yok mu? Yallapp üzerinden satın
+## Yallapp müşterilerinizin ödemelerini asla almaz
 
-**Ödeme hesabınız yok mu? Yallapp üzerinden satın**'ı seçin ve ödemenin kime yapılacağını belirtin. Müşteriler bu durumda Yallapp'in hesabına öder.
-
-- Her siparişin fiyatı, Yallapp'in komisyonu düşülerek size geçer; kargo ücretinin tamamı size kalır.
-- Payınız, siparişi **tamamlandı** olarak işaretlediğinizde ya da ekibimiz serbest bıraktığında ödenir.
-- Yallapp'in hesabı iyzico'daysa iyzico'nun istediği bilgileri verirsiniz (yasal adınız, kimlik veya vergi bilgileriniz, adresiniz ve alıcı adına bir Türk IBAN'ı); iyzico sizi kaydeder ve payınızı kendisi öder.
-- Yallapp'in hesabı Kashier veya Fawaterk'teyse adınızı, iletişim bilgilerinizi ve IBAN'ınızı verirsiniz; Yallapp payınızı bu hesaba aktarır. IBAN'ınız şifreli olarak saklanır.
+Her işletme müşterilerinin ödemelerini kendi ödeme sağlayıcısı hesabında alır: Yallapp satışlarınız için hiçbir para tahsil etmez, bu satışların tarafı değildir ve komisyon yoktur. Anahtarlarınız kaydedilene kadar müşteriler ürünlerinizi, kurslarınızı veya biletlerinizi uygulamada görür ama ödeme yapamaz. Daha önce sunulan Yallapp'in hesabı üzerinden satış sona erdi: kullandıysanız yukarıdan kendi hesabınızı ekleyin; daha önce ödenmiş siparişler eskisi gibi sonuçlandırılır.
 
 ## İadeler
 
@@ -115,7 +110,7 @@ Fiyatlarınızı sağlayıcınızın kabul ettiği bir para biriminde belirleyin
 - **iyzico** ve **Kashier**: Yallapp iadeyi sağlayıcınız üzerinden sizin anahtarlarınızla yapar. iyzico aynı gün yapılan ödemeyi iptal eder (müşterinin ekstresinde hiçbir şey görünmez), diğer durumlarda kalem kalem iade eder. Kashier gizli anahtarınızın iade yetkisi olması gerekir.
 - **Fawaterk**: iadeyi Fawaterk panelinde yapın, ardından **İade** ile kaydedin (isterseniz Fawaterk'in referansıyla).
 - Sonrasında: sipariş veya bağış **İade edildi** (ya da iade edilen tutar) olarak görünür, müşteri bir e-posta alır ve bunu uygulamada görür. Bir siparişin tamamını iade etmek, karşılığında ödenenleri geri alır: biletler iptal edilir ve yerleri yeniden satışa çıkar, kurs öğrenciye kapanır, üyelik sona erer; kısmi iadede neyin geri alınacağını siz işaretlersiniz. İade edilen bağış, kampanyanın toplamına artık sayılmaz.
-- Yallapp üzerinden satış: iade Yallapp'in hesabından yapılır ve Yallapp komisyonunu orantılı olarak geri verir. Payınız zaten aktarıldıysa (Kashier veya Fawaterk), Yallapp iadedeki payınızı bir sonraki aktarımınızdan düşer. Yallapp'in hesabındaki bir Fawaterk ödemesini ekibimiz iade eder: bize WhatsApp'tan yazın.
+- Bu sona ermeden önce Yallapp'in hesabı üzerinden satılmış bir sipariş: iade Yallapp'in hesabından yapılır ve Yallapp komisyonunu orantılı olarak geri verir. Payınız zaten aktarıldıysa (Kashier veya Fawaterk), Yallapp iadedeki payınızı bir sonraki aktarımınızdan düşer. Yallapp'in hesabındaki bir Fawaterk ödemesini ekibimiz iade eder: bize WhatsApp'tan yazın.
 
 ## Ücretli kurslar
 
@@ -123,7 +118,7 @@ Web sitesi olmayan akademi uygulamaları ücretli kursları aynı şekilde, yaln
 
 ## Bağışlar
 
-Hayır kurumu ve bağış uygulamaları bağışları yalnızca kendi iyzico, Kashier veya Fawaterk hesaplarıyla alır: bağışlar için Yallapp üzerinden satış sunulmaz ve Yallapp bağışlardan komisyon almaz. Anahtarlarınızı **Kampanyalar** sayfasında ekleyin. [Hayır kurumu ve bağış uygulamaları](/docs/donations) sayfasına bakın.
+Hayır kurumu ve bağış uygulamaları, her uygulama gibi, bağışları kendi iyzico, Kashier veya Fawaterk hesaplarıyla alır. Anahtarlarınızı **Kampanyalar** sayfasında ekleyin. [Hayır kurumu ve bağış uygulamaları](/docs/donations) sayfasına bakın.
 `,
   },
   bookings: {

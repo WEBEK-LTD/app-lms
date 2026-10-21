@@ -13,9 +13,11 @@ import '../support/fake_api.dart';
 import '../support/fixtures.dart';
 import '../support/test_app.dart';
 
-/// 40 A YouTube lesson plays behind the app's own controls: nothing shows
-/// where it's hosted, nothing in it opens YouTube, and progress, the
-/// watermark and the screen-capture cover work as with uploaded files.
+/// 40 With the branding hidden (72: the owner's choice, at their own risk), a
+/// YouTube lesson plays behind the app's own controls: nothing shows where
+/// it's hosted, nothing in it opens YouTube, and progress, the watermark and
+/// the screen-capture cover work as with uploaded files. 72 By default the
+/// site's own player shows, and the app still follows it.
 Map<String, dynamic> youtubeLesson({Map<String, Object?>? video}) {
   final lesson = videoLessonJson();
   lesson['video'] = {
@@ -31,14 +33,25 @@ Map<String, dynamic> youtubeLesson({Map<String, Object?>? video}) {
   return lesson;
 }
 
+/// 72 The config with the owner's choice to hide the video sites' branding.
+Map<String, dynamic> configHiding({bool hide = true}) {
+  final config = configJson();
+  (config['app'] as Map<String, dynamic>)['hide_video_branding'] = hide;
+  return config;
+}
+
 Future<TestApp> openLesson(
   WidgetTester tester,
   Map<String, dynamic> lesson, {
   bool autoplayNext = false,
+  bool hideBranding = true,
 }) async {
   final app = TestApp(
     signedIn: true,
-    api: FakeApi(lesson: lesson),
+    api: FakeApi(
+      lesson: lesson,
+      config: configHiding(hide: hideBranding),
+    ),
     preferences: {'settings.autoplay_next': autoplayNext},
   );
   await app.pump(tester);
@@ -264,7 +277,10 @@ void main() {
       'aspect_ratio': 1.7778,
       'allow_fullscreen': true,
     };
-    final app = TestApp(signedIn: true, api: FakeApi(lesson: lesson));
+    final app = TestApp(
+      signedIn: true,
+      api: FakeApi(lesson: lesson, config: configHiding()),
+    );
     await app.pump(tester);
     app.container.read(appRouterProvider).push('/lesson/108');
     await TestApp.settle(tester, 20);
@@ -274,5 +290,67 @@ void main() {
     expect(request.html, contains('byline=0'));
     expect(find.text('player.vimeo.com'), findsNothing);
     expect(find.byType(BrandlessVideo), findsOneWidget);
+  });
+
+  testWidgets(
+    "72 by default YouTube shows its own player, and the app still follows it",
+    (tester) async {
+      final app = await openLesson(
+        tester,
+        youtubeLesson(),
+        hideBranding: false,
+      );
+      final api = app.api;
+      final request = player(app);
+      // The site's normal player: its own controls and branding, touches reach it.
+      expect(request.html, contains('www.youtube.com/embed/dQw4w9WgXcQ?'));
+      expect(request.html, contains('start=30'), reason: 'resumes');
+      expect(request.html, isNot(contains('controls=0')));
+      expect(request.html, isNot(contains('modestbranding')));
+      expect(request.html, contains('"site":true'));
+      expect(request.interactive, isTrue);
+      expect(find.byKey(const ValueKey('player-cover')), findsNothing);
+
+      send(app, {'type': 'ready', 'duration': 120, 'rates': <Object>[]});
+      send(app, {'type': 'state', 'state': 'ready'});
+      await tester.pump();
+      // No app controls over the site's own.
+      expect(find.byType(PlayerControls), findsNothing);
+      expect(find.byType(BrandlessVideo), findsOneWidget);
+
+      // Watching is still tracked, and the place saved at the end.
+      send(app, {'type': 'state', 'state': 'playing', 'position': 30});
+      for (var s = 30; s < 42; s++) {
+        send(app, {'type': 'time', 'position': s, 'duration': 120});
+      }
+      send(app, {'type': 'state', 'state': 'paused', 'position': 41});
+      await tester.pump();
+      expect(api.savedProgress.last.$1, 41);
+      send(app, {'type': 'state', 'state': 'ended', 'position': 120});
+      await tester.pump();
+      expect(api.savedProgress.last.$1, 120);
+      expect(find.byKey(const ValueKey('player-cover')), findsNothing);
+    },
+  );
+
+  testWidgets('72 by default other video sites keep their branding too', (
+    tester,
+  ) async {
+    final app = await openLesson(
+      tester,
+      youtubeLesson(
+        video: {
+          'source': 'embed',
+          'url': null,
+          'embed_html': '<iframe src="https://fast.wistia.net/embed/iframe/abc123"></iframe>',
+        },
+      ),
+      hideBranding: false,
+    );
+    final request = app.webViews.requests.lastWhere(
+      (r) => r.debugLabel == 'video',
+    );
+    expect(request.html, contains('fast.wistia.net/embed/iframe/abc123?'));
+    expect(request.html, isNot(contains('copyLinkAndThumbnailEnabled')));
   });
 }

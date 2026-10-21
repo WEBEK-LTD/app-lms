@@ -354,7 +354,7 @@ describe("catalog shop on the hosted API", () => {
       expect(mail.text).toContain("Moda Cd. 12, Istanbul");
     });
 
-    it("sells through Yallapp's account: the shop's share per item, approved for payout on completion", async () => {
+    it("72 never sells through Yallapp's account; an order paid there before still gets its shares approved for payout", async () => {
       await store.setPlatformSetting(
         "iyzico",
         { apiKeyEncrypted: encryptSetting("iyzico", "yallapp-api", KEY), secretKeyEncrypted: encryptSetting("iyzico", "yallapp-secret", KEY), sandbox: true },
@@ -368,21 +368,21 @@ describe("catalog shop on the hosted API", () => {
           payment: { provider: "yallapp" as const, subMerchantKey: "sub-rose", subMerchantType: "PERSONAL" as const, payeeName: "Rose Shop", ibanLast4: "1234", sandbox: true, joinedAt: now.toISOString() },
         },
       };
-      // Not on until the team sets a commission.
-      expect(await checkoutAccount(store, shop, KEY)).toBeNull();
+      // 72 Not even with Yallapp's account and a commission set: Yallapp never collects payments for its clients.
       await store.setPlatformSetting("marketplace", { commissionPercent: 10 }, "admin@yallapp.test", now);
-      const account = (await checkoutAccount(store, shop, KEY))!;
-      expect(account).toEqual({ account: { provider: "iyzico", keys: { apiKey: "yallapp-api", secretKey: "yallapp-secret", sandbox: true } }, marketplace: { subMerchantKey: "sub-rose", commissionPercent: 10 } });
-
+      expect(await checkoutAccount(store, shop, KEY)).toBeNull();
+      const yallappKeys = { apiKey: "yallapp-api", secretKey: "yallapp-secret", sandbox: true };
       const customer = { name: "Sara Yilmaz", phone: "+905321234567", email: "sara@example.com", city: "Istanbul", address: "Moda Cd. 12" };
-      await startPayment({ store, app: shop, account, fetcher: iyzico(paid()), now, order, customer, ip: "203.0.113.9", callbackUrls: { returnUrl: "https://yallapp.test/cb", webhookUrl: null } });
-      expect(iyzicoCalls[0]!.body).toMatchObject({
-        price: "950.00",
-        basketItems: [
-          { name: "Red Roses", price: "900.00", subMerchantKey: "sub-rose", subMerchantPrice: "810.00" },
-          { id: "shipping", price: "50.00", subMerchantKey: "sub-rose", subMerchantPrice: "50.00" },
-        ],
-      });
+      const back = { returnUrl: "https://yallapp.test/cb", webhookUrl: null };
+      await expect(
+        startPayment({ store, app: shop, account: { account: { provider: "iyzico", keys: yallappKeys }, marketplace: { subMerchantKey: "sub-rose", commissionPercent: 10 } }, fetcher: iyzico(paid()), now, order, customer, ip: "203.0.113.9", callbackUrls: back }),
+      ).rejects.toThrow("never paid into Yallapp's account");
+      expect(iyzicoCalls).toEqual([]);
+
+      // An order started before Phase 72 through Yallapp's account (its commission recorded): the shares are still approved.
+      await startPayment({ store, app: shop, account: { account: { provider: "iyzico", keys: yallappKeys }, marketplace: null }, fetcher: iyzico(paid()), now, order, customer, ip: "203.0.113.9", callbackUrls: back });
+      expect(JSON.stringify(iyzicoCalls[0]!.body)).not.toContain("subMerchant");
+      await store.updateCatalogOrder(app.id, order.id, { commissionCents: 9000, updatedAt: now });
       order = (await store.getCatalogOrder(app.id, order.id))!;
       expect(order.commissionCents).toBe(9000);
 

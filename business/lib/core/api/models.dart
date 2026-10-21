@@ -139,18 +139,37 @@ class MeLinks {
   const MeLinks({
     required this.dashboard,
     this.supportWhatsapp,
+    this.supportWhatsappEgypt,
+    this.supportWhatsappInternational,
     this.supportEmail,
   });
 
   factory MeLinks.fromJson(Json json) => MeLinks(
     dashboard: str(json, 'dashboard'),
     supportWhatsapp: optStr(json, 'support_whatsapp'),
+    supportWhatsappEgypt: optStr(json, 'support_whatsapp_egypt'),
+    supportWhatsappInternational: optStr(
+      json,
+      'support_whatsapp_international',
+    ),
     supportEmail: optStr(json, 'support_email'),
   );
 
   final String dashboard;
+
+  /// Yallapp's WhatsApp for the account's country (72: Egypt's number in
+  /// Egypt, else the international one).
   final String? supportWhatsapp;
+
+  /// 72 Both numbers, shown with their labels on the help screen; null on
+  /// older servers.
+  final String? supportWhatsappEgypt;
+  final String? supportWhatsappInternational;
   final String? supportEmail;
+
+  /// 72 Both numbers are known: the help screen lists each with its label.
+  bool get bothWhatsapp =>
+      supportWhatsappEgypt != null && supportWhatsappInternational != null;
 }
 
 class Me {

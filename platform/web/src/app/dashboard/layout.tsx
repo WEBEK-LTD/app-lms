@@ -18,7 +18,7 @@ import { appTypeName, contentNavOf, kindOf, usersLabelOf } from "@/lib/app/kinds
 import { contextCan, requireClient } from "@/lib/auth/session";
 import { pathPermission } from "@/lib/team/permissions";
 import type { DashKey } from "@/i18n/dashboard";
-import { getContact } from "@/lib/contact";
+import { getVisitorContact } from "@/lib/contact";
 import { bellWords, dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import { ACCOUNT_STATE_LABEL, appState } from "@/lib/license/status";
@@ -31,7 +31,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const contact = await getContact();
+  const contact = await getVisitorContact();
   const context = await requireClient();
   const { user, staff, member, app, apps, client, licenses, state, businesses } = context;
   // 60 The person signed in: a team member shows as themselves.

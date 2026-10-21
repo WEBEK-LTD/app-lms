@@ -31,17 +31,27 @@ const playerChannel = 'YallappPlayer';
 /// - The app sends commands as JSON to `window.yallappReceive(text)`:
 ///   `play`, `pause`, `seek` (seconds), `rate`, `captions` (language or
 ///   null), `quality`.
+///
+/// 72 With [siteControls] (the default for apps: the owner hasn't hidden the
+/// branding), the same page shows the site's normal player as it is: the
+/// frame fills the box, touches reach it, nothing covers it, and its own
+/// controls and branding show. The events still reach the app (watch
+/// tracking, resume, the end of the video).
 String brandlessPlayerHtml(
   HostedVideo video, {
   required String origin,
   int startSeconds = 0,
+  bool siteControls = false,
 }) {
   final config = <String, Object?>{
     'host': video.host.name,
-    'src': video.playerUrl(startSeconds: startSeconds).toString(),
+    'src': video
+        .playerUrl(startSeconds: startSeconds, hideBranding: !siteControls)
+        .toString(),
     'start': startSeconds,
     'aspect': video.aspectRatio,
     'origin': origin,
+    'site': siteControls,
   };
   // `</` can't end the script early.
   final json = jsonEncode(config).replaceAll('</', r'<\/');
@@ -77,6 +87,16 @@ html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
   var state = 'loading', duration = 0, position = 0, buffered = 0;
   var aspect = C.aspect || 16 / 9;
   var api = null, ticker = null, readyTimer = null;
+  // 72 The site's own player: shown as it is, touches reach it, nothing covers it.
+  var site = C.site === true;
+  if (site) {
+    frame.removeAttribute('tabindex');
+    frame.setAttribute('allow', 'autoplay; encrypted-media; fullscreen');
+    frame.style.pointerEvents = 'auto';
+    cover.parentNode.removeChild(cover);
+    document.getElementById('shield').parentNode.removeChild(document.getElementById('shield'));
+    cover = { className: 'off' };
+  }
 
   function send(message) {
     var text = JSON.stringify(message);
@@ -100,6 +120,13 @@ html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
   function layout() {
     var w = stage.clientWidth, h = stage.clientHeight;
     if (!w || !h) return;
+    if (site) {
+      frame.style.left = '0px';
+      frame.style.top = '0px';
+      frame.style.width = w + 'px';
+      frame.style.height = h + 'px';
+      return;
+    }
     var width = Math.min(w, h * aspect);
     frame.style.width = width + 'px';
     frame.style.left = ((w - width) / 2) + 'px';
@@ -114,7 +141,7 @@ html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
     if (num(d)) duration = num(d);
     if (b !== undefined) buffered = Math.min(1, num(b));
     // 51 The last half second: covered before the site's end screen shows (and uncovered after a seek back).
-    if (state === 'playing' || state === 'paused' || state === 'buffering') {
+    if (!site && (state === 'playing' || state === 'paused' || state === 'buffering')) {
       cover.className = duration && duration - position < 0.5 && state === 'playing' ? '' : 'off';
     }
     send({ type: 'time', position: position, duration: duration, buffered: buffered });
@@ -123,7 +150,7 @@ html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
   function setState(s) {
     if (!s || s === state) return;
     state = s;
-    cover.className = (s === 'playing' || s === 'paused' || s === 'buffering') ? 'off' : '';
+    if (!site) cover.className = (s === 'playing' || s === 'paused' || s === 'buffering') ? 'off' : '';
     tick();
     send({ type: 'state', state: s, position: position, duration: duration });
     if (s === 'playing' || s === 'buffering') {

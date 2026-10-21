@@ -94,6 +94,7 @@ Accept-Language: en
 - \`app.update_required\`: القيمة true تجعل التطبيق يطلب من الناس التحديث (قارن \`app_version\` الذي يرسله التطبيق).
 - \`app.maintenance\`: القيمة true لا تعرض إلا \`app.maintenance_message\`.
 - \`app.screen_protection\`: القيمة \`off\` أو \`content\` (الدروس والاختبارات ومرفقاتها) أو \`app\` (كل الشاشات) تمنع لقطات الشاشة وتسجيلها في التطبيق.
+- \`app.hide_video_branding\`: القيمة true تعرض فيديوهات YouTube وVimeo وBunny Stream خلف أزرار التطبيق الخاصة مع إخفاء العلامة التجارية للموقع (على مسؤولية المالك: قد يخالف ذلك شروط YouTube). اتركها أو اجعلها false لعرض مشغّل كل موقع كما هو.
 - يجب أن تكون \`purchases.enroll_button\` بقيمة false حين يكون \`platform=ios\`.
 
 ## مسار تسجيل الدخول ببساطة {#the-sign-in-flow-simply}

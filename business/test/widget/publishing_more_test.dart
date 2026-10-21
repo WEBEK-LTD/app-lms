@@ -84,9 +84,13 @@ void main() {
     await tester.pageBack();
     await settle(tester);
 
-    await tester.scrollUntilVisible(find.text('Talk to us on WhatsApp'), 200);
-    await tapOn(tester, find.text('Talk to us on WhatsApp'));
+    // 72 Yallapp's two numbers, each with where it's for.
+    await tester.scrollUntilVisible(find.text('Outside Egypt'), 200);
+    expect(find.text('Talk to us on WhatsApp'), findsNWidgets(2));
+    await tapOn(tester, find.text('In Egypt'));
     expect(app.opened.last, 'https://wa.me/201000000000');
+    await tapOn(tester, find.text('Outside Egypt'));
+    expect(app.opened.last, 'https://wa.me/905000000000');
     await tester.scrollUntilVisible(find.text('Privacy policy'), 200);
     await tapOn(tester, find.text('Privacy policy'));
     expect(app.opened.last, 'https://yallapp.com.tr/privacy');

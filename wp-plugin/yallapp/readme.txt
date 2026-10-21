@@ -42,6 +42,9 @@ hash, for 5 minutes. Push notifications go through your own Firebase project.
 
 == Changelog ==
 
+= Unreleased =
+* Videos from YouTube, Vimeo and the other video sites play in each site's normal player in the app, with its controls and branding. The app's owner can hide the video site's branding from the Yallapp dashboard (Screen protection), at their own risk: the plugin passes the choice to the app (Config app.hide_video_branding).
+
 = 0.4.6 =
 * When your Yallapp plan ends, the app stops: every screen shows that the app is paused, with your contact details from the plugin settings, and no notifications are sent. It comes back within minutes of renewing. The same happens while your Yallapp account is suspended. Before, the plugin let the app keep working ("Test mode").
 * The plugin knows when your plan ends and pauses the app at that moment even if your site can't reach yallapp.com.tr. When the site can't reach yallapp.com.tr for over 3 days while the plan runs, the app pauses too, until the next successful check (Check now).

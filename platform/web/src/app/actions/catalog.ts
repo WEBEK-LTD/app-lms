@@ -11,21 +11,17 @@ import { changeOrderStatus, inKitchen } from "@/lib/catalog/order-status";
 import { CATALOG_CURRENCIES, parsePrice } from "@/lib/catalog/money";
 import { readProductNumbers } from "@/lib/catalog/product-fields";
 import { parseOptionGroups } from "@/lib/catalog/options";
-import { parsePayeeForm, parseSubMerchantForm } from "@/lib/catalog/marketplace";
-import { catalogSettings, encryptOwnPayment, encryptPayout, marketplaceTerms, type OwnPaymentInput } from "@/lib/catalog/settings";
+import { catalogSettings, encryptOwnPayment, type OwnPaymentInput } from "@/lib/catalog/settings";
 import { newId } from "@/lib/crypto/tokens";
 import { imageType } from "@/lib/images";
 import { chosenPictures } from "@/lib/media/pictures";
 import { getStore } from "@/lib/data";
-import type { App, CatalogCurrency, CatalogProductInput, MarketplacePayment } from "@/lib/data/types";
-import { encryptionKey, iyzicoApiUrl, paymentApiUrls } from "@/lib/env";
+import type { App, CatalogCurrency, CatalogProductInput } from "@/lib/data/types";
+import { encryptionKey, paymentApiUrls } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
-import { createSubMerchant, IyzicoError } from "@/lib/payments/iyzico";
-import { explainPaymentError } from "@/lib/payments/explain";
 import { validKashierMerchantId } from "@/lib/payments/kashier";
 import { checkAccount, isPaymentProvider, PROVIDER_NAME, type PaymentAccount } from "@/lib/payments/provider";
 import { recordStaffChange } from "@/lib/admin/audit";
-import { featureOn, getSwitches } from "@/lib/switches";
 import { serviceAccountOf } from "@/lib/hosted/notify";
 
 const PRODUCT_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
@@ -282,79 +278,6 @@ function accountOf(input: OwnPaymentInput): PaymentAccount {
   if (input.provider === "kashier") return { provider: "kashier", keys: { merchantId: input.merchantId, apiKey: input.apiKey, secretKey: input.secretKey, sandbox: input.sandbox } };
   if (input.provider === "fawaterk") return { provider: "fawaterk", keys: { apiKey: input.apiKey, sandbox: input.sandbox } };
   return { provider: "iyzico", keys: { apiKey: input.apiKey, secretKey: input.secretKey, sandbox: input.sandbox } };
-}
-
-const SUB_MERCHANT_FIELDS = ["type", "payeeName", "contactName", "email", "phone", "address", "iban", "identityNumber", "taxOffice", "legalCompanyTitle", "taxNumber"];
-
-/**
- * The shop sells through Yallapp's account. With iyzico, iyzico registers it
- * as a sub-merchant that gets each sale minus the commission. 37 With
- * Kashier or Fawaterk the shop gives who gets paid and its IBAN, and the
- * team transfers each released share.
- */
-export async function joinMarketplaceAction(_: FormState, formData: FormData): Promise<FormState> {
-  const context = await requireCatalogApp({ courses: true }, "billing");
-  const { app } = context;
-  const values: Record<string, string> = {};
-  for (const name of SUB_MERCHANT_FIELDS) values[name] = str(formData, name);
-  const store = await getStore();
-  const terms = await marketplaceTerms(store, encryptionKey());
-  // 11.5 Switches: joining can be switched off, for everyone or per plan.
-  if (!terms || !featureOn(await getSwitches(store), "marketplace", context.license?.plan ?? null)) {
-    return { message: "Selling through Yallapp isn't available right now. Add your own payment keys instead.", values };
-  }
-  const now = new Date();
-  const join = async (payment: MarketplacePayment, iban: string) => {
-    await store.updateApp(app.id, { catalogSettings: { ...catalogSettings(app), payment } }, now);
-    await recordStaffChange(context, `Joined selling through Yallapp (payee ${payment.payeeName})`);
-    refresh();
-    const who = payment.subMerchantKey ? "iyzico pays" : "Yallapp transfers";
-    return { ok: true, message: `Done. Your app takes payments now; ${who} your share to the IBAN ending ${iban.slice(-4)}.` };
-  };
-  if (terms.account.provider !== "iyzico") {
-    const parsed = parsePayeeForm(values);
-    if (!parsed.ok) return { errors: parsed.errors, values };
-    return join(
-      {
-        provider: "yallapp",
-        via: terms.account.provider,
-        subMerchantKey: "",
-        subMerchantType: "PERSONAL",
-        payeeName: parsed.payee.name,
-        ibanLast4: parsed.payee.iban.slice(-4),
-        // The team transfers the shares: it needs the whole IBAN and who to ask, kept encrypted.
-        payoutEncrypted: encryptPayout(app.id, parsed.payee, encryptionKey()),
-        sandbox: terms.account.keys.sandbox,
-        joinedAt: now.toISOString(),
-      },
-      parsed.payee.iban,
-    );
-  }
-  const parsed = parseSubMerchantForm(values);
-  if (!parsed.ok) return { errors: parsed.errors, values };
-  let subMerchantKey: string;
-  try {
-    subMerchantKey = await createSubMerchant(
-      terms.account.keys,
-      { ...parsed.details, conversationId: `shop-${app.id}`, subMerchantExternalId: app.id, currency: catalogSettings(app).currency },
-      { baseUrl: iyzicoApiUrl() },
-    );
-  } catch (e) {
-    if (e instanceof IyzicoError) return { message: explainPaymentError("iyzico", e, { fallback: "iyzico didn't accept these details." }), values };
-    throw e;
-  }
-  return join(
-    {
-      provider: "yallapp",
-      subMerchantKey,
-      subMerchantType: parsed.details.subMerchantType,
-      payeeName: parsed.details.name,
-      ibanLast4: parsed.details.iban.slice(-4),
-      sandbox: terms.account.keys.sandbox,
-      joinedAt: now.toISOString(),
-    },
-    parsed.details.iban,
-  );
 }
 
 export async function removePaymentKeysAction(): Promise<void> {

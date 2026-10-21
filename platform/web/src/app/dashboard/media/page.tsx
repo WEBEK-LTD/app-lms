@@ -13,7 +13,7 @@ import { OwnerOnly } from "@/components/owner-only";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 import type { DashKey } from "@/i18n/dashboard";
-import { getContact } from "@/lib/contact";
+import { getVisitorContact } from "@/lib/contact";
 import { getStore } from "@/lib/data";
 import type { MediaKind } from "@/lib/data/types";
 import { effectivePlans } from "@/lib/entitlements";
@@ -72,7 +72,7 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
     store.listMediaFiles(app.id, filter === "all" ? {} : { kind: filter }),
     yallappPlanAccount(store, encryptionKey()),
     platformSetting(store, "storagePacks"),
-    getContact(),
+    getVisitorContact(),
     priceView(store, client),
   ]);
   const offers = cardOffers(packOffers(packsSetting?.value), account?.provider ?? null, view);

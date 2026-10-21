@@ -4,7 +4,8 @@ import { Icon } from "./icon";
 import { DEFAULT_LANG, formatMessage, formatNumber, messagesFor, type Lang } from "@/i18n";
 import { localePath } from "@/i18n/paths";
 import type { IconName } from "./icon-names";
-import { FEATURED_PLAN, hasFeature, PLAN_INFO, planLimitLines, planPrice, planStores, planStoresLine, type PlanInfo, type PriceView } from "@/lib/plans";
+import { FEATURED_PLAN, formatAnalyticsKeep, hasFeature, PLAN_INFO, planLimitLines, planPrice, planStores, planStoresLine, type PlanInfo, type PriceView } from "@/lib/plans";
+import { RAW_RETENTION_DAYS } from "@/lib/analytics/types";
 
 /** 52 The line under the plans: which currency the prices are in, and what a card is charged in. */
 export function currencyNote(view: PriceView, lang: Lang = DEFAULT_LANG): string {
@@ -17,6 +18,19 @@ export function storageText(lang: Lang, gb: number | null): string {
   if (gb === null) return m.unlimitedStorage;
   if (gb >= 1000 && gb % 1000 === 0) return formatMessage(lang, m.tb, { size: formatNumber(lang, gb / 1000) });
   return formatMessage(lang, m.gb, { size: formatNumber(lang, gb, { maximumFractionDigits: 3 }) });
+}
+
+/** 72 How long analytics daily totals are kept, in a language: "3 months", "1 year", or "Until the app is deleted". */
+export function analyticsKeepText(lang: Lang, months: number | null): string {
+  if (lang === "en") return formatAnalyticsKeep(months);
+  const m = messagesFor(lang).plans;
+  if (months === null) return m.keepForever;
+  return months % 12 === 0 ? formatMessage(lang, m.keepYears, { count: months / 12 }) : formatMessage(lang, m.keepMonths, { count: months });
+}
+
+/** 72 How long single analytics events are kept (the same on every plan), in a language. */
+export function analyticsEventsKeepText(lang: Lang): string {
+  return formatMessage(lang, messagesFor(lang).plans.keepDays, { count: RAW_RETENTION_DAYS });
 }
 
 /** 55 A plan's key limits (lib/plans.ts `planLimitLines`) in a language. */

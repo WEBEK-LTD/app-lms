@@ -171,6 +171,8 @@ describe("saves that change what the license status carries ask the site", () =>
     ["app/actions/app-links.ts", "saveAppHealthAction"],
     // 53 Screen protection.
     ["app/actions/screen-protection.ts", "saveScreenProtectionAction"],
+    // 72 The video sites' own players, or their branding hidden.
+    ["app/actions/screen-protection.ts", "saveVideoBrandingAction"],
   ])("%s %s", (file, name) => {
     expect(body(file, name)).toContain("refreshSitesSoon(");
   });
@@ -193,6 +195,7 @@ describe("saves that change what the license status carries ask the site", () =>
       "app_links",
       "review_prompt",
       "crash_reports",
+      "hide_video_branding",
       "expires_at",
       "checked_at",
       "message",

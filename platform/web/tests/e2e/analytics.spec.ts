@@ -83,6 +83,11 @@ test("Analytics explains when its numbers appear", async () => {
   await expect(own.getByText("No usage in this range yet")).toBeVisible();
   await expect(own.getByText("The app preview in the dashboard isn't counted.")).toBeVisible();
   await expect(own.getByRole("link", { name: "Last 30 days" })).toHaveAttribute("aria-current", "page");
+  // 72 How long the plan keeps them, and a range that starts earlier is cut there.
+  await expect(own.getByText(/plan keeps daily totals for .+ and single events \(each app open, screen or search\) for 90 days/)).toBeVisible();
+  await own.goto("/dashboard/analytics?range=custom&from=2020-01-01&to=2020-02-01");
+  await expect(own.getByText(/The range you chose started earlier: it starts on/)).toBeVisible();
+  await expect(own.getByRole("textbox", { name: "From" })).toHaveAttribute("min", /^\d{4}-\d{2}-\d{2}$/);
 });
 
 test("the app's events arrive, and bad ones are refused", async ({ request }) => {

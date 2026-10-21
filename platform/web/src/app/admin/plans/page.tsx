@@ -93,6 +93,7 @@ export default async function PlansPage() {
                     languages: plan.limits.languages === null ? "" : String(plan.limits.languages),
                     sources: plan.limits.sources === null ? "" : String(plan.limits.sources),
                     storageGb: plan.limits.storageGb === null ? "" : String(plan.limits.storageGb),
+                    analyticsMonths: plan.limits.analyticsMonths === null ? "" : String(plan.limits.analyticsMonths),
                     teamMembers: plan.limits.teamMembers === null ? "" : String(plan.limits.teamMembers),
                     support: plan.limits.support,
                     accountManager: plan.limits.accountManager,

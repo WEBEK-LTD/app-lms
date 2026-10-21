@@ -210,6 +210,7 @@ export interface PlanLimitsValues {
   languages: string;
   sources: string;
   storageGb: string;
+  analyticsMonths: string;
   teamMembers: string;
   support: string;
   accountManager: boolean;
@@ -229,7 +230,7 @@ export function PlanLimitsForm({
 }: {
   plan: PlanLimitsValues;
   features: { id: string; label: string; description: string; enforced: string }[];
-  limits: { id: "appUsers" | "languages" | "sources" | "storageGb"; label: string; enforced: string }[];
+  limits: { id: "appUsers" | "languages" | "sources" | "storageGb" | "analyticsMonths"; label: string; unlimited: string; enforced: string }[];
   supportLevels: { id: string; label: string }[];
 }) {
   const [state, action] = useActionState(savePlanLimitsAction, initialFormState);
@@ -261,7 +262,7 @@ export function PlanLimitsForm({
             name={l.id}
             inputMode="numeric"
             defaultValue={v(l.id, plan[l.id])}
-            hint="Empty: no limit."
+            hint={l.id === "analyticsMonths" ? `Empty: ${l.unlimited.toLowerCase()}. Daily totals; single events are kept 90 days on every plan.` : "Empty: no limit."}
             error={state.errors?.[l.id]}
             small
           />

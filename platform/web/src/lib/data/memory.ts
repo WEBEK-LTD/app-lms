@@ -2565,10 +2565,25 @@ export class MemoryStore implements DataStore {
     return [...new Set(this.analyticsEvents.filter((e) => e.day >= fromDay).map((e) => e.appId))];
   }
 
-  async purgeAnalyticsEvents(beforeDay: string): Promise<number> {
-    const before = this.analyticsEvents.length;
-    this.analyticsEvents = this.analyticsEvents.filter((e) => e.day >= beforeDay);
-    return before - this.analyticsEvents.length;
+  async purgeAnalyticsEvents(beforeDay: string, limit = Infinity): Promise<number> {
+    let deleted = 0;
+    this.analyticsEvents = this.analyticsEvents.filter((e) => {
+      if (e.day >= beforeDay || deleted >= limit) return true;
+      deleted += 1;
+      return false;
+    });
+    return deleted;
+  }
+
+  async purgeAnalyticsDaily(appId: string, beforeDay: string, limit: number): Promise<number> {
+    let deleted = 0;
+    for (const [key, row] of this.analyticsDaily) {
+      if (deleted >= limit) break;
+      if (row.appId !== appId || row.day >= beforeDay) continue;
+      this.analyticsDaily.delete(key);
+      deleted += 1;
+    }
+    return deleted;
   }
 
   // 49 Signed notices to an app's own API

@@ -263,7 +263,7 @@ void main() {
   });
 
   testWidgets(
-    "51 a listing's YouTube video plays in the app's own player, never the site's page",
+    "51 a listing's YouTube video plays in the app, never the site's page",
     (tester) async {
       tester.view
         ..physicalSize = const Size(390, 844) * 2
@@ -296,9 +296,10 @@ void main() {
       final player = app.webViews.requests.lastWhere(
         (r) => r.debugLabel == 'video-player',
       );
-      // Our page, with the site's player cropped behind our controls.
-      expect(player.html, contains('height: 500%'));
-      expect(player.interactive, isFalse);
+      // 72 Our page with YouTube's own player by default (the owner can hide
+      // its branding: then it's cropped behind our controls).
+      expect(player.html, contains('"site":true'));
+      expect(player.interactive, isTrue);
     },
   );
 }

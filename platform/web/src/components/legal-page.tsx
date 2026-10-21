@@ -16,8 +16,10 @@ export async function LegalPage({ contentKey, path, lang = DEFAULT_LANG }: { con
   const [contact, text] = await Promise.all([getContact(), getSiteContent(contentKey, lang)]);
   const body = fillValues(text.body!, {
     contact_email: contact.email,
-    contact_whatsapp: contact.whatsappDisplay,
-    contact_whatsapp_url: contact.whatsappUrl,
+    contact_whatsapp: contact.lines.international.display,
+    contact_whatsapp_url: contact.lines.international.url,
+    contact_whatsapp_egypt: contact.lines.egypt.display,
+    contact_whatsapp_egypt_url: contact.lines.egypt.url,
   });
   const m = messagesFor(lang).legal;
   return (

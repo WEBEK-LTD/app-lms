@@ -102,7 +102,8 @@ export async function meJson(ctx: OwnerContext) {
   const { store, baseUrl } = ctx.deps;
   const active = ctx.client.status === "active";
   const [plans, contact] = await Promise.all([getPlans(store), platformSetting(store, "contact")]);
-  const support = contactFrom(contact?.value ?? DEFAULT_CONTACT);
+  // 72 The number for the account's country (Egypt's in Egypt), and both for the help screen.
+  const support = contactFrom(contact?.value ?? DEFAULT_CONTACT, ctx.client.country || null);
   const businesses = await businessesJson(ctx);
   return {
     user: { id: ctx.user.id, name: ctx.user.name, email: ctx.user.email, language: isLang(ctx.user.language) ? ctx.user.language : null },
@@ -113,7 +114,13 @@ export async function meJson(ctx: OwnerContext) {
       message: ctx.client.status === "suspended" ? ctx.k("Your account is suspended. Message Yallapp on WhatsApp.") : ctx.client.status === "pending" ? ctx.k("Your account is waiting for activation. We'll tell you as soon as it's active.") : null,
     },
     apps: active ? ctx.apps.map((app) => appSummaryJson(ctx, app, plans)) : [],
-    links: { dashboard: `${baseUrl}/dashboard`, support_whatsapp: support.whatsappUrl, support_email: support.email },
+    links: {
+      dashboard: `${baseUrl}/dashboard`,
+      support_whatsapp: support.whatsappUrl,
+      support_whatsapp_egypt: support.lines.egypt.url,
+      support_whatsapp_international: support.lines.international.url,
+      support_email: support.email,
+    },
   };
 }
 

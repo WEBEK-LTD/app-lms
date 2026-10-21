@@ -94,6 +94,7 @@ Bu, uygulamanın bir Akademi uygulaması için kabul ettiği en küçük yanıtt
 - \`app.update_required\`: true, uygulamanın kullanıcılardan güncelleme istemesini sağlar (uygulamanın gönderdiği \`app_version\` ile karşılaştırın).
 - \`app.maintenance\`: true yalnızca \`app.maintenance_message\`'ı gösterir.
 - \`app.screen_protection\`: \`off\`, \`content\` (dersler, sınavlar ve ekleri) veya \`app\` (her ekran), uygulamada ekran görüntüsü ve ekran kaydını engeller.
+- \`app.hide_video_branding\`: true, YouTube, Vimeo ve Bunny Stream videolarını sitenin markası görünmeden uygulamanın kendi kontrollerinin arkasında oynatır (riski uygulama sahibine aittir: YouTube'un şartlarını ihlal edebilir). Her sitenin normal oynatıcısı için göndermeyin veya false gönderin.
 - \`platform=ios\` olduğunda \`purchases.enroll_button\` false olmalıdır.
 
 ## Giriş akışı, basitçe {#the-sign-in-flow-simply}

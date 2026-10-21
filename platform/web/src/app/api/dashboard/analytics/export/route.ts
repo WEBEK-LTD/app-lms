@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { reportCsv } from "@/lib/analytics/csv";
 import { csvWords, localizedReport } from "@/lib/analytics/localize";
 import { loadReport, rangeFrom } from "@/lib/analytics/report";
+import { analyticsKeep } from "@/lib/analytics/retention";
+import { appPlan, effectivePlans } from "@/lib/entitlements";
 import { itemWord } from "@/lib/analytics/words";
 import { zoneOf } from "@/lib/analytics/zone";
 import { contextCan, getClientContext, mayUseDashboard } from "@/lib/auth/session";
@@ -27,7 +29,9 @@ export async function GET(request: Request): Promise<Response> {
   // 47 Days in the app's time zone.
   const store = await getStore();
   const zone = zoneOf(app, context.client);
-  const range = rangeFrom({ range: query.get("range"), from: query.get("from"), to: query.get("to") }, now, zone);
+  // 72 Not before the first day the app's plan keeps.
+  const kept = analyticsKeep(await appPlan(store, context.license, now), now, zone, await effectivePlans(store));
+  const range = rangeFrom({ range: query.get("range"), from: query.get("from"), to: query.get("to") }, now, zone, kept.from);
   const report = await loadReport(store, app.id, range, now, zone);
   const text = await dashboardText();
   // A byte order mark, so spreadsheets read titles in any language correctly.

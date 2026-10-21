@@ -236,6 +236,13 @@ export interface HostedSettings {
    * own setting on WordPress (lib/app/screen-protection.ts).
    */
   screenProtection?: "off" | "content" | "app" | null;
+  /**
+   * 72 Hide the video sites' own players (their branding and controls), as
+   * the owner chose on the Screen protection page, at their own risk (it may
+   * break YouTube's terms). Missing: false, each site's normal player
+   * (lib/app/video-branding.ts).
+   */
+  hideVideoBranding?: boolean;
 }
 
 /**
@@ -1018,8 +1025,10 @@ export interface PlatformSettingValues {
 }
 
 export interface ContactSetting {
-  /** As shown, like +90 544 673 19 42. */
+  /** As shown, like +90 544 673 19 42. 72 The number for customers outside Egypt (and wherever the country isn't known). */
   whatsapp: string;
+  /** 72 The number for customers in Egypt, as shown, like +20 104 256 0010. Missing in settings saved before Phase 72: the default. */
+  whatsappEgypt?: string;
   email: string;
 }
 

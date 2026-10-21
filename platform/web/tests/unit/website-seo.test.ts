@@ -222,8 +222,8 @@ describe("32 structured data", () => {
     expect(JSON.parse(text)).toEqual({ name: "</script><script>alert(1)</script> &  " });
   });
 
-  it("describes Yallapp, in Cairo, with the contact details", () => {
-    expect(organizationLd(BASE, { email: "hello@yallapp.test", whatsapp: "+90 544 000 00 00" })).toEqual({
+  it("describes Yallapp, in Cairo, with the contact details (72: a number for Egypt and one for everywhere else)", () => {
+    expect(organizationLd(BASE, { email: "hello@yallapp.test", whatsapp: "+90 544 000 00 00", whatsappEgypt: "+20 100 000 0000" })).toEqual({
       "@context": "https://schema.org",
       "@type": "Organization",
       "@id": `${BASE}/#organization`,
@@ -236,8 +236,18 @@ describe("32 structured data", () => {
           "@type": "ContactPoint",
           contactType: "customer support",
           email: "hello@yallapp.test",
+          telephone: "+20 100 000 0000",
+          url: `${BASE}/contact`,
+          areaServed: "EG",
+          availableLanguage: ["English", "Arabic"],
+        },
+        {
+          "@type": "ContactPoint",
+          contactType: "customer support",
+          email: "hello@yallapp.test",
           telephone: "+90 544 000 00 00",
           url: `${BASE}/contact`,
+          areaServed: { "@type": "Place", name: "Outside Egypt" },
           availableLanguage: ["English"],
         },
       ],

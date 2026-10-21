@@ -1941,6 +1941,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get twoStepOther => 'تسجيل الدخول بحساب آخر';
 
   @override
+  String get whatsappInEgypt => 'داخل مصر';
+
+  @override
+  String get whatsappOutsideEgypt => 'خارج مصر';
+
+  @override
   String minutesAgo(int count) {
     return 'قبل $count دقيقة';
   }

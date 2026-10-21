@@ -119,7 +119,18 @@ refuse to be framed show an "Open" card that opens them full screen.
 
 ### Videos on video sites
 
-A lesson video, a video in lesson text or a page's video block never shows
+72 By default a lesson video, a video in lesson text or a page's video
+block from YouTube, Vimeo or another video site plays in the site's own
+player, with its controls and branding: the page below still follows it
+(watch tracking, resume, the end) through the site's JavaScript API, but
+the frame fills the box, takes the touches and nothing covers it. The owner
+can choose "Hide the video site's branding (at your own risk)" on Screen
+protection (`Config.app.hide_video_branding`; WordPress through
+`LicenseStatus.hide_video_branding`): then the rest of this section
+applies. Hiding YouTube's branding may break YouTube's terms, and YouTube
+can block the videos in the app.
+
+With the branding hidden, a lesson video, a video in lesson text or a page's video block never shows
 where it is hosted (roadmap 40). YouTube (IFrame Player API), Vimeo (its
 player.js) and Bunny Stream (the Player.js protocol) play in a web view
 behind the app's own controls, the same as for uploaded files: the site's
@@ -336,10 +347,11 @@ mobile/
   (`/shop/<app>/<product>`) to share.
 
 - Platform settings (`platform_settings`): the team sets Yallapp's contact
-  details (WhatsApp number and email, shown on every page, in the dashboard
+  details (72: two WhatsApp numbers, one for customers in Egypt and one for
+  everywhere else, and the email, shown on every page, in the dashboard
   and in email signatures; saving rebuilds the pages made ahead of time),
-  the sign-in code sender, the email server, Yallapp's own iyzico account
-  and the marketplace commission on the admin's Settings page. A saved setting replaces the matching Netlify variables
+  the sign-in code sender, the email server and Yallapp's own payment
+  accounts on the admin's Settings page. A saved setting replaces the matching Netlify variables
   (removing it brings them back); secrets inside are encrypted with the
   context `platform:<key>` and never shown again. Each server instance
   caches the settings for 30 seconds. The plans (names, what's included,
@@ -588,7 +600,11 @@ mobile/
   from the database, never from the 30-second settings cache, so a callback
   never misses keys saved a moment earlier.
 
-- Selling through Yallapp (iyzico marketplace): with Yallapp's iyzico
+- 72 Ended: Yallapp never collects payments for its clients' sales (see
+  "Two support numbers, no marketplace, the video sites' own players and
+  analytics kept by plan" below). What follows describes orders paid before
+  Phase 72, which are still confirmed, refunded and released this way.
+  Selling through Yallapp (iyzico marketplace): with Yallapp's iyzico
   account and a commission set in the admin (Settings, "Shops selling
   through Yallapp"; iyzico's marketplace must be on for the account), a
   shop without its own iyzico account gives the details iyzico needs (who
@@ -974,9 +990,12 @@ fingerprinting; reports show totals only.
   `x-country` on Netlify, or our proxy's `X-Yallapp-Client-Country` with its
   secret); the IP is used only as a rate-limit key.
 - **Storage** (`lib/analytics`, migration `0035_analytics`).
-  `analytics_events` keeps raw events for 40 days, without the search text.
-  `analytics_daily` (app, day, metric, key, label, value) keeps totals
-  until the app is deleted (both cascade with `apps`). Search texts are
+  `analytics_events` keeps raw events for 90 days (72: 40 before), without
+  the search text. `analytics_daily` (app, day, metric, key, label, value)
+  keeps totals as long as the app's plan says (72: `PlanLimits.analyticsMonths`,
+  by default 3 months on Starter, 1 year on Growth, 2 years on Pro, 3 years
+  on Business; null keeps them until the app is deleted). Both cascade with
+  `apps`. Search texts are
   counted there at once (`search`, lower case; texts that look like a phone
   number or an email address are dropped), as are the phones each dashboard
   notification was pushed to (`push_sent`, written by `announce`).
@@ -991,7 +1010,10 @@ fingerprinting; reports show totals only.
   `done`. A batch with events of an earlier day marks that day `dirty`.
   The daily job (`POST /api/internal/daily`) counts every app with events
   in the last week (finished days not done or dirty, within a 15-second
-  budget) and deletes raw events older than 40 days; the dashboard counts
+  budget) and deletes raw events older than 90 days, in batches of 5,000
+  (72, `lib/analytics/retention.ts`), then each app's daily totals older
+  than its plan keeps, a batch at a time on the primary key's (app, day)
+  prefix within a 10-second budget; the dashboard counts
   what is still due, and today so far, before each report.
 - **Days in the owner's time zone** (Phase 47, `zone.ts`). A day is the
   app's day: its time zone is the owner's choice (Analytics › Time zone,
@@ -1053,7 +1075,8 @@ app owners sell to their own customers keeps each app's own currency.
   `priceCents` (pounds), `usdCents` and `onRequest` (the team can keep a
   price and still show "On request"). `platform_settings.billing` holds the
   gateway for plans and add-ons (Kashier until set) and the rate. The
-  marketplace keeps its own provider (`paymentProvider`). Edits from before
+  old marketplace's provider (`paymentProvider`) is kept in the database
+  but no longer read (72). Edits from before
   Phase 52 named a currency: pounds stay the price, dollars become the
   shown dollar price, other currencies are dropped.
 - **The visitor's country** (`lib/geo.ts`), first that answers: our reverse
@@ -1941,6 +1964,46 @@ download.
   (`SELECT … FOR UPDATE`), counts its uses that hold a place (redeemed, or
   pending for less than an hour) in all and for the client, and saves the
   use with its payment in the same transaction, or nothing.
+
+## Two support numbers, no marketplace, the video sites' own players and analytics kept by plan (Phase 72)
+
+- **Two WhatsApp numbers** (`lib/contact-lines.ts`, `lib/contact.ts`). The
+  contact setting has `whatsapp` (customers outside Egypt, and wherever the
+  country isn't known) and `whatsappEgypt` (a setting saved before has none:
+  the default, +20 104 256 0010). Where there's room both show with their
+  labels (the footer's contact column, the Contact page, the legal pages'
+  `{{contact_whatsapp_egypt}}` and `{{contact_whatsapp}}`, emails'
+  `{{yallapp_whatsapp}}`, Yallapp Business's help screen, the JSON-LD
+  `contactPoint`s with `areaServed`). Where one fits, the number follows the
+  visitor's country as Phase 52 finds it: `getVisitorContact()` on pages
+  rendered per request (a signed-in client's account country, then the
+  request's), and on pages built ahead of time the `WhatsAppLink` client
+  component renders the international number and switches to Egypt's in a
+  browser in Cairo's time zone or with an Egyptian language region, so those
+  pages stay static. The Owner API's `links.support_whatsapp` follows the
+  account's country and `support_whatsapp_egypt` and
+  `support_whatsapp_international` carry both. Demo apps keep one support
+  number (the international one), as the apps show one.
+- **No marketplace.** Yallapp never collects payments for its clients:
+  every shop, academy, event, gym or charity takes payments in its own
+  provider account. `checkoutAccount` returns only the shop's own account
+  and `paymentsSetUp` is false for a shop that had joined (it sells nothing
+  until it adds its own keys, and the dashboard tells it so); `startPayment`
+  refuses an account marked as a marketplace. The admin's commission,
+  provider choice and switch, the join form and its action are gone; the
+  `marketplace` and `paymentProvider` settings and the shops' old payment
+  settings stay in the database untouched, and orders paid through Yallapp's
+  account before are still confirmed, refunded and released as before
+  (`accountForOrder`). The terms say each business uses its own payment
+  provider account and Yallapp isn't a party to those sales.
+- **The video sites' own players by default** (`hidesVideoBranding`,
+  `apps.hosted_settings.hideVideoBranding`, no migration): see "Videos on
+  video sites" above.
+- **Analytics kept by plan** (`lib/analytics/retention.ts`): see "Analytics
+  for app owners". The Analytics page, its CSV and the Owner API's analytics
+  start no earlier than the first day the app's plan keeps
+  (`rangeFrom(…, keptFrom)`); the page says how long the plan keeps them,
+  and the pricing page and the dashboard's plan cards show it.
 
 ## Demo apps (Phase 16)
 
