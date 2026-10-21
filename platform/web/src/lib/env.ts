@@ -269,7 +269,8 @@ export const DEFAULT_QUEUE_LIMIT = 50;
 
 /** DATABASE_QUEUE_LIMIT: a whole number, 0 for no limit; anything else keeps the default. */
 export function databaseQueueLimit(value: string | undefined): number {
-  const n = value === undefined ? NaN : Number(value.trim());
+  const text = value?.trim() ?? "";
+  const n = /^\d+$/.test(text) ? Number(text) : NaN;
   return Number.isInteger(n) && n >= 0 ? n : DEFAULT_QUEUE_LIMIT;
 }
 
