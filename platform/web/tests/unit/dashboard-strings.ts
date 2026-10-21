@@ -126,6 +126,9 @@ export function dashboardFiles(root: string): string[] {
     "dashboard-nav",
     "media-picker",
     "owner-notices",
+    // 70 Two-step sign-in (the admin shows them in English).
+    "two-step-forms",
+    "two-step-settings",
     "plan-payment-form",
     "updates-bell",
     "upgrade",

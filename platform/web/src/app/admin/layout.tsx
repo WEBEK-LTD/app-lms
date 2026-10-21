@@ -10,7 +10,8 @@ import { openPublishingCount } from "@/lib/publishing/steps";
 export const metadata: Metadata = { title: { default: "Super admin", template: "%s · Yallapp admin" }, robots: { index: false } };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const user = await requireAdmin();
+  // 70 The layout lets Your account through when two-step sign-in is required; every page checks it (requireAdmin).
+  const user = await requireAdmin("view", { twoStepSetup: true });
   // 19 "Publish it for me" requests not live on both stores yet.
   const store = await getStore();
   const openPublishing = openPublishingCount(await store.listManagedPublishingRequests());
@@ -44,6 +45,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             { href: "/admin/content", label: "Website content" },
             { href: "/admin/emails", label: "Emails" },
             { href: "/admin/settings", label: "Settings" },
+            { href: "/admin/account", label: "Your account" },
           ]}
         />
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-night-line px-2 pt-3 text-sm text-night-muted md:mt-auto">

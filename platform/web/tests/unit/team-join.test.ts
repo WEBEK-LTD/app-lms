@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { activateClient } from "@/lib/admin/clients";
 import { registerClient } from "@/lib/auth/accounts";
 import { hashPassword } from "@/lib/auth/password";
+import { beginTwoStepSetup, confirmTwoStepSetup } from "@/lib/auth/two-step";
+import { totpCode, totpStep } from "@/lib/auth/totp";
 import { newApp } from "@/lib/app/setup";
 import { MemoryStore } from "@/lib/data/memory";
 import type { Client, User } from "@/lib/data/types";
@@ -21,7 +23,7 @@ class Redirected extends Error {
   }
 }
 
-const state = vi.hoisted(() => ({ store: null as unknown as MemoryStore, sessions: [] as string[] }));
+const state = vi.hoisted(() => ({ store: null as unknown as MemoryStore, sessions: [] as string[], twoStep: [] as { userId: string; next: string | null }[] }));
 
 vi.mock("@/lib/data", () => ({ getStore: async () => state.store }));
 vi.mock("next/navigation", () => ({
@@ -40,6 +42,8 @@ vi.mock("@/lib/auth/session", async (importOriginal) => {
     ...real,
     requestIp: async () => "203.0.113.7",
     startSession: async (user: User) => void state.sessions.push(user.email),
+    // 70 The step before the authenticator code.
+    startTwoStep: async (claims: { userId: string; next: string | null }) => void state.twoStep.push({ userId: claims.userId, next: claims.next }),
     chooseBusiness: async () => undefined,
   };
 });
@@ -82,6 +86,7 @@ describe("60 joining a team with the link", () => {
     vi.useFakeTimers({ now: NOW, toFake: ["Date"] });
     state.store = new MemoryStore();
     state.sessions = [];
+    state.twoStep = [];
     ({ user: owner, client } = await registerClient(state.store, { name: "Leyla Kaya", email: "leyla@cafe.test", whatsapp: "+905446731942", siteUrl: "", password: "owner password 123" }, NOW));
     await activateClient(state.store, { clientId: client.id, plan: "pro", activeUntil: days(30), paymentNote: "" }, KEY, NOW);
     client = (await state.store.getClientById(client.id))!;
@@ -143,5 +148,16 @@ describe("60 joining a team with the link", () => {
     expect((await joinTeamAction({}, form({ token, password: "a guess" }))).errors?.password).toBe("The password is incorrect.");
     await expect(joinTeamAction({}, form({ token, password: "their own password 1" }))).rejects.toThrow(new Redirected("/dashboard"));
     expect(state.sessions).toEqual(["new@cafe.test", "has@cafe.test"]);
+  });
+
+  it("70 never skips two-step sign-in: an account that has it joins, then gives its code before any session", async () => {
+    const user = await state.store.createUser({ email: "safe@cafe.test", name: "Safe", passwordHash: await hashPassword("their own password 1"), now: NOW });
+    const secret = (await beginTwoStepSetup(state.store, user, KEY, NOW))!;
+    expect(await confirmTwoStepSetup(state.store, user, totpCode(secret, totpStep(NOW)), KEY, NOW)).toMatchObject({ ok: true });
+    const token = await linkFor("safe@cafe.test");
+    await expect(joinTeamAction({}, form({ token, password: "their own password 1" }))).rejects.toThrow(new Redirected("/sign-in/code"));
+    expect(state.sessions).toEqual([]);
+    expect(state.twoStep).toEqual([{ userId: user.id, next: "/dashboard" }]);
+    expect(await state.store.getTeamMember(client.id, user.id)).toMatchObject({ role: "manager" });
   });
 });

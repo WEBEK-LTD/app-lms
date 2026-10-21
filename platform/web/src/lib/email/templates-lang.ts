@@ -38,6 +38,8 @@ export type ClientEmailKey = Extract<
   | "team_invitation"
   | "account_deletion_received"
   | "account_deletion_done"
+  | "two_step_on"
+  | "two_step_off"
 >;
 
 const AR: Record<ClientEmailKey, TemplateText> = {
@@ -200,6 +202,23 @@ const AR: Record<ClientEmailKey, TemplateText> = {
       "وتبقى التطبيقات التي نشرتها بحساباتك الخاصة في المتاجر هناك إلى أن تزيلها. شكرًا لاستخدامك Yallapp." +
       SIGNATURE_AR,
   },
+  // 70 Two-step sign-in
+  two_step_on: {
+    subject: "تسجيل الدخول بخطوتين مفعّل لحسابك في Yallapp",
+    body:
+      "مرحبًا {{name}}،\n\nفُعّل تسجيل الدخول بخطوتين لحسابك في Yallapp في {{date}}. من الآن، يطلب تسجيل الدخول إلى yallapp.com.tr وYallapp Business رمزًا من تطبيق المصادقة بعد كلمة المرور.\n\n" +
+      "احتفظ برموز الاسترداد في مكان آمن: كل رمز منها يتيح لك تسجيل الدخول مرة واحدة إن فقدت هاتفك. يمكنك إدارته من هنا:\n{{account_url}}\n\n" +
+      "إن لم تفعل ذلك بنفسك، فأعد تعيين كلمة المرور فورًا وراسلنا على {{yallapp_email}}." +
+      SIGNATURE_AR,
+  },
+  two_step_off: {
+    subject: "تسجيل الدخول بخطوتين متوقف لحسابك في Yallapp",
+    body:
+      "مرحبًا {{name}}،\n\nأُوقف تسجيل الدخول بخطوتين لحسابك في Yallapp في {{date}}. أصبح تسجيل الدخول يحتاج إلى كلمة المرور فقط.\n\n" +
+      "يمكنك تفعيله مرة أخرى من هنا:\n{{account_url}}\n\n" +
+      "إن لم تفعل ذلك ولم تطلبه، فأعد تعيين كلمة المرور فورًا وفعّل تسجيل الدخول بخطوتين مرة أخرى وراسلنا على {{yallapp_email}}." +
+      SIGNATURE_AR,
+  },
 };
 
 const TR: Record<ClientEmailKey, TemplateText> = {
@@ -360,6 +379,23 @@ const TR: Record<ClientEmailKey, TemplateText> = {
     body:
       "Merhaba {{name}},\n\nYallapp hesabınız, istediğiniz gibi uygulamaları ve onların verileriyle birlikte silindi. Yalnızca muhasebe ve vergi yasalarının gerektirdiği fatura kayıtlarını ve isteğinizin bir kaydını saklıyoruz.\n\n" +
       "Kendi mağaza hesaplarınızla yayınladığınız uygulamalar, siz kaldırana kadar orada kalır. Yallapp'i kullandığınız için teşekkür ederiz." +
+      SIGNATURE_TR,
+  },
+  // 70 Two-step sign-in
+  two_step_on: {
+    subject: "Yallapp hesabınızda iki adımlı giriş açık",
+    body:
+      "Merhaba {{name}},\n\nYallapp hesabınızda iki adımlı giriş {{date}} tarihinde açıldı. Artık yallapp.com.tr'ye ve Yallapp Business'a girişte parolanızdan sonra doğrulama uygulamanızdan bir kod istenir.\n\n" +
+      "Kurtarma kodlarınızı güvenli bir yerde saklayın: telefonunuzu kaybederseniz her biri bir kez giriş yapmanızı sağlar. Buradan yönetebilirsiniz:\n{{account_url}}\n\n" +
+      "Bunu siz yapmadıysanız hemen parolanızı sıfırlayın ve bize {{yallapp_email}} adresinden yazın." +
+      SIGNATURE_TR,
+  },
+  two_step_off: {
+    subject: "Yallapp hesabınızda iki adımlı giriş kapalı",
+    body:
+      "Merhaba {{name}},\n\nYallapp hesabınızda iki adımlı giriş {{date}} tarihinde kapatıldı. Giriş artık yalnızca parolanızla yapılıyor.\n\n" +
+      "Buradan yeniden açabilirsiniz:\n{{account_url}}\n\n" +
+      "Bunu siz yapmadıysanız ve istemediyseniz hemen parolanızı sıfırlayın, iki adımlı girişi yeniden açın ve bize {{yallapp_email}} adresinden yazın." +
       SIGNATURE_TR,
   },
 };

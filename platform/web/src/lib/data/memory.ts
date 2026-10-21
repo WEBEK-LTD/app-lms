@@ -91,6 +91,7 @@ import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInp
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
 import type { ApiWebhook, ApiWebhookPatch } from "./types";
 import type { PaymentRefund, RefundKind } from "./types";
+import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
 import { mergeCrash } from "../crashes/report";
 // 51 Media and storage
 import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, StoragePackPatch } from "./types";
@@ -2183,6 +2184,18 @@ export class MemoryStore implements DataStore {
     this.couponRedemptions.push(clone(redemption));
   }
 
+  async claimCouponRedemption(redemption: CouponRedemption, limits: CouponClaimLimits, payment?: PlanPayment): Promise<boolean> {
+    // 70 Counted and saved without awaiting in between: one claim at a time.
+    const counted = this.couponRedemptions.filter(
+      (r) => r.couponId === redemption.couponId && (r.status === "redeemed" || (r.status === "pending" && r.createdAt.getTime() > limits.pendingSince.getTime())),
+    );
+    if (limits.maxRedemptions !== null && counted.length >= limits.maxRedemptions) return false;
+    if (limits.maxPerClient !== null && counted.filter((r) => r.clientId === redemption.clientId).length >= limits.maxPerClient) return false;
+    if (payment) this.planPayments.set(payment.id, clone(payment));
+    this.couponRedemptions.push(clone(redemption));
+    return true;
+  }
+
   async settleCouponRedemption(paymentId: string, status: "redeemed" | "failed", now: Date): Promise<void> {
     for (const r of this.couponRedemptions) {
       if (r.paymentId === paymentId && r.status === "pending") {
@@ -2953,6 +2966,84 @@ export class MemoryStore implements DataStore {
     if (!request || request.status !== "pending") return false;
     this.accountDeletions.set(id, clone({ ...request, ...close }));
     return true;
+  }
+
+  // 70 Sessions kept on the server, and two-step sign-in
+  private userSessions = new Map<string, UserSession>();
+  private twoFactor = new Map<string, UserTwoFactor>();
+  /** By user: code hash → when it was used (null: unused). */
+  private recoveryCodes = new Map<string, Map<string, Date | null>>();
+
+  async createUserSession(session: UserSession): Promise<void> {
+    this.userSessions.set(session.idHash, clone(session));
+  }
+
+  async getUserSession(idHash: string): Promise<UserSession | null> {
+    const session = this.userSessions.get(idHash);
+    return session ? clone(session) : null;
+  }
+
+  async deleteUserSession(idHash: string): Promise<void> {
+    this.userSessions.delete(idHash);
+  }
+
+  async deleteUserSessions(userId: string): Promise<number> {
+    let count = 0;
+    for (const [key, session] of this.userSessions) if (session.userId === userId && this.userSessions.delete(key)) count += 1;
+    return count;
+  }
+
+  async deleteExpiredUserSessions(now: Date): Promise<number> {
+    let count = 0;
+    for (const [key, session] of this.userSessions) if (session.expiresAt.getTime() <= now.getTime() && this.userSessions.delete(key)) count += 1;
+    return count;
+  }
+
+  async getTwoFactor(userId: string): Promise<UserTwoFactor | null> {
+    const record = this.twoFactor.get(userId);
+    return record ? clone(record) : null;
+  }
+
+  async saveTwoFactorSetup(userId: string, secretEncrypted: string, now: Date): Promise<boolean> {
+    const existing = this.twoFactor.get(userId);
+    if (existing?.enabledAt) return false;
+    this.twoFactor.set(userId, { userId, secretEncrypted, enabledAt: null, lastStep: 0, createdAt: existing?.createdAt ?? now, updatedAt: now });
+    return true;
+  }
+
+  async enableTwoFactor(userId: string, step: number, recoveryHashes: string[], now: Date): Promise<boolean> {
+    const existing = this.twoFactor.get(userId);
+    if (!existing || existing.enabledAt) return false;
+    this.twoFactor.set(userId, { ...existing, enabledAt: now, lastStep: step, updatedAt: now });
+    this.recoveryCodes.set(userId, new Map(recoveryHashes.map((hash) => [hash, null])));
+    return true;
+  }
+
+  async useTwoFactorStep(userId: string, step: number, now: Date): Promise<boolean> {
+    const existing = this.twoFactor.get(userId);
+    if (!existing?.enabledAt || existing.lastStep >= step) return false;
+    this.twoFactor.set(userId, { ...existing, lastStep: step, updatedAt: now });
+    return true;
+  }
+
+  async useRecoveryCode(userId: string, codeHash: string, now: Date): Promise<boolean> {
+    const codes = this.recoveryCodes.get(userId);
+    if (!codes || !codes.has(codeHash) || codes.get(codeHash) !== null) return false;
+    codes.set(codeHash, now);
+    return true;
+  }
+
+  async replaceRecoveryCodes(userId: string, codeHashes: string[]): Promise<void> {
+    this.recoveryCodes.set(userId, new Map(codeHashes.map((hash) => [hash, null])));
+  }
+
+  async countUnusedRecoveryCodes(userId: string): Promise<number> {
+    return [...(this.recoveryCodes.get(userId)?.values() ?? [])].filter((used) => used === null).length;
+  }
+
+  async deleteTwoFactor(userId: string): Promise<boolean> {
+    this.recoveryCodes.delete(userId);
+    return this.twoFactor.delete(userId);
   }
 }
 

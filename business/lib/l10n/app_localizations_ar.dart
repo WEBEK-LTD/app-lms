@@ -1914,6 +1914,33 @@ class AppLocalizationsAr extends AppLocalizations {
       'لا يُرسل شيء ما دامت الباقة منتهية، لا إلى صندوق التطبيق ولا إلى الهواتف. يمكن إرسال الإشعارات مرة أخرى بعد تجديدها.';
 
   @override
+  String get twoStepTitle => 'أدخل الرمز';
+
+  @override
+  String get twoStepText =>
+      'يستخدم حسابك تسجيل الدخول بخطوتين. افتح تطبيق المصادقة وأدخل الرمز المكوّن من 6 أرقام الذي يظهر فيه لـ Yallapp.';
+
+  @override
+  String get twoStepCode => 'الرمز';
+
+  @override
+  String get twoStepHint => 'فقدت هاتفك؟ أدخل أحد رموز الاسترداد بدلًا من ذلك.';
+
+  @override
+  String get twoStepEnter =>
+      'أدخل الرمز المكوّن من 6 أرقام من تطبيق المصادقة، أو رمز استرداد.';
+
+  @override
+  String get twoStepWrong =>
+      'هذا الرمز غير صحيح. حاول مرة أخرى، أو استخدم رمز استرداد.';
+
+  @override
+  String get twoStepVerify => 'تحقّق وسجّل الدخول';
+
+  @override
+  String get twoStepOther => 'تسجيل الدخول بحساب آخر';
+
+  @override
   String minutesAgo(int count) {
     return 'قبل $count دقيقة';
   }

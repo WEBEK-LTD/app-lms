@@ -4,7 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordAudit } from "@/lib/admin/audit";
 import { isAdminRole, ROLE_LABELS } from "@/lib/admin/permissions";
-import { isBootstrapOwner } from "@/lib/admin/team";
+import { adminRoleOf, isBootstrapOwner } from "@/lib/admin/team";
+import { hasTwoStep } from "@/lib/auth/two-step";
+import { mailTwoStepChange } from "@/lib/auth/two-step-mail";
+import { clearPlatformSettingsCache, platformSetting } from "@/lib/settings/platform";
 import { createPasswordReset } from "@/lib/auth/reset";
 import { requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
@@ -96,6 +99,58 @@ export async function changeAdminRoleAction(formData: FormData): Promise<void> {
   }
   revalidatePath("/admin/team");
   redirect("/admin/team?done=role");
+}
+
+/**
+ * 70 Requires (or stops requiring) two-step sign-in for everyone on the
+ * team: someone without it sets it up before they can open anything else
+ * in the admin. The owner turning it on has it on already.
+ */
+export async function setTeamTwoStepAction(formData: FormData): Promise<void> {
+  const admin = await requireAdmin("team.manage");
+  const required = formData.get("required") === "on";
+  const store = await getStore();
+  if (required && !(await hasTwoStep(store, admin.id))) redirect("/admin/team?done=own_first");
+  const before = (await platformSetting(store, "security", { fresh: true }))?.value ?? null;
+  await store.setPlatformSetting("security", { requireTeamTwoStep: required }, admin.email, new Date());
+  clearPlatformSettingsCache();
+  await recordAudit({
+    actor: admin,
+    action: "team.two_step_required",
+    target: { type: "setting", id: "security" },
+    summary: required ? "Required two-step sign-in for the team" : "Stopped requiring two-step sign-in for the team",
+    before,
+    after: { requireTeamTwoStep: required },
+  });
+  revalidatePath("/admin/team");
+  redirect(`/admin/team?done=${required ? "required" : "optional"}`);
+}
+
+/**
+ * 70 Resets a team member's two-step sign-in (a lost phone without its
+ * recovery codes): their secret and recovery codes are deleted, they're
+ * emailed, and the next sign-in needs only the password (then the setup
+ * again, when the team must use it). Never your own: that is Your account.
+ */
+export async function resetTeamTwoStepAction(formData: FormData): Promise<void> {
+  const admin = await requireAdmin("team.manage");
+  const userId = String(formData.get("userId") ?? "");
+  const store = await getStore();
+  const user = /^[0-9a-f-]{36}$/i.test(userId) ? await store.getUserById(userId) : null;
+  if (!user || user.id === admin.id || !(await adminRoleOf(store, user))) redirect("/admin/team");
+  if (await store.deleteTwoFactor(user.id)) {
+    await recordAudit({
+      actor: admin,
+      action: "team.two_step_reset",
+      target: { type: "admin", id: user.id },
+      summary: `Reset the two-step sign-in of ${user.email}`,
+      before: { twoStep: true },
+      after: { twoStep: false },
+    });
+    await mailTwoStepChange(user, false, { admin: true });
+  }
+  revalidatePath("/admin/team");
+  redirect("/admin/team?done=two_step_reset");
 }
 
 export async function removeAdminAction(formData: FormData): Promise<void> {

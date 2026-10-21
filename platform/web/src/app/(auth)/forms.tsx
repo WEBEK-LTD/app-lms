@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { forgotPasswordAction, resetPasswordAction, signInAction, signUpAction } from "@/app/actions/auth";
+import { forgotPasswordAction, resetPasswordAction, signInAction, signUpAction, twoStepSignInAction } from "@/app/actions/auth";
 import { Field, FieldError, FormMessage, PasswordField, SubmitButton } from "@/components/form";
 import { DEFAULT_LANG, type Lang } from "@/i18n/config";
 import type { Messages } from "@/i18n/messages/en";
@@ -176,6 +176,43 @@ export function ForgotPasswordForm({ lang = DEFAULT_LANG, m }: FormText) {
         {m.remembered}{" "}
         <Link href={localePath(lang, "/sign-in")} className="font-bold">
           {m.signIn}
+        </Link>
+      </p>
+    </form>
+  );
+}
+
+/** 70 The second step of signing in: the authenticator app's code, or a recovery code. */
+export function TwoStepForm({ lang = DEFAULT_LANG, m }: FormText) {
+  const [state, action] = useActionState(twoStepSignInAction, initialFormState);
+  return (
+    <form action={action} noValidate className={`${card} max-w-[440px] gap-5`}>
+      <LangField lang={lang} />
+      <div className="flex flex-col gap-1.5">
+        <h1 className="m-0 text-[30px] font-extrabold tracking-[-0.5px]">{m.codeTitle}</h1>
+        <p className="m-0 text-[15px] text-muted">{m.codeText}</p>
+      </div>
+      <FormMessage message={state.message} ok={state.ok} />
+      <Field
+        label={m.codeLabel}
+        name="code"
+        inputMode="text"
+        autoComplete="one-time-code"
+        autoCapitalize="off"
+        spellCheck={false}
+        autoFocus
+        required
+        maxLength={24}
+        dir="ltr"
+        hint={m.codeHint}
+        error={state.errors?.code}
+      />
+      <SubmitButton className="h-[50px] text-base" pendingText={m.codeVerifying}>
+        {m.codeVerify}
+      </SubmitButton>
+      <p className="m-0 text-center text-[15px]">
+        <Link href={localePath(lang, "/sign-in")} className="font-bold">
+          {m.codeOther}
         </Link>
       </p>
     </form>

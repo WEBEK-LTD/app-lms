@@ -21,6 +21,7 @@ import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import { daysUntil } from "@/lib/license/status";
 import { hasFeature, lowestPlanWith, planFeaturesFor, planName } from "@/lib/plans";
 import { OwnerNotices } from "@/components/owner-notices";
+import { TwoStepRecommendation } from "@/components/two-step-settings";
 import { UpgradeHint, UsageMeter, upgradeHref } from "@/components/upgrade";
 import { currentPlanId, scheduledPlan } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
@@ -105,6 +106,7 @@ async function MemberOverview({ context, denied }: { context: ClientContext; den
         </Notice>
       ) : null}
       <AnnouncementBanner context={context} />
+      <TwoStepRecommendation person={me} staff={context.staff !== null} t={t} />
       {links.length ? (
         <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 lg:grid-cols-3" data-testid="member-links">
           {links.map((item) => (
@@ -212,6 +214,9 @@ export default async function OverviewPage({ searchParams }: PageProps<"/dashboa
       <AnnouncementBanner context={context} />
 
       <OwnerNotices notices={notices} />
+
+      {/* 70 Two-step sign-in, suggested until it is on. */}
+      <TwoStepRecommendation person={context.member ?? user} staff={context.staff !== null} t={t} />
 
       {state === "pending" ? (
         <Notice tone="warn" icon="hourglass_top">

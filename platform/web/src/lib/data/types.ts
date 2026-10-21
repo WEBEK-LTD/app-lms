@@ -2565,3 +2565,43 @@ export interface AccountDeletionClose {
   closedBy: string;
   teamNote: string | null;
 }
+
+// 70 Two-step sign-in and sessions kept on the server
+
+/** 70 A website session: the SHA-256 of the random ID in the session cookie. */
+export interface UserSession {
+  idHash: string;
+  userId: string;
+  createdAt: Date;
+  expiresAt: Date;
+}
+
+/** 70 A person's authenticator-app secret (encrypted); `enabledAt` null while the setup waits for its first code. */
+export interface UserTwoFactor {
+  userId: string;
+  secretEncrypted: string;
+  enabledAt: Date | null;
+  /** The last 30-second step whose code was used (each code works once). */
+  lastStep: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** 70 Sign-in rules for Yallapp's own team (Admin › Settings). */
+export interface SecuritySetting {
+  /** Everyone on the admin team sets up two-step sign-in before they can use the admin. */
+  requireTeamTwoStep: boolean;
+}
+
+export interface PlatformSettingValues {
+  /** 70 Two-step sign-in required for the team. Unset: not required. */
+  security: SecuritySetting;
+}
+
+/** 70 The limits a coupon's use is claimed against (lib/billing/coupons.ts). */
+export interface CouponClaimLimits {
+  maxRedemptions: number | null;
+  maxPerClient: number | null;
+  /** Pending uses started after this still hold their place. */
+  pendingSince: Date;
+}

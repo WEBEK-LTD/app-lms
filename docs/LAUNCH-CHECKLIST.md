@@ -954,6 +954,37 @@ never in a chat or an issue.
       client uses their own email server for their app, send one through
       it too (attachments must be allowed).
 
+## 7t. Two-step sign-in, a real sign-out, coupon limits (Phase 70)
+
+- [ ] Apply migration `0050_two_step_sign_in.sql` after `0049` (tables
+      `user_sessions`, `user_two_factor`, `user_recovery_codes`), then deploy.
+      Everyone signed in to yallapp.com.tr signs in once more after the
+      deploy: sessions are now kept on the server, and the old cookies have
+      no session to match. Yallapp Business phones stay signed in.
+- [ ] **Turn on two-step sign-in for yourself:** Admin › Your account › "Set
+      up two-step sign-in". Scan the QR code with an authenticator app
+      (Google Authenticator, Microsoft Authenticator, 1Password…), type the
+      6-digit code, and save the 10 recovery codes in your password manager:
+      they are shown only once.
+- [ ] **Require it for the team:** Admin › Team › tick "Require two-step
+      sign-in for the team" › Save (only owners; yours must be on first).
+      Everyone else on the team is sent to Your account to set it up at their
+      next visit and can open nothing else until it is on.
+- [ ] Someone on the team lost their phone and their recovery codes: Admin ›
+      Team › "Reset" next to their name. They are emailed, sign in with their
+      password only, and set it up again. Each reset is in the audit log.
+- [ ] Clients: nothing to do. Dashboard › Your account offers two-step
+      sign-in, the overview suggests it until it's on, and Yallapp Business
+      asks for the code after the password once the app version with it is
+      released (older app versions can't sign in to an account that has it;
+      the client signs in on the website, or turns it off there, until they
+      update).
+- [ ] "Sign out of all devices" (Your account, in the dashboard and the
+      admin) ends every website session and signs every Yallapp Business
+      phone out. Use it on an account you think someone else used.
+- [ ] Coupons with a use limit now count it under a lock on the coupon: two
+      payments at the same moment can't pass it. Nothing to set up.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |

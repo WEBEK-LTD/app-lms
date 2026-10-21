@@ -1830,3 +1830,54 @@ export const accountDeletionRequests = mysqlTable(
     index("account_deletion_requests_client_idx").on(t.clientId, t.requestedAt),
   ],
 );
+
+/**
+ * 70 Website sessions kept on the server: the sealed cookie carries a random
+ * session ID, and only its SHA-256 is stored here. Signing out deletes the
+ * row, so a copy of the cookie stops working; "Sign out of all devices"
+ * deletes every row of the person. Expired rows go with the daily job.
+ */
+export const userSessions = mysqlTable(
+  "user_sessions",
+  {
+    idHash: varchar("id_hash", { length: 64 }).primaryKey(),
+    userId: id("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: time("created_at").notNull(),
+    expiresAt: time("expires_at").notNull(),
+  },
+  (t) => [index("user_sessions_user_idx").on(t.userId), index("user_sessions_expires_idx").on(t.expiresAt)],
+);
+
+/**
+ * 70 Two-step sign-in with an authenticator app (RFC 6238). The secret is
+ * encrypted with ENCRYPTION_KEY (context `two-step:<user id>`); `enabled_at`
+ * stays null until a first code confirms the setup. `last_step` is the last
+ * 30-second step whose code was used: each code works once (claimed by a
+ * conditional update).
+ */
+export const userTwoFactor = mysqlTable("user_two_factor", {
+  userId: id("user_id")
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  secretEncrypted: varchar("secret_encrypted", { length: 255 }).notNull(),
+  enabledAt: time("enabled_at"),
+  lastStep: bigint("last_step", { mode: "number", unsigned: true }).notNull().default(0),
+  createdAt: time("created_at").notNull(),
+  updatedAt: time("updated_at").notNull(),
+});
+
+/** 70 One-time recovery codes for two-step sign-in, kept as SHA-256 hashes; each works once. */
+export const userRecoveryCodes = mysqlTable(
+  "user_recovery_codes",
+  {
+    userId: id("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    codeHash: varchar("code_hash", { length: 64 }).notNull(),
+    usedAt: time("used_at"),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.codeHash] })],
+);

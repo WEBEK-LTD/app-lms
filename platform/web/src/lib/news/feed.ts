@@ -1,4 +1,5 @@
 import { isPrivateAddress, resolveHost } from "../app/api-check";
+import { pinnedFetch } from "../net/safe-fetch";
 import { sha256Hex } from "../crypto/tokens";
 import { excerptOf, plainText } from "./html";
 import type { NewsArticle, NewsCategoryInfo } from "./service";
@@ -287,7 +288,8 @@ export async function readFeed(feedUrl: string, options: { fetcher?: Fetch; reso
   if (addresses.length === 0 || addresses.some(isPrivateAddress)) throw new FeedError("This address points to a private network.");
   let response: Response;
   try {
-    response = await (options.fetcher ?? fetch)(url.toString(), {
+    // 70 Connects only to an address checked like the one above (lib/net/safe-fetch.ts).
+    response = await pinnedFetch(options.fetcher, resolve)(url.toString(), {
       redirect: "error",
       signal: AbortSignal.timeout(FEED_TIMEOUT_MS),
       headers: { accept: "application/rss+xml, application/atom+xml, application/xml;q=0.9, text/xml;q=0.9, */*;q=0.1" },

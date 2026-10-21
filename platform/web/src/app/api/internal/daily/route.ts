@@ -48,5 +48,7 @@ export async function POST(request: Request): Promise<Response> {
   };
   // 58 Yallapp Business devices whose refresh token ended are forgotten.
   const ownerDevicesPurged = await store.purgeOwnerDevices(now);
-  return json({ ...report, analytics, media, ownerDevicesPurged });
+  // 70 Website sessions whose 14 days are over.
+  const sessionsPurged = await store.deleteExpiredUserSessions(now);
+  return json({ ...report, analytics, media, ownerDevicesPurged, sessionsPurged });
 }

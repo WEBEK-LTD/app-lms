@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { activateClient } from "@/lib/admin/clients";
 import { registerClient } from "@/lib/auth/accounts";
 import { hashPassword } from "@/lib/auth/password";
+import { totpCode, totpStep } from "@/lib/auth/totp";
+import { beginTwoStepSetup, confirmTwoStepSetup } from "@/lib/auth/two-step";
 import { newApp } from "@/lib/app/setup";
 import { DEFAULT_FULFILMENT } from "@/lib/catalog/fulfilment";
 import { encryptOwnPayment } from "@/lib/catalog/settings";
@@ -240,6 +242,30 @@ describe("58 the Owner API", () => {
       await store.saveAdminMember({ userId: staff.id, role: "support", invitedBy: null, createdAt: NOW, updatedAt: NOW } as never);
       const result = await call("POST", "/auth/sign-in", { body: { email: "team@yallapp.test", password: PASSWORD, device: { name: "Pixel", platform: "android" } } });
       expect(result).toMatchObject({ status: 403, body: { code: "use_website" } });
+    });
+
+    it("70 asks an account with two-step sign-in for its code in `otp`, and takes each code once", async () => {
+      const secret = (await beginTwoStepSetup(store, user, KEY, now))!;
+      const setup = await confirmTwoStepSetup(store, user, totpCode(secret, totpStep(now)), KEY, now);
+      if (!setup.ok) throw new Error("setup failed");
+      const body = (otp?: string) => ({ email: "leyla@cafe.test", password: PASSWORD, ...(otp === undefined ? {} : { otp }), device: { name: "Pixel", platform: "android" } });
+      // The right password alone: asked for the code, in the request's language, and no device is made.
+      const asked = await call("POST", "/auth/sign-in", { body: body(), lang: "tr" });
+      expect(asked).toMatchObject({ status: 401, body: { code: "two_factor_required", message: "Doğrulama uygulamanızdaki 6 haneli kodu ya da bir kurtarma kodunu girin." } });
+      expect(await store.listOwnerDevices(user.id)).toHaveLength(0);
+      // A wrong password is still only that.
+      expect(await call("POST", "/auth/sign-in", { body: { ...body("123456"), password: "nope" } })).toMatchObject({ status: 401, body: { code: "invalid_credentials" } });
+      expect(await call("POST", "/auth/sign-in", { body: body("000000") })).toMatchObject({ status: 401, body: { code: "invalid_two_factor_code" } });
+      // The setup used this step's code; the next step's signs in, once.
+      now = new Date(now.getTime() + 30_000);
+      const code = totpCode(secret, totpStep(now));
+      expect((await call("POST", "/auth/sign-in", { body: body(code.replace(/(\d{3})/, "$1 ")) })).status).toBe(200);
+      expect(await call("POST", "/auth/sign-in", { body: body(code) })).toMatchObject({ status: 401, body: { code: "invalid_two_factor_code" } });
+      // A recovery code (any case, with or without its dash) works once.
+      const recovery = setup.recoveryCodes[0]!;
+      expect((await call("POST", "/auth/sign-in", { body: body(recovery.toUpperCase().replace("-", "")) })).status).toBe(200);
+      expect(await call("POST", "/auth/sign-in", { body: body(recovery) })).toMatchObject({ status: 401, body: { code: "invalid_two_factor_code" } });
+      expect(await store.listOwnerDevices(user.id)).toHaveLength(2);
     });
 
     it("lets a pending account see its state and nothing else", async () => {

@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { clientFor, requestIp } from "@/lib/auth/session";
 import { cardPlans, readBilling, startPlanPayment, activateWithFreeCoupon } from "@/lib/billing/plan-payment";
-import { COUPON_CHECK_LIMIT, findCoupon, type CouponCheck } from "@/lib/billing/coupons";
+import { COUPON_CHECK_LIMIT, CouponUsedUpError, findCoupon, type CouponCheck } from "@/lib/billing/coupons";
 import { sendPlanPaidMail } from "@/lib/billing/plan-mail";
 import { priceView } from "@/lib/billing/display";
 import { formatMoney, loweredOffer, offerFor } from "@/lib/billing/prices";
@@ -80,16 +80,23 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
       : null;
   // The coupon is for the plan only: with packs to pay, the card payment still goes ahead.
   if (coupon && coupon.amountCents === 0 && !storagePacks) {
-    const outcome = await activateWithFreeCoupon({
-      store,
-      client: context.client,
-      app: context.app,
-      plan,
-      coupon,
-      charged: offer.charged,
-      encryptionKey: encryptionKey(),
-      now,
-    });
+    let outcome: Awaited<ReturnType<typeof activateWithFreeCoupon>>;
+    try {
+      outcome = await activateWithFreeCoupon({
+        store,
+        client: context.client,
+        app: context.app,
+        plan,
+        coupon,
+        charged: offer.charged,
+        encryptionKey: encryptionKey(),
+        now,
+      });
+    } catch (e) {
+      // 70 Its last use went to another payment a moment ago.
+      if (e instanceof CouponUsedUpError) return { errors: { coupon: e.message }, values };
+      throw e;
+    }
     await sendPlanPaidMail(store, context.client, outcome);
     redirect("/dashboard/license?payment=paid");
   }
@@ -114,6 +121,7 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
     });
   } catch (e) {
     if (e instanceof PaymentError) return { message: `The payment couldn't start: ${explainPaymentError(account.provider, e, { whose: "yallapp" })}`, values };
+    if (e instanceof CouponUsedUpError) return { errors: { coupon: e.message }, values };
     throw e;
   }
   redirect(url);

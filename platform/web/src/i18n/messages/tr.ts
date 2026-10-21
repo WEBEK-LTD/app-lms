@@ -394,6 +394,17 @@ export const tr: Messages = {
     titleSignUp: "Hesap oluşturun",
     titleForgot: "Şifrenizi sıfırlayın",
     titleReset: "Yeni bir şifre belirleyin",
+    // 70 Two-step sign-in: the code after the password.
+    titleCode: "İki adımlı giriş",
+    codeTitle: "Kodunuzu girin",
+    codeText: "Doğrulama uygulamanızı açın ve Yallapp için gösterdiği 6 haneli kodu girin.",
+    codeLabel: "Kod",
+    codeHint: "Telefonunuzu mu kaybettiniz? Bunun yerine kurtarma kodlarınızdan birini girin.",
+    codeVerify: "Doğrula ve giriş yap",
+    codeVerifying: "Kontrol ediliyor…",
+    codeOther: "Başka bir hesapla giriş yapın",
+    codeExpiredTitle: "Yeniden giriş yapın",
+    codeExpiredText: "Girişiniz kod için çok uzun bekledi. E-postanızı ve şifrenizi yeniden girin.",
   },
   formErrors: {
     tooMany: "Çok fazla deneme yapıldı. Lütfen birkaç dakika bekleyip tekrar deneyin.",
@@ -418,6 +429,10 @@ export const tr: Messages = {
     terms: "Lütfen şartları kabul ettiğinizi ve işletmeniz için kaydolduğunuzu onaylayın.",
     linkInvalid: "Bu bağlantı geçersiz.",
     mismatch: "Şifreler eşleşmiyor.",
+    // 70 Two-step sign-in
+    codeWrong: "Bu kod doğru değil. Yeniden deneyin ya da bir kurtarma kodu kullanın.",
+    codeEnter: "Doğrulama uygulamanızdaki 6 haneli kodu ya da bir kurtarma kodunu girin.",
+    codeExpired: "Girişiniz kod için çok uzun bekledi. Yeniden giriş yapın.",
   },
   og: {
     footer: "İşletmeniz için markanızı taşıyan Android ve iOS uygulamaları",

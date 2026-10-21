@@ -64,7 +64,10 @@ export type EmailTemplateKey =
   // 66 Deleting a Yallapp account
   | "account_deletion_request"
   | "account_deletion_received"
-  | "account_deletion_done";
+  | "account_deletion_done"
+  // 70 Two-step sign-in
+  | "two_step_on"
+  | "two_step_off";
 
 export interface EmailTemplateDefinition {
   key: EmailTemplateKey;
@@ -627,6 +630,39 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       "Hello {{name}},\n\nYour Yallapp account was deleted, with its apps and their data, as you asked. " +
       "We keep only the billing records that accounting and tax laws require, and a record of your request.\n\n" +
       "Apps you published under your own store accounts stay there until you remove them. Thank you for using Yallapp." +
+      SIGNATURE,
+  },
+  // 70 Two-step sign-in
+  {
+    key: "two_step_on",
+    name: "Two-step sign-in turned on",
+    description: "70 To anyone (clients, their team members, our team) who turned on two-step sign-in, in their dashboard language.",
+    placeholders: [
+      NAME,
+      { name: "date", description: "When it was turned on (UTC)", sample: "2026-10-21 09:30 UTC" },
+      { name: "account_url", description: "Where it is managed: Your account in the dashboard (or the admin)", sample: "https://yallapp.com.tr/dashboard/account" },
+    ],
+    subject: "Two-step sign-in is on for your Yallapp account",
+    body:
+      "Hello {{name}},\n\nTwo-step sign-in was turned on for your Yallapp account on {{date}}. From now on, signing in to yallapp.com.tr and Yallapp Business asks for a code from your authenticator app after your password.\n\n" +
+      "Keep your recovery codes somewhere safe: each one signs you in once if you lose your phone. You can manage it here:\n{{account_url}}\n\n" +
+      "If you didn't do this, reset your password at once and write to us at {{yallapp_email}}." +
+      SIGNATURE,
+  },
+  {
+    key: "two_step_off",
+    name: "Two-step sign-in turned off",
+    description: "70 To anyone whose two-step sign-in was turned off (by them, or reset by our team in Admin › Team), in their dashboard language.",
+    placeholders: [
+      NAME,
+      { name: "date", description: "When it was turned off (UTC)", sample: "2026-10-21 09:30 UTC" },
+      { name: "account_url", description: "Where to turn it on again: Your account in the dashboard (or the admin)", sample: "https://yallapp.com.tr/dashboard/account" },
+    ],
+    subject: "Two-step sign-in is off for your Yallapp account",
+    body:
+      "Hello {{name}},\n\nTwo-step sign-in was turned off for your Yallapp account on {{date}}. Signing in now needs only your password.\n\n" +
+      "You can turn it on again here:\n{{account_url}}\n\n" +
+      "If you didn't do this or ask for it, reset your password at once, turn two-step sign-in on again and write to us at {{yallapp_email}}." +
       SIGNATURE,
   },
 ];

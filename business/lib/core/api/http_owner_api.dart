@@ -109,6 +109,7 @@ class HttpOwnerApi implements OwnerApi {
     required String email,
     required String password,
     required DeviceInfo device,
+    String? otp,
   }) async => Session.fromJson(
     await _send(
       'POST',
@@ -117,6 +118,7 @@ class HttpOwnerApi implements OwnerApi {
       body: {
         'email': email.trim(),
         'password': password,
+        if (otp != null) 'otp': otp.trim(),
         'device': device.toJson(),
       },
     ),

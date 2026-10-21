@@ -5,10 +5,13 @@ import 'models.dart';
 /// keeps everything in memory for the widget tests and the demo.
 abstract class OwnerApi {
   // Auth
+  /// 70 [otp]: the authenticator app's code (or a recovery code) of an
+  /// account with two-step sign-in, after a `two_factor_required` answer.
   Future<Session> signIn({
     required String email,
     required String password,
     required DeviceInfo device,
+    String? otp,
   });
   Future<Session> refresh(String refreshToken);
   Future<void> signOut();

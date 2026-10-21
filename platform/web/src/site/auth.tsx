@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ForgotPasswordForm, ResetPasswordForm, SignInForm, SignUpForm } from "@/app/(auth)/forms";
+import { ForgotPasswordForm, ResetPasswordForm, SignInForm, SignUpForm, TwoStepForm } from "@/app/(auth)/forms";
 import { ClearSignedIn } from "@/components/account-link";
 import { AuthShell } from "@/components/auth-shell";
 import { Icon } from "@/components/icon";
 import { LanguageList } from "@/components/language-switcher";
 import { languageLabels } from "@/components/site-chrome";
 import { btn } from "@/components/ui";
-import { getCurrentUser, homeFor } from "@/lib/auth/session";
+import { getCurrentUser, homeFor, pendingTwoStep } from "@/lib/auth/session";
 import { checkResetToken } from "@/lib/auth/reset";
 import { getStore } from "@/lib/data";
 import { NO_INDEX } from "@/lib/seo";
@@ -20,10 +20,10 @@ import { messagesFor, type Lang } from "@/i18n";
  * engines; their language versions are still named for each other. After
  * signing in, people go to their dashboard as before.
  */
-export function authMetadata(lang: Lang, page: "signIn" | "signUp" | "forgot" | "reset", path: string): Metadata {
+export function authMetadata(lang: Lang, page: "signIn" | "signUp" | "forgot" | "reset" | "code", path: string): Metadata {
   const m = messagesFor(lang).auth;
-  const title = { signIn: m.titleSignIn, signUp: m.titleSignUp, forgot: m.titleForgot, reset: m.titleReset }[page];
-  return { title, robots: page === "reset" ? { index: false } : NO_INDEX, alternates: { canonical: localePath(lang, path), languages: languageAlternates(path) } };
+  const title = { signIn: m.titleSignIn, signUp: m.titleSignUp, forgot: m.titleForgot, reset: m.titleReset, code: m.titleCode }[page];
+  return { title, robots: page === "reset" || page === "code" ? { index: false } : NO_INDEX, alternates: { canonical: localePath(lang, path), languages: languageAlternates(path) } };
 }
 
 function Back({ lang, href, label }: { lang: Lang; href: string; label: string }) {
@@ -97,6 +97,35 @@ export async function SignUpPage({ lang }: { lang: Lang }) {
             ))}
           </ol>
         </aside>
+      </main>
+    </AuthShell>
+  );
+}
+
+/**
+ * 70 After a right password, for someone with two-step sign-in: the code
+ * from their authenticator app (or a recovery code). Without a sign-in
+ * waiting on this browser (none, or older than 10 minutes), back to signing in.
+ */
+export async function TwoStepPage({ lang }: { lang: Lang }) {
+  const user = await getCurrentUser();
+  if (user) redirect(await homeFor(user));
+  const pending = await pendingTwoStep();
+  const m = messagesFor(lang).auth;
+  return (
+    <AuthShell lang={lang} languages aside={<Back lang={lang} href="/sign-in" label={m.backSignIn} />}>
+      <main className="flex flex-1 items-center justify-center px-4 pt-8 pb-14 sm:px-6">
+        {pending ? (
+          <TwoStepForm lang={lang} m={m} />
+        ) : (
+          <section className="flex w-full max-w-[440px] flex-col gap-5 rounded-[20px] border border-line bg-white px-5 py-8 sm:px-8 sm:py-9">
+            <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px]">{m.codeExpiredTitle}</h1>
+            <p className="m-0 text-[15px] leading-relaxed text-ink-4">{m.codeExpiredText}</p>
+            <Link href={localePath(lang, "/sign-in")} className={`${btn.primary} h-[50px]`}>
+              {m.signIn}
+            </Link>
+          </section>
+        )}
       </main>
     </AuthShell>
   );

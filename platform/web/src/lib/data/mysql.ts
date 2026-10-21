@@ -40,6 +40,7 @@ import type { PaymentRefund, RefundKind } from "./types";
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatus } from "./types";
+import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
 import { mergeCrash } from "../crashes/report";
 import type {
@@ -2847,6 +2848,29 @@ export class MysqlStore implements DataStore {
     await this.run((db) => db.insert(schema.couponRedemptions).values(redemption));
   }
 
+  async claimCouponRedemption(redemption: CouponRedemption, limits: CouponClaimLimits, payment?: PlanPayment): Promise<boolean> {
+    const t = schema.couponRedemptions;
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        // 70 The coupon's row is locked until the use is saved: two payments at once count one after the other.
+        const locked = await tx.select({ id: schema.coupons.id }).from(schema.coupons).where(eq(schema.coupons.id, redemption.couponId)).for("update");
+        if (!locked.length) return false;
+        const counted = or(eq(t.status, "redeemed"), and(eq(t.status, "pending"), gt(t.createdAt, limits.pendingSince)));
+        if (limits.maxRedemptions !== null) {
+          const [all] = await tx.select({ n: count() }).from(t).where(and(eq(t.couponId, redemption.couponId), counted));
+          if (Number(all?.n ?? 0) >= limits.maxRedemptions) return false;
+        }
+        if (limits.maxPerClient !== null) {
+          const [mine] = await tx.select({ n: count() }).from(t).where(and(eq(t.couponId, redemption.couponId), eq(t.clientId, redemption.clientId), counted));
+          if (Number(mine?.n ?? 0) >= limits.maxPerClient) return false;
+        }
+        if (payment) await tx.insert(schema.planPayments).values(payment);
+        await tx.insert(t).values(redemption);
+        return true;
+      }),
+    );
+  }
+
   async settleCouponRedemption(paymentId: string, status: "redeemed" | "failed", now: Date): Promise<void> {
     await this.run((db) =>
       db
@@ -3728,6 +3752,100 @@ export class MysqlStore implements DataStore {
         .where(and(eq(t.id, id), eq(t.status, "pending"))),
     );
     return result.affectedRows === 1;
+  }
+
+  // 70 Sessions kept on the server, and two-step sign-in
+
+  async createUserSession(session: UserSession): Promise<void> {
+    await this.run((db) => db.insert(schema.userSessions).values(session));
+  }
+
+  async getUserSession(idHash: string): Promise<UserSession | null> {
+    const rows = await this.run((db) => db.select().from(schema.userSessions).where(eq(schema.userSessions.idHash, idHash)).limit(1));
+    return rows[0] ?? null;
+  }
+
+  async deleteUserSession(idHash: string): Promise<void> {
+    await this.run((db) => db.delete(schema.userSessions).where(eq(schema.userSessions.idHash, idHash)));
+  }
+
+  async deleteUserSessions(userId: string): Promise<number> {
+    const [result] = await this.run((db) => db.delete(schema.userSessions).where(eq(schema.userSessions.userId, userId)));
+    return result.affectedRows;
+  }
+
+  async deleteExpiredUserSessions(now: Date): Promise<number> {
+    const [result] = await this.run((db) => db.delete(schema.userSessions).where(lte(schema.userSessions.expiresAt, now)));
+    return result.affectedRows;
+  }
+
+  async getTwoFactor(userId: string): Promise<UserTwoFactor | null> {
+    const rows = await this.run((db) => db.select().from(schema.userTwoFactor).where(eq(schema.userTwoFactor.userId, userId)).limit(1));
+    return rows[0] ?? null;
+  }
+
+  async saveTwoFactorSetup(userId: string, secretEncrypted: string, now: Date): Promise<boolean> {
+    const t = schema.userTwoFactor;
+    // A waiting setup is replaced; one that is on never is.
+    const [updated] = await this.run((db) => db.update(t).set({ secretEncrypted, lastStep: 0, updatedAt: now }).where(and(eq(t.userId, userId), isNull(t.enabledAt))));
+    if (updated.affectedRows === 1) return true;
+    try {
+      await this.run((db) => db.insert(t).values({ userId, secretEncrypted, enabledAt: null, lastStep: 0, createdAt: now, updatedAt: now }));
+      return true;
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return false;
+      throw error;
+    }
+  }
+
+  async enableTwoFactor(userId: string, step: number, recoveryHashes: string[], now: Date): Promise<boolean> {
+    const t = schema.userTwoFactor;
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        const [result] = await tx.update(t).set({ enabledAt: now, lastStep: step, updatedAt: now }).where(and(eq(t.userId, userId), isNull(t.enabledAt)));
+        if (result.affectedRows !== 1) return false;
+        await tx.delete(schema.userRecoveryCodes).where(eq(schema.userRecoveryCodes.userId, userId));
+        if (recoveryHashes.length) await tx.insert(schema.userRecoveryCodes).values(recoveryHashes.map((codeHash) => ({ userId, codeHash, usedAt: null, createdAt: now })));
+        return true;
+      }),
+    );
+  }
+
+  async useTwoFactorStep(userId: string, step: number, now: Date): Promise<boolean> {
+    const t = schema.userTwoFactor;
+    const [result] = await this.run((db) => db.update(t).set({ lastStep: step, updatedAt: now }).where(and(eq(t.userId, userId), isNotNull(t.enabledAt), lt(t.lastStep, step))));
+    return result.affectedRows === 1;
+  }
+
+  async useRecoveryCode(userId: string, codeHash: string, now: Date): Promise<boolean> {
+    const t = schema.userRecoveryCodes;
+    const [result] = await this.run((db) => db.update(t).set({ usedAt: now }).where(and(eq(t.userId, userId), eq(t.codeHash, codeHash), isNull(t.usedAt))));
+    return result.affectedRows === 1;
+  }
+
+  async replaceRecoveryCodes(userId: string, codeHashes: string[], now: Date): Promise<void> {
+    await this.run((db) =>
+      db.transaction(async (tx) => {
+        await tx.delete(schema.userRecoveryCodes).where(eq(schema.userRecoveryCodes.userId, userId));
+        if (codeHashes.length) await tx.insert(schema.userRecoveryCodes).values(codeHashes.map((codeHash) => ({ userId, codeHash, usedAt: null, createdAt: now })));
+      }),
+    );
+  }
+
+  async countUnusedRecoveryCodes(userId: string): Promise<number> {
+    const t = schema.userRecoveryCodes;
+    const [row] = await this.run((db) => db.select({ n: count() }).from(t).where(and(eq(t.userId, userId), isNull(t.usedAt))));
+    return Number(row?.n ?? 0);
+  }
+
+  async deleteTwoFactor(userId: string): Promise<boolean> {
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        await tx.delete(schema.userRecoveryCodes).where(eq(schema.userRecoveryCodes.userId, userId));
+        const [result] = await tx.delete(schema.userTwoFactor).where(eq(schema.userTwoFactor.userId, userId));
+        return result.affectedRows === 1;
+      }),
+    );
   }
 }
 

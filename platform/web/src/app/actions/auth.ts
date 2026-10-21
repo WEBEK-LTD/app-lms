@@ -5,10 +5,12 @@ import { redirect } from "next/navigation";
 import { authenticate, registerClient } from "@/lib/auth/accounts";
 import { hashPassword } from "@/lib/auth/password";
 import { completePasswordReset, createPasswordReset } from "@/lib/auth/reset";
-import { endSession, homeFor, requestIp, startSession } from "@/lib/auth/session";
+import { endSession, homeFor, pendingTwoStep, requestIp, startSession } from "@/lib/auth/session";
+import { afterPassword } from "@/lib/auth/sign-in";
+import { checkSecondStep } from "@/lib/auth/two-step";
 import { getStore } from "@/lib/data";
 import { DuplicateEmailError } from "@/lib/data/store";
-import { appUrl, superAdminEmails } from "@/lib/env";
+import { appUrl, encryptionKey, superAdminEmails } from "@/lib/env";
 import { fieldErrors, formValues, type FormState } from "@/lib/forms";
 import { sendTemplate } from "@/lib/email/send";
 import { localePath } from "@/i18n/paths";
@@ -98,9 +100,37 @@ async function signIn(formData: FormData, lang: Lang): Promise<FormState> {
 
   const user = await authenticate(store, parsed.data.email, parsed.data.password, now);
   if (!user) return { message: "The email or password is incorrect.", values };
-  await startSession(user);
   await rememberLang(lang, user);
-  redirect(await homeFor(user));
+  // 70 Signed in now, or first the code from their authenticator app.
+  redirect(await afterPassword(user, { lang }));
+}
+
+/**
+ * 70 The second step: the code from the authenticator app (or a recovery
+ * code) of the person whose password was right in the last 10 minutes on
+ * this browser. Attempts count per person and per IP.
+ */
+export async function twoStepSignInAction(_: FormState, formData: FormData): Promise<FormState> {
+  const lang = formLang(formData);
+  return inLang(lang, await twoStepSignIn(formData));
+}
+
+async function twoStepSignIn(formData: FormData): Promise<FormState> {
+  const pending = await pendingTwoStep();
+  if (!pending) return { message: "Your sign-in waited too long for its code. Sign in again." };
+  const store = await getStore();
+  const now = new Date();
+  const byIp = await hitRateLimit(store, RATE_LIMITS.signInIp, await requestIp(), now);
+  if (!byIp.allowed) return { message: TOO_MANY };
+  const result = await checkSecondStep(store, pending.user, String(formData.get("code") ?? ""), encryptionKey(), now);
+  // Turned off in between (our team reset it): the password was right, so they're in.
+  if (!result.ok && result.error !== "off") {
+    if (result.error === "rate") return { message: TOO_MANY };
+    if (result.error === "format") return { errors: { code: "Enter the 6-digit code from your authenticator app, or a recovery code." } };
+    return { errors: { code: "That code isn't right. Try again, or use a recovery code." } };
+  }
+  await startSession(pending.user, now);
+  redirect(pending.next ?? (await homeFor(pending.user)));
 }
 
 export async function signOutAction(): Promise<void> {
@@ -167,7 +197,8 @@ async function resetPassword(formData: FormData, lang: Lang): Promise<FormState>
           : "This link has already been used or isn't valid. Ask for a new one.",
     };
   }
-  await startSession(result.user);
+  // 70 Every session on the server goes (the new session version already ends them), and the reset link never skips the second step.
+  await store.deleteUserSessions(result.user.id);
   await rememberLang(lang, result.user);
-  redirect(await homeFor(result.user));
+  redirect(await afterPassword(result.user, { lang }));
 }

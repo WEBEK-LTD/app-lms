@@ -89,6 +89,13 @@ class ApiException implements Exception {
 
   // The contract's codes the app acts on.
   static const invalidCredentials = 'invalid_credentials';
+
+  /// 70 The password is right and the account has two-step sign-in: send
+  /// the authenticator app's code (or a recovery code) as `otp`.
+  static const twoFactorRequired = 'two_factor_required';
+
+  /// 70 The code sent as `otp` isn't right, or was used already.
+  static const invalidTwoFactorCode = 'invalid_two_factor_code';
   static const useWebsite = 'use_website';
   static const invalidToken = 'invalid_token';
   static const accountPending = 'account_pending';

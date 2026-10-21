@@ -1797,7 +1797,9 @@ and what's still open are in ROADMAP, Phase 69):
   API, link files, their email server, license nudges, a Ticimax shop) are
   called only after every address the name resolves to passed
   `isPrivateAddress` (`lib/app/api-check.ts`; `privateHostProblem` for a
-  host), web addresses over https and without following redirects. IPv6 is read group by group, so an IPv4
+  host), web addresses over https and without following redirects; 70 the
+  connection itself goes to an address that was checked (`lib/net/safe-fetch.ts`,
+  "Two-step sign-in and sessions" below). IPv6 is read group by group, so an IPv4
   address written inside one is checked as that address. A new connector on
   a client's own domain uses the same check before each call; platforms on
   their own domains (`*.myshopify.com`, `*.myideasoft.com`, fixed API hosts)
@@ -1886,6 +1888,59 @@ download.
   "New order") attach the PDF; `receiptAttachment` logs why a PDF couldn't
   be made and the email goes without it. End-to-end runs keep attachments
   in `YALLAPP_MAIL_DIR` as base64.
+
+## Two-step sign-in and sessions (Phase 70)
+
+- **Sessions on the server.** The `yallapp_session` cookie (sealed, 14 days)
+  carries the user, their session version and a random session ID; only the
+  ID's SHA-256 is stored (`user_sessions`). Every request needs both the row
+  and the same session version (`getCurrentUser`). Signing out deletes the
+  row, so a copy of the cookie stops working; "Sign out of all devices"
+  (Your account) deletes every row of the person, bumps the session version
+  and deletes their Yallapp Business devices; a password reset bumps the
+  version and deletes the rows; removing someone from a client's team bumps
+  the version as before. The daily job deletes expired rows. Cookies made
+  before Phase 70 have no session ID and sign in again.
+- **Two-step sign-in** (`lib/auth/totp.ts`, `lib/auth/two-step.ts`): TOTP
+  (RFC 6238, HMAC-SHA1, 30 seconds, 6 digits, one step either side). The
+  secret is 20 random bytes, encrypted with `ENCRYPTION_KEY` and the context
+  `two-step:<user id>` (`user_two_factor`), shown once as a QR code drawn on
+  the server (`lib/qr.ts`; the `otpauth://` address never leaves our pages)
+  and as base32 text. A setup waits (`enabled_at` null) until a first right
+  code. `last_step` is claimed by a conditional update, so each code works
+  once and never an older one; 10 recovery codes (`user_recovery_codes`,
+  SHA-256 with the user ID) work once each. Codes count per person, 8 in 15
+  minutes (`two-step:user`), besides the sign-in limits per email and IP.
+  Turning it off needs the password and a code; our team can only reset
+  someone's (Admin › Team, owners, audit-logged, emailed).
+- **Every way in** goes through `afterPassword` (`lib/auth/sign-in.ts`): the
+  sign-in page, a password reset and a team invitation. Someone with
+  two-step sign-in gets a sealed 10-minute step (`yallapp_two_step`, the user,
+  their session version and where to go next) and the code page
+  (`/sign-in/code` in each language, noindex); the session starts only after
+  the code. The Owner API's `POST /auth/sign-in` takes the code as `otp`
+  (`two_factor_required`, `invalid_two_factor_code`; `owner.yaml`).
+- **The team's rule** (`platform_settings.security.requireTeamTwoStep`, Admin ›
+  Team): `requireAdmin` sends anyone on the team without two-step sign-in to
+  Admin › Your account (the only page that lets them through), and
+  `getClientContext` gives them no client's dashboard.
+- **Safe fetches** (`lib/net/safe-fetch.ts`): the address checks
+  (`isPrivateAddress`, `privateHostProblem`) are in `lib/net/addresses.ts`.
+  Calls to addresses clients give use undici's `fetch` with an `Agent` whose
+  `connect.lookup` resolves the name once, refuses it when any answer is
+  private or reserved, and hands `net.connect` exactly the checked addresses
+  (TLS still checks the certificate against the name). An IP written in the
+  URL is checked before the call, since Node connects to it without a lookup.
+  Redirects are followed by hand (each address checked again, at most 5),
+  refused with `redirect: "error"`, or given back with `"manual"`. Call sites
+  keep their own check first for the owner's message, and take
+  `pinnedFetch(fetcher, resolve)`: a test's fake fetch, else the safe one with
+  the same resolver. undici is loaded on first use, after Node's own fetch
+  has claimed the global dispatcher, so every other request keeps Node's.
+- **Coupon limits:** `claimCouponRedemption` locks the coupon's row
+  (`SELECT … FOR UPDATE`), counts its uses that hold a place (redeemed, or
+  pending for less than an hour) in all and for the client, and saves the
+  use with its payment in the same transaction, or nothing.
 
 ## Demo apps (Phase 16)
 

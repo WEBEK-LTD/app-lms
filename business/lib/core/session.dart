@@ -109,11 +109,13 @@ class SessionController extends Notifier<SessionState> {
     }
   }
 
-  Future<void> signIn(String email, String password) async {
+  /// 70 [otp]: the authenticator app's code, for an account with two-step
+  /// sign-in (asked after a `two_factor_required` answer).
+  Future<void> signIn(String email, String password, {String? otp}) async {
     final device = await ref.read(deviceInfoProvider)();
     final session = await ref
         .read(apiProvider)
-        .signIn(email: email, password: password, device: device);
+        .signIn(email: email, password: password, device: device, otp: otp);
     await ref.read(tokenManagerProvider).save(session);
     final settings = ref.read(settingsProvider);
     // The lock turns on after the first sign-in on a phone that can use it;
