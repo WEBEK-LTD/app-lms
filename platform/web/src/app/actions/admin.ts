@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { activateClient, endOfDayUtc, regenerateLicenseKey, reinstateClient, resolveClientApp, suspendClient } from "@/lib/admin/clients";
-import { appLabel } from "@/lib/app/label";
+import { activationEmail, appLabel } from "@/lib/app/label";
 import { httpsSiteAddress, moveToWordpress } from "@/lib/app/wordpress-ready";
 import { recordAudit } from "@/lib/admin/audit";
 import type { AdminPermission } from "@/lib/admin/permissions";
@@ -116,7 +116,7 @@ export async function activateClientAction(_: FormState, formData: FormData): Pr
     const appName = appLabel(app);
     await (
       activated
-        ? sendTemplate("account_activated", user.email, {
+        ? sendTemplate(activationEmail(app), user.email, {
             name: user.name,
             app_name: appName,
             plan: planLabel,

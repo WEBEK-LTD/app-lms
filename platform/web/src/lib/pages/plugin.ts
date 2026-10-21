@@ -1,6 +1,7 @@
 import type { DataStore } from "../data/store";
 import { hashLicenseKey } from "../license/key";
 import type { SiteInfo } from "../license/service";
+import { licenseUsesSite } from "../license/site";
 import { licenseState } from "../license/status";
 import { effectivePlans, planOfLicense } from "../entitlements";
 import { withLanguageList } from "../i18n/packs";
@@ -37,7 +38,7 @@ export async function pluginLayout(store: DataStore, site: SiteInfo, ifNoneMatch
     return { status: 404, body: { code: "license_not_found", message: "This license key doesn't exist. Check it in your Yallapp dashboard." } };
   }
   const activation = licenseState(client, license, now) === "active" ? await store.getActivation(license.id) : null;
-  if (!activation || activation.siteUrl !== site.siteUrl) {
+  if (!activation || activation.siteUrl !== site.siteUrl || !(await licenseUsesSite(store, license))) {
     return { status: 403, body: { code: "license_inactive", message: "This license isn't active on this site." } };
   }
   // The license's own app: each app of an account has its own key and site.

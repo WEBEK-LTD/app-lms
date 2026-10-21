@@ -1824,3 +1824,21 @@ same test as before, so the release workflow uploads the framed ones.
 | [x] | 74.3 Docs: this phase, `business/README.md` | Review |
 | [ ] | 74.4 The owner: the framed screenshots in Play Console (phone, 7" and 10" tablet) for English, Arabic and Turkish, until the release workflow uploads them itself | Play Console › Main store listing |
 
+## Phase 75: The license key belongs to WordPress apps
+
+An app on the hosted API, a store platform (Shopify, Salla, Zid, Wix and
+the others) or its own API never uses its license key, yet the dashboard
+showed it, the activation email asked to install the plugin, and the key
+could be activated on any WordPress site, putting Yallapp's sign-in codes and
+media server behind a site the plan isn't for. The owner decided the key is
+shown and accepted only for WordPress apps and apps waiting for the WordPress
+site our team sets up. Contract first (`platform.yaml`).
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 75.1 Contract: `POST /licenses/activate` answers 403 `license_not_for_site` for an app that doesn't run on WordPress; `/licenses/check` answers `invalid` for it, also after an earlier activation (`platform.yaml`) | `redocly lint` |
+| [x] | 75.2 Platform: `licenseUsesSite` refuses the activation and stops an earlier one on check, layouts, media links, sign-in codes and plugin updates; back on WordPress, the same site works again | `phase75.test.ts` |
+| [x] | 75.3 Dashboard: the page is **Plan** for these apps, without the key, its notices without the key or the plugin; the docs' page name (English, Arabic, Turkish) | `phase75.test.ts`, `dashboard-i18n.test.ts`, the e2e specs that read the key |
+| [x] | 75.4 Emails: `app_activated` in English, Arabic and Turkish, sent on activation (the team, a card payment) and by the admin's resend for these apps | `phase75.test.ts` |
+| [x] | 75.5 Docs: this phase, ARCHITECTURE | Review |
+

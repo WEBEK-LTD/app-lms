@@ -6,7 +6,7 @@ import { recordAudit } from "@/lib/admin/audit";
 import { revealLicenseKey } from "@/lib/admin/clients";
 import { checkConnection, type ConnectionStatus } from "@/lib/admin/connection";
 import type { AdminPermission } from "@/lib/admin/permissions";
-import { appLabel } from "@/lib/app/label";
+import { activationEmail, appLabel, usesPlugin } from "@/lib/app/label";
 import { queueBuild } from "@/lib/app/setup";
 import { assetUrl } from "@/lib/assets";
 import { createPasswordReset } from "@/lib/auth/reset";
@@ -153,12 +153,12 @@ export async function sendClientNotificationAction(_: FormState, formData: FormD
   return { ok: true, message: `Sent. It's in the app users' inboxes and went to ${result.pushed} ${result.pushed === 1 ? "phone" : "phones"}.` };
 }
 
-/** The activation email with the license key, again. */
+/** The activation email again: with the license key for an app on WordPress (75). */
 export async function resendLicenseEmailAction(formData: FormData): Promise<void> {
   const { admin, store, client, user, app, apps, license } = await clientFrom(formData, "clients.email");
   if (!user || !license) back(client.id, "");
   const plan = (await getPlans(store))[license!.plan].name;
-  await sendTemplate("account_activated", user!.email, {
+  await sendTemplate(activationEmail(app), user!.email, {
     name: user!.name,
     app_name: appLabel(app),
     plan,
@@ -167,7 +167,7 @@ export async function resendLicenseEmailAction(formData: FormData): Promise<void
     dashboard_url: `${appUrl()}/dashboard`,
     payment_line: "",
   }, { lang: emailLangOf(user!) }).catch((error: unknown) => console.error("[mail] license email failed", error));
-  await recordAudit({ actor: admin, action: "client.email", target: { type: "client", id: client.id }, clientId: client.id, summary: `Emailed the license key to ${user!.email} again${onApp(app, apps)}` });
+  await recordAudit({ actor: admin, action: "client.email", target: { type: "client", id: client.id }, clientId: client.id, summary: `Emailed the ${usesPlugin(app) ? "license key" : "activation"} to ${user!.email} again${onApp(app, apps)}` });
   back(client.id, "done=license-sent");
 }
 

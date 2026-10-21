@@ -20,6 +20,7 @@ export type EmailTemplateKey =
   | "password_reset"
   | "password_set"
   | "account_activated"
+  | "app_activated"
   | "plan_renewed"
   | "build_ready"
   | "build_failed"
@@ -157,6 +158,26 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       "Next steps:\n1. Install the Yallapp plugin on your WordPress site and paste your license key.\n" +
       "2. Set up your app in your dashboard: {{dashboard_url}}\n\n" +
       "You can always find your license key on the License & plugin page." +
+      SIGNATURE,
+  },
+  {
+    // 75 The same email for an app that doesn't run on WordPress: no license key, no plugin.
+    key: "app_activated",
+    name: "App activated (no WordPress)",
+    description: "To a client when one of their apps without a WordPress site (hosted, a store platform or their own API) is activated, by the team or a card payment.",
+    placeholders: [
+      NAME,
+      APP_NAME,
+      { name: "plan", description: "The plan's name", sample: "Pro" },
+      { name: "active_until", description: "The last day of the plan", sample: "12 Oct 2027" },
+      { name: "dashboard_url", description: "The client dashboard's address", sample: "https://yallapp.com.tr/dashboard" },
+      { name: "payment_line", description: "52 The card payment and its receipt, and a blank line, after a card payment; empty when the team activated it", sample: "Paid: EGP 1,500 (about $30) by card through Kashier.\nReceipt: https://yallapp.com.tr/dashboard/license/receipts/0f8e\n\n" },
+    ],
+    subject: "Your Yallapp app is active",
+    body:
+      "Hello {{name}},\n\n{{app_name}} is active.\n\nPlan: {{plan}}\nActive until: {{active_until}}\n\n{{payment_line}}" +
+      "Next step: set up your app and build it in your dashboard: {{dashboard_url}}\n\n" +
+      "You can see your plan and payments on the Plan page." +
       SIGNATURE,
   },
   {

@@ -126,10 +126,11 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
   const selected = isPlan(wanted) ? wanted : (scheduled?.plan ?? currentId);
   const activation = license ? await store.getActivation(license.id) : null;
   const release = latestRelease(await store.listReleases());
-  const key = license ? revealLicenseKey(license, encryptionKey()) : null;
-  const active = state === "active";
-  // Apps on the hosted API or their own API have no plugin: no website activation or plugin download to show.
+  // Apps on the hosted API or their own API have no plugin: no website activation or plugin download to show,
+  // and (75) no license key: only an app on WordPress uses it.
   const plugin = usesPlugin(app);
+  const key = license && plugin ? revealLicenseKey(license, encryptionKey()) : null;
+  const active = state === "active";
   // 30 What the site runs, as its plugin reports it.
   const site = activation && app ? siteMatch(app, activation) : null;
   const name = appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app);
@@ -144,7 +145,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
     <>
       <PageHeader
         title={k(licensePageName(app))}
-        description={apps.length > 1 ? richText(t("license.manyApps", { app: name }), tags) : plugin ? t("license.pluginText") : t("license.planText")}
+        description={apps.length > 1 ? richText(t(plugin ? "license.manyApps" : "license.manyAppsPlan", { app: name }), tags) : plugin ? t("license.pluginText") : t("license.planText")}
       />
 
       {released ? (
@@ -184,19 +185,22 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
       ) : null}
       {state === "pending" ? (
         <Notice tone="warn" icon="hourglass_top">
-          {richText(payable.length ? t("license.notActivatedPay") : t("license.notActivated"), tags)}
+          {richText(t(plugin ? (payable.length ? "license.notActivatedPay" : "license.notActivated") : payable.length ? "license.notActivatedPayPlan" : "license.notActivatedPlan"), tags)}
         </Notice>
       ) : null}
       {state === "expired" ? (
         <Notice tone="warn" icon="warning">
-          {richText(payable.length ? t("license.expiredPay", { date: date(license?.expiresAt) }) : t("license.expired", { date: date(license?.expiresAt) }), tags)}
+          {richText(
+            t(plugin ? (payable.length ? "license.expiredPay" : "license.expired") : payable.length ? "license.expiredPayPlan" : "license.expiredPlan", { date: date(license?.expiresAt) }),
+            tags,
+          )}
         </Notice>
       ) : null}
 
       <section aria-labelledby="h-license" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 id="h-license" className="m-0 text-lg font-bold">
-            {t("license.license")}
+            {plugin ? t("license.license") : t("license.plan")}
           </h2>
           <Badge tone={state === "active" ? "success" : state === "expired" ? "danger" : "warn"}>{k(ACCOUNT_STATE_LABEL[state])}</Badge>
         </div>

@@ -4,6 +4,7 @@ import type { MediaStorage } from "../media/storage";
 import { hitRateLimit, RATE_LIMITS } from "../rate-limit";
 import { hashLicenseKey } from "./key";
 import { parseSiteInfo, type SiteInfo } from "./service";
+import { licenseUsesSite } from "./site";
 import { licenseState } from "./status";
 
 /**
@@ -66,7 +67,9 @@ export async function mediaLinks(
   if (!license || !client) return fail(404, "license_not_found", "This license key doesn't exist. Check it in your Yallapp dashboard.");
   if (licenseState(client, license, deps.now) !== "active") return fail(403, "license_inactive", "This license isn't active, so its videos can't play.");
   const activation = await store.getActivation(license.id);
-  if (!activation || activation.siteUrl !== request.site.siteUrl) return fail(403, "license_inactive", "This license isn't active on this site.");
+  if (!activation || activation.siteUrl !== request.site.siteUrl || !(await licenseUsesSite(store, license))) {
+    return fail(403, "license_inactive", "This license isn't active on this site.");
+  }
   if (!license.appId) return fail(404, "not_found", "This license has no app yet.");
   const hit = await hitRateLimit(store, RATE_LIMITS.mediaLinksLicense, license.id, deps.now);
   if (!hit.allowed) return fail(429, "rate_limited", "Too many media requests. Try again shortly.", { retry_after_seconds: hit.retryAfter });

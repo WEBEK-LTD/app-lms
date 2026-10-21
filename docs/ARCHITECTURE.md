@@ -2103,6 +2103,28 @@ download.
   `priceView` (pounds or dollars), `getVisitorContact` (the WhatsApp number)
   and the receipts' time zone, as before.
 
+## The license key belongs to WordPress apps (Phase 75)
+
+Every app has a license (its plan, end date and key), but only the plugin
+uses the key. `lib/license/site.ts` (`licenseUsesSite`) says whether the
+license's app may use it on a site: an app on WordPress, one waiting for the
+site our team sets up (`setup_requested`), or a license whose app doesn't
+exist yet. For every other app (the hosted API with or without a store
+platform, its own API):
+
+- `POST /licenses/activate` answers 403 `license_not_for_site`, so the key
+  can't put Yallapp's sign-in codes, media server or page layouts behind a
+  site the plan isn't for;
+- a site activated before the app left WordPress gets `status: invalid` on
+  its next check, 403 `license_inactive` for layouts, media links and
+  sign-in codes, and no plugin updates. Moving the app back to WordPress
+  makes the same activation work again;
+- the dashboard page is **Plan** (not License & plugin) and shows no key;
+  its notices don't mention the key or the plugin;
+- the activation email is `app_activated` (English, Arabic, Turkish): the
+  app, plan and end date and the next step, without the key. The admin's
+  "Email the license key again" sends that one for these apps.
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:
