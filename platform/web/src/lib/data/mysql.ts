@@ -110,7 +110,9 @@ class ClassFullError extends Error {}
 /**
  * Pool settings for Netlify functions talking to cPanel MySQL:
  * at most one connection per function instance, closed about a second after
- * the last query (maxIdle 0), and TLS with certificate verification.
+ * the last query (maxIdle 0), and TLS with certificate verification. Up to
+ * 50 queries wait for that connection (DATABASE_QUEUE_LIMIT changes it; the
+ * e2e suites on MariaDB, one `next start` for every request, lift it).
  */
 export function createPool(config: DatabaseConfig): mysql.Pool {
   return mysql.createPool({
@@ -118,7 +120,7 @@ export function createPool(config: DatabaseConfig): mysql.Pool {
     connectionLimit: 1,
     maxIdle: 0,
     idleTimeout: 5_000,
-    queueLimit: 50,
+    queueLimit: config.queueLimit ?? 50,
     connectTimeout: 10_000,
     enableKeepAlive: false,
     timezone: "Z",

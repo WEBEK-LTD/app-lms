@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, IBM_Plex_Sans_Arabic } from "next/font/google";
 import localFont from "next/font/local";
 import { HtmlShell } from "@/components/html-shell";
-import { DEFAULT_DESCRIPTION, DEFAULT_TITLE, SITE_NAME, siteUrl } from "@/lib/seo";
+import { DEFAULT_DESCRIPTION, DEFAULT_TITLE, SITE_ICONS, SITE_NAME, siteUrl } from "@/lib/seo";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -45,13 +45,8 @@ export const metadata: Metadata = {
   // 32 Link previews everywhere; public pages add their own title, address and canonical (lib/seo.ts).
   openGraph: { type: "website", siteName: SITE_NAME, locale: "en_US", title: DEFAULT_TITLE, description: DEFAULT_DESCRIPTION },
   twitter: { card: "summary_large_image", title: DEFAULT_TITLE, description: DEFAULT_DESCRIPTION },
-  icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/favicon.svg", type: "image/svg+xml" },
-    ],
-    apple: "/apple-touch-icon.png",
-  },
+  // 67 PNG favicons of 48, 96 and 192 px for Google Search, /favicon.ico, the SVG and the Apple touch icon.
+  icons: SITE_ICONS,
   manifest: "/site.webmanifest",
 };
 

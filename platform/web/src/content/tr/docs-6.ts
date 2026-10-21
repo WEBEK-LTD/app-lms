@@ -64,7 +64,7 @@ Biri size bir ilan hakkında mesaj gönderdiğinde mesaj **Talepler** sayfasınd
 `,
   },
   news: {
-    title: "Haber ve blog uygulamaları",
+    title: "Haber siteleri ve bloglar için uygulamalar",
     description: "WordPress yazılarınızdan, sitenizin RSS akışından ya da panelde yazdığınız makalelerden bir Haber ve blog uygulaması çalıştırın ve son dakika haberleri gönderin.",
     body: `Haber ve blog uygulamaları makalelerinizi gösterir: ana ekranda manşetler, en yeniler ve her bölüm için bir sıra; her makale kendi ekranında; arama ve okurların makaleleri telefonlarında daha sonra okumak için sakladığı bir **Kaydedilenler** sekmesi. Okurlar her makaleyi paylaşabilir. Okumak herkes için ücretsizdir: uygulamada ücretli içerik yoktur.
 

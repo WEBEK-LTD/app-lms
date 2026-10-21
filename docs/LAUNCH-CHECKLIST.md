@@ -795,6 +795,43 @@ never in a chat or an issue.
       Blobs under `assets/<client id>/` and the build folders the request
       lists; mark it done within 30 days.
 
+## 7q. Google Search: the favicon and indexing (Phase 67)
+
+- [ ] Netlify › Site configuration › Environment variables: `APP_URL` is
+      `https://yallapp.com.tr` (no trailing slash), for the Production
+      context and with the **Builds** scope ticked, then deploy again.
+- [ ] host.webek.org: copy `platform/web/deploy/apache-proxy.conf` (keep the
+      secret) and `apache-https-redirect.conf` again, then
+      `/scripts/rebuildhttpdconf && /scripts/restartsrv_httpd`. Check:
+      `curl -sI https://www.yallapp.com.tr/pricing` and
+      `curl -sI http://www.yallapp.com.tr/pricing` answer `301` with
+      `Location: https://yallapp.com.tr/pricing`.
+- [ ] Check from any computer: `curl -sI https://yallapp.com.tr/favicon.ico`,
+      `/favicon-48x48.png`, `/favicon-96x96.png`, `/android-chrome-192x192.png`
+      and `/apple-touch-icon.png` answer `200` with an `image/…` type and no
+      redirect; `curl -s https://yallapp.com.tr/robots.txt` ends with
+      `Sitemap: https://yallapp.com.tr/sitemap.xml`; the page source of
+      `https://yallapp.com.tr/`, `/ar` and `/tr` has `rel="icon"` links and a
+      `rel="canonical"` on `https://yallapp.com.tr` (never `netlify.app`).
+- [ ] [Google Search Console](https://search.google.com/search-console):
+      add a **Domain** property for `yallapp.com.tr` (DNS TXT record in
+      cPanel › Zone Editor), or a URL-prefix property for
+      `https://yallapp.com.tr/`.
+- [ ] Sitemaps: submit `https://yallapp.com.tr/sitemap.xml` (228 addresses:
+      every page in English, Arabic and Turkish).
+- [ ] URL Inspection on `https://yallapp.com.tr/`: **Test live URL** (the
+      page is indexable, the canonical Google picks is yallapp.com.tr), then
+      **Request indexing**. The same for `/ar`, `/tr` and `/pricing`. Google
+      shows the new favicon after it crawls the home page again; it can take
+      days to a few weeks.
+- [ ] Pages (Indexing › Pages): read "Why pages aren't indexed". "Alternate
+      page with proper canonical tag" for `www` or `netlify.app` addresses is
+      expected; "Duplicate, Google chose different canonical than user" or
+      "Discovered – currently not indexed" on yallapp.com.tr pages are worth
+      a URL Inspection each.
+- [ ] If `yallapp.netlify.app` addresses show up in Google, leave them: their
+      canonical names yallapp.com.tr and Google moves them over in time.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |

@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import { GUIDE_REDIRECTS } from "./src/content/docs";
 import { countryVaryHeaders, PRICED_PAGES } from "./src/lib/geo-vary";
+import { deployRobotsHeaders } from "./src/lib/indexing";
 
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -50,6 +51,8 @@ const nextConfig: NextConfig = {
       },
       // 52 Prices follow the visitor's country (pounds in Egypt, dollars elsewhere): caches keep a copy per country.
       ...PRICED_PAGES.map((source) => ({ source, headers: countryVaryHeaders() })),
+      // 67 Deploy previews and branch deploys stay out of search engines; production never gets this.
+      ...deployRobotsHeaders(),
     ];
   },
   // 46 Links that open the apps: the files phones read at the root of the domain (lib/links/files.ts).

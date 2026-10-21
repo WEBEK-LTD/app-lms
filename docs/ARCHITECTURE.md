@@ -1174,6 +1174,22 @@ are separate.
   (`lib/sitemap.ts` `siteSitemap`) lists each page in the three languages
   with their alternates. Sign-in pages stay `noindex`, and `robots.txt` is
   unchanged.
+- **(67) The address, the favicon and previews.** Canonical addresses,
+  `hreflang`, the sitemap, `robots.txt` and JSON-LD use `siteUrl()`:
+  `APP_URL`, else Netlify's `URL`, else `https://yallapp.com.tr`, but never
+  a `*.netlify.app` address. Netlify's `URL` is `yallapp.netlify.app`
+  (the domain isn't added in Netlify, the proxy serves it), and static pages
+  take the address when they are built. Every page links the favicons from
+  the root layout (`SITE_ICONS`): `/favicon.ico` (16, 32 and 48 px), PNGs of
+  48, 96 and 192 px, the SVG and the Apple touch icon, the files of
+  `brand/favicon` in `public/`, never under a `robots.txt` rule. Google
+  Search shows the home page's favicon (a square of at least 48 px) and
+  reads the Organization's `logo` (512 px). Builds for deploy previews and
+  branch deploys (`CONTEXT` other than `production`) send
+  `X-Robots-Tag: noindex, nofollow` on every response (`lib/indexing.ts`).
+  The proxy sends `www.yallapp.com.tr` to `https://yallapp.com.tr` in one
+  301. `yallapp.netlify.app` itself still answers with the same pages; their
+  canonical addresses name yallapp.com.tr.
 - **Share images.** The Open Graph images are made per language
   (`components/og-image.tsx`). The image library draws neither Arabic letter
   joining nor right-to-left order, so `lib/arabic-shape.ts` prepares each

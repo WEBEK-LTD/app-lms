@@ -1607,3 +1607,27 @@ Migration `drizzle/0048_account_deletion_requests.sql`.
 | [ ] | 66.7 Deleting the account itself is by hand (ARCHITECTURE's five steps): deleting the client's rows also deletes its payments (on delete cascade) and the files are in Netlify Blobs, on the files host and on the media server, so there is no "Delete now" button yet | When there are enough requests to be worth a safe automated delete that keeps the billing records |
 | [x] | 66.8 Yallapp Business links to the page from More › Legal ("Delete my account") | `publishing_more_test.dart` |
 | [ ] | 66.9 The address given to Google Play (Data safety › Delete account URL) and App Store Connect for Yallapp Business | LAUNCH-CHECKLIST 7l and 7p |
+
+## Phase 67: Google Search: the favicon, and every page indexed
+
+The owner saw a grey globe instead of Yallapp's icon next to yallapp.com.tr on
+Google Search, and fewer pages indexed than the site has. What the code
+showed: the pages linked only `/favicon.ico` (marked `sizes="any"`) and the
+SVG, with no PNG of 48 px or more; and the site's address for canonical
+addresses, hreflang, the sitemap, robots.txt and JSON-LD fell back to
+Netlify's `URL` whenever `APP_URL` was missing, which is
+`https://yallapp.netlify.app` since the domain isn't added in Netlify (the
+proxy on host.webek.org). Static pages take that address when they are built,
+so a build without `APP_URL` pointed every canonical at netlify.app. Deploy
+previews had no noindex of their own, `www.yallapp.com.tr` served the same
+pages as `yallapp.com.tr`, and two Arabic and Turkish articles had the same
+title as a solution page.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 67.1 Favicons (`lib/seo.ts` `SITE_ICONS`, the root layout only): `/favicon.ico` (16, 32 and 48 px), PNGs of 48, 96 and 192 px, the SVG, the Apple touch icon (180 px), on every page in every language; `favicon-96x96.png` added to `brand/favicon` (from its `favicon.svg`) and the head snippet updated; all in `public/`, not under any `robots.txt` rule | `website-seo.test.ts` (pixel sizes read from the files, the files match `brand/favicon`, no other `icons` or app-folder icon files); `public.spec.ts` (`/`, `/ar` and `/tr` link them, each answers 200 with an image type, no redirect, no `robots.txt` rule) |
+| [x] | 67.2 The public address (`siteUrl`): `APP_URL`, else `URL`, else `https://yallapp.com.tr`, never a `*.netlify.app` address nor one that isn't a URL; Organization's `logo` (`LOGO_PATH`, 512 px) | `website-seo.test.ts` (a Netlify build without `APP_URL`: canonical, hreflang, sitemap and robots.txt on `https://yallapp.com.tr`) |
+| [x] | 67.3 Deploy previews and branch deploys send `X-Robots-Tag: noindex, nofollow` on every response (`lib/indexing.ts`, by Netlify's `CONTEXT` at build time); production and local builds never do | `website-seo.test.ts` (`next.config.ts` headers per context) |
+| [x] | 67.4 The sitemap checked against the pages in `src/app`: every public page in English, Arabic and Turkish, absolute on `https://yallapp.com.tr`, with the same reciprocal `hreflang` set; every page left out is `noindex`; a title of its own for every page in each language (the Turkish "Haber siteleri ve bloglar için uygulamalar" and the Arabic "تطبيقات التبرعات للجمعيات الخيرية" articles) | `website-seo.test.ts`; all 228 sitemap addresses of a local build answer 200 with their own canonical and no noindex |
+| [x] | 67.5 `deploy/apache-proxy.conf` and `apache-https-redirect.conf`: `www.yallapp.com.tr` (http or https) goes to `https://yallapp.com.tr` in one 301, AutoSSL's `/.well-known/` left alone; docs: README, ARCHITECTURE ("Search engines"), LAUNCH-CHECKLIST 7q | Review |
+| [ ] | 67.6 On the live site: the Apache files copied again, `APP_URL` checked in Netlify for Builds too, then Google Search Console (LAUNCH-CHECKLIST 7q). Google refreshes favicons and the index on its own schedule, from days to a few weeks | The owner, in Search Console |

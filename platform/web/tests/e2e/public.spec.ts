@@ -338,6 +338,35 @@ test("search engines get the sitemap, robots.txt, canonical addresses, link prev
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
 });
 
+test("67 the home page in every language links favicons Google can use, and each one answers 200 with an image", async ({ page, request }) => {
+  const robots = await (await request.get("/robots.txt")).text();
+  const disallowed = [...robots.matchAll(/^Disallow: (.+)$/gm)].map((m) => m[1]!.trim());
+  for (const home of ["/", "/ar", "/tr"]) {
+    const response = await page.goto(home);
+    expect(response!.headers()["x-robots-tag"], home).toBeUndefined();
+    await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
+    const icons = await page.locator('head link[rel="icon"], head link[rel="apple-touch-icon"]').evaluateAll((links) =>
+      links.map((l) => ({ rel: l.getAttribute("rel"), href: l.getAttribute("href")!, sizes: l.getAttribute("sizes") ?? "" })),
+    );
+    expect(icons.map((i) => i.href), home).toEqual([
+      "/favicon.ico",
+      "/favicon-48x48.png",
+      "/favicon-96x96.png",
+      "/android-chrome-192x192.png",
+      "/favicon.svg",
+      "/apple-touch-icon.png",
+    ]);
+    // A square PNG of at least 48 px, as Google Search asks.
+    expect(icons.some((i) => i.rel === "icon" && /^(\d+)x\1$/.test(i.sizes) && Number(i.sizes.split("x")[0]) >= 48)).toBe(true);
+    for (const icon of icons) {
+      expect(disallowed.some((d) => icon.href.startsWith(d)), icon.href).toBe(false);
+      const file = await request.get(icon.href, { maxRedirects: 0 });
+      expect(file.status(), icon.href).toBe(200);
+      expect(file.headers()["content-type"], icon.href).toMatch(/^image\//);
+    }
+  }
+});
+
 test("the home page shows the app types, the screens and the comparison", async ({ page }) => {
   await page.goto("/");
   // Every app type links to its own page.
