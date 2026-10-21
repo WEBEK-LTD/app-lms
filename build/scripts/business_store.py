@@ -14,13 +14,14 @@ Firebase options). Nothing here prints a secret.
 
   business_store.py play <out-dir> <screenshots-dir>
       fastlane supply's metadata folder: business/store/android's texts, the
-      icon and feature graphic from brand/stores, the phone screenshots.
+      icon and feature graphic from brand/stores, the phone and (74) tablet
+      screenshots (the tablet ones serve 7" and 10" tablets).
 
   business_store.py appstore <out-dir> <screenshots-dir>
       For fastlane deliver: <out>/metadata (business/store/ios without the
       release notes), <out>/release_notes/<locale>.txt (sent only once a
       version is live: Apple refuses them on the first one),
-      <out>/screenshots/<locale>/ (iPhone 6.9" and iPad 13"),
+      <out>/screenshots/<locale>/ (iPhone 6.9", 6.5" and iPad 13"),
       <out>/review.json (App Review's contact, notes and the demo account from
       YB_APP_REVIEW_* variables and secrets) and <out>/age_rating.json.
 
@@ -66,8 +67,12 @@ APPSTORE_SHARED = ["copyright.txt", "primary_category.txt", "secondary_category.
 AVOID = ["artificial intelligence", " ai ", "ai-powered", "smart assistant", "machine learning", "الذكاء الاصطناعي", "yapay zeka"]
 
 # Screenshots: folder written by business/test/store/store_screenshots_test.dart.
-PLAY_SHOTS = "android-phone"
-APPSTORE_SHOTS = ["iphone", "ipad"]
+# Google Play's image folder(s) for each device.
+PLAY_SHOTS = {
+    "android-phone": ["phoneScreenshots"],
+    "android-tablet": ["sevenInchScreenshots", "tenInchScreenshots"],
+}
+APPSTORE_SHOTS = ["iphone", "iphone-65", "ipad"]
 
 
 def read(path):
@@ -179,13 +184,15 @@ def cmd_play(out, shots):
         images.mkdir(parents=True, exist_ok=True)
         shutil.copy(BRAND / "google-play-icon-512.png", images / "icon.png")
         shutil.copy(BRAND / "google-play-feature-graphic-1024x500.png", images / "featureGraphic.png")
-        found = screenshots(shots, PLAY_SHOTS, lang)
-        if found:
-            phone = images / "phoneScreenshots"
-            phone.mkdir(exist_ok=True)
-            for index, shot in enumerate(found, 1):
-                copy_screenshot(shot, phone / f"{index}_{play}.png")
-        print(f"Google Play {play}: listing, icon, feature graphic, {len(found)} phone screenshots")
+        counts = []
+        for device, folders in PLAY_SHOTS.items():
+            found = screenshots(shots, device, lang)
+            for folder in folders if found else []:
+                (images / folder).mkdir(exist_ok=True)
+                for index, shot in enumerate(found, 1):
+                    copy_screenshot(shot, images / folder / f"{index}_{play}.png")
+            counts.append(f"{len(found)} {device}")
+        print(f"Google Play {play}: listing, icon, feature graphic, {', '.join(counts)} screenshots")
     return 0
 
 

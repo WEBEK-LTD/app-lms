@@ -1809,3 +1809,18 @@ and clients set their account's country (52.9). Contract first
 | [x] | 73.10 Docs: this phase, ARCHITECTURE (the new section, account deletion), LAUNCH-CHECKLIST 7u (migration 0051, the files host's `index.php`, plugin 0.4.7, automatic deletion) | Review |
 | [ ] | 73.11 The owner: apply migration 0051 and deploy; upload `build/files-host/index.php` to files.yallapp.com.tr; release plugin 0.4.7; look at the open account deletion requests, which the first daily run after the deploy carries out when their 7 days are over | LAUNCH-CHECKLIST 7u |
 | [ ] | 73.12 Not done: LearnPress, LifterLMS, Sensei LMS and LearnDash's restart are written against their published APIs but only Tutor LMS's runs in the integration suite here (wordpress.org downloads were blocked); MasterStudy and Masteriyo need an API before the app can offer it; a lesson saved for offline viewing keeps its saved copy's "completed" mark until it is opened online again; apps built before this phase show "Review course" only | A device test and each LMS's adapter suite (`LMS=… tests/integration/run.sh`) |
+
+## Phase 74: Store screenshots as promotional images
+
+The owner asked for the listing's screenshots to look like the stores'
+usual promotional images: each screen in a device frame under a short line
+that says what it does, in every size the stores take. They are drawn by the
+same test as before, so the release workflow uploads the framed ones.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 74.1 `business/test/store/poster.dart`: the screen in a thin phone (camera hole or iPhone island, status bar) or tablet frame under its headline and line, Midnight and Ivory in turn, Bricolage Grotesque and IBM Plex Sans Arabic (docs/BRAND.md); the captions in English, Arabic and Turkish | `flutter test test/store` (75 screenshots, every caption within its two lines); the files looked at |
+| [x] | 74.2 More sizes: Google Play tablets (1600 × 2560, sent as 7" and 10") and the 6.5" iPhone (1284 × 2778) beside the phone, the 6.9" iPhone and the 13" iPad; `business_store.py` puts them in fastlane's folders | `build/tests/test_business_store.py` |
+| [x] | 74.3 Docs: this phase, `business/README.md` | Review |
+| [ ] | 74.4 The owner: the framed screenshots in Play Console (phone, 7" and 10" tablet) for English, Arabic and Turkish, until the release workflow uploads them itself | Play Console › Main store listing |
+

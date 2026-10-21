@@ -1,7 +1,8 @@
 // 65 The store screenshots of Yallapp Business, drawn from the demo's
 // sample apps (the fake API of `YB_DEMO`) with the app's real fonts and
 // icons, in English, Arabic and Turkish, at the sizes Google Play and the
-// App Store ask for.
+// App Store ask for. 74 Each screen is then framed under its caption
+// (poster.dart): the file is the framed one.
 //
 // `flutter test` lays every screenshot out (nothing may overflow) without
 // writing files. The release workflow writes the PNG files:
@@ -22,22 +23,30 @@ import 'package:yallapp_business/core/api/fake_owner_api.dart';
 
 import '../support/nav.dart';
 import '../support/test_app.dart';
+import 'poster.dart';
 
 /// A phone or tablet: the screenshot's size in pixels, its pixel ratio and
 /// its system bars (logical pixels).
 class Device {
-  const Device(this.name, this.pixels, this.pixelRatio, this.padding);
+  const Device(
+    this.name,
+    this.pixels,
+    this.pixelRatio,
+    this.padding, {
+    this.tablet = false,
+  });
 
   final String name;
   final Size pixels;
   final double pixelRatio;
   final EdgeInsets padding;
+  final bool tablet;
 
   Size get logical => pixels / pixelRatio;
 }
 
-/// Google Play's phone screenshots (9:16), the App Store's 6.9" iPhone
-/// (1290 × 2796 is accepted there) and 13" iPad.
+/// Google Play's phones (9:16) and tablets (7" and 10", 10:16), the App
+/// Store's 6.9" iPhone (1290 × 2796), 6.5" iPhone (1284 × 2778) and 13" iPad.
 const devices = [
   Device(
     'android-phone',
@@ -45,8 +54,27 @@ const devices = [
     2.5,
     EdgeInsets.only(top: 24, bottom: 16),
   ),
+  Device(
+    'android-tablet',
+    Size(1600, 2560),
+    2,
+    EdgeInsets.only(top: 24, bottom: 16),
+    tablet: true,
+  ),
   Device('iphone', Size(1290, 2796), 3, EdgeInsets.only(top: 59, bottom: 34)),
-  Device('ipad', Size(2064, 2752), 2, EdgeInsets.only(top: 24, bottom: 20)),
+  Device(
+    'iphone-65',
+    Size(1284, 2778),
+    3,
+    EdgeInsets.only(top: 47, bottom: 34),
+  ),
+  Device(
+    'ipad',
+    Size(2064, 2752),
+    2,
+    EdgeInsets.only(top: 24, bottom: 20),
+    tablet: true,
+  ),
 ];
 
 const languages = ['en', 'ar', 'tr'];
@@ -70,10 +98,13 @@ const _notice = {
 
 /// A screen of the listing: the demo app it shows and how to get there.
 class Shot {
-  const Shot(this.name, this.appId, this.open);
+  const Shot(this.name, this.appId, this.open, {this.dark = false});
 
   final String name;
   final String appId;
+
+  /// The screen is dark (light status bar icons).
+  final bool dark;
   final Future<void> Function(WidgetTester tester, TestApp app, String lang)
   open;
 }
@@ -89,7 +120,7 @@ final shots = [
     await push(tester, app, '/scan');
     app.scanner.see(FakeOwnerApi.ticketCode);
     await settle(tester);
-  }),
+  }, dark: true),
   Shot('notify', FakeOwnerApi.restaurantId, (tester, app, lang) async {
     await push(tester, app, '/notify');
     final fields = find.byType(TextField);
@@ -115,6 +146,18 @@ Future<void> loadAppFonts() async {
     }
     await loader.load();
   }
+}
+
+/// What [frame] shows, at the device's own size in pixels.
+Future<ui.Image> capture(WidgetTester tester, Key frame, Device device) async {
+  final boundary = tester.renderObject<RenderRepaintBoundary>(
+    find.byKey(frame),
+  );
+  final image = (await tester.runAsync(
+    () => boundary.toImage(pixelRatio: device.pixelRatio),
+  ))!;
+  expect(Size(image.width.toDouble(), image.height.toDouble()), device.pixels);
+  return image;
 }
 
 void main() {
@@ -143,28 +186,57 @@ void main() {
               wrap: (root) => RepaintBoundary(key: frame, child: root),
             );
             await shot.open(tester, app, lang);
-            if (out.isEmpty) return;
-            final boundary = tester.renderObject<RenderRepaintBoundary>(
-              find.byKey(frame),
-            );
-            final file = File(
-              '$out/${device.name}/$lang/${index + 1}_${shot.name}.png',
-            );
-            await tester.runAsync(() async {
-              final image = await boundary.toImage(
-                pixelRatio: device.pixelRatio,
+            final caption = captions[shot.name]![lang]!;
+            final screen = await capture(tester, frame, device);
+            try {
+              await tester.pumpWidget(
+                RepaintBoundary(
+                  key: frame,
+                  child: StorePoster(
+                    screen: screen,
+                    screenSize: device.logical,
+                    bars: device.padding,
+                    caption: caption,
+                    language: lang,
+                    tablet: device.tablet,
+                    dark: index.isEven,
+                    darkScreen: shot.dark,
+                  ),
+                ),
               );
-              expect(
-                Size(image.width.toDouble(), image.height.toDouble()),
-                device.pixels,
+              await tester.pump();
+              // Every caption fits in its two lines.
+              for (final text in tester.widgetList<Text>(
+                find.descendant(
+                  of: find.byType(StorePoster),
+                  matching: find.byType(Text),
+                ),
+              )) {
+                final paragraph = tester.renderObject<RenderParagraph>(
+                  find.byWidget(text),
+                );
+                expect(
+                  paragraph.didExceedMaxLines,
+                  isFalse,
+                  reason: '${text.data} is too long for ${device.name}',
+                );
+              }
+              if (out.isEmpty) return;
+              final poster = await capture(tester, frame, device);
+              final file = File(
+                '$out/${device.name}/$lang/${index + 1}_${shot.name}.png',
               );
-              final png = await image.toByteData(
-                format: ui.ImageByteFormat.png,
-              );
-              image.dispose();
-              file.parent.createSync(recursive: true);
-              file.writeAsBytesSync(png!.buffer.asUint8List());
-            });
+              await tester.runAsync(() async {
+                final png = await poster.toByteData(
+                  format: ui.ImageByteFormat.png,
+                );
+                poster.dispose();
+                file.parent.createSync(recursive: true);
+                file.writeAsBytesSync(png!.buffer.asUint8List());
+              });
+            } finally {
+              screen.dispose();
+            }
           } finally {
             debugDisableShadows = true;
           }
