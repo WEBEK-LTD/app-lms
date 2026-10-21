@@ -16,7 +16,7 @@ const TEXT: Record<SwitchKind, string> = {
   app_type: "Switched-off types disappear from the client's app type choice.",
   website:
     "Switched-off choices disappear from the client's Website step and can't be saved. Apps already using one keep working and see a notice.",
-  feature: "Push, offline downloads and automatic publishing leave the license features; selling through Yallapp and paying plans by card stop being offered.",
+  feature: "Push, offline downloads and automatic publishing leave the license features; paying plans by card stops being offered.",
 };
 
 /** App types, websites and features on or off for everyone (roadmap 11.5). Per plan, they're set on the Plans page. */

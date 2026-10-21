@@ -1,5 +1,7 @@
 import "server-only";
 import { DEFAULT_CONTACT } from "../contact";
+import { bothWhatsApp, whatsappLines } from "../contact-lines";
+import { messagesFor } from "@/i18n";
 import { getStore } from "../data";
 import type { DataStore } from "../data/store";
 import type { App } from "../data/types";
@@ -43,7 +45,18 @@ export async function renderEmail(
   const contact = (await platformSetting(store, "contact"))?.value ?? DEFAULT_CONTACT;
   const chosen = text ? { ...text, lang } : await templateText(store, key, lang);
   const local = Object.fromEntries(Object.entries(values).map(([name, value]) => [name, typeof value === "string" ? relocalizeDate(chosen.lang, value) : value]));
-  return renderTemplate(chosen, { yallapp_whatsapp: contact.whatsapp, yallapp_email: contact.email, ...local }, chosen.lang);
+  return renderTemplate(chosen, { ...contactValues(contact, chosen.lang), ...local }, chosen.lang);
+}
+
+/** 72 Yallapp's contact details for an email in this language: both WhatsApp numbers, each with where it's for. */
+export function contactValues(contact: { whatsapp: string; whatsappEgypt?: string; email: string }, lang: Lang): Record<string, string> {
+  const lines = whatsappLines(contact);
+  return {
+    yallapp_whatsapp: bothWhatsApp(lines, messagesFor(lang).common),
+    yallapp_whatsapp_egypt: lines.egypt.display,
+    yallapp_whatsapp_international: lines.international.display,
+    yallapp_email: contact.email,
+  };
 }
 
 /**

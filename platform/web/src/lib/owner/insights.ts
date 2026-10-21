@@ -1,5 +1,6 @@
 import { isDay } from "../analytics/days";
 import { loadReport, rangeFrom, type Kpis } from "../analytics/report";
+import { analyticsKeep } from "../analytics/retention";
 import { appZone } from "../analytics/zone";
 import { BUILD_STATUS_LABEL } from "../builds/view";
 import { appPlan, effectivePlans } from "../entitlements";
@@ -28,14 +29,16 @@ import { recordNotificationSent } from "../team/activity";
 const kpisJson = (k: Kpis) => ({ installs: k.installs, active_avg: k.activeAvg, weekly: k.weekly, monthly: k.monthly, sessions: k.sessions });
 
 export async function analytics(ctx: OwnerContext, params: Record<string, string>): Promise<OwnerResult> {
-  const { app } = appScope(ctx, params.app_id, "analytics");
+  const { app, license } = appScope(ctx, params.app_id, "analytics");
   const { store, now } = ctx.deps;
   const q = ctx.req.query;
   const preset = q.get("range");
   if (preset !== null && !["7", "30", "90", "custom"].includes(preset)) throw invalid({ range: "The request isn't valid." });
   if (preset === "custom" && (!isDay(q.get("from")) || !isDay(q.get("to")))) throw invalid({ from: "The request isn't valid." });
   const zone = await appZone(store, app);
-  const range = rangeFrom({ range: preset, from: q.get("from"), to: q.get("to") }, now, zone);
+  // 72 Not before the first day the app's plan keeps.
+  const kept = analyticsKeep(await appPlan(store, license, now), now, zone, await effectivePlans(store));
+  const range = rangeFrom({ range: preset, from: q.get("from"), to: q.get("to") }, now, zone, kept.from);
   const report = await loadReport(store, app.id, range, now, zone);
   const share = (rows: { key: string; label: string; value: number; share: number }[]) => rows.map((r) => ({ key: r.key, label: ctx.k(r.label), value: r.value, share: r.share }));
   return {

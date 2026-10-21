@@ -10,7 +10,7 @@ import { can } from "@/lib/admin/permissions";
 import { requireAdmin } from "@/lib/auth/session";
 import { DEFAULT_CONTACT } from "@/lib/contact";
 import { getStore } from "@/lib/data";
-import { templateText } from "@/lib/email/send";
+import { contactValues, templateText } from "@/lib/email/send";
 import { emailTemplate, GLOBAL_PLACEHOLDERS, sampleValues } from "@/lib/email/templates";
 import { localizedDefault } from "@/lib/email/templates-lang";
 import { platformSetting } from "@/lib/settings/platform";
@@ -29,8 +29,7 @@ export default async function EditEmailPage({ params, searchParams }: PageProps<
   const [text, saved, contact] = await Promise.all([templateText(store, template.key), store.getEmailTemplate(template.key), platformSetting(store, "contact")]);
   const samples = {
     ...sampleValues(template),
-    yallapp_whatsapp: (contact?.value ?? DEFAULT_CONTACT).whatsapp,
-    yallapp_email: (contact?.value ?? DEFAULT_CONTACT).email,
+    ...contactValues(contact?.value ?? DEFAULT_CONTACT, "en"),
   };
   return (
     <ReadOnly when={!can(adminRole, "settings.edit")} what="change emails">

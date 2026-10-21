@@ -98,7 +98,13 @@ export default async function EditContentPage({ params, searchParams }: PageProp
           values={values}
           lang={lang ?? undefined}
           placeholders={lang ? englishTexts : {}}
-          previewValues={{ contact_email: contact.email, contact_whatsapp: contact.whatsappDisplay, contact_whatsapp_url: contact.whatsappUrl }}
+          previewValues={{
+            contact_email: contact.email,
+            contact_whatsapp: contact.lines.international.display,
+            contact_whatsapp_url: contact.lines.international.url,
+            contact_whatsapp_egypt: contact.lines.egypt.display,
+            contact_whatsapp_egypt_url: contact.lines.egypt.url,
+          }}
         />
       </section>
     </ReadOnly>

@@ -23,11 +23,24 @@ export function contactMetadata(lang: Lang): Metadata {
   return siteMetadata(lang, { title: m.contactTitle, description: m.contactDescription, path: "/contact" });
 }
 
-const channels = (contact: Contact, lang: Lang): { id: "whatsapp" | "email"; icon: IconName; title: string; text: string; href: string; label: string }[] => {
-  const m = messagesFor(lang).contact;
+type Channel = { id: "whatsapp" | "email"; icon: IconName; title: string; text: string; links: { href: string; label: string; note?: string; region?: string }[] };
+
+const channels = (contact: Contact, lang: Lang): Channel[] => {
+  const all = messagesFor(lang);
+  const m = all.contact;
   return [
-    { id: "whatsapp", icon: "chat", title: m.whatsappTitle, text: m.whatsappText, href: contact.whatsappUrl, label: contact.whatsappDisplay },
-    { id: "email", icon: "mail", title: m.emailTitle, text: m.emailText, href: `mailto:${contact.email}`, label: contact.email },
+    {
+      id: "whatsapp",
+      icon: "chat",
+      title: m.whatsappTitle,
+      text: m.whatsappText,
+      // 72 Both numbers, each with where it's for.
+      links: [
+        { href: contact.lines.egypt.url, label: contact.lines.egypt.display, note: all.common.inEgypt, region: "egypt" },
+        { href: contact.lines.international.url, label: contact.lines.international.display, note: all.common.outsideEgypt, region: "international" },
+      ],
+    },
+    { id: "email", icon: "mail", title: m.emailTitle, text: m.emailText, links: [{ href: `mailto:${contact.email}`, label: contact.email }] },
   ];
 };
 
@@ -46,9 +59,14 @@ export async function ContactPage({ lang }: { lang: Lang }) {
               </span>
               <h2 className="m-0 text-xl font-bold">{channel.title}</h2>
               <p className="m-0 text-[15px] leading-relaxed text-ink-4">{channel.text}</p>
-              <a href={channel.href} className="mt-auto text-lg font-bold">
-                <bdi dir="ltr">{channel.label}</bdi>
-              </a>
+              <div className="mt-auto flex flex-col gap-2">
+                {channel.links.map((link) => (
+                  <a key={link.href} href={link.href} className="flex flex-wrap items-baseline gap-x-2 text-lg font-bold" data-whatsapp={link.region}>
+                    <bdi dir="ltr">{link.label}</bdi>
+                    {link.note ? <span className="text-sm font-semibold text-ink-4">{link.note}</span> : null}
+                  </a>
+                ))}
+              </div>
             </div>
           ))}
         </div>

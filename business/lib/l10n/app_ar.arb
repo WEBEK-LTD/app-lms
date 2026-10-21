@@ -578,6 +578,8 @@
   "twoStepWrong": "هذا الرمز غير صحيح. حاول مرة أخرى، أو استخدم رمز استرداد.",
   "twoStepVerify": "تحقّق وسجّل الدخول",
   "twoStepOther": "تسجيل الدخول بحساب آخر",
+  "whatsappInEgypt": "داخل مصر",
+  "whatsappOutsideEgypt": "خارج مصر",
   "minutesAgo": "قبل {count} دقيقة",
   "hoursAgo": "قبل {count} ساعة",
   "donorsCount": "{count, plural, =0{لا متبرعين} =1{متبرع واحد} =2{متبرعان} few{{count} متبرعين} many{{count} متبرعًا} other{{count} متبرع}}",

@@ -196,6 +196,82 @@ void main() {
       expect(vimeo, contains('"host":"vimeo"'));
     });
 
+    test('72 by default each site shows its normal player', () {
+      final youtube = HostedVideo.parse('https://youtu.be/dQw4w9WgXcQ')!
+          .playerUrl(startSeconds: 42, hideBranding: false);
+      // Only what the app needs: its API, inline play on iPhone, the start.
+      expect(youtube.queryParameters, {
+        'enablejsapi': '1',
+        'playsinline': '1',
+        'autoplay': '0',
+        'start': '42',
+      });
+      final vimeo = HostedVideo.parse('https://vimeo.com/76979871/2b3c4d5e6f')!
+          .playerUrl(hideBranding: false);
+      expect(vimeo.queryParameters, containsPair('h', '2b3c4d5e6f'));
+      for (final param in ['title', 'byline', 'controls', 'badge']) {
+        expect(vimeo.queryParameters.containsKey(param), isFalse);
+      }
+      final bunny = HostedVideo.parse(
+        'https://iframe.mediadelivery.net/embed/1234/abcd-ef?token=t1&expires=99',
+      )!.playerUrl(hideBranding: false);
+      expect(bunny.queryParameters['token'], 't1');
+      expect(
+        HostedVideo.parse('https://fast.wistia.net/embed/iframe/abc123')!
+            .playerUrl(hideBranding: false)
+            .queryParameters
+            .containsKey('seo'),
+        isFalse,
+      );
+      expect(
+        HostedVideo.parse('https://dai.ly/x8abc12')!
+            .playerUrl(hideBranding: false)
+            .queryParameters
+            .containsKey('ui-logo'),
+        isFalse,
+      );
+      expect(
+        HostedVideo.parse('https://www.loom.com/share/0123abcd')!
+            .playerUrl(hideBranding: false)
+            .queryParameters,
+        isEmpty,
+      );
+    });
+
+    test(
+      "72 the page shows the site's own player and still talks to the app",
+      () {
+        final html = brandlessPlayerHtml(
+          HostedVideo.parse('https://youtu.be/dQw4w9WgXcQ')!,
+          origin: 'https://academy.test',
+          startSeconds: 30,
+          siteControls: true,
+        );
+        final config = jsonDecode(
+          RegExp(r'var C = (\{.*?\});').firstMatch(html)!.group(1)!,
+        ) as Map<String, dynamic>;
+        expect(config['site'], isTrue);
+        final src = Uri.parse(config['src'] as String).queryParameters;
+        expect(src.containsKey('controls'), isFalse);
+        expect(src.containsKey('modestbranding'), isFalse);
+        expect(src['start'], '30');
+        // The frame fills the box and takes the touches; no cover, no layer.
+        expect(html, contains("frame.style.pointerEvents = 'auto'"));
+        expect(html, contains('cover.parentNode.removeChild(cover)'));
+        expect(html, contains("frame.style.height = h + 'px'"));
+        expect(html, contains('if (!site) cover.className'));
+        // The events still reach the app.
+        expect(html, contains('window.YallappPlayer.postMessage(text)'));
+        expect(html, contains('https://www.youtube.com/iframe_api'));
+
+        final hidden = brandlessPlayerHtml(
+          HostedVideo.parse('https://youtu.be/dQw4w9WgXcQ')!,
+          origin: 'https://academy.test',
+        );
+        expect(hidden, contains('"site":false'));
+      },
+    );
+
     test("a link can't end the page's script", () {
       final html = brandlessPlayerHtml(
         const HostedVideo(

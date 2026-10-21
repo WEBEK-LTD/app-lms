@@ -26,7 +26,7 @@ import { UpgradeHint, UsageMeter, upgradeHref } from "@/components/upgrade";
 import { currentPlanId, scheduledPlan } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { getPlans } from "@/lib/settings/platform";
-import { getContact } from "@/lib/contact";
+import { getVisitorContact } from "@/lib/contact";
 import { AnnouncementBanner } from "@/components/announcements";
 import { appLabel, licensePageName, usesPlugin } from "@/lib/app/label";
 import { isInProgress, statusExplanation } from "@/lib/builds/view";
@@ -126,7 +126,7 @@ async function MemberOverview({ context, denied }: { context: ClientContext; den
 }
 
 export default async function OverviewPage({ searchParams }: PageProps<"/dashboard">) {
-  const contact = await getContact();
+  const contact = await getVisitorContact();
   const context = await requireClient("dashboard");
   const { user, app, license, state } = context;
   // 60 A page their role doesn't have sent them here.

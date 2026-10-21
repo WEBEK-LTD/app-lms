@@ -1029,6 +1029,8 @@ class FakeOwnerApi implements OwnerApi {
       links: const MeLinks(
         dashboard: 'https://yallapp.com.tr/dashboard',
         supportWhatsapp: 'https://wa.me/201000000000',
+        supportWhatsappEgypt: 'https://wa.me/201000000000',
+        supportWhatsappInternational: 'https://wa.me/905000000000',
         supportEmail: 'info@yallapp.com.tr',
       ),
     );

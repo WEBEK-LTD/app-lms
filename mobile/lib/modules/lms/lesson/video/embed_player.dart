@@ -232,6 +232,11 @@ class EmbedPlayerController extends ValueNotifier<PlayerSnapshot> {
 /// site's player plays the picture underneath, out of reach, and nothing on
 /// screen says where the video is hosted (see [brandlessPlayerHtml]).
 ///
+/// 72 With [siteControls] (the default for apps, unless the owner hides the
+/// branding: `hideVideoBrandingProvider`), the site's normal player shows
+/// as it is, with its own controls and branding, and takes the touches; the
+/// app still follows it (watch tracking, resume, the end).
+///
 /// Fills its box. Full screen opens the same video in a new player at the
 /// same second.
 class BrandlessVideo extends ConsumerStatefulWidget {
@@ -248,9 +253,13 @@ class BrandlessVideo extends ConsumerStatefulWidget {
     this.captured,
     this.fullScreen = false,
     this.onPosition,
+    this.siteControls = false,
   });
 
   final HostedVideo video;
+
+  /// 72 The site's own player, controls and branding (not hidden).
+  final bool siteControls;
   final String? posterUrl;
   final int startSeconds;
   final bool autoplay;
@@ -299,6 +308,7 @@ class _BrandlessVideoState extends ConsumerState<BrandlessVideo> {
       widget.video,
       origin: Uri.parse(_site).origin,
       startSeconds: widget.startSeconds,
+      siteControls: widget.siteControls,
     );
     widget.captured?.addListener(_onCaptured);
     _progressTimer = Timer.periodic(const Duration(seconds: 15), (_) {
@@ -409,7 +419,10 @@ class _BrandlessVideoState extends ConsumerState<BrandlessVideo> {
         WebViewRequest(
           html: _html,
           baseUrl: '$_site/',
-          interactive: false,
+          // 72 The site's own controls take the touches; vertical drags still
+          // scroll the page around it.
+          interactive: widget.siteControls,
+          scrollable: !widget.siteControls,
           channels: {playerChannel: _controller.handleMessage},
           onCreated: _controller.attach,
           allowNavigation: (uri, mainFrame) =>
@@ -440,6 +453,31 @@ class _BrandlessVideoState extends ConsumerState<BrandlessVideo> {
               ],
             );
           }
+          final captured = widget.captured;
+          // 72 The site's own player, as it is: no poster, no app controls.
+          if (widget.siteControls) {
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                web!,
+                if (!_controller.ready)
+                  IgnorePointer(
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        semanticsLabel: context.l10n.loadingVideo,
+                      ),
+                    ),
+                  ),
+                if (captured != null)
+                  ValueListenableBuilder<bool>(
+                    valueListenable: captured,
+                    builder: (context, on, _) =>
+                        on ? const CapturedNotice() : const SizedBox.shrink(),
+                  ),
+              ],
+            );
+          }
           // Before it starts and after it ends, the site's player shows its
           // title, suggestions and end screen: the poster covers it.
           final covered = !state.started || state.ended;
@@ -467,7 +505,6 @@ class _BrandlessVideoState extends ConsumerState<BrandlessVideo> {
                 ),
             ],
           );
-          final captured = widget.captured;
           return Stack(
             fit: StackFit.expand,
             children: [

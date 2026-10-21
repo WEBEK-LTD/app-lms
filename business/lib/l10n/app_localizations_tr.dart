@@ -1952,6 +1952,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get twoStepOther => 'Başka bir hesapla giriş yapın';
 
   @override
+  String get whatsappInEgypt => 'Mısır\'da';
+
+  @override
+  String get whatsappOutsideEgypt => 'Mısır dışında';
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }

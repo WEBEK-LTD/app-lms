@@ -47,11 +47,12 @@ describe("switches", () => {
       "feature:push",
       "feature:offline_downloads",
       "feature:auto_publish",
-      "feature:marketplace",
       "feature:plan_card_payments",
     ]) {
       expect(keys, key).toContain(key);
     }
+    // 72 No marketplace: selling through Yallapp's account can't be switched on.
+    expect(keys).not.toContain("feature:marketplace");
     expect(switchGroups().map((g) => g.kind)).toEqual(["app_type", "website", "feature"]);
   });
 

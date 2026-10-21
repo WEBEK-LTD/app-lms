@@ -7,9 +7,11 @@ enum VideoHost { youtube, vimeo, bunny, wistia, dailymotion, loom }
 /// 40 A video on a video site, read from its page link, player link or
 /// embed code.
 ///
-/// YouTube, Vimeo and Bunny Stream play behind the app's own controls (see
-/// `brandlessPlayerHtml`); the others keep their own controls, with their
-/// branding turned off where the site allows it.
+/// 72 By default every site plays in its normal player, with its controls and
+/// branding. When the owner hides the branding (`Config.app.hide_video_branding`,
+/// at their own risk), YouTube, Vimeo and Bunny Stream play behind the app's
+/// own controls (see `brandlessPlayerHtml`) and the others keep their own
+/// controls with their branding turned off where the site allows it.
 @immutable
 class HostedVideo {
   const HostedVideo({
@@ -37,7 +39,9 @@ class HostedVideo {
   /// YouTube Shorts: a portrait video.
   final bool vertical;
 
-  /// Played with the app's controls; the site's player shows only the picture.
+  /// The site's player has a JavaScript API the app follows (watch tracking,
+  /// resume, the end): played with the app's controls when the branding is
+  /// hidden, else with the site's own.
   bool get ownControls =>
       host == VideoHost.youtube ||
       host == VideoHost.vimeo ||
@@ -149,10 +153,49 @@ class HostedVideo {
     return HostedVideo(host: VideoHost.youtube, id: id, vertical: vertical);
   }
 
-  /// The site's player, with everything it lets us turn off turned off.
+  /// The site's player. 72 With [hideBranding] false (the default for apps,
+  /// `Config.app.hide_video_branding`), its normal player with its own
+  /// controls and branding; with it true, everything the site lets us turn
+  /// off turned off (roadmap 40).
   ///
   /// YouTube's `origin` is added by the page itself (its own address).
-  Uri playerUrl({int startSeconds = 0}) => switch (host) {
+  Uri playerUrl({int startSeconds = 0, bool hideBranding = true}) =>
+      hideBranding ? _brandlessUrl(startSeconds) : _siteUrl(startSeconds);
+
+  /// 72 Each site's normal player: only what the app needs (inline play on
+  /// iPhone, the JavaScript API, the start), nothing of the site's hidden.
+  Uri _siteUrl(int startSeconds) => switch (host) {
+    VideoHost.youtube => Uri.https('www.youtube.com', '/embed/$id', {
+      'enablejsapi': '1',
+      'playsinline': '1',
+      'autoplay': '0',
+      if (startSeconds > 0) 'start': '$startSeconds',
+    }),
+    VideoHost.vimeo => Uri.https('player.vimeo.com', '/video/$id', {
+      'h': ?hash,
+      'playsinline': '1',
+      'autopause': '0',
+    }),
+    VideoHost.bunny => Uri.https(
+      'iframe.mediadelivery.net',
+      '/embed/$library/$id',
+      {...query, 'autoplay': 'false', 'preload': 'true'},
+    ),
+    VideoHost.wistia => Uri.https('fast.wistia.net', '/embed/iframe/$id', {
+      'playsinline': 'true',
+      if (startSeconds > 0) 'time': '$startSeconds',
+    }),
+    VideoHost.dailymotion => Uri.https(
+      'www.dailymotion.com',
+      '/embed/video/$id',
+      {'playsinline': '1', if (startSeconds > 0) 'start': '$startSeconds'},
+    ),
+    VideoHost.loom => Uri.https('www.loom.com', '/embed/$id', {
+      if (startSeconds > 0) 't': '${startSeconds}s',
+    }),
+  };
+
+  Uri _brandlessUrl(int startSeconds) => switch (host) {
     VideoHost.youtube => Uri.https('www.youtube.com', '/embed/$id', {
       'enablejsapi': '1',
       'controls': '0',

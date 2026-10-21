@@ -94,7 +94,7 @@ describe.skipIf(!url)("44 analytics on MySQL", () => {
 
   it("sets and adds daily totals, and the purge keeps them", async () => {
     const app = await setup();
-    const old = addDays(TODAY, -45);
+    const old = addDays(TODAY, -95);
     await store.saveAnalyticsDaily(app.id, old, [
       { metric: "active", key: "", label: null, value: 5 },
       { metric: "item", key: "course:7", label: "Arabic for beginners", value: 3 },
@@ -119,5 +119,29 @@ describe.skipIf(!url)("44 analytics on MySQL", () => {
     expect(await store.listAnalyticsEvents(app.id, old)).toEqual([]);
     expect(await store.listAnalyticsEvents(app.id, addDays(TODAY, -2))).toHaveLength(1);
     expect((await store.listAnalyticsDaily(app.id, old, old, ["active"]))[0]!.value).toBe(6);
+  });
+
+  it("72 deletes one app's older daily totals and old raw events in batches", async () => {
+    const app = await setup();
+    const other = await setup();
+    const row = { metric: "active" as const, key: "", label: null, value: 1 };
+    const days = [addDays(TODAY, -400), addDays(TODAY, -200), addDays(TODAY, -100), addDays(TODAY, -10)];
+    for (const target of [app, other]) for (const day of days) await store.saveAnalyticsDaily(target.id, day, [row, { ...row, metric: "sessions" }]);
+    const cutoff = addDays(TODAY, -150);
+    expect(await store.purgeAnalyticsDaily(app.id, cutoff, 3)).toBe(3);
+    expect(await store.purgeAnalyticsDaily(app.id, cutoff, 3)).toBe(1);
+    expect(await store.purgeAnalyticsDaily(app.id, cutoff, 3)).toBe(0);
+    const left = await store.listAnalyticsDaily(app.id, "2000-01-01", TODAY);
+    expect([...new Set(left.map((r) => r.day))]).toEqual(days.slice(2));
+    // The other app keeps everything.
+    expect(await store.listAnalyticsDaily(other.id, "2000-01-01", TODAY)).toHaveLength(8);
+
+    const old = addDays(TODAY, -120);
+    await store.insertAnalyticsEvents([event(app.id, randomUUID(), old), event(app.id, randomUUID(), old), event(app.id, randomUUID(), old), event(app.id, randomUUID(), addDays(TODAY, -3))]);
+    let deleted = 0;
+    for (let n = 2; n === 2; ) deleted += n = await store.purgeAnalyticsEvents(addDays(TODAY, -89), 2);
+    expect(deleted).toBeGreaterThanOrEqual(3);
+    expect(await store.listAnalyticsEvents(app.id, old)).toEqual([]);
+    expect(await store.listAnalyticsEvents(app.id, addDays(TODAY, -3))).toHaveLength(1);
   });
 });

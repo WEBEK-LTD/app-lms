@@ -234,7 +234,7 @@ const SOLUTION_COPY: SolutionCopy[] = [
       "Keep running your shop where you do today, or add products in the dashboard",
       "No website: set shipping fees, free shipping from an amount, stock and sale prices",
       "No website: see orders, mark them completed or refunded, get an email for each paid order",
-      "No payment account? Sell through Yallapp's and get paid your share",
+      "Customers pay straight into your own payment account",
     ],
     docs: [
       { href: "/docs/shopify", label: "Connect Shopify" },
@@ -289,7 +289,7 @@ const SOLUTION_COPY: SolutionCopy[] = [
       "Opening hours, preparation time, pickup address, delivery fee, minimum order and delivery areas",
       "The Kitchen page: new orders with their options, and a button for each next step",
       "An email for each paid order",
-      "No payment account? Sell through Yallapp's and get paid your share",
+      "Customers pay straight into your own payment account",
     ],
     docs: [
       { href: "/docs/restaurants", label: "Restaurants and cafés: menu, pickup, delivery and the kitchen" },
@@ -441,7 +441,7 @@ const SOLUTION_COPY: SolutionCopy[] = [
       "Your weekly timetable, with who's coming to each class",
       "Your membership plans, and whether classes need one",
       "Who has which membership, adding classes or a membership paid at your desk",
-      "Card payments through iyzico, Kashier or Fawaterk, with your own account or through Yallapp",
+      "Card payments through iyzico, Kashier or Fawaterk, into your own account",
     ],
     docs: [
       { href: "/docs/fitness", label: "Gyms and studios: timetable, classes and memberships" },
@@ -576,7 +576,7 @@ const SOLUTION_COPY: SolutionCopy[] = [
       "Events with pictures, a venue or an online link, and ticket types with their own prices and limits",
       "Sales and attendees per event, with a CSV export",
       "Check tickets at the door with a phone, no app to install",
-      "Card payments into your own iyzico, Kashier or Fawaterk account, or through Yallapp's",
+      "Card payments into your own iyzico, Kashier or Fawaterk account",
     ],
     docs: [{ href: "/docs/events", label: "Events and tickets" }],
   },
@@ -595,7 +595,7 @@ const SOLUTION_COPY: SolutionCopy[] = [
       {
         icon: "payments",
         title: "Every gift goes to you",
-        text: "Donations are paid on a secure page into your own iyzico, Kashier or Fawaterk account. Yallapp takes no commission on donations.",
+        text: "Donations are paid on a secure page into your own iyzico, Kashier or Fawaterk account. Yallapp never touches the money.",
       },
       {
         icon: "receipt_long",
@@ -920,7 +920,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
         text: "Shops and academies without a website take card payments on a secure iyzico, Kashier or Fawaterk page, into their own merchant account.",
         details: [
           "Your own iyzico, Kashier or Fawaterk keys, with test keys for trying it out",
-          "No payment account? Sell through Yallapp's and get paid your share",
+          "Customers pay straight into your own payment account",
           "Orders in the dashboard, with an email for each paid order",
           "A shareable web page for every product",
         ],
@@ -1221,11 +1221,11 @@ export const FAQ: FaqGroup[] = [
       },
       {
         q: "I don't have a payment account. Can I still sell?",
-        a: "Yes. You can sell through Yallapp's account instead: say who gets paid on your Products page, and your share of each completed order is paid to your IBAN after a commission.",
+        a: "You need one: customers always pay into your own account, never Yallapp's. Open one with iyzico (Türkiye), Kashier or Fawaterk (Egypt) and paste its keys on your Products page. Until then, customers can see your products in the app but can't pay.",
       },
       {
         q: "Does Yallapp take a cut of my sales?",
-        a: "Not when you use your own checkout or your own payment account. Only sales through Yallapp's account carry a commission.",
+        a: "No. Your customers pay you through your own checkout or your own payment account, and Yallapp isn't a party to those sales. You pay Yallapp only for your plan.",
       },
       {
         q: "Can customers pay for appointments in the app?",

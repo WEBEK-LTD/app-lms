@@ -3,7 +3,6 @@
 import { useActionState, useState } from "react";
 import {
   addCategoryAction,
-  joinMarketplaceAction,
   saveFulfilmentAction,
   savePaymentKeysAction,
   saveProductAction,
@@ -13,7 +12,7 @@ import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form"
 import { btn } from "@/components/ui";
 import { initialFormState } from "@/lib/forms";
 import { MediaImagesPicker } from "@/components/media-picker";
-import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
+import { useDashLang, useDashT } from "@/components/dashboard-i18n";
 import type { DashKey } from "@/i18n/dashboard";
 import { formatDate } from "@/i18n/format";
 import { richText } from "@/i18n/rich";
@@ -562,83 +561,6 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "" }: { provid
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText={t("shop.checking")}>
           {t("shop.saveKeys")}
-        </SubmitButton>
-      </div>
-    </form>
-  );
-}
-
-/**
- * Selling through Yallapp's account. With iyzico: the details iyzico needs
- * to register and pay the shop. 37 With Kashier or Fawaterk: who the team
- * transfers the shop's share to.
- */
-export function MarketplaceForm({ types, provider = "iyzico" }: { types: { id: string; label: string }[]; provider?: ProviderChoice }) {
-  const t = useDashT();
-  const known = useKnownText();
-  const [state, action] = useActionState(joinMarketplaceAction, initialFormState);
-  const v = state.values ?? {};
-  const e = state.errors ?? {};
-  const [type, setType] = useState(v.type || "PERSONAL");
-  const company = type !== "PERSONAL";
-  if (provider !== "iyzico") {
-    return (
-      <form action={action} noValidate className="flex flex-col gap-4">
-        <FormMessage message={state.message} ok={state.ok} />
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label={t("shop.shopName")} name="payeeName" defaultValue={v.payeeName} error={e.payeeName} small />
-          <Field label={t("shop.fullName")} name="contactName" autoComplete="name" defaultValue={v.contactName} error={e.contactName} small />
-          <Field label={t("common.email")} name="email" type="email" autoComplete="email" defaultValue={v.email} error={e.email} small />
-          <Field label={t("shop.mobile")} name="phone" type="tel" autoComplete="tel" defaultValue={v.phone} error={e.phone} small />
-        </div>
-        <Field label={t("shop.address")} name="address" autoComplete="street-address" defaultValue={v.address} error={e.address} small />
-        <Field label={t("shop.iban")} name="iban" autoComplete="off" placeholder="EG" defaultValue={v.iban} hint={t("shop.ibanYallapp")} error={e.iban} small />
-        <div className="flex justify-end">
-          <SubmitButton className="h-10" pendingText={t("common.saving")}>
-            {t("shop.sell")}
-          </SubmitButton>
-        </div>
-      </form>
-    );
-  }
-  return (
-    <form action={action} noValidate className="flex flex-col gap-4">
-      <FormMessage message={state.message} ok={state.ok} />
-      {/* The choice is sent from state: React resets the form's own radios after each submit. */}
-      <input type="hidden" name="type" value={type} />
-      <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-        <legend className="mb-1.5 text-sm font-semibold">{t("shop.whoPaid")}</legend>
-        {types.map((option) => (
-          <label key={option.id} className="flex cursor-pointer items-center gap-3 text-[15px]">
-            <input type="radio" name="typeChoice" value={option.id} checked={type === option.id} onChange={() => setType(option.id)} className="h-4 w-4 accent-midnight" />
-            {known(option.label)}
-          </label>
-        ))}
-        <FieldError id="f-type-error" error={e.type} />
-      </fieldset>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label={t("shop.shopName")} name="payeeName" defaultValue={v.payeeName} error={e.payeeName} small />
-        <Field label={t("shop.fullName")} name="contactName" autoComplete="name" defaultValue={v.contactName} error={e.contactName} small />
-        <Field label={t("common.email")} name="email" type="email" autoComplete="email" defaultValue={v.email} error={e.email} small />
-        <Field label={t("shop.mobile")} name="phone" type="tel" autoComplete="tel" defaultValue={v.phone} error={e.phone} small />
-      </div>
-      <Field label={t("shop.address")} name="address" autoComplete="street-address" defaultValue={v.address} error={e.address} small />
-      <Field label={t("shop.iban")} name="iban" autoComplete="off" placeholder="TR" defaultValue={v.iban} hint={t("shop.ibanIyzico")} error={e.iban} small />
-      {type !== "LIMITED_OR_JOINT_STOCK_COMPANY" ? (
-        <Field label={t("shop.tcId")} name="identityNumber" inputMode="numeric" autoComplete="off" defaultValue={v.identityNumber} error={e.identityNumber} small />
-      ) : null}
-      {company ? (
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label={t("shop.legalName")} name="legalCompanyTitle" defaultValue={v.legalCompanyTitle} error={e.legalCompanyTitle} small />
-          <Field label={t("shop.taxOffice")} name="taxOffice" defaultValue={v.taxOffice} error={e.taxOffice} small />
-          {type === "LIMITED_OR_JOINT_STOCK_COMPANY" ? (
-            <Field label={t("shop.taxNumber")} name="taxNumber" inputMode="numeric" defaultValue={v.taxNumber} error={e.taxNumber} small />
-          ) : null}
-        </div>
-      ) : null}
-      <div className="flex justify-end">
-        <SubmitButton className="h-10" pendingText={t("shop.registering")}>
-          {t("shop.sell")}
         </SubmitButton>
       </div>
     </form>

@@ -1062,7 +1062,7 @@ People can turn off **Share usage statistics** in the app's **Settings**. The ap
 
 ## How long it's kept
 
-What the app sends is kept for 40 days, then only daily totals remain. Everything is deleted when your app is deleted. Your app's privacy policy should say you use first-party usage statistics: see the store answers in [Publish on Google Play](/docs/google-play) and [Publish on the App Store](/docs/app-store).
+What the app sends (each app open, screen or search) is kept for 90 days on every plan. The daily totals made from it are kept as long as your plan says: 3 months on Starter, 1 year on Growth, 2 years on Pro and 3 years on Business (your plan's details on **License & plugin** and the [pricing page](/pricing) say how long), and the Analytics page goes back no further. Everything is deleted when your app is deleted. Your app's privacy policy should say you use first-party usage statistics: see the store answers in [Publish on Google Play](/docs/google-play) and [Publish on the App Store](/docs/app-store).
 
 ---
 
@@ -1450,7 +1450,7 @@ Set a **Shipping fee** for orders with physical products (leave it empty for fre
 
 ## Payments
 
-Customers pay by card on a secure page of your provider (iyzico, Kashier or Fawaterk). Add your own keys, or sell through Yallapp's account: see [Card payments](/docs/card-payments).
+Customers pay by card on a secure page of your provider (iyzico, Kashier or Fawaterk). Add your own keys: see [Card payments](/docs/card-payments).
 
 ## Orders
 
@@ -1497,7 +1497,7 @@ Paid orders appear on **Kitchen** with what was chosen, pickup or delivery, the 
 
 ## Payments
 
-Customers sign in, then pay by card on a secure page of your provider (iyzico, Kashier or Fawaterk), on Android and iPhone: food is a physical product, so Apple's rules allow it. Add your own keys, or sell through Yallapp's account: see [Card payments](/docs/card-payments).
+Customers sign in, then pay by card on a secure page of your provider (iyzico, Kashier or Fawaterk), on Android and iPhone: food is a physical product, so Apple's rules allow it. Add your own keys: see [Card payments](/docs/card-payments).
 
 ## With WooCommerce
 
@@ -1508,7 +1508,7 @@ Restaurants that sell with WooCommerce get the menu wording, and their product v
     slug: "card-payments",
     section: "Selling and bookings",
     title: "Card payments with iyzico, Kashier or Fawaterk",
-    description: "Take card payments in apps without a website, with your own iyzico, Kashier or Fawaterk account or through Yallapp's.",
+    description: "Take card payments in apps without a website, into your own iyzico, Kashier or Fawaterk account.",
     steps: false,
     body: `Apps without a website take card payments through **iyzico** (Türkiye), **Kashier** or **Fawaterk** (Egypt): shops for their orders, restaurants and cafés, event organisers for tickets, gyms for memberships, academies for paid courses, and charities for donations. Customers enter their card on the provider's secure page; Yallapp never sees it. An order is marked paid only after the provider confirms the payment for that exact amount and currency: we ask the provider ourselves, so a payment can't be faked by opening a link.
 
@@ -1524,14 +1524,9 @@ Set your prices in a currency your provider takes: the **Card payments** box war
 
 > To try it first, turn on the test switch (**Sandbox keys**, **Test mode keys** or **Staging key**) and paste the provider's test keys, then pay with its test cards. Turn it off when you paste your live keys: test and live keys are different.
 
-## No payment account? Sell through Yallapp
+## Yallapp never takes your customers' payments
 
-Choose **No payment account? Sell through Yallapp** and say who gets paid. Customers then pay into Yallapp's account.
-
-- Each order's price goes to you minus Yallapp's commission; shipping goes to you in full.
-- Your share is released when you mark the order **completed**, or when our team releases it.
-- When Yallapp's account is with iyzico, you give the details iyzico needs (your legal name, ID or tax details, address and a Turkish IBAN in the payee's name), iyzico registers you and pays your share itself.
-- When Yallapp's account is with Kashier or Fawaterk, you give your name, contact details and your IBAN, and Yallapp transfers your share to it. Your IBAN is kept encrypted.
+Every business takes its customers' payments in its own payment provider account: Yallapp never collects money for your sales and isn't a party to them, and there's no commission. Until your keys are saved, customers see your products, courses or tickets in the app but can't pay. Selling through Yallapp's account, offered before, has ended: if you used it, add your own account above; orders paid before are settled as before.
 
 ## Refunds
 
@@ -1540,7 +1535,7 @@ Refund a paid order, ticket, course or donation with **Refund** under it on the 
 - **iyzico** and **Kashier**: Yallapp makes the refund through your provider with your keys. iyzico cancels a payment made the same day (nothing shows on the customer's statement) and refunds it otherwise, item by item. Your Kashier secret key needs the refund permission.
 - **Fawaterk**: make the refund in Fawaterk's panel, then record it with **Refund** (and Fawaterk's reference, if you like).
 - What follows: the order or donation says **Refunded** (or how much was refunded), the customer gets an email and sees it in the app. Refunding all of an order takes back what it paid for: tickets are cancelled and their places go back on sale, a course is no longer open to the student, a membership ends; with a refund in part you tick what to take back. A refunded donation no longer counts in the campaign's total.
-- Sold through Yallapp: the refund comes out of Yallapp's account and Yallapp gives its commission back in proportion. If your share was already transferred (Kashier or Fawaterk), Yallapp takes your share of the refund from your next transfer. A Fawaterk payment in Yallapp's account is refunded by our team: message us on WhatsApp.
+- An order sold through Yallapp's account before that ended: the refund comes out of Yallapp's account and Yallapp gives its commission back in proportion. If your share was already transferred (Kashier or Fawaterk), Yallapp takes your share of the refund from your next transfer. A Fawaterk payment in Yallapp's account is refunded by our team: message us on WhatsApp.
 
 ## Paid courses
 
@@ -1548,7 +1543,7 @@ Academy apps without a website sell paid courses the same way, on Android only: 
 
 ## Donations
 
-Charity & donations apps take donations with their own iyzico, Kashier or Fawaterk account only: selling through Yallapp isn't offered for donations, and Yallapp takes no commission on them. Add your keys on the **Campaigns** page. See [Charity and donation apps](/docs/donations).
+Charity & donations apps take donations with their own iyzico, Kashier or Fawaterk account, like every app. Add your keys on the **Campaigns** page. See [Charity and donation apps](/docs/donations).
 `,
   }),
   doc({
@@ -1837,7 +1832,7 @@ Save it as a **draft** while you work and **publish** it to show it in the app. 
 
 ## Free and paid tickets
 
-Free tickets are taken in the app. Paid tickets are paid by card on a secure payment page: set up **Card payments** on the Events page with your own iyzico, Kashier or Fawaterk account, or sell through Yallapp's. The places are held while the buyer pays, and the tickets are issued only once the provider confirms the payment. Places are counted as they're taken, so the last ticket can't be sold twice.
+Free tickets are taken in the app. Paid tickets are paid by card on a secure payment page: set up **Card payments** on the Events page with your own iyzico, Kashier or Fawaterk account. The places are held while the buyer pays, and the tickets are issued only once the provider confirms the payment. Places are counted as they're taken, so the last ticket can't be sold twice.
 
 **On iPhones**, Apple lets apps sell tickets to events that happen at a place, but not to online-only events, which count as digital content. So in the iPhone app, paid tickets to an event without a venue show no buy button; free tickets work everywhere. On Android, everything can be bought in the app.
 
@@ -1870,7 +1865,7 @@ The home page starts with a search box and the events coming up. Change it on **
 ## Before your first donation
 
 1. Choose **Charity & donations** on **App type**, then **Campaigns managed in Yallapp** on the Website step.
-2. On the **Campaigns** page, under **Card payments**, choose your provider (iyzico, Kashier or Fawaterk) and paste your keys (see [Card payments](/docs/card-payments)). Donations go straight into your own merchant account; Yallapp takes no commission on them. Until your keys are saved, campaigns show in the app but nobody can donate.
+2. On the **Campaigns** page, under **Card payments**, choose your provider (iyzico, Kashier or Fawaterk) and paste your keys (see [Card payments](/docs/card-payments)). Donations go straight into your own merchant account. Until your keys are saved, campaigns show in the app but nobody can donate.
 3. Under **Donations in the app**, choose your currency. It can't change after the first donation.
 
 ## Campaigns
@@ -2011,7 +2006,7 @@ The bell at the top of your dashboard shows what our team sends you (updates, an
 
 ## Getting help
 
-- **WhatsApp**: the **Support** link in your dashboard, the fastest way to reach us
+- **WhatsApp**: the **Support** link in your dashboard, the fastest way to reach us. We have two numbers, one for customers in Egypt and one for everywhere else: the dashboard opens the one for your account's country, and the [Contact](/contact) page shows both
 - **Email**: for anything you'd rather put in writing
 - This documentation, for step-by-step answers
 
@@ -2069,6 +2064,10 @@ Open the lesson while signed in as a student. If it doesn’t play there, fix th
 ## Allow embedding
 
 For YouTube and Vimeo, the video’s privacy settings must allow embedding. For Vimeo videos limited to certain domains, add your website’s domain.
+
+## The video site's own player
+
+Videos from YouTube, Vimeo and other video sites play in the site's own player, with its controls and logo. On **Screen protection** you can choose **Hide the video site's branding (at your own risk)**: the app then plays them behind its own controls. YouTube's terms don't allow apps to hide its branding, and YouTube can block such videos from playing in the app: if YouTube videos stop playing, turn it off.
 
 ## Reopen the lesson
 

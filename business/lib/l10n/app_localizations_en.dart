@@ -1950,6 +1950,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get twoStepOther => 'Sign in with another account';
 
   @override
+  String get whatsappInEgypt => 'In Egypt';
+
+  @override
+  String get whatsappOutsideEgypt => 'Outside Egypt';
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }

@@ -3,6 +3,7 @@ import { getStore } from "./data";
 import type { DataStore } from "./data/store";
 import { encryptionKey, isProduction, mailCaptureDir } from "./env";
 import { DEFAULT_CONTACT } from "./contact";
+import { bothWhatsApp, whatsappLines } from "./contact-lines";
 import { fromWithName, type MailAttachment } from "./email/app-mail";
 import { platformSetting, resolvedSmtpConfig } from "./settings/platform";
 
@@ -25,10 +26,12 @@ export interface Mail {
 export async function sendMail(input: Mail, options: { fromName?: string } = {}): Promise<void> {
   const store = await getStore();
   const contact = (await platformSetting(store, "contact"))?.value ?? DEFAULT_CONTACT;
+  // 72 Both numbers, each with where it's for.
+  const numbers = bothWhatsApp(whatsappLines(contact), { inEgypt: "In Egypt", outsideEgypt: "Outside Egypt" });
   const mail = {
     ...input,
-    text: input.text.replaceAll(WHATSAPP_PLACEHOLDER, contact.whatsapp),
-    html: input.html?.replaceAll(WHATSAPP_PLACEHOLDER, contact.whatsapp),
+    text: input.text.replaceAll(WHATSAPP_PLACEHOLDER, numbers),
+    html: input.html?.replaceAll(WHATSAPP_PLACEHOLDER, numbers),
   };
   const config = await resolvedSmtpConfig(store, encryptionKey());
   if (!config) {

@@ -82,6 +82,9 @@ export const en = {
     createAccount: "Create an account",
     goToDashboard: "Go to your dashboard",
     step: "Step {n}: ",
+    /** 72 The labels of Yallapp's two WhatsApp numbers. */
+    inEgypt: "In Egypt",
+    outsideEgypt: "Outside Egypt",
   },
   home: {
     publishTo: "Publish to",
@@ -140,6 +143,11 @@ export const en = {
     unlimitedStorage: "Unlimited storage",
     gb: "{size} GB",
     tb: "{size} TB",
+    /** 72 How long analytics are kept. */
+    keepMonths: "{count, plural, =1{1 month} other{{count} months}}",
+    keepYears: "{count, plural, =1{1 year} other{{count} years}}",
+    keepForever: "Until the app is deleted",
+    keepDays: "{count} days",
     currencyEgp: "Prices in Egyptian pounds (EGP). Card payments go through Kashier.",
     currencyUsd: "Prices in US dollars. Card payments go through Kashier and are charged in Egyptian pounds (EGP); your bank converts the amount.",
   },
@@ -156,6 +164,8 @@ export const en = {
     rowUsers: "App users",
     rowLanguages: "App languages",
     rowStorage: "Storage for videos and files",
+    rowAnalyticsDaily: "Analytics: daily totals kept",
+    rowAnalyticsEvents: "Analytics: single events kept (each app open, screen or search)",
     rowPush: "Push notifications",
     rowPages: "Pages",
     rowCards: "Card payments in the app",

@@ -3,8 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { newApp } from "@/lib/app/setup";
 import { completePlanPayment, startPlanPayment } from "@/lib/billing/plan-payment";
 import { approvePayout, completePayment, startPayment } from "@/lib/catalog/payment";
-import { parsePayeeForm } from "@/lib/catalog/marketplace";
-import { accountForOrder, checkoutAccount, encryptOwnPayment, encryptPayout, ownPaymentAccount, payoutDetails } from "@/lib/catalog/settings";
+import { accountForOrder, checkoutAccount, encryptOwnPayment, encryptPayout, ownPaymentAccount, paymentsSetUp, payoutDetails } from "@/lib/catalog/settings";
 import { sha256Hex } from "@/lib/crypto/tokens";
 import type { MemoryStore } from "@/lib/data/memory";
 import { DEFAULT_CATALOG_SETTINGS, type App, type CatalogOrder, type Donation } from "@/lib/data/types";
@@ -16,7 +15,7 @@ import { checkKashierKeys, createKashierSession, kashierSignature, phpQuery, ver
 import { cardPlans } from "@/lib/billing/plan-payment";
 import { confirmCheckout, PaymentError, providerTakes, startCheckout, type CheckoutRequest, type PaymentAccount } from "@/lib/payments/provider";
 import { callbackUrls } from "@/lib/payments/routes";
-import { encryptSetting, yallappAccountFor, yallappPaymentAccount, yallappProvider } from "@/lib/settings/platform";
+import { encryptSetting, yallappAccountFor } from "@/lib/settings/platform";
 import { PLAN_INFO, plansWith } from "@/lib/plans";
 import { fakeFawaterk, fakeKashier } from "./fake-providers";
 import { KEY, NOW, setupClient } from "./helpers";
@@ -268,10 +267,9 @@ describe("Fawaterk", () => {
 });
 
 describe("Yallapp's account", () => {
-  it("is iyzico until the team picks another provider, and each provider's keys stay encrypted", async () => {
+  it("keeps each provider's keys encrypted (72 only for Yallapp's own plan payments)", async () => {
     const { store } = await setupClient();
-    expect(await yallappProvider(store)).toBe("iyzico");
-    expect(await yallappPaymentAccount(store, KEY)).toBeNull();
+    expect(await yallappAccountFor(store, "kashier", KEY)).toBeNull();
     await store.setPlatformSetting(
       "kashier",
       { merchantId: KASHIER.merchantId, apiKeyEncrypted: encryptSetting("kashier", KASHIER.apiKey, KEY), secretKeyEncrypted: encryptSetting("kashier", KASHIER.secretKey, KEY), sandbox: true },
@@ -279,10 +277,7 @@ describe("Yallapp's account", () => {
       NOW,
     );
     expect(JSON.stringify((await store.listPlatformSettings()).map((s) => s.value))).not.toContain(KASHIER.secretKey);
-    // Saved, but iyzico still takes payments.
-    expect(await yallappPaymentAccount(store, KEY)).toBeNull();
-    await store.setPlatformSetting("paymentProvider", { provider: "kashier" }, "admin@yallapp.test", NOW);
-    expect(await yallappPaymentAccount(store, KEY)).toEqual(KASHIER_ACCOUNT);
+    expect(await yallappAccountFor(store, "kashier", KEY)).toEqual(KASHIER_ACCOUNT);
     await store.setPlatformSetting("fawaterk", { apiKeyEncrypted: encryptSetting("fawaterk", FAWATERK.apiKey, KEY), sandbox: true }, "admin@yallapp.test", NOW);
     expect(await yallappAccountFor(store, "fawaterk", KEY)).toEqual(FAWATERK_ACCOUNT);
   });
@@ -458,18 +453,17 @@ describe("a shop's own Kashier or Fawaterk keys", () => {
     expect(await accountForOrder(store, app, order, KEY)).toEqual({ account: FAWATERK_ACCOUNT, marketplace: null });
   });
 
-  it("sells through Yallapp's Kashier account: the commission is kept, and the release is recorded for the team's transfer", async () => {
+  it("72 never sells through Yallapp's Kashier account; an order paid there before is still confirmed and its share released", async () => {
     await store.setPlatformSetting(
       "kashier",
       { merchantId: KASHIER.merchantId, apiKeyEncrypted: encryptSetting("kashier", KASHIER.apiKey, KEY), secretKeyEncrypted: encryptSetting("kashier", KASHIER.secretKey, KEY), sandbox: true },
       "admin@yallapp.test",
       NOW,
     );
+    // The old settings stay in the database, untouched.
     await store.setPlatformSetting("marketplace", { commissionPercent: 10 }, "admin@yallapp.test", NOW);
-    const payee = parsePayeeForm({ payeeName: "Cairo Kitchen", contactName: "Mona Hassan", email: "mona@example.com", phone: "0100 123 4567", address: "12 Tahrir St, Downtown", iban: "EG38 0019 0005 0000 0000 2631 8000 2" });
-    if (!payee.ok) throw new Error(JSON.stringify(payee.errors));
-    expect(payee.payee).toMatchObject({ phone: "+201001234567", iban: "EG380019000500000000263180002" });
-    expect(parsePayeeForm({ iban: "EG38 0019 0005 0000 0000 2631 8000 3" })).toMatchObject({ ok: false, errors: { iban: expect.any(String) } });
+    await store.setPlatformSetting("paymentProvider", { provider: "kashier" }, "admin@yallapp.test", NOW);
+    const payee = { name: "Cairo Kitchen", contactName: "Mona Hassan", email: "mona@example.com", phone: "+201001234567", address: "12 Tahrir St, Downtown", iban: "EG380019000500000000263180002" };
     const shop = {
       ...app,
       catalogSettings: {
@@ -481,23 +475,28 @@ describe("a shop's own Kashier or Fawaterk keys", () => {
           subMerchantType: "PERSONAL" as const,
           payeeName: "Cairo Kitchen",
           ibanLast4: "8002",
-          payoutEncrypted: encryptPayout(app.id, payee.payee, KEY),
+          payoutEncrypted: encryptPayout(app.id, payee, KEY),
           sandbox: true,
           joinedAt: NOW.toISOString(),
         },
       },
     };
-    // Yallapp's provider is still iyzico: the shop that joined with Kashier can't sell until it's Kashier again.
+    // 72 Yallapp's account, a commission and the provider are all set, and the shop joined with it: still no payments.
     expect(await checkoutAccount(store, shop, KEY)).toBeNull();
-    await store.setPlatformSetting("paymentProvider", { provider: "kashier" }, "admin@yallapp.test", NOW);
-    const account = (await checkoutAccount(store, shop, KEY))!;
-    expect(account).toEqual({ account: KASHIER_ACCOUNT, marketplace: { subMerchantKey: "", commissionPercent: 10 } });
-    expect(payoutDetails(shop, KEY)).toEqual(payee.payee);
-
+    expect(paymentsSetUp(shop)).toBe(false);
     const kashier = fakeKashier();
-    await startPayment({ store, app: shop, account, fetcher: kashier.fetcher, now: NOW, order, customer, ip: "203.0.113.9", callbackUrls: callbackUrls("https://yallapp.test", "order", "kashier", "order-token") });
-    // No split: the whole payment goes to Yallapp's account.
-    expect(kashier.calls[0]!.body).toMatchObject({ amount: "175.00", merchantId: KASHIER.merchantId });
+    const urls = callbackUrls("https://yallapp.test", "order", "kashier", "order-token");
+    // Even handed Yallapp's account as a marketplace, a payment never starts.
+    const yallapp = { account: KASHIER_ACCOUNT, marketplace: { subMerchantKey: "", commissionPercent: 10 } };
+    await expect(startPayment({ store, app: shop, account: yallapp, fetcher: kashier.fetcher, now: NOW, order, customer, ip: "203.0.113.9", callbackUrls: urls })).rejects.toThrow(
+      "never paid into Yallapp's account",
+    );
+    expect(kashier.calls).toEqual([]);
+    expect(payoutDetails(shop, KEY)).toEqual(payee);
+
+    // An order started before Phase 72 (the commission recorded on it), paid into Yallapp's account: settled as before.
+    await startPayment({ store, app: shop, account: { account: KASHIER_ACCOUNT, marketplace: null }, fetcher: kashier.fetcher, now: NOW, order, customer, ip: "203.0.113.9", callbackUrls: urls });
+    await store.updateCatalogOrder(app.id, order.id, { commissionCents: 1500, updatedAt: NOW });
     order = (await store.getCatalogOrder(app.id, order.id))!;
     expect(order).toMatchObject({ commissionCents: 1500, paymentProvider: "kashier" });
     kashier.pay(order.providerRef!);

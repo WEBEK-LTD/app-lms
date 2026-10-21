@@ -179,10 +179,13 @@ test("the team changes the contact details shown everywhere", async () => {
   await openSettings();
   const contact = page.getByRole("region", { name: "Contact details" });
   await expect(contact).toContainText("Now: the defaults.");
-  await contact.getByLabel("WhatsApp number").fill("0544");
+  // 72 Two numbers: outside Egypt and in Egypt.
+  await expect(contact.getByLabel("WhatsApp number (in Egypt)")).toHaveValue("+20 104 256 0010");
+  await contact.getByLabel("WhatsApp number (outside Egypt)").fill("0544");
   await contact.getByRole("button", { name: "Save" }).click();
-  await expect(contact.getByText("Enter the number with its country code")).toBeVisible();
-  await contact.getByLabel("WhatsApp number").fill("+90 555 111 22 33");
+  await expect(contact.getByText("Enter the number with its country code, like +90")).toBeVisible();
+  await contact.getByLabel("WhatsApp number (outside Egypt)").fill("+90 555 111 22 33");
+  await contact.getByLabel("WhatsApp number (in Egypt)").fill("+20 100 222 3344");
   await contact.getByLabel("Email").fill("hello@yallapp.test");
   await contact.getByRole("button", { name: "Save" }).click();
   await expect(contact.getByText("Contact details saved.")).toBeVisible();
@@ -190,8 +193,15 @@ test("the team changes the contact details shown everywhere", async () => {
   for (const path of ["/contact", "/terms"]) {
     await page.goto(path);
     await expect(page.getByRole("link", { name: "+90 555 111 22 33" }).first()).toHaveAttribute("href", "https://wa.me/905551112233");
+    await expect(page.getByRole("link", { name: "+20 100 222 3344" }).first()).toHaveAttribute("href", "https://wa.me/201002223344");
     await expect(page.getByRole("link", { name: "hello@yallapp.test" }).first()).toBeVisible();
   }
+  // The contact page says which number is for whom.
+  await page.goto("/contact");
+  await expect(page.locator('[data-whatsapp="egypt"]').first()).toContainText("In Egypt");
+  await expect(page.locator('[data-whatsapp="international"]').first()).toContainText("Outside Egypt");
+  await page.goto("/ar/contact");
+  await expect(page.locator('main [data-whatsapp="egypt"]').first()).toContainText("داخل مصر");
 
   await openSettings();
   await contact.getByRole("button", { name: "Use the defaults" }).click();

@@ -9,6 +9,9 @@ import { richText } from "@/i18n/rich";
 import { compactIn } from "@/lib/analytics/format";
 import { loadReport, rangeFrom, RANGE_PRESETS, MIN_SEARCH_COUNT, type AnalyticsReport } from "@/lib/analytics/report";
 import { relabel } from "@/lib/analytics/localize";
+import { analyticsKeep } from "@/lib/analytics/retention";
+import { appPlan, effectivePlans } from "@/lib/entitlements";
+import { analyticsEventsKeepText, analyticsKeepText } from "@/components/plan-cards";
 import { funnelWords, itemWord, pushTypeWord } from "@/lib/analytics/words";
 import { timeZones, zoneLabel, zoneOf } from "@/lib/analytics/zone";
 import { wordsOf } from "@/lib/app/kinds";
@@ -37,6 +40,8 @@ function exportHref(report: AnalyticsReport): string {
 /** Date range first: the presets, then a custom range. Everything below follows it. */
 function RangeFilter({ report, text }: { report: AnalyticsReport; text: DashboardText }) {
   const { range } = report;
+  // 72 Not before the first day the plan keeps.
+  const min = range.keptFrom ?? undefined;
   const { t } = text;
   return (
     <div className="flex flex-wrap items-end gap-x-4 gap-y-3">
@@ -59,11 +64,11 @@ function RangeFilter({ report, text }: { report: AnalyticsReport; text: Dashboar
         <input type="hidden" name="range" value="custom" />
         <label className="flex flex-col gap-1 text-xs font-semibold text-muted">
           {t("analytics.from")}
-          <input type="date" name="from" defaultValue={range.from} required className="input input-sm h-9 w-[150px]" />
+          <input type="date" name="from" defaultValue={range.from} min={min} required className="input input-sm h-9 w-[150px]" />
         </label>
         <label className="flex flex-col gap-1 text-xs font-semibold text-muted">
           {t("analytics.to")}
-          <input type="date" name="to" defaultValue={range.to} required className="input input-sm h-9 w-[150px]" />
+          <input type="date" name="to" defaultValue={range.to} min={min} required className="input input-sm h-9 w-[150px]" />
         </label>
         <button type="submit" className={`${btn.secondary} h-9 px-3 text-sm`}>
           {t("analytics.apply")}
@@ -82,7 +87,7 @@ function NoData({ app, text }: { app: App; text: DashboardText }) {
 }
 
 export default async function AnalyticsPage({ searchParams }: PageProps<"/dashboard/analytics">) {
-  const { app, client } = await requireClient("analytics");
+  const { app, client, license } = await requireClient("analytics");
   const text = await dashboardText();
   const { t, k, lang, num } = text;
   if (!app) {
@@ -97,8 +102,13 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
   const now = new Date();
   // 47 Days in the owner's time zone.
   const zone = zoneOf(app, client);
-  const range = rangeFrom({ range: one(query.range), from: one(query.from), to: one(query.to) }, now, zone);
-  const report = await loadReport(await getStore(), app.id, range, now, zone);
+  const store = await getStore();
+  // 72 The plan keeps daily totals for so many months: the range starts no earlier.
+  const plan = await appPlan(store, license, now);
+  const kept = analyticsKeep(plan, now, zone, await effectivePlans(store));
+  const range = rangeFrom({ range: one(query.range), from: one(query.from), to: one(query.to) }, now, zone, kept.from);
+  const report = await loadReport(store, app.id, range, now, zone);
+  const planName = plan?.name ?? (await effectivePlans(store)).starter.name;
   const items = wordsOf(app).items;
   const funnel = funnelWords(app.appType);
   const days = report.daily.map((d) => d.day);
@@ -121,6 +131,12 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
       />
       <RangeFilter report={report} text={text} />
       <ZoneForm zone={zone} label={zoneText} zones={timeZones()} chosen={Boolean(app.timeZone)} />
+      <Notice>
+        {kept.from === null
+          ? t("analytics.keptNoteForever", { plan: planName, days: analyticsEventsKeepText(lang) })
+          : t("analytics.keptNote", { plan: planName, kept: analyticsKeepText(lang, kept.months), days: analyticsEventsKeepText(lang), from: dayText(kept.from, text) })}
+        {range.limited && kept.from ? ` ${t("analytics.keptLimited", { from: dayText(kept.from, text) })}` : null}
+      </Notice>
       <Notice>{t("analytics.installsNote")}</Notice>
 
       <KpiTiles report={report} lang={lang} />

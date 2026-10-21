@@ -152,7 +152,7 @@ export const TR_MARKETING: MarketingTranslation = {
         "Mağazanızı bugün nerede işletiyorsanız orada işletmeye devam edin ya da panelden ürün ekleyin",
         "Web sitesi yok: kargo ücretleri, belirli bir tutardan itibaren ücretsiz kargo, stok ve indirimli fiyatlar",
         "Web sitesi yok: siparişleri görün, tamamlandı veya iade edildi olarak işaretleyin, her ödenen sipariş için e-posta alın",
-        "Ödeme hesabınız yok mu? Yallapp'inki üzerinden satın ve payınızı alın",
+        "Müşteriler doğrudan kendi ödeme hesabınıza öder",
       ],
       docs: [
         "Shopify'ı bağlayın",
@@ -207,7 +207,7 @@ export const TR_MARKETING: MarketingTranslation = {
         "Çalışma saatleri, hazırlık süresi, gel-al adresi, teslimat ücreti, en az sipariş tutarı ve teslimat bölgeleri",
         "Mutfak sayfası: seçenekleriyle yeni siparişler ve her sonraki adım için bir düğme",
         "Her ödenen sipariş için bir e-posta",
-        "Ödeme hesabınız yok mu? Yallapp'inki üzerinden satın ve payınızı alın",
+        "Müşteriler doğrudan kendi ödeme hesabınıza öder",
       ],
       docs: ["Restoranlar ve kafeler: menü, gel-al, teslimat ve mutfak", "iyzico, Kashier veya Fawaterk ile kartla ödeme"],
     },
@@ -349,7 +349,7 @@ export const TR_MARKETING: MarketingTranslation = {
         "Her derse kimin geldiğiyle haftalık programınız",
         "Üyelik paketleriniz ve derslerin üyelik gerektirip gerektirmediği",
         "Kimin hangi üyeliğe sahip olduğu, ders ekleme ya da resepsiyonda ödenen üyeliği ekleme",
-        "Kendi hesabınızla ya da Yallapp üzerinden iyzico, Kashier veya Fawaterk ile kartla ödeme",
+        "iyzico, Kashier veya Fawaterk ile kendi hesabınıza kartla ödeme",
       ],
       docs: ["Spor salonları ve stüdyolar: program, dersler ve üyelikler", "Hizmetler, ekip ve randevular", "iyzico, Kashier veya Fawaterk ile kartla ödeme"],
     },
@@ -480,7 +480,7 @@ export const TR_MARKETING: MarketingTranslation = {
         "Görselli, mekânlı veya çevrimiçi bağlantılı etkinlikler; kendi fiyatı ve sınırı olan bilet türleri",
         "Her etkinlik için satışlar ve katılımcılar, CSV dışa aktarımıyla",
         "Biletleri kapıda bir telefonla kontrol edin, uygulama kurmaya gerek yok",
-        "Kendi iyzico, Kashier veya Fawaterk hesabınıza ya da Yallapp'inki üzerinden kartla ödeme",
+        "Kendi iyzico, Kashier veya Fawaterk hesabınıza kartla ödeme",
       ],
       docs: ["Etkinlikler ve biletler"],
     },
@@ -501,7 +501,7 @@ export const TR_MARKETING: MarketingTranslation = {
         },
         {
           title: "Her bağış size ulaşır",
-          text: "Bağışlar güvenli bir sayfada kendi iyzico, Kashier veya Fawaterk hesabınıza ödenir. Yallapp bağışlardan komisyon almaz.",
+          text: "Bağışlar güvenli bir sayfada kendi iyzico, Kashier veya Fawaterk hesabınıza ödenir. Yallapp paraya asla dokunmaz.",
         },
         {
           title: "Kâğıt işi olmadan makbuzlar",
@@ -691,7 +691,7 @@ export const TR_MARKETING: MarketingTranslation = {
           text: "Web sitesi olmayan mağazalar ve akademiler, kendi üye işyeri hesaplarına güvenli bir iyzico, Kashier veya Fawaterk sayfasında kartla ödeme alır.",
           details: [
             "Denemek için test anahtarlarıyla kendi iyzico, Kashier veya Fawaterk anahtarlarınız",
-            "Ödeme hesabınız yok mu? Yallapp'inki üzerinden satın ve payınızı alın",
+            "Müşteriler doğrudan kendi ödeme hesabınıza öder",
             "Paneldeki siparişler ve her ödenen sipariş için bir e-posta",
             "Her ürün için paylaşılabilir bir web sayfası",
           ],
@@ -941,11 +941,11 @@ export const TR_MARKETING: MarketingTranslation = {
         },
         {
           q: "Ödeme hesabım yok. Yine de satabilir miyim?",
-          a: "Evet. Bunun yerine Yallapp'in hesabı üzerinden satabilirsiniz: Ürünler sayfanızda ödemenin kime yapılacağını belirtin; tamamlanan her siparişten payınız komisyon düşüldükten sonra IBAN'ınıza ödenir.",
+          a: "Bir hesaba ihtiyacınız var: müşteriler her zaman kendi hesabınıza öder, asla Yallapp'inkine değil. iyzico (Türkiye), Kashier veya Fawaterk'te (Mısır) bir hesap açın ve anahtarlarını Ürünler sayfanıza yapıştırın. O zamana kadar müşteriler ürünlerinizi uygulamada görür ama ödeme yapamaz.",
         },
         {
           q: "Yallapp satışlarımdan pay alır mı?",
-          a: "Kendi ödeme sayfanızı veya kendi ödeme hesabınızı kullandığınızda almaz. Yalnızca Yallapp'in hesabı üzerinden yapılan satışlar komisyona tabidir.",
+          a: "Hayır. Müşterileriniz size kendi ödeme sayfanız veya kendi ödeme hesabınız üzerinden öder ve Yallapp bu satışların tarafı değildir. Yallapp'e yalnızca paketiniz için ödeme yaparsınız.",
         },
         {
           q: "Müşteriler randevular için uygulamada ödeme yapabilir mi?",

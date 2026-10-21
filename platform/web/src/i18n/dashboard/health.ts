@@ -25,6 +25,14 @@ export const en = {
   plugin: "As set in the Yallapp plugin",
   pluginHint: "Follows \"Block screenshots & screen recording\" in the plugin's settings on your website.",
   block: "Block screenshots and screen recording",
+  videoBranding: "Videos from YouTube and other video sites",
+  videoBrandingText:
+    "Lesson videos and video blocks from YouTube, Vimeo, Bunny Stream, Wistia, Dailymotion and Loom play in each site's own player, with its controls, logo and links, as the sites ask.",
+  hideBranding: "Hide the video site's branding (at your own risk)",
+  hideBrandingText:
+    "The app plays these videos behind its own controls and keeps the site's title, logo, buttons and end screens out of sight. YouTube's terms don't allow apps to hide or cover its player or branding: YouTube can block your videos from playing in the app, or act against your app. Videos you upload to Media, or host on Bunny Stream or a paid Vimeo plan, don't carry this risk.",
+  videoOwnApi:
+    "Your app gets this from your own API: its <code></code> sends <code2></code> as true or false. The developer guide has the details.",
   stability: "Stability",
   stabilityText: "How well {app} runs on people's phones over the last 30 days.",
   crashFree: "Crash-free sessions",
@@ -79,6 +87,14 @@ export const ar: Messages = {
   plugin: "كما هو محدد في إضافة Yallapp",
   pluginHint: "يتبع خيار «Block screenshots & screen recording» في إعدادات الإضافة على موقعك.",
   block: "منع لقطات الشاشة وتسجيل الشاشة",
+  videoBranding: "الفيديوهات من YouTube ومواقع الفيديو الأخرى",
+  videoBrandingText:
+    "تُعرض فيديوهات الدروس وكتل الفيديو من YouTube وVimeo وBunny Stream وWistia وDailymotion وLoom في مشغّل كل موقع، بأزراره وشعاره وروابطه، كما تطلب هذه المواقع.",
+  hideBranding: "إخفاء العلامة التجارية لموقع الفيديو (على مسؤوليتك)",
+  hideBrandingText:
+    "يعرض التطبيق هذه الفيديوهات خلف أزراره الخاصة ويُبقي عنوان الموقع وشعاره وأزراره وشاشاته الختامية بعيدًا عن الأنظار. لا تسمح شروط YouTube للتطبيقات بإخفاء مشغّله أو علامته التجارية أو تغطيتهما: يمكن أن يمنع YouTube تشغيل فيديوهاتك في التطبيق، أو أن يتخذ إجراءً ضد تطبيقك. ولا تحمل هذه المخاطرة الفيديوهات التي ترفعها إلى الوسائط، أو تستضيفها على Bunny Stream أو على باقة Vimeo مدفوعة.",
+  videoOwnApi:
+    "يأخذ تطبيقك هذا من واجهتك البرمجية الخاصة: يرسل <code></code> فيها <code2></code> بالقيمة true أو false. ويشرح دليل المطوّرين التفاصيل.",
   stability: "الاستقرار",
   stabilityText: "مدى جودة عمل {app} على هواتف الناس خلال آخر 30 يومًا.",
   crashFree: "الجلسات الخالية من الأعطال",
@@ -131,6 +147,14 @@ export const tr: Messages = {
   plugin: "Yallapp eklentisindeki ayara göre",
   pluginHint: "Web sitenizdeki eklenti ayarlarında bulunan \"Block screenshots & screen recording\" seçeneğini izler.",
   block: "Ekran görüntülerini ve ekran kaydını engelle",
+  videoBranding: "YouTube ve diğer video sitelerinden videolar",
+  videoBrandingText:
+    "YouTube, Vimeo, Bunny Stream, Wistia, Dailymotion ve Loom'dan ders videoları ve video blokları, sitelerin istediği gibi her sitenin kendi oynatıcısında, kontrolleri, logosu ve bağlantılarıyla oynatılır.",
+  hideBranding: "Video sitesinin markasını gizle (riski size ait)",
+  hideBrandingText:
+    "Uygulama bu videoları kendi kontrollerinin arkasında oynatır ve sitenin başlığını, logosunu, düğmelerini ve bitiş ekranlarını görünmez tutar. YouTube'un şartları, uygulamaların oynatıcısını veya markasını gizlemesine ya da örtmesine izin vermez: YouTube videolarınızın uygulamada oynatılmasını engelleyebilir veya uygulamanıza karşı işlem yapabilir. Medya'ya yüklediğiniz ya da Bunny Stream'de veya ücretli bir Vimeo planında barındırdığınız videolar bu riski taşımaz.",
+  videoOwnApi:
+    "Uygulamanız bunu kendi API'nizden alır: API'nizin <code></code> yanıtı <code2></code> değerini true veya false olarak gönderir. Ayrıntılar geliştirici rehberinde.",
   stability: "Kararlılık",
   stabilityText: "{app} uygulamasının son 30 günde insanların telefonlarında ne kadar iyi çalıştığı.",
   crashFree: "Çökmesiz oturumlar",

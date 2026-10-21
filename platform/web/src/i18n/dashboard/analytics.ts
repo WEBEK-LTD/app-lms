@@ -18,6 +18,9 @@ export const en = {
     "Numbers appear here a minute or so after people open {app} on their phones. Your app sends them from its first build made after Analytics arrived: publish a new build to start. The app preview in the dashboard isn't counted.",
   noDataTextNoName:
     "Numbers appear here a minute or so after people open your app on their phones. Your app sends them from its first build made after Analytics arrived: publish a new build to start. The app preview in the dashboard isn't counted.",
+  keptNote: "Your {plan} plan keeps daily totals for {kept} and single events (each app open, screen or search) for {days}, so this page goes back to {from} at most.",
+  keptNoteForever: "Your {plan} plan keeps daily totals until the app is deleted, and single events (each app open, screen or search) for {days}.",
+  keptLimited: "The range you chose started earlier: it starts on {from} now, the first day your plan keeps.",
   installsNote:
     "Installs are counted when the app is first opened. Downloads from Google Play, the App Store and the other stores aren't shared with Yallapp, so your store consoles may show more. People who turn off “Share usage statistics” in the app's Settings aren't counted.",
   dau: "Daily active users",
@@ -209,6 +212,9 @@ export const ar: Messages = {
     "تظهر الأرقام هنا بعد دقيقة تقريبًا من فتح الناس {app} على هواتفهم. يرسلها تطبيقك بدءًا من أول إصدار بُني بعد إضافة التحليلات: انشر إصدارًا جديدًا لتبدأ. لا تُحتسب معاينة التطبيق في لوحة التحكم.",
   noDataTextNoName:
     "تظهر الأرقام هنا بعد دقيقة تقريبًا من فتح الناس تطبيقك على هواتفهم. يرسلها تطبيقك بدءًا من أول إصدار بُني بعد إضافة التحليلات: انشر إصدارًا جديدًا لتبدأ. لا تُحتسب معاينة التطبيق في لوحة التحكم.",
+  keptNote: "تحفظ باقة {plan} المجاميع اليومية لمدة {kept} والأحداث المفردة (كل فتح للتطبيق أو شاشة أو بحث) لمدة {days}، لذا لا تعود هذه الصفحة إلى ما قبل {from}.",
+  keptNoteForever: "تحفظ باقة {plan} المجاميع اليومية حتى حذف التطبيق، والأحداث المفردة (كل فتح للتطبيق أو شاشة أو بحث) لمدة {days}.",
+  keptLimited: "كانت الفترة التي اخترتها تبدأ قبل ذلك: صارت تبدأ في {from}، أول يوم تحفظه باقتك.",
   installsNote:
     "تُحتسب عمليات التثبيت عند فتح التطبيق لأول مرة. لا تشارك Google Play وApp Store والمتاجر الأخرى أرقام التنزيل مع Yallapp، لذا قد تُظهر لوحات المتاجر أرقامًا أكبر. لا يُحتسب من يوقف خيار “مشاركة إحصاءات الاستخدام” في إعدادات التطبيق.",
   dau: "المستخدمون النشطون يوميًا",
@@ -393,6 +399,9 @@ export const tr: Messages = {
     "Rakamlar, insanlar {app} uygulamasını telefonlarında açtıktan yaklaşık bir dakika sonra burada görünür. Uygulamanız bunları, Analiz özelliği geldikten sonra yapılan ilk derlemesinden itibaren gönderir: başlamak için yeni bir derleme yayınlayın. Paneldeki uygulama önizlemesi sayılmaz.",
   noDataTextNoName:
     "Rakamlar, insanlar uygulamanızı telefonlarında açtıktan yaklaşık bir dakika sonra burada görünür. Uygulamanız bunları, Analiz özelliği geldikten sonra yapılan ilk derlemesinden itibaren gönderir: başlamak için yeni bir derleme yayınlayın. Paneldeki uygulama önizlemesi sayılmaz.",
+  keptNote: "{plan} planınız günlük toplamları {kept}, tek tek olayları (her açılış, ekran veya arama) {days} saklar; bu yüzden bu sayfa en fazla {from} tarihine kadar geri gider.",
+  keptNoteForever: "{plan} planınız günlük toplamları uygulama silinene kadar, tek tek olayları (her açılış, ekran veya arama) {days} saklar.",
+  keptLimited: "Seçtiğiniz aralık daha önce başlıyordu: artık planınızın sakladığı ilk gün olan {from} tarihinde başlıyor.",
   installsNote:
     "Yüklemeler, uygulama ilk kez açıldığında sayılır. Google Play, App Store ve diğer mağazalar indirme sayılarını Yallapp ile paylaşmaz; bu yüzden mağaza konsollarınız daha fazlasını gösterebilir. Uygulamanın Ayarlar bölümünde “Kullanım istatistiklerini paylaş” seçeneğini kapatanlar sayılmaz.",
   dau: "Günlük etkin kullanıcılar",

@@ -242,7 +242,27 @@ class MoreScreen extends ConsumerWidget {
           ]),
           SectionTitle(l10n.help),
           group([
-            if (me.links.supportWhatsapp != null)
+            // 72 Yallapp's two numbers, each with where it's for.
+            if (me.links.bothWhatsapp) ...[
+              tile(
+                AppIcons.whatsapp,
+                l10n.helpWhatsapp,
+                () => openLink(context, ref, me.links.supportWhatsappEgypt),
+                subtitle: l10n.whatsappInEgypt,
+                external: true,
+              ),
+              tile(
+                AppIcons.whatsapp,
+                l10n.helpWhatsapp,
+                () => openLink(
+                  context,
+                  ref,
+                  me.links.supportWhatsappInternational,
+                ),
+                subtitle: l10n.whatsappOutsideEgypt,
+                external: true,
+              ),
+            ] else if (me.links.supportWhatsapp != null)
               tile(
                 AppIcons.whatsapp,
                 l10n.helpWhatsapp,

@@ -12,6 +12,7 @@ import { WhatsAppMark } from "@/components/brand-marks";
 import { DOCS, docBySlug, type DocSection } from "@/content/docs";
 import type { ApiEndpoint, ApiReference } from "@/lib/api-reference";
 import { getContact } from "@/lib/contact";
+import { WhatsAppLink } from "@/components/whatsapp-link";
 import { getSiteContent } from "@/lib/content/get";
 import { headingId } from "@/lib/content/markdown";
 import { parseGuide } from "@/lib/content/site";
@@ -96,7 +97,7 @@ export async function DocsIndexPage({ lang }: { lang: Lang }) {
       <p className="m-0 flex flex-wrap items-center gap-2 text-[15px] text-ink-4">
         <WhatsAppMark size={20} />
         {richText(m.cantFind, {
-          whatsapp: (chunk) => <a href={contact.whatsappUrl}>{chunk}</a>,
+          whatsapp: (chunk) => <WhatsAppLink lines={contact.lines}>{chunk}</WhatsAppLink>,
           faq: (chunk) => <Link href={localePath(lang, "/faq")}>{chunk}</Link>,
         })}
       </p>
@@ -227,10 +228,10 @@ export async function DocPage({ lang, slug }: { lang: Lang; slug: string }) {
         ) : null}
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line-soft pt-5">
-          <a href={contact.whatsappUrl} className="flex items-center gap-1.5 font-semibold no-underline">
+          <WhatsAppLink lines={contact.lines} className="flex items-center gap-1.5 font-semibold no-underline">
             <WhatsAppMark size={20} />
             {m.needHelp}
-          </a>
+          </WhatsAppLink>
           <span className="flex flex-wrap gap-x-5 gap-y-2">
             {previous ? (
               <Link href={previous.href} className="flex items-center gap-1 font-semibold no-underline">

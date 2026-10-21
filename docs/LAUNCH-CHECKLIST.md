@@ -82,9 +82,6 @@ These are the parts on our servers and consoles.
       first, then live (staging and live keys differ).
 - [ ] **Settings › Yallapp's Fawaterk account:** the API key with
       **Staging key** on, then **Test connection**.
-- [ ] **Settings › Yallapp's payment provider:** choose iyzico, Kashier or
-      Fawaterk for shop sales through Yallapp (the marketplace). Plans have
-      their own gateway since Phase 52 (next item).
 - [ ] **Settings › Yallapp's plan payments (Phase 52):** the gateway for
       Yallapp's own plans and add-ons is **Kashier** unless changed here;
       everyone is charged in Egyptian pounds. Enter **EGP for 1 US dollar**
@@ -111,11 +108,18 @@ These are the parts on our servers and consoles.
       (`/api/pay/kashier/…` and `/api/pay/fawaterk/…`). If Fawaterk's
       dashboard asks for a webhook address, leave it empty: each invoice
       carries its own, and the customer's return confirms the payment too.
-- [ ] **Settings › Marketplace:** the commission percent Yallapp keeps from
-      shops that sell through Yallapp's account. With Kashier or Fawaterk,
-      the team transfers each released share to the shop's IBAN (listed on
-      **Payments**).
-- [ ] **Settings › Contact:** WhatsApp number and email shown on the website.
+- [ ] **Settings › Contact (Phase 72):** the two WhatsApp numbers (outside
+      Egypt: +90 544 673 19 42; in Egypt: +20 104 256 0010, the default until
+      saved) and the email shown on the website, the dashboard and emails.
+      Open the form and save once so both numbers are stored. If the team
+      edited the Terms, Privacy or Refund pages in **Website content**, add
+      the Egyptian number there too ({{contact_whatsapp_egypt}}) and the
+      new payments paragraph of the Terms (each business uses its own
+      payment provider account; Yallapp isn't a party to those sales).
+- [ ] **No marketplace (Phase 72):** shops that sold through Yallapp's
+      account now take no payments until they add their own keys on their
+      Products page: tell them. Release and refund the marketplace orders
+      still open from **Payments** as before.
 - [ ] **Settings › Publishing service:** the publishing team email clients
       invite to their store accounts ("Publish it for me"). Use a mailbox the
       team reads that is also a Google account (Play Console and Firebase

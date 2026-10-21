@@ -3333,9 +3333,17 @@ export class MysqlStore implements DataStore {
     return rows.map((row) => row.appId);
   }
 
-  async purgeAnalyticsEvents(beforeDay: string): Promise<number> {
+  async purgeAnalyticsEvents(beforeDay: string, limit?: number): Promise<number> {
     const t = schema.analyticsEvents;
-    const [result] = await this.run((db) => db.delete(t).where(lt(t.day, beforeDay)));
+    // 72 In batches (the day index), so one delete never holds the table for long.
+    const [result] = await this.run((db) => (limit === undefined ? db.delete(t).where(lt(t.day, beforeDay)) : db.delete(t).where(lt(t.day, beforeDay)).limit(limit)));
+    return result.affectedRows;
+  }
+
+  async purgeAnalyticsDaily(appId: string, beforeDay: string, limit: number): Promise<number> {
+    const t = schema.analyticsDaily;
+    // 72 The primary key starts with (app_id, day): one app's oldest rows, a batch at a time.
+    const [result] = await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), lt(t.day, beforeDay))).limit(limit));
     return result.affectedRows;
   }
 

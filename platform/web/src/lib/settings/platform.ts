@@ -103,12 +103,6 @@ export async function yallappIyzicoKeys(store: DataStore, encryptionKey: Buffer)
   };
 }
 
-/** 37 Which of Yallapp's accounts takes new marketplace sales (52 plans have their own: yallappBilling): the team's choice, iyzico until set. */
-export async function yallappProvider(store: DataStore): Promise<PaymentProviderId> {
-  const saved = await platformSetting(store, "paymentProvider", { fresh: true });
-  return saved && isPaymentProvider(saved.value.provider) ? saved.value.provider : "iyzico";
-}
-
 /**
  * 37 Yallapp's account with this provider, or null until the team adds it.
  * A payment is confirmed with the account it started with, even after the
@@ -135,11 +129,6 @@ export async function yallappAccountFor(store: DataStore, provider: PaymentProvi
   const saved = await platformSetting(store, "fawaterk", { fresh: true });
   if (!saved) return null;
   return { provider, keys: { apiKey: decryptSetting("fawaterk", saved.value.apiKeyEncrypted, encryptionKey), sandbox: saved.value.sandbox } };
-}
-
-/** 37 Yallapp's account that takes new marketplace sales (the chosen provider's), or null until it is set. */
-export async function yallappPaymentAccount(store: DataStore, encryptionKey: Buffer): Promise<PaymentAccount | null> {
-  return yallappAccountFor(store, await yallappProvider(store), encryptionKey);
 }
 
 /** 52 Yallapp's own billing: the gateway for its plans and add-ons (Kashier until set) and the pound-to-dollar rate (none until set). */

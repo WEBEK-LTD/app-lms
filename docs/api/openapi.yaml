@@ -3493,6 +3493,20 @@ components:
                 viewer (no sharing, saving or printing). The web preview can't
                 protect anything. Missing on older servers: `content` when
                 `content.block_screen_capture` is true, else `off`.
+            hide_video_branding:
+              type: boolean
+              description: |
+                72 Whether the app hides the video sites' own players: true
+                plays YouTube, Vimeo and Bunny Stream videos behind the app's
+                own controls with the site's title, logo, buttons and end
+                screens kept out of sight, and turns off the branding options
+                Wistia, Dailymotion and Loom offer (roadmap 40). False, the
+                default, shows each site's normal player with its own controls
+                and branding. Hiding YouTube's branding may break YouTube's
+                terms, and YouTube can block the videos from playing in the
+                app: the owner turns it on in the Yallapp dashboard at their own
+                risk. Missing means false (apps built before roadmap 72 always
+                hid the branding).
         links:
           type: object
           description: |

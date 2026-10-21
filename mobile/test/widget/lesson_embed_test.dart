@@ -84,17 +84,19 @@ void main() {
     expect(find.text('Copy'), findsOneWidget);
     expect(app.security.calls, [true], reason: 'screen capture blocked');
 
-    // Both placeholders became inline web views: 40 the YouTube video in
-    // the app's own player, nothing saying where it's hosted.
+    // Both placeholders became inline web views: the YouTube video (72) in
+    // YouTube's own player by default, followed by the app; the host's name
+    // never shows under it.
     final labels = app.webViews.requests.map((r) => r.debugLabel).toSet();
     expect(labels, containsAll(['video-player', 'yallapp-embed-2']));
     final youtube = app.webViews.requests.firstWhere(
       (r) => r.debugLabel == 'video-player',
     );
     expect(youtube.html, contains('https://www.youtube.com/embed/abc123?'));
-    expect(youtube.html, contains('controls=0'));
+    expect(youtube.html, isNot(contains('controls=0')));
+    expect(youtube.html, contains('"site":true'));
     expect(youtube.baseUrl, 'https://your-academy.com/');
-    expect(youtube.interactive, isFalse);
+    expect(youtube.interactive, isTrue);
     expect(youtube.openLinksOutside, isFalse);
     expect(youtube.allowNavigation, isNotNull);
     expect(find.text('youtube.com'), findsNothing);

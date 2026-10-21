@@ -6,6 +6,7 @@ import { CheckList, MarketingPage, Section, SectionTitle } from "@/components/ma
 import { QrCode } from "@/components/qr-code";
 import { Notice } from "@/components/ui";
 import { getContact } from "@/lib/contact";
+import { WhatsAppLink } from "@/components/whatsapp-link";
 import { getStore } from "@/lib/data";
 import { demoDownloadBuild, listDemoApps } from "@/lib/demo/apps";
 import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_SLUGS, DEMO_TYPES, demoIdOf, demoKind, type DemoId } from "@/lib/demo/constants";
@@ -145,13 +146,13 @@ export async function DemoPage({ lang, download }: { lang: Lang; download?: stri
 
       <Section>
         <SectionTitle title={m.iphoneTitle} text={m.iphoneText} />
-        <a
-          href={contact.whatsappUrl}
+        <WhatsAppLink
+          lines={contact.lines}
           className="flex h-[50px] items-center gap-2.5 self-start rounded-xl bg-midnight px-[22px] text-base font-bold text-white no-underline hover:bg-ink-3 hover:text-white"
         >
           <Icon name="phone_iphone" size={20} />
           {m.iphoneButton}
-        </a>
+        </WhatsAppLink>
       </Section>
     </MarketingPage>
   );

@@ -8,10 +8,8 @@ import {
   saveIyzicoSettingAction,
   saveKashierSettingAction,
   checkMediaGateAction,
-  savePaymentProviderAction,
   savePlanBillingAction,
   savePublishingSettingAction,
-  saveMarketplaceAction,
   saveOtpSettingAction,
   savePartnerAppAction,
   saveSmtpSettingAction,
@@ -264,32 +262,6 @@ export function IyzicoSettingForm({ sandbox }: { sandbox: boolean }) {
   );
 }
 
-/** 37 Which of Yallapp's accounts takes marketplace sales (52 plans: PlanBillingForm). */
-export function PaymentProviderForm({ provider }: { provider: "iyzico" | "kashier" | "fawaterk" }) {
-  const [state, action] = useActionState(savePaymentProviderAction, initialFormState);
-  return (
-    <form action={action} noValidate className="flex flex-col gap-4">
-      <FormMessage message={state.message} ok={state.ok} />
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="f-payment-provider" className="text-sm font-semibold">
-          Provider
-        </label>
-        <select id="f-payment-provider" name="provider" defaultValue={state.values?.provider ?? provider} className="input">
-          <option value="iyzico">iyzico (TRY, USD, EUR)</option>
-          <option value="kashier">Kashier (EGP, USD, EUR)</option>
-          <option value="fawaterk">Fawaterk (EGP, USD, SAR, AED, EUR)</option>
-        </select>
-        <FieldError id="f-payment-provider-error" error={state.errors?.provider} />
-      </div>
-      <div className="flex justify-end">
-        <SubmitButton className="h-10" pendingText="Saving…">
-          Save provider
-        </SubmitButton>
-      </div>
-    </form>
-  );
-}
-
 /** 52 The gateway for Yallapp's own plans and add-ons, and the pound-to-dollar rate for their dollar prices. */
 export function PlanBillingForm({ provider, rate }: { provider: "iyzico" | "kashier" | "fawaterk"; rate: string }) {
   const [state, action] = useActionState(savePlanBillingAction, initialFormState);
@@ -387,36 +359,30 @@ export function TestPaymentAccountForm({ provider }: { provider: "iyzico" | "kas
   );
 }
 
-export function MarketplaceForm({ commission }: { commission: string }) {
-  const [state, action] = useActionState(saveMarketplaceAction, initialFormState);
-  return (
-    <form action={action} noValidate className="flex flex-col gap-4">
-      <FormMessage message={state.message} ok={state.ok} />
-      <Field
-        label="Commission (%)"
-        name="commission"
-        inputMode="decimal"
-        defaultValue={state.values?.commission ?? commission}
-        hint="Yallapp's share of each product sale; shipping goes to the shop in full."
-        error={state.errors?.commission}
-      />
-      <div className="flex justify-end">
-        <SubmitButton className="h-10" pendingText="Saving…">
-          Save commission
-        </SubmitButton>
-      </div>
-    </form>
-  );
-}
-
-export function ContactForm({ whatsapp, email }: { whatsapp: string; email: string }) {
+export function ContactForm({ whatsapp, whatsappEgypt, email }: { whatsapp: string; whatsappEgypt: string; email: string }) {
   const [state, action] = useActionState(saveContactAction, initialFormState);
   const v = (name: string, fallback: string) => state.values?.[name] ?? fallback;
   return (
     <form action={action} noValidate className="flex flex-col gap-4">
       <FormMessage message={state.message} ok={state.ok} />
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="WhatsApp number" name="whatsapp" type="tel" defaultValue={v("whatsapp", whatsapp)} hint="As it should look, with the country code." error={state.errors?.whatsapp} />
+        {/* 72 Two support numbers: customers in Egypt get the Egyptian one, everyone else (and anyone whose country isn't known) the other. */}
+        <Field
+          label="WhatsApp number (outside Egypt)"
+          name="whatsapp"
+          type="tel"
+          defaultValue={v("whatsapp", whatsapp)}
+          hint="For customers outside Egypt, and wherever the country isn't known. As it should look, with the country code."
+          error={state.errors?.whatsapp}
+        />
+        <Field
+          label="WhatsApp number (in Egypt)"
+          name="whatsappEgypt"
+          type="tel"
+          defaultValue={v("whatsappEgypt", whatsappEgypt)}
+          hint="For customers in Egypt. As it should look, with the country code."
+          error={state.errors?.whatsappEgypt}
+        />
         <Field label="Email" name="email" type="email" defaultValue={v("email", email)} error={state.errors?.email} />
       </div>
       <div className="flex justify-end">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { saveScreenProtectionAction } from "@/app/actions/screen-protection";
+import { saveScreenProtectionAction, saveVideoBrandingAction } from "@/app/actions/screen-protection";
 import { FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
 import { useDashT } from "@/components/dashboard-i18n";
@@ -33,6 +33,28 @@ export function ScreenProtectionForm({ current, academy, wordpress }: { current:
         ))}
         <FieldError id="protection-error" error={state.errors?.protection} />
       </fieldset>
+      <div className="flex justify-end">
+        <SubmitButton className="h-11">{t("common.save")}</SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 72 Hide the video sites' own players, at the owner's own risk (off by default). */
+export function VideoBrandingForm({ hide }: { hide: boolean }) {
+  const t = useDashT();
+  const [state, action] = useActionState(saveVideoBrandingAction, initialFormState);
+  const checked = state.values ? state.values.hideVideoBranding === "on" : hide;
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4" key={String(checked)}>
+      <FormMessage message={state.message} ok={state.ok} />
+      <label className="flex cursor-pointer items-start gap-2.5">
+        <input type="checkbox" name="hideVideoBranding" defaultChecked={checked} className="mt-1 h-4 w-4 accent-midnight" />
+        <span className="flex flex-col gap-1">
+          <span className="text-[15px] font-bold">{t("health.hideBranding")}</span>
+          <span className="text-sm leading-relaxed text-ink-4">{t("health.hideBrandingText")}</span>
+        </span>
+      </label>
       <div className="flex justify-end">
         <SubmitButton className="h-11">{t("common.save")}</SubmitButton>
       </div>

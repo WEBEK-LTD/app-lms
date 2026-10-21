@@ -1384,8 +1384,9 @@ export const ownerNotices = mysqlTable(
   (t) => [uniqueIndex("owner_notices_app_key_unique").on(t.appId, t.dedupeKey), index("owner_notices_client_idx").on(t.clientId, t.createdAt)],
 );
 
-// 44 Analytics for app owners: raw usage events for 40 days (never an IP or a
-// search text), and daily totals kept until the app is deleted.
+// 44 Analytics for app owners: raw usage events for 90 days (72: 40 before; never
+// an IP or a search text), and daily totals for as long as the app's plan keeps
+// them (72, lib/analytics/retention.ts), at most until the app is deleted.
 
 export const analyticsEvents = mysqlTable(
   "analytics_events",

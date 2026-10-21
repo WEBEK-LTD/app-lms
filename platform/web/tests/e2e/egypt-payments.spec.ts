@@ -60,10 +60,10 @@ test.afterAll(async () => {
   await fawaterk.close();
 });
 
-test("the team adds Yallapp's Kashier and Fawaterk accounts and picks Kashier", async () => {
+test("the team adds Yallapp's Kashier and Fawaterk accounts", async () => {
   await admin.goto("/admin/settings");
-  const provider = admin.getByRole("region", { name: "Yallapp's payment provider" });
-  await expect(provider).toContainText("Now: iyzico (the default).");
+  // 72 No provider to choose for shop sales: Yallapp never takes them.
+  await expect(admin.getByRole("region", { name: "Yallapp's payment provider" })).toHaveCount(0);
 
   const k = admin.getByRole("region", { name: "Yallapp's Kashier account" });
   await expect(k).toContainText("Now: not set.");
@@ -94,9 +94,6 @@ test("the team adds Yallapp's Kashier and Fawaterk accounts and picks Kashier", 
   await f.getByRole("button", { name: "Test connection" }).click();
   await expect(f.getByText("Connected: Fawaterk accepts the saved test keys.")).toBeVisible();
 
-  await provider.getByLabel("Provider").selectOption("kashier");
-  await provider.getByRole("button", { name: "Save provider" }).click();
-  await expect(provider.getByText("Payments go to Yallapp's Kashier account.")).toBeVisible();
   // 52 Plans go through Kashier, in pounds, until the team chooses another gateway.
   await expect(admin.getByRole("region", { name: "Yallapp's plan payments" })).toContainText(/Now: Kashier[,( ]/);
 
@@ -130,10 +127,6 @@ test("a new client pays the plan in Egyptian pounds on Kashier", async () => {
 
 test("with Fawaterk chosen, the client extends the plan there", async () => {
   await admin.goto("/admin/settings");
-  const provider = admin.getByRole("region", { name: "Yallapp's payment provider" });
-  await provider.getByLabel("Provider").selectOption("fawaterk");
-  await provider.getByRole("button", { name: "Save provider" }).click();
-  await expect(provider.getByText("Payments go to Yallapp's Fawaterk account.")).toBeVisible();
   // 52 Plans have their own gateway.
   const billing = admin.getByRole("region", { name: "Yallapp's plan payments" });
   await billing.getByLabel("Gateway for plans").selectOption("fawaterk");
@@ -231,10 +224,6 @@ test("the team puts the settings back", async () => {
   await admin.goto("/admin/plans");
   await admin.getByRole("region", { name: "Pro" }).getByRole("button", { name: "Back to the default plan" }).click();
   await admin.goto("/admin/settings");
-  const provider = admin.getByRole("region", { name: "Yallapp's payment provider" });
-  await provider.getByLabel("Provider").selectOption("iyzico");
-  await provider.getByRole("button", { name: "Save provider" }).click();
-  await expect(provider.getByText("Payments go to Yallapp's iyzico account.")).toBeVisible();
   const billing = admin.getByRole("region", { name: "Yallapp's plan payments" });
   await billing.getByLabel("Gateway for plans").selectOption("kashier");
   await billing.getByRole("button", { name: "Save plan payments" }).click();

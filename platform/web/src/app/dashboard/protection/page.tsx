@@ -7,7 +7,8 @@ import { choosesScreenProtection, offersContentScope, screenProtectionFormValue 
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
-import { ScreenProtectionForm } from "./forms";
+import { choosesVideoBranding, hidesVideoBranding } from "@/lib/app/video-branding";
+import { ScreenProtectionForm, VideoBrandingForm } from "./forms";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("health.protection") };
@@ -49,6 +50,25 @@ export default async function ScreenProtectionPage() {
               off: () => <code>off</code>, // i18n-ok: values
               content: () => <code>content</code>, // i18n-ok: values
               app: () => <code>app</code>, // i18n-ok: values
+            })}
+          </p>
+        )}
+      </section>
+
+      {/* 72 The video sites' own players by default; hiding them is the owner's choice, at their own risk. */}
+      <section aria-labelledby="h-video-branding" className="flex max-w-[720px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+        <h2 id="h-video-branding" className="m-0 flex items-center gap-2 text-lg font-bold">
+          <Icon name="smart_display" size={22} />
+          {t("health.videoBranding")}
+        </h2>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("health.videoBrandingText")}</p>
+        {choosesVideoBranding(app) ? (
+          <VideoBrandingForm hide={hidesVideoBranding(app)} />
+        ) : (
+          <p className="m-0 text-[15px] leading-relaxed text-ink-4" data-own-api="">
+            {richText(t("health.videoOwnApi"), {
+              code: () => <code>/config</code>,
+              code2: () => <code>app.hide_video_branding</code>,
             })}
           </p>
         )}

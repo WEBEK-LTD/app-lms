@@ -9,6 +9,7 @@ import { localePath } from "@/i18n/paths";
 import { AccountLink } from "./account-link";
 import { Logo, LogoLink } from "./brand";
 import { StoreMarks, WhatsAppMark } from "./brand-marks";
+import { WhatsAppLink } from "./whatsapp-link";
 import { LanguageList } from "./language-switcher";
 import { SiteNav } from "./site-nav";
 
@@ -78,13 +79,13 @@ export async function SiteFooter({ full = false, lang = DEFAULT_LANG }: { full?:
             {/* 41 The five stores. */}
             <StoreMarks stores={[...APP_STORES]} label={f.storesLabel} size={16} tone="dark" />
             {full ? (
-              <a
-                href={contact.whatsappUrl}
+              <WhatsAppLink
+                lines={contact.lines}
                 className="flex h-[46px] items-center gap-2 self-start rounded-[10px] bg-ivory px-[18px] text-[15px] font-bold text-midnight no-underline hover:bg-white hover:text-midnight"
               >
                 <WhatsAppMark size={20} />
                 {f.whatsapp}
-              </a>
+              </WhatsAppLink>
             ) : null}
           </div>
           <nav aria-label={m.nav.product} className="flex flex-[1_1_140px] flex-col gap-3 text-[15px]">
@@ -126,10 +127,16 @@ export async function SiteFooter({ full = false, lang = DEFAULT_LANG }: { full?:
           {full ? (
             <div className="flex flex-[1_1_180px] flex-col gap-3 text-[15px]">
               <FooterHeading>{f.contact}</FooterHeading>
-              <a href={contact.whatsappUrl} className={`${footerLink} flex items-center gap-2`}>
-                <WhatsAppMark size={18} />
-                <bdi dir="ltr">{contact.whatsappDisplay}</bdi>
-              </a>
+              {/* 72 Both support numbers, each with where it's for. */}
+              {[contact.lines.egypt, contact.lines.international].map((line) => (
+                <a key={line.region} href={line.url} className={`${footerLink} flex items-start gap-2`} data-whatsapp={line.region}>
+                  <WhatsAppMark size={18} className="mt-0.5" />
+                  <span className="flex flex-col">
+                    <bdi dir="ltr">{line.display}</bdi>
+                    <span className="text-[13px] text-night-text/80">{line.region === "egypt" ? m.common.inEgypt : m.common.outsideEgypt}</span>
+                  </span>
+                </a>
+              ))}
               <a href={`mailto:${contact.email}`} className={`${footerLink} flex items-center gap-2`}>
                 <Icon name="mail" size={18} />
                 {contact.email}
@@ -144,9 +151,7 @@ export async function SiteFooter({ full = false, lang = DEFAULT_LANG }: { full?:
           {full ? (
             <span className="max-w-[640px]">{f.trademarks}</span>
           ) : (
-            <a href={contact.whatsappUrl} className="text-night-text no-underline hover:text-white hover:underline">
-              {formatMessage(lang, f.whatsappLine, { number: contact.whatsappDisplay })}
-            </a>
+            <WhatsAppLink lines={contact.lines} className="text-night-text no-underline hover:text-white hover:underline" text={f.whatsappLine} />
           )}
         </div>
       </div>
@@ -165,7 +170,7 @@ export async function MiniFooter({ lang = DEFAULT_LANG, languages = false }: { l
       <span className="flex gap-5">
         <Link href={localePath(lang, "/terms")} className="text-muted">{f.termsShort}</Link>
         <Link href={localePath(lang, "/privacy")} className="text-muted">{f.privacyShort}</Link>
-        <a href={contact.whatsappUrl} className="text-muted">{f.support}</a>
+        <WhatsAppLink lines={contact.lines} className="text-muted">{f.support}</WhatsAppLink>
       </span>
     </footer>
   );

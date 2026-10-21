@@ -118,7 +118,7 @@ Ana sayfa bir arama kutusu, manşetler, bölümler ve en yeni makalelerle başla
 
 ## Ücretsiz ve ücretli biletler
 
-Ücretsiz biletler uygulamada alınır. Ücretli biletler güvenli bir ödeme sayfasında kartla ödenir: Etkinlikler sayfasında kendi iyzico, Kashier veya Fawaterk hesabınızla **Kartla ödemeler**'i ayarlayın ya da Yallapp'in hesabı üzerinden satın. Alıcı öderken yerler ayrılır ve biletler ancak sağlayıcı ödemeyi onayladığında düzenlenir. Yerler alındıkça sayılır, bu yüzden son bilet iki kez satılamaz.
+Ücretsiz biletler uygulamada alınır. Ücretli biletler güvenli bir ödeme sayfasında kartla ödenir: Etkinlikler sayfasında kendi iyzico, Kashier veya Fawaterk hesabınızla **Kartla ödemeler**'i ayarlayın. Alıcı öderken yerler ayrılır ve biletler ancak sağlayıcı ödemeyi onayladığında düzenlenir. Yerler alındıkça sayılır, bu yüzden son bilet iki kez satılamaz.
 
 **iPhone'larda** Apple, uygulamaların bir mekânda gerçekleşen etkinliklerin biletlerini satmasına izin verir, ancak dijital içerik sayılan yalnızca çevrimiçi etkinliklerin biletlerini satmasına izin vermez. Bu yüzden iPhone uygulamasında mekânı olmayan bir etkinliğin ücretli biletlerinde satın alma düğmesi görünmez; ücretsiz biletler her yerde çalışır. Android'de her şey uygulamada satın alınabilir.
 
@@ -147,7 +147,7 @@ Ana sayfa bir arama kutusu ve yaklaşan etkinliklerle başlar. Bunu **Sayfalar v
 ## İlk bağıştan önce
 
 1. **Uygulama türü**'nde **Hayır kurumu ve bağış**'ı, ardından Web sitesi adımında **Yallapp'te yönetilen kampanyalar**'ı seçin.
-2. **Kampanyalar** sayfasında, **Kartla ödemeler** altında sağlayıcınızı (iyzico, Kashier veya Fawaterk) seçin ve anahtarlarınızı yapıştırın ([Kartla ödemeler](/docs/card-payments) sayfasına bakın). Bağışlar doğrudan kendi üye işyeri hesabınıza geçer; Yallapp bunlardan komisyon almaz. Anahtarlarınız kaydedilene kadar kampanyalar uygulamada görünür ama kimse bağış yapamaz.
+2. **Kampanyalar** sayfasında, **Kartla ödemeler** altında sağlayıcınızı (iyzico, Kashier veya Fawaterk) seçin ve anahtarlarınızı yapıştırın ([Kartla ödemeler](/docs/card-payments) sayfasına bakın). Bağışlar doğrudan kendi üye işyeri hesabınıza geçer. Anahtarlarınız kaydedilene kadar kampanyalar uygulamada görünür ama kimse bağış yapamaz.
 3. **Uygulamada bağışlar** altında para biriminizi seçin. İlk bağıştan sonra değiştirilemez.
 
 ## Kampanyalar
@@ -277,7 +277,7 @@ Yallapp haberlerini, yeni özellikleri ve planlı bakımları panelinizin **Duyu
 
 ## Yardım alma
 
-- **WhatsApp**: panelinizdeki **Destek** bağlantısı, bize ulaşmanın en hızlı yolu
+- **WhatsApp**: panelinizdeki **Destek** bağlantısı, bize ulaşmanın en hızlı yolu. İki numaramız var: biri Mısır'daki müşteriler için, diğeri başka her yer için. Panel, hesabınızın ülkesine ait numarayı açar; [İletişim](/contact) sayfası ikisini de gösterir
 - **E-posta**: yazılı olarak iletmeyi tercih ettiğiniz her şey için
 - Adım adım yanıtlar için bu dokümantasyon
 
@@ -325,6 +325,10 @@ Dersi öğrenci olarak giriş yapmışken açın. Orada oynamıyorsa önce dersi
 ## Gömmeye izin verin
 
 YouTube ve Vimeo'da videonun gizlilik ayarları gömmeye izin vermelidir. Belirli alan adlarıyla sınırlı Vimeo videoları için web sitenizin alan adını ekleyin.
+
+## Video sitesinin kendi oynatıcısı
+
+YouTube, Vimeo ve diğer video sitelerinden videolar, sitenin kendi oynatıcısında kontrolleri ve logosuyla oynatılır. **Ekran koruması** sayfasında **Video sitesinin markasını gizle (riski size ait)** seçeneğini seçebilirsiniz: uygulama bu videoları o zaman kendi kontrollerinin arkasında oynatır. YouTube'un şartları uygulamaların markasını gizlemesine izin vermez ve YouTube bu videoların uygulamada oynatılmasını engelleyebilir: YouTube videoları oynamayı bırakırsa bu seçeneği kapatın.
 
 ## Dersi yeniden açın
 

@@ -1,4 +1,5 @@
 import { runAnalyticsNightly } from "@/lib/analytics/aggregate";
+import { purgeAnalyticsHistory } from "@/lib/analytics/retention";
 import { appZone } from "@/lib/analytics/zone";
 import { getStore } from "@/lib/data";
 import { sendTemplate } from "@/lib/email/send";
@@ -17,8 +18,9 @@ import { noticeEndedPacks } from "@/lib/media/usage";
  * `Authorization: Bearer $INTERNAL_JOB_SECRET`. It applies downgrades whose
  * date came, sends the plan-ending reminders (7 days, 1 day, the day) and
  * the app users notices, each once. 44 Then it counts each app's usage
- * statistics for the finished days and deletes raw events older than 40
- * days. 51 Then storage packs that ended are looked at (a notice and an
+ * statistics for the finished days and deletes raw events older than 90
+ * days (72: 40 before), then each app's daily totals older than its plan
+ * keeps them (72, lib/analytics/retention.ts), in batches. 51 Then storage packs that ended are looked at (a notice and an
  * email when the files are over the storage left) and uploads left unfinished
  * for two days are cancelled. 58 Devices signed out of Yallapp Business by
  * time (their refresh token ended) are deleted. 62 The media server's
@@ -38,6 +40,8 @@ export async function POST(request: Request): Promise<Response> {
     const app = await store.getAppById(appId);
     return app ? appZone(store, app) : "UTC";
   });
+  // 72 Daily totals kept as long as each app's plan says.
+  const analyticsHistory = await purgeAnalyticsHistory(store, await effectivePlans(store), now);
   const media = {
     storageNotices: (await noticeEndedPacks(deps, await effectivePlans(store))).length,
     uploadsCancelled: await cancelStaleUploads({ store, storage: getMediaStorage(), now }),
@@ -50,5 +54,5 @@ export async function POST(request: Request): Promise<Response> {
   const ownerDevicesPurged = await store.purgeOwnerDevices(now);
   // 70 Website sessions whose 14 days are over.
   const sessionsPurged = await store.deleteExpiredUserSessions(now);
-  return json({ ...report, analytics, media, ownerDevicesPurged, sessionsPurged });
+  return json({ ...report, analytics: { ...analytics, history: analyticsHistory }, media, ownerDevicesPurged, sessionsPurged });
 }

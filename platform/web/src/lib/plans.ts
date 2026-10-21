@@ -1,6 +1,7 @@
 import type { IconName } from "@/components/icon-names";
 import { formatMoney, shownPrice, type DisplayCurrency, type Money, type YallappPrice } from "./billing/prices";
 import { ALL_STORES_TEXT, APP_STORES, STORE_FACTS, storesFor, type AppStore } from "./stores";
+import { RAW_RETENTION_DAYS } from "./analytics/types";
 
 /**
  * Yallapp's plans (roadmap 9.2 and 13.1): four tiers, each with features and
@@ -47,6 +48,13 @@ export interface PlanLimits {
   sources: number | null;
   /** 51 Gigabytes (decimals allowed, like 0.5) for the Media library's videos, pictures and PDFs, before storage packs (null: unlimited). Enforced: uploads past it are refused. */
   storageGb: number | null;
+  /**
+   * 72 Months the app's analytics daily totals are kept (null: until the app
+   * is deleted). Enforced: the daily job deletes older ones, and the
+   * Analytics page starts no earlier. Single events are kept 90 days on every
+   * plan (lib/analytics/types.ts `RAW_RETENTION_DAYS`).
+   */
+  analyticsMonths: number | null;
   // Display-only: shown on the pricing page and the dashboard, handled by the team.
   /** Display-only: team members (several sign-ins per account aren't built yet). */
   teamMembers: number | null;
@@ -115,7 +123,7 @@ export type PlanSetting = Pick<PlanInfo, "name" | "tagline" | "features" | "high
   version?: 2;
 };
 
-const BASE_LIMITS: PlanLimits = { appUsers: null, languages: null, sources: null, storageGb: 2, teamMembers: 1, support: "email", accountManager: false, customFeatures: false };
+const BASE_LIMITS: PlanLimits = { appUsers: null, languages: null, sources: null, storageGb: 2, analyticsMonths: 3, teamMembers: 1, support: "email", accountManager: false, customFeatures: false };
 
 export const PLAN_INFO: Record<Plan, PlanInfo> = {
   starter: {
@@ -123,7 +131,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     name: "Starter",
     tagline: "An Android app, published by you with our guides",
     features: ["push"],
-    limits: { ...BASE_LIMITS, appUsers: 1000, languages: 1, sources: 1, storageGb: 2 },
+    limits: { ...BASE_LIMITS, appUsers: 1000, languages: 1, sources: 1, storageGb: 2, analyticsMonths: 3 },
     highlights: [
       "Android app (APK & AAB)",
       "For Google Play, Galaxy Store, AppGallery and GetApps",
@@ -147,7 +155,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     name: "Growth",
     tagline: "Android and iOS apps that grow with you",
     features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild"],
-    limits: { ...BASE_LIMITS, appUsers: 10000, languages: 3, sources: null, storageGb: 20, support: "whatsapp" },
+    limits: { ...BASE_LIMITS, appUsers: 10000, languages: 3, sources: null, storageGb: 20, analyticsMonths: 12, support: "whatsapp" },
     highlights: [
       "Android & iOS apps",
       "Up to 10,000 app users",
@@ -170,7 +178,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     name: "Pro",
     tagline: "We publish your apps for you",
     features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish"],
-    limits: { ...BASE_LIMITS, appUsers: null, languages: null, sources: null, storageGb: 100, teamMembers: 3, support: "priority" },
+    limits: { ...BASE_LIMITS, appUsers: null, languages: null, sources: null, storageGb: 100, analyticsMonths: 24, teamMembers: 3, support: "priority" },
     highlights: [
       "Everything in Growth",
       "Unlimited app users",
@@ -191,7 +199,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     name: "Business",
     tagline: "A partner for your app",
     features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish"],
-    limits: { ...BASE_LIMITS, appUsers: null, languages: null, sources: null, storageGb: 500, teamMembers: 10, support: "dedicated", accountManager: true, customFeatures: true },
+    limits: { ...BASE_LIMITS, appUsers: null, languages: null, sources: null, storageGb: 500, analyticsMonths: 36, teamMembers: 10, support: "dedicated", accountManager: true, customFeatures: true },
     highlights: ["Everything in Pro", "A dedicated account manager", "Custom features on request", "Several team members", "Fastest support"],
     price: "On request",
     period: null,
@@ -255,14 +263,23 @@ export function planFeaturesFor(cardPayments: string | null): PlanFeatureDef[] {
   return PLAN_FEATURES.flatMap((f) => (f.id !== "card_payments" ? [f] : cardPayments ? [{ ...f, description: cardPayments }] : []));
 }
 
-export type PlanLimitId = "appUsers" | "languages" | "sources" | "storageGb";
+export type PlanLimitId = "appUsers" | "languages" | "sources" | "storageGb" | "analyticsMonths";
 
 export const PLAN_LIMITS: { id: PlanLimitId; label: string; unlimited: string; enforced: string }[] = [
   { id: "appUsers", label: "App users", unlimited: "Unlimited", enforced: "The hosted API refuses new users past the limit (WordPress sites keep their own users: no limit)." },
   { id: "languages", label: "App languages", unlimited: "All languages", enforced: "The page editor, publishing and the served layout." },
   { id: "sources", label: "Connected platforms", unlimited: "All", enforced: "The page editor and the served layout leave out lists from other sources." },
   { id: "storageGb", label: "Storage (GB)", unlimited: "Unlimited", enforced: "Media uploads past it are refused; storage packs add to it." },
+  {
+    id: "analyticsMonths",
+    label: "Analytics history (months)",
+    unlimited: "Until the app is deleted",
+    enforced: "The daily job deletes daily totals older than this, and the Analytics page starts no earlier. Single events are kept 90 days on every plan.",
+  },
 ];
+
+/** 72 The most months of analytics history a plan can keep (ten years). */
+export const MAX_ANALYTICS_MONTHS = 120;
 
 export function isPlan(value: unknown): value is Plan {
   return typeof value === "string" && (PLANS as readonly string[]).includes(value);
@@ -296,6 +313,13 @@ function cleanLimits(value: unknown, fallback: PlanLimits): PlanLimits {
     sources: count(v.sources, fallback.sources),
     // 51 Edits saved before storage was a limit keep the plan's default.
     storageGb: v.storageGb === undefined ? fallback.storageGb : v.storageGb === null ? null : typeof v.storageGb === "number" && Number.isFinite(v.storageGb) && v.storageGb > 0 ? v.storageGb : fallback.storageGb,
+    // 72 Edits saved before analytics history was a limit keep the plan's default.
+    analyticsMonths:
+      v.analyticsMonths === null
+        ? null
+        : typeof v.analyticsMonths === "number" && Number.isInteger(v.analyticsMonths) && v.analyticsMonths >= 1 && v.analyticsMonths <= MAX_ANALYTICS_MONTHS
+          ? v.analyticsMonths
+          : fallback.analyticsMonths,
     teamMembers: count(v.teamMembers, fallback.teamMembers),
     support: SUPPORT_LEVELS.includes(v.support as SupportLevel) ? (v.support as SupportLevel) : fallback.support,
     accountManager: typeof v.accountManager === "boolean" ? v.accountManager : fallback.accountManager,
@@ -442,6 +466,13 @@ export function planStoresLine(plan: Pick<PlanInfo, "features">): string {
   return `${stores.length} app stores · ${publisher === "us" ? "We publish for you" : "You publish with our guides"}`;
 }
 
+/** 72 How long analytics daily totals are kept: "3 months", "1 year", "18 months", or "Until the app is deleted". */
+export function formatAnalyticsKeep(months: number | null): string {
+  if (months === null) return "Until the app is deleted";
+  if (months % 12 === 0) return months === 12 ? "1 year" : `${months / 12} years`;
+  return months === 1 ? "1 month" : `${months} months`;
+}
+
 /** 51 "20 GB", "1 TB", or "Unlimited storage". */
 export function formatStorage(gb: number | null): string {
   if (gb === null) return "Unlimited storage";
@@ -476,6 +507,9 @@ export function comparisonRows(plans: Record<Plan, PlanInfo>): ComparisonRow[] {
     { label: "App users", values: each((p) => formatLimit(p.limits.appUsers)) },
     { label: "App languages", values: each((p) => formatLimit(p.limits.languages, "All")) },
     { label: "Storage for videos and files", values: each((p) => (p.limits.storageGb === null ? "Unlimited" : formatStorage(p.limits.storageGb))) },
+    // 72 How long analytics are kept.
+    { label: "Analytics: daily totals kept", values: each((p) => formatAnalyticsKeep(p.limits.analyticsMonths)) },
+    { label: "Analytics: single events kept (each app open, screen or search)", values: each(() => `${RAW_RETENTION_DAYS} days`) },
     { label: "Push notifications", values: has("push") },
     { label: "Pages", values: each((p) => (hasFeature(p, "page_editor") ? "Full page editor" : "Ready-made templates")) },
     { label: "Card payments in the app", values: has("card_payments") },

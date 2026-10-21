@@ -10,6 +10,7 @@ import { Logo } from "./brand";
 import { Icon } from "./icon";
 import { SiteFooter, SiteHeader, type SitePage } from "./site-chrome";
 import { WhatsAppMark } from "./brand-marks";
+import { WhatsAppLink } from "./whatsapp-link";
 
 /** A public marketing page: header with `current` marked, a title band, the content and the full footer. */
 export function MarketingPage({
@@ -110,13 +111,13 @@ export async function ContactBand({ lang = DEFAULT_LANG }: { lang?: Lang }) {
           <p className="m-0 text-base text-night-text">{text.text}</p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <a
-            href={contact.whatsappUrl}
+          <WhatsAppLink
+            lines={contact.lines}
             className="flex h-[50px] items-center gap-2.5 rounded-xl bg-ivory px-[22px] text-base font-bold text-midnight no-underline hover:bg-white hover:text-midnight"
           >
             <WhatsAppMark size={20} />
             {m.talkWhatsApp}
-          </a>
+          </WhatsAppLink>
           <AccountLink
             href={localePath(lang, "/sign-up")}
             signedIn={m.goToDashboard}

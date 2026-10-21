@@ -149,7 +149,8 @@ export function jsonLdText(data: JsonLd | JsonLd[]): string {
 }
 
 /** Yallapp, with its city and the contact details from the admin's Settings. */
-export function organizationLd(base: string, contact: { email: string; whatsapp: string }): JsonLd {
+/** 72 Yallapp's two support numbers: Egypt's (areaServed EG) and the one for everywhere else. */
+export function organizationLd(base: string, contact: { email: string; whatsapp: string; whatsappEgypt: string }): JsonLd {
   return {
     "@context": CONTEXT,
     "@type": "Organization",
@@ -163,8 +164,18 @@ export function organizationLd(base: string, contact: { email: string; whatsapp:
         "@type": "ContactPoint",
         contactType: "customer support",
         email: contact.email,
+        telephone: contact.whatsappEgypt,
+        url: `${base}/contact`,
+        areaServed: "EG",
+        availableLanguage: ["English", "Arabic"],
+      },
+      {
+        "@type": "ContactPoint",
+        contactType: "customer support",
+        email: contact.email,
         telephone: contact.whatsapp,
         url: `${base}/contact`,
+        areaServed: { "@type": "Place", name: "Outside Egypt" },
         availableLanguage: ["English"],
       },
     ],

@@ -379,7 +379,7 @@ Sayılar geldiğinde ülkeyi bağlantıdan çıkarırız ve IP adresini asla sak
 
 ## Ne kadar saklanır
 
-Uygulamanın gönderdikleri 40 gün saklanır, ardından yalnızca günlük toplamlar kalır. Uygulamanız silindiğinde her şey silinir. Uygulamanızın gizlilik politikası birinci taraf kullanım istatistikleri kullandığınızı belirtmelidir: [Google Play'de yayınlayın](/docs/google-play) ve [App Store'da yayınlayın](/docs/app-store) rehberlerindeki mağaza yanıtlarına bakın.
+Uygulamanın gönderdikleri (her açılış, ekran veya arama) her planda 90 gün saklanır. Bunlardan hesaplanan günlük toplamlar planınızın belirlediği süre boyunca saklanır: Starter'da 3 ay, Growth'ta 1 yıl, Pro'da 2 yıl ve Business'ta 3 yıl (süreyi **Lisans ve eklenti** sayfasındaki plan ayrıntılarınız ve [fiyatlar sayfası](/pricing) gösterir) ve Analiz sayfası daha geriye gitmez. Uygulamanız silindiğinde her şey silinir. Uygulamanızın gizlilik politikası birinci taraf kullanım istatistikleri kullandığınızı belirtmelidir: [Google Play'de yayınlayın](/docs/google-play) ve [App Store'da yayınlayın](/docs/app-store) rehberlerindeki mağaza yanıtlarına bakın.
 
 ---
 

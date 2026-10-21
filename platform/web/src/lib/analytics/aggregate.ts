@@ -1,5 +1,6 @@
 import type { DataStore } from "../data/store";
 import { addDays, dayOf, dayRange } from "./days";
+import { purgeRawEvents } from "./retention";
 import { MAX_EVENT_AGE_DAYS, MAX_KEYS_PER_DAY, RAW_RETENTION_DAYS, type AnalyticsDailyRow, type AnalyticsEventRow } from "./types";
 
 /** 44 The returns counted for each cohort of first opens: the day after, a week and 30 days later. */
@@ -129,7 +130,7 @@ export async function aggregateDay(store: AnalyticsStore, appId: string, day: st
   await store.saveAnalyticsDaily(appId, day, rows);
   for (const n of RETENTION_DAYS) {
     const cohort = addDays(day, -n);
-    // The cohort's first opens are still in the raw events (kept 40 days).
+    // The cohort's first opens are still in the raw events (kept 90 days).
     if (cohort < addDays(dayOf(now, zone), -RAW_RETENTION_DAYS + 1)) continue;
     const returned = await store.countAnalyticsReturning(appId, cohort, day);
     await store.saveAnalyticsDaily(appId, cohort, [{ metric: `ret_d${n}`, key: "", label: null, value: returned }]);
@@ -172,8 +173,8 @@ export async function refreshAnalytics(store: AnalyticsStore, appId: string, now
 
 /**
  * The nightly count (POST /api/internal/daily): every app with events in the
- * last week gets its finished days counted, then raw events older than 40
- * days are deleted. Stops before `budgetMs`; what is left is counted when
+ * last week gets its finished days counted, then raw events older than 90
+ * days (72: 40 before) are deleted in batches. Stops before `budgetMs`; what is left is counted when
  * the owner opens Analytics, or the next night.
  */
 export async function runAnalyticsNightly(
@@ -200,6 +201,7 @@ export async function runAnalyticsNightly(
     apps += 1;
     days += due.length;
   }
-  const purged = await store.purgeAnalyticsEvents(addDays(today, -RAW_RETENTION_DAYS + 1));
-  return { apps, days, purged, finished };
+  // 72 Raw events older than 90 days, in batches within what is left of the budget.
+  const raw = await purgeRawEvents(store, addDays(today, -RAW_RETENTION_DAYS + 1), started + budgetMs);
+  return { apps, days, purged: raw.deleted, finished: finished && raw.finished };
 }

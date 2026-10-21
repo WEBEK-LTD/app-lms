@@ -12,7 +12,7 @@ import { getDashT } from "@/i18n/dashboard";
 import { formatDate } from "@/i18n/format";
 import type { Lang } from "@/i18n/config";
 import { optionsText } from "./options";
-import { commissionOf, orderNumber, type CheckoutAccount } from "./settings";
+import { orderNumber, type CheckoutAccount } from "./settings";
 import { emailTemplate, renderTemplate } from "../email/templates";
 import { checkTicketHold, holdForPayment, noticeRefundDue, providerPageExpiry } from "../events/holds";
 
@@ -40,7 +40,7 @@ export function readCustomer(
 interface PaymentDeps {
   store: DataStore;
   app: App;
-  /** The shop's own account (37 iyzico, Kashier or Fawaterk), or Yallapp's (with iyzico, the shop is a sub-merchant). */
+  /** The shop's own account (37 iyzico, Kashier or Fawaterk); 72 for an old marketplace order, the account it started with. */
   account: CheckoutAccount;
   fetcher?: typeof fetch;
   /** The providers' addresses in tests. */
@@ -59,27 +59,21 @@ export async function startPayment(
   },
 ): Promise<string> {
   const { order, customer } = deps;
-  const { account, marketplace } = deps.account;
+  const { account } = deps.account;
+  // 72 Yallapp never collects payments for its clients: a sale is always paid into the shop's own account.
+  if (deps.account.marketplace) throw new Error("A sale is never paid into Yallapp's account.");
   // 49 Tickets: never start a payment for places already released.
   await checkTicketHold(deps.store, deps.app, order, deps.now);
   const tickets = deps.app.connector?.kind === "events";
-  // Yallapp's commission is on the products; shipping goes to the shop in full. Only iyzico splits the payment (sub-merchants).
-  const split = marketplace && account.provider === "iyzico" ? marketplace : null;
-  const share = (cents: number, commissioned: boolean) =>
-    split ? { subMerchant: { key: split.subMerchantKey, cents: cents - (commissioned ? commissionOf(cents, split.commissionPercent) : 0) } } : {};
-  const commissionCents = marketplace
-    ? order.lines.reduce((sum, l) => sum + commissionOf(l.unitCents * l.quantity, marketplace.commissionPercent), 0)
-    : null;
   const lines: CheckoutLine[] = order.lines.map((l, i) => ({
     id: `${l.productId}-${i}`,
     name: l.quantity > 1 && account.provider !== "iyzico" ? `${l.name} × ${l.quantity}` : l.name,
     cents: l.unitCents * l.quantity,
     category: "Products",
     digital: l.digital,
-    ...share(l.unitCents * l.quantity, true),
   }));
   if (order.shippingCents > 0) {
-    lines.push({ id: "shipping", name: "Shipping", cents: order.shippingCents, category: "Shipping", digital: true, ...share(order.shippingCents, false) });
+    lines.push({ id: "shipping", name: "Shipping", cents: order.shippingCents, category: "Shipping", digital: true });
   }
   const started = await startCheckout(
     account,
@@ -110,7 +104,7 @@ export async function startPayment(
   // 37 The provider and its reference stay on the order: the payment is read back from that provider.
   await deps.store.updateCatalogOrder(order.appId, order.id, {
     customer,
-    commissionCents,
+    commissionCents: null,
     paymentProvider: account.provider,
     providerRef: started.providerRef.slice(0, 191),
     updatedAt: deps.now,

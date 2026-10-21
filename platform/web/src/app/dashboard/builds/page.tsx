@@ -21,7 +21,7 @@ import {
   statusExplanation,
   suggestedVersion,
 } from "@/lib/builds/view";
-import { getContact } from "@/lib/contact";
+import { getVisitorContact } from "@/lib/contact";
 import { getStore } from "@/lib/data";
 import type { ArtifactKind, Build } from "@/lib/data/types";
 import { ARTIFACT_LABEL, dashboardFileHref, fileLink } from "@/lib/files";
@@ -124,7 +124,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   const { started, download, queued } = await searchParams;
   const text = await dashboardText();
   const { t, k, lang } = text;
-  const contact = await getContact();
+  const contact = await getVisitorContact();
   const store = await getStore();
   const plans = plansIn(text.lang, await getPlans(store));
   const builds = await store.listBuildsByApp(app.id, 50);

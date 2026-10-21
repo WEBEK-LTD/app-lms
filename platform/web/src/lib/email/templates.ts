@@ -81,7 +81,13 @@ export interface EmailTemplateDefinition {
 
 /** Values every email can use. */
 export const GLOBAL_PLACEHOLDERS: Placeholder[] = [
-  { name: "yallapp_whatsapp", description: "Yallapp's WhatsApp number (Settings)", sample: "+90 544 673 19 42" },
+  {
+    name: "yallapp_whatsapp",
+    description: "Yallapp's two WhatsApp numbers with where each is for (Settings)",
+    sample: "+20 104 256 0010 (In Egypt) · +90 544 673 19 42 (Outside Egypt)",
+  },
+  { name: "yallapp_whatsapp_egypt", description: "Yallapp's WhatsApp number in Egypt (Settings)", sample: "+20 104 256 0010" },
+  { name: "yallapp_whatsapp_international", description: "Yallapp's WhatsApp number outside Egypt (Settings)", sample: "+90 544 673 19 42" },
   { name: "yallapp_email", description: "Yallapp's email address (Settings)", sample: "info@yallapp.com.tr" },
 ];
 

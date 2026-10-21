@@ -148,6 +148,8 @@ class App_Controller extends Controller {
 					'review_prompt'       => $license_status['review_prompt'],
 					'crash_reports'       => $license_status['crash_reports'],
 					'screen_protection'   => $protection,
+					// 72 The video sites' own players unless the owner hides them in the dashboard (at their own risk).
+					'hide_video_branding' => ! empty( $license_status['hide_video_branding'] ),
 				),
 				// 46 Links that open the app: <site>/a/<kind>/<id> (App_Links).
 				'links'     => array( 'share_base_url' => untrailingslashit( home_url( '/a' ) ) ),

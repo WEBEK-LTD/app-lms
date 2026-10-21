@@ -22,6 +22,7 @@ import { cardPlans } from "@/lib/billing/plan-payment";
 import {
   isPlan,
   PLAN_FEATURE_IDS,
+  MAX_ANALYTICS_MONTHS,
   PLAN_INFO,
   PLAN_TEXT_LANGS,
   planPriceOf,
@@ -344,28 +345,6 @@ export async function testPaymentAccountAction(_: FormState, formData: FormData)
 }
 
 /**
- * 37 Which of Yallapp's accounts takes new plan payments and marketplace
- * sales. Payments already started finish with the account they started
- * with; shops that joined the marketplace with another provider stop
- * selling through Yallapp until they join again.
- */
-export async function savePaymentProviderAction(_: FormState, formData: FormData): Promise<FormState> {
-  const admin = await requireAdmin("payments.manage");
-  const provider = str(formData, "provider");
-  if (!isPaymentProvider(provider)) return { errors: { provider: "Choose a provider." }, values: { provider } };
-  const store = await getStore();
-  await save("paymentProvider", { provider }, admin);
-  const name = PROVIDER_NAME[provider];
-  const ready = await yallappAccountFor(store, provider, encryptionKey()).catch(() => null);
-  revalidatePath("/dashboard", "layout");
-  return {
-    ok: true,
-    message: `Payments go to Yallapp's ${name} account.${ready ? "" : ` Add Yallapp's ${name} account below: until then, sales through Yallapp are off.`}`,
-    values: { provider },
-  };
-}
-
-/**
  * 52 Yallapp's own plans and add-ons: the gateway they're paid through
  * (Kashier, in pounds, unless the team chooses another) and the
  * pound-to-dollar rate for the dollar prices shown outside Egypt.
@@ -501,7 +480,7 @@ export async function savePlanLimitsAction(_: FormState, formData: FormData): Pr
   if (!isPlan(plan)) return { message: "Unknown plan." };
   const features = formData.getAll("features").map(String);
   const values: Record<string, string> = { features: features.join(",") };
-  for (const name of ["appUsers", "languages", "sources", "storageGb", "teamMembers", "support"]) values[name] = str(formData, name);
+  for (const name of ["appUsers", "languages", "sources", "storageGb", "analyticsMonths", "teamMembers", "support"]) values[name] = str(formData, name);
   values.accountManager = formData.get("accountManager") === "on" ? "on" : "";
   values.customFeatures = formData.get("customFeatures") === "on" ? "on" : "";
   const errors: Record<string, string> = {};
@@ -521,6 +500,11 @@ export async function savePlanLimitsAction(_: FormState, formData: FormData): Pr
   if (storage === "" || storage.toLowerCase() === "unlimited") limits.storageGb = null;
   else if (/^\d{1,6}(\.\d{1,3})?$/.test(storage) && Number(storage) > 0) limits.storageGb = Number(storage);
   else errors.storageGb = "Enter the gigabytes, like 20 or 0.5, or leave it empty for no limit.";
+  // 72 Months of analytics daily totals: empty keeps them until the app is deleted.
+  const months = readLimit(values.analyticsMonths!);
+  if (months === undefined || (months !== null && (months < 1 || months > MAX_ANALYTICS_MONTHS))) {
+    errors.analyticsMonths = `Enter the months, from 1 to ${MAX_ANALYTICS_MONTHS}, like 12 for a year, or leave it empty to keep them until the app is deleted.`;
+  } else limits.analyticsMonths = months;
   if (!SUPPORT_LEVELS.includes(values.support as SupportLevel)) errors.support = "Choose the support level.";
   if (Object.keys(errors).length) return { errors, values };
   const { saved, info } = await currentPlan(plan);
@@ -532,6 +516,7 @@ export async function savePlanLimitsAction(_: FormState, formData: FormData): Pr
       languages: limits.languages ?? null,
       sources: limits.sources ?? null,
       storageGb: limits.storageGb ?? null,
+      analyticsMonths: limits.analyticsMonths ?? null,
       teamMembers: limits.teamMembers ?? null,
       support: values.support as SupportLevel,
       accountManager: values.accountManager === "on",
@@ -594,24 +579,13 @@ export async function resetPlanAction(formData: FormData): Promise<void> {
   refreshPlanSitesSoon(plan);
 }
 
-/** Shops without their own iyzico account sell through Yallapp's, for this commission. */
-export async function saveMarketplaceAction(_: FormState, formData: FormData): Promise<FormState> {
-  const admin = await requireAdmin("payments.manage");
-  const raw = str(formData, "commission").replace(",", ".");
-  const percent = Number(raw);
-  if (!/^\d{1,2}(\.\d{1,2})?$/.test(raw) || percent > 50) {
-    return { errors: { commission: "Enter a percent from 0 to 50, like 8 or 7.5." }, values: { commission: raw } };
-  }
-  await save("marketplace", { commissionPercent: percent }, admin);
-  return { ok: true, message: `Shops can sell through Yallapp for a ${percent}% commission.`, values: { commission: raw } };
-}
-
-/** Yallapp's WhatsApp number and email, shown across the website, the dashboard and emails. */
+/** Yallapp's WhatsApp numbers (72: outside Egypt and in Egypt) and email, shown across the website, the dashboard and emails. */
 export async function saveContactAction(_: FormState, formData: FormData): Promise<FormState> {
   const admin = await requireAdmin("settings.edit");
-  const values = { whatsapp: str(formData, "whatsapp"), email: str(formData, "email") };
+  const values = { whatsapp: str(formData, "whatsapp"), whatsappEgypt: str(formData, "whatsappEgypt"), email: str(formData, "email") };
   const errors: Record<string, string> = {};
   if (!parseAnyPhone(values.whatsapp, "+90") || !values.whatsapp.startsWith("+")) errors.whatsapp = "Enter the number with its country code, like +90 544 673 19 42.";
+  if (!parseAnyPhone(values.whatsappEgypt, "+20") || !values.whatsappEgypt.startsWith("+")) errors.whatsappEgypt = "Enter the number with its country code, like +20 104 256 0010.";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email) || values.email.length > 191) errors.email = "Enter an email address.";
   if (Object.keys(errors).length) return { errors, values };
   await save("contact", values, admin);

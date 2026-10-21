@@ -16,6 +16,7 @@ import 'embed_player.dart';
 import 'hosted_video.dart';
 import 'player_controls.dart';
 import 'signed_link.dart';
+import 'video_branding.dart';
 import 'watch_tracker.dart';
 import 'watermark.dart';
 import '../../../../core/l10n/l10n.dart';
@@ -24,9 +25,10 @@ export 'watch_tracker.dart';
 
 /// The lesson video (design: Lesson): uploaded and external files play with
 /// `video_player` from the signed URL; YouTube, Vimeo and Bunny Stream play
-/// in a web view behind the same controls (40: nothing shows where they're
-/// hosted, see [BrandlessVideo]); other embeds play in a web view that can't
-/// open their site. A moving watermark sits on top, and the video is blanked
+/// in a web view (72: in the site's own player, or, when the owner hides the
+/// branding, behind the app's controls with nothing showing where they're
+/// hosted, 40; see [BrandlessVideo]); other embeds play in a web view that
+/// can't open their site. A moving watermark sits on top, and the video is blanked
 /// while the screen is being captured (iOS).
 class LessonVideoPlayer extends ConsumerStatefulWidget {
   const LessonVideoPlayer({
@@ -245,10 +247,13 @@ class _LessonVideoPlayerState extends ConsumerState<LessonVideoPlayer> {
   Widget build(BuildContext context) {
     final Widget video;
     final hosted = _hosted;
+    // 72 The video sites' own players unless the owner hides them.
+    final hideBranding = ref.watch(hideVideoBrandingProvider);
     if (hosted != null && hosted.ownControls) {
       // 40 Stays in place while the screen is captured (it pauses and covers
       // itself), so the student carries on where they were.
       video = BrandlessVideo(
+        siteControls: !hideBranding,
         video: hosted,
         posterUrl: widget.video.posterUrl,
         startSeconds: widget.startSeconds,
@@ -261,7 +266,11 @@ class _LessonVideoPlayerState extends ConsumerState<LessonVideoPlayer> {
     } else if (widget.captured) {
       video = const CapturedNotice();
     } else if (hosted != null || !widget.video.playsNatively) {
-      video = _WebVideo(video: widget.video, hosted: hosted);
+      video = _WebVideo(
+        video: widget.video,
+        hosted: hosted,
+        hideBranding: hideBranding,
+      );
     } else if (_error != null) {
       video = VideoMessage(
         icon: AppIcons.error,
@@ -329,13 +338,19 @@ HostedVideo? hostedLessonVideo(Video video) {
 }
 
 /// A video site's own player (Wistia, Dailymotion, Loom) or another embed in
-/// a web view, with its branding turned off where the site allows it. 40
-/// Nothing in it can open another page, the site's app or a browser.
+/// a web view, 72 with its branding turned off where the site allows it only
+/// when the owner hides it. 40 Nothing in it can open another page, the
+/// site's app or a browser.
 class _WebVideo extends ConsumerWidget {
-  const _WebVideo({required this.video, this.hosted});
+  const _WebVideo({
+    required this.video,
+    this.hosted,
+    required this.hideBranding,
+  });
 
   final Video video;
   final HostedVideo? hosted;
+  final bool hideBranding;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -346,7 +361,7 @@ class _WebVideo extends ConsumerWidget {
     final String html;
     if (hosted != null) {
       html = embedWrapperHtml(
-        src: hosted!.playerUrl().toString(),
+        src: hosted!.playerUrl(hideBranding: hideBranding).toString(),
         measure: false,
       );
     } else if (url != null && url.isNotEmpty) {

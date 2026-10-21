@@ -59,6 +59,8 @@ const en = {
   thanksDonation: "Thank you for supporting {org}. Keep this receipt for your records.",
   place: "Cairo, Egypt",
   whatsapp: "WhatsApp {number}",
+  whatsappEgypt: "WhatsApp {number} (in Egypt)",
+  whatsappOutside: "WhatsApp {number} (outside Egypt)",
 };
 
 export type ReceiptWords = typeof en;
@@ -116,6 +118,8 @@ const ar: ReceiptWords = {
   thanksDonation: "شكرًا لدعمك {org}. احتفظ بهذا الإيصال في سجلاتك.",
   place: "القاهرة، مصر",
   whatsapp: "واتساب {number}",
+  whatsappEgypt: "واتساب {number} (داخل مصر)",
+  whatsappOutside: "واتساب {number} (خارج مصر)",
 };
 
 const tr: ReceiptWords = {
@@ -171,6 +175,8 @@ const tr: ReceiptWords = {
   thanksDonation: "{org} kuruluşunu desteklediğiniz için teşekkürler. Bu makbuzu kayıtlarınız için saklayın.",
   place: "Kahire, Mısır",
   whatsapp: "WhatsApp {number}",
+  whatsappEgypt: "WhatsApp {number} (Mısır'da)",
+  whatsappOutside: "WhatsApp {number} (Mısır dışında)",
 };
 
 const WORDS: Record<Lang, ReceiptWords> = { en, ar, tr };
