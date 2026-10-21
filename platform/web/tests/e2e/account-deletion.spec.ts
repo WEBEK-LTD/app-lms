@@ -139,14 +139,24 @@ test("66 the owner asks from Your account, their phone is signed out, and our te
   const card = admin.locator("section", { hasText: client.email }).first();
   await expect(card).toContainText("We're moving to another platform.");
   await expect(card).toContainText("Build folders");
-  await card.getByRole("button", { name: "Mark done and email them" }).click();
-  await expect(card.getByText("Tick this once the account and its files are deleted.")).toBeVisible();
+  // 73 Carried out by the daily job after 7 days, or now.
+  await expect(card).toContainText("deleted automatically after");
+  await card.getByRole("button", { name: "Delete now" }).click();
+  await expect(card.getByText("Tick this to delete the account now.")).toBeVisible();
   await card.getByRole("checkbox").check();
-  await card.getByRole("button", { name: "Mark done and email them" }).click();
+  await card.getByRole("button", { name: "Delete now" }).click();
   await expect(admin).toHaveURL(/\/admin\/account-deletion\?closed=done/);
-  await expect(admin.getByRole("status")).toContainText("Marked done. The person who asked was emailed that their account was deleted.");
+  await expect(admin.getByRole("status")).toContainText("The account was deleted, its billing records kept, and the person who asked was emailed.");
   await expect(admin.locator("section", { hasText: client.email })).toHaveCount(0);
   await expect.poll(async () => (await mailsTo(client.email)).map((m) => m.subject)).toContain("Your Yallapp account was deleted");
   await admin.goto("/admin/account-deletion?show=done");
   await expect(admin.locator("section", { hasText: client.email }).first()).toContainText("Done");
+  // The account is gone: its owner can't sign in any more, and their session ended.
+  await own.goto("/dashboard/account");
+  await expect(own).toHaveURL(/\/sign-in/);
+  await own.goto("/sign-in");
+  await own.getByLabel("Email").fill(client.email);
+  await own.getByLabel("Password", { exact: true }).fill(client.password);
+  await own.getByRole("button", { name: "Sign in" }).click();
+  await expect(own.getByText("The email or password is incorrect.")).toBeVisible();
 });

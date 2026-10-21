@@ -11,6 +11,9 @@ import { cancelStaleUploads } from "@/lib/media/files";
 import { getMediaStorage } from "@/lib/media/storage";
 import { sweepMediaFolders } from "@/lib/media/sweep";
 import { noticeEndedPacks } from "@/lib/media/usage";
+import { runAccountDeletions } from "@/lib/account/purge";
+import { runAppPurges } from "@/lib/apps/deletion";
+import { accountPurgeDeps, purgeDeps } from "@/lib/apps/purge-env";
 
 /**
  * POST /api/internal/daily (roadmap 13.4): the daily job. Netlify's scheduled
@@ -24,7 +27,10 @@ import { noticeEndedPacks } from "@/lib/media/usage";
  * email when the files are over the storage left) and uploads left unfinished
  * for two days are cancelled. 58 Devices signed out of Yallapp Business by
  * time (their refresh token ended) are deleted. 62 The media server's
- * folders of apps that no longer exist are removed after a week. Safe to
+ * folders of apps that no longer exist are removed after a week. 73 Apps
+ * deleted by their owner more than 7 days ago are purged (their files and
+ * rows), and the accounts whose deletion was asked for more than 7 days ago
+ * are deleted, keeping their billing records (lib/account/purge.ts). Safe to
  * call again.
  */
 export async function POST(request: Request): Promise<Response> {
@@ -54,5 +60,8 @@ export async function POST(request: Request): Promise<Response> {
   const ownerDevicesPurged = await store.purgeOwnerDevices(now);
   // 70 Website sessions whose 14 days are over.
   const sessionsPurged = await store.deleteExpiredUserSessions(now);
-  return json({ ...report, analytics: { ...analytics, history: analyticsHistory }, media, ownerDevicesPurged, sessionsPurged });
+  // 73 Deleted apps past their 7 days, then accounts whose deletion is due.
+  const apps = await runAppPurges(purgeDeps(store, now));
+  const accounts = await runAccountDeletions(accountPurgeDeps(store, now));
+  return json({ ...report, analytics: { ...analytics, history: analyticsHistory }, media, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts } });
 }

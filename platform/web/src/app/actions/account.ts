@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cancelAccountDeletion, requestAccountDeletion, type DeletionDeps } from "@/lib/account/deletion";
+import { COUNTRY_MESSAGES, parseCountry } from "@/lib/account/country";
 import { clientFor } from "@/lib/auth/session";
 import { getContact } from "@/lib/contact";
 import { dashboardLang } from "@/lib/dashboard-lang";
@@ -56,4 +57,22 @@ export async function cancelAccountDeletionAction(formData: FormData): Promise<v
   const page = pageOf(formData);
   revalidatePath(page);
   redirect(result.ok ? `${page}?deletion=cancelled` : page);
+}
+
+/**
+ * 73 Dashboard › Your account › Your country (52.9): the owner (or our team
+ * managing the dashboard) sets the account's country, which decides the
+ * currency of Yallapp's prices, the WhatsApp number shown and the receipts'
+ * time zone (lib/account/country.ts). Team members can't.
+ */
+export async function saveAccountCountryAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await clientFor("dashboard");
+  if (!context) redirect("/sign-in");
+  const values = { country: String(formData.get("country") ?? "") };
+  if (context.member) return { message: COUNTRY_MESSAGES.owner, values };
+  const country = parseCountry(values.country);
+  if (!country) return { errors: { country: COUNTRY_MESSAGES.invalid }, values };
+  await (await getStore()).updateClient(context.client.id, { country }, new Date());
+  revalidatePath("/dashboard", "layout");
+  return { ok: true, message: COUNTRY_MESSAGES.saved, values: { country } };
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Logo } from "@/components/brand";
 import { SideNavLinks } from "@/components/side-nav";
 import { SignOutButton } from "@/components/sign-out";
+import { ThemeSwitch } from "@/components/theme-switch";
 import { ROLE_LABELS } from "@/lib/admin/permissions";
 import { requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
@@ -17,8 +18,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const openPublishing = openPublishingCount(await store.listManagedPublishingRequests());
   // 66 Requests to delete an account that wait for us.
   const openDeletions = (await store.listAccountDeletionRequests(["pending"], 200)).length;
+  // 73 Apps their owners deleted, still restorable.
+  const deletedApps = (await store.listAppDeletions({ statuses: ["waiting"], limit: 200 })).length;
   return (
-    <div className="flex min-h-screen flex-col bg-ivory md:flex-row">
+    // 73 Light or dark like the website (globals.css); the menu stays dark.
+    <div data-site-theme="" className="flex min-h-screen flex-col bg-ivory md:flex-row">
       <nav aria-label="Super admin" className="on-dark flex w-full flex-col gap-3 bg-midnight px-3.5 py-4 md:w-[240px] md:flex-none md:gap-1 md:py-[22px]">
         <div className="flex flex-col items-start gap-0.5 px-2 md:pb-5">
           <Logo height={26} reversed />
@@ -33,6 +37,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             { href: "/admin/crashes", label: "Crashes" },
             { href: "/admin/publishing", label: "Publishing", badge: { count: openPublishing, label: openPublishing === 1 ? "open request" : "open requests" } },
             { href: "/admin/account-deletion", label: "Account deletion", badge: { count: openDeletions, label: openDeletions === 1 ? "open request" : "open requests" } },
+            { href: "/admin/deleted-apps", label: "Deleted apps", badge: { count: deletedApps, label: deletedApps === 1 ? "app to restore or delete" : "apps to restore or delete" } },
             { href: "/admin/demos", label: "Demo apps" },
             { href: "/admin/releases", label: "App & plugin versions" },
             { href: "/admin/plans", label: "Plans" },
@@ -53,6 +58,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             {user.email} · {ROLE_LABELS[user.adminRole]}
           </span>
           <SignOutButton className="cursor-pointer border-0 bg-transparent p-0 font-semibold text-ivory hover:underline" />
+          <ThemeSwitch label="Dark mode" className="ms-auto h-9 w-9" />
         </div>
       </nav>
       <main className="min-w-0 flex-1 px-4 pt-7 pb-12 sm:px-9 sm:pt-8">

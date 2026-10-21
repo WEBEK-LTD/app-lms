@@ -40,6 +40,9 @@ export interface CoursesDeps {
 
 type Ratings = { courseId: number; rating: number; count: number }[];
 
+/** 73 Students may start a finished course again unless the owner turned it off for the course. */
+export const canRestart = (course: Pick<Course, "canRestart">): boolean => course.canRestart !== false;
+
 const signIn = () => error(401, "invalid_token", "Your session has ended. Please sign in again.");
 const noCourse = () => error(404, "not_found", "Course not found.");
 
@@ -112,6 +115,8 @@ export class CoursesConnector implements Connector {
       if (request.method === "GET" && request.path.length === 2) return course ? this.detail(request, course) : noCourse();
       if (request.method === "GET" && third === "curriculum" && request.path.length === 3) return course ? this.curriculum(request, course) : noCourse();
       if (request.method === "POST" && third === "enroll" && request.path.length === 3) return this.enroll(request, course);
+      // 73 Start a finished course again.
+      if (request.method === "POST" && third === "restart" && request.path.length === 3) return this.restart(request, course);
     }
     if (first === "questions" && second) {
       if (request.method === "GET" && request.path.length === 2) return this.thread(request, Number(second));
@@ -283,6 +288,8 @@ export class CoursesConnector implements Connector {
         qna: true,
         categories: this.setup.categories.filter((cat) => c.categoryIds.includes(cat.id)).map((cat) => ({ ...cat, count: 0 })),
         purchase: { action },
+        // 73 Whether a student who finished it may start it again (the owner's choice per course, on by default).
+        can_restart: canRestart(c),
         // 45 The student's progress, so a finished course says so. Courses managed in Yallapp have no certificates yet.
         ...(enrolled.has(c.id) ? { progress: this.progressJson(c, await this.progressOf(request, c.id)), certificate_url: null } : {}),
       },
@@ -478,6 +485,20 @@ export class CoursesConnector implements Connector {
       updatedAt: request.now,
     });
     return { status: 200, body: this.progressJson(found.course, await this.progressOf(request, found.course.id)) };
+  }
+
+  /**
+   * 73 Starts the course again for the student: their lessons completed and
+   * where each video stopped are cleared (courses managed in Yallapp have no
+   * quizzes); the enrollment, reviews and questions stay.
+   */
+  private async restart(request: ConnectorRequest, course: Course | null): Promise<ConnectorResult> {
+    if (!request.user) return signIn();
+    if (!course) return noCourse();
+    if (!(await this.mayLearn(request, course))) return error(403, "not_enrolled", "Enroll in the course to start it again.");
+    if (!canRestart(course)) return error(403, "restart_disabled", "This course can't be started again.");
+    await this.deps.store.deleteLessonProgress({ appId: this.deps.app.id, userId: request.user.id, courseId: course.id });
+    return { status: 200, body: this.progressJson(course, new Map()) };
   }
 
   // 63 Reviews and questions

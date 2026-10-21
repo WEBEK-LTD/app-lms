@@ -89,15 +89,42 @@
 }
 
 /*
- * 41 Dark mode on the public website (every page with the site header,
- * components/site-chrome.tsx), following the phone's or computer's setting.
+ * 41 Dark mode on Yallapp's own pages: 73 the public website, the sign-in
+ * pages, the client dashboard and the admin (each marks itself with
+ * `data-site-theme`; the pages a business shows its customers keep their
+ * own colors). It follows the phone's or computer's setting until the
+ * visitor picks Light or Dark with the switch (components/theme-switch.tsx),
+ * which this browser remembers (`localStorage`, set on <html> as
+ * `data-theme` before the page paints: components/theme-script.tsx).
  * The brand tokens are swapped: Midnight becomes the page and Ivory the
- * text, so a Midnight button turns Ivory with dark text. The dashboard, the
- * admin and the sign-in pages keep the light palette. `.on-dark` bands (the
- * closing band, the footer) are dark already and keep their own colors.
+ * text, so a Midnight button turns Ivory with dark text. `.on-dark` bands
+ * (the closing band, the footer, the admin's menu) are dark already and keep
+ * their own colors.
  */
-@media (prefers-color-scheme: dark) {
-  html:has([data-site-theme]) {
+@custom-variant yallapp-dark {
+  @media (prefers-color-scheme: dark) {
+    &:not([data-theme="light"]):has([data-site-theme]) {
+      @slot;
+    }
+  }
+  &[data-theme="dark"]:has([data-site-theme]) {
+    @slot;
+  }
+}
+/* The same, for what is inside such a page. */
+@custom-variant in-dark {
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]):has([data-site-theme]) & {
+      @slot;
+    }
+  }
+  :root[data-theme="dark"]:has([data-site-theme]) & {
+    @slot;
+  }
+}
+
+html {
+  @variant yallapp-dark {
     color-scheme: dark;
     --color-white: #161530;
     --color-ivory: #0e0d24;
@@ -128,10 +155,26 @@
     --color-danger: #ff8f86;
     --color-danger-bg: #3a1716;
   }
-  html:has([data-site-theme]) .on-dark {
+}
+.on-dark {
+  @variant in-dark {
     --color-white: #ffffff;
     --color-ivory: #f4efe6;
     --color-midnight: #0e0d24;
+  }
+}
+/* 73 What shows only in one of the two (the adaptive logo). */
+.theme-dark-only {
+  display: none;
+}
+.theme-dark-only {
+  @variant in-dark {
+    display: block;
+  }
+}
+.theme-light-only {
+  @variant in-dark {
+    display: none;
   }
 }
 
@@ -181,9 +224,9 @@
 .store-mark:hover svg {
   fill: var(--brand);
 }
-@media (prefers-color-scheme: dark) {
-  html:has([data-site-theme]) .brand-chip:hover svg,
-  html:has([data-site-theme]) .store-mark:hover svg {
+.brand-chip:hover svg,
+.store-mark:hover svg {
+  @variant in-dark {
     fill: var(--brand-dark);
   }
 }

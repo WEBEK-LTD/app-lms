@@ -2,7 +2,8 @@ import Link from "next/link";
 import { cancelAccountDeletionAction } from "@/app/actions/account";
 import { richText } from "@/i18n/rich";
 import { localePath } from "@/i18n/paths";
-import { DELETION_DAYS, deletionRefusal, MESSAGES, runningPlans } from "@/lib/account/deletion";
+import { DELETION_WAIT_DAYS, deletionRefusal, MESSAGES, runningPlans } from "@/lib/account/deletion";
+import { deletionDueAt } from "@/lib/account/purge";
 import type { ClientContext } from "@/lib/auth/session";
 import { getContact } from "@/lib/contact";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -51,7 +52,7 @@ export async function AccountDeletion({ context, from, done, phones }: { context
         <div data-deletion="pending" className="flex flex-col gap-3">
           <Notice tone="warn" icon="hourglass_top">
             <strong className="block">{t("account.pendingTitle")}</strong>
-            {t("account.pendingText", { date: date(open.requestedAt), days: DELETION_DAYS })}
+            {t("account.pendingText", { date: date(open.requestedAt), deleteOn: date(deletionDueAt(open)) })}
           </Notice>
           {refusal ? null : (
             <form action={cancelAccountDeletionAction}>
@@ -79,7 +80,7 @@ export async function AccountDeletion({ context, from, done, phones }: { context
               {plans ? <li data-plans={plans}>{richText(t("account.plans", { count: plans }), { refund: link(localePath(lang, "/refund")) })}</li> : null}
               <li>{richText(t("account.kept"), { privacy: link(localePath(lang, "/privacy")) })}</li>
             </ul>
-            <p className="m-0 text-[15px] text-ink-3">{t("account.when", { days: DELETION_DAYS })}</p>
+            <p className="m-0 text-[15px] text-ink-3">{t("account.when", { days: DELETION_WAIT_DAYS })}</p>
           </div>
           <AccountDeletionForm from={from} email={context.user.email} />
           <p className="m-0 text-sm text-muted">

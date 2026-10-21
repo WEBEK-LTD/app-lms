@@ -1,6 +1,6 @@
 import { notifyBuildFinished } from "@/lib/builds/notify";
 import { buildSummary } from "@/lib/builds/pipeline";
-import { takeQueuedBuilds } from "@/lib/builds/queue";
+import { APP_DELETED_BEFORE_START, takeQueuedBuilds } from "@/lib/builds/queue";
 import { json } from "@/lib/http";
 import { authorizePipeline } from "@/lib/pipeline-auth";
 
@@ -16,7 +16,7 @@ export async function GET(request: Request): Promise<Response> {
   const limit = Math.min(Math.max(Number(new URL(request.url).searchParams.get("limit") ?? "20") || 20, 1), 100);
   const queued = await auth.store.listBuilds({ status: "queued", limit });
   const { builds, closed } = await takeQueuedBuilds(auth.store, queued, new Date());
-  // The client hears why (in their language); our team has nothing to look at.
-  for (const build of closed) await notifyBuildFinished(auth.store, build, { team: false }).catch(() => undefined);
+  // The client hears why (in their language); our team has nothing to look at. 73 Not for an app the owner deleted.
+  for (const build of closed) if (build.message !== APP_DELETED_BEFORE_START) await notifyBuildFinished(auth.store, build, { team: false }).catch(() => undefined);
   return json({ builds: builds.map(buildSummary) });
 }

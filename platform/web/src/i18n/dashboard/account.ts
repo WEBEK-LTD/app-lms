@@ -19,7 +19,8 @@ export const en = {
   plans:
     "{count, plural, one {{count} of your apps has a plan that is still running.} other {{count} of your apps have a plan that is still running.}} Deleting the account ends it: nothing renews or is charged afterwards. Payments already made are refunded only as the <refund>Refund policy</refund> says.",
   kept: "We keep only the billing records that accounting and tax laws require, and a record of your request. More in the <privacy>Privacy policy</privacy>.",
-  when: "We delete the account within {days} days and email you when it's done. Until then you can cancel the request on this page.",
+  // 73 The platform deletes it after these days (lib/account/purge.ts).
+  when: "Your account is deleted {days} days after you ask, and we email you when it's done. Until then you can cancel the request on this page.",
   confirmEmail: "Type your email address to confirm",
   password: "Your password",
   showPassword: "Show password",
@@ -30,11 +31,18 @@ export const en = {
   sending: "Sending…",
   forgot: "Forgot your password? <reset>Reset it</reset> first, or email {email} from this account's address.",
   pendingTitle: "Your account will be deleted",
-  pendingText: "You asked on {date}. We'll delete your account within {days} days of that and email you when it's done.",
+  pendingText: "You asked on {date}. Your account will be deleted with its apps and their data on {deleteOn}, and we'll email you when it's done.",
   cancel: "Cancel the request",
   requested:
     "{count, plural, =0 {Your request was sent.} one {Your request was sent, and {count} phone was signed out of Yallapp Business.} other {Your request was sent, and {count} phones were signed out of Yallapp Business.}}",
   pendingLink: "Delete my account",
+  // 73 The account's country (52.9).
+  countryTitle: "Your country",
+  countryText: "Yallapp's prices are shown for your country: Egyptian pounds in Egypt, US dollars elsewhere. It also decides which of our WhatsApp numbers you see, and the time zone of your receipts.",
+  countryLabel: "Country",
+  countryChoose: "Choose your country",
+  countryNone: "Your account has no country yet, so prices follow where you open the dashboard from.",
+  countrySave: "Save country",
   known: {
     member: "Only the owner of this business can delete its Yallapp account. Ask them to remove you from the team, which signs you out of it everywhere.",
     staff: "Only the account's owner can ask to delete it, signed in with their own password. Yallapp's team deletes accounts from Admin › Account deletion.",
@@ -43,6 +51,9 @@ export const en = {
     reason: "Keep it under 1,000 characters.",
     noRequest: "There is no request to delete this account.",
     cancelled: "Your request was cancelled. Your account stays as it is.",
+    countrySaved: "Your country was saved.",
+    countryInvalid: "Choose a country from the list.",
+    countryOwner: "Only the owner of this business can change its country.",
   },
 } as const;
 
@@ -65,7 +76,7 @@ export const ar: Messages = {
   plans:
     "{count, plural, other {عدد تطبيقاتك التي ما زالت باقتها سارية: {count}.}} يُنهي حذف الحساب هذه الباقات، فلا يُجدَّد شيء ولا يُخصم أي مبلغ بعد ذلك. ولا تُستردّ المدفوعات السابقة إلا وفق <refund>سياسة الاسترداد</refund>.",
   kept: "لا نحتفظ إلا بسجلات الفوترة التي تشترطها قوانين المحاسبة والضرائب، وبسجلّ لطلبك. المزيد في <privacy>سياسة الخصوصية</privacy>.",
-  when: "نحذف الحساب خلال {days} يومًا ونراسلك عند الانتهاء. وحتى ذلك الحين يمكنك إلغاء الطلب من هذه الصفحة.",
+  when: "يُحذف حسابك بعد {days} أيام من طلبك، ونراسلك عند الانتهاء. وحتى ذلك الحين يمكنك إلغاء الطلب من هذه الصفحة.",
   confirmEmail: "اكتب بريدك الإلكتروني للتأكيد",
   password: "كلمة المرور",
   showPassword: "إظهار كلمة المرور",
@@ -76,10 +87,16 @@ export const ar: Messages = {
   sending: "جارٍ الإرسال…",
   forgot: "نسيت كلمة المرور؟ <reset>أعد تعيينها</reset> أولًا، أو راسل {email} من عنوان بريد هذا الحساب.",
   pendingTitle: "سيُحذف حسابك",
-  pendingText: "طلبت ذلك في {date}. سنحذف حسابك خلال {days} يومًا من ذلك التاريخ ونراسلك عند الانتهاء.",
+  pendingText: "طلبت ذلك في {date}. سيُحذف حسابك مع تطبيقاته وبياناتها في {deleteOn}، وسنراسلك عند الانتهاء.",
   cancel: "إلغاء الطلب",
   requested: "{count, plural, =0 {أُرسل طلبك.} other {أُرسل طلبك، وسُجّل الخروج من Yallapp Business على هواتفك ({count}).}}",
   pendingLink: "حذف حسابي",
+  countryTitle: "بلدك",
+  countryText: "تُعرض أسعار Yallapp حسب بلدك: بالجنيه المصري في مصر، وبالدولار الأمريكي في غيرها. ويحدّد أيضًا أيّ رقمَي WhatsApp لدينا تراه، والمنطقة الزمنية في إيصالاتك.",
+  countryLabel: "البلد",
+  countryChoose: "اختر بلدك",
+  countryNone: "لم يُحدَّد بلد لحسابك بعد، لذا تتبع الأسعار المكان الذي تفتح منه لوحة التحكم.",
+  countrySave: "حفظ البلد",
   known: {
     member: "لا يستطيع حذف حساب هذا النشاط في Yallapp إلا مالكه. اطلب منه إزالتك من الفريق، فيُسجَّل خروجك منه في كل مكان.",
     staff: "لا يستطيع طلب حذف الحساب إلا مالكه، بعد تسجيل الدخول بكلمة مروره. يحذف فريق Yallapp الحسابات من Admin › Account deletion.",
@@ -88,6 +105,9 @@ export const ar: Messages = {
     reason: "اجعله أقل من 1,000 حرف.",
     noRequest: "لا يوجد طلب لحذف هذا الحساب.",
     cancelled: "أُلغي طلبك، ويبقى حسابك كما هو.",
+    countrySaved: "حُفظ بلدك.",
+    countryInvalid: "اختر بلدًا من القائمة.",
+    countryOwner: "لا يغيّر بلد هذا النشاط إلا مالكه.",
   },
 };
 
@@ -109,7 +129,7 @@ export const tr: Messages = {
   plans:
     "{count, plural, other {Paketi hâlâ süren uygulama sayınız: {count}.}} Hesabı silmek bu paketleri sona erdirir: sonrasında hiçbir şey yenilenmez veya ücretlendirilmez. Daha önce yapılan ödemeler yalnızca <refund>İade politikası</refund> kapsamında iade edilir.",
   kept: "Yalnızca muhasebe ve vergi yasalarının gerektirdiği fatura kayıtlarını ve isteğinizin bir kaydını saklarız. Ayrıntılar için: <privacy>Gizlilik politikası</privacy>.",
-  when: "Hesabı {days} gün içinde siler ve bittiğinde size e-posta göndeririz. O zamana kadar isteği bu sayfadan iptal edebilirsiniz.",
+  when: "Hesabınız, istediğiniz günden {days} gün sonra silinir ve bittiğinde size e-posta göndeririz. O zamana kadar isteği bu sayfadan iptal edebilirsiniz.",
   confirmEmail: "Onaylamak için e-posta adresinizi yazın",
   password: "Parolanız",
   showPassword: "Parolayı göster",
@@ -120,10 +140,16 @@ export const tr: Messages = {
   sending: "Gönderiliyor…",
   forgot: "Parolanızı mı unuttunuz? Önce <reset>sıfırlayın</reset> ya da bu hesabın adresinden {email} adresine yazın.",
   pendingTitle: "Hesabınız silinecek",
-  pendingText: "{date} tarihinde istediniz. Hesabınızı o tarihten itibaren {days} gün içinde siler ve bittiğinde size e-posta göndeririz.",
+  pendingText: "{date} tarihinde istediniz. Hesabınız, uygulamaları ve verileriyle birlikte {deleteOn} tarihinde silinecek; bittiğinde size e-posta göndereceğiz.",
   cancel: "İsteği iptal et",
   requested: "{count, plural, =0 {İsteğiniz gönderildi.} other {İsteğiniz gönderildi ve {count} telefonun Yallapp Business oturumu kapatıldı.}}",
   pendingLink: "Hesabımı sil",
+  countryTitle: "Ülkeniz",
+  countryText: "Yallapp fiyatları ülkenize göre gösterilir: Mısır'da Mısır lirası, diğer yerlerde ABD doları. Hangi WhatsApp numaramızı göreceğinizi ve makbuzlarınızın saat dilimini de belirler.",
+  countryLabel: "Ülke",
+  countryChoose: "Ülkenizi seçin",
+  countryNone: "Hesabınızda henüz bir ülke yok; bu yüzden fiyatlar paneli açtığınız yere göre gösterilir.",
+  countrySave: "Ülkeyi kaydet",
   known: {
     member: "Bu işletmenin Yallapp hesabını yalnızca sahibi silebilir. Sizi ekipten çıkarmasını isteyin; bu, her yerdeki oturumunuzu kapatır.",
     staff: "Hesabın silinmesini yalnızca sahibi, kendi parolasıyla giriş yaparak isteyebilir. Yallapp ekibi hesapları Admin › Account deletion sayfasından siler.",
@@ -132,5 +158,8 @@ export const tr: Messages = {
     reason: "1.000 karakterden kısa tutun.",
     noRequest: "Bu hesabı silmek için bir istek yok.",
     cancelled: "İsteğiniz iptal edildi. Hesabınız olduğu gibi kalır.",
+    countrySaved: "Ülkeniz kaydedildi.",
+    countryInvalid: "Listeden bir ülke seçin.",
+    countryOwner: "Bu işletmenin ülkesini yalnızca sahibi değiştirebilir.",
   },
 };

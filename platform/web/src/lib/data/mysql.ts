@@ -9,6 +9,8 @@ import type { BuildConfig } from "../build-config/types";
 import * as schema from "../db/schema";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
 import type { AppAuthKey, AppLayoutRecord } from "./types";
+import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
+import { assetIdsIn } from "./asset-ids";
 import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 import type { MoreStore, MoreStoresRow, PublishingEvent, PublishingRequest, PublishingTrack } from "./types";
 import type {
@@ -238,7 +240,7 @@ export class MysqlStore implements DataStore {
         .from(schema.apps)
         .innerJoin(schema.clients, eq(schema.clients.id, schema.apps.clientId))
         .innerJoin(schema.users, eq(schema.users.id, schema.clients.userId))
-        .where(eq(schema.apps.backend, "setup_requested"))
+        .where(and(eq(schema.apps.backend, "setup_requested"), liveApp()))
         .orderBy(asc(schema.apps.setupRequestedAt))
         .limit(200),
     );
@@ -274,9 +276,9 @@ export class MysqlStore implements DataStore {
     const ids = base.map((row) => row.client.id);
     const [appRows, licenseRows] = await Promise.all([
       this.run((db) =>
-        db.select().from(schema.apps).where(inArray(schema.apps.clientId, ids)).orderBy(asc(schema.apps.createdAt), asc(schema.apps.id)),
+        db.select().from(schema.apps).where(and(inArray(schema.apps.clientId, ids), liveApp())).orderBy(asc(schema.apps.createdAt), asc(schema.apps.id)),
       ),
-      this.run((db) => db.select().from(schema.licenses).where(inArray(schema.licenses.clientId, ids))),
+      this.run((db) => db.select().from(schema.licenses).where(and(inArray(schema.licenses.clientId, ids), liveLicense()))),
     ]);
     const licenseIds = licenseRows.map((l) => l.id);
     const appIds = appRows.map((a) => a.id);
@@ -325,7 +327,7 @@ export class MysqlStore implements DataStore {
       db
         .select({ status: schema.clients.status, expiresAt: sql<Date | null>`max(${schema.licenses.expiresAt})`.mapWith(schema.licenses.expiresAt) })
         .from(schema.clients)
-        .leftJoin(schema.licenses, eq(schema.licenses.clientId, schema.clients.id))
+        .leftJoin(schema.licenses, and(eq(schema.licenses.clientId, schema.clients.id), liveLicense()))
         .groupBy(schema.clients.id, schema.clients.status),
     );
     const counts: Record<ClientFilter, number> = { all: 0, pending: 0, active: 0, expired: 0 };
@@ -351,7 +353,7 @@ export class MysqlStore implements DataStore {
       db
         .select()
         .from(schema.licenses)
-        .where(and(eq(schema.licenses.clientId, clientId), appId === null ? isNull(schema.licenses.appId) : eq(schema.licenses.appId, appId)))
+        .where(and(eq(schema.licenses.clientId, clientId), appId === null ? isNull(schema.licenses.appId) : eq(schema.licenses.appId, appId), liveLicense()))
         .limit(1),
     );
     return rows[0] ?? null;
@@ -359,13 +361,13 @@ export class MysqlStore implements DataStore {
 
   async listLicensesByClient(clientId: string): Promise<License[]> {
     return this.run((db) =>
-      db.select().from(schema.licenses).where(eq(schema.licenses.clientId, clientId)).orderBy(asc(schema.licenses.createdAt)),
+      db.select().from(schema.licenses).where(and(eq(schema.licenses.clientId, clientId), liveLicense())).orderBy(asc(schema.licenses.createdAt)),
     );
   }
 
   async getLicenseByHash(keyHash: string): Promise<License | null> {
     const rows = await this.run((db) =>
-      db.select().from(schema.licenses).where(eq(schema.licenses.keyHash, keyHash)).limit(1),
+      db.select().from(schema.licenses).where(and(eq(schema.licenses.keyHash, keyHash), liveLicense())).limit(1),
     );
     return rows[0] ?? null;
   }
@@ -380,7 +382,7 @@ export class MysqlStore implements DataStore {
       db
         .select()
         .from(t)
-        .where(and(isNotNull(t.appId), gt(t.expiresAt, from), lte(t.expiresAt, to)))
+        .where(and(isNotNull(t.appId), gt(t.expiresAt, from), lte(t.expiresAt, to), liveLicense()))
         .orderBy(asc(t.expiresAt)),
     );
   }
@@ -466,17 +468,17 @@ export class MysqlStore implements DataStore {
 
   async listAppsByClient(clientId: string): Promise<App[]> {
     return this.run((db) =>
-      db.select().from(schema.apps).where(eq(schema.apps.clientId, clientId)).orderBy(asc(schema.apps.createdAt), asc(schema.apps.id)),
+      db.select().from(schema.apps).where(and(eq(schema.apps.clientId, clientId), liveApp())).orderBy(asc(schema.apps.createdAt), asc(schema.apps.id)),
     );
   }
 
   async getAppById(id: string): Promise<App | null> {
-    const rows = await this.run((db) => db.select().from(schema.apps).where(eq(schema.apps.id, id)).limit(1));
+    const rows = await this.run((db) => db.select().from(schema.apps).where(and(eq(schema.apps.id, id), liveApp())).limit(1));
     return rows[0] ?? null;
   }
 
   async updateApp(id: string, patch: AppPatch, now: Date): Promise<void> {
-    await this.run((db) => db.update(schema.apps).set({ ...patch, updatedAt: now }).where(eq(schema.apps.id, id)));
+    await this.run((db) => db.update(schema.apps).set({ ...patch, updatedAt: now }).where(and(eq(schema.apps.id, id), liveApp())));
   }
 
   async saveSigningKeys(appId: string, keys: SigningKeysPatch, now: Date): Promise<boolean> {
@@ -589,6 +591,14 @@ export class MysqlStore implements DataStore {
   async getAsset(id: string): Promise<Asset | null> {
     const rows = await this.run((db) => db.select().from(schema.assets).where(eq(schema.assets.id, id)).limit(1));
     return rows[0] ?? null;
+  }
+
+  async listAssetsByClient(clientId: string): Promise<Asset[]> {
+    return this.run((db) => db.select().from(schema.assets).where(eq(schema.assets.clientId, clientId)));
+  }
+
+  async deleteAsset(id: string): Promise<void> {
+    await this.run((db) => db.delete(schema.assets).where(eq(schema.assets.id, id)));
   }
 
   async createResetToken(token: ResetToken): Promise<void> {
@@ -1851,6 +1861,12 @@ export class MysqlStore implements DataStore {
     );
   }
 
+  async deleteLessonProgress(input: { appId: string; userId: number; courseId: number }): Promise<number> {
+    const t = schema.lessonProgress;
+    const [result] = await this.run((db) => db.delete(t).where(and(eq(t.appId, input.appId), eq(t.userId, input.userId), eq(t.courseId, input.courseId))));
+    return result.affectedRows;
+  }
+
   async listMarketplaceOrders(limit: number): Promise<CatalogOrder[]> {
     return this.run((db) =>
       db
@@ -2716,7 +2732,7 @@ export class MysqlStore implements DataStore {
   // 11.1 Overview
 
   async listApps(): Promise<App[]> {
-    return this.run((db) => db.select().from(schema.apps).orderBy(asc(schema.apps.createdAt)));
+    return this.run((db) => db.select().from(schema.apps).where(liveApp()).orderBy(asc(schema.apps.createdAt)));
   }
 
   async listBuildsSince(since: Date): Promise<Build[]> {
@@ -2969,7 +2985,7 @@ export class MysqlStore implements DataStore {
   // 13 Plans, limits and owner notices
 
   async listLicenses(): Promise<License[]> {
-    return this.run((db) => db.select().from(schema.licenses));
+    return this.run((db) => db.select().from(schema.licenses).where(liveLicense()));
   }
 
   async createOwnerNotice(notice: Omit<OwnerNotice, "id">): Promise<OwnerNotice | null> {
@@ -3031,7 +3047,7 @@ export class MysqlStore implements DataStore {
           appleTeamId: a.appleTeamId,
         })
         .from(a)
-        .where(or(isNotNull(a.androidPackage), isNotNull(a.iosBundleId)))
+        .where(and(or(isNotNull(a.androidPackage), isNotNull(a.iosBundleId)), liveApp()))
         .orderBy(asc(a.createdAt), asc(a.id)),
     );
   }
@@ -3855,6 +3871,204 @@ export class MysqlStore implements DataStore {
       }),
     );
   }
+
+  // 73 Deleting an app
+
+  async softDeleteApp(deletion: AppDeletion): Promise<boolean> {
+    const a = schema.apps;
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        // `deleted_at is null` in the same statement: of two deletions at once, one marks it.
+        const [result] = await tx
+          .update(a)
+          .set({ deletedAt: deletion.deletedAt, deletedBy: deletion.deletedBy, updatedAt: deletion.deletedAt })
+          .where(and(eq(a.id, deletion.appId), eq(a.clientId, deletion.clientId), isNull(a.deletedAt)));
+        if (result.affectedRows !== 1) return false;
+        await tx.insert(schema.appDeletions).values(toAppDeletionRow(deletion));
+        return true;
+      }),
+    );
+  }
+
+  async restoreDeletedApp(deletionId: string, by: string, now: Date): Promise<boolean> {
+    const d = schema.appDeletions;
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        const rows = await tx.select().from(d).where(eq(d.id, deletionId)).for("update");
+        const deletion = rows[0];
+        if (!deletion || deletion.status !== "waiting") return false;
+        const [result] = await tx.update(d).set({ status: "restored", openAppId: null, closedAt: now, closedBy: by }).where(and(eq(d.id, deletionId), eq(d.status, "waiting")));
+        if (result.affectedRows !== 1) return false;
+        await tx.update(schema.apps).set({ deletedAt: null, deletedBy: null, updatedAt: now }).where(eq(schema.apps.id, deletion.appId));
+        return true;
+      }),
+    );
+  }
+
+  async getAppDeletion(id: string): Promise<AppDeletion | null> {
+    const rows = await this.run((db) => db.select().from(schema.appDeletions).where(eq(schema.appDeletions.id, id)).limit(1));
+    return rows[0] ? toAppDeletion(rows[0]) : null;
+  }
+
+  async listAppDeletions(input: { statuses: AppDeletionStatus[]; clientId?: string; limit: number }): Promise<AppDeletion[]> {
+    const d = schema.appDeletions;
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(d)
+        .where(and(input.statuses.length ? inArray(d.status, input.statuses) : undefined, input.clientId ? eq(d.clientId, input.clientId) : undefined))
+        .orderBy(desc(d.deletedAt), desc(d.id))
+        .limit(input.limit),
+    );
+    return rows.map(toAppDeletion);
+  }
+
+  async listDueAppDeletions(now: Date, limit: number): Promise<AppDeletion[]> {
+    const d = schema.appDeletions;
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(d)
+        .where(and(eq(d.status, "waiting"), lte(d.purgeAfter, now)))
+        .orderBy(asc(d.purgeAfter))
+        .limit(limit),
+    );
+    return rows.map(toAppDeletion);
+  }
+
+  async getAppIncludingDeleted(id: string): Promise<App | null> {
+    const rows = await this.run((db) => db.select().from(schema.apps).where(eq(schema.apps.id, id)).limit(1));
+    return rows[0] ?? null;
+  }
+
+  async listAppsByClientIncludingDeleted(clientId: string): Promise<App[]> {
+    return this.run((db) => db.select().from(schema.apps).where(eq(schema.apps.clientId, clientId)).orderBy(asc(schema.apps.createdAt), asc(schema.apps.id)));
+  }
+
+  async purgeDeletedApp(deletionId: string, by: string, now: Date, pendingBuilds: string[]): Promise<boolean> {
+    const d = schema.appDeletions;
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        const rows = await tx.select().from(d).where(eq(d.id, deletionId)).for("update");
+        const deletion = rows[0];
+        if (!deletion || deletion.status !== "waiting") return false;
+        await tx.update(d).set({ status: "purged", openAppId: null, closedAt: now, closedBy: by, pendingBuilds }).where(eq(d.id, deletionId));
+        // Everything of the app goes with its row (on delete cascade); plan payments stay, without their app (set null).
+        await tx.delete(schema.apps).where(and(eq(schema.apps.id, deletion.appId), isNotNull(schema.apps.deletedAt)));
+        return true;
+      }),
+    );
+  }
+
+  async createAppDeletionRecord(deletion: AppDeletion): Promise<void> {
+    await this.run((db) => db.insert(schema.appDeletions).values(toAppDeletionRow(deletion)));
+  }
+
+  async setAppDeletionPendingBuilds(id: string, builds: string[]): Promise<void> {
+    await this.run((db) => db.update(schema.appDeletions).set({ pendingBuilds: builds }).where(eq(schema.appDeletions.id, id)));
+  }
+
+  async listAppDeletionsWithPendingBuilds(limit: number): Promise<AppDeletion[]> {
+    const d = schema.appDeletions;
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(d)
+        .where(and(eq(d.status, "purged"), sql`${d.pendingBuilds} <> '[]'`))
+        .orderBy(asc(d.deletedAt))
+        .limit(limit),
+    );
+    return rows.map(toAppDeletion);
+  }
+
+  async listAppAssetReferences(appId: string): Promise<string[]> {
+    const s = schema;
+    const rows = await this.run((db) =>
+      Promise.all([
+        db.select().from(s.apps).where(eq(s.apps.id, appId)),
+        db.select().from(s.appLayouts).where(eq(s.appLayouts.appId, appId)),
+        db.select({ ids: s.catalogProducts.imageAssetIds }).from(s.catalogProducts).where(eq(s.catalogProducts.appId, appId)),
+        db.select({ ids: s.listings.imageAssetIds }).from(s.listings).where(eq(s.listings.appId, appId)),
+        db.select({ id: s.articles.imageAssetId }).from(s.articles).where(eq(s.articles.appId, appId)),
+        db.select({ ids: s.events.imageAssetIds }).from(s.events).where(eq(s.events.appId, appId)),
+        db.select({ ids: s.campaigns.imageAssetIds }).from(s.campaigns).where(eq(s.campaigns.appId, appId)),
+        db.select().from(s.newsSettings).where(eq(s.newsSettings.appId, appId)),
+        db.select().from(s.eventSettings).where(eq(s.eventSettings.appId, appId)),
+        db.select().from(s.donationSettings).where(eq(s.donationSettings.appId, appId)),
+        db.select().from(s.listingSettings).where(eq(s.listingSettings.appId, appId)),
+      ]),
+    );
+    return assetIdsIn(JSON.stringify(rows));
+  }
+
+  // 73 Deleting a Yallapp account
+
+  async keepBillingRecords(records: KeptBillingRecord[]): Promise<void> {
+    if (!records.length) return;
+    const t = schema.keptBillingRecords;
+    await this.run((db) =>
+      db
+        .insert(t)
+        .values(records)
+        .onDuplicateKeyUpdate({ set: { details: sql`values(${t.details})`, receipt: sql`values(${t.receipt})`, keptAt: sql`values(${t.keptAt})` } }),
+    );
+  }
+
+  async listKeptBillingRecords(input: { clientId?: string; limit: number }): Promise<KeptBillingRecord[]> {
+    const t = schema.keptBillingRecords;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(input.clientId ? eq(t.clientId, input.clientId) : undefined)
+        .orderBy(desc(t.keptAt), desc(t.paidAt))
+        .limit(input.limit),
+    );
+  }
+
+  async getKeptBillingRecord(id: string): Promise<KeptBillingRecord | null> {
+    const rows = await this.run((db) => db.select().from(schema.keptBillingRecords).where(eq(schema.keptBillingRecords.id, id)).limit(1));
+    return rows[0] ?? null;
+  }
+
+  async deleteUserAccount(userId: string): Promise<boolean> {
+    // The client, its apps (deleted ones too) and every row of theirs go with the user (on delete cascade).
+    const [result] = await this.run((db) => db.delete(schema.users).where(eq(schema.users.id, userId)));
+    return result.affectedRows === 1;
+  }
+}
+
+/** 73 Apps that aren't deleted. */
+function liveApp() {
+  return isNull(schema.apps.deletedAt);
+}
+
+/** 73 Licenses of apps that aren't deleted (and those given before the account's first app). */
+function liveLicense() {
+  const l = schema.licenses;
+  const a = schema.apps;
+  return sql`(${l.appId} is null or ${l.appId} not in (select ${a.id} from ${a} where ${a.deletedAt} is not null))`;
+}
+
+function toAppDeletionRow(deletion: AppDeletion): typeof schema.appDeletions.$inferInsert {
+  return { ...deletion, openAppId: deletion.status === "waiting" ? deletion.appId : null };
+}
+
+function toAppDeletion(row: typeof schema.appDeletions.$inferSelect): AppDeletion {
+  return {
+    id: row.id,
+    appId: row.appId,
+    clientId: row.clientId,
+    appName: row.appName,
+    reason: row.reason,
+    deletedBy: row.deletedBy,
+    deletedAt: row.deletedAt,
+    purgeAfter: row.purgeAfter,
+    status: row.status,
+    closedAt: row.closedAt,
+    closedBy: row.closedBy,
+    pendingBuilds: row.pendingBuilds ?? [],
+  };
 }
 
 function toAccountDeletion(row: typeof schema.accountDeletionRequests.$inferSelect): AccountDeletionRequest {

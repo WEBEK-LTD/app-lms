@@ -10,15 +10,20 @@ import type { Lang } from "@/i18n/config";
  * 66 Deleting a Yallapp account. The account's owner asks from Dashboard ›
  * Your account (or the waiting page) with their password and their email
  * typed again; the request is saved, their phones are signed out of Yallapp
- * Business, our team is emailed and the owner gets a confirmation. Our team
- * deletes the account by hand and marks the request done in Admin ›
- * Account deletion, which emails the owner (docs/ARCHITECTURE.md, "Deleting
- * a Yallapp account"). Messages are English sentences, translated in the
- * dashboard by the `account` catalog's `known` texts.
+ * Business, our team is emailed and the owner gets a confirmation. 73 The
+ * platform deletes the account `DELETION_WAIT_DAYS` after the request (the
+ * daily job, lib/account/purge.ts), keeping the billing records, unless the
+ * owner cancels first; our team can do it at once ("Delete now" in Admin ›
+ * Account deletion). The owner is emailed when it's done
+ * (docs/ARCHITECTURE.md, "Deleting a Yallapp account"). Messages are English
+ * sentences, translated in the dashboard by the `account` catalog's `known`
+ * texts.
  */
 
 /** We delete an account within this many days of the request (the public page and the emails say so). */
 export const DELETION_DAYS = 30;
+/** 73 The days the owner has to change their mind: the daily job deletes the account after them. */
+export const DELETION_WAIT_DAYS = 7;
 export const REASON_MAX = 1000;
 
 export type DeletionMailKey = "account_deletion_request" | "account_deletion_received" | "account_deletion_done";

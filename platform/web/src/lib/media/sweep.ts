@@ -35,7 +35,7 @@ export interface SweepResult {
 }
 
 export async function sweepMediaFolders(deps: {
-  store: Pick<DataStore, "getAppById" | "listPlatformSettings" | "setPlatformSetting">;
+  store: Pick<DataStore, "getAppIncludingDeleted" | "listPlatformSettings" | "setPlatformSetting">;
   storage: MediaStorage | null;
   now: Date;
 }): Promise<SweepResult> {
@@ -44,7 +44,8 @@ export async function sweepMediaFolders(deps: {
   const folders = await deps.storage.listApps();
   result.folders = folders.length;
   const gone: string[] = [];
-  for (const appId of folders) if (!(await deps.store.getAppById(appId))) gone.push(appId);
+  // 73 A deleted app's files stay while it can be restored: its purge removes them.
+  for (const appId of folders) if (!(await deps.store.getAppIncludingDeleted(appId))) gone.push(appId);
   if (folders.length > 0 && gone.length * 2 > folders.length) {
     console.error(`[daily] media: ${gone.length} of ${folders.length} app folders have no app in the database; nothing removed. Check that the platform and the media server belong together.`);
     return { ...result, skipped: true };

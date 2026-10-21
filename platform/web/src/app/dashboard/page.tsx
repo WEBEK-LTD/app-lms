@@ -13,6 +13,7 @@ import { kindOf, wordsOf } from "@/lib/app/kinds";
 import { siteMatch, siteRunsLine } from "@/lib/app/site-match";
 import { SETUP_STEPS, STEP_LABEL, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
 import { contextCan, requireClient, type ClientContext } from "@/lib/auth/session";
+import { AppDeletedNotice } from "@/components/app-deletion";
 import { contentNavOf } from "@/lib/app/kinds";
 import { pathPermission } from "@/lib/team/permissions";
 import type { DashKey } from "@/i18n/dashboard";
@@ -130,9 +131,12 @@ export default async function OverviewPage({ searchParams }: PageProps<"/dashboa
   const context = await requireClient("dashboard");
   const { user, app, license, state } = context;
   // 60 A page their role doesn't have sent them here.
-  const denied = typeof (await searchParams).denied === "string";
+  const query = await searchParams;
+  const denied = typeof query.denied === "string";
+  // 73 The app just deleted.
+  const deleted = typeof query.deleted === "string" ? query.deleted : null;
   if (!contextCan(context, "settings") || (!app && !contextCan(context, "apps"))) return <MemberOverview context={context} denied={denied} />;
-  if (!app) redirect("/dashboard/app-type");
+  if (!app) redirect(deleted ? `/dashboard/app-type?deleted=${encodeURIComponent(deleted)}` : "/dashboard/app-type");
   const canBilling = contextCan(context, "billing");
   const text = await dashboardText();
   const { t, k, lang, date, num } = text;
@@ -205,6 +209,7 @@ export default async function OverviewPage({ searchParams }: PageProps<"/dashboa
   return (
     <>
       <PageHeader title={t("overview.hello", { name: (context.member ?? user).name.split(" ")[0] ?? "" })} description={t("overview.stands", { app: name })} />
+      <AppDeletedNotice context={context} id={deleted} />
       {denied ? (
         <Notice tone="warn" icon="lock" role="status">
           {t("team.denied")}

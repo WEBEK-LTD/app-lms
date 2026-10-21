@@ -4,6 +4,7 @@ import { Icon } from "@/components/icon";
 import { SubmitButton } from "@/components/form";
 import Link from "next/link";
 import { Notice, btn } from "@/components/ui";
+import { AppDeletedNotice } from "@/components/app-deletion";
 import { MAX_APPS_PER_CLIENT } from "@/lib/app/label";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -69,6 +70,7 @@ export default async function AppTypePage({ searchParams }: PageProps<"/dashboar
         )}
       </div>
 
+      <AppDeletedNotice context={context} id={typeof query.deleted === "string" ? query.deleted : null} />
       {unavailable ? (
         <Notice tone="warn" icon="warning" role="alert">
           {t("setup.unavailable")}

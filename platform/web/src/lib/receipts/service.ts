@@ -21,7 +21,7 @@ import { receiptNumber } from "../billing/receipt";
 import { dashboardTextFor } from "../dashboard-words";
 import { isLang, type Lang } from "@/i18n/config";
 import { donationReceipt, orderReceipt, planReceipt, receiptFilename } from "./build";
-import { renderReceiptPdf } from "./pdf";
+import { renderReceiptPdf, type ReceiptDocument } from "./pdf";
 
 /**
  * 71 The receipts' PDFs, with what they need read from the store: for the
@@ -41,6 +41,12 @@ export async function invoiceLines(store: DataStore): Promise<string[]> {
 
 /** A plan or storage payment of the account, in `lang` (the payer's language unless given). Paid ones only. */
 export async function planReceiptPdf(store: DataStore, payment: PlanPayment, lang?: Lang): Promise<ReceiptPdf | null> {
+  const document = await planReceiptDocument(store, payment, lang);
+  return document ? { pdf: await renderReceiptPdf(document), filename: receiptFilename(receiptNumber(payment)) } : null;
+}
+
+/** 73 What a plan payment's receipt says (planReceiptPdf), also kept with the billing records when the account is deleted. */
+export async function planReceiptDocument(store: DataStore, payment: PlanPayment, lang?: Lang): Promise<ReceiptDocument | null> {
   if (payment.status !== "paid") return null;
   const client = await store.getClientById(payment.clientId);
   const owner = client ? await store.getUserById(client.userId) : null;
@@ -67,7 +73,7 @@ export async function planReceiptPdf(store: DataStore, payment: PlanPayment, lan
     contact: contact?.value ?? DEFAULT_CONTACT,
     invoiceLines: lines,
   });
-  return { pdf: await renderReceiptPdf(document), filename: receiptFilename(receiptNumber(payment)) };
+  return document;
 }
 
 /**

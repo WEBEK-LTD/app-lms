@@ -41,6 +41,8 @@ export const en = {
     menu: "Menu",
     closeMenu: "Close menu",
     logoHome: "Yallapp home",
+    // 73 The light/dark switch: a toggle, pressed while the page is dark.
+    darkMode: "Dark mode",
   },
   footer: {
     about:

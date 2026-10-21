@@ -195,6 +195,36 @@ describe("courses on the hosted API", () => {
     expect((await call("GET", "/me/wishlist", { token })).body).toEqual({ items: [] });
   });
 
+  it("73 starts a finished course again, unless the owner turned it off", async () => {
+    const { access_token: token } = await signUp();
+    expect((await call("GET", "/courses/{course_id}", { params: ["10"] })).body).toMatchObject({ can_restart: true });
+    // Only for a student in the course.
+    expect((await call("POST", "/courses/{course_id}/restart", { params: ["10"] })).status).toBe(401);
+    expect((await call("POST", "/courses/{course_id}/restart", { params: ["10"], token })).body).toMatchObject({ code: "not_enrolled" });
+    expect((await call("POST", "/courses/{course_id}/restart", { params: ["99"], token })).status).toBe(404);
+    await call("POST", "/courses/{course_id}/enroll", { params: ["10"], token });
+    await call("PUT", "/lessons/{lesson_id}/progress", { params: ["12"], token, body: { position_seconds: 95, watched_percent: 100 } });
+    await call("POST", "/lessons/{lesson_id}/complete", { params: ["12"], token });
+    await call("POST", "/lessons/{lesson_id}/complete", { params: ["13"], token });
+    expect((await call("GET", "/courses/{course_id}", { params: ["10"], token })).body).toMatchObject({ progress: { course_completed: true }, can_restart: true });
+
+    const restarted = await call("POST", "/courses/{course_id}/restart", { params: ["10"], token });
+    expect(restarted.body).toEqual({ course_id: 10, completed_items: 0, total_items: 2, percent: 0, course_completed: false, completed_at: null });
+    expect((await call("GET", "/lessons/{lesson_id}", { params: ["12"], token })).body).toMatchObject({ completed: false, position_seconds: 0 });
+    const curriculum = (await call("GET", "/courses/{course_id}/curriculum", { params: ["10"], token })).body;
+    expect(curriculum).toMatchObject({ topics: [{ items: [{ id: 12, completed: false }, { id: 13, completed: false }] }] });
+    // Still enrolled, and back in progress.
+    expect((await call("GET", "/me/courses", { token })).body).toMatchObject({ total: 1, items: [{ course: { id: 10 }, progress: { percent: 0 }, next_item: { id: 12 } }] });
+    expect((await call("GET", "/me/courses", { token, query: { status: "completed" } })).body).toMatchObject({ total: 0 });
+
+    // The owner turns it off for the course.
+    const setup = academy();
+    app = { ...app, courseSetup: { ...setup, courses: setup.courses.map((c) => (c.id === 10 ? { ...c, canRestart: false } : c)) } };
+    await store.updateApp(app.id, { courseSetup: app.courseSetup }, now);
+    expect((await call("GET", "/courses/{course_id}", { params: ["10"], token })).body).toMatchObject({ can_restart: false });
+    expect((await call("POST", "/courses/{course_id}/restart", { params: ["10"], token })).body).toMatchObject({ code: "restart_disabled" });
+  });
+
   it("sells a paid course on Android and enrols once paid", async () => {
     const { access_token: token, user } = await signUp();
     expect((await call("POST", "/auth/checkout-link", { query: { platform: "ios" }, token, body: { course_id: 20 } })).body).toMatchObject({ code: "purchase_not_allowed" });

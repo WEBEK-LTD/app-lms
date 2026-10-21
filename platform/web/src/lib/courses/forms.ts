@@ -10,7 +10,7 @@ export function parseCourse(
   v: Values,
   setup: CourseSetup,
   categoryIds: number[],
-): Parsed<Pick<Course, "title" | "description" | "priceCents" | "categoryIds" | "instructorName" | "level" | "active">> {
+): Parsed<Pick<Course, "title" | "description" | "priceCents" | "categoryIds" | "instructorName" | "level" | "active" | "canRestart">> {
   const errors: Record<string, string> = {};
   const title = (v.title ?? "").trim();
   if (title.length < 2 || title.length > 120) errors.title = "Enter a title of up to 120 characters.";
@@ -34,6 +34,8 @@ export function parseCourse(
       instructorName: instructor || null,
       level: level || null,
       active: v.active === "on",
+      // 73 Missing (an older form) keeps the default: on.
+      canRestart: v.restart === undefined || v.restart === "on",
     },
   };
 }

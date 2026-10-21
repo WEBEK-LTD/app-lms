@@ -358,6 +358,13 @@
       "when": 1792592146603,
       "tag": "0050_two_step_sign_in",
       "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "5",
+      "when": 1792599802815,
+      "tag": "0051_app_deletion",
+      "breakpoints": true
     }
   ]
 }

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, IBM_Plex_Sans_Arabic } from "next/font/google";
 import localFont from "next/font/local";
 import { HtmlShell } from "@/components/html-shell";
+import { ThemeScript } from "@/components/theme-script";
 import { DEFAULT_DESCRIPTION, DEFAULT_TITLE, SITE_ICONS, SITE_NAME, siteUrl } from "@/lib/seo";
 import "./globals.css";
 
@@ -59,6 +60,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <HtmlShell className={`${bricolage.variable} ${plexArabic.variable} ${icons.variable}`}>
+      {/* 73 The light or dark choice this browser made, before the page paints. */}
+      <head>
+        <ThemeScript />
+      </head>
       <body className="min-h-screen bg-ivory font-sans text-midnight antialiased">{children}</body>
     </HtmlShell>
   );

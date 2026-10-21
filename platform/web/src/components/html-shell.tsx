@@ -40,7 +40,8 @@ export function HtmlShell({ className, children }: { className: string; children
   );
   const lang = dashboard ?? (isPrefixedLang(params?.lang) ? params.lang : DEFAULT_LANG);
   return (
-    <html lang={lang} dir={LANG_INFO[lang].dir} className={className}>
+    // 73 `data-theme` is set by the theme script before React starts (components/theme-script.tsx).
+    <html lang={lang} dir={LANG_INFO[lang].dir} className={className} suppressHydrationWarning>
       {children}
     </html>
   );

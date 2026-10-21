@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge, formatDateTime, Notice } from "@/components/ui";
-import { DELETION_DAYS } from "@/lib/account/deletion";
+import { DELETION_DAYS, DELETION_WAIT_DAYS } from "@/lib/account/deletion";
+import { deletionDueAt } from "@/lib/account/purge";
 import { appLabel } from "@/lib/app/label";
 import { adminCan, requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
@@ -24,9 +25,10 @@ const DAY = 86_400_000;
 
 /**
  * 66 Requests to delete a Yallapp account (Dashboard › Your account), open
- * ones oldest first. Deleting is done by hand (docs/ARCHITECTURE.md,
- * "Deleting a Yallapp account"): each open request lists what belongs to the
- * account, then "Mark done" emails the person who asked.
+ * ones oldest first, with what belongs to each account. 73 The daily job
+ * deletes an account `DELETION_WAIT_DAYS` after the request, keeping its
+ * billing records (lib/account/purge.ts); "Delete now" does it at once.
+ * Done requests list the billing records kept, with their receipts.
  */
 export default async function AccountDeletionPage({ searchParams }: PageProps<"/admin/account-deletion">) {
   await requireAdmin();
@@ -35,7 +37,13 @@ export default async function AccountDeletionPage({ searchParams }: PageProps<"/
   const store = await getStore();
   const [listed, mayClose] = await Promise.all([store.listAccountDeletionRequests(tab === "all" ? [] : [tab], 200), adminCan("clients.suspend")]);
   const requests = tab === "pending" ? [...listed].reverse() : listed;
-  const rows = await Promise.all(requests.map(async (request) => ({ request, account: request.status === "pending" ? await accountOf(request) : null })));
+  const rows = await Promise.all(
+    requests.map(async (request) => ({
+      request,
+      account: request.status === "pending" ? await accountOf(request) : null,
+      kept: request.status === "done" ? await store.listKeptBillingRecords({ clientId: request.clientId, limit: 200 }) : [],
+    })),
+  );
   const now = new Date();
 
   async function accountOf(request: AccountDeletionRequest) {
@@ -56,25 +64,26 @@ export default async function AccountDeletionPage({ searchParams }: PageProps<"/
         <h1 className="m-0 text-[28px] font-extrabold">Account deletion</h1>
         <span className="max-w-[860px] text-[15px] text-muted">
           Clients who asked to delete their Yallapp account from their dashboard (confirmed with their password), oldest first. We promise to delete within{" "}
-          {DELETION_DAYS} days. Requests by email must come from the account&apos;s own address. Deleting is done by hand, in this order:
+          {DELETION_DAYS} days. The daily job deletes each account {DELETION_WAIT_DAYS} days after the request (the client can cancel until then), or press
+          Delete now. Requests by email must come from the account&apos;s own address: check that, then ask the client to confirm from their dashboard, or
+          delete it here.
         </span>
       </div>
       <ol className="m-0 flex max-w-[860px] flex-col gap-1.5 rounded-2xl border border-line bg-white py-4 ps-9 pe-5 text-sm leading-relaxed">
-        <li>Keep the billing records the law requires: the client&apos;s payments and receipts (their page › Payments) go into our accounting records.</li>
-        <li>Note the build folders listed below: the files host keeps each build in <code>builds/&lt;build id&gt;/</code>.</li>
+        <li>The billing records the law requires are kept: every paid plan payment, who paid, its coupon and its receipt (listed under Done, with the PDF).</li>
         <li>
-          Delete the owner&apos;s row in <code>users</code> (<code>DELETE FROM users WHERE id = &apos;…&apos;</code>): the client, its apps, licenses, builds, payments,
-          team, content, app users and the rest go with it (foreign keys on delete cascade). Team members keep their own sign-ins.
+          The files go: each app&apos;s Media files, its build folders on the files host (any it doesn&apos;t confirm are listed in Deleted apps and tried
+          again daily) and <code>assets/&lt;client id&gt;/</code> in Netlify Blobs.
         </li>
         <li>
-          Delete the files: <code>assets/&lt;client id&gt;/</code> in Netlify Blobs (<code>yallapp-files</code>) and the build folders on files.yallapp.com.tr. Media
-          files on the media server are removed by the daily job 7 days after their app is gone.
+          The owner&apos;s user is deleted, and with it the client, its apps, licenses, builds, payments, team, sessions, two-step sign-in, content and app
+          users. Team members keep their own sign-ins.
         </li>
-        <li>Mark the request done here: the person who asked is emailed, in their language, that it was deleted.</li>
+        <li>The request is marked done and the person who asked is emailed, in their language, that it was deleted.</li>
       </ol>
       {query.closed === "done" ? (
         <Notice tone="success" icon="check_circle" role="status">
-          Marked done. The person who asked was emailed that their account was deleted.
+          The account was deleted, its billing records kept, and the person who asked was emailed.
         </Notice>
       ) : null}
       {query.closed === "cancelled" ? (
@@ -97,7 +106,7 @@ export default async function AccountDeletionPage({ searchParams }: PageProps<"/
         ))}
       </nav>
       {rows.length === 0 ? <p className="m-0 rounded-2xl border border-line bg-white p-6 text-[15px] text-muted">No requests here.</p> : null}
-      {rows.map(({ request, account }) => {
+      {rows.map(({ request, account, kept }) => {
         const due = request.requestedAt.getTime() + DELETION_DAYS * DAY;
         return (
           <section
@@ -115,7 +124,7 @@ export default async function AccountDeletionPage({ searchParams }: PageProps<"/
                 </span>
                 <span className="text-xs text-muted">
                   Asked {formatDateTime(request.requestedAt)}
-                  {request.status === "pending" ? ` · delete by ${formatDateTime(new Date(due))}` : ""}
+                  {request.status === "pending" ? ` · deleted automatically after ${formatDateTime(deletionDueAt(request))} · promised by ${formatDateTime(new Date(due))}` : ""}
                   {request.closedAt ? ` · ${STATUS_LABEL[request.status]} ${formatDateTime(request.closedAt)} by ${request.closedBy ?? "unknown"}` : ""}
                 </span>
               </div>
@@ -151,17 +160,33 @@ export default async function AccountDeletionPage({ searchParams }: PageProps<"/
                   <dd className="m-0 break-all">{account.builds.length ? account.builds.map((b) => `builds/${b.id}/`).join(" ") : "None"}</dd>
                   <dt className="text-muted">Payments</dt>
                   <dd className="m-0">
-                    {account.paid} paid ·{" "}
-                    <Link href={`/admin/clients/${request.clientId}#h-payments`}>keep their records first</Link>
+                    {account.paid} paid (kept for billing) · <Link href={`/admin/clients/${request.clientId}#h-payments`}>see them</Link>
                   </dd>
                   <dt className="text-muted">Team</dt>
                   <dd className="m-0">{account.team ? `${account.team} members (they keep their own sign-ins)` : "None"}</dd>
                 </dl>
               ) : (
-                <p className="m-0 text-sm text-ink-3">The account is no longer in the database. Check its files are gone, then mark the request done.</p>
+                <p className="m-0 text-sm text-ink-3">The account is no longer in the database. Delete now closes the request and emails them.</p>
               )
             ) : null}
             {request.status === "pending" && mayClose ? <CloseDeletionForm id={request.id} /> : null}
+            {kept.length ? (
+              <div className="flex flex-col gap-1.5" data-kept={kept.length}>
+                <h3 className="m-0 text-[15px] font-bold">Billing records kept</h3>
+                <ul className="m-0 flex list-none flex-col gap-1 p-0 text-sm">
+                  {kept.map((record) => (
+                    <li key={record.id} className="flex flex-wrap gap-x-2">
+                      <span>{record.receiptNumber}</span>
+                      <span className="text-muted">
+                        {formatDateTime(record.paidAt)} · {(record.amountCents / 100).toFixed(2)} {record.currency}
+                        {record.details.appName ? ` · ${record.details.appName}` : ""}
+                      </span>
+                      {record.receipt ? <a href={`/admin/payments/kept/${record.id}/pdf`}>Receipt PDF</a> : null}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </section>
         );
       })}

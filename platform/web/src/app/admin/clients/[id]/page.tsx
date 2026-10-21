@@ -43,6 +43,7 @@ import { appZone } from "@/lib/analytics/zone";
 import { siteMatch } from "@/lib/app/site-match";
 import type { SwitchesSetting } from "@/lib/data/types";
 import { ActivateForm, ClientDetailsForm } from "../../forms";
+import { countryOptions } from "@/lib/account/country";
 import { PAYMENT_STATUS, PAYMENT_TONE } from "../../payments/labels";
 import { ClientNotificationForm, ConnectionCheckForm, WordpressReadyForm } from "./forms";
 import { addStoragePackAction, removeStoragePackAction } from "@/app/actions/admin-clients";
@@ -215,7 +216,7 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
             <details className="border-t border-line-soft pt-3.5">
               <summary className="cursor-pointer text-sm font-semibold">Edit details</summary>
               <div className="pt-3">
-                <ClientDetailsForm clientId={client.id} name={user.name} whatsapp={client.whatsapp} siteUrl={client.siteUrl} />
+                <ClientDetailsForm clientId={client.id} name={user.name} whatsapp={client.whatsapp} siteUrl={client.siteUrl} country={client.country ?? null} countries={countryOptions("en")} />
               </div>
             </details>
           ) : null}

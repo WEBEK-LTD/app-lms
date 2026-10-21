@@ -36,6 +36,7 @@ export const tr: Messages = {
     menu: "Menü",
     closeMenu: "Menüyü kapat",
     logoHome: "Yallapp ana sayfa",
+    darkMode: "Koyu mod",
   },
   footer: {
     about:

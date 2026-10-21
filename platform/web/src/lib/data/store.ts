@@ -80,6 +80,8 @@ import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, Tea
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
 // 66 Deleting a Yallapp account
 import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatus } from "./types";
+// 73 Deleting an app, and the billing records kept when an account goes
+import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
@@ -441,6 +443,8 @@ export interface DataStore {
   /** Saves a lesson's video position, and marks it complete when `completedAt` is given (never un-completes). */
   saveLessonProgress(input: LessonProgress): Promise<void>;
   listLessonProgress(input: { appId: string; userId: number; courseId?: number }): Promise<LessonProgress[]>;
+  /** 73 Clears a student's progress in a course (start it again); how many lessons had some. */
+  deleteLessonProgress(input: { appId: string; userId: number; courseId: number }): Promise<number>;
   /** Paid orders sold through Yallapp's account (with a commission), newest first, every shop. */
   listMarketplaceOrders(limit: number): Promise<CatalogOrder[]>;
   createPlanPayment(payment: PlanPayment): Promise<void>;
@@ -952,4 +956,60 @@ export interface DataStore {
   countUnusedRecoveryCodes(userId: string): Promise<number>;
   /** Removes the secret and the recovery codes; false when there was none. */
   deleteTwoFactor(userId: string): Promise<boolean>;
+
+  // 73 Deleting an app (lib/apps/deletion.ts). A deleted app (`apps.deleted_at`) and its license are
+  // left out of every other read: getAppById, listAppsByClient, listApps, the licenses and the admin's lists.
+  /**
+   * Marks the app deleted and saves the record of it, together: false (nothing
+   * saved) when the app is gone or already deleted (of two at once, one wins).
+   */
+  softDeleteApp(deletion: AppDeletion): Promise<boolean>;
+  /** Brings back the app of a waiting deletion; false when it isn't waiting any more (restored or purged). */
+  restoreDeletedApp(deletionId: string, by: string, now: Date): Promise<boolean>;
+  getAppDeletion(id: string): Promise<AppDeletion | null>;
+  /** Newest first; `statuses` empty: all of them. */
+  listAppDeletions(input: { statuses: AppDeletionStatus[]; clientId?: string; limit: number }): Promise<AppDeletion[]>;
+  /** Waiting deletions whose `purgeAfter` has come, oldest first. */
+  listDueAppDeletions(now: Date, limit: number): Promise<AppDeletion[]>;
+  /** An app whether or not it was deleted (its purge, the admin). */
+  getAppIncludingDeleted(id: string): Promise<App | null>;
+  /** The client's apps, deleted ones waiting to be purged included, oldest first. */
+  listAppsByClientIncludingDeleted(clientId: string): Promise<App[]>;
+  /**
+   * Deletes the app of a waiting deletion, and every row that goes with it
+   * (licenses, builds, content, customers, Media rows…; plan payments stay,
+   * without their app), marking the record purged: false when it isn't
+   * waiting (restored, or purged by another run).
+   */
+  purgeDeletedApp(deletionId: string, by: string, now: Date, pendingBuilds: string[]): Promise<boolean>;
+  /** Saves a deletion record as it is (an app purged with its account). */
+  createAppDeletionRecord(deletion: AppDeletion): Promise<void>;
+  /** The build folders still to remove from the files host. */
+  setAppDeletionPendingBuilds(id: string, builds: string[]): Promise<void>;
+  /** Purged deletions with build folders left on the files host, oldest first. */
+  listAppDeletionsWithPendingBuilds(limit: number): Promise<AppDeletion[]>;
+  /**
+   * The asset IDs an app's rows name: its icon, logo, screenshots and
+   * Firebase files, the images of its courses, products, articles, listings,
+   * events and campaigns, and its pages. Deleted apps too.
+   */
+  listAppAssetReferences(appId: string): Promise<string[]>;
+  listAssetsByClient(clientId: string): Promise<Asset[]>;
+  deleteAsset(id: string): Promise<void>;
+
+  // 73 Deleting a Yallapp account (lib/account/purge.ts)
+  /** Saves billing records kept when an account is deleted (again: replaced). */
+  keepBillingRecords(records: KeptBillingRecord[]): Promise<void>;
+  /** Newest first. */
+  listKeptBillingRecords(input: { clientId?: string; limit: number }): Promise<KeptBillingRecord[]>;
+  getKeptBillingRecord(id: string): Promise<KeptBillingRecord | null>;
+  /**
+   * Deletes the person and everything of theirs: their client account, its
+   * apps (deleted ones too) and every row of those, its payments (keep them
+   * first), team, sessions, two-step sign-in and phones. Their memberships of
+   * other businesses' teams go too. Records without foreign keys stay (the
+   * audit log, deletion requests, app deletions, kept billing records).
+   * False when there was no such person.
+   */
+  deleteUserAccount(userId: string): Promise<boolean>;
 }

@@ -26,6 +26,7 @@ import { getPlans } from "@/lib/settings/platform";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import { formatDate } from "@/components/ui";
 import { activateSchema, addClientSchema, clientDetailsSchema, releaseSchema } from "@/lib/validation";
+import { parseCountry } from "@/lib/account/country";
 
 const PLUGIN_MAX_BYTES = 5.5 * 1024 * 1024;
 
@@ -253,15 +254,17 @@ export async function saveClientDetailsAction(_: FormState, formData: FormData):
   const user = await store.getUserById(client.userId);
   const now = new Date();
   await store.updateUser(client.userId, { name: parsed.data.name }, now);
-  await store.updateClient(client.id, { whatsapp: parsed.data.whatsapp, siteUrl: parsed.data.siteUrl }, now);
+  // 73 The account's country (52.9): a code from the list, or none (the visitor's country then).
+  const country = parseCountry(formData.get("country"));
+  await store.updateClient(client.id, { whatsapp: parsed.data.whatsapp, siteUrl: parsed.data.siteUrl, country }, now);
   await recordAudit({
     actor: admin,
     action: "client.details",
     target: { type: "client", id: client.id },
     clientId: client.id,
     summary: `Edited ${parsed.data.name}'s details`,
-    before: { name: user?.name ?? null, whatsapp: client.whatsapp, siteUrl: client.siteUrl },
-    after: { name: parsed.data.name, whatsapp: parsed.data.whatsapp, siteUrl: parsed.data.siteUrl },
+    before: { name: user?.name ?? null, whatsapp: client.whatsapp, siteUrl: client.siteUrl, country: client.country ?? null },
+    after: { name: parsed.data.name, whatsapp: parsed.data.whatsapp, siteUrl: parsed.data.siteUrl, country },
   });
   revalidateClient(client.id);
   return { ok: true, message: "Details saved.", values };

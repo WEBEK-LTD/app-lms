@@ -12,6 +12,8 @@ import { applyPipelineStatus, type PipelineStatusUpdate } from "./pipeline";
  */
 export const PLAN_ENDED_BEFORE_START = "The app's plan ended before this build started. Renew the plan, then start the build again.";
 export const SUSPENDED_BEFORE_START = "The account was suspended before this build started.";
+/** 73 The owner deleted the app after queuing the build. */
+export const APP_DELETED_BEFORE_START = "The app was deleted before this build started.";
 
 export interface QueueTake {
   /** Builds the pipeline may take. */
@@ -25,8 +27,8 @@ export async function takeQueuedBuilds(store: DataStore, queued: readonly Build[
   const take: QueueTake = { builds: [], closed: [] };
   for (const build of queued) {
     if (build.status !== "queued") continue;
-    const [client, license] = await Promise.all([store.getClientById(build.clientId), store.getLicenseForApp(build.clientId, build.appId)]);
-    if (appIsActive(license, client, now)) {
+    const [client, license, app] = await Promise.all([store.getClientById(build.clientId), store.getLicenseForApp(build.clientId, build.appId), store.getAppById(build.appId)]);
+    if (app && appIsActive(license, client, now)) {
       take.builds.push(build);
       continue;
     }
@@ -35,7 +37,11 @@ export async function takeQueuedBuilds(store: DataStore, queued: readonly Build[
     const result = await applyPipelineStatus(
       store,
       build,
-      { status: "failed", stages: stages as PipelineStatusUpdate["stages"], message: client?.status === "suspended" ? SUSPENDED_BEFORE_START : PLAN_ENDED_BEFORE_START },
+      {
+        status: "failed",
+        stages: stages as PipelineStatusUpdate["stages"],
+        message: !app ? APP_DELETED_BEFORE_START : client?.status === "suspended" ? SUSPENDED_BEFORE_START : PLAN_ENDED_BEFORE_START,
+      },
       now,
     );
     if (result.ok) take.closed.push(result.build);

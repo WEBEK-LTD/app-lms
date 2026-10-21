@@ -150,9 +150,16 @@ describe("41 the Works with strip", () => {
 describe("41 the public site's dark mode and brand rules", () => {
   it("swaps the tokens only on pages with the site header, and keeps the dark bands dark", () => {
     const css = read("src/app/globals.css");
-    expect(css).toMatch(/@media \(prefers-color-scheme: dark\) \{\s*html:has\(\[data-site-theme\]\) \{\s*color-scheme: dark;/);
-    expect(css).toMatch(/html:has\(\[data-site-theme\]\) \.on-dark \{\s*--color-white: #ffffff;/);
+    // 73 The system setting unless the visitor chose light, or their choice of dark (components/theme-switch.tsx).
+    expect(css).toMatch(/@custom-variant yallapp-dark \{\s*@media \(prefers-color-scheme: dark\) \{\s*&:not\(\[data-theme="light"\]\):has\(\[data-site-theme\]\) \{\s*@slot;/);
+    expect(css).toMatch(/&\[data-theme="dark"\]:has\(\[data-site-theme\]\) \{\s*@slot;/);
+    expect(css).toMatch(/html \{\s*@variant yallapp-dark \{\s*color-scheme: dark;/);
+    expect(css).toMatch(/\.on-dark \{\s*@variant in-dark \{\s*--color-white: #ffffff;/);
     expect(read("src/components/site-chrome.tsx")).toContain('<header data-site-theme=""');
+    // 73 The dashboard, the admin and the sign-in pages too.
+    expect(read("src/app/dashboard/layout.tsx")).toContain('data-site-theme=""');
+    expect(read("src/app/admin/layout.tsx")).toContain('data-site-theme=""');
+    expect(read("src/components/auth-shell.tsx")).toContain('data-site-theme=""');
   });
 
   it("allows third-party marks only where docs/BRAND.md says", () => {

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Icon } from "@/components/icon";
 import { Notice, PageHeader, btn, formatDate } from "@/components/ui";
+import { AppDeletion } from "@/components/app-deletion";
 import { richText } from "@/i18n/rich";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { SETUP_STEPS, STEP_LABEL, hasStoreKeys, isSetupStep, managedPublishing, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
@@ -280,6 +281,9 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
           <CheckLinksPanel last={app.linksCheck ?? null} />
         </section>
       ) : null}
+
+      {/* 73 The danger zone: the owner deletes the app. */}
+      <AppDeletion context={context} app={app} name={name} />
 
       {upcoming.length ? (
         <section aria-labelledby="h-next" className="flex flex-col gap-3">

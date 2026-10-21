@@ -7,6 +7,7 @@ import { Icon } from "@/components/icon";
 import { DashboardSidebar, type DashboardNavGroup } from "@/components/dashboard-nav";
 import { DashboardI18n, DocumentLang } from "@/components/dashboard-i18n";
 import { DashboardLanguage } from "@/components/dashboard-language";
+import { ThemeSwitch } from "@/components/theme-switch";
 import { SignOutButton } from "@/components/sign-out";
 import { AppSwitcher } from "@/components/app-switcher";
 import { BusinessSwitcher } from "@/components/business-switcher";
@@ -129,7 +130,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <DashboardI18n lang={lang} messages={dashboardMessages(lang)} knownEnglish={lang === "en" ? {} : knownEnglish()}>
       <DocumentLang lang={lang} />
-      <div lang={lang} dir={dir} className="flex min-h-screen flex-col bg-ivory md:flex-row">
+      {/* 73 Light or dark like the website (globals.css). */}
+      <div lang={lang} dir={dir} data-site-theme="" className="flex min-h-screen flex-col bg-ivory md:flex-row">
         <a
           href="#main"
           className="sr-only z-50 rounded-[10px] bg-midnight px-4 py-2.5 font-semibold text-white focus:not-sr-only focus:fixed focus:start-3 focus:top-3 focus:text-white"
@@ -139,7 +141,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <DashboardSidebar
           logo={
             <Link href="/dashboard" className="flex rounded-md">
-              <Logo height={28} alt={t("nav.logoAlt")} />
+              <Logo height={28} adaptive alt={t("nav.logoAlt")} />
             </Link>
           }
           actions={<UpdatesBell initial={bell} />}
@@ -174,8 +176,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
                   {member ? <span className="truncate text-xs text-muted">{t(`team.roles.${context.access.role}` as DashKey)}</span> : null}
                 </span>
               </div>
-              {/* 56 The dashboard's language, saved for whoever is signed in. */}
-              <DashboardLanguage lang={lang} label={t("nav.languageList")} />
+              {/* 56 The dashboard's language, saved for whoever is signed in; 73 light or dark. */}
+              <div className="flex items-center gap-2">
+                <div className="min-w-0 flex-1">
+                  <DashboardLanguage lang={lang} label={t("nav.languageList")} />
+                </div>
+                <ThemeSwitch label={t("nav.darkMode")} className="h-9 w-9" />
+              </div>
               <SignOutButton className="inline-flex h-9 w-full cursor-pointer items-center justify-center gap-1.5 rounded-[10px] border border-line-strong bg-white px-3 text-sm font-semibold text-midnight hover:border-midnight">
                 <Icon name="logout" size={18} />
                 {t("nav.signOut")}
