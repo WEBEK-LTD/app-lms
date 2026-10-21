@@ -177,6 +177,15 @@ export interface DataStore {
   listLicensesByClient(clientId: string): Promise<License[]>;
   getLicenseByHash(keyHash: string): Promise<License | null>;
   updateLicense(id: string, patch: LicensePatch, now: Date): Promise<void>;
+  /** 68 Licenses of an app whose end date is after `from` and not after `to` (plans that ended meanwhile). */
+  listLicensesEndedBetween(from: Date, to: Date): Promise<License[]>;
+  /**
+   * 68 Records that the app's WordPress site is asked to check its license for
+   * the end at `expiresAt`, once: true only for the first caller while the
+   * license still ends then (a renewal meanwhile changes the end) and that end
+   * has passed by `now`. Atomic, so two jobs at once ask the site once.
+   */
+  claimLicenseEndRefresh(licenseId: string, expiresAt: Date, now: Date): Promise<boolean>;
 
   // Activations (one site per license)
   getActivation(licenseId: string): Promise<Activation | null>;

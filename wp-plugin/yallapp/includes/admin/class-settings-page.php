@@ -446,13 +446,15 @@ class Settings_Page {
 		$status = $client->status();
 		$key    = (string) $this->values['license_key'];
 		$labels = array(
-			'none'      => __( 'Not activated', 'yallapp' ),
-			'active'    => __( 'Active', 'yallapp' ),
-			'expired'   => __( 'Expired', 'yallapp' ),
-			'suspended' => __( 'Suspended', 'yallapp' ),
-			'invalid'   => __( 'Not valid', 'yallapp' ),
+			'none'        => __( 'Not activated', 'yallapp' ),
+			'active'      => __( 'Active', 'yallapp' ),
+			'expired'     => __( 'Ended', 'yallapp' ),
+			'suspended'   => __( 'Suspended', 'yallapp' ),
+			'invalid'     => __( 'Not valid', 'yallapp' ),
+			'unreachable' => __( 'Not confirmed', 'yallapp' ),
 		);
-		$state  = $client->is_active() ? 'active' : $status['status'];
+		// 68 Where the license stands now: an ended plan shows as ended at once.
+		$state = $client->state();
 		$this->open( __( 'License', 'yallapp' ), '<span class="ya-pill ya-pill-' . esc_attr( 'active' === $state ? 'ok' : 'warn' ) . '">' . esc_html( $labels[ $state ] ?? $labels['invalid'] ) . '</span>' );
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="ya-inline">';
 		echo '<input type="hidden" name="action" value="yallapp_license">';
@@ -466,7 +468,7 @@ class Settings_Page {
 			$this->fact( __( 'License key', 'yallapp' ), substr( $key, 0, 5 ) . str_repeat( '•', max( 0, strlen( $key ) - 9 ) ) . substr( $key, -4 ) );
 			$this->fact( __( 'Plan', 'yallapp' ), $status['plan'] ? ucfirst( $status['plan'] ) : '—' );
 			$this->fact( __( 'Licensed domain', 'yallapp' ), (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
-			$this->fact( __( 'Renews on', 'yallapp' ), $status['expires_at'] ? date_i18n( get_option( 'date_format' ), strtotime( $status['expires_at'] ) ) : '—' );
+			$this->fact( 'expired' === $state ? __( 'Ended on', 'yallapp' ) : __( 'Active until', 'yallapp' ), $status['expires_at'] ? date_i18n( get_option( 'date_format' ), strtotime( $status['expires_at'] ) ) : '—' );
 			$this->fact( __( 'Plugin version', 'yallapp' ), YALLAPP_VERSION );
 			$this->fact( __( 'Last checked', 'yallapp' ), $status['checked_at'] ? date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $status['checked_at'] ) ) : '—' );
 			echo '</dl>';
@@ -476,11 +478,46 @@ class Settings_Page {
 			echo '<div class="ya-actions"><button class="button" name="task" value="check">' . esc_html__( 'Check now', 'yallapp' ) . '</button> ';
 			echo '<button class="button-link ya-danger" name="task" value="deactivate">' . esc_html__( 'Deactivate on this site', 'yallapp' ) . '</button></div>';
 		}
+		$explain = self::license_state_text( $state, $status['expires_at'] ? date_i18n( get_option( 'date_format' ), strtotime( $status['expires_at'] ) ) : '' );
+		if ( '' !== $explain ) {
+			echo '<p class="ya-help ya-license-state">' . esc_html( $explain ) . '</p>';
+		}
+		if ( 'expired' === $state ) {
+			echo '<p class="ya-help"><a href="' . esc_url( 'https://yallapp.com.tr/dashboard/license' ) . '" target="_blank" rel="noopener">' . esc_html__( 'Renew in your Yallapp dashboard', 'yallapp' ) . '</a></p>';
+		}
 		if ( ! $client::enforced() ) {
-			echo '<p class="ya-help">' . esc_html__( 'Test mode: the app works on this site without an active license.', 'yallapp' ) . '</p>';
+			echo '<p class="ya-help">' . esc_html__( 'License checks are off on this development site (YALLAPP_ENFORCE_LICENSE). On a live site the app pauses whenever the license isn\'t active.', 'yallapp' ) . '</p>';
 		}
 		echo '</form>';
 		$this->close();
+	}
+
+	/**
+	 * 68 What the license's state means for the app, in plain words for the site admin. Pure.
+	 *
+	 * @param string $state License_Client::state_of(): active|expired|suspended|invalid|none|unreachable.
+	 * @param string $date  The plan's end, formatted; empty when unknown.
+	 * @return string
+	 */
+	public static function license_state_text( $state, $date ) {
+		switch ( $state ) {
+			case 'active':
+				/* translators: %s: the date the plan ends. */
+				return '' !== $date ? sprintf( __( 'The app is running. Your plan is active until %s.', 'yallapp' ), $date ) : __( 'The app is running. Your plan is active.', 'yallapp' );
+			case 'expired':
+				return '' !== $date
+					/* translators: %s: the date the plan ended. */
+					? sprintf( __( 'Your plan ended on %s, so the app is paused for everyone: it shows that it is paused, with your contact details, and sends no notifications. Renew the plan on yallapp.com.tr (License & plugin) and the app comes back within minutes.', 'yallapp' ), $date )
+					: __( 'Your plan has ended, so the app is paused for everyone: it shows that it is paused, with your contact details, and sends no notifications. Renew the plan on yallapp.com.tr (License & plugin) and the app comes back within minutes.', 'yallapp' );
+			case 'suspended':
+				return __( 'Your Yallapp account is suspended, so the app is paused for everyone. Message Yallapp to bring it back.', 'yallapp' );
+			case 'unreachable':
+				return __( 'This site hasn\'t reached yallapp.com.tr for over 3 days, so the app is paused. Check that the site can make outgoing connections, then click Check now.', 'yallapp' );
+			case 'none':
+				return __( 'Activate your license to turn the app on. Until then it shows that it is paused.', 'yallapp' );
+			default:
+				return __( 'This license isn\'t valid on this site, so the app is paused. Check the key in your Yallapp dashboard.', 'yallapp' );
+		}
 	}
 
 	/**

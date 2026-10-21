@@ -4,7 +4,7 @@ import Link from "next/link";
 import { cancelScheduledNotificationAction, removeServiceAccountAction } from "@/app/actions/notifications";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { Badge, EmptyState, formatDateTime } from "@/components/ui";
+import { Badge, EmptyState, formatDateTime, Notice } from "@/components/ui";
 import { formatDate } from "@/i18n/format";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -12,6 +12,8 @@ import { richText } from "@/i18n/rich";
 import { getStore } from "@/lib/data";
 import { encryptionKey } from "@/lib/env";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX, serviceAccountOf } from "@/lib/hosted/notify";
+import { PLAN_ENDED_MESSAGE } from "@/lib/hosted/send-notification";
+import { appIsActive } from "@/lib/license/status";
 import { EditScheduledForm, ServiceAccountForm, SendNotificationForm } from "./forms";
 import { appZone, zoneLabel } from "@/lib/analytics/zone";
 import { utcToLocal } from "@/lib/bookings/time";
@@ -27,7 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /** Notifications for apps on the hosted API. Apps on WordPress send them from the plugin. */
 export default async function NotificationsPage() {
-  const { app, license } = await requireClient("notifications");
+  const { app, license, client } = await requireClient("notifications");
   const { t, k, lang } = await dashboardText();
   if (!app || app.backend !== "hosted") {
     return (
@@ -56,6 +58,8 @@ export default async function NotificationsPage() {
   const planId = license ? currentPlanId(license, new Date()) : null;
   const push = planId ? hasFeature(plans[planId], "push") : false;
   const upgrade = lowestPlanWith(plans, (p) => hasFeature(p, "push"), planId);
+  // 68 Nothing goes out once the app's plan has ended (lib/hosted/send-notification.ts).
+  const ended = !appIsActive(license, client, now);
 
   return (
     <div className="flex flex-col gap-6">
@@ -63,6 +67,13 @@ export default async function NotificationsPage() {
         <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("notify.title")}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("notify.intro", { count: customers })}</p>
       </div>
+      {ended ? (
+        <div className="max-w-[620px]">
+          <Notice tone="warn" icon="warning" role="status">
+            {k(PLAN_ENDED_MESSAGE)} <Link href="/dashboard/license">{t("notify.renewPlan")}</Link>
+          </Notice>
+        </div>
+      ) : null}
 
       <div className="flex flex-wrap items-start gap-6">
         <section aria-labelledby="h-send" className="flex min-w-0 flex-[1_1_440px] flex-col gap-[18px] rounded-2xl border border-line bg-white p-5 sm:p-6">

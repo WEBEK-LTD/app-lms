@@ -13,6 +13,54 @@ devices. Everything else is in the code. Tick each line when it's done.
       ones into the Yallapp admin.
 - [ ] Never paste keys, tokens or passwords into chats, issues or commits.
 
+## 1a. Security review (Phase 69)
+
+The code changes of the review deploy by themselves (ROADMAP, Phase 69).
+These are the parts on our servers and consoles.
+
+- [ ] **GitHub › Settings › Actions › General › "Approval for running fork
+      pull request workflows from contributors":** choose **Require approval
+      for all external contributors**. The repository is public and our own
+      runners (`LINUX_RUNNER`, on host.webek.org) also build clients' apps with
+      the pipeline's secrets; the workflows now send pull requests from forks
+      to GitHub's runners, and this approval is the second lock. Approve a
+      stranger's pull request only after reading what it changes.
+- [ ] **Our runners:** they run on host.webek.org, next to the database, the
+      media files and the build files, and keep their home folder between
+      jobs. When there is a budget for it, move them to a machine of their
+      own (a small VPS is enough). Until then, after any doubt about a job
+      that ran there (for example a stranger's pull request that ran before
+      this change), start them clean: `systemctl stop 'yallapp-runner-*'`,
+      `podman volume rm yallapp-runner-1-home yallapp-runner-1-tools
+      yallapp-runner-2-home yallapp-runner-2-tools`, remove the runners in
+      GitHub › Settings › Actions › Runners, and run
+      `RUNNERS=2 bash /root/yallapp-runner.sh` again with a new registration
+      token.
+- [ ] **Netlify › Environment variables:** `TRUSTED_PROXY_SECRET` is set (32
+      characters or more, `openssl rand -hex 32`) and the Apache proxy sends
+      the same value (`deploy/apache-proxy.conf`). Without it every visitor
+      reaches Netlify from the proxy's address, so one person's wrong
+      passwords lock everyone out of signing in for 15 minutes.
+- [ ] **Netlify › Environment variables:** `BUILD_PIPELINE_TOKEN` (the same in
+      GitHub's secrets) is 32 characters or more (`openssl rand -hex 32`); the
+      platform checks the length of the other secrets but not of this one,
+      which reads every client's signing keys. Change it if it is shorter
+      (Netlify, then GitHub › Settings › Secrets › `BUILD_PIPELINE_TOKEN`).
+- [ ] **Admin accounts:** the admin has no second sign-in step yet. Everyone
+      in `SUPER_ADMIN_EMAILS` and on Admin › Team uses a long password used
+      nowhere else (a password manager), and people who left are removed from
+      Admin › Team the same day.
+- [ ] **After deploying:** `curl -sI https://yallapp.com.tr/faq` shows
+      `content-security-policy: base-uri 'self'; object-src 'none';
+      frame-ancestors 'none'` (the proxy passes it through), and
+      `https://yallapp.com.tr/media/config.php`,
+      `https://files.yallapp.com.tr/config.php` and
+      `https://yallapp.com.tr/media/` answer 403 or 404, never a file or a
+      list.
+- [ ] **Plugin:** the next plugin release (Admin › Plugin releases, after this
+      change and plugin 0.4.6 are merged) carries the access token fix
+      (ROADMAP 69.6); sites pick it up as an update.
+
 ## 2. Yallapp admin (`/admin`, signed in as a super admin)
 
 - [ ] **Settings › Sign-in codes:** choose WABEK (the account's API key and the instance ID of the number that sends codes), the
@@ -831,6 +879,50 @@ never in a chat or an issue.
       a URL Inspection each.
 - [ ] If `yallapp.netlify.app` addresses show up in Google, leave them: their
       canonical names yallapp.com.tr and Google moves them over in time.
+
+## 7r. An ended plan stops the app everywhere (Phase 68)
+
+- [ ] Apply migration `0049_license_end_refresh.sql` after `0048`
+      (`end_refreshed_for` on `licenses`). Deploy the platform after it: the
+      frequent job reads that column (until it exists, only that part of the
+      job logs an error; notifications and announcements still go out).
+- [ ] **Release plugin 0.4.6** (Admin › App & plugin versions) with the
+      changelog from `wp-plugin/yallapp/readme.txt`.
+- [ ] Tell every WordPress client to **update to plugin 0.4.6** (Plugins ›
+      Updates, or upload the zip). Until they do, their site keeps the old
+      "Test mode": the app keeps working after the plan ends (only the
+      sign-in codes and Media videos Yallapp serves stop). WordPress offers
+      the update only while the license is active, so a client whose plan
+      already ended updates by uploading the zip, or after renewing.
+- [ ] Tell them what changes with 0.4.6, before it reaches them:
+      - The license is enforced on the live site. A site without an active
+        license key shows the app as paused, so check that Settings ›
+        License says "Active" after updating.
+      - Push notifications and offline lessons follow the plan, as on the
+        dashboard (a plan without push sends only to the app's inbox).
+      - When the plan ends, the app shows "{App} is paused" with the contact
+        from the plugin settings (Support WhatsApp and email: check they're
+        filled in), sends no notifications, and comes back within minutes of
+        renewing. The same while the Yallapp account is suspended.
+      - A site that can't reach yallapp.com.tr for over 3 days pauses too
+        (firewalls blocking outgoing requests); "Check now" brings it back.
+      - Development copies set `WP_ENVIRONMENT_TYPE` to `local` (or
+        `development`) and `define( 'YALLAPP_ENFORCE_LICENSE', false );` to
+        work without a license; it is ignored on live sites.
+- [ ] What app users see when a plan ends, on every backend: the paused
+      screen with "Contact {App}" and "Try again"; someone signed in can
+      still delete their account there. Someone not signed in can't sign in
+      to delete it: they ask the owner, or our team deletes the app user
+      from Admin › the client › App users. Hosted apps already paused on the
+      end date; now pushes stop too (notifications sent later and due after
+      the end show "Not sent" on the dashboard and in Yallapp Business), and
+      a build queued before the end is closed with the reason instead of
+      being built.
+- [ ] After deploying: on a test WordPress site with 0.4.6, let a test
+      license end (its end date in the admin); within 5 minutes of the end
+      the site's License card says "Ended on …" and the app shows
+      the paused screen; delete a signed-in test account from that screen;
+      extend the license and check the app comes back.
 
 ## 8. Accounts the remaining roadmap steps wait on
 

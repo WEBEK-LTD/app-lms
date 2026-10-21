@@ -7,6 +7,9 @@ on:
   # "Run workflow" runs every check, whatever changed.
   workflow_dispatch:
 
+# 69 Our own runners (LINUX_RUNNER, build/runner) also build clients' apps with the pipeline's
+# secrets, so a pull request from a fork (anyone's code, in a public repository) always runs on
+# GitHub's runners: `runs-on` below picks them for it.
 permissions:
   contents: read
 
@@ -17,7 +20,7 @@ concurrency:
 jobs:
   changes:
     name: Changed files
-    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    runs-on: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-24.04' || vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     outputs:
       plugin: ${{ steps.files.outputs.plugin }}
       pipeline: ${{ steps.files.outputs.pipeline }}
@@ -49,7 +52,7 @@ jobs:
 
   api-contract:
     name: API contract
-    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    runs-on: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-24.04' || vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -62,7 +65,7 @@ jobs:
     name: Plugin syntax (PHP ${{ matrix.php }})
     needs: changes
     if: needs.changes.outputs.plugin == 'true'
-    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    runs-on: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-24.04' || vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
       matrix:
@@ -81,7 +84,7 @@ jobs:
     name: Plugin coding standards
     needs: changes
     if: needs.changes.outputs.plugin == 'true'
-    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    runs-on: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-24.04' || vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     defaults:
       run:
         working-directory: wp-plugin/yallapp
@@ -101,7 +104,7 @@ jobs:
     name: Plugin zip
     needs: changes
     if: needs.changes.outputs.plugin == 'true'
-    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    runs-on: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-24.04' || vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     defaults:
       run:
         working-directory: wp-plugin/yallapp
@@ -125,7 +128,7 @@ jobs:
     name: Plugin unit tests (PHP ${{ matrix.php }})
     needs: changes
     if: needs.changes.outputs.plugin == 'true'
-    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    runs-on: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-24.04' || vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
       matrix:
@@ -149,7 +152,7 @@ jobs:
     name: Plugin end-to-end (WordPress + Tutor LMS)
     needs: changes
     if: needs.changes.outputs.plugin == 'true'
-    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    runs-on: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-24.04' || vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     defaults:
       run:
         working-directory: wp-plugin/yallapp
@@ -175,7 +178,7 @@ jobs:
     name: Plugin end-to-end (Tutor LMS + WooCommerce, ${{ matrix.suite }})
     needs: changes
     if: needs.changes.outputs.plugin == 'true'
-    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    runs-on: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-24.04' || vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
       matrix:
@@ -216,7 +219,7 @@ jobs:
     name: Plugin end-to-end (${{ matrix.lms }})
     needs: changes
     if: needs.changes.outputs.plugin == 'true'
-    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    runs-on: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-24.04' || vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
       matrix:
@@ -245,7 +248,7 @@ jobs:
     name: Plugin end-to-end (WooCommerce store)
     needs: changes
     if: needs.changes.outputs.plugin == 'true'
-    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    runs-on: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-24.04' || vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     defaults:
       run:
         working-directory: wp-plugin/yallapp
@@ -270,7 +273,7 @@ jobs:
     name: Plugin end-to-end (News & blog)
     needs: changes
     if: needs.changes.outputs.plugin == 'true'
-    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    runs-on: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-24.04' || vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     defaults:
       run:
         working-directory: wp-plugin/yallapp
@@ -298,7 +301,7 @@ jobs:
     name: Plugin end-to-end (bookings on ${{ matrix.booking }})
     needs: changes
     if: needs.changes.outputs.plugin == 'true'
-    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    runs-on: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-24.04' || vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
       matrix:
@@ -327,7 +330,7 @@ jobs:
     name: Build pipeline scripts
     needs: changes
     if: needs.changes.outputs.pipeline == 'true'
-    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    runs-on: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-24.04' || vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

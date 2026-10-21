@@ -140,3 +140,54 @@ export async function refreshPlanSites(
   }
   return { apps: appIds.length, sent, left: appIds.length - asked };
 }
+
+/** 68 How the frequent job tells the sites of plans that ended: how far back it looks, a few at once, within its time. */
+export const ENDED_REFRESH = { lookbackMs: 3 * 86_400_000, batchSize: 5, budgetMs: 15_000 };
+
+export interface EndedRefreshResult {
+  /** Licenses whose end was claimed by this run (each end is claimed once, whatever the backend). */
+  ended: number;
+  /** WordPress sites asked to check now. */
+  asked: number;
+  sent: number;
+}
+
+/**
+ * 68 When a plan ends, its WordPress site hears of it within minutes: the
+ * frequent job (every 5 minutes) asks the site of every license that ended
+ * since the last runs (within `lookbackMs`) to check its license now, once
+ * per end date (`claimLicenseEndRefresh`, atomic: two runs at once ask once;
+ * a renewal and a later end ask again). The plugin (0.4.6) also compares the
+ * end date itself, so a site the nudge doesn't reach still pauses on time.
+ * A few at once, within `budgetMs`: what's left is asked on the next run.
+ */
+export async function refreshEndedSites(
+  deps: RefreshDeps & { clock?: () => number },
+  limits: typeof ENDED_REFRESH = ENDED_REFRESH,
+): Promise<EndedRefreshResult> {
+  const now = deps.now ?? new Date();
+  const clock = deps.clock ?? Date.now;
+  const started = clock();
+  const result: EndedRefreshResult = { ended: 0, asked: 0, sent: 0 };
+  const due = (await deps.store.listLicensesEndedBetween(new Date(now.getTime() - limits.lookbackMs), now)).filter(
+    (l) => !l.endRefreshedFor || l.endRefreshedFor.getTime() !== l.expiresAt.getTime(),
+  );
+  let batch: string[] = [];
+  const send = async () => {
+    const outcomes = await Promise.all(batch.map((id) => refreshSite({ ...deps, now }, id)));
+    result.asked += batch.length;
+    result.sent += outcomes.filter((o) => o === "sent").length;
+    batch = [];
+  };
+  for (const license of due) {
+    if (clock() - started > limits.budgetMs) break;
+    const app = license.appId ? await deps.store.getAppById(license.appId) : null;
+    if (!(await deps.store.claimLicenseEndRefresh(license.id, license.expiresAt, now))) continue;
+    result.ended += 1;
+    if (app?.backend !== "wordpress") continue;
+    batch.push(app.id);
+    if (batch.length >= limits.batchSize) await send();
+  }
+  if (batch.length) await send();
+  return result;
+}

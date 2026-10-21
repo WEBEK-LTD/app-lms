@@ -13,6 +13,11 @@ info:
     - The pipeline takes queued builds from `GET /builds/queue`, downloads each
       build config, and reports progress with `POST /builds/{id}/status` until
       the build is `ready` or `failed`. Finished builds can't change.
+    - A queued build is built only while its app's plan is active (roadmap
+      68): when the plan ended (or the owner's account was suspended) after
+      the build was queued, `GET /builds/queue` closes it as `failed`
+      (`license_inactive`, with a message for the client, who is emailed) and
+      leaves it out, so the pipeline never takes it.
     - The build config never contains secrets. Signing keys and store API keys
       are handed over separately.
     - A build that stops moving doesn't block its app: one still `queued` after
@@ -41,7 +46,13 @@ paths:
       tags: [Builds]
       operationId: listQueuedBuilds
       summary: List queued builds
-      description: Builds waiting for the pipeline, oldest first.
+      description: |
+        Builds waiting for the pipeline, oldest first. Each build's app plan
+        is checked again first: a build whose plan ended or whose account was
+        suspended since it was queued is closed as `failed` (`license_inactive`)
+        with a message saying so ("The app's plan ended before this build
+        started. Renew the plan, then start the build again.") and isn't
+        listed.
       parameters:
         - name: limit
           in: query

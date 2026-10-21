@@ -17,8 +17,9 @@ use Yallapp\Plugin;
 /**
  * Blocks the app API during maintenance, when it is switched off or the license is
  * inactive (`/config` stays reachable so the app can explain why, and 31 the platform's
- * `/license/refresh` so a renewed plan reaches the site), and adds the plugin
- * version header to every response.
+ * `/license/refresh` so a renewed plan reaches the site; 68 while paused, a signed-in
+ * student can still renew their session, sign out and delete their account), and adds
+ * the plugin version header to every response.
  */
 class Gatekeeper {
 
@@ -26,6 +27,13 @@ class Gatekeeper {
 	 * Routes that stay reachable.
 	 */
 	const ALWAYS_OPEN = array( '/yallapp/v1/config', '/yallapp/v1/license/refresh' );
+
+	/**
+	 * 68 What a paused app still answers (its plan ended, or the owner's account is suspended):
+	 * a student who is signed in can always delete their account (the stores require it), so
+	 * the session can be renewed, ended, and the account deleted. Signing in stays paused.
+	 */
+	const OPEN_WHILE_PAUSED = array( 'POST /yallapp/v1/auth/refresh', 'POST /yallapp/v1/auth/logout', 'DELETE /yallapp/v1/me' );
 
 	/**
 	 * Plugin.
@@ -67,10 +75,21 @@ class Gatekeeper {
 			return $result;
 		}
 		$reason = $this->blocked_reason();
-		if ( $reason ) {
+		if ( $reason && ! ( isset( $reason['contact'] ) && self::open_while_paused( $request->get_method(), $route ) ) ) {
 			return Controller::error( $reason['code'], $reason['message'], 503, isset( $reason['contact'] ) ? array( 'contact' => $reason['contact'] ) : array() );
 		}
 		return $result;
+	}
+
+	/**
+	 * 68 Whether a request still answers while the app is paused (OPEN_WHILE_PAUSED). Pure.
+	 *
+	 * @param string $method HTTP method.
+	 * @param string $route  REST route, e.g. `/yallapp/v1/me`.
+	 * @return bool
+	 */
+	public static function open_while_paused( $method, $route ) {
+		return in_array( strtoupper( (string) $method ) . ' ' . rtrim( (string) $route, '/' ), self::OPEN_WHILE_PAUSED, true );
 	}
 
 	/**
@@ -124,8 +143,8 @@ class Gatekeeper {
 			);
 		}
 		if ( ! $this->plugin->license()->allows_api() ) {
-			$status = $this->plugin->license()->status();
-			return self::paused( (string) $status['status'], $this->contact() );
+			// 68 Where the license stands now: an ended plan is `expired` even before the platform says so.
+			return self::paused( $this->plugin->license()->state(), $this->contact() );
 		}
 		return null;
 	}

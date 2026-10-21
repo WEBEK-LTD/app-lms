@@ -20,7 +20,19 @@ info:
       to a private network. The site then calls `/licenses/check` and
       `/apps/layout` as usual (roadmap 31).
     - If the platform can't be reached, the plugin keeps its last known status
-      for a 72-hour grace period before treating the license as inactive.
+      for a 72-hour grace period before treating the license as inactive. The
+      grace never goes past the plan's end: from plugin 0.4.6 the plugin
+      compares `expires_at` with its own clock, so the app pauses at the end
+      of the plan even when the site can't reach the platform (roadmap 68).
+    - From plugin 0.4.6 the license is enforced on every site: while it isn't
+      active (ended, suspended, not activated, or 72 hours without an answer)
+      the app's API answers 503 `license_inactive` or `account_suspended`
+      (docs/api/openapi.yaml) and push and offline mode follow the plan. Only
+      a development site (`WP_ENVIRONMENT_TYPE` `local` or `development`) can
+      switch the checks off, with `YALLAPP_ENFORCE_LICENSE` set to false.
+    - When a plan ends, the platform's frequent job (every 5 minutes) asks the
+      site to check at once (`POST /license/refresh`), once per end date, so
+      the site hears of it within minutes instead of at its next check.
     - Videos from the app's Media library (tag Media, roadmap 51) play from
       links the plugin asks for per request, after checking the student may
       open the lesson; no student data is sent with it.
@@ -682,7 +694,13 @@ components:
             the owner hasn't chosen: the plugin's own "Block screenshots &
             screen recording" applies. The plugin serves the result as
             `Config.app.screen_protection`. Missing on older platforms.
-        expires_at: { type: [string, 'null'], format: date-time }
+        expires_at:
+          type: [string, 'null']
+          format: date-time
+          description: |
+            When the plan ends. Roadmap 68: from plugin 0.4.6 the plugin pauses
+            the app once this time has passed, even when its last answer said
+            `active` and the platform can't be reached.
         checked_at: { type: string, format: date-time }
         message: { type: [string, 'null'], description: Shown to the site admin. }
 

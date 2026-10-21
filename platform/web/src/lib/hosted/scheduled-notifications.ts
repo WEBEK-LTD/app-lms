@@ -4,7 +4,8 @@ import type { DataStore } from "../data/store";
 import type { App, ScheduledNotification } from "../data/types";
 import { RATE_LIMITS, rateLimitHits } from "../rate-limit";
 import type { sendPush } from "./push";
-import { checkNotificationText, sendAppNotification } from "./send-notification";
+import { appIsActive } from "../license/status";
+import { appMaySend, checkNotificationText, PLAN_ENDED_MESSAGE, sendAppNotification } from "./send-notification";
 
 /**
  * 61 Notifications to everyone who uses the app, sent later: Dashboard › App
@@ -15,7 +16,17 @@ import { checkNotificationText, sendAppNotification } from "./send-notification"
  * the hourly limit are those of sending now: a notification that finds the
  * hour's 10 used waits for the next run. Each one is taken by one run only
  * (a conditional update), so running the job twice never sends it twice.
+ *
+ * 68 Nothing is sent once the app's plan has ended: scheduling is refused
+ * then (`inactive`), and one whose time comes after the plan ended is marked
+ * failed with PLAN_ENDED_SCHEDULED, shown to the owner on the dashboard and in
+ * Yallapp Business, never sent late after a renewal (its moment has passed;
+ * the owner sends it again). While the account is suspended or pending they
+ * wait, as before: the suspension may be lifted.
  */
+
+/** 68 Why one waiting wasn't sent (a `known` text in en, ar and tr). */
+export const PLAN_ENDED_SCHEDULED = "Not sent: the app's plan had ended when it was due. Send it again once the plan is renewed.";
 
 /** At most this many waiting per app. */
 export const SCHEDULED_MAX = 50;
@@ -26,7 +37,9 @@ const STALE_MS = 30 * 60_000;
 /** Shown on the dashboard and in the app: waiting, being sent, or stopped halfway. */
 export const LISTED_STATUSES = ["scheduled", "sending", "failed"] as const;
 
-export type ScheduleResult = { ok: true; notification: ScheduledNotification } | { ok: false; errors?: Record<string, string>; message?: string; conflict?: boolean };
+export type ScheduleResult =
+  | { ok: true; notification: ScheduledNotification }
+  | { ok: false; errors?: Record<string, string>; message?: string; conflict?: boolean; /** 68 The app's plan has ended. */ inactive?: boolean };
 
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 
@@ -63,6 +76,8 @@ export async function scheduleAppNotification(
   input: { title: unknown; body: unknown; date: unknown; time: unknown; createdBy: string | null },
 ): Promise<ScheduleResult> {
   const { store, now } = deps;
+  // 68 Nothing is scheduled while the app's plan has ended.
+  if (!(await appMaySend(store, app, now))) return { ok: false, inactive: true, message: PLAN_ENDED_MESSAGE };
   const zone = await appZone(store, app);
   const { title, body, sendAt, errors } = read(input, zone, now);
   if (Object.keys(errors).length || !sendAt) return { ok: false, errors };
@@ -118,9 +133,10 @@ export async function cancelScheduledNotification(deps: { store: DataStore; now:
 
 export interface ScheduledRunReport {
   sent: number;
-  /** Due but held back: the hour's limit was used, or the account isn't active. */
+  /** Due but held back: the hour's limit was used, or the account is suspended or pending. */
   waiting: number;
   cancelled: number;
+  /** Stopped halfway, refused, or (68) due after the app's plan ended. */
   failed: number;
 }
 
@@ -149,6 +165,11 @@ export async function runScheduledNotifications(deps: { store: DataStore; key: B
       report.waiting += 1;
       continue;
     }
+    // 68 The app's plan has ended: not sent, and the owner sees why (never sent late after a renewal).
+    if (!appIsActive(await store.getLicenseForApp(app.clientId, app.id), client, now)) {
+      if (await store.updateScheduledNotification(app.id, due.id, "scheduled", { status: "failed", result: PLAN_ENDED_SCHEDULED, updatedAt: now })) report.failed += 1;
+      continue;
+    }
     // The hour's limit is used: it waits for a later run, without counting a try.
     if ((await rateLimitHits(store, RATE_LIMITS.hostedNotify, app.id, now)) >= RATE_LIMITS.hostedNotify.limit) {
       report.waiting += 1;
@@ -164,7 +185,8 @@ export async function runScheduledNotifications(deps: { store: DataStore; key: B
       await store.updateScheduledNotification(app.id, due.id, "sending", { status: "scheduled", claimedAt: null, updatedAt: now });
       report.waiting += 1;
     } else {
-      await store.updateScheduledNotification(app.id, due.id, "sending", { status: "failed", result: result.message ?? Object.values(result.errors ?? {}).join(" "), updatedAt: now });
+      const reason = result.inactive ? PLAN_ENDED_SCHEDULED : (result.message ?? Object.values(result.errors ?? {}).join(" "));
+      await store.updateScheduledNotification(app.id, due.id, "sending", { status: "failed", result: reason, updatedAt: now });
       report.failed += 1;
     }
   }

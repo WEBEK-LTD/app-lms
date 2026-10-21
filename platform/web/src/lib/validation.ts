@@ -134,13 +134,17 @@ export const websiteSchema = z.discriminatedUnion("backend", [
 
 const color = z.string().trim().regex(RULES.color, "Use a hex color like #0E0D24.");
 
+/** 69 Names go into the app's build files: a line break (only a hand-made request has one) becomes a space. */
+const oneLine = (value: string) => value.replace(/[\u0000-\u001f\u007f]+/g, " ");
+
 export const brandingSchema = z.object({
-  appName: z.string().trim().min(1, "Enter your app name.").max(RULES.appNameMax, `Use at most ${RULES.appNameMax} characters.`),
+  appName: z.string().trim().min(1, "Enter your app name.").max(RULES.appNameMax, `Use at most ${RULES.appNameMax} characters.`).transform(oneLine),
   shortName: z
     .string()
     .trim()
     .min(1, "Enter the name shown under the app icon.")
-    .max(RULES.shortNameMax, `Use at most ${RULES.shortNameMax} characters.`),
+    .max(RULES.shortNameMax, `Use at most ${RULES.shortNameMax} characters.`)
+    .transform(oneLine),
   primaryColor: color,
   splashColor: color,
   template: z.enum(APP_TEMPLATES, "Choose a template."),

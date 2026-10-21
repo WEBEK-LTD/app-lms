@@ -3514,6 +3514,12 @@ abstract class AppLocalizations {
   /// **'Your plan and storage are shown here for your information.'**
   String get planReadOnlyText;
 
+  /// No description provided for @notifyPlanEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is sent while the plan has ended, to the app\'s inbox or to phones. Notifications can go out again once it\'s renewed.'**
+  String get notifyPlanEnded;
+
   /// No description provided for @minutesAgo.
   ///
   /// In en, this message translates to:

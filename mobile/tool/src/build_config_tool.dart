@@ -729,9 +729,13 @@ String renderAndroidResources(Map<String, dynamic> c) {
 ''';
 }
 
-/// Escapes a value for an .xcconfig file, where `//` starts a comment.
-String escapeXcconfig(String value) =>
-    value.replaceAll(r'$', r'$$').replaceAll('//', r'/$()/');
+/// Escapes a value for an .xcconfig file, where `//` starts a comment and
+/// (69) a line break would start another build setting: control characters
+/// become spaces.
+String escapeXcconfig(String value) => value
+    .replaceAll(RegExp(r'[\x00-\x1f\x7f]'), ' ')
+    .replaceAll(r'$', r'$$')
+    .replaceAll('//', r'/$()/');
 
 /// `ios/Flutter/YallappBuild.xcconfig`, included by Debug and Release.
 String renderIosXcconfig(Map<String, dynamic> c) =>

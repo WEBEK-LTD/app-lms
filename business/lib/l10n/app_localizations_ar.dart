@@ -1910,6 +1910,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get planReadOnlyText => 'تظهر باقتك ومساحة التخزين هنا للاطلاع فقط.';
 
   @override
+  String get notifyPlanEnded =>
+      'لا يُرسل شيء ما دامت الباقة منتهية، لا إلى صندوق التطبيق ولا إلى الهواتف. يمكن إرسال الإشعارات مرة أخرى بعد تجديدها.';
+
+  @override
   String minutesAgo(int count) {
     return 'قبل $count دقيقة';
   }

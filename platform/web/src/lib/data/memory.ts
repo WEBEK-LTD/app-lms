@@ -320,6 +320,21 @@ export class MemoryStore implements DataStore {
     if (license) this.licenses.set(id, clone({ ...license, ...patch, updatedAt: now }));
   }
 
+  async listLicensesEndedBetween(from: Date, to: Date): Promise<License[]> {
+    return [...this.licenses.values()]
+      .filter((l) => l.appId !== null && l.expiresAt.getTime() > from.getTime() && l.expiresAt.getTime() <= to.getTime())
+      .sort((a, b) => a.expiresAt.getTime() - b.expiresAt.getTime())
+      .map(clone);
+  }
+
+  async claimLicenseEndRefresh(licenseId: string, expiresAt: Date, now: Date): Promise<boolean> {
+    const license = this.licenses.get(licenseId);
+    if (!license || license.expiresAt.getTime() !== expiresAt.getTime() || expiresAt.getTime() > now.getTime()) return false;
+    if (license.endRefreshedFor && license.endRefreshedFor.getTime() === expiresAt.getTime()) return false;
+    this.licenses.set(licenseId, clone({ ...license, endRefreshedFor: new Date(expiresAt) }));
+    return true;
+  }
+
   async getActivation(licenseId: string): Promise<Activation | null> {
     const activation = this.activations.get(licenseId);
     return activation ? clone(activation) : null;

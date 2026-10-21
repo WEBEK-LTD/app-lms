@@ -1,0 +1,1 @@
+ALTER TABLE `licenses` ADD `end_refreshed_for` datetime(3);

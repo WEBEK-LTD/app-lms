@@ -1918,6 +1918,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your plan and storage are shown here for your information.';
 
   @override
+  String get notifyPlanEnded =>
+      'Nothing is sent while the plan has ended, to the app\'s inbox or to phones. Notifications can go out again once it\'s renewed.';
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }

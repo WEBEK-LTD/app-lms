@@ -1920,6 +1920,10 @@ class AppLocalizationsTr extends AppLocalizations {
       'Paketiniz ve depolama alanınız burada bilgi için gösterilir.';
 
   @override
+  String get notifyPlanEnded =>
+      'Paket sona erdiği sürece uygulamanın gelen kutusuna da telefonlara da hiçbir şey gönderilmez. Paket yenilendiğinde bildirimler yeniden gönderilebilir.';
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }

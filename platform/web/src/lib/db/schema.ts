@@ -157,6 +157,8 @@ export const licenses = mysqlTable(
     // 13.3 A downgrade that starts when the paid period ends.
     nextPlan: varchar("next_plan", { length: 16 }).$type<Plan>(),
     nextPlanAt: time("next_plan_at"),
+    // 68 The end date the WordPress site was last asked to check at (once per end).
+    endRefreshedFor: time("end_refreshed_for"),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },

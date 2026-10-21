@@ -41,6 +41,8 @@ export const en = {
   edit: "Edit<sr> “{title}”</sr>",
   cancelScheduled: "Cancel<sr> “{title}”</sr>",
   saveChanges: "Save changes",
+  // 68 After "The app's plan has ended…": the link to License & plugin.
+  renewPlan: "Renew the plan",
   known: {
     enterTitle: "Enter a title.",
     titleMax: "Keep the title to {max} characters.",
@@ -66,6 +68,9 @@ export const en = {
     alreadySent: "This notification was already sent or cancelled.",
     stoppedHalfway: "Sending stopped halfway. Check the sent notifications before sending it again.",
     noLongerHosted: "The app no longer sends notifications from Yallapp.",
+    // 68 Nothing goes out once the app's plan has ended.
+    planEnded: "The app's plan has ended, so notifications aren't sent until it's renewed.",
+    planEndedScheduled: "Not sent: the app's plan had ended when it was due. Send it again once the plan is renewed.",
   },
 } as const;
 
@@ -111,6 +116,7 @@ export const ar: Messages = {
   edit: "تعديل<sr> «{title}»</sr>",
   cancelScheduled: "إلغاء<sr> «{title}»</sr>",
   saveChanges: "حفظ التغييرات",
+  renewPlan: "جدّد الباقة",
   known: {
     enterTitle: "أدخل عنوانًا.",
     titleMax: "اجعل العنوان في حدود {max} حرف.",
@@ -136,6 +142,8 @@ export const ar: Messages = {
     alreadySent: "أُرسل هذا الإشعار أو أُلغي من قبل.",
     stoppedHalfway: "توقّف الإرسال في منتصفه. راجع الإشعارات المُرسَلة قبل إرساله مرة أخرى.",
     noLongerHosted: "لم يعد التطبيق يرسل الإشعارات من Yallapp.",
+    planEnded: "انتهت باقة التطبيق، لذا لن تُرسل الإشعارات حتى تُجدَّد.",
+    planEndedScheduled: "لم يُرسل: كانت باقة التطبيق قد انتهت في موعده. أرسله مرة أخرى بعد تجديد الباقة.",
   },
 };
 
@@ -178,6 +186,7 @@ export const tr: Messages = {
   edit: "Düzenle<sr>: “{title}”</sr>",
   cancelScheduled: "İptal et<sr>: “{title}”</sr>",
   saveChanges: "Değişiklikleri kaydet",
+  renewPlan: "Paketi yenileyin",
   known: {
     enterTitle: "Bir başlık girin.",
     titleMax: "Başlığı en fazla {max} karakterde tutun.",
@@ -203,5 +212,7 @@ export const tr: Messages = {
     alreadySent: "Bu bildirim zaten gönderildi ya da iptal edildi.",
     stoppedHalfway: "Gönderim yarıda kaldı. Tekrar göndermeden önce gönderilen bildirimlere bakın.",
     noLongerHosted: "Uygulama artık bildirimlerini Yallapp'ten göndermiyor.",
+    planEnded: "Uygulamanın paketi sona erdi; paket yenilenene kadar bildirim gönderilmez.",
+    planEndedScheduled: "Gönderilmedi: zamanı geldiğinde uygulamanın paketi sona ermişti. Paket yenilendikten sonra tekrar gönderin.",
   },
 };

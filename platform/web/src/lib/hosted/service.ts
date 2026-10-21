@@ -52,6 +52,9 @@ export const HOSTED_LIMITS = {
   // 18 Email codes: the same limits per address as per number.
   emailResend: { name: "hosted-email:resend", limit: 1, windowSeconds: RESEND_SECONDS },
   email: { name: "hosted-email:address", limit: 5, windowSeconds: 3600 },
+  // 69 The store review number and address skip the limits above (reviewers sign in again and
+  // again), but their fixed code is 6 digits: 30 tries an hour per app keep it from being guessed.
+  review: { name: "hosted-otp:review", limit: 30, windowSeconds: 3600 },
 } satisfies Record<string, RateLimitRule>;
 
 export interface HostedResult {
@@ -195,6 +198,14 @@ async function userLimitReached(ctx: HostedContext, phone: string | null, email:
 const SIGN_IN_ONLY_ROUTES = new Set(["POST /auth/logout", "GET /me", "PATCH /me", "DELETE /me", "GET /me/devices"]);
 
 /**
+ * 68 What answers while the app is paused (its plan ended, or the owner's
+ * account is suspended): a person who is signed in can always delete their
+ * account (the stores require it), so the session can be renewed, ended, and
+ * the account deleted. Signing in stays paused with everything else.
+ */
+export const OPEN_WHILE_PAUSED: ReadonlySet<string> = new Set(["POST /auth/refresh", "POST /auth/logout", "DELETE /me"]);
+
+/**
  * The hosted API. 43 An error's message comes in the language the app asks
  * in when Yallapp has it (Arabic, Turkish), else in English.
  */
@@ -208,9 +219,11 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
   // 34 An app on its own API reaches the hosted API only for Yallapp's sign-in.
   const signInOnly = signsForOwnApi(ctx);
   if (ctx.app.backend !== "hosted" && !signInOnly) return notFound();
-  // 17 The owner's preview works before activation and after the plan ended; real users see the app paused.
-  if (ctx.suspended || (!ctx.active && !ctx.preview)) return pausedError(ctx.app, Boolean(ctx.suspended));
   const route = `${req.method} /${req.path.join("/")}`;
+  // 17 The owner's preview works before activation and after the plan ended; real users see the app paused.
+  // 68 Except what a signed-in person needs to delete their account (store rules): renewing the session, signing out, DELETE /me.
+  const paused = ctx.suspended || (!ctx.active && !ctx.preview);
+  if (paused && !OPEN_WHILE_PAUSED.has(route)) return pausedError(ctx.app, Boolean(ctx.suspended));
   switch (route) {
     case "GET /config":
       return signInOnly ? signInConfig(ctx, req) : config(ctx, req);
@@ -531,11 +544,12 @@ async function requestCode(ctx: HostedContext, body: Record<string, unknown>): P
   if (!review && !hostedSignInMethods(ctx.app).includes("phone")) {
     return error(403, "method_not_allowed", "This app signs in with your email address. Use the Email option.");
   }
-  const wait =
-    (await limited(ctx, HOSTED_LIMITS.resend, phone.e164)) ??
-    (await limited(ctx, HOSTED_LIMITS.phone, phone.e164)) ??
-    (await limited(ctx, HOSTED_LIMITS.ip, ctx.ip));
-  if (wait && !review) return wait;
+  const wait = review
+    ? await limited(ctx, HOSTED_LIMITS.review, "review")
+    : ((await limited(ctx, HOSTED_LIMITS.resend, phone.e164)) ??
+      (await limited(ctx, HOSTED_LIMITS.phone, phone.e164)) ??
+      (await limited(ctx, HOSTED_LIMITS.ip, ctx.ip)));
+  if (wait) return wait;
 
   const requestId = randomToken(24);
   const code = String(randomInt(0, 10 ** CODE_LENGTH)).padStart(CODE_LENGTH, "0");
@@ -589,11 +603,12 @@ async function requestEmailCode(ctx: HostedContext, body: Record<string, unknown
     return error(403, "method_not_allowed", "This app doesn't offer sign-in by email. Sign in with your phone number.");
   }
   if (!email) return error(400, "invalid_email", "Please enter a valid email address.");
-  const wait =
-    (await limited(ctx, HOSTED_LIMITS.emailResend, email)) ??
-    (await limited(ctx, HOSTED_LIMITS.email, email)) ??
-    (await limited(ctx, HOSTED_LIMITS.ip, ctx.ip));
-  if (wait && !review) return wait;
+  const wait = review
+    ? await limited(ctx, HOSTED_LIMITS.review, "review")
+    : ((await limited(ctx, HOSTED_LIMITS.emailResend, email)) ??
+      (await limited(ctx, HOSTED_LIMITS.email, email)) ??
+      (await limited(ctx, HOSTED_LIMITS.ip, ctx.ip)));
+  if (wait) return wait;
 
   const requestId = randomToken(24);
   const code = String(randomInt(0, 10 ** CODE_LENGTH)).padStart(CODE_LENGTH, "0");

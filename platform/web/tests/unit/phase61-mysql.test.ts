@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { afterAll, describe, expect, it } from "vitest";
+import { activateClient } from "@/lib/admin/clients";
 import { newApp } from "@/lib/app/setup";
 import { localToUtc } from "@/lib/bookings/time";
 import { createPool, MysqlStore } from "@/lib/data/mysql";
@@ -181,7 +182,9 @@ describe.skipIf(!url)("61 on MySQL", () => {
   });
 
   it("sends a notification due later once, with two runs of the frequent job at the same time", async () => {
-    const { app } = await setup({ appType: "store", connector: { kind: "catalog" } });
+    const { app, client } = await setup({ appType: "store", connector: { kind: "catalog" } });
+    // 68 Only an app whose plan runs sends.
+    await activateClient(store, { clientId: client.id, appId: app.id, plan: "pro", activeUntil: new Date(NOW.getTime() + 30 * 86_400_000), paymentNote: "" }, KEY, NOW);
     const made = await scheduleAppNotification({ store, now: NOW }, app, { title: "Open late", body: "Until 22:00.", date: "2026-10-12", time: "14:00", createdBy: null });
     expect(made.ok).toBe(true);
     const id = made.ok ? made.notification.id : 0;

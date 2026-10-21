@@ -112,23 +112,120 @@ class _StateScreen extends StatelessWidget {
 }
 
 /// Step 13.5: the app is paused. Its owner can bring it back: "Contact {App}"
-/// (WhatsApp first, else email) and "Try again".
-class _PausedScreen extends StatelessWidget {
+/// (WhatsApp first, else email) and "Try again". 68 Someone signed in can
+/// still delete their account here: the API answers `DELETE /me` (and the
+/// session's renewal) while the app is paused. The screen sits above the
+/// app's navigator, so it asks and answers in place rather than in a dialog.
+class _PausedScreen extends ConsumerStatefulWidget {
   const _PausedScreen({required this.contact, required this.onRetry});
 
   final OwnerContact contact;
   final VoidCallback onRetry;
 
   @override
+  ConsumerState<_PausedScreen> createState() => _PausedScreenState();
+}
+
+class _PausedScreenState extends ConsumerState<_PausedScreen> {
+  bool _confirming = false;
+  bool _busy = false;
+  String? _result;
+
+  Future<void> _delete() async {
+    setState(() => _busy = true);
+    String result;
+    try {
+      await ref.read(authControllerProvider.notifier).deleteAccount();
+      result = mounted ? context.l10n.accountDeleted : '';
+    } on ApiException catch (e) {
+      result = e.message;
+    }
+    if (!mounted) return;
+    setState(() {
+      _busy = false;
+      _confirming = false;
+      _result = result;
+    });
+  }
+
+  Widget? _footer(BuildContext context) {
+    final l10n = context.l10n;
+    final p = context.palette;
+    final signedIn = ref.watch(authControllerProvider).isSignedIn;
+    final note = _result == null
+        ? null
+        : Text(
+            _result!,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 14, color: p.textSecondary),
+          );
+    if (!signedIn) return note;
+    if (!_confirming) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ?note,
+          TextButton(
+            onPressed: () => setState(() {
+              _confirming = true;
+              _result = null;
+            }),
+            style: TextButton.styleFrom(foregroundColor: p.danger),
+            child: Text(l10n.deleteAccount),
+          ),
+        ],
+      );
+    }
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Semantics(
+          header: true,
+          child: Text(
+            l10n.deleteAccountTitle,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.w700, color: p.text),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          l10n.deleteAccountMessage,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 14, color: p.textSecondary),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 8,
+          children: [
+            TextButton(
+              onPressed: _busy
+                  ? null
+                  : () => setState(() => _confirming = false),
+              child: Text(l10n.cancel),
+            ),
+            TextButton(
+              onPressed: _busy ? null : _delete,
+              style: TextButton.styleFrom(foregroundColor: p.danger),
+              child: Text(l10n.deleteAccount),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  @override
   Widget build(BuildContext context) => Scaffold(
     body: SafeArea(
       child: OwnerMessageView(
         icon: AppIcons.paused,
-        title: context.l10n.appPausedTitle(contact.name),
-        message: context.l10n.appPausedMessage(contact.name),
-        contact: contact,
+        title: context.l10n.appPausedTitle(widget.contact.name),
+        message: context.l10n.appPausedMessage(widget.contact.name),
+        contact: widget.contact,
         secondaryLabel: context.l10n.tryAgain,
-        onSecondary: onRetry,
+        onSecondary: widget.onRetry,
+        footer: _footer(context),
       ),
     ),
   );

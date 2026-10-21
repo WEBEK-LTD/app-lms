@@ -30,7 +30,8 @@ String hhmm(TimeOfDay t) =>
 /// app's inbox, and as a push on phones that allow it when the plan has
 /// push. 10 an hour, with the dashboard's. 61 Now, or later at a date and
 /// time in the app's time zone (sent by Yallapp within 5 minutes of it);
-/// those waiting can be changed or cancelled.
+/// those waiting can be changed or cancelled. 68 Nothing is sent while the
+/// app's plan has ended: the composer says so and its buttons wait.
 class NotifyScreen extends ConsumerStatefulWidget {
   const NotifyScreen({super.key});
 
@@ -145,6 +146,9 @@ class _NotifyScreenState extends ConsumerState<NotifyScreen> {
     final sent = ref.watch(sentProvider);
     final scheduled = ref.watch(scheduledProvider);
     final push = sent.value?.push;
+    // 68 The Owner API refuses sending with `plan_not_active` until the plan is renewed.
+    final ended = app.state == AccountState.expired;
+    final canSend = _valid && !_busy && !ended;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.sendNotification)),
       body: SingleChildScrollView(
@@ -152,6 +156,32 @@ class _NotifyScreenState extends ConsumerState<NotifyScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (ended) ...[
+              Panel(
+                color: context.yb.warningBg,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(AppIcons.warning, color: context.yb.warning),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.planEndedTitle,
+                            style: theme.textTheme.titleSmall,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(l10n.notifyPlanEnded),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
             Panel(
               color: context.yb.infoBg,
               child: Row(
@@ -229,13 +259,13 @@ class _NotifyScreenState extends ConsumerState<NotifyScreen> {
             const SizedBox(height: 16),
             if (_later)
               FilledButton.icon(
-                onPressed: _valid && !_busy ? _schedule : null,
+                onPressed: canSend ? _schedule : null,
                 icon: const Icon(AppIcons.scheduled),
                 label: Text(l10n.schedule),
               )
             else
               FilledButton.icon(
-                onPressed: _valid && !_busy ? _send : null,
+                onPressed: canSend ? _send : null,
                 icon: const DirectionalIcon(AppIcons.send),
                 label: Text(l10n.sendNow),
               ),

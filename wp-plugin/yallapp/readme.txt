@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.5
+Stable tag: 0.4.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,13 @@ WhatsApp and keeps neither. Codes are made on your site and kept there only as a
 hash, for 5 minutes. Push notifications go through your own Firebase project.
 
 == Changelog ==
+
+= 0.4.6 =
+* When your Yallapp plan ends, the app stops: every screen shows that the app is paused, with your contact details from the plugin settings, and no notifications are sent. It comes back within minutes of renewing. The same happens while your Yallapp account is suspended. Before, the plugin let the app keep working ("Test mode").
+* The plugin knows when your plan ends and pauses the app at that moment even if your site can't reach yallapp.com.tr. When the site can't reach yallapp.com.tr for over 3 days while the plan runs, the app pauses too, until the next successful check (Check now).
+* Push notifications and offline lessons follow your plan, as on yallapp.com.tr.
+* Account deletion keeps working while the app is paused: someone signed in to the app can still delete their account from it (DELETE /me, with POST /auth/refresh and POST /auth/logout). Signing in and everything else wait for the plan to be renewed.
+* The License card in Settings says where the app stands: active until a date, ended on a date with how to renew, suspended, or not confirmed. "Test mode" is gone; only a development site (WP_ENVIRONMENT_TYPE local or development) can turn the license checks off with define( 'YALLAPP_ENFORCE_LICENSE', false ).
 
 = 0.4.5 =
 * Private courses in the wishlist: a student can keep a private course they're enrolled in (or may read on the website) in their wishlist like any other course, with Tutor LMS and MasterStudy. Someone who can't open the course can't add it.

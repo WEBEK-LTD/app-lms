@@ -124,4 +124,9 @@ test("preview links can't be used for anything else", async ({ request }) => {
   // Every other page still refuses to be framed.
   const home = await request.get("/faq");
   expect(home.headers()["x-frame-options"]).toBe("DENY");
+  // 69 Pages carry a policy of their own; files from the API keep theirs (SVGs sandboxed).
+  expect(home.headers()["content-security-policy"]).toBe("base-uri 'self'; object-src 'none'; frame-ancestors 'none'");
+  expect((await request.get("/")).headers()["content-security-policy"]).toContain("frame-ancestors 'none'");
+  const api = await request.get("/api/health");
+  expect(api.headers()["content-security-policy"]).toBeUndefined();
 });

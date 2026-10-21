@@ -363,6 +363,29 @@ describe("Ticimax connector", () => {
     await expect(new TicimaxConnector({ host: HOST, key: KEY }, fakeShop({ mode: "empty" }).fetcher).check()).rejects.toThrow();
   });
 
+  it("never calls a shop address that points to a private network (69)", async () => {
+    for (const address of ["127.0.0.1", "10.0.0.7", "169.254.169.254", "::ffff:7f00:1", "64:ff9b::a9fe:a9fe"]) {
+      const local = fakeShop();
+      const connector = new TicimaxConnector({ host: HOST, key: KEY }, local.fetcher, async () => ["93.184.216.34", address]);
+      await expect(connector.check(), address).rejects.toThrow(/private network/);
+      expect(local.calls, address).toEqual([]);
+    }
+    const unknown = fakeShop();
+    await expect(
+      new TicimaxConnector({ host: HOST, key: KEY }, unknown.fetcher, async () => {
+        throw new Error("ENOTFOUND");
+      }).check(),
+    ).rejects.toThrow(/didn't answer/);
+    expect(unknown.calls).toEqual([]);
+    const lookups: string[] = [];
+    const open = new TicimaxConnector({ host: HOST, key: KEY }, shop.fetcher, async (host) => {
+      lookups.push(host);
+      return ["93.184.216.34"];
+    });
+    expect(await open.check()).toBe("rose-shop.com");
+    expect(lookups[0]).toBe(HOST);
+  });
+
   it("lists active categories as a tree in the shop's order", async () => {
     const result = await call("GET", "/store/categories");
     expect(result.body).toEqual({

@@ -38,6 +38,19 @@ info:
     owner while the app isn't active yet, signs in only the store review
     number, and serves the Pages & look draft when the preview asks for it.
 
+    A paused app (roadmap 68): when the app's plan ends (the end date has
+    passed) or the owner's Yallapp account is suspended, every call answers
+    503 `license_inactive` or `account_suspended` with the owner's `contact`,
+    on WordPress (plugin 0.4.6 and later, which also compares the plan's end
+    date with its own clock when it can't reach Yallapp) and on the hosted API
+    alike. `GET /config` answers the same error, so the app shows its paused
+    screen. What a person who is already signed in needs to delete their
+    account keeps working: `POST /auth/refresh`, `POST /auth/logout` and
+    `DELETE /me` (and, on WordPress, Yallapp's `POST /license/refresh`).
+    Signing in is paused with the rest, so someone who isn't signed in asks
+    the app's owner (`contact`) to delete their account. Everything comes back
+    as it was once the plan is renewed.
+
     A client's own API can let Yallapp sign people in (roadmap 34): its app
     then sends sign-in, the account and its devices to the hosted API
     (`Config.auth.provider: yallapp`, `Config.auth.base_url`) and every other
@@ -436,6 +449,11 @@ paths:
         `Config.auth.preview_sign_in` is true. Such a request never sends a code: only the
         store review number signs in, with its fixed code. Any other number is refused with
         403 `preview_review_number_only`.
+
+        On the hosted API the store review number (and address) skips the per-number and
+        per-IP limits, as reviewers sign in again and again, but is limited per app: 30
+        requests an hour for the number and the address together, then 429, so its fixed code
+        can't be guessed. The plugin applies its usual limits to them.
       security: []
       requestBody:
         required: true
@@ -652,7 +670,10 @@ paths:
       tags: [Auth]
       operationId: refreshTokens
       summary: Refresh tokens
-      description: Exchanges a refresh token for new tokens. The old refresh token stops working (rotation).
+      description: |
+        Exchanges a refresh token for new tokens. The old refresh token stops
+        working (rotation). Roadmap 68: also while the app is paused, so a
+        signed-in person can still delete their account.
       security: []
       requestBody:
         required: true
@@ -676,6 +697,7 @@ paths:
       tags: [Auth]
       operationId: logout
       summary: Sign out this device
+      description: Also while the app is paused (roadmap 68).
       responses:
         '204': { description: Signed out }
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -846,7 +868,16 @@ paths:
       tags: [Account]
       operationId: deleteMe
       summary: Delete account
-      description: Required by Apple and Google. Deletes or anonymises the WordPress user according to the site's policy and signs out every device. In a demo app (one shared account) it signs out this device only.
+      description: |
+        Required by Apple and Google. Deletes or anonymises the WordPress user
+        according to the site's policy and signs out every device. In a demo
+        app (one shared account) it signs out this device only.
+
+        Roadmap 68: it keeps working while the app is paused (its plan ended,
+        or the owner's account is suspended), together with `POST
+        /auth/refresh` and `POST /auth/logout`, on WordPress (plugin 0.4.6) and
+        on the hosted API. The app offers it on its paused screen to someone
+        who is signed in.
       responses:
         '204': { description: Account deleted }
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -3223,7 +3254,9 @@ components:
         Yallapp account is suspended), or the platform behind the hosted API (a
         shop, school or booking account) can't be reached. `license_inactive`
         and `account_suspended` carry `contact`: the app shows that the app's
-        owner can bring it back, with a way to reach them.
+        owner can bring it back, with a way to reach them. Roadmap 68: a paused
+        app answers this on every call except `POST /auth/refresh`, `POST
+        /auth/logout`, `DELETE /me` and `POST /license/refresh`.
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }

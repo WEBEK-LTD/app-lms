@@ -5,6 +5,7 @@ import { BUILD_STATUS_LABEL } from "../builds/view";
 import { appPlan, effectivePlans } from "../entitlements";
 import { artifactLinks } from "../files";
 import { serviceAccountOf } from "../hosted/notify";
+import { appIsActive } from "../license/status";
 import { sendAppNotification } from "../hosted/send-notification";
 import { cancelScheduledNotification, editScheduledNotification, LISTED_STATUSES, localSendAt, SCHEDULED_MAX, scheduleAppNotification, type ScheduleResult } from "../hosted/scheduled-notifications";
 import type { ScheduledNotification } from "../data/types";
@@ -61,8 +62,8 @@ export async function listNotifications(ctx: OwnerContext, params: Record<string
   return {
     status: 200,
     body: {
-      // What Dashboard › App notifications says: push comes with the plan and the app's Firebase key.
-      push: hasFeature(plan, "push") && serviceAccountOf(app, encryptionKey) !== null,
+      // What Dashboard › App notifications says: push comes with the plan and the app's Firebase key; 68 nothing goes out once the plan ended.
+      push: appIsActive(license, ctx.client, now) && hasFeature(plan, "push") && serviceAccountOf(app, encryptionKey) !== null,
       items: sent.map((n) => ({ id: n.id, title: n.title, body: n.body, sent_at: n.createdAt.toISOString() })),
     },
   };
@@ -75,6 +76,8 @@ export async function sendNotification(ctx: OwnerContext, params: Record<string,
   const { store, now, encryptionKey } = ctx.deps;
   const result = await sendAppNotification({ store, key: encryptionKey, now, send: ctx.deps.sendPush }, app, license, { title: body.title, body: body.body });
   if (!result.ok) {
+    // 68 The app's plan has ended: nothing was sent (as Media uploads wait for an active plan).
+    if (result.inactive) throw new OwnerError(403, "plan_not_active", result.message ?? "");
     if (result.limited) throw rateLimited(3600, result.message);
     throw invalid(result.errors);
   }
@@ -100,6 +103,7 @@ export async function listScheduled(ctx: OwnerContext, params: Record<string, st
 async function scheduledAnswer(ctx: OwnerContext, app: Parameters<typeof appZone>[1], result: ScheduleResult | null, status: number): Promise<OwnerResult> {
   if (!result) throw notFound();
   if (!result.ok) {
+    if (result.inactive) throw new OwnerError(403, "plan_not_active", result.message ?? "");
     if (result.errors) throw invalid(result.errors);
     throw new OwnerError(409, status === 201 ? "too_many_scheduled" : "already_sent", result.message ?? "The request isn't valid.");
   }
