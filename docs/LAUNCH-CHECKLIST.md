@@ -13,6 +13,54 @@ devices. Everything else is in the code. Tick each line when it's done.
       ones into the Yallapp admin.
 - [ ] Never paste keys, tokens or passwords into chats, issues or commits.
 
+## 1a. Security review (Phase 69)
+
+The code changes of the review deploy by themselves (ROADMAP, Phase 69).
+These are the parts on our servers and consoles.
+
+- [ ] **GitHub › Settings › Actions › General › "Approval for running fork
+      pull request workflows from contributors":** choose **Require approval
+      for all external contributors**. The repository is public and our own
+      runners (`LINUX_RUNNER`, on host.webek.org) also build clients' apps with
+      the pipeline's secrets; the workflows now send pull requests from forks
+      to GitHub's runners, and this approval is the second lock. Approve a
+      stranger's pull request only after reading what it changes.
+- [ ] **Our runners:** they run on host.webek.org, next to the database, the
+      media files and the build files, and keep their home folder between
+      jobs. When there is a budget for it, move them to a machine of their
+      own (a small VPS is enough). Until then, after any doubt about a job
+      that ran there (for example a stranger's pull request that ran before
+      this change), start them clean: `systemctl stop 'yallapp-runner-*'`,
+      `podman volume rm yallapp-runner-1-home yallapp-runner-1-tools
+      yallapp-runner-2-home yallapp-runner-2-tools`, remove the runners in
+      GitHub › Settings › Actions › Runners, and run
+      `RUNNERS=2 bash /root/yallapp-runner.sh` again with a new registration
+      token.
+- [ ] **Netlify › Environment variables:** `TRUSTED_PROXY_SECRET` is set (32
+      characters or more, `openssl rand -hex 32`) and the Apache proxy sends
+      the same value (`deploy/apache-proxy.conf`). Without it every visitor
+      reaches Netlify from the proxy's address, so one person's wrong
+      passwords lock everyone out of signing in for 15 minutes.
+- [ ] **Netlify › Environment variables:** `BUILD_PIPELINE_TOKEN` (the same in
+      GitHub's secrets) is 32 characters or more (`openssl rand -hex 32`); the
+      platform checks the length of the other secrets but not of this one,
+      which reads every client's signing keys. Change it if it is shorter
+      (Netlify, then GitHub › Settings › Secrets › `BUILD_PIPELINE_TOKEN`).
+- [ ] **Admin accounts:** the admin has no second sign-in step yet. Everyone
+      in `SUPER_ADMIN_EMAILS` and on Admin › Team uses a long password used
+      nowhere else (a password manager), and people who left are removed from
+      Admin › Team the same day.
+- [ ] **After deploying:** `curl -sI https://yallapp.com.tr/faq` shows
+      `content-security-policy: base-uri 'self'; object-src 'none';
+      frame-ancestors 'none'` (the proxy passes it through), and
+      `https://yallapp.com.tr/media/config.php`,
+      `https://files.yallapp.com.tr/config.php` and
+      `https://yallapp.com.tr/media/` answer 403 or 404, never a file or a
+      list.
+- [ ] **Plugin:** the next plugin release (Admin › Plugin releases, after this
+      change and plugin 0.4.6 are merged) carries the access token fix
+      (ROADMAP 69.6); sites pick it up as an update.
+
 ## 2. Yallapp admin (`/admin`, signed in as a super admin)
 
 - [ ] **Settings › Sign-in codes:** choose WABEK (the account's API key and the instance ID of the number that sends codes), the

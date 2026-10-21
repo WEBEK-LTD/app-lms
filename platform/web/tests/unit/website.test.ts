@@ -94,6 +94,36 @@ describe("API check", () => {
       expect(isPrivateAddress(address), address).toBe(true);
     }
     expect(isPrivateAddress("93.184.216.34")).toBe(false);
+    // 69 IPv4 written inside IPv6 (mapped in hex, compatible, translated, NAT64, 6to4), and the other reserved ranges.
+    for (const address of [
+      "::ffff:7f00:1",
+      "::ffff:a9fe:a9fe",
+      "::ffff:0:10.0.0.1",
+      "::127.0.0.1",
+      "::",
+      "0:0:0:0:0:0:0:1",
+      "64:ff9b::a9fe:a9fe",
+      "64:ff9b::10.1.2.3",
+      "64:ff9b:1::1",
+      "2002:7f00:1::",
+      "2002:c0a8:101::1",
+      "2001:0:4136:e378::1",
+      "100::1",
+      "fe80::1%eth0",
+      "febf::1",
+      "fec0::1",
+      "ff02::1",
+      "fc00::1",
+      "198.18.0.1",
+      "192.0.0.8",
+      "0.0.0.0",
+      "255.255.255.255",
+    ]) {
+      expect(isPrivateAddress(address), address).toBe(true);
+    }
+    for (const address of ["2606:4700:4700::1111", "2a00:1450:4001:80b::200e", "::ffff:93.184.216.34", "64:ff9b::5db8:d822", "2002:5db8:d822::1", "8.8.8.8", "1.2.3"]) {
+      expect(isPrivateAddress(address), address).toBe(false);
+    }
     expect(configProblems("nope")).toEqual(["the response isn't a JSON object"]);
   });
 });

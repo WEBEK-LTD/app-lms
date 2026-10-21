@@ -10,6 +10,9 @@ const securityHeaders = [
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
 ];
 
+/** 69 The pages' Content-Security-Policy (scripts stay as they are: Next.js inlines its own). */
+const PAGE_CSP = "base-uri 'self'; object-src 'none'; frame-ancestors 'none'";
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   // 64b A tab left open from an earlier deploy: Next.js sees the new deployment and loads the
@@ -39,6 +42,10 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       { source: "/:path((?!preview-app/).*)", headers: [...securityHeaders, { key: "X-Frame-Options", value: "DENY" }] },
+      // 69 Pages: no <base> or plugin content from elsewhere and never framed, a policy browsers
+      // enforce on top of React's escaping. API routes and the media links set their own
+      // (files and SVGs are sandboxed: src/app/api/v1/assets), so they're left out here.
+      { source: "/:path((?!preview-app/|api/|media/|m/).*)", headers: [{ key: "Content-Security-Policy", value: PAGE_CSP }] },
       // 17 The app preview (public/preview-app, built from mobile/) opens in a frame on the dashboard's Preview page.
       {
         source: "/preview-app/:path*",

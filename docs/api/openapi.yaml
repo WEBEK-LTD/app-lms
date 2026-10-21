@@ -449,6 +449,11 @@ paths:
         `Config.auth.preview_sign_in` is true. Such a request never sends a code: only the
         store review number signs in, with its fixed code. Any other number is refused with
         403 `preview_review_number_only`.
+
+        On the hosted API the store review number (and address) skips the per-number and
+        per-IP limits, as reviewers sign in again and again, but is limited per app: 30
+        requests an hour for the number and the address together, then 429, so its fixed code
+        can't be guessed. The plugin applies its usual limits to them.
       security: []
       requestBody:
         required: true

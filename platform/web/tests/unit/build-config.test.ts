@@ -172,6 +172,8 @@ describe("setup wizard", () => {
     };
     expect(brandingSchema.safeParse(branding).success).toBe(true);
     expect(brandingSchema.safeParse({ ...branding, shortName: "Thirteen chars" }).success).toBe(false);
+    // 69 A line break never reaches the build files (the iOS xcconfig would read it as another setting).
+    expect(brandingSchema.parse({ ...branding, shortName: "A\nCC=/x", appName: "Rose\r\nShop" })).toMatchObject({ shortName: "A CC=/x", appName: "Rose Shop" });
     expect(brandingSchema.safeParse({ ...branding, iconAssetId: "" }).success).toBe(false);
     expect(brandingSchema.safeParse({ ...branding, font: "Arial" }).success).toBe(false);
 

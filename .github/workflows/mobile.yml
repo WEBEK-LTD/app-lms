@@ -17,6 +17,7 @@ on:
       - 'platform/web/public/preview-app/**'
       - '.github/workflows/mobile.yml'
 
+# 69 A pull request from a fork runs on GitHub's runners, never on ours (see ci.yml).
 permissions:
   contents: read
 
@@ -27,7 +28,7 @@ concurrency:
 jobs:
   changes:
     name: Changed files
-    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    runs-on: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-24.04' || vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     outputs:
       app: ${{ steps.files.outputs.app }}
       business: ${{ steps.files.outputs.business }}
@@ -61,7 +62,7 @@ jobs:
     name: Flutter app
     needs: changes
     if: needs.changes.outputs.app == 'true'
-    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    runs-on: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-24.04' || vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     timeout-minutes: 45
     defaults:
       run:
@@ -240,7 +241,7 @@ jobs:
     name: Yallapp Business
     needs: changes
     if: needs.changes.outputs.business == 'true'
-    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    runs-on: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-24.04' || vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     timeout-minutes: 45
     # Publishes the test APKs as a pre-release (below).
     permissions:

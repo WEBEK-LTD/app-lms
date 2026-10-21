@@ -155,6 +155,12 @@ void main() {
     expect(escapeAndroidString("Sara's & Co"), r"Sara\'s &amp; Co");
     expect(escapeAndroidString('@home'), r'\@home');
     expect(escapeXcconfig('A//B'), r'A/$()/B');
+    // 69 A line break never starts another build setting.
+    expect(escapeXcconfig('A\nCC=/x\r\tB'), 'A CC=/x  B');
+    expect(
+      renderIosXcconfig(example()..['short_name'] = 'A\nCC=/x'),
+      isNot(contains('\nCC=')),
+    );
     final c = example()..['short_name'] = "Ali's";
     expect(
       renderAndroidResources(c),

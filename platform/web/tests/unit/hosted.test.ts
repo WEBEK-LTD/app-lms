@@ -262,6 +262,23 @@ describe("hosted API", () => {
     expect(verified.body).toMatchObject({ signup_required: true });
   });
 
+  it("69 limits the store review number's sign-ins per app, so its fixed code can't be guessed", async () => {
+    const settings = { ...app.hostedSettings, reviewPhone: "+905550000000", reviewCode: "246810", signInMethods: ["phone", "email"], reviewEmail: "review@roseshop.test" } as App["hostedSettings"];
+    app = { ...app, hostedSettings: settings };
+    // Reviewers ask again and again without waiting for the resend time.
+    for (let i = 0; i < 30; i += 1) {
+      const requested = await call("POST", "/auth/otp/request", { body: { country_code: "+90", phone: "5550000000" } });
+      expect(requested.status, `request ${i + 1}`).toBe(200);
+    }
+    expect(await call("POST", "/auth/otp/request", { body: { country_code: "+90", phone: "5550000000" } })).toMatchObject({ status: 429, body: { code: "rate_limited" } });
+    // The review address counts with the number.
+    expect(await call("POST", "/auth/email/request", { body: { email: "review@roseshop.test" } })).toMatchObject({ status: 429, body: { code: "rate_limited" } });
+    // Everyone else still gets a code; an hour later reviewers do again.
+    expect((await call("POST", "/auth/otp/request", { body: { country_code: "+90", phone: "5321234567" } })).status).toBe(200);
+    now = new Date(now.getTime() + 3_600_000);
+    expect((await call("POST", "/auth/otp/request", { body: { country_code: "+90", phone: "5550000000" } })).status).toBe(200);
+  });
+
   it("38 never locks the store review account out at the device limit: its oldest device is signed out", async () => {
     const settings = { ...app.hostedSettings, reviewPhone: "+905550000000", reviewCode: "246810", deviceLimit: 2 } as App["hostedSettings"];
     app = { ...app, hostedSettings: settings };

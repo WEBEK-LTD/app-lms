@@ -52,6 +52,9 @@ export const HOSTED_LIMITS = {
   // 18 Email codes: the same limits per address as per number.
   emailResend: { name: "hosted-email:resend", limit: 1, windowSeconds: RESEND_SECONDS },
   email: { name: "hosted-email:address", limit: 5, windowSeconds: 3600 },
+  // 69 The store review number and address skip the limits above (reviewers sign in again and
+  // again), but their fixed code is 6 digits: 30 tries an hour per app keep it from being guessed.
+  review: { name: "hosted-otp:review", limit: 30, windowSeconds: 3600 },
 } satisfies Record<string, RateLimitRule>;
 
 export interface HostedResult {
@@ -541,11 +544,12 @@ async function requestCode(ctx: HostedContext, body: Record<string, unknown>): P
   if (!review && !hostedSignInMethods(ctx.app).includes("phone")) {
     return error(403, "method_not_allowed", "This app signs in with your email address. Use the Email option.");
   }
-  const wait =
-    (await limited(ctx, HOSTED_LIMITS.resend, phone.e164)) ??
-    (await limited(ctx, HOSTED_LIMITS.phone, phone.e164)) ??
-    (await limited(ctx, HOSTED_LIMITS.ip, ctx.ip));
-  if (wait && !review) return wait;
+  const wait = review
+    ? await limited(ctx, HOSTED_LIMITS.review, "review")
+    : ((await limited(ctx, HOSTED_LIMITS.resend, phone.e164)) ??
+      (await limited(ctx, HOSTED_LIMITS.phone, phone.e164)) ??
+      (await limited(ctx, HOSTED_LIMITS.ip, ctx.ip)));
+  if (wait) return wait;
 
   const requestId = randomToken(24);
   const code = String(randomInt(0, 10 ** CODE_LENGTH)).padStart(CODE_LENGTH, "0");
@@ -599,11 +603,12 @@ async function requestEmailCode(ctx: HostedContext, body: Record<string, unknown
     return error(403, "method_not_allowed", "This app doesn't offer sign-in by email. Sign in with your phone number.");
   }
   if (!email) return error(400, "invalid_email", "Please enter a valid email address.");
-  const wait =
-    (await limited(ctx, HOSTED_LIMITS.emailResend, email)) ??
-    (await limited(ctx, HOSTED_LIMITS.email, email)) ??
-    (await limited(ctx, HOSTED_LIMITS.ip, ctx.ip));
-  if (wait && !review) return wait;
+  const wait = review
+    ? await limited(ctx, HOSTED_LIMITS.review, "review")
+    : ((await limited(ctx, HOSTED_LIMITS.emailResend, email)) ??
+      (await limited(ctx, HOSTED_LIMITS.email, email)) ??
+      (await limited(ctx, HOSTED_LIMITS.ip, ctx.ip)));
+  if (wait) return wait;
 
   const requestId = randomToken(24);
   const code = String(randomInt(0, 10 ** CODE_LENGTH)).padStart(CODE_LENGTH, "0");

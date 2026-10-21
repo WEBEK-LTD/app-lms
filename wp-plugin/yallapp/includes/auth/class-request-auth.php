@@ -133,9 +133,47 @@ class Request_Auth {
 	 * @return bool
 	 */
 	private function is_plugin_route() {
-		$uri   = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
-		$route = isset( $_GET['rest_route'] ) ? sanitize_text_field( wp_unslash( $_GET['rest_route'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Routing only.
-		$base  = '/' . rest_get_url_prefix() . '/yallapp/';
-		return false !== strpos( rawurldecode( $uri ), $base ) || 0 === strpos( $route, '/yallapp/' );
+		// phpcs:disable WordPress.Security.NonceVerification -- Routing only.
+		$uri  = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Only compared, never output.
+		$get  = isset( $_GET['rest_route'] ) && is_string( $_GET['rest_route'] ) ? (string) wp_unslash( $_GET['rest_route'] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Only compared.
+		$post = isset( $_POST['rest_route'] ) && is_string( $_POST['rest_route'] ) ? (string) wp_unslash( $_POST['rest_route'] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Only compared.
+		// phpcs:enable
+		return self::is_plugin_path( self::route_of( $uri, $get, $post, rest_get_url_prefix() ) );
+	}
+
+	/**
+	 * 69 The REST route WordPress serves for a request, as it picks it: a `rest_route` sent in
+	 * the body or the query wins over the address (WP::parse_request), else what follows the
+	 * REST prefix in the address's path. The query string never counts, so
+	 * `/wp-json/wp/v2/users?x=/wp-json/yallapp/` and `/wp-json/yallapp/v1/config?rest_route=/wp/v2/users`
+	 * are WordPress's own routes, where the app's access token isn't accepted.
+	 *
+	 * @param string      $uri    REQUEST_URI.
+	 * @param string|null $get    `rest_route` in the query, if any.
+	 * @param string|null $post   `rest_route` in the body, if any.
+	 * @param string      $prefix The REST prefix (`wp-json`).
+	 * @return string The route, e.g. `/yallapp/v1/config`, or '' when it isn't a REST request.
+	 */
+	public static function route_of( $uri, $get, $post, $prefix ) {
+		if ( null !== $post ) {
+			return (string) $post;
+		}
+		if ( null !== $get ) {
+			return (string) $get;
+		}
+		$path = (string) wp_parse_url( (string) $uri, PHP_URL_PATH );
+		$base = '/' . trim( (string) $prefix, '/' ) . '/';
+		$at   = strpos( $path, $base );
+		return false === $at ? '' : substr( $path, $at + strlen( $base ) - 1 );
+	}
+
+	/**
+	 * Whether a route is in the plugin's namespace.
+	 *
+	 * @param string $route Route.
+	 * @return bool
+	 */
+	public static function is_plugin_path( $route ) {
+		return 0 === strpos( '/' . ltrim( (string) $route, '/' ), '/yallapp/' );
 	}
 }

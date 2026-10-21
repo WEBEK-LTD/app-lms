@@ -1659,3 +1659,38 @@ Everything comes back on renewal. No payments in the apps. Contract first
 | [x] | 68.8 Docs: ARCHITECTURE ("An ended plan stops the app everywhere"), LAUNCH-CHECKLIST 7r (migration 0049, release plugin 0.4.6, clients update, what clients and their users see) | Review |
 | [ ] | 68.9 WordPress sites on plugin 0.4.5 or older keep "Test mode" until they update: the platform can't stop them (it already refuses their sign-in codes and Media links once the plan ends). Plugin updates reach only sites with an active license, so a site whose plan already ended updates by hand or after renewing | Clients update to 0.4.6 (LAUNCH-CHECKLIST 7r) |
 | [ ] | 68.10 Not tried on a live WordPress site or real phones yet: the nudge at the end, the paused screen's Delete account against a live site | LAUNCH-CHECKLIST 7r |
+
+## Phase 69: Security review
+
+A review of the whole system the way an attacker would look at it: the
+platform (sign-in, sessions, the dashboard's and the admin's permissions,
+every route that takes an ID, the hosted and Owner APIs, the license and
+pipeline APIs, the internal jobs, payments and their webhooks, uploads and
+the media gate, calls to addresses clients give, pages and emails, headers,
+the proxy's client IP, secrets, SQL, dependencies), the WordPress plugin,
+the media gate and files host, the Flutter apps and CI. Most of it held: every
+ID is looked up within the signed-in account or app, passwords are Argon2id,
+sessions are encrypted and end with a password change, tokens and codes are
+stored hashed and compared in constant time, payments are confirmed from the
+provider's own answer (amount, currency and reference), uploads are served
+with `nosniff` and sandboxed, and the SQL is parameterized. What didn't is
+below; what the owner does on servers and consoles is LAUNCH-CHECKLIST 1a.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 69.1 **High.** Pull requests from forks never run on our runners: the repository is public, and `LINUX_RUNNER` (our runners on host.webek.org, which keep their home folder and tool cache between jobs) also runs **Build client apps** with `BUILD_PIPELINE_TOKEN` and the files host's FTP account, so a stranger's pull request could leave something behind for the next build. `ci.yml`, `platform.yml` and `mobile.yml` pick GitHub's runners for a pull request from another repository | actionlint; LAUNCH-CHECKLIST 1a (approval for all external contributors) |
+| [x] | 69.2 **High.** Next.js 16.3.6 → 16.3.8 (and `eslint-config-next`): `npm audit --omit=dev` reported a high advisory group (cache poisoning of SSG/ISR pages, SSRF in image optimization, information disclosure in metadata image routes) | `npm audit --omit=dev`: 0 vulnerabilities; lint, typecheck, unit tests, build |
+| [x] | 69.3 **Medium.** Ticimax shops are on the client's own domain and were called without the private-network check the other client addresses have: the shop's addresses are now checked before every call (`privateHostProblem`) and redirects are never followed. `isPrivateAddress` reads IPv6 group by group, so an IPv4 address written inside one (mapped in hex like `::ffff:7f00:1`, compatible, translated, NAT64 `64:ff9b::/96`, 6to4 `2002::/16`, Teredo) and the 192.0.0.0/24, 198.18.0.0/15, multicast, site-local and discard ranges are refused everywhere it is used (own API check, news feeds, webhooks to client APIs, link files, the owner's email server, license nudges) | `ticimax.test.ts`, `website.test.ts` |
+| [x] | 69.4 **Medium.** Hosted API: the store review number and address skipped every rate limit, so their fixed 6-digit code could be tried without end (5 tries a request, new requests at will). They now count against a limit of their own, 30 requests an hour per app (number and address together); everyone else keeps the usual limits. Contract: `openapi.yaml` (`/auth/otp/request`) | `hosted.test.ts` |
+| [x] | 69.5 **Medium.** Pages had no Content-Security-Policy: every page (not the API routes and media links, which set their own sandboxed one) now sends `base-uri 'self'; object-src 'none'; frame-ancestors 'none'` on top of `X-Frame-Options`, `nosniff`, HSTS and the referrer policy. Scripts aren't restricted yet (69.12) | `preview.spec.ts` |
+| [x] | 69.6 **Low.** Plugin: the app's access token was accepted on any WordPress REST route whose address merely contained `/wp-json/yallapp/` (in its query string, or with a `rest_route` parameter naming another route), so a token copied from the app worked on WordPress's own API as that user. It is now accepted only when the route WordPress serves is the plugin's (`Request_Auth::route_of`, as `WP::parse_request` picks it: `rest_route` in the body, then the query, then the path) | `RequestAuthTest.php` |
+| [x] | 69.7 **Low.** App names go into the build files: a line break in the name under the icon (only a hand-made request has one) became a new setting in the iOS `xcconfig` on the build machine. The platform turns control characters into spaces and `apply_config.dart` does again | `build-config.test.ts`, `build_config_tool_test.dart` |
+| [x] | 69.8 Docs: this phase, LAUNCH-CHECKLIST 1a, ARCHITECTURE ("Security review"), `openapi.yaml` | `redocly lint` |
+| [ ] | 69.9 **Medium.** Addresses clients give are resolved and checked, then fetched, which looks the name up again: a name that changes its answer in between (DNS rebinding) could still reach a private address. Fetching the checked address itself needs a dispatcher with its own lookup (undici) | A connection that uses the checked address |
+| [ ] | 69.10 **Medium.** Our runners live on the production server and keep their volumes between jobs; one-job runners need a GitHub App (or a token) that registers them anew each time | LAUNCH-CHECKLIST 1a (a machine of their own) |
+| [ ] | 69.11 **Medium.** No second sign-in step (an authenticator app) for the admin and for clients | A phase for it |
+| [ ] | 69.12 **Low.** The pages' policy doesn't restrict scripts: Next.js inlines its own, so `script-src` needs a nonce per request (dynamic rendering of every page) | Pages rendered with a nonce |
+| [ ] | 69.13 **Low.** Website sessions are sealed cookies with no server-side record: signing out deletes the cookie, but a copy of it keeps working for up to 14 days unless the password changes (Yallapp Business devices are signed out on the server) | A session table, or a sign-out that bumps the session version without signing Yallapp Business out |
+| [ ] | 69.14 **Low.** CI: third-party actions are pinned to tags, not commit SHAs, and **Build client apps** gives `BUILD_PIPELINE_TOKEN` to every step of its jobs (Flutter, Android SDK and Ruby setup actions included) | Actions pinned by SHA; the token only in the steps that call the platform |
+| [ ] | 69.15 **Low.** A coupon's use limit is counted, then the use is written: two payments at the same moment can pass the limit by one | A unique use per coupon and number, or a locked count |
+| [ ] | 69.16 Accepted: sign-up says when an email already has an account (rate limited per IP); a WordPress site with an active license can have Yallapp send sign-in codes to any number (300 an hour, 2000 a day per license, 10 an hour per number); `npm audit` reports advisories in development tools only (`braces`, `esbuild` in drizzle-kit, `yaml`), never in what runs on Netlify | Reviewed again in the next security review |

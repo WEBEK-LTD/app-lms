@@ -1788,6 +1788,40 @@ active and the app's own license hasn't reached `expires_at`.
   editable for an expired app, as before (uploads to Media and notifications
   wait for the plan); nothing is deleted.
 
+## Security review (Phase 69)
+
+What the review settled, for whoever changes these parts next (the findings
+and what's still open are in ROADMAP, Phase 69):
+
+- **Addresses clients give** (their own API, news feeds, webhooks to their
+  API, link files, their email server, license nudges, a Ticimax shop) are
+  called only after every address the name resolves to passed
+  `isPrivateAddress` (`lib/app/api-check.ts`; `privateHostProblem` for a
+  host), web addresses over https and without following redirects. IPv6 is read group by group, so an IPv4
+  address written inside one is checked as that address. A new connector on
+  a client's own domain uses the same check before each call; platforms on
+  their own domains (`*.myshopify.com`, `*.myideasoft.com`, fixed API hosts)
+  only take names under those domains.
+- **Headers:** every page sends `X-Frame-Options: DENY`, `nosniff`, HSTS,
+  the referrer and permissions policies, and a Content-Security-Policy of
+  `base-uri 'self'; object-src 'none'; frame-ancestors 'none'`
+  (`next.config.ts`). API routes and media links are left out of that
+  policy because they send their own: uploaded files and SVGs are served
+  with `default-src 'none'; sandbox`. The app preview alone may be framed,
+  by the dashboard.
+- **Store review access** on the hosted API skips the per-number and per-IP
+  limits but has one of its own per app (30 requests an hour), so its fixed
+  code can't be guessed.
+- **The plugin** accepts the app's access token only on the route WordPress
+  actually serves when it is the plugin's (`Request_Auth::route_of`): never
+  because the address's query string names the plugin.
+- **CI:** our own runners also build clients' apps with the pipeline's
+  secrets, so a pull request from a fork runs on GitHub's runners (the
+  `runs-on` of `ci.yml`, `platform.yml` and `mobile.yml`).
+- **Build files:** names that end up in Gradle, Xcode or resource files are
+  one line (the platform turns control characters into spaces,
+  `apply_config.dart` again) and escaped for each format.
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:

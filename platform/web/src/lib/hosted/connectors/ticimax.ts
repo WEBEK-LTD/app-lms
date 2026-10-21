@@ -1,3 +1,4 @@
+import { privateHostProblem, resolveHost } from "../../app/api-check";
 import type { HostedUser } from "../../data/types";
 import { cartLines, error, intParam, type CartLineInput } from "./common";
 import { registerPlatform, type PlatformConnector, type PlatformDefinition } from "./platforms";
@@ -179,14 +180,29 @@ const ints = (els: XmlElement[]) =>
 export type TicimaxService = "UrunServis" | "SiparisServis" | "UyeServis";
 
 export class TicimaxClient {
+  /**
+   * 69 The shop is on the client's own domain, so its addresses are checked
+   * before every call: never a private or local network. By default only for
+   * real requests (tests pass their own fetcher, and `resolve` to check this).
+   */
+  private readonly resolve: ((host: string) => Promise<string[]>) | null;
+
   constructor(
     private readonly host: string,
     private readonly key: string,
     private readonly fetcher: Fetch = fetch,
-  ) {}
+    resolve?: ((host: string) => Promise<string[]>) | null,
+  ) {
+    this.resolve = resolve !== undefined ? resolve : fetcher === fetch ? resolveHost : null;
+  }
 
   /** Calls an operation (the key goes first, as `UyeKodu`); returns its `<Operation>Result`, or null when it's empty. */
   async call(service: TicimaxService, operation: string, params: XmlFields): Promise<XmlElement | null> {
+    if (this.resolve) {
+      const problem = await privateHostProblem(this.host, this.resolve);
+      if (problem === "private") throw new ConnectorError("This shop's address points to a private network.");
+      if (problem === "unresolved") throw new ConnectorError("Ticimax didn't answer.");
+    }
     let response: Response;
     try {
       response = await this.fetcher(`https://${this.host}/Servis/${service}.svc`, {
@@ -196,6 +212,8 @@ export class TicimaxClient {
           soapaction: `"http://tempuri.org/I${service}/${operation}"`,
         },
         body: soapEnvelope(operation, [["UyeKodu", this.key], ...params]),
+        // 69 Never followed to another address (which could be a private one).
+        redirect: "error",
         signal: AbortSignal.timeout(10_000),
       });
     } catch {
@@ -525,8 +543,9 @@ export class TicimaxConnector implements PlatformConnector {
   constructor(
     private readonly settings: TicimaxSettings,
     fetcher: Fetch = fetch,
+    resolve?: ((host: string) => Promise<string[]>) | null,
   ) {
-    this.client = new TicimaxClient(settings.host, settings.key, fetcher);
+    this.client = new TicimaxClient(settings.host, settings.key, fetcher, resolve);
   }
 
   private async cached<T>(name: string, load: () => Promise<T>, fresh = false): Promise<T> {
