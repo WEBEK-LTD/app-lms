@@ -106,6 +106,8 @@ class Plugin {
 			( new Admin\Settings_Page( $this ) )->register();
 			( new Admin\Lesson_Meta_Box() )->register();
 			( new Admin\Post_Meta_Box( $this ) )->register();
+			// 73 "Students can start this course again" on each course.
+			( new Admin\Course_Meta_Box() )->register();
 		}
 	}
 

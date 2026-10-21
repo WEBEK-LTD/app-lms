@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.6
+Stable tag: 0.4.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,7 +42,8 @@ hash, for 5 minutes. Push notifications go through your own Firebase project.
 
 == Changelog ==
 
-= Unreleased =
+= 0.4.7 =
+* Start a course again: once a student has finished every lesson of a course, the app offers "Start the course again", which clears their progress in it (lessons completed, where each video stopped, and the quiz results the LMS keeps with the course) and opens the first lesson. It works with Tutor LMS, LearnDash, LifterLMS and Sensei LMS, and with LearnPress while the course allows retakes (each counts as one). MasterStudy and Masteriyo have no way for the plugin to reset a student's progress yet, so the app doesn't offer it there. Turn it off for a course with "Students can start this course again" in the course's "In the app" box (on by default). GET /courses/{id} says can_restart; POST /courses/{id}/restart starts it again.
 * Videos from YouTube, Vimeo and the other video sites play in each site's normal player in the app, with its controls and branding. The app's owner can hide the video site's branding from the Yallapp dashboard (Screen protection), at their own risk: the plugin passes the choice to the app (Config app.hide_video_branding).
 
 = 0.4.6 =

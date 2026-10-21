@@ -700,6 +700,24 @@ call( 'PUT', '/lessons/' . $seed['lesson_video'] . '/progress', array( 'position
 $r = call( 'POST', '/lessons/' . $seed['lesson_video'] . '/complete', array(), $token );
 check( 'completes after watching enough', 200 === $r['status'], $r['raw'] );
 
+echo "Start a course again (73)\n";
+$r = call( 'GET', '/courses/' . $seed['python'] . '?platform=android', null, $token );
+check( 'restart: offered on Tutor LMS', 200 === $r['status'] && true === ( $r['json']['can_restart'] ?? null ), $r['raw'] );
+$r = call( 'POST', '/courses/' . $seed['python'] . '/restart', array() );
+check( 'restart: needs sign-in', 401 === $r['status'], $r['raw'] );
+$r = call( 'POST', '/courses/' . $seed['python'] . '/restart', array(), $token );
+check( 'restart: the progress is cleared', 200 === $r['status'] && 0 === ( $r['json']['completed_items'] ?? null ) && false === ( $r['json']['course_completed'] ?? null ), $r['raw'] );
+$r = call( 'GET', '/lessons/' . $seed['lesson_video'], null, $token );
+check( 'restart: the lesson is to do again, from the start', 200 === $r['status'] && false === ( $r['json']['completed'] ?? null ) && 0 === ( $r['json']['position_seconds'] ?? null ), $r['raw'] );
+$r = call( 'GET', '/courses/' . $seed['python'] . '?platform=android', null, $token );
+check( 'restart: still enrolled', 200 === $r['status'] && true === ( $r['json']['enrolled'] ?? null ), $r['raw'] );
+wp_cli( 'post meta update ' . (int) $seed['python'] . ' _yallapp_no_restart 1' );
+$r = call( 'GET', '/courses/' . $seed['python'] . '?platform=android', null, $token );
+check( 'restart: the owner turned it off', false === ( $r['json']['can_restart'] ?? null ), $r['raw'] );
+$r = call( 'POST', '/courses/' . $seed['python'] . '/restart', array(), $token );
+check( 'restart: refused when off', 403 === $r['status'] && 'restart_disabled' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+wp_cli( 'post meta delete ' . (int) $seed['python'] . ' _yallapp_no_restart' );
+
 set_settings( array( 'maintenance' => true, 'maintenance_message' => 'Back soon' ) );
 $r = call( 'GET', '/courses' );
 check( 'maintenance blocks API 503', 503 === $r['status'] && 'maintenance' === ( $r['json']['code'] ?? '' ), $r['raw'] );

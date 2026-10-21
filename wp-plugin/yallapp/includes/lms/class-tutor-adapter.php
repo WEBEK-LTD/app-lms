@@ -548,6 +548,34 @@ class Tutor_Adapter implements Lms_Adapter {
 	}
 
 	/**
+	 * 73 Tutor LMS clears a student's progress with its own "Retake course" function,
+	 * Utils::delete_course_progress: lessons completed, quiz attempts, the course's completion,
+	 * and what its add-ons keep (assignments, through `delete_tutor_course_progress`).
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return bool
+	 */
+	public function can_reset_progress( $course_id, $user_id ) {
+		return method_exists( tutor_utils(), 'delete_course_progress' );
+	}
+
+	/**
+	 * 73 Starts the course again for the student; the enrollment stays.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return true|WP_Error
+	 */
+	public function reset_progress( $course_id, $user_id ) {
+		if ( ! $this->can_reset_progress( $course_id, $user_id ) ) {
+			return new WP_Error( 'restart_disabled', __( 'This course can\'t be started again.', 'yallapp' ), array( 'status' => 403 ) );
+		}
+		tutor_utils()->delete_course_progress( (int) $course_id, (int) $user_id );
+		return true;
+	}
+
+	/**
 	 * Quiz details.
 	 *
 	 * @param int $quiz_id Quiz ID.

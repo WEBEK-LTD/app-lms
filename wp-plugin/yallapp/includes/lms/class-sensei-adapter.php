@@ -448,6 +448,34 @@ class Sensei_Adapter extends Base_Adapter {
 	}
 
 	/**
+	 * 73 Sensei LMS resets a learner's course with Sensei_Utils::reset_course_for_user (as its
+	 * own "Reset course" button does): lessons, quiz answers and grades, and the course's
+	 * progress; the learner stays enrolled and starts it again.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return bool
+	 */
+	public function can_reset_progress( $course_id, $user_id ) {
+		return method_exists( Sensei_Utils::class, 'reset_course_for_user' );
+	}
+
+	/**
+	 * 73 Starts the course again for the learner.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return true|WP_Error
+	 */
+	public function reset_progress( $course_id, $user_id ) {
+		if ( ! $this->can_reset_progress( $course_id, $user_id ) ) {
+			return parent::reset_progress( $course_id, $user_id );
+		}
+		Sensei_Utils::reset_course_for_user( (int) $course_id, (int) $user_id );
+		return true;
+	}
+
+	/**
 	 * Quiz details.
 	 *
 	 * @param int $quiz_id Quiz ID.

@@ -14,10 +14,12 @@ use WP_REST_Server;
 use Yallapp\Content\Downloads;
 use Yallapp\Lms\Course_Completion;
 use Yallapp\Lms\Course_Password;
+use Yallapp\Lms\Course_Restart;
 use Yallapp\Lms\Lms_Adapter;
 
 /**
- * /me/courses, /me/wishlist, /lessons/*, /me/certificates and 45 /me/downloads/check.
+ * /me/courses, /me/wishlist, /lessons/*, /me/certificates, 45 /me/downloads/check and 73
+ * /courses/{id}/restart.
  */
 class Learning_Controller extends Controller {
 
@@ -131,6 +133,15 @@ class Learning_Controller extends Controller {
 						'required' => true,
 					),
 				),
+			)
+		);
+		// 73 Start a finished course again.
+		$this->route(
+			'/courses/(?P<course_id>\d+)/restart',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'restart' ),
+				'permission_callback' => $auth,
 			)
 		);
 		$this->route(
@@ -368,6 +379,39 @@ class Learning_Controller extends Controller {
 			$progress = Course_Completion::fill( $progress, $user_id );
 		}
 		return $this->result( $progress );
+	}
+
+	/**
+	 * 73 POST /courses/{id}/restart: clears the student's progress in a course they're in, with
+	 * the LMS's own API and what the plugin keeps (video positions, the completion date), so
+	 * they take it again from the first lesson. The enrollment stays.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return \WP_REST_Response
+	 */
+	public function restart( WP_REST_Request $request ) {
+		$lms = $this->lms();
+		if ( ! $lms instanceof Lms_Adapter ) {
+			return $lms;
+		}
+		$user_id   = get_current_user_id();
+		$course_id = (int) $request['course_id'];
+		$topics    = $lms->course_visible( $course_id, $user_id ) ? $lms->curriculum( $course_id, $user_id ) : null;
+		if ( null === $topics ) {
+			return self::error( 'not_found', __( 'Course not found.', 'yallapp' ), 404 );
+		}
+		if ( ! $lms->is_enrolled( $course_id, $user_id ) ) {
+			return self::error( 'not_enrolled', __( 'Enroll in the course to start it again.', 'yallapp' ), 403 );
+		}
+		if ( ! Course_Restart::can_restart( $lms, $course_id, $user_id ) ) {
+			return self::error( 'restart_disabled', __( 'This course can\'t be started again.', 'yallapp' ), 403 );
+		}
+		$reset = $lms->reset_progress( $course_id, $user_id );
+		if ( is_wp_error( $reset ) ) {
+			return self::from_wp_error( $reset );
+		}
+		Course_Restart::forget( $user_id, $course_id, Course_Restart::item_ids( $topics ) );
+		return $this->ok( Course_Completion::fill( $lms->progress( $course_id, $user_id ), $user_id ) );
 	}
 
 	/**
