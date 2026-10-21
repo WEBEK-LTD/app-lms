@@ -283,7 +283,7 @@ test("changing plans: a lower plan from the end of the period, an upgrade by car
   await expect(change.locator('[data-plan="pro"]')).toContainText("Current plan");
   await change.locator('[data-plan="growth"]').getByRole("button", { name: "Switch when this period ends" }).click();
   await expect(own.getByRole("status").first()).toContainText("moves to Growth on");
-  await expect(own.getByRole("region", { name: "License" })).toContainText("Moves to Growth on");
+  await expect(own.getByRole("region", { name: "Plan", exact: true })).toContainText("Moves to Growth on");
   await own.getByRole("button", { name: "Keep Pro" }).click();
   await expect(own.getByRole("status").first()).toContainText("stays on Pro");
 
