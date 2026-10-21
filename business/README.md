@@ -177,9 +177,13 @@ missing.
 - **Screenshots**: drawn from the demo's sample apps by
   `test/store/store_screenshots_test.dart` with the app's fonts and icons:
   Today, Orders, the door scanner, Send notification and Stats, in English,
-  Arabic and Turkish, for Google Play phones (1080 × 1920), the 6.9" iPhone
-  (1290 × 2796) and the 13" iPad (2064 × 2752; the app keeps iPad for Kitchen
-  mode on a tablet). `flutter test` only lays them out; to write the files:
+  Arabic and Turkish. (74) Each screen is framed in a phone or tablet under a
+  short headline (`test/store/poster.dart`, the captions in the three
+  languages), alternating Midnight and Ivory. Sizes: Google Play phones
+  (1080 × 1920) and tablets (1600 × 2560, used for 7" and 10"), the 6.9"
+  iPhone (1290 × 2796), the 6.5" iPhone (1284 × 2778) and the 13" iPad
+  (2064 × 2752; the app keeps iPad for Kitchen mode on a tablet). `flutter
+  test` lays them out and checks every caption fits; to write the files:
 
   ```sh
   YB_SCREENSHOTS_DIR=/tmp/shots flutter test test/store

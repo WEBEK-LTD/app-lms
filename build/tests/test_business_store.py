@@ -93,7 +93,14 @@ class AssembleTest(unittest.TestCase):
     def shots(self, folder):
         from PIL import Image
 
-        for device, size in (("android-phone", (108, 192)), ("iphone", (129, 280)), ("ipad", (206, 275))):
+        devices = (
+            ("android-phone", (108, 192)),
+            ("android-tablet", (160, 256)),
+            ("iphone", (129, 280)),
+            ("iphone-65", (128, 278)),
+            ("ipad", (206, 275)),
+        )
+        for device, size in devices:
             for lang in ("en", "ar", "tr"):
                 path = Path(folder) / device / lang
                 path.mkdir(parents=True)
@@ -110,8 +117,13 @@ class AssembleTest(unittest.TestCase):
                     self.assertTrue((out / play / name).is_file(), name)
                 self.assertTrue((out / play / "images" / "icon.png").is_file())
                 self.assertTrue((out / play / "images" / "featureGraphic.png").is_file())
-                shots = sorted(p.name for p in (out / play / "images" / "phoneScreenshots").iterdir())
-                self.assertEqual([f"1_{play}.png", f"2_{play}.png"], shots)
+                for folder in ("phoneScreenshots", "sevenInchScreenshots", "tenInchScreenshots"):
+                    shots = sorted(p.name for p in (out / play / "images" / folder).iterdir())
+                    self.assertEqual([f"1_{play}.png", f"2_{play}.png"], shots, folder)
+            from PIL import Image
+
+            with Image.open(out / "ar" / "images" / "tenInchScreenshots" / "1_ar.png") as image:
+                self.assertEqual((160, 256), image.size)
             from PIL import Image
 
             with Image.open(out / "ar" / "images" / "phoneScreenshots" / "1_ar.png") as image:
@@ -135,7 +147,10 @@ class AssembleTest(unittest.TestCase):
                 self.assertTrue((out / "release_notes" / f"{locale}.txt").is_file())
                 self.assertTrue((out / "metadata" / locale / "keywords.txt").is_file())
                 shots = sorted(p.name for p in (out / "screenshots" / locale).iterdir())
-                self.assertEqual(["ipad_1.png", "ipad_2.png", "iphone_1.png", "iphone_2.png"], shots)
+                self.assertEqual(
+                    ["ipad_1.png", "ipad_2.png", "iphone-65_1.png", "iphone-65_2.png", "iphone_1.png", "iphone_2.png"],
+                    shots,
+                )
             self.assertEqual("BUSINESS", store.read(out / "metadata" / "primary_category.txt"))
             review = json.loads((out / "review.json").read_text())
             self.assertEqual(0o600, (out / "review.json").stat().st_mode & 0o777)
