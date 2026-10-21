@@ -6,6 +6,7 @@ import { orderNumber } from "../catalog/settings";
 import { COMPANY } from "../company";
 import type { App, CatalogOrder, ContactSetting, CouponRedemption, Donation, PaymentProviderId, PlanPayment } from "../data/types";
 import { donationReference } from "../donations/service";
+import { whatsappLines } from "../contact-lines";
 import { PROVIDER_NAME } from "../payments/provider";
 import { formatDate } from "@/i18n/format";
 import type { Lang } from "@/i18n/config";
@@ -54,7 +55,9 @@ export function yallappSeller(lang: Lang, contact: ContactSetting, invoiceLines:
       w("place"),
       ltrSpan(COMPANY.website.replace(/^https:\/\//, "")),
       ltrSpan(contact.email),
-      w("whatsapp", { number: ltrSpan(contact.whatsapp) }),
+      // 72 Both of Yallapp's WhatsApp numbers, each with where it's for.
+      w("whatsappEgypt", { number: ltrSpan(whatsappLines(contact).egypt.display) }),
+      w("whatsappOutside", { number: ltrSpan(contact.whatsapp) }),
     ],
   };
 }
