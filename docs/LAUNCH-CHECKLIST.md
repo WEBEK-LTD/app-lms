@@ -842,10 +842,9 @@ never in a chat or an issue.
       client signed in to Yallapp Business, ask from Dashboard › Your
       account, check the phone is signed out and the team's email arrives,
       cancel, ask again, and mark it done in Admin › Account deletion.
-- [ ] Deleting is by hand (ARCHITECTURE, "Deleting a Yallapp account"):
-      keep the billing records first, then the owner's `users` row, the
-      Blobs under `assets/<client id>/` and the build folders the request
-      lists; mark it done within 30 days.
+- [ ] Deleting is done by the platform since Phase 73 (7u): 7 days after
+      the request, or at once with "Delete now", keeping the billing
+      records (ARCHITECTURE, "Deleting a Yallapp account").
 
 ## 7q. Google Search: the favicon and indexing (Phase 67)
 
@@ -988,6 +987,60 @@ never in a chat or an issue.
       phone out. Use it on an account you think someone else used.
 - [ ] Coupons with a use limit now count it under a lock on the coupon: two
       payments at the same moment can't pass it. Nothing to set up.
+
+## 7u. Start a course again, delete an app, account deletion, dark mode, account country (Phase 73)
+
+- [ ] Apply migration `0051_app_deletion.sql` after `0050` (tables
+      `app_deletions` and `kept_billing_records`, `deleted_at` and
+      `deleted_by` on `apps`), **then** deploy: every read of an app now
+      asks for `deleted_at`.
+- [ ] **Upload `build/files-host/index.php`** to files.yallapp.com.tr (next
+      to `config.php`, which stays as it is). It now also answers the
+      platform's signed `DELETE /builds/<build id>/`, which removes an
+      app's build folders when it is deleted for good. Until it is
+      uploaded, those folders are listed in Admin › Deleted apps (and the
+      account deletion's note) and the daily job tries again every day;
+      they can be deleted by hand there too.
+- [ ] **Release plugin 0.4.7** (Admin › App & plugin versions) with the
+      changelog from `wp-plugin/yallapp/readme.txt`, and tell WordPress
+      clients what it adds: "Start the course again" in the app for finished
+      courses with Tutor LMS, LearnDash, LifterLMS and Sensei LMS (and
+      LearnPress when the course allows retakes); the "In the app" box on
+      each course turns it off. MasterStudy and Masteriyo sites don't get
+      it. The same release carries Phase 72's video branding choice.
+- [ ] **Account deletion is automatic now.** The daily job deletes an
+      account 7 days after the owner asked (they can cancel until then):
+      the paid plan payments are kept first in `kept_billing_records` with
+      who paid and the receipt (Admin › Account deletion › Done › Receipt
+      PDF), then the files and the rows go and the owner is emailed as
+      before. "Delete now" does it at once. Check that the open requests in
+      Admin › Account deletion are ones you mean to delete: they go 7 days
+      after they were asked, the old ones at the first daily run after the
+      deploy. Requests by email: ask the owner to confirm from the dashboard,
+      or press Delete now after checking the address.
+- [ ] **Deleted apps:** an owner can delete an app from Setup › Delete this
+      app (owner only, with the app's name and the password). It stops at
+      once; Admin › Deleted apps lists it for 7 days with Restore and Delete
+      now, then the daily job deletes it with its Media files, build folders
+      and the images only it used. Plan payments stay, without their app.
+- [ ] **Account country:** clients who signed up before Phase 52 have none;
+      they can now set it on Dashboard › Your account (and you on the
+      client's page › Edit details). It decides pounds or dollars, which
+      WhatsApp number they see and their receipts' time zone.
+- [ ] **Dark mode:** nothing to set. The website, the sign-in pages, the
+      dashboard and the admin follow the visitor's system setting; the moon
+      button (header, the dashboard's sidebar, the admin's menu) switches
+      it and the browser remembers it.
+- [ ] Apps: the customer app's next builds show "Start the course again" on
+      a finished course (hosted courses: on for every course, turned off per
+      course in Dashboard › Courses › the course). Apps built before keep
+      "Review course" only.
+- [ ] After deploying: delete a test app (a WordPress one: its site's
+      License card says the key isn't valid within moments), restore it
+      from Admin › Deleted apps, delete it again and press Delete now; ask
+      to delete a test account and press Delete now: its payment shows
+      under Done with its receipt PDF and the owner can't sign in. Switch the
+      website and the dashboard to dark and back, on a phone too.
 
 ## 8. Accounts the remaining roadmap steps wait on
 
