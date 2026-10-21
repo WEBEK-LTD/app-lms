@@ -19,6 +19,7 @@ import { appUrl, encryptionKey, paymentApiUrls } from "../env";
 import { yallappAccountFor } from "../settings/platform";
 import type { PaymentAccount } from "./provider";
 import { refreshSitesSoon } from "../license/refresh-soon";
+import { donationReceiptPdf, receiptAttachment, sendOrderReceipt } from "../receipts/service";
 
 /**
  * 37 What happens when a provider calls back: iyzico's callback (POST with
@@ -131,6 +132,8 @@ export async function settleOrderPayment(token: string, trigger: Trigger): Promi
     }
     // 58 And to the owner's phone (Yallapp Business).
     if (paid) await pushOwnerSafely((d) => pushNewOrder(d, app, paid));
+    // 71 The customer gets their receipt, its PDF attached.
+    if (paid) await sendOrderReceipt(store, app, paid);
   }
   if (outcome === "failed") return failed;
   if (outcome === "pending") return { status: "pending", path: `${back}?payment=pending` };
@@ -164,7 +167,9 @@ export async function settleDonationPayment(token: string, trigger: Trigger): Pr
     if (paid) await pushOwnerSafely((d) => pushDonation(d, app, paid));
     if (paid?.donorEmail) {
       const values = donationReceiptValues(paid, app.appName ?? "the charity", receiptUrl(appUrl(), paid.receiptCode));
-      await sendTemplate("donation_receipt", paid.donorEmail, values, { app }).catch(() => {
+      // 71 With the receipt's PDF, in the app's language; without it if it can't be made.
+      const attachments = await receiptAttachment(() => donationReceiptPdf(store, app, paid));
+      await sendTemplate("donation_receipt", paid.donorEmail, values, { app, attachments }).catch(() => {
         // The donation is paid either way; the receipt page and the app have it.
       });
     }

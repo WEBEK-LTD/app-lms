@@ -162,6 +162,19 @@ class DonationTile extends ConsumerWidget {
                 label: Text(l10n.donationReceipt),
                 style: TextButton.styleFrom(foregroundColor: p.link),
               ),
+              // 71 The same receipt as a PDF, in the app's language.
+              if (donation.receiptPdfUrl != null)
+                TextButton.icon(
+                  onPressed: () => ref.read(openExternalProvider)(
+                    receiptInLanguage(
+                      donation.receiptPdfUrl!,
+                      Localizations.localeOf(context).languageCode,
+                    ),
+                  ),
+                  icon: AppIcon(AppIcons.download, size: 18, color: p.link),
+                  label: Text(l10n.downloadReceipt),
+                  style: TextButton.styleFrom(foregroundColor: p.link),
+                ),
               if (donation.campaignId != null)
                 TextButton(
                   onPressed: () =>

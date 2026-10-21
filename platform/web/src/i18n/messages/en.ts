@@ -402,6 +402,17 @@ export const en = {
     titleSignUp: "Create an account",
     titleForgot: "Reset your password",
     titleReset: "Choose a new password",
+    // 70 Two-step sign-in: the code after the password.
+    titleCode: "Two-step sign-in",
+    codeTitle: "Enter your code",
+    codeText: "Open your authenticator app and enter the 6-digit code it shows for Yallapp.",
+    codeLabel: "Code",
+    codeHint: "Lost your phone? Enter one of your recovery codes instead.",
+    codeVerify: "Verify and sign in",
+    codeVerifying: "Checking…",
+    codeOther: "Sign in with another account",
+    codeExpiredTitle: "Sign in again",
+    codeExpiredText: "Your sign-in waited too long for its code. Enter your email and password again.",
   },
   /** Errors and messages of the sign-in, sign-up and password forms (server actions); the English is matched to translate them. */
   formErrors: {
@@ -427,6 +438,10 @@ export const en = {
     terms: "Please confirm the terms and that you're signing up for your business.",
     linkInvalid: "This link is invalid.",
     mismatch: "The passwords don't match.",
+    // 70 Two-step sign-in
+    codeWrong: "That code isn't right. Try again, or use a recovery code.",
+    codeEnter: "Enter the 6-digit code from your authenticator app, or a recovery code.",
+    codeExpired: "Your sign-in waited too long for its code. Sign in again.",
   },
   og: {
     footer: "Branded Android and iOS apps for your business",

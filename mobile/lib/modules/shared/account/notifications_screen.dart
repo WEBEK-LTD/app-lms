@@ -7,6 +7,7 @@ import '../../../core/api/models/models.dart';
 import '../../../core/config/build_config_data.dart';
 import '../../../core/providers.dart';
 import '../../../core/routing/paths.dart';
+import '../../../core/services/external_links.dart';
 import '../../../core/services/push_service.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
@@ -247,7 +248,7 @@ class OrdersScreen extends ConsumerWidget {
   }
 }
 
-class _OrderCard extends StatelessWidget {
+class _OrderCard extends ConsumerWidget {
   const _OrderCard({required this.order, required this.linkProducts});
 
   final Order order;
@@ -256,7 +257,7 @@ class _OrderCard extends StatelessWidget {
   final bool linkProducts;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
     final good = order.status == OrderStatus.completed;
     final bad = switch (order.status) {
@@ -388,6 +389,23 @@ class _OrderCard extends StatelessWidget {
               ),
             ),
           ],
+          // 71 The receipt as a PDF, in the app's language (orders paid
+          // through the platform; WordPress sites send their own).
+          if (order.receiptUrl != null)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                onPressed: () => ref.read(openExternalProvider)(
+                  receiptInLanguage(
+                    order.receiptUrl!,
+                    Localizations.localeOf(context).languageCode,
+                  ),
+                ),
+                icon: AppIcon(AppIcons.download, size: 18, color: p.link),
+                label: Text(context.l10n.downloadReceipt),
+                style: TextButton.styleFrom(foregroundColor: p.link),
+              ),
+            ),
         ],
       ),
     );

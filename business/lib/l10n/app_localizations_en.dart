@@ -1922,6 +1922,34 @@ class AppLocalizationsEn extends AppLocalizations {
       'Nothing is sent while the plan has ended, to the app\'s inbox or to phones. Notifications can go out again once it\'s renewed.';
 
   @override
+  String get twoStepTitle => 'Enter your code';
+
+  @override
+  String get twoStepText =>
+      'Your account uses two-step sign-in. Open your authenticator app and enter the 6-digit code it shows for Yallapp.';
+
+  @override
+  String get twoStepCode => 'Code';
+
+  @override
+  String get twoStepHint =>
+      'Lost your phone? Enter one of your recovery codes instead.';
+
+  @override
+  String get twoStepEnter =>
+      'Enter the 6-digit code from your authenticator app, or a recovery code.';
+
+  @override
+  String get twoStepWrong =>
+      'That code isn\'t right. Try again, or use a recovery code.';
+
+  @override
+  String get twoStepVerify => 'Verify and sign in';
+
+  @override
+  String get twoStepOther => 'Sign in with another account';
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }

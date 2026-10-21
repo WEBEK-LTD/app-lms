@@ -1797,7 +1797,9 @@ and what's still open are in ROADMAP, Phase 69):
   API, link files, their email server, license nudges, a Ticimax shop) are
   called only after every address the name resolves to passed
   `isPrivateAddress` (`lib/app/api-check.ts`; `privateHostProblem` for a
-  host), web addresses over https and without following redirects. IPv6 is read group by group, so an IPv4
+  host), web addresses over https and without following redirects; 70 the
+  connection itself goes to an address that was checked (`lib/net/safe-fetch.ts`,
+  "Two-step sign-in and sessions" below). IPv6 is read group by group, so an IPv4
   address written inside one is checked as that address. A new connector on
   a client's own domain uses the same check before each call; platforms on
   their own domains (`*.myshopify.com`, `*.myideasoft.com`, fixed API hosts)
@@ -1821,6 +1823,124 @@ and what's still open are in ROADMAP, Phase 69):
 - **Build files:** names that end up in Gradle, Xcode or resource files are
   one line (the platform turns control characters into spaces,
   `apply_config.dart` again) and escaped for each format.
+
+## Receipts as PDF (Phase 71)
+
+Every payment the platform takes has a receipt as a PDF, made on request
+and attached to the email that confirms the payment. Nothing is stored: the
+PDF is made again from the payment each time, so a refund shows on the next
+download.
+
+- **What has one.** A client's plan or storage packs paid to Yallapp
+  (`plan_payments`, Kashier, Fawaterk or iyzico, or a coupon that covered
+  everything), a customer's order in an app without a website (products, a
+  restaurant's order, tickets, a paid course, a membership; through the
+  business's own account or Yallapp's for marketplace sales, which the
+  receipt says) and a donation. WordPress apps' orders are WooCommerce's or
+  the LMS's.
+- **Making it** (`lib/receipts/pdf.ts`): PDFKit, pure JavaScript, kept out
+  of the bundle (`serverExternalPackages`) and given the fonts as bytes, so
+  it never reads its own font files. The fonts are the site's static files
+  in `src/app/fonts/og` (traced for every route): Bricolage Grotesque for
+  Latin and Turkish, IBM Plex Sans Arabic for Arabic, embedded as subsets.
+  fontkit, PDFKit's font engine, shapes Arabic with the font's own forms
+  (joined letters, lam-alef) and lays a right-to-left run out from its end,
+  but runs no bidirectional algorithm, and PDFKit lays a text out word by
+  word unless OpenType features are given. So each line is cut first into
+  runs in visual order (`bidiRuns` in `lib/arabic-shape.ts`, the same rules
+  as the share images', for right-to-left and left-to-right lines), every
+  run is drawn whole (`features: []`) in its font, and an Arabic receipt is
+  laid out from the right. Text between LRI and PDI (`ltrSpan`: phone
+  numbers, emails, amounts, references, the time zone) reads left to right
+  as one piece. A glyph standing for several Arabic letters gets them in
+  drawing order in the PDF's text map, so readers that copy or search the
+  text get them in reading order.
+- **What it says** (`lib/receipts/build.ts`, words in
+  `lib/receipts/words.ts`): the seller (Yallapp's name, "Cairo, Egypt", the
+  website and the contact details of Admin › Settings, plus the lines the
+  team writes in Settings › Invoices, the `invoice` platform setting; a
+  business's app name, support email and WhatsApp), the buyer, the number
+  (`YA-…`, the order's, `D-…`), the date and time in the app's time zone
+  (`appZone`), the items, subtotal, shipping or delivery fee, a coupon, the
+  total, refunds and the status, the provider and its reference, and the
+  dollar price a client saw. Amounts are written as on the dashboard
+  (`formatAmount` for Yallapp's prices, `formatCents` for a business's). No
+  tax lines and no registration details that aren't set. Yallapp's receipts
+  follow the client's language (`users.language`; the dashboard's language
+  for its own download); a business's follow the `lang` asked for when the
+  app has it, else the app's main language (a customer's own language isn't
+  kept with an order).
+- **Who may download** (`lib/receipts/service.ts`, each answer
+  `application/pdf`, `attachment`, `private, no-store`): the dashboard's
+  `/dashboard/license/receipts/<id>/pdf` gives only the account's own paid
+  payments to whoever may see billing (owner-only, as the License page);
+  the admin's `/admin/payments/<id>/pdf` and
+  `/admin/payments/orders/<app>/<order>/pdf` are for anyone on our team; a
+  donation's `/receipts/<code>/pdf` needs its random receipt code, and an
+  order's `/receipts/orders/<app>.<order>.<signature>` is signed with an
+  HMAC of `SIGNING_SECRET` (`lib/receipts/links.ts`; rotating the secret
+  ends the links in earlier emails, the app gets new ones). The hosted API
+  gives the links as `Order.receipt_url` and `Donation.receipt_pdf_url`.
+- **Emails** (`lib/mail.ts`, `lib/email/app-mail.ts`): messages carry
+  attachments through Yallapp's server and an app's own. The activation
+  and renewal emails, "Storage pack added", the donation receipt and the
+  customer's new "Order receipt" (`sendOrderReceipt`, after the owner's
+  "New order") attach the PDF; `receiptAttachment` logs why a PDF couldn't
+  be made and the email goes without it. End-to-end runs keep attachments
+  in `YALLAPP_MAIL_DIR` as base64.
+
+## Two-step sign-in and sessions (Phase 70)
+
+- **Sessions on the server.** The `yallapp_session` cookie (sealed, 14 days)
+  carries the user, their session version and a random session ID; only the
+  ID's SHA-256 is stored (`user_sessions`). Every request needs both the row
+  and the same session version (`getCurrentUser`). Signing out deletes the
+  row, so a copy of the cookie stops working; "Sign out of all devices"
+  (Your account) deletes every row of the person, bumps the session version
+  and deletes their Yallapp Business devices; a password reset bumps the
+  version and deletes the rows; removing someone from a client's team bumps
+  the version as before. The daily job deletes expired rows. Cookies made
+  before Phase 70 have no session ID and sign in again.
+- **Two-step sign-in** (`lib/auth/totp.ts`, `lib/auth/two-step.ts`): TOTP
+  (RFC 6238, HMAC-SHA1, 30 seconds, 6 digits, one step either side). The
+  secret is 20 random bytes, encrypted with `ENCRYPTION_KEY` and the context
+  `two-step:<user id>` (`user_two_factor`), shown once as a QR code drawn on
+  the server (`lib/qr.ts`; the `otpauth://` address never leaves our pages)
+  and as base32 text. A setup waits (`enabled_at` null) until a first right
+  code. `last_step` is claimed by a conditional update, so each code works
+  once and never an older one; 10 recovery codes (`user_recovery_codes`,
+  SHA-256 with the user ID) work once each. Codes count per person, 8 in 15
+  minutes (`two-step:user`), besides the sign-in limits per email and IP.
+  Turning it off needs the password and a code; our team can only reset
+  someone's (Admin › Team, owners, audit-logged, emailed).
+- **Every way in** goes through `afterPassword` (`lib/auth/sign-in.ts`): the
+  sign-in page, a password reset and a team invitation. Someone with
+  two-step sign-in gets a sealed 10-minute step (`yallapp_two_step`, the user,
+  their session version and where to go next) and the code page
+  (`/sign-in/code` in each language, noindex); the session starts only after
+  the code. The Owner API's `POST /auth/sign-in` takes the code as `otp`
+  (`two_factor_required`, `invalid_two_factor_code`; `owner.yaml`).
+- **The team's rule** (`platform_settings.security.requireTeamTwoStep`, Admin ›
+  Team): `requireAdmin` sends anyone on the team without two-step sign-in to
+  Admin › Your account (the only page that lets them through), and
+  `getClientContext` gives them no client's dashboard.
+- **Safe fetches** (`lib/net/safe-fetch.ts`): the address checks
+  (`isPrivateAddress`, `privateHostProblem`) are in `lib/net/addresses.ts`.
+  Calls to addresses clients give use undici's `fetch` with an `Agent` whose
+  `connect.lookup` resolves the name once, refuses it when any answer is
+  private or reserved, and hands `net.connect` exactly the checked addresses
+  (TLS still checks the certificate against the name). An IP written in the
+  URL is checked before the call, since Node connects to it without a lookup.
+  Redirects are followed by hand (each address checked again, at most 5),
+  refused with `redirect: "error"`, or given back with `"manual"`. Call sites
+  keep their own check first for the owner's message, and take
+  `pinnedFetch(fetcher, resolve)`: a test's fake fetch, else the safe one with
+  the same resolver. undici is loaded on first use, after Node's own fetch
+  has claimed the global dispatcher, so every other request keeps Node's.
+- **Coupon limits:** `claimCouponRedemption` locks the coupon's row
+  (`SELECT … FOR UPDATE`), counts its uses that hold a place (redeemed, or
+  pending for less than an hour) in all and for the client, and saves the
+  use with its payment in the same transaction, or nothing.
 
 ## Demo apps (Phase 16)
 

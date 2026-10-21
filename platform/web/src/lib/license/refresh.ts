@@ -1,6 +1,7 @@
 import { createHmac } from "node:crypto";
 import { revealLicenseKey } from "../admin/clients";
 import { isPrivateAddress, resolveHost } from "../app/api-check";
+import { pinnedFetch } from "../net/safe-fetch";
 import { httpsSiteAddress } from "../app/wordpress-ready";
 import { currentPlanId } from "../billing/plan-change";
 import type { DataStore } from "../data/store";
@@ -70,7 +71,9 @@ export async function refreshSite(deps: RefreshDeps, appId: string): Promise<Ref
       if (addresses.length === 0 || addresses.some(isPrivateAddress)) return "private_address";
     }
     const timestamp = Math.floor((deps.now ?? new Date()).getTime() / 1000);
-    const response = await (deps.fetcher ?? fetch)(url, {
+    // 70 A real site: the connection goes to an address checked like the one above (lib/net/safe-fetch.ts); the local test site as it is.
+    const fetcher = deps.fetcher ?? (deps.testSiteUrl ? fetch : pinnedFetch(undefined, deps.resolve));
+    const response = await fetcher(url, {
       method: "POST",
       redirect: "error",
       signal: AbortSignal.timeout(REFRESH_TIMEOUT_MS),

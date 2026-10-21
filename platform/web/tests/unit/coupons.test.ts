@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkCoupon, couponFormValues, couponPrice, findCoupon, MIN_CARD_CENTS, readCouponForm } from "@/lib/billing/coupons";
+import { checkCoupon, couponFormValues, couponPrice, CouponUsedUpError, findCoupon, MIN_CARD_CENTS, readCouponForm } from "@/lib/billing/coupons";
 import { activateWithFreeCoupon, completePlanPayment, startPlanPayment } from "@/lib/billing/plan-payment";
 import { sha256Hex } from "@/lib/crypto/tokens";
 import type { Coupon, CouponRedemption } from "@/lib/data/types";
@@ -240,6 +240,43 @@ describe("plan payments with a coupon", () => {
     // The coupon was for one use per client.
     const again = await findCoupon(setup.store, { code: "FREEPRO", plan: PLANS.pro, charged: PRO, client: setup.client, now: NOW });
     expect(again).toEqual({ ok: false, error: "You've already used this coupon." });
+  });
+
+  it("70 gives the last use to one of two payments checked at the same moment", async () => {
+    const setup = await setupClient({ activate: false });
+    await setup.store.createCoupon(coupon({ code: "LASTONE", maxRedemptions: 1 }));
+    // Both payments pass the check before either is recorded (the race of roadmap 69.15).
+    const check = await findCoupon(setup.store, { code: "LASTONE", plan: PLANS.pro, charged: USD(480000), client: setup.client, now: NOW });
+    if (!check.ok) throw new Error(check.error);
+    const start = () =>
+      startPlanPayment({
+        store: setup.store,
+        account: { provider: "iyzico", keys: IYZICO },
+        fetcher: fakeIyzico().fetcher,
+        now: NOW,
+        client: setup.client,
+        user: setup.user,
+        plan: PLANS.pro,
+        billing: { city: "Istanbul", address: "Bağdat Caddesi 1, Kadıköy" },
+        ip: "203.0.113.5",
+        callbackUrls: (t) => ({ returnUrl: `https://yallapp.test/api/pay/plan/${t}`, webhookUrl: null }),
+        coupon: check,
+        offer: { charged: USD(384000), shown: USD(384000) },
+      });
+    const results = await Promise.allSettled([start(), start()]);
+    expect(results.filter((r) => r.status === "fulfilled")).toHaveLength(1);
+    const refused = results.find((r) => r.status === "rejected") as PromiseRejectedResult;
+    expect(refused.reason).toBeInstanceOf(CouponUsedUpError);
+    // One use and one payment were recorded; the refused one left nothing behind.
+    expect(await setup.store.listCouponRedemptions({ couponId: coupon().id })).toHaveLength(1);
+    expect(await setup.store.listPlanPayments({ clientId: setup.client.id, limit: 5 })).toHaveLength(1);
+    // A free coupon at its limit activates nothing.
+    await setup.store.createCoupon(coupon({ id: "c0ffee00-0000-4000-8000-000000000003", code: "FREEONCE", discount: { kind: "percent", percent: 100 }, maxRedemptions: 1 }));
+    const free = await findCoupon(setup.store, { code: "FREEONCE", plan: PLANS.pro, charged: PRO, client: setup.client, now: NOW });
+    if (!free.ok) throw new Error(free.error);
+    const both = await Promise.allSettled([1, 2].map(() => activateWithFreeCoupon({ store: setup.store, client: setup.client, plan: PLANS.pro, coupon: free, charged: PRO, encryptionKey: KEY, now: NOW })));
+    expect(both.map((r) => r.status).sort()).toEqual(["fulfilled", "rejected"]);
+    expect(await setup.store.listCouponRedemptions({ couponId: "c0ffee00-0000-4000-8000-000000000003" })).toHaveLength(1);
   });
 
   it("keeps coupon codes unique, in any case", async () => {

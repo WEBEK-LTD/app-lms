@@ -7,6 +7,8 @@ import type { DataStore } from "../../data/store";
 import type { App, CatalogCategory, CatalogOrder, CatalogOrderLine, CatalogProduct, CatalogSettings, FulfilmentSettings } from "../../data/types";
 import { cartLines, error, intParam, type CartLineInput } from "./common";
 import type { Connector, ConnectorRequest, ConnectorResult } from "./types";
+import { signingSecret } from "../../env";
+import { orderReceiptUrl } from "../../receipts/links";
 
 /**
  * The shop of an app without a website: products, categories and orders the
@@ -432,6 +434,15 @@ export class CatalogConnector implements Connector {
 
   // Orders
 
+  /** 71 The order's receipt (null when the server has no SIGNING_SECRET to sign it with). */
+  private receiptUrl(order: CatalogOrder): string | null {
+    try {
+      return orderReceiptUrl(this.deps.platformUrl, this.deps.app.id, order.id, signingSecret());
+    } catch {
+      return null;
+    }
+  }
+
   private orderJson(order: CatalogOrder) {
     return {
       id: order.id,
@@ -441,6 +452,8 @@ export class CatalogConnector implements Connector {
       total: formatCents(order.totalCents, order.currency),
       // 47 What the shop refunded of it; all of it: the status is "refunded".
       refunded_total: order.refundedCents ? formatCents(order.refundedCents, order.currency) : null,
+      // 71 The receipt as a PDF, from a signed link.
+      receipt_url: order.paidAt ? this.receiptUrl(order) : null,
       created_at: (order.paidAt ?? order.createdAt).toISOString(),
       items: order.lines.map((l) => ({
         name: l.name,

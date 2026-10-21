@@ -857,6 +857,7 @@
   "noDonationsTitle": "Henüz bağış yok",
   "noDonationsMessage": "Giriş yapmışken yaptığınız bağışlar makbuzlarıyla birlikte burada görünür.",
   "donationReceipt": "Makbuz",
+  "downloadReceipt": "Makbuzu indir",
   "donationSeeCampaign": "Kampanyayı gör",
   "notifyCampaignUpdates": "Kampanya haberleri",
   "pageOpenNow": "Şu an açık",

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { releasePayoutAction } from "@/app/actions/admin";
 import { SubmitButton } from "@/components/form";
+import { Icon } from "@/components/icon";
 import { Badge, Notice, formatDateTime } from "@/components/ui";
 import type { PayoutDetails } from "@/lib/catalog/marketplace";
 import { ORDER_STATUS_LABELS, orderNumber, payoutDetails } from "@/lib/catalog/settings";
@@ -103,6 +104,13 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/admin/p
                   <td className="px-4 py-3">{formatDateTime(p.paidAt ?? p.createdAt)}</td>
                   <td className="px-4 py-3 text-[13px]">
                     {PROVIDER_NAME[p.paymentProvider ?? "iyzico"]} <span className="font-mono">{p.paymentId ?? "—"}</span>
+                    {/* 71 The receipt the client got, as a PDF. */}
+                    {p.status === "paid" ? (
+                      <a href={`/admin/payments/${p.id}/pdf`} download className="mt-1 flex items-center gap-1 font-semibold">
+                        <Icon name="download" size={16} />
+                        Receipt PDF
+                      </a>
+                    ) : null}
                   </td>
                 </tr>
               ))}
@@ -164,6 +172,11 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/admin/p
                   </td>
                   <td className="px-4 py-3">
                     {orderNumber(o)} · {formatDateTime(o.paidAt)}
+                    {/* 71 The customer's receipt, as a PDF. */}
+                    <a href={`/admin/payments/orders/${o.appId}/${o.id}/pdf`} download className="mt-1 flex items-center gap-1 text-[13px] font-semibold">
+                      <Icon name="download" size={16} />
+                      Receipt PDF
+                    </a>
                   </td>
                   <td className="px-4 py-3">{formatCents(o.totalCents, o.currency)}</td>
                   <td className="px-4 py-3 font-semibold">{formatCents(o.commissionCents ?? 0, o.currency)}</td>

@@ -11,8 +11,11 @@ import { ipFromHeaders } from "../http";
 import { appState, clientAccountState, type AccountState } from "../license/status";
 import { businessesOf, businessName } from "../team/service";
 import { OWNER_ACCESS, scopedApps, teamCan, type TeamAccess, type TeamPermission, type TeamRole } from "../team/permissions";
-import { SESSION_TTL_SECONDS, sealSession, unsealSession } from "./session-token";
+import { randomToken, sha256Hex } from "../crypto/tokens";
+import { platformSetting } from "../settings/platform";
+import { SESSION_TTL_SECONDS, TWO_STEP_TTL_SECONDS, sealSession, sealTwoStep, unsealSession, unsealTwoStep, type TwoStepClaims } from "./session-token";
 import { SIGNED_IN_COOKIE } from "./signed-in-cookie";
+import { hasTwoStep } from "./two-step";
 
 export const SESSION_COOKIE = "yallapp_session";
 /** The client a super admin is managing from their dashboard. Only read for super admins. */
@@ -24,9 +27,22 @@ const APP_TTL_SECONDS = 365 * 24 * 60 * 60;
 /** 60 The business a team member works on, when they're on more than one (their own client or a team they joined). */
 export const BUSINESS_COOKIE = "yallapp_business";
 
-export async function startSession(user: Pick<User, "id" | "sessionVersion">): Promise<void> {
-  const token = await sealSession({ userId: user.id, sessionVersion: user.sessionVersion }, sessionSecret());
+/** 70 The step between the password and the authenticator code (lib/auth/session-token.ts › TwoStepClaims). */
+export const TWO_STEP_COOKIE = "yallapp_two_step";
+
+/**
+ * Signs the person in on this browser: 70 a new session saved on the server
+ * (the SHA-256 of its random ID) and sealed in the cookie. Only after every
+ * step: the password, and the authenticator code when they have one
+ * (lib/auth/sign-in.ts › afterPassword is the way in).
+ */
+export async function startSession(user: Pick<User, "id" | "sessionVersion">, now: Date = new Date()): Promise<void> {
+  const sessionId = randomToken(32);
+  const store = await getStore();
+  await store.createUserSession({ idHash: sha256Hex(sessionId), userId: user.id, createdAt: now, expiresAt: new Date(now.getTime() + SESSION_TTL_SECONDS * 1000) });
+  const token = await sealSession({ userId: user.id, sessionVersion: user.sessionVersion, sessionId }, sessionSecret(), now);
   const jar = await cookies();
+  jar.delete(TWO_STEP_COOKIE);
   jar.set(SESSION_COOKIE, token, {
     httpOnly: true,
     secure: secureCookies(),
@@ -38,9 +54,14 @@ export async function startSession(user: Pick<User, "id" | "sessionVersion">): P
   jar.set(SIGNED_IN_COOKIE, "1", { httpOnly: false, secure: secureCookies(), sameSite: "lax", path: "/", maxAge: SESSION_TTL_SECONDS });
 }
 
+/** Signs out of this browser: 70 the session's row is deleted, so a copy of the cookie stops working too. */
 export async function endSession(): Promise<void> {
   const jar = await cookies();
+  const token = jar.get(SESSION_COOKIE)?.value;
+  const claims = token ? await unsealSession(token, sessionSecret()) : null;
+  if (claims) await (await getStore()).deleteUserSession(sha256Hex(claims.sessionId));
   jar.delete(SESSION_COOKIE);
+  jar.delete(TWO_STEP_COOKIE);
   jar.delete(SIGNED_IN_COOKIE);
   jar.delete(MANAGE_COOKIE);
   jar.delete(APP_COOKIE);
@@ -104,16 +125,67 @@ export function isSuperAdmin(user: Pick<User, "email">): boolean {
   return superAdminEmails().includes(user.email.toLowerCase());
 }
 
-/** The signed-in user, or null. Cached for the duration of one request. */
+/**
+ * The signed-in user, or null. Cached for the duration of one request. 70
+ * The session must still be on the server (signing out deletes it) and the
+ * user's session version unchanged (a password change, being removed from a
+ * team, "Sign out of all devices").
+ */
 export const getCurrentUser = cache(async (): Promise<User | null> => {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   if (!token) return null;
   const claims = await unsealSession(token, sessionSecret());
   if (!claims) return null;
   const store = await getStore();
-  const user = await store.getUserById(claims.userId);
+  const [session, user] = await Promise.all([store.getUserSession(sha256Hex(claims.sessionId)), store.getUserById(claims.userId)]);
+  if (!session || session.userId !== claims.userId || session.expiresAt.getTime() <= Date.now()) return null;
   if (!user || user.sessionVersion !== claims.sessionVersion) return null;
   return user;
+});
+
+/**
+ * 70 Signs the person out everywhere: every website session (this one too)
+ * and every phone in Yallapp Business. The session version goes up, as with
+ * a password change.
+ */
+export async function signOutEverywhere(user: Pick<User, "id" | "sessionVersion">, now: Date = new Date()): Promise<void> {
+  const store = await getStore();
+  await store.updateUser(user.id, { sessionVersion: user.sessionVersion + 1 }, now);
+  await store.deleteUserSessions(user.id);
+  await store.deleteOwnerDevices(user.id);
+}
+
+/** 70 Remembers, for 10 minutes, someone who gave the right password and still owes their authenticator code. */
+export async function startTwoStep(claims: TwoStepClaims, now: Date = new Date()): Promise<void> {
+  const jar = await cookies();
+  jar.set(TWO_STEP_COOKIE, await sealTwoStep(claims, sessionSecret(), now), {
+    httpOnly: true,
+    secure: secureCookies(),
+    sameSite: "lax",
+    path: "/",
+    maxAge: TWO_STEP_TTL_SECONDS,
+  });
+}
+
+/** 70 Who owes their authenticator code on this browser (their password was right less than 10 minutes ago), or null. */
+export async function pendingTwoStep(): Promise<{ user: User; next: string | null } | null> {
+  const token = (await cookies()).get(TWO_STEP_COOKIE)?.value;
+  const claims = token ? await unsealTwoStep(token, sessionSecret()) : null;
+  if (!claims) return null;
+  const user = await (await getStore()).getUserById(claims.userId);
+  if (!user || user.sessionVersion !== claims.sessionVersion) return null;
+  return { user, next: claims.next };
+}
+
+/** 70 Whether the admin team must use two-step sign-in (Admin › Team; the platform setting `security`). */
+export async function teamTwoStepRequired(): Promise<boolean> {
+  return Boolean((await platformSetting(await getStore(), "security"))?.value.requireTeamTwoStep);
+}
+
+/** 70 The signed-in person's two-step sign-in is on. Cached for one request. */
+export const currentHasTwoStep = cache(async (): Promise<boolean> => {
+  const user = await getCurrentUser();
+  return user ? hasTwoStep(await getStore(), user.id) : false;
 });
 
 /** The signed-in user's role in the admin, or null when they aren't on the team. Cached for one request. */
@@ -171,6 +243,8 @@ export const getClientContext = cache(async (): Promise<ClientContext | null> =>
   if (role) {
     // The team opens a client's dashboard to change their app; viewers only look from the admin.
     if (!can(role, "clients.edit")) return null;
+    // 70 When the team must use two-step sign-in, nobody on it opens a client's dashboard without it (the admin sends them to set it up).
+    if ((await teamTwoStepRequired()) && !(await currentHasTwoStep())) return null;
     const managed = jar.get(MANAGE_COOKIE)?.value;
     client = managed && /^[0-9a-f-]{36}$/i.test(managed) ? await store.getClientById(managed) : null;
     const owner = client ? await store.getUserById(client.userId) : null;
@@ -298,11 +372,13 @@ export interface AdminUser extends User {
  * whose role allows `permission` (lib/admin/permissions.ts). Others go to
  * sign in, to their own home, or to the admin overview with a notice.
  */
-export async function requireAdmin(permission: AdminPermission = "view"): Promise<AdminUser> {
+export async function requireAdmin(permission: AdminPermission = "view", options: { twoStepSetup?: boolean } = {}): Promise<AdminUser> {
   const user = await getCurrentUser();
   if (!user) redirect(await signInPath());
   const role = await getAdminRole();
   if (!role) redirect(await homeFor(user));
+  // 70 When the team must use two-step sign-in, someone without it sets it up before anything else.
+  if (!options.twoStepSetup && (await teamTwoStepRequired()) && !(await currentHasTwoStep())) redirect("/admin/account?required=1");
   if (!can(role, permission)) redirect(`/admin?denied=${permission}`);
   return { ...user, adminRole: role };
 }

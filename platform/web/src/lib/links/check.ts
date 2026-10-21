@@ -1,4 +1,5 @@
 import { isPrivateAddress, resolveHost } from "../app/api-check";
+import { pinnedFetch } from "../net/safe-fetch";
 import type { App, LinksCheckItem, LinksCheckSnapshot } from "../data/types";
 import { appleAppId, fingerprintsOf } from "./well-known";
 import { siteLinkBase } from "./table";
@@ -31,15 +32,17 @@ async function readLimited(response: Response): Promise<string> {
 export async function fetchLinkFile(url: string, options: { fetcher?: Fetch; resolve?: Resolve } = {}): Promise<unknown> {
   const parsed = new URL(url);
   let addresses: string[];
+  const resolve = options.resolve ?? resolveHost;
   try {
-    addresses = await (options.resolve ?? resolveHost)(parsed.hostname);
+    addresses = await resolve(parsed.hostname);
   } catch {
     throw new LinkFileError("We couldn't find this site.");
   }
   if (addresses.length === 0 || addresses.some(isPrivateAddress)) throw new LinkFileError("This address points to a private network.");
   let response: Response;
   try {
-    response = await (options.fetcher ?? fetch)(url, { redirect: "manual", signal: AbortSignal.timeout(TIMEOUT_MS), headers: { accept: "application/json" } });
+    // 70 Connects only to an address checked like the one above (lib/net/safe-fetch.ts).
+    response = await pinnedFetch(options.fetcher, resolve)(url, { redirect: "manual", signal: AbortSignal.timeout(TIMEOUT_MS), headers: { accept: "application/json" } });
   } catch {
     throw new LinkFileError("No answer within 8 seconds.");
   }

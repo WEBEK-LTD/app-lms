@@ -80,6 +80,7 @@ import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, Tea
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
 // 66 Deleting a Yallapp account
 import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatus } from "./types";
+import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
 export type ClientFilter = "all" | "pending" | "active" | "expired";
@@ -449,7 +450,7 @@ export interface DataStore {
   /** Pending to failed. */
   failPlanPayment(id: string): Promise<void>;
   /** Newest first; one client's, one app's, or everyone's. */
-  listPlanPayments(input: { clientId?: string; appId?: string; limit: number }): Promise<PlanPayment[]>;
+  listPlanPayments(input: { clientId?: string; appId?: string; /** 71 Only this one. */ id?: string; limit: number }): Promise<PlanPayment[]>;
   listPlatformSettings(): Promise<PlatformSetting[]>;
   /** Saves a setting, or removes it (back to the Netlify variables) when `value` is null. */
   setPlatformSetting<K extends PlatformSettingKey>(key: K, value: PlatformSettingValues[K] | null, updatedBy: string, now: Date): Promise<void>;
@@ -696,6 +697,13 @@ export interface DataStore {
   /** Newest first. */
   listCoupons(): Promise<Coupon[]>;
   createCouponRedemption(redemption: CouponRedemption): Promise<void>;
+  /**
+   * 70 Saves the pending (or redeemed) use only while the coupon's limits
+   * allow one more, counted under a lock on the coupon (of two at once, one
+   * wins the last place); with `payment`, records that payment in the same
+   * step. False, with nothing saved, when the coupon is used up.
+   */
+  claimCouponRedemption(redemption: CouponRedemption, limits: CouponClaimLimits, payment?: PlanPayment): Promise<boolean>;
   /** Moves a pending redemption (by its plan payment) to redeemed or failed. */
   settleCouponRedemption(paymentId: string, status: "redeemed" | "failed", now: Date): Promise<void>;
   /** Newest first: a coupon's, a client's, or both. */
@@ -917,4 +925,29 @@ export interface DataStore {
   listAccountDeletionRequests(statuses: AccountDeletionStatus[], limit: number): Promise<AccountDeletionRequest[]>;
   /** Closes the request only while it is pending (atomic); false otherwise, with nothing changed. */
   closeAccountDeletionRequest(id: string, close: AccountDeletionClose): Promise<boolean>;
+
+  // 70 Sessions kept on the server (lib/auth/session.ts)
+  createUserSession(session: UserSession): Promise<void>;
+  getUserSession(idHash: string): Promise<UserSession | null>;
+  deleteUserSession(idHash: string): Promise<void>;
+  /** Every session of the person; the number deleted. */
+  deleteUserSessions(userId: string): Promise<number>;
+  /** Sessions whose time ended (the daily job); the number deleted. */
+  deleteExpiredUserSessions(now: Date): Promise<number>;
+
+  // 70 Two-step sign-in (lib/auth/two-step.ts)
+  getTwoFactor(userId: string): Promise<UserTwoFactor | null>;
+  /** Starts (or starts again) a setup that waits for its first code; never replaces one that is on (false then). */
+  saveTwoFactorSetup(userId: string, secretEncrypted: string, now: Date): Promise<boolean>;
+  /** Turns a waiting setup on with its first code's step and new recovery codes (atomic: once); false otherwise. */
+  enableTwoFactor(userId: string, step: number, recoveryHashes: string[], now: Date): Promise<boolean>;
+  /** Claims a code's step: only after the last one used, while it is on (atomic: a code works once). */
+  useTwoFactorStep(userId: string, step: number, now: Date): Promise<boolean>;
+  /** Marks an unused recovery code used (atomic: once); false when it isn't one of theirs or was used. */
+  useRecoveryCode(userId: string, codeHash: string, now: Date): Promise<boolean>;
+  /** Replaces every recovery code. */
+  replaceRecoveryCodes(userId: string, codeHashes: string[], now: Date): Promise<void>;
+  countUnusedRecoveryCodes(userId: string): Promise<number>;
+  /** Removes the secret and the recovery codes; false when there was none. */
+  deleteTwoFactor(userId: string): Promise<boolean>;
 }

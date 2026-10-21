@@ -3520,6 +3520,54 @@ abstract class AppLocalizations {
   /// **'Nothing is sent while the plan has ended, to the app\'s inbox or to phones. Notifications can go out again once it\'s renewed.'**
   String get notifyPlanEnded;
 
+  /// No description provided for @twoStepTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your code'**
+  String get twoStepTitle;
+
+  /// No description provided for @twoStepText.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account uses two-step sign-in. Open your authenticator app and enter the 6-digit code it shows for Yallapp.'**
+  String get twoStepText;
+
+  /// No description provided for @twoStepCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get twoStepCode;
+
+  /// No description provided for @twoStepHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Lost your phone? Enter one of your recovery codes instead.'**
+  String get twoStepHint;
+
+  /// No description provided for @twoStepEnter.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 6-digit code from your authenticator app, or a recovery code.'**
+  String get twoStepEnter;
+
+  /// No description provided for @twoStepWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'That code isn\'t right. Try again, or use a recovery code.'**
+  String get twoStepWrong;
+
+  /// No description provided for @twoStepVerify.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify and sign in'**
+  String get twoStepVerify;
+
+  /// No description provided for @twoStepOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with another account'**
+  String get twoStepOther;
+
   /// No description provided for @minutesAgo.
   ///
   /// In en, this message translates to:

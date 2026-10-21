@@ -310,6 +310,13 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
                     {formatDateTime(p.paidAt ?? p.createdAt)}
                     {apps.length > 1 ? ` · ${p.appId ? (appNames.get(p.appId) ?? "Deleted app") : "Before the first app"}` : ""}
                   </span>
+                  {/* 71 The receipt the client got, as a PDF. */}
+                  {p.status === "paid" ? (
+                    <a href={`/admin/payments/${p.id}/pdf`} download className="inline-flex items-center gap-1 font-semibold">
+                      <Icon name="download" size={16} />
+                      Receipt PDF
+                    </a>
+                  ) : null}
                 </li>
               ))}
             </ul>

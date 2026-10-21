@@ -1,5 +1,6 @@
 import { centsToDecimal, formatCents } from "../catalog/money";
 import type { App, Campaign, CatalogCurrency, Donation, DonationRecurring, DonationSettings } from "../data/types";
+import { donationReceiptPdfUrl } from "../receipts/links";
 import { articleBody, excerptOf, plainText } from "../news/html";
 
 /**
@@ -151,6 +152,8 @@ export function donationJson(d: Donation, platformUrl: string) {
     anonymous: d.anonymous,
     created_at: (d.paidAt ?? d.createdAt).toISOString(),
     receipt_url: receiptUrl(platformUrl, d.receiptCode),
+    // 71 The same receipt as a PDF.
+    receipt_pdf_url: donationReceiptPdfUrl(platformUrl, d.receiptCode),
     // 47 What the charity refunded of it.
     refunded_total: d.refundedCents ? formatCents(d.refundedCents, d.currency) : null,
   };

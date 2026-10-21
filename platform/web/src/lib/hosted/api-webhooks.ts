@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { isPrivateAddress, resolveHost } from "../app/api-check";
+import { pinnedFetch } from "../net/safe-fetch";
 import type { DataStore } from "../data/store";
 import type { ApiWebhook, App } from "../data/types";
 import { ensureAuthKey, signSecurityEvent, tokenIssuer } from "./app-auth";
@@ -151,7 +152,8 @@ export async function attemptWebhook(deps: WebhookDeps, webhook: ApiWebhook, tim
     }
     if (reason === null) {
       try {
-        const response = await (deps.fetcher ?? fetch)(url, {
+        // 70 Connects only to an address checked like the one above (lib/net/safe-fetch.ts).
+        const response = await pinnedFetch(deps.fetcher, deps.resolve)(url, {
           method: "POST",
           headers: {
             "content-type": "application/secevent+jwt",

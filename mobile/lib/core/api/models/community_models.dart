@@ -155,6 +155,7 @@ class Order {
     this.fulfilmentStatus,
     this.fulfilment,
     this.refundedTotal,
+    this.receiptUrl,
   });
 
   factory Order.fromJson(Json json) => Order(
@@ -172,6 +173,7 @@ class Order {
     fulfilmentStatus: fulfilmentStatusFrom(json['fulfilment_status']),
     fulfilment: optObject(json, 'fulfilment', OrderFulfilment.fromJson),
     refundedTotal: optString(json, 'refunded_total'),
+    receiptUrl: optString(json, 'receipt_url'),
   );
 
   final int id;
@@ -190,6 +192,9 @@ class Order {
 
   /// 47 What the business refunded of it, formatted; null for nothing.
   final String? refundedTotal;
+
+  /// 71 The receipt as a PDF, to download; null on WordPress sites and older servers.
+  final String? receiptUrl;
 
   /// Whether the app shows its steps.
   bool get trackable => fulfilmentStatus != null;

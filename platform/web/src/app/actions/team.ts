@@ -9,7 +9,8 @@ import { recordStaffChange } from "@/lib/admin/audit";
 import { adminRoleOf, isBootstrapOwner } from "@/lib/admin/team";
 import { authenticate } from "@/lib/auth/accounts";
 import { hashPassword } from "@/lib/auth/password";
-import { actorOf, chooseBusiness, clientFor, getCurrentUser, mayUseDashboard, requestIp, startSession, type ClientContext } from "@/lib/auth/session";
+import { actorOf, chooseBusiness, clientFor, getCurrentUser, mayUseDashboard, requestIp, type ClientContext } from "@/lib/auth/session";
+import { afterPassword } from "@/lib/auth/sign-in";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import { DuplicateEmailError } from "@/lib/data/store";
@@ -215,7 +216,7 @@ export async function joinTeamAction(_: FormState, formData: FormData): Promise<
   }
   const joined = await acceptInvitation(store, token, user, now);
   if (!joined.ok) return say({ message: REASONS[joined.reason] });
-  await startSession(user);
   await chooseBusiness(joined.client.id);
-  redirect(joined.client.status === "active" ? "/dashboard" : "/pending");
+  // 70 An account with two-step sign-in gives its code first: the link never skips it.
+  redirect(await afterPassword(user, { lang, next: joined.client.status === "active" ? "/dashboard" : "/pending" }));
 }

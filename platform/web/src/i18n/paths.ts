@@ -27,6 +27,8 @@ const EXACT_PAGES = new Set([
   // 66 How to delete a Yallapp account (Google Play and the App Store link to it).
   "/delete-account",
   "/sign-in",
+  // 70 The code of two-step sign-in, after the password.
+  "/sign-in/code",
   "/sign-up",
   "/forgot-password",
   "/reset-password",

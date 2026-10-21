@@ -1,6 +1,7 @@
 import { getDashT, knownTranslator } from "@/i18n/dashboard";
 import { adminRoleOf } from "../admin/team";
 import { authenticate } from "../auth/accounts";
+import { checkSecondStep, hasTwoStep } from "../auth/two-step";
 import { newId, safeEqual } from "../crypto/tokens";
 import type { Client, OwnerDevice, User } from "../data/types";
 import { clientAccountState } from "../license/status";
@@ -61,7 +62,14 @@ async function sessionJson(deps: Pick<OwnerDeps, "store" | "signingSecret" | "no
   };
 }
 
-/** `POST /auth/sign-in`: the website's limits (counted with it), its password check, then a new device. */
+/** 70 The messages of the second step (two-step sign-in), in the dashboard catalogs' `security.known`. */
+export const TWO_STEP_REQUIRED = "Enter the 6-digit code from your authenticator app, or a recovery code.";
+export const TWO_STEP_WRONG = "That code isn't right. Try again, or use a recovery code.";
+
+/**
+ * `POST /auth/sign-in`: the website's limits (counted with it), its password check, 70 the code
+ * from the authenticator app when the account has two-step sign-in (`otp`), then a new device.
+ */
 export async function signIn(deps: OwnerDeps, req: OwnerRequest) {
   const body = bodyObject(req.body);
   const parsed = signInSchema.safeParse({ email: body.email, password: body.password });
@@ -76,6 +84,15 @@ export async function signIn(deps: OwnerDeps, req: OwnerRequest) {
   if (!byIp.allowed || !byEmail.allowed) throw rateLimited(Math.max(byIp.allowed ? 0 : byIp.retryAfter, byEmail.allowed ? 0 : byEmail.retryAfter), TOO_MANY);
   const user = await authenticate(deps.store, parsed.data.email, parsed.data.password, deps.now);
   if (!user) throw new OwnerError(401, "invalid_credentials", "The email or password is incorrect.");
+  // 70 Two-step sign-in: the password was right; the code comes in `otp` (the app asks for it after this answer).
+  if (await hasTwoStep(deps.store, user.id)) {
+    const otp = typeof body.otp === "string" ? body.otp.trim() : "";
+    if (!otp) throw new OwnerError(401, "two_factor_required", TWO_STEP_REQUIRED);
+    const second = await checkSecondStep(deps.store, user, otp, deps.encryptionKey, deps.now);
+    if (!second.ok && second.error === "rate") throw rateLimited(15 * 60, TOO_MANY);
+    // Turned off in between: the password was right, so they're in.
+    if (!second.ok && second.error !== "off") throw new OwnerError(401, "invalid_two_factor_code", TWO_STEP_WRONG);
+  }
   // Yallapp's own team works on the website (the admin); only client accounts and 60 their teams get in.
   const businesses = (await adminRoleOf(deps.store, user)) ? [] : await businessesOf(deps.store, user);
   // Their own business first, else the first active team (`PUT /me/business` changes it).

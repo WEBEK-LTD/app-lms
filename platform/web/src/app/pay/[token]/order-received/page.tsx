@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Icon } from "@/components/icon";
+import { btn } from "@/components/ui";
+import { signingSecret } from "@/lib/env";
+import { orderReceiptUrl } from "@/lib/receipts/links";
 import { orderNumber } from "@/lib/catalog/settings";
 import { sha256Hex } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
@@ -40,6 +43,13 @@ export default async function OrderReceivedPage({ params }: { params: Promise<{ 
                 ? `Your demo order ${orderNumber(order!)} is placed. Nothing was charged. You'll find it in your orders in the app.`
                 : `Your order ${orderNumber(order!)} is placed and paid. You'll find it in your orders in the app.`}
           </p>
+          {/* 71 The receipt as a PDF (also emailed to the customer). */}
+          {order!.paidAt ? (
+            <a href={orderReceiptUrl("", order!.appId, order!.id, signingSecret())} download className={`${btn.secondary} h-11 px-4 text-[15px]`}>
+              <Icon name="download" size={20} />
+              Download receipt (PDF)
+            </a>
+          ) : null}
         </>
       ) : (
         <>

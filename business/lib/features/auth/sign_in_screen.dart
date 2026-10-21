@@ -9,7 +9,9 @@ import '../../core/theme/theme.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
 
-/// 59 Sign in with the email and password of the Yallapp dashboard.
+/// 59 Sign in with the email and password of the Yallapp dashboard. 70 An
+/// account with two-step sign-in then gives the code from its authenticator
+/// app (or a recovery code), sent with the email and password again.
 class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
 
@@ -21,15 +23,30 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   final _form = GlobalKey<FormState>();
   final _email = TextEditingController();
   final _password = TextEditingController();
+  final _code = TextEditingController();
   bool _hidden = true;
   bool _busy = false;
+
+  /// 70 The password was right; the authenticator code comes next.
+  bool _needsCode = false;
   ApiException? _error;
 
   @override
   void dispose() {
     _email.dispose();
     _password.dispose();
+    _code.dispose();
     super.dispose();
+  }
+
+  /// 70 Back to the email and password, for another account.
+  void _otherAccount() {
+    _password.clear();
+    _code.clear();
+    setState(() {
+      _needsCode = false;
+      _error = null;
+    });
   }
 
   Future<void> _submit() async {
@@ -42,9 +59,18 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     try {
       await ref
           .read(sessionProvider.notifier)
-          .signIn(_email.text.trim(), _password.text);
+          .signIn(
+            _email.text.trim(),
+            _password.text,
+            otp: _needsCode ? _code.text.trim() : null,
+          );
     } on ApiException catch (e) {
-      if (mounted) setState(() => _error = e);
+      if (!mounted) return;
+      if (e.code == ApiException.twoFactorRequired && !_needsCode) {
+        setState(() => _needsCode = true);
+      } else {
+        setState(() => _error = e);
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -93,25 +119,29 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       Semantics(
                         header: true,
                         child: Text(
-                          l10n.signInTitle,
+                          _needsCode ? l10n.twoStepTitle : l10n.signInTitle,
                           style: theme.textTheme.headlineMedium,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        l10n.signInText,
+                        _needsCode ? l10n.twoStepText : l10n.signInText,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: context.yb.ink2,
                         ),
                       ),
                       const SizedBox(height: 24),
-                      if (expired && error == null)
+                      if (expired && error == null && !_needsCode)
                         _Notice(text: l10n.signedOutNotice, tone: Tone.info),
                       if (error != null)
                         _Notice(
-                          text: error.code == ApiException.invalidCredentials
-                              ? l10n.invalidCredentials
-                              : errorMessage(context, error),
+                          text: switch (error.code) {
+                            ApiException.invalidCredentials =>
+                              l10n.invalidCredentials,
+                            ApiException.invalidTwoFactorCode =>
+                              l10n.twoStepWrong,
+                            _ => errorMessage(context, error),
+                          },
                           tone: Tone.bad,
                           action: error.code == ApiException.useWebsite
                               ? TextButton(
@@ -121,77 +151,118 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                                 )
                               : null,
                         ),
-                      TextFormField(
-                        controller: _email,
-                        keyboardType: TextInputType.emailAddress,
-                        autofillHints: const [AutofillHints.email],
-                        textInputAction: TextInputAction.next,
-                        autocorrect: false,
-                        decoration: InputDecoration(labelText: l10n.email),
-                        validator: (v) => (v == null || !v.contains('@'))
-                            ? l10n.emailInvalid
-                            : null,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _password,
-                        obscureText: _hidden,
-                        autofillHints: const [AutofillHints.password],
-                        textInputAction: TextInputAction.done,
-                        onFieldSubmitted: (_) => _submit(),
-                        decoration: InputDecoration(
-                          labelText: l10n.password,
-                          suffixIcon: IconButton(
-                            tooltip: _hidden
-                                ? l10n.showPassword
-                                : l10n.hidePassword,
-                            icon: Icon(
-                              _hidden ? AppIcons.visible : AppIcons.hidden,
+                      if (_needsCode) ...[
+                        TextFormField(
+                          controller: _code,
+                          autofocus: true,
+                          keyboardType: TextInputType.visiblePassword,
+                          autofillHints: const [AutofillHints.oneTimeCode],
+                          textInputAction: TextInputAction.done,
+                          autocorrect: false,
+                          enableSuggestions: false,
+                          onFieldSubmitted: (_) => _submit(),
+                          decoration: InputDecoration(
+                            labelText: l10n.twoStepCode,
+                            helperText: l10n.twoStepHint,
+                            helperMaxLines: 3,
+                          ),
+                          validator: (v) => (v == null || v.trim().isEmpty)
+                              ? l10n.twoStepEnter
+                              : null,
+                        ),
+                        const SizedBox(height: 24),
+                        FilledButton(
+                          onPressed: _busy ? null : _submit,
+                          child: _busy
+                              ? SizedBox.square(
+                                  dimension: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.5,
+                                    color: context.yb.onInk,
+                                    semanticsLabel: l10n.signingIn,
+                                  ),
+                                )
+                              : Text(l10n.twoStepVerify),
+                        ),
+                        const SizedBox(height: 8),
+                        TextButton(
+                          onPressed: _busy ? null : _otherAccount,
+                          child: Text(l10n.twoStepOther),
+                        ),
+                      ] else ...[
+                        TextFormField(
+                          controller: _email,
+                          keyboardType: TextInputType.emailAddress,
+                          autofillHints: const [AutofillHints.email],
+                          textInputAction: TextInputAction.next,
+                          autocorrect: false,
+                          decoration: InputDecoration(labelText: l10n.email),
+                          validator: (v) => (v == null || !v.contains('@'))
+                              ? l10n.emailInvalid
+                              : null,
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _password,
+                          obscureText: _hidden,
+                          autofillHints: const [AutofillHints.password],
+                          textInputAction: TextInputAction.done,
+                          onFieldSubmitted: (_) => _submit(),
+                          decoration: InputDecoration(
+                            labelText: l10n.password,
+                            suffixIcon: IconButton(
+                              tooltip: _hidden
+                                  ? l10n.showPassword
+                                  : l10n.hidePassword,
+                              icon: Icon(
+                                _hidden ? AppIcons.visible : AppIcons.hidden,
+                              ),
+                              onPressed: () =>
+                                  setState(() => _hidden = !_hidden),
                             ),
-                            onPressed: () => setState(() => _hidden = !_hidden),
+                          ),
+                          validator: (v) => (v == null || v.isEmpty)
+                              ? l10n.passwordEmpty
+                              : null,
+                        ),
+                        Align(
+                          alignment: AlignmentDirectional.centerEnd,
+                          child: TextButton(
+                            onPressed: _forgot,
+                            child: Text(l10n.forgotPassword),
                           ),
                         ),
-                        validator: (v) => (v == null || v.isEmpty)
-                            ? l10n.passwordEmpty
-                            : null,
-                      ),
-                      Align(
-                        alignment: AlignmentDirectional.centerEnd,
-                        child: TextButton(
-                          onPressed: _forgot,
-                          child: Text(l10n.forgotPassword),
+                        const SizedBox(height: 8),
+                        FilledButton(
+                          onPressed: _busy ? null : _submit,
+                          child: _busy
+                              ? SizedBox.square(
+                                  dimension: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.5,
+                                    color: context.yb.onInk,
+                                    semanticsLabel: l10n.signingIn,
+                                  ),
+                                )
+                              : Text(l10n.signIn),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      FilledButton(
-                        onPressed: _busy ? null : _submit,
-                        child: _busy
-                            ? SizedBox.square(
-                                dimension: 22,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.5,
-                                  color: context.yb.onInk,
-                                  semanticsLabel: l10n.signingIn,
-                                ),
-                              )
-                            : Text(l10n.signIn),
-                      ),
-                      const SizedBox(height: 32),
-                      Text(
-                        l10n.newToYallapp,
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.bodySmall,
-                      ),
-                      TextButton(
-                        onPressed: () => openLink(
-                          context,
-                          ref,
-                          ref
-                              .read(configProvider)
-                              .websitePage('/', context.lang),
+                        const SizedBox(height: 32),
+                        Text(
+                          l10n.newToYallapp,
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodySmall,
                         ),
-                        child: Text(l10n.openWebsite),
-                      ),
+                        TextButton(
+                          onPressed: () => openLink(
+                            context,
+                            ref,
+                            ref
+                                .read(configProvider)
+                                .websitePage('/', context.lang),
+                          ),
+                          child: Text(l10n.openWebsite),
+                        ),
+                      ],
                     ],
                   ),
                 ),

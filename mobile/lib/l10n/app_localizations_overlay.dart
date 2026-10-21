@@ -3286,6 +3286,10 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('donationReceipt') ?? base.donationReceipt;
 
   @override
+  String get downloadReceipt =>
+      overlay.text('downloadReceipt') ?? base.downloadReceipt;
+
+  @override
   String get donationSeeCampaign =>
       overlay.text('donationSeeCampaign') ?? base.donationSeeCampaign;
 

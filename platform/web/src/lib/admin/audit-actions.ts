@@ -41,6 +41,9 @@ export const AUDIT_ACTIONS = {
   "team.invite": "Team member invited",
   "team.role": "Team role changed",
   "team.remove": "Team member removed",
+  // 70 Two-step sign-in
+  "team.two_step_required": "Two-step sign-in for the team changed",
+  "team.two_step_reset": "Team member's two-step sign-in reset",
   "content.update": "Website content saved",
   "content.reset": "Website content back to default",
   "email_template.update": "Email template saved",

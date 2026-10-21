@@ -27,6 +27,11 @@ class FakeOwnerApi implements OwnerApi {
   AccountState state = AccountState.active;
   String? stateMessage;
   bool staffOnly = false;
+
+  /// 70 The account has two-step sign-in: sign-in needs this code as `otp`
+  /// (each code once).
+  String? twoStepCode;
+  final _usedCodes = <String>{};
   String? language;
   bool pushAvailable = true;
 
@@ -923,6 +928,7 @@ class FakeOwnerApi implements OwnerApi {
     required String email,
     required String password,
     required DeviceInfo device,
+    String? otp,
   }) async {
     await _call('signIn', needsActive: false);
     if (email.trim().toLowerCase() != demoEmail || password != demoPassword) {
@@ -931,6 +937,24 @@ class FakeOwnerApi implements OwnerApi {
         message: 'The email or password is incorrect.',
         statusCode: 401,
       );
+    }
+    final code = twoStepCode;
+    if (code != null) {
+      final sent = otp?.replaceAll(' ', '');
+      if (sent == null || sent.isEmpty) {
+        throw const ApiException(
+          code: ApiException.twoFactorRequired,
+          message: 'Enter the 6-digit code from your authenticator app, or a recovery code.',
+          statusCode: 401,
+        );
+      }
+      if (sent != code || !_usedCodes.add(sent)) {
+        throw const ApiException(
+          code: ApiException.invalidTwoFactorCode,
+          message: "That code isn't right. Try again, or use a recovery code.",
+          statusCode: 401,
+        );
+      }
     }
     if (staffOnly) {
       throw const ApiException(

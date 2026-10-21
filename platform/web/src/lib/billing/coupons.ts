@@ -1,6 +1,6 @@
 import { formatCents, parsePrice } from "../catalog/money";
 import type { DataStore } from "../data/store";
-import type { CatalogCurrency, Client, Coupon, CouponDiscount, CouponRedemption, License } from "../data/types";
+import type { CatalogCurrency, Client, Coupon, CouponClaimLimits, CouponDiscount, CouponRedemption, License } from "../data/types";
 import { PLANS, type Plan, type PlanInfo } from "../plans";
 import type { RateLimitRule } from "../rate-limit";
 import type { Money } from "./prices";
@@ -62,6 +62,22 @@ export function countedRedemptions(redemptions: CouponRedemption[], now: Date): 
 }
 
 export type CouponCheck = ({ ok: true; coupon: Coupon } & CouponPrice) | { ok: false; error: string };
+
+/** 70 The limits a use is claimed against, counted by the store under a lock (DataStore.claimCouponRedemption). */
+export function couponClaimLimits(coupon: Pick<Coupon, "maxRedemptions" | "maxPerClient">, now: Date): CouponClaimLimits {
+  return { maxRedemptions: coupon.maxRedemptions, maxPerClient: coupon.maxPerClient, pendingSince: new Date(now.getTime() - PENDING_HOLD_MS) };
+}
+
+/**
+ * 70 The coupon's last use went to another payment between the check and
+ * the payment (two at the same moment): nothing was recorded or charged.
+ */
+export class CouponUsedUpError extends Error {
+  constructor(readonly perClient: boolean) {
+    super(perClient ? "You've already used this coupon." : "This coupon has been used up.");
+    this.name = "CouponUsedUpError";
+  }
+}
 
 const PERIOD_NAME = { 1: "monthly", 12: "yearly" } as const;
 

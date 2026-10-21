@@ -285,6 +285,8 @@ describe("29 charity campaigns and donations on the hosted API", () => {
       expect(items).toHaveLength(1);
       expect(items[0]).toMatchObject({ reference: `D-${1000 + mine.id}`, campaign_id: ids.parcels, campaign_title: "Winter food parcels", amount: "300.00", amount_formatted: "₺300.00", recurring: "none", anonymous: false });
       expect(items[0]!.receipt_url).toBe(`https://yallapp.test/receipts/${mine.receiptCode}`);
+      // 71 The same receipt as a PDF.
+      expect(items[0]!.receipt_pdf_url).toBe(`https://yallapp.test/receipts/${mine.receiptCode}/pdf`);
       expect((await call("GET", "/me/donations")).status).toBe(401);
       // A deleted campaign keeps its donations' titles.
       await store.deleteCampaign(app.id, ids.parcels);

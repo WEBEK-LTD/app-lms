@@ -7,6 +7,7 @@ import '../../../core/api/models/models.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/providers.dart';
+import '../../../core/services/external_links.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
@@ -164,6 +165,24 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
               shortDate(order.createdAt),
               style: TextStyle(fontSize: 13, color: p.textSecondary),
             ),
+            // 71 The receipt as a PDF, in the app's language.
+            if (order.receiptUrl != null) ...[
+              const SizedBox(height: 12),
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: TextButton.icon(
+                  onPressed: () => ref.read(openExternalProvider)(
+                    receiptInLanguage(
+                      order.receiptUrl!,
+                      Localizations.localeOf(context).languageCode,
+                    ),
+                  ),
+                  icon: AppIcon(AppIcons.download, size: 18, color: p.link),
+                  label: Text(l10n.downloadReceipt),
+                  style: TextButton.styleFrom(foregroundColor: p.link),
+                ),
+              ),
+            ],
           ],
         ),
       );

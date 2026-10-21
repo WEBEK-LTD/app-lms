@@ -7,7 +7,7 @@ import { PaymentError } from "../payments/errors";
 import { confirmCheckout, PROVIDER_NAME, providerTakes, startCheckout, type PaymentAccount, type ProviderUrls } from "../payments/provider";
 import { planPriceOf, type Plan, type PlanInfo } from "../plans";
 import { getPlans } from "../settings/platform";
-import type { CouponCheck } from "./coupons";
+import { couponClaimLimits, CouponUsedUpError, type CouponCheck } from "./coupons";
 import { planChangeFor, type PlanChange } from "./plan-change";
 import type { StorageRenewal } from "../media/packs";
 import { chargedPrice, formatAmount, shownOf, sumOffers, type Money, type Offer } from "./prices";
@@ -145,8 +145,12 @@ export async function startPlanPayment(
     },
     { fetcher: deps.fetcher, urls: deps.urls },
   );
-  await deps.store.createPlanPayment({ ...payment, providerRef: started.providerRef.slice(0, 191) });
-  if (coupon) await deps.store.createCouponRedemption(redemptionOf(coupon, payment, "pending", deps.now));
+  const recorded: PlanPayment = { ...payment, providerRef: started.providerRef.slice(0, 191) };
+  if (!coupon) await deps.store.createPlanPayment(recorded);
+  // 70 With a coupon, the payment is recorded only with its use, while the coupon's limits still allow one (atomic).
+  else if (!(await deps.store.claimCouponRedemption(redemptionOf(coupon, payment, "pending", deps.now), couponClaimLimits(coupon.coupon, deps.now), recorded))) {
+    throw new CouponUsedUpError(false);
+  }
   return started.url;
 }
 
@@ -295,8 +299,10 @@ export async function activateWithFreeCoupon(deps: {
     createdAt: now,
     paidAt: now,
   };
-  await store.createPlanPayment(payment);
-  await store.createCouponRedemption(redemptionOf(coupon, payment, "redeemed", now));
+  // 70 Recorded only with its use, while the coupon's limits still allow one (atomic): nothing is activated otherwise.
+  if (!(await store.claimCouponRedemption(redemptionOf(coupon, payment, "redeemed", now), couponClaimLimits(coupon.coupon, now), payment))) {
+    throw new CouponUsedUpError(false);
+  }
   const license = await store.getLicenseForApp(client.id, payment.appId);
   const plans = await getPlans(store);
   const change = planChangeFor(license, plan, payment.months, plans, now);

@@ -1,4 +1,5 @@
 import { privateHostProblem, resolveHost } from "../../app/api-check";
+import { pinnedFetch } from "../../net/safe-fetch";
 import type { HostedUser } from "../../data/types";
 import { cartLines, error, intParam, type CartLineInput } from "./common";
 import { registerPlatform, type PlatformConnector, type PlatformDefinition } from "./platforms";
@@ -184,16 +185,21 @@ export class TicimaxClient {
    * 69 The shop is on the client's own domain, so its addresses are checked
    * before every call: never a private or local network. By default only for
    * real requests (tests pass their own fetcher, and `resolve` to check this).
+   * 70 Real requests connect only to an address checked the same way
+   * (lib/net/safe-fetch.ts), so the name can't change its answer in between.
    */
   private readonly resolve: ((host: string) => Promise<string[]>) | null;
+  private readonly fetcher: Fetch;
 
   constructor(
     private readonly host: string,
     private readonly key: string,
-    private readonly fetcher: Fetch = fetch,
+    fetcher?: Fetch,
     resolve?: ((host: string) => Promise<string[]>) | null,
   ) {
-    this.resolve = resolve !== undefined ? resolve : fetcher === fetch ? resolveHost : null;
+    const real = !fetcher || fetcher === globalThis.fetch;
+    this.resolve = resolve !== undefined ? resolve : real ? resolveHost : null;
+    this.fetcher = pinnedFetch(fetcher, this.resolve ?? undefined);
   }
 
   /** Calls an operation (the key goes first, as `UyeKodu`); returns its `<Operation>Result`, or null when it's empty. */
@@ -542,7 +548,7 @@ export class TicimaxConnector implements PlatformConnector {
 
   constructor(
     private readonly settings: TicimaxSettings,
-    fetcher: Fetch = fetch,
+    fetcher?: Fetch,
     resolve?: ((host: string) => Promise<string[]>) | null,
   ) {
     this.client = new TicimaxClient(settings.host, settings.key, fetcher, resolve);

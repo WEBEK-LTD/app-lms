@@ -54,6 +54,8 @@ export type EmailTemplateKey =
 
   // 47 Refunds from the dashboard
   | "payment_refunded"
+  // 71 Receipts as PDF
+  | "order_receipt"
   // 51 Media and storage
   | "storage_pack_added"
   | "storage_pack_ended"
@@ -62,7 +64,10 @@ export type EmailTemplateKey =
   // 66 Deleting a Yallapp account
   | "account_deletion_request"
   | "account_deletion_received"
-  | "account_deletion_done";
+  | "account_deletion_done"
+  // 70 Two-step sign-in
+  | "two_step_on"
+  | "two_step_off";
 
 export interface EmailTemplateDefinition {
   key: EmailTemplateKey;
@@ -459,6 +464,27 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       "Your receipt: {{receipt_url}}\n\nKeep this email for your records. If you have a question about your donation, contact {{org_name}} and give the reference above.",
   },
   {
+    // 71 Sent in the business's name, like the donation receipt, with the receipt's PDF attached.
+    key: "order_receipt",
+    name: "Order receipt",
+    description:
+      "To a customer when their order (products, a restaurant's order, tickets, a paid course or a membership) is paid (apps without a website), with the receipt as a PDF. Sent in the business's name, from the app's own email server when its owner set one.",
+    placeholders: [
+      { name: "org_name", description: "The business's name (the app's name)", sample: "Harbour Books" },
+      { name: "customer_name", description: "The customer's name", sample: "Elif Yılmaz" },
+      { name: "order_number", description: "The order's number", sample: "1042" },
+      { name: "total", description: "The order's total", sample: "₺450.00" },
+      { name: "order_lines", description: "One line per item with its options, and shipping (a restaurant's delivery fee)", sample: "Tulip vase × 1: ₺400.00\nShipping: ₺50.00" },
+      { name: "date", description: "The day the payment went through", sample: "14 October 2026" },
+      { name: "receipt_url", description: "The receipt as a PDF, to download again", sample: "https://yallapp.com.tr/receipts/orders/sample" },
+    ],
+    subject: "Your receipt from {{org_name}} · order {{order_number}}",
+    body:
+      "Dear {{customer_name}},\n\nThank you for your order from {{org_name}}. We received your payment.\n\n" +
+      "{{order_lines}}\nTotal: {{total}}\nDate: {{date}}\nOrder: {{order_number}}\n\n" +
+      "Your receipt: {{receipt_url}}\n\nKeep this email for your records. If you have a question about your order, contact {{org_name}} and give the order number above.",
+  },
+  {
     // 47 Sent in the business's name, like the donation receipt.
     key: "payment_refunded",
     name: "Payment refunded",
@@ -604,6 +630,39 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       "Hello {{name}},\n\nYour Yallapp account was deleted, with its apps and their data, as you asked. " +
       "We keep only the billing records that accounting and tax laws require, and a record of your request.\n\n" +
       "Apps you published under your own store accounts stay there until you remove them. Thank you for using Yallapp." +
+      SIGNATURE,
+  },
+  // 70 Two-step sign-in
+  {
+    key: "two_step_on",
+    name: "Two-step sign-in turned on",
+    description: "70 To anyone (clients, their team members, our team) who turned on two-step sign-in, in their dashboard language.",
+    placeholders: [
+      NAME,
+      { name: "date", description: "When it was turned on (UTC)", sample: "2026-10-21 09:30 UTC" },
+      { name: "account_url", description: "Where it is managed: Your account in the dashboard (or the admin)", sample: "https://yallapp.com.tr/dashboard/account" },
+    ],
+    subject: "Two-step sign-in is on for your Yallapp account",
+    body:
+      "Hello {{name}},\n\nTwo-step sign-in was turned on for your Yallapp account on {{date}}. From now on, signing in to yallapp.com.tr and Yallapp Business asks for a code from your authenticator app after your password.\n\n" +
+      "Keep your recovery codes somewhere safe: each one signs you in once if you lose your phone. You can manage it here:\n{{account_url}}\n\n" +
+      "If you didn't do this, reset your password at once and write to us at {{yallapp_email}}." +
+      SIGNATURE,
+  },
+  {
+    key: "two_step_off",
+    name: "Two-step sign-in turned off",
+    description: "70 To anyone whose two-step sign-in was turned off (by them, or reset by our team in Admin › Team), in their dashboard language.",
+    placeholders: [
+      NAME,
+      { name: "date", description: "When it was turned off (UTC)", sample: "2026-10-21 09:30 UTC" },
+      { name: "account_url", description: "Where to turn it on again: Your account in the dashboard (or the admin)", sample: "https://yallapp.com.tr/dashboard/account" },
+    ],
+    subject: "Two-step sign-in is off for your Yallapp account",
+    body:
+      "Hello {{name}},\n\nTwo-step sign-in was turned off for your Yallapp account on {{date}}. Signing in now needs only your password.\n\n" +
+      "You can turn it on again here:\n{{account_url}}\n\n" +
+      "If you didn't do this or ask for it, reset your password at once, turn two-step sign-in on again and write to us at {{yallapp_email}}." +
       SIGNATURE,
   },
 ];

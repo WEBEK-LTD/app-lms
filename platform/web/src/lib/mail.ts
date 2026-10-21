@@ -3,7 +3,7 @@ import { getStore } from "./data";
 import type { DataStore } from "./data/store";
 import { encryptionKey, isProduction, mailCaptureDir } from "./env";
 import { DEFAULT_CONTACT } from "./contact";
-import { fromWithName } from "./email/app-mail";
+import { fromWithName, type MailAttachment } from "./email/app-mail";
 import { platformSetting, resolvedSmtpConfig } from "./settings/platform";
 
 export interface Mail {
@@ -12,6 +12,8 @@ export interface Mail {
   text: string;
   /** The same message as HTML (templates from the admin, lib/email/send.ts). */
   html?: string;
+  /** 71 Files sent with it (a receipt's PDF). */
+  attachments?: MailAttachment[];
 }
 
 /**
@@ -31,7 +33,8 @@ export async function sendMail(input: Mail, options: { fromName?: string } = {})
   const config = await resolvedSmtpConfig(store, encryptionKey());
   if (!config) {
     if (!isProduction() || process.env.YALLAPP_DATA === "memory") {
-      console.info(`[mail] To: ${mail.to}\n[mail] Subject: ${mail.subject}\n${mail.text}\n`);
+      const files = mail.attachments?.length ? `[mail] Attached: ${mail.attachments.map((a) => a.filename).join(", ")}\n` : "";
+      console.info(`[mail] To: ${mail.to}\n[mail] Subject: ${mail.subject}\n${files}${mail.text}\n`);
       await captureMail(mail);
     } else {
       console.warn(`[mail] SMTP is not configured; an email to ${mail.to} was not sent.`);
@@ -49,7 +52,7 @@ export async function sendMail(input: Mail, options: { fromName?: string } = {})
   });
   // 24 Emails to an app's users go out from Yallapp's address with the app's name.
   const from = options.fromName ? fromWithName(config.from, options.fromName) : config.from;
-  await transport.sendMail({ from, to: mail.to, subject: mail.subject, text: mail.text, html: mail.html });
+  await transport.sendMail({ from, to: mail.to, subject: mail.subject, text: mail.text, html: mail.html, attachments: mail.attachments });
 }
 
 /** 19 Whether SMTP is set up (in the admin's Settings or the server's variables). */
@@ -79,5 +82,7 @@ async function captureMail(mail: Mail): Promise<void> {
   const path = await import("node:path");
   await mkdir(dir, { recursive: true });
   const name = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.json`;
-  await writeFile(path.join(dir, name), JSON.stringify({ ...mail, sentAt: new Date().toISOString() }));
+  // 71 Attachments as base64, so a test can open the file.
+  const attachments = mail.attachments?.map((a) => ({ filename: a.filename, contentType: a.contentType, size: a.content.length, base64: a.content.toString("base64") }));
+  await writeFile(path.join(dir, name), JSON.stringify({ ...mail, attachments, sentAt: new Date().toISOString() }));
 }

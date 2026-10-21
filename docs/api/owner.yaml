@@ -25,7 +25,17 @@ info:
       one). Both are random secrets that the server keeps only as hashes and
       compares in constant time. Each sign-in is a device of its own, listed
       in the dashboard (Your phones) and in `GET /me/devices`, and can be
-      signed out there. A password change signs every device out.
+      signed out there. A password change signs every device out, and so
+      does (roadmap 70) "Sign out of all devices" in the dashboard.
+    - **Two-step sign-in** (roadmap 70). An account that turned it on (Your
+      account in the dashboard) signs in with the email, the password and
+      `otp`: the 6-digit code from its authenticator app (RFC 6238, 30-second
+      steps, the step before and after accepted, each code once) or one of
+      its one-time recovery codes. Without `otp` the right password answers
+      401 `two_factor_required` and no device is made; the app then asks for
+      the code and sends all three again. A wrong code is 401
+      `invalid_two_factor_code`. Codes count against their own limit, 8 per
+      person in 15 minutes, besides the sign-in limits.
     - **Scope.** Every `/apps/{app_id}` path answers only for the signed-in
       client's own apps: another client's app, or an ID that doesn't exist,
       is 404 `not_found`. What an app has follows its app type and where its
@@ -192,7 +202,9 @@ paths:
         Each sign-in adds a device (at most 10 per person; the one used
         longest ago is signed out to make room). A pending or suspended
         account signs in too: `account_state` says so and the data calls
-        answer 403 until it is active.
+        answer 403 until it is active. Roadmap 70: an account with two-step
+        sign-in also sends `otp`; without it, the right password answers 401
+        `two_factor_required`.
       security: []
       requestBody:
         required: true
@@ -207,7 +219,12 @@ paths:
               schema: { $ref: '#/components/schemas/Session' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401':
-          description: The email or password is incorrect (`invalid_credentials`).
+          description: |
+            `invalid_credentials`: the email or password is incorrect.
+            Roadmap 70: `two_factor_required`, the password is right and the
+            account has two-step sign-in, so send the code in `otp` (no
+            device was made); `invalid_two_factor_code`, the code in `otp`
+            isn't right (or was used already).
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
@@ -2310,6 +2327,8 @@ components:
           description: Stable machine-readable code.
           examples:
             - invalid_credentials
+            - two_factor_required
+            - invalid_two_factor_code
             - use_website
             - invalid_token
             - account_pending
@@ -2370,6 +2389,15 @@ components:
       properties:
         email: { type: string, format: email }
         password: { type: string }
+        otp:
+          type: string
+          maxLength: 24
+          description: |
+            Roadmap 70: only for an account with two-step sign-in, after a
+            `two_factor_required` answer: the 6-digit code from the
+            authenticator app (spaces allowed), or a recovery code like
+            `k7m2p-x9qa4`.
+          examples: ['123456', 'k7m2p-x9qa4']
         device: { $ref: '#/components/schemas/DeviceInfo' }
 
     Session:

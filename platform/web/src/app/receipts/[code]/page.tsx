@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Icon } from "@/components/icon";
+import { btn } from "@/components/ui";
 import { formatCents } from "@/lib/catalog/money";
 import { getStore } from "@/lib/data";
 import { receiptDate } from "@/lib/donations/payment";
@@ -54,6 +56,11 @@ export default async function ReceiptPage({ params }: { params: Promise<{ code: 
         ))}
       </dl>
       <p className="m-0 text-[15px] leading-relaxed text-ink-4">Thank you for supporting {org}. Keep this receipt for your records.</p>
+      {/* 71 The same receipt as a PDF, in the app's language. */}
+      <a href={`/receipts/${code}/pdf`} download className={`${btn.secondary} h-11 px-4 text-[15px]`}>
+        <Icon name="download" size={20} />
+        Download PDF
+      </a>
     </PayShell>
   );
 }

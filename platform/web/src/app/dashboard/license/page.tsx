@@ -357,10 +357,17 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
                   </span>
                   <span className="text-[13px] text-muted">{t("license.paidOn", { date: date(p.paidAt ?? p.createdAt) })}</span>
                 </span>
-                <Link href={`/dashboard/license/receipts/${p.id}`} className={`${btn.secondary} h-9 px-3 text-sm`}>
-                  <Icon name="receipt_long" size={18} />
-                  {t("license.receipt")}
-                </Link>
+                <span className="flex flex-wrap gap-2">
+                  <Link href={`/dashboard/license/receipts/${p.id}`} className={`${btn.secondary} h-9 px-3 text-sm`}>
+                    <Icon name="receipt_long" size={18} />
+                    {t("license.receipt")}
+                  </Link>
+                  {/* 71 The receipt as a PDF. */}
+                  <a href={`/dashboard/license/receipts/${p.id}/pdf`} download className={`${btn.secondary} h-9 px-3 text-sm`}>
+                    <Icon name="download" size={18} />
+                    {t("license.downloadPdf")}
+                  </a>
+                </span>
               </li>
             ))}
           </ul>

@@ -12,15 +12,15 @@ import { NOW } from "./helpers";
 const SECRET = "session-secret-for-tests-0123456789abcdef";
 
 describe("session tokens", () => {
-  it("round-trips the user id and session version", async () => {
-    const token = await sealSession({ userId: "user-1", sessionVersion: 3 }, SECRET, NOW);
+  it("round-trips the user id, session version and (70) session ID", async () => {
+    const token = await sealSession({ userId: "user-1", sessionVersion: 3, sessionId: "sid-1" }, SECRET, NOW);
     expect(token.split(".")).toHaveLength(5); // compact JWE
     expect(token).not.toContain("user-1");
-    expect(await unsealSession(token, SECRET, NOW)).toEqual({ userId: "user-1", sessionVersion: 3 });
+    expect(await unsealSession(token, SECRET, NOW)).toEqual({ userId: "user-1", sessionVersion: 3, sessionId: "sid-1" });
   });
 
   it("rejects expired, tampered or foreign tokens", async () => {
-    const token = await sealSession({ userId: "user-1", sessionVersion: 1 }, SECRET, NOW);
+    const token = await sealSession({ userId: "user-1", sessionVersion: 1, sessionId: "sid-1" }, SECRET, NOW);
     const later = new Date(NOW.getTime() + (SESSION_TTL_SECONDS + 60) * 1000);
     expect(await unsealSession(token, SECRET, later)).toBeNull();
     expect(await unsealSession(token, "another-secret-0123456789abcdef0123456789", NOW)).toBeNull();

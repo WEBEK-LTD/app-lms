@@ -1,6 +1,7 @@
 import { createServer, type Server } from "node:http";
 import { expect, test, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
+import { expectReceiptAttached, pdfBehind } from "./receipts";
 
 /**
  * A new client pays their plan by card into Yallapp's iyzico account (a fake
@@ -121,12 +122,30 @@ test("a new client pays by card and is activated", async () => {
   await expect(own.getByRole("heading", { name: "Extend by card" })).toBeVisible();
 });
 
+test("71 the receipt downloads as a PDF and came with the activation email", async () => {
+  // License › Payments, and the receipt page.
+  const payments = own.getByRole("region", { name: "Payments" });
+  await pdfBehind(own, "Download PDF", payments);
+  await payments.getByRole("link", { name: "Receipt" }).click();
+  await expect(own).toHaveURL(/\/dashboard\/license\/receipts\/[0-9a-f-]+$/);
+  await pdfBehind(own, "Download PDF");
+  // Another account's receipt, or one that doesn't exist, is not found; signed out, it asks to sign in.
+  expect((await own.request.get(`/dashboard/license/receipts/${crypto.randomUUID()}/pdf`)).status()).toBe(404);
+  const signedOut = await own.context().browser()!.newContext({ baseURL: E2E.baseURL });
+  const anonymous = await signedOut.request.get(new URL(`${own.url()}/pdf`).pathname, { maxRedirects: 0 });
+  expect(anonymous.status()).toBe(303);
+  await signedOut.close();
+  await expectReceiptAttached(client.email, /^Your Yallapp account is active$/);
+});
+
 test("the team sees the payment", async () => {
   await admin.goto("/admin/payments");
   const row = admin.getByRole("row", { name: new RegExp(client.name) });
   await expect(row).toContainText("Paid");
   await expect(row).toContainText("$96");
   await expect(row).toContainText("5150");
+  // 71 The receipt the client got, as a PDF.
+  await pdfBehind(admin, "Receipt PDF", row);
   await row.getByRole("link", { name: client.name }).click();
   await expect(admin.getByRole("complementary")).toContainText("Card payments");
   await expect(admin.getByRole("complementary")).toContainText("Active");

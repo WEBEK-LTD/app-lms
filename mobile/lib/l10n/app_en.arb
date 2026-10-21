@@ -2316,6 +2316,10 @@
   "noDonationsTitle": "No donations yet",
   "noDonationsMessage": "Donations you make while signed in show here, with their receipts.",
   "donationReceipt": "Receipt",
+  "downloadReceipt": "Download receipt",
+  "@downloadReceipt": {
+    "description": "71 Button on an order and a donation: downloads the receipt as a PDF (opens in the browser)."
+  },
   "donationSeeCampaign": "See the campaign",
   "notifyCampaignUpdates": "Campaign updates",
   "pageOpenNow": "Open now",

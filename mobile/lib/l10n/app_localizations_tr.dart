@@ -3190,6 +3190,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get donationReceipt => 'Makbuz';
 
   @override
+  String get downloadReceipt => 'Makbuzu indir';
+
+  @override
   String get donationSeeCampaign => 'Kampanyayı gör';
 
   @override

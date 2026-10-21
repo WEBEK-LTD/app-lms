@@ -1924,6 +1924,34 @@ class AppLocalizationsTr extends AppLocalizations {
       'Paket sona erdiği sürece uygulamanın gelen kutusuna da telefonlara da hiçbir şey gönderilmez. Paket yenilendiğinde bildirimler yeniden gönderilebilir.';
 
   @override
+  String get twoStepTitle => 'Kodunuzu girin';
+
+  @override
+  String get twoStepText =>
+      'Hesabınız iki adımlı giriş kullanıyor. Doğrulama uygulamanızı açın ve Yallapp için gösterdiği 6 haneli kodu girin.';
+
+  @override
+  String get twoStepCode => 'Kod';
+
+  @override
+  String get twoStepHint =>
+      'Telefonunuzu mu kaybettiniz? Bunun yerine kurtarma kodlarınızdan birini girin.';
+
+  @override
+  String get twoStepEnter =>
+      'Doğrulama uygulamanızdaki 6 haneli kodu ya da bir kurtarma kodunu girin.';
+
+  @override
+  String get twoStepWrong =>
+      'Bu kod doğru değil. Yeniden deneyin ya da bir kurtarma kodu kullanın.';
+
+  @override
+  String get twoStepVerify => 'Doğrula ve giriş yap';
+
+  @override
+  String get twoStepOther => 'Başka bir hesapla giriş yapın';
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }

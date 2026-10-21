@@ -34,3 +34,14 @@ String whatsappLink(String number) {
 String storeUrl(AppEnvironment env) => env.isIos
     ? 'itms-apps://apps.apple.com/updates'
     : 'https://play.google.com/store/apps/details?id=${env.build.androidPackage}';
+
+/// 71 A receipt's PDF link (`Order.receipt_url`, `Donation.receipt_pdf_url`)
+/// asking for the language the app shows ([lang]); the server answers in it
+/// when the app has it.
+String receiptInLanguage(String url, String lang) {
+  final uri = Uri.tryParse(url);
+  if (uri == null) return url;
+  return uri
+      .replace(queryParameters: {...uri.queryParameters, 'lang': lang})
+      .toString();
+}

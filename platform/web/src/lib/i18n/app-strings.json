@@ -855,6 +855,7 @@
 {"key":"noDonationsTitle","en":"No donations yet","ar":"لا توجد تبرعات بعد","tr":"Henüz bağış yok"},
 {"key":"noDonationsMessage","en":"Donations you make while signed in show here, with their receipts.","ar":"تظهر هنا التبرعات التي تقدمها وأنت مسجل الدخول، مع إيصالاتها.","tr":"Giriş yapmışken yaptığınız bağışlar makbuzlarıyla birlikte burada görünür."},
 {"key":"donationReceipt","en":"Receipt","ar":"الإيصال","tr":"Makbuz"},
+{"key":"downloadReceipt","en":"Download receipt","ar":"تنزيل الإيصال","tr":"Makbuzu indir","description":"71 Button on an order and a donation: downloads the receipt as a PDF (opens in the browser)."},
 {"key":"donationSeeCampaign","en":"See the campaign","ar":"عرض الحملة","tr":"Kampanyayı gör"},
 {"key":"notifyCampaignUpdates","en":"Campaign updates","ar":"أخبار الحملات","tr":"Kampanya haberleri"},
 {"key":"pageOpenNow","en":"Open now","ar":"مفتوح الآن","tr":"Şu an açık","description":"Opening hours block: the business is open at this moment."},

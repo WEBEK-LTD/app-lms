@@ -2,6 +2,7 @@ import { createServer, type Server } from "node:http";
 import { expect, test, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 import { solidPng } from "./png";
+import { expectReceiptAttached, pdfBehind } from "./receipts";
 
 /**
  * A shop without a website (roadmap 8.6): the client picks "I don't have a
@@ -171,6 +172,12 @@ test("a customer pays in the app and the order reaches the dashboard", async ({ 
   await page.getByRole("button", { name: "Pay with test card" }).click();
   await expect(page).toHaveURL(/\/pay\/[\w-]+\/order-received$/);
   await expect(page.getByRole("heading", { name: "Thank you!" })).toBeVisible();
+  // 71 The receipt as a PDF: on the page, and attached to the customer's email.
+  await pdfBehind(page, "Download receipt (PDF)", page.locator("main"));
+  await expectReceiptAttached("sara@example.com", /^Your receipt from .+ · order \d+$/);
+  // A link we didn't sign opens nothing.
+  const href = (await page.getByRole("link", { name: "Download receipt (PDF)" }).getAttribute("href"))!;
+  expect((await request.get(`${href.slice(0, -4)}AAAA`)).status()).toBe(404);
 
   const after = await (await request.get(`${api}/store/products/${productId}`)).json();
   expect(after).toMatchObject({ max_quantity: 3 });
