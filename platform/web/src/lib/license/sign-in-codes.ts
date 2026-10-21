@@ -8,6 +8,7 @@ import { normalizeEmail } from "../hosted/sign-in-methods";
 import { hitRateLimit, RATE_LIMITS, rateLimitHits, type RateLimitRule } from "../rate-limit";
 import { hashLicenseKey } from "./key";
 import { parseSiteInfo, type SiteInfo } from "./service";
+import { licenseUsesSite } from "./site";
 import { licenseState } from "./status";
 
 /**
@@ -119,7 +120,7 @@ export async function sendSignInCode(store: DataStore, request: SignInCodeReques
     return fail(403, "license_inactive", `This license ${why}, so Yallapp can't send sign-in codes for it.`);
   }
   const activation = await store.getActivation(license.id);
-  if (!activation || activation.siteUrl !== request.site.siteUrl) {
+  if (!activation || activation.siteUrl !== request.site.siteUrl || !(await licenseUsesSite(store, license))) {
     return fail(403, "license_inactive", "This license isn't active on this site.");
   }
 

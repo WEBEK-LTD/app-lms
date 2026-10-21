@@ -19,7 +19,7 @@ import { auditActionLabel } from "@/lib/admin/audit-actions";
 import { revealLicenseKey } from "@/lib/admin/clients";
 import { contentSource } from "@/lib/admin/labels";
 import { can, type AdminPermission } from "@/lib/admin/permissions";
-import { appLabel } from "@/lib/app/label";
+import { appLabel, usesPlugin } from "@/lib/app/label";
 import { SETUP_STEPS, stepStatus } from "@/lib/app/setup";
 import { requireAdmin } from "@/lib/auth/session";
 import { formatAmount } from "@/lib/billing/prices";
@@ -72,7 +72,7 @@ const DONE: Record<string, string> = {
   rerun: "The build is queued again.",
   "signed-out": "The app user was signed out of every device.",
   "user-deleted": "The app user was deleted with their devices and notifications.",
-  "license-sent": "The license key was emailed again.",
+  "license-sent": "The activation email was sent again.",
   "password-sent": "A password link was emailed to the client.",
 };
 
@@ -541,7 +541,8 @@ async function AppEntry({
                   <input type="hidden" name="clientId" value={client.id} />
                   {appField}
                   <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
-                    Email the license key again
+                    {/* 75 An app without WordPress gets its activation email without the key. */}
+                    {usesPlugin(app) ? "Email the license key again" : "Email the activation again"}
                   </SubmitButton>
                 </form>
               ) : null}

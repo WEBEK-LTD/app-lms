@@ -14,6 +14,7 @@ import { compareVersions, parseVersion } from "../semver";
 import { hashLicenseKey, isWellFormedLicenseKey } from "./key";
 import { normalizeSiteUrl } from "./site-url";
 import { licenseState } from "./status";
+import { licenseUsesSite, NOT_FOR_SITE_MESSAGE } from "./site";
 import { appLinkTargetOf, LINK_PATH, MAX_LINK_PATHS } from "../links/app";
 import { licenseAppLinks } from "../links/well-known";
 
@@ -23,7 +24,7 @@ import { licenseAppLinks } from "../links/well-known";
  */
 
 export interface ApiError {
-  code: "invalid_request" | "license_not_found" | "license_in_use" | "rate_limited";
+  code: "invalid_request" | "license_not_found" | "license_in_use" | "license_not_for_site" | "rate_limited";
   message: string;
 }
 
@@ -68,7 +69,7 @@ export interface PluginReleaseBody {
 export type ApiResult<T> =
   | { status: 200; body: T }
   | { status: 204 }
-  | { status: 400 | 404 | 409 | 429; body: ApiError };
+  | { status: 400 | 403 | 404 | 409 | 429; body: ApiError };
 
 export interface SiteInfo {
   licenseKey: string;
@@ -256,6 +257,9 @@ export async function activateLicense(store: DataStore, site: SiteInfo, now: Dat
   if (state !== "active") {
     return { status: 200, body: statusBody(facts, plans, state, license, now, inactiveMessage(state, license)) };
   }
+  if (!(await licenseUsesSite(store, license))) {
+    return { status: 403, body: { code: "license_not_for_site", message: NOT_FOR_SITE_MESSAGE } };
+  }
   const claim = await store.claimActivation({
     licenseId: license.id,
     siteUrl: site.siteUrl,
@@ -301,6 +305,9 @@ export async function checkLicense(store: DataStore, site: SiteInfo, now: Date):
   const state = licenseState(client, license, now);
   if (state !== "active") {
     return { status: 200, body: statusBody(facts, plans, state, license, now, inactiveMessage(state, license)) };
+  }
+  if (!(await licenseUsesSite(store, license))) {
+    return { status: 200, body: statusBody(facts, plans, "invalid", license, now, NOT_FOR_SITE_MESSAGE) };
   }
   const activation = await store.getActivation(license.id);
   if (!activation) {
@@ -396,6 +403,7 @@ export async function pluginUpdate(
   if (licenseState(client, license, now) !== "active") return { status: 204 };
   const activation = await store.getActivation(license.id);
   if (!activation || activation.siteUrl !== query.siteUrl) return { status: 204 };
+  if (!(await licenseUsesSite(store, license))) return { status: 204 };
   const release = latestRelease(await store.listReleases());
   if (!release || compareVersions(release.version, query.version) <= 0) return { status: 204 };
   return {

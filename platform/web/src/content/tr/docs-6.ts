@@ -205,7 +205,7 @@ Uygulama kullanıcısı sınırları, bizim barındırdığımız uygulamalara g
 
 ## Plan değiştirme
 
-**Lisans ve eklenti**'de (WordPress sitesi olmayan uygulamalarda adı **Plan ve lisans**'tır) mevcut uygulama için başka bir plan seçin. Daha yüksek bir plan hemen başlar, kartla ödenir ve mevcut planınızda kalan günler hesabınıza yansıtılır. Daha düşük bir plan ödenmiş döneminiz bittiğinde başlar ve o zamana kadar mevcut planınızı koruyabilirsiniz.
+**Lisans ve eklenti**'de (WordPress sitesi olmayan uygulamalarda adı **Paket**'tir) mevcut uygulama için başka bir plan seçin. Daha yüksek bir plan hemen başlar, kartla ödenir ve mevcut planınızda kalan günler hesabınıza yansıtılır. Daha düşük bir plan ödenmiş döneminiz bittiğinde başlar ve o zamana kadar mevcut planınızı koruyabilirsiniz.
 
 ## Hatırlatmalar
 
@@ -213,7 +213,7 @@ Bir uygulamanın planı bitmeden 7 gün ve 1 gün önce ve bittiği gün, kartla
 
 ## Kartla ödeme
 
-Fiyatlar gösterildiğinde, ödeme sağlayıcımız Kashier'in güvenli sayfasında ödersiniz: hesabınız etkinleşmeden önce bekleme sayfasında, yenilemek için de **Lisans ve eklenti**'de (veya **Plan ve lisans**'ta). Planınızı seçin, fatura şehrinizi ve adresinizi girin ve ödeyin. Ödeme onaylandığında bir e-posta alırsınız; her ödemenin makbuzu aynı sayfada **Ödemeler** altında yer alır. Ödemenizi WhatsApp'tan ekibimizle de ayarlayabilirsiniz.
+Fiyatlar gösterildiğinde, ödeme sağlayıcımız Kashier'in güvenli sayfasında ödersiniz: hesabınız etkinleşmeden önce bekleme sayfasında, yenilemek için de **Lisans ve eklenti**'de (veya **Paket**'te). Planınızı seçin, fatura şehrinizi ve adresinizi girin ve ödeyin. Ödeme onaylandığında bir e-posta alırsınız; her ödemenin makbuzu aynı sayfada **Ödemeler** altında yer alır. Ödemenizi WhatsApp'tan ekibimizle de ayarlayabilirsiniz.
 
 Fiyatlar Mısır'da Mısır lirası, diğer her yerde ABD doları olarak gösterilir. Her kartla ödeme Mısır lirası olarak tahsil edilir: Mısır dışında form örneğin "EGP 1,500 tahsil edilecek (yaklaşık $30)" der ve bankanız tutarı kendi kuruyla çevirir. Makbuz, lira olarak tahsil edilen tutarı gösterir.
 

@@ -1,6 +1,6 @@
 import "server-only";
 import { formatDate } from "@/components/ui";
-import { appLabel } from "../app/label";
+import { activationEmail, appLabel } from "../app/label";
 import type { DataStore } from "../data/store";
 import type { Client } from "../data/types";
 import { emailLangOf, sendTemplate } from "../email/send";
@@ -43,7 +43,7 @@ export async function sendPlanPaidMail(store: DataStore, client: Client, outcome
   await (
     outcome.activation.created
       ? sendTemplate(
-          "account_activated",
+          activationEmail(outcome.activation.app),
           user.email,
           {
             name: user.name,

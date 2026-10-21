@@ -1,6 +1,6 @@
 import type { Strings } from "../types";
 
-/** 56 License & plugin (or Plan & license), the plan payment form, payments and receipts. */
+/** 56 License & plugin (or, 75, Plan), the plan payment form, payments and receipts. */
 export const en = {
   manyApps: "The plan and license of <b>{app}</b>. Each app has its own plan, license key and website.",
   pluginText: "Your license connects the Yallapp plugin on your website to your plan.",
@@ -15,6 +15,13 @@ export const en = {
   refused: "That plan change isn't possible now. Choose a lower plan while your plan is active, or pay for a plan below.",
   notActivatedPay: "This app isn't activated yet. Pay its plan by card below, or <whatsapp>message us on WhatsApp</whatsapp> to activate it. You get its license key as soon as it's active.",
   notActivated: "This app isn't activated yet. <whatsapp>Message us on WhatsApp</whatsapp> to activate it. You get its license key as soon as it's active.",
+  // 75 Apps without a WordPress site: no license key, no plugin.
+  manyAppsPlan: "The plan of <b>{app}</b>. Each app has its own plan.",
+  notActivatedPayPlan: "This app isn't activated yet. Pay its plan by card below, or <whatsapp>message us on WhatsApp</whatsapp> to activate it.",
+  notActivatedPlan: "This app isn't activated yet. <whatsapp>Message us on WhatsApp</whatsapp> to activate it.",
+  expiredPayPlan:
+    "Your plan ended on {date}. The app is paused, and your app users see that you can bring it back. Renew it by card below, or <whatsapp>message us on WhatsApp</whatsapp> to renew.",
+  expiredPlan: "Your plan ended on {date}. The app is paused, and your app users see that you can bring it back. <whatsapp>Message us on WhatsApp</whatsapp> to renew.",
   expiredPay:
     "Your plan ended on {date}. The app is paused: the plugin reports the license as expired, and your app users see that you can bring it back. Renew it by card below, or <whatsapp>message us on WhatsApp</whatsapp> to renew.",
   expired:
@@ -190,6 +197,12 @@ export const ar: Messages = {
   refused: "لا يمكن إجراء هذا التغيير الآن. اختر باقة أقل ما دامت باقتك نشطة، أو ادفع لباقة أدناه.",
   notActivatedPay: "لم يُفعَّل هذا التطبيق بعد. ادفع باقته بالبطاقة أدناه، أو <whatsapp>راسلنا على WhatsApp</whatsapp> لتفعيله. تحصل على مفتاح ترخيصه فور تفعيله.",
   notActivated: "لم يُفعَّل هذا التطبيق بعد. <whatsapp>راسلنا على WhatsApp</whatsapp> لتفعيله. تحصل على مفتاح ترخيصه فور تفعيله.",
+  manyAppsPlan: "باقة <b>{app}</b>. لكل تطبيق باقته الخاصة.",
+  notActivatedPayPlan: "لم يُفعَّل هذا التطبيق بعد. ادفع باقته بالبطاقة أدناه، أو <whatsapp>راسلنا على WhatsApp</whatsapp> لتفعيله.",
+  notActivatedPlan: "لم يُفعَّل هذا التطبيق بعد. <whatsapp>راسلنا على WhatsApp</whatsapp> لتفعيله.",
+  expiredPayPlan:
+    "انتهت باقتك في {date}. التطبيق متوقف مؤقتًا، ويرى مستخدمو تطبيقك أنه يمكنك إعادته. جدّدها بالبطاقة أدناه، أو <whatsapp>راسلنا على WhatsApp</whatsapp> للتجديد.",
+  expiredPlan: "انتهت باقتك في {date}. التطبيق متوقف مؤقتًا، ويرى مستخدمو تطبيقك أنه يمكنك إعادته. <whatsapp>راسلنا على WhatsApp</whatsapp> للتجديد.",
   expiredPay:
     "انتهت باقتك في {date}. التطبيق متوقف مؤقتًا: تُبلغ الإضافة بأن الترخيص منتهٍ، ويرى مستخدمو تطبيقك أنه يمكنك إعادته. جدّدها بالبطاقة أدناه، أو <whatsapp>راسلنا على WhatsApp</whatsapp> للتجديد.",
   expired:
@@ -359,6 +372,12 @@ export const tr: Messages = {
   refused: "Bu paket değişikliği şu anda yapılamaz. Paketiniz etkinken daha düşük bir paket seçin ya da aşağıdan bir paket için ödeme yapın.",
   notActivatedPay: "Bu uygulama henüz etkinleştirilmedi. Paketini aşağıdan kartla ödeyin ya da etkinleştirmek için <whatsapp>WhatsApp'tan bize yazın</whatsapp>. Etkinleşir etkinleşmez lisans anahtarını alırsınız.",
   notActivated: "Bu uygulama henüz etkinleştirilmedi. Etkinleştirmek için <whatsapp>WhatsApp'tan bize yazın</whatsapp>. Etkinleşir etkinleşmez lisans anahtarını alırsınız.",
+  manyAppsPlan: "<b>{app}</b> uygulamasının paketi. Her uygulamanın kendi paketi vardır.",
+  notActivatedPayPlan: "Bu uygulama henüz etkinleştirilmedi. Paketini aşağıdan kartla ödeyin ya da etkinleştirmek için <whatsapp>WhatsApp'tan bize yazın</whatsapp>.",
+  notActivatedPlan: "Bu uygulama henüz etkinleştirilmedi. Etkinleştirmek için <whatsapp>WhatsApp'tan bize yazın</whatsapp>.",
+  expiredPayPlan:
+    "Paketiniz {date} tarihinde sona erdi. Uygulama duraklatıldı ve uygulama kullanıcılarınız onu geri getirebileceğinizi görüyor. Aşağıdan kartla yenileyin ya da yenilemek için <whatsapp>WhatsApp'tan bize yazın</whatsapp>.",
+  expiredPlan: "Paketiniz {date} tarihinde sona erdi. Uygulama duraklatıldı ve uygulama kullanıcılarınız onu geri getirebileceğinizi görüyor. Yenilemek için <whatsapp>WhatsApp'tan bize yazın</whatsapp>.",
   expiredPay:
     "Paketiniz {date} tarihinde sona erdi. Uygulama duraklatıldı: eklenti lisansı süresi dolmuş olarak bildiriyor ve uygulama kullanıcılarınız onu geri getirebileceğinizi görüyor. Aşağıdan kartla yenileyin ya da yenilemek için <whatsapp>WhatsApp'tan bize yazın</whatsapp>.",
   expired:

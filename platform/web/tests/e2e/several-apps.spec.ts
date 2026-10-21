@@ -101,10 +101,13 @@ async function switchTo(label: string) {
   await expect(switcher().locator("option:checked")).toHaveText(label);
 }
 
-/** The "Active until" date of the current app on License & plugin. */
+/** The current app's plan on the Plan page (75: apps without WordPress have no license key to show). */
+const planRegion = () => own.getByRole("region", { name: "Plan", exact: true });
+
+/** The "Active until" date of the current app on the Plan page. */
 async function activeUntil(): Promise<string> {
   await own.goto("/dashboard/license");
-  const value = own.getByRole("region", { name: "License" }).locator("dt", { hasText: "Active until" }).locator("xpath=following-sibling::dd[1]");
+  const value = planRegion().locator("dt", { hasText: "Active until" }).locator("xpath=following-sibling::dd[1]");
   return (await value.textContent())!.trim();
 }
 
@@ -122,9 +125,8 @@ test("the team activates the account, and the client sets up their first app", a
   await setUp("Store", "Maple Store");
 
   await own.goto("/dashboard/license");
-  await expect(own.getByRole("region", { name: "License" })).toContainText("Pro");
-  storeKey = (await own.getByLabel("License key").textContent())!.trim();
-  expect(storeKey).toMatch(/^YALL-/);
+  await expect(planRegion()).toContainText("Pro");
+  await expect(own.getByLabel("License key")).toHaveCount(0);
   await expect(switcher().locator("option:checked")).toHaveText("Maple Store (Store · Active)");
 });
 
@@ -176,7 +178,8 @@ test("the team activates only the second app, on another plan, from the client's
   const store = admin.getByRole("region", { name: "Maple Store Online" });
   await expect(bookings).toContainText("Pending activation");
   await expect(store.getByRole("region", { name: "Plan and license" })).toContainText("Pro until");
-  await expect(store.getByRole("region", { name: "Plan and license" })).toContainText(storeKey);
+  // The team still sees every app's key.
+  storeKey = (await store.getByRole("region", { name: "Plan and license" }).textContent())!.match(/YALL-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}/)![0];
 
   const plan = bookings.getByRole("region", { name: "Plan and license" });
   await plan.getByLabel("Plan").selectOption("starter");
@@ -185,21 +188,22 @@ test("the team activates only the second app, on another plan, from the client's
   await expect(bookings.getByRole("region", { name: "Plan and license" })).toContainText("Starter until");
   await expect(store.getByRole("region", { name: "Plan and license" })).toContainText("Pro until");
   await expect(store.getByRole("region", { name: "Plan and license" })).toContainText(storeKey);
+  const bookingsKey = (await bookings.getByRole("region", { name: "Plan and license" }).textContent())!.match(/YALL-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}/)![0];
+  expect(bookingsKey).not.toBe(storeKey);
   await expect(admin.getByRole("region", { name: "Changes by the team" })).toContainText("(Maple Bookings)");
 });
 
-test("each app shows its own license key and plan", async () => {
+test("each app shows its own plan, and (75) no license key without WordPress", async () => {
   await own.goto("/dashboard/license");
-  await expect(own.getByLabel("License key")).toHaveText(storeKey);
-  await expect(own.getByRole("region", { name: "License" })).toContainText("Pro");
+  await expect(own.getByRole("heading", { level: 1 })).toHaveText("Plan");
+  await expect(own.getByLabel("License key")).toHaveCount(0);
+  await expect(planRegion()).toContainText("Pro");
 
   await switchTo("Maple Bookings (Bookings · Active)");
   await own.goto("/dashboard/license");
-  const bookingsKey = (await own.getByLabel("License key").textContent())!.trim();
-  expect(bookingsKey).toMatch(/^YALL-/);
-  expect(bookingsKey).not.toBe(storeKey);
-  await expect(own.getByRole("region", { name: "License" })).toContainText("Starter");
-  await expect(own.getByRole("region", { name: "License" })).toContainText("Maple Bookings");
+  await expect(own.getByLabel("License key")).toHaveCount(0);
+  await expect(planRegion()).toContainText("Starter");
+  await expect(planRegion()).toContainText("Maple Bookings");
 });
 
 test("a card payment for one app doesn't change the other", async () => {
@@ -237,12 +241,12 @@ test("a card payment for one app doesn't change the other", async () => {
   await own.getByRole("button", { name: "Pay with test card" }).click();
   await expect(own).toHaveURL(/\/dashboard\/license\?payment=paid$/);
   await expect(own.getByRole("status")).toContainText("Payment received.");
-  await expect(own.getByRole("region", { name: "License" })).toContainText("Maple Bookings");
+  await expect(planRegion()).toContainText("Maple Bookings");
   expect(await activeUntil()).not.toBe(bookingsUntil);
 
   await switchTo("Maple Store Online (Store · Active)");
   expect(await activeUntil()).toBe(storeUntil);
-  await expect(own.getByLabel("License key")).toHaveText(storeKey);
+  await expect(own.getByLabel("License key")).toHaveCount(0);
 
   await admin.goto(clientUrl);
   await expect(admin.getByRole("region", { name: "Payments" })).toContainText("Maple Bookings");

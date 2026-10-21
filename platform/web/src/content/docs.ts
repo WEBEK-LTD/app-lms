@@ -1928,7 +1928,7 @@ App users limits count the people signed in to apps on our hosting. Apps on your
 
 ## Changing plans
 
-On **License & plugin** (called **Plan & license** for apps without a WordPress site), choose another plan for the current app. A higher plan starts at once, paid by card, and the days left on your current plan are credited. A lower plan starts when your paid period ends, and you can keep your current plan until then.
+On **License & plugin** (called **Plan** for apps without a WordPress site), choose another plan for the current app. A higher plan starts at once, paid by card, and the days left on your current plan are credited. A lower plan starts when your paid period ends, and you can keep your current plan until then.
 
 ## Reminders
 
@@ -1936,7 +1936,7 @@ We email you, and show a notice on your dashboard, 7 days and 1 day before an ap
 
 ## Paying by card
 
-When prices are shown, you pay on the secure page of our payment provider, Kashier: on the waiting page before your account is active, and on **License & plugin** (or **Plan & license**) to renew. Choose your plan, enter your billing city and address, and pay. You get an email when the payment is confirmed, and a receipt for each payment under **Payments** on the same page. You can also arrange your payment with our team on WhatsApp.
+When prices are shown, you pay on the secure page of our payment provider, Kashier: on the waiting page before your account is active, and on **License & plugin** (or **Plan**) to renew. Choose your plan, enter your billing city and address, and pay. You get an email when the payment is confirmed, and a receipt for each payment under **Payments** on the same page. You can also arrange your payment with our team on WhatsApp.
 
 Prices are shown in Egyptian pounds in Egypt and in US dollars everywhere else. Every card payment is charged in Egyptian pounds: outside Egypt the form says, for example, "You'll be charged EGP 1,500 (about $30)", and your bank converts the amount at its own rate. The receipt shows the amount charged in pounds.
 

@@ -18,6 +18,7 @@ export type ClientEmailKey = Extract<
   | "password_reset"
   | "password_set"
   | "account_activated"
+  | "app_activated"
   | "plan_renewed"
   | "build_ready"
   | "build_failed"
@@ -64,6 +65,14 @@ const AR: Record<ClientEmailKey, TemplateText> = {
       "الخطوات التالية:\n1. ثبّت إضافة Yallapp على موقع WordPress الخاص بك والصق مفتاح الترخيص.\n" +
       "2. أعدّ تطبيقك من لوحة التحكم: {{dashboard_url}}\n\n" +
       "تجد مفتاح الترخيص دائمًا في صفحة «الترخيص والإضافة»." +
+      SIGNATURE_AR,
+  },
+  app_activated: {
+    subject: "تطبيقك في Yallapp مفعّل",
+    body:
+      "مرحبًا {{name}}،\n\n{{app_name}} مفعّل.\n\nالخطة: {{plan}}\nمفعّل حتى: {{active_until}}\n\n{{payment_line}}" +
+      "الخطوة التالية: أعدّ تطبيقك وابنِه من لوحة التحكم: {{dashboard_url}}\n\n" +
+      "تجد باقتك ومدفوعاتك دائمًا في صفحة «الباقة»." +
       SIGNATURE_AR,
   },
   plan_renewed: {
@@ -243,6 +252,14 @@ const TR: Record<ClientEmailKey, TemplateText> = {
       "Sonraki adımlar:\n1. Yallapp eklentisini WordPress sitenize kurun ve lisans anahtarınızı yapıştırın.\n" +
       "2. Uygulamanızı panelinizden ayarlayın: {{dashboard_url}}\n\n" +
       "Lisans anahtarınızı her zaman Lisans ve eklenti sayfasında bulabilirsiniz." +
+      SIGNATURE_TR,
+  },
+  app_activated: {
+    subject: "Yallapp uygulamanız etkin",
+    body:
+      "Merhaba {{name}},\n\n{{app_name}} etkin.\n\nPlan: {{plan}}\nBitiş tarihi: {{active_until}}\n\n{{payment_line}}" +
+      "Sonraki adım: uygulamanızı panelinizden ayarlayın ve derleyin: {{dashboard_url}}\n\n" +
+      "Paketinizi ve ödemelerinizi her zaman Paket sayfasında görebilirsiniz." +
       SIGNATURE_TR,
   },
   plan_renewed: {

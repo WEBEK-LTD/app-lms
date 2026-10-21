@@ -10,12 +10,17 @@ export function usesPlugin(app: { backend: App["backend"] } | null | undefined):
   return !app || app.backend === "wordpress" || app.backend === "setup_requested";
 }
 
+/** 75 The activation email: the license key and the plugin's steps only for an app on WordPress. */
+export function activationEmail(app: { backend: App["backend"] } | null | undefined): "account_activated" | "app_activated" {
+  return usesPlugin(app) ? "account_activated" : "app_activated";
+}
+
 /**
  * The name of the dashboard's license page for this app: "License & plugin"
- * when the app uses the plugin, "Plan & license" otherwise (no plugin to show).
+ * when the app uses the plugin, "Plan" otherwise (75: no plugin and no license key to show).
  */
 export function licensePageName(app: { backend: App["backend"] } | null | undefined): string {
-  return usesPlugin(app) ? "License & plugin" : "Plan & license";
+  return usesPlugin(app) ? "License & plugin" : "Plan";
 }
 
 /** At most this many apps per account. */

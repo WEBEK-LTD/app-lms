@@ -121,7 +121,14 @@ paths:
       tags: [Licenses]
       operationId: activateLicense
       summary: Activate a license on a site
-      description: Binds the license to one site URL. A license can be active on one site at a time. Each app of a Yallapp account has its own license, plan and site.
+      description: |
+        Binds the license to one site URL. A license can be active on one site at a time. Each app of a Yallapp account has its own license, plan and site.
+
+        Roadmap 75. Only an app that runs on a WordPress site (or waits for
+        the one our team sets up) uses its license on a site. The license of
+        an app on the hosted API, a store platform or its own API is refused
+        with 403 `license_not_for_site`; the owner moves the app to WordPress
+        in the dashboard first.
       requestBody:
         required: true
         content:
@@ -134,6 +141,7 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/LicenseStatus' }
         '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/NotForSite' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
@@ -143,6 +151,11 @@ paths:
       tags: [Licenses]
       operationId: checkLicense
       summary: Check a license
+      description: |
+        75 A license whose app doesn't run on a WordPress site answers
+        `status: invalid` with the reason, also when it was activated on a
+        site before; that site's layout, media links and sign-in codes are
+        refused (403 `license_inactive`) and it gets no plugin updates.
       requestBody:
         required: true
         content:
@@ -484,6 +497,11 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
+    NotForSite:
+      description: 75 The license's app doesn't run on a WordPress site (`license_not_for_site`).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
     Conflict:
       description: The license is active on another site.
       content:
@@ -502,7 +520,7 @@ components:
       properties:
         code:
           type: string
-          examples: [invalid_request, invalid_key, not_found, license_not_found, license_in_use, rate_limited, invalid_token, preview_expired, license_inactive, invalid_phone, provider_error]
+          examples: [invalid_request, invalid_key, not_found, license_not_found, license_in_use, license_not_for_site, rate_limited, invalid_token, preview_expired, license_inactive, invalid_phone, provider_error]
         message: { type: string }
         retry_after_seconds: { type: integer, minimum: 1, description: 'With `rate_limited`: seconds until another request can succeed.' }
 
