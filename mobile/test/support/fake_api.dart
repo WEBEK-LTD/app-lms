@@ -239,6 +239,22 @@ class FakeApi implements YallappApi {
     }),
   );
 
+  /// 73 Every course started again.
+  final restarted = <int>[];
+
+  @override
+  Future<Progress> restartCourse(int courseId) => _answer('restartCourse', () {
+    restarted.add(courseId);
+    return Progress.fromJson({
+      'course_id': courseId,
+      'completed_items': 0,
+      'total_items': 20,
+      'percent': 0,
+      'course_completed': false,
+      'completed_at': null,
+    });
+  });
+
   @override
   Future<Paged<MyCourse>> listMyCourses({
     MyCoursesStatus status = MyCoursesStatus.inProgress,

@@ -97,7 +97,22 @@ export function AddClientForm() {
   );
 }
 
-export function ClientDetailsForm({ clientId, name, whatsapp, siteUrl }: { clientId: string; name: string; whatsapp: string; siteUrl: string }) {
+export function ClientDetailsForm({
+  clientId,
+  name,
+  whatsapp,
+  siteUrl,
+  country,
+  countries,
+}: {
+  clientId: string;
+  name: string;
+  whatsapp: string;
+  siteUrl: string;
+  /** 73 The account's country (52.9), and the list to choose from in English. */
+  country: string | null;
+  countries: { code: string; name: string }[];
+}) {
   const [state, action] = useActionState(saveClientDetailsAction, initialFormState);
   const v = state.values ?? {};
   return (
@@ -107,6 +122,28 @@ export function ClientDetailsForm({ clientId, name, whatsapp, siteUrl }: { clien
       <Field label="Full name" name="name" required defaultValue={v.name ?? name} error={state.errors?.name} small />
       <Field label="WhatsApp number" name="whatsapp" type="tel" required defaultValue={v.whatsapp ?? whatsapp} error={state.errors?.whatsapp} small />
       <Field label="Website (optional)" name="siteUrl" type="url" defaultValue={v.siteUrl ?? siteUrl} error={state.errors?.siteUrl} small />
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor={`f-country-${clientId}`} className="text-sm font-semibold">
+          Country
+        </label>
+        <select
+          id={`f-country-${clientId}`}
+          name="country"
+          defaultValue={v.country ?? country ?? ""}
+          aria-describedby={`f-country-${clientId}-hint`}
+          className="input input-sm"
+        >
+          <option value="">Not set: the visitor&apos;s country</option>
+          {countries.map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+        <span id={`f-country-${clientId}-hint`} className="text-[13px] text-muted">
+          The currency of Yallapp&apos;s prices, our support number they see and their receipts&apos; time zone.
+        </span>
+      </div>
       <SubmitButton variant="secondary" className="h-10" pendingText="Saving…">
         Save details
       </SubmitButton>

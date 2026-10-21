@@ -46,6 +46,8 @@ export async function saveCourseAction(_: FormState, formData: FormData): Promis
   const { app } = context;
   const v = values(formData, ["id", "title", "description", "price", "instructor", "level"]);
   v.active = formData.get("active") === "on" ? "on" : "";
+  // 73 Students can start the course again (on by default).
+  v.restart = formData.get("restart") === "on" ? "on" : "";
   const categoryIds = formData.getAll("categoryIds").map(Number);
   v.categoryIds = categoryIds.join(",");
   const setup = courseSetup(app);

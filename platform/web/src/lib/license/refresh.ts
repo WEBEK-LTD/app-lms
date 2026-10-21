@@ -5,6 +5,7 @@ import { pinnedFetch } from "../net/safe-fetch";
 import { httpsSiteAddress } from "../app/wordpress-ready";
 import { currentPlanId } from "../billing/plan-change";
 import type { DataStore } from "../data/store";
+import type { Activation, App, License } from "../data/types";
 import type { Plan } from "../plans";
 import { normalizeLicenseKey } from "./key";
 
@@ -64,6 +65,20 @@ export async function refreshSite(deps: RefreshDeps, appId: string): Promise<Ref
     if (!app || app.backend !== "wordpress") return "not_wordpress";
     const license = await deps.store.getLicenseForApp(app.clientId, app.id);
     const activation = license ? await deps.store.getActivation(license.id) : null;
+    return await refreshSiteOf(deps, app, license, activation);
+  } catch {
+    return "failed";
+  }
+}
+
+/**
+ * 73 The same for an app, license and site read earlier: a deleted app's site
+ * (its license is gone for every read once the app is deleted), so the app
+ * pauses at once. Never throws.
+ */
+export async function refreshSiteOf(deps: RefreshDeps, app: Pick<App, "backend">, license: License | null, activation: Activation | null): Promise<RefreshOutcome> {
+  try {
+    if (app.backend !== "wordpress") return "not_wordpress";
     const url = license && activation ? (deps.testSiteUrl ? `${deps.testSiteUrl.replace(/\/+$/, "")}${REFRESH_PATH}` : refreshUrl(activation.siteUrlRaw)) : null;
     if (!license || !url) return "no_site";
     if (!deps.testSiteUrl) {

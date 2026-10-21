@@ -69,6 +69,7 @@ export default async function CoursePage({ params }: PageProps<"/dashboard/cours
             level: course.level ?? "",
             categoryIds: course.categoryIds.join(","),
             active: course.active ? "on" : "",
+            restart: course.canRestart === false ? "" : "on",
           }}
           categories={setup.categories}
           currency={setup.currency}

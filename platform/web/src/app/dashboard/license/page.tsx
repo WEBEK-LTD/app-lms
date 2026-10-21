@@ -8,6 +8,7 @@ import { SubmitButton } from "@/components/form";
 import { Badge, Notice, PageHeader, btn, formatDate, formatDateTime } from "@/components/ui";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
+import { countryName } from "@/lib/account/country";
 import { revealLicenseKey } from "@/lib/admin/clients";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
@@ -251,6 +252,12 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
           <p className="m-0 text-sm text-muted">
             {active ? t("license.changeActive") : t("license.changeInactive")} <Link href={localePath(lang, "/pricing")}>{t("license.compare")}</Link>
           </p>
+            {/* 73 The account's country decides the currency shown (52.9). */}
+            <p className="m-0 text-sm text-muted" data-country={client.country ?? ""}>
+              {richText(client.country ? t("license.pricesFor", { country: countryName(client.country, lang) }) : t("license.pricesHere"), {
+                account: (chunk) => <Link href="/dashboard/account#h-country">{chunk}</Link>,
+              })}
+            </p>
         </div>
         {scheduled && client.status !== "suspended" ? (
           <form action={cancelScheduledPlanAction} className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-ivory px-4 py-3">

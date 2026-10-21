@@ -101,6 +101,10 @@ export function CourseForm({
         {imageUrl ? <Check name="removeImage" label={t("courses.removeImage")} checked={false} /> : null}
         <FieldError id="f-course-image-error" error={e.image} />
       </div>
+      <div className="flex flex-col gap-1">
+        <Check name="restart" label={t("courses.restart")} checked={v.restart !== ""} />
+        <span className="ps-6 text-[13px] text-muted">{t("courses.restartHint")}</span>
+      </div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Check name="active" label={t("courses.visible")} checked={v.active !== ""} />
         <SubmitButton className="h-10" pendingText={t("common.saving")}>

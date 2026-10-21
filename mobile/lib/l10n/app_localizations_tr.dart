@@ -3479,6 +3479,19 @@ class AppLocalizationsTr extends AppLocalizations {
   String get viewCertificate => 'Sertifikayı görüntüle';
 
   @override
+  String get startCourseAgain => 'Kursa yeniden başla';
+
+  @override
+  String get startCourseAgainTitle => 'Kursa yeniden başlansın mı?';
+
+  @override
+  String get startCourseAgainMessage =>
+      'Bu kurstaki ilerlemeniz silinir: tamamladığınız dersler ve her videonun kaldığı yer. Kursa kayıtlı kalırsınız ve ilk dersten başlarsınız.';
+
+  @override
+  String get startCourseAgainConfirm => 'Yeniden başla';
+
+  @override
   String completedCourseLabel(String title) {
     return '$title, tamamlandı';
   }

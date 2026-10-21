@@ -6,6 +6,11 @@
  *   sig = hex HMAC-SHA256(FILES_SIGNING_SECRET, "<path>?expires=<unix seconds>")
  * Files live outside the web root, in the folder the pipeline's FTP account writes to.
  * Settings come from config.php next to this file (see config.sample.php); it is not in git.
+ *
+ * Roadmap 73: when an app is deleted for good, the platform removes its build folders with
+ *   DELETE /builds/<build id>/?expires=<unix seconds>&sig=<hex HMAC-SHA256 of "DELETE <path>?expires=<expires>">
+ * (a different string from the download links', so a download link can never delete). The
+ * answer is 204, also when the folder is already gone.
  */
 
 declare(strict_types=1);
@@ -21,6 +26,39 @@ function yallapp_fail(int $status, string $message): void {
 }
 
 $path = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'DELETE') {
+	if (!preg_match('#^/builds/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$#', $path, $parts)) {
+		yallapp_fail(404, 'Not found.');
+	}
+	$expires = $_GET['expires'] ?? '';
+	$sig     = $_GET['sig'] ?? '';
+	if (!is_string($expires) || !is_string($sig) || !ctype_digit($expires) || !preg_match('/^[0-9a-f]{64}$/', $sig)) {
+		yallapp_fail(403, 'Not allowed.');
+	}
+	$expected = hash_hmac('sha256', 'DELETE ' . $path . '?expires=' . $expires, (string) $config['signing_secret']);
+	if (!hash_equals($expected, $sig) || (int) $expires < time()) {
+		yallapp_fail(403, 'Not allowed.');
+	}
+	$root = realpath((string) $config['storage_dir']);
+	$dir  = $root === false ? false : realpath($root . '/builds/' . $parts[1]);
+	if ($root !== false && $dir !== false && strpos($dir, $root . DIRECTORY_SEPARATOR . 'builds' . DIRECTORY_SEPARATOR) === 0 && is_dir($dir)) {
+		$items = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST);
+		foreach ($items as $item) {
+			$ok = $item->isDir() && !$item->isLink() ? rmdir($item->getPathname()) : unlink($item->getPathname());
+			if (!$ok) {
+				yallapp_fail(500, 'The folder could not be removed.');
+			}
+		}
+		if (!rmdir($dir)) {
+			yallapp_fail(500, 'The folder could not be removed.');
+		}
+	}
+	http_response_code(204);
+	header('Cache-Control: no-store');
+	exit;
+}
+
 if (!preg_match('#^/builds/([0-9a-f-]{36})/([A-Za-z0-9][A-Za-z0-9._-]{0,127})$#', $path, $parts)) {
 	yallapp_fail(404, 'Not found.');
 }

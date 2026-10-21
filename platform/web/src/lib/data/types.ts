@@ -441,6 +441,13 @@ export interface App {
   demo?: boolean;
   /** 16 The ready build whose APK /demo offers for download; null until the team picks one. */
   demoBuildId?: string | null;
+  /**
+   * 73 When the owner deleted the app (null: it isn't). A deleted app is gone
+   * for everyone at once (the store leaves it out of every read) and its rows
+   * and files are purged 7 days later unless our team restores it.
+   */
+  deletedAt?: Date | null;
+  deletedBy?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -1459,6 +1466,8 @@ export interface Course {
   level: string | null;
   topics: CourseTopic[];
   active: boolean;
+  /** 73 Students who finished it can start it again (missing: true). */
+  canRestart?: boolean;
   createdAt: string;
 }
 
@@ -2545,6 +2554,61 @@ export interface TeamActivity {
 
 /** 66 A request to delete a Yallapp account (lib/account/deletion.ts). */
 export type AccountDeletionStatus = "pending" | "done" | "cancelled";
+
+// 73 Deleting an app (the owner, from the dashboard) and the billing records kept when an account goes.
+
+/** `waiting`: deleted, restorable until `purgeAfter`; `restored`; `purged`: its rows and files are gone. */
+export type AppDeletionStatus = "waiting" | "restored" | "purged";
+
+/** 73 The record of an app's deletion: it has no foreign keys, so it outlives the app. */
+export interface AppDeletion {
+  id: string;
+  appId: string;
+  clientId: string;
+  /** The app's name when it was deleted. */
+  appName: string;
+  /** `owner`: the owner deleted it in the dashboard; `account`: it went with its Yallapp account. */
+  reason: "owner" | "account";
+  /** The owner's email, or our team member's for an account deletion they carried out. */
+  deletedBy: string;
+  deletedAt: Date;
+  /** The daily job purges it from then on; "Delete now" in the admin earlier. */
+  purgeAfter: Date;
+  status: AppDeletionStatus;
+  closedAt: Date | null;
+  /** Who restored or purged it: our team member's email, or "daily job". */
+  closedBy: string | null;
+  /** Build folders on the files host that weren't removed yet (the daily job tries again). */
+  pendingBuilds: string[];
+}
+
+/**
+ * 73 A paid plan payment kept when its account is deleted, as accounting and
+ * tax laws require: the payment, who paid, the coupon, and the receipt as it
+ * was made for them (its PDF can be made again from it). No foreign keys.
+ */
+export interface KeptBillingRecord {
+  /** The plan payment's ID. */
+  id: string;
+  clientId: string;
+  userId: string;
+  appId: string | null;
+  /** "YA-1A2B3C4D". */
+  receiptNumber: string;
+  buyerName: string;
+  buyerEmail: string;
+  buyerWhatsapp: string;
+  buyerCountry: string | null;
+  amountCents: number;
+  currency: CatalogCurrency;
+  status: PlanPaymentStatus;
+  paidAt: Date | null;
+  /** The payment row and its coupon as they were (dates as ISO text). */
+  details: { payment: Record<string, unknown>; coupon: Record<string, unknown> | null; appName: string | null };
+  /** The receipt (lib/receipts/build.ts) in the client's language; null when it couldn't be made. */
+  receipt: Record<string, unknown> | null;
+  keptAt: Date;
+}
 
 export interface AccountDeletionRequest {
   id: string;

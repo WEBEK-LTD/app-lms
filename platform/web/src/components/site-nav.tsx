@@ -9,6 +9,7 @@ import { localePath } from "@/i18n/paths";
 import { LogoLink } from "./brand";
 import { Icon } from "./icon";
 import { LanguageList, LanguageMenu, type LanguageLabels } from "./language-switcher";
+import { ThemeSwitch } from "./theme-switch";
 
 /** 55 The header's words in the page's language (from the catalog's `nav`); English by default. */
 export interface SiteNavLabels {
@@ -20,6 +21,8 @@ export interface SiteNavLabels {
   menu: string;
   closeMenu: string;
   logoHome: string;
+  /** 73 The light/dark switch. */
+  darkMode: string;
 }
 
 const ENGLISH_LABELS: SiteNavLabels = {
@@ -31,6 +34,7 @@ const ENGLISH_LABELS: SiteNavLabels = {
   menu: "Menu",
   closeMenu: "Close menu",
   logoHome: "Yallapp home",
+  darkMode: "Dark mode",
 };
 
 interface NavProps {
@@ -393,6 +397,7 @@ export function SiteNav({
     <>
       <DesktopNav {...props} />
       <div className="ms-auto flex items-center gap-2">
+        <ThemeSwitch label={labels.darkMode} className="h-[42px] w-[42px]" />
         {languages ? (
           <div className="hidden lg:block">
             <LanguageMenu lang={lang} labels={languages} />

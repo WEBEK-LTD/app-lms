@@ -116,7 +116,7 @@ export default async function CoursesPage() {
           {t("courses.addCourse")}
         </h2>
         <CourseForm
-          current={{ title: "", description: "", price: "", instructor: "", level: "", categoryIds: "", active: "on" }}
+          current={{ title: "", description: "", price: "", instructor: "", level: "", categoryIds: "", active: "on", restart: "on" }}
           categories={setup.categories}
           currency={setup.currency}
           imageUrl={null}

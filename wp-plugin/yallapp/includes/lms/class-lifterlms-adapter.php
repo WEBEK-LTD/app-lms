@@ -431,6 +431,40 @@ class LifterLMS_Adapter extends Base_Adapter {
 	}
 
 	/**
+	 * 73 LifterLMS marks lessons, sections and courses incomplete with llms_mark_incomplete;
+	 * its quiz attempts stay in the student's history (a new attempt counts again).
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return bool
+	 */
+	public function can_reset_progress( $course_id, $user_id ) {
+		return function_exists( 'llms_mark_incomplete' ) && llms_get_post( $course_id ) instanceof LLMS_Course;
+	}
+
+	/**
+	 * 73 Starts the course again for the student; the enrollment stays.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return true|WP_Error
+	 */
+	public function reset_progress( $course_id, $user_id ) {
+		$course = llms_get_post( $course_id );
+		if ( ! function_exists( 'llms_mark_incomplete' ) || ! $course instanceof LLMS_Course ) {
+			return parent::reset_progress( $course_id, $user_id );
+		}
+		foreach ( (array) $course->get_lessons( 'ids' ) as $lesson_id ) {
+			llms_mark_incomplete( (int) $user_id, (int) $lesson_id, 'lesson', 'yallapp_restart' );
+		}
+		foreach ( (array) $course->get_sections( 'ids' ) as $section_id ) {
+			llms_mark_incomplete( (int) $user_id, (int) $section_id, 'section', 'yallapp_restart' );
+		}
+		llms_mark_incomplete( (int) $user_id, (int) $course_id, 'course', 'yallapp_restart' );
+		return true;
+	}
+
+	/**
 	 * Quiz details.
 	 *
 	 * @param int $quiz_id Quiz ID.

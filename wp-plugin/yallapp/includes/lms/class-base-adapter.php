@@ -673,6 +673,29 @@ abstract class Base_Adapter implements Lms_Adapter {
 	}
 
 	/**
+	 * 73 An LMS without an API to clear a student's progress: the app hides "Start the course
+	 * again" (`can_restart` false). Adapters whose LMS has one override both.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return bool
+	 */
+	public function can_reset_progress( $course_id, $user_id ) {
+		return false;
+	}
+
+	/**
+	 * 73 Refused when the LMS can't clear a student's progress.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return true|WP_Error
+	 */
+	public function reset_progress( $course_id, $user_id ) {
+		return new WP_Error( 'restart_disabled', __( 'This course can\'t be started again.', 'yallapp' ), array( 'status' => 403 ) );
+	}
+
+	/**
 	 * CourseSummary shape.
 	 *
 	 * @param WP_Post $post    Course.

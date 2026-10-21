@@ -86,6 +86,8 @@ import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, Tea
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
 import type { DemoPurgeCounts } from "./types";
 import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatus } from "./types";
+import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
+import { assetIdsIn } from "./asset-ids";
 import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 // 46 Links and crash reports
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
@@ -226,7 +228,7 @@ export class MemoryStore implements DataStore {
   private rowFor(client: Client): ClientRow | null {
     const user = this.users.get(client.userId);
     if (!user) return null;
-    const licenses = [...this.licenses.values()].filter((l) => l.clientId === client.id);
+    const licenses = this.liveLicenses().filter((l) => l.clientId === client.id);
     const entry = (app: App | null): ClientAppRow => {
       const license = licenses.find((l) => l.appId === (app?.id ?? null)) ?? null;
       const latestBuild = app ? ([...this.builds.values()].filter((b) => b.appId === app.id).sort((a, b) => b.number - a.number)[0] ?? null) : null;
@@ -273,7 +275,7 @@ export class MemoryStore implements DataStore {
   async countClients(now: Date): Promise<Record<ClientFilter, number>> {
     const counts: Record<ClientFilter, number> = { all: 0, pending: 0, active: 0, expired: 0 };
     for (const client of this.clients.values()) {
-      const state = clientAccountState(client, [...this.licenses.values()].filter((l) => l.clientId === client.id), now);
+      const state = clientAccountState(client, this.liveLicenses().filter((l) => l.clientId === client.id), now);
       counts.all += 1;
       if (state !== "suspended") counts[state] += 1;
     }
@@ -295,22 +297,27 @@ export class MemoryStore implements DataStore {
     return license ? clone(license) : null;
   }
 
+  /** 73 Licenses of apps that aren't deleted (and those given before the first app). */
+  private liveLicenses(): License[] {
+    return [...this.licenses.values()].filter((l) => l.appId === null || !this.deletedApps.has(l.appId));
+  }
+
   async getLicenseForApp(clientId: string, appId: string | null): Promise<License | null> {
-    for (const license of this.licenses.values()) {
+    for (const license of this.liveLicenses()) {
       if (license.clientId === clientId && license.appId === appId) return clone(license);
     }
     return null;
   }
 
   async listLicensesByClient(clientId: string): Promise<License[]> {
-    return [...this.licenses.values()]
+    return this.liveLicenses()
       .filter((l) => l.clientId === clientId)
       .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
       .map(clone);
   }
 
   async getLicenseByHash(keyHash: string): Promise<License | null> {
-    for (const license of this.licenses.values()) {
+    for (const license of this.liveLicenses()) {
       if (license.keyHash === keyHash) return clone(license);
     }
     return null;
@@ -322,7 +329,7 @@ export class MemoryStore implements DataStore {
   }
 
   async listLicensesEndedBetween(from: Date, to: Date): Promise<License[]> {
-    return [...this.licenses.values()]
+    return this.liveLicenses()
       .filter((l) => l.appId !== null && l.expiresAt.getTime() > from.getTime() && l.expiresAt.getTime() <= to.getTime())
       .sort((a, b) => a.expiresAt.getTime() - b.expiresAt.getTime())
       .map(clone);
@@ -373,7 +380,7 @@ export class MemoryStore implements DataStore {
   }
 
   async createApp(app: App): Promise<void> {
-    if (this.apps.has(app.id)) throw new Error("Duplicate app ID");
+    if (this.apps.has(app.id) || this.deletedApps.has(app.id)) throw new Error("Duplicate app ID");
     const first = this.appsOf(app.clientId).length === 0;
     this.apps.set(app.id, clone(app));
     if (!first) return;
@@ -483,6 +490,14 @@ export class MemoryStore implements DataStore {
 
   async createAsset(asset: Asset): Promise<void> {
     this.assets.set(asset.id, clone(asset));
+  }
+
+  async listAssetsByClient(clientId: string): Promise<Asset[]> {
+    return [...this.assets.values()].filter((a) => a.clientId === clientId).map(clone);
+  }
+
+  async deleteAsset(id: string): Promise<void> {
+    this.assets.delete(id);
   }
 
   async getAsset(id: string): Promise<Asset | null> {
@@ -1415,6 +1430,17 @@ export class MemoryStore implements DataStore {
       .map(clone);
   }
 
+  async deleteLessonProgress(input: { appId: string; userId: number; courseId: number }): Promise<number> {
+    let deleted = 0;
+    for (const [key, p] of this.lessonProgress) {
+      if (p.appId === input.appId && p.userId === input.userId && p.courseId === input.courseId) {
+        this.lessonProgress.delete(key);
+        deleted++;
+      }
+    }
+    return deleted;
+  }
+
   async listMarketplaceOrders(limit: number): Promise<CatalogOrder[]> {
     return [...this.catalogOrders.values()]
       .filter((o) => o.commissionCents !== null && o.paidAt !== null)
@@ -2308,7 +2334,7 @@ export class MemoryStore implements DataStore {
   private nextOwnerNoticeId = 1;
 
   async listLicenses(): Promise<License[]> {
-    return [...this.licenses.values()].map(clone);
+    return this.liveLicenses().map(clone);
   }
 
   async createOwnerNotice(notice: Omit<OwnerNotice, "id">): Promise<OwnerNotice | null> {
@@ -3059,6 +3085,170 @@ export class MemoryStore implements DataStore {
   async deleteTwoFactor(userId: string): Promise<boolean> {
     this.recoveryCodes.delete(userId);
     return this.twoFactor.delete(userId);
+  }
+
+  // 73 Deleting an app: a deleted app moves out of `apps` (so every read leaves it out) until it is restored or purged.
+  private deletedApps = new Map<string, App>();
+  private appDeletions = new Map<string, AppDeletion>();
+  private keptBilling = new Map<string, KeptBillingRecord>();
+
+  async softDeleteApp(deletion: AppDeletion): Promise<boolean> {
+    const app = this.apps.get(deletion.appId);
+    if (!app || app.clientId !== deletion.clientId) return false;
+    this.apps.delete(app.id);
+    this.deletedApps.set(app.id, clone({ ...app, deletedAt: deletion.deletedAt, deletedBy: deletion.deletedBy }));
+    this.appDeletions.set(deletion.id, clone(deletion));
+    return true;
+  }
+
+  async restoreDeletedApp(deletionId: string, by: string, now: Date): Promise<boolean> {
+    const deletion = this.appDeletions.get(deletionId);
+    const app = deletion ? this.deletedApps.get(deletion.appId) : undefined;
+    if (!deletion || deletion.status !== "waiting" || !app) return false;
+    this.deletedApps.delete(app.id);
+    this.apps.set(app.id, clone({ ...app, deletedAt: null, deletedBy: null, updatedAt: now }));
+    this.appDeletions.set(deletionId, clone({ ...deletion, status: "restored", closedAt: now, closedBy: by }));
+    return true;
+  }
+
+  async getAppDeletion(id: string): Promise<AppDeletion | null> {
+    const deletion = this.appDeletions.get(id);
+    return deletion ? clone(deletion) : null;
+  }
+
+  async listAppDeletions(input: { statuses: AppDeletionStatus[]; clientId?: string; limit: number }): Promise<AppDeletion[]> {
+    return [...this.appDeletions.values()]
+      .filter((d) => (!input.statuses.length || input.statuses.includes(d.status)) && (!input.clientId || d.clientId === input.clientId))
+      .sort((a, b) => b.deletedAt.getTime() - a.deletedAt.getTime() || b.id.localeCompare(a.id))
+      .slice(0, input.limit)
+      .map(clone);
+  }
+
+  async listDueAppDeletions(now: Date, limit: number): Promise<AppDeletion[]> {
+    return [...this.appDeletions.values()]
+      .filter((d) => d.status === "waiting" && d.purgeAfter.getTime() <= now.getTime())
+      .sort((a, b) => a.purgeAfter.getTime() - b.purgeAfter.getTime())
+      .slice(0, limit)
+      .map(clone);
+  }
+
+  async getAppIncludingDeleted(id: string): Promise<App | null> {
+    const app = this.apps.get(id) ?? this.deletedApps.get(id);
+    return app ? clone(app) : null;
+  }
+
+  async listAppsByClientIncludingDeleted(clientId: string): Promise<App[]> {
+    return [...this.apps.values(), ...this.deletedApps.values()]
+      .filter((a) => a.clientId === clientId)
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || a.id.localeCompare(b.id))
+      .map(clone);
+  }
+
+  async purgeDeletedApp(deletionId: string, by: string, now: Date, pendingBuilds: string[]): Promise<boolean> {
+    const deletion = this.appDeletions.get(deletionId);
+    if (!deletion || deletion.status !== "waiting") return false;
+    this.appDeletions.set(deletionId, clone({ ...deletion, status: "purged", closedAt: now, closedBy: by, pendingBuilds }));
+    this.cascadeApp(deletion.appId);
+    return true;
+  }
+
+  async createAppDeletionRecord(deletion: AppDeletion): Promise<void> {
+    this.appDeletions.set(deletion.id, clone(deletion));
+  }
+
+  async setAppDeletionPendingBuilds(id: string, builds: string[]): Promise<void> {
+    const deletion = this.appDeletions.get(id);
+    if (deletion) this.appDeletions.set(id, clone({ ...deletion, pendingBuilds: builds }));
+  }
+
+  async listAppDeletionsWithPendingBuilds(limit: number): Promise<AppDeletion[]> {
+    return [...this.appDeletions.values()]
+      .filter((d) => d.status === "purged" && d.pendingBuilds.length > 0)
+      .sort((a, b) => a.deletedAt.getTime() - b.deletedAt.getTime())
+      .slice(0, limit)
+      .map(clone);
+  }
+
+  async listAppAssetReferences(appId: string): Promise<string[]> {
+    // Every row of the app, as the database's foreign keys would find them.
+    const rows: unknown[] = [];
+    for (const table of this.tables()) for (const row of table.rows()) if (row.appId === appId) rows.push(row);
+    const app = this.apps.get(appId) ?? this.deletedApps.get(appId);
+    if (app) rows.push(app);
+    return assetIdsIn(JSON.stringify(rows));
+  }
+
+  async keepBillingRecords(records: KeptBillingRecord[]): Promise<void> {
+    for (const record of records) this.keptBilling.set(record.id, clone(record));
+  }
+
+  async listKeptBillingRecords(input: { clientId?: string; limit: number }): Promise<KeptBillingRecord[]> {
+    return [...this.keptBilling.values()]
+      .filter((r) => !input.clientId || r.clientId === input.clientId)
+      .sort((a, b) => b.keptAt.getTime() - a.keptAt.getTime() || (b.paidAt?.getTime() ?? 0) - (a.paidAt?.getTime() ?? 0))
+      .slice(0, input.limit)
+      .map(clone);
+  }
+
+  async getKeptBillingRecord(id: string): Promise<KeptBillingRecord | null> {
+    const record = this.keptBilling.get(id);
+    return record ? clone(record) : null;
+  }
+
+  async deleteUserAccount(userId: string): Promise<boolean> {
+    if (!this.users.has(userId)) return false;
+    const clientIds = [...this.clients.values()].filter((c) => c.userId === userId).map((c) => c.id);
+    for (const clientId of clientIds) {
+      for (const app of [...this.apps.values(), ...this.deletedApps.values()]) if (app.clientId === clientId) this.cascadeApp(app.id);
+      for (const license of this.licenses.values()) if (license.clientId === clientId) this.activations.delete(license.id);
+      // Their payments go with the client, as `on delete cascade` does: the caller keeps them first.
+      for (const table of this.tables()) table.remove((row) => row.clientId === clientId);
+      for (const dismissed of this.announcementDismissals.values()) dismissed.delete(clientId);
+      this.clients.delete(clientId);
+    }
+    // Their sessions, two-step sign-in, phones, reset links and team memberships elsewhere.
+    for (const table of this.tables()) table.remove((row) => row.userId === userId);
+    this.recoveryCodes.delete(userId);
+    this.updateReads.delete(userId);
+    this.users.delete(userId);
+    return true;
+  }
+
+  /** Every table holding rows, but the records that outlive what they name (no foreign keys in MySQL). */
+  private tables(): { rows(): Record<string, unknown>[]; remove(match: (row: Record<string, unknown>) => boolean): void }[] {
+    const kept = new Set<unknown>([this.appDeletions, this.keptBilling, this.accountDeletions, this.auditEntries, this.deletedApps, this.apps, this.platformSettings]);
+    const tables: { rows(): Record<string, unknown>[]; remove(match: (row: Record<string, unknown>) => boolean): void }[] = [];
+    const isRow = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !(value instanceof Map) && !(value instanceof Set);
+    for (const key of Object.keys(this) as (keyof this)[]) {
+      const value = this[key] as unknown;
+      if (kept.has(value)) continue;
+      if (value instanceof Map) {
+        const map = value as Map<unknown, unknown>;
+        tables.push({
+          rows: () => [...map.values()].filter(isRow),
+          remove: (match) => {
+            for (const [k, row] of map) if (isRow(row) && match(row)) map.delete(k);
+          },
+        });
+      } else if (Array.isArray(value)) {
+        tables.push({
+          rows: () => (this[key] as unknown[]).filter(isRow),
+          remove: (match) => {
+            (this as Record<keyof this, unknown>)[key] = (this[key] as unknown[]).filter((row) => !(isRow(row) && match(row)));
+          },
+        });
+      }
+    }
+    return tables;
+  }
+
+  /** Deletes an app and its rows as `on delete cascade` does; its plan payments stay, without their app (`set null`). */
+  private cascadeApp(appId: string): void {
+    for (const [id, payment] of this.planPayments) if (payment.appId === appId) this.planPayments.set(id, { ...payment, appId: null });
+    for (const license of this.licenses.values()) if (license.appId === appId) this.activations.delete(license.id);
+    for (const table of this.tables()) table.remove((row) => row.appId === appId);
+    this.apps.delete(appId);
+    this.deletedApps.delete(appId);
   }
 }
 

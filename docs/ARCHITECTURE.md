@@ -1732,9 +1732,11 @@ its data to be deleted without the app. The address to give both stores is
   and Overdue, the reason, and what belongs to the account: the user and
   client IDs, the Blobs prefix `assets/<client id>/`, the apps, the build
   folders (`builds/<build id>/` on the files host), the paid payments and the
-  team. Deleting is done by hand, because deleting the client's rows also
-  deletes its payments (on delete cascade) and the files live in three
-  places:
+  team. Since Phase 73 the platform deletes the account itself (see
+  "Start a course again, deleted apps and accounts…": the daily job after 7
+  days, or Delete now), keeping the billing records. Until then it was
+  done by hand, because deleting the client's rows also deletes its
+  payments (on delete cascade) and the files live in three places:
   1. Keep the billing records the law requires (the client's page ›
      Payments, and their receipts) in our accounting records.
   2. Note the build folders listed.
@@ -2004,6 +2006,102 @@ download.
   start no earlier than the first day the app's plan keeps
   (`rangeFrom(…, keptFrom)`); the page says how long the plan keeps them,
   and the pricing page and the dashboard's plan cards show it.
+
+## Start a course again, deleted apps and accounts, dark mode and the account country (Phase 73)
+
+- **Start a course again** (contract: `CourseDetail.can_restart`, `POST
+  /courses/{course_id}/restart`, 403 `not_enrolled` and `restart_disabled`).
+  The customer app shows, on a finished course whose `can_restart` is true,
+  "Review course" beside **Start the course again**; it asks to confirm
+  (`confirmAction`), calls the endpoint, drops what the phone still waits to
+  send for the course's lessons (`ProgressQueue.forgetLessons`), refreshes
+  the course and opens the first lesson (`nextItemToOpen`). Strings in
+  English, Arabic and Turkish (and the owner's string packs through the
+  overlay). Hosted courses: `Course.canRestart` in `apps.course_setup`
+  (missing: on), the checkbox "Students can start this course again" on the
+  course's Details; the restart deletes the student's `lesson_progress` rows
+  of the course (`deleteLessonProgress`; hosted courses have no quizzes).
+  WordPress (plugin 0.4.7): `Lms_Adapter::can_reset_progress` and
+  `reset_progress` with each LMS's own API: Tutor LMS
+  `Utils::delete_course_progress` (lessons, quiz attempts, the completion,
+  assignments through its hook), LearnDash `learndash_delete_course_progress`
+  (steps and the course's quizzes), LifterLMS `llms_mark_incomplete` on the
+  lessons, sections and course (quiz attempts stay in its history), Sensei
+  LMS `Sensei_Utils::reset_course_for_user` (its own "Reset course"),
+  LearnPress `UserCourseModel::handle_retake` only while the course's own
+  "Retake course" count allows one (it counts one). MasterStudy and
+  Masteriyo have no such API, so `can_restart` is false there
+  (`Base_Adapter`). `Course_Restart` adds the owner's choice per course (the
+  "In the app" box, meta `_yallapp_no_restart`) and forgets what the plugin
+  keeps (video positions, watched shares, the completion date). Enrollments,
+  orders, reviews and questions stay; a certificate already issued is the
+  LMS's to keep or take back.
+- **Deleting an app** (`lib/apps/deletion.ts`, roadmap 60.13). Setup's
+  danger zone, "Delete this app": the owner only (the `apps` permission;
+  a team member and our team managing the dashboard are refused), with the
+  app's name as shown and the password (counted with the sign-in attempts).
+  `softDeleteApp` sets `apps.deleted_at` and saves an `app_deletions` record
+  (no foreign keys; `open_app_id` unique while it waits) in one
+  transaction. From then on the store leaves the app and its license out of
+  every read (`liveApp()`, `liveLicense()` in MySQL; the memory store moves
+  it aside): the hosted API answers 404, the license API
+  `license_not_found` (and the WordPress site is asked to check at once,
+  `refreshSiteOf` with the license read before), the Owner API and the
+  dashboard forget it, a queued build is closed ("The app was deleted
+  before this build started.", without an email), scheduled notifications
+  are cancelled, the media sweep leaves its folder alone. Admin › Deleted
+  apps (`clients.suspend`, audit-logged) restores it as it was within
+  `APP_RESTORE_DAYS` (7) or deletes it now; the daily job
+  (`runAppPurges`) purges it after them: its Media folder and rows
+  (`deleteAppMedia`; a media server that doesn't answer stops the purge and
+  it is tried again), its build folders on the files host
+  (`lib/apps/build-files.ts`: `DELETE /builds/<id>/` signed over "DELETE
+  <path>?expires=…", which `build/files-host/index.php` answers with 204;
+  folders it doesn't confirm stay on the record as `pending_builds` and are
+  tried again daily), the uploads only this app named
+  (`listAppAssetReferences`: its row, pages, products, articles, listings,
+  events, campaigns and settings) from Netlify Blobs, then its row: every
+  table hanging from it goes by `on delete cascade`, and `plan_payments`
+  keep their rows with `app_id` null (`set null`).
+- **Deleting an account** (`lib/account/purge.ts`, 66.7). The daily job
+  carries out a request `DELETION_WAIT_DAYS` (7) after it was made (the
+  owner can cancel until then; the dashboard says the date), and Admin ›
+  Account deletion's **Delete now** at once. In order: every paid plan
+  payment is copied to `kept_billing_records` (no foreign keys) with the
+  buyer's name, email, WhatsApp and country, the payment row, its coupon
+  and the receipt document as `planReceiptDocument` made it (the admin
+  makes its PDF again: `/admin/payments/kept/<id>/pdf`); each app's files
+  are deleted as above and the account's uploads (`assets`); every app gets
+  a purged `app_deletions` record (reason `account`); then
+  `deleteUserAccount` deletes the owner's `users` row, and the client, its
+  apps, licenses, builds, payments, coupon uses, team, sessions
+  (`user_sessions`), two-step data, phones and content go with it by
+  cascade. Team members keep their own users. The request is marked done
+  and `account_deletion_done` is emailed in the language they asked in.
+  The MySQL test (`phase73-mysql.test.ts`) checks that the payments go
+  with the client while their kept records stay, and that another account
+  is untouched.
+- **Dark mode** (`globals.css`, `components/theme-switch.tsx`,
+  `components/theme-script.tsx`). Yallapp's own pages mark themselves with
+  `data-site-theme` (the website's header, the sign-in pages' shell, the
+  dashboard and the admin); a business's pages for its customers don't.
+  The `yallapp-dark` custom variant swaps the brand tokens on `<html>` when
+  the system prefers dark and the visitor didn't choose light, or when they
+  chose dark (`data-theme`); `in-dark` does the same for what is inside
+  (`.on-dark` bands keep their dark colors, the third-party marks their
+  dark color, `.theme-dark-only` shows the reversed logo). The switch is a
+  toggle button, "Dark mode" (Arabic "الوضع الداكن", Turkish "Koyu mod"),
+  pressed while the page is dark; it stores `yallapp-theme` in
+  `localStorage`, and a few lines in `<head>` set `data-theme` before the
+  page paints, so nothing flashes. The tokens' contrast is Phase 41's.
+- **The account's country** (`lib/account/country.ts`, 52.9). Dashboard ›
+  Your account › Your country (the owner, or our team managing the
+  dashboard; a team member sees it), the admin's client details, and a
+  line on the License page ("Prices for Egypt", or for where they are when
+  it isn't set). Countries are the ISO codes `libphonenumber-js` knows,
+  named in the dashboard's language with `Intl.DisplayNames`. It feeds
+  `priceView` (pounds or dollars), `getVisitorContact` (the WhatsApp number)
+  and the receipts' time zone, as before.
 
 ## Demo apps (Phase 16)
 

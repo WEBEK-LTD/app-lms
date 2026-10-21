@@ -5,7 +5,8 @@ const LOGO_RATIO = 3009.88 / 977.88;
 
 /**
  * The "yallapp." wordmark. `reversed` is the Ivory version for dark backgrounds;
- * `adaptive` (41) switches to it when the public site is in dark mode.
+ * `adaptive` (41) switches to it when the page is in dark mode: 73 the system
+ * setting or the visitor's choice (globals.css, `.theme-dark-only`).
  */
 export function Logo({ height = 30, reversed = false, adaptive = false, alt = "Yallapp" }: { height?: number; reversed?: boolean; adaptive?: boolean; alt?: string }) {
   const img = (
@@ -20,10 +21,12 @@ export function Logo({ height = 30, reversed = false, adaptive = false, alt = "Y
   );
   if (!adaptive || reversed) return img;
   return (
-    <picture className="block">
-      <source media="(prefers-color-scheme: dark)" srcSet="/brand/yallapp-logo-reversed-transparent.svg" />
-      {img}
-    </picture>
+    <span className="block">
+      <span className="theme-light-only">{img}</span>
+      <span className="theme-dark-only">
+        <img src="/brand/yallapp-logo-reversed-transparent.svg" alt={alt} width={Math.round(height * LOGO_RATIO)} height={height} style={{ height, width: "auto" }} className="block" />
+      </span>
+    </span>
   );
 }
 

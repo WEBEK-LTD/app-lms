@@ -86,7 +86,7 @@ test("the app preview runs a shop that isn't set up yet", async ({ page }) => {
   await expect(page.frameLocator("iframe[data-testid=app-preview]").locator("flutter-view, flt-glass-pane").first()).toBeAttached();
 
   // The look switch reloads the frame in dark.
-  await page.getByRole("button", { name: "Dark" }).click();
+  await page.getByRole("button", { name: "Dark", exact: true }).click();
   await expect(frame).toHaveAttribute("src", /theme=dark/);
 
   // Hosted apps can preview the Pages & look draft.

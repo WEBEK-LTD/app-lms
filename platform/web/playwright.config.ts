@@ -87,6 +87,8 @@ export const E2E = {
   accountDeletionAdminEmail: "account-deletion-admin@yallapp.test",
   /** The super admin of tests/e2e/two-step.spec.ts (roadmap 70). */
   twoStepAdminEmail: "two-step-admin@yallapp.test",
+  /** The super admin of tests/e2e/phase73.spec.ts (roadmap 73). */
+  phase73AdminEmail: "phase73-admin@yallapp.test",
   /** 58 Pushes to the owners' phones, as JSON files (YALLAPP_OWNER_PUSH_DIR, never on Netlify). */
   ownerPushDir: ".data/e2e-owner-push",
   /** SIGNING_SECRET below: the analytics spec makes the app's analytics key with it, as the build config would. */
@@ -130,7 +132,7 @@ export default defineConfig({
       YALLAPP_MEDIA_DIR: ".data/e2e-media",
       YALLAPP_MAIL_DIR: E2E.mailDir,
       YALLAPP_OWNER_PUSH_DIR: E2E.ownerPushDir,
-      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail},${E2E.teamAdminEmail},${E2E.contentAdminEmail},${E2E.appsAdminEmail},${E2E.publishingAdminEmail},${E2E.plansAdminEmail},${E2E.demosAdminEmail},${E2E.clinicAdminEmail},${E2E.newsAdminEmail},${E2E.restaurantAdminEmail},${E2E.fitnessAdminEmail},${E2E.eventsAdminEmail},${E2E.charityAdminEmail},${E2E.paymentsAdminEmail},${E2E.signInAdminEmail},${E2E.translationsAdminEmail},${E2E.analyticsAdminEmail},${E2E.linksAdminEmail},${E2E.pricesAdminEmail},${E2E.refundsAdminEmail},${E2E.mediaAdminEmail},${E2E.languagesAdminEmail},${E2E.bellAdminEmail},${E2E.dashboardLanguagesAdminEmail},${E2E.ownerApiAdminEmail},${E2E.teamMembersAdminEmail},${E2E.accountDeletionAdminEmail},${E2E.twoStepAdminEmail}`,
+      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail},${E2E.teamAdminEmail},${E2E.contentAdminEmail},${E2E.appsAdminEmail},${E2E.publishingAdminEmail},${E2E.plansAdminEmail},${E2E.demosAdminEmail},${E2E.clinicAdminEmail},${E2E.newsAdminEmail},${E2E.restaurantAdminEmail},${E2E.fitnessAdminEmail},${E2E.eventsAdminEmail},${E2E.charityAdminEmail},${E2E.paymentsAdminEmail},${E2E.signInAdminEmail},${E2E.translationsAdminEmail},${E2E.analyticsAdminEmail},${E2E.linksAdminEmail},${E2E.pricesAdminEmail},${E2E.refundsAdminEmail},${E2E.mediaAdminEmail},${E2E.languagesAdminEmail},${E2E.bellAdminEmail},${E2E.dashboardLanguagesAdminEmail},${E2E.ownerApiAdminEmail},${E2E.teamMembersAdminEmail},${E2E.accountDeletionAdminEmail},${E2E.twoStepAdminEmail},${E2E.phase73AdminEmail}`,
       YALLAPP_SEED_ADMIN_PASSWORD: E2E.adminPassword,
       SESSION_SECRET: "e2e-session-secret-0123456789abcdef0123456789",
       SIGNING_SECRET: E2E.signingSecret,

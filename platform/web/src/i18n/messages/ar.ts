@@ -36,6 +36,7 @@ export const ar: Messages = {
     menu: "القائمة",
     closeMenu: "إغلاق القائمة",
     logoHome: "الصفحة الرئيسية لـ Yallapp",
+    darkMode: "الوضع الداكن",
   },
   footer: {
     about:

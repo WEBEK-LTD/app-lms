@@ -25,6 +25,7 @@ import { ACCOUNT_STATE_LABEL, appState, clientAccountState, type AccountState } 
 import { appLabel } from "@/lib/app/label";
 import { planName, planNamesOf } from "@/lib/plans";
 import { ActivateForm, AddClientForm, ClientDetailsForm } from "../forms";
+import { countryOptions } from "@/lib/account/country";
 import { getPlans } from "@/lib/settings/platform";
 import { PAYMENT_STATUS, PAYMENT_TONE } from "../payments/labels";
 import { formatAmount } from "@/lib/billing/prices";
@@ -437,7 +438,7 @@ async function ClientPanel({ row, now, may }: { row: ClientRow; now: Date; may: 
         <details className="border-t border-line-soft pt-3.5">
           <summary className="cursor-pointer text-sm font-semibold">Edit details</summary>
           <div className="pt-3">
-            <ClientDetailsForm clientId={client.id} name={user.name} whatsapp={client.whatsapp} siteUrl={client.siteUrl} />
+            <ClientDetailsForm clientId={client.id} name={user.name} whatsapp={client.whatsapp} siteUrl={client.siteUrl} country={client.country ?? null} countries={countryOptions("en")} />
           </div>
         </details>
       ) : null}

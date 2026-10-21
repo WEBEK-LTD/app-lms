@@ -13,6 +13,7 @@ use WP_REST_Request;
 use WP_REST_Server;
 use Yallapp\Lms\Course_Completion;
 use Yallapp\Lms\Course_Password;
+use Yallapp\Lms\Course_Restart;
 use Yallapp\Lms\Lms_Adapter;
 use Yallapp\Lms\Purchase_Rules;
 
@@ -155,7 +156,9 @@ class Catalog_Controller extends Controller {
 		$course['password_protected'] = Course_Password::protected_post( $post );
 		$link                         = $post ? get_permalink( $post ) : false;
 		$course['website_url']        = is_string( $link ) && '' !== $link ? $link : null;
-		$enrolled                     = (bool) $course['enrolled'];
+		// 73 Whether a student who finished it can start it again in the app.
+		$course['can_restart'] = Course_Restart::can_restart( $lms, (int) $course['id'], get_current_user_id() );
+		$enrolled              = (bool) $course['enrolled'];
 		if ( Course_Password::locked(
 			$post,
 			get_current_user_id(),

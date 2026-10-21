@@ -17,7 +17,9 @@ info:
       68): when the plan ended (or the owner's account was suspended) after
       the build was queued, `GET /builds/queue` closes it as `failed`
       (`license_inactive`, with a message for the client, who is emailed) and
-      leaves it out, so the pipeline never takes it.
+      leaves it out, so the pipeline never takes it. Roadmap 73: a build of
+      an app its owner deleted is closed the same way ("The app was deleted
+      before this build started.").
     - The build config never contains secrets. Signing keys and store API keys
       are handed over separately.
     - A build that stops moving doesn't block its app: one still `queued` after

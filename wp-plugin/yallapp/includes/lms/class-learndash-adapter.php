@@ -640,6 +640,33 @@ class LearnDash_Adapter extends Base_Adapter {
 	}
 
 	/**
+	 * 73 LearnDash clears a student's progress with learndash_delete_course_progress: the
+	 * course's steps and the quizzes of the course.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return bool
+	 */
+	public function can_reset_progress( $course_id, $user_id ) {
+		return function_exists( 'learndash_delete_course_progress' );
+	}
+
+	/**
+	 * 73 Starts the course again for the student; the enrollment stays.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return true|WP_Error
+	 */
+	public function reset_progress( $course_id, $user_id ) {
+		if ( ! $this->can_reset_progress( $course_id, $user_id ) ) {
+			return parent::reset_progress( $course_id, $user_id );
+		}
+		learndash_delete_course_progress( (int) $course_id, (int) $user_id );
+		return true;
+	}
+
+	/**
 	 * Quiz details.
 	 *
 	 * @param int $quiz_id Quiz ID.

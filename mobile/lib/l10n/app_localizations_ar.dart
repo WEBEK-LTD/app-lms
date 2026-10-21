@@ -3531,6 +3531,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get viewCertificate => 'عرض الشهادة';
 
   @override
+  String get startCourseAgain => 'ابدأ الدورة من جديد';
+
+  @override
+  String get startCourseAgainTitle => 'هل تريد بدء الدورة من جديد؟';
+
+  @override
+  String get startCourseAgainMessage =>
+      'سيُمسح تقدّمك في هذه الدورة: الدروس التي أكملتها والموضع الذي توقّف عنده كل فيديو. ستبقى مسجّلًا فيها وتبدأ من الدرس الأول.';
+
+  @override
+  String get startCourseAgainConfirm => 'ابدأ من جديد';
+
+  @override
   String completedCourseLabel(String title) {
     return '$title، مكتملة';
   }

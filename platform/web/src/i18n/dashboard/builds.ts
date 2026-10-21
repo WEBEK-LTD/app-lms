@@ -65,6 +65,8 @@ export const en = {
     // 68 A queued build whose app's plan ended (or account was suspended) before it started.
     planEndedBeforeStart: "The app's plan ended before this build started. Renew the plan, then start the build again.",
     suspendedBeforeStart: "The account was suspended before this build started.",
+    // 73
+    appDeletedBeforeStart: "The app was deleted before this build started.",
     apk: "Android APK",
     aab: "Android App Bundle (.aab)",
     ipa: "iOS build (.ipa)",
@@ -157,6 +159,7 @@ export const ar: Messages = {
   known: {
     planEndedBeforeStart: "انتهت باقة التطبيق قبل بدء هذا الإصدار. جدّد الباقة ثم ابدأ الإصدار مرة أخرى.",
     suspendedBeforeStart: "عُلّق الحساب قبل بدء هذا الإصدار.",
+    appDeletedBeforeStart: "حُذف التطبيق قبل بدء هذا الإصدار.",
     apk: "ملف APK لنظام Android",
     aab: "حزمة تطبيق Android ‏(.aab)",
     ipa: "إصدار iOS ‏(.ipa)",
@@ -247,6 +250,7 @@ export const tr: Messages = {
   known: {
     planEndedBeforeStart: "Bu derleme başlamadan önce uygulamanın paketi sona erdi. Paketi yenileyin, ardından derlemeyi yeniden başlatın.",
     suspendedBeforeStart: "Bu derleme başlamadan önce hesap askıya alındı.",
+    appDeletedBeforeStart: "Bu derleme başlamadan önce uygulama silindi.",
     apk: "Android APK",
     aab: "Android App Bundle (.aab)",
     ipa: "iOS derlemesi (.ipa)",

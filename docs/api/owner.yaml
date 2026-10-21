@@ -38,7 +38,8 @@ info:
       person in 15 minutes, besides the sign-in limits.
     - **Scope.** Every `/apps/{app_id}` path answers only for the signed-in
       client's own apps: another client's app, or an ID that doesn't exist,
-      is 404 `not_found`. What an app has follows its app type and where its
+      is 404 `not_found`; so is (roadmap 73) an app its owner deleted in the
+      dashboard, which leaves `GET /apps` at once. What an app has follows its app type and where its
       content comes from, exactly as the dashboard's menu does
       (`AppSummary.features`); a path the app doesn't have is 404
       `not_available`.

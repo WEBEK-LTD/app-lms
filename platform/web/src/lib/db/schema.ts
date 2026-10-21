@@ -43,6 +43,10 @@ import type {
   MediaStatus,
   PaidStoragePack,
   PlanPaymentPurpose,
+  // 73 Deleted apps and kept billing records
+  AppDeletion,
+  AppDeletionStatus,
+  KeptBillingRecord,
 } from "../data/types";
 // 11.6 and 11.8
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
@@ -270,11 +274,14 @@ export const apps = mysqlTable(
     // 16 Demo apps: set by the admin's Demo apps page only; the build whose APK /demo offers.
     demo: boolean("demo").notNull().default(false),
     demoBuildId: id("demo_build_id"),
+    // 73 Deleted by the owner (null: not deleted): left out of every read, purged after 7 days unless restored.
+    deletedAt: time("deleted_at"),
+    deletedBy: varchar("deleted_by", { length: 191 }),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
   // An account can have several apps, listed oldest first.
-  (t) => [index("apps_client_idx").on(t.clientId, t.createdAt)],
+  (t) => [index("apps_client_idx").on(t.clientId, t.createdAt), index("apps_deleted_idx").on(t.deletedAt)],
 );
 
 export const builds = mysqlTable(
@@ -1830,6 +1837,63 @@ export const accountDeletionRequests = mysqlTable(
     index("account_deletion_requests_status_idx").on(t.status, t.requestedAt),
     index("account_deletion_requests_client_idx").on(t.clientId, t.requestedAt),
   ],
+);
+
+/**
+ * 73 Deleted apps: the record of each deletion (no foreign keys, so it
+ * outlives the app). `open_app_id` is set while it waits, so an app has one
+ * waiting deletion; the daily job purges it after `purge_after`.
+ */
+export const appDeletions = mysqlTable(
+  "app_deletions",
+  {
+    id: id("id").primaryKey(),
+    appId: id("app_id").notNull(),
+    clientId: id("client_id").notNull(),
+    openAppId: id("open_app_id"),
+    appName: varchar("app_name", { length: 120 }).notNull(),
+    reason: varchar("reason", { length: 16 }).notNull().$type<AppDeletion["reason"]>(),
+    deletedBy: varchar("deleted_by", { length: 191 }).notNull(),
+    deletedAt: time("deleted_at").notNull(),
+    purgeAfter: time("purge_after").notNull(),
+    status: varchar("status", { length: 16 }).notNull().$type<AppDeletionStatus>(),
+    closedAt: time("closed_at"),
+    closedBy: varchar("closed_by", { length: 191 }),
+    pendingBuilds: jsonText<string[]>("pending_builds").notNull(),
+  },
+  (t) => [
+    uniqueIndex("app_deletions_open_unique").on(t.openAppId),
+    index("app_deletions_status_idx").on(t.status, t.purgeAfter),
+    index("app_deletions_client_idx").on(t.clientId, t.deletedAt),
+  ],
+);
+
+/**
+ * 73 Paid plan payments kept when their account is deleted, as accounting and
+ * tax laws require (no foreign keys): who paid, the payment and its coupon,
+ * and the receipt as it was made, to make its PDF again.
+ */
+export const keptBillingRecords = mysqlTable(
+  "kept_billing_records",
+  {
+    id: id("id").primaryKey(),
+    clientId: id("client_id").notNull(),
+    userId: id("user_id").notNull(),
+    appId: id("app_id"),
+    receiptNumber: varchar("receipt_number", { length: 16 }).notNull(),
+    buyerName: varchar("buyer_name", { length: 120 }).notNull(),
+    buyerEmail: varchar("buyer_email", { length: 191 }).notNull(),
+    buyerWhatsapp: varchar("buyer_whatsapp", { length: 32 }).notNull(),
+    buyerCountry: varchar("buyer_country", { length: 2 }),
+    amountCents: bigint("amount_cents", { mode: "number", unsigned: true }).notNull(),
+    currency: varchar("currency", { length: 3 }).notNull().$type<CatalogCurrency>(),
+    status: varchar("status", { length: 16 }).notNull().$type<PlanPaymentStatus>(),
+    paidAt: time("paid_at"),
+    details: jsonText<KeptBillingRecord["details"]>("details").notNull(),
+    receipt: jsonText<KeptBillingRecord["receipt"]>("receipt"),
+    keptAt: time("kept_at").notNull(),
+  },
+  (t) => [index("kept_billing_records_client_idx").on(t.clientId, t.paidAt), index("kept_billing_records_kept_idx").on(t.keptAt)],
 );
 
 /**

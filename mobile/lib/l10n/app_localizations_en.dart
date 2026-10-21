@@ -3474,6 +3474,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get viewCertificate => 'View certificate';
 
   @override
+  String get startCourseAgain => 'Start the course again';
+
+  @override
+  String get startCourseAgainTitle => 'Start the course again?';
+
+  @override
+  String get startCourseAgainMessage =>
+      'Your progress in this course is cleared: the lessons you completed and where each video stopped. You stay enrolled and start from the first lesson.';
+
+  @override
+  String get startCourseAgainConfirm => 'Start again';
+
+  @override
   String completedCourseLabel(String title) {
     return '$title, completed';
   }

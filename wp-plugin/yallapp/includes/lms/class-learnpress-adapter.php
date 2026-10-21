@@ -519,6 +519,43 @@ class LearnPress_Adapter extends Base_Adapter {
 	}
 
 	/**
+	 * 73 LearnPress lets a student retake a course as many times as the course's own "Retake
+	 * course" setting allows (UserCourseModel::can_retake), with UserCourseModel::handle_retake,
+	 * which clears the course's lessons and quizzes and counts one retake. A course without
+	 * retakes can't be started again.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return bool
+	 */
+	public function can_reset_progress( $course_id, $user_id ) {
+		if ( ! $user_id || ! method_exists( UserCourseModel::class, 'handle_retake' ) ) {
+			return false;
+		}
+		$user_course = UserCourseModel::find( (int) $user_id, (int) $course_id, true );
+		return $user_course instanceof UserCourseModel && $user_course->can_retake() > 0;
+	}
+
+	/**
+	 * 73 Starts the course again for the student (one retake).
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return true|WP_Error
+	 */
+	public function reset_progress( $course_id, $user_id ) {
+		if ( ! $this->can_reset_progress( $course_id, $user_id ) ) {
+			return parent::reset_progress( $course_id, $user_id );
+		}
+		try {
+			UserCourseModel::find( (int) $user_id, (int) $course_id, true )->handle_retake();
+		} catch ( Throwable $e ) {
+			return new WP_Error( 'restart_disabled', wp_strip_all_tags( $e->getMessage() ), array( 'status' => 403 ) );
+		}
+		return true;
+	}
+
+	/**
 	 * Quiz details.
 	 *
 	 * @param int $quiz_id Quiz ID.

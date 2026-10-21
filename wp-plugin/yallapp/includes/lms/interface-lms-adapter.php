@@ -199,6 +199,27 @@ interface Lms_Adapter {
 	public function progress( $course_id, $user_id );
 
 	/**
+	 * 73 Whether the LMS can clear a student's progress in a course so they take it again
+	 * (Course_Restart adds the site owner's choice per course).
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return bool
+	 */
+	public function can_reset_progress( $course_id, $user_id );
+
+	/**
+	 * 73 Clears a student's progress in a course with the LMS's own API: lessons completed,
+	 * the course's completion and the quiz results it keeps with the course, where it does.
+	 * The enrollment stays.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return true|WP_Error
+	 */
+	public function reset_progress( $course_id, $user_id );
+
+	/**
 	 * Quiz details.
 	 *
 	 * @param int $quiz_id Quiz ID.
