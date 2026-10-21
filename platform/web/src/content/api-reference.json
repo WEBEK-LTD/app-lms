@@ -211,6 +211,13 @@
       "description": "Enrolled courses, lessons and progress.",
       "endpoints": [
         {
+          "method": "POST",
+          "path": "/courses/{course_id}/restart",
+          "summary": "Start a course again",
+          "description": "Roadmap 73. Clears the signed-in student's progress in the course (lessons completed, where each video stopped, and the quiz results the LMS keeps with the course, where it does) so they can take it again from the first lesson. Their enrollment, orders, reviews and questions stay. The app offers it (\"Start the course again\", after asking to confirm) on a finished course whose `CourseDetail.can_restart` is true, then opens the first lesson. `403 not_enrolled` for a student who isn't in the course, `403 restart_disabled` when `can_restart` is false (the owner turned it off for the course, or the LMS has no way to reset a student's progress). A certificate already issued is the LMS's: some keep it, some take it back.",
+          "access": "signed-in"
+        },
+        {
           "method": "GET",
           "path": "/me/courses",
           "summary": "List the student's courses",

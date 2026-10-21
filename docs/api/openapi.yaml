@@ -51,6 +51,13 @@ info:
     the app's owner (`contact`) to delete their account. Everything comes back
     as it was once the plan is renewed.
 
+    A deleted app (roadmap 73): when the owner deletes the app in the Yallapp
+    dashboard, the hosted API answers 404 `not_found` on every path at once
+    (the app is gone for the app as for the dashboard), and a WordPress site
+    loses its license (`license_not_found` from Yallapp), so its app pauses
+    as above. Yallapp's team can restore it within 7 days; after that its
+    data and files are deleted.
+
     A client's own API can let Yallapp sign people in (roadmap 34): its app
     then sends sign-in, the account and its devices to the hosted API
     (`Config.auth.provider: yallapp`, `Config.auth.base_url`) and every other
@@ -1306,6 +1313,34 @@ paths:
                   topics:
                     type: array
                     items: { $ref: '#/components/schemas/Topic' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /courses/{course_id}/restart:
+    post:
+      tags: [Learning]
+      operationId: restartCourse
+      summary: Start a course again
+      description: >-
+        Roadmap 73. Clears the signed-in student's progress in the course (lessons completed,
+        where each video stopped, and the quiz results the LMS keeps with the course, where it
+        does) so they can take it again from the first lesson. Their enrollment, orders,
+        reviews and questions stay. The app offers it ("Start the course again", after asking
+        to confirm) on a finished course whose `CourseDetail.can_restart` is true, then opens
+        the first lesson. `403 not_enrolled` for a student who isn't in the course, `403
+        restart_disabled` when `can_restart` is false (the owner turned it off for the course,
+        or the LMS has no way to reset a student's progress). A certificate already issued is
+        the LMS's: some keep it, some take it back.
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+      responses:
+        '200':
+          description: The course's progress after starting again
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Progress' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
@@ -3307,6 +3342,7 @@ components:
             - campaign_closed
             - donations_unavailable
             - not_downloadable
+            - restart_disabled
         message: { type: string, description: "A message safe to show to the student, in the language the app asked for with `Accept-Language` when the server has it (the hosted API: English, Arabic and Turkish), else in English." }
         retry_after_seconds: { type: integer }
         details: { type: object, additionalProperties: true }
@@ -3729,6 +3765,15 @@ components:
               type: [string, 'null']
               format: uri
               description: Roadmap 62. The course's page on the website; null when it has none (academies without a website).
+            can_restart:
+              type: boolean
+              description: >-
+                Roadmap 73. Whether the student can start the course again once they've finished
+                it (`POST /courses/{course_id}/restart`). False when the owner turned it off for
+                the course (on by default) and when the LMS has no way to reset a student's
+                progress (on WordPress: Tutor LMS, LearnDash, LifterLMS and Sensei LMS can;
+                LearnPress only while the course allows retakes, and counts one; MasterStudy and
+                Masteriyo can't yet). Missing on older servers means false.
             categories:
               type: array
               items: { $ref: '#/components/schemas/Category' }

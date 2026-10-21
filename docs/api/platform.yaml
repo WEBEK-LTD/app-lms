@@ -33,6 +33,14 @@ info:
     - When a plan ends, the platform's frequent job (every 5 minutes) asks the
       site to check at once (`POST /license/refresh`), once per end date, so
       the site hears of it within minutes instead of at its next check.
+    - A deleted app (roadmap 73): once the owner deletes the app in the
+      Yallapp dashboard, its license is gone for the plugin at once:
+      `/licenses/activate`, `/licenses/check`, `/licenses/media`,
+      `/apps/layout` and `/sign-in-codes/send` answer 404 `license_not_found`
+      (the plugin then treats the license as invalid and the app pauses), and
+      the platform doesn't ask the site to check again. If Yallapp's team
+      restores the app within 7 days, the same key works again; after that it
+      is deleted with the app.
     - Videos from the app's Media library (tag Media, roadmap 51) play from
       links the plugin asks for per request, after checking the student may
       open the lesson; no student data is sent with it.
