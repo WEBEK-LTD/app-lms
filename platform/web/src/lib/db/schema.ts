@@ -89,7 +89,7 @@ import type { CampaignStatus, DonationRecurring, DonationSettings, DonationStatu
 import type { AnalyticsEventType, AnalyticsItemKind, AnalyticsMetric } from "../analytics/types";
 // 14.1 We publish for you
 import type { PublishingChecklist, PublishingListing, PublishingMode, PublishingStatus, PublishingStore } from "../data/types";
-import type { MilestoneKind, SignupSource } from "../data/types";
+import type { MilestoneKind, ProductDay, SignupSource } from "../data/types";
 
 /**
  * MySQL schema (MySQL 8.0.13+ and MariaDB 10.3+, the usual cPanel servers).
@@ -2147,3 +2147,10 @@ export const clientMilestones = mysqlTable(
   },
   (t) => [primaryKey({ columns: [t.clientId, t.kind, t.ref] }), index("client_milestones_kind_at_idx").on(t.kind, t.at)],
 );
+
+/** 78.2 What the daily job saw each day (lib/admin/product-days.ts): the clients with a plan running, for Admin › Product's months. */
+export const productDays = mysqlTable("product_days", {
+  day: varchar("day", { length: 10 }).primaryKey(),
+  snapshot: jsonText<Omit<ProductDay, "day">>("snapshot").notNull(),
+  updatedAt: time("updated_at").notNull(),
+});

@@ -1116,8 +1116,14 @@ never in a chat or an issue.
 
 ## 7x. Measure and watch (Phase 78)
 
-- [ ] Apply migration `0053_client_milestones.sql` after `0052`, then
-      deploy (78.1).
+- [ ] Migrations `0053_client_milestones.sql` (78.1) and
+      `0054_product_days.sql` (78.2) add two new tables and change none.
+      The production deploy applies them itself before building
+      (`npm run db:migrate` in `netlify.toml`); nothing to run by hand.
+      Only if that deploy stops on the database (the old version keeps
+      running): run `npm run db:migrate` from `platform/web` with
+      `DATABASE_URL` (README › Database on host.webek.org), then deploy
+      again.
 - [ ] Nothing to set for the milestones: the first daily job after the
       deploy fills them for every account from what the data shows
       (`milestones` in its answer: accounts and how many were added), and
@@ -1126,6 +1132,9 @@ never in a chat or an issue.
       sign-up's source is kept ("How you found us"), in English, Arabic
       and Turkish. If the team edited the privacy policy in Admin › Website
       content, add it there by hand.
+- [ ] Admin › Product (78.2) fills its months from the daily job's
+      snapshots, one a day from the deploy on (`productDay` in its answer);
+      the funnel, times, sources and builds show at once.
 - [ ] Campaign links: point them at any page of the site with
       `utm_source`, `utm_medium` and `utm_campaign` (and `from` for a page
       of ours, like `from=newsletter`); the sign-up records them while the

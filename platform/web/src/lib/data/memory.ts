@@ -82,7 +82,7 @@ import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, D
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 import type { PublishingEvent, PublishingRequest } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
-import type { ClientMilestone, MilestoneKind } from "./types";
+import type { ClientMilestone, MilestoneKind, ProductDay } from "./types";
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
@@ -3574,6 +3574,20 @@ export class MemoryStore implements DataStore {
 
   async listMilestones(input: { since?: Date; kinds?: MilestoneKind[] }): Promise<ClientMilestone[]> {
     return this.sortedMilestones().filter((m) => (!input.since || m.at.getTime() >= input.since.getTime()) && (!input.kinds || input.kinds.includes(m.kind)));
+  }
+
+  // 78.2 Kept with no client or app: an account's deletion leaves the day's counts.
+  private productDays = new Map<string, { snapshot: ProductDay }>();
+
+  async saveProductDay(day: ProductDay): Promise<void> {
+    this.productDays.set(day.day, { snapshot: clone(day) });
+  }
+
+  async listProductDays(since: string): Promise<ProductDay[]> {
+    return [...this.productDays.values()]
+      .map((r) => clone(r.snapshot))
+      .filter((d) => d.day >= since)
+      .sort((a, b) => a.day.localeCompare(b.day));
   }
 
   private sortedMilestones(): ClientMilestone[] {

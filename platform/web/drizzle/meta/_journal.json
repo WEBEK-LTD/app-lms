@@ -379,6 +379,13 @@
       "when": 1792683900579,
       "tag": "0053_client_milestones",
       "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "5",
+      "when": 1792686123085,
+      "tag": "0054_product_days",
+      "breakpoints": true
     }
   ]
 }
