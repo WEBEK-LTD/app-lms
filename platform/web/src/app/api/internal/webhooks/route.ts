@@ -2,6 +2,7 @@ import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey, internalJobSecret } from "@/lib/env";
 import { runApiWebhooks } from "@/lib/hosted/api-webhooks";
 import { errorResponse, hasBearerToken, json } from "@/lib/http";
+import { recordJobRun } from "@/lib/watch/runs";
 
 /**
  * POST /api/internal/webhooks (roadmap 49): the webhook job. Netlify's
@@ -16,6 +17,7 @@ export async function POST(request: Request): Promise<Response> {
     return errorResponse(401, "unauthorized", "A valid job token is required.", { "www-authenticate": 'Bearer realm="yallapp-internal"' });
   }
   const store = await getStore();
-  const report = await runApiWebhooks({ store, encryptionKey: encryptionKey(), platformUrl: appUrl(), now: () => new Date() });
+  // 78.3 Recorded as a run.
+  const report = await recordJobRun(store, "webhooks", () => new Date(), () => runApiWebhooks({ store, encryptionKey: encryptionKey(), platformUrl: appUrl(), now: () => new Date() }));
   return json(report);
 }

@@ -1135,6 +1135,13 @@ never in a chat or an issue.
 - [ ] Admin › Product (78.2) fills its months from the daily job's
       snapshots, one a day from the deploy on (`productDay` in its answer);
       the funnel, times, sources and builds show at once.
+- [ ] **Watching** (78.3): migration `0055_watching.sql` (two new tables)
+      goes with the production deploy like the others. Then open Admin ›
+      Watching: each part of the health check should say Fine. Set
+      `GITHUB_DISPATCH_TOKEN` in Netlify (README) if the build pipeline says
+      it isn't set: without it, builds wait for GitHub's hourly schedule,
+      often hours late. New alerts are emailed to every address in
+      `SUPER_ADMIN_EMAILS`.
 - [ ] Campaign links: point them at any page of the site with
       `utm_source`, `utm_medium` and `utm_campaign` (and `from` for a page
       of ours, like `from=newsletter`); the sign-up records them while the

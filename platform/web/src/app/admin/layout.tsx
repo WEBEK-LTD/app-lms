@@ -20,6 +20,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const openDeletions = (await store.listAccountDeletionRequests(["pending"], 200)).length;
   // 73 Apps their owners deleted, still restorable.
   const deletedApps = (await store.listAppDeletions({ statuses: ["waiting"], limit: 200 })).length;
+  // 78.3 The bell: open alerts of the platform's watch.
+  const openAlerts = await store.countOpenTeamAlerts();
   return (
     // 73 Light or dark like the website (globals.css); the menu stays dark.
     <div data-site-theme="" className="flex min-h-screen flex-col bg-ivory md:flex-row">
@@ -33,6 +35,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           items={[
             { href: "/admin", label: "Overview", exact: true },
             { href: "/admin/product", label: "Product" },
+            { href: "/admin/watching", label: "Watching", badge: { count: openAlerts, label: openAlerts === 1 ? "open alert" : "open alerts" } },
             { href: "/admin/clients", label: "Clients" },
             { href: "/admin/builds", label: "Build queue" },
             { href: "/admin/crashes", label: "Crashes" },

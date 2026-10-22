@@ -84,7 +84,7 @@ import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatu
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
-import type { ClientMilestone, MilestoneKind, ProductDay } from "./types";
+import type { ClientMilestone, JobRun, MilestoneKind, ProductDay, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
 export type ClientFilter = "all" | "pending" | "active" | "expired";
@@ -1093,4 +1093,28 @@ export interface DataStore {
   saveProductDay(day: ProductDay, now: Date): Promise<void>;
   /** The snapshots from `since` (YYYY-MM-DD) on, oldest first. */
   listProductDays(since: string): Promise<ProductDay[]>;
+
+  // 78.3 Watching (lib/watch)
+  /** A job starting: its run's ID. */
+  startJobRun(job: WatchedJob, startedAt: Date): Promise<number>;
+  finishJobRun(id: number, result: { finishedAt: Date; ok: boolean; summary: string | null; error: string | null }): Promise<void>;
+  /** Newest first. */
+  listJobRuns(input: { job?: WatchedJob; limit: number }): Promise<JobRun[]>;
+  /** When each job last finished well. */
+  lastGoodJobRuns(): Promise<Partial<Record<WatchedJob, Date>>>;
+  deleteJobRunsBefore(before: Date): Promise<number>;
+  /**
+   * Opens the key's alert, or, when it is open already, counts it again and
+   * takes the new title and detail. `created` is true only for a new one (of
+   * two at once, one).
+   */
+  raiseTeamAlert(input: Pick<TeamAlert, "kind" | "key" | "title" | "detail" | "link">, now: Date): Promise<{ alert: TeamAlert; created: boolean }>;
+  markTeamAlertEmailed(id: string, at: Date): Promise<void>;
+  /** Open ones newest first (by when last seen), or closed ones newest first. */
+  listTeamAlerts(input: { open: boolean; limit: number }): Promise<TeamAlert[]>;
+  countOpenTeamAlerts(): Promise<number>;
+  /** Closes one open alert; false when it isn't open. */
+  resolveTeamAlert(id: string, by: string, now: Date): Promise<boolean>;
+  /** Closes the kind's open alerts whose key isn't in `keep` (the problem went): how many. */
+  resolveTeamAlertsExcept(kind: TeamAlertKind, keep: string[], by: string, now: Date): Promise<number>;
 }

@@ -5,6 +5,7 @@ import { appZone } from "../analytics/zone";
 import type { DataStore } from "../data/store";
 import type { App, HostedNotification } from "../data/types";
 import { parseServiceAccount, pushTarget, sendPush, type HmsCredentials, type ServiceAccount } from "./push";
+import { raiseAlert } from "../watch/alerts";
 
 export const SERVICE_ACCOUNT_CONTEXT = "app:firebase-service-account";
 export const NOTIFICATION_TITLE_MAX = 65;
@@ -129,7 +130,20 @@ export async function announce(input: {
     }
     return { notification, pushed: result.sent, pushError: null };
   } catch (e) {
-    return { notification, pushed: 0, pushError: e instanceof Error ? e.message : "Push failed." };
+    const pushError = e instanceof Error ? e.message : "Push failed.";
+    // 78.3 In the team's bell (not emailed: it is usually the app's own Firebase key, which its owner fixes).
+    await raiseAlert(
+      input.store,
+      {
+        kind: "push_failed",
+        key: `push_failed:app:${input.app.id}:${input.now.toISOString().slice(0, 10)}`,
+        title: `${input.app.appName?.trim() || "An app"}: notifications couldn't be pushed`,
+        detail: `${pushError.slice(0, 300)}. The notification is in the app's inbox; the owner sees the reason in Dashboard › Notifications.`,
+        link: `/admin/clients/${input.app.clientId}`,
+      },
+      input.now,
+    );
+    return { notification, pushed: 0, pushError };
   }
 }
 

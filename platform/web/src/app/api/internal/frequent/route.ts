@@ -3,6 +3,9 @@ import { encryptionKey, internalJobSecret, licenseRefreshTestUrl } from "@/lib/e
 import { errorResponse, hasBearerToken, json } from "@/lib/http";
 import { runFrequentJobs } from "@/lib/jobs/frequent";
 import { ownerPushDeps } from "@/lib/owner/push-env";
+import { recordJobRun } from "@/lib/watch/runs";
+import { alertFailedScheduledPushes, runWatch } from "@/lib/watch/watch";
+import { dispatchSet, teamMail } from "@/lib/watch/env";
 
 /**
  * POST /api/internal/frequent (roadmap 61): the frequent job. Netlify's
@@ -11,7 +14,9 @@ import { ownerPushDeps } from "@/lib/owner/push-env";
  * notifications to apps' users whose time came (Send later) and pushes the
  * announcements that started to the owners' phones (Yallapp Business), each
  * once, and 68 asks the WordPress sites of plans that just ended to check
- * their license (lib/jobs/frequent.ts). Safe to call again, also at the same time.
+ * their license (lib/jobs/frequent.ts). 78.3 Each run is recorded, then the
+ * watch looks at builds, the other jobs, crashes and failed pushes
+ * (lib/watch). Safe to call again, also at the same time.
  */
 export async function POST(request: Request): Promise<Response> {
   if (!hasBearerToken(request, internalJobSecret())) {
@@ -19,6 +24,12 @@ export async function POST(request: Request): Promise<Response> {
   }
   const store = await getStore();
   const now = new Date();
-  const report = await runFrequentJobs({ store, key: encryptionKey(), now, ownerPush: await ownerPushDeps(now, store), refresh: { testSiteUrl: licenseRefreshTestUrl() } });
+  // 78.3 Recorded as a run; then the watch: builds, the other jobs, crashes and failed pushes.
+  const report = await recordJobRun(store, "frequent", () => new Date(), async () => {
+    const jobs = await runFrequentJobs({ store, key: encryptionKey(), now, ownerPush: await ownerPushDeps(now, store), refresh: { testSiteUrl: licenseRefreshTestUrl() } });
+    await alertFailedScheduledPushes(store, jobs.notifications.failed, now, teamMail);
+    const watch = await runWatch({ store, now, mail: teamMail, jobs: ["daily", "webhooks", "pipeline"], dispatch: dispatchSet(), crashes: true });
+    return { ...jobs, watch };
+  });
   return json(report);
 }

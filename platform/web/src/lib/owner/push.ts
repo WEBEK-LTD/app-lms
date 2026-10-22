@@ -39,6 +39,8 @@ export interface OwnerPushDeps {
   send?: typeof sendPush;
   /** Local runs and tests (YALLAPP_OWNER_PUSH_DIR): every push, also when nothing can be sent. */
   capture?: (push: { to: string[]; message: OwnerPushMessage }) => Promise<void>;
+  /** 78.3 A push that couldn't be sent: the team's alert (lib/watch). */
+  failed?: (reason: string) => Promise<void>;
 }
 
 export interface Words {
@@ -135,6 +137,7 @@ export async function pushToOwner(
     return sent;
   } catch (error) {
     console.error("[owner-push]", kind, error instanceof Error ? error.message : String(error));
+    await deps.failed?.(error instanceof Error ? error.message : String(error)).catch(() => undefined);
     return 0;
   }
 }

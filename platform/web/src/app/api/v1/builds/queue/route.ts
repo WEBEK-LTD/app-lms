@@ -3,6 +3,7 @@ import { buildSummary } from "@/lib/builds/pipeline";
 import { APP_DELETED_BEFORE_START, takeQueuedBuilds } from "@/lib/builds/queue";
 import { json } from "@/lib/http";
 import { authorizePipeline } from "@/lib/pipeline-auth";
+import { notePipelinePoll } from "@/lib/watch/runs";
 
 /**
  * GET /api/v1/builds/queue (docs/api/pipeline.yaml): queued builds, oldest
@@ -18,5 +19,7 @@ export async function GET(request: Request): Promise<Response> {
   const { builds, closed } = await takeQueuedBuilds(auth.store, queued, new Date());
   // The client hears why (in their language); our team has nothing to look at. 73 Not for an app the owner deleted.
   for (const build of closed) if (build.message !== APP_DELETED_BEFORE_START) await notifyBuildFinished(auth.store, build, { team: false }).catch(() => undefined);
+  // 78.3 The pipeline is alive: noted, so Admin › Watching sees when it last asked.
+  await notePipelinePoll(auth.store, new Date(), builds.length);
   return json({ builds: builds.map(buildSummary) });
 }

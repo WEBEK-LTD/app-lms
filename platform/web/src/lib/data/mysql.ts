@@ -11,7 +11,7 @@ import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, Analyt
 import type { AppAuthKey, AppLayoutRecord } from "./types";
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
-import type { ClientMilestone, MilestoneKind, ProductDay } from "./types";
+import type { ClientMilestone, JobRun, MilestoneKind, ProductDay, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
 import { assetIdsIn } from "./asset-ids";
 import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 import type { MoreStore, MoreStoresRow, PublishingEvent, PublishingRequest, PublishingTrack } from "./types";
@@ -4480,6 +4480,100 @@ export class MysqlStore implements DataStore {
     const rows = await this.run((db) => db.select().from(p).where(gte(p.day, since)).orderBy(asc(p.day)));
     return rows.map((r) => ({ day: r.day, ...r.snapshot }));
   }
+  // 78.3 Watching
+
+  async startJobRun(job: WatchedJob, startedAt: Date): Promise<number> {
+    const [result] = await this.run((db) => db.insert(schema.jobRuns).values({ job, startedAt }));
+    return Number(result.insertId);
+  }
+
+  async finishJobRun(id: number, result: { finishedAt: Date; ok: boolean; summary: string | null; error: string | null }): Promise<void> {
+    await this.run((db) => db.update(schema.jobRuns).set(result).where(eq(schema.jobRuns.id, id)));
+  }
+
+  async listJobRuns(input: { job?: WatchedJob; limit: number }): Promise<JobRun[]> {
+    const r = schema.jobRuns;
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(r)
+        .where(input.job ? eq(r.job, input.job) : undefined)
+        .orderBy(desc(r.startedAt), desc(r.id))
+        .limit(input.limit),
+    );
+    return rows.map((row) => ({ ...row, ok: row.ok === null ? null : Boolean(row.ok) }));
+  }
+
+  async lastGoodJobRuns(): Promise<Partial<Record<WatchedJob, Date>>> {
+    const r = schema.jobRuns;
+    const rows = await this.run((db) =>
+      db
+        .select({ job: r.job, at: sql<Date>`max(${r.finishedAt})`.mapWith(r.finishedAt) })
+        .from(r)
+        .where(eq(r.ok, true))
+        .groupBy(r.job),
+    );
+    return Object.fromEntries(rows.filter((row) => row.at).map((row) => [row.job, row.at]));
+  }
+
+  async deleteJobRunsBefore(before: Date): Promise<number> {
+    const [result] = await this.run((db) => db.delete(schema.jobRuns).where(lt(schema.jobRuns.startedAt, before)));
+    return result.affectedRows;
+  }
+
+  async raiseTeamAlert(input: Pick<TeamAlert, "kind" | "key" | "title" | "detail" | "link">, now: Date): Promise<{ alert: TeamAlert; created: boolean }> {
+    const a = schema.teamAlerts;
+    const [result] = await this.run((db) =>
+      db
+        .insert(a)
+        .values({ id: newId(), ...input, count: 1, createdAt: now, lastSeenAt: now, resolvedAt: null, resolvedBy: null, emailedAt: null, openKey: input.key })
+        .onDuplicateKeyUpdate({ set: { title: input.title, detail: input.detail, link: input.link, count: sql`${a.count} + 1`, lastSeenAt: now } }),
+    );
+    const [row] = await this.run((db) => db.select().from(a).where(eq(a.openKey, input.key)).limit(1));
+    // One row inserted: 1; an open one updated: 2.
+    return { alert: teamAlertOf(row!), created: result.affectedRows === 1 };
+  }
+
+  async markTeamAlertEmailed(id: string, at: Date): Promise<void> {
+    await this.run((db) => db.update(schema.teamAlerts).set({ emailedAt: at }).where(eq(schema.teamAlerts.id, id)));
+  }
+
+  async listTeamAlerts(input: { open: boolean; limit: number }): Promise<TeamAlert[]> {
+    const a = schema.teamAlerts;
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(a)
+        .where(input.open ? isNull(a.resolvedAt) : isNotNull(a.resolvedAt))
+        .orderBy(input.open ? desc(a.lastSeenAt) : desc(a.resolvedAt))
+        .limit(input.limit),
+    );
+    return rows.map(teamAlertOf);
+  }
+
+  async countOpenTeamAlerts(): Promise<number> {
+    const a = schema.teamAlerts;
+    const [row] = await this.run((db) => db.select({ n: count() }).from(a).where(isNull(a.resolvedAt)));
+    return row?.n ?? 0;
+  }
+
+  async resolveTeamAlert(id: string, by: string, now: Date): Promise<boolean> {
+    const a = schema.teamAlerts;
+    const [result] = await this.run((db) => db.update(a).set({ resolvedAt: now, resolvedBy: by, openKey: null }).where(and(eq(a.id, id), isNull(a.resolvedAt))));
+    return result.affectedRows === 1;
+  }
+
+  async resolveTeamAlertsExcept(kind: TeamAlertKind, keep: string[], by: string, now: Date): Promise<number> {
+    const a = schema.teamAlerts;
+    const [result] = await this.run((db) =>
+      db
+        .update(a)
+        .set({ resolvedAt: now, resolvedBy: by, openKey: null })
+        .where(and(eq(a.kind, kind), isNull(a.resolvedAt), keep.length ? not(inArray(a.key, keep)) : undefined)),
+    );
+    return result.affectedRows;
+  }
+
 
 
 }
@@ -4606,4 +4700,10 @@ function toBuild(row: typeof schema.builds.$inferSelect): Build {
     storeListing: row.storeListing as unknown as StoreListing,
     artifacts: row.artifacts as Artifact[],
   };
+}
+
+/** 78.3 A team alert row without its open key. */
+function teamAlertOf({ openKey: _openKey, ...row }: typeof schema.teamAlerts.$inferSelect): TeamAlert {
+  void _openKey;
+  return row;
 }

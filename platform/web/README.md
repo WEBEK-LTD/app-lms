@@ -173,7 +173,7 @@ drizzle's `serial()`: its SQL doesn't run on MariaDB.
 | `SUPER_ADMIN_EMAILS` | yes | Comma-separated super admin emails. |
 | `BUILD_PIPELINE_TOKEN` | for Phase 5 | Bearer token of the pipeline API. Without it the pipeline API refuses every request. |
 | `INTERNAL_JOB_SECRET` | for 13.4 | 32+ characters. Bearer token of `POST /api/internal/daily`, which the scheduled function `daily-notices` calls once a day. Without it the route refuses every request and no reminders go out. |
-| `GITHUB_DISPATCH_TOKEN` | no | Starts the build workflow as soon as a build is queued. A fine-grained GitHub token for this repository only, with **Actions: Read and write**. Unset: builds wait for the workflow's 10-minute schedule. |
+| `GITHUB_DISPATCH_TOKEN` | no | Starts the build workflow as soon as a build is queued. A fine-grained GitHub token for this repository only, with **Actions: Read and write**. Unset: builds wait for the workflow's hourly schedule, which GitHub often runs hours late (Admin › Watching says so, and alerts when a build waits over 30 minutes). |
 | `GITHUB_REPOSITORY` | no | Default `WEBEK-LTD/app-lms`. |
 | `FILES_BASE_URL` | no | Where build files are stored. Default `https://files.yallapp.com.tr`. Links on this origin are signed. |
 | `OTP_SENDER` | for the hosted API | How sign-in codes are sent: `whatsapp`, `webhook`, `waabek` or `log` (local only; the default in memory mode). Unset: code requests fail with `provider_error`. The admin's Settings page can set this instead (it then replaces all `OTP_*`, `WHATSAPP_*` and `WAABEK_*` variables). |
