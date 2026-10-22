@@ -1073,6 +1073,14 @@ never in a chat or an issue.
       those files can't be sent.
 - [ ] Admin › Plans: chat comes with Pro and Business. If the plans were
       edited in the admin before, tick "Chat" on Pro and Business there.
+- [ ] Dashboard › Chat (77.3): the inbox, a conversation (answers with a
+      file from Media, deleting a message or all of them, keeping another
+      year, stopping a person), the reports and the switches (chat on or
+      off, an academy's course groups). Team members need the new "Chat"
+      area (Team page) to see it; owners and managers have it.
+- [ ] After deploying: on a test academy on Pro, write from the app (or the
+      hosted API), answer from Dashboard › Chat, turn course groups on and
+      see the course's group; the same page in Arabic and Turkish.
 - [ ] Nothing else to set: the chat's pushes use each app's own Firebase
       account (WordPress apps: through their site, plugin 0.4.9) and
       Yallapp Business's for the owners. Messages are kept a year; the

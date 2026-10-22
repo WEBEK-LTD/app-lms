@@ -38,11 +38,13 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 export const dynamic = "force-dynamic";
 
-const FILTERS: { id: MediaKind | "all"; label: DashKey; none: DashKey }[] = [
+const FILTERS: { id: MediaKind | "all" | "chat"; label: DashKey; none: DashKey }[] = [
   { id: "all", label: "media.all", none: "media.noFiles" },
   { id: "video", label: "media.videos", none: "media.noVideos" },
   { id: "image", label: "media.pictures", none: "media.noPictures" },
   { id: "pdf", label: "media.pdfs", none: "media.noPdfs" },
+  // 77 Photos, videos, voice messages and files people sent in the chat.
+  { id: "chat", label: "media.fromChat", none: "media.noChat" },
 ];
 
 const KIND_LABEL: Record<MediaKind, DashKey> = { video: "media.video", image: "media.picture", pdf: "media.pdf", audio: "media.voice", file: "media.document" };
@@ -70,7 +72,7 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
   // 52 Packs are paid like the plans (the plans' gateway, in pounds) and shown in the client's currency.
   const [usage, files, account, packsSetting, contact, view] = await Promise.all([
     appStorage(store, app, plans, now),
-    store.listMediaFiles(app.id, filter === "all" ? {} : { kind: filter }),
+    store.listMediaFiles(app.id, filter === "all" || filter === "chat" ? {} : { kind: filter }).then((list) => (filter === "chat" ? list.filter((f) => f.source === "chat") : list)),
     yallappPlanAccount(store, encryptionKey()),
     platformSetting(store, "storagePacks"),
     getVisitorContact(),
@@ -184,7 +186,7 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
                       <img src={open} alt="" className="h-12 w-12 flex-none rounded-lg object-cover" />
                     ) : (
                       <span className="flex h-12 w-12 flex-none items-center justify-center rounded-lg bg-ivory">
-                        <Icon name={f.kind === "video" ? "smart_display" : f.kind === "image" ? "image" : "assignment"} size={24} />
+                        <Icon name={f.kind === "video" ? "smart_display" : f.kind === "image" ? "image" : f.kind === "audio" ? "mic" : f.kind === "file" ? "description" : "assignment"} size={24} />
                       </span>
                     )}
                     <div className="flex min-w-0 flex-[1_1_220px] flex-col gap-0.5">
@@ -195,6 +197,8 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
                     </div>
                     {f.status === "uploading" ? (
                       <Badge tone="warn">{t("media.notFinished")}</Badge>
+                    ) : f.source === "chat" ? (
+                      <Badge tone="neutral">{t("media.chatFile")}</Badge>
                     ) : isPublic(f) ? (
                       <Badge tone="neutral">{t("media.anyone")}</Badge>
                     ) : (
@@ -202,7 +206,7 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
                     )}
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    {f.status === "ready" ? <CopyButton value={link} label={t("media.copyLink")} copiedLabel={t("common.copied")} /> : null}
+                    {f.status === "ready" && f.source !== "chat" ? <CopyButton value={link} label={t("media.copyLink")} copiedLabel={t("common.copied")} /> : null}
                     {open ? (
                       <a href={open} target="_blank" rel="noopener noreferrer" className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-line-strong bg-white px-3.5 text-sm font-semibold text-midnight no-underline hover:border-midnight">
                         <Icon name="open_in_new" size={18} />
@@ -210,7 +214,7 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
                       </a>
                     ) : null}
                     {f.status === "ready" ? <RenameForm id={f.id} name={f.name} /> : null}
-                    {f.status === "ready" && f.kind !== "image" ? (
+                    {f.status === "ready" && f.kind !== "image" && f.source !== "chat" ? (
                       <form action={setMediaPublicAction}>
                         <input type="hidden" name="id" value={f.id} />
                         <input type="hidden" name="public" value={f.public ? "" : "on"} />

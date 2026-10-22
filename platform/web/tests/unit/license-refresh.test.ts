@@ -173,6 +173,8 @@ describe("saves that change what the license status carries ask the site", () =>
     ["app/actions/screen-protection.ts", "saveScreenProtectionAction"],
     // 72 The video sites' own players, or their branding hidden.
     ["app/actions/screen-protection.ts", "saveVideoBrandingAction"],
+    // 77 Chat on or off, and course groups.
+    ["app/actions/chat.ts", "saveChatSettingsAction"],
   ])("%s %s", (file, name) => {
     expect(body(file, name)).toContain("refreshSitesSoon(");
   });
@@ -196,7 +198,7 @@ describe("saves that change what the license status carries ask the site", () =>
       "review_prompt",
       "crash_reports",
       "hide_video_branding",
-      // 77 The chat's switches (saved on the Chat page, 77.3).
+      // 77 The chat's switches (Dashboard › Chat).
       "chat",
       "expires_at",
       "checked_at",

@@ -16,6 +16,7 @@ import { dashboardMessages, knownEnglish } from "@/i18n/dashboard";
 import { richText } from "@/i18n/rich";
 import { appLabel, licensePageName, MAX_APPS_PER_CLIENT } from "@/lib/app/label";
 import { appTypeName, contentNavOf, kindOf, usersLabelOf } from "@/lib/app/kinds";
+import { chatSessionKind } from "@/lib/chat/access";
 import { contextCan, requireClient } from "@/lib/auth/session";
 import { pathPermission } from "@/lib/team/permissions";
 import type { DashKey } from "@/i18n/dashboard";
@@ -71,6 +72,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         { href: "/dashboard/pages", label: t("nav.pages"), icon: "palette" },
         // 51 The app's videos, pictures and PDFs, kept by Yallapp.
         ...(app ? [{ href: "/dashboard/media", label: t("nav.media"), icon: "photo_library" as const }] : []),
+        // 77 The people using the app write to the business (apps whose people Yallapp knows).
+        ...(app && chatSessionKind(app) ? [{ href: "/dashboard/chat", label: t("chat.nav"), icon: "forum" as const }] : []),
         // 43 The app's languages and every text in them.
         { href: "/dashboard/languages", label: t("nav.languages"), icon: "language" },
         // 53 Screenshots and screen recording in the app.
