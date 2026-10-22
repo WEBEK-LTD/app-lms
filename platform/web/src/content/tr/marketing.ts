@@ -1158,7 +1158,7 @@ export const TR_MARKETING: MarketingTranslation = {
     },
     pro: {
       tagline: "Uygulamalarınızı sizin için biz yayımlarız",
-      highlights: ["Growth'taki her şey", "Sınırsız uygulama kullanıcısı", "Tüm uygulama dilleri", "Beş uygulama mağazasının hepsinde biz yayımlarız", "Otomatik mağaza güncellemeleri", "Öncelikli destek"],
+      highlights: ["Growth'taki her şey", "Sınırsız uygulama kullanıcısı", "Tüm uygulama dilleri", "Beş uygulama mağazasının hepsinde biz yayımlarız", "Otomatik mağaza güncellemeleri", "Uygulamada müşterilerinizle sohbet", "Öncelikli destek"],
     },
     business: {
       tagline: "Uygulamanız için bir ortak",

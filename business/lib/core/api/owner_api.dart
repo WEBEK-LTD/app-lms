@@ -217,6 +217,52 @@ abstract class OwnerApi {
   /// 64 Unfreezes it now, or removes a freeze to come.
   Future<Member> unfreezeMember(String appId, int membershipId);
 
+  // 77 The app's chat.
+  Future<ChatInbox> chatConversations(
+    String appId, {
+    bool unread = false,
+    String? kind,
+    String? query,
+  });
+  Future<ChatMessagesPage> chatMessages(
+    String appId,
+    String conversationId, {
+    String? after,
+    String? before,
+  });
+
+  /// A reply as the business: text, a Media file, or both. [clientId] makes
+  /// sending it again safe.
+  Future<ChatMessage> sendChatMessage(
+    String appId,
+    String conversationId, {
+    required String clientId,
+    String? text,
+    String? mediaId,
+  });
+  Future<void> readChat(String appId, String conversationId, String messageId);
+  Future<ChatThread> keepChat(String appId, String conversationId);
+  Future<int> keepExpiringChats(String appId);
+  Future<void> clearChat(String appId, String conversationId);
+  Future<void> deleteChatMessage(String appId, String messageId);
+  Future<List<ChatReport>> chatReports(String appId, {bool open = true});
+  Future<void> resolveChatReport(
+    String appId,
+    String reportId,
+    ChatReportAction action,
+  );
+  Future<void> blockChatMember(
+    String appId,
+    String memberId, {
+    required bool blocked,
+  });
+  Future<ChatSettings> chatSettings(String appId);
+  Future<ChatSettings> updateChatSettings(
+    String appId, {
+    bool? enabled,
+    bool? courseGroups,
+  });
+
   // App users
   Future<AppUsersPage> appUsers(String appId, {String? query, int page = 1});
 

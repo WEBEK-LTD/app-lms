@@ -4,7 +4,7 @@ import type { LegalTranslation } from "../translation-types";
 export const TR_LEGAL: Partial<Record<"privacy" | "terms" | "refund", LegalTranslation>> = {
   privacy: {
     title: "Gizlilik politikası",
-    updated: "21 Ekim 2026",
+    updated: "22 Ekim 2026",
     body: `## 1. Biz kimiz
 
 Yallapp'in merkezi Kahire, Mısır'dadır ve burada açıklanan kişisel verilerin veri sorumlusudur. Pek çok ülkede işletmelerle çalışıyoruz; bu yüzden işlediğimiz verilere uygulanan veri koruma yasalarına uyuyoruz: Mısır Kişisel Verilerin Korunması Kanunu (2020 tarihli 151 sayılı Kanun) ve uygulandıkları durumlarda AB Genel Veri Koruma Tüzüğü (GDPR) ile 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK). İletişim: [{{contact_email}}](mailto:{{contact_email}}).
@@ -26,6 +26,7 @@ Uygulama kullanıcılarınızın verilerinin nasıl işlendiği, uygulamanın i�
 - **Web sitesi yok (Yallapp panelinde yönetilen içerik):** kullanıcılarınızın adları, telefon numaraları, girişleri, siparişleri, randevuları ve talepleri gibi uygulamanızın ihtiyaç duyduğu verileri ve eklediğiniz içeriği biz barındırırız. Bu veriler için veri sorumlusu sizsiniz, Yallapp ise veri işleyeninizdir: bunları yalnızca uygulamanızı çalıştırmak için ve talimatlarınız doğrultusunda kullanır, güvende tutar ve hesabınız sona erdiğinde veya siz istediğinizde sileriz.
 - **Müşterilerinizden gelen ödemeler:** müşterileriniz size kendi ödeme sağlayıcısı hesabınız üzerinden öder (kendi iyzico, Kashier veya Fawaterk hesabınız ya da web sitenizin kendi ödeme sayfası). Yallapp bu ödemelerin tarafı değildir: parayı veya kart bilgilerini asla almaz; uygulamanız gösterebilsin diye yalnızca siparişin durumunu ve sağlayıcının referansını saklar.
 - **Kullanım istatistikleri (her uygulama):** uygulamanızın nasıl kullanıldığını görebilmeniz için uygulama, içinde olanları Yallapp'e gönderir: uygulamanın açılışları (ve ilk açılış olup olmadığı), açılan ekranın türü, açılan kurslar, ürünler veya diğer öğeler ve adları, sepete ekleme, kayıt olma, randevu alma, bağış yapma veya ödeme sayfasını açma gibi işlemler (varsa tutarıyla), arama metinleri, açılan bildirimler ve paylaşımlar; bunlarla birlikte uygulamanın oluşturduğu rastgele bir kurulum numarası (kullanıcının hesabıyla bağlantılı değildir ve paylaşımı kapatıp yeniden açtığında yenilenir), platform, uygulama ve sistem sürümleri ve uygulamanın dili. Ülkeyi, veriler geldiğinde bağlantıdan çıkarırız ve IP adresini saklamayız. Hiçbir ad, telefon numarası, e-posta adresi veya reklam kimliği gönderilmez; uygulamalarda üçüncü taraf analiz veya reklam araçları yoktur ve hiçbir şey insanları uygulamalar veya web siteleri arasında izlemek için kullanılmaz. Arama metinleri yalnızca gün başına sayılır, asla kurulum numarasıyla birlikte saklanmaz. Raporlar size yalnızca toplamları gösterir. Uygulama kullanıcılarınız, uygulamanın ayarlarında "Kullanım istatistiklerini paylaş"ı kapatabilir; uygulama bu durumda göndermeyi durdurur ve henüz göndermediklerini siler. Bu istatistikler için veri sorumlusu sizsiniz, Yallapp ise veri işleyeninizdir.
+- **Sohbet (Pro ve Business planları):** Uygulamanızda sohbet olduğunda Yallapp; mesajlarını ve dosyalarını, yazan herkesin adını ve fotoğrafını (WordPress uygulamalarında web sitesi kullanıcısının kimliğini, adını ve fotoğrafını, kurs grupları için de kurslarını) ve kimin kimi şikâyet ettiğini veya engellediğini saklar. Bu verilerde veri sorumlusu sizsiniz, Yallapp ise veri işleyeninizdir. Mesajlar ve dosyalar, bir sohbeti daha uzun süre saklamadığınız sürece gönderildikten bir yıl sonra; bir kişi hesabını sildiğinde veya siz onu sildiğinizde ise hemen silinir.
 
 Her durumda, uygulama kullanıcılarınıza kendi gizlilik bildiriminizi sunmaktan siz sorumlusunuz. Anlık bildirimler kendi Firebase projeniz üzerinden gönderilir. Giriş kodları waabek.com aracılığıyla WhatsApp'tan (bizim numaramızdan ya da bağlarsanız sizinkinden) veya e-posta sunucumuzdan e-postayla (ya da kurarsanız kendi e-posta sunucunuz üzerinden; şifresini şifreli olarak saklarız) gönderilebilir. Kullanıcılarınızdan biriyle ilgili bir sorunda bizden yardım isterseniz, yalnızca bizimle paylaştığınız verileri ve yalnızca talimatlarınız doğrultusunda kullanırız.
 
@@ -46,7 +47,7 @@ Merkezimiz Mısır'dadır ve pek çok ülkeden müşterilerle çalışırız. Sa
 
 ## 7. Ne kadar süre saklıyoruz
 
-Hesap verilerini hesabınız etkin olduğu sürece ve kapandıktan sonra en fazla 12 ay saklarız. Fatura kayıtları, muhasebe ve vergi yasalarının gerektirdiği süre boyunca saklanır. İmzalama anahtarları, hesabınız sona erdikten sonra silmemizi isteyene kadar saklanır. Teknik kayıtlar en fazla 12 ay saklanır. Uygulamanızdan gelen tek tek kullanım olayları (her uygulama açılışı, ekran veya arama) 90 gün saklanır. Bunlardan hesaplanan günlük toplamlar, uygulamanızın planının kapsadığı süre boyunca saklanır: varsayılan olarak Starter'da 3 ay, Growth'ta 1 yıl, Pro'da 2 yıl ve Business'ta 3 yıl; uygulamanız silindikten sonra ise asla.
+Hesap verilerini hesabınız etkin olduğu sürece ve kapandıktan sonra en fazla 12 ay saklarız. Fatura kayıtları, muhasebe ve vergi yasalarının gerektirdiği süre boyunca saklanır. İmzalama anahtarları, hesabınız sona erdikten sonra silmemizi isteyene kadar saklanır. Teknik kayıtlar en fazla 12 ay saklanır. Uygulamanızdan gelen tek tek kullanım olayları (her uygulama açılışı, ekran veya arama) 90 gün saklanır. Bunlardan hesaplanan günlük toplamlar, uygulamanızın planının kapsadığı süre boyunca saklanır: varsayılan olarak Starter'da 3 ay, Growth'ta 1 yıl, Pro'da 2 yıl ve Business'ta 3 yıl; uygulamanız silindikten sonra ise asla. Sohbet mesajları ve dosyaları gönderildikten sonra bir yıl ya da sohbetlerini sakladığınız sürece saklanır.
 
 ## 8. Güvenlik
 
@@ -67,7 +68,7 @@ Değişiklikleri burada yayınlar, önemli olanlar hakkında size e-posta gönde
   },
   terms: {
     title: "Hizmet koşulları",
-    updated: "21 Ekim 2026",
+    updated: "22 Ekim 2026",
     body: `## 1. Bu koşullar hakkında
 
 Bu koşullar Yallapp'i kullanımınızı kapsar: yallapp.com.tr'deki web sitesi, müşteri paneli, Yallapp WordPress eklentisi ve sizin için derlediğimiz mobil uygulamalar. Yallapp'in merkezi Kahire, Mısır'dadır. Bu koşullarda "biz" ifadesi Yallapp anlamına gelir. Bir hesap oluşturarak bu koşulları kabul etmiş olursunuz.
@@ -110,31 +111,35 @@ Android imzalama anahtarınızı oluşturur, size bir kopyasını verir ve günc
 
 Yallapp'i yasa dışı içerik, haklarına sahip olmadığınız içerik veya kötü amaçlı yazılım için kullanamaz, yazılı onayımız olmadan hizmeti yeniden satamazsınız.
 
-## 11. Erişilebilirlik ve destek
+## 11. Uygulamanızda sohbet
+
+Pro ve Business planlarında uygulamanızda sohbet olabilir: uygulamanızı kullananlar size yazar ve kurs gruplarını açan akademilerde her kursun grubunda birbirleriyle konuşur. Uygulamanızın yayıncısı olarak uygulamanızdaki sohbetten ve orada söylenenlerden siz sorumlusunuz: işletmeniz adına yanıt verir, insanların şikâyet ettiği mesajlarla ilgilenir ve sohbeti kötüye kullananların mesaj göndermesini engellersiniz (Panel › Sohbet veya Yallapp Business). Sohbeti istenmeyen reklam göndermek için kullanamazsınız. Mesajlar ve dosyalar, bir sohbeti daha uzun süre saklamadığınız sürece gönderildikten bir yıl sonra silinir; bir mesajı veya sohbetin tamamını istediğiniz zaman silebilirsiniz. Sohbet dosyaları uygulamanızın depolama alanından sayılır.
+
+## 12. Erişilebilirlik ve destek
 
 Yallapp'i erişilebilir tutmak için çalışırız ancak kesintisiz hizmet sözü veremeyiz. Planlı bakımları mümkün olduğunda önceden duyururuz. Destek, WhatsApp'ta [{{contact_whatsapp_egypt}}]({{contact_whatsapp_egypt_url}}) (Mısır'da) ve [{{contact_whatsapp}}]({{contact_whatsapp_url}}) (Mısır dışında) numaralarından ve e-postayla [{{contact_email}}](mailto:{{contact_email}}) adresinden sağlanır.
 
-## 12. Hesabınızın sona ermesi
+## 13. Hesabınızın sona ermesi
 
 Yallapp'i kullanmayı istediğiniz zaman bırakabilirsiniz. Ödeme yapılmaması veya bu koşulların ihlali durumunda bir hesabı askıya alabilir veya kapatabiliriz. Bir hesap sona erdiğinde, daha önce teslim edilen dosyalar ve imzalama anahtarları sizde kalır, ancak eklenti bağlantısı ve yeni derlemeler durur.
 
-## 13. Sorumluluk
+## 14. Sorumluluk
 
 Bu koşullardaki hiçbir şey, ihmalden kaynaklanan ölüm veya yaralanma ya da dolandırıcılık sorumluluğu dahil, yasanın sınırlamamıza izin vermediği sorumluluğu sınırlamaz. Buna tabi olarak, uygulama mağazalarının inceleme kararlarından, üçüncü taraf eklenti veya hizmetlerin yaptığı değişikliklerden ya da kâr kaybı gibi dolaylı veya sonuç olarak ortaya çıkan zararlardan sorumlu değiliz. Toplam sorumluluğumuz, talepten önceki 12 ayda ödediğiniz ücretlerle sınırlıdır.
 
-## 14. Kişisel veriler
+## 15. Kişisel veriler
 
 Kişisel verileri [Gizlilik politikamızda](/privacy) açıklandığı şekilde işleriz.
 
-## 15. Bu koşullardaki değişiklikler
+## 16. Bu koşullardaki değişiklikler
 
 Bu koşulları güncelleyebiliriz. Önemli değişiklikleri yürürlüğe girmeden en az 14 gün önce size e-postayla bildiririz.
 
-## 16. Anlaşmazlıklar ve haklarınız
+## 17. Anlaşmazlıklar ve haklarınız
 
 Pek çok ülkede işletmelerle çalışıyoruz. Yaptığımız bir şeye itirazınız varsa önce bize [{{contact_email}}](mailto:{{contact_email}}) adresinden bildirin: ikimiz de mesajınızdan sonraki 30 gün içinde iyi niyetle çözmeye çalışırız. Çözülmezse taraflardan her biri konuyu, uygulanan yasaya göre yetkili mahkemelere veya makamlara taşıyabilir. Bu koşullardaki hiçbir şey, ülkenizin yasasının size tanıdığı ve sözleşmeyle vazgeçilemeyen tüketici ve veri koruma hakları dahil hakları ortadan kaldırmaz.
 
-## 17. İletişim
+## 18. İletişim
 
 Yallapp, Kahire, Mısır. E-posta: [{{contact_email}}](mailto:{{contact_email}}) · WhatsApp: [{{contact_whatsapp_egypt}}]({{contact_whatsapp_egypt_url}}) (Mısır'da), [{{contact_whatsapp}}]({{contact_whatsapp_url}}) (Mısır dışında)
 `,

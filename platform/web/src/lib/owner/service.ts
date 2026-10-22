@@ -3,6 +3,7 @@ import { localePath } from "@/i18n/paths";
 import * as account from "./account";
 import { authenticateRequest, refresh, signIn } from "./auth";
 import * as catalog from "./catalog";
+import * as chat from "./chat";
 import { errorBody, match, notAllowed, notFound, OwnerError, route, type OwnerDeps, type OwnerRequest, type OwnerResult, type Route } from "./http";
 import * as insights from "./insights";
 import { acceptedLang, ownerLang } from "./lang";
@@ -86,6 +87,21 @@ const ROUTES: Route[] = [
   route("DELETE", "apps/:app_id/members/:membership_id/freeze", members.unfreezeMember),
   route("PATCH", "apps/:app_id/questions/:question_id", community.updateQuestion),
   route("PATCH", "apps/:app_id/questions/:question_id/answers/:answer_id", community.updateAnswer),
+  // 77 The app's chat.
+  route("GET", "apps/:app_id/chat/conversations", chat.listConversations),
+  route("DELETE", "apps/:app_id/chat/conversations/:conversation_id", chat.clearConversation),
+  route("GET", "apps/:app_id/chat/conversations/:conversation_id/messages", chat.listMessages),
+  route("POST", "apps/:app_id/chat/conversations/:conversation_id/messages", chat.sendMessage),
+  route("POST", "apps/:app_id/chat/conversations/:conversation_id/read", chat.readConversation),
+  route("POST", "apps/:app_id/chat/conversations/:conversation_id/keep", chat.keepConversation),
+  route("POST", "apps/:app_id/chat/keep", chat.keepExpiring),
+  route("DELETE", "apps/:app_id/chat/messages/:message_id", chat.deleteMessage),
+  route("GET", "apps/:app_id/chat/reports", chat.listReports),
+  route("POST", "apps/:app_id/chat/reports/:report_id/resolve", chat.resolveReport),
+  route("PUT", "apps/:app_id/chat/members/:member_id/block", chat.blockMember),
+  route("DELETE", "apps/:app_id/chat/members/:member_id/block", chat.blockMember),
+  route("GET", "apps/:app_id/chat/settings", chat.getSettings),
+  route("PATCH", "apps/:app_id/chat/settings", chat.updateSettings),
   route("GET", "apps/:app_id/users", library.listAppUsers),
   route("GET", "apps/:app_id/analytics", insights.analytics),
   route("GET", "apps/:app_id/notifications", insights.listNotifications),

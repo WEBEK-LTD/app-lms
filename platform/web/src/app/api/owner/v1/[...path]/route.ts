@@ -1,7 +1,9 @@
+import { chatPushes } from "@/lib/chat/push-env";
 import { getStore } from "@/lib/data";
 import { sendTemplate } from "@/lib/email/send";
 import { appUrl, encryptionKey, paymentApiUrls, signingSecret } from "@/lib/env";
 import { errorResponse, ipFromHeaders, json, noContent } from "@/lib/http";
+import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import { getMediaStorage } from "@/lib/media/storage";
 import { handleOwner } from "@/lib/owner/service";
 
@@ -39,6 +41,8 @@ async function handle(request: Request, { params }: RouteContext<"/api/owner/v1/
       media: getMediaStorage(),
       mail: (key, to, values, app) => sendTemplate(key, to, values, { app }),
       teamMail: (to, values, lang) => sendTemplate("team_invitation", to, values, { lang }),
+      chatPushes,
+      refreshSites: refreshSitesSoon,
     },
     {
       method: request.method,

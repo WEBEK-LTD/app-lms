@@ -25,6 +25,8 @@ class PushSettingsScreen extends ConsumerWidget {
       (PushKind.newOrder, l10n.pushNewOrder, l10n.pushNewOrderHelp),
       (PushKind.newBooking, l10n.pushNewBooking, l10n.pushNewBookingHelp),
       (PushKind.newMessage, l10n.pushNewMessage, l10n.pushNewMessageHelp),
+      // 77 A message in the app's chat.
+      (PushKind.newChatMessage, l10n.pushNewChat, l10n.pushNewChatHelp),
       // 63 A student reviewed a course.
       (PushKind.newReview, l10n.pushNewReview, l10n.pushNewReviewHelp),
       (PushKind.paymentReceived, l10n.pushPayment, l10n.pushPaymentHelp),

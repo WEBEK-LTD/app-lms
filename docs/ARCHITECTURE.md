@@ -2148,6 +2148,71 @@ be listed there (slug `yallapp`, contributor `yallapp`):
   (WordPress.org)"). Queries on the LMS's, shop's and booking plugin's own
   tables name those tables from `$wpdb->prefix`, which the ignores say.
 
+## Chat in the app (Phase 77)
+
+On the Pro and Business plans (the `chat` plan feature) the people using an
+app write to the business, and in academies with course groups each
+course has a group. People never write to each other in private: there are
+only `direct` conversations (a person and the business) and `group` ones
+(a course). The chat lives on Yallapp's hosted API for every app, whatever
+runs the rest of it.
+
+- **Data.** Migration `0052_chat.sql`: `chat_members` (a person of an app,
+  from the hosted API's users or a WordPress site's), `chat_conversations`
+  (`keep_until`, the business's read mark), `chat_participants`,
+  `chat_messages` (increasing IDs, `client_id` for safe retries, the team
+  member behind a business answer), reports, blocks, uploads and the
+  WordPress chat sessions; `apps.chat_settings` (on, course groups) and
+  `media_files.source` (`chat` files show in Media as "From the chat" and
+  count in the app's storage). Memory and MySQL stores share one suite.
+- **Who and how** (`lib/chat/access.ts`). `Config.chat` (`base_url`,
+  `session`, `groups`) when the plan has chat and it's on. Hosted apps and
+  own APIs with Yallapp sign-in use the app's access token (`session:
+  access_token`); WordPress apps (`session: site`) ask their site for an
+  hour's chat token (`POST /chat/session`, plugin 0.4.9), which the plugin
+  gets from `POST /api/v1/chat/sessions` with the person's user ID, name,
+  picture and courses. Own APIs that sign people in themselves have no chat.
+- **The app's routes** (`lib/chat/service.ts`, `hosted.ts`, the Chat tag of
+  openapi.yaml): conversations (the direct one made on the first call; a
+  student joins the groups of their courses there), unread, messages
+  (`after` to poll, `before` for older pages, `poll_after_seconds` 3 to 15),
+  send, read, members, delete one's own, report, block (for oneself), and
+  uploads through the media gate's chunked protocol (gate 3: voice
+  messages and documents). Rate limits on sends, reports and uploads.
+- **Pushes** (`lib/chat/push.ts`). A new message reaches the people in the
+  conversation (the person, or a group's members but the sender and those
+  who blocked them): hosted apps from Yallapp with the app's Firebase
+  account; WordPress sites by a signed `POST /chat/notify` (HMAC of
+  `yallapp-chat-notify:<ts>:<sha256 of the notification>` with the license
+  key), as the site keeps the push tokens. The business's phones get
+  `new_chat_message` (Yallapp Business, the Chat area) when a person wrote.
+- **The business's side** (`lib/chat/owner.ts`): the dashboard's Chat page
+  (77.3) and the Owner API's `/apps/{app_id}/chat/...` (77.6,
+  `lib/owner/chat.ts`) call the same functions: the inbox with unread,
+  open reports and what expires soon, answers as the business (with a Media
+  file), deleting a message or a whole conversation, keeping a conversation
+  another year, reports (keep, delete, delete and stop the sender),
+  stopping a person from sending, and the settings (Settings to change).
+  404 `not_available` without chat or without the Chat area.
+- **Retention** (`lib/chat/retention.ts`, the daily job). Messages and
+  files go a year after they're sent unless the conversation is kept;
+  30 days before, the business gets the `chat_expiring` notice (dashboard,
+  email, phone), once per app per 30 days. Deleting an account (hosted
+  `DELETE /me`, or the plugin's `delete_user` hook) deletes the person's
+  chat.
+- **The customer app** (`mobile/lib/modules/chat`, 77.5): the Chat tab
+  before Account when the tabs leave room, else a row in Account; polling
+  while a conversation is open and in front, `chat` pushes open it; photos,
+  videos, voice messages (AAC in m4a) and documents checked for type and
+  size, then sent in chunks; reports, blocking in groups.
+- **Yallapp Business** (`business/lib/features/chat`, 77.6): the Chat tab
+  after the app's main tool (Stats moves to More when the bar is full), the
+  inbox with reports and expiring notices, a conversation with polling and
+  replies with a Media file, reports, the settings sheet.
+- **Terms.** The terms of service say the business is responsible for its
+  app's chat (as the App Store and Google Play ask of apps where people
+  write to each other); the privacy policy says what the chat keeps.
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:

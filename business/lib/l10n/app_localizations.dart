@@ -3693,6 +3693,384 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 course question to answer} other{{count} course questions to answer}}'**
   String needsQuestions(int count);
+
+  /// No description provided for @chat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get chat;
+
+  /// No description provided for @areaChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get areaChat;
+
+  /// No description provided for @pushNewChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat messages'**
+  String get pushNewChat;
+
+  /// No description provided for @pushNewChatHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'When someone writes to you in your app\'s chat.'**
+  String get pushNewChatHelp;
+
+  /// No description provided for @chatAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get chatAll;
+
+  /// No description provided for @chatUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread'**
+  String get chatUnread;
+
+  /// No description provided for @chatGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Course groups'**
+  String get chatGroups;
+
+  /// No description provided for @chatSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name'**
+  String get chatSearch;
+
+  /// No description provided for @chatEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No conversations yet'**
+  String get chatEmpty;
+
+  /// No description provided for @chatEmptyText.
+  ///
+  /// In en, this message translates to:
+  /// **'When people write to you from your app, their messages show here.'**
+  String get chatEmptyText;
+
+  /// No description provided for @chatNoMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matches'**
+  String get chatNoMatches;
+
+  /// No description provided for @chatReportsWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 report waiting} other{{count} reports waiting}}'**
+  String chatReportsWaiting(int count);
+
+  /// No description provided for @chatExpiring.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages older than a year are deleted from {date}.'**
+  String chatExpiring(String date);
+
+  /// No description provided for @chatKeepYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep another year'**
+  String get chatKeepYear;
+
+  /// No description provided for @chatKept.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept for another year'**
+  String get chatKept;
+
+  /// No description provided for @chatKeptUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept until {date}'**
+  String chatKeptUntil(String date);
+
+  /// No description provided for @chatExpiresOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest messages deleted on {date}'**
+  String chatExpiresOn(String date);
+
+  /// No description provided for @chatCourseGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Course group'**
+  String get chatCourseGroup;
+
+  /// No description provided for @chatMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 member} other{{count} members}}'**
+  String chatMembers(int count);
+
+  /// No description provided for @chatYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You: {text}'**
+  String chatYou(String text);
+
+  /// No description provided for @chatSentBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent by {name}'**
+  String chatSentBy(String name);
+
+  /// No description provided for @chatPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get chatPhoto;
+
+  /// No description provided for @chatVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get chatVideo;
+
+  /// No description provided for @chatVoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice message'**
+  String get chatVoice;
+
+  /// No description provided for @chatFile.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get chatFile;
+
+  /// No description provided for @chatDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Message deleted'**
+  String get chatDeleted;
+
+  /// No description provided for @chatReported.
+  ///
+  /// In en, this message translates to:
+  /// **'Reported'**
+  String get chatReported;
+
+  /// No description provided for @chatNoMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet'**
+  String get chatNoMessages;
+
+  /// No description provided for @chatReplyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply as {business}'**
+  String chatReplyHint(String business);
+
+  /// No description provided for @chatAttachMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach from Media'**
+  String get chatAttachMedia;
+
+  /// No description provided for @chatChooseFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a file'**
+  String get chatChooseFile;
+
+  /// No description provided for @chatNoMediaFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Media library is empty. Upload pictures and videos in Media first.'**
+  String get chatNoMediaFiles;
+
+  /// No description provided for @chatRemoveFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove file'**
+  String get chatRemoveFile;
+
+  /// No description provided for @chatNotSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sent. Tap to try again.'**
+  String get chatNotSent;
+
+  /// No description provided for @chatDeleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete message'**
+  String get chatDeleteMessage;
+
+  /// No description provided for @chatDeleteMessageText.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s deleted for everyone, with its file.'**
+  String get chatDeleteMessageText;
+
+  /// No description provided for @chatBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop from sending'**
+  String get chatBlock;
+
+  /// No description provided for @chatBlockText.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} can still read the chat but can\'t send messages until you allow it again.'**
+  String chatBlockText(String name);
+
+  /// No description provided for @chatUnblock.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow to send again'**
+  String get chatUnblock;
+
+  /// No description provided for @chatBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t send'**
+  String get chatBlocked;
+
+  /// No description provided for @chatClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all messages'**
+  String get chatClear;
+
+  /// No description provided for @chatClearText.
+  ///
+  /// In en, this message translates to:
+  /// **'Every message and file in this conversation is deleted for everyone.'**
+  String get chatClearText;
+
+  /// No description provided for @chatReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get chatReports;
+
+  /// No description provided for @chatReportsOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get chatReportsOpen;
+
+  /// No description provided for @chatReportsClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Dealt with'**
+  String get chatReportsClosed;
+
+  /// No description provided for @chatNoReports.
+  ///
+  /// In en, this message translates to:
+  /// **'No reports'**
+  String get chatNoReports;
+
+  /// No description provided for @chatNoReportsText.
+  ///
+  /// In en, this message translates to:
+  /// **'When someone reports a message in the chat, it shows here.'**
+  String get chatNoReportsText;
+
+  /// No description provided for @chatReportBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Reported by {name} · {reason}'**
+  String chatReportBy(String name, String reason);
+
+  /// No description provided for @chatReasonSpam.
+  ///
+  /// In en, this message translates to:
+  /// **'Spam'**
+  String get chatReasonSpam;
+
+  /// No description provided for @chatReasonAbuse.
+  ///
+  /// In en, this message translates to:
+  /// **'Abuse or harassment'**
+  String get chatReasonAbuse;
+
+  /// No description provided for @chatReasonInappropriate.
+  ///
+  /// In en, this message translates to:
+  /// **'Inappropriate content'**
+  String get chatReasonInappropriate;
+
+  /// No description provided for @chatReasonOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else'**
+  String get chatReasonOther;
+
+  /// No description provided for @chatKeepMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the message'**
+  String get chatKeepMessage;
+
+  /// No description provided for @chatDeleteAndBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete and stop the sender'**
+  String get chatDeleteAndBlock;
+
+  /// No description provided for @chatOutcomeDismissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Message kept'**
+  String get chatOutcomeDismissed;
+
+  /// No description provided for @chatOutcomeDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Message deleted'**
+  String get chatOutcomeDeleted;
+
+  /// No description provided for @chatOutcomeBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted, sender stopped'**
+  String get chatOutcomeBlocked;
+
+  /// No description provided for @chatSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat settings'**
+  String get chatSettings;
+
+  /// No description provided for @chatOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat in the app'**
+  String get chatOn;
+
+  /// No description provided for @chatOnHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'People using your app can write to you.'**
+  String get chatOnHelp;
+
+  /// No description provided for @chatGroupsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Each course has a group where its students talk.'**
+  String get chatGroupsHelp;
+
+  /// No description provided for @chatNoPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat comes with the Pro and Business plans.'**
+  String get chatNoPlan;
+
+  /// No description provided for @chatOlder.
+  ///
+  /// In en, this message translates to:
+  /// **'Show earlier messages'**
+  String get chatOlder;
 }
 
 class _AppLocalizationsDelegate

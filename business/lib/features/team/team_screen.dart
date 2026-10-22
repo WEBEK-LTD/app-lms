@@ -31,6 +31,7 @@ String areaName(BuildContext context, String area) {
     'catalog' => l10n.areaCatalog,
     'media' => l10n.areaMedia,
     'messages' => l10n.areaMessages,
+    'chat' => l10n.areaChat,
     'app_users' => l10n.areaAppUsers,
     'analytics' => l10n.areaAnalytics,
     'notifications' => l10n.areaNotifications,

@@ -11,6 +11,9 @@ import '../../features/auth/sign_in_screen.dart';
 import '../../features/builds/builds_screen.dart';
 import '../../features/catalog/add_lesson_screen.dart';
 import '../../features/catalog/catalog_screen.dart';
+import '../../features/chat/chat_conversation_screen.dart';
+import '../../features/chat/chat_reports_screen.dart';
+import '../../features/chat/chat_screen.dart';
 import '../../features/donations/donations_screen.dart';
 import '../../features/events/events_screen.dart';
 import '../../features/events/scanner_screen.dart';
@@ -186,6 +189,26 @@ final routerProvider = Provider<GoRouter>((ref) {
                 parentNavigatorKey: rootNavigatorKey,
                 builder: (_, s) => InquiryScreen(
                   inquiryId: int.parse(s.pathParameters['id']!),
+                ),
+              ),
+            ],
+          ),
+          // 77 The app's chat.
+          GoRoute(
+            path: Paths.chat,
+            builder: (_, _) => const ChatScreen(),
+            routes: [
+              GoRoute(
+                path: 'reports',
+                parentNavigatorKey: rootNavigatorKey,
+                builder: (_, _) => const ChatReportsScreen(),
+              ),
+              GoRoute(
+                path: ':id',
+                parentNavigatorKey: rootNavigatorKey,
+                builder: (_, s) => ChatConversationScreen(
+                  key: ValueKey(s.pathParameters['id']),
+                  conversationId: s.pathParameters['id']!,
                 ),
               ),
             ],

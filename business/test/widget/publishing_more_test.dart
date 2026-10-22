@@ -164,7 +164,11 @@ void main() {
     expect(find.text('New orders'), findsOneWidget);
     // 63 Reviews of courses push too now.
     expect(find.text('New reviews'), findsOneWidget);
-    await tapOn(tester, find.widgetWithText(SwitchListTile, 'Builds'));
+    // 77 And the chat's messages.
+    expect(find.text('Chat messages'), findsOneWidget);
+    final builds = find.widgetWithText(SwitchListTile, 'Builds');
+    await tester.scrollUntilVisible(builds, 200);
+    await tapOn(tester, builds);
     expect(app.api.preferences.isOn(PushKind.buildFinished), isFalse);
     expect(app.api.preferences.isOn(PushKind.newOrder), isTrue);
   });

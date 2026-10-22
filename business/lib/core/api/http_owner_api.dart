@@ -533,6 +533,133 @@ class HttpOwnerApi implements OwnerApi {
     await _post('${_app(appId)}/inquiries/$inquiryId/replies', {'text': text}),
   );
 
+  // 77 The app's chat
+
+  String _chat(String appId) => '${_app(appId)}/chat';
+  String _conversation(String appId, String id) =>
+      '${_chat(appId)}/conversations/${Uri.encodeComponent(id)}';
+
+  @override
+  Future<ChatInbox> chatConversations(
+    String appId, {
+    bool unread = false,
+    String? kind,
+    String? query,
+  }) async => ChatInbox.fromJson(
+    await _get(
+      '${_chat(appId)}/conversations',
+      query: {
+        'unread': unread ? 'true' : null,
+        'kind': kind,
+        'q': (query?.trim().isEmpty ?? true) ? null : query!.trim(),
+      },
+    ),
+  );
+
+  @override
+  Future<ChatMessagesPage> chatMessages(
+    String appId,
+    String conversationId, {
+    String? after,
+    String? before,
+  }) async => ChatMessagesPage.fromJson(
+    await _get(
+      '${_conversation(appId, conversationId)}/messages',
+      query: {'after': after, 'before': before, 'limit': 50},
+    ),
+  );
+
+  @override
+  Future<ChatMessage> sendChatMessage(
+    String appId,
+    String conversationId, {
+    required String clientId,
+    String? text,
+    String? mediaId,
+  }) async => ChatMessage.fromJson(
+    await _post('${_conversation(appId, conversationId)}/messages', {
+      'client_id': clientId,
+      if (text != null && text.isNotEmpty) 'text': text,
+      'media_id': ?mediaId,
+    }),
+  );
+
+  @override
+  Future<void> readChat(
+    String appId,
+    String conversationId,
+    String messageId,
+  ) => _post('${_conversation(appId, conversationId)}/read', {
+    'message_id': messageId,
+  });
+
+  @override
+  Future<ChatThread> keepChat(String appId, String conversationId) async =>
+      ChatThread.fromJson(
+        await _post('${_conversation(appId, conversationId)}/keep'),
+      );
+
+  @override
+  Future<int> keepExpiringChats(String appId) async =>
+      integer(await _post('${_chat(appId)}/keep'), 'kept');
+
+  @override
+  Future<void> clearChat(String appId, String conversationId) =>
+      _delete(_conversation(appId, conversationId));
+
+  @override
+  Future<void> deleteChatMessage(String appId, String messageId) =>
+      _delete('${_chat(appId)}/messages/${Uri.encodeComponent(messageId)}');
+
+  @override
+  Future<List<ChatReport>> chatReports(
+    String appId, {
+    bool open = true,
+  }) async => listOf(
+    await _get(
+      '${_chat(appId)}/reports',
+      query: {'status': open ? 'open' : 'closed'},
+    ),
+    'items',
+    ChatReport.fromJson,
+  );
+
+  @override
+  Future<void> resolveChatReport(
+    String appId,
+    String reportId,
+    ChatReportAction action,
+  ) => _post(
+    '${_chat(appId)}/reports/${Uri.encodeComponent(reportId)}/resolve',
+    {'action': action.wire},
+  );
+
+  @override
+  Future<void> blockChatMember(
+    String appId,
+    String memberId, {
+    required bool blocked,
+  }) => _send(
+    blocked ? 'PUT' : 'DELETE',
+    '${_chat(appId)}/members/${Uri.encodeComponent(memberId)}/block',
+  );
+
+  @override
+  Future<ChatSettings> chatSettings(String appId) async =>
+      ChatSettings.fromJson(await _get('${_chat(appId)}/settings'));
+
+  @override
+  Future<ChatSettings> updateChatSettings(
+    String appId, {
+    bool? enabled,
+    bool? courseGroups,
+  }) async => ChatSettings.fromJson(
+    await _patch('${_chat(appId)}/settings', {
+      'enabled': ?enabled,
+      'course_groups': ?courseGroups,
+    }),
+  );
+
   // 63 Course questions and reviews
 
   @override

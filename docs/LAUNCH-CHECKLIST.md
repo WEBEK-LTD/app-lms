@@ -1097,6 +1097,17 @@ never in a chat or an issue.
       long press reports it (or deletes one's own) and blocks its sender in
       a group, and a group's Members list blocks and unblocks; the business
       sees reports in Dashboard › Chat.
+- [ ] **Yallapp Business** (77.6): its next release has the Chat tab
+      (after the app's main tool; Stats moves to More when the bar is
+      full), replies, reports and the chat's switches. Owners and managers
+      have it; give team members the "Chat" area on the Team page. Its
+      notification settings have **Chat messages**.
+- [ ] **Terms and privacy** (77.6): section 11 of the terms (the business
+      is responsible for its app's chat) and the chat's paragraph in the
+      privacy policy, in English, Arabic and Turkish. If the team edited
+      the legal pages in Admin › Website content, the edited version shows
+      instead: add the two texts there by hand. The docs page is
+      `/docs/chat`.
 - [ ] Nothing else to set: the chat's pushes use each app's own Firebase
       account (WordPress apps: through their site, plugin 0.4.9) and
       Yallapp Business's for the owners. Messages are kept a year; the

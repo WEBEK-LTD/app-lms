@@ -20,7 +20,7 @@ export const PRIVACY: LegalDefault = {
   key: "privacy",
   path: "/privacy",
   title: "Privacy policy",
-  updated: "21 October 2026",
+  updated: "22 October 2026",
   body: `## 1. Who we are
 
 Yallapp is based in Cairo, Egypt, and is the data controller for the personal data described here. We work with businesses in many countries, so we follow the data protection laws that apply to the data we handle: Egypt's Personal Data Protection Law (Law No. 151 of 2020), and, where they apply, the EU General Data Protection Regulation (GDPR) and the Turkish Personal Data Protection Law No. 6698 (KVKK). Contact: [{{contact_email}}](mailto:{{contact_email}}).
@@ -42,6 +42,7 @@ How your app users' data is handled depends on where the app gets its content:
 - **No website (content managed in the Yallapp dashboard):** we host the data your app needs, such as your users' names, phone numbers, sign-ins, orders, bookings and enquiries, and the content you add. For this data you are the data controller and Yallapp is your data processor: we use it only to run your app and on your instructions, keep it secure, and delete it when your account ends or when you ask.
 - **Payments from your customers:** your customers pay you through your own payment provider account (your own iyzico, Kashier or Fawaterk account, or your website's own checkout). Yallapp isn't a party to those payments: it never receives the money or the card details, and keeps only an order's status and the provider's reference so your app can show them.
 - **Usage statistics (every app):** so you can see how your app is used, the app sends Yallapp what happens in it: app opens (and whether it's the first), the kind of screen opened, the courses, products or other items opened with their name, actions such as adding to the cart, enrolling, booking, giving or opening the checkout page (with the amount when there is one), search texts, opened notifications and shares, together with a random install number the app makes (not linked to the user's account, and new when they turn sharing off and on again), the platform, the app and system versions and the app's language. We work out the country from the connection when the data arrives and do not keep the IP address. No names, phone numbers, email addresses or advertising IDs are sent, there are no third-party analytics or advertising tools in the apps, and nothing is used to track people across apps or websites. Search texts are only counted per day, never stored with the install number. Reports show you totals only. Your app users can turn off "Share usage statistics" in the app's settings; the app then stops sending and deletes what it hadn't sent. For these statistics you are the data controller and Yallapp is your data processor.
+- **Chat (Pro and Business plans):** when your app has a chat, Yallapp stores its messages and files, the name and picture of each person who writes (for WordPress apps, the website user's ID, name and picture, and their courses for course groups), and who reported or blocked whom. For this data you are the data controller and Yallapp is your data processor. Messages and files are deleted a year after they're sent unless you keep a conversation for longer, and at once when a person deletes their account or you delete them.
 
 In every case you are responsible for giving your app users your own privacy notice. Push notifications are sent through your own Firebase project. Sign-in codes may be sent on WhatsApp through waabek.com (from our number, or from yours if you connect it), or by email from our email server (or through your own email server if you set one up; we store its password encrypted). If you ask us for help with a problem involving one of your users, we use only the data you share with us, and only on your instructions.
 
@@ -62,7 +63,7 @@ We are based in Egypt and work with clients in many countries. Some of our provi
 
 ## 7. How long we keep it
 
-We keep account data while your account is active and for up to 12 months after it closes. Billing records are kept for as long as accounting and tax laws require. Signing keys are kept until you ask us to delete them after your account ends. Technical logs are kept for up to 12 months. Single usage events from your app (each app open, screen or search) are kept for 90 days. The daily totals made from them are kept for as long as your app's plan includes: by default 3 months on Starter, 1 year on Growth, 2 years on Pro and 3 years on Business, and never after your app is deleted.
+We keep account data while your account is active and for up to 12 months after it closes. Billing records are kept for as long as accounting and tax laws require. Signing keys are kept until you ask us to delete them after your account ends. Technical logs are kept for up to 12 months. Single usage events from your app (each app open, screen or search) are kept for 90 days. The daily totals made from them are kept for as long as your app's plan includes: by default 3 months on Starter, 1 year on Growth, 2 years on Pro and 3 years on Business, and never after your app is deleted. Chat messages and files are kept for a year after they're sent, or for as long as you keep their conversation.
 
 ## 8. Security
 
@@ -86,7 +87,7 @@ export const TERMS: LegalDefault = {
   key: "terms",
   path: "/terms",
   title: "Terms of service",
-  updated: "21 October 2026",
+  updated: "22 October 2026",
   body: `## 1. About these terms
 
 These terms cover your use of Yallapp: the website at yallapp.com.tr, the client dashboard, the Yallapp WordPress plugin and the mobile apps we build for you. Yallapp is based in Cairo, Egypt. In these terms, “we” and “us” mean Yallapp. By creating an account, you agree to these terms.
@@ -129,31 +130,35 @@ We create your Android signing key, give you a copy and keep an encrypted copy s
 
 You may not use Yallapp for unlawful content, content you don’t have the rights to, or malware, or resell the service without our written agreement.
 
-## 11. Availability and support
+## 11. Chat in your app
+
+On the Pro and Business plans your app can have a chat: the people using your app write to you and, in academies that turn course groups on, talk with each other in each course's group. As your app's publisher, you are responsible for your app's chat and what is said in it: you answer as your business, deal with the messages people report, and stop people who misuse it from sending (Dashboard › Chat, or Yallapp Business). You may not use the chat to send unsolicited advertising. Messages and files are deleted a year after they're sent unless you keep a conversation for longer; you can delete a message or a whole conversation at any time. Chat files count in your app's storage.
+
+## 12. Availability and support
 
 We work to keep Yallapp available but can’t promise uninterrupted service. We announce planned maintenance in advance where possible. Support is available on WhatsApp at [{{contact_whatsapp_egypt}}]({{contact_whatsapp_egypt_url}}) (in Egypt), [{{contact_whatsapp}}]({{contact_whatsapp_url}}) (outside Egypt) and by email at [{{contact_email}}](mailto:{{contact_email}}).
 
-## 12. Ending your account
+## 13. Ending your account
 
 You can stop using Yallapp at any time. We may suspend or close an account for non-payment or a breach of these terms. When an account ends, you keep the files and signing keys already delivered, but the plugin connection and new builds stop.
 
-## 13. Liability
+## 14. Liability
 
 Nothing in these terms limits liability that the law does not allow us to limit, including liability for death or personal injury caused by negligence, or for fraud. Subject to that, we are not responsible for app store review decisions, changes made by third-party plugins or services, or indirect or consequential losses, such as lost profits. Our total liability is limited to the fees you paid in the 12 months before the claim.
 
-## 14. Personal data
+## 15. Personal data
 
 We handle personal data as described in our [Privacy policy](/privacy).
 
-## 15. Changes to these terms
+## 16. Changes to these terms
 
 We may update these terms. We will email you about important changes at least 14 days before they take effect.
 
-## 16. Disputes and your rights
+## 17. Disputes and your rights
 
 We work with businesses in many countries. If you disagree with something we did, tell us first at [{{contact_email}}](mailto:{{contact_email}}): we will both try in good faith to settle it within 30 days of your message. If it isn’t settled, either of us can take it to the courts or authorities that have jurisdiction under the law that applies. Nothing in these terms removes the rights the law of your country gives you and that can’t be waived by agreement, including consumer and data protection rights.
 
-## 17. Contact
+## 18. Contact
 
 Yallapp, Cairo, Egypt. Email: [{{contact_email}}](mailto:{{contact_email}}) · WhatsApp: [{{contact_whatsapp_egypt}}]({{contact_whatsapp_egypt_url}}) (in Egypt), [{{contact_whatsapp}}]({{contact_whatsapp_url}}) (outside Egypt)
 `,

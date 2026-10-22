@@ -75,6 +75,8 @@ PushTarget pushTarget(Map<String, dynamic> data) {
   // 63 A course question opens itself; a review, the Inbox's reviews.
   final question = id('question_id');
   final review = value('review_id');
+  // 77 A chat message opens its conversation.
+  final conversation = value('conversation_id');
   final location = order != null
       ? Paths.order(order)
       : appointment != null
@@ -85,6 +87,8 @@ PushTarget pushTarget(Map<String, dynamic> data) {
       ? Paths.question(question)
       : review != null
       ? Paths.inboxTab('reviews')
+      : conversation != null
+      ? Paths.chatConversation(conversation)
       : value('build_id') != null
       ? Paths.builds
       : value('donation_id') != null
@@ -95,6 +99,7 @@ PushTarget pushTarget(Map<String, dynamic> data) {
           'new_order' => Paths.orders,
           'new_booking' => Paths.appointments,
           'new_message' || 'new_review' => Paths.inbox,
+          'new_chat_message' => Paths.chat,
           'build_finished' => Paths.builds,
           'yallapp_updates' || 'account_notices' => Paths.updates,
           'payment_received' => Paths.updates,

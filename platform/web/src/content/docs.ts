@@ -1021,6 +1021,37 @@ People can delete their account from the app's settings, as Apple and Google req
 `,
   }),
 
+  // 77 The app's chat
+  doc({
+    slug: "chat",
+    section: "Your app",
+    title: "Chat in your app",
+    description: "The people using your app write to you, and an academy's students talk in each course's group: answering, files, reports, stopping someone, and how long messages are kept.",
+    steps: false,
+    body: `On the **Pro** and **Business** plans your app has a **Chat** tab. The people using your app write to you there, and you answer from **Chat** on the dashboard or from the **Chat** tab in Yallapp Business. People never write to each other in private: each person has one conversation with you, and in academies each course can have a group.
+
+## Who can chat
+
+Apps without a website, apps connected to a platform, WordPress apps (plugin 0.4.9 or later) and apps on your own API with Yallapp sign-in have chat. It appears with your app's next build. People sign in to write; the Chat tab asks them to.
+
+On **Chat settings** you turn chat off or on, and in an academy you turn on **Course groups**: each course gets a group where its students, and you, talk. A student joins the groups of the courses they're enrolled in.
+
+## Answering
+
+Open a conversation and write your answer. It shows as your business, with your app's name and logo: your customers never see which person on your team wrote it (your team does). You can add a file from your [Media library](/docs/media). New messages come in by themselves every few seconds while a conversation is open, and Yallapp Business tells your phone about new messages (**New chat messages** in its notification settings).
+
+People send text, photos, videos (up to 200 MB), voice messages and documents (PDF, Word, Excel, PowerPoint and text, up to 50 MB). Their files show in your Media library under **From the chat** and count in your app's storage.
+
+## Reports and stopping someone
+
+People can report a message, and in a group stop seeing someone's messages. Reports wait under **Reports** on the Chat page: keep the message, delete it, or delete it and stop its sender from sending. You can also delete any message, or stop someone from sending, from the conversation itself; they can still read. You are responsible for your app's chat and what is said in it, as our [terms](/terms) say.
+
+## How long messages are kept
+
+Messages and files are deleted a year after they're sent. 30 days before a conversation's oldest messages go, we tell you (on the dashboard, by email and on your phone), and **Keep another year** keeps them, one conversation or all of them. You can delete a message or a whole conversation at any time. When someone deletes their account, their chat goes with it.
+`,
+  }),
+
   // 44 Analytics for app owners
   doc({
     slug: "analytics",

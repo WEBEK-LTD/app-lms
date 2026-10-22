@@ -71,6 +71,14 @@ class FakeOwnerApi implements OwnerApi {
   final _members = <String, List<Member>>{};
   final _visits = <String, List<MemberVisit>>{};
   final _memberCodes = <String, int>{};
+  // 77 The app's chat: conversations, their messages, reports, switches.
+  final chatThreads = <String, List<ChatThread>>{};
+  final chatMessagesOf = <String, List<ChatMessage>>{};
+  final chatReportsOf = <String, List<ChatReport>>{};
+  final chatSettingsOf = <String, ChatSettings>{};
+  final chatReads = <String, String>{};
+  final chatBlocked = <String>{};
+  int _nextChatId = 900;
   // 60 Team members: the person's role here, their businesses, the owner's team.
   TeamRole role = TeamRole.owner;
   var businesses = const <Business>[];
@@ -191,6 +199,8 @@ class FakeOwnerApi implements OwnerApi {
           orders: true,
           kitchen: true,
           products: true,
+          // 77 Its customers write to it.
+          chat: true,
           appUsers: true,
           notifications: true,
           media: true,
@@ -747,6 +757,8 @@ class FakeOwnerApi implements OwnerApi {
       ),
     ];
 
+    _seedChat();
+
     _inquiries[homesId] = [
       InquiryDetail(
         inquiry: Inquiry(
@@ -1123,6 +1135,7 @@ class FakeOwnerApi implements OwnerApi {
             questions: a.features.questions && has('messages'),
             reviews: a.features.reviews && has('catalog'),
             memberCheckIn: a.features.memberCheckIn && has('bookings'),
+            chat: a.features.chat && has('chat'),
             appUsers: a.features.appUsers && has('app_users'),
             notifications: a.features.notifications && has('notifications'),
             media: a.features.media && has('media'),
@@ -3098,6 +3111,466 @@ class FakeOwnerApi implements OwnerApi {
       timeZone: 'Africa/Cairo',
       count: items.length,
       items: items,
+    );
+  }
+
+  // 77 The app's chat
+
+  static const chatAyse = 'c0a8e0f2-0000-4000-8000-0000000000a1';
+  static const chatMehmet = 'c0a8e0f2-0000-4000-8000-0000000000a2';
+  static const ayseMember = '0f9a0000-0000-4000-8000-0000000000a1';
+  static const mehmetMember = '0f9a0000-0000-4000-8000-0000000000a2';
+
+  ChatMessage _chatMessage(
+    String conversationId,
+    String? text, {
+    String? memberId,
+    String name = '',
+    String? teamMember,
+    String? clientId,
+    ChatAttachment? attachment,
+    DateTime? at,
+  }) => ChatMessage(
+    id: '${_nextChatId++}',
+    conversationId: conversationId,
+    clientId: clientId,
+    fromBusiness: memberId == null,
+    memberId: memberId,
+    senderName: memberId == null ? 'Bab Al Sham' : name,
+    teamMember: teamMember,
+    text: text,
+    attachment: attachment,
+    deleted: false,
+    reported: false,
+    createdAt: (at ?? now).toUtc(),
+  );
+
+  void _seedChat() {
+    chatSettingsOf[restaurantId] = const ChatSettings(
+      available: true,
+      enabled: true,
+    );
+    chatMessagesOf[chatAyse] = [
+      _chatMessage(
+        chatAyse,
+        'Do you have a table for six tonight?',
+        memberId: ayseMember,
+        name: 'Ayşe Yılmaz',
+        at: now.subtract(const Duration(hours: 3)),
+      ),
+      _chatMessage(
+        chatAyse,
+        'Yes, from 8 pm. Shall we keep it for you?',
+        teamMember: 'Owner',
+        at: now.subtract(const Duration(hours: 2)),
+      ),
+      _chatMessage(
+        chatAyse,
+        'Please, under Ayşe.',
+        memberId: ayseMember,
+        name: 'Ayşe Yılmaz',
+        at: now.subtract(const Duration(minutes: 20)),
+      ),
+    ];
+    chatMessagesOf[chatMehmet] = [
+      _chatMessage(
+        chatMehmet,
+        'Is the falafel wrap vegan?',
+        memberId: mehmetMember,
+        name: 'Mehmet Kaya',
+        at: now.subtract(const Duration(days: 2)),
+      ),
+    ];
+    chatReads[chatAyse] = chatMessagesOf[chatAyse]![1].id;
+    chatReads[chatMehmet] = chatMessagesOf[chatMehmet]![0].id;
+    chatThreads[restaurantId] = [
+      _thread(chatAyse, 'Ayşe Yılmaz', ayseMember),
+      _thread(chatMehmet, 'Mehmet Kaya', mehmetMember),
+    ];
+  }
+
+  ChatThread _thread(
+    String id,
+    String title,
+    String? memberId, {
+    bool group = false,
+    String? keepUntil,
+  }) {
+    final messages = chatMessagesOf[id] ?? const <ChatMessage>[];
+    final read = chatReads[id];
+    final unread = messages
+        .where(
+          (m) =>
+              !m.fromBusiness &&
+              !m.deleted &&
+              (read == null || ChatMessage.compareIds(m.id, read) > 0),
+        )
+        .length;
+    final oldest = messages.firstOrNull?.createdAt;
+    final expires =
+        keepUntil ??
+        (oldest == null ? null : _day(oldest.add(const Duration(days: 365))));
+    return ChatThread(
+      id: id,
+      group: group,
+      title: title,
+      person: memberId == null
+          ? null
+          : ChatPerson(
+              id: memberId,
+              name: title,
+              blocked: chatBlocked.contains(memberId),
+            ),
+      memberCount: group ? 12 : null,
+      lastMessage: messages.lastOrNull,
+      unreadCount: unread,
+      updatedAt: messages.lastOrNull?.createdAt ?? now.toUtc(),
+      keepUntil: keepUntil,
+      expiresOn: expires,
+    );
+  }
+
+  List<ChatThread> _threadsOf(String appId) => [
+    for (final t in chatThreads[appId] ?? const <ChatThread>[])
+      _thread(
+        t.id,
+        t.title,
+        t.person?.id,
+        group: t.group,
+        keepUntil: t.keepUntil,
+      ),
+  ];
+
+  ChatThread _threadOf(String appId, String id) {
+    final thread = _threadsOf(appId).where((t) => t.id == id).firstOrNull;
+    if (thread == null) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+    return thread;
+  }
+
+  @override
+  Future<ChatInbox> chatConversations(
+    String appId, {
+    bool unread = false,
+    String? kind,
+    String? query,
+  }) async {
+    await _call('chatConversations');
+    _app(appId, (f) => f.chat);
+    final all = _threadsOf(appId)
+      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    final q = query?.trim().toLowerCase() ?? '';
+    return ChatInbox(
+      items: [
+        for (final t in all)
+          if ((!unread || t.unreadCount > 0) &&
+              (kind == null || (kind == 'group') == t.group) &&
+              (q.isEmpty || t.title.toLowerCase().contains(q)))
+            t,
+      ],
+      unreadCount: all.fold(0, (sum, t) => sum + t.unreadCount),
+      openReports: (chatReportsOf[appId] ?? const [])
+          .where((r) => r.open)
+          .length,
+      expiring: 0,
+    );
+  }
+
+  @override
+  Future<ChatMessagesPage> chatMessages(
+    String appId,
+    String conversationId, {
+    String? after,
+    String? before,
+  }) async {
+    await _call(after == null ? 'chatMessages' : 'chatMessages:after');
+    _app(appId, (f) => f.chat);
+    _threadOf(appId, conversationId);
+    final all = chatMessagesOf[conversationId] ?? const <ChatMessage>[];
+    final reported = {
+      for (final r in chatReportsOf[appId] ?? const <ChatReport>[])
+        if (r.open) r.message.id,
+    };
+    ChatMessage mark(ChatMessage m) => reported.contains(m.id)
+        ? ChatMessage(
+            id: m.id,
+            conversationId: m.conversationId,
+            clientId: m.clientId,
+            fromBusiness: m.fromBusiness,
+            memberId: m.memberId,
+            senderName: m.senderName,
+            teamMember: m.teamMember,
+            text: m.text,
+            attachment: m.attachment,
+            deleted: m.deleted,
+            reported: true,
+            createdAt: m.createdAt,
+          )
+        : m;
+    final List<ChatMessage> items;
+    if (after != null) {
+      items = [
+        for (final m in all)
+          if (ChatMessage.compareIds(m.id, after) > 0) mark(m),
+      ];
+    } else {
+      final older = before == null
+          ? all
+          : [
+              for (final m in all)
+                if (ChatMessage.compareIds(m.id, before) < 0) m,
+            ];
+      items = [for (final m in older.reversed.take(50)) mark(m)];
+    }
+    return ChatMessagesPage(items: items, hasMore: false, pollAfterSeconds: 5);
+  }
+
+  /// A message from someone in the app arrives (tests, the demo).
+  ChatMessage chatArrives(String conversationId, String text) {
+    final first = chatMessagesOf[conversationId]!.firstWhere(
+      (m) => !m.fromBusiness,
+    );
+    final message = _chatMessage(
+      conversationId,
+      text,
+      memberId: first.memberId,
+      name: first.senderName,
+    );
+    chatMessagesOf[conversationId]!.add(message);
+    return message;
+  }
+
+  @override
+  Future<ChatMessage> sendChatMessage(
+    String appId,
+    String conversationId, {
+    required String clientId,
+    String? text,
+    String? mediaId,
+  }) async {
+    await _call('sendChatMessage');
+    _app(appId, (f) => f.chat);
+    _threadOf(appId, conversationId);
+    final list = chatMessagesOf[conversationId]!;
+    final same = list.where((m) => m.clientId == clientId).firstOrNull;
+    if (same != null) return same;
+    if ((text == null || text.trim().isEmpty) && mediaId == null) {
+      throw const ApiException(
+        code: ApiException.invalidRequest,
+        statusCode: 400,
+      );
+    }
+    final file = mediaId == null
+        ? null
+        : (_media[appId] ?? const <MediaFile>[])
+              .where((f) => f.id == mediaId)
+              .firstOrNull;
+    final message = _chatMessage(
+      conversationId,
+      text,
+      teamMember: 'Owner',
+      clientId: clientId,
+      attachment: file == null
+          ? null
+          : ChatAttachment(
+              kind: switch (file.kind) {
+                'image' => 'image',
+                'video' => 'video',
+                _ => 'file',
+              },
+              name: file.name,
+              contentType: file.contentType,
+              sizeBytes: file.sizeBytes,
+              url: file.link,
+              mediaId: file.id,
+            ),
+    );
+    list.add(message);
+    chatReads[conversationId] = message.id;
+    return message;
+  }
+
+  @override
+  Future<void> readChat(
+    String appId,
+    String conversationId,
+    String messageId,
+  ) async {
+    await _call('readChat');
+    _threadOf(appId, conversationId);
+    chatReads[conversationId] = messageId;
+  }
+
+  @override
+  Future<ChatThread> keepChat(String appId, String conversationId) async {
+    await _call('keepChat');
+    final threads = chatThreads[appId] ?? [];
+    final at = threads.indexWhere((t) => t.id == conversationId);
+    if (at < 0) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+    final t = threads[at];
+    threads[at] = _thread(
+      t.id,
+      t.title,
+      t.person?.id,
+      group: t.group,
+      keepUntil: _day(now.add(const Duration(days: 365))),
+    );
+    return _threadOf(appId, conversationId);
+  }
+
+  @override
+  Future<int> keepExpiringChats(String appId) async {
+    await _call('keepExpiringChats');
+    return 0;
+  }
+
+  @override
+  Future<void> clearChat(String appId, String conversationId) async {
+    await _call('clearChat');
+    _threadOf(appId, conversationId);
+    chatMessagesOf[conversationId] = [];
+  }
+
+  @override
+  Future<void> deleteChatMessage(String appId, String messageId) async {
+    await _call('deleteChatMessage');
+    for (final list in chatMessagesOf.values) {
+      final at = list.indexWhere((m) => m.id == messageId);
+      if (at >= 0) list[at] = list[at].asDeleted();
+    }
+    _closeReports(appId, messageId, 'deleted');
+  }
+
+  void _closeReports(String appId, String messageId, String outcome) {
+    final reports = chatReportsOf[appId] ?? [];
+    for (var i = 0; i < reports.length; i++) {
+      final r = reports[i];
+      if (r.message.id != messageId || !r.open) continue;
+      reports[i] = ChatReport(
+        id: r.id,
+        message: r.message,
+        conversationTitle: r.conversationTitle,
+        reporter: r.reporter,
+        reason: r.reason,
+        note: r.note,
+        open: false,
+        outcome: outcome,
+        createdAt: r.createdAt,
+      );
+    }
+  }
+
+  /// Someone in the app reports a message (tests, the demo).
+  ChatReport chatReported(
+    String appId,
+    String conversationId,
+    String messageId, {
+    String reason = 'abuse',
+  }) {
+    final message = chatMessagesOf[conversationId]!.firstWhere(
+      (m) => m.id == messageId,
+    );
+    final report = ChatReport(
+      id: 'r${_nextChatId++}',
+      message: message,
+      conversationTitle: _threadOf(appId, conversationId).title,
+      reporter: const ChatPerson(
+        id: mehmetMember,
+        name: 'Mehmet Kaya',
+        blocked: false,
+      ),
+      reason: reason,
+      open: true,
+      createdAt: now.toUtc(),
+    );
+    (chatReportsOf[appId] ??= []).add(report);
+    return report;
+  }
+
+  @override
+  Future<List<ChatReport>> chatReports(String appId, {bool open = true}) async {
+    await _call('chatReports');
+    _app(appId, (f) => f.chat);
+    return [
+      for (final r in (chatReportsOf[appId] ?? const <ChatReport>[]).reversed)
+        if (r.open == open) r,
+    ];
+  }
+
+  @override
+  Future<void> resolveChatReport(
+    String appId,
+    String reportId,
+    ChatReportAction action,
+  ) async {
+    await _call('resolveChatReport:${action.wire}');
+    final report = (chatReportsOf[appId] ?? const <ChatReport>[])
+        .where((r) => r.id == reportId)
+        .firstOrNull;
+    if (report == null) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+    if (action != ChatReportAction.dismiss) {
+      for (final list in chatMessagesOf.values) {
+        final at = list.indexWhere((m) => m.id == report.message.id);
+        if (at >= 0) list[at] = list[at].asDeleted();
+      }
+      final sender = report.message.memberId;
+      if (action == ChatReportAction.blockSender && sender != null) {
+        chatBlocked.add(sender);
+      }
+    }
+    _closeReports(appId, report.message.id, switch (action) {
+      ChatReportAction.dismiss => 'dismissed',
+      ChatReportAction.deleteMessage => 'deleted',
+      ChatReportAction.blockSender => 'blocked',
+    });
+  }
+
+  @override
+  Future<void> blockChatMember(
+    String appId,
+    String memberId, {
+    required bool blocked,
+  }) async {
+    await _call(blocked ? 'blockChatMember' : 'unblockChatMember');
+    _app(appId, (f) => f.chat);
+    blocked ? chatBlocked.add(memberId) : chatBlocked.remove(memberId);
+  }
+
+  @override
+  Future<ChatSettings> chatSettings(String appId) async {
+    await _call('chatSettings');
+    final app = _app(appId);
+    return chatSettingsOf[appId] ??
+        ChatSettings(
+          available: false,
+          enabled: true,
+          courseGroups: app.type == 'lms' ? false : null,
+        );
+  }
+
+  @override
+  Future<ChatSettings> updateChatSettings(
+    String appId, {
+    bool? enabled,
+    bool? courseGroups,
+  }) async {
+    await _call('updateChatSettings');
+    final current = await chatSettings(appId);
+    if (!current.available) {
+      throw const ApiException(
+        code: ApiException.notAvailable,
+        statusCode: 404,
+      );
+    }
+    return chatSettingsOf[appId] = ChatSettings(
+      available: true,
+      enabled: enabled ?? current.enabled,
+      courseGroups: courseGroups ?? current.courseGroups,
     );
   }
 
