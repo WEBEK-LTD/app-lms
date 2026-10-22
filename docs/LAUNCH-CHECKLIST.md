@@ -1152,6 +1152,34 @@ never in a chat or an issue.
       visitor stays on the site (nothing is kept in the browser, so a
       reload or a new tab forgets them).
 
+## 7y. Safe data (Phase 79)
+
+**Backups (79.1)** are cPanel's own, on our host, sent to Google Drive. They
+hold everything on the host: the database, the media folder
+(`yallapp-media`) and the build files (`yallapp-files`).
+
+- [x] cPanel backups on, with Google Drive as the destination off the
+      server.
+- [ ] Check once that a backup holds the Yallapp database and the home
+      folder (with `yallapp-media` and `yallapp-files`), and that new ones
+      keep arriving on Google Drive.
+- [x] A copy of Netlify's `ENCRYPTION_KEY` kept apart from the backups (a
+      restored database can't read its secrets without it). Never change it
+      on Netlify: rotating it is 79.2.
+- [ ] Netlify Blobs (app icons, logos, plugin zips) aren't on the host, so
+      cPanel doesn't have them. From time to time, from `platform/web`:
+      `NETLIFY_SITE_ID=… NETLIFY_AUTH_TOKEN=… node scripts/export-blobs.mjs ~/yallapp-blobs`
+      (a Netlify personal access token; only what changed is downloaded).
+- [ ] **Restore drill**, once and then every few months: restore the
+      Yallapp database from a backup into a new, empty database (cPanel ›
+      Backup, or the `.sql` file inside the backup imported with phpMyAdmin
+      or `mysql`), run `npm run db:migrate` against it (it should be up to
+      date), and check the counts of clients and apps against Admin ›
+      Overview. Then delete it. Last done: ______
+- **A real recovery:** restore the database (and the two folders) from the
+  latest backup, point `DATABASE_URL` on Netlify at it if it moved, keep the
+  same `ENCRYPTION_KEY`, and redeploy.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |
