@@ -88,7 +88,7 @@ test("the owner adds French and Arabic from the list", async () => {
 test("French starts empty; Arabic has Yallapp's translations", async () => {
   await own.getByRole("navigation", { name: "Language to translate" }).getByRole("link", { name: /Arabic/ }).click();
   await expect(own).toHaveURL(/lang=ar/);
-  await expect(own.getByText(/^Arabic: (\d+) of \1 translated \(100%\)$/)).toBeVisible();
+  await expect(own.getByText(/^Arabic: ([\d,]+) of \1 translated \(100%\)$/)).toBeVisible();
   const home = own.locator('[data-row-id="tab|home|label"]');
   await expect(home).toContainText("Yallapp's translation");
   await expect(home.getByRole("textbox")).toHaveAttribute("placeholder", "الرئيسية");
@@ -96,7 +96,7 @@ test("French starts empty; Arabic has Yallapp's translations", async () => {
 
   await own.getByRole("navigation", { name: "Language to translate" }).getByRole("link", { name: /French/ }).click();
   await expect(own).toHaveURL(/lang=fr/);
-  await expect(own.getByText(/^French: 0 of \d+ translated \(0%\)$/)).toBeVisible();
+  await expect(own.getByText(/^French: 0 of [\d,]+ translated \(0%\)$/)).toBeVisible();
   await expect(own.getByLabel("Show")).toHaveValue("missing");
 });
 
@@ -125,7 +125,7 @@ test("the owner translates a tab name and one of the app's texts; a wrong placeh
 
   await own.getByRole("button", { name: "Save translations (3)" }).click();
   await expect(own.getByText("Saved to your draft. Publish to send your translations to your app.")).toBeVisible();
-  await expect(own.getByText(/^French: 3 of \d+ translated/)).toBeVisible();
+  await expect(own.getByText(/^French: 3 of [\d,]+ translated/)).toBeVisible();
 });
 
 test("export and import a translations file", async () => {
