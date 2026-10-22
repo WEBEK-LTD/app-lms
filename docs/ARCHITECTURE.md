@@ -2348,6 +2348,24 @@ Admin › Watching › Encryption keys says where it stands, and when
 `ENCRYPTION_KEY_OLD` can be removed. A new encrypted value must use a context
 built by one of `CONTEXT_TEMPLATES` (or one of those already there).
 
+## Isolation between clients (79.3)
+
+Every Owner API path with an app answers only for the signed-in person's own
+apps (`handleOwner`: another client's app is 404, as one that doesn't exist),
+before the route's own checks. `tests/unit/isolation.test.ts` gives one
+client, then another, an app of each kind with one object of each kind the
+APIs name, and calls every Owner API path naming an object (from `ROUTES`)
+with the other client's objects, on the caller's own app and on theirs, and
+every hosted API path naming an object (from `docs/api/openapi.yaml`): with
+the other client's IDs on the caller's app, with another customer's things in
+the same app, and with another app's token. None may answer 2xx (a customer's
+own list, and blocking someone, aside), none may show the other client's data,
+and the other client's rows must stay as they were. A path naming an ID the
+test has no object for fails it until one is added. `tests/e2e/isolation.spec.ts`
+checks the dashboard: another client's app in an email's link
+(`/dashboard/open/<app>`) or in the cookie that picks the current app never
+opens it.
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:
