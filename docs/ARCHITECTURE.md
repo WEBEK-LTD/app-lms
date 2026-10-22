@@ -2213,6 +2213,40 @@ runs the rest of it.
   app's chat (as the App Store and Google Play ask of apps where people
   write to each other); the privacy policy says what the chat keeps.
 
+## Milestones (Phase 78)
+
+`client_milestones` (migration 0053, `lib/milestones/record.ts`) keeps when
+each client first reached each point on the way to a published, paid app:
+`signed_up` (with its source), each setup step (`step_app_type` …
+`step_publishing`) and `setup_done`, `first_build`, `build_ready`,
+`store_upload` (a build's upload stage done, or the team marking a store
+submitted), `store_live`, `paid` (the first plan paid with money: not a
+coupon that took the whole price, not storage packs alone) and `renewed`
+(each later payment of the same app's plan; `ref` is the payment). One row
+per client, kind and `ref` (the app's ID, "" for the account's own): the
+first one recorded stays.
+
+They are worked out from the data (`milestonesOf`: the steps' done times,
+the builds, the publishing requests and events, the plan payments), so the
+accounts from before Phase 78 get theirs too, and then kept as that data
+changes: a step saved again keeps its first time, and a deleted app's
+milestones stay with the account (no foreign key to the app; the account's
+deletion takes them). `noteMilestones` runs where things happen (a step
+saved, a build's status changed, a store's status changed in the admin, a
+plan paid) and never fails its caller; the daily job runs
+`recordAllMilestones` for every account before deleted apps are purged. The
+demo apps' account (`lib/demo`) has none.
+
+The sign-up's source (`signed_up.source`): the campaign link's UTM source,
+medium and campaign and `from`, the host name of the website that sent the
+visitor (never the page), and `from: "demo"` when they looked at the demo
+apps. `components/campaign.tsx` keeps them in the page's memory from the
+first page opened (`KeepCampaign` in the root layout) to the sign-up form's
+hidden fields (`CampaignFields`): no cookie and nothing in the browser's
+storage, as the privacy policy promises, so a reload forgets them.
+`lib/milestones/source.ts` checks them on the server. Accounts the team
+adds in the admin get `from: "team"`.
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:

@@ -50,6 +50,7 @@ import { bumpPatch } from "@/lib/semver";
 import { designById, designFits } from "@/lib/pages/designs";
 import { saveDesignDraft } from "@/lib/pages/layout";
 import { appStoreKeySchema, brandingSchema, googlePlayKeySchema, listingSchema, startBuildSchema, websiteSchema } from "@/lib/validation";
+import { noteMilestones } from "@/lib/milestones/record";
 
 /** Active client with an app, or a redirect. Expired plans can still edit their setup but not build. */
 async function requireActiveClient(permission: TeamPermission): Promise<ClientContext> {
@@ -81,6 +82,8 @@ async function afterStep(context: ClientContext & { app: App }, step: SetupStep)
   const app = (await store.getAppById(context.app.id))!;
   await recordStaffChange(context, `Saved the ${STEP_LABEL[step]} step of the app`, context.app, app);
   const now = new Date();
+  // 78 The step (and the setup) done for the first time.
+  await noteMilestones(store, context.client.id, now);
   const plans = await effectivePlans(store);
   const plan = context.license ? currentPlanId(context.license, now) : null;
   revalidatePath("/dashboard", "layout");

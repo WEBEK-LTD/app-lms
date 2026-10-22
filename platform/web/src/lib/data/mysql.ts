@@ -11,6 +11,7 @@ import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, Analyt
 import type { AppAuthKey, AppLayoutRecord } from "./types";
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
+import type { ClientMilestone, MilestoneKind } from "./types";
 import { assetIdsIn } from "./asset-ids";
 import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 import type { MoreStore, MoreStoresRow, PublishingEvent, PublishingRequest, PublishingTrack } from "./types";
@@ -4450,6 +4451,26 @@ export class MysqlStore implements DataStore {
     );
     return rows.map((r) => r.id);
   }
+  // 78 Milestones
+
+  async addClientMilestones(rows: ClientMilestone[]): Promise<number> {
+    if (rows.length === 0) return 0;
+    const [result] = await this.run((db) => db.insert(schema.clientMilestones).ignore().values(rows));
+    return result.affectedRows;
+  }
+
+  async listClientMilestones(clientId: string): Promise<ClientMilestone[]> {
+    const m = schema.clientMilestones;
+    return this.run((db) => db.select().from(m).where(eq(m.clientId, clientId)).orderBy(asc(m.at), asc(m.kind)));
+  }
+
+  async listMilestones(input: { since?: Date; kinds?: MilestoneKind[] }): Promise<ClientMilestone[]> {
+    if (input.kinds?.length === 0) return [];
+    const m = schema.clientMilestones;
+    const where = and(input.since ? gte(m.at, input.since) : undefined, input.kinds ? inArray(m.kind, input.kinds) : undefined);
+    return this.run((db) => db.select().from(m).where(where).orderBy(asc(m.at), asc(m.kind)));
+  }
+
 }
 
 /** 73 Apps that aren't deleted. */

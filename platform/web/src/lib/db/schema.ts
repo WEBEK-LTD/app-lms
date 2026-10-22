@@ -89,6 +89,7 @@ import type { CampaignStatus, DonationRecurring, DonationSettings, DonationStatu
 import type { AnalyticsEventType, AnalyticsItemKind, AnalyticsMetric } from "../analytics/types";
 // 14.1 We publish for you
 import type { PublishingChecklist, PublishingListing, PublishingMode, PublishingStatus, PublishingStore } from "../data/types";
+import type { MilestoneKind, SignupSource } from "../data/types";
 
 /**
  * MySQL schema (MySQL 8.0.13+ and MariaDB 10.3+, the usual cPanel servers).
@@ -2125,3 +2126,24 @@ export const chatUploads = mysqlTable(
   (t) => [index("chat_uploads_member_idx").on(t.memberId)],
 );
 
+
+/**
+ * 78 Each client's milestones (lib/milestones): one row per kind and what it
+ * is about (`ref`: the app, "" for the account, the payment of a renewal).
+ * No foreign key to the app: a deleted app's milestones stay, as the account's
+ * history; the account's deletion takes them.
+ */
+export const clientMilestones = mysqlTable(
+  "client_milestones",
+  {
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    kind: varchar("kind", { length: 24 }).notNull().$type<MilestoneKind>(),
+    ref: varchar("ref", { length: 36 }).notNull(),
+    appId: id("app_id"),
+    at: time("at").notNull(),
+    source: jsonText<SignupSource>("source"),
+  },
+  (t) => [primaryKey({ columns: [t.clientId, t.kind, t.ref] }), index("client_milestones_kind_at_idx").on(t.kind, t.at)],
+);

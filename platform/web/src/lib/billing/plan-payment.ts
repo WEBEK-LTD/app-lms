@@ -3,6 +3,7 @@ import { newId, randomToken, sha256Hex } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
 import type { App, Client, PlanPayment, StoragePack, User } from "../data/types";
 import { applyPaidPacks } from "../media/packs";
+import { noteMilestones } from "../milestones/record";
 import { PaymentError } from "../payments/errors";
 import { confirmCheckout, PROVIDER_NAME, providerTakes, startCheckout, type PaymentAccount, type ProviderUrls } from "../payments/provider";
 import { planPriceOf, type Plan, type PlanInfo } from "../plans";
@@ -238,6 +239,8 @@ export async function completePlanPayment(
   );
   // 51 Storage packs renewed with the plan run until its new end.
   await applyPaidPacks(deps.store, paid, change.activeUntil, deps.now);
+  // 78 The first payment, or a renewal.
+  await noteMilestones(deps.store, payment.clientId, deps.now);
   return { kind: "paid", activation, activeUntil: change.activeUntil, payment: paid, change };
 }
 

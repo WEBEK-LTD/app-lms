@@ -16,6 +16,7 @@ Yallapp'in merkezi Kahire, Mısır'dadır ve burada açıklanan kişisel veriler
 - **Yayın kimlik bilgileri:** eklemeyi seçerseniz Google Play, App Store Connect, Samsung Galaxy Store ve Huawei AppGallery anahtarları. Bunlar şifreli olarak saklanır.
 - **Fatura kayıtları:** planınız, tarihleri ve ödeme notları.
 - Bize gönderdiğiniz **mesajlar** ve IP adresi, tarayıcı ve giriş zamanları gibi **teknik kayıtlar**.
+- **Bizi nasıl buldunuz:** kaydolurken geldiğiniz bağlantının kaynağı, ortamı ve kampanyası, sizi gönderen web sitesinin adı (sayfası değil) ve demo uygulamalarımıza bakıp bakmadığınız. Bunu yalnızca hangi sayfaların ve kampanyaların bize müşteri getirdiğini öğrenmek için kullanırız; bunun için tarayıcınızda hiçbir şey saklanmaz.
 
 ## 3. Uygulamanızın kullanıcılarına ait veriler
 

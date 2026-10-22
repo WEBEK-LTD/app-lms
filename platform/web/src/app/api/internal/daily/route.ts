@@ -15,6 +15,7 @@ import { runAccountDeletions } from "@/lib/account/purge";
 import { runAppPurges } from "@/lib/apps/deletion";
 import { accountPurgeDeps, purgeDeps } from "@/lib/apps/purge-env";
 import { runChatRetention } from "@/lib/chat/retention";
+import { recordAllMilestones } from "@/lib/milestones/record";
 
 /**
  * POST /api/internal/daily (roadmap 13.4): the daily job. Netlify's scheduled
@@ -33,7 +34,8 @@ import { runChatRetention } from "@/lib/chat/retention";
  * rows), and the accounts whose deletion was asked for more than 7 days ago
  * are deleted, keeping their billing records (lib/account/purge.ts). 77 Chat
  * messages over a year old go unless kept, and the business hears 30 days
- * before (lib/chat/retention.ts). Safe to call again.
+ * before (lib/chat/retention.ts). 78 Every account's milestones are
+ * recorded, before deleted apps are purged (lib/milestones). Safe to call again.
  */
 export async function POST(request: Request): Promise<Response> {
   if (!hasBearerToken(request, internalJobSecret())) {
@@ -67,8 +69,13 @@ export async function POST(request: Request): Promise<Response> {
   const ownerDevicesPurged = await store.purgeOwnerDevices(now);
   // 70 Website sessions whose 14 days are over.
   const sessionsPurged = await store.deleteExpiredUserSessions(now);
+  // 78 Milestones, from what the data shows, while deleted apps still have their builds.
+  const milestones = await recordAllMilestones(store, now).catch((e: unknown) => {
+    console.error(`[daily] milestones: ${e instanceof Error ? e.message : String(e)}`);
+    return null;
+  });
   // 73 Deleted apps past their 7 days, then accounts whose deletion is due.
   const apps = await runAppPurges(purgeDeps(store, now));
   const accounts = await runAccountDeletions(accountPurgeDeps(store, now));
-  return json({ ...report, analytics: { ...analytics, history: analyticsHistory }, media, chat, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts } });
+  return json({ ...report, analytics: { ...analytics, history: analyticsHistory }, media, chat, milestones, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts } });
 }

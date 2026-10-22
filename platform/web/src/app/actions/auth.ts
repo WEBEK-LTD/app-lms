@@ -19,6 +19,8 @@ import { RATE_LIMITS, hitRateLimit } from "@/lib/rate-limit";
 import { forgotSchema, resetSchema, signInSchema, signUpSchema } from "@/lib/validation";
 import { isLang, LANG_COOKIE, LANG_COOKIE_MAX_AGE, langOf, translateKnown, type Lang } from "@/i18n";
 import type { User } from "@/lib/data/types";
+import { recordSignUp } from "@/lib/milestones/record";
+import { signupSourceFrom } from "@/lib/milestones/source";
 
 /**
  * 55 The sign-in pages in Arabic and Turkish send their language (a hidden
@@ -68,7 +70,9 @@ async function signUp(formData: FormData, lang: Lang): Promise<FormState> {
   }
   try {
     // 52 The country the sign-up came from: Yallapp's prices show in its currency.
-    const { user } = await registerClient(store, { ...parsed.data, country: countryFromHeaders(await headers()) }, now);
+    const { user, client } = await registerClient(store, { ...parsed.data, country: countryFromHeaders(await headers()) }, now);
+    // 78 The sign-up, with where it came from.
+    await recordSignUp(store, client, signupSourceFrom(formData));
     await startSession(user);
     await rememberLang(lang, user);
   } catch (error) {

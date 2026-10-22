@@ -9,6 +9,7 @@ import type { PublishingRequest, PublishingStatus, PublishingStore } from "@/lib
 import type { FormState } from "@/lib/forms";
 import { notifyPublishingStatus } from "@/lib/publishing/service";
 import { isMoreStore, PUBLISHING_STATUS_LABEL, requestStores, STORE_TITLE, trackChangeProblems, trackOf } from "@/lib/publishing/steps";
+import { noteMilestones } from "@/lib/milestones/record";
 
 const ID = /^[0-9a-f-]{36}$/i;
 
@@ -49,6 +50,8 @@ export async function updatePublishingTrackAction(_: FormState, formData: FormDa
   const next: PublishingRequest = { ...request, [which]: track, updatedAt: now };
   await store.savePublishingRequest(next);
   if (changed) await store.addPublishingEvent({ appId: request.appId, store: which, status, note: track.note, actorEmail: admin.email, at: now });
+  // 78 Submitted or live for the first time.
+  if (changed) await noteMilestones(store, request.clientId, now);
 
   const app = await store.getAppById(request.appId);
   await recordAudit({

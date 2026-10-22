@@ -3,6 +3,7 @@ import { Bricolage_Grotesque, IBM_Plex_Sans_Arabic } from "next/font/google";
 import localFont from "next/font/local";
 import { HtmlShell } from "@/components/html-shell";
 import { ThemeScript } from "@/components/theme-script";
+import { KeepCampaign } from "@/components/campaign";
 import { DEFAULT_DESCRIPTION, DEFAULT_TITLE, SITE_ICONS, SITE_NAME, siteUrl } from "@/lib/seo";
 import "./globals.css";
 
@@ -64,7 +65,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <ThemeScript />
       </head>
-      <body className="min-h-screen bg-ivory font-sans text-midnight antialiased">{children}</body>
+      <body className="min-h-screen bg-ivory font-sans text-midnight antialiased">
+        {/* 78 Where a visitor came from, for the sign-up (kept in the page's memory only). */}
+        <KeepCampaign />
+        {children}
+      </body>
     </HtmlShell>
   );
 }

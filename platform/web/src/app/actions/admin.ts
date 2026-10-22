@@ -27,6 +27,7 @@ import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import { formatDate } from "@/components/ui";
 import { activateSchema, addClientSchema, clientDetailsSchema, releaseSchema } from "@/lib/validation";
 import { parseCountry } from "@/lib/account/country";
+import { recordSignUp } from "@/lib/milestones/record";
 
 const PLUGIN_MAX_BYTES = 5.5 * 1024 * 1024;
 
@@ -350,6 +351,8 @@ export async function addClientAction(_: FormState, formData: FormData): Promise
   try {
     const { client } = await registerClient(store, { ...parsed.data, password: null }, now);
     clientId = client.id;
+    // 78 Added by the team.
+    await recordSignUp(store, client, { utmSource: null, utmMedium: null, utmCampaign: null, referrer: null, from: "team" });
   } catch (error) {
     if (error instanceof DuplicateEmailError) return { errors: { email: "There's already an account with this email." }, values };
     throw error;
