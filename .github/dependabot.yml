@@ -1,0 +1,45 @@
+# 79.4 Dependency updates: a weekly pull request per ecosystem, minor and patch
+# versions grouped, majors one by one. Security updates come at once (Settings ›
+# Code security › Dependabot security updates). Each runs the usual CI.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /platform/web
+    schedule: { interval: weekly, day: monday }
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: composer
+    directory: /wp-plugin/yallapp
+    schedule: { interval: weekly, day: monday }
+    open-pull-requests-limit: 3
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: pub
+    directory: /mobile
+    schedule: { interval: weekly, day: monday }
+    open-pull-requests-limit: 3
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: pub
+    directory: /business
+    schedule: { interval: weekly, day: monday }
+    open-pull-requests-limit: 3
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: bundler
+    directory: /build
+    schedule: { interval: monthly }
+    open-pull-requests-limit: 2
+  # The actions are pinned by commit (69.14); Dependabot moves the pins and their tag comments.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly, day: monday }
+    open-pull-requests-limit: 3
+    groups:
+      actions:
+        patterns: ["*"]
