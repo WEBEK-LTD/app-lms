@@ -5,6 +5,7 @@ import { useActionState, useEffect, useState } from "react";
 import {
   removeAppWhatsappAction,
   replaceSigningKeyAction,
+  resendWebhookAction,
   saveAppMailAction,
   saveAppSignInAction,
   saveAppWhatsappAction,
@@ -649,6 +650,19 @@ function MailServerForm({
           {t("signin.saveEmail")}
         </SubmitButton>
       </div>
+    </form>
+  );
+}
+
+/** 80.3 "Send again" on a failed account deletion notice. */
+export function ResendWebhookForm({ id }: { id: string }) {
+  const t = useDashT();
+  const [state, action] = useActionState(resendWebhookAction, initialFormState);
+  return (
+    <form action={action} className="flex flex-col items-start gap-1.5">
+      <input type="hidden" name="id" value={id} />
+      <SubmitButton className="h-8 px-3 text-sm">{t("signin.sendAgain")}</SubmitButton>
+      <FormMessage message={state.message} ok={state.ok} />
     </form>
   );
 }

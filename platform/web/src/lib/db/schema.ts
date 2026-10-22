@@ -589,11 +589,15 @@ export const catalogOrders = mysqlTable(
     // 37 Who takes the payment (null: iyzico) and its reference there (Kashier's session, Fawaterk's invoice).
     paymentProvider: varchar("payment_provider", { length: 16 }).$type<PaymentProviderId>(),
     providerRef: varchar("provider_ref", { length: 191 }),
+    // 80.3 When the pending-payments check last asked the provider.
+    providerCheckedAt: time("provider_checked_at"),
     // 47 What was refunded so far (payment_refunds).
     refundedCents: bigint("refunded_cents", { mode: "number", unsigned: true }).notNull().default(0),
   },
   (t) => [
     uniqueIndex("catalog_orders_token_unique").on(t.tokenHash),
+    // 80.3 Payments still pending, oldest first.
+    index("catalog_orders_pending_idx").on(t.status, t.createdAt),
     index("catalog_orders_app_idx").on(t.appId, t.createdAt),
     index("catalog_orders_user_idx").on(t.appId, t.userId),
     // 61 The day's paid orders, summed by the database.
@@ -631,6 +635,8 @@ export const planPayments = mysqlTable(
     // 37 Who takes the payment (null: iyzico) and its reference there.
     paymentProvider: varchar("payment_provider", { length: 16 }).$type<PaymentProviderId>(),
     providerRef: varchar("provider_ref", { length: 191 }),
+    // 80.3 When the pending-payments check last asked the provider.
+    providerCheckedAt: time("provider_checked_at"),
     // 52 The price as the client saw it, when another currency than the charge (dollars outside Egypt).
     shownCents: bigint("shown_cents", { mode: "number", unsigned: true }),
     shownCurrency: varchar("shown_currency", { length: 3 }).$type<CatalogCurrency>(),
@@ -642,6 +648,8 @@ export const planPayments = mysqlTable(
     uniqueIndex("plan_payments_token_unique").on(t.tokenHash),
     index("plan_payments_client_idx").on(t.clientId, t.createdAt),
     index("plan_payments_app_idx").on(t.appId, t.createdAt),
+    // 80.3 Payments still pending, oldest first.
+    index("plan_payments_pending_idx").on(t.status, t.createdAt),
   ],
 );
 
@@ -1040,11 +1048,15 @@ export const donations = mysqlTable(
     // 37 Who takes the payment (null: iyzico) and its reference there.
     paymentProvider: varchar("payment_provider", { length: 16 }).$type<PaymentProviderId>(),
     providerRef: varchar("provider_ref", { length: 191 }),
+    // 80.3 When the pending-payments check last asked the provider.
+    providerCheckedAt: time("provider_checked_at"),
     // 47 What was refunded so far (payment_refunds).
     refundedCents: bigint("refunded_cents", { mode: "number", unsigned: true }).notNull().default(0),
   },
   (t) => [
     uniqueIndex("donations_token_unique").on(t.tokenHash),
+    // 80.3 Payments still pending, oldest first.
+    index("donations_pending_idx").on(t.status, t.createdAt),
     uniqueIndex("donations_receipt_unique").on(t.receiptCode),
     index("donations_app_idx").on(t.appId, t.status, t.createdAt),
     index("donations_campaign_idx").on(t.campaignId, t.donorEmail),

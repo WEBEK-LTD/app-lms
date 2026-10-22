@@ -10,7 +10,8 @@ import { completePayment, deliverPaidOrder, newOrderMailValues } from "../catalo
 import { accountForOrder } from "../catalog/settings";
 import { sha256Hex } from "../crypto/tokens";
 import { getStore } from "../data";
-import type { PaymentProviderId } from "../data/types";
+import type { DataStore } from "../data/store";
+import type { CatalogOrder, Donation, PaymentProviderId, PlanPayment } from "../data/types";
 import { completeDonationPayment, donationAccount, donationReceiptValues } from "../donations/payment";
 import { receiptUrl } from "../donations/service";
 import { emailLangOf, sendTemplate } from "../email/send";
@@ -57,6 +58,11 @@ export async function settlePlanPayment(token: string, trigger: Trigger): Promis
   const store = await getStore();
   const payment = await store.getPlanPaymentByToken(sha256Hex(token));
   if (!payment) return { status: "not_found", path: "/pending" };
+  return settlePlanRecord(store, payment, trigger);
+}
+
+/** 80.3 A plan payment found by the pending-payments check, or by its link's token. */
+export async function settlePlanRecord(store: DataStore, payment: PlanPayment, trigger: Trigger): Promise<Settled> {
   const client = await store.getClientById(payment.clientId);
   // 51 Storage packs come back to the Media page.
   const page = client?.status !== "active" ? "/pending" : payment.purpose === "storage" ? "/dashboard/media" : "/dashboard/license";
@@ -101,6 +107,11 @@ export async function settleOrderPayment(token: string, trigger: Trigger): Promi
   const store = await getStore();
   const order = await store.getCatalogOrderByToken(sha256Hex(token));
   if (!order) return { status: "not_found", path: back };
+  return settleOrderRecord(store, order, trigger, back);
+}
+
+/** 80.3 An order found by the pending-payments check (`back`: its payment page, unknown there), or by its link's token. */
+export async function settleOrderRecord(store: DataStore, order: CatalogOrder, trigger: Trigger, back = "/"): Promise<Settled> {
   const failed: Settled = { status: "failed", path: `${back}?payment=failed` };
   if ((order.paymentProvider ?? "iyzico") !== trigger.provider) return failed;
   const app = await store.getAppById(order.appId);
@@ -146,6 +157,11 @@ export async function settleDonationPayment(token: string, trigger: Trigger): Pr
   const store = await getStore();
   const donation = await store.getDonationByToken(sha256Hex(token));
   if (!donation) return { status: "not_found", path: back };
+  return settleDonationRecord(store, donation, trigger, back);
+}
+
+/** 80.3 A donation found by the pending-payments check (`back`: its page, unknown there), or by its link's token. */
+export async function settleDonationRecord(store: DataStore, donation: Donation, trigger: Trigger, back = "/"): Promise<Settled> {
   const failed: Settled = { status: "failed", path: `${back}?payment=failed` };
   if ((donation.paymentProvider ?? "iyzico") !== trigger.provider) return failed;
   const app = await store.getAppById(donation.appId);

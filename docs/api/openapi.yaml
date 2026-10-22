@@ -3510,7 +3510,8 @@ webhooks:
         stops it (404 or 405: the API doesn't take notices). Redirects aren't
         followed, and an address on a private network isn't called. The
         notices of the last 30 days and how each went are on App sign-in › For
-        your developer.
+        your developer, where a failed one can be sent again: it starts over
+        with the same `jti` and the same tries.
       security: []
       parameters:
         - name: Yallapp-Event

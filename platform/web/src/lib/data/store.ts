@@ -47,7 +47,7 @@ import type {
 // 11.3, 11.4, 11.6 and 11.8
 import type { Announcement, AnnouncementPatch, Coupon, CouponPatch, CouponRedemption, EmailTemplateRecord, SiteContentRecord } from "./types";
 // 14.1 We publish for you
-import type { PublishingEvent, PublishingRequest } from "./types";
+import type { PendingPayment, PublishingEvent, PublishingRequest } from "./types";
 // 13 Owner notices
 import type { OwnerNotice, OwnerNoticeKind, OwnerNoticePatch } from "./types";
 // 16 Demo apps
@@ -666,6 +666,15 @@ export interface DataStore {
   // 11.1 Overview
   /** Every app of every client. */
   listApps(): Promise<App[]>;
+  /**
+   * 80.3 Payments still pending (orders, plan payments, donations) that were
+   * started between `startedAfter` and `startedBefore` and last asked about
+   * `checkedBefore` or earlier (or never), with their provider's reference;
+   * oldest first.
+   */
+  listPendingPayments(query: { startedAfter: Date; startedBefore: Date; checkedBefore: Date; limit: number }): Promise<PendingPayment[]>;
+  /** 80.3 Notes that the provider was just asked about this pending payment. */
+  markPaymentChecked(kind: PendingPayment["kind"], id: string | number, now: Date): Promise<void>;
   /** 80.2 Apps (not demos) whose connections the daily checks last looked at `before` or earlier, or never: never first, then oldest. */
   listAppsToCheck(before: Date, limit: number): Promise<App[]>;
   /** Builds queued at or after `since`, newest first. */

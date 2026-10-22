@@ -17,7 +17,7 @@ import { chosenEmailSignIn, chosenSignInMethods, emailSignInNote, emailSignInPos
 import { signedInPath } from "@/lib/app/api-check";
 import { jwksUrl, tokenIssuer, yallappSignsIn } from "@/lib/hosted/app-auth";
 import { hostedApiUrl } from "@/lib/hosted/urls";
-import { AppMailForms, AppSignInForm, AppWhatsappForms, DeveloperTokens, SignInMethodsForm, SignInProviderForm } from "./forms";
+import { AppMailForms, AppSignInForm, AppWhatsappForms, DeveloperTokens, ResendWebhookForm, SignInMethodsForm, SignInProviderForm } from "./forms";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("signin.title") };
@@ -88,6 +88,7 @@ function DeveloperSection({ app, webhooks, text }: { app: App; webhooks: ApiWebh
                 <span className="text-muted">{dayOf(text, w.createdAt.toISOString())}</span>
                 <span>{richText(t("signin.deletionUser"), { code: () => <code>{w.subject}</code> })}</span>
                 <span className={w.status === "delivered" ? "text-success" : w.status === "failed" ? "text-danger" : "text-ink-4"}>{k(webhookStateText(w))}</span>
+                {w.status === "failed" ? <ResendWebhookForm id={w.id} /> : null}
               </li>
             ))}
           </ul>

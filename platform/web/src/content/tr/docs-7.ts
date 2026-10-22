@@ -330,7 +330,7 @@ Bir kişi hesabını sildiğinde Yallapp \`<your API address>/webhooks/yallapp\`
 - \`jti\`: bildirimin kimliği; \`Yallapp-Delivery\` başlığında da yer alır. Bir bildirim yeniden gönderildiğinde aynı kalır: bir kez silin ve tekrarlara 2xx ile yanıt verin.
 - \`iat\` ve \`exp\`: her deneme yeniden imzalanır ve 5 dakika geçerlidir.
 
-Aldığınızda 2xx (202 veya 204) ile yanıt verin. 5xx, 408 veya 429 yanıtı, 10 saniye içinde yanıt gelmemesi ya da API'ye ulaşılamaması durumunda 1, 5 ve 30 dakika, ardından 2, 6, 12 ve 24 saat sonra yeniden denenir. Başka herhangi bir yanıt (henüz bildirim almıyorsanız 404) denemeyi durdurur. Bildirimler yönlendirmeler üzerinden iletilmez. **Uygulamaya giriş › Geliştiriciniz için**, son 30 günün bildirimlerini ve her birinin nasıl sonuçlandığını listeler. Bildirim, \`DELETE /me\` çağrınızdan önce veya sonra ya da o olmadan gelebilir: her durumda kullanıcıyı \`sub\` ile silin.
+Aldığınızda 2xx (202 veya 204) ile yanıt verin. 5xx, 408 veya 429 yanıtı, 10 saniye içinde yanıt gelmemesi ya da API'ye ulaşılamaması durumunda 1, 5 ve 30 dakika, ardından 2, 6, 12 ve 24 saat sonra yeniden denenir. Başka herhangi bir yanıt (henüz bildirim almıyorsanız 404) denemeyi durdurur. Bildirimler yönlendirmeler üzerinden iletilmez. **Uygulamaya giriş › Geliştiriciniz için**, son 30 günün bildirimlerini ve her birinin nasıl sonuçlandığını listeler; **Yeniden gönder**, başarısız bir bildirimi aynı \`jti\` ile baştan başlatır (bu yüzden tekrar da 2xx ile yanıtlanır). Bildirim, \`DELETE /me\` çağrınızdan önce veya sonra ya da o olmadan gelebilir: her durumda kullanıcıyı \`sub\` ile silin.
 
 ~~~js
 import { createRemoteJWKSet, jwtVerify } from "jose";

@@ -11,6 +11,7 @@ import { DEFAULT_HOSTED_SETTINGS } from "@/lib/data/types";
 import { appMailFormValues, appMailServer, appMailTarget, parseAppMailForm, sendThroughServer, type AppMailFormValues } from "@/lib/email/app-mail";
 import { appUrl, encryptionKey, isProduction, waabekApiUrl } from "@/lib/env";
 import { ensureAuthKey, rotateAuthKey, yallappSignsIn } from "@/lib/hosted/app-auth";
+import { resendWebhook } from "@/lib/hosted/api-webhooks";
 import { issueTestToken } from "@/lib/hosted/test-token";
 import type { FormState } from "@/lib/forms";
 import { appOtpSender, appWhatsappSender, parseAppWhatsappForm } from "@/lib/hosted/app-sender";
@@ -305,4 +306,19 @@ export async function testAppMailAction(_: FormState, formData: FormData): Promi
     revalidatePath("/dashboard/app-sign-in");
   }
   return { ok: true, message: `A test email was sent to ${to} from ${target.from.address}. If it arrived (check the spam folder too), your app's emails go out from your server.`, values: { to: raw } };
+}
+
+/** 80.3 "Send again": a failed account deletion notice starts over, with a first try now (lib/hosted/api-webhooks.ts). */
+export async function resendWebhookAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { context, app } = await ownApiContext();
+  const store = await getStore();
+  const limited = await hitRateLimit(store, RATE_LIMITS.apiCheck, context.client.id);
+  if (!limited.allowed) return { ok: false, message: "Too many tries. Try again in a few minutes." };
+  const sent = await resendWebhook({ store, encryptionKey: encryptionKey(), platformUrl: appUrl(), now: () => new Date() }, app.id, String(formData.get("id") ?? ""));
+  if (!sent) return { ok: false, message: "This notice can't be sent again." };
+  await recordStaffChange(context, `Sent an account deletion notice again: ${sent.status === "delivered" ? "delivered" : "not delivered yet"}`);
+  revalidatePath("/dashboard/app-sign-in");
+  return sent.status === "delivered"
+    ? { ok: true, message: "Sent again: your API received it." }
+    : { ok: false, message: "Sent again, but your API didn't receive it yet. It's tried again for about two days." };
 }
