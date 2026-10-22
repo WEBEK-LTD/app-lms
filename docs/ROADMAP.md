@@ -1905,9 +1905,10 @@ The order follows value and dependencies: first measure and watch (so later
 priorities come from real numbers, area 18), then make the data safe, then
 what a new client meets first (integrations, website to app, the editor),
 then what keeps them (notifications, analytics, builds, publishing, updates),
-then the verticals and agencies, and pricing last, as it needs the owner's
-numbers. Each phase is planned in detail (contracts, steps, checks) when it
-starts; the steps here say what each delivers.
+then the verticals and agencies. The plans and their prices don't change
+(the owner's decision, Phase 94): what is added joins the existing plans.
+Each phase is planned in detail (contracts, steps, checks) when it starts;
+the steps here say what each delivers.
 
 ## Phase 78: Measure and watch (areas 18 and 15)
 
@@ -1917,7 +1918,7 @@ a failed build alerts the team; jobs, integrations and pushes fail silently.
 | | Step | Done when |
 |---|---|---|
 | [x] | 78.1 Milestones: `client_milestones` (migration 0053, `lib/milestones`): the sign-up with its source (UTM source, medium and campaign, the sending website's host, `from`, the demo apps; kept in the page's memory only, no cookie), each setup step and the setup done, the first build and the first that worked, the first store upload and live, the first plan paid and each renewal. Worked out from the data, so older accounts are filled by the daily job; recorded where each happens; kept when a step is saved again or an app deleted; the demo account left out. The privacy policy says so in three languages | Unit tests on the memory store and MariaDB |
-| [ ] | 78.2 Admin › Product: sign-ups → setup done → first build → published → paid → renewed, by month (cohorts), median times, build success and duration by platform and stage over time, failure stages, retention and churn; numbers kept daily so they have a history | Unit tests, e2e |
+| [x] | 78.2 Admin › Product (`/admin/product`, `lib/admin/product.ts`): sign-ups by month and how many reached each step (setup done, first build, a build that worked, live, paid, renewed), the median days to each, sign-ups by source with how many paid, builds by month (worked, median time, Android and iOS, the stage failed ones stopped at), and clients with a plan running by month with churn, from a daily snapshot (`product_days`, migration 0054) so they keep a history; the demo apps left out | Unit tests (memory store and MariaDB), e2e |
 | [ ] | 78.3 Watching: every scheduled job records its runs; a deep health check (database, media gate, files host, email, push keys, the pipeline); stalled builds, a job that didn't run, a crash spike and many failed pushes alert the team (email, and the admin's bell) | Unit tests with a fake clock |
 | [ ] | 78.4 Errors per app: server errors and integration failures kept per app and client (what, when, how often), Admin › client timeline (builds, checks, errors, notices, payments in one list) | Unit and e2e tests |
 
@@ -2060,7 +2061,7 @@ measured; several useful automatic pushes don't exist.
 | | Step | Done when |
 |---|---|---|
 | [ ] | 92.1 An agency account with its clients under it, and every app's state, renewal and alerts on one page | e2e |
-| [ ] | 92.2 The agency pays for its clients' apps, one statement | Tests |
+| [ ] | 92.2 The agency pays for its clients' apps at the plans' prices, one statement | Tests |
 | [ ] | 92.3 Copy an app, save an app as a template | e2e |
 | [ ] | 92.4 The dashboard and emails in the agency's name (white label) | e2e |
 | [ ] | 92.5 Roles the owner defines | Tests |
@@ -2073,13 +2074,13 @@ measured; several useful automatic pushes don't exist.
 | [ ] | 93.2 Help on every page, search inside the docs, the missing articles | e2e |
 | [ ] | 93.3 Problems shown where the client works (from Phases 78 and 80) | e2e |
 
-## Phase 94: Prices that scale (area 16)
+## Phase 94: What each plan includes (area 16)
 
-Needs the owner's prices and decisions first.
+The owner's decision (2026-10-22): the plans and their prices stay as they
+are, for clients old and new. What this program adds joins the existing
+plans at the same prices (as the chat joined Pro and Business), and each
+step says which plans get it before it is built.
 
 | | Step | Done when |
 |---|---|---|
-| [ ] | 94.1 Monthly and yearly for each plan, prices shown | Tests |
-| [ ] | 94.2 Add-ons: publishing, an extra store, more notifications, more sign-in codes, more builds | Tests |
-| [ ] | 94.3 Plans for agencies and companies with many apps | Tests |
-| [ ] | 94.4 What you pay for and why, per app and account | e2e |
+| [ ] | 94.1 What you pay for and why, per app and account: each plan's features, limits and what is used of them, in the dashboard and on the pricing page | e2e |

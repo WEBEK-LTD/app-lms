@@ -11,7 +11,7 @@ import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, Analyt
 import type { AppAuthKey, AppLayoutRecord } from "./types";
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
-import type { ClientMilestone, MilestoneKind } from "./types";
+import type { ClientMilestone, MilestoneKind, ProductDay } from "./types";
 import { assetIdsIn } from "./asset-ids";
 import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 import type { MoreStore, MoreStoresRow, PublishingEvent, PublishingRequest, PublishingTrack } from "./types";
@@ -4470,6 +4470,17 @@ export class MysqlStore implements DataStore {
     const where = and(input.since ? gte(m.at, input.since) : undefined, input.kinds ? inArray(m.kind, input.kinds) : undefined);
     return this.run((db) => db.select().from(m).where(where).orderBy(asc(m.at), asc(m.kind)));
   }
+  async saveProductDay(day: ProductDay, now: Date): Promise<void> {
+    const { day: key, ...snapshot } = day;
+    await this.run((db) => db.insert(schema.productDays).values({ day: key, snapshot, updatedAt: now }).onDuplicateKeyUpdate({ set: { snapshot, updatedAt: now } }));
+  }
+
+  async listProductDays(since: string): Promise<ProductDay[]> {
+    const p = schema.productDays;
+    const rows = await this.run((db) => db.select().from(p).where(gte(p.day, since)).orderBy(asc(p.day)));
+    return rows.map((r) => ({ day: r.day, ...r.snapshot }));
+  }
+
 
 }
 

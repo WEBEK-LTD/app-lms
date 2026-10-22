@@ -2853,3 +2853,23 @@ export interface SignupSource {
   referrer: string | null;
   from: string | null;
 }
+
+/**
+ * 78.2 What the daily job saw on a day (`product_days`), for the numbers that
+ * can't be worked out again later: which clients had a plan running.
+ */
+export interface ProductDay {
+  /** YYYY-MM-DD, UTC. */
+  day: string;
+  clients: number;
+  /** Clients by account state (lib/license/status). */
+  pending: number;
+  active: number;
+  expired: number;
+  suspended: number;
+  apps: number;
+  /** Apps that have been live in a store (their milestone). */
+  appsLive: number;
+  /** The clients with a plan running (state "active"). */
+  activeClientIds: string[];
+}

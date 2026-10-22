@@ -1126,6 +1126,10 @@ never in a chat or an issue.
       sign-up's source is kept ("How you found us"), in English, Arabic
       and Turkish. If the team edited the privacy policy in Admin › Website
       content, add it there by hand.
+- [ ] Apply migration `0054_product_days.sql` after `0053`, then deploy
+      (78.2). Admin › Product fills its months from the daily job's
+      snapshots, one a day from the deploy on (`productDay` in its answer);
+      the funnel, times, sources and builds show at once.
 - [ ] Campaign links: point them at any page of the site with
       `utm_source`, `utm_medium` and `utm_campaign` (and `from` for a page
       of ours, like `from=newsletter`); the sign-up records them while the

@@ -78,4 +78,14 @@ export function milestonesStoreSuite(store: () => DataStore) {
     // An account that doesn't exist (any more) gets none.
     expect(await s.addClientMilestones([row(c.id, "paid", "", NOW)])).toBe(0);
   });
+
+  it("78.2 keeps one snapshot a day, oldest first", async () => {
+    const s = store();
+    const day = (iso: string, ids: string[]) => ({ day: iso, clients: 3, pending: 1, active: ids.length, expired: 0, suspended: 0, apps: 2, appsLive: 1, activeClientIds: ids });
+    await s.saveProductDay(day("2031-03-02", ["b"]), NOW);
+    await s.saveProductDay(day("2031-03-01", ["a"]), NOW);
+    await s.saveProductDay(day("2031-03-02", ["b", "c"]), NOW);
+    expect(await s.listProductDays("2031-03-01")).toEqual([day("2031-03-01", ["a"]), day("2031-03-02", ["b", "c"])]);
+    expect(await s.listProductDays("2031-03-02")).toEqual([day("2031-03-02", ["b", "c"])]);
+  });
 }

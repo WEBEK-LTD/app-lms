@@ -84,7 +84,7 @@ import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatu
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
-import type { ClientMilestone, MilestoneKind } from "./types";
+import type { ClientMilestone, MilestoneKind, ProductDay } from "./types";
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
 export type ClientFilter = "all" | "pending" | "active" | "expired";
@@ -1089,4 +1089,8 @@ export interface DataStore {
   listClientMilestones(clientId: string): Promise<ClientMilestone[]>;
   /** Every client's, oldest first: those from `since` on, of these kinds. */
   listMilestones(input: { since?: Date; kinds?: MilestoneKind[] }): Promise<ClientMilestone[]>;
+  /** 78.2 Saves the day's snapshot, replacing one saved earlier that day. */
+  saveProductDay(day: ProductDay, now: Date): Promise<void>;
+  /** The snapshots from `since` (YYYY-MM-DD) on, oldest first. */
+  listProductDays(since: string): Promise<ProductDay[]>;
 }

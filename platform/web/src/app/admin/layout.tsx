@@ -32,6 +32,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           dark
           items={[
             { href: "/admin", label: "Overview", exact: true },
+            { href: "/admin/product", label: "Product" },
             { href: "/admin/clients", label: "Clients" },
             { href: "/admin/builds", label: "Build queue" },
             { href: "/admin/crashes", label: "Crashes" },

@@ -2247,6 +2247,25 @@ storage, as the privacy policy promises, so a reload forgets them.
 `lib/milestones/source.ts` checks them on the server. Accounts the team
 adds in the admin get `from: "team"`.
 
+### Admin › Product (78.2)
+
+`/admin/product` (read only, every team role) shows the milestones as
+numbers (`lib/admin/product.ts`, pure functions): sign-ups by month and how
+many of each month reached each step by now (setup done, first build, a build
+that worked, live in a store, paid, renewed), the median days from the
+sign-up to each step (sign-ups of the last 12 months), sign-ups of the last
+90 days by source with how many paid, and builds by the month they were
+queued (finished, worked, median time from the start, Android and iOS, the
+stage the failed ones stopped at). The demo apps aren't counted.
+
+Who had a plan running when can't be worked out later (a license's end date
+moves with each renewal), so the daily job saves a snapshot each day
+(`product_days`, migration 0054, `lib/admin/product-days.ts`): clients by
+state, apps, apps that have been live, and the IDs of the clients with a plan
+running. The page compares each month's first and last snapshot: at the
+start, new, lost, at the end, and churn (lost over at the start). The
+snapshots hold no personal data and stay when an account is deleted.
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:
