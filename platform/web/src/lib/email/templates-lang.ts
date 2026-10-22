@@ -35,6 +35,7 @@ export type ClientEmailKey = Extract<
   | "storage_pack_added"
   | "storage_pack_ended"
   | "chat_expiring"
+  | "integration_failed"
   | "own_whatsapp_failed"
   | "own_email_failed"
   | "team_invitation"
@@ -179,6 +180,13 @@ const AR: Record<ClientEmailKey, TemplateText> = {
       "مرحبًا {{name}}،\n\nتُحفظ رسائل المحادثات لمدة سنة. في {{conversations}} من محادثات {{app_name}}، ستُحذف الرسائل المرسلة منذ أكثر من سنة في {{date}} مع صورها وفيديوهاتها ورسائلها الصوتية وملفاتها.\n\n" +
       "للاحتفاظ بها سنة أخرى، افتح المحادثات واختر «الاحتفاظ بالرسائل». ويمكنك أيضًا من هناك حذف محادثة كاملة أو رسائل محددة متى شئت.\n\n" +
       "المحادثات: {{chat_url}}" +
+      SIGNATURE_AR,
+  },
+  integration_failed: {
+    subject: "{{title}}",
+    body:
+      "مرحبًا {{name}}،\n\nوجد فحصنا اليومي لاتصالات {{app_name}} مشكلة.\n\n{{problem}}\n\n{{details}}\n\n" +
+      "تعرض صفحة «التكاملات» كل اتصال وآخر اختبار له. اختبره هناك من جديد بعد إصلاحه:\n{{integrations_url}}" +
       SIGNATURE_AR,
   },
   own_whatsapp_failed: {
@@ -374,6 +382,13 @@ const TR: Record<ClientEmailKey, TemplateText> = {
       "Merhaba {{name}},\n\nSohbet mesajları bir yıl saklanır. {{app_name}} uygulamasının {{conversations}} sohbetinde bir yıldan önce gönderilen mesajlar, fotoğrafları, videoları, sesli mesajları ve dosyalarıyla birlikte {{date}} tarihinde silinecek.\n\n" +
       "Onları bir yıl daha saklamak için Sohbet sayfasını açıp Mesajları sakla'yı seçin. Orada istediğiniz zaman bir sohbetin tamamını ya da tek tek mesajları da silebilirsiniz.\n\n" +
       "Sohbet: {{chat_url}}" +
+      SIGNATURE_TR,
+  },
+  integration_failed: {
+    subject: "{{title}}",
+    body:
+      "Merhaba {{name}},\n\n{{app_name}} uygulamasının bağlantılarını her gün kontrol ediyoruz ve bir sorun bulduk.\n\n{{problem}}\n\n{{details}}\n\n" +
+      "Entegrasyonlar sayfası her bağlantıyı ve son testini gösterir. Düzelttikten sonra orada yeniden test edin:\n{{integrations_url}}" +
       SIGNATURE_TR,
   },
   own_whatsapp_failed: {

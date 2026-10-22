@@ -666,6 +666,8 @@ export interface DataStore {
   // 11.1 Overview
   /** Every app of every client. */
   listApps(): Promise<App[]>;
+  /** 80.2 Apps (not demos) whose connections the daily checks last looked at `before` or earlier, or never: never first, then oldest. */
+  listAppsToCheck(before: Date, limit: number): Promise<App[]>;
   /** Builds queued at or after `since`, newest first. */
   listBuildsSince(since: Date): Promise<Build[]>;
   /** Plan payments paid at or after `since`. */

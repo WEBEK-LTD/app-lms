@@ -2738,6 +2738,19 @@ export class MysqlStore implements DataStore {
     return this.run((db) => db.select().from(schema.apps).where(liveApp()).orderBy(asc(schema.apps.createdAt)));
   }
 
+  async listAppsToCheck(before: Date, limit: number): Promise<App[]> {
+    const checked = schema.apps.integrationsCheckedAt;
+    // NULL sorts first in ascending order: apps never checked come first.
+    return this.run((db) =>
+      db
+        .select()
+        .from(schema.apps)
+        .where(and(liveApp(), eq(schema.apps.demo, false), or(isNull(checked), lte(checked, before))))
+        .orderBy(asc(checked), asc(schema.apps.createdAt))
+        .limit(limit),
+    );
+  }
+
   async listBuildsSince(since: Date): Promise<Build[]> {
     const rows = await this.run((db) => db.select().from(schema.builds).where(gte(schema.builds.createdAt, since)).orderBy(desc(schema.builds.createdAt)));
     return rows.map(toBuild);

@@ -2105,6 +2105,15 @@ export class MemoryStore implements DataStore {
     return [...this.apps.values()].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()).map(clone);
   }
 
+  async listAppsToCheck(before: Date, limit: number): Promise<App[]> {
+    const at = (a: App) => a.integrationsCheckedAt?.getTime() ?? -Infinity;
+    return [...this.apps.values()]
+      .filter((a) => !a.demo && !a.deletedAt && at(a) <= before.getTime())
+      .sort((a, b) => at(a) - at(b) || a.createdAt.getTime() - b.createdAt.getTime())
+      .slice(0, limit)
+      .map(clone);
+  }
+
   async listBuildsSince(since: Date): Promise<Build[]> {
     return [...this.builds.values()]
       .filter((b) => b.createdAt.getTime() >= since.getTime())

@@ -1,5 +1,7 @@
 import { getStore } from "@/lib/data";
-import { encryptionKey, internalJobSecret, licenseRefreshTestUrl } from "@/lib/env";
+import { sendTemplate } from "@/lib/email/send";
+import { appUrl, encryptionKey, integrationChecksOn, internalJobSecret, licenseRefreshTestUrl, paymentApiUrls } from "@/lib/env";
+import { runIntegrationChecks } from "@/lib/integrations/schedule";
 import { errorResponse, hasBearerToken, json } from "@/lib/http";
 import { runFrequentJobs } from "@/lib/jobs/frequent";
 import { runRekey } from "@/lib/jobs/rekey";
@@ -18,7 +20,9 @@ import { dispatchSet, teamMail } from "@/lib/watch/env";
  * their license (lib/jobs/frequent.ts). 78.3 Each run is recorded, then the
  * watch looks at builds, the other jobs, crashes and failed pushes
  * (lib/watch). 79.2 Then, when there are any, it moves encrypted values to the
- * current key for a few seconds (lib/jobs/rekey.ts). Safe to call again, also at the same time.
+ * current key for a few seconds (lib/jobs/rekey.ts). 80.2 Then a few apps'
+ * connections are checked again, each app once a day (lib/integrations/schedule.ts).
+ * Safe to call again, also at the same time.
  */
 export async function POST(request: Request): Promise<Response> {
   if (!hasBearerToken(request, internalJobSecret())) {
@@ -36,7 +40,14 @@ export async function POST(request: Request): Promise<Response> {
       console.error("[rekey]", error instanceof Error ? error.message : String(error));
       return null;
     });
-    return { ...jobs, watch, rekey: rekey && { moved: rekey.moved, failed: rekey.failed, done: rekey.done } };
+    // 80.2 A few apps' connections checked again, once a day each.
+    const integrations = integrationChecksOn()
+      ? await runIntegrationChecks({ store, encryptionKey: encryptionKey(), now, baseUrl: appUrl(), mail: sendTemplate, teamMail, paymentUrls: paymentApiUrls(), budgetMs: 5000, limit: 10 }).catch((error: unknown) => {
+          console.error("[integrations]", error instanceof Error ? error.message : String(error));
+          return null;
+        })
+      : null;
+    return { ...jobs, watch, rekey: rekey && { moved: rekey.moved, failed: rekey.failed, done: rekey.done }, integrations };
   });
   return json(report);
 }

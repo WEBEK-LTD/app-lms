@@ -273,6 +273,8 @@ export const apps = mysqlTable(
     linksCheck: jsonText<LinksCheckSnapshot>("links_check"),
     // 80.1 The last test of each connection (Dashboard › Integrations).
     integrationChecks: jsonText<IntegrationChecks>("integration_checks"),
+    // 80.2 When the daily checks last looked at them (lib/integrations/schedule.ts).
+    integrationsCheckedAt: time("integrations_checked_at"),
     // 46 The owner's switches: the store's own rating prompt after good moments, and crash reports.
     reviewPrompt: boolean("review_prompt").notNull().default(true),
     crashReports: boolean("crash_reports").notNull().default(true),
@@ -295,7 +297,7 @@ export const apps = mysqlTable(
     updatedAt: time("updated_at").notNull(),
   },
   // An account can have several apps, listed oldest first.
-  (t) => [index("apps_client_idx").on(t.clientId, t.createdAt), index("apps_deleted_idx").on(t.deletedAt)],
+  (t) => [index("apps_client_idx").on(t.clientId, t.createdAt), index("apps_deleted_idx").on(t.deletedAt), index("apps_integrations_checked_idx").on(t.integrationsCheckedAt)],
 );
 
 export const builds = mysqlTable(

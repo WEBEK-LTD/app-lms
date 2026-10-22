@@ -281,6 +281,11 @@ export function licenseRefreshTestUrl(): string | null {
   return url ?? null;
 }
 
+/** 80.2 The daily checks of every app's connections (lib/integrations/schedule.ts); `INTEGRATION_CHECKS=off` turns them off (the e2e tests, whose sites are made up). */
+export function integrationChecksOn(): boolean {
+  return read("INTEGRATION_CHECKS")?.toLowerCase() !== "off";
+}
+
 export interface DatabaseConfig {
   url: string;
   ssl: "required" | "disabled";

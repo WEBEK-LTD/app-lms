@@ -61,6 +61,7 @@ export type EmailTemplateKey =
   | "storage_pack_added"
   | "storage_pack_ended"
   | "chat_expiring"
+  | "integration_failed"
   // 60 Team members for clients
   | "team_invitation"
   // 66 Deleting a Yallapp account
@@ -585,6 +586,25 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       "Hello {{name}},\n\nChat messages are kept for a year. In {{conversations}} conversations of {{app_name}}, messages sent over a year ago will be deleted on {{date}}, with their photos, videos, voice messages and files.\n\n" +
       "To keep them for another year, open Chat and choose Keep messages. You can also delete a whole conversation or single messages there whenever you like.\n\n" +
       "Chat: {{chat_url}}" +
+      SIGNATURE,
+  },
+  // 80.2 A daily check found one of the app's connections broken.
+  {
+    key: "integration_failed",
+    name: "Connection needs attention",
+    description: "To a client when a daily check finds one of their app's connections broken (its website or platform, payment keys, a push key). Once until it works again.",
+    placeholders: [
+      NAME,
+      APP_NAME,
+      { name: "title", description: "What needs attention", sample: "Rose Shop: your payment keys need attention" },
+      { name: "problem", description: "What the check found and what to do", sample: "iyzico didn't accept your payment keys, so your app can't take card payments. Check the keys in your iyzico panel." },
+      { name: "details", description: "The check's details, one per line (may be empty)", sample: "HTTP 401" },
+      { name: "integrations_url", description: "The link to the app's Integrations page", sample: "https://yallapp.com.tr/dashboard/open/sample?to=integrations" },
+    ],
+    subject: "{{title}}",
+    body:
+      "Hello {{name}},\n\nOur daily check of {{app_name}}'s connections found a problem.\n\n{{problem}}\n\n{{details}}\n\n" +
+      "Integrations shows each connection and its last test. Test it again there once it's fixed:\n{{integrations_url}}" +
       SIGNATURE,
   },
   {
