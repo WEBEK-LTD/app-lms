@@ -155,8 +155,18 @@ class App_Controller extends Controller {
 				'links'     => array( 'share_base_url' => untrailingslashit( home_url( '/a' ) ) ),
 				// The kind of business the owner chose in the dashboard: wording and defaults only.
 				'vertical'  => $license_status['vertical'],
-			) + $this->look()
+			) + $this->chat() + $this->look()
 		);
+	}
+
+	/**
+	 * 77 `Config.chat` when the app has chat; nothing otherwise.
+	 *
+	 * @return array
+	 */
+	private function chat() {
+		$chat = Chat_Controller::config( $this->plugin );
+		return $chat ? array( 'chat' => $chat ) : array();
 	}
 
 	/**

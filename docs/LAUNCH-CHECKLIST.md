@@ -1081,6 +1081,12 @@ never in a chat or an issue.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **Plugin 0.4.9** (77.4): WordPress apps' chat. Release it like 0.4.8
+      (WordPress.org once the plugin is approved there; Admin › Plugin
+      releases for the dashboard's download button). Sites on 0.4.8 or
+      earlier have no chat until they update: their app gets no chat token.
+      Its readme now says what the chat sends to Yallapp (Privacy, External
+      services).
 - [ ] Nothing else to set: the chat's pushes use each app's own Firebase
       account (WordPress apps: through their site, plugin 0.4.9) and
       Yallapp Business's for the owners. Messages are kept a year; the

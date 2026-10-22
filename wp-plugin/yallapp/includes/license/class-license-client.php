@@ -28,7 +28,7 @@ class License_Client {
 	/**
 	 * Plan features the platform may report (docs/api/platform.yaml, LicenseStatus).
 	 */
-	const FEATURES = array( 'push', 'offline_downloads', 'auto_publish', 'ios', 'page_editor', 'card_payments', 'auto_rebuild' );
+	const FEATURES = array( 'push', 'offline_downloads', 'auto_publish', 'ios', 'page_editor', 'card_payments', 'auto_rebuild', 'chat' );
 
 	/**
 	 * App types (`LicenseStatus.app_type`) and kinds of business (`LicenseStatus.vertical`) the platform may send.
@@ -188,6 +188,65 @@ class License_Client {
 	}
 
 	/**
+	 * 77 A chat token for a person signed in on this site (docs/api/platform.yaml,
+	 * startChatSession): their WordPress ID, name and picture, and in an academy the courses
+	 * they're enrolled in, for the course groups.
+	 *
+	 * @param int    $user_id   WordPress user ID.
+	 * @param string $name      Their display name.
+	 * @param string $image_url Their picture, or ''.
+	 * @param array  $courses   Each `id`, `title` and `image_url` (or null).
+	 * @return array|WP_Error `token`, `expires_at` and `base_url`.
+	 */
+	public function chat_session( $user_id, $name, $image_url, array $courses ) {
+		$key = (string) $this->settings->get( 'license_key' );
+		if ( '' === $key ) {
+			return new WP_Error( 'chat_not_available', __( 'Chat isn\'t available in this app.', 'yallapp' ), array( 'status' => 403 ) );
+		}
+		return $this->call(
+			'POST',
+			'/chat/sessions',
+			array_merge(
+				$this->site_info( $key ),
+				array(
+					'user'    => array(
+						'id'        => (int) $user_id,
+						'name'      => $name,
+						'image_url' => '' !== $image_url ? $image_url : null,
+					),
+					'courses' => array_values( $courses ),
+				)
+			)
+		);
+	}
+
+	/**
+	 * 77 Tells Yallapp a person's account is gone, so their chat goes too (docs/api/platform.yaml,
+	 * forgetChatMember). Without waiting for the answer: a deletion never waits on Yallapp.
+	 *
+	 * @param int $user_id WordPress user ID.
+	 * @return void
+	 */
+	public function forget_chat_member( $user_id ) {
+		$key = (string) $this->settings->get( 'license_key' );
+		if ( '' === $key ) {
+			return;
+		}
+		wp_remote_post(
+			self::base_url() . '/chat/members/forget',
+			array(
+				'timeout'  => 5,
+				'blocking' => false,
+				'headers'  => array(
+					'Accept'       => 'application/json',
+					'Content-Type' => 'application/json',
+				),
+				'body'     => wp_json_encode( array_merge( $this->site_info( $key ), array( 'user_id' => (int) $user_id ) ) ),
+			)
+		);
+	}
+
+	/**
 	 * Whether license checks block the app API. 68 Always on a live site: only a development
 	 * site (`WP_ENVIRONMENT_TYPE` `local` or `development`) can switch them off, with
 	 * `define( 'YALLAPP_ENFORCE_LICENSE', false )` or the `yallapp_enforce_license` filter (tests).
@@ -313,7 +372,7 @@ class License_Client {
 	/**
 	 * The last known status.
 	 *
-	 * @return array{status: string, plan: string|null, features: string[], sign_in_methods: string[]|null, email_sign_in: string|null, offline_downloads: bool|null, screen_protection: string|null, app_type: string|null, vertical: string|null, app_links: array|null, review_prompt: bool, crash_reports: bool, hide_video_branding: bool, expires_at: string|null, checked_at: string|null, message: string|null, contacted_at: int}
+	 * @return array{status: string, plan: string|null, features: string[], sign_in_methods: string[]|null, email_sign_in: string|null, offline_downloads: bool|null, screen_protection: string|null, app_type: string|null, vertical: string|null, app_links: array|null, review_prompt: bool, crash_reports: bool, hide_video_branding: bool, chat: array|null, expires_at: string|null, checked_at: string|null, message: string|null, contacted_at: int}
 	 */
 	public function status() {
 		$stored = get_option( self::STATUS_OPTION, array() );
@@ -332,6 +391,7 @@ class License_Client {
 				'review_prompt'       => true,
 				'crash_reports'       => true,
 				'hide_video_branding' => false,
+				'chat'                => null,
 				'expires_at'          => null,
 				'checked_at'          => null,
 				'message'             => null,
@@ -468,6 +528,8 @@ class License_Client {
 			'crash_reports'       => false !== ( $result['crash_reports'] ?? true ),
 			// 72 The video sites' own players unless the owner chose to hide them (at their own risk).
 			'hide_video_branding' => self::hides_video_branding( $result ),
+			// 77 The app's chat, on Yallapp: where it is and whether academies have course groups.
+			'chat'                => self::chat_of( $result ),
 			'expires_at'          => isset( $result['expires_at'] ) ? sanitize_text_field( (string) $result['expires_at'] ) : null,
 			'checked_at'          => gmdate( 'c' ),
 			'message'             => isset( $result['message'] ) ? sanitize_text_field( (string) $result['message'] ) : null,
@@ -490,6 +552,30 @@ class License_Client {
 	 */
 	public static function hides_video_branding( array $result ) {
 		return true === ( $result['hide_video_branding'] ?? false );
+	}
+
+	/**
+	 * 77 The app's chat (`LicenseStatus.chat`): its address on Yallapp's hosted API and whether
+	 * the academy has course groups. Null when the plan has none, the owner turned it off, or
+	 * the platform sends something else (an older one sends nothing). Pure.
+	 *
+	 * @param array $result License status from the platform.
+	 * @return array{base_url: string, groups: bool}|null
+	 */
+	public static function chat_of( array $result ) {
+		$chat = $result['chat'] ?? null;
+		if ( ! is_array( $chat ) || ! is_string( $chat['base_url'] ?? null ) ) {
+			return null;
+		}
+		$url    = trim( $chat['base_url'] );
+		$scheme = wp_parse_url( $url, PHP_URL_SCHEME );
+		if ( ! in_array( $scheme, array( 'https', 'http' ), true ) || '' === (string) wp_parse_url( $url, PHP_URL_HOST ) || strlen( $url ) > 500 ) {
+			return null;
+		}
+		return array(
+			'base_url' => untrailingslashit( esc_url_raw( $url ) ),
+			'groups'   => true === ( $chat['groups'] ?? false ),
+		);
 	}
 
 	/**
