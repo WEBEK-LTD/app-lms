@@ -2420,6 +2420,31 @@ both close. A payment provider that can't be reached tells no one. The e2e
 tests turn these checks off (`INTEGRATION_CHECKS=off`) because their websites
 are made up.
 
+## Retries (80.3)
+
+**Send again.** App sign-in › For your developer has a Send again button on
+each failed account deletion notice (`resendWebhook` in
+`lib/hosted/api-webhooks.ts`): the notice starts over with its 8 tries and
+the same `jti`, the first try at once. Only the app's own failed notices can
+be sent again; it counts with the API checks (10 every 10 minutes).
+
+**Payments left pending** (`lib/payments/pending.ts`). A payment is settled
+when its provider calls back. When that call never comes (the customer
+closed the page, a webhook was lost), the frequent job asks the provider,
+through the same settle functions as the callbacks
+(`settleOrderRecord`, `settlePlanRecord`, `settleDonationRecord` in
+`lib/payments/settle.ts`), so a payment confirmed this way is delivered and
+its emails sent once, as if the provider had called back. It looks at
+orders, plan payments and donations still pending with a provider
+reference (`provider_checked_at`, migration 0059):
+
+- first once the callback had its time: Kashier and Fawaterk after 10
+  minutes, iyzico after 45, once its payment page has expired, since
+  iyzico's "not paid" is final and fails a plan payment;
+- then every hour, while it can still be paid: iyzico 3 hours, Kashier 2
+  days, Fawaterk a week (a reference paid at a kiosk);
+- 20 at most per run, for 5 seconds at most.
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:

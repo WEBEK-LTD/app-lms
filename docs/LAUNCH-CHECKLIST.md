@@ -1156,6 +1156,11 @@ never in a chat or an issue.
       about once a day. Leave `INTEGRATION_CHECKS` unset on Netlify (`off` is
       only for the e2e tests). A broken connection tells its owner (notice,
       email, phone) and opens an alert in Admin › Watching.
+- [ ] **Retries** (80.3): migration `0059_pending_payment_checks.sql` (a
+      column on orders, plan payments and donations, and their indexes) goes
+      with the production deploy. From then on the frequent job asks
+      iyzico, Kashier and Fawaterk about payments whose callback never came.
+      Failed account deletion notices get a Send again button.
 - [ ] Campaign links: point them at any page of the site with
       `utm_source`, `utm_medium` and `utm_campaign` (and `from` for a page
       of ours, like `from=newsletter`); the sign-up records them while the

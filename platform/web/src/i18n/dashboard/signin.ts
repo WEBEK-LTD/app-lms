@@ -16,6 +16,7 @@ export const en = {
   noDeletions: "None in the last 30 days.",
   deletionUser: "User <code></code>",
   checkNotice: "How to check a notice",
+  sendAgain: "Send again",
   customIntro:
     "Your own API signs people in, so it decides how: by phone, by email or both, in its <config></config> (<methods></methods>). Your system sends the codes, and keeps the store review number or email address for Apple and Google. Or let Yallapp sign people in, and your API only checks Yallapp's tokens.",
   apiOffers: "What your API offers",
@@ -220,6 +221,11 @@ export const en = {
     waitingSent: "Waiting to be sent",
     notDelivered: "Not delivered yet Trying again ({attempts} of {max} tries made).",
     tryingAgain: "{error} Trying again ({attempts} of {max} tries made).",
+    // 80.3 Send again
+    resentDelivered: "Sent again: your API received it.",
+    resentNot: "Sent again, but your API didn't receive it yet. It's tried again for about two days.",
+    cantResend: "This notice can't be sent again.",
+    tooManyTries: "Too many tries. Try again in a few minutes.",
     // lib/email/app-mail.ts: checks of the form
     enterHost: "Enter the email server, like smtp.example.com.",
     privateHost: "This is a local or private address. Enter your email service's public server name, like smtp.example.com.",
@@ -314,6 +320,7 @@ export const ar: Messages = {
   noDeletions: "لا شيء خلال آخر 30 يومًا.",
   deletionUser: "المستخدم <code></code>",
   checkNotice: "كيف تتحقق من الإشعار",
+  sendAgain: "أرسله مرة أخرى",
   customIntro:
     "تتولى واجهتك البرمجية تسجيل دخول الناس، لذا فهي التي تحدد الطريقة: بالهاتف أو بالبريد الإلكتروني أو بكليهما، في <config></config> لديها (<methods></methods>). يرسل نظامك الرموز، ويحتفظ برقم أو بريد مراجعة المتاجر الخاص بـ Apple وGoogle. أو دع Yallapp يتولى تسجيل دخول الناس، وتكتفي واجهتك البرمجية بالتحقق من رموز Yallapp.",
   apiOffers: "ما تقدمه واجهتك البرمجية",
@@ -513,6 +520,10 @@ export const ar: Messages = {
     waitingSent: "في انتظار الإرسال",
     notDelivered: "لم يصل بعد. تُعاد المحاولة ({attempts} من {max} محاولات).",
     tryingAgain: "{error} تُعاد المحاولة ({attempts} من {max} محاولات).",
+    resentDelivered: "أُرسل مرة أخرى: استلمته واجهتك البرمجية.",
+    resentNot: "أُرسل مرة أخرى، لكن واجهتك البرمجية لم تستلمه بعد. تُعاد المحاولة لمدة يومين تقريبًا.",
+    cantResend: "لا يمكن إرسال هذا الإشعار مرة أخرى.",
+    tooManyTries: "محاولات كثيرة. حاول مرة أخرى بعد بضع دقائق.",
     enterHost: "أدخل خادم البريد، مثل smtp.example.com.",
     privateHost: "هذا عنوان محلي أو خاص. أدخل الاسم العام لخادم خدمة بريدك، مثل smtp.example.com.",
     hostName: "أدخل اسم خادم مثل smtp.example.com.",
@@ -602,6 +613,7 @@ export const tr: Messages = {
   noDeletions: "Son 30 günde yok.",
   deletionUser: "Kullanıcı <code></code>",
   checkNotice: "Bir bildirim nasıl doğrulanır",
+  sendAgain: "Yeniden gönder",
   customIntro:
     "Girişi kendi API'niz yapar; bu yüzden nasıl yapılacağına o karar verir: telefonla, e-postayla ya da ikisiyle, <config></config> yanıtında (<methods></methods>). Kodları sisteminiz gönderir ve Apple ile Google için mağaza inceleme numarasını veya e-posta adresini o saklar. İsterseniz girişi Yallapp yapsın; API'niz yalnızca Yallapp'ın token'larını doğrulasın.",
   apiOffers: "API'nizin sundukları",
@@ -801,6 +813,10 @@ export const tr: Messages = {
     waitingSent: "Gönderilmeyi bekliyor",
     notDelivered: "Henüz teslim edilmedi. Yeniden deneniyor ({max} denemeden {attempts} tanesi yapıldı).",
     tryingAgain: "{error} Yeniden deneniyor ({max} denemeden {attempts} tanesi yapıldı).",
+    resentDelivered: "Yeniden gönderildi: API'niz aldı.",
+    resentNot: "Yeniden gönderildi, ancak API'niz henüz almadı. Yaklaşık iki gün boyunca yeniden denenecek.",
+    cantResend: "Bu bildirim yeniden gönderilemez.",
+    tooManyTries: "Çok fazla deneme. Birkaç dakika sonra yeniden deneyin.",
     enterHost: "E-posta sunucusunu girin, örneğin smtp.example.com.",
     privateHost: "Bu yerel veya özel bir adres. E-posta hizmetinizin herkese açık sunucu adını girin, örneğin smtp.example.com.",
     hostName: "smtp.example.com gibi bir sunucu adı girin.",

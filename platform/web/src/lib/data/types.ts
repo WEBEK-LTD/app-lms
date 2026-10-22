@@ -902,6 +902,8 @@ export interface CatalogOrder {
   paymentProvider?: PaymentProviderId | null;
   /** 37 The provider's own reference for the started payment (Kashier's session, Fawaterk's invoice), read back to confirm it. */
   providerRef?: string | null;
+  /** 80.3 When the pending-payments check last asked the provider about it; null or missing: never. */
+  providerCheckedAt?: Date | null;
   /** 47 What was refunded so far (PaymentRefund); missing: nothing. All of it: the status is "refunded". */
   refundedCents?: number;
 }
@@ -1084,6 +1086,8 @@ export interface PlanPayment {
   paymentProvider?: PaymentProviderId | null;
   /** 37 The provider's own reference for the started payment, read back to confirm it. */
   providerRef?: string | null;
+  /** 80.3 When the pending-payments check last asked the provider about it; null or missing: never. */
+  providerCheckedAt?: Date | null;
   /**
    * 52 The price as the client saw it, when it was in another currency than
    * the charge (dollars outside Egypt): the receipt shows it as "about".
@@ -2290,6 +2294,8 @@ export interface Donation {
   paymentProvider?: PaymentProviderId | null;
   /** 37 The provider's own reference for the started payment, read back to confirm it. */
   providerRef?: string | null;
+  /** 80.3 When the pending-payments check last asked the provider about it; null or missing: never. */
+  providerCheckedAt?: Date | null;
   /** 47 What was refunded so far; missing: nothing. All of it: the status is "refunded". */
   refundedCents?: number;
 }
@@ -2974,3 +2980,6 @@ export interface IntegrationCheck {
 }
 
 export type IntegrationChecks = Partial<Record<IntegrationKey, IntegrationCheck>>;
+
+/** 80.3 A payment still pending at its provider, for the pending-payments check (lib/payments/pending.ts). */
+export type PendingPayment = { kind: "order"; record: CatalogOrder } | { kind: "plan"; record: PlanPayment } | { kind: "donation"; record: Donation };

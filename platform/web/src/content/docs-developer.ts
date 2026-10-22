@@ -324,7 +324,7 @@ When a person deletes their account, Yallapp posts a notice to \`<your API addre
 - \`jti\`: the notice's ID, also in the \`Yallapp-Delivery\` header. It stays the same when a notice is sent again: delete once, and answer 2xx to repeats.
 - \`iat\` and \`exp\`: each try is signed again and works for 5 minutes.
 
-Answer 2xx (202 or 204) once you have it. A 5xx, 408 or 429 answer, no answer within 10 seconds, or an API that can't be reached is tried again after 1, 5 and 30 minutes, then 2, 6, 12 and 24 hours. Any other answer (404 when you don't take notices yet) stops it. Notices aren't sent on through redirects. **App sign-in › For your developer** lists the notices of the last 30 days and how each went. The notice can arrive before or after your \`DELETE /me\`, or without it: delete the user by \`sub\` either way.
+Answer 2xx (202 or 204) once you have it. A 5xx, 408 or 429 answer, no answer within 10 seconds, or an API that can't be reached is tried again after 1, 5 and 30 minutes, then 2, 6, 12 and 24 hours. Any other answer (404 when you don't take notices yet) stops it. Notices aren't sent on through redirects. **App sign-in › For your developer** lists the notices of the last 30 days and how each went; **Send again** starts a failed one over, with the same \`jti\` (so a repeat answers 2xx too). The notice can arrive before or after your \`DELETE /me\`, or without it: delete the user by \`sub\` either way.
 
 ~~~js
 import { createRemoteJWKSet, jwtVerify } from "jose";

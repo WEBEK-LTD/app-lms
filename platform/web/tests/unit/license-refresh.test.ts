@@ -167,7 +167,7 @@ describe("saves that change what the license status carries ask the site", () =>
     ["app/actions/admin.ts", "suspendClientAction"],
     ["app/actions/admin.ts", "reinstateClientAction"],
     // 37 Every provider's plan payment settles here (iyzico, Kashier, Fawaterk).
-    ["lib/payments/settle.ts", "settlePlanPayment"],
+    ["lib/payments/settle.ts", "settlePlanRecord"],
     // 46 The link files (fingerprint, Team ID) and the rating prompt and crash report switches.
     ["app/actions/app-links.ts", "saveAppLinksAction"],
     ["app/actions/app-links.ts", "saveAppHealthAction"],

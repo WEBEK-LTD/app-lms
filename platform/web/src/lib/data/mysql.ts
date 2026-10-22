@@ -62,6 +62,7 @@ import type {
   CatalogProduct,
   CatalogProductInput,
   PlatformSetting,
+  PendingPayment,
   PlanPayment,
   BookingAppointment,
   BookingAppointmentPatch,
@@ -2736,6 +2737,34 @@ export class MysqlStore implements DataStore {
 
   async listApps(): Promise<App[]> {
     return this.run((db) => db.select().from(schema.apps).where(liveApp()).orderBy(asc(schema.apps.createdAt)));
+  }
+
+  async listPendingPayments(query: { startedAfter: Date; startedBefore: Date; checkedBefore: Date; limit: number }): Promise<PendingPayment[]> {
+    const where = (t: typeof schema.catalogOrders | typeof schema.planPayments | typeof schema.donations) =>
+      and(
+        eq(t.status, "pending"),
+        isNotNull(t.providerRef),
+        gte(t.createdAt, query.startedAfter),
+        lte(t.createdAt, query.startedBefore),
+        or(isNull(t.providerCheckedAt), lte(t.providerCheckedAt, query.checkedBefore)),
+      );
+    const [orders, plans, donations] = await Promise.all([
+      this.run((db) => db.select().from(schema.catalogOrders).where(where(schema.catalogOrders)).orderBy(asc(schema.catalogOrders.createdAt)).limit(query.limit)),
+      this.run((db) => db.select().from(schema.planPayments).where(where(schema.planPayments)).orderBy(asc(schema.planPayments.createdAt)).limit(query.limit)),
+      this.run((db) => db.select().from(schema.donations).where(where(schema.donations)).orderBy(asc(schema.donations.createdAt)).limit(query.limit)),
+    ]);
+    const all: PendingPayment[] = [
+      ...orders.map((record) => ({ kind: "order" as const, record: record as CatalogOrder })),
+      ...plans.map((record) => ({ kind: "plan" as const, record: record as PlanPayment })),
+      ...donations.map((record) => ({ kind: "donation" as const, record: record as Donation })),
+    ];
+    return all.sort((a, b) => a.record.createdAt.getTime() - b.record.createdAt.getTime()).slice(0, query.limit);
+  }
+
+  async markPaymentChecked(kind: PendingPayment["kind"], id: string | number, now: Date): Promise<void> {
+    if (kind === "order") await this.run((db) => db.update(schema.catalogOrders).set({ providerCheckedAt: now }).where(eq(schema.catalogOrders.id, Number(id))));
+    else if (kind === "plan") await this.run((db) => db.update(schema.planPayments).set({ providerCheckedAt: now }).where(eq(schema.planPayments.id, String(id))));
+    else await this.run((db) => db.update(schema.donations).set({ providerCheckedAt: now }).where(eq(schema.donations.id, Number(id))));
   }
 
   async listAppsToCheck(before: Date, limit: number): Promise<App[]> {

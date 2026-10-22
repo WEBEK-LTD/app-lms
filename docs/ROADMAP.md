@@ -1041,7 +1041,7 @@ no automatic refund, which stays with the refunds work). Migration
 | [x] | 49.5 Ticket holds: the checkout link holds the places for the pay link's hour (was two); starting the payment holds them until the provider's page ends plus 5 minutes (iyzico's `tokenExpireTime`, Kashier's session with `expireAt` 30 minutes ahead, Fawaterk 30 minutes as it takes no expiry to the minute); no payment starts once the hold ended ("Places released" on the payment page); a later confirmation issues the tickets only while the places are free, atomically against claims, else cancels them, keeps the order paid, shows the buyer "No places left" with the refund, and leaves the owner a `ticket_refund_due` notice | `phase49.test.ts` (the hold for Kashier's session, a place sold meanwhile, a late payment with the place free, twice settled, each provider's expiry), `phase49-mysql.test.ts` (a late payment racing a claim, five rounds, never both), `events-mysql.test.ts`, `payment-providers.test.ts`; `events-hosted.spec.ts` and `egypt-payments.spec.ts` unchanged and passing |
 | [ ] | 49.6 Kashier's `expireAt` on payment sessions is taken from its documentation and not yet tried on its test account; Fawaterk's invoices take no expiry to the minute (a Fawry reference can be paid days later), so their late payments rely on the place check | A test payment on each provider's test account (with 37.8) |
 | [ ] | 49.7 A late payment for a full event is refunded by the owner from the provider's panel (the notice says so); refunding it from the dashboard comes with the refunds work | With the dashboard's refunds |
-| [ ] | 49.8 The webhook's address is fixed (`<API address>/webhooks/yallapp`); notices for other events (a changed phone or email) and a "Send again" button for failed notices aren't offered. The "Places released" and "No places left" pages need the hold to pass, so they're covered by unit tests, not the browser tests | When a client asks |
+| [ ] | 49.8 The webhook's address is fixed (`<API address>/webhooks/yallapp`); notices for other events (a changed phone or email) aren't offered ("Send again" for failed notices came with 80.3). The "Places released" and "No places left" pages need the hold to pass, so they're covered by unit tests, not the browser tests | When a client asks |
 
 ## Phase 50: WordPress courses look and open like courses without a website; private courses for their students
 
@@ -1943,8 +1943,8 @@ their own page, nothing re-checks them, and a broken one isn't noticed.
 |---|---|---|
 | [x] | 80.1 Dashboard › Integrations: every connection of the app (website or platform, payments, WhatsApp and email senders, Firebase and Huawei push, each store) with its state, last check, a Test button and its recent errors | e2e |
 | [x] | 80.2 Checks on a schedule: each connection re-checked daily; a WordPress site that stops checking in, a revoked platform token or failing payment keys tell the owner (bell, email) and the team | Unit tests |
-| [ ] | 80.3 Retry: account webhooks sent again (49.8), payments left pending checked with the provider | Unit tests |
-| [ ] | 80.4 Shipping: carriers for shops without a website (first the owner's choice of carriers in Turkey and Egypt), tracking numbers on orders | Contract, tests |
+| [x] | 80.3 Retry: account webhooks sent again (49.8), payments left pending checked with the provider | Unit tests |
+| [ ] | 80.4 Shipping: shops without a website ship to any country with any carrier; no carrier account is needed: the shop adds the tracking link, the waybill or the tracking number to the order, the customer follows it in the app (owner's decision, 2026-10-22: every country, every plan with a shop) | Contract, tests |
 
 ## Phase 81: From a website to an app in minutes (area 1)
 
@@ -1993,6 +1993,9 @@ knowing.
 | [ ] | 84.4 The team adds and edits designs in the admin | e2e |
 
 ## Phase 85: Notification campaigns (area 5)
+
+The owner's decision (2026-10-22): campaigns and automatic notifications
+come with every plan, within each plan's monthly notifications as today.
 
 Sends go to everyone, only from hosted apps; automatic pushes aren't
 measured; several useful automatic pushes don't exist.
@@ -2053,10 +2056,13 @@ measured; several useful automatic pushes don't exist.
 | [ ] | 91.1 Coupons in shops without a website, and the real total in the app's cart everywhere | Contract, tests |
 | [ ] | 91.2 Shipped, with tracking; order pushes from WooCommerce and the connected platforms | Tests, PHPUnit |
 | [ ] | 91.3 Returns requested in the app | Contract, tests |
-| [ ] | 91.4 Loyalty points | Contract, tests |
+| [ ] | 91.4 Loyalty points (owner's decision, 2026-10-22: every plan but Starter) | Contract, tests |
 | [ ] | 91.5 Variations and taxes in shops without a website | Tests |
 
 ## Phase 92: Agencies (area 13)
+
+Postponed (the owner's decision, 2026-10-22): agency accounts come later,
+once the rest of the program is done, arranged separately then.
 
 | | Step | Done when |
 |---|---|---|
@@ -2080,6 +2086,12 @@ The owner's decision (2026-10-22): the plans and their prices stay as they
 are, for clients old and new. What this program adds joins the existing
 plans at the same prices (as the chat joined Pro and Business), and each
 step says which plans get it before it is built.
+
+The owner's choices so far (2026-10-22): Integrations, the daily checks and
+the retries (80): every plan. Shipping (80.4): every plan with a shop, every
+country. Notification campaigns (85): every plan, within its monthly
+notifications. Loyalty points (91.4): every plan but Starter. Agencies (92):
+postponed.
 
 | | Step | Done when |
 |---|---|---|

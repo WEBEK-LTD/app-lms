@@ -219,6 +219,26 @@ export async function sendAccountDeleted(deps: WebhookDeps, app: App, subject: s
   }
 }
 
+/**
+ * 80.3 "Send again" on App sign-in › For your developer: a failed notice
+ * starts over (its 8 tries and their waits), with a first try now. Null when
+ * it isn't one of the app's failed notices.
+ */
+export async function resendWebhook(deps: WebhookDeps, appId: string, id: string): Promise<ApiWebhook | null> {
+  const webhook = await deps.store.getApiWebhook(id);
+  if (!webhook || webhook.appId !== appId || webhook.status !== "failed") return null;
+  const now = deps.now();
+  const restarted: ApiWebhook = { ...webhook, status: "pending", attempts: 0, nextAttemptAt: now, lastError: null };
+  await deps.store.updateApiWebhook(id, { status: "pending", attempts: 0, nextAttemptAt: now, lastError: null });
+  try {
+    return (await attemptWebhook(deps, restarted, FIRST_TRY_TIMEOUT_MS)) ?? restarted;
+  } catch (e) {
+    // Left to the job, as with the first try.
+    console.error(`[webhooks] app ${appId}: sending again failed: ${e instanceof Error ? e.message : "unknown error"}`);
+    return restarted;
+  }
+}
+
 /** How a notice reads on App sign-in › For your developer. */
 export function webhookStateText(webhook: ApiWebhook): string {
   if (webhook.status === "delivered") return "Delivered";

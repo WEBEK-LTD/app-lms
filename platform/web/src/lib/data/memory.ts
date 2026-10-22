@@ -2,7 +2,7 @@ import { clientAccountState, longestLicense } from "../license/status";
 import { newId } from "../crypto/tokens";
 import { membershipActive, membershipFreezeSet, membershipToUse } from "../bookings/memberships";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
-import type { AppAuthKey, AppLayoutRecord } from "./types";
+import type { AppAuthKey, AppLayoutRecord, PendingPayment } from "./types";
 import type {
   AppPatch,
   BuildPatch,
@@ -2103,6 +2103,27 @@ export class MemoryStore implements DataStore {
   // 11.1 Overview
   async listApps(): Promise<App[]> {
     return [...this.apps.values()].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()).map(clone);
+  }
+
+  async listPendingPayments(query: { startedAfter: Date; startedBefore: Date; checkedBefore: Date; limit: number }): Promise<PendingPayment[]> {
+    const due = (r: { status: string; createdAt: Date; providerRef?: string | null; providerCheckedAt?: Date | null }) =>
+      r.status === "pending" &&
+      Boolean(r.providerRef) &&
+      r.createdAt.getTime() >= query.startedAfter.getTime() &&
+      r.createdAt.getTime() <= query.startedBefore.getTime() &&
+      (!r.providerCheckedAt || r.providerCheckedAt.getTime() <= query.checkedBefore.getTime());
+    const all: PendingPayment[] = [
+      ...[...this.catalogOrders.values()].filter(due).map((record) => ({ kind: "order" as const, record: clone(record) })),
+      ...[...this.planPayments.values()].filter(due).map((record) => ({ kind: "plan" as const, record: clone(record) })),
+      ...[...this.donations.values()].filter(due).map((record) => ({ kind: "donation" as const, record: clone(record) })),
+    ];
+    return all.sort((a, b) => a.record.createdAt.getTime() - b.record.createdAt.getTime()).slice(0, query.limit);
+  }
+
+  async markPaymentChecked(kind: PendingPayment["kind"], id: string | number, now: Date): Promise<void> {
+    const map = (kind === "order" ? this.catalogOrders : kind === "plan" ? this.planPayments : this.donations) as Map<string | number, { providerCheckedAt?: Date | null }>;
+    const record = map.get(id);
+    if (record) map.set(id, { ...record, providerCheckedAt: now });
   }
 
   async listAppsToCheck(before: Date, limit: number): Promise<App[]> {
