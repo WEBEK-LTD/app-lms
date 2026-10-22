@@ -112,7 +112,7 @@ export async function checkMediaGate(storage: MediaStorage, request: GateRequest
   // 64b The gate is this version (an old index.php left on the server doesn't know the new links).
   r = await call(1, what, probe.replace(/\/v\/x$/, "/ping"), { method: "GET" });
   if (isResult(r)) return r;
-  if (r.response.status !== 200 || !r.body.startsWith("Yallapp media gate 2"))
+  if (r.response.status !== 200 || !r.body.startsWith("Yallapp media gate 3"))
     return {
       ok: false,
       step: 1,

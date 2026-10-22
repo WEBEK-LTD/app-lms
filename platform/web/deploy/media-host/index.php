@@ -86,7 +86,7 @@ function media_cors(array $config): void {
 }
 
 // 64b Which gate answered: an old index.php left on the server is told apart from this one.
-header('X-Yallapp-Media-Gate: 2');
+header('X-Yallapp-Media-Gate: 3');
 media_cors($config);
 $method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
 if ($method === 'OPTIONS') {

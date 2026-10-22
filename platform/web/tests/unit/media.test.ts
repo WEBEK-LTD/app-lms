@@ -189,11 +189,11 @@ function gateProtocol(name: string, gate: () => { base: string; request: (url: s
       const { base, request } = gate();
       const ping = await request(`${base}/ping`);
       expect(ping.status).toBe(200);
-      expect(await ping.text()).toBe("Yallapp media gate 2\n");
-      expect(ping.headers.get("x-yallapp-media-gate")).toBe("2");
+      expect(await ping.text()).toBe("Yallapp media gate 3\n");
+      expect(ping.headers.get("x-yallapp-media-gate")).toBe("3");
       const unknown = await request(`${base}/v/x`);
       expect(unknown.status).toBe(404);
-      expect(unknown.headers.get("x-yallapp-media-gate")).toBe("2");
+      expect(unknown.headers.get("x-yallapp-media-gate")).toBe("3");
     });
 
     it("64b takes chunks by POST with any content type, the offset in the header or the query, and answers in JSON too", async () => {

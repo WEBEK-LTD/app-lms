@@ -131,9 +131,9 @@ export class MediaDisk {
  */
 export async function handleMediaRequest(disk: MediaDisk, request: Request, path: string, secret: string, now: Date = new Date()): Promise<Response> {
   const plain = (status: number, message: string, headers: Record<string, string> = {}) =>
-    new Response(message, { status, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store", "x-yallapp-media-gate": "2", ...headers } });
+    new Response(message, { status, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store", "x-yallapp-media-gate": "3", ...headers } });
   // 64b A check anyone may open: this gate is installed (the PHP gate answers the same).
-  if (path === "/ping" && (request.method === "GET" || request.method === "HEAD")) return plain(200, "Yallapp media gate 2\n");
+  if (path === "/ping" && (request.method === "GET" || request.method === "HEAD")) return plain(200, "Yallapp media gate 3\n");
   const check = verifyMediaRequest(path, new URL(request.url).searchParams, secret, now, request.headers.get("authorization"));
   if (!check.ok) return plain(check.status, check.message);
   const method = request.method.toUpperCase();
