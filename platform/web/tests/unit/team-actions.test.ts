@@ -55,6 +55,7 @@ const GROUPS: { file: string; all?: unknown; only?: Expected; skip?: string[] }[
     only: {
       switchAppAction: "dashboard",
       chooseAppTypeAction: "apps",
+      startFromWebsiteAction: "apps",
       saveWebsiteAction: "apps",
       connectPlatformAction: "apps",
       disconnectPlatformAction: "apps",

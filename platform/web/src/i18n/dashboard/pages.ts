@@ -13,6 +13,8 @@ export const en = {
     "The Yallapp plugin on your site gets published changes within a minute when your site can be reached, otherwise within 15 minutes; Refresh in the plugin settings gets them at once.",
   reachSetup: "Once our team has set up your WordPress site, the Yallapp plugin on it picks up what you publish here within 15 minutes.",
   ownApi: "Apps on your own API don't get these pages from Yallapp. They reach apps through the Yallapp plugin or the Yallapp hosted API.",
+  // 81.3 A draft made from the website.
+  fromSite: "We made this first version from {site}: its name, colours, font and logo, a design for your kind of app, and its menu as pages and tabs. Check it in the preview, change anything, then publish. Next, connect your website in <setup>App setup</setup>.",
   phonePreview: "Phone preview",
   addBlocksHere: "Add blocks to this page.",
   captionEntries: "Preview of the draft. Lists show the names of your entries; pictures are placeholders.",
@@ -424,6 +426,8 @@ export const ar: Messages = {
   reachWordpress: "تحصل إضافة Yallapp على موقعك على التغييرات المنشورة خلال دقيقة إن أمكن الوصول إلى موقعك، وإلا فخلال 15 دقيقة؛ ويجلبها زر Refresh في إعدادات الإضافة فورًا.",
   reachSetup: "بعد أن يُعدّ فريقنا موقع WordPress الخاص بك، تجلب إضافة Yallapp عليه ما تنشره هنا خلال 15 دقيقة.",
   ownApi: "التطبيقات العاملة على واجهة API الخاصة بك لا تحصل على هذه الصفحات من Yallapp. فهي تصل إلى التطبيقات عبر إضافة Yallapp أو واجهة Yallapp المستضافة.",
+  // 81.3 A draft made from the website.
+  fromSite: "صنعنا هذه النسخة الأولى من {site}: اسمه وألوانه وخطه وشعاره، وتصميمًا لنوع تطبيقك، وقائمته كصفحات وعلامات تبويب. راجعها في المعاينة، وغيّر ما تريد، ثم انشر. بعد ذلك، اربط موقعك من <setup>إعداد التطبيق</setup>.",
   phonePreview: "معاينة على الهاتف",
   addBlocksHere: "أضف كتلًا إلى هذه الصفحة.",
   captionEntries: "معاينة المسودة. تعرض القوائم أسماء عناصرك، والصور مؤقتة.",
@@ -828,6 +832,8 @@ export const tr: Messages = {
     "Sitenizdeki Yallapp eklentisi, sitenize ulaşılabiliyorsa yayınlanan değişiklikleri bir dakika içinde, aksi halde 15 dakika içinde alır; eklenti ayarlarındaki Refresh onları hemen getirir.",
   reachSetup: "Ekibimiz WordPress sitenizi kurduktan sonra, oradaki Yallapp eklentisi burada yayınladıklarınızı 15 dakika içinde alır.",
   ownApi: "Kendi API'nizdeki uygulamalar bu sayfaları Yallapp'ten almaz. Sayfalar uygulamalara Yallapp eklentisi ya da Yallapp'in barındırılan API'si aracılığıyla ulaşır.",
+  // 81.3 A draft made from the website.
+  fromSite: "Bu ilk sürümü {site} adresinden hazırladık: adı, renkleri, yazı tipi ve logosu, uygulama türünüze uygun bir tasarım ve menüsü sayfalar ve sekmeler olarak. Önizlemede kontrol edin, istediğinizi değiştirin, sonra yayınlayın. Ardından web sitenizi <setup>Uygulama kurulumu</setup> sayfasında bağlayın.",
   phonePreview: "Telefon önizlemesi",
   addBlocksHere: "Bu sayfaya blok ekleyin.",
   captionEntries: "Taslağın önizlemesi. Listeler kayıtlarınızın adlarını gösterir; resimler yer tutucudur.",

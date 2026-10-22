@@ -51,6 +51,8 @@ export async function rateLimitHits(
 
 export const RATE_LIMITS = {
   apiCheck: { name: "api-check:client", limit: 10, windowSeconds: 10 * 60 },
+  // 81.3 Apps started from a website: each reads someone's site.
+  siteScan: { name: "site-scan:client", limit: 10, windowSeconds: 60 * 60 },
   signInIp: { name: "sign-in:ip", limit: 30, windowSeconds: 15 * 60 },
   signInEmail: { name: "sign-in:email", limit: 8, windowSeconds: 15 * 60 },
   // 70 Codes of two-step sign-in (the website, Yallapp Business, setting it up or off), per person, like passwords per email.

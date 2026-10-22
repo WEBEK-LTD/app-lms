@@ -2509,8 +2509,37 @@ On WordPress the plugin says what the site looks like (`Site_Brand`, plugin
 
 The platform keeps it to the contract's limits (`parseSiteBrand`) and stores
 it on the app (`hostedSettings.siteBrand`) only when it changed, with the
-site's link paths (`saveSiteReport`). A draft app made from a WordPress site
-(81.3) starts from it.
+site's link paths (`saveSiteReport`). A draft app from the website (81.3)
+comes before the plugin is installed, so it reads the site itself.
+
+### A draft app from the website (81.3)
+
+A new app (the account's first, or "Add an app") can start from the
+website's address: Choose app type › "Start from your website"
+(`startFromWebsiteAction`). The site scan (81.1, with the site's main menu:
+the links of its main `<nav>`, or the header's, its own pages only, without
+its home, cart, sign-in or the same page twice, eight at most) becomes the
+app (`lib/scan/draft.ts`):
+
+- **Its details:** the type and kind the scan found, the name (the site's,
+  or one made from its address), the name under the icon, the main and
+  splash colours, the font, the template of its design, the website, and the
+  logo when it is a PNG or SVG; the icon only when it is what the stores ask
+  for (1024 × 1024 PNG without transparency), which a website's rarely is,
+  so Branding still asks for it.
+- **Its Pages & look draft:** the first ready-made design for its kind (33),
+  with the site's font and accent colour, the site's language first when the
+  app speaks it, and the menu: an entry the design already has a screen for
+  (Courses, Shop, Menu…, by its words in English, Turkish and Arabic) is left
+  to that screen; each other one becomes a page showing that page of the
+  website (an `embed` block; https pages only), a tab before Account while
+  there is room for one, else a link in a Quick links block on the home page.
+
+Nothing is published: the editor opens with a notice, and the setup steps go
+on as for any app (the Website step connects the site). Each client can start
+from a website ten times an hour (`RATE_LIMITS.siteScan`); a type the team
+switched off isn't made. In local tests every scan reads a fake site
+(`SITE_SCAN_TEST_URL`, refused on Netlify; `tests/e2e/site-start.spec.ts`).
 
 ## Demo apps (Phase 16)
 

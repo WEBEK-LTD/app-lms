@@ -36,11 +36,21 @@ export interface SiteScan {
   platform: { id: SitePlatform; name: string; plugins: string[] };
   appType: AppType;
   vertical: AppVertical | null;
+  /** 81.3 The site's main menu: its own pages, in order (the draft makes them pages and tabs). */
+  menu: SiteMenuItem[];
 }
+
+export interface SiteMenuItem {
+  label: string;
+  url: string;
+}
+
+export const MENU_MAX = 8;
 
 export const PAGE_MAX_BYTES = 1_500_000;
 export const ASSET_MAX_BYTES = 400_000;
 const TIMEOUT_MS = 8_000;
+const USER_AGENT = "Mozilla/5.0 (compatible; YallappSiteScan/1.0; +https://yallapp.com.tr)";
 
 const PLATFORM_NAME: Record<SitePlatform, string> = {
   wordpress: "WordPress",
@@ -289,6 +299,46 @@ export function appTypeFor(platform: { id: SitePlatform; plugins: string[] }, te
   return { appType: "news", vertical: null };
 }
 
+// The menu
+
+/** Links the app has its own screens for, or that only make sense on the website. */
+const NOT_A_PAGE = /\/(?:cart|checkout|sepet|odeme|my-?account|account|hesabim|login|log-?in|sign-?in|register|wp-login\.php|wp-admin|dashboard|search|feed|wishlist)(?:\/|$|\?)|[?&](?:lang|add-to-cart)=/i;
+
+/**
+ * 81.3 The site's main menu: the links of its main `<nav>` (one named
+ * main, primary or header first, never the footer's), the site's own pages
+ * only, without its home page, its cart and sign-in, or the same page twice.
+ */
+export function menuOf(html: string, base: string): SiteMenuItem[] {
+  const navs: { attrs: string; body: string }[] = [];
+  for (const m of html.matchAll(/(<nav\b[^>]*>)([\s\S]*?)<\/nav>/gi)) navs.push({ attrs: m[1]!, body: m[2]! });
+  const usable = navs.filter((n) => !/footer|breadcrumb|social|pagination|language|lang-|languages|secondary/i.test(n.attrs));
+  const main = usable.find((n) => /main|primary|header|site-nav|menu/i.test(n.attrs)) ?? usable[0];
+  // Shopify and others without a <nav>: the header's list of links.
+  const body = main?.body ?? blocksOf(html, "header")[0] ?? "";
+  const host = new URL(base).hostname.replace(/^www\./, "");
+  const home = new URL(base).pathname.replace(/\/+$/, "");
+  const out: SiteMenuItem[] = [];
+  const seen = new Set<string>();
+  for (const m of body.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi)) {
+    const url = absolute(attrsOf(`<a ${m[1]}>`).href, base);
+    if (!url) continue;
+    const target = new URL(url);
+    if (target.hostname.replace(/^www\./, "") !== host) continue;
+    const path = target.pathname.replace(/\/+$/, "");
+    if (path === home || NOT_A_PAGE.test(`${target.pathname}${target.search}`)) continue;
+    const label = decodeEntities(m[2]!.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
+    if (!label || label.length > 30) continue;
+    const key = `${path}${target.search}`.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    target.hash = "";
+    out.push({ label, url: target.toString() });
+    if (out.length === MENU_MAX) break;
+  }
+  return out;
+}
+
 // The page
 
 export interface ScanInput {
@@ -388,6 +438,7 @@ export function scanPage(input: ScanInput): SiteScan {
     platform: { id: platform.id, name: PLATFORM_NAME[platform.id], plugins: platform.plugins },
     appType: kind.appType,
     vertical: kind.vertical,
+    menu: menuOf(html, url),
   };
 }
 
@@ -432,6 +483,35 @@ async function readCapped(response: Response, max: number): Promise<string> {
   return new TextDecoder("utf-8", { fatal: false }).decode(all);
 }
 
+/**
+ * 81.3 A picture of the site (its logo, its icon), up to `max` bytes; null
+ * when it can't be read or is bigger than that.
+ */
+export async function fetchSiteImage(url: string, max: number, deps: ScanDeps = {}): Promise<Buffer | null> {
+  const fetcher = pinnedFetch(deps.fetcher, deps.resolve);
+  try {
+    const response = await fetcher(url, { headers: { accept: "image/png,image/svg+xml,image/*;q=0.8", "user-agent": USER_AGENT }, redirect: "follow", signal: AbortSignal.timeout(TIMEOUT_MS) });
+    if (!response.ok || Number(response.headers.get("content-length") ?? 0) > max) return null;
+    const reader = response.body?.getReader();
+    if (!reader) return null;
+    const chunks: Uint8Array[] = [];
+    let size = 0;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done || !value) break;
+      size += value.byteLength;
+      if (size > max) {
+        await reader.cancel().catch(() => undefined);
+        return null;
+      }
+      chunks.push(value);
+    }
+    return Buffer.concat(chunks);
+  } catch {
+    return null;
+  }
+}
+
 /** The address as the client typed it: a bare domain gets https://. */
 export function siteAddress(input: string): string | null {
   const trimmed = input.trim();
@@ -451,7 +531,7 @@ export async function scanSite(input: string, deps: ScanDeps = {}): Promise<Site
   if (!address) throw new ScanError("invalid_url", "Enter your website's address, like example.com.");
   const fetcher = pinnedFetch(deps.fetcher, deps.resolve);
   const get = (url: string, accept: string) =>
-    fetcher(url, { headers: { accept, "user-agent": "Mozilla/5.0 (compatible; YallappSiteScan/1.0; +https://yallapp.com.tr)" }, redirect: "follow", signal: AbortSignal.timeout(TIMEOUT_MS) });
+    fetcher(url, { headers: { accept, "user-agent": USER_AGENT }, redirect: "follow", signal: AbortSignal.timeout(TIMEOUT_MS) });
   let page: Response;
   try {
     page = await get(address, "text/html,application/xhtml+xml");

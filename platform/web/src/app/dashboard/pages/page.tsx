@@ -28,8 +28,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export const dynamic = "force-dynamic";
 
 /** 10.4: the app's pages, bottom tabs, look and languages, with a preview, drafts and publishing. */
-export default async function PagesPage() {
+export default async function PagesPage({ searchParams }: PageProps<"/dashboard/pages">) {
   const { app, license } = await requireClient("settings");
+  const query = await searchParams;
   const { t } = await dashboardText();
   if (!app) {
     return (
@@ -84,6 +85,12 @@ export default async function PagesPage() {
           {app.backend === "hosted" ? null : <span className="text-[13px] text-muted">{t("pages.showsPublished")}</span>}
         </div>
       </div>
+      {/* 81.3 The draft was just made from the website. */}
+      {query.from === "site" && app.siteUrl ? (
+        <Notice tone="success" icon="check_circle" role="status">
+          {richText(t("pages.fromSite", { site: new URL(app.siteUrl).hostname }), { setup: (chunk) => <Link href="/dashboard/setup?step=website">{chunk}</Link> })}
+        </Notice>
+      ) : null}
       {reach ? null : (
         <Notice tone="warn" icon="info">
           {t("pages.ownApi")}

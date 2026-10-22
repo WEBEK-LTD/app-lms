@@ -98,6 +98,10 @@ export const E2E = {
   isolationAdminEmail: "isolation-admin@yallapp.test",
   /** The super admin of tests/e2e/integrations.spec.ts (roadmap 80.1). */
   integrationsAdminEmail: "integrations-admin@yallapp.test",
+  /** The super admin of tests/e2e/site-start.spec.ts (roadmap 81.3). */
+  siteStartAdminEmail: "site-start-admin@yallapp.test",
+  /** 81.3 A fake website every site scan reads (SITE_SCAN_TEST_URL); tests/e2e/site-start.spec.ts runs it. */
+  siteScanPort: Number(process.env.E2E_SITE_SCAN_PORT ?? 3293),
   /** 58 Pushes to the owners' phones, as JSON files (YALLAPP_OWNER_PUSH_DIR, never on Netlify). */
   ownerPushDir: ".data/e2e-owner-push",
   /** SIGNING_SECRET below: the analytics spec makes the app's analytics key with it, as the build config would. */
@@ -141,7 +145,7 @@ export default defineConfig({
       YALLAPP_MEDIA_DIR: ".data/e2e-media",
       YALLAPP_MAIL_DIR: E2E.mailDir,
       YALLAPP_OWNER_PUSH_DIR: E2E.ownerPushDir,
-      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail},${E2E.teamAdminEmail},${E2E.contentAdminEmail},${E2E.appsAdminEmail},${E2E.publishingAdminEmail},${E2E.plansAdminEmail},${E2E.demosAdminEmail},${E2E.clinicAdminEmail},${E2E.newsAdminEmail},${E2E.restaurantAdminEmail},${E2E.fitnessAdminEmail},${E2E.eventsAdminEmail},${E2E.charityAdminEmail},${E2E.paymentsAdminEmail},${E2E.signInAdminEmail},${E2E.translationsAdminEmail},${E2E.analyticsAdminEmail},${E2E.linksAdminEmail},${E2E.pricesAdminEmail},${E2E.refundsAdminEmail},${E2E.mediaAdminEmail},${E2E.languagesAdminEmail},${E2E.bellAdminEmail},${E2E.dashboardLanguagesAdminEmail},${E2E.ownerApiAdminEmail},${E2E.teamMembersAdminEmail},${E2E.accountDeletionAdminEmail},${E2E.twoStepAdminEmail},${E2E.phase73AdminEmail},${E2E.chatAdminEmail},${E2E.productAdminEmail},${E2E.watchingAdminEmail},${E2E.isolationAdminEmail},${E2E.integrationsAdminEmail}`,
+      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail},${E2E.teamAdminEmail},${E2E.contentAdminEmail},${E2E.appsAdminEmail},${E2E.publishingAdminEmail},${E2E.plansAdminEmail},${E2E.demosAdminEmail},${E2E.clinicAdminEmail},${E2E.newsAdminEmail},${E2E.restaurantAdminEmail},${E2E.fitnessAdminEmail},${E2E.eventsAdminEmail},${E2E.charityAdminEmail},${E2E.paymentsAdminEmail},${E2E.signInAdminEmail},${E2E.translationsAdminEmail},${E2E.analyticsAdminEmail},${E2E.linksAdminEmail},${E2E.pricesAdminEmail},${E2E.refundsAdminEmail},${E2E.mediaAdminEmail},${E2E.languagesAdminEmail},${E2E.bellAdminEmail},${E2E.dashboardLanguagesAdminEmail},${E2E.ownerApiAdminEmail},${E2E.teamMembersAdminEmail},${E2E.accountDeletionAdminEmail},${E2E.twoStepAdminEmail},${E2E.phase73AdminEmail},${E2E.chatAdminEmail},${E2E.productAdminEmail},${E2E.watchingAdminEmail},${E2E.isolationAdminEmail},${E2E.integrationsAdminEmail},${E2E.siteStartAdminEmail}`,
       YALLAPP_SEED_ADMIN_PASSWORD: E2E.adminPassword,
       SESSION_SECRET: "e2e-session-secret-0123456789abcdef0123456789",
       SIGNING_SECRET: E2E.signingSecret,
@@ -158,6 +162,7 @@ export default defineConfig({
       LICENSE_REFRESH_TEST_URL: `http://localhost:${E2E.wpRefreshPort}`,
       // 80.2 The tests' websites are made up: no daily checks of the apps' connections.
       INTEGRATION_CHECKS: "off",
+      SITE_SCAN_TEST_URL: `http://localhost:${E2E.siteScanPort}`,
     },
   },
 });

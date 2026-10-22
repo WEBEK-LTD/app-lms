@@ -1168,6 +1168,11 @@ never in a chat or an issue.
       on `catalog_orders`) goes with the production deploy. Shops mark
       orders shipped on the Orders page with any carrier; the app's next
       build shows the tracking (the preview shows it at once).
+- [ ] **Start from your website** (81.1, 81.3): no migration. Choose app
+      type offers "Start from your website" for a new app; it reads the
+      client's site through the safe fetch. Leave `SITE_SCAN_TEST_URL` unset
+      on Netlify (it is refused there; only the e2e tests use it). Try it once
+      with a real WordPress site and a real Shopify shop after the deploy.
 - [ ] Campaign links: point them at any page of the site with
       `utm_source`, `utm_medium` and `utm_campaign` (and `from` for a page
       of ours, like `from=newsletter`); the sign-up records them while the

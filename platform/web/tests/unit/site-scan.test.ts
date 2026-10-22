@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { appFontFor, appTypeFor, isBrandColor, normalizeColor, scanPage, scanSite, ScanError, siteAddress } from "@/lib/scan/site-scan";
+import { appFontFor, appTypeFor, isBrandColor, menuOf, normalizeColor, scanPage, scanSite, ScanError, siteAddress } from "@/lib/scan/site-scan";
 
 /** 81.1 Site scan, on saved home pages of each platform (tests/unit/fixtures/sites). */
 
@@ -21,6 +21,12 @@ describe("81.1 what a home page says", () => {
       platform: { id: "wordpress", name: "WordPress", plugins: ["tutor"] },
       appType: "lms",
       vertical: null,
+      menu: [
+        { label: "Courses", url: "https://wordpress-tutor.example/courses/" },
+        { label: "About us", url: "https://wordpress-tutor.example/about-us/" },
+        { label: "Blog", url: "https://wordpress-tutor.example/blog/" },
+        { label: "Contact", url: "https://wordpress-tutor.example/contact/" },
+      ],
     });
   });
 
@@ -47,6 +53,11 @@ describe("81.1 what a home page says", () => {
       platform: { id: "shopify", name: "Shopify" },
       appType: "store",
       vertical: null,
+      // No <nav>: the header's links, without the cart and sign-in.
+      menu: [
+        { label: "Shop all", url: "https://shopify.example/collections/all" },
+        { label: "Our story", url: "https://shopify.example/pages/our-story" },
+      ],
     });
   });
 
@@ -122,6 +133,22 @@ describe("81.1 the pieces", () => {
     expect(appTypeFor({ id: "teachable", plugins: [] }, "")).toEqual({ appType: "lms", vertical: null });
     expect(appTypeFor({ id: "other", plugins: [] }, "Apartments for rent in Kadıköy")).toEqual({ appType: "real_estate", vertical: null });
     expect(appTypeFor({ id: "other", plugins: [] }, "Hello")).toEqual({ appType: "news", vertical: null });
+  });
+
+  it("81.3 finds the main menu: never the footer's or the language list, never the cart, sign-in or the same page twice", () => {
+    const html = `<header><nav class="lang-switcher"><a href="/?lang=ar">العربية</a></nav></header>
+      <nav class="footer-links"><a href="/privacy">Privacy</a></nav>
+      <nav class="primary-menu"><a href="/">Home</a><a href="/menu/">Our &amp; menu</a><a href="/menu">Menu again</a>
+      <a href="https://www.cafe.example/visit">Visit</a><a href="/my-account/">My account</a><a href="/sepet">Sepet</a>
+      <a href="/a-label-that-is-far-too-long-for-a-tab-anyway">A label that is far too long for a tab anyway</a></nav>`;
+    expect(menuOf(html, "https://cafe.example/")).toEqual([
+      { label: "Our & menu", url: "https://cafe.example/menu/" },
+      { label: "Visit", url: "https://www.cafe.example/visit" },
+    ]);
+    // Eight at most.
+    const many = `<nav>${Array.from({ length: 12 }, (_, i) => `<a href="/p${i}">Page ${i}</a>`).join("")}</nav>`;
+    expect(menuOf(many, "https://cafe.example/")).toHaveLength(8);
+    expect(menuOf("<main>No menu</main>", "https://cafe.example/")).toEqual([]);
   });
 
   it("takes the address as people type it", () => {

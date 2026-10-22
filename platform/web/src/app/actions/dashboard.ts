@@ -48,7 +48,10 @@ import {
 } from "@/lib/store-files";
 import { bumpPatch } from "@/lib/semver";
 import { designById, designFits } from "@/lib/pages/designs";
-import { saveDesignDraft } from "@/lib/pages/layout";
+import { appDefaults, saveDesignDraft, saveDraft } from "@/lib/pages/layout";
+import { draftFromScan } from "@/lib/scan/draft";
+import { scanSite, ScanError, type SiteScan } from "@/lib/scan/site-scan";
+import { siteImages, siteScanDeps } from "@/lib/scan/start";
 import { appStoreKeySchema, brandingSchema, googlePlayKeySchema, listingSchema, startBuildSchema, websiteSchema } from "@/lib/validation";
 import { noteMilestones } from "@/lib/milestones/record";
 
@@ -186,6 +189,63 @@ export async function chooseAppTypeAction(formData: FormData): Promise<void> {
     refreshSitesSoon([current.id]);
   }
   redirect(stepUrl("website"));
+}
+
+/**
+ * 81.3 One step to a draft app: the site at the address given is read
+ * (lib/scan/site-scan.ts) and a new app made from it (lib/scan/draft.ts):
+ * its type, name, colours, font and logo, a design for its kind and the
+ * site's menu as pages and tabs in the Pages & look draft, which opens
+ * next, with its preview. Nothing is published; the setup steps go on as
+ * for any app (the Website step connects the site).
+ */
+export async function startFromWebsiteAction(formData: FormData): Promise<void> {
+  const context = await requireActiveClient("apps");
+  const adding = formData.get("new") === "1";
+  const back = adding ? "/dashboard/app-type?new=1" : "/dashboard/app-type";
+  const join = adding ? "&" : "?";
+  const address = String(formData.get("site") ?? "").trim().slice(0, 300);
+  const fail = (code: string): never => redirect(`${back}${join}site_error=${code}&site=${encodeURIComponent(address)}`);
+  // A new app only: one made already keeps its own look and pages.
+  if (!adding && context.app) redirect(back);
+  if (context.apps.length >= MAX_APPS_PER_CLIENT) redirect(`${back}${join}limit=1`);
+  const store = await getStore();
+  if (!(await hitRateLimit(store, RATE_LIMITS.siteScan, context.client.id)).allowed) fail("too_many");
+  const deps = siteScanDeps();
+  let scan: SiteScan | null = null;
+  try {
+    scan = await scanSite(address, deps);
+  } catch (error) {
+    if (!(error instanceof ScanError)) console.error("[site scan]", error instanceof Error ? error.message : String(error));
+    fail(error instanceof ScanError ? error.code : "unreachable");
+  }
+  if (!scan) return fail("unreachable");
+  // 11.5 A type the team switched off isn't offered; a new app has no plan yet.
+  if (!appTypeOn(await getSwitches(store), scan.appType, null)) fail("unavailable");
+  const now = new Date();
+  const draft = draftFromScan(scan, await appDefaults(store), now);
+  const images = await siteImages(scan, deps);
+  const app: App = {
+    ...newApp(context.client.id, draft.details.siteUrl, now, draft.appType, draft.vertical),
+    appName: draft.details.appName,
+    shortName: draft.details.shortName,
+    primaryColor: draft.details.primaryColor,
+    splashColor: draft.details.splashColor,
+    font: draft.details.font,
+    design: draft.design?.id ?? null,
+  };
+  if (draft.details.template) app.template = draft.details.template;
+  if (images.logo) app.logoAssetId = await saveAsset(context.client.id, "logo", images.logo.data, images.logo.contentType, images.logo.extension);
+  if (images.icon) app.iconAssetId = await saveAsset(context.client.id, "icon", images.icon.data, images.icon.contentType, images.icon.extension);
+  await store.createApp(app);
+  await chooseApp(app.id);
+  const saved = await saveDraft(store, app, draft.layout, now);
+  // The default pages for its type then; never seen so far, but the app is made all the same.
+  if (!saved.ok) console.error("[site scan] draft", saved.errors.slice(0, 3).join("; "));
+  const kind = appTypeName(app);
+  await recordStaffChange({ ...context, app }, `Started an app from ${new URL(draft.details.siteUrl).hostname} (${kind})`, { appType: null }, { appType: app.appType, vertical: app.vertical });
+  revalidatePath("/dashboard", "layout");
+  redirect("/dashboard/pages?from=site");
 }
 
 /** 20 The connector and starting settings of content managed in the dashboard. */
