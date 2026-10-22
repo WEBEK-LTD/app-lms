@@ -1161,6 +1161,10 @@ never in a chat or an issue.
       with the production deploy. From then on the frequent job asks
       iyzico, Kashier and Fawaterk about payments whose callback never came.
       Failed account deletion notices get a Send again button.
+- [ ] **Shipping** (80.4): migration `0060_order_shipment.sql` (one column
+      on `catalog_orders`) goes with the production deploy. Shops mark
+      orders shipped on the Orders page with any carrier; the app's next
+      build shows the tracking (the preview shows it at once).
 - [ ] Campaign links: point them at any page of the site with
       `utm_source`, `utm_medium` and `utm_campaign` (and `from` for a page
       of ours, like `from=newsletter`); the sign-up records them while the

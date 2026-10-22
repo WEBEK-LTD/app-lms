@@ -906,6 +906,22 @@ export interface CatalogOrder {
   providerCheckedAt?: Date | null;
   /** 47 What was refunded so far (PaymentRefund); missing: nothing. All of it: the status is "refunded". */
   refundedCents?: number;
+  /** 80.4 How the shop shipped it (any carrier, any country); null or missing until it is shipped. */
+  shipment?: OrderShipment | null;
+}
+
+/**
+ * 80.4 An order's shipment, as the shop entered it: no carrier account is
+ * needed. At least one of the tracking link, the tracking number and the
+ * waybill (its number, or a link to it).
+ */
+export interface OrderShipment {
+  carrier: string | null;
+  trackingNumber: string | null;
+  trackingUrl: string | null;
+  waybill: string | null;
+  /** ISO time it was marked shipped, or last changed. */
+  shippedAt: string;
 }
 
 /** 47 What a refund is of: a shop's order (products, paid courses, memberships, tickets, a restaurant's order) or a donation. */
@@ -958,7 +974,7 @@ export interface CatalogFulfilment {
 export type CatalogOrderPatch = Partial<
   Pick<
     CatalogOrder,
-    "status" | "customer" | "updatedAt" | "commissionCents" | "itemTransactionIds" | "payoutApprovedAt" | "fulfilmentStatus" | "paymentProvider" | "providerRef"
+    "status" | "customer" | "updatedAt" | "commissionCents" | "itemTransactionIds" | "payoutApprovedAt" | "fulfilmentStatus" | "paymentProvider" | "providerRef" | "shipment"
   >
 >;
 

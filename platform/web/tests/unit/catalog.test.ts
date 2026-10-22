@@ -2,6 +2,7 @@ import { createHmac } from "node:crypto";
 import { beforeEach, describe, expect, it } from "vitest";
 import { newApp } from "@/lib/app/setup";
 import { formatCents, parsePrice } from "@/lib/catalog/money";
+import { shipOrder, shippable } from "@/lib/catalog/shipping";
 import { approvePayout, completePayment, newOrderMail, readCustomer, startPayment } from "@/lib/catalog/payment";
 import { accountForOrder, checkoutAccount, encryptPaymentKeys, paymentKeys, shippingFor } from "@/lib/catalog/settings";
 import { encryptSetting } from "@/lib/settings/platform";
@@ -469,6 +470,29 @@ describe("catalog shop on the hosted API", () => {
       await refund(75000);
       expect((await list()).body).toMatchObject({ items: [{ status: "refunded", status_label: "Refunded", refunded_total: "₺950.00" }] });
       expect((await call("GET", "/me/orders")).status).toBe(401);
+    });
+
+    it("80.4 shows how the shop shipped it, and tells the customer", async () => {
+      await completePayment({ store, app, account: { account: { provider: "iyzico", keys: IYZICO }, marketplace: null }, fetcher: iyzico(paid()), now, order, iyzicoToken: "iyzi-token" });
+      const paidOrder = (await store.getCatalogOrder(app.id, order.id))!;
+      expect(shippable(paidOrder)).toBe(true);
+      const mails: Record<string, unknown>[] = [];
+      const shipment = { carrier: "Aras Kargo", trackingNumber: "3815602243", trackingUrl: "https://kargotakip.example/t?code=3815602243", waybill: null, shippedAt: now.toISOString() };
+      const shipped = await shipOrder({ store, app, order: paidOrder, shipment, account: null, now, mail: async (_to, values) => void mails.push(values) });
+      expect(shipped).toMatchObject({ emailed: false, notification: { title: `Order ${1000 + order.id} was shipped`, body: "Your order is on its way with Aras Kargo. Tracking number: 3815602243. Follow it in the app." } });
+      const listed = (await call("GET", "/me/orders", { token: accessToken })).body;
+      expect(listed).toMatchObject({
+        items: [
+          {
+            status: "processing",
+            status_label: "Shipped",
+            shipment: { carrier: "Aras Kargo", tracking_number: "3815602243", tracking_url: "https://kargotakip.example/t?code=3815602243", waybill: null, shipped_at: now.toISOString() },
+          },
+        ],
+      });
+      // Changed: told again, as an update.
+      const again = await shipOrder({ store, app, order: (await store.getCatalogOrder(app.id, order.id))!, shipment: { ...shipment, trackingNumber: "3815602299" }, account: null, now, mail: async (_to, values) => void mails.push(values) });
+      expect(again?.notification?.title).toBe(`Order ${1000 + order.id}: new tracking details`);
     });
   });
 });

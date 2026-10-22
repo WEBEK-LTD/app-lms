@@ -2320,6 +2320,42 @@
   "@downloadReceipt": {
     "description": "71 Button on an order and a donation: downloads the receipt as a PDF (opens in the browser)."
   },
+  "shipmentTitle": "Shipment",
+  "@shipmentTitle": {
+    "description": "80.4 An order's shipment card, when the shop gave no carrier name."
+  },
+  "shippedOnDate": "Shipped {date}",
+  "@shippedOnDate": {
+    "description": "80.4 When the shop shipped the order.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "trackingNumberLine": "Tracking number: {number}",
+  "@trackingNumberLine": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "copyTrackingNumber": "Copy tracking number",
+  "trackingNumberCopied": "Tracking number copied.",
+  "trackShipment": "Track shipment",
+  "@trackShipment": {
+    "description": "80.4 Opens the carrier's tracking page in the browser."
+  },
+  "waybillLine": "Waybill: {waybill}",
+  "@waybillLine": {
+    "placeholders": {
+      "waybill": {
+        "type": "String"
+      }
+    }
+  },
+  "openWaybill": "Open the waybill",
   "donationSeeCampaign": "See the campaign",
   "notifyCampaignUpdates": "Campaign updates",
   "pageOpenNow": "Open now",

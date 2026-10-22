@@ -647,6 +647,45 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
 
+  /apps/{app_id}/orders/{order_id}/shipment:
+    put:
+      tags: [Orders]
+      operationId: shipOrder
+      summary: Mark an order shipped, or change its tracking
+      description: |
+        80.4 For an order in progress or completed with something to ship
+        (`shippable`): the carrier (any, as the shop names it) and at least
+        one of the tracking link, the tracking number and the waybill. No
+        carrier account is needed. The customer is told (their inbox, a
+        push, and an email when the order has one) each time it changes.
+        Missing all three is 400 `invalid_shipment`; an order that can't be
+        shipped is 409 `not_shippable`.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/OrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                carrier: { type: [string, 'null'], maxLength: 60 }
+                tracking_number: { type: [string, 'null'], maxLength: 80 }
+                tracking_url: { type: [string, 'null'], format: uri, maxLength: 500 }
+                waybill: { type: [string, 'null'], maxLength: 500 }
+      responses:
+        '200':
+          description: The order as it is now
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OrderDetail' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
   /apps/{app_id}/orders/{order_id}/refunds:
     post:
       tags: [Orders]
@@ -3038,10 +3077,29 @@ components:
             address: { type: string }
         created_at: { type: string, format: date-time }
         paid_at: { type: [string, 'null'], format: date-time }
+        shippable:
+          type: boolean
+          description: 80.4 Whether the shop can add or change the order's shipment (`PUT …/shipment`) now. Missing on older servers.
+        shipment:
+          oneOf:
+            - $ref: '#/components/schemas/Shipment'
+            - type: 'null'
+          description: 80.4 How it was shipped; null until it is. Missing on older servers.
         next_statuses:
           type: array
           items: { type: string }
           description: What `POST …/status` accepts now.
+
+    Shipment:
+      type: object
+      required: [shipped_at]
+      description: 80.4 Any carrier, to any country; at least one of the tracking link, the tracking number and the waybill.
+      properties:
+        carrier: { type: [string, 'null'], maxLength: 60 }
+        tracking_number: { type: [string, 'null'], maxLength: 80 }
+        tracking_url: { type: [string, 'null'], format: uri, maxLength: 500 }
+        waybill: { type: [string, 'null'], maxLength: 500, description: "The waybill's number, or a link to it." }
+        shipped_at: { type: string, format: date-time }
 
     OrderDetail:
       allOf:

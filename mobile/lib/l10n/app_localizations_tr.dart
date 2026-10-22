@@ -3193,6 +3193,36 @@ class AppLocalizationsTr extends AppLocalizations {
   String get downloadReceipt => 'Makbuzu indir';
 
   @override
+  String get shipmentTitle => 'Gönderi';
+
+  @override
+  String shippedOnDate(String date) {
+    return 'Kargoya verildi: $date';
+  }
+
+  @override
+  String trackingNumberLine(String number) {
+    return 'Takip numarası: $number';
+  }
+
+  @override
+  String get copyTrackingNumber => 'Takip numarasını kopyala';
+
+  @override
+  String get trackingNumberCopied => 'Takip numarası kopyalandı.';
+
+  @override
+  String get trackShipment => 'Gönderiyi takip et';
+
+  @override
+  String waybillLine(String waybill) {
+    return 'İrsaliye: $waybill';
+  }
+
+  @override
+  String get openWaybill => 'İrsaliyeyi aç';
+
+  @override
   String get donationSeeCampaign => 'Kampanyayı gör';
 
   @override

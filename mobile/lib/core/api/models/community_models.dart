@@ -156,6 +156,7 @@ class Order {
     this.fulfilment,
     this.refundedTotal,
     this.receiptUrl,
+    this.shipment,
   });
 
   factory Order.fromJson(Json json) => Order(
@@ -174,6 +175,7 @@ class Order {
     fulfilment: optObject(json, 'fulfilment', OrderFulfilment.fromJson),
     refundedTotal: optString(json, 'refunded_total'),
     receiptUrl: optString(json, 'receipt_url'),
+    shipment: optObject(json, 'shipment', OrderShipment.fromJson),
   );
 
   final int id;
@@ -196,8 +198,47 @@ class Order {
   /// 71 The receipt as a PDF, to download; null on WordPress sites and older servers.
   final String? receiptUrl;
 
-  /// Whether the app shows its steps.
-  bool get trackable => fulfilmentStatus != null;
+  /// 80.4 How the shop shipped it; null until it is.
+  final OrderShipment? shipment;
+
+  /// Whether the order opens its own screen: a restaurant's steps, or a shipment.
+  bool get trackable => fulfilmentStatus != null || shipment != null;
+}
+
+/// 80.4 An order's shipment: any carrier, with a tracking link, a tracking
+/// number or a waybill (its number, or a link to it).
+class OrderShipment {
+  const OrderShipment({
+    required this.shippedAt,
+    this.carrier,
+    this.trackingNumber,
+    this.trackingUrl,
+    this.waybill,
+  });
+
+  factory OrderShipment.fromJson(Json json) => OrderShipment(
+    carrier: optString(json, 'carrier'),
+    trackingNumber: optString(json, 'tracking_number'),
+    trackingUrl: optString(json, 'tracking_url'),
+    waybill: optString(json, 'waybill'),
+    shippedAt: reqDate(json, 'shipped_at'),
+  );
+
+  final String? carrier;
+  final String? trackingNumber;
+  final String? trackingUrl;
+  final String? waybill;
+  final DateTime shippedAt;
+
+  /// The waybill when it is a link, to open; null for a number.
+  String? get waybillUrl {
+    final w = waybill;
+    if (w == null) return null;
+    final uri = Uri.tryParse(w);
+    return uri != null && (uri.scheme == 'https' || uri.scheme == 'http')
+        ? w
+        : null;
+  }
 }
 
 /// A reviewer, asker or replier.

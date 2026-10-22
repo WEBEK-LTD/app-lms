@@ -8,6 +8,8 @@ import type { TeamPermission } from "@/lib/team/permissions";
 import { getBlobStore } from "@/lib/blobs";
 import { parseFulfilmentForm } from "@/lib/catalog/fulfilment";
 import { changeOrderStatus, inKitchen } from "@/lib/catalog/order-status";
+import { parseShipment, shipOrder, shippable } from "@/lib/catalog/shipping";
+import { sendTemplate } from "@/lib/email/send";
 import { CATALOG_CURRENCIES, parsePrice } from "@/lib/catalog/money";
 import { readProductNumbers } from "@/lib/catalog/product-fields";
 import { parseOptionGroups } from "@/lib/catalog/options";
@@ -304,6 +306,43 @@ export async function setOrderStatusAction(formData: FormData): Promise<void> {
     await recordOrderStatus(store, { clientId: context.client.id, appId: app.id, actor: actorOf(context), orderId: order.id, to: status }, now);
   }
   refresh();
+}
+
+/**
+ * 80.4 Shipping on the Orders page: the carrier (any) and at least one of the
+ * tracking link, the tracking number and the waybill; the customer is told
+ * (their inbox, a push, an email).
+ */
+export async function shipOrderAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireCatalogApp({}, "orders");
+  const { app } = context;
+  const store = await getStore();
+  const id = Number(formData.get("id"));
+  const order = Number.isSafeInteger(id) ? await store.getCatalogOrder(app.id, id) : null;
+  const values = {
+    carrier: String(formData.get("carrier") ?? ""),
+    trackingNumber: String(formData.get("trackingNumber") ?? ""),
+    trackingUrl: String(formData.get("trackingUrl") ?? ""),
+    waybill: String(formData.get("waybill") ?? ""),
+  };
+  if (!order || !shippable(order)) return { ok: false, message: "This order has nothing to ship.", values };
+  const now = new Date();
+  const parsed = parseShipment(values, now);
+  if (!parsed.ok) return { errors: parsed.errors, values };
+  const shipped = await shipOrder({
+    store,
+    app,
+    order,
+    shipment: parsed.shipment,
+    account: serviceAccountOf(app, encryptionKey()),
+    now,
+    mail: (to, mailValues) => sendTemplate("order_shipped", to, mailValues, { app }),
+  });
+  if (!shipped) return { ok: false, message: "This order has nothing to ship.", values };
+  // 60 Who shipped it, on the Team page.
+  await recordOrderStatus(store, { clientId: context.client.id, appId: app.id, actor: actorOf(context), orderId: order.id, to: "shipped" }, now);
+  refresh();
+  return { ok: true, message: order.shipment ? "Tracking saved. The customer was told." : "Marked shipped. The customer was told." };
 }
 
 /**

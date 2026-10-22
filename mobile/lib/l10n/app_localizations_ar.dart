@@ -3246,6 +3246,36 @@ class AppLocalizationsAr extends AppLocalizations {
   String get downloadReceipt => 'تنزيل الإيصال';
 
   @override
+  String get shipmentTitle => 'الشحنة';
+
+  @override
+  String shippedOnDate(String date) {
+    return 'شُحن في $date';
+  }
+
+  @override
+  String trackingNumberLine(String number) {
+    return 'رقم التتبّع: $number';
+  }
+
+  @override
+  String get copyTrackingNumber => 'نسخ رقم التتبّع';
+
+  @override
+  String get trackingNumberCopied => 'نُسخ رقم التتبّع.';
+
+  @override
+  String get trackShipment => 'تتبّع الشحنة';
+
+  @override
+  String waybillLine(String waybill) {
+    return 'البوليصة: $waybill';
+  }
+
+  @override
+  String get openWaybill => 'فتح البوليصة';
+
+  @override
   String get donationSeeCampaign => 'عرض الحملة';
 
   @override

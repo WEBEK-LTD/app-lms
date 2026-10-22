@@ -3290,6 +3290,40 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('downloadReceipt') ?? base.downloadReceipt;
 
   @override
+  String get shipmentTitle =>
+      overlay.text('shipmentTitle') ?? base.shipmentTitle;
+
+  @override
+  String shippedOnDate(String date) =>
+      overlay.format('shippedOnDate', {'date': date}) ??
+      base.shippedOnDate(date);
+
+  @override
+  String trackingNumberLine(String number) =>
+      overlay.format('trackingNumberLine', {'number': number}) ??
+      base.trackingNumberLine(number);
+
+  @override
+  String get copyTrackingNumber =>
+      overlay.text('copyTrackingNumber') ?? base.copyTrackingNumber;
+
+  @override
+  String get trackingNumberCopied =>
+      overlay.text('trackingNumberCopied') ?? base.trackingNumberCopied;
+
+  @override
+  String get trackShipment =>
+      overlay.text('trackShipment') ?? base.trackShipment;
+
+  @override
+  String waybillLine(String waybill) =>
+      overlay.format('waybillLine', {'waybill': waybill}) ??
+      base.waybillLine(waybill);
+
+  @override
+  String get openWaybill => overlay.text('openWaybill') ?? base.openWaybill;
+
+  @override
   String get donationSeeCampaign =>
       overlay.text('donationSeeCampaign') ?? base.donationSeeCampaign;
 

@@ -5248,6 +5248,54 @@ abstract class AppLocalizations {
   /// **'Download receipt'**
   String get downloadReceipt;
 
+  /// 80.4 An order's shipment card, when the shop gave no carrier name.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipment'**
+  String get shipmentTitle;
+
+  /// 80.4 When the shop shipped the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipped {date}'**
+  String shippedOnDate(String date);
+
+  /// No description provided for @trackingNumberLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking number: {number}'**
+  String trackingNumberLine(String number);
+
+  /// No description provided for @copyTrackingNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy tracking number'**
+  String get copyTrackingNumber;
+
+  /// No description provided for @trackingNumberCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking number copied.'**
+  String get trackingNumberCopied;
+
+  /// 80.4 Opens the carrier's tracking page in the browser.
+  ///
+  /// In en, this message translates to:
+  /// **'Track shipment'**
+  String get trackShipment;
+
+  /// No description provided for @waybillLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Waybill: {waybill}'**
+  String waybillLine(String waybill);
+
+  /// No description provided for @openWaybill.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the waybill'**
+  String get openWaybill;
+
   /// No description provided for @donationSeeCampaign.
   ///
   /// In en, this message translates to:

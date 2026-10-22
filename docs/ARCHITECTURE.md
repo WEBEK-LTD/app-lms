@@ -2445,6 +2445,22 @@ reference (`provider_checked_at`, migration 0059):
   days, Fawaterk a week (a reference paid at a kiosk);
 - 20 at most per run, for 5 seconds at most.
 
+## Shipping (80.4)
+
+Shops without a website ship to any country with any carrier, and need no
+carrier account (`lib/catalog/shipping.ts`). On the Orders page, an order
+with something physical to ship (not a restaurant's) has a Shipping form: the
+carrier's name (any; the form suggests common ones) and at least one of the
+tracking link, the tracking number and the waybill (its number, or a link to
+it). It is kept on the order (`catalog_orders.shipment`, JSON, migration
+0060) and can be changed. Each time it is saved the customer is told: a
+notification in the app's inbox, a push to their phones, and the
+`order_shipped` email when the order has an email. The app's order (`GET
+/me/orders`, `shipment`) shows it and opens the tracking page and the
+waybill's link; a shipped order in progress reads "Shipped". Yallapp Business
+can set it too (`PUT /apps/{app}/orders/{order}/shipment`, `owner.yaml`). Every
+plan with a shop has it.
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:
