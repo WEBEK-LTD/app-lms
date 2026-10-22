@@ -165,6 +165,7 @@ export const ar: Messages = {
     rowCards: "الدفع بالبطاقة داخل التطبيق",
     rowOffline: "العمل دون اتصال",
     rowRebuilds: "إعادة البناء تلقائيًا",
+    rowChat: "الدردشة داخل التطبيق",
     rowPublishing: "النشر",
     rowStoreUpdates: "تحديثات المتاجر تلقائيًا",
     rowTeam: "أعضاء الفريق",

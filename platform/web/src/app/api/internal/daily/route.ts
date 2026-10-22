@@ -14,6 +14,7 @@ import { noticeEndedPacks } from "@/lib/media/usage";
 import { runAccountDeletions } from "@/lib/account/purge";
 import { runAppPurges } from "@/lib/apps/deletion";
 import { accountPurgeDeps, purgeDeps } from "@/lib/apps/purge-env";
+import { runChatRetention } from "@/lib/chat/retention";
 
 /**
  * POST /api/internal/daily (roadmap 13.4): the daily job. Netlify's scheduled
@@ -30,8 +31,9 @@ import { accountPurgeDeps, purgeDeps } from "@/lib/apps/purge-env";
  * folders of apps that no longer exist are removed after a week. 73 Apps
  * deleted by their owner more than 7 days ago are purged (their files and
  * rows), and the accounts whose deletion was asked for more than 7 days ago
- * are deleted, keeping their billing records (lib/account/purge.ts). Safe to
- * call again.
+ * are deleted, keeping their billing records (lib/account/purge.ts). 77 Chat
+ * messages over a year old go unless kept, and the business hears 30 days
+ * before (lib/chat/retention.ts). Safe to call again.
  */
 export async function POST(request: Request): Promise<Response> {
   if (!hasBearerToken(request, internalJobSecret())) {
@@ -56,6 +58,11 @@ export async function POST(request: Request): Promise<Response> {
       return null;
     }),
   };
+  // 77 Chat messages kept a year, with a notice 30 days before.
+  const chat = await runChatRetention({ ...deps, storage: getMediaStorage() }).catch((e: unknown) => {
+    console.error(`[daily] chat: ${e instanceof Error ? e.message : String(e)}`);
+    return null;
+  });
   // 58 Yallapp Business devices whose refresh token ended are forgotten.
   const ownerDevicesPurged = await store.purgeOwnerDevices(now);
   // 70 Website sessions whose 14 days are over.
@@ -63,5 +70,5 @@ export async function POST(request: Request): Promise<Response> {
   // 73 Deleted apps past their 7 days, then accounts whose deletion is due.
   const apps = await runAppPurges(purgeDeps(store, now));
   const accounts = await runAccountDeletions(accountPurgeDeps(store, now));
-  return json({ ...report, analytics: { ...analytics, history: analyticsHistory }, media, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts } });
+  return json({ ...report, analytics: { ...analytics, history: analyticsHistory }, media, chat, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts } });
 }

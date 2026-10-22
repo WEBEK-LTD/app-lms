@@ -17,6 +17,8 @@ import { licenseState } from "./status";
 import { licenseUsesSite, NOT_FOR_SITE_MESSAGE } from "./site";
 import { appLinkTargetOf, LINK_PATH, MAX_LINK_PATHS } from "../links/app";
 import { licenseAppLinks } from "../links/well-known";
+import { chatBaseUrl, chatAvailable, chatGroupsOn } from "../chat/access";
+import { appUrl } from "../env";
 
 /**
  * The license and update API from docs/api/platform.yaml, independent of HTTP
@@ -52,6 +54,8 @@ export interface LicenseStatusBody {
   crash_reports: boolean;
   /** 72 Hide the video sites' own players, as the owner chose (at their own risk); false by default. */
   hide_video_branding: boolean;
+  /** 77 Chat in the app (`Config.chat` with `session: site`); null when the plan has none or the owner turned it off. */
+  chat: { base_url: string; groups: boolean } | null;
   expires_at: string | null;
   checked_at: string;
   message: string | null;
@@ -168,6 +172,8 @@ interface AppFacts {
   screenProtection: ScreenProtection | null;
   /** 72 */
   hideVideoBranding: boolean;
+  /** 77 The app, for its chat. */
+  app: App | null;
 }
 
 function statusBody(
@@ -194,6 +200,7 @@ function statusBody(
     review_prompt: facts.reviewPrompt,
     crash_reports: facts.crashReports,
     hide_video_branding: facts.hideVideoBranding,
+    chat: state === "active" && facts.app && chatAvailable(facts.app, plan) ? { base_url: chatBaseUrl(appUrl(), facts.app.id), groups: chatGroupsOn(facts.app) } : null,
     expires_at: license ? license.expiresAt.toISOString() : null,
     checked_at: now.toISOString(),
     message,
@@ -214,7 +221,7 @@ function inactiveMessage(state: LicenseState, license: License): string {
 /** 18 The owner's sign-in methods for the license's app (null until they choose); 24 how email works; 20 its engine and vertical. */
 async function appFactsOf(store: DataStore, license: License): Promise<AppFacts> {
   const app = license.appId ? await store.getAppById(license.appId) : null;
-  if (!app) return { methods: null, emailSignIn: null, appType: null, vertical: null, appLinks: null, reviewPrompt: true, crashReports: true, offlineDownloads: null, screenProtection: null, hideVideoBranding: false };
+  if (!app) return { methods: null, emailSignIn: null, appType: null, vertical: null, appLinks: null, reviewPrompt: true, crashReports: true, offlineDownloads: null, screenProtection: null, hideVideoBranding: false, app: null };
   return {
     methods: chosenSignInMethods(app),
     emailSignIn: chosenEmailSignIn(app),
@@ -227,6 +234,7 @@ async function appFactsOf(store: DataStore, license: License): Promise<AppFacts>
     offlineDownloads: downloadsChoice(app),
     screenProtection: screenProtectionChoice(app),
     hideVideoBranding: hidesVideoBranding(app),
+    app,
   };
 }
 

@@ -1987,7 +1987,9 @@ export type OwnerNoticeKind =
   // 49 A ticket payment came after its places were released and the event was full.
   | "ticket_refund_due"
   // 51 Media and storage: a storage pack ended while the app's files are over what it now has.
-  | "storage_pack_ended";
+  | "storage_pack_ended"
+  // 77 Chat messages are deleted within 30 days unless the business keeps them.
+  | "chat_expiring";
 
 export interface OwnerNotice {
   id: number;
@@ -2422,7 +2424,7 @@ export interface PlatformSettingValues {
 // 58 Yallapp Business: the owners' own app (lib/owner)
 
 /** 58 The kinds of push Yallapp Business sends to an owner's phone; each can be turned off per device. */
-export const OWNER_PUSH_KINDS = ["new_order", "new_booking", "new_message", "new_review", "payment_received", "build_finished", "yallapp_updates", "account_notices"] as const;
+export const OWNER_PUSH_KINDS = ["new_order", "new_booking", "new_message", "new_chat_message", "new_review", "payment_received", "build_finished", "yallapp_updates", "account_notices"] as const;
 export type OwnerPushKind = (typeof OWNER_PUSH_KINDS)[number];
 /** Missing kinds are on. */
 export type OwnerPushPreferences = Partial<Record<OwnerPushKind, boolean>>;

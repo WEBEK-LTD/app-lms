@@ -3454,18 +3454,23 @@ export class MemoryStore implements DataStore {
     return media;
   }
 
-  async listChatConversationsWithMessagesBefore(olderThan: Date, limit: number): Promise<{ conversation: ChatConversation; oldest: Date }[]> {
+  async listChatConversationsWithMessagesBefore(
+    olderThan: Date,
+    limit: number,
+    input: { appId?: string; notKeptAt?: Date } = {},
+  ): Promise<{ conversation: ChatConversation; oldest: Date }[]> {
     const oldest = new Map<string, Date>();
     for (const m of this.chatMessages.values()) {
+      if (input.appId && m.appId !== input.appId) continue;
       const seen = oldest.get(m.conversationId);
       if (!seen || m.createdAt.getTime() < seen.getTime()) oldest.set(m.conversationId, m.createdAt);
     }
+    const kept = (c: ChatConversation | undefined) => Boolean(input.notKeptAt && c?.keepUntil && c.keepUntil.getTime() > input.notKeptAt.getTime());
     return [...oldest]
-      .filter(([, at]) => at.getTime() < olderThan.getTime())
+      .filter(([id, at]) => at.getTime() < olderThan.getTime() && this.chatConversations.has(id) && !kept(this.chatConversations.get(id)))
       .sort((a, b) => a[1].getTime() - b[1].getTime())
       .slice(0, limit)
-      .map(([id, at]) => ({ conversation: clone(this.chatConversations.get(id)!), oldest: at }))
-      .filter((row) => Boolean(row.conversation));
+      .map(([id, at]) => ({ conversation: clone(this.chatConversations.get(id)!), oldest: at }));
   }
 
   async createChatReport(report: ChatReport): Promise<boolean> {

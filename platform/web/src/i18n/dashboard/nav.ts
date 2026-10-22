@@ -161,6 +161,10 @@ export const en = {
     refundOrderText:
       "The payment for order {number} arrived after the places held for it were released, and the event had no places left, so no tickets were issued. Refund the payment from your payment provider's panel; the buyer has been told you will.",
     seeOrders: "See orders",
+    chatExpiring: "{app}: chat messages will be deleted on {date}",
+    chatExpiringText:
+      "Messages sent over a year ago in {count} conversations will be deleted on {date}, with their photos, videos and files. Keep them for another year, or let them go.",
+    keepMessages: "Keep messages",
   },
 } as const;
 
@@ -324,6 +328,10 @@ export const ar: Messages = {
     refundOrderText:
       "وصلت دفعة الطلب {number} بعد إلغاء حجز الأماكن المخصصة له، ولم تبقَ أماكن في الفعالية، فلم تُصدر أي تذاكر. أعد المبلغ من لوحة مزوّد الدفع لديك؛ وقد أُبلغ المشتري بذلك.",
     seeOrders: "عرض الطلبات",
+    chatExpiring: "{app}: ستُحذف رسائل المحادثات في {date}",
+    chatExpiringText:
+      "الرسائل المرسلة منذ أكثر من سنة في {count} من المحادثات ستُحذف في {date} مع صورها وفيديوهاتها وملفاتها. احتفظ بها سنة أخرى، أو اتركها تُحذف.",
+    keepMessages: "الاحتفاظ بالرسائل",
   },
 };
 
@@ -485,5 +493,9 @@ export const tr: Messages = {
     refundOrderText:
       "{number} numaralı siparişin ödemesi, onun için ayrılan yerler serbest bırakıldıktan sonra geldi ve etkinlikte yer kalmadığı için bilet düzenlenmedi. Ödemeyi ödeme sağlayıcınızın panelinden iade edin; alıcıya iade edeceğiniz bildirildi.",
     seeOrders: "Siparişleri görün",
+    chatExpiring: "{app}: sohbet mesajları {date} tarihinde silinecek",
+    chatExpiringText:
+      "{count} sohbette bir yıldan önce gönderilen mesajlar, fotoğrafları, videoları ve dosyalarıyla birlikte {date} tarihinde silinecek. Onları bir yıl daha saklayın ya da silinmelerine izin verin.",
+    keepMessages: "Mesajları sakla",
   },
 };

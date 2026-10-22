@@ -60,6 +60,7 @@ export type EmailTemplateKey =
   // 51 Media and storage
   | "storage_pack_added"
   | "storage_pack_ended"
+  | "chat_expiring"
   // 60 Team members for clients
   | "team_invitation"
   // 66 Deleting a Yallapp account
@@ -552,6 +553,24 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       "Hello {{name}},\n\nThe {{pack}} storage pack of {{app_name}} has ended. Its files take {{used}}, more than its {{storage}} of storage now.\n\n" +
       "Nothing has been deleted and your videos keep playing in the app, but new uploads are paused until you buy more storage or delete files you don't need.\n\n" +
       "Your Media library: {{media_url}}" +
+      SIGNATURE,
+  },
+  {
+    key: "chat_expiring",
+    name: "Chat messages deleted soon",
+    description: "To a client 30 days before chat messages sent over a year ago are deleted (once per day of the oldest message). The client can keep them for another year.",
+    placeholders: [
+      NAME,
+      APP_NAME,
+      { name: "date", description: "The day they are deleted", sample: "21 Nov 2026" },
+      { name: "conversations", description: "How many conversations have such messages", sample: "4" },
+      { name: "chat_url", description: "The link to the app's Chat page", sample: "https://yallapp.com.tr/dashboard/open?app=sample&to=chat" },
+    ],
+    subject: "{{app_name}}: chat messages will be deleted on {{date}}",
+    body:
+      "Hello {{name}},\n\nChat messages are kept for a year. In {{conversations}} conversations of {{app_name}}, messages sent over a year ago will be deleted on {{date}}, with their photos, videos, voice messages and files.\n\n" +
+      "To keep them for another year, open Chat and choose Keep messages. You can also delete a whole conversation or single messages there whenever you like.\n\n" +
+      "Chat: {{chat_url}}" +
       SIGNATURE,
   },
   {

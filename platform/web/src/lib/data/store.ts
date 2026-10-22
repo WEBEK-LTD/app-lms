@@ -1058,7 +1058,11 @@ export interface DataStore {
   /** Deletes the conversation's messages created before `before`; returns their files' media IDs. */
   deleteChatMessagesBefore(conversationId: string, before: Date): Promise<string[]>;
   /** The oldest message's date in each conversation with one older than `olderThan` (retention). */
-  listChatConversationsWithMessagesBefore(olderThan: Date, limit: number): Promise<{ conversation: ChatConversation; oldest: Date }[]>;
+  listChatConversationsWithMessagesBefore(
+    olderThan: Date,
+    limit: number,
+    input?: { appId?: string; notKeptAt?: Date },
+  ): Promise<{ conversation: ChatConversation; oldest: Date }[]>;
   /** A report; again by the same member for the same message: false. */
   createChatReport(report: ChatReport): Promise<boolean>;
   getChatReport(appId: string, id: string): Promise<ChatReport | null>;

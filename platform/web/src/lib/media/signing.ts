@@ -165,6 +165,9 @@ export const MEDIA_CONTENT_TYPES: Record<MediaExtension, string> = {
   txt: "text/plain",
 };
 
+/** 77 Documents sent in the chat are always saved, never opened in the browser (the gate says so for them). */
+export const MEDIA_DOWNLOAD_ONLY: ReadonlySet<MediaExtension> = new Set(["doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt"]);
+
 /** The gate refuses chunks bigger than this (Apache takes up to 7 MB a request on our host). */
 export const MEDIA_CHUNK_MAX_BYTES = 6 * 1024 * 1024;
 

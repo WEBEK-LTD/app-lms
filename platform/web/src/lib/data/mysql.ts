@@ -4315,19 +4315,29 @@ export class MysqlStore implements DataStore {
     return rows.map((r) => r.id).filter((id): id is string => Boolean(id));
   }
 
-  async listChatConversationsWithMessagesBefore(olderThan: Date, limit: number): Promise<{ conversation: ChatConversation; oldest: Date }[]> {
+  async listChatConversationsWithMessagesBefore(
+    olderThan: Date,
+    limit: number,
+    input: { appId?: string; notKeptAt?: Date } = {},
+  ): Promise<{ conversation: ChatConversation; oldest: Date }[]> {
     const m = schema.chatMessages;
+    const conv = schema.chatConversations;
+    const where = and(
+      input.appId ? eq(m.appId, input.appId) : undefined,
+      input.notKeptAt ? or(isNull(conv.keepUntil), lte(conv.keepUntil, input.notKeptAt)) : undefined,
+    );
     const oldest = await this.run((db) =>
       db
         .select({ conversationId: m.conversationId, oldest: sql<Date>`min(${m.createdAt})`.mapWith(m.createdAt) })
         .from(m)
+        .innerJoin(conv, eq(conv.id, m.conversationId))
+        .where(where)
         .groupBy(m.conversationId)
         .having(lt(sql`min(${m.createdAt})`, olderThan))
         .orderBy(asc(sql`min(${m.createdAt})`))
         .limit(limit),
     );
     if (oldest.length === 0) return [];
-    const conv = schema.chatConversations;
     const conversations = await this.run((db) =>
       db
         .select()

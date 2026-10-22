@@ -8,6 +8,7 @@ import type { DataStore } from "../data/store";
 import {
   DEFAULT_HOSTED_SETTINGS,
   type App,
+  type ChatMember,
   type HostedDevice,
   type HostedNotification,
   type HostedSettings,
@@ -25,6 +26,9 @@ import { DEMO_LIMITS, DEMO_SIGN_IN, DEMO_USER_NAME } from "../demo/constants";
 import { hostedSignInMethods, normalizeEmail } from "./sign-in-methods";
 import { personClaims, yallappSignsIn, type AppSignIn } from "./app-auth";
 import { localizedError, requestLanguage } from "../i18n/builtin";
+import { chatConfig, chatSessionKind } from "../chat/access";
+import { handleChatRoute, type HostedChatDeps } from "../chat/hosted";
+import { forgetChatMember, memberForChatToken, memberForHostedUser } from "../chat/service";
 
 /**
  * The hosted API: the app contract's configuration, sign-in, account,
@@ -116,6 +120,11 @@ export interface HostedContext {
    * Called after the account is gone; a failure never undoes the deletion.
    */
   onAccountDeleted?: (sub: string) => Promise<void>;
+  /**
+   * 77 The chat's media server and pushes. Missing: the app has no chat
+   * (`chat_not_available`), whatever its plan.
+   */
+  chat?: HostedChatDeps | null;
 }
 
 export interface HostedRequest {
@@ -217,6 +226,8 @@ export async function handleHosted(ctx: HostedContext, req: HostedRequest): Prom
 }
 
 async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResult> {
+  // 77 The chat, for every app that has it (WordPress apps too, with their site's chat token).
+  if (req.path[0] === "chat") return chatRequest(ctx, req);
   // 34 An app on its own API reaches the hosted API only for Yallapp's sign-in.
   const signInOnly = signsForOwnApi(ctx);
   if (ctx.app.backend !== "hosted" && !signInOnly) return notFound();
@@ -268,6 +279,9 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
         if (ctx.app.demo) await ctx.store.deleteHostedDevice(ctx.app.id, session.device.id);
         else {
           await ctx.store.deleteHostedUser(ctx.app.id, session.user.id);
+          // 77 Their chat goes with them: their messages and the files they sent.
+          const member = await ctx.store.findChatMember(ctx.app.id, "hosted", String(session.user.id));
+          if (member) await forgetChatMember({ store: ctx.store, storage: ctx.chat?.storage ?? null }, ctx.app, member);
           // 49 The client's API hears of it, signed, even when the app couldn't reach its DELETE /me.
           if (signInOnly) {
             try {
@@ -303,6 +317,21 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
     if (result) return result;
   }
   return notFound();
+}
+
+// 77 Chat
+
+async function chatRequest(ctx: HostedContext, req: HostedRequest): Promise<HostedResult> {
+  if (ctx.suspended || (!ctx.active && !ctx.preview)) return pausedError(ctx.app, Boolean(ctx.suspended));
+  let member: ChatMember | null = null;
+  const kind = chatSessionKind(ctx.app);
+  if (kind === "access_token" && (ctx.app.backend === "hosted" || signsForOwnApi(ctx))) {
+    const session = await authenticate(ctx, req.token);
+    if (session) member = await memberForHostedUser(ctx.store, ctx.app, session.user, ctx.now);
+  } else if (kind === "site") {
+    member = await memberForChatToken(ctx.store, ctx.app, req.token, ctx.now);
+  }
+  return handleChatRoute({ store: ctx.store, app: ctx.app, plan: ctx.plan, now: ctx.now, assetUrl: ctx.assetUrl, chat: ctx.chat }, req, member);
 }
 
 // Configuration
@@ -381,6 +410,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     links: { share_base_url: yallappLinkBase(ctx.platformUrl, app.id) },
     // 20 The kind of business: wording and defaults in the app, never its screens.
     vertical: toVertical(app.vertical),
+    // 77 Chat with the business (and course groups).
+    ...chatField(ctx),
     ...(extra.store ? { store: extra.store } : {}),
     ...(extra.bookings ? { bookings: extra.bookings } : {}),
     ...(extra.listings ? { listings: extra.listings } : {}),
@@ -445,7 +476,14 @@ function signInConfig(ctx: HostedContext, req: HostedRequest): HostedResult {
     purchases: { enroll_button: false, free_enrollment: false },
     content: { block_screen_capture: false, watermark: "off", embed_fullscreen_button: true, embed_height: "auto" },
     app: { update_required: false, maintenance: false, maintenance_message: null },
+    ...chatField(ctx),
   });
+}
+
+/** 77 `Config.chat` when the app has chat. */
+function chatField(ctx: HostedContext): { chat?: NonNullable<ReturnType<typeof chatConfig>> } {
+  const chat = ctx.chat ? chatConfig(ctx.app, ctx.plan, ctx.platformUrl) : null;
+  return chat ? { chat } : {};
 }
 
 function signupFields(settings: HostedSettings, byEmail = false): ("name" | "email" | "city")[] {

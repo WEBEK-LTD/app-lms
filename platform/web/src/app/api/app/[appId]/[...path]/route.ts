@@ -34,6 +34,10 @@ import { etagValues } from "@/lib/pages/plugin";
 import { receiveCrashReports } from "@/lib/crashes/service";
 import { pushNewBooking, pushNewMessage, pushNewQuestion, pushNewReview } from "@/lib/owner/push";
 import { pushOwnerSafely } from "@/lib/owner/push-env";
+import { chatPushes } from "@/lib/chat/push-env";
+import { chatBusiness } from "@/lib/chat/hosted";
+import { getMediaStorage } from "@/lib/media/storage";
+import { MEDIA_CHUNK_BYTES } from "@/lib/media/signing";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -110,6 +114,8 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
       onAccountDeleted: async (sub) => {
         await sendAccountDeleted({ store, encryptionKey: encryptionKey(), platformUrl: appUrl(), now: () => new Date() }, app, sub);
       },
+      // 77 The chat: files on the media server, and pushes for new messages (also through a WordPress site).
+      chat: { storage: getMediaStorage(), chunkBytes: MEDIA_CHUNK_BYTES, onMessage: chatPushes(store, chatBusiness(app, assetUrl).name) },
       // 18 The owner's own WhatsApp number when they connected one, else Yallapp's sender.
       // 19 When the own number fails, Yallapp's sender sends that code and the owner is told.
       sender: senderWithFallback(

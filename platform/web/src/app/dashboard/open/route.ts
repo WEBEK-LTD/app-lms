@@ -3,7 +3,7 @@ import { appUrl } from "@/lib/env";
 import { isPlan } from "@/lib/plans";
 
 /**
- * GET /dashboard/open?app=<id>&to=renew|change-plan|users|app-sign-in|media|builds: the links in the
+ * GET /dashboard/open?app=<id>&to=renew|change-plan|users|app-sign-in|media|builds|chat: the links in the
  * owner emails and dashboard notices (13.2, 13.4). Opens the dashboard on
  * that app (only one of the signed-in client's own) and goes to the page.
  */
@@ -30,6 +30,9 @@ export async function GET(request: Request): Promise<Response> {
     // 57 From a build in the dashboard's bell.
     case "builds":
       return go("/dashboard/builds");
+    // 77 From the "chat messages deleted soon" email and notice, and a new message.
+    case "chat":
+      return go("/dashboard/chat");
     default:
       return go("/dashboard");
   }

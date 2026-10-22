@@ -94,6 +94,8 @@ export const RATE_LIMITS = {
   // 51 Signed media links WordPress sites ask for (POST /api/v1/license/media): per IP and per license.
   mediaLinksIp: { name: "media-links:ip", limit: 120, windowSeconds: 60 },
   mediaLinksLicense: { name: "media-links:license", limit: 3000, windowSeconds: 60 * 60 },
+  // 77 The plugin asks for chat tokens (and forgets deleted people) for its signed-in people.
+  chatSessionsIp: { name: "chat-sessions:ip", limit: 300, windowSeconds: 60 },
   // 51 Uploads an owner starts in the Media library, per app.
   mediaUploads: { name: "media-uploads:app", limit: 200, windowSeconds: 60 * 60 },
   // 58 Yallapp Business renewing its tokens (POST /api/owner/v1/auth/refresh), per IP. Signing in counts with the website's (signInIp, signInEmail).

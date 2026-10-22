@@ -20,6 +20,7 @@ const TOPIC_ICON: Record<AccountTopic, IconName> = {
   build_ready: "download",
   build_failed: "error",
   payment: "receipt_long",
+  chat: "forum",
 };
 
 export function updateIcon(item: { kind: UpdateKind; topic: AccountTopic | null }): IconName {

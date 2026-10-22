@@ -46,7 +46,21 @@ const MEDIA_TYPES = array(
 	'webp' => 'image/webp',
 	'gif'  => 'image/gif',
 	'pdf'  => 'application/pdf',
+	// 77 Voice messages and documents sent in the chat.
+	'm4a'  => 'audio/mp4',
+	'mp3'  => 'audio/mpeg',
+	'aac'  => 'audio/aac',
+	'doc'  => 'application/msword',
+	'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+	'xls'  => 'application/vnd.ms-excel',
+	'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+	'ppt'  => 'application/vnd.ms-powerpoint',
+	'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+	'txt'  => 'text/plain',
 );
+
+/** 77 Documents are always saved, never opened in the browser. */
+const MEDIA_DOWNLOAD_ONLY = array('doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt');
 
 function media_fail(int $status, string $message, array $headers = array()): void {
 	http_response_code($status);
@@ -100,13 +114,13 @@ $path = substr($uri, strlen($prefix));
 if ($path === '/ping' && ($method === 'GET' || $method === 'HEAD')) {
 	header('Content-Type: text/plain; charset=utf-8');
 	header('Cache-Control: no-store');
-	echo "Yallapp media gate 2\n";
+	echo "Yallapp media gate 3\n";
 	exit;
 }
 $uuid = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 $media_id = '';
 $ext      = '';
-if (preg_match('#^/(v|u|s|d)/(' . $uuid . ')/(' . $uuid . ')[./](mp4|mov|webm|jpg|png|webp|gif|pdf)$#', $path, $m)) {
+if (preg_match('#^/(v|u|s|d)/(' . $uuid . ')/(' . $uuid . ')[./](mp4|mov|webm|jpg|png|webp|gif|pdf|m4a|mp3|aac|doc|docx|xls|xlsx|ppt|pptx|txt)$#', $path, $m)) {
 	list(, $op, $app_id, $media_id, $ext) = $m;
 } elseif (preg_match('#^/a/(' . $uuid . ')$#', $path, $m)) {
 	$op     = 'a';
@@ -241,7 +255,7 @@ if ($op === 'v' && ($method === 'GET' || $method === 'HEAD')) {
 	header('X-Content-Type-Options: nosniff');
 	header('Referrer-Policy: no-referrer');
 	header("Content-Security-Policy: default-src 'none'; img-src 'self' data:; media-src 'self'; style-src 'unsafe-inline'; sandbox");
-	if (($params['dl'] ?? '') === '1') {
+	if (($params['dl'] ?? '') === '1' || in_array($ext, MEDIA_DOWNLOAD_ONLY, true)) {
 		header('Content-Disposition: attachment; filename="' . $media_id . '.' . $ext . '"');
 	}
 	// With mod_xsendfile, Apache sends the file (and answers ranges) itself.

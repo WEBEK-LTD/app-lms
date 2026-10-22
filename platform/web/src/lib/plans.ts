@@ -27,7 +27,8 @@ export const PLAN_RANK: Record<Plan, number> = { starter: 0, growth: 1, pro: 2, 
  * Features a plan has or hasn't. They are also the license features the
  * license API reports to the plugin (docs/api/platform.yaml).
  */
-export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish"] as const;
+/** 77 `chat`: the app's chat with the business (and course groups). */
+export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat"] as const;
 export type PlanFeature = (typeof PLAN_FEATURE_IDS)[number];
 
 export type SupportLevel = "email" | "whatsapp" | "priority" | "dedicated";
@@ -177,7 +178,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     id: "pro",
     name: "Pro",
     tagline: "We publish your apps for you",
-    features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish"],
+    features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat"],
     limits: { ...BASE_LIMITS, appUsers: null, languages: null, sources: null, storageGb: 100, analyticsMonths: 24, teamMembers: 3, support: "priority" },
     highlights: [
       "Everything in Growth",
@@ -198,7 +199,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     id: "business",
     name: "Business",
     tagline: "A partner for your app",
-    features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish"],
+    features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat"],
     limits: { ...BASE_LIMITS, appUsers: null, languages: null, sources: null, storageGb: 500, analyticsMonths: 36, teamMembers: 10, support: "dedicated", accountManager: true, customFeatures: true },
     highlights: ["Everything in Pro", "A dedicated account manager", "Custom features on request", "Several team members", "Fastest support"],
     price: "On request",
@@ -251,6 +252,12 @@ export const PLAN_FEATURES: PlanFeatureDef[] = [
     label: "We publish for you",
     description: `We upload your apps and every update to ${ALL_STORES_TEXT}.`,
     enforced: "Builds' auto_publish and the Publishing step's store keys.",
+  },
+  {
+    id: "chat",
+    label: "Chat in the app",
+    description: "Your app users write to you in the app, and academies get a group for each course.",
+    enforced: "Config chat (hosted API and the plugin's license), the Chat endpoints and the dashboard's Chat page.",
   },
 ];
 
@@ -515,6 +522,7 @@ export function comparisonRows(plans: Record<Plan, PlanInfo>): ComparisonRow[] {
     { label: "Card payments in the app", values: has("card_payments") },
     { label: "Offline mode", values: has("offline_downloads") },
     { label: "Automatic rebuilds", values: has("auto_rebuild") },
+    { label: "Chat in the app", values: has("chat") },
     { label: "Publishing", values: each((p) => (hasFeature(p, "auto_publish") ? "We publish for you" : "You publish with our guides")) },
     { label: "Automatic store updates", values: has("auto_publish") },
     { label: "Team members", values: each((p) => formatLimit(p.limits.teamMembers)) },

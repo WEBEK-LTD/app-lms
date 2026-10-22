@@ -1059,6 +1059,26 @@ never in a chat or an issue.
       may still go to Admin › Plugin releases for the dashboard's download
       button).
 
+## 7w. Chat in the app (Phase 77)
+
+- [ ] Apply migration `0052_chat.sql` after `0051` (the `chat_*` tables,
+      `apps.chat_settings` and `media_files.source`), **then** deploy: every
+      read of a Media file now asks for `source`.
+- [ ] **Upload `platform/web/deploy/media-host/index.php`** to
+      files.yallapp.com.tr/media (next to `config.php`, which stays as it
+      is). It now takes the chat's voice messages (m4a, mp3, aac) and
+      documents (Word, Excel, PowerPoint, text), and always saves documents
+      instead of opening them. `https://files.yallapp.com.tr/media/ping`
+      answers "Yallapp media gate 3" once it is the new one; until then
+      those files can't be sent.
+- [ ] Admin › Plans: chat comes with Pro and Business. If the plans were
+      edited in the admin before, tick "Chat" on Pro and Business there.
+- [ ] Nothing else to set: the chat's pushes use each app's own Firebase
+      account (WordPress apps: through their site, plugin 0.4.9) and
+      Yallapp Business's for the owners. Messages are kept a year; the
+      daily job deletes older ones unless the business kept them, and tells
+      the business 30 days before (dashboard, email, phone).
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |
