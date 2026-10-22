@@ -63,6 +63,7 @@ export async function seedAccount(store: DataStore, now: Date, email = `ada-${ra
     storageKey: `${appA.id}/lesson.mp4`,
     status: "ready",
     public: false,
+    source: "library",
     createdAt: now,
     updatedAt: now,
   };

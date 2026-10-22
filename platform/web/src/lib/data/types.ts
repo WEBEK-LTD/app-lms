@@ -359,6 +359,8 @@ export interface App {
   firebaseServiceAccountEncrypted: string | null;
   /** Shop settings when the products are managed in the dashboard (connector "catalog"). */
   catalogSettings: CatalogSettings | null;
+  /** 77 The chat's settings; null: on (when the plan has chat), without course groups. */
+  chatSettings?: ChatSettings | null;
   /** Services, staff and rules when bookings are managed in the dashboard (connector "bookings"). */
   bookingSetup: BookingSetup | null;
   /** Courses when they're managed in the dashboard (connector "courses"). */
@@ -2329,7 +2331,11 @@ export type ApiWebhookPatch = Partial<Pick<ApiWebhook, "status" | "attempts" | "
 
 // 51 Videos and pictures hosted by Yallapp, with storage per plan
 
-export type MediaKind = "video" | "image" | "pdf";
+/** 77 `audio` (voice messages) and `file` (documents) come from the chat only. */
+export type MediaKind = "video" | "image" | "pdf" | "audio" | "file";
+
+/** 77 Where a Media file came from: the Media library, or a message in the app's chat. */
+export type MediaSource = "library" | "chat";
 
 /** "uploading" until the browser's upload is checked and completed; its size counts (reserved) all along. */
 export type MediaStatus = "uploading" | "ready";
@@ -2353,6 +2359,8 @@ export interface MediaFile {
    * may open the lesson.
    */
   public: boolean;
+  /** 77 Uploaded to the Media library, or sent in the chat. */
+  source: MediaSource;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -2678,3 +2686,126 @@ export interface CouponClaimLimits {
   /** Pending uses started after this still hold their place. */
   pendingSince: Date;
 }
+
+// 77 Chat in the app
+
+/** 77 The chat's settings for an app (the dashboard's Chat page); null: on, without course groups. */
+export interface ChatSettings {
+  enabled: boolean;
+  /** Academies: a group for each course, with its students. */
+  courseGroups: boolean;
+}
+
+/** 77 Who a chat member is where the app signs people in. */
+export type ChatMemberSource = "hosted" | "wordpress";
+
+/** 77 A person using the app who chatted (or opened the chat). */
+export interface ChatMember {
+  id: string;
+  appId: string;
+  source: ChatMemberSource;
+  /** The hosted user's ID, or the WordPress user's ID, as text. */
+  externalId: string;
+  name: string;
+  imageUrl: string | null;
+  /** The business stopped them from sending. */
+  blockedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type ChatConversationKind = "direct" | "group";
+
+/** 77 A person and the business (`direct`), or a course's group. */
+export interface ChatConversation {
+  id: string;
+  appId: string;
+  kind: ChatConversationKind;
+  /** The person, in a direct conversation. */
+  memberId: string | null;
+  /** A group's course: `wordpress:<course ID>` or `hosted:<course ID>`. */
+  courseKey: string | null;
+  /** A group's title (the course's) and picture. */
+  title: string | null;
+  imageUrl: string | null;
+  lastMessageId: number | null;
+  lastMessageAt: Date | null;
+  /** The last message the business read. */
+  businessReadId: number | null;
+  /** The business keeps its messages until then, also those older than a year. */
+  keepUntil: Date | null;
+  /** The day of the oldest message the last "deleted soon" notice was about. */
+  noticeFor: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type ChatConversationPatch = Partial<Pick<ChatConversation, "title" | "imageUrl" | "lastMessageId" | "lastMessageAt" | "businessReadId" | "keepUntil" | "noticeFor" | "updatedAt">>;
+
+/** 77 A member in a conversation, with what they read. */
+export interface ChatParticipant {
+  conversationId: string;
+  memberId: string;
+  readId: number | null;
+  joinedAt: Date;
+}
+
+export type ChatSenderKind = "member" | "business";
+
+export interface ChatMessage {
+  /** Increasing: later messages have greater IDs. */
+  id: number;
+  appId: string;
+  conversationId: string;
+  senderKind: ChatSenderKind;
+  /** The member who wrote it (`member`). */
+  memberId: string | null;
+  /** Who on the team wrote a business message (shown to the team only). */
+  teamUserId: string | null;
+  teamName: string | null;
+  /** The sender's idempotency key. */
+  clientId: string | null;
+  text: string | null;
+  /** A Media file (source `chat` from the app, or the library from the business). */
+  mediaId: string | null;
+  durationSeconds: number | null;
+  deletedAt: Date | null;
+  createdAt: Date;
+}
+
+export type ChatReportReason = "spam" | "abuse" | "inappropriate" | "other";
+export type ChatReportOutcome = "dismissed" | "deleted" | "blocked";
+
+export interface ChatReport {
+  id: string;
+  appId: string;
+  messageId: number;
+  conversationId: string;
+  reporterId: string;
+  reason: ChatReportReason;
+  note: string | null;
+  status: "open" | "closed";
+  outcome: ChatReportOutcome | null;
+  closedBy: string | null;
+  createdAt: Date;
+  closedAt: Date | null;
+}
+
+/** 77 A WordPress person's chat token: the hash of a random secret, for an hour. */
+export interface ChatSession {
+  tokenHash: string;
+  appId: string;
+  memberId: string;
+  expiresAt: Date;
+  createdAt: Date;
+}
+
+/** 77 A chat upload from the app: who sent it, and a voice message's length. */
+export interface ChatUploadInfo {
+  mediaId: string;
+  appId: string;
+  memberId: string;
+  durationSeconds: number | null;
+  createdAt: Date;
+}
+

@@ -1,6 +1,6 @@
 import { newId } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
-import type { MediaFile, MediaKind } from "../data/types";
+import type { MediaFile, MediaKind, MediaSource } from "../data/types";
 import { fits, formatBytes, GB } from "./quota";
 import { MEDIA_CONTENT_TYPES, mediaTokenDigest, storageKeyOf, type MediaExtension } from "./signing";
 import type { MediaStorage } from "./storage";
@@ -19,6 +19,31 @@ export const MEDIA_KINDS: { kind: MediaKind; label: string; maxBytes: number; ty
   { kind: "pdf", label: "PDFs", maxBytes: 200 * 1024 ** 2, types: { "application/pdf": "pdf" } },
 ];
 
+/**
+ * 77 What the app's people send in the chat: pictures, shorter videos, voice
+ * messages and documents (PDFs keep their own kind, for the Media library).
+ */
+export const CHAT_KINDS: { kind: MediaKind; label: string; maxBytes: number; types: Partial<Record<string, MediaExtension>> }[] = [
+  { kind: "image", label: "Pictures", maxBytes: 20 * 1024 ** 2, types: MEDIA_KINDS[1]!.types },
+  { kind: "video", label: "Videos", maxBytes: 200 * 1024 ** 2, types: MEDIA_KINDS[0]!.types },
+  { kind: "audio", label: "Voice messages", maxBytes: 20 * 1024 ** 2, types: { "audio/mp4": "m4a", "audio/x-m4a": "m4a", "audio/m4a": "m4a", "audio/mpeg": "mp3", "audio/aac": "aac" } },
+  { kind: "pdf", label: "PDFs", maxBytes: 50 * 1024 ** 2, types: { "application/pdf": "pdf" } },
+  {
+    kind: "file",
+    label: "Documents",
+    maxBytes: 50 * 1024 ** 2,
+    types: {
+      "application/msword": "doc",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+      "application/vnd.ms-excel": "xls",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
+      "application/vnd.ms-powerpoint": "ppt",
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation": "pptx",
+      "text/plain": "txt",
+    },
+  },
+];
+
 /** What the file picker accepts. */
 export const MEDIA_ACCEPT = MEDIA_KINDS.flatMap((k) => Object.keys(k.types)).join(",");
 
@@ -31,9 +56,9 @@ export const PUBLIC_LINK_SECONDS = 6 * 3600;
 /** Uploads not finished after this long are cancelled by the daily job (their space comes back). */
 export const STALE_UPLOAD_HOURS = 48;
 
-export function kindOf(contentType: string): { kind: MediaKind; extension: MediaExtension; maxBytes: number } | null {
-  const type = contentType.trim().toLowerCase();
-  for (const k of MEDIA_KINDS) {
+export function kindOf(contentType: string, kinds = MEDIA_KINDS): { kind: MediaKind; extension: MediaExtension; maxBytes: number } | null {
+  const type = contentType.split(";")[0]!.trim().toLowerCase();
+  for (const k of kinds) {
     const extension = k.types[type];
     if (extension) return { kind: k.kind, extension, maxBytes: k.maxBytes };
   }
@@ -106,13 +131,23 @@ export type StartResult =
  */
 export async function startUpload(
   deps: { store: DataStore; storage: MediaStorage; now: Date; limitBytes: number | null; chunkBytes: number },
-  input: { appId: string; name: string; size: number; contentType: string },
+  input: { appId: string; name: string; size: number; contentType: string; source?: MediaSource },
 ): Promise<StartResult> {
-  const type = kindOf(input.contentType);
-  if (!type) return { ok: false, code: "type", message: "Upload an MP4, MOV or WebM video, a JPEG, PNG, WebP or GIF picture, or a PDF." };
+  const chat = input.source === "chat";
+  const type = kindOf(input.contentType, chat ? CHAT_KINDS : MEDIA_KINDS);
+  if (!type) {
+    return {
+      ok: false,
+      code: "type",
+      message: chat
+        ? "Send a picture, a video, a voice message, or a PDF, Word, Excel, PowerPoint or text file."
+        : "Upload an MP4, MOV or WebM video, a JPEG, PNG, WebP or GIF picture, or a PDF.",
+    };
+  }
   if (!Number.isSafeInteger(input.size) || input.size < 1) return { ok: false, code: "empty", message: "This file is empty." };
   if (input.size > type.maxBytes) {
-    return { ok: false, code: "too_big", message: `${cleanName(input.name)} is ${formatBytes(input.size)}. ${type.kind === "video" ? "Videos" : type.kind === "image" ? "Pictures" : "PDFs"} can be up to ${formatBytes(type.maxBytes)}.` };
+    const what = { video: "Videos", image: "Pictures", pdf: "PDFs", audio: "Voice messages", file: "Files" }[type.kind];
+    return { ok: false, code: "too_big", message: `${cleanName(input.name)} is ${formatBytes(input.size)}. ${what} can be up to ${formatBytes(type.maxBytes)}.` };
   }
   const used = await deps.store.mediaUsage(input.appId);
   if (!fits(used, deps.limitBytes, input.size)) {
@@ -133,6 +168,7 @@ export async function startUpload(
     storageKey: storageKeyOf(input.appId, id, type.extension),
     status: "uploading",
     public: false,
+    source: chat ? "chat" : "library",
     createdAt: deps.now,
     updatedAt: deps.now,
   };

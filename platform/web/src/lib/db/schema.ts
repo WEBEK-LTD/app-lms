@@ -47,6 +47,14 @@ import type {
   AppDeletion,
   AppDeletionStatus,
   KeptBillingRecord,
+  // 77 Chat
+  ChatSettings,
+  MediaSource,
+  ChatMemberSource,
+  ChatConversationKind,
+  ChatSenderKind,
+  ChatReportReason,
+  ChatReportOutcome,
 } from "../data/types";
 // 11.6 and 11.8
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
@@ -228,6 +236,8 @@ export const apps = mysqlTable(
     connector: jsonText<ConnectorConfig>("connector"),
     hostedSettings: jsonText<HostedSettings>("hosted_settings"),
     catalogSettings: jsonText<CatalogSettings>("catalog_settings"),
+    // 77 The chat's settings (null: on when the plan has chat, without course groups).
+    chatSettings: jsonText<ChatSettings>("chat_settings"),
     bookingSetup: jsonText<BookingSetup>("booking_setup"),
     courseSetup: jsonText<CourseSetup>("course_setup"),
     firebaseServiceAccountEncrypted: text("firebase_service_account_encrypted"),
@@ -1543,6 +1553,8 @@ export const mediaFiles = mysqlTable(
     storageKey: varchar("storage_key", { length: 300 }).notNull(),
     status: varchar("status", { length: 12 }).notNull().$type<MediaStatus>(),
     public: boolean("public").notNull().default(false),
+    // 77 The Media library, or a message in the chat.
+    source: varchar("source", { length: 8 }).notNull().default("library").$type<MediaSource>(),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -1946,3 +1958,170 @@ export const userRecoveryCodes = mysqlTable(
   },
   (t) => [primaryKey({ columns: [t.userId, t.codeHash] })],
 );
+
+/** 77 The people using an app who chat: hosted users or WordPress users. */
+export const chatMembers = mysqlTable(
+  "chat_members",
+  {
+    id: id("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    source: varchar("source", { length: 12 }).notNull().$type<ChatMemberSource>(),
+    externalId: varchar("external_id", { length: 40 }).notNull(),
+    name: varchar("name", { length: 120 }).notNull(),
+    imageUrl: varchar("image_url", { length: 500 }),
+    blockedAt: time("blocked_at"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("chat_members_person_unique").on(t.appId, t.source, t.externalId)],
+);
+
+/** 77 A person and the business, or a course's group. */
+export const chatConversations = mysqlTable(
+  "chat_conversations",
+  {
+    id: id("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    kind: varchar("kind", { length: 8 }).notNull().$type<ChatConversationKind>(),
+    memberId: id("member_id").references(() => chatMembers.id, { onDelete: "cascade" }),
+    courseKey: varchar("course_key", { length: 60 }),
+    title: varchar("title", { length: 200 }),
+    imageUrl: varchar("image_url", { length: 500 }),
+    lastMessageId: bigint("last_message_id", { mode: "number", unsigned: true }),
+    lastMessageAt: time("last_message_at"),
+    businessReadId: bigint("business_read_id", { mode: "number", unsigned: true }),
+    keepUntil: time("keep_until"),
+    noticeFor: time("notice_for"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    uniqueIndex("chat_conversations_direct_unique").on(t.appId, t.memberId),
+    uniqueIndex("chat_conversations_group_unique").on(t.appId, t.courseKey),
+    index("chat_conversations_recent_idx").on(t.appId, t.lastMessageAt),
+  ],
+);
+
+/** 77 Who is in a conversation, and what they read. */
+export const chatParticipants = mysqlTable(
+  "chat_participants",
+  {
+    conversationId: id("conversation_id")
+      .notNull()
+      .references(() => chatConversations.id, { onDelete: "cascade" }),
+    memberId: id("member_id")
+      .notNull()
+      .references(() => chatMembers.id, { onDelete: "cascade" }),
+    readId: bigint("read_id", { mode: "number", unsigned: true }),
+    joinedAt: time("joined_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.conversationId, t.memberId] }), index("chat_participants_member_idx").on(t.memberId)],
+);
+
+export const chatMessages = mysqlTable(
+  "chat_messages",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    conversationId: id("conversation_id")
+      .notNull()
+      .references(() => chatConversations.id, { onDelete: "cascade" }),
+    senderKind: varchar("sender_kind", { length: 8 }).notNull().$type<ChatSenderKind>(),
+    memberId: id("member_id").references(() => chatMembers.id, { onDelete: "cascade" }),
+    teamUserId: id("team_user_id"),
+    teamName: varchar("team_name", { length: 120 }),
+    clientId: varchar("client_id", { length: 64 }),
+    text: text("text"),
+    mediaId: id("media_id"),
+    durationSeconds: int("duration_seconds"),
+    deletedAt: time("deleted_at"),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [
+    index("chat_messages_conversation_idx").on(t.conversationId, t.id),
+    uniqueIndex("chat_messages_client_unique").on(t.conversationId, t.clientId),
+    index("chat_messages_created_idx").on(t.appId, t.createdAt),
+    index("chat_messages_media_idx").on(t.mediaId),
+  ],
+);
+
+export const chatReports = mysqlTable(
+  "chat_reports",
+  {
+    id: id("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    messageId: bigint("message_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => chatMessages.id, { onDelete: "cascade" }),
+    conversationId: id("conversation_id").notNull(),
+    reporterId: id("reporter_id")
+      .notNull()
+      .references(() => chatMembers.id, { onDelete: "cascade" }),
+    reason: varchar("reason", { length: 16 }).notNull().$type<ChatReportReason>(),
+    note: varchar("note", { length: 500 }),
+    status: varchar("status", { length: 8 }).notNull().$type<"open" | "closed">(),
+    outcome: varchar("outcome", { length: 12 }).$type<ChatReportOutcome>(),
+    closedBy: varchar("closed_by", { length: 191 }),
+    createdAt: time("created_at").notNull(),
+    closedAt: time("closed_at"),
+  },
+  (t) => [uniqueIndex("chat_reports_once_unique").on(t.messageId, t.reporterId), index("chat_reports_app_idx").on(t.appId, t.status, t.createdAt)],
+);
+
+/** 77 Members a member doesn't want to see (their own choice, in groups). */
+export const chatBlocks = mysqlTable(
+  "chat_blocks",
+  {
+    memberId: id("member_id")
+      .notNull()
+      .references(() => chatMembers.id, { onDelete: "cascade" }),
+    blockedId: id("blocked_id")
+      .notNull()
+      .references(() => chatMembers.id, { onDelete: "cascade" }),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.memberId, t.blockedId] })],
+);
+
+/** 77 WordPress people's chat tokens (hashes), for an hour. */
+export const chatSessions = mysqlTable(
+  "chat_sessions",
+  {
+    tokenHash: varchar("token_hash", { length: 64 }).primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    memberId: id("member_id")
+      .notNull()
+      .references(() => chatMembers.id, { onDelete: "cascade" }),
+    expiresAt: time("expires_at").notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("chat_sessions_expiry_idx").on(t.expiresAt)],
+);
+
+/** 77 Files sent from the app: who uploaded them, and a voice message's length. */
+export const chatUploads = mysqlTable(
+  "chat_uploads",
+  {
+    mediaId: id("media_id")
+      .primaryKey()
+      .references(() => mediaFiles.id, { onDelete: "cascade" }),
+    appId: id("app_id").notNull(),
+    memberId: id("member_id")
+      .notNull()
+      .references(() => chatMembers.id, { onDelete: "cascade" }),
+    durationSeconds: int("duration_seconds"),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("chat_uploads_member_idx").on(t.memberId)],
+);
+

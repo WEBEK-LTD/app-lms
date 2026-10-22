@@ -82,6 +82,7 @@ import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, Schedul
 import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatus } from "./types";
 // 73 Deleting an app, and the billing records kept when an account goes
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
+import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
@@ -1012,4 +1013,67 @@ export interface DataStore {
    * False when there was no such person.
    */
   deleteUserAccount(userId: string): Promise<boolean>;
+
+  // 77 Chat (lib/chat). Messages have increasing IDs; a conversation's last message and the
+  // business's place are kept on the conversation, each member's place on their participant row.
+  /** The member for this person, made or updated with their name and picture (one per app, source and ID). */
+  upsertChatMember(input: { appId: string; source: ChatMemberSource; externalId: string; name: string; imageUrl: string | null }, now: Date): Promise<ChatMember>;
+  getChatMember(appId: string, id: string): Promise<ChatMember | null>;
+  findChatMember(appId: string, source: ChatMemberSource, externalId: string): Promise<ChatMember | null>;
+  listChatMembersByIds(appId: string, ids: string[]): Promise<ChatMember[]>;
+  setChatMemberBlocked(appId: string, id: string, blockedAt: Date | null, now: Date): Promise<boolean>;
+  /** Deletes the member, their conversation with the business, their messages, reports, blocks, sessions and uploads (their files first: the caller). */
+  deleteChatMember(appId: string, id: string): Promise<void>;
+  /** The person's conversation with the business, made the first time (of two at once, one is made). */
+  ensureDirectConversation(appId: string, memberId: string, now: Date): Promise<ChatConversation>;
+  /** A course's group, made the first time; its title and picture follow the course's. */
+  ensureGroupConversation(input: { appId: string; courseKey: string; title: string; imageUrl: string | null }, now: Date): Promise<ChatConversation>;
+  getChatConversation(appId: string, id: string): Promise<ChatConversation | null>;
+  updateChatConversation(id: string, patch: ChatConversationPatch): Promise<void>;
+  /** The app's conversations with a message, most recent first. */
+  listChatConversations(appId: string, input: { kind?: ChatConversationKind; limit: number }): Promise<ChatConversation[]>;
+  /** The conversations the member takes part in (theirs with the business, their groups), with their place in each. */
+  listMemberConversations(appId: string, memberId: string): Promise<{ conversation: ChatConversation; participant: ChatParticipant }[]>;
+  /** Puts the member in these groups of `kind` group and out of the app's others; the direct one stays. */
+  setMemberGroups(appId: string, memberId: string, conversationIds: string[], now: Date): Promise<void>;
+  /** Adds the member to the conversation (again: unchanged). */
+  addChatParticipant(conversationId: string, memberId: string, now: Date): Promise<void>;
+  getChatParticipant(conversationId: string, memberId: string): Promise<ChatParticipant | null>;
+  listChatParticipants(conversationId: string): Promise<ChatParticipant[]>;
+  /** Moves the member's place forward (never back). */
+  setChatRead(conversationId: string, memberId: string, messageId: number): Promise<void>;
+  /** Adds a message and moves the conversation's last message to it; the same `clientId` in the conversation gives the message already made. */
+  createChatMessage(input: Omit<ChatMessage, "id">): Promise<{ message: ChatMessage; created: boolean }>;
+  getChatMessage(appId: string, id: number): Promise<ChatMessage | null>;
+  /** `after`: oldest first above that ID; else newest first below `before` (or from the newest). */
+  listChatMessages(conversationId: string, input: { after?: number; before?: number; limit: number; hideFrom?: string[] }): Promise<ChatMessage[]>;
+  /** Messages after `afterId` not sent by `memberId` (null: the business's place, so messages from members), not deleted. */
+  countChatUnread(conversationId: string, afterId: number | null, input: { notFromMember?: string; fromMembersOnly?: boolean; hideFrom?: string[] }): Promise<number>;
+  /** Marks it deleted and clears its text and file; false when it was already. */
+  deleteChatMessage(appId: string, id: number, now: Date): Promise<boolean>;
+  /** Deletes every message of the conversation; returns their files' media IDs. */
+  clearChatConversation(appId: string, conversationId: string): Promise<string[]>;
+  /** Messages and files of the member (for their account's deletion). */
+  listChatMediaOfMember(appId: string, memberId: string): Promise<string[]>;
+  /** Deletes the conversation's messages created before `before`; returns their files' media IDs. */
+  deleteChatMessagesBefore(conversationId: string, before: Date): Promise<string[]>;
+  /** The oldest message's date in each conversation with one older than `olderThan` (retention). */
+  listChatConversationsWithMessagesBefore(olderThan: Date, limit: number): Promise<{ conversation: ChatConversation; oldest: Date }[]>;
+  /** A report; again by the same member for the same message: false. */
+  createChatReport(report: ChatReport): Promise<boolean>;
+  getChatReport(appId: string, id: string): Promise<ChatReport | null>;
+  listChatReports(appId: string, input: { status: "open" | "closed"; limit: number }): Promise<ChatReport[]>;
+  countOpenChatReports(appId: string): Promise<number>;
+  /** Closes the message's open reports with the outcome; returns how many. */
+  closeChatReports(appId: string, messageId: number, outcome: ChatReportOutcome, by: string, now: Date): Promise<number>;
+  /** The member's own block list (members whose messages they don't see). */
+  listChatBlocks(memberId: string): Promise<string[]>;
+  setChatBlock(memberId: string, blockedId: string, blocked: boolean, now: Date): Promise<void>;
+  createChatSession(session: ChatSession): Promise<void>;
+  getChatSession(tokenHash: string): Promise<ChatSession | null>;
+  deleteExpiredChatSessions(now: Date): Promise<number>;
+  createChatUpload(upload: ChatUploadInfo): Promise<void>;
+  getChatUpload(mediaId: string): Promise<ChatUploadInfo | null>;
+  /** Uploads not sent in a message, made before `before` (their media IDs). */
+  listUnsentChatUploads(before: Date, limit: number): Promise<string[]>;
 }

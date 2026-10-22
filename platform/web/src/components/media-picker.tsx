@@ -10,7 +10,10 @@ import { useDashT } from "./dashboard-i18n";
 import { richText } from "@/i18n/rich";
 import type { DashKey } from "@/i18n/dashboard";
 
-const KIND_WORDS: Record<MediaKind, { yours: DashKey; none: DashKey; icon: "smart_display" | "image" | "assignment" }> = {
+/** The kinds pages and lessons use (77: not the chat's voice messages and documents). */
+type PickKind = Exclude<MediaKind, "audio" | "file">;
+
+const KIND_WORDS: Record<PickKind, { yours: DashKey; none: DashKey; icon: "smart_display" | "image" | "assignment" }> = {
   video: { yours: "media.yourVideos", none: "media.noneVideos", icon: "smart_display" },
   image: { yours: "media.yourPictures", none: "media.nonePictures", icon: "image" },
   pdf: { yours: "media.yourPdfs", none: "media.nonePdfs", icon: "assignment" },
@@ -21,7 +24,7 @@ const KIND_WORDS: Record<MediaKind, { yours: DashKey; none: DashKey; icon: "smar
  * choosing one hands its Yallapp link to `onPick`. With `share`, a video
  * chosen for a page opens for anyone with the app (its link is public).
  */
-export function MediaPicker({ kind, onPick, label, share = false }: { kind: MediaKind; onPick: (link: string) => void; label?: string; share?: boolean }) {
+export function MediaPicker({ kind, onPick, label, share = false }: { kind: PickKind; onPick: (link: string) => void; label?: string; share?: boolean }) {
   const t = useDashT();
   const dialog = useRef<HTMLDialogElement>(null);
   const [items, setItems] = useState<PickableMedia[] | null>(null);
@@ -150,7 +153,7 @@ export function MediaImagesPicker() {
 }
 
 /** 51 The picker next to an ordinary form field: the chosen file's link goes into the field `inputId`. */
-export function MediaPickButton({ kind, inputId, label }: { kind: MediaKind; inputId: string; label?: string }) {
+export function MediaPickButton({ kind, inputId, label }: { kind: PickKind; inputId: string; label?: string }) {
   return (
     <MediaPicker
       kind={kind}
