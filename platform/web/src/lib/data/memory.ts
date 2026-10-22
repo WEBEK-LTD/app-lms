@@ -82,7 +82,7 @@ import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, D
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 import type { PublishingEvent, PublishingRequest } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
-import type { ClientMilestone, JobRun, MilestoneKind, ProductDay, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
+import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
@@ -3679,6 +3679,39 @@ export class MemoryStore implements DataStore {
       }
     }
     return closed;
+  }
+
+  // 78.4 Errors per app: kept under their client and app, so their deletion takes them (as in MySQL).
+  private appErrors = new Map<string, AppError>();
+
+  async recordAppError(input: Pick<AppError, "clientId" | "appId" | "source" | "code" | "message">, now: Date): Promise<void> {
+    if (!this.clients.has(input.clientId) || (input.appId && !this.apps.has(input.appId) && !this.deletedApps.has(input.appId))) return;
+    const found = [...this.appErrors.values()].find((e) => e.clientId === input.clientId && e.appId === input.appId && e.source === input.source && e.code === input.code);
+    if (found) {
+      this.appErrors.set(found.id, { ...found, message: input.message, count: found.count + 1, lastAt: now });
+      return;
+    }
+    const error: AppError = { id: newId(), ...input, count: 1, firstAt: now, lastAt: now };
+    this.appErrors.set(error.id, error);
+  }
+
+  async listAppErrors(input: { clientId?: string; appId?: string; since?: Date; limit: number }): Promise<AppError[]> {
+    return [...this.appErrors.values()]
+      .filter((e) => (!input.clientId || e.clientId === input.clientId) && (!input.appId || e.appId === input.appId) && (!input.since || e.lastAt.getTime() >= input.since.getTime()))
+      .sort((a, b) => b.lastAt.getTime() - a.lastAt.getTime())
+      .slice(0, input.limit)
+      .map(clone);
+  }
+
+  async deleteAppErrorsBefore(before: Date): Promise<number> {
+    let deleted = 0;
+    for (const [id, e] of this.appErrors) {
+      if (e.lastAt.getTime() < before.getTime()) {
+        this.appErrors.delete(id);
+        deleted++;
+      }
+    }
+    return deleted;
   }
 
   private sortedMilestones(): ClientMilestone[] {

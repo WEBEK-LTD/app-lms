@@ -11,6 +11,7 @@ import { pushTarget, sendPush } from "../hosted/push";
 import { normalizeLicenseKey } from "../license/key";
 import { pinnedFetch } from "../net/safe-fetch";
 import { pushToOwner, type OwnerPushDeps } from "../owner/push";
+import { noteAppError } from "../watch/app-errors";
 
 /**
  * 77 Who hears of a new chat message, by push: the app's people in the
@@ -192,6 +193,10 @@ async function notifySite(
     } catch {
       outcome = "failed";
     }
+  }
+  // 78.4 The site didn't pass the message on to its people's phones: counted for the team.
+  if (outcome === "failed") {
+    await noteAppError(deps.store, { clientId: app.clientId, appId: app.id, source: "wordpress", code: "chat_notify_failed", detail: "The WordPress site didn't take a chat message's push (plugin 0.4.9 or later, reachable, its license active)." }, deps.now);
   }
   return outcome;
 }

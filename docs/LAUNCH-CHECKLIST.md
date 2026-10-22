@@ -1142,6 +1142,10 @@ never in a chat or an issue.
       it isn't set: without it, builds wait for GitHub's hourly schedule,
       often hours late. New alerts are emailed to every address in
       `SUPER_ADMIN_EMAILS`.
+- [ ] **Errors per app** (78.4): migration `0056_app_errors.sql` (one new
+      table) goes with the production deploy. Admin › Clients › a client now
+      shows the apps' errors and a timeline. The hosted API answers an
+      unexpected error with a JSON 500 (`server_error`) instead of Next's page.
 - [ ] Campaign links: point them at any page of the site with
       `utm_source`, `utm_medium` and `utm_campaign` (and `from` for a page
       of ours, like `from=newsletter`); the sign-up records them while the

@@ -10,6 +10,7 @@ import { MAIL_PORTS, MAIL_PRESETS, type MailSecurity } from "./app-mail-presets"
 import { langOf, type Lang } from "@/i18n/config";
 import { mailOptions } from "./mail-lang";
 import { knownTranslator } from "@/i18n/dashboard";
+import { noteAppError } from "../watch/app-errors";
 
 /**
  * 24 An app's own email server (App sign-in › "Your app's email"): emails to
@@ -375,6 +376,8 @@ export interface OwnMailFailureDeps {
 export async function recordOwnMailFailure(deps: OwnMailFailureDeps, appId: string, reason: string): Promise<void> {
   const app = await deps.store.getAppById(appId);
   if (!app?.hostedSettings?.mailServer) return;
+  // 78.4 Counted for the team, each time.
+  await noteAppError(deps.store, { clientId: app.clientId, appId: app.id, source: "mail", code: "own_server_failed", detail: reason }, deps.now);
   const at = deps.now.toISOString();
   await deps.store.updateApp(
     app.id,

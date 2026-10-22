@@ -7,6 +7,7 @@ import { hostedSettings } from "../hosted/service";
 import { PaymentError } from "../payments/errors";
 import { confirmCheckout, startCheckout, type PaymentAccount, type ProviderUrls } from "../payments/provider";
 import { DONATION_LINK_MINUTES, donationReference } from "./service";
+import { noteAppError } from "../watch/app-errors";
 
 /**
  * 29 Paying a donation on our donation page (/give/<token>), the same way a
@@ -145,7 +146,12 @@ export async function completeDonationPayment(deps: {
       { fetcher: deps.fetcher, urls: deps.urls },
     );
   } catch (e) {
-    if (e instanceof PaymentError) return provider === "iyzico" ? "failed" : "pending";
+    if (e instanceof PaymentError) {
+      // 78.4 The provider couldn't confirm it: counted for the team.
+      const app = await deps.store.getAppById(donation.appId);
+      if (app) await noteAppError(deps.store, { clientId: app.clientId, appId: app.id, source: "payment", code: `${provider}_confirm_failed`, detail: e.message }, deps.now);
+      return provider === "iyzico" ? "failed" : "pending";
+    }
     throw e;
   }
   if (!result.paid) return provider === "iyzico" ? "failed" : "pending";

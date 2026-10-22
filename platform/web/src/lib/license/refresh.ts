@@ -8,6 +8,7 @@ import type { DataStore } from "../data/store";
 import type { Activation, App, License } from "../data/types";
 import type { Plan } from "../plans";
 import { normalizeLicenseKey } from "./key";
+import { noteAppError } from "../watch/app-errors";
 
 /**
  * 31 Settings reach a WordPress site within seconds. The plugin learns the
@@ -65,7 +66,12 @@ export async function refreshSite(deps: RefreshDeps, appId: string): Promise<Ref
     if (!app || app.backend !== "wordpress") return "not_wordpress";
     const license = await deps.store.getLicenseForApp(app.clientId, app.id);
     const activation = license ? await deps.store.getActivation(license.id) : null;
-    return await refreshSiteOf(deps, app, license, activation);
+    const outcome = await refreshSiteOf(deps, app, license, activation);
+    // 78.4 The site didn't take the request (no answer, a redirect, another answer): counted for the team.
+    if (outcome === "failed" || outcome === "private_address") {
+      await noteAppError(deps.store, { clientId: app.clientId, appId: app.id, source: "wordpress", code: `refresh_${outcome}`, detail: outcome === "failed" ? "The site didn't take the request to check its license (no answer within 5 seconds, a redirect or another answer)." : "The site's address points to a private network." });
+    }
+    return outcome;
   } catch {
     return "failed";
   }

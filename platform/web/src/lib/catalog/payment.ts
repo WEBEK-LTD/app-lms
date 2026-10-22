@@ -15,6 +15,7 @@ import { optionsText } from "./options";
 import { orderNumber, type CheckoutAccount } from "./settings";
 import { emailTemplate, renderTemplate } from "../email/templates";
 import { checkTicketHold, holdForPayment, noticeRefundDue, providerPageExpiry } from "../events/holds";
+import { noteAppError } from "../watch/app-errors";
 
 /** What the payment page asks for, checked; or the errors per field. */
 export function readCustomer(
@@ -149,7 +150,11 @@ export async function completePayment(
       { fetcher: deps.fetcher, urls: deps.urls },
     );
   } catch (e) {
-    if (e instanceof PaymentError) return provider === "iyzico" ? "failed" : "pending";
+    if (e instanceof PaymentError) {
+      // 78.4 The provider couldn't confirm it: counted for the team.
+      await noteAppError(deps.store, { clientId: deps.app.clientId, appId: deps.app.id, source: "payment", code: `${provider}_confirm_failed`, detail: e.message }, deps.now);
+      return provider === "iyzico" ? "failed" : "pending";
+    }
     throw e;
   }
   if (!result.paid) return provider === "iyzico" ? "failed" : "pending";

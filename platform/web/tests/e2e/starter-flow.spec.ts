@@ -10,6 +10,8 @@ import { solidPng } from "./png";
  * the key.
  */
 test.describe.configure({ mode: "serial" });
+// Its own address: sign-ins from the shared one reach the per-IP limit when every spec runs in one 15-minute window.
+test.use({ extraHTTPHeaders: { "x-forwarded-for": "198.51.100.181" } });
 
 const suffix = Date.now().toString(36);
 const client = {

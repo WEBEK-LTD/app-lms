@@ -15,6 +15,7 @@ import { settleOrderPayment } from "@/lib/payments/settle";
 import { withDemoChecked } from "@/lib/demo/apps";
 import { placeDemoOrder } from "@/lib/demo/checkout";
 import { HoldEndedError } from "@/lib/events/holds";
+import { noteAppError } from "@/lib/watch/app-errors";
 
 /** 16 A demo app's payment page: places the order without taking any payment. */
 export async function demoPayAction(token: string): Promise<void> {
@@ -62,6 +63,8 @@ export async function payAction(token: string, _: FormState, formData: FormData)
   } catch (e) {
     if (e instanceof HoldEndedError) return { message: "The places held for this order were released. Go back to the app and get your tickets again." };
     if (!(e instanceof PaymentError)) throw e;
+    // 78.4 Counted for the team.
+    await noteAppError(store, { clientId: app.clientId, appId: app.id, source: "payment", code: `${account.account.provider}_start_failed`, detail: e.message }, now);
     return { message: "The card payment couldn't start. Please try again in a moment.", values };
   }
   redirect(pageUrl);

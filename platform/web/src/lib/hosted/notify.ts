@@ -6,6 +6,7 @@ import type { DataStore } from "../data/store";
 import type { App, HostedNotification } from "../data/types";
 import { parseServiceAccount, pushTarget, sendPush, type HmsCredentials, type ServiceAccount } from "./push";
 import { raiseAlert } from "../watch/alerts";
+import { noteAppError } from "../watch/app-errors";
 
 export const SERVICE_ACCOUNT_CONTEXT = "app:firebase-service-account";
 export const NOTIFICATION_TITLE_MAX = 65;
@@ -131,6 +132,8 @@ export async function announce(input: {
     return { notification, pushed: result.sent, pushError: null };
   } catch (e) {
     const pushError = e instanceof Error ? e.message : "Push failed.";
+    // 78.4 On the app's errors, and in the team's bell.
+    await noteAppError(input.store, { clientId: input.app.clientId, appId: input.app.id, source: "push", code: "push_failed", detail: pushError }, input.now);
     // 78.3 In the team's bell (not emailed: it is usually the app's own Firebase key, which its owner fixes).
     await raiseAlert(
       input.store,

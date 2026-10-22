@@ -84,7 +84,7 @@ import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatu
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
-import type { ClientMilestone, JobRun, MilestoneKind, ProductDay, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
+import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
 export type ClientFilter = "all" | "pending" | "active" | "expired";
@@ -1117,4 +1117,11 @@ export interface DataStore {
   resolveTeamAlert(id: string, by: string, now: Date): Promise<boolean>;
   /** Closes the kind's open alerts whose key isn't in `keep` (the problem went): how many. */
   resolveTeamAlertsExcept(kind: TeamAlertKind, keep: string[], by: string, now: Date): Promise<number>;
+
+  // 78.4 Errors per app (lib/watch/app-errors.ts)
+  /** Counts the error: one row per client, app, source and code, with its last message and time. */
+  recordAppError(input: Pick<AppError, "clientId" | "appId" | "source" | "code" | "message">, now: Date): Promise<void>;
+  /** Last seen first: a client's, an app's, or every client's. */
+  listAppErrors(input: { clientId?: string; appId?: string; since?: Date; limit: number }): Promise<AppError[]>;
+  deleteAppErrorsBefore(before: Date): Promise<number>;
 }

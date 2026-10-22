@@ -13,6 +13,7 @@ import { ipFromHeaders } from "@/lib/http";
 import { PaymentError } from "@/lib/payments/errors";
 import { callbackUrls } from "@/lib/payments/routes";
 import { settleDonationPayment } from "@/lib/payments/settle";
+import { noteAppError } from "@/lib/watch/app-errors";
 
 /**
  * 29 The donation page's form (/give/<token>): the donor's name and email for
@@ -68,6 +69,8 @@ export async function giveAction(token: string, _: FormState, formData: FormData
     });
   } catch (e) {
     if (!(e instanceof PaymentError)) throw e;
+    // 78.4 Counted for the team.
+    await noteAppError(store, { clientId: app.clientId, appId: app.id, source: "payment", code: `${account.provider}_start_failed`, detail: e.message }, now);
     return { message: "The card payment couldn't start. Please try again in a moment.", values };
   }
   redirect(pageUrl);

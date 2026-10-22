@@ -263,6 +263,10 @@ describe("catalog shop on the hosted API", () => {
 
     app = { ...app, catalogSettings: { ...app.catalogSettings!, payment: null } };
     expect((await checkout("android", [{ product_id: ids.roses, quantity: 1 }])).body).toMatchObject({ code: "shop_unavailable" });
+    // 78.4 Counted on the app's errors for the team.
+    expect(await store.listAppErrors({ appId: app.id, limit: 5 })).toEqual([
+      expect.objectContaining({ source: "platform", code: "shop_unavailable", count: 1, message: expect.stringContaining("POST /store/checkout-link") }),
+    ]);
   });
 
   describe("payment", () => {

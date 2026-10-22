@@ -2297,6 +2297,33 @@ snapshots hold no personal data and stay when an account is deleted.
 
 The admin menu's **Watching** shows how many alerts are open.
 
+### Errors per app and the client's timeline (78.4)
+
+`app_errors` (migration 0056, `lib/watch/app-errors.ts`) counts what failed
+for one client's app: one row per client, app (or none, for the account),
+source and code, with how many times, when first and last, and the last
+message (never a key, a code sent to someone or a customer's details). Rows
+go with their app and account, and the daily job deletes those not seen for
+90 days. `noteAppError` never throws. It is called where things fail:
+
+- `platform`: the connected platform's answer of 500 or more to the app
+  (`shop_unavailable`, `lms_unavailable`…) and its config failing
+  (`lib/hosted/service.ts`);
+- `server`: anything unexpected in the hosted API (`unhandled:<first path
+  part>`), which now answers a plain JSON 500;
+- `wordpress`: the site not taking a license check request, or a chat push;
+- `mail` and `whatsapp`: the app's own email server or WhatsApp number
+  failing (Yallapp's sent instead); `sign_in`: a code not sent at all;
+- `webhook`: a notice to the app's own API not delivered (each try);
+- `payment`: a card payment of a shop order or a donation that couldn't start
+  or be confirmed with the provider;
+- `push`: an announcement's push failing.
+
+Admin › Clients › a client shows **Errors** (per app, how often, last seen)
+and a **Timeline** (`lib/admin/timeline.ts`): builds queued and finished,
+errors, notices to the owner, plan payments, milestones, store statuses and
+the team's changes, newest first.
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:
