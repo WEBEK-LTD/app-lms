@@ -6,7 +6,7 @@ import { generateLicenseKey, hashLicenseKey } from "../license/key";
 import type { Plan } from "../plans";
 import { appLabel } from "../app/label";
 
-const keyContext = (licenseId: string) => `license-key:${licenseId}`;
+export const keyContext = (licenseId: string) => `license-key:${licenseId}`;
 
 export function revealLicenseKey(license: License, encryptionKey: Buffer): string {
   return decrypt(license.keyEncrypted, encryptionKey, keyContext(license.id));

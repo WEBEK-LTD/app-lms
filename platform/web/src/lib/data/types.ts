@@ -2875,7 +2875,7 @@ export interface ProductDay {
 }
 
 /** 78.3 The scheduled work Yallapp watches (lib/watch): its three jobs, and the build pipeline asking for builds. */
-export type WatchedJob = "daily" | "frequent" | "webhooks" | "pipeline";
+export type WatchedJob = "daily" | "frequent" | "webhooks" | "pipeline" | "rekey";
 
 /** 78.3 One run of a scheduled job. */
 export interface JobRun {
@@ -2937,4 +2937,18 @@ export interface AppError {
   count: number;
   firstAt: Date;
   lastAt: Date;
+}
+
+/**
+ * 79.2 A database cell holding encrypted values that aren't on the current key
+ * (lib/jobs/rekey.ts): where it is, its text, and the row's short strings the
+ * values' contexts may be built from.
+ */
+export interface RekeyCell {
+  table: string;
+  column: string;
+  /** The row's primary key, as JSON. */
+  key: string;
+  text: string;
+  candidates: string[];
 }

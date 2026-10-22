@@ -2324,6 +2324,30 @@ and a **Timeline** (`lib/admin/timeline.ts`): builds queued and finished,
 errors, notices to the owner, plan payments, milestones, store statuses and
 the team's changes, newest first.
 
+## Encryption keys (79.2)
+
+Secrets at rest are sealed with AES-256-GCM (`lib/crypto/encryption.ts`) as
+`v2.<key id>.<iv>.<tag>.<ciphertext>`, with a context (the record they belong
+to) as additional data. The key ID is 8 characters of SHA-256 over the key,
+so the key that opens a value is known; values of before 79.2 (`v1.…`, no
+ID) are tried with each key. `encryptionKey()` returns `ENCRYPTION_KEY` with
+the keys of `ENCRYPTION_KEY_OLD` attached: decrypting opens a value of any of
+them, encrypting always uses the current one.
+
+The rekey job (`lib/jobs/rekey.ts`, from the frequent job, a few seconds at a
+time) moves every stored value that isn't on the current key. The store lists
+the cells holding such values (`listCellsToRekey`: on MySQL every text column
+of every table, picked with `REGEXP`, page by page by primary key; on the
+memory store every string of every collection), with the row's short strings.
+The value's context isn't stored, so it is found among the contexts the
+platform uses (`CONTEXT_TEMPLATES`), built from those strings; AES-GCM refuses
+a wrong one. The cell is written back only if it didn't change since it was
+listed. Progress is kept in the job's runs (`job_runs`, job `rekey`); a pass
+that finished for the current keys isn't started again until they change.
+Admin › Watching › Encryption keys says where it stands, and when
+`ENCRYPTION_KEY_OLD` can be removed. A new encrypted value must use a context
+built by one of `CONTEXT_TEMPLATES` (or one of those already there).
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:

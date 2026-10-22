@@ -84,7 +84,7 @@ import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatu
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
-import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
+import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
 export type ClientFilter = "all" | "pending" | "active" | "expired";
@@ -1124,4 +1124,15 @@ export interface DataStore {
   /** Last seen first: a client's, an app's, or every client's. */
   listAppErrors(input: { clientId?: string; appId?: string; since?: Date; limit: number }): Promise<AppError[]>;
   deleteAppErrorsBefore(before: Date): Promise<number>;
+
+  // 79.2 Moving encrypted values to the current key (lib/jobs/rekey.ts)
+  /**
+   * Cells holding an encrypted value of before 79.2 or one whose key ID isn't
+   * `currentKeyId`, from `after` (a position this returned) on. `next` is null
+   * once every table was looked at; a page can be short of `limit` and still
+   * have a `next`.
+   */
+  listCellsToRekey(input: { currentKeyId: string; after: string | null; limit: number }): Promise<{ cells: RekeyCell[]; next: string | null }>;
+  /** Writes the cell's new text, unless it changed since it was listed. */
+  updateRekeyedCell(cell: RekeyCell, text: string): Promise<boolean>;
 }

@@ -29,6 +29,8 @@ test("the jobs' runs and the health check in Admin › Watching", async ({ brows
   await expect(health.getByRole("row", { name: /Frequent job/ })).toContainText("Fine");
   // The e2e server has no GITHUB_DISPATCH_TOKEN: the pipeline says so.
   await expect(health.getByRole("row", { name: /Build pipeline/ })).toContainText("GITHUB_DISPATCH_TOKEN isn't set");
+  // 79.2 The frequent job checked every stored value is on the current key.
+  await expect(health.getByRole("row", { name: /Encryption keys/ })).toContainText("Every stored value is on it.");
 
   const runs = page.getByRole("table", { name: "Recent job runs" });
   await expect(runs.getByRole("row", { name: /Frequent job/ }).first()).toContainText("Done");

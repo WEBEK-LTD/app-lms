@@ -82,7 +82,8 @@ import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, D
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 import type { PublishingEvent, PublishingRequest } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
-import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
+import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
+import { candidatesIn, needsRekey } from "../crypto/rekey";
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
@@ -101,6 +102,10 @@ import { mergeCrash } from "../crashes/report";
 import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, StoragePackPatch } from "./types";
 
 const clone = <T>(value: T): T => structuredClone(value);
+
+/** 79.2 Where each listed cell of a store is, to write it back (kept out of the store's own fields). */
+const rekeySlots = new WeakMap<object, Map<string, { get(): unknown; set(text: string): void }>>();
+const slotId = (cell: Pick<RekeyCell, "table" | "key" | "column">) => `${cell.table}|${cell.key}|${cell.column}`;
 
 /** 64 The same instant, or both missing (a null-safe comparison, as `<=>`). */
 const sameTime = (a: Date | null, b: Date | null): boolean => (a === null || b === null ? a === b : a.getTime() === b.getTime());
@@ -3712,6 +3717,62 @@ export class MemoryStore implements DataStore {
       }
     }
     return deleted;
+  }
+
+  // 79.2 Every string in every collection of the store, wherever it is in its row.
+  async listCellsToRekey(input: { currentKeyId: string; after: string | null; limit: number }): Promise<{ cells: RekeyCell[]; next: string | null }> {
+    const cells: RekeyCell[] = [];
+    // Kept across pages (a cell listed earlier is still written back); each slot reads its value when used.
+    const slots = rekeySlots.get(this) ?? new Map<string, { get(): unknown; set(text: string): void }>();
+    const isPlain = (v: unknown): v is object => typeof v === "object" && v !== null && !(v instanceof Date) && !Buffer.isBuffer(v);
+    const walk = (holder: unknown, path: string, found: (column: string, slot: { get(): unknown; set(text: string): void }) => void): void => {
+      const visit = (value: unknown, column: string, get: () => unknown, set: (text: string) => void) => {
+        if (typeof value === "string") {
+          if (needsRekey(value, input.currentKeyId)) found(column, { get, set });
+        } else if (isPlain(value)) walk(value, column, found);
+      };
+      if (holder instanceof Map) {
+        for (const [k, v] of holder) visit(v, `${path}/${String(k)}`, () => holder.get(k), (text) => holder.set(k, text));
+      } else if (Array.isArray(holder)) {
+        holder.forEach((v, i) => visit(v, `${path}/${i}`, () => holder[i], (text) => (holder[i] = text)));
+      } else if (isPlain(holder)) {
+        const record = holder as Record<string, unknown>;
+        for (const k of Object.keys(record)) visit(record[k], `${path}/${k}`, () => record[k], (text) => (record[k] = text));
+      }
+    };
+    for (const table of Object.keys(this).sort()) {
+      const collection = (this as unknown as Record<string, unknown>)[table];
+      const rows: [unknown, unknown][] = collection instanceof Map ? [...collection.entries()] : Array.isArray(collection) ? collection.map((v, i) => [i, v]) : [];
+      for (const [rowKey, row] of rows) {
+        const key = JSON.stringify(rowKey);
+        const holder = collection as Map<unknown, unknown> | unknown[];
+        const found = (column: string, slot: { get(): unknown; set(text: string): void }) => {
+          const text = slot.get() as string;
+          const cell: RekeyCell = { table, column, key, text, candidates: candidatesIn([rowKey, row]) };
+          cells.push(cell);
+          slots.set(slotId(cell), slot);
+        };
+        if (typeof row === "string") {
+          if (needsRekey(row, input.currentKeyId))
+            found("", {
+              get: () => (holder instanceof Map ? holder.get(rowKey) : holder[rowKey as number]),
+              set: (text) => (holder instanceof Map ? holder.set(rowKey, text) : (holder[rowKey as number] = text)),
+            });
+        } else walk(row, "", found);
+      }
+    }
+    rekeySlots.set(this, slots);
+    // In order of where they are: cells moved since drop out without moving the others.
+    const rest = cells.sort((a, b) => (slotId(a) < slotId(b) ? -1 : 1)).filter((c) => input.after === null || slotId(c) > input.after);
+    const page = rest.slice(0, input.limit);
+    return { cells: page.map(clone), next: rest.length > page.length ? slotId(page[page.length - 1]!) : null };
+  }
+
+  async updateRekeyedCell(cell: RekeyCell, text: string): Promise<boolean> {
+    const slot = rekeySlots.get(this)?.get(slotId(cell));
+    if (!slot || slot.get() !== cell.text) return false;
+    slot.set(text);
+    return true;
   }
 
   private sortedMilestones(): ClientMilestone[] {

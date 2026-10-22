@@ -1,7 +1,8 @@
 import "server-only";
 import type { DataStore } from "../data/store";
 import type { TeamAlert } from "../data/types";
-import { appUrl, buildPipelineToken, filesBaseUrl, githubDispatch, mediaBaseUrl, mediaMode, ownerPushCredentials, superAdminEmails } from "../env";
+import { keyId, oldKeysOf } from "../crypto/encryption";
+import { appUrl, buildPipelineToken, encryptionKey, filesBaseUrl, githubDispatch, mediaBaseUrl, mediaMode, ownerPushCredentials, superAdminEmails } from "../env";
 import { sendTemplate } from "../email/send";
 import { parseServiceAccount } from "../hosted/push";
 import { smtpConfigured } from "../mail";
@@ -42,7 +43,9 @@ export async function healthDeps(store: DataStore, now: Date): Promise<HealthDep
     email: await smtpConfigured(store).catch(() => false),
     ownerPush: !push ? "unset" : parseServiceAccount(push) ? "ok" : "invalid",
     pipelineToken: Boolean(buildPipelineToken()),
+    pipelineTokenShort: (buildPipelineToken()?.length ?? 32) < 32,
     dispatchToken: dispatch,
+    keys: currentKeys(),
   };
 }
 
@@ -52,5 +55,15 @@ export function dispatchSet(): boolean {
     return Boolean(githubDispatch());
   } catch {
     return false;
+  }
+}
+
+/** 79.2 The encryption keys' IDs, or null when ENCRYPTION_KEY (or ENCRYPTION_KEY_OLD) can't be read. */
+function currentKeys(): { keyId: string; oldKeyIds: string[] } | null {
+  try {
+    const key = encryptionKey();
+    return { keyId: keyId(key), oldKeyIds: oldKeysOf(key).map(keyId) };
+  } catch {
+    return null;
   }
 }
