@@ -61,7 +61,7 @@ info:
       same moments the dashboard and its emails learn of them. Each kind can be turned off per device. The data of
       each push: `type: owner`, `kind` (PushKind), `app_id` and the item's
       ID (`order_id`, `appointment_id`, `inquiry_id`, `question_id`,
-      `review_id`, `build_id`, `donation_id`, `update_key`), and (roadmap 64)
+      `review_id`, `build_id`, `donation_id`, `update_key`, 77 `conversation_id`), and (roadmap 64)
       the business it is about: `business_id` and `business_name`.
     - **Team members** (roadmap 60). The people who work with an owner sign
       in with their own email and password. Each has a role per business:
@@ -149,6 +149,14 @@ tags:
       header); then `complete`. Gates before 64b took `PUT` with
       `Upload-Offset` and answered 204: still accepted. Links end in
       `/<media id>/<ext>`, never in a file extension.
+  - name: Chat
+    description: |
+      Roadmap 77. The app's chat (Pro and Business plans): the people using the
+      app write to the business (`direct`) and, in academies with course
+      groups, talk in each course's group (`group`). The business answers as
+      itself, deletes messages, deals with reports, blocks people from sending
+      and keeps conversations past the year after which messages are deleted.
+      The Chat area (team members), the `new_chat_message` push.
   - name: Messages
     description: |
       Conversations with the people using the app: a listing's inquiries
@@ -1295,6 +1303,336 @@ paths:
         '403': { $ref: '#/components/responses/AccountNotActive' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /apps/{app_id}/chat/conversations:
+    get:
+      tags: [Chat]
+      operationId: listChatConversations
+      summary: The app's conversations
+      description: |
+        Roadmap 77. Every person who wrote to the business (`direct`) and, in an
+        academy with course groups, each course's group (`group`), most recent
+        first. 404 `not_available` when the app has no chat (its plan, or the
+        owner turned it off) or the person lacks the Chat area.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: kind
+          in: query
+          schema: { type: string, enum: [direct, group] }
+        - name: unread
+          in: query
+          schema: { type: boolean }
+        - name: q
+          in: query
+          schema: { type: string, maxLength: 100 }
+          description: A person's name or a course's title.
+      responses:
+        '200':
+          description: Conversations (at most 200) and what is waiting
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, unread_count, open_reports, expiring]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/ChatThread' }
+                  unread_count: { type: integer }
+                  open_reports: { type: integer, description: Reports the business hasn't dealt with. }
+                  expiring:
+                    type: object
+                    required: [conversations, delete_on]
+                    description: Conversations whose oldest messages are deleted within 30 days (`delete_on` the first such day), unless kept.
+                    properties:
+                      conversations: { type: integer }
+                      delete_on: { type: [string, 'null'], format: date }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/chat/conversations/{conversation_id}:
+    delete:
+      tags: [Chat]
+      operationId: deleteChatConversation
+      summary: Delete a conversation's messages
+      description: Every message and file in it, at once. A group stays, empty; a person can write again.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/ConversationId'
+      responses:
+        '204': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/chat/conversations/{conversation_id}/messages:
+    get:
+      tags: [Chat]
+      operationId: listChatMessages
+      summary: Messages of a conversation
+      description: As in the app API (`after` for what's new, `before` for older pages). The business sees every message, also from members others blocked.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/ConversationId'
+        - name: after
+          in: query
+          schema: { type: string }
+        - name: before
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 50 }
+      responses:
+        '200':
+          description: Messages
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, has_more, poll_after_seconds]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/ChatMessage' }
+                  has_more: { type: boolean }
+                  poll_after_seconds: { type: integer }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      tags: [Chat]
+      operationId: sendChatMessage
+      summary: Reply as the business
+      description: |
+        Text (up to 4,000 characters), a file from the Media library
+        (`media_id`, uploaded with `/media/uploads`), or both. The message shows
+        as the business, never as the team member who wrote it (the dashboard
+        keeps who). `client_id` as in the app API. 403 `plan_not_active` once
+        the app's plan ended.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/ConversationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [client_id]
+              properties:
+                client_id: { type: string, minLength: 8, maxLength: 64 }
+                text: { type: string, maxLength: 4000 }
+                media_id: { type: string, format: uuid }
+      responses:
+        '201':
+          description: Sent
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ChatMessage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /apps/{app_id}/chat/conversations/{conversation_id}/read:
+    post:
+      tags: [Chat]
+      operationId: readChatConversation
+      summary: Mark a conversation read for the business
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/ConversationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message_id]
+              properties:
+                message_id: { type: string }
+      responses:
+        '204': { description: Marked }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/chat/conversations/{conversation_id}/keep:
+    post:
+      tags: [Chat]
+      operationId: keepChatConversation
+      summary: Keep a conversation another year
+      description: Its messages, also the oldest, stay until a year from today.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/ConversationId'
+      responses:
+        '200':
+          description: Kept
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ChatThread' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/chat/keep:
+    post:
+      tags: [Chat]
+      operationId: keepExpiringChats
+      summary: Keep every expiring conversation another year
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      responses:
+        '200':
+          description: How many were kept
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [kept]
+                properties:
+                  kept: { type: integer }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/chat/messages/{message_id}:
+    delete:
+      tags: [Chat]
+      operationId: deleteChatMessage
+      summary: Delete a message
+      description: Any message, for everyone, with its file. Its open reports are closed.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/ChatMessageId'
+      responses:
+        '204': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/chat/reports:
+    get:
+      tags: [Chat]
+      operationId: listChatReports
+      summary: Reported messages
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: status
+          in: query
+          schema: { type: string, enum: [open, closed], default: open }
+      responses:
+        '200':
+          description: Reports, newest first (at most 200)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/ChatReport' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/chat/reports/{report_id}/resolve:
+    post:
+      tags: [Chat]
+      operationId: resolveChatReport
+      summary: Deal with a report
+      description: '`dismiss` keeps the message; `delete_message` deletes it; `block_sender` deletes it and blocks its sender. Every open report of the same message closes.'
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/ChatReportId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action]
+              properties:
+                action: { type: string, enum: [dismiss, delete_message, block_sender] }
+      responses:
+        '204': { description: Done }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/chat/members/{member_id}/block:
+    put:
+      tags: [Chat]
+      operationId: blockChatMember
+      summary: Stop a person from sending messages
+      description: They still read their conversations and groups; their new messages are refused (`chat_blocked`).
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/ChatMemberId'
+      responses:
+        '204': { description: Blocked }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Chat]
+      operationId: unblockChatMember
+      summary: Let a person send messages again
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/ChatMemberId'
+      responses:
+        '204': { description: Unblocked }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/chat/settings:
+    get:
+      tags: [Chat]
+      operationId: getChatSettings
+      summary: Chat on or off, and course groups
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      responses:
+        '200':
+          description: Settings
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ChatSettings' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [Chat]
+      operationId: updateChatSettings
+      summary: Turn chat or course groups on or off
+      description: Owners and managers (`settings`). The app learns it at its next `GET /config`.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                enabled: { type: boolean }
+                course_groups: { type: boolean, description: Academies only. }
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ChatSettings' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /apps/{app_id}/inquiries:
     get:
       tags: [Messages]
@@ -2202,6 +2540,26 @@ components:
       required: true
       description: One of the signed-in client's apps (`Me.apps`).
       schema: { type: string, format: uuid }
+    ConversationId:
+      name: conversation_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    ChatMessageId:
+      name: message_id
+      in: path
+      required: true
+      schema: { type: string }
+    ChatMemberId:
+      name: member_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    ChatReportId:
+      name: report_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
     AppointmentId:
       name: appointment_id
       in: path
@@ -2523,6 +2881,7 @@ components:
         questions: { type: boolean, description: "63 Students' questions in courses managed in Yallapp (Messages). Missing on older servers: false." }
         reviews: { type: boolean, description: "63 Reviews of courses managed in Yallapp (Catalog & content). Missing on older servers: false." }
         member_check_in: { type: boolean, description: "63 A gym's members checked in at the door (Bookings & appointments). Missing on older servers: false." }
+        chat: { type: boolean, description: "77 The app's chat (its plan has it and it is on). Missing on older servers: false." }
         app_users: { type: boolean }
         notifications: { type: boolean }
         media: { type: boolean }
@@ -2552,12 +2911,13 @@ components:
 
     PushKind:
       type: string
-      enum: [new_order, new_booking, new_message, new_review, payment_received, build_finished, yallapp_updates, account_notices]
+      enum: [new_order, new_booking, new_message, new_chat_message, new_review, payment_received, build_finished, yallapp_updates, account_notices]
       description: |
         `new_order` an order was paid; `new_booking` an appointment was
         booked; `new_message` a message about a listing arrived, or (63) a
         student asked a question in a course or wrote again under one
-        (`question_id`); `new_review` (63) a student reviewed a course
+        (`question_id`); `new_chat_message` (77) a message in the app's chat
+        (`conversation_id`); `new_review` (63) a student reviewed a course
         (`review_id`); `payment_received` a donation, or a payment to Yallapp for a
         plan or storage; `build_finished` a build is ready or failed;
         `yallapp_updates` Yallapp published an update or announcement;
@@ -2573,6 +2933,7 @@ components:
         new_order: { type: boolean }
         new_booking: { type: boolean }
         new_message: { type: boolean }
+        new_chat_message: { type: boolean }
         new_review: { type: boolean }
         payment_received: { type: boolean }
         build_finished: { type: boolean }
@@ -2970,7 +3331,8 @@ components:
       properties:
         id: { type: string, format: uuid }
         name: { type: string }
-        kind: { type: string, enum: [video, image, pdf] }
+        kind: { type: string, enum: [video, image, pdf, audio, file], description: '77 `audio` and `file` come from the chat only.' }
+        source: { type: string, enum: [library, chat], description: "77 Uploaded to the Media library, or sent in the chat (deleting it removes it from its message). Missing on older servers: library." }
         content_type: { type: string }
         size_bytes: { type: integer }
         status: { type: string, enum: [uploading, ready] }
@@ -2997,6 +3359,93 @@ components:
         limit: { type: [string, 'null'], example: 20 GB }
         full: { type: boolean }
         manage_url: { type: string, format: uri, description: Storage packs are bought on yallapp.com.tr. }
+
+    ChatThread:
+      type: object
+      required: [id, kind, title, image_url, member, last_message, unread_count, updated_at, keep_until, expires_on]
+      properties:
+        id: { type: string, format: uuid }
+        kind: { type: string, enum: [direct, group] }
+        title: { type: string, description: "The person's name, or the course's title." }
+        image_url: { type: [string, 'null'], format: uri }
+        member:
+          description: The person, in a `direct` conversation.
+          oneOf:
+            - $ref: '#/components/schemas/ChatMember'
+            - type: 'null'
+        member_count: { type: integer }
+        last_message:
+          oneOf:
+            - $ref: '#/components/schemas/ChatMessage'
+            - type: 'null'
+        unread_count: { type: integer }
+        updated_at: { type: string, format: date-time }
+        keep_until: { type: [string, 'null'], format: date, description: Kept by the business until this day. }
+        expires_on: { type: [string, 'null'], format: date, description: 'When its oldest messages are deleted (a year after they were sent, or `keep_until`).' }
+
+    ChatMember:
+      type: object
+      required: [id, name, image_url, blocked]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        image_url: { type: [string, 'null'], format: uri }
+        blocked: { type: boolean, description: The business stopped them from sending. }
+
+    ChatMessage:
+      type: object
+      required: [id, conversation_id, sender, text, attachment, deleted, created_at]
+      properties:
+        id: { type: string }
+        conversation_id: { type: string, format: uuid }
+        client_id: { type: [string, 'null'] }
+        sender:
+          type: object
+          required: [kind, name]
+          properties:
+            kind: { type: string, enum: [member, business] }
+            member_id: { type: [string, 'null'], format: uuid }
+            name: { type: string }
+            team_member: { type: [string, 'null'], description: "Who on the team wrote a business message (shown to the team only)." }
+        text: { type: [string, 'null'] }
+        attachment:
+          oneOf:
+            - type: object
+              required: [kind, name, content_type, size_bytes, url, media_id]
+              properties:
+                kind: { type: string, enum: [image, video, audio, file] }
+                name: { type: string }
+                content_type: { type: string }
+                size_bytes: { type: integer }
+                duration_seconds: { type: [integer, 'null'] }
+                url: { type: string, format: uri }
+                media_id: { type: string, format: uuid }
+            - type: 'null'
+        deleted: { type: boolean }
+        reported: { type: boolean, description: It has an open report. }
+        created_at: { type: string, format: date-time }
+
+    ChatReport:
+      type: object
+      required: [id, message, reporter, reason, note, status, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        message: { $ref: '#/components/schemas/ChatMessage' }
+        conversation_title: { type: string }
+        reporter: { $ref: '#/components/schemas/ChatMember' }
+        reason: { type: string, enum: [spam, abuse, inappropriate, other] }
+        note: { type: [string, 'null'] }
+        status: { type: string, enum: [open, closed] }
+        outcome: { type: [string, 'null'], enum: [dismissed, deleted, blocked, null] }
+        created_at: { type: string, format: date-time }
+
+    ChatSettings:
+      type: object
+      required: [available, enabled, course_groups]
+      properties:
+        available: { type: boolean, description: "The app's plan has chat (Pro and Business)." }
+        enabled: { type: boolean }
+        course_groups: { type: [boolean, 'null'], description: Academies; null for other app types. }
 
     Inquiry:
       type: object
@@ -3335,7 +3784,7 @@ components:
     TeamArea:
       type: string
       description: What a Staff member can be given (roadmap 60).
-      enum: [orders, bookings, events, donations, catalog, media, messages, app_users, analytics, notifications]
+      enum: [orders, bookings, events, donations, catalog, media, messages, chat, app_users, analytics, notifications]
 
     AppAccess:
       type: object

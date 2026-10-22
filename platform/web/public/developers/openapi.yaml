@@ -64,6 +64,11 @@ info:
     call to the client's API with Yallapp's access token, a JWT the client's
     API checks with the keys at `GET /.well-known/jwks.json` (see the
     "Yallapp sign-in" tag).
+
+    Chat (roadmap 77): apps whose plan has chat (Pro and Business) talk with
+    the business, and in academies with course groups, through the hosted API
+    (`Config.chat`, the "Chat" tag), whatever runs the rest of the app. A
+    WordPress app gets a chat token from its site first (`POST /chat/session`).
   license:
     name: Proprietary, Yallapp
     url: https://yallapp.com.tr
@@ -136,6 +141,17 @@ tags:
     description: Free enrollment, checkout hand-off and the student's orders.
   - name: Notifications
     description: The notifications inbox.
+  - name: Chat
+    description: |
+      Roadmap 77. A person and the business (`direct`), and course groups in
+      academies (`group`), on Yallapp's hosted API (`Config.chat.base_url`).
+      People never talk to each other in private. Text, photos, videos, voice
+      messages and files; files count in the app's storage and show in the
+      business's Media library. Messages are kept a year, and longer when the
+      business chooses; the business moderates (reports, blocking, deleting)
+      and is responsible for what is said in its chat. Deleting one's account
+      (`DELETE /me`, on the hosted API or a WordPress site) deletes the
+      person's messages and files too.
   - name: Community
     description: |
       Course reviews and questions and answers. On Yallapp's hosted API
@@ -991,6 +1007,398 @@ paths:
       responses:
         '204': { description: Marked as read }
         '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /chat/session:
+    post:
+      tags: [Chat]
+      operationId: startChatSession
+      summary: A chat token for the signed-in person (WordPress)
+      description: |
+        Roadmap 77. Served by the Yallapp plugin only (0.4.9 and later): the
+        chat lives on Yallapp, and a WordPress app's people sign in on the
+        website, so the app asks its site for a chat token, which the plugin
+        gets from Yallapp (`POST /chat/sessions` in the platform API) for the
+        signed-in person: their WordPress user ID, display name and picture,
+        and for an academy the courses they're enrolled in (their groups). The
+        app then calls `Config.chat.base_url` with this token until
+        `expires_at` (one hour), and asks again on 401 `invalid_token`.
+
+        The hosted API and Yallapp sign-in don't need it: the app uses its
+        own access token on `Config.chat.base_url` (`Config.chat.session` is
+        `access_token` there).
+      responses:
+        '200':
+          description: The token
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ChatSession' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403':
+          description: The app's plan has no chat, or the owner turned it off (`chat_not_available`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /chat/notify:
+    post:
+      tags: [Platform]
+      operationId: notifyChat
+      summary: Push a new chat message to the site's app users
+      description: |
+        Roadmap 77. Sent by the Yallapp platform to a WordPress site when a
+        message arrives for its app's people: the site keeps their push
+        tokens, so its plugin sends the push (Firebase or Huawei Push Kit),
+        with the notification preferences the person chose. Nothing about the
+        message is stored on the site.
+
+        Signed like `POST /license/refresh`: `signature` is the lowercase hex
+        HMAC-SHA256 of `yallapp-chat-notify:<timestamp>:<sha256 of the
+        notification JSON, hex>` keyed with the license key in capitals; a
+        wrong signature, a site without a license key or a timestamp more than
+        5 minutes away is 401 `invalid_signature`.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [timestamp, signature, notification]
+              properties:
+                timestamp: { type: integer, examples: [1792000000] }
+                signature: { type: string, pattern: '^[0-9a-f]{64}$' }
+                notification:
+                  type: object
+                  required: [user_ids, title, body, conversation_id]
+                  properties:
+                    user_ids:
+                      type: array
+                      maxItems: 500
+                      items: { type: integer }
+                      description: The WordPress users to notify.
+                    title: { type: string, maxLength: 120, description: "The sender's name, or the group's name." }
+                    body: { type: string, maxLength: 200, description: 'The start of the message, or "Photo", "Video", "Voice message", "File" in the app''s language.' }
+                    conversation_id: { type: string, format: uuid }
+      responses:
+        '202': { description: Sent to the devices that have a push token. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /chat/conversations:
+    get:
+      tags: [Chat]
+      operationId: listChatConversations
+      summary: The person's conversations
+      description: |
+        Served by the hosted API (`Config.chat.base_url`) for every app with
+        chat. The conversation with the business (`kind: direct`) always comes
+        first, made on the first call; then, in an academy that turned on
+        course groups, the group of each course the person is enrolled in,
+        most recent message first. Students never talk to each other in
+        private: there are only these two kinds.
+      responses:
+        '200':
+          description: Conversations
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, unread_count]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/ChatConversation' }
+                  unread_count: { type: integer, description: "Unread messages in all of them, for the tab's badge." }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/ChatNotAvailable' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /chat/unread:
+    get:
+      tags: [Chat]
+      operationId: chatUnread
+      summary: How many messages are unread
+      description: A cheap call for the badge, made when the app opens and comes back to the front.
+      responses:
+        '200':
+          description: The count
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [unread_count]
+                properties:
+                  unread_count: { type: integer }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/ChatNotAvailable' }
+
+  /chat/conversations/{conversation_id}/messages:
+    get:
+      tags: [Chat]
+      operationId: listChatMessages
+      summary: Messages of a conversation
+      description: |
+        Newest first with `before` (older pages), or oldest first with `after`
+        (what arrived since the last message the app has). While the
+        conversation is on screen the app asks with `after` every
+        `poll_after_seconds` (3 while messages come, up to 15 when it's
+        quiet); a push brings it back when the app isn't open. Messages a
+        person blocked (`ChatMember.blocked`) are left out for them; a
+        deleted message stays in place as `deleted: true` without its text or
+        file.
+      parameters:
+        - $ref: '#/components/parameters/ConversationId'
+        - name: after
+          in: query
+          schema: { type: string }
+          description: A message ID; only newer messages, oldest first.
+        - name: before
+          in: query
+          schema: { type: string }
+          description: A message ID; only older messages, newest first.
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 50 }
+      responses:
+        '200':
+          description: Messages
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, has_more, poll_after_seconds]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/ChatMessage' }
+                  has_more: { type: boolean }
+                  poll_after_seconds: { type: integer, minimum: 3, maximum: 15 }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/ChatNotAvailable' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      tags: [Chat]
+      operationId: sendChatMessage
+      summary: Send a message
+      description: |
+        Text (up to 4,000 characters), a finished upload (`upload_id`, from
+        `POST /chat/uploads`), or both. `client_id` makes it safe to send
+        again after a network error: the same `client_id` in the same
+        conversation answers the message already made. Members the business
+        blocked can read but not send (403 `chat_blocked`). 60 messages a
+        minute per person.
+      parameters:
+        - $ref: '#/components/parameters/ConversationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [client_id]
+              properties:
+                client_id: { type: string, minLength: 8, maxLength: 64 }
+                text: { type: string, maxLength: 4000 }
+                upload_id: { type: string, format: uuid }
+      responses:
+        '201':
+          description: Sent
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ChatMessage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403':
+          description: Chat isn't available (`chat_not_available`) or the business blocked this person (`chat_blocked`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /chat/conversations/{conversation_id}/read:
+    post:
+      tags: [Chat]
+      operationId: readChatConversation
+      summary: Mark a conversation read up to a message
+      parameters:
+        - $ref: '#/components/parameters/ConversationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message_id]
+              properties:
+                message_id: { type: string }
+      responses:
+        '204': { description: Marked }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /chat/conversations/{conversation_id}/members:
+    get:
+      tags: [Chat]
+      operationId: listChatMembers
+      summary: The people in a group
+      description: Names and pictures only, never a phone number or an email address. The business's team shows as the business.
+      parameters:
+        - $ref: '#/components/parameters/ConversationId'
+      responses:
+        '200':
+          description: Members
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/ChatMember' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /chat/messages/{message_id}:
+    delete:
+      tags: [Chat]
+      operationId: deleteChatMessage
+      summary: Delete one's own message
+      description: Deleted for everyone, with its file. Others see that a message was deleted.
+      parameters:
+        - $ref: '#/components/parameters/MessageId'
+      responses:
+        '204': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403':
+          description: Not the person's own message (`not_allowed`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /chat/messages/{message_id}/report:
+    post:
+      tags: [Chat]
+      operationId: reportChatMessage
+      summary: Report a message to the business
+      description: |
+        The business sees the report in its dashboard and Yallapp Business and
+        decides (delete the message, block the sender). Once per person and
+        message; a second report answers 204 too.
+      parameters:
+        - $ref: '#/components/parameters/MessageId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { type: string, enum: [spam, abuse, inappropriate, other] }
+                note: { type: string, maxLength: 500 }
+      responses:
+        '204': { description: Reported }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /chat/members/{member_id}/block:
+    put:
+      tags: [Chat]
+      operationId: blockChatMember
+      summary: Stop seeing a member's messages
+      description: For the person asking only, in every group. The business itself can't be blocked.
+      parameters:
+        - $ref: '#/components/parameters/MemberId'
+      responses:
+        '204': { description: Blocked }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Chat]
+      operationId: unblockChatMember
+      summary: See a member's messages again
+      parameters:
+        - $ref: '#/components/parameters/MemberId'
+      responses:
+        '204': { description: Unblocked }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /chat/uploads:
+    post:
+      tags: [Chat]
+      operationId: startChatUpload
+      summary: Start sending a photo, video, voice message or file
+      description: |
+        Checks the type and size (pictures 20 MB, videos 200 MB, voice
+        messages 20 MB, files 50 MB: PDF, Word, Excel, PowerPoint, text) and
+        the app's storage, where chat files count with the Media library's
+        (413 `storage_full`). The app sends the file in chunks to `upload_url`
+        exactly as Yallapp Business does for Media (the media gate's protocol),
+        then calls `/complete`, then sends the message with `upload_id`. An
+        upload not sent in a message within a day is deleted.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, size, type]
+              properties:
+                name: { type: string, maxLength: 200 }
+                size: { type: integer, minimum: 1 }
+                type: { type: string, example: image/jpeg }
+                duration_seconds: { type: integer, minimum: 0, description: A voice message's length. }
+      responses:
+        '201':
+          description: Started
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ChatUpload' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/ChatNotAvailable' }
+        '413':
+          description: Too big for its kind (`too_big`), or the app's storage is full (`storage_full`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /chat/uploads/{upload_id}/resume:
+    post:
+      tags: [Chat]
+      operationId: resumeChatUpload
+      summary: A fresh link to carry on with an upload
+      parameters:
+        - $ref: '#/components/parameters/UploadId'
+      responses:
+        '200':
+          description: A new link
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ChatUpload' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /chat/uploads/{upload_id}/complete:
+    post:
+      tags: [Chat]
+      operationId: completeChatUpload
+      summary: Finish an upload
+      description: 409 `incomplete` with the offset reached when part of the file is missing.
+      parameters:
+        - $ref: '#/components/parameters/UploadId'
+      responses:
+        '204': { description: Ready to send }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
 
   /me/orders:
     get:
@@ -3146,6 +3554,26 @@ components:
         The type of the app asking (its build config's `app_type`). Default pages are built
         for it. Unknown values are ignored.
       schema: { type: string, enum: [lms, store, booking, real_estate, news, events, donations] }
+    ConversationId:
+      name: conversation_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    MessageId:
+      name: message_id
+      in: path
+      required: true
+      schema: { type: string }
+    MemberId:
+      name: member_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    UploadId:
+      name: upload_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
     Page:
       name: page
       in: query
@@ -3262,6 +3690,11 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
+    ChatNotAvailable:
+      description: Roadmap 77. The app's plan has no chat, or its owner turned it off (`chat_not_available`).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
     NotFound:
       description: Not found.
       content:
@@ -3323,6 +3756,10 @@ components:
             - demo_number_only
             - preview_review_number_only
             - invalid_signature
+            - chat_not_available
+            - chat_blocked
+            - storage_full
+            - too_big
             - update_required
             - invalid_answers
             - kitchen_closed
@@ -3465,6 +3902,7 @@ components:
                 chose it knows already (the build config's `auth_base_url`); a
                 client's own API may send it too, for apps built before.
             base_url: { type: string, format: uri, example: 'https://yallapp.com.tr/api/app/00000000-0000-0000-0000-000000000000', description: "With `provider: yallapp`: Yallapp's hosted API for the app." }
+        chat: { $ref: '#/components/schemas/ChatConfig' }
         purchases:
           type: object
           required: [enroll_button, free_enrollment]
@@ -4137,6 +4575,106 @@ components:
         device: { type: [string, 'null'], enum: [phone, tablet, null], description: "The kind of device only, never its model or name." }
         screen: { type: [string, 'null'], maxLength: 80, description: "The route's pattern, without ids or query (`/course/:id`).", example: '/course/:id' }
         at: { type: string, format: date-time }
+
+    ChatConfig:
+      type: object
+      description: |
+        Roadmap 77. Chat with the business (and, in academies, course
+        groups). Present only when the app's plan has chat (Pro and Business)
+        and the owner didn't turn it off; missing means no chat.
+      required: [base_url, session, groups]
+      properties:
+        base_url: { type: string, format: uri, example: 'https://yallapp.com.tr/api/app/00000000-0000-0000-0000-000000000000', description: Where the Chat endpoints are (Yallapp's hosted API for the app). }
+        session:
+          type: string
+          enum: [access_token, site]
+          description: |
+            `access_token`: send the app's own access token (hosted API,
+            Yallapp sign-in). `site`: get a chat token from this site first
+            (`POST /chat/session`, WordPress).
+        groups: { type: boolean, description: The academy turned on course groups. }
+
+    ChatSession:
+      type: object
+      required: [token, expires_at, base_url]
+      properties:
+        token: { type: string, description: 'Sent as `Authorization: Bearer` to `base_url`.' }
+        expires_at: { type: string, format: date-time }
+        base_url: { type: string, format: uri }
+
+    ChatConversation:
+      type: object
+      required: [id, kind, title, image_url, last_message, unread_count, can_send, updated_at]
+      properties:
+        id: { type: string, format: uuid }
+        kind: { type: string, enum: [direct, group], description: '`direct`: the person and the business. `group`: a course''s group.' }
+        title: { type: string, description: "The business's name, or the course's." }
+        image_url: { type: [string, 'null'], format: uri }
+        course_id: { type: [string, 'null'], description: The group's course. }
+        member_count: { type: integer, description: 'With `kind: group`.' }
+        last_message:
+          oneOf:
+            - $ref: '#/components/schemas/ChatMessage'
+            - type: 'null'
+        unread_count: { type: integer }
+        can_send: { type: boolean, description: False while the business blocked the person. }
+        updated_at: { type: string, format: date-time }
+
+    ChatMessage:
+      type: object
+      required: [id, conversation_id, sender, mine, text, attachment, deleted, created_at]
+      properties:
+        id: { type: string, description: Sortable; later messages have greater IDs. }
+        conversation_id: { type: string, format: uuid }
+        client_id: { type: [string, 'null'] }
+        sender:
+          type: object
+          required: [kind, name, image_url]
+          properties:
+            kind: { type: string, enum: [member, business] }
+            member_id: { type: [string, 'null'], format: uuid, description: 'With `kind: member`.' }
+            name: { type: string, description: 'The member''s name; the business''s name for its team.' }
+            image_url: { type: [string, 'null'], format: uri }
+        mine: { type: boolean }
+        text: { type: [string, 'null'] }
+        attachment:
+          oneOf:
+            - $ref: '#/components/schemas/ChatAttachment'
+            - type: 'null'
+        deleted: { type: boolean }
+        created_at: { type: string, format: date-time }
+
+    ChatAttachment:
+      type: object
+      required: [kind, name, content_type, size_bytes, url, url_expires_at]
+      properties:
+        kind: { type: string, enum: [image, video, audio, file] }
+        name: { type: string }
+        content_type: { type: string }
+        size_bytes: { type: integer }
+        duration_seconds: { type: [integer, 'null'] }
+        url: { type: string, format: uri, description: 'A signed link (the media gate), valid until `url_expires_at`; the next list gives a fresh one.' }
+        url_expires_at: { type: string, format: date-time }
+
+    ChatMember:
+      type: object
+      required: [id, name, image_url, business, blocked]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        image_url: { type: [string, 'null'], format: uri }
+        business: { type: boolean, description: The business (its team). }
+        blocked: { type: boolean, description: The person asking blocked this member. }
+
+    ChatUpload:
+      type: object
+      required: [id, kind, upload_url, chunk_bytes, size]
+      properties:
+        id: { type: string, format: uuid }
+        kind: { type: string, enum: [image, video, audio, file] }
+        upload_url: { type: string, format: uri }
+        chunk_bytes: { type: integer, example: 5242880 }
+        size: { type: integer }
 
     Notification:
       type: object
