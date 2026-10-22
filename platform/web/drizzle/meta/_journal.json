@@ -400,6 +400,13 @@
       "when": 1792692682357,
       "tag": "0056_app_errors",
       "breakpoints": true
+    },
+    {
+      "idx": 57,
+      "version": "5",
+      "when": 1792701685451,
+      "tag": "0057_integration_checks",
+      "breakpoints": true
     }
   ]
 }

@@ -1146,6 +1146,10 @@ never in a chat or an issue.
       table) goes with the production deploy. Admin › Clients › a client now
       shows the apps' errors and a timeline. The hosted API answers an
       unexpected error with a JSON 500 (`server_error`) instead of Next's page.
+- [ ] **Integrations** (80.1): migration `0057_integration_checks.sql` (one
+      new column on `apps`) goes with the production deploy. Dashboard ›
+      Integrations lists each app's connections; Test asks a website,
+      payment keys or a push key now, without sending anything to anyone.
 - [ ] Campaign links: point them at any page of the site with
       `utm_source`, `utm_medium` and `utm_campaign` (and `from` for a page
       of ours, like `from=newsletter`); the sign-up records them while the

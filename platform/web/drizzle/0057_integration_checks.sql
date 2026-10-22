@@ -1,0 +1,1 @@
+ALTER TABLE `apps` ADD `integration_checks` longtext;

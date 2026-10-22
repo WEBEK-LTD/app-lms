@@ -32,6 +32,7 @@ import type {
   MoreStoresRow,
   AuditChanges,
   OwnerNoticeKind,
+  IntegrationChecks,
   LinksCheckSnapshot,
   CrashIssueStatus,
   ApiWebhookEvent,
@@ -270,6 +271,8 @@ export const apps = mysqlTable(
     androidUploadSha256: varchar("android_upload_sha256", { length: 95 }),
     appleTeamId: varchar("apple_team_id", { length: 10 }),
     linksCheck: jsonText<LinksCheckSnapshot>("links_check"),
+    // 80.1 The last test of each connection (Dashboard › Integrations).
+    integrationChecks: jsonText<IntegrationChecks>("integration_checks"),
     // 46 The owner's switches: the store's own rating prompt after good moments, and crash reports.
     reviewPrompt: boolean("review_prompt").notNull().default(true),
     crashReports: boolean("crash_reports").notNull().default(true),

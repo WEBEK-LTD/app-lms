@@ -2383,6 +2383,24 @@ a hash in `lib/csp-nonce.ts`. `tests/e2e/csp.spec.ts` checks the policy, that
 every script carries the nonce, that signing in and the admin run with no
 violation, and that a script put into the page's HTML doesn't run.
 
+## Integrations (80.1)
+
+Dashboard › Integrations (`lib/integrations`) lists every connection of the
+app in one place: its website or platform, card payments, who sends its
+sign-in codes (Yallapp's WhatsApp number and email, or the app's own), Firebase
+and Huawei push, and each store's key. Each has a state (connected, needs
+attention, not set up, waiting), a reason worded by the dashboard in English,
+Arabic and Turkish (`i18n/dashboard/integrations.ts`), a link to where it is
+set up and its errors of the last 30 days (`app_errors`, 78.4, matched by
+`integrationOfError`). Test asks the other side now without sending anything
+to anyone: the website through the same check as the Website step, payment
+keys through the provider's check, push by asking Google or Huawei for a
+token. The result is kept per connection in `apps.integration_checks`
+(migration 0057); a failed last test makes a connected one need attention
+until it passes. The senders are tested by sending, on App sign-in; the
+stores' keys when a build uploads with them. Every plan has the page: it only
+shows what the app already has.
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:
