@@ -61,7 +61,7 @@ export function jwksUrl(platformUrl: string, appId: string): string {
   return `${hostedApiUrl(platformUrl, appId)}/.well-known/jwks.json`;
 }
 
-const keyContext = (appId: string) => `app-auth-key:${appId}`;
+export const keyContext = (appId: string) => `app-auth-key:${appId}`;
 
 /** A new key pair for the app, the private key encrypted. */
 export async function newAuthKey(appId: string, encryptionKey: Buffer, now: Date): Promise<AppAuthKey> {

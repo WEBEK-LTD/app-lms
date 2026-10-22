@@ -11,7 +11,8 @@ import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, Analyt
 import type { AppAuthKey, AppLayoutRecord } from "./types";
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
-import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
+import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
+import { candidatesIn, needsRekey } from "../crypto/rekey";
 import { assetIdsIn } from "./asset-ids";
 import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 import type { MoreStore, MoreStoresRow, PublishingEvent, PublishingRequest, PublishingTrack } from "./types";
@@ -4603,6 +4604,83 @@ export class MysqlStore implements DataStore {
   async deleteAppErrorsBefore(before: Date): Promise<number> {
     const [result] = await this.run((db) => db.delete(schema.appErrors).where(lt(schema.appErrors.lastAt, before)));
     return result.affectedRows;
+  }
+
+  // 79.2 Every text column of every table with a primary key, read in pages by key; MySQL's REGEXP picks the cells, JavaScript checks them.
+  async listCellsToRekey(input: { currentKeyId: string; after: string | null; limit: number }): Promise<{ cells: RekeyCell[]; next: string | null }> {
+    if (!/^[A-Za-z0-9_-]{8}$/.test(input.currentKeyId)) throw new Error("Invalid key ID");
+    const columns = await this.rekeyColumns();
+    const pattern = `(?-i)v1\\.[A-Za-z0-9_-]{16}\\.|v2\\.(?!${input.currentKeyId}\\.)[A-Za-z0-9_-]{8}\\.`;
+    let at: { i: number; last: unknown[] | null } = input.after ? (JSON.parse(input.after) as { i: number; last: unknown[] | null }) : { i: 0, last: null };
+    const cells: RekeyCell[] = [];
+    let queries = 0;
+    while (at.i < columns.length && cells.length < input.limit && queries < 25) {
+      const c = columns[at.i]!;
+      const pk = c.pk.map((k) => sql.identifier(k));
+      const after = at.last
+        ? sql` and (${sql.join(pk, sql`, `)}) > (${sql.join(
+            at.last.map((v) => sql`${v}`),
+            sql`, `,
+          )})`
+        : sql``;
+      const want = input.limit - cells.length;
+      const [rows] = (await this.run((db) =>
+        db.execute(
+          sql`select * from ${sql.identifier(c.table)} where ${sql.identifier(c.column)} regexp ${pattern}${after} order by ${sql.join(pk, sql`, `)} limit ${want}`,
+        ),
+      )) as unknown as [Record<string, unknown>[]];
+      queries++;
+      for (const row of rows) {
+        const text = row[c.column];
+        const key = c.pk.map((k) => (row[k] instanceof Date ? (row[k] as Date).toISOString() : row[k]));
+        at = { i: at.i, last: c.pk.map((k) => row[k]) };
+        if (typeof text !== "string" || !needsRekey(text, input.currentKeyId)) continue;
+        cells.push({ table: c.table, column: c.column, key: JSON.stringify(key), text, candidates: candidatesIn(Object.values(row)) });
+      }
+      if (rows.length < want) at = { i: at.i + 1, last: null };
+    }
+    return { cells, next: at.i < columns.length ? JSON.stringify(at) : null };
+  }
+
+  async updateRekeyedCell(cell: RekeyCell, text: string): Promise<boolean> {
+    const columns = await this.rekeyColumns();
+    const c = columns.find((col) => col.table === cell.table && col.column === cell.column);
+    if (!c) return false;
+    const key = JSON.parse(cell.key) as unknown[];
+    if (key.length !== c.pk.length) return false;
+    const where = c.pk.map((k, i) => sql`${sql.identifier(k)} = ${key[i]}`);
+    const [result] = (await this.run((db) =>
+      db.execute(
+        sql`update ${sql.identifier(c.table)} set ${sql.identifier(c.column)} = ${text} where ${sql.join(where, sql` and `)} and ${sql.identifier(c.column)} = ${cell.text}`,
+      ),
+    )) as unknown as [{ affectedRows: number }];
+    return result.affectedRows === 1;
+  }
+
+  private rekeyColumnsCache: { at: number; columns: { table: string; column: string; pk: string[] }[] } | null = null;
+
+  /** The text columns that can hold an encrypted value (long enough), with their table's primary key. */
+  private async rekeyColumns(): Promise<{ table: string; column: string; pk: string[] }[]> {
+    if (this.rekeyColumnsCache && Date.now() - this.rekeyColumnsCache.at < 60_000) return this.rekeyColumnsCache.columns;
+    const [cols] = (await this.run((db) =>
+      db.execute(
+        sql`select table_name as t, column_name as c from information_schema.columns
+            where table_schema = database() and data_type in ('varchar', 'text', 'mediumtext', 'longtext', 'json')
+              and (character_maximum_length is null or character_maximum_length >= 60) and table_name <> '__drizzle_migrations'
+            order by table_name, column_name`,
+      ),
+    )) as unknown as [{ t: string; c: string }[]];
+    const [keys] = (await this.run((db) =>
+      db.execute(
+        sql`select table_name as t, column_name as c from information_schema.key_column_usage
+            where table_schema = database() and constraint_name = 'PRIMARY' order by table_name, ordinal_position`,
+      ),
+    )) as unknown as [{ t: string; c: string }[]];
+    const pks = new Map<string, string[]>();
+    for (const k of keys) pks.set(k.t, [...(pks.get(k.t) ?? []), k.c]);
+    const columns = cols.filter((c) => pks.has(c.t)).map((c) => ({ table: c.t, column: c.c, pk: pks.get(c.t)! }));
+    this.rekeyColumnsCache = { at: Date.now(), columns };
+    return columns;
   }
 
 

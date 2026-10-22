@@ -1930,7 +1930,7 @@ rotation, and isolation between clients is checked by hand.
 | | Step | Done when |
 |---|---|---|
 | [x] | 79.1 Backups: the owner's decision, cPanel's own backups of our host (the database, the media folder and the build files) sent to Google Drive; the restore runbook and what cPanel can't hold (a copy of `ENCRYPTION_KEY` kept apart, the Netlify Blobs export `scripts/export-blobs.mjs`) in LAUNCH-CHECKLIST | The runbook and a restore that worked, LAUNCH-CHECKLIST |
-| [ ] | 79.2 Key rotation: a key ID on every encrypted value, a second key, a re-encryption job; the pipeline token checked for length and limited to what builds need | Unit tests |
+| [x] | 79.2 Key rotation: every encrypted value names its key's ID (`v2.<key id>.…`, values of before still open), `ENCRYPTION_KEY_OLD` keeps old keys readable, the rekey job (`lib/jobs/rekey.ts`, from the frequent job) moves every stored value to the current key, finding its context among the platform's (`CONTEXT_TEMPLATES`), and Admin › Watching says when the old key can go; a `BUILD_PIPELINE_TOKEN` shorter than 32 characters is flagged there (the pipeline already only gets keys while a build runs); the steps in LAUNCH-CHECKLIST | Unit tests (memory store and MariaDB) |
 | [ ] | 79.3 Isolation tests: every dashboard, Owner API and hosted route tried with another client's IDs | A test that fails when a route leaks |
 | [ ] | 79.4 CI: dependency updates and code scanning, actions pinned, scripts limited by CSP (69.12, 69.14) | CI |
 

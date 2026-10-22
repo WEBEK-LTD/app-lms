@@ -25,7 +25,7 @@ import { noteAppError } from "../watch/app-errors";
  * password.
  */
 
-const context = (appId: string) => `app-smtp:${appId}`;
+export const context = (appId: string) => `app-smtp:${appId}`;
 
 /** How long to wait for the server to answer (connecting, greeting, DNS). */
 export const MAIL_TIMEOUT_MS = 10_000;

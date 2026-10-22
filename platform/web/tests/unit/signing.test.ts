@@ -235,8 +235,8 @@ describe("PUT /api/v1/builds/{id}/signing", () => {
     const response = await signing(build.id, { android_upload_key: androidKey, ios_distribution: iosKey });
     expect(response.status).toBe(204);
     const saved = (await store.getAppById(app.id))!;
-    expect(saved.androidUploadKeyEncrypted).toMatch(/^v1\./);
-    expect(saved.iosDistributionEncrypted).toMatch(/^v1\./);
+    expect(saved.androidUploadKeyEncrypted).toMatch(/^v2\./);
+    expect(saved.iosDistributionEncrypted).toMatch(/^v2\./);
     expect(saved.androidUploadKeyEncrypted).not.toContain(androidKey.store_password);
     expect(saved.androidUploadKeyEncrypted).not.toContain(androidKey.keystore_base64);
 

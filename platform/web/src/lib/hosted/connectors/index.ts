@@ -14,7 +14,7 @@ import "./registry";
 import { ShopifyConnector } from "./shopify";
 import type { Connector } from "./types";
 
-const context = (appId: string) => `app:connector:${appId}`;
+export const context = (appId: string) => `app:connector:${appId}`;
 
 export function shopifyConnectorConfig(
   appId: string,

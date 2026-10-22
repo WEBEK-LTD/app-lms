@@ -14,7 +14,7 @@ import type { PaymentAccount } from "../payments/provider";
 import type { PayoutDetails } from "./marketplace";
 import { yallappAccountFor } from "../settings/platform";
 
-const paymentContext = (appId: string) => `app:payment:${appId}`;
+export const paymentContext = (appId: string) => `app:payment:${appId}`;
 
 export function catalogSettings(app: App): CatalogSettings {
   return { ...DEFAULT_CATALOG_SETTINGS, ...(app.catalogSettings ?? {}) };

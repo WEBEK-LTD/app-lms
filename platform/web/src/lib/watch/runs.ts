@@ -64,6 +64,8 @@ export const JOB_EXPECTED_MS: Record<WatchedJob, number> = {
   webhooks: 20 * 60_000,
   // GitHub runs the hourly schedule late, often hours late; the platform starts it at once with GITHUB_DISPATCH_TOKEN.
   pipeline: 8 * 3_600_000,
+  // 79.2 Runs only when values need moving to the current key; never watched for being late.
+  rekey: 365 * 86_400_000,
 };
 
 export const JOB_LABEL: Record<WatchedJob, string> = {
@@ -71,6 +73,7 @@ export const JOB_LABEL: Record<WatchedJob, string> = {
   frequent: "Frequent job (every 5 minutes)",
   webhooks: "API webhooks (every 5 minutes)",
   pipeline: "Build pipeline (asks for builds)",
+  rekey: "Encryption keys (moving values to the current key)",
 };
 
 /** Each job's last good run and whether it is late; a job with no run recorded yet isn't late (recording starts with Phase 78). */

@@ -105,7 +105,7 @@ export default async function WatchingPage() {
         )}
       </Section>
 
-      <Section id="h-health" title="Health" text="Checked now: the database, the media gate, the files host, email, the owners' push key, the build pipeline and the jobs.">
+      <Section id="h-health" title="Health" text="Checked now: the database, the media gate, the files host, email, the owners' push key, the build pipeline, the encryption keys and the jobs.">
         <div className="overflow-x-auto rounded-2xl border border-line bg-white">
           <table className="w-full min-w-[560px] border-collapse text-sm">
             <caption className="sr-only">Health checks</caption>

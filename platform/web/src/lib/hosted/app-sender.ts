@@ -15,7 +15,7 @@ import { noteAppError } from "../watch/app-errors";
  * Without one, Yallapp's own sender (Settings › Sign-in codes) sends them.
  */
 
-const context = (appId: string) => `app-whatsapp:${appId}`;
+export const context = (appId: string) => `app-whatsapp:${appId}`;
 
 /** The saved form of a new key and instance. */
 export function appWhatsappSender(appId: string, apiKey: string, instanceId: string | null, encryptionKey: Buffer, now: Date): AppWhatsappSender {

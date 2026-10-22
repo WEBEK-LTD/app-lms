@@ -1180,6 +1180,36 @@ hold everything on the host: the database, the media folder
   latest backup, point `DATABASE_URL` on Netlify at it if it moved, keep the
   same `ENCRYPTION_KEY`, and redeploy.
 
+**Encryption keys (79.2).** Every encrypted value now names the ID of its
+key. After the deploy, the frequent job moves the values written before 79.2
+to the new format (once, a few seconds at a time); Admin › Watching ›
+Encryption keys shows the current key's ID and says when every stored value
+is on it.
+
+- [ ] After the deploy: Admin › Watching › Encryption keys says "Every
+      stored value is on it" (within an hour or so).
+- [ ] If `BUILD_PIPELINE_TOKEN` is shorter than 32 characters, Admin ›
+      Watching › Build pipeline says so: make a new one (`openssl rand -hex
+      32`), set it in Netlify and in GitHub › Settings › Secrets, together.
+
+**Rotating the encryption key** (only if it may have leaked, or as a
+routine every few years):
+
+1. `openssl rand -hex 32` gives the new key. Keep a copy apart, like the
+   old one.
+2. In Netlify: put the current value of `ENCRYPTION_KEY` in
+   `ENCRYPTION_KEY_OLD`, the new key in `ENCRYPTION_KEY`, and deploy. Both
+   open values from then on; new values go to the new key.
+3. Wait until Admin › Watching › Encryption keys says "Every stored value is
+   on it … ENCRYPTION_KEY_OLD can be removed" (the frequent job moves them,
+   a few seconds every 5 minutes).
+4. Remove `ENCRYPTION_KEY_OLD` and deploy. If the key leaked, also change the
+   secrets themselves where they come from (payment keys, store keys…):
+   whoever had the old key and an old copy of the database could read them.
+- If it says some values couldn't be moved, keep `ENCRYPTION_KEY_OLD` and
+  tell the developers: those values were sealed in a way the job doesn't
+  know.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |

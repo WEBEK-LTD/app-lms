@@ -1,4 +1,5 @@
 import "server-only";
+import { withOldKeys } from "./crypto/encryption";
 import knownCas from "./db/known-cas.json";
 
 /**
@@ -61,11 +62,35 @@ export function signingSecret(): string {
   return secret;
 }
 
-/** 32-byte key for AES-256-GCM, given as 64 hex characters or base64. */
+function parseKey(raw: string, name: string): Buffer {
+  const key = /^[0-9a-fA-F]{64}$/.test(raw) ? Buffer.from(raw, "hex") : Buffer.from(raw, "base64");
+  if (key.length !== 32) throw new Error(`${name} must decode to 32 bytes (64 hex characters or base64).`);
+  return key;
+}
+
+let keyCache: { raw: string; key: Buffer } | null = null;
+
+/**
+ * 32-byte key for AES-256-GCM, given as 64 hex characters or base64. 79.2
+ * `ENCRYPTION_KEY_OLD` (one or more previous keys, separated by commas) keeps
+ * values sealed with them readable while the rekey job moves them to this one
+ * (lib/jobs/rekey.ts). The same Buffer comes back while the variables don't
+ * change, with its old keys attached (lib/crypto/encryption.ts).
+ */
 export function encryptionKey(): Buffer {
   const raw = required("ENCRYPTION_KEY");
-  const key = /^[0-9a-fA-F]{64}$/.test(raw) ? Buffer.from(raw, "hex") : Buffer.from(raw, "base64");
-  if (key.length !== 32) throw new Error("ENCRYPTION_KEY must decode to 32 bytes (64 hex characters or base64).");
+  const oldRaw = read("ENCRYPTION_KEY_OLD") ?? "";
+  const cacheKey = `${raw}|${oldRaw}`;
+  if (keyCache?.raw === cacheKey) return keyCache.key;
+  const key = withOldKeys(
+    parseKey(raw, "ENCRYPTION_KEY"),
+    oldRaw
+      .split(",")
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .map((part) => parseKey(part, "Each key in ENCRYPTION_KEY_OLD")),
+  );
+  keyCache = { raw: cacheKey, key };
   return key;
 }
 

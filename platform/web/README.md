@@ -168,7 +168,8 @@ drizzle's `serial()`: its SQL doesn't run on MariaDB.
 | `DATABASE_CA` | no | The CA of the database server: `host.webek.org` for the bundled one (`src/lib/db/known-cas.json`), or a PEM (`\n` allowed for newlines). |
 | `SESSION_SECRET` | yes | 32+ random characters. Encrypts session cookies. |
 | `SIGNING_SECRET` | yes | 32+ random characters. Signs download links. |
-| `ENCRYPTION_KEY` | yes | 32 bytes, as 64 hex characters (`openssl rand -hex 32`). Encrypts license keys and store API keys. Never change it without re-encrypting. |
+| `ENCRYPTION_KEY` | yes | 32 bytes, as 64 hex characters (`openssl rand -hex 32`). Encrypts license keys and store API keys; each value names its key's ID (79.2). Never change it without keeping the old one in `ENCRYPTION_KEY_OLD` until Admin › Watching says every value moved (LAUNCH-CHECKLIST › Rotating the encryption key). |
+| `ENCRYPTION_KEY_OLD` | no | 79.2 Previous encryption keys, separated by commas: values sealed with them still open while the frequent job moves them to `ENCRYPTION_KEY`. Remove it once Admin › Watching › Encryption keys says every stored value is on the current key. |
 | `TRUSTED_PROXY_SECRET` | with the proxy | 32+ characters, shared with `deploy/apache-proxy.conf` on host.webek.org. |
 | `SUPER_ADMIN_EMAILS` | yes | Comma-separated super admin emails. |
 | `BUILD_PIPELINE_TOKEN` | for Phase 5 | Bearer token of the pipeline API. Without it the pipeline API refuses every request. |

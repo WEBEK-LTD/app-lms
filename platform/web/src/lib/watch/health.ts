@@ -1,11 +1,12 @@
 import type { DataStore } from "../data/store";
+import { lastRekeyState } from "../jobs/rekey";
 import { JOB_LABEL, jobStates } from "./runs";
 import type { WatchedJob } from "../data/types";
 
 /**
  * 78.3 The deep health check (Admin › Watching): the database, the media
- * gate, the files host, email, the owners' push key, the build pipeline and
- * the scheduled jobs, each with a plain answer. What it reads from the
+ * gate, the files host, email, the owners' push key, the build pipeline,
+ * 79.2 the encryption keys and the scheduled jobs, each with a plain answer. What it reads from the
  * environment comes in `HealthDeps` (lib/watch/env.ts), so it is tested
  * without one.
  */
@@ -29,7 +30,11 @@ export interface HealthDeps {
   /** OWNER_PUSH_FIREBASE_SERVICE_ACCOUNT: unset, set but not a key, or a key. */
   ownerPush: "unset" | "invalid" | "ok";
   pipelineToken: boolean;
+  /** 79.2 BUILD_PIPELINE_TOKEN is set but shorter than 32 characters. */
+  pipelineTokenShort?: boolean;
   dispatchToken: boolean;
+  /** 79.2 The current encryption key's ID and the old keys' (ENCRYPTION_KEY_OLD), or null when ENCRYPTION_KEY isn't usable. */
+  keys?: { keyId: string; oldKeyIds: string[] } | null;
 }
 
 const TIMEOUT_MS = 5000;
@@ -93,6 +98,7 @@ export async function deepHealth(deps: HealthDeps): Promise<HealthCheck[]> {
   const pipeline = jobStates(last, deps.now, ["pipeline"])[0]!;
   const pipelineProblems = [
     !deps.pipelineToken && "BUILD_PIPELINE_TOKEN isn't set: the pipeline can't take builds.",
+    deps.pipelineTokenShort && "BUILD_PIPELINE_TOKEN is shorter than 32 characters: make a new one (openssl rand -hex 32) and set it in Netlify and in GitHub's secrets.",
     !deps.dispatchToken && "GITHUB_DISPATCH_TOKEN isn't set: builds wait for GitHub's hourly schedule, often hours late.",
     pipeline.late && `It last asked for builds ${when(pipeline.last!)}.`,
   ].filter((p): p is string => Boolean(p));
@@ -103,6 +109,8 @@ export async function deepHealth(deps: HealthDeps): Promise<HealthCheck[]> {
     detail: pipelineProblems.length ? pipelineProblems.join(" ") : pipeline.last ? `Last asked for builds ${when(pipeline.last)}.` : "Set; it hasn't asked for builds since this was first recorded.",
   });
 
+  if (deps.keys !== undefined) checks.push(await keysCheck(deps.store, deps.keys));
+
   for (const s of jobStates(last, deps.now, ["daily", "frequent", "webhooks"])) {
     checks.push({
       key: `job:${s.job}`,
@@ -112,4 +120,29 @@ export async function deepHealth(deps: HealthDeps): Promise<HealthCheck[]> {
     });
   }
   return checks;
+}
+
+/** 79.2 Whether every encrypted value is on the current key, from the rekey job's last run. */
+async function keysCheck(store: DataStore, keys: { keyId: string; oldKeyIds: string[] } | null): Promise<HealthCheck> {
+  const label = "Encryption keys";
+  if (!keys) return { key: "keys", label, ok: false, detail: "ENCRYPTION_KEY isn't set or isn't 32 bytes." };
+  const state = await lastRekeyState(store).catch(() => null);
+  const current = state && state.keyId === keys.keyId && state.oldKeyIds.join(",") === [...keys.oldKeyIds].sort().join(",") ? state : null;
+  const old = keys.oldKeyIds.length;
+  const id = `The current key's ID is ${keys.keyId}.`;
+  if (!current) return { key: "keys", label, ok: true, detail: `${id} The frequent job checks every stored value is on it.` };
+  if (current.failed > 0)
+    return {
+      key: "keys",
+      label,
+      ok: false,
+      detail: `${id} ${current.failed} stored values couldn't be moved to it (their context wasn't found)${old ? ": keep ENCRYPTION_KEY_OLD set" : ""}.`,
+    };
+  if (!current.done) return { key: "keys", label, ok: true, detail: `${id} Moving stored values to it: ${current.moved} so far.` };
+  return {
+    key: "keys",
+    label,
+    ok: true,
+    detail: old ? `${id} Every stored value is on it (${current.moved} moved): ENCRYPTION_KEY_OLD can be removed.` : `${id} Every stored value is on it.`,
+  };
 }
