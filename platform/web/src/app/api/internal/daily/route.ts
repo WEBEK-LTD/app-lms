@@ -17,6 +17,10 @@ import { accountPurgeDeps, purgeDeps } from "@/lib/apps/purge-env";
 import { runChatRetention } from "@/lib/chat/retention";
 import { recordAllMilestones } from "@/lib/milestones/record";
 import { recordProductDay } from "@/lib/admin/product-days";
+import { recordJobRun } from "@/lib/watch/runs";
+import { runWatch } from "@/lib/watch/watch";
+import { dispatchSet, teamMail } from "@/lib/watch/env";
+import type { DataStore } from "@/lib/data/store";
 
 /**
  * POST /api/internal/daily (roadmap 13.4): the daily job. Netlify's scheduled
@@ -37,7 +41,9 @@ import { recordProductDay } from "@/lib/admin/product-days";
  * messages over a year old go unless kept, and the business hears 30 days
  * before (lib/chat/retention.ts). 78 Every account's milestones are
  * recorded, before deleted apps are purged (lib/milestones), then the day's
- * snapshot for Admin › Product (lib/admin/product-days.ts). Safe to call again.
+ * snapshot for Admin › Product (lib/admin/product-days.ts). 78.3 Each run is
+ * recorded; job runs older than 30 days go, and the watch checks that the
+ * frequent job runs (lib/watch). Safe to call again.
  */
 export async function POST(request: Request): Promise<Response> {
   if (!hasBearerToken(request, internalJobSecret())) {
@@ -45,6 +51,11 @@ export async function POST(request: Request): Promise<Response> {
   }
   const store = await getStore();
   const now = new Date();
+  // 78.3 Recorded as a run (lib/watch/runs.ts).
+  return json(await recordJobRun(store, "daily", () => new Date(), () => runDaily(store, now)));
+}
+
+async function runDaily(store: DataStore, now: Date) {
   const deps = { store, baseUrl: appUrl(), mail: sendTemplate, now };
   const report = await runDailyNotices(deps);
   // 47 Each app's days in its time zone.
@@ -86,5 +97,8 @@ export async function POST(request: Request): Promise<Response> {
   // 73 Deleted apps past their 7 days, then accounts whose deletion is due.
   const apps = await runAppPurges(purgeDeps(store, now));
   const accounts = await runAccountDeletions(accountPurgeDeps(store, now));
-  return json({ ...report, analytics: { ...analytics, history: analyticsHistory }, media, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts } });
+  // 78.3 Job runs kept 30 days; the frequent job checked (it checks the others).
+  const jobRunsPurged = await store.deleteJobRunsBefore(new Date(now.getTime() - 30 * 86_400_000));
+  const watch = await runWatch({ store, now, mail: teamMail, jobs: ["frequent"], dispatch: dispatchSet() });
+  return { ...report, analytics: { ...analytics, history: analyticsHistory }, media, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, jobRunsPurged, watch };
 }

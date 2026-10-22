@@ -2873,3 +2873,45 @@ export interface ProductDay {
   /** The clients with a plan running (state "active"). */
   activeClientIds: string[];
 }
+
+/** 78.3 The scheduled work Yallapp watches (lib/watch): its three jobs, and the build pipeline asking for builds. */
+export type WatchedJob = "daily" | "frequent" | "webhooks" | "pipeline";
+
+/** 78.3 One run of a scheduled job. */
+export interface JobRun {
+  id: number;
+  job: WatchedJob;
+  startedAt: Date;
+  /** Null while it runs (or when it died without finishing). */
+  finishedAt: Date | null;
+  ok: boolean | null;
+  /** What it did, as its JSON answer (cut to 4,000 characters). */
+  summary: string | null;
+  error: string | null;
+}
+
+export type TeamAlertKind = "build_waiting" | "build_stalled" | "job_missing" | "job_failed" | "crash_spike" | "push_failed" | "health";
+
+/**
+ * 78.3 Something the team should look at (lib/watch), in the admin's bell
+ * and emailed once when it opens. One open alert per key; it closes by
+ * itself when the problem goes, or when the team marks it done.
+ */
+export interface TeamAlert {
+  id: string;
+  kind: TeamAlertKind;
+  /** What it's about, so the same problem doesn't open twice: "build_waiting:<build id>", "job_missing:daily"… */
+  key: string;
+  title: string;
+  detail: string;
+  /** A page of the admin to open, like /admin/builds. */
+  link: string | null;
+  /** How many times it was seen while open. */
+  count: number;
+  createdAt: Date;
+  lastSeenAt: Date;
+  resolvedAt: Date | null;
+  /** "watch" when it closed by itself, else the team member's email. */
+  resolvedBy: string | null;
+  emailedAt: Date | null;
+}

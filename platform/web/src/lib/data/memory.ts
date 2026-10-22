@@ -82,7 +82,7 @@ import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, D
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 import type { PublishingEvent, PublishingRequest } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
-import type { ClientMilestone, MilestoneKind, ProductDay } from "./types";
+import type { ClientMilestone, JobRun, MilestoneKind, ProductDay, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
@@ -3588,6 +3588,97 @@ export class MemoryStore implements DataStore {
       .map((r) => clone(r.snapshot))
       .filter((d) => d.day >= since)
       .sort((a, b) => a.day.localeCompare(b.day));
+  }
+
+  // 78.3 Watching: kept under no client or app.
+  private jobRuns = new Map<number, { run: JobRun }>();
+  private nextJobRunId = 1;
+  private teamAlerts = new Map<string, { alert: TeamAlert }>();
+
+  async startJobRun(job: WatchedJob, startedAt: Date): Promise<number> {
+    const id = this.nextJobRunId++;
+    this.jobRuns.set(id, { run: { id, job, startedAt, finishedAt: null, ok: null, summary: null, error: null } });
+    return id;
+  }
+
+  async finishJobRun(id: number, result: { finishedAt: Date; ok: boolean; summary: string | null; error: string | null }): Promise<void> {
+    const row = this.jobRuns.get(id);
+    if (row) row.run = { ...row.run, ...result };
+  }
+
+  async listJobRuns(input: { job?: WatchedJob; limit: number }): Promise<JobRun[]> {
+    return [...this.jobRuns.values()]
+      .map((r) => r.run)
+      .filter((r) => !input.job || r.job === input.job)
+      .sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime() || b.id - a.id)
+      .slice(0, input.limit)
+      .map(clone);
+  }
+
+  async lastGoodJobRuns(): Promise<Partial<Record<WatchedJob, Date>>> {
+    const last: Partial<Record<WatchedJob, Date>> = {};
+    for (const { run } of this.jobRuns.values()) {
+      if (run.ok && run.finishedAt && (!last[run.job] || run.finishedAt.getTime() > last[run.job]!.getTime())) last[run.job] = run.finishedAt;
+    }
+    return last;
+  }
+
+  async deleteJobRunsBefore(before: Date): Promise<number> {
+    let deleted = 0;
+    for (const [id, { run }] of this.jobRuns) {
+      if (run.startedAt.getTime() < before.getTime()) {
+        this.jobRuns.delete(id);
+        deleted++;
+      }
+    }
+    return deleted;
+  }
+
+  async raiseTeamAlert(input: Pick<TeamAlert, "kind" | "key" | "title" | "detail" | "link">, now: Date): Promise<{ alert: TeamAlert; created: boolean }> {
+    const open = [...this.teamAlerts.values()].find((r) => r.alert.key === input.key && !r.alert.resolvedAt);
+    if (open) {
+      open.alert = { ...open.alert, title: input.title, detail: input.detail, link: input.link, count: open.alert.count + 1, lastSeenAt: now };
+      return { alert: clone(open.alert), created: false };
+    }
+    const alert: TeamAlert = { id: newId(), ...input, count: 1, createdAt: now, lastSeenAt: now, resolvedAt: null, resolvedBy: null, emailedAt: null };
+    this.teamAlerts.set(alert.id, { alert });
+    return { alert: clone(alert), created: true };
+  }
+
+  async markTeamAlertEmailed(id: string, at: Date): Promise<void> {
+    const row = this.teamAlerts.get(id);
+    if (row) row.alert = { ...row.alert, emailedAt: at };
+  }
+
+  async listTeamAlerts(input: { open: boolean; limit: number }): Promise<TeamAlert[]> {
+    return [...this.teamAlerts.values()]
+      .map((r) => r.alert)
+      .filter((a) => (input.open ? !a.resolvedAt : Boolean(a.resolvedAt)))
+      .sort((a, b) => (input.open ? b.lastSeenAt.getTime() - a.lastSeenAt.getTime() : b.resolvedAt!.getTime() - a.resolvedAt!.getTime()))
+      .slice(0, input.limit)
+      .map(clone);
+  }
+
+  async countOpenTeamAlerts(): Promise<number> {
+    return [...this.teamAlerts.values()].filter((r) => !r.alert.resolvedAt).length;
+  }
+
+  async resolveTeamAlert(id: string, by: string, now: Date): Promise<boolean> {
+    const row = this.teamAlerts.get(id);
+    if (!row || row.alert.resolvedAt) return false;
+    row.alert = { ...row.alert, resolvedAt: now, resolvedBy: by };
+    return true;
+  }
+
+  async resolveTeamAlertsExcept(kind: TeamAlertKind, keep: string[], by: string, now: Date): Promise<number> {
+    let closed = 0;
+    for (const row of this.teamAlerts.values()) {
+      if (row.alert.kind === kind && !row.alert.resolvedAt && !keep.includes(row.alert.key)) {
+        row.alert = { ...row.alert, resolvedAt: now, resolvedBy: by };
+        closed++;
+      }
+    }
+    return closed;
   }
 
   private sortedMilestones(): ClientMilestone[] {

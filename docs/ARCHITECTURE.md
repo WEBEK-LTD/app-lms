@@ -2266,6 +2266,37 @@ running. The page compares each month's first and last snapshot: at the
 start, new, lost, at the end, and churn (lost over at the start). The
 snapshots hold no personal data and stay when an account is deleted.
 
+### Watching (78.3)
+
+`lib/watch` tells the team about problems without anyone looking:
+
+- **Job runs** (`job_runs`, migration 0055, `runs.ts`): the daily, frequent
+  and webhook jobs run inside `recordJobRun`, which keeps when each run
+  started and finished, whether it went well, its JSON answer (cut to 4,000
+  characters) or its error; the build pipeline's `GET /builds/queue` is noted
+  as a `pipeline` run. Runs are kept 30 days (the daily job).
+- **Alerts** (`team_alerts`, `alerts.ts`, `watch.ts`): one open alert per key
+  (`open_key` is unique and cleared when it closes), counted each time it is
+  seen again, emailed to the super admins once when it opens (`team_alert`
+  template), and closed by the watch when the problem goes or by the team
+  ("Done", audited). The frequent job opens them for a build queued over 30
+  minutes ago that the pipeline hasn't taken (with what to do, depending on
+  `GITHUB_DISPATCH_TOKEN`), a stalled build, a job with no good run for
+  longer than expected (daily 26 h, frequent and webhooks 20 minutes, the
+  pipeline 8 h; the daily job checks the frequent one), an app whose share of
+  crashed sessions today is 5% or more, at least 5 crashed sessions and three
+  times its share of the 7 days before (one a day), and scheduled
+  notifications that failed (one a day). A push to Yallapp Business that
+  fails opens one a day (`OwnerPushDeps.failed`); an app's own push failing
+  goes to the bell only (it is usually the app's Firebase key, which its owner
+  sees).
+- **Health** (`health.ts`): Admin › Watching checks, when it opens, the
+  database, the media gate (`/ping`), the files host, SMTP, the owners'
+  Firebase key, the pipeline (its tokens and when it last asked for builds)
+  and each job's last good run.
+
+The admin menu's **Watching** shows how many alerts are open.
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:

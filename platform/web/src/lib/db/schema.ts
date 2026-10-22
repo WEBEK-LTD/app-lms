@@ -89,7 +89,7 @@ import type { CampaignStatus, DonationRecurring, DonationSettings, DonationStatu
 import type { AnalyticsEventType, AnalyticsItemKind, AnalyticsMetric } from "../analytics/types";
 // 14.1 We publish for you
 import type { PublishingChecklist, PublishingListing, PublishingMode, PublishingStatus, PublishingStore } from "../data/types";
-import type { MilestoneKind, ProductDay, SignupSource } from "../data/types";
+import type { MilestoneKind, ProductDay, SignupSource, TeamAlertKind, WatchedJob } from "../data/types";
 
 /**
  * MySQL schema (MySQL 8.0.13+ and MariaDB 10.3+, the usual cPanel servers).
@@ -2154,3 +2154,40 @@ export const productDays = mysqlTable("product_days", {
   snapshot: jsonText<Omit<ProductDay, "day">>("snapshot").notNull(),
   updatedAt: time("updated_at").notNull(),
 });
+
+/** 78.3 Each run of a scheduled job (lib/watch/runs.ts), kept 30 days. */
+export const jobRuns = mysqlTable(
+  "job_runs",
+  {
+    id: autoId("id").primaryKey(),
+    job: varchar("job", { length: 16 }).notNull().$type<WatchedJob>(),
+    startedAt: time("started_at").notNull(),
+    finishedAt: time("finished_at"),
+    ok: boolean("ok"),
+    summary: text("summary"),
+    error: varchar("error", { length: 500 }),
+  },
+  (t) => [index("job_runs_job_started_idx").on(t.job, t.startedAt)],
+);
+
+/** 78.3 What the team should look at (lib/watch/alerts.ts): one open alert per key. */
+export const teamAlerts = mysqlTable(
+  "team_alerts",
+  {
+    id: id("id").primaryKey(),
+    kind: varchar("kind", { length: 24 }).notNull().$type<TeamAlertKind>(),
+    key: varchar("key", { length: 120 }).notNull(),
+    title: varchar("title", { length: 200 }).notNull(),
+    detail: text("detail").notNull(),
+    link: varchar("link", { length: 300 }),
+    count: int("count").notNull(),
+    createdAt: time("created_at").notNull(),
+    lastSeenAt: time("last_seen_at").notNull(),
+    resolvedAt: time("resolved_at"),
+    resolvedBy: varchar("resolved_by", { length: 254 }),
+    emailedAt: time("emailed_at"),
+    // Null once resolved, so one open alert per key and any number of closed ones.
+    openKey: varchar("open_key", { length: 120 }),
+  },
+  (t) => [uniqueIndex("team_alerts_open_key_unique").on(t.openKey), index("team_alerts_resolved_idx").on(t.resolvedAt, t.lastSeenAt)],
+);

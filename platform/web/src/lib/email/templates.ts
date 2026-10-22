@@ -69,7 +69,9 @@ export type EmailTemplateKey =
   | "account_deletion_done"
   // 70 Two-step sign-in
   | "two_step_on"
-  | "two_step_off";
+  | "two_step_off"
+  // 78.3 Watching
+  | "team_alert";
 
 export interface EmailTemplateDefinition {
   key: EmailTemplateKey;
@@ -249,6 +251,18 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
     body:
       "Build #{{build_number}} of {{app_name}} ({{client_name}}, version {{version}}) had a problem.\n\nStatus: {{status}}\nWhat happened: {{reason}}\n{{log_line}}\n" +
       "The client was emailed too. Their page: {{admin_url}}",
+  },
+  {
+    key: "team_alert",
+    name: "Something to look at (team)",
+    description: "To the team (the super admin emails) when the platform's watch opens an alert: a build waiting or stopped, a scheduled job that didn't run, an app's crashes jumping, pushes failing. Once per alert; the rest is in Admin › Watching.",
+    placeholders: [
+      { name: "title", description: "What happened, in a line", sample: "Build Ada Academy #7 waits for the pipeline" },
+      { name: "detail", description: "What it means and what to do", sample: "It was queued 45 minutes ago and the build pipeline hasn't taken it." },
+      { name: "alert_url", description: "The admin page to open", sample: "https://yallapp.com.tr/admin/builds" },
+    ],
+    subject: "Yallapp: {{title}}",
+    body: "{{title}}\n\n{{detail}}\n\nOpen: {{alert_url}}\n\nEvery alert is in Admin › Watching; it closes by itself when the problem goes.",
   },
   {
     key: "setup_request",

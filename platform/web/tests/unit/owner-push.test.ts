@@ -113,7 +113,12 @@ describe("58 pushes to the owner's phone", () => {
     const failing = (async () => {
       throw new Error("FCM is down");
     }) as typeof sendPush;
-    expect(await pushToOwner({ store, now: NOW, account: ACCOUNT, send: failing }, client.id, "new_booking", () => ({ title: "t", body: "b" }), {})).toBe(0);
+    // 78.3 The team hears of it (lib/owner/push-env.ts opens the alert).
+    const failed: string[] = [];
+    expect(
+      await pushToOwner({ store, now: NOW, account: ACCOUNT, send: failing, failed: async (reason) => void failed.push(reason) }, client.id, "new_booking", () => ({ title: "t", body: "b" }), {}),
+    ).toBe(0);
+    expect(failed).toEqual(["FCM is down"]);
   });
 
   describe("from where the dashboard learns of things", () => {

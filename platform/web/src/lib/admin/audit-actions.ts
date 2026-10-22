@@ -22,6 +22,8 @@ export const AUDIT_ACTIONS = {
   "build.mark_failed": "Build marked as not finished",
   // 46
   "crash.status": "Crash marked resolved or opened again",
+  // 78.3
+  "alert.resolve": "Alert marked done",
   "publishing.status": "Publishing status changed",
   "publishing.notes": "Publishing notes saved",
   "release.upload": "Plugin release uploaded",
@@ -90,6 +92,7 @@ export const AUDIT_TARGETS = {
   announcement: "Announcement",
   account_deletion: "Account deletion request",
   app_deletion: "Deleted app",
+  alert: "Alert",
 } as const;
 
 export type AuditTargetType = keyof typeof AUDIT_TARGETS;
