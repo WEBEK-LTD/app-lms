@@ -1889,3 +1889,197 @@ themselves get no chat in this phase.
 | [x] | 77.5 Customer app: the Chat tab (before Account when the tabs leave room, else a row in Account, with the unread count; signed-out people see a sign-in prompt): the business's conversation first, then course groups. A conversation asks for new messages every `poll_after_seconds` while it's open and in front, marks them read, and opens from a `chat` push. Text, photos and videos (gallery or camera), voice messages (recorded in the app, AAC in m4a, played in the bubble) and documents, checked for type and size before sending and sent to the media gate in chunks (renewed link, missing parts sent again). A message that couldn't go stays with "Tap to try again" and keeps its `client_id`. A long press reports a message or deletes one's own; in a group it blocks the sender, and the Members list blocks and unblocks (never the business). Someone the business blocked reads but can't send. WordPress apps get an hour's chat token from their site (renewed before it ends and after a 401); the hosted API and Yallapp sign-in use the access token. Strings in English, Arabic and Turkish; Android `RECORD_AUDIO`, iOS camera, microphone and photo texts; the preview bundle rebuilt | `chat_test.dart` (unit: contract paths and bodies, site tokens, chunked uploads, file types, push, tabs; widget: the tab and badge, polling and read, retry with the same `client_id`, report, block, members, delete, blocked by the business, voice, files, the Account row, Arabic), `flutter analyze`, `flutter test`, `build_preview.sh --check` |
 | [x] | 77.6 Owner API: the Chat routes (`lib/owner/chat.ts`: the inbox with unread, open reports and what expires soon; messages; replies as the business with a Media file; read; deleting a message or a conversation; keeping one or all; reports and their outcome; stopping a person; the settings, Settings to change them and WordPress sites told), `features.chat` (the plan, on, the Chat area). Yallapp Business: the Chat tab after the main tool (Stats in More when the bar is full), search and Unread or Course groups, reports and expiring notices, a conversation that polls and marks read, replies with a file from Media and a retry with the same `client_id`, deleting, stopping a person, keeping, deleting all, the reports screen, the settings sheet, `new_chat_message` in its notification settings and pushes that open the conversation, the Chat team area; English, Arabic and Turkish. The terms (section 11, the business is responsible for its chat) and the privacy policy in three languages; the docs page `/docs/chat`; the chat on the Pro card and the license page; ARCHITECTURE and LAUNCH-CHECKLIST | `owner-chat.test.ts` (against owner.yaml: inbox, replies and `client_id`, delete, keep, clear, reports, block, settings, plans without chat, the Chat and Settings areas), Business `chat_test.dart` and `flutter test`, the platform's unit tests |
 
+
+## The platform program (Phases 78 to 94)
+
+The owner's brief (2026-10-22): make Yallapp a complete platform for building
+and running mobile apps that beats its competitors on ease of use,
+customisation, features, speed of publishing and the client's experience,
+in eighteen areas. A review of the code against each area (what exists, what
+is missing) gave the phases below. They build on what is there: the setup
+steps, Pages & look and the app preview, the 32 designs, the connectors and
+the plugin's adapters, notifications and Send later, Analytics, the build
+pipeline and publishing, teams, plans per app, the admin.
+
+The order follows value and dependencies: first measure and watch (so later
+priorities come from real numbers, area 18), then make the data safe, then
+what a new client meets first (integrations, website to app, the editor),
+then what keeps them (notifications, analytics, builds, publishing, updates),
+then the verticals and agencies, and pricing last, as it needs the owner's
+numbers. Each phase is planned in detail (contracts, steps, checks) when it
+starts; the steps here say what each delivers.
+
+## Phase 78: Measure and watch (areas 18 and 15)
+
+Nothing records how long a client takes to set up, publish or pay, and only
+a failed build alerts the team; jobs, integrations and pushes fail silently.
+
+| | Step | Done when |
+|---|---|---|
+| [ ] | 78.1 Milestones: when each setup step was first done, the first build, the first successful build, the first store upload and live, the first payment and each renewal (a `client_milestones` table, written where each happens; older accounts filled from what the data shows); the sign-up's source (UTM, referrer, demo) | Unit tests on the memory store and MariaDB |
+| [ ] | 78.2 Admin › Product: sign-ups → setup done → first build → published → paid → renewed, by month (cohorts), median times, build success and duration by platform and stage over time, failure stages, retention and churn; numbers kept daily so they have a history | Unit tests, e2e |
+| [ ] | 78.3 Watching: every scheduled job records its runs; a deep health check (database, media gate, files host, email, push keys, the pipeline); stalled builds, a job that didn't run, a crash spike and many failed pushes alert the team (email, and the admin's bell) | Unit tests with a fake clock |
+| [ ] | 78.4 Errors per app: server errors and integration failures kept per app and client (what, when, how often), Admin › client timeline (builds, checks, errors, notices, payments in one list) | Unit and e2e tests |
+
+## Phase 79: Safe data (area 17)
+
+There is no database backup or tested restore, one encryption key with no
+rotation, and isolation between clients is checked by hand.
+
+| | Step | Done when |
+|---|---|---|
+| [ ] | 79.1 Backups: nightly database dumps kept off the server, the media folder and the build files, with a restore runbook and a restore tried on a copy | The runbook and a restore that worked, LAUNCH-CHECKLIST |
+| [ ] | 79.2 Key rotation: a key ID on every encrypted value, a second key, a re-encryption job; the pipeline token checked for length and limited to what builds need | Unit tests |
+| [ ] | 79.3 Isolation tests: every dashboard, Owner API and hosted route tried with another client's IDs | A test that fails when a route leaks |
+| [ ] | 79.4 CI: dependency updates and code scanning, actions pinned, scripts limited by CSP (69.12, 69.14) | CI |
+
+## Phase 80: One place for integrations (area 6)
+
+The site or platform, payments, the senders, push and the stores each live on
+their own page, nothing re-checks them, and a broken one isn't noticed.
+
+| | Step | Done when |
+|---|---|---|
+| [ ] | 80.1 Dashboard › Integrations: every connection of the app (website or platform, payments, WhatsApp and email senders, Firebase and Huawei push, each store) with its state, last check, a Test button and its recent errors | e2e |
+| [ ] | 80.2 Checks on a schedule: each connection re-checked daily; a WordPress site that stops checking in, a revoked platform token or failing payment keys tell the owner (bell, email) and the team | Unit tests |
+| [ ] | 80.3 Retry: account webhooks sent again (49.8), payments left pending checked with the provider | Unit tests |
+| [ ] | 80.4 Shipping: carriers for shops without a website (first the owner's choice of carriers in Turkey and Egypt), tracking numbers on orders | Contract, tests |
+
+## Phase 81: From a website to an app in minutes (area 1)
+
+Today the client types the app's colours, uploads its logo and builds its
+pages by hand; nothing reads their website.
+
+| | Step | Done when |
+|---|---|---|
+| [ ] | 81.1 Site scan: from a URL, the name, logo, icon, colours (theme colour, CSS), fonts (matched to the app's fonts), the platform (WordPress and its plugins, Shopify, Salla, Zid, Wix, ikas…) and the app type; through the server's safe fetch | Unit tests on saved pages of each platform |
+| [ ] | 81.2 The plugin reports the site's logo, icon, theme colours and menus | PHPUnit |
+| [ ] | 81.3 One step to a draft app: the URL gives a draft with the brand, the right design and the site's menu as tabs and pages, ready to edit and preview | e2e |
+| [ ] | 81.4 Import for apps without a connector: products, services, menus and courses from a CSV or a feed | Unit and e2e tests |
+
+## Phase 82: An editor you see as you edit (area 2)
+
+Pages & look edits a list with an approximate preview; the real app preview
+is another page.
+
+| | Step | Done when |
+|---|---|---|
+| [ ] | 82.1 The real app inside the editor: the draft reaches the preview as it changes, without reloading | e2e |
+| [ ] | 82.2 Click a block on the phone to edit it; drag blocks from the palette onto the phone | e2e |
+| [ ] | 82.3 Sizes: small phone, phone, tablet; Android and iPhone; light and dark side by side | e2e |
+| [ ] | 82.4 Undo and redo, publish history and going back to an earlier version | Unit and e2e tests |
+| [ ] | 82.5 Style per block (background, spacing, colours within the brand), your own icons, a side menu as well as tabs | Contract, Flutter tests |
+
+## Phase 83: Blocks as components (area 4)
+
+A new block touches six places, and older apps skip it without the owner
+knowing.
+
+| | Step | Done when |
+|---|---|---|
+| [ ] | 83.1 One definition per block (fields, limits, the app version that shows it, what older apps show instead) drives the validator, the editor's form and the preview | Unit tests |
+| [ ] | 83.2 The app's version per device: the editor says how many people won't see a block until they update | Unit and e2e tests |
+| [ ] | 83.3 Switches per app for modules and new features, without a build | Contract, tests |
+| [ ] | 83.4 Connectors and adapters with versions and a documented way to add one | Docs, tests |
+
+## Phase 84: More templates (area 3)
+
+| | Step | Done when |
+|---|---|---|
+| [ ] | 84.1 Services and companies: a new kind with its designs | Tests |
+| [ ] | 84.2 Designs with several pages (about, contact, offers) and colour palettes; pictures for the designs (33.8) | Design tests, screenshots |
+| [ ] | 84.3 Saved sections: save blocks as a section and reuse them in other pages and apps | e2e |
+| [ ] | 84.4 The team adds and edits designs in the admin | e2e |
+
+## Phase 85: Notification campaigns (area 5)
+
+Sends go to everyone, only from hosted apps; automatic pushes aren't
+measured; several useful automatic pushes don't exist.
+
+| | Step | Done when |
+|---|---|---|
+| [ ] | 85.1 Audiences: buyers, a course's students, members, people inactive for a while, by language, platform and country | Contract, unit tests |
+| [ ] | 85.2 Campaigns: draft, send now, later or every week, a screen or link to open, a picture; sent, failed and opened per campaign | Unit and e2e tests |
+| [ ] | 85.3 Automatic: a new lesson, an appointment confirmed and a reminder before it, a class or event soon, a membership ending, a cart left, the daily study reminder; each one counted | Unit tests |
+| [ ] | 85.4 WordPress apps: campaigns from the dashboard through the plugin, which reports what it sent | PHPUnit, integration suite |
+
+## Phase 86: Analytics with the business's real numbers (area 7)
+
+| | Step | Done when |
+|---|---|---|
+| [ ] | 86.1 Sales over any period: orders, revenue, refunds, enrolments, bookings, tickets, donations; conversion as paid orders over views | Unit and e2e tests |
+| [ ] | 86.2 Where people come from: store, link, QR code, campaign (UTM) | Contract, tests |
+| [ ] | 86.3 Notifications' results in Analytics, also the automatic ones | Unit tests |
+| [ ] | 86.4 A weekly summary by email; WordPress sites send their sales totals | Tests, PHPUnit |
+
+## Phase 87: Builds that explain themselves (area 8)
+
+| | Step | Done when |
+|---|---|---|
+| [ ] | 87.1 Checks before a build: icon, Firebase files and package names, Apple key and certificates | Unit tests |
+| [ ] | 87.2 Why a build failed, in plain words with what to do, and a log the client can read | Pipeline tests |
+| [ ] | 87.3 Each build records the app code it was made from; rebuild build N as it was | Contract, tests |
+| [ ] | 87.4 Automatic builds only for changes that need one, several saves in one build | Unit tests |
+
+## Phase 88: Publishing without surprises (area 9)
+
+| | Step | Done when |
+|---|---|---|
+| [ ] | 88.1 Ready to submit: one check of everything the stores ask (reviewer sign-in, privacy page, account deletion, no prices on iOS, listing, screenshots) | Unit and e2e tests |
+| [ ] | 88.2 Listings sent to Google Play and the App Store with every language, tablet screenshots and framed screenshots | Pipeline tests |
+| [ ] | 88.3 Review status read from the stores; a rejection with its reason, the fix and a link to the setting | Unit tests |
+
+## Phase 89: Updates you can undo (area 10)
+
+| | Step | Done when |
+|---|---|---|
+| [ ] | 89.1 Minimum and recommended version for every app, the right store per install, the App Store link | Contract, Flutter tests |
+| [ ] | 89.2 Staged releases: a share of users first, stop, continue (Google Play, App Store phased release) | Pipeline tests |
+| [ ] | 89.3 Going back: release an earlier build again, restore settings and pages from history; versions in use | Unit tests |
+
+## Phase 90: Academies, complete (area 11)
+
+| | Step | Done when |
+|---|---|---|
+| [ ] | 90.1 Academies without a website: quizzes, certificates, lessons with files, drip and access that ends | Contract, tests |
+| [ ] | 90.2 Progress for the teacher: each student's progress and quiz results, export | e2e |
+| [ ] | 90.3 Memberships and subscriptions from the site (Paid Memberships Pro, WooCommerce Subscriptions, LearnDash groups) | PHPUnit, integration suites |
+
+## Phase 91: Shops, complete (area 12)
+
+| | Step | Done when |
+|---|---|---|
+| [ ] | 91.1 Coupons in shops without a website, and the real total in the app's cart everywhere | Contract, tests |
+| [ ] | 91.2 Shipped, with tracking; order pushes from WooCommerce and the connected platforms | Tests, PHPUnit |
+| [ ] | 91.3 Returns requested in the app | Contract, tests |
+| [ ] | 91.4 Loyalty points | Contract, tests |
+| [ ] | 91.5 Variations and taxes in shops without a website | Tests |
+
+## Phase 92: Agencies (area 13)
+
+| | Step | Done when |
+|---|---|---|
+| [ ] | 92.1 An agency account with its clients under it, and every app's state, renewal and alerts on one page | e2e |
+| [ ] | 92.2 The agency pays for its clients' apps, one statement | Tests |
+| [ ] | 92.3 Copy an app, save an app as a template | e2e |
+| [ ] | 92.4 The dashboard and emails in the agency's name (white label) | e2e |
+| [ ] | 92.5 Roles the owner defines | Tests |
+
+## Phase 93: A client finishes on their own (area 14)
+
+| | Step | Done when |
+|---|---|---|
+| [ ] | 93.1 A guide through the first app, with how ready it is for the stores | e2e |
+| [ ] | 93.2 Help on every page, search inside the docs, the missing articles | e2e |
+| [ ] | 93.3 Problems shown where the client works (from Phases 78 and 80) | e2e |
+
+## Phase 94: Prices that scale (area 16)
+
+Needs the owner's prices and decisions first.
+
+| | Step | Done when |
+|---|---|---|
+| [ ] | 94.1 Monthly and yearly for each plan, prices shown | Tests |
+| [ ] | 94.2 Add-ons: publishing, an extra store, more notifications, more sign-in codes, more builds | Tests |
+| [ ] | 94.3 Plans for agencies and companies with many apps | Tests |
+| [ ] | 94.4 What you pay for and why, per app and account | e2e |
