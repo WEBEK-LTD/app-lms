@@ -8,7 +8,7 @@ import { E2E } from "../../playwright.config";
  */
 
 const suffix = Date.now().toString(36);
-// Its own address: sign-ups are limited per address (10 an hour), and the suite has many.
+// Its own address and admin: sign-ups and sign-ins are limited per address and email, and the suite has many.
 const extraHTTPHeaders = { "x-forwarded-for": "198.51.100.178" };
 const campaign = `product-${suffix}`;
 
@@ -34,7 +34,7 @@ test("a campaign's sign-up reaches Admin › Product, with the daily snapshot", 
 
   const page = await browser.newPage({ extraHTTPHeaders });
   await page.goto("/sign-in");
-  await page.getByLabel("Email").fill(E2E.settingsAdminEmail);
+  await page.getByLabel("Email").fill(E2E.productAdminEmail);
   await page.getByLabel("Password", { exact: true }).fill(E2E.adminPassword);
   await page.getByRole("button", { name: "Sign in" }).click();
   await page.waitForURL((url) => url.pathname.startsWith("/admin"));
