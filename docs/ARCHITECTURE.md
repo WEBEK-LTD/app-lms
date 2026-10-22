@@ -2366,6 +2366,23 @@ checks the dashboard: another client's app in an email's link
 (`/dashboard/open/<app>`) or in the cookie that picks the current app never
 opens it.
 
+## Scripts limited by a nonce (69.12)
+
+Every page sends `base-uri 'self'; object-src 'none'; frame-ancestors 'none'`
+(`lib/csp.ts`, next.config.ts). The signed-in pages (`/dashboard`, `/admin`)
+and the sign-in forms (`/sign-in`, `/sign-up`, `/reset-password`, `/pending`,
+`/team/join`, and their `/ar` and `/tr` pages) also limit scripts:
+`src/proxy.ts` makes a nonce for each request and sends `script-src 'self'
+'nonce-…' 'strict-dynamic' 'sha256-…'` on the request (Next.js reads the nonce
+there and puts it on its own scripts) and on the response. The hash is the
+theme script's (`components/theme-script.tsx`), the one inline script of ours;
+JSON-LD is data and isn't limited. These pages are rendered for each request
+anyway; the website's pages stay static, without a nonce. A new inline script
+on those pages needs the nonce (`headers().get("content-security-policy")`) or
+a hash in `lib/csp-nonce.ts`. `tests/e2e/csp.spec.ts` checks the policy, that
+every script carries the nonce, that signing in and the admin run with no
+violation, and that a script put into the page's HTML doesn't run.
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:
