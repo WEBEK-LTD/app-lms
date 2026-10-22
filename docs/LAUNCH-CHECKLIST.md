@@ -1114,6 +1114,24 @@ never in a chat or an issue.
       daily job deletes older ones unless the business kept them, and tells
       the business 30 days before (dashboard, email, phone).
 
+## 7x. Measure and watch (Phase 78)
+
+- [ ] Apply migration `0053_client_milestones.sql` after `0052`, then
+      deploy (78.1).
+- [ ] Nothing to set for the milestones: the first daily job after the
+      deploy fills them for every account from what the data shows
+      (`milestones` in its answer: accounts and how many were added), and
+      from then on they are recorded as they happen.
+- [ ] **Privacy** (78.1): section 2 of the privacy policy now says how the
+      sign-up's source is kept ("How you found us"), in English, Arabic
+      and Turkish. If the team edited the privacy policy in Admin › Website
+      content, add it there by hand.
+- [ ] Campaign links: point them at any page of the site with
+      `utm_source`, `utm_medium` and `utm_campaign` (and `from` for a page
+      of ours, like `from=newsletter`); the sign-up records them while the
+      visitor stays on the site (nothing is kept in the browser, so a
+      reload or a new tab forgets them).
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |

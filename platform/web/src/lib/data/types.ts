@@ -2811,3 +2811,45 @@ export interface ChatUploadInfo {
   createdAt: Date;
 }
 
+
+/**
+ * 78 A moment on a client's way to a published, paid app (lib/milestones):
+ * each kind once per account or app, a renewal once per payment. Recorded
+ * when it happens and from what the data shows (older accounts), and kept
+ * when the app is deleted, so the numbers keep their history.
+ */
+export type MilestoneKind =
+  | "signed_up"
+  | "step_app_type"
+  | "step_website"
+  | "step_branding"
+  | "step_listing"
+  | "step_publishing"
+  | "setup_done"
+  | "first_build"
+  | "build_ready"
+  | "store_upload"
+  | "store_live"
+  | "paid"
+  | "renewed";
+
+export interface ClientMilestone {
+  clientId: string;
+  kind: MilestoneKind;
+  /** What it is about: the app's ID, "" for the account's own (signed_up, paid), the payment's ID for a renewal. */
+  ref: string;
+  appId: string | null;
+  at: Date;
+  /** signed_up: where the sign-up came from. */
+  source: SignupSource | null;
+}
+
+/** 78 Where a sign-up came from: the campaign link's UTM values, the website that sent them, or a page of ours (`from`, like "demo"). */
+export interface SignupSource {
+  utmSource: string | null;
+  utmMedium: string | null;
+  utmCampaign: string | null;
+  /** The other website's host name (never the full address). */
+  referrer: string | null;
+  from: string | null;
+}

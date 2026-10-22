@@ -9,6 +9,7 @@ import type { Messages } from "@/i18n/messages/en";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
 import { initialFormState } from "@/lib/forms";
+import { CampaignFields } from "@/components/campaign";
 
 const card = "flex w-full flex-col rounded-[20px] border border-line bg-white px-5 py-8 sm:px-8 sm:py-9";
 
@@ -75,6 +76,7 @@ export function SignUpForm({ lang = DEFAULT_LANG, m }: FormText) {
   return (
     <form action={action} noValidate className={`${card} min-w-0 flex-[3_1_420px] gap-[18px]`}>
       <LangField lang={lang} />
+      <CampaignFields />
       <div className="flex flex-col gap-1.5">
         <h1 className="m-0 text-[30px] font-extrabold tracking-[-0.5px]">{m.signUpTitle}</h1>
         <p className="m-0 text-[15px] text-muted">{m.signUpText}</p>

@@ -4,6 +4,7 @@ import { forgetLinkTargets } from "@/lib/links/files";
 import { notifyBuildFinished } from "@/lib/builds/notify";
 import { errorResponse, json, readJson } from "@/lib/http";
 import { authorizePipeline } from "@/lib/pipeline-auth";
+import { noteMilestones } from "@/lib/milestones/record";
 
 /** POST /api/v1/builds/{id}/status (docs/api/pipeline.yaml): the pipeline reports progress and artifacts. */
 export async function POST(request: Request, { params }: RouteContext<"/api/v1/builds/[id]/status">): Promise<Response> {
@@ -30,5 +31,7 @@ export async function POST(request: Request, { params }: RouteContext<"/api/v1/b
   // Finished just now: the client is emailed, and the team too when it failed.
   const finished = result.build.status !== build.status && (result.build.status === "ready" || result.build.status === "failed");
   if (finished) await notifyBuildFinished(store, result.build).catch(() => undefined);
+  // 78 The first build, the first that worked, the first upload to a store.
+  if (result.build.status !== build.status) await noteMilestones(store, build.clientId);
   return json(buildSummary(result.build));
 }

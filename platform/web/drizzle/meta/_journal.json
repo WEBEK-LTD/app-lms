@@ -372,6 +372,13 @@
       "when": 1792657955492,
       "tag": "0052_chat",
       "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "5",
+      "when": 1792683900579,
+      "tag": "0053_client_milestones",
+      "breakpoints": true
     }
   ]
 }

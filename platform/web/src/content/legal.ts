@@ -32,6 +32,7 @@ Yallapp is based in Cairo, Egypt, and is the data controller for the personal da
 - **Publishing credentials:** Google Play, App Store Connect, Samsung Galaxy Store and Huawei AppGallery keys, if you choose to add them. These are stored encrypted.
 - **Billing records:** your plan, dates and payment notes.
 - **Messages** you send us, and **technical logs** such as IP address, browser and sign-in times.
+- **How you found us:** when you sign up, the source, medium and campaign of the link you came from, the name of the website that sent you (not the page), and whether you looked at our demo apps. We use it only to learn which pages and campaigns bring us clients, and nothing is stored in your browser for it.
 
 ## 3. Data about your app's users
 

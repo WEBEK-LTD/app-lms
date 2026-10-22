@@ -82,6 +82,7 @@ import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, D
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 import type { PublishingEvent, PublishingRequest } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
+import type { ClientMilestone, MilestoneKind } from "./types";
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
@@ -3553,6 +3554,32 @@ export class MemoryStore implements DataStore {
       .slice(0, limit)
       .map((u) => u.mediaId);
   }
+  // 78 Milestones: kept under their client (not their app), so an app's deletion leaves them, as in MySQL.
+  private milestones = new Map<string, { clientId: string; milestone: ClientMilestone }>();
+
+  async addClientMilestones(rows: ClientMilestone[]): Promise<number> {
+    let added = 0;
+    for (const row of rows) {
+      const key = `${row.clientId}|${row.kind}|${row.ref}`;
+      if (this.milestones.has(key) || !this.clients.has(row.clientId)) continue;
+      this.milestones.set(key, { clientId: row.clientId, milestone: clone(row) });
+      added++;
+    }
+    return added;
+  }
+
+  async listClientMilestones(clientId: string): Promise<ClientMilestone[]> {
+    return this.sortedMilestones().filter((m) => m.clientId === clientId);
+  }
+
+  async listMilestones(input: { since?: Date; kinds?: MilestoneKind[] }): Promise<ClientMilestone[]> {
+    return this.sortedMilestones().filter((m) => (!input.since || m.at.getTime() >= input.since.getTime()) && (!input.kinds || input.kinds.includes(m.kind)));
+  }
+
+  private sortedMilestones(): ClientMilestone[] {
+    return [...this.milestones.values()].map((r) => clone(r.milestone)).sort((a, b) => a.at.getTime() - b.at.getTime() || a.kind.localeCompare(b.kind));
+  }
+
 
   /** Every table holding rows, but the records that outlive what they name (no foreign keys in MySQL). */
   private tables(): { rows(): Record<string, unknown>[]; remove(match: (row: Record<string, unknown>) => boolean): void }[] {

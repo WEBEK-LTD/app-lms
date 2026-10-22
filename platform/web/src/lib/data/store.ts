@@ -84,6 +84,7 @@ import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatu
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
+import type { ClientMilestone, MilestoneKind } from "./types";
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
 export type ClientFilter = "all" | "pending" | "active" | "expired";
@@ -1080,4 +1081,12 @@ export interface DataStore {
   getChatUpload(mediaId: string): Promise<ChatUploadInfo | null>;
   /** Uploads not sent in a message, made before `before` (their media IDs). */
   listUnsentChatUploads(before: Date, limit: number): Promise<string[]>;
+
+  // 78 Milestones (lib/milestones)
+  /** Adds those not recorded yet (the same client, kind and ref keep the first); returns how many were new. */
+  addClientMilestones(rows: ClientMilestone[]): Promise<number>;
+  /** A client's milestones, oldest first. */
+  listClientMilestones(clientId: string): Promise<ClientMilestone[]>;
+  /** Every client's, oldest first: those from `since` on, of these kinds. */
+  listMilestones(input: { since?: Date; kinds?: MilestoneKind[] }): Promise<ClientMilestone[]>;
 }
