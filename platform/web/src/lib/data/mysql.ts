@@ -11,7 +11,7 @@ import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, Analyt
 import type { AppAuthKey, AppLayoutRecord } from "./types";
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
-import type { ClientMilestone, JobRun, MilestoneKind, ProductDay, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
+import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
 import { assetIdsIn } from "./asset-ids";
 import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 import type { MoreStore, MoreStoresRow, PublishingEvent, PublishingRequest, PublishingTrack } from "./types";
@@ -4573,6 +4573,38 @@ export class MysqlStore implements DataStore {
     );
     return result.affectedRows;
   }
+  // 78.4 Errors per app
+
+  async recordAppError(input: Pick<AppError, "clientId" | "appId" | "source" | "code" | "message">, now: Date): Promise<void> {
+    const e = schema.appErrors;
+    // An app or account gone (deleted meanwhile) fails its foreign key: ignored.
+    await this.run((db) =>
+      db
+        .insert(e)
+        .ignore()
+        .values({ id: newId(), ...input, appKey: input.appId ?? "", count: 1, firstAt: now, lastAt: now })
+        .onDuplicateKeyUpdate({ set: { message: input.message, count: sql`${e.count} + 1`, lastAt: now } }),
+    );
+  }
+
+  async listAppErrors(input: { clientId?: string; appId?: string; since?: Date; limit: number }): Promise<AppError[]> {
+    const e = schema.appErrors;
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(e)
+        .where(and(input.clientId ? eq(e.clientId, input.clientId) : undefined, input.appId ? eq(e.appId, input.appId) : undefined, input.since ? gte(e.lastAt, input.since) : undefined))
+        .orderBy(desc(e.lastAt))
+        .limit(input.limit),
+    );
+    return rows.map(({ appKey: _appKey, ...row }) => (void _appKey, row));
+  }
+
+  async deleteAppErrorsBefore(before: Date): Promise<number> {
+    const [result] = await this.run((db) => db.delete(schema.appErrors).where(lt(schema.appErrors.lastAt, before)));
+    return result.affectedRows;
+  }
+
 
 
 

@@ -2915,3 +2915,26 @@ export interface TeamAlert {
   resolvedBy: string | null;
   emailedAt: Date | null;
 }
+
+/** 78.4 Where an app's error came from (lib/watch/app-errors.ts). */
+export type AppErrorSource = "platform" | "server" | "wordpress" | "mail" | "whatsapp" | "sign_in" | "webhook" | "payment" | "push";
+
+/**
+ * 78.4 An error of one client's app, counted: one row per app, source and
+ * code, with when it was first and last seen and its last message. Kept 90
+ * days after it was last seen.
+ */
+export interface AppError {
+  id: string;
+  clientId: string;
+  /** Null for an error of the account rather than one app. */
+  appId: string | null;
+  source: AppErrorSource;
+  /** What failed, in a word: "shop_unavailable", "refresh_failed", "unhandled"… */
+  code: string;
+  /** The last message (never a key, a code sent to someone, or a customer's details). */
+  message: string;
+  count: number;
+  firstAt: Date;
+  lastAt: Date;
+}

@@ -51,6 +51,8 @@ import { packOffers } from "@/lib/media/packs";
 import { formatBytes } from "@/lib/media/quota";
 import { appStorage } from "@/lib/media/usage";
 import { platformSetting } from "@/lib/settings/platform";
+import { buildTimeline } from "@/lib/admin/timeline";
+import { APP_ERROR_DAYS, APP_ERROR_SOURCE_LABEL } from "@/lib/watch/app-errors";
 
 export const metadata: Metadata = { title: "Client" };
 export const dynamic = "force-dynamic";
@@ -172,6 +174,15 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
   const rerunFailed = typeof query.rerun === "string" ? RERUN_FAILED[query.rerun] : undefined;
   const appNames = new Map(apps.map((a) => [a.id, appLabel(a)]));
   const usersApp = typeof query.app === "string" ? query.app : null;
+  // 78.4 What went wrong for the client's apps, and everything in one timeline.
+  const [errors, notices, milestones, builds, publishing] = await Promise.all([
+    store.listAppErrors({ clientId: client.id, limit: 50 }),
+    store.listOwnerNotices({ clientId: client.id, limit: 50 }),
+    store.listClientMilestones(client.id),
+    Promise.all(apps.map((a) => store.listBuildsByApp(a.id, 20))).then((lists) => lists.flat()),
+    Promise.all(apps.map(async (a) => ({ appId: a.id, events: await store.listPublishingEvents(a.id) }))),
+  ]);
+  const timeline = buildTimeline({ appNames, builds, errors, notices, payments, milestones, publishing, audit: audit.items });
 
   return (
     <>
@@ -373,6 +384,58 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
               </li>
             ))}
           </ul>
+        )}
+      </Card>
+
+      <Card id="h-errors" title={errors.length ? `Errors (${errors.length})` : "Errors"}>
+        {errors.length === 0 ? (
+          <p className="m-0 text-sm text-muted">Nothing failed for this client&apos;s apps in the last {APP_ERROR_DAYS} days.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px] border-collapse text-sm">
+              <caption className="sr-only">Errors of the client&apos;s apps</caption>
+              <thead>
+                <tr className="text-left text-muted">
+                  <th scope="col" className="py-2 pe-3 font-semibold">What</th>
+                  <th scope="col" className="py-2 pe-3 font-semibold">App</th>
+                  <th scope="col" className="py-2 pe-3 text-right font-semibold">Times</th>
+                  <th scope="col" className="py-2 font-semibold">Last seen</th>
+                </tr>
+              </thead>
+              <tbody>
+                {errors.map((e) => (
+                  <tr key={e.id} className="border-t border-line-soft align-top">
+                    <th scope="row" className="py-2 pe-3 text-left font-normal">
+                      <span className="font-semibold">
+                        {APP_ERROR_SOURCE_LABEL[e.source]}: {e.code}
+                      </span>
+                      <span className="block text-muted">{e.message}</span>
+                    </th>
+                    <td className="py-2 pe-3">{e.appId ? (appNames.get(e.appId) ?? "A deleted app") : "The account"}</td>
+                    <td className="py-2 pe-3 text-right tabular-nums">{e.count}</td>
+                    <td className="py-2 tabular-nums">{formatDateTime(e.lastAt)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+
+      <Card id="h-timeline" title="Timeline">
+        {timeline.length === 0 ? (
+          <p className="m-0 text-sm text-muted">Nothing yet.</p>
+        ) : (
+          <ol className="m-0 flex list-none flex-col gap-2 p-0 text-sm">
+            {timeline.map((t, i) => (
+              <li key={`${t.kind}-${t.at.getTime()}-${i}`} className="flex flex-wrap gap-x-3 gap-y-0.5 border-t border-line-soft pt-2 first:border-t-0 first:pt-0">
+                <span className="text-muted tabular-nums">{formatDateTime(t.at)}</span>
+                <span className={`font-semibold ${t.tone === "bad" ? "text-danger" : t.tone === "good" ? "text-success" : ""}`}>{t.title}</span>
+                {t.app ? <span className="text-muted">{t.app}</span> : null}
+                {t.detail ? <span className="basis-full">{t.detail}</span> : null}
+              </li>
+            ))}
+          </ol>
         )}
       </Card>
 

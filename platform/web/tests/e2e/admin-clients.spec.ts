@@ -45,6 +45,10 @@ async function openClient() {
 
 test("the team edits a client's details", async () => {
   await openClient();
+  // 78.4 The client's errors and timeline: a new client has no errors and has signed up.
+  await expect(page.getByRole("heading", { name: "Errors", exact: true })).toBeVisible();
+  await expect(page.getByText(/Nothing failed for this client.s apps in the last 90 days/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Timeline" })).toBeVisible();
   const panel = page.getByRole("complementary");
   await panel.getByText("Edit details").click();
   await panel.getByLabel("WhatsApp number").fill("+90 544 000 00 10");

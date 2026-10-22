@@ -6,6 +6,7 @@ import { hitRateLimit, RATE_LIMITS } from "../rate-limit";
 import { waabekSender, type OtpSender } from "./otp-sender";
 import type { Lang } from "@/i18n/config";
 import { mailOptions } from "../email/mail-lang";
+import { noteAppError } from "../watch/app-errors";
 
 /**
  * 18 An app owner's own WhatsApp number on WABEK (waabek.com), set on the
@@ -107,6 +108,8 @@ export function failureDate(iso: string): string {
 export async function recordOwnWhatsappFailure(deps: OwnNumberFailureDeps, appId: string): Promise<void> {
   const app = await deps.store.getAppById(appId);
   if (!app?.hostedSettings?.whatsappSender) return;
+  // 78.4 Counted for the team, each time.
+  await noteAppError(deps.store, { clientId: app.clientId, appId: app.id, source: "whatsapp", code: "own_number_failed", detail: "The app's own WhatsApp number couldn't send a sign-in code; Yallapp's number sent it." }, deps.now);
   const at = deps.now.toISOString();
   await deps.store.updateApp(app.id, { hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, ...app.hostedSettings, whatsappFailedAt: at } }, deps.now);
   if (app.demo) return;

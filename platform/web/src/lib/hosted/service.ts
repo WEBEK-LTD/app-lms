@@ -29,6 +29,7 @@ import { localizedError, requestLanguage } from "../i18n/builtin";
 import { chatConfig, chatSessionKind } from "../chat/access";
 import { handleChatRoute, type HostedChatDeps } from "../chat/hosted";
 import { forgetChatMember, memberForChatToken, memberForHostedUser } from "../chat/service";
+import { errorOfBody, noteAppError } from "../watch/app-errors";
 
 /**
  * The hosted API: the app contract's configuration, sign-in, account,
@@ -314,6 +315,11 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
       // 43 Labels the connector writes (an event's price) in the app's language.
       lang: requestLanguage(req.headers?.get("accept-language")),
     });
+    // 78.4 The connected platform failing (it can't be reached, it refused): counted for the team.
+    if (result && result.status >= 500) {
+      const failed = errorOfBody(result.body);
+      await noteAppError(ctx.store, { clientId: ctx.app.clientId, appId: ctx.app.id, source: "platform", code: failed?.code ?? `http_${result.status}`, detail: `${req.method} /${req.path.join("/")}: ${failed?.message ?? "no answer"}` }, ctx.now);
+    }
     if (result) return result;
   }
   return notFound();
@@ -354,6 +360,7 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     // 19 One platform failing doesn't keep the app from opening: the config is
     // served without what the platform adds (its screens say it can't be reached).
     console.error(`[hosted] app ${app.id}: the connected platform's config failed: ${errorText(e)}`);
+    await noteAppError(ctx.store, { clientId: app.clientId, appId: app.id, source: "platform", code: "config_failed", detail: errorText(e) }, ctx.now);
     extra = {};
   }
   return ok({
@@ -517,9 +524,11 @@ function isReviewUser(settings: HostedSettings, user: HostedUser): boolean {
 }
 
 /** 19 Why a code wasn't sent, for the logs: the provider's answer, never the code or the address. */
-function logSendFailure(kind: "phone" | "email", app: App, e: unknown): void {
+async function logSendFailure(ctx: HostedContext, kind: "phone" | "email", e: unknown): Promise<void> {
   const reason = e instanceof Error ? e.message : String(e);
-  console.error(`[hosted] ${kind} sign-in code not sent for app ${app.id}: ${reason.slice(0, 300)}`);
+  console.error(`[hosted] ${kind} sign-in code not sent for app ${ctx.app.id}: ${reason.slice(0, 300)}`);
+  // 78.4 Counted for the team too.
+  await noteAppError(ctx.store, { clientId: ctx.app.clientId, appId: ctx.app.id, source: "sign_in", code: `${kind}_code_not_sent`, detail: reason }, ctx.now);
 }
 
 function codeHash(ctx: HostedContext, requestId: string, code: string): string {
@@ -616,7 +625,7 @@ async function requestCode(ctx: HostedContext, body: Record<string, unknown>): P
         expiresInSeconds: CODE_TTL_SECONDS,
       });
     } catch (e) {
-      logSendFailure("phone", ctx.app, e);
+      await logSendFailure(ctx, "phone", e);
       await ctx.store.deleteHostedChallenge(sha256Hex(requestId));
       return error(502, "provider_error", "We couldn't send the code. Please try again.");
     }
@@ -670,7 +679,7 @@ async function requestEmailCode(ctx: HostedContext, body: Record<string, unknown
       if (!ctx.sendEmailCode) throw new Error("No email sender.");
       await ctx.sendEmailCode({ to: email, code, appName: ctx.app.appName ?? "Yallapp", minutes: Math.round(CODE_TTL_SECONDS / 60) });
     } catch (e) {
-      logSendFailure("email", ctx.app, e);
+      await logSendFailure(ctx, "email", e);
       await ctx.store.deleteHostedChallenge(sha256Hex(requestId));
       return error(502, "provider_error", "We couldn't send the code. Please try again.");
     }

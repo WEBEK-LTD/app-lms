@@ -89,6 +89,8 @@ describe("asking a WordPress site to check its license", () => {
     const { store, app } = await wordpressApp();
     expect(await refreshSite({ store, key: KEY, now: NOW, fetcher: fakeFetch(429).fetcher, resolve: async () => PUBLIC }, app.id)).toBe("sent");
     expect(await refreshSite({ store, key: KEY, now: NOW, fetcher: fakeFetch(401).fetcher, resolve: async () => PUBLIC }, app.id)).toBe("failed");
+    // 78.4 The failure is counted on the app's errors; the 429 isn't one.
+    expect(await store.listAppErrors({ appId: app.id, limit: 5 })).toEqual([expect.objectContaining({ source: "wordpress", code: "refresh_failed", count: 1, clientId: app.clientId })]);
   });
 
   it("never throws when the site doesn't answer", async () => {

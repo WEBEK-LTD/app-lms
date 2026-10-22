@@ -21,6 +21,7 @@ import { recordJobRun } from "@/lib/watch/runs";
 import { runWatch } from "@/lib/watch/watch";
 import { dispatchSet, teamMail } from "@/lib/watch/env";
 import type { DataStore } from "@/lib/data/store";
+import { APP_ERROR_DAYS } from "@/lib/watch/app-errors";
 
 /**
  * POST /api/internal/daily (roadmap 13.4): the daily job. Netlify's scheduled
@@ -99,6 +100,8 @@ async function runDaily(store: DataStore, now: Date) {
   const accounts = await runAccountDeletions(accountPurgeDeps(store, now));
   // 78.3 Job runs kept 30 days; the frequent job checked (it checks the others).
   const jobRunsPurged = await store.deleteJobRunsBefore(new Date(now.getTime() - 30 * 86_400_000));
+  // 78.4 Apps' errors not seen for 90 days.
+  const appErrorsPurged = await store.deleteAppErrorsBefore(new Date(now.getTime() - APP_ERROR_DAYS * 86_400_000));
   const watch = await runWatch({ store, now, mail: teamMail, jobs: ["frequent"], dispatch: dispatchSet() });
-  return { ...report, analytics: { ...analytics, history: analyticsHistory }, media, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, jobRunsPurged, watch };
+  return { ...report, analytics: { ...analytics, history: analyticsHistory }, media, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, jobRunsPurged, appErrorsPurged, watch };
 }

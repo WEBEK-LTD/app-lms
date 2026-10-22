@@ -89,7 +89,7 @@ import type { CampaignStatus, DonationRecurring, DonationSettings, DonationStatu
 import type { AnalyticsEventType, AnalyticsItemKind, AnalyticsMetric } from "../analytics/types";
 // 14.1 We publish for you
 import type { PublishingChecklist, PublishingListing, PublishingMode, PublishingStatus, PublishingStore } from "../data/types";
-import type { MilestoneKind, ProductDay, SignupSource, TeamAlertKind, WatchedJob } from "../data/types";
+import type { AppErrorSource, MilestoneKind, ProductDay, SignupSource, TeamAlertKind, WatchedJob } from "../data/types";
 
 /**
  * MySQL schema (MySQL 8.0.13+ and MariaDB 10.3+, the usual cPanel servers).
@@ -2190,4 +2190,25 @@ export const teamAlerts = mysqlTable(
     openKey: varchar("open_key", { length: 120 }),
   },
   (t) => [uniqueIndex("team_alerts_open_key_unique").on(t.openKey), index("team_alerts_resolved_idx").on(t.resolvedAt, t.lastSeenAt)],
+);
+
+/** 78.4 Each app's errors, counted per source and code (lib/watch/app-errors.ts); kept 90 days after last seen. */
+export const appErrors = mysqlTable(
+  "app_errors",
+  {
+    id: id("id").primaryKey(),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    appId: id("app_id").references(() => apps.id, { onDelete: "cascade" }),
+    // The app's ID, or "" for the account's: part of the unique key (a null wouldn't be).
+    appKey: varchar("app_key", { length: 36 }).notNull(),
+    source: varchar("source", { length: 16 }).notNull().$type<AppErrorSource>(),
+    code: varchar("code", { length: 64 }).notNull(),
+    message: varchar("message", { length: 500 }).notNull(),
+    count: int("count").notNull(),
+    firstAt: time("first_at").notNull(),
+    lastAt: time("last_at").notNull(),
+  },
+  (t) => [uniqueIndex("app_errors_unique").on(t.clientId, t.appKey, t.source, t.code), index("app_errors_last_idx").on(t.lastAt)],
 );

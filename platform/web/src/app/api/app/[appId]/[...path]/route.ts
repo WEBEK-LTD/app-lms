@@ -38,6 +38,7 @@ import { chatPushes } from "@/lib/chat/push-env";
 import { chatBusiness } from "@/lib/chat/hosted";
 import { getMediaStorage } from "@/lib/media/storage";
 import { MEDIA_CHUNK_BYTES } from "@/lib/media/signing";
+import { noteAppError } from "@/lib/watch/app-errors";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -48,12 +49,27 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 async function handle(request: Request, context: RouteContext<"/api/app/[appId]/[...path]">): Promise<Response> {
   // 17 The app preview may run on another of the platform's addresses than this API.
   const cors = corsHeaders(request.headers.get("origin"), previewOrigins(appUrl()));
-  const response = await answer(request, context);
+  const response = await answer(request, context).catch((e: unknown) => serverError(e, context));
   for (const [name, value] of Object.entries(cors)) {
     if (name === "vary") response.headers.append("vary", value);
     else response.headers.set(name, value);
   }
   return response;
+}
+
+/** 78.4 Anything that failed unexpectedly: logged, counted on the app's errors, and a plain 500. */
+async function serverError(e: unknown, { params }: RouteContext<"/api/app/[appId]/[...path]">): Promise<Response> {
+  const message = e instanceof Error ? `${e.name}: ${e.message}` : "unknown error";
+  const { appId, path } = await params;
+  console.error(`[hosted] app ${appId}: /${path.join("/")} failed: ${message.slice(0, 300)}`);
+  try {
+    const store = await getStore();
+    const app = UUID.test(appId) ? await store.getAppById(appId) : null;
+    if (app) await noteAppError(store, { clientId: app.clientId, appId: app.id, source: "server", code: `unhandled:${path[0] ?? ""}`, detail: `/${path.join("/")}: ${message}` });
+  } catch {
+    // The error is in the log either way.
+  }
+  return errorResponse(500, "server_error", "Something went wrong. Please try again in a moment.");
 }
 
 async function answer(request: Request, { params }: RouteContext<"/api/app/[appId]/[...path]">): Promise<Response> {

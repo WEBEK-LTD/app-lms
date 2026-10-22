@@ -5,6 +5,7 @@ import type { DataStore } from "../data/store";
 import type { ApiWebhook, App } from "../data/types";
 import { ensureAuthKey, signSecurityEvent, tokenIssuer } from "./app-auth";
 import { yallappSignsIn } from "./sign-in-methods";
+import { noteAppError } from "../watch/app-errors";
 
 /**
  * 49 Account deletion reaches the client's API (roadmap 34.8). For an app on
@@ -182,6 +183,10 @@ export async function attemptWebhook(deps: WebhookDeps, webhook: ApiWebhook, tim
         ? { status: "pending" as const, nextAttemptAt: new Date(done.getTime() + RETRY_MINUTES[attempts - 1]! * MINUTE), lastError: errorText(status, reason) }
         : { status: "failed" as const, nextAttemptAt: null, lastError: finalError ?? errorText(status, reason) };
   await deps.store.updateApiWebhook(webhook.id, { ...patch, attempts, lastAttemptAt: done, lastStatus: status });
+  // 78.4 A try that didn't reach the app's API: counted for the team.
+  if (outcome !== "delivered" && app) {
+    await noteAppError(deps.store, { clientId: app.clientId, appId: app.id, source: "webhook", code: patch.status === "failed" ? "delivery_failed" : "delivery_retry", detail: `${webhook.event}: ${patch.lastError ?? "not delivered"}` }, done);
+  }
   return { ...webhook, ...patch, attempts, lastAttemptAt: done, lastStatus: status };
 }
 

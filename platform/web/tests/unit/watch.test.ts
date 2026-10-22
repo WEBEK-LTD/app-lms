@@ -181,6 +181,8 @@ describe("78.3 the watch's alerts", () => {
     expect(result.pushError).toBe("The service account was deleted");
     const appAlert = (await store.listTeamAlerts({ open: true, limit: 5 })).find((a) => a.key.startsWith("push_failed:app:"))!;
     expect(appAlert).toMatchObject({ title: "Ada Academy: notifications couldn't be pushed", emailedAt: null, link: `/admin/clients/${client.id}` });
+    // 78.4 And on the app's errors.
+    expect(await store.listAppErrors({ appId: app.id, limit: 5 })).toEqual([expect.objectContaining({ source: "push", code: "push_failed", message: "The service account was deleted" })]);
   });
 
   it("an alert whose email fails stays open, not marked emailed; raising never throws", async () => {

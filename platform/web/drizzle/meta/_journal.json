@@ -393,6 +393,13 @@
       "when": 1792690438805,
       "tag": "0055_watching",
       "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "5",
+      "when": 1792692682357,
+      "tag": "0056_app_errors",
+      "breakpoints": true
     }
   ]
 }
