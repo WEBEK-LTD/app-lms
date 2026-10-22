@@ -14,6 +14,8 @@ abstract final class Paths {
   static const donations = '/donations';
   static const catalog = '/catalog';
   static const inbox = '/inbox';
+  // 77 The app's chat.
+  static const chat = '/chat';
   static const stats = '/stats';
   static const more = '/more';
 
@@ -42,6 +44,11 @@ abstract final class Paths {
   static const appearance = '/settings/appearance';
   static const notifications = '/settings/notifications';
   static const devices = '/settings/devices';
+
+  // 77 A chat conversation and the reported messages.
+  static String chatConversation(String id) =>
+      '/chat/${Uri.encodeComponent(id)}';
+  static const chatReports = '/chat/reports';
 
   // 60 The owner's team.
   static const team = '/team';

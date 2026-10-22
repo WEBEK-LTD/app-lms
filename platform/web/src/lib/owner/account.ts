@@ -2,6 +2,8 @@ import { isLang } from "@/i18n/config";
 import { contextFor } from "./auth";
 import { appAreas } from "../app/areas";
 import { appLabel } from "../app/label";
+import { chatAvailable } from "../chat/access";
+import { planOfLicense } from "../entitlements";
 import { kindOf } from "../app/kinds";
 import { contactFrom, DEFAULT_CONTACT } from "../contact";
 import type { App, OwnerDevice, OwnerPushPreferences } from "../data/types";
@@ -69,6 +71,8 @@ export function appSummaryJson(ctx: OwnerContext, app: App, plans: Record<Plan, 
       questions: areas.questions,
       reviews: areas.reviews,
       member_check_in: areas.memberCheckIn,
+      // 77 The app's chat: its plan has it, it's on, and the person has the Chat area.
+      chat: chatAvailable(app, planOfLicense(plans, license, ctx.deps.now)) && teamCan(ctx.access, "chat", app.id),
       app_users: areas.appUsers,
       notifications: areas.notifications,
       media: areas.media,

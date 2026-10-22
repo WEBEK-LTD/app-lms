@@ -73,7 +73,9 @@ describe("32 the company details", () => {
     expect(PRIVACY.body).toContain("Yallapp is based in Cairo, Egypt, and is the data controller");
     expect(PRIVACY.body).toContain("where they apply, the EU General Data Protection Regulation (GDPR) and the Turkish Personal Data Protection Law No. 6698 (KVKK)");
     expect(TERMS.body).toContain("In these terms, “we” and “us” mean Yallapp.");
-    expect(TERMS.body).toContain("## 16. Disputes and your rights");
+    expect(TERMS.body).toContain("## 17. Disputes and your rights");
+    // 77 The business is responsible for its app's chat.
+    expect(TERMS.body).toContain("## 11. Chat in your app");
     expect(TERMS.body).toContain("within 30 days");
     expect(TERMS.body).toContain("including consumer and data protection rights");
     expect(TERMS.body).not.toMatch(/governed by the laws of/);

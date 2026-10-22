@@ -58,18 +58,23 @@ IconData catalogIcon(AppSummary app) {
 List<NavTab> tabsFor(BuildContext context, AppSummary app) {
   final l10n = context.l10n;
   final work = workTab(context, app);
-  return [
+  final tabs = [
     NavTab(Paths.today, AppIcons.today, l10n.today),
     ?work,
+    // 77 The app's chat.
+    if (app.features.chat) NavTab(Paths.chat, AppIcons.chat, l10n.chat),
     // 63 Also course questions and reviews.
     if (app.features.inbox) NavTab(Paths.inbox, AppIcons.inbox, l10n.inbox),
     if (app.features.analytics) NavTab(Paths.stats, AppIcons.stats, l10n.stats),
-    NavTab(Paths.more, AppIcons.more, l10n.more),
   ];
+  // 77 Five at most with More: Stats goes to More first.
+  if (tabs.length > 4) tabs.removeWhere((t) => t.path == Paths.stats);
+  return [...tabs, NavTab(Paths.more, AppIcons.more, l10n.more)];
 }
 
-/// The bottom navigation: Today, the app's main tool, Inbox, Stats, More,
-/// each shown only when the app has it.
+/// The bottom navigation: Today, the app's main tool, Chat, Inbox, Stats,
+/// More, each shown only when the app has it (Stats in More when there
+/// isn't room).
 class HomeShell extends ConsumerWidget {
   const HomeShell({super.key, required this.location, required this.child});
 

@@ -335,4 +335,30 @@ YouTube, Vimeo ve diğer video sitelerinden videolar, sitenin kendi oynatıcıs�
 Yüklenen videolar geçici bağlantılardan oynatılır. Bir ders uzun süre açık kaldıysa ya da telefonun tarihi ve saati yanlışsa, dersi kapatıp yeniden açın.
 `,
   },
+  chat: {
+    title: "Uygulamanızda sohbet",
+    description: "Uygulamanızı kullananlar size yazar, bir akademinin öğrencileri her kursun grubunda konuşur: yanıtlar, dosyalar, şikâyetler, birini engellemek ve mesajların ne kadar saklandığı.",
+    body: `**Pro** ve **Business** planlarında uygulamanızda bir **Sohbet** sekmesi olur. Uygulamanızı kullananlar size oradan yazar; siz de paneldeki **Sohbet** sayfasından ya da Yallapp Business'taki **Sohbet** sekmesinden yanıt verirsiniz. İnsanlar birbirlerine asla özelden yazmaz: herkesin sizinle tek bir sohbeti vardır, akademilerde ise her kursun bir grubu olabilir.
+
+## Kimler sohbet edebilir
+
+Web sitesi olmayan uygulamalar, bir platforma bağlı uygulamalar, WordPress uygulamaları (eklenti 0.4.9 veya sonrası) ve Yallapp ile giriş yapılan kendi API'nizdeki uygulamalar sohbete sahiptir. Sohbet, uygulamanızın bir sonraki derlemesiyle gelir. İnsanlar yazmak için giriş yapar; Sohbet sekmesi bunu ister.
+
+**Sohbet ayarları**'ndan sohbeti kapatıp açarsınız; bir akademide **Kurs grupları**'nı açarsınız: her kursun, öğrencilerinin ve sizin konuştuğu bir grubu olur. Öğrenci, kayıtlı olduğu kursların gruplarına katılır.
+
+## Yanıt vermek
+
+Bir sohbeti açın ve yanıtınızı yazın. Yanıt, uygulamanızın adı ve logosuyla işletmeniz adına görünür: müşterileriniz ekibinizden kimin yazdığını asla görmez (ekibiniz görür). [Medya kitaplığınızdan](/docs/media) bir dosya ekleyebilirsiniz. Bir sohbet açıkken yeni mesajlar birkaç saniyede bir kendiliğinden gelir; Yallapp Business de yeni mesajları telefonunuza bildirir (bildirim ayarlarında **Sohbet mesajları**).
+
+İnsanlar metin, fotoğraf, video (200 MB'a kadar), sesli mesaj ve belge (PDF, Word, Excel, PowerPoint ve metin, 50 MB'a kadar) gönderir. Dosyaları Medya kitaplığınızda **Sohbetten** altında görünür ve uygulamanızın depolama alanından sayılır.
+
+## Şikâyetler ve birini engellemek
+
+İnsanlar bir mesajı şikâyet edebilir, gruplarda da birinin mesajlarını görmemeyi seçebilir. Şikâyetler, Sohbet sayfasındaki **Şikâyetler** bölümünde bekler: mesajı tutun, silin ya da silip göndereninin mesaj göndermesini engelleyin. Herhangi bir mesajı silebilir veya birinin mesaj göndermesini sohbetin içinden de engelleyebilirsiniz; o kişi okumaya devam eder. [Koşullarımızda](/terms) yazdığı gibi, uygulamanızdaki sohbetten ve orada söylenenlerden siz sorumlusunuz.
+
+## Mesajlar ne kadar saklanır
+
+Mesajlar ve dosyalar gönderildikten bir yıl sonra silinir. Bir sohbetin en eski mesajları silinmeden 30 gün önce size haber veririz (panelde, e-postayla ve telefonunuzda); **Bir yıl daha sakla** onları, tek bir sohbet için ya da hepsi için saklar. Bir mesajı veya sohbetin tamamını istediğiniz zaman silebilirsiniz. Biri hesabını sildiğinde sohbeti de silinir.
+`,
+  },
 };

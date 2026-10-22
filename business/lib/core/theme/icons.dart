@@ -105,6 +105,17 @@ abstract final class AppIcons {
   static const question = Symbols.contact_support_rounded;
   static const members = Symbols.card_membership_rounded;
   static const markAllRead = Symbols.done_all_rounded;
+  // 77 The app's chat.
+  static const chat = Symbols.chat_rounded;
+  static const attach = Symbols.attach_file_rounded;
+  static const flag = Symbols.flag_rounded;
+  static const block = Symbols.block_rounded;
+  static const keep = Symbols.bookmark_rounded;
+  static const file = Symbols.description_rounded;
+  static const audio = Symbols.mic_rounded;
+  static const chatSettings = Symbols.tune_rounded;
+  static const group = Symbols.group_rounded;
+  static const options = Symbols.more_vert_rounded;
 }
 
 /// Icons that point a way (back, forward, send) turn round in Arabic.

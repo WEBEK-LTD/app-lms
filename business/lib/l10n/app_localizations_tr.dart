@@ -1958,6 +1958,212 @@ class AppLocalizationsTr extends AppLocalizations {
   String get whatsappOutsideEgypt => 'Mısır dışında';
 
   @override
+  String get chat => 'Sohbet';
+
+  @override
+  String get areaChat => 'Sohbet';
+
+  @override
+  String get pushNewChat => 'Sohbet mesajları';
+
+  @override
+  String get pushNewChatHelp =>
+      'Biri uygulamanızın sohbetinde size yazdığında.';
+
+  @override
+  String get chatAll => 'Tümü';
+
+  @override
+  String get chatUnread => 'Okunmamış';
+
+  @override
+  String get chatGroups => 'Kurs grupları';
+
+  @override
+  String get chatSearch => 'Ada göre ara';
+
+  @override
+  String get chatEmpty => 'Henüz sohbet yok';
+
+  @override
+  String get chatEmptyText =>
+      'İnsanlar uygulamanızdan size yazdığında mesajları burada görünür.';
+
+  @override
+  String get chatNoMatches => 'Eşleşen yok';
+
+  @override
+  String chatExpiring(String date) {
+    return 'Bir yıldan eski mesajlar $date tarihinden itibaren silinir.';
+  }
+
+  @override
+  String get chatKeepYear => 'Bir yıl daha sakla';
+
+  @override
+  String get chatKept => 'Bir yıl daha saklanacak';
+
+  @override
+  String chatKeptUntil(String date) {
+    return '$date tarihine kadar saklanacak';
+  }
+
+  @override
+  String chatExpiresOn(String date) {
+    return 'En eski mesajlar $date tarihinde silinir';
+  }
+
+  @override
+  String get chatCourseGroup => 'Kurs grubu';
+
+  @override
+  String chatYou(String text) {
+    return 'Siz: $text';
+  }
+
+  @override
+  String chatSentBy(String name) {
+    return 'Gönderen: $name';
+  }
+
+  @override
+  String get chatPhoto => 'Fotoğraf';
+
+  @override
+  String get chatVideo => 'Video';
+
+  @override
+  String get chatVoice => 'Sesli mesaj';
+
+  @override
+  String get chatFile => 'Dosya';
+
+  @override
+  String get chatDeleted => 'Mesaj silindi';
+
+  @override
+  String get chatReported => 'Şikâyet edildi';
+
+  @override
+  String get chatNoMessages => 'Henüz mesaj yok';
+
+  @override
+  String chatReplyHint(String business) {
+    return '$business olarak yanıtla';
+  }
+
+  @override
+  String get chatAttachMedia => 'Medyadan ekle';
+
+  @override
+  String get chatChooseFile => 'Bir dosya seçin';
+
+  @override
+  String get chatNoMediaFiles =>
+      'Medya kitaplığınız boş. Önce Medya\'dan fotoğraf ve video yükleyin.';
+
+  @override
+  String get chatRemoveFile => 'Dosyayı kaldır';
+
+  @override
+  String get chatNotSent => 'Gönderilmedi. Yeniden denemek için dokunun.';
+
+  @override
+  String get chatDeleteMessage => 'Mesajı sil';
+
+  @override
+  String get chatDeleteMessageText =>
+      'Herkes için dosyasıyla birlikte silinir.';
+
+  @override
+  String get chatBlock => 'Mesaj göndermesini engelle';
+
+  @override
+  String chatBlockText(String name) {
+    return '$name sohbeti okumaya devam eder ancak siz yeniden izin verene kadar mesaj gönderemez.';
+  }
+
+  @override
+  String get chatUnblock => 'Yeniden mesaj göndermesine izin ver';
+
+  @override
+  String get chatBlocked => 'Mesaj gönderemez';
+
+  @override
+  String get chatClear => 'Tüm mesajları sil';
+
+  @override
+  String get chatClearText =>
+      'Bu sohbetteki tüm mesajlar ve dosyalar herkes için silinir.';
+
+  @override
+  String get chatReports => 'Şikâyetler';
+
+  @override
+  String get chatReportsOpen => 'Bekleyen';
+
+  @override
+  String get chatReportsClosed => 'Ele alınan';
+
+  @override
+  String get chatNoReports => 'Şikâyet yok';
+
+  @override
+  String get chatNoReportsText =>
+      'Biri sohbette bir mesajı şikâyet ettiğinde burada görünür.';
+
+  @override
+  String chatReportBy(String name, String reason) {
+    return 'Şikâyet eden: $name · $reason';
+  }
+
+  @override
+  String get chatReasonSpam => 'Spam';
+
+  @override
+  String get chatReasonAbuse => 'Taciz veya hakaret';
+
+  @override
+  String get chatReasonInappropriate => 'Uygunsuz içerik';
+
+  @override
+  String get chatReasonOther => 'Başka bir sebep';
+
+  @override
+  String get chatKeepMessage => 'Mesajı tut';
+
+  @override
+  String get chatDeleteAndBlock => 'Sil ve göndereni engelle';
+
+  @override
+  String get chatOutcomeDismissed => 'Mesaj tutuldu';
+
+  @override
+  String get chatOutcomeDeleted => 'Mesaj silindi';
+
+  @override
+  String get chatOutcomeBlocked => 'Silindi, gönderen engellendi';
+
+  @override
+  String get chatSettings => 'Sohbet ayarları';
+
+  @override
+  String get chatOn => 'Uygulamada sohbet';
+
+  @override
+  String get chatOnHelp => 'Uygulamanızı kullananlar size yazabilir.';
+
+  @override
+  String get chatGroupsHelp =>
+      'Her kursun öğrencilerinin konuştuğu bir grubu olur.';
+
+  @override
+  String get chatNoPlan => 'Sohbet Pro ve Business paketlerinde var.';
+
+  @override
+  String get chatOlder => 'Önceki mesajları göster';
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }
@@ -2069,5 +2275,27 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String needsQuestions(int count) {
     return 'Yanıtlanacak $count kurs sorusu';
+  }
+
+  @override
+  String chatReportsWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count şikâyet bekliyor',
+      one: '1 şikâyet bekliyor',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String chatMembers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count üye',
+      one: '1 üye',
+    );
+    return '$_temp0';
   }
 }

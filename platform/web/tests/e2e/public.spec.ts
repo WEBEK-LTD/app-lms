@@ -161,7 +161,9 @@ test("the contact page and the legal pages name Yallapp in Cairo, Egypt", async 
   await expect(page.getByRole("main")).toContainText("Based in Cairo, Egypt");
   await expect(page.getByRole("main")).not.toContainText(/WEBEK|England|16326894|Shelton/);
   await page.goto("/terms");
-  await expect(page.getByRole("heading", { name: "16. Disputes and your rights" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "17. Disputes and your rights" })).toBeVisible();
+  // 77 The business is responsible for its app's chat.
+  await expect(page.getByRole("heading", { name: "11. Chat in your app" })).toBeVisible();
   await expect(page.getByRole("main")).not.toContainText(/England|WEBEK/);
   await page.goto("/privacy");
   await expect(page.getByRole("main")).toContainText("Yallapp is based in Cairo, Egypt, and is the data controller");

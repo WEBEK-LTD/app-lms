@@ -1,4 +1,4 @@
-"""59 Writes lib/l10n/app_{en,ar,tr}.arb from the string tables (strings_*.py; 61 strings_d; 60 strings_e; 63 strings_f; 64 strings_g; 64b strings_h; 66 strings_i; 68 strings_j; 70 strings_k; 72 strings_p72).
+"""59 Writes lib/l10n/app_{en,ar,tr}.arb from the string tables (strings_*.py; 61 strings_d; 60 strings_e; 63 strings_f; 64 strings_g; 64b strings_h; 66 strings_i; 68 strings_j; 70 strings_k; 72 strings_p72; 77 strings_p77).
 
 Run from business/: python3 tool/build_arb.py, then flutter gen-l10n.
 Every key has the three languages; placeholders are declared once.
@@ -10,7 +10,7 @@ import sys
 
 here = pathlib.Path(__file__).parent
 sys.path.insert(0, str(here))
-import strings_a, strings_b, strings_c, strings_d, strings_e, strings_f, strings_g, strings_h, strings_i, strings_j, strings_k, strings_p72  # noqa: E402
+import strings_a, strings_b, strings_c, strings_d, strings_e, strings_f, strings_g, strings_h, strings_i, strings_j, strings_k, strings_p72, strings_p77  # noqa: E402
 
 INTS = {
     "bellUnread": ["count"],
@@ -21,9 +21,9 @@ INTS = {
 }
 ORDER = {"planEnds": ["date", "days"]}
 
-rows = strings_a.S + strings_b.S + strings_c.S + strings_d.S + strings_e.S + strings_f.S + strings_g.S + strings_h.S + strings_i.S + strings_j.S + strings_k.S + strings_p72.S
-plurals = {k: p for (k, p, *_rest) in strings_c.P + strings_f.P}
-for (k, p, en, ar, tr) in strings_c.P + strings_f.P:
+rows = strings_a.S + strings_b.S + strings_c.S + strings_d.S + strings_e.S + strings_f.S + strings_g.S + strings_h.S + strings_i.S + strings_j.S + strings_k.S + strings_p72.S + strings_p77.S
+plurals = {k: p for (k, p, *_rest) in strings_c.P + strings_f.P + strings_p77.P}
+for (k, p, en, ar, tr) in strings_c.P + strings_f.P + strings_p77.P:
     rows.append((k, en, ar, tr))
 
 keys = [r[0] for r in rows]

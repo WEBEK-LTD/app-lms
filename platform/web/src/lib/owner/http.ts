@@ -5,6 +5,7 @@ import type { DataStore } from "../data/store";
 import type { App, Client, License, OwnerDevice, User } from "../data/types";
 import type { MediaStorage } from "../media/storage";
 import type { ProviderUrls } from "../payments/provider";
+import type { ChatDeps } from "../chat/service";
 import type { sendPush } from "../hosted/push";
 import type { RefundDeps } from "../refunds/service";
 import type { TeamAccess, TeamPermission } from "../team/permissions";
@@ -33,6 +34,10 @@ export interface OwnerDeps {
   teamMail?: (to: string, values: Record<string, string>, lang: Lang) => Promise<unknown>;
   /** Pushes to the app's own users (the kitchen's steps, inquiry replies, notifications); tests pass a fake. */
   sendPush?: typeof sendPush;
+  /** 77 Tells the app's people about the business's chat replies (lib/chat/push-env.ts); none in tests. */
+  chatPushes?: (store: DataStore, businessName: string) => NonNullable<ChatDeps["onMessage"]>;
+  /** 77 WordPress sites read their license status again soon (Config.chat after a settings change). */
+  refreshSites?: (appIds: string[]) => void;
 }
 
 export interface OwnerRequest {

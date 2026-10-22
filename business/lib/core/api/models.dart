@@ -1,6 +1,7 @@
 import 'json.dart';
 
 export 'json.dart' show Json;
+export 'chat_models.dart';
 
 /// 59 The Owner API's schemas (docs/api/owner.yaml), read from JSON.
 
@@ -243,6 +244,8 @@ const teamAreas = [
   'catalog',
   'media',
   'messages',
+  // 77 The app's chat.
+  'chat',
   'app_users',
   'analytics',
   'notifications',
@@ -428,6 +431,7 @@ class AppFeatures {
     this.questions = false,
     this.reviews = false,
     this.memberCheckIn = false,
+    this.chat = false,
     this.appUsers = false,
     this.notifications = false,
     this.media = false,
@@ -451,6 +455,7 @@ class AppFeatures {
     questions: boolean(json, 'questions'),
     reviews: boolean(json, 'reviews'),
     memberCheckIn: boolean(json, 'member_check_in'),
+    chat: boolean(json, 'chat'),
     appUsers: boolean(json, 'app_users'),
     notifications: boolean(json, 'notifications'),
     media: boolean(json, 'media'),
@@ -479,6 +484,10 @@ class AppFeatures {
 
   /// 63 A gym's members checked in at the door (Bookings).
   final bool memberCheckIn;
+
+  /// 77 The app's chat: its plan has it, it's on, and the person has the
+  /// Chat area.
+  final bool chat;
   final bool appUsers;
   final bool notifications;
   final bool media;
@@ -585,6 +594,8 @@ enum PushKind {
   newOrder('new_order'),
   newBooking('new_booking'),
   newMessage('new_message'),
+  // 77 A message in the app's chat.
+  newChatMessage('new_chat_message'),
   newReview('new_review'),
   paymentReceived('payment_received'),
   buildFinished('build_finished'),

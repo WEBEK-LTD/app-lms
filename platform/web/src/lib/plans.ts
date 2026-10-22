@@ -186,6 +186,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
       "All app languages",
       "We publish to all five app stores",
       "Automatic store updates",
+      "Chat with your customers in the app",
       "Priority support",
     ],
     price: "On request",
