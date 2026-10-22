@@ -8,10 +8,12 @@ import { E2E } from "../../playwright.config";
  */
 
 const suffix = Date.now().toString(36);
+// Its own address: sign-ups are limited per address (10 an hour), and the suite has many.
+const extraHTTPHeaders = { "x-forwarded-for": "198.51.100.178" };
 const campaign = `product-${suffix}`;
 
 test("a campaign's sign-up reaches Admin › Product, with the daily snapshot", async ({ browser, request }) => {
-  const visitor = await browser.newPage();
+  const visitor = await browser.newPage({ extraHTTPHeaders });
   await visitor.goto(`/pricing?utm_source=${campaign}&utm_medium=email`);
   await visitor.locator('a[href="/sign-up"]:visible').first().click();
   await expect(visitor).toHaveURL(/\/sign-up$/);
@@ -30,7 +32,7 @@ test("a campaign's sign-up reaches Admin › Product, with the daily snapshot", 
   expect(report.productDay).toMatchObject({ day: new Date().toISOString().slice(0, 10) });
   expect(report.milestones.clients).toBeGreaterThan(0);
 
-  const page = await browser.newPage();
+  const page = await browser.newPage({ extraHTTPHeaders });
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(E2E.settingsAdminEmail);
   await page.getByLabel("Password", { exact: true }).fill(E2E.adminPassword);
