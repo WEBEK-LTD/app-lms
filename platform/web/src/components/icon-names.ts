@@ -142,6 +142,12 @@ export const ICON_NAMES = [
   "share",
   "spa",
   "timer",
+  // 77 The chat.
+  "attach_file",
+  "description",
+  "flag",
+  "mic",
+  "send",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];
