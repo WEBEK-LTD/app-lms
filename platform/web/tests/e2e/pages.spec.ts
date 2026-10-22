@@ -112,6 +112,8 @@ test("the client builds a page, reorders it and publishes", async () => {
   for (let i = before + 1; i > 1; i -= 1) await page.getByRole("button", { name: `Move block ${i} up` }).click();
   await expect(blocks.first()).toContainText("Text: Learn with Nil");
 
+  // 82.1 The real app is shown first; the quick view draws the draft at once.
+  await own.getByRole("button", { name: "Quick view", exact: true }).click();
   await expect(own.getByRole("figure", { name: "Phone preview" })).toContainText("See courses");
   // 19 The draft sits in the shared phone frame, clipped to its rounded screen.
   await expect(own.getByRole("figure", { name: "Phone preview" }).locator("[data-phone-frame] .phone-screen")).toContainText("See courses");

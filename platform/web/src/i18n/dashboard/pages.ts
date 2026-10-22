@@ -15,6 +15,13 @@ export const en = {
   ownApi: "Apps on your own API don't get these pages from Yallapp. They reach apps through the Yallapp plugin or the Yallapp hosted API.",
   // 81.3 A draft made from the website.
   fromSite: "We made this first version from {site}: its name, colours, font and logo, a design for your kind of app, and its menu as pages and tabs. Check it in the preview, change anything, then publish. Next, connect your website in <setup>App setup</setup>.",
+  // 82.1 The real app beside the editor.
+  previewChoice: "Preview",
+  previewTheApp: "The app",
+  previewSketch: "Quick view",
+  previewLiveNote: "The real app, with your draft: it changes as your edits are saved.",
+  previewReload: "Reload the app",
+  previewFrame: "{app} with your draft",
   phonePreview: "Phone preview",
   addBlocksHere: "Add blocks to this page.",
   captionEntries: "Preview of the draft. Lists show the names of your entries; pictures are placeholders.",
@@ -428,6 +435,13 @@ export const ar: Messages = {
   ownApi: "التطبيقات العاملة على واجهة API الخاصة بك لا تحصل على هذه الصفحات من Yallapp. فهي تصل إلى التطبيقات عبر إضافة Yallapp أو واجهة Yallapp المستضافة.",
   // 81.3 A draft made from the website.
   fromSite: "صنعنا هذه النسخة الأولى من {site}: اسمه وألوانه وخطه وشعاره، وتصميمًا لنوع تطبيقك، وقائمته كصفحات وعلامات تبويب. راجعها في المعاينة، وغيّر ما تريد، ثم انشر. بعد ذلك، اربط موقعك من <setup>إعداد التطبيق</setup>.",
+  // 82.1 The real app beside the editor.
+  previewChoice: "المعاينة",
+  previewTheApp: "التطبيق",
+  previewSketch: "عرض سريع",
+  previewLiveNote: "التطبيق الحقيقي بمسودتك: يتغيّر كلما حُفظت تعديلاتك.",
+  previewReload: "أعد تحميل التطبيق",
+  previewFrame: "{app} بمسودتك",
   phonePreview: "معاينة على الهاتف",
   addBlocksHere: "أضف كتلًا إلى هذه الصفحة.",
   captionEntries: "معاينة المسودة. تعرض القوائم أسماء عناصرك، والصور مؤقتة.",
@@ -834,6 +848,13 @@ export const tr: Messages = {
   ownApi: "Kendi API'nizdeki uygulamalar bu sayfaları Yallapp'ten almaz. Sayfalar uygulamalara Yallapp eklentisi ya da Yallapp'in barındırılan API'si aracılığıyla ulaşır.",
   // 81.3 A draft made from the website.
   fromSite: "Bu ilk sürümü {site} adresinden hazırladık: adı, renkleri, yazı tipi ve logosu, uygulama türünüze uygun bir tasarım ve menüsü sayfalar ve sekmeler olarak. Önizlemede kontrol edin, istediğinizi değiştirin, sonra yayınlayın. Ardından web sitenizi <setup>Uygulama kurulumu</setup> sayfasında bağlayın.",
+  // 82.1 The real app beside the editor.
+  previewChoice: "Önizleme",
+  previewTheApp: "Uygulama",
+  previewSketch: "Hızlı görünüm",
+  previewLiveNote: "Taslağınızla gerçek uygulama: düzenlemeleriniz kaydedildikçe değişir.",
+  previewReload: "Uygulamayı yeniden yükle",
+  previewFrame: "Taslağınızla {app}",
   phonePreview: "Telefon önizlemesi",
   addBlocksHere: "Bu sayfaya blok ekleyin.",
   captionEntries: "Taslağın önizlemesi. Listeler kayıtlarınızın adlarını gösterir; resimler yer tutucudur.",

@@ -30,6 +30,7 @@ import {
 import { BlockSettings, type BlockContext } from "./block-settings";
 import { ActionEditor, Check, firstScreen, IconGlyph, IconPicker, LangText, SelectInput, TextInput, type Lang } from "./controls";
 import { DesignThumb, PhonePreview } from "./preview";
+import { LivePreview, notifyDraftSaved } from "./live-preview";
 import { UpgradeHint } from "@/components/upgrade";
 import { MAX_LANGUAGES } from "@/lib/i18n/locales";
 import { appLanguageName } from "@/lib/i18n/language-names";
@@ -111,6 +112,7 @@ export function PagesEditor({
   ready,
   designs,
   builtin,
+  live,
 }: {
   initial: {
     draft: LayoutContent;
@@ -136,6 +138,8 @@ export function PagesEditor({
   designs: { id: string; name: string; description: string; layout: LayoutContent }[];
   /** 43 Yallapp's translations of the texts it wrote, for the phone preview. */
   builtin: Record<string, Record<string, string>>;
+  /** 82.1 The app preview's address with the draft (hosted apps); null shows the quick view only. */
+  live: string | null;
 }) {
   const t = useDashT();
   const known = useKnownText();
@@ -163,6 +167,9 @@ export function PagesEditor({
   /** Edits not saved yet; each save only clears the edits it sent. */
   const edits = useRef(0);
   const dirty = useRef(false);
+  // 82.1 The real app beside the editor, told about each save; or the quick view.
+  const frame = useRef<HTMLIFrameElement | null>(null);
+  const [view, setView] = useState<"app" | "sketch">(live ? "app" : "sketch");
 
   const def = layout.languages.default;
   // Without the full page editor, the app (and the preview) shows the ready-made pages with this look.
@@ -182,6 +189,7 @@ export function PagesEditor({
     setPublished(r.published);
     setSavedAt(r.savedAt);
     setErrors([]);
+    notifyDraftSaved(frame.current);
     if (replace) {
       dirty.current = false;
       setLayout(r.draft);
@@ -845,16 +853,35 @@ export function PagesEditor({
         ) : null}
       </div>
 
-      <div className="lg:sticky lg:top-6">
-        <PhonePreview
-          layout={shown}
-          page={plan.pageEditor ? page : (shown.pages.find((p) => p.slug === pageSlug) ?? shown.pages[0] ?? null)}
-          lang={lang.edit}
-          pickable={pickable}
-          app={app}
-          onOpenPage={setPageSlug}
-          builtin={builtin}
-        />
+      <div className="flex flex-col items-center gap-3 lg:sticky lg:top-6">
+        {live ? (
+          <div role="group" aria-label={t("pages.previewChoice")} className="flex rounded-[10px] border border-line-strong bg-white p-0.5">
+            {(["app", "sketch"] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                aria-pressed={view === v}
+                onClick={() => setView(v)}
+                className={`h-9 cursor-pointer rounded-lg px-3 text-sm font-semibold ${view === v ? "bg-midnight text-white" : "text-midnight hover:bg-ivory"}`}
+              >
+                {v === "app" ? t("pages.previewTheApp") : t("pages.previewSketch")}
+              </button>
+            ))}
+          </div>
+        ) : null}
+        {live && view === "app" ? (
+          <LivePreview src={live} appName={app.name} frameRef={frame} />
+        ) : (
+          <PhonePreview
+            layout={shown}
+            page={plan.pageEditor ? page : (shown.pages.find((p) => p.slug === pageSlug) ?? shown.pages[0] ?? null)}
+            lang={lang.edit}
+            pickable={pickable}
+            app={app}
+            onOpenPage={setPageSlug}
+            builtin={builtin}
+          />
+        )}
       </div>
     </div>
   );

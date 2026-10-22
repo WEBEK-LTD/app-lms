@@ -1965,7 +1965,7 @@ is another page.
 
 | | Step | Done when |
 |---|---|---|
-| [ ] | 82.1 The real app inside the editor: the draft reaches the preview as it changes, without reloading | e2e |
+| [x] | 82.1 The real app inside the editor: the draft reaches the preview as it changes, without reloading. Pages & look shows the app preview with the draft beside the editor (hosted apps), the quick view one click away; each save tells the app in the frame, which reloads its tabs and pages in place | `phase82_test.dart`, `live-editor.spec.ts` |
 | [ ] | 82.2 Click a block on the phone to edit it; drag blocks from the palette onto the phone | e2e |
 | [ ] | 82.3 Sizes: small phone, phone, tablet; Android and iPhone; light and dark side by side | e2e |
 | [ ] | 82.4 Undo and redo, publish history and going back to an earlier version | Unit and e2e tests |

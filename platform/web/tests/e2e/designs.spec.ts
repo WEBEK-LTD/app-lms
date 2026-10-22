@@ -97,6 +97,8 @@ test("Pages & look has the design's tabs, blocks and look, marked as samples", a
   await faq.getByRole("button", { name: /^Questions/ }).click();
   await faq.getByLabel("Question", { exact: true }).first().fill("When do lessons start?");
   await expect(faq).not.toContainText("Sample text");
+  // 82.1 The real app is shown first; the quick view draws the draft at once.
+  await own.getByRole("button", { name: "Quick view", exact: true }).click();
   await expect(own.getByRole("figure", { name: "Phone preview" })).toContainText("Fun lessons for curious kids");
 
   await own.getByRole("tab", { name: "Look" }).click();

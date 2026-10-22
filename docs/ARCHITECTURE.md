@@ -2690,6 +2690,20 @@ build. The preview is the Flutter app from `mobile/`, built for the web.
   changes", "Open on your phone" with a QR code made on our server
   (`lib/qr.ts`) for the same link, what's missing, and how to sign in.
 
+### The real app in the editor (82.1)
+
+Pages & look shows the app preview beside the editor for apps whose content
+is on the hosted API (the ones that can preview the draft): the preview with a
+draft token, in the shared phone frame (`dashboard/pages/live-preview.tsx`),
+with the quick view (the editor's own drawing of the draft) one click away.
+After each saved draft (and a design applied, a publish or a discard) the
+editor posts `{yallappPreview: "draft-saved"}` to the frame, to its own
+origin. The app takes it only from the page holding it, on the platform's
+origin (`mobile/lib/core/preview/draft_updates_web.dart`), and reloads its
+tabs and pages in place, a few saves close together once
+(`draftReloadProvider`): the frame never loads again, so the screen and
+where the owner is in the app stay. The phone apps listen to nothing.
+
 ## Pages, looks and languages
 
 Clients build their app's pages and pick its look in the client dashboard,
