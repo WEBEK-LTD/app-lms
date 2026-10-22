@@ -651,6 +651,49 @@ components:
             an intent filter can't leave out the site's other pages. Missing
             on older plugins.
           items: { type: string, maxLength: 100, pattern: '^/([A-Za-z0-9._~%-]+/)+$', example: /courses/ }
+        brand:
+          type: object
+          description: |
+            Roadmap 81.2. What the site looks like, for an app made from it
+            (81.3): its title and tagline, its logo and site icon, its
+            theme's colours (theme.json's palette, primary first) and its
+            menus, two levels deep. Sent with every activation and check;
+            the platform keeps it when it changed. Missing on older plugins.
+          properties:
+            name: { type: string, maxLength: 120, example: Cedar Academy }
+            tagline: { type: string, maxLength: 200, example: Learn design online }
+            logo_url: { type: [string, 'null'], format: uri, maxLength: 500 }
+            icon_url: { type: [string, 'null'], format: uri, maxLength: 500, description: The site icon at 512 pixels. }
+            colors:
+              type: array
+              maxItems: 6
+              items: { type: string, pattern: '^#[0-9a-fA-F]{6}$', example: '#1f7a5c' }
+            menus:
+              type: array
+              maxItems: 3
+              items:
+                type: object
+                required: [location, items]
+                properties:
+                  location: { type: string, maxLength: 64, description: "The theme's menu location (primary, footer…), or the menu's own name.", example: primary }
+                  items:
+                    type: array
+                    maxItems: 30
+                    items:
+                      type: object
+                      required: [title, url]
+                      properties:
+                        title: { type: string, maxLength: 80 }
+                        url: { type: string, format: uri, maxLength: 500 }
+                        children:
+                          type: array
+                          maxItems: 15
+                          items:
+                            type: object
+                            required: [title, url]
+                            properties:
+                              title: { type: string, maxLength: 80 }
+                              url: { type: string, format: uri, maxLength: 500 }
 
     SignInCodeRequest:
       allOf:

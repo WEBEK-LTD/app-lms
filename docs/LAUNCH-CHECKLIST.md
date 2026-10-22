@@ -1081,6 +1081,9 @@ never in a chat or an issue.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **Plugin 0.4.10** (81.2): the site's look (title, logo, icon, theme
+      colours, menus) with each license check. Release it like 0.4.9; sites
+      send it from their next check after updating.
 - [ ] **Plugin 0.4.9** (77.4): WordPress apps' chat. Release it like 0.4.8
       (WordPress.org once the plugin is approved there; Admin › Plugin
       releases for the dashboard's download button). Sites on 0.4.8 or
@@ -1165,6 +1168,11 @@ never in a chat or an issue.
       on `catalog_orders`) goes with the production deploy. Shops mark
       orders shipped on the Orders page with any carrier; the app's next
       build shows the tracking (the preview shows it at once).
+- [ ] **Start from your website** (81.1, 81.3): no migration. Choose app
+      type offers "Start from your website" for a new app; it reads the
+      client's site through the safe fetch. Leave `SITE_SCAN_TEST_URL` unset
+      on Netlify (it is refused there; only the e2e tests use it). Try it once
+      with a real WordPress site and a real Shopify shop after the deploy.
 - [ ] Campaign links: point them at any page of the site with
       `utm_source`, `utm_medium` and `utm_campaign` (and `from` for a page
       of ours, like `from=newsletter`); the sign-up records them while the

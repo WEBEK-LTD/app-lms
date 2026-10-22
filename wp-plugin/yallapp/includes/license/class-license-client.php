@@ -614,7 +614,22 @@ class License_Client {
 			'bookings'       => $booking ? $booking['id'] : '',
 			// 48 The site's own pages that open the app on Android, for the app's next build.
 			'link_paths'     => \Yallapp\Link_Paths::android_paths( ( new \Yallapp\Link_Paths( \Yallapp\Plugin::instance() ) )->entries() ),
+			// 81.2 What the site looks like, for an app made from it.
+			'brand'          => self::brand(),
 		);
+	}
+
+	/**
+	 * The site's brand (Site_Brand), or nothing when it can't be read: the check goes on without it.
+	 *
+	 * @return array|null
+	 */
+	private static function brand() {
+		try {
+			return \Yallapp\Site_Brand::report();
+		} catch ( \Throwable $e ) {
+			return null;
+		}
 	}
 
 	/**

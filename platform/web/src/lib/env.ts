@@ -281,6 +281,13 @@ export function licenseRefreshTestUrl(): string | null {
   return url ?? null;
 }
 
+/** 81.3 Local tests only (refused on Netlify): every site scan reads this fake site instead of the address given. */
+export function siteScanTestUrl(): string | null {
+  const url = read("SITE_SCAN_TEST_URL");
+  if (url && isNetlify()) throw new Error("SITE_SCAN_TEST_URL is for local tests only.");
+  return url ?? null;
+}
+
 /** 80.2 The daily checks of every app's connections (lib/integrations/schedule.ts); `INTEGRATION_CHECKS=off` turns them off (the e2e tests, whose sites are made up). */
 export function integrationChecksOn(): boolean {
   return read("INTEGRATION_CHECKS")?.toLowerCase() !== "off";

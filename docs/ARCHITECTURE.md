@@ -2461,6 +2461,86 @@ waybill's link; a shipped order in progress reads "Shipped". Yallapp Business
 can set it too (`PUT /apps/{app}/orders/{order}/shipment`, `owner.yaml`). Every
 plan with a shop has it.
 
+## Site scan (81.1)
+
+`lib/scan/site-scan.ts` reads a website from its address and proposes what
+an app made from it needs (81.3 builds the draft from it; nothing is kept):
+
+- **Name:** `og:site_name`, `application-name`, the manifest, schema.org's
+  Organization or WebSite, then the title's first part.
+- **Logo:** schema.org's `logo`, then the header's logo image (WordPress's
+  `custom-logo`, Shopify's `header__heading-logo`, any image named logo but
+  not payment or partner logos).
+- **Icon:** the manifest's largest icon (192 px or more), then
+  `apple-touch-icon`, then the largest `icon`.
+- **Colours:** the theme colour, the manifest's, the stylesheets' named
+  brand colours (`--wp--preset--color--primary`, `--color-primary`, Shopify's
+  and Wix's `r, g, b` variables), then the most used; greys, white and black
+  are left out.
+- **Fonts:** Google Fonts links, `@font-face`, `font-family` and the themes'
+  font variables, matched to the app's six fonts by family (Poppins →
+  Outfit, Inter → Manrope, Cairo → Lexend…).
+- **Platform:** WordPress with its plugins (WooCommerce, the LMS and
+  booking plugins, The Events Calendar, GiveWP), Shopify, Salla, Zid, ikas,
+  Ticimax, IdeaSoft, Wix, Teachable, Thinkific, SimplyBook, Squarespace,
+  Webflow.
+- **App type:** from the plugins and platform first, then the page's words
+  in English, Arabic and Turkish (a restaurant, a clinic, a gym, a charity,
+  courses, events, real estate, a shop; else news).
+
+It reads the home page (1.5 MB at most), the web app manifest and up to two
+of the site's own stylesheets (400 KB each), 8 seconds each, all through the
+safe fetch (public addresses only, redirects checked). Saved home pages of
+each platform are its tests (`tests/unit/fixtures/sites`).
+
+### The site's look from the plugin (81.2)
+
+On WordPress the plugin says what the site looks like (`Site_Brand`, plugin
+0.4.10) with every license activation and check (`SiteInfo.brand` in
+`docs/api/platform.yaml`):
+
+- the site's title and tagline;
+- the custom logo and the site icon (512 px);
+- the theme's colours: theme.json's palette, the site's own (custom, then
+  the theme's), with the brand slugs (primary, brand, accent, secondary…)
+  first and greys left out, six at most;
+- its menus by location, two levels deep: three menus of 30 items, with 15
+  children each.
+
+The platform keeps it to the contract's limits (`parseSiteBrand`) and stores
+it on the app (`hostedSettings.siteBrand`) only when it changed, with the
+site's link paths (`saveSiteReport`). A draft app from the website (81.3)
+comes before the plugin is installed, so it reads the site itself.
+
+### A draft app from the website (81.3)
+
+A new app (the account's first, or "Add an app") can start from the
+website's address: Choose app type › "Start from your website"
+(`startFromWebsiteAction`). The site scan (81.1, with the site's main menu:
+the links of its main `<nav>`, or the header's, its own pages only, without
+its home, cart, sign-in or the same page twice, eight at most) becomes the
+app (`lib/scan/draft.ts`):
+
+- **Its details:** the type and kind the scan found, the name (the site's,
+  or one made from its address), the name under the icon, the main and
+  splash colours, the font, the template of its design, the website, and the
+  logo when it is a PNG or SVG; the icon only when it is what the stores ask
+  for (1024 × 1024 PNG without transparency), which a website's rarely is,
+  so Branding still asks for it.
+- **Its Pages & look draft:** the first ready-made design for its kind (33),
+  with the site's font and accent colour, the site's language first when the
+  app speaks it, and the menu: an entry the design already has a screen for
+  (Courses, Shop, Menu…, by its words in English, Turkish and Arabic) is left
+  to that screen; each other one becomes a page showing that page of the
+  website (an `embed` block; https pages only), a tab before Account while
+  there is room for one, else a link in a Quick links block on the home page.
+
+Nothing is published: the editor opens with a notice, and the setup steps go
+on as for any app (the Website step connects the site). Each client can start
+from a website ten times an hour (`RATE_LIMITS.siteScan`); a type the team
+switched off isn't made. In local tests every scan reads a fake site
+(`SITE_SCAN_TEST_URL`, refused on Netlify; `tests/e2e/site-start.spec.ts`).
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:
