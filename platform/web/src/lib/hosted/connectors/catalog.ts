@@ -2,6 +2,7 @@ import { checkFulfilment, FULFILMENT_LABELS, fulfilmentConfigJson, fulfilmentOf,
 import { centsToDecimal, formatCents } from "../../catalog/money";
 import { checkOptions, optionGroupsJson, optionGroupsOf, type ChosenOption } from "../../catalog/options";
 import { catalogSettings, ORDER_STATUS_LABELS, orderNumber, PAY_LINK_MINUTES, paymentsSetUp, shippingFor } from "../../catalog/settings";
+import { shipmentJson } from "../../catalog/shipping";
 import { randomToken, sha256Hex } from "../../crypto/tokens";
 import type { DataStore } from "../../data/store";
 import type { App, CatalogCategory, CatalogOrder, CatalogOrderLine, CatalogProduct, CatalogSettings, FulfilmentSettings } from "../../data/types";
@@ -448,8 +449,11 @@ export class CatalogConnector implements Connector {
       id: order.id,
       number: orderNumber(order),
       status: order.status,
-      status_label: ORDER_STATUS_LABELS[order.status],
+      // 80.4 A shipped order in progress reads "Shipped".
+      status_label: order.shipment && order.status === "processing" ? "Shipped" : ORDER_STATUS_LABELS[order.status],
       total: formatCents(order.totalCents, order.currency),
+      // 80.4 How it was shipped (any carrier); null until it is.
+      shipment: shipmentJson(order.shipment),
       // 47 What the shop refunded of it; all of it: the status is "refunded".
       refunded_total: order.refundedCents ? formatCents(order.refundedCents, order.currency) : null,
       // 71 The receipt as a PDF, from a signed link.

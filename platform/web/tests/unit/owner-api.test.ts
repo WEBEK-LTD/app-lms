@@ -399,6 +399,32 @@ describe("58 the Owner API", () => {
       expect(done.body).toMatchObject({ status: "completed", kitchen: { step: "completed" }, next_statuses: [] });
     });
 
+    it("80.4 ships a shop's order with any carrier, and only orders with something to ship", async () => {
+      const { access_token: token } = await signIn();
+      const order = await paidOrder(store, shop);
+      const params = { app_id: shop.id, order_id: order.id };
+      expect((await call("GET", "/apps/{app_id}/orders/{order_id}", { token, params })).body).toMatchObject({ shippable: true, shipment: null });
+      expect(await call("PUT", "/apps/{app_id}/orders/{order_id}/shipment", { token, params, body: { carrier: "Aras Kargo" } })).toMatchObject({
+        status: 400,
+        body: { code: "invalid_shipment", errors: { tracking_number: "Enter the tracking link, the tracking number or the waybill." } },
+      });
+      const shipped = await call("PUT", "/apps/{app_id}/orders/{order_id}/shipment", {
+        token,
+        params,
+        body: { carrier: "Aras Kargo", tracking_number: "3815602243", tracking_url: "https://kargotakip.example/track?code=3815602243" },
+      });
+      expect(shipped).toMatchObject({
+        status: 200,
+        body: { shippable: true, shipment: { carrier: "Aras Kargo", tracking_number: "3815602243", tracking_url: "https://kargotakip.example/track?code=3815602243", waybill: null, shipped_at: NOW.toISOString() } },
+      });
+      // A restaurant's order has the kitchen, not shipping.
+      const meal = await paidOrder(store, kitchen, { fulfilment: true });
+      expect(await call("PUT", "/apps/{app_id}/orders/{order_id}/shipment", { token, params: { app_id: kitchen.id, order_id: meal.id }, body: { tracking_number: "1" } })).toMatchObject({
+        status: 409,
+        body: { code: "not_shippable" },
+      });
+    });
+
     it("completes a shop's order once, and refunds it with the dashboard's rules", async () => {
       const { access_token: token } = await signIn();
       const order = await paidOrder(store, shop, { totalCents: 40000 });

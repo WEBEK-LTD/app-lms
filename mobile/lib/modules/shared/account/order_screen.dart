@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/models/models.dart';
@@ -38,7 +39,9 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
     super.initState();
     _timer = Timer.periodic(const Duration(seconds: 30), (_) {
       final order = ref.read(orderProvider(widget.orderId)).value;
+      // 80.4 A shipped order has no steps to follow here: its carrier's page has them.
       final done =
+          order?.fulfilmentStatus == null ||
           order?.fulfilmentStatus == FulfilmentStatus.completed ||
           order?.fulfilmentStatus == FulfilmentStatus.cancelled;
       if (!done) ref.invalidate(orderProvider(widget.orderId));
@@ -116,6 +119,11 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
                 style: TextStyle(fontSize: 13, color: p.textSecondary),
               ),
             ],
+            // 80.4 How the shop shipped it: the carrier, and its tracking.
+            if (order.shipment != null) ...[
+              _ShipmentCard(shipment: order.shipment!),
+              const SizedBox(height: 4),
+            ],
             const SizedBox(height: 24),
             SectionHeader(title: l10n.orderYourOrder),
             const SizedBox(height: 8),
@@ -191,6 +199,108 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
       title: order == null ? l10n.myOrders : l10n.orderNumber(order.number),
       scrollable: false,
       child: body,
+    );
+  }
+}
+
+/// 80.4 The carrier, the tracking number (to copy), the tracking link and
+/// the waybill, as the shop gave them.
+class _ShipmentCard extends ConsumerWidget {
+  const _ShipmentCard({required this.shipment});
+
+  final OrderShipment shipment;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final number = shipment.trackingNumber;
+    final waybillUrl = shipment.waybillUrl;
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              AppIcon(AppIcons.shipping, color: p.text),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  shipment.carrier ?? l10n.shipmentTitle,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: p.text,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            l10n.shippedOnDate(shortDate(shipment.shippedAt)),
+            style: TextStyle(fontSize: 13, color: p.textSecondary),
+          ),
+          if (number != null) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: SelectableText(
+                    l10n.trackingNumberLine(number),
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: p.text,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  tooltip: l10n.copyTrackingNumber,
+                  onPressed: () async {
+                    await Clipboard.setData(ClipboardData(text: number));
+                    if (context.mounted) {
+                      showMessage(context, l10n.trackingNumberCopied);
+                    }
+                  },
+                  icon: AppIcon(AppIcons.copy, size: 20, color: p.link),
+                ),
+              ],
+            ),
+          ],
+          if (shipment.waybill != null && waybillUrl == null) ...[
+            const SizedBox(height: 6),
+            SelectableText(
+              l10n.waybillLine(shipment.waybill!),
+              style: TextStyle(fontSize: 14, color: p.textSecondary),
+            ),
+          ],
+          if (shipment.trackingUrl != null || waybillUrl != null) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: [
+                if (shipment.trackingUrl != null)
+                  TextButton.icon(
+                    onPressed: () =>
+                        ref.read(openExternalProvider)(shipment.trackingUrl!),
+                    icon: AppIcon(AppIcons.openInNew, size: 18, color: p.link),
+                    label: Text(l10n.trackShipment),
+                    style: TextButton.styleFrom(foregroundColor: p.link),
+                  ),
+                if (waybillUrl != null)
+                  TextButton.icon(
+                    onPressed: () => ref.read(openExternalProvider)(waybillUrl),
+                    icon: AppIcon(AppIcons.openInNew, size: 18, color: p.link),
+                    label: Text(l10n.openWaybill),
+                    style: TextButton.styleFrom(foregroundColor: p.link),
+                  ),
+              ],
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

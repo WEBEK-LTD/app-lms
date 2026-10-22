@@ -14,6 +14,8 @@ import { encryptionKey, signingSecret } from "@/lib/env";
 import { orderReceiptUrl } from "@/lib/receipts/links";
 import { orderRefundOptions, refundedLine } from "@/lib/refunds/service";
 import { KitchenView } from "./kitchen";
+import { ShippingForm } from "./shipping";
+import { CARRIER_SUGGESTIONS, shippable, waybillLink } from "@/lib/catalog/shipping";
 import { RefundSection } from "./refunds-view";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
@@ -87,7 +89,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                 <span className="text-[17px] font-bold">
                   {t("orders.orderTitle", { number: orderNumber(order), total: formatCents(order.totalCents, order.currency) })}
                 </span>
-                <Badge tone={TONES[order.status]}>{k(ORDER_STATUS_LABELS[order.status])}</Badge>
+                <Badge tone={TONES[order.status]}>{order.shipment && order.status === "processing" ? k("Shipped") : k(ORDER_STATUS_LABELS[order.status])}</Badge>
               </div>
               <span className="text-[13px] text-muted">
                 {t("orders.paidOn", { date: formatDateTime(order.paidAt, lang) })}
@@ -130,6 +132,50 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                     {order.customer.address}, {order.customer.city}
                   </span>
                 </div>
+              ) : null}
+              {/* 80.4 Shipping: any carrier, a tracking link, number or waybill. */}
+              {shippable(order) ? (
+                <section aria-labelledby={`h-ship-${order.id}`} className="flex flex-col gap-2.5 rounded-xl border border-line-soft p-3.5" data-shipment={order.shipment ? "shipped" : "none"}>
+                  <h3 id={`h-ship-${order.id}`} className="m-0 text-[15px] font-bold">
+                    {t("orders.shippingTitle")}
+                  </h3>
+                  {order.shipment ? (
+                    <div className="flex flex-col gap-0.5 text-[15px]">
+                      <span className="text-muted">{t("orders.shippedOn", { date: formatDateTime(new Date(order.shipment.shippedAt), lang) })}</span>
+                      {order.shipment.carrier ? <span>{order.shipment.carrier}</span> : null}
+                      {order.shipment.trackingNumber ? (
+                        <span dir="ltr" className="font-semibold">
+                          {order.shipment.trackingNumber}
+                        </span>
+                      ) : null}
+                      <span className="flex flex-wrap gap-3">
+                        {order.shipment.trackingUrl ? (
+                          <a href={order.shipment.trackingUrl} target="_blank" rel="noopener noreferrer" className="font-semibold underline">
+                            {t("orders.openTracking")}
+                          </a>
+                        ) : null}
+                        {waybillLink(order.shipment.waybill) ? (
+                          <a href={waybillLink(order.shipment.waybill)!} target="_blank" rel="noopener noreferrer" className="font-semibold underline">
+                            {t("orders.openWaybill")}
+                          </a>
+                        ) : order.shipment.waybill ? (
+                          <span dir="ltr">{order.shipment.waybill}</span>
+                        ) : null}
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="m-0 text-sm text-ink-4">{t("orders.shippingIntro")}</p>
+                  )}
+                  <ShippingForm
+                    id={order.id}
+                    carriers={CARRIER_SUGGESTIONS}
+                    current={
+                      order.shipment
+                        ? { carrier: order.shipment.carrier ?? "", trackingNumber: order.shipment.trackingNumber ?? "", trackingUrl: order.shipment.trackingUrl ?? "", waybill: order.shipment.waybill ?? "" }
+                        : null
+                    }
+                  />
+                </section>
               ) : null}
               <div className="flex flex-wrap gap-2">
                 {order.status === "processing" ? (

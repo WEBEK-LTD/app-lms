@@ -13,6 +13,7 @@ import { formatCents } from "../catalog/money";
 import { countOpenQuestions } from "../courses/community";
 import { changeOrderStatus, nextOrderStatuses } from "../catalog/order-status";
 import { ORDER_STATUS_LABELS, orderNumber } from "../catalog/settings";
+import { parseShipment, shipmentJson, shipOrder, shippable } from "../catalog/shipping";
 import type { App, BookingAppointment, CatalogCurrency, CatalogOrder, CatalogOrderStatus, Donation, License } from "../data/types";
 import { checkIn, type CheckInAnswer } from "../events/check-in";
 import { ticketKey } from "../events/codes";
@@ -145,6 +146,9 @@ function orderJson(ctx: OwnerContext, order: CatalogOrder) {
     customer: order.customer ? { ...order.customer } : null,
     created_at: order.createdAt.toISOString(),
     paid_at: iso(order.paidAt),
+    // 80.4 Shipping, with any carrier.
+    shippable: shippable(order),
+    shipment: shipmentJson(order.shipment),
     next_statuses: nextOrderStatuses(order),
   };
 }
@@ -209,6 +213,32 @@ export async function changeOrder(ctx: OwnerContext, params: Record<string, stri
   // 60 Who moved it, on the dashboard's Team page.
   await recordOrderStatus(deps.store, { clientId: ctx.client.id, appId: app.id, actor: ctx.user, orderId: order.id, to: status }, deps.now);
   return { status: 200, body: await orderDetail(ctx, app, (await deps.store.getCatalogOrder(app.id, order.id))!) };
+}
+
+/** 80.4 Marks an order shipped, or changes its tracking: any carrier, no carrier account; the customer is told. */
+export async function shipOne(ctx: OwnerContext, params: Record<string, string>): Promise<OwnerResult> {
+  const { app, order } = await ownOrder(ctx, params);
+  const body = bodyObject(ctx.req.body);
+  const { deps } = ctx;
+  const parsed = parseShipment({ carrier: body.carrier, trackingNumber: body.tracking_number, trackingUrl: body.tracking_url, waybill: body.waybill }, deps.now);
+  if (!parsed.ok) {
+    throw new OwnerError(400, "invalid_shipment", "Enter the tracking link, the tracking number or the waybill.", {
+      errors: Object.fromEntries(Object.entries(parsed.errors).map(([field, message]) => [field === "trackingNumber" ? "tracking_number" : field === "trackingUrl" ? "tracking_url" : field, ctx.k(message)])),
+    });
+  }
+  const shipped = await shipOrder({
+    store: deps.store,
+    app,
+    order,
+    shipment: parsed.shipment,
+    account: serviceAccountOf(app, deps.encryptionKey),
+    now: deps.now,
+    send: deps.sendPush,
+    mail: (to, values) => deps.mail("order_shipped", to, values, app),
+  });
+  if (!shipped) throw new OwnerError(409, "not_shippable", "This order has nothing to ship.");
+  await recordOrderStatus(deps.store, { clientId: ctx.client.id, appId: app.id, actor: ctx.user, orderId: order.id, to: "shipped" }, deps.now);
+  return { status: 200, body: await orderDetail(ctx, app, shipped.order) };
 }
 
 /** 47 A refund, all of it or part, with the dashboard's form rules. */

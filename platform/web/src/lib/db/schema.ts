@@ -6,6 +6,7 @@ import type {
   AssetKind,
   CatalogCurrency,
   CatalogFulfilment,
+  OrderShipment,
   CatalogOptionGroup,
   CatalogCustomer,
   CatalogOrderLine,
@@ -593,6 +594,8 @@ export const catalogOrders = mysqlTable(
     providerCheckedAt: time("provider_checked_at"),
     // 47 What was refunded so far (payment_refunds).
     refundedCents: bigint("refunded_cents", { mode: "number", unsigned: true }).notNull().default(0),
+    // 80.4 How the shop shipped it (JSON); null until it is shipped.
+    shipment: jsonText<OrderShipment>("shipment"),
   },
   (t) => [
     uniqueIndex("catalog_orders_token_unique").on(t.tokenHash),

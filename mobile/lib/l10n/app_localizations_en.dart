@@ -3188,6 +3188,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get downloadReceipt => 'Download receipt';
 
   @override
+  String get shipmentTitle => 'Shipment';
+
+  @override
+  String shippedOnDate(String date) {
+    return 'Shipped $date';
+  }
+
+  @override
+  String trackingNumberLine(String number) {
+    return 'Tracking number: $number';
+  }
+
+  @override
+  String get copyTrackingNumber => 'Copy tracking number';
+
+  @override
+  String get trackingNumberCopied => 'Tracking number copied.';
+
+  @override
+  String get trackShipment => 'Track shipment';
+
+  @override
+  String waybillLine(String waybill) {
+    return 'Waybill: $waybill';
+  }
+
+  @override
+  String get openWaybill => 'Open the waybill';
+
+  @override
   String get donationSeeCampaign => 'See the campaign';
 
   @override

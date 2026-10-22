@@ -57,6 +57,7 @@ export type EmailTemplateKey =
   | "payment_refunded"
   // 71 Receipts as PDF
   | "order_receipt"
+  | "order_shipped"
   // 51 Media and storage
   | "storage_pack_added"
   | "storage_pack_ended"
@@ -526,6 +527,23 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       "Dear {{customer_name}},\n\nThank you for your order from {{org_name}}. We received your payment.\n\n" +
       "{{order_lines}}\nTotal: {{total}}\nDate: {{date}}\nOrder: {{order_number}}\n\n" +
       "Your receipt: {{receipt_url}}\n\nKeep this email for your records. If you have a question about your order, contact {{org_name}} and give the order number above.",
+  },
+  // 80.4 The shop marked the order shipped, or changed its tracking.
+  {
+    key: "order_shipped",
+    name: "Order shipped",
+    description:
+      "To a customer when the shop marks their order shipped, or changes its tracking (apps without a website): the carrier, the tracking number or link, the waybill. Sent in the business's name, from the app's own email server when its owner set one.",
+    placeholders: [
+      { name: "org_name", description: "The business's name (the app's name)", sample: "Harbour Books" },
+      { name: "customer_name", description: "The customer's name", sample: "Elif Yılmaz" },
+      { name: "order_number", description: "The order's number", sample: "1042" },
+      { name: "tracking_lines", description: "The carrier, the tracking number, the tracking link and the waybill, one per line (those the shop gave)", sample: "Carrier: Aras Kargo\nTracking number: 3815602243" },
+    ],
+    subject: "Your order {{order_number}} from {{org_name}} was shipped",
+    body:
+      "Dear {{customer_name}},\n\nYour order {{order_number}} from {{org_name}} is on its way.\n\n{{tracking_lines}}\n\n" +
+      "You can follow it in the app too, under your orders. If you have a question about your order, contact {{org_name}} and give the order number above.",
   },
   {
     // 47 Sent in the business's name, like the donation receipt.

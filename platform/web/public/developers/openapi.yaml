@@ -4755,6 +4755,22 @@ components:
             orders that aren't followed this way. On WordPress it follows the
             WooCommerce status (processing is preparing, completed and
             cancelled are themselves).
+        shipment:
+          type: [object, 'null']
+          description: |
+            80.4 How the order was shipped, once the shop shipped it (apps
+            without a website): any carrier, to any country. The shop gives
+            a tracking link, a tracking number or a waybill, at least one of
+            them; the app shows them and opens the link. Null or missing until
+            it is shipped, for orders that aren't shipped, on older servers
+            and on WordPress sites.
+          required: [shipped_at]
+          properties:
+            carrier: { type: [string, 'null'], description: "The carrier's name as the shop wrote it.", example: Aras Kargo }
+            tracking_number: { type: [string, 'null'], example: '3815602243' }
+            tracking_url: { type: [string, 'null'], format: uri, description: "The carrier's page that follows the parcel." }
+            waybill: { type: [string, 'null'], description: "The waybill's number, or a link to it (http or https).", example: AWB 4471 2290 }
+            shipped_at: { type: string, format: date-time, description: "When the shop marked it shipped, or last changed it." }
         fulfilment:
           type: [object, 'null']
           description: How a restaurant's order is collected. Null or missing for other orders.

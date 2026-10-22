@@ -2,7 +2,7 @@ import { createServer, type Server } from "node:http";
 import { expect, test, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 import { solidPng } from "./png";
-import { expectReceiptAttached, pdfBehind } from "./receipts";
+import { expectReceiptAttached, mailsWithFiles, pdfBehind } from "./receipts";
 
 /**
  * A shop without a website (roadmap 8.6): the client picks "I don't have a
@@ -188,6 +188,22 @@ test("a customer pays in the app and the order reaches the dashboard", async ({ 
   await expect(order).toContainText("₺750.00");
   await expect(order).toContainText("Tulip Bouquet × 2");
   await expect(order).toContainText("Moda Cd. 12, Kadikoy, Istanbul");
-  await order.getByRole("button", { name: "Mark completed" }).click();
-  await expect(order).toContainText("Completed");
+  // 80.4 Shipped with any carrier: a tracking number or link is needed; the customer gets an email.
+  const shipping = order.getByRole("region", { name: "Shipping" });
+  await shipping.getByLabel("Carrier").fill("Aras Kargo");
+  await shipping.getByRole("button", { name: "Mark as shipped" }).click();
+  await expect(shipping.getByText("Enter the tracking link, the tracking number or the waybill.")).toBeVisible();
+  await shipping.getByLabel("Tracking number").fill("3815602243");
+  await shipping.getByLabel("Tracking link").fill("https://kargotakip.example/track?code=3815602243");
+  await shipping.getByRole("button", { name: "Mark as shipped" }).click();
+  await expect(shipping.getByRole("status")).toContainText("Marked shipped. The customer was told.");
+  await page.reload();
+  const shippedOrder = page.getByRole("listitem").filter({ hasText: "Sara Yilmaz" });
+  await expect(shippedOrder).toContainText("Shipped");
+  await expect(shippedOrder.getByRole("region", { name: "Shipping" })).toContainText("3815602243");
+  await expect(shippedOrder.getByRole("link", { name: "Open tracking" })).toHaveAttribute("href", "https://kargotakip.example/track?code=3815602243");
+  await expect.poll(async () => (await mailsWithFiles("sara@example.com")).some((m) => /^Your order \d+ from .+ was shipped$/.test(m.subject)), { timeout: 15_000 }).toBe(true);
+
+  await shippedOrder.getByRole("button", { name: "Mark completed" }).click();
+  await expect(shippedOrder).toContainText("Completed");
 });

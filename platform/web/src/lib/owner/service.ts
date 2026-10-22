@@ -46,6 +46,7 @@ export const ROUTES: Route[] = [
   route("GET", "apps/:app_id/orders", sales.listOrders),
   route("GET", "apps/:app_id/orders/:order_id", sales.getOrder),
   route("POST", "apps/:app_id/orders/:order_id/status", sales.changeOrder),
+  route("PUT", "apps/:app_id/orders/:order_id/shipment", sales.shipOne),
   route("POST", "apps/:app_id/orders/:order_id/refunds", sales.refund),
   route("GET", "apps/:app_id/appointments", sales.listAppointments),
   route("POST", "apps/:app_id/appointments/:appointment_id/status", sales.changeAppointment),

@@ -1944,7 +1944,7 @@ their own page, nothing re-checks them, and a broken one isn't noticed.
 | [x] | 80.1 Dashboard › Integrations: every connection of the app (website or platform, payments, WhatsApp and email senders, Firebase and Huawei push, each store) with its state, last check, a Test button and its recent errors | e2e |
 | [x] | 80.2 Checks on a schedule: each connection re-checked daily; a WordPress site that stops checking in, a revoked platform token or failing payment keys tell the owner (bell, email) and the team | Unit tests |
 | [x] | 80.3 Retry: account webhooks sent again (49.8), payments left pending checked with the provider | Unit tests |
-| [ ] | 80.4 Shipping: shops without a website ship to any country with any carrier; no carrier account is needed: the shop adds the tracking link, the waybill or the tracking number to the order, the customer follows it in the app (owner's decision, 2026-10-22: every country, every plan with a shop) | Contract, tests |
+| [x] | 80.4 Shipping: shops without a website ship to any country with any carrier; no carrier account is needed: the shop adds the tracking link, the waybill or the tracking number to the order, the customer follows it in the app (owner's decision, 2026-10-22: every country, every plan with a shop) | Contract, tests |
 
 ## Phase 81: From a website to an app in minutes (area 1)
 
