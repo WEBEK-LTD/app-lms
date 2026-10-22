@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import { GUIDE_REDIRECTS } from "./src/content/docs";
 import { countryVaryHeaders, PRICED_PAGES } from "./src/lib/geo-vary";
+import { PAGE_CSP } from "./src/lib/csp";
 import { deployRobotsHeaders } from "./src/lib/indexing";
 
 const securityHeaders = [
@@ -9,9 +10,6 @@ const securityHeaders = [
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
 ];
-
-/** 69 The pages' Content-Security-Policy (scripts stay as they are: Next.js inlines its own). */
-const PAGE_CSP = "base-uri 'self'; object-src 'none'; frame-ancestors 'none'";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
@@ -45,7 +43,8 @@ const nextConfig: NextConfig = {
       { source: "/:path((?!preview-app/).*)", headers: [...securityHeaders, { key: "X-Frame-Options", value: "DENY" }] },
       // 69 Pages: no <base> or plugin content from elsewhere and never framed, a policy browsers
       // enforce on top of React's escaping. API routes and the media links set their own
-      // (files and SVGs are sandboxed: src/app/api/v1/assets), so they're left out here.
+      // (files and SVGs are sandboxed: src/app/api/v1/assets), so they're left out here. 69.12 The
+      // signed-in pages and the sign-in forms get it with their scripts limited too (src/proxy.ts).
       { source: "/:path((?!preview-app/|api/|media/|m/).*)", headers: [{ key: "Content-Security-Policy", value: PAGE_CSP }] },
       // 17 The app preview (public/preview-app, built from mobile/) opens in a frame on the dashboard's Preview page.
       {
