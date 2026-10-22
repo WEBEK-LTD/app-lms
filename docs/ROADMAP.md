@@ -1859,3 +1859,33 @@ account is `yallapp`.
 | [x] | 76.4 Docs: this phase, ARCHITECTURE, LAUNCH-CHECKLIST 7v | Review |
 | [ ] | 76.5 The owner: release 0.4.8 in Admin › Plugin releases, submit it to WordPress.org as `yallapp`, answer the review, then the first SVN commit | LAUNCH-CHECKLIST 7v |
 
+## Phase 77: Chat in the app
+
+The owner's decisions (2026-10-21): the people using an app talk to the
+business, and in academies each course has a group; people never talk to
+each other in private. On the Pro and Business plans. Text, photos, videos,
+voice messages and files, which count in the app's storage and show in the
+business's Media library, where the business keeps or deletes them. Messages
+are kept a year: 30 days before a conversation's oldest messages are deleted
+the business is told (dashboard, email) and can keep it, or all of them,
+another year; it can delete a conversation or a message at any time. The
+app asks for new messages every few seconds while a conversation is open
+(no paid real-time service) and a push brings the rest. Reports, blocking,
+and the terms saying the business is responsible for its chat, as the App
+Store and Google Play ask of apps where people write to each other.
+
+The chat lives on Yallapp's hosted API for every app: hosted apps and own
+APIs with Yallapp sign-in use their access token; WordPress apps get a chat
+token from their site (plugin 0.4.9), and Yallapp sends their pushes back
+through the site, which keeps the push tokens. Own APIs that sign people in
+themselves get no chat in this phase.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 77.1 Contracts: the Chat tag on the hosted API (conversations, messages, read, members, report, block, uploads, unread), `Config.chat`, the plugin's `POST /chat/session` and `POST /chat/notify` (`openapi.yaml`); `POST /chat/sessions`, `POST /chat/members/forget`, `LicenseStatus.chat`, the `chat` feature (`platform.yaml`); the Owner API's Chat (conversations, replies, deleting, keeping, reports, blocking, settings), the Chat area, the `new_chat_message` push, audio and file media (`owner.yaml`); the developer pages' copy | `redocly lint` of the four contracts; `api-reference.test.ts`, `website.test.ts` |
+| [ ] | 77.2 Platform: migration 0052 (conversations, members, messages, reads, reports, blocks), the memory and MySQL stores, the chat service, the hosted API's Chat routes, WordPress chat sessions and forgetting, pushes (hosted apps, the site's `/chat/notify`, the owner's phone), the `chat` plan feature (Pro, Business), retention with the 30-day notice and keeping, deleting an account deletes its chat | Unit tests on the memory store and MariaDB |
+| [ ] | 77.3 Dashboard: Chat (inbox, conversation, replies with Media files, deleting, blocking, reports, keeping), the settings (on or off, course groups), the Chat area for the team, chat files in Media; English, Arabic and Turkish | Unit and e2e tests |
+| [ ] | 77.4 Plugin 0.4.9: `POST /chat/session`, `POST /chat/notify`, forgetting a deleted account, `Config.chat` from the license; Plugin Check clean | PHPUnit, the integration suites, `bin/plugin-check.sh` |
+| [ ] | 77.5 Customer app: the Chat tab (the business and course groups), photos, videos, voice messages, files, reporting and blocking, polling and pushes; strings and the preview bundle | `flutter test`, the preview check |
+| [ ] | 77.6 Yallapp Business: the Chat tab and replies, reports; terms (English, Arabic, Turkish); the docs page; the plans' feature line; ARCHITECTURE and LAUNCH-CHECKLIST | Tests, review |
+
