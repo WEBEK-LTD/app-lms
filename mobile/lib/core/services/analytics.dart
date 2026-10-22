@@ -372,6 +372,10 @@ String? screenKindOf(String location) {
   // Screens whose second part is a name or a code, not a number.
   const named = {'page', 'article', 'ticket'};
   if (named.contains(segments.first)) return segments.first;
+  // 77 A chat conversation's ID is a UUID.
+  if (segments.first == 'chat') {
+    return segments.length > 1 ? 'chat_conversation' : 'chat';
+  }
   if (segments.length >= 2 && RegExp(r'\d').hasMatch(segments.last)) {
     if (segments.first == 'messages') return 'conversation';
     if (segments.length == 3 &&

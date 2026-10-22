@@ -1087,6 +1087,16 @@ never in a chat or an issue.
       earlier have no chat until they update: their app gets no chat token.
       Its readme now says what the chat sends to Yallapp (Privacy, External
       services).
+- [ ] **The app's Chat** (77.5) comes with each app's next build: earlier
+      builds have no Chat tab whatever the plan. Rebuild the Pro and
+      Business apps that should have it. The new build asks for the
+      microphone (voice messages), the camera and the photos only when the
+      person uses them in the chat (iOS: the three usage texts in
+      `Info.plist`; Android: `RECORD_AUDIO`). For the App Store and Google
+      Play reviews of apps where people write to each other: a message's
+      long press reports it (or deletes one's own) and blocks its sender in
+      a group, and a group's Members list blocks and unblocks; the business
+      sees reports in Dashboard › Chat.
 - [ ] Nothing else to set: the chat's pushes use each app's own Firebase
       account (WordPress apps: through their site, plugin 0.4.9) and
       Yallapp Business's for the owners. Messages are kept a year; the

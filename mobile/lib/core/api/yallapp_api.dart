@@ -532,6 +532,10 @@ abstract class YallappApi {
 
   Future<NotificationPage> listNotifications({int page = 1, int perPage = 20});
   Future<void> markNotificationsRead();
+
+  /// 77 A chat token for the signed-in person from the WordPress site
+  /// (`POST /chat/session`), when `Config.chat.session` is `site`.
+  Future<ChatSession> startChatSession();
   Future<Paged<Order>> listOrders({int page = 1});
 
   /// 26 One of the customer's orders, for following it.
@@ -1303,6 +1307,14 @@ class HttpYallappApi implements YallappApi {
   @override
   Future<void> markNotificationsRead() =>
       _send('POST', '/me/notifications/read', _required, _ignore);
+
+  @override
+  Future<ChatSession> startChatSession() => _send(
+    'POST',
+    '/chat/session',
+    _required,
+    (data) => ChatSession.fromJson(asJson(data)),
+  );
 
   @override
   Future<Paged<Order>> listOrders({int page = 1}) => _get(

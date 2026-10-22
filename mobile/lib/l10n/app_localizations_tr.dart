@@ -3570,4 +3570,207 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get membershipFrozenAtDoor =>
       'Üyeliğiniz donduruldu; geri gelene kadar bu kodla giriş yapamazsınız.';
+
+  @override
+  String get tabChat => 'Sohbet';
+
+  @override
+  String get chatTitle => 'Sohbet';
+
+  @override
+  String get chatLoading => 'Sohbetler yükleniyor';
+
+  @override
+  String get chatEmptyTitle => 'Henüz sohbet yok';
+
+  @override
+  String get chatEmptyMessage => 'Sohbetleriniz burada görünür.';
+
+  @override
+  String chatSignInTitle(String business) {
+    return '$business ile sohbet edin';
+  }
+
+  @override
+  String get chatSignInMessage =>
+      'Mesaj göndermek ve yanıtları burada almak için giriş yapın.';
+
+  @override
+  String get chatStart => 'Mesaj gönderin';
+
+  @override
+  String get chatCourseGroup => 'Kurs grubu';
+
+  @override
+  String chatMemberCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count üye',
+      one: '1 üye',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatNoMessagesTitle => 'Merhaba deyin';
+
+  @override
+  String get chatNoMessagesMessage =>
+      'Gönderdiğiniz ve aldığınız mesajlar burada görünür.';
+
+  @override
+  String get chatLoadingMessages => 'Mesajlar yükleniyor';
+
+  @override
+  String get chatOlder => 'Önceki mesajları göster';
+
+  @override
+  String get chatAttach => 'Ekle';
+
+  @override
+  String get chatGallery => 'Fotoğraf veya video';
+
+  @override
+  String get chatTakePhoto => 'Fotoğraf çek';
+
+  @override
+  String get chatRecordVideo => 'Video çek';
+
+  @override
+  String get chatChooseFile => 'Dosya';
+
+  @override
+  String get chatPhoto => 'Fotoğraf';
+
+  @override
+  String get chatVideo => 'Video';
+
+  @override
+  String get chatVoice => 'Sesli mesaj';
+
+  @override
+  String get chatFile => 'Dosya';
+
+  @override
+  String get chatRecord => 'Sesli mesaj kaydet';
+
+  @override
+  String chatRecording(String time) {
+    return 'Kaydediliyor $time';
+  }
+
+  @override
+  String get chatStopAndSend => 'Sesli mesajı gönder';
+
+  @override
+  String get chatMicDenied =>
+      'Sesli mesaj kaydetmek için telefonunuzun ayarlarından mikrofona izin verin.';
+
+  @override
+  String get chatSending => 'Gönderiliyor';
+
+  @override
+  String chatUploading(int percent) {
+    return 'Gönderiliyor %$percent';
+  }
+
+  @override
+  String get chatNotSent => 'Gönderilmedi. Yeniden denemek için dokunun.';
+
+  @override
+  String get chatDeleted => 'Bu mesaj silindi.';
+
+  @override
+  String get chatDeleteMessage => 'Mesajı sil';
+
+  @override
+  String get chatDeleteConfirm => 'Bu mesaj herkes için silinsin mi?';
+
+  @override
+  String get chatReport => 'Bildir';
+
+  @override
+  String get chatReportTitle => 'Bu mesajı neden bildiriyorsunuz?';
+
+  @override
+  String get chatReportSpam => 'Spam';
+
+  @override
+  String get chatReportAbuse => 'Taciz veya hakaret';
+
+  @override
+  String get chatReportInappropriate => 'Uygunsuz içerik';
+
+  @override
+  String get chatReportOther => 'Başka bir sebep';
+
+  @override
+  String chatReported(String business) {
+    return 'Teşekkürler. $business bunu inceleyecek.';
+  }
+
+  @override
+  String get chatMembers => 'Üyeler';
+
+  @override
+  String get chatBlock => 'Engelle';
+
+  @override
+  String get chatUnblock => 'Engeli kaldır';
+
+  @override
+  String chatBlockTitle(String name) {
+    return '$name engellensin mi?';
+  }
+
+  @override
+  String chatBlockMessage(String name) {
+    return '$name kişisinin mesajlarını hiçbir grupta görmeyeceksiniz. Kendisine bildirilmez.';
+  }
+
+  @override
+  String get chatBlocked => 'Engellendi';
+
+  @override
+  String get chatCantSend =>
+      'Bu sohbeti okuyabilirsiniz ancak mesaj gönderemezsiniz.';
+
+  @override
+  String get chatTooBig => 'Bu dosya göndermek için çok büyük.';
+
+  @override
+  String get chatStorageFull =>
+      'Şu anda dosya gönderilemiyor. Yine de metin gönderebilirsiniz.';
+
+  @override
+  String get chatFileType =>
+      'Bu tür bir dosya gönderilemez. Fotoğraf, video ya da PDF, Word, Excel, PowerPoint veya metin dosyası gönderin.';
+
+  @override
+  String get chatUnavailable => 'Sohbet şu anda kullanılamıyor.';
+
+  @override
+  String get chatPlayVoice => 'Sesli mesajı oynat';
+
+  @override
+  String get chatPauseVoice => 'Sesli mesajı duraklat';
+
+  @override
+  String chatOpenFile(String name) {
+    return '$name dosyasını aç';
+  }
+
+  @override
+  String chatMessageFrom(String name, String text) {
+    return '$name: $text';
+  }
+
+  @override
+  String get chatMore => 'Daha fazla';
+
+  @override
+  String chatBlockPerson(String name) {
+    return '$name kişisini engelle';
+  }
 }

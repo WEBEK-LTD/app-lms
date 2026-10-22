@@ -47,6 +47,7 @@ abstract class PushService {
 /// - 26 one with an `order_id` (a restaurant's order moved on) opens the order;
 /// - `event` (a change to an event the user holds tickets to, 28) opens it;
 /// - `campaign_update` (29) opens the campaign;
+/// - `chat` (77) opens the conversation;
 /// - anything else opens Home.
 String pushTargetLocation(Map<String, dynamic> data) {
   int? id(String key) => int.tryParse('${data[key] ?? ''}'.trim());
@@ -75,6 +76,10 @@ String pushTargetLocation(Map<String, dynamic> data) {
     case 'campaign_update':
       final campaign = id('campaign_id');
       if (campaign != null) return Paths.campaign(campaign);
+    case 'chat':
+      final conversation = '${data['conversation_id'] ?? ''}'.trim();
+      if (conversation.isNotEmpty) return Paths.chatConversation(conversation);
+      return Paths.chat;
   }
   // 46 A link (`<base>/<kind>/<id>`): its path, which the router maps with
   // the same table as a link opened from outside the app.

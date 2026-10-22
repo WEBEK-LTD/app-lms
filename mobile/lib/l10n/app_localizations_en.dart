@@ -3563,4 +3563,207 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get membershipFrozenAtDoor =>
       'Your membership is frozen, so this code won\'t let you in until it\'s back.';
+
+  @override
+  String get tabChat => 'Chat';
+
+  @override
+  String get chatTitle => 'Chat';
+
+  @override
+  String get chatLoading => 'Loading chats';
+
+  @override
+  String get chatEmptyTitle => 'No chats yet';
+
+  @override
+  String get chatEmptyMessage => 'Your chats show up here.';
+
+  @override
+  String chatSignInTitle(String business) {
+    return 'Chat with $business';
+  }
+
+  @override
+  String get chatSignInMessage =>
+      'Sign in to send messages and get answers here.';
+
+  @override
+  String get chatStart => 'Send a message';
+
+  @override
+  String get chatCourseGroup => 'Course group';
+
+  @override
+  String chatMemberCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count members',
+      one: '1 member',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatNoMessagesTitle => 'Say hello';
+
+  @override
+  String get chatNoMessagesMessage =>
+      'Messages you send and receive show up here.';
+
+  @override
+  String get chatLoadingMessages => 'Loading messages';
+
+  @override
+  String get chatOlder => 'Show earlier messages';
+
+  @override
+  String get chatAttach => 'Attach';
+
+  @override
+  String get chatGallery => 'Photo or video';
+
+  @override
+  String get chatTakePhoto => 'Take a photo';
+
+  @override
+  String get chatRecordVideo => 'Record a video';
+
+  @override
+  String get chatChooseFile => 'File';
+
+  @override
+  String get chatPhoto => 'Photo';
+
+  @override
+  String get chatVideo => 'Video';
+
+  @override
+  String get chatVoice => 'Voice message';
+
+  @override
+  String get chatFile => 'File';
+
+  @override
+  String get chatRecord => 'Record a voice message';
+
+  @override
+  String chatRecording(String time) {
+    return 'Recording $time';
+  }
+
+  @override
+  String get chatStopAndSend => 'Send voice message';
+
+  @override
+  String get chatMicDenied =>
+      'Allow the microphone in your phone\'s settings to record voice messages.';
+
+  @override
+  String get chatSending => 'Sending';
+
+  @override
+  String chatUploading(int percent) {
+    return 'Sending $percent%';
+  }
+
+  @override
+  String get chatNotSent => 'Not sent. Tap to try again.';
+
+  @override
+  String get chatDeleted => 'This message was deleted.';
+
+  @override
+  String get chatDeleteMessage => 'Delete message';
+
+  @override
+  String get chatDeleteConfirm => 'Delete this message for everyone?';
+
+  @override
+  String get chatReport => 'Report';
+
+  @override
+  String get chatReportTitle => 'Why are you reporting this message?';
+
+  @override
+  String get chatReportSpam => 'Spam';
+
+  @override
+  String get chatReportAbuse => 'Abuse or harassment';
+
+  @override
+  String get chatReportInappropriate => 'Inappropriate content';
+
+  @override
+  String get chatReportOther => 'Something else';
+
+  @override
+  String chatReported(String business) {
+    return 'Thanks. $business will look into it.';
+  }
+
+  @override
+  String get chatMembers => 'Members';
+
+  @override
+  String get chatBlock => 'Block';
+
+  @override
+  String get chatUnblock => 'Unblock';
+
+  @override
+  String chatBlockTitle(String name) {
+    return 'Block $name?';
+  }
+
+  @override
+  String chatBlockMessage(String name) {
+    return 'You won\'t see $name\'s messages in any group. They won\'t be told.';
+  }
+
+  @override
+  String get chatBlocked => 'Blocked';
+
+  @override
+  String get chatCantSend =>
+      'You can read this chat, but you can\'t send messages in it.';
+
+  @override
+  String get chatTooBig => 'This file is too big to send.';
+
+  @override
+  String get chatStorageFull =>
+      'Files can\'t be sent right now. You can still send text.';
+
+  @override
+  String get chatFileType =>
+      'This kind of file can\'t be sent. Send a photo, a video, or a PDF, Word, Excel, PowerPoint or text file.';
+
+  @override
+  String get chatUnavailable => 'Chat isn\'t available right now.';
+
+  @override
+  String get chatPlayVoice => 'Play voice message';
+
+  @override
+  String get chatPauseVoice => 'Pause voice message';
+
+  @override
+  String chatOpenFile(String name) {
+    return 'Open $name';
+  }
+
+  @override
+  String chatMessageFrom(String name, String text) {
+    return '$name: $text';
+  }
+
+  @override
+  String get chatMore => 'More';
+
+  @override
+  String chatBlockPerson(String name) {
+    return 'Block $name';
+  }
 }

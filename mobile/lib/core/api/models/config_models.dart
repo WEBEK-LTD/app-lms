@@ -2,6 +2,7 @@ import 'bookings_models.dart';
 import '../../config/build_config_data.dart';
 import '../../l10n/locales.dart';
 import 'catalog_models.dart';
+import 'chat_models.dart';
 import 'event_models.dart';
 import 'donation_models.dart';
 import 'json.dart';
@@ -30,6 +31,7 @@ class AppConfig {
     this.donations,
     this.vertical,
     this.shareBaseUrl,
+    this.chat,
   });
 
   factory AppConfig.fromJson(Json json) => AppConfig(
@@ -50,6 +52,7 @@ class AppConfig {
     donations: optObject(json, 'donations', DonationsConfig.fromJson),
     vertical: AppVertical.fromWire(json['vertical']),
     shareBaseUrl: _shareBase(json['links']),
+    chat: _chat(json['chat']),
   );
 
   /// 53 What the app protects from screenshots and screen recording. An
@@ -60,6 +63,18 @@ class AppConfig {
       (content.blockScreenCapture
           ? ScreenProtection.content
           : ScreenProtection.off);
+
+  /// 77 `Config.chat`, when its address is a web address the app can call.
+  static ChatConfig? _chat(Object? value) {
+    if (value is! Map) return null;
+    try {
+      final chat = ChatConfig.fromJson(asJson(value, 'chat'));
+      final uri = Uri.tryParse(chat.baseUrl);
+      return uri != null && uri.hasScheme && uri.host.isNotEmpty ? chat : null;
+    } on FormatException {
+      return null;
+    }
+  }
 
   /// `Config.links.share_base_url` when it is an https address.
   static String? _shareBase(Object? links) {
@@ -113,6 +128,10 @@ class AppConfig {
   /// `<site>/a` on WordPress, else Yallapp's link domain. Null on older
   /// servers: the build config's link domain is used.
   final String? shareBaseUrl;
+
+  /// 77 Chat with the business (and an academy's course groups); null when
+  /// the plan has no chat, the owner turned it off, or on older servers.
+  final ChatConfig? chat;
 }
 
 /// `Config.languages`. Codes the app doesn't ship are dropped.

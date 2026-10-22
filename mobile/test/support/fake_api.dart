@@ -416,6 +416,16 @@ class FakeApi implements YallappApi {
   );
 
   @override
+  Future<ChatSession> startChatSession() => _answer(
+    'startChatSession',
+    () => ChatSession(
+      token: 'chat-token-${count('startChatSession')}',
+      expiresAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
+      baseUrl: 'https://yallapp.example/api/app/app-1',
+    ),
+  );
+
+  @override
   Future<void> markNotificationsRead() => _answer('markNotificationsRead', () {
     notifications = [
       for (final n in notifications) {...n, 'read': true},

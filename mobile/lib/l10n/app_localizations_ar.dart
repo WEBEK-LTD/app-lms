@@ -3620,4 +3620,209 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get membershipFrozenAtDoor =>
       'عضويتك مجمّدة، فلن يُدخلك هذا الرمز حتى تعود.';
+
+  @override
+  String get tabChat => 'المحادثة';
+
+  @override
+  String get chatTitle => 'المحادثة';
+
+  @override
+  String get chatLoading => 'جارٍ تحميل المحادثات';
+
+  @override
+  String get chatEmptyTitle => 'لا توجد محادثات بعد';
+
+  @override
+  String get chatEmptyMessage => 'ستظهر محادثاتك هنا.';
+
+  @override
+  String chatSignInTitle(String business) {
+    return 'تحدّث مع $business';
+  }
+
+  @override
+  String get chatSignInMessage => 'سجّل الدخول لترسل رسائلك وتصلك الردود هنا.';
+
+  @override
+  String get chatStart => 'أرسل رسالة';
+
+  @override
+  String get chatCourseGroup => 'مجموعة الدورة';
+
+  @override
+  String chatMemberCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count عضو',
+      many: '$count عضوًا',
+      few: '$count أعضاء',
+      two: 'عضوان',
+      one: 'عضو واحد',
+      zero: 'لا أعضاء',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatNoMessagesTitle => 'ابدأ المحادثة';
+
+  @override
+  String get chatNoMessagesMessage => 'تظهر هنا الرسائل التي ترسلها وتصلك.';
+
+  @override
+  String get chatLoadingMessages => 'جارٍ تحميل الرسائل';
+
+  @override
+  String get chatOlder => 'عرض الرسائل الأقدم';
+
+  @override
+  String get chatAttach => 'إرفاق';
+
+  @override
+  String get chatGallery => 'صورة أو فيديو';
+
+  @override
+  String get chatTakePhoto => 'التقاط صورة';
+
+  @override
+  String get chatRecordVideo => 'تسجيل فيديو';
+
+  @override
+  String get chatChooseFile => 'ملف';
+
+  @override
+  String get chatPhoto => 'صورة';
+
+  @override
+  String get chatVideo => 'فيديو';
+
+  @override
+  String get chatVoice => 'رسالة صوتية';
+
+  @override
+  String get chatFile => 'ملف';
+
+  @override
+  String get chatRecord => 'تسجيل رسالة صوتية';
+
+  @override
+  String chatRecording(String time) {
+    return 'جارٍ التسجيل $time';
+  }
+
+  @override
+  String get chatStopAndSend => 'إرسال الرسالة الصوتية';
+
+  @override
+  String get chatMicDenied =>
+      'اسمح باستخدام الميكروفون من إعدادات هاتفك لتسجيل الرسائل الصوتية.';
+
+  @override
+  String get chatSending => 'جارٍ الإرسال';
+
+  @override
+  String chatUploading(int percent) {
+    return 'جارٍ الإرسال $percent٪';
+  }
+
+  @override
+  String get chatNotSent => 'لم تُرسَل. اضغط للمحاولة مرة أخرى.';
+
+  @override
+  String get chatDeleted => 'حُذفت هذه الرسالة.';
+
+  @override
+  String get chatDeleteMessage => 'حذف الرسالة';
+
+  @override
+  String get chatDeleteConfirm => 'حذف هذه الرسالة عند الجميع؟';
+
+  @override
+  String get chatReport => 'إبلاغ';
+
+  @override
+  String get chatReportTitle => 'لماذا تبلّغ عن هذه الرسالة؟';
+
+  @override
+  String get chatReportSpam => 'رسائل مزعجة';
+
+  @override
+  String get chatReportAbuse => 'إساءة أو مضايقة';
+
+  @override
+  String get chatReportInappropriate => 'محتوى غير لائق';
+
+  @override
+  String get chatReportOther => 'سبب آخر';
+
+  @override
+  String chatReported(String business) {
+    return 'شكرًا لك. سيراجع $business البلاغ.';
+  }
+
+  @override
+  String get chatMembers => 'الأعضاء';
+
+  @override
+  String get chatBlock => 'حظر';
+
+  @override
+  String get chatUnblock => 'إلغاء الحظر';
+
+  @override
+  String chatBlockTitle(String name) {
+    return 'حظر $name؟';
+  }
+
+  @override
+  String chatBlockMessage(String name) {
+    return 'لن ترى رسائل $name في أي مجموعة، ولن يُبلَّغ بذلك.';
+  }
+
+  @override
+  String get chatBlocked => 'محظور';
+
+  @override
+  String get chatCantSend =>
+      'يمكنك قراءة هذه المحادثة، لكن لا يمكنك إرسال رسائل فيها.';
+
+  @override
+  String get chatTooBig => 'هذا الملف أكبر من أن يُرسَل.';
+
+  @override
+  String get chatStorageFull =>
+      'لا يمكن إرسال الملفات الآن، لكن يمكنك إرسال نص.';
+
+  @override
+  String get chatFileType =>
+      'لا يمكن إرسال هذا النوع من الملفات. أرسل صورة أو فيديو أو ملف PDF أو Word أو Excel أو PowerPoint أو ملفًا نصيًا.';
+
+  @override
+  String get chatUnavailable => 'المحادثة غير متاحة الآن.';
+
+  @override
+  String get chatPlayVoice => 'تشغيل الرسالة الصوتية';
+
+  @override
+  String get chatPauseVoice => 'إيقاف الرسالة الصوتية مؤقتًا';
+
+  @override
+  String chatOpenFile(String name) {
+    return 'فتح $name';
+  }
+
+  @override
+  String chatMessageFrom(String name, String text) {
+    return '$name: $text';
+  }
+
+  @override
+  String get chatMore => 'المزيد';
+
+  @override
+  String chatBlockPerson(String name) {
+    return 'حظر $name';
+  }
 }

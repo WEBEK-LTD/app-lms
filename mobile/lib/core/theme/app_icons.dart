@@ -152,6 +152,13 @@ abstract final class AppIcons {
   static const work = Symbols.work_rounded;
   static const music = Symbols.music_note_rounded;
   static const forum = Symbols.forum_rounded;
+
+  // 77 The chat.
+  static const mic = Symbols.mic_rounded;
+  static const stop = Symbols.stop_rounded;
+  static const file = Symbols.description_rounded;
+  static const gallery = Symbols.photo_library_rounded;
+  static const more = Symbols.more_vert_rounded;
 }
 
 /// A Material Symbols icon with an optional filled style.
