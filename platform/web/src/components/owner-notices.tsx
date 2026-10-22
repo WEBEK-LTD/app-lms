@@ -24,7 +24,7 @@ export async function OwnerNotices({ notices }: { notices: OwnerNotice[] }) {
           className={`flex flex-wrap items-start gap-3 rounded-xl px-4 py-3.5 text-[15px] leading-relaxed text-ink-2 ${n.tone === "warn" ? "bg-warn-bg" : "bg-peach"}`}
         >
           <Icon
-            name={n.kind.startsWith("app_users") ? "group" : n.kind === "wordpress_ready" ? "web" : n.kind === "api_check_failed" ? "warning" : n.kind === "chat_expiring" ? "forum" : "schedule"}
+            name={n.kind.startsWith("app_users") ? "group" : n.kind === "wordpress_ready" ? "web" : n.kind === "api_check_failed" ? "warning" : n.kind === "chat_expiring" ? "forum" : n.kind === "integration_failed" ? "link" : "schedule"}
             size={22}
             className={n.tone === "warn" ? "text-warn" : "text-accent"}
           />

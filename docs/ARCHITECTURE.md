@@ -2401,6 +2401,25 @@ until it passes. The senders are tested by sending, on App sign-in; the
 stores' keys when a build uploads with them. Every plan has the page: it only
 shows what the app already has.
 
+### Checked every day (80.2)
+
+The frequent job (`/api/internal/frequent`) also checks a few apps'
+connections each run, for 5 seconds at most (`lib/integrations/schedule.ts`):
+the apps whose last check (`apps.integrations_checked_at`, migration 0058) is
+a day old or more, never-checked ones first, so every app is checked about
+once a day. Only apps whose plan is running are tested: their website or
+platform (twice before it counts as down), payment keys, Firebase and Huawei
+push. A WordPress site whose plugin hasn't checked in for 3 days needs
+attention even when it answers. When a connection that worked (or was never
+tested) fails, the owner is told once: a notice on the overview and in the
+dashboard's updates (`integration_failed`), an email in their dashboard
+language (`integration_failed` template) and their phone. The team gets an
+alert in Admin › Watching (`integration:<app>:<key>`), counted while it lasts.
+When it works again (on the next day's check, or with Test on Integrations),
+both close. A payment provider that can't be reached tells no one. The e2e
+tests turn these checks off (`INTEGRATION_CHECKS=off`) because their websites
+are made up.
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:

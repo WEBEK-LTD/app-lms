@@ -156,6 +156,8 @@ export default defineConfig({
       KASHIER_API_URL: `http://localhost:${E2E.kashierPort}`,
       FAWATERK_API_URL: `http://localhost:${E2E.fawaterkPort}`,
       LICENSE_REFRESH_TEST_URL: `http://localhost:${E2E.wpRefreshPort}`,
+      // 80.2 The tests' websites are made up: no daily checks of the apps' connections.
+      INTEGRATION_CHECKS: "off",
     },
   },
 });

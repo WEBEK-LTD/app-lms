@@ -421,6 +421,8 @@ export interface App {
   linksCheck?: LinksCheckSnapshot | null;
   /** 80.1 The last test of each connection (Dashboard › Integrations, lib/integrations). */
   integrationChecks?: IntegrationChecks | null;
+  /** 80.2 When the daily checks last looked at the app's connections; null: not yet. */
+  integrationsCheckedAt?: Date | null;
   /** 46 The owner's switches (missing means on): the store's rating prompt after good moments, and crash reports. */
   reviewPrompt?: boolean;
   crashReports?: boolean;
@@ -1991,7 +1993,9 @@ export type OwnerNoticeKind =
   // 51 Media and storage: a storage pack ended while the app's files are over what it now has.
   | "storage_pack_ended"
   // 77 Chat messages are deleted within 30 days unless the business keeps them.
-  | "chat_expiring";
+  | "chat_expiring"
+  // 80.2 A daily check found one of the app's connections broken (one per connection; `integration_failed:<key>:<n>`).
+  | "integration_failed";
 
 export interface OwnerNotice {
   id: number;
@@ -2892,7 +2896,7 @@ export interface JobRun {
   error: string | null;
 }
 
-export type TeamAlertKind = "build_waiting" | "build_stalled" | "job_missing" | "job_failed" | "crash_spike" | "push_failed" | "health";
+export type TeamAlertKind = "build_waiting" | "build_stalled" | "job_missing" | "job_failed" | "crash_spike" | "push_failed" | "health" | "integration";
 
 /**
  * 78.3 Something the team should look at (lib/watch), in the admin's bell

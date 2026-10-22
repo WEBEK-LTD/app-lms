@@ -1150,6 +1150,12 @@ never in a chat or an issue.
       new column on `apps`) goes with the production deploy. Dashboard ›
       Integrations lists each app's connections; Test asks a website,
       payment keys or a push key now, without sending anything to anyone.
+- [ ] **Daily checks** (80.2): migration `0058_integrations_checked_at.sql`
+      (one column and an index on `apps`) goes with the production deploy.
+      From then on the frequent job checks a few apps each run, each app
+      about once a day. Leave `INTEGRATION_CHECKS` unset on Netlify (`off` is
+      only for the e2e tests). A broken connection tells its owner (notice,
+      email, phone) and opens an alert in Admin › Watching.
 - [ ] Campaign links: point them at any page of the site with
       `utm_source`, `utm_medium` and `utm_campaign` (and `from` for a page
       of ours, like `from=newsletter`); the sign-up records them while the
