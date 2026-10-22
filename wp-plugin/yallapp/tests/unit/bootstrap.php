@@ -82,6 +82,27 @@ if ( ! function_exists( 'esc_url_raw' ) ) {
 		$scheme = strtolower( (string) parse_url( (string) $url, PHP_URL_SCHEME ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
 		return in_array( $scheme, $protocols, true ) && false === strpbrk( (string) $url, " \t\n<>\"" ) ? (string) $url : '';
 	}
+
+	/**
+	 * WordPress's parse_url wrapper.
+	 *
+	 * @param string $url       URL.
+	 * @param int    $component Component, or -1 for all.
+	 * @return mixed
+	 */
+	function wp_parse_url( $url, $component = -1 ) {
+		return parse_url( (string) $url, $component ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+	}
+
+	/**
+	 * Removes trailing slashes.
+	 *
+	 * @param string $value Value.
+	 * @return string
+	 */
+	function untrailingslashit( $value ) {
+		return rtrim( (string) $value, '/\\' );
+	}
 }
 
 require_once YALLAPP_DIR . 'vendor/autoload.php';

@@ -102,6 +102,8 @@ class Plugin {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 		add_action( 'yallapp_daily', array( $this->tokens(), 'purge_expired' ) );
 		add_action( 'yallapp_daily', array( $this->inbox(), 'purge_old' ) );
+		// 77 A deleted account's chat goes too (from the app, the site or the admin).
+		add_action( 'delete_user', array( $this->license(), 'forget_chat_member' ) );
 		if ( is_admin() ) {
 			( new Admin\Settings_Page( $this ) )->register();
 			( new Admin\Lesson_Meta_Box() )->register();
@@ -132,6 +134,8 @@ class Plugin {
 		( new Rest\News_Controller( $this ) )->register_routes();
 		( new Rest\License_Controller( $this ) )->register_routes();
 		( new Rest\Links_Controller( $this ) )->register_routes();
+		// 77 The chat's token and Yallapp's pushes for it.
+		( new Rest\Chat_Controller( $this ) )->register_routes();
 	}
 
 	/**

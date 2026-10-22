@@ -93,6 +93,12 @@ describe("77 who has chat", () => {
     expect(chatConfig({ ...app("hosted", { chatSettings: { enabled: true, courseGroups: true } }), appType: "booking" } as App, PLAN_INFO.pro, PLATFORM)?.groups).toBe(false);
   });
 
+  it("signs a site's notification the way the plugin checks it", () => {
+    // The same value wp-plugin/yallapp/tests/unit/ChatNotifyTest.php expects from Chat_Notify::sign().
+    const json = '{"user_ids":[42,7],"title":"Ada Academy","body":"Your certificate is ready.","conversation_id":"0c2c6f0d-9a11-4d3c-9d5e-8a3f5a525b0b"}';
+    expect(notifySignature("yall-7k2d-9qwe-4mnb", 1792000000, json)).toBe("4fdda9c85d5cc549d124dc7421dfc5524047827357bd9c14f709c7150eb67ed2");
+  });
+
   it("a push says what a message without text sends, in the app's language", () => {
     expect(messagePreview({ text: "  Hello\n there " }, "image", "en")).toBe("Hello there");
     expect(messagePreview({ text: null }, "image", "en")).toBe("Photo");

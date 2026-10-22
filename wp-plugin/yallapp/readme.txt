@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.8
+Stable tag: 0.4.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -40,12 +40,17 @@ Digits if you prefer (with its REST API add-on). Digits is optional.
 
 = Privacy =
 
-The plugin sends no student data to Yallapp. License checks and app layout updates
+Apart from the chat (below), the plugin sends no student data to Yallapp. License checks and app layout updates
 send only the license key, site URL, plugin version, WordPress version and LMS name
 to yallapp.com.tr. When Yallapp sends the sign-in codes (the default), the plugin
 also sends the phone number and the code to deliver; Yallapp sends the message on
 WhatsApp and keeps neither. Codes are made on your site and kept there only as a
 hash, for 5 minutes. Push notifications go through your own Firebase project.
+
+When the app's chat is on (Pro and Business plans), its messages are kept by Yallapp:
+when a person opens the chat, the plugin sends Yallapp their WordPress user ID,
+display name and profile picture address, and in an academy the courses they are
+enrolled in. When an account is deleted, the plugin asks Yallapp to delete its chat.
 
 == Installation ==
 
@@ -76,6 +81,12 @@ Yallapp is the service that builds and runs your apps; the plugin needs it to wo
   Yallapp sends the message and keeps neither.
 * Videos from your Yallapp Media library: the license key, site address and the
   media links, when a student opens or saves a lesson that uses one.
+* Chat, when your plan has it and it is on: when a person opens the chat in the
+  app, their WordPress user ID, display name and profile picture address, and in
+  an academy the IDs, titles and pictures of the courses they are enrolled in;
+  when an account is deleted, its user ID, so Yallapp deletes its chat. Yallapp
+  sends the site, signed with the license key, the people to notify of a new
+  message, and the plugin sends them the push notification.
 
 Terms of use: https://yallapp.com.tr/terms
 Privacy policy: https://yallapp.com.tr/privacy
@@ -101,6 +112,11 @@ Terms: https://developer.huawei.com/consumer/en/devservice/term
 Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 
 == Changelog ==
+
+= 0.4.9 =
+* Chat in the app (Pro and Business plans): people write to you from the app, and in an academy each course can have its group. The messages are on Yallapp; you answer in your Yallapp dashboard and in Yallapp Business.
+* The app gets a chat session for the person signed in on your site, and Yallapp's new-message notifications reach their phones through your push settings.
+* Deleting an account deletes its chat.
 
 = 0.4.8 =
 * Ready for WordPress.org: updates now come from WordPress.org like any other plugin, and the plugin no longer downloads updates from Yallapp. Sites on an earlier version get this one from Yallapp as before.
