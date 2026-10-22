@@ -49,6 +49,11 @@ abstract final class Paths {
   static const campaigns = '/campaigns';
   static const myDonations = '/my-donations';
 
+  /// 77 The chat: the conversation with the business and course groups.
+  static const chat = '/chat';
+  static String chatConversation(String id) =>
+      '$chat/${Uri.encodeComponent(id)}';
+
   /// 48 One of the site's own pages opened the app: asks the site what it
   /// is, then opens that screen or the page in the in-app browser.
   static const openLink = '/open';
@@ -141,6 +146,7 @@ abstract final class Paths {
       location.startsWith(myCourses) ||
       location.startsWith(account) ||
       location.startsWith(notifications) ||
+      location.startsWith('$chat/') ||
       location.startsWith('/appointment') ||
       location.startsWith('/question/') ||
       location.startsWith('/quiz/') ||

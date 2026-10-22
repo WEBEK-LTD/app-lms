@@ -3692,4 +3692,217 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get membershipFrozenAtDoor =>
       overlay.text('membershipFrozenAtDoor') ?? base.membershipFrozenAtDoor;
+
+  @override
+  String get tabChat => overlay.text('tabChat') ?? base.tabChat;
+
+  @override
+  String get chatTitle => overlay.text('chatTitle') ?? base.chatTitle;
+
+  @override
+  String get chatLoading => overlay.text('chatLoading') ?? base.chatLoading;
+
+  @override
+  String get chatEmptyTitle =>
+      overlay.text('chatEmptyTitle') ?? base.chatEmptyTitle;
+
+  @override
+  String get chatEmptyMessage =>
+      overlay.text('chatEmptyMessage') ?? base.chatEmptyMessage;
+
+  @override
+  String chatSignInTitle(String business) =>
+      overlay.format('chatSignInTitle', {'business': business}) ??
+      base.chatSignInTitle(business);
+
+  @override
+  String get chatSignInMessage =>
+      overlay.text('chatSignInMessage') ?? base.chatSignInMessage;
+
+  @override
+  String get chatStart => overlay.text('chatStart') ?? base.chatStart;
+
+  @override
+  String get chatCourseGroup =>
+      overlay.text('chatCourseGroup') ?? base.chatCourseGroup;
+
+  @override
+  String chatMemberCount(int count) =>
+      overlay.format('chatMemberCount', {'count': count}) ??
+      base.chatMemberCount(count);
+
+  @override
+  String get chatNoMessagesTitle =>
+      overlay.text('chatNoMessagesTitle') ?? base.chatNoMessagesTitle;
+
+  @override
+  String get chatNoMessagesMessage =>
+      overlay.text('chatNoMessagesMessage') ?? base.chatNoMessagesMessage;
+
+  @override
+  String get chatLoadingMessages =>
+      overlay.text('chatLoadingMessages') ?? base.chatLoadingMessages;
+
+  @override
+  String get chatOlder => overlay.text('chatOlder') ?? base.chatOlder;
+
+  @override
+  String get chatAttach => overlay.text('chatAttach') ?? base.chatAttach;
+
+  @override
+  String get chatGallery => overlay.text('chatGallery') ?? base.chatGallery;
+
+  @override
+  String get chatTakePhoto =>
+      overlay.text('chatTakePhoto') ?? base.chatTakePhoto;
+
+  @override
+  String get chatRecordVideo =>
+      overlay.text('chatRecordVideo') ?? base.chatRecordVideo;
+
+  @override
+  String get chatChooseFile =>
+      overlay.text('chatChooseFile') ?? base.chatChooseFile;
+
+  @override
+  String get chatPhoto => overlay.text('chatPhoto') ?? base.chatPhoto;
+
+  @override
+  String get chatVideo => overlay.text('chatVideo') ?? base.chatVideo;
+
+  @override
+  String get chatVoice => overlay.text('chatVoice') ?? base.chatVoice;
+
+  @override
+  String get chatFile => overlay.text('chatFile') ?? base.chatFile;
+
+  @override
+  String get chatRecord => overlay.text('chatRecord') ?? base.chatRecord;
+
+  @override
+  String chatRecording(String time) =>
+      overlay.format('chatRecording', {'time': time}) ??
+      base.chatRecording(time);
+
+  @override
+  String get chatStopAndSend =>
+      overlay.text('chatStopAndSend') ?? base.chatStopAndSend;
+
+  @override
+  String get chatMicDenied =>
+      overlay.text('chatMicDenied') ?? base.chatMicDenied;
+
+  @override
+  String get chatSending => overlay.text('chatSending') ?? base.chatSending;
+
+  @override
+  String chatUploading(int percent) =>
+      overlay.format('chatUploading', {'percent': percent}) ??
+      base.chatUploading(percent);
+
+  @override
+  String get chatNotSent => overlay.text('chatNotSent') ?? base.chatNotSent;
+
+  @override
+  String get chatDeleted => overlay.text('chatDeleted') ?? base.chatDeleted;
+
+  @override
+  String get chatDeleteMessage =>
+      overlay.text('chatDeleteMessage') ?? base.chatDeleteMessage;
+
+  @override
+  String get chatDeleteConfirm =>
+      overlay.text('chatDeleteConfirm') ?? base.chatDeleteConfirm;
+
+  @override
+  String get chatReport => overlay.text('chatReport') ?? base.chatReport;
+
+  @override
+  String get chatReportTitle =>
+      overlay.text('chatReportTitle') ?? base.chatReportTitle;
+
+  @override
+  String get chatReportSpam =>
+      overlay.text('chatReportSpam') ?? base.chatReportSpam;
+
+  @override
+  String get chatReportAbuse =>
+      overlay.text('chatReportAbuse') ?? base.chatReportAbuse;
+
+  @override
+  String get chatReportInappropriate =>
+      overlay.text('chatReportInappropriate') ?? base.chatReportInappropriate;
+
+  @override
+  String get chatReportOther =>
+      overlay.text('chatReportOther') ?? base.chatReportOther;
+
+  @override
+  String chatReported(String business) =>
+      overlay.format('chatReported', {'business': business}) ??
+      base.chatReported(business);
+
+  @override
+  String get chatMembers => overlay.text('chatMembers') ?? base.chatMembers;
+
+  @override
+  String get chatBlock => overlay.text('chatBlock') ?? base.chatBlock;
+
+  @override
+  String get chatUnblock => overlay.text('chatUnblock') ?? base.chatUnblock;
+
+  @override
+  String chatBlockTitle(String name) =>
+      overlay.format('chatBlockTitle', {'name': name}) ??
+      base.chatBlockTitle(name);
+
+  @override
+  String chatBlockMessage(String name) =>
+      overlay.format('chatBlockMessage', {'name': name}) ??
+      base.chatBlockMessage(name);
+
+  @override
+  String get chatBlocked => overlay.text('chatBlocked') ?? base.chatBlocked;
+
+  @override
+  String get chatCantSend => overlay.text('chatCantSend') ?? base.chatCantSend;
+
+  @override
+  String get chatTooBig => overlay.text('chatTooBig') ?? base.chatTooBig;
+
+  @override
+  String get chatStorageFull =>
+      overlay.text('chatStorageFull') ?? base.chatStorageFull;
+
+  @override
+  String get chatFileType => overlay.text('chatFileType') ?? base.chatFileType;
+
+  @override
+  String get chatUnavailable =>
+      overlay.text('chatUnavailable') ?? base.chatUnavailable;
+
+  @override
+  String get chatPlayVoice =>
+      overlay.text('chatPlayVoice') ?? base.chatPlayVoice;
+
+  @override
+  String get chatPauseVoice =>
+      overlay.text('chatPauseVoice') ?? base.chatPauseVoice;
+
+  @override
+  String chatOpenFile(String name) =>
+      overlay.format('chatOpenFile', {'name': name}) ?? base.chatOpenFile(name);
+
+  @override
+  String chatMessageFrom(String name, String text) =>
+      overlay.format('chatMessageFrom', {'name': name, 'text': text}) ??
+      base.chatMessageFrom(name, text);
+
+  @override
+  String get chatMore => overlay.text('chatMore') ?? base.chatMore;
+
+  @override
+  String chatBlockPerson(String name) =>
+      overlay.format('chatBlockPerson', {'name': name}) ??
+      base.chatBlockPerson(name);
 }

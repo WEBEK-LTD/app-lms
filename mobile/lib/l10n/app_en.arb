@@ -2627,5 +2627,135 @@
   "membershipFrozenAtDoor": "Your membership is frozen, so this code won't let you in until it's back.",
   "@membershipFrozenAtDoor": {
     "description": "Under a gym member's QR code while the membership is frozen."
+  },
+  "tabChat": "Chat",
+  "chatTitle": "Chat",
+  "chatLoading": "Loading chats",
+  "chatEmptyTitle": "No chats yet",
+  "chatEmptyMessage": "Your chats show up here.",
+  "chatSignInTitle": "Chat with {business}",
+  "@chatSignInTitle": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      }
+    }
+  },
+  "chatSignInMessage": "Sign in to send messages and get answers here.",
+  "chatStart": "Send a message",
+  "chatCourseGroup": "Course group",
+  "chatMemberCount": "{count, plural, =1{1 member} other{{count} members}}",
+  "@chatMemberCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatNoMessagesTitle": "Say hello",
+  "chatNoMessagesMessage": "Messages you send and receive show up here.",
+  "chatLoadingMessages": "Loading messages",
+  "chatOlder": "Show earlier messages",
+  "chatAttach": "Attach",
+  "chatGallery": "Photo or video",
+  "chatTakePhoto": "Take a photo",
+  "chatRecordVideo": "Record a video",
+  "chatChooseFile": "File",
+  "chatPhoto": "Photo",
+  "chatVideo": "Video",
+  "chatVoice": "Voice message",
+  "chatFile": "File",
+  "chatRecord": "Record a voice message",
+  "chatRecording": "Recording {time}",
+  "@chatRecording": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "chatStopAndSend": "Send voice message",
+  "chatMicDenied": "Allow the microphone in your phone's settings to record voice messages.",
+  "chatSending": "Sending",
+  "chatUploading": "Sending {percent}%",
+  "@chatUploading": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "chatNotSent": "Not sent. Tap to try again.",
+  "chatDeleted": "This message was deleted.",
+  "chatDeleteMessage": "Delete message",
+  "chatDeleteConfirm": "Delete this message for everyone?",
+  "chatReport": "Report",
+  "chatReportTitle": "Why are you reporting this message?",
+  "chatReportSpam": "Spam",
+  "chatReportAbuse": "Abuse or harassment",
+  "chatReportInappropriate": "Inappropriate content",
+  "chatReportOther": "Something else",
+  "chatReported": "Thanks. {business} will look into it.",
+  "@chatReported": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      }
+    }
+  },
+  "chatMembers": "Members",
+  "chatBlock": "Block",
+  "chatUnblock": "Unblock",
+  "chatBlockTitle": "Block {name}?",
+  "@chatBlockTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chatBlockMessage": "You won't see {name}'s messages in any group. They won't be told.",
+  "@chatBlockMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chatBlocked": "Blocked",
+  "chatCantSend": "You can read this chat, but you can't send messages in it.",
+  "chatTooBig": "This file is too big to send.",
+  "chatStorageFull": "Files can't be sent right now. You can still send text.",
+  "chatFileType": "This kind of file can't be sent. Send a photo, a video, or a PDF, Word, Excel, PowerPoint or text file.",
+  "chatUnavailable": "Chat isn't available right now.",
+  "chatPlayVoice": "Play voice message",
+  "chatPauseVoice": "Pause voice message",
+  "chatOpenFile": "Open {name}",
+  "@chatOpenFile": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chatMessageFrom": "{name}: {text}",
+  "@chatMessageFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "chatMore": "More",
+  "chatBlockPerson": "Block {name}",
+  "@chatBlockPerson": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

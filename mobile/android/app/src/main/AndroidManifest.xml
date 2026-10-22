@@ -1,5 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 77 Voice messages in the chat (asked when the person records one). -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <!-- The label comes from res/values/yallapp_config.xml, written by
          tool/apply_config.dart from the client's build config. -->

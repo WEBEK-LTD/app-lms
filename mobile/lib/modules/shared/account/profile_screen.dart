@@ -8,12 +8,14 @@ import '../../../core/auth/auth_controller.dart';
 import '../../../core/config/build_config_data.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/providers.dart';
+import '../../../core/routing/app_router.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/services/external_links.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../chat/data/chat_providers.dart';
 import '../../lms/downloads/download_manager.dart';
 import '../../lms/downloads/download_widgets.dart';
 
@@ -52,6 +54,11 @@ class ProfileScreen extends ConsumerWidget {
     final savedBytes = downloads
         ? ref.watch(downloadManagerProvider.select((s) => s.index.bytes))
         : 0;
+    // 77 Chat when it isn't one of the bottom tabs.
+    final chatHere =
+        config.chat != null &&
+        !ref.watch(shellTabsProvider).any((t) => t.path == Paths.chat);
+    final chatUnread = chatHere ? ref.watch(chatUnreadProvider) : 0;
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -179,6 +186,14 @@ class ProfileScreen extends ConsumerWidget {
             SettingsGroup(
               title: context.l10n.accountAndApp,
               children: [
+                if (chatHere)
+                  SettingsTile(
+                    key: const ValueKey('account-chat'),
+                    icon: AppIcons.chat,
+                    title: context.l10n.chatTitle,
+                    value: chatUnread > 0 ? '$chatUnread' : null,
+                    onTap: () => context.push(Paths.chat),
+                  ),
                 SettingsTile(
                   icon: AppIcons.notifications,
                   title: context.l10n.notifications,

@@ -150,7 +150,7 @@ final _appScreen = RegExp(
   r'^/(course|lesson|quiz|question|product|service|appointment|listing|'
   r'event|campaign|order)/[0-9]+(/[a-z-]+)?$',
 );
-final _appTextScreen = RegExp(r'^/(ticket|article|page|messages)/[^/]+$');
+final _appTextScreen = RegExp(r'^/(ticket|article|page|messages|chat)/[^/]+$');
 
 /// 48 The whole address of one of the site's own pages that opened the app,
 /// or null. iOS hands the router the whole address: any address on the

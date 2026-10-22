@@ -11,6 +11,8 @@ import '../../core/web/web_page_screen.dart';
 import '../../core/widgets/app_nav_bar.dart';
 import '../../core/widgets/buttons.dart';
 import '../../core/widgets/common.dart';
+import '../chat/chat_routes.dart';
+import '../chat/data/chat_providers.dart';
 import '../lms/lesson/embeds/embed_fullscreen_screen.dart';
 import 'account/edit_profile_screen.dart';
 import 'account/lists_screens.dart';
@@ -165,7 +167,10 @@ List<RouteBase> tabbedRoutes({
   required AppModule module,
   required List<ShellTab> tabs,
 }) {
-  final screens = {for (final s in module.screens()) s.path: s};
+  // 77 Chat is a screen of every app type.
+  final screens = {
+    for (final s in [...module.screens(), chatTabScreen()]) s.path: s,
+  };
   final used = <String>{};
   final branches = <StatefulShellBranch>[];
   for (final tab in tabs) {
@@ -278,7 +283,11 @@ class MainShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final template = ref.watch(appLookProvider).template;
     final tabs = ref.watch(shellTabsProvider);
-    final counts = badges?.call(ref) ?? const <String, int>{};
+    final counts = {
+      ...?badges?.call(ref),
+      // 77 Unread chat messages.
+      Paths.chat: ref.watch(chatUnreadProvider),
+    };
     // Branches are built in tab order from the tabs that have a location.
     final branchOf = <int, int>{};
     var branch = 0;

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../modules/bookings/bookings_routes.dart';
+import '../../modules/chat/chat_routes.dart';
 import '../../modules/events/events_routes.dart';
 import '../../modules/donations/donations_routes.dart';
 import '../../modules/lms/lms_routes.dart';
@@ -72,7 +73,8 @@ final appModuleProvider = Provider<AppModule>(
 );
 
 /// The bottom tabs from `/pages`, or [AppModule.defaultTabs] when the client
-/// hasn't published any, or too few of the published tabs work here.
+/// hasn't published any, or too few of the published tabs work here. 77
+/// With chat, a Chat tab when there's room.
 final shellTabsProvider = Provider<List<ShellTab>>((ref) {
   final module = ref.watch(appModuleProvider);
   final gate = ref.watch(appGateProvider);
@@ -82,10 +84,10 @@ final shellTabsProvider = Provider<List<ShellTab>>((ref) {
     final tabs = tabsFromNavigation(navigation, module, config);
     if (tabs.length >= Navigation.minTabs &&
         tabs.any((t) => t.location != null)) {
-      return tabs;
+      return withChatTab(tabs, config);
     }
   }
-  return module.defaultTabs(config);
+  return withChatTab(module.defaultTabs(config), config);
 });
 
 /// Turns the published tabs into shell tabs. A tab whose target this app
