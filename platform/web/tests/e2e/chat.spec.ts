@@ -126,8 +126,10 @@ test("a student writes from the app, and the owner answers as the academy with a
 
   // A picture in the Media library to send.
   await own.goto("/dashboard/media");
+  await expect(own.getByLabel("Choose files")).toBeEnabled();
   await own.getByLabel("Choose files").setInputFiles([{ name: "Timetable.png", mimeType: "image/png", buffer: solidPng(40, 30, [200, 80, 40]) }]);
-  await expect(own.locator('[data-media="Timetable.png"]')).toBeVisible();
+  await expect(own.getByRole("list", { name: "Uploads" }).locator('[data-upload="Timetable.png"]')).toContainText("Uploaded", { timeout: 30_000 });
+  await expect(own.getByRole("list", { name: "Files" }).locator('[data-media="Timetable.png"]')).toBeVisible({ timeout: 15_000 });
 
   await own.goto("/dashboard/chat");
   await expect(own.getByRole("heading", { name: "1 unread message" })).toBeVisible();
