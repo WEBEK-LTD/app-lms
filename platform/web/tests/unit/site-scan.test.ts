@@ -151,6 +151,13 @@ describe("81.1 the pieces", () => {
     expect(menuOf("<main>No menu</main>", "https://cafe.example/")).toEqual([]);
   });
 
+  it("keeps only web addresses for pictures", () => {
+    for (const src of ["javascript:alert(1)", " JavaScript:alert(1)", "data:image/png;base64,AAAA", "vbscript:msgbox(1)"]) {
+      expect(scanPage({ url: "https://cafe.example/", html: `<header><img class="custom-logo" src="${src}"></header>` }).logoUrl).toBeNull();
+    }
+    expect(scanPage({ url: "https://cafe.example/", html: '<img class="custom-logo" src="/logo.png">' }).logoUrl).toBe("https://cafe.example/logo.png");
+  });
+
   it("takes the address as people type it", () => {
     expect(siteAddress("cedar.example")).toBe("https://cedar.example/");
     expect(siteAddress(" http://cedar.example/shop ")).toBe("http://cedar.example/shop");

@@ -113,7 +113,8 @@ const meta = (metas: Attrs[], key: string) => metas.find((m) => (m.name ?? m.pro
 function absolute(href: string | null | undefined, base: string): string | null {
   if (!href) return null;
   const trimmed = href.trim();
-  if (!trimmed || trimmed.startsWith("data:") || trimmed.startsWith("javascript:")) return null;
+  if (!trimmed) return null;
+  // Only web addresses: data:, javascript: and any other scheme are left out by their protocol.
   try {
     const url = new URL(trimmed.startsWith("//") ? `https:${trimmed}` : trimmed, base);
     return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : null;
