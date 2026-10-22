@@ -23,7 +23,7 @@ import { getPlans } from "../settings/platform";
  * the client's own apps.
  */
 
-const ROUTES: Route[] = [
+export const ROUTES: Route[] = [
   route("POST", "auth/sign-out", account.signOut, { anyState: true }),
   route("POST", "auth/sign-out-all", account.signOutAll, { anyState: true }),
   route("GET", "me", account.getMe, { anyState: true }),
@@ -146,13 +146,12 @@ export async function handleOwner(deps: OwnerDeps, req: OwnerRequest): Promise<O
     const ctx = await authenticateRequest(deps, req);
     k = ctx.k;
     if (!found.route.anyState) account.requireActive(ctx);
-    // 60 What the route needs, on its app when it has one (an app outside the person's apps is 404, as another client's).
+    // 79.3 Every path with an app answers only for the person's own apps (another client's is 404, as one that doesn't exist).
+    const appId = found.params.app_id;
+    if (appId && !ctx.apps.some((a) => a.id === appId)) throw notFound();
+    // 60 What the route needs, on its app when it has one.
     const permission = found.route.permission;
-    if (permission) {
-      const appId = found.params.app_id;
-      if (appId && !ctx.apps.some((a) => a.id === appId)) throw notFound();
-      if (!teamCan(ctx.access, permission, appId)) throw notAllowed();
-    }
+    if (permission && !teamCan(ctx.access, permission, appId)) throw notAllowed();
     return await found.route.handler(ctx, found.params);
   } catch (error) {
     if (error instanceof OwnerError) return errorBody(error, k);
