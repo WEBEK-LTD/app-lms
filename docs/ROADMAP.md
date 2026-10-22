@@ -1929,7 +1929,7 @@ rotation, and isolation between clients is checked by hand.
 
 | | Step | Done when |
 |---|---|---|
-| [ ] | 79.1 Backups: nightly database dumps kept off the server, the media folder and the build files, with a restore runbook and a restore tried on a copy | The runbook and a restore that worked, LAUNCH-CHECKLIST |
+| [x] | 79.1 Backups: the owner's decision, cPanel's own backups of our host (the database, the media folder and the build files) sent to Google Drive; the restore runbook and what cPanel can't hold (a copy of `ENCRYPTION_KEY` kept apart, the Netlify Blobs export `scripts/export-blobs.mjs`) in LAUNCH-CHECKLIST | The runbook and a restore that worked, LAUNCH-CHECKLIST |
 | [ ] | 79.2 Key rotation: a key ID on every encrypted value, a second key, a re-encryption job; the pipeline token checked for length and limited to what builds need | Unit tests |
 | [ ] | 79.3 Isolation tests: every dashboard, Owner API and hosted route tried with another client's IDs | A test that fails when a route leaks |
 | [ ] | 79.4 CI: dependency updates and code scanning, actions pinned, scripts limited by CSP (69.12, 69.14) | CI |
