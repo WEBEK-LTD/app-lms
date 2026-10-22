@@ -10,6 +10,7 @@ import * as schema from "../db/schema";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
 import type { AppAuthKey, AppLayoutRecord } from "./types";
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
+import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import { assetIdsIn } from "./asset-ids";
 import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 import type { MoreStore, MoreStoresRow, PublishingEvent, PublishingRequest, PublishingTrack } from "./types";
@@ -4035,6 +4036,419 @@ export class MysqlStore implements DataStore {
     // The client, its apps (deleted ones too) and every row of theirs go with the user (on delete cascade).
     const [result] = await this.run((db) => db.delete(schema.users).where(eq(schema.users.id, userId)));
     return result.affectedRows === 1;
+  }
+
+  // 77 Chat
+
+  async upsertChatMember(input: { appId: string; source: ChatMemberSource; externalId: string; name: string; imageUrl: string | null }, now: Date): Promise<ChatMember> {
+    const c = schema.chatMembers;
+    const row = { id: newId(), ...input, blockedAt: null, createdAt: now, updatedAt: now };
+    await this.run((db) => db.insert(c).values(row).onDuplicateKeyUpdate({ set: { name: input.name, imageUrl: input.imageUrl, updatedAt: now } }));
+    return (await this.findChatMember(input.appId, input.source, input.externalId))!;
+  }
+
+  async getChatMember(appId: string, id: string): Promise<ChatMember | null> {
+    const c = schema.chatMembers;
+    const [row] = await this.run((db) => db.select().from(c).where(and(eq(c.appId, appId), eq(c.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async findChatMember(appId: string, source: ChatMemberSource, externalId: string): Promise<ChatMember | null> {
+    const c = schema.chatMembers;
+    const [row] = await this.run((db) => db.select().from(c).where(and(eq(c.appId, appId), eq(c.source, source), eq(c.externalId, externalId))).limit(1));
+    return row ?? null;
+  }
+
+  async listChatMembersByIds(appId: string, ids: string[]): Promise<ChatMember[]> {
+    if (ids.length === 0) return [];
+    const c = schema.chatMembers;
+    return this.run((db) => db.select().from(c).where(and(eq(c.appId, appId), inArray(c.id, ids))));
+  }
+
+  async setChatMemberBlocked(appId: string, id: string, blockedAt: Date | null, now: Date): Promise<boolean> {
+    const c = schema.chatMembers;
+    const [result] = await this.run((db) => db.update(c).set({ blockedAt, updatedAt: now }).where(and(eq(c.appId, appId), eq(c.id, id))));
+    return result.affectedRows === 1;
+  }
+
+  async deleteChatMember(appId: string, id: string): Promise<void> {
+    // Their direct conversation, messages, places, reports, blocks, sessions and uploads go with them (on delete cascade).
+    const c = schema.chatMembers;
+    await this.run((db) => db.delete(c).where(and(eq(c.appId, appId), eq(c.id, id))));
+    await this.refreshLastMessages(appId);
+  }
+
+  /** Each conversation's last message, after messages were removed. */
+  private async refreshLastMessages(appId: string, conversationId?: string): Promise<void> {
+    const conv = schema.chatConversations;
+    await this.run((db) =>
+      db
+        .update(conv)
+        .set({
+          lastMessageId: sql`(select max(m.id) from chat_messages m where m.conversation_id = ${conv.id})`,
+          lastMessageAt: sql`(select max(m.created_at) from chat_messages m where m.conversation_id = ${conv.id})`,
+        })
+        .where(conversationId ? and(eq(conv.appId, appId), eq(conv.id, conversationId)) : eq(conv.appId, appId)),
+    );
+  }
+
+  async ensureDirectConversation(appId: string, memberId: string, now: Date): Promise<ChatConversation> {
+    const conv = schema.chatConversations;
+    const find = async () => (await this.run((db) => db.select().from(conv).where(and(eq(conv.appId, appId), eq(conv.memberId, memberId))).limit(1)))[0];
+    let conversation = await find();
+    if (!conversation) {
+      const row = { id: newId(), appId, kind: "direct" as const, memberId, courseKey: null, title: null, imageUrl: null, lastMessageId: null, lastMessageAt: null, businessReadId: null, keepUntil: null, noticeFor: null, createdAt: now, updatedAt: now };
+      try {
+        await this.run((db) => db.insert(conv).values(row));
+      } catch (error) {
+        // Two at once: the other one made it.
+        if (errorCode(error) !== "ER_DUP_ENTRY") throw error;
+      }
+      conversation = (await find())!;
+    }
+    await this.addChatParticipant(conversation.id, memberId, now);
+    return conversation;
+  }
+
+  async ensureGroupConversation(input: { appId: string; courseKey: string; title: string; imageUrl: string | null }, now: Date): Promise<ChatConversation> {
+    const conv = schema.chatConversations;
+    const row = { id: newId(), appId: input.appId, kind: "group" as const, memberId: null, courseKey: input.courseKey, title: input.title, imageUrl: input.imageUrl, lastMessageId: null, lastMessageAt: null, businessReadId: null, keepUntil: null, noticeFor: null, createdAt: now, updatedAt: now };
+    await this.run((db) => db.insert(conv).values(row).onDuplicateKeyUpdate({ set: { title: input.title, imageUrl: input.imageUrl } }));
+    const [found] = await this.run((db) => db.select().from(conv).where(and(eq(conv.appId, input.appId), eq(conv.courseKey, input.courseKey))).limit(1));
+    return found!;
+  }
+
+  async getChatConversation(appId: string, id: string): Promise<ChatConversation | null> {
+    const conv = schema.chatConversations;
+    const [row] = await this.run((db) => db.select().from(conv).where(and(eq(conv.appId, appId), eq(conv.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async updateChatConversation(id: string, patch: ChatConversationPatch): Promise<void> {
+    if (Object.keys(patch).length === 0) return;
+    await this.run((db) => db.update(schema.chatConversations).set(patch).where(eq(schema.chatConversations.id, id)));
+  }
+
+  async listChatConversations(appId: string, input: { kind?: ChatConversationKind; limit: number }): Promise<ChatConversation[]> {
+    const conv = schema.chatConversations;
+    return this.run((db) =>
+      db
+        .select()
+        .from(conv)
+        .where(and(eq(conv.appId, appId), isNotNull(conv.lastMessageId), input.kind ? eq(conv.kind, input.kind) : undefined))
+        .orderBy(desc(conv.lastMessageId))
+        .limit(input.limit),
+    );
+  }
+
+  async listMemberConversations(appId: string, memberId: string): Promise<{ conversation: ChatConversation; participant: ChatParticipant }[]> {
+    const conv = schema.chatConversations;
+    const p = schema.chatParticipants;
+    const rows = await this.run((db) =>
+      db
+        .select({ conversation: conv, participant: p })
+        .from(p)
+        .innerJoin(conv, eq(conv.id, p.conversationId))
+        .where(and(eq(p.memberId, memberId), eq(conv.appId, appId))),
+    );
+    return rows;
+  }
+
+  async setMemberGroups(appId: string, memberId: string, conversationIds: string[], now: Date): Promise<void> {
+    const conv = schema.chatConversations;
+    const p = schema.chatParticipants;
+    const groups = await this.run((db) =>
+      db
+        .select({ id: p.conversationId })
+        .from(p)
+        .innerJoin(conv, eq(conv.id, p.conversationId))
+        .where(and(eq(p.memberId, memberId), eq(conv.appId, appId), eq(conv.kind, "group"))),
+    );
+    const leave = groups.map((g) => g.id).filter((id) => !conversationIds.includes(id));
+    if (leave.length > 0) await this.run((db) => db.delete(p).where(and(eq(p.memberId, memberId), inArray(p.conversationId, leave))));
+    for (const id of conversationIds) await this.addChatParticipant(id, memberId, now);
+  }
+
+  async addChatParticipant(conversationId: string, memberId: string, now: Date): Promise<void> {
+    await this.run((db) => db.insert(schema.chatParticipants).ignore().values({ conversationId, memberId, readId: null, joinedAt: now }));
+  }
+
+  async getChatParticipant(conversationId: string, memberId: string): Promise<ChatParticipant | null> {
+    const p = schema.chatParticipants;
+    const [row] = await this.run((db) => db.select().from(p).where(and(eq(p.conversationId, conversationId), eq(p.memberId, memberId))).limit(1));
+    return row ?? null;
+  }
+
+  async listChatParticipants(conversationId: string): Promise<ChatParticipant[]> {
+    const p = schema.chatParticipants;
+    return this.run((db) => db.select().from(p).where(eq(p.conversationId, conversationId)));
+  }
+
+  async setChatRead(conversationId: string, memberId: string, messageId: number): Promise<void> {
+    const p = schema.chatParticipants;
+    await this.run((db) =>
+      db
+        .update(p)
+        .set({ readId: messageId })
+        .where(and(eq(p.conversationId, conversationId), eq(p.memberId, memberId), or(isNull(p.readId), lt(p.readId, messageId)))),
+    );
+  }
+
+  async createChatMessage(input: Omit<ChatMessage, "id">): Promise<{ message: ChatMessage; created: boolean }> {
+    const m = schema.chatMessages;
+    const conv = schema.chatConversations;
+    let id: number;
+    try {
+      const [result] = await this.run((db) => db.insert(m).values(input));
+      id = Number(result.insertId);
+    } catch (error) {
+      if (errorCode(error) !== "ER_DUP_ENTRY" || !input.clientId) throw error;
+      const [same] = await this.run((db) => db.select().from(m).where(and(eq(m.conversationId, input.conversationId), eq(m.clientId, input.clientId!))).limit(1));
+      return { message: same!, created: false };
+    }
+    // Never back: of two messages at once, the conversation keeps the later one.
+    await this.run((db) =>
+      db
+        .update(conv)
+        .set({ lastMessageId: id, lastMessageAt: input.createdAt, updatedAt: input.createdAt })
+        .where(and(eq(conv.id, input.conversationId), or(isNull(conv.lastMessageId), lt(conv.lastMessageId, id)))),
+    );
+    return { message: { id, ...input }, created: true };
+  }
+
+  async getChatMessage(appId: string, id: number): Promise<ChatMessage | null> {
+    const m = schema.chatMessages;
+    const [row] = await this.run((db) => db.select().from(m).where(and(eq(m.appId, appId), eq(m.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async listChatMessages(conversationId: string, input: { after?: number; before?: number; limit: number; hideFrom?: string[] }): Promise<ChatMessage[]> {
+    const m = schema.chatMessages;
+    const hide = input.hideFrom && input.hideFrom.length > 0 ? or(isNull(m.memberId), not(inArray(m.memberId, input.hideFrom))) : undefined;
+    if (input.after !== undefined) {
+      return this.run((db) =>
+        db
+          .select()
+          .from(m)
+          .where(and(eq(m.conversationId, conversationId), gt(m.id, input.after!), hide))
+          .orderBy(asc(m.id))
+          .limit(input.limit),
+      );
+    }
+    return this.run((db) =>
+      db
+        .select()
+        .from(m)
+        .where(and(eq(m.conversationId, conversationId), input.before !== undefined ? lt(m.id, input.before) : undefined, hide))
+        .orderBy(desc(m.id))
+        .limit(input.limit),
+    );
+  }
+
+  async countChatUnread(conversationId: string, afterId: number | null, input: { notFromMember?: string; fromMembersOnly?: boolean; hideFrom?: string[] }): Promise<number> {
+    const m = schema.chatMessages;
+    const [row] = await this.run((db) =>
+      db
+        .select({ n: count() })
+        .from(m)
+        .where(
+          and(
+            eq(m.conversationId, conversationId),
+            isNull(m.deletedAt),
+            afterId !== null ? gt(m.id, afterId) : undefined,
+            input.fromMembersOnly ? eq(m.senderKind, "member") : undefined,
+            input.notFromMember ? or(isNull(m.memberId), not(eq(m.memberId, input.notFromMember))) : undefined,
+            input.hideFrom && input.hideFrom.length > 0 ? or(isNull(m.memberId), not(inArray(m.memberId, input.hideFrom))) : undefined,
+          ),
+        ),
+    );
+    return Number(row?.n ?? 0);
+  }
+
+  async deleteChatMessage(appId: string, id: number, now: Date): Promise<boolean> {
+    const m = schema.chatMessages;
+    const [result] = await this.run((db) =>
+      db
+        .update(m)
+        .set({ text: null, mediaId: null, durationSeconds: null, deletedAt: now })
+        .where(and(eq(m.appId, appId), eq(m.id, id), isNull(m.deletedAt))),
+    );
+    return result.affectedRows === 1;
+  }
+
+  async clearChatConversation(appId: string, conversationId: string): Promise<string[]> {
+    const m = schema.chatMessages;
+    const where = and(eq(m.appId, appId), eq(m.conversationId, conversationId));
+    const media = await this.run((db) => db.select({ id: m.mediaId }).from(m).where(and(where, isNotNull(m.mediaId))));
+    await this.run((db) => db.delete(m).where(where));
+    await this.run((db) =>
+      db
+        .update(schema.chatConversations)
+        .set({ lastMessageId: null, lastMessageAt: null })
+        .where(and(eq(schema.chatConversations.appId, appId), eq(schema.chatConversations.id, conversationId))),
+    );
+    return media.map((r) => r.id!);
+  }
+
+  async listChatMediaOfMember(appId: string, memberId: string): Promise<string[]> {
+    const m = schema.chatMessages;
+    const conv = schema.chatConversations;
+    const sent = await this.run((db) =>
+      db
+        .select({ id: m.mediaId })
+        .from(m)
+        .leftJoin(conv, eq(conv.id, m.conversationId))
+        .where(and(eq(m.appId, appId), isNotNull(m.mediaId), or(eq(m.memberId, memberId), eq(conv.memberId, memberId)))),
+    );
+    const u = schema.chatUploads;
+    const uploads = await this.run((db) => db.select({ id: u.mediaId }).from(u).where(and(eq(u.appId, appId), eq(u.memberId, memberId))));
+    return [...new Set([...sent.map((r) => r.id!), ...uploads.map((r) => r.id)])];
+  }
+
+  async deleteChatMessagesBefore(conversationId: string, before: Date): Promise<string[]> {
+    const m = schema.chatMessages;
+    const where = and(eq(m.conversationId, conversationId), lt(m.createdAt, before));
+    const rows = await this.run((db) => db.select({ id: m.mediaId, appId: m.appId }).from(m).where(where));
+    if (rows.length === 0) return [];
+    await this.run((db) => db.delete(m).where(where));
+    await this.refreshLastMessages(rows[0]!.appId, conversationId);
+    return rows.map((r) => r.id).filter((id): id is string => Boolean(id));
+  }
+
+  async listChatConversationsWithMessagesBefore(
+    olderThan: Date,
+    limit: number,
+    input: { appId?: string; notKeptAt?: Date } = {},
+  ): Promise<{ conversation: ChatConversation; oldest: Date }[]> {
+    const m = schema.chatMessages;
+    const conv = schema.chatConversations;
+    const where = and(
+      input.appId ? eq(m.appId, input.appId) : undefined,
+      input.notKeptAt ? or(isNull(conv.keepUntil), lte(conv.keepUntil, input.notKeptAt)) : undefined,
+    );
+    const oldest = await this.run((db) =>
+      db
+        .select({ conversationId: m.conversationId, oldest: sql<Date>`min(${m.createdAt})`.mapWith(m.createdAt) })
+        .from(m)
+        .innerJoin(conv, eq(conv.id, m.conversationId))
+        .where(where)
+        .groupBy(m.conversationId)
+        .having(lt(sql`min(${m.createdAt})`, olderThan))
+        .orderBy(asc(sql`min(${m.createdAt})`))
+        .limit(limit),
+    );
+    if (oldest.length === 0) return [];
+    const conversations = await this.run((db) =>
+      db
+        .select()
+        .from(conv)
+        .where(
+          inArray(
+            conv.id,
+            oldest.map((o) => o.conversationId),
+          ),
+        ),
+    );
+    const byId = new Map(conversations.map((c) => [c.id, c]));
+    return oldest.filter((o) => byId.has(o.conversationId)).map((o) => ({ conversation: byId.get(o.conversationId)!, oldest: o.oldest }));
+  }
+
+  async createChatReport(report: ChatReport): Promise<boolean> {
+    try {
+      await this.run((db) => db.insert(schema.chatReports).values(report));
+      return true;
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return false;
+      throw error;
+    }
+  }
+
+  async getChatReport(appId: string, id: string): Promise<ChatReport | null> {
+    const r = schema.chatReports;
+    const [row] = await this.run((db) => db.select().from(r).where(and(eq(r.appId, appId), eq(r.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async listChatReports(appId: string, input: { status: "open" | "closed"; limit: number }): Promise<ChatReport[]> {
+    const r = schema.chatReports;
+    return this.run((db) =>
+      db
+        .select()
+        .from(r)
+        .where(and(eq(r.appId, appId), eq(r.status, input.status)))
+        .orderBy(desc(r.createdAt))
+        .limit(input.limit),
+    );
+  }
+
+  async countOpenChatReports(appId: string): Promise<number> {
+    const r = schema.chatReports;
+    const [row] = await this.run((db) => db.select({ n: count() }).from(r).where(and(eq(r.appId, appId), eq(r.status, "open"))));
+    return Number(row?.n ?? 0);
+  }
+
+  async closeChatReports(appId: string, messageId: number, outcome: ChatReportOutcome, by: string, now: Date): Promise<number> {
+    const r = schema.chatReports;
+    const [result] = await this.run((db) =>
+      db
+        .update(r)
+        .set({ status: "closed", outcome, closedBy: by, closedAt: now })
+        .where(and(eq(r.appId, appId), eq(r.messageId, messageId), eq(r.status, "open"))),
+    );
+    return result.affectedRows;
+  }
+
+  async listChatBlocks(memberId: string): Promise<string[]> {
+    const b = schema.chatBlocks;
+    const rows = await this.run((db) => db.select({ id: b.blockedId }).from(b).where(eq(b.memberId, memberId)));
+    return rows.map((r) => r.id);
+  }
+
+  async setChatBlock(memberId: string, blockedId: string, blocked: boolean, now: Date): Promise<void> {
+    const b = schema.chatBlocks;
+    if (blocked) await this.run((db) => db.insert(b).ignore().values({ memberId, blockedId, createdAt: now }));
+    else await this.run((db) => db.delete(b).where(and(eq(b.memberId, memberId), eq(b.blockedId, blockedId))));
+  }
+
+  async createChatSession(session: ChatSession): Promise<void> {
+    await this.run((db) => db.insert(schema.chatSessions).values(session));
+  }
+
+  async getChatSession(tokenHash: string): Promise<ChatSession | null> {
+    const t = schema.chatSessions;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.tokenHash, tokenHash)).limit(1));
+    return row ?? null;
+  }
+
+  async deleteExpiredChatSessions(now: Date): Promise<number> {
+    const t = schema.chatSessions;
+    const [result] = await this.run((db) => db.delete(t).where(lte(t.expiresAt, now)));
+    return result.affectedRows;
+  }
+
+  async createChatUpload(upload: ChatUploadInfo): Promise<void> {
+    await this.run((db) => db.insert(schema.chatUploads).values(upload));
+  }
+
+  async getChatUpload(mediaId: string): Promise<ChatUploadInfo | null> {
+    const u = schema.chatUploads;
+    const [row] = await this.run((db) => db.select().from(u).where(eq(u.mediaId, mediaId)).limit(1));
+    return row ?? null;
+  }
+
+  async listUnsentChatUploads(before: Date, limit: number): Promise<string[]> {
+    const u = schema.chatUploads;
+    const m = schema.chatMessages;
+    const rows = await this.run((db) =>
+      db
+        .select({ id: u.mediaId })
+        .from(u)
+        .leftJoin(m, eq(m.mediaId, u.mediaId))
+        .where(and(lt(u.createdAt, before), isNull(m.id)))
+        .orderBy(asc(u.createdAt))
+        .limit(limit),
+    );
+    return rows.map((r) => r.id);
   }
 }
 

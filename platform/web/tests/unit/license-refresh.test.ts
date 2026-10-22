@@ -196,6 +196,8 @@ describe("saves that change what the license status carries ask the site", () =>
       "review_prompt",
       "crash_reports",
       "hide_video_branding",
+      // 77 The chat's switches (saved on the Chat page, 77.3).
+      "chat",
       "expires_at",
       "checked_at",
       "message",

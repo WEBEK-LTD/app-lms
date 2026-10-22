@@ -3,7 +3,7 @@ import { mkdir, readdir, rename, rm, stat, truncate } from "node:fs/promises";
 import path from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
-import { MEDIA_CHUNK_MAX_BYTES, MEDIA_CONTENT_TYPES, parseRange, verifyMediaRequest, type MediaExtension } from "./signing";
+import { MEDIA_CHUNK_MAX_BYTES, MEDIA_CONTENT_TYPES, MEDIA_DOWNLOAD_ONLY, parseRange, verifyMediaRequest, type MediaExtension } from "./signing";
 
 /**
  * 51 The media gate's work on a folder: what deploy/media-host/index.php
@@ -131,9 +131,9 @@ export class MediaDisk {
  */
 export async function handleMediaRequest(disk: MediaDisk, request: Request, path: string, secret: string, now: Date = new Date()): Promise<Response> {
   const plain = (status: number, message: string, headers: Record<string, string> = {}) =>
-    new Response(message, { status, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store", "x-yallapp-media-gate": "2", ...headers } });
+    new Response(message, { status, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store", "x-yallapp-media-gate": "3", ...headers } });
   // 64b A check anyone may open: this gate is installed (the PHP gate answers the same).
-  if (path === "/ping" && (request.method === "GET" || request.method === "HEAD")) return plain(200, "Yallapp media gate 2\n");
+  if (path === "/ping" && (request.method === "GET" || request.method === "HEAD")) return plain(200, "Yallapp media gate 3\n");
   const check = verifyMediaRequest(path, new URL(request.url).searchParams, secret, now, request.headers.get("authorization"));
   if (!check.ok) return plain(check.status, check.message);
   const method = request.method.toUpperCase();
@@ -160,7 +160,7 @@ export async function handleMediaRequest(disk: MediaDisk, request: Request, path
       "referrer-policy": "no-referrer",
       "content-security-policy": "default-src 'none'; img-src 'self' data:; media-src 'self'; style-src 'unsafe-inline'; sandbox",
       ...(read.status === 206 ? { "content-range": `bytes ${read.start}-${read.end}/${read.size}` } : {}),
-      ...(check.params.dl === "1" ? { "content-disposition": `attachment; filename="${check.mediaId}.${check.extension}"` } : {}),
+      ...(check.params.dl === "1" || MEDIA_DOWNLOAD_ONLY.has(check.extension as MediaExtension) ? { "content-disposition": `attachment; filename="${check.mediaId}.${check.extension}"` } : {}),
     };
     return new Response(body, { status: read.status, headers });
   }

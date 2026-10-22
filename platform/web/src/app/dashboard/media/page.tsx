@@ -45,8 +45,9 @@ const FILTERS: { id: MediaKind | "all"; label: DashKey; none: DashKey }[] = [
   { id: "pdf", label: "media.pdfs", none: "media.noPdfs" },
 ];
 
-const KIND_LABEL: Record<MediaKind, DashKey> = { video: "media.video", image: "media.picture", pdf: "media.pdf" };
-const LIMIT_LABEL: Record<MediaKind, DashKey> = { video: "media.limitVideos", image: "media.limitPictures", pdf: "media.limitPdfs" };
+const KIND_LABEL: Record<MediaKind, DashKey> = { video: "media.video", image: "media.picture", pdf: "media.pdf", audio: "media.voice", file: "media.document" };
+/** What the library takes (77: voice messages and documents come from the chat only). */
+const LIMIT_LABEL: Partial<Record<MediaKind, DashKey>> = { video: "media.limitVideos", image: "media.limitPictures", pdf: "media.limitPdfs" };
 
 /**
  * 51 Media: the app's videos, pictures and PDFs, kept on Yallapp's own
@@ -141,7 +142,7 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
         ) : null}
       </Section>
 
-      <Section titleId="h-upload" title={t("media.upload")} description={MEDIA_KINDS.map((m) => t(LIMIT_LABEL[m.kind], { size: formatBytes(m.maxBytes) })).join(" · ")}>
+      <Section titleId="h-upload" title={t("media.upload")} description={MEDIA_KINDS.map((m) => t(LIMIT_LABEL[m.kind]!, { size: formatBytes(m.maxBytes) })).join(" · ")}>
         <MediaUploader appId={app.id} accept={MEDIA_ACCEPT} disabled={disabled} />
       </Section>
 

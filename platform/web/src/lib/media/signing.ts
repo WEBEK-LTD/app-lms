@@ -38,7 +38,8 @@ import { safeEqual } from "../crypto/tokens";
 
 export type MediaOp = "v" | "u" | "s" | "d" | "a" | "l";
 
-export const MEDIA_EXTENSIONS = ["mp4", "mov", "webm", "jpg", "png", "webp", "gif", "pdf"] as const;
+/** 77 Voice messages and documents come from the chat only (the gate serves documents as downloads). */
+export const MEDIA_EXTENSIONS = ["mp4", "mov", "webm", "jpg", "png", "webp", "gif", "pdf", "m4a", "mp3", "aac", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt"] as const;
 export type MediaExtension = (typeof MEDIA_EXTENSIONS)[number];
 
 const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
@@ -152,7 +153,20 @@ export const MEDIA_CONTENT_TYPES: Record<MediaExtension, string> = {
   webp: "image/webp",
   gif: "image/gif",
   pdf: "application/pdf",
+  m4a: "audio/mp4",
+  mp3: "audio/mpeg",
+  aac: "audio/aac",
+  doc: "application/msword",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  xls: "application/vnd.ms-excel",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  ppt: "application/vnd.ms-powerpoint",
+  pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  txt: "text/plain",
 };
+
+/** 77 Documents sent in the chat are always saved, never opened in the browser (the gate says so for them). */
+export const MEDIA_DOWNLOAD_ONLY: ReadonlySet<MediaExtension> = new Set(["doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt"]);
 
 /** The gate refuses chunks bigger than this (Apache takes up to 7 MB a request on our host). */
 export const MEDIA_CHUNK_MAX_BYTES = 6 * 1024 * 1024;

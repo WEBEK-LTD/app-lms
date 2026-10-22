@@ -26,7 +26,7 @@ describe.skipIf(!url)("51 media on MySQL", () => {
     await store.createApp(app);
     const file = (n: number, status: MediaFile["status"], at: Date): MediaFile => {
       const id = randomUUID();
-      return { id, appId: app.id, name: `Lesson ${n}.mp4`, kind: "video", contentType: "video/mp4", sizeBytes: n * 1_000_000_000, storageKey: `${app.id}/${id}.mp4`, status, public: false, createdAt: at, updatedAt: at };
+      return { id, appId: app.id, name: `Lesson ${n}.mp4`, kind: "video", contentType: "video/mp4", sizeBytes: n * 1_000_000_000, storageKey: `${app.id}/${id}.mp4`, status, public: false, source: "library", createdAt: at, updatedAt: at };
     };
     const a = file(3, "ready", NOW);
     const b = file(2, "uploading", new Date(NOW.getTime() - 3 * 86_400_000));

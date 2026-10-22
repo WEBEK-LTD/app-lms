@@ -1215,6 +1215,11 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
         '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: The upload hasn't finished (`incomplete`); finish it with `/complete` first.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /chat/conversations/{conversation_id}/read:

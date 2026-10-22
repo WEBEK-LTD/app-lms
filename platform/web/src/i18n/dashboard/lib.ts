@@ -55,6 +55,8 @@ export const en = {
     featRebuildText: "A new build starts by itself when you change your app's settings.",
     featPublish: "We publish for you",
     featPublishText: "We upload your apps and every update to Google Play, the App Store, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps.",
+    featChat: "Chat in the app",
+    featChatText: "Your app users write to you in the app, and academies get a group for each course.",
     noCoursePlugin:
       "Your website has no course plugin the app can read. Install Tutor LMS, LearnDash, LearnPress, LifterLMS, MasterStudy, Sensei LMS or Masteriyo, or change the app type.",
     noShopPlugin: "Your website has no shop plugin the app can read. Install WooCommerce, or change the app type.",
@@ -119,6 +121,8 @@ export const ar: Messages = {
     featRebuildText: "يبدأ إصدار جديد تلقائيًا عندما تغيّر إعدادات تطبيقك.",
     featPublish: "ننشر نيابةً عنك",
     featPublishText: "نرفع تطبيقاتك وكل تحديث إلى Google Play وApp Store وSamsung Galaxy Store وHuawei AppGallery وXiaomi GetApps.",
+    featChat: "الدردشة داخل التطبيق",
+    featChatText: "يراسلك مستخدمو تطبيقك من داخل التطبيق، وتحصل الأكاديميات على مجموعة لكل دورة.",
     noCoursePlugin:
       "لا توجد في موقعك إضافة دورات يستطيع التطبيق قراءتها. ثبّت Tutor LMS أو LearnDash أو LearnPress أو LifterLMS أو MasterStudy أو Sensei LMS أو Masteriyo، أو غيّر نوع التطبيق.",
     noShopPlugin: "لا توجد في موقعك إضافة متجر يستطيع التطبيق قراءتها. ثبّت WooCommerce، أو غيّر نوع التطبيق.",
@@ -181,6 +185,8 @@ export const tr: Messages = {
     featRebuildText: "Uygulamanızın ayarlarını değiştirdiğinizde yeni bir derleme kendiliğinden başlar.",
     featPublish: "Sizin için biz yayınlarız",
     featPublishText: "Uygulamalarınızı ve her güncellemeyi Google Play, App Store, Samsung Galaxy Store, Huawei AppGallery ve Xiaomi GetApps'e yükleriz.",
+    featChat: "Uygulama içi sohbet",
+    featChatText: "Uygulama kullanıcılarınız size uygulamadan yazar; akademiler her kurs için bir grup alır.",
     noCoursePlugin:
       "Web sitenizde uygulamanın okuyabileceği bir kurs eklentisi yok. Tutor LMS, LearnDash, LearnPress, LifterLMS, MasterStudy, Sensei LMS ya da Masteriyo yükleyin veya uygulama türünü değiştirin.",
     noShopPlugin: "Web sitenizde uygulamanın okuyabileceği bir mağaza eklentisi yok. WooCommerce yükleyin veya uygulama türünü değiştirin.",

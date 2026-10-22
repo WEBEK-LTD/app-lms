@@ -34,6 +34,7 @@ export type ClientEmailKey = Extract<
   | "plan_ends_today"
   | "storage_pack_added"
   | "storage_pack_ended"
+  | "chat_expiring"
   | "own_whatsapp_failed"
   | "own_email_failed"
   | "team_invitation"
@@ -170,6 +171,14 @@ const AR: Record<ClientEmailKey, TemplateText> = {
       "مرحبًا {{name}}،\n\nانتهت حزمة التخزين {{pack}} لتطبيق {{app_name}}. تشغل ملفاته {{used}}، وهذا أكثر من مساحة التخزين المتاحة له الآن ({{storage}}).\n\n" +
       "لم يُحذف شيء وتستمر مقاطع الفيديو في العمل داخل التطبيق، لكن الرفع الجديد متوقف حتى تشتري مساحة إضافية أو تحذف ملفات لا تحتاجها.\n\n" +
       "مكتبة الوسائط: {{media_url}}" +
+      SIGNATURE_AR,
+  },
+  chat_expiring: {
+    subject: "{{app_name}}: ستُحذف رسائل المحادثات في {{date}}",
+    body:
+      "مرحبًا {{name}}،\n\nتُحفظ رسائل المحادثات لمدة سنة. في {{conversations}} من محادثات {{app_name}}، ستُحذف الرسائل المرسلة منذ أكثر من سنة في {{date}} مع صورها وفيديوهاتها ورسائلها الصوتية وملفاتها.\n\n" +
+      "للاحتفاظ بها سنة أخرى، افتح المحادثات واختر «الاحتفاظ بالرسائل». ويمكنك أيضًا من هناك حذف محادثة كاملة أو رسائل محددة متى شئت.\n\n" +
+      "المحادثات: {{chat_url}}" +
       SIGNATURE_AR,
   },
   own_whatsapp_failed: {
@@ -357,6 +366,14 @@ const TR: Record<ClientEmailKey, TemplateText> = {
       "Merhaba {{name}},\n\n{{app_name}} uygulamasının {{pack}} depolama paketi sona erdi. Dosyaları {{used}} yer kaplıyor; bu, şu anki {{storage}} depolama alanından fazla.\n\n" +
       "Hiçbir şey silinmedi ve videolarınız uygulamada oynamaya devam ediyor, ancak siz daha fazla alan alana veya gerekmeyen dosyaları silene kadar yeni yüklemeler duraklatıldı.\n\n" +
       "Medya kitaplığınız: {{media_url}}" +
+      SIGNATURE_TR,
+  },
+  chat_expiring: {
+    subject: "{{app_name}}: sohbet mesajları {{date}} tarihinde silinecek",
+    body:
+      "Merhaba {{name}},\n\nSohbet mesajları bir yıl saklanır. {{app_name}} uygulamasının {{conversations}} sohbetinde bir yıldan önce gönderilen mesajlar, fotoğrafları, videoları, sesli mesajları ve dosyalarıyla birlikte {{date}} tarihinde silinecek.\n\n" +
+      "Onları bir yıl daha saklamak için Sohbet sayfasını açıp Mesajları sakla'yı seçin. Orada istediğiniz zaman bir sohbetin tamamını ya da tek tek mesajları da silebilirsiniz.\n\n" +
+      "Sohbet: {{chat_url}}" +
       SIGNATURE_TR,
   },
   own_whatsapp_failed: {

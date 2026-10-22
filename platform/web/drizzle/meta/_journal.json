@@ -365,6 +365,13 @@
       "when": 1792599802815,
       "tag": "0051_app_deletion",
       "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "5",
+      "when": 1792657955492,
+      "tag": "0052_chat",
+      "breakpoints": true
     }
   ]
 }

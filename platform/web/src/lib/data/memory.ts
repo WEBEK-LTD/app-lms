@@ -81,6 +81,7 @@ import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, D
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 import type { PublishingEvent, PublishingRequest } from "./types";
+import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
@@ -2695,7 +2696,10 @@ export class MemoryStore implements DataStore {
   }
 
   async deleteMediaFile(appId: string, id: string): Promise<void> {
-    if (this.mediaFiles.get(id)?.appId === appId) this.mediaFiles.delete(id);
+    if (this.mediaFiles.get(id)?.appId !== appId) return;
+    this.mediaFiles.delete(id);
+    // 77 As the foreign key cascades.
+    this.chatUploads.delete(id);
   }
 
   async mediaUsage(appId: string): Promise<number> {
@@ -3212,6 +3216,342 @@ export class MemoryStore implements DataStore {
     this.updateReads.delete(userId);
     this.users.delete(userId);
     return true;
+  }
+
+  // 77 Chat. Participants and blocks carry their app (as the rows they belong to do in MySQL) so an app's deletion takes them.
+  private chatMembers = new Map<string, ChatMember>();
+  private chatConversations = new Map<string, ChatConversation>();
+  private chatParticipants = new Map<string, ChatParticipant & { appId: string }>();
+  private chatMessages = new Map<number, ChatMessage>();
+  private nextChatMessageId = 1;
+  private chatReports = new Map<string, ChatReport>();
+  private chatBlocks = new Map<string, { appId: string; memberId: string; blockedId: string; createdAt: Date }>();
+  private chatSessions = new Map<string, ChatSession>();
+  private chatUploads = new Map<string, ChatUploadInfo>();
+
+  private static participantKey = (conversationId: string, memberId: string) => `${conversationId}|${memberId}`;
+  private static bare = ({ appId: _appId, ...participant }: ChatParticipant & { appId: string }): ChatParticipant => (void _appId, clone(participant));
+
+  async upsertChatMember(input: { appId: string; source: ChatMemberSource; externalId: string; name: string; imageUrl: string | null }, now: Date): Promise<ChatMember> {
+    const found = [...this.chatMembers.values()].find((m) => m.appId === input.appId && m.source === input.source && m.externalId === input.externalId);
+    if (found) {
+      const updated = { ...found, name: input.name, imageUrl: input.imageUrl, updatedAt: now };
+      this.chatMembers.set(found.id, updated);
+      return clone(updated);
+    }
+    const member: ChatMember = { id: newId(), ...input, blockedAt: null, createdAt: now, updatedAt: now };
+    this.chatMembers.set(member.id, member);
+    return clone(member);
+  }
+
+  async getChatMember(appId: string, id: string): Promise<ChatMember | null> {
+    const member = this.chatMembers.get(id);
+    return member && member.appId === appId ? clone(member) : null;
+  }
+
+  async findChatMember(appId: string, source: ChatMemberSource, externalId: string): Promise<ChatMember | null> {
+    const found = [...this.chatMembers.values()].find((m) => m.appId === appId && m.source === source && m.externalId === externalId);
+    return found ? clone(found) : null;
+  }
+
+  async listChatMembersByIds(appId: string, ids: string[]): Promise<ChatMember[]> {
+    return ids.map((id) => this.chatMembers.get(id)).filter((m): m is ChatMember => Boolean(m) && m!.appId === appId).map(clone);
+  }
+
+  async setChatMemberBlocked(appId: string, id: string, blockedAt: Date | null, now: Date): Promise<boolean> {
+    const member = this.chatMembers.get(id);
+    if (!member || member.appId !== appId) return false;
+    this.chatMembers.set(id, { ...member, blockedAt, updatedAt: now });
+    return true;
+  }
+
+  async deleteChatMember(appId: string, id: string): Promise<void> {
+    const member = this.chatMembers.get(id);
+    if (!member || member.appId !== appId) return;
+    // As the foreign keys cascade: their direct conversation (and its messages), messages, places, reports, blocks, sessions, uploads.
+    const direct = [...this.chatConversations.values()].filter((c) => c.memberId === id).map((c) => c.id);
+    for (const [key, message] of this.chatMessages) if (message.memberId === id || direct.includes(message.conversationId)) this.chatMessages.delete(key);
+    for (const conversationId of direct) this.chatConversations.delete(conversationId);
+    for (const [key, p] of this.chatParticipants) if (p.memberId === id || direct.includes(p.conversationId)) this.chatParticipants.delete(key);
+    for (const [key, r] of this.chatReports) if (r.reporterId === id || !this.chatMessages.has(r.messageId)) this.chatReports.delete(key);
+    for (const [key, b] of this.chatBlocks) if (b.memberId === id || b.blockedId === id) this.chatBlocks.delete(key);
+    for (const [key, session] of this.chatSessions) if (session.memberId === id) this.chatSessions.delete(key);
+    for (const [key, upload] of this.chatUploads) if (upload.memberId === id) this.chatUploads.delete(key);
+    this.chatMembers.delete(id);
+    this.refreshLastMessages(appId);
+  }
+
+  /** Each conversation's last message, after messages were removed. */
+  private refreshLastMessages(appId: string): void {
+    for (const conversation of this.chatConversations.values()) {
+      if (conversation.appId !== appId) continue;
+      const last = [...this.chatMessages.values()].filter((m) => m.conversationId === conversation.id).sort((a, b) => b.id - a.id)[0];
+      this.chatConversations.set(conversation.id, { ...conversation, lastMessageId: last?.id ?? null, lastMessageAt: last?.createdAt ?? null });
+    }
+  }
+
+  async ensureDirectConversation(appId: string, memberId: string, now: Date): Promise<ChatConversation> {
+    let conversation = [...this.chatConversations.values()].find((c) => c.appId === appId && c.kind === "direct" && c.memberId === memberId);
+    if (!conversation) {
+      conversation = { id: newId(), appId, kind: "direct", memberId, courseKey: null, title: null, imageUrl: null, lastMessageId: null, lastMessageAt: null, businessReadId: null, keepUntil: null, noticeFor: null, createdAt: now, updatedAt: now };
+      this.chatConversations.set(conversation.id, conversation);
+    }
+    await this.addChatParticipant(conversation.id, memberId, now);
+    return clone(conversation);
+  }
+
+  async ensureGroupConversation(input: { appId: string; courseKey: string; title: string; imageUrl: string | null }, now: Date): Promise<ChatConversation> {
+    const found = [...this.chatConversations.values()].find((c) => c.appId === input.appId && c.kind === "group" && c.courseKey === input.courseKey);
+    if (found) {
+      if (found.title === input.title && found.imageUrl === input.imageUrl) return clone(found);
+      const updated = { ...found, title: input.title, imageUrl: input.imageUrl, updatedAt: now };
+      this.chatConversations.set(found.id, updated);
+      return clone(updated);
+    }
+    const conversation: ChatConversation = { id: newId(), appId: input.appId, kind: "group", memberId: null, courseKey: input.courseKey, title: input.title, imageUrl: input.imageUrl, lastMessageId: null, lastMessageAt: null, businessReadId: null, keepUntil: null, noticeFor: null, createdAt: now, updatedAt: now };
+    this.chatConversations.set(conversation.id, conversation);
+    return clone(conversation);
+  }
+
+  async getChatConversation(appId: string, id: string): Promise<ChatConversation | null> {
+    const conversation = this.chatConversations.get(id);
+    return conversation && conversation.appId === appId ? clone(conversation) : null;
+  }
+
+  async updateChatConversation(id: string, patch: ChatConversationPatch): Promise<void> {
+    const conversation = this.chatConversations.get(id);
+    if (conversation) this.chatConversations.set(id, { ...conversation, ...patch });
+  }
+
+  async listChatConversations(appId: string, input: { kind?: ChatConversationKind; limit: number }): Promise<ChatConversation[]> {
+    return [...this.chatConversations.values()]
+      .filter((c) => c.appId === appId && c.lastMessageId !== null && (!input.kind || c.kind === input.kind))
+      .sort((a, b) => (b.lastMessageId ?? 0) - (a.lastMessageId ?? 0))
+      .slice(0, input.limit)
+      .map(clone);
+  }
+
+  async listMemberConversations(appId: string, memberId: string): Promise<{ conversation: ChatConversation; participant: ChatParticipant }[]> {
+    const out: { conversation: ChatConversation; participant: ChatParticipant }[] = [];
+    for (const participant of this.chatParticipants.values()) {
+      if (participant.memberId !== memberId || participant.appId !== appId) continue;
+      const conversation = this.chatConversations.get(participant.conversationId);
+      if (conversation) out.push({ conversation: clone(conversation), participant: MemoryStore.bare(participant) });
+    }
+    return out;
+  }
+
+  async setMemberGroups(appId: string, memberId: string, conversationIds: string[], now: Date): Promise<void> {
+    const wanted = new Set(conversationIds);
+    for (const [key, participant] of this.chatParticipants) {
+      if (participant.memberId !== memberId || participant.appId !== appId) continue;
+      if (this.chatConversations.get(participant.conversationId)?.kind === "group" && !wanted.has(participant.conversationId)) this.chatParticipants.delete(key);
+    }
+    for (const id of wanted) await this.addChatParticipant(id, memberId, now);
+  }
+
+  async addChatParticipant(conversationId: string, memberId: string, now: Date): Promise<void> {
+    const key = MemoryStore.participantKey(conversationId, memberId);
+    const conversation = this.chatConversations.get(conversationId);
+    if (!conversation || this.chatParticipants.has(key)) return;
+    this.chatParticipants.set(key, { appId: conversation.appId, conversationId, memberId, readId: null, joinedAt: now });
+  }
+
+  async getChatParticipant(conversationId: string, memberId: string): Promise<ChatParticipant | null> {
+    const participant = this.chatParticipants.get(MemoryStore.participantKey(conversationId, memberId));
+    return participant ? MemoryStore.bare(participant) : null;
+  }
+
+  async listChatParticipants(conversationId: string): Promise<ChatParticipant[]> {
+    return [...this.chatParticipants.values()].filter((p) => p.conversationId === conversationId).map(MemoryStore.bare);
+  }
+
+  async setChatRead(conversationId: string, memberId: string, messageId: number): Promise<void> {
+    const key = MemoryStore.participantKey(conversationId, memberId);
+    const participant = this.chatParticipants.get(key);
+    if (participant && (participant.readId === null || participant.readId < messageId)) this.chatParticipants.set(key, { ...participant, readId: messageId });
+  }
+
+  async createChatMessage(input: Omit<ChatMessage, "id">): Promise<{ message: ChatMessage; created: boolean }> {
+    if (input.clientId) {
+      const same = [...this.chatMessages.values()].find((m) => m.conversationId === input.conversationId && m.clientId === input.clientId);
+      if (same) return { message: clone(same), created: false };
+    }
+    const message: ChatMessage = { id: this.nextChatMessageId++, ...input };
+    this.chatMessages.set(message.id, message);
+    const conversation = this.chatConversations.get(input.conversationId);
+    if (conversation) this.chatConversations.set(conversation.id, { ...conversation, lastMessageId: message.id, lastMessageAt: message.createdAt, updatedAt: message.createdAt });
+    return { message: clone(message), created: true };
+  }
+
+  async getChatMessage(appId: string, id: number): Promise<ChatMessage | null> {
+    const message = this.chatMessages.get(id);
+    return message && message.appId === appId ? clone(message) : null;
+  }
+
+  async listChatMessages(conversationId: string, input: { after?: number; before?: number; limit: number; hideFrom?: string[] }): Promise<ChatMessage[]> {
+    const hidden = new Set(input.hideFrom ?? []);
+    const all = [...this.chatMessages.values()].filter((m) => m.conversationId === conversationId && !(m.memberId && hidden.has(m.memberId)));
+    if (input.after !== undefined) return all.filter((m) => m.id > input.after!).sort((a, b) => a.id - b.id).slice(0, input.limit).map(clone);
+    return all
+      .filter((m) => input.before === undefined || m.id < input.before)
+      .sort((a, b) => b.id - a.id)
+      .slice(0, input.limit)
+      .map(clone);
+  }
+
+  async countChatUnread(conversationId: string, afterId: number | null, input: { notFromMember?: string; fromMembersOnly?: boolean; hideFrom?: string[] }): Promise<number> {
+    const hidden = new Set(input.hideFrom ?? []);
+    let count = 0;
+    for (const m of this.chatMessages.values()) {
+      if (m.conversationId !== conversationId || m.deletedAt || (afterId !== null && m.id <= afterId)) continue;
+      if (input.fromMembersOnly && m.senderKind !== "member") continue;
+      if (input.notFromMember && m.memberId === input.notFromMember) continue;
+      if (m.memberId && hidden.has(m.memberId)) continue;
+      count += 1;
+    }
+    return count;
+  }
+
+  async deleteChatMessage(appId: string, id: number, now: Date): Promise<boolean> {
+    const message = this.chatMessages.get(id);
+    if (!message || message.appId !== appId || message.deletedAt) return false;
+    this.chatMessages.set(id, { ...message, text: null, mediaId: null, durationSeconds: null, deletedAt: now });
+    return true;
+  }
+
+  async clearChatConversation(appId: string, conversationId: string): Promise<string[]> {
+    const media: string[] = [];
+    for (const [id, m] of this.chatMessages) {
+      if (m.appId !== appId || m.conversationId !== conversationId) continue;
+      if (m.mediaId) media.push(m.mediaId);
+      this.chatMessages.delete(id);
+    }
+    for (const [key, r] of this.chatReports) if (r.conversationId === conversationId) this.chatReports.delete(key);
+    const conversation = this.chatConversations.get(conversationId);
+    if (conversation && conversation.appId === appId) this.chatConversations.set(conversationId, { ...conversation, lastMessageId: null, lastMessageAt: null });
+    return media;
+  }
+
+  async listChatMediaOfMember(appId: string, memberId: string): Promise<string[]> {
+    const direct = new Set([...this.chatConversations.values()].filter((c) => c.appId === appId && c.memberId === memberId).map((c) => c.id));
+    const media = [...this.chatMessages.values()].filter((m) => m.appId === appId && m.mediaId && (m.memberId === memberId || direct.has(m.conversationId))).map((m) => m.mediaId!);
+    for (const upload of this.chatUploads.values()) if (upload.appId === appId && upload.memberId === memberId) media.push(upload.mediaId);
+    return [...new Set(media)];
+  }
+
+  async deleteChatMessagesBefore(conversationId: string, before: Date): Promise<string[]> {
+    const media: string[] = [];
+    let appId: string | null = null;
+    for (const [id, m] of this.chatMessages) {
+      if (m.conversationId !== conversationId || m.createdAt.getTime() >= before.getTime()) continue;
+      if (m.mediaId) media.push(m.mediaId);
+      appId = m.appId;
+      this.chatMessages.delete(id);
+    }
+    for (const [key, r] of this.chatReports) if (!this.chatMessages.has(r.messageId)) this.chatReports.delete(key);
+    if (appId) this.refreshLastMessages(appId);
+    return media;
+  }
+
+  async listChatConversationsWithMessagesBefore(
+    olderThan: Date,
+    limit: number,
+    input: { appId?: string; notKeptAt?: Date } = {},
+  ): Promise<{ conversation: ChatConversation; oldest: Date }[]> {
+    const oldest = new Map<string, Date>();
+    for (const m of this.chatMessages.values()) {
+      if (input.appId && m.appId !== input.appId) continue;
+      const seen = oldest.get(m.conversationId);
+      if (!seen || m.createdAt.getTime() < seen.getTime()) oldest.set(m.conversationId, m.createdAt);
+    }
+    const kept = (c: ChatConversation | undefined) => Boolean(input.notKeptAt && c?.keepUntil && c.keepUntil.getTime() > input.notKeptAt.getTime());
+    return [...oldest]
+      .filter(([id, at]) => at.getTime() < olderThan.getTime() && this.chatConversations.has(id) && !kept(this.chatConversations.get(id)))
+      .sort((a, b) => a[1].getTime() - b[1].getTime())
+      .slice(0, limit)
+      .map(([id, at]) => ({ conversation: clone(this.chatConversations.get(id)!), oldest: at }));
+  }
+
+  async createChatReport(report: ChatReport): Promise<boolean> {
+    if ([...this.chatReports.values()].some((r) => r.messageId === report.messageId && r.reporterId === report.reporterId)) return false;
+    this.chatReports.set(report.id, clone(report));
+    return true;
+  }
+
+  async getChatReport(appId: string, id: string): Promise<ChatReport | null> {
+    const report = this.chatReports.get(id);
+    return report && report.appId === appId ? clone(report) : null;
+  }
+
+  async listChatReports(appId: string, input: { status: "open" | "closed"; limit: number }): Promise<ChatReport[]> {
+    return [...this.chatReports.values()]
+      .filter((r) => r.appId === appId && r.status === input.status)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, input.limit)
+      .map(clone);
+  }
+
+  async countOpenChatReports(appId: string): Promise<number> {
+    return [...this.chatReports.values()].filter((r) => r.appId === appId && r.status === "open").length;
+  }
+
+  async closeChatReports(appId: string, messageId: number, outcome: ChatReportOutcome, by: string, now: Date): Promise<number> {
+    let closed = 0;
+    for (const [id, r] of this.chatReports) {
+      if (r.appId !== appId || r.messageId !== messageId || r.status !== "open") continue;
+      this.chatReports.set(id, { ...r, status: "closed", outcome, closedBy: by, closedAt: now });
+      closed += 1;
+    }
+    return closed;
+  }
+
+  async listChatBlocks(memberId: string): Promise<string[]> {
+    return [...this.chatBlocks.values()].filter((b) => b.memberId === memberId).map((b) => b.blockedId);
+  }
+
+  async setChatBlock(memberId: string, blockedId: string, blocked: boolean, now: Date): Promise<void> {
+    const key = `${memberId}|${blockedId}`;
+    const member = this.chatMembers.get(memberId);
+    if (!blocked) this.chatBlocks.delete(key);
+    else if (member && !this.chatBlocks.has(key)) this.chatBlocks.set(key, { appId: member.appId, memberId, blockedId, createdAt: now });
+  }
+
+  async createChatSession(session: ChatSession): Promise<void> {
+    this.chatSessions.set(session.tokenHash, clone(session));
+  }
+
+  async getChatSession(tokenHash: string): Promise<ChatSession | null> {
+    const session = this.chatSessions.get(tokenHash);
+    return session ? clone(session) : null;
+  }
+
+  async deleteExpiredChatSessions(now: Date): Promise<number> {
+    let deleted = 0;
+    for (const [key, session] of this.chatSessions) {
+      if (session.expiresAt.getTime() > now.getTime()) continue;
+      this.chatSessions.delete(key);
+      deleted += 1;
+    }
+    return deleted;
+  }
+
+  async createChatUpload(upload: ChatUploadInfo): Promise<void> {
+    this.chatUploads.set(upload.mediaId, clone(upload));
+  }
+
+  async getChatUpload(mediaId: string): Promise<ChatUploadInfo | null> {
+    const upload = this.chatUploads.get(mediaId);
+    return upload && this.mediaFiles.has(mediaId) ? clone(upload) : null;
+  }
+
+  async listUnsentChatUploads(before: Date, limit: number): Promise<string[]> {
+    const sent = new Set([...this.chatMessages.values()].map((m) => m.mediaId).filter(Boolean));
+    return [...this.chatUploads.values()]
+      .filter((u) => u.createdAt.getTime() < before.getTime() && !sent.has(u.mediaId))
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+      .slice(0, limit)
+      .map((u) => u.mediaId);
   }
 
   /** Every table holding rows, but the records that outlive what they name (no foreign keys in MySQL). */

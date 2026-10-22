@@ -8,7 +8,7 @@ import type { AnnouncementKind } from "./data/types";
 export type UpdateKind = AnnouncementKind | "account";
 
 /** What an account item is about, for its icon. */
-export type AccountTopic = "notice" | "plan" | "users" | "storage" | "site" | "build_ready" | "build_failed" | "payment";
+export type AccountTopic = "notice" | "plan" | "users" | "storage" | "site" | "build_ready" | "build_failed" | "payment" | "chat";
 
 /** The chips, in the words the dashboard shows. */
 export const UPDATE_KIND_LABEL: Record<UpdateKind, string> = {

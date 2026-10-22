@@ -26,7 +26,7 @@ export const MEMBER_ROLES = ["manager", "staff"] as const;
 export type MemberRole = (typeof MEMBER_ROLES)[number];
 
 /** What a Staff member can be given, in the order the Team page lists them. */
-export const TEAM_AREAS = ["orders", "bookings", "events", "donations", "catalog", "media", "messages", "app_users", "analytics", "notifications"] as const;
+export const TEAM_AREAS = ["orders", "bookings", "events", "donations", "catalog", "media", "messages", "chat", "app_users", "analytics", "notifications"] as const;
 export type TeamArea = (typeof TEAM_AREAS)[number];
 
 /**
@@ -186,6 +186,7 @@ export const PUSH_PERMISSION: Record<OwnerPushKind, TeamPermission> = {
   new_order: "orders",
   new_booking: "bookings",
   new_message: "messages",
+  new_chat_message: "chat",
   new_review: "catalog",
   payment_received: "billing",
   build_finished: "settings",
@@ -237,6 +238,7 @@ export const AREA_NAMES: Record<TeamArea, string> = {
   catalog: "Catalog & content",
   media: "Media",
   messages: "Messages",
+  chat: "Chat",
   app_users: "App users",
   analytics: "Analytics",
   notifications: "Notifications to app users",

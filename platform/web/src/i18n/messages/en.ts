@@ -173,6 +173,7 @@ export const en = {
     rowCards: "Card payments in the app",
     rowOffline: "Offline mode",
     rowRebuilds: "Automatic rebuilds",
+    rowChat: "Chat in the app",
     rowPublishing: "Publishing",
     rowStoreUpdates: "Automatic store updates",
     rowTeam: "Team members",
