@@ -1947,6 +1947,209 @@ class AppLocalizationsAr extends AppLocalizations {
   String get whatsappOutsideEgypt => 'خارج مصر';
 
   @override
+  String get chat => 'المحادثات';
+
+  @override
+  String get areaChat => 'المحادثات';
+
+  @override
+  String get pushNewChat => 'رسائل المحادثات';
+
+  @override
+  String get pushNewChatHelp => 'عندما يكتب لك أحدهم في محادثات تطبيقك.';
+
+  @override
+  String get chatAll => 'الكل';
+
+  @override
+  String get chatUnread => 'غير المقروءة';
+
+  @override
+  String get chatGroups => 'مجموعات الدورات';
+
+  @override
+  String get chatSearch => 'ابحث بالاسم';
+
+  @override
+  String get chatEmpty => 'لا توجد محادثات بعد';
+
+  @override
+  String get chatEmptyText =>
+      'عندما يكتب لك الناس من تطبيقك، تظهر رسائلهم هنا.';
+
+  @override
+  String get chatNoMatches => 'لا توجد نتائج';
+
+  @override
+  String chatExpiring(String date) {
+    return 'تُحذف الرسائل التي مرّ عليها عام بدءًا من $date.';
+  }
+
+  @override
+  String get chatKeepYear => 'الاحتفاظ بها سنة أخرى';
+
+  @override
+  String get chatKept => 'سيُحتفظ بها سنة أخرى';
+
+  @override
+  String chatKeptUntil(String date) {
+    return 'محفوظة حتى $date';
+  }
+
+  @override
+  String chatExpiresOn(String date) {
+    return 'تُحذف أقدم الرسائل في $date';
+  }
+
+  @override
+  String get chatCourseGroup => 'مجموعة الدورة';
+
+  @override
+  String chatYou(String text) {
+    return 'أنت: $text';
+  }
+
+  @override
+  String chatSentBy(String name) {
+    return 'أرسلها $name';
+  }
+
+  @override
+  String get chatPhoto => 'صورة';
+
+  @override
+  String get chatVideo => 'فيديو';
+
+  @override
+  String get chatVoice => 'رسالة صوتية';
+
+  @override
+  String get chatFile => 'ملف';
+
+  @override
+  String get chatDeleted => 'رسالة محذوفة';
+
+  @override
+  String get chatReported => 'تم الإبلاغ عنها';
+
+  @override
+  String get chatNoMessages => 'لا توجد رسائل بعد';
+
+  @override
+  String chatReplyHint(String business) {
+    return 'ردّ باسم $business';
+  }
+
+  @override
+  String get chatAttachMedia => 'إرفاق من الوسائط';
+
+  @override
+  String get chatChooseFile => 'اختر ملفًا';
+
+  @override
+  String get chatNoMediaFiles =>
+      'مكتبة الوسائط فارغة. ارفع الصور والفيديوهات من الوسائط أولًا.';
+
+  @override
+  String get chatRemoveFile => 'إزالة الملف';
+
+  @override
+  String get chatNotSent => 'لم تُرسَل. اضغط للمحاولة مرة أخرى.';
+
+  @override
+  String get chatDeleteMessage => 'حذف الرسالة';
+
+  @override
+  String get chatDeleteMessageText => 'ستُحذف عند الجميع مع ملفها.';
+
+  @override
+  String get chatBlock => 'منعه من الإرسال';
+
+  @override
+  String chatBlockText(String name) {
+    return 'سيظل $name قادرًا على قراءة المحادثة، لكن لن يستطيع إرسال رسائل حتى تسمح له من جديد.';
+  }
+
+  @override
+  String get chatUnblock => 'السماح له بالإرسال من جديد';
+
+  @override
+  String get chatBlocked => 'ممنوع من الإرسال';
+
+  @override
+  String get chatClear => 'حذف كل الرسائل';
+
+  @override
+  String get chatClearText =>
+      'ستُحذف كل الرسائل والملفات في هذه المحادثة عند الجميع.';
+
+  @override
+  String get chatReports => 'البلاغات';
+
+  @override
+  String get chatReportsOpen => 'بانتظار المراجعة';
+
+  @override
+  String get chatReportsClosed => 'تمت معالجتها';
+
+  @override
+  String get chatNoReports => 'لا توجد بلاغات';
+
+  @override
+  String get chatNoReportsText =>
+      'عندما يبلّغ أحدهم عن رسالة في المحادثات، تظهر هنا.';
+
+  @override
+  String chatReportBy(String name, String reason) {
+    return 'أبلغ عنها $name · $reason';
+  }
+
+  @override
+  String get chatReasonSpam => 'رسائل مزعجة';
+
+  @override
+  String get chatReasonAbuse => 'إساءة أو مضايقة';
+
+  @override
+  String get chatReasonInappropriate => 'محتوى غير لائق';
+
+  @override
+  String get chatReasonOther => 'سبب آخر';
+
+  @override
+  String get chatKeepMessage => 'إبقاء الرسالة';
+
+  @override
+  String get chatDeleteAndBlock => 'حذفها ومنع المرسل';
+
+  @override
+  String get chatOutcomeDismissed => 'أُبقيت الرسالة';
+
+  @override
+  String get chatOutcomeDeleted => 'حُذفت الرسالة';
+
+  @override
+  String get chatOutcomeBlocked => 'حُذفت ومُنع المرسل';
+
+  @override
+  String get chatSettings => 'إعدادات المحادثات';
+
+  @override
+  String get chatOn => 'المحادثات في التطبيق';
+
+  @override
+  String get chatOnHelp => 'يستطيع مستخدمو تطبيقك مراسلتك.';
+
+  @override
+  String get chatGroupsHelp => 'لكل دورة مجموعة يتحدث فيها طلابها.';
+
+  @override
+  String get chatNoPlan => 'المحادثات متاحة في باقتي Pro وBusiness.';
+
+  @override
+  String get chatOlder => 'عرض الرسائل الأقدم';
+
+  @override
   String minutesAgo(int count) {
     return 'قبل $count دقيقة';
   }
@@ -2184,40 +2387,6 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get chat => 'المحادثات';
-
-  @override
-  String get areaChat => 'المحادثات';
-
-  @override
-  String get pushNewChat => 'رسائل المحادثات';
-
-  @override
-  String get pushNewChatHelp => 'عندما يكتب لك أحدهم في محادثات تطبيقك.';
-
-  @override
-  String get chatAll => 'الكل';
-
-  @override
-  String get chatUnread => 'غير المقروءة';
-
-  @override
-  String get chatGroups => 'مجموعات الدورات';
-
-  @override
-  String get chatSearch => 'ابحث بالاسم';
-
-  @override
-  String get chatEmpty => 'لا توجد محادثات بعد';
-
-  @override
-  String get chatEmptyText =>
-      'عندما يكتب لك الناس من تطبيقك، تظهر رسائلهم هنا.';
-
-  @override
-  String get chatNoMatches => 'لا توجد نتائج';
-
-  @override
   String chatReportsWaiting(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -2230,30 +2399,6 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String chatExpiring(String date) {
-    return 'تُحذف الرسائل التي مرّ عليها عام بدءًا من $date.';
-  }
-
-  @override
-  String get chatKeepYear => 'الاحتفاظ بها سنة أخرى';
-
-  @override
-  String get chatKept => 'سيُحتفظ بها سنة أخرى';
-
-  @override
-  String chatKeptUntil(String date) {
-    return 'محفوظة حتى $date';
-  }
-
-  @override
-  String chatExpiresOn(String date) {
-    return 'تُحذف أقدم الرسائل في $date';
-  }
-
-  @override
-  String get chatCourseGroup => 'مجموعة الدورة';
 
   @override
   String chatMembers(int count) {
@@ -2269,149 +2414,4 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String chatYou(String text) {
-    return 'أنت: $text';
-  }
-
-  @override
-  String chatSentBy(String name) {
-    return 'أرسلها $name';
-  }
-
-  @override
-  String get chatPhoto => 'صورة';
-
-  @override
-  String get chatVideo => 'فيديو';
-
-  @override
-  String get chatVoice => 'رسالة صوتية';
-
-  @override
-  String get chatFile => 'ملف';
-
-  @override
-  String get chatDeleted => 'رسالة محذوفة';
-
-  @override
-  String get chatReported => 'تم الإبلاغ عنها';
-
-  @override
-  String get chatNoMessages => 'لا توجد رسائل بعد';
-
-  @override
-  String chatReplyHint(String business) {
-    return 'ردّ باسم $business';
-  }
-
-  @override
-  String get chatAttachMedia => 'إرفاق من الوسائط';
-
-  @override
-  String get chatChooseFile => 'اختر ملفًا';
-
-  @override
-  String get chatNoMediaFiles =>
-      'مكتبة الوسائط فارغة. ارفع الصور والفيديوهات من الوسائط أولًا.';
-
-  @override
-  String get chatRemoveFile => 'إزالة الملف';
-
-  @override
-  String get chatNotSent => 'لم تُرسَل. اضغط للمحاولة مرة أخرى.';
-
-  @override
-  String get chatDeleteMessage => 'حذف الرسالة';
-
-  @override
-  String get chatDeleteMessageText => 'ستُحذف عند الجميع مع ملفها.';
-
-  @override
-  String get chatBlock => 'منعه من الإرسال';
-
-  @override
-  String chatBlockText(String name) {
-    return 'سيظل $name قادرًا على قراءة المحادثة، لكن لن يستطيع إرسال رسائل حتى تسمح له من جديد.';
-  }
-
-  @override
-  String get chatUnblock => 'السماح له بالإرسال من جديد';
-
-  @override
-  String get chatBlocked => 'ممنوع من الإرسال';
-
-  @override
-  String get chatClear => 'حذف كل الرسائل';
-
-  @override
-  String get chatClearText =>
-      'ستُحذف كل الرسائل والملفات في هذه المحادثة عند الجميع.';
-
-  @override
-  String get chatReports => 'البلاغات';
-
-  @override
-  String get chatReportsOpen => 'بانتظار المراجعة';
-
-  @override
-  String get chatReportsClosed => 'تمت معالجتها';
-
-  @override
-  String get chatNoReports => 'لا توجد بلاغات';
-
-  @override
-  String get chatNoReportsText =>
-      'عندما يبلّغ أحدهم عن رسالة في المحادثات، تظهر هنا.';
-
-  @override
-  String chatReportBy(String name, String reason) {
-    return 'أبلغ عنها $name · $reason';
-  }
-
-  @override
-  String get chatReasonSpam => 'رسائل مزعجة';
-
-  @override
-  String get chatReasonAbuse => 'إساءة أو مضايقة';
-
-  @override
-  String get chatReasonInappropriate => 'محتوى غير لائق';
-
-  @override
-  String get chatReasonOther => 'سبب آخر';
-
-  @override
-  String get chatKeepMessage => 'إبقاء الرسالة';
-
-  @override
-  String get chatDeleteAndBlock => 'حذفها ومنع المرسل';
-
-  @override
-  String get chatOutcomeDismissed => 'أُبقيت الرسالة';
-
-  @override
-  String get chatOutcomeDeleted => 'حُذفت الرسالة';
-
-  @override
-  String get chatOutcomeBlocked => 'حُذفت ومُنع المرسل';
-
-  @override
-  String get chatSettings => 'إعدادات المحادثات';
-
-  @override
-  String get chatOn => 'المحادثات في التطبيق';
-
-  @override
-  String get chatOnHelp => 'يستطيع مستخدمو تطبيقك مراسلتك.';
-
-  @override
-  String get chatGroupsHelp => 'لكل دورة مجموعة يتحدث فيها طلابها.';
-
-  @override
-  String get chatNoPlan => 'المحادثات متاحة في باقتي Pro وBusiness.';
-
-  @override
-  String get chatOlder => 'عرض الرسائل الأقدم';
 }

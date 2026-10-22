@@ -1176,6 +1176,126 @@
   "twoStepOther": "Sign in with another account",
   "whatsappInEgypt": "In Egypt",
   "whatsappOutsideEgypt": "Outside Egypt",
+  "chat": "Chat",
+  "areaChat": "Chat",
+  "pushNewChat": "Chat messages",
+  "pushNewChatHelp": "When someone writes to you in your app's chat.",
+  "chatAll": "All",
+  "chatUnread": "Unread",
+  "chatGroups": "Course groups",
+  "chatSearch": "Search by name",
+  "chatEmpty": "No conversations yet",
+  "chatEmptyText": "When people write to you from your app, their messages show here.",
+  "chatNoMatches": "Nothing matches",
+  "chatExpiring": "Messages older than a year are deleted from {date}.",
+  "@chatExpiring": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "chatKeepYear": "Keep another year",
+  "chatKept": "Kept for another year",
+  "chatKeptUntil": "Kept until {date}",
+  "@chatKeptUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "chatExpiresOn": "Oldest messages deleted on {date}",
+  "@chatExpiresOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "chatCourseGroup": "Course group",
+  "chatYou": "You: {text}",
+  "@chatYou": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "chatSentBy": "Sent by {name}",
+  "@chatSentBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chatPhoto": "Photo",
+  "chatVideo": "Video",
+  "chatVoice": "Voice message",
+  "chatFile": "File",
+  "chatDeleted": "Message deleted",
+  "chatReported": "Reported",
+  "chatNoMessages": "No messages yet",
+  "chatReplyHint": "Reply as {business}",
+  "@chatReplyHint": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      }
+    }
+  },
+  "chatAttachMedia": "Attach from Media",
+  "chatChooseFile": "Choose a file",
+  "chatNoMediaFiles": "Your Media library is empty. Upload pictures and videos in Media first.",
+  "chatRemoveFile": "Remove file",
+  "chatNotSent": "Not sent. Tap to try again.",
+  "chatDeleteMessage": "Delete message",
+  "chatDeleteMessageText": "It's deleted for everyone, with its file.",
+  "chatBlock": "Stop from sending",
+  "chatBlockText": "{name} can still read the chat but can't send messages until you allow it again.",
+  "@chatBlockText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chatUnblock": "Allow to send again",
+  "chatBlocked": "Can't send",
+  "chatClear": "Delete all messages",
+  "chatClearText": "Every message and file in this conversation is deleted for everyone.",
+  "chatReports": "Reports",
+  "chatReportsOpen": "Waiting",
+  "chatReportsClosed": "Dealt with",
+  "chatNoReports": "No reports",
+  "chatNoReportsText": "When someone reports a message in the chat, it shows here.",
+  "chatReportBy": "Reported by {name} · {reason}",
+  "@chatReportBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "chatReasonSpam": "Spam",
+  "chatReasonAbuse": "Abuse or harassment",
+  "chatReasonInappropriate": "Inappropriate content",
+  "chatReasonOther": "Something else",
+  "chatKeepMessage": "Keep the message",
+  "chatDeleteAndBlock": "Delete and stop the sender",
+  "chatOutcomeDismissed": "Message kept",
+  "chatOutcomeDeleted": "Message deleted",
+  "chatOutcomeBlocked": "Deleted, sender stopped",
+  "chatSettings": "Chat settings",
+  "chatOn": "Chat in the app",
+  "chatOnHelp": "People using your app can write to you.",
+  "chatGroupsHelp": "Each course has a group where its students talk.",
+  "chatNoPlan": "Chat comes with the Pro and Business plans.",
+  "chatOlder": "Show earlier messages",
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {
@@ -1334,17 +1454,6 @@
       }
     }
   },
-  "chat": "Chat",
-  "areaChat": "Chat",
-  "pushNewChat": "Chat messages",
-  "pushNewChatHelp": "When someone writes to you in your app's chat.",
-  "chatAll": "All",
-  "chatUnread": "Unread",
-  "chatGroups": "Course groups",
-  "chatSearch": "Search by name",
-  "chatEmpty": "No conversations yet",
-  "chatEmptyText": "When people write to you from your app, their messages show here.",
-  "chatNoMatches": "Nothing matches",
   "chatReportsWaiting": "{count, plural, =1{1 report waiting} other{{count} reports waiting}}",
   "@chatReportsWaiting": {
     "placeholders": {
@@ -1353,33 +1462,6 @@
       }
     }
   },
-  "chatExpiring": "Messages older than a year are deleted from {date}.",
-  "@chatExpiring": {
-    "placeholders": {
-      "date": {
-        "type": "String"
-      }
-    }
-  },
-  "chatKeepYear": "Keep another year",
-  "chatKept": "Kept for another year",
-  "chatKeptUntil": "Kept until {date}",
-  "@chatKeptUntil": {
-    "placeholders": {
-      "date": {
-        "type": "String"
-      }
-    }
-  },
-  "chatExpiresOn": "Oldest messages deleted on {date}",
-  "@chatExpiresOn": {
-    "placeholders": {
-      "date": {
-        "type": "String"
-      }
-    }
-  },
-  "chatCourseGroup": "Course group",
   "chatMembers": "{count, plural, =1{1 member} other{{count} members}}",
   "@chatMembers": {
     "placeholders": {
@@ -1387,87 +1469,5 @@
         "type": "int"
       }
     }
-  },
-  "chatYou": "You: {text}",
-  "@chatYou": {
-    "placeholders": {
-      "text": {
-        "type": "String"
-      }
-    }
-  },
-  "chatSentBy": "Sent by {name}",
-  "@chatSentBy": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "chatPhoto": "Photo",
-  "chatVideo": "Video",
-  "chatVoice": "Voice message",
-  "chatFile": "File",
-  "chatDeleted": "Message deleted",
-  "chatReported": "Reported",
-  "chatNoMessages": "No messages yet",
-  "chatReplyHint": "Reply as {business}",
-  "@chatReplyHint": {
-    "placeholders": {
-      "business": {
-        "type": "String"
-      }
-    }
-  },
-  "chatAttachMedia": "Attach from Media",
-  "chatChooseFile": "Choose a file",
-  "chatNoMediaFiles": "Your Media library is empty. Upload pictures and videos in Media first.",
-  "chatRemoveFile": "Remove file",
-  "chatNotSent": "Not sent. Tap to try again.",
-  "chatDeleteMessage": "Delete message",
-  "chatDeleteMessageText": "It's deleted for everyone, with its file.",
-  "chatBlock": "Stop from sending",
-  "chatBlockText": "{name} can still read the chat but can't send messages until you allow it again.",
-  "@chatBlockText": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "chatUnblock": "Allow to send again",
-  "chatBlocked": "Can't send",
-  "chatClear": "Delete all messages",
-  "chatClearText": "Every message and file in this conversation is deleted for everyone.",
-  "chatReports": "Reports",
-  "chatReportsOpen": "Waiting",
-  "chatReportsClosed": "Dealt with",
-  "chatNoReports": "No reports",
-  "chatNoReportsText": "When someone reports a message in the chat, it shows here.",
-  "chatReportBy": "Reported by {name} · {reason}",
-  "@chatReportBy": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      },
-      "reason": {
-        "type": "String"
-      }
-    }
-  },
-  "chatReasonSpam": "Spam",
-  "chatReasonAbuse": "Abuse or harassment",
-  "chatReasonInappropriate": "Inappropriate content",
-  "chatReasonOther": "Something else",
-  "chatKeepMessage": "Keep the message",
-  "chatDeleteAndBlock": "Delete and stop the sender",
-  "chatOutcomeDismissed": "Message kept",
-  "chatOutcomeDeleted": "Message deleted",
-  "chatOutcomeBlocked": "Deleted, sender stopped",
-  "chatSettings": "Chat settings",
-  "chatOn": "Chat in the app",
-  "chatOnHelp": "People using your app can write to you.",
-  "chatGroupsHelp": "Each course has a group where its students talk.",
-  "chatNoPlan": "Chat comes with the Pro and Business plans.",
-  "chatOlder": "Show earlier messages"
+  }
 }

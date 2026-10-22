@@ -3580,120 +3580,6 @@ abstract class AppLocalizations {
   /// **'Outside Egypt'**
   String get whatsappOutsideEgypt;
 
-  /// No description provided for @minutesAgo.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} min ago'**
-  String minutesAgo(int count);
-
-  /// No description provided for @hoursAgo.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} h ago'**
-  String hoursAgo(int count);
-
-  /// No description provided for @donorsCount.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 donor} other{{count} donors}}'**
-  String donorsCount(int count);
-
-  /// No description provided for @lessonsCount.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 lesson} other{{count} lessons}}'**
-  String lessonsCount(int count);
-
-  /// No description provided for @studentsCount.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 student} other{{count} students}}'**
-  String studentsCount(int count);
-
-  /// No description provided for @stockLeft.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} in stock'**
-  String stockLeft(int count);
-
-  /// No description provided for @minutes.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} min'**
-  String minutes(int count);
-
-  /// No description provided for @pushedTo.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{The push went to 1 phone.} other{The push went to {count} phones.}}'**
-  String pushedTo(int count);
-
-  /// No description provided for @retentionDay.
-  ///
-  /// In en, this message translates to:
-  /// **'{days, plural, =1{Came back the next day} other{Came back after {days} days}}'**
-  String retentionDay(int days);
-
-  /// No description provided for @usersTotal.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 user} other{{count} users}}'**
-  String usersTotal(int count);
-
-  /// No description provided for @planEnds.
-  ///
-  /// In en, this message translates to:
-  /// **'{days, plural, =0{Ends today} =1{Ends tomorrow} other{Ends in {days} days}} ({date})'**
-  String planEnds(String date, int days);
-
-  /// No description provided for @classesLeftCount.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 class left} other{{count} classes left}}'**
-  String classesLeftCount(int count);
-
-  /// No description provided for @answersCount.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =0{No answers yet} =1{1 answer} other{{count} answers}}'**
-  String answersCount(int count);
-
-  /// No description provided for @membersInCount.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 member came in today} other{{count} members came in today}}'**
-  String membersInCount(int count);
-
-  /// No description provided for @reviewsAverage.
-  ///
-  /// In en, this message translates to:
-  /// **'{rating} out of 5 from {count, plural, =1{1 review} other{{count} reviews}}'**
-  String reviewsAverage(String rating, int count);
-
-  /// No description provided for @needsOrdersInProgress.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 order in progress} other{{count} orders in progress}}'**
-  String needsOrdersInProgress(int count);
-
-  /// No description provided for @needsToConfirm.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 appointment to confirm} other{{count} appointments to confirm}}'**
-  String needsToConfirm(int count);
-
-  /// No description provided for @needsUnanswered.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 conversation waiting for your reply} other{{count} conversations waiting for your reply}}'**
-  String needsUnanswered(int count);
-
-  /// No description provided for @needsQuestions.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 course question to answer} other{{count} course questions to answer}}'**
-  String needsQuestions(int count);
-
   /// No description provided for @chat.
   ///
   /// In en, this message translates to:
@@ -3760,12 +3646,6 @@ abstract class AppLocalizations {
   /// **'Nothing matches'**
   String get chatNoMatches;
 
-  /// No description provided for @chatReportsWaiting.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 report waiting} other{{count} reports waiting}}'**
-  String chatReportsWaiting(int count);
-
   /// No description provided for @chatExpiring.
   ///
   /// In en, this message translates to:
@@ -3801,12 +3681,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Course group'**
   String get chatCourseGroup;
-
-  /// No description provided for @chatMembers.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 member} other{{count} members}}'**
-  String chatMembers(int count);
 
   /// No description provided for @chatYou.
   ///
@@ -4071,6 +3945,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show earlier messages'**
   String get chatOlder;
+
+  /// No description provided for @minutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min ago'**
+  String minutesAgo(int count);
+
+  /// No description provided for @hoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} h ago'**
+  String hoursAgo(int count);
+
+  /// No description provided for @donorsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 donor} other{{count} donors}}'**
+  String donorsCount(int count);
+
+  /// No description provided for @lessonsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 lesson} other{{count} lessons}}'**
+  String lessonsCount(int count);
+
+  /// No description provided for @studentsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 student} other{{count} students}}'**
+  String studentsCount(int count);
+
+  /// No description provided for @stockLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} in stock'**
+  String stockLeft(int count);
+
+  /// No description provided for @minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min'**
+  String minutes(int count);
+
+  /// No description provided for @pushedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{The push went to 1 phone.} other{The push went to {count} phones.}}'**
+  String pushedTo(int count);
+
+  /// No description provided for @retentionDay.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{Came back the next day} other{Came back after {days} days}}'**
+  String retentionDay(int days);
+
+  /// No description provided for @usersTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 user} other{{count} users}}'**
+  String usersTotal(int count);
+
+  /// No description provided for @planEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =0{Ends today} =1{Ends tomorrow} other{Ends in {days} days}} ({date})'**
+  String planEnds(String date, int days);
+
+  /// No description provided for @classesLeftCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 class left} other{{count} classes left}}'**
+  String classesLeftCount(int count);
+
+  /// No description provided for @answersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No answers yet} =1{1 answer} other{{count} answers}}'**
+  String answersCount(int count);
+
+  /// No description provided for @membersInCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 member came in today} other{{count} members came in today}}'**
+  String membersInCount(int count);
+
+  /// No description provided for @reviewsAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'{rating} out of 5 from {count, plural, =1{1 review} other{{count} reviews}}'**
+  String reviewsAverage(String rating, int count);
+
+  /// No description provided for @needsOrdersInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 order in progress} other{{count} orders in progress}}'**
+  String needsOrdersInProgress(int count);
+
+  /// No description provided for @needsToConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 appointment to confirm} other{{count} appointments to confirm}}'**
+  String needsToConfirm(int count);
+
+  /// No description provided for @needsUnanswered.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 conversation waiting for your reply} other{{count} conversations waiting for your reply}}'**
+  String needsUnanswered(int count);
+
+  /// No description provided for @needsQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 course question to answer} other{{count} course questions to answer}}'**
+  String needsQuestions(int count);
+
+  /// No description provided for @chatReportsWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 report waiting} other{{count} reports waiting}}'**
+  String chatReportsWaiting(int count);
+
+  /// No description provided for @chatMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 member} other{{count} members}}'**
+  String chatMembers(int count);
 }
 
 class _AppLocalizationsDelegate

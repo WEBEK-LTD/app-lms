@@ -1958,120 +1958,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get whatsappOutsideEgypt => 'Mısır dışında';
 
   @override
-  String minutesAgo(int count) {
-    return '$count dk önce';
-  }
-
-  @override
-  String hoursAgo(int count) {
-    return '$count sa önce';
-  }
-
-  @override
-  String donorsCount(int count) {
-    return '$count bağışçı';
-  }
-
-  @override
-  String lessonsCount(int count) {
-    return '$count ders';
-  }
-
-  @override
-  String studentsCount(int count) {
-    return '$count öğrenci';
-  }
-
-  @override
-  String stockLeft(int count) {
-    return 'Stokta $count';
-  }
-
-  @override
-  String minutes(int count) {
-    return '$count dk';
-  }
-
-  @override
-  String pushedTo(int count) {
-    return 'Bildirim $count telefona gitti.';
-  }
-
-  @override
-  String retentionDay(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days gün sonra geri geldi',
-      one: 'Ertesi gün geri geldi',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String usersTotal(int count) {
-    return '$count kullanıcı';
-  }
-
-  @override
-  String planEnds(String date, int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days gün sonra bitiyor',
-      one: 'Yarın bitiyor',
-      zero: 'Bugün bitiyor',
-    );
-    return '$_temp0 ($date)';
-  }
-
-  @override
-  String classesLeftCount(int count) {
-    return '$count ders kaldı';
-  }
-
-  @override
-  String answersCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count yanıt',
-      zero: 'Henüz yanıt yok',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String membersInCount(int count) {
-    return 'Bugün $count üye geldi';
-  }
-
-  @override
-  String reviewsAverage(String rating, int count) {
-    return '$count değerlendirmeden 5 üzerinden $rating';
-  }
-
-  @override
-  String needsOrdersInProgress(int count) {
-    return 'Hazırlanan $count sipariş';
-  }
-
-  @override
-  String needsToConfirm(int count) {
-    return 'Onay bekleyen $count randevu';
-  }
-
-  @override
-  String needsUnanswered(int count) {
-    return 'Yanıtınızı bekleyen $count konuşma';
-  }
-
-  @override
-  String needsQuestions(int count) {
-    return 'Yanıtlanacak $count kurs sorusu';
-  }
-
-  @override
   String get chat => 'Sohbet';
 
   @override
@@ -2107,17 +1993,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get chatNoMatches => 'Eşleşen yok';
 
   @override
-  String chatReportsWaiting(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count şikâyet bekliyor',
-      one: '1 şikâyet bekliyor',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String chatExpiring(String date) {
     return 'Bir yıldan eski mesajlar $date tarihinden itibaren silinir.';
   }
@@ -2140,17 +2015,6 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get chatCourseGroup => 'Kurs grubu';
-
-  @override
-  String chatMembers(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count üye',
-      one: '1 üye',
-    );
-    return '$_temp0';
-  }
 
   @override
   String chatYou(String text) {
@@ -2298,4 +2162,140 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get chatOlder => 'Önceki mesajları göster';
+
+  @override
+  String minutesAgo(int count) {
+    return '$count dk önce';
+  }
+
+  @override
+  String hoursAgo(int count) {
+    return '$count sa önce';
+  }
+
+  @override
+  String donorsCount(int count) {
+    return '$count bağışçı';
+  }
+
+  @override
+  String lessonsCount(int count) {
+    return '$count ders';
+  }
+
+  @override
+  String studentsCount(int count) {
+    return '$count öğrenci';
+  }
+
+  @override
+  String stockLeft(int count) {
+    return 'Stokta $count';
+  }
+
+  @override
+  String minutes(int count) {
+    return '$count dk';
+  }
+
+  @override
+  String pushedTo(int count) {
+    return 'Bildirim $count telefona gitti.';
+  }
+
+  @override
+  String retentionDay(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days gün sonra geri geldi',
+      one: 'Ertesi gün geri geldi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String usersTotal(int count) {
+    return '$count kullanıcı';
+  }
+
+  @override
+  String planEnds(String date, int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days gün sonra bitiyor',
+      one: 'Yarın bitiyor',
+      zero: 'Bugün bitiyor',
+    );
+    return '$_temp0 ($date)';
+  }
+
+  @override
+  String classesLeftCount(int count) {
+    return '$count ders kaldı';
+  }
+
+  @override
+  String answersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yanıt',
+      zero: 'Henüz yanıt yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String membersInCount(int count) {
+    return 'Bugün $count üye geldi';
+  }
+
+  @override
+  String reviewsAverage(String rating, int count) {
+    return '$count değerlendirmeden 5 üzerinden $rating';
+  }
+
+  @override
+  String needsOrdersInProgress(int count) {
+    return 'Hazırlanan $count sipariş';
+  }
+
+  @override
+  String needsToConfirm(int count) {
+    return 'Onay bekleyen $count randevu';
+  }
+
+  @override
+  String needsUnanswered(int count) {
+    return 'Yanıtınızı bekleyen $count konuşma';
+  }
+
+  @override
+  String needsQuestions(int count) {
+    return 'Yanıtlanacak $count kurs sorusu';
+  }
+
+  @override
+  String chatReportsWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count şikâyet bekliyor',
+      one: '1 şikâyet bekliyor',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String chatMembers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count üye',
+      one: '1 üye',
+    );
+    return '$_temp0';
+  }
 }

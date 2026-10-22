@@ -1956,6 +1956,212 @@ class AppLocalizationsEn extends AppLocalizations {
   String get whatsappOutsideEgypt => 'Outside Egypt';
 
   @override
+  String get chat => 'Chat';
+
+  @override
+  String get areaChat => 'Chat';
+
+  @override
+  String get pushNewChat => 'Chat messages';
+
+  @override
+  String get pushNewChatHelp =>
+      'When someone writes to you in your app\'s chat.';
+
+  @override
+  String get chatAll => 'All';
+
+  @override
+  String get chatUnread => 'Unread';
+
+  @override
+  String get chatGroups => 'Course groups';
+
+  @override
+  String get chatSearch => 'Search by name';
+
+  @override
+  String get chatEmpty => 'No conversations yet';
+
+  @override
+  String get chatEmptyText =>
+      'When people write to you from your app, their messages show here.';
+
+  @override
+  String get chatNoMatches => 'Nothing matches';
+
+  @override
+  String chatExpiring(String date) {
+    return 'Messages older than a year are deleted from $date.';
+  }
+
+  @override
+  String get chatKeepYear => 'Keep another year';
+
+  @override
+  String get chatKept => 'Kept for another year';
+
+  @override
+  String chatKeptUntil(String date) {
+    return 'Kept until $date';
+  }
+
+  @override
+  String chatExpiresOn(String date) {
+    return 'Oldest messages deleted on $date';
+  }
+
+  @override
+  String get chatCourseGroup => 'Course group';
+
+  @override
+  String chatYou(String text) {
+    return 'You: $text';
+  }
+
+  @override
+  String chatSentBy(String name) {
+    return 'Sent by $name';
+  }
+
+  @override
+  String get chatPhoto => 'Photo';
+
+  @override
+  String get chatVideo => 'Video';
+
+  @override
+  String get chatVoice => 'Voice message';
+
+  @override
+  String get chatFile => 'File';
+
+  @override
+  String get chatDeleted => 'Message deleted';
+
+  @override
+  String get chatReported => 'Reported';
+
+  @override
+  String get chatNoMessages => 'No messages yet';
+
+  @override
+  String chatReplyHint(String business) {
+    return 'Reply as $business';
+  }
+
+  @override
+  String get chatAttachMedia => 'Attach from Media';
+
+  @override
+  String get chatChooseFile => 'Choose a file';
+
+  @override
+  String get chatNoMediaFiles =>
+      'Your Media library is empty. Upload pictures and videos in Media first.';
+
+  @override
+  String get chatRemoveFile => 'Remove file';
+
+  @override
+  String get chatNotSent => 'Not sent. Tap to try again.';
+
+  @override
+  String get chatDeleteMessage => 'Delete message';
+
+  @override
+  String get chatDeleteMessageText =>
+      'It\'s deleted for everyone, with its file.';
+
+  @override
+  String get chatBlock => 'Stop from sending';
+
+  @override
+  String chatBlockText(String name) {
+    return '$name can still read the chat but can\'t send messages until you allow it again.';
+  }
+
+  @override
+  String get chatUnblock => 'Allow to send again';
+
+  @override
+  String get chatBlocked => 'Can\'t send';
+
+  @override
+  String get chatClear => 'Delete all messages';
+
+  @override
+  String get chatClearText =>
+      'Every message and file in this conversation is deleted for everyone.';
+
+  @override
+  String get chatReports => 'Reports';
+
+  @override
+  String get chatReportsOpen => 'Waiting';
+
+  @override
+  String get chatReportsClosed => 'Dealt with';
+
+  @override
+  String get chatNoReports => 'No reports';
+
+  @override
+  String get chatNoReportsText =>
+      'When someone reports a message in the chat, it shows here.';
+
+  @override
+  String chatReportBy(String name, String reason) {
+    return 'Reported by $name · $reason';
+  }
+
+  @override
+  String get chatReasonSpam => 'Spam';
+
+  @override
+  String get chatReasonAbuse => 'Abuse or harassment';
+
+  @override
+  String get chatReasonInappropriate => 'Inappropriate content';
+
+  @override
+  String get chatReasonOther => 'Something else';
+
+  @override
+  String get chatKeepMessage => 'Keep the message';
+
+  @override
+  String get chatDeleteAndBlock => 'Delete and stop the sender';
+
+  @override
+  String get chatOutcomeDismissed => 'Message kept';
+
+  @override
+  String get chatOutcomeDeleted => 'Message deleted';
+
+  @override
+  String get chatOutcomeBlocked => 'Deleted, sender stopped';
+
+  @override
+  String get chatSettings => 'Chat settings';
+
+  @override
+  String get chatOn => 'Chat in the app';
+
+  @override
+  String get chatOnHelp => 'People using your app can write to you.';
+
+  @override
+  String get chatGroupsHelp =>
+      'Each course has a group where its students talk.';
+
+  @override
+  String get chatNoPlan => 'Chat comes with the Pro and Business plans.';
+
+  @override
+  String get chatOlder => 'Show earlier messages';
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }
@@ -2143,41 +2349,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get chat => 'Chat';
-
-  @override
-  String get areaChat => 'Chat';
-
-  @override
-  String get pushNewChat => 'Chat messages';
-
-  @override
-  String get pushNewChatHelp =>
-      'When someone writes to you in your app\'s chat.';
-
-  @override
-  String get chatAll => 'All';
-
-  @override
-  String get chatUnread => 'Unread';
-
-  @override
-  String get chatGroups => 'Course groups';
-
-  @override
-  String get chatSearch => 'Search by name';
-
-  @override
-  String get chatEmpty => 'No conversations yet';
-
-  @override
-  String get chatEmptyText =>
-      'When people write to you from your app, their messages show here.';
-
-  @override
-  String get chatNoMatches => 'Nothing matches';
-
-  @override
   String chatReportsWaiting(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -2189,30 +2360,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String chatExpiring(String date) {
-    return 'Messages older than a year are deleted from $date.';
-  }
-
-  @override
-  String get chatKeepYear => 'Keep another year';
-
-  @override
-  String get chatKept => 'Kept for another year';
-
-  @override
-  String chatKeptUntil(String date) {
-    return 'Kept until $date';
-  }
-
-  @override
-  String chatExpiresOn(String date) {
-    return 'Oldest messages deleted on $date';
-  }
-
-  @override
-  String get chatCourseGroup => 'Course group';
-
-  @override
   String chatMembers(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -2222,151 +2369,4 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String chatYou(String text) {
-    return 'You: $text';
-  }
-
-  @override
-  String chatSentBy(String name) {
-    return 'Sent by $name';
-  }
-
-  @override
-  String get chatPhoto => 'Photo';
-
-  @override
-  String get chatVideo => 'Video';
-
-  @override
-  String get chatVoice => 'Voice message';
-
-  @override
-  String get chatFile => 'File';
-
-  @override
-  String get chatDeleted => 'Message deleted';
-
-  @override
-  String get chatReported => 'Reported';
-
-  @override
-  String get chatNoMessages => 'No messages yet';
-
-  @override
-  String chatReplyHint(String business) {
-    return 'Reply as $business';
-  }
-
-  @override
-  String get chatAttachMedia => 'Attach from Media';
-
-  @override
-  String get chatChooseFile => 'Choose a file';
-
-  @override
-  String get chatNoMediaFiles =>
-      'Your Media library is empty. Upload pictures and videos in Media first.';
-
-  @override
-  String get chatRemoveFile => 'Remove file';
-
-  @override
-  String get chatNotSent => 'Not sent. Tap to try again.';
-
-  @override
-  String get chatDeleteMessage => 'Delete message';
-
-  @override
-  String get chatDeleteMessageText =>
-      'It\'s deleted for everyone, with its file.';
-
-  @override
-  String get chatBlock => 'Stop from sending';
-
-  @override
-  String chatBlockText(String name) {
-    return '$name can still read the chat but can\'t send messages until you allow it again.';
-  }
-
-  @override
-  String get chatUnblock => 'Allow to send again';
-
-  @override
-  String get chatBlocked => 'Can\'t send';
-
-  @override
-  String get chatClear => 'Delete all messages';
-
-  @override
-  String get chatClearText =>
-      'Every message and file in this conversation is deleted for everyone.';
-
-  @override
-  String get chatReports => 'Reports';
-
-  @override
-  String get chatReportsOpen => 'Waiting';
-
-  @override
-  String get chatReportsClosed => 'Dealt with';
-
-  @override
-  String get chatNoReports => 'No reports';
-
-  @override
-  String get chatNoReportsText =>
-      'When someone reports a message in the chat, it shows here.';
-
-  @override
-  String chatReportBy(String name, String reason) {
-    return 'Reported by $name · $reason';
-  }
-
-  @override
-  String get chatReasonSpam => 'Spam';
-
-  @override
-  String get chatReasonAbuse => 'Abuse or harassment';
-
-  @override
-  String get chatReasonInappropriate => 'Inappropriate content';
-
-  @override
-  String get chatReasonOther => 'Something else';
-
-  @override
-  String get chatKeepMessage => 'Keep the message';
-
-  @override
-  String get chatDeleteAndBlock => 'Delete and stop the sender';
-
-  @override
-  String get chatOutcomeDismissed => 'Message kept';
-
-  @override
-  String get chatOutcomeDeleted => 'Message deleted';
-
-  @override
-  String get chatOutcomeBlocked => 'Deleted, sender stopped';
-
-  @override
-  String get chatSettings => 'Chat settings';
-
-  @override
-  String get chatOn => 'Chat in the app';
-
-  @override
-  String get chatOnHelp => 'People using your app can write to you.';
-
-  @override
-  String get chatGroupsHelp =>
-      'Each course has a group where its students talk.';
-
-  @override
-  String get chatNoPlan => 'Chat comes with the Pro and Business plans.';
-
-  @override
-  String get chatOlder => 'Show earlier messages';
 }
