@@ -419,6 +419,8 @@ export interface App {
   appleTeamId?: string | null;
   /** 46 The last "Check links" on the dashboard. */
   linksCheck?: LinksCheckSnapshot | null;
+  /** 80.1 The last test of each connection (Dashboard › Integrations, lib/integrations). */
+  integrationChecks?: IntegrationChecks | null;
   /** 46 The owner's switches (missing means on): the store's rating prompt after good moments, and crash reports. */
   reviewPrompt?: boolean;
   crashReports?: boolean;
@@ -2952,3 +2954,19 @@ export interface RekeyCell {
   text: string;
   candidates: string[];
 }
+
+/** 80 A connection of an app (Dashboard › Integrations, lib/integrations). */
+export type IntegrationKey = "website" | "payments" | "whatsapp" | "mail" | "push" | "huawei_push" | "google_play" | "app_store" | "galaxy" | "appgallery" | "xiaomi";
+
+/** 80 How a connection's last test went: a code the dashboard words in each language, what it named, and the details. */
+export interface IntegrationCheck {
+  at: string;
+  ok: boolean;
+  code: string;
+  /** What the code names (a shop's name, an address), or null. */
+  subject: string | null;
+  /** What failed, one line each (technical, as the other side said it). */
+  problems: string[];
+}
+
+export type IntegrationChecks = Partial<Record<IntegrationKey, IntegrationCheck>>;

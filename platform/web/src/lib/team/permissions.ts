@@ -107,6 +107,7 @@ export const DASHBOARD_PATHS: readonly (readonly [string, TeamPermission])[] = [
   ["/dashboard/builds", "settings"],
   ["/dashboard/publishing", "settings"],
   ["/dashboard/stability", "settings"],
+  ["/dashboard/integrations", "settings"],
   ["/dashboard/media", "media"],
   ["/dashboard/analytics", "analytics"],
   ["/dashboard/orders", "orders"],

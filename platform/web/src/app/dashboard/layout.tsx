@@ -81,6 +81,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         { href: "/dashboard/preview", label: t("nav.preview"), icon: "visibility" },
         // 44 How people use the app.
         { href: "/dashboard/analytics", label: t("nav.analytics"), icon: "monitoring" },
+        // 80.1 Everything the app is connected to, with its state and a test.
+        ...(app ? [{ href: "/dashboard/integrations", label: t("integrations.title"), icon: "link" as const }] : []),
       ],
     },
     ...(content ? [{ label: k(content.label), items: content.items.map((item) => ({ ...item, label: k(item.label) })) }] : []),

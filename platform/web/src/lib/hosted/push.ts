@@ -88,6 +88,16 @@ async function accessToken(account: ServiceAccount, fetcher: Fetch, now: Date): 
   return body.access_token;
 }
 
+/** 80.1 Whether Google accepts the Firebase service account: a token for sending is asked for, nothing is sent. Throws why not. */
+export async function checkFirebaseAccount(account: ServiceAccount, options: { fetcher?: Fetch; now?: Date } = {}): Promise<void> {
+  await accessToken(account, options.fetcher ?? fetch, options.now ?? new Date());
+}
+
+/** 80.1 Whether Huawei accepts the Push Kit app ID and secret, the same way. Throws why not. */
+export async function checkHmsCredentials(credentials: HmsCredentials, options: { fetcher?: Fetch } = {}): Promise<void> {
+  await hmsAccessToken(credentials, options.fetcher ?? fetch);
+}
+
 /** The target of a hosted device: a Firebase token as it is, a Huawei token with its provider. */
 export function pushTarget(device: { pushToken: string | null; pushProvider?: PushProvider | null }): PushTarget {
   const token = device.pushToken ?? "";

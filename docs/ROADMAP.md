@@ -1941,7 +1941,7 @@ their own page, nothing re-checks them, and a broken one isn't noticed.
 
 | | Step | Done when |
 |---|---|---|
-| [ ] | 80.1 Dashboard › Integrations: every connection of the app (website or platform, payments, WhatsApp and email senders, Firebase and Huawei push, each store) with its state, last check, a Test button and its recent errors | e2e |
+| [x] | 80.1 Dashboard › Integrations: every connection of the app (website or platform, payments, WhatsApp and email senders, Firebase and Huawei push, each store) with its state, last check, a Test button and its recent errors | e2e |
 | [ ] | 80.2 Checks on a schedule: each connection re-checked daily; a WordPress site that stops checking in, a revoked platform token or failing payment keys tell the owner (bell, email) and the team | Unit tests |
 | [ ] | 80.3 Retry: account webhooks sent again (49.8), payments left pending checked with the provider | Unit tests |
 | [ ] | 80.4 Shipping: carriers for shops without a website (first the owner's choice of carriers in Turkey and Egypt), tracking numbers on orders | Contract, tests |
