@@ -574,6 +574,21 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "زر على الطلب والتبرع: ينزّل الإيصال بصيغة PDF (يفتح في المتصفح).",
     tr: "Sipariş ve bağış üzerindeki düğme: makbuzu PDF olarak indirir (tarayıcıda açılır).",
   },
+  "80.4 An order's shipment card, when the shop gave no carrier name.": {
+    en: "An order's shipment card, when the shop gave no carrier name.",
+    ar: "بطاقة شحنة الطلب، حين لا يذكر المتجر اسم شركة الشحن.",
+    tr: "Mağaza kargo firmasının adını vermediğinde siparişin gönderi kartı.",
+  },
+  "80.4 When the shop shipped the order.": {
+    en: "When the shop shipped the order.",
+    ar: "متى شحن المتجر الطلب.",
+    tr: "Mağazanın siparişi kargoya verdiği zaman.",
+  },
+  "80.4 Opens the carrier's tracking page in the browser.": {
+    en: "Opens the carrier's tracking page in the browser.",
+    ar: "يفتح صفحة التتبّع لدى شركة الشحن في المتصفح.",
+    tr: "Kargo firmasının takip sayfasını tarayıcıda açar.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

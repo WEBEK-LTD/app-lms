@@ -510,7 +510,15 @@ class FakeOwnerApi implements OwnerApi {
     ];
 
     Appointment appt(int id, String status, Duration from, String name) {
-      final start = now.add(from);
+      var start = now.add(from);
+      // "Later today" stays today, whatever the hour: late in the evening the
+      // hours ahead would fall on tomorrow.
+      if (from > Duration.zero &&
+          from < const Duration(hours: 12) &&
+          _day(start) != _day(now)) {
+        final last = DateTime(now.year, now.month, now.day, 23, 50);
+        start = last.subtract(const Duration(hours: 3) - from);
+      }
       final hh = start.hour.toString().padLeft(2, '0');
       final mm = start.minute.toString().padLeft(2, '0');
       return Appointment(
