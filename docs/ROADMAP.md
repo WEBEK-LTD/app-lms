@@ -1953,7 +1953,7 @@ pages by hand; nothing reads their website.
 
 | | Step | Done when |
 |---|---|---|
-| [ ] | 81.1 Site scan: from a URL, the name, logo, icon, colours (theme colour, CSS), fonts (matched to the app's fonts), the platform (WordPress and its plugins, Shopify, Salla, Zid, Wix, ikas…) and the app type; through the server's safe fetch | Unit tests on saved pages of each platform |
+| [x] | 81.1 Site scan: from a URL, the name, logo, icon, colours (theme colour, CSS), fonts (matched to the app's fonts), the platform (WordPress and its plugins, Shopify, Salla, Zid, Wix, ikas…) and the app type; through the server's safe fetch | Unit tests on saved pages of each platform |
 | [ ] | 81.2 The plugin reports the site's logo, icon, theme colours and menus | PHPUnit |
 | [ ] | 81.3 One step to a draft app: the URL gives a draft with the brand, the right design and the site's menu as tabs and pages, ready to edit and preview | e2e |
 | [ ] | 81.4 Import for apps without a connector: products, services, menus and courses from a CSV or a feed | Unit and e2e tests |

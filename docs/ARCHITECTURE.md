@@ -2461,6 +2461,38 @@ waybill's link; a shipped order in progress reads "Shipped". Yallapp Business
 can set it too (`PUT /apps/{app}/orders/{order}/shipment`, `owner.yaml`). Every
 plan with a shop has it.
 
+## Site scan (81.1)
+
+`lib/scan/site-scan.ts` reads a website from its address and proposes what
+an app made from it needs (81.3 builds the draft from it; nothing is kept):
+
+- **Name:** `og:site_name`, `application-name`, the manifest, schema.org's
+  Organization or WebSite, then the title's first part.
+- **Logo:** schema.org's `logo`, then the header's logo image (WordPress's
+  `custom-logo`, Shopify's `header__heading-logo`, any image named logo but
+  not payment or partner logos).
+- **Icon:** the manifest's largest icon (192 px or more), then
+  `apple-touch-icon`, then the largest `icon`.
+- **Colours:** the theme colour, the manifest's, the stylesheets' named
+  brand colours (`--wp--preset--color--primary`, `--color-primary`, Shopify's
+  and Wix's `r, g, b` variables), then the most used; greys, white and black
+  are left out.
+- **Fonts:** Google Fonts links, `@font-face`, `font-family` and the themes'
+  font variables, matched to the app's six fonts by family (Poppins →
+  Outfit, Inter → Manrope, Cairo → Lexend…).
+- **Platform:** WordPress with its plugins (WooCommerce, the LMS and
+  booking plugins, The Events Calendar, GiveWP), Shopify, Salla, Zid, ikas,
+  Ticimax, IdeaSoft, Wix, Teachable, Thinkific, SimplyBook, Squarespace,
+  Webflow.
+- **App type:** from the plugins and platform first, then the page's words
+  in English, Arabic and Turkish (a restaurant, a clinic, a gym, a charity,
+  courses, events, real estate, a shop; else news).
+
+It reads the home page (1.5 MB at most), the web app manifest and up to two
+of the site's own stylesheets (400 KB each), 8 seconds each, all through the
+safe fetch (public addresses only, redirects checked). Saved home pages of
+each platform are its tests (`tests/unit/fixtures/sites`).
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:
