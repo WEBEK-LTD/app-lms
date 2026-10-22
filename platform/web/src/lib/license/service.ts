@@ -1,7 +1,7 @@
 import { httpsSiteAddress, moveToWordpress } from "../app/wordpress-ready";
 import type { DataStore } from "../data/store";
 import type { Mailer } from "../notices";
-import { DEFAULT_HOSTED_SETTINGS, type App, type AppType, type AppVertical, type Client, type License, type LicenseState, type PluginRelease, type SignInMethod } from "../data/types";
+import { DEFAULT_HOSTED_SETTINGS, type App, type AppType, type AppVertical, type Client, type License, type LicenseState, type PluginRelease, type SignInMethod, type SiteBrandReport } from "../data/types";
 import { toVertical } from "../app/kinds";
 import { downloadsChoice } from "../courses/downloads";
 import { screenProtectionChoice, type ScreenProtection } from "../app/screen-protection";
@@ -88,6 +88,8 @@ export interface SiteInfo {
   bookings: string | null;
   /** 48 The site's own paths that open the app on Android (permalink bases); null: the plugin didn't say. */
   linkPaths?: string[] | null;
+  /** 81.2 What the site looks like; null: the plugin didn't say (before 0.4.10). */
+  brand?: SiteBrandReport | null;
 }
 
 const bad = (message: string): { status: 400; body: ApiError } => ({
@@ -123,6 +125,61 @@ export function parseLinkPaths(value: unknown): string[] | null {
   return [...new Set(paths)].sort().slice(0, MAX_LINK_PATHS);
 }
 
+const webUrl = (value: unknown): string | null => {
+  if (typeof value !== "string" || !value || value.length > 500) return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:" ? value : null;
+  } catch {
+    return null;
+  }
+};
+const line = (value: unknown, max: number): string => (typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, max) : "");
+const linkOf = (value: unknown): { title: string; url: string } | null => {
+  const item = value && typeof value === "object" ? (value as Record<string, unknown>) : null;
+  const title = line(item?.title, 80);
+  const url = webUrl(item?.url);
+  return title && url ? { title, url } : null;
+};
+
+/**
+ * 81.2 `SiteInfo.brand`: kept to its limits (a title and tagline, two addresses, six colours,
+ * three menus of 30 items with 15 children each); null when the plugin sent none. A malformed
+ * part is left out: it never fails the license check.
+ */
+export function parseSiteBrand(value: unknown): SiteBrandReport | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const input = value as Record<string, unknown>;
+  const colors = Array.isArray(input.colors) ? input.colors.filter((c): c is string => typeof c === "string" && /^#[0-9a-f]{6}$/i.test(c)).map((c) => c.toLowerCase()) : [];
+  const menus = (Array.isArray(input.menus) ? input.menus : [])
+    .slice(0, 3)
+    .map((menu) => {
+      const m = menu && typeof menu === "object" ? (menu as Record<string, unknown>) : {};
+      const items = (Array.isArray(m.items) ? m.items : [])
+        .slice(0, 30)
+        .map((item) => {
+          const link = linkOf(item);
+          if (!link) return null;
+          const children = (Array.isArray((item as Record<string, unknown>).children) ? ((item as Record<string, unknown>).children as unknown[]) : [])
+            .slice(0, 15)
+            .map(linkOf)
+            .filter((c): c is { title: string; url: string } => c !== null);
+          return { ...link, children };
+        })
+        .filter((i): i is { title: string; url: string; children: { title: string; url: string }[] } => i !== null);
+      return { location: line(m.location, 64) || "menu", items };
+    })
+    .filter((menu) => menu.items.length > 0);
+  return {
+    name: line(input.name, 120),
+    tagline: line(input.tagline, 200),
+    logoUrl: webUrl(input.logo_url),
+    iconUrl: webUrl(input.icon_url),
+    colors: [...new Set(colors)].slice(0, 6),
+    menus,
+  };
+}
+
 /** Validates the SiteInfo request body. */
 export function parseSiteInfo(body: unknown): { ok: true; value: SiteInfo } | { ok: false; result: { status: 400; body: ApiError } } {
   if (!body || typeof body !== "object" || Array.isArray(body)) {
@@ -148,7 +205,7 @@ export function parseSiteInfo(body: unknown): { ok: true; value: SiteInfo } | { 
   if (bookings === undefined) return { ok: false, result: bad("bookings must be a string.") };
   return {
     ok: true,
-    value: { licenseKey, siteUrlRaw: siteUrlRaw.trim(), siteUrl, pluginVersion: pluginVersion.trim(), wpVersion, lms, store, bookings, linkPaths: parseLinkPaths(input.link_paths) },
+    value: { licenseKey, siteUrlRaw: siteUrlRaw.trim(), siteUrl, pluginVersion: pluginVersion.trim(), wpVersion, lms, store, bookings, linkPaths: parseLinkPaths(input.link_paths), brand: parseSiteBrand(input.brand) },
   };
 }
 
@@ -291,7 +348,7 @@ export async function activateLicense(store: DataStore, site: SiteInfo, now: Dat
   }
   // 19 The app waited for its WordPress site: this is it.
   const app = license.appId ? await store.getAppById(license.appId) : null;
-  if (app) await saveSitePaths(store, app, site.linkPaths ?? null, now);
+  if (app) await saveSiteReport(store, app, site, now);
   const siteUrl = httpsSiteAddress(site.siteUrlRaw);
   if (app?.backend === "setup_requested" && siteUrl) {
     try {
@@ -336,7 +393,7 @@ export async function checkLicense(store: DataStore, site: SiteInfo, now: Date):
     lastCheckedAt: now,
   });
   const app = license.appId ? await store.getAppById(license.appId) : null;
-  if (app) await saveSitePaths(store, app, site.linkPaths ?? null, now);
+  if (app) await saveSiteReport(store, app, site, now);
   return { status: 200, body: statusBody(facts, plans, "active", license, now, null) };
 }
 
@@ -344,6 +401,26 @@ export async function checkLicense(store: DataStore, site: SiteInfo, now: Date):
  * 48 Keeps the paths the site reported for the app's next build (`links.site_paths`), only
  * when they changed, so a license check every 12 hours writes nothing.
  */
+/**
+ * 48, 81.2 Keeps what the site reported for the app (its paths for the next build, its look
+ * for a draft), only when it changed: a license check every 12 hours writes nothing.
+ */
+export async function saveSiteReport(store: DataStore, app: App, site: Pick<SiteInfo, "linkPaths" | "brand">, now: Date): Promise<boolean> {
+  if (app.backend !== "wordpress" && app.backend !== "setup_requested") return false;
+  const settings = app.hostedSettings;
+  const paths = site.linkPaths ?? null;
+  const brand = site.brand ?? null;
+  const pathsChanged = paths !== null && app.backend === "wordpress" && JSON.stringify(settings?.sitePaths ?? null) !== JSON.stringify(paths);
+  const brandChanged = brand !== null && JSON.stringify(settings?.siteBrand ?? null) !== JSON.stringify(brand);
+  if (!pathsChanged && !brandChanged) return false;
+  await store.updateApp(
+    app.id,
+    { hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, ...settings, ...(pathsChanged ? { sitePaths: paths } : {}), ...(brandChanged ? { siteBrand: brand } : {}) } },
+    now,
+  );
+  return true;
+}
+
 export async function saveSitePaths(store: DataStore, app: App, paths: string[] | null, now: Date): Promise<boolean> {
   if (paths === null || app.backend !== "wordpress") return false;
   const current = app.hostedSettings?.sitePaths ?? null;

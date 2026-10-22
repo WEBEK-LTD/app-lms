@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.9
+Stable tag: 0.4.10
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -112,6 +112,9 @@ Terms: https://developer.huawei.com/consumer/en/devservice/term
 Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 
 == Changelog ==
+
+= 0.4.10 =
+* Your site's look for your app: with each license check the plugin tells Yallapp your site's title and tagline, logo, site icon, your theme's colours and your menus, so an app made from your site starts with your brand and your menu.
 
 = 0.4.9 =
 * Chat in the app (Pro and Business plans): people write to you from the app, and in an academy each course can have its group. The messages are on Yallapp; you answer in your Yallapp dashboard and in Yallapp Business.

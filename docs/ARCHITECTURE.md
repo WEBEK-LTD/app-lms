@@ -2493,6 +2493,25 @@ of the site's own stylesheets (400 KB each), 8 seconds each, all through the
 safe fetch (public addresses only, redirects checked). Saved home pages of
 each platform are its tests (`tests/unit/fixtures/sites`).
 
+### The site's look from the plugin (81.2)
+
+On WordPress the plugin says what the site looks like (`Site_Brand`, plugin
+0.4.10) with every license activation and check (`SiteInfo.brand` in
+`docs/api/platform.yaml`):
+
+- the site's title and tagline;
+- the custom logo and the site icon (512 px);
+- the theme's colours: theme.json's palette, the site's own (custom, then
+  the theme's), with the brand slugs (primary, brand, accent, secondary…)
+  first and greys left out, six at most;
+- its menus by location, two levels deep: three menus of 30 items, with 15
+  children each.
+
+The platform keeps it to the contract's limits (`parseSiteBrand`) and stores
+it on the app (`hostedSettings.siteBrand`) only when it changed, with the
+site's link paths (`saveSiteReport`). A draft app made from a WordPress site
+(81.3) starts from it.
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:

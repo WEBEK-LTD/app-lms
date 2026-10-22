@@ -230,6 +230,12 @@ export interface HostedSettings {
    */
   sitePaths?: string[] | null;
   /**
+   * 81.2 WordPress apps: what the site looks like, as the plugin reported it
+   * with its last license check (`SiteInfo.brand`): for a draft app made
+   * from it (81.3).
+   */
+  siteBrand?: SiteBrandReport | null;
+  /**
    * 53 Screenshots and screen recording in the app, as the owner chose on the
    * Screen protection page: `off`, `content` (course content only, academies)
    * or `app` (every screen). Missing until they choose: off, or the plugin's
@@ -2999,3 +3005,13 @@ export type IntegrationChecks = Partial<Record<IntegrationKey, IntegrationCheck>
 
 /** 80.3 A payment still pending at its provider, for the pending-payments check (lib/payments/pending.ts). */
 export type PendingPayment = { kind: "order"; record: CatalogOrder } | { kind: "plan"; record: PlanPayment } | { kind: "donation"; record: Donation };
+
+/** 81.2 A WordPress site's look, as its plugin reports it (docs/api/platform.yaml `SiteInfo.brand`). */
+export interface SiteBrandReport {
+  name: string;
+  tagline: string;
+  logoUrl: string | null;
+  iconUrl: string | null;
+  colors: string[];
+  menus: { location: string; items: { title: string; url: string; children: { title: string; url: string }[] }[] }[];
+}
