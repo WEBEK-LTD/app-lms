@@ -1173,6 +1173,10 @@ never in a chat or an issue.
       client's site through the safe fetch. Leave `SITE_SCAN_TEST_URL` unset
       on Netlify (it is refused there; only the e2e tests use it). Try it once
       with a real WordPress site and a real Shopify shop after the deploy.
+- [ ] **Import** (81.4): no migration. Products, Services and Courses have
+      "Import from a file" (CSV, a product feed or a Google Sheet's link).
+      Try a Google Merchant Center feed and an Excel CSV saved in Turkish
+      after the deploy.
 - [ ] Campaign links: point them at any page of the site with
       `utm_source`, `utm_medium` and `utm_campaign` (and `from` for a page
       of ours, like `from=newsletter`); the sign-up records them while the

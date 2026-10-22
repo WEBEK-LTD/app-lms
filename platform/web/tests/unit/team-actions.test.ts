@@ -65,6 +65,8 @@ const GROUPS: { file: string; all?: unknown; only?: Expected; skip?: string[] }[
   },
   { file: "donations", all: "donations" },
   { file: "events", all: "events" },
+  // 81.4 Products and courses are the catalog's, services the bookings': the app decides which.
+  { file: "import", all: ["catalog", "bookings"] },
   { file: "listings", all: "catalog", only: { replyInquiryAction: "messages", setInquiryStatusAction: "messages" } },
   { file: "media", all: "media", only: { listMediaAction: ["media", "catalog", "settings"], shareMediaAction: ["media", "catalog", "settings"], buyStorageAction: "billing" } },
   { file: "more-stores", all: "settings" },

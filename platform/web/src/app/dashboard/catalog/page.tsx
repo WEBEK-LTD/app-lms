@@ -81,10 +81,17 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
           <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{pageTitle}</h1>
           <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("shop.intro", { kind })}</p>
         </div>
-        <Link href="/dashboard/catalog/new" className={`${btn.primary} h-11`}>
-          <Icon name="add" size={20} />
-          {t("shop.add", { kind })}
-        </Link>
+        <div className="flex flex-wrap gap-3">
+          {/* 81.4 */}
+          <Link href="/dashboard/catalog/import" className={`${btn.secondary} h-11`}>
+            <Icon name="upload" size={20} />
+            {t("imports.open")}
+          </Link>
+          <Link href="/dashboard/catalog/new" className={`${btn.primary} h-11`}>
+            <Icon name="add" size={20} />
+            {t("shop.add", { kind })}
+          </Link>
+        </div>
       </div>
 
       {saved ? (

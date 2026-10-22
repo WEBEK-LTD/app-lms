@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { deleteCourseCategoryAction } from "@/app/actions/courses";
 import { SubmitButton } from "@/components/form";
-import { Badge, Notice } from "@/components/ui";
+import { Badge, Notice, btn } from "@/components/ui";
+import { Icon } from "@/components/icon";
 import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
 import { courseSetup, lessonsOf } from "@/lib/courses/setup";
@@ -74,9 +75,16 @@ export default async function CoursesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex max-w-[620px] flex-col gap-2">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("courses.title")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("courses.intro")}</p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex max-w-[620px] flex-col gap-2">
+          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("courses.title")}</h1>
+          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("courses.intro")}</p>
+        </div>
+        {/* 81.4 */}
+        <Link href="/dashboard/courses/import" className={`${btn.secondary} h-11`}>
+          <Icon name="upload" size={20} />
+          {t("imports.open")}
+        </Link>
       </div>
       {paid && !app.catalogSettings?.payment ? (
         <Notice tone="warn" icon="warning">
