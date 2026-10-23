@@ -109,7 +109,7 @@ export default async function PagesPage({ searchParams }: PageProps<"/dashboard/
           samples: designSamples(app, now),
           history: await layoutHistory(store, app.id),
         }}
-        designs={designsFor(app).map((d) => ({ id: d.id, name: d.name, description: d.description, layout: designLayout(app, d, record.draft, now) }))}
+        designs={designsFor(app).map((d) => ({ id: d.id, name: d.name, description: d.description, layout: designLayout(app, d, record.draft, now), palettes: d.palettes ?? [] }))}
         app={{
           appType: app.appType,
           name: app.appName ?? t("setup.yourApp"),

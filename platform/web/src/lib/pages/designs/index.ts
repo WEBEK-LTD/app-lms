@@ -1,10 +1,10 @@
 import { isAppType, kindOf } from "../../app/kinds";
 import type { App, AppVertical } from "../../data/types";
 import { safeHref } from "../html";
-import type { LayoutBlock, LayoutContent, LayoutPage } from "../types";
+import type { LayoutBlock, LayoutContent, LayoutPage, LayoutTab } from "../types";
 import { ACADEMY_DESIGNS } from "./academy";
 import { BOOKINGS_DESIGNS, CLINIC_DESIGNS, FITNESS_DESIGNS, SERVICES_DESIGNS } from "./bookings";
-import type { Design } from "./build";
+import { aboutPage, contactPage, page, PALETTES, tab, type Design, type Palette } from "./build";
 import { CHARITY_DESIGNS, EVENTS_DESIGNS, NEWS_DESIGNS, REAL_ESTATE_DESIGNS } from "./more";
 import { RESTAURANT_DESIGNS, STORE_DESIGNS } from "./store";
 
@@ -18,6 +18,8 @@ export { blockTexts, sampleTexts } from "./texts";
  * what's published, and they edit everything after. tests/unit/designs.test.ts
  * checks each against the same validator publishing uses.
  */
+const MENU_ICONS: Record<string, string> = { about: "info", contact: "call", offers: "local_offer" };
+
 export const DESIGNS: readonly Design[] = [
   ...ACADEMY_DESIGNS,
   ...STORE_DESIGNS,
@@ -30,7 +32,27 @@ export const DESIGNS: readonly Design[] = [
   ...NEWS_DESIGNS,
   ...EVENTS_DESIGNS,
   ...CHARITY_DESIGNS,
-];
+].map(withCompanyPages);
+
+/**
+ * 84.2 Every design has an About us and a Contact page besides its own
+ * (those it lacks are added), in the side menu with the pages it has that
+ * no tab opens; and colours to choose from: its own, then two of PALETTES.
+ */
+function withCompanyPages(design: Design, index: number): Design {
+  const pages = [...design.pages];
+  if (!pages.some((p) => p.slug === "about")) pages.push(aboutPage());
+  if (!pages.some((p) => p.slug === "contact")) pages.push(contactPage());
+  const inTabs = new Set(design.tabs.map((t) => (t.target.type === "page" ? t.target.page_slug : null)));
+  const menu: LayoutTab[] = pages
+    .filter((p) => p.slug !== "home" && !inTabs.has(p.slug))
+    .map((p) => tab(`menu-${p.slug}`, p.title, MENU_ICONS[p.slug] ?? "info", page(p.slug)));
+  // Its own: the app keeps its main colour.
+  const own: Palette = { id: "design", name: "The design's colours", primary: null, secondary: design.look.secondary_color ?? PALETTES[0]!.secondary };
+  const others = [PALETTES[index % PALETTES.length]!, PALETTES[(index + 3) % PALETTES.length]!];
+  return { ...design, pages, ...(menu.length ? { menu } : {}), palettes: [own, ...others] };
+}
+
 
 export function designById(id: unknown): Design | null {
   return DESIGNS.find((d) => d.id === id) ?? null;
@@ -117,6 +139,8 @@ export function applyDesign(
     appearance: { ...context.current.appearance, ...design.look },
     languages: structuredClone(context.current.languages),
     tabs: structuredClone(design.tabs),
+    // 84.2 Its other pages, in the side menu.
+    ...(design.menu?.length ? { menu: structuredClone(design.menu) } : {}),
     pages,
   };
 }

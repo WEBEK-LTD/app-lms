@@ -284,6 +284,9 @@ export const PAGE_TEXTS_TR: Record<string, string> = {
   "12 weeks": "12 hafta",
   "See membership plans": "Üyelik planlarını görün",
   "Write what a client says about training with you.": "Bir danışanın sizinle antrenman yapmak hakkında söylediklerini yazın.",
+  // 84.2 Every design's About us and Contact pages
+  "<p>Write who you are, what you do and what makes {app} different.</p>": "<p>Kim olduğunuzu, ne yaptığınızı ve {app} uygulamasını neyin farklı kıldığını yazın.</p>",
+  "<p>Write how and when people can reach you.</p>": "<p>İnsanların size nasıl ve ne zaman ulaşabileceğini yazın.</p>",
   // 84.1 Services and companies designs
   "About us": "Hakkımızda",
   "Your home, taken care of": "Eviniz emin ellerde",

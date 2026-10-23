@@ -36,7 +36,45 @@ export interface Design {
   look: Pick<Appearance, "template" | "corners" | "cards" | "font" | "secondary_color">;
   tabs: LayoutTab[];
   pages: DesignPage[];
+  /** 84.2 The side menu: every design gets its About us and Contact pages there (index.ts). */
+  menu?: LayoutTab[];
+  /** 84.2 Colours that suit it, the first its own; the owner can pick one when choosing it. */
+  palettes?: Palette[];
 }
+
+/** 84.2 A main and a second colour that go together. */
+export interface Palette {
+  id: string;
+  name: string;
+  /** The app's main colour; null keeps the one it has. */
+  primary: string | null;
+  secondary: string;
+}
+
+/** 84.2 Colours offered with the designs, besides each design's own. */
+export const PALETTES: readonly Palette[] = [
+  { id: "ocean", name: "Ocean", primary: "#0E4C92", secondary: "#38BDF8" },
+  { id: "forest", name: "Forest", primary: "#1F5135", secondary: "#A3C46B" },
+  { id: "sunset", name: "Sunset", primary: "#B4232A", secondary: "#F59E0B" },
+  { id: "berry", name: "Berry", primary: "#6D1A5B", secondary: "#EC4899" },
+  { id: "slate", name: "Slate", primary: "#1E293B", secondary: "#14B8A6" },
+  { id: "sand", name: "Sand", primary: "#7C4A1E", secondary: "#E9B872" },
+];
+
+/** 84.2 Pages most businesses want besides the home page. */
+export const aboutPage = (): DesignPage => ({
+  slug: "about",
+  title: "About us",
+  show_title: true,
+  blocks: [text("story", "<p>Write who you are, what you do and what makes {app} different.</p>")],
+});
+
+export const contactPage = (): DesignPage => ({
+  slug: "contact",
+  title: "Contact",
+  show_title: true,
+  blocks: [text("reach", "<p>Write how and when people can reach you.</p>"), contact("Contact us")],
+});
 
 export interface DesignPage {
   slug: string;

@@ -33,6 +33,7 @@ export const en = {
   previewFrameTheme: "{app} with your draft, {theme}",
   // 82.5 Block looks, your own icons and the side menu.
   background: "Background",
+  colours: "Colours",
   spacing: "Space around it",
   bgNone: "None",
   bgTint: "A light wash of your colour",
@@ -499,6 +500,7 @@ export const ar: Messages = {
   previewFrameTheme: "{app} بمسودتك، {theme}",
   // 82.5 Block looks, your own icons and the side menu.
   background: "الخلفية",
+  colours: "الألوان",
   spacing: "المسافة حولها",
   bgNone: "بلا خلفية",
   bgTint: "لمسة خفيفة من لونك",
@@ -958,6 +960,7 @@ export const tr: Messages = {
   previewFrameTheme: "Taslağınızla {app}, {theme}",
   // 82.5 Block looks, your own icons and the side menu.
   background: "Arka plan",
+  colours: "Renkler",
   spacing: "Çevresindeki boşluk",
   bgNone: "Yok",
   bgTint: "Renginizin açık bir tonu",

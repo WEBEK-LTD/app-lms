@@ -8,6 +8,7 @@ import { Badge, btn, formatDateTime } from "@/components/ui";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import { newBlockId } from "@/lib/pages/defaults";
 import { devicesWithout, type AppVersionCount } from "@/lib/pages/reach";
+import type { Palette } from "@/lib/pages/designs/build";
 import { blockTexts } from "@/lib/pages/designs/texts";
 import { BLOCK_GROUPS, BLOCK_HINTS, BLOCK_ICONS, BLOCK_LABELS, CARD_LABELS, CORNER_LABELS, TEMPLATE_LABELS, THEME_MODE_LABELS } from "@/lib/pages/labels";
 import { duplicatePage, moveItem, newBlock, pageLinks, renamePageLinks, switchDefaultLanguage, uniqueSlug } from "@/lib/pages/model";
@@ -164,7 +165,7 @@ export function PagesEditor({
   /** The ready-made pages and tabs the app gets without the full page editor. */
   ready: Pick<LayoutContent, "pages" | "tabs">;
   /** 33 The ready-made designs for the app's kind, each as the draft it would make. */
-  designs: { id: string; name: string; description: string; layout: LayoutContent }[];
+  designs: { id: string; name: string; description: string; layout: LayoutContent; palettes: Palette[] }[];
   /** 43 Yallapp's translations of the texts it wrote, for the phone preview. */
   builtin: Record<string, Record<string, string>>;
   /** 82.1 The app preview's address with the draft (hosted apps); null shows the quick view only. */
@@ -363,13 +364,17 @@ export function PagesEditor({
 
   // 33 Ready-made designs
 
+  // 84.2 The colours chosen on each design's card (its own until another is picked).
+  const [palettes, setPalettes] = useState<Record<string, string>>({});
+
   async function chooseDesign(id: string, name: string) {
     if (!window.confirm(t("pages.replaceDesign", { name }))) return;
     setBusy(true);
     edits.current += 1;
     const sent = edits.current;
     try {
-      const r = await applyDesignAction(id);
+      // 84.2 With the colours chosen on its card.
+      const r = await applyDesignAction(id, palettes[id]);
       applied(r, sent, true);
       if (r.ok) {
         setSamples(r.samples ?? {});
@@ -649,6 +654,28 @@ export function PagesEditor({
                           {currentDesign === d.id ? <Badge tone="neutral">{t("pages.yourDesign")}</Badge> : null}
                         </span>
                         <span className="text-xs text-muted">{known(d.description)}</span>
+                        {d.palettes.length ? (
+                          <fieldset className="m-0 flex flex-col gap-1.5 border-0 p-0">
+                            <legend className="mb-1 p-0 text-xs font-semibold">{t("pages.colours")}</legend>
+                            <span className="flex flex-wrap gap-2">
+                              {d.palettes.map((p) => (
+                                <label key={p.id} className="flex cursor-pointer items-center gap-1 rounded-lg border border-line px-1.5 py-1 has-[:checked]:border-midnight" title={known(p.name)}>
+                                  <input
+                                    type="radio"
+                                    name={`palette-${d.id}`}
+                                    value={p.id}
+                                    checked={(palettes[d.id] ?? d.palettes[0]!.id) === p.id}
+                                    onChange={() => setPalettes((all) => ({ ...all, [d.id]: p.id }))}
+                                    className="sr-only"
+                                  />
+                                  <span aria-hidden="true" className="h-4 w-4 rounded-full border border-line" style={{ background: p.primary ?? app.primaryColor }} />
+                                  <span aria-hidden="true" className="h-4 w-4 rounded-full border border-line" style={{ background: p.secondary }} />
+                                  <span className="sr-only">{known(p.name)}</span>
+                                </label>
+                              ))}
+                            </span>
+                          </fieldset>
+                        ) : null}
                         {/* 38 Grows with its text: in four narrow columns "Use this design" takes two lines. */}
                         <button type="button" className={`${btn.secondary} mt-auto min-h-9 px-3 py-1.5 text-center leading-tight`} disabled={busy} aria-label={t("pages.useNamed", { name: known(d.name) })} onClick={() => void chooseDesign(d.id, known(d.name))}>
                           {t("pages.useDesign")}

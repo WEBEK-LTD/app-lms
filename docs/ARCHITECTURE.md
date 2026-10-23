@@ -2741,6 +2741,17 @@ them under Publish history, marking the one in the app; "Use as draft"
 with the draft's own interface strings; what's published stays until the
 owner publishes.
 
+### Designs with several pages, colours and pictures (84.2)
+
+Every design (`lib/pages/designs`, `withCompanyPages`) has an About us and
+a Contact page besides its own, in the side menu when no tab opens them,
+and three palettes: its own (the app keeps its main colour) and two of
+`PALETTES`. Choosing one on the design's card sets the look's second colour
+and the app's main colour (`applyDesignAction`). Yallapp's picture library
+(`lib/pages/picture-library.ts`): plain shapes in the palettes' colours,
+made by `scripts/design-pictures.py` into `public/design-pictures`,
+offered in "Choose from Media" for slides, banners and images.
+
 ### One definition per block (83.1)
 
 Each block type has one definition in `lib/pages/blocks.ts`

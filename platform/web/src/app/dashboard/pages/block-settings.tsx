@@ -240,7 +240,7 @@ function MoreBlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ctx: 
                   value={s.image_url ?? ""}
                   onChange={(v) => setSlide({ ...s, image_url: v || null })}
                 />
-                <MediaPicker kind="image" onPick={(link) => setSlide({ ...s, image_url: link })} />
+                <MediaPicker kind="image" library onPick={(link) => setSlide({ ...s, image_url: link })} />
                 <LangText id={`${id}-s${i}-heading`} label={t("pages.heading")} value={s} field="heading" max={ENTRY_TEXT_LIMITS.slides.heading} lang={lang} onChange={setSlide} />
                 <LangText id={`${id}-s${i}-subheading`} label={t("pages.textUnder")} value={s} field="subheading" max={ENTRY_TEXT_LIMITS.slides.subheading} lang={lang} onChange={setSlide} />
                 <ActionEditor id={`${id}-s${i}-action`} label={t("pages.onTap")} action={s.action} optional onChange={(action) => setSlide({ ...s, action })} {...actionProps} />
@@ -529,7 +529,7 @@ export function BlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ct
         <>
           <TextInput id={`${id}-image`} label={t("pages.imageAddress")} dir="ltr" type="url" inputMode="url" placeholder="https://" value={block.image_url ?? ""} onChange={(image_url) => set({ image_url })} />
           {/* 51 Pictures and videos from the Media library. */}
-          <MediaPicker kind="image" onPick={(image_url) => set({ image_url })} />
+          <MediaPicker kind="image" library onPick={(image_url) => set({ image_url })} />
           <LangText id={`${id}-heading`} label={t("pages.heading")} value={block} field="heading" max={blockTextLimit(block.type, "heading")} lang={lang} onChange={onChange} />
           <LangText id={`${id}-subheading`} label={t("pages.textUnder")} value={block} field="subheading" max={blockTextLimit(block.type, "subheading")} lang={lang} onChange={onChange} />
           <ActionEditor id={`${id}-action`} label={t("pages.onTap")} action={block.action} optional onChange={(action) => set({ action })} {...actionProps} />
@@ -554,7 +554,7 @@ export function BlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ct
       {block.type === "image" ? (
         <>
           <TextInput id={`${id}-image`} label={t("pages.imageAddress")} dir="ltr" type="url" inputMode="url" placeholder="https://" value={block.image_url ?? ""} onChange={(image_url) => set({ image_url })} />
-          <MediaPicker kind="image" onPick={(image_url) => set({ image_url })} />
+          <MediaPicker kind="image" library onPick={(image_url) => set({ image_url })} />
           <TextInput
             id={`${id}-ratio`}
             label={t("pages.shape")}

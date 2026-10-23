@@ -6,7 +6,8 @@ import { listMediaAction, shareMediaAction, type PickableMedia } from "@/app/act
 import type { MediaKind } from "@/lib/data/types";
 import { Icon } from "./icon";
 import { btn } from "./ui";
-import { useDashT } from "./dashboard-i18n";
+import { useDashT, useKnownText } from "./dashboard-i18n";
+import { SHAPE_NAMES, type LibraryPicture } from "@/lib/pages/picture-library";
 import { richText } from "@/i18n/rich";
 import type { DashKey } from "@/i18n/dashboard";
 
@@ -24,10 +25,13 @@ const KIND_WORDS: Record<PickKind, { yours: DashKey; none: DashKey; icon: "smart
  * choosing one hands its Yallapp link to `onPick`. With `share`, a video
  * chosen for a page opens for anyone with the app (its link is public).
  */
-export function MediaPicker({ kind, onPick, label, share = false }: { kind: PickKind; onPick: (link: string) => void; label?: string; share?: boolean }) {
+export function MediaPicker({ kind, onPick, label, share = false, library = false }: { kind: PickKind; onPick: (link: string) => void; label?: string; share?: boolean; library?: boolean }) {
   const t = useDashT();
+  const known = useKnownText();
   const dialog = useRef<HTMLDialogElement>(null);
   const [items, setItems] = useState<PickableMedia[] | null>(null);
+  // 84.2 Yallapp's pictures, for pictures on pages.
+  const [pictures, setPictures] = useState<LibraryPicture[]>([]);
   const [available, setAvailable] = useState(true);
   const [pending, start] = useTransition();
   const words = KIND_WORDS[kind];
@@ -35,8 +39,9 @@ export function MediaPicker({ kind, onPick, label, share = false }: { kind: Pick
   const open = () => {
     dialog.current?.showModal();
     start(async () => {
-      const result = await listMediaAction({ kind });
+      const result = await listMediaAction({ kind, library });
       setItems(result.items);
+      setPictures(result.library);
       setAvailable(result.available);
     });
   };
@@ -109,6 +114,35 @@ export function MediaPicker({ kind, onPick, label, share = false }: { kind: Pick
               ))}
             </ul>
           )}
+          {pictures.length ? (
+            <section aria-labelledby="h-picture-library" className="flex flex-col gap-2 border-t border-line-soft pt-3">
+              <h3 id="h-picture-library" className="m-0 text-[15px] font-bold">
+                {t("media.library")}
+              </h3>
+              <p className="m-0 text-[13px] text-muted">{t("media.libraryText")}</p>
+              <ul className="m-0 grid max-h-[40vh] list-none grid-cols-3 gap-2 overflow-y-auto p-0">
+                {pictures.map((picture) => {
+                  const name = `${known(picture.palette)} · ${known(SHAPE_NAMES[picture.shape])}`;
+                  return (
+                    <li key={picture.id}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onPick(picture.url);
+                          dialog.current?.close();
+                        }}
+                        className="block w-full cursor-pointer overflow-hidden rounded-lg border border-line p-0 hover:border-midnight"
+                        aria-label={t("media.use", { name })}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element -- a small, ready picture of ours */}
+                        <img src={picture.url} alt="" className="block aspect-video w-full object-cover" loading="lazy" />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          ) : null}
           {share ? <p className="m-0 text-[13px] text-muted">{t("media.sharedVideo")}</p> : null}
         </div>
       </dialog>

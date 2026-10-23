@@ -99,13 +99,17 @@ export async function restoreLayoutVersionAction(number: number): Promise<Layout
  * 33 Replaces the draft with a ready-made design for the app's kind (the
  * editor asked the owner first). What's published stays until they publish.
  */
-export async function applyDesignAction(designId: string): Promise<LayoutSaveResult & { samples?: Record<string, string> }> {
+export async function applyDesignAction(designId: string, paletteId?: string): Promise<LayoutSaveResult & { samples?: Record<string, string> }> {
   const { app } = await requireLayoutApp();
   const store = await getStore();
   const design = designById(designId);
   if (!design || !designFits(design, app)) return { ok: false, errors: ["This design isn't available for your app. Choose another one."] };
+  // 84.2 With one of its colours: the second colour in the look, and the main colour too when it has one.
+  const palette = paletteId ? design.palettes?.find((p) => p.id === paletteId) : undefined;
+  if (paletteId && !palette) return { ok: false, errors: ["Choose one of the colours shown."] };
   const now = new Date();
-  const saved = await saveDesignDraft(store, app, design, now);
+  if (palette?.primary) await store.updateApp(app.id, { primaryColor: palette.primary }, now);
+  const saved = await saveDesignDraft(store, palette?.primary ? { ...app, primaryColor: palette.primary } : app, design, now, palette ? { secondary_color: palette.secondary } : {});
   if (!saved.ok) return saved;
   revalidatePath("/dashboard/pages");
   return { ...result(saved.value.record, `Your draft now uses the ${design.name} design. Change anything you like, then publish.`), samples: saved.value.samples };

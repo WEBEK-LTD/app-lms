@@ -1,5 +1,6 @@
 "use server";
 
+import { pictureLibrary, type LibraryPicture } from "@/lib/pages/picture-library";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordStaffChange } from "@/lib/admin/audit";
@@ -146,11 +147,13 @@ export interface PickableMedia {
 }
 
 /** The app's ready files for a picker (lesson videos, pictures in pages, products and listings). */
-export async function listMediaAction(input: { kind: MediaKind }): Promise<{ items: PickableMedia[]; available: boolean }> {
+export async function listMediaAction(input: { kind: MediaKind; library?: boolean }): Promise<{ items: PickableMedia[]; available: boolean; library: LibraryPicture[] }> {
   const context = await mediaContext(["media", "catalog", "settings"]);
   const storage = getMediaStorage();
   const files = await (await getStore()).listMediaFiles(context.app.id, { kind: input.kind, status: "ready", limit: 300 });
-  return { items: files.map((f) => pickable(f, storage)), available: storage !== null };
+  // 84.2 Yallapp's pictures for the designs, for pictures on pages.
+  const library = input.kind === "image" && input.library ? pictureLibrary(appUrl()) : [];
+  return { items: files.map((f) => pickable(f, storage)), available: storage !== null, library };
 }
 
 function pickable(file: MediaFile, storage: ReturnType<typeof getMediaStorage>): PickableMedia {

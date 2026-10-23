@@ -579,7 +579,7 @@ languages).
 | [x] | 33.5 Picking a design: the Branding step shows the kind's designs with a picture drawn from each (or "Keep my pages"), and a design brings its template and font; Pages & look has "Start from a design" (after a confirm; never what's published); blocks that still have a design's sample texts are marked "Sample text" | `designs.spec.ts` on the memory store and MariaDB: a design in setup, its blocks, one of each new block, publish, the hosted `/pages` |
 | [x] | 33.6 Plugin: `Rich_Blocks` checks and cleans the new blocks (actions the site can't follow, tiles it can't open, an ended countdown), the translator applies entries' texts | `RichBlocksTest`, `composer lint`, the Tutor LMS integration suite (252 checks: the new blocks from `/pages/home`, in English and Arabic) |
 | [x] | 33.7 App: the eleven blocks in the three templates, right to left, "Open now" in the phone's time (breaks, after midnight, holidays), a countdown that hides or says it ended, contact and social buttons that open the phone's apps (no brand logos: each network's name); a block whose list has nothing usable is skipped; the preview bundle rebuilt | `flutter analyze`, `flutter test` (each block in each template, light and dark, on a small phone and a tablet; Arabic for the slider, hours and contact), `build_preview.sh --check` |
-| [ ] | 33.8 Pictures for designs: slides, people and quotes start without photos (the app's colors and initials instead); a picture library to choose from | Owner's review |
+| [ ] | 33.8 Pictures for designs: slides, people and quotes start without photos (the app's colors and initials instead); a picture library to choose from (84.2: Yallapp's pictures in "Choose from Media") | Owner's review |
 | [ ] | 33.9 A Social links block in the designs: Yallapp doesn't know the business's profiles, so designs leave it out and the owner adds it | The profiles in the app's settings |
 
 ## Phase 34: Yallapp sign-in for apps on their own API
@@ -1988,7 +1988,7 @@ knowing.
 | | Step | Done when |
 |---|---|---|
 | [x] | 84.1 Services and companies: a new kind with its designs. The `services` vertical on the bookings engine (cleaning, repairs, consultancies, agencies): in the app type picker, the contracts, the plugin and the app; three designs with About us, Offers and Contact pages as well as the home page; its Solutions page and the counts on the website in en/ar/tr; the site scan suggests it | `kinds.test.ts`, `designs.test.ts`, `translations.test.ts`, `site-scan.test.ts`, `vertical_test.dart` |
-| [ ] | 84.2 Designs with several pages (about, contact, offers) and colour palettes; pictures for the designs (33.8) | Design tests, screenshots |
+| [x] | 84.2 Designs with several pages (about, contact, offers) and colour palettes; pictures for the designs (33.8). Every design has About us and Contact pages (the services designs Offers too), in the side menu when no tab opens them; three colours to choose on each design's card (its own, then two of six palettes), the main colour going to the app too; Yallapp's picture library (plain shapes in the palettes' colours, `public/design-pictures`) in "Choose from Media" for slides, banners and images | `design-pages.test.ts`, `designs.test.ts`, `designs.spec.ts` |
 | [ ] | 84.3 Saved sections: save blocks as a section and reuse them in other pages and apps | e2e |
 | [ ] | 84.4 The team adds and edits designs in the admin | e2e |
 

@@ -283,6 +283,9 @@ export const PAGE_TEXTS_AR: Record<string, string> = {
   "12 weeks": "12 أسبوعًا",
   "See membership plans": "اطّلع على خطط العضوية",
   "Write what a client says about training with you.": "اكتب ما يقوله أحد العملاء عن التدريب معك.",
+  // 84.2 Every design's About us and Contact pages
+  "<p>Write who you are, what you do and what makes {app} different.</p>": "<p>اكتب من أنتم، وماذا تقدّمون، وما الذي يميّز {app}.</p>",
+  "<p>Write how and when people can reach you.</p>": "<p>اكتب كيف ومتى يمكن للناس التواصل معكم.</p>",
   // 84.1 Services and companies designs
   "About us": "من نحن",
   "Your home, taken care of": "بيتك في أيدٍ أمينة",
