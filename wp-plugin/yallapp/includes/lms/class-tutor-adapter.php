@@ -21,6 +21,12 @@ use Yallapp\Commerce\Woo_Orders;
  */
 class Tutor_Adapter implements Lms_Adapter {
 
+	/**
+	 * 83.4 This adapter's version: the third number for a fix, the second for something new it sends
+	 * the app, the first when the app must change too (docs/CONNECTORS.md).
+	 */
+	const ADAPTER_VERSION = '1.0.0';
+
 	const NATIVE_QUESTION_TYPES = array( 'true_false', 'single_choice', 'multiple_choice' );
 
 	/**

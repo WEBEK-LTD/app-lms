@@ -215,3 +215,28 @@ test("82.5 a side menu with the owner's own icon, and a block on the main colour
   const body = (await (await (await read).response())!.json()) as { menu: { label: string; icon_url?: string | null }[] };
   expect(body.menu[0]).toMatchObject({ label: "About us", icon_url: "https://example.com/about.png" });
 });
+
+test("83.3 the team switches the side menu off for this app; the app reads it at its next start", async ({ browser, request }) => {
+  const admin = await (await browser.newContext({ extraHTTPHeaders })).newPage();
+  await admin.goto("/sign-in");
+  await admin.getByLabel("Email").fill(E2E.liveEditorAdminEmail);
+  await admin.getByLabel("Password", { exact: true }).fill(E2E.adminPassword);
+  await admin.getByRole("button", { name: "Sign in" }).click();
+  await admin.waitForURL((url) => url.pathname.startsWith("/admin"));
+  await admin.goto(`/admin?q=${encodeURIComponent(client.email)}`);
+  await admin.getByRole("link", { name: client.name, exact: true }).first().click();
+  const appId = (await admin.locator("section[id^='app-']").first().getAttribute("id"))!.replace(/^app-/, "");
+  const config = async () =>
+    ((await (await request.get(`/api/app/${appId}/config?platform=android&app_version=1.0.0`, { headers: extraHTTPHeaders })).json()) as { switches: Record<string, boolean> }).switches;
+  expect(await config()).toMatchObject({ side_menu: true, chat: true });
+
+  const form = admin.getByRole("form", { name: "App switches" });
+  await form.getByLabel(/^Side menu/).uncheck();
+  await form.getByRole("button", { name: "Save switches" }).click();
+  await expect(form.getByRole("status")).toContainText("Saved. The app follows them from its next start.");
+  expect(await config()).toMatchObject({ side_menu: false, chat: true });
+  // The app's pages leave the menu out too.
+  const pages = (await (await request.get(`/api/app/${appId}/pages?platform=android`, { headers: extraHTTPHeaders })).json()) as { menu: unknown[] };
+  expect(pages.menu).toEqual([]);
+  await admin.context().close();
+});

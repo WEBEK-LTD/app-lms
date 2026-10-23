@@ -32,6 +32,7 @@ class AppConfig {
     this.vertical,
     this.shareBaseUrl,
     this.chat,
+    this.switches = const {},
   });
 
   factory AppConfig.fromJson(Json json) => AppConfig(
@@ -53,7 +54,18 @@ class AppConfig {
     vertical: AppVertical.fromWire(json['vertical']),
     shareBaseUrl: _shareBase(json['links']),
     chat: _chat(json['chat']),
+    switches: _switches(json['switches']),
   );
+
+  /// 83.3 Whether the Yallapp team left a module or new feature on for this
+  /// app: on unless `Config.switches` says false (older servers send none).
+  bool switchOn(String name) => switches[name] != false;
+
+  static Map<String, bool> _switches(Object? value) => {
+    if (value is Map)
+      for (final MapEntry(:key, :value) in value.entries)
+        if (key is String && value is bool) key: value,
+  };
 
   /// 53 What the app protects from screenshots and screen recording. An
   /// older server without `app.screen_protection` protects lessons when
@@ -86,6 +98,9 @@ class AppConfig {
         ? value.replaceAll(RegExp(r'/+$'), '')
         : null;
   }
+
+  /// 83.3 The team's switches for the app's modules and new features.
+  final Map<String, bool> switches;
 
   final SiteInfo site;
   final RemoteBranding branding;

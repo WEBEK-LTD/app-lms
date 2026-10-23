@@ -1,7 +1,9 @@
 import type { App } from "../data/types";
 import { parseInterfaceStrings } from "../i18n/app-strings";
 import { isLanguageCode, MAX_LANGUAGES } from "../i18n/locales";
+import { BLOCK_DEFINITIONS, blockListLimits, blockTextLimit, ENTRY_TEXT_LIMITS, type BlockList, type BlockText } from "./blocks";
 import { cleanBlockHtml, safeHref } from "./html";
+import { BLOCK_LABELS } from "./labels";
 import { ICON_NAME } from "./icons";
 import { appOpensScreen, blockTypesFor, categorySourcesFor, itemSourcesFor, screenName, sortFor } from "./sources";
 import {
@@ -30,6 +32,7 @@ import {
   type Action,
   type Appearance,
   type AppDefaultsSetting,
+  type BlockType,
   type EntryList,
   type FaqEntry,
   type HoursPeriod,
@@ -62,30 +65,7 @@ export const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const ID = /^[A-Za-z0-9_-]{1,40}$/;
 const HEX = /^#[0-9A-Fa-f]{6}$/;
 
-const BLOCK_NAMES: Record<string, string> = {
-  banner: "Banner",
-  text: "Text",
-  image: "Image",
-  video: "Video",
-  button: "Button",
-  items: "List",
-  categories: "Categories",
-  search: "Search",
-  continue_learning: "Continue learning",
-  embed: "Web page",
-  spacer: "Space",
-  slider: "Slider",
-  quick_links: "Quick links",
-  testimonials: "Testimonials",
-  faq: "Questions",
-  countdown: "Countdown",
-  contact: "Contact",
-  hours: "Opening hours",
-  social: "Social links",
-  team: "Team",
-  stats: "Numbers",
-  notice: "Notice",
-};
+const BLOCK_NAMES: Record<string, string> = BLOCK_LABELS;
 
 function record(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
@@ -282,30 +262,6 @@ function parseTranslations(ctx: Context, where: string, value: unknown, fields: 
   return Object.keys(out).length ? out : undefined;
 }
 
-const BLOCK_TEXT_LIMITS = {
-  title: 80,
-  heading: 120,
-  subheading: 200,
-  html: LAYOUT_LIMITS.htmlChars,
-  label: 40,
-  placeholder: 60,
-  // 33
-  text: 200,
-  ended_text: 120,
-  note: 300,
-  address: 200,
-};
-
-/** 33 The texts of a block's list entries. */
-const ENTRY_TEXT_LIMITS: { [L in EntryList]: Record<(typeof TRANSLATABLE_ENTRIES)[L][number], number> } = {
-  slides: { heading: 120, subheading: 200 },
-  links: { label: 24 },
-  quotes: { text: 400, name: 60, role: 60 },
-  questions: { question: 200, answer: 1000 },
-  people: { name: 60, role: 60, bio: 300 },
-  stats: { value: 12, label: 40 },
-};
-
 const PHONE = /^\+?[0-9][0-9 ()-]{5,22}$/;
 const EMAIL = /^[^\s@]{1,64}@[^\s@]{1,190}\.[A-Za-z]{2,}$/;
 const CLOCK = /^([01][0-9]|2[0-3]):[0-5][0-9]$/;
@@ -340,9 +296,12 @@ function coordinate(c: Checker, at: string, value: unknown, max: number, what: s
 function parseMoreBlock(ctx: Context, at: string, type: string, v: Record<string, unknown>, block: LayoutBlock): boolean {
   const { c } = ctx;
   const L = ENTRY_TEXT_LIMITS;
+  // 83.1 The limits from the block's definition.
+  const T = (text: BlockText) => blockTextLimit(type as BlockType, text);
+  const list = (name: BlockList) => blockListLimits(type as BlockType, name);
   switch (type) {
     case "slider":
-      block.slides = parseEntries(ctx, at, v.slides, { one: "slide", many: "slides", max: LAYOUT_LIMITS.maxSlides }, (s, where) => {
+      block.slides = parseEntries(ctx, at, v.slides, { one: "slide", many: "slides", max: list("slides").max }, (s, where) => {
         const slide: Slide = {
           image_url: c.mediaUrl(where, s.image_url, "The image address", false),
           heading: c.optionalText(where, s.heading, L.slides.heading, "The heading"),
@@ -356,7 +315,7 @@ function parseMoreBlock(ctx: Context, at: string, type: string, v: Record<string
       return true;
     case "quick_links":
       block.style = oneOf(QUICK_LINK_STYLES, v.style) ? v.style : "grid";
-      block.links = parseEntries(ctx, at, v.links, { one: "link", many: "links", max: LAYOUT_LIMITS.maxLinks }, (l, where) => {
+      block.links = parseEntries(ctx, at, v.links, { one: "link", many: "links", max: list("links").max }, (l, where) => {
         if (!(typeof l.icon === "string" && ICON_NAME.test(l.icon))) c.fail(where, "choose an icon.");
         const link: QuickLink = {
           icon: typeof l.icon === "string" && ICON_NAME.test(l.icon) ? l.icon : "apps",
@@ -370,7 +329,7 @@ function parseMoreBlock(ctx: Context, at: string, type: string, v: Record<string
       });
       return true;
     case "testimonials":
-      block.quotes = parseEntries(ctx, at, v.quotes, { one: "quote", many: "quotes", max: LAYOUT_LIMITS.maxQuotes }, (q, where) => {
+      block.quotes = parseEntries(ctx, at, v.quotes, { one: "quote", many: "quotes", max: list("quotes").max }, (q, where) => {
         const rating = q.rating === null || q.rating === undefined || q.rating === "" ? null : Number(q.rating);
         if (rating !== null && !(Number.isInteger(rating) && rating >= 1 && rating <= 5)) c.fail(where, "the rating must be 1 to 5 stars.");
         const quote: Quote = {
@@ -384,7 +343,7 @@ function parseMoreBlock(ctx: Context, at: string, type: string, v: Record<string
       });
       return true;
     case "faq":
-      block.questions = parseEntries(ctx, at, v.questions, { one: "question", many: "questions", max: LAYOUT_LIMITS.maxQuestions }, (q, where) => {
+      block.questions = parseEntries(ctx, at, v.questions, { one: "question", many: "questions", max: list("questions").max }, (q, where) => {
         const entry: FaqEntry = {
           question: c.text(where, q.question, L.questions.question, "the question"),
           answer: c.text(where, q.answer, L.questions.answer, "the answer"),
@@ -393,13 +352,13 @@ function parseMoreBlock(ctx: Context, at: string, type: string, v: Record<string
       });
       return true;
     case "countdown": {
-      block.heading = c.text(at, v.heading, BLOCK_TEXT_LIMITS.heading, "a heading");
-      block.subheading = c.optionalText(at, v.subheading, BLOCK_TEXT_LIMITS.subheading, "The text under the heading");
+      block.heading = c.text(at, v.heading, T("heading"), "a heading");
+      block.subheading = c.optionalText(at, v.subheading, T("subheading"), "The text under the heading");
       const ends = typeof v.ends_at === "string" ? new Date(v.ends_at) : null;
       if (!ends || Number.isNaN(ends.getTime())) c.fail(at, "choose when the countdown ends.");
       block.ends_at = ends && !Number.isNaN(ends.getTime()) ? ends.toISOString().replace(/\.000Z$/, "Z") : "";
-      block.ended_text = c.optionalText(at, v.ended_text, BLOCK_TEXT_LIMITS.ended_text, "The text after the end");
-      block.label = c.optionalText(at, v.label, BLOCK_TEXT_LIMITS.label, "The button text") ?? undefined;
+      block.ended_text = c.optionalText(at, v.ended_text, T("ended_text"), "The text after the end");
+      block.label = c.optionalText(at, v.label, T("label"), "The button text") ?? undefined;
       block.action = parseAction(ctx, at, v.action, false);
       if (block.label && !block.action) c.fail(at, "choose what the button opens, or remove its text.");
       return true;
@@ -417,7 +376,7 @@ function parseMoreBlock(ctx: Context, at: string, type: string, v: Record<string
       block.whatsapp = whatsapp;
       block.email = email;
       block.website = website && /^https?:\/\//i.test(website) ? website : null;
-      block.address = c.optionalText(at, v.address, BLOCK_TEXT_LIMITS.address, "The address");
+      block.address = c.optionalText(at, v.address, T("address"), "The address");
       block.latitude = coordinate(c, at, v.latitude, 90, "latitude");
       block.longitude = coordinate(c, at, v.longitude, 180, "longitude");
       if ((block.latitude === null) !== (block.longitude === null)) c.fail(at, "enter both the latitude and the longitude, or neither.");
@@ -427,8 +386,8 @@ function parseMoreBlock(ctx: Context, at: string, type: string, v: Record<string
     case "hours": {
       const periods = Array.isArray(v.hours) ? v.hours : [];
       if (!Array.isArray(v.hours)) c.fail(at, "the opening hours are missing.");
-      if (periods.length > LAYOUT_LIMITS.maxHours) c.fail(at, `add at most ${LAYOUT_LIMITS.maxHours} opening times.`);
-      block.hours = periods.slice(0, LAYOUT_LIMITS.maxHours).map((raw, i) => {
+      if (periods.length > list("hours").max) c.fail(at, `add at most ${list("hours").max} opening times.`);
+      block.hours = periods.slice(0, list("hours").max).map((raw, i) => {
         const p = record(raw) ?? {};
         const where = `${at}, time ${i + 1}`;
         if (!oneOf(WEEKDAYS, p.day)) c.fail(where, "choose the day.");
@@ -439,22 +398,22 @@ function parseMoreBlock(ctx: Context, at: string, type: string, v: Record<string
       // Monday first, then by opening time.
       block.hours.sort((a, b) => WEEKDAYS.indexOf(a.day) - WEEKDAYS.indexOf(b.day) || a.opens.localeCompare(b.opens));
       const dates = Array.isArray(v.closed_dates) ? v.closed_dates : [];
-      if (dates.length > LAYOUT_LIMITS.maxClosedDates) c.fail(at, `add at most ${LAYOUT_LIMITS.maxClosedDates} closed days.`);
+      if (dates.length > list("closed_dates").max) c.fail(at, `add at most ${list("closed_dates").max} closed days.`);
       const closed: string[] = [];
-      for (const raw of dates.slice(0, LAYOUT_LIMITS.maxClosedDates)) {
+      for (const raw of dates.slice(0, list("closed_dates").max)) {
         const date = String(raw).trim();
         const parsed = DATE.test(date) ? new Date(`${date}T00:00:00Z`) : null;
         if (!parsed || Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== date) c.fail(at, `${date || "An empty date"} isn't a date like 2026-12-31.`);
         else if (!closed.includes(date)) closed.push(date);
       }
       block.closed_dates = closed.sort();
-      block.note = c.optionalText(at, v.note, BLOCK_TEXT_LIMITS.note, "The note");
+      block.note = c.optionalText(at, v.note, T("note"), "The note");
       if (!block.hours.length && !block.note) c.fail(at, "add your opening times.");
       return true;
     }
     case "social": {
       const seen = new Set<string>();
-      block.profiles = parseEntries(ctx, at, v.profiles, { one: "profile", many: "profiles", max: SOCIAL_NETWORKS.length }, (p, where) => {
+      block.profiles = parseEntries(ctx, at, v.profiles, { one: "profile", many: "profiles", max: list("profiles").max }, (p, where) => {
         if (!oneOf(SOCIAL_NETWORKS, p.network)) c.fail(where, "choose the network.");
         else if (seen.has(p.network)) c.fail(where, "each network can be added once.");
         if (typeof p.network === "string") seen.add(p.network);
@@ -466,7 +425,7 @@ function parseMoreBlock(ctx: Context, at: string, type: string, v: Record<string
     }
     case "team":
       block.layout = oneOf(ITEMS_LAYOUTS, v.layout) ? v.layout : "carousel";
-      block.people = parseEntries(ctx, at, v.people, { one: "person", many: "people", max: LAYOUT_LIMITS.maxPeople }, (p, where) => {
+      block.people = parseEntries(ctx, at, v.people, { one: "person", many: "people", max: list("people").max }, (p, where) => {
         const person: Person = {
           name: c.text(where, p.name, L.people.name, "a name"),
           role: c.optionalText(where, p.role, L.people.role, "The role"),
@@ -478,15 +437,15 @@ function parseMoreBlock(ctx: Context, at: string, type: string, v: Record<string
       });
       return true;
     case "stats":
-      block.stats = parseEntries(ctx, at, v.stats, { one: "number", many: "numbers", min: LAYOUT_LIMITS.minStats, max: LAYOUT_LIMITS.maxStats }, (s, where) => {
+      block.stats = parseEntries(ctx, at, v.stats, { one: "number", many: "numbers", min: list("stats").min, max: list("stats").max }, (s, where) => {
         const stat: Stat = { value: c.text(where, s.value, L.stats.value, "the number"), label: c.text(where, s.label, L.stats.label, "a label") };
         return { ...stat, ...entryTranslations(ctx, where, "stats", s.translations) };
       });
       return true;
     case "notice":
       block.tone = oneOf(NOTICE_TONES, v.tone) ? v.tone : "info";
-      block.text = c.text(at, v.text, BLOCK_TEXT_LIMITS.text, "the notice's text");
-      block.label = c.optionalText(at, v.label, BLOCK_TEXT_LIMITS.label, "The link text") ?? undefined;
+      block.text = c.text(at, v.text, T("text"), "the notice's text");
+      block.label = c.optionalText(at, v.label, T("label"), "The link text") ?? undefined;
       block.action = parseAction(ctx, at, v.action, false);
       return true;
   }
@@ -534,6 +493,8 @@ function parseBlock(ctx: Context, where: string, value: unknown, allowed: string
     return null;
   }
   const at = `${where} (${BLOCK_NAMES[type]})`;
+  // 83.1 The longest each of its texts can be, from the block's definition.
+  const T = (text: BlockText) => blockTextLimit(type as BlockType, text);
   const id = typeof v.id === "string" ? v.id : "";
   if (!ID.test(id)) c.fail(at, "the block has no valid ID.");
   if (!oneOf(VISIBILITIES, v.visibility ?? "everyone")) c.fail(at, "choose who sees this block.");
@@ -541,7 +502,7 @@ function parseBlock(ctx: Context, where: string, value: unknown, allowed: string
     id,
     type: type as LayoutBlock["type"],
     visibility: oneOf(VISIBILITIES, v.visibility) ? v.visibility : "everyone",
-    title: c.optionalText(at, v.title, BLOCK_TEXT_LIMITS.title, "The title"),
+    title: c.optionalText(at, v.title, T("title"), "The title"),
   };
   // 82.5 Its look within the brand: kept only when it isn't the usual.
   const look = record(v.look);
@@ -555,8 +516,8 @@ function parseBlock(ctx: Context, where: string, value: unknown, allowed: string
   switch (type) {
     case "banner":
       block.image_url = c.mediaUrl(at, v.image_url, "an image address", true);
-      block.heading = c.optionalText(at, v.heading, BLOCK_TEXT_LIMITS.heading, "The heading");
-      block.subheading = c.optionalText(at, v.subheading, BLOCK_TEXT_LIMITS.subheading, "The text under the heading");
+      block.heading = c.optionalText(at, v.heading, T("heading"), "The heading");
+      block.subheading = c.optionalText(at, v.subheading, T("subheading"), "The text under the heading");
       block.action = parseAction(ctx, at, v.action, false);
       break;
     case "text": {
@@ -579,7 +540,7 @@ function parseBlock(ctx: Context, where: string, value: unknown, allowed: string
       block.poster_url = c.mediaUrl(at, v.poster_url, "The cover image address", false);
       break;
     case "button":
-      block.label = c.text(at, v.label, BLOCK_TEXT_LIMITS.label, "the button text");
+      block.label = c.text(at, v.label, T("label"), "the button text");
       if (v.icon !== null && v.icon !== undefined && v.icon !== "" && !(typeof v.icon === "string" && ICON_NAME.test(v.icon))) c.fail(at, "choose an icon from the list.");
       block.icon = typeof v.icon === "string" && ICON_NAME.test(v.icon) ? v.icon : null;
       if (!oneOf(BUTTON_STYLES, v.style)) c.fail(at, "choose the button style.");
@@ -602,7 +563,7 @@ function parseBlock(ctx: Context, where: string, value: unknown, allowed: string
     case "search":
       if (!oneOf(ctx.sources, v.source)) c.fail(at, "choose what people search.");
       block.source = v.source as ItemSource;
-      block.placeholder = c.text(at, v.placeholder, BLOCK_TEXT_LIMITS.placeholder, "the text in the search box");
+      block.placeholder = c.text(at, v.placeholder, T("placeholder"), "the text in the search box");
       break;
     case "continue_learning":
       break;
@@ -620,7 +581,8 @@ function parseBlock(ctx: Context, where: string, value: unknown, allowed: string
     default:
       parseMoreBlock(ctx, at, type, v, block);
   }
-  const translations = parseTranslations(ctx, at, v.translations, TRANSLATABLE.block, BLOCK_TEXT_LIMITS);
+  const texts = BLOCK_DEFINITIONS[type as BlockType].texts;
+  const translations = parseTranslations(ctx, at, v.translations, Object.keys(texts), texts as Record<string, number>);
   if (translations) block.translations = translations;
   return block;
 }

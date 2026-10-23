@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
+import { blockListLimits, blockTextLimit, ENTRY_TEXT_LIMITS } from "@/lib/pages/blocks";
 import { NOTICE_TONE_LABELS, SOCIAL_LABELS, WEEKDAY_LABELS } from "@/lib/pages/labels";
 import { emptyPerson, emptyQuote, emptySlide, emptyStat, moveItem } from "@/lib/pages/model";
 import { SOURCE_NAMES, SOURCE_SORTS, sortFor, type ScreenOption } from "@/lib/pages/sources";
@@ -225,7 +226,7 @@ function MoreBlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ctx: 
       return (
         <>
           <Check label={t("pages.autoAdvance")} checked={block.auto_advance !== false} onChange={(auto_advance) => set({ auto_advance })} />
-          <Entries id={`${id}-slides`} name={{ one: "pages.slide", add: "pages.addSlide" }} items={block.slides ?? []} max={LAYOUT_LIMITS.maxSlides} make={emptySlide} onChange={(slides) => set({ slides })}>
+          <Entries id={`${id}-slides`} name={{ one: "pages.slide", add: "pages.addSlide" }} items={block.slides ?? []} max={blockListLimits("slider", "slides").max} make={emptySlide} onChange={(slides) => set({ slides })}>
             {(s, setSlide, i) => (
               <>
                 <TextInput
@@ -240,8 +241,8 @@ function MoreBlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ctx: 
                   onChange={(v) => setSlide({ ...s, image_url: v || null })}
                 />
                 <MediaPicker kind="image" onPick={(link) => setSlide({ ...s, image_url: link })} />
-                <LangText id={`${id}-s${i}-heading`} label={t("pages.heading")} value={s} field="heading" lang={lang} onChange={setSlide} />
-                <LangText id={`${id}-s${i}-subheading`} label={t("pages.textUnder")} value={s} field="subheading" lang={lang} onChange={setSlide} />
+                <LangText id={`${id}-s${i}-heading`} label={t("pages.heading")} value={s} field="heading" max={ENTRY_TEXT_LIMITS.slides.heading} lang={lang} onChange={setSlide} />
+                <LangText id={`${id}-s${i}-subheading`} label={t("pages.textUnder")} value={s} field="subheading" max={ENTRY_TEXT_LIMITS.slides.subheading} lang={lang} onChange={setSlide} />
                 <ActionEditor id={`${id}-s${i}-action`} label={t("pages.onTap")} action={s.action} optional onChange={(action) => setSlide({ ...s, action })} {...actionProps} />
               </>
             )}
@@ -262,13 +263,13 @@ function MoreBlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ctx: 
             id={`${id}-links`}
             name={{ one: "pages.link", add: "pages.addLink" }}
             items={block.links ?? []}
-            max={LAYOUT_LIMITS.maxLinks}
+            max={blockListLimits("quick_links", "links").max}
             make={(): QuickLink => ({ icon: "star", label: "", action: { type: "screen", screen: firstScreen(ctx.screens) } })}
             onChange={(links) => set({ links })}
           >
             {(l, setLink, i) => (
               <>
-                <LangText id={`${id}-l${i}-label`} label={t("pages.label")} value={l} field="label" lang={lang} onChange={setLink} />
+                <LangText id={`${id}-l${i}-label`} label={t("pages.label")} value={l} field="label" max={ENTRY_TEXT_LIMITS.links.label} lang={lang} onChange={setLink} />
                 <IconPicker id={`${id}-l${i}-icon`} label={t("pages.icon")} value={l.icon} onChange={(icon) => setLink({ ...l, icon: icon ?? l.icon })} />
                 <OwnIcon id={`${id}-l${i}-own-icon`} value={l.icon_url} onChange={(icon_url) => setLink({ ...l, icon_url })} />
                 <ActionEditor id={`${id}-l${i}-action`} label={t("pages.opens")} action={l.action} optional={false} onChange={(action) => action && setLink({ ...l, action })} {...actionProps} />
@@ -279,13 +280,13 @@ function MoreBlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ctx: 
       );
     case "testimonials":
       return (
-        <Entries id={`${id}-quotes`} name={{ one: "pages.quote", add: "pages.addQuote" }} items={block.quotes ?? []} max={LAYOUT_LIMITS.maxQuotes} make={emptyQuote} onChange={(quotes) => set({ quotes })}>
+        <Entries id={`${id}-quotes`} name={{ one: "pages.quote", add: "pages.addQuote" }} items={block.quotes ?? []} max={blockListLimits("testimonials", "quotes").max} make={emptyQuote} onChange={(quotes) => set({ quotes })}>
           {(q, setQuote, i) => (
             <>
-              <LangText id={`${id}-q${i}-text`} label={t("pages.whatSaid")} value={q} field="text" lang={lang} rows={3} onChange={setQuote} />
+              <LangText id={`${id}-q${i}-text`} label={t("pages.whatSaid")} value={q} field="text" max={ENTRY_TEXT_LIMITS.quotes.text} lang={lang} rows={3} onChange={setQuote} />
               <div className="grid gap-3 sm:grid-cols-2">
-                <LangText id={`${id}-q${i}-name`} label={t("pages.name")} value={q} field="name" lang={lang} onChange={setQuote} />
-                <LangText id={`${id}-q${i}-role`} label={t("pages.role")} value={q} field="role" lang={lang} onChange={setQuote} hint={t("pages.roleStudent")} />
+                <LangText id={`${id}-q${i}-name`} label={t("pages.name")} value={q} field="name" max={ENTRY_TEXT_LIMITS.quotes.name} lang={lang} onChange={setQuote} />
+                <LangText id={`${id}-q${i}-role`} label={t("pages.role")} value={q} field="role" max={ENTRY_TEXT_LIMITS.quotes.role} lang={lang} onChange={setQuote} hint={t("pages.roleStudent")} />
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <TextInput
@@ -311,14 +312,14 @@ function MoreBlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ctx: 
           id={`${id}-questions`}
           name={{ one: "pages.question", add: "pages.addQuestion" }}
           items={block.questions ?? []}
-          max={LAYOUT_LIMITS.maxQuestions}
+          max={blockListLimits("faq", "questions").max}
           make={() => ({ question: "", answer: "" })}
           onChange={(questions) => set({ questions })}
         >
           {(q, setQuestion, i) => (
             <>
-              <LangText id={`${id}-f${i}-question`} label={t("pages.questionField")} value={q} field="question" lang={lang} onChange={setQuestion} />
-              <LangText id={`${id}-f${i}-answer`} label={t("pages.answer")} value={q} field="answer" lang={lang} rows={3} onChange={setQuestion} />
+              <LangText id={`${id}-f${i}-question`} label={t("pages.questionField")} value={q} field="question" max={ENTRY_TEXT_LIMITS.questions.question} lang={lang} onChange={setQuestion} />
+              <LangText id={`${id}-f${i}-answer`} label={t("pages.answer")} value={q} field="answer" max={ENTRY_TEXT_LIMITS.questions.answer} lang={lang} rows={3} onChange={setQuestion} />
             </>
           )}
         </Entries>
@@ -326,8 +327,8 @@ function MoreBlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ctx: 
     case "countdown":
       return (
         <>
-          <LangText id={`${id}-heading`} label={t("pages.heading")} value={block} field="heading" lang={lang} onChange={onChange} hint={t("pages.countdownHeadingHint")} />
-          <LangText id={`${id}-subheading`} label={t("pages.textUnder")} value={block} field="subheading" lang={lang} onChange={onChange} hint={t("pages.optionalHint")} />
+          <LangText id={`${id}-heading`} label={t("pages.heading")} value={block} field="heading" max={blockTextLimit(block.type, "heading")} lang={lang} onChange={onChange} hint={t("pages.countdownHeadingHint")} />
+          <LangText id={`${id}-subheading`} label={t("pages.textUnder")} value={block} field="subheading" max={blockTextLimit(block.type, "subheading")} lang={lang} onChange={onChange} hint={t("pages.optionalHint")} />
           <TextInput
             id={`${id}-ends`}
             label={t("pages.endsAt")}
@@ -336,8 +337,8 @@ function MoreBlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ctx: 
             hint={t("pages.endsAtHint")}
             onChange={(v) => set({ ends_at: fromLocalInput(v) })}
           />
-          <LangText id={`${id}-ended`} label={t("pages.textAfter")} value={block} field="ended_text" lang={lang} onChange={onChange} hint={t("pages.textAfterHint")} />
-          <LangText id={`${id}-label`} label={t("pages.buttonText")} value={block} field="label" lang={lang} onChange={onChange} hint={t("pages.buttonTextHint")} />
+          <LangText id={`${id}-ended`} label={t("pages.textAfter")} value={block} field="ended_text" max={blockTextLimit(block.type, "ended_text")} lang={lang} onChange={onChange} hint={t("pages.textAfterHint")} />
+          <LangText id={`${id}-label`} label={t("pages.buttonText")} value={block} field="label" max={blockTextLimit(block.type, "label")} lang={lang} onChange={onChange} hint={t("pages.buttonTextHint")} />
           <ActionEditor id={`${id}-action`} label={t("pages.buttonOpens")} action={block.action} optional onChange={(action) => set({ action })} {...actionProps} />
         </>
       );
@@ -351,7 +352,7 @@ function MoreBlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ctx: 
             <TextInput id={`${id}-email`} label={t("pages.email")} dir="ltr" type="email" value={block.email ?? ""} onChange={(v) => set({ email: v || null })} />
             <TextInput id={`${id}-website`} label={t("pages.website")} dir="ltr" type="url" inputMode="url" placeholder="https://" value={block.website ?? ""} onChange={(v) => set({ website: v || null })} />
           </div>
-          <LangText id={`${id}-address`} label={t("pages.address")} value={block} field="address" lang={lang} onChange={onChange} hint={t("pages.addressHint")} />
+          <LangText id={`${id}-address`} label={t("pages.address")} value={block} field="address" max={blockTextLimit(block.type, "address")} lang={lang} onChange={onChange} hint={t("pages.addressHint")} />
           <div className="grid gap-3 sm:grid-cols-2">
             <TextInput
               id={`${id}-lat`}
@@ -383,7 +384,7 @@ function MoreBlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ctx: 
             name={{ one: "pages.openingTime", add: "pages.addOpeningTime" }}
             min={0}
             items={block.hours ?? []}
-            max={LAYOUT_LIMITS.maxHours}
+            max={blockListLimits("hours", "hours").max}
             make={(): HoursPeriod => ({ day: "mon", opens: "09:00", closes: "17:00" })}
             onChange={(hours) => set({ hours })}
           >
@@ -412,7 +413,7 @@ function MoreBlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ctx: 
               })
             }
           />
-          <LangText id={`${id}-note`} label={t("pages.note")} value={block} field="note" lang={lang} onChange={onChange} hint={t("pages.noteHint")} />
+          <LangText id={`${id}-note`} label={t("pages.note")} value={block} field="note" max={blockTextLimit(block.type, "note")} lang={lang} onChange={onChange} hint={t("pages.noteHint")} />
         </>
       );
     case "social":
@@ -437,14 +438,14 @@ function MoreBlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ctx: 
       return (
         <>
           <SelectInput id={`${id}-layout`} label={t("pages.look")} value={block.layout ?? "carousel"} options={opts(ITEMS_LAYOUTS, LAYOUT_LABELS, t)} onChange={(layout) => set({ layout })} />
-          <Entries id={`${id}-people`} name={{ one: "pages.person", add: "pages.addPerson" }} items={block.people ?? []} max={LAYOUT_LIMITS.maxPeople} make={emptyPerson} onChange={(people) => set({ people })}>
+          <Entries id={`${id}-people`} name={{ one: "pages.person", add: "pages.addPerson" }} items={block.people ?? []} max={blockListLimits("team", "people").max} make={emptyPerson} onChange={(people) => set({ people })}>
             {(p, setPerson, i) => (
               <>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <LangText id={`${id}-m${i}-name`} label={t("pages.name")} value={p} field="name" lang={lang} onChange={setPerson} />
-                  <LangText id={`${id}-m${i}-role`} label={t("pages.role")} value={p} field="role" lang={lang} onChange={setPerson} hint={t("pages.roleCoach")} />
+                  <LangText id={`${id}-m${i}-name`} label={t("pages.name")} value={p} field="name" max={ENTRY_TEXT_LIMITS.people.name} lang={lang} onChange={setPerson} />
+                  <LangText id={`${id}-m${i}-role`} label={t("pages.role")} value={p} field="role" max={ENTRY_TEXT_LIMITS.people.role} lang={lang} onChange={setPerson} hint={t("pages.roleCoach")} />
                 </div>
-                <LangText id={`${id}-m${i}-bio`} label={t("pages.fewWords")} value={p} field="bio" lang={lang} rows={2} onChange={setPerson} hint={t("pages.optionalHint")} />
+                <LangText id={`${id}-m${i}-bio`} label={t("pages.fewWords")} value={p} field="bio" max={ENTRY_TEXT_LIMITS.people.bio} lang={lang} rows={2} onChange={setPerson} hint={t("pages.optionalHint")} />
                 <TextInput
                   id={`${id}-m${i}-photo`}
                   label={t("pages.photoAddress")}
@@ -467,16 +468,16 @@ function MoreBlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ctx: 
         <Entries
           id={`${id}-stats`}
           name={{ one: "pages.number", add: "pages.addNumber" }}
-          min={LAYOUT_LIMITS.minStats}
+          min={blockListLimits("stats", "stats").min}
           items={block.stats ?? []}
-          max={LAYOUT_LIMITS.maxStats}
+          max={blockListLimits("stats", "stats").max}
           make={emptyStat}
           onChange={(stats) => set({ stats })}
         >
           {(s, setStat, i) => (
             <div className="grid gap-3 sm:grid-cols-2">
-              <LangText id={`${id}-n${i}-value`} label={t("pages.numberField")} value={s} field="value" lang={lang} onChange={setStat} hint={t("pages.numberHint")} />
-              <LangText id={`${id}-n${i}-label`} label={t("pages.label")} value={s} field="label" lang={lang} onChange={setStat} />
+              <LangText id={`${id}-n${i}-value`} label={t("pages.numberField")} value={s} field="value" max={ENTRY_TEXT_LIMITS.stats.value} lang={lang} onChange={setStat} hint={t("pages.numberHint")} />
+              <LangText id={`${id}-n${i}-label`} label={t("pages.label")} value={s} field="label" max={ENTRY_TEXT_LIMITS.stats.label} lang={lang} onChange={setStat} />
             </div>
           )}
         </Entries>
@@ -485,8 +486,8 @@ function MoreBlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ctx: 
       return (
         <>
           <SelectInput id={`${id}-tone`} label={t("pages.color")} value={block.tone ?? "info"} options={TONE_OPTIONS} onChange={(tone) => set({ tone })} />
-          <LangText id={`${id}-text`} label={t("pages.text")} value={block} field="text" lang={lang} rows={2} onChange={onChange} />
-          <LangText id={`${id}-label`} label={t("pages.linkText")} value={block} field="label" lang={lang} onChange={onChange} hint={t("pages.buttonTextHint")} />
+          <LangText id={`${id}-text`} label={t("pages.text")} value={block} field="text" max={blockTextLimit(block.type, "text")} lang={lang} rows={2} onChange={onChange} />
+          <LangText id={`${id}-label`} label={t("pages.linkText")} value={block} field="label" max={blockTextLimit(block.type, "label")} lang={lang} onChange={onChange} hint={t("pages.buttonTextHint")} />
           <ActionEditor id={`${id}-action`} label={t("pages.linkOpens")} action={block.action} optional onChange={(action) => set({ action })} {...actionProps} />
         </>
       );
@@ -523,14 +524,14 @@ export function BlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ct
   const sourceOptions = (list: ItemSource[]) => list.map((s) => ({ value: s, label: known(SOURCE_NAMES[s]) }));
   return (
     <div className="flex flex-col gap-3">
-      {block.type !== "spacer" ? <LangText id={`${id}-title`} label={t("pages.titleAbove")} value={block} field="title" lang={lang} onChange={onChange} hint={t("pages.optionalHint")} /> : null}
+      {block.type !== "spacer" ? <LangText id={`${id}-title`} label={t("pages.titleAbove")} value={block} field="title" max={blockTextLimit(block.type, "title")} lang={lang} onChange={onChange} hint={t("pages.optionalHint")} /> : null}
       {block.type === "banner" ? (
         <>
           <TextInput id={`${id}-image`} label={t("pages.imageAddress")} dir="ltr" type="url" inputMode="url" placeholder="https://" value={block.image_url ?? ""} onChange={(image_url) => set({ image_url })} />
           {/* 51 Pictures and videos from the Media library. */}
           <MediaPicker kind="image" onPick={(image_url) => set({ image_url })} />
-          <LangText id={`${id}-heading`} label={t("pages.heading")} value={block} field="heading" lang={lang} onChange={onChange} />
-          <LangText id={`${id}-subheading`} label={t("pages.textUnder")} value={block} field="subheading" lang={lang} onChange={onChange} />
+          <LangText id={`${id}-heading`} label={t("pages.heading")} value={block} field="heading" max={blockTextLimit(block.type, "heading")} lang={lang} onChange={onChange} />
+          <LangText id={`${id}-subheading`} label={t("pages.textUnder")} value={block} field="subheading" max={blockTextLimit(block.type, "subheading")} lang={lang} onChange={onChange} />
           <ActionEditor id={`${id}-action`} label={t("pages.onTap")} action={block.action} optional onChange={(action) => set({ action })} {...actionProps} />
         </>
       ) : null}
@@ -540,6 +541,7 @@ export function BlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ct
           label={t("pages.text")}
           value={block}
           field="html"
+          max={blockTextLimit(block.type, "html")}
           lang={lang}
           rows={6}
           onChange={onChange}
@@ -576,7 +578,7 @@ export function BlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ct
       ) : null}
       {block.type === "button" ? (
         <>
-          <LangText id={`${id}-label`} label={t("pages.buttonText")} value={block} field="label" lang={lang} onChange={onChange} />
+          <LangText id={`${id}-label`} label={t("pages.buttonText")} value={block} field="label" max={blockTextLimit(block.type, "label")} lang={lang} onChange={onChange} />
           <SelectInput
             id={`${id}-style`}
             label={t("pages.style")}
@@ -628,7 +630,7 @@ export function BlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ct
       {block.type === "search" ? (
         <>
           <SelectInput id={`${id}-source`} label={t("pages.searches")} value={block.source ?? ctx.sources[0] ?? "courses"} options={sourceOptions(ctx.sources)} onChange={(source) => set({ source })} />
-          <LangText id={`${id}-placeholder`} label={t("pages.searchText")} value={block} field="placeholder" lang={lang} onChange={onChange} />
+          <LangText id={`${id}-placeholder`} label={t("pages.searchText")} value={block} field="placeholder" max={blockTextLimit(block.type, "placeholder")} lang={lang} onChange={onChange} />
         </>
       ) : null}
       {block.type === "continue_learning" ? <p className="m-0 text-sm text-muted">{t("pages.continueText")}</p> : null}

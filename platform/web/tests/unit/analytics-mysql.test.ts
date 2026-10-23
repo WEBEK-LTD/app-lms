@@ -92,6 +92,24 @@ describe.skipIf(!url)("44 analytics on MySQL", () => {
     expect(report.checkoutValue).toEqual([{ currency: "TRY", cents: 4500 }]);
   });
 
+  it("83.2 counts installs by the version each last used", async () => {
+    const app = await setup();
+    const [a, b, c] = [randomUUID(), randomUUID(), randomUUID()];
+    await store.insertAnalyticsEvents([
+      event(app.id, a, addDays(TODAY, -3), { appVersion: "1.0.0" }),
+      // a updated since.
+      event(app.id, a, addDays(TODAY, -1), { appVersion: "1.2.0" }),
+      event(app.id, b, addDays(TODAY, -2), { appVersion: "1.0.0" }),
+      event(app.id, c, addDays(TODAY, -2), { appVersion: "1.2.0" }),
+      // Too long ago to count.
+      event(app.id, randomUUID(), addDays(TODAY, -40), { appVersion: "0.9.0" }),
+    ]);
+    expect(await store.countAnalyticsVersions(app.id, addDays(TODAY, -29))).toEqual([
+      { version: "1.2.0", installs: 2 },
+      { version: "1.0.0", installs: 1 },
+    ]);
+  });
+
   it("sets and adds daily totals, and the purge keeps them", async () => {
     const app = await setup();
     const old = addDays(TODAY, -95);

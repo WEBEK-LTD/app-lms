@@ -2612,6 +2612,18 @@ export class MemoryStore implements DataStore {
     return new Set(this.analyticsEvents.filter((e) => e.appId === appId && e.day >= fromDay && e.day <= toDay).map((e) => e.installId)).size;
   }
 
+  async countAnalyticsVersions(appId: string, fromDay: string): Promise<{ version: string; installs: number }[]> {
+    const latest = new Map<string, AnalyticsEventRow>();
+    for (const e of this.analyticsEvents) {
+      if (e.appId !== appId || e.day < fromDay) continue;
+      const seen = latest.get(e.installId);
+      if (!seen || e.at.getTime() > seen.at.getTime()) latest.set(e.installId, e);
+    }
+    const counts = new Map<string, number>();
+    for (const e of latest.values()) counts.set(e.appVersion, (counts.get(e.appVersion) ?? 0) + 1);
+    return [...counts].map(([version, installs]) => ({ version, installs })).sort((a, b) => b.installs - a.installs || a.version.localeCompare(b.version));
+  }
+
   async countAnalyticsReturning(appId: string, cohortDay: string, day: string): Promise<number> {
     const cohort = new Set(
       this.analyticsEvents.filter((e) => e.appId === appId && e.day === cohortDay && e.type === "app_open" && e.firstOpen).map((e) => e.installId),

@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordAudit } from "@/lib/admin/audit";
+import { APP_SWITCHES, appSwitches, storedSwitches, SWITCH_INFO } from "@/lib/app/switches";
+import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import { revealLicenseKey } from "@/lib/admin/clients";
 import { checkConnection, type ConnectionStatus } from "@/lib/admin/connection";
 import type { AdminPermission } from "@/lib/admin/permissions";
@@ -151,6 +153,35 @@ export async function sendClientNotificationAction(_: FormState, formData: FormD
   if (!push) return { ok: true, message: "Added to the app users' inboxes. Push is switched off for this app's plan." };
   if (result.pushError) return { ok: true, message: `Added to the app users' inboxes. ${result.pushError}` };
   return { ok: true, message: `Sent. It's in the app users' inboxes and went to ${result.pushed} ${result.pushed === 1 ? "phone" : "phones"}.` };
+}
+
+/**
+ * 83.3 The app's switches for its modules and new features: the app reads
+ * them at its next start (a WordPress site at once, asked to check its license).
+ */
+export async function setAppSwitchesAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { admin, store, client, app, apps } = await clientFrom(formData, "switches.edit");
+  if (!app) return { message: "Choose the app first." };
+  const before = appSwitches(app);
+  const chosen = Object.fromEntries(APP_SWITCHES.map((name) => [name, formData.get(name) === "on"]));
+  const stored = storedSwitches(chosen);
+  await store.updateApp(app.id, { switches: stored }, new Date());
+  const after = appSwitches({ switches: stored });
+  const changed = APP_SWITCHES.filter((name) => before[name] !== after[name]);
+  await recordAudit({
+    actor: admin,
+    action: "client.app_switches",
+    target: { type: "app", id: app.id },
+    clientId: client.id,
+    summary: changed.length
+      ? `Switched ${changed.map((name) => `${SWITCH_INFO[name].label} ${after[name] ? "on" : "off"}`).join(", ")}${onApp(app, apps)}`
+      : `Saved the app's switches${onApp(app, apps)}`,
+    before,
+    after,
+  });
+  if (app.backend === "wordpress") refreshSitesSoon([app.id]);
+  revalidatePath(`/admin/clients/${client.id}`);
+  return { ok: true, message: "Saved. The app follows them from its next start." };
 }
 
 /** The activation email again: with the license key for an app on WordPress (75). */

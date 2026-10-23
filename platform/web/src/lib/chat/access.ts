@@ -1,3 +1,4 @@
+import { switchOn } from "../app/switches";
 import { usesPlugin } from "../app/label";
 import { yallappSignsIn } from "../hosted/sign-in-methods";
 import type { App, ChatSettings } from "../data/types";
@@ -30,8 +31,9 @@ export function planHasChat(plan: PlanInfo | null | undefined): boolean {
 }
 
 /** Chat is on in this app: its plan has it, the owner left it on, and the app's people can sign in to it. */
-export function chatAvailable(app: Pick<App, "chatSettings" | "backend" | "hostedSettings">, plan: PlanInfo | null | undefined): boolean {
-  return planHasChat(plan) && chatSettingsOf(app).enabled && chatSessionKind(app) !== null;
+export function chatAvailable(app: Pick<App, "chatSettings" | "backend" | "hostedSettings" | "switches">, plan: PlanInfo | null | undefined): boolean {
+  // 83.3 Unless the team switched the module off for the app.
+  return planHasChat(plan) && chatSettingsOf(app).enabled && chatSessionKind(app) !== null && switchOn(app, "chat");
 }
 
 /** Academies with course groups turned on. */

@@ -342,16 +342,7 @@ export const LAYOUT_LIMITS = {
   maxMenu: 12,
   maxPages: 20,
   maxBlocks: 40,
-  // 33 Entries in a block's list.
-  maxSlides: 8,
-  maxLinks: 12,
-  maxQuotes: 10,
-  maxQuestions: 20,
-  maxPeople: 20,
-  minStats: 2,
-  maxStats: 4,
-  maxHours: 21,
-  maxClosedDates: 30,
+  // 33 Entries in a block's list: each block's definition (lib/pages/blocks.ts).
   maxItems: 30,
   maxHandPicked: 30,
   /** The whole layout as JSON (43 without the interface strings). */

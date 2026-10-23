@@ -191,6 +191,40 @@ class Plugin {
 	}
 
 	/**
+	 * 83.4 The versions of the adapters this site uses (its course, booking and shop plugins), for the
+	 * license check: an adapter added through a filter without a version isn't listed.
+	 *
+	 * @return array<string, string>
+	 */
+	public function adapter_versions() {
+		$versions = array();
+		foreach (
+			array(
+				'lms'      => $this->lms(),
+				'bookings' => $this->bookings(),
+				'store'    => $this->detector()->woocommerce()['active'] ? Store\Catalog::class : null,
+			) as $kind => $adapter
+		) {
+			$version = null === $adapter ? null : self::adapter_version( $adapter );
+			if ( null !== $version ) {
+				$versions[ $kind ] = $version;
+			}
+		}
+		return $versions;
+	}
+
+	/**
+	 * 83.4 An adapter's version (its ADAPTER_VERSION), or null when it has none. Pure.
+	 *
+	 * @param object|string $adapter Adapter or its class.
+	 * @return string|null
+	 */
+	public static function adapter_version( $adapter ) {
+		$name = ( is_object( $adapter ) ? get_class( $adapter ) : (string) $adapter ) . '::ADAPTER_VERSION';
+		return defined( $name ) && is_string( constant( $name ) ) ? constant( $name ) : null;
+	}
+
+	/**
 	 * The booking plugin adapter, or null when the site has no supported booking plugin.
 	 *
 	 * @return Bookings\Booking_Adapter|null

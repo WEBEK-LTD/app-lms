@@ -435,6 +435,13 @@
       "when": 1792714306447,
       "tag": "0061_layout_versions",
       "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "5",
+      "when": 1792717989025,
+      "tag": "0062_app_switches",
+      "breakpoints": true
     }
   ]
 }

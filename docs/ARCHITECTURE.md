@@ -2737,6 +2737,55 @@ them under Publish history, marking the one in the app; "Use as draft"
 with the draft's own interface strings; what's published stays until the
 owner publishes.
 
+### One definition per block (83.1)
+
+Each block type has one definition in `lib/pages/blocks.ts`
+(`BLOCK_DEFINITIONS`): its name and hint in the dashboard, its icon, its
+group in "Add a block", the longest each of its texts can be, how many
+entries each of its lists takes, `since` (the first app version that shows
+it) and `olderApps` (what an older app shows instead: today, nothing, since
+the app leaves out a block type it doesn't know). The validator's limits,
+the editor's text fields (`maxLength`) and lists, "Add a block" and the
+preview's drawing of a block it has no picture for all read it.
+
+83.2 The editor says how many people won't see a block until they update
+the app: the phones that opened the app in the last 30 days (its usage
+statistics, so the people who share them), each counted by the version it
+last used (`countAnalyticsVersions`, `lib/pages/reach.ts`), against the
+block's `since`.
+
+Adding a block: add its type to `BLOCK_TYPES` and the contract
+(`docs/api/openapi.yaml`, `platform.yaml`), its definition (with `since` set
+to the app version that brings it), its fields in the validator and the
+editor, its drawing in the preview, the hosted API, the plugin
+(`Rich_Blocks`) and the app.
+
+### Connector and adapter versions (83.4)
+
+Each connector (`CONNECTOR_VERSIONS`, `lib/hosted/connectors/versions.ts`)
+and each plugin adapter (`ADAPTER_VERSION`) has its own version; the plugin
+sends those of the adapters a site uses with each license check
+(`SiteInfo.adapters`, kept in `hostedSettings.siteAdapters`). Admin › the
+client shows the app's connector and its site's adapters with their
+versions. `docs/CONNECTORS.md` lists them all, says how versions go up and
+how to add a connector or an adapter; tests on both sides keep it in step
+with the code.
+
+### Switches per app (83.3)
+
+Besides the switches for everyone and per plan (Admin › Switches, 11.5),
+the team can turn a module or a new feature off for one app (Admin › the
+client › App switches, `lib/app/switches.ts`): `chat`, `side_menu`,
+`block_looks` and `own_icons`. Each is on unless turned off; only the ones
+turned off are stored (`apps.switches`), so a new switch starts on
+everywhere. The platform applies them to what it serves: no chat
+(`chatAvailable`), and the pages (`layoutForPlan`, so the hosted API and
+the plugin's layout) without the side menu, the blocks' looks or the own
+icons, with a new version. It also sends them as `Config.switches` (hosted)
+and `LicenseStatus.switches`, which the plugin (0.4.11) serves as
+`Config.switches`; a WordPress site is asked to check its license at once.
+The app follows them as well, for what it does on its own.
+
 ### Block looks, own icons and the side menu (82.5)
 
 Each block can have a look (`BlockLook`): a background within the app's

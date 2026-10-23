@@ -1,5 +1,6 @@
 import { RULES, type AppFont } from "../build-config/types";
 import type { AppType, AppVertical } from "../data/types";
+import { blockListLimits } from "../pages/blocks";
 import { applyDesign, designsFor, type Design } from "../pages/designs";
 import { LANGUAGE_CODES, LAYOUT_LIMITS, type AppDefaultsSetting, type LayoutBlock, type LayoutContent, type LayoutPage, type LayoutTab, type QuickLink } from "../pages/types";
 import type { SiteMenuItem, SiteScan } from "./site-scan";
@@ -132,7 +133,7 @@ export function draftFromScan(scan: SiteScan, defaults: AppDefaultsSetting, now:
     if (tabs.length < LAYOUT_LIMITS.maxTabs && page.title.length <= 20 && !tabs.some((t) => t.id === page.slug)) {
       const at = tabs.findIndex((t) => t.id === "account");
       tabs.splice(at === -1 ? tabs.length : at, 0, { id: page.slug, label: page.title, icon: page.icon, target: { type: "page", page_slug: page.slug } });
-    } else if (linked.length < LAYOUT_LIMITS.maxLinks) {
+    } else if (linked.length < blockListLimits("quick_links", "links").max) {
       linked.push({ icon: page.icon, label: page.title.slice(0, 24), action: { type: "page", page_slug: page.slug } });
     }
   }

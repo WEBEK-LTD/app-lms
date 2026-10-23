@@ -11,6 +11,7 @@ export const AUDIT_ACTIONS = {
   "client.details": "Client details edited",
   "client.hosted_api": "Hosted API switched",
   "client.wordpress_ready": "WordPress site ready",
+  "client.app_switches": "App switches",
   "client.license_key": "New license key",
   "client.release_site": "Website released",
   "client.manage_app": "Client's dashboard opened",

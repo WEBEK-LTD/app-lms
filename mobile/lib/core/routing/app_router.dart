@@ -120,7 +120,8 @@ List<ShellTab> tabsFromNavigation(
     tabs.add(
       ShellTab(
         icon: symbolByName(tab.icon),
-        iconUrl: tab.iconUrl,
+        // 83.3 Unless the team switched the owner's own icons off.
+        iconUrl: config?.switchOn('own_icons') == false ? null : tab.iconUrl,
         label: label,
         location: asTab ? location : null,
         // Screens that can't be a tab (settings) open on top instead.

@@ -651,6 +651,18 @@ components:
             an intent filter can't leave out the site's other pages. Missing
             on older plugins.
           items: { type: string, maxLength: 100, pattern: '^/([A-Za-z0-9._~%-]+/)+$', example: /courses/ }
+        adapters:
+          type: object
+          description: |
+            Roadmap 83.4. The versions of the plugin's adapters the site uses
+            (docs/CONNECTORS.md): its course plugin's (`lms`), booking
+            plugin's (`bookings`) and shop's (`store`). Sent with every
+            activation and check; the admin shows them. Missing on older
+            plugins.
+          properties:
+            lms: { type: string, pattern: '^\d+\.\d+\.\d+$', example: 1.0.0 }
+            bookings: { type: string, pattern: '^\d+\.\d+\.\d+$', example: 1.0.0 }
+            store: { type: string, pattern: '^\d+\.\d+\.\d+$', example: 1.0.0 }
         brand:
           type: object
           description: |
@@ -782,6 +794,15 @@ components:
           properties:
             base_url: { type: string, format: uri }
             groups: { type: boolean, description: The academy turned on course groups. }
+        switches:
+          type: object
+          description: |
+            Roadmap 83.3. The team's switches for the app's modules and new
+            features (`chat`, `side_menu`, `block_looks`, `own_icons`); the
+            plugin serves them as `Config.switches`. False turns one off; a
+            missing name, or a missing object on older platforms, means on.
+            The layout endpoint and `chat` already leave out what they turn off.
+          additionalProperties: { type: boolean }
         limits:
           type: object
           description: The plan's limits; null means unlimited. Missing on older platforms.

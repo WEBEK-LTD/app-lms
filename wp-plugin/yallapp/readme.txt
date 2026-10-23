@@ -73,7 +73,9 @@ Yallapp is the service that builds and runs your apps; the plugin needs it to wo
 * License checks (when you activate the key, every 12 hours, and when your Yallapp
   dashboard asks the site to check again): the license key, your site's address,
   the plugin and WordPress versions, which LMS, shop and booking plugins the
-  site runs, and the paths of your site's pages that open the app.
+  site runs and the versions of the plugin's parts that read them, the paths of
+  your site's pages that open the app, and your site's title, tagline, logo,
+  site icon, theme colours and menus (for an app made from your site).
 * App pages (every 15 minutes and on request): the license key and site address,
   to get the pages and look you published in your Yallapp dashboard.
 * Sign-in codes, when Yallapp sends them (the default): the phone number or email
@@ -116,6 +118,8 @@ Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 = 0.4.11 =
 * A side menu in your app, opened from the menu button: you choose its entries in your Yallapp dashboard.
 * Your own icons for the bottom tabs, the side menu and quick links, and a background and spacing for each block of your pages.
+* The Yallapp team can switch your app's chat and its newest features on or off for your app, without a new build.
+* With each license check the plugin tells Yallapp the versions of its parts that read your course, booking and shop plugins, so Yallapp's team can see what your site runs.
 
 = 0.4.10 =
 * Your site's look for your app: with each license check the plugin tells Yallapp your site's title and tagline, logo, site icon, your theme's colours and your menus, so an app made from your site starts with your brand and your menu.

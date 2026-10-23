@@ -1,5 +1,6 @@
 import { sha256Hex } from "../crypto/tokens";
 import type { App } from "../data/types";
+import { appSwitches } from "../app/switches";
 import { hasFeature, type PlanInfo } from "../plans";
 import { blockActions, mapBlockActions } from "./block-actions";
 import { defaultLayout } from "./defaults";
@@ -51,9 +52,9 @@ function cleanBlock(block: LayoutBlock, sources: ItemSource[]): LayoutBlock {
  * cache and the app's ETag pick up a plan change.
  */
 export function layoutForPlan(layout: Layout, app: App, plan: PlanInfo | null, defaults: AppDefaultsSetting): Layout {
-  if (!plan) return layout;
-  const sources = allowedSources(app, plan);
   const menuOf = (l: { menu?: LayoutContent["menu"] }) => (l.menu?.length ? { menu: l.menu } : {});
+  if (!plan) return withSwitches(layout, app, { appearance: layout.appearance, languages: layout.languages, tabs: layout.tabs, ...menuOf(layout), pages: layout.pages });
+  const sources = allowedSources(app, plan);
   let content: LayoutContent = { appearance: layout.appearance, languages: languagesForPlan(layout.languages, plan), tabs: layout.tabs, ...menuOf(layout), pages: layout.pages };
   if (!hasFeature(plan, "page_editor")) {
     // The ready-made pages, without a side menu.
@@ -68,9 +69,43 @@ export function layoutForPlan(layout: Layout, app: App, plan: PlanInfo | null, d
     ...menuOf({ menu }),
     pages: content.pages.map((p) => ({ ...p, blocks: p.blocks.filter((b) => blockAllowed(b, sources)).map((b) => cleanBlock(b, sources)) })),
   };
-  const same = JSON.stringify(content) === JSON.stringify({ appearance: layout.appearance, languages: layout.languages, tabs: layout.tabs, ...menuOf(layout), pages: layout.pages });
-  if (same) return layout;
-  return { version: `${layout.version}~${sha256Hex(JSON.stringify(content)).slice(0, 12)}`, ...content };
+  return withSwitches(layout, app, content);
+}
+
+/**
+ * 83.3 The content without the features the team switched off for the app
+ * (lib/app/switches.ts), as a layout: the same one when nothing changed,
+ * else with its own version.
+ */
+function withSwitches(layout: Layout, app: Pick<App, "switches">, content: LayoutContent): Layout {
+  const on = appSwitches(app);
+  const noIcon = <T extends { icon_url?: string | null }>(x: T): T => {
+    if (on.own_icons || x.icon_url === undefined) return x;
+    const { icon_url: _icon, ...rest } = x;
+    void _icon;
+    return rest as T;
+  };
+  const block = (b: LayoutBlock): LayoutBlock => {
+    let next = b;
+    if (!on.block_looks && next.look !== undefined) {
+      const { look: _look, ...rest } = next;
+      void _look;
+      next = rest;
+    }
+    if (!on.own_icons && next.links?.some((l) => l.icon_url !== undefined)) next = { ...next, links: next.links.map(noIcon) };
+    return next;
+  };
+  const menu = on.side_menu ? (content.menu ?? []).map(noIcon) : [];
+  const switched: LayoutContent = {
+    appearance: content.appearance,
+    languages: content.languages,
+    tabs: content.tabs.map(noIcon),
+    ...(menu.length ? { menu } : {}),
+    pages: content.pages.map((p) => ({ ...p, blocks: p.blocks.map(block) })),
+  };
+  const original = { appearance: layout.appearance, languages: layout.languages, tabs: layout.tabs, ...(layout.menu?.length ? { menu: layout.menu } : {}), pages: layout.pages };
+  if (JSON.stringify(switched) === JSON.stringify(original)) return layout;
+  return { version: `${layout.version}~${sha256Hex(JSON.stringify(switched)).slice(0, 12)}`, ...switched };
 }
 
 /** Why a layout can't be published on this plan, or null. */

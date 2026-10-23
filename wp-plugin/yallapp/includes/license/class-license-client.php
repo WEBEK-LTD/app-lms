@@ -372,7 +372,7 @@ class License_Client {
 	/**
 	 * The last known status.
 	 *
-	 * @return array{status: string, plan: string|null, features: string[], sign_in_methods: string[]|null, email_sign_in: string|null, offline_downloads: bool|null, screen_protection: string|null, app_type: string|null, vertical: string|null, app_links: array|null, review_prompt: bool, crash_reports: bool, hide_video_branding: bool, chat: array|null, expires_at: string|null, checked_at: string|null, message: string|null, contacted_at: int}
+	 * @return array{status: string, plan: string|null, features: string[], sign_in_methods: string[]|null, email_sign_in: string|null, offline_downloads: bool|null, screen_protection: string|null, app_type: string|null, vertical: string|null, app_links: array|null, review_prompt: bool, crash_reports: bool, hide_video_branding: bool, chat: array|null, switches: array<string, bool>, expires_at: string|null, checked_at: string|null, message: string|null, contacted_at: int}
 	 */
 	public function status() {
 		$stored = get_option( self::STATUS_OPTION, array() );
@@ -392,6 +392,7 @@ class License_Client {
 				'crash_reports'       => true,
 				'hide_video_branding' => false,
 				'chat'                => null,
+				'switches'            => array(),
 				'expires_at'          => null,
 				'checked_at'          => null,
 				'message'             => null,
@@ -530,6 +531,8 @@ class License_Client {
 			'hide_video_branding' => self::hides_video_branding( $result ),
 			// 77 The app's chat, on Yallapp: where it is and whether academies have course groups.
 			'chat'                => self::chat_of( $result ),
+			// 83.3 The team's switches for the app's modules and new features.
+			'switches'            => self::switches_of( $result ),
 			'expires_at'          => isset( $result['expires_at'] ) ? sanitize_text_field( (string) $result['expires_at'] ) : null,
 			'checked_at'          => gmdate( 'c' ),
 			'message'             => isset( $result['message'] ) ? sanitize_text_field( (string) $result['message'] ) : null,
@@ -579,6 +582,24 @@ class License_Client {
 	}
 
 	/**
+	 * 83.3 The team's switches for the app (`LicenseStatus.switches`): each name with true or
+	 * false, at most 50, names of lowercase letters, digits and underscores. Older platforms
+	 * send none: an empty list, every switch on. Pure.
+	 *
+	 * @param array $result License status from the platform.
+	 * @return array<string, bool>
+	 */
+	public static function switches_of( array $result ) {
+		$switches = array();
+		foreach ( is_array( $result['switches'] ?? null ) ? $result['switches'] : array() as $name => $on ) {
+			if ( is_string( $name ) && preg_match( '/^[a-z0-9_]{1,40}$/', $name ) && is_bool( $on ) && count( $switches ) < 50 ) {
+				$switches[ $name ] = $on;
+			}
+		}
+		return $switches;
+	}
+
+	/**
 	 * The app's type and kind of business, as the owner chose them in the dashboard. Unknown
 	 * values (a newer platform) and older platforms that don't send them are null. Pure.
 	 *
@@ -616,6 +637,8 @@ class License_Client {
 			'link_paths'     => \Yallapp\Link_Paths::android_paths( ( new \Yallapp\Link_Paths( \Yallapp\Plugin::instance() ) )->entries() ),
 			// 81.2 What the site looks like, for an app made from it.
 			'brand'          => self::brand(),
+			// 83.4 The versions of the adapters the site uses.
+			'adapters'       => (object) \Yallapp\Plugin::instance()->adapter_versions(),
 		);
 	}
 

@@ -3351,6 +3351,19 @@ export class MysqlStore implements DataStore {
     return Number(rows[0]?.n ?? 0);
   }
 
+  async countAnalyticsVersions(appId: string, fromDay: string): Promise<{ version: string; installs: number }[]> {
+    // Each install's latest event (the newest first, one per install), then its version.
+    const [rows] = (await this.run((db) =>
+      db.execute(
+        sql`select app_version as version, count(*) as n from (
+              select app_version, row_number() over (partition by install_id order by at desc) as rn
+              from analytics_events where app_id = ${appId} and day >= ${fromDay}
+            ) latest where rn = 1 group by app_version order by n desc, app_version`,
+      ),
+    )) as unknown as [{ version: string; n: number | string }[]];
+    return rows.map((r) => ({ version: String(r.version), installs: Number(r.n) }));
+  }
+
   async countAnalyticsReturning(appId: string, cohortDay: string, day: string): Promise<number> {
     const [rows] = (await this.run((db) =>
       db.execute(

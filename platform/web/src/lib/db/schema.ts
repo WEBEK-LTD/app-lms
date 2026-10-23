@@ -241,6 +241,8 @@ export const apps = mysqlTable(
     catalogSettings: jsonText<CatalogSettings>("catalog_settings"),
     // 77 The chat's settings (null: on when the plan has chat, without course groups).
     chatSettings: jsonText<ChatSettings>("chat_settings"),
+    // 83.3 The switches turned off for the app (lib/app/switches.ts).
+    switches: jsonText<Partial<Record<string, boolean>>>("switches"),
     bookingSetup: jsonText<BookingSetup>("booking_setup"),
     courseSetup: jsonText<CourseSetup>("course_setup"),
     firebaseServiceAccountEncrypted: text("firebase_service_account_encrypted"),

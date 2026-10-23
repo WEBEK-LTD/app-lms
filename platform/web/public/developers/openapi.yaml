@@ -3860,6 +3860,20 @@ components:
                 WordPress, the plugin's "Allow offline downloads"; the
                 dashboard's choice wins when it made one). Missing means false;
                 when it turns false the app deletes what it saved.
+        switches:
+          type: object
+          description: |
+            Roadmap 83.3. Switches the Yallapp team sets for the app, for its
+            modules and new features, read at every start: no new build.
+            `chat`: the chat module; `side_menu`, `block_looks`, `own_icons`:
+            the side menu, blocks' backgrounds and spacing, and the owner's
+            own icons (82.5). False turns it off; a missing name, or a
+            missing object on older servers, means on. The server already
+            leaves out what a switch turns off (`Config.chat`, the pages), so
+            the switches are for what the app does on its own; a name the
+            app doesn't know means nothing to it.
+          additionalProperties: { type: boolean }
+          example: { chat: true, side_menu: false, block_looks: true, own_icons: true }
         auth:
           type: object
           required: [signup_allowed, signup_fields, default_country_code]

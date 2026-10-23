@@ -45,7 +45,9 @@ import type { SwitchesSetting } from "@/lib/data/types";
 import { ActivateForm, ClientDetailsForm } from "../../forms";
 import { countryOptions } from "@/lib/account/country";
 import { PAYMENT_STATUS, PAYMENT_TONE } from "../../payments/labels";
-import { ClientNotificationForm, ConnectionCheckForm, WordpressReadyForm } from "./forms";
+import { AppSwitchesForm, ClientNotificationForm, ConnectionCheckForm, WordpressReadyForm } from "./forms";
+import { APP_SWITCHES, appSwitches, SWITCH_INFO } from "@/lib/app/switches";
+import { connectorOfApp } from "@/lib/hosted/connectors/versions";
 import { addStoragePackAction, removeStoragePackAction } from "@/app/actions/admin-clients";
 import { packOffers } from "@/lib/media/packs";
 import { formatBytes } from "@/lib/media/quota";
@@ -304,7 +306,7 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
           switches={switches}
           usersQuery={usersApp === null || usersApp === entry.key ? (typeof query.users === "string" ? query.users.slice(0, 100) : "") : ""}
           usersPage={usersApp === null || usersApp === entry.key ? Math.max(1, Number(query.page) || 1) : 1}
-          may={{ license: may("clients.license"), edit: may("clients.edit"), email: may("clients.email"), builds: may("builds.manage") }}
+          may={{ license: may("clients.license"), edit: may("clients.edit"), email: may("clients.email"), builds: may("builds.manage"), switches: may("switches.edit") }}
         />
       ))}
 
@@ -487,7 +489,7 @@ async function AppEntry({
   switches: SwitchesSetting | null;
   usersQuery: string;
   usersPage: number;
-  may: { license: boolean; edit: boolean; email: boolean; builds: boolean };
+  may: { license: boolean; edit: boolean; email: boolean; builds: boolean; switches: boolean };
 }) {
   const store = await getStore();
   const { app, license } = entry;
@@ -553,12 +555,16 @@ async function AppEntry({
                   ? `${activation.siteUrl} · plugin ${activation.pluginVersion} · checked ${formatDateTime(activation.lastCheckedAt)}`
                   : "Not activated on a website",
               ],
+              // 83.4 The hosted API's connector and its version.
+              ...(app && connectorOfApp(app)
+                ? [["Connector", `${connectorOfApp(app)!.name} · connector ${connectorOfApp(app)!.version} · ${connectorOfApp(app)!.api}`] as [string, string]]
+                : []),
               // 30 What the site runs beside the plugin, when the plugin reports it.
               ...(site?.reported
                 ? [
                     [
                       "Website runs",
-                      `${site.runs.join(", ") || "No course, shop or booking plugin"}${site.warning && app ? ` · doesn't fit the app type (${appTypeName(app)})` : ""}`,
+                      `${site.runs.join(", ") || "No course, shop or booking plugin"}${site.warning && app ? ` · doesn't fit the app type (${appTypeName(app)})` : ""}${adapterVersions(app)}`,
                     ] as [string, string],
                   ]
                 : []),
@@ -703,6 +709,26 @@ async function AppEntry({
       ) : null}
 
       {app ? <AnalyticsCard app={app} now={now} /> : null}
+      {app ? (
+        <Card id={`h-switches-${entry.key}`} title="App switches" level={3}>
+          <p className="m-0 text-sm text-muted">Modules and new features for this app only, without a new build. Everything is on unless switched off here.</p>
+          {may.switches ? (
+            <AppSwitchesForm
+              clientId={client.id}
+              appId={app.id}
+              switches={APP_SWITCHES.map((name) => ({ name, ...SWITCH_INFO[name], on: appSwitches(app)[name] }))}
+            />
+          ) : (
+            <ul className="m-0 pl-5 text-sm">
+              {APP_SWITCHES.map((name) => (
+                <li key={name}>
+                  {SWITCH_INFO[name].label}: {appSwitches(app)[name] ? "on" : "off"}
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+      ) : null}
       {app ? <StorageCard clientId={client.id} app={app} until={license?.expiresAt ?? null} now={now} may={{ edit: may.license }} /> : null}
 
       {app?.backend === "hosted" ? (
@@ -1011,4 +1037,13 @@ async function HostedSection({ clientId, app, q, page, may }: { clientId: string
       </Card>
     </div>
   );
+}
+
+/** 83.4 The versions of the plugin's adapters the site uses, as the plugin last reported them. */
+function adapterVersions(app: App | null): string {
+  const adapters = app?.hostedSettings?.siteAdapters;
+  if (!adapters) return "";
+  const names = { lms: "courses", bookings: "bookings", store: "shop" } as const;
+  const list = (Object.keys(names) as (keyof typeof names)[]).filter((k) => adapters[k]).map((k) => `${names[k]} adapter ${adapters[k]}`);
+  return list.length ? ` · ${list.join(", ")}` : "";
 }

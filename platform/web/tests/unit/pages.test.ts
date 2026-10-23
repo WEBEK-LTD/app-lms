@@ -632,6 +632,32 @@ describe("pages on the hosted API", () => {
     expect(served.find((b) => b.id === "links")!.links).toEqual([{ icon: "star", icon_url: icon, label: "Offers", action: { type: "page", page_slug: "home" } }]);
   });
 
+  it("83.3 the team's switches leave out the side menu, own icons and looks, and /config says which are off", async () => {
+    const icon = "https://yallapp.test/m/icon-star.png";
+    const layout = layoutWith(
+      [
+        { id: "hello", type: "text", visibility: "everyone", html: "<p>Hello</p>", look: { background: "tint", spacing: "large" } },
+        { id: "links", type: "quick_links", visibility: "everyone", style: "grid", links: [{ icon: "star", icon_url: icon, label: "Offers", action: { type: "page", page_slug: "home" } }] },
+      ],
+      { menu: [{ id: "about", label: "About us", icon: "info", icon_url: icon, target: { type: "page", page_slug: "home" } }] },
+    );
+    expect((await publishLayout(store, app, layout, "owner@lale.test", NOW)).ok).toBe(true);
+    const on = await call("/pages");
+    expect((on.body as { menu: unknown[] }).menu).toHaveLength(1);
+    const config = async () => (await call("/config", { query: { platform: "android", app_version: "1.0.0" } })).body as { switches: Record<string, boolean> };
+    expect((await config()).switches).toEqual({ chat: true, side_menu: true, block_looks: true, own_icons: true });
+
+    app = { ...app, switches: { side_menu: false, own_icons: false, block_looks: false } };
+    const off = await call("/pages");
+    expect((off.body as { menu: unknown[] }).menu).toEqual([]);
+    // A new version, so the app's cached copy isn't reused.
+    expect((off.body as { version: string }).version).not.toBe((on.body as { version: string }).version);
+    const served = ((await call("/pages/{slug}", { params: ["home"] })).body as { blocks: { id: string; look?: unknown; links?: { icon_url?: string }[] }[] }).blocks;
+    expect(served.find((b) => b.id === "hello")).not.toHaveProperty("look");
+    expect(served.find((b) => b.id === "links")!.links![0]).not.toHaveProperty("icon_url");
+    expect((await config()).switches).toEqual({ chat: true, side_menu: false, block_looks: false, own_icons: false });
+  });
+
   it("82.5 checks the look, the icons' addresses and the side menu", () => {
     const bad = parse(
       layoutWith([{ id: "x", type: "text", visibility: "everyone", html: "<p>x</p>", look: { background: "neon", spacing: "huge" } }], {
