@@ -20,6 +20,12 @@ use WP_Post;
 abstract class Base_Adapter implements Lms_Adapter {
 
 	/**
+	 * 83.4 This adapter's version: the third number for a fix, the second for something new it sends
+	 * the app, the first when the app must change too (docs/CONNECTORS.md).
+	 */
+	const ADAPTER_VERSION = '1.0.0';
+
+	/**
 	 * Wishlisted courses. Empty when the LMS has no wishlist.
 	 *
 	 * @param int $user_id User ID.

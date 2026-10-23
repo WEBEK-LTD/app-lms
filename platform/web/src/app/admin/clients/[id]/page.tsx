@@ -47,6 +47,7 @@ import { countryOptions } from "@/lib/account/country";
 import { PAYMENT_STATUS, PAYMENT_TONE } from "../../payments/labels";
 import { AppSwitchesForm, ClientNotificationForm, ConnectionCheckForm, WordpressReadyForm } from "./forms";
 import { APP_SWITCHES, appSwitches, SWITCH_INFO } from "@/lib/app/switches";
+import { connectorOfApp } from "@/lib/hosted/connectors/versions";
 import { addStoragePackAction, removeStoragePackAction } from "@/app/actions/admin-clients";
 import { packOffers } from "@/lib/media/packs";
 import { formatBytes } from "@/lib/media/quota";
@@ -554,12 +555,16 @@ async function AppEntry({
                   ? `${activation.siteUrl} · plugin ${activation.pluginVersion} · checked ${formatDateTime(activation.lastCheckedAt)}`
                   : "Not activated on a website",
               ],
+              // 83.4 The hosted API's connector and its version.
+              ...(app && connectorOfApp(app)
+                ? [["Connector", `${connectorOfApp(app)!.name} · connector ${connectorOfApp(app)!.version} · ${connectorOfApp(app)!.api}`] as [string, string]]
+                : []),
               // 30 What the site runs beside the plugin, when the plugin reports it.
               ...(site?.reported
                 ? [
                     [
                       "Website runs",
-                      `${site.runs.join(", ") || "No course, shop or booking plugin"}${site.warning && app ? ` · doesn't fit the app type (${appTypeName(app)})` : ""}`,
+                      `${site.runs.join(", ") || "No course, shop or booking plugin"}${site.warning && app ? ` · doesn't fit the app type (${appTypeName(app)})` : ""}${adapterVersions(app)}`,
                     ] as [string, string],
                   ]
                 : []),
@@ -1032,4 +1037,13 @@ async function HostedSection({ clientId, app, q, page, may }: { clientId: string
       </Card>
     </div>
   );
+}
+
+/** 83.4 The versions of the plugin's adapters the site uses, as the plugin last reported them. */
+function adapterVersions(app: App | null): string {
+  const adapters = app?.hostedSettings?.siteAdapters;
+  if (!adapters) return "";
+  const names = { lms: "courses", bookings: "bookings", store: "shop" } as const;
+  const list = (Object.keys(names) as (keyof typeof names)[]).filter((k) => adapters[k]).map((k) => `${names[k]} adapter ${adapters[k]}`);
+  return list.length ? ` · ${list.join(", ")}` : "";
 }

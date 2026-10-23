@@ -235,6 +235,8 @@ export interface HostedSettings {
    * from it (81.3).
    */
   siteBrand?: SiteBrandReport | null;
+  /** 83.4 The versions of the plugin's adapters the site uses (`SiteInfo.adapters`): lms, bookings, store. */
+  siteAdapters?: Partial<Record<"lms" | "bookings" | "store", string>> | null;
   /**
    * 53 Screenshots and screen recording in the app, as the owner chose on the
    * Screen protection page: `off`, `content` (course content only, academies)

@@ -22,6 +22,12 @@ use Exception;
 abstract class Base_Adapter implements Booking_Adapter {
 
 	/**
+	 * 83.4 This adapter's version: the third number for a fix, the second for something new it sends
+	 * the app, the first when the app must change too (docs/CONNECTORS.md).
+	 */
+	const ADAPTER_VERSION = '1.0.0';
+
+	/**
 	 * The business's time zone (the site's).
 	 *
 	 * @return DateTimeZone

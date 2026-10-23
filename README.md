@@ -27,6 +27,7 @@ Website: [yallapp.com.tr](https://yallapp.com.tr)
 2. [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): how the pieces fit together.
 3. [`docs/api/openapi.yaml`](docs/api/openapi.yaml): the contract between the plugin and the app.
 4. [`docs/BRAND.md`](docs/BRAND.md): colors, type and icon rules for everything we ship.
+5. [`docs/CONNECTORS.md`](docs/CONNECTORS.md): the connectors and adapters, their versions and how to add one.
 
 ## Checks
 

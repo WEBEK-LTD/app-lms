@@ -2760,6 +2760,17 @@ to the app version that brings it), its fields in the validator and the
 editor, its drawing in the preview, the hosted API, the plugin
 (`Rich_Blocks`) and the app.
 
+### Connector and adapter versions (83.4)
+
+Each connector (`CONNECTOR_VERSIONS`, `lib/hosted/connectors/versions.ts`)
+and each plugin adapter (`ADAPTER_VERSION`) has its own version; the plugin
+sends those of the adapters a site uses with each license check
+(`SiteInfo.adapters`, kept in `hostedSettings.siteAdapters`). Admin › the
+client shows the app's connector and its site's adapters with their
+versions. `docs/CONNECTORS.md` lists them all, says how versions go up and
+how to add a connector or an adapter; tests on both sides keep it in step
+with the code.
+
 ### Switches per app (83.3)
 
 Besides the switches for everyone and per plan (Admin › Switches, 11.5),

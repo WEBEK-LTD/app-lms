@@ -11,7 +11,7 @@ import { chosenEmailSignIn, chosenSignInMethods } from "../hosted/sign-in-method
 import type { Plan, PlanFeature, PlanInfo } from "../plans";
 import { currentPlanId } from "../billing/plan-change";
 import { effectivePlans } from "../entitlements";
-import { compareVersions, parseVersion } from "../semver";
+import { compareVersions, parseVersion, VERSION_PATTERN } from "../semver";
 import { hashLicenseKey, isWellFormedLicenseKey } from "./key";
 import { normalizeSiteUrl } from "./site-url";
 import { licenseState } from "./status";
@@ -93,6 +93,19 @@ export interface SiteInfo {
   linkPaths?: string[] | null;
   /** 81.2 What the site looks like; null: the plugin didn't say (before 0.4.10). */
   brand?: SiteBrandReport | null;
+  /** 83.4 The versions of the adapters the site uses; null: the plugin didn't say (before 0.4.11). */
+  adapters?: Partial<Record<"lms" | "bookings" | "store", string>> | null;
+}
+
+/** 83.4 `SiteInfo.adapters`: the known kinds with a version like 1.0.0; null when missing or not an object. */
+export function parseSiteAdapters(value: unknown): SiteInfo["adapters"] {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const out: Partial<Record<"lms" | "bookings" | "store", string>> = {};
+  for (const kind of ["lms", "bookings", "store"] as const) {
+    const version = (value as Record<string, unknown>)[kind];
+    if (typeof version === "string" && VERSION_PATTERN.test(version)) out[kind] = version;
+  }
+  return out;
 }
 
 const bad = (message: string): { status: 400; body: ApiError } => ({
@@ -208,7 +221,7 @@ export function parseSiteInfo(body: unknown): { ok: true; value: SiteInfo } | { 
   if (bookings === undefined) return { ok: false, result: bad("bookings must be a string.") };
   return {
     ok: true,
-    value: { licenseKey, siteUrlRaw: siteUrlRaw.trim(), siteUrl, pluginVersion: pluginVersion.trim(), wpVersion, lms, store, bookings, linkPaths: parseLinkPaths(input.link_paths), brand: parseSiteBrand(input.brand) },
+    value: { licenseKey, siteUrlRaw: siteUrlRaw.trim(), siteUrl, pluginVersion: pluginVersion.trim(), wpVersion, lms, store, bookings, linkPaths: parseLinkPaths(input.link_paths), brand: parseSiteBrand(input.brand), adapters: parseSiteAdapters(input.adapters) },
   };
 }
 
@@ -409,17 +422,27 @@ export async function checkLicense(store: DataStore, site: SiteInfo, now: Date):
  * 48, 81.2 Keeps what the site reported for the app (its paths for the next build, its look
  * for a draft), only when it changed: a license check every 12 hours writes nothing.
  */
-export async function saveSiteReport(store: DataStore, app: App, site: Pick<SiteInfo, "linkPaths" | "brand">, now: Date): Promise<boolean> {
+export async function saveSiteReport(store: DataStore, app: App, site: Pick<SiteInfo, "linkPaths" | "brand" | "adapters">, now: Date): Promise<boolean> {
   if (app.backend !== "wordpress" && app.backend !== "setup_requested") return false;
   const settings = app.hostedSettings;
   const paths = site.linkPaths ?? null;
   const brand = site.brand ?? null;
+  const adapters = site.adapters ?? null;
   const pathsChanged = paths !== null && app.backend === "wordpress" && JSON.stringify(settings?.sitePaths ?? null) !== JSON.stringify(paths);
   const brandChanged = brand !== null && JSON.stringify(settings?.siteBrand ?? null) !== JSON.stringify(brand);
-  if (!pathsChanged && !brandChanged) return false;
+  const adaptersChanged = adapters !== null && JSON.stringify(settings?.siteAdapters ?? null) !== JSON.stringify(adapters);
+  if (!pathsChanged && !brandChanged && !adaptersChanged) return false;
   await store.updateApp(
     app.id,
-    { hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, ...settings, ...(pathsChanged ? { sitePaths: paths } : {}), ...(brandChanged ? { siteBrand: brand } : {}) } },
+    {
+      hostedSettings: {
+        ...DEFAULT_HOSTED_SETTINGS,
+        ...settings,
+        ...(pathsChanged ? { sitePaths: paths } : {}),
+        ...(brandChanged ? { siteBrand: brand } : {}),
+        ...(adaptersChanged ? { siteAdapters: adapters } : {}),
+      },
+    },
     now,
   );
   return true;

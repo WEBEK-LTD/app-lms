@@ -637,6 +637,8 @@ class License_Client {
 			'link_paths'     => \Yallapp\Link_Paths::android_paths( ( new \Yallapp\Link_Paths( \Yallapp\Plugin::instance() ) )->entries() ),
 			// 81.2 What the site looks like, for an app made from it.
 			'brand'          => self::brand(),
+			// 83.4 The versions of the adapters the site uses.
+			'adapters'       => (object) \Yallapp\Plugin::instance()->adapter_versions(),
 		);
 	}
 
