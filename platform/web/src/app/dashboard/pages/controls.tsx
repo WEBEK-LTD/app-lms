@@ -25,6 +25,7 @@ export function TextInput({
   rows,
   type = "text",
   inputMode,
+  max,
 }: {
   id: string;
   label: ReactNode;
@@ -36,6 +37,8 @@ export function TextInput({
   rows?: number;
   type?: string;
   inputMode?: "numeric" | "decimal" | "url";
+  /** 83.1 The longest the text can be (from the block's definition). */
+  max?: number;
 }) {
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
@@ -48,6 +51,7 @@ export function TextInput({
           value={value}
           rows={rows}
           dir={dir}
+          maxLength={max}
           placeholder={placeholder}
           aria-describedby={hint ? `${id}-hint` : undefined}
           onChange={(e) => onChange(e.target.value)}
@@ -60,6 +64,7 @@ export function TextInput({
           value={value}
           dir={dir}
           inputMode={inputMode}
+          maxLength={max}
           placeholder={placeholder}
           aria-describedby={hint ? `${id}-hint` : undefined}
           onChange={(e) => onChange(e.target.value)}
@@ -132,6 +137,7 @@ export function LangText<T extends { translations?: Translations } & object>({
   onChange,
   rows,
   hint,
+  max,
 }: {
   id: string;
   label: string;
@@ -141,6 +147,8 @@ export function LangText<T extends { translations?: Translations } & object>({
   onChange: (value: T) => void;
   rows?: number;
   hint?: ReactNode;
+  /** 83.1 The longest the text can be, in each language. */
+  max?: number;
 }) {
   const t = useDashT();
   const dash = useDashLang();
@@ -154,6 +162,7 @@ export function LangText<T extends { translations?: Translations } & object>({
       placeholder={other ? textIn(value, field, lang.default, lang.default) : undefined}
       dir={RTL_LANGUAGES.includes(lang.edit) ? "rtl" : "ltr"}
       rows={rows}
+      max={max}
       hint={
         other
           ? DICTIONARY_LANGS.includes(lang.edit)

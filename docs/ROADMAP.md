@@ -1978,7 +1978,7 @@ knowing.
 
 | | Step | Done when |
 |---|---|---|
-| [ ] | 83.1 One definition per block (fields, limits, the app version that shows it, what older apps show instead) drives the validator, the editor's form and the preview | Unit tests |
+| [x] | 83.1 One definition per block (fields, limits, the app version that shows it, what older apps show instead) drives the validator, the editor's form and the preview. `lib/pages/blocks.ts`: each block's name, hint, icon, group, its texts' longest lengths, its lists' sizes, `since` (the first app version that shows it) and `olderApps`; the validator's limits, the editor's fields (their longest length) and "Add a block" come from it, and the preview draws a block it has no picture for from it | `block-definitions.test.ts` |
 | [ ] | 83.2 The app's version per device: the editor says how many people won't see a block until they update | Unit and e2e tests |
 | [ ] | 83.3 Switches per app for modules and new features, without a build | Contract, tests |
 | [ ] | 83.4 Connectors and adapters with versions and a documented way to add one | Docs, tests |

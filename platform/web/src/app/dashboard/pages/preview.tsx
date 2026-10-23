@@ -3,6 +3,7 @@
 import { useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import { PhoneFrame } from "@/components/device-frame";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
+import { BLOCK_DEFINITIONS } from "@/lib/pages/blocks";
 import { cleanBlockHtml } from "@/lib/pages/html";
 import { SOCIAL_LABELS, WEEKDAY_LABELS } from "@/lib/pages/labels";
 import { SOURCE_NAMES } from "@/lib/pages/sources";
@@ -485,8 +486,16 @@ function MoreBlockPreview({ block: b, theme, bold }: { block: LayoutBlock; theme
         </div>
       );
     }
-    default:
-      return null;
+    default: {
+      // 83.1 A block the preview has no drawing for: its name and icon, from its definition.
+      const def = BLOCK_DEFINITIONS[(b as LayoutBlock).type];
+      return def ? (
+        <div data-block-placeholder="" style={{ display: "flex", alignItems: "center", gap: 6, padding: 10, borderRadius: theme.radius, border: `1px dashed ${theme.muted}`, color: theme.muted, fontSize: 12 }}>
+          <IconGlyph name={def.icon} size={16} />
+          {def.label}
+        </div>
+      ) : null;
+    }
   }
 }
 

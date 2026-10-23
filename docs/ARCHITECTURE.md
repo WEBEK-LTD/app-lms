@@ -2737,6 +2737,23 @@ them under Publish history, marking the one in the app; "Use as draft"
 with the draft's own interface strings; what's published stays until the
 owner publishes.
 
+### One definition per block (83.1)
+
+Each block type has one definition in `lib/pages/blocks.ts`
+(`BLOCK_DEFINITIONS`): its name and hint in the dashboard, its icon, its
+group in "Add a block", the longest each of its texts can be, how many
+entries each of its lists takes, `since` (the first app version that shows
+it) and `olderApps` (what an older app shows instead: today, nothing, since
+the app leaves out a block type it doesn't know). The validator's limits,
+the editor's text fields (`maxLength`) and lists, "Add a block" and the
+preview's drawing of a block it has no picture for all read it.
+
+Adding a block: add its type to `BLOCK_TYPES` and the contract
+(`docs/api/openapi.yaml`, `platform.yaml`), its definition (with `since` set
+to the app version that brings it), its fields in the validator and the
+editor, its drawing in the preview, the hosted API, the plugin
+(`Rich_Blocks`) and the app.
+
 ### Block looks, own icons and the side menu (82.5)
 
 Each block can have a look (`BlockLook`): a background within the app's
