@@ -136,6 +136,8 @@ class Plugin {
 		( new Rest\Links_Controller( $this ) )->register_routes();
 		// 77 The chat's token and Yallapp's pushes for it.
 		( new Rest\Chat_Controller( $this ) )->register_routes();
+		// 85.4 Campaigns from the Yallapp dashboard.
+		( new Rest\Campaigns_Controller( $this ) )->register_routes();
 	}
 
 	/**

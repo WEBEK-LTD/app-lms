@@ -14,7 +14,9 @@ import { encryptionKey } from "@/lib/env";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX, serviceAccountOf } from "@/lib/hosted/notify";
 import { PLAN_ENDED_MESSAGE } from "@/lib/hosted/send-notification";
 import { appIsActive } from "@/lib/license/status";
-import { EditScheduledForm, ServiceAccountForm, SendNotificationForm } from "./forms";
+import { AutoNotificationsForm, EditScheduledForm, ServiceAccountForm, SendNotificationForm } from "./forms";
+import { autoKindsFor, autoOn } from "@/lib/hosted/auto-notifications";
+import { dayOf } from "@/lib/analytics/days";
 import { appZone, zoneLabel } from "@/lib/analytics/zone";
 import { utcToLocal } from "@/lib/bookings/time";
 import { LISTED_STATUSES, localSendAt } from "@/lib/hosted/scheduled-notifications";
@@ -38,6 +40,17 @@ export default async function NotificationsPage() {
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
           {t("notify.fromSite")} <Link href="/dashboard/setup">{t("notify.backToSetup")}</Link>
         </p>
+        {/* 85.4 Campaigns go through the WordPress site. */}
+        {app?.backend === "wordpress" ? (
+          <Link href="/dashboard/notifications/campaigns" className="flex items-center gap-3 rounded-2xl border border-line bg-white p-4 no-underline hover:border-midnight">
+            <Icon name="campaign" size={24} />
+            <span className="flex min-w-0 flex-1 flex-col">
+              <span className="text-[16px] font-bold text-midnight">{t("campaigns.open")}</span>
+              <span className="text-[14px] text-ink-4">{t("campaigns.wordpressAudience")}</span>
+            </span>
+            <Icon name="chevron_right" size={20} className="rtl:rotate-180" />
+          </Link>
+        ) : null}
       </div>
     );
   }
@@ -60,6 +73,15 @@ export default async function NotificationsPage() {
   const upgrade = lowestPlanWith(plans, (p) => hasFeature(p, "push"), planId);
   // 68 Nothing goes out once the app's plan has ended (lib/hosted/send-notification.ts).
   const ended = !appIsActive(license, client, now);
+  // 85.3 The automatic ones: on or off, and the last 30 days' people and opens.
+  const kinds = autoKindsFor(app);
+  const counts = new Map<string, number>();
+  if (kinds.length) {
+    for (const row of await store.listAnalyticsDaily(app.id, dayOf(new Date(now.getTime() - 30 * 86_400_000), zone), dayOf(now, zone), ["auto_sent", "push_open"])) {
+      const key = row.metric === "auto_sent" ? `sent:${row.key}` : row.key;
+      counts.set(key, (counts.get(key) ?? 0) + row.value);
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -67,6 +89,15 @@ export default async function NotificationsPage() {
         <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("notify.title")}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("notify.intro", { count: customers })}</p>
       </div>
+      {/* 85.2 Campaigns: to some of the customers, with a picture, a page to open and a weekly time. */}
+      <Link href="/dashboard/notifications/campaigns" className="flex max-w-[620px] items-center gap-3 rounded-2xl border border-line bg-white p-4 no-underline hover:border-midnight">
+        <Icon name="campaign" size={24} />
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="text-[16px] font-bold text-midnight">{t("campaigns.open")}</span>
+          <span className="text-[14px] text-ink-4">{t("campaigns.openText")}</span>
+        </span>
+        <Icon name="chevron_right" size={20} className="rtl:rotate-180" />
+      </Link>
       {ended ? (
         <div className="max-w-[620px]">
           <Notice tone="warn" icon="warning" role="status">
@@ -112,6 +143,24 @@ export default async function NotificationsPage() {
           )}
         </section>
       </div>
+
+      {kinds.length ? (
+        <section aria-labelledby="h-auto" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
+          <h2 id="h-auto" className="m-0 text-lg font-bold">
+            {t("campaigns.autoTitle")}
+          </h2>
+          <p className="m-0 text-[15px] text-ink-4">{t("campaigns.autoIntro")}</p>
+          <AutoNotificationsForm
+            kinds={kinds.map((kind) => ({
+              kind,
+              on: autoOn(app, kind),
+              label: t(`campaigns.auto_${kind}`),
+              text: t(`campaigns.auto_${kind}_text`),
+              numbers: t("campaigns.autoNumbers", { people: counts.get(`sent:${kind}`) ?? 0, opened: counts.get(`type:${kind}`) ?? 0 }),
+            }))}
+          />
+        </section>
+      ) : null}
 
       <section aria-labelledby="h-scheduled" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-scheduled" className="m-0 text-lg font-bold">

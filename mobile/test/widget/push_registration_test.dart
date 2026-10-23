@@ -57,5 +57,7 @@ void main() {
     );
     await app.pump(tester);
     expect(app.api.pushTokens, [(token: 'fcm-1', provider: PushProvider.fcm)]);
+    // 85.1 With the language the app shows.
+    expect(app.api.pushLanguages, ['en']);
   });
 }

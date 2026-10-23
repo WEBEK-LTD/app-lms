@@ -4,6 +4,7 @@ import { hostedScreenProtection } from "../app/screen-protection";
 import { hidesVideoBranding } from "../app/video-branding";
 import { toVertical } from "../app/kinds";
 import { hmacSha256, newId, randomToken, safeEqual, sha256Hex } from "../crypto/tokens";
+import { appAreas } from "../app/areas";
 import { yallappLinkBase } from "../links/table";
 import type { DataStore } from "../data/store";
 import {
@@ -87,6 +88,8 @@ export interface HostedContext {
   onUsersCounted?: (count: number) => Promise<void>;
   now: Date;
   ip: string;
+  /** 85.1 The country the request came from (lib/geo.ts), kept on the phone for campaigns' audiences. */
+  country?: string | null;
   /** Signs access tokens and hashes codes. */
   secret: string;
   sender: OtpSender | null;
@@ -298,6 +301,13 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
         return listDevices(ctx, session);
       case "PUT /me/push-token":
         return setPushToken(ctx, session, record(req.body));
+      case "PUT /me/cart": {
+        // 85.3 How many items the cart holds, for "You left something in your cart"; kept for shops only.
+        const items = record(req.body).items;
+        if (typeof items !== "number" || !Number.isInteger(items) || items < 0 || items > 999) return badRequest("items must be a whole number from 0 to 999.");
+        if (appAreas(ctx.app).products) await ctx.store.saveHostedCart(ctx.app.id, session.user.id, items, ctx.now);
+        return noContent;
+      }
       case "GET /me/notifications":
         return listNotifications(ctx, session, req.query);
       case "POST /me/notifications/read":
@@ -815,6 +825,7 @@ async function session(ctx: HostedContext, user: HostedUser, rawDevice: Record<s
       name: input.name,
       appVersion: input.appVersion,
       lastSeenAt: ctx.now,
+      ...(ctx.country ? { country: ctx.country } : {}),
     });
   } else {
     // 16 The shared demo account is on every visitor's phone.
@@ -843,6 +854,8 @@ async function session(ctx: HostedContext, user: HostedUser, rawDevice: Record<s
       appVersion: input.appVersion,
       pushToken: null,
       pushPreferences: null,
+      language: null,
+      country: ctx.country ?? null,
       createdAt: ctx.now,
       lastSeenAt: ctx.now,
     };
@@ -883,7 +896,7 @@ async function refresh(ctx: HostedContext, body: Record<string, unknown>): Promi
   // 34 The new access token carries the person's current name, phone and email.
   const user = await ctx.store.getHostedUser(ctx.app.id, token.userId);
   if (!user) return unauthorized();
-  await ctx.store.updateHostedDevice(ctx.app.id, device.id, { lastSeenAt: ctx.now });
+  await ctx.store.updateHostedDevice(ctx.app.id, device.id, { lastSeenAt: ctx.now, ...(ctx.country ? { country: ctx.country } : {}) });
   return ok(await issueTokens(ctx, user, device.id));
 }
 
@@ -962,6 +975,9 @@ async function removeDevice(ctx: HostedContext, s: Session, id: string): Promise
   return noContent;
 }
 
+/** 85.1 A language tag as the app sends it: "ar", "tr", "en-GB". */
+const LANGUAGE_TAG = /^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$/;
+
 async function setPushToken(ctx: HostedContext, s: Session, body: Record<string, unknown>): Promise<HostedResult> {
   const token = text(body.token, 512);
   if (!token) return badRequest("The push token is missing.");
@@ -973,9 +989,17 @@ async function setPushToken(ctx: HostedContext, s: Session, body: Record<string,
   // 36 Firebase (the default) or Huawei Push Kit, for phones without Google Play.
   const provider = body.provider ?? "fcm";
   if (provider !== "fcm" && provider !== "hms") return badRequest("The push provider must be fcm or hms.");
+  // 85.1 The app's language on the phone (its first part: "ar" of "ar-EG"), for campaigns' audiences.
+  const language = typeof body.language === "string" && LANGUAGE_TAG.test(body.language) ? body.language.split("-")[0]!.toLowerCase() : undefined;
   // A token moves with the install: forget it on any other device first.
   await ctx.store.clearHostedPushToken(ctx.app.id, token);
-  await ctx.store.updateHostedDevice(ctx.app.id, s.device.id, { pushToken: token, pushProvider: provider, pushPreferences: preferences });
+  await ctx.store.updateHostedDevice(ctx.app.id, s.device.id, {
+    pushToken: token,
+    pushProvider: provider,
+    pushPreferences: preferences,
+    ...(language ? { language } : {}),
+    ...(ctx.country ? { country: ctx.country } : {}),
+  });
   return noContent;
 }
 
@@ -986,19 +1010,29 @@ function pageParam(query: URLSearchParams, name: string, fallback: number, max: 
   return Number.isFinite(value) && value >= 1 ? Math.min(value, max) : fallback;
 }
 
+function numberOf(value: string | undefined): number | null {
+  const n = Number(value);
+  return value !== undefined && Number.isSafeInteger(n) ? n : null;
+}
+
 export function notificationJson(n: HostedNotification, readAt: Date | null) {
   return {
     id: n.id,
     title: n.title,
     body: n.body,
-    // 23 Breaking news opens its article; 28 a change to an event opens the event; 29 a campaign update its campaign.
-    type: n.articleId ? "article" : n.eventId ? "event" : n.campaignId ? "campaign_update" : "announcement",
-    course_id: null,
-    lesson_id: null,
+    // 23 Breaking news opens its article; 28 a change to an event opens the event; 29 a campaign update its campaign; 85.3 an automatic one says.
+    type: n.data?.type ?? (n.articleId ? "article" : n.eventId ? "event" : n.campaignId ? "campaign_update" : "announcement"),
+    course_id: numberOf(n.data?.course_id),
+    lesson_id: numberOf(n.data?.lesson_id),
     question_id: null,
+    ...(n.data?.appointment_id ? { appointment_id: numberOf(n.data.appointment_id) } : {}),
+    ...(n.data?.event_id && !n.eventId ? { event_id: numberOf(n.data.event_id) } : {}),
     ...(n.articleId ? { article_id: n.articleId } : {}),
     ...(n.eventId ? { event_id: n.eventId } : {}),
     ...(n.campaignId ? { campaign_id: n.campaignId } : {}),
+    // 85.2 A campaign's link and picture.
+    ...(n.link ? { link: n.link } : {}),
+    ...(n.imageUrl ? { image_url: n.imageUrl } : {}),
     created_at: n.createdAt.toISOString(),
     read: readAt !== null && n.createdAt.getTime() <= readAt.getTime(),
   };

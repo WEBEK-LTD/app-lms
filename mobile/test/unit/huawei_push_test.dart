@@ -265,6 +265,23 @@ void main() {
       expect(body['provider'], 'hms');
       expect(body['preferences'], isA<Map<String, dynamic>>());
     });
+
+    test('85.1 with the language the app shows, when known', () async {
+      await api().setPushToken(
+        'fcm-2',
+        const NotificationPreferences(),
+        language: 'ar',
+      );
+      expect((server.requests.single.data as Map)['language'], 'ar');
+    });
+
+    test('85.1 without a language field when not known', () async {
+      await api().setPushToken('fcm-3', const NotificationPreferences());
+      expect(
+        (server.requests.single.data as Map).containsKey('language'),
+        isFalse,
+      );
+    });
   });
 
   group('agconnect-services.json in the build config', () {

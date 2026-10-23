@@ -48,6 +48,8 @@ export interface PushMessage {
   title: string;
   body: string;
   data: Record<string, string>;
+  /** 85.2 A picture shown with it (Android; iPhones show it in the app's inbox). */
+  image?: string | null;
 }
 
 export interface PushResult {
@@ -139,7 +141,7 @@ export async function sendPush(
       body: JSON.stringify({
         message: {
           token: deviceToken,
-          notification: { title: message.title, body: message.body },
+          notification: { title: message.title, body: message.body, ...(message.image ? { image: message.image } : {}) },
           data: message.data,
           android: { priority: "high" },
           apns: { payload: { aps: { sound: "default" } } },
@@ -188,7 +190,7 @@ export function hmsMessage(tokens: string[], message: PushMessage) {
       notification: { title: message.title, body: message.body },
       android: {
         urgency: "HIGH",
-        notification: { title: message.title, body: message.body, default_sound: true, click_action: { type: 3 } },
+        notification: { title: message.title, body: message.body, default_sound: true, click_action: { type: 3 }, ...(message.image ? { image: message.image } : {}) },
       },
       token: tokens,
     },

@@ -487,7 +487,12 @@ abstract class YallappApi {
     String token,
     NotificationPreferences preferences, {
     PushProvider provider = PushProvider.fcm,
+    String? language,
   });
+
+  /// 85.3 How many items the cart holds, for "You left something in your
+  /// cart" (`PUT /me/cart`); a 404 means the server doesn't keep it.
+  Future<void> setCart(int items);
 
   Future<List<Category>> listCategories();
   Future<Paged<CourseSummary>> listCourses(CourseQuery query);
@@ -1113,6 +1118,7 @@ class HttpYallappApi implements YallappApi {
     String token,
     NotificationPreferences preferences, {
     PushProvider provider = PushProvider.fcm,
+    String? language,
   }) => _send(
     'PUT',
     '/me/push-token',
@@ -1123,6 +1129,8 @@ class HttpYallappApi implements YallappApi {
       // 36 fcm or hms: the site sends each token through its own service.
       'provider': provider.name,
       'preferences': preferences.toJson(),
+      // 85.1 The language the app shows, for campaigns to the people who read it.
+      'language': ?language,
     },
   );
 
@@ -1307,6 +1315,10 @@ class HttpYallappApi implements YallappApi {
   @override
   Future<void> markNotificationsRead() =>
       _send('POST', '/me/notifications/read', _required, _ignore);
+
+  @override
+  Future<void> setCart(int items) =>
+      _send('PUT', '/me/cart', _required, _ignore, body: {'items': items});
 
   @override
   Future<ChatSession> startChatSession() => _send(

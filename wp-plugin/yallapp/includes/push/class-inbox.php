@@ -64,6 +64,35 @@ class Inbox {
 	}
 
 	/**
+	 * 85.4 Saves a campaign sent from the Yallapp dashboard, for everyone, with what it opens
+	 * and its picture.
+	 *
+	 * @param string      $title     Title.
+	 * @param string      $body      Message.
+	 * @param string|null $link      What it opens (a Links-format link or another https address), or null.
+	 * @param string|null $image_url Its picture, or null.
+	 * @return int Notification ID, 0 on failure.
+	 */
+	public function add_campaign( $title, $body, $link, $image_url ) {
+		global $wpdb;
+		$inserted = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Plugin table.
+			Installer::tables()['notifications'],
+			array(
+				'type'       => 'announcement',
+				'audience'   => self::AUDIENCE_ALL,
+				'target_id'  => 0,
+				'title'      => mb_substr( (string) $title, 0, 255 ),
+				'body'       => (string) $body,
+				'link'       => (string) $link,
+				'image_url'  => (string) $image_url,
+				'created_at' => current_time( 'mysql', true ),
+			),
+			array( '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s' )
+		);
+		return $inserted ? (int) $wpdb->insert_id : 0;
+	}
+
+	/**
 	 * A student's notifications, newest first.
 	 *
 	 * @param int   $user_id    Student.
@@ -99,8 +128,10 @@ class Inbox {
 				'lesson_id'   => (int) $row->lesson_id ? (int) $row->lesson_id : null,
 				'question_id' => (int) $row->question_id ? (int) $row->question_id : null,
 				'article_id'  => ! empty( $row->article_id ) ? (string) (int) $row->article_id : null,
-				// 48 What it opens, in the format of the Links tag.
-				'link'        => self::link_of( (string) $row->type, (int) $row->course_id, (int) ( $row->article_id ?? 0 ) ),
+				// 48 What it opens, in the format of the Links tag; 85.4 a campaign's own link.
+				'link'        => ! empty( $row->link ) ? (string) $row->link : self::link_of( (string) $row->type, (int) $row->course_id, (int) ( $row->article_id ?? 0 ) ),
+				// 85.4 A campaign's picture.
+				'image_url'   => ! empty( $row->image_url ) ? (string) $row->image_url : null,
 				'created_at'  => mysql2date( 'Y-m-d\TH:i:s\Z', $row->created_at, false ),
 				'read'        => (int) $row->id <= $read_id,
 			);

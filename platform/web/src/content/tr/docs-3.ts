@@ -256,6 +256,15 @@ Firebase'de **Project settings › Service accounts**'u açın ve **Generate new
 - **Bir platforma bağlı ya da web sitesi olmayan uygulamalar**: **Uygulama bildirimleri**'nde bir başlık ve mesaj yazın ve **Herkese gönder**'i seçin. Herkes onu uygulamanın gelen kutusunda alır; bildirimlere izin veren telefonlar anlık bildirim de alır.
 - **WordPress**: hangi olayların otomatik bildirim göndereceğini seçin (yeni bir ders, bir duyuru, onaylanmış bir kayıt, bir soruya yanıt) ya da eklentinin ayarlarında **Send a manual notification** altında bir tane yazın.
 
+
+## Kampanyalar: seçtiğiniz kişilere
+
+**Uygulama bildirimleri › Kampanyalar**'da (bir platforma bağlı ya da web sitesi olmayan uygulamalar) bir kampanya herkese ya da müşterilerinizin bir kısmına gider: bir şey satın alanlar, bir kursun öğrencileri, üyeliği devam eden üyeler ya da bir süredir uygulamayı açmayanlar. Telefonlarında uygulamanın gösterdiği dile, iPhone ya da Android telefonlara ve oturum açtıkları ülkeye göre daraltabilirsiniz. Medya'nızdan bir resim ekleyin ve neyi açacağını seçin: uygulamayı, sayfalarından birini ya da bir web sayfasını. Şimdi, bir tarih ve saatte ya da her hafta bir gün ve saatte gönderin; daha sonra göndermek için taslak olarak kaydedin. Her kampanya kaç kişiye gittiğini, bildirimin ulaştığı ve ulaşamadığı telefonları ve kaç kişinin açtığını (her gece sayılır) gösterir. Kampanyalar her pakette vardır ve diğer bildirimlerinizle birlikte sayılır, saatte en fazla 10. WordPress'teki uygulamaların da kampanyaları vardır, panelin menüsünde **Kampanyalar** altında: herkese gider; web siteniz onları uygulamanın gelen kutusuna koyar, anlık bildirim olarak gönderir ve kaç telefona ulaştığını geri bildirir (Yallapp eklentisi 0.4.12 veya sonrası).
+
+## Otomatik bildirimler
+
+Bir platforma bağlı ya da web sitesi olmayan uygulamalar kendiliğinden de, her kişinin dilinde bildirim gönderir: bir kursun öğrencilerine yeni ders, onaylanan randevu ve bir gün önce hatırlatması, başlamadan iki saat önce ders, bir gün önce etkinlik, bitmeden üç gün önce üyelik, üç saattir sepette kalan ürünler ve öğrencilerin uygulamada açtığı günlük ders hatırlatması. Her biri her kişiye bir kez gider. **Uygulama bildirimleri › Otomatik bildirimler**'de son 30 günde her birinin kaç kişiye ulaştığını ve kaç kez açıldığını görür, istemediklerinizi kapatırsınız.
+
 ---
 
 İnsanlar hangi bildirimleri alacaklarını uygulamanın ayarlarında seçer. Bildirimler iPhone'lara ulaşmıyorsa önce Firebase'in Cloud Messaging ayarlarındaki APNs anahtarını kontrol edin.

@@ -3,6 +3,7 @@ import { newId } from "../crypto/tokens";
 import { membershipActive, membershipFreezeSet, membershipToUse } from "../bookings/memberships";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
 import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, PendingPayment, SavedSection } from "./types";
+import type { CampaignSend, HostedCart, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 import type {
   AppPatch,
   BuildPatch,
@@ -133,6 +134,7 @@ export class MemoryStore implements DataStore {
   private appAuthKeys = new Map<string, AppAuthKey>();
   private hostedChallenges = new Map<string, HostedChallenge>();
   private hostedNotifications = new Map<number, HostedNotification>();
+  private notificationRecipients = new Map<number, Set<number>>();
   private nextHostedUserId = 1;
   private nextHostedNotificationId = 1;
   private catalogCategories = new Map<number, CatalogCategory>();
@@ -655,6 +657,28 @@ export class MemoryStore implements DataStore {
     if (device && device.appId === appId) this.hostedDevices.set(id, clone({ ...device, ...patch }));
   }
 
+  async listAppHostedDevices(appId: string): Promise<HostedDevice[]> {
+    return [...this.hostedDevices.values()].filter((d) => d.appId === appId).map(clone);
+  }
+
+  async listHostedUserIds(appId: string): Promise<{ id: number; createdAt: Date }[]> {
+    return [...this.hostedUsers.values()].filter((u) => u.appId === appId).map((u) => ({ id: u.id, createdAt: new Date(u.createdAt) }));
+  }
+
+  async listAudienceUserIds(input: { appId: string; who: "buyers" | "students" | "members"; courseId?: number | null; now: Date }): Promise<number[]> {
+    const ids = new Set<number>();
+    if (input.who === "buyers") {
+      for (const o of this.catalogOrders.values()) if (o.appId === input.appId && o.userId !== null && o.paidAt) ids.add(o.userId);
+    } else if (input.who === "students") {
+      for (const e of this.courseEnrollments) if (e.appId === input.appId && (input.courseId == null || e.courseId === input.courseId)) ids.add(e.userId);
+    } else {
+      for (const m of this.memberships.values()) {
+        if (m.appId === input.appId && m.status === "active" && (m.endsAt === null || m.endsAt > input.now)) ids.add(m.userId);
+      }
+    }
+    return [...ids].sort((a, b) => a - b);
+  }
+
   async deleteHostedDevice(appId: string, id: string): Promise<void> {
     const device = this.hostedDevices.get(id);
     if (!device || device.appId !== appId) return;
@@ -726,7 +750,9 @@ export class MemoryStore implements DataStore {
     return [...this.hostedNotifications.values()]
       .filter(
         (n) =>
-          n.appId === appId && (n.userId === null || n.userId === userId) && n.createdAt.getTime() > after.getTime(),
+          n.appId === appId &&
+          (n.userId === userId || (n.userId === null && (!n.targeted || this.notificationRecipients.get(n.id)?.has(userId) === true))) &&
+          n.createdAt.getTime() > after.getTime(),
       )
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
   }
@@ -747,9 +773,17 @@ export class MemoryStore implements DataStore {
     return this.hostedInbox(input.appId, input.userId, input.after).length;
   }
 
+  async addHostedNotificationRecipients(appId: string, notificationId: number, userIds: number[]): Promise<void> {
+    const n = this.hostedNotifications.get(notificationId);
+    if (!n || n.appId !== appId) return;
+    const set = this.notificationRecipients.get(notificationId) ?? new Set<number>();
+    for (const id of userIds) set.add(id);
+    this.notificationRecipients.set(notificationId, set);
+  }
+
   async listHostedBroadcasts(appId: string, limit: number): Promise<HostedNotification[]> {
     return [...this.hostedNotifications.values()]
-      .filter((n) => n.appId === appId && n.userId === null)
+      .filter((n) => n.appId === appId && n.userId === null && !n.targeted)
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
       .slice(0, limit)
       .map(clone);
@@ -3053,6 +3087,121 @@ export class MemoryStore implements DataStore {
     if (!row || row.appId !== appId || row.status !== expect) return false;
     this.scheduledNotifications.set(id, clone({ ...row, ...patch }));
     return true;
+  }
+
+  // 85.3 Automatic notifications
+
+  private autoNotices = new Set<string>();
+  private hostedCarts = new Map<string, HostedCart>();
+
+  async claimAutoNotice(input: { appId: string; kind: string; ref: string; userId: number; now: Date }): Promise<boolean> {
+    const key = JSON.stringify([input.appId, input.kind, input.ref, input.userId]);
+    if (this.autoNotices.has(key)) return false;
+    this.autoNotices.add(key);
+    return true;
+  }
+
+  async saveHostedCart(appId: string, userId: number, items: number, now: Date): Promise<void> {
+    const key = `${appId}:${userId}`;
+    const found = this.hostedCarts.get(key);
+    this.hostedCarts.set(key, { appId, userId, items, updatedAt: new Date(now), remindedAt: found?.remindedAt ?? null });
+  }
+
+  async listLeftHostedCarts(after: Date, before: Date, limit: number): Promise<HostedCart[]> {
+    return [...this.hostedCarts.values()]
+      .filter((c) => c.items > 0 && c.updatedAt >= after && c.updatedAt < before && (c.remindedAt === null || c.remindedAt < c.updatedAt))
+      .sort((a, b) => a.updatedAt.getTime() - b.updatedAt.getTime())
+      .slice(0, limit)
+      .map(clone);
+  }
+
+  async markHostedCartReminded(appId: string, userId: number, seenAt: Date, now: Date): Promise<boolean> {
+    const cart = this.hostedCarts.get(`${appId}:${userId}`);
+    if (!cart || cart.updatedAt.getTime() !== seenAt.getTime()) return false;
+    this.hostedCarts.set(`${appId}:${userId}`, { ...cart, remindedAt: new Date(now) });
+    return true;
+  }
+
+  // 85.2 Notification campaigns
+
+  private notificationCampaigns = new Map<number, NotificationCampaign>();
+  private nextNotificationCampaignId = 1;
+  private campaignSends: CampaignSend[] = [];
+  private nextCampaignSendId = 1;
+
+  async createNotificationCampaign(input: Omit<NotificationCampaign, "id">): Promise<NotificationCampaign> {
+    const row: NotificationCampaign = { ...clone(input), id: this.nextNotificationCampaignId++ };
+    this.notificationCampaigns.set(row.id, clone(row));
+    return row;
+  }
+
+  async getNotificationCampaign(appId: string, id: number): Promise<NotificationCampaign | null> {
+    const row = this.notificationCampaigns.get(id);
+    return row && row.appId === appId ? clone(row) : null;
+  }
+
+  async listNotificationCampaigns(appId: string, limit: number): Promise<NotificationCampaign[]> {
+    return [...this.notificationCampaigns.values()]
+      .filter((c) => c.appId === appId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .slice(0, limit)
+      .map(clone);
+  }
+
+  async updateNotificationCampaign(appId: string, id: number, expect: NotificationCampaignStatus | null, patch: NotificationCampaignPatch): Promise<boolean> {
+    const row = this.notificationCampaigns.get(id);
+    if (!row || row.appId !== appId || (expect !== null && row.status !== expect)) return false;
+    this.notificationCampaigns.set(id, clone({ ...row, ...patch }));
+    return true;
+  }
+
+  async deleteNotificationCampaign(appId: string, id: number): Promise<boolean> {
+    const row = this.notificationCampaigns.get(id);
+    if (!row || row.appId !== appId) return false;
+    this.notificationCampaigns.delete(id);
+    this.campaignSends = this.campaignSends.filter((s) => s.campaignId !== id);
+    return true;
+  }
+
+  async listDueNotificationCampaigns(now: Date, limit: number): Promise<NotificationCampaign[]> {
+    return [...this.notificationCampaigns.values()]
+      .filter((c) => c.status === "scheduled" && c.sendAt !== null && c.sendAt.getTime() <= now.getTime())
+      .sort((a, b) => a.sendAt!.getTime() - b.sendAt!.getTime() || a.id - b.id)
+      .slice(0, limit)
+      .map(clone);
+  }
+
+  async listStaleNotificationCampaigns(before: Date): Promise<NotificationCampaign[]> {
+    return [...this.notificationCampaigns.values()].filter((c) => c.status === "sending" && c.claimedAt !== null && c.claimedAt.getTime() < before.getTime()).map(clone);
+  }
+
+  async createCampaignSend(input: Omit<CampaignSend, "id">): Promise<CampaignSend> {
+    const row: CampaignSend = { ...clone(input), id: this.nextCampaignSendId++ };
+    this.campaignSends.push(clone(row));
+    return row;
+  }
+
+  async updateCampaignSend(appId: string, id: number, patch: Partial<Pick<CampaignSend, "notificationId" | "recipients" | "reportedAt">>): Promise<void> {
+    const row = this.campaignSends.find((s) => s.appId === appId && s.id === id);
+    if (row) Object.assign(row, clone(patch));
+  }
+
+  async deleteCampaignSend(appId: string, id: number): Promise<void> {
+    this.campaignSends = this.campaignSends.filter((s) => !(s.appId === appId && s.id === id));
+  }
+
+  async reportCampaignSend(appId: string, id: number, numbers: { pushed: number; failed: number }, now: Date): Promise<boolean> {
+    const row = this.campaignSends.find((s) => s.appId === appId && s.id === id);
+    if (!row || row.reportedAt !== null) return false;
+    Object.assign(row, { ...numbers, reportedAt: new Date(now) });
+    return true;
+  }
+
+  async listCampaignSends(appId: string, campaignIds: number[]): Promise<CampaignSend[]> {
+    return this.campaignSends
+      .filter((s) => s.appId === appId && campaignIds.includes(s.campaignId))
+      .sort((a, b) => b.sentAt.getTime() - a.sentAt.getTime() || b.id - a.id)
+      .map(clone);
   }
 
   // 61 Announcements pushed when they start

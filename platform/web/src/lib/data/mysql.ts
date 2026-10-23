@@ -47,6 +47,7 @@ import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, Tea
 import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatus } from "./types";
 import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
+import type { CampaignSend, HostedCart, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 import { mergeCrash } from "../crashes/report";
 import type {
   Activation,
@@ -752,6 +753,42 @@ export class MysqlStore implements DataStore {
     );
   }
 
+  async listAppHostedDevices(appId: string): Promise<HostedDevice[]> {
+    return this.run((db) => db.select().from(schema.hostedDevices).where(eq(schema.hostedDevices.appId, appId)));
+  }
+
+  async listHostedUserIds(appId: string): Promise<{ id: number; createdAt: Date }[]> {
+    return this.run((db) => db.select({ id: schema.hostedUsers.id, createdAt: schema.hostedUsers.createdAt }).from(schema.hostedUsers).where(eq(schema.hostedUsers.appId, appId)));
+  }
+
+  async listAudienceUserIds(input: { appId: string; who: "buyers" | "students" | "members"; courseId?: number | null; now: Date }): Promise<number[]> {
+    const rows: { userId: number | null }[] = await this.run((db) => {
+      if (input.who === "buyers") {
+        return db
+          .selectDistinct({ userId: schema.catalogOrders.userId })
+          .from(schema.catalogOrders)
+          .where(and(eq(schema.catalogOrders.appId, input.appId), isNotNull(schema.catalogOrders.userId), isNotNull(schema.catalogOrders.paidAt)));
+      }
+      if (input.who === "students") {
+        return db
+          .selectDistinct({ userId: schema.courseEnrollments.userId })
+          .from(schema.courseEnrollments)
+          .where(and(eq(schema.courseEnrollments.appId, input.appId), input.courseId == null ? undefined : eq(schema.courseEnrollments.courseId, input.courseId)));
+      }
+      return db
+        .selectDistinct({ userId: schema.memberships.userId })
+        .from(schema.memberships)
+        .where(
+          and(
+            eq(schema.memberships.appId, input.appId),
+            eq(schema.memberships.status, "active"),
+            or(isNull(schema.memberships.endsAt), gt(schema.memberships.endsAt, input.now)),
+          ),
+        );
+    });
+    return rows.flatMap((r) => (r.userId === null ? [] : [Number(r.userId)])).sort((a, b) => a - b);
+  }
+
   async deleteHostedDevice(appId: string, id: string): Promise<void> {
     // Its refresh tokens cascade.
     await this.run((db) =>
@@ -838,9 +875,16 @@ export class MysqlStore implements DataStore {
   }
 
   private hostedInboxWhere(appId: string, userId: number) {
+    const n = schema.hostedNotifications;
+    const r = schema.hostedNotificationRecipients;
     return and(
-      eq(schema.hostedNotifications.appId, appId),
-      or(isNull(schema.hostedNotifications.userId), eq(schema.hostedNotifications.userId, userId)),
+      eq(n.appId, appId),
+      or(
+        eq(n.userId, userId),
+        and(isNull(n.userId), eq(n.targeted, false)),
+        // 85.2 A campaign to some people: theirs only.
+        and(isNull(n.userId), eq(n.targeted, true), sql`exists (select 1 from ${r} where ${r.notificationId} = ${n.id} and ${r.userId} = ${userId})`),
+      ),
     );
   }
 
@@ -882,10 +926,18 @@ export class MysqlStore implements DataStore {
       db
         .select()
         .from(schema.hostedNotifications)
-        .where(and(eq(schema.hostedNotifications.appId, appId), isNull(schema.hostedNotifications.userId)))
+        .where(and(eq(schema.hostedNotifications.appId, appId), isNull(schema.hostedNotifications.userId), eq(schema.hostedNotifications.targeted, false)))
         .orderBy(desc(schema.hostedNotifications.createdAt), desc(schema.hostedNotifications.id))
         .limit(limit),
     );
+  }
+
+  async addHostedNotificationRecipients(appId: string, notificationId: number, userIds: number[]): Promise<void> {
+    const ids = [...new Set(userIds)];
+    for (let i = 0; i < ids.length; i += 1000) {
+      const batch = ids.slice(i, i + 1000).map((userId) => ({ notificationId, appId, userId }));
+      await this.run((db) => db.insert(schema.hostedNotificationRecipients).ignore().values(batch));
+    }
   }
 
   async countHostedUsers(appId: string): Promise<number> {
@@ -3816,6 +3868,114 @@ export class MysqlStore implements DataStore {
     const t = schema.scheduledNotifications;
     const [result] = await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id), eq(t.status, expect))));
     return result.affectedRows === 1;
+  }
+
+  // 85.3 Automatic notifications
+
+  async claimAutoNotice(input: { appId: string; kind: string; ref: string; userId: number; now: Date }): Promise<boolean> {
+    const [result] = await this.run((db) =>
+      db.insert(schema.autoNotices).ignore().values({ appId: input.appId, kind: input.kind, ref: input.ref.slice(0, 64), userId: input.userId, sentAt: input.now }),
+    );
+    return result.affectedRows === 1;
+  }
+
+  async saveHostedCart(appId: string, userId: number, items: number, now: Date): Promise<void> {
+    await this.run((db) =>
+      db
+        .insert(schema.hostedCarts)
+        .values({ appId, userId, items, updatedAt: now, remindedAt: null })
+        .onDuplicateKeyUpdate({ set: { items, updatedAt: now } }),
+    );
+  }
+
+  async listLeftHostedCarts(after: Date, before: Date, limit: number): Promise<HostedCart[]> {
+    const t = schema.hostedCarts;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(gt(t.items, 0), gte(t.updatedAt, after), lt(t.updatedAt, before), or(isNull(t.remindedAt), lt(t.remindedAt, t.updatedAt))))
+        .orderBy(asc(t.updatedAt))
+        .limit(limit),
+    );
+  }
+
+  async markHostedCartReminded(appId: string, userId: number, seenAt: Date, now: Date): Promise<boolean> {
+    const t = schema.hostedCarts;
+    const [result] = await this.run((db) => db.update(t).set({ remindedAt: now }).where(and(eq(t.appId, appId), eq(t.userId, userId), eq(t.updatedAt, seenAt))));
+    return result.affectedRows === 1;
+  }
+
+  // 85.2 Notification campaigns
+
+  async createNotificationCampaign(input: Omit<NotificationCampaign, "id">): Promise<NotificationCampaign> {
+    const [result] = await this.run((db) => db.insert(schema.notificationCampaigns).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async getNotificationCampaign(appId: string, id: number): Promise<NotificationCampaign | null> {
+    const t = schema.notificationCampaigns;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async listNotificationCampaigns(appId: string, limit: number): Promise<NotificationCampaign[]> {
+    const t = schema.notificationCampaigns;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(desc(t.createdAt), desc(t.id)).limit(limit));
+  }
+
+  async updateNotificationCampaign(appId: string, id: number, expect: NotificationCampaignStatus | null, patch: NotificationCampaignPatch): Promise<boolean> {
+    const t = schema.notificationCampaigns;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set(patch)
+        .where(and(eq(t.appId, appId), eq(t.id, id), expect === null ? undefined : eq(t.status, expect))),
+    );
+    return result.affectedRows === 1;
+  }
+
+  async deleteNotificationCampaign(appId: string, id: number): Promise<boolean> {
+    const t = schema.notificationCampaigns;
+    const [result] = await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+    return result.affectedRows === 1;
+  }
+
+  async listDueNotificationCampaigns(now: Date, limit: number): Promise<NotificationCampaign[]> {
+    const t = schema.notificationCampaigns;
+    return this.run((db) => db.select().from(t).where(and(eq(t.status, "scheduled"), lte(t.sendAt, now))).orderBy(asc(t.sendAt), asc(t.id)).limit(limit));
+  }
+
+  async listStaleNotificationCampaigns(before: Date): Promise<NotificationCampaign[]> {
+    const t = schema.notificationCampaigns;
+    return this.run((db) => db.select().from(t).where(and(eq(t.status, "sending"), lt(t.claimedAt, before))).limit(500));
+  }
+
+  async createCampaignSend(input: Omit<CampaignSend, "id">): Promise<CampaignSend> {
+    const [result] = await this.run((db) => db.insert(schema.campaignSends).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async updateCampaignSend(appId: string, id: number, patch: Partial<Pick<CampaignSend, "notificationId" | "recipients" | "reportedAt">>): Promise<void> {
+    const t = schema.campaignSends;
+    await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async deleteCampaignSend(appId: string, id: number): Promise<void> {
+    const t = schema.campaignSends;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async reportCampaignSend(appId: string, id: number, numbers: { pushed: number; failed: number }, now: Date): Promise<boolean> {
+    const t = schema.campaignSends;
+    const [result] = await this.run((db) => db.update(t).set({ ...numbers, reportedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id), isNull(t.reportedAt))));
+    return result.affectedRows === 1;
+  }
+
+  async listCampaignSends(appId: string, campaignIds: number[]): Promise<CampaignSend[]> {
+    if (campaignIds.length === 0) return [];
+    const t = schema.campaignSends;
+    return this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), inArray(t.campaignId, campaignIds))).orderBy(desc(t.sentAt), desc(t.id)).limit(5000));
   }
 
   // 61 Announcements pushed when they start

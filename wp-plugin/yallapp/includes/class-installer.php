@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Installer {
 
-	const DB_VERSION        = '4';
+	const DB_VERSION        = '5';
 	const DB_VERSION_OPTION = 'yallapp_db_version';
 
 	/**
@@ -124,6 +124,8 @@ class Installer {
 				lesson_id bigint(20) unsigned NOT NULL DEFAULT 0,
 				question_id bigint(20) unsigned NOT NULL DEFAULT 0,
 				article_id bigint(20) unsigned NOT NULL DEFAULT 0,
+				link varchar(500) NOT NULL DEFAULT '',
+				image_url varchar(500) NOT NULL DEFAULT '',
 				created_at datetime NOT NULL,
 				PRIMARY KEY  (id),
 				KEY audience_target (audience,target_id),

@@ -17,6 +17,7 @@ import 'core/theme/app_look.dart';
 import 'core/theme/app_theme.dart';
 import 'modules/lms/downloads/learning_sync.dart';
 import 'modules/shared/pages/draft_reload.dart';
+import 'modules/store/data/cart_sync.dart';
 
 /// The app root: theme from the build and runtime config, routing, and the
 /// start-up gate.
@@ -38,6 +39,8 @@ class YallappApp extends ConsumerWidget {
     ref
       ..watch(pushRegistrationProvider)
       ..watch(pushNavigationProvider)
+      // 85.3 The cart's item count, for "You left something in your cart".
+      ..watch(cartSyncProvider)
       // 44 Usage statistics: the session and the screens.
       ..watch(analyticsRoutesProvider)
       // 46 Crash reports and the rating prompt's count of app runs.

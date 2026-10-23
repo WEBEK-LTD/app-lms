@@ -449,6 +449,34 @@
       "when": 1792720804256,
       "tag": "0063_saved_sections",
       "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "5",
+      "when": 1792723017536,
+      "tag": "0064_device_language_country",
+      "breakpoints": true
+    },
+    {
+      "idx": 65,
+      "version": "5",
+      "when": 1792724411408,
+      "tag": "0065_notification_campaigns",
+      "breakpoints": true
+    },
+    {
+      "idx": 66,
+      "version": "5",
+      "when": 1792725342427,
+      "tag": "0066_auto_notifications",
+      "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "5",
+      "when": 1792726451815,
+      "tag": "0067_campaign_reports",
+      "breakpoints": true
     }
   ]
 }

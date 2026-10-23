@@ -76,6 +76,7 @@ import {
   mysqlTable,
   primaryKey,
   text,
+  tinyint,
   uniqueIndex,
   varchar,
 } from "drizzle-orm/mysql-core";
@@ -92,6 +93,7 @@ import type { AnalyticsEventType, AnalyticsItemKind, AnalyticsMetric } from "../
 // 14.1 We publish for you
 import type { PublishingChecklist, PublishingListing, PublishingMode, PublishingStatus, PublishingStore } from "../data/types";
 import type { AppErrorSource, MilestoneKind, ProductDay, SignupSource, TeamAlertKind, WatchedJob } from "../data/types";
+import type { NotificationAudience, NotificationCampaignStatus } from "../data/types";
 
 /**
  * MySQL schema (MySQL 8.0.13+ and MariaDB 10.3+, the usual cPanel servers).
@@ -437,6 +439,9 @@ export const hostedDevices = mysqlTable(
     // 36 Which service the token is from: Firebase ("fcm") or Huawei Push Kit ("hms").
     pushProvider: varchar("push_provider", { length: 4 }).notNull().default("fcm").$type<PushProvider>(),
     pushPreferences: jsonText<PushPreferences>("push_preferences"),
+    // 85.1 The app's language and the phone's country, for campaigns' audiences.
+    language: varchar("language", { length: 8 }),
+    country: varchar("country", { length: 2 }),
     createdAt: time("created_at").notNull(),
     lastSeenAt: time("last_seen_at").notNull(),
   },
@@ -515,9 +520,32 @@ export const hostedNotifications = mysqlTable(
     eventId: bigint("event_id", { mode: "number", unsigned: true }),
     // 29 A campaign update: the campaign it opens.
     campaignId: bigint("campaign_id", { mode: "number", unsigned: true }),
+    // 85.2 What it opens and its picture; to a campaign's audience only (hosted_notification_recipients).
+    link: varchar("link", { length: 500 }),
+    imageUrl: varchar("image_url", { length: 500 }),
+    targeted: boolean("targeted").notNull().default(false),
+    // 85.3 An automatic one's type and ids, as its push carries them.
+    data: jsonText<Record<string, string>>("data"),
     createdAt: time("created_at").notNull(),
   },
   (t) => [index("hosted_notifications_app_idx").on(t.appId, t.createdAt)],
+);
+
+/** 85.2 Who a targeted notification is for. */
+export const hostedNotificationRecipients = mysqlTable(
+  "notice_recipients",
+  {
+    notificationId: bigint("notification_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedNotifications.id, { onDelete: "cascade" }),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.notificationId, t.userId] }), index("notice_recipients_user_idx").on(t.appId, t.userId)],
 );
 
 // Catalog: products managed in the dashboard for apps without a website.
@@ -1776,6 +1804,90 @@ export const scheduledNotifications = mysqlTable(
     updatedAt: time("updated_at").notNull(),
   },
   (t) => [index("scheduled_notifications_due_idx").on(t.status, t.sendAt), index("scheduled_notifications_app_idx").on(t.appId, t.status, t.sendAt)],
+);
+
+/** 85.3 Each automatic notice sent, once per person and what it's about (an appointment, a class, a day…). */
+export const autoNotices = mysqlTable(
+  "auto_notices",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    kind: varchar("kind", { length: 32 }).notNull(),
+    ref: varchar("ref", { length: 64 }).notNull(),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    sentAt: time("sent_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.appId, t.kind, t.ref, t.userId] }), index("auto_notices_sent_idx").on(t.sentAt)],
+);
+
+/** 85.3 What's in each person's cart, as the app reports it (for "You left something in your cart"). */
+export const hostedCarts = mysqlTable(
+  "hosted_carts",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    items: int("items").notNull(),
+    updatedAt: time("updated_at").notNull(),
+    remindedAt: time("reminded_at"),
+  },
+  (t) => [primaryKey({ columns: [t.appId, t.userId] }), index("hosted_carts_left_idx").on(t.updatedAt)],
+);
+
+/** 85.2 Notification campaigns: drafts, sent once (now or later) or every week. */
+export const notificationCampaigns = mysqlTable(
+  "notification_campaigns",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 120 }).notNull(),
+    body: text("body").notNull(),
+    imageUrl: varchar("image_url", { length: 500 }),
+    link: varchar("link", { length: 500 }),
+    audience: jsonText<NotificationAudience>("audience").notNull(),
+    repeat: varchar("repeats", { length: 8 }).notNull().$type<"once" | "weekly">(),
+    sendAt: time("send_at"),
+    weekday: tinyint("weekday"),
+    time: varchar("local_time", { length: 5 }),
+    status: varchar("status", { length: 16 }).notNull().$type<NotificationCampaignStatus>(),
+    claimedAt: time("claimed_at"),
+    lastSentAt: time("last_sent_at"),
+    result: varchar("result", { length: 500 }),
+    createdBy: varchar("created_by", { length: 255 }),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("notification_campaigns_due_idx").on(t.status, t.sendAt), index("notification_campaigns_app_idx").on(t.appId, t.createdAt)],
+);
+
+/** 85.2 Each time a campaign went out, with how it went. */
+export const campaignSends = mysqlTable(
+  "campaign_sends",
+  {
+    id: autoId("id").primaryKey(),
+    campaignId: bigint("campaign_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => notificationCampaigns.id, { onDelete: "cascade" }),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    notificationId: bigint("notification_id", { mode: "number", unsigned: true }).notNull(),
+    sentAt: time("sent_at").notNull(),
+    recipients: int("recipients").notNull(),
+    pushed: int("pushed").notNull(),
+    failed: int("failed").notNull(),
+    // 85.4 A WordPress site reports its numbers once its batches are sent.
+    reportedAt: time("reported_at"),
+  },
+  (t) => [index("campaign_sends_campaign_idx").on(t.appId, t.campaignId, t.sentAt)],
 );
 
 /**

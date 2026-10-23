@@ -19,7 +19,8 @@ import type { FormState } from "@/lib/forms";
 import { parseAnyPhone } from "@/lib/hosted/phone";
 import { hostedSettings } from "@/lib/hosted/service";
 import { imageType } from "@/lib/images";
-import { appUrl } from "@/lib/env";
+import { appUrl, encryptionKey } from "@/lib/env";
+import { notifyNewLesson } from "@/lib/hosted/auto-notifications";
 import { parseMediaLink } from "@/lib/media/files";
 
 const COURSE_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
@@ -157,6 +158,13 @@ export async function saveLessonAction(_: FormState, formData: FormData): Promis
   const saved = saveLesson(courseSetup(app), courseId, topicId, v, (url) => parseMediaLink(url, appUrl()) !== null);
   if (!saved.ok) return saved.errors ? { errors: saved.errors, values: v } : { message: saved.message };
   await saveSetup(app, saved.setup);
+  // 85.3 A new lesson: its course's students hear of it.
+  const course = saved.setup.courses.find((c) => c.id === courseId);
+  if (saved.added && course) {
+    await notifyNewLesson({ store: await getStore(), key: encryptionKey(), now: new Date() }, { ...app, courseSetup: saved.setup }, course, saved.lesson).catch((error: unknown) => {
+      console.error("[new lesson]", error instanceof Error ? error.message : String(error));
+    });
+  }
   return { ok: true, message: saved.added ? `Added “${saved.lesson.title}”.` : `Saved “${saved.lesson.title}”.`, values: saved.added ? undefined : v };
 }
 

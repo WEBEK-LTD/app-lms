@@ -81,6 +81,7 @@ import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 // 61
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
+import type { CampaignSend, HostedCart, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 // 66 Deleting a Yallapp account
 import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatus } from "./types";
 // 73 Deleting an app, and the billing records kept when an account goes
@@ -133,7 +134,7 @@ export class DuplicateEmailError extends Error {
 }
 
 /** A device of a hosted-API customer: what the API may change. */
-export type HostedDevicePatch = Partial<Pick<HostedDevice, "platform" | "name" | "appVersion" | "pushToken" | "pushProvider" | "pushPreferences" | "lastSeenAt">>;
+export type HostedDevicePatch = Partial<Pick<HostedDevice, "platform" | "name" | "appVersion" | "pushToken" | "pushProvider" | "pushPreferences" | "lastSeenAt" | "language" | "country">>;
 
 export type ClaimResult = { ok: true; activation: Activation } | { ok: false; existing: Activation };
 
@@ -268,6 +269,16 @@ export interface DataStore {
   /** A customer's devices, most recently seen first. */
   listHostedDevices(appId: string, userId: number): Promise<HostedDevice[]>;
   updateHostedDevice(appId: string, id: string, patch: HostedDevicePatch): Promise<void>;
+  /** 85.1 Every signed-in phone of the app, for choosing a campaign's audience. */
+  listAppHostedDevices(appId: string): Promise<HostedDevice[]>;
+  /** 85.1 Everyone who signed up to the app, with when. */
+  listHostedUserIds(appId: string): Promise<{ id: number; createdAt: Date }[]>;
+  /**
+   * 85.1 People the app knows something about: who paid for an order
+   * ("buyers"), the students of one course or of any ("students"), and whose
+   * membership is active now ("members").
+   */
+  listAudienceUserIds(input: { appId: string; who: "buyers" | "students" | "members"; courseId?: number | null; now: Date }): Promise<number[]>;
   /** Signs the device out: deletes it and its refresh tokens. */
   deleteHostedDevice(appId: string, id: string): Promise<void>;
   /** Devices with a push token: every customer's, or only these customers'. */
@@ -299,6 +310,8 @@ export interface DataStore {
   countHostedNotificationsAfter(input: { appId: string; userId: number; after: Date }): Promise<number>;
   /** Everyone's notifications of an app, newest first, for the dashboard. */
   listHostedBroadcasts(appId: string, limit: number): Promise<HostedNotification[]>;
+  /** 85.2 The people a targeted notification is for (it is in their inboxes only). */
+  addHostedNotificationRecipients(appId: string, notificationId: number, userIds: number[]): Promise<void>;
   countHostedUsers(appId: string): Promise<number>;
   /** 19 The app's users who signed up by email (no phone number): they can't sign in when email sign-in is off. */
   countHostedEmailOnlyUsers(appId: string): Promise<number>;
@@ -944,6 +957,37 @@ export interface DataStore {
   listStaleScheduledNotifications(before: Date): Promise<ScheduledNotification[]>;
   /** Changes it only while its status is `expect` (atomic); false otherwise, with nothing changed. */
   updateScheduledNotification(appId: string, id: number, expect: ScheduledNotificationStatus, patch: ScheduledNotificationPatch): Promise<boolean>;
+
+  // 85.3 Automatic notifications
+  /** Takes one automatic notice for a person (its kind and what it's about); false when it was already sent. */
+  claimAutoNotice(input: { appId: string; kind: string; ref: string; userId: number; now: Date }): Promise<boolean>;
+  /** The app says how many items are in a person's cart (0: empty). */
+  saveHostedCart(appId: string, userId: number, items: number, now: Date): Promise<void>;
+  /** Carts with items that last changed in [after, before) and weren't reminded since, every app's, oldest first. */
+  listLeftHostedCarts(after: Date, before: Date, limit: number): Promise<HostedCart[]>;
+  /** Marks a cart reminded, unless it changed after `seenAt`; false then. */
+  markHostedCartReminded(appId: string, userId: number, seenAt: Date, now: Date): Promise<boolean>;
+
+  // 85.2 Notification campaigns
+  createNotificationCampaign(input: Omit<NotificationCampaign, "id">): Promise<NotificationCampaign>;
+  getNotificationCampaign(appId: string, id: number): Promise<NotificationCampaign | null>;
+  /** The app's campaigns, newest first. */
+  listNotificationCampaigns(appId: string, limit: number): Promise<NotificationCampaign[]>;
+  /** Changes one while it has the status expected (any when null); false when it no longer has. */
+  updateNotificationCampaign(appId: string, id: number, expect: NotificationCampaignStatus | null, patch: NotificationCampaignPatch): Promise<boolean>;
+  deleteNotificationCampaign(appId: string, id: number): Promise<boolean>;
+  /** Waiting ones whose time came, every app's, oldest first. */
+  listDueNotificationCampaigns(now: Date, limit: number): Promise<NotificationCampaign[]>;
+  /** Taken by a run before `before` and not finished. */
+  listStaleNotificationCampaigns(before: Date): Promise<NotificationCampaign[]>;
+  createCampaignSend(input: Omit<CampaignSend, "id">): Promise<CampaignSend>;
+  /** The sends of these campaigns, newest first. */
+  listCampaignSends(appId: string, campaignIds: number[]): Promise<CampaignSend[]>;
+  /** 85.4 What the WordPress site answered for a send (its inbox notification and people), or removes a send the site never took. */
+  updateCampaignSend(appId: string, id: number, patch: Partial<Pick<CampaignSend, "notificationId" | "recipients" | "reportedAt">>): Promise<void>;
+  deleteCampaignSend(appId: string, id: number): Promise<void>;
+  /** 85.4 A WordPress site's numbers for one of its sends, once: false when it isn't this app's or was reported. */
+  reportCampaignSend(appId: string, id: number, numbers: { pushed: number; failed: number }, now: Date): Promise<boolean>;
 
   // 61 Announcements pushed to the owners' phones when they start
   /** Marks the announcement pushed, only if it wasn't yet (atomic); false otherwise. */

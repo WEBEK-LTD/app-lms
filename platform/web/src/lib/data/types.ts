@@ -236,6 +236,8 @@ export interface HostedSettings {
    * from it (81.3).
    */
   siteBrand?: SiteBrandReport | null;
+  /** 85.3 The automatic notifications the owner turned off (`lib/hosted/auto-notifications.ts`); missing ones are on. */
+  autoNotifications?: Partial<Record<string, boolean>> | null;
   /** 83.4 The versions of the plugin's adapters the site uses (`SiteInfo.adapters`): lms, bookings, store. */
   siteAdapters?: Partial<Record<"lms" | "bookings" | "store", string>> | null;
   /**
@@ -637,6 +639,10 @@ export interface HostedDevice {
   /** 36 Where the token is from: Firebase ("fcm", the default) or Huawei Push Kit ("hms"). */
   pushProvider?: PushProvider;
   pushPreferences: PushPreferences | null;
+  /** 85.1 The app's language on this phone when it last registered for push (missing before). */
+  language?: string | null;
+  /** 85.1 The country the phone last signed in or registered from (ISO 3166 alpha-2; the IP itself is never kept). */
+  country?: string | null;
   createdAt: Date;
   lastSeenAt: Date;
 }
@@ -688,6 +694,14 @@ export interface HostedNotification {
   eventId?: number | null;
   /** 29 A campaign update: the campaign the notification opens. Missing or null otherwise. */
   campaignId?: number | null;
+  /** 85.2 What it opens: a link in the Links format (`<base>/<kind>/<id>`) or another https address. */
+  link?: string | null;
+  /** 85.2 Its picture, a full address. */
+  imageUrl?: string | null;
+  /** 85.2 To the people in `notice_recipients` only (a campaign's audience), not everyone. */
+  targeted?: boolean;
+  /** 85.3 An automatic notification's type and what it opens (`type`, `course_id`, `appointment_id`…), as its push carries them. */
+  data?: Record<string, string> | null;
   createdAt: Date;
 }
 
@@ -2561,6 +2575,82 @@ export interface ScheduledNotification {
 }
 
 export type ScheduledNotificationPatch = Partial<Pick<ScheduledNotification, "title" | "body" | "sendAt" | "status" | "claimedAt" | "sentAt" | "notificationId" | "result" | "updatedAt">>;
+
+// 85.3 Automatic notifications
+
+/** 85.3 A cart in the app, as the app reports it: how many items, and when it last changed. */
+export interface HostedCart {
+  appId: string;
+  userId: number;
+  items: number;
+  updatedAt: Date;
+  /** When "You left something in your cart" went out for it; a change after that may bring another. */
+  remindedAt: Date | null;
+}
+
+// 85.2 Notification campaigns
+
+/** 85.1 Who a campaign goes to (lib/hosted/audiences.ts). */
+export interface NotificationAudience {
+  who: "everyone" | "buyers" | "students" | "members" | "inactive";
+  courseId: number | null;
+  inactiveDays: number | null;
+  languages: string[];
+  platforms: ("android" | "ios")[];
+  countries: string[];
+}
+
+/**
+ * 85.2 A draft is kept to send later; "scheduled" waits for `sendAt` (once,
+ * or the next week's time); "sending" is taken by one run; "sent" went out
+ * (once); "stopped" is a weekly one the owner stopped; "failed" was refused
+ * when its time came (the reason in `result`).
+ */
+export type NotificationCampaignStatus = "draft" | "scheduled" | "sending" | "sent" | "stopped" | "failed";
+
+export interface NotificationCampaign {
+  id: number;
+  appId: string;
+  title: string;
+  body: string;
+  /** A picture from the app's Media (public) or Yallapp's pictures: its address on yallapp.com.tr. */
+  imageUrl: string | null;
+  /** What it opens: a link in the Links format, or another https address; null opens the app. */
+  link: string | null;
+  audience: NotificationAudience;
+  repeat: "once" | "weekly";
+  /** When it goes out next: once, the time chosen; weekly, the next week's. Null for a draft or one sent at once. */
+  sendAt: Date | null;
+  /** Weekly: the day (0 Sunday … 6 Saturday) and time ("18:30") in the app's time zone. */
+  weekday: number | null;
+  time: string | null;
+  status: NotificationCampaignStatus;
+  claimedAt: Date | null;
+  lastSentAt: Date | null;
+  /** Why it failed, or what the last send said (English, as the dashboard's `known` texts). */
+  result: string | null;
+  createdBy: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type NotificationCampaignPatch = Partial<Omit<NotificationCampaign, "id" | "appId" | "createdAt" | "createdBy">>;
+
+/** 85.2 One time a campaign went out: the inbox notification, and how it went. */
+export interface CampaignSend {
+  id: number;
+  campaignId: number;
+  appId: string;
+  notificationId: number;
+  sentAt: Date;
+  /** People it went to (their inboxes). */
+  recipients: number;
+  /** Phones the push reached, and phones it didn't. */
+  pushed: number;
+  failed: number;
+  /** 85.4 When the numbers came: at once on the hosted API; a WordPress site reports them once its batches are sent (null until then). */
+  reportedAt: Date | null;
+}
 
 /** 61 What was paid in a window: how many, and the amounts less refunds per currency. */
 export interface PaidTotals {

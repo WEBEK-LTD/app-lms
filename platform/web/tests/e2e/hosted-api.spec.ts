@@ -180,3 +180,57 @@ test("61 a notification sent later waits in Scheduled, can be changed and cancel
   await scheduled.getByRole("button", { name: "Cancel “Weekend market”" }).click();
   await expect(scheduled.getByText(/Nothing scheduled\./)).toBeVisible();
 });
+
+test("85 a campaign goes to the people chosen, opens a web page, and a weekly one can be stopped", async ({ page, request }) => {
+  // A customer whose app shows Arabic.
+  const device = { id: `install-ar-${suffix}`, platform: "ios", name: "iPhone", app_version: "1.0.0" };
+  const requested = await request.post(`${api}/auth/otp/request`, { data: { country_code: "+90", phone: "532 765 43 21" } });
+  const { request_id } = (await requested.json()) as { request_id: string };
+  await expect.poll(() => codes.get("+905327654321")).toBeTruthy();
+  const verified = await request.post(`${api}/auth/otp/verify`, { data: { request_id, code: codes.get("+905327654321"), device } });
+  const { signup_token } = (await verified.json()) as { signup_token: string };
+  const session = (await (await request.post(`${api}/auth/register`, { data: { signup_token, name: "Leyla Haddad", device } })).json()) as { access_token: string };
+  const auth = { authorization: `Bearer ${session.access_token}` };
+  expect((await request.put(`${api}/me/push-token`, { headers: auth, data: { token: "fcm-ar-e2e", language: "ar" } })).status()).toBe(204);
+
+  await signIn(page, client.email, client.password);
+  await page.goto("/dashboard/notifications");
+  await page.getByRole("link", { name: /^Campaigns/ }).click();
+  await expect(page.getByRole("heading", { name: "Campaigns", level: 1 })).toBeVisible();
+  await expect(page.getByText("No campaigns yet.")).toBeVisible();
+  await page.getByRole("link", { name: "New campaign" }).click();
+  await page.getByLabel("Title", { exact: true }).fill("Tulips in Arabic");
+  await page.getByLabel("Message").fill("Fresh tulips for our Arabic readers.");
+  await page.getByRole("radio", { name: "Open a web address" }).check();
+  await page.getByRole("textbox", { name: "Web address" }).fill("https://rose.example/tulips");
+  await expect(page.getByText(/people right now/)).toBeVisible();
+  await page.getByText("Only these phones").click();
+  await page.getByRole("checkbox", { name: "Arabic" }).check();
+  await expect(page.getByText("1 person right now")).toBeVisible();
+  await page.getByRole("radio", { name: "Send now" }).check();
+  await page.getByRole("button", { name: "Send now" }).click();
+  await page.waitForURL(/\/dashboard\/notifications\/campaigns\/\d+/);
+  await expect(page.getByRole("status")).toContainText("Added to the inboxes. People: 1. Push is off");
+  await expect(page.getByText("Sent", { exact: true })).toBeVisible();
+
+  // In her inbox, opening the web page; not in the other customer's (signed out earlier, so only she counts).
+  const inbox = (await (await request.get(`${api}/me/notifications`, { headers: auth })).json()) as { items: { title: string; link?: string }[] };
+  expect(inbox.items.map((n) => n.title)).toContain("Tulips in Arabic");
+  expect(inbox.items.find((n) => n.title === "Tulips in Arabic")).toMatchObject({ link: "https://rose.example/tulips" });
+
+  // Every week: waiting, then stopped.
+  await page.goto("/dashboard/notifications/campaigns/new");
+  await page.getByLabel("Title", { exact: true }).fill("Monday flowers");
+  await page.getByLabel("Message").fill("New flowers every Monday.");
+  await page.getByRole("radio", { name: "Every week" }).check();
+  await page.getByLabel("Day").selectOption({ label: "Monday" });
+  await page.getByLabel("Time", { exact: true }).fill("09:00");
+  await page.getByRole("button", { name: "Save and start" }).click();
+  await expect(page.getByRole("status")).toContainText("Saved. It goes out every week at the time you chose.");
+  await expect(page.getByText("Every week", { exact: true }).first()).toBeVisible();
+  await page.getByRole("button", { name: "Stop sending" }).click();
+  await expect(page.getByRole("status")).toContainText("Stopped. Nothing more goes out.");
+  await page.getByRole("link", { name: "Campaigns" }).first().click();
+  await expect(page.getByRole("listitem").filter({ hasText: "Monday flowers" })).toContainText("Stopped");
+  await expect(page.getByRole("listitem").filter({ hasText: "Tulips in Arabic" })).toContainText("Sent");
+});
