@@ -1,3 +1,4 @@
+import { appSwitches, type AppSwitches } from "../app/switches";
 import { httpsSiteAddress, moveToWordpress } from "../app/wordpress-ready";
 import type { DataStore } from "../data/store";
 import type { Mailer } from "../notices";
@@ -56,6 +57,8 @@ export interface LicenseStatusBody {
   hide_video_branding: boolean;
   /** 77 Chat in the app (`Config.chat` with `session: site`); null when the plan has none or the owner turned it off. */
   chat: { base_url: string; groups: boolean } | null;
+  /** 83.3 The team's switches for the app's modules and new features (`Config.switches`). */
+  switches: AppSwitches;
   expires_at: string | null;
   checked_at: string;
   message: string | null;
@@ -258,6 +261,7 @@ function statusBody(
     crash_reports: facts.crashReports,
     hide_video_branding: facts.hideVideoBranding,
     chat: state === "active" && facts.app && chatAvailable(facts.app, plan) ? { base_url: chatBaseUrl(appUrl(), facts.app.id), groups: chatGroupsOn(facts.app) } : null,
+    switches: appSwitches(facts.app ?? {}),
     expires_at: license ? license.expiresAt.toISOString() : null,
     checked_at: now.toISOString(),
     message,

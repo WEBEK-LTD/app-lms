@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/models/models.dart';
 import '../../../core/config/build_config_data.dart';
+import '../../../core/gate/switches.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_look.dart';
@@ -75,6 +76,10 @@ class AppPageView extends ConsumerWidget {
     final template = ref.watch(appLookProvider).template;
     final style = PageStyle.of(template);
     final top = MediaQuery.paddingOf(context).top;
+    // 83.3 Blocks' backgrounds and spacing, unless the team switched them off.
+    final looks = switchOn(ref, 'block_looks')
+        ? page.looks
+        : const <String, BlockLook>{};
     final blocks = [
       for (final block in page.blocks)
         if (PageBlockView.shows(block, ref)) block,
@@ -101,12 +106,12 @@ class AppPageView extends ConsumerWidget {
                   SizedBox(
                     height: blockGap(
                       style.gap,
-                      page.looks[blocks[i - 1].id],
-                      page.looks[block.id],
+                      looks[blocks[i - 1].id],
+                      looks[block.id],
                     ),
                   ),
                 BlockLookBox(
-                  look: page.looks[block.id],
+                  look: looks[block.id],
                   gap: style.gap,
                   child: PageBlockView(
                     key: ValueKey('block-${block.id}'),

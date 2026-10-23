@@ -177,6 +177,8 @@ describe("saves that change what the license status carries ask the site", () =>
     ["app/actions/screen-protection.ts", "saveVideoBrandingAction"],
     // 77 Chat on or off, and course groups.
     ["app/actions/chat.ts", "saveChatSettingsAction"],
+    // 83.3 The team's switches for the app.
+    ["app/actions/admin-clients.ts", "setAppSwitchesAction"],
   ])("%s %s", (file, name) => {
     expect(body(file, name)).toContain("refreshSitesSoon(");
   });
@@ -202,6 +204,8 @@ describe("saves that change what the license status carries ask the site", () =>
       "hide_video_branding",
       // 77 The chat's switches (Dashboard › Chat).
       "chat",
+      // 83.3 The team's switches (Admin › the client › App switches).
+      "switches",
       "expires_at",
       "checked_at",
       "message",

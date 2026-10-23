@@ -45,7 +45,8 @@ import type { SwitchesSetting } from "@/lib/data/types";
 import { ActivateForm, ClientDetailsForm } from "../../forms";
 import { countryOptions } from "@/lib/account/country";
 import { PAYMENT_STATUS, PAYMENT_TONE } from "../../payments/labels";
-import { ClientNotificationForm, ConnectionCheckForm, WordpressReadyForm } from "./forms";
+import { AppSwitchesForm, ClientNotificationForm, ConnectionCheckForm, WordpressReadyForm } from "./forms";
+import { APP_SWITCHES, appSwitches, SWITCH_INFO } from "@/lib/app/switches";
 import { addStoragePackAction, removeStoragePackAction } from "@/app/actions/admin-clients";
 import { packOffers } from "@/lib/media/packs";
 import { formatBytes } from "@/lib/media/quota";
@@ -304,7 +305,7 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
           switches={switches}
           usersQuery={usersApp === null || usersApp === entry.key ? (typeof query.users === "string" ? query.users.slice(0, 100) : "") : ""}
           usersPage={usersApp === null || usersApp === entry.key ? Math.max(1, Number(query.page) || 1) : 1}
-          may={{ license: may("clients.license"), edit: may("clients.edit"), email: may("clients.email"), builds: may("builds.manage") }}
+          may={{ license: may("clients.license"), edit: may("clients.edit"), email: may("clients.email"), builds: may("builds.manage"), switches: may("switches.edit") }}
         />
       ))}
 
@@ -487,7 +488,7 @@ async function AppEntry({
   switches: SwitchesSetting | null;
   usersQuery: string;
   usersPage: number;
-  may: { license: boolean; edit: boolean; email: boolean; builds: boolean };
+  may: { license: boolean; edit: boolean; email: boolean; builds: boolean; switches: boolean };
 }) {
   const store = await getStore();
   const { app, license } = entry;
@@ -703,6 +704,26 @@ async function AppEntry({
       ) : null}
 
       {app ? <AnalyticsCard app={app} now={now} /> : null}
+      {app ? (
+        <Card id={`h-switches-${entry.key}`} title="App switches" level={3}>
+          <p className="m-0 text-sm text-muted">Modules and new features for this app only, without a new build. Everything is on unless switched off here.</p>
+          {may.switches ? (
+            <AppSwitchesForm
+              clientId={client.id}
+              appId={app.id}
+              switches={APP_SWITCHES.map((name) => ({ name, ...SWITCH_INFO[name], on: appSwitches(app)[name] }))}
+            />
+          ) : (
+            <ul className="m-0 pl-5 text-sm">
+              {APP_SWITCHES.map((name) => (
+                <li key={name}>
+                  {SWITCH_INFO[name].label}: {appSwitches(app)[name] ? "on" : "off"}
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+      ) : null}
       {app ? <StorageCard clientId={client.id} app={app} until={license?.expiresAt ?? null} now={now} may={{ edit: may.license }} /> : null}
 
       {app?.backend === "hosted" ? (

@@ -367,6 +367,8 @@ export interface App {
   catalogSettings: CatalogSettings | null;
   /** 77 The chat's settings; null: on (when the plan has chat), without course groups. */
   chatSettings?: ChatSettings | null;
+  /** 83.3 The switches the team turned off for the app (lib/app/switches.ts); null or missing: all on. */
+  switches?: Partial<Record<string, boolean>> | null;
   /** Services, staff and rules when bookings are managed in the dashboard (connector "bookings"). */
   bookingSetup: BookingSetup | null;
   /** Courses when they're managed in the dashboard (connector "courses"). */

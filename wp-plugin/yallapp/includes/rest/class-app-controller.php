@@ -155,6 +155,8 @@ class App_Controller extends Controller {
 				'links'     => array( 'share_base_url' => untrailingslashit( home_url( '/a' ) ) ),
 				// The kind of business the owner chose in the dashboard: wording and defaults only.
 				'vertical'  => $license_status['vertical'],
+				// 83.3 The Yallapp team's switches for the app's modules and new features.
+				'switches'  => (object) ( is_array( $license_status['switches'] ?? null ) ? $license_status['switches'] : array() ),
 			) + $this->chat() + $this->look()
 		);
 	}

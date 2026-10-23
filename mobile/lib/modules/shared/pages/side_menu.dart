@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/models/models.dart';
 import '../../../core/gate/app_gate.dart';
+import '../../../core/gate/switches.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_icons.dart';
@@ -16,6 +17,8 @@ import 'page_actions.dart';
 /// Empty: no menu and no menu button.
 List<NavTab> sideMenuEntries(WidgetRef ref) {
   final gate = ref.watch(appGateProvider);
+  // 83.3 Unless the team switched the side menu off for this app.
+  if (!switchOn(ref, 'side_menu')) return const [];
   final menu = gate is GateReady ? gate.navigation?.menu : null;
   return [
     for (final entry in menu ?? const <NavTab>[])
@@ -75,7 +78,7 @@ class SideMenu extends ConsumerWidget {
                 key: ValueKey('side-menu-${entry.id}'),
                 leading: OwnIcon(
                   symbolByName(entry.icon),
-                  url: entry.iconUrl,
+                  url: switchOn(ref, 'own_icons') ? entry.iconUrl : null,
                   size: 24,
                   color: p.link,
                 ),

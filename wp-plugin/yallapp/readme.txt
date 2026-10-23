@@ -116,6 +116,7 @@ Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 = 0.4.11 =
 * A side menu in your app, opened from the menu button: you choose its entries in your Yallapp dashboard.
 * Your own icons for the bottom tabs, the side menu and quick links, and a background and spacing for each block of your pages.
+* The Yallapp team can switch your app's chat and its newest features on or off for your app, without a new build.
 
 = 0.4.10 =
 * Your site's look for your app: with each license check the plugin tells Yallapp your site's title and tagline, logo, site icon, your theme's colours and your menus, so an app made from your site starts with your brand and your menu.

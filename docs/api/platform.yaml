@@ -782,6 +782,15 @@ components:
           properties:
             base_url: { type: string, format: uri }
             groups: { type: boolean, description: The academy turned on course groups. }
+        switches:
+          type: object
+          description: |
+            Roadmap 83.3. The team's switches for the app's modules and new
+            features (`chat`, `side_menu`, `block_looks`, `own_icons`); the
+            plugin serves them as `Config.switches`. False turns one off; a
+            missing name, or a missing object on older platforms, means on.
+            The layout endpoint and `chat` already leave out what they turn off.
+          additionalProperties: { type: boolean }
         limits:
           type: object
           description: The plan's limits; null means unlimited. Missing on older platforms.

@@ -2760,6 +2760,21 @@ to the app version that brings it), its fields in the validator and the
 editor, its drawing in the preview, the hosted API, the plugin
 (`Rich_Blocks`) and the app.
 
+### Switches per app (83.3)
+
+Besides the switches for everyone and per plan (Admin › Switches, 11.5),
+the team can turn a module or a new feature off for one app (Admin › the
+client › App switches, `lib/app/switches.ts`): `chat`, `side_menu`,
+`block_looks` and `own_icons`. Each is on unless turned off; only the ones
+turned off are stored (`apps.switches`), so a new switch starts on
+everywhere. The platform applies them to what it serves: no chat
+(`chatAvailable`), and the pages (`layoutForPlan`, so the hosted API and
+the plugin's layout) without the side menu, the blocks' looks or the own
+icons, with a new version. It also sends them as `Config.switches` (hosted)
+and `LicenseStatus.switches`, which the plugin (0.4.11) serves as
+`Config.switches`; a WordPress site is asked to check its license at once.
+The app follows them as well, for what it does on its own.
+
 ### Block looks, own icons and the side menu (82.5)
 
 Each block can have a look (`BlockLook`): a background within the app's

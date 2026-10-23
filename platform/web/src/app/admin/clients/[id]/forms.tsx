@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { wordpressReadyAction } from "@/app/actions/admin";
-import { checkConnectionAction, sendClientNotificationAction } from "@/app/actions/admin-clients";
+import { checkConnectionAction, sendClientNotificationAction, setAppSwitchesAction } from "@/app/actions/admin-clients";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { initialFormState } from "@/lib/forms";
@@ -103,6 +103,44 @@ export function ConnectionCheckForm({ clientId, appId }: { clientId: string; app
           ) : null}
         </div>
       ) : null}
+    </form>
+  );
+}
+
+/** 83.3 The app's switches for its modules and new features. */
+export function AppSwitchesForm({
+  clientId,
+  appId,
+  switches,
+}: {
+  clientId: string;
+  appId: string;
+  switches: { name: string; label: string; description: string; kind: "module" | "feature"; on: boolean }[];
+}) {
+  const [state, action] = useActionState(setAppSwitchesAction, initialFormState);
+  return (
+    <form action={action} className="flex flex-col gap-3" aria-label="App switches">
+      <input type="hidden" name="clientId" value={clientId} />
+      <input type="hidden" name="appId" value={appId} />
+      <FormMessage message={state.message} ok={state.ok} />
+      <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
+        {switches.map((s) => (
+          <li key={s.name}>
+            <label className="flex cursor-pointer items-start gap-2.5 text-[15px]">
+              <input type="checkbox" name={s.name} defaultChecked={s.on} className="mt-1 h-4 w-4 accent-midnight" />
+              <span className="flex flex-col">
+                <span className="font-semibold">
+                  {s.label} <span className="text-xs font-normal text-muted">{s.kind === "module" ? "Module" : "New feature"}</span>
+                </span>
+                <span className="text-[13px] text-ink-4">{s.description}</span>
+              </span>
+            </label>
+          </li>
+        ))}
+      </ul>
+      <SubmitButton className="h-9 self-start px-3 text-sm" pendingText="Saving…">
+        Save switches
+      </SubmitButton>
     </form>
   );
 }

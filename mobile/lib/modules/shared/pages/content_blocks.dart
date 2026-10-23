@@ -7,6 +7,7 @@ import 'package:intl/intl.dart' show DateFormat;
 
 import '../../../core/api/models/models.dart';
 import '../../../core/config/build_config_data.dart';
+import '../../../core/gate/switches.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/providers.dart';
 import '../../../core/services/external_links.dart';
@@ -286,10 +287,12 @@ class QuickLinksView extends ConsumerWidget {
         if (canOpenAction(ref, link.action)) link,
     ];
     if (links.isEmpty) return const SizedBox.shrink();
+    final ownIcons = switchOn(ref, 'own_icons');
     Widget tile(QuickLink link, double width) => SizedBox(
       width: width,
       child: _QuickLinkTile(
         link: link,
+        ownIcon: ownIcons,
         style: style,
         onTap: () => runPageAction(context, ref, link.action),
       ),
@@ -326,9 +329,13 @@ class _QuickLinkTile extends StatelessWidget {
     required this.link,
     required this.style,
     required this.onTap,
+    this.ownIcon = true,
   });
 
   final QuickLink link;
+
+  /// 83.3 The owner's own icon, unless the team switched them off.
+  final bool ownIcon;
   final PageStyle style;
   final VoidCallback onTap;
 
@@ -359,7 +366,7 @@ class _QuickLinkTile extends StatelessWidget {
               alignment: Alignment.center,
               child: OwnIcon(
                 symbolByName(link.icon),
-                url: link.iconUrl,
+                url: ownIcon ? link.iconUrl : null,
                 size: 26,
                 color: bold ? p.onPrimary : (minimal ? p.text : p.link),
               ),

@@ -1,3 +1,4 @@
+import { appSwitches } from "../app/switches";
 import { randomInt } from "node:crypto";
 import { hostedScreenProtection } from "../app/screen-protection";
 import { hidesVideoBranding } from "../app/video-branding";
@@ -419,6 +420,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     vertical: toVertical(app.vertical),
     // 77 Chat with the business (and course groups).
     ...chatField(ctx),
+    // 83.3 The team's switches for the app's modules and new features.
+    switches: appSwitches(app),
     ...(extra.store ? { store: extra.store } : {}),
     ...(extra.bookings ? { bookings: extra.bookings } : {}),
     ...(extra.listings ? { listings: extra.listings } : {}),
