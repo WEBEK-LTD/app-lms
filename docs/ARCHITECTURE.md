@@ -2541,6 +2541,37 @@ from a website ten times an hour (`RATE_LIMITS.siteScan`); a type the team
 switched off isn't made. In local tests every scan reads a fake site
 (`SITE_SCAN_TEST_URL`, refused on Netlify; `tests/e2e/site-start.spec.ts`).
 
+### Import (81.4)
+
+Apps whose products, menu, services or courses live in the dashboard (no
+connector) can bring them from a file or a feed: "Import from a file" on
+Products, Services and Courses (`/dashboard/catalog/import`,
+`/dashboard/services/import`, `/dashboard/courses/import`, with those pages'
+permissions; `components/import-view.tsx`, `app/actions/import.ts`).
+
+- **Reading** (`lib/import/table.ts`, `source.ts`): a CSV file (UTF-8, with
+  or without its byte order mark; commas, semicolons or tabs, found from the
+  header; quoted cells with line breaks), a feed (RSS or Atom; Google
+  Merchant Center's `g:` fields win over the plain ones), or a link to either,
+  read through the safe fetch (a Google Sheet's link becomes its CSV export).
+  2 MB and 500 rows at most.
+- **Planning** (`lib/import/plan.ts`): columns are found by their names in
+  English, Turkish and Arabic (`ALIASES`), exact names first; each row is
+  checked by the dashboard form's own rules and messages
+  (`readProductNumbers`, `parseService`, `parseCourse`). Prices are read as
+  written ("45,50", "120.00 TRY"), HTML descriptions become plain text, a
+  feed's "out of stock" is a stock of 0 and its "Home > Kitchen > Mugs" the
+  category "Mugs".
+- **Saving** (`lib/import/apply.ts`): the owner sees the plan first (the
+  columns found, the first rows, the rows left out and why), then imports:
+  a row naming what exists updates it (a product by its SKU, else its name;
+  a service or course by its name), the rest are added; categories are found
+  by name or added; pictures are read for 12 seconds at most, only for what
+  has none; the rest are added by hand. Rows with errors are left out.
+
+Checks and imports are limited to 30 an hour per client
+(`RATE_LIMITS.importRead`).
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:
