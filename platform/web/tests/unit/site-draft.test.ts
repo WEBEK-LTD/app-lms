@@ -41,6 +41,10 @@ describe("81.3 a draft app from a website", () => {
     const links = layout.pages.find((p) => p.slug === "home")!.blocks.find((b) => b.id === "site-links")?.links ?? [];
     expect([...tabbed, ...links.map((l) => l.action.page_slug)].sort()).toEqual(["site-about-us", "site-blog", "site-contact"]);
     for (const link of links) expect(link.icon).toMatch(/^(info|newspaper|call)$/);
+    // 84.2 The site's About us and Contact take the place of the design's; nothing opens those anymore.
+    expect(layout.pages.map((p) => p.slug)).not.toContain("about");
+    expect(layout.pages.map((p) => p.slug)).not.toContain("contact");
+    expect(JSON.stringify(layout)).not.toMatch(/"page_slug":"(about|contact)"/);
   });
 
   it("a restaurant in Turkish: a restaurant design, Turkish first", () => {

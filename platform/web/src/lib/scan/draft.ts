@@ -58,6 +58,12 @@ function topicOf(label: string, url: string): { words: RegExp; icon: string } | 
   return TOPICS.find((t) => t.words.test(label)) ?? TOPICS.find((t) => t.words.test(path)) ?? null;
 }
 
+/** 84.2 The pages every design has, and the subject of the site's page that takes each one's place. */
+const COMPANY_PAGES = [
+  ["about", "info"],
+  ["contact", "call"],
+] as const;
+
 /** Whether the design already has a tab for this subject (its own screen, with the real data). */
 function covered(item: SiteMenuItem, tabs: LayoutTab[]): boolean {
   const topic = topicOf(item.label, item.url);
@@ -118,14 +124,30 @@ export function draftFromScan(scan: SiteScan, defaults: AppDefaultsSetting, now:
   const layout: LayoutContent = { ...base, appearance: { ...base.appearance, font: scan.fonts.appFont, secondary_color: scan.colors.accent?.toUpperCase() ?? base.appearance.secondary_color } };
 
   // The menu: pages that show the website's own, in the app.
+  const candidates = scan.menu.filter((item) => item.url.startsWith("https://") && !covered(item, layout.tabs));
+  const firstRoom = Math.max(0, LAYOUT_LIMITS.maxPages - layout.pages.length);
+  // 84.2 The site's own About us and Contact pages take the place of the design's.
+  const replaced = new Map<string, SiteMenuItem>();
+  for (const [slug, icon] of COMPANY_PAGES) {
+    const entry = candidates.slice(0, firstRoom).find((item) => topicOf(item.label, item.url)?.icon === icon);
+    if (entry && layout.pages.some((p) => p.slug === slug)) replaced.set(slug, entry);
+  }
+  layout.pages = layout.pages.filter((p) => !replaced.has(p.slug));
   const taken = new Set(layout.pages.map((p) => p.slug));
-  const room = LAYOUT_LIMITS.maxPages - layout.pages.length;
-  const entries = scan.menu.filter((item) => item.url.startsWith("https://") && !covered(item, layout.tabs)).slice(0, Math.max(0, room));
+  const entries = candidates.slice(0, firstRoom + replaced.size);
   const pages: (LayoutPage & { icon: string })[] = entries.map((item, i) => {
     const slug = slugFor(item.label, i, taken);
     const embed: LayoutBlock = { id: "site-page", type: "embed", visibility: "everyone", title: null, url: item.url, height: null };
     return { slug, title: item.label.slice(0, 60), show_title: true, updated_at: now.toISOString(), blocks: [embed], icon: topicOf(item.label, item.url)?.icon ?? "explore" };
   });
+  if (replaced.size) {
+    const to = new Map([...replaced].map(([slug, entry]) => [slug, pages[entries.indexOf(entry)]!.slug]));
+    // Out of the side menu (the site's page gets a tab or a home link); what else opened the design's page opens the site's.
+    if (layout.menu) layout.menu = layout.menu.filter((t) => !(t.target.type === "page" && to.has(t.target.page_slug ?? "")));
+    const retarget = <T>(value: T): T => JSON.parse(JSON.stringify(value).replace(/"page_slug":"([^"]*)"/g, (all, slug: string) => (to.has(slug) ? `"page_slug":${JSON.stringify(to.get(slug))}` : all))) as T;
+    layout.tabs = retarget(layout.tabs);
+    layout.pages = retarget(layout.pages);
+  }
   const tabs = [...layout.tabs];
   const linked: QuickLink[] = [];
   for (const page of pages) {
