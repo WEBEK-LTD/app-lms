@@ -1884,6 +1884,8 @@ export const campaignSends = mysqlTable(
     recipients: int("recipients").notNull(),
     pushed: int("pushed").notNull(),
     failed: int("failed").notNull(),
+    // 85.4 A WordPress site reports its numbers once its batches are sent.
+    reportedAt: time("reported_at"),
   },
   (t) => [index("campaign_sends_campaign_idx").on(t.appId, t.campaignId, t.sentAt)],
 );

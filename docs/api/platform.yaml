@@ -416,6 +416,41 @@ paths:
               schema: { $ref: '#/components/schemas/Error' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /campaigns/report:
+    post:
+      tags: [Licenses]
+      operationId: reportCampaign
+      summary: Say how a campaign's pushes went
+      description: |
+        Roadmap 85.4. Sent by the plugin once the last batch of a campaign
+        Yallapp sent it (`POST /campaigns/send` in the app contract) is
+        pushed: the phones Firebase and Huawei Push Kit accepted, and those
+        they didn't. Yallapp shows them with the campaign on the dashboard.
+        Once per `send_id`; a report for a send that isn't this site's app's
+        is 404.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/SiteInfo'
+                - type: object
+                  required: [send_id, sent, failed]
+                  properties:
+                    send_id: { type: integer, minimum: 1 }
+                    sent: { type: integer, minimum: 0 }
+                    failed: { type: integer, minimum: 0 }
+      responses:
+        '204': { description: Saved }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403':
+          description: The license isn't active on this site (`license_inactive`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /licenses/media:
     post:
       tags: [Media]

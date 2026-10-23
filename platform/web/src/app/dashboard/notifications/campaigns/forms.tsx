@@ -29,6 +29,8 @@ export interface CampaignFormValues {
 }
 
 export interface CampaignChoices {
+  /** 85.4 Through the WordPress site: everyone, no narrowing, no count. */
+  wordpress: boolean;
   kinds: string[];
   courses: { id: number; title: string }[];
   pages: { slug: string; title: string }[];
@@ -72,7 +74,9 @@ export function CampaignForm({ initial, choices }: { initial: CampaignFormValues
     };
     start(async () => setCount((await countAudienceAction(audience)).count));
   };
-  useEffect(recount, []);
+  useEffect(() => {
+    if (!choices.wordpress) recount();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const submit = when === "now" ? t("campaigns.sendNow") : when === "later" ? t("campaigns.schedule") : when === "weekly" ? t("campaigns.saveWeekly") : t("campaigns.save");
   return (
@@ -133,64 +137,73 @@ export function CampaignForm({ initial, choices }: { initial: CampaignFormValues
         {open === "link" ? <Field label={t("campaigns.urlLabel")} name="url" type="url" dir="ltr" defaultValue={v("url")} placeholder="https://" error={state.errors?.url} /> : null}
       </fieldset>
 
-      <fieldset data-audience className="m-0 flex flex-col gap-2 border-0 p-0">
-        <legend className="mb-1.5 p-0 text-sm font-semibold">{t("campaigns.who")}</legend>
-        {choices.kinds.map((kind) => (
-          <label key={kind} className="flex min-h-11 items-center gap-2 text-[15px]">
-            <input type="radio" name="who" value={kind} checked={who === kind} onChange={() => setWho(kind)} className="size-5" />
-            {t(KIND_KEYS[kind as keyof typeof KIND_KEYS])}
-          </label>
-        ))}
-        {who === "students" && choices.courses.length ? (
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="f-course" className="text-sm font-semibold">
-              {t("campaigns.courseLabel")}
+      {choices.wordpress ? (
+        <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+          <legend className="mb-1.5 p-0 text-sm font-semibold">{t("campaigns.who")}</legend>
+          <input type="hidden" name="who" value="everyone" />
+          <p className="m-0 text-[15px] text-ink-4">{t("campaigns.wordpressAudience")}</p>
+          <FieldError id="f-audience-error" error={state.errors?.audience} />
+        </fieldset>
+      ) : (
+        <fieldset data-audience className="m-0 flex flex-col gap-2 border-0 p-0">
+          <legend className="mb-1.5 p-0 text-sm font-semibold">{t("campaigns.who")}</legend>
+          {choices.kinds.map((kind) => (
+            <label key={kind} className="flex min-h-11 items-center gap-2 text-[15px]">
+              <input type="radio" name="who" value={kind} checked={who === kind} onChange={() => setWho(kind)} className="size-5" />
+              {t(KIND_KEYS[kind as keyof typeof KIND_KEYS])}
             </label>
-            <select id="f-course" name="courseId" defaultValue={v("courseId")} className="input">
-              <option value="">{t("campaigns.anyCourse")}</option>
-              {choices.courses.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.title}
-                </option>
-              ))}
-            </select>
-          </div>
-        ) : null}
-        {who === "inactive" ? (
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="f-inactive" className="text-sm font-semibold">
-              {t("campaigns.inactiveFor")}
-            </label>
-            <select id="f-inactive" name="inactiveDays" defaultValue={v("inactiveDays") || "30"} className="input">
-              {choices.inactiveDays.map((d) => (
-                <option key={d} value={d}>
-                  {t("campaigns.days", { count: d })}
-                </option>
-              ))}
-            </select>
-          </div>
-        ) : null}
-        <FieldError id="f-audience-error" error={state.errors?.audience} />
+          ))}
+          {who === "students" && choices.courses.length ? (
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="f-course" className="text-sm font-semibold">
+                {t("campaigns.courseLabel")}
+              </label>
+              <select id="f-course" name="courseId" defaultValue={v("courseId")} className="input">
+                <option value="">{t("campaigns.anyCourse")}</option>
+                {choices.courses.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
+          {who === "inactive" ? (
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="f-inactive" className="text-sm font-semibold">
+                {t("campaigns.inactiveFor")}
+              </label>
+              <select id="f-inactive" name="inactiveDays" defaultValue={v("inactiveDays") || "30"} className="input">
+                {choices.inactiveDays.map((d) => (
+                  <option key={d} value={d}>
+                    {t("campaigns.days", { count: d })}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
+          <FieldError id="f-audience-error" error={state.errors?.audience} />
 
-        <details className="rounded-xl border border-line-soft px-3 py-2" open={initial.languages.length + initial.platforms.length + initial.countries.length > 0}>
-          <summary className="cursor-pointer text-[15px] font-semibold">{t("campaigns.narrow")}</summary>
-          <div className="flex flex-col gap-3 pt-3">
-            <p className="m-0 text-[13px] text-muted">{t("campaigns.narrowHint")}</p>
-            <CheckList legend={t("campaigns.platforms")} name="platforms" items={[{ code: "android", name: t("campaigns.android") }, { code: "ios", name: t("campaigns.ios") }]} checked={initial.platforms} />
-            {choices.languages.length ? <CheckList legend={t("campaigns.languages")} name="languages" items={choices.languages} checked={initial.languages} /> : null}
-            <CheckList legend={t("campaigns.countries")} name="countries" items={choices.countries.filter((c) => c.seen || initial.countries.includes(c.code))} checked={initial.countries} />
-            <details>
-              <summary className="cursor-pointer text-[14px]">{t("campaigns.moreCountries")}</summary>
-              <div className="pt-2">
-                <CheckList legend={t("campaigns.moreCountries")} name="countries" items={choices.countries.filter((c) => !c.seen && !initial.countries.includes(c.code))} checked={[]} hideLegend />
-              </div>
-            </details>
-          </div>
-        </details>
-        <p className="m-0 text-[15px] font-semibold" role="status" aria-live="polite">
-          {counting || count === null ? t("campaigns.counting") : t("campaigns.count", { count })}
-        </p>
-      </fieldset>
+          <details className="rounded-xl border border-line-soft px-3 py-2" open={initial.languages.length + initial.platforms.length + initial.countries.length > 0}>
+            <summary className="cursor-pointer text-[15px] font-semibold">{t("campaigns.narrow")}</summary>
+            <div className="flex flex-col gap-3 pt-3">
+              <p className="m-0 text-[13px] text-muted">{t("campaigns.narrowHint")}</p>
+              <CheckList legend={t("campaigns.platforms")} name="platforms" items={[{ code: "android", name: t("campaigns.android") }, { code: "ios", name: t("campaigns.ios") }]} checked={initial.platforms} />
+              {choices.languages.length ? <CheckList legend={t("campaigns.languages")} name="languages" items={choices.languages} checked={initial.languages} /> : null}
+              <CheckList legend={t("campaigns.countries")} name="countries" items={choices.countries.filter((c) => c.seen || initial.countries.includes(c.code))} checked={initial.countries} />
+              <details>
+                <summary className="cursor-pointer text-[14px]">{t("campaigns.moreCountries")}</summary>
+                <div className="pt-2">
+                  <CheckList legend={t("campaigns.moreCountries")} name="countries" items={choices.countries.filter((c) => !c.seen && !initial.countries.includes(c.code))} checked={[]} hideLegend />
+                </div>
+              </details>
+            </div>
+          </details>
+          <p className="m-0 text-[15px] font-semibold" role="status" aria-live="polite">
+            {counting || count === null ? t("campaigns.counting") : t("campaigns.count", { count })}
+          </p>
+        </fieldset>
+      )}
 
       <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
         <legend className="mb-1.5 p-0 text-sm font-semibold">{t("campaigns.when")}</legend>

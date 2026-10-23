@@ -34,13 +34,16 @@ export async function CampaignNumbers({ stats }: { stats: CampaignStats }) {
     ...(stats.sends > 1 ? ([[t("campaigns.sends"), stats.sends]] as [string, number][]) : []),
   ];
   return (
-    <dl className="m-0 flex flex-wrap gap-x-5 gap-y-1 text-[14px]">
-      {items.map(([label, value]) => (
-        <div key={label} className="flex items-baseline gap-1.5">
-          <dt className="text-muted">{label}</dt>
-          <dd className="m-0 font-bold">{number.format(value)}</dd>
-        </div>
-      ))}
-    </dl>
+    <div className="flex flex-col gap-1">
+      <dl className="m-0 flex flex-wrap gap-x-5 gap-y-1 text-[14px]">
+        {items.map(([label, value]) => (
+          <div key={label} className="flex items-baseline gap-1.5">
+            <dt className="text-muted">{label}</dt>
+            <dd className="m-0 font-bold">{number.format(value)}</dd>
+          </div>
+        ))}
+      </dl>
+      {stats.waiting > 0 ? <p className="m-0 text-[13px] text-muted">{t("campaigns.siteWaiting")}</p> : null}
+    </div>
   );
 }

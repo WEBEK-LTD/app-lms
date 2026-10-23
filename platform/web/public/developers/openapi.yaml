@@ -1122,6 +1122,61 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
 
+  /campaigns/send:
+    post:
+      tags: [Platform]
+      operationId: sendCampaign
+      summary: Send a campaign from the Yallapp dashboard to the app's users
+      description: |
+        Roadmap 85.4. Sent by the Yallapp platform to a WordPress site when
+        the owner sends a campaign from Dashboard › App notifications ›
+        Campaigns (now, at the time chosen, or each week): the site keeps its
+        people's push tokens, so the plugin adds the notification to everyone's
+        inbox (with its picture and what it opens) and pushes it to the phones
+        that allow announcements, in batches. When the last batch is sent, the
+        plugin reports how many phones it reached and missed with
+        `POST /campaigns/report` (docs/api/platform.yaml).
+
+        Signed like `POST /chat/notify`: `signature` is the lowercase hex
+        HMAC-SHA256 of `yallapp-campaign:<timestamp>:<sha256 of the campaign
+        JSON, hex>` keyed with the license key in capitals; a wrong
+        signature, a site without a license key or a timestamp more than 5
+        minutes away is 401 `invalid_signature`. The same `send_id` twice is
+        sent once (200 with the first answer).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [timestamp, signature, campaign]
+              properties:
+                timestamp: { type: integer, examples: [1792000000] }
+                signature: { type: string, pattern: '^[0-9a-f]{64}$' }
+                campaign:
+                  type: object
+                  required: [send_id, title, body, link, image_url]
+                  properties:
+                    send_id: { type: integer, minimum: 1, description: "Yallapp's number for this send; the report names it." }
+                    title: { type: string, maxLength: 65 }
+                    body: { type: string, maxLength: 240 }
+                    link: { type: [string, 'null'], format: uri, maxLength: 500, description: 'What it opens: a link in the format of the Links tag, or another `https` address; null opens the app.' }
+                    image_url: { type: [string, 'null'], format: uri, maxLength: 500, description: "Its picture, on Yallapp's address." }
+      responses:
+        '202':
+          description: In everyone's inbox; the pushes are queued.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CampaignSent' }
+        '200':
+          description: This `send_id` was sent already; nothing more is sent.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CampaignSent' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
   /chat/conversations:
     get:
       tags: [Chat]
@@ -4766,6 +4821,14 @@ components:
             Missing on older servers.
         created_at: { type: string, format: date-time }
         read: { type: boolean }
+
+    CampaignSent:
+      type: object
+      required: [notification_id, people, batches]
+      properties:
+        notification_id: { type: integer, description: The notification in the inboxes. }
+        people: { type: integer, description: 'The people with a phone that has a push token, the push is queued for.' }
+        batches: { type: integer, description: 'Cron batches of up to 500 people; 0 when push is off or nobody has a token (no report follows).' }
 
     Order:
       type: object

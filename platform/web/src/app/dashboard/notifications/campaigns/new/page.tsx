@@ -17,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
 /** 85.2 A new notification campaign. */
 export default async function NewCampaignPage() {
   const { app } = await requireClient("notifications");
-  if (!app || app.backend !== "hosted") redirect("/dashboard/notifications/campaigns");
+  if (!app || (app.backend !== "hosted" && app.backend !== "wordpress")) redirect("/dashboard/notifications/campaigns");
   const { t, lang } = await dashboardText();
   const store = await getStore();
   const now = new Date();

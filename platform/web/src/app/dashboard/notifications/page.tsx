@@ -40,6 +40,17 @@ export default async function NotificationsPage() {
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
           {t("notify.fromSite")} <Link href="/dashboard/setup">{t("notify.backToSetup")}</Link>
         </p>
+        {/* 85.4 Campaigns go through the WordPress site. */}
+        {app?.backend === "wordpress" ? (
+          <Link href="/dashboard/notifications/campaigns" className="flex items-center gap-3 rounded-2xl border border-line bg-white p-4 no-underline hover:border-midnight">
+            <Icon name="campaign" size={24} />
+            <span className="flex min-w-0 flex-1 flex-col">
+              <span className="text-[16px] font-bold text-midnight">{t("campaigns.open")}</span>
+              <span className="text-[14px] text-ink-4">{t("campaigns.wordpressAudience")}</span>
+            </span>
+            <Icon name="chevron_right" size={20} className="rtl:rotate-180" />
+          </Link>
+        ) : null}
       </div>
     );
   }

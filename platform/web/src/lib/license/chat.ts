@@ -16,7 +16,7 @@ import { licenseState } from "./status";
  * the site that asks.
  */
 
-type Fail = { status: 400 | 403 | 404 | 429; body: { code: string; message: string; retry_after_seconds?: number } };
+export type Fail = { status: 400 | 403 | 404 | 429; body: { code: string; message: string; retry_after_seconds?: number } };
 const fail = (status: Fail["status"], code: string, message: string, extra: Record<string, number> = {}): Fail => ({ status, body: { code, message, ...extra } });
 
 const record = (value: unknown): Record<string, unknown> => (value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {});
@@ -32,8 +32,8 @@ function httpUrl(value: unknown): string | null {
   }
 }
 
-/** The license of the site, active there, with its app. */
-async function siteApp(store: DataStore, site: SiteInfo, now: Date): Promise<{ ok: true; license: License; app: App } | { ok: false; result: Fail }> {
+/** The license of the site, active there, with its app (85.4 also for campaign reports). */
+export async function siteApp(store: DataStore, site: SiteInfo, now: Date): Promise<{ ok: true; license: License; app: App } | { ok: false; result: Fail }> {
   const license = await store.getLicenseByHash(hashLicenseKey(site.licenseKey));
   const client = license ? await store.getClientById(license.clientId) : null;
   if (!license || !client) return { ok: false, result: fail(404, "license_not_found", "This license key doesn't exist. Check it in your Yallapp dashboard.") };

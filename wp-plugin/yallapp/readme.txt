@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.11
+Stable tag: 0.4.12
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -89,6 +89,10 @@ Yallapp is the service that builds and runs your apps; the plugin needs it to wo
   when an account is deleted, its user ID, so Yallapp deletes its chat. Yallapp
   sends the site, signed with the license key, the people to notify of a new
   message, and the plugin sends them the push notification.
+* Campaigns, when you send one from your Yallapp dashboard: Yallapp sends the
+  site, signed with the license key, the campaign's title, text, picture address
+  and link; once its push notifications are sent, the plugin tells Yallapp how
+  many phones it reached and how many it missed (counts only, no people or devices).
 
 Terms of use: https://yallapp.com.tr/terms
 Privacy policy: https://yallapp.com.tr/privacy
@@ -114,6 +118,10 @@ Terms: https://developer.huawei.com/consumer/en/devservice/term
 Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 
 == Changelog ==
+
+= 0.4.12 =
+* Campaigns from your Yallapp dashboard: write a notification with a picture and a page or web address to open, and send it now, later or every week. Your site puts it in everyone's inbox in the app, pushes it to the phones that allow announcements, and tells Yallapp how many it reached.
+* Notifications in the app's inbox can show a picture and open a web page.
 
 = 0.4.11 =
 * A side menu in your app, opened from the menu button: you choose its entries in your Yallapp dashboard.

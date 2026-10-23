@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function CampaignsPage({ searchParams }: { searchParams: Promise<{ deleted?: string }> }) {
   const { app } = await requireClient("notifications");
   const { t, lang } = await dashboardText();
-  if (!app || app.backend !== "hosted") {
+  if (!app || (app.backend !== "hosted" && app.backend !== "wordpress")) {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
         <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("campaigns.title")}</h1>

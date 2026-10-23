@@ -41,7 +41,7 @@ export async function runFrequentJobs(deps: {
   const notifications = await runScheduledNotifications({ store: deps.store, key: deps.key, now: deps.now, send: deps.send });
   let campaigns: CampaignRunReport = { sent: 0, waiting: 0, failed: 0 };
   try {
-    campaigns = await runCampaigns({ store: deps.store, key: deps.key, now: deps.now, send: deps.send, platformUrl: deps.platformUrl ?? appUrl() });
+    campaigns = await runCampaigns({ store: deps.store, key: deps.key, now: deps.now, send: deps.send, platformUrl: deps.platformUrl ?? appUrl(), site: deps.refresh });
   } catch (error) {
     // One campaign that can't go out never stops the rest of the job.
     console.error("[frequent] campaigns", error instanceof Error ? error.message : String(error));

@@ -6,7 +6,7 @@ import type { App, NotificationCampaign } from "@/lib/data/types";
 import type { Lang } from "@/i18n/config";
 import { audienceChoices, audienceKinds, INACTIVE_DAYS } from "@/lib/hosted/audiences";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX } from "@/lib/hosted/notify";
-import { yallappLinkBase } from "@/lib/links/table";
+import { siteLinkBase, yallappLinkBase } from "@/lib/links/table";
 import type { CampaignChoices, CampaignFormValues } from "./forms";
 
 /** Countries offered besides those the app's phones signed in from: where Yallapp's clients sell. */
@@ -30,8 +30,11 @@ export async function campaignChoices(store: DataStore, app: App, lang: Lang, no
   const region = displayNames(lang, "region");
   const codes = [...new Set([...seen.languages, ...appLanguages])];
   const weekday = new Intl.DateTimeFormat(lang === "en" ? "en-GB" : lang, { weekday: "long", timeZone: "UTC" });
+  // 85.4 A WordPress site keeps its people: everyone, not narrowed.
+  const wordpress = app.backend === "wordpress";
   return {
-    kinds: audienceKinds(app),
+    wordpress,
+    kinds: wordpress ? ["everyone"] : audienceKinds(app),
     courses: (app.courseSetup?.courses ?? []).map((c) => ({ id: c.id, title: c.title })),
     pages,
     languages: codes.map((code) => ({ code, name: language(code) })),
@@ -51,7 +54,7 @@ export function campaignFormValues(app: App, campaign: NotificationCampaign | nu
   if (!campaign) {
     return { id: null, title: "", body: "", open: "none", page: "", url: "", imageUrl: "", who: "everyone", courseId: "", inactiveDays: "30", languages: [], platforms: [], countries: [], when: "now", date: "", time: "", weekday: "1" };
   }
-  const pagePrefix = `${yallappLinkBase(platformUrl, app.id)}/page/`;
+  const pagePrefix = `${(app.backend === "wordpress" ? siteLinkBase(app.siteUrl) : null) ?? yallappLinkBase(platformUrl, app.id)}/page/`;
   const page = campaign.link?.startsWith(pagePrefix) ? decodeURIComponent(campaign.link.slice(pagePrefix.length)) : "";
   const local = campaign.sendAt ? utcToLocal(campaign.sendAt, zone) : null;
   return {

@@ -2648,6 +2648,8 @@ export interface CampaignSend {
   /** Phones the push reached, and phones it didn't. */
   pushed: number;
   failed: number;
+  /** 85.4 When the numbers came: at once on the hosted API; a WordPress site reports them once its batches are sent (null until then). */
+  reportedAt: Date | null;
 }
 
 /** 61 What was paid in a window: how many, and the amounts less refunds per currency. */

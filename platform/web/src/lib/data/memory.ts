@@ -3127,6 +3127,7 @@ export class MemoryStore implements DataStore {
   private notificationCampaigns = new Map<number, NotificationCampaign>();
   private nextNotificationCampaignId = 1;
   private campaignSends: CampaignSend[] = [];
+  private nextCampaignSendId = 1;
 
   async createNotificationCampaign(input: Omit<NotificationCampaign, "id">): Promise<NotificationCampaign> {
     const row: NotificationCampaign = { ...clone(input), id: this.nextNotificationCampaignId++ };
@@ -3175,9 +3176,25 @@ export class MemoryStore implements DataStore {
   }
 
   async createCampaignSend(input: Omit<CampaignSend, "id">): Promise<CampaignSend> {
-    const row: CampaignSend = { ...clone(input), id: this.campaignSends.length + 1 };
+    const row: CampaignSend = { ...clone(input), id: this.nextCampaignSendId++ };
     this.campaignSends.push(clone(row));
     return row;
+  }
+
+  async updateCampaignSend(appId: string, id: number, patch: Partial<Pick<CampaignSend, "notificationId" | "recipients" | "reportedAt">>): Promise<void> {
+    const row = this.campaignSends.find((s) => s.appId === appId && s.id === id);
+    if (row) Object.assign(row, clone(patch));
+  }
+
+  async deleteCampaignSend(appId: string, id: number): Promise<void> {
+    this.campaignSends = this.campaignSends.filter((s) => !(s.appId === appId && s.id === id));
+  }
+
+  async reportCampaignSend(appId: string, id: number, numbers: { pushed: number; failed: number }, now: Date): Promise<boolean> {
+    const row = this.campaignSends.find((s) => s.appId === appId && s.id === id);
+    if (!row || row.reportedAt !== null) return false;
+    Object.assign(row, { ...numbers, reportedAt: new Date(now) });
+    return true;
   }
 
   async listCampaignSends(appId: string, campaignIds: number[]): Promise<CampaignSend[]> {

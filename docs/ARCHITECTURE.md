@@ -2299,6 +2299,26 @@ ids for the app) and to their phones that allow it (`new_lessons`,
 (`HostedSettings.autoNotifications`). They aren't in the hourly limit of
 the notifications the owner sends, and stop when the plan ends.
 
+### WordPress apps' campaigns (85.4)
+
+A WordPress site keeps its people's push tokens, so a campaign of a
+WordPress app goes through it (`lib/license/campaign-site.ts`): the platform
+makes the send's row first (`campaign_sends`, its ID is the `send_id`), then
+signs `POST <site>/wp-json/yallapp/v1/campaigns/send` like the chat's
+notify (`yallapp-campaign:<timestamp>:<sha256 of the campaign JSON>`,
+keyed with the license key). The plugin (0.4.12) puts it in everyone's
+inbox (`link` and `image_url` columns, DB version 5), queues the pushes in
+cron batches (`yallapp_campaign_send`) and keeps an option per send, so the
+same `send_id` twice is sent once; after the last batch it calls
+`POST /api/v1/campaigns/report` with the phones reached and missed, which
+the platform saves once (`reported_at`, migration
+`0067_campaign_reports`). Until then the dashboard says the site is still
+sending. A site that can't be reached, or a plugin from before 0.4.12 (404),
+leaves the campaign a draft (sent now) or failed (sent later; a weekly one
+tries the next week), and the send's row is removed. WordPress campaigns go
+to everyone (the platform doesn't know the site's people); a page of the
+app opens on the site's links (`<site>/a/page/<slug>`).
+
 ## Milestones (Phase 78)
 
 `client_milestones` (migration 0053, `lib/milestones/record.ts`) keeps when

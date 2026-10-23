@@ -983,6 +983,11 @@ export interface DataStore {
   createCampaignSend(input: Omit<CampaignSend, "id">): Promise<CampaignSend>;
   /** The sends of these campaigns, newest first. */
   listCampaignSends(appId: string, campaignIds: number[]): Promise<CampaignSend[]>;
+  /** 85.4 What the WordPress site answered for a send (its inbox notification and people), or removes a send the site never took. */
+  updateCampaignSend(appId: string, id: number, patch: Partial<Pick<CampaignSend, "notificationId" | "recipients" | "reportedAt">>): Promise<void>;
+  deleteCampaignSend(appId: string, id: number): Promise<void>;
+  /** 85.4 A WordPress site's numbers for one of its sends, once: false when it isn't this app's or was reported. */
+  reportCampaignSend(appId: string, id: number, numbers: { pushed: number; failed: number }, now: Date): Promise<boolean>;
 
   // 61 Announcements pushed to the owners' phones when they start
   /** Marks the announcement pushed, only if it wasn't yet (atomic); false otherwise. */

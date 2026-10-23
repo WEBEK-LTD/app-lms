@@ -6,7 +6,7 @@ import { recordStaffChange } from "@/lib/admin/audit";
 import { actorOf, clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
-import { appUrl, encryptionKey } from "@/lib/env";
+import { appUrl, encryptionKey, licenseRefreshTestUrl } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { countAudience, parseAudience } from "@/lib/hosted/audiences";
 import { autoKindsFor } from "@/lib/hosted/auto-notifications";
@@ -14,14 +14,17 @@ import { hostedSettings } from "@/lib/hosted/service";
 import { deleteCampaign, saveCampaign, sendCampaignNow, stopCampaign, type CampaignInput } from "@/lib/hosted/campaigns";
 import type { TeamPermission } from "@/lib/team/permissions";
 
-/** An active client whose app runs on the hosted API, or a redirect. */
+/** An active client whose app sends notifications from Yallapp: on the hosted API, or 85.4 through its WordPress site. */
 async function requireHostedApp(permission: TeamPermission): Promise<ClientContext & { app: App }> {
   const context = await clientFor(permission);
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
-  if (!context.app || context.app.backend !== "hosted") redirect("/dashboard");
+  if (!context.app || (context.app.backend !== "hosted" && context.app.backend !== "wordpress")) redirect("/dashboard");
   return context as ClientContext & { app: App };
 }
+
+/** 85.4 How WordPress sites are reached (local tests: LICENSE_REFRESH_TEST_URL). */
+const site = () => ({ testSiteUrl: licenseRefreshTestUrl() });
 
 /** The app's pages a campaign can open: the published ones, else the draft's. */
 async function pageSlugs(app: App): Promise<string[]> {
@@ -50,7 +53,7 @@ export async function saveCampaignAction(_: FormState, formData: FormData): Prom
   const input: CampaignInput = { ...values, audience: audienceOf(formData) };
   const store = await getStore();
   const now = new Date();
-  const result = await saveCampaign({ store, key: encryptionKey(), now, platformUrl: appUrl() }, context.app, context.license, input, {
+  const result = await saveCampaign({ store, key: encryptionKey(), now, platformUrl: appUrl(), site: site() }, context.app, context.license, input, {
     id,
     by: actorOf(context).email,
     pages: await pageSlugs(context.app),
@@ -72,7 +75,7 @@ export async function sendCampaignNowAction(formData: FormData): Promise<void> {
   const store = await getStore();
   const campaign = Number.isSafeInteger(id) ? await store.getNotificationCampaign(context.app.id, id) : null;
   if (!campaign) redirect("/dashboard/notifications/campaigns");
-  const result = await sendCampaignNow({ store, key: encryptionKey(), now: new Date(), platformUrl: appUrl() }, context.app, context.license, campaign);
+  const result = await sendCampaignNow({ store, key: encryptionKey(), now: new Date(), platformUrl: appUrl(), site: site() }, context.app, context.license, campaign);
   if (result.ok) await recordStaffChange(context, `Sent the campaign "${campaign.title}"`);
   revalidatePath("/dashboard/notifications/campaigns");
   redirect(`/dashboard/notifications/campaigns/${id}?notice=${encodeURIComponent(result.message ?? "")}`);

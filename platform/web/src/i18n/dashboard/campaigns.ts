@@ -78,6 +78,9 @@ export const en = {
   history: "Sends",
   sentOn: "{date}",
   // 85.3 Automatic notifications
+  // 85.4 WordPress apps
+  siteWaiting: "Your website is still sending the push; its numbers show here when it's done.",
+  wordpressAudience: "Your website sends campaigns to everyone who uses the app: it keeps their phones.",
   autoTitle: "Automatic notifications",
   autoIntro: "Your app sends these on its own, in each person's language, to their inbox and to phones that allow them. Turn off the ones you don't want.",
   autoNumbers: "Last 30 days: {people} people · {opened} opened",
@@ -120,6 +123,10 @@ export const en = {
     inboxesOnly: "Added to the inboxes. People: {people}. {error}",
     stoppedDone: "Stopped. Nothing more goes out.",
     autoSaved: "Saved. Your app sends the ones that are on.",
+    wordpressEveryone: "Apps on WordPress send campaigns to everyone who uses the app.",
+    siteFailed: "Your website couldn't be reached, so nothing was sent. Check that it's online with the Yallapp plugin active, then try again.",
+    siteOldPlugin: "Your website's Yallapp plugin is too old to send campaigns. Update it in WordPress, then try again.",
+    siteSent: "Sent to your website: it's in everyone's inbox, and the push goes to {people} people's phones. The numbers show here once your website has sent it.",
   },
 } as const;
 
@@ -195,6 +202,8 @@ export const ar: Strings<typeof en> = {
   delete: "احذف<sr> «{title}»</sr>",
   history: "مرات الإرسال",
   sentOn: "{date}",
+  siteWaiting: "لا يزال موقعك يرسل الإشعار؛ تظهر أرقامه هنا عند انتهائه.",
+  wordpressAudience: "يرسل موقعك الحملات إلى كل من يستخدم التطبيق: فهو يحتفظ بهواتفهم.",
   autoTitle: "الإشعارات التلقائية",
   autoIntro: "يرسلها تطبيقك من تلقاء نفسه، بلغة كل شخص، إلى صندوق إشعاراته وإلى الهواتف التي تسمح بها. أوقف ما لا تريده منها.",
   autoNumbers: "آخر 30 يومًا: {people} شخص · فُتحت {opened}",
@@ -237,6 +246,10 @@ export const ar: Strings<typeof en> = {
     inboxesOnly: "أُضيفت إلى صناديق الإشعارات. الأشخاص: {people}. {error}",
     stoppedDone: "أُوقفت. لن يُرسل منها شيء بعد الآن.",
     autoSaved: "حُفظت. يرسل تطبيقك المفعّل منها.",
+    wordpressEveryone: "ترسل التطبيقات على WordPress الحملات إلى كل من يستخدم التطبيق.",
+    siteFailed: "تعذّر الوصول إلى موقعك، فلم يُرسل شيء. تحقّق من أنه يعمل وأن إضافة Yallapp مفعّلة، ثم حاول مجددًا.",
+    siteOldPlugin: "إضافة Yallapp على موقعك قديمة لا ترسل الحملات. حدّثها من WordPress، ثم حاول مجددًا.",
+    siteSent: "أُرسلت إلى موقعك: هي في صندوق إشعارات الجميع، ويصل الإشعار إلى هواتف {people} شخص. تظهر الأرقام هنا حين ينتهي موقعك من إرسالها.",
   },
 };
 
@@ -312,6 +325,8 @@ export const tr: Strings<typeof en> = {
   delete: "Sil<sr> “{title}”</sr>",
   history: "Gönderimler",
   sentOn: "{date}",
+  siteWaiting: "Web siteniz bildirimi hâlâ gönderiyor; bitince sayıları burada görünür.",
+  wordpressAudience: "Web siteniz kampanyaları uygulamayı kullanan herkese gönderir: telefonlarını o tutar.",
   autoTitle: "Otomatik bildirimler",
   autoIntro: "Uygulamanız bunları kendiliğinden, her kişinin dilinde, gelen kutusuna ve izin veren telefonlara gönderir. İstemediklerinizi kapatın.",
   autoNumbers: "Son 30 gün: {people} kişi · {opened} açılma",
@@ -354,5 +369,9 @@ export const tr: Strings<typeof en> = {
     inboxesOnly: "Gelen kutularına eklendi. Kişi: {people}. {error}",
     stoppedDone: "Durduruldu. Artık gönderilmez.",
     autoSaved: "Kaydedildi. Uygulamanız açık olanları gönderir.",
+    wordpressEveryone: "WordPress'teki uygulamalar kampanyaları uygulamayı kullanan herkese gönderir.",
+    siteFailed: "Web sitenize ulaşılamadı, bu yüzden hiçbir şey gönderilmedi. Açık olduğunu ve Yallapp eklentisinin etkin olduğunu kontrol edip tekrar deneyin.",
+    siteOldPlugin: "Web sitenizdeki Yallapp eklentisi kampanya göndermek için çok eski. WordPress'ten güncelleyip tekrar deneyin.",
+    siteSent: "Web sitenize gönderildi: herkesin gelen kutusunda ve bildirim {people} kişinin telefonuna gidiyor. Web siteniz gönderimi bitirince sayılar burada görünür.",
   },
 };

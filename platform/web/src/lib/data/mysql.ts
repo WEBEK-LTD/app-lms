@@ -3956,6 +3956,22 @@ export class MysqlStore implements DataStore {
     return { id: Number(result.insertId), ...input };
   }
 
+  async updateCampaignSend(appId: string, id: number, patch: Partial<Pick<CampaignSend, "notificationId" | "recipients" | "reportedAt">>): Promise<void> {
+    const t = schema.campaignSends;
+    await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async deleteCampaignSend(appId: string, id: number): Promise<void> {
+    const t = schema.campaignSends;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async reportCampaignSend(appId: string, id: number, numbers: { pushed: number; failed: number }, now: Date): Promise<boolean> {
+    const t = schema.campaignSends;
+    const [result] = await this.run((db) => db.update(t).set({ ...numbers, reportedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id), isNull(t.reportedAt))));
+    return result.affectedRows === 1;
+  }
+
   async listCampaignSends(appId: string, campaignIds: number[]): Promise<CampaignSend[]> {
     if (campaignIds.length === 0) return [];
     const t = schema.campaignSends;

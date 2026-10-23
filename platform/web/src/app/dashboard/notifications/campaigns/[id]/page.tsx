@@ -25,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
 /** 85.2 One campaign: how it did, each send, and what can be done with it now. */
 export default async function CampaignPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ notice?: string }> }) {
   const { app } = await requireClient("notifications");
-  if (!app || app.backend !== "hosted") redirect("/dashboard/notifications/campaigns");
+  if (!app || (app.backend !== "hosted" && app.backend !== "wordpress")) redirect("/dashboard/notifications/campaigns");
   const { t, k, lang } = await dashboardText();
   const id = Number((await params).id);
   const store = await getStore();

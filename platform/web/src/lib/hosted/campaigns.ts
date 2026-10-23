@@ -5,10 +5,11 @@ import type { DataStore } from "../data/store";
 import type { App, CampaignSend, License, NotificationCampaign } from "../data/types";
 import { appPlan } from "../entitlements";
 import { appIsActive } from "../license/status";
-import { yallappLinkBase } from "../links/table";
+import { sendCampaignToSite, type SiteDeps } from "../license/campaign-site";
+import { siteLinkBase, yallappLinkBase } from "../links/table";
 import { hasFeature } from "../plans";
 import { hitRateLimit, RATE_LIMITS, rateLimitHits } from "../rate-limit";
-import { parseAudience, resolveAudience, type AudienceError } from "./audiences";
+import { isEveryone, parseAudience, resolveAudience, type AudienceError } from "./audiences";
 import { announce, serviceAccountOf } from "./notify";
 import type { sendPush } from "./push";
 import { readSendAt } from "./scheduled-notifications";
@@ -47,6 +48,10 @@ export const CAMPAIGN_TEXTS = {
   image: "Choose a picture from your Media.",
   weekly: "Choose a day and a time.",
   audience: "Choose who gets it.",
+  // 85.4 WordPress apps: through the site.
+  wordpressEveryone: "Apps on WordPress send campaigns to everyone who uses the app.",
+  siteFailed: "Your website couldn't be reached, so nothing was sent. Check that it's online with the Yallapp plugin active, then try again.",
+  siteOldPlugin: "Your website's Yallapp plugin is too old to send campaigns. Update it in WordPress, then try again.",
 } as const;
 
 export type CampaignWhen = "draft" | "now" | "later" | "weekly";
@@ -78,6 +83,8 @@ export interface CampaignDeps {
   /** Yallapp's address (pictures and app links are on it). */
   platformUrl: string;
   send?: typeof sendPush;
+  /** 85.4 How WordPress sites are reached (tests: a fake fetch, or LICENSE_REFRESH_TEST_URL). */
+  site?: Pick<SiteDeps, "fetcher" | "resolve" | "testSiteUrl">;
 }
 
 /** The next time on a weekday (0 Sunday) at a local time, after `after`. */
@@ -97,7 +104,9 @@ function readLink(app: App, input: CampaignInput, platformUrl: string, pages: st
   if (input.open === "page") {
     const slug = typeof input.page === "string" ? input.page.trim() : "";
     if (!pages.includes(slug)) return { error: CAMPAIGN_TEXTS.page };
-    return { link: `${yallappLinkBase(platformUrl, app.id)}/page/${encodeURIComponent(slug)}` };
+    // 85.4 A WordPress app's links are on its site (`<site>/a`).
+    const base = (app.backend === "wordpress" ? siteLinkBase(app.siteUrl) : null) ?? yallappLinkBase(platformUrl, app.id);
+    return { link: `${base}/page/${encodeURIComponent(slug)}` };
   }
   if (input.open === "link") {
     const raw = typeof input.url === "string" ? input.url.trim() : "";
@@ -145,6 +154,8 @@ async function read(deps: CampaignDeps, app: App, input: CampaignInput, pages: s
   if ("error" in image) errors.image = image.error;
   const audience = parseAudience(input.audience, app);
   if (!audience.ok) errors.audience = AUDIENCE_MESSAGES[audience.error];
+  // 85.4 The site keeps its people: a WordPress app's campaign goes to everyone.
+  else if (app.backend === "wordpress" && !isEveryone(audience.audience)) errors.audience = CAMPAIGN_TEXTS.wordpressEveryone;
   const when: CampaignWhen = input.when === "now" || input.when === "later" || input.when === "weekly" ? input.when : "draft";
   const zone = await appZone(deps.store, app);
   let sendAt: Date | null = null;
@@ -217,19 +228,25 @@ export async function sendCampaignNow(deps: CampaignDeps, app: App, license: Lic
   const { store, now } = deps;
   if (campaign.status !== "draft") return { ok: false, message: CAMPAIGN_TEXTS.notWaiting };
   if (!(await appMaySend(store, app, now))) return { ok: false, inactive: true, message: PLAN_ENDED_MESSAGE, campaign };
-  const people = await resolveAudience(store, app, campaign.audience, now);
+  const people = app.backend === "wordpress" ? null : await resolveAudience(store, app, campaign.audience, now);
   if (people !== null && people.length === 0) return { ok: false, message: CAMPAIGN_TEXTS.nobody, campaign };
   const limit = await hitRateLimit(store, RATE_LIMITS.hostedNotify, app.id, now);
   if (!limit.allowed) return { ok: false, limited: true, message: CAMPAIGN_TEXTS.limited, campaign };
   if (!(await store.updateNotificationCampaign(app.id, campaign.id, "draft", { status: "sending", claimedAt: now, updatedAt: now }))) return { ok: false, message: CAMPAIGN_TEXTS.notWaiting };
   const send = await deliver(deps, app, license, campaign, people);
+  if (!send.row) {
+    // The site didn't take it: still a draft, to send again.
+    await store.updateNotificationCampaign(app.id, campaign.id, "sending", { status: "draft", claimedAt: null, result: send.message, updatedAt: now });
+    return { ok: false, message: send.message, campaign };
+  }
   await store.updateNotificationCampaign(app.id, campaign.id, "sending", { status: "sent", sendAt: null, lastSentAt: now, result: send.message, updatedAt: now });
   return { ok: true, campaign: (await store.getNotificationCampaign(app.id, campaign.id))!, send: send.row, message: send.message };
 }
 
-/** One send: the inbox notification, the push, its numbers. */
-async function deliver(deps: CampaignDeps, app: App, license: License | null, campaign: NotificationCampaign, people: number[] | null): Promise<{ row: CampaignSend; message: string }> {
+/** One send: the inbox notification, the push, its numbers (none when a WordPress site didn't take it). */
+async function deliver(deps: CampaignDeps, app: App, license: License | null, campaign: NotificationCampaign, people: number[] | null): Promise<{ row: CampaignSend | null; message: string }> {
   const { store, now } = deps;
+  if (app.backend === "wordpress") return deliverToSite(deps, app, campaign);
   // 13.1 Push comes with the plan; without it the notification still reaches the inboxes.
   const push = hasFeature(await appPlan(store, license, now), "push");
   const result = await announce({
@@ -253,9 +270,32 @@ async function deliver(deps: CampaignDeps, app: App, license: License | null, ca
     recipients,
     pushed: result.pushed,
     failed: Math.max(0, result.targets - result.pushed),
+    reportedAt: now,
   });
   const message = result.pushError ? `Added to the inboxes. People: ${recipients}. ${result.pushError}` : `Sent. People: ${recipients}. Phones the push reached: ${result.pushed}.`;
   return { row, message };
+}
+
+/**
+ * 85.4 A WordPress app's send: the site puts it in everyone's inbox and
+ * pushes it in batches, then reports the numbers (`reportCampaignSend`).
+ */
+async function deliverToSite(deps: CampaignDeps, app: App, campaign: NotificationCampaign): Promise<{ row: CampaignSend | null; message: string }> {
+  const { store, now } = deps;
+  const row = await store.createCampaignSend({ campaignId: campaign.id, appId: app.id, notificationId: 0, sentAt: now, recipients: 0, pushed: 0, failed: 0, reportedAt: null });
+  const answer = await sendCampaignToSite(
+    { store, key: deps.key, now, ...deps.site },
+    app,
+    { send_id: row.id, title: campaign.title, body: campaign.body, link: campaign.link, image_url: campaign.imageUrl },
+  );
+  if (!answer.ok) {
+    await store.deleteCampaignSend(app.id, row.id);
+    return { row: null, message: answer.reason === "old_plugin" ? CAMPAIGN_TEXTS.siteOldPlugin : CAMPAIGN_TEXTS.siteFailed };
+  }
+  // Nothing to push (push off on the site, or no phone with a token): no report will come.
+  const patch = { notificationId: answer.notificationId, recipients: answer.people, ...(answer.batches === 0 ? { reportedAt: now } : {}) };
+  await store.updateCampaignSend(app.id, row.id, patch);
+  return { row: { ...row, ...patch }, message: `Sent to your website: it's in everyone's inbox, and the push goes to ${answer.people} people's phones. The numbers show here once your website has sent it.` };
 }
 
 /** Stops a weekly campaign, or takes one waiting back to a draft (nothing goes out). */
@@ -281,6 +321,8 @@ export interface CampaignStats {
   /** Phones that opened it from the notification (analytics, counted each night). */
   opened: number;
   lastSentAt: Date | null;
+  /** 85.4 Sends a WordPress site hasn't reported yet. */
+  waiting: number;
 }
 
 /** Each campaign's numbers, summed over its sends. */
@@ -289,7 +331,7 @@ export async function campaignStats(store: DataStore, app: App, campaigns: Notif
     app.id,
     campaigns.map((c) => c.id),
   );
-  const stats = new Map<number, CampaignStats>(campaigns.map((c) => [c.id, { sends: 0, recipients: 0, pushed: 0, failed: 0, opened: 0, lastSentAt: null }]));
+  const stats = new Map<number, CampaignStats>(campaigns.map((c) => [c.id, { sends: 0, recipients: 0, pushed: 0, failed: 0, opened: 0, lastSentAt: null, waiting: 0 }]));
   if (sends.length === 0) return stats;
   const zone = await appZone(store, app);
   const first = sends.reduce((min, s) => (s.sentAt < min ? s.sentAt : min), sends[0]!.sentAt);
@@ -302,6 +344,7 @@ export async function campaignStats(store: DataStore, app: App, campaigns: Notif
     entry.recipients += send.recipients;
     entry.pushed += send.pushed;
     entry.failed += send.failed;
+    if (send.reportedAt === null) entry.waiting += 1;
     entry.opened += opens.get(`id:${send.notificationId}`) ?? 0;
     if (!entry.lastSentAt || send.sentAt > entry.lastSentAt) entry.lastSentAt = send.sentAt;
   }
@@ -326,7 +369,7 @@ export async function runCampaigns(deps: CampaignDeps): Promise<CampaignRunRepor
     const fail = async (result: string) => {
       if (await store.updateNotificationCampaign(due.appId, due.id, "scheduled", { status: "failed", sendAt: null, result, updatedAt: now })) report.failed += 1;
     };
-    if (!app || app.backend !== "hosted") {
+    if (!app || (app.backend !== "hosted" && app.backend !== "wordpress")) {
       await fail(CAMPAIGN_TEXTS.noLongerHosted);
       continue;
     }
@@ -348,7 +391,7 @@ export async function runCampaigns(deps: CampaignDeps): Promise<CampaignRunRepor
       continue;
     }
     if (!(await store.updateNotificationCampaign(app.id, due.id, "scheduled", { status: "sending", claimedAt: now, updatedAt: now }))) continue;
-    const people = await resolveAudience(store, app, due.audience, now);
+    const people = app.backend === "wordpress" ? null : await resolveAudience(store, app, due.audience, now);
     const next = due.repeat === "weekly" && due.weekday !== null && due.time ? nextWeekly(due.weekday, due.time, await appZone(store, app), now) : null;
     if (people !== null && people.length === 0) {
       // Nobody this time: a weekly one tries again next week.
@@ -358,6 +401,12 @@ export async function runCampaigns(deps: CampaignDeps): Promise<CampaignRunRepor
     }
     await hitRateLimit(store, RATE_LIMITS.hostedNotify, app.id, now);
     const send = await deliver(deps, app, license, due, people);
+    if (!send.row) {
+      // The site didn't take it: a weekly one tries next week; one sent later fails, with why.
+      await store.updateNotificationCampaign(app.id, due.id, "sending", next ? { status: "scheduled", sendAt: next, claimedAt: null, result: send.message, updatedAt: now } : { status: "failed", sendAt: null, result: send.message, updatedAt: now });
+      report.failed += 1;
+      continue;
+    }
     await store.updateNotificationCampaign(
       app.id,
       due.id,
