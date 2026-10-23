@@ -47,13 +47,13 @@ import {
   type ScreenshotKind,
 } from "@/lib/store-files";
 import { bumpPatch } from "@/lib/semver";
-import { designById, designFits } from "@/lib/pages/designs";
 import { appDefaults, saveDesignDraft, saveDraft } from "@/lib/pages/layout";
 import { draftFromScan } from "@/lib/scan/draft";
 import { scanSite, ScanError, type SiteScan } from "@/lib/scan/site-scan";
 import { siteImages, siteScanDeps } from "@/lib/scan/start";
 import { appStoreKeySchema, brandingSchema, googlePlayKeySchema, listingSchema, startBuildSchema, websiteSchema } from "@/lib/validation";
 import { noteMilestones } from "@/lib/milestones/record";
+import { designFitsApp, findDesign } from "@/lib/pages/designs/catalog";
 
 /** Active client with an app, or a redirect. Expired plans can still edit their setup but not build. */
 async function requireActiveClient(permission: TeamPermission): Promise<ClientContext> {
@@ -588,8 +588,8 @@ export async function saveBrandingAction(_: FormState, formData: FormData): Prom
   }
   // 33 A ready-made design for the app's kind, or "" to keep the pages as they are.
   const designId = String(formData.get("design") ?? "");
-  const design = designId ? designById(designId) : null;
-  if (designId && (!design || !designFits(design, context.app))) return { errors: { design: "Choose one of the designs shown." }, values };
+  const design = designId ? await findDesign(store, designId) : null;
+  if (designId && (!design || !(await designFitsApp(store, design, context.app)))) return { errors: { design: "Choose one of the designs shown." }, values };
   const now = new Date();
   const patch: AppPatch = {
     appName: parsed.data.appName,

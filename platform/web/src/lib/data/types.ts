@@ -1,6 +1,7 @@
 import type { Plan, PlanSetting } from "../plans";
 import type { BuildConfig } from "../build-config/types";
 import type { AppDefaultsSetting, Layout, LayoutBlock, LayoutContent } from "../pages/types";
+import type { Design } from "../pages/designs/build";
 import type { AdminRole } from "../admin/permissions";
 import type { YallappPrice } from "../billing/prices";
 
@@ -1753,6 +1754,16 @@ export interface SwitchesSetting {
 /** Merged into the settings above. */
 export interface PlatformSettingValues {
   switches: SwitchesSetting;
+}
+
+/** 84.4 The team's designs (Admin › Designs): its own, and the built-in ones it hid. */
+export interface DesignsSetting {
+  custom: Design[];
+  hidden: string[];
+}
+
+export interface PlatformSettingValues {
+  designs: DesignsSetting;
 }
 
 /** 62 The daily job's look at the media folders: folders of apps that no longer exist, and when each was first seen (lib/media/sweep.ts). */

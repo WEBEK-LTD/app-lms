@@ -5,12 +5,12 @@ import { redirect } from "next/navigation";
 import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { App, AppLayoutRecord, SavedSection } from "@/lib/data/types";
-import { designById, designFits } from "@/lib/pages/designs";
 import { discardDraft, hasUnpublishedChanges, layoutHistory, publishLayout, restoreLayoutVersion, saveDesignDraft, saveDraft, withoutStrings, type LayoutHistoryEntry } from "@/lib/pages/layout";
 import { saveSection, type SaveSectionError } from "@/lib/pages/sections";
 import type { LayoutContent } from "@/lib/pages/types";
 import { appPlan } from "@/lib/entitlements";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
+import { designFitsApp, findDesign } from "@/lib/pages/designs/catalog";
 
 // 10.4 The page and look editor's saves: the draft, publishing and discarding it.
 
@@ -103,8 +103,8 @@ export async function restoreLayoutVersionAction(number: number): Promise<Layout
 export async function applyDesignAction(designId: string, paletteId?: string): Promise<LayoutSaveResult & { samples?: Record<string, string> }> {
   const { app } = await requireLayoutApp();
   const store = await getStore();
-  const design = designById(designId);
-  if (!design || !designFits(design, app)) return { ok: false, errors: ["This design isn't available for your app. Choose another one."] };
+  const design = await findDesign(store, designId);
+  if (!design || !(await designFitsApp(store, design, app))) return { ok: false, errors: ["This design isn't available for your app. Choose another one."] };
   // 84.2 With one of its colours: the second colour in the look, and the main colour too when it has one.
   const palette = paletteId ? design.palettes?.find((p) => p.id === paletteId) : undefined;
   if (paletteId && !palette) return { ok: false, errors: ["Choose one of the colours shown."] };

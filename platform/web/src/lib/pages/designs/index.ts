@@ -39,7 +39,7 @@ export const DESIGNS: readonly Design[] = [
  * (those it lacks are added), in the side menu with the pages it has that
  * no tab opens; and colours to choose from: its own, then two of PALETTES.
  */
-function withCompanyPages(design: Design, index: number): Design {
+export function withCompanyPages(design: Design, index: number): Design {
   const pages = [...design.pages];
   if (!pages.some((p) => p.slug === "about")) pages.push(aboutPage());
   if (!pages.some((p) => p.slug === "contact")) pages.push(contactPage());

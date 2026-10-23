@@ -27,10 +27,10 @@ import { BrandingStep, ListingStep, PublishingStep, WebsiteStep, type BrandingDe
 import { CheckLinksPanel } from "../publishing/links/forms";
 import type { DataStore } from "@/lib/data/store";
 import type { App } from "@/lib/data/types";
-import { designById, designFits, designsFor } from "@/lib/pages/designs";
 import { designLayout, loadLayout } from "@/lib/pages/layout";
 import { getPlans, platformSetting } from "@/lib/settings/platform";
 import { getSwitches, noWebsiteFor, websiteOf, websiteOn } from "@/lib/switches";
+import { designFitsApp, designsForApp, findDesign } from "@/lib/pages/designs/catalog";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("setup.title") };
@@ -308,10 +308,11 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
 async function brandingDesigns(store: DataStore, app: App): Promise<Pick<BrandingDesigns, "designs" | "current" | "design">> {
   const now = new Date();
   const record = await loadLayout(store, app, now);
-  const chosen = designById(app.design);
+  // 84.4 The built-in designs and the team's.
+  const chosen = await findDesign(store, app.design);
   return {
-    designs: designsFor(app).map((d) => ({ id: d.id, name: d.name, description: d.description, layout: designLayout(app, d, record.draft, now) })),
+    designs: (await designsForApp(store, app)).map((d) => ({ id: d.id, name: d.name, description: d.description, layout: designLayout(app, d, record.draft, now) })),
     current: record.draft,
-    design: chosen && designFits(chosen, app) ? chosen.id : null,
+    design: chosen && (await designFitsApp(store, chosen, app)) ? chosen.id : null,
   };
 }

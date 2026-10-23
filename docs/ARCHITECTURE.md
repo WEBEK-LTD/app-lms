@@ -2741,6 +2741,16 @@ them under Publish history, marking the one in the app; "Use as draft"
 with the draft's own interface strings; what's published stays until the
 owner publishes.
 
+### The team's designs (84.4)
+
+Owners choose from the design catalogue (`lib/pages/designs/catalog.ts`):
+the built-in designs the team didn't hide, then the team's own (the
+`designs` platform setting). The team makes one in Admin › Designs from an
+app's draft (`lib/pages/designs/team.ts`): its tabs, side menu, pages and
+look, for that app's kind, checked like a publish, without the app's
+hand-picked list entries; and renames, describes or deletes it, or hides a
+built-in one. Apps that used a design keep their pages.
+
 ### Saved sections (84.3)
 
 An account's saved sections (`saved_sections`, `lib/pages/sections.ts`):
