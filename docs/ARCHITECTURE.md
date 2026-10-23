@@ -2741,6 +2741,16 @@ them under Publish history, marking the one in the app; "Use as draft"
 with the draft's own interface strings; what's published stays until the
 owner publishes.
 
+### Saved sections (84.3)
+
+An account's saved sections (`saved_sections`, `lib/pages/sections.ts`):
+blocks of a page saved together under a name, checked as a page of the app
+they came from (the same validator as publishing), at most 10 blocks and 30
+sections an account. "Your sections" in Add a block adds copies with new
+IDs to a page of any of the account's apps, leaving out the block types that
+app doesn't have (`lib/pages/section-blocks.ts`); the draft's own check
+flags the rest. They go with the account (the rows cascade with the client).
+
 ### Designs with several pages, colours and pictures (84.2)
 
 Every design (`lib/pages/designs`, `withCompanyPages`) has an About us and

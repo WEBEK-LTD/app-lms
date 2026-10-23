@@ -8,7 +8,7 @@ import { clientAccountState, longestLicense } from "../license/status";
 import type { BuildConfig } from "../build-config/types";
 import * as schema from "../db/schema";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
-import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary } from "./types";
+import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, SavedSection } from "./types";
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
@@ -2699,6 +2699,23 @@ export class MysqlStore implements DataStore {
     const t = schema.appLayoutVersions;
     const rows = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.number, number))).limit(1));
     return rows[0] ?? null;
+  }
+
+  // 84.3 Saved sections
+
+  async listSavedSections(clientId: string): Promise<SavedSection[]> {
+    const t = schema.savedSections;
+    return this.run((db) => db.select().from(t).where(eq(t.clientId, clientId)).orderBy(desc(t.createdAt)));
+  }
+
+  async createSavedSection(section: SavedSection): Promise<void> {
+    await this.run((db) => db.insert(schema.savedSections).values(section));
+  }
+
+  async deleteSavedSection(clientId: string, id: string): Promise<boolean> {
+    const t = schema.savedSections;
+    const [result] = await this.run((db) => db.delete(t).where(and(eq(t.clientId, clientId), eq(t.id, id))));
+    return result.affectedRows > 0;
   }
 
   // 11.7 Admin team and audit log

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type DragEvent } from "react";
-import { applyDesignAction, discardLayoutDraftAction, publishLayoutAction, restoreLayoutVersionAction, saveLayoutDraftAction, type LayoutSaveResult } from "@/app/actions/pages";
+import { applyDesignAction, deleteSectionAction, discardLayoutDraftAction, publishLayoutAction, restoreLayoutVersionAction, saveLayoutDraftAction, saveSectionAction, type LayoutSaveResult, type SectionView } from "@/app/actions/pages";
+import { sectionBlocks } from "@/lib/pages/section-blocks";
 import type { LayoutHistoryEntry } from "@/lib/pages/layout";
 import { Badge, btn, formatDateTime } from "@/components/ui";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
@@ -133,6 +134,7 @@ export function PagesEditor({
   blockTypes,
   pickable,
   versions,
+  sections: savedSections,
   reach,
   plan,
   ready,
@@ -160,6 +162,8 @@ export function PagesEditor({
   pickable: Pickable;
   /** 83.2 The app's versions on people's phones, to say who won't see a block until they update. */
   versions: AppVersionCount[];
+  /** 84.3 The account's saved sections, newest first. */
+  sections: SectionView[];
   reach: string | null;
   plan: EditorPlan;
   /** The ready-made pages and tabs the app gets without the full page editor. */
@@ -449,6 +453,50 @@ export function PagesEditor({
     const block = newBlock(type, sources, screens);
     updateBlocks(page.slug, (blocks) => (at === undefined ? [...blocks, block] : [...blocks.slice(0, at), block, ...blocks.slice(at)]));
     setOpenBlock(block.id);
+  }
+
+  // 84.3 Saved sections
+
+  const [sections, setSections] = useState(savedSections);
+  const [sectionPick, setSectionPick] = useState<string[]>([]);
+  const [sectionName, setSectionName] = useState("");
+  const SECTION_ERRORS = { name: "pages.sectionErrName", blocks: "pages.sectionErrBlocks", too_many_blocks: "pages.sectionErrTooMany", limit: "pages.sectionErrLimit", invalid: "pages.sectionErrInvalid" } as const;
+
+  async function saveSectionNow() {
+    if (!page) return;
+    const chosen = page.blocks.filter((b) => sectionPick.includes(b.id));
+    if (!sectionName.trim()) return setMessage({ text: t("pages.sectionErrName"), ok: false });
+    if (!chosen.length) return setMessage({ text: t("pages.sectionErrBlocks"), ok: false });
+    setBusy(true);
+    try {
+      const r = await saveSectionAction(sectionName, JSON.stringify(chosen));
+      if (r.ok) {
+        setSections((list) => [r.section, ...list]);
+        setSectionPick([]);
+        setSectionName("");
+        setMessage({ text: t("pages.sectionSaved"), ok: true });
+      } else {
+        setMessage({ text: r.error === "invalid" && r.detail ? known(r.detail) : t(SECTION_ERRORS[r.error]), ok: false });
+      }
+    } catch {
+      setMessage({ text: t("pages.cantSave"), ok: false });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function addSection(section: SectionView) {
+    if (!page) return;
+    const { blocks, left } = sectionBlocks(section, blockTypes);
+    if (page.blocks.length + blocks.length > LAYOUT_LIMITS.maxBlocks) return setMessage({ text: t("pages.maxBlocks", { max: LAYOUT_LIMITS.maxBlocks }), ok: false });
+    updateBlocks(page.slug, (list) => [...list, ...blocks]);
+    setMessage({ text: left ? t("pages.sectionPartly") : t("pages.sectionAdded"), ok: true });
+  }
+
+  async function removeSection(section: SectionView) {
+    if (!window.confirm(t("pages.deleteSectionConfirm", { name: section.name }))) return;
+    const r = await deleteSectionAction(section.id);
+    if (r.ok) setSections((list) => list.filter((s) => s.id !== section.id));
   }
 
   /** 82.2 A block clicked on the phone: open in the list, in view. */
@@ -818,7 +866,56 @@ export function PagesEditor({
                   <p className="m-0 text-[15px] text-muted">{t("pages.noBlocks")}</p>
                 )}
 
+                {/* 84.3 Blocks of this page saved together, for any page of the account's apps. */}
+                {page.blocks.length ? (
+                  <details className="rounded-xl border border-line p-3">
+                    <summary className="cursor-pointer text-[15px] font-semibold">{t("pages.saveSection")}</summary>
+                    <div className="mt-3 flex flex-col gap-3">
+                      <p className="m-0 text-sm text-ink-4">{t("pages.saveSectionText")}</p>
+                      <fieldset className="m-0 flex flex-col gap-1.5 border-0 p-0">
+                        <legend className="sr-only">{t("pages.blocks")}</legend>
+                        {page.blocks.map((block) => (
+                          <Check
+                            key={block.id}
+                            label={`${known(BLOCK_LABELS[block.type])}${summary(translated(block, lang.edit, def)) ? `: ${summary(translated(block, lang.edit, def))}` : ""}`}
+                            checked={sectionPick.includes(block.id)}
+                            onChange={(on) => setSectionPick((list) => (on ? [...list, block.id] : list.filter((id) => id !== block.id)))}
+                          />
+                        ))}
+                      </fieldset>
+                      <TextInput id="section-name" label={t("pages.sectionName")} value={sectionName} max={60} onChange={setSectionName} />
+                      <button type="button" className={`${btn.secondary} h-9 self-start px-3 text-sm`} disabled={busy} onClick={() => void saveSectionNow()}>
+                        {t("pages.saveSectionButton")}
+                      </button>
+                    </div>
+                  </details>
+                ) : null}
+
                 <h3 className="m-0 text-base font-bold">{t("pages.addBlock")}</h3>
+                {sections.length ? (
+                  <div className="flex flex-col gap-2">
+                    <h4 className="m-0 text-xs font-bold tracking-[0.5px] text-muted uppercase">{t("pages.yourSections")}</h4>
+                    <p className="m-0 text-xs text-muted">{t("pages.yourSectionsText")}</p>
+                    <ul className="m-0 flex list-none flex-col gap-2 p-0" aria-label={t("pages.yourSections")}>
+                      {sections.map((section) => (
+                        <li key={section.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line px-3 py-2">
+                          <span className="flex min-w-0 flex-col">
+                            <span className="truncate text-[15px] font-semibold">{section.name}</span>
+                            <span className="text-xs text-muted">{t("pages.sectionCount", { count: section.blocks.length })}</span>
+                          </span>
+                          <span className="flex gap-2">
+                            <button type="button" className={smallBtn} aria-label={t("pages.addSection", { name: section.name })} onClick={() => addSection(section)}>
+                              {t("common.add")}
+                            </button>
+                            <button type="button" className={`${btn.danger} h-9 px-3 text-sm`} aria-label={t("pages.deleteSection", { name: section.name })} onClick={() => void removeSection(section)}>
+                              {t("common.delete")}
+                            </button>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
                 {/* 33 In groups, each block with its icon and what it's for. */}
                 {BLOCK_GROUPS.map((group) => {
                   const types = group.types.filter((type) => blockTypes.includes(type));

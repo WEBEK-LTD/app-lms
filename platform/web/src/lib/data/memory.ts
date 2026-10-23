@@ -2,7 +2,7 @@ import { clientAccountState, longestLicense } from "../license/status";
 import { newId } from "../crypto/tokens";
 import { membershipActive, membershipFreezeSet, membershipToUse } from "../bookings/memberships";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
-import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, PendingPayment } from "./types";
+import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, PendingPayment, SavedSection } from "./types";
 import type {
   AppPatch,
   BuildPatch,
@@ -2068,6 +2068,24 @@ export class MemoryStore implements DataStore {
   async getLayoutVersion(appId: string, number: number): Promise<AppLayoutVersion | null> {
     const version = (this.layoutVersions.get(appId) ?? []).find((v) => v.number === number);
     return version ? clone(version) : null;
+  }
+
+  // 84.3 Saved sections
+
+  private savedSections: SavedSection[] = [];
+
+  async listSavedSections(clientId: string): Promise<SavedSection[]> {
+    return this.savedSections.filter((s) => s.clientId === clientId).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).map(clone);
+  }
+
+  async createSavedSection(section: SavedSection): Promise<void> {
+    this.savedSections.push(clone(section));
+  }
+
+  async deleteSavedSection(clientId: string, id: string): Promise<boolean> {
+    const before = this.savedSections.length;
+    this.savedSections = this.savedSections.filter((s) => !(s.clientId === clientId && s.id === id));
+    return this.savedSections.length < before;
   }
 
 

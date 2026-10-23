@@ -1,6 +1,6 @@
 import type { Plan, PlanSetting } from "../plans";
 import type { BuildConfig } from "../build-config/types";
-import type { AppDefaultsSetting, Layout, LayoutContent } from "../pages/types";
+import type { AppDefaultsSetting, Layout, LayoutBlock, LayoutContent } from "../pages/types";
 import type { AdminRole } from "../admin/permissions";
 import type { YallappPrice } from "../billing/prices";
 
@@ -1672,6 +1672,17 @@ export interface AppLayoutVersion {
 
 /** 82.4 A publish in the history list, without its layout. */
 export type AppLayoutVersionSummary = Omit<AppLayoutVersion, "layout">;
+
+/** 84.3 Blocks an account saved together, to add again to any page of its apps. */
+export interface SavedSection {
+  id: string;
+  clientId: string;
+  name: string;
+  blocks: LayoutBlock[];
+  createdAt: Date;
+  /** Email of whoever saved it. */
+  createdBy: string | null;
+}
 
 // 11.7 Admin team and audit log
 

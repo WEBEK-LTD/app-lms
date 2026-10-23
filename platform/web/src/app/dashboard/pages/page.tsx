@@ -122,6 +122,7 @@ export default async function PagesPage({ searchParams }: PageProps<"/dashboard/
         blockTypes={blockTypesFor(app)}
         pickable={pickable}
         versions={await appVersionsInUse(store, app.id, now)}
+        sections={(await store.listSavedSections(app.clientId)).map(({ id, name, blocks }) => ({ id, name, blocks }))}
         reach={reach}
         plan={{
           name: plan?.name ?? "",

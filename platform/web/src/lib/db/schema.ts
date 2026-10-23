@@ -61,7 +61,7 @@ import type {
 // 11.6 and 11.8
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
 import type { Plan } from "../plans";
-import type { Layout, LayoutContent } from "../pages/types";
+import type { Layout, LayoutBlock, LayoutContent } from "../pages/types";
 import type { AdminRole } from "../admin/permissions";
 import {
   type AnyMySqlColumn,
@@ -1175,6 +1175,22 @@ export const appLayoutVersions = mysqlTable(
     publishedBy: varchar("published_by", { length: 191 }),
   },
   (t) => [primaryKey({ columns: [t.appId, t.number] })],
+);
+
+// 84.3 Saved sections: blocks an account saved together, for any page of its apps.
+export const savedSections = mysqlTable(
+  "saved_sections",
+  {
+    id: id("id").primaryKey(),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 60 }).notNull(),
+    blocks: jsonText<LayoutBlock[]>("blocks").notNull(),
+    createdAt: time("created_at").notNull(),
+    createdBy: varchar("created_by", { length: 191 }),
+  },
+  (t) => [index("saved_sections_client_idx").on(t.clientId, t.createdAt)],
 );
 
 // 11.7 Admin team and audit log

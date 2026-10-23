@@ -4,9 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
-import type { App, AppLayoutRecord } from "@/lib/data/types";
+import type { App, AppLayoutRecord, SavedSection } from "@/lib/data/types";
 import { designById, designFits } from "@/lib/pages/designs";
 import { discardDraft, hasUnpublishedChanges, layoutHistory, publishLayout, restoreLayoutVersion, saveDesignDraft, saveDraft, withoutStrings, type LayoutHistoryEntry } from "@/lib/pages/layout";
+import { saveSection, type SaveSectionError } from "@/lib/pages/sections";
 import type { LayoutContent } from "@/lib/pages/types";
 import { appPlan } from "@/lib/entitlements";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
@@ -120,4 +121,27 @@ export async function discardLayoutDraftAction(): Promise<LayoutSaveResult> {
   const { app } = await requireLayoutApp();
   const record = await discardDraft(await getStore(), app, new Date());
   return result(record, record.published ? "Draft discarded. You're back to the published pages." : "Draft discarded. You're back to the starting pages.");
+}
+
+/** 84.3 A saved section as the editor gets it. */
+export type SectionView = Pick<SavedSection, "id" | "name" | "blocks">;
+
+/** 84.3 Saves blocks of a page together as a section, for any page of the account's apps. */
+export async function saveSectionAction(name: string, blocksJson: string): Promise<{ ok: true; section: SectionView } | { ok: false; error: SaveSectionError; detail?: string }> {
+  const { app, user, staff } = await requireLayoutApp();
+  let blocks: unknown = null;
+  try {
+    blocks = JSON.parse(blocksJson);
+  } catch {
+    return { ok: false, error: "blocks" };
+  }
+  const saved = await saveSection(await getStore(), app, { name, blocks }, (staff ?? user).email, new Date());
+  if (!saved.ok) return saved;
+  return { ok: true, section: { id: saved.section.id, name: saved.section.name, blocks: saved.section.blocks } };
+}
+
+/** 84.3 Deletes one of the account's saved sections. */
+export async function deleteSectionAction(id: string): Promise<{ ok: boolean }> {
+  const { app } = await requireLayoutApp();
+  return { ok: typeof id === "string" && (await (await getStore()).deleteSavedSection(app.clientId, id)) };
 }

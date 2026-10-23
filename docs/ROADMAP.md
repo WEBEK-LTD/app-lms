@@ -1989,7 +1989,7 @@ knowing.
 |---|---|---|
 | [x] | 84.1 Services and companies: a new kind with its designs. The `services` vertical on the bookings engine (cleaning, repairs, consultancies, agencies): in the app type picker, the contracts, the plugin and the app; three designs with About us, Offers and Contact pages as well as the home page; its Solutions page and the counts on the website in en/ar/tr; the site scan suggests it | `kinds.test.ts`, `designs.test.ts`, `translations.test.ts`, `site-scan.test.ts`, `vertical_test.dart` |
 | [x] | 84.2 Designs with several pages (about, contact, offers) and colour palettes; pictures for the designs (33.8). Every design has About us and Contact pages (the services designs Offers too), in the side menu when no tab opens them; three colours to choose on each design's card (its own, then two of six palettes), the main colour going to the app too; Yallapp's picture library (plain shapes in the palettes' colours, `public/design-pictures`) in "Choose from Media" for slides, banners and images | `design-pages.test.ts`, `designs.test.ts`, `designs.spec.ts` |
-| [ ] | 84.3 Saved sections: save blocks as a section and reuse them in other pages and apps | e2e |
+| [x] | 84.3 Saved sections: save blocks as a section and reuse them in other pages and apps. On a page, "Save blocks as a section" keeps the chosen blocks under a name (checked like a publish; up to 10 blocks, 30 sections an account, `saved_sections`, migration 0063); "Your sections" in Add a block adds copies to any page of the account's apps, without the blocks that app doesn't have | `sections.test.ts` (memory and MariaDB), `live-editor.spec.ts` |
 | [ ] | 84.4 The team adds and edits designs in the admin | e2e |
 
 ## Phase 85: Notification campaigns (area 5)
