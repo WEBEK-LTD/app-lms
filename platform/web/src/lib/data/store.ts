@@ -81,7 +81,7 @@ import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 // 61
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
-import type { CampaignSend, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
+import type { CampaignSend, HostedCart, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 // 66 Deleting a Yallapp account
 import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatus } from "./types";
 // 73 Deleting an app, and the billing records kept when an account goes
@@ -957,6 +957,16 @@ export interface DataStore {
   listStaleScheduledNotifications(before: Date): Promise<ScheduledNotification[]>;
   /** Changes it only while its status is `expect` (atomic); false otherwise, with nothing changed. */
   updateScheduledNotification(appId: string, id: number, expect: ScheduledNotificationStatus, patch: ScheduledNotificationPatch): Promise<boolean>;
+
+  // 85.3 Automatic notifications
+  /** Takes one automatic notice for a person (its kind and what it's about); false when it was already sent. */
+  claimAutoNotice(input: { appId: string; kind: string; ref: string; userId: number; now: Date }): Promise<boolean>;
+  /** The app says how many items are in a person's cart (0: empty). */
+  saveHostedCart(appId: string, userId: number, items: number, now: Date): Promise<void>;
+  /** Carts with items that last changed in [after, before) and weren't reminded since, every app's, oldest first. */
+  listLeftHostedCarts(after: Date, before: Date, limit: number): Promise<HostedCart[]>;
+  /** Marks a cart reminded, unless it changed after `seenAt`; false then. */
+  markHostedCartReminded(appId: string, userId: number, seenAt: Date, now: Date): Promise<boolean>;
 
   // 85.2 Notification campaigns
   createNotificationCampaign(input: Omit<NotificationCampaign, "id">): Promise<NotificationCampaign>;

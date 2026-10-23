@@ -490,6 +490,10 @@ abstract class YallappApi {
     String? language,
   });
 
+  /// 85.3 How many items the cart holds, for "You left something in your
+  /// cart" (`PUT /me/cart`); a 404 means the server doesn't keep it.
+  Future<void> setCart(int items);
+
   Future<List<Category>> listCategories();
   Future<Paged<CourseSummary>> listCourses(CourseQuery query);
   Future<CourseDetail> getCourse(int courseId);
@@ -1311,6 +1315,10 @@ class HttpYallappApi implements YallappApi {
   @override
   Future<void> markNotificationsRead() =>
       _send('POST', '/me/notifications/read', _required, _ignore);
+
+  @override
+  Future<void> setCart(int items) =>
+      _send('PUT', '/me/cart', _required, _ignore, body: {'items': items});
 
   @override
   Future<ChatSession> startChatSession() => _send(

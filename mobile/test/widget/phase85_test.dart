@@ -7,6 +7,7 @@ import 'package:yallapp/core/routing/paths.dart';
 import 'package:yallapp/core/services/external_links.dart';
 import 'package:yallapp/core/services/push_service.dart';
 import 'package:yallapp/core/widgets/common.dart';
+import 'package:yallapp/modules/store/data/cart_controller.dart';
 
 import '../support/fake_api.dart';
 import '../support/fixtures.dart';
@@ -87,5 +88,56 @@ void main() {
     expect(opened, [_web]);
     expect(tester.takeException(), isNull);
     expect(find.byType(Scaffold), findsWidgets);
+  });
+
+  test('85.3 the app\'s own notifications open their screens', () {
+    expect(
+      pushTargetLocation({
+        'type': 'appointment_reminder',
+        'appointment_id': '41',
+      }),
+      '/appointment/41',
+    );
+    expect(
+      pushTargetLocation({'type': 'appointment_confirmed'}),
+      Paths.appointments,
+    );
+    expect(pushTargetLocation({'type': 'class_soon'}), Paths.classes);
+    expect(
+      pushTargetLocation({'type': 'event_soon', 'event_id': '7'}),
+      '/event/7',
+    );
+    expect(
+      pushTargetLocation({'type': 'membership_ending'}),
+      Paths.memberships,
+    );
+    expect(pushTargetLocation({'type': 'cart_left'}), Paths.cart);
+    expect(pushTargetLocation({'type': 'study_reminder'}), Paths.myCourses);
+    final inbox = InboxNotification.fromJson({
+      ...notificationJson(),
+      'type': 'appointment_confirmed',
+      'appointment_id': 41,
+    });
+    expect(inbox.type, NotificationType.appointmentConfirmed);
+    expect(pushTargetLocation(inbox.target), '/appointment/41');
+  });
+
+  testWidgets('85.3 the cart tells the server how many items it holds', (
+    tester,
+  ) async {
+    final api = FakeApi();
+    final app = TestApp(signedIn: true, appType: AppType.store, api: api);
+    await app.pump(tester);
+    final cart = app.container.read(cartProvider.notifier);
+    cart.add(const CartItem(productId: 1, quantity: 2, name: 'Tulips'));
+    await tester.pump();
+    cart.add(const CartItem(productId: 2, quantity: 1, name: 'Roses'));
+    await tester.pump();
+    // The same count isn't sent twice; an empty cart is.
+    cart.setQuantity(app.container.read(cartProvider).first.key, 2);
+    await tester.pump();
+    cart.clear();
+    await tester.pump();
+    expect(api.carts, [2, 3, 0]);
   });
 }

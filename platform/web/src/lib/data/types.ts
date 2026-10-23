@@ -236,6 +236,8 @@ export interface HostedSettings {
    * from it (81.3).
    */
   siteBrand?: SiteBrandReport | null;
+  /** 85.3 The automatic notifications the owner turned off (`lib/hosted/auto-notifications.ts`); missing ones are on. */
+  autoNotifications?: Partial<Record<string, boolean>> | null;
   /** 83.4 The versions of the plugin's adapters the site uses (`SiteInfo.adapters`): lms, bookings, store. */
   siteAdapters?: Partial<Record<"lms" | "bookings" | "store", string>> | null;
   /**
@@ -696,8 +698,10 @@ export interface HostedNotification {
   link?: string | null;
   /** 85.2 Its picture, a full address. */
   imageUrl?: string | null;
-  /** 85.2 To the people in `hosted_notification_recipients` only (a campaign's audience), not everyone. */
+  /** 85.2 To the people in `notice_recipients` only (a campaign's audience), not everyone. */
   targeted?: boolean;
+  /** 85.3 An automatic notification's type and what it opens (`type`, `course_id`, `appointment_id`…), as its push carries them. */
+  data?: Record<string, string> | null;
   createdAt: Date;
 }
 
@@ -2571,6 +2575,18 @@ export interface ScheduledNotification {
 }
 
 export type ScheduledNotificationPatch = Partial<Pick<ScheduledNotification, "title" | "body" | "sendAt" | "status" | "claimedAt" | "sentAt" | "notificationId" | "result" | "updatedAt">>;
+
+// 85.3 Automatic notifications
+
+/** 85.3 A cart in the app, as the app reports it: how many items, and when it last changed. */
+export interface HostedCart {
+  appId: string;
+  userId: number;
+  items: number;
+  updatedAt: Date;
+  /** When "You left something in your cart" went out for it; a change after that may bring another. */
+  remindedAt: Date | null;
+}
 
 // 85.2 Notification campaigns
 

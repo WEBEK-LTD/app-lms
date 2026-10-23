@@ -14,7 +14,9 @@ import { encryptionKey } from "@/lib/env";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX, serviceAccountOf } from "@/lib/hosted/notify";
 import { PLAN_ENDED_MESSAGE } from "@/lib/hosted/send-notification";
 import { appIsActive } from "@/lib/license/status";
-import { EditScheduledForm, ServiceAccountForm, SendNotificationForm } from "./forms";
+import { AutoNotificationsForm, EditScheduledForm, ServiceAccountForm, SendNotificationForm } from "./forms";
+import { autoKindsFor, autoOn } from "@/lib/hosted/auto-notifications";
+import { dayOf } from "@/lib/analytics/days";
 import { appZone, zoneLabel } from "@/lib/analytics/zone";
 import { utcToLocal } from "@/lib/bookings/time";
 import { LISTED_STATUSES, localSendAt } from "@/lib/hosted/scheduled-notifications";
@@ -60,6 +62,15 @@ export default async function NotificationsPage() {
   const upgrade = lowestPlanWith(plans, (p) => hasFeature(p, "push"), planId);
   // 68 Nothing goes out once the app's plan has ended (lib/hosted/send-notification.ts).
   const ended = !appIsActive(license, client, now);
+  // 85.3 The automatic ones: on or off, and the last 30 days' people and opens.
+  const kinds = autoKindsFor(app);
+  const counts = new Map<string, number>();
+  if (kinds.length) {
+    for (const row of await store.listAnalyticsDaily(app.id, dayOf(new Date(now.getTime() - 30 * 86_400_000), zone), dayOf(now, zone), ["auto_sent", "push_open"])) {
+      const key = row.metric === "auto_sent" ? `sent:${row.key}` : row.key;
+      counts.set(key, (counts.get(key) ?? 0) + row.value);
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -121,6 +132,24 @@ export default async function NotificationsPage() {
           )}
         </section>
       </div>
+
+      {kinds.length ? (
+        <section aria-labelledby="h-auto" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
+          <h2 id="h-auto" className="m-0 text-lg font-bold">
+            {t("campaigns.autoTitle")}
+          </h2>
+          <p className="m-0 text-[15px] text-ink-4">{t("campaigns.autoIntro")}</p>
+          <AutoNotificationsForm
+            kinds={kinds.map((kind) => ({
+              kind,
+              on: autoOn(app, kind),
+              label: t(`campaigns.auto_${kind}`),
+              text: t(`campaigns.auto_${kind}_text`),
+              numbers: t("campaigns.autoNumbers", { people: counts.get(`sent:${kind}`) ?? 0, opened: counts.get(`type:${kind}`) ?? 0 }),
+            }))}
+          />
+        </section>
+      ) : null}
 
       <section aria-labelledby="h-scheduled" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-scheduled" className="m-0 text-lg font-bold">

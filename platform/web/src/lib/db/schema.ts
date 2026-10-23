@@ -524,6 +524,8 @@ export const hostedNotifications = mysqlTable(
     link: varchar("link", { length: 500 }),
     imageUrl: varchar("image_url", { length: 500 }),
     targeted: boolean("targeted").notNull().default(false),
+    // 85.3 An automatic one's type and ids, as its push carries them.
+    data: jsonText<Record<string, string>>("data"),
     createdAt: time("created_at").notNull(),
   },
   (t) => [index("hosted_notifications_app_idx").on(t.appId, t.createdAt)],
@@ -1802,6 +1804,40 @@ export const scheduledNotifications = mysqlTable(
     updatedAt: time("updated_at").notNull(),
   },
   (t) => [index("scheduled_notifications_due_idx").on(t.status, t.sendAt), index("scheduled_notifications_app_idx").on(t.appId, t.status, t.sendAt)],
+);
+
+/** 85.3 Each automatic notice sent, once per person and what it's about (an appointment, a class, a day…). */
+export const autoNotices = mysqlTable(
+  "auto_notices",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    kind: varchar("kind", { length: 32 }).notNull(),
+    ref: varchar("ref", { length: 64 }).notNull(),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    sentAt: time("sent_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.appId, t.kind, t.ref, t.userId] }), index("auto_notices_sent_idx").on(t.sentAt)],
+);
+
+/** 85.3 What's in each person's cart, as the app reports it (for "You left something in your cart"). */
+export const hostedCarts = mysqlTable(
+  "hosted_carts",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    items: int("items").notNull(),
+    updatedAt: time("updated_at").notNull(),
+    remindedAt: time("reminded_at"),
+  },
+  (t) => [primaryKey({ columns: [t.appId, t.userId] }), index("hosted_carts_left_idx").on(t.updatedAt)],
 );
 
 /** 85.2 Notification campaigns: drafts, sent once (now or later) or every week. */

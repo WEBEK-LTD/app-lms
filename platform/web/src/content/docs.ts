@@ -936,6 +936,10 @@ In Firebase, open **Project settings › Service accounts** and choose **Generat
 
 On **App notifications › Campaigns** (apps connected to a platform, or without a website), a campaign goes to everyone or to some of your customers: people who bought something, a course's students, members with an active membership, or people who haven't opened the app for a while. You can narrow it to the language the app shows on their phone, iPhones or Android phones, and the country they sign in from. Add a picture from your Media and choose what it opens: the app, one of its pages or a web page. Send it now, at a date and time, or every week on a day and time; save it as a draft to send later. Each campaign shows how many people it went to, the phones the push reached and missed, and how many opened it (counted each night). Campaigns come with every plan and count with your other notifications, up to 10 an hour.
 
+## Automatic notifications
+
+Apps connected to a platform, or without a website, also send notifications on their own, in each person's language: a new lesson to a course's students, an appointment confirmed and a reminder the day before, a class two hours before it starts, an event the day before, a membership three days before it ends, a cart left for three hours, and the daily study reminder students turn on in the app. Each goes once to each person. On **App notifications › Automatic notifications** you see how many people each one reached and opened in the last 30 days, and turn off the ones you don't want.
+
 ---
 
 People choose which notifications they get in the app's settings. If notifications don't reach iPhones, check the APNs key in Firebase's Cloud Messaging settings first.
@@ -1172,7 +1176,7 @@ Add your privacy policy link, content rating, target audience and data safety an
 
 Your app also sends usage statistics to Yallapp (see [Analytics](/docs/analytics)). In the data safety form, declare under **App activity**: **App interactions**, **In-app search history** and **Other actions**; under **Device or other IDs**, the random install ID. For each: **Collected**, not shared (Yallapp processes it for you), **processed ephemerally: no**, **optional** (people can turn it off in the app's Settings), and the purpose **Analytics**. Data is encrypted in transit, and people can ask for deletion through you.
 
-For notifications, apps on Yallapp's hosted API keep each signed-in phone's push token, the language the app shows on it and the country it signs in from (worked out from the connection, the IP itself isn't kept), so you can send a campaign to the people who read a language or live in a country. Declare under **Location**: **Approximate location**, and under **Device or other IDs**: the push token. For each: **Collected**, not shared, required, for **App functionality**.
+For notifications, apps on Yallapp's hosted API keep each signed-in phone's push token, the language the app shows on it and the country it signs in from (worked out from the connection, the IP itself isn't kept), so you can send a campaign to the people who read a language or live in a country. Shops also get how many items each signed-in person has in their cart (not what), for the reminder of a cart left. Declare under **Location**: **Approximate location**, and under **Device or other IDs**: the push token. For each: **Collected**, not shared, required, for **App functionality**.
 
 > Under **App access**, give reviewers your review phone number and fixed code: from the dashboard's **App sign-in** page, or the plugin's **Store review access** setting on WordPress. Without it, reviewers can’t sign in and the app may be rejected.
 

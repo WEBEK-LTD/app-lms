@@ -3,7 +3,7 @@ import { newId } from "../crypto/tokens";
 import { membershipActive, membershipFreezeSet, membershipToUse } from "../bookings/memberships";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
 import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, PendingPayment, SavedSection } from "./types";
-import type { CampaignSend, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
+import type { CampaignSend, HostedCart, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 import type {
   AppPatch,
   BuildPatch,
@@ -3086,6 +3086,39 @@ export class MemoryStore implements DataStore {
     const row = this.scheduledNotifications.get(id);
     if (!row || row.appId !== appId || row.status !== expect) return false;
     this.scheduledNotifications.set(id, clone({ ...row, ...patch }));
+    return true;
+  }
+
+  // 85.3 Automatic notifications
+
+  private autoNotices = new Set<string>();
+  private hostedCarts = new Map<string, HostedCart>();
+
+  async claimAutoNotice(input: { appId: string; kind: string; ref: string; userId: number; now: Date }): Promise<boolean> {
+    const key = JSON.stringify([input.appId, input.kind, input.ref, input.userId]);
+    if (this.autoNotices.has(key)) return false;
+    this.autoNotices.add(key);
+    return true;
+  }
+
+  async saveHostedCart(appId: string, userId: number, items: number, now: Date): Promise<void> {
+    const key = `${appId}:${userId}`;
+    const found = this.hostedCarts.get(key);
+    this.hostedCarts.set(key, { appId, userId, items, updatedAt: new Date(now), remindedAt: found?.remindedAt ?? null });
+  }
+
+  async listLeftHostedCarts(after: Date, before: Date, limit: number): Promise<HostedCart[]> {
+    return [...this.hostedCarts.values()]
+      .filter((c) => c.items > 0 && c.updatedAt >= after && c.updatedAt < before && (c.remindedAt === null || c.remindedAt < c.updatedAt))
+      .sort((a, b) => a.updatedAt.getTime() - b.updatedAt.getTime())
+      .slice(0, limit)
+      .map(clone);
+  }
+
+  async markHostedCartReminded(appId: string, userId: number, seenAt: Date, now: Date): Promise<boolean> {
+    const cart = this.hostedCarts.get(`${appId}:${userId}`);
+    if (!cart || cart.updatedAt.getTime() !== seenAt.getTime()) return false;
+    this.hostedCarts.set(`${appId}:${userId}`, { ...cart, remindedAt: new Date(now) });
     return true;
   }
 

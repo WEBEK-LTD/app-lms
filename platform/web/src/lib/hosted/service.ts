@@ -4,6 +4,7 @@ import { hostedScreenProtection } from "../app/screen-protection";
 import { hidesVideoBranding } from "../app/video-branding";
 import { toVertical } from "../app/kinds";
 import { hmacSha256, newId, randomToken, safeEqual, sha256Hex } from "../crypto/tokens";
+import { appAreas } from "../app/areas";
 import { yallappLinkBase } from "../links/table";
 import type { DataStore } from "../data/store";
 import {
@@ -300,6 +301,13 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
         return listDevices(ctx, session);
       case "PUT /me/push-token":
         return setPushToken(ctx, session, record(req.body));
+      case "PUT /me/cart": {
+        // 85.3 How many items the cart holds, for "You left something in your cart"; kept for shops only.
+        const items = record(req.body).items;
+        if (typeof items !== "number" || !Number.isInteger(items) || items < 0 || items > 999) return badRequest("items must be a whole number from 0 to 999.");
+        if (appAreas(ctx.app).products) await ctx.store.saveHostedCart(ctx.app.id, session.user.id, items, ctx.now);
+        return noContent;
+      }
       case "GET /me/notifications":
         return listNotifications(ctx, session, req.query);
       case "POST /me/notifications/read":
@@ -1002,16 +1010,23 @@ function pageParam(query: URLSearchParams, name: string, fallback: number, max: 
   return Number.isFinite(value) && value >= 1 ? Math.min(value, max) : fallback;
 }
 
+function numberOf(value: string | undefined): number | null {
+  const n = Number(value);
+  return value !== undefined && Number.isSafeInteger(n) ? n : null;
+}
+
 export function notificationJson(n: HostedNotification, readAt: Date | null) {
   return {
     id: n.id,
     title: n.title,
     body: n.body,
-    // 23 Breaking news opens its article; 28 a change to an event opens the event; 29 a campaign update its campaign.
-    type: n.articleId ? "article" : n.eventId ? "event" : n.campaignId ? "campaign_update" : "announcement",
-    course_id: null,
-    lesson_id: null,
+    // 23 Breaking news opens its article; 28 a change to an event opens the event; 29 a campaign update its campaign; 85.3 an automatic one says.
+    type: n.data?.type ?? (n.articleId ? "article" : n.eventId ? "event" : n.campaignId ? "campaign_update" : "announcement"),
+    course_id: numberOf(n.data?.course_id),
+    lesson_id: numberOf(n.data?.lesson_id),
     question_id: null,
+    ...(n.data?.appointment_id ? { appointment_id: numberOf(n.data.appointment_id) } : {}),
+    ...(n.data?.event_id && !n.eventId ? { event_id: numberOf(n.data.event_id) } : {}),
     ...(n.articleId ? { article_id: n.articleId } : {}),
     ...(n.eventId ? { event_id: n.eventId } : {}),
     ...(n.campaignId ? { campaign_id: n.campaignId } : {}),

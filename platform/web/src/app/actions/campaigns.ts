@@ -9,6 +9,8 @@ import type { App } from "@/lib/data/types";
 import { appUrl, encryptionKey } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { countAudience, parseAudience } from "@/lib/hosted/audiences";
+import { autoKindsFor } from "@/lib/hosted/auto-notifications";
+import { hostedSettings } from "@/lib/hosted/service";
 import { deleteCampaign, saveCampaign, sendCampaignNow, stopCampaign, type CampaignInput } from "@/lib/hosted/campaigns";
 import type { TeamPermission } from "@/lib/team/permissions";
 
@@ -101,4 +103,17 @@ export async function countAudienceAction(audience: unknown): Promise<{ count: n
   const parsed = parseAudience(audience, context.app);
   if (!parsed.ok) return { count: null };
   return { count: await countAudience(await getStore(), context.app, parsed.audience, new Date()) };
+}
+
+/** 85.3 Which automatic notifications the app sends (the boxes left ticked). */
+export async function saveAutoNotificationsAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireHostedApp("notifications");
+  const { app } = context;
+  const on = new Set(formData.getAll("auto").map(String));
+  const autoNotifications = Object.fromEntries(autoKindsFor(app).map((kind) => [kind, on.has(kind)]));
+  const now = new Date();
+  await (await getStore()).updateApp(app.id, { hostedSettings: { ...hostedSettings(app), autoNotifications } }, now);
+  await recordStaffChange(context, `Automatic notifications: ${autoKindsFor(app).filter((k) => on.has(k)).join(", ") || "none"} on`);
+  revalidatePath("/dashboard/notifications");
+  return { ok: true, message: "Saved. Your app sends the ones that are on." };
 }

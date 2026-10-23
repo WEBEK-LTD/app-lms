@@ -430,6 +430,13 @@ class FakeApi implements YallappApi {
     ),
   );
 
+  /// 85.3 The item counts the app reported for its cart.
+  final carts = <int>[];
+
+  @override
+  Future<void> setCart(int items) =>
+      _answer('setCart', () => carts.add(items));
+
   @override
   Future<void> markNotificationsRead() => _answer('markNotificationsRead', () {
     notifications = [

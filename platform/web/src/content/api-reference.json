@@ -169,6 +169,13 @@
           "summary": "Register this device for push notifications",
           "description": null,
           "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/me/cart",
+          "summary": "Say how many items the cart holds",
+          "description": "Roadmap 85.3: the app keeps the cart on the phone and says how many items it holds whenever that changes (0 once it's empty or ordered), so a shop on Yallapp's hosted API can send \"You left something in your cart\" once, 3 hours after the last change, when the owner hasn't turned it off. Nothing else about the cart is sent. Servers that don't need it answer 404, and the app doesn't ask again until it restarts.",
+          "access": "signed-in"
         }
       ]
     },

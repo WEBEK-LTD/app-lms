@@ -47,7 +47,7 @@ import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, Tea
 import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatus } from "./types";
 import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
-import type { CampaignSend, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
+import type { CampaignSend, HostedCart, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 import { mergeCrash } from "../crashes/report";
 import type {
   Activation,
@@ -3867,6 +3867,42 @@ export class MysqlStore implements DataStore {
   async updateScheduledNotification(appId: string, id: number, expect: ScheduledNotificationStatus, patch: ScheduledNotificationPatch): Promise<boolean> {
     const t = schema.scheduledNotifications;
     const [result] = await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id), eq(t.status, expect))));
+    return result.affectedRows === 1;
+  }
+
+  // 85.3 Automatic notifications
+
+  async claimAutoNotice(input: { appId: string; kind: string; ref: string; userId: number; now: Date }): Promise<boolean> {
+    const [result] = await this.run((db) =>
+      db.insert(schema.autoNotices).ignore().values({ appId: input.appId, kind: input.kind, ref: input.ref.slice(0, 64), userId: input.userId, sentAt: input.now }),
+    );
+    return result.affectedRows === 1;
+  }
+
+  async saveHostedCart(appId: string, userId: number, items: number, now: Date): Promise<void> {
+    await this.run((db) =>
+      db
+        .insert(schema.hostedCarts)
+        .values({ appId, userId, items, updatedAt: now, remindedAt: null })
+        .onDuplicateKeyUpdate({ set: { items, updatedAt: now } }),
+    );
+  }
+
+  async listLeftHostedCarts(after: Date, before: Date, limit: number): Promise<HostedCart[]> {
+    const t = schema.hostedCarts;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(gt(t.items, 0), gte(t.updatedAt, after), lt(t.updatedAt, before), or(isNull(t.remindedAt), lt(t.remindedAt, t.updatedAt))))
+        .orderBy(asc(t.updatedAt))
+        .limit(limit),
+    );
+  }
+
+  async markHostedCartReminded(appId: string, userId: number, seenAt: Date, now: Date): Promise<boolean> {
+    const t = schema.hostedCarts;
+    const [result] = await this.run((db) => db.update(t).set({ remindedAt: now }).where(and(eq(t.appId, appId), eq(t.userId, userId), eq(t.updatedAt, seenAt))));
     return result.affectedRows === 1;
   }
 

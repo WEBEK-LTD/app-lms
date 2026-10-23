@@ -1,5 +1,6 @@
 import type { DataStore } from "../data/store";
 import { appUrl } from "../env";
+import { runAutoNotifications, type AutoRunReport } from "../hosted/auto-notifications";
 import { runCampaigns, type CampaignRunReport } from "../hosted/campaigns";
 import { runScheduledNotifications, type ScheduledRunReport } from "../hosted/scheduled-notifications";
 import type { sendPush } from "../hosted/push";
@@ -22,6 +23,8 @@ export interface FrequentReport {
   ended: EndedRefreshResult;
   /** 85.2 Notification campaigns whose time came. */
   campaigns: CampaignRunReport;
+  /** 85.3 Automatic notifications that went out, by kind. */
+  automatic: AutoRunReport;
 }
 
 export async function runFrequentJobs(deps: {
@@ -43,6 +46,12 @@ export async function runFrequentJobs(deps: {
     // One campaign that can't go out never stops the rest of the job.
     console.error("[frequent] campaigns", error instanceof Error ? error.message : String(error));
   }
+  let automatic: AutoRunReport = {};
+  try {
+    automatic = await runAutoNotifications({ store: deps.store, key: deps.key, now: deps.now, send: deps.send });
+  } catch (error) {
+    console.error("[frequent] automatic notifications", error instanceof Error ? error.message : String(error));
+  }
   let announcements = { announcements: 0, phones: 0 };
   try {
     announcements = await pushStartedAnnouncements(deps.ownerPush);
@@ -57,5 +66,5 @@ export async function runFrequentJobs(deps: {
     // A site that isn't told now still pauses on its own (the plugin compares the end date) and at its next check.
     console.error("[frequent] ended plans", error instanceof Error ? error.message : String(error));
   }
-  return { notifications, announcements, ended, campaigns };
+  return { notifications, announcements, ended, campaigns, automatic };
 }

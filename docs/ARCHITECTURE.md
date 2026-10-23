@@ -2269,6 +2269,36 @@ and skips a week with nobody in its audience. Notifications "sent to
 everyone" (the dashboard's Sent list and the Owner API) leave targeted
 ones out.
 
+### Automatic notifications (85.3)
+
+`lib/hosted/auto-notifications.ts`, hosted apps only (WordPress apps send
+theirs from the plugin). The kinds an app has follow its areas
+(`autoKindsFor`): `new_lesson` and `study_reminder` (courses),
+`appointment_confirmed` and `appointment_reminder` (bookings), `class_soon`
+and `membership_ending` (gyms), `event_soon` (events), `cart_left`
+(shops). A new lesson is told when it is saved (courses actions); an
+appointment confirmed when it goes from waiting to approved (the dashboard
+and the Owner API); the others by the frequent job: an appointment in the
+next 1–24 hours, a class in the next 2, an event in the next 24, a
+membership ending in the next 3 days, the study reminder from 19:00 to
+21:00 in the app's time zone to students one of whose phones turned it on,
+and a cart with items unchanged for 3 hours (up to a week). The app says
+how many items its cart holds with `PUT /me/cart` (`hosted_carts`);
+nothing else of the cart leaves the phone.
+
+Each goes once per person and what it is about (`auto_notices`, its key
+taken by an insert, migration `0066_auto_notifications`; a renewed
+membership or a cart changed after its reminder is a new one), in the
+language of the person's phone when it is English, Arabic or Turkish (else
+the app's), to their inbox (`hosted_notifications.data` keeps its type and
+ids for the app) and to their phones that allow it (`new_lessons`,
+`daily_reminder`, `announcements`). Pushes carry `type` = the kind and no
+`notification_id`, so the app's opens count by kind (`push_open`
+`type:<kind>`); people and phones are counted per day (`auto_sent`,
+`auto_pushed`). The owner turns each off on App notifications
+(`HostedSettings.autoNotifications`). They aren't in the hourly limit of
+the notifications the owner sends, and stop when the plan ends.
+
 ## Milestones (Phase 78)
 
 `client_milestones` (migration 0053, `lib/milestones/record.ts`) keeps when

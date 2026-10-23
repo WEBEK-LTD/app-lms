@@ -7,6 +7,7 @@ import { changeAppointmentStatus, nextAppointmentStatuses } from "../bookings/ap
 import { canReschedule, rescheduleAppointment, rescheduleTimes } from "../bookings/reschedule";
 import { gymDay } from "../bookings/door";
 import { BOOKING_STATUS_LABELS, bookingSetup } from "../bookings/setup";
+import { notifyAppointmentConfirmed } from "../hosted/auto-notifications";
 import { localToUtc, utcToLocal } from "../bookings/time";
 import { FULFILMENT_LABELS } from "../catalog/fulfilment";
 import { formatCents } from "../catalog/money";
@@ -319,6 +320,10 @@ export async function changeAppointment(ctx: OwnerContext, params: Record<string
   if (typeof status !== "string" || !status) throw invalid({ status: "The request isn't valid." });
   if (!(await changeAppointmentStatus(store, appointment, status, now))) throw new OwnerError(409, "invalid_status", "This appointment can't move to that status.");
   await recordAppointmentStatus(store, { clientId: ctx.client.id, appId: app.id, actor: ctx.user, appointmentId: appointment.id, to: status }, now);
+  // 85.3 Confirmed after waiting: the customer hears of it.
+  if (appointment.status === "pending" && status === "approved") {
+    await notifyAppointmentConfirmed({ store, key: ctx.deps.encryptionKey, now, send: ctx.deps.sendPush }, app, { ...appointment, status: "approved" }, bookingSetup(app).rules.timezone).catch(() => undefined);
+  }
   return { status: 200, body: appointmentJson(ctx, (await store.getBookingAppointment(app.id, appointment.id))!, bookingSetup(app).rules.timezone) };
 }
 

@@ -38,6 +38,13 @@ IconData _iconFor(NotificationType type) => switch (type) {
   NotificationType.article => AppIcons.newspaper,
   NotificationType.event => AppIcons.event,
   NotificationType.campaignUpdate => AppIcons.campaignUpdate,
+  NotificationType.appointmentConfirmed ||
+  NotificationType.appointmentReminder => AppIcons.appointments,
+  NotificationType.classSoon => AppIcons.fitness,
+  NotificationType.eventSoon => AppIcons.event,
+  NotificationType.membershipEnding => AppIcons.membership,
+  NotificationType.cartLeft => AppIcons.cart,
+  NotificationType.studyReminder => AppIcons.courses,
   NotificationType.announcement ||
   NotificationType.unknown => AppIcons.notifications,
 };
