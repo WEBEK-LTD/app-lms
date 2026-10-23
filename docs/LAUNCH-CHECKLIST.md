@@ -1081,6 +1081,9 @@ never in a chat or an issue.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **Plugin 0.4.11** (82.5): the side menu, the owner's own icons and
+      each block's look reach WordPress apps. Release it like 0.4.10; sites
+      on 0.4.10 or earlier keep their tabs and pages without them.
 - [ ] **Plugin 0.4.10** (81.2): the site's look (title, logo, icon, theme
       colours, menus) with each license check. Release it like 0.4.9; sites
       send it from their next check after updating.

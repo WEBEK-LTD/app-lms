@@ -6,6 +6,7 @@ import { textIn, withText } from "@/lib/pages/model";
 import { actionProblem, screenName, SOURCE_NAMES, type ScreenOption } from "@/lib/pages/sources";
 import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { appLanguageName } from "@/lib/i18n/language-names";
+import { MediaPicker } from "@/components/media-picker";
 import { RTL_LANGUAGES, type Action, type ItemSource, type LanguageCode, type Translations } from "@/lib/pages/types";
 
 /** Form controls of the page and look editor. Every one has a visible label. */
@@ -174,6 +175,41 @@ export function IconGlyph({ name, size = 22 }: { name: string; size?: number }) 
 }
 
 /** Material Symbols (Rounded) icons to pick from, shown as icons. */
+/**
+ * 82.5 The owner's own icon: a picture's address (or one from Media), shown
+ * instead of the icon; empty for the icon from the list.
+ */
+export function OwnIcon({ id, value, onChange }: { id: string; value: string | null | undefined; onChange: (url: string | null) => void }) {
+  const t = useDashT();
+  return (
+    <div className="flex min-w-0 flex-col gap-1.5">
+      <TextInput
+        id={id}
+        label={t("pages.ownIcon")}
+        hint={t("pages.ownIconHint")}
+        dir="ltr"
+        type="url"
+        inputMode="url"
+        placeholder="https://"
+        value={value ?? ""}
+        onChange={(url) => onChange(url.trim() ? url.trim() : null)}
+      />
+      <div className="flex flex-wrap items-center gap-2">
+        {value ? (
+          // eslint-disable-next-line @next/next/no-img-element -- the owner's own picture, any address
+          <img src={value} alt="" width={28} height={28} className="h-7 w-7 rounded object-contain" />
+        ) : null}
+        <MediaPicker kind="image" onPick={(url) => onChange(url)} />
+        {value ? (
+          <button type="button" className="h-9 cursor-pointer rounded-lg border border-line-strong bg-white px-3 text-sm font-semibold" onClick={() => onChange(null)}>
+            {t("pages.useListIcon")}
+          </button>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 export function IconPicker({ id, label, value, onChange, optional = false }: { id: string; label: string; value: string | null; onChange: (icon: string | null) => void; optional?: boolean }) {
   const t = useDashT();
   return (

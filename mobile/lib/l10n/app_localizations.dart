@@ -730,6 +730,12 @@ abstract class AppLocalizations {
   /// **'Main navigation'**
   String get mainNavigation;
 
+  /// No description provided for @sideMenuOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the menu'**
+  String get sideMenuOpen;
+
   /// No description provided for @tabWithCount.
   ///
   /// In en, this message translates to:

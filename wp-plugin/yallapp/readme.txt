@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.10
+Stable tag: 0.4.11
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -112,6 +112,10 @@ Terms: https://developer.huawei.com/consumer/en/devservice/term
 Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 
 == Changelog ==
+
+= 0.4.11 =
+* A side menu in your app, opened from the menu button: you choose its entries in your Yallapp dashboard.
+* Your own icons for the bottom tabs, the side menu and quick links, and a background and spacing for each block of your pages.
 
 = 0.4.10 =
 * Your site's look for your app: with each license check the plugin tells Yallapp your site's title and tagline, logo, site icon, your theme's colours and your menus, so an app made from your site starts with your brand and your menu.

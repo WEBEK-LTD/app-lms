@@ -6,6 +6,8 @@ import { NOTICE_TONE_LABELS, SOCIAL_LABELS, WEEKDAY_LABELS } from "@/lib/pages/l
 import { emptyPerson, emptyQuote, emptySlide, emptyStat, moveItem } from "@/lib/pages/model";
 import { SOURCE_NAMES, SOURCE_SORTS, sortFor, type ScreenOption } from "@/lib/pages/sources";
 import {
+  BLOCK_BACKGROUNDS,
+  BLOCK_SPACINGS,
   BUTTON_STYLES,
   CATEGORY_STYLES,
   ITEMS_LAYOUTS,
@@ -22,8 +24,11 @@ import {
   type HoursPeriod,
   type LayoutBlock,
   type QuickLink,
+  type BlockBackground,
+  type BlockLook,
+  type BlockSpacing,
 } from "@/lib/pages/types";
-import { ActionEditor, Check, firstScreen, IconGlyph, IconPicker, LangText, SelectInput, TextInput, type Lang } from "./controls";
+import { ActionEditor, Check, firstScreen, IconGlyph, IconPicker, LangText, OwnIcon, SelectInput, TextInput, type Lang } from "./controls";
 import { MediaPicker } from "@/components/media-picker";
 import { useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { richText } from "@/i18n/rich";
@@ -265,6 +270,7 @@ function MoreBlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ctx: 
               <>
                 <LangText id={`${id}-l${i}-label`} label={t("pages.label")} value={l} field="label" lang={lang} onChange={setLink} />
                 <IconPicker id={`${id}-l${i}-icon`} label={t("pages.icon")} value={l.icon} onChange={(icon) => setLink({ ...l, icon: icon ?? l.icon })} />
+                <OwnIcon id={`${id}-l${i}-own-icon`} value={l.icon_url} onChange={(icon_url) => setLink({ ...l, icon_url })} />
                 <ActionEditor id={`${id}-l${i}-action`} label={t("pages.opens")} action={l.action} optional={false} onChange={(action) => action && setLink({ ...l, action })} {...actionProps} />
               </>
             )}
@@ -489,6 +495,23 @@ function MoreBlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ctx: 
   }
 }
 
+// 82.5 Backgrounds within the brand, and spacing.
+const BACKGROUND_LABELS: Record<BlockBackground, DashKey> = {
+  none: "pages.bgNone",
+  tint: "pages.bgTint",
+  primary: "pages.bgPrimary",
+  secondary: "pages.bgSecondary",
+  surface: "pages.bgSurface",
+};
+const SPACING_LABELS: Record<BlockSpacing, DashKey> = {
+  none: "pages.spaceNone",
+  small: "pages.small",
+  medium: "pages.medium",
+  large: "pages.large",
+};
+/** The usual look is stored as none. */
+const lookOf = (look: BlockLook): BlockLook | null => (look.background === "none" && look.spacing === "medium" ? null : look);
+
 /** The settings of one block, in the language being edited. */
 export function BlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ctx: BlockContext; onChange: (block: LayoutBlock) => void }) {
   const t = useDashT();
@@ -625,6 +648,23 @@ export function BlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ct
       {block.type === "spacer" ? <SelectInput id={`${id}-size`} label={t("pages.size")} value={block.size ?? "medium"} options={opts(SPACER_SIZES, SIZE_LABELS, t)} onChange={(size) => set({ size })} /> : null}
       <MoreBlockSettings block={block} ctx={ctx} onChange={onChange} />
       <SelectInput id={`${id}-visibility`} label={t("pages.whoSees")} value={block.visibility} options={opts(VISIBILITIES, VISIBILITY_LABELS, t)} onChange={(visibility) => set({ visibility })} />
+      {/* 82.5 The block's look within the brand. */}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <SelectInput
+          id={`${id}-background`}
+          label={t("pages.background")}
+          value={block.look?.background ?? "none"}
+          options={BLOCK_BACKGROUNDS.map((b) => ({ value: b, label: t(BACKGROUND_LABELS[b]) }))}
+          onChange={(background) => set({ look: lookOf({ background, spacing: block.look?.spacing ?? "medium" }) })}
+        />
+        <SelectInput
+          id={`${id}-spacing`}
+          label={t("pages.spacing")}
+          value={block.look?.spacing ?? "medium"}
+          options={BLOCK_SPACINGS.map((sp) => ({ value: sp, label: t(SPACING_LABELS[sp]) }))}
+          onChange={(spacing) => set({ look: lookOf({ background: block.look?.background ?? "none", spacing }) })}
+        />
+      </div>
     </div>
   );
 }

@@ -103,6 +103,7 @@
 {"key":"back","en":"Back","ar":"رجوع","tr":"Geri"},
 {"key":"tabPosition","en":"{label}, tab {index} of {count}","ar":"{label}، علامة التبويب {index} من {count}","tr":"{label}, sekme {index} / {count}","placeholders":{"label":"String","index":"int","count":"int"}},
 {"key":"mainNavigation","en":"Main navigation","ar":"التنقل الرئيسي","tr":"Ana gezinme"},
+{"key":"sideMenuOpen","en":"Open the menu","ar":"فتح القائمة","tr":"Menüyü aç"},
 {"key":"tabWithCount","en":"{label}, {count}","ar":"{label}، {count}","tr":"{label}, {count}","placeholders":{"label":"String","count":"int"}},
 {"key":"maintenanceTitle","en":"We'll be right back","ar":"سنعود قريبًا","tr":"Birazdan döneceğiz"},
 {"key":"maintenanceMessage","en":"{name} is being updated. Please try again in a little while.","ar":"يجري تحديث {name}. يُرجى المحاولة مرة أخرى بعد قليل.","tr":"{name} güncelleniyor. Lütfen biraz sonra tekrar deneyin.","placeholders":{"name":"String"}},

@@ -188,3 +188,30 @@ test("82.4 undo and redo; every publish is kept, and an earlier one can be the d
   await expect(label).toHaveValue("Shop now");
   await expect(own.getByText("Unpublished changes")).toBeVisible();
 });
+
+test("82.5 a side menu with the owner's own icon, and a block on the main colour", async () => {
+  await own.getByRole("tab", { name: "Tabs" }).click();
+  await own.getByRole("button", { name: "Add a menu entry" }).click();
+  const entry = own.getByRole("group", { name: /^Menu entry 1/ });
+  await entry.getByLabel("Label", { exact: true }).fill("About us");
+  await entry.getByLabel("Your own icon (optional)").fill("https://example.com/about.png");
+  await expect(own.getByText(/^Draft saved/)).toBeVisible({ timeout: 15_000 });
+
+  // The quick view has the menu button; a block clicked there gets the main colour.
+  await own.getByRole("button", { name: "Quick view", exact: true }).click();
+  const phone = own.getByRole("figure", { name: "Phone preview" });
+  await expect(phone.locator("[data-phone-menu]")).toHaveCount(1);
+  await own.getByRole("tab", { name: "Pages" }).click();
+  const block = phone.locator("[data-phone-block]").first();
+  await block.click();
+  const list = own.getByRole("list", { name: "Blocks" }).locator(":scope > li");
+  await list.first().getByLabel("Background").selectOption("primary");
+  await expect(phone.locator("[data-block-look='primary medium']")).toHaveCount(1);
+  await expect(own.getByText(/^Draft saved/)).toBeVisible({ timeout: 15_000 });
+
+  // The app reads the menu, with the owner's icon, from the draft.
+  const read = own.waitForRequest(pagesRead, { timeout: 45_000 });
+  await own.getByRole("button", { name: "The app", exact: true }).click();
+  const body = (await (await (await read).response())!.json()) as { menu: { label: string; icon_url?: string | null }[] };
+  expect(body.menu[0]).toMatchObject({ label: "About us", icon_url: "https://example.com/about.png" });
+});

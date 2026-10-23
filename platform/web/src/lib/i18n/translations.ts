@@ -72,6 +72,8 @@ export function contentRows(layout: LayoutContent, lang: string): TranslationRow
     });
   };
   for (const tab of layout.tabs) for (const field of TRANSLATABLE.tab) add(`tab|${tab.id}|${field}`, `Tab ${FIELD_NAMES[field]}`, tab, field);
+  // 82.5 The side menu's entries.
+  for (const entry of layout.menu ?? []) for (const field of TRANSLATABLE.tab) add(`menu|${entry.id}|${field}`, `Side menu ${FIELD_NAMES[field]}`, entry, field);
   for (const page of layout.pages) {
     const pageName = page.title || page.slug;
     for (const field of TRANSLATABLE.page) add(`page|${page.slug}|${field}`, `${pageName} › page title`, page, field);
@@ -115,7 +117,7 @@ export function progress(rows: readonly TranslationRow[]): { done: number; total
  */
 export function applyTranslations(layout: LayoutContent, lang: string, changes: Record<string, string>): LayoutContent {
   const def = layout.languages.default;
-  let out: LayoutContent = { ...layout, tabs: [...layout.tabs], pages: layout.pages.map((p) => ({ ...p, blocks: [...p.blocks] })) };
+  let out: LayoutContent = { ...layout, tabs: [...layout.tabs], ...(layout.menu ? { menu: [...layout.menu] } : {}), pages: layout.pages.map((p) => ({ ...p, blocks: [...p.blocks] })) };
   const strings = { ...(layout.strings?.[lang] ?? {}) };
   let stringsChanged = false;
   for (const [id, raw] of Object.entries(changes)) {
@@ -137,6 +139,8 @@ export function applyTranslations(layout: LayoutContent, lang: string, changes: 
       withText(value, field, text && text === builtInText(textIn(value, field, def, def), lang) ? "" : text, lang, def);
     if (kind === "tab" && b) {
       out.tabs = out.tabs.map((t) => (t.id === a ? set(t, b) : t));
+    } else if (kind === "menu" && b && out.menu) {
+      out.menu = out.menu.map((t) => (t.id === a ? set(t, b) : t));
     } else if (kind === "page" && b) {
       out.pages = out.pages.map((p) => (p.slug === a ? set(p, b) : p));
     } else if (kind === "block" && c) {

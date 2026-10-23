@@ -6,11 +6,13 @@ import '../../../core/config/build_config_data.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_look.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import 'page_blocks.dart';
 import 'page_providers.dart';
+import 'side_menu.dart';
 
 /// A page built in the client dashboard (`GET /pages/{slug}`), as a tab or
 /// opened on top of the tabs ([pushed]). Pull down to reload.
@@ -96,8 +98,21 @@ class AppPageView extends ConsumerWidget {
                 if (i > 0 &&
                     block is! SpacerBlock &&
                     blocks[i - 1] is! SpacerBlock)
-                  SizedBox(height: style.gap),
-                PageBlockView(key: ValueKey('block-${block.id}'), block: block),
+                  SizedBox(
+                    height: blockGap(
+                      style.gap,
+                      page.looks[blocks[i - 1].id],
+                      page.looks[block.id],
+                    ),
+                  ),
+                BlockLookBox(
+                  look: page.looks[block.id],
+                  gap: style.gap,
+                  child: PageBlockView(
+                    key: ValueKey('block-${block.id}'),
+                    block: block,
+                  ),
+                ),
               ],
               if (blocks.isEmpty)
                 MessageView(
@@ -113,7 +128,7 @@ class AppPageView extends ConsumerWidget {
   }
 }
 
-class _PageHeader extends StatelessWidget {
+class _PageHeader extends ConsumerWidget {
   const _PageHeader({
     required this.page,
     required this.template,
@@ -127,12 +142,16 @@ class _PageHeader extends StatelessWidget {
   final double top;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
     final style = PageStyle.of(template);
     final showTitle = page.showTitle && page.title.trim().isNotEmpty;
     final bold = template == AppTemplate.bold && showTitle;
-    final back = pushed ? AppBackButton(onDark: bold) : null;
+    // 82.5 A page in the bottom tabs opens the side menu where a pushed
+    // page has its back button.
+    final back = pushed
+        ? AppBackButton(onDark: bold)
+        : (sideMenuEntries(ref).isEmpty ? null : SideMenuButton(onDark: bold));
     final title = !showTitle
         ? null
         : Semantics(
@@ -197,6 +216,66 @@ class _PageHeader extends StatelessWidget {
         empty ? 0 : style.gap,
       ),
       child: content,
+    );
+  }
+}
+
+/// 82.5 The space between two blocks: the larger of what each asks for
+/// ([gap], the page's usual space, when neither has a look).
+double blockGap(double gap, BlockLook? above, BlockLook? below) {
+  double space(BlockLook? look) => switch (look?.spacing) {
+    BlockSpacing.none => 0,
+    BlockSpacing.small => gap / 2,
+    BlockSpacing.large => gap * 2,
+    BlockSpacing.medium || null => gap,
+  };
+  final a = space(above);
+  final b = space(below);
+  return a > b ? a : b;
+}
+
+/// 82.5 A block's background, within the app's brand: a light wash of the
+/// main colour, the main or the second colour with light text, or the
+/// colour of cards.
+class BlockLookBox extends ConsumerWidget {
+  const BlockLookBox({
+    super.key,
+    required this.look,
+    required this.gap,
+    required this.child,
+  });
+
+  final BlockLook? look;
+  final double gap;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final look = this.look;
+    if (look == null || look.background == BlockBackground.none) return child;
+    final p = context.palette;
+    final hasSecondary = ref.watch(appLookProvider).secondary != null;
+    final (Color background, Color? foreground) = switch (look.background) {
+      BlockBackground.tint => (p.primarySoft, null),
+      BlockBackground.primary => (p.primary, p.onPrimary),
+      BlockBackground.secondary =>
+        hasSecondary ? (p.accent, p.onAccent) : (p.primary, p.onPrimary),
+      BlockBackground.surface || BlockBackground.none => (p.surface, null),
+    };
+    final inside = blockGap(gap, look, null).clamp(12.0, 48.0);
+    return Container(
+      key: ValueKey('look-${look.background.name}-${look.spacing.name}'),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: inside),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(context.shapes.r(16)),
+        border: look.background == BlockBackground.surface
+            ? Border.all(color: p.border)
+            : null,
+      ),
+      child: foreground == null
+          ? child
+          : BlockForeground(color: foreground, child: child),
     );
   }
 }

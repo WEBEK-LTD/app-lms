@@ -8,7 +8,7 @@ import { SOCIAL_LABELS, WEEKDAY_LABELS } from "@/lib/pages/labels";
 import { SOURCE_NAMES } from "@/lib/pages/sources";
 import { withFilledTexts } from "@/lib/pages/fill-texts";
 import { translated, translatedBlock } from "@/lib/pages/translate";
-import { RTL_LANGUAGES, type Appearance, type LanguageCode, type LayoutBlock, type LayoutContent, type LayoutPage } from "@/lib/pages/types";
+import { RTL_LANGUAGES, type Appearance, type BlockLook, type BlockSpacing, type LanguageCode, type LayoutBlock, type LayoutContent, type LayoutPage } from "@/lib/pages/types";
 import { useOptionalDashT } from "@/components/dashboard-i18n";
 import { IconGlyph } from "./controls";
 
@@ -70,6 +70,36 @@ function Sample({ theme, n, label, layout }: { theme: Theme; n: number; label: s
     <div style={{ ...theme.card, padding: 6, display: "flex", flexDirection: layout === "list" ? "row" : "column", gap: 6, minWidth: layout === "carousel" ? 104 : undefined, alignItems: layout === "list" ? "center" : undefined }}>
       {image}
       <div style={{ fontSize: 11, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label || `Entry ${n}` /* i18n-ok: the app's preview */}</div>
+    </div>
+  );
+}
+
+/** 82.5 The owner's own icon when there is one, else the icon. */
+function OwnOrIcon({ url, name, size }: { url?: string | null; name: string; size: number }) {
+  // eslint-disable-next-line @next/next/no-img-element -- the owner's own picture, any address
+  return url ? <img src={url} alt="" width={size} height={size} style={{ width: size, height: size, objectFit: "contain" }} /> : <IconGlyph name={name} size={size} />;
+}
+
+const LOOK_SPACE: Record<BlockSpacing, number> = { none: 0, small: 4, medium: 8, large: 16 };
+
+/** 82.5 A block's background within the brand, and the space around it. */
+function LookBox({ look, theme, children }: { look?: BlockLook | null; theme: Theme; children: ReactNode }) {
+  if (!look) return <>{children}</>;
+  const space = LOOK_SPACE[look.spacing];
+  const background = { none: undefined, tint: `color-mix(in srgb, ${theme.primary} 10%, ${theme.bg})`, primary: theme.primary, secondary: theme.secondary, surface: theme.surface }[look.background];
+  const light = look.background === "primary" || look.background === "secondary";
+  return (
+    <div
+      data-block-look={`${look.background} ${look.spacing}`}
+      style={{
+        margin: `${space - 6}px 0`,
+        padding: background ? `${Math.max(space, 8)}px 10px` : 0,
+        background,
+        color: light ? "#fff" : undefined,
+        borderRadius: background ? theme.radius : undefined,
+      }}
+    >
+      {children}
     </div>
   );
 }
@@ -341,7 +371,7 @@ function MoreBlockPreview({ block: b, theme, bold }: { block: LayoutBlock; theme
           {(b.links ?? []).map((l, i) => (
             <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: row ? 60 : undefined }}>
               <span style={{ ...theme.card, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", color: theme.primary }}>
-                <IconGlyph name={l.icon} size={20} />
+                <OwnOrIcon url={l.icon_url} name={l.icon} size={20} />
               </span>
               <span style={{ fontSize: 10, fontWeight: 600, textAlign: "center", lineHeight: 1.2 }}>{l.label || "Link"}</span>
             </div>
@@ -555,6 +585,12 @@ export function PhonePreview({
               fontSize: appearance.template === "bold" ? 20 : 15,
             }}
           >
+            {/* 82.5 The side menu's button. */}
+            {layout.menu?.length ? (
+              <span aria-hidden="true" style={{ display: "inline-flex", verticalAlign: "middle", marginInlineEnd: 6 }} data-phone-menu="">
+                <IconGlyph name="menu" size={20} />
+              </span>
+            ) : null}
             {shown?.show_title ? shown.title : app.name}
           </div>
           <div
@@ -580,7 +616,11 @@ export function PhonePreview({
           >
             {page?.blocks.length ? (
               page.blocks.map((block, i) => {
-                const preview = <BlockPreview key={block.id} block={block} theme={theme} appearance={appearance} pickable={pickable} lang={lang} def={def} />;
+                const preview = (
+                  <LookBox key={block.id} look={block.look} theme={theme}>
+                    <BlockPreview block={block} theme={theme} appearance={appearance} pickable={pickable} lang={lang} def={def} />
+                  </LookBox>
+                );
                 if (!editing) return preview;
                 const selected = editing.selected === block.id;
                 return (
@@ -640,7 +680,7 @@ export function PhonePreview({
               };
               const content = (
                 <>
-                  <IconGlyph name={tab.icon} size={22} />
+                  <OwnOrIcon url={tab.icon_url} name={tab.icon} size={22} />
                   {t.label}
                 </>
               );

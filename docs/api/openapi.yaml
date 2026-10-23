@@ -5539,6 +5539,12 @@ components:
           maxItems: 5
           description: The bottom tabs, left to right.
           items: { $ref: '#/components/schemas/NavTab' }
+        menu:
+          type: array
+          maxItems: 12
+          default: []
+          description: 82.5 The side menu, top to bottom, opened from the menu button at the top of the pages in the bottom tabs or from the screen's edge. Empty or missing, no side menu.
+          items: { $ref: '#/components/schemas/NavTab' }
         pages:
           type: array
           items: { $ref: '#/components/schemas/PageSummary' }
@@ -5550,6 +5556,10 @@ components:
         id: { type: string }
         label: { type: string, example: Home }
         icon: { type: string, description: A Google Material Symbols (Rounded) name., example: home }
+        icon_url:
+          type: [string, 'null']
+          format: uri
+          description: 82.5 The owner's own icon, a square picture (PNG, JPEG or SVG), shown instead of `icon`; `icon` stays for an app that can't show it.
         target: { $ref: '#/components/schemas/Action' }
 
     PageSummary:
@@ -5673,6 +5683,24 @@ components:
         id: { type: string }
         type: { type: string }
         title: { type: [string, 'null'] }
+        look: { $ref: '#/components/schemas/BlockLook' }
+
+    BlockLook:
+      type: [object, 'null']
+      description: |
+        82.5 How the block sits on its page, within the app's brand. Null or
+        missing: no background and the page's usual spacing.
+      properties:
+        background:
+          type: string
+          enum: [none, tint, primary, secondary, surface]
+          default: none
+          description: '`tint`: a light wash of the main colour; `primary`: the main colour, with light text; `secondary`: the second colour (`Appearance.secondary_color`, else the main one), with light text; `surface`: the colour of cards.'
+        spacing:
+          type: string
+          enum: [none, small, medium, large]
+          default: medium
+          description: The space above and below the block, and inside it when it has a background.
 
     BannerBlock:
       allOf:
@@ -5836,6 +5864,7 @@ components:
                 required: [icon, label, action]
                 properties:
                   icon: { type: string, description: A Google Material Symbols (Rounded) name., example: restaurant_menu }
+                  icon_url: { type: [string, 'null'], format: uri, description: '82.5 The owner''s own icon, shown instead of `icon`.' }
                   label: { type: string, example: Menu }
                   action: { $ref: '#/components/schemas/Action' }
 

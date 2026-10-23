@@ -105,6 +105,7 @@
   "back": "Geri",
   "tabPosition": "{label}, sekme {index} / {count}",
   "mainNavigation": "Ana gezinme",
+  "sideMenuOpen": "Menüyü aç",
   "tabWithCount": "{label}, {count}",
   "maintenanceTitle": "Birazdan döneceğiz",
   "maintenanceMessage": "{name} güncelleniyor. Lütfen biraz sonra tekrar deneyin.",

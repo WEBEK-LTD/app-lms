@@ -75,6 +75,36 @@ class PageStyle {
   final double bannerRadius;
 }
 
+/// 82.5 Light text for a block on the main or the second colour: its title
+/// and its own text read in it; cards in it keep their colours.
+class BlockForeground extends InheritedWidget {
+  const BlockForeground({super.key, required this.color, required super.child});
+
+  final Color color;
+
+  /// [child] with its text in the block's light colour, when it has one.
+  static Widget text(BuildContext context, Widget child) {
+    final color = context
+        .dependOnInheritedWidgetOfExactType<BlockForeground>()
+        ?.color;
+    if (color == null) return child;
+    final theme = Theme.of(context);
+    return Theme(
+      data: theme.copyWith(
+        extensions: [
+          ...theme.extensions.values.where((e) => e is! AppPalette),
+          context.palette.textOn(color),
+        ],
+      ),
+      child: child,
+    );
+  }
+
+  @override
+  bool updateShouldNotify(BlockForeground oldWidget) =>
+      color != oldWidget.color;
+}
+
 /// One block, drawn in the current template. Every block type in the
 /// contract has a view; the page skips the ones [shows] rejects.
 class PageBlockView extends ConsumerWidget {
@@ -111,7 +141,10 @@ class PageBlockView extends ConsumerWidget {
     final title = block.title?.trim();
     final Widget content = switch (block) {
       final BannerBlock b => _Banner(block: b, style: style),
-      final TextBlock b => HtmlContent(html: b.html, title: b.title ?? ''),
+      final TextBlock b => BlockForeground.text(
+        context,
+        HtmlContent(html: b.html, title: b.title ?? ''),
+      ),
       final ImageBlock b => _Image(block: b, style: style),
       final VideoBlock b => _Video(block: b, style: style),
       final ButtonBlock b => _Button(block: b),
@@ -148,10 +181,13 @@ class PageBlockView extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SectionHeader(
-          title: title,
-          size: style.headerSize,
-          weight: style.headerWeight,
+        BlockForeground.text(
+          context,
+          SectionHeader(
+            title: title,
+            size: style.headerSize,
+            weight: style.headerWeight,
+          ),
         ),
         const SizedBox(height: 12),
         content,

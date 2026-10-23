@@ -105,6 +105,7 @@
   "back": "رجوع",
   "tabPosition": "{label}، علامة التبويب {index} من {count}",
   "mainNavigation": "التنقل الرئيسي",
+  "sideMenuOpen": "فتح القائمة",
   "tabWithCount": "{label}، {count}",
   "maintenanceTitle": "سنعود قريبًا",
   "maintenanceMessage": "يجري تحديث {name}. يُرجى المحاولة مرة أخرى بعد قليل.",

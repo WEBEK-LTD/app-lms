@@ -575,6 +575,7 @@ describe("pages on the hosted API", () => {
         { id: "home", label: "Home", icon: "home", target: { type: "page", page_slug: "home" } },
         { id: "account", label: "Account", icon: "person", target: { type: "screen", screen: "account" } },
       ],
+      menu: [],
       pages: [{ slug: "home", title: "Home", updated_at: NOW.toISOString() }],
     });
     const arabic = await call("/pages", { headers: { "accept-language": "ar-EG,ar;q=0.9" } });
@@ -599,6 +600,53 @@ describe("pages on the hosted API", () => {
       appearance: { template: "bold", theme_mode: "dark", user_can_change_mode: false, secondary_color: "#E8B04B", font: "Outfit", corners: "round", cards: "elevated" },
       languages: { default: "en", available: ["en", "ar"] },
     });
+  });
+
+  it("82.5 serves the side menu, the owner's own icons and each block's look", async () => {
+    const icon = "https://yallapp.test/m/icon-star.png";
+    const layout = layoutWith(
+      [
+        { id: "hello", type: "text", visibility: "everyone", html: "<p>Hello</p>", look: { background: "tint", spacing: "large" } },
+        { id: "plain", type: "text", visibility: "everyone", html: "<p>Plain</p>", look: { background: "none", spacing: "medium" } },
+        { id: "links", type: "quick_links", visibility: "everyone", style: "grid", links: [{ icon: "star", icon_url: icon, label: "Offers", action: { type: "page", page_slug: "home" } }] },
+      ],
+      {
+        menu: [
+          { id: "about", label: "About us", icon: "info", icon_url: icon, target: { type: "page", page_slug: "home" }, translations: { ar: { label: "من نحن" } } },
+          { id: "orders", label: "Orders", icon: "receipt_long", target: { type: "screen", screen: "orders" } },
+        ],
+      },
+    );
+    expect((await publishLayout(store, app, layout, "owner@lale.test", NOW)).ok).toBe(true);
+    const nav = await call("/pages");
+    expect((nav.body as { menu: unknown[] }).menu).toEqual([
+      { id: "about", label: "About us", icon: "info", icon_url: icon, target: { type: "page", page_slug: "home" } },
+      { id: "orders", label: "Orders", icon: "receipt_long", target: { type: "screen", screen: "orders" } },
+    ]);
+    expect((await call("/pages", { headers: { "accept-language": "ar" } })).body).toMatchObject({ menu: [{ label: "من نحن" }, { label: "الطلبات" }] });
+    const home = await call("/pages/{slug}", { params: ["home"] });
+    const served = (home.body as { blocks: { id: string; look?: unknown; links?: unknown[] }[] }).blocks;
+    expect(served.find((b) => b.id === "hello")!.look).toEqual({ background: "tint", spacing: "large" });
+    // The usual look isn't stored, nor sent.
+    expect(served.find((b) => b.id === "plain")).not.toHaveProperty("look");
+    expect(served.find((b) => b.id === "links")!.links).toEqual([{ icon: "star", icon_url: icon, label: "Offers", action: { type: "page", page_slug: "home" } }]);
+  });
+
+  it("82.5 checks the look, the icons' addresses and the side menu", () => {
+    const bad = parse(
+      layoutWith([{ id: "x", type: "text", visibility: "everyone", html: "<p>x</p>", look: { background: "neon", spacing: "huge" } }], {
+        menu: Array.from({ length: 13 }, (_, i) => ({ id: `m${i}`, label: `Entry ${i}`, icon: "info", icon_url: "http://insecure.test/i.png", target: { type: "page", page_slug: "home" } })),
+      }),
+    );
+    expect(bad.ok).toBe(false);
+    const errors = bad.ok ? [] : bad.errors.join("\n");
+    expect(errors).toContain("choose the background from the list.");
+    expect(errors).toContain("choose the spacing from the list.");
+    expect(errors).toContain("the side menu can have at most 12 entries.");
+    expect(errors).toContain("Menu entry 1: The icon's picture address must be a full https address.");
+    // No menu: none stored.
+    const none = parse(layoutWith([], { menu: [] }));
+    expect(none.ok && none.value).not.toHaveProperty("menu");
   });
 
   it("resolves the blocks of a page for each visitor", async () => {

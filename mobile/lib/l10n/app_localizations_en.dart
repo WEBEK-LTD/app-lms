@@ -397,6 +397,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mainNavigation => 'Main navigation';
 
   @override
+  String get sideMenuOpen => 'Open the menu';
+
+  @override
   String tabWithCount(String label, int count) {
     return '$label, $count';
   }

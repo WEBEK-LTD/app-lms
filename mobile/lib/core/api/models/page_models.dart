@@ -2,12 +2,14 @@ import 'catalog_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
 
-/// `GET /pages`: the bottom tabs and the pages published in the dashboard.
+/// `GET /pages`: the bottom tabs, the side menu and the pages published in
+/// the dashboard.
 class Navigation {
   const Navigation({
     required this.version,
     required this.tabs,
     required this.pages,
+    this.menu = const [],
   });
 
   /// Tabs whose target the app doesn't know are left out; [usable] says
@@ -17,14 +19,21 @@ class Navigation {
     tabs: [for (final tab in reqListOf(json, 'tabs', NavTab.tryParse)) ?tab]
         .take(maxTabs)
         .toList(),
+    menu: [for (final entry in listOf(json, 'menu', NavTab.tryParse)) ?entry]
+        .take(maxMenu)
+        .toList(),
     pages: listOf(json, 'pages', PageSummary.fromJson),
   );
 
   static const minTabs = 2;
   static const maxTabs = 5;
+  static const maxMenu = 12;
 
   final String version;
   final List<NavTab> tabs;
+
+  /// 82.5 The side menu, top to bottom; empty, no menu button.
+  final List<NavTab> menu;
   final List<PageSummary> pages;
 
   bool get usable => tabs.length >= minTabs;
@@ -36,6 +45,7 @@ class NavTab {
     required this.label,
     required this.icon,
     required this.target,
+    this.iconUrl,
   });
 
   /// Null when the tab's target is an action this app doesn't know.
@@ -46,6 +56,7 @@ class NavTab {
       id: reqString(json, 'id'),
       label: reqString(json, 'label'),
       icon: reqString(json, 'icon'),
+      iconUrl: httpsUrl(json['icon_url']),
       target: target,
     );
   }
@@ -55,8 +66,15 @@ class NavTab {
 
   /// A Google Material Symbols (Rounded) name, for example `home`.
   final String icon;
+
+  /// 82.5 The owner's own icon, shown instead of [icon].
+  final String? iconUrl;
   final PageAction target;
 }
+
+/// 82.5 An https address, or null.
+String? httpsUrl(Object? value) =>
+    value is String && value.startsWith('https://') ? value : null;
 
 class PageSummary {
   const PageSummary({
@@ -84,6 +102,7 @@ class AppPage {
     required this.updatedAt,
     required this.blocks,
     this.showTitle = true,
+    this.looks = const {},
   });
 
   /// Blocks the app doesn't know, or can't read, are skipped.
@@ -95,13 +114,64 @@ class AppPage {
     blocks: [
       for (final block in reqListOf(json, 'blocks', PageBlock.tryParse)) ?block,
     ],
+    looks: _looks(json['blocks']),
   );
+
+  static Map<String, BlockLook> _looks(Object? blocks) {
+    final looks = <String, BlockLook>{};
+    for (final raw in blocks is List ? blocks : const []) {
+      final look = raw is Map ? BlockLook.tryParse(raw['look']) : null;
+      final id = raw is Map ? raw['id'] : null;
+      if (look != null && id is String) looks[id] = look;
+    }
+    return looks;
+  }
 
   final String slug;
   final String title;
   final DateTime updatedAt;
   final bool showTitle;
   final List<PageBlock> blocks;
+
+  /// 82.5 Each block's look, by block id; a block without one has none.
+  final Map<String, BlockLook> looks;
+}
+
+enum BlockBackground { none, tint, primary, secondary, surface }
+
+enum BlockSpacing { none, small, medium, large }
+
+/// 82.5 How a block sits on its page: a background within the app's brand,
+/// and the space around it.
+class BlockLook {
+  const BlockLook({
+    this.background = BlockBackground.none,
+    this.spacing = BlockSpacing.medium,
+  });
+
+  /// Null when it changes nothing: no background and the usual spacing.
+  static BlockLook? tryParse(Object? value) {
+    if (value is! Map) return null;
+    final look = BlockLook(
+      background: enumFrom(
+        BlockBackground.values,
+        value['background'],
+        BlockBackground.none,
+      ),
+      spacing: enumFrom(
+        BlockSpacing.values,
+        value['spacing'],
+        BlockSpacing.medium,
+      ),
+    );
+    return look.background == BlockBackground.none &&
+            look.spacing == BlockSpacing.medium
+        ? null
+        : look;
+  }
+
+  final BlockBackground background;
+  final BlockSpacing spacing;
 }
 
 enum PageActionType { page, screen, course, item, url }
@@ -669,6 +739,7 @@ class QuickLink {
     required this.icon,
     required this.label,
     required this.action,
+    this.iconUrl,
   });
 
   /// Null without a label or an action this app knows.
@@ -678,6 +749,7 @@ class QuickLink {
     if (action == null || label == null || label.trim().isEmpty) return null;
     return QuickLink(
       icon: optString(json, 'icon') ?? 'apps',
+      iconUrl: httpsUrl(json['icon_url']),
       label: label,
       action: action,
     );
@@ -685,6 +757,9 @@ class QuickLink {
 
   /// A Google Material Symbols (Rounded) name.
   final String icon;
+
+  /// 82.5 The owner's own icon, shown instead of [icon].
+  final String? iconUrl;
   final String label;
   final PageAction action;
 }

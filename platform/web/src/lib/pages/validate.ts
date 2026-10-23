@@ -15,6 +15,8 @@ import {
   ITEMS_LAYOUTS,
   ITEMS_SORTS,
   LAYOUT_LIMITS,
+  BLOCK_BACKGROUNDS,
+  BLOCK_SPACINGS,
   NOTICE_TONES,
   QUICK_LINK_STYLES,
   SCREENS,
@@ -361,6 +363,9 @@ function parseMoreBlock(ctx: Context, at: string, type: string, v: Record<string
           label: c.text(where, l.label, L.links.label, "a label"),
           action: parseAction(ctx, where, l.action, true) ?? { type: "screen", screen: "account" },
         };
+        // 82.5 The owner's own icon.
+        const iconUrl = c.mediaUrl(where, l.icon_url, "The icon's picture address", false);
+        if (iconUrl) link.icon_url = iconUrl;
         return { ...link, ...entryTranslations(ctx, where, "links", l.translations) };
       });
       return true;
@@ -538,6 +543,15 @@ function parseBlock(ctx: Context, where: string, value: unknown, allowed: string
     visibility: oneOf(VISIBILITIES, v.visibility) ? v.visibility : "everyone",
     title: c.optionalText(at, v.title, BLOCK_TEXT_LIMITS.title, "The title"),
   };
+  // 82.5 Its look within the brand: kept only when it isn't the usual.
+  const look = record(v.look);
+  if (look) {
+    if (look.background !== undefined && !oneOf(BLOCK_BACKGROUNDS, look.background)) c.fail(at, "choose the background from the list.");
+    if (look.spacing !== undefined && !oneOf(BLOCK_SPACINGS, look.spacing)) c.fail(at, "choose the spacing from the list.");
+    const background = oneOf(BLOCK_BACKGROUNDS, look.background) ? look.background : "none";
+    const spacing = oneOf(BLOCK_SPACINGS, look.spacing) ? look.spacing : "medium";
+    if (background !== "none" || spacing !== "medium") block.look = { background, spacing };
+  }
   switch (type) {
     case "banner":
       block.image_url = c.mediaUrl(at, v.image_url, "an image address", true);
@@ -647,10 +661,10 @@ function parsePage(ctx: Context, index: number, value: unknown, allowedBlocks: s
   return page;
 }
 
-function parseTab(ctx: Context, index: number, value: unknown): LayoutTab | null {
+function parseTab(ctx: Context, index: number, value: unknown, kind: "Tab" | "Menu entry" = "Tab"): LayoutTab | null {
   const { c } = ctx;
   const v = record(value) ?? {};
-  const where = `Tab ${index + 1}`;
+  const where = `${kind} ${index + 1}`;
   const id = typeof v.id === "string" ? v.id : "";
   if (!ID.test(id)) c.fail(where, "the tab has no valid ID.");
   const label = c.text(where, v.label, 20, "a label");
@@ -658,6 +672,9 @@ function parseTab(ctx: Context, index: number, value: unknown): LayoutTab | null
   if (!ICON_NAME.test(icon)) c.fail(where, "choose an icon.");
   const target = parseAction(ctx, where, v.target, true);
   const tab: LayoutTab = { id, label, icon, target: target ?? { type: "screen", screen: "account" } };
+  // 82.5 The owner's own icon.
+  const iconUrl = c.mediaUrl(where, v.icon_url, "The icon's picture address", false);
+  if (iconUrl) tab.icon_url = iconUrl;
   const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.tab, { label: 20 });
   if (translations) tab.translations = translations;
   return tab;
@@ -709,7 +726,20 @@ export function parseLayoutContent(value: unknown, options: ParseOptions): Parse
     if (tabIds.has(tab.id)) c.fail("Tabs", "two tabs have the same ID.");
     tabIds.add(tab.id);
   }
+  // 82.5 The side menu: entries shaped like the tabs, none at all by default.
+  const menuIn = Array.isArray(v.menu) ? v.menu : [];
+  if (v.menu !== undefined && !Array.isArray(v.menu)) c.fail("Side menu", "the side menu is missing.");
+  if (menuIn.length > LAYOUT_LIMITS.maxMenu) c.fail("Side menu", `the side menu can have at most ${LAYOUT_LIMITS.maxMenu} entries.`);
+  const menu = menuIn
+    .slice(0, LAYOUT_LIMITS.maxMenu)
+    .map((t, i) => parseTab(ctx, i, t, "Menu entry"))
+    .filter((t): t is LayoutTab => t !== null);
+  const menuIds = new Set<string>();
+  for (const entry of menu) {
+    if (menuIds.has(entry.id)) c.fail("Side menu", "two entries have the same ID.");
+    menuIds.add(entry.id);
+  }
   const strings = stringsIn === undefined ? undefined : parseInterfaceStrings(stringsIn, (where, message) => c.fail(where, message));
   if (c.errors.length) return { ok: false, errors: c.errors };
-  return { ok: true, value: { appearance, languages, tabs, pages, ...(strings && Object.keys(strings).length ? { strings } : {}) } };
+  return { ok: true, value: { appearance, languages, tabs, ...(menu.length ? { menu } : {}), pages, ...(strings && Object.keys(strings).length ? { strings } : {}) } };
 }

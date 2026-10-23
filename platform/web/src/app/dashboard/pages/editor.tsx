@@ -27,9 +27,10 @@ import {
   type LayoutBlock,
   type LayoutContent,
   type LayoutPage,
+  type LayoutTab,
 } from "@/lib/pages/types";
 import { BlockSettings, type BlockContext } from "./block-settings";
-import { ActionEditor, Check, firstScreen, IconGlyph, IconPicker, LangText, SelectInput, TextInput, type Lang } from "./controls";
+import { ActionEditor, Check, firstScreen, IconGlyph, IconPicker, LangText, OwnIcon, SelectInput, TextInput, type Lang } from "./controls";
 import { BLOCK_DRAG_TYPE, DesignThumb, PhonePreview } from "./preview";
 import { LivePreview, notifyDraftSaved } from "./live-preview";
 import { UpgradeHint } from "@/components/upgrade";
@@ -93,6 +94,22 @@ const AUTOSAVE_MS = 1200;
 function summary(block: LayoutBlock): string {
   const text = block.heading || block.text || block.label || block.title || block.placeholder || (block.html ?? "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
   return text ? text.slice(0, 48) : "";
+}
+
+/** 82.5 A tab or menu entry with (or, null, without) the owner's own icon. */
+function withIconUrl(tab: LayoutTab, iconUrl: string | null): LayoutTab {
+  if (iconUrl) return { ...tab, icon_url: iconUrl };
+  const { icon_url: _drop, ...rest } = tab;
+  void _drop;
+  return rest;
+}
+
+/** 82.5 The layout with this side menu; none stored when it's empty. */
+function withMenu(layout: LayoutContent, menu: LayoutTab[]): LayoutContent {
+  if (menu.length) return { ...layout, menu };
+  const { menu: _drop, ...rest } = layout;
+  void _drop;
+  return rest;
 }
 
 /** 82.4 Changes this close together are one step to undo; and how many steps are kept. */
@@ -439,6 +456,15 @@ export function PagesEditor({
   }
 
   // Tabs
+
+  // 82.5 The side menu.
+  const menu = layout.menu ?? [];
+  function addMenuEntry() {
+    if (menu.length >= LAYOUT_LIMITS.maxMenu) return;
+    update((l) =>
+      withMenu(l, [...(l.menu ?? []), { id: newBlockId("m"), label: "", icon: "info", target: l.pages[0] ? { type: "page", page_slug: l.pages[0].slug } : { type: "screen", screen: firstScreen(screens) } }]),
+    );
+  }
 
   function addTab() {
     if (layout.tabs.length >= LAYOUT_LIMITS.maxTabs) return;
@@ -829,6 +855,7 @@ export function PagesEditor({
                       value={tab.icon}
                       onChange={(icon) => update((l) => ({ ...l, tabs: l.tabs.map((x) => (x.id === tab.id ? { ...x, icon: icon ?? x.icon } : x)) }))}
                     />
+                    <OwnIcon id={`tab-${tab.id}-own-icon`} value={tab.icon_url} onChange={(icon_url) => update((l) => ({ ...l, tabs: l.tabs.map((x) => (x.id === tab.id ? withIconUrl(x, icon_url) : x)) }))} />
                     <ActionEditor
                       id={`tab-${tab.id}-target`}
                       label={t("pages.opens")}
@@ -870,6 +897,76 @@ export function PagesEditor({
             <div>
               <button type="button" className={smallBtn} disabled={layout.tabs.length >= LAYOUT_LIMITS.maxTabs} onClick={addTab}>
                 {t("pages.addTab")}
+              </button>
+            </div>
+          </section>
+        ) : null}
+
+        {/* 82.5 The side menu, as well as the tabs. */}
+        {panel === "tabs" && plan.pageEditor ? (
+          <section aria-labelledby="h-side-menu" className={sectionClass}>
+            <div className="flex flex-col gap-1">
+              <h2 id="h-side-menu" className="m-0 text-lg font-bold">
+                {t("pages.sideMenu")}
+              </h2>
+              <p className="m-0 text-[15px] text-ink-4">{t("pages.sideMenuText", { max: LAYOUT_LIMITS.maxMenu })}</p>
+            </div>
+            {menu.length ? (
+              <ol className="m-0 flex list-none flex-col gap-3 p-0">
+                {menu.map((entry, i) => {
+                  const setEntry = (change: (e: LayoutTab) => LayoutTab) => update((l) => ({ ...l, menu: (l.menu ?? []).map((x) => (x.id === entry.id ? change(x) : x)) }));
+                  return (
+                    <li key={entry.id}>
+                      <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-line p-3">
+                        <legend className="flex items-center gap-2 px-1 text-sm font-bold">
+                          {t("pages.menuN", { n: num(i + 1) })}
+                          {actionProblem(entry.target, screens, sources) ? <Badge tone="warn">{t("pages.needsFix")}</Badge> : null}
+                        </legend>
+                        <LangText id={`menu-${entry.id}-label`} label={t("pages.label")} value={entry} field="label" lang={lang} onChange={(next) => setEntry(() => next)} />
+                        <IconPicker id={`menu-${entry.id}-icon`} label={t("pages.icon")} value={entry.icon} onChange={(icon) => setEntry((x) => ({ ...x, icon: icon ?? x.icon }))} />
+                        <OwnIcon id={`menu-${entry.id}-own-icon`} value={entry.icon_url} onChange={(icon_url) => setEntry((x) => withIconUrl(x, icon_url))} />
+                        <ActionEditor
+                          id={`menu-${entry.id}-target`}
+                          label={t("pages.opens")}
+                          action={entry.target}
+                          optional={false}
+                          pages={pages}
+                          sources={sources}
+                          screens={screens}
+                          courses={pickable.items.courses}
+                          onChange={(target) => target && setEntry((x) => ({ ...x, target }))}
+                        />
+                        <div className="flex flex-wrap gap-2">
+                          <button type="button" className={smallBtn} aria-label={t("pages.moveUp", { item: t("pages.menuN", { n: num(i + 1) }) })} disabled={i === 0} onClick={() => update((l) => ({ ...l, menu: moveItem(l.menu ?? [], i, i - 1) }))}>
+                            {t("pages.up")}
+                          </button>
+                          <button
+                            type="button"
+                            className={smallBtn}
+                            aria-label={t("pages.moveDown", { item: t("pages.menuN", { n: num(i + 1) }) })}
+                            disabled={i === menu.length - 1}
+                            onClick={() => update((l) => ({ ...l, menu: moveItem(l.menu ?? [], i, i + 1) }))}
+                          >
+                            {t("pages.down")}
+                          </button>
+                          <button
+                            type="button"
+                            className={`${btn.danger} h-9 px-3 text-sm`}
+                            aria-label={t("pages.menuRemove", { n: i + 1 })}
+                            onClick={() => update((l) => withMenu(l, (l.menu ?? []).filter((x) => x.id !== entry.id)))}
+                          >
+                            {t("common.remove")}
+                          </button>
+                        </div>
+                      </fieldset>
+                    </li>
+                  );
+                })}
+              </ol>
+            ) : null}
+            <div>
+              <button type="button" className={smallBtn} disabled={menu.length >= LAYOUT_LIMITS.maxMenu} onClick={addMenuEntry}>
+                {t("pages.addMenuEntry")}
               </button>
             </div>
           </section>

@@ -2737,6 +2737,25 @@ them under Publish history, marking the one in the app; "Use as draft"
 with the draft's own interface strings; what's published stays until the
 owner publishes.
 
+### Block looks, own icons and the side menu (82.5)
+
+Each block can have a look (`BlockLook`): a background within the app's
+brand (`tint`, a light wash of the main colour; `primary`; `secondary`, the
+second colour or else the main one; `surface`, the colour of cards) and its
+spacing (`none`, `small`, `medium`, `large`). The validator stores it only
+when it changes something, and the hosted API and the plugin
+(`Block_Resolver::look`) pass it on the same way. On the main or the second
+colour the block's title and its own text turn light; cards in it keep their
+colours. The space between two blocks is the larger of what each asks for.
+
+A tab, a side menu entry or a quick link can have the owner's own icon
+(`icon_url`, https only, from the media library); `icon` stays as the
+fallback for an app that can't load it. `Navigation.menu` is the side menu
+(up to 12 entries, each a `NavTab`, translated like the tabs, dropped when
+the app can't open its target). The app shows the menu button where a
+page in the tabs would have its back button, and the menu also opens from
+the screen's edge; with no entries there is neither.
+
 ## Pages, looks and languages
 
 Clients build their app's pages and pick its look in the client dashboard,

@@ -4,7 +4,7 @@ import { servedLayout } from "../../pages/layout";
 import { etagValues } from "../../pages/plugin";
 import { itemSourcesFor } from "../../pages/sources";
 import { pickLanguage, translated, translatedBlock } from "../../pages/translate";
-import { ENTRY_LISTS, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock } from "../../pages/types";
+import { ENTRY_LISTS, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock, type LayoutTab } from "../../pages/types";
 import { ConnectorError, type Connector } from "../connectors/types";
 import type { HostedContext, HostedRequest, HostedResult } from "../service";
 import { durationLabel, itemWords } from "./item-words";
@@ -56,6 +56,12 @@ export async function handlePages(ctx: HostedContext, req: HostedRequest, user: 
   };
 }
 
+/** A tab or a side menu entry as the app gets it (`NavTab`): 82.5 with the owner's own icon. */
+function navTab(tab: LayoutTab, lang: LanguageCode, def: LanguageCode) {
+  const t = translated(tab, lang, def);
+  return { id: t.id, label: t.label, icon: t.icon, ...(t.icon_url ? { icon_url: t.icon_url } : {}), target: t.target };
+}
+
 function navigation(layout: Layout, lang: LanguageCode, req: HostedRequest): HostedResult {
   const def = layout.languages.default;
   // Each language is its own version, so an app that switches language gets
@@ -69,10 +75,9 @@ function navigation(layout: Layout, lang: LanguageCode, req: HostedRequest): Hos
     status: 200,
     body: {
       version,
-      tabs: layout.tabs.map((tab) => {
-        const t = translated(tab, lang, def);
-        return { id: t.id, label: t.label, icon: t.icon, target: t.target };
-      }),
+      tabs: layout.tabs.map((tab) => navTab(tab, lang, def)),
+      // 82.5 The side menu.
+      menu: (layout.menu ?? []).map((entry) => navTab(entry, lang, def)),
       pages: layout.pages.map((page) => ({ slug: page.slug, title: translated(page, lang, def).title, updated_at: page.updated_at })),
     },
     headers: { ...VARY, etag },
