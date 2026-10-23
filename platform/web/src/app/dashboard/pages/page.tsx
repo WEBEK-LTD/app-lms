@@ -10,7 +10,6 @@ import { richText } from "@/i18n/rich";
 import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey, signingSecret } from "@/lib/env";
 import { pickableContent } from "@/lib/hosted/pages/pickable";
-import { designById, designFits, designsFor } from "@/lib/pages/designs";
 import { designLayout, designSamples, hasUnpublishedChanges, layoutHistory, loadLayout, withoutStrings } from "@/lib/pages/layout";
 import { appVersionsInUse } from "@/lib/pages/reach";
 import { blockTypesFor, categorySourcesFor, itemSourcesFor, screenOptionsFor } from "@/lib/pages/sources";
@@ -24,6 +23,7 @@ import { hasFeature, lowestPlanWith } from "@/lib/plans";
 import { builtInSuggestions } from "@/lib/pages/builtin";
 import { draftPreviewSupported } from "@/lib/preview/config";
 import { createPreviewToken, previewAppPath, previewKey } from "@/lib/preview/token";
+import { designFitsApp, designsForApp, findDesign } from "@/lib/pages/designs/catalog";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("pages.title") };
@@ -65,6 +65,8 @@ export default async function PagesPage({ searchParams }: PageProps<"/dashboard/
             t("pages.reachSetup")
           : null;
 
+  // 84.4 The built-in designs and the team's.
+  const chosenDesign = await findDesign(store, app.design);
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
@@ -105,11 +107,11 @@ export default async function PagesPage({ searchParams }: PageProps<"/dashboard/
           savedAt: record.draftUpdatedAt.toISOString(),
           published: record.published && record.publishedAt ? { version: record.published.version, at: record.publishedAt.toISOString() } : null,
           changes: hasUnpublishedChanges(record),
-          design: designById(app.design) && designFits(designById(app.design)!, app) ? app.design! : null,
-          samples: designSamples(app, now),
+          design: chosenDesign && (await designFitsApp(store, chosenDesign, app)) ? chosenDesign.id : null,
+          samples: await designSamples(store, app, now),
           history: await layoutHistory(store, app.id),
         }}
-        designs={designsFor(app).map((d) => ({ id: d.id, name: d.name, description: d.description, layout: designLayout(app, d, record.draft, now) }))}
+        designs={(await designsForApp(store, app)).map((d) => ({ id: d.id, name: d.name, description: d.description, layout: designLayout(app, d, record.draft, now), palettes: d.palettes ?? [] }))}
         app={{
           appType: app.appType,
           name: app.appName ?? t("setup.yourApp"),
@@ -122,6 +124,7 @@ export default async function PagesPage({ searchParams }: PageProps<"/dashboard/
         blockTypes={blockTypesFor(app)}
         pickable={pickable}
         versions={await appVersionsInUse(store, app.id, now)}
+        sections={(await store.listSavedSections(app.clientId)).map(({ id, name, blocks }) => ({ id, name, blocks }))}
         reach={reach}
         plan={{
           name: plan?.name ?? "",

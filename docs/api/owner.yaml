@@ -2882,7 +2882,7 @@ components:
         id: { type: string, format: uuid }
         name: { type: string }
         type: { type: string, enum: [lms, store, booking, real_estate, news, events, donations] }
-        vertical: { type: [string, 'null'], enum: [restaurant, clinic, fitness, charity, null] }
+        vertical: { type: [string, 'null'], enum: [restaurant, clinic, fitness, charity, services, null] }
         type_name: { type: string, example: Restaurant, description: The kind's name in the person's language. }
         backend: { type: [string, 'null'], enum: [wordpress, hosted, custom_api, setup_requested, null] }
         state: { $ref: '#/components/schemas/AccountState' }

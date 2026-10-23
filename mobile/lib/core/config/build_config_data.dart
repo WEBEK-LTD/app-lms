@@ -28,7 +28,10 @@ enum AppVertical {
   restaurant,
   clinic,
   fitness,
-  charity;
+  charity,
+
+  /// 84.1 Services and companies: the bookings wording.
+  services;
 
   /// The value as the build config and `Config` send it; anything unknown
   /// (a newer platform) is none.

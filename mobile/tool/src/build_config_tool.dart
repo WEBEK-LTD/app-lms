@@ -74,7 +74,7 @@ const appTypes = [
 ];
 
 /// Kinds of business (`vertical` in the schema), on top of the app type.
-const verticals = ['restaurant', 'clinic', 'fitness', 'charity'];
+const verticals = ['restaurant', 'clinic', 'fitness', 'charity', 'services'];
 
 /// The Dart `AppType` value for a schema `app_type`.
 String dartAppType(String wire) =>

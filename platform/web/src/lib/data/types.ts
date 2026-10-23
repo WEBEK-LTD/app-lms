@@ -1,6 +1,7 @@
 import type { Plan, PlanSetting } from "../plans";
 import type { BuildConfig } from "../build-config/types";
-import type { AppDefaultsSetting, Layout, LayoutContent } from "../pages/types";
+import type { AppDefaultsSetting, Layout, LayoutBlock, LayoutContent } from "../pages/types";
+import type { Design } from "../pages/designs/build";
 import type { AdminRole } from "../admin/permissions";
 import type { YallappPrice } from "../billing/prices";
 
@@ -124,7 +125,7 @@ export interface StoreListing {
 export type AppType = "lms" | "store" | "booking" | "real_estate" | "news" | "events" | "donations";
 
 /** 20 The kind of business, on top of the engine: wording, defaults, the demo and marketing, never routes (lib/app/kinds.ts). */
-export type AppVertical = "restaurant" | "clinic" | "fitness" | "charity";
+export type AppVertical = "restaurant" | "clinic" | "fitness" | "charity" | "services";
 
 /**
  * Where the app's content comes from: the Yallapp plugin on the client's
@@ -1673,6 +1674,17 @@ export interface AppLayoutVersion {
 /** 82.4 A publish in the history list, without its layout. */
 export type AppLayoutVersionSummary = Omit<AppLayoutVersion, "layout">;
 
+/** 84.3 Blocks an account saved together, to add again to any page of its apps. */
+export interface SavedSection {
+  id: string;
+  clientId: string;
+  name: string;
+  blocks: LayoutBlock[];
+  createdAt: Date;
+  /** Email of whoever saved it. */
+  createdBy: string | null;
+}
+
 // 11.7 Admin team and audit log
 
 /** Someone of the WEBEK team in the super admin pages, besides SUPER_ADMIN_EMAILS (always owners). */
@@ -1742,6 +1754,16 @@ export interface SwitchesSetting {
 /** Merged into the settings above. */
 export interface PlatformSettingValues {
   switches: SwitchesSetting;
+}
+
+/** 84.4 The team's designs (Admin › Designs): its own, and the built-in ones it hid. */
+export interface DesignsSetting {
+  custom: Design[];
+  hidden: string[];
+}
+
+export interface PlatformSettingValues {
+  designs: DesignsSetting;
 }
 
 /** 62 The daily job's look at the media folders: folders of apps that no longer exist, and when each was first seen (lib/media/sweep.ts). */

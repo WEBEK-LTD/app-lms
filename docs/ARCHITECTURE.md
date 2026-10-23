@@ -173,7 +173,7 @@ mobile/
 - The build config's `app_type` (`lms`, `store`, `booking`, `real_estate`, `news`, `events` or `donations`) picks the module's routes
   and bottom navigation; everything in `core/` and `modules/shared/` is common.
 - App kinds (roadmap 20): `app_type` is the engine (the module); the optional
-  `vertical` (`restaurant`, `clinic`, `fitness`, `charity`; `apps.vertical`,
+  `vertical` (`restaurant`, `clinic`, `fitness`, `charity`, `services`; `apps.vertical`,
   build config `vertical`, `Config.vertical`) is the kind of business and only
   changes wording, defaults, the demo and marketing, never routes. The
   dashboard's app type picker shows kinds (an engine with a vertical). What
@@ -182,6 +182,10 @@ mobile/
   lives in one registry, `platform/web/src/lib/app/kinds.ts`; the platform
   reads every per-type value from it. The app's wording helper is
   `mobile/lib/core/l10n/vertical_wording.dart`.
+- Services and companies (84.1) are the bookings engine with the
+  `services` vertical: the bookings wording and screens, with designs that
+  present the company too (About us, Offers and Contact pages as well as
+  the home page).
 - Clinics (Phase 21) are the bookings engine with the `clinic` vertical:
   doctor, patient and visit wording, doctor profiles (`StaffMember`
   `specialties`, `languages`, `bio`) and an intake form
@@ -2736,6 +2740,37 @@ them under Publish history, marking the one in the app; "Use as draft"
 (`restoreLayoutVersion`) makes one the draft again, checked like any draft,
 with the draft's own interface strings; what's published stays until the
 owner publishes.
+
+### The team's designs (84.4)
+
+Owners choose from the design catalogue (`lib/pages/designs/catalog.ts`):
+the built-in designs the team didn't hide, then the team's own (the
+`designs` platform setting). The team makes one in Admin › Designs from an
+app's draft (`lib/pages/designs/team.ts`): its tabs, side menu, pages and
+look, for that app's kind, checked like a publish, without the app's
+hand-picked list entries; and renames, describes or deletes it, or hides a
+built-in one. Apps that used a design keep their pages.
+
+### Saved sections (84.3)
+
+An account's saved sections (`saved_sections`, `lib/pages/sections.ts`):
+blocks of a page saved together under a name, checked as a page of the app
+they came from (the same validator as publishing), at most 10 blocks and 30
+sections an account. "Your sections" in Add a block adds copies with new
+IDs to a page of any of the account's apps, leaving out the block types that
+app doesn't have (`lib/pages/section-blocks.ts`); the draft's own check
+flags the rest. They go with the account (the rows cascade with the client).
+
+### Designs with several pages, colours and pictures (84.2)
+
+Every design (`lib/pages/designs`, `withCompanyPages`) has an About us and
+a Contact page besides its own, in the side menu when no tab opens them,
+and three palettes: its own (the app keeps its main colour) and two of
+`PALETTES`. Choosing one on the design's card sets the look's second colour
+and the app's main colour (`applyDesignAction`). Yallapp's picture library
+(`lib/pages/picture-library.ts`): plain shapes in the palettes' colours,
+made by `scripts/design-pictures.py` into `public/design-pictures`,
+offered in "Choose from Media" for slides, banners and images.
 
 ### One definition per block (83.1)
 

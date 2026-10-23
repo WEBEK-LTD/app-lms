@@ -114,7 +114,7 @@ test("the landing page has the plans, the steps and the full footer", async ({ p
   for (const label of labels) expect(label.trim().length).toBeGreaterThan(1);
   expect(await strip.getByRole("img").count()).toBe(labels.length / 2);
   await expect(page.locator("[data-steps-timeline] > li")).toHaveCount(5);
-  await expect(page.getByRole("heading", { level: 2, name: "One platform, ten kinds of apps" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "One platform, eleven kinds of apps" })).toBeVisible();
 
   const footer = page.getByRole("contentinfo");
   await expect(footer).toContainText(`© ${new Date().getFullYear()} Yallapp · Cairo, Egypt`);

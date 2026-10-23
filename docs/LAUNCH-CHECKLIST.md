@@ -1081,6 +1081,8 @@ never in a chat or an issue.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **Saved sections** (84.3): migration `0063_saved_sections.sql` (a new
+      table) goes with the production deploy.
 - [ ] **App switches** (83.3): migration `0062_app_switches.sql` (a new
       column) goes with the production deploy; every switch starts on.
 - [ ] **Plugin 0.4.11** (82.5, 83.3): the side menu, the owner's own icons and

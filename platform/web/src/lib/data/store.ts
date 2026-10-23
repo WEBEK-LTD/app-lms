@@ -4,6 +4,7 @@ import type {
   AppLayoutRecord,
   AppLayoutVersion,
   AppLayoutVersionSummary,
+  SavedSection,
   Asset,
   Build,
   BuildStatus,
@@ -658,6 +659,11 @@ export interface DataStore {
   /** 82.4 The app's kept publishes, newest first. */
   listLayoutVersions(appId: string): Promise<AppLayoutVersionSummary[]>;
   getLayoutVersion(appId: string, number: number): Promise<AppLayoutVersion | null>;
+  /** 84.3 An account's saved sections, newest first. */
+  listSavedSections(clientId: string): Promise<SavedSection[]>;
+  createSavedSection(section: SavedSection): Promise<void>;
+  /** False when the account has no such section. */
+  deleteSavedSection(clientId: string, id: string): Promise<boolean>;
 
   // 11.7 Admin team and audit log
   /** Everyone in admin_members with their user, oldest first. */

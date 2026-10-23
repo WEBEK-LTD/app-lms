@@ -3,13 +3,14 @@ import type { DataStore } from "../data/store";
 import type { App, AppLayoutRecord } from "../data/types";
 import { platformSetting } from "../settings/platform";
 import { BUILT_IN_APP_DEFAULTS, defaultAppearance, defaultLayout } from "./defaults";
-import { applyDesign, contactFacts, designById, designFits, sampleTexts, type Design } from "./designs";
+import { applyDesign, contactFacts, sampleTexts, type Design } from "./designs";
 import type { AppDefaultsSetting, Appearance, Languages, Layout, LayoutContent, LayoutPage } from "./types";
 import { parseLayoutContent, type ParseResult } from "./validate";
 import type { PlanInfo } from "../plans";
 import { languagesForPlan, layoutForPlan, planLayoutErrors } from "./plan";
 import { withBuiltInTexts } from "./builtin";
 import { withLanguageList } from "../i18n/packs";
+import { designFitsApp, findDesign } from "./designs/catalog";
 
 /**
  * The draft and the published copy of an app's layout (roadmap 10.4). The
@@ -190,9 +191,9 @@ export async function saveDesignDraft(
 }
 
 /** 33 The sample texts of the app's design, as it applies to the app now; none without a design. */
-export function designSamples(app: App, now: Date): Record<string, string> {
-  const design = designById(app.design);
-  if (!design || !designFits(design, app)) return {};
+export async function designSamples(store: DataStore, app: App, now: Date): Promise<Record<string, string>> {
+  const design = await findDesign(store, app.design);
+  if (!design || !(await designFitsApp(store, design, app))) return {};
   return sampleTexts(designLayout(app, design, { appearance: { ...BUILT_IN_APP_DEFAULTS.appearance, secondary_color: null }, languages: BUILT_IN_APP_DEFAULTS.languages }, now));
 }
 

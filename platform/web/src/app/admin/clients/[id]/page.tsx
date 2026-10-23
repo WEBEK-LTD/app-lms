@@ -548,6 +548,8 @@ async function AppEntry({
                 ),
               ],
               ...(codesToday === null ? [] : [["Sign-in codes sent today", `${codesToday} by Yallapp (UTC day)`] as [string, string]]),
+              // 84.4 To make a design from its draft (Admin › Designs).
+              ...(app ? [["App ID", <span key="i" className="font-mono text-[13px] break-all" data-app-id="">{app.id}</span>] as [string, React.ReactNode]] : []),
               ["License", license ? <span key="k" className="font-mono text-[13px] break-all">{revealLicenseKey(license, encryptionKey())}</span> : "None yet"],
               [
                 "Plugin",

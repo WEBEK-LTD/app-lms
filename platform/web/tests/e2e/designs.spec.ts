@@ -201,3 +201,37 @@ test("starting from another design replaces the draft, not what's published", as
   const home = await (await request.get(`${api}/pages/home?platform=android`)).json();
   expect(home.blocks.map((b: { type: string }) => b.type)).toContain("social");
 });
+
+test("84.2 a design comes with its About us and Contact pages in the side menu, and the colours chosen with it", async ({ request }) => {
+  await own.goto("/dashboard/pages");
+  const designs = own.getByRole("region", { name: "Start from a design" });
+  await designs.getByText("Show designs").click();
+  const card = designs.getByRole("listitem").filter({ has: own.getByRole("button", { name: "Use the Coaching design" }) });
+  const colours = card.getByRole("group", { name: "Colours" }).getByRole("radio");
+  await expect(colours).toHaveCount(3);
+  await expect(colours.first()).toBeChecked();
+  // The third colours: their second colour, as the swatch shows it.
+  const third = card.getByRole("group", { name: "Colours" }).locator("label").nth(2);
+  const swatch = await third.locator("span[aria-hidden]").nth(1).evaluate((el) => getComputedStyle(el).backgroundColor);
+  const main = await third.locator("span[aria-hidden]").nth(0).evaluate((el) => getComputedStyle(el).backgroundColor);
+  await third.click();
+  await expect(colours.nth(2)).toBeChecked();
+  own.once("dialog", (dialog) => void dialog.accept());
+  await card.getByRole("button", { name: "Use the Coaching design" }).click();
+  await expect(own.getByText("Your draft now uses the Coaching design.")).toBeVisible();
+
+  // Its Contact page is in the side menu.
+  await expect(own.getByRole("button", { name: "Duplicate Contact" })).toBeVisible();
+  await own.getByRole("tab", { name: "Tabs" }).click();
+  const menu = own.getByRole("region", { name: "Side menu" });
+  await expect(menu.getByRole("group", { name: /^Menu entry/ }).filter({ has: own.getByRole("textbox", { name: "Label", exact: true }) })).not.toHaveCount(0);
+  const labels = await menu.getByLabel("Label", { exact: true }).evaluateAll((inputs) => inputs.map((i) => (i as HTMLInputElement).value));
+  expect(labels).toContain("Contact");
+
+  // The second colour is the chosen one, and the app's main colour changed with it.
+  await own.getByRole("tab", { name: /^Look/ }).click();
+  const hex = (css: string) => `#${css.match(/\d+/g)!.slice(0, 3).map((n) => Number(n).toString(16).padStart(2, "0")).join("")}`;
+  expect((await own.locator("#look-secondary").inputValue()).toLowerCase()).toBe(hex(swatch));
+  const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
+  expect(config.branding.primary_color.toLowerCase()).toBe(hex(main));
+});

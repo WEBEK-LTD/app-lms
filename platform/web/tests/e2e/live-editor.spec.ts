@@ -240,3 +240,67 @@ test("83.3 the team switches the side menu off for this app; the app reads it at
   expect(pages.menu).toEqual([]);
   await admin.context().close();
 });
+
+test("84.3 blocks saved as a section are added to another page", async () => {
+  await own.goto("/dashboard/pages");
+  await own.getByRole("tab", { name: "Pages" }).click();
+  const list = own.getByRole("list", { name: "Blocks" }).locator(":scope > li");
+  const home = await list.count();
+  expect(home).toBeGreaterThan(1);
+
+  // The first two blocks of the home page, saved together.
+  await own.getByText("Save blocks as a section").click();
+  const boxes = own.getByRole("group", { name: "Blocks" }).getByRole("checkbox");
+  await boxes.nth(0).check();
+  await boxes.nth(1).check();
+  await own.getByLabel("Section name").fill("Welcome strip");
+  await own.getByRole("button", { name: "Save the section" }).click();
+  await expect(own.getByText("Section saved. Add it from Your sections, in this app or another.")).toBeVisible();
+  const sections = own.getByRole("list", { name: "Your sections" });
+  await expect(sections.getByText("Welcome strip")).toBeVisible();
+  await expect(sections.getByText("2 blocks")).toBeVisible();
+
+  // A new page gets them.
+  await own.getByLabel("New page title").fill("Spring");
+  await own.getByRole("button", { name: "Add page" }).click();
+  await expect(list).toHaveCount(0);
+  await own.getByRole("button", { name: "Add the Welcome strip section" }).click();
+  await expect(own.getByText("Section added at the end of the page.")).toBeVisible();
+  await expect(list).toHaveCount(2);
+  await expect(own.getByText(/^Draft saved/)).toBeVisible({ timeout: 15_000 });
+});
+
+test("84.4 the team adds a design from an app's draft and hides a built-in one; owners see it", async ({ browser }) => {
+  const admin = await (await browser.newContext({ extraHTTPHeaders })).newPage();
+  await admin.goto("/sign-in");
+  await admin.getByLabel("Email").fill(E2E.liveEditorAdminEmail);
+  await admin.getByLabel("Password", { exact: true }).fill(E2E.adminPassword);
+  await admin.getByRole("button", { name: "Sign in" }).click();
+  await admin.waitForURL((url) => url.pathname.startsWith("/admin"));
+  await admin.goto(`/admin?q=${encodeURIComponent(client.email)}`);
+  await admin.getByRole("link", { name: client.name, exact: true }).first().click();
+  const appId = (await admin.locator("[data-app-id]").first().textContent())!.trim();
+
+  await admin.goto("/admin/designs");
+  const add = admin.getByRole("form", { name: "Add a design" });
+  await add.getByLabel("The app's ID").fill(appId);
+  await add.getByLabel("Name").fill("Olive market");
+  await add.getByLabel("One line about it").fill("A market's own pages, made by the team.");
+  await add.getByRole("button", { name: "Add the design" }).click();
+  await expect(add.getByRole("status")).toContainText("Owners of store apps can choose Olive market now.");
+  const stores = admin.getByRole("list", { name: "Store designs" });
+  await expect(stores.getByRole("listitem").filter({ hasText: "A market's own pages, made by the team." })).toHaveCount(1);
+  // A built-in one hidden.
+  const first = stores.getByRole("listitem").first();
+  const hiddenName = (await first.locator("span.font-semibold").first().textContent())!.trim();
+  await first.getByRole("button", { name: /^Hide / }).click();
+  await expect(stores.getByRole("listitem").first().getByText("Hidden")).toBeVisible();
+  await admin.context().close();
+
+  // The owner sees the team's design, not the hidden one.
+  await own.goto("/dashboard/pages");
+  const designs = own.getByRole("region", { name: "Start from a design" });
+  await designs.getByText("Show designs").click();
+  await expect(designs.getByRole("button", { name: "Use the Olive market design" })).toBeVisible();
+  await expect(designs.getByRole("button", { name: `Use the ${hiddenName} design` })).toHaveCount(0);
+});

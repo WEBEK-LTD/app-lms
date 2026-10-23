@@ -43,6 +43,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             { href: "/admin/account-deletion", label: "Account deletion", badge: { count: openDeletions, label: openDeletions === 1 ? "open request" : "open requests" } },
             { href: "/admin/deleted-apps", label: "Deleted apps", badge: { count: deletedApps, label: deletedApps === 1 ? "app to restore or delete" : "apps to restore or delete" } },
             { href: "/admin/demos", label: "Demo apps" },
+            { href: "/admin/designs", label: "Designs" },
             { href: "/admin/releases", label: "App & plugin versions" },
             { href: "/admin/plans", label: "Plans" },
             { href: "/admin/payments", label: "Payments" },

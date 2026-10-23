@@ -12,6 +12,10 @@ export const AUDIT_ACTIONS = {
   "client.hosted_api": "Hosted API switched",
   "client.wordpress_ready": "WordPress site ready",
   "client.app_switches": "App switches",
+  "design.add": "Design added",
+  "design.edit": "Design edited",
+  "design.delete": "Design deleted",
+  "design.hide": "Built-in design hidden or shown",
   "client.license_key": "New license key",
   "client.release_site": "Website released",
   "client.manage_app": "Client's dashboard opened",
@@ -94,6 +98,7 @@ export const AUDIT_TARGETS = {
   account_deletion: "Account deletion request",
   app_deletion: "Deleted app",
   alert: "Alert",
+  design: "Design",
 } as const;
 
 export type AuditTargetType = keyof typeof AUDIT_TARGETS;
