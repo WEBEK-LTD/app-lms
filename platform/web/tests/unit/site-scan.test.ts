@@ -133,6 +133,9 @@ describe("81.1 the pieces", () => {
     expect(appTypeFor({ id: "teachable", plugins: [] }, "")).toEqual({ appType: "lms", vertical: null });
     expect(appTypeFor({ id: "other", plugins: [] }, "Apartments for rent in Kadıköy")).toEqual({ appType: "real_estate", vertical: null });
     expect(appTypeFor({ id: "other", plugins: [] }, "Hello")).toEqual({ appType: "news", vertical: null });
+    // 84.1 Service companies.
+    expect(appTypeFor({ id: "other", plugins: [] }, "Home cleaning and repairs in Istanbul. Get a quote.")).toEqual({ appType: "booking", vertical: "services" });
+    expect(appTypeFor({ id: "other", plugins: [] }, "Ev temizlik hizmetleri")).toEqual({ appType: "booking", vertical: "services" });
   });
 
   it("81.3 finds the main menu: never the footer's or the language list, never the cart, sign-in or the same page twice", () => {

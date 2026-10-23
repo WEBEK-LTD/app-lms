@@ -173,7 +173,7 @@ mobile/
 - The build config's `app_type` (`lms`, `store`, `booking`, `real_estate`, `news`, `events` or `donations`) picks the module's routes
   and bottom navigation; everything in `core/` and `modules/shared/` is common.
 - App kinds (roadmap 20): `app_type` is the engine (the module); the optional
-  `vertical` (`restaurant`, `clinic`, `fitness`, `charity`; `apps.vertical`,
+  `vertical` (`restaurant`, `clinic`, `fitness`, `charity`, `services`; `apps.vertical`,
   build config `vertical`, `Config.vertical`) is the kind of business and only
   changes wording, defaults, the demo and marketing, never routes. The
   dashboard's app type picker shows kinds (an engine with a vertical). What
@@ -182,6 +182,10 @@ mobile/
   lives in one registry, `platform/web/src/lib/app/kinds.ts`; the platform
   reads every per-type value from it. The app's wording helper is
   `mobile/lib/core/l10n/vertical_wording.dart`.
+- Services and companies (84.1) are the bookings engine with the
+  `services` vertical: the bookings wording and screens, with designs that
+  present the company too (About us, Offers and Contact pages as well as
+  the home page).
 - Clinics (Phase 21) are the bookings engine with the `clinic` vertical:
   doctor, patient and visit wording, doctor profiles (`StaffMember`
   `specialties`, `languages`, `bio`) and an intake form

@@ -842,7 +842,7 @@ components:
             are treated as null. Missing on older platforms.
         vertical:
           type: [string, 'null']
-          enum: [restaurant, clinic, fitness, charity, null]
+          enum: [restaurant, clinic, fitness, charity, services, null]
           description: |
             The kind of business, on top of `app_type` (`Config.vertical` in the
             app API): wording and defaults only. Null when the app has none.

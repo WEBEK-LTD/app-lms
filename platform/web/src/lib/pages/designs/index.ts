@@ -3,7 +3,7 @@ import type { App, AppVertical } from "../../data/types";
 import { safeHref } from "../html";
 import type { LayoutBlock, LayoutContent, LayoutPage } from "../types";
 import { ACADEMY_DESIGNS } from "./academy";
-import { BOOKINGS_DESIGNS, CLINIC_DESIGNS, FITNESS_DESIGNS } from "./bookings";
+import { BOOKINGS_DESIGNS, CLINIC_DESIGNS, FITNESS_DESIGNS, SERVICES_DESIGNS } from "./bookings";
 import type { Design } from "./build";
 import { CHARITY_DESIGNS, EVENTS_DESIGNS, NEWS_DESIGNS, REAL_ESTATE_DESIGNS } from "./more";
 import { RESTAURANT_DESIGNS, STORE_DESIGNS } from "./store";
@@ -25,6 +25,7 @@ export const DESIGNS: readonly Design[] = [
   ...BOOKINGS_DESIGNS,
   ...CLINIC_DESIGNS,
   ...FITNESS_DESIGNS,
+  ...SERVICES_DESIGNS,
   ...REAL_ESTATE_DESIGNS,
   ...NEWS_DESIGNS,
   ...EVENTS_DESIGNS,

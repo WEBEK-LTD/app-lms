@@ -97,13 +97,13 @@ describe("32 the home page's texts and counts", () => {
     const home = contentPage("home")!.defaults;
     expect(home.plansTitle).toBe("A plan for every app");
     expect(home.solutionsTitle).toBe(`One platform, ${numberWord(KINDS.length)} kinds of apps`);
-    expect(home.solutionsTitle).toBe("One platform, ten kinds of apps");
-    expect(home.badge).toBe("Android and iOS apps for ten kinds of business");
+    expect(home.solutionsTitle).toBe("One platform, eleven kinds of apps");
+    expect(home.badge).toBe("Android and iOS apps for eleven kinds of business");
     expect(home.stepsTitle).toBe(`From sign-up to the app stores in ${numberWord(STEPS.length)} steps`);
     expect(contentPage("how-it-works")!.defaults.title).toBe(home.stepsTitle);
     expect(contentPage("integrations")!.defaults.intro).toContain("WordPress with 11 supported plugins, 10 online platforms, RSS feeds");
     const kinds = FAQ[0]!.items.find((i) => i.q === "Which kinds of apps can I build?")!.a;
-    expect(kinds).toMatch(/^Ten, each with its own screens: Academy, Store, /);
+    expect(kinds).toMatch(/^Eleven, each with its own screens: Academy, Store, /);
     expect(kinds).toContain(SOLUTIONS[SOLUTIONS.length - 1]!.name);
   });
 

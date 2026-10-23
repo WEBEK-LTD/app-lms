@@ -18,7 +18,7 @@ import type { BlockType, ItemSource, LayoutBlock, LayoutTab, ScreenName } from "
  */
 
 /** 20 The verticals, as stored and sent (`Config.vertical`, build config `vertical`). */
-export const APP_VERTICALS = ["restaurant", "clinic", "fitness", "charity"] as const satisfies readonly AppVertical[];
+export const APP_VERTICALS = ["restaurant", "clinic", "fitness", "charity", "services"] as const satisfies readonly AppVertical[];
 
 /** Content the client manages in the dashboard, served by the hosted API (a connector kind). */
 export type OwnContentKind = Extract<ConnectorConfig["kind"], "catalog" | "courses" | "bookings" | "listings" | "articles" | "events" | "campaigns">;
@@ -735,6 +735,19 @@ export const KINDS: readonly KindInfo[] = [
     ],
     reviewNote:
       "Memberships are for classes at our gym, used in person, so they are paid on our web payment page on iPhone too (App Store Review Guideline 3.1.3(e)). Nothing digital is sold in the app.",
+  },
+  {
+    // 84.1 Services and companies: the bookings engine with designs that present the company too.
+    id: "services",
+    engine: "booking",
+    vertical: "services",
+    name: "Services & companies",
+    description: "Cleaning, repairs, consultancies and agencies: your services, your team and your offers, booked in the app.",
+    requires: "Works with: Amelia, BookingPress, LatePoint, SimplyBook.me · or no website",
+    icon: "build",
+    tile: "bg-tile-3 text-[#3F3A6B]",
+    marketing: { slug: "services", icon: "build" },
+    categories: { play: "Business", appStore: "Business" },
   },
   {
     id: "real_estate",

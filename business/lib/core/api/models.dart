@@ -539,7 +539,7 @@ class AppSummary {
   /// lms, store, booking, real_estate, news, events or donations.
   final String type;
 
-  /// restaurant, clinic, fitness or charity.
+  /// restaurant, clinic, fitness, charity or services.
   final String? vertical;
   final String typeName;
 

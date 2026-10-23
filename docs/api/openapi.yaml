@@ -4024,7 +4024,7 @@ components:
         donations: { $ref: '#/components/schemas/DonationsConfig' }
         vertical:
           type: [string, 'null']
-          enum: [restaurant, clinic, fitness, charity, null]
+          enum: [restaurant, clinic, fitness, charity, services, null]
           description: |
             The kind of business the app is for, on top of its type (the module
             in the build): it changes wording and defaults in the app, never

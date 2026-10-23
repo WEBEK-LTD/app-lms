@@ -1987,7 +1987,7 @@ knowing.
 
 | | Step | Done when |
 |---|---|---|
-| [ ] | 84.1 Services and companies: a new kind with its designs | Tests |
+| [x] | 84.1 Services and companies: a new kind with its designs. The `services` vertical on the bookings engine (cleaning, repairs, consultancies, agencies): in the app type picker, the contracts, the plugin and the app; three designs with About us, Offers and Contact pages as well as the home page; its Solutions page and the counts on the website in en/ar/tr; the site scan suggests it | `kinds.test.ts`, `designs.test.ts`, `translations.test.ts`, `site-scan.test.ts`, `vertical_test.dart` |
 | [ ] | 84.2 Designs with several pages (about, contact, offers) and colour palettes; pictures for the designs (33.8) | Design tests, screenshots |
 | [ ] | 84.3 Saved sections: save blocks as a section and reuse them in other pages and apps | e2e |
 | [ ] | 84.4 The team adds and edits designs in the admin | e2e |

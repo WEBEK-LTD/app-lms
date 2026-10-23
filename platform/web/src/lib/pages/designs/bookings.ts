@@ -10,6 +10,8 @@ import {
   link,
   list,
   notice,
+  page,
+  pageTab,
   person,
   question,
   quickLinks,
@@ -285,6 +287,140 @@ export const FITNESS_DESIGNS: Design[] = [
           testimonials("Results", [quote("Write what a client says about training with you.", "Client's name")]),
           contact(),
         ],
+      },
+    ],
+  },
+];
+
+// 84.1 Services and companies (the booking engine): cleaning, repairs, consultancies and agencies,
+// with pages about the company and its offers as well as the home page.
+const servicesBookTab = screenTab("book", "Book", "calendar_month", "services");
+const aboutTab = pageTab("about", "About us", "info");
+
+export const SERVICES_DESIGNS: Design[] = [
+  {
+    id: "services-home",
+    kind: "services",
+    name: "Home services",
+    description: "Cleaning or repairs: a Book button, your services, numbers, reviews, and About and Offers pages.",
+    look: { template: "classic", corners: "round", cards: "elevated", font: "Plus Jakarta Sans", secondary_color: "#F59E0B" },
+    tabs: [homeTab, servicesBookTab, aboutTab, accountTab],
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          slider([slide("Your home, taken care of", "Book a visit in a few taps", screen("services")), slide("This month's offers", "See what's on offer", page("offers"))]),
+          button("book", "Book a service", screen("services"), "filled", "calendar_month"),
+          list("services", "Our services", "services", "grid", { limit: 6, seeAll: screen("services") }),
+          stats([stat("10+", "Years of work"), stat("2,000+", "Jobs done"), stat("4.9", "Average rating")]),
+          testimonials("What customers say", [quote("Write what a customer says about your work.", "Customer's name")]),
+          contact(),
+        ],
+      },
+      {
+        slug: "about",
+        title: "About us",
+        show_title: true,
+        blocks: [
+          text("story", "<p>Write who you are, the areas you work in and what makes {app} different.</p>"),
+          team("Our team", [person("Team member's name", "Team lead"), person("Team member's name", "Technician")]),
+          faq("Questions", [
+            question("Which areas do you cover?", "Write the areas or cities you work in."),
+            question("Do you bring your own equipment?", "Write what you bring and what the customer prepares."),
+          ]),
+        ],
+      },
+      {
+        slug: "offers",
+        title: "Offers",
+        show_title: true,
+        blocks: [
+          notice("success", "Write this month's offer, for example 20% off a first visit."),
+          list("offer-services", "Services on offer", "services", "list", { seeAll: screen("services") }),
+        ],
+      },
+    ],
+  },
+  {
+    id: "services-consulting",
+    kind: "services",
+    name: "Consultancy",
+    description: "Calm and clear: who you are, a Book a call button, your services, your people, and a contact page.",
+    look: { template: "minimal", corners: "soft", cards: "outlined", font: "DM Sans", secondary_color: "#2563EB" },
+    tabs: [homeTab, screenTab("book", "Book a call", "support_agent", "services"), aboutTab, accountTab],
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          text("welcome", "<h2>Advice you can act on</h2><p>{app} helps businesses grow. Book a call to talk about yours.</p>"),
+          button("book", "Book a call", screen("services"), "filled", "support_agent"),
+          list("services", "How we help", "services", "list", { seeAll: screen("services") }),
+          testimonials("What clients say", [quote("Write what a client says about working with you.", "Client's name", "Client's role")]),
+          button("contact-page", "Contact us", page("contact"), "outlined", "mail"),
+        ],
+      },
+      {
+        slug: "about",
+        title: "About us",
+        show_title: true,
+        blocks: [
+          text("story", "<p>Write about your company, your experience and the clients you work with.</p>"),
+          stats([stat("15", "Years of experience"), stat("300+", "Clients")]),
+          team("Our people", [person("Your name", "Founder", "Write about your experience.")], "list"),
+        ],
+      },
+      {
+        slug: "contact",
+        title: "Contact",
+        show_title: true,
+        blocks: [contact("Get in touch"), hours("Office hours", days(WEEKDAYS_ONLY, "09:00", "18:00"))],
+      },
+    ],
+  },
+  {
+    id: "services-agency",
+    kind: "services",
+    name: "Creative agency",
+    description: "Bold: your work in slides, quick links, your services and team, reviews, and an offers page.",
+    look: { template: "bold", corners: "round", cards: "flat", font: "Outfit", secondary_color: "#EC4899" },
+    tabs: [homeTab, servicesBookTab, pageTab("offers", "Offers", "local_offer"), accountTab],
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          slider([slide("Work that gets noticed", "Design, photos and campaigns", screen("services")), slide("Start a project", "Book a first meeting", screen("services"))]),
+          quickLinks([
+            link("calendar_month", "Book", screen("services")),
+            link("local_offer", "Offers", page("offers")),
+            link("event", "My bookings", screen("appointments")),
+            link("info", "About us", page("about")),
+          ]),
+          list("services", "What we do", "services", "grid", { limit: 6, seeAll: screen("services") }),
+          team("The team", [person("Team member's name", "Designer"), person("Team member's name", "Photographer")]),
+          testimonials("Clients", [quote("Write what a client says about your work.", "Client's name")]),
+          contact(),
+        ],
+      },
+      {
+        slug: "offers",
+        title: "Offers",
+        show_title: true,
+        blocks: [
+          countdown("This offer ends in", 14, null, { label: "Book now", action: screen("services") }),
+          list("offer-services", "On offer", "services", "list"),
+        ],
+      },
+      {
+        slug: "about",
+        title: "About us",
+        show_title: true,
+        blocks: [text("story", "<p>Write how {app} started, how you work and the brands you work with.</p>"), stats([stat("120+", "Projects"), stat("8", "Years")])],
       },
     ],
   },

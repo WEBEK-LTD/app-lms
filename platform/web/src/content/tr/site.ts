@@ -67,6 +67,11 @@ export const TR_SITE: SiteContentTranslation = {
     title: "Dersleriniz, üyelerinizin telefonlarından ayırtılıyor",
     intro: "Üyeler haftalık programınızı görür, ders dolana kadar yer ayırtır ve üyeliklerini kartla satın alır; salonunuzun adını taşıyan bir uygulamada.",
   },
+  "solution-services": {
+    eyebrow: "Hizmet ve şirket uygulamaları",
+    title: "Şirketiniz, müşterilerinizin telefonundan randevuyla",
+    intro: "Hizmetleriniz, ekibiniz ve kampanyalarınız adınızı taşıyan bir uygulamada: müşteriler sizi tanır, kampanyaları görür ve randevu alır; randevu sisteminizden ya da paneldeki bir kurulumdan.",
+  },
   "solution-real-estate": {
     eyebrow: "Emlak uygulamaları",
     title: "İlanlarınız; arama, favoriler ve mesajlarla",

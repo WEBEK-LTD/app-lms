@@ -272,6 +272,8 @@ const WORDS: [RegExp, { appType: AppType; vertical: AppVertical | null }][] = [
   [/\b(?:menu|restaurant|cafe|café|kitchen|order online|takeaway|pizza|burger)\b|مطعم|منيو|قائمة الطعام|restoran|menü/i, { appType: "store", vertical: "restaurant" }],
   [/\b(?:clinic|dentist|doctor|physiotherap|appointment|book (?:an|your) appointment)\b|عيادة|طبيب|klinik|randevu/i, { appType: "booking", vertical: "clinic" }],
   [/\b(?:gym|fitness|yoga|pilates|crossfit|personal trainer|classes)\b|جيم|لياقة|spor salonu/i, { appType: "booking", vertical: "fitness" }],
+  // 84.1 Service companies.
+  [/\b(?:cleaning|plumb(?:er|ing)|electrician|repairs?|handyman|consult(?:ing|ancy)|agency|get a quote|our services)\b|تنظيف|صيانة|استشارات|وكالة|temizlik|tamir|danışmanlık|ajans/i, { appType: "booking", vertical: "services" }],
   [/\b(?:donate|donation|charity|foundation|non-?profit)\b|تبرع|جمعية خيرية|bağış|vakıf/i, { appType: "donations", vertical: "charity" }],
   [/\b(?:courses?|academy|lessons?|enroll|e-?learning)\b|دورات|أكاديمية|kurs|eğitim/i, { appType: "lms", vertical: null }],
   [/\b(?:events?|tickets?|conference|festival|concert)\b|فعاليات|تذاكر|etkinlik|bilet/i, { appType: "events", vertical: null }],

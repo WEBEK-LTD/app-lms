@@ -50,6 +50,7 @@ export const TR_MARKETING: MarketingTranslation = {
     "News & blog": "Haber ve blog",
     "Events & tickets": "Etkinlik ve bilet",
     "Charity & donations": "Yardım ve bağış",
+    "Services & companies": "Hizmetler ve şirketler",
   },
   solutions: {
     academy: {
@@ -352,6 +353,53 @@ export const TR_MARKETING: MarketingTranslation = {
         "iyzico, Kashier veya Fawaterk ile kendi hesabınıza kartla ödeme",
       ],
       docs: ["Spor salonları ve stüdyolar: program, dersler ve üyelikler", "Hizmetler, ekip ve randevular", "iyzico, Kashier veya Fawaterk ile kartla ödeme"],
+    },
+    services: {
+      name: "Hizmetler ve şirketler",
+      appsTitle: "Hizmet ve şirket uygulamaları",
+      apps: "hizmet ve şirket uygulamaları",
+      app: "hizmet şirketi uygulaması",
+      demo: "Hizmet şirketi demo uygulaması",
+      demoApp: "hizmet şirketi demo uygulaması",
+      summary: "Hizmetleriniz, ekibiniz ve kampanyalarınız, uygulamadan randevuyla.",
+      audience: "Temizlik ve tamir şirketleri, ev ve güzellik hizmetleri, danışmanlıklar, ajanslar ve diğer hizmet işletmeleri için.",
+      sources: [
+        "Amelia, BookingPress veya LatePoint ile WordPress",
+        "SimplyBook.me",
+        "Kendi API'niz",
+        "Web sitesi olmadan: hizmetler ve ekip Yallapp panelinde yönetilir",
+      ],
+      highlights: [
+        {
+          title: "Şirketinizi anlatan sayfalar",
+          text: "Hazır tasarımlar ana sayfanın yanında bir Hakkımızda ve bir Kampanyalar sayfasıyla gelir; insanlar randevu almadan önce kim olduğunuzu ve neler sunduğunuzu görür.",
+        },
+        {
+          title: "Gerçek boş saatler",
+          text: "Boş saatler randevu sisteminizden ya da panelde ekibinizin çalışma saatlerinden, işletmenizin saat diliminde gelir. İki randevu asla çakışmaz.",
+        },
+        {
+          title: "İşinizin arkasındaki ekip",
+          text: "Ekibinizi gösterin; müşteriler istedikleri kişiyi ya da ilk müsait kişiyi seçsin.",
+        },
+        {
+          title: "İnsanlara ulaşan kampanyalar",
+          text: "Kampanyalarınızı kendi sayfalarına koyun ve birini uygulamanızı kullanan herkese bildirim olarak gönderin.",
+        },
+      ],
+      inTheApp: [
+        "Şirketiniz ve kampanyalarınız hakkında okuma",
+        "Hizmetlerinize fiyat ve süreleriyle göz atma",
+        "İsteğe bağlı bir notla gün ve boş saat seçme",
+        "Randevularını görme ve izin verildiğinde iptal etme",
+      ],
+      forYou: [
+        "Hizmet şirketleri için üç tasarımdan biriyle başlayın, sonra her sayfayı düzenleyin",
+        "Randevu eklentinizi ya da SimplyBook.me'yi kullanmaya devam edin veya her şeyi panelde kurun",
+        "Randevuları panelde onaylayın, iptal edin ya da gerçekleşti olarak işaretleyin; her randevu için bir e-posta alın",
+        "Ödeme işletmenizde yapılır; uygulama bir randevu için asla ödeme almaz",
+      ],
+      docs: ["Hizmetler, ekip ve randevular", "SimplyBook.me'yi bağlayın"],
     },
     real_estate: {
       name: "Emlak",
@@ -825,7 +873,7 @@ export const TR_MARKETING: MarketingTranslation = {
         },
         {
           q: "Hangi tür uygulamalar oluşturabilirim?",
-          a: "Her birinin kendi ekranları olan on tür: Akademi, Mağaza, Restoran ve kafe, Randevu, Klinik, Spor salonu ve fitness, Emlak, Haber ve blog, Etkinlik ve bilet ile Yardım ve bağış. Her birinin ne yaptığı için [Çözümler](/solutions) sayfasına bakın.",
+          a: "Her birinin kendi ekranları olan on bir tür: Akademi, Mağaza, Restoran ve kafe, Randevu, Klinik, Spor salonu ve fitness, Hizmetler ve şirketler, Emlak, Haber ve blog, Etkinlik ve bilet ile Yardım ve bağış. Her birinin ne yaptığı için [Çözümler](/solutions) sayfasına bakın.",
         },
         {
           q: "Uygulamalarım ne zaman hazır olur?",

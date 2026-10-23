@@ -176,8 +176,8 @@ describe("20 app kinds registry", () => {
     expect(APP_TYPES).toEqual([...FOUR, "news", "events", "donations"]);
     // 21 Clinic is the first kind with a vertical; the four default kinds are as they were. 23 News is a new engine. 26 Restaurant & café after Store.
     // 27 Gym & fitness: the bookings engine with the fitness vertical, after Clinic. 28 Events & tickets, a new engine. 29 Charity & donations, a new
-    // engine whose only kind has the charity vertical, last.
-    expect(KINDS.map((k) => k.id)).toEqual(["academy", "store", "restaurant", "bookings", "clinic", "fitness", "real_estate", "news", "events", "charity"]);
+    // engine whose only kind has the charity vertical, last. 84.1 Services & companies: the bookings engine, after Gym & fitness.
+    expect(KINDS.map((k) => k.id)).toEqual(["academy", "store", "restaurant", "bookings", "clinic", "fitness", "services", "real_estate", "news", "events", "charity"]);
     for (const type of FOUR) {
       expect(ENGINES[type].name).toBe(BEFORE.names[type]);
       expect(ENGINES[type].icon).toBe(BEFORE.icons[type]);
@@ -321,6 +321,7 @@ describe("20 app kinds registry", () => {
       ["bookings", "solution-bookings", "Bookings", "calendar_month"],
       ["clinic", "solution-clinic", "Clinic", "stethoscope"],
       ["fitness", "solution-fitness", "Gym & fitness", "fitness_center"],
+      ["services", "solution-services", "Services & companies", "build"],
       ["real-estate", "solution-real-estate", "Real estate", "apartment"],
       ["news", "solution-news", "News & blog", "newspaper"],
       ["events", "solution-events", "Events & tickets", "confirmation_number"],
@@ -334,12 +335,13 @@ describe("20 app kinds registry", () => {
       ["solution-bookings", "Solutions: Bookings", "/solutions/bookings"],
       ["solution-clinic", "Solutions: Clinic", "/solutions/clinic"],
       ["solution-fitness", "Solutions: Gym & fitness", "/solutions/fitness"],
+      ["solution-services", "Solutions: Services & companies", "/solutions/services"],
       ["solution-real-estate", "Solutions: Real estate", "/solutions/real-estate"],
       ["solution-news", "Solutions: News & blog", "/solutions/news"],
       ["solution-events", "Solutions: Events & tickets", "/solutions/events"],
       ["solution-charity", "Solutions: Charity & donations", "/solutions/charity"],
     ]);
-    expect(headers.map((p) => p.defaults.eyebrow)).toEqual(["Academy apps", "Store apps", "Restaurant & café apps", "Bookings apps", "Clinic apps", "Gym & fitness apps", "Real estate apps", "News & blog apps", "Events & tickets apps", "Charity & donation apps"]);
+    expect(headers.map((p) => p.defaults.eyebrow)).toEqual(["Academy apps", "Store apps", "Restaurant & café apps", "Bookings apps", "Clinic apps", "Gym & fitness apps", "Services & company apps", "Real estate apps", "News & blog apps", "Events & tickets apps", "Charity & donation apps"]);
     const names = new Set(KINDS.map((k) => k.name));
     for (const group of INTEGRATION_GROUPS) for (const item of group.items) for (const t of item.types) expect(names, `${item.name}: ${t}`).toContain(t);
   });
@@ -378,7 +380,8 @@ describe("20 app kinds registry", () => {
   });
 
   it("reads verticals and kinds", () => {
-    expect(APP_VERTICALS).toEqual(["restaurant", "clinic", "fitness", "charity"]);
+    expect(APP_VERTICALS).toEqual(["restaurant", "clinic", "fitness", "charity", "services"]);
+    expect(kindOf({ appType: "booking", vertical: "services" }).id).toBe("services");
     expect(toVertical("clinic")).toBe("clinic");
     expect(toVertical("salon")).toBeNull();
     expect(toVertical(null)).toBeNull();

@@ -231,7 +231,7 @@ describe("55 the long texts in Arabic and Turkish", () => {
     const ar = contentInLang(page, "ar", english, { intro: "مقدمة الفريق" });
     expect(ar.intro).toBe("مقدمة الفريق");
     expect(ar.title).toBe(LOCALIZED.ar.site.home!.title);
-    expect(ar.badge).toBe("تطبيقات Android وiOS لـ 10 أنواع من الأنشطة التجارية");
+    expect(ar.badge).toBe("تطبيقات Android وiOS لـ 11 نوعًا من الأنشطة التجارية");
     expect(contentInLang(contentPage("solutions")!, "tr", { eyebrow: "E", title: "T", intro: "I" }, null).title).toBe(LOCALIZED.tr.site.solutions!.title);
     // A translation may leave fields empty; English must fill every one.
     expect(readContentForm(page, { title: "عنوان" }, { translation: true })).toEqual({ ok: true, fields: { title: "عنوان" } });

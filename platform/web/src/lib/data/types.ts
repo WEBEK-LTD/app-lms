@@ -124,7 +124,7 @@ export interface StoreListing {
 export type AppType = "lms" | "store" | "booking" | "real_estate" | "news" | "events" | "donations";
 
 /** 20 The kind of business, on top of the engine: wording, defaults, the demo and marketing, never routes (lib/app/kinds.ts). */
-export type AppVertical = "restaurant" | "clinic" | "fitness" | "charity";
+export type AppVertical = "restaurant" | "clinic" | "fitness" | "charity" | "services";
 
 /**
  * Where the app's content comes from: the Yallapp plugin on the client's

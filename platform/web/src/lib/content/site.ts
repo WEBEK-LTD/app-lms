@@ -135,6 +135,13 @@ const SOLUTION_HEADERS: Record<string, { eyebrow: string; title: string; intro: 
     intro:
       "Members see your weekly timetable, book a spot until a class is full and buy their membership by card, in an app with your gym's name.",
   },
+  // 84.1
+  services: {
+    eyebrow: "Services & company apps",
+    title: "Your company, booked from your customers' phones",
+    intro:
+      "Your services, your team and your offers in an app with your name: customers read about you, see what's on offer and book a time, from your booking system or a setup in the dashboard.",
+  },
   real_estate: {
     eyebrow: "Real estate apps",
     title: "Your listings, with search, favorites and messages",

@@ -450,6 +450,57 @@ const SOLUTION_COPY: SolutionCopy[] = [
     ],
   },
   {
+    // 84.1 Services and companies.
+    kind: "services",
+    summary: "Your services, your team and your offers, booked in the app.",
+    audience: "Cleaning and repair companies, home and beauty services, consultancies, agencies and other service businesses.",
+    screens: ["bookings-services", "bookings-slots"],
+    sources: [
+      "WordPress with Amelia, BookingPress or LatePoint",
+      "SimplyBook.me",
+      "Your own API",
+      "No website: services and team managed in the Yallapp dashboard",
+    ],
+    highlights: [
+      {
+        icon: "info",
+        title: "Pages about your company",
+        text: "The ready-made designs come with an About us page and an Offers page as well as the home page, so people see who you are and what's on offer before they book.",
+      },
+      {
+        icon: "schedule",
+        title: "Real free times",
+        text: "Free times come from your booking system, or from your team's hours in the dashboard, in your business's time zone. Two bookings never overlap.",
+      },
+      {
+        icon: "groups",
+        title: "The people behind your work",
+        text: "Show your team, and let customers pick who they'd like or the first person free.",
+      },
+      {
+        icon: "notifications",
+        title: "Offers that reach people",
+        text: "Put your offers on their own page, and send one as a notification to everyone using your app.",
+      },
+    ],
+    inTheApp: [
+      "Read about your company and your offers",
+      "Browse your services with prices and durations",
+      "Pick a day and a free time, with an optional note",
+      "See, and cancel when allowed, their bookings",
+    ],
+    forYou: [
+      "Start from one of three designs for service companies, then edit every page",
+      "Keep your booking plugin or SimplyBook.me, or set everything up in the dashboard",
+      "Approve, cancel or mark bookings done in the dashboard, with an email for each booking",
+      "Payment happens at your business; the app never takes payment for a booking",
+    ],
+    docs: [
+      { href: "/docs/bookings", label: "Services, team and appointments" },
+      { href: "/docs/simplybook", label: "Connect SimplyBook.me" },
+    ],
+  },
+  {
     kind: "real_estate",
     summary: "Listings with search, filters, favorites and messages.",
     audience: "Real estate offices and agents who sell or rent properties.",
