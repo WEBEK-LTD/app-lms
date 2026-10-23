@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
+import { useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import { PhoneFrame } from "@/components/device-frame";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import { cleanBlockHtml } from "@/lib/pages/html";
@@ -479,6 +479,19 @@ export function DesignThumb({ layout, app }: { layout: LayoutContent; app: { nam
 
 const NOTHING_PICKED: Pickable = { items: {}, categories: {} };
 
+/** 82.2 What the editor's quick view lets the owner do on the phone. */
+export interface PhoneEditing {
+  selected: string | null;
+  /** The block's name, as the editor's list shows it. */
+  name: (block: LayoutBlock) => string;
+  onSelect: (id: string) => void;
+  /** A block from Add a block, dropped before the block at `index` (the page's length: at the end). */
+  onDrop: (type: LayoutBlock["type"], index: number) => void;
+}
+
+/** 82.2 What a block from Add a block carries while it is dragged. */
+export const BLOCK_DRAG_TYPE = "application/x-yallapp-block";
+
 export function PhonePreview({
   layout,
   page: pageIn,
@@ -488,6 +501,7 @@ export function PhonePreview({
   onOpenPage,
   still = false,
   builtin,
+  editing,
 }: {
   layout: LayoutContent;
   page: LayoutPage | null;
@@ -499,8 +513,11 @@ export function PhonePreview({
   still?: boolean;
   /** 43 Yallapp's translations of the texts it wrote (English text, then language), shown where the owner wrote none, as the app does. */
   builtin?: Record<string, Record<string, string>>;
+  /** 82.2 The editor's quick view: a block clicked opens it in the editor; a block from Add a block dropped on the phone goes where it falls. */
+  editing?: PhoneEditing;
 }) {
   const { appearance } = layout;
+  const [dropAt, setDropAt] = useState<number | null>(null);
   const def = layout.languages.default;
   const theme = themeOf(appearance, app.primaryColor);
   const rtl = RTL_LANGUAGES.includes(lang);
@@ -540,9 +557,65 @@ export function PhonePreview({
           >
             {shown?.show_title ? shown.title : app.name}
           </div>
-          <div style={{ flex: 1, overflowY: still ? "hidden" : "auto", padding: 12, display: "flex", flexDirection: "column", gap: 12 }}>
+          <div
+            data-phone-blocks
+            onDragOver={(event) => {
+              if (!editing || !event.dataTransfer.types.includes(BLOCK_DRAG_TYPE)) return;
+              event.preventDefault();
+              // Below the last block, or on an empty page: at the end.
+              if (event.target === event.currentTarget) setDropAt(page?.blocks.length ?? 0);
+            }}
+            onDragLeave={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDropAt(null);
+            }}
+            onDrop={(event) => {
+              if (!editing) return;
+              const type = event.dataTransfer.getData(BLOCK_DRAG_TYPE);
+              event.preventDefault();
+              const at = dropAt ?? page?.blocks.length ?? 0;
+              setDropAt(null);
+              if (type) editing.onDrop(type as LayoutBlock["type"], at);
+            }}
+            style={{ flex: 1, overflowY: still ? "hidden" : "auto", padding: 12, display: "flex", flexDirection: "column", gap: 12 }}
+          >
             {page?.blocks.length ? (
-              page.blocks.map((block) => <BlockPreview key={block.id} block={block} theme={theme} appearance={appearance} pickable={pickable} lang={lang} def={def} />)
+              page.blocks.map((block, i) => {
+                const preview = <BlockPreview key={block.id} block={block} theme={theme} appearance={appearance} pickable={pickable} lang={lang} def={def} />;
+                if (!editing) return preview;
+                const selected = editing.selected === block.id;
+                return (
+                  <div
+                    key={block.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={dt?.("pages.editOnPhone", { name: editing.name(block) }) ?? editing.name(block)}
+                    aria-pressed={selected}
+                    data-phone-block={block.id}
+                    onClick={() => editing.onSelect(block.id)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        editing.onSelect(block.id);
+                      }
+                    }}
+                    onDragOver={(event) => {
+                      if (!event.dataTransfer.types.includes(BLOCK_DRAG_TYPE)) return;
+                      event.preventDefault();
+                      const box = event.currentTarget.getBoundingClientRect();
+                      setDropAt(event.clientY < box.top + box.height / 2 ? i : i + 1);
+                    }}
+                    style={{
+                      cursor: "pointer",
+                      borderRadius: 10,
+                      outline: selected ? `2px solid ${theme.primary}` : undefined,
+                      outlineOffset: 3,
+                      boxShadow: dropAt === i ? `0 -4px 0 ${theme.primary}` : dropAt === i + 1 && i === page.blocks.length - 1 ? `0 4px 0 ${theme.primary}` : undefined,
+                    }}
+                  >
+                    {preview}
+                  </div>
+                );
+              })
             ) : (
               <p style={{ color: theme.muted, fontSize: 12, textAlign: "center", marginTop: 40 }}>{dt?.("pages.addBlocksHere") ?? "Add blocks to this page." /* i18n-ok */}</p>
             )}
@@ -594,6 +667,7 @@ export function PhonePreview({
           </nav>
         </div>
       </PhoneFrame>
+      {editing ? <p className="m-0 max-w-[300px] text-center text-xs text-muted">{dt?.("pages.phoneEditHint")}</p> : null}
       {still ? null : (
         <figcaption className="text-xs text-muted">
           {Object.values(pickable.items).some((list) => list && list.length > 0)

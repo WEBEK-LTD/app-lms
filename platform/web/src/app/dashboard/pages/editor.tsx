@@ -29,7 +29,7 @@ import {
 } from "@/lib/pages/types";
 import { BlockSettings, type BlockContext } from "./block-settings";
 import { ActionEditor, Check, firstScreen, IconGlyph, IconPicker, LangText, SelectInput, TextInput, type Lang } from "./controls";
-import { DesignThumb, PhonePreview } from "./preview";
+import { BLOCK_DRAG_TYPE, DesignThumb, PhonePreview } from "./preview";
 import { LivePreview, notifyDraftSaved } from "./live-preview";
 import { UpgradeHint } from "@/components/upgrade";
 import { MAX_LANGUAGES } from "@/lib/i18n/locales";
@@ -342,15 +342,23 @@ export function PagesEditor({
 
   // Blocks
 
-  function addBlock(type: BlockType) {
-    if (!page) return;
+  /** Adds a block at the end, or (82.2, dropped on the phone) before the block at `at`. */
+  function addBlock(type: BlockType, at?: number) {
+    if (!page || !blockTypes.includes(type)) return;
     if (page.blocks.length >= LAYOUT_LIMITS.maxBlocks) {
       setMessage({ text: t("pages.maxBlocks", { max: LAYOUT_LIMITS.maxBlocks }), ok: false });
       return;
     }
     const block = newBlock(type, sources, screens);
-    updateBlocks(page.slug, (blocks) => [...blocks, block]);
+    updateBlocks(page.slug, (blocks) => (at === undefined ? [...blocks, block] : [...blocks.slice(0, at), block, ...blocks.slice(at)]));
     setOpenBlock(block.id);
+  }
+
+  /** 82.2 A block clicked on the phone: open in the list, in view. */
+  function selectBlock(id: string) {
+    setPanel("pages");
+    setOpenBlock(id);
+    requestAnimationFrame(() => document.getElementById(`block-${id}`)?.scrollIntoView({ block: "nearest", behavior: "smooth" }));
   }
 
   function onDrop(event: DragEvent, to: number) {
@@ -576,6 +584,7 @@ export function PagesEditor({
                       return (
                         <li
                           key={block.id}
+                          id={`block-${block.id}`}
                           onDragOver={(e) => e.preventDefault()}
                           onDrop={(e) => onDrop(e, i)}
                           className={`rounded-xl border ${dragFrom === i ? "border-dashed border-midnight opacity-60" : "border-line"} bg-white`}
@@ -658,6 +667,12 @@ export function PagesEditor({
                             type="button"
                             aria-label={t("pages.addNamed", { name: known(BLOCK_LABELS[type]) })}
                             onClick={() => addBlock(type)}
+                            // 82.2 Or dragged onto the phone, where it should go.
+                            draggable
+                            onDragStart={(e) => {
+                              e.dataTransfer.effectAllowed = "copy";
+                              e.dataTransfer.setData(BLOCK_DRAG_TYPE, type);
+                            }}
                             className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-line bg-white px-3 py-2.5 text-start hover:border-midnight"
                           >
                             <span className="mt-0.5 flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-ivory text-midnight">
@@ -880,6 +895,19 @@ export function PagesEditor({
             app={app}
             onOpenPage={setPageSlug}
             builtin={builtin}
+            editing={
+              plan.pageEditor && page
+                ? {
+                    selected: openBlock,
+                    name: (block) => known(BLOCK_LABELS[block.type]),
+                    onSelect: selectBlock,
+                    onDrop: (type, at) => {
+                      setPanel("pages");
+                      addBlock(type, at);
+                    },
+                  }
+                : undefined
+            }
           />
         )}
       </div>

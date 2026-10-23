@@ -86,3 +86,28 @@ test("the quick view is one click away", async () => {
   await own.getByRole("button", { name: "The app", exact: true }).click();
   await expect(own.locator("iframe[data-testid=editor-preview]")).toHaveCount(1);
 });
+
+test("82.2 a block clicked on the phone opens in the editor; one dragged onto the phone goes where it's dropped", async () => {
+  await own.getByRole("tab", { name: "Pages" }).click();
+  await own.getByRole("button", { name: "Quick view", exact: true }).click();
+  const phone = own.getByRole("figure", { name: "Phone preview" });
+  const list = own.getByRole("list", { name: "Blocks" }).locator(":scope > li");
+  const count = await list.count();
+  expect(count).toBeGreaterThan(1);
+
+  // Clicking the second block on the phone opens the second block in the list.
+  const second = phone.locator("[data-phone-block]").nth(1);
+  await second.click();
+  await expect(second).toHaveAttribute("aria-pressed", "true");
+  await expect(list.nth(1).getByRole("button", { expanded: true })).toBeVisible();
+  await expect(list.nth(0).getByRole("button", { expanded: true })).toHaveCount(0);
+
+  // A Notice dragged onto the top half of the first block lands first.
+  const first = phone.locator("[data-phone-block]").first();
+  const box = (await first.boundingBox())!;
+  await own.getByRole("button", { name: "Add Notice block" }).dragTo(first, { targetPosition: { x: box.width / 2, y: 4 } });
+  await expect(list).toHaveCount(count + 1);
+  await expect(list.first()).toContainText("Notice");
+  await expect(list.first().getByRole("button", { expanded: true })).toBeVisible();
+  await expect(own.getByText("Unsaved changes")).toHaveCount(0, { timeout: 15_000 });
+});

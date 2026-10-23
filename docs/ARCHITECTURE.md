@@ -2704,6 +2704,14 @@ tabs and pages in place, a few saves close together once
 (`draftReloadProvider`): the frame never loads again, so the screen and
 where the owner is in the app stay. The phone apps listen to nothing.
 
+### Editing on the phone (82.2)
+
+In the quick view each block on the phone is a button ("Edit Notice"): it
+opens that block in the editor's list and scrolls to it. The buttons of Add a
+block can also be dragged (`application/x-yallapp-block`) onto the phone: the
+block goes before the block it falls on (its top half) or after it, or at the
+end below the last block, with the same limits as Add a block.
+
 ## Pages, looks and languages
 
 Clients build their app's pages and pick its look in the client dashboard,

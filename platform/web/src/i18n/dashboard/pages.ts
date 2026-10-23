@@ -24,6 +24,9 @@ export const en = {
   previewFrame: "{app} with your draft",
   phonePreview: "Phone preview",
   addBlocksHere: "Add blocks to this page.",
+  // 82.2 Editing on the phone.
+  editOnPhone: "Edit {name}",
+  phoneEditHint: "Click a block on the phone to edit it, or drag one from Add a block onto the phone.",
   captionEntries: "Preview of the draft. Lists show the names of your entries; pictures are placeholders.",
   captionSamples: "Preview of the draft. Lists show sample entries until we can read yours.",
   // Panels and the draft.
@@ -444,6 +447,9 @@ export const ar: Messages = {
   previewFrame: "{app} بمسودتك",
   phonePreview: "معاينة على الهاتف",
   addBlocksHere: "أضف كتلًا إلى هذه الصفحة.",
+  // 82.2 Editing on the phone.
+  editOnPhone: "تعديل {name}",
+  phoneEditHint: "انقر على كتلة في الهاتف لتعديلها، أو اسحب واحدة من «إضافة كتلة» إلى الهاتف.",
   captionEntries: "معاينة المسودة. تعرض القوائم أسماء عناصرك، والصور مؤقتة.",
   captionSamples: "معاينة المسودة. تعرض القوائم عناصر نموذجية إلى أن نتمكن من قراءة عناصرك.",
   panelPages: "الصفحات",
@@ -857,6 +863,9 @@ export const tr: Messages = {
   previewFrame: "Taslağınızla {app}",
   phonePreview: "Telefon önizlemesi",
   addBlocksHere: "Bu sayfaya blok ekleyin.",
+  // 82.2 Editing on the phone.
+  editOnPhone: "{name} düzenle",
+  phoneEditHint: "Düzenlemek için telefondaki bir bloğa tıklayın ya da Blok ekle'den birini telefona sürükleyin.",
   captionEntries: "Taslağın önizlemesi. Listeler kayıtlarınızın adlarını gösterir; resimler yer tutucudur.",
   captionSamples: "Taslağın önizlemesi. Listeler, sizinkileri okuyabilene kadar örnek kayıtlar gösterir.",
   panelPages: "Sayfalar",
