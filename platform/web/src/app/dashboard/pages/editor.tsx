@@ -7,6 +7,7 @@ import type { LayoutHistoryEntry } from "@/lib/pages/layout";
 import { Badge, btn, formatDateTime } from "@/components/ui";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import { newBlockId } from "@/lib/pages/defaults";
+import { devicesWithout, type AppVersionCount } from "@/lib/pages/reach";
 import { blockTexts } from "@/lib/pages/designs/texts";
 import { BLOCK_GROUPS, BLOCK_HINTS, BLOCK_ICONS, BLOCK_LABELS, CARD_LABELS, CORNER_LABELS, TEMPLATE_LABELS, THEME_MODE_LABELS } from "@/lib/pages/labels";
 import { duplicatePage, moveItem, newBlock, pageLinks, renamePageLinks, switchDefaultLanguage, uniqueSlug } from "@/lib/pages/model";
@@ -130,6 +131,7 @@ export function PagesEditor({
   screens,
   blockTypes,
   pickable,
+  versions,
   reach,
   plan,
   ready,
@@ -155,6 +157,8 @@ export function PagesEditor({
   screens: ScreenOption[];
   blockTypes: BlockType[];
   pickable: Pickable;
+  /** 83.2 The app's versions on people's phones, to say who won't see a block until they update. */
+  versions: AppVersionCount[];
   reach: string | null;
   plan: EditorPlan;
   /** The ready-made pages and tabs the app gets without the full page editor. */
@@ -747,6 +751,11 @@ export function PagesEditor({
                                   <Badge tone="warn">{t("pages.needsFix")}</Badge>
                                 </span>
                               ) : null}
+                              {devicesWithout(block.type, versions) ? (
+                                <span title={t("pages.behindTitle")}>
+                                  <Badge tone="warn">{t("pages.behind", { count: devicesWithout(block.type, versions) })}</Badge>
+                                </span>
+                              ) : null}
                               {samples[`${page.slug}/${block.id}`] === blockTexts(block) ? (
                                 <span title={t("pages.sampleTitle")}>
                                   <Badge tone="neutral">{t("pages.sample")}</Badge>
@@ -813,6 +822,11 @@ export function PagesEditor({
                             <span className="flex min-w-0 flex-col gap-0.5">
                               <span className="text-[15px] font-semibold text-midnight">{known(BLOCK_LABELS[type])}</span>
                               <span className="text-xs text-muted">{type === "items" ? listHint : known(BLOCK_HINTS[type])}</span>
+                              {devicesWithout(type, versions) ? (
+                                <span className="text-xs font-semibold text-warn" title={t("pages.behindTitle")}>
+                                  {t("pages.behind", { count: devicesWithout(type, versions) })}
+                                </span>
+                              ) : null}
                             </span>
                           </button>
                         ))}

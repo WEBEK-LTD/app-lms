@@ -2748,6 +2748,12 @@ the app leaves out a block type it doesn't know). The validator's limits,
 the editor's text fields (`maxLength`) and lists, "Add a block" and the
 preview's drawing of a block it has no picture for all read it.
 
+83.2 The editor says how many people won't see a block until they update
+the app: the phones that opened the app in the last 30 days (its usage
+statistics, so the people who share them), each counted by the version it
+last used (`countAnalyticsVersions`, `lib/pages/reach.ts`), against the
+block's `since`.
+
 Adding a block: add its type to `BLOCK_TYPES` and the contract
 (`docs/api/openapi.yaml`, `platform.yaml`), its definition (with `since` set
 to the app version that brings it), its fields in the validator and the

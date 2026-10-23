@@ -827,6 +827,8 @@ export interface DataStore {
   countAnalyticsActive(appId: string, fromDay: string, toDay: string): Promise<number>;
   /** Of the installs first opened on `cohortDay`, how many have an event on `day`. */
   countAnalyticsReturning(appId: string, cohortDay: string, day: string): Promise<number>;
+  /** 83.2 The installs with an event from `fromDay` on, counted by the app version of each one's latest event. */
+  countAnalyticsVersions(appId: string, fromDay: string): Promise<{ version: string; installs: number }[]>;
   /** Sets daily totals (each metric and key replaces what the day had). */
   saveAnalyticsDaily(appId: string, day: string, rows: AnalyticsDailyRow[]): Promise<void>;
   /** Adds to one daily total (search counts, pushes sent, late-event marks). */

@@ -12,6 +12,7 @@ import { appUrl, encryptionKey, signingSecret } from "@/lib/env";
 import { pickableContent } from "@/lib/hosted/pages/pickable";
 import { designById, designFits, designsFor } from "@/lib/pages/designs";
 import { designLayout, designSamples, hasUnpublishedChanges, layoutHistory, loadLayout, withoutStrings } from "@/lib/pages/layout";
+import { appVersionsInUse } from "@/lib/pages/reach";
 import { blockTypesFor, categorySourcesFor, itemSourcesFor, screenOptionsFor } from "@/lib/pages/sources";
 import { PagesEditor } from "./editor";
 import { currentPlanId } from "@/lib/billing/plan-change";
@@ -120,6 +121,7 @@ export default async function PagesPage({ searchParams }: PageProps<"/dashboard/
         screens={screenOptionsFor(app)}
         blockTypes={blockTypesFor(app)}
         pickable={pickable}
+        versions={await appVersionsInUse(store, app.id, now)}
         reach={reach}
         plan={{
           name: plan?.name ?? "",

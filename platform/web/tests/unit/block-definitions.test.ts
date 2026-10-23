@@ -1,5 +1,9 @@
 import { afterEach, describe, expect, it } from "vitest";
+import { addDays, dayOf } from "@/lib/analytics/days";
+import type { AnalyticsEventRow } from "@/lib/analytics/types";
+import { MemoryStore } from "@/lib/data/memory";
 import type { App, AppType } from "@/lib/data/types";
+import { appVersionsInUse, devicesWithout } from "@/lib/pages/reach";
 import { appShowsBlock, BLOCK_DEFINITIONS, BLOCK_GROUP_ORDER, blockListLimits, blockTextLimit, FIRST_APP_VERSION } from "@/lib/pages/blocks";
 import { ICON_NAMES } from "@/components/icon-names";
 import { BLOCK_GROUPS, BLOCK_HINTS, BLOCK_ICONS, BLOCK_LABELS } from "@/lib/pages/labels";
@@ -100,5 +104,39 @@ describe("83.1 block definitions", () => {
     // An app that didn't say, or said something else, is shown everything.
     expect(appShowsBlock("slider", null)).toBe(true);
     expect(appShowsBlock("slider", "beta")).toBe(true);
+  });
+
+  it("83.2 counts the phones that won't show a block until they update", async () => {
+    const store = new MemoryStore();
+    const now = new Date("2026-10-20T12:00:00Z");
+    const open = (install: string, daysAgo: number, appVersion: string): AnalyticsEventRow => {
+      const day = addDays(dayOf(now), -daysAgo);
+      return { appId: "app-1", installId: install, type: "app_open", at: new Date(`${day}T09:00:00Z`), day, platform: "android", appVersion, osVersion: null, language: "en", country: null, firstOpen: false, screen: null, itemKind: null, itemId: null, title: null, amountCents: null, currency: null, notificationId: null, pushType: null };
+    };
+    await store.insertAnalyticsEvents([
+      open("a", 5, "1.0.0"),
+      open("a", 1, "1.3.0"),
+      open("b", 2, "1.0.0"),
+      open("c", 3, "1.2.0"),
+      open("d", 45, "0.9.0"),
+      { ...open("e", 1, "1.0.0"), appId: "app-2" },
+    ]);
+    const versions = await appVersionsInUse(store, "app-1", now);
+    expect(versions).toEqual([
+      { version: "1.0.0", installs: 1 },
+      { version: "1.2.0", installs: 1 },
+      { version: "1.3.0", installs: 1 },
+    ]);
+    // Every block today shows from the first version.
+    expect(devicesWithout("slider", versions)).toBe(0);
+    // A block that needs 1.3.0: two phones are behind.
+    const since = BLOCK_DEFINITIONS.slider.since;
+    BLOCK_DEFINITIONS.slider.since = "1.3.0";
+    try {
+      expect(devicesWithout("slider", versions)).toBe(2);
+      expect(devicesWithout("banner", versions)).toBe(0);
+    } finally {
+      BLOCK_DEFINITIONS.slider.since = since;
+    }
   });
 });

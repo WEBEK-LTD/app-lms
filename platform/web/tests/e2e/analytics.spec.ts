@@ -247,3 +247,24 @@ test("47 days are counted in the owner's time zone, which they change on the pag
   await expect(own.locator('[data-kpi="installs"] [data-value]')).toHaveText(String(before + 1));
   await expect(own.getByText(/Days in Pacific\/Kiritimati \(GMT\+14\) · Change/)).toBeVisible();
 });
+
+test("83.2 the page editor says how many people won't see a block until they update the app", async ({ request }) => {
+  await own.goto("/dashboard/pages");
+  const blocks = own.getByRole("list", { name: "Blocks" }).locator(":scope > li");
+  await expect(blocks.first()).toBeVisible();
+  // Every phone so far has a version that shows every block.
+  await expect(own.getByText(/won't see it until they update the app/)).toHaveCount(0);
+
+  // A phone on a version before the first one's blocks.
+  expect((await send(request, {
+        install_id: randomUUID(),
+        platform: "android",
+        app_version: "0.9.0",
+        os_version: "Android 13",
+        locale: "en",
+        events: [{ type: "app_open", at: new Date(Date.now() - 30_000).toISOString(), first_open: true }],
+      })).status()).toBe(202);
+  await own.reload();
+  await expect(blocks.first().getByText("1 person won't see it until they update the app")).toBeVisible();
+  await expect(own.getByRole("button", { name: "Add Notice block" })).toContainText("1 person won't see it until they update the app");
+});
