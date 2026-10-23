@@ -752,6 +752,42 @@ export class MysqlStore implements DataStore {
     );
   }
 
+  async listAppHostedDevices(appId: string): Promise<HostedDevice[]> {
+    return this.run((db) => db.select().from(schema.hostedDevices).where(eq(schema.hostedDevices.appId, appId)));
+  }
+
+  async listHostedUserIds(appId: string): Promise<{ id: number; createdAt: Date }[]> {
+    return this.run((db) => db.select({ id: schema.hostedUsers.id, createdAt: schema.hostedUsers.createdAt }).from(schema.hostedUsers).where(eq(schema.hostedUsers.appId, appId)));
+  }
+
+  async listAudienceUserIds(input: { appId: string; who: "buyers" | "students" | "members"; courseId?: number | null; now: Date }): Promise<number[]> {
+    const rows: { userId: number | null }[] = await this.run((db) => {
+      if (input.who === "buyers") {
+        return db
+          .selectDistinct({ userId: schema.catalogOrders.userId })
+          .from(schema.catalogOrders)
+          .where(and(eq(schema.catalogOrders.appId, input.appId), isNotNull(schema.catalogOrders.userId), isNotNull(schema.catalogOrders.paidAt)));
+      }
+      if (input.who === "students") {
+        return db
+          .selectDistinct({ userId: schema.courseEnrollments.userId })
+          .from(schema.courseEnrollments)
+          .where(and(eq(schema.courseEnrollments.appId, input.appId), input.courseId == null ? undefined : eq(schema.courseEnrollments.courseId, input.courseId)));
+      }
+      return db
+        .selectDistinct({ userId: schema.memberships.userId })
+        .from(schema.memberships)
+        .where(
+          and(
+            eq(schema.memberships.appId, input.appId),
+            eq(schema.memberships.status, "active"),
+            or(isNull(schema.memberships.endsAt), gt(schema.memberships.endsAt, input.now)),
+          ),
+        );
+    });
+    return rows.flatMap((r) => (r.userId === null ? [] : [Number(r.userId)])).sort((a, b) => a - b);
+  }
+
   async deleteHostedDevice(appId: string, id: string): Promise<void> {
     // Its refresh tokens cascade.
     await this.run((db) =>

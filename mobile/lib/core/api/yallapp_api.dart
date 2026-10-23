@@ -487,6 +487,7 @@ abstract class YallappApi {
     String token,
     NotificationPreferences preferences, {
     PushProvider provider = PushProvider.fcm,
+    String? language,
   });
 
   Future<List<Category>> listCategories();
@@ -1113,6 +1114,7 @@ class HttpYallappApi implements YallappApi {
     String token,
     NotificationPreferences preferences, {
     PushProvider provider = PushProvider.fcm,
+    String? language,
   }) => _send(
     'PUT',
     '/me/push-token',
@@ -1123,6 +1125,8 @@ class HttpYallappApi implements YallappApi {
       // 36 fcm or hms: the site sends each token through its own service.
       'provider': provider.name,
       'preferences': preferences.toJson(),
+      // 85.1 The language the app shows, for campaigns to the people who read it.
+      'language': ?language,
     },
   );
 

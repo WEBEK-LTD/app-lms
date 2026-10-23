@@ -87,6 +87,8 @@ export interface HostedContext {
   onUsersCounted?: (count: number) => Promise<void>;
   now: Date;
   ip: string;
+  /** 85.1 The country the request came from (lib/geo.ts), kept on the phone for campaigns' audiences. */
+  country?: string | null;
   /** Signs access tokens and hashes codes. */
   secret: string;
   sender: OtpSender | null;
@@ -815,6 +817,7 @@ async function session(ctx: HostedContext, user: HostedUser, rawDevice: Record<s
       name: input.name,
       appVersion: input.appVersion,
       lastSeenAt: ctx.now,
+      ...(ctx.country ? { country: ctx.country } : {}),
     });
   } else {
     // 16 The shared demo account is on every visitor's phone.
@@ -843,6 +846,8 @@ async function session(ctx: HostedContext, user: HostedUser, rawDevice: Record<s
       appVersion: input.appVersion,
       pushToken: null,
       pushPreferences: null,
+      language: null,
+      country: ctx.country ?? null,
       createdAt: ctx.now,
       lastSeenAt: ctx.now,
     };
@@ -883,7 +888,7 @@ async function refresh(ctx: HostedContext, body: Record<string, unknown>): Promi
   // 34 The new access token carries the person's current name, phone and email.
   const user = await ctx.store.getHostedUser(ctx.app.id, token.userId);
   if (!user) return unauthorized();
-  await ctx.store.updateHostedDevice(ctx.app.id, device.id, { lastSeenAt: ctx.now });
+  await ctx.store.updateHostedDevice(ctx.app.id, device.id, { lastSeenAt: ctx.now, ...(ctx.country ? { country: ctx.country } : {}) });
   return ok(await issueTokens(ctx, user, device.id));
 }
 
@@ -962,6 +967,9 @@ async function removeDevice(ctx: HostedContext, s: Session, id: string): Promise
   return noContent;
 }
 
+/** 85.1 A language tag as the app sends it: "ar", "tr", "en-GB". */
+const LANGUAGE_TAG = /^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$/;
+
 async function setPushToken(ctx: HostedContext, s: Session, body: Record<string, unknown>): Promise<HostedResult> {
   const token = text(body.token, 512);
   if (!token) return badRequest("The push token is missing.");
@@ -973,9 +981,17 @@ async function setPushToken(ctx: HostedContext, s: Session, body: Record<string,
   // 36 Firebase (the default) or Huawei Push Kit, for phones without Google Play.
   const provider = body.provider ?? "fcm";
   if (provider !== "fcm" && provider !== "hms") return badRequest("The push provider must be fcm or hms.");
+  // 85.1 The app's language on the phone (its first part: "ar" of "ar-EG"), for campaigns' audiences.
+  const language = typeof body.language === "string" && LANGUAGE_TAG.test(body.language) ? body.language.split("-")[0]!.toLowerCase() : undefined;
   // A token moves with the install: forget it on any other device first.
   await ctx.store.clearHostedPushToken(ctx.app.id, token);
-  await ctx.store.updateHostedDevice(ctx.app.id, s.device.id, { pushToken: token, pushProvider: provider, pushPreferences: preferences });
+  await ctx.store.updateHostedDevice(ctx.app.id, s.device.id, {
+    pushToken: token,
+    pushProvider: provider,
+    pushPreferences: preferences,
+    ...(language ? { language } : {}),
+    ...(ctx.country ? { country: ctx.country } : {}),
+  });
   return noContent;
 }
 

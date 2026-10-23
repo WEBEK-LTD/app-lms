@@ -133,7 +133,7 @@ export class DuplicateEmailError extends Error {
 }
 
 /** A device of a hosted-API customer: what the API may change. */
-export type HostedDevicePatch = Partial<Pick<HostedDevice, "platform" | "name" | "appVersion" | "pushToken" | "pushProvider" | "pushPreferences" | "lastSeenAt">>;
+export type HostedDevicePatch = Partial<Pick<HostedDevice, "platform" | "name" | "appVersion" | "pushToken" | "pushProvider" | "pushPreferences" | "lastSeenAt" | "language" | "country">>;
 
 export type ClaimResult = { ok: true; activation: Activation } | { ok: false; existing: Activation };
 
@@ -268,6 +268,16 @@ export interface DataStore {
   /** A customer's devices, most recently seen first. */
   listHostedDevices(appId: string, userId: number): Promise<HostedDevice[]>;
   updateHostedDevice(appId: string, id: string, patch: HostedDevicePatch): Promise<void>;
+  /** 85.1 Every signed-in phone of the app, for choosing a campaign's audience. */
+  listAppHostedDevices(appId: string): Promise<HostedDevice[]>;
+  /** 85.1 Everyone who signed up to the app, with when. */
+  listHostedUserIds(appId: string): Promise<{ id: number; createdAt: Date }[]>;
+  /**
+   * 85.1 People the app knows something about: who paid for an order
+   * ("buyers"), the students of one course or of any ("students"), and whose
+   * membership is active now ("members").
+   */
+  listAudienceUserIds(input: { appId: string; who: "buyers" | "students" | "members"; courseId?: number | null; now: Date }): Promise<number[]>;
   /** Signs the device out: deletes it and its refresh tokens. */
   deleteHostedDevice(appId: string, id: string): Promise<void>;
   /** Devices with a push token: every customer's, or only these customers'. */

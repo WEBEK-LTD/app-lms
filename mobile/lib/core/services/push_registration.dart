@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../api/api_exception.dart';
 import '../auth/auth_controller.dart';
 import '../gate/app_gate.dart';
+import '../l10n/language.dart';
 import '../providers.dart';
 import '../routing/app_router.dart';
 import '../routing/paths.dart';
@@ -32,6 +33,8 @@ final pushRegistrationProvider = Provider<void>((ref) {
   final preferences = ref.watch(
     localSettingsProvider.select((settings) => settings.notifications),
   );
+  // 85.1 Sent again when the person changes the app's language.
+  final language = ref.watch(appLanguageProvider);
   final push = ref.read(pushServiceProvider);
 
   Future<void> send(String? token) async {
@@ -40,7 +43,12 @@ final pushRegistrationProvider = Provider<void>((ref) {
       // 36 With where the token is from: Firebase or Huawei Push Kit.
       await ref
           .read(yallappApiProvider)
-          .setPushToken(token, preferences, provider: push.provider);
+          .setPushToken(
+            token,
+            preferences,
+            provider: push.provider,
+            language: language,
+          );
     } on ApiException {
       // Tried again on the next start or preference change.
     }

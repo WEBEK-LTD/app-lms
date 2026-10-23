@@ -449,6 +449,13 @@
       "when": 1792720804256,
       "tag": "0063_saved_sections",
       "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "5",
+      "when": 1792723017536,
+      "tag": "0064_device_language_country",
+      "breakpoints": true
     }
   ]
 }

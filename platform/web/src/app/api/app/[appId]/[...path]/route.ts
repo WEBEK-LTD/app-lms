@@ -10,6 +10,7 @@ import { serviceAccountOf } from "@/lib/hosted/notify";
 import { otpSenderFrom } from "@/lib/hosted/otp-sender";
 import { handleHosted } from "@/lib/hosted/service";
 import { errorResponse, ipFromHeaders, json, noContent } from "@/lib/http";
+import { countryFromHeaders } from "@/lib/geo";
 import { appIsActive } from "@/lib/license/status";
 import { newAppointmentMailValues } from "@/lib/bookings/mail";
 import { bookingSetup } from "@/lib/bookings/setup";
@@ -122,6 +123,7 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
       },
       now,
       ip: ipFromHeaders(request.headers),
+      country: countryFromHeaders(request.headers),
       preview: preview?.ok ? { draft: preview.grant.draft } : null,
       secret: hmacSha256(signingSecret(), "hosted-api"),
       // 34 Own API apps Yallapp signs people in to: ES256 tokens with the app's own keys.

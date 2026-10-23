@@ -2002,7 +2002,7 @@ measured; several useful automatic pushes don't exist.
 
 | | Step | Done when |
 |---|---|---|
-| [ ] | 85.1 Audiences: buyers, a course's students, members, people inactive for a while, by language, platform and country | Contract, unit tests |
+| [x] | 85.1 Audiences: buyers, a course's students, members, people inactive for a while, by language, platform and country. `lib/hosted/audiences.ts`: the kinds each app has, checked and resolved to people; the app sends its language with `PUT /me/push-token` and the country comes from the request (never the IP), both on `hosted_devices` (migration 0064); the data safety guide in en/ar/tr | `openapi.yaml`, `audiences.test.ts` (memory and MariaDB), `huawei_push_test.dart`, `push_registration_test.dart` |
 | [ ] | 85.2 Campaigns: draft, send now, later or every week, a screen or link to open, a picture; sent, failed and opened per campaign | Unit and e2e tests |
 | [ ] | 85.3 Automatic: a new lesson, an appointment confirmed and a reminder before it, a class or event soon, a membership ending, a cart left, the daily study reminder; each one counted | Unit tests |
 | [ ] | 85.4 WordPress apps: campaigns from the dashboard through the plugin, which reports what it sent | PHPUnit, integration suite |

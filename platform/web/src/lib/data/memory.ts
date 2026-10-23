@@ -655,6 +655,28 @@ export class MemoryStore implements DataStore {
     if (device && device.appId === appId) this.hostedDevices.set(id, clone({ ...device, ...patch }));
   }
 
+  async listAppHostedDevices(appId: string): Promise<HostedDevice[]> {
+    return [...this.hostedDevices.values()].filter((d) => d.appId === appId).map(clone);
+  }
+
+  async listHostedUserIds(appId: string): Promise<{ id: number; createdAt: Date }[]> {
+    return [...this.hostedUsers.values()].filter((u) => u.appId === appId).map((u) => ({ id: u.id, createdAt: new Date(u.createdAt) }));
+  }
+
+  async listAudienceUserIds(input: { appId: string; who: "buyers" | "students" | "members"; courseId?: number | null; now: Date }): Promise<number[]> {
+    const ids = new Set<number>();
+    if (input.who === "buyers") {
+      for (const o of this.catalogOrders.values()) if (o.appId === input.appId && o.userId !== null && o.paidAt) ids.add(o.userId);
+    } else if (input.who === "students") {
+      for (const e of this.courseEnrollments) if (e.appId === input.appId && (input.courseId == null || e.courseId === input.courseId)) ids.add(e.userId);
+    } else {
+      for (const m of this.memberships.values()) {
+        if (m.appId === input.appId && m.status === "active" && (m.endsAt === null || m.endsAt > input.now)) ids.add(m.userId);
+      }
+    }
+    return [...ids].sort((a, b) => a - b);
+  }
+
   async deleteHostedDevice(appId: string, id: string): Promise<void> {
     const device = this.hostedDevices.get(id);
     if (!device || device.appId !== appId) return;

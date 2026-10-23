@@ -2217,6 +2217,29 @@ runs the rest of it.
   app's chat (as the App Store and Google Play ask of apps where people
   write to each other); the privacy policy says what the chat keeps.
 
+## Notification campaigns (Phase 85)
+
+### Audiences (85.1)
+
+`lib/hosted/audiences.ts`. A campaign goes to everyone, or to the people
+the app knows something about: who paid for an order (`catalog_orders`
+with `paid_at`), the students of one course or of any
+(`course_enrollments`), members whose membership is active now
+(`memberships`), or people none of whose phones opened the app for 7 to
+90 days (`hosted_devices.last_seen_at`, refreshed at sign-in and at each
+token refresh; the sign-up date for someone without a phone). The kinds
+offered follow the app (`audienceKinds`, from `lib/app/areas.ts`).
+
+It can be narrowed by the language the app shows on the phone, the
+phone's platform and its country. A person matches when one of their
+phones does; a phone that never said (an app from before 85.1) matches no
+narrowing. The app sends its language with `PUT /me/push-token` (again
+when the person changes it); the country comes from the request
+(`lib/geo.ts`, the IP itself is never kept) at sign-in, token refresh and
+push registration. Both are on `hosted_devices` (migration
+`0064_device_language_country`). Everyone, not narrowed, is still one
+notification to the whole app (`resolveAudience` answers `null`).
+
 ## Milestones (Phase 78)
 
 `client_milestones` (migration 0053, `lib/milestones/record.ts`) keeps when

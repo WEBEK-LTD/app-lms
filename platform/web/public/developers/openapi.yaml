@@ -965,6 +965,15 @@ paths:
                     them, in apps built with Huawei push. The server sends each token through its own
                     service, and skips `hms` tokens when it has no Push Kit credentials.
                 preferences: { $ref: '#/components/schemas/NotificationPreferences' }
+                language:
+                  type: string
+                  maxLength: 35
+                  example: ar
+                  description: >-
+                    Roadmap 85.1: the language the app shows on this phone (a language tag; its first
+                    part is kept), sent again when the person changes it. With the country the phone
+                    signs in from (never its IP), it lets the business send a campaign to the people
+                    who read a language or live in a country. Servers that don't need it ignore it.
       responses:
         '204': { description: Saved }
         '400': { $ref: '#/components/responses/BadRequest' }

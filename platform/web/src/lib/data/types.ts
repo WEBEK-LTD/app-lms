@@ -637,6 +637,10 @@ export interface HostedDevice {
   /** 36 Where the token is from: Firebase ("fcm", the default) or Huawei Push Kit ("hms"). */
   pushProvider?: PushProvider;
   pushPreferences: PushPreferences | null;
+  /** 85.1 The app's language on this phone when it last registered for push (missing before). */
+  language?: string | null;
+  /** 85.1 The country the phone last signed in or registered from (ISO 3166 alpha-2; the IP itself is never kept). */
+  country?: string | null;
   createdAt: Date;
   lastSeenAt: Date;
 }

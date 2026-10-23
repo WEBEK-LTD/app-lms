@@ -187,12 +187,17 @@ class FakeApi implements YallappApi {
     String token,
     NotificationPreferences preferences, {
     PushProvider provider = PushProvider.fcm,
+    String? language,
   }) => _answer('setPushToken', () {
     pushTokens.add((token: token, provider: provider));
+    pushLanguages.add(language);
   });
 
   /// 36 The push tokens the app registered, with their provider.
   final pushTokens = <({String token, PushProvider provider})>[];
+
+  /// 85.1 The language sent with each of them.
+  final pushLanguages = <String?>[];
 
   @override
   Future<List<Category>> listCategories() => _answer(
