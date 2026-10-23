@@ -22,6 +22,15 @@ export const en = {
   previewLiveNote: "The real app, with your draft: it changes as your edits are saved.",
   previewReload: "Reload the app",
   previewFrame: "{app} with your draft",
+  // 82.3 Sizes, systems, light and dark.
+  sizeSmall: "Small phone",
+  sizePhone: "Phone",
+  sizeTablet: "Tablet",
+  system: "System",
+  lightAndDark: "Light and dark",
+  light: "Light",
+  dark: "Dark",
+  previewFrameTheme: "{app} with your draft, {theme}",
   phonePreview: "Phone preview",
   addBlocksHere: "Add blocks to this page.",
   // 82.2 Editing on the phone.
@@ -445,6 +454,15 @@ export const ar: Messages = {
   previewLiveNote: "التطبيق الحقيقي بمسودتك: يتغيّر كلما حُفظت تعديلاتك.",
   previewReload: "أعد تحميل التطبيق",
   previewFrame: "{app} بمسودتك",
+  // 82.3 Sizes, systems, light and dark.
+  sizeSmall: "هاتف صغير",
+  sizePhone: "هاتف",
+  sizeTablet: "جهاز لوحي",
+  system: "النظام",
+  lightAndDark: "الفاتح والداكن",
+  light: "فاتح",
+  dark: "داكن",
+  previewFrameTheme: "{app} بمسودتك، {theme}",
   phonePreview: "معاينة على الهاتف",
   addBlocksHere: "أضف كتلًا إلى هذه الصفحة.",
   // 82.2 Editing on the phone.
@@ -861,6 +879,15 @@ export const tr: Messages = {
   previewLiveNote: "Taslağınızla gerçek uygulama: düzenlemeleriniz kaydedildikçe değişir.",
   previewReload: "Uygulamayı yeniden yükle",
   previewFrame: "Taslağınızla {app}",
+  // 82.3 Sizes, systems, light and dark.
+  sizeSmall: "Küçük telefon",
+  sizePhone: "Telefon",
+  sizeTablet: "Tablet",
+  system: "Sistem",
+  lightAndDark: "Açık ve koyu",
+  light: "Açık",
+  dark: "Koyu",
+  previewFrameTheme: "Taslağınızla {app}, {theme}",
   phonePreview: "Telefon önizlemesi",
   addBlocksHere: "Bu sayfaya blok ekleyin.",
   // 82.2 Editing on the phone.

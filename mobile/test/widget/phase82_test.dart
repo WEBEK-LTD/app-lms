@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/core/preview/preview.dart';
 import 'package:yallapp/modules/shared/pages/draft_reload.dart';
 
@@ -109,5 +111,21 @@ void main() {
     final pagesBefore = count(app.api, 'getPages');
     await TestApp.settle(tester, 10);
     expect(count(app.api, 'getPages'), pagesBefore);
+  });
+
+  test('82.3 the preview link asks for Android or an iPhone', () {
+    PreviewLaunch? launch(String query) => PreviewLaunch.fromUri(
+      Uri.parse('https://yallapp.com.tr/preview-app/index.html?$query'),
+    );
+    const token = 'token=p1.abcdefghijklmnopqrstuvwxyz';
+    expect(launch('$token&os=ios')!.platform, DevicePlatform.ios);
+    expect(
+      launch('$token&os=android&theme=dark')!.platform,
+      DevicePlatform.android,
+    );
+    expect(launch('$token&theme=dark')!.themeMode, ThemeMode.dark);
+    // Anything else: as the browser's system.
+    expect(launch('$token&os=windows')!.platform, isNull);
+    expect(launch(token)!.platform, isNull);
   });
 }

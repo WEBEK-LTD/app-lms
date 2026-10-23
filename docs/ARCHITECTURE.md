@@ -2712,6 +2712,16 @@ block can also be dragged (`application/x-yallapp-block`) onto the phone: the
 block goes before the block it falls on (its top half) or after it, or at the
 end below the last block, with the same limits as Add a block.
 
+### Sizes, systems, light and dark (82.3)
+
+The real app beside the editor comes at a small phone's, a phone's or a
+tablet's size (`DEVICE_SIZES` in `live-preview.tsx`), as on Android or an
+iPhone, and in light and dark side by side (two frames, each told about every
+save). The app preview's link takes `os=android` or `os=ios`
+(`PreviewLaunch.platform`): the app runs as on that system
+(`AppEnvironment.platform`), with its rules, so an iPhone shows no purchase
+buttons.
+
 ## Pages, looks and languages
 
 Clients build their app's pages and pick its look in the client dashboard,

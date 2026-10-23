@@ -168,7 +168,7 @@ export function PagesEditor({
   const edits = useRef(0);
   const dirty = useRef(false);
   // 82.1 The real app beside the editor, told about each save; or the quick view.
-  const frame = useRef<HTMLIFrameElement | null>(null);
+  const frames = useRef<HTMLDivElement | null>(null);
   const [view, setView] = useState<"app" | "sketch">(live ? "app" : "sketch");
 
   const def = layout.languages.default;
@@ -189,7 +189,7 @@ export function PagesEditor({
     setPublished(r.published);
     setSavedAt(r.savedAt);
     setErrors([]);
-    notifyDraftSaved(frame.current);
+    notifyDraftSaved(frames.current);
     if (replace) {
       dirty.current = false;
       setLayout(r.draft);
@@ -885,7 +885,7 @@ export function PagesEditor({
           </div>
         ) : null}
         {live && view === "app" ? (
-          <LivePreview src={live} appName={app.name} frameRef={frame} />
+          <LivePreview src={live} appName={app.name} framesRef={frames} />
         ) : (
           <PhonePreview
             layout={shown}

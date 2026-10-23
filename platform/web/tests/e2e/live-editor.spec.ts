@@ -109,5 +109,47 @@ test("82.2 a block clicked on the phone opens in the editor; one dragged onto th
   await expect(list).toHaveCount(count + 1);
   await expect(list.first()).toContainText("Notice");
   await expect(list.first().getByRole("button", { expanded: true })).toBeVisible();
-  await expect(own.getByText("Unsaved changes")).toHaveCount(0, { timeout: 15_000 });
+  // The new Notice needs its text before the draft can be saved.
+  await expect(own.getByText("Draft not saved: fix the problems below.")).toBeVisible({ timeout: 15_000 });
+  await list.first().getByLabel("Text", { exact: true }).fill("Free delivery this week");
+  await expect(own.getByText(/^Draft saved/)).toBeVisible({ timeout: 15_000 });
+});
+
+test("82.3 the app at a small phone's, a phone's or a tablet's size, as on Android or an iPhone, light and dark side by side", async () => {
+  await own.getByRole("button", { name: "The app", exact: true }).click();
+  const frames = own.locator("iframe[data-testid=editor-preview]");
+  await expect(frames).toHaveCount(1);
+  await expect(frames).toHaveAttribute("src", /&os=android/);
+
+  // As on an iPhone: the app follows the iPhone's rules.
+  await own.getByRole("group", { name: "System" }).getByRole("button", { name: "iPhone" }).click();
+  await expect(frames).toHaveAttribute("src", /&os=ios/);
+
+  // A tablet is wider than a phone, a small phone narrower.
+  const width = async () => (await own.locator("[data-device]").first().boundingBox())!.width;
+  const phone = await width();
+  await own.getByRole("group", { name: "Size" }).getByRole("button", { name: "Tablet" }).click();
+  await expect(own.locator("[data-device]")).toHaveAttribute("data-device", "tablet ios");
+  expect(await width()).toBeGreaterThan(phone);
+  await own.getByRole("group", { name: "Size" }).getByRole("button", { name: "Small phone" }).click();
+  expect(await width()).toBeLessThan(phone);
+  await own.getByRole("group", { name: "Size" }).getByRole("button", { name: "Phone", exact: true }).click();
+
+  // Light and dark side by side: both apps follow the draft.
+  await own.getByLabel("Light and dark").check();
+  await expect(frames).toHaveCount(2);
+  await expect(frames.nth(0)).toHaveAttribute("src", /&theme=light/);
+  await expect(frames.nth(1)).toHaveAttribute("src", /&theme=dark/);
+  await expect(own.frameLocator("iframe[data-testid=editor-preview] >> nth=1").locator("flutter-view, flt-glass-pane").first()).toBeAttached({ timeout: 45_000 });
+  // Wait until both apps have read their pages once, then edit: each reads them again.
+  await own.waitForTimeout(3000);
+  const reads: Request[] = [];
+  const onRequest = (r: Request) => {
+    if (pagesRead(r)) reads.push(r);
+  };
+  own.on("request", onRequest);
+  await own.getByRole("tab", { name: "Tabs" }).click();
+  await own.getByRole("group", { name: /^Tab 1/ }).getByLabel("Label", { exact: true }).fill("Begin");
+  await expect.poll(() => reads.length, { timeout: 20_000 }).toBeGreaterThanOrEqual(2);
+  own.off("request", onRequest);
 });
