@@ -67,6 +67,15 @@ export default async function NotificationsPage() {
         <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("notify.title")}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("notify.intro", { count: customers })}</p>
       </div>
+      {/* 85.2 Campaigns: to some of the customers, with a picture, a page to open and a weekly time. */}
+      <Link href="/dashboard/notifications/campaigns" className="flex max-w-[620px] items-center gap-3 rounded-2xl border border-line bg-white p-4 no-underline hover:border-midnight">
+        <Icon name="campaign" size={24} />
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="text-[16px] font-bold text-midnight">{t("campaigns.open")}</span>
+          <span className="text-[14px] text-ink-4">{t("campaigns.openText")}</span>
+        </span>
+        <Icon name="chevron_right" size={20} className="rtl:rotate-180" />
+      </Link>
       {ended ? (
         <div className="max-w-[620px]">
           <Notice tone="warn" icon="warning" role="status">

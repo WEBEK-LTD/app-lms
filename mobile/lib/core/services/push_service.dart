@@ -92,6 +92,15 @@ String pushTargetLocation(Map<String, dynamic> data) {
   return Paths.home;
 }
 
+/// 85.2 A campaign's web address (an `https` link that isn't one of the
+/// app's own `<base>/<kind>/<id>` links): opened in the browser. Null otherwise.
+String? pushOutsideLink(Map<String, dynamic> data) {
+  final link = Uri.tryParse('${data['link'] ?? ''}'.trim());
+  if (link == null || link.scheme != 'https' || link.host.isEmpty) return null;
+  if (link.pathSegments.contains('a')) return null;
+  return link.toString();
+}
+
 class NoopPushService implements PushService {
   const NoopPushService();
 

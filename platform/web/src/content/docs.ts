@@ -931,6 +931,11 @@ In Firebase, open **Project settings › Service accounts** and choose **Generat
 - **Apps connected to a platform, or without a website**: on **App notifications**, write a title and a message and select **Send to everyone**. Everyone gets it in the app's inbox; phones that allow notifications also get a push.
 - **WordPress**: choose which events send a notification automatically (a new lesson, an announcement, a confirmed enrollment, an answer to a question), or write one under **Send a manual notification** in the plugin's settings.
 
+
+## Campaigns: to the people you choose
+
+On **App notifications › Campaigns** (apps connected to a platform, or without a website), a campaign goes to everyone or to some of your customers: people who bought something, a course's students, members with an active membership, or people who haven't opened the app for a while. You can narrow it to the language the app shows on their phone, iPhones or Android phones, and the country they sign in from. Add a picture from your Media and choose what it opens: the app, one of its pages or a web page. Send it now, at a date and time, or every week on a day and time; save it as a draft to send later. Each campaign shows how many people it went to, the phones the push reached and missed, and how many opened it (counted each night). Campaigns come with every plan and count with your other notifications, up to 10 an hour.
+
 ---
 
 People choose which notifications they get in the app's settings. If notifications don't reach iPhones, check the APNs key in Firebase's Cloud Messaging settings first.

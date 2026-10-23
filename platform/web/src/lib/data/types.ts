@@ -692,6 +692,12 @@ export interface HostedNotification {
   eventId?: number | null;
   /** 29 A campaign update: the campaign the notification opens. Missing or null otherwise. */
   campaignId?: number | null;
+  /** 85.2 What it opens: a link in the Links format (`<base>/<kind>/<id>`) or another https address. */
+  link?: string | null;
+  /** 85.2 Its picture, a full address. */
+  imageUrl?: string | null;
+  /** 85.2 To the people in `hosted_notification_recipients` only (a campaign's audience), not everyone. */
+  targeted?: boolean;
   createdAt: Date;
 }
 
@@ -2565,6 +2571,68 @@ export interface ScheduledNotification {
 }
 
 export type ScheduledNotificationPatch = Partial<Pick<ScheduledNotification, "title" | "body" | "sendAt" | "status" | "claimedAt" | "sentAt" | "notificationId" | "result" | "updatedAt">>;
+
+// 85.2 Notification campaigns
+
+/** 85.1 Who a campaign goes to (lib/hosted/audiences.ts). */
+export interface NotificationAudience {
+  who: "everyone" | "buyers" | "students" | "members" | "inactive";
+  courseId: number | null;
+  inactiveDays: number | null;
+  languages: string[];
+  platforms: ("android" | "ios")[];
+  countries: string[];
+}
+
+/**
+ * 85.2 A draft is kept to send later; "scheduled" waits for `sendAt` (once,
+ * or the next week's time); "sending" is taken by one run; "sent" went out
+ * (once); "stopped" is a weekly one the owner stopped; "failed" was refused
+ * when its time came (the reason in `result`).
+ */
+export type NotificationCampaignStatus = "draft" | "scheduled" | "sending" | "sent" | "stopped" | "failed";
+
+export interface NotificationCampaign {
+  id: number;
+  appId: string;
+  title: string;
+  body: string;
+  /** A picture from the app's Media (public) or Yallapp's pictures: its address on yallapp.com.tr. */
+  imageUrl: string | null;
+  /** What it opens: a link in the Links format, or another https address; null opens the app. */
+  link: string | null;
+  audience: NotificationAudience;
+  repeat: "once" | "weekly";
+  /** When it goes out next: once, the time chosen; weekly, the next week's. Null for a draft or one sent at once. */
+  sendAt: Date | null;
+  /** Weekly: the day (0 Sunday … 6 Saturday) and time ("18:30") in the app's time zone. */
+  weekday: number | null;
+  time: string | null;
+  status: NotificationCampaignStatus;
+  claimedAt: Date | null;
+  lastSentAt: Date | null;
+  /** Why it failed, or what the last send said (English, as the dashboard's `known` texts). */
+  result: string | null;
+  createdBy: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type NotificationCampaignPatch = Partial<Omit<NotificationCampaign, "id" | "appId" | "createdAt" | "createdBy">>;
+
+/** 85.2 One time a campaign went out: the inbox notification, and how it went. */
+export interface CampaignSend {
+  id: number;
+  campaignId: number;
+  appId: string;
+  notificationId: number;
+  sentAt: Date;
+  /** People it went to (their inboxes). */
+  recipients: number;
+  /** Phones the push reached, and phones it didn't. */
+  pushed: number;
+  failed: number;
+}
 
 /** 61 What was paid in a window: how many, and the amounts less refunds per currency. */
 export interface PaidTotals {

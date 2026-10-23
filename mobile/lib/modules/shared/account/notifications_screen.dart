@@ -66,6 +66,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
   }
 
   void _open(InboxNotification n) {
+    // 85.2 A campaign's web page opens in the browser.
+    final outside = pushOutsideLink(n.target);
+    if (outside != null) {
+      ref.read(openExternalProvider)(outside);
+      return;
+    }
     final location = pushTargetLocation(n.target);
     if (location != Paths.home) context.push(location);
   }
@@ -126,7 +132,9 @@ class _NotificationTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.palette;
     final n = notification;
-    final opens = pushTargetLocation(n.target) != Paths.home;
+    final opens =
+        pushTargetLocation(n.target) != Paths.home ||
+        pushOutsideLink(n.target) != null;
     return Semantics(
       label: n.read ? null : context.l10n.unread,
       child: AppCard(
@@ -185,6 +193,17 @@ class _NotificationTile extends StatelessWidget {
                       color: p.textSecondary,
                     ),
                   ),
+                  // 85.2 A campaign's picture.
+                  if (n.imageUrl != null) ...[
+                    const SizedBox(height: 10),
+                    AppNetworkImage(
+                      url: n.imageUrl,
+                      seed: n.id,
+                      radius: 12,
+                      height: 140,
+                      width: double.infinity,
+                    ),
+                  ],
                   const SizedBox(height: 6),
                   Text(
                     timeAgo(n.createdAt),

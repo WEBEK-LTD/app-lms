@@ -12,6 +12,7 @@ import '../providers.dart';
 import '../routing/app_router.dart';
 import '../routing/paths.dart';
 import '../storage/local_settings.dart';
+import 'external_links.dart';
 import 'push_service.dart';
 
 /// True when this build and the site both support push notifications.
@@ -69,6 +70,12 @@ final pushNavigationProvider = Provider<void>((ref) {
   void open(Map<String, dynamic> data) {
     // 44 Which notifications people open, for the owner's statistics.
     ref.read(analyticsProvider).pushOpened(data);
+    // 85.2 A campaign's web page opens in the browser, over Home.
+    final outside = pushOutsideLink(data);
+    if (outside != null) {
+      unawaited(ref.read(openExternalProvider)(outside));
+      return;
+    }
     final location = pushTargetLocation(data);
     if (location == Paths.home) {
       router.go(location);

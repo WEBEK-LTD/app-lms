@@ -47,6 +47,7 @@ import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, Tea
 import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatus } from "./types";
 import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
+import type { CampaignSend, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 import { mergeCrash } from "../crashes/report";
 import type {
   Activation,
@@ -874,9 +875,16 @@ export class MysqlStore implements DataStore {
   }
 
   private hostedInboxWhere(appId: string, userId: number) {
+    const n = schema.hostedNotifications;
+    const r = schema.hostedNotificationRecipients;
     return and(
-      eq(schema.hostedNotifications.appId, appId),
-      or(isNull(schema.hostedNotifications.userId), eq(schema.hostedNotifications.userId, userId)),
+      eq(n.appId, appId),
+      or(
+        eq(n.userId, userId),
+        and(isNull(n.userId), eq(n.targeted, false)),
+        // 85.2 A campaign to some people: theirs only.
+        and(isNull(n.userId), eq(n.targeted, true), sql`exists (select 1 from ${r} where ${r.notificationId} = ${n.id} and ${r.userId} = ${userId})`),
+      ),
     );
   }
 
@@ -918,10 +926,18 @@ export class MysqlStore implements DataStore {
       db
         .select()
         .from(schema.hostedNotifications)
-        .where(and(eq(schema.hostedNotifications.appId, appId), isNull(schema.hostedNotifications.userId)))
+        .where(and(eq(schema.hostedNotifications.appId, appId), isNull(schema.hostedNotifications.userId), eq(schema.hostedNotifications.targeted, false)))
         .orderBy(desc(schema.hostedNotifications.createdAt), desc(schema.hostedNotifications.id))
         .limit(limit),
     );
+  }
+
+  async addHostedNotificationRecipients(appId: string, notificationId: number, userIds: number[]): Promise<void> {
+    const ids = [...new Set(userIds)];
+    for (let i = 0; i < ids.length; i += 1000) {
+      const batch = ids.slice(i, i + 1000).map((userId) => ({ notificationId, appId, userId }));
+      await this.run((db) => db.insert(schema.hostedNotificationRecipients).ignore().values(batch));
+    }
   }
 
   async countHostedUsers(appId: string): Promise<number> {
@@ -3852,6 +3868,62 @@ export class MysqlStore implements DataStore {
     const t = schema.scheduledNotifications;
     const [result] = await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id), eq(t.status, expect))));
     return result.affectedRows === 1;
+  }
+
+  // 85.2 Notification campaigns
+
+  async createNotificationCampaign(input: Omit<NotificationCampaign, "id">): Promise<NotificationCampaign> {
+    const [result] = await this.run((db) => db.insert(schema.notificationCampaigns).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async getNotificationCampaign(appId: string, id: number): Promise<NotificationCampaign | null> {
+    const t = schema.notificationCampaigns;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async listNotificationCampaigns(appId: string, limit: number): Promise<NotificationCampaign[]> {
+    const t = schema.notificationCampaigns;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(desc(t.createdAt), desc(t.id)).limit(limit));
+  }
+
+  async updateNotificationCampaign(appId: string, id: number, expect: NotificationCampaignStatus | null, patch: NotificationCampaignPatch): Promise<boolean> {
+    const t = schema.notificationCampaigns;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set(patch)
+        .where(and(eq(t.appId, appId), eq(t.id, id), expect === null ? undefined : eq(t.status, expect))),
+    );
+    return result.affectedRows === 1;
+  }
+
+  async deleteNotificationCampaign(appId: string, id: number): Promise<boolean> {
+    const t = schema.notificationCampaigns;
+    const [result] = await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+    return result.affectedRows === 1;
+  }
+
+  async listDueNotificationCampaigns(now: Date, limit: number): Promise<NotificationCampaign[]> {
+    const t = schema.notificationCampaigns;
+    return this.run((db) => db.select().from(t).where(and(eq(t.status, "scheduled"), lte(t.sendAt, now))).orderBy(asc(t.sendAt), asc(t.id)).limit(limit));
+  }
+
+  async listStaleNotificationCampaigns(before: Date): Promise<NotificationCampaign[]> {
+    const t = schema.notificationCampaigns;
+    return this.run((db) => db.select().from(t).where(and(eq(t.status, "sending"), lt(t.claimedAt, before))).limit(500));
+  }
+
+  async createCampaignSend(input: Omit<CampaignSend, "id">): Promise<CampaignSend> {
+    const [result] = await this.run((db) => db.insert(schema.campaignSends).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async listCampaignSends(appId: string, campaignIds: number[]): Promise<CampaignSend[]> {
+    if (campaignIds.length === 0) return [];
+    const t = schema.campaignSends;
+    return this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), inArray(t.campaignId, campaignIds))).orderBy(desc(t.sentAt), desc(t.id)).limit(5000));
   }
 
   // 61 Announcements pushed when they start

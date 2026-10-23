@@ -81,6 +81,7 @@ import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 // 61
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
+import type { CampaignSend, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 // 66 Deleting a Yallapp account
 import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatus } from "./types";
 // 73 Deleting an app, and the billing records kept when an account goes
@@ -309,6 +310,8 @@ export interface DataStore {
   countHostedNotificationsAfter(input: { appId: string; userId: number; after: Date }): Promise<number>;
   /** Everyone's notifications of an app, newest first, for the dashboard. */
   listHostedBroadcasts(appId: string, limit: number): Promise<HostedNotification[]>;
+  /** 85.2 The people a targeted notification is for (it is in their inboxes only). */
+  addHostedNotificationRecipients(appId: string, notificationId: number, userIds: number[]): Promise<void>;
   countHostedUsers(appId: string): Promise<number>;
   /** 19 The app's users who signed up by email (no phone number): they can't sign in when email sign-in is off. */
   countHostedEmailOnlyUsers(appId: string): Promise<number>;
@@ -954,6 +957,22 @@ export interface DataStore {
   listStaleScheduledNotifications(before: Date): Promise<ScheduledNotification[]>;
   /** Changes it only while its status is `expect` (atomic); false otherwise, with nothing changed. */
   updateScheduledNotification(appId: string, id: number, expect: ScheduledNotificationStatus, patch: ScheduledNotificationPatch): Promise<boolean>;
+
+  // 85.2 Notification campaigns
+  createNotificationCampaign(input: Omit<NotificationCampaign, "id">): Promise<NotificationCampaign>;
+  getNotificationCampaign(appId: string, id: number): Promise<NotificationCampaign | null>;
+  /** The app's campaigns, newest first. */
+  listNotificationCampaigns(appId: string, limit: number): Promise<NotificationCampaign[]>;
+  /** Changes one while it has the status expected (any when null); false when it no longer has. */
+  updateNotificationCampaign(appId: string, id: number, expect: NotificationCampaignStatus | null, patch: NotificationCampaignPatch): Promise<boolean>;
+  deleteNotificationCampaign(appId: string, id: number): Promise<boolean>;
+  /** Waiting ones whose time came, every app's, oldest first. */
+  listDueNotificationCampaigns(now: Date, limit: number): Promise<NotificationCampaign[]>;
+  /** Taken by a run before `before` and not finished. */
+  listStaleNotificationCampaigns(before: Date): Promise<NotificationCampaign[]>;
+  createCampaignSend(input: Omit<CampaignSend, "id">): Promise<CampaignSend>;
+  /** The sends of these campaigns, newest first. */
+  listCampaignSends(appId: string, campaignIds: number[]): Promise<CampaignSend[]>;
 
   // 61 Announcements pushed to the owners' phones when they start
   /** Marks the announcement pushed, only if it wasn't yet (atomic); false otherwise. */

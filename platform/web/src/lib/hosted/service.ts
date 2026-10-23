@@ -1015,6 +1015,9 @@ export function notificationJson(n: HostedNotification, readAt: Date | null) {
     ...(n.articleId ? { article_id: n.articleId } : {}),
     ...(n.eventId ? { event_id: n.eventId } : {}),
     ...(n.campaignId ? { campaign_id: n.campaignId } : {}),
+    // 85.2 A campaign's link and picture.
+    ...(n.link ? { link: n.link } : {}),
+    ...(n.imageUrl ? { image_url: n.imageUrl } : {}),
     created_at: n.createdAt.toISOString(),
     read: readAt !== null && n.createdAt.getTime() <= readAt.getTime(),
   };

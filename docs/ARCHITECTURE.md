@@ -2240,6 +2240,35 @@ push registration. Both are on `hosted_devices` (migration
 `0064_device_language_country`). Everyone, not narrowed, is still one
 notification to the whole app (`resolveAudience` answers `null`).
 
+### Campaigns (85.2)
+
+`lib/hosted/campaigns.ts`, Dashboard › App notifications › Campaigns
+(`/dashboard/notifications/campaigns`). A campaign is a title and message,
+a picture (from the Media library made public, or Yallapp's pictures: only
+addresses on Yallapp's own domain), what it opens (nothing, a page of the
+app as a Links-format link `<base>/page/<slug>`, or another `https`
+address, which the app opens in the browser) and an audience (85.1). It is
+kept as a draft, sent now, at a date and time, or every week on a day and
+time in the app's time zone (`notification_campaigns`, migration
+`0065_notification_campaigns`; `repeats` and `local_time` avoid MySQL's
+reserved words).
+
+Each send is `announce()` with the audience: one `hosted_notifications`
+row, to everyone (as before) or `targeted` with its people in
+`notice_recipients` (the inbox query adds those), and a push to their
+phones that allow announcements, with `link` and `image_url` in the data
+(FCM `notification.image`, Push Kit `android.notification.image`; iPhones
+show the picture in the inbox). `campaign_sends` keeps each send's people,
+phones reached and missed (targets minus accepted); opens are the app's
+`push_open` analytics by notification ID, counted each night. Sends count
+in the hourly limit of 10 with the app's other notifications; nothing goes
+out once the plan has ended (68). The frequent job sends the due ones,
+each taken by one run (a conditional update); a weekly one is set to the
+next week's time after each send, waits when the hour's limit is used,
+and skips a week with nobody in its audience. Notifications "sent to
+everyone" (the dashboard's Sent list and the Owner API) leave targeted
+ones out.
+
 ## Milestones (Phase 78)
 
 `client_milestones` (migration 0053, `lib/milestones/record.ts`) keeps when

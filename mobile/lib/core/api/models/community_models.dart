@@ -34,6 +34,7 @@ class InboxNotification {
     this.eventId,
     this.campaignId,
     this.link,
+    this.imageUrl,
   });
 
   factory InboxNotification.fromJson(Json json) => InboxNotification(
@@ -52,6 +53,7 @@ class InboxNotification {
     eventId: optInt(json, 'event_id'),
     campaignId: optInt(json, 'campaign_id'),
     link: optString(json, 'link'),
+    imageUrl: optString(json, 'image_url'),
     createdAt: reqDate(json, 'created_at'),
     read: reqBool(json, 'read'),
   );
@@ -79,6 +81,9 @@ class InboxNotification {
   final bool read;
 
   /// The same keys as a push message's data, so taps open the same screen.
+  /// 85.2 A campaign's picture, shown with it in the inbox.
+  final String? imageUrl;
+
   Map<String, dynamic> get target => {
     'type': snake(type),
     'course_id': ?courseId,
