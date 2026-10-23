@@ -29,7 +29,7 @@ export interface SalesReport {
   shows: { orders: boolean; refunds: boolean; enrolments: boolean; bookings: boolean; tickets: boolean; donations: boolean };
   current: SalesFigures;
   previous: SalesFigures;
-  /** Views of items in the app over the range (`item_view` events). */
+  /** Views of items in the app over the range (the report's `item_view` events). */
   views: number;
   /** Paid orders over those views; null without views. */
   conversion: number | null;
@@ -64,14 +64,10 @@ export function salesShows(app: Pick<App, "connector" | "backend" | "vertical" |
   };
 }
 
-export async function loadSales(store: DataStore, app: App, range: AnalyticsRange, zone: string): Promise<SalesReport> {
+/** `views`: the item views of the Analytics report over the same range (today's too, counted as they come). */
+export async function loadSales(store: DataStore, app: App, range: AnalyticsRange, zone: string, views: number): Promise<SalesReport> {
   const [from, to] = window(range.from, range.to, zone);
   const [before, until] = window(range.previous.from, range.previous.to, zone);
-  const [current, previous, rows] = await Promise.all([
-    figures(store, app.id, from, to),
-    figures(store, app.id, before, until),
-    store.listAnalyticsDaily(app.id, range.from, range.to, ["event"]),
-  ]);
-  const views = rows.filter((r) => r.key === "item_view").reduce((sum, r) => sum + r.value, 0);
+  const [current, previous] = await Promise.all([figures(store, app.id, from, to), figures(store, app.id, before, until)]);
   return { shows: salesShows(app), current, previous, views, conversion: views > 0 ? current.orders.count / views : null };
 }

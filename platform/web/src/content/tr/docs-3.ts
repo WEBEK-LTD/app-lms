@@ -364,6 +364,7 @@ Uygulamanız, içeriğiniz nereden gelirse gelsin (WordPress, bağlı bir platfo
 - **Aktif kullanıcılar**, uygulamayı o gün, son 7 günde (haftalık) ya da son 30 günde (aylık) açan kurulumlardır.
 - **Oturumlar**, uygulamanın açılışlarıdır: bir başlangıç ya da arka planda 30 dakika veya daha fazla kaldıktan sonra geri dönüş.
 - **Elde tutma**, uygulamayı aralığınızda ilk kez açan ve 1, 7 veya 30 gün sonra geri dönen kişilerin oranıdır.
+- **Satışlar**, aynı günlerde gelenlerdir, önceki dönemin yanında: ücretli siparişler ve gelirleri (iade edilenler düşülerek), yapılan iadeler, kayıtlar, alınan randevular, verilen biletler ve bağışlar; her biri yalnızca uygulamanızda varsa. Uygulamanızın Yallapp'teki kendi siparişlerinden, randevularından, kurslarından, biletlerinden ve bağışlarından gelir. Oradaki **Dönüşüm**, ücretli siparişlerin uygulamadaki öğe görüntülemelerine oranıdır.
 - **Dönüşümler**, kurslarınızın, ürünlerinizin, hizmetlerinizin, etkinliklerinizin veya kampanyalarınızın görüntülenmelerini, bir sonraki adımı (sepete eklendi, kayıt olundu, randevu alındı, bilet alındı veya bağış seçildi) ve ödeme sayfasının açılışını sayar. Ödemenin kendisi ödeme sayfasında yapılır; ödemeler sipariş ve bağış sayfalarınızdadır.
 - **Bildirimler**: panelden gönderdiğiniz her bildirim için kaç telefona gittiği ve kaçının uygulamayı ondan açtığı. Web sitenizin gönderdiği bildirimler türlerine göre sayılır.
 - **Aramalar**, kimin değil, neyin arandığını gösterir. Bir arama en az iki kez yapıldığında görünür.

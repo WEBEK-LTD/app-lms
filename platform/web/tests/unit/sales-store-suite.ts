@@ -80,14 +80,8 @@ export function salesStoreSuite(store: () => DataStore) {
     await s.enrollInCourse({ appId: app.id, userId: a.id, courseId: 1, source: "paid", enrolledAt: NOW });
     await s.enrollInCourse({ appId: app.id, userId: b.id, courseId: 1, source: "free", enrolledAt: days(-1) });
     await s.enrollInCourse({ appId: app.id, userId: c.id, courseId: 1, source: "paid", enrolledAt: BEFORE });
-    await s.saveAnalyticsDaily(app.id, "2026-10-08", [
-      { metric: "event", key: "item_view", label: null, value: 30 },
-      { metric: "event", key: "app_open", label: null, value: 99 },
-    ]);
-    await s.saveAnalyticsDaily(app.id, "2026-10-10", [{ metric: "event", key: "item_view", label: null, value: 10 }]);
-    await s.saveAnalyticsDaily(app.id, "2026-10-01", [{ metric: "event", key: "item_view", label: null, value: 500 }]);
-
-    const sales = await loadSales(s, app, RANGE, ZONE);
+    // 40 item views in the report over the same days.
+    const sales = await loadSales(s, app, RANGE, ZONE, 40);
     expect(sales.shows).toEqual({ orders: true, refunds: true, enrolments: true, bookings: false, tickets: false, donations: false });
     expect(sales.current).toMatchObject({
       orders: { count: 2, totals: [{ currency: "TRY", cents: 2_600 }] },
@@ -128,7 +122,7 @@ export function salesStoreSuite(store: () => DataStore) {
     await book(NOW, 9, "approved");
     await book(days(-2), 10, "cancelled");
     await book(BEFORE, 11, "approved");
-    const sales = await loadSales(s, app, RANGE, ZONE);
+    const sales = await loadSales(s, app, RANGE, ZONE, 0);
     expect(sales.shows).toMatchObject({ orders: true, bookings: true, enrolments: false });
     expect(sales.current.bookings).toBe(2);
     expect(sales.previous.bookings).toBe(1);

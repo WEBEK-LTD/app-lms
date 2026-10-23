@@ -1078,6 +1078,7 @@ Your app counts them itself and sends them to Yallapp, whatever your content com
 - **Active users** are installs that opened the app that day, in the last 7 days (weekly) or the last 30 days (monthly).
 - **Sessions** are app opens: a start, or coming back after 30 minutes or more in the background.
 - **Retention** is the share of people who first opened the app in your range and came back 1, 7 or 30 days later.
+- **Sales** are what came in over the same days, beside the period before: paid orders and their revenue (less what was refunded), refunds made, enrolments, appointments booked, tickets issued and donations, each only if your app has it. They come from your app's own orders, bookings, courses, tickets and donations in Yallapp. **Conversion** there is paid orders over the views of your items in the app.
 - **Conversions** count views of your courses, products, services, events or campaigns, the next step (added to cart, enrolled, booked, got tickets or chose to give) and the checkout page opening. The payment itself happens on the checkout page; your orders and donations pages have the payments.
 - **Notifications**: for each notification you send from the dashboard, how many phones it went to and how many opened the app from it. Notifications your website sends are counted by kind.
 - **Searches** show what people searched for, never who. A search shows once it was made at least twice.

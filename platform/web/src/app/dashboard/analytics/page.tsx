@@ -109,7 +109,8 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
   const plan = await appPlan(store, license, now);
   const kept = analyticsKeep(plan, now, zone, await effectivePlans(store));
   const range = rangeFrom({ range: one(query.range), from: one(query.from), to: one(query.to) }, now, zone, kept.from);
-  const [report, sales] = await Promise.all([loadReport(store, app.id, range, now, zone), loadSales(store, app, range, zone)]);
+  const report = await loadReport(store, app.id, range, now, zone);
+  const sales = await loadSales(store, app, range, zone, report.funnel[0]?.value ?? 0);
   const planName = plan?.name ?? (await effectivePlans(store)).starter.name;
   const items = wordsOf(app).items;
   const funnel = funnelWords(app.appType);
