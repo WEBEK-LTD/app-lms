@@ -40,13 +40,19 @@ function fill<T extends object>(value: T, fields: readonly string[], languages: 
 }
 
 /** The layout with translations filled in for `languages`; the same object when there's nothing to fill. */
-export function withFilledTexts<T extends Pick<LayoutContent, "languages" | "tabs" | "pages">>(layout: T, languages: string[], lookup: Lookup): T {
+export function withFilledTexts<T extends Pick<LayoutContent, "languages" | "tabs" | "pages" | "menu">>(layout: T, languages: string[], lookup: Lookup): T {
   if (!languages.length) return layout;
   const def = layout.languages.default;
   const english = def !== "en" && layout.languages.available.includes("en");
   let changed = false;
   const tabs = layout.tabs.map((tab) => {
     const r = fill(tab, TRANSLATABLE.tab, languages, def, english, lookup);
+    changed ||= r.changed;
+    return r.value;
+  });
+  // 82.5 The side menu's entries, like the tabs.
+  const menu = layout.menu?.map((entry) => {
+    const r = fill(entry, TRANSLATABLE.tab, languages, def, english, lookup);
     changed ||= r.changed;
     return r.value;
   });
@@ -72,5 +78,5 @@ export function withFilledTexts<T extends Pick<LayoutContent, "languages" | "tab
       }),
     };
   });
-  return changed ? { ...layout, tabs, pages } : layout;
+  return changed ? { ...layout, tabs, ...(menu ? { menu } : {}), pages } : layout;
 }

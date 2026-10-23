@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../config/build_config_data.dart';
-import '../theme/app_icons.dart';
 import '../theme/palette.dart';
 import '../l10n/l10n.dart';
+import 'own_icon.dart';
 
 class NavDestination {
-  const NavDestination(this.icon, this.label);
+  const NavDestination(this.icon, this.label, {this.iconUrl});
   final IconData icon;
   final String label;
+
+  /// 82.5 The owner's own icon, shown instead of [icon].
+  final String? iconUrl;
 }
 
 /// The bottom navigation in each template's style:
@@ -104,7 +107,13 @@ class AppNavBar extends StatelessWidget {
     final selected = index == currentIndex;
     final count = badges[index] ?? 0;
     Widget icon(double size, Color color, {bool filled = false}) {
-      final glyph = AppIcon(d.icon, size: size, color: color, filled: filled);
+      final glyph = OwnIcon(
+        d.icon,
+        url: d.iconUrl,
+        size: size,
+        color: color,
+        filled: filled,
+      );
       if (count <= 0) return glyph;
       return Badge(
         label: Text(count > 99 ? '99+' : '$count'),

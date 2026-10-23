@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type DragEvent } from "react";
-import { applyDesignAction, discardLayoutDraftAction, publishLayoutAction, saveLayoutDraftAction, type LayoutSaveResult } from "@/app/actions/pages";
+import { applyDesignAction, discardLayoutDraftAction, publishLayoutAction, restoreLayoutVersionAction, saveLayoutDraftAction, type LayoutSaveResult } from "@/app/actions/pages";
+import type { LayoutHistoryEntry } from "@/lib/pages/layout";
 import { Badge, btn, formatDateTime } from "@/components/ui";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import { newBlockId } from "@/lib/pages/defaults";
@@ -26,10 +27,12 @@ import {
   type LayoutBlock,
   type LayoutContent,
   type LayoutPage,
+  type LayoutTab,
 } from "@/lib/pages/types";
 import { BlockSettings, type BlockContext } from "./block-settings";
-import { ActionEditor, Check, firstScreen, IconGlyph, IconPicker, LangText, SelectInput, TextInput, type Lang } from "./controls";
-import { DesignThumb, PhonePreview } from "./preview";
+import { ActionEditor, Check, firstScreen, IconGlyph, IconPicker, LangText, OwnIcon, SelectInput, TextInput, type Lang } from "./controls";
+import { BLOCK_DRAG_TYPE, DesignThumb, PhonePreview } from "./preview";
+import { LivePreview, notifyDraftSaved } from "./live-preview";
 import { UpgradeHint } from "@/components/upgrade";
 import { MAX_LANGUAGES } from "@/lib/i18n/locales";
 import { appLanguageName } from "@/lib/i18n/language-names";
@@ -93,6 +96,27 @@ function summary(block: LayoutBlock): string {
   return text ? text.slice(0, 48) : "";
 }
 
+/** 82.5 A tab or menu entry with (or, null, without) the owner's own icon. */
+function withIconUrl(tab: LayoutTab, iconUrl: string | null): LayoutTab {
+  if (iconUrl) return { ...tab, icon_url: iconUrl };
+  const { icon_url: _drop, ...rest } = tab;
+  void _drop;
+  return rest;
+}
+
+/** 82.5 The layout with this side menu; none stored when it's empty. */
+function withMenu(layout: LayoutContent, menu: LayoutTab[]): LayoutContent {
+  if (menu.length) return { ...layout, menu };
+  const { menu: _drop, ...rest } = layout;
+  void _drop;
+  return rest;
+}
+
+/** 82.4 Changes this close together are one step to undo; and how many steps are kept. */
+const UNDO_JOIN_MS = 1000;
+const UNDO_STEPS = 50;
+const clockMs = () => Date.now();
+
 const sectionClass = "flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6";
 const smallBtn = `${btn.secondary} h-9 px-3 text-sm`;
 const iconBtn =
@@ -111,6 +135,7 @@ export function PagesEditor({
   ready,
   designs,
   builtin,
+  live,
 }: {
   initial: {
     draft: LayoutContent;
@@ -120,6 +145,8 @@ export function PagesEditor({
     /** 33 The design the app last started from, and the sample texts it wrote (`page/block` IDs). */
     design: string | null;
     samples: Record<string, string>;
+    /** 82.4 The app's last publishes, newest first. */
+    history: LayoutHistoryEntry[];
   };
   app: { appType: string; name: string; primaryColor: string; logoUrl: string | null };
   sources: ItemSource[];
@@ -136,6 +163,8 @@ export function PagesEditor({
   designs: { id: string; name: string; description: string; layout: LayoutContent }[];
   /** 43 Yallapp's translations of the texts it wrote, for the phone preview. */
   builtin: Record<string, Record<string, string>>;
+  /** 82.1 The app preview's address with the draft (hosted apps); null shows the quick view only. */
+  live: string | null;
 }) {
   const t = useDashT();
   const known = useKnownText();
@@ -163,6 +192,13 @@ export function PagesEditor({
   /** Edits not saved yet; each save only clears the edits it sent. */
   const edits = useRef(0);
   const dirty = useRef(false);
+  // 82.1 The real app beside the editor, told about each save; or the quick view.
+  const frames = useRef<HTMLDivElement | null>(null);
+  // 82.4 Undo and redo: the drafts before (and after) each change, here only; and the publish history.
+  const [steps, setSteps] = useState<{ past: LayoutContent[]; future: LayoutContent[] }>({ past: [], future: [] });
+  const lastChange = useRef(0);
+  const [history, setHistory] = useState(initial.history);
+  const [view, setView] = useState<"app" | "sketch">(live ? "app" : "sketch");
 
   const def = layout.languages.default;
   // Without the full page editor, the app (and the preview) shows the ready-made pages with this look.
@@ -182,10 +218,14 @@ export function PagesEditor({
     setPublished(r.published);
     setSavedAt(r.savedAt);
     setErrors([]);
+    notifyDraftSaved(frames.current);
     if (replace) {
       dirty.current = false;
       setLayout(r.draft);
+      // 82.4 A draft replaced from the server starts its own undo history.
+      setSteps({ past: [], future: [] });
     }
+    if (r.history) setHistory(r.history);
     if (edits.current === sent) {
       dirty.current = false;
       setStatus("saved");
@@ -215,11 +255,67 @@ export function PagesEditor({
   }, [layout, save]);
 
   function update(change: (current: LayoutContent) => LayoutContent) {
+    // 82.4 Typing in a field is one step: changes less than a second apart join the one before.
+    const now = clockMs();
+    const join = now - lastChange.current <= UNDO_JOIN_MS;
+    lastChange.current = now;
+    const before = layout;
+    setSteps((st) => ({ past: join ? st.past : [...st.past, before].slice(-UNDO_STEPS), future: [] }));
     edits.current += 1;
     dirty.current = true;
     setStatus("unsaved");
     setMessage(null);
     setLayout(change);
+  }
+
+  /** 82.4 Back (or forward again) one step; the draft is saved as after any change. */
+  function step(back: boolean) {
+    const from = back ? steps.past : steps.future;
+    const target = from.at(-1);
+    if (!target) return;
+    const rest = from.slice(0, -1);
+    const now = layout;
+    setSteps(back ? { past: rest, future: [...steps.future, now] } : { past: [...steps.past, now], future: rest });
+    lastChange.current = 0;
+    edits.current += 1;
+    dirty.current = true;
+    setStatus("unsaved");
+    setMessage(null);
+    setLayout(target);
+  }
+
+  // 82.4 Ctrl+Z (⌘Z), and Ctrl+Shift+Z or Ctrl+Y, outside the fields (which undo their own typing).
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
+      const key = event.key.toLowerCase();
+      if (key !== "z" && key !== "y") return;
+      const target = event.target as HTMLElement | null;
+      if (target && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))) return;
+      event.preventDefault();
+      step(key === "z" && !event.shiftKey);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
+  /** 82.4 An earlier publish as the draft. */
+  async function restore(entry: LayoutHistoryEntry) {
+    if (!window.confirm(t("pages.restoreConfirm", { date: formatDateTime(new Date(entry.at), dashLang) }))) return;
+    setBusy(true);
+    edits.current += 1;
+    const sent = edits.current;
+    try {
+      const r = await restoreLayoutVersionAction(entry.number);
+      applied(r, sent, true);
+      setMessage(r.ok ? { text: r.message ? known(r.message) : t("pages.restored"), ok: true } : { text: r.errors.map((e) => known(e)).join(" "), ok: false });
+      if (r.ok) {
+        setPageSlug(r.draft.pages[0]?.slug ?? null);
+        setOpenBlock(null);
+      }
+    } finally {
+      setBusy(false);
+    }
   }
 
   function updatePage(slug: string, change: (p: LayoutPage) => LayoutPage) {
@@ -334,15 +430,23 @@ export function PagesEditor({
 
   // Blocks
 
-  function addBlock(type: BlockType) {
-    if (!page) return;
+  /** Adds a block at the end, or (82.2, dropped on the phone) before the block at `at`. */
+  function addBlock(type: BlockType, at?: number) {
+    if (!page || !blockTypes.includes(type)) return;
     if (page.blocks.length >= LAYOUT_LIMITS.maxBlocks) {
       setMessage({ text: t("pages.maxBlocks", { max: LAYOUT_LIMITS.maxBlocks }), ok: false });
       return;
     }
     const block = newBlock(type, sources, screens);
-    updateBlocks(page.slug, (blocks) => [...blocks, block]);
+    updateBlocks(page.slug, (blocks) => (at === undefined ? [...blocks, block] : [...blocks.slice(0, at), block, ...blocks.slice(at)]));
     setOpenBlock(block.id);
+  }
+
+  /** 82.2 A block clicked on the phone: open in the list, in view. */
+  function selectBlock(id: string) {
+    setPanel("pages");
+    setOpenBlock(id);
+    requestAnimationFrame(() => document.getElementById(`block-${id}`)?.scrollIntoView({ block: "nearest", behavior: "smooth" }));
   }
 
   function onDrop(event: DragEvent, to: number) {
@@ -352,6 +456,15 @@ export function PagesEditor({
   }
 
   // Tabs
+
+  // 82.5 The side menu.
+  const menu = layout.menu ?? [];
+  function addMenuEntry() {
+    if (menu.length >= LAYOUT_LIMITS.maxMenu) return;
+    update((l) =>
+      withMenu(l, [...(l.menu ?? []), { id: newBlockId("m"), label: "", icon: "info", target: l.pages[0] ? { type: "page", page_slug: l.pages[0].slug } : { type: "screen", screen: firstScreen(screens) } }]),
+    );
+  }
 
   function addTab() {
     if (layout.tabs.length >= LAYOUT_LIMITS.maxTabs) return;
@@ -403,6 +516,13 @@ export function PagesEditor({
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
+              {/* 82.4 */}
+              <button type="button" className={smallBtn} disabled={busy || steps.past.length === 0} aria-keyshortcuts="Control+Z" onClick={() => step(true)}>
+                {t("pages.undo")}
+              </button>
+              <button type="button" className={smallBtn} disabled={busy || steps.future.length === 0} aria-keyshortcuts="Control+Shift+Z" onClick={() => step(false)}>
+                {t("pages.redo")}
+              </button>
               <button type="button" className={smallBtn} disabled={busy || status === "saving"} onClick={() => void save(layout)}>
                 {t("pages.saveDraft")}
               </button>
@@ -435,6 +555,34 @@ export function PagesEditor({
                 ))}
               </ul>
             </div>
+          ) : null}
+          {/* 82.4 The last publishes, to go back to. */}
+          {history.length ? (
+            <details className="rounded-xl border border-line px-4 py-2">
+              <summary className="cursor-pointer text-[15px] font-semibold">{t("pages.history", { count: history.length })}</summary>
+              <ul aria-label={t("pages.historyList")} className="m-0 mt-2 flex list-none flex-col gap-2 p-0">
+                {history.map((entry) => {
+                  const live = published?.version.endsWith(`.${entry.number}`) ?? false;
+                  return (
+                    <li key={entry.number} className="flex flex-wrap items-center justify-between gap-2 border-t border-line-soft pt-2 first:border-t-0 first:pt-0">
+                      <span className="flex flex-wrap items-center gap-2 text-sm">
+                        {entry.by ? t("pages.historyEntryBy", { date: formatDateTime(new Date(entry.at), dashLang), email: entry.by }) : t("pages.historyEntry", { date: formatDateTime(new Date(entry.at), dashLang) })}
+                        {live ? <Badge tone="success">{t("pages.historyLive")}</Badge> : null}
+                      </span>
+                      <button
+                        type="button"
+                        className={smallBtn}
+                        disabled={busy}
+                        aria-label={t("pages.useAsDraftNamed", { date: formatDateTime(new Date(entry.at), dashLang) })}
+                        onClick={() => void restore(entry)}
+                      >
+                        {t("pages.useAsDraft")}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </details>
           ) : null}
           {message ? (
             <p role={message.ok ? "status" : "alert"} className={`m-0 rounded-xl px-4 py-3 text-[15px] font-semibold ${message.ok ? "bg-success-bg text-success" : "bg-danger-bg text-danger"}`}>
@@ -568,6 +716,7 @@ export function PagesEditor({
                       return (
                         <li
                           key={block.id}
+                          id={`block-${block.id}`}
                           onDragOver={(e) => e.preventDefault()}
                           onDrop={(e) => onDrop(e, i)}
                           className={`rounded-xl border ${dragFrom === i ? "border-dashed border-midnight opacity-60" : "border-line"} bg-white`}
@@ -650,6 +799,12 @@ export function PagesEditor({
                             type="button"
                             aria-label={t("pages.addNamed", { name: known(BLOCK_LABELS[type]) })}
                             onClick={() => addBlock(type)}
+                            // 82.2 Or dragged onto the phone, where it should go.
+                            draggable
+                            onDragStart={(e) => {
+                              e.dataTransfer.effectAllowed = "copy";
+                              e.dataTransfer.setData(BLOCK_DRAG_TYPE, type);
+                            }}
                             className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-line bg-white px-3 py-2.5 text-start hover:border-midnight"
                           >
                             <span className="mt-0.5 flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-ivory text-midnight">
@@ -700,6 +855,7 @@ export function PagesEditor({
                       value={tab.icon}
                       onChange={(icon) => update((l) => ({ ...l, tabs: l.tabs.map((x) => (x.id === tab.id ? { ...x, icon: icon ?? x.icon } : x)) }))}
                     />
+                    <OwnIcon id={`tab-${tab.id}-own-icon`} value={tab.icon_url} onChange={(icon_url) => update((l) => ({ ...l, tabs: l.tabs.map((x) => (x.id === tab.id ? withIconUrl(x, icon_url) : x)) }))} />
                     <ActionEditor
                       id={`tab-${tab.id}-target`}
                       label={t("pages.opens")}
@@ -741,6 +897,76 @@ export function PagesEditor({
             <div>
               <button type="button" className={smallBtn} disabled={layout.tabs.length >= LAYOUT_LIMITS.maxTabs} onClick={addTab}>
                 {t("pages.addTab")}
+              </button>
+            </div>
+          </section>
+        ) : null}
+
+        {/* 82.5 The side menu, as well as the tabs. */}
+        {panel === "tabs" && plan.pageEditor ? (
+          <section aria-labelledby="h-side-menu" className={sectionClass}>
+            <div className="flex flex-col gap-1">
+              <h2 id="h-side-menu" className="m-0 text-lg font-bold">
+                {t("pages.sideMenu")}
+              </h2>
+              <p className="m-0 text-[15px] text-ink-4">{t("pages.sideMenuText", { max: LAYOUT_LIMITS.maxMenu })}</p>
+            </div>
+            {menu.length ? (
+              <ol className="m-0 flex list-none flex-col gap-3 p-0">
+                {menu.map((entry, i) => {
+                  const setEntry = (change: (e: LayoutTab) => LayoutTab) => update((l) => ({ ...l, menu: (l.menu ?? []).map((x) => (x.id === entry.id ? change(x) : x)) }));
+                  return (
+                    <li key={entry.id}>
+                      <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-line p-3">
+                        <legend className="flex items-center gap-2 px-1 text-sm font-bold">
+                          {t("pages.menuN", { n: num(i + 1) })}
+                          {actionProblem(entry.target, screens, sources) ? <Badge tone="warn">{t("pages.needsFix")}</Badge> : null}
+                        </legend>
+                        <LangText id={`menu-${entry.id}-label`} label={t("pages.label")} value={entry} field="label" lang={lang} onChange={(next) => setEntry(() => next)} />
+                        <IconPicker id={`menu-${entry.id}-icon`} label={t("pages.icon")} value={entry.icon} onChange={(icon) => setEntry((x) => ({ ...x, icon: icon ?? x.icon }))} />
+                        <OwnIcon id={`menu-${entry.id}-own-icon`} value={entry.icon_url} onChange={(icon_url) => setEntry((x) => withIconUrl(x, icon_url))} />
+                        <ActionEditor
+                          id={`menu-${entry.id}-target`}
+                          label={t("pages.opens")}
+                          action={entry.target}
+                          optional={false}
+                          pages={pages}
+                          sources={sources}
+                          screens={screens}
+                          courses={pickable.items.courses}
+                          onChange={(target) => target && setEntry((x) => ({ ...x, target }))}
+                        />
+                        <div className="flex flex-wrap gap-2">
+                          <button type="button" className={smallBtn} aria-label={t("pages.moveUp", { item: t("pages.menuN", { n: num(i + 1) }) })} disabled={i === 0} onClick={() => update((l) => ({ ...l, menu: moveItem(l.menu ?? [], i, i - 1) }))}>
+                            {t("pages.up")}
+                          </button>
+                          <button
+                            type="button"
+                            className={smallBtn}
+                            aria-label={t("pages.moveDown", { item: t("pages.menuN", { n: num(i + 1) }) })}
+                            disabled={i === menu.length - 1}
+                            onClick={() => update((l) => ({ ...l, menu: moveItem(l.menu ?? [], i, i + 1) }))}
+                          >
+                            {t("pages.down")}
+                          </button>
+                          <button
+                            type="button"
+                            className={`${btn.danger} h-9 px-3 text-sm`}
+                            aria-label={t("pages.menuRemove", { n: i + 1 })}
+                            onClick={() => update((l) => withMenu(l, (l.menu ?? []).filter((x) => x.id !== entry.id)))}
+                          >
+                            {t("common.remove")}
+                          </button>
+                        </div>
+                      </fieldset>
+                    </li>
+                  );
+                })}
+              </ol>
+            ) : null}
+            <div>
+              <button type="button" className={smallBtn} disabled={menu.length >= LAYOUT_LIMITS.maxMenu} onClick={addMenuEntry}>
+                {t("pages.addMenuEntry")}
               </button>
             </div>
           </section>
@@ -845,16 +1071,48 @@ export function PagesEditor({
         ) : null}
       </div>
 
-      <div className="lg:sticky lg:top-6">
-        <PhonePreview
-          layout={shown}
-          page={plan.pageEditor ? page : (shown.pages.find((p) => p.slug === pageSlug) ?? shown.pages[0] ?? null)}
-          lang={lang.edit}
-          pickable={pickable}
-          app={app}
-          onOpenPage={setPageSlug}
-          builtin={builtin}
-        />
+      <div className="flex flex-col items-center gap-3 lg:sticky lg:top-6">
+        {live ? (
+          <div role="group" aria-label={t("pages.previewChoice")} className="flex rounded-[10px] border border-line-strong bg-white p-0.5">
+            {(["app", "sketch"] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                aria-pressed={view === v}
+                onClick={() => setView(v)}
+                className={`h-9 cursor-pointer rounded-lg px-3 text-sm font-semibold ${view === v ? "bg-midnight text-white" : "text-midnight hover:bg-ivory"}`}
+              >
+                {v === "app" ? t("pages.previewTheApp") : t("pages.previewSketch")}
+              </button>
+            ))}
+          </div>
+        ) : null}
+        {live && view === "app" ? (
+          <LivePreview src={live} appName={app.name} framesRef={frames} />
+        ) : (
+          <PhonePreview
+            layout={shown}
+            page={plan.pageEditor ? page : (shown.pages.find((p) => p.slug === pageSlug) ?? shown.pages[0] ?? null)}
+            lang={lang.edit}
+            pickable={pickable}
+            app={app}
+            onOpenPage={setPageSlug}
+            builtin={builtin}
+            editing={
+              plan.pageEditor && page
+                ? {
+                    selected: openBlock,
+                    name: (block) => known(BLOCK_LABELS[block.type]),
+                    onSelect: selectBlock,
+                    onDrop: (type, at) => {
+                      setPanel("pages");
+                      addBlock(type, at);
+                    },
+                  }
+                : undefined
+            }
+          />
+        )}
       </div>
     </div>
   );

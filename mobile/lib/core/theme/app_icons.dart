@@ -4,6 +4,7 @@ import 'package:material_symbols_icons/symbols.dart';
 /// Every icon the app uses: Google Material Symbols, Rounded style only.
 abstract final class AppIcons {
   static const home = Symbols.home_rounded;
+  static const sideMenu = Symbols.menu_rounded;
   static const courses = Symbols.menu_book_rounded;
   static const myCourses = Symbols.play_circle_rounded;
   static const account = Symbols.person_rounded;

@@ -8,7 +8,7 @@ import { clientAccountState, longestLicense } from "../license/status";
 import type { BuildConfig } from "../build-config/types";
 import * as schema from "../db/schema";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
-import type { AppAuthKey, AppLayoutRecord } from "./types";
+import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary } from "./types";
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
@@ -2677,6 +2677,28 @@ export class MysqlStore implements DataStore {
     const { appId: _key, ...set } = layout;
     void _key;
     await this.run((db) => db.insert(schema.appLayouts).values(layout).onDuplicateKeyUpdate({ set }));
+  }
+
+  // 82.4 Publish history
+
+  async addLayoutVersion(version: AppLayoutVersion, keep: number): Promise<void> {
+    const t = schema.appLayoutVersions;
+    await this.run((db) => db.insert(t).values(version).onDuplicateKeyUpdate({ set: { layout: version.layout, publishedAt: version.publishedAt, publishedBy: version.publishedBy } }));
+    // Older than the last `keep`: gone.
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, version.appId), lte(t.number, version.number - keep))));
+  }
+
+  async listLayoutVersions(appId: string): Promise<AppLayoutVersionSummary[]> {
+    const t = schema.appLayoutVersions;
+    return this.run((db) =>
+      db.select({ appId: t.appId, number: t.number, publishedAt: t.publishedAt, publishedBy: t.publishedBy }).from(t).where(eq(t.appId, appId)).orderBy(desc(t.number)),
+    );
+  }
+
+  async getLayoutVersion(appId: string, number: number): Promise<AppLayoutVersion | null> {
+    const t = schema.appLayoutVersions;
+    const rows = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.number, number))).limit(1));
+    return rows[0] ?? null;
   }
 
   // 11.7 Admin team and audit log

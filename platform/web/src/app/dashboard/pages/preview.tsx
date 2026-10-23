@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
+import { useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import { PhoneFrame } from "@/components/device-frame";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import { cleanBlockHtml } from "@/lib/pages/html";
@@ -8,7 +8,7 @@ import { SOCIAL_LABELS, WEEKDAY_LABELS } from "@/lib/pages/labels";
 import { SOURCE_NAMES } from "@/lib/pages/sources";
 import { withFilledTexts } from "@/lib/pages/fill-texts";
 import { translated, translatedBlock } from "@/lib/pages/translate";
-import { RTL_LANGUAGES, type Appearance, type LanguageCode, type LayoutBlock, type LayoutContent, type LayoutPage } from "@/lib/pages/types";
+import { RTL_LANGUAGES, type Appearance, type BlockLook, type BlockSpacing, type LanguageCode, type LayoutBlock, type LayoutContent, type LayoutPage } from "@/lib/pages/types";
 import { useOptionalDashT } from "@/components/dashboard-i18n";
 import { IconGlyph } from "./controls";
 
@@ -70,6 +70,36 @@ function Sample({ theme, n, label, layout }: { theme: Theme; n: number; label: s
     <div style={{ ...theme.card, padding: 6, display: "flex", flexDirection: layout === "list" ? "row" : "column", gap: 6, minWidth: layout === "carousel" ? 104 : undefined, alignItems: layout === "list" ? "center" : undefined }}>
       {image}
       <div style={{ fontSize: 11, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label || `Entry ${n}` /* i18n-ok: the app's preview */}</div>
+    </div>
+  );
+}
+
+/** 82.5 The owner's own icon when there is one, else the icon. */
+function OwnOrIcon({ url, name, size }: { url?: string | null; name: string; size: number }) {
+  // eslint-disable-next-line @next/next/no-img-element -- the owner's own picture, any address
+  return url ? <img src={url} alt="" width={size} height={size} style={{ width: size, height: size, objectFit: "contain" }} /> : <IconGlyph name={name} size={size} />;
+}
+
+const LOOK_SPACE: Record<BlockSpacing, number> = { none: 0, small: 4, medium: 8, large: 16 };
+
+/** 82.5 A block's background within the brand, and the space around it. */
+function LookBox({ look, theme, children }: { look?: BlockLook | null; theme: Theme; children: ReactNode }) {
+  if (!look) return <>{children}</>;
+  const space = LOOK_SPACE[look.spacing];
+  const background = { none: undefined, tint: `color-mix(in srgb, ${theme.primary} 10%, ${theme.bg})`, primary: theme.primary, secondary: theme.secondary, surface: theme.surface }[look.background];
+  const light = look.background === "primary" || look.background === "secondary";
+  return (
+    <div
+      data-block-look={`${look.background} ${look.spacing}`}
+      style={{
+        margin: `${space - 6}px 0`,
+        padding: background ? `${Math.max(space, 8)}px 10px` : 0,
+        background,
+        color: light ? "#fff" : undefined,
+        borderRadius: background ? theme.radius : undefined,
+      }}
+    >
+      {children}
     </div>
   );
 }
@@ -341,7 +371,7 @@ function MoreBlockPreview({ block: b, theme, bold }: { block: LayoutBlock; theme
           {(b.links ?? []).map((l, i) => (
             <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: row ? 60 : undefined }}>
               <span style={{ ...theme.card, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", color: theme.primary }}>
-                <IconGlyph name={l.icon} size={20} />
+                <OwnOrIcon url={l.icon_url} name={l.icon} size={20} />
               </span>
               <span style={{ fontSize: 10, fontWeight: 600, textAlign: "center", lineHeight: 1.2 }}>{l.label || "Link"}</span>
             </div>
@@ -479,6 +509,19 @@ export function DesignThumb({ layout, app }: { layout: LayoutContent; app: { nam
 
 const NOTHING_PICKED: Pickable = { items: {}, categories: {} };
 
+/** 82.2 What the editor's quick view lets the owner do on the phone. */
+export interface PhoneEditing {
+  selected: string | null;
+  /** The block's name, as the editor's list shows it. */
+  name: (block: LayoutBlock) => string;
+  onSelect: (id: string) => void;
+  /** A block from Add a block, dropped before the block at `index` (the page's length: at the end). */
+  onDrop: (type: LayoutBlock["type"], index: number) => void;
+}
+
+/** 82.2 What a block from Add a block carries while it is dragged. */
+export const BLOCK_DRAG_TYPE = "application/x-yallapp-block";
+
 export function PhonePreview({
   layout,
   page: pageIn,
@@ -488,6 +531,7 @@ export function PhonePreview({
   onOpenPage,
   still = false,
   builtin,
+  editing,
 }: {
   layout: LayoutContent;
   page: LayoutPage | null;
@@ -499,8 +543,11 @@ export function PhonePreview({
   still?: boolean;
   /** 43 Yallapp's translations of the texts it wrote (English text, then language), shown where the owner wrote none, as the app does. */
   builtin?: Record<string, Record<string, string>>;
+  /** 82.2 The editor's quick view: a block clicked opens it in the editor; a block from Add a block dropped on the phone goes where it falls. */
+  editing?: PhoneEditing;
 }) {
   const { appearance } = layout;
+  const [dropAt, setDropAt] = useState<number | null>(null);
   const def = layout.languages.default;
   const theme = themeOf(appearance, app.primaryColor);
   const rtl = RTL_LANGUAGES.includes(lang);
@@ -538,11 +585,77 @@ export function PhonePreview({
               fontSize: appearance.template === "bold" ? 20 : 15,
             }}
           >
+            {/* 82.5 The side menu's button. */}
+            {layout.menu?.length ? (
+              <span aria-hidden="true" style={{ display: "inline-flex", verticalAlign: "middle", marginInlineEnd: 6 }} data-phone-menu="">
+                <IconGlyph name="menu" size={20} />
+              </span>
+            ) : null}
             {shown?.show_title ? shown.title : app.name}
           </div>
-          <div style={{ flex: 1, overflowY: still ? "hidden" : "auto", padding: 12, display: "flex", flexDirection: "column", gap: 12 }}>
+          <div
+            data-phone-blocks
+            onDragOver={(event) => {
+              if (!editing || !event.dataTransfer.types.includes(BLOCK_DRAG_TYPE)) return;
+              event.preventDefault();
+              // Below the last block, or on an empty page: at the end.
+              if (event.target === event.currentTarget) setDropAt(page?.blocks.length ?? 0);
+            }}
+            onDragLeave={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDropAt(null);
+            }}
+            onDrop={(event) => {
+              if (!editing) return;
+              const type = event.dataTransfer.getData(BLOCK_DRAG_TYPE);
+              event.preventDefault();
+              const at = dropAt ?? page?.blocks.length ?? 0;
+              setDropAt(null);
+              if (type) editing.onDrop(type as LayoutBlock["type"], at);
+            }}
+            style={{ flex: 1, overflowY: still ? "hidden" : "auto", padding: 12, display: "flex", flexDirection: "column", gap: 12 }}
+          >
             {page?.blocks.length ? (
-              page.blocks.map((block) => <BlockPreview key={block.id} block={block} theme={theme} appearance={appearance} pickable={pickable} lang={lang} def={def} />)
+              page.blocks.map((block, i) => {
+                const preview = (
+                  <LookBox key={block.id} look={block.look} theme={theme}>
+                    <BlockPreview block={block} theme={theme} appearance={appearance} pickable={pickable} lang={lang} def={def} />
+                  </LookBox>
+                );
+                if (!editing) return preview;
+                const selected = editing.selected === block.id;
+                return (
+                  <div
+                    key={block.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={dt?.("pages.editOnPhone", { name: editing.name(block) }) ?? editing.name(block)}
+                    aria-pressed={selected}
+                    data-phone-block={block.id}
+                    onClick={() => editing.onSelect(block.id)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        editing.onSelect(block.id);
+                      }
+                    }}
+                    onDragOver={(event) => {
+                      if (!event.dataTransfer.types.includes(BLOCK_DRAG_TYPE)) return;
+                      event.preventDefault();
+                      const box = event.currentTarget.getBoundingClientRect();
+                      setDropAt(event.clientY < box.top + box.height / 2 ? i : i + 1);
+                    }}
+                    style={{
+                      cursor: "pointer",
+                      borderRadius: 10,
+                      outline: selected ? `2px solid ${theme.primary}` : undefined,
+                      outlineOffset: 3,
+                      boxShadow: dropAt === i ? `0 -4px 0 ${theme.primary}` : dropAt === i + 1 && i === page.blocks.length - 1 ? `0 4px 0 ${theme.primary}` : undefined,
+                    }}
+                  >
+                    {preview}
+                  </div>
+                );
+              })
             ) : (
               <p style={{ color: theme.muted, fontSize: 12, textAlign: "center", marginTop: 40 }}>{dt?.("pages.addBlocksHere") ?? "Add blocks to this page." /* i18n-ok */}</p>
             )}
@@ -567,7 +680,7 @@ export function PhonePreview({
               };
               const content = (
                 <>
-                  <IconGlyph name={tab.icon} size={22} />
+                  <OwnOrIcon url={tab.icon_url} name={tab.icon} size={22} />
                   {t.label}
                 </>
               );
@@ -594,6 +707,7 @@ export function PhonePreview({
           </nav>
         </div>
       </PhoneFrame>
+      {editing ? <p className="m-0 max-w-[300px] text-center text-xs text-muted">{dt?.("pages.phoneEditHint")}</p> : null}
       {still ? null : (
         <figcaption className="text-xs text-muted">
           {Object.values(pickable.items).some((list) => list && list.length > 0)

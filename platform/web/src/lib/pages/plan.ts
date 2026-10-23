@@ -53,17 +53,22 @@ function cleanBlock(block: LayoutBlock, sources: ItemSource[]): LayoutBlock {
 export function layoutForPlan(layout: Layout, app: App, plan: PlanInfo | null, defaults: AppDefaultsSetting): Layout {
   if (!plan) return layout;
   const sources = allowedSources(app, plan);
-  let content: LayoutContent = { appearance: layout.appearance, languages: languagesForPlan(layout.languages, plan), tabs: layout.tabs, pages: layout.pages };
+  const menuOf = (l: { menu?: LayoutContent["menu"] }) => (l.menu?.length ? { menu: l.menu } : {});
+  let content: LayoutContent = { appearance: layout.appearance, languages: languagesForPlan(layout.languages, plan), tabs: layout.tabs, ...menuOf(layout), pages: layout.pages };
   if (!hasFeature(plan, "page_editor")) {
+    // The ready-made pages, without a side menu.
     const ready = defaultLayout(app, defaults, app.createdAt);
-    content = { ...content, tabs: ready.tabs, pages: ready.pages };
+    content = { appearance: content.appearance, languages: content.languages, tabs: ready.tabs, pages: ready.pages };
   }
+  const menu = (content.menu ?? []).filter((t) => actionAllowed(t.target, sources));
   content = {
-    ...content,
+    appearance: content.appearance,
+    languages: content.languages,
     tabs: content.tabs.filter((t) => actionAllowed(t.target, sources)),
+    ...menuOf({ menu }),
     pages: content.pages.map((p) => ({ ...p, blocks: p.blocks.filter((b) => blockAllowed(b, sources)).map((b) => cleanBlock(b, sources)) })),
   };
-  const same = JSON.stringify(content) === JSON.stringify({ appearance: layout.appearance, languages: layout.languages, tabs: layout.tabs, pages: layout.pages });
+  const same = JSON.stringify(content) === JSON.stringify({ appearance: layout.appearance, languages: layout.languages, tabs: layout.tabs, ...menuOf(layout), pages: layout.pages });
   if (same) return layout;
   return { version: `${layout.version}~${sha256Hex(JSON.stringify(content)).slice(0, 12)}`, ...content };
 }

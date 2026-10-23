@@ -110,6 +110,10 @@ class Block_Resolver {
 			'type'  => $type,
 			'title' => self::text( $raw['title'] ?? null ),
 		);
+		$look = self::look( $raw['look'] ?? null );
+		if ( null !== $look ) {
+			$base['look'] = $look;
+		}
 		switch ( $type ) {
 			case 'banner':
 				$fields = $this->banner( $raw );
@@ -895,6 +899,34 @@ class Block_Resolver {
 		}
 		$url = esc_url_raw( trim( $value ), array( 'http', 'https' ) );
 		return '' === $url ? null : $url;
+	}
+
+	/**
+	 * 82.5 A block's look (background and spacing), or null for none and the usual spacing.
+	 *
+	 * @param mixed $value BlockLook.
+	 * @return array|null
+	 */
+	public static function look( $value ) {
+		if ( ! is_array( $value ) ) {
+			return null;
+		}
+		$look = array(
+			'background' => self::choice( $value['background'] ?? null, array( 'none', 'tint', 'primary', 'secondary', 'surface' ), 'none' ),
+			'spacing'    => self::choice( $value['spacing'] ?? null, array( 'none', 'small', 'medium', 'large' ), 'medium' ),
+		);
+		return 'none' === $look['background'] && 'medium' === $look['spacing'] ? null : $look;
+	}
+
+	/**
+	 * 82.5 The owner's own icon: an https URL, or null.
+	 *
+	 * @param mixed $value Value.
+	 * @return string|null
+	 */
+	public static function icon_url( $value ) {
+		$url = self::url( $value );
+		return null !== $url && 0 === strpos( $url, 'https://' ) ? $url : null;
 	}
 
 	/**

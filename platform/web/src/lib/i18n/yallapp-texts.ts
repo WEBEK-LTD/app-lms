@@ -17,12 +17,12 @@ import { ENTRY_LISTS, TRANSLATABLE, TRANSLATABLE_ENTRIES, type LayoutBlock, type
  */
 
 /** The texts of a layout that can carry translations, as written. */
-export function layoutTexts(layout: Pick<LayoutContent, "tabs" | "pages">): string[] {
+export function layoutTexts(layout: Pick<LayoutContent, "tabs" | "pages" | "menu">): string[] {
   const out: string[] = [];
   const add = (value: unknown) => {
     if (typeof value === "string" && value.trim()) out.push(value);
   };
-  for (const tab of layout.tabs) add(tab.label);
+  for (const tab of [...layout.tabs, ...(layout.menu ?? [])]) add(tab.label);
   for (const page of layout.pages) {
     add(page.title);
     for (const block of page.blocks) out.push(...blockTexts(block));

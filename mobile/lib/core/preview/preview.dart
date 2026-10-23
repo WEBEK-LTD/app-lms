@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
+import '../api/models/models.dart';
 import '../config/build_config.dart';
 import '../config/build_config_json.dart';
 
@@ -14,14 +15,23 @@ import '../config/build_config_json.dart';
 enum PreviewContentSource { wordpress, customApi, hosted, none }
 
 /// What the preview link asks for: `token`, and optionally `theme`
-/// (`light` or `dark`) and `lang` (a language code).
+/// (`light` or `dark`), `lang` (a language code) and 82.3 `os` (`android`
+/// or `ios`: the app as on that system, its rules included).
 @immutable
 class PreviewLaunch {
-  const PreviewLaunch({required this.token, this.themeMode, this.language});
+  const PreviewLaunch({
+    required this.token,
+    this.themeMode,
+    this.language,
+    this.platform,
+  });
 
   final String token;
   final ThemeMode? themeMode;
   final String? language;
+
+  /// 82.3 Null: as the browser's system.
+  final DevicePlatform? platform;
 
   static final _token = RegExp(r'^[A-Za-z0-9._-]{20,200}$');
   // 43 Any app language: two or three letters ("fil").
@@ -41,6 +51,11 @@ class PreviewLaunch {
         _ => null,
       },
       language: lang != null && _language.hasMatch(lang) ? lang : null,
+      platform: switch (params['os']) {
+        'ios' => DevicePlatform.ios,
+        'android' => DevicePlatform.android,
+        _ => null,
+      },
     );
   }
 }

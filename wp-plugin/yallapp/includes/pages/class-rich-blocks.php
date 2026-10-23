@@ -120,9 +120,10 @@ class Rich_Blocks {
 				continue;
 			}
 			$links[] = array(
-				'icon'   => $icon,
-				'label'  => $label,
-				'action' => $target,
+				'icon'     => $icon,
+				'icon_url' => Block_Resolver::icon_url( $entry['icon_url'] ?? null ),
+				'label'    => $label,
+				'action'   => $target,
 			);
 		}
 		if ( ! $links ) {

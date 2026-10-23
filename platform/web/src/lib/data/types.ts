@@ -1655,6 +1655,20 @@ export interface AppLayoutRecord {
   publishCount: number;
 }
 
+/** 82.4 One of an app's last publishes: the layout apps got then. */
+export interface AppLayoutVersion {
+  appId: string;
+  /** The publish count it was published with (its `Layout.version` ends with it). */
+  number: number;
+  layout: Layout;
+  publishedAt: Date;
+  /** Email of whoever published it. */
+  publishedBy: string | null;
+}
+
+/** 82.4 A publish in the history list, without its layout. */
+export type AppLayoutVersionSummary = Omit<AppLayoutVersion, "layout">;
+
 // 11.7 Admin team and audit log
 
 /** Someone of the WEBEK team in the super admin pages, besides SUPER_ADMIN_EMAILS (always owners). */

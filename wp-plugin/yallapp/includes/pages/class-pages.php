@@ -159,7 +159,7 @@ class Pages {
 	}
 
 	/**
-	 * Navigation: the bottom tabs and the page list.
+	 * Navigation: the bottom tabs, the side menu and the page list.
 	 *
 	 * @param string $language Language code.
 	 * @param string $platform android or ios.
@@ -181,6 +181,14 @@ class Pages {
 				$tabs[] = $this->tab( $raw );
 			}
 		}
+		// 82.5 The side menu: the entries the site can open, none when the layout has none.
+		$menu = array();
+		foreach ( isset( $this->layout()['menu'] ) && is_array( $this->layout()['menu'] ) ? $this->layout()['menu'] : array() as $raw ) {
+			$entry = is_array( $raw ) ? $this->tab( Translator::apply( $raw, $language ) ) : null;
+			if ( $entry ) {
+				$menu[] = $entry;
+			}
+		}
 		$pages = array();
 		foreach ( $this->pages() as $page ) {
 			$page    = Translator::apply( $page, $language );
@@ -193,6 +201,7 @@ class Pages {
 		return array(
 			'version' => $this->version( $language ),
 			'tabs'    => array_slice( array_values( array_filter( $tabs ) ), 0, 5 ),
+			'menu'    => array_slice( $menu, 0, 12 ),
 			'pages'   => $pages,
 		);
 	}
@@ -260,10 +269,11 @@ class Pages {
 			return null;
 		}
 		return array(
-			'id'     => $id,
-			'label'  => $label,
-			'icon'   => $icon,
-			'target' => $target,
+			'id'       => $id,
+			'label'    => $label,
+			'icon'     => $icon,
+			'icon_url' => Block_Resolver::icon_url( $raw['icon_url'] ?? null ),
+			'target'   => $target,
 		);
 	}
 

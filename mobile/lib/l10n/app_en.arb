@@ -253,6 +253,7 @@
     }
   },
   "mainNavigation": "Main navigation",
+  "sideMenuOpen": "Open the menu",
   "tabWithCount": "{label}, {count}",
   "@tabWithCount": {
     "placeholders": {

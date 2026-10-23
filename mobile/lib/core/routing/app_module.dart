@@ -16,9 +16,13 @@ class ShellTab {
     this.location,
     this.pushLocation,
     this.action,
+    this.iconUrl,
   }) : assert(location != null || pushLocation != null || action != null);
 
   final IconData icon;
+
+  /// 82.5 The owner's own icon, shown instead of [icon].
+  final String? iconUrl;
   final String Function(BuildContext context) label;
 
   /// Where the tab's branch starts, for example `/courses` or `/page/home`.

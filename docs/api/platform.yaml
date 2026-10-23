@@ -965,6 +965,23 @@ components:
               id: { type: string }
               label: { type: string }
               icon: { type: string }
+              icon_url: { type: [string, 'null'], format: uri, description: 82.5 The owner's own icon (`NavTab.icon_url`). }
+              target:
+                type: object
+                description: '`Action` in the app API.'
+              translations: { $ref: '#/components/schemas/Translations' }
+        menu:
+          type: array
+          maxItems: 12
+          description: 82.5 The side menu (`Navigation.menu`), entries shaped like the tabs. Missing, no side menu.
+          items:
+            type: object
+            required: [id, label, icon, target]
+            properties:
+              id: { type: string }
+              label: { type: string }
+              icon: { type: string }
+              icon_url: { type: [string, 'null'], format: uri }
               target:
                 type: object
                 description: '`Action` in the app API.'
@@ -997,7 +1014,9 @@ components:
 
         The blocks `slider`, `quick_links`, `testimonials`, `faq`,
         `countdown`, `contact`, `hours`, `social`, `team`, `stats` and
-        `notice` have the same fields as in the app API. Entries of their
+        `notice` have the same fields as in the app API. 82.5 Every block can
+        carry `look` (`BlockLook` in the app API), passed on as it is, and the
+        links of `quick_links` an `icon_url`. Entries of their
         lists (`slides`, `links`, `quotes`, `questions`, `people`, `stats`)
         carry their own `translations`, like blocks; the plugin applies them
         and removes them. It drops entries whose action it can't follow

@@ -16,6 +16,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/theme/symbol_names.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/own_icon.dart';
 import 'page_actions.dart';
 import 'page_blocks.dart';
 
@@ -356,8 +357,9 @@ class _QuickLinkTile extends StatelessWidget {
                 border: minimal ? Border.all(color: p.border) : null,
               ),
               alignment: Alignment.center,
-              child: AppIcon(
+              child: OwnIcon(
                 symbolByName(link.icon),
+                url: link.iconUrl,
                 size: 26,
                 color: bold ? p.onPrimary : (minimal ? p.text : p.link),
               ),

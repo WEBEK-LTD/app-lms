@@ -76,6 +76,7 @@ export function switchDefaultLanguage(layout: LayoutContent, to: LanguageCode): 
     // 43 The owner's order stays; a language that wasn't offered yet comes first.
     languages: { default: to, available: layout.languages.available.includes(to) ? layout.languages.available : [to, ...layout.languages.available] },
     tabs: layout.tabs.map((t) => swapTexts(t, TRANSLATABLE.tab, from, to)),
+    ...(layout.menu ? { menu: layout.menu.map((t) => swapTexts(t, TRANSLATABLE.tab, from, to)) } : {}),
     pages: layout.pages.map((p) => ({
       ...swapTexts(p, TRANSLATABLE.page, from, to),
       blocks: p.blocks.map((b) => {
@@ -244,6 +245,7 @@ export function renamePageLinks(layout: LayoutContent, from: string, to: string)
   return {
     ...layout,
     tabs: layout.tabs.map((t) => ({ ...t, target: fix(t.target) })),
+    ...(layout.menu ? { menu: layout.menu.map((t) => ({ ...t, target: fix(t.target) })) } : {}),
     pages: layout.pages.map((p) => ({
       ...p,
       slug: p.slug === from ? to : p.slug,
@@ -257,6 +259,7 @@ export function renamePageLinks(layout: LayoutContent, from: string, to: string)
 export function pageLinks(layout: LayoutContent, slug: string): string[] {
   const opens = (a: { type: string; page_slug?: string | null } | null | undefined) => a?.type === "page" && a.page_slug === slug;
   const links = layout.tabs.filter((t) => opens(t.target)).map((t) => `the ${t.label || "untitled"} tab`);
+  for (const entry of layout.menu ?? []) if (opens(entry.target)) links.push(`the ${entry.label || "untitled"} entry of the side menu`);
   for (const page of layout.pages) {
     if (page.slug === slug) continue;
     if (page.blocks.some((b) => blockActions(b).some(opens))) links.push(`a block on ${page.title || page.slug}`);

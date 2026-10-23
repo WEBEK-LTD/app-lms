@@ -7,6 +7,7 @@
  */
 
 use PHPUnit\Framework\TestCase;
+use Yallapp\Pages\Block_Resolver;
 use Yallapp\Pages\Rich_Blocks;
 use Yallapp\Pages\Translator;
 
@@ -135,6 +136,55 @@ class RichBlocksTest extends TestCase {
 		$this->assertSame( 'row', $fields['style'] );
 		$this->assertSame( array( 'Courses' ), array_column( $fields['links'], 'label' ) );
 		$this->assertNull( $this->fields( 'quick_links', array( 'links' => array() ) ) );
+	}
+
+	public function test_82_5_own_icons_are_https_only() {
+		$fields = $this->fields(
+			'quick_links',
+			array(
+				'links' => array(
+					array(
+						'icon'     => 'school',
+						'icon_url' => 'https://example.com/icon.png',
+						'label'    => 'Courses',
+						'action'   => array(
+							'type'   => 'screen',
+							'screen' => 'courses',
+						),
+					),
+					array(
+						'icon'     => 'person',
+						'icon_url' => 'http://example.com/icon.png',
+						'label'    => 'Account',
+						'action'   => array(
+							'type'   => 'screen',
+							'screen' => 'account',
+						),
+					),
+				),
+			)
+		);
+		$this->assertSame( array( 'https://example.com/icon.png', null ), array_column( $fields['links'], 'icon_url' ) );
+		$this->assertNull( Block_Resolver::icon_url( 'javascript:alert(1)' ) );
+		$this->assertNull( Block_Resolver::icon_url( array() ) );
+	}
+
+	public function test_82_5_a_block_look_is_sent_only_when_it_changes_something() {
+		$this->assertSame(
+			array(
+				'background' => 'tint',
+				'spacing'    => 'large',
+			),
+			Block_Resolver::look(
+				array(
+					'background' => 'tint',
+					'spacing'    => 'large',
+				)
+			)
+		);
+		$this->assertNull( Block_Resolver::look( array( 'background' => 'neon' ) ) );
+		$this->assertNull( Block_Resolver::look( 'primary' ) );
+		$this->assertSame( 'none', Block_Resolver::look( array( 'spacing' => 'none' ) )['spacing'] );
 	}
 
 	public function test_testimonials_faq_team_and_numbers() {

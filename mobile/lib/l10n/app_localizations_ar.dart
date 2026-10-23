@@ -413,6 +413,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get mainNavigation => 'التنقل الرئيسي';
 
   @override
+  String get sideMenuOpen => 'فتح القائمة';
+
+  @override
   String tabWithCount(String label, int count) {
     return '$label، $count';
   }

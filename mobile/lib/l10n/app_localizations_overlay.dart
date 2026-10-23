@@ -399,6 +399,9 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('mainNavigation') ?? base.mainNavigation;
 
   @override
+  String get sideMenuOpen => overlay.text('sideMenuOpen') ?? base.sideMenuOpen;
+
+  @override
   String tabWithCount(String label, int count) =>
       overlay.format('tabWithCount', {'label': label, 'count': count}) ??
       base.tabWithCount(label, count);

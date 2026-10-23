@@ -25,6 +25,7 @@ import 'auth/signup_screen.dart';
 import 'pages/page_actions.dart';
 import 'links/link_open_screen.dart';
 import 'pages/page_screen.dart';
+import 'pages/side_menu.dart';
 import '../../core/l10n/l10n.dart';
 
 /// Routes every app type shares: sign-in, the account pages and web pages.
@@ -300,12 +301,18 @@ class MainShell extends ConsumerWidget {
           orElse: () => const MapEntry(0, 0),
         )
         .key;
+    final hasMenu = sideMenuEntries(ref).isNotEmpty;
     return Scaffold(
       body: shell,
+      // 82.5 The side menu built in the dashboard.
+      drawer: hasMenu
+          ? SideMenu(onOpen: (action) => runPageAction(context, ref, action))
+          : null,
       bottomNavigationBar: AppNavBar(
         template: template,
         destinations: [
-          for (final tab in tabs) NavDestination(tab.icon, tab.label(context)),
+          for (final tab in tabs)
+            NavDestination(tab.icon, tab.label(context), iconUrl: tab.iconUrl),
         ],
         badges: {
           for (final (i, tab) in tabs.indexed)

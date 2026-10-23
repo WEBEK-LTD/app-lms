@@ -1081,6 +1081,9 @@ never in a chat or an issue.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **Plugin 0.4.11** (82.5): the side menu, the owner's own icons and
+      each block's look reach WordPress apps. Release it like 0.4.10; sites
+      on 0.4.10 or earlier keep their tabs and pages without them.
 - [ ] **Plugin 0.4.10** (81.2): the site's look (title, logo, icon, theme
       colours, menus) with each license check. Release it like 0.4.9; sites
       send it from their next check after updating.
@@ -1173,6 +1176,9 @@ never in a chat or an issue.
       client's site through the safe fetch. Leave `SITE_SCAN_TEST_URL` unset
       on Netlify (it is refused there; only the e2e tests use it). Try it once
       with a real WordPress site and a real Shopify shop after the deploy.
+- [ ] **Publish history** (82.4): migration `0061_layout_versions.sql` (a
+      new table) goes with the production deploy. Each publish from then on
+      is kept (the last 20 per app); earlier ones aren't there to go back to.
 - [ ] **Import** (81.4): no migration. Products, Services and Courses have
       "Import from a file" (CSV, a product feed or a Google Sheet's link).
       Try a Google Merchant Center feed and an Excel CSV saved in Turkish

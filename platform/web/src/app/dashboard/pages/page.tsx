@@ -8,10 +8,10 @@ import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 import { getStore } from "@/lib/data";
-import { appUrl, encryptionKey } from "@/lib/env";
+import { appUrl, encryptionKey, signingSecret } from "@/lib/env";
 import { pickableContent } from "@/lib/hosted/pages/pickable";
 import { designById, designFits, designsFor } from "@/lib/pages/designs";
-import { designLayout, designSamples, hasUnpublishedChanges, loadLayout, withoutStrings } from "@/lib/pages/layout";
+import { designLayout, designSamples, hasUnpublishedChanges, layoutHistory, loadLayout, withoutStrings } from "@/lib/pages/layout";
 import { blockTypesFor, categorySourcesFor, itemSourcesFor, screenOptionsFor } from "@/lib/pages/sources";
 import { PagesEditor } from "./editor";
 import { currentPlanId } from "@/lib/billing/plan-change";
@@ -21,6 +21,8 @@ import { appDefaults } from "@/lib/pages/layout";
 import { allowedSources } from "@/lib/pages/plan";
 import { hasFeature, lowestPlanWith } from "@/lib/plans";
 import { builtInSuggestions } from "@/lib/pages/builtin";
+import { draftPreviewSupported } from "@/lib/preview/config";
+import { createPreviewToken, previewAppPath, previewKey } from "@/lib/preview/token";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("pages.title") };
@@ -104,6 +106,7 @@ export default async function PagesPage({ searchParams }: PageProps<"/dashboard/
           changes: hasUnpublishedChanges(record),
           design: designById(app.design) && designFits(designById(app.design)!, app) ? app.design! : null,
           samples: designSamples(app, now),
+          history: await layoutHistory(store, app.id),
         }}
         designs={designsFor(app).map((d) => ({ id: d.id, name: d.name, description: d.description, layout: designLayout(app, d, record.draft, now) }))}
         app={{
@@ -129,6 +132,8 @@ export default async function PagesPage({ searchParams }: PageProps<"/dashboard/
         ready={{ pages: ready.pages, tabs: ready.tabs }}
         // 43 The preview shows Yallapp's Arabic and Turkish where the owner wrote none, as the app does.
         builtin={builtInSuggestions(app.appName ?? null, ["ar", "tr"])}
+        // 82.1 The real app with the draft beside the editor (apps on the hosted API).
+        live={draftPreviewSupported(app) ? previewAppPath(createPreviewToken({ appId: app.id, draft: true }, previewKey(signingSecret()), now)) : null}
       />
     </div>
   );

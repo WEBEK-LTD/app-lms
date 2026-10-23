@@ -255,6 +255,40 @@ class AppPalette extends ThemeExtension<AppPalette> {
   Color placeholderFor(int seed) =>
       placeholders[seed.abs() % placeholders.length];
 
+  /// 82.5 The same palette with its text in [foreground], for text on a
+  /// block's main-colour background.
+  AppPalette textOn(Color foreground) => AppPalette(
+    brightness: brightness,
+    primary: primary,
+    onPrimary: onPrimary,
+    primarySoft: primarySoft,
+    onPrimarySoft: onPrimarySoft,
+    onPrimaryMuted: onPrimaryMuted,
+    primaryTrack: primaryTrack,
+    background: background,
+    surface: surface,
+    surfaceMuted: surfaceMuted,
+    segment: segment,
+    border: border,
+    divider: divider,
+    inputBorder: inputBorder,
+    text: foreground,
+    textBody: foreground,
+    textSecondary: foreground.withValues(alpha: 0.85),
+    textTertiary: foreground.withValues(alpha: 0.7),
+    accent: accent,
+    accentSoft: accentSoft,
+    link: foreground,
+    success: success,
+    successSoft: successSoft,
+    danger: danger,
+    star: star,
+    timerSoft: timerSoft,
+    onTimerSoft: onTimerSoft,
+    inlineCode: inlineCode,
+    placeholders: placeholders,
+  );
+
   @override
   AppPalette copyWith() => this;
 

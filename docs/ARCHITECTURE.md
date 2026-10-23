@@ -2690,6 +2690,72 @@ build. The preview is the Flutter app from `mobile/`, built for the web.
   changes", "Open on your phone" with a QR code made on our server
   (`lib/qr.ts`) for the same link, what's missing, and how to sign in.
 
+### The real app in the editor (82.1)
+
+Pages & look shows the app preview beside the editor for apps whose content
+is on the hosted API (the ones that can preview the draft): the preview with a
+draft token, in the shared phone frame (`dashboard/pages/live-preview.tsx`),
+with the quick view (the editor's own drawing of the draft) one click away.
+After each saved draft (and a design applied, a publish or a discard) the
+editor posts `{yallappPreview: "draft-saved"}` to the frame, to its own
+origin. The app takes it only from the page holding it, on the platform's
+origin (`mobile/lib/core/preview/draft_updates_web.dart`), and reloads its
+tabs and pages in place, a few saves close together once
+(`draftReloadProvider`): the frame never loads again, so the screen and
+where the owner is in the app stay. The phone apps listen to nothing.
+
+### Editing on the phone (82.2)
+
+In the quick view each block on the phone is a button ("Edit Notice"): it
+opens that block in the editor's list and scrolls to it. The buttons of Add a
+block can also be dragged (`application/x-yallapp-block`) onto the phone: the
+block goes before the block it falls on (its top half) or after it, or at the
+end below the last block, with the same limits as Add a block.
+
+### Sizes, systems, light and dark (82.3)
+
+The real app beside the editor comes at a small phone's, a phone's or a
+tablet's size (`DEVICE_SIZES` in `live-preview.tsx`), as on Android or an
+iPhone, and in light and dark side by side (two frames, each told about every
+save). The app preview's link takes `os=android` or `os=ios`
+(`PreviewLaunch.platform`): the app runs as on that system
+(`AppEnvironment.platform`), with its rules, so an iPhone shows no purchase
+buttons.
+
+### Undo, redo and the publish history (82.4)
+
+Undo and Redo step through the draft's changes in the editor (changes less
+than a second apart are one step, 50 kept, in the browser only); Ctrl+Z and
+Ctrl+Shift+Z (or Ctrl+Y) do the same outside the fields, which undo their own
+typing. A draft replaced from the server (a design, a discard, a publish
+brought back) starts its own history.
+
+Each publish is kept (`app_layout_versions`, the last 20,
+`LAYOUT_VERSIONS_KEPT`), with when and who published it. The editor lists
+them under Publish history, marking the one in the app; "Use as draft"
+(`restoreLayoutVersion`) makes one the draft again, checked like any draft,
+with the draft's own interface strings; what's published stays until the
+owner publishes.
+
+### Block looks, own icons and the side menu (82.5)
+
+Each block can have a look (`BlockLook`): a background within the app's
+brand (`tint`, a light wash of the main colour; `primary`; `secondary`, the
+second colour or else the main one; `surface`, the colour of cards) and its
+spacing (`none`, `small`, `medium`, `large`). The validator stores it only
+when it changes something, and the hosted API and the plugin
+(`Block_Resolver::look`) pass it on the same way. On the main or the second
+colour the block's title and its own text turn light; cards in it keep their
+colours. The space between two blocks is the larger of what each asks for.
+
+A tab, a side menu entry or a quick link can have the owner's own icon
+(`icon_url`, https only, from the media library); `icon` stays as the
+fallback for an app that can't load it. `Navigation.menu` is the side menu
+(up to 12 entries, each a `NavTab`, translated like the tabs, dropped when
+the app can't open its target). The app shows the menu button where a
+page in the tabs would have its back button, and the menu also opens from
+the screen's edge; with no entries there is neither.
+
 ## Pages, looks and languages
 
 Clients build their app's pages and pick its look in the client dashboard,

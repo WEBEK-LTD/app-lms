@@ -16,6 +16,7 @@ import 'core/storage/local_settings.dart';
 import 'core/theme/app_look.dart';
 import 'core/theme/app_theme.dart';
 import 'modules/lms/downloads/learning_sync.dart';
+import 'modules/shared/pages/draft_reload.dart';
 
 /// The app root: theme from the build and runtime config, routing, and the
 /// start-up gate.
@@ -44,7 +45,9 @@ class YallappApp extends ConsumerWidget {
       // 45 Offline progress sent, saved lessons checked, at each start.
       ..watch(learningSyncProvider)
       // 53 Screenshots and screen recording blocked as the owner chose.
-      ..watch(screenProtectionSyncProvider);
+      ..watch(screenProtectionSyncProvider)
+      // 82.1 The preview in the Pages & look editor follows the draft.
+      ..watch(draftReloadProvider);
 
     return MaterialApp.router(
       title: env.build.appName,

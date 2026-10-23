@@ -27,8 +27,10 @@ class AppEnvironment {
     required BuildConfigData build,
     required SharedPreferences preferences,
     PreviewSession? preview,
+    DevicePlatform? platform,
   }) async {
-    final platform = defaultTargetPlatform == TargetPlatform.iOS
+    // 82.3 The app preview can be asked to run as on Android or on an iPhone.
+    platform ??= defaultTargetPlatform == TargetPlatform.iOS
         ? DevicePlatform.ios
         : DevicePlatform.android;
     var version = build.versionName;

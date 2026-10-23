@@ -58,6 +58,7 @@ Future<void> runPreview({Uri? address, Dio? http}) async {
     build: start.build,
     preferences: preferences,
     preview: session,
+    platform: launch.platform,
   );
 
   runApp(

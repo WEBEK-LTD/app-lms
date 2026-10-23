@@ -120,6 +120,7 @@ List<ShellTab> tabsFromNavigation(
     tabs.add(
       ShellTab(
         icon: symbolByName(tab.icon),
+        iconUrl: tab.iconUrl,
         label: label,
         location: asTab ? location : null,
         // Screens that can't be a tab (settings) open on top instead.

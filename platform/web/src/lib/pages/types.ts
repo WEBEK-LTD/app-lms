@@ -75,6 +75,18 @@ export const SPACER_SIZES = ["small", "medium", "large"] as const;
 export const QUICK_LINK_STYLES = ["grid", "row"] as const;
 export const NOTICE_TONES = ["info", "success", "warning"] as const;
 export const WEEKDAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
+// 82.5 A block's look within the brand.
+export const BLOCK_BACKGROUNDS = ["none", "tint", "primary", "secondary", "surface"] as const;
+export const BLOCK_SPACINGS = ["none", "small", "medium", "large"] as const;
+export type BlockBackground = (typeof BLOCK_BACKGROUNDS)[number];
+export type BlockSpacing = (typeof BLOCK_SPACINGS)[number];
+
+/** 82.5 `BlockLook` in the app API. */
+export interface BlockLook {
+  background: BlockBackground;
+  spacing: BlockSpacing;
+}
+
 export const SOCIAL_NETWORKS = ["instagram", "facebook", "x", "tiktok", "youtube", "linkedin", "snapchat", "telegram", "whatsapp_channel"] as const;
 
 export type AppTemplateName = (typeof APP_TEMPLATES)[number];
@@ -166,6 +178,8 @@ export interface Slide {
 
 export interface QuickLink {
   icon: string;
+  /** 82.5 The owner's own icon, shown instead of `icon`. */
+  icon_url?: string | null;
   label: string;
   action: Action;
   translations?: Translations;
@@ -223,6 +237,8 @@ export interface LayoutBlock {
   visibility: Visibility;
   title?: string | null;
   translations?: Translations;
+  /** 82.5 Background and spacing within the brand; missing: none and medium. */
+  look?: BlockLook | null;
   // banner, image
   image_url?: string;
   heading?: string | null;
@@ -286,6 +302,8 @@ export interface LayoutTab {
   id: string;
   label: string;
   icon: string;
+  /** 82.5 The owner's own icon (a picture from Media), shown instead of `icon`. */
+  icon_url?: string | null;
   target: Action;
   translations?: Translations;
 }
@@ -304,6 +322,8 @@ export interface LayoutContent {
   appearance: Appearance;
   languages: Languages;
   tabs: LayoutTab[];
+  /** 82.5 The side menu, shaped like the tabs; missing or empty: none. */
+  menu?: LayoutTab[];
   pages: LayoutPage[];
   /** 43 The owner's translations of the app's own interface strings; apps get them as string packs, never in the layout. */
   strings?: InterfaceStrings;
@@ -318,6 +338,8 @@ export interface Layout extends LayoutContent {
 export const LAYOUT_LIMITS = {
   minTabs: 2,
   maxTabs: 5,
+  // 82.5 The side menu.
+  maxMenu: 12,
   maxPages: 20,
   maxBlocks: 40,
   // 33 Entries in a block's list.
