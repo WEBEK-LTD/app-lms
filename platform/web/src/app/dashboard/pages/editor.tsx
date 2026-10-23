@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type DragEvent } from "react";
-import { applyDesignAction, discardLayoutDraftAction, publishLayoutAction, saveLayoutDraftAction, type LayoutSaveResult } from "@/app/actions/pages";
+import { applyDesignAction, discardLayoutDraftAction, publishLayoutAction, restoreLayoutVersionAction, saveLayoutDraftAction, type LayoutSaveResult } from "@/app/actions/pages";
+import type { LayoutHistoryEntry } from "@/lib/pages/layout";
 import { Badge, btn, formatDateTime } from "@/components/ui";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import { newBlockId } from "@/lib/pages/defaults";
@@ -94,6 +95,11 @@ function summary(block: LayoutBlock): string {
   return text ? text.slice(0, 48) : "";
 }
 
+/** 82.4 Changes this close together are one step to undo; and how many steps are kept. */
+const UNDO_JOIN_MS = 1000;
+const UNDO_STEPS = 50;
+const clockMs = () => Date.now();
+
 const sectionClass = "flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6";
 const smallBtn = `${btn.secondary} h-9 px-3 text-sm`;
 const iconBtn =
@@ -122,6 +128,8 @@ export function PagesEditor({
     /** 33 The design the app last started from, and the sample texts it wrote (`page/block` IDs). */
     design: string | null;
     samples: Record<string, string>;
+    /** 82.4 The app's last publishes, newest first. */
+    history: LayoutHistoryEntry[];
   };
   app: { appType: string; name: string; primaryColor: string; logoUrl: string | null };
   sources: ItemSource[];
@@ -169,6 +177,10 @@ export function PagesEditor({
   const dirty = useRef(false);
   // 82.1 The real app beside the editor, told about each save; or the quick view.
   const frames = useRef<HTMLDivElement | null>(null);
+  // 82.4 Undo and redo: the drafts before (and after) each change, here only; and the publish history.
+  const [steps, setSteps] = useState<{ past: LayoutContent[]; future: LayoutContent[] }>({ past: [], future: [] });
+  const lastChange = useRef(0);
+  const [history, setHistory] = useState(initial.history);
   const [view, setView] = useState<"app" | "sketch">(live ? "app" : "sketch");
 
   const def = layout.languages.default;
@@ -193,7 +205,10 @@ export function PagesEditor({
     if (replace) {
       dirty.current = false;
       setLayout(r.draft);
+      // 82.4 A draft replaced from the server starts its own undo history.
+      setSteps({ past: [], future: [] });
     }
+    if (r.history) setHistory(r.history);
     if (edits.current === sent) {
       dirty.current = false;
       setStatus("saved");
@@ -223,11 +238,67 @@ export function PagesEditor({
   }, [layout, save]);
 
   function update(change: (current: LayoutContent) => LayoutContent) {
+    // 82.4 Typing in a field is one step: changes less than a second apart join the one before.
+    const now = clockMs();
+    const join = now - lastChange.current <= UNDO_JOIN_MS;
+    lastChange.current = now;
+    const before = layout;
+    setSteps((st) => ({ past: join ? st.past : [...st.past, before].slice(-UNDO_STEPS), future: [] }));
     edits.current += 1;
     dirty.current = true;
     setStatus("unsaved");
     setMessage(null);
     setLayout(change);
+  }
+
+  /** 82.4 Back (or forward again) one step; the draft is saved as after any change. */
+  function step(back: boolean) {
+    const from = back ? steps.past : steps.future;
+    const target = from.at(-1);
+    if (!target) return;
+    const rest = from.slice(0, -1);
+    const now = layout;
+    setSteps(back ? { past: rest, future: [...steps.future, now] } : { past: [...steps.past, now], future: rest });
+    lastChange.current = 0;
+    edits.current += 1;
+    dirty.current = true;
+    setStatus("unsaved");
+    setMessage(null);
+    setLayout(target);
+  }
+
+  // 82.4 Ctrl+Z (⌘Z), and Ctrl+Shift+Z or Ctrl+Y, outside the fields (which undo their own typing).
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
+      const key = event.key.toLowerCase();
+      if (key !== "z" && key !== "y") return;
+      const target = event.target as HTMLElement | null;
+      if (target && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))) return;
+      event.preventDefault();
+      step(key === "z" && !event.shiftKey);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
+  /** 82.4 An earlier publish as the draft. */
+  async function restore(entry: LayoutHistoryEntry) {
+    if (!window.confirm(t("pages.restoreConfirm", { date: formatDateTime(new Date(entry.at), dashLang) }))) return;
+    setBusy(true);
+    edits.current += 1;
+    const sent = edits.current;
+    try {
+      const r = await restoreLayoutVersionAction(entry.number);
+      applied(r, sent, true);
+      setMessage(r.ok ? { text: r.message ? known(r.message) : t("pages.restored"), ok: true } : { text: r.errors.map((e) => known(e)).join(" "), ok: false });
+      if (r.ok) {
+        setPageSlug(r.draft.pages[0]?.slug ?? null);
+        setOpenBlock(null);
+      }
+    } finally {
+      setBusy(false);
+    }
   }
 
   function updatePage(slug: string, change: (p: LayoutPage) => LayoutPage) {
@@ -419,6 +490,13 @@ export function PagesEditor({
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
+              {/* 82.4 */}
+              <button type="button" className={smallBtn} disabled={busy || steps.past.length === 0} aria-keyshortcuts="Control+Z" onClick={() => step(true)}>
+                {t("pages.undo")}
+              </button>
+              <button type="button" className={smallBtn} disabled={busy || steps.future.length === 0} aria-keyshortcuts="Control+Shift+Z" onClick={() => step(false)}>
+                {t("pages.redo")}
+              </button>
               <button type="button" className={smallBtn} disabled={busy || status === "saving"} onClick={() => void save(layout)}>
                 {t("pages.saveDraft")}
               </button>
@@ -451,6 +529,34 @@ export function PagesEditor({
                 ))}
               </ul>
             </div>
+          ) : null}
+          {/* 82.4 The last publishes, to go back to. */}
+          {history.length ? (
+            <details className="rounded-xl border border-line px-4 py-2">
+              <summary className="cursor-pointer text-[15px] font-semibold">{t("pages.history", { count: history.length })}</summary>
+              <ul aria-label={t("pages.historyList")} className="m-0 mt-2 flex list-none flex-col gap-2 p-0">
+                {history.map((entry) => {
+                  const live = published?.version.endsWith(`.${entry.number}`) ?? false;
+                  return (
+                    <li key={entry.number} className="flex flex-wrap items-center justify-between gap-2 border-t border-line-soft pt-2 first:border-t-0 first:pt-0">
+                      <span className="flex flex-wrap items-center gap-2 text-sm">
+                        {entry.by ? t("pages.historyEntryBy", { date: formatDateTime(new Date(entry.at), dashLang), email: entry.by }) : t("pages.historyEntry", { date: formatDateTime(new Date(entry.at), dashLang) })}
+                        {live ? <Badge tone="success">{t("pages.historyLive")}</Badge> : null}
+                      </span>
+                      <button
+                        type="button"
+                        className={smallBtn}
+                        disabled={busy}
+                        aria-label={t("pages.useAsDraftNamed", { date: formatDateTime(new Date(entry.at), dashLang) })}
+                        onClick={() => void restore(entry)}
+                      >
+                        {t("pages.useAsDraft")}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </details>
           ) : null}
           {message ? (
             <p role={message.ok ? "status" : "alert"} className={`m-0 rounded-xl px-4 py-3 text-[15px] font-semibold ${message.ok ? "bg-success-bg text-success" : "bg-danger-bg text-danger"}`}>

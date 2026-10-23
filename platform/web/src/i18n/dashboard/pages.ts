@@ -31,6 +31,18 @@ export const en = {
   light: "Light",
   dark: "Dark",
   previewFrameTheme: "{app} with your draft, {theme}",
+  // 82.4 Undo, redo and the publish history.
+  undo: "Undo",
+  redo: "Redo",
+  history: "Publish history ({count})",
+  historyList: "Your last publishes",
+  historyEntry: "Published {date}",
+  historyEntryBy: "Published {date} by {email}",
+  historyLive: "In the app now",
+  useAsDraft: "Use as draft",
+  useAsDraftNamed: "Use the publish of {date} as the draft",
+  restoreConfirm: "Replace your draft with the pages as you published them on {date}? What's in the app stays until you publish.",
+  restored: "Your draft is now as you published it then.",
   phonePreview: "Phone preview",
   addBlocksHere: "Add blocks to this page.",
   // 82.2 Editing on the phone.
@@ -298,6 +310,9 @@ export const en = {
   whereBlock: "block {n}",
   whereTab: "Tab {n}",
   known: {
+    // 82.4
+    restoredMessage: "Your draft is now as you published it then. Check it, then publish to bring it back.",
+    notKept: "This publish isn't kept anymore. Choose another one.",
     // lib/pages/labels.ts
     tClassic: "Classic",
     tBold: "Bold",
@@ -463,6 +478,18 @@ export const ar: Messages = {
   light: "فاتح",
   dark: "داكن",
   previewFrameTheme: "{app} بمسودتك، {theme}",
+  // 82.4 Undo, redo and the publish history.
+  undo: "تراجع",
+  redo: "إعادة",
+  history: "سجل النشر ({count})",
+  historyList: "آخر عمليات النشر",
+  historyEntry: "نُشر {date}",
+  historyEntryBy: "نُشر {date} بواسطة {email}",
+  historyLive: "في التطبيق الآن",
+  useAsDraft: "استخدمه كمسودة",
+  useAsDraftNamed: "استخدم نشر {date} كمسودة",
+  restoreConfirm: "هل تريد استبدال مسودتك بالصفحات كما نشرتها في {date}؟ يبقى ما في التطبيق كما هو حتى تنشر.",
+  restored: "أصبحت مسودتك كما نشرتها حينها.",
   phonePreview: "معاينة على الهاتف",
   addBlocksHere: "أضف كتلًا إلى هذه الصفحة.",
   // 82.2 Editing on the phone.
@@ -727,6 +754,9 @@ export const ar: Messages = {
   whereBlock: "الكتلة {n}",
   whereTab: "علامة التبويب {n}",
   known: {
+    // 82.4
+    restoredMessage: "أصبحت مسودتك كما نشرتها حينها. راجعها، ثم انشر لإعادتها.",
+    notKept: "لم يعد هذا النشر محفوظًا. اختر نشرًا آخر.",
     tClassic: "كلاسيكي",
     tBold: "جريء",
     tMinimal: "بسيط",
@@ -888,6 +918,18 @@ export const tr: Messages = {
   light: "Açık",
   dark: "Koyu",
   previewFrameTheme: "Taslağınızla {app}, {theme}",
+  // 82.4 Undo, redo and the publish history.
+  undo: "Geri al",
+  redo: "Yinele",
+  history: "Yayın geçmişi ({count})",
+  historyList: "Son yayınlarınız",
+  historyEntry: "{date} tarihinde yayınlandı",
+  historyEntryBy: "{date} tarihinde {email} tarafından yayınlandı",
+  historyLive: "Şu an uygulamada",
+  useAsDraft: "Taslak olarak kullan",
+  useAsDraftNamed: "{date} yayınını taslak olarak kullan",
+  restoreConfirm: "Taslağınız {date} tarihinde yayınladığınız sayfalarla değiştirilsin mi? Siz yayınlayana kadar uygulamadakiler aynı kalır.",
+  restored: "Taslağınız artık o zaman yayınladığınız gibi.",
   phonePreview: "Telefon önizlemesi",
   addBlocksHere: "Bu sayfaya blok ekleyin.",
   // 82.2 Editing on the phone.
@@ -1152,6 +1194,9 @@ export const tr: Messages = {
   whereBlock: "{n}. blok",
   whereTab: "{n}. sekme",
   known: {
+    // 82.4
+    restoredMessage: "Taslağınız artık o zaman yayınladığınız gibi. Kontrol edin, sonra geri getirmek için yayınlayın.",
+    notKept: "Bu yayın artık saklanmıyor. Başka birini seçin.",
     tClassic: "Klasik",
     tBold: "Cesur",
     tMinimal: "Sade",

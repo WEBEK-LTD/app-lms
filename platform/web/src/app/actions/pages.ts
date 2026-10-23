@@ -6,7 +6,7 @@ import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/sessi
 import { getStore } from "@/lib/data";
 import type { App, AppLayoutRecord } from "@/lib/data/types";
 import { designById, designFits } from "@/lib/pages/designs";
-import { discardDraft, hasUnpublishedChanges, publishLayout, saveDesignDraft, saveDraft, withoutStrings } from "@/lib/pages/layout";
+import { discardDraft, hasUnpublishedChanges, layoutHistory, publishLayout, restoreLayoutVersion, saveDesignDraft, saveDraft, withoutStrings, type LayoutHistoryEntry } from "@/lib/pages/layout";
 import type { LayoutContent } from "@/lib/pages/types";
 import { appPlan } from "@/lib/entitlements";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
@@ -21,8 +21,12 @@ export type LayoutSaveResult =
       published: { version: string; at: string } | null;
       changes: boolean;
       message?: string;
+      /** 82.4 The publish history, after a publish. */
+      history?: LayoutHistoryEntry[];
     }
   | { ok: false; errors: string[] };
+
+type LayoutSaved = Extract<LayoutSaveResult, { ok: true }>;
 
 async function requireLayoutApp(): Promise<ClientContext & { app: App }> {
   const context = await clientFor("settings");
@@ -32,7 +36,7 @@ async function requireLayoutApp(): Promise<ClientContext & { app: App }> {
   return context as ClientContext & { app: App };
 }
 
-function result(record: AppLayoutRecord, message?: string): LayoutSaveResult {
+function result(record: AppLayoutRecord, message?: string): LayoutSaved {
   return {
     ok: true,
     // 43 Without the interface strings: the Languages page edits those, and the editor's saves keep them.
@@ -69,11 +73,26 @@ export async function publishLayoutAction(json: string): Promise<LayoutSaveResul
   if (!published.ok) return published;
   revalidatePath("/dashboard/pages");
   // 31 A WordPress site fetches the layout when asked, instead of within 15 minutes.
+  const history = await layoutHistory(store, app.id);
   if (app.backend === "wordpress") {
     refreshSitesSoon([app.id]);
-    return result(published.value, "Published. Your website gets the new pages within a minute when it can be reached (otherwise within 15 minutes), and your app shows them the next time it opens.");
+    return { ...result(published.value, "Published. Your website gets the new pages within a minute when it can be reached (otherwise within 15 minutes), and your app shows them the next time it opens."), history };
   }
-  return result(published.value, "Published. Your app shows the new pages the next time it opens.");
+  return { ...result(published.value, "Published. Your app shows the new pages the next time it opens."), history };
+}
+
+/**
+ * 82.4 An earlier publish as the draft: to look at in the preview and
+ * publish again. What's published stays until then.
+ */
+export async function restoreLayoutVersionAction(number: number): Promise<LayoutSaveResult> {
+  const { app } = await requireLayoutApp();
+  const now = new Date();
+  const restored = Number.isSafeInteger(number) ? await restoreLayoutVersion(await getStore(), app, number, now) : null;
+  if (!restored) return { ok: false, errors: ["This publish isn't kept anymore. Choose another one."] };
+  if (!restored.ok) return restored;
+  revalidatePath("/dashboard/pages");
+  return result(restored.value, "Your draft is now as you published it then. Check it, then publish to bring it back.");
 }
 
 /**

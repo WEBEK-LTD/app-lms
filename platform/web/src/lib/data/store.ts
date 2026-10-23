@@ -2,6 +2,8 @@ import type {
   Activation,
   App,
   AppLayoutRecord,
+  AppLayoutVersion,
+  AppLayoutVersionSummary,
   Asset,
   Build,
   BuildStatus,
@@ -651,6 +653,11 @@ export interface DataStore {
   getAppLayout(appId: string): Promise<AppLayoutRecord | null>;
   /** Creates or replaces the app's layout. */
   saveAppLayout(layout: AppLayoutRecord): Promise<void>;
+  /** 82.4 Keeps a publish, and only the app's last `keep`. */
+  addLayoutVersion(version: AppLayoutVersion, keep: number): Promise<void>;
+  /** 82.4 The app's kept publishes, newest first. */
+  listLayoutVersions(appId: string): Promise<AppLayoutVersionSummary[]>;
+  getLayoutVersion(appId: string, number: number): Promise<AppLayoutVersion | null>;
 
   // 11.7 Admin team and audit log
   /** Everyone in admin_members with their user, oldest first. */

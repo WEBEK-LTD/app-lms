@@ -2722,6 +2722,21 @@ save). The app preview's link takes `os=android` or `os=ios`
 (`AppEnvironment.platform`), with its rules, so an iPhone shows no purchase
 buttons.
 
+### Undo, redo and the publish history (82.4)
+
+Undo and Redo step through the draft's changes in the editor (changes less
+than a second apart are one step, 50 kept, in the browser only); Ctrl+Z and
+Ctrl+Shift+Z (or Ctrl+Y) do the same outside the fields, which undo their own
+typing. A draft replaced from the server (a design, a discard, a publish
+brought back) starts its own history.
+
+Each publish is kept (`app_layout_versions`, the last 20,
+`LAYOUT_VERSIONS_KEPT`), with when and who published it. The editor lists
+them under Publish history, marking the one in the app; "Use as draft"
+(`restoreLayoutVersion`) makes one the draft again, checked like any draft,
+with the draft's own interface strings; what's published stays until the
+owner publishes.
+
 ## Pages, looks and languages
 
 Clients build their app's pages and pick its look in the client dashboard,

@@ -153,3 +153,38 @@ test("82.3 the app at a small phone's, a phone's or a tablet's size, as on Andro
   await expect.poll(() => reads.length, { timeout: 20_000 }).toBeGreaterThanOrEqual(2);
   own.off("request", onRequest);
 });
+
+test("82.4 undo and redo; every publish is kept, and an earlier one can be the draft again", async () => {
+  await own.getByLabel("Light and dark").uncheck();
+  await own.getByRole("tab", { name: "Tabs" }).click();
+  const label = own.getByRole("group", { name: /^Tab 1/ }).getByLabel("Label", { exact: true });
+  const before = await label.inputValue();
+  await label.fill("Shop now");
+  // A moment later, so the next change is its own step.
+  await own.waitForTimeout(1200);
+  await own.getByRole("button", { name: "Undo" }).click();
+  await expect(label).toHaveValue(before);
+  await own.getByRole("button", { name: "Redo" }).click();
+  await expect(label).toHaveValue("Shop now");
+  await expect(own.getByRole("button", { name: "Redo" })).toBeDisabled();
+
+  // Two publishes, the newest in the app.
+  await own.getByRole("button", { name: "Publish", exact: true }).click();
+  await expect(own.getByRole("status").filter({ hasText: "Published." })).toBeVisible();
+  await label.fill("Big sale");
+  await own.getByRole("button", { name: "Publish", exact: true }).click();
+  await expect(own.getByText("Publish history (2)")).toBeVisible();
+  await own.getByText("Publish history (2)").click();
+  const entries = own.getByRole("list", { name: "Your last publishes" }).getByRole("listitem");
+  await expect(entries).toHaveCount(2);
+  await expect(entries.first()).toContainText("In the app now");
+  await expect(entries.first()).toContainText(client.email);
+
+  // The first publish as the draft: the app keeps "Big sale" until the next publish.
+  own.once("dialog", (dialog) => void dialog.accept());
+  await entries.nth(1).getByRole("button", { name: /^Use the publish of/ }).click();
+  await expect(own.getByText("Your draft is now as you published it then. Check it, then publish to bring it back.")).toBeVisible();
+  await own.getByRole("tab", { name: "Tabs" }).click();
+  await expect(label).toHaveValue("Shop now");
+  await expect(own.getByText("Unpublished changes")).toBeVisible();
+});

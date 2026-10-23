@@ -11,7 +11,7 @@ import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey, signingSecret } from "@/lib/env";
 import { pickableContent } from "@/lib/hosted/pages/pickable";
 import { designById, designFits, designsFor } from "@/lib/pages/designs";
-import { designLayout, designSamples, hasUnpublishedChanges, loadLayout, withoutStrings } from "@/lib/pages/layout";
+import { designLayout, designSamples, hasUnpublishedChanges, layoutHistory, loadLayout, withoutStrings } from "@/lib/pages/layout";
 import { blockTypesFor, categorySourcesFor, itemSourcesFor, screenOptionsFor } from "@/lib/pages/sources";
 import { PagesEditor } from "./editor";
 import { currentPlanId } from "@/lib/billing/plan-change";
@@ -106,6 +106,7 @@ export default async function PagesPage({ searchParams }: PageProps<"/dashboard/
           changes: hasUnpublishedChanges(record),
           design: designById(app.design) && designFits(designById(app.design)!, app) ? app.design! : null,
           samples: designSamples(app, now),
+          history: await layoutHistory(store, app.id),
         }}
         designs={designsFor(app).map((d) => ({ id: d.id, name: d.name, description: d.description, layout: designLayout(app, d, record.draft, now) }))}
         app={{

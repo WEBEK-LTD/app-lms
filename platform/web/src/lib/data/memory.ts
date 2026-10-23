@@ -2,7 +2,7 @@ import { clientAccountState, longestLicense } from "../license/status";
 import { newId } from "../crypto/tokens";
 import { membershipActive, membershipFreezeSet, membershipToUse } from "../bookings/memberships";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
-import type { AppAuthKey, AppLayoutRecord, PendingPayment } from "./types";
+import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, PendingPayment } from "./types";
 import type {
   AppPatch,
   BuildPatch,
@@ -2050,6 +2050,26 @@ export class MemoryStore implements DataStore {
   async saveAppLayout(layout: AppLayoutRecord): Promise<void> {
     this.appLayouts.set(layout.appId, clone(layout));
   }
+  // 82.4 Publish history
+
+  private layoutVersions = new Map<string, AppLayoutVersion[]>();
+
+  async addLayoutVersion(version: AppLayoutVersion, keep: number): Promise<void> {
+    const list = (this.layoutVersions.get(version.appId) ?? []).filter((v) => v.number !== version.number);
+    list.push(clone(version));
+    list.sort((a, b) => b.number - a.number);
+    this.layoutVersions.set(version.appId, list.slice(0, keep));
+  }
+
+  async listLayoutVersions(appId: string): Promise<AppLayoutVersionSummary[]> {
+    return (this.layoutVersions.get(appId) ?? []).map(({ layout: _layout, ...summary }) => (void _layout, clone(summary)));
+  }
+
+  async getLayoutVersion(appId: string, number: number): Promise<AppLayoutVersion | null> {
+    const version = (this.layoutVersions.get(appId) ?? []).find((v) => v.number === number);
+    return version ? clone(version) : null;
+  }
+
 
   // 11.7 Admin team and audit log
   private adminMembers = new Map<string, AdminMember>();

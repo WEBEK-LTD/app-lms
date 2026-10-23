@@ -125,7 +125,38 @@ export async function publishLayout(
     publishCount: count,
   };
   await store.saveAppLayout(published);
+  // 82.4 Kept in the publish history, to go back to.
+  await store.addLayoutVersion({ appId: app.id, number: count, layout: published.published!, publishedAt: now, publishedBy: by }, LAYOUT_VERSIONS_KEPT);
   return { ok: true, value: published };
+}
+
+/** 82.4 One of the app's last publishes, as the editor lists it. */
+export interface LayoutHistoryEntry {
+  number: number;
+  at: string;
+  by: string | null;
+}
+
+/** 82.4 The app's kept publishes, newest first. */
+export async function layoutHistory(store: DataStore, appId: string): Promise<LayoutHistoryEntry[]> {
+  return (await store.listLayoutVersions(appId)).map((v) => ({ number: v.number, at: v.publishedAt.toISOString(), by: v.publishedBy }));
+}
+
+/** 82.4 How many of an app's publishes are kept to go back to. */
+export const LAYOUT_VERSIONS_KEPT = 20;
+
+/**
+ * 82.4 An earlier publish as the draft, to look at and publish again (what's
+ * published stays until then). Checked as any draft is: the app's type or
+ * its content may have changed since. Null when that publish isn't kept.
+ */
+export async function restoreLayoutVersion(store: DataStore, app: App, number: number, now: Date): Promise<ParseResult<AppLayoutRecord> | null> {
+  const version = await store.getLayoutVersion(app.id, number);
+  if (!version) return null;
+  const record = await loadLayout(store, app, now);
+  // The interface strings stay the draft's own (the Languages page edits them).
+  const content = withoutStrings(contentOf(version.layout));
+  return saveDraft(store, app, record.draft.strings ? { ...content, strings: record.draft.strings } : content, now);
 }
 
 /**

@@ -1160,6 +1160,21 @@ export const appLayouts = mysqlTable("app_layouts", {
   publishCount: int("publish_count").notNull().default(0),
 });
 
+/** 82.4 An app's last publishes (AppLayoutVersion): the layout apps got at each. */
+export const appLayoutVersions = mysqlTable(
+  "app_layout_versions",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    number: int("number").notNull(),
+    layout: jsonText<Layout>("layout").notNull(),
+    publishedAt: time("published_at").notNull(),
+    publishedBy: varchar("published_by", { length: 191 }),
+  },
+  (t) => [primaryKey({ columns: [t.appId, t.number] })],
+);
+
 // 11.7 Admin team and audit log
 
 /** The WEBEK team in the super admin pages, besides SUPER_ADMIN_EMAILS (always owners). */
