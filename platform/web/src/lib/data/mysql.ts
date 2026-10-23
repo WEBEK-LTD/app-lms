@@ -3826,6 +3826,36 @@ export class MysqlStore implements DataStore {
     return row?.n ?? 0;
   }
 
+  async sumRefunds(appId: string, from: Date, to: Date): Promise<PaidTotals> {
+    const t = schema.paymentRefunds;
+    const rows = await this.run((db) =>
+      db
+        .select({ currency: t.currency, n: count(), cents: sql<string | null>`sum(${t.amountCents})` })
+        .from(t)
+        .where(and(eq(t.appId, appId), gte(t.createdAt, from), lt(t.createdAt, to)))
+        .groupBy(t.currency)
+        .orderBy(asc(t.currency)),
+    );
+    return { count: rows.reduce((sum, r) => sum + Number(r.n), 0), totals: rows.map((r) => ({ currency: r.currency, cents: Number(r.cents ?? 0) })) };
+  }
+
+  async countEnrollmentsInWindow(appId: string, from: Date, to: Date): Promise<{ total: number; paid: number }> {
+    const t = schema.courseEnrollments;
+    const [row] = await this.run((db) =>
+      db
+        .select({ total: count(), paid: sql<string | null>`sum(case when ${t.source} = 'paid' then 1 else 0 end)` })
+        .from(t)
+        .where(and(eq(t.appId, appId), gte(t.enrolledAt, from), lt(t.enrolledAt, to))),
+    );
+    return { total: Number(row?.total ?? 0), paid: Number(row?.paid ?? 0) };
+  }
+
+  async countAppointmentsMade(appId: string, from: Date, to: Date): Promise<number> {
+    const t = schema.bookingAppointments;
+    const [row] = await this.run((db) => db.select({ n: count() }).from(t).where(and(eq(t.appId, appId), gte(t.createdAt, from), lt(t.createdAt, to))));
+    return row?.n ?? 0;
+  }
+
   async countTicketsInWindow(appId: string, from: Date, to: Date): Promise<{ issued: number; checkedIn: number }> {
     const t = schema.eventTickets;
     const [issued, checkedIn] = await Promise.all([

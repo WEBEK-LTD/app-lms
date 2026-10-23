@@ -477,6 +477,13 @@
       "when": 1792726451815,
       "tag": "0067_campaign_reports",
       "breakpoints": true
+    },
+    {
+      "idx": 68,
+      "version": "5",
+      "when": 1792727581011,
+      "tag": "0068_sales_windows",
+      "breakpoints": true
     }
   ]
 }

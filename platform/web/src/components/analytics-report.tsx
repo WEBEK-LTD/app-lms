@@ -34,7 +34,7 @@ const KPI_TILES: { key: keyof Kpis; label: DashKey; hint: DashKey }[] = [
 ];
 
 /** The change against the period before, with an arrow and words, never color alone. */
-function Delta({ now, before, days, lang }: { now: number; before: number; days: number; lang: Lang }) {
+export function Delta({ now, before, days, lang }: { now: number; before: number; days: number; lang: Lang }) {
   const t = getDashT(lang);
   if (before === 0) {
     return <span className="text-[13px] text-muted">{now === 0 ? t("analytics.noChange", { count: days }) : t("analytics.newVs", { count: days })}</span>;

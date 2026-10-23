@@ -945,6 +945,12 @@ export interface DataStore {
   countHostedUsersCreated(appId: string, from: Date, to: Date): Promise<number>;
   /** Tickets issued (valid or used) and tickets checked in, in the window. */
   countTicketsInWindow(appId: string, from: Date, to: Date): Promise<{ issued: number; checkedIn: number }>;
+  /** 86.1 Refunds made in the window (orders and donations), how many and their sum per currency. */
+  sumRefunds(appId: string, from: Date, to: Date): Promise<PaidTotals>;
+  /** 86.1 Enrolments in courses managed in Yallapp in the window: all, and those paid for. */
+  countEnrollmentsInWindow(appId: string, from: Date, to: Date): Promise<{ total: number; paid: number }>;
+  /** 86.1 Appointments booked in the window (when they were made, whatever happened to them since). */
+  countAppointmentsMade(appId: string, from: Date, to: Date): Promise<number>;
 
   // 61 Notifications to an app's users sent later (lib/hosted/scheduled-notifications.ts)
   createScheduledNotification(input: Omit<ScheduledNotification, "id">): Promise<ScheduledNotification>;

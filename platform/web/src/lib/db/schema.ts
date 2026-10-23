@@ -717,6 +717,8 @@ export const bookingAppointments = mysqlTable(
   (t) => [
     index("booking_appointments_app_start_idx").on(t.appId, t.startAt),
     index("booking_appointments_user_idx").on(t.appId, t.userId, t.startAt),
+    // 86.1 Bookings made in a period.
+    index("booking_appointments_app_created_idx").on(t.appId, t.createdAt),
   ],
 );
 
@@ -816,7 +818,7 @@ export const courseEnrollments = mysqlTable(
     source: varchar("source", { length: 16 }).notNull().$type<"free" | "paid" | "manual">(),
     enrolledAt: time("enrolled_at").notNull(),
   },
-  (t) => [primaryKey({ columns: [t.appId, t.userId, t.courseId] }), index("course_enrollments_course_idx").on(t.appId, t.courseId)],
+  (t) => [primaryKey({ columns: [t.appId, t.userId, t.courseId] }), index("course_enrollments_course_idx").on(t.appId, t.courseId), index("course_enrollments_app_enrolled_idx").on(t.appId, t.enrolledAt)],
 );
 
 export const lessonProgress = mysqlTable(
@@ -1617,7 +1619,7 @@ export const paymentRefunds = mysqlTable(
     byEmail: varchar("by_email", { length: 191 }).notNull(),
     createdAt: time("created_at").notNull(),
   },
-  (t) => [index("payment_refunds_target_idx").on(t.appId, t.kind, t.targetId)],
+  (t) => [index("payment_refunds_target_idx").on(t.appId, t.kind, t.targetId), index("payment_refunds_app_created_idx").on(t.appId, t.createdAt)],
 );
 
 // 51 Videos and pictures hosted by Yallapp: each app's Media library and its storage packs.

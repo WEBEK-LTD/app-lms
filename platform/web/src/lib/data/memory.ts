@@ -3039,6 +3039,19 @@ export class MemoryStore implements DataStore {
     return [...this.hostedUsers.values()].filter((u) => u.appId === appId && within(u.createdAt, from, to)).length;
   }
 
+  async sumRefunds(appId: string, from: Date, to: Date): Promise<PaidTotals> {
+    return paidTotals([...this.refunds.values()].filter((r) => r.appId === appId && within(r.createdAt, from, to)).map((r) => ({ currency: r.currency, cents: r.amountCents })));
+  }
+
+  async countEnrollmentsInWindow(appId: string, from: Date, to: Date): Promise<{ total: number; paid: number }> {
+    const rows = this.courseEnrollments.filter((e) => e.appId === appId && within(e.enrolledAt, from, to));
+    return { total: rows.length, paid: rows.filter((e) => e.source === "paid").length };
+  }
+
+  async countAppointmentsMade(appId: string, from: Date, to: Date): Promise<number> {
+    return [...this.bookingAppointments.values()].filter((a) => a.appId === appId && within(a.createdAt, from, to)).length;
+  }
+
   async countTicketsInWindow(appId: string, from: Date, to: Date): Promise<{ issued: number; checkedIn: number }> {
     const tickets = [...this.tickets.values()].filter((t) => t.appId === appId);
     return {

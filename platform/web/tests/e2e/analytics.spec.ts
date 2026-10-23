@@ -155,6 +155,13 @@ test("Dashboard › Analytics shows the numbers, compared and split", async () =
 
   const products = own.getByRole("region", { name: "Top products" });
   await expect(products.getByRole("row", { name: /Tulip Bouquet/ })).toContainText("2");
+  // 86.1 Sales over the same days: no paid orders yet, so none of the 2 item views converted; a shop has no enrolments.
+  const sales = own.getByRole("region", { name: "Sales", exact: true });
+  await expect(sales.locator('[data-sales="orders"] [data-value]')).toHaveText("0");
+  await expect(sales.locator('[data-sales="revenue"] [data-value]')).toHaveText("0");
+  await expect(sales.locator('[data-sales="conversion"] [data-value]')).toHaveText("0.0%");
+  await expect(sales.locator('[data-sales="conversion"]')).toContainText("Paid orders over 2 item views");
+  await expect(sales.locator('[data-sales="enrolments"]')).toHaveCount(0);
   const funnel = own.getByRole("list", { name: "Conversions" });
   await expect(funnel).toContainText("Viewed");
   await expect(funnel).toContainText("Added to cart");

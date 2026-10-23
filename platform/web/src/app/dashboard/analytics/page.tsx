@@ -10,6 +10,7 @@ import { compactIn } from "@/lib/analytics/format";
 import { loadReport, rangeFrom, RANGE_PRESETS, MIN_SEARCH_COUNT, type AnalyticsReport } from "@/lib/analytics/report";
 import { relabel } from "@/lib/analytics/localize";
 import { analyticsKeep } from "@/lib/analytics/retention";
+import { loadSales } from "@/lib/analytics/sales";
 import { appPlan, effectivePlans } from "@/lib/entitlements";
 import { analyticsEventsKeepText, analyticsKeepText } from "@/components/plan-cards";
 import { funnelWords, itemWord, pushTypeWord } from "@/lib/analytics/words";
@@ -21,6 +22,7 @@ import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
 
+import { SalesTiles } from "./sales";
 import { ZoneForm } from "./zone-form";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -107,7 +109,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
   const plan = await appPlan(store, license, now);
   const kept = analyticsKeep(plan, now, zone, await effectivePlans(store));
   const range = rangeFrom({ range: one(query.range), from: one(query.from), to: one(query.to) }, now, zone, kept.from);
-  const report = await loadReport(store, app.id, range, now, zone);
+  const [report, sales] = await Promise.all([loadReport(store, app.id, range, now, zone), loadSales(store, app, range, zone)]);
   const planName = plan?.name ?? (await effectivePlans(store)).starter.name;
   const items = wordsOf(app).items;
   const funnel = funnelWords(app.appType);
@@ -140,6 +142,13 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
       <Notice>{t("analytics.installsNote")}</Notice>
 
       <KpiTiles report={report} lang={lang} />
+
+      {/* 86.1 What the business sold over the same days. */}
+      {Object.values(sales.shows).some(Boolean) ? (
+        <Section id="sales" titleId="h-sales" title={t("analytics.sales")} description={t("analytics.salesText")}>
+          <SalesTiles sales={sales} days={range.days} text={text} />
+        </Section>
+      ) : null}
 
       {!report.hasData ? <NoData app={app} text={text} /> : null}
 
