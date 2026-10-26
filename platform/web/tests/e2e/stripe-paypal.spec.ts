@@ -7,7 +7,7 @@ import { solidPng } from "./png";
  * 96.1 A shop takes payments with its own Stripe account, then its own PayPal
  * account: the keys are checked and kept, the customer pays on their pages
  * (fakes), and our server reads each payment back (PayPal's captured) before
- * the order is paid. Yallapp never takes the money or a commission.
+ * the order is paid. Yallapp never takes any of the money.
  */
 test.describe.configure({ mode: "serial" });
 const extraHTTPHeaders = { "x-forwarded-for": "203.0.113.196" };
@@ -89,7 +89,7 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   // Stripe: the secret key alone, test or live by its prefix (no switch to tick).
   const payments = page.getByRole("region", { name: "Card payments" });
   await expect(payments).toContainText("iyzico, Kashier, Fawaterk, Stripe or PayPal");
-  await expect(payments).toContainText("Yallapp never takes it or a commission.");
+  await expect(payments).toContainText("Yallapp never takes any of it.");
   await payments.getByLabel("Payment provider").selectOption("stripe");
   await expect(payments.getByLabel("API key")).toHaveCount(0);
   await expect(payments.getByRole("checkbox")).toHaveCount(0);
