@@ -51,6 +51,11 @@ export function totalsOfDay(events: readonly AnalyticsEventRow[]): AnalyticsDail
   const counts = new Map<string, { value: number; label: string | null }>();
   const value = new Map<string, { value: number; label: string | null }>();
   const pushOpens = new Map<string, { installs: Set<string>; label: string | null }>();
+  // 86.2 Where people come from.
+  const stores = new Map<string, { value: number; label: string | null }>();
+  const linkSources = new Map<string, { value: number; label: string | null }>();
+  const campaigns = new Map<string, { value: number; label: string | null }>();
+  const referrers = new Map<string, { value: number; label: string | null }>();
 
   for (const event of sorted) {
     installs.add(event.installId);
@@ -59,7 +64,15 @@ export function totalsOfDay(events: readonly AnalyticsEventRow[]): AnalyticsDail
     switch (event.type) {
       case "app_open":
         sessions += 1;
-        if (event.firstOpen) firstOpens.add(event.installId);
+        if (event.firstOpen && !firstOpens.has(event.installId)) {
+          firstOpens.add(event.installId);
+          bump(stores, event.source ?? "unknown");
+        }
+        break;
+      case "link_open":
+        bump(linkSources, event.source ?? "link");
+        if (event.campaign) bump(campaigns, event.campaign);
+        if (event.referrer) bump(referrers, event.referrer);
         break;
       case "screen_view":
         if (event.screen) bump(screens, event.screen);
@@ -106,6 +119,10 @@ export function totalsOfDay(events: readonly AnalyticsEventRow[]): AnalyticsDail
     ...topRows("screenshot", screenshots),
     ...topRows("event", counts),
     ...topRows("checkout_value", value),
+    ...topRows("install_store", stores),
+    ...topRows("link_source", linkSources),
+    ...topRows("utm_campaign", campaigns),
+    ...topRows("utm_source", referrers),
   ];
   for (const [key, entry] of pushOpens) rows.push({ metric: "push_open", key, label: entry.label, value: entry.installs.size });
   return rows;

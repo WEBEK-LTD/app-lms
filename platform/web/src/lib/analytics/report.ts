@@ -107,6 +107,57 @@ export interface AnalyticsReport {
   searches: { query: string; count: number }[];
   /** 62 Screenshots of protected content, by lesson (`kind` "other": elsewhere in the app), the most first. */
   screenshots: { kind: AnalyticsItemKind | "other"; id: string; title: string; count: number }[];
+  /** 86.2 Where people come from. */
+  sources: SourcesReport;
+}
+
+/** The ways into the app, keys of `SourcesReport.opens`. */
+export const OPEN_SOURCES = ["push", "link", "qr", "direct"] as const;
+export type OpenSource = (typeof OPEN_SOURCES)[number];
+
+export interface SourcesReport {
+  /** First opens by the store the app came from (labels are the stores' names). */
+  installs: Share[];
+  /** Sessions by how they began: a notification, a link, a QR code, or the app opened on its own (the rest). */
+  opens: (Share & { key: OpenSource })[];
+  /** Links opened by their `utm_campaign` and `utm_source`, the most first. */
+  campaigns: { name: string; opens: number }[];
+  referrers: { name: string; opens: number }[];
+}
+
+const STORE_NAMES: Record<string, string> = {
+  google_play: "Google Play",
+  app_store: "App Store",
+  galaxy_store: "Galaxy Store",
+  appgallery: "AppGallery",
+  testflight: "TestFlight",
+  other: "Other",
+  unknown: "Unknown",
+};
+
+/** 86.2 Where people come from, from the range's daily totals (pure). */
+export function sourcesOf(current: AnalyticsDailyRecord[], sessions: number): SourcesReport {
+  const links = sumBy(current, "link_source");
+  const counted = {
+    push: sumBy(current, "event").get("push_open") ?? 0,
+    link: links.get("link") ?? 0,
+    qr: links.get("qr") ?? 0,
+  };
+  // A notification or a link may open an app already running: the rest of the sessions are never below 0.
+  const direct = Math.max(0, sessions - counted.push - counted.link - counted.qr);
+  const values: Record<OpenSource, number> = { ...counted, direct };
+  const total = OPEN_SOURCES.reduce((sum, key) => sum + values[key], 0);
+  const top = (map: Map<string, number>) =>
+    [...map.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .slice(0, TOP)
+      .map(([name, opens]) => ({ name, opens }));
+  return {
+    installs: shares(sumBy(current, "install_store"), (k) => STORE_NAMES[k] ?? k),
+    opens: total === 0 ? [] : OPEN_SOURCES.filter((key) => values[key] > 0).map((key) => ({ key, label: key, value: values[key], share: values[key] / total })),
+    campaigns: top(sumBy(current, "utm_campaign")),
+    referrers: top(sumBy(current, "utm_source")),
+  };
 }
 
 /** A search shows only once it was made at least this many times in the range. */
@@ -296,6 +347,7 @@ export function buildReport(
     pushFromSite,
     searches,
     screenshots,
+    sources: sourcesOf(current, kpis.sessions),
   };
 }
 

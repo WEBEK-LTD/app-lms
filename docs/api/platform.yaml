@@ -1203,6 +1203,16 @@ components:
       description: |
         One thing that happened in the app. Which fields go with which type:
         - `app_open`: `first_open` (true once per install). Each is a session.
+          With `first_open`, also `store` (roadmap 86.2): the store the app
+          was installed from, as the phone tells it (Android's installer;
+          an iPhone's App Store or TestFlight receipt), `other` for
+          anything else (a file, a phone maker's own store).
+        - `link_open` (roadmap 86.2): the app opened from one of its links
+          (`docs/api/app-links.json`) tapped outside it. `source` is `qr`
+          when the link says `utm_medium=qr` (the dashboard's QR codes),
+          `link` otherwise; `campaign` and `referrer` are the link's
+          `utm_campaign` and `utm_source`, in lower case, when they fit the
+          pattern. Nothing else of the link is sent.
         - `screen_view`: `screen`, the kind of screen (`home`, `course`,
           `cart`, `search`…), never an address with IDs in it.
         - `item_view`: `item_kind`, `item_id` and `title` (the name when it
@@ -1226,7 +1236,7 @@ components:
       properties:
         type:
           type: string
-          enum: [app_open, screen_view, item_view, add_to_cart, purchase_click, enroll, book, donate, ticket, search, push_open, share, screenshot]
+          enum: [app_open, screen_view, item_view, add_to_cart, purchase_click, enroll, book, donate, ticket, search, push_open, share, screenshot, link_open]
         at: { type: string, format: date-time, description: When it happened on the phone. }
         first_open: { type: boolean }
         screen: { type: string, pattern: '^[a-z][a-z0-9_]{0,39}$' }
@@ -1240,6 +1250,14 @@ components:
         query: { type: string, maxLength: 80 }
         notification_id: { type: string, maxLength: 64 }
         push_type: { type: string, pattern: '^[a-z][a-z0-9_]{0,31}$' }
+        store:
+          type: string
+          enum: [google_play, app_store, galaxy_store, appgallery, testflight, other]
+        source:
+          type: string
+          enum: [link, qr]
+        campaign: { type: string, pattern: '^[a-z0-9][a-z0-9._-]{0,39}$' }
+        referrer: { type: string, pattern: '^[a-z0-9][a-z0-9._-]{0,39}$' }
 
     Translations:
       type: object

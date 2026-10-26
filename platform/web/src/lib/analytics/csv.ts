@@ -43,6 +43,12 @@ export interface CsvWords {
   fromSite: string;
   searches: string;
   screenshots: string;
+  /** 86.2 Where people come from. */
+  installStores: string;
+  opens: string;
+  openSource: (key: string) => string;
+  campaigns: string;
+  referrers: string;
   /** "Elsewhere in the app": screenshots outside a lesson. */
   otherProtected: string;
   /** An item's kind ("Course"). */
@@ -92,6 +98,11 @@ export const ENGLISH_CSV_WORDS: CsvWords = {
   searches: "Searches",
   screenshots: "Screenshots taken",
   otherProtected: "Elsewhere in the app",
+  installStores: "Installs by store",
+  opens: "Opens",
+  openSource: (key) => ({ push: "From a notification", link: "From a link", qr: "From a QR code", direct: "On their own" })[key] ?? key,
+  campaigns: "Campaigns",
+  referrers: "Referrers",
   itemWord: (kind) => kind,
   pushType: (type) => type,
 };
@@ -134,6 +145,14 @@ export function reportCsv(report: AnalyticsReport, itemWord: (kind: string) => s
   // 62 Screenshots of protected lessons (iPhone only).
   for (const shot of report.screenshots ?? []) {
     rows.push([w.screenshots, shot.kind === "other" ? w.otherProtected : shot.title, shot.kind === "other" ? null : `${w.itemWord(shot.kind)} ${shot.id}`, shot.count, null]);
+  }
+  // 86.2 Where people come from.
+  const sources = report.sources;
+  if (sources) {
+    for (const s of sources.installs) rows.push([w.installStores, s.label, null, s.value, null]);
+    for (const s of sources.opens) rows.push([w.opens, w.openSource(s.key), null, s.value, null]);
+    for (const c of sources.campaigns) rows.push([w.campaigns, c.name, null, c.opens, null]);
+    for (const r of sources.referrers) rows.push([w.referrers, r.name, null, r.opens, null]);
   }
   return `${rows.map((row) => row.map(csvCell).join(",")).join("\r\n")}\r\n`;
 }

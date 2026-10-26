@@ -89,7 +89,7 @@ import type { EventSettings, EventStatus, TicketStatus } from "../data/types";
 // 29 Charity & donations
 import type { CampaignStatus, DonationRecurring, DonationSettings, DonationStatus } from "../data/types";
 // 44 Analytics
-import type { AnalyticsEventType, AnalyticsItemKind, AnalyticsMetric } from "../analytics/types";
+import type { AnalyticsEventType, AnalyticsItemKind, AnalyticsMetric, InstallStore, LinkSource } from "../analytics/types";
 // 14.1 We publish for you
 import type { PublishingChecklist, PublishingListing, PublishingMode, PublishingStatus, PublishingStore } from "../data/types";
 import type { AppErrorSource, MilestoneKind, ProductDay, SignupSource, TeamAlertKind, WatchedJob } from "../data/types";
@@ -1514,6 +1514,10 @@ export const analyticsEvents = mysqlTable(
     currency: varchar("currency", { length: 3 }),
     notificationId: varchar("notification_id", { length: 64 }),
     pushType: varchar("push_type", { length: 32 }),
+    // 86.2 The store of a first open, or how a link came (link, qr); a link's campaign and referrer.
+    source: varchar("source", { length: 16 }).$type<InstallStore | LinkSource>(),
+    campaign: varchar("campaign", { length: 40 }),
+    referrer: varchar("referrer", { length: 40 }),
   },
   (t) => [index("analytics_events_app_day_idx").on(t.appId, t.day, t.installId), index("analytics_events_day_idx").on(t.day)],
 );
