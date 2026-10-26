@@ -1015,6 +1015,26 @@ export interface CatalogOrder {
   refundedCents?: number;
   /** 80.4 How the shop shipped it (any carrier, any country); null or missing until it is shipped. */
   shipment?: OrderShipment | null;
+  /** 91.1 The coupon applied to it, and what it took off the subtotal; missing: none. */
+  couponCode?: string | null;
+  discountCents?: number;
+}
+
+/** 91.1 A coupon of a shop without a website: a share or an amount off the subtotal. */
+export interface CatalogCoupon {
+  id: number;
+  appId: string;
+  /** Upper case, letters, digits and dashes. */
+  code: string;
+  kind: "percent" | "amount";
+  /** 1–100 for a percentage, cents for an amount. */
+  value: number;
+  minOrderCents: number | null;
+  endsAt: Date | null;
+  maxUses: number | null;
+  usedCount: number;
+  active: boolean;
+  createdAt: Date;
 }
 
 /**

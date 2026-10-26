@@ -101,6 +101,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                     {l.name} × {l.quantity}
                   </li>
                 ))}
+                {order.discountCents ? <li className="text-muted">{t("orders.coupon", { code: order.couponCode ?? "", amount: formatCents(order.discountCents, order.currency) })}</li> : null}
                 {order.shippingCents > 0 ? <li className="text-muted">{t("orders.shipping", { amount: formatCents(order.shippingCents, order.currency) })}</li> : null}
               </ul>
               {order.commissionCents !== null ? (

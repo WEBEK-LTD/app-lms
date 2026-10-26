@@ -3882,4 +3882,47 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get courseMembershipWebsite => 'Üyelikleri web sitesinde gör';
+
+  @override
+  String get couponHave => 'Kuponunuz mu var?';
+
+  @override
+  String get couponCode => 'Kupon kodu';
+
+  @override
+  String get couponApply => 'Uygula';
+
+  @override
+  String get couponRemove => 'Kuponu kaldır';
+
+  @override
+  String couponApplied(String code) {
+    return '$code uygulandı';
+  }
+
+  @override
+  String couponAtCheckout(String code) {
+    return '$code ödeme adımında uygulanır.';
+  }
+
+  @override
+  String couponNotApplied(String code) {
+    return '$code geçerli değil.';
+  }
+
+  @override
+  String get cartDiscount => 'İndirim';
+
+  @override
+  String get cartShipping => 'Kargo';
+
+  @override
+  String get cartTaxes => 'Vergiler';
+
+  @override
+  String get cartTotal => 'Toplam';
+
+  @override
+  String get plusShippingAtCheckout =>
+      'Kargo ve vergiler ödeme adımında eklenir.';
 }

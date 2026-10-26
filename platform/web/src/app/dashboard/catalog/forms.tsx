@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import {
+  addCouponAction,
   addCategoryAction,
   saveFulfilmentAction,
   savePaymentKeysAction,
@@ -430,6 +431,42 @@ export function FulfilmentForm({ current, timezones, currency }: { current: Reco
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText={t("common.saving")}>
           {t("shop.saveFulfilment")}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 91.1 A new coupon: a code, a share or an amount off, and its limits. */
+export function CouponForm({ currency }: { currency: string }) {
+  const t = useDashT();
+  const [state, action] = useActionState(addCouponAction, initialFormState);
+  const v = state.values ?? {};
+  const e = state.errors ?? {};
+  return (
+    <form action={action} noValidate className="flex flex-col gap-3" key={state.ok ? state.message : "coupon"}>
+      <FormMessage message={state.message} ok={state.ok} />
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Field label={t("shop.couponCode")} id="f-coupon-code" name="code" placeholder="SPRING10" dir="ltr" defaultValue={v.code} error={e.code} small />
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="f-coupon-kind" className="text-sm font-semibold">
+            {t("shop.couponKind")}
+          </label>
+          <select id="f-coupon-kind" name="kind" defaultValue={v.kind ?? "percent"} className="input input-sm">
+            <option value="percent">{t("shop.couponPercent")}</option>
+            <option value="amount">{t("shop.couponAmount", { currency })}</option>
+          </select>
+        </div>
+        <Field label={t("shop.couponValue")} id="f-coupon-value" name="value" inputMode="decimal" defaultValue={v.value} error={e.value} small />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Field label={t("shop.couponMinOrder", { currency })} id="f-coupon-min-order" name="minOrder" inputMode="decimal" defaultValue={v.minOrder} hint={t("shop.optional")} error={e.minOrder} small />
+        <Field label={t("shop.couponEndsOn")} id="f-coupon-ends-on" name="endsOn" type="date" defaultValue={v.endsOn} hint={t("shop.optional")} error={e.endsOn} small />
+        <Field label={t("shop.couponMaxUses")} id="f-coupon-max-uses" name="maxUses" inputMode="numeric" defaultValue={v.maxUses} hint={t("shop.couponMaxUsesHint")} error={e.maxUses} small />
+      </div>
+      <div className="flex justify-end">
+        <SubmitButton variant="secondary" className="h-10">
+          {t("shop.addCoupon")}
         </SubmitButton>
       </div>
     </form>

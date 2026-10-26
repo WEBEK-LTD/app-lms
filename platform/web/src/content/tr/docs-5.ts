@@ -29,6 +29,12 @@ Her ürünün paylaşabileceğiniz kendi web sayfası da vardır.
 
 Fiziksel ürün içeren siparişler için bir **Kargo ücreti** belirleyin (ücretsiz kargo için boş bırakın) ve isteğe bağlı olarak belirli bir sipariş tutarından itibaren **Ücretsiz kargo** sunun.
 
+## Kuponlar
+
+**Ürünler** sayfasındaki **Kuponlar** bölümünde, müşterilerinizin uygulamanın sepetine yazacağı SPRING10 gibi kodlar ekleyin: ürünlerden **Yüzde indirim** ya da **Tutar indirimi** (kargo aynı kalır), isteğe bağlı **En az sipariş**, **Son gün** ve **Kullanım** sayısıyla. Sepet, kuponun ne kadar indirim yaptığını ve toplamı ya da neden geçerli olmadığını gösterir; ödeme sayfası indirim düşülmüş toplamı tahsil eder. Ödenen her sipariş bir kullanım sayılır. **Kapat** kuponu şimdilik durdurur; siparişler kullanılan kuponu gösterir.
+
+WooCommerce'e bağlı uygulamalar WooCommerce kuponlarınızla aynı şekilde çalışır: sepet kodu kontrol eder, ödeme sayfanız uygular (Yallapp eklentisi 0.4.15 veya sonrası). Shopify'daki uygulamalar kodu siparişle birlikte mağazanızın ödeme sayfasına gönderir; diğer bağlı platformlarda sepet, müşterilere kodu ödeme adımında girmelerini hatırlatır.
+
 ## Ödemeler
 
 Müşteriler, sağlayıcınızın (iyzico, Kashier veya Fawaterk) güvenli sayfasında kartla öder. Kendi anahtarlarınızı ekleyin: [Kartla ödemeler](/docs/card-payments) sayfasına bakın.

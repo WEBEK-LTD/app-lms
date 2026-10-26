@@ -2866,5 +2866,50 @@
     }
   },
   "courseMembershipAny": "This course comes with a membership on our website.",
-  "courseMembershipWebsite": "See memberships on the website"
+  "courseMembershipWebsite": "See memberships on the website",
+  "couponHave": "Have a coupon?",
+  "@couponHave": {
+    "description": "91.1 The cart's button that shows the coupon field."
+  },
+  "couponCode": "Coupon code",
+  "couponApply": "Apply",
+  "couponRemove": "Remove coupon",
+  "couponApplied": "{code} applied",
+  "@couponApplied": {
+    "description": "91.1 Under the coupon in the cart when it takes money off.",
+    "placeholders": {
+      "code": {
+        "type": "String",
+        "example": "SPRING10"
+      }
+    }
+  },
+  "couponAtCheckout": "{code} is applied at checkout.",
+  "@couponAtCheckout": {
+    "description": "91.1 The shop checks coupons only on its own checkout.",
+    "placeholders": {
+      "code": {
+        "type": "String",
+        "example": "SPRING10"
+      }
+    }
+  },
+  "couponNotApplied": "{code} doesn't apply.",
+  "@couponNotApplied": {
+    "description": "91.1 Shown when the shop gives no reason.",
+    "placeholders": {
+      "code": {
+        "type": "String",
+        "example": "SPRING10"
+      }
+    }
+  },
+  "cartDiscount": "Discount",
+  "cartShipping": "Shipping",
+  "cartTaxes": "Taxes",
+  "cartTotal": "Total",
+  "plusShippingAtCheckout": "Plus shipping and taxes at checkout.",
+  "@plusShippingAtCheckout": {
+    "description": "91.1 Under the cart's total when the checkout still adds to it."
+  }
 }

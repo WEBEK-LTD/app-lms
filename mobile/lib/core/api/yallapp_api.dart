@@ -562,8 +562,9 @@ abstract class YallappApi {
   Future<ProductDetail> getProduct(int productId);
   Future<ReviewPage> listProductReviews(int productId, {int page = 1});
 
-  /// Prices the app's cart as the shop sees it now.
-  Future<CartQuote> quoteCart(List<CartLineInput> lines);
+  /// Prices the app's cart as the shop sees it now, with the coupon the
+  /// customer typed (91.1).
+  Future<CartQuote> quoteCart(List<CartLineInput> lines, {String? coupon});
 
   /// A one-time link that fills the shop's cart and opens its checkout.
   /// Signed-in customers are signed in on the site; guests only when the
@@ -575,6 +576,7 @@ abstract class YallappApi {
     FulfilmentType? fulfilment,
     DeliveryAddress? deliveryAddress,
     DateTime? scheduledFor,
+    String? coupon,
   });
 
   /// 26 Whether a restaurant's kitchen is open and when an order can be for.
@@ -1437,16 +1439,18 @@ class HttpYallappApi implements YallappApi {
   );
 
   @override
-  Future<CartQuote> quoteCart(List<CartLineInput> lines) => _send(
-    'POST',
-    '/store/cart',
-    _optional,
-    (data) => CartQuote.fromJson(asJson(data)),
-    body: {
-      'lines': [for (final l in lines) l.toJson()],
-    },
-    query: {'platform': platform.name},
-  );
+  Future<CartQuote> quoteCart(List<CartLineInput> lines, {String? coupon}) =>
+      _send(
+        'POST',
+        '/store/cart',
+        _optional,
+        (data) => CartQuote.fromJson(asJson(data)),
+        body: {
+          'lines': [for (final l in lines) l.toJson()],
+          'coupon': ?coupon,
+        },
+        query: {'platform': platform.name},
+      );
 
   @override
   Future<CheckoutLink> createStoreCheckoutLink(
@@ -1456,6 +1460,7 @@ class HttpYallappApi implements YallappApi {
     FulfilmentType? fulfilment,
     DeliveryAddress? deliveryAddress,
     DateTime? scheduledFor,
+    String? coupon,
   }) => preview
       ? _noCheckoutInPreview()
       : _send(
@@ -1474,6 +1479,7 @@ class HttpYallappApi implements YallappApi {
               'delivery_address': deliveryAddress.toJson(),
             if (scheduledFor != null)
               'scheduled_for': scheduledFor.toUtc().toIso8601String(),
+            'coupon': ?coupon,
           },
           query: {'platform': platform.name},
         );

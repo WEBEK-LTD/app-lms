@@ -1036,5 +1036,17 @@
   "courseMembershipTitle": "Üyelere özel",
   "courseMembershipPlans": "Bu kurs web sitemizdeki bir üyelikle birlikte gelir: {plans}.",
   "courseMembershipAny": "Bu kurs web sitemizdeki bir üyelikle birlikte gelir.",
-  "courseMembershipWebsite": "Üyelikleri web sitesinde gör"
+  "courseMembershipWebsite": "Üyelikleri web sitesinde gör",
+  "couponHave": "Kuponunuz mu var?",
+  "couponCode": "Kupon kodu",
+  "couponApply": "Uygula",
+  "couponRemove": "Kuponu kaldır",
+  "couponApplied": "{code} uygulandı",
+  "couponAtCheckout": "{code} ödeme adımında uygulanır.",
+  "couponNotApplied": "{code} geçerli değil.",
+  "cartDiscount": "İndirim",
+  "cartShipping": "Kargo",
+  "cartTaxes": "Vergiler",
+  "cartTotal": "Toplam",
+  "plusShippingAtCheckout": "Kargo ve vergiler ödeme adımında eklenir."
 }

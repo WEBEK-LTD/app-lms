@@ -92,11 +92,12 @@ class Checkout {
 	/**
 	 * Prices the app's cart: current prices, stock and quantity limits.
 	 *
-	 * @param array  $lines    CartInput lines.
-	 * @param string $platform android or ios.
+	 * @param array       $lines    CartInput lines.
+	 * @param string      $platform android or ios.
+	 * @param string|null $coupon   91.1 The coupon the customer typed.
 	 * @return array Cart shape.
 	 */
-	public function quote( array $lines, $platform ) {
+	public function quote( array $lines, $platform, $coupon = null ) {
 		$decimals = wc_get_price_decimals();
 		$items    = array();
 		$count    = 0;
@@ -126,12 +127,23 @@ class Checkout {
 				'digital'      => $product ? Catalog::is_digital( $product ) : false,
 			);
 		}
+		// 91.1 The coupon, and the total so far: shipping and taxes come from the checkout's address.
+		$checked = null !== $coupon && '' !== trim( (string) $coupon ) ? Coupon_Quote::check( $coupon, $subtotal, $count ) : null;
+		$off     = $checked ? (float) $checked['discount'] : 0.0;
+		$total   = max( 0.0, $subtotal - $off );
 		return array(
 			'lines'           => $items,
 			'item_count'      => $count,
 			'subtotal'        => Money::plain( wc_price( $subtotal ) ),
 			'subtotal_amount' => number_format( $subtotal, $decimals, '.', '' ),
 			'currency'        => (string) get_woocommerce_currency(),
+			'coupon'          => $checked ? $checked['json'] : null,
+			'discount'        => $off > 0 ? Money::plain( wc_price( $off ) ) : null,
+			'shipping'        => null,
+			'tax'             => null,
+			'total'           => Money::plain( wc_price( $total ) ),
+			'total_amount'    => number_format( $total, $decimals, '.', '' ),
+			'total_final'     => false,
 		);
 	}
 
@@ -141,10 +153,12 @@ class Checkout {
 	 * @param int    $user_id  Signed-in customer, or 0.
 	 * @param array  $lines    CartInput lines.
 	 * @param string $platform android or ios.
-	 * @param array  $extras   delivery_date, gift_message.
+	 * @param array  $extras   delivery_date, gift_message, 91.1 coupon.
 	 * @return array|WP_Error {url, expires_at, open_in}
 	 */
 	public function link( $user_id, array $lines, $platform, array $extras ) {
+		$coupon = isset( $extras['coupon'] ) && is_string( $extras['coupon'] ) ? wc_format_coupon_code( $extras['coupon'] ) : '';
+		unset( $extras['coupon'] );
 		if ( ! $user_id && 'yes' !== get_option( 'woocommerce_enable_guest_checkout' ) ) {
 			return new WP_Error( 'unauthorized', __( 'Please sign in to check out.', 'yallapp' ), array( 'status' => 401 ) );
 		}
@@ -193,6 +207,7 @@ class Checkout {
 				'user_id'  => (int) $user_id,
 				'lines'    => $filled,
 				'extras'   => $extras,
+				'coupon'   => $coupon,
 				'app_view' => $app_view,
 			),
 			Magic_Links::TTL
@@ -232,6 +247,10 @@ class Checkout {
 		WC()->cart->empty_cart();
 		foreach ( $cart['lines'] as $line ) {
 			WC()->cart->add_to_cart( $line['product_id'], $line['quantity'], $line['variation_id'], $line['attributes'] );
+		}
+		// 91.1 The app's coupon, as WooCommerce's checkout applies it (it says so when it can't).
+		if ( ! empty( $cart['coupon'] ) ) {
+			WC()->cart->apply_coupon( (string) $cart['coupon'] );
 		}
 		WC()->session->set( self::SESSION_DELIVERY, $cart['extras']['delivery_date'] );
 		WC()->session->set( self::SESSION_GIFT, $cart['extras']['gift_message'] );

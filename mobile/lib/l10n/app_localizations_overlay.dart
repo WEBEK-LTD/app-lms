@@ -4020,4 +4020,47 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get courseMembershipWebsite =>
       overlay.text('courseMembershipWebsite') ?? base.courseMembershipWebsite;
+
+  @override
+  String get couponHave => overlay.text('couponHave') ?? base.couponHave;
+
+  @override
+  String get couponCode => overlay.text('couponCode') ?? base.couponCode;
+
+  @override
+  String get couponApply => overlay.text('couponApply') ?? base.couponApply;
+
+  @override
+  String get couponRemove => overlay.text('couponRemove') ?? base.couponRemove;
+
+  @override
+  String couponApplied(String code) =>
+      overlay.format('couponApplied', {'code': code}) ??
+      base.couponApplied(code);
+
+  @override
+  String couponAtCheckout(String code) =>
+      overlay.format('couponAtCheckout', {'code': code}) ??
+      base.couponAtCheckout(code);
+
+  @override
+  String couponNotApplied(String code) =>
+      overlay.format('couponNotApplied', {'code': code}) ??
+      base.couponNotApplied(code);
+
+  @override
+  String get cartDiscount => overlay.text('cartDiscount') ?? base.cartDiscount;
+
+  @override
+  String get cartShipping => overlay.text('cartShipping') ?? base.cartShipping;
+
+  @override
+  String get cartTaxes => overlay.text('cartTaxes') ?? base.cartTaxes;
+
+  @override
+  String get cartTotal => overlay.text('cartTotal') ?? base.cartTotal;
+
+  @override
+  String get plusShippingAtCheckout =>
+      overlay.text('plusShippingAtCheckout') ?? base.plusShippingAtCheckout;
 }

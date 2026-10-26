@@ -6,6 +6,7 @@ import { actorOf, clientFor, mayUseDashboard, type ClientContext } from "@/lib/a
 import { recordOrderStatus } from "@/lib/team/activity";
 import type { TeamPermission } from "@/lib/team/permissions";
 import { getBlobStore } from "@/lib/blobs";
+import { parseCoupon } from "@/lib/catalog/coupons";
 import { parseFulfilmentForm } from "@/lib/catalog/fulfilment";
 import { changeOrderStatus, inKitchen } from "@/lib/catalog/order-status";
 import { parseShipment, shipOrder, shippable } from "@/lib/catalog/shipping";
@@ -205,6 +206,31 @@ export async function saveShopSettingsAction(_: FormState, formData: FormData): 
   );
   refresh();
   return { ok: true, message: "Shop settings saved.", values };
+}
+
+/** 91.1 A coupon for the shop's customers. */
+export async function addCouponAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { app } = await requireCatalogApp();
+  const values = { code: str(formData, "code"), kind: str(formData, "kind"), value: str(formData, "value"), minOrder: str(formData, "minOrder"), endsOn: str(formData, "endsOn"), maxUses: str(formData, "maxUses") };
+  const now = new Date();
+  const parsed = parseCoupon(values, now);
+  if (!parsed.ok) return { errors: parsed.errors, values };
+  const created = await (await getStore()).createCatalogCoupon({ appId: app.id, ...parsed.value, active: true, createdAt: now });
+  if (!created) return { errors: { code: "You already have a coupon with this code." }, values };
+  refresh();
+  return { ok: true, message: `Added the coupon ${created.code}.` };
+}
+
+export async function setCouponActiveAction(formData: FormData): Promise<void> {
+  const { app } = await requireCatalogApp();
+  await (await getStore()).setCatalogCouponActive(app.id, Number(formData.get("id")), formData.get("active") === "on");
+  refresh();
+}
+
+export async function deleteCouponAction(formData: FormData): Promise<void> {
+  const { app } = await requireCatalogApp();
+  await (await getStore()).deleteCatalogCoupon(app.id, Number(formData.get("id")));
+  refresh();
 }
 
 /** 26 A restaurant's pickup and delivery: hours, fees, areas and order times. */

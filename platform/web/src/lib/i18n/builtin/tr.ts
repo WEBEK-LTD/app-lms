@@ -569,4 +569,10 @@ export const SERVER_MESSAGES_TR: Record<string, string> = {
   "Your membership has no classes left.": "Üyeliğinizde ders hakkı kalmadı.",
   "Your session has ended. Please sign in again.": "Oturumunuz sona erdi. Lütfen tekrar giriş yapın.",
   "Your verification has expired. Please start again.": "Doğrulamanızın süresi doldu. Lütfen baştan başlayın.",
+  "This coupon doesn't exist.": "Bu kupon bulunamadı.",
+  "This coupon has expired.": "Bu kuponun süresi doldu.",
+  "This coupon has been used up.": "Bu kuponun kullanım hakkı doldu.",
+  "This coupon is for orders of {0} or more.": "Bu kupon {0} ve üzeri siparişler içindir.",
+  "Enter this code at checkout.": "Bu kodu ödeme adımında girin.",
+  "This code goes with your order to the checkout.": "Bu kod siparişinizle birlikte ödeme sayfasına gider.",
 };

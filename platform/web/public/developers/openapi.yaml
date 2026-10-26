@@ -2403,6 +2403,10 @@ paths:
         checkout's last page has `order-received` or `thank_you` in its
         address, so the app knows the order was placed.
 
+        A `coupon` (91.1) goes with the order: applied on the site's checkout
+        (WooCommerce, or a connected platform's discount link) or on our payment
+        page; one that doesn't apply any more is left out, never an error.
+
         Fails with `cart_changed` (409) when a line is no longer available,
         with `one_product_at_a_time` (409) when the shop's checkout can only
         take one product from the app (show the message), and with
@@ -5384,6 +5388,12 @@ components:
                 maxItems: 50
                 description: The `id`s of the chosen options of the product's `option_groups`. Lines of the same product with other options are separate lines.
                 items: { type: string, maxLength: 64 }
+        coupon:
+          type: [string, 'null']
+          maxLength: 50
+          description: >-
+            Roadmap 91.1. A coupon code the customer typed. The cart says whether it
+            applies (`Cart.coupon`); the checkout link carries it to the checkout.
 
     Cart:
       type: object
@@ -5420,6 +5430,31 @@ components:
         subtotal: { type: string, description: "Formatted, before shipping, taxes and coupons.", example: ₺900.00 }
         subtotal_amount: { type: string, example: '900.00' }
         currency: { type: string, example: TRY }
+        coupon:
+          type: [object, 'null']
+          description: >-
+            Roadmap 91.1. The coupon of `CartInput.coupon`: `applied` with its discount,
+            `invalid` with why (show `message`), or `at_checkout` when the shop checks
+            coupons only on its own checkout (connected platforms). Null without one.
+          required: [code, status, message]
+          properties:
+            code: { type: string, example: SPRING10 }
+            status: { type: string, enum: [applied, invalid, at_checkout] }
+            message: { type: [string, 'null'], example: This coupon has expired. }
+        discount: { type: [string, 'null'], description: "Roadmap 91.1. Formatted coupon discount; null without one.", example: ₺90.00 }
+        shipping:
+          type: [string, 'null']
+          description: "Roadmap 91.1. Formatted shipping; null when the checkout works it out (from the address). `₺0.00` is free shipping."
+          example: ₺35.00
+        tax: { type: [string, 'null'], description: "Roadmap 91.1. Formatted taxes added to the prices; null when none are added or the checkout works them out." }
+        total: { type: string, description: "Roadmap 91.1. Formatted: the subtotal less the discount, plus shipping and taxes when known. Missing on older servers.", example: ₺845.00 }
+        total_amount: { type: string, example: '845.00' }
+        total_final:
+          type: boolean
+          description: >-
+            Roadmap 91.1. True when `total` is what the customer pays; false when the
+            checkout still adds shipping or taxes (the cart says "plus shipping at
+            checkout"). Missing on older servers means false.
 
     BookingsConfig:
       type: object

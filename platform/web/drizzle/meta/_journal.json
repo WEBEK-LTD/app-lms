@@ -554,6 +554,13 @@
       "when": 1792999777136,
       "tag": "0078_quiz_attempts",
       "breakpoints": true
+    },
+    {
+      "idx": 79,
+      "version": "5",
+      "when": 1793004029014,
+      "tag": "0079_catalog_coupons",
+      "breakpoints": true
     }
   ]
 }

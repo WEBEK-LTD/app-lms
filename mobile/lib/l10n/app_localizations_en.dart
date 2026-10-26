@@ -3876,4 +3876,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get courseMembershipWebsite => 'See memberships on the website';
+
+  @override
+  String get couponHave => 'Have a coupon?';
+
+  @override
+  String get couponCode => 'Coupon code';
+
+  @override
+  String get couponApply => 'Apply';
+
+  @override
+  String get couponRemove => 'Remove coupon';
+
+  @override
+  String couponApplied(String code) {
+    return '$code applied';
+  }
+
+  @override
+  String couponAtCheckout(String code) {
+    return '$code is applied at checkout.';
+  }
+
+  @override
+  String couponNotApplied(String code) {
+    return '$code doesn\'t apply.';
+  }
+
+  @override
+  String get cartDiscount => 'Discount';
+
+  @override
+  String get cartShipping => 'Shipping';
+
+  @override
+  String get cartTaxes => 'Taxes';
+
+  @override
+  String get cartTotal => 'Total';
+
+  @override
+  String get plusShippingAtCheckout => 'Plus shipping and taxes at checkout.';
 }

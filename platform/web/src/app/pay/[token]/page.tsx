@@ -88,6 +88,13 @@ export default async function PayPage({
               <span className="shrink-0">{money(line.unitCents * line.quantity)}</span>
             </li>
           ))}
+          {/* 91.1 The coupon applied. */}
+          {order.discountCents ? (
+            <li className="flex justify-between gap-3 text-[15px]">
+              <span>Coupon {order.couponCode}</span>
+              <span>-{money(order.discountCents)}</span>
+            </li>
+          ) : null}
           {order.shippingCents > 0 ? (
             <li className="flex justify-between gap-3 text-[15px]">
               <span>{order.fulfilment ? "Delivery fee" : "Shipping"}</span>

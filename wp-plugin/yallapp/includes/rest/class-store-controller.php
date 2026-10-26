@@ -96,6 +96,11 @@ class Store_Controller extends Controller {
 		);
 		$cart_args = array(
 			'platform' => self::platform_arg(),
+			// 91.1 A coupon code the customer typed.
+			'coupon'   => array(
+				'type'      => array( 'string', 'null' ),
+				'maxLength' => 50,
+			),
 			'lines'    => array(
 				'type'     => 'array',
 				'required' => true,
@@ -331,7 +336,7 @@ class Store_Controller extends Controller {
 		if ( ! Catalog::available() ) {
 			return self::unavailable();
 		}
-		return $this->ok( $this->plugin->store_checkout()->quote( (array) $request['lines'], (string) $request['platform'] ) );
+		return $this->ok( $this->plugin->store_checkout()->quote( (array) $request['lines'], (string) $request['platform'], $request['coupon'] ) );
 	}
 
 	/**
@@ -352,6 +357,7 @@ class Store_Controller extends Controller {
 				array(
 					'delivery_date' => $request['delivery_date'],
 					'gift_message'  => $request['gift_message'],
+					'coupon'        => $request['coupon'],
 				)
 			)
 		);

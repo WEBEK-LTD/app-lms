@@ -456,6 +456,12 @@ class CartQuote {
     required this.subtotal,
     required this.subtotalAmount,
     required this.currency,
+    this.coupon,
+    this.discount,
+    this.shipping,
+    this.tax,
+    this.total,
+    this.totalFinal = false,
   });
 
   factory CartQuote.fromJson(Json json) => CartQuote(
@@ -464,6 +470,12 @@ class CartQuote {
     subtotal: reqString(json, 'subtotal'),
     subtotalAmount: reqString(json, 'subtotal_amount'),
     currency: reqString(json, 'currency'),
+    coupon: optObject(json, 'coupon', CartCoupon.fromJson),
+    discount: optString(json, 'discount'),
+    shipping: optString(json, 'shipping'),
+    tax: optString(json, 'tax'),
+    total: optString(json, 'total'),
+    totalFinal: boolOr(json, 'total_final', false),
   );
 
   final List<CartQuoteLine> lines;
@@ -471,6 +483,44 @@ class CartQuote {
   final String subtotal;
   final String subtotalAmount;
   final String currency;
+
+  /// 91.1 The coupon the customer typed, and whether it applies.
+  final CartCoupon? coupon;
+
+  /// 91.1 Formatted; null without a coupon.
+  final String? discount;
+
+  /// 91.1 Formatted; null when the checkout works it out.
+  final String? shipping;
+  final String? tax;
+
+  /// 91.1 The subtotal less the discount, plus shipping and taxes when
+  /// known. Null on older servers.
+  final String? total;
+
+  /// 91.1 False when the checkout still adds shipping or taxes.
+  final bool totalFinal;
+}
+
+enum CouponStatus { applied, invalid, atCheckout }
+
+/// 91.1 A coupon code in the cart.
+class CartCoupon {
+  const CartCoupon({required this.code, required this.status, this.message});
+
+  factory CartCoupon.fromJson(Json json) => CartCoupon(
+    code: reqString(json, 'code'),
+    status: switch (optString(json, 'status')) {
+      'applied' => CouponStatus.applied,
+      'at_checkout' => CouponStatus.atCheckout,
+      _ => CouponStatus.invalid,
+    },
+    message: optString(json, 'message'),
+  );
+
+  final String code;
+  final CouponStatus status;
+  final String? message;
 }
 
 class CartQuoteLine {

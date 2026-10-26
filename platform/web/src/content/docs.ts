@@ -1544,6 +1544,12 @@ Group your products, like "Bouquets" or "Gifts". Customers browse them in the ap
 
 Set a **Shipping fee** for orders with physical products (leave it empty for free shipping) and, optionally, **Free shipping from** an order amount.
 
+## Coupons
+
+Under **Coupons** on the **Products** page, add codes your customers type in the app's cart, like SPRING10: a **Percentage off** or an **Amount off** the products (shipping stays as it is), with an optional **Minimum order**, **Last day** and number of **Uses**. The cart shows what the coupon takes off and the total, or why it doesn't apply, and the payment page charges the total less the discount. Each paid order counts one use. **Turn off** stops a coupon for now; orders show the coupon they used.
+
+Apps on WooCommerce work the same way with your WooCommerce coupons: the cart checks the code, and your checkout applies it (Yallapp plugin 0.4.15 or later). Apps on Shopify send the code with the order to your shop's checkout; on other connected platforms the cart reminds customers to enter it at checkout.
+
 ## Payments
 
 Customers pay by card on a secure page of your provider (iyzico, Kashier or Fawaterk). Add your own keys: see [Card payments](/docs/card-payments).

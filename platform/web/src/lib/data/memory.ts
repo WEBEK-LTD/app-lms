@@ -67,6 +67,7 @@ import type {
   CourseEnrollment,
   LessonProgress,
   QuizAttempt,
+  CatalogCoupon,
   AdminMember,
   AdminMemberRow,
   AuditEntry,
@@ -155,6 +156,7 @@ export class MemoryStore implements DataStore {
   private lessonProgress = new Map<string, LessonProgress>();
   // 90.1
   private quizAttempts: QuizAttempt[] = [];
+  private catalogCoupons: CatalogCoupon[] = [];
   // 44 Analytics: raw events, and daily totals keyed by app, day, metric and key.
   private analyticsEvents: AnalyticsEventRow[] = [];
   private analyticsDaily = new Map<string, AnalyticsDailyRecord & { appId: string }>();
@@ -887,6 +889,38 @@ export class MemoryStore implements DataStore {
   async deleteCatalogProduct(appId: string, id: number): Promise<void> {
     const product = this.catalogProducts.get(id);
     if (product && product.appId === appId) this.catalogProducts.delete(id);
+  }
+
+  async listCatalogCoupons(appId: string): Promise<CatalogCoupon[]> {
+    return this.catalogCoupons.filter((c) => c.appId === appId).map(clone).sort((a, b) => b.id - a.id);
+  }
+
+  async getCatalogCouponByCode(appId: string, code: string): Promise<CatalogCoupon | null> {
+    const found = this.catalogCoupons.find((c) => c.appId === appId && c.code === code);
+    return found ? clone(found) : null;
+  }
+
+  async createCatalogCoupon(input: Omit<CatalogCoupon, "id" | "usedCount">): Promise<CatalogCoupon | null> {
+    if (this.catalogCoupons.some((c) => c.appId === input.appId && c.code === input.code)) return null;
+    const coupon: CatalogCoupon = { ...clone(input), id: this.catalogCoupons.length + 1, usedCount: 0 };
+    this.catalogCoupons.push(coupon);
+    return clone(coupon);
+  }
+
+  async setCatalogCouponActive(appId: string, id: number, active: boolean): Promise<void> {
+    const found = this.catalogCoupons.find((c) => c.appId === appId && c.id === id);
+    if (found) found.active = active;
+  }
+
+  async deleteCatalogCoupon(appId: string, id: number): Promise<void> {
+    this.catalogCoupons = this.catalogCoupons.filter((c) => !(c.appId === appId && c.id === id));
+  }
+
+  async useCatalogCoupon(appId: string, id: number): Promise<boolean> {
+    const found = this.catalogCoupons.find((c) => c.appId === appId && c.id === id);
+    if (!found || (found.maxUses !== null && found.usedCount >= found.maxUses)) return false;
+    found.usedCount += 1;
+    return true;
   }
 
   async createCatalogOrder(input: Omit<CatalogOrder, "id">): Promise<CatalogOrder> {

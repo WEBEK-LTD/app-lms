@@ -1,4 +1,5 @@
 import { checkFulfilment, FULFILMENT_LABELS, fulfilmentConfigJson, fulfilmentOf, orderTimesJson } from "../../catalog/fulfilment";
+import { couponDiscount, normalizeCouponCode } from "../../catalog/coupons";
 import { centsToDecimal, formatCents } from "../../catalog/money";
 import { checkOptions, optionGroupsJson, optionGroupsOf, type ChosenOption } from "../../catalog/options";
 import { catalogSettings, ORDER_STATUS_LABELS, orderNumber, PAY_LINK_MINUTES, paymentsSetUp, shippingFor } from "../../catalog/settings";
@@ -357,10 +358,40 @@ export class CatalogConnector implements Connector {
     };
   }
 
+  /** 91.1 The cart's coupon: what it takes off, or why it doesn't apply; nothing without one. */
+  private async coupon(body: unknown, subtotalCents: number, now: Date) {
+    const raw = (body as { coupon?: unknown } | null)?.coupon;
+    if (typeof raw !== "string" || raw.trim() === "") return { json: null, discountCents: 0, code: null };
+    const code = normalizeCouponCode(raw);
+    const coupon = code ? await this.deps.store.getCatalogCouponByCode(this.deps.app.id, code) : null;
+    const check = couponDiscount(coupon, subtotalCents, this.settings.currency, now);
+    const shown = code ?? raw.trim().toUpperCase().slice(0, 50);
+    return check.ok
+      ? { json: { code: shown, status: "applied", message: null }, discountCents: check.discountCents, code: coupon!.code }
+      : { json: { code: shown, status: "invalid", message: check.message }, discountCents: 0, code: null };
+  }
+
   private async quote(request: ConnectorRequest): Promise<ConnectorResult> {
     const lines = cartLines(request.body);
     if (!lines) return error(400, "invalid_request", "The cart is empty or invalid.");
-    return { status: 200, body: (await this.priced(lines)).cart };
+    const priced = await this.priced(lines);
+    const coupon = await this.coupon(request.body, priced.subtotal, request.now);
+    // 91.1 The real total: a restaurant's delivery fee depends on how the order is collected, chosen at checkout.
+    const shipping = this.fulfilment ? null : shippingFor(this.settings, priced.subtotal, priced.out.some((o) => o.line.available && !o.line.digital));
+    const total = priced.subtotal - coupon.discountCents + (shipping ?? 0);
+    return {
+      status: 200,
+      body: {
+        ...priced.cart,
+        coupon: coupon.json,
+        discount: coupon.discountCents > 0 ? this.money(coupon.discountCents) : null,
+        shipping: shipping === null ? null : this.money(shipping),
+        tax: null,
+        total: this.money(total),
+        total_amount: centsToDecimal(total),
+        total_final: shipping !== null,
+      },
+    };
   }
 
   private async checkoutLink(request: ConnectorRequest): Promise<ConnectorResult> {
@@ -401,6 +432,8 @@ export class CatalogConnector implements Connector {
     } else {
       shipping = shippingFor(this.settings, priced.subtotal, orderLines.some((l) => !l.digital));
     }
+    // 91.1 A coupon that no longer applies is left out, never an error.
+    const coupon = await this.coupon(request.body, priced.subtotal, request.now);
     const token = randomToken(24);
     await this.deps.store.createCatalogOrder({
       appId: this.deps.app.id,
@@ -410,7 +443,9 @@ export class CatalogConnector implements Connector {
       lines: orderLines,
       subtotalCents: priced.subtotal,
       shippingCents: shipping,
-      totalCents: priced.subtotal + shipping,
+      totalCents: priced.subtotal - coupon.discountCents + shipping,
+      couponCode: coupon.code,
+      discountCents: coupon.discountCents,
       currency: this.settings.currency,
       customer: null,
       paymentId: null,

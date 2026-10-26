@@ -20,6 +20,26 @@ export interface CartLineInput {
   options?: string[];
 }
 
+/**
+ * 91.1 A connected platform's cart with its total so far: the platform's own
+ * checkout works out coupons, shipping and taxes. A coupon the customer typed
+ * goes to that checkout (`carried`: with the link) or is entered there.
+ */
+export function withCheckoutTotals<T extends { subtotal: string; subtotal_amount: string }>(cart: T, body: unknown, carried = false) {
+  const raw = (body as { coupon?: unknown } | null)?.coupon;
+  const code = typeof raw === "string" ? raw.trim().toUpperCase().replace(/\s+/g, "").slice(0, 50) : "";
+  return {
+    ...cart,
+    coupon: code ? { code, status: "at_checkout", message: carried ? "This code goes with your order to the checkout." : "Enter this code at checkout." } : null,
+    discount: null,
+    shipping: null,
+    tax: null,
+    total: cart.subtotal,
+    total_amount: cart.subtotal_amount,
+    total_final: false,
+  };
+}
+
 /** The lines of a cart request, or null when they aren't valid. */
 export function cartLines(body: unknown): CartLineInput[] | null {
   const lines = (body as { lines?: unknown })?.lines;

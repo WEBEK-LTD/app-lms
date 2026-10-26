@@ -160,6 +160,8 @@ class _CartScreenState extends ConsumerState<CartScreen> {
           fulfilment != null &&
           times != null &&
           _laterChosen(fulfilment, times);
+      // 91.1 The coupon goes along unless the shop said it doesn't apply.
+      final coupon = ref.read(cartQuoteProvider).value?.coupon;
       final link = await ref
           .read(yallappApiProvider)
           .createStoreCheckoutLink(
@@ -177,6 +179,9 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                   )
                 : null,
             scheduledFor: later ? _slot : null,
+            coupon: coupon != null && coupon.status != CouponStatus.invalid
+                ? coupon.code
+                : null,
           );
       if (!mounted) return;
       final inApp =
@@ -214,6 +219,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
   void _ordered() {
     final restaurant = ref.read(appConfigProvider).store?.fulfilment != null;
     ref.read(cartProvider.notifier).clear();
+    ref.read(cartCouponProvider.notifier).set(null);
     ref.invalidate(ordersProvider);
     setState(() {
       _deliveryDate = null;
@@ -405,6 +411,8 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                       ),
                     ],
                     const SizedBox(height: 16),
+                    _CouponCard(quote: value),
+                    const SizedBox(height: 12),
                     AppCard(
                       color: p.surfaceMuted,
                       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
@@ -453,10 +461,37 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                               ],
                             ),
                           ],
-                          if (fulfilment == null) ...[
+                          // 91.1 The coupon's discount, shipping, taxes and
+                          // the total, when the shop knows them.
+                          if (value?.discount case final discount?)
+                            _SumRow(
+                              label: context.l10n.cartDiscount,
+                              value: '−$discount',
+                              color: p.success,
+                            ),
+                          if (value?.shipping case final shipping?)
+                            _SumRow(
+                              label: context.l10n.cartShipping,
+                              value: shipping,
+                            ),
+                          if (value?.tax case final tax?)
+                            _SumRow(label: context.l10n.cartTaxes, value: tax),
+                          if (value?.total case final total?
+                              when value!.discount != null ||
+                                  value.shipping != null ||
+                                  value.tax != null)
+                            _SumRow(
+                              label: context.l10n.cartTotal,
+                              value: total,
+                              strong: true,
+                            ),
+                          if (fulfilment == null &&
+                              value?.totalFinal != true) ...[
                             const SizedBox(height: 4),
                             Text(
-                              context.l10n.deliveryAndTaxes,
+                              value?.total != null
+                                  ? context.l10n.plusShippingAtCheckout
+                                  : context.l10n.deliveryAndTaxes,
                               style: TextStyle(
                                 fontSize: 13,
                                 color: p.textSecondary,
@@ -638,6 +673,163 @@ class _LineCard extends ConsumerWidget {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 91.1 A summary line under the subtotal.
+class _SumRow extends StatelessWidget {
+  const _SumRow({
+    required this.label,
+    required this.value,
+    this.color,
+    this.strong = false,
+  });
+
+  final String label;
+  final String value;
+  final Color? color;
+  final bool strong;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final style = TextStyle(
+      fontSize: strong ? 16 : 14,
+      fontWeight: strong ? FontWeight.w800 : FontWeight.w400,
+      color: color ?? p.text,
+    );
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Row(
+        children: [
+          Expanded(child: Text(label, style: style)),
+          Text(value, style: style),
+        ],
+      ),
+    );
+  }
+}
+
+/// 91.1 The coupon: a button that opens the field, the field, then the code
+/// with whether it applies.
+class _CouponCard extends ConsumerStatefulWidget {
+  const _CouponCard({this.quote});
+
+  final CartQuote? quote;
+
+  @override
+  ConsumerState<_CouponCard> createState() => _CouponCardState();
+}
+
+class _CouponCardState extends ConsumerState<_CouponCard> {
+  final _code = TextEditingController();
+  bool _open = false;
+
+  @override
+  void dispose() {
+    _code.dispose();
+    super.dispose();
+  }
+
+  void _apply() {
+    if (_code.text.trim().isEmpty) return;
+    FocusScope.of(context).unfocus();
+    ref.read(cartCouponProvider.notifier).set(_code.text);
+  }
+
+  void _remove() {
+    _code.clear();
+    ref.read(cartCouponProvider.notifier).set(null);
+    setState(() => _open = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final code = ref.watch(cartCouponProvider);
+    if (code == null && !_open) {
+      return Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: TextButton.icon(
+          key: const Key('cart-coupon-open'),
+          onPressed: () => setState(() => _open = true),
+          icon: const AppIcon(AppIcons.sale, size: 20),
+          label: Text(l10n.couponHave),
+        ),
+      );
+    }
+    if (code == null) {
+      return Row(
+        children: [
+          Expanded(
+            child: TextField(
+              key: const Key('cart-coupon-field'),
+              controller: _code,
+              autofocus: true,
+              maxLength: 50,
+              textCapitalization: TextCapitalization.characters,
+              textInputAction: TextInputAction.done,
+              onSubmitted: (_) => _apply(),
+              decoration: InputDecoration(
+                labelText: l10n.couponCode,
+                counterText: '',
+                prefixIcon: AppIcon(
+                  AppIcons.sale,
+                  size: 20,
+                  color: p.textSecondary,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          TextButton(
+            key: const Key('cart-coupon-apply'),
+            onPressed: _apply,
+            child: Text(l10n.couponApply),
+          ),
+        ],
+      );
+    }
+    final coupon = widget.quote?.coupon;
+    final status = coupon?.code == code ? coupon?.status : null;
+    final invalid = status == CouponStatus.invalid;
+    final message = switch (status) {
+      CouponStatus.applied => l10n.couponApplied(code),
+      CouponStatus.atCheckout => coupon?.message ?? l10n.couponAtCheckout(code),
+      CouponStatus.invalid => coupon?.message ?? l10n.couponNotApplied(code),
+      null => code,
+    };
+    return AppCard(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      child: Row(
+        children: [
+          AppIcon(
+            invalid ? AppIcons.close : AppIcons.sale,
+            size: 20,
+            color: invalid ? p.danger : p.success,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
+              key: const Key('cart-coupon-status'),
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: invalid ? p.danger : p.text,
+              ),
+            ),
+          ),
+          IconButton(
+            key: const Key('cart-coupon-remove'),
+            tooltip: l10n.couponRemove,
+            onPressed: _remove,
+            icon: AppIcon(AppIcons.close, size: 20, color: p.textSecondary),
           ),
         ],
       ),

@@ -7,6 +7,7 @@ import type { App, CatalogCustomer, CatalogFulfilment, CatalogOrder } from "../d
 import { PaymentError } from "../payments/errors";
 import { approvePaymentItem, IyzicoError } from "../payments/iyzico";
 import { confirmCheckout, startCheckout, type CheckoutLine, type ProviderUrls } from "../payments/provider";
+import { spreadDiscount } from "./coupons";
 import { formatCents } from "./money";
 import { getDashT } from "@/i18n/dashboard";
 import { formatDate } from "@/i18n/format";
@@ -66,10 +67,15 @@ export async function startPayment(
   // 49 Tickets: never start a payment for places already released.
   await checkTicketHold(deps.store, deps.app, order, deps.now);
   const tickets = deps.app.connector?.kind === "events";
+  // 91.1 A coupon's discount comes off the products, so the lines add up to what is charged.
+  const lineCents = spreadDiscount(
+    order.lines.map((l) => l.unitCents * l.quantity),
+    order.discountCents ?? 0,
+  );
   const lines: CheckoutLine[] = order.lines.map((l, i) => ({
     id: `${l.productId}-${i}`,
     name: l.quantity > 1 && account.provider !== "iyzico" ? `${l.name} × ${l.quantity}` : l.name,
-    cents: l.unitCents * l.quantity,
+    cents: lineCents[i]!,
     category: "Products",
     digital: l.digital,
   }));
@@ -238,6 +244,8 @@ export function newOrderMailValues(order: CatalogOrder, appName: string, dashboa
   const t = getDashT(lang);
   const shipping = (amount: string) =>
     lang === "en" ? `${order.fulfilment ? "Delivery fee" : "Shipping"}: ${amount}` : t(order.fulfilment ? "emails.deliveryFee" : "emails.shipping", { amount });
+  const discount = (amount: string) =>
+    lang === "en" ? `Coupon ${order.couponCode}: -${amount}` : t("emails.coupon", { code: order.couponCode ?? "", amount });
   const c = order.customer;
   return {
     app_name: appName,
@@ -246,6 +254,7 @@ export function newOrderMailValues(order: CatalogOrder, appName: string, dashboa
     order_lines: [
       // 26 A dish's options in brackets, and how a restaurant's order is collected.
       ...order.lines.map((l) => `${l.name}${l.options?.length ? ` (${optionsText(l)})` : ""} × ${l.quantity}: ${money(l.unitCents * l.quantity)}`),
+      ...(order.discountCents ? [discount(money(order.discountCents))] : []),
       ...(order.shippingCents > 0 ? [shipping(money(order.shippingCents))] : []),
       ...(order.fulfilment ? ["", fulfilmentLine(order.fulfilment, timezone, lang)] : []),
     ].join("\n"),
@@ -323,6 +332,11 @@ export async function issuePaidTickets(store: DataStore, app: App, order: Catalo
 
 /** What a paid order delivers right away: enrolments for courses, 27 a gym's membership, 28 tickets for events. */
 export async function deliverPaidOrder(store: DataStore, app: App, order: CatalogOrder, now: Date, baseUrl = ""): Promise<void> {
+  // 91.1 A paid order counts one use of its coupon.
+  if (order.couponCode) {
+    const coupon = await store.getCatalogCouponByCode(app.id, order.couponCode);
+    if (coupon) await store.useCatalogCoupon(app.id, coupon.id);
+  }
   await enrollPaidCourses(store, app, order, now);
   await startPaidMemberships(store, app, order, now);
   await issuePaidTickets(store, app, order, now, baseUrl);
