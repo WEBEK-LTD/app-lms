@@ -1,0 +1,1 @@
+ALTER TABLE `apps` ADD `auto_build_due_at` datetime(3);

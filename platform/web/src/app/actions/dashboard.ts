@@ -17,6 +17,7 @@ import { chooseApp, clientFor, mayUseDashboard, type ClientContext } from "@/lib
 import type { TeamPermission } from "@/lib/team/permissions";
 import { MAX_APPS_PER_CLIENT } from "@/lib/app/label";
 import { getBlobStore } from "@/lib/blobs";
+import { buildChanges, scheduleAutoBuild } from "@/lib/builds/auto";
 import { renderCheck } from "@/lib/builds/preflight";
 import { suggestedVersion } from "@/lib/builds/view";
 import { preflightDeps } from "@/lib/builds/preflight-env";
@@ -96,12 +97,10 @@ async function afterStep(context: ClientContext & { app: App }, step: SetupStep)
   if (isSetupComplete(app, plan, plans)) {
     const builds = await store.listBuildsByApp(app.id, 1);
     const last = builds[0];
-    if (last && plan && hasFeature(plans[plan], "auto_rebuild") && context.state === "active" && last.status !== "queued" && last.status !== "building") {
-      const rebuilt = await queueBuild(store, { client: context.client, app, license: context.license, versionName: bumpPatch(last.versionName) }, now, assetUrl);
-      if (rebuilt.ok) {
-        await startPipeline();
-        redirect("/dashboard/builds?started=auto");
-      }
+    // 87.4 A change a new build would bring: the build in a few minutes, so more saves join it.
+    if (last && plan && hasFeature(plans[plan], "auto_rebuild") && context.state === "active" && buildChanges(app, context.client, last, assetUrl).length > 0) {
+      await scheduleAutoBuild(store, app, now);
+      redirect("/dashboard/builds?started=auto");
     }
     if (builds.length === 0) {
       const result = await queueBuild(
@@ -881,6 +880,8 @@ async function startBuild(
     } as const;
     return { ok: false, message: messages[result.reason], versionTooLow: result.reason === "version_too_low" };
   }
+  // 87.4 The automatic build that was waiting is this one now.
+  if (context.app.autoBuildDueAt) await store.updateApp(context.app.id, { autoBuildDueAt: null }, new Date());
   await startPipeline();
   await recordStaffChange(context, `Started build #${result.build.number} (${result.build.versionName})`);
   revalidatePath("/dashboard", "layout");

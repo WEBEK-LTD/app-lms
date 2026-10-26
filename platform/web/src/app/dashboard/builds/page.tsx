@@ -189,6 +189,13 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
         </Notice>
       ) : null}
 
+      {/* 87.4 The automatic build of the latest saves, and when it starts. */}
+      {app.autoBuildDueAt && app.autoBuildDueAt > now && !running ? (
+        <Notice tone="info" icon="schedule" role="status">
+          {t("builds.autoWaiting", { time: formatDateTime(app.autoBuildDueAt, lang) })}
+        </Notice>
+      ) : null}
+
       {currentPlan && !hasFeature(currentPlan, "auto_rebuild") && builds.length > 0 ? (
         <UpgradeHint title={t("builds.autoRebuilds")} to={autoRebuildTo} cta={autoRebuildTo ? t("overview.upgradeTo", { plan: autoRebuildTo.name }) : undefined}>
           {t("builds.autoRebuildsText")}

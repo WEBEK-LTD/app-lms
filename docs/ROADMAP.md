@@ -2023,7 +2023,7 @@ measured; several useful automatic pushes don't exist.
 | [x] | 87.1 Checks before a build: icon, Firebase files and package names, Apple key and certificates | Unit tests |
 | [x] | 87.2 Why a build failed, in plain words with what to do, and a log the client can read | Pipeline tests |
 | [x] | 87.3 Each build records the app code it was made from; rebuild build N as it was | Contract, tests |
-| [ ] | 87.4 Automatic builds only for changes that need one, several saves in one build | Unit tests |
+| [x] | 87.4 Automatic builds only for changes that need one, several saves in one build | Unit tests |
 
 ## Phase 88: Publishing without surprises (area 9)
 

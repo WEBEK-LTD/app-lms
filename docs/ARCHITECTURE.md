@@ -2319,6 +2319,32 @@ tries the next week), and the send's row is removed. WordPress campaigns go
 to everyone (the platform doesn't know the site's people); a page of the
 app opens on the site's links (`<site>/a/page/<slug>`).
 
+## Builds that explain themselves (Phase 87)
+
+- **Before a build** (87.1, `lib/builds/preflight.ts`): `queueBuild` runs the
+  checks when given their inputs (the dashboard and the automatic builds do):
+  the icon (1024 × 1024 PNG, no transparency), the Firebase files against the
+  package name and bundle ID as they are now, the App Store Connect key (an EC
+  `.p8`, key and issuer IDs) and the signing keys. Errors stop the build
+  (`reason: "preflight"`); warnings are listed on Builds.
+- **Why it failed** (87.2): `android.sh` and `ios.sh` keep their output in
+  `build.log`; on a failure or a store upload that didn't work,
+  `build/scripts/diagnose.py` writes `failure` (a FailureCode, the stage and the
+  end of the output without secrets, tokens, keys, e-mail addresses or paths)
+  into `result.json`, and `report.py` sends it (`StatusReport.failure`). The
+  build keeps it (migration 0071); `lib/builds/failures.ts` says what happened
+  and what to do (known texts, en/ar/tr) on the page and in the email.
+- **Rebuild as it was** (87.3): the jobs report `source_commit`; a rebuild
+  carries the earlier build's commit as `source_ref` (checked out instead of
+  the workflow's commit), its config and listing, with a new version
+  (migration 0072).
+- **Automatic builds** (87.4, `lib/builds/auto.ts`): a save that a build
+  would bring (`buildChanges`: the build config, the listing when publishing
+  for the client, newly connected stores) sets `apps.auto_build_due_at` ten
+  minutes ahead (migration 0073); later saves move it. The frequent job queues
+  the due ones, waits for a running build, and skips the ones a build wouldn't
+  change.
+
 ## Analytics with the business's numbers (Phase 86)
 
 - **Sales** (86.1, `lib/analytics/sales.ts`): the Analytics range's local

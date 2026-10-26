@@ -1,3 +1,5 @@
+import { startPipeline } from "@/lib/builds/dispatch";
+import { preflightDeps } from "@/lib/builds/preflight-env";
 import { getStore } from "@/lib/data";
 import { sendTemplate } from "@/lib/email/send";
 import { appUrl, encryptionKey, integrationChecksOn, internalJobSecret, licenseRefreshTestUrl, paymentApiUrls } from "@/lib/env";
@@ -34,7 +36,16 @@ export async function POST(request: Request): Promise<Response> {
   const now = new Date();
   // 78.3 Recorded as a run; then the watch: builds, the other jobs, crashes and failed pushes.
   const report = await recordJobRun(store, "frequent", () => new Date(), async () => {
-    const jobs = await runFrequentJobs({ store, key: encryptionKey(), now, ownerPush: await ownerPushDeps(now, store), refresh: { testSiteUrl: licenseRefreshTestUrl() } });
+    const jobs = await runFrequentJobs({
+      store,
+      key: encryptionKey(),
+      now,
+      ownerPush: await ownerPushDeps(now, store),
+      refresh: { testSiteUrl: licenseRefreshTestUrl() },
+      // 87.4 Automatic builds: the checks before them, and the pipeline started at once.
+      preflight: preflightDeps(store),
+      startPipeline,
+    });
     await alertFailedScheduledPushes(store, jobs.notifications.failed, now, teamMail);
     const watch = await runWatch({ store, now, mail: teamMail, jobs: ["daily", "webhooks", "pipeline"], dispatch: dispatchSet(), crashes: true });
     // 79.2 A few seconds of moving encrypted values to the current key, when there is any to move.

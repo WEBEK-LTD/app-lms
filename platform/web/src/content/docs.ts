@@ -1383,6 +1383,23 @@ With **Publish it for me**, tick Xiaomi GetApps on the **Publishing** page. Then
 
 Your first build starts when you finish the setup steps. After that, start a new one with **Start new build** whenever you need a new version (see [Release an update](/docs/updates)). The page shows each step while a build runs.
 
+
+## Before a build starts
+
+Before a build starts we check what it will use: your icon, your Firebase files against your app's package name and bundle ID, your App Store Connect key and your signing keys. Anything that would make it fail shows under **Before your next build** with what to do and a link to fix it; the build waits until it's fixed. Things that won't stop it (no Firebase files yet, for example) show as good to know.
+
+## When a build doesn't finish
+
+The page says why in plain words and what to do, for example a Firebase file for another package name, an Apple agreement waiting to be accepted, or a version the store already has. **What the build printed** shows the end of the build's output, without your keys and passwords. If it was our build machine, start the build again.
+
+## Rebuild a build as it was
+
+**Rebuild as it was**, next to a ready build, makes it again from the same app code, settings and store listing, with a new version number. Use it when the newest build has a problem and you want the earlier app back in the stores.
+
+## Automatic builds
+
+On plans with automatic builds, a save that changes the app itself (its name, icon, colors, Firebase files, links), its store listing when we publish for you, or the stores it goes to starts a new build ten minutes after your last save, so several changes go into one build. Pages, texts, prices and settings reach the app without a build. The page says when the waiting build starts; **Start new build** starts it now.
+
 ## Your files
 
 - **APK**: install it directly on an Android phone to test.

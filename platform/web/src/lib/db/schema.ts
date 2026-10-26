@@ -288,6 +288,8 @@ export const apps = mysqlTable(
     timeZone: varchar("time_zone", { length: 64 }),
     // 86.4 The weekly summary email, on unless the owner turns it off.
     weeklySummary: boolean("weekly_summary").notNull().default(true),
+    // 87.4 The automatic build of the latest saves, a few minutes after the last one.
+    autoBuildDueAt: time("auto_build_due_at"),
     appTypeDoneAt: time("app_type_done_at"),
     websiteDoneAt: time("website_done_at"),
     brandingDoneAt: time("branding_done_at"),

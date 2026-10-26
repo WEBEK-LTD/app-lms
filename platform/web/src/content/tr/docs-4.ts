@@ -241,6 +241,23 @@ Geliştirici hesabınızda otomatik yayın sayfası yoksa yüklemeler elle kalı
 
 İlk derlemeniz kurulum adımlarını bitirdiğinizde başlar. Bundan sonra yeni bir sürüme ihtiyaç duyduğunuzda **Yeni derleme başlat** ile yenisini başlatın ([Bir güncelleme yayımlayın](/docs/updates) rehberine bakın). Sayfa, bir derleme çalışırken her adımı gösterir.
 
+
+## Bir derleme başlamadan önce
+
+Bir derleme başlamadan önce kullanacaklarını kontrol ediyoruz: simgeniz, Firebase dosyalarınızın uygulamanızın paket adı ve paket kimliğiyle eşleşmesi, App Store Connect anahtarınız ve imzalama anahtarlarınız. Derlemeyi başarısız kılacak her şey **Bir sonraki derlemeden önce** altında ne yapılacağı ve düzeltme bağlantısıyla görünür; derleme düzelene kadar bekler. Onu durdurmayan şeyler (örneğin henüz Firebase dosyası olmaması) bilginiz olsun diye görünür.
+
+## Bir derleme bitmediğinde
+
+Sayfa nedenini sade sözcüklerle ve ne yapılacağını söyler; örneğin başka bir paket adı için Firebase dosyası, kabul bekleyen bir Apple sözleşmesi ya da mağazada zaten olan bir sürüm. **Derlemenin yazdıkları** derleme çıktısının sonunu, anahtarlarınız ve parolalarınız olmadan gösterir. Sorun derleme makinemizdeyse derlemeyi yeniden başlatın.
+
+## Bir derlemeyi olduğu gibi yeniden derleyin
+
+Hazır bir derlemenin yanındaki **Olduğu gibi yeniden derle**, onu aynı uygulama koduyla, ayarlarla ve mağaza sayfasıyla, yeni bir sürüm numarasıyla yeniden yapar. En yeni derlemede bir sorun olduğunda ve önceki uygulamayı mağazalara geri getirmek istediğinizde kullanın.
+
+## Otomatik derlemeler
+
+Otomatik derlemeli paketlerde, uygulamanın kendisini (adını, simgesini, renklerini, Firebase dosyalarını, bağlantılarını), sizin için yayımladığımızda mağaza sayfasını ya da gittiği mağazaları değiştiren bir kayıt, son kaydınızdan on dakika sonra yeni bir derleme başlatır; böylece birkaç değişiklik tek derlemeye girer. Sayfalar, metinler, fiyatlar ve ayarlar uygulamaya derleme olmadan ulaşır. Sayfa bekleyen derlemenin ne zaman başlayacağını söyler; **Yeni derleme başlat** onu hemen başlatır.
+
 ## Dosyalarınız
 
 - **APK**: denemek için doğrudan bir Android telefona kurun.

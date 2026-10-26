@@ -1085,6 +1085,14 @@ never in a chat or an issue.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **Builds that explain themselves** (87): migrations
+      `0071_build_failure.sql`, `0072_build_source.sql` (columns on `builds`)
+      and `0073_auto_build_due.sql` (a column on `apps`) go with the production
+      deploy, migrations first. The build workflow (`build-apps.yml`) and the
+      scripts (`diagnose.py`) go with the same merge: builds made before it
+      have no source commit, so "Rebuild as it was" shows only on builds made
+      after. Automatic builds now start from the frequent job, ten minutes
+      after the last save.
 - [ ] **Analytics with the business's numbers** (86): migrations
       `0068_sales_windows.sql` (indexes), `0069_event_sources.sql` (three
       columns on `analytics_events`) and `0070_weekly_summary.sql` (a column on

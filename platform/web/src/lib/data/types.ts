@@ -443,6 +443,8 @@ export interface App {
   timeZone?: string | null;
   /** 86.4 The weekly summary email; missing: on. */
   weeklySummary?: boolean;
+  /** 87.4 When the automatic build of the latest changes starts; null: none waiting. */
+  autoBuildDueAt?: Date | null;
   appTypeDoneAt: Date | null;
   websiteDoneAt: Date | null;
   brandingDoneAt: Date | null;
