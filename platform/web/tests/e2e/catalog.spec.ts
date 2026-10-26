@@ -360,7 +360,7 @@ test("91.5 a product in two colours, and KDV inside the prices, from the dashboa
   await page.getByLabel("Variation 1 name").fill("Colour");
   await page.getByLabel("Variation 1 values, separated by commas").fill("Red, White");
   await page.getByRole("button", { name: "Add the 2 missing combinations" }).click();
-  await page.getByLabel("Price of White").fill("240");
+  await page.getByLabel("Price of White", { exact: true }).fill("240");
   await page.getByLabel("Stock of Red").fill("1");
   await page.getByRole("button", { name: "Add product" }).click();
   await expect(page.getByRole("status")).toContainText("Saved “Tulip Vase”.");
