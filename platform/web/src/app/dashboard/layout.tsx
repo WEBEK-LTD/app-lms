@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { PageHelp } from "@/components/page-help";
+import { helpLinks } from "@/lib/docs/help";
 import Link from "next/link";
 import { Logo } from "@/components/brand";
 import { stopManagingAction } from "@/app/actions/admin";
@@ -206,6 +208,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         />
         <main id="main" tabIndex={-1} className="min-w-0 flex-1 px-4 pt-6 pb-16 outline-none sm:px-8 sm:pt-8 lg:px-10">
           <div className="mx-auto flex max-w-[1120px] flex-col gap-6">
+            {/* 93.2 Help with this page. */}
+            <PageHelp links={helpLinks(lang)} label={t("nav.pageHelp")} />
             {staff ? (
               <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-midnight px-4 py-3 text-sm text-white">
                 <span className="flex items-center gap-2">

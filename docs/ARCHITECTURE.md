@@ -2417,6 +2417,17 @@ app opens on the site's links (`<site>/a/page/<slug>`).
   links. The overview shows it instead of the setup card until a store
   shows the app or the owner hides it (`apps.guide_hidden_at`, migration
   0084, `setGuideAction`).
+- **Help and search** (93.2): `lib/docs/help.ts` `DASHBOARD_HELP` names the
+  article for each part of the dashboard (the longest address prefix wins,
+  `help-match.ts`); the layout's `PageHelp` links to it in the dashboard's
+  language, in a new tab. `/docs/search?q=` (and `/ar`, `/tr`) searches the
+  articles' titles, descriptions and text with the team's edits
+  (`lib/docs/search.ts`: every word, without accents or Arabic marks,
+  titles first, the text around the words), not indexed; Enter in the
+  docs' menu goes there. Nine articles joined (Integrations, builds and
+  connections, Ready to submit, Team, two-step sign-in and deleting an app,
+  Protection, Stability, Yallapp Business, links that open the app), the
+  Arabic and Turkish in `content/{ar,tr}/docs-8.ts`.
 
 ## Academies, complete (Phase 90)
 

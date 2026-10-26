@@ -304,7 +304,7 @@ Adınız, WhatsApp numaranız ve web siteniz hesabınızda kayıtlıdır. E-post
 
 ## Ekibinizle çalışma
 
-Panel giriş bilgilerinizi yalnızca güvendiğiniz kişilerle paylaşın. Ekibimiz, siz istediğinizde size yardım etmek için panelinizi açabilir; bu sırada üstte bir çubuk görürsünüz ve değişiklikler uygulamanıza uygulanır.
+Panel giriş bilgilerinizi asla paylaşmayın: sizinle çalışan kişileri **Ekip** sayfasından davet edin, her birine yalnızca ihtiyacı olanı verin. Bkz. [Ekibiniz](/docs/team). Ekibimiz, siz istediğinizde size yardım etmek için panelinizi açabilir; bu sırada üstte bir çubuk görürsünüz ve değişiklikler uygulamanıza uygulanır.
 
 ## Duyurular
 

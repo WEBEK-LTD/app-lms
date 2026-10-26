@@ -448,6 +448,31 @@ test("the documentation's menu folds away on phones", async ({ page }) => {
   await expect(page).toHaveURL(/\/docs\/shopify$/);
 });
 
+test("93.2 the documentation's search finds words inside the articles, in every language", async ({ page }) => {
+  await page.goto("/docs/setup-steps");
+  const menu = page.getByRole("navigation", { name: "Documentation" });
+  await menu.getByPlaceholder("Search the documentation").fill("loyalty points");
+  // Enter searches every article's text.
+  await menu.getByPlaceholder("Search the documentation").press("Enter");
+  await expect(page).toHaveURL(/\/docs\/search\?q=loyalty\+points$/);
+  await expect(page.getByRole("status")).toContainText(/\d+ articles? mentions? “loyalty points”\./);
+  const first = page.locator("[data-doc-hit]").first();
+  await expect(first).toHaveAttribute("data-doc-hit", "store-orders");
+  await expect(first).toContainText("Loyalty points");
+  await first.getByRole("link").click();
+  await expect(page).toHaveURL(/\/docs\/store-orders$/);
+
+  await page.goto("/docs/search?q=zzqxv");
+  await expect(page.getByRole("status")).toHaveText("No article mentions “zzqxv”. Try other words.");
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+
+  await page.goto(`/ar/docs/search?q=${encodeURIComponent("نقاط الولاء")}`);
+  await expect(page.locator("[data-doc-hit]").first()).toHaveAttribute("data-doc-hit", "store-orders");
+  await expect(page.locator("[data-doc-hit]").first().getByRole("link")).toHaveAttribute("href", "/ar/docs/store-orders");
+  await page.goto("/tr/docs/search?q=sadakat");
+  await expect(page.locator("[data-doc-hit]").first()).toHaveAttribute("data-doc-hit", "store-orders");
+});
+
 test("the old guide addresses open their documentation article", async ({ page }) => {
   for (const [guide, article] of [
     ["/guides", "/docs"],

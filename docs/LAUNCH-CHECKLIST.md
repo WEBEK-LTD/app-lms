@@ -1085,6 +1085,11 @@ never in a chat or an issue.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **Help and search** (93.2): no migration. After deploying: every
+      dashboard page has Help with this page, opening its article in the
+      dashboard's language; /docs/search finds "loyalty points" in the
+      store article, in English, Arabic and Turkish; the nine new articles
+      read well in all three (the team can edit them in Admin › Content).
 - [ ] **Your first app** (93.1): migration `0084_first_app_guide.sql` (a
       column on `apps`) goes with the deploy, migrations first. After
       deploying: a new test client sees Your first app on the overview, the
