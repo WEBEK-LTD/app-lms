@@ -76,6 +76,9 @@ class License_Client {
 		add_action( self::CHECK_HOOK, array( $this, 'check' ) );
 		add_action( self::REFRESH_HOOK, array( $this, 'refresh_now' ) );
 		add_action( 'init', array( $this, 'schedule' ) );
+		// 76.6 Updates come from Yallapp (Admin › Plugin releases), for sites whose plan is active.
+		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'inject_update' ) );
+		add_filter( 'plugins_api', array( $this, 'plugin_info' ), 10, 3 );
 	}
 
 	/**
@@ -540,6 +543,96 @@ class License_Client {
 	}
 
 	/**
+	 * Adds a newer Yallapp version to the WordPress update list.
+	 *
+	 * @param object $transient Update transient.
+	 * @return object
+	 */
+	public function inject_update( $transient ) {
+		if ( ! is_object( $transient ) || empty( $transient->checked ) ) {
+			return $transient;
+		}
+		$release = $this->release();
+		if ( $release && version_compare( $release['version'], YALLAPP_VERSION, '>' ) ) {
+			$basename = plugin_basename( YALLAPP_FILE );
+			if ( ! isset( $transient->response ) || ! is_array( $transient->response ) ) {
+				$transient->response = array();
+			}
+			$transient->response[ $basename ] = (object) array(
+				'slug'         => 'yallapp',
+				'plugin'       => $basename,
+				'new_version'  => $release['version'],
+				'package'      => $release['download_url'],
+				'url'          => 'https://yallapp.com.tr',
+				'requires'     => $release['requires'] ?? '',
+				'requires_php' => $release['requires_php'] ?? '',
+				'tested'       => $release['tested'] ?? '',
+			);
+		}
+		return $transient;
+	}
+
+	/**
+	 * Details for the "View version details" screen.
+	 *
+	 * @param false|object|array $result Result so far.
+	 * @param string             $action API action.
+	 * @param object             $args   Arguments.
+	 * @return false|object|array
+	 */
+	public function plugin_info( $result, $action, $args ) {
+		if ( 'plugin_information' !== $action || ! is_object( $args ) || 'yallapp' !== ( $args->slug ?? '' ) ) {
+			return $result;
+		}
+		$release = $this->release();
+		if ( ! $release ) {
+			return $result;
+		}
+		return (object) array(
+			'name'          => 'Yallapp',
+			'slug'          => 'yallapp',
+			'version'       => $release['version'],
+			'author'        => '<a href="https://yallapp.com.tr">Yallapp</a>',
+			'homepage'      => 'https://yallapp.com.tr',
+			'requires'      => $release['requires'] ?? '',
+			'requires_php'  => $release['requires_php'] ?? '',
+			'tested'        => $release['tested'] ?? '',
+			'download_link' => $release['download_url'],
+			'sections'      => array( 'changelog' => wp_kses_post( (string) ( $release['changelog_html'] ?? '' ) ) ),
+		);
+	}
+
+	/**
+	 * The latest release from Yallapp (GET /plugin/update), cached for 12 hours. Only
+	 * for an active license: Yallapp answers 204 otherwise.
+	 *
+	 * @return array|null
+	 */
+	private function release() {
+		$key = (string) $this->settings->get( 'license_key' );
+		if ( '' === $key || ! $this->is_active() ) {
+			return null;
+		}
+		$cached = get_transient( 'yallapp_release' );
+		if ( is_array( $cached ) ) {
+			return $cached ? $cached : null;
+		}
+		$result  = $this->call(
+			'GET',
+			'/plugin/update?' . http_build_query(
+				array(
+					'license_key' => $key,
+					'site_url'    => home_url( '/' ),
+					'version'     => YALLAPP_VERSION,
+				)
+			)
+		);
+		$release = is_array( $result ) && ! empty( $result['version'] ) && ! empty( $result['download_url'] ) ? $result : array();
+		set_transient( 'yallapp_release', $release, 12 * HOUR_IN_SECONDS );
+		return $release ? $release : null;
+	}
+
+	/**
 	 * Saves a status from the platform.
 	 *
 	 * @param array $result LicenseStatus.
@@ -581,8 +674,7 @@ class License_Client {
 			'contacted_at'        => time(),
 		);
 		update_option( self::STATUS_OPTION, $status, false );
-		// 76 The release cache of versions before 0.4.8, which updated themselves from Yallapp;
-		// updates now come from WordPress.org.
+		// A new status can change whether an update is offered: ask Yallapp again.
 		delete_transient( 'yallapp_release' );
 		return $status;
 	}

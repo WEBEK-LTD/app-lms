@@ -1857,7 +1857,8 @@ account is `yallapp`.
 | [x] | 76.2 Readme: contributor `yallapp`, a Yallapp account required, Installation, External services (Yallapp, Firebase Cloud Messaging, Huawei Push Kit: what is sent, when, terms and privacy links), changelog | Plugin Check's readme checks |
 | [x] | 76.3 `bin/plugin-check.sh` and the CI job "Plugin Check (WordPress.org)": Plugin Check 2.1.0 on the zip, failing on any error or warning (0.4.7: 2 errors, 67 warnings; 0.4.8: none) | The script locally, CI |
 | [x] | 76.4 Docs: this phase, ARCHITECTURE, LAUNCH-CHECKLIST 7v | Review |
-| [ ] | 76.5 The owner: release 0.4.8 in Admin › Plugin releases, submit it to WordPress.org as `yallapp`, answer the review, then the first SVN commit | LAUNCH-CHECKLIST 7v |
+| [-] | 76.5 Not done, the owner's decision (2026-10-26): the plugin is not listed on WordPress.org. Its review of 0.4.8 asked for every local feature to work without a paid plan (guideline 5); the owner chose to keep the plugin paused without an active plan and to give it from Yallapp only | — |
+| [x] | 76.6 Plugin 0.4.18: updates from Yallapp again, for sites whose plan is active (`GET /api/v1/plugin/update`, Admin › Plugin releases), in Dashboard › Updates and "View version details"; sites on 0.4.8 to 0.4.17 install 0.4.18 by hand once. Plugin Check still runs on every change, without its check against updaters | `self-update-check.php` in the integration suite, `bin/plugin-check.sh`, `composer lint`, PHPUnit |
 
 ## Phase 77: Chat in the app
 

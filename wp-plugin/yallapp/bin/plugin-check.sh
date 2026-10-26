@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # 76 Runs WordPress.org's Plugin Check on the installable zip, the same checks the
-# plugin directory runs on an upload. Any error or warning fails.
+# plugin directory runs on an upload. Any error or warning fails. 76.6 The plugin
+# isn't listed on WordPress.org and updates itself from Yallapp, so the one check
+# against updaters (allowed only outside WordPress.org) is left out.
 #
 # Usage: bin/plugin-check.sh [work-dir]
 set -euo pipefail
@@ -39,7 +41,7 @@ unzip -q "$ZIP" -d "$SITE/wp-content/plugins"
 WP="php $CACHE/wp-cli-$WP_CLI_VERSION.phar --path=$SITE --allow-root"
 $WP plugin activate plugin-check yallapp --quiet
 REPORT=$WORK/plugin-check.csv
-$WP plugin check yallapp --format=csv --fields=file,line,type,code,message > "$REPORT" 2> "$WORK/plugin-check.log" || true
+$WP plugin check yallapp --exclude-checks=plugin_updater --format=csv --fields=file,line,type,code,message > "$REPORT" 2> "$WORK/plugin-check.log" || true
 FOUND=$(grep -cE ',(ERROR|WARNING),' "$REPORT" || true)
 if [ "$FOUND" = "0" ] && ! grep -q "No errors found" "$REPORT"; then
 	# Neither findings nor its all-clear: the check itself didn't run.

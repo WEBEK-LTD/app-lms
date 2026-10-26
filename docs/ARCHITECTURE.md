@@ -2129,28 +2129,33 @@ platform, its own API):
   app, plan and end date and the next step, without the key. The admin's
   "Email the license key again" sends that one for these apps.
 
-## The plugin on WordPress.org (Phase 76)
+## The plugin and WordPress.org (Phase 76)
 
-From 0.4.8 the plugin follows WordPress.org's plugin guidelines, so it can
-be listed there (slug `yallapp`, contributor `yallapp`):
+0.4.8 was made ready for WordPress.org's plugin guidelines (slug `yallapp`,
+contributor `yallapp`). Its review asked for every local feature to work
+without a paid plan; the owner chose to keep the plugin paused without an
+active plan (68) and not to list it there (2026-10-26). What stays from
+that work:
 
-- **No updates from Yallapp.** WordPress.org forbids a plugin updating
-  itself from elsewhere, so `License_Client` no longer adds itself to
-  WordPress's update list. Sites on 0.4.7 and earlier still update to 0.4.8
-  through `GET /api/v1/plugin/update` (Admin › Plugin releases); from 0.4.8,
-  WordPress updates the `yallapp/yallapp.php` folder from WordPress.org like
-  any listed plugin. The platform's endpoint stays for the older versions.
+- **Updates from Yallapp (76.6).** `License_Client` adds a newer release to
+  WordPress's update list (`pre_set_site_transient_update_plugins`) and to
+  "View version details" (`plugins_api`) from `GET /api/v1/plugin/update`
+  (Admin › Plugin releases), only while the plan is active: the platform
+  answers 204 otherwise and the plugin doesn't ask. The answer is cached for
+  12 hours (`yallapp_release`) and dropped with every license check. 0.4.8
+  to 0.4.17 had no updater, so those sites install 0.4.18 by hand once.
 - **Headers and readme.** The Plugin URI (`/docs/wordpress-plugin`) and the
-  Author URI (`yallapp.com.tr`) differ, as the upload form requires; the
-  readme says a Yallapp account is required and lists every external
-  service under "External services": Yallapp (what each call sends and
-  when), Firebase Cloud Messaging and Huawei Push Kit (only when their keys
-  are set), with their terms and privacy links.
+  Author URI (`yallapp.com.tr`) differ; the readme says a Yallapp account is
+  required and lists every external service under "External services":
+  Yallapp (what each call sends and when), Firebase Cloud Messaging and
+  Huawei Push Kit (only when their keys are set), with their terms and
+  privacy links.
 - **Plugin Check.** `bin/plugin-check.sh` builds the zip, installs it on a
   dev site with WordPress.org's Plugin Check (2.1.0, from GitHub) and fails
-  on any error or warning; CI runs it on every plugin change ("Plugin Check
-  (WordPress.org)"). Queries on the LMS's, shop's and booking plugin's own
-  tables name those tables from `$wpdb->prefix`, which the ignores say.
+  on any error or warning, leaving out only its check against updaters; CI
+  runs it on every plugin change ("Plugin Check (WordPress.org)"). Queries
+  on the LMS's, shop's and booking plugin's own tables name those tables
+  from `$wpdb->prefix`, which the ignores say.
 
 ## Chat in the app (Phase 77)
 
