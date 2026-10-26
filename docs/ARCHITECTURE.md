@@ -3311,7 +3311,21 @@ without a new build. The app renders whatever the API sends.
   one variable file, ten fonts per app. The files are assets (kind `font`,
   served at `/api/v1/assets/<id>`), counted in the app's Media storage
   (`mediaUsage`) and deleted with the app; `font_family` names them like a
-  free font, so the plugin and the app need nothing new. Apps on their own API
+  free font, so the plugin and the app need nothing new. 97.3 The Figma
+  look (`figma_look` in the layout, `lib/figma`): a look made from files
+  exported from Figma, kept apart from the standard look (`appearance`),
+  with `look_mode` saying which one the app shows; switching never changes
+  the other. The design tokens JSON is read in the browser
+  (`lib/figma/tokens.ts`: W3C tokens as Figma exports its variables, Tokens
+  Studio, Style Dictionary, variable lists, `{references}`) into colors,
+  font families and radii, with a suggestion the owner changes before
+  saving; the logo and pictures are assets of kind `figma_image` (PNG, JPEG
+  or WebP, 5 MB each), and a draft may name only its own account's. When
+  served (`shownAppearance`), the Figma look gives the app its colors,
+  font, corners and, in `Appearance.primary_color` and `logo_url`, its
+  main color and logo over the branding (plugin 0.4.20 passes them on);
+  the template, the opening mode and the cards stay the standard look's.
+  Its pictures are offered in the editor's Choose from Media. Apps on their own API
   get only the bundled font from the build config, unless their API sends
   `font_files` itself.
 - **Pages.** `GET /pages` returns the bottom tabs and the page list;
