@@ -1,4 +1,5 @@
 import { runAutoBuilds } from "../builds/auto";
+import { runOrderWatches, type OrderWatchReport } from "../hosted/order-watch";
 import { syncReviewStatuses, type ReviewSyncReport } from "../publishing/review";
 import type { PreflightDeps } from "../builds/preflight";
 import { assetUrl } from "../assets";
@@ -33,6 +34,8 @@ export interface FrequentReport {
   builds: { queued: number; nothing: number; later: number };
   /** 88.3 iPhone versions in review whose App Store state was read, and the ones whose status changed. */
   reviews: ReviewSyncReport;
+  /** 91.2 Order watches looked at, people told of an order update, watches that ended. */
+  orders: OrderWatchReport;
 }
 
 export async function runFrequentJobs(deps: {
@@ -50,6 +53,8 @@ export async function runFrequentJobs(deps: {
   startPipeline?: () => Promise<unknown>;
   /** 88.3 How App Store Connect is reached (tests: a fake fetch). */
   storeFetch?: typeof fetch;
+  /** 91.2 How the connected platforms are reached (tests: a fake fetch). */
+  platformFetch?: typeof fetch;
 }): Promise<FrequentReport> {
   const notifications = await runScheduledNotifications({ store: deps.store, key: deps.key, now: deps.now, send: deps.send });
   let campaigns: CampaignRunReport = { sent: 0, waiting: 0, failed: 0 };
@@ -93,5 +98,12 @@ export async function runFrequentJobs(deps: {
   } catch (error) {
     console.error("[frequent] review statuses", error instanceof Error ? error.message : String(error));
   }
-  return { notifications, announcements, ended, campaigns, automatic, builds, reviews };
+  // 91.2 Order updates from the connected platforms.
+  let orders: OrderWatchReport = { checked: 0, told: 0, ended: 0 };
+  try {
+    orders = await runOrderWatches({ store: deps.store, key: deps.key, now: deps.now, send: deps.send, fetcher: deps.platformFetch });
+  } catch (error) {
+    console.error("[frequent] order updates", error instanceof Error ? error.message : String(error));
+  }
+  return { notifications, announcements, ended, campaigns, automatic, builds, reviews, orders };
 }

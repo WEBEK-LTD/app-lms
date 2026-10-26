@@ -22,7 +22,7 @@ Uygulamanın yapılandırmasında ürünleri ve koleksiyonları okuma ve ödeme 
 
 ## İsteğe bağlı: sipariş geçmişi
 
-Müşterilere siparişlerini uygulamada göstermek için aynı uygulamada **read_orders** ve **read_customers** izinleriyle **Admin API** erişimini açın, ardından **Admin API access token**'ı kopyalayın. Siparişler müşterilerin giriş yaptığı telefon numarasıyla eşleştirilir; bu yüzden mağazanızda aynı numarayı kullanmaları gerekir.
+Müşterilere siparişlerini uygulamada göstermek için aynı uygulamada **read_orders** ve **read_customers** izinleriyle **Admin API** erişimini açın, ardından **Admin API access token**'ı kopyalayın. Siparişler müşterilerin giriş yaptığı telefon numarasıyla eşleştirilir; bu yüzden mağazanızda aynı numarayı kullanmaları gerekir. Bir siparişi takip numarasıyla gönderdiğinizde, tamamladığınızda, iptal ettiğinizde veya iade ettiğinizde müşteriler bildirim de alır (15 dakika içinde, uygulamadan ödeme yaptıktan sonraki 30 gün boyunca) ve kargoyu siparişten takip eder.
 
 ## Web sitesi adımına girin
 

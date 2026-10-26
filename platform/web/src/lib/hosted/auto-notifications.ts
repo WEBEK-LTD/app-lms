@@ -1,4 +1,5 @@
 import { appZone } from "../analytics/zone";
+import { platformDefinition } from "./connectors/platforms";
 import { dayOf } from "../analytics/days";
 import { appAreas } from "../app/areas";
 import type { Lang } from "@/i18n/config";
@@ -54,7 +55,16 @@ export function autoKindsFor(app: Pick<App, "connector" | "backend" | "vertical"
   if (areas.memberCheckIn) kinds.push("class_soon", "membership_ending");
   if (areas.events) kinds.push("event_soon");
   if (areas.products) kinds.push("cart_left", "order_update");
+  // 91.2 A shop on Shopify or another platform: its orders are watched (lib/hosted/order-watch.ts).
+  else if (shopOnPlatform(app)) kinds.push("order_update");
   return AUTO_KINDS.filter((k) => kinds.includes(k));
+}
+
+/** 91.2 A Store app whose shop is on Shopify or another connected platform. */
+export function shopOnPlatform(app: Pick<App, "connector" | "backend">): boolean {
+  if (app.backend !== "hosted") return false;
+  if (app.connector?.kind === "shopify") return true;
+  return app.connector?.kind === "platform" && platformDefinition(app.connector.platform)?.appType === "store";
 }
 
 export function autoOn(app: Pick<App, "hostedSettings">, kind: AutoKind): boolean {
@@ -106,11 +116,41 @@ export const AUTO_TEXT: Record<AutoKind, Record<Lang, Text>> = {
     ar: (v) => ({ title: "حان وقت الدراسة", body: `دقائق قليلة اليوم تُبقيك مستمرًا في ${v.course}.` }),
     tr: (v) => ({ title: "Ders zamanı", body: `Bugün birkaç dakika, ${v.course} kursunda ilerlemenizi sürdürür.` }),
   },
-  // 91.2 An order completed or cancelled (a shipment is told by lib/catalog/shipping.ts).
+  // 91.2 An order shipped (connected platforms; the shops' own are told by lib/catalog/shipping.ts), completed, cancelled or refunded.
   order_update: {
-    en: (v) => ({ title: `Order ${v.number}`, body: v.status === "cancelled" ? "Your order was cancelled." : "Your order is complete. Thank you!" }),
-    ar: (v) => ({ title: `الطلب ${v.number}`, body: v.status === "cancelled" ? "تم إلغاء طلبك." : "اكتمل طلبك. شكرًا لك!" }),
-    tr: (v) => ({ title: `Sipariş ${v.number}`, body: v.status === "cancelled" ? "Siparişiniz iptal edildi." : "Siparişiniz tamamlandı. Teşekkürler!" }),
+    en: (v) => ({
+      title: `Order ${v.number}`,
+      body:
+        v.status === "shipped"
+          ? `Your order is on its way${v.tracking ? `: ${v.tracking}` : ""}. Tap to follow it.`
+          : v.status === "cancelled"
+            ? "Your order was cancelled."
+            : v.status === "refunded"
+              ? "Your order was refunded."
+              : "Your order is complete. Thank you!",
+    }),
+    ar: (v) => ({
+      title: `الطلب ${v.number}`,
+      body:
+        v.status === "shipped"
+          ? `طلبك في الطريق${v.tracking ? `: ${v.tracking}` : ""}. اضغط لتتبّعه.`
+          : v.status === "cancelled"
+            ? "تم إلغاء طلبك."
+            : v.status === "refunded"
+              ? "تم استرداد قيمة طلبك."
+              : "اكتمل طلبك. شكرًا لك!",
+    }),
+    tr: (v) => ({
+      title: `Sipariş ${v.number}`,
+      body:
+        v.status === "shipped"
+          ? `Siparişiniz yolda${v.tracking ? `: ${v.tracking}` : ""}. Takip etmek için dokunun.`
+          : v.status === "cancelled"
+            ? "Siparişiniz iptal edildi."
+            : v.status === "refunded"
+              ? "Siparişiniz iade edildi."
+              : "Siparişiniz tamamlandı. Teşekkürler!",
+    }),
   },
 };
 
@@ -216,6 +256,19 @@ export async function notifyOrderUpdate(deps: AutoDeps, app: App, order: Pick<Ca
   if (order.userId === null || !(await appMayNotify(deps.store, app, deps.now))) return { people: 0, phones: 0 };
   return notifyAuto(deps, app, "order_update", [
     { userId: order.userId, ref: `order:${order.id}:${status}`, values: { number: orderNumber(order), status }, data: { order_id: String(order.id) } },
+  ]);
+}
+
+/** 91.2 A change to an order on a connected platform (lib/hosted/order-watch.ts): its customer, once per change. */
+export async function notifyPlatformOrder(
+  deps: AutoDeps,
+  app: App,
+  userId: number,
+  order: { id: string; number: string; status: "shipped" | "completed" | "cancelled" | "refunded"; tracking: string; ref: string },
+) {
+  if (!(await appMayNotify(deps.store, app, deps.now))) return { people: 0, phones: 0 };
+  return notifyAuto(deps, app, "order_update", [
+    { userId, ref: `order:${order.ref}`, values: { number: order.number, status: order.status, tracking: order.tracking }, data: { order_id: order.id } },
   ]);
 }
 

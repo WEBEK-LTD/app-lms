@@ -1091,6 +1091,10 @@ never in a chat or an issue.
       app user: the phone gets "Your order is on its way", and the order shows
       the tracking. On a shop without a website, mark an order completed: the
       customer is told, unless "Order updates" is off on App notifications.
+      Migration `0080_order_watches.sql` (a new table) goes with the deploy,
+      migrations first. On a Shopify test shop: check out from the app, then
+      fulfill the order with a tracking number; within 15 minutes the phone
+      gets "Your order is on its way" and the order shows the tracking.
 - [ ] **Coupons** (91.1): migration `0079_catalog_coupons.sql` (a new table
       and two columns on `catalog_orders`) goes with the production deploy,
       migrations first; plugin 0.4.15. After deploying: on a test shop

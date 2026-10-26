@@ -54,4 +54,31 @@ describe.skipIf(!url)("91.1 coupons on MySQL", () => {
     await store.deleteCatalogCoupon(app.id, coupon.id);
     expect(await store.listCatalogCoupons(app.id)).toEqual([]);
   });
+
+  it("91.2 watches a person's orders: started once, extended, due when not looked at, and ended", async () => {
+    const store = stores[0]!;
+    const suffix = randomUUID().slice(0, 8);
+    const { client } = await registerClient(store, { name: "Rose Shop", email: `p912-${suffix}@rose.test`, whatsapp: "+905446731942", siteUrl: "", password: null }, NOW);
+    const app: App = { ...newApp(client.id, null, NOW, "store"), backend: "hosted", connector: { kind: "shopify", shopDomain: "rose.myshopify.com", tokenEncrypted: "x" } as never };
+    await store.createApp(app);
+    const user = (await store.createHostedUser({ appId: app.id, phone: `+90532${Math.floor(Math.random() * 1e7)}`, name: "Deniz", email: null, city: null, now: NOW }))!;
+    const day = 86_400_000;
+    const mine = async (checkedBefore: Date, now: Date) => (await store.listDueOrderWatches(checkedBefore, now, 500)).filter((w) => w.appId === app.id);
+
+    await store.watchHostedOrders(app.id, user.id, new Date(NOW.getTime() + 30 * day));
+    // A shorter end never shortens it.
+    await store.watchHostedOrders(app.id, user.id, new Date(NOW.getTime() + day));
+    expect(await mine(NOW, NOW)).toEqual([{ appId: app.id, userId: user.id, orders: {}, checkedAt: null, until: new Date(NOW.getTime() + 30 * day) }]);
+
+    await store.saveOrderWatch(app.id, user.id, { "501": "processing|" }, NOW);
+    expect(await mine(NOW, NOW)).toEqual([]);
+    const later = new Date(NOW.getTime() + 20 * 60_000);
+    expect(await mine(new Date(later.getTime() - 15 * 60_000), later)).toMatchObject([{ orders: { "501": "processing|" }, checkedAt: NOW }]);
+
+    const ended = new Date(NOW.getTime() + 31 * day);
+    expect(await mine(ended, ended)).toEqual([]);
+    expect(await store.deleteEndedOrderWatches(ended)).toBeGreaterThanOrEqual(1);
+    await store.watchHostedOrders(app.id, user.id, new Date(ended.getTime() + day));
+    expect(await mine(ended, ended)).toMatchObject([{ orders: {}, checkedAt: null }]);
+  });
 });

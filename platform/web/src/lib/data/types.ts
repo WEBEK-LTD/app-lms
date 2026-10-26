@@ -2756,6 +2756,22 @@ export interface HostedCart {
   remindedAt: Date | null;
 }
 
+/**
+ * 91.2 A person's orders on a connected platform, watched for some days after
+ * they check out from the app: what each order looked like last time, so a
+ * change (shipped, completed, cancelled, refunded) is told once.
+ */
+export interface HostedOrderWatch {
+  appId: string;
+  userId: number;
+  /** Each order's last seen state, by order ID. */
+  orders: Record<string, string>;
+  /** Null before the first look (the orders seen then aren't told). */
+  checkedAt: Date | null;
+  /** Watched until then. */
+  until: Date;
+}
+
 // 85.2 Notification campaigns
 
 /** 85.1 Who a campaign goes to (lib/hosted/audiences.ts). */

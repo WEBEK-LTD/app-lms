@@ -1541,7 +1541,10 @@ paths:
         whose push `data` carries the `order_id`. 91.2 Shop orders too: a
         shipment with its tracking, completed, cancelled or refunded is an
         `order_update` notification (unless the phone turned `orders` off)
-        that opens this. `not_found` for someone else's order.
+        that opens this; on Yallapp's hosted API, shops on Shopify and the
+        other connected platforms too (their orders are looked at for 30 days
+        after a checkout from the app, every 15 minutes). `not_found` for
+        someone else's order.
       parameters:
         - $ref: '#/components/parameters/OrderId'
       responses:
@@ -4998,7 +5001,8 @@ components:
             it is shipped, for orders that aren't shipped and on older servers.
             91.2 On WordPress, from the tracking that the WooCommerce Shipment
             Tracking or Advanced Shipment Tracking plugin keeps on the order
-            (the latest one when there are several).
+            (the latest one when there are several); on Shopify, from the
+            order's newest fulfillment with tracking.
           required: [shipped_at]
           properties:
             carrier: { type: [string, 'null'], description: "The carrier's name as the shop wrote it.", example: Aras Kargo }

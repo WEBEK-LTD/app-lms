@@ -370,7 +370,7 @@ In the app's configuration, turn on **Storefront API** access with the permissio
 
 ## Optional: order history
 
-To show customers their orders in the app, turn on **Admin API** access in the same app with the **read_orders** and **read_customers** permissions, then copy the **Admin API access token**. Orders are matched to the phone number customers sign in with, so they must use the same number in your shop.
+To show customers their orders in the app, turn on **Admin API** access in the same app with the **read_orders** and **read_customers** permissions, then copy the **Admin API access token**. Orders are matched to the phone number customers sign in with, so they must use the same number in your shop. Customers also get a notification when you fulfill an order with a tracking number, complete it, cancel it or refund it (within 15 minutes, for 30 days after they check out from the app), and follow the parcel from the order.
 
 ## Enter them on the Website step
 

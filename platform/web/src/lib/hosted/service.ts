@@ -1,4 +1,5 @@
 import { appSwitches } from "../app/switches";
+import { watchOrdersAfterCheckout } from "./order-watch";
 import { randomInt } from "node:crypto";
 import { hostedScreenProtection } from "../app/screen-protection";
 import { hidesVideoBranding } from "../app/video-branding";
@@ -331,7 +332,22 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
       const failed = errorOfBody(result.body);
       await noteAppError(ctx.store, { clientId: ctx.app.clientId, appId: ctx.app.id, source: "platform", code: failed?.code ?? `http_${result.status}`, detail: `${req.method} /${req.path.join("/")}: ${failed?.message ?? "no answer"}` }, ctx.now);
     }
+    // 91.2 Someone checked out on a connected platform: their orders are watched for updates.
+    if (result && result.status === 200 && route === "POST /store/checkout-link" && session) {
+      try {
+        await watchOrdersAfterCheckout(ctx.store, ctx.app, session.user.id, ctx.now);
+      } catch (e) {
+        console.error(`[hosted] app ${ctx.app.id}: the order watch couldn't start: ${errorText(e)}`);
+      }
+    }
     if (result) return result;
+    // 91.2 One order on a connected platform (an order update opens it): from the customer's orders.
+    if (session && req.method === "GET" && req.path.length === 3 && req.path[0] === "me" && req.path[1] === "orders" && /^\d{1,20}$/.test(req.path[2]!)) {
+      const list = await ctx.connector.handle({ method: "GET", path: ["me", "orders"], query: new URLSearchParams({ per_page: "50" }), body: null, user: session.user, now: ctx.now, lang: requestLanguage(req.headers?.get("accept-language")) });
+      if (list && list.status !== 200) return list;
+      const found = ((list?.body as { items?: { id: unknown }[] } | undefined)?.items ?? []).find((o) => String(o.id) === req.path[2]);
+      return found ? ok(found) : error(404, "not_found", "Order not found.");
+    }
   }
   return notFound();
 }
