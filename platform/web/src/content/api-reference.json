@@ -289,6 +289,13 @@
         },
         {
           "method": "GET",
+          "path": "/me/subscriptions",
+          "summary": "List the student's memberships and subscriptions on the website",
+          "description": "Roadmap 90.3. When `features.memberships` is true: the student's current Paid Memberships Pro levels, WooCommerce Subscriptions (active, on hold or cancelled but running until the end of the paid period) and LearnDash groups. Managed on the website: the app shows them and never sells them (no purchase buttons on iOS).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
           "path": "/me/certificates",
           "summary": "List the student's certificates",
           "description": "Empty when the LMS has no certificate feature active.",
@@ -359,7 +366,7 @@
           "method": "POST",
           "path": "/courses/{course_id}/enroll",
           "summary": "Enroll in a free course",
-          "description": "A course with a password on the website (62) is `403 enrollment_disabled`: the student joins it on the website, where its password is entered.",
+          "description": "A course with a password on the website (62) is `403 enrollment_disabled`: the student joins it on the website, where its password is entered. A course that needs a membership the student doesn't have (90.3, `CourseDetail.membership`) is `403 membership_required`.",
           "access": "signed-in"
         }
       ]
