@@ -188,9 +188,18 @@ export default async function CoursePage({ params }: PageProps<"/dashboard/cours
       </section>
 
       <section aria-labelledby="h-students" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-students" className="m-0 text-lg font-bold">
-          {t("courses.students")} <span className="font-normal text-muted">{enrollments.length}</span>
-        </h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 id="h-students" className="m-0 text-lg font-bold">
+            {t("courses.students")} <span className="font-normal text-muted">{enrollments.length}</span>
+          </h2>
+          {/* 90.2 Each student's progress and quiz results. */}
+          {enrollments.length ? (
+            <Link href={`/dashboard/courses/${course.id}/students`} className="flex items-center gap-1 text-sm font-semibold no-underline">
+              <Icon name="monitoring" size={18} />
+              {t("courses.seeProgress")}
+            </Link>
+          ) : null}
+        </div>
         {students.length ? (
           <ul className="m-0 flex list-none flex-col gap-1.5 p-0 text-[15px]">
             {students.map((s) => (
