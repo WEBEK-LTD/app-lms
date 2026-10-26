@@ -1857,6 +1857,8 @@ paths:
       description: >-
         A course with a password on the website (62) is `403 enrollment_disabled`: the student
         joins it on the website, where its password is entered.
+        A course that needs a membership the student doesn't have (90.3,
+        `CourseDetail.membership`) is `403 membership_required`.
       parameters:
         - $ref: '#/components/parameters/CourseId'
       responses:
@@ -2175,6 +2177,30 @@ paths:
                       items:
                         type: array
                         items: { $ref: '#/components/schemas/AttemptResult' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/subscriptions:
+    get:
+      tags: [Learning]
+      operationId: listSubscriptions
+      summary: List the student's memberships and subscriptions on the website
+      description: >-
+        Roadmap 90.3. When `features.memberships` is true: the student's current Paid
+        Memberships Pro levels, WooCommerce Subscriptions (active, on hold or cancelled but
+        running until the end of the paid period) and LearnDash groups. Managed on the
+        website: the app shows them and never sells them (no purchase buttons on iOS).
+      responses:
+        '200':
+          description: Subscriptions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/SiteSubscription' }
         '401': { $ref: '#/components/responses/Unauthorized' }
 
   /me/certificates:
@@ -3956,6 +3982,14 @@ components:
                 WordPress, the plugin's "Allow offline downloads"; the
                 dashboard's choice wins when it made one). Missing means false;
                 when it turns false the app deletes what it saved.
+            memberships:
+              type: boolean
+              description: >-
+                Roadmap 90.3. The website gives access through memberships or subscriptions
+                the app shows: Paid Memberships Pro levels, WooCommerce Subscriptions and
+                LearnDash groups. The account screen lists the student's
+                (`GET /me/subscriptions`) and course pages say which membership a course
+                comes with (`CourseDetail.membership`). Missing means false.
         switches:
           type: object
           description: |
@@ -4273,6 +4307,25 @@ components:
         enrolled: { type: boolean }
         wishlisted: { type: boolean }
 
+    SiteSubscription:
+      type: object
+      description: Roadmap 90.3. A membership, subscription or group on the website (`GET /me/subscriptions`).
+      required: [id, source, name, status, started_at, ends_at, renews_at, course_count]
+      properties:
+        id: { type: string, example: 'pmpro-2' }
+        source:
+          type: string
+          enum: [paid_memberships_pro, woocommerce_subscriptions, learndash_group]
+        name: { type: string, example: Gold }
+        status:
+          type: string
+          enum: [active, on_hold, pending_cancel]
+          description: "`pending_cancel`: cancelled, running until `ends_at`."
+        started_at: { type: [string, 'null'], format: date-time }
+        ends_at: { type: [string, 'null'], format: date-time, description: "When it ends; null when it doesn't (or renews)." }
+        renews_at: { type: [string, 'null'], format: date-time, description: "The next payment, for a subscription that renews." }
+        course_count: { type: [integer, 'null'], description: "Courses it opens, when known (LearnDash groups)." }
+
     CourseDetail:
       allOf:
         - $ref: '#/components/schemas/CourseSummary'
@@ -4323,6 +4376,23 @@ components:
               type: [string, 'null']
               format: date-time
               description: Roadmap 90.1. For an enrolled student, when their access ends (as `MyCourse.access_ends_at`).
+            membership:
+              type: [object, 'null']
+              description: >-
+                Roadmap 90.3. The website's memberships that open this course (Paid Memberships
+                Pro's "Require membership" on the course). With `has_access` false the student
+                has none of them: `purchase.action` is `none` and enrolling answers
+                `membership_required` (403); the course page names the plans and, except on iOS,
+                offers "See memberships on the website" (`website_url`). With `has_access` true a
+                student who isn't enrolled yet joins with `enroll_free`. Null when no membership
+                is needed; missing on older plugins.
+              required: [has_access, plans]
+              properties:
+                has_access: { type: boolean, description: The signed-in student has one of the plans. }
+                plans:
+                  type: array
+                  items: { type: string }
+                  example: [Gold, Annual]
             can_restart:
               type: boolean
               description: >-
