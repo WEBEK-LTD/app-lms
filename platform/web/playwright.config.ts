@@ -121,6 +121,8 @@ export const E2E = {
   manualPayAdminEmail: "manual-pay-admin@yallapp.test",
   /** 81.3 A fake website every site scan (and 81.4 every import link and picture) reads (SITE_SCAN_TEST_URL); tests/e2e/site-start.spec.ts and import.spec.ts run it. */
   siteScanPort: Number(process.env.E2E_SITE_SCAN_PORT ?? 3293),
+  /** 97.1 A fake github.com/google/fonts the font files are copied from (GOOGLE_FONTS_TEST_URL); tests/e2e/pages.spec.ts runs it. */
+  googleFontsPort: Number(process.env.E2E_GOOGLE_FONTS_PORT ?? 3290),
   /** 58 Pushes to the owners' phones, as JSON files (YALLAPP_OWNER_PUSH_DIR, never on Netlify). */
   ownerPushDir: ".data/e2e-owner-push",
   /** SIGNING_SECRET below: the analytics spec makes the app's analytics key with it, as the build config would. */
@@ -184,6 +186,7 @@ export default defineConfig({
       // 80.2 The tests' websites are made up: no daily checks of the apps' connections.
       INTEGRATION_CHECKS: "off",
       SITE_SCAN_TEST_URL: `http://localhost:${E2E.siteScanPort}`,
+      GOOGLE_FONTS_TEST_URL: `http://localhost:${E2E.googleFontsPort}`,
     },
   },
 });

@@ -1424,6 +1424,17 @@ routine every few years):
 - Apps built before 96.3 show My orders in Events apps and gyms only after
   their next build; the server side works for every app at once.
 
+## 7z4. Every free font (Phase 97.1)
+
+- [ ] Release plugin **0.4.19** in Admin › Plugin releases, so WordPress
+      apps get the free fonts too (older plugins send only the bundled
+      font, and their apps keep it).
+- [ ] Choose a free font (say Cairo) for a test app in Pages & look,
+      publish, open the app: the bundled font first, the chosen one once
+      downloaded, and still after a restart in flight mode.
+- Netlify reaches raw.githubusercontent.com the first time each font file
+  is asked for; after that it is served from Netlify Blobs.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |

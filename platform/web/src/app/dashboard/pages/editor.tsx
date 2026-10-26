@@ -37,6 +37,7 @@ import { ActionEditor, Check, firstScreen, IconGlyph, IconPicker, LangText, OwnI
 import { BLOCK_DRAG_TYPE, DesignThumb, PhonePreview } from "./preview";
 import { LivePreview, notifyDraftSaved } from "./live-preview";
 import { UpgradeHint } from "@/components/upgrade";
+import { FontPicker } from "@/components/font-picker";
 import { MAX_LANGUAGES } from "@/lib/i18n/locales";
 import { appLanguageName } from "@/lib/i18n/language-names";
 import { useDashFormat, useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
@@ -153,7 +154,7 @@ export function PagesEditor({
     /** 82.4 The app's last publishes, newest first. */
     history: LayoutHistoryEntry[];
   };
-  app: { appType: string; name: string; primaryColor: string; logoUrl: string | null };
+  app: { appType: string; name: string; primaryColor: string; logoUrl: string | null; fontCount: number };
   sources: ItemSource[];
   categorySources: ItemSource[];
   /** 31 The screens this app's type opens. */
@@ -1138,7 +1139,6 @@ export function PagesEditor({
                 options={THEME_MODES.map((m) => ({ value: m, label: known(THEME_MODE_LABELS[m]) }))}
                 onChange={(theme_mode) => setLook({ theme_mode })}
               />
-              <SelectInput id="look-font" label={t("pages.font")} value={layout.appearance.font} options={APP_FONTS.map((f) => ({ value: f, label: f }))} onChange={(font) => setLook({ font })} />
               <SelectInput
                 id="look-corners"
                 label={t("pages.corners")}
@@ -1152,6 +1152,24 @@ export function PagesEditor({
                 value={layout.appearance.cards}
                 options={CARD_STYLES.map((c) => ({ value: c, label: known(CARD_LABELS[c]) }))}
                 onChange={(cards) => setLook({ cards })}
+              />
+            </div>
+            {/* 97.1 Any free font, and the Arabic text's font: the server keeps a bundled font to show until it's on the phone. */}
+            <div className="grid gap-3 sm:grid-cols-2">
+              <FontPicker
+                id="look-font"
+                label={t("pages.font")}
+                value={layout.appearance.font_family ?? layout.appearance.font}
+                onChange={(family) => setLook((APP_FONTS as readonly string[]).includes(family) ? { font: family as Appearance["font"], font_family: undefined } : { font_family: family })}
+                labels={{ arabicOnly: t("common.fontsArabicOnly"), none: t("common.fontsNone"), sample: t("common.fontsSample"), hint: t("common.fontsHint", { count: app.fontCount }) }}
+              />
+              <FontPicker
+                id="look-arabic-font"
+                label={t("common.arabicFont")}
+                value={layout.appearance.arabic_font ?? "Readex Pro"}
+                onChange={(family) => setLook({ arabic_font: family === "Readex Pro" ? undefined : family })}
+                labels={{ arabicOnly: t("common.fontsArabicOnly"), none: t("common.fontsNone"), sample: t("common.fontsSample"), hint: t("common.arabicFontHint") }}
+                arabicOnly
               />
             </div>
             <Check label={t("pages.switchMode")} checked={layout.appearance.user_can_change_mode} onChange={(user_can_change_mode) => setLook({ user_can_change_mode })} />

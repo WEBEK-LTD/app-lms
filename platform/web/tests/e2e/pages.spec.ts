@@ -1,10 +1,14 @@
-import { expect, test, type Page } from "@playwright/test";
+import { readFileSync } from "node:fs";
+import { createServer, type Server } from "node:http";
+import path from "node:path";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 
 /**
  * Pages, looks and languages (roadmap 10.4, 10.6, 10.8 and 11.9): the team
  * sets the defaults for new apps, a client builds and publishes a page, and
- * the hosted API serves it in English and Arabic.
+ * the hosted API serves it in English and Arabic. 97.1 Any free font, served
+ * from Yallapp: a fake google/fonts stands in for GitHub (GOOGLE_FONTS_TEST_URL).
  */
 test.describe.configure({ mode: "serial" });
 
@@ -13,8 +17,23 @@ const client = { name: "Nil Academy", email: `nil-academy-${suffix}@school.test`
 let admin: Page;
 let own: Page;
 let api = "";
+let fonts: Server;
+const fontsAsked: string[] = [];
+const OUTFIT = readFileSync(path.resolve(__dirname, "../../../../mobile/assets/fonts/outfit/Outfit-Variable.ttf"));
+
+/** Picks a font in a font picker: typed, then chosen from the list. */
+async function chooseFont(field: Locator, page: Page, family: string) {
+  await field.fill(family);
+  await page.getByRole("option", { name: family, exact: true }).click();
+  await expect(field).toHaveValue(family);
+}
 
 test.beforeAll(async ({ browser }) => {
+  fonts = createServer((req, res) => {
+    fontsAsked.push(req.url ?? "");
+    res.writeHead(200, { "content-type": "application/octet-stream" }).end(OUTFIT);
+  });
+  await new Promise<void>((resolve) => fonts.listen(E2E.googleFontsPort, resolve));
   admin = await browser.newPage();
   await admin.goto("/sign-in");
   await admin.getByLabel("Email").fill(E2E.pagesAdminEmail);
@@ -33,6 +52,7 @@ test.afterAll(async () => {
   }
   await admin.close();
   await own?.close();
+  await new Promise((resolve) => fonts.close(resolve));
 });
 
 test("the team sets the look and languages new apps start with", async () => {
@@ -40,8 +60,10 @@ test("the team sets the look and languages new apps start with", async () => {
   const defaults = admin.getByRole("region", { name: "Defaults for new apps" });
   await defaults.getByLabel("Template").selectOption("minimal");
   await defaults.getByLabel("Corners").selectOption("sharp");
-  await defaults.getByLabel("Font").selectOption("Lexend");
-  await defaults.getByRole("checkbox", { name: "Arabic" }).check();
+  // 97.1 Any free font, and the Arabic text's own.
+  await chooseFont(defaults.getByLabel("Font", { exact: true }), admin, "Cairo");
+  await chooseFont(defaults.getByLabel("Font for Arabic text"), admin, "Tajawal");
+  await defaults.getByRole("checkbox", { name: "Arabic", exact: true }).check();
   await defaults.getByRole("button", { name: "Save defaults" }).click();
   await expect(defaults.getByText("Defaults saved. New apps start with them.")).toBeVisible();
   await expect(defaults.getByText(`Set here by ${E2E.pagesAdminEmail}`)).toBeVisible();
@@ -80,7 +102,8 @@ test("a new client's app starts with those defaults", async ({ browser }) => {
   await own.getByRole("tab", { name: "Look" }).click();
   await expect(own.getByRole("radio", { name: "Minimal" })).toBeChecked();
   await expect(own.getByLabel("Corners")).toHaveValue("sharp");
-  await expect(own.getByLabel("Font")).toHaveValue("Lexend");
+  await expect(own.getByLabel("Font", { exact: true })).toHaveValue("Cairo");
+  await expect(own.getByLabel("Font for Arabic text")).toHaveValue("Tajawal");
   await own.getByRole("tab", { name: "Languages" }).click();
   // 43 Any language, in the owner's order.
   await expect(own.getByRole("list", { name: "Languages in the app" }).getByRole("listitem")).toContainText(["English", "Arabic"]);
@@ -125,7 +148,33 @@ test("the client builds a page, reorders it and publishes", async () => {
 test("the hosted API serves the published page", async ({ request }) => {
   // The look and languages the app started with, now published.
   const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
-  expect(config.appearance).toMatchObject({ template: "minimal", corners: "sharp", font: "Lexend" });
+  // 97.1 The free fonts with their files on Yallapp; the bundled font closest to Cairo until it's on the phone.
+  expect(config.appearance).toMatchObject({
+    template: "minimal",
+    corners: "sharp",
+    font: "DM Sans",
+    font_family: "Cairo",
+    font_files: [{ url: expect.stringMatching(/\/api\/v1\/fonts\/ofl\/cairo\/Cairo%5Bslnt%2Cwght%5D\.ttf$/), weight: null }],
+    arabic_font: "Tajawal",
+  });
+  expect(config.appearance.arabic_font_files.map((f: { weight: number }) => f.weight)).toEqual([400, 500, 700]);
+  // The file is copied once from google/fonts at the catalog's commit, then served from Yallapp.
+  const fontUrl = new URL(config.appearance.font_files[0].url).pathname;
+  for (let i = 0; i < 2; i++) {
+    const file = await request.get(fontUrl);
+    expect(file.status()).toBe(200);
+    expect(file.headers()["content-type"]).toBe("font/ttf");
+    expect(file.headers()["access-control-allow-origin"]).toBe("*");
+    expect(file.headers()["cache-control"]).toContain("immutable");
+    expect((await file.body()).equals(OUTFIT)).toBe(true);
+  }
+  // Once in all, the picker's preview included, at the catalog's commit.
+  const cairo = fontsAsked.filter((u) => u.endsWith("/ofl/cairo/Cairo%5Bslnt%2Cwght%5D.ttf"));
+  expect(cairo).toHaveLength(1);
+  expect(cairo[0]).toMatch(/^\/[0-9a-f]{40}\/ofl\/cairo\//);
+  expect((await request.get("/api/v1/fonts/ofl/cairo/Other.ttf")).status()).toBe(404);
+  const found = await (await request.get("/api/v1/fonts?q=taja&arabic=1")).json();
+  expect(found.fonts[0]).toMatchObject({ family: "Tajawal", arabic: true, bundled: false });
   expect(config.languages).toMatchObject({ default: "en", available: ["en", "ar"], list: [{ code: "en", native_name: "English" }, { code: "ar", direction: "rtl", strings: null }] });
   const navResponse = await request.get(`${api}/pages?platform=android`);
   expect(navResponse.headers()["vary"]).toContain("Accept-Language");

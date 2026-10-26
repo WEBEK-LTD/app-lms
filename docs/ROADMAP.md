@@ -2166,3 +2166,31 @@ app, not only in their email.
 | [x] | 96.2 Bank transfer and the client's own method (cash on delivery, a wallet): the client writes the details, the customer picks it on the pay page and sees them there, by email and in the app, and the order waits under Waiting for payment until the client marks it paid (then it is delivered like a card payment, with the receipt) or cancels it; also in Yallapp Business. Donations stay card-only | e2e, unit and Flutter tests |
 | [x] | 96.3 Receipts in the app for tickets, paid courses and memberships: Events apps, Academy apps and gyms without a website list them under My orders (`GET /me/orders`, `features.orders`), each with its receipt, as shops do (courses on Android only, where they're sold) | Unit and Flutter tests |
 | [x] | 96.4 Receipts in the customer's own language: the app's language at checkout is kept on the order or donation (`lang`), and the receipt email's PDF and its link use it when the app has that language | Unit tests |
+
+## Phase 97: Every free font, your own font, and a Figma mode
+
+The owner's decisions (2026-10-26): no Figma approval of any kind (no OAuth
+app, no Figma Community plugin). A client brings a design from Figma in two
+ways:
+- the file's link with their own Figma personal access token, used once for
+  that import and never stored;
+- files exported from Figma: a design tokens JSON, the logo and pictures.
+
+Figma's limits are the client's (their seat and their file's plan; a file on
+Figma's free plan allows about 6 reads a month), so the link import says so
+plainly, and the upload import has no limits. Every free font (Google Fonts)
+and uploading one's own font (with the client confirming its licence allows
+use in apps) come to every plan.
+
+The Figma mode is entirely separate from the standard look. It keeps its own
+look (colors, fonts, logo, pictures) apart from the standard one; switching
+between the modes never changes the other's settings. In the Figma mode the
+look comes from the file only. Everything lands in the draft; nothing is
+published until the client publishes.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 97.1 Every Google font: a catalog made from github.com/google/fonts (family, category, weights, Arabic or not; 1,976 families, files up to 5 MB), the files served from Yallapp (copied once, never loaded from Google in the browser or the app), a picker with search, an Arabic filter and a preview in Branding, the page editor and the admin's defaults, and an Arabic font for the app's Arabic text. The app keeps the six bundled fonts and downloads a chosen font once from Yallapp (kept on the phone), showing the closest bundled font until then; plugin 0.4.19 passes the fonts on. The site scan takes the site's own font when it's a free one | Unit, e2e and Flutter tests |
+| [ ] | 97.2 Your own font: upload TTF or OTF files (up to four weights), with "I have a licence to use this font in apps"; checked as a font, counted in Media storage, used like any other | Unit, e2e and Flutter tests |
+| [ ] | 97.3 Figma mode, separate from the standard look: its own saved look and a switch between the two in Branding; import from files exported from Figma (design tokens JSON in the common formats, the logo and pictures), with a preview to choose from before applying | Unit and e2e tests |
+| [ ] | 97.4 Figma mode from a link: the file's link and the client's personal access token (used once, never stored); colors and text styles, frames to pick the logo and pictures from; Figma's limits and errors explained | Unit and e2e tests against a fake Figma API; tried by the owner on a real file |

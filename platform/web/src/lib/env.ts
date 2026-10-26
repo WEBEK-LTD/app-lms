@@ -295,6 +295,11 @@ export function siteScanTestUrl(): string | null {
   return url ?? null;
 }
 
+/** 97.1 Local tests only (refused on Netlify): font files are copied from this fake google/fonts instead of GitHub. */
+export function googleFontsTestUrl(): string | null {
+  return testOnlyUrl("GOOGLE_FONTS_TEST_URL");
+}
+
 /** 80.2 The daily checks of every app's connections (lib/integrations/schedule.ts); `INTEGRATION_CHECKS=off` turns them off (the e2e tests, whose sites are made up). */
 export function integrationChecksOn(): boolean {
   return read("INTEGRATION_CHECKS")?.toLowerCase() !== "off";

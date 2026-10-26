@@ -119,7 +119,8 @@ test("the Branding step has the site's name, colour, font and logo", async () =>
   await own.goto("/dashboard/setup?step=branding");
   await expect(own.getByLabel("App name")).toHaveValue("Cedar Academy");
   await expect(own.getByLabel("Name under the app icon")).toHaveValue("Cedar");
-  await expect(own.getByLabel("Font")).toHaveValue("Outfit");
+  // 97.1 The site's own font, any free one.
+  await expect(own.getByLabel("Font", { exact: true })).toHaveValue("Poppins");
   await expect(own.locator('input[name="primaryColor"]')).toHaveValue("#1f7a5c");
   await expect(own.locator('input[name="logoAssetId"]')).not.toHaveValue("");
   // The academy's design is the one chosen.

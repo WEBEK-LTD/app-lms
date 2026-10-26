@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.18
+Stable tag: 0.4.19
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -121,6 +121,9 @@ Terms: https://developer.huawei.com/consumer/en/devservice/term
 Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 
 == Changelog ==
+
+= 0.4.19 =
+* Every free font: the font and the Arabic text's font chosen in the Yallapp dashboard reach the app, which downloads them from Yallapp once and keeps them.
 
 = 0.4.18 =
 * Updates come from Yallapp again: while your plan is active, new versions show in Dashboard › Updates like any other plugin, with their changes. Sites on 0.4.8 to 0.4.17 install this version once by hand (Plugins › Add New › Upload Plugin); later versions arrive on their own.

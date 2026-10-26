@@ -75,6 +75,13 @@ export const en = {
   upgrade: "Upgrade",
   utc: "{time} UTC",
   leaveUnsaved: "Leave without saving your changes?",
+  // 97.1 The font picker.
+  fontsHint: "Any of {count} free fonts. A font other than the six built into the app downloads to the phone once, when the app first opens.",
+  fontsArabicOnly: "Only fonts with Arabic letters",
+  fontsNone: "No font has this name.",
+  fontsSample: "Your app's text looks like this",
+  arabicFont: "Font for Arabic text",
+  arabicFontHint: "Arabic words in your app use this font. Readex Pro is built into the app.",
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -138,6 +145,12 @@ export const ar: Messages = {
   upgrade: "ترقية",
   utc: "{time} بالتوقيت العالمي",
   leaveUnsaved: "هل تريد المغادرة دون حفظ تغييراتك؟",
+  fontsHint: "أي خط من {count} خطًا مجانيًا. الخط غير الستة المدمجة في التطبيق يُنزَّل على الهاتف مرة واحدة عند أول فتح للتطبيق.",
+  fontsArabicOnly: "الخطوط التي فيها حروف عربية فقط",
+  fontsNone: "لا يوجد خط بهذا الاسم.",
+  fontsSample: "هكذا يبدو نص تطبيقك",
+  arabicFont: "خط النصوص العربية",
+  arabicFontHint: "الكلمات العربية في تطبيقك تظهر بهذا الخط. Readex Pro مدمج في التطبيق.",
 };
 
 export const tr: Messages = {
@@ -199,4 +212,10 @@ export const tr: Messages = {
   upgrade: "Yükselt",
   utc: "{time} UTC",
   leaveUnsaved: "Değişikliklerinizi kaydetmeden çıkılsın mı?",
+  fontsHint: "{count} ücretsiz yazı tipinden herhangi biri. Uygulamada yerleşik altı yazı tipi dışındakiler, uygulama ilk açıldığında telefona bir kez indirilir.",
+  fontsArabicOnly: "Yalnızca Arapça harfleri olan yazı tipleri",
+  fontsNone: "Bu adda bir yazı tipi yok.",
+  fontsSample: "Uygulamanızın metni böyle görünür",
+  arabicFont: "Arapça metnin yazı tipi",
+  arabicFontHint: "Uygulamanızdaki Arapça sözcükler bu yazı tipiyle gösterilir. Readex Pro uygulamada yerleşiktir.",
 };

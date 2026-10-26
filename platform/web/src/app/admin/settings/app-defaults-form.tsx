@@ -6,7 +6,8 @@ import { FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
 import { CARD_LABELS, CORNER_LABELS, TEMPLATE_LABELS, THEME_MODE_LABELS } from "@/lib/pages/labels";
 import { languageName } from "@/lib/i18n/locales";
-import { APP_FONTS, APP_TEMPLATES, CARD_STYLES, CORNERS, LANGUAGE_CODES, THEME_MODES, type AppDefaultsSetting } from "@/lib/pages/types";
+import { FontPicker } from "@/components/font-picker";
+import { APP_TEMPLATES, CARD_STYLES, CORNERS, LANGUAGE_CODES, THEME_MODES, type AppDefaultsSetting } from "@/lib/pages/types";
 
 function Select({ name, label, value, options }: { name: string; label: string; value: string; options: { id: string; label: string }[] }) {
   return (
@@ -39,7 +40,6 @@ export function AppDefaultsForm({ current }: { current: AppDefaultsSetting }) {
       <div className="grid gap-4 sm:grid-cols-3">
         <Select name="template" label="Template" value={v?.template ?? a.template} options={list(APP_TEMPLATES, TEMPLATE_LABELS)} />
         <Select name="theme_mode" label="Opens in" value={v?.theme_mode ?? a.theme_mode} options={list(THEME_MODES, THEME_MODE_LABELS)} />
-        <Select name="font" label="Font" value={v?.font ?? a.font} options={APP_FONTS.map((f) => ({ id: f, label: f }))} />
         <Select name="corners" label="Corners" value={v?.corners ?? a.corners} options={list(CORNERS, CORNER_LABELS)} />
         <Select name="cards" label="Cards" value={v?.cards ?? a.cards} options={list(CARD_STYLES, CARD_LABELS)} />
         <Select
@@ -47,6 +47,23 @@ export function AppDefaultsForm({ current }: { current: AppDefaultsSetting }) {
           label="Default language"
           value={v?.default_language ?? current.languages.default}
           options={LANGUAGE_CODES.map((l) => ({ id: l, label: languageName(l) }))}
+        />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FontPicker
+          id="f-defaults-font"
+          name="font"
+          label="Font"
+          value={v?.font ?? a.font_family ?? a.font}
+          labels={{ arabicOnly: "Only fonts with Arabic letters", none: "No font has this name.", sample: "The app's text looks like this · نص التطبيق" }}
+        />
+        <FontPicker
+          id="f-defaults-arabic-font"
+          name="arabic_font"
+          label="Font for Arabic text"
+          value={v?.arabic_font || a.arabic_font || "Readex Pro"}
+          labels={{ arabicOnly: "Only fonts with Arabic letters", none: "No font has this name.", sample: "نص التطبيق يبدو هكذا · The app's text" }}
+          arabicOnly
         />
       </div>
       <label className="flex cursor-pointer items-center gap-2 text-[15px]">

@@ -1,4 +1,5 @@
 import { APP_FONTS, APP_TEMPLATES, type AppFont } from "../build-config/types";
+import type { FontFile } from "../fonts/catalog";
 import { BUILT_IN_LANGUAGES, LOCALES, RTL_CODES } from "../i18n/locales";
 
 /**
@@ -115,7 +116,15 @@ export interface Appearance {
   theme_mode: ThemeMode;
   user_can_change_mode: boolean;
   secondary_color: string | null;
+  /** One of the fonts bundled with the app: with `font_family`, the one shown until that font is on the phone. */
   font: AppFont;
+  /** 97.1 Any free font (lib/fonts/catalog.ts) the app downloads; missing: `font`. */
+  font_family?: string;
+  /** 97.1 The font of the app's Arabic text (a free font that draws Arabic); missing: Readex Pro, bundled. */
+  arabic_font?: string;
+  /** 97.1 Added when served, never stored: the files of `font_family` and `arabic_font`. */
+  font_files?: FontFile[];
+  arabic_font_files?: FontFile[];
   corners: Corners;
   cards: CardStyle;
 }

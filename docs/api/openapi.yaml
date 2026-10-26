@@ -5988,9 +5988,48 @@ components:
           description: The mode the app opens in.
         user_can_change_mode: { type: boolean, description: Shows the light and dark switch in Settings. }
         secondary_color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', example: '#E8B04B' }
-        font: { type: string, enum: [Bricolage Grotesque, Plus Jakarta Sans, Outfit, Manrope, DM Sans, Lexend] }
+        font:
+          type: string
+          enum: [Bricolage Grotesque, Plus Jakarta Sans, Outfit, Manrope, DM Sans, Lexend]
+          description: One of the fonts bundled with the app. With `font_family`, the one the app shows until that font is on the phone (and the one older apps use).
+        font_family:
+          type: string
+          pattern: '^[A-Za-z0-9 ]{1,64}$'
+          example: Cairo
+          description: |
+            97.1 Any free font (Google Fonts) the client chose, from plugin
+            0.4.19. Missing: `font`. The app downloads `font_files` once,
+            keeps them and uses this font from then on; a font the app has
+            bundled (Readex Pro) needs no files.
+        font_files:
+          type: array
+          maxItems: 4
+          description: 97.1 The files of `font_family`, on Yallapp. Missing when the font needs none.
+          items: { $ref: '#/components/schemas/FontFile' }
+        arabic_font:
+          type: string
+          pattern: '^[A-Za-z0-9 ]{1,64}$'
+          example: Tajawal
+          description: "97.1 The font of the app's Arabic text, a free font that draws Arabic. Missing: Readex Pro, bundled with the app."
+        arabic_font_files:
+          type: array
+          maxItems: 4
+          description: 97.1 The files of `arabic_font`, on Yallapp.
+          items: { $ref: '#/components/schemas/FontFile' }
         corners: { type: string, enum: [sharp, soft, round] }
         cards: { type: string, enum: [flat, outlined, elevated] }
+
+    FontFile:
+      type: object
+      description: 97.1 A font file (TrueType or OpenType) the app downloads once and keeps.
+      required: [url, weight]
+      properties:
+        url: { type: string, format: uri, example: 'https://yallapp.com.tr/api/v1/fonts/ofl/cairo/Cairo%5Bslnt%2Cwght%5D.ttf' }
+        weight:
+          type: [integer, 'null']
+          minimum: 100
+          maximum: 900
+          description: The weight this file draws; null for a variable file that draws every weight.
 
     Navigation:
       type: object

@@ -17,7 +17,7 @@ describe("81.1 what a home page says", () => {
       logoUrl: "https://cedar.example/wp-content/uploads/2026/03/cedar-logo.png",
       iconUrl: "https://cedar.example/wp-content/uploads/2026/03/cropped-cedar-180x180.png",
       colors: { primary: "#1f7a5c", accent: "#f2a33a", background: null },
-      fonts: { found: ["Poppins", "Lora"], appFont: "Outfit" },
+      fonts: { found: ["Poppins", "Lora"], appFont: "Poppins" },
       platform: { id: "wordpress", name: "WordPress", plugins: ["tutor"] },
       appType: "lms",
       vertical: null,
@@ -37,7 +37,7 @@ describe("81.1 what a home page says", () => {
       logoUrl: "https://wordpress-woocommerce-restaurant.example/wp-content/uploads/lezzet-logo.svg",
       iconUrl: "https://wordpress-woocommerce-restaurant.example/favicon.ico",
       colors: { primary: "#c0392b" },
-      fonts: { found: ["Montserrat", "Open Sans"], appFont: "Outfit" },
+      fonts: { found: ["Montserrat", "Open Sans"], appFont: "Montserrat" },
       platform: { id: "wordpress", plugins: ["woocommerce"] },
       appType: "store",
       vertical: "restaurant",
@@ -49,7 +49,7 @@ describe("81.1 what a home page says", () => {
       name: "Harbour Books",
       logoUrl: "https://harbourbooks.example/cdn/shop/files/harbour-logo.png?v=1&width=200",
       colors: { primary: "#0d3b66" },
-      fonts: { found: ["Assistant", "Playfair Display"], appFont: "DM Sans" },
+      fonts: { found: ["Assistant", "Playfair Display"], appFont: "Assistant" },
       platform: { id: "shopify", name: "Shopify" },
       appType: "store",
       vertical: null,
@@ -67,14 +67,14 @@ describe("81.1 what a home page says", () => {
       language: "ar",
       logoUrl: "https://cdn.salla.sa/store/logo.png",
       colors: { primary: "#7b2d8e", accent: "#5a1f69" },
-      fonts: { found: ["Cairo"], appFont: "Lexend" },
+      fonts: { found: ["Cairo"], appFont: "Cairo" },
       platform: { id: "salla", name: "Salla" },
       appType: "store",
     });
     expect(page("zid")).toMatchObject({
       name: "عطور النخبة",
       colors: { primary: "#b8860b" },
-      fonts: { appFont: "Lexend" },
+      fonts: { appFont: "Tajawal" },
       platform: { id: "zid" },
       appType: "store",
     });
@@ -87,7 +87,7 @@ describe("81.1 what a home page says", () => {
       // Wix's own icon, the largest it gives.
       iconUrl: "https://static.wixstatic.com/media/abc_favicon.png/v1/fill/w_180,h_180/abc.png",
       colors: { primary: "#008080" },
-      fonts: { found: ["lato"], appFont: "DM Sans" },
+      fonts: { found: ["lato"], appFont: "Lato" },
       platform: { id: "wix", name: "Wix" },
       appType: "booking",
       vertical: "clinic",
@@ -100,7 +100,7 @@ describe("81.1 what a home page says", () => {
       logoUrl: "https://plain-events.example/img/gala-logo.svg",
       iconUrl: "https://plain-events.example/img/icon.png",
       colors: { primary: "#ff6b00", accent: "#e65f00" },
-      fonts: { found: ["Bebas Neue"], appFont: "Bricolage Grotesque" },
+      fonts: { found: ["Bebas Neue"], appFont: "Bebas Neue" },
       platform: { id: "other", name: "Your website", plugins: [] },
       appType: "events",
     });
@@ -123,7 +123,10 @@ describe("81.1 the pieces", () => {
 
   it("matches fonts to the app's", () => {
     expect(appFontFor(["Manrope"])).toBe("Manrope");
-    expect(appFontFor(["Some Custom Font", "Inter"])).toBe("Manrope");
+    // 97.1 The site's own font when it's a free one; else the closest bundled one.
+    expect(appFontFor(["Some Custom Font", "Inter"])).toBe("Inter");
+    expect(appFontFor(["cairo"])).toBe("Cairo");
+    expect(appFontFor(["Helvetica Neue"])).toBe("Manrope");
     expect(appFontFor([])).toBe("Bricolage Grotesque");
   });
 

@@ -44,6 +44,7 @@ import { recordApiCheck, resolveApiCheckNotices } from "@/lib/app/api-check-noti
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import { fieldErrors, formValues, type FormState } from "@/lib/forms";
+import { lookFont } from "@/lib/fonts/look";
 import { isSvg, readPngInfo } from "@/lib/png";
 import {
   checkGoogleServiceInfoPlist,
@@ -611,7 +612,7 @@ export async function saveBrandingAction(_: FormState, formData: FormData): Prom
   await store.updateApp(context.app.id, patch, now);
   // A newly chosen design becomes the Pages & look draft, with this template and font; what's published stays.
   if (design && design.id !== context.app.design) {
-    const saved = await saveDesignDraft(store, { ...context.app, ...patch }, design, now, { template: parsed.data.template, font: parsed.data.font });
+    const saved = await saveDesignDraft(store, { ...context.app, ...patch }, design, now, { template: parsed.data.template, ...lookFont(parsed.data.font) });
     if (!saved.ok) return { errors: { design: "This design couldn't be applied to your app. Choose another one." }, values };
     revalidatePath("/dashboard/pages");
   }
