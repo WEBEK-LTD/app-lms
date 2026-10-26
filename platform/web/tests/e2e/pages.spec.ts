@@ -218,6 +218,43 @@ test("the client writes Arabic texts and the app gets them in Arabic", async ({ 
   expect(nav.pages[0].title).toBe("الرئيسية");
 });
 
+test("97.2 the client uploads a font of their own and the app gets it", async ({ request }) => {
+  await own.getByLabel("Edit texts in").selectOption("en");
+  await own.getByRole("tab", { name: "Look" }).click();
+  const mine = own.getByRole("region", { name: "Your own fonts" });
+  await mine.getByLabel("Font name").fill("Nil Sans");
+  await mine.getByLabel("Font files").setInputFiles({ name: "NilSans-Variable.ttf", mimeType: "font/ttf", buffer: OUTFIT });
+  // The licence is confirmed first.
+  await mine.getByRole("button", { name: "Upload font" }).click();
+  await expect(mine.getByRole("alert")).toHaveText("Confirm that you have a licence to use this font in apps.");
+  await mine.getByLabel("Font files").setInputFiles({ name: "NilSans-Variable.ttf", mimeType: "font/ttf", buffer: OUTFIT });
+  await mine.getByRole("checkbox", { name: "I have a licence to use this font in apps." }).check();
+  await mine.getByRole("button", { name: "Upload font" }).click();
+  await expect(mine.getByRole("status")).toHaveText("Font added. Choose it as your app's font above.");
+  await expect(mine.getByRole("listitem")).toContainText("Every weight (variable font)");
+
+  // Chosen like any font, marked as the owner's.
+  const field = own.getByLabel("Font", { exact: true });
+  await field.fill("Nil");
+  await own.getByRole("option", { name: "Nil Sans Your font" }).click();
+  await expect(field).toHaveValue("Nil Sans");
+  await own.getByRole("button", { name: "Publish", exact: true }).click();
+  await expect(own.getByText("Published. Your app shows the new pages")).toBeVisible();
+  const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
+  expect(config.appearance).toMatchObject({ font: "DM Sans", font_family: "Nil Sans", font_files: [{ url: expect.stringMatching(/\/api\/v1\/assets\/[0-9a-f-]{36}$/), weight: null }] });
+  const file = await request.get(new URL(config.appearance.font_files[0].url).pathname);
+  expect(file.headers()["content-type"]).toBe("font/ttf");
+  expect((await file.body()).equals(OUTFIT)).toBe(true);
+
+  // Deleted: the draft goes back to the bundled font.
+  await mine.getByRole("button", { name: "Delete Nil Sans" }).click();
+  await expect(mine.getByRole("status")).toHaveText("Font deleted.");
+  await expect(field).toHaveValue("DM Sans");
+  await own.reload();
+  await own.getByRole("tab", { name: "Look" }).click();
+  await expect(own.getByLabel("Font", { exact: true })).toHaveValue("DM Sans");
+});
+
 test("31 the editor offers only what the app's type has, and flags what a type change left behind", async () => {
   await own.goto("/dashboard/pages");
   await own.getByLabel("Edit texts in").selectOption("en");

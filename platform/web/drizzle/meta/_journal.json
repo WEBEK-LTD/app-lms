@@ -617,6 +617,13 @@
       "when": 1793036335156,
       "tag": "0087_receipt_language",
       "breakpoints": true
+    },
+    {
+      "idx": 88,
+      "version": "5",
+      "when": 1793051986446,
+      "tag": "0088_own_fonts",
+      "breakpoints": true
     }
   ]
 }

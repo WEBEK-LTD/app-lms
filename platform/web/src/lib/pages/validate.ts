@@ -128,9 +128,11 @@ class Checker {
 export interface ParseOptions {
   app: Pick<App, "appType" | "backend">;
   now: Date;
+  /** 97.2 The names of the app's own fonts, which its look may use. */
+  ownFonts?: readonly string[];
 }
 
-export function parseAppearance(value: unknown, c: Checker = new Checker(), where = "Look"): Appearance {
+export function parseAppearance(value: unknown, c: Checker = new Checker(), where = "Look", ownFonts: readonly string[] = []): Appearance {
   const v = record(value) ?? {};
   if (!record(value)) c.fail(where, "the look is missing.");
   if (!oneOf(APP_TEMPLATES, v.template)) c.fail(where, "choose a template.");
@@ -141,9 +143,9 @@ export function parseAppearance(value: unknown, c: Checker = new Checker(), wher
   }
   if (!oneOf(APP_FONTS, v.font)) c.fail(where, "choose a font.");
   // 97.1 A free font, and the Arabic text's font (files are added when served, never kept).
-  const chosen = v.font_family === undefined || v.font_family === null || v.font_family === "" ? {} : lookFont(typeof v.font_family === "string" ? v.font_family : null);
+  const chosen = v.font_family === undefined || v.font_family === null || v.font_family === "" ? {} : lookFont(typeof v.font_family === "string" ? v.font_family : null, ownFonts);
   if (!chosen) c.fail(where, "choose a font from the list.");
-  const arabic = lookArabicFont(typeof v.arabic_font === "string" ? v.arabic_font : null);
+  const arabic = lookArabicFont(typeof v.arabic_font === "string" ? v.arabic_font : null, ownFonts);
   if (!arabic || (v.arabic_font != null && typeof v.arabic_font !== "string")) c.fail(where, "choose an Arabic font from the list.");
   if (!oneOf(CORNERS, v.corners)) c.fail(where, "choose the corners.");
   if (!oneOf(CARD_STYLES, v.cards)) c.fail(where, "choose the card style.");
@@ -658,7 +660,7 @@ export function parseLayoutContent(value: unknown, options: ParseOptions): Parse
   // 43 The interface strings have their own limits.
   const { strings: stringsIn, ...rest } = v;
   if (JSON.stringify(rest).length > LAYOUT_LIMITS.maxBytes) return { ok: false, errors: ["The layout is too large. Remove some blocks or pages."] };
-  const appearance = parseAppearance(v.appearance, c);
+  const appearance = parseAppearance(v.appearance, c, "Look", options.ownFonts);
   const languages = parseLanguages(v.languages, c);
   const pagesIn = Array.isArray(v.pages) ? v.pages : [];
   if (!Array.isArray(v.pages)) c.fail("", "The pages are missing.");

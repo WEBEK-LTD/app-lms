@@ -15,7 +15,19 @@ export type MoreStoreStage = "upload_galaxy" | "upload_appgallery" | "upload_xia
 export type BuildStages = Record<Exclude<StageKey, MoreStoreStage>, StageStatus> & Partial<Record<MoreStoreStage, StageStatus>>;
 export type StageStatus = "pending" | "running" | "done" | "failed" | "skipped";
 export type ArtifactKind = "apk" | "aab" | "ipa" | "keystore" | "store_assets";
-export type AssetKind = "icon" | "logo" | "play_screenshot" | "ios_screenshot" | "tablet_screenshot" | "ipad_screenshot" | "firebase_android" | "firebase_ios" | "product_image" | "huawei_agconnect";
+export type AssetKind =
+  | "icon"
+  | "logo"
+  | "play_screenshot"
+  | "ios_screenshot"
+  | "tablet_screenshot"
+  | "ipad_screenshot"
+  | "firebase_android"
+  | "firebase_ios"
+  | "product_image"
+  | "huawei_agconnect"
+  // 97.2 The files of an owner's own font.
+  | "font";
 export type AppTemplate = "classic" | "bold" | "minimal";
 
 export interface User {
@@ -2009,6 +2021,28 @@ export interface SavedSection {
   createdAt: Date;
   /** Email of whoever saved it. */
   createdBy: string | null;
+}
+
+/** 97.2 A font the owner uploaded for an app's look; its files are assets of kind "font". */
+export interface OwnFont {
+  id: string;
+  appId: string;
+  /** Its name in the app's look (`Appearance.font_family`): never a free font's or a bundled one's. */
+  family: string;
+  /** Up to four, by weight; one variable file (weight null) draws every weight. */
+  files: OwnFontFile[];
+  /** All its files, counted in the app's Media storage. */
+  sizeBytes: number;
+  /** Email of whoever confirmed that the font's licence allows its use in apps. */
+  licenceConfirmedBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface OwnFontFile {
+  assetId: string;
+  weight: number | null;
+  sizeBytes: number;
 }
 
 // 11.7 Admin team and audit log

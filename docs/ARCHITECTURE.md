@@ -3297,7 +3297,15 @@ without a new build. The app renders whatever the API sends.
   in its support folder and registers them with `FontLoader`; the web
   preview lets the browser keep them. The dashboard's font picker
   (`components/font-picker.tsx`) searches `GET /api/v1/fonts` and draws
-  each name in its own font as it scrolls into view. Apps on their own API
+  each name in its own font as it scrolls into view. 97.2 The owner's own
+  fonts (`own_fonts`, `lib/fonts/own.ts`): TrueType or OpenType files they
+  upload in Pages & look after confirming the font's licence allows apps,
+  read by `lib/fonts/sfnt.ts` (WOFF, collections, italic files and fonts
+  whose `OS/2` fsType forbids embedding are refused), up to four weights or
+  one variable file, ten fonts per app. The files are assets (kind `font`,
+  served at `/api/v1/assets/<id>`), counted in the app's Media storage
+  (`mediaUsage`) and deleted with the app; `font_family` names them like a
+  free font, so the plugin and the app need nothing new. Apps on their own API
   get only the bundled font from the build config, unless their API sends
   `font_files` itself.
 - **Pages.** `GET /pages` returns the bottom tabs and the page list;

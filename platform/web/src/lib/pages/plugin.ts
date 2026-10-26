@@ -56,7 +56,7 @@ export async function pluginLayout(store: DataStore, site: SiteInfo, ifNoneMatch
   // 97.1 With the files of the look's free fonts, on Yallapp.
   const layout: Layout = {
     ...rest,
-    appearance: servedAppearance(rest.appearance, platformUrl),
+    appearance: servedAppearance(rest.appearance, platformUrl, await store.listOwnFonts(app.id)),
     languages: withLanguageList(planned.languages, published.strings, { platformUrl, appId: app.id }),
   };
   if (etagValues(ifNoneMatch).includes(layout.version)) return { status: 304 };

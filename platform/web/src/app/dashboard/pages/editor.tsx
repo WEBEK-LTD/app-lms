@@ -38,6 +38,8 @@ import { BLOCK_DRAG_TYPE, DesignThumb, PhonePreview } from "./preview";
 import { LivePreview, notifyDraftSaved } from "./live-preview";
 import { UpgradeHint } from "@/components/upgrade";
 import { FontPicker } from "@/components/font-picker";
+import type { OwnFontView } from "@/lib/fonts/own";
+import { OwnFonts } from "./own-fonts";
 import { MAX_LANGUAGES } from "@/lib/i18n/locales";
 import { appLanguageName } from "@/lib/i18n/language-names";
 import { useDashFormat, useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
@@ -142,6 +144,7 @@ export function PagesEditor({
   designs,
   builtin,
   live,
+  ownFonts,
 }: {
   initial: {
     draft: LayoutContent;
@@ -175,8 +178,11 @@ export function PagesEditor({
   builtin: Record<string, Record<string, string>>;
   /** 82.1 The app preview's address with the draft (hosted apps); null shows the quick view only. */
   live: string | null;
+  /** 97.2 The app's own fonts. */
+  ownFonts: OwnFontView[];
 }) {
   const t = useDashT();
+  const [myFonts, setMyFonts] = useState(ownFonts);
   const known = useKnownText();
   const dashLang = useDashLang();
   const { num } = useDashFormat();
@@ -1161,17 +1167,28 @@ export function PagesEditor({
                 label={t("pages.font")}
                 value={layout.appearance.font_family ?? layout.appearance.font}
                 onChange={(family) => setLook((APP_FONTS as readonly string[]).includes(family) ? { font: family as Appearance["font"], font_family: undefined } : { font_family: family })}
-                labels={{ arabicOnly: t("common.fontsArabicOnly"), none: t("common.fontsNone"), sample: t("common.fontsSample"), hint: t("common.fontsHint", { count: app.fontCount }) }}
+                labels={{ arabicOnly: t("common.fontsArabicOnly"), none: t("common.fontsNone"), sample: t("common.fontsSample"), hint: t("common.fontsHint", { count: app.fontCount }), mine: t("pages.ownFontMine") }}
+                own={myFonts}
               />
               <FontPicker
                 id="look-arabic-font"
                 label={t("common.arabicFont")}
                 value={layout.appearance.arabic_font ?? "Readex Pro"}
                 onChange={(family) => setLook({ arabic_font: family === "Readex Pro" ? undefined : family })}
-                labels={{ arabicOnly: t("common.fontsArabicOnly"), none: t("common.fontsNone"), sample: t("common.fontsSample"), hint: t("common.arabicFontHint") }}
+                labels={{ arabicOnly: t("common.fontsArabicOnly"), none: t("common.fontsNone"), sample: t("common.fontsSample"), hint: t("common.arabicFontHint"), mine: t("pages.ownFontMine") }}
                 arabicOnly
+                own={myFonts}
               />
             </div>
+            {/* 97.2 A deleted font the draft used goes back to the bundled one (the server did the same to the saved draft). */}
+            <OwnFonts
+              fonts={myFonts}
+              onChange={(fonts, removed) => {
+                setMyFonts(fonts);
+                if (removed && layout.appearance.font_family === removed) setLook({ font_family: undefined });
+                if (removed && layout.appearance.arabic_font === removed) setLook({ arabic_font: undefined });
+              }}
+            />
             <Check label={t("pages.switchMode")} checked={layout.appearance.user_can_change_mode} onChange={(user_can_change_mode) => setLook({ user_can_change_mode })} />
             <div className="flex flex-wrap items-end gap-4">
               <Check

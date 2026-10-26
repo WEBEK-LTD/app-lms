@@ -2,7 +2,7 @@ import { clientAccountState, longestLicense } from "../license/status";
 import { newId } from "../crypto/tokens";
 import { membershipActive, membershipFreezeSet, membershipToUse } from "../bookings/memberships";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
-import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, PendingPayment, SavedSection } from "./types";
+import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, PendingPayment, SavedSection } from "./types";
 import type { CampaignSend, HostedCart, HostedOrderWatch, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 import type { LoyaltyEntry, LoyaltyReason } from "./types";
 import type {
@@ -2207,6 +2207,24 @@ export class MemoryStore implements DataStore {
     this.savedSections.push(clone(section));
   }
 
+  // 97.2 Own fonts
+
+  private ownFonts: OwnFont[] = [];
+
+  async listOwnFonts(appId: string): Promise<OwnFont[]> {
+    return this.ownFonts.filter((f) => f.appId === appId).sort((a, b) => a.family.localeCompare(b.family)).map(clone);
+  }
+
+  async saveOwnFont(font: OwnFont): Promise<void> {
+    this.ownFonts = [...this.ownFonts.filter((f) => f.id !== font.id), clone(font)];
+  }
+
+  async deleteOwnFont(appId: string, id: string): Promise<boolean> {
+    const before = this.ownFonts.length;
+    this.ownFonts = this.ownFonts.filter((f) => !(f.appId === appId && f.id === id));
+    return this.ownFonts.length < before;
+  }
+
   async deleteSavedSection(clientId: string, id: string): Promise<boolean> {
     const before = this.savedSections.length;
     this.savedSections = this.savedSections.filter((s) => !(s.clientId === clientId && s.id === id));
@@ -2920,6 +2938,8 @@ export class MemoryStore implements DataStore {
   async mediaUsage(appId: string): Promise<number> {
     let total = 0;
     for (const file of this.mediaFiles.values()) if (file.appId === appId) total += file.sizeBytes;
+    // 97.2 Own fonts count too.
+    for (const font of this.ownFonts) if (font.appId === appId) total += font.sizeBytes;
     return total;
   }
 

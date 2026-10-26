@@ -5997,10 +5997,11 @@ components:
           pattern: '^[A-Za-z0-9 ]{1,64}$'
           example: Cairo
           description: |
-            97.1 Any free font (Google Fonts) the client chose, from plugin
-            0.4.19. Missing: `font`. The app downloads `font_files` once,
-            keeps them and uses this font from then on; a font the app has
-            bundled (Readex Pro) needs no files.
+            97.1 Any free font (Google Fonts) the client chose, or 97.2 a
+            font of their own they uploaded (with its licence confirmed),
+            from plugin 0.4.19. Missing: `font`. The app downloads
+            `font_files` once, keeps them and uses this font from then on; a
+            font the app has bundled (Readex Pro) needs no files.
         font_files:
           type: array
           maxItems: 4

@@ -5,10 +5,12 @@ import { redirect } from "next/navigation";
 import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { App, AppLayoutRecord, SavedSection } from "@/lib/data/types";
-import { discardDraft, hasUnpublishedChanges, layoutHistory, publishLayout, restoreLayoutVersion, saveDesignDraft, saveDraft, withoutStrings, type LayoutHistoryEntry } from "@/lib/pages/layout";
+import { discardDraft, hasUnpublishedChanges, layoutHistory, loadLayout, publishLayout, restoreLayoutVersion, saveDesignDraft, saveDraft, withoutStrings, type LayoutHistoryEntry } from "@/lib/pages/layout";
+import { getBlobStore } from "@/lib/blobs";
+import { addOwnFont, OWN_FONT_LIMITS, ownFontView, removeOwnFont, type OwnFontError, type OwnFontView } from "@/lib/fonts/own";
 import { saveSection, type SaveSectionError } from "@/lib/pages/sections";
 import type { LayoutContent } from "@/lib/pages/types";
-import { appPlan } from "@/lib/entitlements";
+import { appPlan, effectivePlans } from "@/lib/entitlements";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import { designFitsApp, findDesign } from "@/lib/pages/designs/catalog";
 
@@ -47,6 +49,44 @@ function result(record: AppLayoutRecord, message?: string): LayoutSaved {
     changes: hasUnpublishedChanges(record),
     message,
   };
+}
+
+/** 97.2 Uploads a font of the owner's own (or more weights of one), for the app's look. */
+export async function uploadOwnFontAction(formData: FormData): Promise<{ ok: true; fonts: OwnFontView[] } | { ok: false; error: OwnFontError; file?: string }> {
+  const { app, user, staff } = await requireLayoutApp();
+  const store = await getStore();
+  const files: { name: string; data: Buffer }[] = [];
+  for (const entry of formData.getAll("files")) {
+    if (!(entry instanceof File) || entry.size === 0) continue;
+    if (entry.size > OWN_FONT_LIMITS.fileBytes) return { ok: false, error: "too_large", file: entry.name.slice(0, 120) };
+    files.push({ name: entry.name.slice(0, 120), data: Buffer.from(await entry.arrayBuffer()) });
+  }
+  const added = await addOwnFont(
+    { store, blobs: getBlobStore(), plans: await effectivePlans(store), now: new Date() },
+    app,
+    { family: String(formData.get("family") ?? ""), licence: formData.get("licence") === "on", files, by: (staff ?? user).email },
+  );
+  if (!added.ok) return added;
+  revalidatePath("/dashboard/pages");
+  return { ok: true, fonts: (await store.listOwnFonts(app.id)).map(ownFontView) };
+}
+
+/** 97.2 Deletes an own font and its files; a draft using it goes back to the bundled font. */
+export async function deleteOwnFontAction(id: string): Promise<{ ok: true; fonts: OwnFontView[] } | { ok: false }> {
+  const { app } = await requireLayoutApp();
+  const store = await getStore();
+  const now = new Date();
+  const removed = await removeOwnFont({ store, blobs: getBlobStore() }, app.id, id);
+  if (!removed) return { ok: false };
+  const record = await loadLayout(store, app, now);
+  const look = record.draft.appearance;
+  if (look.font_family === removed.family || look.arabic_font === removed.family) {
+    const { font_family, arabic_font, ...rest } = look;
+    const appearance = { ...rest, ...(font_family && font_family !== removed.family ? { font_family } : {}), ...(arabic_font && arabic_font !== removed.family ? { arabic_font } : {}) };
+    await saveDraft(store, app, { ...record.draft, appearance }, now);
+  }
+  revalidatePath("/dashboard/pages");
+  return { ok: true, fonts: (await store.listOwnFonts(app.id)).map(ownFontView) };
 }
 
 function parseJson(json: string): unknown {
