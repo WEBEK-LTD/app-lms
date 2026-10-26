@@ -1,7 +1,7 @@
 import { isAppType, kindOf } from "../../app/kinds";
 import type { App, AppVertical } from "../../data/types";
 import { safeHref } from "../html";
-import type { LayoutBlock, LayoutContent, LayoutPage, LayoutTab } from "../types";
+import type { Action, LayoutBlock, LayoutContent, LayoutPage, LayoutTab, ScreenName } from "../types";
 import { ACADEMY_DESIGNS } from "./academy";
 import { BOOKINGS_DESIGNS, CLINIC_DESIGNS, FITNESS_DESIGNS, SERVICES_DESIGNS } from "./bookings";
 import { aboutPage, contactPage, page, PALETTES, tab, type Design, type Palette } from "./build";
@@ -90,9 +90,19 @@ function escapeHtml(text: string): string {
   return text.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
 }
 
-/** `{app}` in the block's texts becomes the app's name; a countdown's `+30d` a date; a Contact block gets the app's details. */
-function fillBlock(block: LayoutBlock, name: string, facts: ContactFacts, now: Date): LayoutBlock | null {
+/** 38.21 Whether an action opens a screen the app doesn't have. */
+const opensMissing = (action: Action | null | undefined, missing: readonly ScreenName[]) => action?.type === "screen" && action.screen != null && missing.includes(action.screen);
+
+/**
+ * `{app}` in the block's texts becomes the app's name; a countdown's `+30d` a date; a Contact block gets the app's details.
+ * 38.21 Quick links to screens the app doesn't have are left out (and the block when none is left).
+ */
+function fillBlock(block: LayoutBlock, name: string, facts: ContactFacts, now: Date, missing: readonly ScreenName[] = []): LayoutBlock | null {
   const out = structuredClone(block);
+  if (out.links) {
+    out.links = out.links.filter((l) => !opensMissing(l.action, missing));
+    if (out.links.length === 0) return null;
+  }
   const fill = (text: string, html: boolean) => text.replaceAll("{app}", html ? escapeHtml(name) : name);
   if (out.html) out.html = fill(out.html, true);
   for (const field of ["heading", "subheading", "text", "title"] as const) {
@@ -125,22 +135,35 @@ function fillBlock(block: LayoutBlock, name: string, facts: ContactFacts, now: D
  */
 export function applyDesign(
   design: Design,
-  context: { appName: string | null; facts: ContactFacts; current: Pick<LayoutContent, "appearance" | "languages">; now: Date },
+  context: {
+    appName: string | null;
+    facts: ContactFacts;
+    current: Pick<LayoutContent, "appearance" | "languages">;
+    now: Date;
+    /** 38.21 Screens this app doesn't have (a hosted academy's wishlist): its tabs and quick links to them are left out. */
+    missingScreens?: readonly ScreenName[];
+  },
 ): LayoutContent {
+  const missing = context.missingScreens ?? [];
   const name = context.appName?.trim() || "our app";
   const pages: LayoutPage[] = design.pages.map((p) => ({
     slug: p.slug,
     title: p.title,
     show_title: p.show_title,
     updated_at: context.now.toISOString(),
-    blocks: p.blocks.map((b) => fillBlock(b, name, context.facts, context.now)).filter((b): b is LayoutBlock => b !== null),
+    blocks: p.blocks.map((b) => fillBlock(b, name, context.facts, context.now, missing)).filter((b): b is LayoutBlock => b !== null),
   }));
   return {
     appearance: { ...context.current.appearance, ...design.look },
     languages: structuredClone(context.current.languages),
-    tabs: structuredClone(design.tabs),
+    tabs: structuredClone(design.tabs).filter((t) => !opensMissing(t.target, missing)),
     // 84.2 Its other pages, in the side menu.
     ...(design.menu?.length ? { menu: structuredClone(design.menu) } : {}),
     pages,
   };
+}
+
+/** 38.21 The screens an app's designs can't link to: a hosted academy has no wishlist. */
+export function missingScreens(app: Pick<App, "connector">): ScreenName[] {
+  return app.connector?.kind === "courses" ? ["favorites"] : [];
 }
