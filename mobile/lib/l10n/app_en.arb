@@ -2980,5 +2980,115 @@
         "type": "String"
       }
     }
+  },
+  "myPoints": "My points",
+  "@myPoints": {
+    "description": "91.4 The account entry and title of the customer's loyalty points."
+  },
+  "pointsBalance": "{count, plural, =1{1 point} other{{count} points}}",
+  "@pointsBalance": {
+    "description": "91.4 The customer's loyalty points balance.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pointsWorth": "Worth {value} off your next orders",
+  "@pointsWorth": {
+    "description": "91.4 What the balance takes off later orders.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "pointsRule": "Earn 1 point for every {spend} you spend on products. Each point is worth {value}.",
+  "@pointsRule": {
+    "description": "91.4 How points are earned and what one is worth.",
+    "placeholders": {
+      "spend": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "cartPointsFrom": "{count, plural, =1{Use them once you have 1 point.} other{Use them once you have {count} points.}}",
+  "@cartPointsFrom": {
+    "description": "91.4 Under the points in the cart and on My points: the fewest used at once.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cartUsePoints": "{count, plural, =1{Use 1 point} other{Use {count} points}}",
+  "@cartUsePoints": {
+    "description": "91.4 The cart's switch that uses the customer's points on this order.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cartPointsWorth": "{value} off this order",
+  "@cartPointsWorth": {
+    "description": "91.4 Under the cart's points switch: what the points take off.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "cartPointsDiscount": "Points",
+  "@cartPointsDiscount": {
+    "description": "91.4 The cart's line for what the loyalty points take off."
+  },
+  "pointsHistory": "History",
+  "@pointsHistory": {
+    "description": "91.4 The heading over the changes to the customer's points."
+  },
+  "pointsReasonEarned": "Earned",
+  "@pointsReasonEarned": {
+    "description": "91.4 A change to the points: earned on a completed order."
+  },
+  "pointsReasonUsed": "Used",
+  "@pointsReasonUsed": {
+    "description": "91.4 A change to the points: used on an order."
+  },
+  "pointsReasonGivenBack": "Given back",
+  "@pointsReasonGivenBack": {
+    "description": "91.4 A change to the points: given back when a paid order was cancelled or refunded."
+  },
+  "pointsReasonTakenBack": "Taken back",
+  "@pointsReasonTakenBack": {
+    "description": "91.4 A change to the points: taken back when an order was refunded or returned."
+  },
+  "noPointsYet": "No points yet. You earn them when your orders are completed.",
+  "@noPointsYet": {
+    "description": "91.4 My points without any changes yet."
+  },
+  "orderPointsUsed": "{count, plural, =1{1 point used: −{amount}} other{{count} points used: −{amount}}}",
+  "@orderPointsUsed": {
+    "description": "91.4 On an order: the loyalty points used on it and what they took off.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "orderPointsEarned": "{count, plural, =1{1 point earned} other{{count} points earned}}",
+  "@orderPointsEarned": {
+    "description": "91.4 On a completed order: the loyalty points it earned.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

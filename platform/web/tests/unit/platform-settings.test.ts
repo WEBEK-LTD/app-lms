@@ -121,7 +121,8 @@ describe("plans from the admin", () => {
       },
     });
     expect(plans.starter).toEqual(PLAN_INFO.starter);
-    expect(plans.pro).toMatchObject({ id: "pro", name: "Premium", features: ["push", "auto_publish"], period: "year", limits: { appUsers: 50_000 } });
+    // 91.4 An edit saved before loyalty points knew nothing of them: Pro's default (on) applies until the team saves it again.
+    expect(plans.pro).toMatchObject({ id: "pro", name: "Premium", features: ["push", "auto_publish", "loyalty"], period: "year", limits: { appUsers: 50_000 } });
     // 52 Pounds by default and in Egypt; the plan's own dollar price elsewhere.
     expect(planPrice(plans.pro)).toEqual({ price: "EGP\u00a04,800", period: "year" });
     expect(planPrice(plans.pro, { display: "USD", egpPerUsd: 50 })).toEqual({ price: "$99", period: "year" });

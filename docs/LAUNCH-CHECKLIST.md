@@ -1085,6 +1085,17 @@ never in a chat or an issue.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **Loyalty points** (91.4): migration `0082_loyalty_points.sql` (two
+      new tables and a column on `catalog_orders`) goes with the deploy,
+      migrations first. After deploying: on a Growth test shop without a
+      website, turn on Loyalty points (10 per point, 0.10 a point, 100 at
+      least), complete an order of a signed-in customer and see the points
+      in the app's My points; once they have 100, turn on Use points in the
+      cart and pay: the payment page and the receipt show the points line,
+      the balance goes down, and cancelling the order gives them back. On a
+      Starter app the Products page shows the upgrade note instead. The
+      pricing page lists Loyalty points for Growth, Pro and Business; the
+      plans the team saved before keep their features and gain this one.
 - [ ] **Returns** (91.3): migration `0081_order_returns.sql` (a column on
       `catalog_orders`) goes with the deploy, migrations first; plugin
       0.4.17. After deploying: on a shop without a website, set **Returns in

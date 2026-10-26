@@ -2056,7 +2056,7 @@ measured; several useful automatic pushes don't exist.
 | [x] | 91.1 Coupons in shops without a website, and the real total in the app's cart everywhere | Contract, tests |
 | [x] | 91.2 Shipped, with tracking; order pushes from WooCommerce and the connected platforms | Tests, PHPUnit |
 | [x] | 91.3 Returns requested in the app | Contract, tests |
-| [ ] | 91.4 Loyalty points (owner's decision, 2026-10-22: every plan but Starter) | Contract, tests |
+| [x] | 91.4 Loyalty points (owner's decision, 2026-10-22: every plan but Starter) | Contract, tests |
 | [ ] | 91.5 Variations and taxes in shops without a website | Tests |
 
 ## Phase 92: Agencies (area 13)

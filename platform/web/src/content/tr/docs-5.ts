@@ -46,6 +46,17 @@ Müşteriler, sağlayıcınızın (iyzico, Kashier veya Fawaterk) güvenli sayfa
 ## İadeler
 
 Uygulamadan iade almak için **Ürünler** sayfasındaki **Mağaza ayarları** altında **Uygulamadan iade (gün)** alanını doldurun: bir siparişi tamamlandı olarak işaretledikten sonra müşterilerin kaç gün içinde iade isteyebileceği. Uygulamadan iade almamak için boş bırakın. Müşteri bir neden seçer ve not ekleyebilir; yalnızca indirme içeren siparişler iade edilemez. Yallapp Business'ta bildirim alırsınız ve talep **Siparişler** sayfasında siparişin altında görünür; orada isteğe bağlı bir yanıtla **İadeyi onayla** veya **Reddet** seçersiniz. Müşteriye, sipariş güncellemelerini kapatmış olsa bile uygulamada bildirilir. Ürün size ulaştığında siparişi **İade** ile iade edin.
+
+## Sadakat puanları
+
+Starter dışındaki tüm paketlerde müşterilerinize puan verin: **Ürünler** sayfasındaki **Sadakat puanları** bölümünde **Sadakat puanı ver** seçeneğini açın ve **Bir puan için harcama** (10, 450 tutarındaki bir siparişin 45 puan kazandırması demektir), **Bir puanın değeri** (0.10, 100 puanın 10 düşmesi demektir) ve **Tek seferde kullanılan en az puan** değerlerini girin.
+
+- Müşteriler, siparişi **tamamlandı** olarak işaretlediğinizde ürünler için ödedikleri tutar (kupondan sonra, kargo hariç) üzerinden puan kazanır.
+- Uygulamanın sepetinde giriş yapmış müşteriler **Puan kullan** seçeneğini açar ve toplam puanların değeri kadar düşer. Puanlar sipariş ödendiğinde harcanır.
+- İptal ettiğiniz ya da tamamını iade ettiğiniz ödenmiş bir sipariş, kullandığı puanları geri verir. Tam iade ya da onayladığınız bir iade, siparişin kazandırdığı puanları geri alır.
+- Müşteriler bakiyelerini ve geçmişlerini **Hesap › Puanlarım** altında görür; her sipariş, burada ve uygulamada, kullandığı ve kazandırdığı puanları gösterir.
+
+Puanları kapatmak onları uygulamada gizler; müşteriler puanlarını tekrar açtığınız zamana kadar korur.
 `,
   },
   restaurants: {

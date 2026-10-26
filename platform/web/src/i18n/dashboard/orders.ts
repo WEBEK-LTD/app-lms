@@ -26,6 +26,9 @@ export const en = {
   // 71 The customer's receipt, as they got it by email.
   receiptPdf: "Receipt (PDF)",
   // 80.4 Shipping
+  // 91.4 Loyalty points.
+  pointsUsed: "Loyalty points ({points}): -{amount}",
+  pointsEarned: "Earned {points} loyalty points",
   returnTitle: "Return",
   return_requested: "Asked",
   return_approved: "Approved",
@@ -178,6 +181,8 @@ export const ar: Messages = {
   markCompleted: "تحديد كمكتمل",
   cancelOrder: "إلغاء الطلب",
   receiptPdf: "الإيصال (PDF)",
+  pointsUsed: "نقاط الولاء ({points}): -{amount}",
+  pointsEarned: "كسب {points} من نقاط الولاء",
   returnTitle: "الإرجاع",
   return_requested: "مطلوب",
   return_approved: "مقبول",
@@ -324,6 +329,8 @@ export const tr: Messages = {
   markCompleted: "Tamamlandı olarak işaretle",
   cancelOrder: "Siparişi iptal et",
   receiptPdf: "Makbuz (PDF)",
+  pointsUsed: "Sadakat puanları ({points}): -{amount}",
+  pointsEarned: "{points} sadakat puanı kazandı",
   returnTitle: "İade",
   return_requested: "Talep edildi",
   return_approved: "Onaylandı",

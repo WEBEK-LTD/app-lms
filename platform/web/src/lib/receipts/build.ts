@@ -176,9 +176,14 @@ export function orderReceipt(input: OrderReceiptInput): ReceiptDocument {
     amount: fmt(line.unitCents * line.quantity),
   }));
   const totals: ReceiptTotal[] = [];
-  if (order.shippingCents > 0) {
+  // 91.1 The coupon and 91.4 the loyalty points, so the lines add up to the total.
+  const coupon = order.discountCents ?? 0;
+  const points = order.points?.discountCents ?? 0;
+  if (order.shippingCents > 0 || coupon > 0 || points > 0) {
     totals.push({ label: w("subtotal"), value: fmt(order.subtotalCents) });
-    totals.push({ label: w(order.fulfilment ? "deliveryFee" : "shipping"), value: fmt(order.shippingCents) });
+    if (coupon > 0) totals.push({ label: w("coupon", { code: ltrSpan(order.couponCode ?? "") }), value: minus(formatCents(coupon, order.currency)) });
+    if (points > 0) totals.push({ label: w("points", { points: String(order.points!.used) }), value: minus(formatCents(points, order.currency)) });
+    if (order.shippingCents > 0) totals.push({ label: w(order.fulfilment ? "deliveryFee" : "shipping"), value: fmt(order.shippingCents) });
   }
   totals.push({ label: w("total"), value: fmt(order.totalCents), strong: true });
   const refunded = order.refundedCents ?? 0;

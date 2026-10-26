@@ -3976,4 +3976,99 @@ class AppLocalizationsTr extends AppLocalizations {
   String returnShopReply(String reply) {
     return 'Mağaza: $reply';
   }
+
+  @override
+  String get myPoints => 'Puanlarım';
+
+  @override
+  String pointsBalance(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count puan',
+      one: '1 puan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String pointsWorth(String value) {
+    return 'Sonraki siparişlerinizde $value değerinde';
+  }
+
+  @override
+  String pointsRule(String spend, String value) {
+    return 'Ürünlere harcadığınız her $spend için 1 puan kazanın. Her puan $value değerindedir.';
+  }
+
+  @override
+  String cartPointsFrom(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count puanınız olduğunda kullanın.',
+      one: '1 puanınız olduğunda kullanın.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String cartUsePoints(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count puan kullan',
+      one: '1 puan kullan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String cartPointsWorth(String value) {
+    return 'Bu siparişten $value indirim';
+  }
+
+  @override
+  String get cartPointsDiscount => 'Puanlar';
+
+  @override
+  String get pointsHistory => 'Geçmiş';
+
+  @override
+  String get pointsReasonEarned => 'Kazanıldı';
+
+  @override
+  String get pointsReasonUsed => 'Kullanıldı';
+
+  @override
+  String get pointsReasonGivenBack => 'İade edildi';
+
+  @override
+  String get pointsReasonTakenBack => 'Geri alındı';
+
+  @override
+  String get noPointsYet =>
+      'Henüz puanınız yok. Siparişleriniz tamamlandığında puan kazanırsınız.';
+
+  @override
+  String orderPointsUsed(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count puan kullanıldı: −$amount',
+      one: '1 puan kullanıldı: −$amount',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String orderPointsEarned(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count puan kazanıldı',
+      one: '1 puan kazanıldı',
+    );
+    return '$_temp0';
+  }
 }

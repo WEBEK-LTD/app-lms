@@ -1064,5 +1064,21 @@
   "returnStatusRequested": "طلب الإرجاع بانتظار الرد",
   "returnStatusApproved": "تمت الموافقة على الإرجاع",
   "returnStatusDeclined": "تم رفض الإرجاع",
-  "returnShopReply": "المتجر: {reply}"
+  "returnShopReply": "المتجر: {reply}",
+  "myPoints": "نقاطي",
+  "pointsBalance": "{count, plural, =0{لا نقاط} =1{نقطة واحدة} =2{نقطتان} few{{count} نقاط} many{{count} نقطة} other{{count} نقطة}}",
+  "pointsWorth": "تساوي {value} من قيمة طلباتك القادمة",
+  "pointsRule": "اكسب نقطة واحدة مقابل كل {spend} تنفقها على المنتجات. وقيمة كل نقطة {value}.",
+  "cartPointsFrom": "{count, plural, =1{استخدمها عندما يصبح لديك نقطة واحدة.} =2{استخدمها عندما يصبح لديك نقطتان.} few{استخدمها عندما يصبح لديك {count} نقاط.} many{استخدمها عندما يصبح لديك {count} نقطة.} other{استخدمها عندما يصبح لديك {count} نقطة.}}",
+  "cartUsePoints": "{count, plural, =1{استخدم نقطة واحدة} =2{استخدم نقطتين} few{استخدم {count} نقاط} many{استخدم {count} نقطة} other{استخدم {count} نقطة}}",
+  "cartPointsWorth": "خصم {value} من هذا الطلب",
+  "cartPointsDiscount": "النقاط",
+  "pointsHistory": "السجل",
+  "pointsReasonEarned": "مكتسبة",
+  "pointsReasonUsed": "مستخدمة",
+  "pointsReasonGivenBack": "مُعادة",
+  "pointsReasonTakenBack": "مسحوبة",
+  "noPointsYet": "لا توجد نقاط بعد. تكسبها عند اكتمال طلباتك.",
+  "orderPointsUsed": "{count, plural, =1{استُخدمت نقطة واحدة: −{amount}} =2{استُخدمت نقطتان: −{amount}} few{استُخدمت {count} نقاط: −{amount}} many{استُخدمت {count} نقطة: −{amount}} other{استُخدمت {count} نقطة: −{amount}}}",
+  "orderPointsEarned": "{count, plural, =1{كُسبت نقطة واحدة} =2{كُسبت نقطتان} few{كُسبت {count} نقاط} many{كُسبت {count} نقطة} other{كُسبت {count} نقطة}}"
 }

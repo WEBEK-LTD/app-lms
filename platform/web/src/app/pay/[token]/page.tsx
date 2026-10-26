@@ -95,6 +95,13 @@ export default async function PayPage({
               <span>-{money(order.discountCents)}</span>
             </li>
           ) : null}
+          {/* 91.4 The loyalty points used. */}
+          {order.points?.discountCents ? (
+            <li className="flex justify-between gap-3 text-[15px]">
+              <span>Loyalty points ({order.points.used})</span>
+              <span>-{money(order.points.discountCents)}</span>
+            </li>
+          ) : null}
           {order.shippingCents > 0 ? (
             <li className="flex justify-between gap-3 text-[15px]">
               <span>{order.fulfilment ? "Delivery fee" : "Shipping"}</span>

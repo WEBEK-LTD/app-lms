@@ -31,6 +31,9 @@ abstract final class Paths {
   /// 45 Lessons saved for offline viewing.
   static const downloads = '/account/downloads';
   static const orders = '/account/orders';
+
+  /// 91.4 The customer's loyalty points.
+  static const points = '/account/points';
   static const notifications = '/notifications';
 
   // Real estate apps (the search is the Home tab).

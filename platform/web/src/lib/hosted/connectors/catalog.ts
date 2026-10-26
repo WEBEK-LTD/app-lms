@@ -389,11 +389,15 @@ export class CatalogConnector implements Connector {
       : { json: { code: shown, status: "invalid", message: check.message }, discountCents: 0, code: null };
   }
 
-  /** 91.4 The signed-in customer's points for a cart whose products cost `productsCents` after the coupon. */
-  private async cartPoints(request: ConnectorRequest, productsCents: number) {
+  /**
+   * 91.4 The signed-in customer's points for a cart whose products cost
+   * `productsCents` after the coupon. Each of its `lines` keeps at least a
+   * cent, as the payment providers charge every line.
+   */
+  private async cartPoints(request: ConnectorRequest, productsCents: number, lines: number) {
     if (!this.loyalty || !request.user) return { json: null, used: 0, discountCents: 0 };
     const balance = await this.deps.store.getLoyaltyBalance(this.deps.app.id, request.user.id);
-    const usable = usablePoints(this.loyalty, balance, productsCents);
+    const usable = usablePoints(this.loyalty, balance, productsCents - lines);
     const applied = (request.body as { use_points?: unknown } | null)?.use_points === true && usable.points > 0;
     return {
       json: {
@@ -416,7 +420,7 @@ export class CatalogConnector implements Connector {
     // 91.1 The real total: a restaurant's delivery fee depends on how the order is collected, chosen at checkout.
     const shipping = this.fulfilment ? null : shippingFor(this.settings, priced.subtotal, priced.out.some((o) => o.line.available && !o.line.digital));
     // 91.4 The customer's points, on what the products cost after the coupon.
-    const points = await this.cartPoints(request, priced.subtotal - coupon.discountCents);
+    const points = await this.cartPoints(request, priced.subtotal - coupon.discountCents, priced.out.length);
     const total = priced.subtotal - coupon.discountCents - points.discountCents + (shipping ?? 0);
     return {
       status: 200,
@@ -475,7 +479,7 @@ export class CatalogConnector implements Connector {
     // 91.1 A coupon that no longer applies is left out, never an error.
     const coupon = await this.coupon(request.body, priced.subtotal, request.now);
     // 91.4 The points the customer has now, up to what the products cost after the coupon.
-    const points = await this.cartPoints(request, priced.subtotal - coupon.discountCents);
+    const points = await this.cartPoints(request, priced.subtotal - coupon.discountCents, priced.out.length);
     const token = randomToken(24);
     await this.deps.store.createCatalogOrder({
       appId: this.deps.app.id,

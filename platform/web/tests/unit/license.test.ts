@@ -81,7 +81,7 @@ describe("license API", () => {
     expect(result.status).toBe(200);
     if (result.status !== 200) return;
     expect(result.body).toMatchObject({ status: "active", plan: "pro", message: null, checked_at: NOW.toISOString() });
-    expect(result.body.features).toEqual(["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat"]);
+    expect(result.body.features).toEqual(["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty"]);
     expect(result.body.limits).toEqual({ app_users: null, languages: null, sources: null });
     expect(result.body.expires_at).toBe(days(30).toISOString());
   });

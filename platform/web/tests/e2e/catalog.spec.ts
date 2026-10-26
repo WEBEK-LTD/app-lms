@@ -278,3 +278,65 @@ test("91.3 a signed-in customer asks to return a completed order, and the shop a
   const inbox = await (await request.get(`${api}/me/notifications`, { headers })).json();
   expect(inbox.items.some((n: { type: string; order_id?: number; body: string }) => n.type === "order_update" && n.order_id === orderId && n.body.includes("Our courier picks it up on Monday."))).toBe(true);
 });
+
+test("91.4 a customer earns loyalty points on a completed order and uses them on the next", async ({ page, request }) => {
+  await signIn(page, client.email, client.password);
+  await page.getByRole("link", { name: "Products", exact: true }).click();
+  const loyalty = page.getByRole("region", { name: "Loyalty points" });
+  await loyalty.getByText("Give loyalty points").click();
+  await loyalty.getByLabel("Spend for one point (TRY)").fill("10");
+  await loyalty.getByLabel("One point is worth (TRY)").fill("0.10");
+  await loyalty.getByLabel("Fewest points used at once").fill("abc");
+  await loyalty.getByRole("button", { name: "Save loyalty points" }).click();
+  await expect(loyalty.getByText("Enter a number of points, like 100.")).toBeVisible();
+  await loyalty.getByLabel("Fewest points used at once").fill("10");
+  await loyalty.getByRole("button", { name: "Save loyalty points" }).click();
+  await expect(loyalty.getByText("Loyalty points saved.")).toBeVisible();
+  const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
+  expect(config.store.loyalty).toEqual({ enabled: true, spend_per_point: "10.00", spend_per_point_formatted: "₺10.00", point_value: "0.10", point_value_formatted: "₺0.10", min_points: 10 });
+
+  const email = `deniz-${suffix}@example.com`;
+  const device = { id: `e2e-points-${suffix}`, platform: "android", name: "Pixel", app_version: "1.0.0" };
+  const asked = (await (await request.post(`${api}/auth/email/request`, { data: { email } })).json()) as { request_id: string };
+  const code = (await mailsWithFiles(email)).at(-1)!.subject.slice(0, 6);
+  const verified = (await (await request.post(`${api}/auth/otp/verify`, { data: { request_id: asked.request_id, code, device } })).json()) as { signup_token: string };
+  const registered = await request.post(`${api}/auth/register`, { data: { signup_token: verified.signup_token, name: "Deniz Kaya", device } });
+  const headers = { authorization: `Bearer ${((await registered.json()) as { access_token: string }).access_token}` };
+  const productId = ((await (await request.get(`${api}/store/products`)).json()) as { items: { id: number }[] }).items[0]!.id;
+  const lines = [{ product_id: productId, quantity: 1 }];
+  const pay = async (body: Record<string, unknown>, total: string) => {
+    const link = await request.post(`${api}/store/checkout-link?platform=android`, { headers, data: { lines, ...body } });
+    expect(link.status()).toBe(200);
+    await page.goto(((await link.json()) as { url: string }).url);
+    await page.getByLabel("Full name").fill("Deniz Kaya");
+    await page.getByLabel("Mobile number").fill("0532 111 22 33");
+    await page.getByLabel("Email").fill(email);
+    await page.getByLabel("City").fill("Ankara");
+    await page.getByLabel("Address").fill("Tunali 7, Cankaya");
+    await page.getByRole("button", { name: `Pay ${total}` }).click();
+    await page.getByRole("button", { name: "Pay with test card" }).click();
+    await expect(page.getByRole("heading", { name: "Thank you!" })).toBeVisible();
+  };
+
+  // A first order: no points yet; completed, it earns 35 (₺350 of products).
+  expect((await (await request.post(`${api}/store/cart`, { headers, data: { lines, use_points: true } })).json()).points).toEqual({ balance: 0, usable: 0, usable_value: null, applied: false, discount: null });
+  await pay({}, "₺400.00");
+  await page.goto("/dashboard/orders");
+  await page.getByRole("listitem").filter({ hasText: "Deniz Kaya" }).getByRole("button", { name: "Mark completed" }).click();
+  await expect(page.getByRole("listitem").filter({ hasText: "Deniz Kaya" })).toContainText("Earned 35 loyalty points");
+  expect(await (await request.get(`${api}/me/points`, { headers })).json()).toMatchObject({ balance: 35, value: "₺3.50", entries: [{ points: 35, reason: "earned" }] });
+
+  // The next order uses them: ₺3.50 off on the payment page, spent once paid.
+  expect(await (await request.post(`${api}/store/cart`, { headers, data: { lines, use_points: true } })).json()).toMatchObject({
+    points: { balance: 35, usable: 35, usable_value: "₺3.50", applied: true, discount: "₺3.50" },
+    total: "₺396.50",
+  });
+  const link = await request.post(`${api}/store/checkout-link?platform=android`, { headers, data: { lines, use_points: true } });
+  await page.goto(((await link.json()) as { url: string }).url);
+  await expect(page.getByRole("region", { name: /Order \d+/ })).toContainText("Loyalty points (35)");
+  await expect(page.getByRole("region", { name: /Order \d+/ })).toContainText("-₺3.50");
+  await pay({ use_points: true }, "₺396.50");
+  expect(await (await request.get(`${api}/me/points`, { headers })).json()).toMatchObject({ balance: 0, entries: [{ points: -35, reason: "used" }, { points: 35, reason: "earned" }] });
+  await page.goto("/dashboard/orders");
+  await expect(page.getByRole("listitem").filter({ hasText: "Deniz Kaya" }).first()).toContainText("Loyalty points (35): -₺3.50");
+});

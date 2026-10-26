@@ -128,6 +128,14 @@ class ProfileScreen extends ConsumerWidget {
                     title: context.l10n.myOrders,
                     onTap: () => context.push(Paths.orders),
                   ),
+                  // 91.4 The customer's loyalty points.
+                  if (config.store?.loyalty != null && user != null)
+                    SettingsTile(
+                      key: const ValueKey('account-points'),
+                      icon: AppIcons.loyalty,
+                      title: context.l10n.myPoints,
+                      onTap: () => context.push(Paths.points),
+                    ),
                 ],
               ),
               const SizedBox(height: 18),

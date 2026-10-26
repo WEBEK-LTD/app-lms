@@ -1572,6 +1572,17 @@ Paid orders appear on the **Orders** page, and you get an email for each one. Ma
 ## Returns
 
 To take returns in the app, set **Returns in the app (days)** under **Shop settings** on the **Products** page: the number of days after you mark an order completed that customers may ask to return it. Leave it empty for no returns in the app. Customers choose a reason and can add a note; orders with only downloads can't be returned. You get a notification in Yallapp Business, and the request shows under the order on the **Orders** page, where you **Approve return** or **Decline** it with an optional reply. The customer is told in the app, even with order updates off. Refund the order with **Refund** when you get it back.
+
+## Loyalty points
+
+On every plan but Starter, give your customers points: under **Loyalty points** on the **Products** page, turn on **Give loyalty points** and set the **Spend for one point** (10 means an order of 450 earns 45 points), what **One point is worth** (0.10 means 100 points take 10 off) and the **Fewest points used at once**.
+
+- Customers earn points on what they paid for the products (after a coupon, without shipping) when you mark the order **completed**.
+- In the app's cart, signed-in customers turn on **Use points**, and the total goes down by what they're worth. The points are spent when the order is paid.
+- A paid order you cancel, or refund in full, gives back the points it used. A full refund, or a return you approve, takes back the points it earned.
+- Customers see their balance and history under **Account › My points**, and each order shows the points it used and earned, here and in the app.
+
+Turning points off hides them in the app; customers keep their points for when you turn them on again.
 `,
   }),
   doc({

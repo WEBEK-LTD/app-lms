@@ -47,7 +47,7 @@ function StatusButton({ order, status, label }: { order: CatalogOrder; status: C
 /** Paid orders from the app, for apps without a website. */
 export default async function OrdersPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
   const { app } = await requireClient("orders");
-  const { t, k, lang } = await dashboardText();
+  const { t, k, lang, num } = await dashboardText();
   // 27 A gym's membership payments are orders too, and 28 paid tickets.
   if (!app || (app.connector?.kind !== "catalog" && app.connector?.kind !== "courses" && app.connector?.kind !== "bookings" && app.connector?.kind !== "events")) {
     return (
@@ -102,6 +102,11 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                   </li>
                 ))}
                 {order.discountCents ? <li className="text-muted">{t("orders.coupon", { code: order.couponCode ?? "", amount: formatCents(order.discountCents, order.currency) })}</li> : null}
+                {/* 91.4 The loyalty points used on it, and those it earned. */}
+                {order.points?.discountCents ? (
+                  <li className="text-muted">{t("orders.pointsUsed", { points: num(order.points.used), amount: formatCents(order.points.discountCents, order.currency) })}</li>
+                ) : null}
+                {order.points?.earned ? <li className="text-muted">{t("orders.pointsEarned", { points: num(order.points.earned) })}</li> : null}
                 {order.shippingCents > 0 ? <li className="text-muted">{t("orders.shipping", { amount: formatCents(order.shippingCents, order.currency) })}</li> : null}
               </ul>
               {order.commissionCents !== null ? (

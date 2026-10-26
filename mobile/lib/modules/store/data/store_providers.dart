@@ -70,15 +70,30 @@ final cartCouponProvider = NotifierProvider<CartCouponController, String?>(
   CartCouponController.new,
 );
 
-/// The cart as the shop prices it now, with the customer's coupon. Reloads
-/// when the cart or the coupon changes.
+/// 91.4 Whether the customer uses their loyalty points on this order.
+class CartUsePointsController extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void set(bool use) => state = use;
+}
+
+final cartUsePointsProvider = NotifierProvider<CartUsePointsController, bool>(
+  CartUsePointsController.new,
+);
+
+/// The cart as the shop prices it now, with the customer's coupon (91.4 and
+/// points). Reloads when the cart, the coupon or the points choice changes.
 final cartQuoteProvider = FutureProvider.autoDispose<CartQuote?>((ref) {
   final items = ref.watch(cartProvider);
   final coupon = ref.watch(cartCouponProvider);
+  final usePoints = ref.watch(cartUsePointsProvider);
   if (items.isEmpty) return Future.value();
-  return ref.contentApi.quoteCart([
-    for (final i in items) i.toInput(),
-  ], coupon: coupon);
+  return ref.contentApi.quoteCart(
+    [for (final i in items) i.toInput()],
+    coupon: coupon,
+    usePoints: usePoints,
+  );
 });
 
 /// 26 Whether a restaurant's kitchen is open now and the times an order can

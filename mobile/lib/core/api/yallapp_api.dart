@@ -571,7 +571,14 @@ abstract class YallappApi {
 
   /// Prices the app's cart as the shop sees it now, with the coupon the
   /// customer typed (91.1).
-  Future<CartQuote> quoteCart(List<CartLineInput> lines, {String? coupon});
+  Future<CartQuote> quoteCart(
+    List<CartLineInput> lines, {
+    String? coupon,
+    bool usePoints = false,
+  });
+
+  /// 91.4 The customer's loyalty points and their latest changes.
+  Future<PointsAccount> getMyPoints();
 
   /// A one-time link that fills the shop's cart and opens its checkout.
   /// Signed-in customers are signed in on the site; guests only when the
@@ -584,6 +591,7 @@ abstract class YallappApi {
     DeliveryAddress? deliveryAddress,
     DateTime? scheduledFor,
     String? coupon,
+    bool usePoints = false,
   });
 
   /// 26 Whether a restaurant's kitchen is open and when an order can be for.
@@ -1462,18 +1470,26 @@ class HttpYallappApi implements YallappApi {
   );
 
   @override
-  Future<CartQuote> quoteCart(List<CartLineInput> lines, {String? coupon}) =>
-      _send(
-        'POST',
-        '/store/cart',
-        _optional,
-        (data) => CartQuote.fromJson(asJson(data)),
-        body: {
-          'lines': [for (final l in lines) l.toJson()],
-          'coupon': ?coupon,
-        },
-        query: {'platform': platform.name},
-      );
+  Future<CartQuote> quoteCart(
+    List<CartLineInput> lines, {
+    String? coupon,
+    bool usePoints = false,
+  }) => _send(
+    'POST',
+    '/store/cart',
+    _optional,
+    (data) => CartQuote.fromJson(asJson(data)),
+    body: {
+      'lines': [for (final l in lines) l.toJson()],
+      'coupon': ?coupon,
+      if (usePoints) 'use_points': true,
+    },
+    query: {'platform': platform.name},
+  );
+
+  @override
+  Future<PointsAccount> getMyPoints() =>
+      _get('/me/points', _required, PointsAccount.fromJson);
 
   @override
   Future<CheckoutLink> createStoreCheckoutLink(
@@ -1484,6 +1500,7 @@ class HttpYallappApi implements YallappApi {
     DeliveryAddress? deliveryAddress,
     DateTime? scheduledFor,
     String? coupon,
+    bool usePoints = false,
   }) => preview
       ? _noCheckoutInPreview()
       : _send(
@@ -1503,6 +1520,7 @@ class HttpYallappApi implements YallappApi {
             if (scheduledFor != null)
               'scheduled_for': scheduledFor.toUtc().toIso8601String(),
             'coupon': ?coupon,
+            if (usePoints) 'use_points': true,
           },
           query: {'platform': platform.name},
         );

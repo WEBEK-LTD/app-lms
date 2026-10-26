@@ -6489,6 +6489,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The shop: {reply}'**
   String returnShopReply(String reply);
+
+  /// 91.4 The account entry and title of the customer's loyalty points.
+  ///
+  /// In en, this message translates to:
+  /// **'My points'**
+  String get myPoints;
+
+  /// 91.4 The customer's loyalty points balance.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 point} other{{count} points}}'**
+  String pointsBalance(int count);
+
+  /// 91.4 What the balance takes off later orders.
+  ///
+  /// In en, this message translates to:
+  /// **'Worth {value} off your next orders'**
+  String pointsWorth(String value);
+
+  /// 91.4 How points are earned and what one is worth.
+  ///
+  /// In en, this message translates to:
+  /// **'Earn 1 point for every {spend} you spend on products. Each point is worth {value}.'**
+  String pointsRule(String spend, String value);
+
+  /// 91.4 Under the points in the cart and on My points: the fewest used at once.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Use them once you have 1 point.} other{Use them once you have {count} points.}}'**
+  String cartPointsFrom(int count);
+
+  /// 91.4 The cart's switch that uses the customer's points on this order.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Use 1 point} other{Use {count} points}}'**
+  String cartUsePoints(int count);
+
+  /// 91.4 Under the cart's points switch: what the points take off.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} off this order'**
+  String cartPointsWorth(String value);
+
+  /// 91.4 The cart's line for what the loyalty points take off.
+  ///
+  /// In en, this message translates to:
+  /// **'Points'**
+  String get cartPointsDiscount;
+
+  /// 91.4 The heading over the changes to the customer's points.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get pointsHistory;
+
+  /// 91.4 A change to the points: earned on a completed order.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned'**
+  String get pointsReasonEarned;
+
+  /// 91.4 A change to the points: used on an order.
+  ///
+  /// In en, this message translates to:
+  /// **'Used'**
+  String get pointsReasonUsed;
+
+  /// 91.4 A change to the points: given back when a paid order was cancelled or refunded.
+  ///
+  /// In en, this message translates to:
+  /// **'Given back'**
+  String get pointsReasonGivenBack;
+
+  /// 91.4 A change to the points: taken back when an order was refunded or returned.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken back'**
+  String get pointsReasonTakenBack;
+
+  /// 91.4 My points without any changes yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No points yet. You earn them when your orders are completed.'**
+  String get noPointsYet;
+
+  /// 91.4 On an order: the loyalty points used on it and what they took off.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 point used: −{amount}} other{{count} points used: −{amount}}}'**
+  String orderPointsUsed(int count, String amount);
+
+  /// 91.4 On a completed order: the loyalty points it earned.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 point earned} other{{count} points earned}}'**
+  String orderPointsEarned(int count);
 }
 
 class _AppLocalizationsDelegate

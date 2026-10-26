@@ -12,7 +12,12 @@ import { catalogSettings, paymentsSetUp } from "@/lib/catalog/settings";
 import { getStore } from "@/lib/data";
 import { priceOf } from "@/lib/hosted/connectors/catalog";
 import type { FulfilmentSettings } from "@/lib/data/types";
-import { AddCategoryForm, CouponForm, FulfilmentForm, ShopSettingsForm } from "./forms";
+import { AddCategoryForm, CouponForm, FulfilmentForm, LoyaltyForm, ShopSettingsForm } from "./forms";
+import { plansIn } from "@/lib/marketing-lang";
+import { hasFeature, lowestPlanWith } from "@/lib/plans";
+import { UpgradeHint } from "@/components/upgrade";
+import { currentPlanId } from "@/lib/billing/plan-change";
+import { effectivePlans } from "@/lib/entitlements";
 import { deleteCouponAction, setCouponActiveAction } from "@/app/actions/catalog";
 import { formatDate } from "@/components/ui";
 import { CardPayments } from "./payments";
@@ -54,7 +59,7 @@ function fulfilmentValues(f: FulfilmentSettings): Record<string, string> {
 
 /** Products (26 a restaurant's menu), categories and shop settings for apps without a website. */
 export default async function CatalogPage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
-  const { app } = await requireClient("catalog");
+  const { app, license } = await requireClient("catalog");
   const { t, num, lang } = await dashboardText();
   const kind = app?.vertical === "restaurant" ? "restaurant" : "shop";
   const pageTitle = t("shop.page", { kind });
@@ -75,6 +80,12 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
   const money = (cents: number) => formatCents(cents, settings.currency);
   const categoryName = new Map(categories.map((c) => [c.id, c.name]));
   const fulfilment = fulfilmentOf(app);
+  // 91.4 Loyalty points: every plan but Starter.
+  const plans = plansIn(lang, await effectivePlans(store));
+  const planId = license ? currentPlanId(license, new Date()) : null;
+  const loyaltyInPlan = planId ? hasFeature(plans[planId], "loyalty") : false;
+  const loyaltyTo = lowestPlanWith(plans, (p) => hasFeature(p, "loyalty"), planId);
+  const loyalty = settings.loyalty;
 
   return (
     <div className="flex flex-col gap-6">
@@ -194,6 +205,28 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
           />
         </section>
       </div>
+
+      {/* 91.4 Loyalty points. */}
+      {loyaltyInPlan ? (
+        <section aria-labelledby="h-loyalty" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+          <h2 id="h-loyalty" className="m-0 text-lg font-bold">
+            {t("shop.loyalty")}
+          </h2>
+          <LoyaltyForm
+            currency={settings.currency}
+            values={{
+              on: loyalty ? "on" : "",
+              spend: centsToDecimal(loyalty?.spendPerPointCents ?? 1000),
+              value: centsToDecimal(loyalty?.pointValueCents ?? 10),
+              minPoints: String(loyalty?.minPoints ?? 100),
+            }}
+          />
+        </section>
+      ) : planId ? (
+        <UpgradeHint title={t("shop.loyalty")} to={loyaltyTo} cta={loyaltyTo ? t("overview.upgradeTo", { plan: loyaltyTo.name }) : undefined}>
+          {t("shop.loyaltyUpgradeText")}
+        </UpgradeHint>
+      ) : null}
 
       {/* 91.1 Coupons. */}
       <section aria-labelledby="h-coupons" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">

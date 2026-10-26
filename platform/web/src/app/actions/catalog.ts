@@ -13,6 +13,7 @@ import { changeOrderStatus, inKitchen } from "@/lib/catalog/order-status";
 import { parseShipment, shipOrder, shippable } from "@/lib/catalog/shipping";
 import { sendTemplate } from "@/lib/email/send";
 import { CATALOG_CURRENCIES, parsePrice } from "@/lib/catalog/money";
+import { LOYALTY_LIMITS } from "@/lib/catalog/loyalty";
 import { readProductNumbers } from "@/lib/catalog/product-fields";
 import { parseOptionGroups } from "@/lib/catalog/options";
 import { catalogSettings, encryptOwnPayment, type OwnPaymentInput } from "@/lib/catalog/settings";
@@ -219,6 +220,26 @@ export async function saveShopSettingsAction(_: FormState, formData: FormData): 
   );
   refresh();
   return { ok: true, message: "Shop settings saved.", values };
+}
+
+/** 91.4 The shop's loyalty points: on or off, what earns a point, what a point is worth, the fewest used at once. */
+export async function saveLoyaltyAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { app } = await requireCatalogApp();
+  const values = { on: formData.get("on") === "on" ? "on" : "", spend: str(formData, "spend"), value: str(formData, "value"), minPoints: str(formData, "minPoints") };
+  const errors: Record<string, string> = {};
+  const spend = parsePrice(values.spend);
+  if (spend === null || spend < 1 || spend > LOYALTY_LIMITS.spendMaxCents) errors.spend = "Enter an amount, like 10.";
+  const value = parsePrice(values.value);
+  if (value === null || value < 1 || value > LOYALTY_LIMITS.valueMaxCents) errors.value = "Enter an amount, like 0.10.";
+  const minPoints = Number(values.minPoints.trim());
+  if (!/^\d+$/.test(values.minPoints.trim()) || minPoints < 1 || minPoints > LOYALTY_LIMITS.minPointsMax) errors.minPoints = "Enter a number of points, like 100.";
+  // Turning it off keeps nothing to check: the customers' points stay for when it's on again.
+  if (values.on && Object.keys(errors).length > 0) return { errors, values };
+  const settings = catalogSettings(app);
+  const loyalty = values.on ? { spendPerPointCents: spend!, pointValueCents: value!, minPoints } : null;
+  await (await getStore()).updateApp(app.id, { catalogSettings: { ...settings, loyalty } }, new Date());
+  refresh();
+  return { ok: true, message: "Loyalty points saved.", values };
 }
 
 /** 91.1 A coupon for the shop's customers. */
