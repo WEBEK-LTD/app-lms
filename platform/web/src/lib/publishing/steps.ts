@@ -1,5 +1,6 @@
 import { hasFeature, type PlanInfo } from "../plans";
 import type { App, MoreStore, PublishingEvent, PublishingListing, PublishingRequest, PublishingStatus, PublishingStore, PublishingTrack } from "../data/types";
+import { REJECTION_REASONS } from "../data/types";
 
 /**
  * 14.1 We publish for you: the client's checklist, the store statuses and
@@ -435,10 +436,13 @@ export function storeUrlProblem(store: PublishingStore, value: string): string |
 }
 
 /** A status change by the team: what's wrong with it, or null. */
-export function trackChangeProblems(store: PublishingStore, input: { status: string; note: string; storeUrl: string }): Record<string, string> {
+export function trackChangeProblems(store: PublishingStore, input: { status: string; note: string; storeUrl: string; rejection?: string }): Record<string, string> {
   const errors: Record<string, string> = {};
   if (!isPublishingStatus(input.status)) errors.status = "Choose a status.";
-  if (input.status === "rejected" && !input.note.trim()) errors.note = "Say why it was rejected and what happens next: the client reads this.";
+  // 88.3 A reason from the list says what it means and what to do; without one, the note must.
+  const rejection = input.rejection ?? "";
+  if (rejection && !(REJECTION_REASONS as readonly string[]).includes(rejection)) errors.rejection = "Choose a reason from the list.";
+  if (input.status === "rejected" && !rejection && !input.note.trim()) errors.note = "Say why it was rejected and what happens next: the client reads this.";
   if (input.note.length > 2000) errors.note = "Keep the note under 2,000 characters.";
   const urlProblem = storeUrlProblem(store, input.storeUrl);
   if (urlProblem) errors.storeUrl = urlProblem;

@@ -911,6 +911,34 @@ export function BrandingStep({
 
 type UploadedFile = { id: string; url: string };
 
+/** 88.2 A multi-line text: captions (one per line) or a translated description. */
+function CaptionsField({ name, label, hint, defaultValue, error, rows = 4, maxLength }: { name: string; label: string; hint?: string; defaultValue: string; error?: string; rows?: number; maxLength?: number }) {
+  const id = `f-${name}`;
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-sm font-semibold">
+        {label}
+      </label>
+      <textarea
+        id={id}
+        name={name}
+        rows={rows}
+        maxLength={maxLength}
+        defaultValue={defaultValue}
+        className="input"
+        aria-invalid={error ? true : undefined}
+        aria-describedby={[hint ? `${id}-hint` : "", error ? `${id}-error` : ""].filter(Boolean).join(" ") || undefined}
+      />
+      {hint ? (
+        <span id={`${id}-hint`} className="text-xs text-muted">
+          {hint}
+        </span>
+      ) : null}
+      <FieldError id={`${id}-error`} error={error} />
+    </div>
+  );
+}
+
 /** Store screenshots: uploaded one by one (each request stays small), kept in upload order. */
 function ScreenshotGallery({
   kind,
@@ -922,7 +950,7 @@ function ScreenshotGallery({
   error,
   saved,
 }: {
-  kind: "play_screenshot" | "ios_screenshot";
+  kind: "play_screenshot" | "ios_screenshot" | "tablet_screenshot" | "ipad_screenshot";
   field: string;
   label: string;
   hint: string;
@@ -1033,6 +1061,8 @@ export function ListingStep({
   values,
   screenshots,
   descriptionHint,
+  languages,
+  listing,
 }: {
   /** 31 What to describe, for this app's type. */
   descriptionHint: string;
@@ -1045,11 +1075,24 @@ export function ListingStep({
     supportEmail: string;
     privacyUrl: string;
   };
-  screenshots: { phone: UploadedFile[]; iphone: UploadedFile[] };
+  screenshots: { phone: UploadedFile[]; iphone: UploadedFile[]; tablet: UploadedFile[]; ipad: UploadedFile[] };
+  /** 88.2 The app's languages (names in the dashboard's language), the listing's own first. */
+  languages: { code: string; name: string }[];
+  /** 88.2 The texts in the other languages, and the framed screenshots' captions. */
+  listing: {
+    language: string;
+    translations: Record<string, { storeTitle: string; shortDescription: string; fullDescription: string; captions: string }>;
+    framed: boolean;
+    captions: string;
+  };
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveListingAction, initialFormState);
   const value = (key: keyof typeof values) => v(state, key, values[key]);
+  const text = (name: string, fallback: string) => v(state, name, fallback);
+  const [framed, setFramed] = useState(listing.framed);
+  const [language, setLanguage] = useState(text("listingLanguage", listing.language));
+  const others = languages.filter((item) => item.code !== language);
   return (
     <form action={action} noValidate className="flex flex-wrap items-start gap-6">
       <StepCard title={t("setup.listing")} id="h-listing">
@@ -1120,6 +1163,25 @@ export function ListingStep({
           </span>
           <FieldError id="f-fullDescription-error" error={state.errors?.fullDescription} />
         </div>
+        {languages.length > 1 ? (
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="f-listingLanguage" className="text-sm font-semibold">
+              {t("setup.listingLanguage")}
+            </label>
+            <select id="f-listingLanguage" name="listingLanguage" value={language} onChange={(event) => setLanguage(event.target.value)} className="input max-w-[320px]" aria-describedby="f-listingLanguage-hint">
+              {languages.map((item) => (
+                <option key={item.code} value={item.code}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
+            <span id="f-listingLanguage-hint" className="text-xs text-muted">
+              {t("setup.listingLanguageHint")}
+            </span>
+          </div>
+        ) : (
+          <input type="hidden" name="listingLanguage" value={language} />
+        )}
         <div className="flex flex-wrap gap-3.5">
           <Field
             className="flex-[1_1_220px]"
@@ -1166,7 +1228,80 @@ export function ListingStep({
             error={state.errors?.iosScreenshotIds}
             saved={state}
           />
+          {/* 88.2 Tablets and iPads, and framed screenshots with captions. */}
+          <ScreenshotGallery
+            kind="tablet_screenshot"
+            field="tabletScreenshotIds"
+            label={t("setup.tabletShots")}
+            hint={t("setup.tabletShotsHint")}
+            max={8}
+            initial={screenshots.tablet}
+            error={state.errors?.tabletScreenshotIds}
+            saved={state}
+          />
+          <ScreenshotGallery
+            kind="ipad_screenshot"
+            field="ipadScreenshotIds"
+            label={t("setup.ipadShots")}
+            hint={t("setup.ipadShotsHint")}
+            max={10}
+            initial={screenshots.ipad}
+            error={state.errors?.ipadScreenshotIds}
+            saved={state}
+          />
+          <label className="flex cursor-pointer items-start gap-3">
+            <input type="checkbox" name="frameScreenshots" checked={framed} onChange={(event) => setFramed(event.target.checked)} className="mt-1 h-4 w-4 accent-midnight" />
+            <span className="flex flex-col gap-0.5">
+              <span className="text-sm font-semibold">{t("setup.frameShots")}</span>
+              <span className="text-xs text-muted">{t("setup.frameShotsText")}</span>
+            </span>
+          </label>
+          {framed ? <CaptionsField name="captions" label={t("setup.captions")} hint={t("setup.captionsHint")} defaultValue={text("captions", listing.captions)} error={state.errors?.captions} /> : null}
         </fieldset>
+        {others.length > 0 ? (
+          <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-line p-4">
+            <legend className="px-1 text-[15px] font-bold">{t("setup.translations")}</legend>
+            <p className="m-0 text-sm leading-relaxed text-ink-4">{t("setup.translationsText")}</p>
+            {others.map((item) => {
+              const saved = listing.translations[item.code];
+              const field = (name: string) => `tr_${item.code}_${name}`;
+              const failed = ["storeTitle", "shortDescription", "fullDescription", "captions"].some((name) => state.errors?.[field(name)]);
+              return (
+                <details key={item.code} open={failed || undefined} className="rounded-lg border border-line-soft px-3 py-2" data-translation={item.code}>
+                  <summary className="cursor-pointer text-sm font-semibold">{t("setup.translationIn", { language: item.name })}</summary>
+                  <div className="flex flex-col gap-3 pt-3">
+                    <Field label={t("setup.storeTitle")} name={field("storeTitle")} maxLength={30} defaultValue={text(field("storeTitle"), saved?.storeTitle ?? "")} error={state.errors?.[field("storeTitle")]} small />
+                    <Field
+                      label={t("setup.shortDescription")}
+                      name={field("shortDescription")}
+                      maxLength={80}
+                      defaultValue={text(field("shortDescription"), saved?.shortDescription ?? "")}
+                      error={state.errors?.[field("shortDescription")]}
+                      small
+                    />
+                    <CaptionsField
+                      name={field("fullDescription")}
+                      label={t("setup.fullDescription")}
+                      rows={5}
+                      maxLength={4000}
+                      defaultValue={text(field("fullDescription"), saved?.fullDescription ?? "")}
+                      error={state.errors?.[field("fullDescription")]}
+                    />
+                    {framed ? (
+                      <CaptionsField
+                        name={field("captions")}
+                        label={t("setup.captionsIn", { language: item.name })}
+                        hint={t("setup.captionsInHint")}
+                        defaultValue={text(field("captions"), saved?.captions ?? "")}
+                        error={state.errors?.[field("captions")]}
+                      />
+                    ) : null}
+                  </div>
+                </details>
+              );
+            })}
+          </fieldset>
+        ) : null}
         <StepActions back="/dashboard/setup?step=branding" />
       </StepCard>
     </form>

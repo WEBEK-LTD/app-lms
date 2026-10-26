@@ -16,5 +16,17 @@ export async function GET(request: Request, { params }: RouteContext<"/api/v1/bu
     privacy_url: listing.privacyUrl,
     phone_screenshots: listing.phoneScreenshots ?? [],
     iphone_screenshots: listing.iphoneScreenshots ?? [],
+    // 88.2
+    language: listing.language ?? "en",
+    translations: (listing.translations ?? []).map((t) => ({
+      language: t.language,
+      store_title: t.storeTitle,
+      short_description: t.shortDescription,
+      full_description: t.fullDescription,
+      captions: t.captions,
+    })),
+    tablet_screenshots: listing.tabletScreenshots ?? [],
+    ipad_screenshots: listing.ipadScreenshots ?? [],
+    frame: listing.frame ? { background: listing.frame.background.toUpperCase(), text_color: listing.frame.textColor, captions: listing.frame.captions } : null,
   });
 }

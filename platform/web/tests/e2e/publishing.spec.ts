@@ -165,6 +165,32 @@ test("the client works through the checklist and the listing details", async () 
   await expect(listing.getByText("Saved. Everything is ready: our team takes it from here.")).toBeVisible();
   await expect.poll(async () => (await mailsTo(teamEmail)).map((m) => m.subject)).toContain(`Publishing: ${client.name} finished the publishing checklist`);
 
+  // 88.1 Ready to submit: a WordPress app tells the reviewers how to sign in; we take the screenshots.
+  await own.reload();
+  const ready = own.getByRole("region", { name: "Ready to submit?" });
+  await expect(ready).toHaveAttribute("data-ready", "yes");
+  await expect(ready.locator('[data-ready-item="listing"]')).toHaveAttribute("data-state", "ok");
+  await expect(ready.locator('[data-ready-item="review"]')).toHaveAttribute("data-state", "note");
+  await expect(ready.locator('[data-ready-item="review"]')).toContainText("Turn on review access in the Yallapp plugin's settings");
+  await expect(ready.locator('[data-ready-item="screenshots"]')).toHaveAttribute("data-state", "note");
+  await expect(ready.locator('[data-ready-item="ios"]')).toContainText("never shows buy buttons for paid courses");
+  const deletion = new URL((await ready.locator("[data-ready-url]").textContent())!);
+  expect(deletion.pathname).toBe(`/a/${appId}/delete-account`);
+  await listing.getByLabel("For the store reviewers (optional)").fill("Sign in with review@rosalind.test and the code 000000 (review access in the plugin).");
+  await listing.getByRole("button", { name: "Save listing details" }).click();
+  await expect(async () => {
+    await own.reload();
+    await expect(ready.locator('[data-ready-item="review"]')).toHaveAttribute("data-state", "ok", { timeout: 1000 });
+  }).toPass();
+
+  // The app's own account deletion page, for Google Play's Data safety form, in the browser's language.
+  await own.goto(deletion.pathname);
+  await expect(own.getByRole("heading", { level: 1 })).toHaveText("Delete your Franklin Lab account");
+  await expect(own.locator("[data-delete-steps]")).toContainText("Choose Delete account and confirm.");
+  await expect(own.locator("[data-delete-ask]")).toContainText("Write to");
+  const arabic = await own.request.get(deletion.pathname, { headers: { "accept-language": "ar-EG,ar;q=0.9,en;q=0.5" } });
+  expect(await arabic.text()).toContain("حذف حسابك في Franklin Lab");
+
   // The overview shows where it stands.
   await own.goto("/dashboard");
   await expect(own.getByRole("listitem").filter({ hasText: "Google Play" })).toContainText("Waiting for you");
@@ -189,6 +215,8 @@ test("the team moves each store along, and the client is emailed", async () => {
   await card.getByRole("button", { name: "Save App Store" }).click();
   await expect(card.getByText("Say why it was rejected")).toBeVisible();
   await card.getByLabel("App Store note to the client").fill("Apple needs a demo phone number to sign in; we added the review number.");
+  // 88.3 With the reason from the list, the client sees what it means and where to fix it.
+  await card.getByLabel("App Store rejection reason").selectOption("sign_in");
   await card.getByRole("button", { name: "Save App Store" }).click();
   await expect(card.getByText("App Store is now “Rejected”.")).toBeVisible();
 
@@ -222,6 +250,10 @@ test("the team moves each store along, and the client is emailed", async () => {
   await expect(play).toContainText("Live");
   await expect(play.getByRole("link", { name: "See it on Google Play" })).toHaveAttribute("href", /^https:\/\/play\.google\.com\//);
   await expect(own.getByRole("region", { name: "App Store" })).toContainText("Apple needs a demo phone number");
+  const rejection = own.getByRole("region", { name: "App Store" }).locator('[data-rejection="sign_in"]');
+  await expect(rejection).toContainText("Why: The reviewers couldn't sign in to the app.");
+  await expect(rejection.getByRole("link", { name: "Fix it" })).toHaveAttribute("href", "/dashboard/app-sign-in");
+  expect(mails.find((m) => m.subject === "Franklin Lab on App Store: Rejected")!.text).toContain("What to do: Set a test number or email");
   await expect(own.getByRole("region", { name: "History" })).toContainText("Google Play: Live");
   // The team's own notes never reach the client.
   await expect(own.locator("body")).not.toContainText("WhatsApp in the mornings");

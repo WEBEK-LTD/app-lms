@@ -34,6 +34,10 @@ import {
 import { kindOf, suggestedCategories, wordsOf } from "@/lib/app/kinds";
 import { reviewNotesFor, suggestedReviewNotes } from "@/lib/publishing/review-notes";
 import { ChecklistForm, ListingForm } from "./forms";
+import { ReadySection } from "./ready";
+import { readiness } from "@/lib/publishing/readiness";
+import { REJECTION_LINK } from "@/lib/publishing/review";
+import { appUrl } from "@/lib/env";
 import { localePath } from "@/i18n/paths";
 import { publishingStatusIn } from "@/lib/publishing/status-lang";
 import { richText } from "@/i18n/rich";
@@ -93,7 +97,8 @@ function Choice({ mode, title, text, points, disabled, saving }: { mode: "self" 
 export default async function PublishingPage({ searchParams }: PageProps<"/dashboard/publishing">) {
   const { app, license } = await requireClient("settings");
   if (!app) redirect("/dashboard/app-type");
-  const { t, k, lang } = await dashboardText();
+  const text = await dashboardText();
+  const { t, k, lang } = text;
   const saving = t("common.saving");
   const name = appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app);
   const query = await searchParams;
@@ -193,6 +198,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
             ) : null}
           </ol>
         </section>
+        <ReadySection items={readiness({ app, listing: null, ios: hasFeature(current, "ios"), managed: false, platformUrl: appUrl() })} text={text} />
         <form action={choosePublishingModeAction} className="flex flex-col gap-2 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <input type="hidden" name="mode" value="managed" />
           <h2 className="m-0 text-lg font-bold">{t("publishing.ratherWe")}</h2>
@@ -251,6 +257,18 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
                 <p className="m-0 text-sm leading-relaxed text-ink-4">
                   {publishingStatusIn(lang, which, track.status).text}
                 </p>
+                {/* 88.3 Why the store turned it down, what to do and where. */}
+                {track.status === "rejected" && track.rejection ? (
+                  <div className="flex flex-col gap-1.5 rounded-lg border border-danger/30 bg-danger-bg px-3 py-2.5 text-sm leading-relaxed" data-rejection={track.rejection}>
+                    <span className="font-semibold">{t("publishing.reject.why", { reason: t(`publishing.reject.${track.rejection}`) })}</span>
+                    <span>{t("publishing.reject.whatToDo", { fix: t(`publishing.reject.${track.rejection}Fix`) })}</span>
+                    {REJECTION_LINK[track.rejection] ? (
+                      <Link href={REJECTION_LINK[track.rejection]!} className="self-start font-semibold">
+                        {t("publishing.reject.fixIt")}
+                      </Link>
+                    ) : null}
+                  </div>
+                ) : null}
                 {track.note ? (
                   <p className="m-0 rounded-lg bg-sand px-3 py-2 text-sm leading-relaxed">
                     {richText(t("publishing.noteFromTeam", { note: track.note }), { b: (chunk) => <span className="font-semibold">{chunk}</span> })}
@@ -265,11 +283,18 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
                 <span className="text-xs text-muted">
                   {track.updatedAt ? t("publishing.updated", { date: formatDateTime(track.updatedAt, lang) }) : t("publishing.asked", { date: formatDateTime(request.requestedAt, lang) })}
                 </span>
+                {which === "ios" && track.checkedAt && track.storeState ? (
+                  <span className="text-xs text-muted" data-store-checked="">
+                    {t("publishing.reject.checked", { date: formatDateTime(track.checkedAt, lang) })}
+                  </span>
+                ) : null}
               </section>
             );
           })}
         </div>
       </section>
+
+      <ReadySection items={readiness({ app, listing: request.listing, ios: hasFeature(current, "ios"), managed: true, platformUrl: appUrl() })} text={text} />
 
       {/* 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, when the client wants them too. */}
       <form action={chooseMoreStoresAction} aria-labelledby="h-more-stores" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">

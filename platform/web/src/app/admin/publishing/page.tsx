@@ -8,6 +8,8 @@ import { adminCan, requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { smtpConfigured } from "@/lib/mail";
 import { reviewNotesFor } from "@/lib/publishing/review-notes";
+import { REJECTION_GUIDELINE } from "@/lib/publishing/review";
+import { REJECTION_REASONS } from "@/lib/data/types";
 import { publishingTeamEmail } from "@/lib/publishing/service";
 import {
   checklistProgress,
@@ -183,9 +185,15 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
                       store={which}
                       storeTitle={STORE_TITLE[which]}
                       statuses={statuses}
+                      reasons={REJECTION_REASONS.map((id) => ({ id, label: REJECTION_GUIDELINE[id] }))}
                       disabled={!mayManage}
-                      current={{ status: track.status, note: track.note ?? "", storeUrl: track.storeUrl ?? "" }}
+                      current={{ status: track.status, note: track.note ?? "", storeUrl: track.storeUrl ?? "", rejection: track.rejection ?? "" }}
                     />
+                    {track.checkedAt && track.storeState ? (
+                      <p className="m-0 text-xs text-muted">
+                        App Store Connect: {track.storeState} · read {formatDateTime(track.checkedAt)}
+                      </p>
+                    ) : null}
                   </div>
                 );
               })}

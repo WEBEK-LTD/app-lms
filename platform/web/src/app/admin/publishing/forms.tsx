@@ -22,13 +22,16 @@ export function TrackForm({
   storeTitle,
   current,
   statuses,
+  reasons,
   disabled,
 }: {
   appId: string;
   store: PublishingStore;
   storeTitle: string;
-  current: { status: string; note: string; storeUrl: string };
+  current: { status: string; note: string; storeUrl: string; rejection: string };
   statuses: { id: string; label: string }[];
+  /** 88.3 The common reasons a store turns an app down, with their guidelines. */
+  reasons: { id: string; label: string }[];
   disabled: boolean;
 }) {
   const [state, action] = useActionState(updatePublishingTrackAction, initialFormState);
@@ -54,6 +57,23 @@ export function TrackForm({
           <FieldError id={`status-${id}-error`} error={e.status} />
         </div>
         <div className="flex min-w-0 flex-col gap-1.5">
+          <label htmlFor={`rejection-${id}`} className="text-sm font-semibold">
+            {storeTitle} rejection reason
+          </label>
+          <select id={`rejection-${id}`} name="rejection" defaultValue={v.rejection} className="input input-sm" aria-describedby={`rejection-${id}-hint`} aria-invalid={e.rejection ? true : undefined}>
+            <option value="">Not rejected</option>
+            {reasons.map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.label}
+              </option>
+            ))}
+          </select>
+          <span id={`rejection-${id}-hint`} className="text-xs text-muted">
+            When rejected: the client sees what it means, what to do and where, in their language.
+          </span>
+          <FieldError id={`rejection-${id}-error`} error={e.rejection} />
+        </div>
+        <div className="flex min-w-0 flex-col gap-1.5">
           <label htmlFor={`note-${id}`} className="text-sm font-semibold">
             {storeTitle} note to the client
           </label>
@@ -68,7 +88,7 @@ export function TrackForm({
             aria-describedby={`note-${id}-hint${e.note ? ` note-${id}-error` : ""}`}
           />
           <span id={`note-${id}-hint`} className="text-xs text-muted">
-            Shown on their Publishing page and in the email. Needed when rejected.
+            Shown on their Publishing page and in the email. Needed when rejected without a reason above.
           </span>
           <FieldError id={`note-${id}-error`} error={e.note} />
         </div>

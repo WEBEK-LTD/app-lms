@@ -5,7 +5,7 @@ import { recordAudit } from "@/lib/admin/audit";
 import { appLabel } from "@/lib/app/label";
 import { requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
-import type { PublishingRequest, PublishingStatus, PublishingStore } from "@/lib/data/types";
+import type { PublishingRequest, PublishingStatus, PublishingStore, RejectionReason } from "@/lib/data/types";
 import type { FormState } from "@/lib/forms";
 import { notifyPublishingStatus } from "@/lib/publishing/service";
 import { isMoreStore, PUBLISHING_STATUS_LABEL, requestStores, STORE_TITLE, trackChangeProblems, trackOf } from "@/lib/publishing/steps";
@@ -35,6 +35,7 @@ export async function updatePublishingTrackAction(_: FormState, formData: FormDa
     status: String(formData.get("status") ?? ""),
     note: String(formData.get("note") ?? "").trim(),
     storeUrl: String(formData.get("storeUrl") ?? "").trim(),
+    rejection: String(formData.get("rejection") ?? ""),
   };
   if (!request || request.mode !== "managed") return { message: "This app's publishing request isn't open any more.", values };
   if (!requestStores(request).includes(which)) return { message: `The client no longer wants the app on ${STORE_TITLE[which]}.`, values };
@@ -45,8 +46,10 @@ export async function updatePublishingTrackAction(_: FormState, formData: FormDa
   const before = trackOf(request, which);
   const status = values.status as PublishingStatus;
   const changed = status !== before.status;
-  const track = { status, note: values.note || null, storeUrl: values.storeUrl || null, updatedAt: changed ? now : before.updatedAt };
-  if (!changed && track.note === before.note && track.storeUrl === before.storeUrl) return { ok: true, message: "Nothing changed.", values };
+  // 88.3 The reason only goes with "rejected"; what the store last said stays.
+  const rejection = status === "rejected" && values.rejection ? (values.rejection as RejectionReason) : null;
+  const track = { ...before, status, note: values.note || null, storeUrl: values.storeUrl || null, rejection, updatedAt: changed ? now : before.updatedAt };
+  if (!changed && track.note === before.note && track.storeUrl === before.storeUrl && rejection === (before.rejection ?? null)) return { ok: true, message: "Nothing changed.", values };
   const next: PublishingRequest = { ...request, [which]: track, updatedAt: now };
   await store.savePublishingRequest(next);
   if (changed) await store.addPublishingEvent({ appId: request.appId, store: which, status, note: track.note, actorEmail: admin.email, at: now });

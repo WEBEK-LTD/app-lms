@@ -695,6 +695,9 @@ The live preview shows your choices as you go. Your pages, the secondary color, 
 - **Store title** (up to 30 characters), **Short description** (up to 80 characters, shown under the title on Google Play) and **Full description**.
 - **Support email** and **Privacy policy URL**: both stores require them.
 - **Screenshots**: 2 to 8 Google Play phone screenshots, and up to 10 iPhone screenshots at 1320 × 2868, 1290 × 2796 or 1260 × 2736 pixels. PNG or JPEG, without transparency. Don't show prices or buy buttons in iPhone screenshots.
+- **Tablets and iPads** (optional): up to 8 Google Play tablet screenshots, at least 1080 pixels on the short side (shown for 7-inch and 10-inch tablets), and up to 10 iPad screenshots at 2064 × 2752 or 2048 × 2732 pixels. The App Store asks for iPad screenshots when your iPhone app runs on iPad.
+- **Frame the screenshots** (optional): each one is sent in a thin phone frame on your app's main color with a caption above it. Write the captions one per line, in the order of your screenshots.
+- **Language of these texts**, and **the listing in your app's other languages**: when your app has more than one language, write the title, descriptions and captions in each. Google Play and the App Store show people the texts in their language; a language you leave empty shows the main texts. When we publish for you, each new version sends the listing in every language with its screenshots.
 
 ## Publishing
 
@@ -1185,6 +1188,8 @@ Your app also sends usage statistics to Yallapp (see [Analytics](/docs/analytics
 
 For notifications, apps on Yallapp's hosted API keep each signed-in phone's push token, the language the app shows on it and the country it signs in from (worked out from the connection, the IP itself isn't kept), so you can send a campaign to the people who read a language or live in a country. Shops also get how many items each signed-in person has in their cart (not what), for the reminder of a cart left. Declare under **Location**: **Approximate location**, and under **Device or other IDs**: the push token. For each: **Collected**, not shared, required, for **App functionality**.
 
+Data safety also asks how people delete their account. They do it in the app (**Account › Settings › Delete account**); for the web link Google asks for, give your app's own page, where they can ask without the app: the **Ready to submit?** section on [Publishing](/dashboard/publishing) shows its address (\`/a/<app ID>/delete-account\` on yallapp.com.tr), and checks the rest of what the stores ask before you send the app.
+
 > Under **App access**, give reviewers your review phone number and fixed code: from the dashboard's **App sign-in** page, or the plugin's **Store review access** setting on WordPress. Without it, reviewers can’t sign in and the app may be rejected.
 
 ## Run a closed test
@@ -1239,6 +1244,10 @@ Your app also sends usage statistics to Yallapp (see [Analytics](/docs/analytics
 ## Submit for review
 
 Choose the build, select **Add for Review** and submit. Your iOS app shows no purchase buttons for paid courses or digital products, as Apple's rules require, so don't mention prices or buying them in the iOS description.
+
+## While it's in review
+
+When our team publishes for you, the **Publishing** page reads the App Store's review status from App Store Connect with your key: sent, in review, live or turned down, checked every half hour and emailed to you when it changes. When Apple or Google turns the app down, the page says why in plain words, what to do and where to fix it (for example **App sign-in** when the reviewers couldn't sign in), with our team's note.
 `,
   }),
   // 35 Samsung Galaxy Store

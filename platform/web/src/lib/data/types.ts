@@ -15,7 +15,7 @@ export type MoreStoreStage = "upload_galaxy" | "upload_appgallery" | "upload_xia
 export type BuildStages = Record<Exclude<StageKey, MoreStoreStage>, StageStatus> & Partial<Record<MoreStoreStage, StageStatus>>;
 export type StageStatus = "pending" | "running" | "done" | "failed" | "skipped";
 export type ArtifactKind = "apk" | "aab" | "ipa" | "keystore" | "store_assets";
-export type AssetKind = "icon" | "logo" | "play_screenshot" | "ios_screenshot" | "firebase_android" | "firebase_ios" | "product_image" | "huawei_agconnect";
+export type AssetKind = "icon" | "logo" | "play_screenshot" | "ios_screenshot" | "tablet_screenshot" | "ipad_screenshot" | "firebase_android" | "firebase_ios" | "product_image" | "huawei_agconnect";
 export type AppTemplate = "classic" | "bold" | "minimal";
 
 export interface User {
@@ -112,6 +112,27 @@ export interface StoreListing {
   /** Asset URLs, in store order. Missing on builds queued before screenshots existed. */
   phoneScreenshots?: string[];
   iphoneScreenshots?: string[];
+  /** 88.2 Missing on builds queued before. */
+  language?: string;
+  translations?: ListingTranslation[];
+  tabletScreenshots?: string[];
+  ipadScreenshots?: string[];
+  frame?: { background: string; textColor: string; captions: string[] } | null;
+}
+
+/** 88.2 The store listing in another of the app's languages. */
+export interface ListingTranslation {
+  language: string;
+  storeTitle: string;
+  shortDescription: string;
+  fullDescription: string;
+  /** The framed screenshots' captions in this language, in order. */
+  captions: string[];
+}
+
+/** 88.2 Screenshots framed for the stores: their captions, in order (the colours are the app's). */
+export interface ScreenshotFrame {
+  captions: string[];
 }
 
 /**
@@ -359,6 +380,15 @@ export interface App {
   /** Store screenshots (asset IDs, in order): Google Play phone screenshots and iPhone 6.9" screenshots. */
   phoneScreenshotIds: string[];
   iphoneScreenshotIds: string[];
+  /** 88.2 Google Play tablet screenshots and iPad 13" screenshots (asset IDs, in order); missing before. */
+  tabletScreenshotIds?: string[] | null;
+  ipadScreenshotIds?: string[] | null;
+  /** 88.2 The language the listing texts are written in (an app language code); missing: English. */
+  listingLanguage?: string | null;
+  /** 88.2 The listing in the app's other languages. */
+  listingTranslations?: ListingTranslation[] | null;
+  /** 88.2 Screenshots framed for the stores on the app's main colour, with these captions; null: as uploaded. */
+  screenshotFrame?: ScreenshotFrame | null;
   /** Firebase config files (assets): google-services.json and GoogleService-Info.plist. Push is off without them. */
   firebaseAndroidAssetId: string | null;
   firebaseIosAssetId: string | null;
@@ -1970,7 +2000,7 @@ export interface PublishingListing {
 }
 
 /** 35, 36 How the extra stores' tracks are kept (publishing_requests.more_stores): dates as ISO strings. */
-export type MoreStoresRow = Partial<Record<MoreStore, (Omit<PublishingTrack, "updatedAt"> & { updatedAt: string | null }) | null>>;
+export type MoreStoresRow = Partial<Record<MoreStore, (Omit<PublishingTrack, "updatedAt" | "checkedAt"> & { updatedAt: string | null; checkedAt?: string | null }) | null>>;
 
 /** Publishing on one store. */
 export interface PublishingTrack {
@@ -1981,7 +2011,20 @@ export interface PublishingTrack {
   storeUrl: string | null;
   /** When the status last changed; null while it's the first one. */
   updatedAt: Date | null;
+  /** 88.3 Why the store turned it down (lib/publishing/review.ts), when the team or the store said. */
+  rejection?: RejectionReason | null;
+  /** 88.3 The store's own state of the version, as last read from it (App Store Connect's `appVersionState`). */
+  storeState?: string | null;
+  /** 88.3 When the store was last asked. */
+  checkedAt?: Date | null;
 }
+
+/** 88.3 Why a store turned an app down: the common reasons, each with what to do (lib/publishing/review.ts). */
+export const REJECTION_REASONS = ["sign_in", "incomplete", "metadata", "purchases", "account_deletion", "privacy", "minimum", "content_rating", "binary", "other"] as const;
+export type RejectionReason = (typeof REJECTION_REASONS)[number];
+
+/** 88.3 What the stores said about the Google Play and App Store versions, kept as JSON. */
+export type ReviewsRow = Partial<Record<"android" | "ios", { rejection: RejectionReason | null; storeState: string | null; checkedAt: string | null }>>;
 
 /**
  * An app the client asked us to publish (or decided to publish themselves).

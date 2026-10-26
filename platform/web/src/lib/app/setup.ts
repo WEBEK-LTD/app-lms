@@ -157,7 +157,25 @@ export function storeListingOf(app: App, assetUrl: (assetId: string) => string):
     privacyUrl: app.privacyUrl,
     phoneScreenshots: app.phoneScreenshotIds.map(assetUrl),
     iphoneScreenshots: app.iphoneScreenshotIds.map(assetUrl),
+    // 88.2 The listing in more languages, tablet and iPad screenshots, framed on the app's main colour;
+    // only when set, so a listing without them reads as before (automatic builds compare them).
+    ...(app.listingLanguage && app.listingLanguage !== "en" ? { language: app.listingLanguage } : {}),
+    ...(app.listingTranslations?.length ? { translations: app.listingTranslations } : {}),
+    ...(app.tabletScreenshotIds?.length ? { tabletScreenshots: app.tabletScreenshotIds.map(assetUrl) } : {}),
+    ...(app.ipadScreenshotIds?.length ? { ipadScreenshots: app.ipadScreenshotIds.map(assetUrl) } : {}),
+    ...(app.screenshotFrame ? { frame: { background: app.primaryColor, textColor: readableOn(app.primaryColor), captions: app.screenshotFrame.captions } } : {}),
   };
+}
+
+/** 88.2 Dark or white text, whichever reads on the colour (relative luminance). */
+export function readableOn(hex: string): string {
+  const n = Number.parseInt(hex.replace("#", ""), 16);
+  if (!Number.isFinite(n)) return "#FFFFFF";
+  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((c) => {
+    const v = c / 255;
+    return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r! + 0.7152 * g! + 0.0722 * b! > 0.45 ? "#14121F" : "#FFFFFF";
 }
 
 /** Builds the config from the wizard data. Secrets are never part of it. */

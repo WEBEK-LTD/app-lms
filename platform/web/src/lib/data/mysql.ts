@@ -15,7 +15,7 @@ import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, Reke
 import { candidatesIn, needsRekey } from "../crypto/rekey";
 import { assetIdsIn } from "./asset-ids";
 import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
-import type { MoreStore, MoreStoresRow, PublishingEvent, PublishingRequest, PublishingTrack } from "./types";
+import type { MoreStore, MoreStoresRow, PublishingEvent, PublishingRequest, PublishingTrack, ReviewsRow } from "./types";
 import type {
   AppPatch,
   BuildPatch,
@@ -5040,8 +5040,8 @@ function toPublishingRequest(row: typeof schema.publishingRequests.$inferSelect)
     checklist,
     teamEmailFailedAt: failed ? new Date(failed) : null,
     listing: row.listing,
-    android: { status: row.androidStatus, note: row.androidNote, storeUrl: row.androidStoreUrl, updatedAt: row.androidUpdatedAt },
-    ios: { status: row.iosStatus, note: row.iosNote, storeUrl: row.iosStoreUrl, updatedAt: row.iosUpdatedAt },
+    android: { status: row.androidStatus, note: row.androidNote, storeUrl: row.androidStoreUrl, updatedAt: row.androidUpdatedAt, ...reviewFromRow(row.reviews?.android) },
+    ios: { status: row.iosStatus, note: row.iosNote, storeUrl: row.iosStoreUrl, updatedAt: row.iosUpdatedAt, ...reviewFromRow(row.reviews?.ios) },
     ...moreStoresFromRow(row.moreStores),
     teamNotes: row.teamNotes,
     requestedAt: row.requestedAt,
@@ -5051,14 +5051,34 @@ function toPublishingRequest(row: typeof schema.publishingRequests.$inferSelect)
   };
 }
 
+/** 88.3 What the store said about a Google Play or App Store version. */
+function reviewFromRow(row: ReviewsRow["android"]): Pick<PublishingTrack, "rejection" | "storeState" | "checkedAt"> {
+  return { rejection: row?.rejection ?? null, storeState: row?.storeState ?? null, checkedAt: row?.checkedAt ? new Date(row.checkedAt) : null };
+}
+
+function reviewsToRow(request: PublishingRequest): ReviewsRow | null {
+  const one = (track: PublishingTrack) =>
+    track.rejection || track.storeState || track.checkedAt ? { rejection: track.rejection ?? null, storeState: track.storeState ?? null, checkedAt: track.checkedAt?.toISOString() ?? null } : undefined;
+  const row: ReviewsRow = { android: one(request.android), ios: one(request.ios) };
+  return row.android || row.ios ? row : null;
+}
+
 /** 35, 36, 42 The Galaxy Store, AppGallery and Xiaomi GetApps tracks, kept as JSON (no migration for a new store). */
 function moreStoresFromRow(row: MoreStoresRow | null): Pick<PublishingRequest, MoreStore> {
-  const track = (value: MoreStoresRow[MoreStore]) => (value ? { ...value, updatedAt: value.updatedAt ? new Date(value.updatedAt) : null } : null);
+  const track = (value: MoreStoresRow[MoreStore]): PublishingTrack | null => {
+    if (!value) return null;
+    const { checkedAt, ...rest } = value;
+    return { ...rest, updatedAt: value.updatedAt ? new Date(value.updatedAt) : null, ...(checkedAt ? { checkedAt: new Date(checkedAt) } : {}) };
+  };
   return { galaxy: track(row?.galaxy), huawei: track(row?.huawei), xiaomi: track(row?.xiaomi) };
 }
 
 function moreStoresToRow(request: PublishingRequest): MoreStoresRow | null {
-  const track = (value: PublishingTrack | null | undefined) => (value ? { ...value, updatedAt: value.updatedAt?.toISOString() ?? null } : null);
+  const track = (value: PublishingTrack | null | undefined) => {
+    if (!value) return null;
+    const { checkedAt, ...rest } = value;
+    return { ...rest, updatedAt: value.updatedAt?.toISOString() ?? null, ...(checkedAt ? { checkedAt: checkedAt.toISOString() } : {}) };
+  };
   if (!request.galaxy && !request.huawei && !request.xiaomi) return null;
   return { galaxy: track(request.galaxy), huawei: track(request.huawei), xiaomi: track(request.xiaomi) };
 }
@@ -5080,6 +5100,7 @@ function fromPublishingRequest(request: PublishingRequest): typeof schema.publis
     iosStoreUrl: request.ios.storeUrl,
     iosUpdatedAt: request.ios.updatedAt,
     moreStores: moreStoresToRow(request),
+    reviews: reviewsToRow(request),
     teamNotes: request.teamNotes,
     requestedAt: request.requestedAt,
     readyAt: request.readyAt,

@@ -10,18 +10,28 @@ The zip holds what Google Play and App Store Connect ask for:
   google-play/icon-512.png             hi-res icon, 512 x 512
   google-play/feature-graphic.png      1024 x 500, the logo (or icon and name) on the splash color
   google-play/phone-screenshots/       the client's screenshots, in order
+  google-play/tablet-screenshots/      88.2 the client's tablet screenshots, when there are any
   app-store/icon-1024.png              1024 x 1024, no alpha
   app-store/iphone-screenshots/        the client's screenshots, in order
+  app-store/ipad-screenshots/          88.2 the client's iPad screenshots, when there are any
+  framed/<language>/<device>/          88.2 the screenshots framed with their captions (store_listing.py), when asked
   listing.txt                          title, descriptions, support email, privacy policy
+  listing-<language>.txt               88.2 the listing in each of the app's other languages
+
+The feature graphic is also written next to the zip (feature-graphic.png), for
+store_listing.py's Google Play listing.
 """
 import io
 import json
 import sys
+import tempfile
 import urllib.request
 import zipfile
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
+
+import store_listing
 
 FEATURE_SIZE = (1024, 500)
 MIDNIGHT = (14, 13, 36)
@@ -100,11 +110,12 @@ def screenshot_name(index, data):
     return f"{index:02d}.{'jpg' if kind == 'JPEG' else 'png'}"
 
 
-def listing_text(store):
+def listing_text(store, texts=None):
+    texts = texts or store
     return (
-        f"Title\n{store['store_title']}\n\n"
-        f"Short description (Google Play)\n{store['short_description']}\n\n"
-        f"Full description\n{store['full_description']}\n\n"
+        f"Title\n{texts['store_title']}\n\n"
+        f"Short description (Google Play)\n{texts['short_description']}\n\n"
+        f"Full description\n{texts['full_description']}\n\n"
         f"Support email\n{store['support_email']}\n\n"
         f"Privacy policy\n{store['privacy_url']}\n"
     )
@@ -126,13 +137,29 @@ def main(config_path, store_path, icon_path, out_path):
 
     with zipfile.ZipFile(out_path, "w", zipfile.ZIP_DEFLATED) as archive:
         archive.writestr("google-play/icon-512.png", png(icon.resize((512, 512), Image.LANCZOS).convert("RGBA")))
-        archive.writestr("google-play/feature-graphic.png", png(feature_graphic(config, icon, logo)))
+        feature = feature_graphic(config, icon, logo)
+        feature.save(Path(out_path).with_name("feature-graphic.png"))
+        archive.writestr("google-play/feature-graphic.png", png(feature))
         archive.writestr("app-store/icon-1024.png", png(icon.resize((1024, 1024), Image.LANCZOS)))
-        for folder, urls in (("google-play/phone-screenshots", store["phone_screenshots"]), ("app-store/iphone-screenshots", store["iphone_screenshots"])):
+        images = store_listing.Images(fetch)
+        folders = (
+            ("google-play/phone-screenshots", store["phone_screenshots"]),
+            ("google-play/tablet-screenshots", store.get("tablet_screenshots") or []),
+            ("app-store/iphone-screenshots", store["iphone_screenshots"]),
+            ("app-store/ipad-screenshots", store.get("ipad_screenshots") or []),
+        )
+        for folder, urls in folders:
             for index, url in enumerate(urls, start=1):
-                data = fetch(url)
+                data = images.get(url)
                 archive.writestr(f"{folder}/{screenshot_name(index, data)}", data)
         archive.writestr("listing.txt", listing_text(store))
+        for item in store.get("translations") or []:
+            archive.writestr(f"listing-{item['language']}.txt", listing_text(store, item))
+        # 88.2 The framed screenshots, drawn once for the zip.
+        with tempfile.TemporaryDirectory() as frames:
+            store_listing.cmd_frames(store, frames, images)
+            for path in sorted(Path(frames).rglob("*.png")):
+                archive.write(path, f"framed/{path.relative_to(frames).as_posix()}")
 
 
 if __name__ == "__main__":

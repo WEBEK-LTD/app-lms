@@ -59,7 +59,7 @@ import type {
   ChatReportOutcome,
 } from "../data/types";
 // 11.6 and 11.8
-import type { BuildFailure } from "../data/types";
+import type { BuildFailure, ListingTranslation, ReviewsRow, ScreenshotFrame } from "../data/types";
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
 import type { Plan } from "../plans";
 import type { Layout, LayoutBlock, LayoutContent } from "../pages/types";
@@ -290,6 +290,12 @@ export const apps = mysqlTable(
     weeklySummary: boolean("weekly_summary").notNull().default(true),
     // 87.4 The automatic build of the latest saves, a few minutes after the last one.
     autoBuildDueAt: time("auto_build_due_at"),
+    // 88.2 The listing in more languages, tablet and iPad screenshots, framed screenshots.
+    listingLanguage: varchar("listing_language", { length: 10 }),
+    listingTranslations: jsonText<ListingTranslation[]>("listing_translations"),
+    tabletScreenshotIds: jsonText<string[]>("tablet_screenshot_ids"),
+    ipadScreenshotIds: jsonText<string[]>("ipad_screenshot_ids"),
+    screenshotFrame: jsonText<ScreenshotFrame>("screenshot_frame"),
     appTypeDoneAt: time("app_type_done_at"),
     websiteDoneAt: time("website_done_at"),
     brandingDoneAt: time("branding_done_at"),
@@ -1443,6 +1449,8 @@ export const publishingRequests = mysqlTable(
     iosUpdatedAt: time("ios_updated_at"),
     // 35, 36 Samsung Galaxy Store and Huawei AppGallery, when the client wants the app there too.
     moreStores: jsonText<MoreStoresRow>("more_stores"),
+    // 88.3 Why Google Play or the App Store turned it down, and the store's own state.
+    reviews: jsonText<ReviewsRow>("reviews"),
     teamNotes: text("team_notes"),
     requestedAt: time("requested_at"),
     readyAt: time("ready_at"),

@@ -15,6 +15,10 @@ export const SCREENSHOT_LIMITS = {
   phone: { min: 2, max: 8 },
   /** App Store: up to 10 iPhone 6.9" screenshots. */
   iphone: { min: 1, max: 10 },
+  /** 88.2 Google Play: up to 8 tablet screenshots (sent for 7" and 10" tablets). */
+  tablet: { min: 1, max: 8 },
+  /** 88.2 App Store: up to 10 iPad 13" screenshots. */
+  ipad: { min: 1, max: 10 },
 } as const;
 
 export type ScreenshotKind = keyof typeof SCREENSHOT_LIMITS;
@@ -24,6 +28,12 @@ const IPHONE_SIZES = [
   [1320, 2868],
   [1290, 2796],
   [1260, 2736],
+] as const;
+
+/** 88.2 iPad 13" display sizes App Store Connect accepts, portrait and landscape. */
+const IPAD_SIZES = [
+  [2064, 2752],
+  [2048, 2732],
 ] as const;
 
 export interface ImageInfo {
@@ -73,13 +83,18 @@ export function checkScreenshot(data: Buffer, kind: ScreenshotKind): { ok: true;
   if (!image) return { ok: false, error: "Screenshots must be PNG or JPEG files." };
   if (image.hasTransparency) return { ok: false, error: "Screenshots can't have transparency. Export them with a solid background." };
   const { width, height } = image;
-  if (kind === "phone") {
+  const fits = (sizes: readonly (readonly [number, number])[]) => sizes.some(([a, b]) => (width === a && height === b) || (width === b && height === a));
+  if (kind === "phone" || kind === "tablet") {
     const long = Math.max(width, height);
     const short = Math.min(width, height);
     if (short < 320 || long > 3840) return { ok: false, error: `Google Play needs each side between 320 and 3840 pixels. This one is ${width} × ${height}.` };
     if (long > short * 2) return { ok: false, error: `Google Play needs the long side to be at most twice the short side. This one is ${width} × ${height}.` };
-  } else if (!IPHONE_SIZES.some(([a, b]) => (width === a && height === b) || (width === b && height === a))) {
+    // 88.2 The same screenshots go to 10" tablets, which need 1080 pixels on the short side.
+    if (kind === "tablet" && short < 1080) return { ok: false, error: `Google Play needs tablet screenshots at least 1080 pixels on the short side. This one is ${width} × ${height}.` };
+  } else if (kind === "iphone" && !fits(IPHONE_SIZES)) {
     return { ok: false, error: `iPhone screenshots must be 1320 × 2868, 1290 × 2796 or 1260 × 2736 pixels. This one is ${width} × ${height}.` };
+  } else if (kind === "ipad" && !fits(IPAD_SIZES)) {
+    return { ok: false, error: `iPad screenshots must be 2064 × 2752 or 2048 × 2732 pixels. This one is ${width} × ${height}.` };
   }
   return { ok: true, contentType: image.contentType };
 }
