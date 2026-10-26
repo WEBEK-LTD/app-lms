@@ -5,7 +5,7 @@ import { ICON_NAMES } from "@/components/icon-names";
 import { ENGINES, hostedOnly, KINDS } from "@/lib/app/kinds";
 import type { AppBackend } from "@/lib/data/types";
 import { BUILT_IN_APP_DEFAULTS } from "@/lib/pages/defaults";
-import { applyDesign, blockTexts, contactFacts, designById, designFits, DESIGNS, designsFor, sampleTexts, type ContactFacts, type Design } from "@/lib/pages/designs";
+import { applyDesign, blockTexts, contactFacts, designById, designFits, DESIGNS, designsFor, missingScreens, sampleTexts, type ContactFacts, type Design } from "@/lib/pages/designs";
 import { BLOCK_ICONS } from "@/lib/pages/labels";
 import { PAGE_ICONS } from "@/lib/pages/icons";
 import { blockTypesFor, categorySourcesFor, itemSourcesFor, screenOptionsFor, SOURCE_SORTS } from "@/lib/pages/sources";
@@ -111,6 +111,18 @@ describe("ready-made designs", () => {
     const bare = applyDesign(design, { appName: null, facts: none, current, now: NOW });
     expect(bare.pages.find((p) => p.slug === "about")!.blocks.some((b) => b.type === "contact")).toBe(false);
     expect(bare.pages[0]!.blocks.find((b) => b.id === "welcome")!.html).toContain("from our app.");
+  });
+
+  it("38.21 leaves out a hosted academy's Wishlist, keeping Orders and the rest", () => {
+    const design = designById("academy-classic")!;
+    const missing = missingScreens({ connector: { kind: "courses" } as never });
+    expect(missing).toEqual(["favorites"]);
+    expect(missingScreens({ connector: null })).toEqual([]);
+    const links = (layout: ReturnType<typeof applyDesign>) => layout.pages.flatMap((p) => p.blocks.flatMap((b) => b.links ?? [])).map((l) => l.label);
+    const hosted = applyDesign(design, { appName: "Ada", facts, current, now: NOW, missingScreens: missing });
+    expect(links(hosted)).not.toContain("Wishlist");
+    expect(links(hosted)).toContain("Orders");
+    expect(links(applyDesign(design, { appName: "Ada", facts, current, now: NOW }))).toContain("Wishlist");
   });
 
   it("reads contact details the app already shows", () => {

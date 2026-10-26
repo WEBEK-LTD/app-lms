@@ -3,7 +3,7 @@ import type { DataStore } from "../data/store";
 import type { App, AppLayoutRecord } from "../data/types";
 import { platformSetting } from "../settings/platform";
 import { BUILT_IN_APP_DEFAULTS, defaultAppearance, defaultLayout } from "./defaults";
-import { applyDesign, contactFacts, sampleTexts, type Design } from "./designs";
+import { applyDesign, contactFacts, missingScreens, sampleTexts, type Design } from "./designs";
 import type { AppDefaultsSetting, Appearance, Languages, Layout, LayoutContent, LayoutPage } from "./types";
 import { parseLayoutContent, type ParseResult } from "./validate";
 import type { PlanInfo } from "../plans";
@@ -166,7 +166,7 @@ export async function restoreLayoutVersion(store: DataStore, app: App, number: n
  * font) last.
  */
 export function designLayout(app: App, design: Design, current: Pick<LayoutContent, "appearance" | "languages">, now: Date, look: Partial<Appearance> = {}): LayoutContent {
-  const layout = applyDesign(design, { appName: app.appName, facts: contactFacts(app), current, now });
+  const layout = applyDesign(design, { appName: app.appName, facts: contactFacts(app), current, now, missingScreens: missingScreens(app) });
   return { ...layout, appearance: { ...layout.appearance, ...look } };
 }
 
