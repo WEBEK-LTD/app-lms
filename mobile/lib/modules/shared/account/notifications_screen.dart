@@ -45,6 +45,7 @@ IconData _iconFor(NotificationType type) => switch (type) {
   NotificationType.membershipEnding => AppIcons.membership,
   NotificationType.cartLeft => AppIcons.cart,
   NotificationType.studyReminder => AppIcons.courses,
+  NotificationType.orderUpdate => AppIcons.shipping,
   NotificationType.announcement ||
   NotificationType.unknown => AppIcons.notifications,
 };

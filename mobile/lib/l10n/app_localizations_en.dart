@@ -3918,4 +3918,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get plusShippingAtCheckout => 'Plus shipping and taxes at checkout.';
+
+  @override
+  String get notifyOrderUpdates => 'Order updates';
 }

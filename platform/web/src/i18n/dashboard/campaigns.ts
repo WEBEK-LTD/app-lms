@@ -102,6 +102,8 @@ export const en = {
   auto_cart_left_text: "Three hours after someone left items in their cart, once.",
   auto_study_reminder: "Daily study reminder",
   auto_study_reminder_text: "In the evening, to students who turned it on in the app.",
+  auto_order_update: "Order updates",
+  auto_order_update_text: "When you mark an order completed or cancelled. Shipped orders are told when you add the tracking.",
   lastResult: "Last result",
   known: {
     nobody: "No one is in this audience yet. Choose other people, or send it later.",
@@ -225,6 +227,8 @@ export const ar: Strings<typeof en> = {
   auto_cart_left_text: "بعد ثلاث ساعات من ترك أحدهم منتجات في سلته، مرة واحدة.",
   auto_study_reminder: "تذكير يومي بالدراسة",
   auto_study_reminder_text: "في المساء، للطلاب الذين فعّلوه في التطبيق.",
+  auto_order_update: "تحديثات الطلبات",
+  auto_order_update_text: "عندما تحدد الطلب كمكتمل أو ملغى. أما الطلبات المشحونة فيُبلَّغ بها العميل عند إضافة بيانات التتبع.",
   lastResult: "آخر نتيجة",
   known: {
     nobody: "لا أحد ضمن هذا الجمهور بعد. اختر أشخاصًا آخرين، أو أرسلها لاحقًا.",
@@ -348,6 +352,8 @@ export const tr: Strings<typeof en> = {
   auto_cart_left_text: "Biri sepetinde ürün bıraktıktan üç saat sonra, bir kez.",
   auto_study_reminder: "Günlük ders hatırlatması",
   auto_study_reminder_text: "Akşam, uygulamada açan öğrencilere.",
+  auto_order_update: "Sipariş güncellemeleri",
+  auto_order_update_text: "Bir siparişi tamamlandı ya da iptal edildi olarak işaretlediğinizde. Kargolanan siparişler, takip bilgisini eklediğinizde bildirilir.",
   lastResult: "Son sonuç",
   known: {
     nobody: "Bu kitlede henüz kimse yok. Başka kişiler seçin ya da daha sonra gönderin.",

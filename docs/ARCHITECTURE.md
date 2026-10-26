@@ -2337,6 +2337,17 @@ app opens on the site's links (`<site>/a/page/<slug>`).
   `at_checkout`) and the checkout link applies it to the cart. Connected
   platforms answer `at_checkout`; Shopify carries the code in `cartCreate`'s
   `discountCodes`.
+- **Order updates** (91.2): an `order_update` notification (with `order_id`,
+  which opens the order) that phones can turn off (`orders` preference).
+  Shops without a website send it when an order is completed or cancelled
+  (the automatic kind `order_update`, `notifyOrderUpdate`, which the owner can
+  turn off) and, as before, when it's shipped (`shipOrder`). The plugin
+  (`Commerce\Order_Updates`, 0.4.16) sends it from WooCommerce: tracking
+  added with WooCommerce Shipment Tracking or Advanced Shipment Tracking
+  (`_wc_shipment_tracking_items`, `Commerce\Order_Tracking`, also the order's
+  `shipment`; each shipment once, remembered in `_yallapp_shipment_told`),
+  and completed, cancelled or refunded. Its inbox keeps `order_id`
+  (database version 6).
 
 ## Academies, complete (Phase 90)
 

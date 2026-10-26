@@ -1048,5 +1048,6 @@
   "cartShipping": "الشحن",
   "cartTaxes": "الضرائب",
   "cartTotal": "الإجمالي",
-  "plusShippingAtCheckout": "يُضاف الشحن والضرائب عند الدفع."
+  "plusShippingAtCheckout": "يُضاف الشحن والضرائب عند الدفع.",
+  "notifyOrderUpdates": "تحديثات الطلبات"
 }

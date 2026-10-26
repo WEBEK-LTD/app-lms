@@ -41,7 +41,7 @@ Müşteriler, sağlayıcınızın (iyzico, Kashier veya Fawaterk) güvenli sayfa
 
 ## Siparişler
 
-Ödenen siparişler **Siparişler** sayfasında görünür ve her biri için e-posta alırsınız. Teslim edilen siparişi **tamamlandı**, gerektiğinde **iptal edildi** olarak işaretleyin ve altındaki **İade** ile tamamını ya da bir kısmını iade edin ([Kartla ödemeler](/docs/card-payments) sayfasına bakın). Müşteriler siparişlerini, durumlarını ve iade edilen tutarı uygulamada görür.
+Ödenen siparişler **Siparişler** sayfasında görünür ve her biri için e-posta alırsınız. Teslim edilen siparişi **tamamlandı**, gerektiğinde **iptal edildi** olarak işaretleyin ve altındaki **İade** ile tamamını ya da bir kısmını iade edin ([Kartla ödemeler](/docs/card-payments) sayfasına bakın). Müşteriler siparişlerini, durumlarını ve iade edilen tutarı uygulamada görür. Bir siparişi tamamlandı veya iptal edildi olarak işaretlediğinizde (bunu **Uygulama bildirimleri › Otomatik bildirimler** altında, "Sipariş güncellemeleri" ile kapatabilirsiniz) ve takip bilgisini eklediğinizde bildirim alırlar; sipariş güncellemelerini uygulamanın ayarlarından kapatabilirler.
 `,
   },
   restaurants: {

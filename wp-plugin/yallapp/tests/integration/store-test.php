@@ -457,6 +457,45 @@ check( 'an unknown order is not found', 404 === $r['status'] && 'not_found' === 
 $r = call( 'GET', '/me/orders/' . (int) ( $order['id'] ?? 0 ), null, null );
 check( 'orders need a session', 401 === $r['status'], $r['raw'] );
 
+// 91.2 Tracking from the tracking plugins, and order updates in the inbox, each shipment told once.
+$order_id = (int) ( $order['id'] ?? 0 );
+$updates  = static function () use ( $token, $order_id ) {
+	$r = call( 'GET', '/me/notifications?per_page=50', null, $token );
+	return array_values(
+		array_filter(
+			(array) ( $r['json']['items'] ?? array() ),
+			static function ( $n ) use ( $order_id ) {
+				return 'order_update' === ( $n['type'] ?? '' ) && $order_id === ( $n['order_id'] ?? 0 );
+			}
+		)
+	);
+};
+$r = call( 'GET', '/me/orders/' . $order_id, null, $token );
+check( '91.2 no shipment before tracking', array_key_exists( 'shipment', (array) $r['json'] ) && null === $r['json']['shipment'], $r['raw'] );
+$told = $updates();
+check( '91.2 the completed order was told', 1 === count( $told ) && 'Your order is complete. Thank you!' === ( $told[0]['body'] ?? '' ), $told );
+$track = 'array( array( "tracking_provider" => "", "custom_tracking_provider" => "Aras Kargo", "custom_tracking_link" => "https://kargotakip.araskargo.com.tr/?code=3815602243", "tracking_number" => "3815602243", "date_shipped" => 1793000000 ) )';
+wp_eval( '$o = wc_get_order( ' . $order_id . ' ); $o->update_meta_data( "_wc_shipment_tracking_items", ' . $track . ' ); $o->save();' );
+$r = call( 'GET', '/me/orders/' . $order_id, null, $token );
+check(
+	'91.2 the order\'s shipment from the tracking plugin',
+	array(
+		'carrier'         => 'Aras Kargo',
+		'tracking_number' => '3815602243',
+		'tracking_url'    => 'https://kargotakip.araskargo.com.tr/?code=3815602243',
+		'waybill'         => null,
+		'shipped_at'      => gmdate( 'Y-m-d\TH:i:s\Z', 1793000000 ),
+	) === ( $r['json']['shipment'] ?? null ),
+	$r['raw']
+);
+$told = $updates();
+check( '91.2 the shipment is told with its tracking', 2 === count( $told ) && 'Your order is on its way: Aras Kargo 3815602243. Tap to follow it.' === ( $told[0]['body'] ?? '' ) && 0 === strpos( (string) ( $told[0]['title'] ?? '' ), 'Order #' ), $told );
+wp_eval( '$o = wc_get_order( ' . $order_id . ' ); $o->set_customer_note( "Leave at the door" ); $o->save();' );
+check( '91.2 saving the order again tells nothing new', 2 === count( $updates() ), $updates() );
+wp_eval( '$o = wc_get_order( ' . $order_id . ' ); $o->set_status( "cancelled" ); $o->save();' );
+$told = $updates();
+check( '91.2 a cancelled order is told', 3 === count( $told ) && 'Your order was cancelled.' === ( $told[0]['body'] ?? '' ), $told );
+
 echo "The site's own pages open the app (48)\n";
 require_once __DIR__ . '/links-helpers.php';
 $root         = rtrim( $argv[1] ?? 'http://127.0.0.1:8089', '/' );

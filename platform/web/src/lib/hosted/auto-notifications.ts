@@ -6,7 +6,8 @@ import { formatDate } from "@/i18n/format";
 import { appLang } from "../bookings/reschedule";
 import { utcToLocal } from "../bookings/time";
 import type { DataStore } from "../data/store";
-import type { App, BookingAppointment, HostedDevice } from "../data/types";
+import { orderNumber } from "../catalog/settings";
+import type { App, BookingAppointment, CatalogOrder, HostedDevice } from "../data/types";
 import { appIsActive } from "../license/status";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX, serviceAccountOf } from "./notify";
 import { pushTarget, sendPush } from "./push";
@@ -25,7 +26,7 @@ import { pushTarget, sendPush } from "./push";
  * in the hourly limit of the notifications the owner sends.
  */
 
-export const AUTO_KINDS = ["new_lesson", "appointment_confirmed", "appointment_reminder", "class_soon", "event_soon", "membership_ending", "cart_left", "study_reminder"] as const;
+export const AUTO_KINDS = ["new_lesson", "appointment_confirmed", "appointment_reminder", "class_soon", "event_soon", "membership_ending", "cart_left", "study_reminder", "order_update"] as const;
 export type AutoKind = (typeof AUTO_KINDS)[number];
 
 /** When each one goes. */
@@ -52,7 +53,7 @@ export function autoKindsFor(app: Pick<App, "connector" | "backend" | "vertical"
   if (areas.appointments) kinds.push("appointment_confirmed", "appointment_reminder");
   if (areas.memberCheckIn) kinds.push("class_soon", "membership_ending");
   if (areas.events) kinds.push("event_soon");
-  if (areas.products) kinds.push("cart_left");
+  if (areas.products) kinds.push("cart_left", "order_update");
   return AUTO_KINDS.filter((k) => kinds.includes(k));
 }
 
@@ -105,6 +106,12 @@ export const AUTO_TEXT: Record<AutoKind, Record<Lang, Text>> = {
     ar: (v) => ({ title: "حان وقت الدراسة", body: `دقائق قليلة اليوم تُبقيك مستمرًا في ${v.course}.` }),
     tr: (v) => ({ title: "Ders zamanı", body: `Bugün birkaç dakika, ${v.course} kursunda ilerlemenizi sürdürür.` }),
   },
+  // 91.2 An order completed or cancelled (a shipment is told by lib/catalog/shipping.ts).
+  order_update: {
+    en: (v) => ({ title: `Order ${v.number}`, body: v.status === "cancelled" ? "Your order was cancelled." : "Your order is complete. Thank you!" }),
+    ar: (v) => ({ title: `الطلب ${v.number}`, body: v.status === "cancelled" ? "تم إلغاء طلبك." : "اكتمل طلبك. شكرًا لك!" }),
+    tr: (v) => ({ title: `Sipariş ${v.number}`, body: v.status === "cancelled" ? "Siparişiniz iptal edildi." : "Siparişiniz tamamlandı. Teşekkürler!" }),
+  },
 };
 
 /** Which of the phone's choices (the app's settings) allows each kind. */
@@ -113,6 +120,8 @@ function phoneAllows(device: HostedDevice, kind: AutoKind): boolean {
   if (kind === "new_lesson") return prefs.new_lessons !== false;
   // Off unless the student turned it on.
   if (kind === "study_reminder") return prefs.daily_reminder === true;
+  // 91.2 Order updates, unless the phone turned them off.
+  if (kind === "order_update") return prefs.orders !== false;
   return prefs.announcements !== false;
 }
 
@@ -199,6 +208,14 @@ export async function notifyAppointmentConfirmed(deps: AutoDeps, app: App, appoi
       values: { service: appointment.serviceName, staff: appointment.staffName, when: when(lang, appointment.startAt, zone) },
       data: { appointment_id: String(appointment.id) },
     },
+  ]);
+}
+
+/** 91.2 An order of a shop without a website completed or cancelled (Orders, the Owner API): its customer. */
+export async function notifyOrderUpdate(deps: AutoDeps, app: App, order: Pick<CatalogOrder, "id" | "userId">, status: "completed" | "cancelled") {
+  if (order.userId === null || !(await appMayNotify(deps.store, app, deps.now))) return { people: 0, phones: 0 };
+  return notifyAuto(deps, app, "order_update", [
+    { userId: order.userId, ref: `order:${order.id}:${status}`, values: { number: orderNumber(order), status }, data: { order_id: String(order.id) } },
   ]);
 }
 

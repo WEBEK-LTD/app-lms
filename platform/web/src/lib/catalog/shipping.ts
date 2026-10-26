@@ -139,15 +139,17 @@ export async function shipOrder(deps: ShipDeps): Promise<{ order: CatalogOrder; 
   if (order.userId === null) return { order: saved, notification: null, pushed: 0, emailed };
   const title = message.title.slice(0, NOTIFICATION_TITLE_MAX);
   const body = message.body.slice(0, NOTIFICATION_BODY_MAX);
-  const notification = await store.createHostedNotification({ appId: app.id, userId: order.userId, title, body, createdAt: now });
+  // 91.2 An order update that opens the order, to the phones that allow them.
+  const data = { type: "order_update", order_id: String(order.id) };
+  const notification = await store.createHostedNotification({ appId: app.id, userId: order.userId, title, body, data, createdAt: now });
   if (!deps.account) return { order: saved, notification, pushed: 0, emailed };
-  const tokens = (await store.listHostedPushDevices(app.id, [order.userId])).map(pushTarget);
+  const tokens = (await store.listHostedPushDevices(app.id, [order.userId])).filter((d) => d.pushPreferences?.orders !== false).map(pushTarget);
   if (tokens.length === 0) return { order: saved, notification, pushed: 0, emailed };
   try {
     const result = await (deps.send ?? sendPush)(
       deps.account,
       tokens,
-      { title, body, data: { type: "announcement", notification_id: String(notification.id), order_id: String(order.id) } },
+      { title, body, data: { ...data, notification_id: String(notification.id) } },
       { now },
     );
     for (const token of result.invalidTokens) await store.clearHostedPushToken(app.id, token);

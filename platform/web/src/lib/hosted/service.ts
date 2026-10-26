@@ -983,7 +983,7 @@ async function setPushToken(ctx: HostedContext, s: Session, body: Record<string,
   if (!token) return badRequest("The push token is missing.");
   const prefs = record(body.preferences);
   const preferences: Record<string, boolean> = {};
-  for (const key of ["announcements", "new_lessons", "daily_reminder", "news", "donations"]) {
+  for (const key of ["announcements", "new_lessons", "daily_reminder", "news", "donations", "orders"]) {
     if (typeof prefs[key] === "boolean") preferences[key] = prefs[key] as boolean;
   }
   // 36 Firebase (the default) or Huawei Push Kit, for phones without Google Play.
@@ -1027,6 +1027,8 @@ export function notificationJson(n: HostedNotification, readAt: Date | null) {
     question_id: null,
     ...(n.data?.appointment_id ? { appointment_id: numberOf(n.data.appointment_id) } : {}),
     ...(n.data?.event_id && !n.eventId ? { event_id: numberOf(n.data.event_id) } : {}),
+    // 91.2 The order an order update opens.
+    ...(n.data?.order_id ? { order_id: numberOf(n.data.order_id) } : {}),
     ...(n.articleId ? { article_id: n.articleId } : {}),
     ...(n.eventId ? { event_id: n.eventId } : {}),
     ...(n.campaignId ? { campaign_id: n.campaignId } : {}),

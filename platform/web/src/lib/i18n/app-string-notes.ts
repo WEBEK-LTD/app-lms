@@ -10,6 +10,11 @@ import type { Lang } from "@/i18n/config";
  * its code names left out (tests/unit/phase62.test.ts lists those missing).
  */
 export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: string }> = {
+  "91.2 The settings switch for pushes about the customer's orders: shipped, completed, cancelled or refunded.": {
+    en: "The switch in the app's settings for notifications about the customer's orders: shipped, completed, cancelled or refunded.",
+    ar: "مفتاح في إعدادات التطبيق لإشعارات طلبات العميل: شُحن أو اكتمل أو أُلغي أو استُرد.",
+    tr: "Uygulama ayarlarında müşterinin siparişleriyle ilgili bildirimler için anahtar: kargolandı, tamamlandı, iptal edildi veya iade edildi.",
+  },
   "91.1 The cart's button that shows the coupon field.": {
     en: "The cart's button that shows the field for a coupon code.",
     ar: "زر السلة الذي يُظهر خانة رمز الكوبون.",

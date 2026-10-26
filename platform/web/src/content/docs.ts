@@ -311,6 +311,15 @@ The app follows the memberships your website gives access with:
 
 Students see their memberships, subscriptions and groups under **Account › My memberships**, with when they renew or end. They're sold and managed on your website only: on Android the course page can open your website's memberships, and the iPhone app never links to them, as Apple's rules require.
 
+## Shop orders
+
+With WooCommerce, customers see their orders in the app and are told when one changes:
+
+- **Tracking**: add it with **WooCommerce Shipment Tracking** or **Advanced Shipment Tracking**, as you do now. The customer gets a notification, and the order in the app shows the carrier, the tracking number and a **Track shipment** button. Changing the tracking tells them again.
+- **Completed, cancelled or refunded**: the customer gets a notification when you change the order's status.
+
+Customers can turn order updates off in the app's settings. Yallapp plugin 0.4.16 or later.
+
 > Your pages, look and languages are built in the Yallapp dashboard, and the plugin fills them with your own courses, products and posts. The plugin's **App pages and look** card shows whether they're published and lets you refresh them at once.
 `,
   }),
@@ -1556,7 +1565,7 @@ Customers pay by card on a secure page of your provider (iyzico, Kashier or Fawa
 
 ## Orders
 
-Paid orders appear on the **Orders** page, and you get an email for each one. Mark an order **completed** when it's delivered, or **cancelled** when needed, and refund it, in full or in part, with **Refund** under it (see [Card payments](/docs/card-payments)). Customers see their orders, their status and what was refunded in the app.
+Paid orders appear on the **Orders** page, and you get an email for each one. Mark an order **completed** when it's delivered, or **cancelled** when needed, and refund it, in full or in part, with **Refund** under it (see [Card payments](/docs/card-payments)). Customers see their orders, their status and what was refunded in the app. They get a notification when you mark an order completed or cancelled (you can turn these off under **App notifications › Automatic notifications**, "Order updates") and when you add its tracking; they can turn order updates off in the app's settings.
 `,
   }),
   doc({

@@ -697,6 +697,8 @@ export interface HostedUser {
 export type HostedUserPatch = Partial<Pick<HostedUser, "name" | "email" | "city" | "notificationsReadAt">>;
 
 export interface PushPreferences {
+  /** 91.2 Order updates; on unless turned off. */
+  orders?: boolean;
   announcements?: boolean;
   new_lessons?: boolean;
   daily_reminder?: boolean;

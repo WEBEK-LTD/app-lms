@@ -124,6 +124,8 @@ class SettingsScreen extends ConsumerWidget {
     final campaignUpdates =
         env.build.appType == AppType.donations &&
         (ref.watch(appConfigProvider).donations?.updatesPush ?? false);
+    // 91.2 Shops tell customers about their orders.
+    final orderUpdates = env.build.appType == AppType.store;
     final languages = ref.watch(availableLanguagesProvider);
     final language = ref.watch(appLanguageProvider);
 
@@ -255,6 +257,12 @@ class SettingsScreen extends ConsumerWidget {
                     n.donations,
                     (v) =>
                         controller.setNotifications(n.copyWith(donations: v)),
+                  ),
+                if (orderUpdates)
+                  toggle(
+                    l10n.notifyOrderUpdates,
+                    n.orders,
+                    (v) => controller.setNotifications(n.copyWith(orders: v)),
                   ),
                 toggle(
                   l10n.newsAndOffers,

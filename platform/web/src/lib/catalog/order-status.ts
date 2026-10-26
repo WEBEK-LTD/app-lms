@@ -2,6 +2,7 @@ import type { DataStore } from "../data/store";
 import type { App, CatalogOrder, CatalogOrderStatus, FulfilmentStatus } from "../data/types";
 import type { sendPush, ServiceAccount } from "../hosted/push";
 import type { ProviderUrls } from "../payments/provider";
+import { notifyOrderUpdate } from "../hosted/auto-notifications";
 import { canMoveTo, nextStep } from "./fulfilment";
 import { moveOrder } from "./kitchen";
 import { approvePayout } from "./payment";
@@ -58,6 +59,12 @@ export async function changeOrderStatus(deps: OrderMoveDeps, order: CatalogOrder
   } else if (NEXT_STATUSES[order.status]?.includes(status as CatalogOrderStatus)) {
     await store.updateCatalogOrder(app.id, order.id, { status: status as CatalogOrderStatus, updatedAt: now });
     moved = true;
+    // 91.2 The customer hears of it (a restaurant's kitchen tells its own steps).
+    try {
+      await notifyOrderUpdate({ store, key: deps.key, now, send: deps.send }, app, order, status as "completed" | "cancelled");
+    } catch (e) {
+      console.error(`[orders] the order update failed: ${e instanceof Error ? e.message : String(e)}`.slice(0, 400));
+    }
   }
   // A completed marketplace order releases the shop's share; our team can also do it from the admin.
   if (moved && status === "completed" && order.commissionCents !== null && !order.payoutApprovedAt) {

@@ -1538,8 +1538,10 @@ paths:
         order shows `fulfilment` and `fulfilment_status`, which change as the
         kitchen works on it (received, preparing, ready, out for delivery,
         completed). Each change also reaches the customer as a notification,
-        whose push `data` carries the `order_id`. `not_found` for someone
-        else's order.
+        whose push `data` carries the `order_id`. 91.2 Shop orders too: a
+        shipment with its tracking, completed, cancelled or refunded is an
+        `order_update` notification (unless the phone turned `orders` off)
+        that opens this. `not_found` for someone else's order.
       parameters:
         - $ref: '#/components/parameters/OrderId'
       responses:
@@ -4268,6 +4270,7 @@ components:
         daily_reminder: { type: boolean }
         news: { type: boolean, description: New articles sent as push notifications (News & blog apps). }
         donations: { type: boolean, description: "Updates about campaigns the user gave to (Charity & donations apps). Off unless the app sends true." }
+        orders: { type: boolean, description: "91.2 Updates about the user's orders (Store and Restaurant apps): shipped with its tracking, completed, cancelled or refunded. On unless the app sends false." }
 
     Category:
       type: object
@@ -4894,12 +4897,14 @@ components:
         body: { type: string }
         type:
           type: string
-          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder]
+          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update]
           description: >-
             85.3 Automatic notifications on Yallapp's hosted API have their own types:
             `appointment_confirmed` and `appointment_reminder` (with `appointment_id`), `class_soon`,
             `event_soon` (with `event_id`), `membership_ending`, `cart_left` and `study_reminder`;
             their pushes carry the same `type` and ids, and no `notification_id` (opens count by type).
+            91.2 `order_update` (with `order_id`): one of the user's orders was shipped, completed,
+            cancelled or refunded; its push carries `order_id` and opens the order.
             An app that doesn't know a type opens Home.
         course_id: { type: [integer, 'null'] }
         lesson_id: { type: [integer, 'null'] }
@@ -4908,6 +4913,7 @@ components:
         article_id: { type: [string, 'null'], description: "For article, the article to open (News & blog apps). Missing on older servers." }
         event_id: { type: [integer, 'null'], description: "For event, the event that changed or was cancelled (Events & tickets apps, sent to its ticket holders). Missing on older servers." }
         campaign_id: { type: [integer, 'null'], description: "For campaign_update, the campaign to open (Charity & donations apps). Missing on older servers." }
+        order_id: { type: [integer, 'null'], description: "91.2 For order_update, the order to open (`GET /me/orders/{order_id}`). Missing on older servers." }
         link: { type: [string, 'null'], format: uri, description: "46 A link in the format of the Links tag (`<base>/<kind>/<id>`): what the notification opens when no other field here says. 85.2 Or another `https` address (a campaign's web page), which the app opens in the browser. Push notifications carry it in their data too. Missing on older servers." }
         image_url:
           type: [string, 'null']
@@ -4989,8 +4995,10 @@ components:
             without a website): any carrier, to any country. The shop gives
             a tracking link, a tracking number or a waybill, at least one of
             them; the app shows them and opens the link. Null or missing until
-            it is shipped, for orders that aren't shipped, on older servers
-            and on WordPress sites.
+            it is shipped, for orders that aren't shipped and on older servers.
+            91.2 On WordPress, from the tracking that the WooCommerce Shipment
+            Tracking or Advanced Shipment Tracking plugin keeps on the order
+            (the latest one when there are several).
           required: [shipped_at]
           properties:
             carrier: { type: [string, 'null'], description: "The carrier's name as the shop wrote it.", example: Aras Kargo }

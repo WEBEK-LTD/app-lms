@@ -1068,7 +1068,7 @@ never in a chat or an issue.
 - [ ] Apply migration `0052_chat.sql` after `0051` (the `chat_*` tables,
       `apps.chat_settings` and `media_files.source`), **then** deploy: every
       read of a Media file now asks for `source`.
-- [ ] **Upload `platform/web/deploy/media-host/index.php`** to
+- [x] **Upload `platform/web/deploy/media-host/index.php`** to
       files.yallapp.com.tr/media (next to `config.php`, which stays as it
       is). It now takes the chat's voice messages (m4a, mp3, aac) and
       documents (Word, Excel, PowerPoint, text), and always saves documents
@@ -1085,6 +1085,12 @@ never in a chat or an issue.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **Order updates** (91.2): plugin 0.4.16 (its inbox table gains
+      `order_id` on update). After deploying: on a WooCommerce test site with
+      WooCommerce Shipment Tracking, add tracking to an order of a signed-in
+      app user: the phone gets "Your order is on its way", and the order shows
+      the tracking. On a shop without a website, mark an order completed: the
+      customer is told, unless "Order updates" is off on App notifications.
 - [ ] **Coupons** (91.1): migration `0079_catalog_coupons.sql` (a new table
       and two columns on `catalog_orders`) goes with the production deploy,
       migrations first; plugin 0.4.15. After deploying: on a test shop

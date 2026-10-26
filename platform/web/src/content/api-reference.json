@@ -359,7 +359,7 @@
           "method": "GET",
           "path": "/me/orders/{order_id}",
           "summary": "Get one of the customer's orders",
-          "description": "One order of the signed-in customer, for following it: a restaurant's order shows `fulfilment` and `fulfilment_status`, which change as the kitchen works on it (received, preparing, ready, out for delivery, completed). Each change also reaches the customer as a notification, whose push `data` carries the `order_id`. `not_found` for someone else's order.",
+          "description": "One order of the signed-in customer, for following it: a restaurant's order shows `fulfilment` and `fulfilment_status`, which change as the kitchen works on it (received, preparing, ready, out for delivery, completed). Each change also reaches the customer as a notification, whose push `data` carries the `order_id`. 91.2 Shop orders too: a shipment with its tracking, completed, cancelled or refunded is an `order_update` notification (unless the phone turned `orders` off) that opens this. `not_found` for someone else's order.",
           "access": "signed-in"
         },
         {

@@ -219,6 +219,15 @@ Uygulama, web sitenizin erişim verdiği üyelikleri izler:
 
 Öğrenciler üyeliklerini, aboneliklerini ve gruplarını ne zaman yenileneceği veya sona ereceğiyle birlikte **Hesap › Üyeliklerim** altında görür. Bunlar yalnızca web sitenizde satılır ve yönetilir: Android'de kurs sayfası web sitenizin üyeliklerini açabilir; iPhone uygulaması ise Apple'ın kuralları gereği onlara hiçbir zaman bağlantı vermez.
 
+## Mağaza siparişleri
+
+WooCommerce ile müşteriler siparişlerini uygulamada görür ve biri değiştiğinde bildirim alır:
+
+- **Kargo takibi**: şimdi yaptığınız gibi **WooCommerce Shipment Tracking** veya **Advanced Shipment Tracking** ile ekleyin. Müşteri bir bildirim alır; uygulamadaki sipariş kargo firmasını, takip numarasını ve **Kargoyu takip et** düğmesini gösterir. Takip bilgisini değiştirmek müşteriyi yeniden bilgilendirir.
+- **Tamamlandı, iptal edildi veya iade edildi**: siparişin durumunu değiştirdiğinizde müşteri bir bildirim alır.
+
+Müşteriler sipariş güncellemelerini uygulamanın ayarlarından kapatabilir. Yallapp eklentisi 0.4.16 veya sonrası.
+
 > Sayfalarınız, görünümünüz ve dilleriniz Yallapp panelinde oluşturulur; eklenti onları kendi kurslarınız, ürünleriniz ve yazılarınızla doldurur. Eklentinin **App pages and look** kartı yayımlanıp yayımlanmadıklarını gösterir ve onları hemen yenilemenizi sağlar.
 `,
   },

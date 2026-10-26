@@ -40,9 +40,10 @@ class Inbox {
 	 * @param int    $lesson_id   Lesson to open, or 0.
 	 * @param int    $question_id Question to open, or 0.
 	 * @param int    $article_id  Article (post) to open, or 0.
+	 * @param int    $order_id    91.2 Order to open, or 0.
 	 * @return int Notification ID, 0 on failure.
 	 */
-	public function add( $type, $audience, $target_id, $title, $body, $course_id = 0, $lesson_id = 0, $question_id = 0, $article_id = 0 ) {
+	public function add( $type, $audience, $target_id, $title, $body, $course_id = 0, $lesson_id = 0, $question_id = 0, $article_id = 0, $order_id = 0 ) {
 		global $wpdb;
 		$inserted = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Plugin table.
 			Installer::tables()['notifications'],
@@ -56,9 +57,10 @@ class Inbox {
 				'lesson_id'   => absint( $lesson_id ),
 				'question_id' => absint( $question_id ),
 				'article_id'  => absint( $article_id ),
+				'order_id'    => absint( $order_id ),
 				'created_at'  => current_time( 'mysql', true ),
 			),
-			array( '%s', '%s', '%d', '%s', '%s', '%d', '%d', '%d', '%d', '%s' )
+			array( '%s', '%s', '%d', '%s', '%s', '%d', '%d', '%d', '%d', '%d', '%s' )
 		);
 		return $inserted ? (int) $wpdb->insert_id : 0;
 	}
@@ -128,6 +130,8 @@ class Inbox {
 				'lesson_id'   => (int) $row->lesson_id ? (int) $row->lesson_id : null,
 				'question_id' => (int) $row->question_id ? (int) $row->question_id : null,
 				'article_id'  => ! empty( $row->article_id ) ? (string) (int) $row->article_id : null,
+				// 91.2 The order an order_update opens.
+				'order_id'    => ! empty( $row->order_id ) ? (int) $row->order_id : null,
 				// 48 What it opens, in the format of the Links tag; 85.4 a campaign's own link.
 				'link'        => ! empty( $row->link ) ? (string) $row->link : self::link_of( (string) $row->type, (int) $row->course_id, (int) ( $row->article_id ?? 0 ) ),
 				// 85.4 A campaign's picture.

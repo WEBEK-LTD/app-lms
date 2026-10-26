@@ -159,6 +159,8 @@ class Woo_Orders {
 		);
 		if ( $follow ) {
 			$shape['fulfilment_status'] = self::fulfilment_status( $status );
+			// 91.2 Its tracking, from the tracking plugins.
+			$shape['shipment'] = Order_Tracking::of_order( $order );
 		}
 		return $shape;
 	}

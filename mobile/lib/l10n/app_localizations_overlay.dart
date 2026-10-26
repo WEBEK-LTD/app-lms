@@ -4063,4 +4063,8 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get plusShippingAtCheckout =>
       overlay.text('plusShippingAtCheckout') ?? base.plusShippingAtCheckout;
+
+  @override
+  String get notifyOrderUpdates =>
+      overlay.text('notifyOrderUpdates') ?? base.notifyOrderUpdates;
 }
