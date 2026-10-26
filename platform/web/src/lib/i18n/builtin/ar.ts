@@ -574,4 +574,10 @@ export const SERVER_MESSAGES_AR: Record<string, string> = {
   "This coupon is for orders of {0} or more.": "هذا الكوبون للطلبات بقيمة {0} أو أكثر.",
   "Enter this code at checkout.": "أدخل هذا الرمز عند الدفع.",
   "This code goes with your order to the checkout.": "يُرسَل هذا الرمز مع طلبك إلى صفحة الدفع.",
+  "You already asked to return this order.": "لقد طلبت إرجاع هذا الطلب من قبل.",
+  "This shop doesn't take returns in the app. Contact the shop.": "لا يقبل هذا المتجر الإرجاع من التطبيق. تواصل مع المتجر.",
+  "This order can't be returned from the app. Contact the shop.": "لا يمكن إرجاع هذا الطلب من التطبيق. تواصل مع المتجر.",
+  "Choose why you want to return it.": "اختر سبب رغبتك في الإرجاع.",
+  "Keep the note under 500 characters.": "اجعل الملاحظة أقل من 500 حرف.",
+  "Tell the shop why you want to return it.": "أخبر المتجر لماذا تريد إرجاعه.",
 };

@@ -811,6 +811,8 @@ export interface CatalogSettings {
   payment: OwnPayment | MarketplacePayment | null;
   /** 26 Pickup and delivery of a restaurant or café (vertical restaurant); missing until saved (the defaults apply). */
   fulfilment?: FulfilmentSettings | null;
+  /** 91.3 Days after an order is completed during which the customer may ask to return it; null or missing: no returns from the app. */
+  returnDays?: number | null;
 }
 
 /** 26 How a restaurant's orders are collected, and when its kitchen takes them. */
@@ -1020,6 +1022,20 @@ export interface CatalogOrder {
   /** 91.1 The coupon applied to it, and what it took off the subtotal; missing: none. */
   couponCode?: string | null;
   discountCents?: number;
+  /** 91.3 The return the customer asked for, and the shop's answer; null or missing: none. */
+  returnRequest?: OrderReturn | null;
+}
+
+export type ReturnReason = "damaged" | "wrong_item" | "not_as_described" | "no_longer_needed" | "other";
+
+/** 91.3 A return the customer asked for in the app. Times are ISO strings, as in OrderShipment. */
+export interface OrderReturn {
+  status: "requested" | "approved" | "declined";
+  reason: ReturnReason;
+  note: string | null;
+  requestedAt: string;
+  decidedAt: string | null;
+  reply: string | null;
 }
 
 /** 91.1 A coupon of a shop without a website: a share or an amount off the subtotal. */
@@ -1103,7 +1119,7 @@ export interface CatalogFulfilment {
 export type CatalogOrderPatch = Partial<
   Pick<
     CatalogOrder,
-    "status" | "customer" | "updatedAt" | "commissionCents" | "itemTransactionIds" | "payoutApprovedAt" | "fulfilmentStatus" | "paymentProvider" | "providerRef" | "shipment"
+    "status" | "customer" | "updatedAt" | "commissionCents" | "itemTransactionIds" | "payoutApprovedAt" | "fulfilmentStatus" | "paymentProvider" | "providerRef" | "shipment" | "returnRequest"
   >
 >;
 

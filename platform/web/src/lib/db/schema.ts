@@ -6,7 +6,7 @@ import type {
   AssetKind,
   CatalogCurrency,
   CatalogFulfilment,
-  OrderShipment,
+  OrderReturn, OrderShipment,
   CatalogOptionGroup,
   CatalogCustomer,
   CatalogOrderLine,
@@ -654,6 +654,8 @@ export const catalogOrders = mysqlTable(
     // 91.1 The coupon applied, and what it took off.
     couponCode: varchar("coupon_code", { length: 50 }),
     discountCents: bigint("discount_cents", { mode: "number", unsigned: true }).notNull().default(0),
+    // 91.3 The return the customer asked for, and the shop's answer (JSON).
+    returnRequest: jsonText<OrderReturn>("return_request"),
   },
   (t) => [
     uniqueIndex("catalog_orders_token_unique").on(t.tokenHash),

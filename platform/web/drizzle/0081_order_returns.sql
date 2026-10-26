@@ -1,0 +1,1 @@
+ALTER TABLE `catalog_orders` ADD `return_request` longtext;

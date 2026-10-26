@@ -32,6 +32,8 @@ export const en = {
   push: {
     newOrder: "New order {number}",
     newOrderBody: "{app}: {total}",
+    returnRequested: "Return asked for order {number}",
+    returnRequestedBody: "{app}: see it on Orders and answer the customer.",
     newBooking: "New appointment",
     newBookingBody: "{app}: {service} with {staff}, {when}",
     newMessage: "New message about {listing}",
@@ -111,6 +113,8 @@ export const ar: Messages = {
   push: {
     newOrder: "طلب جديد {number}",
     newOrderBody: "{app}: {total}",
+    returnRequested: "طلب إرجاع للطلب {number}",
+    returnRequestedBody: "{app}: اطّلع عليه في الطلبات وأجب العميل.",
     newBooking: "موعد جديد",
     newBookingBody: "{app}: {service} مع {staff}، {when}",
     newMessage: "رسالة جديدة بخصوص {listing}",
@@ -184,6 +188,8 @@ export const tr: Messages = {
   push: {
     newOrder: "Yeni sipariş {number}",
     newOrderBody: "{app}: {total}",
+    returnRequested: "{number} numaralı sipariş için iade talebi",
+    returnRequestedBody: "{app}: Siparişler sayfasında görün ve müşteriye yanıt verin.",
     newBooking: "Yeni randevu",
     newBookingBody: "{app}: {service}, {staff} ile, {when}",
     newMessage: "{listing} hakkında yeni mesaj",

@@ -161,6 +161,18 @@ export function pushNewOrder(deps: OwnerPushDeps, app: App, order: CatalogOrder)
   );
 }
 
+/** 91.3 A customer asked to return an order. */
+export function pushReturnRequested(deps: OwnerPushDeps, app: App, order: CatalogOrder): Promise<number> {
+  if (app.demo) return Promise.resolve(0);
+  return pushToOwner(
+    deps,
+    app.clientId,
+    "new_order",
+    (w) => ({ title: w.t("owner.push.returnRequested", { number: orderNumber(order) }), body: w.t("owner.push.returnRequestedBody", { app: appName(app, w) }) }),
+    { app_id: app.id, order_id: String(order.id) },
+  );
+}
+
 /** An appointment was booked in the app (the "New appointment" email). */
 export function pushNewBooking(deps: OwnerPushDeps, app: App, appointment: BookingAppointment, timeZone: string): Promise<number> {
   if (app.demo) return Promise.resolve(0);

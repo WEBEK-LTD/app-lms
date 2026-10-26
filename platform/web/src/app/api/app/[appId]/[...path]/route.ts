@@ -33,7 +33,7 @@ import { isLanguageCode } from "@/lib/i18n/locales";
 import { stringPack } from "@/lib/i18n/packs";
 import { etagValues } from "@/lib/pages/plugin";
 import { receiveCrashReports } from "@/lib/crashes/service";
-import { pushNewBooking, pushNewMessage, pushNewQuestion, pushNewReview } from "@/lib/owner/push";
+import { pushNewBooking, pushNewMessage, pushNewQuestion, pushNewReview, pushReturnRequested } from "@/lib/owner/push";
 import { pushOwnerSafely } from "@/lib/owner/push-env";
 import { chatPushes } from "@/lib/chat/push-env";
 import { chatBusiness } from "@/lib/chat/hosted";
@@ -163,6 +163,10 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
         // 62 Bound to the student when the app says it can play such links (never for the preview in a browser).
         media: mediaForApp(store, app.id, { bindTo: bearer && !previewToken && request.headers.get(BOUND_MEDIA_HEADER) === "1" ? bearer[1]!.trim() : null }),
         signingSecret: signingSecret(),
+        // 91.3 A customer asked to return an order: the owner's phones.
+        onReturnRequested: async (order) => {
+          await pushOwnerSafely((d) => pushReturnRequested(d, app, order));
+        },
         onBooked: async (appointment: BookingAppointment) => {
           if (app.demo) return;
           const owner = client ? await store.getUserById(client.userId) : null;

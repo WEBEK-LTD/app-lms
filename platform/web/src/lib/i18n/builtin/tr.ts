@@ -575,4 +575,10 @@ export const SERVER_MESSAGES_TR: Record<string, string> = {
   "This coupon is for orders of {0} or more.": "Bu kupon {0} ve üzeri siparişler içindir.",
   "Enter this code at checkout.": "Bu kodu ödeme adımında girin.",
   "This code goes with your order to the checkout.": "Bu kod siparişinizle birlikte ödeme sayfasına gider.",
+  "You already asked to return this order.": "Bu sipariş için zaten iade talep ettiniz.",
+  "This shop doesn't take returns in the app. Contact the shop.": "Bu mağaza uygulamadan iade almıyor. Mağazayla iletişime geçin.",
+  "This order can't be returned from the app. Contact the shop.": "Bu sipariş uygulamadan iade edilemez. Mağazayla iletişime geçin.",
+  "Choose why you want to return it.": "Neden iade etmek istediğinizi seçin.",
+  "Keep the note under 500 characters.": "Notu 500 karakterin altında tutun.",
+  "Tell the shop why you want to return it.": "Mağazaya neden iade etmek istediğinizi yazın.",
 };

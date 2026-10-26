@@ -4,7 +4,7 @@ import type { App, ConnectorConfig } from "../../data/types";
 import type { BookingAppointment } from "../../data/types";
 import { ArticlesConnector } from "./articles";
 import { BookingsConnector } from "./bookings";
-import { CatalogConnector } from "./catalog";
+import { CatalogConnector, type CatalogDeps } from "./catalog";
 import { CoursesConnector, type CoursesDeps, type CoursesMedia } from "./courses";
 import { EventsConnector } from "./events";
 import { DonationsConnector } from "./donations";
@@ -66,6 +66,8 @@ export function connectorFor(
     onReview?: CoursesDeps["onReview"];
     /** 13.1 Card payments in the app (dashboard products, courses and 28 tickets) are in the app's plan. */
     cardPayments?: boolean;
+    /** 91.3 A customer asked to return an order. */
+    onReturnRequested?: CatalogDeps["onReturnRequested"];
     /** 45 Lessons of courses managed in Yallapp may be saved for offline viewing (lib/courses/downloads.ts). */
     downloads?: boolean;
     /** 51 Lesson videos from the app's Media library (lib/media/hosted.ts). */

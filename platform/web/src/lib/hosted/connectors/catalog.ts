@@ -1,4 +1,5 @@
 import { checkFulfilment, FULFILMENT_LABELS, fulfilmentConfigJson, fulfilmentOf, orderTimesJson } from "../../catalog/fulfilment";
+import { canReturn, parseReturnInput, requestReturn, returnDays, returnJson } from "../../catalog/returns";
 import { couponDiscount, normalizeCouponCode } from "../../catalog/coupons";
 import { centsToDecimal, formatCents } from "../../catalog/money";
 import { checkOptions, optionGroupsJson, optionGroupsOf, type ChosenOption } from "../../catalog/options";
@@ -29,6 +30,8 @@ export interface CatalogDeps {
   platformUrl: string;
   /** 13.1 Card payments in the app are in the app's plan (default true). Without them products show without a cart. */
   cardPayments?: boolean;
+  /** 91.3 A customer asked to return an order (tells the owner's phones). */
+  onReturnRequested?: (order: CatalogOrder) => Promise<void>;
 }
 
 type OrderBy = "newest" | "popular" | "rating" | "price_asc" | "price_desc" | "title";
@@ -94,6 +97,8 @@ export class CatalogConnector implements Connector {
         delivery_date: { enabled: false, required: false, min_days: 0, max_days: 0, closed_weekdays: [] },
         gift_message: { enabled: false, max_length: 200 },
         ...(this.fulfilment ? { fulfilment: fulfilmentConfigJson(this.fulfilment, this.settings.currency) } : {}),
+        // 91.3 Returns asked for in the app (never a restaurant's).
+        returns: !this.fulfilment && returnDays(this.settings) !== null ? { enabled: true, days: returnDays(this.settings)! } : null,
       },
       features: { orders: true },
     };
@@ -119,6 +124,9 @@ export class CatalogConnector implements Connector {
     }
     if (request.method === "GET" && request.path.length === 3 && request.path[0] === "me" && request.path[1] === "orders") {
       return this.order(request, Number(request.path[2]));
+    }
+    if (request.method === "POST" && request.path.length === 4 && request.path[0] === "me" && request.path[1] === "orders" && request.path[3] === "return") {
+      return this.requestReturn(request, Number(request.path[2]));
     }
     if (request.method === "GET" && request.path[0] === "store" && request.path[1] === "products" && request.path[2]) {
       const id = Number(request.path[2]);
@@ -479,7 +487,7 @@ export class CatalogConnector implements Connector {
     }
   }
 
-  private orderJson(order: CatalogOrder) {
+  private orderJson(order: CatalogOrder, now: Date) {
     return {
       id: order.id,
       number: orderNumber(order),
@@ -489,6 +497,9 @@ export class CatalogConnector implements Connector {
       total: formatCents(order.totalCents, order.currency),
       // 80.4 How it was shipped (any carrier); null until it is.
       shipment: shipmentJson(order.shipment),
+      // 91.3 The return the customer asked for, and whether they may ask now.
+      return_request: returnJson(order.returnRequest),
+      can_return: canReturn(order, this.settings, now),
       // 47 What the shop refunded of it; all of it: the status is "refunded".
       refunded_total: order.refundedCents ? formatCents(order.refundedCents, order.currency) : null,
       // 71 The receipt as a PDF, from a signed link.
@@ -523,7 +534,22 @@ export class CatalogConnector implements Connector {
     if (!request.user) return error(401, "invalid_token", "Your session has ended. Please sign in again.");
     const order = Number.isSafeInteger(id) && id > 0 ? await this.deps.store.getCatalogOrder(this.deps.app.id, id) : null;
     if (!order || order.userId !== request.user.id || !LISTED_STATUSES.includes(order.status)) return error(404, "not_found", "Order not found.");
-    return { status: 200, body: this.orderJson(order) };
+    return { status: 200, body: this.orderJson(order, request.now) };
+  }
+
+  /** 91.3 The customer asks to return one of their orders. */
+  private async requestReturn(request: ConnectorRequest, id: number): Promise<ConnectorResult> {
+    if (!request.user) return error(401, "invalid_token", "Your session has ended. Please sign in again.");
+    const order = Number.isSafeInteger(id) && id > 0 ? await this.deps.store.getCatalogOrder(this.deps.app.id, id) : null;
+    if (!order || order.userId !== request.user.id || !LISTED_STATUSES.includes(order.status)) return error(404, "not_found", "Order not found.");
+    if (order.returnRequest) return error(409, "conflict", "You already asked to return this order.");
+    if (returnDays(this.settings) === null) return error(403, "feature_disabled", "This shop doesn't take returns in the app. Contact the shop.");
+    const input = parseReturnInput(request.body);
+    if (!input.ok) return error(400, "invalid_request", input.message);
+    const saved = await requestReturn(this.deps.store, this.deps.app, order, this.settings, input, request.now);
+    if (!saved) return error(403, "forbidden", "This order can't be returned from the app. Contact the shop.");
+    await this.deps.onReturnRequested?.(saved);
+    return { status: 200, body: this.orderJson(saved, request.now) };
   }
 
   private async orders(request: ConnectorRequest): Promise<ConnectorResult> {
@@ -544,7 +570,7 @@ export class CatalogConnector implements Connector {
         per_page: perPage,
         total,
         total_pages: Math.max(1, Math.ceil(total / perPage)),
-        items: items.map((o) => this.orderJson(o)),
+        items: items.map((o) => this.orderJson(o, request.now)),
       },
     };
   }
