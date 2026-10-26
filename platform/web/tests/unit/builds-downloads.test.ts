@@ -7,7 +7,7 @@ import { newApp, queueBuild } from "@/lib/app/setup";
 import { registerClient } from "@/lib/auth/accounts";
 import { activateClient } from "@/lib/admin/clients";
 import { notifyBuildFinished } from "@/lib/builds/notify";
-import { applyPipelineStatus } from "@/lib/builds/pipeline";
+import { applyPipelineStatus, buildSummary, pipelineStatusSchema } from "@/lib/builds/pipeline";
 import {
   BUILD_STATUS_LABEL,
   BUILDING_STALL_MS,
@@ -150,6 +150,44 @@ describe("queueing builds safely", () => {
     const withKey = { ...app, ascPrivateKeyEncrypted: "v1.x", ascIssuerId: "i", ascKeyId: "K" };
     const second = await queueBuild(store, { client, app: withKey, license, versionName: "1.0.1" }, NOW, assetUrl);
     expect(second.ok && second.build.stages).toMatchObject({ ios: "pending" });
+  });
+
+  it("87.1 doesn't queue a build the checks before it stop, and says why", async () => {
+    const { store, client, app, license } = await ready();
+    // The icon the app points at can't be read.
+    const deps = { key: Buffer.alloc(32, 7), readAsset: async () => null };
+    const stopped = await queueBuild(store, { client, app, license, versionName: "1.0.0" }, NOW, assetUrl, deps);
+    expect(stopped).toMatchObject({ ok: false, reason: "preflight" });
+    if (stopped.ok || stopped.reason !== "preflight") return;
+    expect(stopped.checks.map((c) => [c.key, c.level])).toEqual([
+      ["icon", "error"],
+      ["firebase", "warning"],
+    ]);
+    expect(await store.listBuildsByApp(app.id, 5)).toEqual([]);
+  });
+
+  it("87.3 keeps the code a build was made from, and rebuilds it as it was", async () => {
+    const { store, client, app, license } = await ready();
+    const first = await queueBuild(store, { client, app, license, versionName: "1.0.0" }, NOW, assetUrl);
+    if (!first.ok) throw new Error("not queued");
+    const commit = "a".repeat(40);
+    const applied = await applyPipelineStatus(store, first.build, pipelineStatusSchema.parse({ status: "building", source_commit: commit }), NOW);
+    expect(applied.ok && applied.build.sourceCommit).toBe(commit);
+    await store.updateBuild(first.build.id, { status: "ready", finishedAt: NOW }, NOW);
+    const made = (await store.getBuild(first.build.id))!;
+    // The app changed since: the rebuild keeps the config it had, with a new version, and the same code.
+    const changed = { ...app, appName: "Another name" };
+    const again = await queueBuild(store, { client, app: changed, license, versionName: "1.0.1", from: made }, NOW, assetUrl);
+    if (!again.ok) throw new Error(`not queued: ${again.reason}`);
+    expect(again.build).toMatchObject({ sourceRef: commit, rebuildOf: made.number, versionName: "1.0.1" });
+    expect(again.build.config).toMatchObject({ app_name: made.config.app_name, version_name: "1.0.1" });
+    expect(again.build.config.app_name).not.toBe("Another name");
+    expect(buildSummary(again.build)).toMatchObject({ source_ref: commit, rebuild_of: made.number, source_commit: null });
+    // A build without a known commit can't be rebuilt as it was.
+    await store.updateBuild(again.build.id, { status: "ready", finishedAt: NOW }, NOW);
+    const unknown = (await store.getBuild(again.build.id))!;
+    expect(await queueBuild(store, { client, app, license, versionName: "1.0.2", from: { ...unknown, sourceCommit: null } }, NOW, assetUrl)).toMatchObject({ ok: false, reason: "invalid_config" });
+    expect(pipelineStatusSchema.safeParse({ source_commit: "abc" }).success).toBe(false);
   });
 
   it("closes a build that stopped reporting, so the app isn't blocked for ever", async () => {

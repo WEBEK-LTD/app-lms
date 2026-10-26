@@ -12,7 +12,17 @@ ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 SCRIPTS="$ROOT/build/scripts"
 MOBILE="$ROOT/mobile"
 WORK=$(mktemp -d)
-trap 'rm -rf "$WORK"' EXIT
+# 87.2 Everything the build prints, to tell the client why it failed (diagnose.py).
+LOG="$OUT/build.log"
+exec > >(tee -a "$LOG") 2>&1
+finish() {
+	local status=$?
+	rm -rf "$WORK"
+	if [ "$status" -ne 0 ]; then
+		if python3 "$SCRIPTS/diagnose.py" "$LOG" android > "$OUT/failure.json" 2>/dev/null; then add_failure "$OUT/failure.json" || true; fi
+	fi
+}
+trap finish EXIT
 
 platform() { python3 "$SCRIPTS/platform.py" "$@"; }
 result() { # stages-json artifacts-json message
@@ -22,11 +32,26 @@ path, stages, artifacts, message = sys.argv[1:]
 json.dump({"stages": json.loads(stages), "artifacts": json.loads(artifacts), "message": message or None}, open(path, "w"))
 PY
 }
+# 87.2 Adds why it failed (diagnose.py's output) to result.json.
+add_failure() {
+	python3 - "$OUT/result.json" "$1" <<'PY'
+import json, sys
+result, failure = sys.argv[1:]
+data = json.load(open(result))
+data["failure"] = json.load(open(failure))
+json.dump(data, open(result, "w"))
+PY
+}
 result '{"android":"failed"}' '[]' "The Android app couldn't be built."
 
 platform status "$BUILD_ID" '{"stages":{"android":"running"}}'
 platform config "$BUILD_ID" "$WORK/config.json"
 platform secrets "$BUILD_ID" "$WORK/secrets.json"
+# 87.3 The commit the app is built from, kept on the build so it can be rebuilt as it was.
+COMMIT=$(git -C "$ROOT" rev-parse HEAD 2>/dev/null || true)
+if [[ "$COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+	platform status "$BUILD_ID" "{\"source_commit\":\"$COMMIT\"}" || true
+fi
 
 # App identity, colors, version and Firebase files from the build config.
 (cd "$MOBILE" && dart run tool/apply_config.dart "$WORK/config.json")
@@ -167,4 +192,11 @@ XIAOMI=$(cat "$WORK/xiaomi.stage")
 
 STAGES="{\"android\":\"done\",\"upload_play\":\"$PLAY\",\"upload_galaxy\":\"$GALAXY\",\"upload_appgallery\":\"$APPGALLERY\",\"upload_xiaomi\":\"$XIAOMI\"}"
 result "$STAGES" "$ARTIFACTS" "$MESSAGE"
+# 87.2 A store upload that didn't work, explained from its output.
+for stage in upload_play:$PLAY upload_galaxy:$GALAXY upload_appgallery:$APPGALLERY upload_xiaomi:$XIAOMI; do
+	if [ "${stage#*:}" = "failed" ]; then
+		if python3 "$SCRIPTS/diagnose.py" "$LOG" "${stage%%:*}" > "$OUT/failure.json"; then add_failure "$OUT/failure.json" || true; fi
+		break
+	fi
+done
 platform status "$BUILD_ID" "{\"stages\":$STAGES}"

@@ -1,3 +1,6 @@
+import { runAutoBuilds } from "../builds/auto";
+import type { PreflightDeps } from "../builds/preflight";
+import { assetUrl } from "../assets";
 import type { DataStore } from "../data/store";
 import { appUrl } from "../env";
 import { runAutoNotifications, type AutoRunReport } from "../hosted/auto-notifications";
@@ -25,6 +28,8 @@ export interface FrequentReport {
   campaigns: CampaignRunReport;
   /** 85.3 Automatic notifications that went out, by kind. */
   automatic: AutoRunReport;
+  /** 87.4 Automatic builds queued, due ones a build wouldn't change, and ones waiting for a running build. */
+  builds: { queued: number; nothing: number; later: number };
 }
 
 export async function runFrequentJobs(deps: {
@@ -37,6 +42,9 @@ export async function runFrequentJobs(deps: {
   refresh?: Pick<RefreshDeps, "fetcher" | "resolve" | "testSiteUrl">;
   /** 85.2 Yallapp's address (tests); appUrl() otherwise. */
   platformUrl?: string;
+  /** 87.4 The checks before the automatic builds, and how the pipeline is started. */
+  preflight?: PreflightDeps;
+  startPipeline?: () => Promise<unknown>;
 }): Promise<FrequentReport> {
   const notifications = await runScheduledNotifications({ store: deps.store, key: deps.key, now: deps.now, send: deps.send });
   let campaigns: CampaignRunReport = { sent: 0, waiting: 0, failed: 0 };
@@ -66,5 +74,12 @@ export async function runFrequentJobs(deps: {
     // A site that isn't told now still pauses on its own (the plugin compares the end date) and at its next check.
     console.error("[frequent] ended plans", error instanceof Error ? error.message : String(error));
   }
-  return { notifications, announcements, ended, campaigns, automatic };
+  // 87.4 The automatic builds of the latest saves that are due.
+  let builds = { queued: 0, nothing: 0, later: 0 };
+  try {
+    builds = await runAutoBuilds({ store: deps.store, now: deps.now, assetUrl, preflight: deps.preflight, start: deps.startPipeline ?? (async () => undefined) });
+  } catch (error) {
+    console.error("[frequent] automatic builds", error instanceof Error ? error.message : String(error));
+  }
+  return { notifications, announcements, ended, campaigns, automatic, builds };
 }

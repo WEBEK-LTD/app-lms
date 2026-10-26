@@ -17,6 +17,10 @@ import { chooseApp, clientFor, mayUseDashboard, type ClientContext } from "@/lib
 import type { TeamPermission } from "@/lib/team/permissions";
 import { MAX_APPS_PER_CLIENT } from "@/lib/app/label";
 import { getBlobStore } from "@/lib/blobs";
+import { buildChanges, scheduleAutoBuild } from "@/lib/builds/auto";
+import { renderCheck } from "@/lib/builds/preflight";
+import { suggestedVersion } from "@/lib/builds/view";
+import { preflightDeps } from "@/lib/builds/preflight-env";
 import { keyContext } from "@/lib/builds/signing";
 import { encrypt } from "@/lib/crypto/encryption";
 import { newId } from "@/lib/crypto/tokens";
@@ -93,12 +97,10 @@ async function afterStep(context: ClientContext & { app: App }, step: SetupStep)
   if (isSetupComplete(app, plan, plans)) {
     const builds = await store.listBuildsByApp(app.id, 1);
     const last = builds[0];
-    if (last && plan && hasFeature(plans[plan], "auto_rebuild") && context.state === "active" && last.status !== "queued" && last.status !== "building") {
-      const rebuilt = await queueBuild(store, { client: context.client, app, license: context.license, versionName: bumpPatch(last.versionName) }, now, assetUrl);
-      if (rebuilt.ok) {
-        await startPipeline();
-        redirect("/dashboard/builds?started=auto");
-      }
+    // 87.4 A change a new build would bring: the build in a few minutes, so more saves join it.
+    if (last && plan && hasFeature(plans[plan], "auto_rebuild") && context.state === "active" && buildChanges(app, context.client, last, assetUrl).length > 0) {
+      await scheduleAutoBuild(store, app, now);
+      redirect("/dashboard/builds?started=auto");
     }
     if (builds.length === 0) {
       const result = await queueBuild(
@@ -857,7 +859,12 @@ async function startBuild(
   versionName: string,
 ): Promise<{ ok: true; number: number; versionName: string } | { ok: false; message: string; versionTooLow: boolean }> {
   const store = await getStore();
-  const result = await queueBuild(store, { client: context.client, app: context.app, license: context.license, versionName }, new Date(), assetUrl);
+  const result = await queueBuild(store, { client: context.client, app: context.app, license: context.license, versionName }, new Date(), assetUrl, preflightDeps(store));
+  if (!result.ok && result.reason === "preflight") {
+    // 87.1 The first thing to fix; the Builds page lists them all.
+    const first = result.checks.find((c) => c.level === "error")!;
+    return { ok: false, message: renderCheck(first), versionTooLow: false };
+  }
   if (!result.ok) {
     const messages = {
       setup_incomplete: "Finish every step of the app setup first.",
@@ -873,6 +880,8 @@ async function startBuild(
     } as const;
     return { ok: false, message: messages[result.reason], versionTooLow: result.reason === "version_too_low" };
   }
+  // 87.4 The automatic build that was waiting is this one now.
+  if (context.app.autoBuildDueAt) await store.updateApp(context.app.id, { autoBuildDueAt: null }, new Date());
   await startPipeline();
   await recordStaffChange(context, `Started build #${result.build.number} (${result.build.versionName})`);
   revalidatePath("/dashboard", "layout");
@@ -900,6 +909,30 @@ export async function retryBuildAction(_: FormState, formData: FormData): Promis
   const result = await startBuild(context, parsed.data.versionName);
   if (!result.ok) return { message: result.message };
   redirect(`/dashboard/builds?queued=${result.number}`);
+}
+
+/**
+ * 87.3 "Rebuild as it was": a ready build of this app again, from the same
+ * app code and the config and listing it had, with a new version (the
+ * stores need a higher one), then back to the page, which says so.
+ */
+export async function rebuildBuildAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireApp("settings");
+  const store = await getStore();
+  const from = await store.getBuild(String(formData.get("buildId") ?? ""));
+  if (!from || from.appId !== context.app.id || from.status !== "ready" || !from.sourceCommit) return { message: "This build can't be rebuilt as it was." };
+  const latest = (await store.listBuildsByApp(context.app.id, 1))[0] ?? null;
+  const result = await queueBuild(
+    store,
+    { client: context.client, app: context.app, license: context.license, versionName: suggestedVersion(latest), from },
+    new Date(),
+    assetUrl,
+    preflightDeps(store),
+  );
+  if (!result.ok) return { message: result.reason === "preflight" ? renderCheck(result.checks.find((c) => c.level === "error")!) : result.reason === "build_running" ? "A build is already in progress. You can start a new one when it finishes." : "This build can't be rebuilt as it was." };
+  await startPipeline();
+  await recordStaffChange(context, `Rebuilt build #${from.number} as it was (build #${result.build.number})`);
+  redirect(`/dashboard/builds?queued=${result.build.number}`);
 }
 
 /** Releases the license from its website so it can be activated on another one. */

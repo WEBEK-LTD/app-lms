@@ -1,7 +1,7 @@
 import { FINGERPRINT, TEAM_ID } from "../links/well-known";
 import { z } from "zod";
 import type { DataStore } from "../data/store";
-import type { Artifact, Build, BuildStages, BuildStatus, StageKey } from "../data/types";
+import { FAILURE_CODES, type Artifact, type Build, type BuildStages, type BuildStatus, type StageKey } from "../data/types";
 
 /** What the build pipeline may report: see docs/api/pipeline.yaml. */
 const stageStatus = z.enum(["pending", "running", "done", "failed", "skipped"]);
@@ -47,6 +47,18 @@ export const pipelineStatusSchema = z
       )
       .max(20)
       .optional(),
+    // 87.3 The commit the job builds from.
+    source_commit: z.string().regex(/^[0-9a-f]{40}$/).optional(),
+    // 87.2 Why it failed, as diagnose.py read the build's output.
+    failure: z
+      .object({
+        code: z.enum(FAILURE_CODES),
+        stage: z.enum(["android", "ios", "upload_play", "upload_testflight", "upload_galaxy", "upload_appgallery", "upload_xiaomi"]).optional(),
+        log: z.string().max(20_000).optional(),
+      })
+      .strict()
+      .nullable()
+      .optional(),
     // 46 Public signing facts for the link files: the upload key's SHA-256 and the Apple Team ID.
     signing: z
       .object({
@@ -86,6 +98,8 @@ export async function applyPipelineStatus(
     artifacts,
     message: update.message === undefined ? build.message : update.message,
     logUrl: update.log_url === undefined ? build.logUrl : update.log_url,
+    failure: update.failure === undefined ? (build.failure ?? null) : update.failure,
+    sourceCommit: update.source_commit ?? build.sourceCommit ?? null,
     startedAt: build.startedAt ?? (status === "building" || FINISHED.includes(status) ? now : null),
     finishedAt: FINISHED.includes(status) ? now : null,
   };
@@ -126,6 +140,10 @@ export function buildSummary(build: Build) {
     artifacts: build.artifacts,
     message: build.message,
     log_url: build.logUrl,
+    // 87.3
+    source_ref: build.sourceRef ?? null,
+    source_commit: build.sourceCommit ?? null,
+    rebuild_of: build.rebuildOf ?? null,
     created_at: build.createdAt.toISOString(),
     started_at: build.startedAt?.toISOString() ?? null,
     finished_at: build.finishedAt?.toISOString() ?? null,

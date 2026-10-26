@@ -1,3 +1,4 @@
+import { failureExplanation } from "./failures";
 import type { ArtifactKind, Build, BuildStatus, StageKey } from "../data/types";
 import { bumpPatch } from "../semver";
 
@@ -62,8 +63,10 @@ const STAGE_FAILED: Partial<Record<StageKey, string>> = {
   upload_xiaomi: "The upload to Xiaomi GetApps didn't work.",
 };
 
-/** Why a build didn't finish, in plain words: the pipeline's message, or what its stages say. */
-export function failureReason(build: Pick<Build, "message" | "stages">): string {
+/** Why a build didn't finish, in plain words: 87.2 the diagnosed cause and what to do, else the pipeline's message, or what its stages say. */
+export function failureReason(build: Pick<Build, "message" | "stages" | "failure">): string {
+  const explained = failureExplanation(build);
+  if (explained) return explained.text;
   const message = build.message?.trim();
   if (message) return message;
   for (const stage of ["android", "ios", "upload_play", "upload_testflight", "upload_galaxy", "upload_appgallery", "upload_xiaomi"] as const) {

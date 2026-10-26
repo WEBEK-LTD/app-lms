@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { retryBuildAction, startBuildAction } from "@/app/actions/dashboard";
+import { rebuildBuildAction, retryBuildAction, startBuildAction } from "@/app/actions/dashboard";
 import { FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { initialFormState } from "@/lib/forms";
@@ -60,6 +60,22 @@ export function RetryBuildForm({ versionName }: { versionName: string }) {
       <SubmitButton variant="secondary" className="h-[42px]" pendingText={t("builds.starting")}>
         <Icon name="refresh" size={20} />
         {t("builds.tryAgain")}
+      </SubmitButton>
+      <FormMessage message={state.message} ok={state.ok} />
+    </form>
+  );
+}
+
+/** 87.3 "Rebuild as it was": a ready build again, from its app code, config and listing. */
+export function RebuildForm({ buildId, number }: { buildId: string; number: number }) {
+  const t = useDashT();
+  const [state, action] = useActionState(rebuildBuildAction, initialFormState);
+  return (
+    <form action={action} className="mt-1 flex flex-col items-start gap-1">
+      <input type="hidden" name="buildId" value={buildId} />
+      <SubmitButton variant="secondary" className="h-8 px-2.5 text-xs" pendingText={t("builds.starting")} aria-label={t("builds.rebuildLabel", { number })}>
+        <Icon name="refresh" size={16} />
+        {t("builds.rebuild")}
       </SubmitButton>
       <FormMessage message={state.message} ok={state.ok} />
     </form>

@@ -12,7 +12,17 @@ ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 SCRIPTS="$ROOT/build/scripts"
 MOBILE="$ROOT/mobile"
 WORK=$(mktemp -d)
-trap 'rm -rf "$WORK"' EXIT
+# 87.2 Everything the build prints, to tell the client why it failed (diagnose.py).
+LOG="$OUT/build.log"
+exec > >(tee -a "$LOG") 2>&1
+finish() {
+	local status=$?
+	rm -rf "$WORK"
+	if [ "$status" -ne 0 ]; then
+		if python3 "$SCRIPTS/diagnose.py" "$LOG" ios > "$OUT/failure.json" 2>/dev/null; then add_failure "$OUT/failure.json" || true; fi
+	fi
+}
+trap finish EXIT
 
 platform() { python3 "$SCRIPTS/platform.py" "$@"; }
 result() {
@@ -22,9 +32,24 @@ path, stages, artifacts, message = sys.argv[1:]
 json.dump({"stages": json.loads(stages), "artifacts": json.loads(artifacts), "message": message or None}, open(path, "w"))
 PY
 }
+# 87.2 Adds why it failed (diagnose.py's output) to result.json.
+add_failure() {
+	python3 - "$OUT/result.json" "$1" <<'PY'
+import json, sys
+result, failure = sys.argv[1:]
+data = json.load(open(result))
+data["failure"] = json.load(open(failure))
+json.dump(data, open(result, "w"))
+PY
+}
 result '{"ios":"failed"}' '[]' "The iOS app couldn't be built."
 
 platform secrets "$BUILD_ID" "$WORK/secrets.json"
+# 87.3 The commit the app is built from, kept on the build so it can be rebuilt as it was.
+COMMIT=$(git -C "$ROOT" rev-parse HEAD 2>/dev/null || true)
+if [[ "$COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+	platform status "$BUILD_ID" "{\"source_commit\":\"$COMMIT\"}" || true
+fi
 HAS_ASC=$(python3 -c 'import json,sys; print("yes" if json.load(open(sys.argv[1]))["app_store_connect"] else "no")' "$WORK/secrets.json")
 if [ "$HAS_ASC" != "yes" ]; then
 	result '{"ios":"skipped","upload_testflight":"skipped"}' '[]' "No iOS app in this build: add your App Store Connect key in App setup › Publishing, on a plan with the iOS app."
@@ -86,4 +111,8 @@ if [ "${AUTO_PUBLISH:-false}" = "true" ]; then
 fi
 
 result "{\"ios\":\"done\",\"upload_testflight\":\"$TESTFLIGHT\"}" "$ARTIFACTS" "$MESSAGE"
+# 87.2 An upload to TestFlight that didn't work, explained from its output.
+if [ "$TESTFLIGHT" = "failed" ]; then
+	if python3 "$SCRIPTS/diagnose.py" "$LOG" upload_testflight > "$OUT/failure.json"; then add_failure "$OUT/failure.json" || true; fi
+fi
 platform status "$BUILD_ID" "{\"stages\":{\"ios\":\"done\",\"upload_testflight\":\"$TESTFLIGHT\"}}"

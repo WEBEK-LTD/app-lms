@@ -313,6 +313,17 @@ components:
         size: { type: integer, minimum: 0, description: Bytes. }
         sha256: { type: string, pattern: '^[0-9a-f]{64}$' }
 
+    FailureCode:
+      type: string
+      description: |
+        What went wrong, from the build's output (87.2): the icon; a Firebase
+        file for another package name or bundle ID; the Android upload key or
+        the iPhone signing; the App Store Connect key; an Apple agreement to
+        accept; a version the store already has; Google Play's permissions,
+        or an app not created in Google Play yet; the build machine
+        (network, disk); or `unknown`.
+      enum: [icon, firebase_android, firebase_ios, android_signing, ios_signing, apple_key, apple_agreement, version_used, play_permission, play_app_missing, infrastructure, unknown]
+
     StatusReport:
       type: object
       additionalProperties: false
@@ -332,6 +343,27 @@ components:
           format: uri
           pattern: '^https://'
           description: Link to the CI run. Shown to the team only (the repository is private).
+        source_commit:
+          type: string
+          pattern: '^[0-9a-f]{40}$'
+          description: |
+            Roadmap 87.3. The commit of this repository the app is being built
+            from (`git rev-parse HEAD` in the job), sent once the job starts. The
+            build keeps it, so it can be rebuilt as it was.
+        failure:
+          type: [object, 'null']
+          additionalProperties: false
+          required: [code]
+          description: |
+            Roadmap 87.2. Why a failed build (or a failed stage of a ready one)
+            failed, as `build/scripts/diagnose.py` read it from the build's
+            output: a `code` the dashboard explains in the client's language,
+            with what to do and where, and `log`, the end of the output with
+            every secret, token and path removed, which the client may read.
+          properties:
+            code: { $ref: '#/components/schemas/FailureCode' }
+            stage: { type: string, enum: [android, ios, upload_play, upload_testflight, upload_galaxy, upload_appgallery, upload_xiaomi] }
+            log: { type: string, maxLength: 20000 }
         artifacts:
           type: array
           maxItems: 20
@@ -376,6 +408,19 @@ components:
           items: { $ref: '#/components/schemas/Artifact' }
         message: { type: [string, 'null'] }
         log_url: { type: [string, 'null'], format: uri }
+        source_ref:
+          type: [string, 'null']
+          pattern: '^[0-9a-f]{40}$'
+          description: |
+            Roadmap 87.3. The commit of this repository to build the app from:
+            set on a rebuild of an earlier build ("Rebuild as it was"), with
+            that build's config; null builds from the newest code. The jobs
+            check it out instead of the workflow's own commit.
+        source_commit:
+          type: [string, 'null']
+          pattern: '^[0-9a-f]{40}$'
+          description: Roadmap 87.3. The commit the build was made from, as the pipeline reported it.
+        rebuild_of: { type: [integer, 'null'], minimum: 1, description: Roadmap 87.3. The number of the build this one rebuilds as it was. }
         created_at: { type: string, format: date-time }
         started_at: { type: [string, 'null'], format: date-time }
         finished_at: { type: [string, 'null'], format: date-time }

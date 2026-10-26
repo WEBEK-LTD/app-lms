@@ -59,6 +59,7 @@ import type {
   ChatReportOutcome,
 } from "../data/types";
 // 11.6 and 11.8
+import type { BuildFailure } from "../data/types";
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
 import type { Plan } from "../plans";
 import type { Layout, LayoutBlock, LayoutContent } from "../pages/types";
@@ -287,6 +288,8 @@ export const apps = mysqlTable(
     timeZone: varchar("time_zone", { length: 64 }),
     // 86.4 The weekly summary email, on unless the owner turns it off.
     weeklySummary: boolean("weekly_summary").notNull().default(true),
+    // 87.4 The automatic build of the latest saves, a few minutes after the last one.
+    autoBuildDueAt: time("auto_build_due_at"),
     appTypeDoneAt: time("app_type_done_at"),
     websiteDoneAt: time("website_done_at"),
     brandingDoneAt: time("branding_done_at"),
@@ -328,6 +331,12 @@ export const builds = mysqlTable(
     artifacts: jsonText<unknown[]>("artifacts").notNull(),
     message: text("message"),
     logUrl: varchar("log_url", { length: 2048 }),
+    // 87.2 Why it failed (BuildFailure): its code, stage and the log the client may read.
+    failure: jsonText<BuildFailure>("failure"),
+    // 87.3 The code it was built from, and the build it rebuilds as it was.
+    sourceRef: varchar("source_ref", { length: 40 }),
+    sourceCommit: varchar("source_commit", { length: 40 }),
+    rebuildOf: int("rebuild_of"),
     createdAt: time("created_at").notNull(),
     startedAt: time("started_at"),
     finishedAt: time("finished_at"),
