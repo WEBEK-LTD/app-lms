@@ -2378,6 +2378,8 @@ The app takes one-off donations. Monthly donations need a card saved for a subsc
     steps: false,
     body: `Each app has its own plan. Every plan includes your Android app, push notifications, your own branding and the documentation.
 
+**What you pay for**, on your app's **Plan** page, shows the app's plan and price, what this app uses of the plan's limits (app users, languages, Media storage), how long analytics are kept, what the plan includes and which plan has the rest. With several apps, it lists each with its plan, its price and when it ends.
+
 ## The four plans
 
 - **Starter**: the Android app for Google Play, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, one content source, ready-made page templates, one language and up to 1,000 app users. You publish it with our step-by-step guides.

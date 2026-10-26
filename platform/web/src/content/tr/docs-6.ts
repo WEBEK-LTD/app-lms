@@ -229,6 +229,8 @@ Uygulama tek seferlik bağış alır. Aylık bağışlar için abonelikte kayıt
     description: "Starter, Growth, Pro ve Business planları, plan değiştirme, kartla ödeme, kuponlar, yenilemeler ve iadeler.",
     body: `Her uygulamanın kendi planı vardır. Her plan Android uygulamanızı, anlık bildirimleri, kendi markanızı ve dokümantasyonu içerir.
 
+Uygulamanızın **Paket** sayfasındaki **Neye ödüyorsunuz** bölümü, uygulamanın paketini ve fiyatını, bu uygulamanın paket sınırlarından ne kadarını kullandığını (uygulama kullanıcıları, diller, medya alanı), analitiğin ne kadar saklandığını, paketin neleri içerdiğini ve geri kalanının hangi pakette olduğunu gösterir. Birden fazla uygulamanız varsa her birini paketi, fiyatı ve bitiş tarihiyle listeler.
+
 ## Dört plan
 
 - **Starter**: Google Play, Samsung Galaxy Store, Huawei AppGallery ve Xiaomi GetApps için Android uygulaması, bir içerik kaynağı, hazır sayfa şablonları, bir dil ve en fazla 1.000 uygulama kullanıcısı. Uygulamayı adım adım rehberlerimizle kendiniz yayınlarsınız.

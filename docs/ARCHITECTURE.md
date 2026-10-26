@@ -2436,6 +2436,13 @@ app opens on the site's links (`<site>/a/page/<slug>`).
   `appProblems()` reads it once per request (React `cache`); the overview
   lists each with Fix it and the menu shows the count on Overview (the
   nav item's `badge`), for whoever may change settings.
+- **What you pay for** (94.1): `lib/billing/usage.ts` `planUsage()` (app
+  users on the hosted API, languages of the published layout, Media storage
+  from `appStorage` with its packs; `usageLevel` near at 80%, full at the
+  limit). The Plan page's `UsageSection` shows them with the plan's price
+  (`planPrice` in the client's currency), analytics kept, the features
+  included and the lowest plan with each other one, and the account's apps
+  with their plans, prices and ends.
 
 ## Academies, complete (Phase 90)
 

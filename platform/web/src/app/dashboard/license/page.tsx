@@ -16,7 +16,7 @@ import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import { encryptionKey } from "@/lib/env";
 import { latestRelease } from "@/lib/license/service";
 import { ACCOUNT_STATE_LABEL } from "@/lib/license/status";
-import { comparePlans, formatStorage, hasFeature, isPlan, PLANS, planName, planPrice, type Plan, type PlanInfo } from "@/lib/plans";
+import { comparePlans, formatStorage, hasFeature, isPlan, lowestPlanWith, planFeaturesFor, PLANS, planName, planPrice, type Plan, type PlanInfo } from "@/lib/plans";
 import { packOffers, renewablePacks, renewalLabel } from "@/lib/media/packs";
 import { cardPlanOptions } from "@/lib/billing/card-plans";
 import { currentPlanId, planChangeFor, scheduledPlan } from "@/lib/billing/plan-change";
@@ -29,6 +29,10 @@ import { priceView } from "@/lib/billing/display";
 import { formatAmount } from "@/lib/billing/prices";
 import { paymentWhat } from "@/lib/billing/receipt";
 import { plansIn } from "@/lib/marketing-lang";
+import { planUsage } from "@/lib/billing/usage";
+import { appStorage } from "@/lib/media/usage";
+import { wordsOf } from "@/lib/app/kinds";
+import { UsageSection, type AccountAppRow } from "./usage";
 import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { getVisitorContact } from "@/lib/contact";
 import { appLabel, licensePageName, usesPlugin } from "@/lib/app/label";
@@ -78,7 +82,7 @@ function planLines(plan: PlanInfo, { t, num, lang }: DashboardText): string[] {
 
 export default async function LicensePage({ searchParams }: PageProps<"/dashboard/license">) {
   const contact = await getVisitorContact();
-  const { license, state, app, apps, client } = await requireClient("billing");
+  const { license, state, app, apps, client, licenses } = await requireClient("billing");
   const text = await dashboardText();
   const { t, k, lang } = text;
   const date = (d: Date | null | undefined) => formatDate(d, lang);
@@ -91,9 +95,29 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
   const effective = plansIn(lang, await effectivePlans(store));
   const currentId: Plan | null = license ? currentPlanId(license, now) : null;
   const scheduled = scheduledPlan(license, now);
+  // 94.1 What you pay for: the plan's limits, what this app uses, what it includes; the account's apps and their plans.
+  const currentPlan = currentId ? effective[currentId] : null;
+  const usage = app
+    ? await (async () => {
+        const hosted = app.backend === "hosted";
+        const [users, layout, storage] = await Promise.all([hosted ? store.countHostedUsers(app.id) : 0, store.getAppLayout(app.id), appStorage(store, app, effective, now)]);
+        const languages = (layout?.published ?? layout?.draft)?.languages.available.length ?? 1;
+        return planUsage({ plan: currentPlan, hosted, appUsers: users, languages, storage });
+      })()
+    : [];
+  const features = app ? planFeaturesFor(wordsOf(app).cardPayments) : [];
   // 52 Paid into Yallapp's account with the gateway the team chose for plans (Kashier, in pounds); prices in the client's currency.
   const yallappAccount = await yallappPlanAccount(store, encryptionKey());
   const view = await priceView(store, client);
+  const priceOf = (id: Plan) => {
+    const shown = planPrice(plans[id], view);
+    return shown.period ? `${shown.price} / ${k(shown.period)}` : shown.price;
+  };
+  const accountApps: AccountAppRow[] = apps.map((a) => {
+    const l = licenses.find((x) => x.appId === a.id) ?? null;
+    const id = l ? currentPlanId(l, now) : null;
+    return { id: a.id, name: appLabel(a) === "Untitled app" ? k("Untitled app") : appLabel(a), plan: id ? planName(id, effective) : null, until: l ? date(l.expiresAt) : null, price: id ? priceOf(id) : null, current: a.id === app?.id };
+  });
   const payable = yallappAccount ? cardPlanOptions(plans, await getSwitches(store), yallappAccount.provider, view) : [];
   // 52 This app's card payments, with their receipts (before the first app exists, the account's).
   const paid = (await store.listPlanPayments({ clientId: client.id, limit: 50 })).filter((p) => p.status === "paid" && p.appId === (app?.id ?? null)).slice(0, 20);
@@ -249,6 +273,26 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
           </form>
         ) : null}
       </section>
+
+      {app ? (
+        <UsageSection
+          text={text}
+          intro={
+            currentId
+              ? t("license.usageIntro", { plan: planName(currentId, effective), app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app), price: priceOf(currentId) })
+              : t("license.usageNoPlan")
+          }
+          rows={usage}
+          analyticsMonths={currentPlan ? currentPlan.limits.analyticsMonths : undefined}
+          included={currentPlan ? features.filter((f) => hasFeature(currentPlan, f.id)).map((f) => k(f.label)) : []}
+          more={features.flatMap((f) => {
+            if (hasFeature(currentPlan, f.id)) return [];
+            const to = lowestPlanWith(effective, (p) => hasFeature(p, f.id), currentId);
+            return to ? [{ label: k(f.label), plan: to.name }] : [];
+          })}
+          apps={accountApps}
+        />
+      ) : null}
 
       <section id="change-plan" aria-labelledby="h-change-plan" className="flex scroll-mt-6 flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-col gap-1">
