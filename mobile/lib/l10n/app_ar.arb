@@ -1049,5 +1049,20 @@
   "cartTaxes": "الضرائب",
   "cartTotal": "الإجمالي",
   "plusShippingAtCheckout": "يُضاف الشحن والضرائب عند الدفع.",
-  "notifyOrderUpdates": "تحديثات الطلبات"
+  "notifyOrderUpdates": "تحديثات الطلبات",
+  "requestReturn": "إرجاع هذا الطلب",
+  "returnReasonTitle": "لماذا تريد إرجاعه؟",
+  "returnReasonDamaged": "وصل تالفًا",
+  "returnReasonWrongItem": "منتج خاطئ",
+  "returnReasonNotAsDescribed": "لا يطابق الوصف",
+  "returnReasonNoLongerNeeded": "لم أعد بحاجة إليه",
+  "returnReasonOther": "سبب آخر",
+  "returnNote": "ملاحظة للمتجر (اختياري)",
+  "returnNoteRequired": "اكتب للمتجر السبب",
+  "sendReturnRequest": "أرسل الطلب",
+  "returnRequested": "تم إرسال طلب الإرجاع. سيرد المتجر هنا.",
+  "returnStatusRequested": "طلب الإرجاع بانتظار الرد",
+  "returnStatusApproved": "تمت الموافقة على الإرجاع",
+  "returnStatusDeclined": "تم رفض الإرجاع",
+  "returnShopReply": "المتجر: {reply}"
 }

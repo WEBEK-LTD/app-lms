@@ -22,7 +22,7 @@ function order(over: Partial<CatalogOrder> = {}): Omit<CatalogOrder, "id"> {
     shippingCents: 5000,
     totalCents: 45000,
     currency: "TRY",
-    customer: { name: "Mona", phone: "+905321112233", email: null, city: "Istanbul", address: "Moda Cd. 12" },
+    customer: { name: "Mona", phone: "+905321112233", email: "mona@example.com", city: "Istanbul", address: "Moda Cd. 12" },
     paymentId: "PAY-1",
     createdAt: NOW,
     paidAt: NOW,

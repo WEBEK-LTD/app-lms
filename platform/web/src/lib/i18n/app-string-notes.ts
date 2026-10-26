@@ -10,6 +10,71 @@ import type { Lang } from "@/i18n/config";
  * its code names left out (tests/unit/phase62.test.ts lists those missing).
  */
 export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: string }> = {
+  "91.3 On a completed order: asks the shop to take it back.": {
+    en: "The button on a completed order that asks your shop to take it back.",
+    ar: "الزر في طلب مكتمل الذي يطلب من متجرك استرجاعه.",
+    tr: "Tamamlanmış bir siparişte mağazanızdan geri almasını isteyen düğme.",
+  },
+  "91.3 The title of the sheet where the customer picks the return's reason.": {
+    en: "The title above the reasons the customer picks from when returning an order.",
+    ar: "العنوان فوق الأسباب التي يختار منها العميل عند إرجاع طلب.",
+    tr: "Müşterinin bir siparişi iade ederken seçtiği nedenlerin üstündeki başlık.",
+  },
+  "91.3 A return reason.": {
+    en: "A reason the customer can give for a return.",
+    ar: "سبب يمكن أن يذكره العميل للإرجاع.",
+    tr: "Müşterinin iade için belirtebileceği bir neden.",
+  },
+  "91.3 A return reason: not what was ordered.": {
+    en: "A reason for a return: the customer got something other than what they ordered.",
+    ar: "سبب للإرجاع: وصل العميلَ منتج غير الذي طلبه.",
+    tr: "Bir iade nedeni: müşteriye sipariş ettiğinden farklı bir ürün geldi.",
+  },
+  "91.3 A return reason; then a note is needed.": {
+    en: "A reason for a return; with it the customer must write a note.",
+    ar: "سبب للإرجاع؛ معه يجب أن يكتب العميل ملاحظة.",
+    tr: "Bir iade nedeni; bununla müşterinin bir not yazması gerekir.",
+  },
+  "91.3 The note field of a return request.": {
+    en: "The field where the customer adds a note to a return request.",
+    ar: "الخانة التي يضيف فيها العميل ملاحظة إلى طلب الإرجاع.",
+    tr: "Müşterinin iade talebine not eklediği alan.",
+  },
+  "91.3 The note field when the reason is 'Another reason', where it is needed.": {
+    en: "The note field when the customer chose \"Another reason\", where the note is needed.",
+    ar: "خانة الملاحظة عندما يختار العميل \"سبب آخر\"، وتكون الملاحظة مطلوبة.",
+    tr: "Müşteri \"Başka bir neden\" seçtiğinde notun gerekli olduğu not alanı.",
+  },
+  "91.3 Sends the return request to the shop.": {
+    en: "The button that sends the return request to your shop.",
+    ar: "الزر الذي يرسل طلب الإرجاع إلى متجرك.",
+    tr: "İade talebini mağazanıza gönderen düğme.",
+  },
+  "91.3 Shown after the return request is sent.": {
+    en: "Shown after the customer sends a return request.",
+    ar: "يظهر بعد أن يرسل العميل طلب إرجاع.",
+    tr: "Müşteri bir iade talebi gönderdikten sonra gösterilir.",
+  },
+  "91.3 A return the shop hasn't answered yet.": {
+    en: "On an order whose return you haven't answered yet.",
+    ar: "على طلب لم تردّ على إرجاعه بعد.",
+    tr: "İadesini henüz yanıtlamadığınız bir siparişte.",
+  },
+  "91.3 The shop approved the return.": {
+    en: "On an order whose return you approved.",
+    ar: "على طلب وافقت على إرجاعه.",
+    tr: "İadesini onayladığınız bir siparişte.",
+  },
+  "91.3 The shop declined the return.": {
+    en: "On an order whose return you declined.",
+    ar: "على طلب رفضت إرجاعه.",
+    tr: "İadesini reddettiğiniz bir siparişte.",
+  },
+  "91.3 What the shop wrote with its answer.": {
+    en: "Your reply to a return, as the customer sees it.",
+    ar: "ردك على طلب إرجاع كما يراه العميل.",
+    tr: "Bir iadeye yanıtınız, müşterinin gördüğü şekliyle.",
+  },
   "91.2 The settings switch for pushes about the customer's orders: shipped, completed, cancelled or refunded.": {
     en: "The switch in the app's settings for notifications about the customer's orders: shipped, completed, cancelled or refunded.",
     ar: "مفتاح في إعدادات التطبيق لإشعارات طلبات العميل: شُحن أو اكتمل أو أُلغي أو استُرد.",

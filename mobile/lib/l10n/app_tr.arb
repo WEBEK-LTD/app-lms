@@ -1049,5 +1049,20 @@
   "cartTaxes": "Vergiler",
   "cartTotal": "Toplam",
   "plusShippingAtCheckout": "Kargo ve vergiler ödeme adımında eklenir.",
-  "notifyOrderUpdates": "Sipariş güncellemeleri"
+  "notifyOrderUpdates": "Sipariş güncellemeleri",
+  "requestReturn": "Bu siparişi iade et",
+  "returnReasonTitle": "Neden iade ediyorsunuz?",
+  "returnReasonDamaged": "Hasarlı geldi",
+  "returnReasonWrongItem": "Yanlış ürün",
+  "returnReasonNotAsDescribed": "Açıklandığı gibi değil",
+  "returnReasonNoLongerNeeded": "Artık ihtiyacım yok",
+  "returnReasonOther": "Başka bir neden",
+  "returnNote": "Mağazaya not (isteğe bağlı)",
+  "returnNoteRequired": "Mağazaya nedenini yazın",
+  "sendReturnRequest": "Talebi gönder",
+  "returnRequested": "İade talebi gönderildi. Mağaza buradan yanıtlayacak.",
+  "returnStatusRequested": "İade talep edildi",
+  "returnStatusApproved": "İade onaylandı",
+  "returnStatusDeclined": "İade reddedildi",
+  "returnShopReply": "Mağaza: {reply}"
 }

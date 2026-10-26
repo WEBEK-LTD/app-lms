@@ -122,6 +122,7 @@ abstract final class AppIcons {
 
   /// 80.4 A shipped order.
   static const shipping = Symbols.local_shipping_rounded;
+  static const returnOrder = Symbols.assignment_return_rounded;
   static const preparing = Symbols.skillet_rounded;
   static const ready = Symbols.room_service_rounded;
   static const closed = Symbols.door_front_rounded;

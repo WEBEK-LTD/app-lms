@@ -12,6 +12,7 @@ class StoreConfig {
     required this.deliveryDate,
     required this.giftMessage,
     this.fulfilment,
+    this.returns,
   });
 
   factory StoreConfig.fromJson(Json json) => StoreConfig(
@@ -30,6 +31,7 @@ class StoreConfig {
       asJson(json['gift_message'], 'gift_message'),
     ),
     fulfilment: optObject(json, 'fulfilment', FulfilmentConfig.fromJson),
+    returns: optObject(json, 'returns', ReturnRules.fromJson),
   );
 
   final String currency;
@@ -41,6 +43,22 @@ class StoreConfig {
 
   /// 26 Pickup and delivery of a restaurant or café; null for other shops.
   final FulfilmentConfig? fulfilment;
+
+  /// 91.3 Returns asked for in the app; null when the shop takes none there.
+  final ReturnRules? returns;
+}
+
+/// 91.3 How long after an order is completed a return can be asked for.
+class ReturnRules {
+  const ReturnRules({required this.enabled, required this.days});
+
+  factory ReturnRules.fromJson(Json json) => ReturnRules(
+    enabled: reqBool(json, 'enabled'),
+    days: reqInt(json, 'days'),
+  );
+
+  final bool enabled;
+  final int days;
 }
 
 /// The delivery date the customer picks in the cart.

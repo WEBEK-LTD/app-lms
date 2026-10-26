@@ -186,6 +186,8 @@ class Order {
     this.refundedTotal,
     this.receiptUrl,
     this.shipment,
+    this.returnRequest,
+    this.canReturn = false,
   });
 
   factory Order.fromJson(Json json) => Order(
@@ -205,6 +207,8 @@ class Order {
     refundedTotal: optString(json, 'refunded_total'),
     receiptUrl: optString(json, 'receipt_url'),
     shipment: optObject(json, 'shipment', OrderShipment.fromJson),
+    returnRequest: optObject(json, 'return_request', ReturnRequest.fromJson),
+    canReturn: boolOr(json, 'can_return', false),
   );
 
   final int id;
@@ -230,8 +234,61 @@ class Order {
   /// 80.4 How the shop shipped it; null until it is.
   final OrderShipment? shipment;
 
-  /// Whether the order opens its own screen: a restaurant's steps, or a shipment.
+  /// 91.3 The return the customer asked for, and the shop's answer; null for none.
+  final ReturnRequest? returnRequest;
+
+  /// 91.3 Whether a return can be asked for now (the shop's days, once per order).
+  final bool canReturn;
+
+  /// Whether the order has steps to follow: a restaurant's, or a shipment.
   bool get trackable => fulfilmentStatus != null || shipment != null;
+
+  /// Whether the order opens its own screen: to follow it, or for its return.
+  bool get opensScreen => trackable || canReturn || returnRequest != null;
+}
+
+/// 91.3 Why a customer returns an order.
+enum ReturnReason { damaged, wrongItem, notAsDescribed, noLongerNeeded, other }
+
+/// 91.3 Where a return is.
+enum ReturnStatus { requested, approved, declined }
+
+/// 91.3 A return asked for in the app, and the shop's answer.
+class ReturnRequest {
+  const ReturnRequest({
+    required this.status,
+    required this.reason,
+    required this.requestedAt,
+    this.note,
+    this.decidedAt,
+    this.reply,
+  });
+
+  factory ReturnRequest.fromJson(Json json) => ReturnRequest(
+    status: enumFromSnake(
+      ReturnStatus.values,
+      json['status'],
+      ReturnStatus.requested,
+    ),
+    reason: enumFromSnake(
+      ReturnReason.values,
+      json['reason'],
+      ReturnReason.other,
+    ),
+    note: optString(json, 'note'),
+    requestedAt: reqDate(json, 'requested_at'),
+    decidedAt: optDate(json, 'decided_at'),
+    reply: optString(json, 'reply'),
+  );
+
+  final ReturnStatus status;
+  final ReturnReason reason;
+  final String? note;
+  final DateTime requestedAt;
+  final DateTime? decidedAt;
+
+  /// What the shop wrote with its answer.
+  final String? reply;
 }
 
 /// 80.4 An order's shipment: any carrier, with a tracking link, a tracking

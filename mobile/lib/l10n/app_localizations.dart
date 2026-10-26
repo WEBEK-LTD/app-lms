@@ -6399,6 +6399,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Order updates'**
   String get notifyOrderUpdates;
+
+  /// 91.3 On a completed order: asks the shop to take it back.
+  ///
+  /// In en, this message translates to:
+  /// **'Return this order'**
+  String get requestReturn;
+
+  /// 91.3 The title of the sheet where the customer picks the return's reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Why are you returning it?'**
+  String get returnReasonTitle;
+
+  /// 91.3 A return reason.
+  ///
+  /// In en, this message translates to:
+  /// **'It arrived damaged'**
+  String get returnReasonDamaged;
+
+  /// 91.3 A return reason: not what was ordered.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong item'**
+  String get returnReasonWrongItem;
+
+  /// 91.3 A return reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Not as described'**
+  String get returnReasonNotAsDescribed;
+
+  /// 91.3 A return reason.
+  ///
+  /// In en, this message translates to:
+  /// **'No longer needed'**
+  String get returnReasonNoLongerNeeded;
+
+  /// 91.3 A return reason; then a note is needed.
+  ///
+  /// In en, this message translates to:
+  /// **'Another reason'**
+  String get returnReasonOther;
+
+  /// 91.3 The note field of a return request.
+  ///
+  /// In en, this message translates to:
+  /// **'Note for the shop (optional)'**
+  String get returnNote;
+
+  /// 91.3 The note field when the reason is 'Another reason', where it is needed.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell the shop why'**
+  String get returnNoteRequired;
+
+  /// 91.3 Sends the return request to the shop.
+  ///
+  /// In en, this message translates to:
+  /// **'Send request'**
+  String get sendReturnRequest;
+
+  /// 91.3 Shown after the return request is sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Return requested. The shop will answer here.'**
+  String get returnRequested;
+
+  /// 91.3 A return the shop hasn't answered yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Return requested'**
+  String get returnStatusRequested;
+
+  /// 91.3 The shop approved the return.
+  ///
+  /// In en, this message translates to:
+  /// **'Return approved'**
+  String get returnStatusApproved;
+
+  /// 91.3 The shop declined the return.
+  ///
+  /// In en, this message translates to:
+  /// **'Return declined'**
+  String get returnStatusDeclined;
+
+  /// 91.3 What the shop wrote with its answer.
+  ///
+  /// In en, this message translates to:
+  /// **'The shop: {reply}'**
+  String returnShopReply(String reply);
 }
 
 class _AppLocalizationsDelegate

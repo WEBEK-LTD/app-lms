@@ -1,4 +1,5 @@
 import 'package:yallapp/core/api/api_exception.dart';
+import 'package:yallapp/core/api/models/json.dart' show snake;
 import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/core/api/yallapp_api.dart';
 
@@ -466,6 +467,31 @@ class FakeApi implements YallappApi {
   @override
   Future<Order> getOrder(int orderId) =>
       _answer('getOrder', () => Order.fromJson(order));
+
+  /// 91.3 What the last return request said.
+  ({ReturnReason reason, String? note})? lastReturn;
+
+  @override
+  Future<Order> requestReturn(
+    int orderId, {
+    required ReturnReason reason,
+    String? note,
+  }) => _answer('requestReturn', () {
+    lastReturn = (reason: reason, note: note);
+    order = {
+      ...order,
+      'can_return': false,
+      'return_request': {
+        'status': 'requested',
+        'reason': snake(reason),
+        'note': note,
+        'requested_at': '2026-10-26T12:00:00Z',
+        'decided_at': null,
+        'reply': null,
+      },
+    };
+    return Order.fromJson(order);
+  });
 
   Map<String, dynamic> orderTimes = orderTimesJson();
 

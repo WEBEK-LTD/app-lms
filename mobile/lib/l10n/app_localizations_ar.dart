@@ -3982,4 +3982,51 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get notifyOrderUpdates => 'تحديثات الطلبات';
+
+  @override
+  String get requestReturn => 'إرجاع هذا الطلب';
+
+  @override
+  String get returnReasonTitle => 'لماذا تريد إرجاعه؟';
+
+  @override
+  String get returnReasonDamaged => 'وصل تالفًا';
+
+  @override
+  String get returnReasonWrongItem => 'منتج خاطئ';
+
+  @override
+  String get returnReasonNotAsDescribed => 'لا يطابق الوصف';
+
+  @override
+  String get returnReasonNoLongerNeeded => 'لم أعد بحاجة إليه';
+
+  @override
+  String get returnReasonOther => 'سبب آخر';
+
+  @override
+  String get returnNote => 'ملاحظة للمتجر (اختياري)';
+
+  @override
+  String get returnNoteRequired => 'اكتب للمتجر السبب';
+
+  @override
+  String get sendReturnRequest => 'أرسل الطلب';
+
+  @override
+  String get returnRequested => 'تم إرسال طلب الإرجاع. سيرد المتجر هنا.';
+
+  @override
+  String get returnStatusRequested => 'طلب الإرجاع بانتظار الرد';
+
+  @override
+  String get returnStatusApproved => 'تمت الموافقة على الإرجاع';
+
+  @override
+  String get returnStatusDeclined => 'تم رفض الإرجاع';
+
+  @override
+  String returnShopReply(String reply) {
+    return 'المتجر: $reply';
+  }
 }

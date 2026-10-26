@@ -3921,4 +3921,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifyOrderUpdates => 'Order updates';
+
+  @override
+  String get requestReturn => 'Return this order';
+
+  @override
+  String get returnReasonTitle => 'Why are you returning it?';
+
+  @override
+  String get returnReasonDamaged => 'It arrived damaged';
+
+  @override
+  String get returnReasonWrongItem => 'Wrong item';
+
+  @override
+  String get returnReasonNotAsDescribed => 'Not as described';
+
+  @override
+  String get returnReasonNoLongerNeeded => 'No longer needed';
+
+  @override
+  String get returnReasonOther => 'Another reason';
+
+  @override
+  String get returnNote => 'Note for the shop (optional)';
+
+  @override
+  String get returnNoteRequired => 'Tell the shop why';
+
+  @override
+  String get sendReturnRequest => 'Send request';
+
+  @override
+  String get returnRequested => 'Return requested. The shop will answer here.';
+
+  @override
+  String get returnStatusRequested => 'Return requested';
+
+  @override
+  String get returnStatusApproved => 'Return approved';
+
+  @override
+  String get returnStatusDeclined => 'Return declined';
+
+  @override
+  String returnShopReply(String reply) {
+    return 'The shop: $reply';
+  }
 }
