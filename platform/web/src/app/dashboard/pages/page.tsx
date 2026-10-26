@@ -1,3 +1,4 @@
+import { FREE_FONT_COUNT } from "@/lib/fonts/catalog";
 import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -117,6 +118,7 @@ export default async function PagesPage({ searchParams }: PageProps<"/dashboard/
           name: app.appName ?? t("setup.yourApp"),
           primaryColor: app.primaryColor,
           logoUrl: app.logoAssetId ? assetUrl(app.logoAssetId) : null,
+          fontCount: FREE_FONT_COUNT,
         }}
         sources={sources}
         categorySources={categorySourcesFor(app).filter((s) => sources.includes(s))}

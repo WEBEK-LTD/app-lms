@@ -610,6 +610,10 @@ class Appearance {
     this.userCanChangeMode = true,
     this.secondaryColor,
     this.font,
+    this.fontFamily,
+    this.fontFiles = const [],
+    this.arabicFont,
+    this.arabicFontFiles = const [],
     this.corners,
     this.cards,
   });
@@ -620,6 +624,10 @@ class Appearance {
     userCanChangeMode: boolOr(json, 'user_can_change_mode', true),
     secondaryColor: optString(json, 'secondary_color'),
     font: optString(json, 'font'),
+    fontFamily: optString(json, 'font_family'),
+    fontFiles: listOf(json, 'font_files', FontFileRef.fromJson),
+    arabicFont: optString(json, 'arabic_font'),
+    arabicFontFiles: listOf(json, 'arabic_font_files', FontFileRef.fromJson),
     corners: enumOrNull(CornerStyle.values, json['corners']),
     cards: enumOrNull(CardStyle.values, json['cards']),
   );
@@ -628,9 +636,33 @@ class Appearance {
   final AppearanceMode? themeMode;
   final bool userCanChangeMode;
   final String? secondaryColor;
+
+  /// One of the fonts bundled with the app: with [fontFamily], the one shown
+  /// until that font is on the phone.
   final String? font;
+
+  /// 97.1 Any free font the owner chose, downloaded once from [fontFiles].
+  final String? fontFamily;
+  final List<FontFileRef> fontFiles;
+
+  /// 97.1 The font of Arabic text; missing: Readex Pro, bundled.
+  final String? arabicFont;
+  final List<FontFileRef> arabicFontFiles;
   final CornerStyle? corners;
   final CardStyle? cards;
+}
+
+/// 97.1 `FontFile`: a font file on Yallapp, for one weight or (null) all.
+class FontFileRef {
+  const FontFileRef({required this.url, this.weight});
+
+  factory FontFileRef.fromJson(Json json) => FontFileRef(
+    url: optString(json, 'url') ?? '',
+    weight: optInt(json, 'weight'),
+  );
+
+  final String url;
+  final int? weight;
 }
 
 enum HomeSectionType {

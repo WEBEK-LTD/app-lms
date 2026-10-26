@@ -29,6 +29,14 @@ class Pages {
 	);
 
 	/**
+	 * 97.1 The Appearance fields naming a free font, each with the field of its files.
+	 */
+	const FONTS = array(
+		'font_family' => 'font_files',
+		'arabic_font' => 'arabic_font_files',
+	);
+
+	/**
 	 * Plugin.
 	 *
 	 * @var Plugin
@@ -134,8 +142,8 @@ class Pages {
 		if ( ! isset( $raw['user_can_change_mode'] ) || ! is_bool( $raw['user_can_change_mode'] ) ) {
 			return null;
 		}
-		$color = isset( $raw['secondary_color'] ) && is_string( $raw['secondary_color'] ) && preg_match( '/^#[0-9A-Fa-f]{6}$/', $raw['secondary_color'] ) ? strtoupper( $raw['secondary_color'] ) : null;
-		return array(
+		$color      = isset( $raw['secondary_color'] ) && is_string( $raw['secondary_color'] ) && preg_match( '/^#[0-9A-Fa-f]{6}$/', $raw['secondary_color'] ) ? strtoupper( $raw['secondary_color'] ) : null;
+		$appearance = array(
 			'template'             => $look['template'],
 			'theme_mode'           => $look['theme_mode'],
 			'user_can_change_mode' => $raw['user_can_change_mode'],
@@ -144,6 +152,49 @@ class Pages {
 			'corners'              => $look['corners'],
 			'cards'                => $look['cards'],
 		);
+		// 97.1 A free font and the Arabic text's font, with their files on Yallapp: passed on as
+		// the platform sent them, each only when its name and files are well formed.
+		foreach ( self::FONTS as $name => $files ) {
+			$family = $raw[ $name ] ?? null;
+			if ( ! is_string( $family ) || ! preg_match( '/^[A-Za-z0-9 ]{1,64}$/', $family ) ) {
+				continue;
+			}
+			$appearance[ $name ] = $family;
+			$list                = self::font_files( $raw[ $files ] ?? null );
+			if ( $list ) {
+				$appearance[ $files ] = $list;
+			}
+		}
+		return $appearance;
+	}
+
+	/**
+	 * A font's files as the platform sent them: up to four, each an https address and a
+	 * weight (null for a variable file). Anything else drops them all.
+	 *
+	 * @param mixed $raw Stored files.
+	 * @return array
+	 */
+	private static function font_files( $raw ) {
+		if ( ! is_array( $raw ) || count( $raw ) > 4 ) {
+			return array();
+		}
+		$files = array();
+		foreach ( $raw as $file ) {
+			$url    = is_array( $file ) ? ( $file['url'] ?? null ) : null;
+			$weight = is_array( $file ) && array_key_exists( 'weight', $file ) ? $file['weight'] : false;
+			if ( ! is_string( $url ) || ! preg_match( '#^https://[^\s"\'<>\\\\]{1,490}$#', $url ) ) {
+				return array();
+			}
+			if ( null !== $weight && ! ( is_int( $weight ) && $weight >= 100 && $weight <= 900 ) ) {
+				return array();
+			}
+			$files[] = array(
+				'url'    => $url,
+				'weight' => $weight,
+			);
+		}
+		return $files;
 	}
 
 	/**

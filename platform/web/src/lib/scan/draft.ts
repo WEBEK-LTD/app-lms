@@ -1,5 +1,6 @@
-import { RULES, type AppFont } from "../build-config/types";
+import { RULES } from "../build-config/types";
 import type { AppType, AppVertical } from "../data/types";
+import { lookFont, withLook } from "../fonts/look";
 import { blockListLimits } from "../pages/blocks";
 import { applyDesign, designsFor, type Design } from "../pages/designs";
 import { LANGUAGE_CODES, LAYOUT_LIMITS, type AppDefaultsSetting, type LayoutBlock, type LayoutContent, type LayoutPage, type LayoutTab, type QuickLink } from "../pages/types";
@@ -25,7 +26,8 @@ export interface SiteDraft {
     shortName: string;
     primaryColor: string;
     splashColor: string;
-    font: AppFont;
+    /** 97.1 Any free font. */
+    font: string;
     template: Design["look"]["template"] | null;
     siteUrl: string;
   };
@@ -121,7 +123,7 @@ export function draftFromScan(scan: SiteScan, defaults: AppDefaultsSetting, now:
   const base: LayoutContent = design
     ? applyDesign(design, { appName, facts: { website: site.protocol === "https:" ? siteUrl : null, email: null, whatsapp: null }, current: { appearance, languages }, now })
     : { appearance, languages, tabs: [], pages: [] };
-  const layout: LayoutContent = { ...base, appearance: { ...base.appearance, font: scan.fonts.appFont, secondary_color: scan.colors.accent?.toUpperCase() ?? base.appearance.secondary_color } };
+  const layout: LayoutContent = { ...base, appearance: { ...withLook(base.appearance, lookFont(scan.fonts.appFont) ?? {}), secondary_color: scan.colors.accent?.toUpperCase() ?? base.appearance.secondary_color } };
 
   // The menu: pages that show the website's own, in the app.
   const candidates = scan.menu.filter((item) => item.url.startsWith("https://") && !covered(item, layout.tabs));

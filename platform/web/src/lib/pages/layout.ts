@@ -1,6 +1,7 @@
 import { sha256Hex } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
 import type { App, AppLayoutRecord } from "../data/types";
+import { servedAppearance, withLook } from "../fonts/look";
 import { platformSetting } from "../settings/platform";
 import { BUILT_IN_APP_DEFAULTS, defaultAppearance, defaultLayout } from "./defaults";
 import { applyDesign, contactFacts, missingScreens, sampleTexts, type Design } from "./designs";
@@ -167,7 +168,7 @@ export async function restoreLayoutVersion(store: DataStore, app: App, number: n
  */
 export function designLayout(app: App, design: Design, current: Pick<LayoutContent, "appearance" | "languages">, now: Date, look: Partial<Appearance> = {}): LayoutContent {
   const layout = applyDesign(design, { appName: app.appName, facts: contactFacts(app), current, now, missingScreens: missingScreens(app) });
-  return { ...layout, appearance: { ...layout.appearance, ...look } };
+  return { ...layout, appearance: withLook(layout.appearance, look) };
 }
 
 /**
@@ -266,7 +267,9 @@ export async function lookAndLanguages(
   const layout = published === undefined ? await publishedLayout(store, app.id) : published;
   const withList = (languages: Languages): Languages =>
     packs ? withLanguageList(languages, layout?.strings, { platformUrl: packs.platformUrl, appId: app.id, draft: packs.draft }) : languages;
-  if (layout) return { appearance: layout.appearance, languages: withList(languagesForPlan(layout.languages, plan)) };
+  // 97.1 With the files of the look's free fonts, on Yallapp.
+  const served = (appearance: Appearance): Appearance => (packs ? servedAppearance(appearance, packs.platformUrl) : appearance);
+  if (layout) return { appearance: served(layout.appearance), languages: withList(languagesForPlan(layout.languages, plan)) };
   const defaults = await appDefaults(store);
-  return { appearance: defaultAppearance(app, defaults), languages: withList(languagesForPlan(defaults.languages, plan)) };
+  return { appearance: served(defaultAppearance(app, defaults)), languages: withList(languagesForPlan(defaults.languages, plan)) };
 }

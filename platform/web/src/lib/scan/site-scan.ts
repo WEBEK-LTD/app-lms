@@ -1,4 +1,5 @@
-import { APP_FONTS, type AppFont } from "../build-config/types";
+import type { AppFont } from "../build-config/types";
+import { freeFont } from "../fonts/catalog";
 import type { AppType, AppVertical } from "../data/types";
 import type { PlatformId } from "../hosted/connectors/platforms";
 import { pinnedFetch, type Resolve } from "../net/safe-fetch";
@@ -32,7 +33,7 @@ export interface SiteScan {
   logoUrl: string | null;
   iconUrl: string | null;
   colors: { primary: string | null; accent: string | null; background: string | null };
-  fonts: { found: string[]; appFont: AppFont };
+  fonts: { found: string[]; appFont: string };
   platform: { id: SitePlatform; name: string; plugins: string[] };
   appType: AppType;
   vertical: AppVertical | null;
@@ -217,10 +218,11 @@ const FONT_FAMILIES: [RegExp, AppFont][] = [
   [/^(?:bricolage|playfair|merriweather|lora|georgia|libre baskerville|cormorant|dm serif|abril|oswald|bebas|anton|syne|archivo black|fraunces)/i, "Bricolage Grotesque"],
 ];
 
-export function appFontFor(found: string[]): AppFont {
+/** 97.1 The site's own font when it's a free one (any Google font), else the closest bundled one. */
+export function appFontFor(found: string[]): string {
   for (const font of found) {
-    const exact = APP_FONTS.find((f) => f.toLowerCase() === font.toLowerCase());
-    if (exact) return exact;
+    const exact = freeFont(font);
+    if (exact) return exact.family;
     const family = FONT_FAMILIES.find(([re]) => re.test(font));
     if (family) return family[1];
   }

@@ -137,6 +137,7 @@ ThemeData buildAppTheme({
   Color? secondary,
   CornerStyle? corners,
   CardStyle? cards,
+  List<String> fallback = fontFallback,
 }) {
   final p = AppPalette.build(
     primary: primary,
@@ -176,7 +177,7 @@ ThemeData buildAppTheme({
   TextStyle s(double size, FontWeight weight, {double? height, Color? color}) =>
       TextStyle(
         fontFamily: fontFamily,
-        fontFamilyFallback: fontFallback,
+        fontFamilyFallback: fallback,
         fontSize: size,
         fontWeight: weight,
         height: height,
@@ -209,7 +210,7 @@ ThemeData buildAppTheme({
     brightness: brightness,
     colorScheme: scheme,
     fontFamily: fontFamily,
-    fontFamilyFallback: fontFallback,
+    fontFamilyFallback: fallback,
     textTheme: text,
     scaffoldBackgroundColor: p.background,
     canvasColor: p.background,
@@ -296,7 +297,7 @@ ThemeData buildAppTheme({
       backgroundColor: p.isDark ? BrandColors.ivory : BrandColors.midnight,
       contentTextStyle: TextStyle(
         fontFamily: fontFamily,
-        fontFamilyFallback: fontFallback,
+        fontFamilyFallback: fallback,
         color: p.isDark ? BrandColors.midnight : BrandColors.white,
         fontSize: 15,
       ),

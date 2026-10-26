@@ -27,7 +27,8 @@ import type { SiteMatch } from "@/lib/app/site-match";
 import { SiteMatchNote } from "@/components/site-match";
 import type { ApiCheckResult } from "@/lib/app/api-check";
 import type { DashKey } from "@/i18n/dashboard";
-import { APP_FONTS, RULES } from "@/lib/build-config/types";
+import { RULES } from "@/lib/build-config/types";
+import { FontPicker } from "@/components/font-picker";
 import type { AppType, AppVertical, SignInMethod } from "@/lib/data/types";
 import { codeDeliveryText, emailOffWarning } from "@/lib/hosted/sign-in-methods";
 import { initialFormState, type FormState } from "@/lib/forms";
@@ -710,11 +711,14 @@ export function BrandingStep({
   values,
   icon,
   logo,
+  fontCount,
   ...designs
 }: {
   values: { appName: string; shortName: string; primaryColor: string; splashColor: string; template: string; font: string };
   icon: { id: string; url: string } | null;
   logo: { id: string; url: string } | null;
+  /** 97.1 How many free fonts there are to choose from. */
+  fontCount: number;
 } & BrandingDesigns) {
   const t = useDashT();
   const known = useKnownText();
@@ -730,7 +734,7 @@ export function BrandingStep({
     const chosen = designs.designs.find((d) => d.id === id);
     if (chosen) {
       setTemplate(chosen.layout.appearance.template);
-      setFont(chosen.layout.appearance.font);
+      setFont(chosen.layout.appearance.font_family ?? chosen.layout.appearance.font);
     }
   }
   const [logoFile, setLogoFile] = useState(logo);
@@ -860,14 +864,19 @@ export function BrandingStep({
             <FieldError id="f-template-error" error={state.errors?.template} />
           </div>
           <div className="flex flex-[1_1_180px] flex-col gap-1.5">
-            <label htmlFor="f-font" className="text-sm font-semibold">
-              {t("setup.font")}
-            </label>
-            <select id="f-font" name="font" className="input input-sm" value={font} onChange={(e) => setFont(e.target.value)}>
-              {APP_FONTS.map((f) => (
-                <option key={f}>{f}</option>
-              ))}
-            </select>
+            <FontPicker
+              id="f-font"
+              name="font"
+              label={t("setup.font")}
+              value={font}
+              onChange={setFont}
+              labels={{
+                arabicOnly: t("common.fontsArabicOnly"),
+                none: t("common.fontsNone"),
+                sample: t("common.fontsSample"),
+                hint: t("common.fontsHint", { count: fontCount }),
+              }}
+            />
             <FieldError id="f-font-error" error={state.errors?.font} />
           </div>
         </div>

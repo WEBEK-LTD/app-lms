@@ -5,6 +5,7 @@ import { isInProgress, STALLED_MESSAGE } from "../builds/view";
 import type { App, AppType, AppVertical, Build, BuildRelease, BuildStages, Client, License, StoreListing } from "../data/types";
 import type { BuildConfig } from "../build-config/types";
 import { validateBuildConfig, type ConfigError } from "../build-config/validate";
+import { lookFont } from "../fonts/look";
 import { buildConfigLinks } from "../links/app";
 import { hasFeature, isPlan, PLAN_INFO, type Plan, type PlanInfo } from "../plans";
 import { currentPlanId } from "../billing/plan-change";
@@ -189,7 +190,8 @@ export function buildConfigFor(
     primary_color: app.primaryColor,
     splash_color: app.splashColor,
     template: app.template,
-    font: app.font as BuildConfig["branding"]["font"],
+    // 97.1 A free font comes with the look (Config.appearance); the build keeps the bundled one closest to it.
+    font: lookFont(app.font)?.font ?? "Bricolage Grotesque",
   };
   if (app.iconAssetId) branding.icon_url = assetUrl(app.iconAssetId);
   if (app.logoAssetId) branding.logo_url = assetUrl(app.logoAssetId);

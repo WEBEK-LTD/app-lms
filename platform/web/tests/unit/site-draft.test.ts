@@ -26,10 +26,11 @@ describe("81.3 a draft app from a website", () => {
       appType: "lms",
       vertical: null,
       design: { kind: "academy" },
-      details: { appName: "Cedar Academy", shortName: "Cedar", primaryColor: "#1F7A5C", font: "Outfit", siteUrl: "https://cedar.example/" },
+      details: { appName: "Cedar Academy", shortName: "Cedar", primaryColor: "#1F7A5C", font: "Poppins", siteUrl: "https://cedar.example/" },
     });
     const layout = valid(draft);
-    expect(layout.appearance).toMatchObject({ font: "Outfit", secondary_color: "#F2A33A", template: draft.design!.look.template });
+    // 97.1 The site's own font: shown in the bundled one closest to it until it's on the phone.
+    expect(layout.appearance).toMatchObject({ font: "DM Sans", font_family: "Poppins", secondary_color: "#F2A33A", template: draft.design!.look.template });
     // Courses has the app's own screen; About us, Blog and Contact become pages showing the website's.
     expect(draft.menuPages).toEqual(["site-about-us", "site-blog", "site-contact"]);
     const about = layout.pages.find((p) => p.slug === "site-about-us")!;

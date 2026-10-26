@@ -6,6 +6,7 @@ import { licenseState } from "../license/status";
 import { effectivePlans, planOfLicense } from "../entitlements";
 import { withLanguageList } from "../i18n/packs";
 import { withBuiltInTexts } from "./builtin";
+import { servedAppearance } from "../fonts/look";
 import { appDefaults } from "./layout";
 import { layoutForPlan } from "./plan";
 import type { Layout } from "./types";
@@ -52,7 +53,12 @@ export async function pluginLayout(store: DataStore, site: SiteInfo, ifNoneMatch
   const { strings: _strings, ...rest } = planned;
   void _strings;
   // Strings are published with the pages, so a changed pack always comes with a new version.
-  const layout: Layout = { ...rest, languages: withLanguageList(planned.languages, published.strings, { platformUrl, appId: app.id }) };
+  // 97.1 With the files of the look's free fonts, on Yallapp.
+  const layout: Layout = {
+    ...rest,
+    appearance: servedAppearance(rest.appearance, platformUrl),
+    languages: withLanguageList(planned.languages, published.strings, { platformUrl, appId: app.id }),
+  };
   if (etagValues(ifNoneMatch).includes(layout.version)) return { status: 304 };
   return { status: 200, body: layout, etag: layout.version };
 }

@@ -1,4 +1,5 @@
 import type { App } from "../data/types";
+import { lookArabicFont, lookFont } from "../fonts/look";
 import { parseInterfaceStrings } from "../i18n/app-strings";
 import { isLanguageCode, MAX_LANGUAGES } from "../i18n/locales";
 import { BLOCK_DEFINITIONS, blockListLimits, blockTextLimit, ENTRY_TEXT_LIMITS, type BlockList, type BlockText } from "./blocks";
@@ -139,6 +140,11 @@ export function parseAppearance(value: unknown, c: Checker = new Checker(), wher
     c.fail(where, "the secondary color must look like #E8B04B.");
   }
   if (!oneOf(APP_FONTS, v.font)) c.fail(where, "choose a font.");
+  // 97.1 A free font, and the Arabic text's font (files are added when served, never kept).
+  const chosen = v.font_family === undefined || v.font_family === null || v.font_family === "" ? {} : lookFont(typeof v.font_family === "string" ? v.font_family : null);
+  if (!chosen) c.fail(where, "choose a font from the list.");
+  const arabic = lookArabicFont(typeof v.arabic_font === "string" ? v.arabic_font : null);
+  if (!arabic || (v.arabic_font != null && typeof v.arabic_font !== "string")) c.fail(where, "choose an Arabic font from the list.");
   if (!oneOf(CORNERS, v.corners)) c.fail(where, "choose the corners.");
   if (!oneOf(CARD_STYLES, v.cards)) c.fail(where, "choose the card style.");
   return {
@@ -147,6 +153,8 @@ export function parseAppearance(value: unknown, c: Checker = new Checker(), wher
     user_can_change_mode: v.user_can_change_mode === true,
     secondary_color: typeof v.secondary_color === "string" && HEX.test(v.secondary_color) ? v.secondary_color.toUpperCase() : null,
     font: v.font as Appearance["font"],
+    ...(chosen ?? {}),
+    ...(arabic ?? {}),
     corners: v.corners as Appearance["corners"],
     cards: v.cards as Appearance["cards"],
   };

@@ -111,7 +111,10 @@ test("the client completes the setup wizard and the first build is queued", asyn
   // 33 The template is a choice under the designs; this client keeps its pages.
   await expect(page.getByRole("radio", { name: /^Keep my pages/ })).toBeChecked();
   await page.getByLabel("Template").selectOption("bold");
-  await page.getByLabel("Font").selectOption("Outfit");
+  // 97.1 Fonts are found by name.
+  await page.getByLabel("Font", { exact: true }).fill("Outf");
+  await page.getByRole("option", { name: "Outfit", exact: true }).click();
+  await expect(page.getByLabel("Font", { exact: true })).toHaveValue("Outfit");
   await page.getByRole("button", { name: "Save & continue" }).click();
 
   // Store listing

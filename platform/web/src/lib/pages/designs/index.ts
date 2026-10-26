@@ -1,5 +1,6 @@
 import { isAppType, kindOf } from "../../app/kinds";
 import type { App, AppVertical } from "../../data/types";
+import { withLook } from "../../fonts/look";
 import { safeHref } from "../html";
 import type { Action, LayoutBlock, LayoutContent, LayoutPage, LayoutTab, ScreenName } from "../types";
 import { ACADEMY_DESIGNS } from "./academy";
@@ -154,7 +155,7 @@ export function applyDesign(
     blocks: p.blocks.map((b) => fillBlock(b, name, context.facts, context.now, missing)).filter((b): b is LayoutBlock => b !== null),
   }));
   return {
-    appearance: { ...context.current.appearance, ...design.look },
+    appearance: withLook(context.current.appearance, design.look),
     languages: structuredClone(context.current.languages),
     tabs: structuredClone(design.tabs).filter((t) => !opensMissing(t.target, missing)),
     // 84.2 Its other pages, in the side menu.
