@@ -4063,4 +4063,9 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String cartTaxIncluded(String amount, String tax) {
+    return 'Includes $amount $tax';
+  }
 }

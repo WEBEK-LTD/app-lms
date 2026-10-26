@@ -1,5 +1,6 @@
 import { membershipEnd } from "../bookings/memberships";
 import { spendOrderPoints } from "./loyalty";
+import { taxLabel } from "./tax";
 import { bookingSetup } from "../bookings/setup";
 import { parseAnyPhone } from "../hosted/phone";
 import { hostedSettings } from "../hosted/service";
@@ -82,6 +83,10 @@ export async function startPayment(
   }));
   if (order.shippingCents > 0) {
     lines.push({ id: "shipping", name: "Shipping", cents: order.shippingCents, category: "Shipping", digital: true });
+  }
+  // 91.5 An added tax is its own line, so the lines add up to what is charged.
+  if (order.tax && !order.tax.included && order.tax.cents > 0) {
+    lines.push({ id: "tax", name: order.tax.label, cents: order.tax.cents, category: "Tax", digital: true });
   }
   const started = await startCheckout(
     account,
@@ -259,6 +264,8 @@ export function newOrderMailValues(order: CatalogOrder, appName: string, dashboa
       ...(order.discountCents ? [discount(money(order.discountCents))] : []),
       ...(order.points?.discountCents ? [points(order.points.used, money(order.points.discountCents))] : []),
       ...(order.shippingCents > 0 ? [shipping(money(order.shippingCents))] : []),
+      // 91.5 The tax, added or inside the total.
+      ...(order.tax ? [`${order.tax.included ? (lang === "en" ? "Includes " : `${t("emails.includes")} `) : ""}${taxLabel(order.tax)}: ${money(order.tax.cents)}`] : []),
       ...(order.fulfilment ? ["", fulfilmentLine(order.fulfilment, timezone, lang)] : []),
     ].join("\n"),
     customer: c ? `${[c.name, c.phone, c.email, `${c.address}, ${c.city}`].join("\n")}\n\n` : "",

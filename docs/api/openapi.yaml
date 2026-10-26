@@ -5444,7 +5444,11 @@ components:
             max_quantity: { type: [integer, 'null'], description: Most a customer can buy at once (stock or the shop's limit); null when unlimited. }
             attributes:
               type: array
-              description: Attributes shown on the product. Those with `variation` true are chosen before adding a variable product to the cart.
+              description: >-
+                Attributes shown on the product. Those with `variation` true are chosen before adding a
+                variable product to the cart. 91.5 Shops without a website have up to three, all
+                `variation` true, slugged `a1` to `a3`; each combination the shop sells is a variation
+                with its own price, stock and SKU, and the cart line names it (`variation_id`).
               items:
                 type: object
                 required: [slug, name, options, variation]
@@ -5606,6 +5610,16 @@ components:
           description: "Roadmap 91.1. Formatted shipping; null when the checkout works it out (from the address). `₺0.00` is free shipping."
           example: ₺35.00
         tax: { type: [string, 'null'], description: "Roadmap 91.1. Formatted taxes added to the prices; null when none are added or the checkout works them out." }
+        tax_included:
+          type: [string, 'null']
+          description: >-
+            91.5 Formatted: the taxes already inside the prices (shops without a website whose
+            prices include tax, like VAT); the cart says "Includes ₺X VAT". Null otherwise.
+          example: ₺66.67
+        tax_label:
+          type: [string, 'null']
+          description: "91.5 The tax's name and rate as the shop wrote it, for `tax` and `tax_included`; null for none."
+          example: KDV 20%
         total: { type: string, description: "Roadmap 91.1. Formatted: the subtotal less the discount, plus shipping and taxes when known. Missing on older servers.", example: ₺845.00 }
         total_amount: { type: string, example: '845.00' }
         total_final:

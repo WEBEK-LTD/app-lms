@@ -6585,6 +6585,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 point earned} other{{count} points earned}}'**
   String orderPointsEarned(int count);
+
+  /// 91.5 Under the cart's total when the shop's prices include tax: how much of it is tax.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes {amount} {tax}'**
+  String cartTaxIncluded(String amount, String tax);
 }
 
 class _AppLocalizationsDelegate

@@ -15,6 +15,7 @@ export const en = {
   // 91.1
   coupon: "Coupon {code}: -{amount}",
   points: "Loyalty points ({points}): -{amount}",
+  includes: "Includes",
   deliveryFee: "Delivery fee: {amount}",
   withAddress: "{line}: {address}",
   phone: "Phone",
@@ -39,6 +40,7 @@ export const ar: Messages = {
   shipping: "الشحن: {amount}",
   coupon: "القسيمة {code}: -{amount}",
   points: "نقاط الولاء ({points}): -{amount}",
+  includes: "يشمل",
   deliveryFee: "رسوم التوصيل: {amount}",
   withAddress: "{line}: {address}",
   phone: "الهاتف",
@@ -61,6 +63,7 @@ export const tr: Messages = {
   shipping: "Kargo: {amount}",
   coupon: "Kupon {code}: -{amount}",
   points: "Sadakat puanları ({points}): -{amount}",
+  includes: "Dahil",
   deliveryFee: "Teslimat ücreti: {amount}",
   withAddress: "{line}: {address}",
   phone: "Telefon",

@@ -1174,6 +1174,22 @@ export class MysqlStore implements DataStore {
               stock: sql`case when ${schema.catalogProducts.stock} is null then null else greatest(${schema.catalogProducts.stock} - ${line.quantity}, 0) end`,
             })
             .where(and(eq(schema.catalogProducts.appId, appId), eq(schema.catalogProducts.id, line.productId)));
+          // 91.5 The variation's own stock, in the product's row (locked while it changes).
+          if (line.variantId !== undefined) {
+            const [row] = await tx
+              .select({ variants: schema.catalogProducts.variants })
+              .from(schema.catalogProducts)
+              .where(and(eq(schema.catalogProducts.appId, appId), eq(schema.catalogProducts.id, line.productId)))
+              .for("update");
+            const variant = row?.variants?.items.find((v) => v.id === line.variantId);
+            if (row?.variants && variant && variant.stock !== null) {
+              variant.stock = Math.max(0, variant.stock - line.quantity);
+              await tx
+                .update(schema.catalogProducts)
+                .set({ variants: row.variants })
+                .where(and(eq(schema.catalogProducts.appId, appId), eq(schema.catalogProducts.id, line.productId)));
+            }
+          }
         }
         return true;
       }),

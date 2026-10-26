@@ -2392,6 +2392,24 @@ app opens on the site's links (`<site>/a/page/<slug>`).
   changes). The payment page, the owner's email and the receipt show the
   points' line. The plugin and connected platforms have no points
   (`store.loyalty` missing).
+- **Variations and tax** (91.5), shops without a website.
+  `catalog_products.variants` {attributes: up to 3 {name, values}, items:
+  up to 100 {id, values, priceCents, salePriceCents, stock, sku, active}}
+  from the product's Variations editor (`parseVariants`, not for
+  restaurants, which keep option groups). `lib/catalog/variants.ts`: the
+  connector answers like a WooCommerce variable product: `type: variable`,
+  a price range, attributes `a1`–`a3` and the variations (null price: the
+  product's; stock: the variation's and the product's, the lower). The cart
+  needs `variation_id`, prices it and caps it by its stock; the order line
+  keeps `variantId` and `variant`, and `payCatalogOrder` takes the
+  variation's stock down in the same transaction (the product's row
+  locked). `catalog.tax` {label, rateBps, included} from Shop settings
+  (`lib/catalog/tax.ts`): included, the totals stay and the quote's
+  `tax_included` says how much is tax (base × r / (1 + r)); added, the
+  products after coupon and points plus shipping × r go on the total
+  (`tax`), and the payment gets a "tax" line. `catalog_orders.tax` {label,
+  rateBps, included, cents}, migration 0083; the pay page, receipt,
+  owner's email and Orders page show it. `Cart.tax_label`, `tax_included`.
 
 ## Academies, complete (Phase 90)
 

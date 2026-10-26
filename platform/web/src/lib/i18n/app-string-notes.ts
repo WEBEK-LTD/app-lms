@@ -80,6 +80,11 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "في صفحة نقاطي قبل أن يكون لدى العميل أي نقاط.",
     tr: "Puanlarım sayfasında müşterinin henüz puanı yokken.",
   },
+  "91.5 Under the cart's total when the shop's prices include tax: how much of it is tax.": {
+    en: "Under the cart's total when your prices include tax: how much of it is tax.",
+    ar: "تحت إجمالي السلة عندما تشمل أسعارك الضريبة: كم منه ضريبة.",
+    tr: "Fiyatlarınız vergi dahilken sepet toplamının altında: ne kadarının vergi olduğu.",
+  },
   "91.4 On an order: the loyalty points used on it and what they took off.": {
     en: "On an order: the points used on it and what they took off.",
     ar: "على الطلب: النقاط المستخدمة فيه وما خصمته.",

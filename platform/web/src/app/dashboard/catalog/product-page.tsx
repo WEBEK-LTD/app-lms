@@ -10,7 +10,7 @@ import { catalogSettings } from "@/lib/catalog/settings";
 import { appUrl } from "@/lib/env";
 import { productUrl } from "@/lib/hosted/connectors/catalog";
 import { getStore } from "@/lib/data";
-import { ProductForm, type EditorGroup, type ProductFormValues } from "./forms";
+import { ProductForm, type EditorGroup, type EditorVariants, type ProductFormValues } from "./forms";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 
@@ -37,6 +37,21 @@ export async function ProductPage({ id }: { id: number | null }) {
         options: g.options.map((o) => ({ id: o.id, name: o.name, price: o.priceDeltaCents ? centsToDecimal(o.priceDeltaCents) : "" })),
       }))
     : [];
+  // 91.5 The variations as the editor shows them.
+  const variants: EditorVariants = product?.variants
+    ? {
+        attributes: product.variants.attributes.map((a) => ({ name: a.name, values: a.values.join(", ") })),
+        items: product.variants.items.map((v) => ({
+          id: v.id,
+          values: v.values,
+          price: v.priceCents !== null ? centsToDecimal(v.priceCents) : "",
+          sale: v.salePriceCents !== null ? centsToDecimal(v.salePriceCents) : "",
+          stock: v.stock !== null ? String(v.stock) : "",
+          sku: v.sku ?? "",
+          active: v.active,
+        })),
+      }
+    : { attributes: [], items: [] };
   const values: ProductFormValues = product
     ? {
         id: product.id,
@@ -52,8 +67,9 @@ export async function ProductPage({ id }: { id: number | null }) {
         featured: product.featured,
         active: product.active,
         optionGroups,
+        variants,
       }
-    : { id: null, name: "", description: "", price: "", salePrice: "", stock: "", sku: "", categoryIds: [], images: [], digital: false, featured: false, active: true, optionGroups };
+    : { id: null, name: "", description: "", price: "", salePrice: "", stock: "", sku: "", categoryIds: [], images: [], digital: false, featured: false, active: true, optionGroups, variants };
   return (
     <div className="flex max-w-[720px] flex-col gap-6">
       <div className="flex flex-col gap-2">

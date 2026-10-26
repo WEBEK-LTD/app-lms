@@ -588,6 +588,8 @@ class CartQuote {
     this.total,
     this.totalFinal = false,
     this.points,
+    this.taxIncluded,
+    this.taxLabel,
   });
 
   factory CartQuote.fromJson(Json json) => CartQuote(
@@ -603,6 +605,8 @@ class CartQuote {
     total: optString(json, 'total'),
     totalFinal: boolOr(json, 'total_final', false),
     points: optObject(json, 'points', CartPoints.fromJson),
+    taxIncluded: optString(json, 'tax_included'),
+    taxLabel: optString(json, 'tax_label'),
   );
 
   final List<CartQuoteLine> lines;
@@ -630,6 +634,12 @@ class CartQuote {
 
   /// 91.4 The customer's loyalty points; null signed out or without any.
   final CartPoints? points;
+
+  /// 91.5 Formatted: the tax already inside the prices; null otherwise.
+  final String? taxIncluded;
+
+  /// 91.5 The tax's name and rate ("KDV 20%"), for [tax] and [taxIncluded].
+  final String? taxLabel;
 }
 
 enum CouponStatus { applied, invalid, atCheckout }

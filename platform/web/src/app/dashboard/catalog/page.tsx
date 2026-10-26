@@ -201,6 +201,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
             shipping={settings.shippingCents ? centsToDecimal(settings.shippingCents) : ""}
             freeOver={settings.freeShippingOverCents !== null ? centsToDecimal(settings.freeShippingOverCents) : ""}
             returnDays={settings.returnDays ? String(settings.returnDays) : ""}
+            tax={settings.tax ? { label: settings.tax.label, rate: String(settings.tax.rateBps / 100), included: settings.tax.included } : { label: "", rate: "", included: true }}
             shippingFields={!fulfilment}
           />
         </section>

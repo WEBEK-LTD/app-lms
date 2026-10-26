@@ -491,16 +491,37 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                               value: shipping,
                             ),
                           if (value?.tax case final tax?)
-                            _SumRow(label: context.l10n.cartTaxes, value: tax),
+                            _SumRow(
+                              label: value!.taxLabel ?? context.l10n.cartTaxes,
+                              value: tax,
+                            ),
                           if (value?.total case final total?
                               when value!.discount != null ||
                                   value.points?.discount != null ||
                                   value.shipping != null ||
-                                  value.tax != null)
+                                  value.tax != null ||
+                                  value.taxIncluded != null)
                             _SumRow(
                               label: context.l10n.cartTotal,
                               value: total,
                               strong: true,
+                            ),
+                          // 91.5 The tax already inside the prices.
+                          if (value?.taxIncluded case final included?)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 2),
+                              child: Text(
+                                context.l10n.cartTaxIncluded(
+                                  included,
+                                  value!.taxLabel ?? context.l10n.cartTaxes,
+                                ),
+                                key: const Key('cart-tax-included'),
+                                textAlign: TextAlign.end,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: p.textSecondary,
+                                ),
+                              ),
                             ),
                           if (fulfilment == null &&
                               value?.totalFinal != true) ...[

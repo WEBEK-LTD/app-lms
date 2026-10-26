@@ -957,6 +957,9 @@ export class MemoryStore implements DataStore {
       if (!product || product.appId !== appId) continue;
       product.salesCount += line.quantity;
       if (product.stock !== null) product.stock = Math.max(0, product.stock - line.quantity);
+      // 91.5 And the variation's own stock.
+      const variant = line.variantId !== undefined ? product.variants?.items.find((v) => v.id === line.variantId) : undefined;
+      if (variant && variant.stock !== null) variant.stock = Math.max(0, variant.stock - line.quantity);
     }
     return true;
   }

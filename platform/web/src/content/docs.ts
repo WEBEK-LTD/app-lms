@@ -1547,6 +1547,10 @@ Select **New product** and fill in:
 
 Every product also has its own web page to share.
 
+## Variations
+
+For a product in sizes, colours and the like, add up to three **Variations** under the product, like *Size* with S, M, L and *Colour* with Red, Blue, then **Add the missing combinations**. Each combination can have its own **Price** and **Sale price** (leave them empty for the product's), stock and product code; untick **On sale** to stop selling one. In the app the customer chooses a value of each, and the price, stock and photo follow; the product's list price shows the range. Each order line names the combination, and paying for it takes down its own stock. Restaurants use **Options** instead (see [Restaurants and cafés](/docs/restaurants)).
+
 ## Categories
 
 Group your products, like "Bouquets" or "Gifts". Customers browse them in the app.
@@ -1554,6 +1558,10 @@ Group your products, like "Bouquets" or "Gifts". Customers browse them in the ap
 ## Shipping
 
 Set a **Shipping fee** for orders with physical products (leave it empty for free shipping) and, optionally, **Free shipping from** an order amount.
+
+## Tax
+
+If you charge VAT, KDV or a similar tax, set its **Tax rate (%)** and **Tax name** under **Shop settings** on the **Products** page. With **My prices include the tax** ticked (the usual way in Türkiye), the totals stay as they are and the cart, the receipt and your order email show how much of the total is tax. Untick it to add the tax on top, to the products after a coupon or points and to the shipping: the cart shows the tax as its own line and the payment charges the total with it. Leave the rate empty for no tax.
 
 ## Coupons
 

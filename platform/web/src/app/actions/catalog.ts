@@ -14,6 +14,8 @@ import { parseShipment, shipOrder, shippable } from "@/lib/catalog/shipping";
 import { sendTemplate } from "@/lib/email/send";
 import { CATALOG_CURRENCIES, parsePrice } from "@/lib/catalog/money";
 import { LOYALTY_LIMITS } from "@/lib/catalog/loyalty";
+import { TAX_RATE_MAX_BPS } from "@/lib/catalog/tax";
+import { parseVariants } from "@/lib/catalog/variants";
 import { readProductNumbers } from "@/lib/catalog/product-fields";
 import { parseOptionGroups } from "@/lib/catalog/options";
 import { catalogSettings, encryptOwnPayment, type OwnPaymentInput } from "@/lib/catalog/settings";
@@ -21,7 +23,7 @@ import { newId } from "@/lib/crypto/tokens";
 import { imageType } from "@/lib/images";
 import { chosenPictures } from "@/lib/media/pictures";
 import { getStore } from "@/lib/data";
-import type { App, CatalogCurrency, CatalogProductInput } from "@/lib/data/types";
+import type { App, CatalogCurrency, CatalogProductInput, CatalogTax } from "@/lib/data/types";
 import { encryptionKey, paymentApiUrls } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { validKashierMerchantId } from "@/lib/payments/kashier";
@@ -112,6 +114,10 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
   values.optionGroups = String(formData.get("optionGroups") ?? "");
   const optionGroups = parseOptionGroups(values.optionGroups);
   if (!optionGroups.ok) errors.optionGroups = optionGroups.error;
+  // 91.5 Variations (size, colour), from the variations editor as JSON.
+  values.variants = String(formData.get("variants") ?? "");
+  const variants = parseVariants(values.variants);
+  if (!variants.ok) errors.variants = variants.message;
 
   const categories = new Set((await store.listCatalogCategories(app.id)).map((c) => c.id));
   const categoryIds = formData
@@ -172,6 +178,7 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
     active: formData.get("active") === "on",
     sku: values.sku || null,
     optionGroups: optionGroups.ok && optionGroups.value.length > 0 ? optionGroups.value : null,
+    variants: variants.ok ? variants.variants : null,
   };
   if (existing) await store.updateCatalogProduct(app.id, existing.id, input, now);
   else await store.createCatalogProduct(input, now);
@@ -191,7 +198,15 @@ export async function deleteProductAction(formData: FormData): Promise<void> {
 
 export async function saveShopSettingsAction(_: FormState, formData: FormData): Promise<FormState> {
   const { app } = await requireCatalogApp();
-  const values = { currency: str(formData, "currency"), shipping: str(formData, "shipping"), freeOver: str(formData, "freeOver"), returnDays: str(formData, "returnDays") };
+  const values = {
+    currency: str(formData, "currency"),
+    shipping: str(formData, "shipping"),
+    freeOver: str(formData, "freeOver"),
+    returnDays: str(formData, "returnDays"),
+    taxLabel: str(formData, "taxLabel"),
+    taxRate: str(formData, "taxRate"),
+    taxIncluded: formData.get("taxIncluded") === "on" ? "on" : "",
+  };
   const errors: Record<string, string> = {};
   if (!CATALOG_CURRENCIES.includes(values.currency as CatalogCurrency)) errors.currency = "Choose a currency.";
   const shipping = values.shipping ? parsePrice(values.shipping) : 0;
@@ -201,6 +216,16 @@ export async function saveShopSettingsAction(_: FormState, formData: FormData): 
   // 91.3 Returns asked for in the app: days after an order is completed; empty for none.
   const returnDays = values.returnDays.trim() === "" ? null : Number(values.returnDays.trim());
   if (returnDays !== null && (!Number.isInteger(returnDays) || returnDays < 1 || returnDays > 365)) errors.returnDays = "Enter a number of days from 1 to 365, or leave it empty for no returns in the app.";
+  // 91.5 The tax: a rate (empty for none) and its name, in the prices or added to them.
+  const rate = values.taxRate.trim().replace(",", ".");
+  let tax: CatalogTax | null = null;
+  if (rate !== "") {
+    const bps = /^\d{1,3}(\.\d{1,2})?$/.test(rate) ? Math.round(Number(rate) * 100) : NaN;
+    if (!Number.isInteger(bps) || bps < 1 || bps > TAX_RATE_MAX_BPS) errors.taxRate = "Enter the tax rate as a percentage, like 20 or 7.5, or leave it empty for no tax.";
+    const label = values.taxLabel.replace(/\s+/g, " ").trim();
+    if (!label || label.length > 20) errors.taxLabel = "Name the tax, like VAT or KDV, in up to 20 characters.";
+    tax = { label: label.slice(0, 20), rateBps: bps, included: values.taxIncluded === "on" };
+  }
   if (Object.keys(errors).length > 0) return { errors, values };
   const now = new Date();
   const settings = catalogSettings(app);
@@ -214,6 +239,7 @@ export async function saveShopSettingsAction(_: FormState, formData: FormData): 
         freeShippingOverCents: freeOver,
         // 26 A restaurant's form has no shipping fields, nor returns: kept as they were.
         ...(formData.has("returnDays") ? { returnDays } : {}),
+        ...(formData.has("taxRate") ? { tax } : {}),
       },
     },
     now,

@@ -4139,4 +4139,9 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String cartTaxIncluded(String amount, String tax) {
+    return 'يشمل $amount $tax';
+  }
 }

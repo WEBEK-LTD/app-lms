@@ -340,3 +340,62 @@ test("91.4 a customer earns loyalty points on a completed order and uses them on
   await page.goto("/dashboard/orders");
   await expect(page.getByRole("listitem").filter({ hasText: "Deniz Kaya" }).first()).toContainText("Loyalty points (35): -₺3.50");
 });
+
+test("91.5 a product in two colours, and KDV inside the prices, from the dashboard to the payment", async ({ page, request }) => {
+  await signIn(page, client.email, client.password);
+  await page.getByRole("link", { name: "Products", exact: true }).click();
+  await page.getByLabel("Tax rate (%)").fill("twenty");
+  await page.getByRole("button", { name: "Save settings" }).click();
+  await expect(page.getByText("Enter the tax rate as a percentage, like 20 or 7.5, or leave it empty for no tax.")).toBeVisible();
+  await page.getByLabel("Tax rate (%)").fill("20");
+  await page.getByLabel("Tax name").fill("KDV");
+  await page.getByLabel("My prices include the tax").check();
+  await page.getByRole("button", { name: "Save settings" }).click();
+  await expect(page.getByText("Shop settings saved.")).toBeVisible();
+
+  await page.getByRole("link", { name: "Add product" }).click();
+  await page.getByLabel("Name", { exact: true }).fill("Tulip Vase");
+  await page.getByLabel("Price (TRY)", { exact: true }).fill("200");
+  await page.getByRole("button", { name: "Add a variation" }).click();
+  await page.getByLabel("Variation 1 name").fill("Colour");
+  await page.getByLabel("Variation 1 values, separated by commas").fill("Red, White");
+  await page.getByRole("button", { name: "Add the 2 missing combinations" }).click();
+  await page.getByLabel("Price of White", { exact: true }).fill("240");
+  await page.getByLabel("Stock of Red").fill("1");
+  await page.getByRole("button", { name: "Add product" }).click();
+  await expect(page.getByRole("status")).toContainText("Saved “Tulip Vase”.");
+
+  const products = (await (await request.get(`${api}/store/products`)).json()) as { items: { id: number; name: string; type: string; price: { formatted: string } }[] };
+  const vase = products.items.find((p) => p.name === "Tulip Vase")!;
+  expect(vase).toMatchObject({ type: "variable", price: { formatted: "₺200.00 – ₺240.00" } });
+  const detail = await (await request.get(`${api}/store/products/${vase.id}`)).json();
+  expect(detail.attributes).toEqual([{ slug: "a1", name: "Colour", variation: true, options: [{ value: "Red", label: "Red" }, { value: "White", label: "White" }] }]);
+  const red = (detail.variations as { id: number; attributes: { a1: string } }[]).find((v) => v.attributes.a1 === "Red")!;
+  expect(red).toMatchObject({ max_quantity: 1, price: { formatted: "₺200.00" } });
+
+  // ₺200 + ₺50 shipping, of which ₺41.67 is KDV.
+  const lines = [{ product_id: vase.id, variation_id: red.id, quantity: 1 }];
+  expect(await (await request.post(`${api}/store/cart`, { data: { lines } })).json()).toMatchObject({ total: "₺250.00", tax: null, tax_included: "₺41.67", tax_label: "KDV 20%" });
+  const link = await request.post(`${api}/store/checkout-link?platform=android`, { data: { lines } });
+  await page.goto(((await link.json()) as { url: string }).url);
+  const summary = page.getByRole("region", { name: /Order \d+/ });
+  await expect(summary).toContainText("Tulip Vase - Red");
+  await expect(summary).toContainText("KDV 20%");
+  await expect(summary).toContainText("₺41.67");
+  await page.getByLabel("Full name").fill("Ayla Demir");
+  await page.getByLabel("Mobile number").fill("0532 444 55 66");
+  await page.getByLabel("Email").fill(`ayla-${suffix}@example.com`);
+  await page.getByLabel("City").fill("Izmir");
+  await page.getByLabel("Address").fill("Kordon 3, Alsancak");
+  await page.getByRole("button", { name: "Pay ₺250.00" }).click();
+  await page.getByRole("button", { name: "Pay with test card" }).click();
+  await expect(page.getByRole("heading", { name: "Thank you!" })).toBeVisible();
+
+  // The red one is sold out; the white one still sells.
+  const after = (await (await request.get(`${api}/store/products/${vase.id}`)).json()) as { variations: { attributes: { a1: string }; stock_status: string }[] };
+  expect(after.variations.map((v) => [v.attributes.a1, v.stock_status])).toEqual([["Red", "out_of_stock"], ["White", "in_stock"]]);
+  await page.goto("/dashboard/orders");
+  const order = page.getByRole("listitem").filter({ hasText: "Ayla Demir" });
+  await expect(order).toContainText("Tulip Vase - Red");
+  await expect(order).toContainText("KDV 20%");
+});
