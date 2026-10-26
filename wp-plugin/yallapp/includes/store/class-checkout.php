@@ -14,6 +14,7 @@ use WC_Product;
 use WC_Product_Variation;
 use WP_Error;
 use Yallapp\Commerce\Money;
+use Yallapp\Commerce\Order_Returns;
 use Yallapp\Content\Magic_Links;
 use Yallapp\Crypto;
 use Yallapp\Settings;
@@ -70,6 +71,7 @@ class Checkout {
 	 * @return array
 	 */
 	public function config() {
+		$returns = Order_Returns::days( $this->settings->get( 'store_return_days' ) );
 		return array(
 			'currency'          => (string) get_woocommerce_currency(),
 			'guest_checkout'    => 'yes' === get_option( 'woocommerce_enable_guest_checkout' ),
@@ -86,6 +88,11 @@ class Checkout {
 				'enabled'    => (bool) $this->settings->get( 'store_gift_message' ),
 				'max_length' => max( 1, min( 500, (int) $this->settings->get( 'store_gift_message_max' ) ) ),
 			),
+			// 91.3 Returns asked for in the app.
+			'returns'           => $returns ? array(
+				'enabled' => true,
+				'days'    => $returns,
+			) : null,
 		);
 	}
 

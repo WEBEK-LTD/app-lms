@@ -14,7 +14,7 @@ use WP_REST_Server;
 use Yallapp\Lms\Lms_Adapter;
 
 /**
- * /me/notifications, /me/notifications/read, /me/orders and (26) /me/orders/{id}.
+ * /me/notifications, /me/notifications/read, /me/orders, (26) /me/orders/{id} and (91.3) its return.
  */
 class Notifications_Controller extends Controller {
 
@@ -56,6 +56,14 @@ class Notifications_Controller extends Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'order' ),
+				'permission_callback' => $auth,
+			)
+		);
+		$this->route(
+			'/me/orders/(?P<id>\d+)/return',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'request_return' ),
 				'permission_callback' => $auth,
 			)
 		);
@@ -143,6 +151,26 @@ class Notifications_Controller extends Controller {
 			return new \WP_Error( 'not_found', __( 'Order not found.', 'yallapp' ), array( 'status' => 404 ) );
 		}
 		return $this->ok( $order );
+	}
+
+	/**
+	 * 91.3 POST /me/orders/{id}/return: the customer asks to return a completed order.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function request_return( WP_REST_Request $request ) {
+		$order = $this->plugin->lms() ? null : \Yallapp\Commerce\Woo_Orders::customer_order( get_current_user_id(), (int) $request['id'] );
+		if ( null === $order ) {
+			return new \WP_Error( 'not_found', __( 'Order not found.', 'yallapp' ), array( 'status' => 404 ) );
+		}
+		$body   = $request->get_json_params();
+		$body   = is_array( $body ) ? $body : array();
+		$result = ( new \Yallapp\Commerce\Order_Returns( $this->plugin ) )->request( $order, $body['reason'] ?? null, $body['note'] ?? null );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+		return $this->order( $request );
 	}
 
 	/**

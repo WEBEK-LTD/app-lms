@@ -96,6 +96,7 @@ class Plugin {
 		$this->store_checkout()->register();
 		// 91.2 Order updates in the app (WooCommerce).
 		( new Commerce\Order_Updates( $this ) )->register();
+		( new Commerce\Order_Returns( $this ) )->register();
 		// 51 [yallapp_video] on the website.
 		$this->yallapp_media()->register();
 		( new Rest\Gatekeeper( $this ) )->register();

@@ -91,6 +91,7 @@ class Settings {
 			'store_closed_weekdays'        => array(),
 			'store_gift_message'           => false,
 			'store_gift_message_max'       => 200,
+			'store_return_days'            => 0,
 			// Bookings home screen and rules (Bookings apps).
 			'bookings_home_sections'       => array( 'banner', 'next_appointment', 'categories', 'services', 'staff' ),
 			'bookings_banner_image_id'     => 0,
