@@ -276,7 +276,7 @@ Yallapp panelinizde **Uygulama kurulumu › Web sitesi**'ni açın ve **SimplyBo
 
 ## Uygulama türüne göre neleri yönetirsiniz
 
-- **Mağaza**: **Ürünler** sayfasında ürünler, kategoriler, stok ve kargo; **Siparişler** sayfasında siparişler. Müşteriler iyzico, Kashier veya Fawaterk üzerinden kartla öder. [Ürünler, siparişler ve kargo](/docs/store-orders) ve [Kartla ödeme](/docs/card-payments) rehberlerine bakın.
+- **Mağaza**: **Ürünler** sayfasında ürünler, kategoriler, stok ve kargo; **Siparişler** sayfasında siparişler. Müşteriler iyzico, Kashier, Fawaterk, Stripe veya PayPal üzerinden kartla öder. [Ürünler, siparişler ve kargo](/docs/store-orders) ve [Kartla ödeme](/docs/card-payments) rehberlerine bakın.
 - **Restoran ve kafe**: **Menü** sayfasında yemekler, seçenekleri, çalışma saatleri, gel-al ve teslimat; **Mutfak** sayfasında siparişler. [Restoranlar ve kafeler](/docs/restaurants) rehberine bakın.
 - **Akademi**: **Kurslar** sayfasında kurslar, bölümler ve dersler; ücretli kursların siparişleri. [Web sitesi olmadan kurslar](/docs/courses) rehberine bakın.
 - **Randevu**: **Hizmetler ve ekip** sayfasında hizmetler, ekibiniz, çalışma saatleri ve randevu kuralları; **Randevular** sayfasında randevular. [Hizmetler, ekip ve randevular](/docs/bookings) rehberine bakın.

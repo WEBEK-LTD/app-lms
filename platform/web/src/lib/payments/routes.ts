@@ -13,10 +13,12 @@ const IYZICO_PATHS: Record<PaymentKind, string> = { plan: "/api/pay/plan", order
  * webhook: iyzico posts its token to the callback; Kashier and Fawaterk
  * send the customer back (GET) and post their webhook (POST) to
  * /api/pay/<provider>/<kind>/<token>. The token is the payment link's own.
+ * 96.1 Stripe and PayPal only send the customer back there (GET).
  */
 export function callbackUrls(base: string, kind: PaymentKind, provider: PaymentProviderId, token: string): { returnUrl: string; webhookUrl: string | null } {
   const t = encodeURIComponent(token);
   if (provider === "iyzico") return { returnUrl: `${base}${IYZICO_PATHS[kind]}/${t}`, webhookUrl: null };
   const url = `${base}/api/pay/${provider}/${kind}/${t}`;
-  return { returnUrl: url, webhookUrl: url };
+  // 96.1 Stripe and PayPal send the customer back; their payments are read back then, and by the pending-payments check (no webhook).
+  return { returnUrl: url, webhookUrl: provider === "stripe" || provider === "paypal" ? null : url };
 }

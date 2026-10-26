@@ -497,7 +497,7 @@ How it works is in `docs/ARCHITECTURE.md` ("Charity & donation apps").
 | [x] | 29.3 Dashboard: Campaigns (own iyzico keys as a setup step, create, edit, publish, close, reopen, feature, delete only without donations, goal, suggested amounts, minimum, end date, pictures, currency, iPhone mode, updates to donors pushed only to phones that turned them on), Donations with CSV export, Donors; store review notes say donations happen in the browser | Unit tests and the donations browser test |
 | [x] | 29.4 App: the donations module (campaigns with progress bars, the campaign with its story, amount picker with presets, own amount and minimum, anonymous and message, the donate button in the system browser on iPhone and in the app on Android, My donations with receipts), Campaign updates in Settings, notifications that open the campaign; the preview bundle rebuilt | `flutter analyze`, `flutter test` (with the iPhone browser rule) and `build_preview.sh --check` pass |
 | [x] | 29.5 The registry entry, page source `campaigns` and default pages, the demo app "Bereket Food Bank" with two campaigns (its donation page charges nothing and never changes the totals), the /demo card, the solution page with screenshots from the app, the docs article "Charity and donation apps", CI builds of a Charity & donations app | Unit and browser tests |
-| [ ] | 29.6 Monthly donations: needs iyzico subscriptions (a stored card and recurring charges), which the integration doesn't have; until then `Config.donations.monthly` is false and monthly requests are refused, never charged once | A subscription integration tested against iyzico's sandbox |
+| [x] | 29.6 Closed by the owner (Phase 96): recurring donations are between the charity and its gateway, not Yallapp's business. Was: Monthly donations: needs iyzico subscriptions (a stored card and recurring charges), which the integration doesn't have; until then `Config.donations.monthly` is false and monthly requests are refused, never charged once | A subscription integration tested against iyzico's sandbox |
 | [ ] | 29.7 GiveWP on WordPress (forms as campaigns, totals, donor history by email or phone, hand-off to the GiveWP form page) | Not verifiable in the CI integration environment yet (the dev site runs on SQLite, GiveWP needs MySQL tables); hosted first |
 | [ ] | 29.8 A progress block for pages | List blocks show campaigns with what was raised and the percent; a dedicated block needs contract, editor and app renderer work |
 
@@ -986,7 +986,7 @@ Migration `drizzle/0039_refunds_time_zone.sql`.
 | [x] | 47.7 Analytics in the owner's time zone (44.7): Analytics › Time zone (default: the zone of the account's country from its WhatsApp number, else Europe/Istanbul); each event is filed under the app's date when it arrives, so totals, active users, retention, searches and pushes are counted in that zone with no change to the counting; the page, the CSV, the admin card and the daily job use it; the page says which zone. A change applies from then on: days counted before keep their zone (before this phase, UTC) | `analytics.test.ts` (zones, the country's zone, an event filed under Tokyo's date, the report's today), `analytics.spec.ts` on memory and MariaDB (the owner picks Pacific/Kiritimati and an event lands on its date) |
 | [x] | 47.8 App: the order history and an order show "Refunded ₺100.00" (a refunded restaurant order says Refunded, not its step), a refunded ticket says "Refunded", My donations shows what was refunded; strings in English, Arabic and Turkish; the preview bundle rebuilt | `phase47_test.dart`, `flutter analyze`, `flutter test`, `build_preview.sh --check` |
 | [ ] | 47.9 Confirm against the providers' test accounts (LAUNCH-CHECKLIST): iyzico's `/payment/cancel`, `/payment/detail` and `/payment/refund` answers (`status`, `hostReference`, `itemTransactions[].paymentTransactionId` and `paidPrice`) and that a cancel is refused after the day's end-of-day report; that refunding a marketplace item after its payout was approved works and how iyzico splits it between the sub-merchant and Yallapp; Kashier's refund address and body (`fep.kashier.io/v3/orders/{orderId}/`, the amount as a number, `targetTransactionId`), its answer's fields, and that the session's payment carries `kashierOrderId`; a Kashier refund on the same day may need `VOID` instead | A test refund on each provider's test account |
-| [ ] | 47.10 Owner's decision: Yallapp's commission on a refunded marketplace sale is given back in proportion (assumed here); and whether a shop's share already transferred (Kashier or Fawaterk) should be deducted from its next transfer (assumed) or charged otherwise | Owner's decision |
+| [x] | 47.10 Closed by the owner (Phase 96): Yallapp takes no commission and never receives money for a client; the marketplace ended in Phase 72, and old orders keep the rule assumed here. Was: Owner's decision: Yallapp's commission on a refunded marketplace sale is given back in proportion (assumed here); and whether a shop's share already transferred (Kashier or Fawaterk) should be deducted from its next transfer (assumed) or charged otherwise | Owner's decision |
 | [ ] | 47.11 Fawaterk refunds through an API: Fawaterk documents a refund API only in its newer v3 API with OAuth credentials (client ID and secret), which accounts here don't hold; until then Fawaterk refunds are made in its panel and recorded. Fawaterk marketplace payments are refunded by our team in Yallapp's panel, with no admin action to record them yet | Fawaterk v3 credentials, or a refund call in v2 |
 | [ ] | 47.12 Refunds of plan payments (the client's own plan with Yallapp) stay with the team's refund policy, made in the provider's panel; WordPress apps' orders are refunded in WooCommerce or the LMS | When needed |
 
@@ -2148,3 +2148,21 @@ Plan page.
 |---|---|---|
 | [x] | 95.1 Settings, one page each: Payments (the gateway for plans, Yallapp's iyzico, Kashier and Fawaterk accounts), Email, Sign-in codes, Contact & publishing, Invoices, Store platforms, New apps and Server, with tabs between them; the first settings page lists them with what's set now | e2e |
 | [x] | 95.2 Admin › Invoices: every invoice (card, coupon and bank transfer) with its PDF; a new bank-transfer invoice for a client's app (plan, months, amount, the bank's reference) activates or extends the plan and emails the PDF | e2e |
+
+## Phase 96: Every client's own gateway, and receipts in the app
+
+The owner's decision (2026-10-26): Yallapp takes no commission, receives no
+money for anyone and is not a payment intermediary. Each client signs up with
+a gateway and enters its keys themselves; customers pay the client directly.
+Clients can also use Stripe and PayPal, bank transfer, and a custom payment
+method whose details they write themselves. Recurring donations are between a
+charity and its gateway, not Yallapp's (29.6 closed); 47.10 is closed too.
+Customers find the receipt for tickets, paid courses and memberships in the
+app, not only in their email.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 96.1 Stripe and PayPal as the client's own gateway, next to iyzico, Kashier and Fawaterk: the keys are checked and kept encrypted, the customer pays on Stripe Checkout or PayPal, and Yallapp reads each payment back (and captures PayPal's) before the order is paid; refunds through their APIs | e2e |
+| [ ] | 96.2 Bank transfer and a custom payment method: the client writes the details, the customer picks it on the pay page and sees them, and the order waits until the client marks it paid in Orders (or cancels it) | e2e |
+| [ ] | 96.3 Receipts in the app for tickets, paid courses and memberships | e2e and Flutter tests |
+| [ ] | 96.4 Receipts in the customer's own language | Unit tests |

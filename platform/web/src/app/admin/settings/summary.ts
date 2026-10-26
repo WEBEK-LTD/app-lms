@@ -1,7 +1,7 @@
 import "server-only";
 import type { PlatformSetting, PlatformSettingKey } from "@/lib/data/types";
 import { appUrl, blobsMode, buildPipelineToken, dataMode, mediaBaseUrl, mediaMode, otpSenderConfig, smtpConfig, superAdminEmails } from "@/lib/env";
-import { isPaymentProvider, PROVIDER_NAME } from "@/lib/payments/provider";
+import { isYallappProvider, PROVIDER_NAME } from "@/lib/payments/provider";
 import type { SettingsPageHref } from "./pages";
 
 /** 95.1 What the settings pages show without a saved setting, and each page's state on the first settings page. */
@@ -55,7 +55,7 @@ export interface PageState {
 export function settingsSummary(settings: Map<PlatformSettingKey, PlatformSetting>): Record<SettingsPageHref, PageState> {
   const get = <K extends PlatformSettingKey>(key: K) => settings.get(key) as PlatformSetting<K> | undefined;
   const billing = get("billing");
-  const provider = billing && isPaymentProvider(billing.value.planProvider) ? billing.value.planProvider : "kashier";
+  const provider = billing && isYallappProvider(billing.value.planProvider) ? billing.value.planProvider : "kashier";
   const account = get(provider);
   const smtp = get("smtp");
   const envSmtp = smtpConfig();

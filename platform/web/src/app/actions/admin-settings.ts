@@ -16,7 +16,7 @@ import { checkTestCode, OTP_TEST_TTL_SECONDS, sendTestCode, type OtpTestTicket }
 import { parseAnyPhone } from "@/lib/hosted/phone";
 import { checkIyzicoKeys } from "@/lib/payments/iyzico";
 import { validKashierMerchantId } from "@/lib/payments/kashier";
-import { checkAccount, isPaymentProvider, PROVIDER_NAME } from "@/lib/payments/provider";
+import { checkAccount, isYallappProvider, PROVIDER_NAME } from "@/lib/payments/provider";
 import { readRate } from "@/lib/billing/prices";
 import { cardPlans } from "@/lib/billing/plan-payment";
 import {
@@ -333,7 +333,7 @@ export async function saveFawaterkSettingAction(_: FormState, formData: FormData
 export async function testPaymentAccountAction(_: FormState, formData: FormData): Promise<FormState> {
   await requireAdmin("payments.manage");
   const provider = str(formData, "provider");
-  if (!isPaymentProvider(provider)) return { message: "Unknown provider." };
+  if (!isYallappProvider(provider)) return { message: "Unknown provider." };
   const name = PROVIDER_NAME[provider];
   const account = await yallappAccountFor(await getStore(), provider, encryptionKey()).catch(() => null);
   if (!account) return { message: `Save Yallapp's ${name} account first.` };
@@ -353,10 +353,10 @@ export async function savePlanBillingAction(_: FormState, formData: FormData): P
   const admin = await requireAdmin("payments.manage");
   const values = { planProvider: str(formData, "planProvider"), egpPerUsd: str(formData, "egpPerUsd") };
   const errors: Record<string, string> = {};
-  if (!isPaymentProvider(values.planProvider)) errors.planProvider = "Choose a gateway.";
+  if (!isYallappProvider(values.planProvider)) errors.planProvider = "Choose a gateway.";
   const rate = readRate(values.egpPerUsd);
   if (rate === undefined) errors.egpPerUsd = "Enter how many Egyptian pounds make one US dollar, like 48.5, or leave it empty.";
-  if (Object.keys(errors).length || !isPaymentProvider(values.planProvider) || rate === undefined) return { errors, values };
+  if (Object.keys(errors).length || !isYallappProvider(values.planProvider) || rate === undefined) return { errors, values };
   const store = await getStore();
   const provider = values.planProvider;
   await save("billing", { planProvider: provider, egpPerUsd: rate }, admin);

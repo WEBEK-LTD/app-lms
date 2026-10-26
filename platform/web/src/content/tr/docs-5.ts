@@ -45,7 +45,7 @@ WooCommerce'e bağlı uygulamalar WooCommerce kuponlarınızla aynı şekilde ç
 
 ## Ödemeler
 
-Müşteriler, sağlayıcınızın (iyzico, Kashier veya Fawaterk) güvenli sayfasında kartla öder. Kendi anahtarlarınızı ekleyin: [Kartla ödemeler](/docs/card-payments) sayfasına bakın.
+Müşteriler, sağlayıcınızın (iyzico, Kashier, Fawaterk, Stripe veya PayPal) güvenli sayfasında kartla öder. Kendi anahtarlarınızı ekleyin: [Kartla ödemeler](/docs/card-payments) sayfasına bakın.
 
 ## Siparişler
 
@@ -104,7 +104,7 @@ Kapalıyken uygulama **Şu an kapalı** yazar ve ne zaman açılacağınızı g�
 
 ## Ödemeler
 
-Müşteriler giriş yapar, ardından Android'de ve iPhone'da sağlayıcınızın (iyzico, Kashier veya Fawaterk) güvenli sayfasında kartla öder: yemek fiziksel bir üründür, bu yüzden Apple'ın kuralları buna izin verir. Kendi anahtarlarınızı ekleyin: [Kartla ödemeler](/docs/card-payments) sayfasına bakın.
+Müşteriler giriş yapar, ardından Android'de ve iPhone'da sağlayıcınızın (iyzico, Kashier, Fawaterk, Stripe veya PayPal) güvenli sayfasında kartla öder: yemek fiziksel bir üründür, bu yüzden Apple'ın kuralları buna izin verir. Kendi anahtarlarınızı ekleyin: [Kartla ödemeler](/docs/card-payments) sayfasına bakın.
 
 ## WooCommerce ile
 
@@ -112,9 +112,9 @@ WooCommerce ile satış yapan restoranlar menü ifadelerini kullanır ve ürün 
 `,
   },
   "card-payments": {
-    title: "iyzico, Kashier veya Fawaterk ile kartla ödemeler",
-    description: "Web sitesi olmayan uygulamalarda kendi iyzico, Kashier veya Fawaterk hesabınıza kartla ödeme alın.",
-    body: `Web sitesi olmayan uygulamalar kartla ödemeleri **iyzico** (Türkiye), **Kashier** veya **Fawaterk** (Mısır) üzerinden alır: mağazalar siparişleri için, restoranlar ve kafeler, etkinlik düzenleyiciler biletler için, spor salonları üyelikler için, akademiler ücretli kurslar için ve hayır kurumları bağışlar için. Müşteriler kartlarını sağlayıcının güvenli sayfasına girer; Yallapp kartı asla görmez. Bir sipariş, ancak sağlayıcı ödemeyi tam o tutar ve para birimiyle onayladıktan sonra ödendi olarak işaretlenir: sağlayıcıya kendimiz sorarız, bu yüzden bir bağlantı açılarak ödeme taklit edilemez.
+    title: "iyzico, Kashier, Fawaterk, Stripe veya PayPal ile kartla ödemeler",
+    description: "Web sitesi olmayan uygulamalarda kendi iyzico, Kashier, Fawaterk, Stripe veya PayPal hesabınıza kartla ödeme alın.",
+    body: `Web sitesi olmayan uygulamalar kartla ödemeleri **iyzico** (Türkiye), **Kashier** veya **Fawaterk** (Mısır), **Stripe** ya da **PayPal** üzerinden alır: mağazalar siparişleri için, restoranlar ve kafeler, etkinlik düzenleyiciler biletler için, spor salonları üyelikler için, akademiler ücretli kurslar için ve hayır kurumları bağışlar için. Müşteriler kartlarını sağlayıcının güvenli sayfasına girer; Yallapp kartı asla görmez. Bir sipariş, ancak sağlayıcı ödemeyi tam o tutar ve para birimiyle onayladıktan sonra ödendi olarak işaretlenir: sağlayıcıya kendimiz sorarız, bu yüzden bir bağlantı açılarak ödeme taklit edilemez.
 
 ## Kendi ödeme hesabınızı kullanın
 
@@ -123,10 +123,12 @@ WooCommerce ile satış yapan restoranlar menü ifadelerini kullanır ve ürün 
 - **iyzico**: iyzico üye işyeri panelinde Settings altındaki **API key** ve **Secret key**. Fiyatlar TRY, USD veya EUR.
 - **Kashier**: Kashier panelinde Integrate now altındaki **Merchant ID** (MID-…), **Payment API key** ve **Secret key**. Fiyatlar EGP, USD veya EUR.
 - **Fawaterk**: Fawaterk panelinde Integrations altındaki **API key**. Fiyatlar EGP, USD, SAR, AED veya EUR.
+- **Stripe**: Stripe Dashboard'da Developers › API keys altındaki **Secret key**. Test anahtarı (sk_test_…) deneme ödemeleri, canlı anahtar (sk_live_…) gerçek ödemeler alır. Fiyatlar TRY, USD, EUR, EGP, SAR veya AED.
+- **PayPal**: PayPal Developer Dashboard'da Apps & Credentials altında oluşturduğunuz bir REST uygulamasının **Client ID** ve **Secret** bilgileri. Fiyatlar USD veya EUR. Müşteriler PayPal sayfasında PayPal hesaplarıyla ya da kartla öder.
 
 Fiyatlarınızı sağlayıcınızın kabul ettiği bir para biriminde belirleyin: eşleşmediklerinde **Kartla ödemeler** kutusu sizi uyarır.
 
-> Önce denemek için test anahtarını (**Sandbox keys**, **Test mode keys** veya **Staging key**) açın, sağlayıcının test anahtarlarını yapıştırın ve test kartlarıyla ödeyin. Canlı anahtarlarınızı yapıştırdığınızda kapatın: test ve canlı anahtarlar farklıdır.
+> Önce denemek için test anahtarını (**Sandbox keys**, **Test mode keys**, **Staging key** veya **Sandbox credentials**; Stripe'ın test anahtarları bunu kendileri belirtir) açın, sağlayıcının test anahtarlarını yapıştırın ve test kartlarıyla ödeyin. Canlı anahtarlarınızı yapıştırdığınızda kapatın: test ve canlı anahtarlar farklıdır.
 
 ## Yallapp müşterilerinizin ödemelerini asla almaz
 
@@ -136,7 +138,7 @@ Her işletme müşterilerinin ödemelerini kendi ödeme sağlayıcısı hesabın
 
 Ödenmiş bir siparişi, bileti, kursu veya bağışı **Siparişler** ya da **Bağışlar** sayfasında altındaki **İade** ile, tamamını veya bir kısmını, bir gerekçeyle iade edin.
 
-- **iyzico** ve **Kashier**: Yallapp iadeyi sağlayıcınız üzerinden sizin anahtarlarınızla yapar. iyzico aynı gün yapılan ödemeyi iptal eder (müşterinin ekstresinde hiçbir şey görünmez), diğer durumlarda kalem kalem iade eder. Kashier gizli anahtarınızın iade yetkisi olması gerekir.
+- **iyzico**, **Kashier**, **Stripe** ve **PayPal**: Yallapp iadeyi sağlayıcınız üzerinden sizin anahtarlarınızla yapar. iyzico aynı gün yapılan ödemeyi iptal eder (müşterinin ekstresinde hiçbir şey görünmez), diğer durumlarda kalem kalem iade eder. Kashier gizli anahtarınızın iade yetkisi olması gerekir.
 - **Fawaterk**: iadeyi Fawaterk panelinde yapın, ardından **İade** ile kaydedin (isterseniz Fawaterk'in referansıyla).
 - Sonrasında: sipariş veya bağış **İade edildi** (ya da iade edilen tutar) olarak görünür, müşteri bir e-posta alır ve bunu uygulamada görür. Bir siparişin tamamını iade etmek, karşılığında ödenenleri geri alır: biletler iptal edilir ve yerleri yeniden satışa çıkar, kurs öğrenciye kapanır, üyelik sona erer; kısmi iadede neyin geri alınacağını siz işaretlersiniz. İade edilen bağış, kampanyanın toplamına artık sayılmaz.
 - Bu sona ermeden önce Yallapp'in hesabı üzerinden satılmış bir sipariş: iade Yallapp'in hesabından yapılır ve Yallapp komisyonunu orantılı olarak geri verir. Payınız zaten aktarıldıysa (Kashier veya Fawaterk), Yallapp iadedeki payınızı bir sonraki aktarımınızdan düşer. Yallapp'in hesabındaki bir Fawaterk ödemesini ekibimiz iade eder: bize WhatsApp'tan yazın.
@@ -147,7 +149,7 @@ Web sitesi olmayan akademi uygulamaları ücretli kursları aynı şekilde, yaln
 
 ## Bağışlar
 
-Hayır kurumu ve bağış uygulamaları, her uygulama gibi, bağışları kendi iyzico, Kashier veya Fawaterk hesaplarıyla alır. Anahtarlarınızı **Kampanyalar** sayfasında ekleyin. [Hayır kurumu ve bağış uygulamaları](/docs/donations) sayfasına bakın.
+Hayır kurumu ve bağış uygulamaları, her uygulama gibi, bağışları kendi iyzico, Kashier, Fawaterk, Stripe veya PayPal hesaplarıyla alır. Anahtarlarınızı **Kampanyalar** sayfasında ekleyin. [Hayır kurumu ve bağış uygulamaları](/docs/donations) sayfasına bakın.
 `,
   },
   bookings: {

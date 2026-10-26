@@ -8,7 +8,7 @@ import { requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { PlatformSetting } from "@/lib/data/types";
 import { appUrl } from "@/lib/env";
-import { isPaymentProvider, PROVIDER_NAME } from "@/lib/payments/provider";
+import { isYallappProvider, PROVIDER_NAME } from "@/lib/payments/provider";
 import { platformSettings } from "@/lib/settings/platform";
 import { FawaterkSettingForm, IyzicoSettingForm, KashierSettingForm, PlanBillingForm, TestPaymentAccountForm } from "../forms";
 import { Section } from "../parts";
@@ -27,7 +27,7 @@ export default async function PaymentSettingsPage() {
   const accounts = { iyzico: Boolean(iyzico), kashier: Boolean(kashier), fawaterk: Boolean(fawaterk) };
   // 52 Yallapp's own plans: their gateway (Kashier until set) and the pound-to-dollar rate.
   const billing = settings.get("billing") as PlatformSetting<"billing"> | undefined;
-  const planProvider = billing && isPaymentProvider(billing.value.planProvider) ? billing.value.planProvider : "kashier";
+  const planProvider = billing && isYallappProvider(billing.value.planProvider) ? billing.value.planProvider : "kashier";
 
   return (
     <ReadOnly when={!can(adminRole, "settings.edit")} what="change platform settings">

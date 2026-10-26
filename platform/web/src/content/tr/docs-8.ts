@@ -12,7 +12,7 @@ export const TR_DOCS_8: Record<string, DocTranslation> = {
 Bağlantılar şöyle gruplanır. Yalnızca uygulamanızın kullandıklarını görürsünüz.
 
 - **Web sitesi ve içerik**: **Web sitesi veya platform**, WordPress sitenizdir ve üzerindeki Yallapp eklentisi, Shopify mağazanız veya başka bir platform ya da kendi API'nizdir. Uygulamanızın web sitesi yoksa, içeriğinizin panelde yönetildiğini ve bağlanacak bir şey olmadığını söyler.
-- **Kartla ödeme**: **Ödeme sağlayıcısı**, kartla ödeme alan uygulamalar için. Ödemelerin Yallapp üzerinden mi yoksa kendi iyzico, Kashier veya Fawaterk hesabınız üzerinden mi geçtiğini ve anahtarlarınızın canlı mı test anahtarı mı olduğunu gösterir. Bkz. [Kartla ödemeler](/docs/card-payments).
+- **Kartla ödeme**: **Ödeme sağlayıcısı**, kartla ödeme alan uygulamalar için. Ödemelerin Yallapp üzerinden mi yoksa kendi iyzico, Kashier, Fawaterk, Stripe veya PayPal hesabınız üzerinden mi geçtiğini ve anahtarlarınızın canlı mı test anahtarı mı olduğunu gösterir. Bkz. [Kartla ödemeler](/docs/card-payments).
 - **Giriş kodları**: **WhatsApp kodları** ve **E-posta kodları**, uygulamanızın giriş kodlarını Yallapp gönderiyorsa. Kodların Yallapp'in numarasından ve e-posta adresinden mi, yoksa kendi WhatsApp numaranızdan ve e-posta sunucunuzdan mı gittiğini gösterir. Bkz. [Uygulama kullanıcıları ve giriş](/docs/app-users).
 - **Bildirimler**: **Firebase bildirimleri**, yani Firebase anahtarınız (bkz. [Firebase ile anlık bildirimler](/docs/push-notifications)) ve Huawei Push Kit'i eklediyseniz **Huawei bildirimleri**.
 - **Mağazalar**: **Google Play** ve **App Store**; anahtarlarını kaydettiyseniz **Samsung Galaxy Store**, **Huawei AppGallery** ve **Xiaomi GetApps**.

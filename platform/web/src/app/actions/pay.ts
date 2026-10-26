@@ -28,7 +28,7 @@ export async function demoPayAction(token: string): Promise<void> {
   redirect(`/pay/${token}/order-received`);
 }
 
-/** The payment page's form: saves the customer's details and sends them to the provider's page (37 iyzico, Kashier or Fawaterk). */
+/** The payment page's form: saves the customer's details and sends them to the provider's page (37 iyzico, Kashier, Fawaterk, Stripe or PayPal). */
 export async function payAction(token: string, _: FormState, formData: FormData): Promise<FormState> {
   const values = Object.fromEntries(["name", "phone", "email", "city", "address"].map((k) => [k, String(formData.get(k) ?? "")]));
   const store = await getStore();

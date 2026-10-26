@@ -270,8 +270,15 @@ export function fawaterkApiUrl(): string | null {
 }
 
 /** 37 Every payment provider's test address (lib/payments/provider.ts). */
-export function paymentApiUrls(): { iyzico: string | null; kashier: string | null; fawaterk: string | null } {
-  return { iyzico: iyzicoApiUrl(), kashier: kashierApiUrl(), fawaterk: fawaterkApiUrl() };
+/** 96.1 Stripe's and PayPal's addresses for local tests (fake servers); unset uses theirs. */
+function testOnlyUrl(name: string): string | null {
+  const url = read(name);
+  if (url && isNetlify()) throw new Error(`${name} is for local tests only.`);
+  return url ?? null;
+}
+
+export function paymentApiUrls(): { iyzico: string | null; kashier: string | null; fawaterk: string | null; stripe: string | null; paypal: string | null } {
+  return { iyzico: iyzicoApiUrl(), kashier: kashierApiUrl(), fawaterk: fawaterkApiUrl(), stripe: testOnlyUrl("STRIPE_API_URL"), paypal: testOnlyUrl("PAYPAL_API_URL") };
 }
 
 /** 47 A fake WordPress site for local tests: every license refresh goes there (lib/license/refresh.ts). Refused on Netlify. */

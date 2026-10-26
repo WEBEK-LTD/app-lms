@@ -15,11 +15,12 @@ import { PROVIDER_NAME } from "./provider";
 
 /** The sentences the provider modules write themselves (lib/payments/iyzico.ts, kashier.ts, fawaterk.ts, provider.ts). */
 const OWN = [
-  /^(?:iyzico|Kashier|Fawaterk) can't be reached\.$/,
-  /^(?:iyzico|Kashier|Fawaterk) couldn't (?:start the payment|register the shop|approve the payout|find the payment|cancel the payment|make the refund)\.$/,
+  /^(?:iyzico|Kashier|Fawaterk|Stripe|PayPal) can't be reached\.$/,
+  /^(?:iyzico|Kashier|Fawaterk|Stripe|PayPal) couldn't (?:start the payment|register the shop|approve the payout|find the payment|cancel the payment|make the refund)\.$/,
   /^Kashier didn't return the payment session\.$/,
-  /^(?:iyzico|Kashier|Fawaterk) answered HTTP \d{3}\.$/,
-  /^(?:iyzico|Kashier|Fawaterk) doesn't take payments in [A-Z]{3}\.$/,
+  /^PayPal didn't accept the client ID and secret\.$/,
+  /^(?:iyzico|Kashier|Fawaterk|Stripe|PayPal) answered HTTP \d{3}\.$/,
+  /^(?:iyzico|Kashier|Fawaterk|Stripe|PayPal) doesn't take payments in [A-Z]{3}\.$/,
 ];
 
 type Whose = "own" | "yallapp";

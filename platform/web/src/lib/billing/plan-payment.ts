@@ -15,7 +15,7 @@ import { chargedPrice, formatAmount, shownOf, sumOffers, type Money, type Offer 
 
 /**
  * Clients pay an app's Yallapp plan by card on the provider's page (37
- * iyzico, Kashier or Fawaterk, as the team chose), into Yallapp's own
+ * iyzico, Kashier, Fawaterk, Stripe or PayPal, as the team chose), into Yallapp's own
  * merchant account. Each payment is for one app (the dashboard's current
  * app): a confirmed payment activates that app, or extends its license from
  * its current end date (or from today when it ended). Other apps of the

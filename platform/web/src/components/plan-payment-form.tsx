@@ -20,7 +20,7 @@ export interface CardPlan {
   charge?: string | null;
 }
 
-/** Plan choice, billing address and an optional coupon; the card itself is entered on the provider's page (37 iyzico, Kashier or Fawaterk). */
+/** Plan choice, billing address and an optional coupon; the card itself is entered on the provider's page (37 iyzico, Kashier, Fawaterk, Stripe or PayPal). */
 export function PlanPaymentForm({
   plans,
   current,

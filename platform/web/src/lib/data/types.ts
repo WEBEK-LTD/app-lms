@@ -796,8 +796,12 @@ export interface HostedNotification {
 /** 37 EGP, SAR and AED for the Egyptian providers; each provider takes some of these (lib/payments/provider.ts). */
 export type CatalogCurrency = "TRY" | "USD" | "EUR" | "EGP" | "SAR" | "AED";
 
-/** 37 Who takes a card payment: iyzico, Kashier or Fawaterk. */
-export type PaymentProviderId = "iyzico" | "kashier" | "fawaterk";
+/** 37 Who takes a card payment: iyzico, Kashier, Fawaterk, Stripe or PayPal. */
+/** 96.1 Stripe and PayPal: only clients' own accounts; Yallapp's plans stay on iyzico, Kashier, Fawaterk, Stripe or PayPal. */
+export type PaymentProviderId = "iyzico" | "kashier" | "fawaterk" | "stripe" | "paypal";
+
+/** The gateways Yallapp's own plans can be paid through. */
+export type YallappProviderId = "iyzico" | "kashier" | "fawaterk";
 
 export interface CatalogSettings {
   currency: CatalogCurrency;
@@ -903,8 +907,25 @@ export interface OwnFawaterkPayment {
   sandbox: boolean;
 }
 
+/** 96.1 The client's own Stripe account: its secret key (encrypted like the others); test keys run on test data. */
+export interface OwnStripePayment {
+  provider: "stripe";
+  secretKeyEncrypted: string;
+  /** A test key (sk_test_…). */
+  sandbox: boolean;
+}
+
+/** 96.1 The client's own PayPal REST app: its client ID (not a secret) and secret. */
+export interface OwnPaypalPayment {
+  provider: "paypal";
+  clientId: string;
+  secretEncrypted: string;
+  /** Sandbox credentials. */
+  sandbox: boolean;
+}
+
 /** The client's own merchant account. */
-export type OwnPayment = OwnIyzicoPayment | OwnKashierPayment | OwnFawaterkPayment;
+export type OwnPayment = OwnIyzicoPayment | OwnKashierPayment | OwnFawaterkPayment | OwnStripePayment | OwnPaypalPayment;
 
 export type SubMerchantType = "PERSONAL" | "PRIVATE_COMPANY" | "LIMITED_OR_JOINT_STOCK_COMPANY";
 
@@ -915,7 +936,7 @@ export interface MarketplacePayment {
    * iyzico. Only iyzico pays shops itself (sub-merchants); with Kashier or
    * Fawaterk the team transfers each released share to the shop's IBAN.
    */
-  via?: PaymentProviderId;
+  via?: YallappProviderId;
   /** iyzico's key for the shop as a sub-merchant of Yallapp's account; empty with Kashier or Fawaterk. */
   subMerchantKey: string;
   subMerchantType: SubMerchantType;
@@ -1257,7 +1278,7 @@ export interface PaymentProviderSetting {
  * turns their pound prices into the dollar prices shown outside Egypt.
  */
 export interface YallappBillingSetting {
-  planProvider: PaymentProviderId;
+  planProvider: YallappProviderId;
   /** Egyptian pounds for one US dollar; null: only prices with their own dollar figure show in dollars. */
   egpPerUsd: number | null;
 }
@@ -1308,7 +1329,7 @@ export interface PlatformSetting<K extends PlatformSettingKey = PlatformSettingK
 
 export type PlanPaymentStatus = "pending" | "paid" | "failed";
 
-/** A client paying an app's Yallapp plan by card, with Yallapp's own account (37 iyzico, Kashier or Fawaterk). */
+/** A client paying an app's Yallapp plan by card, with Yallapp's own account (37 iyzico, Kashier, Fawaterk, Stripe or PayPal). */
 export interface PlanPayment {
   id: string;
   clientId: string;

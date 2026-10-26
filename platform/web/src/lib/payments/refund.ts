@@ -3,6 +3,8 @@ import { PaymentError } from "./errors";
 import { explainPaymentError } from "./explain";
 import { cancelIyzicoPayment, refundIyzicoItem, retrieveIyzicoPayment, type IyzicoRefundReason } from "./iyzico";
 import { getKashierSessionPayment, refundKashierPayment } from "./kashier";
+import { refundPaypalCapture } from "./paypal";
+import { getStripeSession, refundStripePayment } from "./stripe";
 import { PROVIDER_NAME, type PaymentAccount, type ProviderOptions } from "./provider";
 
 /**
@@ -28,7 +30,7 @@ import { PROVIDER_NAME, type PaymentAccount, type ProviderOptions } from "./prov
 
 /** Which providers refund through their API; the others are refunded in their panel and recorded. */
 export function refundsByApi(provider: PaymentProviderId): boolean {
-  return provider === "iyzico" || provider === "kashier";
+  return provider !== "fawaterk";
 }
 
 export type RefundReason = "buyer_request" | "double_payment" | "fraud" | "other";
@@ -119,6 +121,46 @@ export async function refundThroughProvider(account: PaymentAccount, request: Pr
       parts: [],
       error: `${PROVIDER_NAME[account.provider]} didn't give this payment's ID. Refund it in its panel and record it here.`,
     };
+
+  if (account.provider === "stripe") {
+    try {
+      // The PaymentIntent was kept as the payment's ID; older ones are read back from the session.
+      let intent = request.paymentId.startsWith("pi_") ? request.paymentId : null;
+      if (!intent && request.providerRef) intent = (await getStripeSession(account.keys, request.providerRef, { fetcher: options.fetcher, baseUrl: options.urls?.stripe })).paymentIntent;
+      if (!intent) return { parts: [], error: "Stripe didn't give this payment's ID. Refund it in your Stripe dashboard and record it here." };
+      const done = await refundStripePayment(
+        account.keys,
+        { paymentIntent: intent, cents: request.cents, key: `refund-${intent}-${request.refundedBeforeCents}-${request.cents}` },
+        { fetcher: options.fetcher, baseUrl: options.urls?.stripe },
+      );
+      return { parts: [{ kind: "refund", transactionId: null, cents: request.cents, reference: done.reference.slice(0, 191) }], error: null };
+    } catch (e) {
+      const text = message(e, "stripe");
+      if (text === null) throw e;
+      return { parts: [], error: text };
+    }
+  }
+
+  if (account.provider === "paypal") {
+    try {
+      const done = await refundPaypalCapture(
+        account.keys,
+        {
+          captureId: request.paymentId,
+          cents: request.cents,
+          currency: request.currency,
+          note: request.note || REFUND_REASONS[request.reason],
+          key: `refund-${request.paymentId}-${request.refundedBeforeCents}-${request.cents}`,
+        },
+        { fetcher: options.fetcher, baseUrl: options.urls?.paypal },
+      );
+      return { parts: [{ kind: "refund", transactionId: null, cents: request.cents, reference: done.reference.slice(0, 191) }], error: null };
+    } catch (e) {
+      const text = message(e, "paypal");
+      if (text === null) throw e;
+      return { parts: [], error: text };
+    }
+  }
 
   if (account.provider === "kashier") {
     try {

@@ -131,7 +131,7 @@ export const TR_MARKETING: MarketingTranslation = {
         },
         {
           title: "Zaten güvendiğiniz ödeme",
-          text: "Müşteriler kendi ödeme sayfanızda öder: WooCommerce, Shopify, ikas, Ticimax, IdeaSoft, Wix, Salla veya Zid. Web sitesi yoksa güvenli bir iyzico, Kashier veya Fawaterk sayfasında kartla öderler.",
+          text: "Müşteriler kendi ödeme sayfanızda öder: WooCommerce, Shopify, ikas, Ticimax, IdeaSoft, Wix, Salla veya Zid. Web sitesi yoksa güvenli bir iyzico, Kashier, Fawaterk, Stripe veya PayPal sayfasında kartla öderler.",
         },
         {
           title: "Hediye ve çiçek için tasarlandı",
@@ -162,7 +162,7 @@ export const TR_MARKETING: MarketingTranslation = {
         "Salla mağazanızı bağlayın",
         "Zid mağazanızı bağlayın",
         "Ürünler, siparişler ve kargo",
-        "iyzico, Kashier veya Fawaterk ile kartla ödeme",
+        "iyzico, Kashier, Fawaterk, Stripe veya PayPal ile kartla ödeme",
       ],
     },
     restaurant: {
@@ -200,7 +200,7 @@ export const TR_MARKETING: MarketingTranslation = {
         "Menüyü kategoriye göre gezme",
         "Bir yemeğin seçeneklerini belirleyip fiyatın değişmesini görme",
         "Gel-al veya teslimat için, hemen ya da daha sonraki bir saate sipariş verme",
-        "Android ve iPhone'da güvenli bir iyzico, Kashier veya Fawaterk sayfasında kartla ödeme",
+        "Android ve iPhone'da güvenli bir iyzico, Kashier, Fawaterk, Stripe veya PayPal sayfasında kartla ödeme",
         "Siparişin adımlarını izleme ve her adımda bildirim alma",
       ],
       forYou: [
@@ -210,7 +210,7 @@ export const TR_MARKETING: MarketingTranslation = {
         "Her ödenen sipariş için bir e-posta",
         "Müşteriler doğrudan kendi ödeme hesabınıza öder",
       ],
-      docs: ["Restoranlar ve kafeler: menü, gel-al, teslimat ve mutfak", "iyzico, Kashier veya Fawaterk ile kartla ödeme"],
+      docs: ["Restoranlar ve kafeler: menü, gel-al, teslimat ve mutfak", "iyzico, Kashier, Fawaterk, Stripe veya PayPal ile kartla ödeme"],
     },
     bookings: {
       name: "Randevu",
@@ -350,9 +350,9 @@ export const TR_MARKETING: MarketingTranslation = {
         "Her derse kimin geldiğiyle haftalık programınız",
         "Üyelik paketleriniz ve derslerin üyelik gerektirip gerektirmediği",
         "Kimin hangi üyeliğe sahip olduğu, ders ekleme ya da resepsiyonda ödenen üyeliği ekleme",
-        "iyzico, Kashier veya Fawaterk ile kendi hesabınıza kartla ödeme",
+        "iyzico, Kashier, Fawaterk, Stripe veya PayPal ile kendi hesabınıza kartla ödeme",
       ],
-      docs: ["Spor salonları ve stüdyolar: program, dersler ve üyelikler", "Hizmetler, ekip ve randevular", "iyzico, Kashier veya Fawaterk ile kartla ödeme"],
+      docs: ["Spor salonları ve stüdyolar: program, dersler ve üyelikler", "Hizmetler, ekip ve randevular", "iyzico, Kashier, Fawaterk, Stripe veya PayPal ile kartla ödeme"],
     },
     services: {
       name: "Hizmetler ve şirketler",
@@ -528,7 +528,7 @@ export const TR_MARKETING: MarketingTranslation = {
         "Görselli, mekânlı veya çevrimiçi bağlantılı etkinlikler; kendi fiyatı ve sınırı olan bilet türleri",
         "Her etkinlik için satışlar ve katılımcılar, CSV dışa aktarımıyla",
         "Biletleri kapıda bir telefonla kontrol edin, uygulama kurmaya gerek yok",
-        "Kendi iyzico, Kashier veya Fawaterk hesabınıza kartla ödeme",
+        "Kendi iyzico, Kashier, Fawaterk, Stripe veya PayPal hesabınıza kartla ödeme",
       ],
       docs: ["Etkinlikler ve biletler"],
     },
@@ -541,7 +541,7 @@ export const TR_MARKETING: MarketingTranslation = {
       demoApp: "yardım kuruluşu demo uygulamamızı",
       summary: "İlerlemesi görünen kampanyalar, bağışlar ve makbuzlar.",
       audience: "Yardım kuruluşları, gıda bankaları, vakıflar, camiler ve topluluk grupları için.",
-      sources: ["Web sitesi yok: kampanyalar Yallapp panelinde yazılır", "Bağışlar kendi iyzico, Kashier veya Fawaterk hesabınıza ödenir"],
+      sources: ["Web sitesi yok: kampanyalar Yallapp panelinde yazılır", "Bağışlar kendi iyzico, Kashier, Fawaterk, Stripe veya PayPal hesabınıza ödenir"],
       highlights: [
         {
           title: "İnsanların takip ettiği kampanyalar",
@@ -549,7 +549,7 @@ export const TR_MARKETING: MarketingTranslation = {
         },
         {
           title: "Her bağış size ulaşır",
-          text: "Bağışlar güvenli bir sayfada kendi iyzico, Kashier veya Fawaterk hesabınıza ödenir. Yallapp paraya asla dokunmaz.",
+          text: "Bağışlar güvenli bir sayfada kendi iyzico, Kashier, Fawaterk, Stripe veya PayPal hesabınıza ödenir. Yallapp paraya asla dokunmaz.",
         },
         {
           title: "Kâğıt işi olmadan makbuzlar",
@@ -616,13 +616,13 @@ export const TR_MARKETING: MarketingTranslation = {
       text: "Bir geliştiriciniz mi var? Belgelenmiş API'mizi herhangi bir web sitesinden sunun. Web siteniz yok mu? Her şeyi Yallapp panelinden ekleyin.",
       items: {
         "Your own API": { name: "Kendi API'niz", text: "Web siteniz Yallapp API'sini sunar. Web sitesi adımındaki canlı kontrol neyin eksik olduğunu söyler." },
-        "Products in Yallapp": { name: "Yallapp'te ürünler", text: "Ürünler, kategoriler, stok ve kargo; iyzico, Kashier veya Fawaterk ile kartla ödeme ve paneldeki siparişlerle." },
+        "Products in Yallapp": { name: "Yallapp'te ürünler", text: "Ürünler, kategoriler, stok ve kargo; iyzico, Kashier, Fawaterk, Stripe veya PayPal ile kartla ödeme ve paneldeki siparişlerle." },
         "Courses in Yallapp": { name: "Yallapp'te kurslar", text: "Video ve metinli kurslar, bölümler ve dersler; ücretsiz ve ücretli kurslar." },
         "Services in Yallapp": { name: "Yallapp'te hizmetler", text: "Hizmetler, ekip, çalışma saatleri, izin günleri ve randevu kuralları. Klinikler doktor profilleri ve ön bilgi formu ekler." },
         "Listings in Yallapp": { name: "Yallapp'te ilanlar", text: "Fotoğrafları, özellikleri, harita konumu ve mesajlarıyla mülkler." },
         "Articles in Yallapp": { name: "Yallapp'te haberler", text: "Görselli ve bölümlü haberler; hazır olduğunuzda yayımlanır, son dakika haberleriyle." },
         "Events in Yallapp": { name: "Yallapp'te etkinlikler", text: "Bilet türleri, ücretsiz kayıtlar, ücretli biletler, katılımcılar ve kapıda giriş kontrolüyle etkinlikler." },
-        "Campaigns in Yallapp": { name: "Yallapp'te kampanyalar", text: "Hedefi ve ilerlemesi olan kampanyalar, kendi iyzico, Kashier veya Fawaterk hesabınıza bağışlar, makbuzlar ve bağışçı listesi." },
+        "Campaigns in Yallapp": { name: "Yallapp'te kampanyalar", text: "Hedefi ve ilerlemesi olan kampanyalar, kendi iyzico, Kashier, Fawaterk, Stripe veya PayPal hesabınıza bağışlar, makbuzlar ve bağışçı listesi." },
       },
     },
     services: {
@@ -735,10 +735,10 @@ export const TR_MARKETING: MarketingTranslation = {
       text: "Kendi ödeme sayfanızda ya da web sitesi olmadan kartla satın. Satın alma düğmeleri Apple ve Google kurallarına otomatik olarak uyar.",
       features: [
         {
-          title: "iyzico, Kashier veya Fawaterk ile kartla ödeme",
-          text: "Web sitesi olmayan mağazalar ve akademiler, kendi üye işyeri hesaplarına güvenli bir iyzico, Kashier veya Fawaterk sayfasında kartla ödeme alır.",
+          title: "iyzico, Kashier, Fawaterk, Stripe veya PayPal ile kartla ödeme",
+          text: "Web sitesi olmayan mağazalar ve akademiler, kendi üye işyeri hesaplarına güvenli bir iyzico, Kashier, Fawaterk, Stripe veya PayPal sayfasında kartla ödeme alır.",
           details: [
-            "Denemek için test anahtarlarıyla kendi iyzico, Kashier veya Fawaterk anahtarlarınız",
+            "Denemek için test anahtarlarıyla kendi iyzico, Kashier, Fawaterk, Stripe veya PayPal anahtarlarınız",
             "Müşteriler doğrudan kendi ödeme hesabınıza öder",
             "Paneldeki siparişler ve her ödenen sipariş için bir e-posta",
             "Her ürün için paylaşılabilir bir web sayfası",
@@ -812,7 +812,7 @@ export const TR_MARKETING: MarketingTranslation = {
     {
       topic: "Ödemeler",
       typical: "Çoğu zaman yalnızca oluşturucunun kendi ödeme sağlayıcısıyla",
-      yallapp: "Kendi ödeme sayfanız ya da kendi iyzico, Kashier veya Fawaterk hesabınıza kartla ödeme",
+      yallapp: "Kendi ödeme sayfanız ya da kendi iyzico, Kashier, Fawaterk, Stripe veya PayPal hesabınıza kartla ödeme",
     },
   ],
   steps: [
@@ -857,7 +857,7 @@ export const TR_MARKETING: MarketingTranslation = {
     "iOS için Apple Developer Program üyeliği (Apple'a yıllık ücret)",
     `Uygulamanızın orada da olmasını istiyorsanız ${MORE_ANDROID} satıcı hesapları (ücretsiz)`,
     "Anlık bildirimler için ücretsiz bir Firebase projesi",
-    "Web sitesi olmadan kartla ödeme almak için iyzico, Kashier veya Fawaterk üye işyeri hesabı (isteğe bağlı)",
+    "Web sitesi olmadan kartla ödeme almak için iyzico, Kashier, Fawaterk, Stripe veya PayPal üye işyeri hesabı (isteğe bağlı)",
   ],
   faq: [
     {
@@ -985,11 +985,11 @@ export const TR_MARKETING: MarketingTranslation = {
       items: [
         {
           q: "Müşteriler nasıl öder?",
-          a: "Mağazanız WooCommerce, Shopify, ikas, Ticimax, IdeaSoft, Wix, Salla veya Zid üzerindeyse kendi ödeme sayfanızda. Web sitesi yoksa güvenli bir iyzico, Kashier veya Fawaterk sayfasında, kendi üye işyeri hesabınıza kartla öderler.",
+          a: "Mağazanız WooCommerce, Shopify, ikas, Ticimax, IdeaSoft, Wix, Salla veya Zid üzerindeyse kendi ödeme sayfanızda. Web sitesi yoksa güvenli bir iyzico, Kashier, Fawaterk, Stripe veya PayPal sayfasında, kendi üye işyeri hesabınıza kartla öderler.",
         },
         {
           q: "Ödeme hesabım yok. Yine de satabilir miyim?",
-          a: "Bir hesaba ihtiyacınız var: müşteriler her zaman kendi hesabınıza öder, asla Yallapp'inkine değil. iyzico (Türkiye), Kashier veya Fawaterk'te (Mısır) bir hesap açın ve anahtarlarını Ürünler sayfanıza yapıştırın. O zamana kadar müşteriler ürünlerinizi uygulamada görür ama ödeme yapamaz.",
+          a: "Bir hesaba ihtiyacınız var: müşteriler her zaman kendi hesabınıza öder, asla Yallapp'inkine değil. iyzico (Türkiye), Kashier, Fawaterk (Mısır), Stripe veya PayPal'da bir hesap açın ve anahtarlarını Ürünler sayfanıza yapıştırın. O zamana kadar müşteriler ürünlerinizi uygulamada görür ama ödeme yapamaz.",
         },
         {
           q: "Yallapp satışlarımdan pay alır mı?",

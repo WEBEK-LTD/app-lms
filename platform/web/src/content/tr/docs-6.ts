@@ -153,7 +153,7 @@ Ana sayfa bir arama kutusu, manşetler, bölümler ve en yeni makalelerle başla
 
 ## Ücretsiz ve ücretli biletler
 
-Ücretsiz biletler uygulamada alınır. Ücretli biletler güvenli bir ödeme sayfasında kartla ödenir: Etkinlikler sayfasında kendi iyzico, Kashier veya Fawaterk hesabınızla **Kartla ödemeler**'i ayarlayın. Alıcı öderken yerler ayrılır ve biletler ancak sağlayıcı ödemeyi onayladığında düzenlenir. Yerler alındıkça sayılır, bu yüzden son bilet iki kez satılamaz.
+Ücretsiz biletler uygulamada alınır. Ücretli biletler güvenli bir ödeme sayfasında kartla ödenir: Etkinlikler sayfasında kendi iyzico, Kashier, Fawaterk, Stripe veya PayPal hesabınızla **Kartla ödemeler**'i ayarlayın. Alıcı öderken yerler ayrılır ve biletler ancak sağlayıcı ödemeyi onayladığında düzenlenir. Yerler alındıkça sayılır, bu yüzden son bilet iki kez satılamaz.
 
 **iPhone'larda** Apple, uygulamaların bir mekânda gerçekleşen etkinliklerin biletlerini satmasına izin verir, ancak dijital içerik sayılan yalnızca çevrimiçi etkinliklerin biletlerini satmasına izin vermez. Bu yüzden iPhone uygulamasında mekânı olmayan bir etkinliğin ücretli biletlerinde satın alma düğmesi görünmez; ücretsiz biletler her yerde çalışır. Android'de her şey uygulamada satın alınabilir.
 
@@ -176,13 +176,13 @@ Ana sayfa bir arama kutusu ve yaklaşan etkinliklerle başlar. Bunu **Sayfalar v
   },
   donations: {
     title: "Hayır kurumu ve bağış uygulamaları",
-    description: "Bir Hayır kurumu ve bağış uygulaması çalıştırın: hedefli kampanyalar, kendi iyzico, Kashier veya Fawaterk hesabınıza gelen bağışlar, makbuzlar, bağışçılar ve iPhone bağışlarının neden tarayıcıda açıldığı.",
+    description: "Bir Hayır kurumu ve bağış uygulaması çalıştırın: hedefli kampanyalar, kendi iyzico, Kashier, Fawaterk, Stripe veya PayPal hesabınıza gelen bağışlar, makbuzlar, bağışçılar ve iPhone bağışlarının neden tarayıcıda açıldığı.",
     body: `Hayır kurumu ve bağış uygulamaları kampanyalarınızı gösterir: ne için para topladığınızı, hikâyesini ve görsellerini ve hedefine ne kadar yaklaştığını. Destekçiler bir tutar seçer, isimsiz bağış yapabilir ve mesaj bırakabilir, güvenli bağış sayfanızda bağış yapar. Her bağışçı bir makbuz alır ve bağışlarını uygulamada **Bağışlarım** altında bulur.
 
 ## İlk bağıştan önce
 
 1. **Uygulama türü**'nde **Hayır kurumu ve bağış**'ı, ardından Web sitesi adımında **Yallapp'te yönetilen kampanyalar**'ı seçin.
-2. **Kampanyalar** sayfasında, **Kartla ödemeler** altında sağlayıcınızı (iyzico, Kashier veya Fawaterk) seçin ve anahtarlarınızı yapıştırın ([Kartla ödemeler](/docs/card-payments) sayfasına bakın). Bağışlar doğrudan kendi üye işyeri hesabınıza geçer. Anahtarlarınız kaydedilene kadar kampanyalar uygulamada görünür ama kimse bağış yapamaz.
+2. **Kampanyalar** sayfasında, **Kartla ödemeler** altında sağlayıcınızı (iyzico, Kashier, Fawaterk, Stripe veya PayPal) seçin ve anahtarlarınızı yapıştırın ([Kartla ödemeler](/docs/card-payments) sayfasına bakın). Bağışlar doğrudan kendi üye işyeri hesabınıza geçer. Anahtarlarınız kaydedilene kadar kampanyalar uygulamada görünür ama kimse bağış yapamaz.
 3. **Uygulamada bağışlar** altında para biriminizi seçin. İlk bağıştan sonra değiştirilemez.
 
 ## Kampanyalar

@@ -163,7 +163,7 @@ const SOLUTION_HEADERS: Record<string, { eyebrow: string; title: string; intro: 
     eyebrow: "Charity & donation apps",
     title: "Your campaigns, one tap from a donation",
     intro:
-      "Campaigns with their story and progress, donations paid into your own iyzico, Kashier or Fawaterk account and a receipt for every donor, in an app with your name on it.",
+      "Campaigns with their story and progress, donations paid into your own iyzico, Kashier, Fawaterk, Stripe or PayPal account and a receipt for every donor, in an app with your name on it.",
   },
 };
 

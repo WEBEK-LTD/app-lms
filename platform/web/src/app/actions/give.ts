@@ -17,7 +17,7 @@ import { noteAppError } from "@/lib/watch/app-errors";
 
 /**
  * 29 The donation page's form (/give/<token>): the donor's name and email for
- * the receipt, then the provider's payment page (37 iyzico, Kashier or Fawaterk), paid into the charity's own
+ * the receipt, then the provider's payment page (37 iyzico, Kashier, Fawaterk, Stripe or PayPal), paid into the charity's own
  * account. A demo charity's page gives without any card.
  */
 

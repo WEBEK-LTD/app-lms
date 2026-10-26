@@ -1,7 +1,7 @@
 import type { Strings } from "../types";
 
 /**
- * 62 What payment providers (iyzico, Kashier, Fawaterk) and email servers
+ * 62 What payment providers (iyzico, Kashier, Fawaterk, 96.1 Stripe, PayPal) and email servers
  * answer, in plain words (lib/payments/explain.ts, lib/payments/refund.ts,
  * lib/email/app-mail.ts), and a few sentences server actions put together
  * from others. The provider's own words after "Details:" stay as they are.
@@ -32,6 +32,7 @@ export const en = {
     couldntCancel: "{provider} couldn't cancel the payment.",
     couldntRefund: "{provider} couldn't make the refund.",
     noSession: "Kashier didn't return the payment session.",
+    paypalKeys: "PayPal didn't accept the client ID and secret.",
     http: "{provider} answered HTTP {status}.",
     noCurrency: "{provider} doesn't take payments in {currency}.",
     // lib/payments/refund.ts
@@ -77,6 +78,7 @@ export const ar: Messages = {
     couldntCancel: "تعذّر على {provider} إلغاء الدفعة.",
     couldntRefund: "تعذّر على {provider} إجراء الاسترداد.",
     noSession: "لم يُرجع Kashier جلسة الدفع.",
+    paypalKeys: "لم يقبل PayPal معرّف العميل والسر.",
     http: "ردّ {provider} برمز HTTP {status}.",
     noCurrency: "لا يقبل {provider} الدفع بعملة {currency}.",
     noAnswer: "لم يردّ {provider}. تحقّق من لوحته قبل المحاولة مرة أخرى: ربما تمّ الاسترداد.",
@@ -116,6 +118,7 @@ export const tr: Messages = {
     couldntCancel: "{provider} ödemeyi iptal edemedi.",
     couldntRefund: "{provider} iadeyi yapamadı.",
     noSession: "Kashier ödeme oturumunu döndürmedi.",
+    paypalKeys: "PayPal, client ID ve secret bilgilerini kabul etmedi.",
     http: "{provider} HTTP {status} ile yanıt verdi.",
     noCurrency: "{provider} {currency} ile ödeme kabul etmiyor.",
     noAnswer: "{provider} yanıt vermedi. Yeniden denemeden önce panelini kontrol edin: iade yapılmış olabilir.",

@@ -1398,6 +1398,16 @@ routine every few years):
   tell the developers: those values were sealed in a way the job doesn't
   know.
 
+## 7z. Stripe and PayPal for clients (Phase 96)
+
+- No migration and nothing to set: each client pastes their own Stripe secret
+  key or PayPal client ID and secret on Products (or Donations). Yallapp
+  never receives the money and takes no commission.
+- Never set `STRIPE_API_URL` or `PAYPAL_API_URL` on Netlify: they are for test
+  runs only, and payments fail with an error while they are set there.
+- Stripe and PayPal send no webhook to Yallapp: a payment whose customer
+  closes the page is confirmed by the pending-payments job.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |
