@@ -2116,8 +2116,6 @@ country. Notification campaigns (85): every plan, within its monthly
 notifications. Loyalty points (91.4): every plan but Starter. Agencies (92):
 postponed.
 
-| | Step | Done when |
-|---|---|---|
 Planned in detail (2026-10-26): the pricing page already compares every
 plan's features and limits (the comparison table, with loyalty points and
 chat); the overview lists what the app's plan includes and Upgrade for the
@@ -2127,4 +2125,6 @@ languages, Media storage with its packs) with a bar that warns when nearly
 or fully used, how long analytics are kept, what the plan includes, what a
 higher plan adds, and every app of the account with its plan, price and end.
 
+| | Step | Done when |
+|---|---|---|
 | [x] | 94.1 What you pay for and why, per app and account: each plan's features, limits and what is used of them, in the dashboard and on the pricing page | e2e |
