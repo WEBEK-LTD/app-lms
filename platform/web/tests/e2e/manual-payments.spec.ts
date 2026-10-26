@@ -82,11 +82,11 @@ test("a shop takes a bank transfer, marks it paid, and cancels an unpaid order",
   const other = page.getByRole("region", { name: "Bank transfer and your own method" });
   await expect(other).toContainText("Yallapp never sees this money.");
   await other.getByLabel("Your own method's name").fill("Cash on delivery");
-  await other.getByRole("button", { name: "Save" }).click();
+  await other.getByRole("button", { name: "Save payment methods" }).click();
   await expect(other.getByText("Write what the customer does to pay this way.")).toBeVisible();
   await other.getByLabel("Bank details").fill(`Harbour Atlases Ltd\n${IBAN}`);
   await other.getByLabel("What the customer does").fill("Pay the courier when your atlas arrives.");
-  await other.getByRole("button", { name: "Save" }).click();
+  await other.getByRole("button", { name: "Save payment methods" }).click();
   await expect(other.getByText("Payment methods saved.")).toBeVisible();
   await expect(other.getByText("On: Bank transfer and Cash on delivery")).toBeVisible();
   // With these, the shop takes orders: no "can't pay" warning.
