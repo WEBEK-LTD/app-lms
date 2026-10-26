@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { changeRolloutAction, rebuildBuildAction, retryBuildAction, saveStagedReleaseAction, saveVersionsAction, startBuildAction } from "@/app/actions/dashboard";
+import { changeRolloutAction, goBackToBuildAction, rebuildBuildAction, retryBuildAction, saveStagedReleaseAction, saveVersionsAction, startBuildAction } from "@/app/actions/dashboard";
 import { FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { initialFormState } from "@/lib/forms";
@@ -76,6 +76,22 @@ export function RebuildForm({ buildId, number }: { buildId: string; number: numb
       <SubmitButton variant="secondary" className="h-8 px-2.5 text-xs" pendingText={t("builds.starting")} aria-label={t("builds.rebuildLabel", { number })}>
         <Icon name="refresh" size={16} />
         {t("builds.rebuild")}
+      </SubmitButton>
+      <FormMessage message={state.message} ok={state.ok} />
+    </form>
+  );
+}
+
+/** 89.3 Go back to a build: its settings and pages, and the build made again. */
+export function GoBackForm({ buildId, number }: { buildId: string; number: number }) {
+  const t = useDashT();
+  const [state, action] = useActionState(goBackToBuildAction, initialFormState);
+  return (
+    <form action={action} className="mt-1 flex flex-col items-start gap-1">
+      <input type="hidden" name="buildId" value={buildId} />
+      <SubmitButton variant="ghost" className="h-8 px-2.5 text-xs" pendingText={t("builds.starting")} aria-label={t("builds.goBackLabel", { number })}>
+        <Icon name="arrow_back" size={16} />
+        {t("builds.goBack")}
       </SubmitButton>
       <FormMessage message={state.message} ok={state.ok} />
     </form>

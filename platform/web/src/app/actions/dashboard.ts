@@ -6,6 +6,7 @@ import { checkApi, type ApiCheckResult } from "@/lib/app/api-check";
 import { listingLanguages, parseListingExtras } from "@/lib/app/listing-languages";
 import { versionSettingsProblems } from "@/lib/app/version-policy";
 import { changeRollout, FIRST_SHARES, RolloutError, type RolloutAction } from "@/lib/publishing/rollout";
+import { restoreFromBuild } from "@/lib/builds/go-back";
 import { apiCheckSignIn } from "@/lib/hosted/test-token";
 import { appTypeName, connectorFits, ENGINES, hostedOnly, isAppType, kindById, defaultKind, ownContentTitle, type OwnContentKind } from "@/lib/app/kinds";
 import { isSetupComplete, managedPublishing, newApp, queueBuild, STEP_LABEL, type SetupStep } from "@/lib/app/setup";
@@ -1007,6 +1008,33 @@ export async function changeRolloutAction(_: FormState, formData: FormData): Pro
     if (error instanceof RolloutError) return { message: error.message };
     throw error;
   }
+}
+
+/**
+ * 89.3 "Go back to this build": the app's look, names and store listing as
+ * they were for it, the pages published then as the draft, and the build
+ * made again from the same app code with a new version.
+ */
+export async function goBackToBuildAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireApp("settings");
+  const store = await getStore();
+  const from = await store.getBuild(String(formData.get("buildId") ?? ""));
+  if (!from || from.appId !== context.app.id || from.status !== "ready" || !from.sourceCommit) return { message: "This build can't be gone back to." };
+  const now = new Date();
+  const restored = await restoreFromBuild(store, context.app, from, now);
+  const app = (await store.getAppById(context.app.id)) ?? context.app;
+  const latest = (await store.listBuildsByApp(app.id, 1))[0] ?? null;
+  const result = await queueBuild(store, { client: context.client, app, license: context.license, versionName: suggestedVersion(latest), from }, now, assetUrl, preflightDeps(store));
+  await recordStaffChange(context, `Went back to build #${from.number}${restored.pagesFrom ? ` (pages from publish ${restored.pagesFrom})` : ""}`);
+  revalidatePath("/dashboard", "layout");
+  if (!result.ok) {
+    return {
+      ok: true,
+      message: result.reason === "build_running" ? "Settings are back as they were. A build is already in progress: start the new one when it finishes." : "Settings are back as they were. Start a new build when you're ready.",
+    };
+  }
+  await startPipeline();
+  redirect(`/dashboard/builds?queued=${result.build.number}&back=${from.number}${restored.pagesFrom ? "&pages=1" : ""}`);
 }
 
 /** Releases the license from its website so it can be activated on another one. */

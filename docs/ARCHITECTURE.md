@@ -2319,6 +2319,26 @@ tries the next week), and the send's row is removed. WordPress campaigns go
 to everyone (the platform doesn't know the site's people); a page of the
 app opens on the site's links (`<site>/a/page/<slug>`).
 
+## Updates you can undo (Phase 89)
+
+- **Versions** (89.1, `lib/app/version-policy.ts`): the owner's minimum and
+  recommended versions (migration 0076). Every app asks Yallapp on start
+  (`GET /api/v1/apps/{id}/version`, platform.yaml, with the analytics key)
+  whatever its content comes from, and gets the page of the store it was
+  installed from; below the minimum it shows Update required, below the
+  recommended version it asks once per version.
+- **Staged releases** (89.2, `lib/publishing/rollout.ts`): with "We publish
+  for you", the app's choice (migration 0077) goes on each build as
+  `release` (pipeline.yaml): the pipeline uploads to Google Play's
+  production track for that share and sets Apple's phased release. A status
+  report finishing the upload starts `apps.rollout`; the owner continues,
+  stops or completes it through the Android Publisher API (a token from the
+  service account) and App Store Connect's phased release.
+- **Going back** (89.3, `lib/builds/go-back.ts`): a build's settings (from
+  its config and listing) and the pages published then (as the draft), then
+  the build again as it was; the versions in use from the `version` daily
+  statistics.
+
 ## Publishing without surprises (Phase 88)
 
 - **Ready to submit** (88.1, `lib/publishing/readiness.ts`): the Publishing
