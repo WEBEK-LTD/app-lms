@@ -2261,6 +2261,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Choose where your app\'s content comes from on the Website step of your setup, then reload the preview.';
 
   @override
+  String get previewNoPlugin =>
+      'Install the Yallapp plugin on your WordPress site and activate your license key in it (Yallapp in the WordPress menu), then reload the preview.';
+
+  @override
+  String get previewBeingSetUp =>
+      'Our team is setting up your WordPress site. The preview shows your app\'s content once it\'s ready.';
+
+  @override
   String previewApiBlocked(String origin) {
     return 'The preview couldn\'t reach your app\'s content. If your site or API blocks requests from other addresses, allow $origin. The guide Connect your own API in the Yallapp docs shows how.';
   }

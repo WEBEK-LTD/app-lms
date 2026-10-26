@@ -294,11 +294,11 @@ describe("Yallapp's sign-in for an app on its own API", () => {
     expect(buildConfigFor(theirs, { id: app.clientId }, { name: "1.0.0", code: 1 }, (id) => id).auth_base_url).toBeUndefined();
 
     const grant = { appId: app.id, draft: false, expiresAt: new Date(NOW.getTime() + 3600_000) };
-    const preview = previewConfigFor(app, grant, { token: "preview-token", platformUrl: PLATFORM, assetUrl: (id) => id, plan: null });
+    const preview = previewConfigFor(app, grant, { token: "preview-token", platformUrl: PLATFORM, assetUrl: (id) => id, plan: null, pluginConnected: false });
     expect(preview.config.auth_base_url).toBe(`${PLATFORM}/api/app/${app.id}`);
     expect(preview.config.api_base_url).toBe("https://api.academy.test/yallapp/v1");
     expect(preview.preview).toMatchObject({ content_source: "custom_api", api_token: "preview-token" });
-    const own = previewConfigFor(theirs, grant, { token: "preview-token", platformUrl: PLATFORM, assetUrl: (id) => id, plan: null });
+    const own = previewConfigFor(theirs, grant, { token: "preview-token", platformUrl: PLATFORM, assetUrl: (id) => id, plan: null, pluginConnected: false });
     expect(own.config.auth_base_url).toBeUndefined();
     expect(own.preview.api_token).toBeNull();
   });

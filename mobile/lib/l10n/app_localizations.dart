@@ -3688,6 +3688,18 @@ abstract class AppLocalizations {
   /// **'Choose where your app\'s content comes from on the Website step of your setup, then reload the preview.'**
   String get previewNoContent;
 
+  /// No description provided for @previewNoPlugin.
+  ///
+  /// In en, this message translates to:
+  /// **'Install the Yallapp plugin on your WordPress site and activate your license key in it (Yallapp in the WordPress menu), then reload the preview.'**
+  String get previewNoPlugin;
+
+  /// No description provided for @previewBeingSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Our team is setting up your WordPress site. The preview shows your app\'s content once it\'s ready.'**
+  String get previewBeingSetUp;
+
   /// No description provided for @previewApiBlocked.
   ///
   /// In en, this message translates to:

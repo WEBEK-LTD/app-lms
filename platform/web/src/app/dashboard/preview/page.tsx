@@ -22,7 +22,8 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 import { localePath } from "@/i18n/paths";
 import { languagesForPlan } from "@/lib/pages/plan";
-import { draftPreviewSupported, missingSteps, previewContentSource } from "@/lib/preview/config";
+import { draftPreviewSupported, missingSteps, previewContentSource, previewWaitingFor } from "@/lib/preview/config";
+import { wordpressPluginConnected } from "@/lib/preview/service";
 import { createPreviewToken, previewAppPath, previewKey } from "@/lib/preview/token";
 import { PreviewPanel } from "./panel";
 
@@ -61,7 +62,9 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
   const path = previewAppPath(token);
   const phoneUrl = `${appUrl()}${path}`;
   const missing = missingSteps(app, planId, plans);
-  const source = previewContentSource(app);
+  const pluginConnected = await wordpressPluginConnected(store, app);
+  const source = previewContentSource(app, pluginConnected);
+  const waiting = previewWaitingFor(app, pluginConnected);
   const name = appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app);
 
   // The languages the app offers, as it will get them (draft or published, within the plan).
@@ -76,8 +79,13 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
     wordpress: richText(t("preview.sourceWordpress"), site(app.siteUrl ?? "")),
     custom_api: richText(t("preview.sourceApi"), site(app.apiBaseUrl ?? "")),
     hosted: t("preview.sourceHosted"),
-    // 19 Our team is still setting up the WordPress site.
-    none: app.backend === "setup_requested" ? t("preview.sourceSetup") : t("preview.sourceNone"),
+    // 19 Our team is still setting up the WordPress site; the plugin isn't on the client's site yet.
+    none:
+      waiting === "setup"
+        ? t("preview.sourceSetup")
+        : waiting === "plugin"
+          ? richText(t("preview.sourcePlugin"), site(app.siteUrl ?? ""))
+          : t("preview.sourceNone"),
   };
 
   const settings = hostedSettings(app);

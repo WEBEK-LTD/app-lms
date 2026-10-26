@@ -202,6 +202,23 @@ void main() {
       );
       expect(start.session.contentSource, PreviewContentSource.none);
       expect(start.session.apiToken, isNull);
+      expect(start.session.waitingFor, isNull);
+    });
+
+    test('knows what an app without content waits for', () {
+      PreviewWaitingFor? waiting(String? value) {
+        final json = _previewJson(source: 'none');
+        (json['preview'] as Map)['waiting_for'] = value;
+        return previewStartFromJson(
+          json,
+          platformUrl: 'https://yallapp.com.tr',
+        ).session.waitingFor;
+      }
+
+      expect(waiting('website'), PreviewWaitingFor.website);
+      expect(waiting('plugin'), PreviewWaitingFor.plugin);
+      expect(waiting('setup'), PreviewWaitingFor.setup);
+      expect(waiting('later'), isNull);
     });
   });
 

@@ -2305,6 +2305,14 @@ class AppLocalizationsAr extends AppLocalizations {
       'اختر مصدر محتوى تطبيقك في خطوة الموقع ضمن الإعداد، ثم أعد تحميل المعاينة.';
 
   @override
+  String get previewNoPlugin =>
+      'ثبّت إضافة Yallapp على موقعك على WordPress وفعّل مفتاح الترخيص فيها (Yallapp في قائمة WordPress)، ثم أعد تحميل المعاينة.';
+
+  @override
+  String get previewBeingSetUp =>
+      'يعمل فريقنا على إعداد موقعك على WordPress. تعرض المعاينة محتوى تطبيقك عندما يصبح جاهزًا.';
+
+  @override
   String previewApiBlocked(String origin) {
     return 'تعذّر على المعاينة الوصول إلى محتوى تطبيقك. إذا كان موقعك أو واجهتك البرمجية يحظر الطلبات من عناوين أخرى، فاسمح بـ $origin. يشرح دليل ربط واجهتك البرمجية في مستندات Yallapp الطريقة.';
   }
