@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:yallapp/core/api/models/config_models.dart';
 import 'package:yallapp/core/gate/app_gate.dart';
 import 'package:yallapp/core/storage/local_settings.dart';
 import 'package:yallapp/core/services/version_check.dart';
@@ -123,4 +124,47 @@ void main() {
     expect(app.container.read(appGateProvider), isA<GateReady>());
     expect(find.text('A new version is ready'), findsNothing);
   });
+
+  test('76.6 reads why a WordPress app is paused', () {
+    final policy = VersionPolicy.fromJson({
+      'update_required': false,
+      'update_recommended': false,
+      'minimum_version': null,
+      'recommended_version': null,
+      'store_url': null,
+      'paused': {
+        'code': 'account_suspended',
+        'message': 'Rose Shop is paused right now.',
+        'contact': {'name': 'Rose Shop', 'whatsapp': '+905321112233'},
+      },
+    });
+    expect(policy.paused!.suspended, isTrue);
+    expect(policy.paused!.contact!.whatsapp, '+905321112233');
+    expect(
+      VersionPolicy.fromJson({'paused': null, 'store_url': null}).paused,
+      isNull,
+    );
+  });
+
+  testWidgets(
+    '76.6 a WordPress app whose plan ended: the paused screen, from Yallapp',
+    (tester) async {
+      final app = appWith(
+        const VersionPolicy(
+          updateRequired: false,
+          updateRecommended: false,
+          paused: AppPaused(
+            message: 'Rose Shop is paused right now.',
+            suspended: false,
+            contact: OwnerContact(name: 'Rose Shop', whatsapp: '+905321112233'),
+          ),
+        ),
+      );
+      await app.pump(tester);
+      expect(app.container.read(appGateProvider), isA<GatePaused>());
+      expect(find.text('Rose Shop is paused'), findsOneWidget);
+      expect(find.text('Contact Rose Shop'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

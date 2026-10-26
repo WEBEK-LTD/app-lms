@@ -3,6 +3,8 @@ import type { App, PublishingRequest } from "../data/types";
 import { ANALYTICS_KEY_HEADER, analyticsKeyMatches } from "../analytics/ingest";
 import { ipFromHeaders } from "../http";
 import { hitRateLimit, RATE_LIMITS } from "../rate-limit";
+import { ownerContact } from "../hosted/service";
+import { licenseState } from "../license/status";
 
 /**
  * 89.1 Which versions of an app may still be used: the owner's minimum
@@ -44,6 +46,34 @@ export interface VersionPolicy {
   minimum_version: string | null;
   recommended_version: string | null;
   store_url: string | null;
+  /** 76.6 Why a WordPress app is paused, or null (docs/api/platform.yaml `AppPaused`). */
+  paused?: AppPaused | null;
+}
+
+export interface AppPaused {
+  code: "license_inactive" | "account_suspended";
+  message: string;
+  contact: { name: string; whatsapp: string | null; email: string | null };
+}
+
+/**
+ * 76.6 A WordPress app is paused here, not by the plugin (which serves every
+ * site whatever its license, as WordPress.org asks): when its plan isn't
+ * active or the owner's account is suspended. Other apps: null (the hosted
+ * API pauses its own; an own API is the owner's).
+ */
+export async function appPaused(store: DataStore, app: App, now: Date): Promise<AppPaused | null> {
+  if (app.backend !== "wordpress") return null;
+  const [client, license] = await Promise.all([store.getClientById(app.clientId), store.getLicenseForApp(app.clientId, app.id)]);
+  const state = client && license ? licenseState(client, license, now) : "invalid";
+  if (state === "active") return null;
+  const contact = ownerContact(app);
+  const owner = app.appName?.trim() || "the app's owner";
+  return {
+    code: client?.status === "suspended" ? "account_suspended" : "license_inactive",
+    message: `${contact.name} is paused right now. Please contact ${owner} to bring it back.`,
+    contact,
+  };
 }
 
 export function versionPolicy(app: Pick<App, "androidPackage" | "minVersion" | "recommendedVersion">, request: PublishingRequest | null, input: { platform: "android" | "ios"; version: string; store: InstallStore | null }): VersionPolicy {
@@ -91,5 +121,6 @@ export async function answerVersionCheck(
   }
   const perApp = await hitRateLimit(store, RATE_LIMITS.analyticsApp, app.id, input.now);
   if (!perApp.allowed) return { status: 429, body: { code: "rate_limited", message: "Too many requests. Try again shortly.", retry_after_seconds: perApp.retryAfter }, retryAfter: perApp.retryAfter };
-  return { status: 200, body: versionPolicy(app, await store.getPublishingRequest(app.id), { platform, version, store: (asked as InstallStore | null) ?? null }) };
+  const [request, paused] = await Promise.all([store.getPublishingRequest(app.id), appPaused(store, app, input.now)]);
+  return { status: 200, body: { ...versionPolicy(app, request, { platform, version, store: (asked as InstallStore | null) ?? null }), paused } };
 }

@@ -92,14 +92,14 @@
           "method": "POST",
           "path": "/auth/refresh",
           "summary": "Refresh tokens",
-          "description": "Exchanges a refresh token for new tokens. The old refresh token stops working (rotation). Roadmap 68: also while the app is paused, so a signed-in person can still delete their account.",
+          "description": "Exchanges a refresh token for new tokens. The old refresh token stops working (rotation). Roadmap 68: also while the app is paused on the hosted API, so a signed-in person can still delete their account.",
           "access": "public"
         },
         {
           "method": "POST",
           "path": "/auth/logout",
           "summary": "Sign out this device",
-          "description": "Also while the app is paused (roadmap 68).",
+          "description": "Also while the app is paused on the hosted API (roadmap 68).",
           "access": "signed-in"
         }
       ]
@@ -146,7 +146,7 @@
           "method": "DELETE",
           "path": "/me",
           "summary": "Delete account",
-          "description": "Required by Apple and Google. Deletes or anonymises the WordPress user according to the site's policy and signs out every device. In a demo app (one shared account) it signs out this device only.\n\nRoadmap 68: it keeps working while the app is paused (its plan ended, or the owner's account is suspended), together with `POST /auth/refresh` and `POST /auth/logout`, on WordPress (plugin 0.4.6) and on the hosted API. The app offers it on its paused screen to someone who is signed in.",
+          "description": "Required by Apple and Google. Deletes or anonymises the WordPress user according to the site's policy and signs out every device. In a demo app (one shared account) it signs out this device only.\n\nRoadmap 68: it keeps working while the app is paused on the hosted API (its plan ended, or the owner's account is suspended), together with `POST /auth/refresh` and `POST /auth/logout`. The app offers it on its paused screen to someone who is signed in. (The WordPress plugin never pauses since 0.4.18.)",
           "access": "signed-in"
         },
         {
@@ -284,7 +284,7 @@
           "method": "POST",
           "path": "/me/downloads/check",
           "summary": "Whether the student may keep their saved lessons",
-          "description": "Roadmap 45. The app sends the lessons it keeps for offline viewing when it starts with a connection. A lesson is `refused` when the student can't open it any more (their enrollment ended, was refunded or expired, or the lesson is gone); the app deletes it. The app also deletes everything when `downloads` is false (the owner turned downloads off or the plan no longer includes offline mode), and a lesson it hasn't been able to check for `keep_days` days.",
+          "description": "Roadmap 45. The app sends the lessons it keeps for offline viewing when it starts with a connection. A lesson is `refused` when the student can't open it any more (their enrollment ended, was refunded or expired, or the lesson is gone); the app deletes it. The app also deletes everything when `downloads` is false (the owner turned downloads off or, on the hosted API, the plan no longer includes offline mode), and a lesson it hasn't been able to check for `keep_days` days.",
           "access": "signed-in"
         },
         {
@@ -957,7 +957,7 @@
           "method": "POST",
           "path": "/license/refresh",
           "summary": "Check the license now",
-          "description": "Sent by the Yallapp platform, a few seconds after the app's owner saves something the plugin reads from its license status (the app type, how people sign in, the plan) or publishes the app's pages. The plugin then checks its license with the platform and fetches the published pages, as it does on its own twice a day and every 15 minutes. It trusts nothing in this request: it only learns that it should ask now.\n\nThe request is signed with the site's license key, which both sides know: `signature` is the lowercase hex HMAC-SHA256 of `yallapp-license-refresh:<timestamp>` keyed with the license key in capitals (`YALL-XXXX-XXXX-XXXX`). The plugin refuses a wrong signature, a site without a license key and a timestamp more than 5 minutes away from its clock (`invalid_signature`, 401). It checks at most once every 30 seconds: a nudge within 30 seconds of the last one gets 429 and the plugin checks once when the 30 seconds are over, so the last change still arrives. Reachable during maintenance and while the app API is paused, so a renewed or reactivated plan reaches the site.",
+          "description": "Sent by the Yallapp platform, a few seconds after the app's owner saves something the plugin reads from its license status (the app type, how people sign in, the plan) or publishes the app's pages. The plugin then checks its license with the platform and fetches the published pages, as it does on its own twice a day and every 15 minutes. It trusts nothing in this request: it only learns that it should ask now.\n\nThe request is signed with the site's license key, which both sides know: `signature` is the lowercase hex HMAC-SHA256 of `yallapp-license-refresh:<timestamp>` keyed with the license key in capitals (`YALL-XXXX-XXXX-XXXX`). The plugin refuses a wrong signature, a site without a license key and a timestamp more than 5 minutes away from its clock (`invalid_signature`, 401). It checks at most once every 30 seconds: a nudge within 30 seconds of the last one gets 429 and the plugin checks once when the 30 seconds are over, so the last change still arrives. Reachable during maintenance, so new settings reach the site.",
           "access": "public"
         }
       ]

@@ -892,9 +892,10 @@ never in a chat or an issue.
 > **Changed by plugin 0.4.18 (7v, roadmap 76.6).** WordPress.org's review
 > counted the paused API as trialware, so from 0.4.18 the plugin never pauses
 > the app's API and never limits push or offline downloads by license or
-> plan. On WordPress an ended plan stops only Yallapp's services (app builds
-> and updates, chat, Yallapp media, new layouts, sign-in codes sent by
-> Yallapp). The WordPress items below are kept for sites still on 0.4.6 to
+> plan. On WordPress an ended plan pauses the app through Yallapp instead:
+> the version check the app makes on every start answers `paused`, and the
+> app shows its paused screen (builds made after this change; older builds
+> keep reading the site until they update). Yallapp's services stop too. The WordPress items below are kept for sites still on 0.4.6 to
 > 0.4.17; skip them once clients are on 0.4.18. The hosted API is unchanged.
 
 - [ ] Apply migration `0049_license_end_refresh.sql` after `0048`
@@ -1078,11 +1079,10 @@ never in a chat or an issue.
       app-view style is enqueued, MasterStudy strings use the `yallapp` text
       domain, and the one-time sign-in and checkout links say why they have
       no nonce. Release 0.4.18 in Admin › Plugin releases too.
-- [ ] Tell WordPress clients what 0.4.18 changes: when a plan ends, their
-      app keeps reading their site (courses, products, bookings, posts, push
-      through their own Firebase), and only Yallapp's services stop (app
-      updates in the stores, chat, Yallapp media, new layouts, sign-in codes
-      sent by Yallapp). Settings › License says so.
+- [ ] After deploying: on a test WordPress app built after this change, end
+      its plan in the admin and open the app: it shows "… is paused" with
+      Contact; renew and Try again opens it. The plugin's own API keeps
+      answering (WordPress.org's rule); only the app pauses.
 
 ## 7w. Chat in the app (Phase 77)
 

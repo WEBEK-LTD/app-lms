@@ -114,6 +114,16 @@ class AppGate extends Notifier<GateState> {
         return;
       }
       final version = await policy;
+      // 76.6 A WordPress app whose plan isn't active: Yallapp says so.
+      final paused = version?.paused;
+      if (paused != null) {
+        state = GatePaused(
+          paused.message,
+          contact: paused.contact,
+          suspended: paused.suspended,
+        );
+        return;
+      }
       if (version != null && version.updateRequired) {
         state = GateUpdateRequired(storeUrl: version.storeUrl);
         return;

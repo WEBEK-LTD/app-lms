@@ -23,9 +23,9 @@ export const en = {
     "Your plan ended on {date}. The app is paused, and your app users see that you can bring it back. Renew it by card below, or <whatsapp>message us on WhatsApp</whatsapp> to renew.",
   expiredPlan: "Your plan ended on {date}. The app is paused, and your app users see that you can bring it back. <whatsapp>Message us on WhatsApp</whatsapp> to renew.",
   expiredPay:
-    "Your plan ended on {date}. Yallapp's services for the app have stopped: new builds and updates, chat, Media videos, new page layouts and sign-in codes sent by Yallapp. Your WordPress site keeps serving the app. Renew it by card below, or <whatsapp>message us on WhatsApp</whatsapp> to renew.",
+    "Your plan ended on {date}. The app is paused: Yallapp tells it so when it opens, and your app users see that you can bring it back. Yallapp's services for it have stopped too: new builds, chat, Media videos and sign-in codes sent by Yallapp. Renew it by card below, or <whatsapp>message us on WhatsApp</whatsapp> to renew.",
   expired:
-    "Your plan ended on {date}. Yallapp's services for the app have stopped: new builds and updates, chat, Media videos, new page layouts and sign-in codes sent by Yallapp. Your WordPress site keeps serving the app. <whatsapp>Message us on WhatsApp</whatsapp> to renew.",
+    "Your plan ended on {date}. The app is paused: Yallapp tells it so when it opens, and your app users see that you can bring it back. Yallapp's services for it have stopped too: new builds, chat, Media videos and sign-in codes sent by Yallapp. <whatsapp>Message us on WhatsApp</whatsapp> to renew.",
   license: "License",
   app: "App: <b>{app}</b>",
   licenseKey: "License key",
@@ -205,9 +205,9 @@ export const ar: Messages = {
     "انتهت باقتك في {date}. التطبيق متوقف مؤقتًا، ويرى مستخدمو تطبيقك أنه يمكنك إعادته. جدّدها بالبطاقة أدناه، أو <whatsapp>راسلنا على WhatsApp</whatsapp> للتجديد.",
   expiredPlan: "انتهت باقتك في {date}. التطبيق متوقف مؤقتًا، ويرى مستخدمو تطبيقك أنه يمكنك إعادته. <whatsapp>راسلنا على WhatsApp</whatsapp> للتجديد.",
   expiredPay:
-    "انتهت باقتك في {date}. توقفت خدمات Yallapp لهذا التطبيق: الإصدارات والتحديثات الجديدة، والدردشة، وفيديوهات الوسائط، وتخطيطات الصفحات الجديدة، ورموز تسجيل الدخول التي يرسلها Yallapp. ويواصل موقع WordPress الخاص بك خدمة التطبيق. جدّدها بالبطاقة أدناه، أو <whatsapp>راسلنا على WhatsApp</whatsapp> للتجديد.",
+    "انتهت باقتك في {date}. التطبيق متوقف مؤقتًا: يخبره Yallapp بذلك عند فتحه، ويرى مستخدمو تطبيقك أنه يمكنك إعادته. وتوقفت أيضًا خدمات Yallapp له: الإصدارات الجديدة، والمحادثات، وفيديوهات الوسائط، ورموز تسجيل الدخول التي يرسلها Yallapp. جدّدها بالبطاقة أدناه، أو <whatsapp>راسلنا على WhatsApp</whatsapp> للتجديد.",
   expired:
-    "انتهت باقتك في {date}. توقفت خدمات Yallapp لهذا التطبيق: الإصدارات والتحديثات الجديدة، والدردشة، وفيديوهات الوسائط، وتخطيطات الصفحات الجديدة، ورموز تسجيل الدخول التي يرسلها Yallapp. ويواصل موقع WordPress الخاص بك خدمة التطبيق. <whatsapp>راسلنا على WhatsApp</whatsapp> للتجديد.",
+    "انتهت باقتك في {date}. التطبيق متوقف مؤقتًا: يخبره Yallapp بذلك عند فتحه، ويرى مستخدمو تطبيقك أنه يمكنك إعادته. وتوقفت أيضًا خدمات Yallapp له: الإصدارات الجديدة، والمحادثات، وفيديوهات الوسائط، ورموز تسجيل الدخول التي يرسلها Yallapp. <whatsapp>راسلنا على WhatsApp</whatsapp> للتجديد.",
   license: "الترخيص",
   app: "التطبيق: <b>{app}</b>",
   licenseKey: "مفتاح الترخيص",
@@ -381,9 +381,9 @@ export const tr: Messages = {
     "Paketiniz {date} tarihinde sona erdi. Uygulama duraklatıldı ve uygulama kullanıcılarınız onu geri getirebileceğinizi görüyor. Aşağıdan kartla yenileyin ya da yenilemek için <whatsapp>WhatsApp'tan bize yazın</whatsapp>.",
   expiredPlan: "Paketiniz {date} tarihinde sona erdi. Uygulama duraklatıldı ve uygulama kullanıcılarınız onu geri getirebileceğinizi görüyor. Yenilemek için <whatsapp>WhatsApp'tan bize yazın</whatsapp>.",
   expiredPay:
-    "Paketiniz {date} tarihinde sona erdi. Uygulamanın Yallapp hizmetleri durdu: yeni derlemeler ve güncellemeler, sohbet, Medya videoları, yeni sayfa düzenleri ve Yallapp'ın gönderdiği giriş kodları. WordPress siteniz uygulamaya hizmet vermeye devam ediyor. Aşağıdan kartla yenileyin ya da yenilemek için <whatsapp>WhatsApp'tan bize yazın</whatsapp>.",
+    "Paketiniz {date} tarihinde sona erdi. Uygulama duraklatıldı: Yallapp uygulama açıldığında bunu bildirir ve uygulama kullanıcılarınız onu geri getirebileceğinizi görür. Uygulamanın Yallapp hizmetleri de durdu: yeni derlemeler, sohbet, Medya videoları ve Yallapp'ın gönderdiği giriş kodları. Aşağıdan kartla yenileyin ya da yenilemek için <whatsapp>WhatsApp'tan bize yazın</whatsapp>.",
   expired:
-    "Paketiniz {date} tarihinde sona erdi. Uygulamanın Yallapp hizmetleri durdu: yeni derlemeler ve güncellemeler, sohbet, Medya videoları, yeni sayfa düzenleri ve Yallapp'ın gönderdiği giriş kodları. WordPress siteniz uygulamaya hizmet vermeye devam ediyor. Yenilemek için <whatsapp>WhatsApp'tan bize yazın</whatsapp>.",
+    "Paketiniz {date} tarihinde sona erdi. Uygulama duraklatıldı: Yallapp uygulama açıldığında bunu bildirir ve uygulama kullanıcılarınız onu geri getirebileceğinizi görür. Uygulamanın Yallapp hizmetleri de durdu: yeni derlemeler, sohbet, Medya videoları ve Yallapp'ın gönderdiği giriş kodları. Yenilemek için <whatsapp>WhatsApp'tan bize yazın</whatsapp>.",
   license: "Lisans",
   app: "Uygulama: <b>{app}</b>",
   licenseKey: "Lisans anahtarı",

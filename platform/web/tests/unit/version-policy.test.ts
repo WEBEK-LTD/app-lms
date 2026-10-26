@@ -7,7 +7,8 @@ import { getStore } from "@/lib/data";
 import { MemoryStore } from "@/lib/data/memory";
 import { signingSecret } from "@/lib/env";
 import { newPublishingRequest } from "@/lib/publishing/steps";
-import { NOW } from "./helpers";
+import { appPaused } from "@/lib/app/version-policy";
+import { NOW, setupClient } from "./helpers";
 
 const SECRET = "version-test-secret-0123456789abcdef";
 
@@ -79,5 +80,32 @@ describe("89.1 the versions people may use", () => {
     );
     expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({ update_required: false, update_recommended: true, recommended_version: "3.0.0" });
+  });
+
+  it("76.6 pauses a WordPress app whose plan isn't active, with how to reach its owner; never the others", async () => {
+    const { store, client } = await setupClient({ activeUntil: new Date(NOW.getTime() + 86_400_000) });
+    const app = newApp(client.id, null, NOW);
+    await store.createApp(app);
+    const wordpress = { ...app, backend: "wordpress" as const, appName: "Ada Academy", supportEmail: "help@ada.test" };
+    await store.updateApp(app.id, { backend: "wordpress", appName: "Ada Academy", supportEmail: "help@ada.test" }, NOW);
+    expect(await appPaused(store, wordpress, NOW)).toBeNull();
+    const later = new Date(NOW.getTime() + 2 * 86_400_000);
+    expect(await appPaused(store, wordpress, later)).toEqual({
+      code: "license_inactive",
+      message: "Ada Academy is paused right now. Please contact Ada Academy to bring it back.",
+      contact: { name: "Ada Academy", whatsapp: null, email: "help@ada.test" },
+    });
+    expect(await appPaused(store, { ...wordpress, backend: "hosted" }, later)).toBeNull();
+    await store.updateClient(client.id, { status: "suspended" }, NOW);
+    expect(await appPaused(store, wordpress, NOW)).toMatchObject({ code: "account_suspended" });
+    // The version check carries it.
+    const answer = await answerVersionCheck(store, {
+      appId: app.id,
+      headers: new Headers({ "x-forwarded-for": "203.0.113.10", "x-yallapp-analytics-key": analyticsKey(app.id, SECRET) }),
+      query: new URLSearchParams("platform=android&version=1.0.0"),
+      secret: SECRET,
+      now: NOW,
+    });
+    expect(answer).toMatchObject({ status: 200, body: { update_required: false, paused: { code: "account_suspended" } } });
   });
 });

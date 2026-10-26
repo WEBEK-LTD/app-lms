@@ -2455,6 +2455,11 @@ app opens on the site's links (`<site>/a/page/<slug>`).
   whatever its content comes from, and gets the page of the store it was
   installed from; below the minimum it shows Update required, below the
   recommended version it asks once per version.
+  76.6 For an app on a WordPress site, the same answer carries `paused`
+  (`appPaused`: the plan isn't active, or the owner's account is
+  suspended, with the owner's contact): since plugin 0.4.18 serves every
+  site whatever its license (WordPress.org), Yallapp tells the app instead
+  and the app shows its paused screen.
 - **Staged releases** (89.2, `lib/publishing/rollout.ts`): with "We publish
   for you", the app's choice (migration 0077) goes on each build as
   `release` (pipeline.yaml): the pipeline uploads to Google Play's

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../api/models/config_models.dart';
 import '../providers.dart';
 
 /// 89.1 What Yallapp says about this version of the app
@@ -12,6 +13,7 @@ class VersionPolicy {
     required this.updateRecommended,
     this.recommendedVersion,
     this.storeUrl,
+    this.paused,
   });
 
   factory VersionPolicy.fromJson(Map<String, dynamic> json) => VersionPolicy(
@@ -19,12 +21,41 @@ class VersionPolicy {
     updateRecommended: json['update_recommended'] == true,
     recommendedVersion: json['recommended_version'] as String?,
     storeUrl: json['store_url'] as String?,
+    paused: json['paused'] is Map<String, dynamic>
+        ? AppPaused.fromJson(json['paused'] as Map<String, dynamic>)
+        : null,
   );
 
   final bool updateRequired;
   final bool updateRecommended;
   final String? recommendedVersion;
   final String? storeUrl;
+
+  /// 76.6 Why a WordPress app is paused (its plan isn't active, or the
+  /// owner's account is suspended), or null: Yallapp says so here since the
+  /// plugin serves every site.
+  final AppPaused? paused;
+}
+
+/// 76.6 `AppPaused` (docs/api/platform.yaml).
+class AppPaused {
+  const AppPaused({
+    required this.message,
+    required this.suspended,
+    this.contact,
+  });
+
+  factory AppPaused.fromJson(Map<String, dynamic> json) => AppPaused(
+    message: json['message'] as String? ?? '',
+    suspended: json['code'] == 'account_suspended',
+    contact: json['contact'] is Map<String, dynamic>
+        ? OwnerContact.fromJson(json['contact'] as Map<String, dynamic>)
+        : null,
+  );
+
+  final String message;
+  final bool suspended;
+  final OwnerContact? contact;
 }
 
 /// The version address next to the events one

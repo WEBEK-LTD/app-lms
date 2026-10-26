@@ -728,6 +728,35 @@ components:
           type: [string, 'null']
           format: uri
           description: The app's page on the store it was installed from; null when there's none yet.
+        paused:
+          description: |
+            76.6 Apps on a WordPress site only: why the app is paused, or
+            null (missing on older platforms). The Yallapp plugin serves
+            every site whatever its license (WordPress.org's guidelines), so
+            Yallapp says here when the app's plan isn't active
+            (`license_inactive`) or the owner's account is suspended
+            (`account_suspended`); the app shows its paused screen with how
+            to reach the owner. Apps on the hosted API get the same codes
+            from the API itself.
+          oneOf:
+            - type: 'null'
+            - $ref: '#/components/schemas/AppPaused'
+    AppPaused:
+      type: object
+      additionalProperties: false
+      required: [code, message, contact]
+      properties:
+        code: { type: string, enum: [license_inactive, account_suspended] }
+        message: { type: string }
+        contact: { $ref: '#/components/schemas/OwnerContact' }
+    OwnerContact:
+      type: object
+      description: How app users reach the app's owner, from the app's support settings. The app offers WhatsApp first, then email.
+      required: [name]
+      properties:
+        name: { type: string, description: The app's name. }
+        whatsapp: { type: [string, 'null'], description: A WhatsApp number with its country code. }
+        email: { type: [string, 'null'], format: email }
     Error:
       type: object
       required: [code, message]
