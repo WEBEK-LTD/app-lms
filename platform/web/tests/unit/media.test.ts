@@ -291,7 +291,7 @@ const php = spawnSync("php", ["--version"]).status === 0;
     copyFileSync(path.resolve("deploy/media-host/index.php"), path.join(docroot, "index.php"));
     writeFileSync(
       path.join(docroot, "config.php"),
-      `<?php return array('signing_secret' => '${SECRET}', 'storage_dir' => '${storage}', 'prefix' => '/media', 'max_chunk_bytes' => ${MEDIA_CHUNK_MAX_BYTES});`,
+      `<?php return array('signing_secret' => '${SECRET}', 'storage_dir' => '${storage}', 'prefix' => '/media', 'max_chunk_bytes' => ${MEDIA_CHUNK_MAX_BYTES}, 'allowed_origin' => 'https://yallapp.com.tr');`,
     );
     server = spawn("php", ["-S", `127.0.0.1:${port}`, "-t", docroot, path.join(docroot, "index.php")], { stdio: "ignore" });
     for (let i = 0; i < 50; i++) {
@@ -311,6 +311,19 @@ const php = spawnSync("php", ["--version"]).status === 0;
     gateProtocol("the media gate in PHP (deploy/media-host/index.php)", () => {
       const base = `http://127.0.0.1:${port}/media`;
       return { base, request: (url, init) => fetch(url, init), check: gateRequest({ base, secret: SECRET, disk: null }), storage: mediaStorageWith({ mode: "host", base, secret: SECRET }) };
+    });
+    it("lets the dashboard upload from its address with and without www, and no other site", async () => {
+      const preflight = (origin: string) =>
+        fetch(`http://127.0.0.1:${port}/media/u/${APP}/${FILE}/mp4`, { method: "OPTIONS", headers: { Origin: origin, "Access-Control-Request-Method": "POST" } });
+      for (const origin of ["https://yallapp.com.tr", "https://www.yallapp.com.tr"]) {
+        const answer = await preflight(origin);
+        expect(answer.status).toBe(204);
+        expect(answer.headers.get("access-control-allow-origin")).toBe(origin);
+        expect(answer.headers.get("access-control-allow-methods")).toContain("POST");
+      }
+      for (const origin of ["https://evil.test", "https://yallapp.com.tr.evil.test", "https://wwwyallapp.com.tr"]) {
+        expect((await preflight(origin)).headers.get("access-control-allow-origin")).toBeNull();
+      }
     });
   } else {
     it.skip("the media gate in PHP: PHP isn't installed here", () => undefined);
