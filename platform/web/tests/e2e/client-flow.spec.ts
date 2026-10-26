@@ -155,9 +155,10 @@ test("the client completes the setup wizard and the first build is queued", asyn
   await expect(guide.locator('[data-guide-step="build"]')).toHaveAttribute("data-state", "waiting");
   await expect(guide.locator('[data-guide-step="build"]')).toContainText("A build is running.");
   await expect(guide.locator('[data-guide-step="ready"]')).toHaveAttribute("data-state", "next");
-  await expect(guide.locator('[data-guide-step="ready"]')).toContainText("Choose who publishes the app to see what the stores check.");
+  // Publishing keys saved: the app publishes itself, so the stores' checks are counted.
+  await expect(guide.locator('[data-guide-step="ready"]')).toContainText(/\d+ things? the stores check (is|are) missing\./);
   await guide.getByRole("link", { name: "Go to Ready for the stores" }).click();
-  await expect(page).toHaveURL(/\/dashboard\/publishing$/);
+  await expect(page).toHaveURL(/\/dashboard\/publishing#h-ready$/);
   await page.goto("/dashboard");
   await expect(page.getByRole("region", { name: "App setup" })).toHaveCount(0);
   await guide.getByRole("button", { name: "Hide the guide" }).click();
