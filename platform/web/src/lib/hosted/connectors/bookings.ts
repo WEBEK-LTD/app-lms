@@ -24,7 +24,7 @@ import {
   type Membership,
   type MembershipPlan,
 } from "../../data/types";
-import { descriptionHtml, payUrl } from "./catalog";
+import { descriptionHtml, myOrdersRoute, payUrl } from "./catalog";
 import { error, intParam } from "./common";
 import type { Connector, ConnectorRequest, ConnectorResult } from "./types";
 
@@ -83,10 +83,17 @@ export class BookingsConnector implements Connector {
             }
           : {}),
       },
+      // 96.3 A gym's membership orders, with their receipts.
+      ...(hasClasses(this.setup) ? { features: { orders: true } } : {}),
     };
   }
 
   async handle(request: ConnectorRequest): Promise<ConnectorResult | null> {
+    // 96.3 A gym's members find their membership orders, with their receipts.
+    if (hasClasses(this.setup)) {
+      const mine = myOrdersRoute({ store: this.deps.store, app: this.deps.app, assetUrl: this.deps.assetUrl, platformUrl: this.deps.platformUrl ?? "" }, request);
+      if (mine) return mine;
+    }
     const route = `${request.method} /${request.path.join("/")}`;
     switch (route) {
       case "GET /bookings/home":
@@ -509,6 +516,8 @@ export class BookingsConnector implements Connector {
     if (!this.canSell) return error(403, "feature_disabled", "Memberships can't be bought in the app right now.");
     const token = randomToken(24);
     await this.deps.store.createCatalogOrder({
+      // 96.4 The customer's language, for their receipt.
+      lang: request.lang ?? null,
       appId: this.deps.app.id,
       tokenHash: sha256Hex(token),
       userId: request.user.id,

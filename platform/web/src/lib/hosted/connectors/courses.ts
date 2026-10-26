@@ -10,7 +10,7 @@ import { signingSecret } from "../../env";
 import { answersFor, QUESTION_LIMIT, ratingSummary, readCommunityText, readReview, REVIEW_LIMIT } from "../../courses/community";
 import type { RateLimitRule } from "../../rate-limit";
 import { hitRateLimit } from "../../rate-limit";
-import { descriptionHtml, payUrl } from "./catalog";
+import { descriptionHtml, myOrdersRoute, payUrl } from "./catalog";
 import { error, intParam } from "./common";
 import type { Connector, ConnectorRequest, ConnectorResult } from "./types";
 import type { ResolvedMedia } from "../../media/files";
@@ -83,12 +83,16 @@ export class CoursesConnector implements Connector {
         reviews: true,
         qna: true,
         downloads: this.deps.downloads === true,
+        // 96.3 The student's course orders, with their receipts (the app shows them on Android, where courses are sold).
+        orders: true,
       },
       purchases: { enroll_button: this.canSell, free_enrollment: true },
     };
   }
 
   async handle(request: ConnectorRequest): Promise<ConnectorResult | null> {
+    const mine = myOrdersRoute(this.deps, request);
+    if (mine) return mine;
     const route = `${request.method} /${request.path.join("/")}`;
     switch (route) {
       case "GET /home":
@@ -921,6 +925,8 @@ export class CoursesConnector implements Connector {
     if ((await this.enrolled(request)).has(course.id)) return error(403, "feature_disabled", "You're already enrolled in this course.");
     const token = randomToken(24);
     await this.deps.store.createCatalogOrder({
+      // 96.4 The customer's language, for their receipt.
+      lang: request.lang ?? null,
       appId: this.deps.app.id,
       tokenHash: sha256Hex(token),
       userId: request.user.id,

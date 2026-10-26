@@ -93,14 +93,15 @@ export async function customerLang(store: DataStore, app: Pick<App, "id">, wante
 /** A customer's paid order (products, a restaurant's order, tickets, courses, a membership). */
 export async function orderReceiptPdf(store: DataStore, app: App, order: CatalogOrder, lang?: Lang): Promise<ReceiptPdf | null> {
   if (order.appId !== app.id || !order.paidAt) return null;
-  const document = orderReceipt({ lang: lang ?? (await customerLang(store, app)), app, order, zone: await appZone(store, app) });
+  const document = orderReceipt({ lang: lang ?? (await customerLang(store, app, order.lang)), app, order, zone: await appZone(store, app) });
   return { pdf: await renderReceiptPdf(document), filename: receiptFilename(orderNumber(order)) };
 }
 
 /** A paid (or refunded) donation. */
 export async function donationReceiptPdf(store: DataStore, app: App, donation: Donation, lang?: Lang): Promise<ReceiptPdf | null> {
   if (donation.appId !== app.id || (donation.status !== "paid" && donation.status !== "refunded")) return null;
-  const document = donationReceipt({ lang: lang ?? (await customerLang(store, app)), app, donation, zone: await appZone(store, app) });
+  // 96.4 By default in the language the donor started it in, when the app has it.
+  const document = donationReceipt({ lang: lang ?? (await customerLang(store, app, donation.lang)), app, donation, zone: await appZone(store, app) });
   return { pdf: await renderReceiptPdf(document), filename: receiptFilename(donationReference(donation)) };
 }
 
@@ -128,7 +129,8 @@ export async function sendOrderReceipt(store: DataStore, app: App, order: Catalo
   if (!to) return;
   try {
     const zone = await appZone(store, app);
-    const lang = await customerLang(store, app);
+    // 96.4 In the language the customer checked out in, when the app has it.
+    const lang = await customerLang(store, app, order.lang);
     const attachments = await receiptAttachment(() => orderReceiptPdf(store, app, order, lang));
     const values = {
       org_name: app.appName?.trim() || "—",

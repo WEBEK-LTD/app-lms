@@ -68,6 +68,18 @@ export function descriptionHtml(text: string): string {
     .join("");
 }
 
+/**
+ * 96.3 The customer's own orders (`GET /me/orders`, `GET /me/orders/{id}`)
+ * in apps that sell from Yallapp without being a shop: tickets, paid courses
+ * and memberships, each with its receipt, served as a shop serves them; null
+ * for any other route.
+ */
+export function myOrdersRoute(deps: CatalogDeps, request: ConnectorRequest): Promise<ConnectorResult | null> | null {
+  const [first, second] = request.path;
+  if (request.method !== "GET" || first !== "me" || second !== "orders" || request.path.length > 3) return null;
+  return new CatalogConnector(deps).handle(request);
+}
+
 export class CatalogConnector implements Connector {
   private readonly settings: CatalogSettings;
   /** 26 A restaurant's pickup and delivery; null for other shops. */
@@ -554,6 +566,8 @@ export class CatalogConnector implements Connector {
     const tax = this.tax(before);
     const token = randomToken(24);
     await this.deps.store.createCatalogOrder({
+      // 96.4 The customer's language, for their receipt.
+      lang: request.lang ?? null,
       appId: this.deps.app.id,
       tokenHash: sha256Hex(token),
       userId: request.user?.id ?? null,

@@ -1118,6 +1118,8 @@ export interface CatalogOrder {
   tax?: { label: string; rateBps: number; included: boolean; cents: number } | null;
   /** 96.2 Paid by bank transfer or the owner's own method: it waits, pending, until the owner marks it paid; null or missing: a card payment. */
   manualPayment?: OrderManualPayment | null;
+  /** 96.4 The app's language when the customer checked out ("ar"), for their receipt; null or missing: the app's. */
+  lang?: string | null;
 }
 
 /** 91.4 An order's loyalty points. */
@@ -2697,6 +2699,8 @@ export interface Donation {
   providerCheckedAt?: Date | null;
   /** 47 What was refunded so far; missing: nothing. All of it: the status is "refunded". */
   refundedCents?: number;
+  /** 96.4 The app's language when the donor started it ("ar"), for their receipt; null or missing: the app's. */
+  lang?: string | null;
 }
 
 export type DonationInput = Omit<Donation, "id">;

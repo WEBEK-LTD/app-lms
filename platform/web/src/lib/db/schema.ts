@@ -667,6 +667,8 @@ export const catalogOrders = mysqlTable(
     tax: jsonText<NonNullable<CatalogOrder["tax"]>>("tax"),
     // 96.2 Bank transfer or the owner's own method, with its details (JSON); null for a card payment.
     manualPayment: jsonText<OrderManualPayment>("manual_payment"),
+    // 96.4 The app's language at checkout, for the customer's receipt.
+    lang: varchar("lang", { length: 8 }),
   },
   (t) => [
     uniqueIndex("catalog_orders_token_unique").on(t.tokenHash),
@@ -1175,6 +1177,8 @@ export const donations = mysqlTable(
     providerCheckedAt: time("provider_checked_at"),
     // 47 What was refunded so far (payment_refunds).
     refundedCents: bigint("refunded_cents", { mode: "number", unsigned: true }).notNull().default(0),
+    // 96.4 The app's language when the donor started it, for their receipt.
+    lang: varchar("lang", { length: 8 }),
   },
   (t) => [
     uniqueIndex("donations_token_unique").on(t.tokenHash),

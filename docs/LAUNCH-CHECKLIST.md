@@ -1416,6 +1416,14 @@ routine every few years):
 - Two new emails in Admin › Emails: "How to pay an order" (to the customer)
   and "New order waiting for payment" (to the client).
 
+## 7z3. Receipts in the app and in the customer's language (Phase 96.3, 96.4)
+
+- Migration `0087_receipt_language` adds `lang` to `catalog_orders` and
+  `donations`; it runs with the others at deploy. Older orders have none and
+  keep the app's language.
+- Apps built before 96.3 show My orders in Events apps and gyms only after
+  their next build; the server side works for every app at once.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |

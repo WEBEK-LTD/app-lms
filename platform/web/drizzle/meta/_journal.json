@@ -610,6 +610,13 @@
       "when": 1793034211623,
       "tag": "0086_manual_payments",
       "breakpoints": true
+    },
+    {
+      "idx": 87,
+      "version": "5",
+      "when": 1793036335156,
+      "tag": "0087_receipt_language",
+      "breakpoints": true
     }
   ]
 }
