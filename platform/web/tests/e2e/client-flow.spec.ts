@@ -146,6 +146,25 @@ test("the client completes the setup wizard and the first build is queued", asyn
   await page.goto("/dashboard/setup?step=publishing");
   await expect(page.getByText("publisher@ada-academy.iam.gserviceaccount.com")).toBeVisible();
   expect(await page.content()).not.toContain("BEGIN PRIVATE KEY");
+
+  // 93.1 The overview's guide through the first app: setup done, the plan active, the first build running.
+  await page.goto("/dashboard");
+  const guide = page.getByRole("region", { name: "Your first app" });
+  await expect(guide).toContainText("6 of 9 done");
+  await expect(guide.locator('[data-guide-step="listing"]')).toHaveAttribute("data-state", "done");
+  await expect(guide.locator('[data-guide-step="build"]')).toHaveAttribute("data-state", "waiting");
+  await expect(guide.locator('[data-guide-step="build"]')).toContainText("A build is running.");
+  await expect(guide.locator('[data-guide-step="ready"]')).toHaveAttribute("data-state", "next");
+  await expect(guide.locator('[data-guide-step="ready"]')).toContainText("Choose who publishes the app to see what the stores check.");
+  await guide.getByRole("link", { name: "Go to Ready for the stores" }).click();
+  await expect(page).toHaveURL(/\/dashboard\/publishing$/);
+  await page.goto("/dashboard");
+  await expect(page.getByRole("region", { name: "App setup" })).toHaveCount(0);
+  await guide.getByRole("button", { name: "Hide the guide" }).click();
+  await expect(guide).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "App setup" })).toContainText("Complete");
+  await page.getByRole("button", { name: "Show the guide to your first app" }).click();
+  await expect(guide).toBeVisible();
 });
 
 test("the pipeline reads the config and the client starts a new build", async ({ page, request }) => {

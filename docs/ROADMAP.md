@@ -2074,9 +2074,32 @@ once the rest of the program is done, arranged separately then.
 
 ## Phase 93: A client finishes on their own (area 14)
 
+Planned in detail (2026-10-26), from what the dashboard already has: the
+setup steps and their card on the overview, Ready to submit (88.1) on the
+Publishing page only, links to the docs from a few pages, a filter of the
+docs' titles, and problems told on their own pages, the bell and emails.
+
+- 93.1 The overview's **Your first app**: one list from the app type to a
+  store showing the app (the five setup steps, the plan activated, a first
+  build, Ready for the stores with how many of its checks are missing, on
+  the stores), each done, next, waiting (a build running, our team
+  publishing) or to do, with where to do it. It takes the setup card's
+  place until the app is live; the owner can hide it and show it again
+  (`apps.guide_hidden_at`).
+- 93.2 A help link in every dashboard page's header to its article, in the
+  dashboard's language; a search of the docs' whole text on /docs; the
+  articles missing today (Integrations, Stability, Team, Yallapp Business,
+  Protection, two-step sign-in, deleting an app, links that open the app,
+  Ready to submit, problems with builds and connections), in English,
+  Arabic and Turkish.
+- 93.3 One list of the app's problems on the overview (connections, the
+  checks before a build, the last build failed, a store's rejection, what
+  the stores still miss, the plan), each with its fix, and their count on
+  the nav's Overview link.
+
 | | Step | Done when |
 |---|---|---|
-| [ ] | 93.1 A guide through the first app, with how ready it is for the stores | e2e |
+| [x] | 93.1 A guide through the first app, with how ready it is for the stores | e2e |
 | [ ] | 93.2 Help on every page, search inside the docs, the missing articles | e2e |
 | [ ] | 93.3 Problems shown where the client works (from Phases 78 and 80) | e2e |
 

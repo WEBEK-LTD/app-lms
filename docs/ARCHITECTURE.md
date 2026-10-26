@@ -2410,6 +2410,13 @@ app opens on the site's links (`<site>/a/page/<slug>`).
   (`tax`), and the payment gets a "tax" line. `catalog_orders.tax` {label,
   rateBps, included, cents}, migration 0083; the pay page, receipt,
   owner's email and Orders page show it. `Cart.tax_label`, `tax_included`.
+- **Your first app** (93.1): `lib/app/first-app.ts` `firstAppGuide()`
+  turns the setup steps (`stepStatus`), the license state, the builds, the
+  88.1 readiness (once the owner chose who publishes) and the publishing
+  request's tracks into nine steps (done, next, waiting, to do) with their
+  links. The overview shows it instead of the setup card until a store
+  shows the app or the owner hides it (`apps.guide_hidden_at`, migration
+  0084, `setGuideAction`).
 
 ## Academies, complete (Phase 90)
 

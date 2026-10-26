@@ -8,6 +8,10 @@ export const TR_DOCS_3: Record<string, DocTranslation> = {
     description: "Uygulama kurulumu adım adım: uygulama türü, web sitesi, marka, mağaza sayfası ve yayın.",
     body: `Panelinizdeki **Uygulama kurulumu** sizi beş adımdan geçirir. Her biri **Kaydet ve devam et**'i seçtiğinizde kaydedilir ve herhangi birine daha sonra geri dönebilirsiniz. Son adım tamamlandığında ilk derlemeniz başlar.
 
+## İlk uygulamanız
+
+**Genel bakış** sayfasındaki **İlk uygulamanız**, buradan mağazalara kadar her adımı listeler: beş kurulum adımı, ardından paketinizin etkinleştirilmesi, ilk derleme, **Mağazalara hazır** (Google Play ve App Store'un neleri kontrol ettiği ve hâlâ ne kadarının eksik olduğu) ve **Mağazalarda**. Sıradaki adımın sizi oraya götüren bir düğmesi vardır. İhtiyacınız yoksa **Rehberi gizle**'yi seçin; **Uygulama kurulumu** altındaki **İlk uygulamanızın rehberini göster** onu geri getirir. Uygulamanız bir mağazada göründüğünde kendiliğinden kaybolur.
+
 ## Uygulama türü
 
 **Akademi**, **Mağaza**, **Randevu** veya **Emlak**'ı seçin. [Uygulama türünüzü seçin](/docs/app-types) rehberine bakın.

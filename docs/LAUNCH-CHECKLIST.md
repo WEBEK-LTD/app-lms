@@ -1085,6 +1085,12 @@ never in a chat or an issue.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **Your first app** (93.1): migration `0084_first_app_guide.sql` (a
+      column on `apps`) goes with the deploy, migrations first. After
+      deploying: a new test client sees Your first app on the overview, the
+      next step with its button, and after choosing who publishes, how many
+      of the stores' checks are missing. Hide it and show it again from the
+      App setup card. The same in Arabic and Turkish.
 - [ ] **Variations and tax** (91.5): migration `0083_variants_and_tax.sql`
       (a column on `catalog_products` and one on `catalog_orders`) goes with
       the deploy, migrations first. After deploying: on a test shop without

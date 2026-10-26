@@ -502,6 +502,8 @@ export interface App {
   weeklySummary?: boolean;
   /** 87.4 When the automatic build of the latest changes starts; null: none waiting. */
   autoBuildDueAt?: Date | null;
+  /** 93.1 When the owner hid the guide through the first app on the overview; null or missing: shown. */
+  guideHiddenAt?: Date | null;
   appTypeDoneAt: Date | null;
   websiteDoneAt: Date | null;
   brandingDoneAt: Date | null;

@@ -690,6 +690,10 @@ What you add or change shows in the app right away, without a new build.
     steps: true,
     body: `**App setup** in your dashboard takes you through five steps. Each one is saved when you select **Save & continue**, and you can come back to any of them later. Your first build starts when the last step is done.
 
+## Your first app
+
+On the **Overview**, **Your first app** lists every step from here to the stores: the five setup steps, then your plan activated, a first build, **Ready for the stores** (what Google Play and the App Store check, and how much is still missing) and **On the stores**. The next step has a button that takes you there. Select **Hide the guide** if you don't need it, and **Show the guide to your first app** under **App setup** brings it back. It goes away by itself once a store shows your app.
+
 ## App type
 
 Choose **Academy**, **Store**, **Bookings** or **Real estate**. See [Choose your app type](/docs/app-types).

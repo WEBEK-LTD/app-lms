@@ -194,7 +194,15 @@ test("the client works through the checklist and the listing details", async () 
   // The overview shows where it stands.
   await own.goto("/dashboard");
   await expect(own.getByRole("listitem").filter({ hasText: "Google Play" })).toContainText("Waiting for you");
-  // 19 The setup counts the step as done, but nothing is live yet.
+  // 19 The setup counts the step as done, but nothing is live yet: 93.1 the guide waits on our team.
+  const guide = own.getByRole("region", { name: "Your first app" });
+  await expect(guide.locator('[data-guide-step="publishing"]')).toHaveAttribute("data-state", "done");
+  await expect(guide.locator('[data-guide-step="ready"]')).toHaveAttribute("data-state", "done");
+  await expect(guide.locator('[data-guide-step="ready"]')).toContainText("Everything the stores check is in place.");
+  await expect(guide.locator('[data-guide-step="live"]')).toHaveAttribute("data-state", "waiting");
+  await expect(guide.locator('[data-guide-step="live"]')).toContainText("Our team is publishing it for you.");
+  // Hidden, the setup card says the same.
+  await guide.getByRole("button", { name: "Hide the guide" }).click();
   await expect(own.getByText("Publishing: our team is on it")).toBeVisible();
 });
 
