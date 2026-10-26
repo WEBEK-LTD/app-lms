@@ -3951,4 +3951,12 @@ class OverlayLocalizations extends AppLocalizations {
   String chatBlockPerson(String name) =>
       overlay.format('chatBlockPerson', {'name': name}) ??
       base.chatBlockPerson(name);
+
+  @override
+  String opensOn(String date) =>
+      overlay.format('opensOn', {'date': date}) ?? base.opensOn(date);
+
+  @override
+  String accessUntil(String date) =>
+      overlay.format('accessUntil', {'date': date}) ?? base.accessUntil(date);
 }

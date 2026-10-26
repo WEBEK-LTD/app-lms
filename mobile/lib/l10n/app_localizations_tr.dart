@@ -3814,4 +3814,14 @@ class AppLocalizationsTr extends AppLocalizations {
   String chatBlockPerson(String name) {
     return '$name kişisini engelle';
   }
+
+  @override
+  String opensOn(String date) {
+    return '$date tarihinde açılır';
+  }
+
+  @override
+  String accessUntil(String date) {
+    return '$date tarihine kadar erişim';
+  }
 }

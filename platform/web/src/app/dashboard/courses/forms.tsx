@@ -9,6 +9,7 @@ import {
   saveCourseCurrencyAction,
   saveLessonAction,
   saveOfflineDownloadsAction,
+  saveQuizAction,
 } from "@/app/actions/courses";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
@@ -105,6 +106,21 @@ export function CourseForm({
         <Check name="restart" label={t("courses.restart")} checked={v.restart !== ""} />
         <span className="ps-6 text-[13px] text-muted">{t("courses.restartHint")}</span>
       </div>
+      {/* 90.1 Certificates and access that ends. */}
+      <div className="flex flex-col gap-1">
+        <Check name="certificate" label={t("courses.certificate")} checked={v.certificate === "on"} />
+        <span className="ps-6 text-[13px] text-muted">{t("courses.certificateHint")}</span>
+      </div>
+      <Field
+        label={t("courses.accessDays")}
+        name="accessDays"
+        inputMode="numeric"
+        defaultValue={v.accessDays}
+        hint={t("courses.accessDaysHint")}
+        error={e.accessDays}
+        className="sm:max-w-[320px]"
+        small
+      />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Check name="active" label={t("courses.visible")} checked={v.active !== ""} />
         <SubmitButton className="h-10" pendingText={t("common.saving")}>
@@ -198,8 +214,68 @@ export function LessonForm({ courseId, topicId, current, submit }: { courseId: n
         <MediaPickButton kind="video" inputId={`${key}-video`} label={t("courses.chooseMedia")} />
       </div>
       <TextArea id={`${key}-text`} label={t("courses.text")} name="text" value={v.text} rows={3} error={e.text} hint={t("courses.lessonTextHint")} />
+      {/* 90.1 Files with the lesson, and lessons that open some days after enrolling. */}
+      <TextArea id={`${key}-files`} label={t("courses.files")} name="attachments" value={v.attachments} rows={2} error={e.attachments} hint={t("courses.filesHint")} />
+      <Field
+        label={t("courses.dripDays")}
+        name="dripDays"
+        id={`${key}-drip`}
+        inputMode="numeric"
+        defaultValue={v.dripDays}
+        hint={t("courses.dripDaysHint")}
+        error={e.dripDays}
+        className="sm:max-w-[320px]"
+        small
+      />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Check name="preview" label={t("courses.freePreview")} checked={v.preview === "on"} />
+        <SubmitButton className="h-10" pendingText={t("common.saving")}>
+          {submit}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 90.1 A quiz at the end of a section, its questions written as text. */
+export function QuizForm({ courseId, topicId, current, submit }: { courseId: number; topicId: number; current: Record<string, string>; submit: string }) {
+  const t = useDashT();
+  const [state, action] = useActionState(saveQuizAction, initialFormState);
+  const v = state.values ?? current;
+  const e = state.errors ?? {};
+  const key = `quiz-${current.id ?? `new-${topicId}`}`;
+  return (
+    <form action={action} noValidate className="flex flex-col gap-3" key={current.id ? JSON.stringify(v) : state.ok ? state.message : "new"}>
+      <FormMessage message={state.message} ok={state.ok} />
+      <input type="hidden" name="courseId" value={courseId} />
+      <input type="hidden" name="topicId" value={topicId} />
+      <input type="hidden" name="id" value={current.id ?? ""} />
+      <Field label={t("courses.quizTitle")} name="title" id={`${key}-title`} defaultValue={v.title} error={e.title} small />
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Field label={t("courses.passPercent")} name="passPercent" id={`${key}-pass`} inputMode="numeric" defaultValue={v.passPercent} error={e.passPercent} small />
+        <Field
+          label={t("courses.attempts")}
+          name="attemptsAllowed"
+          id={`${key}-attempts`}
+          inputMode="numeric"
+          defaultValue={v.attemptsAllowed}
+          hint={t("courses.attemptsHint")}
+          error={e.attemptsAllowed}
+          small
+        />
+        <Field
+          label={t("courses.timeLimit")}
+          name="timeLimit"
+          id={`${key}-time`}
+          inputMode="numeric"
+          defaultValue={v.timeLimit}
+          hint={t("courses.timeLimitHint")}
+          error={e.timeLimit}
+          small
+        />
+      </div>
+      <TextArea id={`${key}-questions`} label={t("courses.questions")} name="questions" value={v.questions} rows={8} error={e.questions} hint={t("courses.questionsHint")} />
+      <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText={t("common.saving")}>
           {submit}
         </SubmitButton>

@@ -30,7 +30,42 @@ Bir kursu başka bir yolla mı sattınız? Kursu açın ve öğrencinin giriş y
 
 Öğrencilerin ilerlemesi dersleri tamamladıkça kaydedilir ve herhangi bir cihazda kaldıkları yerden devam ederler.
 
-> Sınavlar, sertifikalar, istek listesi, değerlendirmeler ve sorular, Yallapp'te yönetilen kurslarda değil, bir WordPress LMS ile kullanılabilir.
+## Derslerle gelen dosyalar ve sonra açılan dersler
+
+**Dosyalar** alanına bir dersle gelen en fazla 10 dosyayı, her satıra bir tane olacak şekilde \`Ad | adres\` biçiminde ekleyin: [Medya kitaplığınızdaki](/docs/media) bir dosyanın bağlantısı (çalışma kâğıtları, slaytlar, PDF'ler) ya da bir https adresi. Öğrenciler bunları dersten açar.
+
+Bir dersin öğrenci kaydolduktan birkaç gün sonra açılması için **Açılma (gün sonra)** alanını doldurun: 7 yazarsanız bir hafta sonra açılır. O zamana kadar uygulama dersi, açılacağı günle birlikte kilitli gösterir.
+
+## Sınavlar
+
+Bir bölümün derslerinden sonra sınav eklemek için bölümü açın. Sınava bir başlık, bir **geçme notu** (varsayılan %70), **deneme hakkı** (sınırsız için boş) ve dakika cinsinden bir **süre** (sınırsız için boş) verin. Sorularını metin olarak yazın:
+
+\`\`\`
+Q: Which planet is the largest?
+- Mars
+* Jupiter
+
+Q: Pick the vowels
+* a
+- b
+* e
+\`\`\`
+
+Her soruya \`Q:\` ile başlayın ve her cevabı ayrı bir satıra yazın: doğru cevabın önüne \`*\`, yanlışın önüne \`-\` koyun. Birden fazla doğru cevabı olan bir soru, öğrencilerden uyanların hepsini seçmelerini ister; yalnızca True ve False cevapları olan soru doğru/yanlış sorusudur. Bir soru, tam olarak doğru cevapları seçildiğinde sayılır. Öğrenciler cevaplarını gönderir göndermez puanlarını görür; doğru cevaplar uygulamaya hiç ulaşmaz.
+
+## Sertifikalar
+
+Kursun ayrıntılarında **Kursu bitiren öğrencilere sertifika ver**'i açın. Tüm dersleri tamamlayıp tüm sınavları geçen öğrenciler, uygulamada adlarının, kursun, tarihin ve uygulamanızın logosu ile renginin yer aldığı, yazdırmaya veya PDF olarak kaydetmeye hazır bir sertifika alır. Her sertifikanın kendi kodu vardır; bağlantıya sahip olan herkes sertifikanın gerçek olduğunu görebilir. Sertifikada yalnızca öğrencinin adı görünür.
+
+## Süresi dolan erişim
+
+Belirli bir süre için satılan kurslarda, kursun her öğrenci için kaydından bu kadar gün sonra kapanması için **Erişim süresi (gün)** alanını doldurun. Uygulama, öğrencilere erişimlerinin ne zaman biteceğini gösterir. Süresiz erişim için boş bırakın.
+
+## Öğrencilerin ilerlemesi
+
+Bir kursun sayfasında, **Öğrenciler** altında **İlerleme ve sınav sonuçları**'nı seçin. Her öğrencinin ilerlemesini, tamamladığı dersleri, her sınavdaki en iyi puanını, en son ne zaman çalıştığını, ne zaman bitirdiğini ve erişiminin ne zaman sona ereceğini görürsünüz. Altında her sınav, kaç öğrencinin girdiğini, kaçının geçtiğini ve ortalama en iyi puanlarını gösterir. Aynı listeyi her sınav için bir sütunla elektronik tablo olarak almak için **CSV indir**'i seçin.
+
+> İstek listesi, Yallapp'te yönetilen kurslarda değil, bir WordPress LMS ile kullanılabilir.
 `,
   },
   "real-estate": {

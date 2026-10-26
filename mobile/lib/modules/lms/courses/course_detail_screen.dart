@@ -836,8 +836,11 @@ class _CurriculumRow extends StatelessWidget {
     final color = item.locked
         ? p.textSecondary
         : (item.completed ? p.success : p.text);
-    final trailing =
-        item.type == CurriculumItemType.quiz && item.questionCount != null
+    // 90.1 A lesson that opens later shows the day it opens.
+    final opens = item.locked ? item.availableAt : null;
+    final trailing = opens != null
+        ? context.l10n.opensOn(shortDate(opens))
+        : item.type == CurriculumItemType.quiz && item.questionCount != null
         ? context.l10n.questionCount(item.questionCount!)
         : (item.durationMinutes != null
               ? formatMinutes(item.durationMinutes!)

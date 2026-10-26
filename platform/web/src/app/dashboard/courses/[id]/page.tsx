@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { deleteCourseAction, deleteLessonAction, deleteTopicAction } from "@/app/actions/courses";
+import { deleteCourseAction, deleteLessonAction, deleteQuizAction, deleteTopicAction } from "@/app/actions/courses";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { formatDate } from "@/components/ui";
@@ -10,8 +10,9 @@ import { requireClient } from "@/lib/auth/session";
 import { centsToDecimal } from "@/lib/catalog/money";
 import { courseSetup } from "@/lib/courses/setup";
 import { getStore } from "@/lib/data";
-import type { CourseLesson } from "@/lib/data/types";
-import { CourseForm, LessonForm, StudentForm, TopicForm } from "../forms";
+import type { CourseLesson, CourseQuiz } from "@/lib/data/types";
+import { questionsText } from "@/lib/courses/quizzes";
+import { CourseForm, LessonForm, QuizForm, StudentForm, TopicForm } from "../forms";
 import { dashboardText } from "@/lib/dashboard-lang";
 
 export async function generateMetadata({ params }: PageProps<"/dashboard/courses/[id]">): Promise<Metadata> {
@@ -29,6 +30,19 @@ function lessonValues(l: CourseLesson): Record<string, string> {
     text: l.text,
     duration: l.durationMinutes ? String(l.durationMinutes) : "",
     preview: l.preview ? "on" : "",
+    dripDays: l.dripDays ? String(l.dripDays) : "",
+    attachments: (l.attachments ?? []).map((a) => `${a.name} | ${a.url}`).join("\n"),
+  };
+}
+
+function quizValues(q: CourseQuiz): Record<string, string> {
+  return {
+    id: String(q.id),
+    title: q.title,
+    passPercent: String(q.passPercent),
+    attemptsAllowed: q.attemptsAllowed ? String(q.attemptsAllowed) : "",
+    timeLimit: q.timeLimitMinutes ? String(q.timeLimitMinutes) : "",
+    questions: questionsText(q),
   };
 }
 
@@ -70,6 +84,8 @@ export default async function CoursePage({ params }: PageProps<"/dashboard/cours
             categoryIds: course.categoryIds.join(","),
             active: course.active ? "on" : "",
             restart: course.canRestart === false ? "" : "on",
+            certificate: course.certificate ? "on" : "",
+            accessDays: course.accessDays ? String(course.accessDays) : "",
           }}
           categories={setup.categories}
           currency={setup.currency}
@@ -105,6 +121,8 @@ export default async function CoursePage({ params }: PageProps<"/dashboard/cours
                         ? t("courses.video")
                         : t("courses.text")}
                     {l.preview ? ` · ${t("courses.freePreviewMeta")}` : ""}
+                    {l.dripDays ? ` · ${t("courses.opensAfterMeta", { days: l.dripDays })}` : ""}
+                    {l.attachments?.length ? ` · ${t("courses.filesMeta", { count: l.attachments.length })}` : ""}
                   </span>
                 </summary>
                 <div className="flex flex-col gap-3 border-t border-line-soft p-3">
@@ -114,6 +132,27 @@ export default async function CoursePage({ params }: PageProps<"/dashboard/cours
                     <input type="hidden" name="lessonId" value={l.id} />
                     <SubmitButton variant="danger" className="h-8 px-3 text-[13px]">
                       {t("courses.deleteLesson")}
+                    </SubmitButton>
+                  </form>
+                </div>
+              </details>
+            ))}
+            {(topic.quizzes ?? []).map((q) => (
+              <details key={`quiz-${q.id}`} className="rounded-lg border border-line-soft">
+                <summary className="flex cursor-pointer flex-wrap items-center justify-between gap-2 px-3 py-2.5 text-[15px]">
+                  <span className="flex items-center gap-1.5 font-semibold">
+                    <Icon name="quiz" size={18} />
+                    {q.title}
+                  </span>
+                  <span className="text-[13px] text-muted">{t("courses.quizMeta", { questions: q.questions.length, pass: q.passPercent })}</span>
+                </summary>
+                <div className="flex flex-col gap-3 border-t border-line-soft p-3">
+                  <QuizForm courseId={course.id} topicId={topic.id} current={quizValues(q)} submit={t("courses.saveQuiz")} />
+                  <form action={deleteQuizAction}>
+                    <input type="hidden" name="courseId" value={course.id} />
+                    <input type="hidden" name="quizId" value={q.id} />
+                    <SubmitButton variant="danger" className="h-8 px-3 text-[13px]">
+                      {t("courses.deleteQuiz")}
                     </SubmitButton>
                   </form>
                 </div>
@@ -130,15 +169,37 @@ export default async function CoursePage({ params }: PageProps<"/dashboard/cours
                 />
               </div>
             </details>
+            {topic.lessons.length ? (
+              <details className="rounded-lg bg-sand p-3">
+                <summary className="cursor-pointer text-[15px] font-semibold">{t("courses.addQuizTo", { section: topic.title })}</summary>
+                <div className="pt-3">
+                  <QuizForm
+                    courseId={course.id}
+                    topicId={topic.id}
+                    current={{ title: "", passPercent: "70", attemptsAllowed: "", timeLimit: "", questions: "" }}
+                    submit={t("courses.addQuiz")}
+                  />
+                </div>
+              </details>
+            ) : null}
           </div>
         ))}
         <TopicForm courseId={course.id} />
       </section>
 
       <section aria-labelledby="h-students" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-students" className="m-0 text-lg font-bold">
-          {t("courses.students")} <span className="font-normal text-muted">{enrollments.length}</span>
-        </h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 id="h-students" className="m-0 text-lg font-bold">
+            {t("courses.students")} <span className="font-normal text-muted">{enrollments.length}</span>
+          </h2>
+          {/* 90.2 Each student's progress and quiz results. */}
+          {enrollments.length ? (
+            <Link href={`/dashboard/courses/${course.id}/students`} className="flex items-center gap-1 text-sm font-semibold no-underline">
+              <Icon name="monitoring" size={18} />
+              {t("courses.seeProgress")}
+            </Link>
+          ) : null}
+        </div>
         {students.length ? (
           <ul className="m-0 flex list-none flex-col gap-1.5 p-0 text-[15px]">
             {students.map((s) => (

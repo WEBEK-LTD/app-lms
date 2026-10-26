@@ -6225,6 +6225,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Block {name}'**
   String chatBlockPerson(String name);
+
+  /// 90.1 A course lesson that opens later (drip), with its day.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens {date}'**
+  String opensOn(String date);
+
+  /// 90.1 The day a student's access to a course ends.
+  ///
+  /// In en, this message translates to:
+  /// **'Access until {date}'**
+  String accessUntil(String date);
 }
 
 class _AppLocalizationsDelegate

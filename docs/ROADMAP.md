@@ -2045,8 +2045,8 @@ measured; several useful automatic pushes don't exist.
 
 | | Step | Done when |
 |---|---|---|
-| [ ] | 90.1 Academies without a website: quizzes, certificates, lessons with files, drip and access that ends | Contract, tests |
-| [ ] | 90.2 Progress for the teacher: each student's progress and quiz results, export | e2e |
+| [x] | 90.1 Academies without a website: quizzes, certificates, lessons with files, drip and access that ends | Contract, tests |
+| [x] | 90.2 Progress for the teacher: each student's progress and quiz results, export | e2e |
 | [ ] | 90.3 Memberships and subscriptions from the site (Paid Memberships Pro, WooCommerce Subscriptions, LearnDash groups) | PHPUnit, integration suites |
 
 ## Phase 91: Shops, complete (area 12)

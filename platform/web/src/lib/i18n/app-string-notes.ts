@@ -10,6 +10,16 @@ import type { Lang } from "@/i18n/config";
  * its code names left out (tests/unit/phase62.test.ts lists those missing).
  */
 export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: string }> = {
+  "90.1 A course lesson that opens later (drip), with its day.": {
+    en: "Next to a course lesson that opens some days after the student enrolls: the day it opens.",
+    ar: "بجانب درس يُفتح بعد أيام من تسجيل الطالب: يوم فتحه.",
+    tr: "Öğrenci kaydolduktan birkaç gün sonra açılan bir dersin yanında: açılacağı gün.",
+  },
+  "90.1 The day a student's access to a course ends.": {
+    en: "Under a course in My courses: the day the student's access to it ends.",
+    ar: "تحت الدورة في «دوراتي»: يوم انتهاء وصول الطالب إليها.",
+    tr: "Kurslarım'daki bir kursun altında: öğrencinin kursa erişiminin sona erdiği gün.",
+  },
   "73 The button of a finished course whose progress can be cleared to take it again.": {
     en: "The button of a finished course that the student can take again: it clears their progress in it.",
     ar: "زر الدورة المكتملة التي يمكن للطالب أخذها من جديد: يمسح تقدّمه فيها.",

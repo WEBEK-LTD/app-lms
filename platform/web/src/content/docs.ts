@@ -1820,7 +1820,42 @@ Sold a course another way? Open the course and use **Add a student by phone** wi
 
 Students' progress is saved as they complete lessons, and they continue where they stopped on any device.
 
-> Quizzes, certificates, the wishlist, reviews and questions are available with a WordPress LMS, not with courses managed in Yallapp.
+## Files with lessons, and lessons that open later
+
+Under **Files**, add up to 10 files a lesson comes with, one per line, as \`Name | address\`: a file's link from your [Media library](/docs/media) (worksheets, slides, PDFs) or an https address. Students open them from the lesson.
+
+Fill in **Opens after (days)** to open a lesson some days after the student enrolls: 7 opens it a week later. Until then the app shows it locked, with the day it opens.
+
+## Quizzes
+
+Open a section to add a quiz after its lessons. Give it a title, a **pass mark** (70% by default), the number of **attempts** (empty for no limit) and a **time limit** in minutes (empty for none). Write its questions as text:
+
+\`\`\`
+Q: Which planet is the largest?
+- Mars
+* Jupiter
+
+Q: Pick the vowels
+* a
+- b
+* e
+\`\`\`
+
+Start each question with \`Q:\` and put each answer on its own line, with \`*\` before a right answer and \`-\` before a wrong one. A question with several right answers asks students to choose all that apply; one with only True and False is a true or false question. A question counts when exactly its right answers are chosen. Students see their score as soon as they send their answers; the right answers never reach the app.
+
+## Certificates
+
+Turn on **Give a certificate to students who finish** in the course's details. Students who complete every lesson and pass every quiz get a certificate in the app, with their name, the course, the date and your app's logo and colour, ready to print or save as a PDF. Each certificate has its own code, so anyone with the link can see it's real; it shows the student's name only.
+
+## Access that ends
+
+Fill in **Access for (days)** to close the course for each student that many days after they enroll, for courses sold for a term. The app shows students when their access ends. Leave it empty for access that doesn't end.
+
+## Students' progress
+
+On a course's page, under **Students**, select **Progress and quiz results**. You see each student's progress, the lessons they completed, their best score in each quiz, when they last learned, when they finished and when their access ends. Below, each quiz shows how many students took it, how many passed and their average best score. Select **Download CSV** for the same list as a spreadsheet, with a column for each quiz.
+
+> The wishlist is available with a WordPress LMS, not with courses managed in Yallapp.
 `,
   }),
   doc({

@@ -864,6 +864,28 @@ export const lessonProgress = mysqlTable(
   (t) => [primaryKey({ columns: [t.appId, t.userId, t.lessonId] }), index("lesson_progress_course_idx").on(t.appId, t.userId, t.courseId)],
 );
 
+/** 90.1 Quiz attempts of courses managed in Yallapp. */
+export const quizAttempts = mysqlTable(
+  "quiz_attempts",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    courseId: int("course_id").notNull(),
+    quizId: int("quiz_id").notNull(),
+    answers: jsonText<Record<string, string[]>>("answers"),
+    scorePercent: int("score_percent"),
+    passed: boolean("passed"),
+    startedAt: time("started_at").notNull(),
+    submittedAt: time("submitted_at"),
+  },
+  (t) => [index("quiz_attempts_user_idx").on(t.appId, t.userId, t.courseId), index("quiz_attempts_quiz_idx").on(t.appId, t.quizId)],
+);
+
 // 10.7 Listings: property listings of Real estate apps, managed in the dashboard.
 
 export const listings = mysqlTable(

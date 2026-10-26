@@ -2319,6 +2319,27 @@ tries the next week), and the send's row is removed. WordPress campaigns go
 to everyone (the platform doesn't know the site's people); a page of the
 app opens on the site's links (`<site>/a/page/<slug>`).
 
+## Academies, complete (Phase 90)
+
+- **Without a website** (90.1, `lib/courses/learning.ts`,
+  `lib/courses/quizzes.ts`): a section's quizzes follow its lessons in
+  `courseSetup` (questions, options and the right answers stay on the
+  platform; the owner writes them as text, `Q:`, `*` and `-`). Attempts are in
+  `quiz_attempts` (migration 0078): one row per attempt, submitted once,
+  scored when exactly a question's right options were chosen, deleted when
+  the student starts the course again. Lessons carry files (a Media link
+  signed per request, or an https address) and `dripDays`; courses carry
+  `accessDays` and `certificate`. A course is finished when every lesson is
+  completed and every quiz passed; its certificate is
+  `/a/<app>/certificate/<user>-<course>-<HMAC>` (`SIGNING_SECRET`), checked
+  against the enrolment and the progress each time it opens, showing the
+  student's name only.
+- **Progress for the teacher** (90.2, `lib/courses/report.ts`): a course's
+  students with their progress, best quiz scores and last activity, from the
+  enrolments, lesson progress and submitted attempts; the Students page
+  (`/dashboard/courses/<id>/students`) and its CSV file
+  (`/api/dashboard/courses/<id>/progress`, the Courses permission).
+
 ## Updates you can undo (Phase 89)
 
 - **Versions** (89.1, `lib/app/version-policy.ts`): the owner's minimum and

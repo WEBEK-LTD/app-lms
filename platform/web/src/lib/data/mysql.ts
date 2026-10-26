@@ -78,6 +78,7 @@ import type {
   MembershipPatch,
   CourseEnrollment,
   LessonProgress,
+  QuizAttempt,
   PlatformSettingKey,
   PlatformSettingValues,
   Client,
@@ -1917,6 +1918,48 @@ export class MysqlStore implements DataStore {
     );
   }
 
+  async createQuizAttempt(input: Omit<QuizAttempt, "id">): Promise<QuizAttempt> {
+    const [result] = await this.run((db) => db.insert(schema.quizAttempts).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async getQuizAttempt(appId: string, id: number): Promise<QuizAttempt | null> {
+    const t = schema.quizAttempts;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async submitQuizAttempt(appId: string, id: number, result: Pick<QuizAttempt, "answers" | "scorePercent" | "passed" | "submittedAt">): Promise<boolean> {
+    const t = schema.quizAttempts;
+    // Only an attempt not yet submitted: a second submit changes nothing.
+    const [done] = await this.run((db) => db.update(t).set(result).where(and(eq(t.appId, appId), eq(t.id, id), isNull(t.submittedAt))));
+    return done.affectedRows > 0;
+  }
+
+  async listQuizAttempts(input: { appId: string; userId?: number; courseId?: number; quizId?: number }): Promise<QuizAttempt[]> {
+    const t = schema.quizAttempts;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, input.appId),
+            input.userId !== undefined ? eq(t.userId, input.userId) : undefined,
+            input.courseId !== undefined ? eq(t.courseId, input.courseId) : undefined,
+            input.quizId !== undefined ? eq(t.quizId, input.quizId) : undefined,
+          ),
+        )
+        .orderBy(desc(t.id)),
+    );
+  }
+
+  async deleteQuizAttempts(input: { appId: string; userId: number; courseId: number }): Promise<number> {
+    const t = schema.quizAttempts;
+    const [result] = await this.run((db) => db.delete(t).where(and(eq(t.appId, input.appId), eq(t.userId, input.userId), eq(t.courseId, input.courseId))));
+    return result.affectedRows;
+  }
+
   async deleteLessonProgress(input: { appId: string; userId: number; courseId: number }): Promise<number> {
     const t = schema.lessonProgress;
     const [result] = await this.run((db) => db.delete(t).where(and(eq(t.appId, input.appId), eq(t.userId, input.userId), eq(t.courseId, input.courseId))));
@@ -3315,6 +3358,8 @@ export class MysqlStore implements DataStore {
     const [progress] = await this.run((db) =>
       db.delete(s.lessonProgress).where(and(eq(s.lessonProgress.appId, appId), lt(s.lessonProgress.updatedAt, before))),
     );
+    // 90.1 Quiz attempts count with the progress.
+    const [attempts] = await this.run((db) => db.delete(s.quizAttempts).where(and(eq(s.quizAttempts.appId, appId), lt(s.quizAttempts.startedAt, before))));
     const [notifications] = await this.run((db) =>
       db
         .delete(s.hostedNotifications)
@@ -3351,7 +3396,7 @@ export class MysqlStore implements DataStore {
       inquiries: inquiries.affectedRows,
       favorites: favorites.affectedRows,
       enrollments: enrollments.affectedRows,
-      progress: progress.affectedRows,
+      progress: progress.affectedRows + attempts.affectedRows,
       devices: devices.affectedRows,
       notifications: notifications.affectedRows,
       classBookings: classBookings.affectedRows,

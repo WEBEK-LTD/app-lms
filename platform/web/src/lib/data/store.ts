@@ -26,6 +26,7 @@ import type {
   MembershipPatch,
   CourseEnrollment,
   LessonProgress,
+  QuizAttempt,
   CatalogProduct,
   CatalogProductInput,
   Client,
@@ -463,6 +464,13 @@ export interface DataStore {
   listLessonProgress(input: { appId: string; userId: number; courseId?: number }): Promise<LessonProgress[]>;
   /** 73 Clears a student's progress in a course (start it again); how many lessons had some. */
   deleteLessonProgress(input: { appId: string; userId: number; courseId: number }): Promise<number>;
+  // 90.1 Quiz attempts of courses managed in Yallapp.
+  createQuizAttempt(input: Omit<QuizAttempt, "id">): Promise<QuizAttempt>;
+  getQuizAttempt(appId: string, id: number): Promise<QuizAttempt | null>;
+  /** Records the answers and score of an attempt not yet submitted; false when it already was. */
+  submitQuizAttempt(appId: string, id: number, result: Pick<QuizAttempt, "answers" | "scorePercent" | "passed" | "submittedAt">): Promise<boolean>;
+  listQuizAttempts(input: { appId: string; userId?: number; courseId?: number; quizId?: number }): Promise<QuizAttempt[]>;
+  deleteQuizAttempts(input: { appId: string; userId: number; courseId: number }): Promise<number>;
   /** Paid orders sold through Yallapp's account (with a commission), newest first, every shop. */
   listMarketplaceOrders(limit: number): Promise<CatalogOrder[]>;
   createPlanPayment(payment: PlanPayment): Promise<void>;

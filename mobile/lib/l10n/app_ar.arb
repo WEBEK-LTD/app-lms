@@ -1020,5 +1020,7 @@
   "chatOpenFile": "فتح {name}",
   "chatMessageFrom": "{name}: {text}",
   "chatMore": "المزيد",
-  "chatBlockPerson": "حظر {name}"
+  "chatBlockPerson": "حظر {name}",
+  "opensOn": "يُفتح في {date}",
+  "accessUntil": "متاح حتى {date}"
 }

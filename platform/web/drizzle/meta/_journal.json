@@ -547,6 +547,13 @@
       "when": 1792998968919,
       "tag": "0077_staged_release",
       "breakpoints": true
+    },
+    {
+      "idx": 78,
+      "version": "5",
+      "when": 1792999777136,
+      "tag": "0078_quiz_attempts",
+      "breakpoints": true
     }
   ]
 }

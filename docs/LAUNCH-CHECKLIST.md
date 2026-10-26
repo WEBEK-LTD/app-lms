@@ -1085,6 +1085,13 @@ never in a chat or an issue.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **Academies, complete** (90.1): migration `0078_quiz_attempts.sql`
+      (a new table) goes with the production deploy, migrations first.
+      Certificates are at `/a/<app ID>/certificate/<code>`, signed with
+      `SIGNING_SECRET`; changing that secret makes the links already given
+      stop working. After deploying: on a test academy without a website,
+      add a quiz, turn on certificates, finish the course from the app and
+      open the certificate.
 - [ ] **Updates you can undo** (89): migrations `0076_app_versions.sql` and
       `0077_staged_release.sql` (columns on `apps` and `builds`) go with the
       production deploy, migrations first. Apps built from now on ask

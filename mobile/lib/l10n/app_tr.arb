@@ -1020,5 +1020,7 @@
   "chatOpenFile": "{name} dosyasını aç",
   "chatMessageFrom": "{name}: {text}",
   "chatMore": "Daha fazla",
-  "chatBlockPerson": "{name} kişisini engelle"
+  "chatBlockPerson": "{name} kişisini engelle",
+  "opensOn": "{date} tarihinde açılır",
+  "accessUntil": "{date} tarihine kadar erişim"
 }
