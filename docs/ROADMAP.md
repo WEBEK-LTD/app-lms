@@ -2038,7 +2038,7 @@ measured; several useful automatic pushes don't exist.
 | | Step | Done when |
 |---|---|---|
 | [x] | 89.1 Minimum and recommended version for every app, the right store per install, the App Store link | Contract, Flutter tests |
-| [ ] | 89.2 Staged releases: a share of users first, stop, continue (Google Play, App Store phased release) | Pipeline tests |
+| [x] | 89.2 Staged releases: a share of users first, stop, continue (Google Play, App Store phased release) | Pipeline tests |
 | [ ] | 89.3 Going back: release an earlier build again, restore settings and pages from history; versions in use | Unit tests |
 
 ## Phase 90: Academies, complete (area 11)

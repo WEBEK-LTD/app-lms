@@ -1405,6 +1405,10 @@ The page says why in plain words and what to do, for example a Firebase file for
 
 **Rebuild as it was**, next to a ready build, makes it again from the same app code, settings and store listing, with a new version number. Use it when the newest build has a problem and you want the earlier app back in the stores.
 
+## Release in stages
+
+When we publish for you, **Release in stages** sends a new version to some people first. On Google Play, choose who gets it first (1% to 50% of Android users): the version goes to production for that share, and the page shows **Continue**, **Stop** and **Release to everyone** until it reaches everyone. On the App Store, **phased release** lets Apple send it to more iPhone users each day over seven days; you can **Pause**, **Resume** or **Release to everyone**. Your Google Play service account needs the right to release to production.
+
 ## Versions people can use
 
 Under **Versions people can use**, set a **minimum version**: older versions of your app stop at an **Update required** screen with a button to the store they came from (Google Play, Galaxy Store, AppGallery, or your page on the App Store). A **recommended version** asks older versions to update once; people can carry on with **Not now**. Every copy of your app asks when it opens, whatever its content comes from. Leave a box empty to allow every version.

@@ -34,7 +34,8 @@ import { getPlans } from "@/lib/settings/platform";
 import { failureExplanation } from "@/lib/builds/failures";
 import { preflightChecks, renderCheck } from "@/lib/builds/preflight";
 import { preflightDeps } from "@/lib/builds/preflight-env";
-import { RebuildForm, RetryBuildForm, StartBuildForm, VersionsForm } from "./start-build";
+import { RebuildForm, RetryBuildForm, RolloutButtons, StagedReleaseForm, StartBuildForm, VersionsForm } from "./start-build";
+import { FIRST_SHARES, nextFraction } from "@/lib/publishing/rollout";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
@@ -373,6 +374,63 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
           <LinkCard href={localePath(lang, "/docs/xiaomi-getapps")} icon="menu_book" title={t("builds.guideXiaomi")} text={t("builds.stepByStep")} />
         </div>
       </section>
+
+      {/* 89.2 Staged releases, with "We publish for you". */}
+      {autoPublish ? (
+        <Section titleId="h-staged" title={t("builds.stagedTitle")} description={t("builds.stagedText")}>
+          <div className="flex flex-col gap-5">
+            {app.rollout?.android && app.rollout.android.status !== "completed" ? (
+              <div className="flex flex-col gap-2 rounded-xl border border-line p-4" data-rollout="android">
+                <span className="text-[15px] font-bold">
+                  {app.rollout.android.status === "halted"
+                    ? t("builds.rolloutAndroidHalted", { version: app.rollout.android.versionName, percent: Math.round(app.rollout.android.fraction * 100) })
+                    : t("builds.rolloutAndroid", { version: app.rollout.android.versionName, percent: Math.round(app.rollout.android.fraction * 100) })}
+                </span>
+                <RolloutButtons
+                  store="android"
+                  actions={
+                    app.rollout.android.status === "halted"
+                      ? [
+                          { action: "resume", label: t("builds.rolloutResume") },
+                          { action: "complete", label: t("builds.rolloutEveryone") },
+                        ]
+                      : [
+                          { action: "continue", label: t("builds.rolloutContinue", { percent: Math.round(nextFraction(app.rollout.android.fraction) * 100) }) },
+                          { action: "stop", label: t("builds.rolloutStop") },
+                          { action: "complete", label: t("builds.rolloutEveryone") },
+                        ]
+                  }
+                />
+              </div>
+            ) : null}
+            {app.rollout?.ios && app.rollout.ios.state !== "COMPLETE" ? (
+              <div className="flex flex-col gap-2 rounded-xl border border-line p-4" data-rollout="ios">
+                <span className="text-[15px] font-bold">
+                  {app.rollout.ios.state === "PAUSED" ? t("builds.rolloutIosPaused", { version: app.rollout.ios.versionName }) : t("builds.rolloutIos", { version: app.rollout.ios.versionName })}
+                </span>
+                <RolloutButtons
+                  store="ios"
+                  actions={
+                    app.rollout.ios.state === "PAUSED"
+                      ? [
+                          { action: "resume", label: t("builds.rolloutResume") },
+                          { action: "complete", label: t("builds.rolloutEveryone") },
+                        ]
+                      : [
+                          { action: "stop", label: t("builds.rolloutPause") },
+                          { action: "complete", label: t("builds.rolloutEveryone") },
+                        ]
+                  }
+                />
+              </div>
+            ) : null}
+            <StagedReleaseForm
+              current={{ androidPercent: app.stagedRelease?.androidPercent == null ? "" : String(app.stagedRelease.androidPercent), iosPhased: Boolean(app.stagedRelease?.iosPhased) }}
+              shares={[...FIRST_SHARES]}
+            />
+          </div>
+        </Section>
+      ) : null}
 
       {/* 89.1 Which versions people may still use. */}
       <Section titleId="h-versions" title={t("builds.versionsTitle")} description={t("builds.versionsText")}>

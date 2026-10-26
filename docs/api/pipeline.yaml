@@ -402,6 +402,21 @@ components:
         status: { $ref: '#/components/schemas/BuildStatus' }
         auto_publish: { type: boolean, description: "True when the build's app plan includes \"We publish for you\" (Pro and Business by default). The pipeline uploads to the stores." }
         ios: { type: boolean, description: "Whether the build's app plan includes the iOS app. When false, `/builds/{id}/secrets` sends `app_store_connect` as null and the pipeline skips iOS." }
+        release:
+          description: |
+            89.2 How "We publish for you" releases this build. With
+            `android_rollout`, the App Bundle goes to Google Play's production
+            track for that share of users (0.01 to 1) instead of internal
+            testing; the owner stops, continues or completes it from the
+            dashboard. With `ios_phased`, the App Store version is set to
+            Apple's phased release (seven days, pausable). Missing on builds
+            queued before: internal testing, no phased release.
+          type: object
+          additionalProperties: false
+          required: [android_rollout, ios_phased]
+          properties:
+            android_rollout: { type: [number, 'null'], minimum: 0.01, maximum: 1 }
+            ios_phased: { type: boolean }
         stages: { $ref: '#/components/schemas/Stages' }
         artifacts:
           type: array

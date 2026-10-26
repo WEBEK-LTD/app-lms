@@ -11,14 +11,18 @@ default_platform(:ios)
 # Uploads an App Bundle to the internal testing track. Google Play only accepts
 # draft releases until the app's first release is published in Play Console.
 platform :android do
+  # 89.2 With options[:rollout] (0.01 to 1), the production track for that share of users instead
+  # of internal testing; the owner stops, continues or completes it from the dashboard.
   lane :upload_play do |options|
+    rollout = options[:rollout].to_s.empty? ? nil : options[:rollout].to_f
     upload = lambda do |status|
       upload_to_play_store(
         package_name: options[:package],
         json_key: options[:json_key],
         aab: options[:aab],
-        track: "internal",
-        release_status: status,
+        track: rollout ? "production" : "internal",
+        rollout: rollout && rollout < 1 && status != "draft" ? rollout.to_s : nil,
+        release_status: rollout && rollout < 1 && status != "draft" ? "inProgress" : status,
         skip_upload_apk: true,
         skip_upload_metadata: true,
         skip_upload_changelogs: true,
@@ -251,7 +255,8 @@ platform :ios do
   # asked), from store_listing.py's folder, on the version being prepared in App Store Connect.
   # Never submits for review: that stays with the client (or our team).
   #
-  # options: secrets, bundle_id, listing (store_listing.py appstore's folder)
+  # options: secrets, bundle_id, listing (store_listing.py appstore's folder), phased (89.2 "true":
+  #          Apple's phased release over seven days, which the owner can pause from the dashboard)
   lane :appstore_listing do |options|
     secrets = JSON.parse(File.read(options[:secrets]))
     asc = secrets.fetch("app_store_connect")
@@ -266,6 +271,7 @@ platform :ios do
       skip_app_version_update: true,
       submit_for_review: false,
       run_precheck_before_submit: false,
+      phased_release: options[:phased].to_s == "true",
       force: true,
     )
   end

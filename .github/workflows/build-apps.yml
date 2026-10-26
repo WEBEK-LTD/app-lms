@@ -58,6 +58,8 @@ jobs:
         build: ${{ fromJSON(needs.queue.outputs.builds) }}
     env:
       AUTO_PUBLISH: ${{ matrix.build.auto_publish }}
+      # 89.2 A share of Google Play's production users first, when the owner asked.
+      ANDROID_ROLLOUT: ${{ matrix.build.android_rollout }}
       FILES_BASE_URL: ${{ vars.FILES_BASE_URL }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -117,6 +119,8 @@ jobs:
         build: ${{ fromJSON(needs.queue.outputs.builds) }}
     env:
       AUTO_PUBLISH: ${{ matrix.build.auto_publish }}
+      # 89.2 Apple's phased release, when the owner asked.
+      IOS_PHASED: ${{ matrix.build.ios_phased }}
       FILES_BASE_URL: ${{ vars.FILES_BASE_URL }}
       FASTLANE_SKIP_UPDATE_CHECK: '1'
       FASTLANE_HIDE_CHANGELOG: '1'

@@ -1,6 +1,7 @@
 import { FINGERPRINT, TEAM_ID } from "../links/well-known";
 import { z } from "zod";
 import type { DataStore } from "../data/store";
+import { rolloutAfterReport } from "../publishing/rollout";
 import { FAILURE_CODES, type Artifact, type Build, type BuildStages, type BuildStatus, type StageKey } from "../data/types";
 
 /** What the build pipeline may report: see docs/api/pipeline.yaml. */
@@ -104,6 +105,12 @@ export async function applyPipelineStatus(
     finishedAt: FINISHED.includes(status) ? now : null,
   };
   await store.updateBuild(build.id, patch, now);
+  // 89.2 A staged release starts once its store upload is done: kept on the app for the owner's controls.
+  if (build.release) {
+    const app = await store.getAppById(build.appId);
+    const rollout = app ? rolloutAfterReport(app.rollout, build, stages, now) : null;
+    if (app && rollout) await store.updateApp(app.id, { rollout }, now);
+  }
   return { ok: true, build: { ...build, ...patch, updatedAt: now } };
 }
 
@@ -144,6 +151,8 @@ export function buildSummary(build: Build) {
     source_ref: build.sourceRef ?? null,
     source_commit: build.sourceCommit ?? null,
     rebuild_of: build.rebuildOf ?? null,
+    // 89.2
+    ...(build.release ? { release: { android_rollout: build.release.androidRollout, ios_phased: build.release.iosPhased } } : {}),
     created_at: build.createdAt.toISOString(),
     started_at: build.startedAt?.toISOString() ?? null,
     finished_at: build.finishedAt?.toISOString() ?? null,

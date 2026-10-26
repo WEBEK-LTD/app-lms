@@ -59,7 +59,7 @@ import type {
   ChatReportOutcome,
 } from "../data/types";
 // 11.6 and 11.8
-import type { BuildFailure, ListingTranslation, ReviewsRow, ScreenshotFrame } from "../data/types";
+import type { BuildFailure, BuildRelease, ListingTranslation, ReviewsRow, RolloutState, ScreenshotFrame, StagedRelease } from "../data/types";
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
 import type { Plan } from "../plans";
 import type { Layout, LayoutBlock, LayoutContent } from "../pages/types";
@@ -299,6 +299,9 @@ export const apps = mysqlTable(
     // 89.1 The versions the app's users must have, and the one they're asked to update to.
     minVersion: varchar("min_version", { length: 32 }),
     recommendedVersion: varchar("recommended_version", { length: 32 }),
+    // 89.2 Staged releases: the owner's choice and the release in progress.
+    stagedRelease: jsonText<StagedRelease>("staged_release"),
+    rollout: jsonText<RolloutState>("rollout"),
     appTypeDoneAt: time("app_type_done_at"),
     websiteDoneAt: time("website_done_at"),
     brandingDoneAt: time("branding_done_at"),
@@ -346,6 +349,8 @@ export const builds = mysqlTable(
     sourceRef: varchar("source_ref", { length: 40 }),
     sourceCommit: varchar("source_commit", { length: 40 }),
     rebuildOf: int("rebuild_of"),
+    // 89.2 How it's released.
+    release: jsonText<BuildRelease>("release"),
     createdAt: time("created_at").notNull(),
     startedAt: time("started_at"),
     finishedAt: time("finished_at"),

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { rebuildBuildAction, retryBuildAction, saveVersionsAction, startBuildAction } from "@/app/actions/dashboard";
+import { changeRolloutAction, rebuildBuildAction, retryBuildAction, saveStagedReleaseAction, saveVersionsAction, startBuildAction } from "@/app/actions/dashboard";
 import { FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { initialFormState } from "@/lib/forms";
@@ -130,5 +130,69 @@ export function VersionsForm({ current }: { current: { minVersion: string; recom
         </SubmitButton>
       </div>
     </form>
+  );
+}
+
+/** 89.2 How updates are released: a first share of Google Play users, Apple's phased release. */
+export function StagedReleaseForm({ current, shares }: { current: { androidPercent: string; iosPhased: boolean }; shares: number[] }) {
+  const t = useDashT();
+  const [state, action] = useActionState(saveStagedReleaseAction, initialFormState);
+  const error = state.errors?.androidPercent;
+  const known = useKnownText();
+  return (
+    <form action={action} noValidate className="flex flex-col gap-3" aria-label={t("builds.stagedTitle")}>
+      <FormMessage message={state.message} ok={state.ok} />
+      <div className="flex min-w-0 flex-col gap-1">
+        <label htmlFor="f-androidPercent" className="text-sm font-semibold">
+          {t("builds.stagedAndroid")}
+        </label>
+        <select id="f-androidPercent" name="androidPercent" defaultValue={state.values?.androidPercent ?? current.androidPercent} className="input input-sm max-w-[320px]" aria-describedby="f-androidPercent-hint">
+          <option value="">{t("builds.stagedAndroidOff")}</option>
+          {shares.map((share) => (
+            <option key={share} value={String(share)}>
+              {t("builds.stagedAndroidShare", { percent: share })}
+            </option>
+          ))}
+        </select>
+        <span id="f-androidPercent-hint" className="text-xs text-muted">
+          {t("builds.stagedAndroidHint")}
+        </span>
+        {error ? <span className="text-[13px] font-semibold text-danger">{known(error)}</span> : null}
+      </div>
+      <label className="flex cursor-pointer items-start gap-3">
+        <input type="checkbox" name="iosPhased" defaultChecked={current.iosPhased} className="mt-1 h-4 w-4 accent-midnight" />
+        <span className="flex flex-col gap-0.5">
+          <span className="text-sm font-semibold">{t("builds.stagedIos")}</span>
+          <span className="text-xs text-muted">{t("builds.stagedIosHint")}</span>
+        </span>
+      </label>
+      <div>
+        <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
+          {t("builds.stagedSave")}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 89.2 The buttons for the release in progress on one store. */
+export function RolloutButtons({ store, actions }: { store: "android" | "ios"; actions: { action: "continue" | "stop" | "resume" | "complete"; label: string }[] }) {
+  const t = useDashT();
+  const [state, action] = useActionState(changeRolloutAction, initialFormState);
+  return (
+    <div className="flex flex-col gap-2">
+      <FormMessage message={state.message} ok={state.ok} />
+      <div className="flex flex-wrap gap-2">
+        {actions.map((item) => (
+          <form key={item.action} action={action}>
+            <input type="hidden" name="store" value={store} />
+            <input type="hidden" name="action" value={item.action} />
+            <SubmitButton variant={item.action === "stop" ? "secondary" : "primary"} className="h-10" pendingText={t("common.saving")}>
+              {item.label}
+            </SubmitButton>
+          </form>
+        ))}
+      </div>
+    </div>
   );
 }

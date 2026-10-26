@@ -69,11 +69,25 @@ def write_private(path, payload):
         json.dump(payload, handle)
 
 
+def queue_entry(build):
+    """What a build job needs from the queue: 87.3 the commit to build a
+    rebuild from, and 89.2 how it's released (the workflow's matrix)."""
+    release = build.get("release") or {}
+    rollout = release.get("android_rollout")
+    return {
+        "id": build["id"],
+        "auto_publish": build["auto_publish"],
+        "source_ref": build.get("source_ref") or "",
+        "android_rollout": "" if rollout is None else f"{float(rollout):g}",
+        "ios_phased": bool(release.get("ios_phased")),
+    }
+
+
 def main():
     command, args = sys.argv[1], sys.argv[2:]
     if command == "queue":
         builds = need(*call("GET", "/builds/queue?limit=5"))["builds"]
-        print(json.dumps([{"id": b["id"], "auto_publish": b["auto_publish"]} for b in builds]))
+        print(json.dumps([queue_entry(b) for b in builds]))
     elif command == "claim":
         need(*call("POST", f"/builds/{args[0]}/status", {"status": "building", "stages": {"queued": "done"}, "log_url": args[1]}))
     elif command == "config":
