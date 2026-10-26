@@ -2216,7 +2216,10 @@ export class MemoryStore implements DataStore {
   }
 
   async saveOwnFont(font: OwnFont): Promise<void> {
-    this.ownFonts = [...this.ownFonts.filter((f) => f.id !== font.id), clone(font)];
+    // As the database's unique name per app: the same name replaces that row, keeping its id.
+    const same = this.ownFonts.find((f) => f.id !== font.id && f.appId === font.appId && f.family.toLowerCase() === font.family.toLowerCase());
+    const saved = same ? { ...clone(font), id: same.id } : clone(font);
+    this.ownFonts = [...this.ownFonts.filter((f) => f.id !== font.id && f.id !== same?.id), saved];
   }
 
   async deleteOwnFont(appId: string, id: string): Promise<boolean> {
