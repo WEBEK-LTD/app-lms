@@ -99,7 +99,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
       : app?.backend === "wordpress" || app?.backend === "setup_requested" || app?.backend === "custom_api"
         ? // 18 WordPress apps choose how people sign in, and the WhatsApp number that sends their codes (19: also while our team sets up the site).
           // 19 Own API apps see how their API signs people in.
-          [{ label: k(usersLabelOf(app)), items: [{ href: "/dashboard/app-sign-in", label: t("nav.appSignIn"), icon: "login" as const }] }]
+          // 85.4 WordPress apps send campaigns through their site.
+          [
+            {
+              label: k(usersLabelOf(app)),
+              items: [
+                ...(app.backend === "wordpress" ? [{ href: "/dashboard/notifications/campaigns", label: t("campaigns.title"), icon: "campaign" as const }] : []),
+                { href: "/dashboard/app-sign-in", label: t("nav.appSignIn"), icon: "login" as const },
+              ],
+            },
+          ]
         : []),
     {
       label: t("nav.publish"),

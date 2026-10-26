@@ -41,6 +41,8 @@ export interface Announcement {
   notification: HostedNotification;
   /** Devices Firebase accepted the push for. */
   pushed: number;
+  /** 85.2 Phones it was pushed to (allowing announcements), whether or not it reached them. */
+  targets: number;
   /** Why push wasn't sent, when it wasn't. */
   pushError: string | null;
 }
@@ -101,27 +103,40 @@ export async function announce(input: {
   now: Date;
   send?: typeof sendPush;
   articleId?: string | null;
+  /** 85.2 A campaign's audience: these people only (null or missing: everyone). */
+  userIds?: number[] | null;
+  /** 85.2 What it opens (a link in the Links format, or another https address), and its picture. */
+  link?: string | null;
+  imageUrl?: string | null;
 }): Promise<Announcement> {
   const articleId = input.articleId ?? null;
+  const userIds = input.userIds ?? null;
   const notification = await input.store.createHostedNotification({
     appId: input.app.id,
     userId: null,
     title: input.title,
     body: input.body,
     ...(articleId ? { articleId } : {}),
+    ...(input.link ? { link: input.link } : {}),
+    ...(input.imageUrl ? { imageUrl: input.imageUrl } : {}),
+    ...(userIds ? { targeted: true } : {}),
     createdAt: input.now,
   });
-  if (!input.account) return { notification, pushed: 0, pushError: "Push is off: add your Firebase service account." };
-  const devices = await input.store.listHostedPushDevices(input.app.id, null);
+  if (userIds && userIds.length > 0) await input.store.addHostedNotificationRecipients(input.app.id, notification.id, userIds);
+  if (!input.account) return { notification, pushed: 0, targets: 0, pushError: "Push is off: add your Firebase service account." };
+  const devices = userIds && userIds.length === 0 ? [] : await input.store.listHostedPushDevices(input.app.id, userIds);
   const tokens = devices.filter((d) => (articleId ? d.pushPreferences?.news : d.pushPreferences?.announcements) !== false).map(pushTarget);
   const data: Record<string, string> = articleId
     ? { type: "article", article_id: articleId, notification_id: String(notification.id) }
     : { type: "announcement", notification_id: String(notification.id) };
+  if (input.link) data.link = input.link;
+  if (input.imageUrl) data.image_url = input.imageUrl;
+  if (userIds && userIds.length === 0) return { notification, pushed: 0, targets: 0, pushError: null };
   try {
     const result = await (input.send ?? sendPush)(
       input.account,
       tokens,
-      { title: input.title, body: input.body, data },
+      { title: input.title, body: input.body, data, image: input.imageUrl ?? null },
       { now: input.now },
     );
     for (const token of result.invalidTokens) await input.store.clearHostedPushToken(input.app.id, token);
@@ -129,7 +144,7 @@ export async function announce(input: {
     if (result.sent > 0) {
       await input.store.addAnalyticsDaily(input.app.id, dayOf(input.now, await appZone(input.store, input.app)), { metric: "push_sent", key: String(notification.id), label: input.title.slice(0, 120), value: result.sent });
     }
-    return { notification, pushed: result.sent, pushError: null };
+    return { notification, pushed: result.sent, targets: tokens.length, pushError: null };
   } catch (e) {
     const pushError = e instanceof Error ? e.message : "Push failed.";
     // 78.4 On the app's errors, and in the team's bell.
@@ -146,7 +161,7 @@ export async function announce(input: {
       },
       input.now,
     );
-    return { notification, pushed: 0, pushError };
+    return { notification, pushed: 0, targets: tokens.length, pushError };
   }
 }
 

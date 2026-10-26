@@ -2217,6 +2217,108 @@ runs the rest of it.
   app's chat (as the App Store and Google Play ask of apps where people
   write to each other); the privacy policy says what the chat keeps.
 
+## Notification campaigns (Phase 85)
+
+### Audiences (85.1)
+
+`lib/hosted/audiences.ts`. A campaign goes to everyone, or to the people
+the app knows something about: who paid for an order (`catalog_orders`
+with `paid_at`), the students of one course or of any
+(`course_enrollments`), members whose membership is active now
+(`memberships`), or people none of whose phones opened the app for 7 to
+90 days (`hosted_devices.last_seen_at`, refreshed at sign-in and at each
+token refresh; the sign-up date for someone without a phone). The kinds
+offered follow the app (`audienceKinds`, from `lib/app/areas.ts`).
+
+It can be narrowed by the language the app shows on the phone, the
+phone's platform and its country. A person matches when one of their
+phones does; a phone that never said (an app from before 85.1) matches no
+narrowing. The app sends its language with `PUT /me/push-token` (again
+when the person changes it); the country comes from the request
+(`lib/geo.ts`, the IP itself is never kept) at sign-in, token refresh and
+push registration. Both are on `hosted_devices` (migration
+`0064_device_language_country`). Everyone, not narrowed, is still one
+notification to the whole app (`resolveAudience` answers `null`).
+
+### Campaigns (85.2)
+
+`lib/hosted/campaigns.ts`, Dashboard › App notifications › Campaigns
+(`/dashboard/notifications/campaigns`). A campaign is a title and message,
+a picture (from the Media library made public, or Yallapp's pictures: only
+addresses on Yallapp's own domain), what it opens (nothing, a page of the
+app as a Links-format link `<base>/page/<slug>`, or another `https`
+address, which the app opens in the browser) and an audience (85.1). It is
+kept as a draft, sent now, at a date and time, or every week on a day and
+time in the app's time zone (`notification_campaigns`, migration
+`0065_notification_campaigns`; `repeats` and `local_time` avoid MySQL's
+reserved words).
+
+Each send is `announce()` with the audience: one `hosted_notifications`
+row, to everyone (as before) or `targeted` with its people in
+`notice_recipients` (the inbox query adds those), and a push to their
+phones that allow announcements, with `link` and `image_url` in the data
+(FCM `notification.image`, Push Kit `android.notification.image`; iPhones
+show the picture in the inbox). `campaign_sends` keeps each send's people,
+phones reached and missed (targets minus accepted); opens are the app's
+`push_open` analytics by notification ID, counted each night. Sends count
+in the hourly limit of 10 with the app's other notifications; nothing goes
+out once the plan has ended (68). The frequent job sends the due ones,
+each taken by one run (a conditional update); a weekly one is set to the
+next week's time after each send, waits when the hour's limit is used,
+and skips a week with nobody in its audience. Notifications "sent to
+everyone" (the dashboard's Sent list and the Owner API) leave targeted
+ones out.
+
+### Automatic notifications (85.3)
+
+`lib/hosted/auto-notifications.ts`, hosted apps only (WordPress apps send
+theirs from the plugin). The kinds an app has follow its areas
+(`autoKindsFor`): `new_lesson` and `study_reminder` (courses),
+`appointment_confirmed` and `appointment_reminder` (bookings), `class_soon`
+and `membership_ending` (gyms), `event_soon` (events), `cart_left`
+(shops). A new lesson is told when it is saved (courses actions); an
+appointment confirmed when it goes from waiting to approved (the dashboard
+and the Owner API); the others by the frequent job: an appointment in the
+next 1–24 hours, a class in the next 2, an event in the next 24, a
+membership ending in the next 3 days, the study reminder from 19:00 to
+21:00 in the app's time zone to students one of whose phones turned it on,
+and a cart with items unchanged for 3 hours (up to a week). The app says
+how many items its cart holds with `PUT /me/cart` (`hosted_carts`);
+nothing else of the cart leaves the phone.
+
+Each goes once per person and what it is about (`auto_notices`, its key
+taken by an insert, migration `0066_auto_notifications`; a renewed
+membership or a cart changed after its reminder is a new one), in the
+language of the person's phone when it is English, Arabic or Turkish (else
+the app's), to their inbox (`hosted_notifications.data` keeps its type and
+ids for the app) and to their phones that allow it (`new_lessons`,
+`daily_reminder`, `announcements`). Pushes carry `type` = the kind and no
+`notification_id`, so the app's opens count by kind (`push_open`
+`type:<kind>`); people and phones are counted per day (`auto_sent`,
+`auto_pushed`). The owner turns each off on App notifications
+(`HostedSettings.autoNotifications`). They aren't in the hourly limit of
+the notifications the owner sends, and stop when the plan ends.
+
+### WordPress apps' campaigns (85.4)
+
+A WordPress site keeps its people's push tokens, so a campaign of a
+WordPress app goes through it (`lib/license/campaign-site.ts`): the platform
+makes the send's row first (`campaign_sends`, its ID is the `send_id`), then
+signs `POST <site>/wp-json/yallapp/v1/campaigns/send` like the chat's
+notify (`yallapp-campaign:<timestamp>:<sha256 of the campaign JSON>`,
+keyed with the license key). The plugin (0.4.12) puts it in everyone's
+inbox (`link` and `image_url` columns, DB version 5), queues the pushes in
+cron batches (`yallapp_campaign_send`) and keeps an option per send, so the
+same `send_id` twice is sent once; after the last batch it calls
+`POST /api/v1/campaigns/report` with the phones reached and missed, which
+the platform saves once (`reported_at`, migration
+`0067_campaign_reports`). Until then the dashboard says the site is still
+sending. A site that can't be reached, or a plugin from before 0.4.12 (404),
+leaves the campaign a draft (sent now) or failed (sent later; a weekly one
+tries the next week), and the send's row is removed. WordPress campaigns go
+to everyone (the platform doesn't know the site's people); a page of the
+app opens on the site's links (`<site>/a/page/<slug>`).
+
 ## Milestones (Phase 78)
 
 `client_milestones` (migration 0053, `lib/milestones/record.ts`) keeps when

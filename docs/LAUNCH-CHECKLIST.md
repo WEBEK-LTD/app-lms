@@ -1085,6 +1085,22 @@ never in a chat or an issue.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **Notification campaigns** (85): migrations `0064_device_language_country.sql`,
+      `0065_notification_campaigns.sql`, `0066_auto_notifications.sql` and
+      `0067_campaign_reports.sql` (new columns and tables) go with the
+      production deploy. Automatic notifications start for every hosted app at
+      once (each kind can be turned off on App notifications): check the
+      frequent job's report (`campaigns`, `automatic`) after the first runs.
+- [ ] **The app for 85** comes with each app's next build: the language sent
+      with the push token, campaigns' pictures in the inbox and web addresses
+      opened in the browser, the automatic notifications' screens, and the cart's
+      item count for "You left something in your cart". In the data safety form,
+      add Location › Approximate location (the country phones sign in from) as
+      the publishing guide says.
+- [ ] **Plugin 0.4.12** (85.4): campaigns from the dashboard on WordPress apps.
+      Release it like 0.4.11; until a site updates, a campaign to it says the
+      plugin is too old and nothing is sent. Its readme says what campaigns send
+      (External services).
 - [ ] **Saved sections** (84.3): migration `0063_saved_sections.sql` (a new
       table) goes with the production deploy.
 - [ ] **App switches** (83.3): migration `0062_app_switches.sql` (a new

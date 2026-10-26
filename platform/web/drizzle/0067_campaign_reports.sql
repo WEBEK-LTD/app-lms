@@ -1,0 +1,1 @@
+ALTER TABLE `campaign_sends` ADD `reported_at` datetime(3);

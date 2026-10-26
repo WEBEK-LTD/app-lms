@@ -48,6 +48,8 @@ abstract class PushService {
 /// - `event` (a change to an event the user holds tickets to, 28) opens it;
 /// - `campaign_update` (29) opens the campaign;
 /// - `chat` (77) opens the conversation;
+/// - 85.3 the app's own: an appointment, the classes, an event, the
+///   memberships, the cart or My courses;
 /// - anything else opens Home.
 String pushTargetLocation(Map<String, dynamic> data) {
   int? id(String key) => int.tryParse('${data[key] ?? ''}'.trim());
@@ -80,6 +82,24 @@ String pushTargetLocation(Map<String, dynamic> data) {
       final conversation = '${data['conversation_id'] ?? ''}'.trim();
       if (conversation.isNotEmpty) return Paths.chatConversation(conversation);
       return Paths.chat;
+    // 85.3 Sent by the app on its own.
+    case 'appointment_confirmed':
+    case 'appointment_reminder':
+      final appointment = id('appointment_id');
+      return appointment != null
+          ? Paths.appointment(appointment)
+          : Paths.appointments;
+    case 'class_soon':
+      return Paths.classes;
+    case 'event_soon':
+      final event = id('event_id');
+      return event != null ? Paths.event(event) : Paths.tickets;
+    case 'membership_ending':
+      return Paths.memberships;
+    case 'cart_left':
+      return Paths.cart;
+    case 'study_reminder':
+      return Paths.myCourses;
   }
   // 46 A link (`<base>/<kind>/<id>`): its path, which the router maps with
   // the same table as a link opened from outside the app.
@@ -90,6 +110,15 @@ String pushTargetLocation(Map<String, dynamic> data) {
     return link.path;
   }
   return Paths.home;
+}
+
+/// 85.2 A campaign's web address (an `https` link that isn't one of the
+/// app's own `<base>/<kind>/<id>` links): opened in the browser. Null otherwise.
+String? pushOutsideLink(Map<String, dynamic> data) {
+  final link = Uri.tryParse('${data['link'] ?? ''}'.trim());
+  if (link == null || link.scheme != 'https' || link.host.isEmpty) return null;
+  if (link.pathSegments.contains('a')) return null;
+  return link.toString();
 }
 
 class NoopPushService implements PushService {

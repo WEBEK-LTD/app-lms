@@ -15,6 +15,15 @@ enum NotificationType {
 
   /// 29 A campaign the user gave to posted an update.
   campaignUpdate,
+
+  /// 85.3 Sent by the app on its own (Yallapp's hosted API).
+  appointmentConfirmed,
+  appointmentReminder,
+  classSoon,
+  eventSoon,
+  membershipEnding,
+  cartLeft,
+  studyReminder,
   unknown,
 }
 
@@ -34,6 +43,8 @@ class InboxNotification {
     this.eventId,
     this.campaignId,
     this.link,
+    this.imageUrl,
+    this.appointmentId,
   });
 
   factory InboxNotification.fromJson(Json json) => InboxNotification(
@@ -52,6 +63,8 @@ class InboxNotification {
     eventId: optInt(json, 'event_id'),
     campaignId: optInt(json, 'campaign_id'),
     link: optString(json, 'link'),
+    imageUrl: optString(json, 'image_url'),
+    appointmentId: optInt(json, 'appointment_id'),
     createdAt: reqDate(json, 'created_at'),
     read: reqBool(json, 'read'),
   );
@@ -79,6 +92,12 @@ class InboxNotification {
   final bool read;
 
   /// The same keys as a push message's data, so taps open the same screen.
+  /// 85.2 A campaign's picture, shown with it in the inbox.
+  final String? imageUrl;
+
+  /// 85.3 For an appointment confirmed or coming up: the appointment.
+  final int? appointmentId;
+
   Map<String, dynamic> get target => {
     'type': snake(type),
     'course_id': ?courseId,
@@ -88,6 +107,7 @@ class InboxNotification {
     'event_id': ?eventId,
     'campaign_id': ?campaignId,
     'link': ?link,
+    'appointment_id': ?appointmentId,
   };
 }
 

@@ -21,9 +21,11 @@ foreach ( array( 'yallapp_settings', 'yallapp_secret', 'yallapp_license', 'yalla
 
 // Transients and per-user progress kept by the app.
 $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '\\_transient\\_yallapp\\_%' OR option_name LIKE '\\_transient\\_timeout\\_yallapp\\_%'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+// 85.4 What each campaign from the Yallapp dashboard sent.
+$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE 'yallapp\\_campaign\\_%'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 $wpdb->query( "DELETE FROM {$wpdb->usermeta} WHERE meta_key LIKE 'yallapp\\_position\\_%' OR meta_key LIKE 'yallapp\\_watched\\_%' OR meta_key = 'yallapp_notifications_read_id'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 $wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key IN ('_yallapp_render_mode', '_yallapp_embed_height')" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
-foreach ( array( 'yallapp_daily', 'yallapp_license_check', 'yallapp_layout_refresh', 'yallapp_push_send' ) as $yallapp_hook ) {
+foreach ( array( 'yallapp_daily', 'yallapp_license_check', 'yallapp_layout_refresh', 'yallapp_push_send', 'yallapp_campaign_send' ) as $yallapp_hook ) {
 	wp_unschedule_hook( $yallapp_hook );
 }

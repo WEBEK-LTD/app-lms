@@ -169,6 +169,13 @@
           "summary": "Register this device for push notifications",
           "description": null,
           "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/me/cart",
+          "summary": "Say how many items the cart holds",
+          "description": "Roadmap 85.3: the app keeps the cart on the phone and says how many items it holds whenever that changes (0 once it's empty or ordered), so a shop on Yallapp's hosted API can send \"You left something in your cart\" once, 3 hours after the last change, when the owner hasn't turned it off. Nothing else about the cart is sent. Servers that don't need it answer 404, and the app doesn't ask again until it restarts.",
+          "access": "signed-in"
         }
       ]
     },
@@ -916,6 +923,13 @@
           "path": "/chat/notify",
           "summary": "Push a new chat message to the site's app users",
           "description": "Roadmap 77. Sent by the Yallapp platform to a WordPress site when a message arrives for its app's people: the site keeps their push tokens, so its plugin sends the push (Firebase or Huawei Push Kit), with the notification preferences the person chose. Nothing about the message is stored on the site.\n\nSigned like `POST /license/refresh`: `signature` is the lowercase hex HMAC-SHA256 of `yallapp-chat-notify:<timestamp>:<sha256 of the notification JSON, hex>` keyed with the license key in capitals; a wrong signature, a site without a license key or a timestamp more than 5 minutes away is 401 `invalid_signature`.",
+          "access": "public"
+        },
+        {
+          "method": "POST",
+          "path": "/campaigns/send",
+          "summary": "Send a campaign from the Yallapp dashboard to the app's users",
+          "description": "Roadmap 85.4. Sent by the Yallapp platform to a WordPress site when the owner sends a campaign from Dashboard › App notifications › Campaigns (now, at the time chosen, or each week): the site keeps its people's push tokens, so the plugin adds the notification to everyone's inbox (with its picture and what it opens) and pushes it to the phones that allow announcements, in batches. When the last batch is sent, the plugin reports how many phones it reached and missed with `POST /campaigns/report` (docs/api/platform.yaml).\n\nSigned like `POST /chat/notify`: `signature` is the lowercase hex HMAC-SHA256 of `yallapp-campaign:<timestamp>:<sha256 of the campaign JSON, hex>` keyed with the license key in capitals; a wrong signature, a site without a license key or a timestamp more than 5 minutes away is 401 `invalid_signature`. The same `send_id` twice is sent once (200 with the first answer).",
           "access": "public"
         },
         {

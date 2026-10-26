@@ -28,6 +28,12 @@ class Push_Service {
 	const TOKEN_KEY  = 'yallapp_fcm_access_token';
 
 	/**
+	 * 85.4 A campaign's cron batches, and what each campaign has sent so far (an option per send).
+	 */
+	const CAMPAIGN_HOOK   = 'yallapp_campaign_send';
+	const CAMPAIGN_OPTION = 'yallapp_campaign_';
+
+	/**
 	 * News & blog apps: a new post is announced a minute after it's published, once the
 	 * editor's "In the app" box (saved after the status changes, or in a second request by
 	 * the block editor) has said whether to.
@@ -61,6 +67,7 @@ class Push_Service {
 	public function register() {
 		add_action( 'transition_post_status', array( $this, 'on_status_change' ), 10, 3 );
 		add_action( self::SEND_HOOK, array( $this, 'send_batch' ), 10, 4 );
+		add_action( self::CAMPAIGN_HOOK, array( $this, 'send_campaign_batch' ), 10, 5 );
 		add_action( self::POST_HOOK, array( $this, 'notify_post' ) );
 		$lms = $this->plugin->lms();
 		if ( $lms ) {
@@ -325,6 +332,93 @@ class Push_Service {
 	}
 
 	/**
+	 * 85.4 A campaign from the Yallapp dashboard: in everyone's inbox, pushed in cron batches to
+	 * the phones that allow announcements; the numbers go back to Yallapp after the last batch.
+	 * The same send twice is sent once.
+	 *
+	 * @param array{send_id: int, title: string, body: string, link: string|null, image_url: string|null} $campaign Campaign.
+	 * @return array{notification_id: int, people: int, batches: int, again: bool}
+	 */
+	public function campaign( array $campaign ) {
+		$option = self::CAMPAIGN_OPTION . (int) $campaign['send_id'];
+		$seen   = get_option( $option );
+		if ( is_array( $seen ) ) {
+			return array(
+				'notification_id' => (int) $seen['notification_id'],
+				'people'          => (int) $seen['people'],
+				'batches'         => (int) $seen['batches'],
+				'again'           => true,
+			);
+		}
+		$notification_id = $this->plugin->inbox()->add_campaign( $campaign['title'], $campaign['body'], $campaign['link'], $campaign['image_url'] );
+		$users           = $this->is_configured() ? $this->plugin->devices()->push_user_ids() : array();
+		$batches         = array_chunk( array_values( array_unique( array_map( 'absint', $users ) ) ), self::BATCH_SIZE );
+		$data            = array(
+			'type'            => 'announcement',
+			'notification_id' => (string) $notification_id,
+		);
+		if ( $campaign['link'] ) {
+			$data['link'] = $campaign['link'];
+		}
+		if ( $campaign['image_url'] ) {
+			$data['image_url'] = $campaign['image_url'];
+		}
+		$notification = array(
+			'title' => $campaign['title'],
+			'body'  => $campaign['body'],
+			'image' => (string) $campaign['image_url'],
+		);
+		update_option(
+			$option,
+			array(
+				'notification_id' => $notification_id,
+				'people'          => count( $users ),
+				'batches'         => count( $batches ),
+				'done'            => 0,
+				'sent'            => 0,
+				'failed'          => 0,
+			),
+			false
+		);
+		foreach ( $batches as $index => $batch ) {
+			wp_schedule_single_event( time() + $index * 30, self::CAMPAIGN_HOOK, array( (int) $campaign['send_id'], $batch, $notification, $data, count( $batches ) ) );
+		}
+		return array(
+			'notification_id' => $notification_id,
+			'people'          => count( $users ),
+			'batches'         => count( $batches ),
+			'again'           => false,
+		);
+	}
+
+	/**
+	 * 85.4 One batch of a campaign. Runs in cron; after the last one, Yallapp gets the numbers.
+	 *
+	 * @param int   $send_id      Yallapp's send.
+	 * @param int[] $user_ids     Recipients.
+	 * @param array $notification Title, body and picture.
+	 * @param array $data         Data for the app.
+	 * @param int   $batches      How many batches the campaign has.
+	 * @return void
+	 */
+	public function send_campaign_batch( $send_id, $user_ids, $notification, $data, $batches ) {
+		$phones = count( $this->plugin->devices()->push_targets( (array) $user_ids, 'announcements' ) );
+		$sent   = $this->send_batch( $user_ids, 'announcements', $notification, $data );
+		$option = self::CAMPAIGN_OPTION . (int) $send_id;
+		$state  = get_option( $option );
+		if ( ! is_array( $state ) ) {
+			return;
+		}
+		$state['done']   = (int) $state['done'] + 1;
+		$state['sent']   = (int) $state['sent'] + $sent;
+		$state['failed'] = (int) $state['failed'] + max( 0, $phones - $sent );
+		update_option( $option, $state, false );
+		if ( $state['done'] >= (int) $batches ) {
+			$this->plugin->license()->report_campaign( (int) $send_id, (int) $state['sent'], (int) $state['failed'] );
+		}
+	}
+
+	/**
 	 * Splits recipients into cron batches.
 	 *
 	 * @param int[]  $user_ids     Recipients.
@@ -398,12 +492,17 @@ class Push_Service {
 	 * @return array
 	 */
 	public static function message( $device_token, array $notification, array $data ) {
+		$shown = array(
+			'title' => (string) ( $notification['title'] ?? '' ),
+			'body'  => (string) ( $notification['body'] ?? '' ),
+		);
+		// 85.4 A campaign's picture (Android shows it; iPhones in the app's inbox).
+		if ( ! empty( $notification['image'] ) ) {
+			$shown['image'] = (string) $notification['image'];
+		}
 		return array(
 			'token'        => $device_token,
-			'notification' => array(
-				'title' => (string) ( $notification['title'] ?? '' ),
-				'body'  => (string) ( $notification['body'] ?? '' ),
-			),
+			'notification' => $shown,
 			'data'         => array_map( 'strval', $data ),
 			'android'      => array( 'priority' => 'high' ),
 			'apns'         => array( 'payload' => array( 'aps' => array( 'sound' => 'default' ) ) ),

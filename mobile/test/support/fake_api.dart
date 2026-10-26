@@ -187,12 +187,17 @@ class FakeApi implements YallappApi {
     String token,
     NotificationPreferences preferences, {
     PushProvider provider = PushProvider.fcm,
+    String? language,
   }) => _answer('setPushToken', () {
     pushTokens.add((token: token, provider: provider));
+    pushLanguages.add(language);
   });
 
   /// 36 The push tokens the app registered, with their provider.
   final pushTokens = <({String token, PushProvider provider})>[];
+
+  /// 85.1 The language sent with each of them.
+  final pushLanguages = <String?>[];
 
   @override
   Future<List<Category>> listCategories() => _answer(
@@ -424,6 +429,12 @@ class FakeApi implements YallappApi {
       baseUrl: 'https://yallapp.example/api/app/app-1',
     ),
   );
+
+  /// 85.3 The item counts the app reported for its cart.
+  final carts = <int>[];
+
+  @override
+  Future<void> setCart(int items) => _answer('setCart', () => carts.add(items));
 
   @override
   Future<void> markNotificationsRead() => _answer('markNotificationsRead', () {

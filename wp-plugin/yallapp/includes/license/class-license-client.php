@@ -247,6 +247,42 @@ class License_Client {
 	}
 
 	/**
+	 * 85.4 Tells Yallapp how a campaign's pushes went, once its last batch is sent
+	 * (docs/api/platform.yaml, reportCampaign).
+	 *
+	 * @param int $send_id Yallapp's send.
+	 * @param int $sent    Phones Firebase and Huawei Push Kit accepted.
+	 * @param int $failed  Phones they didn't.
+	 * @return void
+	 */
+	public function report_campaign( $send_id, $sent, $failed ) {
+		$key = (string) $this->settings->get( 'license_key' );
+		if ( '' === $key ) {
+			return;
+		}
+		wp_remote_post(
+			self::base_url() . '/campaigns/report',
+			array(
+				'timeout' => 10,
+				'headers' => array(
+					'Accept'       => 'application/json',
+					'Content-Type' => 'application/json',
+				),
+				'body'    => wp_json_encode(
+					array_merge(
+						$this->site_info( $key ),
+						array(
+							'send_id' => (int) $send_id,
+							'sent'    => (int) $sent,
+							'failed'  => (int) $failed,
+						)
+					)
+				),
+			)
+		);
+	}
+
+	/**
 	 * Whether license checks block the app API. 68 Always on a live site: only a development
 	 * site (`WP_ENVIRONMENT_TYPE` `local` or `development`) can switch them off, with
 	 * `define( 'YALLAPP_ENFORCE_LICENSE', false )` or the `yallapp_enforce_license` filter (tests).

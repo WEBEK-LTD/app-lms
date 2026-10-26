@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { saveAutoNotificationsAction } from "@/app/actions/campaigns";
 import { editScheduledNotificationAction, saveServiceAccountAction, sendNotificationAction } from "@/app/actions/notifications";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
@@ -145,6 +146,36 @@ export function ServiceAccountForm() {
       <div className="flex justify-end">
         <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
           {t("notify.saveKey")}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 85.3 The automatic notifications this app has: each on or off, with its numbers. */
+export function AutoNotificationsForm({ kinds }: { kinds: { kind: string; on: boolean; label: string; text: string; numbers: string }[] }) {
+  const t = useDashT();
+  const [state, action] = useActionState(saveAutoNotificationsAction, initialFormState);
+  return (
+    <form action={action} className="flex flex-col gap-3">
+      <FormMessage message={state.message} ok={state.ok} />
+      <ul className="m-0 flex list-none flex-col p-0">
+        {kinds.map((k) => (
+          <li key={k.kind} className="border-t border-line-soft py-3 first:border-t-0 first:pt-0">
+            <label className="flex min-h-11 items-start gap-3">
+              <input type="checkbox" name="auto" value={k.kind} defaultChecked={k.on} className="mt-1 size-5 shrink-0" />
+              <span className="flex flex-col gap-0.5">
+                <span className="text-[15px] font-bold">{k.label}</span>
+                <span className="text-[14px] text-ink-4">{k.text}</span>
+                <span className="text-[13px] text-muted">{k.numbers}</span>
+              </span>
+            </label>
+          </li>
+        ))}
+      </ul>
+      <div className="flex justify-end">
+        <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
+          {t("campaigns.autoSave")}
         </SubmitButton>
       </div>
     </form>

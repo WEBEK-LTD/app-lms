@@ -12,6 +12,7 @@ import type { App, BookingSetup } from "@/lib/data/types";
 import { changeAppointmentStatus } from "@/lib/bookings/appointments";
 import { rescheduleAppointment } from "@/lib/bookings/reschedule";
 import { encryptionKey } from "@/lib/env";
+import { notifyAppointmentConfirmed } from "@/lib/hosted/auto-notifications";
 import { serviceAccountOf } from "@/lib/hosted/notify";
 import { recordStaffChange } from "@/lib/admin/audit";
 import type { FormState } from "@/lib/forms";
@@ -171,6 +172,10 @@ export async function setAppointmentStatusAction(formData: FormData): Promise<vo
   const now = new Date();
   if (appointment && (await changeAppointmentStatus(store, appointment, status, now))) {
     await recordAppointmentStatus(store, { clientId: context.client.id, appId: app.id, actor: actorOf(context), appointmentId: appointment.id, to: status }, now);
+    // 85.3 Confirmed after waiting: the customer hears of it.
+    if (appointment.status === "pending" && status === "approved") {
+      await notifyAppointmentConfirmed({ store, key: encryptionKey(), now }, app, { ...appointment, status: "approved" }, bookingSetup(app).rules.timezone).catch(() => undefined);
+    }
   }
   revalidatePath("/dashboard/appointments");
 }

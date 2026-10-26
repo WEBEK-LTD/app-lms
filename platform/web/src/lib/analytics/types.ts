@@ -92,6 +92,9 @@ export const ANALYTICS_METRICS = [
   // Counted when they happen, never recomputed.
   "search",
   "push_sent",
+  // 85.3 Automatic notifications by kind: the people notified, and the phones the push reached.
+  "auto_sent",
+  "auto_pushed",
   // Book-keeping: the day was counted (value: when), or got late events since.
   "done",
   "dirty",
