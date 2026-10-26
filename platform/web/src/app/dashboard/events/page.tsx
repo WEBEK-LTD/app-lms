@@ -7,7 +7,7 @@ import { requireClient } from "@/lib/auth/session";
 import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
 import { getStore } from "@/lib/data";
 import { loadEvents, phaseOf, placesLeft } from "@/lib/events/service";
-import { CardPayments } from "../catalog/payments";
+import { CardPayments, OtherPayments } from "../catalog/payments";
 import { EventStatusBadge, eventWhenIn } from "./event-page";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
@@ -159,6 +159,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
       </section>
 
       <CardPayments app={app} currency={data.settings.currency} />
+      <OtherPayments app={app} />
     </div>
   );
 }

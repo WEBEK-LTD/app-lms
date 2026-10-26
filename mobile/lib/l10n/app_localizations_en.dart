@@ -4068,4 +4068,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String cartTaxIncluded(String amount, String tax) {
     return 'Includes $amount $tax';
   }
+
+  @override
+  String payOutsideDue(String total, String date, String number) {
+    return 'Pay $total by $date as shown below, and give the order number $number with your payment. The shop confirms your order once the payment arrives.';
+  }
 }

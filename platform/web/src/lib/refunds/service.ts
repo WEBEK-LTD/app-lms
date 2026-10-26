@@ -87,6 +87,8 @@ export interface RefundOptions {
   byApi: boolean;
   /** Recording a refund made in the provider's panel. */
   manual: boolean;
+  /** 96.2 Paid by bank transfer ("bank_transfer") or the owner's own method (its name): paid back the same way, then recorded; null for a card payment. */
+  outside: string | null;
   marketplace: boolean;
   revocable: Revocable;
 }
@@ -171,11 +173,13 @@ export async function orderRefundOptions(deps: Pick<RefundDeps, "store" | "key">
     marketplace,
     byApi: false,
     manual: false,
+    outside: order.manualPayment ? (order.manualPayment.method === "bank_transfer" ? "bank_transfer" : order.manualPayment.name) : null,
     revocable: NONE,
   };
   if (app.demo) return { ...base, refundable: false, why: "Demo orders charge nothing." };
   if (!PAID_ORDER.has(order.status) || leftCents <= 0 || !order.paidAt) return { ...base, refundable: false, why: null };
-  const account = refundsByApi(provider) ? await orderAccount(deps, app, order) : null;
+  // 96.2 Paid by bank transfer or the owner's own method: refunded the same way, and recorded here.
+  const account = refundsByApi(provider) && !order.manualPayment ? await orderAccount(deps, app, order) : null;
   const byApi = account !== null && account.provider === provider;
   // A marketplace payment is in Yallapp's account: the owner can't refund it in a panel of their own.
   const manual = !marketplace;
@@ -200,6 +204,7 @@ export async function donationRefundOptions(deps: Pick<RefundDeps, "key">, app: 
     marketplace: false,
     byApi: false,
     manual: false,
+    outside: null,
     revocable: NONE,
   };
   if (app.demo)

@@ -18,6 +18,7 @@ import { KitchenView } from "./kitchen";
 import { ShippingForm } from "./shipping";
 import { CARRIER_SUGGESTIONS, shippable, waybillLink } from "@/lib/catalog/shipping";
 import { RefundSection } from "./refunds-view";
+import { AwaitingPayment } from "./awaiting";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 
@@ -78,6 +79,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
         <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("orders.title")}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("orders.intro")}</p>
       </div>
+      <AwaitingPayment app={app} />
       {items.length === 0 ? (
         <EmptyState icon="receipt_long" title={t("orders.noOrders")}>
           {t("orders.noOrdersText")}

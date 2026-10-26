@@ -6,6 +6,7 @@ import { canReturn, parseReturnInput, requestReturn, returnDays, returnJson } fr
 import { couponDiscount, normalizeCouponCode } from "../../catalog/coupons";
 import { centsToDecimal, formatCents } from "../../catalog/money";
 import { checkOptions, optionGroupsJson, optionGroupsOf, type ChosenOption } from "../../catalog/options";
+import { awaitingManualPayment } from "../../catalog/manual";
 import { catalogSettings, ORDER_STATUS_LABELS, orderNumber, PAY_LINK_MINUTES, paymentsSetUp, shippingFor } from "../../catalog/settings";
 import { shipmentJson } from "../../catalog/shipping";
 import { randomToken, sha256Hex } from "../../crypto/tokens";
@@ -511,8 +512,8 @@ export class CatalogConnector implements Connector {
     if (!lines) return error(400, "invalid_request", "The cart is empty or invalid.");
     if (this.deps.cardPayments === false) return error(403, "feature_disabled", "Ordering isn't available in this app.");
     if (this.fulfilment && !request.user) return error(401, "unauthorized", "Please sign in to order.");
-    // 16 A demo shop takes orders without a payment account: its payment page charges nothing.
-    if (!this.settings.payment && !this.deps.app.demo) {
+    // 16 A demo shop takes orders without a payment account: its payment page charges nothing. 96.2 Bank transfer or the shop's own method will do too.
+    if (!paymentsSetUp(this.deps.app)) {
       return error(503, "shop_unavailable", "This shop can't take orders yet. Please try again later.");
     }
     const priced = await this.priced(lines);
@@ -617,6 +618,10 @@ export class CatalogConnector implements Connector {
       refunded_total: order.refundedCents ? formatCents(order.refundedCents, order.currency) : null,
       // 71 The receipt as a PDF, from a signed link.
       receipt_url: order.paidAt ? this.receiptUrl(order) : null,
+      // 96.2 Waiting for a bank transfer or the shop's own method: how to pay it.
+      pay_outside: awaitingManualPayment(order)
+        ? { method: order.manualPayment!.method, name: order.manualPayment!.name, instructions: order.manualPayment!.instructions, due_at: order.manualPayment!.dueAt }
+        : null,
       created_at: (order.paidAt ?? order.createdAt).toISOString(),
       items: order.lines.map((l) => ({
         name: l.name,
@@ -629,14 +634,15 @@ export class CatalogConnector implements Connector {
       // 26 A restaurant's order: how it's collected and where it is.
       ...(order.fulfilment
         ? {
-            status_label: order.fulfilmentStatus && order.status !== "refunded" ? FULFILMENT_LABELS[order.fulfilmentStatus] : ORDER_STATUS_LABELS[order.status],
+            status_label: order.fulfilmentStatus && order.status !== "refunded" && order.status !== "pending" ? FULFILMENT_LABELS[order.fulfilmentStatus] : ORDER_STATUS_LABELS[order.status],
             fulfilment: {
               type: order.fulfilment.type,
               scheduled_for: order.fulfilment.scheduledFor,
               delivery_address: order.fulfilment.address,
               delivery_fee: order.shippingCents > 0 ? formatCents(order.shippingCents, order.currency) : null,
             },
-            fulfilment_status: order.fulfilmentStatus ?? null,
+            // 96.2 Followed once paid: an order waiting for a bank transfer or the shop's own method isn't in the kitchen yet.
+            fulfilment_status: order.status === "pending" ? null : (order.fulfilmentStatus ?? null),
           }
         : {}),
     };
@@ -646,7 +652,8 @@ export class CatalogConnector implements Connector {
   private async order(request: ConnectorRequest, id: number): Promise<ConnectorResult> {
     if (!request.user) return error(401, "invalid_token", "Your session has ended. Please sign in again.");
     const order = Number.isSafeInteger(id) && id > 0 ? await this.deps.store.getCatalogOrder(this.deps.app.id, id) : null;
-    if (!order || order.userId !== request.user.id || !LISTED_STATUSES.includes(order.status)) return error(404, "not_found", "Order not found.");
+    // 96.2 And one waiting for a bank transfer or the shop's own method.
+    if (!order || order.userId !== request.user.id || !(LISTED_STATUSES.includes(order.status) || awaitingManualPayment(order))) return error(404, "not_found", "Order not found.");
     return { status: 200, body: this.orderJson(order, request.now) };
   }
 
@@ -689,6 +696,8 @@ export class CatalogConnector implements Connector {
       appId: this.deps.app.id,
       userId: request.user.id,
       statuses: LISTED_STATUSES,
+      // 96.2 With those waiting for a bank transfer or the shop's own method.
+      awaitingManual: true,
       offset: (page - 1) * perPage,
       limit: perPage,
     });

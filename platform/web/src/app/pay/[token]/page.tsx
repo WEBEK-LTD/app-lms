@@ -6,6 +6,7 @@ import { fulfilmentOf } from "@/lib/catalog/fulfilment";
 import { optionsText } from "@/lib/catalog/options";
 import { scheduledText } from "@/lib/catalog/payment";
 import { checkoutAccount, orderNumber, payLinkExpired } from "@/lib/catalog/settings";
+import { manualChoices } from "@/lib/catalog/manual";
 import { sha256Hex } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import { encryptionKey } from "@/lib/env";
@@ -43,6 +44,8 @@ export default async function PayPage({
   if (!order || !app) return note("Link not valid", "This payment link isn't valid. Go back to the app and check out again.");
   if (order.status === "processing" || order.status === "completed") redirect(`/pay/${token}/order-received`);
   if (order.status !== "pending") return note("Order closed", "This order is closed. Go back to the app and check out again.");
+  // 96.2 Waiting for a bank transfer or the owner's own method: its details are on the order's page.
+  if (order.manualPayment) redirect(`/pay/${token}/order-received`);
   if (payLinkExpired(order, new Date())) return note("Link expired", "This payment link has expired. Go back to the app and check out again.");
   // 49 Tickets: the places held for this order were released (the provider's page ended without a payment).
   if (app.connector?.kind === "events" && holdEnded(await store.listTickets({ appId: app.id, orderId: order.id }), new Date())) {
@@ -50,7 +53,9 @@ export default async function PayPage({
   }
   // 16 A demo app never takes a payment: the order goes through with one tap.
   const checkout = app.demo ? null : await checkoutAccount(store, app, encryptionKey());
-  if (!app.demo && !checkout) return note("Payments are off", "This shop can't take payments right now. Please try again later.");
+  // 96.2 Bank transfer and the owner's own method, besides the card or instead of it.
+  const manual = app.demo ? [] : manualChoices(app.catalogSettings?.manualPayments);
+  if (!app.demo && !checkout && manual.length === 0) return note("Payments are off", "This shop can't take payments right now. Please try again later.");
 
   const money = (cents: number) => formatCents(cents, order.currency);
   const color = app.primaryColor;
@@ -153,12 +158,14 @@ export default async function PayPage({
         <>
           <PayForm
             token={token}
+            card={checkout ? PROVIDER_NAME[checkout.account.provider] : null}
+            manual={manual}
             total={money(order.totalCents)}
             color={color}
             textColor={textOn(color)}
             defaults={order.customer ?? (order.fulfilment?.address ? { address: order.fulfilment.address.address, city: order.fulfilment.address.district ?? "" } : undefined)}
           />
-          <p className="m-0 text-center text-[13px] text-muted">Card payments are processed securely by {checkout ? PROVIDER_NAME[checkout.account.provider] : "the payment provider"}.</p>
+          {checkout ? <p className="m-0 text-center text-[13px] text-muted">Card payments are processed securely by {PROVIDER_NAME[checkout.account.provider]}.</p> : null}
         </>
       )}
     </PayShell>

@@ -2150,6 +2150,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chatOlder => 'عرض الرسائل الأقدم';
 
   @override
+  String get markPaid => 'تحديد كمدفوع';
+
+  @override
   String minutesAgo(int count) {
     return 'قبل $count دقيقة';
   }

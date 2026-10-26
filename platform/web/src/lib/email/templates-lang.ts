@@ -24,6 +24,7 @@ export type ClientEmailKey = Extract<
   | "build_failed"
   | "wordpress_ready"
   | "new_order"
+  | "new_order_awaiting_payment"
   | "new_appointment"
   | "new_inquiry"
   | "publishing_status"
@@ -101,6 +102,12 @@ const AR: Record<ClientEmailKey, TemplateText> = {
       "مرحبًا {{name}}،\n\nموقع WordPress الخاص بك جاهز: {{website}}\n\nيحصل {{app_name}} الآن على محتواه منه عبر إضافة Yallapp. " +
       "أكمل خطوات الإعداد المتبقية ليبدأ إصدارك الأول:\n\n{{setup_url}}" +
       SIGNATURE_AR,
+  },
+  new_order_awaiting_payment: {
+    subject: "طلب جديد {{order_number}} · بانتظار الدفع",
+    body:
+      "قدّم أحد العملاء طلبًا في {{app_name}} وسيدفع {{total}} عبر {{method}}.\n\n{{order_lines}}\nالإجمالي: {{total}}\n\n{{customer}}" +
+      "عند وصول المبلغ، علّم الطلب مدفوعًا في صفحة «الطلبات»، فيصل إلى العميل إيصاله: {{orders_url}}",
   },
   new_order: {
     subject: "طلب جديد {{order_number}} · {{total}}",
@@ -311,6 +318,12 @@ const TR: Record<ClientEmailKey, TemplateText> = {
       "Merhaba {{name}},\n\nWordPress siteniz hazır: {{website}}\n\n{{app_name}} artık içeriğini Yallapp eklentisi aracılığıyla bu siteden alıyor. " +
       "Kalan kurulum adımlarını tamamlayın, ilk derlemeniz başlasın:\n\n{{setup_url}}" +
       SIGNATURE_TR,
+  },
+  new_order_awaiting_payment: {
+    subject: "Yeni sipariş {{order_number}} · ödeme bekleniyor",
+    body:
+      "Bir müşteri {{app_name}} uygulamasında sipariş verdi ve {{total}} tutarını {{method}} ile ödeyecek.\n\n{{order_lines}}\nToplam: {{total}}\n\n{{customer}}" +
+      "Para ulaştığında siparişi Siparişler sayfanızda ödendi olarak işaretleyin; müşteri makbuzunu alır: {{orders_url}}",
   },
   new_order: {
     subject: "Yeni sipariş {{order_number}} · {{total}}",

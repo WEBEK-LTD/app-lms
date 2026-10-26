@@ -3946,6 +3946,12 @@ abstract class AppLocalizations {
   /// **'Show earlier messages'**
   String get chatOlder;
 
+  /// No description provided for @markPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as paid'**
+  String get markPaid;
+
   /// No description provided for @minutesAgo.
   ///
   /// In en, this message translates to:

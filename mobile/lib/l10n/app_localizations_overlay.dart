@@ -4204,4 +4204,13 @@ class OverlayLocalizations extends AppLocalizations {
   String cartTaxIncluded(String amount, String tax) =>
       overlay.format('cartTaxIncluded', {'amount': amount, 'tax': tax}) ??
       base.cartTaxIncluded(amount, tax);
+
+  @override
+  String payOutsideDue(String total, String date, String number) =>
+      overlay.format('payOutsideDue', {
+        'total': total,
+        'date': date,
+        'number': number,
+      }) ??
+      base.payOutsideDue(total, date, number);
 }

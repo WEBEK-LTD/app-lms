@@ -1296,6 +1296,7 @@
   "chatGroupsHelp": "Each course has a group where its students talk.",
   "chatNoPlan": "Chat comes with the Pro and Business plans.",
   "chatOlder": "Show earlier messages",
+  "markPaid": "Mark as paid",
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {

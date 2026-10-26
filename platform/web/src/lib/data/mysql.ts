@@ -1201,13 +1201,18 @@ export class MysqlStore implements DataStore {
     appId: string;
     userId?: number;
     statuses?: CatalogOrderStatus[];
+    manualOnly?: boolean;
+    awaitingManual?: boolean;
     offset: number;
     limit: number;
   }): Promise<{ items: CatalogOrder[]; total: number }> {
+    const t = schema.catalogOrders;
+    const statuses = input.statuses ? inArray(t.status, input.statuses) : undefined;
     const where = and(
-      eq(schema.catalogOrders.appId, input.appId),
-      input.userId !== undefined ? eq(schema.catalogOrders.userId, input.userId) : undefined,
-      input.statuses ? inArray(schema.catalogOrders.status, input.statuses) : undefined,
+      eq(t.appId, input.appId),
+      input.userId !== undefined ? eq(t.userId, input.userId) : undefined,
+      statuses && input.awaitingManual ? or(statuses, and(eq(t.status, "pending"), isNotNull(t.manualPayment))) : statuses,
+      input.manualOnly ? isNotNull(schema.catalogOrders.manualPayment) : undefined,
     );
     const [items, totals] = await Promise.all([
       this.run((db) =>

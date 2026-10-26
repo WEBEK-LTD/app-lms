@@ -9,6 +9,7 @@ import {
   saveProductAction,
   saveShopSettingsAction,
   saveLoyaltyAction,
+  saveManualPaymentsAction,
 } from "@/app/actions/catalog";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { btn } from "@/components/ui";
@@ -743,6 +744,60 @@ export function LoyaltyForm({ values: saved, currency }: { values: { on: string;
       <div className="flex justify-end">
         <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
           {t("shop.saveLoyalty")}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+function TextArea({ name, label, hint, value, error, rows = 4 }: { name: string; label: string; hint: string; value: string; error?: string; rows?: number }) {
+  const id = `f-${name}`;
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-sm font-semibold">
+        {label}
+      </label>
+      <textarea
+        id={id}
+        name={name}
+        rows={rows}
+        maxLength={1000}
+        defaultValue={value}
+        className="input min-h-20 py-2.5"
+        aria-invalid={error ? true : undefined}
+        aria-describedby={`${id}-hint${error ? ` ${id}-error` : ""}`}
+      />
+      <span id={`${id}-hint`} className="text-[13px] text-muted">
+        {hint}
+      </span>
+      <FieldError id={`${id}-error`} error={error} />
+    </div>
+  );
+}
+
+/** 96.2 Bank transfer and the owner's own method: their details, as the customer sees them. */
+export function ManualPaymentsForm({ values: saved }: { values: { bankTransfer: string; customName: string; customInstructions: string; payWithinDays: string } }) {
+  const t = useDashT();
+  const [state, action] = useActionState(saveManualPaymentsAction, initialFormState);
+  const values = { ...saved, ...state.values };
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4">
+      <FormMessage message={state.message} ok={state.ok} />
+      <TextArea name="bankTransfer" label={t("shop.bankDetails")} hint={t("shop.bankDetailsHint")} value={values.bankTransfer} error={state.errors?.bankTransfer} />
+      <Field label={t("shop.customName")} name="customName" maxLength={40} defaultValue={values.customName} hint={t("shop.customNameHint")} error={state.errors?.customName} />
+      <TextArea name="customInstructions" label={t("shop.customInstructions")} hint={t("shop.customInstructionsHint")} value={values.customInstructions} error={state.errors?.customInstructions} rows={3} />
+      <Field
+        label={t("shop.payWithinDays")}
+        name="payWithinDays"
+        inputMode="numeric"
+        className="max-w-[220px]"
+        defaultValue={values.payWithinDays}
+        hint={t("shop.payWithinDaysHint")}
+        error={state.errors?.payWithinDays}
+      />
+      <div className="flex justify-end">
+        <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
+          {t("shop.saveManual")}
         </SubmitButton>
       </div>
     </form>

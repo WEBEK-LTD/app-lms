@@ -6591,6 +6591,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Includes {amount} {tax}'**
   String cartTaxIncluded(String amount, String tax);
+
+  /// 96.2 On an order to pay by bank transfer or the shop's own method, above the shop's details.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay {total} by {date} as shown below, and give the order number {number} with your payment. The shop confirms your order once the payment arrives.'**
+  String payOutsideDue(String total, String date, String number);
 }
 
 class _AppLocalizationsDelegate

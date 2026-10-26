@@ -7,7 +7,7 @@ import { bookingSetup } from "@/lib/bookings/setup";
 import { centsToDecimal, formatCents } from "@/lib/catalog/money";
 import { paymentsSetUp } from "@/lib/catalog/settings";
 import type { MembershipPlan } from "@/lib/data/types";
-import { CardPayments } from "../catalog/payments";
+import { CardPayments, OtherPayments } from "../catalog/payments";
 import { MembershipPlanForm, MembershipRulesForm } from "./forms";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
@@ -100,6 +100,7 @@ export default async function MembershipPlansPage() {
       </section>
 
       <CardPayments app={app} currency={currency} />
+      <OtherPayments app={app} />
     </div>
   );
 }

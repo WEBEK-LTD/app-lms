@@ -149,7 +149,7 @@ describe("refund amounts and the form", () => {
   });
 
   it("refuses more than is left, an unknown reason, and a way the payment can't take", () => {
-    const options = { refundable: true, why: null, provider: "fawaterk" as const, leftCents: 10000, byApi: false, manual: true, marketplace: false, revocable: { tickets: [], courses: [], memberships: [] } };
+    const options = { refundable: true, why: null, provider: "fawaterk" as const, leftCents: 10000, byApi: false, manual: true, outside: null, marketplace: false, revocable: { tickets: [], courses: [], memberships: [] } };
     const form = { amount: "120", reason: "nope", note: "", method: "api", reference: "", tickets: [], courses: [], memberships: [] };
     const read = readRefundForm(form, options);
     expect(read).toEqual({ ok: false, errors: { amount: "That's more than what's left to refund.", reason: "Choose a reason.", method: "Refund it in your provider's panel, then record it here." } });

@@ -111,6 +111,11 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
               ],
               const SizedBox(height: 20),
             ],
+            // 96.2 Waiting for a bank transfer or the shop's own method: how to pay.
+            if (order.payOutside != null) ...[
+              _PayOutsideCard(order: order, pay: order.payOutside!),
+              const SizedBox(height: 12),
+            ],
             if (order.trackable) OrderSteps(order: order),
             if (order.trackable &&
                 order.fulfilmentStatus != FulfilmentStatus.completed &&
@@ -232,6 +237,53 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
 
 /// 80.4 The carrier, the tracking number (to copy), the tracking link and
 /// the waybill, as the shop gave them.
+class _PayOutsideCard extends StatelessWidget {
+  const _PayOutsideCard({required this.order, required this.pay});
+
+  final Order order;
+  final PayOutside pay;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              AppIcon(AppIcons.payOutside, color: p.text),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  pay.name,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: p.text,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.payOutsideDue(order.total, shortDate(pay.dueAt), order.number),
+            style: TextStyle(fontSize: 14, color: p.textSecondary),
+          ),
+          const SizedBox(height: 10),
+          SelectableText(
+            pay.instructions,
+            style: TextStyle(fontSize: 15, color: p.text),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _ShipmentCard extends ConsumerWidget {
   const _ShipmentCard({required this.shipment});
 

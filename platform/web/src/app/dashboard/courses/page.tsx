@@ -9,7 +9,7 @@ import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
 import { courseSetup, lessonsOf } from "@/lib/courses/setup";
 import { getStore } from "@/lib/data";
-import { CardPayments } from "../catalog/payments";
+import { CardPayments, OtherPayments } from "../catalog/payments";
 import { UpgradeHint } from "@/components/upgrade";
 import { currentPlanId } from "@/lib/billing/plan-change";
 import { downloadsFormValue, offersDownloads } from "@/lib/courses/downloads";
@@ -163,6 +163,7 @@ export default async function CoursesPage() {
       </div>
 
       <CardPayments app={app} currency={setup.currency} />
+      <OtherPayments app={app} />
 
       <OfflineDownloads app={app} license={license} />
     </div>

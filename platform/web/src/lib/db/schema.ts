@@ -6,7 +6,7 @@ import type {
   AssetKind,
   CatalogCurrency,
   CatalogFulfilment,
-  LoyaltyReason, OrderPoints, OrderReturn, OrderShipment, CatalogVariants, CatalogOrder,
+  LoyaltyReason, OrderPoints, OrderReturn, OrderShipment, CatalogVariants, CatalogOrder, OrderManualPayment,
   CatalogOptionGroup,
   CatalogCustomer,
   CatalogOrderLine,
@@ -665,6 +665,8 @@ export const catalogOrders = mysqlTable(
     points: jsonText<OrderPoints>("points"),
     // 91.5 The tax in it (JSON).
     tax: jsonText<NonNullable<CatalogOrder["tax"]>>("tax"),
+    // 96.2 Bank transfer or the owner's own method, with its details (JSON); null for a card payment.
+    manualPayment: jsonText<OrderManualPayment>("manual_payment"),
   },
   (t) => [
     uniqueIndex("catalog_orders_token_unique").on(t.tokenHash),

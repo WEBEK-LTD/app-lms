@@ -21,7 +21,10 @@ String orderActionLabel(BuildContext context, Order order, String status) {
       kitchen == null
           ? l10n.markCompleted
           : (kitchen.type == 'pickup' ? l10n.pickedUp : l10n.delivered),
-    'cancelled' => isNew ? l10n.decline : l10n.cancelOrder,
+    // 96.2 Waiting for a bank transfer or the owner's own method.
+    'processing' => l10n.markPaid,
+    'cancelled' =>
+      isNew && order.status != 'pending' ? l10n.decline : l10n.cancelOrder,
     _ => status,
   };
 }

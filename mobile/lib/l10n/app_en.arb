@@ -3102,5 +3102,20 @@
         "type": "String"
       }
     }
+  },
+  "payOutsideDue": "Pay {total} by {date} as shown below, and give the order number {number} with your payment. The shop confirms your order once the payment arrives.",
+  "@payOutsideDue": {
+    "description": "96.2 On an order to pay by bank transfer or the shop's own method, above the shop's details.",
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "number": {
+        "type": "String"
+      }
+    }
   }
 }

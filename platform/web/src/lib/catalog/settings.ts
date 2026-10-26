@@ -13,6 +13,7 @@ import type { IyzicoKeys } from "../payments/iyzico";
 import type { PaymentAccount } from "../payments/provider";
 import type { PayoutDetails } from "./marketplace";
 import { yallappAccountFor } from "../settings/platform";
+import { manualChoices } from "./manual";
 
 export const paymentContext = (appId: string) => `app:payment:${appId}`;
 
@@ -23,13 +24,15 @@ export function catalogSettings(app: App): CatalogSettings {
 /**
  * 19 Whether the app's payment page can take a card payment: Card payments
  * are set up with the owner's own keys (37 iyzico, Kashier, Fawaterk, Stripe or PayPal), or
- * it's a demo, whose payment page charges nothing. Products and paid courses
+ * it's a demo, whose payment page charges nothing (96.2 or bank transfer or
+ * the owner's own method is offered). Products and paid courses
  * aren't offered for sale without it. 72 A shop that had joined the old
  * marketplace (selling through Yallapp's account) has no payments until it
  * adds its own account: Yallapp never takes payments for its clients' sales.
  */
 export function paymentsSetUp(app: Pick<App, "catalogSettings" | "demo">): boolean {
-  return isOwnPayment(app.catalogSettings?.payment) || app.demo === true;
+  // 96.2 Or bank transfer, or the owner's own method.
+  return isOwnPayment(app.catalogSettings?.payment) || manualChoices(app.catalogSettings?.manualPayments).length > 0 || app.demo === true;
 }
 
 export function encryptPaymentKeys(appId: string, apiKey: string, secretKey: string, sandbox: boolean, key: Buffer): OwnIyzicoPayment {

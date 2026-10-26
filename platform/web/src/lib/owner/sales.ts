@@ -13,6 +13,7 @@ import { FULFILMENT_LABELS } from "../catalog/fulfilment";
 import { formatCents } from "../catalog/money";
 import { countOpenQuestions } from "../courses/community";
 import { changeOrderStatus, nextOrderStatuses } from "../catalog/order-status";
+import { awaitingManualPayment } from "../catalog/manual";
 import { ORDER_STATUS_LABELS, orderNumber } from "../catalog/settings";
 import { parseShipment, shipmentJson, shipOrder, shippable } from "../catalog/shipping";
 import type { App, BookingAppointment, CatalogCurrency, CatalogOrder, CatalogOrderStatus, Donation, License } from "../data/types";
@@ -140,7 +141,8 @@ function orderJson(ctx: OwnerContext, order: CatalogOrder) {
     number: orderNumber(order),
     status: order.status,
     status_label: ctx.k(ORDER_STATUS_LABELS[order.status]),
-    kitchen: order.fulfilment && step ? { type: order.fulfilment.type, step, step_label: ctx.k(FULFILMENT_LABELS[step]) } : null,
+    // 96.2 An order waiting for its payment reaches the kitchen once marked paid.
+    kitchen: order.fulfilment && step && order.status !== "pending" ? { type: order.fulfilment.type, step, step_label: ctx.k(FULFILMENT_LABELS[step]) } : null,
     total: money(order.totalCents, order.currency),
     refunded: order.refundedCents ? money(order.refundedCents, order.currency) : null,
     lines: order.lines.map((l) => ({ name: l.name, quantity: l.quantity, unit: money(l.unitCents, order.currency), options: (l.options ?? []).map((o) => `${o.group}: ${o.name}`) })),
@@ -151,6 +153,10 @@ function orderJson(ctx: OwnerContext, order: CatalogOrder) {
     shippable: shippable(order),
     shipment: shipmentJson(order.shipment),
     next_statuses: nextOrderStatuses(order),
+    // 96.2 To pay by bank transfer or the owner's own method: waiting (status pending) until marked paid.
+    pay_outside: order.manualPayment
+      ? { method: order.manualPayment.method, name: order.manualPayment.method === "bank_transfer" ? ctx.k("Bank transfer") : order.manualPayment.name, due_at: order.manualPayment.dueAt }
+      : null,
   };
 }
 
@@ -170,6 +176,8 @@ async function orderDetail(ctx: OwnerContext, app: App, order: CatalogOrder) {
       left: money(options.leftCents, order.currency),
       by_api: options.byApi,
       manual: options.manual,
+      // 96.2 Paid by bank transfer or the owner's own method: paid back the same way, then recorded.
+      paid_outside: options.outside === "bank_transfer" ? ctx.k("Bank transfer") : options.outside,
       reasons: Object.entries(REFUND_REASONS).map(([id, label]) => ({ id, label: ctx.k(label) })),
       can_take_back: options.revocable,
     },
@@ -180,8 +188,8 @@ async function orderDetail(ctx: OwnerContext, app: App, order: CatalogOrder) {
 async function ownOrder(ctx: OwnerContext, params: Record<string, string>) {
   const scope = appScope(ctx, params.app_id, "orders");
   const order = await ctx.deps.store.getCatalogOrder(scope.app.id, intParam(params.order_id));
-  // Unpaid and failed checkouts aren't orders on the dashboard either.
-  if (!order || !PAID.includes(order.status)) throw notFound();
+  // Unpaid and failed checkouts aren't orders on the dashboard either; 96.2 those waiting for a bank transfer or the owner's own method are.
+  if (!order || !(PAID.includes(order.status) || awaitingManualPayment(order))) throw notFound();
   return { ...scope, order };
 }
 
@@ -189,8 +197,16 @@ export async function listOrders(ctx: OwnerContext, params: Record<string, strin
   const { app } = appScope(ctx, params.app_id, "orders");
   const page = paging(ctx.req.query);
   const wanted = (ctx.req.query.get("status") ?? "").split(",").filter(Boolean);
-  if (wanted.some((s) => !PAID.includes(s as CatalogOrderStatus))) throw invalid({ status: "The request isn't valid." });
-  const { items, total } = await ctx.deps.store.listCatalogOrders({ appId: app.id, statuses: wanted.length ? (wanted as CatalogOrderStatus[]) : PAID, offset: page.offset, limit: page.perPage });
+  if (wanted.some((s) => !PAID.includes(s as CatalogOrderStatus) && s !== "pending")) throw invalid({ status: "The request isn't valid." });
+  // 96.2 "pending": the orders waiting for a bank transfer or the owner's own method (never an unpaid card checkout); listed by default too.
+  const paid = wanted.filter((s) => s !== "pending") as CatalogOrderStatus[];
+  const { items, total } = await ctx.deps.store.listCatalogOrders({
+    appId: app.id,
+    statuses: wanted.length ? paid : PAID,
+    awaitingManual: !wanted.length || wanted.includes("pending"),
+    offset: page.offset,
+    limit: page.perPage,
+  });
   return { status: 200, body: { ...pageJson(page, total), items: items.map((o) => orderJson(ctx, o)) } };
 }
 
@@ -199,7 +215,7 @@ export async function getOrder(ctx: OwnerContext, params: Record<string, string>
   return { status: 200, body: await orderDetail(ctx, app, order) };
 }
 
-/** The dashboard's buttons: completed or cancelled, or a restaurant's kitchen steps (the customer is told). */
+/** The dashboard's buttons: completed or cancelled, or a restaurant's kitchen steps (the customer is told); 96.2 paid ("processing") or cancelled for an order waiting for a bank transfer or the owner's own method. */
 export async function changeOrder(ctx: OwnerContext, params: Record<string, string>): Promise<OwnerResult> {
   const { app, order } = await ownOrder(ctx, params);
   const status = bodyObject(ctx.req.body).status;
@@ -212,7 +228,7 @@ export async function changeOrder(ctx: OwnerContext, params: Record<string, stri
   );
   if (!moved) throw new OwnerError(409, "invalid_status", "This order can't move to that status.");
   // 60 Who moved it, on the dashboard's Team page.
-  await recordOrderStatus(deps.store, { clientId: ctx.client.id, appId: app.id, actor: ctx.user, orderId: order.id, to: status }, deps.now);
+  await recordOrderStatus(deps.store, { clientId: ctx.client.id, appId: app.id, actor: ctx.user, orderId: order.id, to: awaitingManualPayment(order) && status === "processing" ? "paid" : status }, deps.now);
   return { status: 200, body: await orderDetail(ctx, app, (await deps.store.getCatalogOrder(app.id, order.id))!) };
 }
 

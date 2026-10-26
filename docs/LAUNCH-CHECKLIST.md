@@ -1408,6 +1408,14 @@ routine every few years):
 - Stripe and PayPal send no webhook to Yallapp: a payment whose customer
   closes the page is confirmed by the pending-payments job.
 
+## 7z2. Bank transfer and the client's own method (Phase 96.2)
+
+- Migration `0086_manual_payments` adds `catalog_orders.manual_payment`; it
+  runs with the others at deploy. Nothing to set: each client writes their
+  own details on Products (or Courses, Events, Membership plans).
+- Two new emails in Admin › Emails: "How to pay an order" (to the customer)
+  and "New order waiting for payment" (to the client).
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |

@@ -132,7 +132,16 @@ Fiyatlarınızı sağlayıcınızın kabul ettiği bir para biriminde belirleyin
 
 ## Yallapp müşterilerinizin ödemelerini asla almaz
 
-Her işletme müşterilerinin ödemelerini kendi ödeme sağlayıcısı hesabında alır: Yallapp satışlarınız için hiçbir para tahsil etmez, bu satışların tarafı değildir ve komisyon yoktur. Anahtarlarınız kaydedilene kadar müşteriler ürünlerinizi, kurslarınızı veya biletlerinizi uygulamada görür ama ödeme yapamaz. Daha önce sunulan Yallapp'in hesabı üzerinden satış sona erdi: kullandıysanız yukarıdan kendi hesabınızı ekleyin; daha önce ödenmiş siparişler eskisi gibi sonuçlandırılır.
+Her işletme müşterilerinin ödemelerini kendi ödeme sağlayıcısı hesabında alır: Yallapp satışlarınız için hiçbir para tahsil etmez, bu satışların tarafı değildir ve komisyon yoktur. Anahtarlarınız kaydedilene kadar (ya da aşağıdaki banka havalesi veya kendi yönteminiz açılana kadar) müşteriler ürünlerinizi, kurslarınızı veya biletlerinizi uygulamada görür ama ödeme yapamaz. Daha önce sunulan Yallapp'in hesabı üzerinden satış sona erdi: kullandıysanız yukarıdan kendi hesabınızı ekleyin; daha önce ödenmiş siparişler eskisi gibi sonuçlandırılır.
+
+## Banka havalesi ve kendi yönteminiz
+
+Müşteriler size uygulamanın dışında doğrudan da ödeyebilir: **banka havalesiyle** ya da kapıda ödeme veya bir mobil cüzdan gibi kendi yönteminizle. Aynı sayfada, **Banka havalesi ve kendi yönteminiz** altında **Banka bilgileri**ni (banka, hesap sahibi ve IBAN, müşterilerin görmesi gerektiği gibi), isterseniz **Kendi yönteminizin adı**nı ve **Müşterinin yapacağı**nı, bir de **Ödeme süresi**ni (varsayılan 3 gün) yazın. Bir kutuyu boş bırakmak o yöntemi kapatır. Bir işletme bunları kartla ödemeyle birlikte ya da onun yerine sunabilir.
+
+- Ödeme sayfasında müşteri nasıl ödeyeceğini seçer. Banka havalesi veya kendi yönteminizle bilgilerinizi görür, siparişi verir ve bunları toplam tutar ve son ödeme günüyle birlikte e-postayla da alır. Ödemesiyle birlikte sipariş numarasını belirtir.
+- Sipariş, **Siparişler** sayfasında **Ödeme bekleniyor** altında bekler (size e-posta gelir). Para ulaştığında **Ödendi olarak işaretle**'yi seçin: sipariş kartla ödenmiş gibi devam eder (kurs açılır, biletler düzenlenir, üyelik başlar, restoranın siparişi mutfağa düşer) ve müşteri makbuzunu alır. Ödemezse **Siparişi iptal et**'i seçin: bilet siparişinin yerleri yeniden satışa çıkar. Bilet yerleri ödeme süresi boyunca ayrılır.
+- Yallapp bu parayı hiçbir zaman görmez ve denetlemez: ne zaman geldiğini yalnızca siz bilirsiniz. Bu yolla ödenmiş bir siparişi iade etmek için müşteriye parasını kendiniz geri ödeyin, sonra **İade** ile kaydedin.
+- Bağışlar yalnızca kartla ödenir.
 
 ## İadeler
 

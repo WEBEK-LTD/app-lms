@@ -14,6 +14,7 @@ import { parseShipment, shipOrder, shippable } from "@/lib/catalog/shipping";
 import { sendTemplate } from "@/lib/email/send";
 import { CATALOG_CURRENCIES, parsePrice } from "@/lib/catalog/money";
 import { LOYALTY_LIMITS } from "@/lib/catalog/loyalty";
+import { awaitingManualPayment, readManualPayments } from "@/lib/catalog/manual";
 import { TAX_RATE_MAX_BPS } from "@/lib/catalog/tax";
 import { parseVariants } from "@/lib/catalog/variants";
 import { readProductNumbers } from "@/lib/catalog/product-fields";
@@ -269,6 +270,19 @@ export async function saveLoyaltyAction(_: FormState, formData: FormData): Promi
   return { ok: true, message: "Loyalty points saved.", values };
 }
 
+/** 96.2 Bank transfer and the owner's own method, paid outside Yallapp (catalog/payments.tsx). */
+export async function saveManualPaymentsAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireCatalogApp({ courses: true }, "billing");
+  const { app } = context;
+  const values = { bankTransfer: str(formData, "bankTransfer"), customName: str(formData, "customName"), customInstructions: str(formData, "customInstructions"), payWithinDays: str(formData, "payWithinDays") };
+  const read = readManualPayments(values);
+  if (!read.ok) return { errors: { [read.field]: read.error }, values };
+  await (await getStore()).updateApp(app.id, { catalogSettings: { ...catalogSettings(app), manualPayments: read.settings } }, new Date());
+  await recordStaffChange(context, read.settings ? "Changed the bank transfer and other payment methods" : "Turned off bank transfer and other payment methods");
+  refresh();
+  return { ok: true, message: read.settings ? "Payment methods saved." : "Bank transfer and your own method are off.", values };
+}
+
 /** 91.1 A coupon for the shop's customers. */
 export async function addCouponAction(_: FormState, formData: FormData): Promise<FormState> {
   const { app } = await requireCatalogApp();
@@ -396,7 +410,7 @@ export async function removePaymentKeysAction(): Promise<void> {
 
 // Orders
 
-/** Completed or cancelled (orders/page.tsx); a restaurant's order moves with the kitchen's steps (moveOrderAction). */
+/** Completed or cancelled (orders/page.tsx), 96.2 or paid by bank transfer or the owner's own method (orders/awaiting.tsx); a restaurant's order moves with the kitchen's steps (moveOrderAction). */
 export async function setOrderStatusAction(formData: FormData): Promise<void> {
   const context = await requireCatalogApp({ courses: true }, "orders");
   const { app } = context;
@@ -407,7 +421,7 @@ export async function setOrderStatusAction(formData: FormData): Promise<void> {
   const now = new Date();
   if (order && !inKitchen(order) && (await changeOrderStatus({ store, app, now, key: encryptionKey(), urls: paymentApiUrls(), account: null }, order, status))) {
     // 60 Who moved it, on the Team page.
-    await recordOrderStatus(store, { clientId: context.client.id, appId: app.id, actor: actorOf(context), orderId: order.id, to: status }, now);
+    await recordOrderStatus(store, { clientId: context.client.id, appId: app.id, actor: actorOf(context), orderId: order.id, to: awaitingManualPayment(order) && status === "processing" ? "paid" : status }, now);
   }
   refresh();
 }

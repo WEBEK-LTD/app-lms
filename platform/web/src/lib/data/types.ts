@@ -823,6 +823,30 @@ export interface CatalogSettings {
   loyalty?: LoyaltySettings | null;
   /** 91.5 A tax (VAT, KDV) on the products and shipping; null or missing: none. */
   tax?: CatalogTax | null;
+  /** 96.2 Bank transfer and the owner's own method, paid outside Yallapp; null or missing: none. */
+  manualPayments?: ManualPaymentSettings | null;
+}
+
+/** 96.2 How a customer may pay outside the card page: the owner writes the details, and marks the order paid once the money arrives. */
+export interface ManualPaymentSettings {
+  /** The bank, account holder, IBAN and anything else the customer needs; null: no bank transfer. */
+  bankTransfer: string | null;
+  /** The owner's own method ("Cash on delivery", "Vodafone Cash") and what the customer does; null: none. */
+  custom: { name: string; instructions: string } | null;
+  /** Days the customer has to pay, shown to them; ticket places are held that long. */
+  payWithinDays: number;
+}
+
+export type ManualPaymentMethod = "bank_transfer" | "custom";
+
+/** 96.2 The method a customer chose for an order, with the details as they were then. */
+export interface OrderManualPayment {
+  method: ManualPaymentMethod;
+  /** "Bank transfer", or the owner's name for their method. */
+  name: string;
+  instructions: string;
+  /** ISO time: when the customer should have paid by. */
+  dueAt: string;
 }
 
 /** 91.5 The shop's tax: a rate, included in its prices or added at checkout. */
@@ -1092,6 +1116,8 @@ export interface CatalogOrder {
   points?: OrderPoints | null;
   /** 91.5 The tax in it (in `totalCents`, added or included); null or missing: none. */
   tax?: { label: string; rateBps: number; included: boolean; cents: number } | null;
+  /** 96.2 Paid by bank transfer or the owner's own method: it waits, pending, until the owner marks it paid; null or missing: a card payment. */
+  manualPayment?: OrderManualPayment | null;
 }
 
 /** 91.4 An order's loyalty points. */
@@ -1223,7 +1249,7 @@ export interface CatalogFulfilment {
 export type CatalogOrderPatch = Partial<
   Pick<
     CatalogOrder,
-    "status" | "customer" | "updatedAt" | "commissionCents" | "itemTransactionIds" | "payoutApprovedAt" | "fulfilmentStatus" | "paymentProvider" | "providerRef" | "shipment" | "returnRequest" | "points"
+    "status" | "customer" | "updatedAt" | "commissionCents" | "itemTransactionIds" | "payoutApprovedAt" | "fulfilmentStatus" | "paymentProvider" | "providerRef" | "shipment" | "returnRequest" | "points" | "manualPayment"
   >
 >;
 

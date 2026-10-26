@@ -691,6 +691,11 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "تذاكر مدفوعة لا يمكن شراؤها في التطبيق (فعالية عبر الإنترنت على iPhone، أو لا دفع بالبطاقة). ولا يكون أبدًا رابطًا للشراء من مكان آخر.",
     tr: "Uygulamada satın alınamayan ücretli biletler (iPhone'da çevrim içi bir etkinlik ya da kartla ödeme yok). Asla başka yerden satın alma bağlantısı değildir.",
   },
+  "96.2 On an order to pay by bank transfer or the shop's own method, above the shop's details.": {
+    en: "On an order to pay by bank transfer or your own method, above your payment details.",
+    ar: "على طلب سيُدفع بتحويل بنكي أو بطريقتك الخاصة، فوق بيانات الدفع الخاصة بك.",
+    tr: "Banka havalesiyle veya kendi yönteminizle ödenecek bir siparişte, ödeme bilgilerinizin üstünde.",
+  },
   "47 A ticket the organiser refunded (it is cancelled and its place freed).": {
     en: "A ticket you refunded (it is cancelled and its place freed).",
     ar: "تذكرة استرددت ثمنها (أُلغيت وأصبح مكانها متاحًا).",

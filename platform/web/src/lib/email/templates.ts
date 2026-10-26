@@ -28,6 +28,7 @@ export type EmailTemplateKey =
   | "setup_request"
   | "wordpress_ready"
   | "new_order"
+  | "new_order_awaiting_payment"
   | "new_appointment"
   | "new_inquiry"
   | "announcement"
@@ -57,6 +58,7 @@ export type EmailTemplateKey =
   | "payment_refunded"
   // 71 Receipts as PDF
   | "order_receipt"
+  | "order_awaiting_payment"
   | "order_shipped"
   // 51 Media and storage
   | "storage_pack_added"
@@ -318,6 +320,25 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
     body: "A customer paid for an order in {{app_name}}.\n\n{{order_lines}}\nTotal: {{total}}\n\n{{customer}}See your orders: {{orders_url}}",
   },
   {
+    // 96.2 Bank transfer or the owner's own method: the order waits for the owner to mark it paid.
+    key: "new_order_awaiting_payment",
+    name: "New order waiting for payment",
+    description: "To a shop when a customer places an order to pay by bank transfer or the shop's own method (apps without a website).",
+    placeholders: [
+      { name: "app_name", description: "The app's name", sample: "Tulip Store" },
+      { name: "order_number", description: "The order's number", sample: "#1024" },
+      { name: "total", description: "The order's total", sample: "₺450.00" },
+      { name: "method", description: "How the customer will pay", sample: "Bank transfer" },
+      { name: "order_lines", description: "One line per product with its options, and shipping", sample: "Tulip vase × 1: ₺400.00\nShipping: ₺50.00" },
+      { name: "customer", description: "The customer's name, phone, email and address, then a blank line", sample: "Elif Yılmaz\n+905321234567\nelif@example.com\nBağdat Caddesi 1, Istanbul\n\n" },
+      { name: "orders_url", description: "The dashboard's Orders page", sample: "https://yallapp.com.tr/dashboard/orders" },
+    ],
+    subject: "New order {{order_number}} · waiting for payment",
+    body:
+      "A customer placed an order in {{app_name}} and will pay {{total}} by {{method}}.\n\n{{order_lines}}\nTotal: {{total}}\n\n{{customer}}" +
+      "When the money arrives, mark the order paid on your Orders page, and the customer gets their receipt: {{orders_url}}",
+  },
+  {
     key: "new_appointment",
     name: "New appointment",
     description: "To a business when a customer books an appointment (Bookings apps without a website).",
@@ -529,6 +550,29 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       "Dear {{customer_name}},\n\nThank you for your order from {{org_name}}. We received your payment.\n\n" +
       "{{order_lines}}\nTotal: {{total}}\nDate: {{date}}\nOrder: {{order_number}}\n\n" +
       "Your receipt: {{receipt_url}}\n\nKeep this email for your records. If you have a question about your order, contact {{org_name}} and give the order number above.",
+  },
+  {
+    // 96.2 Sent in the business's name, like the receipt.
+    key: "order_awaiting_payment",
+    name: "How to pay an order",
+    description:
+      "To a customer who chose to pay an order by bank transfer or the business's own method (apps without a website): the business's payment details and the day to pay by. Sent in the business's name, from the app's own email server when its owner set one.",
+    placeholders: [
+      { name: "org_name", description: "The business's name (the app's name)", sample: "Harbour Books" },
+      { name: "customer_name", description: "The customer's name", sample: "Elif Yılmaz" },
+      { name: "order_number", description: "The order's number", sample: "1042" },
+      { name: "total", description: "The order's total", sample: "₺450.00" },
+      { name: "method", description: "The payment method", sample: "Bank transfer" },
+      { name: "instructions", description: "The business's details for it, in its own words", sample: "Harbour Books Ltd\nIBAN TR00 0000 0000 0000 0000 0000 00" },
+      { name: "due_date", description: "The day to pay by", sample: "17 October 2026" },
+      { name: "order_lines", description: "One line per item with its options, and shipping", sample: "Tulip vase × 1: ₺400.00\nShipping: ₺50.00" },
+    ],
+    subject: "Your order {{order_number}} from {{org_name}}: how to pay",
+    body:
+      "Dear {{customer_name}},\n\nThank you for your order from {{org_name}}. You chose to pay by {{method}}.\n\n" +
+      "{{order_lines}}\nTotal: {{total}}\nOrder: {{order_number}}\n\n" +
+      "Please pay {{total}} by {{due_date}}:\n\n{{instructions}}\n\n" +
+      "Give the order number {{order_number}} with your payment. {{org_name}} confirms your order once the payment arrives, and you get your receipt then.",
   },
   // 80.4 The shop marked the order shipped, or changed its tracking.
   {

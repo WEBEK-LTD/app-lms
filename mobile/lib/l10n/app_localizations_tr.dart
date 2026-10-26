@@ -4076,4 +4076,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String cartTaxIncluded(String amount, String tax) {
     return '$amount $tax dahil';
   }
+
+  @override
+  String payOutsideDue(String total, String date, String number) {
+    return '$total tutarını $date tarihine kadar aşağıdaki gibi ödeyin ve ödemenizle birlikte $number sipariş numarasını belirtin. Mağaza, ödeme ulaştığında siparişinizi onaylar.';
+  }
 }
