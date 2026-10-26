@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.17
+Stable tag: 0.4.18
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -121,6 +121,9 @@ Terms: https://developer.huawei.com/consumer/en/devservice/term
 Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 
 == Changelog ==
+
+= 0.4.18 =
+* Updates come from Yallapp again: while your plan is active, new versions show in Dashboard › Updates like any other plugin, with their changes. Sites on 0.4.8 to 0.4.17 install this version once by hand (Plugins › Add New › Upload Plugin); later versions arrive on their own.
 
 = 0.4.17 =
 * Returns from the app: set how many days after an order is completed customers may ask to return it (Settings › Store app). They choose a reason and add a note in the app; you get an email and see the request on the order, approve or decline it there with a reply, and the customer is told in the app. Refunds stay in WooCommerce.
