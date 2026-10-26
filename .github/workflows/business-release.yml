@@ -476,6 +476,18 @@ jobs:
       BUILD: ${{ needs.prepare.outputs.build }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      # Apple takes uploads built with the iOS 26 SDK, and packages such as
+      # device_info_plus 13 need it: use the newest Xcode 26 on the runner.
+      - name: Use Xcode 26
+        run: |
+          xcode=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | grep -Eiv 'beta|release_candidate' | sort -V | tail -n 1)
+          if [ -z "$xcode" ]; then
+            echo "::error::This runner has no Xcode 26."
+            ls -d /Applications/Xcode*.app
+            exit 1
+          fi
+          sudo xcode-select -s "$xcode/Contents/Developer"
+          xcodebuild -version
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
