@@ -18,6 +18,7 @@ import type { TeamPermission } from "@/lib/team/permissions";
 import { MAX_APPS_PER_CLIENT } from "@/lib/app/label";
 import { getBlobStore } from "@/lib/blobs";
 import { renderCheck } from "@/lib/builds/preflight";
+import { suggestedVersion } from "@/lib/builds/view";
 import { preflightDeps } from "@/lib/builds/preflight-env";
 import { keyContext } from "@/lib/builds/signing";
 import { encrypt } from "@/lib/crypto/encryption";
@@ -907,6 +908,30 @@ export async function retryBuildAction(_: FormState, formData: FormData): Promis
   const result = await startBuild(context, parsed.data.versionName);
   if (!result.ok) return { message: result.message };
   redirect(`/dashboard/builds?queued=${result.number}`);
+}
+
+/**
+ * 87.3 "Rebuild as it was": a ready build of this app again, from the same
+ * app code and the config and listing it had, with a new version (the
+ * stores need a higher one), then back to the page, which says so.
+ */
+export async function rebuildBuildAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireApp("settings");
+  const store = await getStore();
+  const from = await store.getBuild(String(formData.get("buildId") ?? ""));
+  if (!from || from.appId !== context.app.id || from.status !== "ready" || !from.sourceCommit) return { message: "This build can't be rebuilt as it was." };
+  const latest = (await store.listBuildsByApp(context.app.id, 1))[0] ?? null;
+  const result = await queueBuild(
+    store,
+    { client: context.client, app: context.app, license: context.license, versionName: suggestedVersion(latest), from },
+    new Date(),
+    assetUrl,
+    preflightDeps(store),
+  );
+  if (!result.ok) return { message: result.reason === "preflight" ? renderCheck(result.checks.find((c) => c.level === "error")!) : result.reason === "build_running" ? "A build is already in progress. You can start a new one when it finishes." : "This build can't be rebuilt as it was." };
+  await startPipeline();
+  await recordStaffChange(context, `Rebuilt build #${from.number} as it was (build #${result.build.number})`);
+  redirect(`/dashboard/builds?queued=${result.build.number}`);
 }
 
 /** Releases the license from its website so it can be activated on another one. */

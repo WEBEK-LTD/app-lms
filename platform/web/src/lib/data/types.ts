@@ -562,6 +562,12 @@ export interface Build {
   logUrl: string | null;
   /** 87.2 Why it (or one of its stages) failed, from the pipeline's diagnosis; null or missing: not known. */
   failure?: BuildFailure | null;
+  /** 87.3 The commit to build from (a rebuild as it was); null: the newest code. */
+  sourceRef?: string | null;
+  /** 87.3 The commit the pipeline built it from. */
+  sourceCommit?: string | null;
+  /** 87.3 The number of the build this one rebuilds as it was. */
+  rebuildOf?: number | null;
   createdAt: Date;
   startedAt: Date | null;
   finishedAt: Date | null;

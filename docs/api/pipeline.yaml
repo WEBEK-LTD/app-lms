@@ -343,6 +343,13 @@ components:
           format: uri
           pattern: '^https://'
           description: Link to the CI run. Shown to the team only (the repository is private).
+        source_commit:
+          type: string
+          pattern: '^[0-9a-f]{40}$'
+          description: |
+            Roadmap 87.3. The commit of this repository the app is being built
+            from (`git rev-parse HEAD` in the job), sent once the job starts. The
+            build keeps it, so it can be rebuilt as it was.
         failure:
           type: [object, 'null']
           additionalProperties: false
@@ -401,6 +408,19 @@ components:
           items: { $ref: '#/components/schemas/Artifact' }
         message: { type: [string, 'null'] }
         log_url: { type: [string, 'null'], format: uri }
+        source_ref:
+          type: [string, 'null']
+          pattern: '^[0-9a-f]{40}$'
+          description: |
+            Roadmap 87.3. The commit of this repository to build the app from:
+            set on a rebuild of an earlier build ("Rebuild as it was"), with
+            that build's config; null builds from the newest code. The jobs
+            check it out instead of the workflow's own commit.
+        source_commit:
+          type: [string, 'null']
+          pattern: '^[0-9a-f]{40}$'
+          description: Roadmap 87.3. The commit the build was made from, as the pipeline reported it.
+        rebuild_of: { type: [integer, 'null'], minimum: 1, description: Roadmap 87.3. The number of the build this one rebuilds as it was. }
         created_at: { type: string, format: date-time }
         started_at: { type: [string, 'null'], format: date-time }
         finished_at: { type: [string, 'null'], format: date-time }

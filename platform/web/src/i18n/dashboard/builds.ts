@@ -68,7 +68,11 @@ export const en = {
   checksWarning: "Good to know",
   failureLog: "What the build printed",
   failureLogText: "The end of the build's output, without your keys and passwords. Our team sees it too.",
+  rebuild: "Rebuild as it was",
+  rebuildLabel: "Rebuild build #{number} as it was",
+  rebuildOf: "Build #{number} again, as it was",
   known: {
+    rebuildNo: "This build can't be rebuilt as it was.",
     // 87.2 lib/builds/failures.ts
     failIcon: "The build couldn't use your app's icon. Upload a 1024 × 1024 PNG without transparency on the Branding step, then start the build again.",
     failFirebaseAndroid: "Your google-services.json is for another Android package name. Download it again from Firebase for your app's package name, upload it on the Publishing step, then start the build again.",
@@ -196,7 +200,11 @@ export const ar: Messages = {
   checksWarning: "للعلم",
   failureLog: "ما طبعه الإصدار",
   failureLogText: "نهاية مخرجات الإصدار، من دون مفاتيحك وكلمات مرورك. يراها فريقنا أيضًا.",
+  rebuild: "إعادة الإصدار كما كان",
+  rebuildLabel: "إعادة الإصدار رقم {number} كما كان",
+  rebuildOf: "الإصدار رقم {number} مرة أخرى، كما كان",
   known: {
+    rebuildNo: "لا يمكن إعادة هذا الإصدار كما كان.",
     failIcon: "تعذّر على الإصدار استخدام أيقونة تطبيقك. ارفع صورة PNG بحجم 1024 × 1024 بلا شفافية في خطوة «الهوية»، ثم ابدأ الإصدار مرة أخرى.",
     failFirebaseAndroid: "ملف google-services.json خاص باسم حزمة Android آخر. نزّله مرة أخرى من Firebase لاسم حزمة تطبيقك، وارفعه في خطوة «النشر»، ثم ابدأ الإصدار مرة أخرى.",
     failFirebaseIos: "ملف GoogleService-Info.plist خاص بمعرّف حزمة آخر. نزّله مرة أخرى من Firebase لمعرّف حزمة تطبيقك، وارفعه في خطوة «النشر»، ثم ابدأ الإصدار مرة أخرى.",
@@ -318,7 +326,11 @@ export const tr: Messages = {
   checksWarning: "Bilginiz olsun",
   failureLog: "Derlemenin yazdıkları",
   failureLogText: "Derleme çıktısının sonu, anahtarlarınız ve parolalarınız olmadan. Ekibimiz de görür.",
+  rebuild: "Olduğu gibi yeniden derle",
+  rebuildLabel: "#{number} derlemesini olduğu gibi yeniden derle",
+  rebuildOf: "#{number} derlemesi yeniden, olduğu gibi",
   known: {
+    rebuildNo: "Bu derleme olduğu gibi yeniden derlenemez.",
     failIcon: "Derleme uygulamanızın simgesini kullanamadı. Marka adımında saydamlık içermeyen 1024 × 1024 bir PNG yükleyin, ardından derlemeyi yeniden başlatın.",
     failFirebaseAndroid: "google-services.json dosyanız başka bir Android paket adı için. Uygulamanızın paket adı için Firebase'den yeniden indirin, Yayınlama adımında yükleyin, ardından derlemeyi yeniden başlatın.",
     failFirebaseIos: "GoogleService-Info.plist dosyanız başka bir paket kimliği için. Uygulamanızın paket kimliği için Firebase'den yeniden indirin, Yayınlama adımında yükleyin, ardından derlemeyi yeniden başlatın.",

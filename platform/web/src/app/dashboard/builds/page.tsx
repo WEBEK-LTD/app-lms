@@ -34,7 +34,7 @@ import { getPlans } from "@/lib/settings/platform";
 import { failureExplanation } from "@/lib/builds/failures";
 import { preflightChecks, renderCheck } from "@/lib/builds/preflight";
 import { preflightDeps } from "@/lib/builds/preflight-env";
-import { RetryBuildForm, StartBuildForm } from "./start-build";
+import { RebuildForm, RetryBuildForm, StartBuildForm } from "./start-build";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
@@ -418,7 +418,10 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
                     <span>
                       <BuildStatusText status={build.status} lang={lang} />
                       {build.status === "failed" ? <span className="block max-w-[260px] text-xs text-muted">{k(failureReason(build))}</span> : null}
+                      {build.rebuildOf ? <span className="block text-xs text-muted">{t("builds.rebuildOf", { number: build.rebuildOf })}</span> : null}
                     </span>
+                    {/* 87.3 A ready build made from known code can be made again as it was. */}
+                    {build.status === "ready" && build.sourceCommit && !licenseProblem && !running ? <RebuildForm buildId={build.id} number={build.number} /> : null}
                   </td>
                 </tr>
               ))}

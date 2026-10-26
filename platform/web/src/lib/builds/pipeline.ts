@@ -47,6 +47,8 @@ export const pipelineStatusSchema = z
       )
       .max(20)
       .optional(),
+    // 87.3 The commit the job builds from.
+    source_commit: z.string().regex(/^[0-9a-f]{40}$/).optional(),
     // 87.2 Why it failed, as diagnose.py read the build's output.
     failure: z
       .object({
@@ -97,6 +99,7 @@ export async function applyPipelineStatus(
     message: update.message === undefined ? build.message : update.message,
     logUrl: update.log_url === undefined ? build.logUrl : update.log_url,
     failure: update.failure === undefined ? (build.failure ?? null) : update.failure,
+    sourceCommit: update.source_commit ?? build.sourceCommit ?? null,
     startedAt: build.startedAt ?? (status === "building" || FINISHED.includes(status) ? now : null),
     finishedAt: FINISHED.includes(status) ? now : null,
   };
@@ -137,6 +140,10 @@ export function buildSummary(build: Build) {
     artifacts: build.artifacts,
     message: build.message,
     log_url: build.logUrl,
+    // 87.3
+    source_ref: build.sourceRef ?? null,
+    source_commit: build.sourceCommit ?? null,
+    rebuild_of: build.rebuildOf ?? null,
     created_at: build.createdAt.toISOString(),
     started_at: build.startedAt?.toISOString() ?? null,
     finished_at: build.finishedAt?.toISOString() ?? null,

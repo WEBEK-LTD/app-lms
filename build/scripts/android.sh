@@ -47,6 +47,11 @@ result '{"android":"failed"}' '[]' "The Android app couldn't be built."
 platform status "$BUILD_ID" '{"stages":{"android":"running"}}'
 platform config "$BUILD_ID" "$WORK/config.json"
 platform secrets "$BUILD_ID" "$WORK/secrets.json"
+# 87.3 The commit the app is built from, kept on the build so it can be rebuilt as it was.
+COMMIT=$(git -C "$ROOT" rev-parse HEAD 2>/dev/null || true)
+if [[ "$COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+	platform status "$BUILD_ID" "{\"source_commit\":\"$COMMIT\"}" || true
+fi
 
 # App identity, colors, version and Firebase files from the build config.
 (cd "$MOBILE" && dart run tool/apply_config.dart "$WORK/config.json")

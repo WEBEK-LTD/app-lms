@@ -331,6 +331,10 @@ export const builds = mysqlTable(
     logUrl: varchar("log_url", { length: 2048 }),
     // 87.2 Why it failed (BuildFailure): its code, stage and the log the client may read.
     failure: jsonText<BuildFailure>("failure"),
+    // 87.3 The code it was built from, and the build it rebuilds as it was.
+    sourceRef: varchar("source_ref", { length: 40 }),
+    sourceCommit: varchar("source_commit", { length: 40 }),
+    rebuildOf: int("rebuild_of"),
     createdAt: time("created_at").notNull(),
     startedAt: time("started_at"),
     finishedAt: time("finished_at"),

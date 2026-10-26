@@ -240,7 +240,8 @@ export type QueueBuildResult =
 /** Validates the config against the schema and queues a build with a snapshot of it. `license` is the app's own. */
 export async function queueBuild(
   store: DataStore,
-  input: { client: Client; app: App; license: License | null; versionName: string },
+  /** 87.3 `from`: an earlier build of the app to rebuild as it was (its config, its listing and its code). */
+  input: { client: Client; app: App; license: License | null; versionName: string; from?: Build },
   now: Date,
   assetUrl: (assetId: string) => string,
   /** 87.1 The checks before a build (lib/builds/preflight.ts); without them none run. */
@@ -268,11 +269,15 @@ export async function queueBuild(
   if (last && compareVersions(input.versionName, last.versionName) < 0) return { ok: false, reason: "version_too_low" };
 
   // The store assigns the final version code; 1 is a valid placeholder for validation.
-  const config = buildConfigFor(app, client, { name: input.versionName, code: 1 }, assetUrl);
+  // 87.3 A rebuild takes the earlier build's config as it was, with the new version.
+  const config = input.from
+    ? ({ ...input.from.config, version_name: input.versionName, version_code: 1 } as typeof input.from.config)
+    : buildConfigFor(app, client, { name: input.versionName, code: 1 }, assetUrl);
   const validation = validateBuildConfig(config);
   if (!validation.ok) return { ok: false, reason: "invalid_config", errors: validation.errors };
-  const listing = storeListingOf(app, assetUrl);
+  const listing = input.from ? input.from.storeListing : storeListingOf(app, assetUrl);
   if (!listing) return { ok: false, reason: "setup_incomplete" };
+  if (input.from && (input.from.appId !== app.id || !input.from.sourceCommit)) return { ok: false, reason: "invalid_config" };
 
   // "We publish for you" and the iOS app come with the plan (and its switches, 11.5).
   const autoPublish = hasFeature(plan, "auto_publish");
@@ -300,6 +305,7 @@ export async function queueBuild(
         artifacts: [],
         message: null,
         logUrl: null,
+        ...(input.from ? { sourceRef: input.from.sourceCommit, rebuildOf: input.from.number } : {}),
         createdAt: now,
         startedAt: null,
         finishedAt: null,

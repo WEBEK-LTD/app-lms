@@ -45,6 +45,11 @@ PY
 result '{"ios":"failed"}' '[]' "The iOS app couldn't be built."
 
 platform secrets "$BUILD_ID" "$WORK/secrets.json"
+# 87.3 The commit the app is built from, kept on the build so it can be rebuilt as it was.
+COMMIT=$(git -C "$ROOT" rev-parse HEAD 2>/dev/null || true)
+if [[ "$COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+	platform status "$BUILD_ID" "{\"source_commit\":\"$COMMIT\"}" || true
+fi
 HAS_ASC=$(python3 -c 'import json,sys; print("yes" if json.load(open(sys.argv[1]))["app_store_connect"] else "no")' "$WORK/secrets.json")
 if [ "$HAS_ASC" != "yes" ]; then
 	result '{"ios":"skipped","upload_testflight":"skipped"}' '[]' "No iOS app in this build: add your App Store Connect key in App setup › Publishing, on a plan with the iOS app."
