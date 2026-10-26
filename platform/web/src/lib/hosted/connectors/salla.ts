@@ -1,6 +1,6 @@
 import type { DataStore } from "../../data/store";
 import type { HostedUser } from "../../data/types";
-import { amountOf, cartLines, e164Of, error, formatCurrency, intParam, optionSlug, verifiedEmail, type CartLineInput } from "./common";
+import { amountOf, cartLines, e164Of, error, formatCurrency, intParam, optionSlug, verifiedEmail, type CartLineInput, withCheckoutTotals } from "./common";
 import { AccessRevokedError, OAuthRefusedError, TokenKeeper, type TokenValues } from "./oauth-tokens";
 import type { PartnerCredentials } from "./partner-apps";
 import { PlatformCheckError, registerPlatform, type PlatformConnector, type PlatformDefinition, type PlatformDeps } from "./platforms";
@@ -910,7 +910,7 @@ export class SallaConnector implements PlatformConnector {
   private async quote(request: ConnectorRequest): Promise<ConnectorResult> {
     const lines = cartLines(request.body);
     if (!lines) return error(400, "invalid_request", "The cart is empty or invalid.");
-    return { status: 200, body: (await this.priced(lines)).cart };
+    return { status: 200, body: withCheckoutTotals((await this.priced(lines)).cart, request.body) };
   }
 
   /**

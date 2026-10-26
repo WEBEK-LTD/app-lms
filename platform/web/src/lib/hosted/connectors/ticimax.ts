@@ -1,7 +1,7 @@
 import { privateHostProblem, resolveHost } from "../../app/api-check";
 import { pinnedFetch } from "../../net/safe-fetch";
 import type { HostedUser } from "../../data/types";
-import { cartLines, error, intParam, type CartLineInput } from "./common";
+import { cartLines, error, intParam, type CartLineInput, withCheckoutTotals } from "./common";
 import { registerPlatform, type PlatformConnector, type PlatformDefinition } from "./platforms";
 import { ConnectorError, type ConnectorRequest, type ConnectorResult } from "./types";
 
@@ -1055,7 +1055,7 @@ export class TicimaxConnector implements PlatformConnector {
   private async quote(request: ConnectorRequest): Promise<ConnectorResult> {
     const lines = cartLines(request.body);
     if (!lines) return error(400, "invalid_request", "The cart is empty or invalid.");
-    return { status: 200, body: (await this.priced(lines)).cart };
+    return { status: 200, body: withCheckoutTotals((await this.priced(lines)).cart, request.body) };
   }
 
   private async checkoutLink(request: ConnectorRequest): Promise<ConnectorResult> {

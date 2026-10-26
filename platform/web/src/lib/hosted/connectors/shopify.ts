@@ -1,5 +1,5 @@
 import type { HostedUser } from "../../data/types";
-import { cartLines, e164Of, error, intParam, verifiedEmail, type CartLineInput } from "./common";
+import { cartLines, e164Of, error, intParam, verifiedEmail, type CartLineInput, withCheckoutTotals } from "./common";
 import { ConnectorError, type Connector, type ConnectorRequest, type ConnectorResult } from "./types";
 
 /**
@@ -896,7 +896,7 @@ export class ShopifyConnector implements Connector {
     const lines = cartLines(request.body);
     if (!lines) return error(400, "invalid_request", "The cart is empty or invalid.");
     const map = await this.mapper();
-    return { status: 200, body: (await this.priced(lines, map)).cart };
+    return { status: 200, body: withCheckoutTotals((await this.priced(lines, map)).cart, request.body, true) };
   }
 
   private async checkoutLink(request: ConnectorRequest): Promise<ConnectorResult> {
@@ -914,6 +914,8 @@ export class ShopifyConnector implements Connector {
       return error(403, "purchase_not_allowed", "Digital products can't be bought in the iPhone app.");
     }
     const user = request.user;
+    const rawCoupon = (request.body as { coupon?: unknown } | null)?.coupon;
+    const coupon = typeof rawCoupon === "string" ? rawCoupon.trim().slice(0, 50) : "";
     const buyerIdentity: Record<string, string> = {};
     if (user) {
       if (user.phone) buyerIdentity.phone = user.phone;
@@ -925,6 +927,8 @@ export class ShopifyConnector implements Connector {
       input: {
         lines: pricedLines.map((l, i) => ({ merchandiseId: priced.merchandise[i]!, quantity: l.quantity })),
         ...(user ? { buyerIdentity } : {}),
+        // 91.1 The customer's coupon: Shopify's checkout applies it, or says why it can't.
+        ...(coupon ? { discountCodes: [coupon] } : {}),
       },
     });
     const url = data.cartCreate.cart?.checkoutUrl;

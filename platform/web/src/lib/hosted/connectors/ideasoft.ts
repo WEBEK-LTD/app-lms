@@ -1,4 +1,4 @@
-import { cartLines, error, intParam, type CartLineInput } from "./common";
+import { cartLines, error, intParam, type CartLineInput, withCheckoutTotals } from "./common";
 import { registerPlatform, type PlatformConnector, type PlatformDefinition, type PlatformDeps } from "./platforms";
 import { ConnectorError, type ConnectorRequest, type ConnectorResult } from "./types";
 
@@ -1125,7 +1125,7 @@ export class IdeasoftConnector implements PlatformConnector {
     const lines = cartLines(request.body);
     if (!lines) return error(400, "invalid_request", "The cart is empty or invalid.");
     const map = await this.mapper();
-    return { status: 200, body: (await this.priced(lines, map)).cart };
+    return { status: 200, body: withCheckoutTotals((await this.priced(lines, map)).cart, request.body) };
   }
 
   /**
