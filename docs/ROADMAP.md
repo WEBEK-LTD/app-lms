@@ -728,6 +728,7 @@ preview. About 530 screenshots; what was found is below. No migration.
 | [x] | 38.20 The events list's `price_label` and server error messages are English in Arabic and Turkish apps (the content API doesn't receive the language); a WordPress site's labels follow the site's language | Done in Phase 43 (43.3) |
 | [x] | 38.21 Done: a design applied to a hosted academy leaves out the Wishlist tab and tile (`missingScreens`); Orders stays, since 96.3 lists its course orders. Was: Designs offer Wishlist and Orders tiles to hosted academies, which have neither (the app now leaves them out); the designs could leave them out too | With the next design update |
 | [ ] | 38.22 Share does nothing in a desktop browser without the Web Share API (the preview only); the largest donation isn't in `DonationsConfig`, so a too large amount is refused only after Donate; a course's illustration is cropped large on a tablet's hero | Owner's review |
+| [x] | 38.23 Done: the app preview of an app made with "Start from your website" (or with the sign-up's website) showed "We couldn't connect": it read that website before the Website step chose it, and a WordPress site before its Yallapp plugin was connected. It now waits for both and says which (`preview.waiting_for`: choose the source, install the plugin and activate the license, or our team's setup) | Unit and Flutter tests |
 
 ## Phase 39: Paid and enrolled courses open in the app; plugin 0.4.0 updates cleanly
 

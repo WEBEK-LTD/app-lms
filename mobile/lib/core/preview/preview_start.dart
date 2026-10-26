@@ -44,7 +44,14 @@ Future<void> runPreview({Uri? address, Dio? http}) async {
   final session = start.session;
   if (session.contentSource == PreviewContentSource.none) {
     return runApp(
-      PreviewMessageApp(problem: PreviewProblem.noContent, config: start.build),
+      PreviewMessageApp(
+        problem: switch (session.waitingFor) {
+          PreviewWaitingFor.plugin => PreviewProblem.noPlugin,
+          PreviewWaitingFor.setup => PreviewProblem.beingSetUp,
+          PreviewWaitingFor.website || null => PreviewProblem.noContent,
+        },
+        config: start.build,
+      ),
     );
   }
   // Each app's preview keeps its own sign-in and settings in this browser.
@@ -119,6 +126,8 @@ class PreviewMessageApp extends StatelessWidget {
             PreviewProblem.invalid => l10n.previewInvalid,
             PreviewProblem.unreachable => l10n.previewUnreachable,
             PreviewProblem.noContent => l10n.previewNoContent,
+            PreviewProblem.noPlugin => l10n.previewNoPlugin,
+            PreviewProblem.beingSetUp => l10n.previewBeingSetUp,
           };
           return Scaffold(
             body: SafeArea(

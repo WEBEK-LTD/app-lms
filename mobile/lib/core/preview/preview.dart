@@ -67,6 +67,7 @@ class PreviewSession {
     required this.appId,
     required this.platformUrl,
     required this.contentSource,
+    this.waitingFor,
     this.apiToken,
     this.draft = false,
     this.themeMode,
@@ -78,6 +79,10 @@ class PreviewSession {
   final String platformUrl;
   final PreviewContentSource contentSource;
 
+  /// Why there's no content yet ([PreviewContentSource.none]): what the
+  /// owner does next. Null otherwise.
+  final PreviewWaitingFor? waitingFor;
+
   /// Sent as `X-Yallapp-Preview` to the hosted API; null for other sources.
   final String? apiToken;
 
@@ -88,8 +93,25 @@ class PreviewSession {
   final ThemeMode? themeMode;
 }
 
+/// What a preview without content waits for: the Website step, the Yallapp
+/// plugin on the WordPress site, or our team's setup of the site.
+enum PreviewWaitingFor { website, plugin, setup }
+
 /// Why the preview couldn't start.
-enum PreviewProblem { noLink, expired, invalid, unreachable, noContent }
+enum PreviewProblem {
+  noLink,
+  expired,
+  invalid,
+  unreachable,
+  noContent,
+
+  /// The WordPress site doesn't have the Yallapp plugin with the app's
+  /// license activated yet.
+  noPlugin,
+
+  /// Our team is still setting up the WordPress site.
+  beingSetUp,
+}
 
 class PreviewException implements Exception {
   const PreviewException(this.problem);
@@ -163,6 +185,12 @@ PreviewStart previewStartFromJson(
         'custom_api' => PreviewContentSource.customApi,
         'hosted' => PreviewContentSource.hosted,
         _ => PreviewContentSource.none,
+      },
+      waitingFor: switch (preview['waiting_for']) {
+        'website' => PreviewWaitingFor.website,
+        'plugin' => PreviewWaitingFor.plugin,
+        'setup' => PreviewWaitingFor.setup,
+        _ => null,
       },
       apiToken: token is String && token.isNotEmpty ? token : null,
       draft: preview['draft'] == true,

@@ -296,8 +296,8 @@ describe("20 app kinds registry", () => {
     expect(APP_TYPES.filter(hostedOnly)).toEqual(["real_estate", "events", "donations"]);
     const wordpress = appOf("real_estate", { websiteDoneAt: NOW });
     expect(websiteReady(wordpress)).toBe(false);
-    expect(previewContentSource(wordpress)).toBe("none");
-    expect(previewContentSource(appOf("store"))).toBe("wordpress");
+    expect(previewContentSource(wordpress, true)).toBe("none");
+    expect(previewContentSource(appOf("store", { websiteDoneAt: NOW }), true)).toBe("wordpress");
   });
 
   it("words App sign-in's phone note per engine as before", () => {

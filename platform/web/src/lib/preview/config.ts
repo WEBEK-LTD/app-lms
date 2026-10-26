@@ -26,6 +26,8 @@ export interface PreviewConfig {
     app_id: string;
     expires_at: string;
     content_source: PreviewContentSource;
+    /** Why there's no content yet (`content_source` none), so the preview says what to do; null otherwise. */
+    waiting_for: PreviewWaitingFor | null;
     /** The preview shows the Pages & look draft (hosted API only); otherwise the published pages. */
     draft: boolean;
     /** Sent by the app as `X-Yallapp-Preview` to the hosted API (34: also for Yallapp's sign-in of an own API app); null otherwise. */
@@ -43,14 +45,28 @@ export const PLACEHOLDER = {
   iosBundleId: "com.example.preview",
 } as const;
 
-export function previewContentSource(app: App): PreviewContentSource {
+export function previewContentSource(app: App, pluginConnected: boolean): PreviewContentSource {
   if (app.backend === "hosted") return "hosted";
   // Real estate apps only run on the hosted API.
   if (hostedOnly(app.appType)) return "none";
+  // Until the Website step chose it, a website's address (given at sign-up, or read by
+  // "Start from your website") isn't a content source: the preview never reads a site
+  // that may not have the Yallapp plugin, which the browser can't reach.
+  if (!app.websiteDoneAt) return "none";
   if (app.backend === "custom_api") return app.apiBaseUrl ? "custom_api" : "none";
-  if (app.backend === "wordpress") return app.siteUrl ? "wordpress" : "none";
+  // A WordPress site, once the Yallapp plugin on it has activated the app's license.
+  if (app.backend === "wordpress") return app.siteUrl && pluginConnected ? "wordpress" : "none";
   // "setup_requested": our team is still setting up the site.
   return "none";
+}
+
+/** What the preview waits for while it has no content: the Website step, the plugin on the site, or our team's setup. */
+export type PreviewWaitingFor = "website" | "plugin" | "setup";
+
+export function previewWaitingFor(app: App, pluginConnected: boolean): PreviewWaitingFor | null {
+  if (previewContentSource(app, pluginConnected) !== "none" || hostedOnly(app.appType)) return null;
+  if (app.backend === "setup_requested") return "setup";
+  return app.websiteDoneAt && app.backend === "wordpress" && app.siteUrl ? "plugin" : "website";
 }
 
 /** Whether the preview can show the draft pages: only the hosted API serves them. */
@@ -67,7 +83,15 @@ export function missingSteps(app: App, plan: Plan | null, plans?: Record<Plan, P
 export function previewConfigFor(
   app: App,
   grant: PreviewGrant,
-  options: { token: string; platformUrl: string; assetUrl: (assetId: string) => string; plan: Plan | null; plans?: Record<Plan, PlanInfo> },
+  options: {
+    token: string;
+    platformUrl: string;
+    assetUrl: (assetId: string) => string;
+    plan: Plan | null;
+    plans?: Record<Plan, PlanInfo>;
+    /** The Yallapp plugin on the app's WordPress site has activated its license (`wordpressPluginConnected`). */
+    pluginConnected: boolean;
+  },
 ): PreviewConfig {
   const built = buildConfigFor(app, { id: app.clientId }, { name: "1.0.0", code: 1 }, options.assetUrl);
   const placeholders: string[] = [];
@@ -82,7 +106,7 @@ export function previewConfigFor(
   }
   if (!built.android_package) fill("android_package", PLACEHOLDER.androidPackage);
   if (!built.ios_bundle_id) fill("ios_bundle_id", PLACEHOLDER.iosBundleId);
-  const source = previewContentSource(app);
+  const source = previewContentSource(app, options.pluginConnected);
   if (source === "none" || !built.site_url) {
     // No content yet: the app shows how to connect it. The site is the platform, so the address is valid.
     if (!built.site_url) placeholders.push("site_url");
@@ -110,6 +134,7 @@ export function previewConfigFor(
       app_id: app.id,
       expires_at: grant.expiresAt.toISOString(),
       content_source: source,
+      waiting_for: previewWaitingFor(app, options.pluginConnected),
       draft,
       // 34 Also for Yallapp's sign-in of an app on its own API: sent only to the hosted API, never to the client's.
       api_token: source === "hosted" || yallappAuth ? options.token : null,

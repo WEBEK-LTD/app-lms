@@ -188,7 +188,7 @@ describe("44 the key, the build config and the country", () => {
     const config = buildConfigFor(app, { id: "client-1" }, { name: "1.0.0", code: 1 }, (id) => `https://files.test/${id}`);
     expect(config.analytics).toEqual({ events_url: `https://yallapp.com.tr/api/v1/apps/${app.id}/events`, key: analyticsKey(app.id, SECRET) });
     expect(validateBuildConfig(config).ok).toBe(true);
-    const preview = previewConfigFor(app, { appId: app.id, draft: false, expiresAt: NOW }, { token: "t", platformUrl: "https://yallapp.com.tr", assetUrl: (id) => id, plan: null });
+    const preview = previewConfigFor(app, { appId: app.id, draft: false, expiresAt: NOW }, { token: "t", platformUrl: "https://yallapp.com.tr", assetUrl: (id) => id, plan: null, pluginConnected: false });
     expect(preview.config.analytics).toBeUndefined();
   });
 
