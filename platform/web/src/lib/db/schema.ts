@@ -61,6 +61,7 @@ import type {
 } from "../data/types";
 // 11.6 and 11.8
 import type { BuildFailure, BuildRelease, ListingTranslation, ReviewsRow, RolloutState, ScreenshotFrame, StagedRelease } from "../data/types";
+import type { OwnFontFile } from "../data/types";
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
 import type { Plan } from "../plans";
 import type { Layout, LayoutBlock, LayoutContent } from "../pages/types";
@@ -1313,6 +1314,24 @@ export const savedSections = mysqlTable(
     createdBy: varchar("created_by", { length: 191 }),
   },
   (t) => [index("saved_sections_client_idx").on(t.clientId, t.createdAt)],
+);
+
+// 97.2 Own fonts: an app's uploaded fonts (their files are assets of kind "font").
+export const ownFonts = mysqlTable(
+  "own_fonts",
+  {
+    id: id("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    family: varchar("family", { length: 64 }).notNull(),
+    files: jsonText<OwnFontFile[]>("files").notNull(),
+    sizeBytes: int("size_bytes").notNull(),
+    licenceConfirmedBy: varchar("licence_confirmed_by", { length: 191 }).notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("own_fonts_app_family_idx").on(t.appId, t.family)],
 );
 
 // 11.7 Admin team and audit log

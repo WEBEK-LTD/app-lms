@@ -8,7 +8,7 @@ import { clientAccountState, longestLicense } from "../license/status";
 import type { BuildConfig } from "../build-config/types";
 import * as schema from "../db/schema";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
-import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, SavedSection } from "./types";
+import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, SavedSection } from "./types";
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
@@ -2875,6 +2875,25 @@ export class MysqlStore implements DataStore {
     await this.run((db) => db.insert(schema.savedSections).values(section));
   }
 
+  // 97.2 Own fonts
+
+  async listOwnFonts(appId: string): Promise<OwnFont[]> {
+    const t = schema.ownFonts;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(asc(t.family)));
+  }
+
+  async saveOwnFont(font: OwnFont): Promise<void> {
+    const { id: _id, ...rest } = font;
+    void _id;
+    await this.run((db) => db.insert(schema.ownFonts).values(font).onDuplicateKeyUpdate({ set: rest }));
+  }
+
+  async deleteOwnFont(appId: string, id: string): Promise<boolean> {
+    const t = schema.ownFonts;
+    const [result] = await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+    return result.affectedRows > 0;
+  }
+
   async deleteSavedSection(clientId: string, id: string): Promise<boolean> {
     const t = schema.savedSections;
     const [result] = await this.run((db) => db.delete(t).where(and(eq(t.clientId, clientId), eq(t.id, id))));
@@ -3666,8 +3685,13 @@ export class MysqlStore implements DataStore {
 
   async mediaUsage(appId: string): Promise<number> {
     const m = schema.mediaFiles;
-    const [row] = await this.run((db) => db.select({ total: sql<string | null>`sum(${m.sizeBytes})` }).from(m).where(eq(m.appId, appId)));
-    return Number(row?.total ?? 0);
+    const f = schema.ownFonts;
+    const [[row], [fonts]] = await Promise.all([
+      this.run((db) => db.select({ total: sql<string | null>`sum(${m.sizeBytes})` }).from(m).where(eq(m.appId, appId))),
+      // 97.2 Own fonts count too.
+      this.run((db) => db.select({ total: sql<string | null>`sum(${f.sizeBytes})` }).from(f).where(eq(f.appId, appId))),
+    ]);
+    return Number(row?.total ?? 0) + Number(fonts?.total ?? 0);
   }
 
   async listStaleMediaUploads(before: Date, limit: number): Promise<MediaFile[]> {
@@ -4477,6 +4501,8 @@ export class MysqlStore implements DataStore {
         db.select().from(s.eventSettings).where(eq(s.eventSettings.appId, appId)),
         db.select().from(s.donationSettings).where(eq(s.donationSettings.appId, appId)),
         db.select().from(s.listingSettings).where(eq(s.listingSettings.appId, appId)),
+        // 97.2 Own fonts' files.
+        db.select({ files: s.ownFonts.files }).from(s.ownFonts).where(eq(s.ownFonts.appId, appId)),
       ]),
     );
     return assetIdsIn(JSON.stringify(rows));

@@ -1,4 +1,5 @@
 import { FREE_FONT_COUNT } from "@/lib/fonts/catalog";
+import { ownFontView } from "@/lib/fonts/own";
 import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -120,6 +121,7 @@ export default async function PagesPage({ searchParams }: PageProps<"/dashboard/
           logoUrl: app.logoAssetId ? assetUrl(app.logoAssetId) : null,
           fontCount: FREE_FONT_COUNT,
         }}
+        ownFonts={(await store.listOwnFonts(app.id)).map(ownFontView)}
         sources={sources}
         categorySources={categorySourcesFor(app).filter((s) => sources.includes(s))}
         screens={screenOptionsFor(app)}

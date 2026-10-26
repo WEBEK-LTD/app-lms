@@ -71,8 +71,13 @@ function stampPages(next: LayoutContent, previous: LayoutContent | null, now: Da
  * `strings` (the page editor's) keeps the interface strings it had; the
  * Translations page sends them.
  */
+/** 97.2 The names of the app's own fonts, which its look may use. */
+export async function ownFontNames(store: DataStore, appId: string): Promise<string[]> {
+  return (await store.listOwnFonts(appId)).map((f) => f.family);
+}
+
 export async function saveDraft(store: DataStore, app: App, input: unknown, now: Date): Promise<ParseResult<AppLayoutRecord>> {
-  const parsed = parseLayoutContent(input, { app, now });
+  const parsed = parseLayoutContent(input, { app, now, ownFonts: await ownFontNames(store, app.id) });
   if (!parsed.ok) return parsed;
   const record = await loadLayout(store, app, now);
   const sentStrings = Boolean(input && typeof input === "object" && "strings" in input);
@@ -102,7 +107,7 @@ export async function publishLayout(
     record = saved.value;
   } else {
     // The stored draft is checked again: the app's type may have changed since.
-    const parsed = parseLayoutContent(record.draft, { app, now });
+    const parsed = parseLayoutContent(record.draft, { app, now, ownFonts: await ownFontNames(store, app.id) });
     if (!parsed.ok) return parsed;
   }
   const planErrors = planLayoutErrors(record.draft, plan);
@@ -268,7 +273,8 @@ export async function lookAndLanguages(
   const withList = (languages: Languages): Languages =>
     packs ? withLanguageList(languages, layout?.strings, { platformUrl: packs.platformUrl, appId: app.id, draft: packs.draft }) : languages;
   // 97.1 With the files of the look's free fonts, on Yallapp.
-  const served = (appearance: Appearance): Appearance => (packs ? servedAppearance(appearance, packs.platformUrl) : appearance);
+  const own = packs ? await store.listOwnFonts(app.id) : [];
+  const served = (appearance: Appearance): Appearance => (packs ? servedAppearance(appearance, packs.platformUrl, own) : appearance);
   if (layout) return { appearance: served(layout.appearance), languages: withList(languagesForPlan(layout.languages, plan)) };
   const defaults = await appDefaults(store);
   return { appearance: served(defaultAppearance(app, defaults)), languages: withList(languagesForPlan(defaults.languages, plan)) };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 
 /**
  * 97.1 Choose any free font: type to search the catalog (GET /api/v1/fonts),
@@ -19,7 +19,11 @@ export interface FontPickerLabels {
   none: string;
   sample: string;
   hint?: string;
+  /** 97.2 The tag on the owner's own fonts. */
+  mine?: string;
 }
+
+const NO_FONTS: readonly { family: string; previewUrl: string }[] = [];
 
 /** Fonts already added to the page, by family. */
 const loaded = new Map<string, Promise<boolean>>();
@@ -82,6 +86,7 @@ export function FontPicker({
   onChange,
   labels,
   arabicOnly = false,
+  own = NO_FONTS,
 }: {
   id: string;
   /** The form field holding the chosen family, when inside a form. */
@@ -92,6 +97,8 @@ export function FontPicker({
   labels: FontPickerLabels;
   /** Only fonts drawing Arabic (the Arabic text's font). */
   arabicOnly?: boolean;
+  /** 97.2 The owner's own fonts, listed first. */
+  own?: readonly { family: string; previewUrl: string }[];
 }) {
   const listId = useId();
   const hintId = useId();
@@ -102,6 +109,8 @@ export function FontPicker({
   const [active, setActive] = useState(0);
   const [preview, setPreview] = useState<FoundFont | null>(null);
   const open = query !== null;
+  const mine = useMemo(() => own.map((f) => ({ family: f.family, arabic: true, preview_url: f.previewUrl })), [own]);
+  const isMine = (family: string) => mine.some((f) => f.family === family);
 
   // A new value from outside (a design chosen) replaces the shown one.
   const [given, setGiven] = useState(value);
@@ -119,7 +128,9 @@ export function FontPicker({
       fetch(`/api/v1/fonts?${params}`, { signal: controller.signal })
         .then((r) => (r.ok ? r.json() : { fonts: [] }))
         .then((body: { fonts: FoundFont[] }) => {
-          setFound(body.fonts);
+          // 97.2 The owner's own fonts first (by name), whatever the Arabic filter.
+          const words = query.trim().toLowerCase();
+          setFound([...mine.filter((f) => f.family.toLowerCase().includes(words)), ...body.fonts]);
           setActive(0);
         })
         .catch(() => {});
@@ -128,11 +139,18 @@ export function FontPicker({
       clearTimeout(timer);
       controller.abort();
     };
-  }, [open, query, arabic]);
+  }, [open, query, arabic, mine]);
 
   // The sample line in the chosen font.
+  const chosenOwn = mine.find((f) => f.family === chosen);
   useEffect(() => {
     let live = true;
+    if (chosenOwn) {
+      void loadFont(chosenOwn).then((ok) => live && ok && setPreview(chosenOwn));
+      return () => {
+        live = false;
+      };
+    }
     fetch(`/api/v1/fonts?${new URLSearchParams({ q: chosen, limit: "1" })}`)
       .then((r) => (r.ok ? r.json() : { fonts: [] }))
       .then((body: { fonts: FoundFont[] }) => {
@@ -144,7 +162,7 @@ export function FontPicker({
     return () => {
       live = false;
     };
-  }, [chosen]);
+  }, [chosen, chosenOwn]);
 
   function choose(font: FoundFont) {
     setChosen(font.family);
@@ -216,6 +234,12 @@ export function FontPicker({
                 onClick={() => choose(font)}
               >
                 <FontName font={font} />
+                {labels.mine && isMine(font.family) ? (
+                  <>
+                    {" "}
+                    <span className="ms-1 text-xs text-muted">{labels.mine}</span>
+                  </>
+                ) : null}
               </li>
             ))}
           </ul>

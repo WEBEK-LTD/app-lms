@@ -5,6 +5,7 @@ import type {
   AppLayoutVersion,
   AppLayoutVersionSummary,
   SavedSection,
+  OwnFont,
   Asset,
   Build,
   BuildStatus,
@@ -711,6 +712,12 @@ export interface DataStore {
   createSavedSection(section: SavedSection): Promise<void>;
   /** False when the account has no such section. */
   deleteSavedSection(clientId: string, id: string): Promise<boolean>;
+  /** 97.2 The app's own fonts, by name. */
+  listOwnFonts(appId: string): Promise<OwnFont[]>;
+  /** Adds the font, or replaces it (same id, or the app's font with the same name, which keeps its id). */
+  saveOwnFont(font: OwnFont): Promise<void>;
+  /** False when the app has no such font. */
+  deleteOwnFont(appId: string, id: string): Promise<boolean>;
 
   // 11.7 Admin team and audit log
   /** Everyone in admin_members with their user, oldest first. */

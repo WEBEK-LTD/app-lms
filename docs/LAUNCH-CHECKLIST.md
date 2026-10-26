@@ -1434,6 +1434,10 @@ routine every few years):
       downloaded, and still after a restart in flight mode.
 - Netlify reaches raw.githubusercontent.com the first time each font file
   is asked for; after that it is served from Netlify Blobs.
+- Migration `0088_own_fonts` (97.2, the owners' own fonts) runs with the
+  others at deploy.
+- [ ] Upload a font of your own in Pages & look (a .ttf you have a licence
+      for), choose it, publish and open the app: it shows that font.
 
 ## 8. Accounts the remaining roadmap steps wait on
 

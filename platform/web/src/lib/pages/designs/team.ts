@@ -3,7 +3,7 @@ import { newId } from "../../crypto/tokens";
 import type { DataStore } from "../../data/store";
 import type { App, DesignsSetting } from "../../data/types";
 import { clearPlatformSettingsCache } from "../../settings/platform";
-import { loadLayout } from "../layout";
+import { loadLayout, ownFontNames } from "../layout";
 import { parseLayoutContent } from "../validate";
 import type { Design } from "./build";
 import { designsSetting } from "./catalog";
@@ -47,7 +47,7 @@ export async function addDesignFromApp(
   if (setting.custom.length >= TEAM_DESIGN_LIMITS.max) return { ok: false, error: "limit" };
   const draft = (await loadLayout(store, app, now)).draft;
   // Checked like a publish, so owners only ever get a design that works.
-  const parsed = parseLayoutContent(draft, { app, now });
+  const parsed = parseLayoutContent(draft, { app, now, ownFonts: await ownFontNames(store, app.id) });
   if (!parsed.ok) return { ok: false, error: "invalid", detail: parsed.errors[0] };
   const layout = parsed.value;
   const { template, corners, cards, font, secondary_color } = layout.appearance;
