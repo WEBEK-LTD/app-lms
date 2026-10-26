@@ -2254,6 +2254,14 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('previewNoContent') ?? base.previewNoContent;
 
   @override
+  String get previewNoPlugin =>
+      overlay.text('previewNoPlugin') ?? base.previewNoPlugin;
+
+  @override
+  String get previewBeingSetUp =>
+      overlay.text('previewBeingSetUp') ?? base.previewBeingSetUp;
+
+  @override
   String previewApiBlocked(String origin) =>
       overlay.format('previewApiBlocked', {'origin': origin}) ??
       base.previewApiBlocked(origin);

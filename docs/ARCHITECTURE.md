@@ -3091,8 +3091,14 @@ build. The preview is the Flutter app from `mobile/`, built for the web.
     while the app isn't active yet (never while the account is suspended)
     and serves the Pages & look draft when the link asks for it;
   - WordPress answers cross-origin REST requests itself; the plugin adds
-    the headers the app sends and reads (`Rest\Cors`). A pending WordPress
-    app shows "paused" until its plugin is connected and its plan is active;
+    the headers the app sends and reads (`Rest\Cors`). The preview reads a
+    WordPress site only once the Website step chose it and the plugin there
+    has activated the app's license (`wordpressPluginConnected`): a
+    website's address given at sign-up or read by "Start from your website"
+    is no content source, and a site without the plugin can't be reached
+    from the browser. Until then `preview.waiting_for` (website, plugin or
+    setup) has the preview say what to do instead of "We couldn't connect".
+    A pending WordPress app shows "paused" until its plan is active;
   - a client's own API must allow `https://yallapp.com.tr` (CORS); the
     preview says so when the browser can't reach it, and "Connect your own
     API" shows how. On the web the app never sends `If-None-Match` (the

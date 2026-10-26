@@ -2264,6 +2264,14 @@ class AppLocalizationsTr extends AppLocalizations {
       'Kurulumun Web sitesi adımında uygulamanızın içeriğinin nereden geleceğini seçin, sonra önizlemeyi yeniden yükleyin.';
 
   @override
+  String get previewNoPlugin =>
+      'WordPress sitenize Yallapp eklentisini kurun ve lisans anahtarınızı içinde etkinleştirin (WordPress menüsünde Yallapp), sonra önizlemeyi yeniden yükleyin.';
+
+  @override
+  String get previewBeingSetUp =>
+      'Ekibimiz WordPress sitenizi kuruyor. Hazır olduğunda önizleme uygulamanızın içeriğini gösterir.';
+
+  @override
   String previewApiBlocked(String origin) {
     return 'Önizleme uygulamanızın içeriğine ulaşamadı. Siteniz veya API\'niz başka adreslerden gelen istekleri engelliyorsa $origin adresine izin verin. Yallapp belgelerindeki Kendi API\'nizi bağlayın rehberi nasıl yapılacağını gösterir.';
   }

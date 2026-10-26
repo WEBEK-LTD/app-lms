@@ -598,6 +598,8 @@
   "previewInvalid": "Bu önizleme bağlantısı geçerli değil. Önizlemeyi Yallapp panelinizden açın.",
   "previewUnreachable": "Önizleme yüklenemedi. Bağlantınızı kontrol edip tekrar deneyin.",
   "previewNoContent": "Kurulumun Web sitesi adımında uygulamanızın içeriğinin nereden geleceğini seçin, sonra önizlemeyi yeniden yükleyin.",
+  "previewNoPlugin": "WordPress sitenize Yallapp eklentisini kurun ve lisans anahtarınızı içinde etkinleştirin (WordPress menüsünde Yallapp), sonra önizlemeyi yeniden yükleyin.",
+  "previewBeingSetUp": "Ekibimiz WordPress sitenizi kuruyor. Hazır olduğunda önizleme uygulamanızın içeriğini gösterir.",
   "previewApiBlocked": "Önizleme uygulamanızın içeriğine ulaşamadı. Siteniz veya API'niz başka adreslerden gelen istekleri engelliyorsa {origin} adresine izin verin. Yallapp belgelerindeki Kendi API'nizi bağlayın rehberi nasıl yapılacağını gösterir.",
   "wordingBusiness": "İşletme",
   "wordingCustomer": "Müşteri",

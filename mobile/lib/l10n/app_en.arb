@@ -1407,6 +1407,8 @@
   "previewInvalid": "This preview link isn't valid. Open the preview from your Yallapp dashboard.",
   "previewUnreachable": "The preview couldn't load. Check your connection and try again.",
   "previewNoContent": "Choose where your app's content comes from on the Website step of your setup, then reload the preview.",
+  "previewNoPlugin": "Install the Yallapp plugin on your WordPress site and activate your license key in it (Yallapp in the WordPress menu), then reload the preview.",
+  "previewBeingSetUp": "Our team is setting up your WordPress site. The preview shows your app's content once it's ready.",
   "previewApiBlocked": "The preview couldn't reach your app's content. If your site or API blocks requests from other addresses, allow {origin}. The guide Connect your own API in the Yallapp docs shows how.",
   "@previewApiBlocked": {
     "placeholders": {

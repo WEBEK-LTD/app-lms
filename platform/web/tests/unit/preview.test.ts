@@ -12,7 +12,7 @@ import { appUrl, signingSecret } from "@/lib/env";
 import { LogSender } from "@/lib/hosted/otp-sender";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
 import { loadLayout, publishLayout, saveDraft } from "@/lib/pages/layout";
-import { previewConfigFor, previewContentSource } from "@/lib/preview/config";
+import { previewConfigFor, previewContentSource, previewWaitingFor } from "@/lib/preview/config";
 import { corsHeaders, previewOrigins } from "@/lib/preview/cors";
 import { previewConfigResult } from "@/lib/preview/service";
 import { createPreviewToken, PREVIEW_TTL_SECONDS, previewAppPath, previewKey, verifyPreviewToken } from "@/lib/preview/token";
@@ -102,10 +102,10 @@ describe("preview config", () => {
     const own: App = { ...newApp(clientId, "https://own.test", NOW, "booking"), backend: "custom_api", apiBaseUrl: "https://api.own.test/v1" };
     for (const app of [wordpress, hosted, own]) await store.createApp(app);
 
-    const wp = previewConfigFor(wordpress, { appId: wordpress.id, draft: true, expiresAt: NOW }, { token: "t", platformUrl: "https://yallapp.test", assetUrl: (id) => id, plan: null });
+    const wp = previewConfigFor(wordpress, { appId: wordpress.id, draft: true, expiresAt: NOW }, { token: "t", platformUrl: "https://yallapp.test", assetUrl: (id) => id, plan: null, pluginConnected: true });
     expect(wp.config).toMatchObject({ site_url: "https://academy.test", app_name: "Ada Academy", short_name: "Ada" });
     expect(wp.config.api_base_url).toBeUndefined();
-    expect(wp.preview).toMatchObject({ content_source: "wordpress", draft: false, api_token: null });
+    expect(wp.preview).toMatchObject({ content_source: "wordpress", waiting_for: null, draft: false, api_token: null });
 
     const token = createPreviewToken({ appId: hosted.id, draft: true }, KEY, NOW);
     const result = await previewConfigResult(store, token, NOW, options());
@@ -114,9 +114,37 @@ describe("preview config", () => {
     expect(result.body.config.api_base_url).toBe(`https://yallapp.test/api/app/${hosted.id}`);
     expect(result.body.preview).toMatchObject({ content_source: "hosted", draft: true, api_token: token });
 
-    expect(previewContentSource(own)).toBe("custom_api");
+    expect(previewContentSource({ ...own, websiteDoneAt: NOW }, false)).toBe("custom_api");
     // A WordPress site our team is still setting up has no content yet.
-    expect(previewContentSource({ ...wordpress, backend: "setup_requested" })).toBe("none");
+    expect(previewContentSource({ ...wordpress, backend: "setup_requested" }, false)).toBe("none");
+  });
+
+  it("reads a website only once the Website step chose it and the plugin there is connected", async () => {
+    const preview = async (app: App) => {
+      const result = await previewConfigResult(store, createPreviewToken({ appId: app.id, draft: false }, KEY, NOW), NOW, options());
+      expect(result.status).toBe(200);
+      return result.status === 200 ? result.body.preview : null;
+    };
+    // "Start from your website" (or the sign-up's website): an address, but no source chosen yet.
+    const scanned: App = { ...newApp(clientId, "https://shop-on-wix.test", NOW, "store"), appName: "Wix Shop" };
+    await store.createApp(scanned);
+    expect(await preview(scanned)).toMatchObject({ content_source: "none", waiting_for: "website" });
+    // The Website step chose WordPress: the preview waits for the plugin to activate the app's license there.
+    const chosen: App = { ...scanned, websiteDoneAt: NOW };
+    await store.updateApp(scanned.id, { websiteDoneAt: NOW }, NOW);
+    expect(await preview(chosen)).toMatchObject({ content_source: "none", waiting_for: "plugin" });
+    // Once it has, the preview reads the site.
+    const license = (await store.getLicenseForApp(clientId, scanned.id))!;
+    const activation = { licenseId: license.id, siteUrlRaw: "https://www.shop-on-wix.test/", pluginVersion: "0.4.18", wpVersion: "6.6", lms: "", store: "woocommerce", bookings: "", activatedAt: NOW, lastCheckedAt: NOW };
+    // The plugin on another site doesn't count.
+    await store.claimActivation({ ...activation, siteUrl: "other.test" });
+    expect(await preview(chosen)).toMatchObject({ content_source: "none", waiting_for: "plugin" });
+    await store.deleteActivation(license.id);
+    await store.claimActivation({ ...activation, siteUrl: "shop-on-wix.test" });
+    expect(await preview(chosen)).toMatchObject({ content_source: "wordpress", waiting_for: null });
+    expect(previewWaitingFor({ ...chosen, backend: "setup_requested" }, false)).toBe("setup");
+    expect(previewWaitingFor({ ...chosen, backend: "hosted" }, false)).toBeNull();
+    expect(previewWaitingFor({ ...chosen, appType: "real_estate" }, false)).toBeNull();
   });
 
   it("refuses expired, broken and other apps' tokens", async () => {

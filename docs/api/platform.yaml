@@ -1260,14 +1260,18 @@ components:
                 logo_url: { type: string, format: uri }
         preview:
           type: object
-          required: [app_id, expires_at, content_source, draft, api_token, placeholders, missing_steps]
+          required: [app_id, expires_at, content_source, waiting_for, draft, api_token, placeholders, missing_steps]
           properties:
             app_id: { type: string, format: uuid }
             expires_at: { type: string, format: date-time, description: When the token stops working. }
             content_source:
               type: string
               enum: [wordpress, custom_api, hosted, none]
-              description: Where the app's content comes from; `none` until the Website step chose it. The app then shows how to connect it.
+              description: Where the app's content comes from; `none` until the Website step chose it (a website's address from sign-up or "Start from your website" isn't a source), and for a WordPress site until the Yallapp plugin there has activated the app's license. The app then shows how to connect it.
+            waiting_for:
+              type: [string, 'null']
+              enum: [website, plugin, setup, null]
+              description: What the preview waits for while `content_source` is `none`, so it says what to do (choose the source on the Website step, install the plugin and activate the license on the site, or our team's setup of the site); null otherwise.
             draft: { type: boolean, description: "The preview shows the Pages & look draft (hosted API only); otherwise the published pages." }
             api_token:
               type: [string, 'null']
