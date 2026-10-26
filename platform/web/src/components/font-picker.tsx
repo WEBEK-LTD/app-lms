@@ -234,7 +234,12 @@ export function FontPicker({
                 onClick={() => choose(font)}
               >
                 <FontName font={font} />
-                {labels.mine && isMine(font.family) ? <span className="ms-2 text-xs text-muted">{labels.mine}</span> : null}
+                {labels.mine && isMine(font.family) ? (
+                  <>
+                    {" "}
+                    <span className="ms-1 text-xs text-muted">{labels.mine}</span>
+                  </>
+                ) : null}
               </li>
             ))}
           </ul>
