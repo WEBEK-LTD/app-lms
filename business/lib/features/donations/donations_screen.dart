@@ -99,7 +99,6 @@ class _Campaigns extends StatelessWidget {
                         minHeight: 8,
                         borderRadius: BorderRadius.circular(8),
                         semanticsLabel: l10n.ofGoal(c.goal!.formatted),
-                        semanticsValue: context.percent(c.progress!),
                       ),
                     ],
                   ],

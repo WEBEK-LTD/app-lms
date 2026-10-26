@@ -176,13 +176,17 @@ missing.
   The Play icon and feature graphic are `brand/stores`'s.
 - **Screenshots**: drawn from the demo's sample apps by
   `test/store/store_screenshots_test.dart` with the app's fonts and icons:
-  Today, Orders, the door scanner, Send notification and Stats, in English,
-  Arabic and Turkish. (74) Each screen is framed in a phone or tablet under a
+  Today, Orders, the door scanner, Send notification, Stats, Chat,
+  Appointments, Menu, Kitchen mode and Media (ten, the App Store's most), in
+  English, Arabic and Turkish. (74) Each screen is framed in a phone or tablet under a
   short headline (`test/store/poster.dart`, the captions in the three
   languages), alternating Midnight and Ivory. Sizes: Google Play phones
   (1080 × 1920) and tablets (1600 × 2560, used for 7" and 10"), the 6.9"
-  iPhone (1290 × 2796), the 6.5" iPhone (1284 × 2778) and the 13" iPad
-  (2064 × 2752; the app keeps iPad for Kitchen mode on a tablet). `flutter
+  iPhone (1290 × 2796), the 6.5" iPhone (1284 × 2778), the 6.1"–6.3" iPhone
+  (1206 × 2622), App Store Connect's 2007 × 2853 size and the 13" iPad
+  (2064 × 2752; the app keeps iPad for Kitchen mode on a tablet). The App
+  Store's wide artwork (5244 × 2950, 3840 × 2560, 1920 × 1280 and
+  3840 × 1646) shows the name and a line beside three screens in iPhones. `flutter
   test` lays them out and checks every caption fits; to write the files:
 
   ```sh
@@ -192,8 +196,8 @@ missing.
 ## Store listing ids
 
 - Google Play: `tr.com.yallapp.business`, under Yallapp's developer account.
-- App Store: bundle id `tr.com.yallapp.business`, under Yallapp's team; the
-  App Store Connect app id is added here once the listing exists.
+- App Store: bundle id `tr.com.yallapp.business`, under Yallapp's team; App
+  Store Connect app id `6827042925`.
 - Release signing for Android reads `android/key.properties` (never
   committed; the release workflow writes it from the secrets); without it
   release builds use the debug key and can't be uploaded.

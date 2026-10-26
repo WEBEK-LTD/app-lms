@@ -197,10 +197,7 @@ class _AddLessonScreenState extends ConsumerState<AddLessonScreen> {
                     style: theme.textTheme.bodySmall,
                   ),
                   const SizedBox(height: 4),
-                  LinearProgressIndicator(
-                    value: job.progress,
-                    semanticsValue: context.percent(job.progress),
-                  ),
+                  LinearProgressIndicator(value: job.progress),
                 ],
                 if (_errors['video'] != null ||
                     _errors['video_media_id'] != null)

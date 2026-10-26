@@ -131,7 +131,6 @@ class PlanScreen extends ConsumerWidget {
                           minHeight: 8,
                           borderRadius: BorderRadius.circular(8),
                           semanticsLabel: l10n.storage,
-                          semanticsValue: context.percent(storage.share!),
                         ),
                       ],
                     ],
