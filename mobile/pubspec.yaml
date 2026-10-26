@@ -15,11 +15,11 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  background_downloader: 9.6.3
+  background_downloader: 9.6.4
   cryptography: 2.9.0
   # 77 Voice messages in the chat, played in the app.
-  audioplayers: 6.7.1
-  device_info_plus: 13.2.0
+  audioplayers: 6.8.1
+  device_info_plus: 13.3.0
   # 77 Files (PDF, Word, Excel...) sent in the chat.
   file_picker: 13.1.0
   dio: ^5.11.1
@@ -31,25 +31,25 @@ dependencies:
   go_router: ^17.5.0
   html: ^0.15.7
   # 77 Photos and videos sent in the chat, from the camera or the gallery.
-  image_picker: 1.2.3
+  image_picker: 1.2.4
   # 46 The store's own rating prompt (Google Play In-App Review, SKStoreReviewController).
   in_app_review: 2.0.12
   intl: ^0.20.2
   material_symbols_icons: ^4.2960.0
-  package_info_plus: 10.2.1
+  package_info_plus: 10.2.2
   path_provider: ^2.1.6
   qr_flutter: 4.1.0
   re_highlight: ^0.0.3
   # 77 Voice messages recorded in the chat.
-  record: 7.1.1
-  share_plus: 13.3.0
-  shared_preferences: 2.5.5
-  url_launcher: 6.3.2
-  video_player: 2.14.0
-  web: ^1.1.1
+  record: 7.1.2
+  share_plus: 13.3.1
+  shared_preferences: 2.5.6
+  url_launcher: 6.3.3
+  video_player: 2.14.1
+  web: ^1.1.2
   webview_flutter: ^4.14.1
   webview_flutter_android: 4.14.1
-  webview_flutter_wkwebview: 3.26.1
+  webview_flutter_wkwebview: 3.27.2
 
 dev_dependencies:
   flutter_test:
