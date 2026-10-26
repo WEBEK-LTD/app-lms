@@ -131,7 +131,7 @@ export const AR_MARKETING: MarketingTranslation = {
         },
         {
           title: "صفحة دفع تثق بها أصلًا",
-          text: "يدفع العملاء عبر صفحة الدفع الخاصة بمتجرك: WooCommerce أو Shopify أو ikas أو Ticimax أو IdeaSoft أو Wix أو Salla أو Zid. ومن دون موقع، يدفعون بالبطاقة عبر صفحة آمنة من iyzico أو Kashier أو Fawaterk.",
+          text: "يدفع العملاء عبر صفحة الدفع الخاصة بمتجرك: WooCommerce أو Shopify أو ikas أو Ticimax أو IdeaSoft أو Wix أو Salla أو Zid. ومن دون موقع، يدفعون بالبطاقة عبر صفحة آمنة من iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal.",
         },
         {
           title: "مصمَّم للهدايا والزهور",
@@ -162,7 +162,7 @@ export const AR_MARKETING: MarketingTranslation = {
         "ربط متجرك على Salla",
         "ربط متجرك على Zid",
         "المنتجات والطلبات والشحن",
-        "الدفع بالبطاقة عبر iyzico أو Kashier أو Fawaterk",
+        "الدفع بالبطاقة عبر iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal",
       ],
     },
     restaurant: {
@@ -200,7 +200,7 @@ export const AR_MARKETING: MarketingTranslation = {
         "تصفّح قائمة الطعام حسب القسم",
         "اختيار خيارات الطبق ومشاهدة تغيّر السعر",
         "الطلب للاستلام أو التوصيل، في أقرب وقت أو في وقت لاحق",
-        "الدفع بالبطاقة عبر صفحة آمنة من iyzico أو Kashier أو Fawaterk، على Android وiPhone",
+        "الدفع بالبطاقة عبر صفحة آمنة من iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal، على Android وiPhone",
         "متابعة مراحل الطلب وتلقّي إشعار عند كل مرحلة",
       ],
       forYou: [
@@ -210,7 +210,7 @@ export const AR_MARKETING: MarketingTranslation = {
         "بريد إلكتروني لكل طلب مدفوع",
         "يدفع العملاء مباشرةً إلى حساب الدفع الخاص بك",
       ],
-      docs: ["المطاعم والمقاهي: قائمة الطعام والاستلام والتوصيل والمطبخ", "الدفع بالبطاقة عبر iyzico أو Kashier أو Fawaterk"],
+      docs: ["المطاعم والمقاهي: قائمة الطعام والاستلام والتوصيل والمطبخ", "الدفع بالبطاقة عبر iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal"],
     },
     bookings: {
       name: "الحجوزات",
@@ -350,9 +350,9 @@ export const AR_MARKETING: MarketingTranslation = {
         "جدولك الأسبوعي، مع قائمة الحاضرين في كل حصة",
         "باقات الاشتراك، وتحديد ما إذا كانت الحصص تتطلب اشتراكًا",
         "من يملك أي اشتراك، وإضافة حصص أو اشتراك مدفوع في مكتب الاستقبال",
-        "الدفع بالبطاقة عبر iyzico أو Kashier أو Fawaterk، إلى حسابك الخاص",
+        "الدفع بالبطاقة عبر iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal، إلى حسابك الخاص",
       ],
-      docs: ["الصالات الرياضية والاستوديوهات: الجدول والحصص والاشتراكات", "الخدمات والفريق والمواعيد", "الدفع بالبطاقة عبر iyzico أو Kashier أو Fawaterk"],
+      docs: ["الصالات الرياضية والاستوديوهات: الجدول والحصص والاشتراكات", "الخدمات والفريق والمواعيد", "الدفع بالبطاقة عبر iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal"],
     },
     services: {
       name: "الخدمات والشركات",
@@ -528,7 +528,7 @@ export const AR_MARKETING: MarketingTranslation = {
         "فعاليات بالصور ومكان أو رابط إلكتروني، وأنواع تذاكر بأسعارها وحدودها الخاصة",
         "المبيعات والحضور لكل فعالية، مع التصدير بصيغة CSV",
         "تحقّق من التذاكر عند الباب بهاتف، دون تثبيت أي تطبيق",
-        "الدفع بالبطاقة إلى حسابك الخاص في iyzico أو Kashier أو Fawaterk",
+        "الدفع بالبطاقة إلى حسابك الخاص في iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal",
       ],
       docs: ["الفعاليات والتذاكر"],
     },
@@ -541,7 +541,7 @@ export const AR_MARKETING: MarketingTranslation = {
       demoApp: "تطبيق الجمعية الخيرية التجريبي",
       summary: "حملات تُظهر تقدّمها، وتبرعات وإيصالات.",
       audience: "للجمعيات الخيرية وبنوك الطعام والمؤسسات والمساجد والمجموعات المجتمعية.",
-      sources: ["من دون موقع: حملات تكتبها في لوحة تحكم Yallapp", "تبرعات تُدفع إلى حسابك الخاص في iyzico أو Kashier أو Fawaterk"],
+      sources: ["من دون موقع: حملات تكتبها في لوحة تحكم Yallapp", "تبرعات تُدفع إلى حسابك الخاص في iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal"],
       highlights: [
         {
           title: "حملات يتابعها الناس",
@@ -549,7 +549,7 @@ export const AR_MARKETING: MarketingTranslation = {
         },
         {
           title: "كل تبرع يصل إليك",
-          text: "تُدفع التبرعات عبر صفحة آمنة إلى حسابك الخاص في iyzico أو Kashier أو Fawaterk. ولا يلمس Yallapp المال أبدًا.",
+          text: "تُدفع التبرعات عبر صفحة آمنة إلى حسابك الخاص في iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal. ولا يلمس Yallapp المال أبدًا.",
         },
         {
           title: "إيصالات بلا أوراق",
@@ -620,7 +620,7 @@ export const AR_MARKETING: MarketingTranslation = {
         "Your own API": { name: "واجهتك البرمجية الخاصة", text: "يقدّم موقعك واجهة Yallapp البرمجية. ويخبرك فحص مباشر في خطوة «الموقع الإلكتروني» بما ينقصك." },
         "Products in Yallapp": {
           name: "المنتجات في Yallapp",
-          text: "المنتجات والأقسام والمخزون والشحن، مع الدفع بالبطاقة عبر iyzico أو Kashier أو Fawaterk والطلبات في لوحة التحكم.",
+          text: "المنتجات والأقسام والمخزون والشحن، مع الدفع بالبطاقة عبر iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal والطلبات في لوحة التحكم.",
         },
         "Courses in Yallapp": { name: "الدورات في Yallapp", text: "دورات وأقسام ودروس بالفيديو والنص؛ دورات مجانية ومدفوعة." },
         "Services in Yallapp": {
@@ -632,7 +632,7 @@ export const AR_MARKETING: MarketingTranslation = {
         "Events in Yallapp": { name: "الفعاليات في Yallapp", text: "فعاليات بأنواع التذاكر والتسجيل المجاني والتذاكر المدفوعة والحضور وتسجيل الدخول عند الباب." },
         "Campaigns in Yallapp": {
           name: "الحملات في Yallapp",
-          text: "حملات بهدف وتقدّم، وتبرعات إلى حسابك الخاص في iyzico أو Kashier أو Fawaterk، وإيصالات وقائمة بالمتبرعين.",
+          text: "حملات بهدف وتقدّم، وتبرعات إلى حسابك الخاص في iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal، وإيصالات وقائمة بالمتبرعين.",
         },
       },
     },
@@ -746,10 +746,10 @@ export const AR_MARKETING: MarketingTranslation = {
       text: "بِع عبر صفحة الدفع الخاصة بك، أو بالبطاقة من دون موقع. وتلتزم أزرار الشراء تلقائيًا بقواعد Apple وGoogle.",
       features: [
         {
-          title: "الدفع بالبطاقة عبر iyzico أو Kashier أو Fawaterk",
-          text: "تستقبل المتاجر والأكاديميات التي ليس لها موقع المدفوعات بالبطاقة عبر صفحة آمنة من iyzico أو Kashier أو Fawaterk، إلى حساب التاجر الخاص بها.",
+          title: "الدفع بالبطاقة عبر iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal",
+          text: "تستقبل المتاجر والأكاديميات التي ليس لها موقع المدفوعات بالبطاقة عبر صفحة آمنة من iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal، إلى حساب التاجر الخاص بها.",
           details: [
-            "مفاتيحك الخاصة في iyzico أو Kashier أو Fawaterk، مع مفاتيح تجريبية للاختبار",
+            "مفاتيحك الخاصة في iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal، مع مفاتيح تجريبية للاختبار",
             "يدفع العملاء مباشرةً إلى حساب الدفع الخاص بك",
             "الطلبات في لوحة التحكم، مع بريد إلكتروني لكل طلب مدفوع",
             "صفحة ويب قابلة للمشاركة لكل منتج",
@@ -823,7 +823,7 @@ export const AR_MARKETING: MarketingTranslation = {
     {
       topic: "المدفوعات",
       typical: "غالبًا عبر مزوّد الدفع الخاص بالمنصة فقط",
-      yallapp: "صفحة الدفع الخاصة بك، أو الدفع بالبطاقة إلى حسابك الخاص في iyzico أو Kashier أو Fawaterk",
+      yallapp: "صفحة الدفع الخاصة بك، أو الدفع بالبطاقة إلى حسابك الخاص في iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal",
     },
   ],
   steps: [
@@ -868,7 +868,7 @@ export const AR_MARKETING: MarketingTranslation = {
     "عضوية في Apple Developer Program لنظام iOS (رسوم سنوية تُدفع إلى Apple)",
     `حسابات بائع على ${MORE_ANDROID}، إن أردت وجود تطبيقك هناك أيضًا (مجانًا)`,
     "مشروع Firebase مجاني، للإشعارات الفورية",
-    "حساب تاجر في iyzico أو Kashier أو Fawaterk، لاستقبال المدفوعات بالبطاقة من دون موقع (اختياري)",
+    "حساب تاجر في iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal، لاستقبال المدفوعات بالبطاقة من دون موقع (اختياري)",
   ],
   faq: [
     {
@@ -996,11 +996,11 @@ export const AR_MARKETING: MarketingTranslation = {
       items: [
         {
           q: "كيف يدفع العملاء؟",
-          a: "عبر صفحة الدفع الخاصة بك إن كان متجرك يعمل على WooCommerce أو Shopify أو ikas أو Ticimax أو IdeaSoft أو Wix أو Salla أو Zid. ومن دون موقع، يدفعون بالبطاقة عبر صفحة آمنة من iyzico أو Kashier أو Fawaterk، إلى حساب التاجر الخاص بك.",
+          a: "عبر صفحة الدفع الخاصة بك إن كان متجرك يعمل على WooCommerce أو Shopify أو ikas أو Ticimax أو IdeaSoft أو Wix أو Salla أو Zid. ومن دون موقع، يدفعون بالبطاقة عبر صفحة آمنة من iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal، إلى حساب التاجر الخاص بك.",
         },
         {
           q: "ليس لديّ حساب دفع. هل يمكنني البيع رغم ذلك؟",
-          a: "تحتاج إلى حساب: يدفع العملاء دائمًا إلى حسابك الخاص، لا إلى حساب Yallapp أبدًا. افتح حسابًا لدى iyzico (تركيا) أو Kashier أو Fawaterk (مصر) والصق مفاتيحه في صفحة «المنتجات». وإلى ذلك الحين، يرى العملاء منتجاتك في التطبيق لكن لا يستطيعون الدفع.",
+          a: "تحتاج إلى حساب: يدفع العملاء دائمًا إلى حسابك الخاص، لا إلى حساب Yallapp أبدًا. افتح حسابًا لدى iyzico (تركيا) أو Kashier أو Fawaterk (مصر) أو Stripe أو PayPal والصق مفاتيحه في صفحة «المنتجات». وإلى ذلك الحين، يرى العملاء منتجاتك في التطبيق لكن لا يستطيعون الدفع.",
         },
         {
           q: "هل يأخذ Yallapp نسبة من مبيعاتي؟",

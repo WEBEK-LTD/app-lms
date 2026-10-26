@@ -682,6 +682,23 @@ mobile/
   `app:payment:<app id>`). Refunds: see below.
   Test runs point `IYZICO_API_URL`, `KASHIER_API_URL` and
   `FAWATERK_API_URL` at fake servers (refused on Netlify).
+  96 Stripe and PayPal (`stripe.ts`, `paypal.ts`) are for a client's own
+  keys only (Yallapp's plans stay on iyzico, Kashier and Fawaterk:
+  `YallappProviderId`). Stripe: the secret key (or a restricted key) as a
+  Bearer token; test or live by its prefix; `POST /v1/checkout/sessions`
+  with one line for the total, `client_reference_id` our reference and
+  `expires_at` the hold (31 minutes to 23 hours), read back with
+  `GET /v1/checkout/sessions/{id}` (paid when `payment_status` is paid and
+  `status` complete); refunds by `POST /v1/refunds` on the payment intent.
+  PayPal: Orders v2 with an OAuth token from the REST app's client ID and
+  secret; `custom_id` our reference; the customer approves on PayPal and the
+  read-back captures the order (`PayPal-Request-Id` keeps it to one capture)
+  before checking the capture; refunds by
+  `POST /v2/payments/captures/{id}/refund`. Neither sends a webhook here:
+  the customer's return and the pending-payments job read the payment back.
+  Their currencies: Stripe TRY, USD, EUR, EGP, SAR, AED; PayPal USD, EUR.
+  Test runs point `STRIPE_API_URL` and `PAYPAL_API_URL` at fakes (refused on
+  Netlify).
 
 - Refunds from the dashboard (Phase 47, `lib/payments/refund.ts`,
   `lib/refunds/service.ts`, migration `0039_refunds_time_zone`): the owner

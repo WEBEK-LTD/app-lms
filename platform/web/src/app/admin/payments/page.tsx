@@ -57,7 +57,7 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/admin/p
       <div className="flex flex-col gap-1.5">
         <h1 className="m-0 text-[28px] font-extrabold">Payments</h1>
         <span className="text-[15px] text-muted">
-          Plans paid by card into Yallapp&apos;s account (iyzico, Kashier or Fawaterk), each for one app. A paid one activates that app or extends its license at once.
+          Plans paid by card into Yallapp&apos;s account (iyzico, Kashier, Fawaterk, Stripe or PayPal), each for one app. A paid one activates that app or extends its license at once.
         </span>
       </div>
       <section aria-label="Card payments" className="overflow-x-auto rounded-2xl border border-line bg-white">

@@ -27,6 +27,7 @@ import type { App, CatalogCurrency, CatalogProductInput, CatalogTax } from "@/li
 import { encryptionKey, paymentApiUrls } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { validKashierMerchantId } from "@/lib/payments/kashier";
+import { stripeTestKey, validStripeKey } from "@/lib/payments/stripe";
 import { checkAccount, isPaymentProvider, PROVIDER_NAME, type PaymentAccount } from "@/lib/payments/provider";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { serviceAccountOf } from "@/lib/hosted/notify";
@@ -309,7 +310,8 @@ export async function saveFulfilmentAction(_: FormState, formData: FormData): Pr
 /**
  * The owner's own merchant account: 37 iyzico (API key, secret key),
  * Kashier (merchant ID, Payment API key, secret key) or Fawaterk (API key),
- * each with its test switch. The keys are checked with the provider by a
+ * each with its test switch; 96.1 Stripe (secret key, test or live by its
+ * prefix) or PayPal (client ID and secret, with the sandbox switch). The keys are checked with the provider by a
  * call that changes nothing, then kept encrypted.
  */
 export async function savePaymentKeysAction(_: FormState, formData: FormData): Promise<FormState> {
@@ -317,7 +319,7 @@ export async function savePaymentKeysAction(_: FormState, formData: FormData): P
   const { app } = context;
   const provider = str(formData, "provider") || "iyzico";
   const sandbox = formData.get("sandbox") === "on";
-  const values = { provider, merchantId: str(formData, "merchantId"), sandbox: sandbox ? "on" : "" };
+  const values = { provider, merchantId: str(formData, "merchantId"), clientId: str(formData, "clientId"), sandbox: sandbox ? "on" : "" };
   if (!isPaymentProvider(provider)) return { errors: { provider: "Choose your payment provider." }, values };
   const read = readOwnKeys(provider, formData, sandbox);
   if (!read.ok) return { errors: read.errors, values };
@@ -325,13 +327,13 @@ export async function savePaymentKeysAction(_: FormState, formData: FormData): P
   const accepted = await checkAccount(accountOf(read.input), { urls: paymentApiUrls() });
   if (accepted === false) {
     return {
-      errors: { apiKey: `${name} didn't accept these keys. Check them, and that they're your ${sandbox ? "test" : "live"} keys.` },
+      errors: { [provider === "stripe" ? "secretKey" : provider === "paypal" ? "clientId" : "apiKey"]: `${name} didn't accept these keys. Check them, and that they're your ${read.input.sandbox ? "test" : "live"} keys.` },
       values,
     };
   }
   const now = new Date();
   await (await getStore()).updateApp(app.id, { catalogSettings: { ...catalogSettings(app), payment: encryptOwnPayment(app.id, read.input, encryptionKey()) } }, now);
-  await recordStaffChange(context, `Saved the shop's own ${name} keys (${sandbox ? "test" : "live"})`);
+  await recordStaffChange(context, `Saved the shop's own ${name} keys (${read.input.sandbox ? "test" : "live"})`);
   refresh();
   return {
     ok: true,
@@ -351,6 +353,20 @@ function readOwnKeys(
   };
   const errors: Record<string, string> = {};
   const name = PROVIDER_NAME[provider];
+  // 96.1 Stripe: the secret key alone, test or live by its own prefix.
+  if (provider === "stripe") {
+    const secretKey = key("secretKey");
+    if (!secretKey || !validStripeKey(secretKey)) return { ok: false, errors: { secretKey: "Paste your Stripe secret key: it starts with sk_live_ or sk_test_." } };
+    return { ok: true, input: { provider, secretKey, sandbox: stripeTestKey(secretKey) } };
+  }
+  // 96.1 PayPal: the REST app's client ID and secret, sandbox or live.
+  if (provider === "paypal") {
+    const clientId = key("clientId");
+    const secret = key("secretKey");
+    if (!clientId) errors.clientId = "Paste your PayPal client ID.";
+    if (!secret) errors.secretKey = "Paste your PayPal secret.";
+    return clientId && secret ? { ok: true, input: { provider, clientId, secret, sandbox } } : { ok: false, errors };
+  }
   const apiKey = key("apiKey");
   if (!apiKey) errors.apiKey = provider === "kashier" ? "Paste your Kashier Payment API key." : `Paste your ${name} API key.`;
   if (provider === "fawaterk") return apiKey ? { ok: true, input: { provider, apiKey, sandbox } } : { ok: false, errors };
@@ -363,6 +379,8 @@ function readOwnKeys(
 }
 
 function accountOf(input: OwnPaymentInput): PaymentAccount {
+  if (input.provider === "stripe") return { provider: "stripe", keys: { secretKey: input.secretKey, sandbox: input.sandbox } };
+  if (input.provider === "paypal") return { provider: "paypal", keys: { clientId: input.clientId, secret: input.secret, sandbox: input.sandbox } };
   if (input.provider === "kashier") return { provider: "kashier", keys: { merchantId: input.merchantId, apiKey: input.apiKey, secretKey: input.secretKey, sandbox: input.sandbox } };
   if (input.provider === "fawaterk") return { provider: "fawaterk", keys: { apiKey: input.apiKey, sandbox: input.sandbox } };
   return { provider: "iyzico", keys: { apiKey: input.apiKey, secretKey: input.secretKey, sandbox: input.sandbox } };

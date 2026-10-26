@@ -3,7 +3,7 @@ import type { DataStore } from "../data/store";
 import type { PlatformSetting, PlatformSettingKey, PlatformSettingValues, YallappBillingSetting } from "../data/types";
 import { otpSenderConfig, smtpConfig, type OtpSenderConfig, type SmtpConfig } from "../env";
 import type { IyzicoKeys } from "../payments/iyzico";
-import { isPaymentProvider, type PaymentAccount, type PaymentProviderId } from "../payments/provider";
+import { isYallappProvider, type PaymentAccount, type PaymentProviderId } from "../payments/provider";
 import { plansWith, type Plan, type PlanInfo } from "../plans";
 
 /**
@@ -126,6 +126,8 @@ export async function yallappAccountFor(store: DataStore, provider: PaymentProvi
       },
     };
   }
+  // 96.1 Stripe and PayPal are only for clients' own accounts.
+  if (provider !== "fawaterk") return null;
   const saved = await platformSetting(store, "fawaterk", { fresh: true });
   if (!saved) return null;
   return { provider, keys: { apiKey: decryptSetting("fawaterk", saved.value.apiKeyEncrypted, encryptionKey), sandbox: saved.value.sandbox } };
@@ -136,7 +138,7 @@ export async function yallappBilling(store: DataStore, options: { fresh?: boolea
   const saved = (await platformSetting(store, "billing", options))?.value;
   const rate = saved?.egpPerUsd;
   return {
-    planProvider: saved && isPaymentProvider(saved.planProvider) ? saved.planProvider : "kashier",
+    planProvider: saved && isYallappProvider(saved.planProvider) ? saved.planProvider : "kashier",
     egpPerUsd: typeof rate === "number" && Number.isFinite(rate) && rate > 0 ? rate : null,
   };
 }

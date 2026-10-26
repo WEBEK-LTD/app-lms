@@ -7,7 +7,8 @@ import { PAYMENT_KINDS, type PaymentKind } from "./routes";
 import { settleDonationPayment, settleOrderPayment, settlePlanPayment, type Settled, type Trigger } from "./settle";
 
 /**
- * 37 /api/pay/kashier/<kind>/<token> and /api/pay/fawaterk/<kind>/<token>.
+ * 37 /api/pay/kashier/<kind>/<token> and /api/pay/fawaterk/<kind>/<token>;
+ * 96.1 /api/pay/stripe/… and /api/pay/paypal/… (GET only).
  *
  * GET: the provider sends the customer back. Nothing in the address is
  * trusted (no status, no amount): the payment is read back from the
@@ -20,6 +21,8 @@ import { settleDonationPayment, settleOrderPayment, settlePlanPayment, type Sett
  */
 
 type Provider = "kashier" | "fawaterk";
+/** 96.1 They only send the customer back (no webhook). */
+type ReturnOnly = Provider | "stripe" | "paypal";
 
 function settle(kind: PaymentKind, token: string, trigger: Trigger): Promise<Settled> {
   if (kind === "plan") return settlePlanPayment(token, trigger);
@@ -30,7 +33,7 @@ function settle(kind: PaymentKind, token: string, trigger: Trigger): Promise<Set
 const isKind = (value: string): value is PaymentKind => (PAYMENT_KINDS as string[]).includes(value);
 
 /** The customer comes back from the provider's page. */
-export async function providerReturn(provider: Provider, kind: string, token: string): Promise<Response> {
+export async function providerReturn(provider: ReturnOnly, kind: string, token: string): Promise<Response> {
   if (!isKind(kind)) return new Response("Not found", { status: 404 });
   const settled = await settle(kind, token, { provider });
   if (kind === "plan" && settled.paidApp) await chooseApp(settled.paidApp);

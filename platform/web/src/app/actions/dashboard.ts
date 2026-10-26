@@ -264,7 +264,7 @@ function ownContentSetup(kind: OwnContentKind, app: App): AppPatch {
     case "catalog":
     // 28 Paid tickets use the shop's card payment settings, like paid courses.
     case "events":
-    // 29 A charity's donations are paid into its own account (iyzico, Kashier or Fawaterk), kept with the shop's payment settings.
+    // 29 A charity's donations are paid into its own account (iyzico, Kashier, Fawaterk, Stripe or PayPal), kept with the shop's payment settings.
     case "campaigns":
       return { connector: { kind }, catalogSettings: app.catalogSettings ?? DEFAULT_CATALOG_SETTINGS };
     case "listings":

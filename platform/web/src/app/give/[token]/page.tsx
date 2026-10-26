@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
  * 29 The donation page a Charity & donations app opens: in the system
  * browser on iPhone (App Store guideline 3.2.2), inside the app on Android.
  * The donor gives their name and email for the receipt, then pays on
- * the provider's page (37 iyzico, Kashier or Fawaterk) into the charity's own account.
+ * the provider's page (37 iyzico, Kashier, Fawaterk, Stripe or PayPal) into the charity's own account.
  */
 export default async function GivePage({ params, searchParams }: { params: Promise<{ token: string }>; searchParams: Promise<{ payment?: string }> }) {
   const { token } = await params;
@@ -55,7 +55,7 @@ export default async function GivePage({ params, searchParams }: { params: Promi
           <Icon name="info" size={20} className="mt-0.5" />
           <span>
             <b>Demo.</b> This is a demo app: no card is asked for and nothing is charged. In your own app, supporters pay here by card, into your
-            own account with iyzico, Kashier or Fawaterk.
+            own account with iyzico, Kashier, Fawaterk, Stripe or PayPal.
           </span>
         </p>
       ) : null}

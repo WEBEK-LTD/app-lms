@@ -90,7 +90,7 @@ export const TR_SITE: SiteContentTranslation = {
   "solution-charity": {
     eyebrow: "Yardım ve bağış uygulamaları",
     title: "Kampanyalarınız, bağışa bir dokunuş uzaklıkta",
-    intro: "Hikâyesi ve ilerlemesiyle kampanyalar, kendi iyzico, Kashier veya Fawaterk hesabınıza ödenen bağışlar ve her bağışçıya bir makbuz; adınızı taşıyan bir uygulamada.",
+    intro: "Hikâyesi ve ilerlemesiyle kampanyalar, kendi iyzico, Kashier, Fawaterk, Stripe veya PayPal hesabınıza ödenen bağışlar ve her bağışçıya bir makbuz; adınızı taşıyan bir uygulamada.",
   },
   features: {
     eyebrow: "Özellikler",

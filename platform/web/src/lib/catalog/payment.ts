@@ -44,7 +44,7 @@ export function readCustomer(
 interface PaymentDeps {
   store: DataStore;
   app: App;
-  /** The shop's own account (37 iyzico, Kashier or Fawaterk); 72 for an old marketplace order, the account it started with. */
+  /** The shop's own account (37 iyzico, Kashier, Fawaterk, Stripe or PayPal); 72 for an old marketplace order, the account it started with. */
   account: CheckoutAccount;
   fetcher?: typeof fetch;
   /** The providers' addresses in tests. */

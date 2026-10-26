@@ -108,7 +108,7 @@ Takvimli etkinlik listeleri, ücretsiz kayıtlar ve kapıda kontrol edilen QR ko
 
 ## Yardım ve bağış
 
-Yardım kuruluşları, gıda bankaları, vakıflar ve topluluk grupları için hikâyesi, hedefi ve ilerleme çubuğu olan kampanyalar. Destekçiler bir tutar seçer ve güvenli bağış sayfanızda kendi iyzico, Kashier veya Fawaterk hesabınıza bağış yapar; e-postayla makbuz alır. Kampanyalar Yallapp panelinden yönetilir; bu yüzden web sitesine ihtiyacınız yoktur. iPhone'da bağış sayfası, Apple'ın gerektirdiği gibi tarayıcıda açılır. [Yardım ve bağış uygulamaları](/docs/donations) rehberine ve [Yardım ve bağış çözümüne](/solutions/charity) bakın.
+Yardım kuruluşları, gıda bankaları, vakıflar ve topluluk grupları için hikâyesi, hedefi ve ilerleme çubuğu olan kampanyalar. Destekçiler bir tutar seçer ve güvenli bağış sayfanızda kendi iyzico, Kashier, Fawaterk, Stripe veya PayPal hesabınıza bağış yapar; e-postayla makbuz alır. Kampanyalar Yallapp panelinden yönetilir; bu yüzden web sitesine ihtiyacınız yoktur. iPhone'da bağış sayfası, Apple'ın gerektirdiği gibi tarayıcıda açılır. [Yardım ve bağış uygulamaları](/docs/donations) rehberine ve [Yardım ve bağış çözümüne](/solutions/charity) bakın.
 
 ## Uygulama türünü sonradan değiştirmek
 

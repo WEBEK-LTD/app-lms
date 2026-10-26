@@ -7,7 +7,7 @@ import { articleBody, excerptOf, plainText } from "../news/html";
  * 29 Charity & donations apps: campaigns as the app reads them (tag
  * Donations in docs/api/openapi.yaml) and the rules of a donation. The
  * donation is paid on our donation page (/give/<token>) into the charity's
- * own account (37 iyzico, Kashier or Fawaterk); it counts towards its campaign only once the provider
+ * own account (37 iyzico, Kashier, Fawaterk, Stripe or PayPal); it counts towards its campaign only once the provider
  * confirms it (lib/donations/payment.ts).
  */
 
@@ -74,7 +74,7 @@ export function receiptUrl(platformUrl: string, code: string): string {
   return `${platformUrl.replace(/\/+$/, "")}/receipts/${code}`;
 }
 
-/** Whether the app's donation page can take a card payment: the charity's own keys (37 iyzico, Kashier or Fawaterk; never Yallapp's account), or a demo. */
+/** Whether the app's donation page can take a card payment: the charity's own keys (37 iyzico, Kashier, Fawaterk, Stripe or PayPal; never Yallapp's account), or a demo. */
 export function donationsSetUp(app: Pick<App, "catalogSettings" | "demo">): boolean {
   const provider = app.catalogSettings?.payment?.provider;
   return (provider !== undefined && provider !== "yallapp") || app.demo === true;

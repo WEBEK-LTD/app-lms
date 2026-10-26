@@ -749,56 +749,84 @@ export function LoyaltyForm({ values: saved, currency }: { values: { on: string;
   );
 }
 
-type ProviderChoice = "iyzico" | "kashier" | "fawaterk";
+type ProviderChoice = "iyzico" | "kashier" | "fawaterk" | "stripe" | "paypal";
 
 /** 37 Where each provider shows the keys, for the hint under the choice. */
-const KEYS_WHERE: Record<ProviderChoice, DashKey> = { iyzico: "shop.keysIyzico", kashier: "shop.keysKashier", fawaterk: "shop.keysFawaterk" };
-const TEST_LABEL: Record<ProviderChoice, DashKey> = { iyzico: "shop.testIyzico", kashier: "shop.testKashier", fawaterk: "shop.testFawaterk" };
-const TEST_HINT: Record<ProviderChoice, DashKey> = { iyzico: "shop.testIyzicoHint", kashier: "shop.testKashierHint", fawaterk: "shop.testFawaterkHint" };
+const KEYS_WHERE: Record<ProviderChoice, DashKey> = { iyzico: "shop.keysIyzico", kashier: "shop.keysKashier", fawaterk: "shop.keysFawaterk", stripe: "shop.keysStripe", paypal: "shop.keysPaypal" };
+/** 96.1 Stripe has none: its test keys say so themselves (sk_test_…). */
+const TEST_LABEL: Record<Exclude<ProviderChoice, "stripe">, DashKey> = { iyzico: "shop.testIyzico", kashier: "shop.testKashier", fawaterk: "shop.testFawaterk", paypal: "shop.testPaypal" };
+const TEST_HINT: Record<Exclude<ProviderChoice, "stripe">, DashKey> = { iyzico: "shop.testIyzicoHint", kashier: "shop.testKashierHint", fawaterk: "shop.testFawaterkHint", paypal: "shop.testPaypalHint" };
 
-/** The owner's own merchant account: 37 iyzico, Kashier or Fawaterk, with the keys each one needs. */
-export function PaymentKeysForm({ provider, sandbox, merchantId = "" }: { provider: ProviderChoice | null; sandbox: boolean; merchantId?: string }) {
+/** The owner's own merchant account: 37 iyzico, Kashier, Fawaterk, Stripe or PayPal, 96.1 Stripe or PayPal, with the keys each one needs. */
+export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId = "" }: { provider: ProviderChoice | null; sandbox: boolean; merchantId?: string; clientId?: string }) {
   const t = useDashT();
   const [state, action] = useActionState(savePaymentKeysAction, initialFormState);
   const [choice, setChoice] = useState<ProviderChoice>((state.values?.provider as ProviderChoice | undefined) || provider || "iyzico");
-  const testLabel = t(TEST_LABEL[choice]);
-  const testHint = t(TEST_HINT[choice]);
+  const testLabel = choice === "stripe" ? null : t(TEST_LABEL[choice]);
+  const testHint = choice === "stripe" ? null : t(TEST_HINT[choice]);
   return (
-    <form action={action} noValidate className="flex flex-col gap-4">
-      <FormMessage message={state.message} ok={state.ok} />
+    <div className="flex flex-col gap-4">
+      {/* 96.1 Outside the form: React resets a form after its action, which would put the menu back on its first choice. The form sends the choice. */}
       <div className="flex flex-col gap-1.5">
         <label htmlFor="f-provider" className="text-sm font-semibold">
           {t("shop.provider")}
         </label>
-        <select id="f-provider" name="provider" value={choice} onChange={(event) => setChoice(event.target.value as ProviderChoice)} className="input">
+        <select id="f-provider" value={choice} onChange={(event) => setChoice(event.target.value as ProviderChoice)} className="input">
           <option value="iyzico">{t("shop.optIyzico")}</option>
           <option value="kashier">{t("shop.optKashier")}</option>
           <option value="fawaterk">{t("shop.optFawaterk")}</option>
+          <option value="stripe">{t("shop.optStripe")}</option>
+          <option value="paypal">{t("shop.optPaypal")}</option>
         </select>
         <span className="text-[13px] leading-normal text-muted">{t(KEYS_WHERE[choice])}</span>
         <FieldError id="f-provider-error" error={state.errors?.provider} />
       </div>
-      {choice === "kashier" ? (
-        <Field
-          label={t("shop.merchantId")}
-          name="merchantId"
-          autoComplete="off"
-          placeholder="MID-1234-567"
-          defaultValue={state.values?.merchantId ?? merchantId}
-          required
-          error={state.errors?.merchantId}
-        />
-      ) : null}
-      <Field key={`api-${choice}`} label={choice === "kashier" ? t("shop.paymentApiKey") : t("shop.apiKey")} name="apiKey" autoComplete="off" required error={state.errors?.apiKey} />
-      {choice !== "fawaterk" ? (
-        <Field key={`secret-${choice}`} label={t("shop.secretKey")} name="secretKey" type="password" autoComplete="off" required error={state.errors?.secretKey} />
-      ) : null}
-      <Check key={`test-${choice}`} name="sandbox" label={testLabel} hint={testHint} defaultChecked={state.values ? state.values.sandbox === "on" : sandbox} />
-      <div className="flex justify-end">
-        <SubmitButton className="h-10" pendingText={t("shop.checking")}>
-          {t("shop.saveKeys")}
-        </SubmitButton>
-      </div>
-    </form>
+      <form action={action} noValidate className="flex flex-col gap-4">
+        <FormMessage message={state.message} ok={state.ok} />
+        <input type="hidden" name="provider" value={choice} />
+        {choice === "kashier" ? (
+          <Field
+            label={t("shop.merchantId")}
+            name="merchantId"
+            autoComplete="off"
+            placeholder="MID-1234-567"
+            defaultValue={state.values?.merchantId ?? merchantId}
+            required
+            error={state.errors?.merchantId}
+          />
+        ) : null}
+        {choice === "paypal" ? (
+          <Field
+            key="client-paypal"
+            label={t("shop.clientId")}
+            name="clientId"
+            autoComplete="off"
+            defaultValue={state.values?.clientId ?? clientId}
+            required
+            error={state.errors?.clientId}
+          />
+        ) : null}
+        {choice !== "stripe" && choice !== "paypal" ? (
+          <Field key={`api-${choice}`} label={choice === "kashier" ? t("shop.paymentApiKey") : t("shop.apiKey")} name="apiKey" autoComplete="off" required error={state.errors?.apiKey} />
+        ) : null}
+        {choice !== "fawaterk" ? (
+          <Field
+            key={`secret-${choice}`}
+            label={choice === "paypal" ? t("shop.paypalSecret") : t("shop.secretKey")}
+            name="secretKey"
+            type="password"
+            autoComplete="off"
+            required
+            error={state.errors?.secretKey}
+          />
+        ) : null}
+        {testLabel && testHint ? <Check key={`test-${choice}`} name="sandbox" label={testLabel} hint={testHint} defaultChecked={state.values ? state.values.sandbox === "on" : sandbox} /> : null}
+        <div className="flex justify-end">
+          <SubmitButton className="h-10" pendingText={t("shop.checking")}>
+            {t("shop.saveKeys")}
+          </SubmitButton>
+        </div>
+      </form>
+    </div>
   );
 }

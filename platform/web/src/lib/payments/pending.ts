@@ -13,16 +13,18 @@ import { settleDonationRecord, settleOrderRecord, settlePlanRecord, type Settled
  * payment page has expired, 30 minutes, since its "not paid" is final and
  * fails a plan payment), then every hour, for as long as it can still be paid
  * (iyzico's page: a few hours, for its last callback; Kashier's session for
- * two days; a Fawaterk reference, paid at a kiosk, for a week). A payment confirmed this way is delivered and its emails sent as
+ * two days; a Fawaterk reference, paid at a kiosk, for a week; 96.1 a Stripe
+ * Checkout Session for a day; a PayPal order, approved and not yet captured,
+ * for three days). A payment confirmed this way is delivered and its emails sent as
  * if the provider had called back; one that isn't paid stays pending.
  */
 
 /** The callback's time, before a payment is asked about, by provider. */
-export const FIRST_CHECK_MINUTES: Record<PaymentProviderId, number> = { iyzico: 45, kashier: 10, fawaterk: 10 };
+export const FIRST_CHECK_MINUTES: Record<PaymentProviderId, number> = { iyzico: 45, kashier: 10, fawaterk: 10, stripe: 10, paypal: 10 };
 /** Then every hour. */
 export const CHECK_EVERY_MINUTES = 60;
 /** How long a payment can still be paid, by provider. */
-export const PAYABLE_HOURS: Record<PaymentProviderId, number> = { iyzico: 3, kashier: 48, fawaterk: 7 * 24 };
+export const PAYABLE_HOURS: Record<PaymentProviderId, number> = { iyzico: 3, kashier: 48, fawaterk: 7 * 24, stripe: 24, paypal: 72 };
 
 const MINUTE = 60_000;
 const LONGEST_HOURS = Math.max(...Object.values(PAYABLE_HOURS));

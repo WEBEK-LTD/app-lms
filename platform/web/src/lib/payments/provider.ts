@@ -1,37 +1,51 @@
-import type { CatalogCurrency, PaymentProviderId } from "../data/types";
+import type { CatalogCurrency, PaymentProviderId, YallappProviderId } from "../data/types";
 import { PaymentError } from "./errors";
 import { createFawaterkInvoice, getFawaterkInvoice, checkFawaterkKeys, type FawaterkKeys } from "./fawaterk";
 import { checkIyzicoKeys, initializeCheckoutForm, retrieveCheckoutForm, type IyzicoKeys } from "./iyzico";
 import { checkKashierKeys, createKashierSession, getKashierSessionPayment, type KashierKeys } from "./kashier";
+import { checkPaypalKeys, confirmPaypalOrder, createPaypalOrder, PAYPAL_CURRENCIES, type PaypalKeys } from "./paypal";
+import { checkStripeKeys, createStripeSession, getStripeSession, STRIPE_CURRENCIES, type StripeKeys } from "./stripe";
 
 /**
  * 37 One interface for the card payment providers: iyzico (Turkey), Kashier
- * and Fawaterk (Egypt). Every flow (plan payments, a shop's orders, events'
+ * and Fawaterk (Egypt); 96.1 Stripe and PayPal, for clients' own accounts. Every flow (plan payments, a shop's orders, events'
  * tickets, a restaurant's orders, donations) starts a checkout on the
  * provider's hosted page and confirms it afterwards by reading the payment
  * back from the provider with our own keys: a callback, redirect or webhook
  * is only a trigger. 47 Refunds: refund.ts.
  */
 
-export type { PaymentProviderId };
+export type { PaymentProviderId, YallappProviderId };
 
-export const PAYMENT_PROVIDERS: PaymentProviderId[] = ["iyzico", "kashier", "fawaterk"];
+/** Every gateway a client can take payments with (their own account). */
+export const PAYMENT_PROVIDERS: PaymentProviderId[] = ["iyzico", "kashier", "fawaterk", "stripe", "paypal"];
 
-export const PROVIDER_NAME: Record<PaymentProviderId, string> = { iyzico: "iyzico", kashier: "Kashier", fawaterk: "Fawaterk" };
+/** 96.1 The gateways Yallapp's own plans can be paid through. */
+export const YALLAPP_PROVIDERS: YallappProviderId[] = ["iyzico", "kashier", "fawaterk"];
+
+export const PROVIDER_NAME: Record<PaymentProviderId, string> = { iyzico: "iyzico", kashier: "Kashier", fawaterk: "Fawaterk", stripe: "Stripe", paypal: "PayPal" };
 
 /**
  * The currencies each provider takes. iyzico: Turkish lira, dollars, euros.
  * Kashier: Egyptian pounds, dollars, euros. Fawaterk: Egyptian pounds and
- * the Gulf currencies its vendors enable.
+ * the Gulf currencies its vendors enable. 96.1 Stripe: all of them. PayPal:
+ * dollars and euros (it has no lira, pound, riyal or dirham).
  */
 export const PROVIDER_CURRENCIES: Record<PaymentProviderId, CatalogCurrency[]> = {
   iyzico: ["TRY", "USD", "EUR"],
   kashier: ["EGP", "USD", "EUR"],
   fawaterk: ["EGP", "USD", "SAR", "AED", "EUR"],
+  stripe: [...STRIPE_CURRENCIES],
+  paypal: [...PAYPAL_CURRENCIES],
 };
 
 export function isPaymentProvider(value: unknown): value is PaymentProviderId {
   return typeof value === "string" && (PAYMENT_PROVIDERS as string[]).includes(value);
+}
+
+/** 96.1 One of the gateways for Yallapp's own plans. */
+export function isYallappProvider(value: unknown): value is YallappProviderId {
+  return typeof value === "string" && (YALLAPP_PROVIDERS as string[]).includes(value);
 }
 
 export function providerTakes(provider: PaymentProviderId, currency: string): boolean {
@@ -48,7 +62,9 @@ export function currencyList(provider: PaymentProviderId): string {
 export type PaymentAccount =
   | { provider: "iyzico"; keys: IyzicoKeys }
   | { provider: "kashier"; keys: KashierKeys }
-  | { provider: "fawaterk"; keys: FawaterkKeys };
+  | { provider: "fawaterk"; keys: FawaterkKeys }
+  | { provider: "stripe"; keys: StripeKeys }
+  | { provider: "paypal"; keys: PaypalKeys };
 
 export function sandboxOf(account: PaymentAccount): boolean {
   return account.keys.sandbox;
@@ -94,7 +110,7 @@ export interface CheckoutRequest {
     address: string | null;
     ip: string;
   };
-  /** iyzico posts its token here; Kashier and Fawaterk send the customer back here. */
+  /** iyzico posts its token here; Kashier, Fawaterk, Stripe and PayPal send the customer back here. */
   returnUrl: string;
   /** Kashier and Fawaterk post their webhook here; null for none (iyzico has no webhook). */
   webhookUrl: string | null;
@@ -123,6 +139,32 @@ export async function startCheckout(account: PaymentAccount, request: CheckoutRe
   if (sum !== request.amountCents || request.amountCents <= 0) throw new Error("The checkout lines don't add up to the amount");
   if (!providerTakes(account.provider, request.currency)) {
     throw new PaymentError(`${PROVIDER_NAME[account.provider]} doesn't take payments in ${request.currency}.`);
+  }
+  // 96.1 Stripe: a Checkout Session; PayPal: an order the customer approves. One line with the total (their pages show it).
+  if (account.provider === "stripe") {
+    const { sessionId, url, expiresAt } = await createStripeSession(
+      account.keys,
+      {
+        reference: request.reference,
+        amountCents: request.amountCents,
+        currency: request.currency,
+        description: request.description,
+        customerEmail: request.customer.email || null,
+        returnUrl: request.returnUrl,
+        expiresAt: request.pageExpiresAt ?? null,
+      },
+      { fetcher: options.fetcher, baseUrl: options.urls?.stripe },
+    );
+    return { url, providerRef: sessionId, expiresAt };
+  }
+  if (account.provider === "paypal") {
+    const { orderId, url } = await createPaypalOrder(
+      account.keys,
+      { reference: request.reference, amountCents: request.amountCents, currency: request.currency, description: request.description, returnUrl: request.returnUrl },
+      { fetcher: options.fetcher, baseUrl: options.urls?.paypal },
+    );
+    // PayPal keeps an order the customer hasn't approved for three hours.
+    return { url, providerRef: orderId, expiresAt: null };
   }
   const [first, ...rest] = request.customer.name.trim().split(/\s+/);
   const firstName = first || request.customer.name;
@@ -237,6 +279,21 @@ export async function confirmCheckout(account: PaymentAccount, expected: Expecte
     if (!ours || payment.amountCents !== expected.amountCents || payment.currency?.toUpperCase() !== expected.currency) return { paid: false, reason: "mismatch" };
     return { paid: true, paymentId: (payment.transactionId ?? expected.providerRef).slice(0, 64), transactionIds: [] };
   }
+  if (account.provider === "stripe") {
+    if (!expected.providerRef) return { paid: false, reason: "unpaid" };
+    const session = await getStripeSession(account.keys, expected.providerRef, { fetcher: options.fetcher, baseUrl: options.urls?.stripe });
+    if (!session.paid) return { paid: false, reason: "unpaid" };
+    if (session.reference !== expected.reference || session.amountCents !== expected.amountCents || session.currency !== expected.currency) return { paid: false, reason: "mismatch" };
+    return { paid: true, paymentId: (session.paymentIntent ?? expected.providerRef).slice(0, 64), transactionIds: [] };
+  }
+  if (account.provider === "paypal") {
+    if (!expected.providerRef) return { paid: false, reason: "unpaid" };
+    // Captured here when the customer approved it: PayPal takes the money only now.
+    const order = await confirmPaypalOrder(account.keys, expected.providerRef, { fetcher: options.fetcher, baseUrl: options.urls?.paypal });
+    if (!order.paid) return { paid: false, reason: "unpaid" };
+    if (order.reference !== expected.reference || order.amountCents !== expected.amountCents || order.currency !== expected.currency) return { paid: false, reason: "mismatch" };
+    return { paid: true, paymentId: (order.captureId ?? expected.providerRef).slice(0, 64), transactionIds: [] };
+  }
   if (account.provider === "fawaterk") {
     if (!expected.providerRef) return { paid: false, reason: "unpaid" };
     const invoice = await getFawaterkInvoice(account.keys, expected.providerRef, { fetcher: options.fetcher, baseUrl: options.urls?.fawaterk });
@@ -263,6 +320,8 @@ export async function confirmCheckout(account: PaymentAccount, expected: Expecte
 export async function checkAccount(account: PaymentAccount, options: ProviderOptions = {}): Promise<boolean | null> {
   if (account.provider === "kashier") return checkKashierKeys(account.keys, { fetcher: options.fetcher, baseUrl: options.urls?.kashier });
   if (account.provider === "fawaterk") return checkFawaterkKeys(account.keys, { fetcher: options.fetcher, baseUrl: options.urls?.fawaterk });
+  if (account.provider === "stripe") return checkStripeKeys(account.keys, { fetcher: options.fetcher, baseUrl: options.urls?.stripe });
+  if (account.provider === "paypal") return checkPaypalKeys(account.keys, { fetcher: options.fetcher, baseUrl: options.urls?.paypal });
   return checkIyzicoKeys(account.keys, { fetcher: options.fetcher, baseUrl: options.urls?.iyzico });
 }
 

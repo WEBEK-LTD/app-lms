@@ -693,8 +693,8 @@ paths:
       summary: Refund an order, all of it or part
       description: |
         Roadmap 47: through the provider the payment was taken with (iyzico,
-        Kashier), or recording a refund made in the provider's panel
-        (`method: manual`, Fawaterk). `OrderDetail.refund` says what is
+        Kashier, 96.1 Stripe and PayPal), or recording a refund made in the
+        provider's panel (`method: manual`, Fawaterk). `OrderDetail.refund` says what is
         possible. The customer gets an email; the order follows.
       parameters:
         - $ref: '#/components/parameters/AppId'
@@ -3126,7 +3126,7 @@ components:
       properties:
         refundable: { type: boolean }
         why: { type: [string, 'null'] }
-        provider: { type: string, enum: [iyzico, kashier, fawaterk] }
+        provider: { type: string, enum: [iyzico, kashier, fawaterk, stripe, paypal], description: 'The owner''s own account the payment was taken with (96.1: Stripe and PayPal too).' }
         left: { $ref: '#/components/schemas/Money' }
         by_api: { type: boolean }
         manual: { type: boolean }

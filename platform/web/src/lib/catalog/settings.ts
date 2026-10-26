@@ -22,7 +22,7 @@ export function catalogSettings(app: App): CatalogSettings {
 
 /**
  * 19 Whether the app's payment page can take a card payment: Card payments
- * are set up with the owner's own keys (37 iyzico, Kashier or Fawaterk), or
+ * are set up with the owner's own keys (37 iyzico, Kashier, Fawaterk, Stripe or PayPal), or
  * it's a demo, whose payment page charges nothing. Products and paid courses
  * aren't offered for sale without it. 72 A shop that had joined the old
  * marketplace (selling through Yallapp's account) has no payments until it
@@ -45,7 +45,10 @@ export function encryptPaymentKeys(appId: string, apiKey: string, secretKey: str
 export type OwnPaymentInput =
   | { provider: "iyzico"; apiKey: string; secretKey: string; sandbox: boolean }
   | { provider: "kashier"; merchantId: string; apiKey: string; secretKey: string; sandbox: boolean }
-  | { provider: "fawaterk"; apiKey: string; sandbox: boolean };
+  | { provider: "fawaterk"; apiKey: string; sandbox: boolean }
+  /** 96.1 A test key (sk_test_…) runs on Stripe's test data. */
+  | { provider: "stripe"; secretKey: string; sandbox: boolean }
+  | { provider: "paypal"; clientId: string; secret: string; sandbox: boolean };
 
 /** 37 The client's own account with its keys encrypted (context `app:payment:<app id>`, as iyzico's always were). */
 export function encryptOwnPayment(appId: string, input: OwnPaymentInput, key: Buffer): OwnPayment {
@@ -54,6 +57,8 @@ export function encryptOwnPayment(appId: string, input: OwnPaymentInput, key: Bu
   if (input.provider === "kashier") {
     return { provider: "kashier", merchantId: input.merchantId, apiKeyEncrypted: seal(input.apiKey), secretKeyEncrypted: seal(input.secretKey), sandbox: input.sandbox };
   }
+  if (input.provider === "stripe") return { provider: "stripe", secretKeyEncrypted: seal(input.secretKey), sandbox: input.sandbox };
+  if (input.provider === "paypal") return { provider: "paypal", clientId: input.clientId, secretEncrypted: seal(input.secret), sandbox: input.sandbox };
   return { provider: "fawaterk", apiKeyEncrypted: seal(input.apiKey), sandbox: input.sandbox };
 }
 
@@ -75,6 +80,8 @@ export function ownPaymentAccount(app: App, key: Buffer): PaymentAccount | null 
       };
     }
     if (payment.provider === "fawaterk") return { provider: "fawaterk", keys: { apiKey: open(payment.apiKeyEncrypted), sandbox: payment.sandbox } };
+    if (payment.provider === "stripe") return { provider: "stripe", keys: { secretKey: open(payment.secretKeyEncrypted), sandbox: payment.sandbox } };
+    if (payment.provider === "paypal") return { provider: "paypal", keys: { clientId: payment.clientId, secret: open(payment.secretEncrypted), sandbox: payment.sandbox } };
     return { provider: "iyzico", keys: { apiKey: open(payment.apiKeyEncrypted), secretKey: open(payment.secretKeyEncrypted), sandbox: payment.sandbox } };
   } catch {
     return null;

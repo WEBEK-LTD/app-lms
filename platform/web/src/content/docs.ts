@@ -191,7 +191,7 @@ Event listings with a calendar, free sign-ups and paid tickets with QR codes che
 
 ## Charity & donations
 
-Campaigns with their story, a goal and a progress bar, for charities, food banks, foundations and community groups. Supporters choose an amount and donate on your secure donation page, into your own iyzico, Kashier or Fawaterk account, and get a receipt by email. Campaigns are managed in the Yallapp dashboard, so you don't need a website. On iPhone, the donation page opens in the browser, as Apple requires. See [Charity and donation apps](/docs/donations) and [the Charity & donations solution](/solutions/charity).
+Campaigns with their story, a goal and a progress bar, for charities, food banks, foundations and community groups. Supporters choose an amount and donate on your secure donation page, into your own iyzico, Kashier, Fawaterk, Stripe or PayPal account, and get a receipt by email. Campaigns are managed in the Yallapp dashboard, so you don't need a website. On iPhone, the donation page opens in the browser, as Apple requires. See [Charity and donation apps](/docs/donations) and [the Charity & donations solution](/solutions/charity).
 
 ## Changing the app type later
 
@@ -656,7 +656,7 @@ Select **Save & continue**. We check them with SimplyBook.me before saving.
 
 ## What you manage, by app type
 
-- **Store**: products, categories, stock and shipping on the **Products** page, and orders on the **Orders** page. Customers pay by card through iyzico, Kashier or Fawaterk. See [Products, orders and shipping](/docs/store-orders) and [Card payments](/docs/card-payments).
+- **Store**: products, categories, stock and shipping on the **Products** page, and orders on the **Orders** page. Customers pay by card through iyzico, Kashier, Fawaterk, Stripe or PayPal. See [Products, orders and shipping](/docs/store-orders) and [Card payments](/docs/card-payments).
 - **Restaurant & café**: dishes, their options, opening hours, pickup and delivery on the **Menu** page, and orders on the **Kitchen** page. See [Restaurants and cafés](/docs/restaurants).
 - **Academy**: courses, sections and lessons on the **Courses** page, and orders for paid courses. See [Courses without a website](/docs/courses).
 - **Bookings**: services, your team, working hours and booking rules on the **Services & team** page, and appointments on the **Appointments** page. See [Services, team and appointments](/docs/bookings).
@@ -1157,7 +1157,7 @@ Analytics comes with every plan. It counts from your first build made after it a
 The connections are grouped like this. You only see the ones your app uses.
 
 - **Website and content**: **Website or platform** is your WordPress site and its Yallapp plugin, your Shopify shop or other platform, or your own API. If your app has no website, it says your content is managed in the dashboard and there is nothing to connect.
-- **Card payments**: **Payment provider**, for apps that take card payments. It shows whether payments go through Yallapp or through your own iyzico, Kashier or Fawaterk account, and whether your keys are live or test keys. See [Card payments](/docs/card-payments).
+- **Card payments**: **Payment provider**, for apps that take card payments. It shows whether payments go through Yallapp or through your own iyzico, Kashier, Fawaterk, Stripe or PayPal account, and whether your keys are live or test keys. See [Card payments](/docs/card-payments).
 - **Sign-in codes**: **WhatsApp codes** and **Email codes**, when Yallapp sends your app's sign-in codes. They show whether codes go out from Yallapp's number and email address, or from your own WhatsApp number and email server. See [App users and sign-in](/docs/app-users).
 - **Notifications**: **Firebase notifications**, your Firebase key (see [Push notifications with Firebase](/docs/push-notifications)), and **Huawei notifications** once you've added Huawei Push Kit.
 - **Stores**: **Google Play** and **App Store**, and **Samsung Galaxy Store**, **Huawei AppGallery** and **Xiaomi GetApps** once you've saved their keys.
@@ -1861,7 +1861,7 @@ Apps on WooCommerce work the same way with your WooCommerce coupons: the cart ch
 
 ## Payments
 
-Customers pay by card on a secure page of your provider (iyzico, Kashier or Fawaterk). Add your own keys: see [Card payments](/docs/card-payments).
+Customers pay by card on a secure page of your provider (iyzico, Kashier, Fawaterk, Stripe or PayPal). Add your own keys: see [Card payments](/docs/card-payments).
 
 ## Orders
 
@@ -1923,7 +1923,7 @@ Paid orders appear on **Kitchen** with what was chosen, pickup or delivery, the 
 
 ## Payments
 
-Customers sign in, then pay by card on a secure page of your provider (iyzico, Kashier or Fawaterk), on Android and iPhone: food is a physical product, so Apple's rules allow it. Add your own keys: see [Card payments](/docs/card-payments).
+Customers sign in, then pay by card on a secure page of your provider (iyzico, Kashier, Fawaterk, Stripe or PayPal), on Android and iPhone: food is a physical product, so Apple's rules allow it. Add your own keys: see [Card payments](/docs/card-payments).
 
 ## With WooCommerce
 
@@ -1933,10 +1933,10 @@ Restaurants that sell with WooCommerce get the menu wording, and their product v
   doc({
     slug: "card-payments",
     section: "Selling and bookings",
-    title: "Card payments with iyzico, Kashier or Fawaterk",
-    description: "Take card payments in apps without a website, into your own iyzico, Kashier or Fawaterk account.",
+    title: "Card payments with iyzico, Kashier, Fawaterk, Stripe or PayPal",
+    description: "Take card payments in apps without a website, into your own iyzico, Kashier, Fawaterk, Stripe or PayPal account.",
     steps: false,
-    body: `Apps without a website take card payments through **iyzico** (Türkiye), **Kashier** or **Fawaterk** (Egypt): shops for their orders, restaurants and cafés, event organisers for tickets, gyms for memberships, academies for paid courses, and charities for donations. Customers enter their card on the provider's secure page; Yallapp never sees it. An order is marked paid only after the provider confirms the payment for that exact amount and currency: we ask the provider ourselves, so a payment can't be faked by opening a link.
+    body: `Apps without a website take card payments through **iyzico** (Türkiye), **Kashier** or **Fawaterk** (Egypt), **Stripe** or **PayPal**: shops for their orders, restaurants and cafés, event organisers for tickets, gyms for memberships, academies for paid courses, and charities for donations. Customers enter their card on the provider's secure page; Yallapp never sees it. An order is marked paid only after the provider confirms the payment for that exact amount and currency: we ask the provider ourselves, so a payment can't be faked by opening a link.
 
 ## Use your own payment account
 
@@ -1945,10 +1945,12 @@ On the **Products** page (or the page where you set your prices: **Courses**, **
 - **iyzico**: your **API key** and **Secret key**, from the iyzico merchant panel under Settings. Prices in TRY, USD or EUR.
 - **Kashier**: your **Merchant ID** (MID-…), **Payment API key** and **Secret key**, from the Kashier dashboard under Integrate now. Prices in EGP, USD or EUR.
 - **Fawaterk**: your **API key**, from the Fawaterk dashboard under Integrations. Prices in EGP, USD, SAR, AED or EUR.
+- **Stripe**: your **Secret key**, from the Stripe Dashboard under Developers › API keys. A test key (sk_test_…) takes test payments, a live key (sk_live_…) real ones. Prices in TRY, USD, EUR, EGP, SAR or AED.
+- **PayPal**: the **Client ID** and **Secret** of a REST app you create in the PayPal Developer Dashboard under Apps & Credentials. Prices in USD or EUR. Customers pay with their PayPal account or a card on PayPal's page.
 
 Set your prices in a currency your provider takes: the **Card payments** box warns you when they don't match.
 
-> To try it first, turn on the test switch (**Sandbox keys**, **Test mode keys** or **Staging key**) and paste the provider's test keys, then pay with its test cards. Turn it off when you paste your live keys: test and live keys are different.
+> To try it first, turn on the test switch (**Sandbox keys**, **Test mode keys**, **Staging key** or **Sandbox credentials**; Stripe's test keys say so themselves) and paste the provider's test keys, then pay with its test cards. Turn it off when you paste your live keys: test and live keys are different.
 
 ## Yallapp never takes your customers' payments
 
@@ -1958,7 +1960,7 @@ Every business takes its customers' payments in its own payment provider account
 
 Refund a paid order, ticket, course or donation with **Refund** under it on the **Orders** or **Donations** page: all of it or part of it, with a reason.
 
-- **iyzico** and **Kashier**: Yallapp makes the refund through your provider with your keys. iyzico cancels a payment made the same day (nothing shows on the customer's statement) and refunds it otherwise, item by item. Your Kashier secret key needs the refund permission.
+- **iyzico**, **Kashier**, **Stripe** and **PayPal**: Yallapp makes the refund through your provider with your keys. iyzico cancels a payment made the same day (nothing shows on the customer's statement) and refunds it otherwise, item by item. Your Kashier secret key needs the refund permission.
 - **Fawaterk**: make the refund in Fawaterk's panel, then record it with **Refund** (and Fawaterk's reference, if you like).
 - What follows: the order or donation says **Refunded** (or how much was refunded), the customer gets an email and sees it in the app. Refunding all of an order takes back what it paid for: tickets are cancelled and their places go back on sale, a course is no longer open to the student, a membership ends; with a refund in part you tick what to take back. A refunded donation no longer counts in the campaign's total.
 - An order sold through Yallapp's account before that ended: the refund comes out of Yallapp's account and Yallapp gives its commission back in proportion. If your share was already transferred (Kashier or Fawaterk), Yallapp takes your share of the refund from your next transfer. A Fawaterk payment in Yallapp's account is refunded by our team: message us on WhatsApp.
@@ -1969,7 +1971,7 @@ Academy apps without a website sell paid courses the same way, on Android only: 
 
 ## Donations
 
-Charity & donations apps take donations with their own iyzico, Kashier or Fawaterk account, like every app. Add your keys on the **Campaigns** page. See [Charity and donation apps](/docs/donations).
+Charity & donations apps take donations with their own iyzico, Kashier, Fawaterk, Stripe or PayPal account, like every app. Add your keys on the **Campaigns** page. See [Charity and donation apps](/docs/donations).
 `,
   }),
   doc({
@@ -2293,7 +2295,7 @@ Save it as a **draft** while you work and **publish** it to show it in the app. 
 
 ## Free and paid tickets
 
-Free tickets are taken in the app. Paid tickets are paid by card on a secure payment page: set up **Card payments** on the Events page with your own iyzico, Kashier or Fawaterk account. The places are held while the buyer pays, and the tickets are issued only once the provider confirms the payment. Places are counted as they're taken, so the last ticket can't be sold twice.
+Free tickets are taken in the app. Paid tickets are paid by card on a secure payment page: set up **Card payments** on the Events page with your own iyzico, Kashier, Fawaterk, Stripe or PayPal account. The places are held while the buyer pays, and the tickets are issued only once the provider confirms the payment. Places are counted as they're taken, so the last ticket can't be sold twice.
 
 **On iPhones**, Apple lets apps sell tickets to events that happen at a place, but not to online-only events, which count as digital content. So in the iPhone app, paid tickets to an event without a venue show no buy button; free tickets work everywhere. On Android, everything can be bought in the app.
 
@@ -2319,14 +2321,14 @@ The home page starts with a search box and the events coming up. Change it on **
     slug: "donations",
     section: "Selling and bookings",
     title: "Charity and donation apps",
-    description: "Run a Charity & donations app: campaigns with a goal, donations into your own iyzico, Kashier or Fawaterk account, receipts, donors, and why iPhone donations open in the browser.",
+    description: "Run a Charity & donations app: campaigns with a goal, donations into your own iyzico, Kashier, Fawaterk, Stripe or PayPal account, receipts, donors, and why iPhone donations open in the browser.",
     steps: false,
     body: `Charity & donations apps show your campaigns: what you're raising money for, its story and pictures, and how close it is to its goal. Supporters pick an amount, can give anonymously and leave a message, and donate on your secure donation page. Every donor gets a receipt, and finds their donations under **My donations** in the app.
 
 ## Before your first donation
 
 1. Choose **Charity & donations** on **App type**, then **Campaigns managed in Yallapp** on the Website step.
-2. On the **Campaigns** page, under **Card payments**, choose your provider (iyzico, Kashier or Fawaterk) and paste your keys (see [Card payments](/docs/card-payments)). Donations go straight into your own merchant account. Until your keys are saved, campaigns show in the app but nobody can donate.
+2. On the **Campaigns** page, under **Card payments**, choose your provider (iyzico, Kashier, Fawaterk, Stripe or PayPal) and paste your keys (see [Card payments](/docs/card-payments)). Donations go straight into your own merchant account. Until your keys are saved, campaigns show in the app but nobody can donate.
 3. Under **Donations in the app**, choose your currency. It can't change after the first donation.
 
 ## Campaigns

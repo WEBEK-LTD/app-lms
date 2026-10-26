@@ -90,7 +90,7 @@ export const AR_SITE: SiteContentTranslation = {
   "solution-charity": {
     eyebrow: "تطبيقات الجمعيات الخيرية والتبرعات",
     title: "حملاتك، على بُعد لمسة من التبرع",
-    intro: "حملات بقصصها وتقدّمها، وتبرعات تُدفع إلى حسابك الخاص في iyzico أو Kashier أو Fawaterk، وإيصال لكل متبرع، في تطبيق يحمل اسمك.",
+    intro: "حملات بقصصها وتقدّمها، وتبرعات تُدفع إلى حسابك الخاص في iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal، وإيصال لكل متبرع، في تطبيق يحمل اسمك.",
   },
   features: {
     eyebrow: "المزايا",

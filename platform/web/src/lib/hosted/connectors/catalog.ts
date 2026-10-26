@@ -18,7 +18,7 @@ import { orderReceiptUrl } from "../../receipts/links";
 
 /**
  * The shop of an app without a website: products, categories and orders the
- * client manages in the dashboard, paid on our payment page (iyzico, Kashier or Fawaterk). Only
+ * client manages in the dashboard, paid on our payment page (iyzico, Kashier, Fawaterk, Stripe or PayPal). Only
  * simple products; no variations or reviews. 26 Products may have option
  * groups (priced here, never by the app), and a restaurant's orders are for
  * pickup or delivery, at a time its kitchen takes them, and followed in the app.

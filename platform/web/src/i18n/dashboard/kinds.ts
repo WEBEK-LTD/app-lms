@@ -29,7 +29,7 @@ export const en = {
     descEvents: "Event listings, free sign-ups and paid tickets with QR codes checked at the door.",
     reqEvents: "No website needed: you add your events here in the dashboard",
     descCharity: "Campaigns with progress, one-off donations and receipts for your supporters.",
-    reqCharity: "No website needed: you add your campaigns here in the dashboard · Your own iyzico, Kashier or Fawaterk account",
+    reqCharity: "No website needed: you add your campaigns here in the dashboard · Your own iyzico, Kashier, Fawaterk, Stripe or PayPal account",
     // 84.1 Services and companies, and its designs.
     descServices: "Cleaning, repairs, consultancies and agencies: your services, your team and your offers, booked in the app.",
     reqServices: "Works with: Amelia, BookingPress, LatePoint, SimplyBook.me · or no website",
@@ -68,7 +68,7 @@ export const en = {
     ownLms: "Add your courses and lessons here in the dashboard. Students enroll in the app; paid courses are bought on Android.",
     nextLms: "After this step, add your courses, their sections and lessons on the **Courses** page. Your students sign in to the app with",
     ownStore: "Add your products here in the dashboard. Customers pay by card in the app, and you see their orders here.",
-    nextStore: "After this step, add your products and your payment keys (iyzico, Kashier or Fawaterk) on the **Products** page. Your customers sign in to the app with",
+    nextStore: "After this step, add your products and your payment keys (iyzico, Kashier, Fawaterk, Stripe or PayPal) on the **Products** page. Your customers sign in to the app with",
     ownBooking: "Add your services, team and opening hours here in the dashboard. Customers book in the app, and you see their appointments here.",
     nextBooking: "After this step, add your services, your team and their hours on the **Services & team** page. Your customers sign in to the app with",
     ownListingsTitle: "Listings managed in Yallapp",
@@ -83,13 +83,13 @@ export const en = {
       "After this step, add your events and their tickets on the **Events** page, and check tickets at the door on the **Check-in** page. People sign in to the app with",
     ownCampaignsTitle: "Campaigns managed in Yallapp",
     ownCampaigns:
-      "Add your campaigns here in the dashboard. Supporters follow them in the app and give on your secure donation page, paid into your own iyzico, Kashier or Fawaterk account.",
+      "Add your campaigns here in the dashboard. Supporters follow them in the app and give on your secure donation page, paid into your own iyzico, Kashier, Fawaterk, Stripe or PayPal account.",
     nextCampaigns:
-      "After this step, add your payment keys (iyzico, Kashier or Fawaterk) and your first campaign on the **Campaigns** page; every gift shows on the **Donations** page. Supporters sign in to the app with",
+      "After this step, add your payment keys (iyzico, Kashier, Fawaterk, Stripe or PayPal) and your first campaign on the **Campaigns** page; every gift shows on the **Donations** page. Supporters sign in to the app with",
     ownRestaurant:
       "Add your menu here in the dashboard: dishes with their options, opening hours, pickup and delivery. Customers order and pay by card in the app, and your kitchen follows the orders here.",
     nextRestaurant:
-      "After this step, add your dishes, opening hours, pickup and delivery and your payment keys (iyzico, Kashier or Fawaterk) on the **Menu** page, and follow orders on the **Kitchen** page. Your customers sign in to the app with",
+      "After this step, add your dishes, opening hours, pickup and delivery and your payment keys (iyzico, Kashier, Fawaterk, Stripe or PayPal) on the **Menu** page, and follow orders on the **Kitchen** page. Your customers sign in to the app with",
     ownClinic: "Add your services, doctors and their hours here in the dashboard, with an intake form if you like. Patients book visits in the app, and you see them here.",
     nextClinic:
       "After this step, add your services, your doctors, their hours and your intake questions on the **Doctors & services** page. Your patients sign in to the app with",
@@ -289,7 +289,7 @@ export const ar: Messages = {
     descEvents: "قوائم الفعاليات والتسجيل المجاني والتذاكر المدفوعة برموز QR تُفحص عند الدخول.",
     reqEvents: "لا حاجة إلى موقع إلكتروني: تضيف فعالياتك هنا في لوحة التحكم",
     descCharity: "حملات بنسبة الإنجاز، وتبرعات لمرة واحدة، وإيصالات لداعميك.",
-    reqCharity: "لا حاجة إلى موقع إلكتروني: تضيف حملاتك هنا في لوحة التحكم · حسابك الخاص في iyzico أو Kashier أو Fawaterk",
+    reqCharity: "لا حاجة إلى موقع إلكتروني: تضيف حملاتك هنا في لوحة التحكم · حسابك الخاص في iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal",
     descServices: "التنظيف والصيانة والاستشارات والوكالات: خدماتك وفريقك وعروضك، تُحجز من التطبيق.",
     reqServices: "يعمل مع: Amelia وBookingPress وLatePoint وSimplyBook.me · أو دون موقع إلكتروني",
     palDesign: "ألوان التصميم",
@@ -325,7 +325,7 @@ export const ar: Messages = {
     ownLms: "أضف دوراتك ودروسك هنا في لوحة التحكم. يلتحق الطلاب من التطبيق، وتُشترى الدورات المدفوعة على Android.",
     nextLms: "بعد هذه الخطوة، أضف دوراتك وأقسامها ودروسها في صفحة **الدورات**. يسجّل طلابك الدخول إلى التطبيق باستخدام",
     ownStore: "أضف منتجاتك هنا في لوحة التحكم. يدفع العملاء بالبطاقة داخل التطبيق، وترى طلباتهم هنا.",
-    nextStore: "بعد هذه الخطوة، أضف منتجاتك ومفاتيح الدفع (iyzico أو Kashier أو Fawaterk) في صفحة **المنتجات**. يسجّل عملاؤك الدخول إلى التطبيق باستخدام",
+    nextStore: "بعد هذه الخطوة، أضف منتجاتك ومفاتيح الدفع (iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal) في صفحة **المنتجات**. يسجّل عملاؤك الدخول إلى التطبيق باستخدام",
     ownBooking: "أضف خدماتك وفريقك وساعات العمل هنا في لوحة التحكم. يحجز العملاء من التطبيق، وترى مواعيدهم هنا.",
     nextBooking: "بعد هذه الخطوة، أضف خدماتك وفريقك وساعات عملهم في صفحة **الخدمات والفريق**. يسجّل عملاؤك الدخول إلى التطبيق باستخدام",
     ownListingsTitle: "عقارات تُدار في Yallapp",
@@ -337,11 +337,11 @@ export const ar: Messages = {
     ownEvents: "أضف فعالياتك وتذاكرها هنا في لوحة التحكم. يحصل الناس على تذاكر مجانية أو يشترون تذاكر مدفوعة في التطبيق، وتفحص رموز QR الخاصة بهم عند الدخول.",
     nextEvents: "بعد هذه الخطوة، أضف فعالياتك وتذاكرها في صفحة **الفعاليات**، وافحص التذاكر عند الدخول في صفحة **تسجيل الحضور**. يسجّل الناس الدخول إلى التطبيق باستخدام",
     ownCampaignsTitle: "حملات تُدار في Yallapp",
-    ownCampaigns: "أضف حملاتك هنا في لوحة التحكم. يتابعها الداعمون في التطبيق ويتبرعون عبر صفحة التبرع الآمنة الخاصة بك، وتُدفع المبالغ إلى حسابك في iyzico أو Kashier أو Fawaterk.",
-    nextCampaigns: "بعد هذه الخطوة، أضف مفاتيح الدفع (iyzico أو Kashier أو Fawaterk) وأول حملة لك في صفحة **الحملات**؛ ويظهر كل تبرع في صفحة **التبرعات**. يسجّل الداعمون الدخول إلى التطبيق باستخدام",
+    ownCampaigns: "أضف حملاتك هنا في لوحة التحكم. يتابعها الداعمون في التطبيق ويتبرعون عبر صفحة التبرع الآمنة الخاصة بك، وتُدفع المبالغ إلى حسابك في iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal.",
+    nextCampaigns: "بعد هذه الخطوة، أضف مفاتيح الدفع (iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal) وأول حملة لك في صفحة **الحملات**؛ ويظهر كل تبرع في صفحة **التبرعات**. يسجّل الداعمون الدخول إلى التطبيق باستخدام",
     ownRestaurant: "أضف قائمة طعامك هنا في لوحة التحكم: الأطباق بخياراتها وساعات العمل والاستلام والتوصيل. يطلب العملاء ويدفعون بالبطاقة في التطبيق، ويتابع مطبخك الطلبات هنا.",
     nextRestaurant:
-      "بعد هذه الخطوة، أضف أطباقك وساعات العمل والاستلام والتوصيل ومفاتيح الدفع (iyzico أو Kashier أو Fawaterk) في صفحة **قائمة الطعام**، وتابع الطلبات في صفحة **المطبخ**. يسجّل عملاؤك الدخول إلى التطبيق باستخدام",
+      "بعد هذه الخطوة، أضف أطباقك وساعات العمل والاستلام والتوصيل ومفاتيح الدفع (iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal) في صفحة **قائمة الطعام**، وتابع الطلبات في صفحة **المطبخ**. يسجّل عملاؤك الدخول إلى التطبيق باستخدام",
     ownClinic: "أضف خدماتك وأطباءك وساعات عملهم هنا في لوحة التحكم، مع استمارة استقبال إن أردت. يحجز المرضى الزيارات في التطبيق، وتراها هنا.",
     nextClinic: "بعد هذه الخطوة، أضف خدماتك وأطباءك وساعات عملهم وأسئلة الاستقبال في صفحة **الأطباء والخدمات**. يسجّل مرضاك الدخول إلى التطبيق باستخدام",
     ownFitness: "أضف حصصك ومدربيك وجدولك الأسبوعي وباقات العضوية هنا في لوحة التحكم. يحجز الأعضاء مكانًا في التطبيق ويشترون عضويتهم بالبطاقة.",
