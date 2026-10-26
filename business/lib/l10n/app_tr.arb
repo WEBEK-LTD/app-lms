@@ -641,6 +641,7 @@
   "chatGroupsHelp": "Her kursun öğrencilerinin konuştuğu bir grubu olur.",
   "chatNoPlan": "Sohbet Pro ve Business paketlerinde var.",
   "chatOlder": "Önceki mesajları göster",
+  "markPaid": "Ödendi olarak işaretle",
   "minutesAgo": "{count} dk önce",
   "hoursAgo": "{count} sa önce",
   "donorsCount": "{count} bağışçı",

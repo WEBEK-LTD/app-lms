@@ -526,11 +526,17 @@ export interface DataStore {
    * stock, once: false when the order wasn't pending.
    */
   payCatalogOrder(appId: string, id: number, paymentId: string, now: Date): Promise<boolean>;
-  /** Newest first; `statuses` limits the list (the app shows paid orders only). */
+  /**
+   * Newest first; `statuses` limits the list (the app shows paid orders only).
+   * 96.2 `manualOnly`: only those to pay by bank transfer or the owner's own
+   * method; `awaitingManual`: those still waiting for it too, besides `statuses`.
+   */
   listCatalogOrders(input: {
     appId: string;
     userId?: number;
     statuses?: CatalogOrderStatus[];
+    manualOnly?: boolean;
+    awaitingManual?: boolean;
     offset: number;
     limit: number;
   }): Promise<{ items: CatalogOrder[]; total: number }>;

@@ -8,10 +8,11 @@ import { sendStoragePaidMail } from "../media/mail";
 import { fulfilmentOf } from "../catalog/fulfilment";
 import { completePayment, deliverPaidOrder, newOrderMailValues } from "../catalog/payment";
 import { accountForOrder } from "../catalog/settings";
+import { awaitingManualPayment } from "../catalog/manual";
 import { sha256Hex } from "../crypto/tokens";
 import { getStore } from "../data";
 import type { DataStore } from "../data/store";
-import type { CatalogOrder, Donation, PaymentProviderId, PlanPayment } from "../data/types";
+import type { App, CatalogOrder, Donation, PaymentProviderId, PlanPayment } from "../data/types";
 import { completeDonationPayment, donationAccount, donationReceiptValues } from "../donations/payment";
 import { receiptUrl } from "../donations/service";
 import { emailLangOf, sendTemplate } from "../email/send";
@@ -101,6 +102,42 @@ export async function settlePlanRecord(store: DataStore, payment: PlanPayment, t
   return { status: outcome.kind, path: payment.purpose === "storage" ? "/dashboard/media?payment=paid" : "/dashboard/license?payment=paid", paidApp };
 }
 
+/**
+ * What follows an order's payment, once: what it delivers, the owner's email
+ * and push, and the customer's receipt. 96.2 Also when the owner marks an
+ * order paid by bank transfer or their own method.
+ */
+export async function afterOrderPaid(store: DataStore, app: App, order: CatalogOrder): Promise<void> {
+  // Courses enrol the student, 27 a gym's membership starts, 28 tickets are issued only now, after the payment was confirmed.
+  await deliverPaidOrder(store, app, order, new Date(), appUrl());
+  const client = await store.getClientById(app.clientId);
+  const owner = client ? await store.getUserById(client.userId) : null;
+  const paid = await store.getCatalogOrder(app.id, order.id);
+  if (owner && paid) {
+    const lang = emailLangOf(owner);
+    const values = newOrderMailValues(paid, app.appName ?? getDashT(lang)("emails.yourAppName"), `${appUrl()}/dashboard/orders`, fulfilmentOf(app)?.timezone, lang);
+    await sendTemplate("new_order", owner.email, values, { lang }).catch(() => {
+      // The order is paid either way; the dashboard lists it.
+    });
+  }
+  // 58 And to the owner's phone (Yallapp Business).
+  if (paid) await pushOwnerSafely((d) => pushNewOrder(d, app, paid));
+  // 71 The customer gets their receipt, its PDF attached.
+  if (paid) await sendOrderReceipt(store, app, paid);
+}
+
+/**
+ * 96.2 The owner marks an order paid by bank transfer or their own method:
+ * it is paid and delivered like a card payment, once. False when it wasn't
+ * waiting for such a payment (paid meanwhile, or cancelled).
+ */
+export async function markManualOrderPaid(store: DataStore, app: App, order: CatalogOrder, now: Date): Promise<boolean> {
+  if (!awaitingManualPayment(order)) return false;
+  const changed = await store.payCatalogOrder(app.id, order.id, `manual-${order.id}`, now);
+  if (changed) await afterOrderPaid(store, app, order);
+  return changed;
+}
+
 /** A shop's order: products, paid courses, memberships, tickets, a restaurant's order. */
 export async function settleOrderPayment(token: string, trigger: Trigger): Promise<Settled> {
   const back = `/pay/${encodeURIComponent(token)}`;
@@ -128,24 +165,7 @@ export async function settleOrderRecord(store: DataStore, order: CatalogOrder, t
     iyzicoToken: trigger.iyzicoToken,
     providerRef: trigger.providerRef,
   });
-  if (outcome === "paid") {
-    // Courses enrol the student, 27 a gym's membership starts, 28 tickets are issued only now, after the provider confirmed the payment.
-    await deliverPaidOrder(store, app, order, new Date(), appUrl());
-    const client = await store.getClientById(app.clientId);
-    const owner = client ? await store.getUserById(client.userId) : null;
-    const paid = await store.getCatalogOrder(app.id, order.id);
-    if (owner && paid) {
-      const lang = emailLangOf(owner);
-      const values = newOrderMailValues(paid, app.appName ?? getDashT(lang)("emails.yourAppName"), `${appUrl()}/dashboard/orders`, fulfilmentOf(app)?.timezone, lang);
-      await sendTemplate("new_order", owner.email, values, { lang }).catch(() => {
-        // The order is paid either way; the dashboard lists it.
-      });
-    }
-    // 58 And to the owner's phone (Yallapp Business).
-    if (paid) await pushOwnerSafely((d) => pushNewOrder(d, app, paid));
-    // 71 The customer gets their receipt, its PDF attached.
-    if (paid) await sendOrderReceipt(store, app, paid);
-  }
+  if (outcome === "paid") await afterOrderPaid(store, app, order);
   if (outcome === "failed") return failed;
   if (outcome === "pending") return { status: "pending", path: `${back}?payment=pending` };
   return { status: outcome, path: `${back}/order-received` };

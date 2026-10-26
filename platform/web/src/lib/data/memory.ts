@@ -969,6 +969,8 @@ export class MemoryStore implements DataStore {
     appId: string;
     userId?: number;
     statuses?: CatalogOrderStatus[];
+    manualOnly?: boolean;
+    awaitingManual?: boolean;
     offset: number;
     limit: number;
   }): Promise<{ items: CatalogOrder[]; total: number }> {
@@ -977,7 +979,8 @@ export class MemoryStore implements DataStore {
         (o) =>
           o.appId === input.appId &&
           (input.userId === undefined || o.userId === input.userId) &&
-          (!input.statuses || input.statuses.includes(o.status)),
+          (!input.statuses || input.statuses.includes(o.status) || (input.awaitingManual === true && o.status === "pending" && Boolean(o.manualPayment))) &&
+          (!input.manualOnly || Boolean(o.manualPayment)),
       )
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
     return { items: all.slice(input.offset, input.offset + input.limit).map(clone), total: all.length };

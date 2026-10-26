@@ -699,6 +699,20 @@ mobile/
   Their currencies: Stripe TRY, USD, EUR, EGP, SAR, AED; PayPal USD, EUR.
   Test runs point `STRIPE_API_URL` and `PAYPAL_API_URL` at fakes (refused on
   Netlify).
+  96.2 Bank transfer and the client's own method (`lib/catalog/manual.ts`,
+  `catalogSettings.manualPayments`, migration `0086_manual_payments`): paid
+  outside Yallapp, never checked by it. The pay page offers them next to the
+  card (or alone: `paymentsSetUp` counts them); choosing one keeps the
+  customer and a copy of the method's details with the day to pay by on the
+  order (`catalog_orders.manual_payment`), holds ticket places until then and
+  emails both sides (`order_awaiting_payment`, `new_order_awaiting_payment`).
+  The order stays `pending`, listed apart (`listCatalogOrders` `manualOnly`,
+  `awaitingManual`) on Orders, the Kitchen, the Owner API and the customer's
+  own orders (`pay_outside`), until the owner marks it paid
+  (`changeOrderStatus` to `processing`: `markManualOrderPaid` pays it once and
+  runs `afterOrderPaid`, as a card payment's settle does) or cancels it
+  (ticket holds released). The pending-payments job never asks about it (no
+  `provider_ref`); its refunds are recorded only.
 
 - Refunds from the dashboard (Phase 47, `lib/payments/refund.ts`,
   `lib/refunds/service.ts`, migration `0039_refunds_time_zone`): the owner

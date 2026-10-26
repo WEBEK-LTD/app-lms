@@ -2164,6 +2164,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get chatOlder => 'Önceki mesajları göster';
 
   @override
+  String get markPaid => 'Ödendi olarak işaretle';
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }

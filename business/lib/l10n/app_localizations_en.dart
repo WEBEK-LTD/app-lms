@@ -2162,6 +2162,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatOlder => 'Show earlier messages';
 
   @override
+  String get markPaid => 'Mark as paid';
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }

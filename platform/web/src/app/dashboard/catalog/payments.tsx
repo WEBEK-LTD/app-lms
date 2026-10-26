@@ -6,7 +6,8 @@ import { mayDo, OwnerOnly } from "@/components/owner-only";
 import { catalogSettings, isOwnPayment } from "@/lib/catalog/settings";
 import type { App, CatalogCurrency } from "@/lib/data/types";
 import { currencyList, PROVIDER_NAME, providerTakes } from "@/lib/payments/provider";
-import { PaymentKeysForm } from "./forms";
+import { ManualPaymentsForm, PaymentKeysForm } from "./forms";
+import { manualChoices, PAY_WITHIN_DAYS } from "@/lib/catalog/manual";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { formatList } from "@/i18n/format";
 import { PROVIDER_CURRENCIES } from "@/lib/payments/provider";
@@ -64,6 +65,41 @@ export async function CardPayments({ app, currency }: { app: App; currency?: Cat
           <PaymentKeysForm provider={own?.provider ?? null} sandbox={own?.sandbox ?? false} merchantId={own?.provider === "kashier" ? own.merchantId : ""} clientId={own?.provider === "paypal" ? own.clientId : ""} />
         </div>
       </details>
+    </section>
+  );
+}
+
+/**
+ * 96.2 Bank transfer and the owner's own method ("Cash on delivery"): the
+ * customer picks one on the payment page and pays the business directly;
+ * the order waits on Orders until the owner marks it paid.
+ */
+export async function OtherPayments({ app }: { app: App }) {
+  if (!(await mayDo("billing"))) return null;
+  const { t, lang } = await dashboardText();
+  const manual = catalogSettings(app).manualPayments ?? null;
+  const on = manualChoices(manual);
+  const names = on.map((c) => (c.method === "bank_transfer" ? t("orders.bankTransfer") : c.name));
+  return (
+    <section aria-labelledby="h-other-payments" className="flex max-w-[640px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+      <h2 id="h-other-payments" className="m-0 text-lg font-bold">
+        {t("shop.otherPayments")}
+      </h2>
+      <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("shop.otherIntro")}</p>
+      {on.length > 0 ? (
+        <p className="m-0 flex items-center gap-2 text-[15px] font-semibold text-success">
+          <Icon name="check_circle" size={20} filled />
+          {t("shop.otherOn", { methods: formatList(lang, names) })}
+        </p>
+      ) : null}
+      <ManualPaymentsForm
+        values={{
+          bankTransfer: manual?.bankTransfer ?? "",
+          customName: manual?.custom?.name ?? "",
+          customInstructions: manual?.custom?.instructions ?? "",
+          payWithinDays: String(manual?.payWithinDays ?? PAY_WITHIN_DAYS.default),
+        }}
+      />
     </section>
   );
 }

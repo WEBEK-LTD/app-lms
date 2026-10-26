@@ -3,6 +3,8 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { readCustomer, startPayment } from "@/lib/catalog/payment";
+import { chooseManualPayment, isManualMethod } from "@/lib/catalog/manual";
+import { sendManualOrderMails } from "@/lib/catalog/manual-mail";
 import { checkoutAccount, payLinkExpired } from "@/lib/catalog/settings";
 import { sha256Hex } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
@@ -28,7 +30,7 @@ export async function demoPayAction(token: string): Promise<void> {
   redirect(`/pay/${token}/order-received`);
 }
 
-/** The payment page's form: saves the customer's details and sends them to the provider's page (37 iyzico, Kashier, Fawaterk, Stripe or PayPal). */
+/** The payment page's form: saves the customer's details and sends them to the provider's page (37 iyzico, Kashier, Fawaterk, Stripe or PayPal), or 96.2 places the order to pay by bank transfer or the owner's own method. */
 export async function payAction(token: string, _: FormState, formData: FormData): Promise<FormState> {
   const values = Object.fromEntries(["name", "phone", "email", "city", "address"].map((k) => [k, String(formData.get(k) ?? "")]));
   const store = await getStore();
@@ -36,8 +38,28 @@ export async function payAction(token: string, _: FormState, formData: FormData)
   if (!order) return { message: "This payment link isn't valid." };
   const now = new Date();
   if (order.status !== "pending") redirect(`/pay/${token}`);
+  // 96.2 Already placed to pay by bank transfer or the owner's own method: its details are on the order's page.
+  if (order.manualPayment) redirect(`/pay/${token}/order-received`);
   if (payLinkExpired(order, now)) return { message: "This payment link has expired. Go back to the app and check out again." };
   const app = await store.getAppById(order.appId);
+  const method = String(formData.get("method") ?? "card");
+  // 96.2 Bank transfer or the owner's own method: the order waits for the owner to mark it paid.
+  if (app && isManualMethod(method)) {
+    const settings = app.catalogSettings?.manualPayments;
+    const checked = readCustomer(app, values);
+    if (!checked.ok) return { errors: checked.errors, values };
+    let chosen;
+    try {
+      chosen = settings ? await chooseManualPayment({ store, app, settings, order, customer: checked.customer, method, now }) : null;
+    } catch (e) {
+      if (e instanceof HoldEndedError) return { message: "The places held for this order were released. Go back to the app and get your tickets again." };
+      throw e;
+    }
+    if (!chosen) return { message: "This payment method isn't offered any more. Choose another one.", values };
+    const placed = await store.getCatalogOrder(app.id, order.id);
+    if (placed) await sendManualOrderMails(store, app, placed, chosen);
+    redirect(`/pay/${token}/order-received`);
+  }
   const account = app ? await checkoutAccount(store, app, encryptionKey()) : null;
   if (!app || !account) return { message: "This shop can't take payments right now. Please try again later.", values };
   const checked = readCustomer(app, values);

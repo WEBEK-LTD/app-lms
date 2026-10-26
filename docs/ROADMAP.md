@@ -2163,6 +2163,6 @@ app, not only in their email.
 | | Step | Done when |
 |---|---|---|
 | [x] | 96.1 Stripe and PayPal as the client's own gateway, next to iyzico, Kashier and Fawaterk: the keys are checked and kept encrypted, the customer pays on Stripe Checkout or PayPal, and Yallapp reads each payment back (and captures PayPal's) before the order is paid; refunds through their APIs | e2e |
-| [ ] | 96.2 Bank transfer and a custom payment method: the client writes the details, the customer picks it on the pay page and sees them, and the order waits until the client marks it paid in Orders (or cancels it) | e2e |
+| [x] | 96.2 Bank transfer and the client's own method (cash on delivery, a wallet): the client writes the details, the customer picks it on the pay page and sees them there, by email and in the app, and the order waits under Waiting for payment until the client marks it paid (then it is delivered like a card payment, with the receipt) or cancels it; also in Yallapp Business. Donations stay card-only | e2e, unit and Flutter tests |
 | [ ] | 96.3 Receipts in the app for tickets, paid courses and memberships | e2e and Flutter tests |
 | [ ] | 96.4 Receipts in the customer's own language | Unit tests |

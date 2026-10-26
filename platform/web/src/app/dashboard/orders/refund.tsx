@@ -16,6 +16,8 @@ export interface RefundFormOptions {
   currency: string;
   byApi: boolean;
   manual: boolean;
+  /** 96.2 Paid by bank transfer or the owner's own method (`providerName`): paid back the same way. */
+  outside?: boolean;
   marketplace: boolean;
   /** Released to the shop already (marketplace, Kashier or Fawaterk): the team takes it from the next transfer. */
   payoutReleased: boolean;
@@ -71,7 +73,7 @@ export function RefundForm({ kind, id, label, options }: { kind: "order" | "dona
           <>
             <input type="hidden" name="method" value={options.byApi ? "api" : "manual"} />
             {options.byApi ? null : (
-              <p className="m-0 text-sm text-ink-4">{t("orders.panelOnly", { provider: options.providerName })}</p>
+              <p className="m-0 text-sm text-ink-4">{t(options.outside ? "orders.outsideOnly" : "orders.panelOnly", { provider: options.providerName })}</p>
             )}
             <FieldError id={`${f("method")}-error`} error={state.errors?.method} />
           </>

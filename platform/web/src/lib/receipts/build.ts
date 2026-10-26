@@ -229,7 +229,15 @@ export function orderReceipt(input: OrderReceiptInput): ReceiptDocument {
     columns: { item: w("item"), quantity: w("quantity"), amount: w("amount") },
     items,
     totals,
-    payment: { label: w("payment"), rows: app.demo ? [[w("paidWith"), w("demo")]] : cardRows(w, order.paymentProvider, order.paymentId) },
+    payment: {
+      label: w("payment"),
+      rows: app.demo
+        ? [[w("paidWith"), w("demo")]]
+        : // 96.2 Bank transfer or the business's own method, confirmed by the business.
+          order.manualPayment
+          ? [[w("paidWith"), order.manualPayment.method === "bank_transfer" ? w("bankTransfer") : order.manualPayment.name]]
+          : cardRows(w, order.paymentProvider, order.paymentId),
+    },
     notes,
     footer: w("thanks"),
     accent: app.primaryColor,

@@ -20,7 +20,7 @@ import { currentPlanId } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { deleteCouponAction, setCouponActiveAction } from "@/app/actions/catalog";
 import { formatDate } from "@/components/ui";
-import { CardPayments } from "./payments";
+import { CardPayments, OtherPayments } from "./payments";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 
@@ -296,6 +296,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
       ) : null}
 
       <CardPayments app={app} />
+      <OtherPayments app={app} />
     </div>
   );
 }

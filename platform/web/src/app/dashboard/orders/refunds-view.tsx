@@ -30,6 +30,8 @@ export async function RefundSection({
   payoutReleased?: boolean;
 }) {
   const { t, k, lang } = await dashboardText();
+  // 96.2 Paid by bank transfer or the owner's own method: paid back the same way, and recorded.
+  const outside = options.outside === "bank_transfer" ? t("orders.bankTransfer") : options.outside;
   return (
     <>
       {refunds.length ? (
@@ -43,7 +45,11 @@ export async function RefundSection({
                 reason: isRefundReason(r.reason) ? k(REFUND_REASONS[r.reason]) : r.reason,
               })}
               {r.note ? ` (${r.note})` : ""} ·{" "}
-              {r.method === "api" ? t("orders.throughProvider", { provider: PROVIDER_NAME[r.provider] }) : t("orders.recordedIn", { provider: PROVIDER_NAME[r.provider] })}
+              {outside
+                ? t("orders.recordedOutside", { method: outside })
+                : r.method === "api"
+                  ? t("orders.throughProvider", { provider: PROVIDER_NAME[r.provider] })
+                  : t("orders.recordedIn", { provider: PROVIDER_NAME[r.provider] })}
               {r.providerRef ? ` · ${t("orders.referenceN", { reference: r.providerRef })}` : ""}
             </li>
           ))}
@@ -55,7 +61,8 @@ export async function RefundSection({
           id={id}
           label={label}
           options={{
-            providerName: PROVIDER_NAME[options.provider],
+            providerName: outside ?? PROVIDER_NAME[options.provider],
+            outside: outside !== null,
             left: (options.leftCents / 100).toFixed(2),
             leftFormatted: formatCents(options.leftCents, currency),
             currency,

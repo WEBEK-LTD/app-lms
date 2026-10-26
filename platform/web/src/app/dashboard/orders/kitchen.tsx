@@ -13,6 +13,7 @@ import { encryptionKey } from "@/lib/env";
 import { orderRefundOptions } from "@/lib/refunds/service";
 import { AutoRefresh } from "./refresh";
 import { RefundSection } from "./refunds-view";
+import { AwaitingPayment } from "./awaiting";
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import { formatDate } from "@/i18n/format";
 
@@ -121,6 +122,8 @@ export async function KitchenView({ app, kitchen, page }: { app: App; kitchen: F
         <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("orders.kitchen")}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("orders.kitchenIntro")}</p>
       </div>
+      {/* 96.2 Orders to pay by bank transfer or the owner's own method reach the kitchen once marked paid. */}
+      <AwaitingPayment app={app} />
 
       <section aria-labelledby="h-kitchen" className="flex flex-col gap-4">
         <h2 id="h-kitchen" className="m-0 text-lg font-bold">

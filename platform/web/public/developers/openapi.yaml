@@ -5071,6 +5071,21 @@ components:
             has `status` `refunded` (and the label "Refunded"); a partly
             refunded one keeps its status, and the app shows this amount as
             "Refunded". Missing on older servers and on WordPress sites.
+        pay_outside:
+          type: [object, 'null']
+          description: |
+            96.2 The customer chose to pay this order by bank transfer or the
+            shop's own method (apps without a website): the shop's details and
+            the day to pay by. The order is listed with `status` `pending`
+            ("Waiting for payment") until the shop marks it paid; the app shows
+            these details with it. Null or missing otherwise, on older servers
+            and on WordPress sites.
+          required: [method, name, instructions, due_at]
+          properties:
+            method: { type: string, enum: [bank_transfer, custom] }
+            name: { type: string, description: '"Bank transfer", or the shop''s name for its method.', example: Bank transfer }
+            instructions: { type: string, description: 'The shop''s details, in its own words (bank, account holder, IBAN).', example: "Harbour Books Ltd\nIBAN TR00 0000 0000 0000 0000 0000 00" }
+            due_at: { type: string, format: date-time }
         receipt_url:
           type: [string, 'null']
           format: uri

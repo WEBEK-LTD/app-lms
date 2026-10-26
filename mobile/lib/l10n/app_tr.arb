@@ -1081,5 +1081,6 @@
   "noPointsYet": "Henüz puanınız yok. Siparişleriniz tamamlandığında puan kazanırsınız.",
   "orderPointsUsed": "{count, plural, =1{1 puan kullanıldı: −{amount}} other{{count} puan kullanıldı: −{amount}}}",
   "orderPointsEarned": "{count, plural, =1{1 puan kazanıldı} other{{count} puan kazanıldı}}",
-  "cartTaxIncluded": "{amount} {tax} dahil"
+  "cartTaxIncluded": "{amount} {tax} dahil",
+  "payOutsideDue": "{total} tutarını {date} tarihine kadar aşağıdaki gibi ödeyin ve ödemenizle birlikte {number} sipariş numarasını belirtin. Mağaza, ödeme ulaştığında siparişinizi onaylar."
 }

@@ -8,6 +8,8 @@ import { appLoyalty, earnOrderPoints, undoOrderPoints } from "./loyalty";
 import { moveOrder } from "./kitchen";
 import { approvePayout } from "./payment";
 import { accountForOrder } from "./settings";
+import { awaitingManualPayment, cancelManualOrder } from "./manual";
+import { markManualOrderPaid } from "../payments/settle";
 
 /**
  * Moving a paid order on, for Dashboard › Orders and the Kitchen, and 58 the
@@ -24,8 +26,10 @@ export function inKitchen(order: Pick<CatalogOrder, "fulfilment" | "status">): b
   return Boolean(order.fulfilment) && order.status === "processing";
 }
 
-/** What the order's buttons offer now: the kitchen's next step and Cancel, or Completed and Cancel. */
+/** What the order's buttons offer now: the kitchen's next step and Cancel, or Completed and Cancel; 96.2 Paid and Cancel for one waiting for a bank transfer or the owner's own method. */
 export function nextOrderStatuses(order: CatalogOrder): string[] {
+  // 96.2 Waiting for a bank transfer or the owner's own method: Mark as paid, or Cancel.
+  if (awaitingManualPayment(order)) return ["processing", "cancelled"];
   if (inKitchen(order)) {
     const current = order.fulfilmentStatus;
     if (!current || !order.fulfilment) return [];
@@ -54,6 +58,11 @@ export interface OrderMoveDeps {
  */
 export async function changeOrderStatus(deps: OrderMoveDeps, order: CatalogOrder, status: string): Promise<boolean> {
   const { store, app, now } = deps;
+  // 96.2 Marked paid (then delivered like a card payment, the customer gets their receipt) or cancelled.
+  if (awaitingManualPayment(order)) {
+    if (status === "processing") return markManualOrderPaid(store, app, order, now);
+    return status === "cancelled" ? cancelManualOrder(store, app, order, now) : false;
+  }
   let moved = false;
   if (inKitchen(order)) {
     moved = (await moveOrder({ store, app, order, to: status as FulfilmentStatus, account: deps.account, now, send: deps.send })).moved;

@@ -603,6 +603,13 @@
       "when": 1793028314605,
       "tag": "0085_bank_transfer_invoices",
       "breakpoints": true
+    },
+    {
+      "idx": 86,
+      "version": "5",
+      "when": 1793034211623,
+      "tag": "0086_manual_payments",
+      "breakpoints": true
     }
   ]
 }

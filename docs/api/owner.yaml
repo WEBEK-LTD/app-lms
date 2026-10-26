@@ -565,12 +565,17 @@ paths:
     get:
       tags: [Orders]
       operationId: listOrders
-      summary: Paid orders
+      summary: Paid orders, and those waiting for a payment outside the app
+      description: |
+        96.2 Besides paid orders, the orders a customer placed to pay by bank
+        transfer or the owner's own method (`pay_outside`), with status
+        `pending` until the owner marks them paid. Unpaid card checkouts are
+        never listed.
       parameters:
         - $ref: '#/components/parameters/AppId'
         - name: status
           in: query
-          description: Only orders in these statuses (comma-separated); paid orders of every status by default.
+          description: Only orders in these statuses (comma-separated); paid orders of every status, and those waiting for a payment outside the app, by default. `pending` is those waiting.
           schema: { type: string, example: processing }
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PerPage'
@@ -618,7 +623,9 @@ paths:
       summary: Move an order on
       description: |
         One of the order's `next_statuses`: `completed` or `cancelled` for an
-        order in progress; for a restaurant's order the kitchen's next step
+        order in progress; 96.2 `processing` (paid: it then goes ahead like a
+        card payment and the customer gets their receipt) or `cancelled` for
+        one waiting for a bank transfer or the owner's own method; for a restaurant's order the kitchen's next step
         (`preparing`, `ready`, `out_for_delivery`, `completed`) or
         `cancelled`, and the customer is told. Completing an order sold
         through Yallapp's account releases the shop's share. Anything else is
@@ -634,7 +641,7 @@ paths:
               type: object
               required: [status]
               properties:
-                status: { type: string, enum: [completed, cancelled, preparing, ready, out_for_delivery] }
+                status: { type: string, enum: [processing, completed, cancelled, preparing, ready, out_for_delivery] }
       responses:
         '200':
           description: The order as it is now
@@ -3041,8 +3048,16 @@ components:
       properties:
         id: { type: integer }
         number: { type: string, example: '1042' }
-        status: { type: string, enum: [processing, completed, cancelled, refunded] }
+        status: { type: string, enum: [pending, processing, completed, cancelled, refunded], description: '`pending`: 96.2 waiting for a bank transfer or the owner''s own method (`pay_outside`).' }
         status_label: { type: string }
+        pay_outside:
+          type: [object, 'null']
+          description: 96.2 The order is to be paid by bank transfer or the owner's own method, outside the app; null for a card payment. Missing on older servers.
+          required: [method, name, due_at]
+          properties:
+            method: { type: string, enum: [bank_transfer, custom] }
+            name: { type: string, description: '"Bank transfer" in the person''s language, or the owner''s name for their method.', example: Cash on delivery }
+            due_at: { type: string, format: date-time, description: The day the customer was asked to pay by. }
         kitchen:
           type: [object, 'null']
           description: A restaurant's order.
@@ -3130,6 +3145,7 @@ components:
         left: { $ref: '#/components/schemas/Money' }
         by_api: { type: boolean }
         manual: { type: boolean }
+        paid_outside: { type: [string, 'null'], description: '96.2 Paid by bank transfer or the owner''s own method (its name): paid back the same way, then recorded (`manual`). Null for a card payment; missing on older servers.' }
         reasons:
           type: array
           items:

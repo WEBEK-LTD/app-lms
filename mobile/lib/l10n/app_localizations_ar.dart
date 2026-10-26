@@ -4144,4 +4144,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String cartTaxIncluded(String amount, String tax) {
     return 'يشمل $amount $tax';
   }
+
+  @override
+  String payOutsideDue(String total, String date, String number) {
+    return 'ادفع $total قبل $date كما هو موضح أدناه، واذكر رقم الطلب $number مع دفعتك. يؤكد المتجر طلبك عند وصول المبلغ.';
+  }
 }

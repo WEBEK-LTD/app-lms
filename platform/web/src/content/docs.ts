@@ -1954,7 +1954,16 @@ Set your prices in a currency your provider takes: the **Card payments** box war
 
 ## Yallapp never takes your customers' payments
 
-Every business takes its customers' payments in its own payment provider account: Yallapp never collects money for your sales and isn't a party to them, and there's no commission. Until your keys are saved, customers see your products, courses or tickets in the app but can't pay. Selling through Yallapp's account, offered before, has ended: if you used it, add your own account above; orders paid before are settled as before.
+Every business takes its customers' payments in its own payment provider account: Yallapp never collects money for your sales and isn't a party to them, and there's no commission. Until your keys are saved (or a bank transfer or your own method is on, below), customers see your products, courses or tickets in the app but can't pay. Selling through Yallapp's account, offered before, has ended: if you used it, add your own account above; orders paid before are settled as before.
+
+## Bank transfer and your own method
+
+Customers can also pay you directly, outside the app: by **bank transfer**, or your own way, like cash on delivery or a mobile wallet. On the same page, under **Bank transfer and your own method**, write your **Bank details** (the bank, the account holder and the IBAN, as customers should see them), and if you like **Your own method's name** with **What the customer does**, and the **Days to pay** (3 by default). Leave a box empty to turn its method off. A business can offer these with card payments or instead of them.
+
+- On the payment page, the customer chooses how to pay. With a bank transfer or your own method, they see your details, place the order and get them by email too, with the total and the day to pay by. They give the order number with their payment.
+- The order waits under **Waiting for payment** on the **Orders** page (you get an email). When the money arrives, select **Mark as paid**: the order then goes ahead like a card payment (a course opens, tickets are issued, a membership starts, a restaurant's order reaches the kitchen) and the customer gets their receipt. If they don't pay, select **Cancel order**: a ticket order's places go back on sale. Ticket places are held for the days to pay.
+- Yallapp never sees or checks this money: only you know when it arrived. To refund an order paid this way, pay the customer back yourself, then record it with **Refund**.
+- Donations are paid by card only.
 
 ## Refunds
 

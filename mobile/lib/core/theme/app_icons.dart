@@ -144,6 +144,8 @@ abstract final class AppIcons {
   static const campaigns = Symbols.volunteer_activism_rounded;
   static const campaignUpdate = Symbols.campaign_rounded;
   static const receipt = Symbols.receipt_long_rounded;
+  // 96.2 An order to pay by bank transfer or the shop's own method.
+  static const payOutside = Symbols.account_balance_rounded;
   static const donate = Symbols.favorite_rounded;
 
   // 33 Page blocks: contact, notices, quotes and social profiles (no brand

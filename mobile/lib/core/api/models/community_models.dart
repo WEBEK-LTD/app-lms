@@ -171,6 +171,26 @@ class OrderLine {
   final List<String> options;
 }
 
+/// 96.2 How to pay an order placed to pay by bank transfer or the shop's
+/// own method: the shop's details, in its own words, and the day to pay by.
+class PayOutside {
+  const PayOutside({
+    required this.name,
+    required this.instructions,
+    required this.dueAt,
+  });
+
+  factory PayOutside.fromJson(Json json) => PayOutside(
+    name: reqString(json, 'name'),
+    instructions: reqString(json, 'instructions'),
+    dueAt: reqDate(json, 'due_at'),
+  );
+
+  final String name;
+  final String instructions;
+  final DateTime dueAt;
+}
+
 /// An order from the site's checkout (`GET /me/orders`).
 class Order {
   const Order({
@@ -185,6 +205,7 @@ class Order {
     this.fulfilment,
     this.refundedTotal,
     this.receiptUrl,
+    this.payOutside,
     this.shipment,
     this.returnRequest,
     this.canReturn = false,
@@ -207,6 +228,7 @@ class Order {
     fulfilment: optObject(json, 'fulfilment', OrderFulfilment.fromJson),
     refundedTotal: optString(json, 'refunded_total'),
     receiptUrl: optString(json, 'receipt_url'),
+    payOutside: optObject(json, 'pay_outside', PayOutside.fromJson),
     shipment: optObject(json, 'shipment', OrderShipment.fromJson),
     returnRequest: optObject(json, 'return_request', ReturnRequest.fromJson),
     canReturn: boolOr(json, 'can_return', false),
@@ -232,6 +254,10 @@ class Order {
 
   /// 71 The receipt as a PDF, to download; null on WordPress sites and older servers.
   final String? receiptUrl;
+
+  /// 96.2 To pay by bank transfer or the shop's own method: how, until the
+  /// shop marks it paid; null for a card payment and on older servers.
+  final PayOutside? payOutside;
 
   /// 80.4 How the shop shipped it; null until it is.
   final OrderShipment? shipment;
