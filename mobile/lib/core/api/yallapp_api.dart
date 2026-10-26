@@ -549,6 +549,13 @@ abstract class YallappApi {
   /// 26 One of the customer's orders, for following it.
   Future<Order> getOrder(int orderId);
 
+  /// 91.3 Asks the shop to take a completed order back; answers with the order.
+  Future<Order> requestReturn(
+    int orderId, {
+    required ReturnReason reason,
+    String? note,
+  });
+
   Future<ReviewPage> listReviews(int courseId, {int page = 1});
   Future<Review> saveMyReview(int courseId, {required int rating, String text});
   Future<Paged<CourseQuestion>> listQuestions(int courseId, {int page = 1});
@@ -1351,6 +1358,22 @@ class HttpYallappApi implements YallappApi {
   @override
   Future<Order> getOrder(int orderId) =>
       _get('/me/orders/$orderId', _required, Order.fromJson);
+
+  @override
+  Future<Order> requestReturn(
+    int orderId, {
+    required ReturnReason reason,
+    String? note,
+  }) => _send(
+    'POST',
+    '/me/orders/$orderId/return',
+    _required,
+    (data) => Order.fromJson(asJson(data)),
+    body: {
+      'reason': snake(reason),
+      if (note != null && note.trim().isNotEmpty) 'note': note.trim(),
+    },
+  );
 
   @override
   Future<ReviewPage> listReviews(int courseId, {int page = 1}) => _get(

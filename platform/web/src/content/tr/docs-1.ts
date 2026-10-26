@@ -226,6 +226,8 @@ WooCommerce ile müşteriler siparişlerini uygulamada görür ve biri değişti
 - **Kargo takibi**: şimdi yaptığınız gibi **WooCommerce Shipment Tracking** veya **Advanced Shipment Tracking** ile ekleyin. Müşteri bir bildirim alır; uygulamadaki sipariş kargo firmasını, takip numarasını ve **Kargoyu takip et** düğmesini gösterir. Takip bilgisini değiştirmek müşteriyi yeniden bilgilendirir.
 - **Tamamlandı, iptal edildi veya iade edildi**: siparişin durumunu değiştirdiğinizde müşteri bir bildirim alır.
 
+- **İadeler**: eklentinin **Settings › Store app** bölümünde **Returns in the app** alanına, bir sipariş tamamlandıktan sonra müşterilerin kaç gün içinde iade isteyebileceğini yazın (iade yoksa 0). Müşteri uygulamadaki siparişte bir neden seçer ve not ekleyebilir. Size e-posta gelir ve talebi **WooCommerce › Orders** içindeki siparişte görürsünüz; orada bir yanıtla onaylar veya reddedersiniz, müşteriye uygulamada bildirilir. Ürün size ulaştığında iadeyi WooCommerce'te yapın. Yallapp eklentisi 0.4.17 veya sonrası.
+
 Müşteriler sipariş güncellemelerini uygulamanın ayarlarından kapatabilir. Yallapp eklentisi 0.4.16 veya sonrası.
 
 > Sayfalarınız, görünümünüz ve dilleriniz Yallapp panelinde oluşturulur; eklenti onları kendi kurslarınız, ürünleriniz ve yazılarınızla doldurur. Eklentinin **App pages and look** kartı yayımlanıp yayımlanmadıklarını gösterir ve onları hemen yenilemenizi sağlar.

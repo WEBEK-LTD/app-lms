@@ -42,7 +42,7 @@ const GROUPS: { file: string; all?: unknown; only?: Expected; skip?: string[] }[
   {
     file: "catalog",
     all: "catalog",
-    only: { savePaymentKeysAction: "billing", removePaymentKeysAction: "billing", setOrderStatusAction: "orders", moveOrderAction: "orders", shipOrderAction: "orders" },
+    only: { savePaymentKeysAction: "billing", removePaymentKeysAction: "billing", setOrderStatusAction: "orders", moveOrderAction: "orders", shipOrderAction: "orders", decideReturnAction: "orders" },
   },
   { file: "classes", all: "bookings" },
   { file: "courses", all: "catalog", only: { saveOfflineDownloadsAction: "settings" } },

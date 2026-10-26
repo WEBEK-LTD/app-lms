@@ -364,6 +364,13 @@
         },
         {
           "method": "POST",
+          "path": "/me/orders/{order_id}/return",
+          "summary": "Ask to return an order",
+          "description": "91.3 The customer asks the shop to take back an order it completed, within `StoreConfig.returns.days` (`Order.can_return`). The shop approves or declines it (with a reply) on its side; the customer is told with an `order_update` notification. Once asked, it can't be asked again (`conflict`); `forbidden` when the shop takes no returns from the app or the order can't be returned (not completed, too late, nothing physical).",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
           "path": "/courses/{course_id}/enroll",
           "summary": "Enroll in a free course",
           "description": "A course with a password on the website (62) is `403 enrollment_disabled`: the student joins it on the website, where its password is entered. A course that needs a membership the student doesn't have (90.3, `CourseDetail.membership`) is `403 membership_required`.",

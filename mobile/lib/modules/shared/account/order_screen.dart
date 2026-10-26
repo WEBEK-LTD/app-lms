@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/l10n/l10n.dart';
@@ -11,6 +12,7 @@ import '../../../core/providers.dart';
 import '../../../core/services/external_links.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
+import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import 'account_scaffold.dart';
 
@@ -123,6 +125,14 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
             if (order.shipment != null) ...[
               _ShipmentCard(shipment: order.shipment!),
               const SizedBox(height: 4),
+            ],
+            // 91.3 Its return: asked for here, and the shop's answer.
+            if (order.returnRequest != null) ...[
+              const SizedBox(height: 12),
+              _ReturnCard(request: order.returnRequest!),
+            ] else if (order.canReturn) ...[
+              const SizedBox(height: 12),
+              _ReturnButton(orderId: order.id),
             ],
             const SizedBox(height: 24),
             SectionHeader(title: l10n.orderYourOrder),
@@ -299,6 +309,238 @@ class _ShipmentCard extends ConsumerWidget {
               ],
             ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+/// 91.3 A return's reason, as the customer chose it.
+String returnReasonLabel(BuildContext context, ReturnReason reason) {
+  final l10n = context.l10n;
+  return switch (reason) {
+    ReturnReason.damaged => l10n.returnReasonDamaged,
+    ReturnReason.wrongItem => l10n.returnReasonWrongItem,
+    ReturnReason.notAsDescribed => l10n.returnReasonNotAsDescribed,
+    ReturnReason.noLongerNeeded => l10n.returnReasonNoLongerNeeded,
+    ReturnReason.other => l10n.returnReasonOther,
+  };
+}
+
+/// 91.3 Asks the shop to take the order back: a reason and a note, then the
+/// order comes back with the request on it.
+class _ReturnButton extends ConsumerStatefulWidget {
+  const _ReturnButton({required this.orderId});
+
+  final int orderId;
+
+  @override
+  ConsumerState<_ReturnButton> createState() => _ReturnButtonState();
+}
+
+class _ReturnButtonState extends ConsumerState<_ReturnButton> {
+  bool _sending = false;
+
+  Future<void> _ask() async {
+    final l10n = context.l10n;
+    final picked =
+        await showModalBottomSheet<({ReturnReason reason, String note})>(
+          context: context,
+          showDragHandle: true,
+          isScrollControlled: true,
+          builder: (context) => const _ReturnSheet(),
+        );
+    if (picked == null || !mounted) return;
+    setState(() => _sending = true);
+    try {
+      await ref
+          .read(yallappApiProvider)
+          .requestReturn(
+            widget.orderId,
+            reason: picked.reason,
+            note: picked.note,
+          );
+      ref.invalidate(orderProvider(widget.orderId));
+      if (mounted) showMessage(context, l10n.returnRequested);
+    } on Object catch (e) {
+      if (mounted) showMessage(context, friendlyError(e));
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: TextButton.icon(
+        key: const Key('order-return'),
+        onPressed: _sending ? null : _ask,
+        icon: AppIcon(AppIcons.returnOrder, size: 18, color: p.link),
+        label: Text(context.l10n.requestReturn),
+        style: TextButton.styleFrom(foregroundColor: p.link),
+      ),
+    );
+  }
+}
+
+/// 91.3 Why the customer returns it; a note, needed with "Another reason".
+class _ReturnSheet extends StatefulWidget {
+  const _ReturnSheet();
+
+  @override
+  State<_ReturnSheet> createState() => _ReturnSheetState();
+}
+
+class _ReturnSheetState extends State<_ReturnSheet> {
+  ReturnReason? _reason;
+  final _note = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _note.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _note.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final reason = _reason;
+    final ready =
+        reason != null &&
+        (reason != ReturnReason.other || _note.text.trim().isNotEmpty);
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewInsetsOf(context).bottom,
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                l10n.returnReasonTitle,
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: p.text,
+                ),
+              ),
+              const SizedBox(height: 4),
+              for (final r in ReturnReason.values)
+                ListTile(
+                  key: Key('return-reason-${r.name}'),
+                  contentPadding: EdgeInsets.zero,
+                  leading: AppIcon(
+                    r == reason
+                        ? AppIcons.radioChecked
+                        : AppIcons.radioUnchecked,
+                    color: r == reason ? p.link : p.textSecondary,
+                  ),
+                  title: Text(returnReasonLabel(context, r)),
+                  selected: r == reason,
+                  onTap: () => setState(() => _reason = r),
+                ),
+              const SizedBox(height: 8),
+              TextField(
+                key: const Key('return-note'),
+                controller: _note,
+                maxLength: 500,
+                minLines: 2,
+                maxLines: 4,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: InputDecoration(
+                  labelText: reason == ReturnReason.other
+                      ? l10n.returnNoteRequired
+                      : l10n.returnNote,
+                ),
+              ),
+              const SizedBox(height: 12),
+              PrimaryButton(
+                key: const Key('return-send'),
+                label: l10n.sendReturnRequest,
+                onPressed: ready
+                    ? () =>
+                          Navigator.of(context)
+                              .pop((reason: reason, note: _note.text.trim()))
+                    : null,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 91.3 The return asked for, and the shop's answer with its reply.
+class _ReturnCard extends StatelessWidget {
+  const _ReturnCard({required this.request});
+
+  final ReturnRequest request;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final (status, color) = switch (request.status) {
+      ReturnStatus.requested => (l10n.returnStatusRequested, p.textSecondary),
+      ReturnStatus.approved => (l10n.returnStatusApproved, p.success),
+      ReturnStatus.declined => (l10n.returnStatusDeclined, p.danger),
+    };
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              AppIcon(AppIcons.returnOrder, color: p.text),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  status,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: color,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            returnReasonLabel(context, request.reason),
+            style: TextStyle(fontSize: 14, color: p.text),
+          ),
+          if (request.note != null)
+            Text(
+              request.note!,
+              style: TextStyle(fontSize: 14, color: p.textSecondary),
+            ),
+          if (request.reply != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              l10n.returnShopReply(request.reply!),
+              style: TextStyle(fontSize: 14, color: p.text),
+            ),
+          ],
+          const SizedBox(height: 6),
+          Text(
+            shortDate(request.decidedAt ?? request.requestedAt),
+            style: TextStyle(fontSize: 13, color: p.textSecondary),
+          ),
         ],
       ),
     );

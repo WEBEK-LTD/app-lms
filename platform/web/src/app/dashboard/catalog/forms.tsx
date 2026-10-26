@@ -493,12 +493,15 @@ export function ShopSettingsForm({
   currency,
   shipping,
   freeOver,
+  returnDays = "",
   currencies,
   shippingFields = true,
 }: {
   currency: string;
   shipping: string;
   freeOver: string;
+  /** 91.3 Days after completion a return can be asked for; empty: none. */
+  returnDays?: string;
   currencies: string[];
   /** 26 Restaurants charge a delivery fee instead (Pickup and delivery). */
   shippingFields?: boolean;
@@ -538,6 +541,15 @@ export function ShopSettingsForm({
             defaultValue={state.values?.freeOver ?? freeOver}
             hint={t("shop.freeFromHint")}
             error={state.errors?.freeOver}
+          />
+          <Field
+            label={t("shop.returnDays")}
+            id="f-return-days"
+            name="returnDays"
+            inputMode="numeric"
+            defaultValue={state.values?.returnDays ?? returnDays}
+            hint={t("shop.returnDaysHint")}
+            error={state.errors?.returnDays}
           />
         </>
       ) : null}

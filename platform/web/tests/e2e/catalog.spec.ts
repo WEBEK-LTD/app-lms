@@ -207,3 +207,74 @@ test("a customer pays in the app and the order reaches the dashboard", async ({ 
   await shippedOrder.getByRole("button", { name: "Mark completed" }).click();
   await expect(shippedOrder).toContainText("Completed");
 });
+
+test("91.3 a signed-in customer asks to return a completed order, and the shop approves it", async ({ page, request }) => {
+  await signIn(page, client.email, client.password);
+  await page.getByRole("link", { name: "Products", exact: true }).click();
+  await page.getByLabel("Returns in the app (days)").fill("400");
+  await page.getByRole("button", { name: "Save settings" }).click();
+  await expect(page.getByText("Enter a number of days from 1 to 365, or leave it empty for no returns in the app.")).toBeVisible();
+  await page.getByLabel("Returns in the app (days)").fill("14");
+  await page.getByRole("button", { name: "Save settings" }).click();
+  await expect(page.getByText("Shop settings saved.")).toBeVisible();
+  const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
+  expect(config.store.returns).toEqual({ enabled: true, days: 14 });
+
+  // The customer signs in with their email, and checks out from the app.
+  await page.getByRole("link", { name: "App sign-in" }).click();
+  await page.getByText("Phone number or email address").click();
+  await page.getByRole("button", { name: "Save sign-in methods" }).click();
+  await expect(page.getByRole("status").first()).toContainText("Saved.");
+  const email = `ece-${suffix}@example.com`;
+  const device = { id: `e2e-shop-${suffix}`, platform: "android", name: "Pixel", app_version: "1.0.0" };
+  const asked = (await (await request.post(`${api}/auth/email/request`, { data: { email } })).json()) as { request_id: string };
+  const code = (await mailsWithFiles(email)).at(-1)!.subject.slice(0, 6);
+  const verified = (await (await request.post(`${api}/auth/otp/verify`, { data: { request_id: asked.request_id, code, device } })).json()) as { signup_token: string };
+  const registered = await request.post(`${api}/auth/register`, { data: { signup_token: verified.signup_token, name: "Ece Kaya", device } });
+  expect(registered.status()).toBe(201);
+  const headers = { authorization: `Bearer ${((await registered.json()) as { access_token: string }).access_token}` };
+  const products = await (await request.get(`${api}/store/products`)).json();
+  const link = await request.post(`${api}/store/checkout-link?platform=android`, { headers, data: { lines: [{ product_id: products.items[0].id, quantity: 1 }] } });
+  expect(link.status()).toBe(200);
+  await page.goto(((await link.json()) as { url: string }).url);
+  await page.getByLabel("Full name").fill("Ece Kaya");
+  await page.getByLabel("Mobile number").fill("0532 765 43 21");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("City").fill("Izmir");
+  await page.getByLabel("Address").fill("Kordon 5, Alsancak");
+  await page.getByRole("button", { name: "Pay ₺400.00" }).click();
+  await page.getByRole("button", { name: "Pay with test card" }).click();
+  await expect(page.getByRole("heading", { name: "Thank you!" })).toBeVisible();
+
+  const mine = await (await request.get(`${api}/me/orders`, { headers })).json();
+  const orderId = mine.items[0].id as number;
+  expect(mine.items[0]).toMatchObject({ can_return: false, return_request: null });
+  await page.goto("/dashboard/orders");
+  await page.getByRole("listitem").filter({ hasText: "Ece Kaya" }).getByRole("button", { name: "Mark completed" }).click();
+  await expect(page.getByRole("listitem").filter({ hasText: "Ece Kaya" })).toContainText("Completed");
+
+  // Within the days: once, with a reason; "other" needs a note.
+  expect((await request.post(`${api}/me/orders/${orderId}/return`, { headers, data: { reason: "other" } })).status()).toBe(400);
+  const returned = await request.post(`${api}/me/orders/${orderId}/return`, { headers, data: { reason: "damaged", note: "The stems were broken." } });
+  expect(returned.status()).toBe(200);
+  expect(await returned.json()).toMatchObject({ can_return: false, return_request: { status: "requested", reason: "damaged", note: "The stems were broken." } });
+  expect((await request.post(`${api}/me/orders/${orderId}/return`, { headers, data: { reason: "damaged" } })).status()).toBe(409);
+  // Someone else's order isn't theirs to return.
+  expect((await request.post(`${api}/me/orders/${orderId + 1000}/return`, { headers, data: { reason: "damaged" } })).status()).toBe(404);
+
+  await page.reload();
+  const order = page.getByRole("listitem").filter({ hasText: "Ece Kaya" });
+  const ret = order.getByRole("region", { name: /^Return/ });
+  await expect(ret).toContainText("Asked");
+  await expect(ret).toContainText("It arrived damaged");
+  await expect(ret).toContainText("The stems were broken.");
+  await ret.getByLabel("Your reply to the customer").fill("Our courier picks it up on Monday.");
+  await ret.getByRole("button", { name: "Approve return" }).click();
+  await expect(page.getByRole("listitem").filter({ hasText: "Ece Kaya" }).getByRole("region", { name: /^Return/ })).toContainText("Approved");
+  await expect(page.getByRole("listitem").filter({ hasText: "Ece Kaya" }).getByRole("region", { name: /^Return/ })).toContainText("Your reply: Our courier picks it up on Monday.");
+
+  const after = await (await request.get(`${api}/me/orders/${orderId}`, { headers })).json();
+  expect(after.return_request).toMatchObject({ status: "approved", reply: "Our courier picks it up on Monday." });
+  const inbox = await (await request.get(`${api}/me/notifications`, { headers })).json();
+  expect(inbox.items.some((n: { type: string; order_id?: number; body: string }) => n.type === "order_update" && n.order_id === orderId && n.body.includes("Our courier picks it up on Monday."))).toBe(true);
+});

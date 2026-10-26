@@ -109,6 +109,18 @@ class Woo_Orders {
 	 * @return array|null Order shape.
 	 */
 	public static function for_order( $user_id, $order_id, callable $course_of_item ) {
+		$order = self::customer_order( $user_id, $order_id );
+		return $order ? self::shape( $order, $course_of_item, true ) : null;
+	}
+
+	/**
+	 * 91.3 One of a customer's WooCommerce orders, or null when it isn't theirs (or doesn't exist).
+	 *
+	 * @param int $user_id  Customer.
+	 * @param int $order_id Order.
+	 * @return \WC_Order|null
+	 */
+	public static function customer_order( $user_id, $order_id ) {
 		if ( ! self::available() || ! $user_id || $order_id < 1 ) {
 			return null;
 		}
@@ -116,7 +128,7 @@ class Woo_Orders {
 		if ( ! $order instanceof \WC_Order || 'shop_order' !== $order->get_type() || (int) $order->get_customer_id() !== (int) $user_id ) {
 			return null;
 		}
-		return self::shape( $order, $course_of_item, true );
+		return $order;
 	}
 
 	/**
@@ -161,6 +173,10 @@ class Woo_Orders {
 			$shape['fulfilment_status'] = self::fulfilment_status( $status );
 			// 91.2 Its tracking, from the tracking plugins.
 			$shape['shipment'] = Order_Tracking::of_order( $order );
+			// 91.3 Its return, and whether one can be asked for now.
+			$days                    = Order_Returns::days( \Yallapp\Plugin::instance()->settings()->get( 'store_return_days' ) );
+			$shape['return_request'] = Order_Returns::json( $order );
+			$shape['can_return']     = Order_Returns::can_return( $order, $days );
 		}
 		return $shape;
 	}

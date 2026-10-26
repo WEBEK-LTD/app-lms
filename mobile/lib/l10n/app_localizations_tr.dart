@@ -3928,4 +3928,52 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get notifyOrderUpdates => 'Sipariş güncellemeleri';
+
+  @override
+  String get requestReturn => 'Bu siparişi iade et';
+
+  @override
+  String get returnReasonTitle => 'Neden iade ediyorsunuz?';
+
+  @override
+  String get returnReasonDamaged => 'Hasarlı geldi';
+
+  @override
+  String get returnReasonWrongItem => 'Yanlış ürün';
+
+  @override
+  String get returnReasonNotAsDescribed => 'Açıklandığı gibi değil';
+
+  @override
+  String get returnReasonNoLongerNeeded => 'Artık ihtiyacım yok';
+
+  @override
+  String get returnReasonOther => 'Başka bir neden';
+
+  @override
+  String get returnNote => 'Mağazaya not (isteğe bağlı)';
+
+  @override
+  String get returnNoteRequired => 'Mağazaya nedenini yazın';
+
+  @override
+  String get sendReturnRequest => 'Talebi gönder';
+
+  @override
+  String get returnRequested =>
+      'İade talebi gönderildi. Mağaza buradan yanıtlayacak.';
+
+  @override
+  String get returnStatusRequested => 'İade talep edildi';
+
+  @override
+  String get returnStatusApproved => 'İade onaylandı';
+
+  @override
+  String get returnStatusDeclined => 'İade reddedildi';
+
+  @override
+  String returnShopReply(String reply) {
+    return 'Mağaza: $reply';
+  }
 }

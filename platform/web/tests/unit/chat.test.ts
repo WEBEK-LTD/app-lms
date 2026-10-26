@@ -279,7 +279,7 @@ describe("77 chat on the hosted API", () => {
       ["Ece Yıldız", false],
     ]);
     // Never a phone number or an email address.
-    expect(JSON.stringify(members.body)).not.toContain("532");
+    expect(JSON.stringify(members.body)).not.toMatch(/5321234567|5329876543|@/);
 
     const rude = await call("POST", "/chat/conversations/{conversation_id}/messages", { token: deniz.access_token, params: [group], body: { client_id: "client-0101", text: "Buy cheap watches!" } });
     const rudeId = (rude.body as { id: string }).id;

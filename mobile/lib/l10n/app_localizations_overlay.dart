@@ -4067,4 +4067,66 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get notifyOrderUpdates =>
       overlay.text('notifyOrderUpdates') ?? base.notifyOrderUpdates;
+
+  @override
+  String get requestReturn =>
+      overlay.text('requestReturn') ?? base.requestReturn;
+
+  @override
+  String get returnReasonTitle =>
+      overlay.text('returnReasonTitle') ?? base.returnReasonTitle;
+
+  @override
+  String get returnReasonDamaged =>
+      overlay.text('returnReasonDamaged') ?? base.returnReasonDamaged;
+
+  @override
+  String get returnReasonWrongItem =>
+      overlay.text('returnReasonWrongItem') ?? base.returnReasonWrongItem;
+
+  @override
+  String get returnReasonNotAsDescribed =>
+      overlay.text('returnReasonNotAsDescribed') ??
+      base.returnReasonNotAsDescribed;
+
+  @override
+  String get returnReasonNoLongerNeeded =>
+      overlay.text('returnReasonNoLongerNeeded') ??
+      base.returnReasonNoLongerNeeded;
+
+  @override
+  String get returnReasonOther =>
+      overlay.text('returnReasonOther') ?? base.returnReasonOther;
+
+  @override
+  String get returnNote => overlay.text('returnNote') ?? base.returnNote;
+
+  @override
+  String get returnNoteRequired =>
+      overlay.text('returnNoteRequired') ?? base.returnNoteRequired;
+
+  @override
+  String get sendReturnRequest =>
+      overlay.text('sendReturnRequest') ?? base.sendReturnRequest;
+
+  @override
+  String get returnRequested =>
+      overlay.text('returnRequested') ?? base.returnRequested;
+
+  @override
+  String get returnStatusRequested =>
+      overlay.text('returnStatusRequested') ?? base.returnStatusRequested;
+
+  @override
+  String get returnStatusApproved =>
+      overlay.text('returnStatusApproved') ?? base.returnStatusApproved;
+
+  @override
+  String get returnStatusDeclined =>
+      overlay.text('returnStatusDeclined') ?? base.returnStatusDeclined;
+
+  @override
+  String returnShopReply(String reply) =>
+      overlay.format('returnShopReply', {'reply': reply}) ??
+      base.returnShopReply(reply);
 }

@@ -1,5 +1,6 @@
 "use server";
 
+import { decideReturn } from "@/lib/catalog/returns";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { actorOf, clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
@@ -189,19 +190,31 @@ export async function deleteProductAction(formData: FormData): Promise<void> {
 
 export async function saveShopSettingsAction(_: FormState, formData: FormData): Promise<FormState> {
   const { app } = await requireCatalogApp();
-  const values = { currency: str(formData, "currency"), shipping: str(formData, "shipping"), freeOver: str(formData, "freeOver") };
+  const values = { currency: str(formData, "currency"), shipping: str(formData, "shipping"), freeOver: str(formData, "freeOver"), returnDays: str(formData, "returnDays") };
   const errors: Record<string, string> = {};
   if (!CATALOG_CURRENCIES.includes(values.currency as CatalogCurrency)) errors.currency = "Choose a currency.";
   const shipping = values.shipping ? parsePrice(values.shipping) : 0;
   if (shipping === null) errors.shipping = "Enter an amount, or leave it empty for free shipping.";
   const freeOver = values.freeOver ? parsePrice(values.freeOver) : null;
   if (values.freeOver && freeOver === null) errors.freeOver = "Enter an amount, or leave it empty.";
+  // 91.3 Returns asked for in the app: days after an order is completed; empty for none.
+  const returnDays = values.returnDays.trim() === "" ? null : Number(values.returnDays.trim());
+  if (returnDays !== null && (!Number.isInteger(returnDays) || returnDays < 1 || returnDays > 365)) errors.returnDays = "Enter a number of days from 1 to 365, or leave it empty for no returns in the app.";
   if (Object.keys(errors).length > 0) return { errors, values };
   const now = new Date();
   const settings = catalogSettings(app);
   await (await getStore()).updateApp(
     app.id,
-    { catalogSettings: { ...settings, currency: values.currency as CatalogCurrency, shippingCents: shipping!, freeShippingOverCents: freeOver } },
+    {
+      catalogSettings: {
+        ...settings,
+        currency: values.currency as CatalogCurrency,
+        shippingCents: shipping!,
+        freeShippingOverCents: freeOver,
+        // 26 A restaurant's form has no shipping fields, nor returns: kept as they were.
+        ...(formData.has("returnDays") ? { returnDays } : {}),
+      },
+    },
     now,
   );
   refresh();
@@ -339,6 +352,21 @@ export async function setOrderStatusAction(formData: FormData): Promise<void> {
  * tracking link, the tracking number and the waybill; the customer is told
  * (their inbox, a push, an email).
  */
+/** 91.3 The shop's answer to a return the customer asked for in the app (orders/page.tsx). */
+export async function decideReturnAction(formData: FormData): Promise<void> {
+  const context = await requireCatalogApp({}, "orders");
+  const { app } = context;
+  const store = await getStore();
+  const id = Number(formData.get("id"));
+  const decision = formData.get("decision") === "approved" ? "approved" : "declined";
+  const order = Number.isSafeInteger(id) ? await store.getCatalogOrder(app.id, id) : null;
+  const now = new Date();
+  if (order && (await decideReturn({ store, key: encryptionKey(), now }, app, order, decision, formData.get("reply")))) {
+    await recordOrderStatus(store, { clientId: context.client.id, appId: app.id, actor: actorOf(context), orderId: order.id, to: `return_${decision}` }, now);
+  }
+  refresh();
+}
+
 export async function shipOrderAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await requireCatalogApp({}, "orders");
   const { app } = context;

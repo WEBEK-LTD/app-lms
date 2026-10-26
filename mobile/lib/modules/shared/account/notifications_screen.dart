@@ -307,7 +307,9 @@ class _OrderCard extends ConsumerWidget {
         : order.statusLabel;
     return AppCard(
       padding: const EdgeInsets.all(16),
-      onTap: order.trackable ? () => context.push(Paths.order(order.id)) : null,
+      onTap: order.opensScreen
+          ? () => context.push(Paths.order(order.id))
+          : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

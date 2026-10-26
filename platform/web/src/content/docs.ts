@@ -318,6 +318,8 @@ With WooCommerce, customers see their orders in the app and are told when one ch
 - **Tracking**: add it with **WooCommerce Shipment Tracking** or **Advanced Shipment Tracking**, as you do now. The customer gets a notification, and the order in the app shows the carrier, the tracking number and a **Track shipment** button. Changing the tracking tells them again.
 - **Completed, cancelled or refunded**: the customer gets a notification when you change the order's status.
 
+- **Returns**: in the plugin's **Settings › Store app**, set **Returns in the app** to the number of days after an order is completed that customers may ask to return it (0 for none). They choose a reason and can add a note on the order in the app. You get an email and see the request on the order in **WooCommerce › Orders**, where you approve or decline it with a reply; the customer is told in the app. Refund it in WooCommerce when you get it back. Yallapp plugin 0.4.17 or later.
+
 Customers can turn order updates off in the app's settings. Yallapp plugin 0.4.16 or later.
 
 > Your pages, look and languages are built in the Yallapp dashboard, and the plugin fills them with your own courses, products and posts. The plugin's **App pages and look** card shows whether they're published and lets you refresh them at once.
@@ -1566,6 +1568,10 @@ Customers pay by card on a secure page of your provider (iyzico, Kashier or Fawa
 ## Orders
 
 Paid orders appear on the **Orders** page, and you get an email for each one. Mark an order **completed** when it's delivered, or **cancelled** when needed, and refund it, in full or in part, with **Refund** under it (see [Card payments](/docs/card-payments)). Customers see their orders, their status and what was refunded in the app. They get a notification when you mark an order completed or cancelled (you can turn these off under **App notifications › Automatic notifications**, "Order updates") and when you add its tracking; they can turn order updates off in the app's settings.
+
+## Returns
+
+To take returns in the app, set **Returns in the app (days)** under **Shop settings** on the **Products** page: the number of days after you mark an order completed that customers may ask to return it. Leave it empty for no returns in the app. Customers choose a reason and can add a note; orders with only downloads can't be returned. You get a notification in Yallapp Business, and the request shows under the order on the **Orders** page, where you **Approve return** or **Decline** it with an optional reply. The customer is told in the app, even with order updates off. Refund the order with **Refund** when you get it back.
 `,
   }),
   doc({

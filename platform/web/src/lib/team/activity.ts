@@ -79,6 +79,9 @@ const ORDER_STEP_WORDS: Record<string, string> = {
   out_for_delivery: "Out for delivery",
   // 80.4 Marked shipped, or its tracking changed.
   shipped: "Shipped",
+  // 91.3 The answer to a return the customer asked for.
+  return_approved: "Return approved",
+  return_declined: "Return declined",
 };
 
 /** An order moved to `to` (its status, or a restaurant's kitchen step). */

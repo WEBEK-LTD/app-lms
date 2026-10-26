@@ -154,6 +154,7 @@ check( 'the shop has orders', true === ( $features['orders'] ?? null ), $feature
 check( 'store settings', 'TRY' === ( $store['currency'] ?? '' ) && true === ( $store['guest_checkout'] ?? null ) && true === ( $store['reviews'] ?? null ), $store );
 check( 'delivery date settings', array( 'enabled' => true, 'required' => true, 'min_days' => 1, 'max_days' => 14, 'closed_weekdays' => array( 0 ) ) === ( $store['delivery_date'] ?? null ), $store );
 check( 'gift message settings', array( 'enabled' => true, 'max_length' => 100 ) === ( $store['gift_message'] ?? null ), $store );
+check( '91.3 no returns in the app until the shop sets its days', array_key_exists( 'returns', $store ) && null === $store['returns'], $store );
 $r = call( 'GET', '/courses' );
 check( 'course endpoints say courses are unavailable', 503 === $r['status'] && 'lms_unavailable' === ( $r['json']['code'] ?? '' ), $r['raw'] );
 
@@ -495,6 +496,45 @@ check( '91.2 saving the order again tells nothing new', 2 === count( $updates() 
 wp_eval( '$o = wc_get_order( ' . $order_id . ' ); $o->set_status( "cancelled" ); $o->save();' );
 $told = $updates();
 check( '91.2 a cancelled order is told', 3 === count( $told ) && 'Your order was cancelled.' === ( $told[0]['body'] ?? '' ), $told );
+
+// 91.3 Returns asked for in the app: within the shop's days of completion, once, answered on the order.
+$return = static function ( $body ) use ( $token, $order_id ) {
+	return call( 'POST', '/me/orders/' . $order_id . '/return', $body, $token );
+};
+$r = $return( array( 'reason' => 'damaged' ) );
+check( '91.3 a shop without returns says so', 403 === $r['status'] && 'feature_disabled' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+wp_eval( '$s = get_option( "yallapp_settings" ); $s["store_return_days"] = 14; update_option( "yallapp_settings", $s, false );' );
+$r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
+check( '91.3 the shop\'s return days in the config', array( 'enabled' => true, 'days' => 14 ) === ( $r['json']['store']['returns'] ?? null ), $r['json']['store'] ?? $r['raw'] );
+$r = $return( array( 'reason' => 'damaged' ) );
+check( '91.3 a cancelled order can\'t be returned', 403 === $r['status'] && 'forbidden' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+wp_eval( '$o = wc_get_order( ' . $order_id . ' ); $o->set_status( "completed" ); $o->save();' );
+$r = call( 'GET', '/me/orders/' . $order_id, null, $token );
+check( '91.3 a completed order can be returned', true === ( $r['json']['can_return'] ?? null ) && array_key_exists( 'return_request', (array) $r['json'] ) && null === $r['json']['return_request'], $r['raw'] );
+$r = $return( array( 'reason' => 'other' ) );
+check( '91.3 "other" needs a note', 400 === $r['status'] && 'invalid_request' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+$r = call( 'POST', '/me/orders/' . ( $order_id + 9999 ) . '/return', array( 'reason' => 'damaged' ), $token );
+check( '91.3 only the customer\'s own orders', 404 === $r['status'], $r['raw'] );
+$r = call( 'POST', '/me/orders/' . $order_id . '/return', array( 'reason' => 'damaged' ), null );
+check( '91.3 returns need a session', 401 === $r['status'], $r['raw'] );
+$r = $return( array( 'reason' => 'damaged', 'note' => 'The box arrived crushed' ) );
+check(
+	'91.3 the return is asked for',
+	200 === $r['status'] && 'requested' === ( $r['json']['return_request']['status'] ?? '' ) && 'damaged' === ( $r['json']['return_request']['reason'] ?? '' ) && 'The box arrived crushed' === ( $r['json']['return_request']['note'] ?? '' ) && false === ( $r['json']['can_return'] ?? null ),
+	$r['raw']
+);
+$r = $return( array( 'reason' => 'damaged' ) );
+check( '91.3 once per order', 409 === $r['status'] && 'conflict' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+$note = wp_eval( '$n = wc_get_order_notes( array( "order_id" => ' . $order_id . ', "limit" => 1 ) ); echo $n ? $n[0]->content : "";' );
+check( '91.3 the shop sees it on the order', false !== strpos( $note, 'Return asked for in the app: It arrived damaged.' ) && false !== strpos( $note, 'The box arrived crushed' ), $note );
+$before = count( $updates() );
+wp_eval( '( new Yallapp\Commerce\Order_Returns( Yallapp\Plugin::instance() ) )->decide( wc_get_order( ' . $order_id . ' ), "approved", "Our courier picks it up on Monday." );' );
+$r    = call( 'GET', '/me/orders/' . $order_id, null, $token );
+$told = $updates();
+check( '91.3 the shop\'s answer on the order', 'approved' === ( $r['json']['return_request']['status'] ?? '' ) && 'Our courier picks it up on Monday.' === ( $r['json']['return_request']['reply'] ?? '' ) && ! empty( $r['json']['return_request']['decided_at'] ), $r['raw'] );
+check( '91.3 the customer is told', $before + 1 === count( $told ) && 'Your return was approved. Our courier picks it up on Monday.' === ( $told[0]['body'] ?? '' ), $told );
+$answered = wp_eval( 'echo ( new Yallapp\Commerce\Order_Returns( Yallapp\Plugin::instance() ) )->decide( wc_get_order( ' . $order_id . ' ), "declined", "" ) ? "yes" : "no";' );
+check( '91.3 an answered return isn\'t answered again', 'no' === trim( $answered ), $answered );
 
 echo "The site's own pages open the app (48)\n";
 require_once __DIR__ . '/links-helpers.php';

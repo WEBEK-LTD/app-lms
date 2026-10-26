@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { setOrderStatusAction } from "@/app/actions/catalog";
+import { decideReturnAction, setOrderStatusAction } from "@/app/actions/catalog";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { Badge, EmptyState, btn, formatDateTime } from "@/components/ui";
@@ -176,6 +176,39 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                         : null
                     }
                   />
+                </section>
+              ) : null}
+              {/* 91.3 A return the customer asked for in the app. */}
+              {order.returnRequest ? (
+                <section aria-labelledby={`h-return-${order.id}`} className="flex flex-col gap-2.5 rounded-xl border border-line-soft p-3.5" data-return={order.returnRequest.status}>
+                  <h3 id={`h-return-${order.id}`} className="m-0 flex flex-wrap items-center gap-2 text-[15px] font-bold">
+                    {t("orders.returnTitle")}
+                    <Badge tone={order.returnRequest.status === "approved" ? "success" : order.returnRequest.status === "declined" ? "neutral" : "warn"}>{t(`orders.return_${order.returnRequest.status}`)}</Badge>
+                  </h3>
+                  <div className="flex flex-col gap-0.5 text-[15px]">
+                    <span className="text-muted">{t("orders.returnAskedOn", { date: formatDateTime(new Date(order.returnRequest.requestedAt), lang) })}</span>
+                    <span className="font-semibold">{t(`orders.returnReason_${order.returnRequest.reason}`)}</span>
+                    {order.returnRequest.note ? <span className="whitespace-pre-line">{order.returnRequest.note}</span> : null}
+                    {order.returnRequest.reply ? <span className="text-muted">{t("orders.returnYourReply", { reply: order.returnRequest.reply })}</span> : null}
+                  </div>
+                  {order.returnRequest.status === "requested" ? (
+                    <form action={decideReturnAction} className="flex flex-col gap-2">
+                      <input type="hidden" name="id" value={order.id} />
+                      <label htmlFor={`f-return-reply-${order.id}`} className="text-sm font-semibold">
+                        {t("orders.returnReply")}
+                      </label>
+                      <textarea id={`f-return-reply-${order.id}`} name="reply" rows={2} maxLength={500} className="input" placeholder={t("orders.returnReplyHint")} />
+                      <div className="flex flex-wrap gap-2">
+                        <SubmitButton name="decision" value="approved" className="h-9 px-3 text-sm">
+                          {t("orders.approveReturn")}
+                        </SubmitButton>
+                        <SubmitButton name="decision" value="declined" variant="secondary" className="h-9 px-3 text-sm">
+                          {t("orders.declineReturn")}
+                        </SubmitButton>
+                      </div>
+                      <p className="m-0 text-xs text-ink-4">{t("orders.returnRefundHint")}</p>
+                    </form>
+                  ) : null}
                 </section>
               ) : null}
               <div className="flex flex-wrap gap-2">

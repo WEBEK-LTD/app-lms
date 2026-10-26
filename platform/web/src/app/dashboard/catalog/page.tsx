@@ -189,6 +189,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
             currencies={CATALOG_CURRENCIES}
             shipping={settings.shippingCents ? centsToDecimal(settings.shippingCents) : ""}
             freeOver={settings.freeShippingOverCents !== null ? centsToDecimal(settings.freeShippingOverCents) : ""}
+            returnDays={settings.returnDays ? String(settings.returnDays) : ""}
             shippingFields={!fulfilment}
           />
         </section>

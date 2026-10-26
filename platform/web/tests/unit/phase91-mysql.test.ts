@@ -81,4 +81,38 @@ describe.skipIf(!url)("91.1 coupons on MySQL", () => {
     await store.watchHostedOrders(app.id, user.id, new Date(ended.getTime() + day));
     expect(await mine(ended, ended)).toMatchObject([{ orders: {}, checkedAt: null }]);
   });
+
+  it("91.3 keeps an order's return request and the shop's answer", async () => {
+    const store = stores[0]!;
+    const suffix = randomUUID().slice(0, 8);
+    const { client } = await registerClient(store, { name: "Vase Shop", email: `p913-${suffix}@vase.test`, whatsapp: "+905446731942", siteUrl: "", password: null }, NOW);
+    const app: App = { ...newApp(client.id, null, NOW, "store"), backend: "hosted", connector: { kind: "catalog" } };
+    await store.createApp(app);
+    const order = await store.createCatalogOrder({
+      appId: app.id,
+      tokenHash: randomUUID().replace(/-/g, ""),
+      userId: null,
+      status: "completed",
+      lines: [{ productId: 1, name: "Vase", quantity: 1, unitCents: 30000, imageAssetId: null, digital: false }],
+      subtotalCents: 30000,
+      shippingCents: 0,
+      totalCents: 30000,
+      currency: "TRY",
+      customer: null,
+      paymentId: "pay-1",
+      createdAt: NOW,
+      paidAt: NOW,
+      updatedAt: NOW,
+      commissionCents: null,
+      itemTransactionIds: null,
+      payoutApprovedAt: null,
+    });
+    expect((await store.getCatalogOrder(app.id, order.id))!.returnRequest ?? null).toBeNull();
+    const asked = { status: "requested" as const, reason: "damaged" as const, note: "Kırık geldi", requestedAt: NOW.toISOString(), decidedAt: null, reply: null };
+    await store.updateCatalogOrder(app.id, order.id, { returnRequest: asked, updatedAt: NOW });
+    expect((await store.getCatalogOrder(app.id, order.id))!.returnRequest).toEqual(asked);
+    const answered = { ...asked, status: "approved" as const, decidedAt: NOW.toISOString(), reply: "Kargo pazartesi alır." };
+    await store.updateCatalogOrder(app.id, order.id, { returnRequest: answered, updatedAt: NOW });
+    expect((await store.getCatalogOrder(app.id, order.id))!.returnRequest).toEqual(answered);
+  });
 });

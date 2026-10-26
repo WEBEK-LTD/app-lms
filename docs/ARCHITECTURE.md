@@ -2356,6 +2356,23 @@ app opens on the site's links (`<site>/a/page/<slug>`).
   (`auto_notices`); the first look only notes what's there. Shopify's orders
   carry the newest fulfillment's tracking as `shipment`. `GET /me/orders/{id}`
   on a connector without one answers from its order list.
+- **Returns** (91.3): `StoreConfig.returns` ({enabled, days}, null for none)
+  and `POST /me/orders/{id}/return` ({reason, note}; the note is needed with
+  `other`). An order can be returned (`can_return`) when it's completed, has
+  something to send back (not only downloads; never a restaurant's), has no
+  request yet, and was completed within the shop's days; it carries its
+  `return_request` (requested, approved or declined, with the shop's reply).
+  Shops without a website: `catalog.returnDays` (Shop settings),
+  `catalog_orders.return_request` (migration 0081), `lib/catalog/returns.ts`;
+  the owner gets a Yallapp Business push and answers on Dashboard › Orders
+  (`decideReturnAction`, the `orders` permission), which tells the customer
+  (`notifyReturnDecision`, sent even with order updates off). The plugin
+  (`Commerce\Order_Returns`, 0.4.17): `store_return_days`, the request in the
+  order's `_yallapp_return` meta with an order note and an email to the
+  site's admin, the answer on the order's screen
+  (`woocommerce_process_shop_order_meta`), then an `order_update` to the
+  customer. Connected platforms take returns on their own sites: their orders
+  never say `can_return`. Refunds stay where they were (Refund, WooCommerce).
 
 ## Academies, complete (Phase 90)
 

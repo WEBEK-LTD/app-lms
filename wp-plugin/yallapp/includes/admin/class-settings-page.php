@@ -1131,6 +1131,7 @@ class Settings_Page {
 		);
 		$this->toggle( 'store_gift_message', __( 'Let customers add a gift message', 'yallapp' ) );
 		$this->number( 'store_gift_message_max', __( 'Gift message length (characters)', 'yallapp' ), 1, 500 );
+		$this->number( 'store_return_days', __( 'Returns in the app (days after completion, 0 for none)', 'yallapp' ), 0, 365 );
 		$this->close();
 	}
 

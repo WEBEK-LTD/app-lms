@@ -1085,6 +1085,16 @@ never in a chat or an issue.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **Returns** (91.3): migration `0081_order_returns.sql` (a column on
+      `catalog_orders`) goes with the deploy, migrations first; plugin
+      0.4.17. After deploying: on a shop without a website, set **Returns in
+      the app (days)** to 14, complete a test order and ask to return it from
+      the app: Yallapp Business gets the request, Dashboard › Orders shows it,
+      and approving it with a reply tells the phone. On a WooCommerce test
+      site, set **Returns in the app** in the plugin's Settings › Store app,
+      ask from the app, check the email and the order note, then decline it
+      on the order's screen: the phone is told. The same order screens in
+      Arabic and Turkish.
 - [ ] **Order updates** (91.2): plugin 0.4.16 (its inbox table gains
       `order_id` on update). After deploying: on a WooCommerce test site with
       WooCommerce Shipment Tracking, add tracking to an order of a signed-in

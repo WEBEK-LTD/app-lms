@@ -1557,6 +1557,39 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
+  /me/orders/{order_id}/return:
+    post:
+      tags: [Commerce]
+      operationId: requestReturn
+      summary: Ask to return an order
+      description: |
+        91.3 The customer asks the shop to take back an order it completed,
+        within `StoreConfig.returns.days` (`Order.can_return`). The shop
+        approves or declines it (with a reply) on its side; the customer is
+        told with an `order_update` notification. Once asked, it can't be
+        asked again (`conflict`); `forbidden` when the shop takes no returns
+        from the app or the order can't be returned (not completed, too late,
+        nothing physical).
+      parameters:
+        - $ref: '#/components/parameters/OrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReturnRequestInput' }
+      responses:
+        '200':
+          description: The order, with its `return_request`
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Order' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
   /courses/{course_id}/reviews:
     get:
       tags: [Community]
@@ -4936,10 +4969,36 @@ components:
         people: { type: integer, description: 'The people with a phone that has a push token, the push is queued for.' }
         batches: { type: integer, description: 'Cron batches of up to 500 people; 0 when push is off or nobody has a token (no report follows).' }
 
+    ReturnRequestInput:
+      type: object
+      description: 91.3 Why the customer wants to return the order.
+      required: [reason]
+      properties:
+        reason: { type: string, enum: [damaged, wrong_item, not_as_described, no_longer_needed, other] }
+        note: { type: [string, 'null'], maxLength: 500, description: "More about it; needed with `other`." }
+
+    ReturnRequest:
+      type: object
+      description: 91.3 A return the customer asked for, and the shop's answer.
+      required: [status, reason, note, requested_at, decided_at, reply]
+      properties:
+        status: { type: string, enum: [requested, approved, declined] }
+        reason: { type: string, enum: [damaged, wrong_item, not_as_described, no_longer_needed, other] }
+        note: { type: [string, 'null'] }
+        requested_at: { type: string, format: date-time }
+        decided_at: { type: [string, 'null'], format: date-time }
+        reply: { type: [string, 'null'], description: "What the shop wrote with its answer: how to send the order back, or why not." }
+
     Order:
       type: object
       required: [id, number, status, status_label, total, created_at, items]
       properties:
+        return_request:
+          oneOf:
+            - $ref: '#/components/schemas/ReturnRequest'
+            - type: 'null'
+          description: 91.3 The return asked for this order; null or missing when none was.
+        can_return: { type: boolean, description: "91.3 The customer may ask to return it now (`POST /me/orders/{order_id}/return`). Missing means false." }
         id: { type: integer }
         number: { type: string, description: "The order number the site shows, e.g. on receipts.", example: '1042' }
         status: { type: string, enum: [pending, processing, on_hold, completed, cancelled, refunded, failed] }
@@ -5156,6 +5215,16 @@ components:
             enabled: { type: boolean }
             max_length: { type: integer, minimum: 1, maximum: 500 }
         fulfilment: { $ref: '#/components/schemas/FulfilmentConfig' }
+        returns:
+          type: [object, 'null']
+          description: >-
+            91.3 Returns the customer can ask for in the app: for `days` days after an order
+            is completed (delivered). Null or missing when the shop takes no returns from the app
+            (connected platforms, where returns are made on the shop's own website).
+          required: [enabled, days]
+          properties:
+            enabled: { type: boolean }
+            days: { type: integer, minimum: 1, maximum: 365, example: 14 }
 
     FulfilmentConfig:
       type: object

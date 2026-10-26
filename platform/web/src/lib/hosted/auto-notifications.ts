@@ -121,7 +121,11 @@ export const AUTO_TEXT: Record<AutoKind, Record<Lang, Text>> = {
     en: (v) => ({
       title: `Order ${v.number}`,
       body:
-        v.status === "shipped"
+        v.status === "return_approved"
+          ? `Your return was approved.${v.reply ? ` ${v.reply}` : ""}`
+          : v.status === "return_declined"
+            ? `Your return was declined.${v.reply ? ` ${v.reply}` : ""}`
+            : v.status === "shipped"
           ? `Your order is on its way${v.tracking ? `: ${v.tracking}` : ""}. Tap to follow it.`
           : v.status === "cancelled"
             ? "Your order was cancelled."
@@ -132,7 +136,11 @@ export const AUTO_TEXT: Record<AutoKind, Record<Lang, Text>> = {
     ar: (v) => ({
       title: `الطلب ${v.number}`,
       body:
-        v.status === "shipped"
+        v.status === "return_approved"
+          ? `تمت الموافقة على إرجاع طلبك.${v.reply ? ` ${v.reply}` : ""}`
+          : v.status === "return_declined"
+            ? `تم رفض إرجاع طلبك.${v.reply ? ` ${v.reply}` : ""}`
+            : v.status === "shipped"
           ? `طلبك في الطريق${v.tracking ? `: ${v.tracking}` : ""}. اضغط لتتبّعه.`
           : v.status === "cancelled"
             ? "تم إلغاء طلبك."
@@ -143,7 +151,11 @@ export const AUTO_TEXT: Record<AutoKind, Record<Lang, Text>> = {
     tr: (v) => ({
       title: `Sipariş ${v.number}`,
       body:
-        v.status === "shipped"
+        v.status === "return_approved"
+          ? `İade talebiniz onaylandı.${v.reply ? ` ${v.reply}` : ""}`
+          : v.status === "return_declined"
+            ? `İade talebiniz reddedildi.${v.reply ? ` ${v.reply}` : ""}`
+            : v.status === "shipped"
           ? `Siparişiniz yolda${v.tracking ? `: ${v.tracking}` : ""}. Takip etmek için dokunun.`
           : v.status === "cancelled"
             ? "Siparişiniz iptal edildi."
@@ -187,10 +199,11 @@ export interface AutoItem {
 }
 
 /** Sends one kind to these people, once each; how many people and phones. */
-export async function notifyAuto(deps: AutoDeps, app: App, kind: AutoKind, items: AutoItem[]): Promise<{ people: number; phones: number }> {
+export async function notifyAuto(deps: AutoDeps, app: App, kind: AutoKind, items: AutoItem[], options: { always?: boolean } = {}): Promise<{ people: number; phones: number }> {
   const { store, now } = deps;
   const out = { people: 0, phones: 0 };
-  if (items.length === 0 || !autoOn(app, kind) || !autoKindsFor(app).includes(kind)) return out;
+  // 91.3 An answer the person asked for goes whatever the owner's switch says.
+  if (items.length === 0 || (!options.always && !autoOn(app, kind)) || !autoKindsFor(app).includes(kind)) return out;
   const account = serviceAccountOf(app, deps.key);
   const fallback = await appLang(store, app.id);
   for (const item of items) {
@@ -257,6 +270,18 @@ export async function notifyOrderUpdate(deps: AutoDeps, app: App, order: Pick<Ca
   return notifyAuto(deps, app, "order_update", [
     { userId: order.userId, ref: `order:${order.id}:${status}`, values: { number: orderNumber(order), status }, data: { order_id: String(order.id) } },
   ]);
+}
+
+/** 91.3 The shop's answer to a return the customer asked for. Always told: the customer is waiting for it. */
+export async function notifyReturnDecision(deps: AutoDeps, app: App, order: Pick<CatalogOrder, "id" | "userId">, decision: "approved" | "declined", reply: string | null) {
+  if (order.userId === null || !(await appMayNotify(deps.store, app, deps.now))) return { people: 0, phones: 0 };
+  return notifyAuto(
+    deps,
+    app,
+    "order_update",
+    [{ userId: order.userId, ref: `return:${order.id}:${decision}`, values: { number: orderNumber(order), status: `return_${decision}`, reply: reply ?? "" }, data: { order_id: String(order.id) } }],
+    { always: true },
+  );
 }
 
 /** 91.2 A change to an order on a connected platform (lib/hosted/order-watch.ts): its customer, once per change. */

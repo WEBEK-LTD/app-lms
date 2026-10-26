@@ -2915,5 +2915,70 @@
   "notifyOrderUpdates": "Order updates",
   "@notifyOrderUpdates": {
     "description": "91.2 The settings switch for pushes about the customer's orders: shipped, completed, cancelled or refunded."
+  },
+  "requestReturn": "Return this order",
+  "@requestReturn": {
+    "description": "91.3 On a completed order: asks the shop to take it back."
+  },
+  "returnReasonTitle": "Why are you returning it?",
+  "@returnReasonTitle": {
+    "description": "91.3 The title of the sheet where the customer picks the return's reason."
+  },
+  "returnReasonDamaged": "It arrived damaged",
+  "@returnReasonDamaged": {
+    "description": "91.3 A return reason."
+  },
+  "returnReasonWrongItem": "Wrong item",
+  "@returnReasonWrongItem": {
+    "description": "91.3 A return reason: not what was ordered."
+  },
+  "returnReasonNotAsDescribed": "Not as described",
+  "@returnReasonNotAsDescribed": {
+    "description": "91.3 A return reason."
+  },
+  "returnReasonNoLongerNeeded": "No longer needed",
+  "@returnReasonNoLongerNeeded": {
+    "description": "91.3 A return reason."
+  },
+  "returnReasonOther": "Another reason",
+  "@returnReasonOther": {
+    "description": "91.3 A return reason; then a note is needed."
+  },
+  "returnNote": "Note for the shop (optional)",
+  "@returnNote": {
+    "description": "91.3 The note field of a return request."
+  },
+  "returnNoteRequired": "Tell the shop why",
+  "@returnNoteRequired": {
+    "description": "91.3 The note field when the reason is 'Another reason', where it is needed."
+  },
+  "sendReturnRequest": "Send request",
+  "@sendReturnRequest": {
+    "description": "91.3 Sends the return request to the shop."
+  },
+  "returnRequested": "Return requested. The shop will answer here.",
+  "@returnRequested": {
+    "description": "91.3 Shown after the return request is sent."
+  },
+  "returnStatusRequested": "Return requested",
+  "@returnStatusRequested": {
+    "description": "91.3 A return the shop hasn't answered yet."
+  },
+  "returnStatusApproved": "Return approved",
+  "@returnStatusApproved": {
+    "description": "91.3 The shop approved the return."
+  },
+  "returnStatusDeclined": "Return declined",
+  "@returnStatusDeclined": {
+    "description": "91.3 The shop declined the return."
+  },
+  "returnShopReply": "The shop: {reply}",
+  "@returnShopReply": {
+    "description": "91.3 What the shop wrote with its answer.",
+    "placeholders": {
+      "reply": {
+        "type": "String"
+      }
+    }
   }
 }
