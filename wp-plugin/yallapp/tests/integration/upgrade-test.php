@@ -304,10 +304,12 @@ check( 'the upgrader replaces the plugin and it stays active', 'updated active' 
 echo "After the update\n";
 $r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
 check( 'the new release answers', 200 === $r['status'] && $new === plugin_version( $r ) && $new !== $old, array( $old, plugin_version( $r ), $r['raw'] ) );
-check( 'tables upgraded', '5' === trim( wp_cli( 'option get yallapp_db_version' ) ), wp_cli( 'option get yallapp_db_version' ) );
+check( 'tables upgraded', '6' === trim( wp_cli( 'option get yallapp_db_version' ) ), wp_cli( 'option get yallapp_db_version' ) );
 // 85.4 Campaigns: the inbox keeps a campaign's link and picture.
 $inbox = wp_eval( 'global $wpdb; echo implode( ",", $wpdb->get_col( "SELECT name FROM pragma_table_info(\'" . $wpdb->prefix . "yallapp_notifications\')" ) ?: $wpdb->get_col( "SHOW COLUMNS FROM {$wpdb->prefix}yallapp_notifications" ) );' );
 check( 'inbox table has the campaign link and picture columns', false !== strpos( $inbox, 'link' ) && false !== strpos( $inbox, 'image_url' ), $inbox );
+// 91.2 Order updates: the inbox keeps the order they open.
+check( 'inbox table has the order column', false !== strpos( $inbox, 'order_id' ), $inbox );
 $columns = wp_eval( 'global $wpdb; echo implode( ",", $wpdb->get_col( "SELECT name FROM pragma_table_info(\'" . $wpdb->prefix . "yallapp_devices\')" ) ?: $wpdb->get_col( "SHOW COLUMNS FROM {$wpdb->prefix}yallapp_devices" ) );' );
 check( 'devices table has the push provider column', false !== strpos( $columns, 'push_provider' ), $columns );
 $after = json_decode( wp_cli( 'option get yallapp_settings --format=json' ), true );
