@@ -1530,7 +1530,11 @@ paths:
         hosted API's payment page for shops without a website), newest first.
         Empty when the site doesn't sell (`features.orders`). The
         Academy app on iOS doesn't show orders, as it doesn't sell courses;
-        Store apps show them on both platforms.
+        Store apps show them on both platforms. 96.3 Apps without a website
+        that sell tickets (Events), paid courses (Academy) or memberships
+        (gyms' Bookings) list those orders here too, each with its
+        `receipt_url`, and the app shows them under My orders (Events and
+        gyms on both platforms).
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PerPage'
@@ -4040,7 +4044,7 @@ components:
             reviews: { type: boolean }
             qna: { type: boolean }
             push: { type: boolean, description: "Whether push notifications are set up and included in the app's plan." }
-            orders: { type: boolean, description: "Whether the site sells (courses or products), so customers have orders. Missing on older plugins means false." }
+            orders: { type: boolean, description: "Whether the site sells (courses or products), so customers have orders. 96.3 Also true for Events apps, Academy apps and gyms without a website: their tickets, courses and memberships are orders, with receipts. Missing on older plugins means false." }
             offline: { type: boolean, description: "Offline mode, when the app's plan includes it: the app keeps what the user last saw and shows it without a connection. Missing means false." }
             downloads:
               type: boolean

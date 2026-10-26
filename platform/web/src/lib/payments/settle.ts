@@ -203,7 +203,7 @@ export async function settleDonationRecord(store: DataStore, donation: Donation,
     if (paid) await pushOwnerSafely((d) => pushDonation(d, app, paid));
     if (paid?.donorEmail) {
       const values = donationReceiptValues(paid, app.appName ?? "the charity", receiptUrl(appUrl(), paid.receiptCode));
-      // 71 With the receipt's PDF, in the app's language; without it if it can't be made.
+      // 71 With the receipt's PDF, 96.4 in the donor's language (else the app's); without it if it can't be made.
       const attachments = await receiptAttachment(() => donationReceiptPdf(store, app, paid));
       await sendTemplate("donation_receipt", paid.donorEmail, values, { app, attachments }).catch(() => {
         // The donation is paid either way; the receipt page and the app have it.

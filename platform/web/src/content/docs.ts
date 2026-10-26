@@ -1974,6 +1974,10 @@ Refund a paid order, ticket, course or donation with **Refund** under it on the 
 - What follows: the order or donation says **Refunded** (or how much was refunded), the customer gets an email and sees it in the app. Refunding all of an order takes back what it paid for: tickets are cancelled and their places go back on sale, a course is no longer open to the student, a membership ends; with a refund in part you tick what to take back. A refunded donation no longer counts in the campaign's total.
 - An order sold through Yallapp's account before that ended: the refund comes out of Yallapp's account and Yallapp gives its commission back in proportion. If your share was already transferred (Kashier or Fawaterk), Yallapp takes your share of the refund from your next transfer. A Fawaterk payment in Yallapp's account is refunded by our team: message us on WhatsApp.
 
+## Receipts
+
+When an order is paid (by card, or marked paid after a bank transfer or your own method), the customer gets a receipt by email with its PDF. They also find it in the app under **My orders**: products and a restaurant's orders, tickets, a gym's memberships and, on Android, paid courses. The receipt is in the language they use the app in, when your app has it. Donors find theirs under **My donations**.
+
 ## Paid courses
 
 Academy apps without a website sell paid courses the same way, on Android only: the student pays on the payment page and is enrolled when the payment is confirmed. The iPhone app shows no purchase buttons for paid courses, as Apple's rules require.

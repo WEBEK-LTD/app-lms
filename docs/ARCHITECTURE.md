@@ -713,6 +713,13 @@ mobile/
   runs `afterOrderPaid`, as a card payment's settle does) or cancels it
   (ticket holds released). The pending-payments job never asks about it (no
   `provider_ref`); its refunds are recorded only.
+  96.3 Events, courses and a gym's bookings connectors serve the customer's
+  own orders through the shop's (`myOrdersRoute` in
+  `hosted/connectors/catalog.ts`), with `features.orders`, so tickets, paid
+  courses and memberships are listed with their receipts. 96.4 Orders and
+  donations keep the app's language at checkout (`lang`, migration
+  `0087_receipt_language`, from `Accept-Language`); receipts default to it
+  (`customerLang`), before the browser's.
 
 - Refunds from the dashboard (Phase 47, `lib/payments/refund.ts`,
   `lib/refunds/service.ts`, migration `0039_refunds_time_zone`): the owner

@@ -136,6 +136,8 @@ export class DonationsConnector implements Connector {
     if (problem) return error(400, "invalid_request", problem);
     const token = randomToken(24);
     await store.createDonation({
+      // 96.4 The donor's language, for their receipt.
+      lang: request.lang ?? null,
       appId: app.id,
       campaignId: campaign.id,
       campaignTitle: campaign.title,

@@ -359,7 +359,7 @@
           "method": "GET",
           "path": "/me/orders",
           "summary": "List the student's orders",
-          "description": "Orders from the site's checkout (the LMS's own or WooCommerce, or the hosted API's payment page for shops without a website), newest first. Empty when the site doesn't sell (`features.orders`). The Academy app on iOS doesn't show orders, as it doesn't sell courses; Store apps show them on both platforms.",
+          "description": "Orders from the site's checkout (the LMS's own or WooCommerce, or the hosted API's payment page for shops without a website), newest first. Empty when the site doesn't sell (`features.orders`). The Academy app on iOS doesn't show orders, as it doesn't sell courses; Store apps show them on both platforms. 96.3 Apps without a website that sell tickets (Events), paid courses (Academy) or memberships (gyms' Bookings) list those orders here too, each with its `receipt_url`, and the app shows them under My orders (Events and gyms on both platforms).",
           "access": "signed-in"
         },
         {

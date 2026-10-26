@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
@@ -54,4 +55,50 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  receiptsInTheApp();
+}
+
+/// 96.3 Events apps and gyms without a website list their tickets and
+/// memberships as orders, each with its receipt, under My orders in the
+/// account; without `features.orders` the tile isn't there.
+void receiptsInTheApp() {
+  testWidgets('an events app offers My orders with the ticket receipt', (
+    tester,
+  ) async {
+    usePhone(tester);
+    final config = {
+      ...configJson(lms: null, orders: true),
+      'events': eventsConfigJson(),
+    };
+    final api = FakeApi(config: config)
+      ..orders = [
+        {
+          ...orderJson(),
+          'status': 'processing',
+          'status_label': 'Paid',
+          'receipt_url': 'https://yallapp.com.tr/receipts/orders/x.1.sig',
+        },
+      ];
+    final app = TestApp(signedIn: true, appType: AppType.events, api: api);
+    await app.pump(tester);
+    app.container.read(appRouterProvider).push(Paths.account);
+    await TestApp.settle(tester);
+    await tester.tap(find.byKey(const ValueKey('account-orders')));
+    await TestApp.settle(tester);
+    expect(find.text('Download receipt'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('without orders, an events app has no My orders', (tester) async {
+    usePhone(tester);
+    final api = FakeApi(
+      config: {...configJson(lms: null), 'events': eventsConfigJson()},
+    );
+    final app = TestApp(signedIn: true, appType: AppType.events, api: api);
+    await app.pump(tester);
+    app.container.read(appRouterProvider).push(Paths.account);
+    await TestApp.settle(tester);
+    expect(find.byKey(const ValueKey('account-orders')), findsNothing);
+  });
 }

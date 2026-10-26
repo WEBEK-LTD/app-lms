@@ -152,6 +152,10 @@ Müşteriler size uygulamanın dışında doğrudan da ödeyebilir: **banka hava
 - Sonrasında: sipariş veya bağış **İade edildi** (ya da iade edilen tutar) olarak görünür, müşteri bir e-posta alır ve bunu uygulamada görür. Bir siparişin tamamını iade etmek, karşılığında ödenenleri geri alır: biletler iptal edilir ve yerleri yeniden satışa çıkar, kurs öğrenciye kapanır, üyelik sona erer; kısmi iadede neyin geri alınacağını siz işaretlersiniz. İade edilen bağış, kampanyanın toplamına artık sayılmaz.
 - Bu sona ermeden önce Yallapp'in hesabı üzerinden satılmış bir sipariş: iade Yallapp'in hesabından yapılır ve Yallapp komisyonunu orantılı olarak geri verir. Payınız zaten aktarıldıysa (Kashier veya Fawaterk), Yallapp iadedeki payınızı bir sonraki aktarımınızdan düşer. Yallapp'in hesabındaki bir Fawaterk ödemesini ekibimiz iade eder: bize WhatsApp'tan yazın.
 
+## Makbuzlar
+
+Bir sipariş ödendiğinde (kartla ya da banka havalesi veya kendi yönteminizden sonra ödendi olarak işaretlendiğinde) müşteri PDF'iyle birlikte bir makbuzu e-postayla alır. Bunu uygulamada **Siparişlerim** altında da bulur: ürünler ve restoran siparişleri, biletler, spor salonu üyelikleri ve Android'de ücretli kurslar. Makbuz, uygulamanızda varsa müşterinin uygulamayı kullandığı dildedir. Bağışçılar kendi makbuzlarını **Bağışlarım** altında bulur.
+
 ## Ücretli kurslar
 
 Web sitesi olmayan akademi uygulamaları ücretli kursları aynı şekilde, yalnızca Android'de satar: öğrenci ödeme sayfasında öder ve ödeme onaylandığında kursa kaydedilir. Apple'ın kuralları gereği iPhone uygulaması ücretli kurslar için satın alma düğmesi göstermez.

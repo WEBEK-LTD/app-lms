@@ -21,7 +21,7 @@ import {
   walletOrder,
   type EventsData,
 } from "../../events/service";
-import { payUrl } from "./catalog";
+import { myOrdersRoute, payUrl } from "./catalog";
 import { error } from "./common";
 import type { Connector, ConnectorRequest, ConnectorResult } from "./types";
 
@@ -65,10 +65,13 @@ export class EventsConnector implements Connector {
 
   async config() {
     const data = await this.load(new Date());
-    return { events: eventsConfig(data.settings) };
+    // 96.3 The customer's ticket orders, with their receipts.
+    return { events: eventsConfig(data.settings), features: { orders: true } };
   }
 
   async handle(request: ConnectorRequest): Promise<ConnectorResult | null> {
+    const mine = myOrdersRoute(this.deps, request);
+    if (mine) return mine;
     const route = `${request.method} /${request.path.join("/")}`;
     switch (route) {
       case "GET /events/filters":
@@ -143,6 +146,8 @@ export class EventsConnector implements Connector {
     const quantity = order.names.length;
     const token = randomToken(24);
     const created = await store.createCatalogOrder({
+      // 96.4 The customer's language, for their receipt.
+      lang: request.lang ?? null,
       appId: app.id,
       tokenHash: sha256Hex(token),
       userId: request.user.id,

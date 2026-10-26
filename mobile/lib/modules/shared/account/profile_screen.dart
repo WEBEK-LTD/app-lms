@@ -49,6 +49,11 @@ class ProfileScreen extends ConsumerWidget {
     final showOrders =
         config.features.orders &&
         (store || (lms && env.platform == DevicePlatform.android));
+    // 96.3 Tickets and a gym's memberships are orders too, with receipts.
+    final purchases =
+        config.features.orders &&
+        (env.build.appType == AppType.events ||
+            env.build.appType == AppType.booking);
     // 45 Academy apps whose students can save lessons on this phone.
     final downloads = lms && downloadsOffered(ref);
     final savedBytes = downloads
@@ -203,6 +208,13 @@ class ProfileScreen extends ConsumerWidget {
             SettingsGroup(
               title: context.l10n.accountAndApp,
               children: [
+                if (purchases)
+                  SettingsTile(
+                    key: const ValueKey('account-orders'),
+                    icon: AppIcons.orders,
+                    title: context.l10n.myOrders,
+                    onTap: () => context.push(Paths.orders),
+                  ),
                 if (chatHere)
                   SettingsTile(
                     key: const ValueKey('account-chat'),
