@@ -142,6 +142,14 @@ class ProfileScreen extends ConsumerWidget {
                       title: context.l10n.myCertificates,
                       onTap: () => context.push(Paths.certificates),
                     ),
+                  // 90.3 Memberships, subscriptions and groups on the website.
+                  if (config.features.memberships)
+                    SettingsTile(
+                      key: const ValueKey('account-memberships'),
+                      icon: AppIcons.membership,
+                      title: context.l10n.siteMemberships,
+                      onTap: () => context.push(Paths.subscriptions),
+                    ),
                   if (config.features.quizzes)
                     SettingsTile(
                       icon: AppIcons.quizResults,
@@ -170,6 +178,7 @@ class ProfileScreen extends ConsumerWidget {
                       onTap: () => context.push(Paths.downloads),
                     ),
                   if (!config.features.certificates &&
+                      !config.features.memberships &&
                       !config.features.quizzes &&
                       !config.features.wishlist &&
                       !showOrders &&

@@ -3824,4 +3824,62 @@ class AppLocalizationsTr extends AppLocalizations {
   String accessUntil(String date) {
     return '$date tarihine kadar erişim';
   }
+
+  @override
+  String get siteMemberships => 'Üyeliklerim';
+
+  @override
+  String get siteMembershipsNoneTitle => 'Üyelik yok';
+
+  @override
+  String get siteMembershipsNoneMessage =>
+      'Web sitemizdeki üyelikleriniz ve abonelikleriniz burada görünür.';
+
+  @override
+  String get siteMembershipsManaged => 'Üyelikler web sitemizden yönetilir.';
+
+  @override
+  String get siteMembershipActive => 'Etkin';
+
+  @override
+  String get siteMembershipOnHold => 'Beklemede';
+
+  @override
+  String get siteMembershipCancelled => 'İptal edildi';
+
+  @override
+  String siteMembershipRenews(String date) {
+    return '$date tarihinde yenilenir';
+  }
+
+  @override
+  String siteMembershipEnds(String date) {
+    return '$date tarihinde sona erer';
+  }
+
+  @override
+  String siteMembershipCourses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kurs',
+      one: '1 kurs',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get courseMembershipTitle => 'Üyelere özel';
+
+  @override
+  String courseMembershipPlans(String plans) {
+    return 'Bu kurs web sitemizdeki bir üyelikle birlikte gelir: $plans.';
+  }
+
+  @override
+  String get courseMembershipAny =>
+      'Bu kurs web sitemizdeki bir üyelikle birlikte gelir.';
+
+  @override
+  String get courseMembershipWebsite => 'Üyelikleri web sitesinde gör';
 }

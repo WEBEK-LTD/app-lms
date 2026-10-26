@@ -16,6 +16,7 @@ use Yallapp\Lms\Course_Completion;
 use Yallapp\Lms\Course_Password;
 use Yallapp\Lms\Course_Restart;
 use Yallapp\Lms\Lms_Adapter;
+use Yallapp\Lms\Site_Memberships;
 
 /**
  * /me/courses, /me/wishlist, /lessons/*, /me/certificates, 45 /me/downloads/check and 73
@@ -49,6 +50,15 @@ class Learning_Controller extends Controller {
 						),
 					)
 				),
+			)
+		);
+		// 90.3 Memberships, subscriptions and groups on the website.
+		$this->route(
+			'/me/subscriptions',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'subscriptions' ),
+				'permission_callback' => $auth,
 			)
 		);
 		$this->route(
@@ -235,6 +245,13 @@ class Learning_Controller extends Controller {
 			return $user_id
 				? self::error( 'not_enrolled', __( 'Enroll in this course to open this lesson.', 'yallapp' ), 403 )
 				: self::error( 'unauthorized', __( 'Please sign in.', 'yallapp' ), 401 );
+		}
+		// 90.3 A course that needs a membership the student no longer has (it ended or was
+		// cancelled): closed as on the website, except to those who may edit it.
+		$course_id  = (int) ( $lesson['course_id'] ?? 0 );
+		$membership = $course_id > 0 && empty( $lesson['preview'] ) ? Site_Memberships::course( $course_id, $user_id ) : null;
+		if ( $membership && ! $membership['has_access'] && ! user_can( $user_id, 'edit_post', $course_id ) ) {
+			return Catalog_Controller::membership_required( $membership );
 		}
 		// 51 A video from the Yallapp Media library: signed by Yallapp now that the LMS let the student in.
 		$lesson          = $this->plugin->yallapp_media()->apply( $lesson, 'play' );
@@ -434,6 +451,16 @@ class Learning_Controller extends Controller {
 			return null;
 		}
 		return $lesson;
+	}
+
+	/**
+	 * 90.3 GET /me/subscriptions: the student's memberships, subscriptions and groups on the
+	 * website, shown in the app and managed on the website.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public function subscriptions() {
+		return $this->ok( array( 'items' => Site_Memberships::subscriptions( get_current_user_id() ) ) );
 	}
 
 	/**

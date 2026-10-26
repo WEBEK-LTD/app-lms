@@ -112,6 +112,8 @@ class App_Controller extends Controller {
 					// 45 Lessons saved for offline viewing: the plan and the owner's choice.
 					'downloads'    => $lms && $this->plugin->downloads()->enabled(),
 					'orders'       => $lms ? $lms->sells_courses() : \Yallapp\Commerce\Woo_Orders::available(),
+					// 90.3 Memberships, subscriptions and groups on the website.
+					'memberships'  => $lms && \Yallapp\Lms\Site_Memberships::available(),
 				),
 				'store'     => \Yallapp\Store\Catalog::available() ? $this->plugin->store_checkout()->config() : null,
 				'bookings'  => Bookings_Controller::config( $this->plugin->bookings() ),

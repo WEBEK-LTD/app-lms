@@ -183,6 +183,7 @@ class CourseDetail extends CourseSummary {
     this.passwordProtected = false,
     this.websiteUrl,
     this.canRestart = false,
+    this.membership,
   });
 
   factory CourseDetail.fromJson(Json json) {
@@ -216,6 +217,7 @@ class CourseDetail extends CourseSummary {
       passwordProtected: boolOr(json, 'password_protected', false),
       websiteUrl: optString(json, 'website_url'),
       canRestart: boolOr(json, 'can_restart', false),
+      membership: optObject(json, 'membership', CourseMembership.fromJson),
     );
   }
 
@@ -255,6 +257,27 @@ class CourseDetail extends CourseSummary {
   /// 73 A student who finished it can start it again
   /// (`POST /courses/{id}/restart`). False from older servers.
   final bool canRestart;
+
+  /// 90.3 The website's memberships that open the course; null when it needs
+  /// none.
+  final CourseMembership? membership;
+}
+
+/// 90.3 The plans on the website that open a course, and whether the student
+/// has one. Without one the course can't be joined from the app.
+class CourseMembership {
+  const CourseMembership({required this.hasAccess, required this.plans});
+
+  factory CourseMembership.fromJson(Json json) => CourseMembership(
+    hasAccess: reqBool(json, 'has_access'),
+    plans: [
+      for (final plan in (json['plans'] as List? ?? const []))
+        if (plan is String && plan.isNotEmpty) plan,
+    ],
+  );
+
+  final bool hasAccess;
+  final List<String> plans;
 }
 
 /// 30 What students learn, the requirements, who the course is for and what

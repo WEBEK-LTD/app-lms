@@ -3876,4 +3876,65 @@ class AppLocalizationsAr extends AppLocalizations {
   String accessUntil(String date) {
     return 'متاح حتى $date';
   }
+
+  @override
+  String get siteMemberships => 'عضوياتي';
+
+  @override
+  String get siteMembershipsNoneTitle => 'لا عضويات';
+
+  @override
+  String get siteMembershipsNoneMessage =>
+      'تظهر هنا العضويات والاشتراكات التي لديك على موقعنا.';
+
+  @override
+  String get siteMembershipsManaged => 'تُدار العضويات على موقعنا.';
+
+  @override
+  String get siteMembershipActive => 'نشطة';
+
+  @override
+  String get siteMembershipOnHold => 'معلّقة';
+
+  @override
+  String get siteMembershipCancelled => 'ملغاة';
+
+  @override
+  String siteMembershipRenews(String date) {
+    return 'تتجدد في $date';
+  }
+
+  @override
+  String siteMembershipEnds(String date) {
+    return 'تنتهي في $date';
+  }
+
+  @override
+  String siteMembershipCourses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count دورة',
+      many: '$count دورة',
+      few: '$count دورات',
+      two: 'دورتان',
+      one: 'دورة واحدة',
+      zero: 'لا دورات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get courseMembershipTitle => 'للأعضاء';
+
+  @override
+  String courseMembershipPlans(String plans) {
+    return 'هذه الدورة ضمن عضوية على موقعنا: $plans.';
+  }
+
+  @override
+  String get courseMembershipAny => 'هذه الدورة ضمن عضوية على موقعنا.';
+
+  @override
+  String get courseMembershipWebsite => 'عرض العضويات على الموقع';
 }

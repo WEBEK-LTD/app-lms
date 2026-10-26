@@ -10,6 +10,7 @@
 #        APP=bookings BOOKING=amelia|bookingpress|latepoint: that booking plugin and bookings-test.php.
 #        APP=news: a news site (posts only) and news-test.php.
 #        WOO=1: Tutor LMS with WooCommerce selling the paid courses and access-test.php (39).
+#        MEMBERSHIPS=1: Tutor LMS with Paid Memberships Pro and memberships-test.php (90.3).
 #        UPGRADE_FROM=<git ref>: Tutor LMS and WooCommerce with the plugin as it was at that
 #        commit, updated to this one by WordPress's updater, and upgrade-test.php (39).
 set -euo pipefail
@@ -22,6 +23,7 @@ CACHE=${YALLAPP_CACHE_DIR:-$HOME/.cache/yallapp-dev}
 LMS=${LMS:-}
 APP=${APP:-lms}
 WOO=${WOO:-0}
+MEMBERSHIPS=${MEMBERSHIPS:-0}
 UPGRADE_FROM=${UPGRADE_FROM:-}
 PLUGIN_DIR=$(cd "$HERE/../.." && pwd)
 
@@ -38,7 +40,7 @@ if [ -n "$UPGRADE_FROM" ]; then
 	WOO=1
 fi
 
-APP=$APP LMS=${LMS:-tutor} WOO=$WOO PLUGIN_SRC=$PLUGIN_SRC PORT=$PORT "$HERE/../dev-site/setup.sh" "$SITE_DIR"
+APP=$APP LMS=${LMS:-tutor} WOO=$WOO MEMBERSHIPS=$MEMBERSHIPS PLUGIN_SRC=$PLUGIN_SRC PORT=$PORT "$HERE/../dev-site/setup.sh" "$SITE_DIR"
 SITE_DIR=$(cd "$SITE_DIR" && pwd)
 export SITE_DIR
 
@@ -63,6 +65,8 @@ elif [ -n "$UPGRADE_FROM" ]; then
 	php "$HERE/upgrade-test.php" "http://127.0.0.1:$PORT"
 elif [ "$WOO" = 1 ]; then
 	php "$HERE/access-test.php" "http://127.0.0.1:$PORT"
+elif [ "$MEMBERSHIPS" = 1 ]; then
+	php "$HERE/memberships-test.php" "http://127.0.0.1:$PORT"
 elif [ -z "$LMS" ] || [ "$LMS" = tutor ]; then
 	php "$HERE/api-test.php" "http://127.0.0.1:$PORT"
 else

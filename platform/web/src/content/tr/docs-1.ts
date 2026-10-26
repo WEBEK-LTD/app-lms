@@ -210,6 +210,15 @@ Değişiklikler, yeni derleme olmadan uygulama bir sonraki açılışında uygul
 
 Yallapp panelinizde **Uygulama kurulumu › Web sitesi**'ni açın, **WordPress sitem**'i seçin, web sitenizin https adresini girin ve **Kaydet ve devam et**'i seçin. Adım, eklentinin bağlı olup olmadığını gösterir.
 
+## Üyelikler ve abonelikler
+
+Uygulama, web sitenizin erişim verdiği üyelikleri izler:
+
+- **Paid Memberships Pro**: **Require membership** olarak ayarlanmış bir kursun hangi planlarla açıldığını uygulama söyler. Bunlardan birine sahip olmayan öğrenciler kursa uygulamadan katılamaz; üyeler tek dokunuşla katılır ve üyelikleri sona erdiğinde dersler, web sitenizde olduğu gibi kapanır. Bu kursları LMS'nizde ücretsiz olarak ayarlayın.
+- **WooCommerce Subscriptions** ve **LearnDash grupları**: LMS'niz erişimi web sitenizde verdiği gibi verir.
+
+Öğrenciler üyeliklerini, aboneliklerini ve gruplarını ne zaman yenileneceği veya sona ereceğiyle birlikte **Hesap › Üyeliklerim** altında görür. Bunlar yalnızca web sitenizde satılır ve yönetilir: Android'de kurs sayfası web sitenizin üyeliklerini açabilir; iPhone uygulaması ise Apple'ın kuralları gereği onlara hiçbir zaman bağlantı vermez.
+
 > Sayfalarınız, görünümünüz ve dilleriniz Yallapp panelinde oluşturulur; eklenti onları kendi kurslarınız, ürünleriniz ve yazılarınızla doldurur. Eklentinin **App pages and look** kartı yayımlanıp yayımlanmadıklarını gösterir ve onları hemen yenilemenizi sağlar.
 `,
   },

@@ -2339,6 +2339,16 @@ app opens on the site's links (`<site>/a/page/<slug>`).
   enrolments, lesson progress and submitted attempts; the Students page
   (`/dashboard/courses/<id>/students`) and its CSV file
   (`/api/dashboard/courses/<id>/progress`, the Courses permission).
+- **Memberships from the site** (90.3, plugin `Lms\Site_Memberships`): Paid
+  Memberships Pro's levels on a course (`pmpro_has_membership_access`) give
+  `CourseDetail.membership`; without one the course button is `none`,
+  enrolling is `membership_required` and its lessons close (to those who
+  can't edit it); members enroll as in a free course. `GET /me/subscriptions`
+  lists PMPro levels, WooCommerce Subscriptions still giving access
+  (active, on hold, cancelled until the paid period ends) and LearnDash
+  groups. The integration suite (`MEMBERSHIPS=1`) runs Paid Memberships Pro
+  from GitHub on the Tutor LMS dev site; WooCommerce Subscriptions and
+  LearnDash are paid plugins, covered by PHPUnit.
 
 ## Updates you can undo (Phase 89)
 

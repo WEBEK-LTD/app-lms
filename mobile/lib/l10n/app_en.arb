@@ -2821,5 +2821,50 @@
         "type": "String"
       }
     }
-  }
+  },
+  "siteMemberships": "My memberships",
+  "@siteMemberships": {
+    "description": "90.3 The account item and screen listing the student's memberships, subscriptions and groups on the website."
+  },
+  "siteMembershipsNoneTitle": "No memberships",
+  "siteMembershipsNoneMessage": "Memberships and subscriptions you have on our website show here.",
+  "siteMembershipsManaged": "Memberships are managed on our website.",
+  "siteMembershipActive": "Active",
+  "siteMembershipOnHold": "On hold",
+  "siteMembershipCancelled": "Cancelled",
+  "siteMembershipRenews": "Renews on {date}",
+  "@siteMembershipRenews": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "siteMembershipEnds": "Ends on {date}",
+  "@siteMembershipEnds": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "siteMembershipCourses": "{count, plural, =1{1 course} other{{count} courses}}",
+  "@siteMembershipCourses": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "courseMembershipTitle": "For members",
+  "courseMembershipPlans": "This course comes with a membership on our website: {plans}.",
+  "@courseMembershipPlans": {
+    "placeholders": {
+      "plans": {
+        "type": "String"
+      }
+    }
+  },
+  "courseMembershipAny": "This course comes with a membership on our website.",
+  "courseMembershipWebsite": "See memberships on the website"
 }

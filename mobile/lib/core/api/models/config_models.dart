@@ -368,6 +368,7 @@ class SiteFeatures {
     this.orders = false,
     this.offline = false,
     this.downloads = false,
+    this.memberships = false,
   });
 
   factory SiteFeatures.fromJson(Json json) => SiteFeatures(
@@ -385,6 +386,7 @@ class SiteFeatures {
     orders: boolOr(json, 'orders', false),
     offline: boolOr(json, 'offline', false),
     downloads: boolOr(json, 'downloads', false),
+    memberships: boolOr(json, 'memberships', false),
   );
 
   /// Null on a site without an LMS (a Store app).
@@ -409,6 +411,10 @@ class SiteFeatures {
   /// 45 Students can save lessons and courses on the phone to watch and read
   /// offline: offline mode in the plan and the owner turned downloads on.
   final bool downloads;
+
+  /// 90.3 The website gives access through memberships, subscriptions or
+  /// groups: the account lists the student's (`GET /me/subscriptions`).
+  final bool memberships;
 }
 
 enum SignupField { name, email, city }

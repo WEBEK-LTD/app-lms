@@ -440,6 +440,14 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
           // 62 A course with a password on the website: no password in the app.
           if (course.passwordProtected && !course.enrolled)
             _PasswordBar(course: course, platform: env.platform)
+          // 90.3 A course that needs a membership the student doesn't have.
+          else if (course.membership case final membership?
+              when !membership.hasAccess && !course.enrolled)
+            _MembershipBar(
+              course: course,
+              membership: membership,
+              platform: env.platform,
+            )
           else
             _CtaBar(
               course: course,
@@ -1132,6 +1140,96 @@ class _PasswordBar extends StatelessWidget {
             PrimaryButton(
               key: const ValueKey('cta-open-website'),
               label: l10n.courseOpenOnWebsite,
+              icon: AppIcons.openInNew,
+              height: 54,
+              onPressed: () => openExternal(website),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// 90.3 The course comes with a membership on the website. On iOS the app
+/// only says so: no link to where it's sold.
+class _MembershipBar extends StatelessWidget {
+  const _MembershipBar({
+    required this.course,
+    required this.membership,
+    required this.platform,
+  });
+
+  final CourseDetail course;
+  final CourseMembership membership;
+  final DevicePlatform platform;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final website = course.websiteUrl;
+    final link = website != null && platform != DevicePlatform.ios;
+    return BottomActionBar(
+      key: const ValueKey('cta-membership'),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 22),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: p.divider,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                alignment: Alignment.center,
+                child: AppIcon(
+                  AppIcons.membership,
+                  size: 20,
+                  color: p.textSecondary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.courseMembershipTitle,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: p.text,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      membership.plans.isEmpty
+                          ? l10n.courseMembershipAny
+                          : l10n.courseMembershipPlans(
+                              membership.plans.join(', '),
+                            ),
+                      style: TextStyle(
+                        fontSize: 14,
+                        height: 1.5,
+                        color: p.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (link) ...[
+            const SizedBox(height: 12),
+            PrimaryButton(
+              key: const ValueKey('cta-memberships-website'),
+              label: l10n.courseMembershipWebsite,
               icon: AppIcons.openInNew,
               height: 54,
               onPressed: () => openExternal(website),

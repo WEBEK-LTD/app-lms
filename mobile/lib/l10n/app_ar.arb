@@ -1022,5 +1022,19 @@
   "chatMore": "المزيد",
   "chatBlockPerson": "حظر {name}",
   "opensOn": "يُفتح في {date}",
-  "accessUntil": "متاح حتى {date}"
+  "accessUntil": "متاح حتى {date}",
+  "siteMemberships": "عضوياتي",
+  "siteMembershipsNoneTitle": "لا عضويات",
+  "siteMembershipsNoneMessage": "تظهر هنا العضويات والاشتراكات التي لديك على موقعنا.",
+  "siteMembershipsManaged": "تُدار العضويات على موقعنا.",
+  "siteMembershipActive": "نشطة",
+  "siteMembershipOnHold": "معلّقة",
+  "siteMembershipCancelled": "ملغاة",
+  "siteMembershipRenews": "تتجدد في {date}",
+  "siteMembershipEnds": "تنتهي في {date}",
+  "siteMembershipCourses": "{count, plural, =0{لا دورات} =1{دورة واحدة} =2{دورتان} few{{count} دورات} many{{count} دورة} other{{count} دورة}}",
+  "courseMembershipTitle": "للأعضاء",
+  "courseMembershipPlans": "هذه الدورة ضمن عضوية على موقعنا: {plans}.",
+  "courseMembershipAny": "هذه الدورة ضمن عضوية على موقعنا.",
+  "courseMembershipWebsite": "عرض العضويات على الموقع"
 }

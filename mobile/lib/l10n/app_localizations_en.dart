@@ -3817,4 +3817,63 @@ class AppLocalizationsEn extends AppLocalizations {
   String accessUntil(String date) {
     return 'Access until $date';
   }
+
+  @override
+  String get siteMemberships => 'My memberships';
+
+  @override
+  String get siteMembershipsNoneTitle => 'No memberships';
+
+  @override
+  String get siteMembershipsNoneMessage =>
+      'Memberships and subscriptions you have on our website show here.';
+
+  @override
+  String get siteMembershipsManaged =>
+      'Memberships are managed on our website.';
+
+  @override
+  String get siteMembershipActive => 'Active';
+
+  @override
+  String get siteMembershipOnHold => 'On hold';
+
+  @override
+  String get siteMembershipCancelled => 'Cancelled';
+
+  @override
+  String siteMembershipRenews(String date) {
+    return 'Renews on $date';
+  }
+
+  @override
+  String siteMembershipEnds(String date) {
+    return 'Ends on $date';
+  }
+
+  @override
+  String siteMembershipCourses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count courses',
+      one: '1 course',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get courseMembershipTitle => 'For members';
+
+  @override
+  String courseMembershipPlans(String plans) {
+    return 'This course comes with a membership on our website: $plans.';
+  }
+
+  @override
+  String get courseMembershipAny =>
+      'This course comes with a membership on our website.';
+
+  @override
+  String get courseMembershipWebsite => 'See memberships on the website';
 }

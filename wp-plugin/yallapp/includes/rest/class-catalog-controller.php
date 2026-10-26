@@ -16,6 +16,7 @@ use Yallapp\Lms\Course_Password;
 use Yallapp\Lms\Course_Restart;
 use Yallapp\Lms\Lms_Adapter;
 use Yallapp\Lms\Purchase_Rules;
+use Yallapp\Lms\Site_Memberships;
 
 /**
  * /categories, /courses, /courses/{id}, /courses/{id}/curriculum and /courses/{id}/enroll.
@@ -138,8 +139,8 @@ class Catalog_Controller extends Controller {
 		if ( ! $course ) {
 			return self::error( 'not_found', __( 'Course not found.', 'yallapp' ), 404 );
 		}
-		$settings              = $this->plugin->settings();
-		$course['purchase']    = array(
+		$settings           = $this->plugin->settings();
+		$course['purchase'] = array(
 			'action' => Purchase_Rules::action(
 				$course['enrolled'],
 				$course['price']['is_free'],
@@ -149,7 +150,11 @@ class Catalog_Controller extends Controller {
 				(bool) $course['has_checkout']
 			),
 		);
-		$course['intro_video'] = $this->plugin->lesson_renderer()->video( $course['intro_video'], get_current_user_id() );
+		// 90.3 A course that needs a membership on the website: the plans, and no way in without one.
+		$membership                   = Site_Memberships::course( (int) $course['id'], get_current_user_id() );
+		$course['membership']         = $membership;
+		$course['purchase']['action'] = Site_Memberships::action( $course['purchase']['action'], $membership, (bool) $course['enrolled'], (bool) $settings->get( 'free_enrollment' ) );
+		$course['intro_video']        = $this->plugin->lesson_renderer()->video( $course['intro_video'], get_current_user_id() );
 		unset( $course['has_checkout'] );
 		// 62 A password on the website: the app opens the website for it, never asks for it.
 		$post                         = get_post( (int) $course['id'] );
@@ -219,6 +224,27 @@ class Catalog_Controller extends Controller {
 		if ( Course_Password::locked( get_post( (int) $request['course_id'] ), get_current_user_id(), array( $lms, 'is_enrolled' ) ) ) {
 			return self::error( 'enrollment_disabled', __( 'This course has a password: join it on the website.', 'yallapp' ), 403 );
 		}
+		// 90.3 A course that needs a membership on the website: its members join it (sites set
+		// such courses free in the LMS and protect them with Paid Memberships Pro), others can't.
+		$membership = Site_Memberships::course( (int) $request['course_id'], get_current_user_id() );
+		if ( $membership && ! $membership['has_access'] && ! $lms->is_enrolled( (int) $request['course_id'], get_current_user_id() ) ) {
+			return self::membership_required( $membership );
+		}
 		return $this->result( $lms->enroll_free( (int) $request['course_id'], get_current_user_id() ) );
+	}
+
+	/**
+	 * 90.3 The answer to joining a course that needs a membership the student doesn't have.
+	 *
+	 * @param array $membership `Site_Memberships::course()`.
+	 * @return \WP_REST_Response
+	 */
+	public static function membership_required( array $membership ) {
+		return self::error(
+			'membership_required',
+			/* translators: %s: the membership plans that open the course, comma-separated. */
+			sprintf( __( 'This course comes with a membership on our website: %s.', 'yallapp' ), implode( ', ', $membership['plans'] ) ),
+			403
+		);
 	}
 }

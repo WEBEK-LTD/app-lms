@@ -213,6 +213,11 @@ jobs:
           - suite: update from 0.3.8
             woo: '1'
             upgrade_from: 34d734f
+          # 90.3 Paid Memberships Pro: a course that needs a membership.
+          - suite: memberships
+            woo: '0'
+            memberships: '1'
+            upgrade_from: ''
     defaults:
       run:
         working-directory: wp-plugin/yallapp
@@ -229,10 +234,11 @@ jobs:
       - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: ~/.cache/yallapp-dev
-          key: yallapp-dev-wp7.1.3-tutor-woo-${{ hashFiles('wp-plugin/yallapp/tests/dev-site/setup.sh') }}
+          key: yallapp-dev-wp7.1.3-tutor-woo-${{ matrix.memberships || '0' }}-${{ hashFiles('wp-plugin/yallapp/tests/dev-site/setup.sh') }}
       - name: Build the dev site and run the checks
         env:
           WOO: ${{ matrix.woo }}
+          MEMBERSHIPS: ${{ matrix.memberships || '0' }}
           UPGRADE_FROM: ${{ matrix.upgrade_from }}
         run: tests/integration/run.sh "$RUNNER_TEMP/site"
       - name: PHP log

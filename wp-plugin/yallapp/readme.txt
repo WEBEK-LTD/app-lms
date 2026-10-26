@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.13
+Stable tag: 0.4.14
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -121,6 +121,9 @@ Terms: https://developer.huawei.com/consumer/en/devservice/term
 Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 
 == Changelog ==
+
+= 0.4.14 =
+* Memberships from your website in the app: a course that needs a Paid Memberships Pro level says which plans open it, can't be joined from the app without one, opens in one tap for members, and closes when their membership ends. Students see their memberships, WooCommerce subscriptions and LearnDash groups under Account › My memberships. Sold and managed on your website only.
 
 = 0.4.13 =
 * Your shop's sales in your Yallapp dashboard: with each license check the plugin sends WooCommerce's totals of the last days (paid orders, what they brought in and the refunds), so Analytics and the weekly summary email show them. Totals only, never an order or a customer.

@@ -111,6 +111,13 @@ List<TabScreen> _screens() => [
           pageBuilder: (context, state) =>
               appPage(state, const CertificatesScreen()),
         ),
+        // 90.3 Memberships on the website.
+        GoRoute(
+          path: 'memberships',
+          parentNavigatorKey: rootNavigatorKey,
+          pageBuilder: (context, state) =>
+              appPage(state, const SubscriptionsScreen()),
+        ),
         GoRoute(
           path: 'quiz-results',
           parentNavigatorKey: rootNavigatorKey,

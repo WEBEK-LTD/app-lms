@@ -10,6 +10,11 @@ import type { Lang } from "@/i18n/config";
  * its code names left out (tests/unit/phase62.test.ts lists those missing).
  */
 export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: string }> = {
+  "90.3 The account item and screen listing the student's memberships, subscriptions and groups on the website.": {
+    en: "The account item and screen that list the student's memberships, subscriptions and groups on your website.",
+    ar: "عنصر الحساب والشاشة اللذان يعرضان عضويات الطالب واشتراكاته ومجموعاته على موقعك.",
+    tr: "Öğrencinin web sitenizdeki üyeliklerini, aboneliklerini ve gruplarını listeleyen hesap öğesi ve ekran.",
+  },
   "90.1 A course lesson that opens later (drip), with its day.": {
     en: "Next to a course lesson that opens some days after the student enrolls: the day it opens.",
     ar: "بجانب درس يُفتح بعد أيام من تسجيل الطالب: يوم فتحه.",
