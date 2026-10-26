@@ -2132,6 +2132,30 @@ platform, its own API):
   app, plan and end date and the next step, without the key. The admin's
   "Email the license key again" sends that one for these apps.
 
+## Invoices and bank transfers (Phase 95)
+
+- **Admin › Invoices** lists the paid plan payments (`listPlanPayments`
+  with `status: "paid"`), newest first: the invoice number (`YA-…`), the
+  client and app, what it paid for, the amount, how it was paid (by card
+  through a gateway, covered by a coupon, or a bank transfer) and the PDF
+  the client got (`/admin/payments/<id>/pdf`), with filters by how it was
+  paid.
+- **Bank transfers.** The team finds the client by email and records a
+  transfer that has arrived: the app (or the account's first app, not made
+  yet), the plan, one month or one year, the amount and currency, and the
+  bank's reference. `recordBankTransfer` (lib/billing/bank-transfer.ts)
+  stores a paid `plan_payments` row with `method = 'bank_transfer'`,
+  `bank_reference` and `recorded_by` (migration `0085`), then activates or
+  extends the app's license exactly as a card payment does
+  (`planChangeFor`, `activateClient`): an upgrade starts now with the old
+  plan's days credited, a downgrade when the paid period ends. The client
+  gets the activation or renewal email with the invoice as a PDF
+  (`sendPlanPaidMail`), and finds it on their Plan page; the receipt, the
+  PDF and the email say "Bank transfer to Yallapp" with the reference, in
+  the client's language. It needs the `payments.manage` permission and is
+  in the audit log (`payments.bank_transfer`). There are no unpaid
+  invoices: a transfer is recorded once the money is in the account.
+
 ## The plugin and WordPress.org (Phase 76)
 
 0.4.8 was made ready for WordPress.org's plugin guidelines (slug `yallapp`,

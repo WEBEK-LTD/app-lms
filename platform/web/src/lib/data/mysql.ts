@@ -66,6 +66,7 @@ import type {
   PlatformSetting,
   PendingPayment,
   PlanPayment,
+  PlanPaymentStatus,
   BookingAppointment,
   BookingAppointmentPatch,
   BookingStatus,
@@ -2066,7 +2067,7 @@ export class MysqlStore implements DataStore {
     );
   }
 
-  async listPlanPayments(input: { clientId?: string; appId?: string; id?: string; limit: number }): Promise<PlanPayment[]> {
+  async listPlanPayments(input: { clientId?: string; appId?: string; id?: string; status?: PlanPaymentStatus; limit: number }): Promise<PlanPayment[]> {
     return (await this.run((db) =>
       db
         .select()
@@ -2076,6 +2077,7 @@ export class MysqlStore implements DataStore {
             input.clientId ? eq(schema.planPayments.clientId, input.clientId) : undefined,
             input.appId ? eq(schema.planPayments.appId, input.appId) : undefined,
             input.id ? eq(schema.planPayments.id, input.id) : undefined,
+            input.status ? eq(schema.planPayments.status, input.status) : undefined,
           ),
         )
         .orderBy(desc(schema.planPayments.createdAt))

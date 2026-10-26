@@ -20,6 +20,8 @@ export function paymentLine(payment: PlanPayment, base: string, lang: Lang = "en
   const receipt = `${t("emails.receipt", { url: `${base}/dashboard/license/receipts/${payment.id}` })}\n\n`;
   if (payment.amountCents === 0) return `${t("emails.paidCoupon")}\n${receipt}`;
   const amount = formatAmount(payment.amountCents, payment.currency);
+  // 95.2 A bank transfer the team recorded.
+  if (payment.method === "bank_transfer") return `${t("emails.paidBank", { amount })}\n${receipt}`;
   const provider = PROVIDER_NAME[payment.paymentProvider ?? "iyzico"];
   const paid =
     payment.shownCents && payment.shownCurrency && payment.shownCurrency !== payment.currency
@@ -28,7 +30,7 @@ export function paymentLine(payment: PlanPayment, base: string, lang: Lang = "en
   return `${paid}\n${receipt}`;
 }
 
-/** After an app's plan is paid (by card, or free with a coupon): the activation or renewal email, naming the app. Never fails the payment. */
+/** After an app's plan is paid (by card, free with a coupon, or 95.2 by a bank transfer the team recorded): the activation or renewal email, naming the app. Never fails the payment. */
 export async function sendPlanPaidMail(store: DataStore, client: Client, outcome: Extract<PlanPaymentOutcome, { kind: "paid" }>): Promise<void> {
   const user = await store.getUserById(client.userId);
   if (!user) return;

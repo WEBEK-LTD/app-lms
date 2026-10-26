@@ -2147,4 +2147,4 @@ Plan page.
 | | Step | Done when |
 |---|---|---|
 | [x] | 95.1 Settings, one page each: Payments (the gateway for plans, Yallapp's iyzico, Kashier and Fawaterk accounts), Email, Sign-in codes, Contact & publishing, Invoices, Store platforms, New apps and Server, with tabs between them; the first settings page lists them with what's set now | e2e |
-| [ ] | 95.2 Admin › Invoices: every invoice (card, coupon and bank transfer) with its PDF; a new bank-transfer invoice for a client's app (plan, months, amount, the bank's reference) activates or extends the plan and emails the PDF | e2e |
+| [x] | 95.2 Admin › Invoices: every invoice (card, coupon and bank transfer) with its PDF; a new bank-transfer invoice for a client's app (plan, months, amount, the bank's reference) activates or extends the plan and emails the PDF | e2e |

@@ -36,6 +36,8 @@ export const AUDIT_ACTIONS = {
   "release.unpublish": "Plugin release unpublished",
   "release.delete": "Plugin release deleted",
   "payout.release": "Payout released",
+  // 95.2 A client paid a plan by bank transfer and the team recorded it.
+  "payments.bank_transfer": "Bank transfer recorded",
   // 47
   "payment.refund": "Payment refunded",
   "settings.save": "Platform setting saved",

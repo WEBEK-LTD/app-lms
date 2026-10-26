@@ -103,7 +103,16 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/admin/p
                   </td>
                   <td className="px-4 py-3">{formatDateTime(p.paidAt ?? p.createdAt)}</td>
                   <td className="px-4 py-3 text-[13px]">
-                    {PROVIDER_NAME[p.paymentProvider ?? "iyzico"]} <span className="font-mono">{p.paymentId ?? "—"}</span>
+                    {/* 95.2 A bank transfer the team recorded. */}
+                    {p.method === "bank_transfer" ? (
+                      <>
+                        Bank transfer <span className="font-mono">{p.bankReference ?? "—"}</span>
+                      </>
+                    ) : (
+                      <>
+                        {PROVIDER_NAME[p.paymentProvider ?? "iyzico"]} <span className="font-mono">{p.paymentId ?? "—"}</span>
+                      </>
+                    )}
                     {/* 71 The receipt the client got, as a PDF. */}
                     {p.status === "paid" ? (
                       <a href={`/admin/payments/${p.id}/pdf`} download className="mt-1 flex items-center gap-1 font-semibold">

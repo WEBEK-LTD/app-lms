@@ -44,6 +44,7 @@ import type {
   MediaKind,
   MediaStatus,
   PaidStoragePack,
+  PlanPaymentMethod,
   PlanPaymentPurpose,
   // 73 Deleted apps and kept billing records
   AppDeletion,
@@ -714,6 +715,10 @@ export const planPayments = mysqlTable(
     // 51 A plan (with the storage packs renewed with it) or storage packs only (null: a plan).
     purpose: varchar("purpose", { length: 8 }).$type<PlanPaymentPurpose>(),
     storagePacks: jsonText<PaidStoragePack[]>("storage_packs"),
+    // 95.2 A bank transfer the team recorded (null: by card or coupon), its reference and who recorded it.
+    method: varchar("method", { length: 16 }).$type<PlanPaymentMethod>(),
+    bankReference: varchar("bank_reference", { length: 100 }),
+    recordedBy: varchar("recorded_by", { length: 191 }),
   },
   (t) => [
     uniqueIndex("plan_payments_token_unique").on(t.tokenHash),

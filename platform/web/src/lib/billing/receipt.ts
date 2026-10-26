@@ -36,7 +36,6 @@ export function planReceiptRows(input: {
   coupon?: Pick<CouponRedemption, "code" | "discountCents" | "currency"> | null;
 }): [string, string][] {
   const { payment } = input;
-  const provider = PROVIDER_NAME[payment.paymentProvider ?? "iyzico"];
   const rows: [string, string][] = [
     ["Receipt", receiptNumber(payment)],
     ["Date", input.paidOn],
@@ -55,10 +54,15 @@ export function planReceiptRows(input: {
   if (payment.shownCents && payment.shownCurrency && payment.shownCurrency !== payment.currency) {
     rows.push(["Price shown", `About ${formatAmount(payment.shownCents, payment.shownCurrency)}. Your bank may have converted the charge at its own rate.`]);
   }
-  rows.push(
-    payment.amountCents > 0
-      ? ["Paid with", `Card, through ${provider}${payment.paymentId ? ` (reference ${payment.paymentId})` : ""}`]
-      : ["Paid with", "The coupon covered the whole price: no card payment."],
-  );
+  rows.push(["Paid with", paidWith(payment)]);
   return rows;
+}
+
+/** How a plan payment was paid, as the receipt and the admin's lists say it (the dashboard translates it). */
+export function paidWith(payment: Pick<PlanPayment, "amountCents" | "paymentProvider" | "paymentId" | "method" | "bankReference">): string {
+  // 95.2 Recorded by the team once the transfer arrived.
+  if (payment.method === "bank_transfer") return payment.bankReference ? `Bank transfer to Yallapp (reference ${payment.bankReference})` : "Bank transfer to Yallapp";
+  if (payment.amountCents === 0) return "The coupon covered the whole price: no card payment.";
+  const provider = PROVIDER_NAME[payment.paymentProvider ?? "iyzico"];
+  return `Card, through ${provider}${payment.paymentId ? ` (reference ${payment.paymentId})` : ""}`;
 }
