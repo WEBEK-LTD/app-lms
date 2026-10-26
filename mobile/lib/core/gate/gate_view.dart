@@ -7,7 +7,10 @@ import '../app_environment.dart';
 import '../auth/auth_controller.dart';
 import '../preview/preview.dart';
 import '../providers.dart';
+import '../../modules/shared/shared_routes.dart' show rootNavigatorKey;
 import '../services/external_links.dart';
+import '../services/version_check.dart';
+import '../storage/local_settings.dart';
 import '../theme/app_icons.dart';
 import '../theme/palette.dart';
 import '../widgets/common.dart';
@@ -34,6 +37,12 @@ class GateView extends ConsumerWidget {
     final l10n = context.l10n;
     final Widget screen = switch (gate) {
       GateReady() when auth is AuthChecking => const SplashView(),
+      GateReady(:final recommended) when recommended != null =>
+        UpdateRecommended(
+          policy: recommended,
+          onUpdate: () => openExternal(recommended.storeUrl ?? storeUrl(env)),
+          child: child,
+        ),
       GateReady() => child,
       GateLoading() => const SplashView(),
       GateMaintenance(:final message) => _StateScreen(
@@ -45,12 +54,12 @@ class GateView extends ConsumerWidget {
         actionLabel: l10n.tryAgain,
         onAction: retry,
       ),
-      GateUpdateRequired() => _StateScreen(
+      GateUpdateRequired(storeUrl: final link) => _StateScreen(
         icon: AppIcons.update,
         title: l10n.updateRequiredTitle,
         message: l10n.updateRequiredMessage(name),
         actionLabel: l10n.updateNow,
-        onAction: () => openExternal(storeUrl(env)),
+        onAction: () => openExternal(link ?? storeUrl(env)),
       ),
       GatePaused(:final contact) => _PausedScreen(
         contact: resolveOwnerContact(ref, contact),
@@ -302,4 +311,72 @@ String _initials(String name) {
   final words = name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
   final letters = words.take(2).map((w) => w.characters.first.toUpperCase());
   return letters.join();
+}
+
+/// 89.1 Asks once per recommended version to update; "Not now" goes on and
+/// isn't asked again until the owner recommends a newer one.
+class UpdateRecommended extends ConsumerStatefulWidget {
+  const UpdateRecommended({
+    super.key,
+    required this.policy,
+    required this.onUpdate,
+    required this.child,
+  });
+
+  final VersionPolicy policy;
+  final VoidCallback onUpdate;
+  final Widget child;
+
+  @override
+  ConsumerState<UpdateRecommended> createState() => _UpdateRecommendedState();
+}
+
+class _UpdateRecommendedState extends ConsumerState<UpdateRecommended> {
+  bool _asked = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_asked) return;
+    _asked = true;
+    final prefs = ref.read(sharedPreferencesProvider);
+    final version = widget.policy.recommendedVersion ?? '';
+    if (prefs.getString(updateDismissedKey) == version) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _ask(version));
+  }
+
+  Future<void> _ask(String version) async {
+    // The gate sits above the app's navigator: the dialog opens on it.
+    final navigator = rootNavigatorKey.currentContext;
+    if (!mounted || navigator == null) return;
+    final name = ref.read(appEnvironmentProvider).build.appName;
+    final l10n = navigator.l10n;
+    final update = await showDialog<bool>(
+      context: navigator,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.updateRecommendedTitle),
+        content: Text(l10n.updateRecommendedMessage(name)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.notNow),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.updateNow),
+          ),
+        ],
+      ),
+    );
+    if (update == true) {
+      widget.onUpdate();
+    } else {
+      await ref
+          .read(sharedPreferencesProvider)
+          .setString(updateDismissedKey, version);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }

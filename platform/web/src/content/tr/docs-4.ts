@@ -260,6 +260,10 @@ Sayfa nedenini sade sözcüklerle ve ne yapılacağını söyler; örneğin baş
 
 Hazır bir derlemenin yanındaki **Olduğu gibi yeniden derle**, onu aynı uygulama koduyla, ayarlarla ve mağaza sayfasıyla, yeni bir sürüm numarasıyla yeniden yapar. En yeni derlemede bir sorun olduğunda ve önceki uygulamayı mağazalara geri getirmek istediğinizde kullanın.
 
+## Kullanılabilecek sürümler
+
+**Kullanılabilecek sürümler** bölümünde bir **en düşük sürüm** belirleyin: uygulamanızın daha eski sürümleri, yüklendikleri mağazaya (Google Play, Galaxy Store, AppGallery ya da App Store'daki sayfanız) giden bir düğmeyle **Güncelleme gerekli** ekranında durur. **Önerilen sürüm** ise daha eski sürümlerden bir kez güncellemelerini ister; kullanıcılar **Şimdi değil** ile devam edebilir. İçeriği nereden gelirse gelsin, uygulamanızın her kopyası açıldığında sorar. Her sürüme izin vermek için kutuyu boş bırakın.
+
 ## Otomatik derlemeler
 
 Otomatik derlemeli paketlerde, uygulamanın kendisini (adını, simgesini, renklerini, Firebase dosyalarını, bağlantılarını), sizin için yayımladığımızda mağaza sayfasını ya da gittiği mağazaları değiştiren bir kayıt, son kaydınızdan on dakika sonra yeni bir derleme başlatır; böylece birkaç değişiklik tek derlemeye girer. Sayfalar, metinler, fiyatlar ve ayarlar uygulamaya derleme olmadan ulaşır. Sayfa bekleyen derlemenin ne zaman başlayacağını söyler; **Yeni derleme başlat** onu hemen başlatır.

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { checkApi, type ApiCheckResult } from "@/lib/app/api-check";
 import { listingLanguages, parseListingExtras } from "@/lib/app/listing-languages";
+import { versionSettingsProblems } from "@/lib/app/version-policy";
 import { apiCheckSignIn } from "@/lib/hosted/test-token";
 import { appTypeName, connectorFits, ENGINES, hostedOnly, isAppType, kindById, defaultKind, ownContentTitle, type OwnContentKind } from "@/lib/app/kinds";
 import { isSetupComplete, managedPublishing, newApp, queueBuild, STEP_LABEL, type SetupStep } from "@/lib/app/setup";
@@ -946,6 +947,24 @@ export async function rebuildBuildAction(_: FormState, formData: FormData): Prom
   await startPipeline();
   await recordStaffChange(context, `Rebuilt build #${from.number} as it was (build #${result.build.number})`);
   redirect(`/dashboard/builds?queued=${result.build.number}`);
+}
+
+/**
+ * 89.1 The versions people may still use: older than the minimum stops at
+ * "Update the app"; older than the recommended one is asked to update.
+ * Empty clears either. Apps ask Yallapp on every start.
+ */
+export async function saveVersionsAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireApp("settings");
+  const values = { minVersion: String(formData.get("minVersion") ?? "").trim(), recommendedVersion: String(formData.get("recommendedVersion") ?? "").trim() };
+  const errors = versionSettingsProblems(values);
+  if (Object.keys(errors).length) return { errors, values };
+  const patch = { minVersion: values.minVersion || null, recommendedVersion: values.recommendedVersion || null };
+  if (patch.minVersion === (context.app.minVersion ?? null) && patch.recommendedVersion === (context.app.recommendedVersion ?? null)) return { ok: true, message: "Nothing changed.", values };
+  await (await getStore()).updateApp(context.app.id, patch, new Date());
+  await recordStaffChange(context, `Set the minimum version to ${patch.minVersion ?? "none"} and the recommended version to ${patch.recommendedVersion ?? "none"}`);
+  revalidatePath("/dashboard/builds");
+  return { ok: true, message: "Saved. Apps check these when they open.", values };
 }
 
 /** Releases the license from its website so it can be activated on another one. */

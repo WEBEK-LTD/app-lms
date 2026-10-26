@@ -34,7 +34,7 @@ import { getPlans } from "@/lib/settings/platform";
 import { failureExplanation } from "@/lib/builds/failures";
 import { preflightChecks, renderCheck } from "@/lib/builds/preflight";
 import { preflightDeps } from "@/lib/builds/preflight-env";
-import { RebuildForm, RetryBuildForm, StartBuildForm } from "./start-build";
+import { RebuildForm, RetryBuildForm, StartBuildForm, VersionsForm } from "./start-build";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
@@ -373,6 +373,11 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
           <LinkCard href={localePath(lang, "/docs/xiaomi-getapps")} icon="menu_book" title={t("builds.guideXiaomi")} text={t("builds.stepByStep")} />
         </div>
       </section>
+
+      {/* 89.1 Which versions people may still use. */}
+      <Section titleId="h-versions" title={t("builds.versionsTitle")} description={t("builds.versionsText")}>
+        <VersionsForm current={{ minVersion: app.minVersion ?? "", recommendedVersion: app.recommendedVersion ?? "" }} />
+      </Section>
 
       <Section titleId="h-history" title={t("builds.history")} description={builds.length ? t("builds.historyText") : undefined}>
         {builds.length === 0 ? (

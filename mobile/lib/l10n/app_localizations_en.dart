@@ -424,6 +424,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateNow => 'Update now';
 
   @override
+  String get updateRecommendedTitle => 'A new version is ready';
+
+  @override
+  String updateRecommendedMessage(String name) {
+    return 'A newer version of $name is on the store. Update now, or carry on and update later.';
+  }
+
+  @override
   String appPausedTitle(String name) {
     return '$name is paused';
   }

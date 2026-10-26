@@ -284,6 +284,15 @@
     }
   },
   "updateNow": "Update now",
+  "updateRecommendedTitle": "A new version is ready",
+  "updateRecommendedMessage": "A newer version of {name} is on the store. Update now, or carry on and update later.",
+  "@updateRecommendedMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "appPausedTitle": "{name} is paused",
   "@appPausedTitle": {
     "placeholders": {

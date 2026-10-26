@@ -380,6 +380,10 @@ export interface App {
   /** Store screenshots (asset IDs, in order): Google Play phone screenshots and iPhone 6.9" screenshots. */
   phoneScreenshotIds: string[];
   iphoneScreenshotIds: string[];
+  /** 89.1 Older versions stop at "Update the app"; null: none. */
+  minVersion?: string | null;
+  /** 89.1 Older versions are asked to update, once per recommended version; null: none. */
+  recommendedVersion?: string | null;
   /** 88.2 Google Play tablet screenshots and iPad 13" screenshots (asset IDs, in order); missing before. */
   tabletScreenshotIds?: string[] | null;
   ipadScreenshotIds?: string[] | null;

@@ -440,6 +440,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get updateNow => 'حدّث الآن';
 
   @override
+  String get updateRecommendedTitle => 'إصدار جديد جاهز';
+
+  @override
+  String updateRecommendedMessage(String name) {
+    return 'يتوفر إصدار أحدث من $name في المتجر. حدّثه الآن، أو تابع وحدّثه لاحقًا.';
+  }
+
+  @override
   String appPausedTitle(String name) {
     return '$name متوقف مؤقتًا';
   }

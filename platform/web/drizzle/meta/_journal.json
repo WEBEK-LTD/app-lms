@@ -533,6 +533,13 @@
       "when": 1792997308299,
       "tag": "0075_publishing_reviews",
       "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "5",
+      "when": 1792997875448,
+      "tag": "0076_app_versions",
+      "breakpoints": true
     }
   ]
 }

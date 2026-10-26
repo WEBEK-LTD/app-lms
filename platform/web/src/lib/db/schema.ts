@@ -296,6 +296,9 @@ export const apps = mysqlTable(
     tabletScreenshotIds: jsonText<string[]>("tablet_screenshot_ids"),
     ipadScreenshotIds: jsonText<string[]>("ipad_screenshot_ids"),
     screenshotFrame: jsonText<ScreenshotFrame>("screenshot_frame"),
+    // 89.1 The versions the app's users must have, and the one they're asked to update to.
+    minVersion: varchar("min_version", { length: 32 }),
+    recommendedVersion: varchar("recommended_version", { length: 32 }),
     appTypeDoneAt: time("app_type_done_at"),
     websiteDoneAt: time("website_done_at"),
     brandingDoneAt: time("branding_done_at"),

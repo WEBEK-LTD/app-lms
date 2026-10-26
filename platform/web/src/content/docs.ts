@@ -1405,6 +1405,10 @@ The page says why in plain words and what to do, for example a Firebase file for
 
 **Rebuild as it was**, next to a ready build, makes it again from the same app code, settings and store listing, with a new version number. Use it when the newest build has a problem and you want the earlier app back in the stores.
 
+## Versions people can use
+
+Under **Versions people can use**, set a **minimum version**: older versions of your app stop at an **Update required** screen with a button to the store they came from (Google Play, Galaxy Store, AppGallery, or your page on the App Store). A **recommended version** asks older versions to update once; people can carry on with **Not now**. Every copy of your app asks when it opens, whatever its content comes from. Leave a box empty to allow every version.
+
 ## Automatic builds
 
 On plans with automatic builds, a save that changes the app itself (its name, icon, colors, Firebase files, links), its store listing when we publish for you, or the stores it goes to starts a new build ten minutes after your last save, so several changes go into one build. Pages, texts, prices and settings reach the app without a build. The page says when the waiting build starts; **Start new build** starts it now.

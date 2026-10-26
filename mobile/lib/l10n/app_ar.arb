@@ -112,6 +112,8 @@
   "updateRequiredTitle": "التحديث مطلوب",
   "updateRequiredMessage": "يتوفر إصدار جديد من {name}. حدّث التطبيق لمتابعة التعلّم.",
   "updateNow": "حدّث الآن",
+  "updateRecommendedTitle": "إصدار جديد جاهز",
+  "updateRecommendedMessage": "يتوفر إصدار أحدث من {name} في المتجر. حدّثه الآن، أو تابع وحدّثه لاحقًا.",
   "appPausedTitle": "{name} متوقف مؤقتًا",
   "appPausedMessage": "يمكن لمالك {name} إعادة تشغيله. تواصل معه لمعرفة المزيد، أو حاول مرة أخرى لاحقًا.",
   "contactOwner": "تواصل مع {name}",

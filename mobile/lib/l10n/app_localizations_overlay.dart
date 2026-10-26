@@ -428,6 +428,15 @@ class OverlayLocalizations extends AppLocalizations {
   String get updateNow => overlay.text('updateNow') ?? base.updateNow;
 
   @override
+  String get updateRecommendedTitle =>
+      overlay.text('updateRecommendedTitle') ?? base.updateRecommendedTitle;
+
+  @override
+  String updateRecommendedMessage(String name) =>
+      overlay.format('updateRecommendedMessage', {'name': name}) ??
+      base.updateRecommendedMessage(name);
+
+  @override
   String appPausedTitle(String name) =>
       overlay.format('appPausedTitle', {'name': name}) ??
       base.appPausedTitle(name);
