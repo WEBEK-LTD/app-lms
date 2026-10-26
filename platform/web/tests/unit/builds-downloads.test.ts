@@ -152,6 +152,20 @@ describe("queueing builds safely", () => {
     expect(second.ok && second.build.stages).toMatchObject({ ios: "pending" });
   });
 
+  it("87.1 doesn't queue a build the checks before it stop, and says why", async () => {
+    const { store, client, app, license } = await ready();
+    // The icon the app points at can't be read.
+    const deps = { key: Buffer.alloc(32, 7), readAsset: async () => null };
+    const stopped = await queueBuild(store, { client, app, license, versionName: "1.0.0" }, NOW, assetUrl, deps);
+    expect(stopped).toMatchObject({ ok: false, reason: "preflight" });
+    if (stopped.ok || stopped.reason !== "preflight") return;
+    expect(stopped.checks.map((c) => [c.key, c.level])).toEqual([
+      ["icon", "error"],
+      ["firebase", "warning"],
+    ]);
+    expect(await store.listBuildsByApp(app.id, 5)).toEqual([]);
+  });
+
   it("closes a build that stopped reporting, so the app isn't blocked for ever", async () => {
     const { store, client, app, license } = await ready();
     const first = await queueBuild(store, { client, app, license, versionName: "1.0.0" }, NOW, assetUrl);

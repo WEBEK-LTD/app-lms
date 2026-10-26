@@ -59,6 +59,7 @@ import type {
   ChatReportOutcome,
 } from "../data/types";
 // 11.6 and 11.8
+import type { BuildFailure } from "../data/types";
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
 import type { Plan } from "../plans";
 import type { Layout, LayoutBlock, LayoutContent } from "../pages/types";
@@ -328,6 +329,8 @@ export const builds = mysqlTable(
     artifacts: jsonText<unknown[]>("artifacts").notNull(),
     message: text("message"),
     logUrl: varchar("log_url", { length: 2048 }),
+    // 87.2 Why it failed (BuildFailure): its code, stage and the log the client may read.
+    failure: jsonText<BuildFailure>("failure"),
     createdAt: time("created_at").notNull(),
     startedAt: time("started_at"),
     finishedAt: time("finished_at"),

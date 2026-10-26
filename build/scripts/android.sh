@@ -12,7 +12,17 @@ ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 SCRIPTS="$ROOT/build/scripts"
 MOBILE="$ROOT/mobile"
 WORK=$(mktemp -d)
-trap 'rm -rf "$WORK"' EXIT
+# 87.2 Everything the build prints, to tell the client why it failed (diagnose.py).
+LOG="$OUT/build.log"
+exec > >(tee -a "$LOG") 2>&1
+finish() {
+	local status=$?
+	rm -rf "$WORK"
+	if [ "$status" -ne 0 ]; then
+		python3 "$SCRIPTS/diagnose.py" "$LOG" android > "$OUT/failure.json" 2>/dev/null && add_failure "$OUT/failure.json" || true
+	fi
+}
+trap finish EXIT
 
 platform() { python3 "$SCRIPTS/platform.py" "$@"; }
 result() { # stages-json artifacts-json message
@@ -20,6 +30,16 @@ result() { # stages-json artifacts-json message
 import json, sys
 path, stages, artifacts, message = sys.argv[1:]
 json.dump({"stages": json.loads(stages), "artifacts": json.loads(artifacts), "message": message or None}, open(path, "w"))
+PY
+}
+# 87.2 Adds why it failed (diagnose.py's output) to result.json.
+add_failure() {
+	python3 - "$OUT/result.json" "$1" <<'PY'
+import json, sys
+result, failure = sys.argv[1:]
+data = json.load(open(result))
+data["failure"] = json.load(open(failure))
+json.dump(data, open(result, "w"))
 PY
 }
 result '{"android":"failed"}' '[]' "The Android app couldn't be built."
@@ -167,4 +187,11 @@ XIAOMI=$(cat "$WORK/xiaomi.stage")
 
 STAGES="{\"android\":\"done\",\"upload_play\":\"$PLAY\",\"upload_galaxy\":\"$GALAXY\",\"upload_appgallery\":\"$APPGALLERY\",\"upload_xiaomi\":\"$XIAOMI\"}"
 result "$STAGES" "$ARTIFACTS" "$MESSAGE"
+# 87.2 A store upload that didn't work, explained from its output.
+for stage in upload_play:$PLAY upload_galaxy:$GALAXY upload_appgallery:$APPGALLERY upload_xiaomi:$XIAOMI; do
+	if [ "${stage#*:}" = "failed" ]; then
+		python3 "$SCRIPTS/diagnose.py" "$LOG" "${stage%%:*}" > "$OUT/failure.json" && add_failure "$OUT/failure.json" || true
+		break
+	fi
+done
 platform status "$BUILD_ID" "{\"stages\":$STAGES}"

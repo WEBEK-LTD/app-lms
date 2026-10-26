@@ -1,3 +1,4 @@
+import { blocking, preflightChecks, type PreflightCheck, type PreflightDeps } from "../builds/preflight";
 import { newId } from "../crypto/tokens";
 import { BuildRunningError, type DataStore } from "../data/store";
 import { isInProgress, STALLED_MESSAGE } from "../builds/view";
@@ -232,8 +233,9 @@ export function buildHasIos(build: Pick<Build, "stages">): boolean {
 }
 
 export type QueueBuildResult =
-  | { ok: true; build: Build }
-  | { ok: false; reason: "setup_incomplete" | "license_inactive" | "build_running" | "version_too_low" | "invalid_config"; errors?: ConfigError[] };
+  | { ok: true; build: Build; checks: PreflightCheck[] }
+  | { ok: false; reason: "setup_incomplete" | "license_inactive" | "build_running" | "version_too_low" | "invalid_config"; errors?: ConfigError[] }
+  | { ok: false; reason: "preflight"; checks: PreflightCheck[] };
 
 /** Validates the config against the schema and queues a build with a snapshot of it. `license` is the app's own. */
 export async function queueBuild(
@@ -241,6 +243,8 @@ export async function queueBuild(
   input: { client: Client; app: App; license: License | null; versionName: string },
   now: Date,
   assetUrl: (assetId: string) => string,
+  /** 87.1 The checks before a build (lib/builds/preflight.ts); without them none run. */
+  preflight?: PreflightDeps,
 ): Promise<QueueBuildResult> {
   const { client, app, license } = input;
   // Each app builds on its own plan: never on another app's license.
@@ -273,6 +277,9 @@ export async function queueBuild(
   // "We publish for you" and the iOS app come with the plan (and its switches, 11.5).
   const autoPublish = hasFeature(plan, "auto_publish");
   const ios = hasFeature(plan, "ios");
+  // 87.1 What the build would trip over: errors stop it here, with what to do.
+  const checks = preflight ? await preflightChecks(preflight, app, { ios, autoPublish }) : [];
+  if (blocking(checks).length > 0) return { ok: false, reason: "preflight", checks };
   // A build that stopped without reporting (a cancelled or crashed run) mustn't block the app for ever: close it.
   if (last && (last.status === "queued" || last.status === "building")) {
     await store.updateBuild(last.id, { status: "failed", message: STALLED_MESSAGE, finishedAt: now }, now);
@@ -305,5 +312,5 @@ export async function queueBuild(
     if (error instanceof BuildRunningError) return { ok: false, reason: "build_running" };
     throw error;
   }
-  return { ok: true, build };
+  return { ok: true, build, checks };
 }

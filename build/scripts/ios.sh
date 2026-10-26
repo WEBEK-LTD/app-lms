@@ -12,7 +12,17 @@ ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 SCRIPTS="$ROOT/build/scripts"
 MOBILE="$ROOT/mobile"
 WORK=$(mktemp -d)
-trap 'rm -rf "$WORK"' EXIT
+# 87.2 Everything the build prints, to tell the client why it failed (diagnose.py).
+LOG="$OUT/build.log"
+exec > >(tee -a "$LOG") 2>&1
+finish() {
+	local status=$?
+	rm -rf "$WORK"
+	if [ "$status" -ne 0 ]; then
+		python3 "$SCRIPTS/diagnose.py" "$LOG" ios > "$OUT/failure.json" 2>/dev/null && add_failure "$OUT/failure.json" || true
+	fi
+}
+trap finish EXIT
 
 platform() { python3 "$SCRIPTS/platform.py" "$@"; }
 result() {
@@ -20,6 +30,16 @@ result() {
 import json, sys
 path, stages, artifacts, message = sys.argv[1:]
 json.dump({"stages": json.loads(stages), "artifacts": json.loads(artifacts), "message": message or None}, open(path, "w"))
+PY
+}
+# 87.2 Adds why it failed (diagnose.py's output) to result.json.
+add_failure() {
+	python3 - "$OUT/result.json" "$1" <<'PY'
+import json, sys
+result, failure = sys.argv[1:]
+data = json.load(open(result))
+data["failure"] = json.load(open(failure))
+json.dump(data, open(result, "w"))
 PY
 }
 result '{"ios":"failed"}' '[]' "The iOS app couldn't be built."
@@ -86,4 +106,8 @@ if [ "${AUTO_PUBLISH:-false}" = "true" ]; then
 fi
 
 result "{\"ios\":\"done\",\"upload_testflight\":\"$TESTFLIGHT\"}" "$ARTIFACTS" "$MESSAGE"
+# 87.2 An upload to TestFlight that didn't work, explained from its output.
+if [ "$TESTFLIGHT" = "failed" ]; then
+	python3 "$SCRIPTS/diagnose.py" "$LOG" upload_testflight > "$OUT/failure.json" && add_failure "$OUT/failure.json" || true
+fi
 platform status "$BUILD_ID" "{\"stages\":{\"ios\":\"done\",\"upload_testflight\":\"$TESTFLIGHT\"}}"

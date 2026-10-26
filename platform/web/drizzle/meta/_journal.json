@@ -498,6 +498,13 @@
       "when": 1792992842452,
       "tag": "0070_weekly_summary",
       "breakpoints": true
+    },
+    {
+      "idx": 71,
+      "version": "5",
+      "when": 1792994481742,
+      "tag": "0071_build_failure",
+      "breakpoints": true
     }
   ]
 }

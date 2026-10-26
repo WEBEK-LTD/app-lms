@@ -560,10 +560,23 @@ export interface Build {
   artifacts: Artifact[];
   message: string | null;
   logUrl: string | null;
+  /** 87.2 Why it (or one of its stages) failed, from the pipeline's diagnosis; null or missing: not known. */
+  failure?: BuildFailure | null;
   createdAt: Date;
   startedAt: Date | null;
   finishedAt: Date | null;
   updatedAt: Date;
+}
+
+/** 87.2 docs/api/pipeline.yaml FailureCode. */
+export const FAILURE_CODES = ["icon", "firebase_android", "firebase_ios", "android_signing", "ios_signing", "apple_key", "apple_agreement", "version_used", "play_permission", "play_app_missing", "infrastructure", "unknown"] as const;
+export type FailureCode = (typeof FAILURE_CODES)[number];
+
+export interface BuildFailure {
+  code: FailureCode;
+  stage?: StageKey;
+  /** The end of the build's output, without secrets: the client may read it. */
+  log?: string;
 }
 
 export interface PluginRelease {

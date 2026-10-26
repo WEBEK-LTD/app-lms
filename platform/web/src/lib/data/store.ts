@@ -146,7 +146,7 @@ export type AppPatch = Partial<Omit<App, "id" | "clientId" | "createdAt" | Signi
 export type SigningKeyColumn = "androidUploadKeyEncrypted" | "iosDistributionEncrypted";
 export type SigningKeysPatch = Partial<Record<SigningKeyColumn, string>>;
 export type BuildPatch = Partial<
-  Pick<Build, "status" | "stages" | "artifacts" | "message" | "logUrl" | "startedAt" | "finishedAt">
+  Pick<Build, "status" | "stages" | "artifacts" | "message" | "logUrl" | "failure" | "startedAt" | "finishedAt">
 >;
 export type ReleasePatch = Partial<Pick<PluginRelease, "changelog" | "requiresWp" | "requiresPhp" | "testedWp" | "published">>;
 

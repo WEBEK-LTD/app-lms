@@ -17,6 +17,8 @@ import { chooseApp, clientFor, mayUseDashboard, type ClientContext } from "@/lib
 import type { TeamPermission } from "@/lib/team/permissions";
 import { MAX_APPS_PER_CLIENT } from "@/lib/app/label";
 import { getBlobStore } from "@/lib/blobs";
+import { renderCheck } from "@/lib/builds/preflight";
+import { preflightDeps } from "@/lib/builds/preflight-env";
 import { keyContext } from "@/lib/builds/signing";
 import { encrypt } from "@/lib/crypto/encryption";
 import { newId } from "@/lib/crypto/tokens";
@@ -857,7 +859,12 @@ async function startBuild(
   versionName: string,
 ): Promise<{ ok: true; number: number; versionName: string } | { ok: false; message: string; versionTooLow: boolean }> {
   const store = await getStore();
-  const result = await queueBuild(store, { client: context.client, app: context.app, license: context.license, versionName }, new Date(), assetUrl);
+  const result = await queueBuild(store, { client: context.client, app: context.app, license: context.license, versionName }, new Date(), assetUrl, preflightDeps(store));
+  if (!result.ok && result.reason === "preflight") {
+    // 87.1 The first thing to fix; the Builds page lists them all.
+    const first = result.checks.find((c) => c.level === "error")!;
+    return { ok: false, message: renderCheck(first), versionTooLow: false };
+  }
   if (!result.ok) {
     const messages = {
       setup_incomplete: "Finish every step of the app setup first.",

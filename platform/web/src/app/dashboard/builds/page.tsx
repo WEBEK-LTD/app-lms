@@ -31,6 +31,9 @@ import { UpgradeHint } from "@/components/upgrade";
 import { currentPlanId } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { getPlans } from "@/lib/settings/platform";
+import { failureExplanation } from "@/lib/builds/failures";
+import { preflightChecks, renderCheck } from "@/lib/builds/preflight";
+import { preflightDeps } from "@/lib/builds/preflight-env";
 import { RetryBuildForm, StartBuildForm } from "./start-build";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
@@ -150,6 +153,8 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
     return { href: unavailable === null && lastReady ? dashboardFileHref(lastReady.id, kind) : null, unavailable: unavailable === null ? null : k(unavailable) };
   };
 
+  // 87.1 What the next build would trip over.
+  const checks = currentPlan ? await preflightChecks(preflightDeps(store), app, { ios: hasFeature(currentPlan, "ios"), autoPublish: hasFeature(currentPlan, "auto_publish") }) : [];
   const setupDone = isSetupComplete(app, plan, effective);
   const running = isInProgress(current, now);
   const stalled = current !== null && isStalled(current, now);
@@ -194,6 +199,25 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
         <Notice tone="success" icon="check_circle" role="status">
           {t("builds.buildQueued", { number: queued })}
         </Notice>
+      ) : null}
+
+      {checks.length > 0 ? (
+        <Section id="checks" titleId="h-checks" title={t("builds.checksTitle")} description={t("builds.checksText")}>
+          <ul className="m-0 flex list-none flex-col gap-2 p-0">
+            {checks.map((check) => (
+              <li key={check.key} data-check={check.key} className={`flex flex-wrap items-start gap-3 rounded-xl border px-4 py-3 ${check.level === "error" ? "border-danger/30 bg-danger-bg" : "border-line bg-white"}`}>
+                <Icon name={check.level === "error" ? "error" : "info"} size={20} className={check.level === "error" ? "text-danger" : "text-ink-4"} />
+                <span className="min-w-0 flex-1 text-sm">
+                  {check.level === "warning" ? <span className="font-semibold">{t("builds.checksWarning")}: </span> : null}
+                  {k(renderCheck(check))}
+                </span>
+                <Link href={check.link} className="text-sm font-semibold">
+                  {t("builds.checksFix")}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Section>
       ) : null}
 
       {apiProblem ? (
@@ -263,6 +287,23 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
             <Notice tone="danger" icon="error">
               {richText(t("builds.failedNotice", { reason: k(failureReason(current)) }), { b: (chunk) => <span className="font-semibold">{chunk}</span> })}
             </Notice>
+          ) : null}
+          {/* 87.2 The cause of a store upload that didn't work on a ready build, and where to fix it. */}
+          {current.status === "ready" && failureExplanation(current) ? <Notice tone="warn" icon="info">{k(failureExplanation(current)!.text)}</Notice> : null}
+          {failureExplanation(current)?.link ? (
+            <Link href={failureExplanation(current)!.link!} className="self-start text-sm font-semibold" data-failure-link>
+              {t("builds.checksFix")}
+            </Link>
+          ) : null}
+          {/* 87.2 What the build printed, without its secrets: the client may read it. */}
+          {current.failure?.log ? (
+            <details className="text-sm" data-failure-log>
+              <summary className="cursor-pointer font-semibold">{t("builds.failureLog")}</summary>
+              <p className="m-0 mt-2 text-xs text-muted">{t("builds.failureLogText")}</p>
+              <pre dir="ltr" className="mt-2 max-h-[360px] overflow-auto rounded-xl bg-midnight p-3 text-xs leading-relaxed whitespace-pre-wrap text-white">
+                {current.failure.log}
+              </pre>
+            </details>
           ) : null}
           {(current.status === "failed" || stalled) && !licenseProblem && setupDone ? <RetryBuildForm versionName={current.versionName} /> : null}
         </section>

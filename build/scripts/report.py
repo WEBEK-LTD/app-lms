@@ -48,12 +48,22 @@ def summarize(android, ios):
         ]
     else:
         messages = [android.get("message"), ios.get("message")]
-    return {
+    out = {
         "status": "ready" if android_done else "failed",
         "stages": stages,
         "artifacts": android["artifacts"] + ios["artifacts"],
         "message": " ".join(m for m in messages if m) or None,
     }
+    # 87.2 Why: the Android app's failure first (it decides the build), then the iOS app's, then a store upload's.
+    failure = failure_of(android if not android_done else None) or failure_of(ios if ios_failed else None) or failure_of(android) or failure_of(ios)
+    if failure:
+        out["failure"] = failure
+    return out
+
+
+def failure_of(result):
+    failure = (result or {}).get("failure")
+    return failure if isinstance(failure, dict) and failure.get("code") else None
 
 
 def main():
