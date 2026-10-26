@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/fixtures.dart';
-import '../support/test_app.dart';
 import 'phase91_coupon_test.dart' show openCart;
 import 'store_test.dart' show storeApi;
 
