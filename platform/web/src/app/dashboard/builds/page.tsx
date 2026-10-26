@@ -34,7 +34,9 @@ import { getPlans } from "@/lib/settings/platform";
 import { failureExplanation } from "@/lib/builds/failures";
 import { preflightChecks, renderCheck } from "@/lib/builds/preflight";
 import { preflightDeps } from "@/lib/builds/preflight-env";
-import { RebuildForm, RetryBuildForm, StartBuildForm } from "./start-build";
+import { GoBackForm, RebuildForm, RetryBuildForm, RolloutButtons, StagedReleaseForm, StartBuildForm, VersionsForm } from "./start-build";
+import { versionsInUse } from "@/lib/builds/go-back";
+import { FIRST_SHARES, nextFraction } from "@/lib/publishing/rollout";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
@@ -124,7 +126,7 @@ function Times({ build, now, text }: { build: Build; now: Date; text: DashboardT
 export default async function BuildsPage({ searchParams }: PageProps<"/dashboard/builds">) {
   const { app, license, state } = await requireClient("settings");
   if (!app) redirect("/dashboard/app-type");
-  const { started, download, queued } = await searchParams;
+  const { started, download, queued, back, pages } = await searchParams;
   const text = await dashboardText();
   const { t, k, lang } = text;
   const contact = await getVisitorContact();
@@ -140,6 +142,8 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   const plan = license ? currentPlanId(license, now) : null;
   const currentPlan = plan ? effective[plan] : null;
   const autoPublish = currentPlan ? hasFeature(currentPlan, "auto_publish") : false;
+  // 89.3 The versions people use (the app's statistics, last 7 days).
+  const inUse = await versionsInUse(store, app, now.toISOString().slice(0, 10));
   const keys = hasStoreKeys(app);
   const plugin = usesPlugin(app);
   // 19 The app's own API failed its last check: builds work, but the app can't load its content.
@@ -205,6 +209,8 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
       {typeof queued === "string" && /^\d+$/.test(queued) ? (
         <Notice tone="success" icon="check_circle" role="status">
           {t("builds.buildQueued", { number: queued })}
+          {/* 89.3 Gone back to an earlier build. */}
+          {typeof back === "string" && /^\d+$/.test(back) ? ` ${t(pages ? "builds.wentBackPages" : "builds.wentBack", { number: back })}` : ""}
         </Notice>
       ) : null}
 
@@ -374,6 +380,97 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
         </div>
       </section>
 
+      {/* 89.2 Staged releases, with "We publish for you". */}
+      {autoPublish ? (
+        <Section titleId="h-staged" title={t("builds.stagedTitle")} description={t("builds.stagedText")}>
+          <div className="flex flex-col gap-5">
+            {app.rollout?.android && app.rollout.android.status !== "completed" ? (
+              <div className="flex flex-col gap-2 rounded-xl border border-line p-4" data-rollout="android">
+                <span className="text-[15px] font-bold">
+                  {app.rollout.android.status === "halted"
+                    ? t("builds.rolloutAndroidHalted", { version: app.rollout.android.versionName, percent: Math.round(app.rollout.android.fraction * 100) })
+                    : t("builds.rolloutAndroid", { version: app.rollout.android.versionName, percent: Math.round(app.rollout.android.fraction * 100) })}
+                </span>
+                <RolloutButtons
+                  store="android"
+                  actions={
+                    app.rollout.android.status === "halted"
+                      ? [
+                          { action: "resume", label: t("builds.rolloutResume") },
+                          { action: "complete", label: t("builds.rolloutEveryone") },
+                        ]
+                      : [
+                          { action: "continue", label: t("builds.rolloutContinue", { percent: Math.round(nextFraction(app.rollout.android.fraction) * 100) }) },
+                          { action: "stop", label: t("builds.rolloutStop") },
+                          { action: "complete", label: t("builds.rolloutEveryone") },
+                        ]
+                  }
+                />
+              </div>
+            ) : null}
+            {app.rollout?.ios && app.rollout.ios.state !== "COMPLETE" ? (
+              <div className="flex flex-col gap-2 rounded-xl border border-line p-4" data-rollout="ios">
+                <span className="text-[15px] font-bold">
+                  {app.rollout.ios.state === "PAUSED" ? t("builds.rolloutIosPaused", { version: app.rollout.ios.versionName }) : t("builds.rolloutIos", { version: app.rollout.ios.versionName })}
+                </span>
+                <RolloutButtons
+                  store="ios"
+                  actions={
+                    app.rollout.ios.state === "PAUSED"
+                      ? [
+                          { action: "resume", label: t("builds.rolloutResume") },
+                          { action: "complete", label: t("builds.rolloutEveryone") },
+                        ]
+                      : [
+                          { action: "stop", label: t("builds.rolloutPause") },
+                          { action: "complete", label: t("builds.rolloutEveryone") },
+                        ]
+                  }
+                />
+              </div>
+            ) : null}
+            <StagedReleaseForm
+              current={{ androidPercent: app.stagedRelease?.androidPercent == null ? "" : String(app.stagedRelease.androidPercent), iosPhased: Boolean(app.stagedRelease?.iosPhased) }}
+              shares={[...FIRST_SHARES]}
+            />
+          </div>
+        </Section>
+      ) : null}
+
+      {/* 89.1 Which versions people may still use. */}
+      <Section titleId="h-versions" title={t("builds.versionsTitle")} description={t("builds.versionsText")}>
+        <div className="flex flex-col gap-5">
+          {/* 89.3 The versions people use, from the app's statistics. */}
+          {inUse.length > 0 ? (
+            <table className="w-full max-w-[520px] border-collapse text-sm" aria-label={t("builds.inUse")}>
+              <caption className="pb-2 text-start text-[15px] font-bold">{t("builds.inUse")}</caption>
+              <thead>
+                <tr className="text-muted">
+                  <th scope="col" className="py-1.5 pe-4 text-start font-semibold">{t("builds.colVersion")}</th>
+                  <th scope="col" className="py-1.5 pe-4 text-start font-semibold">{t("builds.inUsePhones")}</th>
+                  <th scope="col" className="py-1.5 text-start font-semibold">{t("builds.inUseShare")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {inUse.map((row) => (
+                  <tr key={row.version} className="border-t border-line-soft" data-version={row.version}>
+                    <td className="py-1.5 pe-4">
+                      <span dir="ltr">{row.version === "unknown" ? t("builds.inUseUnknown") : row.version}</span>
+                      {row.belowMinimum ? <span className="ms-2 text-xs font-semibold text-danger">{t("builds.inUseBelow")}</span> : null}
+                    </td>
+                    <td className="py-1.5 pe-4">{text.num(row.phones)}</td>
+                    <td className="py-1.5">{text.num(row.share, { style: "percent", maximumFractionDigits: 0 })}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p className="m-0 text-sm text-muted">{t("builds.inUseNone")}</p>
+          )}
+          <VersionsForm current={{ minVersion: app.minVersion ?? "", recommendedVersion: app.recommendedVersion ?? "" }} />
+        </div>
+      </Section>
+
       <Section titleId="h-history" title={t("builds.history")} description={builds.length ? t("builds.historyText") : undefined}>
         {builds.length === 0 ? (
           <p className="m-0 text-sm text-muted">{t("builds.noBuilds")}</p>
@@ -428,7 +525,12 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
                       {build.rebuildOf ? <span className="block text-xs text-muted">{t("builds.rebuildOf", { number: build.rebuildOf })}</span> : null}
                     </span>
                     {/* 87.3 A ready build made from known code can be made again as it was. */}
-                    {build.status === "ready" && build.sourceCommit && !licenseProblem && !running ? <RebuildForm buildId={build.id} number={build.number} /> : null}
+                    {build.status === "ready" && build.sourceCommit && !licenseProblem && !running ? (
+                      <>
+                        <RebuildForm buildId={build.id} number={build.number} />
+                        {build.id !== builds[0]?.id ? <GoBackForm buildId={build.id} number={build.number} /> : null}
+                      </>
+                    ) : null}
                   </td>
                 </tr>
               ))}

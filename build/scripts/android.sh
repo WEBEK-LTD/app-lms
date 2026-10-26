@@ -146,7 +146,8 @@ if [ "$AUTO_PUBLISH" = "true" ] && [ "$HAS_PLAY" = "yes" ]; then
 	platform status "$BUILD_ID" '{"stages":{"android":"done","upload_play":"running"}}'
 	python3 -c 'import json,sys; open(sys.argv[2],"w").write(json.load(open(sys.argv[1]))["google_play"]["service_account_json"])' "$WORK/secrets.json" "$WORK/play.json"
 	PACKAGE=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["android_package"])' "$WORK/config.json")
-	if (cd "$ROOT/build" && bundle exec fastlane android upload_play aab:"$AAB" package:"$PACKAGE" json_key:"$WORK/play.json"); then
+	# 89.2 ANDROID_ROLLOUT (0.01 to 1): production for that share of users; empty: internal testing.
+	if (cd "$ROOT/build" && bundle exec fastlane android upload_play aab:"$AAB" package:"$PACKAGE" json_key:"$WORK/play.json" rollout:"${ANDROID_ROLLOUT:-}"); then
 		PLAY="done"
 		# 88.2 The store listing in every language, with phone and tablet screenshots (framed when
 		# asked) and the feature graphic store_assets.py made. The version stays uploaded either way.

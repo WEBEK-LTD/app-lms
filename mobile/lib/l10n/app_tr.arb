@@ -112,6 +112,8 @@
   "updateRequiredTitle": "Güncelleme gerekli",
   "updateRequiredMessage": "{name} uygulamasının yeni sürümü çıktı. Öğrenmeye devam etmek için uygulamayı güncelleyin.",
   "updateNow": "Şimdi güncelle",
+  "updateRecommendedTitle": "Yeni bir sürüm hazır",
+  "updateRecommendedMessage": "{name} uygulamasının daha yeni bir sürümü mağazada. Şimdi güncelleyin ya da devam edip daha sonra güncelleyin.",
   "appPausedTitle": "{name} şu anda duraklatıldı",
   "appPausedMessage": "{name} uygulamasının sahibi uygulamayı yeniden açabilir. Ayrıntılar için onlarla iletişime geçin veya daha sonra tekrar deneyin.",
   "contactOwner": "{name} ile iletişime geç",

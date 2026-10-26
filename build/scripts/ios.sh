@@ -108,7 +108,7 @@ if [ "${AUTO_PUBLISH:-false}" = "true" ]; then
 		# asked), on the version being prepared. The build stays on TestFlight either way.
 		if platform store "$BUILD_ID" "$WORK/store.json" &&
 			python3 "$SCRIPTS/store_listing.py" appstore "$WORK/store.json" "$WORK/appstore-listing" &&
-			(cd "$ROOT/build" && bundle exec fastlane ios appstore_listing secrets:"$WORK/secrets.json" bundle_id:"$BUNDLE_ID" listing:"$WORK/appstore-listing"); then
+			(cd "$ROOT/build" && bundle exec fastlane ios appstore_listing secrets:"$WORK/secrets.json" bundle_id:"$BUNDLE_ID" listing:"$WORK/appstore-listing" phased:"${IOS_PHASED:-false}"); then
 			:
 		else
 			MESSAGE="Your iOS app is on TestFlight, but its App Store listing didn't go through. Check the texts and screenshots in App Store Connect."

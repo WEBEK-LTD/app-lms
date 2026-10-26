@@ -772,6 +772,18 @@ abstract class AppLocalizations {
   /// **'Update now'**
   String get updateNow;
 
+  /// No description provided for @updateRecommendedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A new version is ready'**
+  String get updateRecommendedTitle;
+
+  /// No description provided for @updateRecommendedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'A newer version of {name} is on the store. Update now, or carry on and update later.'**
+  String updateRecommendedMessage(String name);
+
   /// No description provided for @appPausedTitle.
   ///
   /// In en, this message translates to:

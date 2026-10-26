@@ -1085,6 +1085,11 @@ never in a chat or an issue.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **Updates you can undo** (89): migrations `0076_app_versions.sql` and
+      `0077_staged_release.sql` (columns on `apps` and `builds`) go with the
+      production deploy, migrations first. Apps built from now on ask
+      `/api/v1/apps/{id}/version` on start. Staged releases on Google Play
+      need the service account's right to release to production.
 - [ ] **Publishing without surprises** (88): migrations
       `0074_listing_languages.sql` (columns on `apps`) and
       `0075_publishing_reviews.sql` (a column on `publishing_requests`) go

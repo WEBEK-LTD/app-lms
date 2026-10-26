@@ -543,6 +543,67 @@ paths:
               schema: { $ref: '#/components/schemas/Error' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
+  /apps/{app_id}/version:
+    get:
+      tags: [Analytics]
+      operationId: getAppVersionPolicy
+      summary: Whether this version of the app should update, and where
+      description: |
+        89.1 The app asks on every start (with its analytics key, as for
+        events). The owner sets a minimum version (older ones stop at the
+        "Update required" screen) and a recommended version (older ones are
+        asked once per recommended version, and may go on) in the dashboard,
+        for every app whatever its content comes from. `store_url` is the
+        store the app was installed from: Google Play, Samsung Galaxy Store,
+        Huawei AppGallery or Xiaomi GetApps on Android, the app's own page on
+        the App Store on iPhone; null when there's none yet (the app then opens
+        its platform's store). Limits as for events; over them, 429.
+      parameters:
+        - name: app_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: X-Yallapp-Analytics-Key
+          in: header
+          required: true
+          schema: { type: string, minLength: 16, maxLength: 64 }
+        - name: platform
+          in: query
+          required: true
+          schema: { type: string, enum: [android, ios] }
+        - name: version
+          in: query
+          required: true
+          description: The app's version (`1.4.0`).
+          schema: { type: string, pattern: '^\d+(\.\d+){0,3}$' }
+        - name: store
+          in: query
+          required: false
+          description: The store the app was installed from (`AnalyticsEvent.store`).
+          schema: { type: string, enum: [google_play, app_store, galaxy_store, appgallery, testflight, other] }
+      responses:
+        '200':
+          description: The policy for this version
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VersionPolicy' }
+        '400':
+          description: A missing or invalid parameter (`invalid_request`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '403':
+          description: The analytics key isn't this app's (`invalid_key`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '404':
+          description: No app with this ID (`not_found`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
   /apps/{app_id}/events:
     post:
       tags: [Analytics]
@@ -651,6 +712,19 @@ components:
           schema: { $ref: '#/components/schemas/Error' }
 
   schemas:
+    VersionPolicy:
+      type: object
+      additionalProperties: false
+      required: [update_required, update_recommended, minimum_version, recommended_version, store_url]
+      properties:
+        update_required: { type: boolean, description: This version is older than the minimum. }
+        update_recommended: { type: boolean, description: This version is older than the recommended one (and not below the minimum). }
+        minimum_version: { type: [string, 'null'] }
+        recommended_version: { type: [string, 'null'] }
+        store_url:
+          type: [string, 'null']
+          format: uri
+          description: The app's page on the store it was installed from; null when there's none yet.
     Error:
       type: object
       required: [code, message]

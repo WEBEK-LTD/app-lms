@@ -120,6 +120,25 @@ export interface StoreListing {
   frame?: { background: string; textColor: string; captions: string[] } | null;
 }
 
+/** 89.2 A build's release: the share of Google Play's production users first, Apple's phased release. */
+export interface BuildRelease {
+  /** 0.01 to 1; null: internal testing, as before. */
+  androidRollout: number | null;
+  iosPhased: boolean;
+}
+
+/** 89.2 How the owner releases updates: the first share on Google Play (percent), Apple's phased release. */
+export interface StagedRelease {
+  androidPercent: number | null;
+  iosPhased: boolean;
+}
+
+/** 89.2 The release in progress on each store, as last set. */
+export interface RolloutState {
+  android?: { versionName: string; versionCode: number; fraction: number; status: "inProgress" | "halted" | "completed"; at: string } | null;
+  ios?: { versionName: string; state: "waiting" | "ACTIVE" | "PAUSED" | "COMPLETE"; at: string } | null;
+}
+
 /** 88.2 The store listing in another of the app's languages. */
 export interface ListingTranslation {
   language: string;
@@ -380,6 +399,14 @@ export interface App {
   /** Store screenshots (asset IDs, in order): Google Play phone screenshots and iPhone 6.9" screenshots. */
   phoneScreenshotIds: string[];
   iphoneScreenshotIds: string[];
+  /** 89.2 How updates are released (we publish for you); null: internal testing, no phased release. */
+  stagedRelease?: StagedRelease | null;
+  /** 89.2 The staged release in progress on each store. */
+  rollout?: RolloutState | null;
+  /** 89.1 Older versions stop at "Update the app"; null: none. */
+  minVersion?: string | null;
+  /** 89.1 Older versions are asked to update, once per recommended version; null: none. */
+  recommendedVersion?: string | null;
   /** 88.2 Google Play tablet screenshots and iPad 13" screenshots (asset IDs, in order); missing before. */
   tabletScreenshotIds?: string[] | null;
   ipadScreenshotIds?: string[] | null;
@@ -600,6 +627,8 @@ export interface Build {
   sourceCommit?: string | null;
   /** 87.3 The number of the build this one rebuilds as it was. */
   rebuildOf?: number | null;
+  /** 89.2 How "We publish for you" releases it (the app's staged release when queued); null: as before. */
+  release?: BuildRelease | null;
   createdAt: Date;
   startedAt: Date | null;
   finishedAt: Date | null;

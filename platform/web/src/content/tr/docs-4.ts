@@ -260,6 +260,18 @@ Sayfa nedenini sade sözcüklerle ve ne yapılacağını söyler; örneğin baş
 
 Hazır bir derlemenin yanındaki **Olduğu gibi yeniden derle**, onu aynı uygulama koduyla, ayarlarla ve mağaza sayfasıyla, yeni bir sürüm numarasıyla yeniden yapar. En yeni derlemede bir sorun olduğunda ve önceki uygulamayı mağazalara geri getirmek istediğinizde kullanın.
 
+## Aşamalı yayın
+
+Sizin için yayınladığımızda **Aşamalı yayın** yeni bir sürümü önce bazı kişilere gönderir. Google Play'de önce kimin alacağını seçin (Android kullanıcılarının %1'i ile %50'si arası): sürüm bu oran için üretime gider ve sayfa, herkese ulaşana kadar **Devam et**, **Durdur** ve **Herkese yayınla** seçeneklerini gösterir. App Store'da **aşamalı yayın**, Apple'ın sürümü yedi gün boyunca her gün daha fazla iPhone kullanıcısına göndermesini sağlar; **Duraklat**, **Sürdür** ya da **Herkese yayınla** diyebilirsiniz. Google Play hizmet hesabınızın üretime yayınlama izni olmalı.
+
+## Kullanılabilecek sürümler
+
+**Kullanılabilecek sürümler** bölümünde bir **en düşük sürüm** belirleyin: uygulamanızın daha eski sürümleri, yüklendikleri mağazaya (Google Play, Galaxy Store, AppGallery ya da App Store'daki sayfanız) giden bir düğmeyle **Güncelleme gerekli** ekranında durur. **Önerilen sürüm** ise daha eski sürümlerden bir kez güncellemelerini ister; kullanıcılar **Şimdi değil** ile devam edebilir. İçeriği nereden gelirse gelsin, uygulamanızın her kopyası açıldığında sorar. Her sürüme izin vermek için kutuyu boş bırakın.
+
+## Önceki bir derlemeye geri dönün
+
+Hazır bir önceki derlemenin yanındaki **Bu derlemeye geri dön**, o derlemedekileri geri getirir: uygulamanızın adı, renkleri, şablonu, yazı tipi, simgesi ve logosu ile mağaza sayfası. O zaman yayında olan sayfalar **Sayfalar ve görünüm**'deki taslağınıza döner; kontrol edip yayınlayın. Ardından derleme aynı uygulama koduyla, mağazalar için yeni bir sürüm numarasıyla yeniden yapılır. **Kullanılabilecek sürümler** altındaki **Kullanılan sürümler**, son 7 günde açılan sürümleri ve hangilerinin en düşük sürümün altında olduğunu gösterir.
+
 ## Otomatik derlemeler
 
 Otomatik derlemeli paketlerde, uygulamanın kendisini (adını, simgesini, renklerini, Firebase dosyalarını, bağlantılarını), sizin için yayımladığımızda mağaza sayfasını ya da gittiği mağazaları değiştiren bir kayıt, son kaydınızdan on dakika sonra yeni bir derleme başlatır; böylece birkaç değişiklik tek derlemeye girer. Sayfalar, metinler, fiyatlar ve ayarlar uygulamaya derleme olmadan ulaşır. Sayfa bekleyen derlemenin ne zaman başlayacağını söyler; **Yeni derleme başlat** onu hemen başlatır.

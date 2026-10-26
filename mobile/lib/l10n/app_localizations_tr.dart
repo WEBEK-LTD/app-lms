@@ -425,6 +425,14 @@ class AppLocalizationsTr extends AppLocalizations {
   String get updateNow => 'Şimdi güncelle';
 
   @override
+  String get updateRecommendedTitle => 'Yeni bir sürüm hazır';
+
+  @override
+  String updateRecommendedMessage(String name) {
+    return '$name uygulamasının daha yeni bir sürümü mağazada. Şimdi güncelleyin ya da devam edip daha sonra güncelleyin.';
+  }
+
+  @override
   String appPausedTitle(String name) {
     return '$name şu anda duraklatıldı';
   }

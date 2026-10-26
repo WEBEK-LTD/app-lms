@@ -110,6 +110,8 @@
 {"key":"updateRequiredTitle","en":"Update required","ar":"التحديث مطلوب","tr":"Güncelleme gerekli"},
 {"key":"updateRequiredMessage","en":"A new version of {name} is available. Update the app to keep learning.","ar":"يتوفر إصدار جديد من {name}. حدّث التطبيق لمتابعة التعلّم.","tr":"{name} uygulamasının yeni sürümü çıktı. Öğrenmeye devam etmek için uygulamayı güncelleyin.","placeholders":{"name":"String"}},
 {"key":"updateNow","en":"Update now","ar":"حدّث الآن","tr":"Şimdi güncelle"},
+{"key":"updateRecommendedTitle","en":"A new version is ready","ar":"إصدار جديد جاهز","tr":"Yeni bir sürüm hazır"},
+{"key":"updateRecommendedMessage","en":"A newer version of {name} is on the store. Update now, or carry on and update later.","ar":"يتوفر إصدار أحدث من {name} في المتجر. حدّثه الآن، أو تابع وحدّثه لاحقًا.","tr":"{name} uygulamasının daha yeni bir sürümü mağazada. Şimdi güncelleyin ya da devam edip daha sonra güncelleyin.","placeholders":{"name":"String"}},
 {"key":"appPausedTitle","en":"{name} is paused","ar":"{name} متوقف مؤقتًا","tr":"{name} şu anda duraklatıldı","placeholders":{"name":"String"}},
 {"key":"appPausedMessage","en":"The owner of {name} can bring it back. Contact them to find out more, or try again later.","ar":"يمكن لمالك {name} إعادة تشغيله. تواصل معه لمعرفة المزيد، أو حاول مرة أخرى لاحقًا.","tr":"{name} uygulamasının sahibi uygulamayı yeniden açabilir. Ayrıntılar için onlarla iletişime geçin veya daha sonra tekrar deneyin.","placeholders":{"name":"String"}},
 {"key":"contactOwner","en":"Contact {name}","ar":"تواصل مع {name}","tr":"{name} ile iletişime geç","placeholders":{"name":"String"}},

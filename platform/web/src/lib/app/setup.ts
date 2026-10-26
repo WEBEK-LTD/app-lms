@@ -2,7 +2,7 @@ import { blocking, preflightChecks, type PreflightCheck, type PreflightDeps } fr
 import { newId } from "../crypto/tokens";
 import { BuildRunningError, type DataStore } from "../data/store";
 import { isInProgress, STALLED_MESSAGE } from "../builds/view";
-import type { App, AppType, AppVertical, Build, BuildStages, Client, License, StoreListing } from "../data/types";
+import type { App, AppType, AppVertical, Build, BuildRelease, BuildStages, Client, License, StoreListing } from "../data/types";
 import type { BuildConfig } from "../build-config/types";
 import { validateBuildConfig, type ConfigError } from "../build-config/validate";
 import { buildConfigLinks } from "../links/app";
@@ -324,6 +324,8 @@ export async function queueBuild(
         message: null,
         logUrl: null,
         ...(input.from ? { sourceRef: input.from.sourceCommit, rebuildOf: input.from.number } : {}),
+        // 89.2 Released in stages when we publish for the owner and they asked for it.
+        release: autoPublish ? buildReleaseOf(app) : null,
         createdAt: now,
         startedAt: null,
         finishedAt: null,
@@ -337,4 +339,11 @@ export async function queueBuild(
     throw error;
   }
   return { ok: true, build, checks };
+}
+
+/** 89.2 A build's release from the app's choice; null when nothing is staged. */
+export function buildReleaseOf(app: Pick<App, "stagedRelease">): BuildRelease | null {
+  const staged = app.stagedRelease;
+  if (!staged || (staged.androidPercent === null && !staged.iosPhased)) return null;
+  return { androidRollout: staged.androidPercent === null ? null : staged.androidPercent / 100, iosPhased: staged.iosPhased };
 }

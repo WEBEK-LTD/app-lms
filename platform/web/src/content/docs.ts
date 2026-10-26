@@ -1405,6 +1405,18 @@ The page says why in plain words and what to do, for example a Firebase file for
 
 **Rebuild as it was**, next to a ready build, makes it again from the same app code, settings and store listing, with a new version number. Use it when the newest build has a problem and you want the earlier app back in the stores.
 
+## Release in stages
+
+When we publish for you, **Release in stages** sends a new version to some people first. On Google Play, choose who gets it first (1% to 50% of Android users): the version goes to production for that share, and the page shows **Continue**, **Stop** and **Release to everyone** until it reaches everyone. On the App Store, **phased release** lets Apple send it to more iPhone users each day over seven days; you can **Pause**, **Resume** or **Release to everyone**. Your Google Play service account needs the right to release to production.
+
+## Versions people can use
+
+Under **Versions people can use**, set a **minimum version**: older versions of your app stop at an **Update required** screen with a button to the store they came from (Google Play, Galaxy Store, AppGallery, or your page on the App Store). A **recommended version** asks older versions to update once; people can carry on with **Not now**. Every copy of your app asks when it opens, whatever its content comes from. Leave a box empty to allow every version.
+
+## Go back to an earlier build
+
+**Go back to this build**, next to an earlier ready build, puts back what that build had: your app's name, colors, template, font, icon and logo, and its store listing. The pages you had published then come back as your draft on **Pages & look**, to check and publish. The build is then made again from the same app code, with a new version number for the stores. Under **Versions people can use**, **Versions in use** shows which versions people opened over the last 7 days, and which are below your minimum.
+
 ## Automatic builds
 
 On plans with automatic builds, a save that changes the app itself (its name, icon, colors, Firebase files, links), its store listing when we publish for you, or the stores it goes to starts a new build ten minutes after your last save, so several changes go into one build. Pages, texts, prices and settings reach the app without a build. The page says when the waiting build starts; **Start new build** starts it now.

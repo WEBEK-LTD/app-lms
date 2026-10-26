@@ -4,11 +4,14 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { checkApi, type ApiCheckResult } from "@/lib/app/api-check";
 import { listingLanguages, parseListingExtras } from "@/lib/app/listing-languages";
+import { versionSettingsProblems } from "@/lib/app/version-policy";
+import { changeRollout, FIRST_SHARES, RolloutError, type RolloutAction } from "@/lib/publishing/rollout";
+import { restoreFromBuild } from "@/lib/builds/go-back";
 import { apiCheckSignIn } from "@/lib/hosted/test-token";
 import { appTypeName, connectorFits, ENGINES, hostedOnly, isAppType, kindById, defaultKind, ownContentTitle, type OwnContentKind } from "@/lib/app/kinds";
 import { isSetupComplete, managedPublishing, newApp, queueBuild, STEP_LABEL, type SetupStep } from "@/lib/app/setup";
 import { currentPlanId } from "@/lib/billing/plan-change";
-import { effectivePlans } from "@/lib/entitlements";
+import { appPlan, effectivePlans } from "@/lib/entitlements";
 import { hasFeature } from "@/lib/plans";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { appTypeOn, getSwitches, noWebsiteFor, websiteOf, websiteOn } from "@/lib/switches";
@@ -946,6 +949,92 @@ export async function rebuildBuildAction(_: FormState, formData: FormData): Prom
   await startPipeline();
   await recordStaffChange(context, `Rebuilt build #${from.number} as it was (build #${result.build.number})`);
   redirect(`/dashboard/builds?queued=${result.build.number}`);
+}
+
+/**
+ * 89.1 The versions people may still use: older than the minimum stops at
+ * "Update the app"; older than the recommended one is asked to update.
+ * Empty clears either. Apps ask Yallapp on every start.
+ */
+export async function saveVersionsAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireApp("settings");
+  const values = { minVersion: String(formData.get("minVersion") ?? "").trim(), recommendedVersion: String(formData.get("recommendedVersion") ?? "").trim() };
+  const errors = versionSettingsProblems(values);
+  if (Object.keys(errors).length) return { errors, values };
+  const patch = { minVersion: values.minVersion || null, recommendedVersion: values.recommendedVersion || null };
+  if (patch.minVersion === (context.app.minVersion ?? null) && patch.recommendedVersion === (context.app.recommendedVersion ?? null)) return { ok: true, message: "Nothing changed.", values };
+  await (await getStore()).updateApp(context.app.id, patch, new Date());
+  await recordStaffChange(context, `Set the minimum version to ${patch.minVersion ?? "none"} and the recommended version to ${patch.recommendedVersion ?? "none"}`);
+  revalidatePath("/dashboard/builds");
+  return { ok: true, message: "Saved. Apps check these when they open.", values };
+}
+
+/**
+ * 89.2 How updates are released when we publish for the owner: the first
+ * share of Google Play's production users, and Apple's phased release.
+ * Taken by the next build.
+ */
+export async function saveStagedReleaseAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireApp("settings");
+  const values = { androidPercent: String(formData.get("androidPercent") ?? ""), iosPhased: formData.get("iosPhased") === "on" ? "on" : "" };
+  const androidPercent = values.androidPercent === "" ? null : Number(values.androidPercent);
+  if (androidPercent !== null && !(FIRST_SHARES as readonly number[]).includes(androidPercent)) return { errors: { androidPercent: "Choose a share from the list." }, values };
+  const store = await getStore();
+  if (!hasFeature(await appPlan(store, context.license, new Date()), "auto_publish")) return { message: "Staged releases come with “We publish for you”.", values };
+  const iosPhased = values.iosPhased === "on";
+  const stagedRelease = androidPercent === null && !iosPhased ? null : { androidPercent, iosPhased };
+  await store.updateApp(context.app.id, { stagedRelease }, new Date());
+  await recordStaffChange(context, stagedRelease ? `Set staged releases: Google Play ${androidPercent ?? "all"}%, App Store ${iosPhased ? "phased" : "at once"}` : "Turned staged releases off");
+  revalidatePath("/dashboard/builds");
+  return { ok: true, message: "Saved. Your next build is released this way.", values };
+}
+
+/** 89.2 Stops, continues, resumes or completes the release in progress on Google Play or the App Store. */
+export async function changeRolloutAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireApp("settings");
+  const which = formData.get("store") === "ios" ? "ios" : "android";
+  const action = String(formData.get("action") ?? "");
+  if (!["continue", "stop", "resume", "complete"].includes(action)) return { message: "Choose what to do with the release." };
+  try {
+    const next = await changeRollout({ store: await getStore(), key: encryptionKey(), now: new Date() }, context.app, which, action as RolloutAction);
+    await recordStaffChange(context, `${which === "android" ? "Google Play" : "App Store"} release: ${action}`);
+    revalidatePath("/dashboard/builds");
+    const android = next.android;
+    if (which === "android" && android) {
+      return { ok: true, message: android.status === "halted" ? "Stopped. Nobody new gets this version until you resume." : android.status === "completed" ? "Released to everyone on Google Play." : `Now on ${Math.round(android.fraction * 100)}% of Google Play users.` };
+    }
+    return { ok: true, message: action === "stop" ? "Paused. Apple stops sending this version until you resume." : action === "complete" ? "Released to everyone on the App Store." : "The phased release goes on." };
+  } catch (error) {
+    if (error instanceof RolloutError) return { message: error.message };
+    throw error;
+  }
+}
+
+/**
+ * 89.3 "Go back to this build": the app's look, names and store listing as
+ * they were for it, the pages published then as the draft, and the build
+ * made again from the same app code with a new version.
+ */
+export async function goBackToBuildAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireApp("settings");
+  const store = await getStore();
+  const from = await store.getBuild(String(formData.get("buildId") ?? ""));
+  if (!from || from.appId !== context.app.id || from.status !== "ready" || !from.sourceCommit) return { message: "This build can't be gone back to." };
+  const now = new Date();
+  const restored = await restoreFromBuild(store, context.app, from, now);
+  const app = (await store.getAppById(context.app.id)) ?? context.app;
+  const latest = (await store.listBuildsByApp(app.id, 1))[0] ?? null;
+  const result = await queueBuild(store, { client: context.client, app, license: context.license, versionName: suggestedVersion(latest), from }, now, assetUrl, preflightDeps(store));
+  await recordStaffChange(context, `Went back to build #${from.number}${restored.pagesFrom ? ` (pages from publish ${restored.pagesFrom})` : ""}`);
+  revalidatePath("/dashboard", "layout");
+  if (!result.ok) {
+    return {
+      ok: true,
+      message: result.reason === "build_running" ? "Settings are back as they were. A build is already in progress: start the new one when it finishes." : "Settings are back as they were. Start a new build when you're ready.",
+    };
+  }
+  await startPipeline();
+  redirect(`/dashboard/builds?queued=${result.build.number}&back=${from.number}${restored.pagesFrom ? "&pages=1" : ""}`);
 }
 
 /** Releases the license from its website so it can be activated on another one. */
