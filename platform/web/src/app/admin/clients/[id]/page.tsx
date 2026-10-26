@@ -313,7 +313,7 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
       <div className="grid items-start gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr))]">
         <Card id="h-payments" title="Payments">
           {payments.length === 0 ? (
-            <p className="m-0 text-sm text-muted">No card payments.</p>
+            <p className="m-0 text-sm text-muted">No payments.</p>
           ) : (
             <ul className="m-0 flex list-none flex-col gap-1.5 p-0 text-[13px]">
               {payments.map((p) => (
@@ -323,6 +323,8 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
                     {formatAmount(p.amountCents, p.currency)} · {paymentWhat(p, planName(p.plan, plans))} ·{" "}
                     {formatDateTime(p.paidAt ?? p.createdAt)}
                     {apps.length > 1 ? ` · ${p.appId ? (appNames.get(p.appId) ?? "Deleted app") : "Before the first app"}` : ""}
+                    {/* 95.2 Recorded by the team. */}
+                    {p.method === "bank_transfer" ? ` · Bank transfer${p.bankReference ? ` (${p.bankReference})` : ""}` : ""}
                   </span>
                   {/* 71 The receipt the client got, as a PDF. */}
                   {p.status === "paid" ? (

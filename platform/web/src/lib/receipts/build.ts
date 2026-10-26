@@ -85,6 +85,14 @@ function cardRows(w: W, id: PaymentProviderId | null | undefined, reference: str
   return [[w("paidWith"), w("cardThrough", { provider: provider(id) })], ...(reference ? ([[w("reference"), ltrSpan(reference)]] as [string, string][]) : [])];
 }
 
+/** 95.2 A plan payment: by card, covered by a coupon, or a bank transfer the team recorded. */
+function planPaymentRows(w: W, payment: PlanPayment): [string, string][] {
+  if (payment.method === "bank_transfer") {
+    return [[w("paidWith"), w("bankTransfer")], ...(payment.bankReference ? ([[w("reference"), ltrSpan(payment.bankReference)]] as [string, string][]) : [])];
+  }
+  return payment.amountCents > 0 ? cardRows(w, payment.paymentProvider, payment.paymentId) : [[w("paidWith"), w("couponCovered")]];
+}
+
 const money = (text: string) => ltrSpan(text);
 const minus = (text: string) => ltrSpan(`−${text}`);
 
@@ -149,7 +157,7 @@ export function planReceipt(input: PlanReceiptInput): ReceiptDocument {
     columns: { item: w("item"), quantity: w("quantity"), amount: w("amount") },
     items,
     totals,
-    payment: { label: w("payment"), rows: payment.amountCents > 0 ? cardRows(w, payment.paymentProvider, payment.paymentId) : [[w("paidWith"), w("couponCovered")]] },
+    payment: { label: w("payment"), rows: planPaymentRows(w, payment) },
     notes,
     footer: w("thanksYallapp"),
     accent: "#FF5A1F",

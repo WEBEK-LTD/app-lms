@@ -54,6 +54,7 @@ import type {
   ResetToken,
   User,
   PlanPayment,
+  PlanPaymentStatus,
   BookingAppointment,
   BookingAppointmentPatch,
   BookingStatus,
@@ -1592,9 +1593,15 @@ export class MemoryStore implements DataStore {
     if (payment?.status === "pending") this.planPayments.set(id, { ...payment, status: "failed" });
   }
 
-  async listPlanPayments(input: { clientId?: string; appId?: string; id?: string; limit: number }): Promise<PlanPayment[]> {
+  async listPlanPayments(input: { clientId?: string; appId?: string; id?: string; status?: PlanPaymentStatus; limit: number }): Promise<PlanPayment[]> {
     return [...this.planPayments.values()]
-      .filter((p) => (!input.clientId || p.clientId === input.clientId) && (!input.appId || p.appId === input.appId) && (!input.id || p.id === input.id))
+      .filter(
+        (p) =>
+          (!input.clientId || p.clientId === input.clientId) &&
+          (!input.appId || p.appId === input.appId) &&
+          (!input.id || p.id === input.id) &&
+          (!input.status || p.status === input.status),
+      )
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
       .slice(0, input.limit)
       .map(clone);

@@ -1082,6 +1082,15 @@ nothing is submitted there, and the review's email needs no answer.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **Invoices and bank transfers** (95.2): migration
+      `0085_bank_transfer_invoices.sql` (three columns on `plan_payments`)
+      goes with the deploy, migrations first. After deploying: Admin ›
+      Invoices lists the plan payments with their PDFs; record a transfer
+      for a test client (find them by email, the app, Growth, 1 year, the
+      amount and the bank's reference) and see the app activated, the
+      invoice in the list, the email with the PDF saying "Bank transfer to
+      Yallapp" and the receipt on the client's Plan page, in Arabic and
+      Turkish too.
 - [ ] **Settings, one page each** (95.1): no migration. After deploying:
       Admin › Settings lists Payments, Email, Sign-in codes, Contact &
       publishing, Invoices, Store platforms, New apps and Server with what's

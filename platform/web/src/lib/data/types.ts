@@ -1342,7 +1342,16 @@ export interface PlanPayment {
   purpose?: PlanPaymentPurpose | null;
   /** 51 The storage packs it pays for (bought now, or renewed with the plan); null or missing: none. */
   storagePacks?: PaidStoragePack[] | null;
+  /** 95.2 How it was paid; null or missing: by card (or covered by a coupon). */
+  method?: PlanPaymentMethod | null;
+  /** 95.2 A bank transfer's reference, as the team wrote it. */
+  bankReference?: string | null;
+  /** 95.2 The admin who recorded the bank transfer. */
+  recordedBy?: string | null;
 }
+
+/** 95.2 "bank_transfer": the client paid into Yallapp's bank account and the team recorded it. */
+export type PlanPaymentMethod = "card" | "bank_transfer";
 
 // Bookings managed in the dashboard (connector "bookings").
 
