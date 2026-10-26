@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { taxLabel } from "@/lib/catalog/tax";
 import Link from "next/link";
 import { decideReturnAction, setOrderStatusAction } from "@/app/actions/catalog";
 import { SubmitButton } from "@/components/form";
@@ -107,6 +108,12 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                   <li className="text-muted">{t("orders.pointsUsed", { points: num(order.points.used), amount: formatCents(order.points.discountCents, order.currency) })}</li>
                 ) : null}
                 {order.points?.earned ? <li className="text-muted">{t("orders.pointsEarned", { points: num(order.points.earned) })}</li> : null}
+                {/* 91.5 The tax, added or inside the total. */}
+                {order.tax ? (
+                  <li className="text-muted">
+                    {t(order.tax.included ? "orders.taxIncluded" : "orders.taxAdded", { tax: taxLabel(order.tax), amount: formatCents(order.tax.cents, order.currency) })}
+                  </li>
+                ) : null}
                 {order.shippingCents > 0 ? <li className="text-muted">{t("orders.shipping", { amount: formatCents(order.shippingCents, order.currency) })}</li> : null}
               </ul>
               {order.commissionCents !== null ? (

@@ -815,6 +815,18 @@ export interface CatalogSettings {
   returnDays?: number | null;
   /** 91.4 Loyalty points; null or missing: none. */
   loyalty?: LoyaltySettings | null;
+  /** 91.5 A tax (VAT, KDV) on the products and shipping; null or missing: none. */
+  tax?: CatalogTax | null;
+}
+
+/** 91.5 The shop's tax: a rate, included in its prices or added at checkout. */
+export interface CatalogTax {
+  /** "KDV", "VAT". */
+  label: string;
+  /** Hundredths of a percent: 2000 is 20%. */
+  rateBps: number;
+  /** The prices include it (shown as "Includes ₺X"); otherwise it's added to the total. */
+  included: boolean;
 }
 
 /** 26 How a restaurant's orders are collected, and when its kitchen takes them. */
@@ -951,12 +963,36 @@ export interface CatalogProduct {
   sku: string | null;
   /** 26 Options chosen before adding to the cart; null or missing for none. */
   optionGroups?: CatalogOptionGroup[] | null;
+  /** 91.5 Variations (size, colour): what the customer chooses, and each combination's price and stock; null or missing for none. */
+  variants?: CatalogVariants | null;
   salesCount: number;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export type CatalogProductInput = Omit<CatalogProduct, "id" | "salesCount" | "createdAt" | "updatedAt">;
+
+/** 91.5 A product's variations: up to three attributes, and the combinations the shop sells. */
+export interface CatalogVariants {
+  /** "Size: S, M, L", "Colour: Red, Blue" (1 to 3). */
+  attributes: { name: string; values: string[] }[];
+  items: CatalogVariant[];
+}
+
+/** 91.5 One combination: a value of each attribute, in their order. */
+export interface CatalogVariant {
+  /** Unique within the product, kept when the attributes change. */
+  id: number;
+  values: string[];
+  /** Null: the product's price (and sale price). */
+  priceCents: number | null;
+  salePriceCents: number | null;
+  /** Null: not tracked. */
+  stock: number | null;
+  sku: string | null;
+  /** Not sold when false. */
+  active: boolean;
+}
 
 export type CatalogOrderStatus = "pending" | "processing" | "completed" | "cancelled" | "failed" | "refunded";
 
@@ -969,6 +1005,9 @@ export interface CatalogOrderLine {
   digital: boolean;
   /** 26 The options chosen, as priced when ordered (in `unitCents`). */
   options?: { group: string; name: string; priceDeltaCents: number }[];
+  /** 91.5 The variation bought (its stock goes down when paid), and its values ("Red, Large"). */
+  variantId?: number;
+  variant?: string;
 }
 
 export interface CatalogCustomer {
@@ -1028,6 +1067,8 @@ export interface CatalogOrder {
   returnRequest?: OrderReturn | null;
   /** 91.4 Loyalty points used on it and earned by it; null or missing: none. */
   points?: OrderPoints | null;
+  /** 91.5 The tax in it (in `totalCents`, added or included); null or missing: none. */
+  tax?: { label: string; rateBps: number; included: boolean; cents: number } | null;
 }
 
 /** 91.4 An order's loyalty points. */

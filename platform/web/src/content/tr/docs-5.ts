@@ -21,6 +21,10 @@ export const TR_DOCS_5: Record<string, DocTranslation> = {
 
 Her ürünün paylaşabileceğiniz kendi web sayfası da vardır.
 
+## Varyasyonlar
+
+Beden, renk ve benzeri seçenekleri olan bir ürün için ürünün altına en fazla üç **Varyasyon** ekleyin; örneğin S, M, L değerleriyle *Beden* ve Kırmızı, Mavi değerleriyle *Renk*. Ardından **Eksik kombinasyonları ekle**'yi seçin. Her kombinasyonun kendi **Fiyat** ve **İndirimli fiyat** değeri (ürünün fiyatı için boş bırakın), stoku ve ürün kodu olabilir; birinin satışını durdurmak için **Satışta** işaretini kaldırın. Uygulamada müşteri her birinden bir değer seçer; fiyat, stok ve fotoğraf buna göre değişir, listede ise ürünün fiyat aralığı görünür. Her sipariş satırı kombinasyonu belirtir ve ödemesi o kombinasyonun kendi stokunu düşürür. Restoranlar bunun yerine **Seçenekler**'i kullanır (bkz. [Restoranlar ve kafeler](/docs/restaurants)).
+
 ## Kategoriler
 
 Ürünlerinizi "Buketler" veya "Hediyeler" gibi gruplara ayırın. Müşteriler bunlara uygulamada göz atar.
@@ -28,6 +32,10 @@ Her ürünün paylaşabileceğiniz kendi web sayfası da vardır.
 ## Kargo
 
 Fiziksel ürün içeren siparişler için bir **Kargo ücreti** belirleyin (ücretsiz kargo için boş bırakın) ve isteğe bağlı olarak belirli bir sipariş tutarından itibaren **Ücretsiz kargo** sunun.
+
+## Vergi
+
+KDV veya benzeri bir vergi alıyorsanız, **Ürünler** sayfasındaki **Mağaza ayarları** altında **Vergi oranı (%)** ve **Vergi adı** değerlerini girin. **Fiyatlarıma vergi dahil** işaretliyken (Türkiye'de olağan yol) toplamlar aynı kalır; sepet, fiş ve size gelen sipariş e-postası toplamın ne kadarının vergi olduğunu gösterir. Vergiyi fiyatların üzerine eklemek için işareti kaldırın: vergi, kupon veya puanlardan sonraki ürünlere ve kargoya eklenir, sepette ayrı bir satır olarak görünür ve ödeme toplamı vergiyle birlikte alınır. Vergi yoksa oranı boş bırakın.
 
 ## Kuponlar
 

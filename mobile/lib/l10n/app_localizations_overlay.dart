@@ -4199,4 +4199,9 @@ class OverlayLocalizations extends AppLocalizations {
   String orderPointsEarned(int count) =>
       overlay.format('orderPointsEarned', {'count': count}) ??
       base.orderPointsEarned(count);
+
+  @override
+  String cartTaxIncluded(String amount, String tax) =>
+      overlay.format('cartTaxIncluded', {'amount': amount, 'tax': tax}) ??
+      base.cartTaxIncluded(amount, tax);
 }

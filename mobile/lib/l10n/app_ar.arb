@@ -1080,5 +1080,6 @@
   "pointsReasonTakenBack": "مسحوبة",
   "noPointsYet": "لا توجد نقاط بعد. تكسبها عند اكتمال طلباتك.",
   "orderPointsUsed": "{count, plural, =1{استُخدمت نقطة واحدة: −{amount}} =2{استُخدمت نقطتان: −{amount}} few{استُخدمت {count} نقاط: −{amount}} many{استُخدمت {count} نقطة: −{amount}} other{استُخدمت {count} نقطة: −{amount}}}",
-  "orderPointsEarned": "{count, plural, =1{كُسبت نقطة واحدة} =2{كُسبت نقطتان} few{كُسبت {count} نقاط} many{كُسبت {count} نقطة} other{كُسبت {count} نقطة}}"
+  "orderPointsEarned": "{count, plural, =1{كُسبت نقطة واحدة} =2{كُسبت نقطتان} few{كُسبت {count} نقاط} many{كُسبت {count} نقطة} other{كُسبت {count} نقطة}}",
+  "cartTaxIncluded": "يشمل {amount} {tax}"
 }

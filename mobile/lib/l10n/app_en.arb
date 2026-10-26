@@ -3090,5 +3090,17 @@
         "type": "int"
       }
     }
+  },
+  "cartTaxIncluded": "Includes {amount} {tax}",
+  "@cartTaxIncluded": {
+    "description": "91.5 Under the cart's total when the shop's prices include tax: how much of it is tax.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "tax": {
+        "type": "String"
+      }
+    }
   }
 }

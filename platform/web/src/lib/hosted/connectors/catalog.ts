@@ -1,5 +1,7 @@
 import { checkFulfilment, FULFILMENT_LABELS, fulfilmentConfigJson, fulfilmentOf, orderTimesJson } from "../../catalog/fulfilment";
 import { LOYALTY_HISTORY, loyaltyConfigJson, loyaltyOf, orderPointsJson, pointsAccountJson, usablePoints } from "../../catalog/loyalty";
+import { taxCents, taxLabel, taxOf } from "../../catalog/tax";
+import { attributesJson, sellableVariants, variantLabel, variantMax, variantPrices, variantsOf, variationAttributes } from "../../catalog/variants";
 import { canReturn, parseReturnInput, requestReturn, returnDays, returnJson } from "../../catalog/returns";
 import { couponDiscount, normalizeCouponCode } from "../../catalog/coupons";
 import { centsToDecimal, formatCents } from "../../catalog/money";
@@ -8,7 +10,7 @@ import { catalogSettings, ORDER_STATUS_LABELS, orderNumber, PAY_LINK_MINUTES, pa
 import { shipmentJson } from "../../catalog/shipping";
 import { randomToken, sha256Hex } from "../../crypto/tokens";
 import type { DataStore } from "../../data/store";
-import type { App, CatalogCategory, CatalogOrder, CatalogOrderLine, CatalogProduct, CatalogSettings, FulfilmentSettings, LoyaltySettings } from "../../data/types";
+import type { App, CatalogCategory, CatalogOrder, CatalogOrderLine, CatalogProduct, CatalogSettings, CatalogTax, FulfilmentSettings, LoyaltySettings } from "../../data/types";
 import { cartLines, error, intParam, type CartLineInput } from "./common";
 import type { Connector, ConnectorRequest, ConnectorResult } from "./types";
 import { signingSecret } from "../../env";
@@ -152,6 +154,25 @@ export class CatalogConnector implements Connector {
   // Mapping
 
   private price(p: CatalogProduct) {
+    // 91.5 A product with variations: from its cheapest to its dearest one on sale now.
+    const variants = variantsOf(p);
+    if (variants) {
+      const items = sellableVariants(p);
+      const prices = (items.length ? items : variants.items).map((v) => variantPrices(p, v));
+      const low = Math.min(...prices.map((x) => x.now));
+      const high = Math.max(...prices.map((x) => x.now));
+      const onSale = prices.some((x) => x.now < x.regular);
+      const single = low === high && prices.length > 0 ? prices.find((x) => x.now === low)! : null;
+      return {
+        amount: centsToDecimal(low),
+        regular_amount: single && onSale ? centsToDecimal(single.regular) : null,
+        regular_formatted: single && onSale ? this.money(single.regular) : null,
+        currency: this.settings.currency,
+        formatted: low === high ? this.money(low) : `${this.money(low)} – ${this.money(high)}`,
+        on_sale: onSale,
+        range: low !== high,
+      };
+    }
     const onSale = p.salePriceCents !== null && p.salePriceCents < p.priceCents;
     const now = priceOf(p);
     return {
@@ -166,11 +187,13 @@ export class CatalogConnector implements Connector {
   }
 
   private summary(p: CatalogProduct) {
-    const inStock = p.stock === null || p.stock > 0;
+    // 91.5 A product with variations is in stock while one of them is.
+    const variable = variantsOf(p) !== null;
+    const inStock = variable ? sellableVariants(p).length > 0 : p.stock === null || p.stock > 0;
     return {
       id: p.id,
       name: p.name,
-      type: "simple",
+      type: variable ? "variable" : "simple",
       image_url: p.imageAssetIds[0] ? this.deps.assetUrl(p.imageAssetIds[0]) : null,
       price: this.price(p),
       rating: null,
@@ -278,6 +301,7 @@ export class CatalogConnector implements Connector {
     const related = all
       .filter((p) => p.id !== id && p.categoryIds.some((c) => product.categoryIds.includes(c)))
       .slice(0, 8);
+    const variants = variantsOf(product);
     return {
       status: 200,
       body: {
@@ -287,8 +311,34 @@ export class CatalogConnector implements Connector {
         images: product.imageAssetIds.map((assetId) => ({ url: this.deps.assetUrl(assetId), alt: product.name })),
         sku: product.sku,
         max_quantity: product.stock !== null && product.stock > 0 ? product.stock : null,
-        attributes: [],
-        variations: [],
+        // 91.5 Its variations, as WooCommerce's.
+        attributes: variants ? attributesJson(variants) : [],
+        variations: variants
+          ? variants.items
+              .filter((v) => v.active)
+              .map((v) => {
+                const max = variantMax(product, v);
+                const prices = variantPrices(product, v);
+                const onSale = prices.now < prices.regular;
+                return {
+                  id: v.id,
+                  attributes: variationAttributes(variants, v),
+                  price: {
+                    amount: centsToDecimal(prices.now),
+                    regular_amount: onSale ? centsToDecimal(prices.regular) : null,
+                    regular_formatted: onSale ? this.money(prices.regular) : null,
+                    currency: this.settings.currency,
+                    formatted: this.money(prices.now),
+                    on_sale: onSale,
+                    range: false,
+                  },
+                  image_url: null,
+                  stock_status: max === null || max > 0 ? "in_stock" : "out_of_stock",
+                  max_quantity: max !== null && max > 0 ? max : null,
+                  purchasable: (max === null || max > 0) && this.canSell,
+                };
+              })
+          : [],
         categories: categories.filter((c) => product.categoryIds.includes(c.id)).map((c) => this.category(c, 0)),
         related: related.map((p) => this.summary(p)),
         external_url: null,
@@ -306,7 +356,10 @@ export class CatalogConnector implements Connector {
     let count = 0;
     const out = lines.map((line) => {
       const product = byId.get(line.product_id);
-      if (!product || line.variation_id !== null) {
+      // 91.5 A product with variations is bought as one of them; one without, never.
+      const variants = product ? variantsOf(product) : null;
+      const variant = variants && line.variation_id !== null ? variants.items.find((v) => v.id === line.variation_id && v.active) : undefined;
+      if (!product || (variants === null && line.variation_id !== null) || (variants !== null && !variant)) {
         return {
           line: {
             product_id: line.product_id,
@@ -317,21 +370,22 @@ export class CatalogConnector implements Connector {
             unit_price: this.money(0),
             line_total: this.money(0),
             available: false,
-            problem: "This product is no longer available.",
+            problem: product && variants && line.variation_id === null ? "Choose the options first." : "This product is no longer available.",
             max_quantity: null,
             digital: false,
           },
           product: null,
+          variant: undefined,
           unit: 0,
           chosen: [] as ChosenOption[],
         };
       }
-      const max = product.stock !== null ? product.stock : null;
+      const max = variant ? variantMax(product, variant) : product.stock !== null ? product.stock : null;
       // 26 The options are checked and priced here; prices from the app are never used.
       const options = checkOptions(optionGroupsOf(product), line.options ?? []);
       const available = (max === null || max > 0) && options.ok;
       const quantity = max !== null && max > 0 ? Math.min(line.quantity, max) : line.quantity;
-      const unit = priceOf(product) + (options.ok ? options.deltaCents : 0);
+      const unit = (variant ? variantPrices(product, variant).now : priceOf(product)) + (options.ok ? options.deltaCents : 0);
       const chosen = options.ok ? options.chosen : [];
       if (available) {
         subtotal += unit * quantity;
@@ -340,9 +394,9 @@ export class CatalogConnector implements Connector {
       return {
         line: {
           product_id: product.id,
-          variation_id: null,
+          variation_id: variant ? variant.id : null,
           quantity,
-          name: product.name,
+          name: variant ? `${product.name} - ${variantLabel(variant)}` : product.name,
           image_url: product.imageAssetIds[0] ? this.deps.assetUrl(product.imageAssetIds[0]) : null,
           unit_price: this.money(unit),
           line_total: this.money(unit * quantity),
@@ -359,6 +413,7 @@ export class CatalogConnector implements Connector {
           ...(chosen.length > 0 ? { options: chosen.map((o) => ({ id: o.id, name: o.name, group: o.group })) } : {}),
         },
         product,
+        variant,
         unit,
         chosen,
       };
@@ -387,6 +442,12 @@ export class CatalogConnector implements Connector {
     return check.ok
       ? { json: { code: shown, status: "applied", message: null }, discountCents: check.discountCents, code: coupon!.code }
       : { json: { code: shown, status: "invalid", message: check.message }, discountCents: 0, code: null };
+  }
+
+  /** 91.5 The shop's tax on what the customer pays before it (products after discounts, and shipping); null for none. */
+  private tax(baseCents: number): (CatalogTax & { cents: number }) | null {
+    const t = taxOf(this.settings);
+    return t ? { ...t, cents: taxCents(t, baseCents) } : null;
   }
 
   /**
@@ -421,7 +482,10 @@ export class CatalogConnector implements Connector {
     const shipping = this.fulfilment ? null : shippingFor(this.settings, priced.subtotal, priced.out.some((o) => o.line.available && !o.line.digital));
     // 91.4 The customer's points, on what the products cost after the coupon.
     const points = await this.cartPoints(request, priced.subtotal - coupon.discountCents, priced.out.length);
-    const total = priced.subtotal - coupon.discountCents - points.discountCents + (shipping ?? 0);
+    const before = priced.subtotal - coupon.discountCents - points.discountCents + (shipping ?? 0);
+    // 91.5 The shop's tax: inside the total, or added to it.
+    const tax = this.tax(before);
+    const total = before + (tax && !tax.included ? tax.cents : 0);
     return {
       status: 200,
       body: {
@@ -430,7 +494,9 @@ export class CatalogConnector implements Connector {
         discount: coupon.discountCents > 0 ? this.money(coupon.discountCents) : null,
         points: points.json,
         shipping: shipping === null ? null : this.money(shipping),
-        tax: null,
+        tax: tax && !tax.included ? this.money(tax.cents) : null,
+        tax_included: tax?.included ? this.money(tax.cents) : null,
+        tax_label: tax ? taxLabel(tax) : null,
         total: this.money(total),
         total_amount: centsToDecimal(total),
         total_final: shipping !== null,
@@ -456,9 +522,11 @@ export class CatalogConnector implements Connector {
     if (platform === "ios" && priced.out.some((o) => o.line.digital)) {
       return error(403, "purchase_not_allowed", "Digital products can't be bought in the iPhone app.");
     }
-    const orderLines: CatalogOrderLine[] = priced.out.map(({ line, product, unit, chosen }) => ({
+    const orderLines: CatalogOrderLine[] = priced.out.map(({ line, product, variant, unit, chosen }) => ({
       productId: product!.id,
-      name: product!.name,
+      // 91.5 The variation bought, in its name too ("Tee - Red, L").
+      name: variant ? `${product!.name} - ${variantLabel(variant)}` : product!.name,
+      ...(variant ? { variantId: variant.id, variant: variantLabel(variant) } : {}),
       quantity: line.quantity,
       unitCents: unit,
       imageAssetId: product!.imageAssetIds[0] ?? null,
@@ -480,6 +548,9 @@ export class CatalogConnector implements Connector {
     const coupon = await this.coupon(request.body, priced.subtotal, request.now);
     // 91.4 The points the customer has now, up to what the products cost after the coupon.
     const points = await this.cartPoints(request, priced.subtotal - coupon.discountCents, priced.out.length);
+    // 91.5 The tax as the cart showed it.
+    const before = priced.subtotal - coupon.discountCents - points.discountCents + shipping;
+    const tax = this.tax(before);
     const token = randomToken(24);
     await this.deps.store.createCatalogOrder({
       appId: this.deps.app.id,
@@ -489,10 +560,11 @@ export class CatalogConnector implements Connector {
       lines: orderLines,
       subtotalCents: priced.subtotal,
       shippingCents: shipping,
-      totalCents: priced.subtotal - coupon.discountCents - points.discountCents + shipping,
+      totalCents: before + (tax && !tax.included ? tax.cents : 0),
       couponCode: coupon.code,
       discountCents: coupon.discountCents,
       points: points.used > 0 ? { used: points.used, discountCents: points.discountCents, earned: 0 } : null,
+      tax: tax && tax.cents > 0 ? { label: tax.label, rateBps: tax.rateBps, included: tax.included, cents: tax.cents } : null,
       currency: this.settings.currency,
       customer: null,
       paymentId: null,

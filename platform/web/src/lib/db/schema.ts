@@ -6,7 +6,7 @@ import type {
   AssetKind,
   CatalogCurrency,
   CatalogFulfilment,
-  LoyaltyReason, OrderPoints, OrderReturn, OrderShipment,
+  LoyaltyReason, OrderPoints, OrderReturn, OrderShipment, CatalogVariants, CatalogOrder,
   CatalogOptionGroup,
   CatalogCustomer,
   CatalogOrderLine,
@@ -609,6 +609,8 @@ export const catalogProducts = mysqlTable(
     sku: varchar("sku", { length: 64 }),
     // 26 A dish's choices (size, extras), as JSON; null for none.
     optionGroups: jsonText<CatalogOptionGroup[]>("option_groups"),
+    // 91.5 Variations: attributes and combinations, each with its price and stock (JSON).
+    variants: jsonText<CatalogVariants>("variants"),
     salesCount: int("sales_count").notNull().default(0),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
@@ -658,6 +660,8 @@ export const catalogOrders = mysqlTable(
     returnRequest: jsonText<OrderReturn>("return_request"),
     // 91.4 Loyalty points used on it and earned by it (JSON).
     points: jsonText<OrderPoints>("points"),
+    // 91.5 The tax in it (JSON).
+    tax: jsonText<NonNullable<CatalogOrder["tax"]>>("tax"),
   },
   (t) => [
     uniqueIndex("catalog_orders_token_unique").on(t.tokenHash),

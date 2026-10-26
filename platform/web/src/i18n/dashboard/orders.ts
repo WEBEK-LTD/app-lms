@@ -29,6 +29,9 @@ export const en = {
   // 91.4 Loyalty points.
   pointsUsed: "Loyalty points ({points}): -{amount}",
   pointsEarned: "Earned {points} loyalty points",
+  // 91.5 Tax.
+  taxAdded: "{tax}: {amount}",
+  taxIncluded: "Includes {amount} {tax}",
   returnTitle: "Return",
   return_requested: "Asked",
   return_approved: "Approved",
@@ -183,6 +186,8 @@ export const ar: Messages = {
   receiptPdf: "الإيصال (PDF)",
   pointsUsed: "نقاط الولاء ({points}): -{amount}",
   pointsEarned: "كسب {points} من نقاط الولاء",
+  taxAdded: "{tax}: {amount}",
+  taxIncluded: "يشمل {amount} {tax}",
   returnTitle: "الإرجاع",
   return_requested: "مطلوب",
   return_approved: "مقبول",
@@ -331,6 +336,8 @@ export const tr: Messages = {
   receiptPdf: "Makbuz (PDF)",
   pointsUsed: "Sadakat puanları ({points}): -{amount}",
   pointsEarned: "{points} sadakat puanı kazandı",
+  taxAdded: "{tax}: {amount}",
+  taxIncluded: "{amount} {tax} dahil",
   returnTitle: "İade",
   return_requested: "Talep edildi",
   return_approved: "Onaylandı",

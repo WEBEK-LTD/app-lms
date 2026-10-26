@@ -1,4 +1,5 @@
 import { ltrSpan } from "../arabic-shape";
+import { taxLabel } from "../catalog/tax";
 import { formatAmount } from "../billing/prices";
 import { receiptNumber } from "../billing/receipt";
 import { formatCents } from "../catalog/money";
@@ -179,13 +180,16 @@ export function orderReceipt(input: OrderReceiptInput): ReceiptDocument {
   // 91.1 The coupon and 91.4 the loyalty points, so the lines add up to the total.
   const coupon = order.discountCents ?? 0;
   const points = order.points?.discountCents ?? 0;
-  if (order.shippingCents > 0 || coupon > 0 || points > 0) {
+  if (order.shippingCents > 0 || coupon > 0 || points > 0 || (order.tax && !order.tax.included)) {
     totals.push({ label: w("subtotal"), value: fmt(order.subtotalCents) });
     if (coupon > 0) totals.push({ label: w("coupon", { code: ltrSpan(order.couponCode ?? "") }), value: minus(formatCents(coupon, order.currency)) });
     if (points > 0) totals.push({ label: w("points", { points: String(order.points!.used) }), value: minus(formatCents(points, order.currency)) });
     if (order.shippingCents > 0) totals.push({ label: w(order.fulfilment ? "deliveryFee" : "shipping"), value: fmt(order.shippingCents) });
   }
+  // 91.5 An added tax is a line; one inside the prices says how much of the total it is.
+  if (order.tax && !order.tax.included) totals.push({ label: taxLabel(order.tax), value: fmt(order.tax.cents) });
   totals.push({ label: w("total"), value: fmt(order.totalCents), strong: true });
+  if (order.tax?.included) totals.push({ label: w("taxIncluded", { tax: taxLabel(order.tax) }), value: fmt(order.tax.cents) });
   const refunded = order.refundedCents ?? 0;
   if (refunded > 0) totals.push({ label: w("refunded"), value: minus(formatCents(refunded, order.currency)), danger: true });
   const facts: [string, string][] = [];

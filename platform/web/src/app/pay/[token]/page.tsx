@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { taxLabel } from "@/lib/catalog/tax";
 import { redirect } from "next/navigation";
 import { formatCents } from "@/lib/catalog/money";
 import { fulfilmentOf } from "@/lib/catalog/fulfilment";
@@ -108,11 +109,24 @@ export default async function PayPage({
               <span>{money(order.shippingCents)}</span>
             </li>
           ) : null}
+          {/* 91.5 An added tax. */}
+          {order.tax && !order.tax.included ? (
+            <li className="flex justify-between gap-3 text-[15px]">
+              <span>{taxLabel(order.tax)}</span>
+              <span>{money(order.tax.cents)}</span>
+            </li>
+          ) : null}
         </ul>
         <p className="m-0 flex justify-between border-t border-line-soft pt-2 text-[16px] font-bold">
           <span>Total</span>
           <span>{money(order.totalCents)}</span>
         </p>
+        {/* 91.5 A tax inside the prices. */}
+        {order.tax?.included ? (
+          <p className="m-0 text-right text-[13px] text-ink-4">
+            Includes {money(order.tax.cents)} {taxLabel(order.tax)}
+          </p>
+        ) : null}
         {order.fulfilment ? (
           <p className="m-0 border-t border-line-soft pt-2 text-[15px] text-ink-4">
             {order.fulfilment.type === "delivery" ? "Delivery" : "Pickup"}{" "}

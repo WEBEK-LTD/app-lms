@@ -34,6 +34,135 @@ export interface ProductFormValues {
   active: boolean;
   /** 26 The option groups as the editor keeps them (prices as typed). */
   optionGroups: EditorGroup[];
+  /** 91.5 The variations as the editor keeps them (prices as typed). */
+  variants: EditorVariants;
+}
+
+/** 91.5 Variations in the editor: attributes with their values typed as a list, and the combinations sold. */
+export interface EditorVariants {
+  attributes: { name: string; values: string }[];
+  items: { id?: number; values: string[]; price: string; sale: string; stock: string; sku: string; active: boolean }[];
+}
+
+const splitValues = (text: string) => [...new Set(text.split(",").map((v) => v.replace(/\s+/g, " ").trim()).filter(Boolean))];
+/** "450", "450.50" or "450,50" in cents; empty: null; anything else is sent as typed for the server to refuse. */
+const cents = (text: string): number | null | string => {
+  const t = text.trim().replace(",", ".");
+  if (t === "") return null;
+  return /^\d{1,7}(\.\d{1,2})?$/.test(t) ? Math.round(Number(t) * 100) : t;
+};
+const whole = (text: string): number | null | string => (text.trim() === "" ? null : /^\d{1,7}$/.test(text.trim()) ? Number(text.trim()) : text.trim());
+
+/** 91.5 The variations of a shop's product (not a restaurant's): Size and Colour, and each combination's price and stock. */
+function VariantsEditor({ initial, currency, error }: { initial: EditorVariants; currency: string; error?: string }) {
+  const t = useDashT();
+  const [attributes, setAttributes] = useState(initial.attributes);
+  const [items, setItems] = useState(initial.items);
+  const lists = attributes.map((a) => splitValues(a.values));
+  const named = attributes.filter((a, i) => a.name.trim() && lists[i]!.length > 0);
+  const combos = named.length
+    ? lists.filter((_, i) => attributes[i]!.name.trim() && lists[i]!.length > 0).reduce<string[][]>((acc, values) => acc.flatMap((p) => values.map((v) => [...p, v])), [[]])
+    : [];
+  const live = items.filter((item) => item.values.length === named.length && combos.some((c) => c.join("\u0000") === item.values.join("\u0000")));
+  const missing = combos.filter((c) => !live.some((item) => item.values.join("\u0000") === c.join("\u0000")));
+  const payload = {
+    attributes: attributes.map((a) => ({ name: a.name, values: splitValues(a.values) })),
+    items: live.map((i) => ({ id: i.id, values: i.values, priceCents: cents(i.price), salePriceCents: cents(i.sale), stock: whole(i.stock), sku: i.sku, active: i.active })),
+  };
+  const update = (k: number, patch: Partial<EditorVariants["items"][number]>) => setItems((all) => all.map((x) => (x === live[k] ? { ...x, ...patch } : x)));
+  return (
+    <fieldset className="m-0 flex flex-col gap-3 border-0 p-0" aria-describedby="f-variants-hint">
+      <legend className="mb-1.5 text-sm font-semibold">{t("shop.variants")}</legend>
+      <input type="hidden" name="variants" value={named.length ? JSON.stringify(payload) : ""} />
+      <span id="f-variants-hint" className="text-[13px] text-muted">
+        {t("shop.variantsHint")}
+      </span>
+      {attributes.map((a, i) => (
+        <div key={i} className="grid gap-3 sm:grid-cols-[160px_1fr_auto]">
+          <input
+            className="input input-sm"
+            value={a.name}
+            maxLength={40}
+            placeholder={t("shop.variantNamePlaceholder")}
+            aria-label={t("shop.variantNameAria", { n: i + 1 })}
+            onChange={(e) => setAttributes((all) => all.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))}
+          />
+          <input
+            className="input input-sm"
+            value={a.values}
+            placeholder={t("shop.variantValuesPlaceholder")}
+            aria-label={t("shop.variantValuesAria", { n: i + 1 })}
+            onChange={(e) => setAttributes((all) => all.map((x, j) => (j === i ? { ...x, values: e.target.value } : x)))}
+          />
+          <button
+            type="button"
+            className="cursor-pointer border-0 bg-transparent p-1 text-sm font-semibold text-danger"
+            onClick={() => setAttributes((all) => all.filter((_, j) => j !== i))}
+          >
+            {t("shop.variantRemove")}
+          </button>
+        </div>
+      ))}
+      <div className="flex flex-wrap gap-2">
+        {attributes.length < 3 ? (
+          <button type="button" className={`${btn.secondary} h-9 px-3 text-sm`} onClick={() => setAttributes((all) => [...all, { name: "", values: "" }])}>
+            {t("shop.variantAdd")}
+          </button>
+        ) : null}
+        {missing.length ? (
+          <button
+            type="button"
+            className={`${btn.secondary} h-9 px-3 text-sm`}
+            onClick={() => setItems((all) => [...all, ...missing.map((values) => ({ values, price: "", sale: "", stock: "", sku: "", active: true }))])}
+          >
+            {t("shop.variantAddCombinations", { count: missing.length })}
+          </button>
+        ) : null}
+      </div>
+      {live.length ? (
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[620px] border-collapse text-sm">
+            <thead>
+              <tr className="text-left text-muted">
+                <th className="py-1.5 pr-2 font-semibold">{t("shop.variantCombination")}</th>
+                <th className="py-1.5 pr-2 font-semibold">{t("shop.variantPrice", { currency })}</th>
+                <th className="py-1.5 pr-2 font-semibold">{t("shop.variantSale", { currency })}</th>
+                <th className="py-1.5 pr-2 font-semibold">{t("shop.stock")}</th>
+                <th className="py-1.5 pr-2 font-semibold">{t("shop.sku")}</th>
+                <th className="py-1.5 font-semibold">{t("shop.variantOn")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {live.map((item, k) => {
+                const label = item.values.join(", ");
+                return (
+                  <tr key={label} className="border-t border-line-soft" data-variant={label}>
+                    <td className="py-1.5 pr-2 font-semibold">{label}</td>
+                    <td className="py-1.5 pr-2">
+                      <input className="input input-sm w-[110px]" inputMode="decimal" value={item.price} placeholder={t("shop.variantSamePrice")} aria-label={t("shop.variantPriceAria", { variant: label })} onChange={(e) => update(k, { price: e.target.value })} />
+                    </td>
+                    <td className="py-1.5 pr-2">
+                      <input className="input input-sm w-[110px]" inputMode="decimal" value={item.sale} aria-label={t("shop.variantSaleAria", { variant: label })} onChange={(e) => update(k, { sale: e.target.value })} />
+                    </td>
+                    <td className="py-1.5 pr-2">
+                      <input className="input input-sm w-[90px]" inputMode="numeric" value={item.stock} aria-label={t("shop.variantStockAria", { variant: label })} onChange={(e) => update(k, { stock: e.target.value })} />
+                    </td>
+                    <td className="py-1.5 pr-2">
+                      <input className="input input-sm w-[120px]" value={item.sku} maxLength={64} aria-label={t("shop.variantSkuAria", { variant: label })} onChange={(e) => update(k, { sku: e.target.value })} />
+                    </td>
+                    <td className="py-1.5">
+                      <input type="checkbox" className="h-4 w-4 accent-midnight" checked={item.active} aria-label={t("shop.variantOnAria", { variant: label })} onChange={(e) => update(k, { active: e.target.checked })} />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+      <FieldError id="f-variants-error" error={error} />
+    </fieldset>
+  );
 }
 
 /** 26 One option group in the editor; `id`s are kept so carts still match after an edit. */
@@ -172,6 +301,7 @@ export function ProductForm({
         <FieldError id="f-images-error" error={state.errors?.images} />
       </fieldset>
       <OptionGroupsEditor initial={product.optionGroups} currency={currency} restaurant={restaurant} error={state.errors?.optionGroups} />
+      {restaurant ? null : <VariantsEditor initial={product.variants} currency={currency} error={state.errors?.variants} />}
       <div className="flex flex-col gap-3">
         <Check name="active" label={t("shop.show")} hint={t("shop.showHint")} defaultChecked={product.active} />
         <Check name="featured" label={t("shop.featured")} hint={t("shop.featuredHint")} defaultChecked={product.featured} />
@@ -495,6 +625,7 @@ export function ShopSettingsForm({
   shipping,
   freeOver,
   returnDays = "",
+  tax = { label: "", rate: "", included: true },
   currencies,
   shippingFields = true,
 }: {
@@ -503,6 +634,8 @@ export function ShopSettingsForm({
   freeOver: string;
   /** 91.3 Days after completion a return can be asked for; empty: none. */
   returnDays?: string;
+  /** 91.5 The tax: its name, rate (empty: none) and whether the prices include it. */
+  tax?: { label: string; rate: string; included: boolean };
   currencies: string[];
   /** 26 Restaurants charge a delivery fee instead (Pickup and delivery). */
   shippingFields?: boolean;
@@ -554,6 +687,12 @@ export function ShopSettingsForm({
           />
         </>
       ) : null}
+      {/* 91.5 The shop's tax (restaurants too: on the food and the delivery fee). */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label={t("shop.taxRate")} id="f-tax-rate" name="taxRate" inputMode="decimal" defaultValue={state.values?.taxRate ?? tax.rate} hint={t("shop.taxRateHint")} error={state.errors?.taxRate} />
+        <Field label={t("shop.taxLabel")} id="f-tax-label" name="taxLabel" defaultValue={state.values?.taxLabel ?? tax.label} hint={t("shop.taxLabelHint")} error={state.errors?.taxLabel} />
+      </div>
+      <Check name="taxIncluded" label={t("shop.taxIncluded")} hint={t("shop.taxIncludedHint")} defaultChecked={state.values ? state.values.taxIncluded === "on" : tax.included} />
       <div className="flex justify-end">
         <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
           {t("shop.saveSettings")}

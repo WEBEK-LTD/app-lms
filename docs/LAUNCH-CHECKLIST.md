@@ -1085,6 +1085,17 @@ never in a chat or an issue.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **Variations and tax** (91.5): migration `0083_variants_and_tax.sql`
+      (a column on `catalog_products` and one on `catalog_orders`) goes with
+      the deploy, migrations first. After deploying: on a test shop without
+      a website, give a product Size (S, M) and Colour (Red, Blue), add the
+      combinations with one dearer and one with stock 1, and see the price
+      range, the choices and the stock in the app; buy the one with stock 1
+      and see it go out of stock. Under Shop settings set KDV 20% with
+      prices including it: the cart, the receipt and the order email say
+      how much is tax; untick it and the cart adds the tax as its own line
+      and the payment page charges it. The editor and the docs in Arabic
+      and Turkish.
 - [ ] **Loyalty points** (91.4): migration `0082_loyalty_points.sql` (two
       new tables and a column on `catalog_orders`) goes with the deploy,
       migrations first. After deploying: on a Growth test shop without a

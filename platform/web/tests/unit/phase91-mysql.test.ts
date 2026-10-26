@@ -134,4 +134,55 @@ describe.skipIf(!url)("91.1 coupons on MySQL", () => {
     expect(history.at(-1)).toMatchObject({ points: 200, reason: "earned", orderId: 9 });
     expect(history.length).toBe(1 + taken.filter((t) => t !== 0).length);
   });
+  it("91.5 keeps variations and the tax, and takes each paid combination's stock down, also when paid at the same moment", async () => {
+    const suffix = randomUUID().slice(0, 8);
+    const { client } = await registerClient(stores[0]!, { name: "Tee Shop", email: `p915-${suffix}@tee.test`, whatsapp: "+905446731942", siteUrl: "", password: null }, NOW);
+    const app: App = { ...newApp(client.id, null, NOW, "store"), backend: "hosted", connector: { kind: "catalog" } };
+    await stores[0]!.createApp(app);
+    const variants = {
+      attributes: [{ name: "Size", values: ["S", "L"] }],
+      items: [
+        { id: 1, values: ["S"], priceCents: null, salePriceCents: null, stock: 3, sku: "TEE-S", active: true },
+        { id: 2, values: ["L"], priceCents: 32000, salePriceCents: null, stock: null, sku: null, active: true },
+      ],
+    };
+    const product = await stores[0]!.createCatalogProduct(
+      { appId: app.id, name: "Tee", description: "", priceCents: 25000, salePriceCents: null, categoryIds: [], imageAssetIds: [], stock: null, digital: false, featured: false, active: true, sku: null, variants },
+      NOW,
+    );
+    expect((await stores[0]!.getCatalogProduct(app.id, product.id))!.variants).toEqual(variants);
+    const orders = await Promise.all(
+      [0, 1, 2].map((n) =>
+        stores[0]!.createCatalogOrder({
+          appId: app.id,
+          tokenHash: randomUUID().replace(/-/g, ""),
+          userId: null,
+          status: "pending",
+          lines: [
+            { productId: product.id, name: "Tee - S", quantity: n === 0 ? 2 : 1, unitCents: 25000, imageAssetId: null, digital: false, variantId: 1, variant: "S" },
+            { productId: product.id, name: "Tee - L", quantity: 1, unitCents: 32000, imageAssetId: null, digital: false, variantId: 2, variant: "L" },
+          ],
+          subtotalCents: 57000,
+          shippingCents: 0,
+          totalCents: 57000,
+          currency: "TRY",
+          customer: null,
+          paymentId: null,
+          createdAt: NOW,
+          paidAt: null,
+          updatedAt: NOW,
+          commissionCents: null,
+          itemTransactionIds: null,
+          payoutApprovedAt: null,
+          tax: { label: "KDV", rateBps: 2000, included: true, cents: 9500 },
+        }),
+      ),
+    );
+    expect((await stores[0]!.getCatalogOrder(app.id, orders[0]!.id))!).toMatchObject({ tax: { label: "KDV", rateBps: 2000, included: true, cents: 9500 }, lines: [{ variantId: 1, variant: "S" }, { variantId: 2 }] });
+    expect(await Promise.all(orders.map((o, i) => stores[i]!.payCatalogOrder(app.id, o.id, `pay-${i}`, NOW)))).toEqual([true, true, true]);
+    const after = (await stores[0]!.getCatalogProduct(app.id, product.id))!;
+    // 2 + 1 + 1 asked of 3: never below 0; the one without stock tracked stays untracked.
+    expect(after.variants!.items.map((v) => v.stock)).toEqual([0, null]);
+    expect(after.salesCount).toBe(7);
+  });
 });
