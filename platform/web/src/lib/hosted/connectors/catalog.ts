@@ -512,8 +512,8 @@ export class CatalogConnector implements Connector {
     if (!lines) return error(400, "invalid_request", "The cart is empty or invalid.");
     if (this.deps.cardPayments === false) return error(403, "feature_disabled", "Ordering isn't available in this app.");
     if (this.fulfilment && !request.user) return error(401, "unauthorized", "Please sign in to order.");
-    // 16 A demo shop takes orders without a payment account: its payment page charges nothing.
-    if (!this.settings.payment && !this.deps.app.demo) {
+    // 16 A demo shop takes orders without a payment account: its payment page charges nothing. 96.2 Bank transfer or the shop's own method will do too.
+    if (!paymentsSetUp(this.deps.app)) {
       return error(503, "shop_unavailable", "This shop can't take orders yet. Please try again later.");
     }
     const priced = await this.priced(lines);
