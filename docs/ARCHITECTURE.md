@@ -2319,6 +2319,34 @@ tries the next week), and the send's row is removed. WordPress campaigns go
 to everyone (the platform doesn't know the site's people); a page of the
 app opens on the site's links (`<site>/a/page/<slug>`).
 
+## Analytics with the business's numbers (Phase 86)
+
+- **Sales** (86.1, `lib/analytics/sales.ts`): the Analytics range's local
+  days as `[from, to)` instants, summed by the database (paid orders less
+  refunds, refunds, enrolments, appointments booked, tickets, donations;
+  migration 0068 adds the indexes), beside the period before; conversion is
+  paid orders over the report's `item_view` events. Only what `appAreas`
+  says the app has. WordPress apps read the totals their site sends (86.4).
+- **Where people come from** (86.2): the app sends `store` with its first
+  `app_open` (Android's installer, an iPhone's receipt) and `link_open` when
+  one of its own links (`isAppLink`) opens it, with `source` (`qr` for
+  `utm_medium=qr`), `campaign` and `referrer` (`utm_campaign`,
+  `utm_source`). Raw events keep them (migration 0069); the nightly count
+  writes `install_store`, `link_source`, `utm_campaign` and `utm_source`;
+  `sourcesOf` adds opens from notifications and "on their own" (the rest of
+  the sessions). Dashboard › Analytics makes the app's link and QR code
+  (`/a/<app>/page/home`, the site's links for WordPress) with a campaign name.
+- **Notifications' results** (86.3): the automatic ones by kind from
+  `auto_sent`, `auto_pushed` and the opens of `type:<kind>`; a WordPress
+  campaign's report writes `push_sent` under the site's notification ID.
+- **Weekly summary** (86.4, `lib/analytics/weekly.ts`): the daily job, on
+  Monday to Wednesday in each app's zone, emails the owner the week before
+  (template `weekly_summary`, en/ar/tr), once (`weekly_mail` on the week's
+  first day), skipping quiet weeks and apps with `weekly_summary` off
+  (migration 0070). WordPress sites send `SiteInfo.sales` with each license
+  check (plugin `Site_Sales`, 0.4.13): eight days of WooCommerce totals,
+  kept as `site_orders`, `site_revenue`, `site_refunds` and `site_refunded`.
+
 ## Milestones (Phase 78)
 
 `client_milestones` (migration 0053, `lib/milestones/record.ts`) keeps when

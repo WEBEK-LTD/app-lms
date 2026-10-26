@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.12
+Stable tag: 0.4.13
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -75,7 +75,10 @@ Yallapp is the service that builds and runs your apps; the plugin needs it to wo
   the plugin and WordPress versions, which LMS, shop and booking plugins the
   site runs and the versions of the plugin's parts that read them, the paths of
   your site's pages that open the app, and your site's title, tagline, logo,
-  site icon, theme colours and menus (for an app made from your site).
+  site icon, theme colours and menus (for an app made from your site). With the
+  check (not on activation), a shop's totals of the last eight days: how many
+  orders were paid each day and what they brought in, and the refunds made, per
+  currency; never an order, a customer or a product.
 * App pages (every 15 minutes and on request): the license key and site address,
   to get the pages and look you published in your Yallapp dashboard.
 * Sign-in codes, when Yallapp sends them (the default): the phone number or email
@@ -118,6 +121,9 @@ Terms: https://developer.huawei.com/consumer/en/devservice/term
 Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 
 == Changelog ==
+
+= 0.4.13 =
+* Your shop's sales in your Yallapp dashboard: with each license check the plugin sends WooCommerce's totals of the last days (paid orders, what they brought in and the refunds), so Analytics and the weekly summary email show them. Totals only, never an order or a customer.
 
 = 0.4.12 =
 * Campaigns from your Yallapp dashboard: write a notification with a picture and a page or web address to open, and send it now, later or every week. Your site puts it in everyone's inbox in the app, pushes it to the phones that allow announcements, and tells Yallapp how many it reached.

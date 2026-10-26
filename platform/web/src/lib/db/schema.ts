@@ -285,6 +285,8 @@ export const apps = mysqlTable(
     crashReports: boolean("crash_reports").notNull().default(true),
     // 47 The owner's time zone for Analytics; null: from the account's country.
     timeZone: varchar("time_zone", { length: 64 }),
+    // 86.4 The weekly summary email, on unless the owner turns it off.
+    weeklySummary: boolean("weekly_summary").notNull().default(true),
     appTypeDoneAt: time("app_type_done_at"),
     websiteDoneAt: time("website_done_at"),
     brandingDoneAt: time("branding_done_at"),

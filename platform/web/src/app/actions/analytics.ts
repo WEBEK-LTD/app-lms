@@ -25,3 +25,17 @@ export async function saveAnalyticsZoneAction(_: FormState, formData: FormData):
   revalidatePath("/dashboard/analytics");
   return { ok: true, message: `Time zone saved: days are counted in ${zone.replace(/_/g, " ")} from now on.`, values: { zone } };
 }
+
+/** 86.4 Analytics › Weekly summary by email: on or off for this app. */
+export async function setWeeklySummaryAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await clientFor("analytics");
+  if (!context) redirect("/sign-in");
+  if (!mayUseDashboard(context)) redirect("/pending");
+  const app = context.app;
+  if (!app) redirect("/dashboard");
+  const on = formData.get("weekly") === "on";
+  await (await getStore()).updateApp(app.id, { weeklySummary: on }, new Date());
+  await recordStaffChange(context, on ? "Turned on the weekly summary email" : "Turned off the weekly summary email");
+  revalidatePath("/dashboard/analytics");
+  return { ok: true, message: on ? "Weekly summary turned on: the next one comes on Monday." : "Weekly summary turned off." };
+}

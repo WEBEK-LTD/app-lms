@@ -73,7 +73,9 @@ export type EmailTemplateKey =
   | "two_step_on"
   | "two_step_off"
   // 78.3 Watching
-  | "team_alert";
+  | "team_alert"
+  // 86.4 The weekly summary
+  | "weekly_summary";
 
 export interface EmailTemplateDefinition {
   key: EmailTemplateKey;
@@ -623,6 +625,25 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
     body:
       "Hello {{name}},\n\nOur daily check of {{app_name}}'s connections found a problem.\n\n{{problem}}\n\n{{details}}\n\n" +
       "Integrations shows each connection and its last test. Test it again there once it's fixed:\n{{integrations_url}}" +
+      SIGNATURE,
+  },
+  {
+    // 86.4 Sent from the daily job once a week (Monday to Wednesday, in the app's time zone), for the week before.
+    key: "weekly_summary",
+    name: "Weekly summary",
+    description: "To a client every Monday for each active app that was used or sold something the week before: its numbers beside the week before it. The owner turns it off on the app's Analytics page.",
+    placeholders: [
+      NAME,
+      APP_NAME,
+      { name: "week", description: "The week, in the app's time zone", sample: "19 – 25 October 2026" },
+      { name: "summary", description: "The week's numbers, one per line, each beside the week before", sample: "Installs: 12 (8 the week before)\nDaily active users: 31 on average (27)\nPaid orders: 5, ₺1,250.00 (3)" },
+      { name: "analytics_url", description: "The app's Analytics page for that week", sample: "https://yallapp.com.tr/dashboard/open/sample?to=analytics" },
+    ],
+    subject: "{{app_name}}: your week, {{week}}",
+    body:
+      "Hello {{name}},\n\nHere is how {{app_name}} did in the week of {{week}}, beside the week before:\n\n{{summary}}\n\n" +
+      "Every number, day by day, is on your Analytics page:\n{{analytics_url}}\n\n" +
+      "You get this every Monday. To stop it, turn off \"Weekly summary by email\" on the same page." +
       SIGNATURE,
   },
   {

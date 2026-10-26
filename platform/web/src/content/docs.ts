@@ -1070,6 +1070,10 @@ Messages and files are deleted a year after they're sent. 30 days before a conve
     steps: false,
     body: `Open **Analytics** in your dashboard to see how people use your app: installs, daily, weekly and monthly active users, sessions, how many come back, the phones and app versions they use, their countries and languages, the screens, courses, products, services and other items they open, how many go on to buy, enroll, book or give, how many open your notifications, and what they search for. Choose the last 7, 30 or 90 days or your own dates; each number is compared with the period before. **Export CSV** downloads the same numbers for a spreadsheet.
 
+## The weekly summary
+
+Every Monday we email you each app's numbers for the week before (Monday to Sunday, in your time zone), beside the week before it: installs, active users, sessions, sales, the item viewed most and your notifications. Weeks nobody used the app and sold nothing are skipped. Turn it off or on again for each app under **Weekly summary by email** at the top of the Analytics page.
+
 ## Where the numbers come from
 
 Your app counts them itself and sends them to Yallapp, whatever your content comes from (WordPress, a connected platform, the dashboard or your own API). No other company's analytics tools are in your app, and nothing is used for advertising.
@@ -1078,7 +1082,7 @@ Your app counts them itself and sends them to Yallapp, whatever your content com
 - **Active users** are installs that opened the app that day, in the last 7 days (weekly) or the last 30 days (monthly).
 - **Sessions** are app opens: a start, or coming back after 30 minutes or more in the background.
 - **Retention** is the share of people who first opened the app in your range and came back 1, 7 or 30 days later.
-- **Sales** are what came in over the same days, beside the period before: paid orders and their revenue (less what was refunded), refunds made, enrolments, appointments booked, tickets issued and donations, each only if your app has it. They come from your app's own orders, bookings, courses, tickets and donations in Yallapp. **Conversion** there is paid orders over the views of your items in the app.
+- **Sales** are what came in over the same days, beside the period before: paid orders and their revenue (less what was refunded), refunds made, enrolments, appointments booked, tickets issued and donations, each only if your app has it. They come from your app's own orders, bookings, courses, tickets and donations in Yallapp; on WordPress, from your shop's (WooCommerce's) paid orders and refunds, which the Yallapp plugin (0.4.13 or later) sends twice a day as totals only. **Conversion** there is paid orders over the views of your items in the app.
 - **Conversions** count views of your courses, products, services, events or campaigns, the next step (added to cart, enrolled, booked, got tickets or chose to give) and the checkout page opening. The payment itself happens on the checkout page; your orders and donations pages have the payments.
 - **Notifications**: for each notification you send from the dashboard, how many phones it went to and how many opened the app from it. Campaigns count the same way, also the ones your WordPress site sends for you. Automatic notifications (a new lesson, an appointment reminder…) show by kind: how many people they went to, how many phones, and how many opened the app from them. Notifications your website sends on its own are counted by kind.
 - **Searches** show what people searched for, never who. A search shows once it was made at least twice.

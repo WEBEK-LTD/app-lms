@@ -26,6 +26,7 @@ import type { AutoKind } from "@/lib/hosted/auto-notifications";
 
 import { SalesTiles } from "./sales";
 import { CAMPAIGN_NAME, ShareCard, shareLinks, SourcesSection } from "./sources";
+import { WeeklyForm } from "./weekly-form";
 import { ZoneForm } from "./zone-form";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -141,6 +142,8 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
       />
       <RangeFilter report={report} text={text} />
       <ZoneForm zone={zone} label={zoneText} zones={timeZones()} chosen={Boolean(app.timeZone)} />
+      {/* 86.4 The weekly summary email. */}
+      <WeeklyForm on={app.weeklySummary !== false} />
       <Notice>
         {kept.from === null
           ? t("analytics.keptNoteForever", { plan: planName, days: analyticsEventsKeepText(lang) })
@@ -153,7 +156,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
 
       {/* 86.1 What the business sold over the same days. */}
       {Object.values(sales.shows).some(Boolean) ? (
-        <Section id="sales" titleId="h-sales" title={t("analytics.sales")} description={t("analytics.salesText")}>
+        <Section id="sales" titleId="h-sales" title={t("analytics.sales")} description={t(app.backend === "wordpress" ? "analytics.salesTextSite" : "analytics.salesText")}>
           <SalesTiles sales={sales} days={range.days} text={text} />
         </Section>
       ) : null}

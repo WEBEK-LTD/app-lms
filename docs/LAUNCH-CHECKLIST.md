@@ -1085,6 +1085,18 @@ never in a chat or an issue.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **Analytics with the business's numbers** (86): migrations
+      `0068_sales_windows.sql` (indexes), `0069_event_sources.sql` (three
+      columns on `analytics_events`) and `0070_weekly_summary.sql` (a column on
+      `apps`, on by default) go with the production deploy, migrations first.
+      The weekly summary goes out from the daily job on Mondays (to Wednesday);
+      check the first Monday's run in Admin › Watching (`analytics.weekly`).
+- [ ] **The app for 86.2** comes with each app's next build: it sends the store
+      it was installed from and the links and QR codes that open it. Older
+      builds go on counting as before.
+- [ ] **Plugin 0.4.13** (86.4): WooCommerce sites send their shop's daily
+      totals with the license check. Release it like 0.4.12; its readme says
+      what is sent (External services).
 - [ ] **Notification campaigns** (85): migrations `0064_device_language_country.sql`,
       `0065_notification_campaigns.sql`, `0066_auto_notifications.sql` and
       `0067_campaign_reports.sql` (new columns and tables) go with the

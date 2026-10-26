@@ -309,3 +309,15 @@ test("86.2 where people come from, and the app's link and QR code with a campaig
   await expect(share.getByRole("img", { name: /QR code that opens/ })).toHaveAttribute("data-qr", /utm_medium=qr&utm_campaign=spring-menu$/);
   await expect(share.getByRole("link", { name: "Download QR code" })).toHaveAttribute("download", "qr-spring-menu.svg");
 });
+
+test("86.4 the weekly summary email can be turned off and on again", async () => {
+  await own.goto("/dashboard/analytics");
+  const weekly = own.getByRole("form", { name: "Weekly summary by email" });
+  await expect(weekly).toContainText("Every Monday we email you last week's numbers for this app");
+  await weekly.getByRole("button", { name: "Turn off" }).click();
+  await expect(weekly.getByRole("status")).toHaveText("Weekly summary turned off.");
+  await expect(weekly).toContainText("Off: no weekly email for this app.");
+  await weekly.getByRole("button", { name: "Turn on" }).click();
+  await expect(weekly.getByRole("status")).toHaveText("Weekly summary turned on: the next one comes on Monday.");
+  await expect(weekly.locator('[data-weekly="on"]')).toBeVisible();
+});

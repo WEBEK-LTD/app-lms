@@ -1,0 +1,1 @@
+ALTER TABLE `apps` ADD `weekly_summary` boolean DEFAULT true NOT NULL;

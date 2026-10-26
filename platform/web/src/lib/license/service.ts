@@ -1,3 +1,4 @@
+import { parseSiteSales, saveSiteSales, type SiteSalesDay } from "../analytics/site-sales";
 import { appSwitches, type AppSwitches } from "../app/switches";
 import { httpsSiteAddress, moveToWordpress } from "../app/wordpress-ready";
 import type { DataStore } from "../data/store";
@@ -95,6 +96,8 @@ export interface SiteInfo {
   brand?: SiteBrandReport | null;
   /** 83.4 The versions of the adapters the site uses; null: the plugin didn't say (before 0.4.11). */
   adapters?: Partial<Record<"lms" | "bookings" | "store", string>> | null;
+  /** 86.4 The shop's totals of the last days; null: the plugin didn't say (before 0.4.13, or no shop). */
+  sales?: SiteSalesDay[] | null;
 }
 
 /** 83.4 `SiteInfo.adapters`: the known kinds with a version like 1.0.0; null when missing or not an object. */
@@ -221,7 +224,7 @@ export function parseSiteInfo(body: unknown): { ok: true; value: SiteInfo } | { 
   if (bookings === undefined) return { ok: false, result: bad("bookings must be a string.") };
   return {
     ok: true,
-    value: { licenseKey, siteUrlRaw: siteUrlRaw.trim(), siteUrl, pluginVersion: pluginVersion.trim(), wpVersion, lms, store, bookings, linkPaths: parseLinkPaths(input.link_paths), brand: parseSiteBrand(input.brand), adapters: parseSiteAdapters(input.adapters) },
+    value: { licenseKey, siteUrlRaw: siteUrlRaw.trim(), siteUrl, pluginVersion: pluginVersion.trim(), wpVersion, lms, store, bookings, linkPaths: parseLinkPaths(input.link_paths), brand: parseSiteBrand(input.brand), adapters: parseSiteAdapters(input.adapters), sales: parseSiteSales(input.sales) },
   };
 }
 
@@ -411,6 +414,8 @@ export async function checkLicense(store: DataStore, site: SiteInfo, now: Date):
   });
   const app = license.appId ? await store.getAppById(license.appId) : null;
   if (app) await saveSiteReport(store, app, site, now);
+  // 86.4 The shop's totals, for Analytics and the weekly summary.
+  if (app && site.sales?.length) await saveSiteSales(store, app, site.sales, now);
   return { status: 200, body: statusBody(facts, plans, "active", license, now, null) };
 }
 

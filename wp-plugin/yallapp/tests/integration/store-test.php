@@ -489,5 +489,33 @@ $paths = json_decode( wp_eval( 'echo wp_json_encode( Yallapp\Plugin::instance()-
 check( '48 the license check reports the product bases for Android', array( '/product-category/', '/product/' ) === $paths, $paths );
 links_restore( $saved_links );
 
+// 86.4 The shop's totals the license check sends: a paid order today, less its refund, and the refund, beside the report before it.
+$sales = json_decode(
+	wp_eval(
+		'$before = Yallapp\Site_Sales::report();'
+		. ' $order = wc_create_order(); $order->set_currency( "TRY" ); $order->set_total( 300 ); $order->set_date_paid( time() ); $order->set_status( "processing" ); $order->save();'
+		. ' wc_create_refund( array( "order_id" => $order->get_id(), "amount" => 50 ) );'
+		. ' $after = Yallapp\Site_Sales::report(); $order->delete( true );'
+		. ' echo wp_json_encode( array( $before, $after ) );'
+	),
+	true
+);
+$try   = static function ( $day ) {
+	foreach ( $day['revenue'] ?? array() as $sum ) {
+		if ( 'TRY' === $sum['currency'] ) {
+			return $sum['cents'];
+		}
+	}
+	return 0;
+};
+$then  = is_array( $sales[0] ?? null ) ? end( $sales[0] ) : array();
+$today = is_array( $sales[1] ?? null ) ? end( $sales[1] ) : array();
+check( '86.4 the shop\'s totals of the last eight days', is_array( $sales[1] ?? null ) && 8 === count( $sales[1] ) && trim( wp_eval( 'echo wp_date( "Y-m-d" );' ) ) === ( $today['day'] ?? '' ), $sales );
+check(
+	'86.4 today: the paid order less its refund, and the refund',
+	1 === ( $today['orders'] ?? 0 ) - ( $then['orders'] ?? 0 ) && 25000 === $try( $today ) - $try( $then ) && 1 === ( $today['refunds'] ?? 0 ) - ( $then['refunds'] ?? 0 ),
+	array( $then, $today )
+);
+
 printf( "\n%d checks, %d failed\n", $count, $fails );
 exit( $fails ? 1 : 0 );

@@ -114,6 +114,13 @@ export const ANALYTICS_METRICS = [
   "link_source",
   "utm_campaign",
   "utm_source",
+  // 86.4 A WordPress site's shop totals (lib/analytics/site-sales.ts).
+  "site_orders",
+  "site_revenue",
+  "site_refunds",
+  "site_refunded",
+  // 86.4 The weekly summary went out (key: the week's first day).
+  "weekly_mail",
   // Book-keeping: the day was counted (value: when), or got late events since.
   "done",
   "dirty",

@@ -3,6 +3,7 @@ import { addDays, localToUtc } from "../bookings/time";
 import type { DataStore } from "../data/store";
 import type { App, PaidTotals } from "../data/types";
 import type { AnalyticsRange } from "./report";
+import { siteTotals } from "./site-sales";
 
 /**
  * 86.1 The business's real numbers over the Analytics range (the same days
@@ -12,7 +13,8 @@ import type { AnalyticsRange } from "./report";
  * and conversion as paid orders over the views of items in the app (the
  * app's analytics). Only what the app has: a shop has no enrolments.
  * Apps on Yallapp's hosted API count from their own records; WordPress
- * apps from the totals their site sends (86.4).
+ * apps from the totals their site sends (86.4: orders and refunds, once the
+ * site has sent some).
  */
 
 export interface SalesFigures {
@@ -64,8 +66,27 @@ export function salesShows(app: Pick<App, "connector" | "backend" | "vertical" |
   };
 }
 
+const NONE: PaidTotals = { count: 0, totals: [] };
+const empty = (orders: PaidTotals, refunds: PaidTotals): SalesFigures => ({ orders, refunds, donations: NONE, enrolments: { total: 0, paid: 0 }, bookings: 0, tickets: 0 });
+
+/** 86.4 A WordPress app: its shop's orders and refunds from the totals the site sends (by the site's days). */
+async function siteSales(store: DataStore, app: App, range: AnalyticsRange, views: number): Promise<SalesReport> {
+  const rows = await store.listAnalyticsDaily(app.id, range.previous.from, range.to, ["site_orders", "site_revenue", "site_refunds", "site_refunded"]);
+  const now = siteTotals(rows, range.from, range.to);
+  const before = siteTotals(rows, range.previous.from, range.previous.to);
+  const reported = now.reported || before.reported;
+  return {
+    shows: { orders: reported, refunds: reported, enrolments: false, bookings: false, tickets: false, donations: false },
+    current: empty(now.orders, now.refunds),
+    previous: empty(before.orders, before.refunds),
+    views,
+    conversion: reported && views > 0 ? now.orders.count / views : null,
+  };
+}
+
 /** `views`: the item views of the Analytics report over the same range (today's too, counted as they come). */
 export async function loadSales(store: DataStore, app: App, range: AnalyticsRange, zone: string, views: number): Promise<SalesReport> {
+  if (app.backend === "wordpress") return siteSales(store, app, range, views);
   const [from, to] = window(range.from, range.to, zone);
   const [before, until] = window(range.previous.from, range.previous.to, zone);
   const [current, previous] = await Promise.all([figures(store, app.id, from, to), figures(store, app.id, before, until)]);

@@ -441,6 +441,8 @@ export interface App {
   crashReports?: boolean;
   /** 47 The owner's IANA time zone, which Analytics counts days in; null or missing: from the account's country (lib/analytics/zone.ts). */
   timeZone?: string | null;
+  /** 86.4 The weekly summary email; missing: on. */
+  weeklySummary?: boolean;
   appTypeDoneAt: Date | null;
   websiteDoneAt: Date | null;
   brandingDoneAt: Date | null;

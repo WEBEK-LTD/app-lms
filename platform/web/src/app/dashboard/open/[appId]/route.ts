@@ -16,6 +16,8 @@ const PAGES: Record<string, string> = {
   "check-in": "/dashboard/members/check-in",
   // 80.2 A connection a daily check found broken.
   integrations: "/dashboard/integrations",
+  // 86.4 The weekly summary.
+  analytics: "/dashboard/analytics?range=7",
 };
 
 /**

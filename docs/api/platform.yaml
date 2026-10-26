@@ -698,6 +698,27 @@ components:
             lms: { type: string, pattern: '^\d+\.\d+\.\d+$', example: 1.0.0 }
             bookings: { type: string, pattern: '^\d+\.\d+\.\d+$', example: 1.0.0 }
             store: { type: string, pattern: '^\d+\.\d+\.\d+$', example: 1.0.0 }
+        sales:
+          type: array
+          maxItems: 14
+          description: |
+            Roadmap 86.4. The shop's (WooCommerce's) totals of the last days,
+            one item per day in the site's time zone, sent with the license
+            check only: the orders paid that day and what they brought in
+            less what was refunded of them since, and the refunds made that
+            day. The dashboard's Analytics and the weekly summary show them.
+            Totals only, never an order or a customer. Missing on older
+            plugins and on sites without a shop.
+          items:
+            type: object
+            additionalProperties: false
+            required: [day, orders, revenue, refunds, refunded]
+            properties:
+              day: { type: string, format: date, example: '2026-10-25' }
+              orders: { type: integer, minimum: 0, maximum: 1000000 }
+              revenue: { $ref: '#/components/schemas/SiteSalesAmounts' }
+              refunds: { type: integer, minimum: 0, maximum: 1000000, description: Refunds made that day. }
+              refunded: { $ref: '#/components/schemas/SiteSalesAmounts' }
         brand:
           type: object
           description: |
@@ -741,6 +762,18 @@ components:
                             properties:
                               title: { type: string, maxLength: 80 }
                               url: { type: string, format: uri, maxLength: 500 }
+
+    SiteSalesAmounts:
+      type: array
+      maxItems: 10
+      description: Sums per currency, in the currency's smallest unit (kuruş, cents).
+      items:
+        type: object
+        additionalProperties: false
+        required: [currency, cents]
+        properties:
+          currency: { type: string, pattern: '^[A-Z]{3}$', example: TRY }
+          cents: { type: integer, minimum: 0, maximum: 100000000000 }
 
     SignInCodeRequest:
       allOf:
