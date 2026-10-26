@@ -133,7 +133,7 @@ function OAuthConnect({
         <span className="text-ink-4">{t("setup.notAvailableText", { platform: platform.name })}</span>
         {staff ? (
           <span className="text-sm text-ink-4">
-            {richText(t("setup.teamPartner", { platform: platform.name }), { link: (chunk) => <Link href={`/admin/settings#h-${platform.id}`}>{chunk}</Link> })}
+            {richText(t("setup.teamPartner", { platform: platform.name }), { link: (chunk) => <Link href={`/admin/settings/store-platforms#h-${platform.id}`}>{chunk}</Link> })}
           </span>
         ) : null}
       </div>

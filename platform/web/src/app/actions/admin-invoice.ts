@@ -28,6 +28,6 @@ export async function saveInvoiceSettingAction(_: FormState, formData: FormData)
     before,
     after: value,
   });
-  revalidatePath("/admin/settings");
+  revalidatePath("/admin/settings", "layout");
   return { ok: true, message: value ? "Saved. Receipts made from now on show these lines." : "Removed. Receipts show Yallapp's name, city and contact details only.", values: { lines: parsed.lines.join("\n") } };
 }

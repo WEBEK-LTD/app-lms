@@ -25,7 +25,7 @@ test.beforeAll(async ({ browser }) => {
 
 test.afterAll(async () => {
   // Back to the built-in defaults, for the specs that run after this one.
-  await admin.goto("/admin/settings");
+  await admin.goto("/admin/settings/app-defaults");
   const defaults = admin.getByRole("region", { name: "Defaults for new apps" });
   if (await defaults.getByRole("button", { name: "Use the built-in defaults" }).isVisible()) {
     await defaults.getByRole("button", { name: "Use the built-in defaults" }).click();
@@ -36,7 +36,7 @@ test.afterAll(async () => {
 });
 
 test("the team sets the look and languages new apps start with", async () => {
-  await admin.goto("/admin/settings");
+  await admin.goto("/admin/settings/app-defaults");
   const defaults = admin.getByRole("region", { name: "Defaults for new apps" });
   await defaults.getByLabel("Template").selectOption("minimal");
   await defaults.getByLabel("Corners").selectOption("sharp");

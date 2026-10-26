@@ -355,7 +355,10 @@ mobile/
   everywhere else, and the email, shown on every page, in the dashboard
   and in email signatures; saving rebuilds the pages made ahead of time),
   the sign-in code sender, the email server and Yallapp's own payment
-  accounts on the admin's Settings page. A saved setting replaces the matching Netlify variables
+  accounts on the admin's Settings pages (95.1: one page each, Payments,
+  Email, Sign-in codes, Contact & publishing, Invoices, Store platforms,
+  New apps and Server, with tabs between them; `/admin/settings` lists them
+  with what's set now). A saved setting replaces the matching Netlify variables
   (removing it brings them back); secrets inside are encrypted with the
   context `platform:<key>` and never shown again. Each server instance
   caches the settings for 30 seconds. The plans (names, what's included,

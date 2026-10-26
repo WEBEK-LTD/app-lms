@@ -78,7 +78,7 @@ test.afterAll(async () => {
 test("card payment shows once the team sets the account and a card price", async () => {
   await expect(own.getByRole("heading", { name: "Pay by card" })).toHaveCount(0);
 
-  await admin.goto("/admin/settings");
+  await admin.goto("/admin/settings/payments");
   const iyzico = admin.getByRole("region", { name: "Yallapp's iyzico account" });
   await iyzico.getByLabel("API key").fill("sandbox-yallapp-api");
   await iyzico.getByLabel("Secret key").fill("sandbox-yallapp-secret");
@@ -154,7 +154,7 @@ test("the team sees the payment", async () => {
 test("the team puts the settings back", async () => {
   await admin.goto("/admin/plans");
   await admin.getByRole("region", { name: "Pro" }).getByRole("button", { name: "Back to the default plan" }).click();
-  await admin.goto("/admin/settings");
+  await admin.goto("/admin/settings/payments");
   const billing = admin.getByRole("region", { name: "Yallapp's plan payments" });
   await billing.getByLabel("Gateway for plans").selectOption("kashier");
   await billing.getByRole("button", { name: "Save plan payments" }).click();

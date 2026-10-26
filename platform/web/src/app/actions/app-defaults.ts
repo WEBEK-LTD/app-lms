@@ -49,7 +49,7 @@ export async function saveAppDefaultsAction(_: FormState, formData: FormData): P
     before,
     after: parsed.value,
   });
-  revalidatePath("/admin/settings");
+  revalidatePath("/admin/settings", "layout");
   return { ok: true, message: "Defaults saved. New apps start with them.", values };
 }
 
@@ -66,5 +66,5 @@ export async function resetAppDefaultsAction(): Promise<void> {
     summary: "Removed the defaults for new apps",
     before,
   });
-  revalidatePath("/admin/settings");
+  revalidatePath("/admin/settings", "layout");
 }

@@ -83,7 +83,7 @@ test.afterAll(async () => {
 });
 
 test("the team sets the publishing email and activates a Pro client", async () => {
-  await admin.goto("/admin/settings");
+  await admin.goto("/admin/settings/contact");
   const section = admin.getByRole("region", { name: "Publishing service" });
   await section.getByLabel("Publishing team email").fill("not an email");
   await section.getByRole("button", { name: "Save", exact: true }).click();

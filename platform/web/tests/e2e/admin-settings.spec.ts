@@ -22,12 +22,13 @@ test.afterAll(async () => {
   await page.close();
 });
 
-async function openSettings() {
-  await page.goto("/admin/settings");
+/** 95.1 Each kind of setting has its own page. */
+async function openSettings(which: string) {
+  await page.goto(`/admin/settings/${which}`);
 }
 
 test("the team sets the sign-in code sender and goes back to the variables", async () => {
-  await openSettings();
+  await openSettings("sign-in-codes");
   const otp = page.getByRole("region", { name: "Sign-in codes" });
   await expect(otp).toContainText("Now: Netlify variables (webhook)");
   await otp.getByLabel("Our gateway").check();
@@ -86,7 +87,7 @@ test("the team sends itself a test sign-in code and checks it", async () => {
   });
   await new Promise<void>((resolve) => gateway.listen(E2E.otpWebhookPort, resolve));
   try {
-    await openSettings();
+    await openSettings("sign-in-codes");
     const otp = page.getByRole("region", { name: "Sign-in codes" });
     await otp.getByRole("textbox", { name: "Your number" }).fill("123");
     await otp.getByRole("button", { name: "Send a test code" }).click();
@@ -110,7 +111,7 @@ test("the team sends itself a test sign-in code and checks it", async () => {
 });
 
 test("the team sets the email server and sends a test email", async () => {
-  await openSettings();
+  await openSettings("email");
   const email = page.getByRole("region", { name: "Email" });
   await expect(email).toContainText("Now: Not set: emails are not sent");
   await email.getByRole("button", { name: "Send a test email to me" }).click();
@@ -129,7 +130,7 @@ test("the team sets the email server and sends a test email", async () => {
 });
 
 test("the team adds Yallapp's iyzico account", async () => {
-  await openSettings();
+  await openSettings("payments");
   const iyzico = page.getByRole("region", { name: "Yallapp's iyzico account" });
   await expect(iyzico).toContainText("Now: not set.");
   await iyzico.getByLabel("API key").fill("sandbox-yallapp-api");
@@ -143,7 +144,6 @@ test("the team adds Yallapp's iyzico account", async () => {
 });
 
 test("the team changes a plan's price and the pricing page shows it", async () => {
-  await openSettings();
   await page.goto("/admin/plans");
   const pro = page.getByRole("region", { name: "Pro" });
   await pro.getByLabel("A price").check();
@@ -176,7 +176,7 @@ test("the team changes a plan's price and the pricing page shows it", async () =
 });
 
 test("the team changes the contact details shown everywhere", async () => {
-  await openSettings();
+  await openSettings("contact");
   const contact = page.getByRole("region", { name: "Contact details" });
   await expect(contact).toContainText("Now: the defaults.");
   // 72 Two numbers: outside Egypt and in Egypt.
@@ -203,9 +203,32 @@ test("the team changes the contact details shown everywhere", async () => {
   await page.goto("/ar/contact");
   await expect(page.locator('main [data-whatsapp="egypt"]').first()).toContainText("داخل مصر");
 
-  await openSettings();
+  await openSettings("contact");
   await contact.getByRole("button", { name: "Use the defaults" }).click();
   await expect(contact).toContainText("Now: the defaults.");
   await page.goto("/contact");
   await expect(page.getByRole("link", { name: "+90 544 673 19 42" }).first()).toBeVisible();
+});
+
+test("each kind of setting has its own page, listed with what's set now (95.1)", async () => {
+  await page.goto("/admin/settings");
+  const cards = page.locator("[data-settings-card]");
+  await expect(cards).toHaveCount(8);
+  await expect(cards.filter({ hasText: "Payments" })).toContainText(/Now: .*(Kashier|iyzico|Fawaterk)/);
+  await expect(cards.filter({ hasText: "Email" }).first()).toContainText("Now: Not set: emails are not sent.");
+  await expect(cards.filter({ hasText: "Sign-in codes" })).toContainText("Now: Netlify variables (webhook).");
+  // One kind per page: Payments has the gateways, not the email server.
+  await cards.filter({ hasText: "Payments" }).getByRole("link", { name: "Payments" }).click();
+  await expect(page).toHaveURL(/\/admin\/settings\/payments$/);
+  await expect(page.getByRole("navigation", { name: "Settings pages" }).getByRole("link", { name: "Payments" })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("region", { name: "Yallapp's plan payments" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Yallapp's Kashier account" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Email" })).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Sign-in codes" })).toHaveCount(0);
+  await page.getByRole("navigation", { name: "Settings pages" }).getByRole("link", { name: "Sign-in codes" }).click();
+  await expect(page).toHaveURL(/\/admin\/settings\/sign-in-codes$/);
+  await expect(page.getByRole("region", { name: "Sign-in codes" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Yallapp's Kashier account" })).toHaveCount(0);
+  // The menu still marks Settings.
+  await expect(page.getByRole("navigation", { name: "Super admin" }).getByRole("link", { name: "Settings" })).toHaveAttribute("aria-current", "page");
 });

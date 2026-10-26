@@ -168,7 +168,7 @@ test("the team edits an email, and the test email and the client's email use it"
 });
 
 test("a coupon lowers the client's card payment", async () => {
-  await admin.goto("/admin/settings");
+  await admin.goto("/admin/settings/payments");
   const iyzico = admin.getByRole("region", { name: "Yallapp's iyzico account" });
   await iyzico.getByLabel("API key").fill("sandbox-yallapp-api");
   await iyzico.getByLabel("Secret key").fill("sandbox-yallapp-secret");
@@ -230,7 +230,7 @@ test("a coupon lowers the client's card payment", async () => {
   await expect(admin.getByText("Coupon turned off.")).toBeVisible();
   await admin.goto("/admin/plans");
   await admin.getByRole("region", { name: "Pro" }).getByRole("button", { name: "Back to the default plan" }).click();
-  await admin.goto("/admin/settings");
+  await admin.goto("/admin/settings/payments");
   const billingBack = admin.getByRole("region", { name: "Yallapp's plan payments" });
   await billingBack.getByLabel("Gateway for plans").selectOption("kashier");
   await billingBack.getByRole("button", { name: "Save plan payments" }).click();

@@ -1082,6 +1082,10 @@ nothing is submitted there, and the review's email needs no answer.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **Settings, one page each** (95.1): no migration. After deploying:
+      Admin › Settings lists Payments, Email, Sign-in codes, Contact &
+      publishing, Invoices, Store platforms, New apps and Server with what's
+      set now; each opens its own page, and saving one changes only it.
 - [ ] **What you pay for** (94.1): no migration. After deploying: a test
       app's Plan page shows its plan and price, app users, languages and
       storage against the plan with bars, what's included and what a higher

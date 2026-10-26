@@ -2129,3 +2129,22 @@ higher plan adds, and every app of the account with its plan, price and end.
 | | Step | Done when |
 |---|---|---|
 | [x] | 94.1 What you pay for and why, per app and account: each plan's features, limits and what is used of them, in the dashboard and on the pricing page | e2e |
+
+## Phase 95: The admin's settings and invoices
+
+The owner's request (2026-10-26): the Settings page holds every setting on
+one long page; each kind gets its own page (payments and gateways, email,
+the sign-in code sender, and the rest), set on its own. And a page with
+every invoice, where the team also makes one for a client who paid by bank
+transfer.
+
+The owner's choices (2026-10-26): a bank-transfer invoice is made once the
+money has arrived (it is recorded as paid; there are no unpaid invoices),
+it activates or extends the app's plan like a card payment, and the client
+gets it by email as a PDF, as after a card payment, and finds it on their
+Plan page.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 95.1 Settings, one page each: Payments (the gateway for plans, Yallapp's iyzico, Kashier and Fawaterk accounts), Email, Sign-in codes, Contact & publishing, Invoices, Store platforms, New apps and Server, with tabs between them; the first settings page lists them with what's set now | e2e |
+| [ ] | 95.2 Admin › Invoices: every invoice (card, coupon and bank transfer) with its PDF; a new bank-transfer invoice for a client's app (plan, months, amount, the bank's reference) activates or extends the plan and emails the PDF | e2e |

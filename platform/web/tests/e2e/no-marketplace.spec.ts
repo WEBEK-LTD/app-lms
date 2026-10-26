@@ -41,7 +41,7 @@ test.afterAll(async () => {
 });
 
 test("the admin has no way to turn on selling through Yallapp", async () => {
-  await admin.goto("/admin/settings");
+  await admin.goto("/admin/settings/payments");
   await expect(admin.getByRole("region", { name: "Yallapp's iyzico account" })).toBeVisible();
   await expect(admin.getByRole("region", { name: "Shops selling through Yallapp" })).toHaveCount(0);
   await expect(admin.getByRole("region", { name: "Yallapp's payment provider" })).toHaveCount(0);

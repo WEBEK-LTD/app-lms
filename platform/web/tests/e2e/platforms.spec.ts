@@ -102,7 +102,7 @@ test("25 Salla and Zid connect with OAuth once the team sets each partner app; u
   }
 
   // The team saves Yallapp's Salla partner app in admin Settings.
-  await admin.goto("/admin/settings");
+  await admin.goto("/admin/settings/store-platforms");
   const salla = admin.getByRole("region", { name: "Salla partner app" });
   await expect(salla.getByText("Now: not set.", { exact: false })).toBeVisible();
   await expect(salla.getByText(`${new URL(admin.url()).origin}/oauth/salla`).first()).toBeVisible();
