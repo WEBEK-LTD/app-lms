@@ -445,6 +445,65 @@ components:
           type: array
           maxItems: 10
           items: { type: string, format: uri }
+        language:
+          description: |
+            88.2 The language the texts above are written in (the app's language
+            code). The stores' locale for it: en is en-US, ar is ar (Google
+            Play) and ar-SA (App Store), tr is tr-TR and tr; others as
+            `store_listing.py` maps them. Missing on builds queued before: en.
+          type: string
+          pattern: '^[a-z]{2}(-[A-Z]{2})?$'
+        translations:
+          description: 88.2 The listing in the app's other languages, each sent to both stores with the same screenshots.
+          type: array
+          maxItems: 20
+          items: { $ref: '#/components/schemas/ListingTranslation' }
+        tablet_screenshots:
+          description: 88.2 Google Play tablet screenshots (sent for 7-inch and 10-inch tablets), up to 8.
+          type: array
+          maxItems: 8
+          items: { type: string, format: uri }
+        ipad_screenshots:
+          description: 88.2 iPad 13-inch screenshots, up to 10. Needed by the App Store when the iPhone app runs on iPad.
+          type: array
+          maxItems: 10
+          items: { type: string, format: uri }
+        frame:
+          description: |
+            88.2 Framed screenshots: each one drawn in a thin device frame on
+            `background`, with its caption above in `text_color` (the captions
+            in order; a translation's own captions in its language). The image
+            keeps the size the store asks for. Null or missing: sent as uploaded.
+          oneOf:
+            - type: 'null'
+            - $ref: '#/components/schemas/ScreenshotFrame'
+
+    ListingTranslation:
+      type: object
+      additionalProperties: false
+      required: [language, store_title, short_description, full_description]
+      properties:
+        language: { type: string, pattern: '^[a-z]{2}(-[A-Z]{2})?$' }
+        store_title: { type: string, maxLength: 30 }
+        short_description: { type: string, maxLength: 80 }
+        full_description: { type: string, maxLength: 4000 }
+        captions:
+          description: The framed screenshots' captions in this language, in order; missing ones use the main captions.
+          type: array
+          maxItems: 10
+          items: { type: string, maxLength: 60 }
+
+    ScreenshotFrame:
+      type: object
+      additionalProperties: false
+      required: [background, text_color, captions]
+      properties:
+        background: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
+        text_color: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
+        captions:
+          type: array
+          maxItems: 10
+          items: { type: string, maxLength: 60 }
 
     AndroidUploadKey:
       type: object

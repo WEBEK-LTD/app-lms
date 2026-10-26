@@ -33,6 +33,9 @@ Canlı önizleme seçimlerinizi anında gösterir. Sayfalarınız, ikincil renk,
 - **Mağaza başlığı** (en fazla 30 karakter), **Kısa açıklama** (en fazla 80 karakter, Google Play'de başlığın altında gösterilir) ve **Tam açıklama**.
 - **Destek e-postası** ve **Gizlilik politikası adresi**: iki mağaza da bunları ister.
 - **Ekran görüntüleri**: Google Play için 2 ila 8 telefon ekran görüntüsü ve 1320 × 2868, 1290 × 2796 veya 1260 × 2736 piksel boyutunda en fazla 10 iPhone ekran görüntüsü. Saydamlık içermeyen PNG veya JPEG. iPhone ekran görüntülerinde fiyat veya satın alma düğmesi göstermeyin.
+- **Tabletler ve iPad'ler** (isteğe bağlı): kısa kenarı en az 1080 piksel olan en fazla 8 Google Play tablet ekran görüntüsü (7 inç ve 10 inç tabletlerde gösterilir) ve 2064 × 2752 veya 2048 × 2732 piksel boyutunda en fazla 10 iPad ekran görüntüsü. iPhone uygulamanız iPad'de çalıştığında App Store iPad ekran görüntüleri ister.
+- **Ekran görüntülerini çerçevele** (isteğe bağlı): her biri uygulamanızın ana renginde ince bir telefon çerçevesi içinde, üstünde bir açıklamayla gönderilir. Açıklamaları ekran görüntülerinizin sırasıyla, her satıra bir tane yazın.
+- **Bu metinlerin dili** ve **uygulamanızın diğer dillerinde mağaza sayfası**: uygulamanızın birden fazla dili olduğunda başlığı, açıklamaları ve ekran görüntüsü açıklamalarını her dilde yazın. Google Play ve App Store metinleri kullanıcının dilinde gösterir; boş bıraktığınız bir dilde ana metinler görünür. Sizin için yayımladığımızda her yeni sürüm mağaza sayfasını tüm dillerde ekran görüntüleriyle gönderir.
 
 ## Yayın
 

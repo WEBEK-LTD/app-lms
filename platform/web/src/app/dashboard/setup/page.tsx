@@ -1,5 +1,7 @@
 import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
+import { listingLanguages } from "@/lib/app/listing-languages";
+import { appLanguageName } from "@/lib/i18n/language-names";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Icon } from "@/components/icon";
@@ -72,6 +74,8 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
   const icon = app.iconAssetId ? await store.getAsset(app.iconAssetId) : null;
   const logo = app.logoAssetId ? await store.getAsset(app.logoAssetId) : null;
   const builds = await store.listBuildsByApp(app.id, 1);
+  // 88.2 The listing's languages: the app's own.
+  const listingLangs = await listingLanguages(store, app);
   const pluginState = !activation
     ? "none"
     : app.siteUrl && normalizeSiteUrl(app.siteUrl) === activation.siteUrl
@@ -244,6 +248,20 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
           screenshots={{
             phone: app.phoneScreenshotIds.map((id) => ({ id, url: `/api/v1/assets/${id}` })),
             iphone: app.iphoneScreenshotIds.map((id) => ({ id, url: `/api/v1/assets/${id}` })),
+            tablet: (app.tabletScreenshotIds ?? []).map((id) => ({ id, url: `/api/v1/assets/${id}` })),
+            ipad: (app.ipadScreenshotIds ?? []).map((id) => ({ id, url: `/api/v1/assets/${id}` })),
+          }}
+          languages={[listingLangs.main, ...listingLangs.others].map((code) => ({ code, name: appLanguageName(code, lang) }))}
+          listing={{
+            language: listingLangs.main,
+            translations: Object.fromEntries(
+              (app.listingTranslations ?? []).map((item) => [
+                item.language,
+                { storeTitle: item.storeTitle, shortDescription: item.shortDescription, fullDescription: item.fullDescription, captions: item.captions.join("\n") },
+              ]),
+            ),
+            framed: Boolean(app.screenshotFrame),
+            captions: (app.screenshotFrame?.captions ?? []).join("\n"),
           }}
         />
       ) : null}

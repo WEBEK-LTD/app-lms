@@ -162,6 +162,12 @@ describe("GET /api/v1/builds/{id}/store", () => {
       privacy_url: "https://academy.test/privacy",
       phone_screenshots: [],
       iphone_screenshots: [],
+      // 88.2 English and as uploaded, for builds from before.
+      language: "en",
+      translations: [],
+      tablet_screenshots: [],
+      ipad_screenshots: [],
+      frame: null,
     });
     const newer = await build({ ...listing, phoneScreenshots: ["https://x.test/1"], iphoneScreenshots: ["https://x.test/2"] });
     expect(await (await get(newer.id)).json()).toMatchObject({ phone_screenshots: ["https://x.test/1"], iphone_screenshots: ["https://x.test/2"] });

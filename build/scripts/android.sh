@@ -148,6 +148,16 @@ if [ "$AUTO_PUBLISH" = "true" ] && [ "$HAS_PLAY" = "yes" ]; then
 	PACKAGE=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["android_package"])' "$WORK/config.json")
 	if (cd "$ROOT/build" && bundle exec fastlane android upload_play aab:"$AAB" package:"$PACKAGE" json_key:"$WORK/play.json"); then
 		PLAY="done"
+		# 88.2 The store listing in every language, with phone and tablet screenshots (framed when
+		# asked) and the feature graphic store_assets.py made. The version stays uploaded either way.
+		if [ -f "$WORK/store.json" ]; then
+			FEATURE=""
+			[ -f "$WORK/feature-graphic.png" ] && FEATURE="$WORK/feature-graphic.png"
+			if ! { python3 "$SCRIPTS/store_listing.py" play "$WORK/store.json" "$WORK/icon.png" "$FEATURE" "$WORK/play-listing" &&
+				(cd "$ROOT/build" && bundle exec fastlane android play_listing package:"$PACKAGE" json_key:"$WORK/play.json" metadata:"$WORK/play-listing"); }; then
+				MESSAGE="Your new version is on Google Play, but its store listing didn't go through. Check the texts and screenshots in Play Console, Store presence."
+			fi
+		fi
 	else
 		PLAY=failed
 		MESSAGE="Your Android app is ready, but the upload to Google Play didn't work. Google Play needs the first version uploaded by hand in Play Console; after that, uploads are automatic. Download the App Bundle below and see the Google Play guide."

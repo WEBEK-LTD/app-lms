@@ -98,7 +98,7 @@ class StoreAssetsTest(unittest.TestCase):
         except ImportError:
             self.skipTest("Pillow not installed")
 
-    def run_script(self, tmp, logo=None, splash="#F4EFE6"):
+    def run_script(self, tmp, logo=None, splash="#F4EFE6", extra=None):
         from PIL import Image
         import store_assets
 
@@ -118,6 +118,7 @@ class StoreAssetsTest(unittest.TestCase):
             "privacy_url": "https://academy.test/privacy",
             "phone_screenshots": [(tmp / "phone.png").as_uri(), (tmp / "phone.png").as_uri()],
             "iphone_screenshots": [(tmp / "iphone.jpg").as_uri()],
+            **(extra(tmp) if extra else {}),
         }))
         out = tmp / "store-assets.zip"
         store_assets.main(tmp / "config.json", tmp / "store.json", tmp / "icon.png", out)
@@ -145,6 +146,32 @@ class StoreAssetsTest(unittest.TestCase):
                 app_store_icon = Image.open(archive.open("app-store/icon-1024.png"))
                 self.assertEqual(("RGB", (1024, 1024)), (app_store_icon.mode, app_store_icon.size))
                 self.assertIn("Courses for dentists", archive.read("listing.txt").decode())
+
+    def test_packs_tablet_screenshots_other_languages_and_framed_screenshots(self):
+        import zipfile
+        from PIL import Image
+
+        def extra(tmp):
+            Image.new("RGB", (2064, 2752), (40, 40, 40)).save(tmp / "ipad.png")
+            return {
+                "tablet_screenshots": [(tmp / "phone.png").as_uri()],
+                "ipad_screenshots": [(tmp / "ipad.png").as_uri()],
+                "language": "en",
+                "translations": [{"language": "ar", "store_title": "أكاديمية الأسنان", "short_description": "دورات لأطباء الأسنان", "full_description": "تعلّم في أي مكان."}],
+                "frame": {"background": "#0E0D24", "text_color": "#FFFFFF", "captions": ["Learn anywhere"]},
+            }
+
+        with tempfile.TemporaryDirectory() as tmp:
+            with zipfile.ZipFile(self.run_script(tmp, extra=extra)) as archive:
+                names = set(archive.namelist())
+                self.assertIn("google-play/tablet-screenshots/01.png", names)
+                self.assertIn("app-store/ipad-screenshots/01.png", names)
+                self.assertIn("دورات لأطباء الأسنان", archive.read("listing-ar.txt").decode())
+                self.assertIn("help@academy.test", archive.read("listing-ar.txt").decode())
+                for path in ("framed/en/phone/1_en.png", "framed/ar/phone/2_ar.png", "framed/ar/tablet/1_ar.png", "framed/en/ipad/1_en.png"):
+                    self.assertIn(path, names)
+                self.assertEqual((2064, 2752), Image.open(archive.open("framed/en/ipad/1_en.png")).size)
+            self.assertTrue((Path(tmp) / "feature-graphic.png").exists())
 
     def test_feature_graphic_uses_a_png_logo_and_ignores_svg(self):
         import zipfile

@@ -1085,6 +1085,15 @@ never in a chat or an issue.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **Publishing without surprises** (88): migration
+      `0074_listing_languages.sql` (columns on `apps`) goes with the production
+      deploy, migrations first. Each app's account deletion page is at
+      `/a/<app ID>/delete-account`. With "We publish for you", Android
+      builds now send the listing (every language, phone and tablet
+      screenshots, framed when asked) after the App Bundle, and iOS builds
+      send theirs after TestFlight (never submitted for review): the
+      service account and the App Store Connect key need the rights to edit
+      the store listing.
 - [ ] **Builds that explain themselves** (87): migrations
       `0071_build_failure.sql`, `0072_build_source.sql` (columns on `builds`)
       and `0073_auto_build_due.sql` (a column on `apps`) go with the production

@@ -15,7 +15,7 @@ export type MoreStoreStage = "upload_galaxy" | "upload_appgallery" | "upload_xia
 export type BuildStages = Record<Exclude<StageKey, MoreStoreStage>, StageStatus> & Partial<Record<MoreStoreStage, StageStatus>>;
 export type StageStatus = "pending" | "running" | "done" | "failed" | "skipped";
 export type ArtifactKind = "apk" | "aab" | "ipa" | "keystore" | "store_assets";
-export type AssetKind = "icon" | "logo" | "play_screenshot" | "ios_screenshot" | "firebase_android" | "firebase_ios" | "product_image" | "huawei_agconnect";
+export type AssetKind = "icon" | "logo" | "play_screenshot" | "ios_screenshot" | "tablet_screenshot" | "ipad_screenshot" | "firebase_android" | "firebase_ios" | "product_image" | "huawei_agconnect";
 export type AppTemplate = "classic" | "bold" | "minimal";
 
 export interface User {
@@ -112,6 +112,27 @@ export interface StoreListing {
   /** Asset URLs, in store order. Missing on builds queued before screenshots existed. */
   phoneScreenshots?: string[];
   iphoneScreenshots?: string[];
+  /** 88.2 Missing on builds queued before. */
+  language?: string;
+  translations?: ListingTranslation[];
+  tabletScreenshots?: string[];
+  ipadScreenshots?: string[];
+  frame?: { background: string; textColor: string; captions: string[] } | null;
+}
+
+/** 88.2 The store listing in another of the app's languages. */
+export interface ListingTranslation {
+  language: string;
+  storeTitle: string;
+  shortDescription: string;
+  fullDescription: string;
+  /** The framed screenshots' captions in this language, in order. */
+  captions: string[];
+}
+
+/** 88.2 Screenshots framed for the stores: their captions, in order (the colours are the app's). */
+export interface ScreenshotFrame {
+  captions: string[];
 }
 
 /**
@@ -359,6 +380,15 @@ export interface App {
   /** Store screenshots (asset IDs, in order): Google Play phone screenshots and iPhone 6.9" screenshots. */
   phoneScreenshotIds: string[];
   iphoneScreenshotIds: string[];
+  /** 88.2 Google Play tablet screenshots and iPad 13" screenshots (asset IDs, in order); missing before. */
+  tabletScreenshotIds?: string[] | null;
+  ipadScreenshotIds?: string[] | null;
+  /** 88.2 The language the listing texts are written in (an app language code); missing: English. */
+  listingLanguage?: string | null;
+  /** 88.2 The listing in the app's other languages. */
+  listingTranslations?: ListingTranslation[] | null;
+  /** 88.2 Screenshots framed for the stores on the app's main colour, with these captions; null: as uploaded. */
+  screenshotFrame?: ScreenshotFrame | null;
   /** Firebase config files (assets): google-services.json and GoogleService-Info.plist. Push is off without them. */
   firebaseAndroidAssetId: string | null;
   firebaseIosAssetId: string | null;

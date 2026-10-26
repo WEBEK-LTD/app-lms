@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { checkApi, type ApiCheckResult } from "@/lib/app/api-check";
+import { listingLanguages, parseListingExtras } from "@/lib/app/listing-languages";
 import { apiCheckSignIn } from "@/lib/hosted/test-token";
 import { appTypeName, connectorFits, ENGINES, hostedOnly, isAppType, kindById, defaultKind, ownContentTitle, type OwnContentKind } from "@/lib/app/kinds";
 import { isSetupComplete, managedPublishing, newApp, queueBuild, STEP_LABEL, type SetupStep } from "@/lib/app/setup";
@@ -622,8 +623,11 @@ export async function saveListingAction(_: FormState, formData: FormData): Promi
   const store = await getStore();
   const screenshots = await readScreenshotIds(formData, context.client.id);
   if (!screenshots.ok) return { errors: screenshots.errors, values };
+  // 88.2 The listing in the app's other languages and the framed screenshots' captions.
+  const extras = parseListingExtras((name) => String(formData.get(name) ?? ""), await listingLanguages(store, context.app));
+  if (!extras.ok) return { errors: extras.errors, values };
   const now = new Date();
-  const patch: AppPatch = { ...parsed.data, ...screenshots.patch, listingDoneAt: now };
+  const patch: AppPatch = { ...parsed.data, ...screenshots.patch, ...extras.extras, listingDoneAt: now };
   // A Firebase file is made for one package name or bundle ID.
   if (parsed.data.androidPackage !== context.app.androidPackage) patch.firebaseAndroidAssetId = null;
   if (parsed.data.iosBundleId !== context.app.iosBundleId) patch.firebaseIosAssetId = null;
@@ -631,20 +635,28 @@ export async function saveListingAction(_: FormState, formData: FormData): Promi
   return afterStep(context, "listing");
 }
 
-const SCREENSHOT_ASSET: Record<ScreenshotKind, { kind: AssetKind; field: "playScreenshotIds" | "iosScreenshotIds"; store: string }> = {
+const SCREENSHOT_ASSET: Record<ScreenshotKind, { kind: AssetKind; field: string; store: string }> = {
   phone: { kind: "play_screenshot", field: "playScreenshotIds", store: "Google Play" },
   iphone: { kind: "ios_screenshot", field: "iosScreenshotIds", store: "the App Store" },
+  // 88.2
+  tablet: { kind: "tablet_screenshot", field: "tabletScreenshotIds", store: "Google Play" },
+  ipad: { kind: "ipad_screenshot", field: "ipadScreenshotIds", store: "the App Store" },
 };
+
+/** 88.2 The upload kind of each screenshot kind. */
+const SCREENSHOT_OF_ASSET: Partial<Record<AssetKind, ScreenshotKind>> = { play_screenshot: "phone", ios_screenshot: "iphone", tablet_screenshot: "tablet", ipad_screenshot: "ipad" };
 
 /** The screenshots kept in the form, in order. Each must be this client's upload of the right kind. */
 async function readScreenshotIds(
   formData: FormData,
   clientId: string,
-): Promise<{ ok: true; patch: Pick<AppPatch, "phoneScreenshotIds" | "iphoneScreenshotIds"> } | { ok: false; errors: Record<string, string> }> {
+): Promise<
+  { ok: true; patch: Pick<AppPatch, "phoneScreenshotIds" | "iphoneScreenshotIds" | "tabletScreenshotIds" | "ipadScreenshotIds"> } | { ok: false; errors: Record<string, string> }
+> {
   const store = await getStore();
   const errors: Record<string, string> = {};
-  const lists: Record<ScreenshotKind, string[]> = { phone: [], iphone: [] };
-  for (const kind of ["phone", "iphone"] as const) {
+  const lists: Record<ScreenshotKind, string[]> = { phone: [], iphone: [], tablet: [], ipad: [] };
+  for (const kind of ["phone", "iphone", "tablet", "ipad"] as const) {
     const { kind: assetKind, field, store: storeName } = SCREENSHOT_ASSET[kind];
     const ids = [...new Set(formData.getAll(field).map(String).filter(Boolean))];
     const { min, max } = SCREENSHOT_LIMITS[kind];
@@ -660,7 +672,7 @@ async function readScreenshotIds(
     lists[kind] = ids;
   }
   if (Object.keys(errors).length > 0) return { ok: false, errors };
-  return { ok: true, patch: { phoneScreenshotIds: lists.phone, iphoneScreenshotIds: lists.iphone } };
+  return { ok: true, patch: { phoneScreenshotIds: lists.phone, iphoneScreenshotIds: lists.iphone, tabletScreenshotIds: lists.tablet, ipadScreenshotIds: lists.ipad } };
 }
 
 async function saveAsset(clientId: string, kind: AssetKind, data: Buffer, contentType: string, extension: string): Promise<string> {
@@ -821,13 +833,14 @@ export async function uploadAssetAction(formData: FormData): Promise<UploadResul
   const context = await requireActiveClient("settings");
   const kind = formData.get("kind") as AssetKind | null;
   const file = formData.get("file");
-  if (!kind || !["icon", "logo", "play_screenshot", "ios_screenshot"].includes(kind) || !file || typeof file === "string" || file.size === 0) {
+  const shot = kind ? SCREENSHOT_OF_ASSET[kind] : undefined;
+  if (!kind || !(kind === "icon" || kind === "logo" || shot) || !file || typeof file === "string" || file.size === 0) {
     return { ok: false, error: "Choose a file to upload." };
   }
-  if (kind === "play_screenshot" || kind === "ios_screenshot") {
+  if (shot) {
     if (file.size > SCREENSHOT_MAX_BYTES) return { ok: false, error: `The file is too large. The limit is ${SCREENSHOT_MAX_BYTES / 1024 / 1024} MB.` };
     const data = Buffer.from(await file.arrayBuffer());
-    const checked = checkScreenshot(data, kind === "play_screenshot" ? "phone" : "iphone");
+    const checked = checkScreenshot(data, shot);
     if (!checked.ok) return { ok: false, error: checked.error };
     const id = await saveAsset(context.client.id, kind, data, checked.contentType, checked.contentType === "image/png" ? "png" : "jpg");
     return { ok: true, id, url: `/api/v1/assets/${id}` };

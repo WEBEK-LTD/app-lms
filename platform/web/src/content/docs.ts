@@ -695,6 +695,9 @@ The live preview shows your choices as you go. Your pages, the secondary color, 
 - **Store title** (up to 30 characters), **Short description** (up to 80 characters, shown under the title on Google Play) and **Full description**.
 - **Support email** and **Privacy policy URL**: both stores require them.
 - **Screenshots**: 2 to 8 Google Play phone screenshots, and up to 10 iPhone screenshots at 1320 × 2868, 1290 × 2796 or 1260 × 2736 pixels. PNG or JPEG, without transparency. Don't show prices or buy buttons in iPhone screenshots.
+- **Tablets and iPads** (optional): up to 8 Google Play tablet screenshots, at least 1080 pixels on the short side (shown for 7-inch and 10-inch tablets), and up to 10 iPad screenshots at 2064 × 2752 or 2048 × 2732 pixels. The App Store asks for iPad screenshots when your iPhone app runs on iPad.
+- **Frame the screenshots** (optional): each one is sent in a thin phone frame on your app's main color with a caption above it. Write the captions one per line, in the order of your screenshots.
+- **Language of these texts**, and **the listing in your app's other languages**: when your app has more than one language, write the title, descriptions and captions in each. Google Play and the App Store show people the texts in their language; a language you leave empty shows the main texts. When we publish for you, each new version sends the listing in every language with its screenshots.
 
 ## Publishing
 

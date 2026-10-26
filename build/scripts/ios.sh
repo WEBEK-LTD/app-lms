@@ -104,6 +104,15 @@ if [ "${AUTO_PUBLISH:-false}" = "true" ]; then
 	platform status "$BUILD_ID" '{"stages":{"ios":"done","upload_testflight":"running"}}'
 	if (cd "$ROOT/build" && bundle exec fastlane ios upload_testflight secrets:"$WORK/secrets.json" ipa:"$WORK/ipa/$SAFE_NAME.ipa"); then
 		TESTFLIGHT="done"
+		# 88.2 The listing in every language with the iPhone and iPad screenshots (framed when
+		# asked), on the version being prepared. The build stays on TestFlight either way.
+		if platform store "$BUILD_ID" "$WORK/store.json" &&
+			python3 "$SCRIPTS/store_listing.py" appstore "$WORK/store.json" "$WORK/appstore-listing" &&
+			(cd "$ROOT/build" && bundle exec fastlane ios appstore_listing secrets:"$WORK/secrets.json" bundle_id:"$BUNDLE_ID" listing:"$WORK/appstore-listing"); then
+			:
+		else
+			MESSAGE="Your iOS app is on TestFlight, but its App Store listing didn't go through. Check the texts and screenshots in App Store Connect."
+		fi
 	else
 		TESTFLIGHT=failed
 		MESSAGE="Your iOS app is ready, but the upload to TestFlight didn't work. Create the app in App Store Connect with the bundle ID $BUNDLE_ID first (see the App Store guide), then start a new build."
