@@ -61,7 +61,7 @@ test.afterAll(async () => {
 });
 
 test("the team adds Yallapp's Kashier and Fawaterk accounts", async () => {
-  await admin.goto("/admin/settings");
+  await admin.goto("/admin/settings/payments");
   // 72 No provider to choose for shop sales: Yallapp never takes them.
   await expect(admin.getByRole("region", { name: "Yallapp's payment provider" })).toHaveCount(0);
 
@@ -126,7 +126,7 @@ test("a new client pays the plan in Egyptian pounds on Kashier", async () => {
 });
 
 test("with Fawaterk chosen, the client extends the plan there", async () => {
-  await admin.goto("/admin/settings");
+  await admin.goto("/admin/settings/payments");
   // 52 Plans have their own gateway.
   const billing = admin.getByRole("region", { name: "Yallapp's plan payments" });
   await billing.getByLabel("Gateway for plans").selectOption("fawaterk");
@@ -223,7 +223,7 @@ test("a shop with its own Kashier keys takes an order", async ({ page, request }
 test("the team puts the settings back", async () => {
   await admin.goto("/admin/plans");
   await admin.getByRole("region", { name: "Pro" }).getByRole("button", { name: "Back to the default plan" }).click();
-  await admin.goto("/admin/settings");
+  await admin.goto("/admin/settings/payments");
   const billing = admin.getByRole("region", { name: "Yallapp's plan payments" });
   await billing.getByLabel("Gateway for plans").selectOption("kashier");
   await billing.getByRole("button", { name: "Save plan payments" }).click();

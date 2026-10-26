@@ -82,7 +82,7 @@ async function save<K extends PlatformSettingKey>(
     after: value,
     ...audit,
   });
-  revalidatePath("/admin/settings");
+  revalidatePath("/admin/settings", "layout");
 }
 
 /** Back to the Netlify variables for this setting. */

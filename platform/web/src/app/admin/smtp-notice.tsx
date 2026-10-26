@@ -12,7 +12,7 @@ export function SmtpMissingNotice({ what, settingsLink = true }: { what: string;
       Email isn&apos;t set up. {what}, and clients don&apos;t get their emails.{" "}
       {settingsLink ? (
         <>
-          Set up SMTP in <Link href="/admin/settings#h-email">Settings › Email</Link>.
+          Set up SMTP in <Link href="/admin/settings/email">Settings › Email</Link>.
         </>
       ) : (
         "Set up SMTP below, in Email."

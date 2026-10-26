@@ -300,7 +300,7 @@ test("changing plans: a lower plan from the end of the period, an upgrade by car
   await expect(own.getByRole("status").first()).toContainText("stays on Pro");
 
   // Card payments on, with a price for Business: upgrade at once.
-  await admin.goto("/admin/settings");
+  await admin.goto("/admin/settings/payments");
   const keys = admin.getByRole("region", { name: "Yallapp's iyzico account" });
   await keys.getByLabel("API key").fill("sandbox-yallapp-api");
   await keys.getByLabel("Secret key").fill("sandbox-yallapp-secret");
@@ -336,7 +336,7 @@ test("changing plans: a lower plan from the end of the period, an upgrade by car
   // Put the settings back.
   await admin.goto("/admin/plans");
   await admin.getByRole("region", { name: "Business" }).getByRole("button", { name: "Back to the default plan" }).click();
-  await admin.goto("/admin/settings");
+  await admin.goto("/admin/settings/payments");
   const billingBack = admin.getByRole("region", { name: "Yallapp's plan payments" });
   await billingBack.getByLabel("Gateway for plans").selectOption("kashier");
   await billingBack.getByRole("button", { name: "Save plan payments" }).click();

@@ -42,7 +42,7 @@ test.afterAll(async () => {
 });
 
 test("the team adds Yallapp's Kashier account, the rate, and Growth's price in pounds", async () => {
-  await admin.goto("/admin/settings");
+  await admin.goto("/admin/settings/payments");
   const billing = admin.getByRole("region", { name: "Yallapp's plan payments" });
   // Kashier until the team chooses another gateway (other specs may have saved it already).
   await expect(billing).toContainText(/Now: Kashier[,( ]/);
@@ -154,7 +154,7 @@ test("the team puts the settings back", async () => {
   const reset = admin.getByRole("region", { name: "Growth" }).getByRole("button", { name: "Back to the default plan" });
   await reset.click();
   await expect(reset).toHaveCount(0);
-  await admin.goto("/admin/settings");
+  await admin.goto("/admin/settings/payments");
   const billing = admin.getByRole("region", { name: "Yallapp's plan payments" });
   await billing.getByLabel("EGP for 1 US dollar").fill("");
   await billing.getByRole("button", { name: "Save plan payments" }).click();

@@ -77,7 +77,7 @@ test.afterAll(async () => {
   await packs.getByLabel("Monthly price in USD (optional)").first().fill("");
   await packs.getByRole("button", { name: "Save storage packs" }).click();
   await expect(packs.getByText("Storage packs saved.")).toBeVisible();
-  await admin.goto("/admin/settings");
+  await admin.goto("/admin/settings/payments");
   const account = admin.getByRole("region", { name: "Yallapp's Kashier account" });
   if (await account.getByRole("button", { name: "Remove keys" }).count()) await account.getByRole("button", { name: "Remove keys" }).click();
   await own.close();
@@ -181,7 +181,7 @@ test("64b an upload the media server refuses says why, and stops asking for fres
 });
 
 test("64b the admin's check of the media server sends a test upload and removes it", async () => {
-  await admin.goto("/admin/settings");
+  await admin.goto("/admin/settings/server");
   await admin.getByRole("button", { name: "Check the media server" }).click();
   await expect(admin.getByText("A test upload by POST went through and was removed again.")).toBeVisible();
 });
@@ -240,7 +240,7 @@ test("the owner buys a storage pack by card, then uploads", async () => {
   await own.goto("/dashboard/media");
   await expect(own.getByRole("region", { name: "Buy more storage" })).toContainText("are added by our team");
 
-  await admin.goto("/admin/settings");
+  await admin.goto("/admin/settings/payments");
   const account = admin.getByRole("region", { name: "Yallapp's Kashier account" });
   await account.getByLabel("Merchant ID").fill("MID-5151-515");
   await account.getByLabel("Payment API key").fill("kashier-media-api-key");
