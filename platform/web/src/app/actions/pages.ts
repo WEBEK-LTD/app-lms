@@ -8,6 +8,8 @@ import type { App, AppLayoutRecord, SavedSection } from "@/lib/data/types";
 import { discardDraft, hasUnpublishedChanges, layoutHistory, loadLayout, publishLayout, restoreLayoutVersion, saveDesignDraft, saveDraft, withoutStrings, type LayoutHistoryEntry } from "@/lib/pages/layout";
 import { getBlobStore } from "@/lib/blobs";
 import { FIGMA_IMAGE_BYTES, saveFigmaImage } from "@/lib/figma/images";
+import { FIGMA_LINK_LIMITS, figmaDeps, figmaFileKey, figmaNodeId, figmaTokenLooksRight, readFigmaFile, renderFigmaFrames, type FigmaApiError, type FigmaFileRead } from "@/lib/figma/api";
+import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { addOwnFont, OWN_FONT_LIMITS, ownFontView, removeOwnFont, type OwnFontError, type OwnFontView } from "@/lib/fonts/own";
 import { saveSection, type SaveSectionError } from "@/lib/pages/sections";
 import type { LayoutContent } from "@/lib/pages/types";
@@ -99,6 +101,54 @@ export async function uploadFigmaImageAction(formData: FormData): Promise<{ ok: 
   const saved = await saveFigmaImage({ store: await getStore(), blobs: getBlobStore(), now: new Date() }, app, Buffer.from(await file.arrayBuffer()));
   if (!saved.ok) return saved;
   return { ok: true, assetId: saved.assetId, url: `/api/v1/assets/${saved.assetId}`, name: file.name.replace(/\.[a-z0-9]+$/i, "").slice(0, 120) };
+}
+
+export type FigmaLinkError = FigmaApiError | "busy";
+
+/** 97.4 Checks the link and token, and the account's reads of Figma this hour. */
+async function figmaCall(link: unknown, token: unknown): Promise<{ ok: true; key: string; token: string; app: App } | { ok: false; error: FigmaLinkError }> {
+  const { app, client } = await requireLayoutApp();
+  const key = typeof link === "string" ? figmaFileKey(link) : null;
+  if (!key) return { ok: false, error: "link" };
+  if (typeof token !== "string" || !figmaTokenLooksRight(token.trim())) return { ok: false, error: "token" };
+  if (!(await hitRateLimit(await getStore(), RATE_LIMITS.figmaRead, client.id)).allowed) return { ok: false, error: "busy" };
+  return { ok: true, key, token: token.trim(), app };
+}
+
+/**
+ * 97.4 Reads a Figma file from its link with the client's personal access
+ * token, which is used for this call only and never saved.
+ */
+export async function readFigmaLinkAction(link: string, token: string): Promise<{ ok: true; file: FigmaFileRead } | { ok: false; error: FigmaLinkError; retryAfterSeconds?: number }> {
+  const checked = await figmaCall(link, token);
+  if (!checked.ok) return checked;
+  const read = await readFigmaFile(checked.key, checked.token, figmaDeps());
+  return read.ok ? { ok: true, file: read.value } : read;
+}
+
+/** 97.4 The frames chosen in a Figma file, rendered by Figma and kept as the account's pictures (the token again used for this call only). */
+export async function importFigmaFramesAction(
+  link: string,
+  token: string,
+  frames: { id: string; name: string }[],
+): Promise<{ ok: true; pictures: { frameId: string; assetId: string; name: string }[]; failed: string[] } | { ok: false; error: FigmaLinkError; retryAfterSeconds?: number }> {
+  const picked = (Array.isArray(frames) ? frames : []).filter((f) => f && typeof f.id === "string" && figmaNodeId(f.id) && typeof f.name === "string").slice(0, FIGMA_LINK_LIMITS.picks);
+  const checked = await figmaCall(link, token);
+  if (!checked.ok) return checked;
+  const ids = [...new Set(picked.map((f) => f.id))];
+  if (!ids.length) return { ok: true, pictures: [], failed: [] };
+  const rendered = await renderFigmaFrames(checked.key, checked.token, ids, figmaDeps());
+  if (!rendered.ok) return rendered;
+  const deps = { store: await getStore(), blobs: getBlobStore(), now: new Date() };
+  const pictures: { frameId: string; assetId: string; name: string }[] = [];
+  const failed: string[] = [];
+  for (const frame of picked.filter((f, i) => picked.findIndex((g) => g.id === f.id) === i)) {
+    const data = rendered.images.get(frame.id);
+    const saved = data ? await saveFigmaImage(deps, checked.app, data) : null;
+    if (saved?.ok) pictures.push({ frameId: frame.id, assetId: saved.assetId, name: frame.name.slice(0, 120) });
+    else failed.push(frame.name.slice(0, 120));
+  }
+  return { ok: true, pictures, failed };
 }
 
 function parseJson(json: string): unknown {

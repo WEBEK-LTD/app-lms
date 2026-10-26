@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { uploadFigmaImageAction } from "@/app/actions/pages";
+import { importFigmaFramesAction, readFigmaLinkAction, uploadFigmaImageAction, type FigmaLinkError } from "@/app/actions/pages";
 import { useDashFormat, useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
+import type { FigmaFrame } from "@/lib/figma/api";
 import { readTokens, suggestLook, TOKEN_LIMITS, type FigmaTokens } from "@/lib/figma/tokens";
 import { CORNER_LABELS } from "@/lib/pages/labels";
 import { CORNERS, type Corners, type FigmaLook, type FigmaPicture, type LookMode } from "@/lib/pages/types";
@@ -13,6 +14,9 @@ const MAX_PICTURES = 12;
 
 interface Draft {
   file: string;
+  /** 97.4 Read from a link (its frames to choose from), or from exported files. */
+  source: "files" | "link";
+  frames: FigmaFrame[];
   tokens: FigmaTokens;
   primary: string;
   secondary: string | null;
@@ -55,6 +59,45 @@ export function FigmaLookPanel({
   const [pictures, setPictures] = useState<FigmaPicture[]>([]);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<{ ok: boolean; text: string } | null>(null);
+  // 97.4 The token stays in this page only, for the read and the import, and is cleared once the look is saved.
+  const [link, setLink] = useState("");
+  const [token, setToken] = useState("");
+  const [logoFrame, setLogoFrame] = useState<string | null>(null);
+  const [pictureFrames, setPictureFrames] = useState<string[]>([]);
+
+  function figmaError(error: FigmaLinkError, retryAfterSeconds?: number): string {
+    if (error === "limit") return t("pages.figmaErrLimit", { minutes: Math.max(1, Math.ceil((retryAfterSeconds ?? 60) / 60)) });
+    const keys = {
+      link: "pages.figmaErrLink",
+      token: "pages.figmaErrToken",
+      not_found: "pages.figmaErrNotFound",
+      unreachable: "pages.figmaErrUnreachable",
+      too_big: "pages.figmaErrTooBig",
+      empty: "pages.figmaErrEmpty",
+      busy: "pages.figmaErrBusy",
+    } as const;
+    return t(keys[error]);
+  }
+
+  function choose(tokens: FigmaTokens, file: string, source: Draft["source"], frames: FigmaFrame[]) {
+    const suggested = suggestLook(tokens);
+    setDraft({ file, source, frames, tokens, primary: suggested.primary ?? "#0E0D24", secondary: suggested.secondary, font: suggested.font, corners: suggested.corners ?? "soft" });
+    setLogoFrame(null);
+    setPictureFrames([]);
+    return checkFont(suggested.font);
+  }
+
+  async function readLink() {
+    setStatus(null);
+    setBusy(true);
+    try {
+      const result = await readFigmaLinkAction(link, token);
+      if (!result.ok) return setStatus({ ok: false, text: figmaError(result.error, result.retryAfterSeconds) });
+      await choose(result.file.tokens, result.file.name, "link", result.file.frames);
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function checkFont(family: string | null) {
     setFontOk(family === null || (await usableFont(family, ownFonts)));
@@ -71,9 +114,7 @@ export function FigmaLookPanel({
     }
     const tokens = readTokens(json);
     if (!tokens) return setStatus({ ok: false, text: t("pages.figmaEmpty") });
-    const suggested = suggestLook(tokens);
-    setDraft({ file: file.name.slice(0, 120), tokens, primary: suggested.primary ?? "#0E0D24", secondary: suggested.secondary, font: suggested.font, corners: suggested.corners ?? "soft" });
-    await checkFont(suggested.font);
+    await choose(tokens, file.name.slice(0, 120), "files", []);
   }
 
   async function upload(file: File): Promise<FigmaPicture | null> {
@@ -110,8 +151,33 @@ export function FigmaLookPanel({
     }
   }
 
-  function save() {
+  async function save() {
     if (!draft) return;
+    let chosenLogo = logo;
+    let chosenPictures = pictures;
+    let failed: string[] = [];
+    // 97.4 The frames chosen, brought from Figma as pictures first.
+    const frames = [...(logoFrame ? [logoFrame] : []), ...pictureFrames.filter((id) => id !== logoFrame)]
+      .map((id) => draft.frames.find((f) => f.id === id))
+      .filter((f): f is FigmaFrame => Boolean(f));
+    if (draft.source === "link" && frames.length) {
+      setBusy(true);
+      setStatus(null);
+      try {
+        const result = await importFigmaFramesAction(
+          link,
+          token,
+          frames.map((f) => ({ id: f.id, name: f.name })),
+        );
+        if (!result.ok) return setStatus({ ok: false, text: figmaError(result.error, result.retryAfterSeconds) });
+        const fromLogo = result.pictures.find((p) => p.frameId === logoFrame);
+        if (fromLogo) chosenLogo = { asset_id: fromLogo.assetId, name: fromLogo.name };
+        chosenPictures = [...pictures, ...result.pictures.filter((p) => p.frameId !== logoFrame || pictureFrames.includes(p.frameId)).map((p) => ({ asset_id: p.assetId, name: p.name }))].slice(0, MAX_PICTURES);
+        failed = result.failed;
+      } finally {
+        setBusy(false);
+      }
+    }
     onChange({
       look_mode: "figma",
       figma_look: {
@@ -119,16 +185,21 @@ export function FigmaLookPanel({
         secondary_color: draft.secondary,
         font_family: fontOk ? draft.font : null,
         corners: draft.corners,
-        logo_asset_id: logo?.asset_id ?? null,
-        pictures,
-        source: { kind: "files", name: draft.file, imported_at: new Date().toISOString() },
+        logo_asset_id: chosenLogo?.asset_id ?? null,
+        pictures: chosenPictures,
+        source: { kind: draft.source, name: draft.file, imported_at: new Date().toISOString() },
       },
     });
     setDraft(null);
     setLogo(null);
     setPictures([]);
-    setStatus({ ok: true, text: t("pages.figmaSaved") });
+    setLogoFrame(null);
+    setPictureFrames([]);
+    setToken("");
+    setStatus(failed.length ? { ok: false, text: `${t("pages.figmaSaved")} ${t("pages.figmaFramesFailed", { frames: failed.join(", ") })}` } : { ok: true, text: t("pages.figmaSaved") });
   }
+
+  const picturesLeft = MAX_PICTURES - pictures.length;
 
   const colorOption = (c: { name: string; hex: string }) => ({ value: c.hex, label: `${c.name} · ${c.hex}` });
 
@@ -196,6 +267,45 @@ export function FigmaLookPanel({
         </section>
       ) : null}
 
+      <section aria-labelledby="figma-link-import" className="flex flex-col gap-3 rounded-xl border border-dashed border-line-strong p-3">
+        <h3 id="figma-link-import" className="m-0 text-[15px] font-bold">
+          {t("pages.figmaLinkImport")}
+        </h3>
+        <p className="m-0 text-sm text-muted">{t("pages.figmaLinkIntro")}</p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="flex min-w-0 flex-col gap-1.5">
+            <label htmlFor="figma-link" className="text-sm font-semibold">
+              {t("pages.figmaLink")}
+            </label>
+            <input id="figma-link" type="url" dir="ltr" inputMode="url" autoComplete="off" placeholder="https://www.figma.com/design/…" value={link} onChange={(e) => setLink(e.target.value)} className="input" />
+          </div>
+          <div className="flex min-w-0 flex-col gap-1.5">
+            <label htmlFor="figma-token" className="text-sm font-semibold">
+              {t("pages.figmaToken")}
+            </label>
+            <input
+              id="figma-token"
+              type="password"
+              dir="ltr"
+              autoComplete="off"
+              spellCheck={false}
+              aria-describedby="figma-token-hint"
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+              className="input"
+            />
+          </div>
+        </div>
+        <p id="figma-token-hint" className="m-0 text-xs text-muted">
+          {t("pages.figmaTokenHint")}
+        </p>
+        <div>
+          <button type="button" className={`${btn.ghost} h-10`} disabled={busy || !link.trim() || !token.trim()} onClick={() => void readLink()}>
+            {t("pages.figmaRead")}
+          </button>
+        </div>
+      </section>
+
       <section aria-labelledby="figma-import" className="flex flex-col gap-3 rounded-xl border border-dashed border-line-strong p-3">
         <h3 id="figma-import" className="m-0 text-[15px] font-bold">
           {t("pages.figmaImport")}
@@ -221,7 +331,14 @@ export function FigmaLookPanel({
             <input id="figma-pictures" type="file" multiple accept="image/png,image/jpeg,image/webp" className="text-sm" disabled={busy} onChange={(e) => e.target.files && void addPictures([...e.target.files])} />
           </div>
         </div>
-        {busy ? <p className="m-0 text-sm text-muted">{t("pages.figmaUploading")}</p> : null}
+      </section>
+
+      <div className="flex flex-col gap-3">
+        {busy ? (
+          <p role="status" className="m-0 text-sm text-muted">
+            {t("pages.figmaUploading")}
+          </p>
+        ) : null}
 
         {draft ? (
           <section aria-labelledby="figma-found" className="flex flex-col gap-3">
@@ -255,6 +372,56 @@ export function FigmaLookPanel({
                 {t("pages.figmaFontMissing", { font: draft.font })}
               </p>
             ) : null}
+            {draft.frames.length ? (
+              <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+                <legend className="mb-1 p-0 text-sm font-bold">{t("pages.figmaFrames", { file: draft.file })}</legend>
+                <p className="m-0 text-xs text-muted">{t("pages.figmaFramesHint")}</p>
+                <ul className="m-0 grid list-none grid-cols-2 gap-2 p-0 sm:grid-cols-3 lg:grid-cols-4">
+                  {draft.frames.map((f) => {
+                    const asPicture = pictureFrames.includes(f.id);
+                    return (
+                      <li key={f.id} className="flex min-w-0 flex-col gap-1.5 rounded-lg border border-line p-2 text-sm">
+                        <span className="flex h-24 items-center justify-center overflow-hidden rounded-md bg-ivory">
+                          {f.thumbnail ? (
+                            // eslint-disable-next-line @next/next/no-img-element -- rendered by Figma for the owner's own file
+                            <img src={f.thumbnail} alt="" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain" />
+                          ) : (
+                            <Icon name="image" size={28} className="text-muted" />
+                          )}
+                        </span>
+                        <span className="truncate font-semibold" title={f.name}>
+                          {f.name}
+                        </span>
+                        <span className="truncate text-xs text-muted">{f.page}</span>
+                        <span className="flex flex-wrap gap-x-3 gap-y-1">
+                          <label className="flex items-center gap-1.5">
+                            <input
+                              type="checkbox"
+                              checked={logoFrame === f.id}
+                              aria-label={t("pages.figmaUseLogo", { name: f.name })}
+                              onChange={(e) => setLogoFrame(e.target.checked ? f.id : null)}
+                              className="h-4 w-4 accent-midnight"
+                            />
+                            <span aria-hidden="true">{t("pages.figmaLogo")}</span>
+                          </label>
+                          <label className="flex items-center gap-1.5">
+                            <input
+                              type="checkbox"
+                              checked={asPicture}
+                              disabled={!asPicture && pictureFrames.length >= picturesLeft}
+                              aria-label={t("pages.figmaUsePicture", { name: f.name })}
+                              onChange={(e) => setPictureFrames((all) => (e.target.checked ? [...all, f.id] : all.filter((id) => id !== f.id)))}
+                              className="h-4 w-4 accent-midnight"
+                            />
+                            <span aria-hidden="true">{t("pages.figmaPicture")}</span>
+                          </label>
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </fieldset>
+            ) : null}
           </section>
         ) : null}
 
@@ -284,11 +451,11 @@ export function FigmaLookPanel({
           </p>
         ) : null}
         <div>
-          <button type="button" className={`${btn.primary} h-10`} disabled={!draft || busy} onClick={save}>
+          <button type="button" className={`${btn.primary} h-10`} disabled={!draft || busy} onClick={() => void save()}>
             {t("pages.figmaSave")}
           </button>
         </div>
-      </section>
+      </div>
     </div>
   );
 }
