@@ -143,16 +143,26 @@ export function FigmaLookPanel({
               ["figma", t("pages.lookFigma"), look ? t("pages.lookFigmaHint") : t("pages.figmaNone")],
             ] as const
           ).map(([value, label, hint]) => (
-            <label
+            <div
               key={value}
-              className="flex cursor-pointer flex-col gap-1 rounded-xl border border-line p-3 has-[:checked]:border-2 has-[:checked]:border-midnight has-[:checked]:p-[11px] has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60"
+              className="flex flex-col gap-1 rounded-xl border border-line p-3 has-[:checked]:border-2 has-[:checked]:border-midnight has-[:checked]:p-[11px] has-[:disabled]:opacity-60"
             >
-              <span className="flex items-center gap-2 text-[15px] font-bold">
-                <input type="radio" name="look-mode" checked={mode === value} disabled={value === "figma" && !look} onChange={() => onChange({ look_mode: value })} className="h-4 w-4 accent-midnight" />
+              <label className="flex cursor-pointer items-center gap-2 text-[15px] font-bold has-[:disabled]:cursor-not-allowed">
+                <input
+                  type="radio"
+                  name="look-mode"
+                  checked={mode === value}
+                  disabled={value === "figma" && !look}
+                  aria-describedby={`look-mode-${value}-hint`}
+                  onChange={() => onChange({ look_mode: value })}
+                  className="h-4 w-4 accent-midnight"
+                />
                 {label}
+              </label>
+              <span id={`look-mode-${value}-hint`} className="text-xs text-muted">
+                {hint}
               </span>
-              <span className="text-xs text-muted">{hint}</span>
-            </label>
+            </div>
           ))}
         </div>
       </fieldset>
