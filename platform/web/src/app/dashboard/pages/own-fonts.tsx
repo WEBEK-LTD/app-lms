@@ -67,7 +67,15 @@ export function OwnFonts({ fonts, onChange }: { fonts: OwnFontView[]; onChange: 
           ))}
         </ul>
       ) : null}
-      <form ref={form} action={upload} className="flex flex-col gap-3">
+      {/* Sent by hand: a form action would empty the fields after an error too. */}
+      <form
+        ref={form}
+        onSubmit={(e) => {
+          e.preventDefault();
+          void upload(new FormData(e.currentTarget));
+        }}
+        className="flex flex-col gap-3"
+      >
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="flex min-w-0 flex-col gap-1.5">
             <label htmlFor="own-font-name" className="text-sm font-semibold">
