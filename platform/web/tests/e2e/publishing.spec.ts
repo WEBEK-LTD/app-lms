@@ -165,6 +165,32 @@ test("the client works through the checklist and the listing details", async () 
   await expect(listing.getByText("Saved. Everything is ready: our team takes it from here.")).toBeVisible();
   await expect.poll(async () => (await mailsTo(teamEmail)).map((m) => m.subject)).toContain(`Publishing: ${client.name} finished the publishing checklist`);
 
+  // 88.1 Ready to submit: a WordPress app tells the reviewers how to sign in; we take the screenshots.
+  await own.reload();
+  const ready = own.getByRole("region", { name: "Ready to submit?" });
+  await expect(ready).toHaveAttribute("data-ready", "yes");
+  await expect(ready.locator('[data-ready-item="listing"]')).toHaveAttribute("data-state", "ok");
+  await expect(ready.locator('[data-ready-item="review"]')).toHaveAttribute("data-state", "note");
+  await expect(ready.locator('[data-ready-item="review"]')).toContainText("Turn on review access in the Yallapp plugin's settings");
+  await expect(ready.locator('[data-ready-item="screenshots"]')).toHaveAttribute("data-state", "note");
+  await expect(ready.locator('[data-ready-item="ios"]')).toContainText("never shows buy buttons for paid courses");
+  const deletion = new URL((await ready.locator("[data-ready-url]").textContent())!);
+  expect(deletion.pathname).toBe(`/a/${appId}/delete-account`);
+  await listing.getByLabel("For the store reviewers (optional)").fill("Sign in with review@rosalind.test and the code 000000 (review access in the plugin).");
+  await listing.getByRole("button", { name: "Save listing details" }).click();
+  await expect(async () => {
+    await own.reload();
+    await expect(ready.locator('[data-ready-item="review"]')).toHaveAttribute("data-state", "ok", { timeout: 1000 });
+  }).toPass();
+
+  // The app's own account deletion page, for Google Play's Data safety form, in the browser's language.
+  await own.goto(deletion.pathname);
+  await expect(own.getByRole("heading", { level: 1 })).toHaveText("Delete your Franklin Lab account");
+  await expect(own.locator("[data-delete-steps]")).toContainText("Choose Delete account and confirm.");
+  await expect(own.locator("[data-delete-ask]")).toContainText("Write to");
+  const arabic = await own.request.get(deletion.pathname, { headers: { "accept-language": "ar-EG,ar;q=0.9,en;q=0.5" } });
+  expect(await arabic.text()).toContain("حذف حسابك في Franklin Lab");
+
   // The overview shows where it stands.
   await own.goto("/dashboard");
   await expect(own.getByRole("listitem").filter({ hasText: "Google Play" })).toContainText("Waiting for you");

@@ -2029,7 +2029,7 @@ measured; several useful automatic pushes don't exist.
 
 | | Step | Done when |
 |---|---|---|
-| [ ] | 88.1 Ready to submit: one check of everything the stores ask (reviewer sign-in, privacy page, account deletion, no prices on iOS, listing, screenshots) | Unit and e2e tests |
+| [x] | 88.1 Ready to submit: one check of everything the stores ask (reviewer sign-in, privacy page, account deletion, no prices on iOS, listing, screenshots) | Unit and e2e tests |
 | [ ] | 88.2 Listings sent to Google Play and the App Store with every language, tablet screenshots and framed screenshots | Pipeline tests |
 | [ ] | 88.3 Review status read from the stores; a rejection with its reason, the fix and a link to the setting | Unit tests |
 

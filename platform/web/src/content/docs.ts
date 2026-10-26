@@ -1185,6 +1185,8 @@ Your app also sends usage statistics to Yallapp (see [Analytics](/docs/analytics
 
 For notifications, apps on Yallapp's hosted API keep each signed-in phone's push token, the language the app shows on it and the country it signs in from (worked out from the connection, the IP itself isn't kept), so you can send a campaign to the people who read a language or live in a country. Shops also get how many items each signed-in person has in their cart (not what), for the reminder of a cart left. Declare under **Location**: **Approximate location**, and under **Device or other IDs**: the push token. For each: **Collected**, not shared, required, for **App functionality**.
 
+Data safety also asks how people delete their account. They do it in the app (**Account › Settings › Delete account**); for the web link Google asks for, give your app's own page, where they can ask without the app: the **Ready to submit?** section on [Publishing](/dashboard/publishing) shows its address (\`/a/<app ID>/delete-account\` on yallapp.com.tr), and checks the rest of what the stores ask before you send the app.
+
 > Under **App access**, give reviewers your review phone number and fixed code: from the dashboard's **App sign-in** page, or the plugin's **Store review access** setting on WordPress. Without it, reviewers can’t sign in and the app may be rejected.
 
 ## Run a closed test

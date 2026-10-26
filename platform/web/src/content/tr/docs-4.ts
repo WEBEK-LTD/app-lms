@@ -62,6 +62,8 @@ Uygulamanız Yallapp'e kullanım istatistikleri de gönderir ([Analiz](/docs/ana
 
 Bildirimler için Yallapp'in barındırılan API'sindeki uygulamalar, oturum açmış her telefonun bildirim jetonunu, uygulamanın orada gösterdiği dili ve oturum açtığı ülkeyi (bağlantıdan çıkarılır, IP adresinin kendisi saklanmaz) tutar; böylece bir dili okuyan ya da bir ülkede yaşayan kişilere kampanya gönderebilirsiniz. Mağazalar ayrıca oturum açmış her kişinin sepetindeki ürün sayısını (ürünleri değil) sepette kalan ürün hatırlatması için alır. **Location** altında **Approximate location**'ı, **Device or other IDs** altında bildirim jetonunu beyan edin. Her biri için: **Collected**, paylaşılmaz, zorunlu, amaç **App functionality**.
 
+Veri güvenliği, kullanıcıların hesaplarını nasıl sildiğini de sorar. Bunu uygulamada yaparlar (**Hesap › Ayarlar › Hesabı sil**); Google'ın istediği web bağlantısı için uygulamanızın, uygulama olmadan silme isteyebilecekleri kendi sayfasını verin: [Yayın](/dashboard/publishing) sayfasındaki **Göndermeye hazır mı?** bölümü adresini (yallapp.com.tr'de \`/a/<app ID>/delete-account\`) gösterir ve uygulamayı göndermeden önce mağazaların istediği diğer her şeyi kontrol eder.
+
 > **App access** altında inceleyicilere inceleme telefon numaranızı ve sabit kodunuzu verin: panelin **Uygulamaya giriş** sayfasından ya da WordPress'te eklentinin **Store review access** ayarından. Bu olmadan inceleyiciler giriş yapamaz ve uygulama reddedilebilir.
 
 ## Kapalı bir test yürütün

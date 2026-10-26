@@ -34,6 +34,9 @@ import {
 import { kindOf, suggestedCategories, wordsOf } from "@/lib/app/kinds";
 import { reviewNotesFor, suggestedReviewNotes } from "@/lib/publishing/review-notes";
 import { ChecklistForm, ListingForm } from "./forms";
+import { ReadySection } from "./ready";
+import { readiness } from "@/lib/publishing/readiness";
+import { appUrl } from "@/lib/env";
 import { localePath } from "@/i18n/paths";
 import { publishingStatusIn } from "@/lib/publishing/status-lang";
 import { richText } from "@/i18n/rich";
@@ -93,7 +96,8 @@ function Choice({ mode, title, text, points, disabled, saving }: { mode: "self" 
 export default async function PublishingPage({ searchParams }: PageProps<"/dashboard/publishing">) {
   const { app, license } = await requireClient("settings");
   if (!app) redirect("/dashboard/app-type");
-  const { t, k, lang } = await dashboardText();
+  const text = await dashboardText();
+  const { t, k, lang } = text;
   const saving = t("common.saving");
   const name = appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app);
   const query = await searchParams;
@@ -193,6 +197,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
             ) : null}
           </ol>
         </section>
+        <ReadySection items={readiness({ app, listing: null, ios: hasFeature(current, "ios"), managed: false, platformUrl: appUrl() })} text={text} />
         <form action={choosePublishingModeAction} className="flex flex-col gap-2 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <input type="hidden" name="mode" value="managed" />
           <h2 className="m-0 text-lg font-bold">{t("publishing.ratherWe")}</h2>
@@ -270,6 +275,8 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
           })}
         </div>
       </section>
+
+      <ReadySection items={readiness({ app, listing: request.listing, ios: hasFeature(current, "ios"), managed: true, platformUrl: appUrl() })} text={text} />
 
       {/* 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, when the client wants them too. */}
       <form action={chooseMoreStoresAction} aria-labelledby="h-more-stores" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
