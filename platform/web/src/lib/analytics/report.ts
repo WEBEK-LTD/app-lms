@@ -109,6 +109,16 @@ export interface AnalyticsReport {
   screenshots: { kind: AnalyticsItemKind | "other"; id: string; title: string; count: number }[];
   /** 86.2 Where people come from. */
   sources: SourcesReport;
+  /** 86.3 The automatic notifications (85.3) by kind: people notified, phones reached, and opens. */
+  auto: AutoRow[];
+}
+
+export interface AutoRow {
+  kind: string;
+  people: number;
+  pushed: number;
+  opened: number;
+  rate: number | null;
 }
 
 /** The ways into the app, keys of `SourcesReport.opens`. */
@@ -308,6 +318,18 @@ export function buildReport(
     else pushFromSite.push({ type, opened });
   }
 
+  // 86.3 Automatic notifications by kind: their opens carry the kind as their type, never a notification ID.
+  const autoPeople = sumBy(current, "auto_sent");
+  const autoPushed = sumBy(current, "auto_pushed");
+  const auto = [...new Set([...autoPeople.keys(), ...autoPushed.keys()])]
+    .map((kind): AutoRow => {
+      const pushed = autoPushed.get(kind) ?? 0;
+      const opened = opens.get(`type:${kind}`) ?? 0;
+      return { kind, people: autoPeople.get(kind) ?? 0, pushed, opened, rate: pushed === 0 ? null : Math.min(1, opened / pushed) };
+    })
+    .sort((a, b) => b.people - a.people || a.kind.localeCompare(b.kind));
+  const autoKinds = new Set(auto.map((a) => a.kind));
+
   const searches = [...sumBy(current, "search").entries()]
     .filter(([, count]) => count >= MIN_SEARCH_COUNT)
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
@@ -344,10 +366,12 @@ export function buildReport(
     funnel,
     checkoutValue,
     push,
-    pushFromSite,
+    // A website's own notifications, without the app's automatic ones.
+    pushFromSite: pushFromSite.filter((p) => !autoKinds.has(p.type)),
     searches,
     screenshots,
     sources: sourcesOf(current, kpis.sessions),
+    auto,
   };
 }
 

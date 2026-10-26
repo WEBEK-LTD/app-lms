@@ -89,6 +89,21 @@ String? linkLocation(Uri location, BuildConfigData build) {
   return Paths.home;
 }
 
+/// 86.2 Whether [location] is one of the app's links (`…/a/…`, the table's
+/// form), not one of the site's own pages: those count as opened from a link.
+bool isAppLink(Uri location, BuildConfigData build) {
+  final segments = location.pathSegments.where((s) => s.isNotEmpty).toList();
+  final sitePath = _sitePathSegments(build);
+  var start = 0;
+  if (sitePath.isNotEmpty &&
+      segments.length > sitePath.length &&
+      _startsWith(segments, sitePath) &&
+      segments[sitePath.length] == 'a') {
+    start = sitePath.length;
+  }
+  return segments.length > start + 1 && segments[start] == 'a';
+}
+
 List<String> _sitePathSegments(BuildConfigData build) {
   final base = build.siteLinkBaseUrl;
   if (base == null) return const [];

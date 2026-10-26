@@ -1,5 +1,6 @@
 import type { DashboardText } from "../dashboard-words";
 import { appLanguageName } from "../i18n/language-names";
+import type { AutoKind } from "../hosted/auto-notifications";
 import { ENGLISH_CSV_WORDS, type CsvWords } from "./csv";
 import type { AnalyticsReport, Share } from "./report";
 import { itemWord, pushTypeWord } from "./words";
@@ -90,6 +91,9 @@ export function csvWords(text: Pick<DashboardText, "lang" | "t" | "k">): CsvWord
     openSource: (key) => t(`analytics.source.${key as "push" | "link" | "qr" | "direct"}`),
     campaigns: t("analytics.csv.campaigns"),
     referrers: t("analytics.csv.referrers"),
+    autoNotifications: t("analytics.csv.autoNotifications"),
+    autoKind: (kind) => t(`campaigns.auto_${kind as AutoKind}`),
+    autoDetail: (people, phones) => t("analytics.csv.autoDetail", { people, phones }),
     itemWord: (kind) => k(itemWord(kind)),
     pushType: (type) => k(pushTypeWord(type)),
   };

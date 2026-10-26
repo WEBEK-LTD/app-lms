@@ -275,3 +275,37 @@ test("83.2 the page editor says how many people won't see a block until they upd
   await expect(blocks.first().getByText("1 person won't see it until they update the app")).toBeVisible();
   await expect(own.getByRole("button", { name: "Add Notice block" })).toContainText("1 person won't see it until they update the app");
 });
+
+test("86.2 where people come from, and the app's link and QR code with a campaign name", async ({ request }) => {
+  const at = new Date(Date.now() - 30_000).toISOString();
+  expect((await send(request, {
+        install_id: randomUUID(),
+        platform: "android",
+        app_version: "1.2.0",
+        os_version: "Android 14",
+        locale: "tr",
+        events: [
+          { type: "app_open", at, first_open: true, store: "google_play" },
+          { type: "link_open", at, source: "qr", campaign: "spring-menu", referrer: "flyer" },
+        ],
+      })).status()).toBe(202);
+  await own.goto("/dashboard/analytics?range=7");
+  const sources = own.getByRole("region", { name: "Where people come from" });
+  await expect(sources.getByRole("list", { name: "Installs by store" })).toContainText("Google Play");
+  await expect(sources.getByRole("list", { name: "How the app was opened" })).toContainText("From a QR code");
+  await expect(sources.getByRole("list", { name: "How the app was opened" })).toContainText("On their own");
+  await expect(sources.getByRole("table", { name: "Campaigns" }).getByRole("row", { name: /spring-menu/ })).toContainText("1");
+
+  // The link and QR code to share: a name the links can't carry is refused, then one that fits.
+  const share = own.getByRole("region", { name: "Your app's link and QR code" });
+  await expect(share.locator('[data-share="link"]')).toHaveText(new RegExp(`/a/${appId}/page/home$`));
+  await own.goto("/dashboard/analytics?campaign=Spring%20Menu#share");
+  await expect(share.getByText(/Use small letters, numbers, dots, dashes and underscores/)).toBeVisible();
+  await share.getByLabel("Campaign name").fill("spring-menu");
+  await share.getByRole("button", { name: "Make link" }).click();
+  await expect(own).toHaveURL(/campaign=spring-menu/);
+  await expect(share.locator('[data-share="link"]')).toHaveText(new RegExp(`/a/${appId}/page/home\\?utm_campaign=spring-menu$`));
+  await expect(share.locator('[data-share="qr"]')).toHaveText(new RegExp(`\\?utm_medium=qr&utm_campaign=spring-menu$`));
+  await expect(share.getByRole("img", { name: /QR code that opens/ })).toHaveAttribute("data-qr", /utm_medium=qr&utm_campaign=spring-menu$/);
+  await expect(share.getByRole("link", { name: "Download QR code" })).toHaveAttribute("download", "qr-spring-menu.svg");
+});

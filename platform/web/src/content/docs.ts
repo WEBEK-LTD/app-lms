@@ -1080,8 +1080,9 @@ Your app counts them itself and sends them to Yallapp, whatever your content com
 - **Retention** is the share of people who first opened the app in your range and came back 1, 7 or 30 days later.
 - **Sales** are what came in over the same days, beside the period before: paid orders and their revenue (less what was refunded), refunds made, enrolments, appointments booked, tickets issued and donations, each only if your app has it. They come from your app's own orders, bookings, courses, tickets and donations in Yallapp. **Conversion** there is paid orders over the views of your items in the app.
 - **Conversions** count views of your courses, products, services, events or campaigns, the next step (added to cart, enrolled, booked, got tickets or chose to give) and the checkout page opening. The payment itself happens on the checkout page; your orders and donations pages have the payments.
-- **Notifications**: for each notification you send from the dashboard, how many phones it went to and how many opened the app from it. Notifications your website sends are counted by kind.
+- **Notifications**: for each notification you send from the dashboard, how many phones it went to and how many opened the app from it. Campaigns count the same way, also the ones your WordPress site sends for you. Automatic notifications (a new lesson, an appointment reminder…) show by kind: how many people they went to, how many phones, and how many opened the app from them. Notifications your website sends on its own are counted by kind.
 - **Searches** show what people searched for, never who. A search shows once it was made at least twice.
+- **Where people come from**: the store each install came from (Google Play, the App Store, Galaxy Store, AppGallery), and how the app was opened: from a notification, from one of its links, from a QR code, or on its own. Under **Your app's link and QR code** you get a link to your app and a QR code for posters, menus and receipts; give each place a campaign name (for example \`spring-menu\`) and the opens it brings show under **Campaigns**.
 
 Numbers appear a minute or so after someone uses the app. Days run from midnight to midnight in your time zone: the one of your account's country until you pick another under **Time zone** at the top of the page (days already counted keep the zone they were counted in). The app preview in your dashboard isn't counted.
 
@@ -1093,6 +1094,7 @@ Every 30 seconds while it's open, and when it goes to the background, the app se
 - the kind of screen opened (Home, a course, the cart…), never its address;
 - the courses, products and other items opened, with their name and number, and the actions above with the amount when there is one;
 - what was searched for, and the notification a person opened;
+- the store it was installed from (with the first open), and when one of its links or QR codes opened it, the link's campaign name and source (its \`utm_campaign\` and \`utm_source\`), never the rest of the link;
 - a random install number made by the app, the platform (Android or iOS), the app's and the system's versions, and the app's language.
 
 We work out the country from the connection when the numbers arrive, and never keep the IP address. The app sends no name, phone number, email address, account or advertising ID, and the install number isn't the person's account: it changes when they turn sharing off and on again.

@@ -993,7 +993,8 @@ export interface DataStore {
   updateCampaignSend(appId: string, id: number, patch: Partial<Pick<CampaignSend, "notificationId" | "recipients" | "reportedAt">>): Promise<void>;
   deleteCampaignSend(appId: string, id: number): Promise<void>;
   /** 85.4 A WordPress site's numbers for one of its sends, once: false when it isn't this app's or was reported. */
-  reportCampaignSend(appId: string, id: number, numbers: { pushed: number; failed: number }, now: Date): Promise<boolean>;
+  /** Null when it isn't this app's or was already reported; else the send as it now is. */
+  reportCampaignSend(appId: string, id: number, numbers: { pushed: number; failed: number }, now: Date): Promise<CampaignSend | null>;
 
   // 61 Announcements pushed to the owners' phones when they start
   /** Marks the announcement pushed, only if it wasn't yet (atomic); false otherwise. */

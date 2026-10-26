@@ -3203,11 +3203,11 @@ export class MemoryStore implements DataStore {
     this.campaignSends = this.campaignSends.filter((s) => !(s.appId === appId && s.id === id));
   }
 
-  async reportCampaignSend(appId: string, id: number, numbers: { pushed: number; failed: number }, now: Date): Promise<boolean> {
+  async reportCampaignSend(appId: string, id: number, numbers: { pushed: number; failed: number }, now: Date): Promise<CampaignSend | null> {
     const row = this.campaignSends.find((s) => s.appId === appId && s.id === id);
-    if (!row || row.reportedAt !== null) return false;
+    if (!row || row.reportedAt !== null) return null;
     Object.assign(row, { ...numbers, reportedAt: new Date(now) });
-    return true;
+    return clone(row);
   }
 
   async listCampaignSends(appId: string, campaignIds: number[]): Promise<CampaignSend[]> {

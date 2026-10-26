@@ -27,6 +27,7 @@ class AnalyticsService {
     required this.appVersion,
     this.osVersion,
     required this.locale,
+    this.installStore,
     required bool enabled,
     AnalyticsSender? sender,
     DateTime Function()? clock,
@@ -63,6 +64,9 @@ class AnalyticsService {
   /// The app's language when a batch goes.
   final String Function() locale;
 
+  /// 86.2 The store this install came from, sent with the first open.
+  final String? installStore;
+
   final SharedPreferences _prefs;
   final AnalyticsSender _send;
   final DateTime Function() _clock;
@@ -75,6 +79,8 @@ class AnalyticsService {
   DateTime? _nextAttempt;
   DateTime? _backgroundSince;
   String? _lastScreen;
+  String? _lastLink;
+  DateTime? _lastLinkAt;
   Timer? _timer;
   AppLifecycleListener? _lifecycle;
 
@@ -136,7 +142,10 @@ class AnalyticsService {
   void _appOpen() {
     if (!_active) return;
     final first = _prefs.getBool(firstOpenKey) != true;
-    record('app_open', {if (first) 'first_open': true});
+    record('app_open', {
+      if (first) 'first_open': true,
+      if (first) 'store': installStore,
+    });
     if (first) unawaited(_prefs.setBool(firstOpenKey, true));
   }
 
@@ -214,6 +223,34 @@ class AnalyticsService {
       if (RegExp(r'^[a-z][a-z0-9_]{0,31}$').hasMatch(type)) 'push_type': type,
     });
   }
+
+  /// 86.2 The app opened from one of its links tapped outside it: whether
+  /// it was a QR code (`utm_medium=qr`) or a link, and its `utm_campaign`
+  /// and `utm_source` when they fit the contract. The same link handed over
+  /// again within a few seconds (the router asks more than once) counts once.
+  void linkOpened(Uri link) {
+    final now = _clock();
+    if (_lastLink == link.toString() &&
+        _lastLinkAt != null &&
+        now.difference(_lastLinkAt!) < const Duration(seconds: 5)) {
+      return;
+    }
+    _lastLink = link.toString();
+    _lastLinkAt = now;
+    String? utm(String name) {
+      final value = link.queryParameters[name]?.trim().toLowerCase();
+      return value != null && utmPattern.hasMatch(value) ? value : null;
+    }
+
+    record('link_open', {
+      'source': utm('utm_medium') == 'qr' ? 'qr' : 'link',
+      'campaign': utm('utm_campaign'),
+      'referrer': utm('utm_source'),
+    });
+  }
+
+  /// A link's `utm_campaign` or `utm_source` as the contract takes it.
+  static final utmPattern = RegExp(r'^[a-z0-9][a-z0-9._-]{0,39}$');
 
   String _installId() {
     final existing = _prefs.getString(installIdKey);

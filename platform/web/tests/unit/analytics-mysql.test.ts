@@ -92,6 +92,25 @@ describe.skipIf(!url)("44 analytics on MySQL", () => {
     expect(report.checkoutValue).toEqual([{ currency: "TRY", cents: 4500 }]);
   });
 
+  it("86.2 keeps a first open's store and a link's source, campaign and referrer", async () => {
+    const app = await setup();
+    const day = addDays(TODAY, -1);
+    const a = randomUUID();
+    await store.insertAnalyticsEvents([
+      event(app.id, a, day, { firstOpen: true, source: "galaxy_store" }),
+      event(app.id, a, day, { type: "link_open", source: "qr", campaign: "menu-2026", referrer: "flyer" }),
+    ]);
+    const read = await store.listAnalyticsEvents(app.id, day);
+    expect(read.map((e) => [e.type, e.source, e.campaign ?? null, e.referrer ?? null]).sort()).toEqual([
+      ["app_open", "galaxy_store", null, null],
+      ["link_open", "qr", "menu-2026", "flyer"],
+    ]);
+    await refreshAnalytics(store, app.id, NOW);
+    const report = await loadReport(store, app.id, rangeFrom({ range: "7" }, NOW), NOW);
+    expect(report.sources.installs.map((s) => s.label)).toEqual(["Galaxy Store"]);
+    expect(report.sources.campaigns).toEqual([{ name: "menu-2026", opens: 1 }]);
+  });
+
   it("83.2 counts installs by the version each last used", async () => {
     const app = await setup();
     const [a, b, c] = [randomUUID(), randomUUID(), randomUUID()];

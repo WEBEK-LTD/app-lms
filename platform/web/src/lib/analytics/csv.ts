@@ -49,6 +49,10 @@ export interface CsvWords {
   openSource: (key: string) => string;
   campaigns: string;
   referrers: string;
+  /** 86.3 The automatic notifications, by kind ("A new lesson"). */
+  autoNotifications: string;
+  autoKind: (kind: string) => string;
+  autoDetail: (people: number, phones: number) => string;
   /** "Elsewhere in the app": screenshots outside a lesson. */
   otherProtected: string;
   /** An item's kind ("Course"). */
@@ -103,6 +107,9 @@ export const ENGLISH_CSV_WORDS: CsvWords = {
   openSource: (key) => ({ push: "From a notification", link: "From a link", qr: "From a QR code", direct: "On their own" })[key] ?? key,
   campaigns: "Campaigns",
   referrers: "Referrers",
+  autoNotifications: "Automatic notifications",
+  autoKind: (kind) => kind.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase()),
+  autoDetail: (people, phones) => `${people} people notified, ${phones} phones`,
   itemWord: (kind) => kind,
   pushType: (type) => type,
 };
@@ -140,6 +147,8 @@ export function reportCsv(report: AnalyticsReport, itemWord: (kind: string) => s
   for (const step of report.funnel) rows.push([w.funnel, w.steps[step.step], step.rate === null ? null : w.ofViews(`${(step.rate * 100).toFixed(1)}%`), step.value, null]);
   for (const value of report.checkoutValue) rows.push([w.checkoutValue, value.currency, null, value.cents / 100, null]);
   for (const push of report.push) rows.push([w.notifications, push.title, w.sentTo(push.sentDay, push.pushed), push.opened, null]);
+  // 86.3 The automatic ones: people notified (detail: phones reached), and the opens.
+  for (const auto of report.auto ?? []) rows.push([w.autoNotifications, w.autoKind(auto.kind), w.autoDetail(auto.people, auto.pushed), auto.opened, null]);
   for (const push of report.pushFromSite) rows.push([w.fromSite, w.pushType(push.type), null, push.opened, null]);
   for (const search of report.searches) rows.push([w.searches, search.query, null, search.count, null]);
   // 62 Screenshots of protected lessons (iPhone only).

@@ -3996,10 +3996,12 @@ export class MysqlStore implements DataStore {
     await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
   }
 
-  async reportCampaignSend(appId: string, id: number, numbers: { pushed: number; failed: number }, now: Date): Promise<boolean> {
+  async reportCampaignSend(appId: string, id: number, numbers: { pushed: number; failed: number }, now: Date): Promise<CampaignSend | null> {
     const t = schema.campaignSends;
     const [result] = await this.run((db) => db.update(t).set({ ...numbers, reportedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id), isNull(t.reportedAt))));
-    return result.affectedRows === 1;
+    if (result.affectedRows !== 1) return null;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+    return row ?? null;
   }
 
   async listCampaignSends(appId: string, campaignIds: number[]): Promise<CampaignSend[]> {

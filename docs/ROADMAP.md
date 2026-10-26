@@ -2012,8 +2012,8 @@ measured; several useful automatic pushes don't exist.
 | | Step | Done when |
 |---|---|---|
 | [x] | 86.1 Sales over any period: orders, revenue, refunds, enrolments, bookings, tickets, donations; conversion as paid orders over views | Unit and e2e tests |
-| [ ] | 86.2 Where people come from: store, link, QR code, campaign (UTM) | Contract, tests |
-| [ ] | 86.3 Notifications' results in Analytics, also the automatic ones | Unit tests |
+| [x] | 86.2 Where people come from: store, link, QR code, campaign (UTM) | Contract, tests |
+| [x] | 86.3 Notifications' results in Analytics, also the automatic ones | Unit tests |
 | [ ] | 86.4 A weekly summary by email; WordPress sites send their sales totals | Tests, PHPUnit |
 
 ## Phase 87: Builds that explain themselves (area 8)

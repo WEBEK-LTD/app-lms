@@ -366,8 +366,9 @@ Uygulamanız, içeriğiniz nereden gelirse gelsin (WordPress, bağlı bir platfo
 - **Elde tutma**, uygulamayı aralığınızda ilk kez açan ve 1, 7 veya 30 gün sonra geri dönen kişilerin oranıdır.
 - **Satışlar**, aynı günlerde gelenlerdir, önceki dönemin yanında: ücretli siparişler ve gelirleri (iade edilenler düşülerek), yapılan iadeler, kayıtlar, alınan randevular, verilen biletler ve bağışlar; her biri yalnızca uygulamanızda varsa. Uygulamanızın Yallapp'teki kendi siparişlerinden, randevularından, kurslarından, biletlerinden ve bağışlarından gelir. Oradaki **Dönüşüm**, ücretli siparişlerin uygulamadaki öğe görüntülemelerine oranıdır.
 - **Dönüşümler**, kurslarınızın, ürünlerinizin, hizmetlerinizin, etkinliklerinizin veya kampanyalarınızın görüntülenmelerini, bir sonraki adımı (sepete eklendi, kayıt olundu, randevu alındı, bilet alındı veya bağış seçildi) ve ödeme sayfasının açılışını sayar. Ödemenin kendisi ödeme sayfasında yapılır; ödemeler sipariş ve bağış sayfalarınızdadır.
-- **Bildirimler**: panelden gönderdiğiniz her bildirim için kaç telefona gittiği ve kaçının uygulamayı ondan açtığı. Web sitenizin gönderdiği bildirimler türlerine göre sayılır.
+- **Bildirimler**: panelden gönderdiğiniz her bildirim için kaç telefona gittiği ve kaçının uygulamayı ondan açtığı. Kampanyalar da aynı şekilde sayılır, WordPress sitenizin sizin için gönderdikleri de. Otomatik bildirimler (yeni bir ders, randevu hatırlatması…) türlerine göre görünür: kaç kişiye gittikleri, kaç telefona ulaştıkları ve kaçının uygulamayı onlardan açtığı. Web sitenizin kendi gönderdiği bildirimler türlerine göre sayılır.
 - **Aramalar**, kimin değil, neyin arandığını gösterir. Bir arama en az iki kez yapıldığında görünür.
+- **İnsanlar nereden geliyor**: her kurulumun geldiği mağaza (Google Play, App Store, Galaxy Store, AppGallery) ve uygulamanın nasıl açıldığı: bir bildirimden, bağlantılarından birinden, bir QR kodundan ya da kendiliğinden. **Uygulamanızın bağlantısı ve QR kodu** altında uygulamanıza bir bağlantı ve afişler, menüler ve fişler için bir QR kodu bulursunuz; her yere bir kampanya adı verin (örneğin \`spring-menu\`), getirdiği açılışlar **Kampanyalar** altında görünür.
 
 Sayılar, biri uygulamayı kullandıktan yaklaşık bir dakika sonra görünür. Günler saat diliminizde gece yarısından gece yarısına kadar sürer: sayfanın üstündeki **Saat dilimi** altında başka birini seçene kadar hesabınızın ülkesinin saat dilimi (zaten sayılmış günler sayıldıkları dilimi korur). Paneldeki uygulama önizlemesi sayılmaz.
 
@@ -379,6 +380,7 @@ Uygulama açıkken her 30 saniyede bir ve arka plana geçtiğinde, o zamandan be
 - açılan ekranın türünü (Ana sayfa, bir kurs, sepet…), asla adresini değil;
 - açılan kursları, ürünleri ve diğer öğeleri adları ve numaralarıyla, ve yukarıdaki işlemleri varsa tutarlarıyla;
 - neyin arandığını ve kişinin açtığı bildirimi;
+- kurulduğu mağazayı (ilk açılışla) ve bağlantılarından ya da QR kodlarından biri açtığında bağlantının kampanya adını ve kaynağını (\`utm_campaign\` ve \`utm_source\`), bağlantının geri kalanını asla;
 - uygulamanın oluşturduğu rastgele bir kurulum numarasını, platformu (Android veya iOS), uygulama ve sistem sürümlerini ve uygulamanın dilini.
 
 Sayılar geldiğinde ülkeyi bağlantıdan çıkarırız ve IP adresini asla saklamayız. Uygulama hiçbir ad, telefon numarası, e-posta adresi, hesap veya reklam kimliği göndermez; kurulum numarası da kişinin hesabı değildir: paylaşımı kapatıp yeniden açtıklarında değişir.

@@ -29,6 +29,7 @@ final analyticsProvider = Provider<AnalyticsService>((ref) {
     appVersion: env.appVersion,
     osVersion: env.osVersion,
     locale: () => ref.read(appLanguageProvider),
+    installStore: env.installStore,
     enabled: ref.read(localSettingsProvider).shareUsage,
     sender: ref.watch(analyticsSenderProvider),
   );

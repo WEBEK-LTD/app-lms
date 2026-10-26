@@ -484,6 +484,13 @@
       "when": 1792727581011,
       "tag": "0068_sales_windows",
       "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "5",
+      "when": 1792991908532,
+      "tag": "0069_event_sources",
+      "breakpoints": true
     }
   ]
 }

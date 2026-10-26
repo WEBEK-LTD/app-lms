@@ -20,6 +20,7 @@ class AppEnvironment {
     required this.deviceName,
     this.preview,
     this.osVersion,
+    this.installStore,
   });
 
   /// Reads the platform, version and device facts once at start-up.
@@ -34,9 +35,11 @@ class AppEnvironment {
         ? DevicePlatform.ios
         : DevicePlatform.android;
     var version = build.versionName;
+    String? installer;
     try {
       final info = await PackageInfo.fromPlatform();
       if (info.version.isNotEmpty) version = info.version;
+      installer = info.installerStore;
     } on Object {
       // Keep the build config's version.
     }
@@ -49,6 +52,7 @@ class AppEnvironment {
       deviceName: kIsWeb ? 'App preview' : await _deviceName(platform),
       preview: preview,
       osVersion: kIsWeb ? null : await _osVersion(platform),
+      installStore: kIsWeb ? null : installStoreOf(installer, platform),
     );
   }
 
@@ -68,6 +72,11 @@ class AppEnvironment {
   /// 44 The system and its version ("Android 14", "iOS 18.1"), for the
   /// owner's usage statistics; null when unknown.
   final String? osVersion;
+
+  /// 86.2 The store this install came from (`google_play`, `app_store`…,
+  /// the contract's AnalyticsEvent `store`), for the owner's statistics;
+  /// null in the preview.
+  final String? installStore;
 
   bool get isIos => platform == DevicePlatform.ios;
   bool get isAndroid => platform == DevicePlatform.android;
@@ -131,5 +140,25 @@ class AppEnvironment {
     } on Object {
       return platform == DevicePlatform.ios ? 'iPhone' : 'Android phone';
     }
+  }
+}
+
+/// 86.2 The store an install came from, from what the phone says installed
+/// it: Android's installer package, or an iPhone's receipt (App Store,
+/// TestFlight). `other` for anything else (a file, a phone maker's store).
+String installStoreOf(String? installer, DevicePlatform platform) {
+  switch (installer) {
+    case 'com.android.vending':
+      return 'google_play';
+    case 'com.sec.android.app.samsungapps':
+      return 'galaxy_store';
+    case 'com.huawei.appmarket':
+      return 'appgallery';
+    case 'com.apple':
+      return 'app_store';
+    case 'com.apple.testflight':
+      return 'testflight';
+    default:
+      return 'other';
   }
 }

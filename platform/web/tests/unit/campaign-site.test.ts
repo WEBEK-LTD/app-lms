@@ -69,6 +69,9 @@ describe("85.4 campaigns of WordPress apps, through the site", () => {
     expect(await reportSiteCampaign(store, report({ send_id: sent.send!.id, sent: -1, failed: 0 }), NOW)).toMatchObject({ status: 400 });
     expect(await reportSiteCampaign(store, { ...report({ send_id: sent.send!.id, sent: 1, failed: 0 }), site_url: "https://other.test" }, NOW)).toMatchObject({ status: 403 });
     expect((await campaignStats(store, app, [sent.campaign], NOW)).get(sent.campaign.id)).toMatchObject({ waiting: 0, pushed: 110, failed: 4 });
+    // 86.3 In Analytics like one sent from the dashboard: under the site's notification ID, which its opens carry.
+    const daily = await store.listAnalyticsDaily(app.id, "2026-10-01", "2026-10-31", ["push_sent"]);
+    expect(daily).toEqual([expect.objectContaining({ metric: "push_sent", key: "77", label: "Weekend sale", value: 110 })]);
   });
 
   it("goes to everyone, and keeps the draft when the site can't take it", async () => {
