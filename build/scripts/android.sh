@@ -19,7 +19,7 @@ finish() {
 	local status=$?
 	rm -rf "$WORK"
 	if [ "$status" -ne 0 ]; then
-		python3 "$SCRIPTS/diagnose.py" "$LOG" android > "$OUT/failure.json" 2>/dev/null && add_failure "$OUT/failure.json" || true
+		if python3 "$SCRIPTS/diagnose.py" "$LOG" android > "$OUT/failure.json" 2>/dev/null; then add_failure "$OUT/failure.json" || true; fi
 	fi
 }
 trap finish EXIT
@@ -195,7 +195,7 @@ result "$STAGES" "$ARTIFACTS" "$MESSAGE"
 # 87.2 A store upload that didn't work, explained from its output.
 for stage in upload_play:$PLAY upload_galaxy:$GALAXY upload_appgallery:$APPGALLERY upload_xiaomi:$XIAOMI; do
 	if [ "${stage#*:}" = "failed" ]; then
-		python3 "$SCRIPTS/diagnose.py" "$LOG" "${stage%%:*}" > "$OUT/failure.json" && add_failure "$OUT/failure.json" || true
+		if python3 "$SCRIPTS/diagnose.py" "$LOG" "${stage%%:*}" > "$OUT/failure.json"; then add_failure "$OUT/failure.json" || true; fi
 		break
 	fi
 done

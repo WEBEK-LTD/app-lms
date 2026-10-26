@@ -19,7 +19,7 @@ finish() {
 	local status=$?
 	rm -rf "$WORK"
 	if [ "$status" -ne 0 ]; then
-		python3 "$SCRIPTS/diagnose.py" "$LOG" ios > "$OUT/failure.json" 2>/dev/null && add_failure "$OUT/failure.json" || true
+		if python3 "$SCRIPTS/diagnose.py" "$LOG" ios > "$OUT/failure.json" 2>/dev/null; then add_failure "$OUT/failure.json" || true; fi
 	fi
 }
 trap finish EXIT
@@ -113,6 +113,6 @@ fi
 result "{\"ios\":\"done\",\"upload_testflight\":\"$TESTFLIGHT\"}" "$ARTIFACTS" "$MESSAGE"
 # 87.2 An upload to TestFlight that didn't work, explained from its output.
 if [ "$TESTFLIGHT" = "failed" ]; then
-	python3 "$SCRIPTS/diagnose.py" "$LOG" upload_testflight > "$OUT/failure.json" && add_failure "$OUT/failure.json" || true
+	if python3 "$SCRIPTS/diagnose.py" "$LOG" upload_testflight > "$OUT/failure.json"; then add_failure "$OUT/failure.json" || true; fi
 fi
 platform status "$BUILD_ID" "{\"stages\":{\"ios\":\"done\",\"upload_testflight\":\"$TESTFLIGHT\"}}"
