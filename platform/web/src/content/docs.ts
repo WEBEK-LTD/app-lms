@@ -1244,6 +1244,10 @@ Your app also sends usage statistics to Yallapp (see [Analytics](/docs/analytics
 ## Submit for review
 
 Choose the build, select **Add for Review** and submit. Your iOS app shows no purchase buttons for paid courses or digital products, as Apple's rules require, so don't mention prices or buying them in the iOS description.
+
+## While it's in review
+
+When our team publishes for you, the **Publishing** page reads the App Store's review status from App Store Connect with your key: sent, in review, live or turned down, checked every half hour and emailed to you when it changes. When Apple or Google turns the app down, the page says why in plain words, what to do and where to fix it (for example **App sign-in** when the reviewers couldn't sign in), with our team's note.
 `,
   }),
   // 35 Samsung Galaxy Store

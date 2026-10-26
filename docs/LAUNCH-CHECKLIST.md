@@ -1085,9 +1085,12 @@ never in a chat or an issue.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
-- [ ] **Publishing without surprises** (88): migration
-      `0074_listing_languages.sql` (columns on `apps`) goes with the production
-      deploy, migrations first. Each app's account deletion page is at
+- [ ] **Publishing without surprises** (88): migrations
+      `0074_listing_languages.sql` (columns on `apps`) and
+      `0075_publishing_reviews.sql` (a column on `publishing_requests`) go
+      with the production deploy, migrations first. The frequent job reads
+      the App Store review state of the iPhone versions in review with each
+      client's App Store Connect key (every half hour per app). Each app's account deletion page is at
       `/a/<app ID>/delete-account`. With "We publish for you", Android
       builds now send the listing (every language, phone and tablet
       screenshots, framed when asked) after the App Bundle, and iOS builds

@@ -114,6 +114,10 @@ Uygulamanız Yallapp'e kullanım istatistikleri de gönderir ([Analiz](/docs/ana
 ## İncelemeye gönderin
 
 Derlemeyi seçin, **Add for Review**'u seçin ve gönderin. iOS uygulamanız, Apple'ın kurallarının gerektirdiği gibi ücretli kurslar veya dijital ürünler için satın alma düğmesi göstermez; bu yüzden iOS açıklamasında fiyatlardan ya da bunları satın almaktan söz etmeyin.
+
+## İncelemedeyken
+
+Uygulamanızı ekibimiz yayımladığında **Yayın** sayfası App Store'un inceleme durumunu anahtarınızla App Store Connect'ten okur: gönderildi, incelemede, yayında ya da reddedildi; her yarım saatte kontrol edilir ve değiştiğinde size e-posta gelir. Apple ya da Google uygulamayı reddettiğinde sayfa nedenini sade bir dille, yapılacakları ve nerede düzeltileceğini (örneğin inceleyenler giriş yapamadıysa **Uygulamada giriş**) ekibimizin notuyla birlikte söyler.
 `,
   },
   "galaxy-store": {

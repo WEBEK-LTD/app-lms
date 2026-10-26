@@ -1,4 +1,5 @@
 import { runAutoBuilds } from "../builds/auto";
+import { syncReviewStatuses, type ReviewSyncReport } from "../publishing/review";
 import type { PreflightDeps } from "../builds/preflight";
 import { assetUrl } from "../assets";
 import type { DataStore } from "../data/store";
@@ -14,7 +15,7 @@ import { pushStartedAnnouncements, type OwnerPushDeps } from "../owner/push";
  * 61 The frequent job: `netlify/functions/frequent-jobs.mts` calls `POST
  * /api/internal/frequent` every 5 minutes with INTERNAL_JOB_SECRET. It sends
  * the app notifications whose time came and pushes to the owners' phones the
- * announcements that started, and 85.2 the notification campaigns due. 68 It also asks the WordPress site of every
+ * announcements that started, and 85.2 the notification campaigns due. 88.3 It reads the App Store's review state of the iPhone versions in review. 68 It also asks the WordPress site of every
  * plan that just ended to check its license now (once per end), so the app
  * pauses there within minutes. Safe to run twice at once: each notification,
  * announcement and ended plan is taken by one run.
@@ -30,6 +31,8 @@ export interface FrequentReport {
   automatic: AutoRunReport;
   /** 87.4 Automatic builds queued, due ones a build wouldn't change, and ones waiting for a running build. */
   builds: { queued: number; nothing: number; later: number };
+  /** 88.3 iPhone versions in review whose App Store state was read, and the ones whose status changed. */
+  reviews: ReviewSyncReport;
 }
 
 export async function runFrequentJobs(deps: {
@@ -45,6 +48,8 @@ export async function runFrequentJobs(deps: {
   /** 87.4 The checks before the automatic builds, and how the pipeline is started. */
   preflight?: PreflightDeps;
   startPipeline?: () => Promise<unknown>;
+  /** 88.3 How App Store Connect is reached (tests: a fake fetch). */
+  storeFetch?: typeof fetch;
 }): Promise<FrequentReport> {
   const notifications = await runScheduledNotifications({ store: deps.store, key: deps.key, now: deps.now, send: deps.send });
   let campaigns: CampaignRunReport = { sent: 0, waiting: 0, failed: 0 };
@@ -81,5 +86,12 @@ export async function runFrequentJobs(deps: {
   } catch (error) {
     console.error("[frequent] automatic builds", error instanceof Error ? error.message : String(error));
   }
-  return { notifications, announcements, ended, campaigns, automatic, builds };
+  // 88.3 What the App Store says about the versions in review.
+  let reviews: ReviewSyncReport = { checked: 0, changed: 0, failed: 0 };
+  try {
+    reviews = await syncReviewStatuses({ store: deps.store, key: deps.key, now: deps.now, fetcher: deps.storeFetch });
+  } catch (error) {
+    console.error("[frequent] review statuses", error instanceof Error ? error.message : String(error));
+  }
+  return { notifications, announcements, ended, campaigns, automatic, builds, reviews };
 }

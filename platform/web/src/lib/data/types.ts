@@ -2000,7 +2000,7 @@ export interface PublishingListing {
 }
 
 /** 35, 36 How the extra stores' tracks are kept (publishing_requests.more_stores): dates as ISO strings. */
-export type MoreStoresRow = Partial<Record<MoreStore, (Omit<PublishingTrack, "updatedAt"> & { updatedAt: string | null }) | null>>;
+export type MoreStoresRow = Partial<Record<MoreStore, (Omit<PublishingTrack, "updatedAt" | "checkedAt"> & { updatedAt: string | null; checkedAt?: string | null }) | null>>;
 
 /** Publishing on one store. */
 export interface PublishingTrack {
@@ -2011,7 +2011,20 @@ export interface PublishingTrack {
   storeUrl: string | null;
   /** When the status last changed; null while it's the first one. */
   updatedAt: Date | null;
+  /** 88.3 Why the store turned it down (lib/publishing/review.ts), when the team or the store said. */
+  rejection?: RejectionReason | null;
+  /** 88.3 The store's own state of the version, as last read from it (App Store Connect's `appVersionState`). */
+  storeState?: string | null;
+  /** 88.3 When the store was last asked. */
+  checkedAt?: Date | null;
 }
+
+/** 88.3 Why a store turned an app down: the common reasons, each with what to do (lib/publishing/review.ts). */
+export const REJECTION_REASONS = ["sign_in", "incomplete", "metadata", "purchases", "account_deletion", "privacy", "minimum", "content_rating", "binary", "other"] as const;
+export type RejectionReason = (typeof REJECTION_REASONS)[number];
+
+/** 88.3 What the stores said about the Google Play and App Store versions, kept as JSON. */
+export type ReviewsRow = Partial<Record<"android" | "ios", { rejection: RejectionReason | null; storeState: string | null; checkedAt: string | null }>>;
 
 /**
  * An app the client asked us to publish (or decided to publish themselves).

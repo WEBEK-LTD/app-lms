@@ -59,7 +59,7 @@ import type {
   ChatReportOutcome,
 } from "../data/types";
 // 11.6 and 11.8
-import type { BuildFailure, ListingTranslation, ScreenshotFrame } from "../data/types";
+import type { BuildFailure, ListingTranslation, ReviewsRow, ScreenshotFrame } from "../data/types";
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
 import type { Plan } from "../plans";
 import type { Layout, LayoutBlock, LayoutContent } from "../pages/types";
@@ -1449,6 +1449,8 @@ export const publishingRequests = mysqlTable(
     iosUpdatedAt: time("ios_updated_at"),
     // 35, 36 Samsung Galaxy Store and Huawei AppGallery, when the client wants the app there too.
     moreStores: jsonText<MoreStoresRow>("more_stores"),
+    // 88.3 Why Google Play or the App Store turned it down, and the store's own state.
+    reviews: jsonText<ReviewsRow>("reviews"),
     teamNotes: text("team_notes"),
     requestedAt: time("requested_at"),
     readyAt: time("ready_at"),

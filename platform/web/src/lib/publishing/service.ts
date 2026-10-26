@@ -4,9 +4,9 @@ import { appLabel } from "../app/label";
 import { dashboardLink } from "../builds/notify";
 import { DEFAULT_CONTACT } from "../contact";
 import type { DataStore } from "../data/store";
-import type { App, Client, PublishingMode, PublishingRequest, PublishingStore, User } from "../data/types";
+import type { App, Client, PublishingMode, PublishingRequest, PublishingStore, PublishingTrack, User } from "../data/types";
 import { emailLangOf, sendTemplate } from "../email/send";
-import { getDashT } from "@/i18n/dashboard";
+import { getDashT, type DashT } from "@/i18n/dashboard";
 import { publishingStatusIn } from "./status-lang";
 import { appUrl } from "../env";
 import { mailDelivered } from "../mail";
@@ -129,7 +129,8 @@ export async function notifyPublishingStatus(store: DataStore, request: Publishi
         store: STORE_TITLE[which],
         status: status.label,
         status_text: status.text,
-        note_line: track.note?.trim() ? `${t("emails.note", { note: track.note.trim() })}\n\n` : "",
+        // 88.3 Why the store turned it down and what to do, then the team's note.
+        note_line: `${rejectionLines(track, t)}${track.note?.trim() ? `${t("emails.note", { note: track.note.trim() })}\n\n` : ""}`,
         store_link_line: track.status === "live" && track.storeUrl ? `${t("emails.yourApp", { url: track.storeUrl })}\n\n` : "",
         publishing_url: dashboardLink(request.appId, "publishing"),
       },
@@ -138,4 +139,11 @@ export async function notifyPublishingStatus(store: DataStore, request: Publishi
   } catch (error) {
     console.error("[publishing] the status email wasn't sent:", error instanceof Error ? error.message : error);
   }
+}
+
+/** 88.3 A rejection's reason and what to do, for the status email. */
+function rejectionLines(track: PublishingTrack, t: DashT): string {
+  if (track.status !== "rejected" || !track.rejection) return "";
+  const reason = track.rejection;
+  return `${t("publishing.reject.why", { reason: t(`publishing.reject.${reason}`) })}\n${t("publishing.reject.whatToDo", { fix: t(`publishing.reject.${reason}Fix`) })}\n\n`;
 }

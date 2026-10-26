@@ -2319,6 +2319,30 @@ tries the next week), and the send's row is removed. WordPress campaigns go
 to everyone (the platform doesn't know the site's people); a page of the
 app opens on the site's links (`<site>/a/page/<slug>`).
 
+## Publishing without surprises (Phase 88)
+
+- **Ready to submit** (88.1, `lib/publishing/readiness.ts`): the Publishing
+  page checks what the stores ask (review access for the app's sign-in
+  methods, a public https privacy page, account deletion, the iPhone purchase
+  rule of the app's kind, the listing, the screenshots each store needs).
+  Each app has a public account deletion page at `/a/<app>/delete-account`
+  for Google Play's Data safety form.
+- **Listings in every language** (88.2): the listing step keeps the texts'
+  language, the listing in the app's other languages, tablet and iPad
+  screenshots and framed screenshots' captions (migration 0074); the build's
+  store listing carries them (`StoreListing` in `pipeline.yaml`).
+  `build/scripts/store_listing.py` writes fastlane's folders per store locale
+  and draws the framed screenshots; `android.sh` and `ios.sh` send them after
+  the upload (`play_listing`, `appstore_listing`), never submitting for review.
+- **Review status** (88.3, `lib/publishing/review.ts`): the frequent job reads
+  the newest App Store version's state (App Store Connect, the client's key,
+  an ES256 token) for iPhone versions sent, in review or turned down, every
+  half hour per app; a new status goes into the history ("App Store
+  Connect") and the client's email. Google Play has no review status in its
+  API: the team sets it. A rejection carries one of the common reasons
+  (`REJECTION_REASONS`), each explained with what to do and a link, in
+  en/ar/tr (migration 0075).
+
 ## Builds that explain themselves (Phase 87)
 
 - **Before a build** (87.1, `lib/builds/preflight.ts`): `queueBuild` runs the
