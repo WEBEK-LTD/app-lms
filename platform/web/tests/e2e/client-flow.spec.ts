@@ -241,7 +241,7 @@ test("the plugin activates and checks the license through the API", async ({ req
   expect(await activate.json()).toMatchObject({
     status: "active",
     plan: "pro",
-    features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat"],
+    features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty"],
     limits: { app_users: null, languages: null, sources: null },
   });
 
