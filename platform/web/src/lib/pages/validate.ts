@@ -15,6 +15,9 @@ import {
   CARD_STYLES,
   CATEGORY_STYLES,
   CORNERS,
+  LOOK_MODES,
+  type FigmaLook,
+  type FigmaPicture,
   ITEMS_LAYOUTS,
   ITEMS_SORTS,
   LAYOUT_LIMITS,
@@ -159,6 +162,51 @@ export function parseAppearance(value: unknown, c: Checker = new Checker(), wher
     ...(arabic ?? {}),
     corners: v.corners as Appearance["corners"],
     cards: v.cards as Appearance["cards"],
+  };
+}
+
+/** 97.3 The look made from a Figma file. */
+export const FIGMA_LIMITS = { pictures: 12, nameChars: 120 } as const;
+const ASSET_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function parseFigmaLook(value: unknown, c: Checker = new Checker(), ownFonts: readonly string[] = [], where = "Figma look"): FigmaLook | null {
+  const v = record(value);
+  if (!v) {
+    c.fail(where, "the look is missing.");
+    return null;
+  }
+  if (!(typeof v.primary_color === "string" && HEX.test(v.primary_color))) c.fail(where, "the main color must look like #1F4E5F.");
+  if (v.secondary_color != null && !(typeof v.secondary_color === "string" && HEX.test(v.secondary_color))) c.fail(where, "the second color must look like #E8B04B.");
+  const font = v.font_family == null ? null : lookFont(typeof v.font_family === "string" ? v.font_family : null, ownFonts);
+  if (v.font_family != null && !font) c.fail(where, "choose a free font or one of your own.");
+  const arabic = lookArabicFont(typeof v.arabic_font === "string" ? v.arabic_font : null, ownFonts);
+  if (!arabic) c.fail(where, "choose an Arabic font from the list.");
+  if (!oneOf(CORNERS, v.corners)) c.fail(where, "choose the corners.");
+  if (v.logo_asset_id != null && !(typeof v.logo_asset_id === "string" && ASSET_ID.test(v.logo_asset_id))) c.fail(where, "the logo isn't one of your files.");
+  const pictures: FigmaPicture[] = [];
+  for (const p of Array.isArray(v.pictures) ? v.pictures : []) {
+    const pic = record(p);
+    if (!pic || typeof pic.asset_id !== "string" || !ASSET_ID.test(pic.asset_id)) {
+      c.fail(where, "a picture isn't one of your files.");
+      continue;
+    }
+    pictures.push({ asset_id: pic.asset_id.toLowerCase(), name: typeof pic.name === "string" ? pic.name.trim().slice(0, FIGMA_LIMITS.nameChars) : "" });
+  }
+  if (pictures.length > FIGMA_LIMITS.pictures) c.fail(where, `keep at most ${FIGMA_LIMITS.pictures} pictures.`);
+  const source = record(v.source);
+  const kind = source?.kind === "link" ? "link" : "files";
+  const imported = typeof source?.imported_at === "string" && !Number.isNaN(Date.parse(source.imported_at)) ? new Date(source.imported_at).toISOString() : new Date(0).toISOString();
+  // The font as named in the catalog (a bundled one stays named, so this look shows it).
+  const familyName = font ? (font.font_family ?? font.font) : null;
+  return {
+    primary_color: typeof v.primary_color === "string" ? v.primary_color.toUpperCase() : "#0E0D24",
+    secondary_color: typeof v.secondary_color === "string" && HEX.test(v.secondary_color) ? v.secondary_color.toUpperCase() : null,
+    font_family: familyName,
+    ...(arabic ?? {}),
+    corners: oneOf(CORNERS, v.corners) ? v.corners : "soft",
+    logo_asset_id: typeof v.logo_asset_id === "string" && ASSET_ID.test(v.logo_asset_id) ? v.logo_asset_id.toLowerCase() : null,
+    pictures: pictures.slice(0, FIGMA_LIMITS.pictures),
+    source: { kind, name: typeof source?.name === "string" ? source.name.trim().slice(0, FIGMA_LIMITS.nameChars) : "", imported_at: imported },
   };
 }
 
@@ -712,6 +760,22 @@ export function parseLayoutContent(value: unknown, options: ParseOptions): Parse
     menuIds.add(entry.id);
   }
   const strings = stringsIn === undefined ? undefined : parseInterfaceStrings(stringsIn, (where, message) => c.fail(where, message));
+  // 97.3 The Figma look, and which look the app shows.
+  const figma = v.figma_look === undefined || v.figma_look === null ? null : parseFigmaLook(v.figma_look, c, options.ownFonts);
+  if (v.look_mode !== undefined && !oneOf(LOOK_MODES, v.look_mode)) c.fail("Look", "choose the standard look or the Figma look.");
+  if (v.look_mode === "figma" && !figma) c.fail("Look", "import a Figma file before showing its look.");
   if (c.errors.length) return { ok: false, errors: c.errors };
-  return { ok: true, value: { appearance, languages, tabs, ...(menu.length ? { menu } : {}), pages, ...(strings && Object.keys(strings).length ? { strings } : {}) } };
+  return {
+    ok: true,
+    value: {
+      appearance,
+      languages,
+      tabs,
+      ...(menu.length ? { menu } : {}),
+      pages,
+      ...(strings && Object.keys(strings).length ? { strings } : {}),
+      ...(v.look_mode === "figma" ? { look_mode: "figma" as const } : {}),
+      ...(figma ? { figma_look: figma } : {}),
+    },
+  };
 }

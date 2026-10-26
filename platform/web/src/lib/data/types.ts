@@ -27,7 +27,9 @@ export type AssetKind =
   | "product_image"
   | "huawei_agconnect"
   // 97.2 The files of an owner's own font.
-  | "font";
+  | "font"
+  // 97.3 The logo and pictures exported from a Figma file.
+  | "figma_image";
 export type AppTemplate = "classic" | "bold" | "minimal";
 
 export interface User {

@@ -147,13 +147,17 @@ export interface PickableMedia {
 }
 
 /** The app's ready files for a picker (lesson videos, pictures in pages, products and listings). */
-export async function listMediaAction(input: { kind: MediaKind; library?: boolean }): Promise<{ items: PickableMedia[]; available: boolean; library: LibraryPicture[] }> {
+export async function listMediaAction(input: { kind: MediaKind; library?: boolean }): Promise<{ items: PickableMedia[]; available: boolean; library: LibraryPicture[]; figma: { name: string; url: string }[] }> {
   const context = await mediaContext(["media", "catalog", "settings"]);
   const storage = getMediaStorage();
-  const files = await (await getStore()).listMediaFiles(context.app.id, { kind: input.kind, status: "ready", limit: 300 });
+  const store = await getStore();
+  const files = await store.listMediaFiles(context.app.id, { kind: input.kind, status: "ready", limit: 300 });
   // 84.2 Yallapp's pictures for the designs, for pictures on pages.
   const library = input.kind === "image" && input.library ? pictureLibrary(appUrl()) : [];
-  return { items: files.map((f) => pickable(f, storage)), available: storage !== null, library };
+  // 97.3 The pictures of the draft's Figma look, for pictures on pages.
+  const figmaLook = input.kind === "image" && input.library ? (await store.getAppLayout(context.app.id))?.draft.figma_look : undefined;
+  const figma = (figmaLook?.pictures ?? []).map((p) => ({ name: p.name, url: `${appUrl()}/api/v1/assets/${p.asset_id}` }));
+  return { items: files.map((f) => pickable(f, storage)), available: storage !== null, library, figma };
 }
 
 function pickable(file: MediaFile, storage: ReturnType<typeof getMediaStorage>): PickableMedia {

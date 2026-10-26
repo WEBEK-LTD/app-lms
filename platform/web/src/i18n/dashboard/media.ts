@@ -98,6 +98,7 @@ export const en = {
   // "Choose from Media" (components/media-picker.tsx).
   chooseFrom: "Choose from Media",
   library: "Yallapp's pictures",
+  figmaPictures: "Pictures from your Figma file",
   libraryText: "Simple shapes in colours that go with the designs, free to use in your app.",
   yourVideos: "Your videos",
   yourPictures: "Your pictures",
@@ -235,6 +236,7 @@ export const ar: Messages = {
   gateError: "أجاب خادم الوسائط بخطأ (HTTP {status}). استأنف للمحاولة مرة أخرى؛ لن يضيع شيء مما رُفع حتى الآن.",
   chooseFrom: "اختيار من الوسائط",
   library: "صور Yallapp",
+  figmaPictures: "صور من ملف Figma الخاص بك",
   libraryText: "أشكال بسيطة بألوان تناسب التصاميم، يمكنك استخدامها مجانًا في تطبيقك.",
   yourVideos: "فيديوهاتك",
   yourPictures: "صورك",
@@ -371,6 +373,7 @@ export const tr: Messages = {
   gateError: "Medya sunucusu bir hatayla yanıt verdi (HTTP {status}). Yeniden denemek için sürdürün; şimdiye kadar yüklenen hiçbir şey kaybolmaz.",
   chooseFrom: "Medya'dan seç",
   library: "Yallapp görselleri",
+  figmaPictures: "Figma dosyanızdaki görseller",
   libraryText: "Tasarımlara uyan renklerde sade şekiller; uygulamanızda ücretsiz kullanabilirsiniz.",
   yourVideos: "Videolarınız",
   yourPictures: "Resimleriniz",

@@ -245,7 +245,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     final p = context.palette;
     final config = ref.watch(appConfigProvider);
     final env = ref.watch(appEnvironmentProvider);
-    final logo = config.branding.logoUrl ?? env.build.logoUrl;
+    // 97.3 The Figma look's logo first.
+    final logo =
+        config.appearance?.logoUrl ??
+        config.branding.logoUrl ??
+        env.build.logoUrl;
     final canGoBack = context.canPop();
     // 17 The app preview signs in only the store review number, and only
     // where the server says it can; it never sends a code.

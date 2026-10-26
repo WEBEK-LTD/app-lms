@@ -165,6 +165,13 @@ class Pages {
 				$appearance[ $files ] = $list;
 			}
 		}
+		// 97.3 The Figma look's main color and logo, over the site's branding.
+		if ( isset( $raw['primary_color'] ) && is_string( $raw['primary_color'] ) && preg_match( '/^#[0-9A-Fa-f]{6}$/', $raw['primary_color'] ) ) {
+			$appearance['primary_color'] = strtoupper( $raw['primary_color'] );
+		}
+		if ( isset( $raw['logo_url'] ) && is_string( $raw['logo_url'] ) && preg_match( '#^https://[^\s"\'<>\\\\]{1,490}$#', $raw['logo_url'] ) ) {
+			$appearance['logo_url'] = $raw['logo_url'];
+		}
 		return $appearance;
 	}
 

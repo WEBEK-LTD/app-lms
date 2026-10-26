@@ -51,7 +51,9 @@ class AppLook {
           ? remoteFont
           : resolveFont(build.font, template),
       fallback: usable(arabic) ? [arabic!, ...fontFallback] : fontFallback,
+      // 97.3 The Figma look's main color first.
       primary:
+          parseHexColor(appearance?.primaryColor) ??
           parseHexColor(config?.branding.primaryColor) ??
           Color(build.primaryColor),
       secondary: parseHexColor(appearance?.secondaryColor),

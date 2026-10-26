@@ -40,6 +40,7 @@ import { UpgradeHint } from "@/components/upgrade";
 import { FontPicker } from "@/components/font-picker";
 import type { OwnFontView } from "@/lib/fonts/own";
 import { OwnFonts } from "./own-fonts";
+import { FigmaLookPanel } from "./figma-look";
 import { MAX_LANGUAGES } from "@/lib/i18n/locales";
 import { appLanguageName } from "@/lib/i18n/language-names";
 import { useDashFormat, useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
@@ -540,6 +541,8 @@ export function PagesEditor({
 
   // Look and languages
 
+  // 97.3 The Figma look shown: the standard look's font, colors and corners wait.
+  const figmaShown = layout.look_mode === "figma" && Boolean(layout.figma_look);
   const setLook = (patch: Partial<Appearance>) => update((l) => ({ ...l, appearance: { ...l.appearance, ...patch } }));
 
   // 43 Added, removed, reordered or a new default; a new default takes its translations as the main texts.
@@ -1120,6 +1123,20 @@ export function PagesEditor({
         {panel === "look" ? (
           <section role="tabpanel" id="panel-look" aria-labelledby="tab-look" className={sectionClass}>
             <h2 className="m-0 text-lg font-bold">{t("pages.panelLook")}</h2>
+            {/* 97.3 The Figma look, kept apart from the standard look below. */}
+            <FigmaLookPanel
+              mode={layout.look_mode ?? "standard"}
+              look={layout.figma_look}
+              ownFonts={myFonts.map((f) => f.family)}
+              onChange={(patch) =>
+                update((l) => {
+                  const next = { ...l, ...patch };
+                  if (next.look_mode !== "figma") delete next.look_mode;
+                  if (!next.figma_look) delete next.figma_look;
+                  return next;
+                })
+              }
+            />
             <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
               <legend className="mb-1.5 p-0 text-sm font-semibold">{t("pages.template")}</legend>
               <div className="grid gap-2 sm:grid-cols-3">
@@ -1145,13 +1162,15 @@ export function PagesEditor({
                 options={THEME_MODES.map((m) => ({ value: m, label: known(THEME_MODE_LABELS[m]) }))}
                 onChange={(theme_mode) => setLook({ theme_mode })}
               />
-              <SelectInput
-                id="look-corners"
-                label={t("pages.corners")}
-                value={layout.appearance.corners}
-                options={CORNERS.map((c) => ({ value: c, label: known(CORNER_LABELS[c]) }))}
-                onChange={(corners) => setLook({ corners })}
-              />
+              {figmaShown ? null : (
+                <SelectInput
+                  id="look-corners"
+                  label={t("pages.corners")}
+                  value={layout.appearance.corners}
+                  options={CORNERS.map((c) => ({ value: c, label: known(CORNER_LABELS[c]) }))}
+                  onChange={(corners) => setLook({ corners })}
+                />
+              )}
               <SelectInput
                 id="look-cards"
                 label={t("pages.cards")}
@@ -1160,8 +1179,9 @@ export function PagesEditor({
                 onChange={(cards) => setLook({ cards })}
               />
             </div>
+            {figmaShown ? <p className="m-0 rounded-xl bg-sand p-3 text-sm text-ink-4">{t("pages.figmaControls")}</p> : null}
             {/* 97.1 Any free font, and the Arabic text's font: the server keeps a bundled font to show until it's on the phone. */}
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className={`grid gap-3 sm:grid-cols-2 ${figmaShown ? "hidden" : ""}`}>
               <FontPicker
                 id="look-font"
                 label={t("pages.font")}
@@ -1190,7 +1210,7 @@ export function PagesEditor({
               }}
             />
             <Check label={t("pages.switchMode")} checked={layout.appearance.user_can_change_mode} onChange={(user_can_change_mode) => setLook({ user_can_change_mode })} />
-            <div className="flex flex-wrap items-end gap-4">
+            <div className={`flex flex-wrap items-end gap-4 ${figmaShown ? "hidden" : ""}`}>
               <Check
                 label={t("pages.secondary")}
                 checked={layout.appearance.secondary_color !== null}

@@ -1,7 +1,8 @@
 import { sha256Hex } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
 import type { App, AppLayoutRecord } from "../data/types";
-import { servedAppearance, withLook } from "../fonts/look";
+import { foreignFigmaImages } from "../figma/images";
+import { servedAppearance, shownAppearance, withLook } from "../fonts/look";
 import { platformSetting } from "../settings/platform";
 import { BUILT_IN_APP_DEFAULTS, defaultAppearance, defaultLayout } from "./defaults";
 import { applyDesign, contactFacts, missingScreens, sampleTexts, type Design } from "./designs";
@@ -79,6 +80,11 @@ export async function ownFontNames(store: DataStore, appId: string): Promise<str
 export async function saveDraft(store: DataStore, app: App, input: unknown, now: Date): Promise<ParseResult<AppLayoutRecord>> {
   const parsed = parseLayoutContent(input, { app, now, ownFonts: await ownFontNames(store, app.id) });
   if (!parsed.ok) return parsed;
+  // 97.3 The Figma look names only this account's pictures from Figma files.
+  const figma = parsed.value.figma_look;
+  if (figma && (await foreignFigmaImages(store, app.clientId, [...(figma.logo_asset_id ? [figma.logo_asset_id] : []), ...figma.pictures.map((p) => p.asset_id)])).length) {
+    return { ok: false, errors: ["Figma look: a picture isn't one of your files. Import it again."] };
+  }
   const record = await loadLayout(store, app, now);
   const sentStrings = Boolean(input && typeof input === "object" && "strings" in input);
   const next: LayoutContent = sentStrings || !record.draft.strings ? parsed.value : { ...parsed.value, strings: record.draft.strings };
@@ -275,7 +281,9 @@ export async function lookAndLanguages(
   // 97.1 With the files of the look's free fonts, on Yallapp.
   const own = packs ? await store.listOwnFonts(app.id) : [];
   const served = (appearance: Appearance): Appearance => (packs ? servedAppearance(appearance, packs.platformUrl, own) : appearance);
-  if (layout) return { appearance: served(layout.appearance), languages: withList(languagesForPlan(layout.languages, plan)) };
+  // 97.3 The Figma look when it's the one shown.
+  const shown = (l: Layout) => shownAppearance(l, (id) => `${packs?.platformUrl ?? ""}/api/v1/assets/${id}`, own.map((f) => f.family));
+  if (layout) return { appearance: served(shown(layout)), languages: withList(languagesForPlan(layout.languages, plan)) };
   const defaults = await appDefaults(store);
   return { appearance: served(defaultAppearance(app, defaults)), languages: withList(languagesForPlan(defaults.languages, plan)) };
 }

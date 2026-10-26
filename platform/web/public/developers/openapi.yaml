@@ -6019,6 +6019,18 @@ components:
           items: { $ref: '#/components/schemas/FontFile' }
         corners: { type: string, enum: [sharp, soft, round] }
         cards: { type: string, enum: [flat, outlined, elevated] }
+        primary_color:
+          type: string
+          pattern: '^#[0-9A-Fa-f]{6}$'
+          example: '#1F4E5F'
+          description: |
+            97.3 Only while the app shows the look made from the client's Figma
+            file (from plugin 0.4.20): its main color, used over
+            `Branding.primary_color`. Missing: the branding's.
+        logo_url:
+          type: string
+          format: uri
+          description: 97.3 Only with the Figma look, when its file has a logo (on Yallapp), used over `Branding.logo_url`.
 
     FontFile:
       type: object
