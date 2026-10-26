@@ -434,8 +434,7 @@ class FakeApi implements YallappApi {
   final carts = <int>[];
 
   @override
-  Future<void> setCart(int items) =>
-      _answer('setCart', () => carts.add(items));
+  Future<void> setCart(int items) => _answer('setCart', () => carts.add(items));
 
   @override
   Future<void> markNotificationsRead() => _answer('markNotificationsRead', () {
