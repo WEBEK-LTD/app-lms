@@ -3959,4 +3959,65 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String accessUntil(String date) =>
       overlay.format('accessUntil', {'date': date}) ?? base.accessUntil(date);
+
+  @override
+  String get siteMemberships =>
+      overlay.text('siteMemberships') ?? base.siteMemberships;
+
+  @override
+  String get siteMembershipsNoneTitle =>
+      overlay.text('siteMembershipsNoneTitle') ?? base.siteMembershipsNoneTitle;
+
+  @override
+  String get siteMembershipsNoneMessage =>
+      overlay.text('siteMembershipsNoneMessage') ??
+      base.siteMembershipsNoneMessage;
+
+  @override
+  String get siteMembershipsManaged =>
+      overlay.text('siteMembershipsManaged') ?? base.siteMembershipsManaged;
+
+  @override
+  String get siteMembershipActive =>
+      overlay.text('siteMembershipActive') ?? base.siteMembershipActive;
+
+  @override
+  String get siteMembershipOnHold =>
+      overlay.text('siteMembershipOnHold') ?? base.siteMembershipOnHold;
+
+  @override
+  String get siteMembershipCancelled =>
+      overlay.text('siteMembershipCancelled') ?? base.siteMembershipCancelled;
+
+  @override
+  String siteMembershipRenews(String date) =>
+      overlay.format('siteMembershipRenews', {'date': date}) ??
+      base.siteMembershipRenews(date);
+
+  @override
+  String siteMembershipEnds(String date) =>
+      overlay.format('siteMembershipEnds', {'date': date}) ??
+      base.siteMembershipEnds(date);
+
+  @override
+  String siteMembershipCourses(int count) =>
+      overlay.format('siteMembershipCourses', {'count': count}) ??
+      base.siteMembershipCourses(count);
+
+  @override
+  String get courseMembershipTitle =>
+      overlay.text('courseMembershipTitle') ?? base.courseMembershipTitle;
+
+  @override
+  String courseMembershipPlans(String plans) =>
+      overlay.format('courseMembershipPlans', {'plans': plans}) ??
+      base.courseMembershipPlans(plans);
+
+  @override
+  String get courseMembershipAny =>
+      overlay.text('courseMembershipAny') ?? base.courseMembershipAny;
+
+  @override
+  String get courseMembershipWebsite =>
+      overlay.text('courseMembershipWebsite') ?? base.courseMembershipWebsite;
 }

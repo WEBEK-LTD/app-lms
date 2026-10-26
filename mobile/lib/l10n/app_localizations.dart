@@ -6237,6 +6237,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Access until {date}'**
   String accessUntil(String date);
+
+  /// 90.3 The account item and screen listing the student's memberships, subscriptions and groups on the website.
+  ///
+  /// In en, this message translates to:
+  /// **'My memberships'**
+  String get siteMemberships;
+
+  /// No description provided for @siteMembershipsNoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No memberships'**
+  String get siteMembershipsNoneTitle;
+
+  /// No description provided for @siteMembershipsNoneMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Memberships and subscriptions you have on our website show here.'**
+  String get siteMembershipsNoneMessage;
+
+  /// No description provided for @siteMembershipsManaged.
+  ///
+  /// In en, this message translates to:
+  /// **'Memberships are managed on our website.'**
+  String get siteMembershipsManaged;
+
+  /// No description provided for @siteMembershipActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get siteMembershipActive;
+
+  /// No description provided for @siteMembershipOnHold.
+  ///
+  /// In en, this message translates to:
+  /// **'On hold'**
+  String get siteMembershipOnHold;
+
+  /// No description provided for @siteMembershipCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get siteMembershipCancelled;
+
+  /// No description provided for @siteMembershipRenews.
+  ///
+  /// In en, this message translates to:
+  /// **'Renews on {date}'**
+  String siteMembershipRenews(String date);
+
+  /// No description provided for @siteMembershipEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends on {date}'**
+  String siteMembershipEnds(String date);
+
+  /// No description provided for @siteMembershipCourses.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 course} other{{count} courses}}'**
+  String siteMembershipCourses(int count);
+
+  /// No description provided for @courseMembershipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'For members'**
+  String get courseMembershipTitle;
+
+  /// No description provided for @courseMembershipPlans.
+  ///
+  /// In en, this message translates to:
+  /// **'This course comes with a membership on our website: {plans}.'**
+  String courseMembershipPlans(String plans);
+
+  /// No description provided for @courseMembershipAny.
+  ///
+  /// In en, this message translates to:
+  /// **'This course comes with a membership on our website.'**
+  String get courseMembershipAny;
+
+  /// No description provided for @courseMembershipWebsite.
+  ///
+  /// In en, this message translates to:
+  /// **'See memberships on the website'**
+  String get courseMembershipWebsite;
 }
 
 class _AppLocalizationsDelegate

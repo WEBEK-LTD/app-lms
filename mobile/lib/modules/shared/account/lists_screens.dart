@@ -145,6 +145,79 @@ class CertificatesScreen extends ConsumerWidget {
   );
 }
 
+/// 90.3 The student's memberships, subscriptions and groups on the website:
+/// shown here, managed on the website (never bought in the app).
+class SubscriptionsScreen extends ConsumerWidget {
+  const SubscriptionsScreen({super.key});
+
+  static String _line(BuildContext context, SiteSubscription s) {
+    final l10n = context.l10n;
+    final parts = <String>[
+      switch (s.status) {
+        SiteSubscriptionStatus.onHold => l10n.siteMembershipOnHold,
+        SiteSubscriptionStatus.pendingCancel => l10n.siteMembershipCancelled,
+        _ => l10n.siteMembershipActive,
+      },
+      if (s.renewsAt != null)
+        l10n.siteMembershipRenews(_date(s.renewsAt!))
+      else if (s.endsAt != null)
+        l10n.siteMembershipEnds(_date(s.endsAt!)),
+      if (s.courseCount != null) l10n.siteMembershipCourses(s.courseCount!),
+    ];
+    return parts.join(' · ');
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => AccountScaffold(
+    title: context.l10n.siteMemberships,
+    child: switch (ref.watch(subscriptionsProvider)) {
+      AsyncData(:final value) when value.isEmpty => MessageView(
+        icon: AppIcons.membership,
+        title: context.l10n.siteMembershipsNoneTitle,
+        message: context.l10n.siteMembershipsNoneMessage,
+      ),
+      AsyncData(:final value) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AppCard(
+            child: Column(
+              children: [
+                for (final (i, s) in value.indexed) ...[
+                  if (i > 0) Divider(height: 1, color: context.palette.divider),
+                  SettingsTile(
+                    key: ValueKey('membership-${s.id}'),
+                    icon: AppIcons.membership,
+                    title: s.name,
+                    subtitle: _line(context, s),
+                    chevron: false,
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            context.l10n.siteMembershipsManaged,
+            style: TextStyle(
+              fontSize: 13,
+              color: context.palette.textSecondary,
+            ),
+          ),
+        ],
+      ),
+      AsyncError(:final error) => ErrorView(
+        error: error,
+        onRetry: () => ref.invalidate(subscriptionsProvider),
+      ),
+      _ => const SkeletonList(
+        layout: SkeletonLayout.text,
+        count: 2,
+        padding: EdgeInsets.zero,
+      ),
+    },
+  );
+}
+
 class QuizResultsScreen extends ConsumerWidget {
   const QuizResultsScreen({super.key});
 

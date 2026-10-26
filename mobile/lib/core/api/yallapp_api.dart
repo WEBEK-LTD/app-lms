@@ -535,6 +535,9 @@ abstract class YallappApi {
   Future<Paged<AttemptResult>> listMyAttempts({int page = 1});
   Future<List<Certificate>> listCertificates();
 
+  /// 90.3 The student's memberships, subscriptions and groups on the website.
+  Future<List<SiteSubscription>> listSubscriptions();
+
   Future<NotificationPage> listNotifications({int page = 1, int perPage = 20});
   Future<void> markNotificationsRead();
 
@@ -1299,6 +1302,13 @@ class HttpYallappApi implements YallappApi {
     '/me/certificates',
     _required,
     (json) => reqListOf(json, 'items', Certificate.fromJson),
+  );
+
+  @override
+  Future<List<SiteSubscription>> listSubscriptions() => _get(
+    '/me/subscriptions',
+    _required,
+    (json) => reqListOf(json, 'items', SiteSubscription.fromJson),
   );
 
   @override

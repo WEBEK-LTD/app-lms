@@ -403,6 +403,15 @@ class FakeApi implements YallappApi {
   Future<List<Certificate>> listCertificates() =>
       _answer('listCertificates', () => <Certificate>[]);
 
+  @override
+  Future<List<SiteSubscription>> listSubscriptions() => _answer(
+    'listSubscriptions',
+    () => [for (final s in subscriptions) SiteSubscription.fromJson(s)],
+  );
+
+  /// 90.3 `GET /me/subscriptions` items.
+  List<Map<String, dynamic>> subscriptions = [];
+
   List<Map<String, dynamic>> notifications = [
     notificationJson(),
     notificationJson(id: 2, type: 'qna_answer', courseId: 42, questionId: 3),

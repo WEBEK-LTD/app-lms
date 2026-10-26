@@ -455,6 +455,60 @@ class Enrollment {
   final DateTime enrolledAt;
 }
 
+/// 90.3 A membership, subscription or group on the website.
+enum SiteSubscriptionSource {
+  paidMembershipsPro,
+  woocommerceSubscriptions,
+  learndashGroup,
+  unknown,
+}
+
+enum SiteSubscriptionStatus { active, onHold, pendingCancel, unknown }
+
+class SiteSubscription {
+  const SiteSubscription({
+    required this.id,
+    required this.source,
+    required this.name,
+    required this.status,
+    this.startedAt,
+    this.endsAt,
+    this.renewsAt,
+    this.courseCount,
+  });
+
+  factory SiteSubscription.fromJson(Json json) => SiteSubscription(
+    id: reqString(json, 'id'),
+    source: switch (json['source']) {
+      'paid_memberships_pro' => SiteSubscriptionSource.paidMembershipsPro,
+      'woocommerce_subscriptions' =>
+        SiteSubscriptionSource.woocommerceSubscriptions,
+      'learndash_group' => SiteSubscriptionSource.learndashGroup,
+      _ => SiteSubscriptionSource.unknown,
+    },
+    name: reqString(json, 'name'),
+    status: switch (json['status']) {
+      'active' => SiteSubscriptionStatus.active,
+      'on_hold' => SiteSubscriptionStatus.onHold,
+      'pending_cancel' => SiteSubscriptionStatus.pendingCancel,
+      _ => SiteSubscriptionStatus.unknown,
+    },
+    startedAt: optDate(json, 'started_at'),
+    endsAt: optDate(json, 'ends_at'),
+    renewsAt: optDate(json, 'renews_at'),
+    courseCount: optInt(json, 'course_count'),
+  );
+
+  final String id;
+  final SiteSubscriptionSource source;
+  final String name;
+  final SiteSubscriptionStatus status;
+  final DateTime? startedAt;
+  final DateTime? endsAt;
+  final DateTime? renewsAt;
+  final int? courseCount;
+}
+
 class Certificate {
   const Certificate({
     required this.courseId,

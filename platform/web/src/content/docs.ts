@@ -302,6 +302,15 @@ Changes apply in the app the next time it opens, without a new build.
 
 In your Yallapp dashboard, open **App setup › Website**, choose **My WordPress site**, enter your website's https address and select **Save & continue**. The step shows whether the plugin is connected.
 
+## Memberships and subscriptions
+
+The app follows the memberships your website gives access with:
+
+- **Paid Memberships Pro**: a course set to **Require membership** says in the app which plans open it. Students without one can't join it from the app; members join it in one tap, and its lessons close when their membership ends, as on your website. Set such courses as free in your LMS.
+- **WooCommerce Subscriptions** and **LearnDash groups**: your LMS gives access as it does on your website.
+
+Students see their memberships, subscriptions and groups under **Account › My memberships**, with when they renew or end. They're sold and managed on your website only: on Android the course page can open your website's memberships, and the iPhone app never links to them, as Apple's rules require.
+
 > Your pages, look and languages are built in the Yallapp dashboard, and the plugin fills them with your own courses, products and posts. The plugin's **App pages and look** card shows whether they're published and lets you refresh them at once.
 `,
   }),

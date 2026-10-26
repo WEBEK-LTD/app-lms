@@ -1022,5 +1022,19 @@
   "chatMore": "Daha fazla",
   "chatBlockPerson": "{name} kişisini engelle",
   "opensOn": "{date} tarihinde açılır",
-  "accessUntil": "{date} tarihine kadar erişim"
+  "accessUntil": "{date} tarihine kadar erişim",
+  "siteMemberships": "Üyeliklerim",
+  "siteMembershipsNoneTitle": "Üyelik yok",
+  "siteMembershipsNoneMessage": "Web sitemizdeki üyelikleriniz ve abonelikleriniz burada görünür.",
+  "siteMembershipsManaged": "Üyelikler web sitemizden yönetilir.",
+  "siteMembershipActive": "Etkin",
+  "siteMembershipOnHold": "Beklemede",
+  "siteMembershipCancelled": "İptal edildi",
+  "siteMembershipRenews": "{date} tarihinde yenilenir",
+  "siteMembershipEnds": "{date} tarihinde sona erer",
+  "siteMembershipCourses": "{count, plural, =1{1 kurs} other{{count} kurs}}",
+  "courseMembershipTitle": "Üyelere özel",
+  "courseMembershipPlans": "Bu kurs web sitemizdeki bir üyelikle birlikte gelir: {plans}.",
+  "courseMembershipAny": "Bu kurs web sitemizdeki bir üyelikle birlikte gelir.",
+  "courseMembershipWebsite": "Üyelikleri web sitesinde gör"
 }

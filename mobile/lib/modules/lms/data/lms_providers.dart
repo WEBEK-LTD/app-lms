@@ -106,6 +106,12 @@ final certificatesProvider = FutureProvider.autoDispose<List<Certificate>>(
   (ref) => ref.contentApi.listCertificates(),
 );
 
+/// 90.3 The student's memberships on the website.
+final subscriptionsProvider =
+    FutureProvider.autoDispose<List<SiteSubscription>>(
+      (ref) => ref.contentApi.listSubscriptions(),
+    );
+
 final devicesProvider = FutureProvider.autoDispose<DeviceList>(
   (ref) => ref.contentApi.listDevices(),
 );

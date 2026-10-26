@@ -1085,6 +1085,10 @@ never in a chat or an issue.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **Memberships from the site** (90.3): plugin 0.4.14. On a test site
+      with Paid Memberships Pro, a course set to "Require membership": the
+      app names the plan, a member joins it in one tap, and Account › My
+      memberships lists the level.
 - [ ] **Academies, complete** (90.1): migration `0078_quiz_attempts.sql`
       (a new table) goes with the production deploy, migrations first.
       Certificates are at `/a/<app ID>/certificate/<code>`, signed with
