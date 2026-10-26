@@ -1851,6 +1851,10 @@ Turn on **Give a certificate to students who finish** in the course's details. S
 
 Fill in **Access for (days)** to close the course for each student that many days after they enroll, for courses sold for a term. The app shows students when their access ends. Leave it empty for access that doesn't end.
 
+## Students' progress
+
+On a course's page, under **Students**, select **Progress and quiz results**. You see each student's progress, the lessons they completed, their best score in each quiz, when they last learned, when they finished and when their access ends. Below, each quiz shows how many students took it, how many passed and their average best score. Select **Download CSV** for the same list as a spreadsheet, with a column for each quiz.
+
 > The wishlist is available with a WordPress LMS, not with courses managed in Yallapp.
 `,
   }),

@@ -2334,6 +2334,11 @@ app opens on the site's links (`<site>/a/page/<slug>`).
   `/a/<app>/certificate/<user>-<course>-<HMAC>` (`SIGNING_SECRET`), checked
   against the enrolment and the progress each time it opens, showing the
   student's name only.
+- **Progress for the teacher** (90.2, `lib/courses/report.ts`): a course's
+  students with their progress, best quiz scores and last activity, from the
+  enrolments, lesson progress and submitted attempts; the Students page
+  (`/dashboard/courses/<id>/students`) and its CSV file
+  (`/api/dashboard/courses/<id>/progress`, the Courses permission).
 
 ## Updates you can undo (Phase 89)
 

@@ -3,6 +3,7 @@ import { newApp } from "@/lib/app/setup";
 import { parseCourse, parseLesson } from "@/lib/courses/forms";
 import { accessEndsAt, certificateCode, courseProgress, lessonOpensAt, readCertificateCode, scoreQuiz, topicItems } from "@/lib/courses/learning";
 import { deleteQuiz, parseQuestions, parseQuiz, questionsText, saveQuiz } from "@/lib/courses/quizzes";
+import { courseReport, courseReportCsv, quizSummaries } from "@/lib/courses/report";
 import type { MemoryStore } from "@/lib/data/memory";
 import type { App, CourseQuiz, CourseSetup, QuizAttempt } from "@/lib/data/types";
 import { CoursesConnector } from "@/lib/hosted/connectors/courses";
@@ -88,8 +89,8 @@ describe("90.1 learning rules", () => {
     const course = academy().courses[0]!;
     expect(topicItems(course.topics[0]!).map((i) => i.kind)).toEqual(["lesson", "lesson", "quiz"]);
     const progress = new Map([
-      [12, { appId: "a", userId: 1, courseId: 10, lessonId: 12, positionSeconds: 0, watchedPercent: 100, completedAt: days(1), updatedAt: days(1) }],
-      [13, { appId: "a", userId: 1, courseId: 10, lessonId: 13, positionSeconds: 0, watchedPercent: 100, completedAt: days(8), updatedAt: days(8) }],
+      [12, { appId: "a", userId: 1, courseId: 10, lessonId: 12, positionSeconds: 0, completedAt: days(1), updatedAt: days(1) }],
+      [13, { appId: "a", userId: 1, courseId: 10, lessonId: 13, positionSeconds: 0, completedAt: days(8), updatedAt: days(8) }],
     ]);
     expect(courseProgress(course, progress, [])).toMatchObject({ completed_items: 2, total_items: 3, percent: 67, course_completed: false, completed_at: null });
     const passed = { quizId: 15, passed: true, submittedAt: days(9) } as QuizAttempt;
@@ -322,5 +323,43 @@ describe("90.1 on the hosted API", () => {
     expect((await call("POST", "/quizzes/{quiz_id}/attempts/{attempt_id}/submit", { params: ["15", "999"], token, body: { answers: [] } })).status).toBe(404);
     expect((await call("GET", "/quizzes/{quiz_id}", { params: ["99"], token })).status).toBe(404);
     expect((await call("GET", "/quizzes/{quiz_id}", { params: ["15"] })).status).toBe(401);
+  });
+});
+
+describe("90.2 progress for the teacher", () => {
+  it("lists each student's progress, quiz results and last activity, and writes the CSV file", async () => {
+    const { store } = await setupClient();
+    const client = (await store.listClients({ filter: "all", now: NOW }))[0]!.client;
+    const app: App = { ...newApp(client.id, null, NOW, "lms"), backend: "hosted", connector: { kind: "courses" }, courseSetup: academy() };
+    await store.createApp(app);
+    const course = academy().courses[0]!;
+    const ada = (await store.createHostedUser({ appId: app.id, phone: "+905321111111", name: "Ada", email: "ada@x.test", city: null, now: NOW }))!;
+    const bora = (await store.createHostedUser({ appId: app.id, phone: "+905322222222", name: "Bora", email: null, city: null, now: NOW }))!;
+    await store.enrollInCourse({ appId: app.id, userId: ada.id, courseId: 10, source: "free", enrolledAt: NOW });
+    await store.enrollInCourse({ appId: app.id, userId: bora.id, courseId: 10, source: "manual", enrolledAt: days(1) });
+    for (const lessonId of [12, 13]) {
+      await store.saveLessonProgress({ appId: app.id, userId: ada.id, courseId: 10, lessonId, positionSeconds: 0, completedAt: days(8), updatedAt: days(8) });
+    }
+    const attempt = (passed: boolean, score: number, at: Date) => ({ appId: app.id, userId: ada.id, courseId: 10, quizId: 15, answers: {}, scorePercent: score, passed, startedAt: at, submittedAt: at });
+    await store.createQuizAttempt(attempt(false, 0, days(8)));
+    await store.createQuizAttempt(attempt(true, 100, days(9)));
+    // An attempt started and never sent doesn't count.
+    await store.createQuizAttempt({ ...attempt(false, 0, days(10)), answers: null, scorePercent: null, passed: null, submittedAt: null });
+
+    const rows = await courseReport(store, app, course);
+    expect(rows.map((r) => r.name)).toEqual(["Ada", "Bora"]);
+    expect(rows[0]).toMatchObject({ lessonsDone: 2, lessons: 2, percent: 100, completedAt: days(9), lastActivity: days(9), accessEndsAt: days(30), quizzes: [{ quizId: 15, attempts: 2, best: 100, passed: true }] });
+    expect(rows[1]).toMatchObject({ source: "manual", percent: 0, lastActivity: null, completedAt: null, quizzes: [{ attempts: 0, best: null, passed: false }] });
+    expect(quizSummaries(course, rows)).toEqual([{ quizId: 15, title: "Check yourself", took: 1, passed: 1, averageBest: 100 }]);
+
+    const file = courseReportCsv(course, rows).split("\r\n");
+    expect(file[0]).toBe("Name,Phone,Email,Enrolled,How,Lessons completed,Progress (%),Finished,Last activity,Access ends,Check yourself");
+    // Phone numbers start with + and are kept from being read as a formula.
+    expect(file[1]).toBe("Ada,'+905321111111,ada@x.test,2026-10-12,Free,2/2,100,2026-10-21,2026-10-21,2026-11-11,100% (passed)");
+    expect(file[2]).toBe("Bora,'+905322222222,,2026-10-13,Added by you,0/2,0,,,2026-11-12,");
+    // In Arabic and Turkish the column names and words are translated.
+    const ar = courseReportCsv(course, rows, knownTranslator("ar")).split("\r\n");
+    expect(ar[0]!.startsWith("الاسم,الهاتف")).toBe(true);
+    expect(ar[2]).toContain("أضفته أنت");
   });
 });

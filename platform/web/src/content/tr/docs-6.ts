@@ -61,6 +61,10 @@ Kursun ayrıntılarında **Kursu bitiren öğrencilere sertifika ver**'i açın.
 
 Belirli bir süre için satılan kurslarda, kursun her öğrenci için kaydından bu kadar gün sonra kapanması için **Erişim süresi (gün)** alanını doldurun. Uygulama, öğrencilere erişimlerinin ne zaman biteceğini gösterir. Süresiz erişim için boş bırakın.
 
+## Öğrencilerin ilerlemesi
+
+Bir kursun sayfasında, **Öğrenciler** altında **İlerleme ve sınav sonuçları**'nı seçin. Her öğrencinin ilerlemesini, tamamladığı dersleri, her sınavdaki en iyi puanını, en son ne zaman çalıştığını, ne zaman bitirdiğini ve erişiminin ne zaman sona ereceğini görürsünüz. Altında her sınav, kaç öğrencinin girdiğini, kaçının geçtiğini ve ortalama en iyi puanlarını gösterir. Aynı listeyi her sınav için bir sütunla elektronik tablo olarak almak için **CSV indir**'i seçin.
+
 > İstek listesi, Yallapp'te yönetilen kurslarda değil, bir WordPress LMS ile kullanılabilir.
 `,
   },
