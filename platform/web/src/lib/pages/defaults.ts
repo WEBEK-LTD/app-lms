@@ -1,6 +1,7 @@
 import { ENGINES, isAppType, kindOf } from "../app/kinds";
 import type { App, AppVertical } from "../data/types";
-import { APP_FONTS, type Appearance, type AppDefaultsSetting, type LayoutBlock, type LayoutContent, type LayoutTab } from "./types";
+import { lookFont, withLook } from "../fonts/look";
+import type { Appearance, AppDefaultsSetting, LayoutBlock, LayoutContent, LayoutTab } from "./types";
 
 /** Used until the team sets defaults for new apps in the admin (11.9). */
 export const BUILT_IN_APP_DEFAULTS: AppDefaultsSetting = {
@@ -24,7 +25,9 @@ export function defaultAppearance(app: Pick<App, "template" | "font" | "branding
   const appearance: Appearance = { ...defaults.appearance, secondary_color: null };
   if (app.brandingDoneAt) {
     appearance.template = app.template;
-    if ((APP_FONTS as readonly string[]).includes(app.font)) appearance.font = app.font as Appearance["font"];
+    // 97.1 Any free font: the bundled one to show until it's on the phone, and the font itself.
+    const font = lookFont(app.font);
+    if (font) return withLook(appearance, font);
   }
   return appearance;
 }

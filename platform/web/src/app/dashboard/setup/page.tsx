@@ -25,6 +25,7 @@ import { hostedApiUrl } from "@/lib/hosted/urls";
 import { normalizeSiteUrl } from "@/lib/license/site-url";
 import { siteMatch } from "@/lib/app/site-match";
 import { hasFeature, lowestPlanWith, planName } from "@/lib/plans";
+import { FREE_FONT_COUNT } from "@/lib/fonts/catalog";
 import { BrandingStep, ListingStep, PublishingStep, WebsiteStep, type BrandingDesigns } from "./steps";
 import { CheckLinksPanel } from "../publishing/links/forms";
 import type { DataStore } from "@/lib/data/store";
@@ -230,6 +231,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
           }}
           icon={icon ? { id: icon.id, url: `/api/v1/assets/${icon.id}` } : null}
           logo={logo ? { id: logo.id, url: `/api/v1/assets/${logo.id}` } : null}
+          fontCount={FREE_FONT_COUNT}
           {...await brandingDesigns(store, app)}
         />
       ) : null}

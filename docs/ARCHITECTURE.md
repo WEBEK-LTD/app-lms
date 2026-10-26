@@ -2908,8 +2908,9 @@ an app made from it needs (81.3 builds the draft from it; nothing is kept):
   and Wix's `r, g, b` variables), then the most used; greys, white and black
   are left out.
 - **Fonts:** Google Fonts links, `@font-face`, `font-family` and the themes'
-  font variables, matched to the app's six fonts by family (Poppins →
-  Outfit, Inter → Manrope, Cairo → Lexend…).
+  font variables. 97.1 The site's first font that is a free font (any Google
+  font) is the app's; a font that isn't (Helvetica, a paid font) is matched
+  to the closest of the app's six fonts (Helvetica → Manrope…).
 - **Platform:** WordPress with its plugins (WooCommerce, the LMS and
   booking plugins, The Events Calendar, GiveWP), Shopify, Salla, Zid, ikas,
   Ticimax, IdeaSoft, Wix, Teachable, Thinkific, SimplyBook, Squarespace,
@@ -3281,6 +3282,30 @@ without a new build. The app renders whatever the API sends.
   (system, light or dark), whether students can switch it, the font, the
   secondary color, corners and card style. The build config only sets the
   defaults used before the first `/config` and when `appearance` is missing.
+- **Fonts (97.1).** Any family of Google Fonts, about 1,976 of them:
+  `scripts/google-fonts.mjs` makes `src/lib/fonts/google-fonts.json` from
+  github.com/google/fonts at one commit (family, folder, category, whether
+  it draws Arabic, and its upright files: one variable file, or one per
+  weight from 400 to 700). Icon and emoji fonts are left out, and so are
+  families with a file over 5 MB (a Netlify function answers at most 6 MB;
+  mostly Chinese, Japanese and Korean fonts). The files are served at
+  `/api/v1/fonts/<licence>/<folder>/<file>` (docs/api/platform.yaml, tag
+  Fonts): copied once from raw.githubusercontent.com at that commit, checked
+  to be a TrueType or OpenType file, kept in Netlify Blobs and cached for a
+  year. Neither the dashboard nor the app ever loads a font from Google.
+  `Appearance.font` stays one of the six bundled fonts (older apps and
+  plugins read only that, and the app shows it until the chosen font is on
+  the phone); `font_family` names a free font and `arabic_font` the font of
+  Arabic text (Readex Pro, bundled, when missing). Their files
+  (`font_files`, `arabic_font_files`) are added when the look is served
+  (hosted API, and the layout the plugin pulls, from plugin 0.4.19), never
+  stored. The app (`lib/core/theme/fonts`) downloads them once, keeps them
+  in its support folder and registers them with `FontLoader`; the web
+  preview lets the browser keep them. The dashboard's font picker
+  (`components/font-picker.tsx`) searches `GET /api/v1/fonts` and draws
+  each name in its own font as it scrolls into view. Apps on their own API
+  get only the bundled font from the build config, unless their API sends
+  `font_files` itself.
 - **Pages.** `GET /pages` returns the bottom tabs and the page list;
   `GET /pages/{slug}` returns one page as a list of blocks: banner, text
   (HTML), image, video, button, a list of items, categories, search,

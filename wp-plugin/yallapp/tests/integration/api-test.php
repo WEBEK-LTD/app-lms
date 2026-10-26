@@ -358,7 +358,20 @@ foreach ( call( 'GET', '/categories' )['json']['items'] ?? array() as $category 
 }
 $layout = array(
 	'version'    => '2026-10-13T18:00:00Z.4',
-	'appearance' => array( 'template' => 'bold', 'theme_mode' => 'dark', 'user_can_change_mode' => true, 'secondary_color' => '#e8b04b', 'font' => 'Outfit', 'corners' => 'round', 'cards' => 'elevated' ),
+	// 97.1 A free font with its files; the Arabic font's file isn't https, so only its name passes.
+	'appearance' => array(
+		'template'             => 'bold',
+		'theme_mode'           => 'dark',
+		'user_can_change_mode' => true,
+		'secondary_color'      => '#e8b04b',
+		'font'                 => 'Outfit',
+		'font_family'          => 'Cairo',
+		'font_files'           => array( array( 'url' => 'https://yallapp.example/api/v1/fonts/ofl/cairo/Cairo%5Bslnt%2Cwght%5D.ttf', 'weight' => null ) ),
+		'arabic_font'          => 'Tajawal',
+		'arabic_font_files'    => array( array( 'url' => 'http://yallapp.example/api/v1/fonts/ofl/tajawal/Tajawal-Regular.ttf', 'weight' => 400 ) ),
+		'corners'              => 'round',
+		'cards'                => 'elevated',
+	),
 	'languages'  => array( 'default' => 'en', 'available' => array( 'en', 'ar' ) ),
 	'tabs'       => array(
 		array( 'id' => 'home', 'label' => 'Home', 'icon' => 'home', 'target' => array( 'type' => 'page', 'page_slug' => 'home' ), 'translations' => array( 'ar' => array( 'label' => 'الرئيسية' ) ) ),
@@ -426,7 +439,22 @@ $layout = array(
 store_layout( $layout );
 
 $r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
-check( 'config: published look', array( 'template' => 'bold', 'theme_mode' => 'dark', 'user_can_change_mode' => true, 'secondary_color' => '#E8B04B', 'font' => 'Outfit', 'corners' => 'round', 'cards' => 'elevated' ) === ( $r['json']['appearance'] ?? null ), $r['json']['appearance'] ?? null );
+check(
+	'config: published look, with its free fonts',
+	array(
+		'template'             => 'bold',
+		'theme_mode'           => 'dark',
+		'user_can_change_mode' => true,
+		'secondary_color'      => '#E8B04B',
+		'font'                 => 'Outfit',
+		'corners'              => 'round',
+		'cards'                => 'elevated',
+		'font_family'          => 'Cairo',
+		'font_files'           => array( array( 'url' => 'https://yallapp.example/api/v1/fonts/ofl/cairo/Cairo%5Bslnt%2Cwght%5D.ttf', 'weight' => null ) ),
+		'arabic_font'          => 'Tajawal',
+	) === ( $r['json']['appearance'] ?? null ),
+	$r['json']['appearance'] ?? null
+);
 check( 'config: published languages', array( 'default' => 'en', 'available' => array( 'en', 'ar' ) ) === ( $r['json']['languages'] ?? null ), $r['json']['languages'] ?? null );
 $r = call( 'GET', '/pages?platform=android' );
 check_navigation_shape( 'published pages: navigation shape', $r['json'] );

@@ -120,6 +120,12 @@ tags:
       enough to count monthly active users and 30-day returns, also for events
       a phone sent up to a week late), then only daily totals remain; all of
       it is deleted with the app. Reports show totals only, never one install.
+  - name: Fonts
+    description: |
+      97.1 Every free font (Google Fonts) a client can choose for their app.
+      The files are copied once from github.com/google/fonts at one commit
+      and served from Yallapp: neither the dashboard nor the app loads a font
+      from Google. Public, like the fonts' open licences.
 
 paths:
   /licenses/activate:
@@ -682,6 +688,72 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /fonts:
+    get:
+      tags: [Fonts]
+      operationId: searchFonts
+      summary: Search the free fonts
+      description: The free fonts matching a search, best first, for the dashboard's font picker. With no search, the fonts bundled with the app come first.
+      parameters:
+        - { name: q, in: query, required: false, schema: { type: string, maxLength: 60 }, description: Words in the font's name. }
+        - { name: arabic, in: query, required: false, schema: { type: string, enum: ['1'] }, description: Only fonts that draw Arabic. }
+        - { name: category, in: query, required: false, schema: { type: string, enum: [sans, serif, display, handwriting, mono] } }
+        - { name: limit, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 40 } }
+      responses:
+        '200':
+          description: The fonts found
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [fonts]
+                properties:
+                  fonts:
+                    type: array
+                    items:
+                      type: object
+                      required: [family, category, arabic, bundled, preview_url]
+                      properties:
+                        family: { type: string, example: Cairo }
+                        category: { type: string, enum: [sans, serif, display, handwriting, mono] }
+                        arabic: { type: boolean, description: It draws Arabic. }
+                        bundled: { type: boolean, description: The app has it without downloading anything. }
+                        preview_url: { type: string, description: 'A file of the font, on Yallapp, to show its name in.', example: /api/v1/fonts/ofl/cairo/Cairo%5Bslnt%2Cwght%5D.ttf }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /fonts/{licence}/{folder}/{file}:
+    get:
+      tags: [Fonts]
+      operationId: getFontFile
+      summary: Get a free font's file
+      description: |
+        A font file (`FontFile.url` in docs/api/openapi.yaml): TrueType or
+        OpenType, at most 5 MB, never changing (cached for a year). Only the
+        files of the catalog's fonts are served. Cross-origin requests are
+        allowed, for the app preview.
+      parameters:
+        - { name: licence, in: path, required: true, schema: { type: string, enum: [ofl, apache, ufl] } }
+        - { name: folder, in: path, required: true, schema: { type: string }, example: cairo }
+        - { name: file, in: path, required: true, schema: { type: string }, example: 'Cairo[slnt,wght].ttf' }
+      responses:
+        '200':
+          description: The font file
+          content:
+            font/ttf:
+              schema: { type: string, format: binary }
+            font/otf:
+              schema: { type: string, format: binary }
+        '404':
+          description: No such font file (`not_found`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '503':
+          description: The file couldn't be copied right now (`font_unavailable`); try again after `Retry-After`.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
 
 components:
   responses:

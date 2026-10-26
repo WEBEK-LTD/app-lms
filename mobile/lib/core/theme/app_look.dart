@@ -7,6 +7,7 @@ import '../gate/app_gate.dart';
 import '../providers.dart';
 import '../storage/local_settings.dart';
 import 'app_theme.dart';
+import 'fonts/remote_fonts.dart';
 import 'palette.dart';
 
 /// The app's look: the build config's defaults with `Config.appearance`
@@ -16,6 +17,7 @@ class AppLook {
   const AppLook({
     required this.template,
     required this.font,
+    this.fallback = fontFallback,
     required this.primary,
     this.secondary,
     this.corners,
@@ -24,15 +26,31 @@ class AppLook {
     this.userCanChangeMode = true,
   });
 
-  factory AppLook.resolve(BuildConfigData build, AppConfig? config) {
+  /// [ready]: the free fonts on the phone now (`remoteFontsProvider`).
+  factory AppLook.resolve(
+    BuildConfigData build,
+    AppConfig? config, {
+    Set<String> ready = const {},
+  }) {
     final appearance = config?.appearance;
     final template = appearance?.template ?? build.template;
     final remoteFont = appearance?.font;
+    bool usable(String? family) =>
+        family != null &&
+        (bundledFonts.contains(family) ||
+            fontFallback.contains(family) ||
+            ready.contains(family));
+    final chosen = appearance?.fontFamily;
+    final arabic = appearance?.arabicFont;
     return AppLook(
       template: template,
-      font: remoteFont != null && bundledFonts.contains(remoteFont)
+      // 97.1 A free font once it's on the phone; until then the bundled one named with it.
+      font: usable(chosen)
+          ? chosen!
+          : remoteFont != null && bundledFonts.contains(remoteFont)
           ? remoteFont
           : resolveFont(build.font, template),
+      fallback: usable(arabic) ? [arabic!, ...fontFallback] : fontFallback,
       primary:
           parseHexColor(config?.branding.primaryColor) ??
           Color(build.primaryColor),
@@ -50,6 +68,9 @@ class AppLook {
 
   final AppTemplate template;
   final String font;
+
+  /// Fonts for letters [font] doesn't draw: the Arabic text's font first.
+  final List<String> fallback;
   final Color primary;
 
   /// Replaces Ember as the accent when set.
@@ -79,11 +100,26 @@ class AppLook {
     fontFamily: font,
     corners: corners,
     cards: cards,
+    fallback: fallback,
   );
 }
 
 final appLookProvider = Provider<AppLook>((ref) {
   final build = ref.watch(appEnvironmentProvider).build;
   final gate = ref.watch(appGateProvider);
-  return AppLook.resolve(build, gate is GateReady ? gate.config : null);
+  final config = gate is GateReady ? gate.config : null;
+  // 97.1 The look's free fonts: downloaded (or read from the phone) once.
+  final appearance = config?.appearance;
+  if (appearance != null) {
+    final fonts = ref.read(remoteFontsProvider.notifier);
+    Future.microtask(() async {
+      if (appearance.fontFamily case final family?) {
+        await fonts.ensure(family, appearance.fontFiles);
+      }
+      if (appearance.arabicFont case final family?) {
+        await fonts.ensure(family, appearance.arabicFontFiles);
+      }
+    });
+  }
+  return AppLook.resolve(build, config, ready: ref.watch(remoteFontsProvider));
 });

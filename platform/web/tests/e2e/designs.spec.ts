@@ -71,7 +71,7 @@ test("the owner picks a design for their academy in the Branding step", async ()
   // A design brings its template and font.
   await design.getByRole("radio", { name: /^Kids academy/ }).check();
   await expect(own.getByLabel("Template")).toHaveValue("bold");
-  await expect(own.getByLabel("Font")).toHaveValue("Lexend");
+  await expect(own.getByLabel("Font", { exact: true })).toHaveValue("Lexend");
   await own.getByRole("button", { name: "Save & continue" }).click();
   await expect(own.getByRole("heading", { name: "Store listing" })).toBeVisible();
 
@@ -104,7 +104,7 @@ test("Pages & look has the design's tabs, blocks and look, marked as samples", a
   await own.getByRole("tab", { name: "Look" }).click();
   await expect(own.getByRole("radio", { name: "Bold" })).toBeChecked();
   await expect(own.getByLabel("Corners")).toHaveValue("round");
-  await expect(own.getByLabel("Font")).toHaveValue("Lexend");
+  await expect(own.getByLabel("Font", { exact: true })).toHaveValue("Lexend");
   await own.getByRole("tab", { name: "Pages" }).click();
 });
 

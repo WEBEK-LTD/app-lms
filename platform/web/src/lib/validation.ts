@@ -1,7 +1,8 @@
 import { createPrivateKey } from "node:crypto";
 import { z } from "zod";
 import { rewrapPem } from "./crypto/pem";
-import { APP_FONTS, APP_TEMPLATES, RULES } from "./build-config/types";
+import { APP_TEMPLATES, RULES } from "./build-config/types";
+import { freeFont } from "./fonts/catalog";
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "./auth/password-rules";
 import { isHttpUrl } from "./license/site-url";
 import { normalizeShopDomain } from "./hosted/connectors/shopify";
@@ -148,7 +149,12 @@ export const brandingSchema = z.object({
   primaryColor: color,
   splashColor: color,
   template: z.enum(APP_TEMPLATES, "Choose a template."),
-  font: z.enum(APP_FONTS, "Choose a font."),
+  // 97.1 Any free font, by its name in the catalog.
+  font: z
+    .string()
+    .trim()
+    .refine((f) => freeFont(f) !== null, "Choose a font from the list.")
+    .transform((f) => freeFont(f)!.family),
   iconAssetId: z.string().uuid("Upload your app icon."),
   logoAssetId: z.union([z.literal(""), z.string().uuid()]).transform((value) => value || null),
 });
