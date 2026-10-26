@@ -390,6 +390,21 @@ platform :ios do
     review = nil if review["demo_user"].to_s.empty? || review["demo_password"].to_s.empty?
     UI.important("App Review's details are kept as they are in App Store Connect (no demo account given).") unless review
 
+    # deliver reads App Review's details even when it sends none, and a new app's version has
+    # none yet ("No data"): start them empty, to fill in App Store Connect.
+    unless review
+      edit = app.get_edit_app_store_version(platform: Spaceship::ConnectAPI::Platform::IOS)
+      detail = begin
+        edit&.fetch_app_store_review_detail
+      rescue StandardError
+        nil
+      end
+      if edit && detail.nil?
+        edit.create_app_store_review_detail(attributes: {})
+        UI.important("App Review's details were empty: fill in the contact and notes in App Store Connect before submitting.")
+      end
+    end
+
     deliver(
       api_key: api_key,
       app_identifier: BUSINESS_ID,
