@@ -182,6 +182,9 @@ class _CartScreenState extends ConsumerState<CartScreen> {
             coupon: coupon != null && coupon.status != CouponStatus.invalid
                 ? coupon.code
                 : null,
+            // 91.4 The points shown taken off, when the customer chose them.
+            usePoints:
+                ref.read(cartQuoteProvider).value?.points?.applied ?? false,
           );
       if (!mounted) return;
       final inApp =
@@ -220,6 +223,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     final restaurant = ref.read(appConfigProvider).store?.fulfilment != null;
     ref.read(cartProvider.notifier).clear();
     ref.read(cartCouponProvider.notifier).set(null);
+    ref.read(cartUsePointsProvider.notifier).set(false);
     ref.invalidate(ordersProvider);
     setState(() {
       _deliveryDate = null;
@@ -412,6 +416,12 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                     ],
                     const SizedBox(height: 16),
                     _CouponCard(quote: value),
+                    // 91.4 The customer's loyalty points.
+                    if (value?.points case final points?
+                        when store.loyalty != null && points.balance > 0) ...[
+                      const SizedBox(height: 12),
+                      _PointsCard(points: points, rules: store.loyalty!),
+                    ],
                     const SizedBox(height: 12),
                     AppCard(
                       color: p.surfaceMuted,
@@ -469,6 +479,12 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                               value: '−$discount',
                               color: p.success,
                             ),
+                          if (value?.points?.discount case final points?)
+                            _SumRow(
+                              label: context.l10n.cartPointsDiscount,
+                              value: '−$points',
+                              color: p.success,
+                            ),
                           if (value?.shipping case final shipping?)
                             _SumRow(
                               label: context.l10n.cartShipping,
@@ -478,6 +494,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                             _SumRow(label: context.l10n.cartTaxes, value: tax),
                           if (value?.total case final total?
                               when value!.discount != null ||
+                                  value.points?.discount != null ||
                                   value.shipping != null ||
                                   value.tax != null)
                             _SumRow(
@@ -681,6 +698,61 @@ class _LineCard extends ConsumerWidget {
 }
 
 /// 91.1 A summary line under the subtotal.
+/// 91.4 The customer's points: a switch to use them on this order, or how
+/// many they need first.
+class _PointsCard extends ConsumerWidget {
+  const _PointsCard({required this.points, required this.rules});
+
+  final CartPoints points;
+  final LoyaltyRules rules;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final usable = points.usable > 0;
+    return AppCard(
+      padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+      child: Row(
+        children: [
+          AppIcon(AppIcons.loyalty, color: p.text),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  usable
+                      ? l10n.cartUsePoints(points.usable)
+                      : l10n.pointsBalance(points.balance),
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: p.text,
+                  ),
+                ),
+                Text(
+                  usable
+                      ? l10n.cartPointsWorth(points.usableValue ?? '')
+                      : l10n.cartPointsFrom(rules.minPoints),
+                  style: TextStyle(fontSize: 13, color: p.textSecondary),
+                ),
+              ],
+            ),
+          ),
+          if (usable)
+            Switch(
+              key: const Key('cart-use-points'),
+              value: points.applied,
+              onChanged: (on) =>
+                  ref.read(cartUsePointsProvider.notifier).set(on),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 class _SumRow extends StatelessWidget {
   const _SumRow({
     required this.label,

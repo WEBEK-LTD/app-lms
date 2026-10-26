@@ -6,7 +6,7 @@ import type {
   AssetKind,
   CatalogCurrency,
   CatalogFulfilment,
-  OrderReturn, OrderShipment,
+  LoyaltyReason, OrderPoints, OrderReturn, OrderShipment,
   CatalogOptionGroup,
   CatalogCustomer,
   CatalogOrderLine,
@@ -656,6 +656,8 @@ export const catalogOrders = mysqlTable(
     discountCents: bigint("discount_cents", { mode: "number", unsigned: true }).notNull().default(0),
     // 91.3 The return the customer asked for, and the shop's answer (JSON).
     returnRequest: jsonText<OrderReturn>("return_request"),
+    // 91.4 Loyalty points used on it and earned by it (JSON).
+    points: jsonText<OrderPoints>("points"),
   },
   (t) => [
     uniqueIndex("catalog_orders_token_unique").on(t.tokenHash),
@@ -1936,6 +1938,41 @@ export const hostedOrderWatches = mysqlTable(
     until: time("until_at").notNull(),
   },
   (t) => [primaryKey({ columns: [t.appId, t.userId] }), index("hosted_order_watches_due_idx").on(t.until, t.checkedAt)],
+);
+
+/** 91.4 A customer's loyalty points in a shop without a website. */
+export const loyaltyBalances = mysqlTable(
+  "loyalty_balances",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    balance: int("balance").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.appId, t.userId] })],
+);
+
+/** 91.4 Each change to a customer's points, for their history. */
+export const loyaltyEntries = mysqlTable(
+  "loyalty_entries",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    orderId: bigint("order_id", { mode: "number", unsigned: true }),
+    points: int("points").notNull(),
+    reason: varchar("reason", { length: 16 }).$type<LoyaltyReason>().notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("loyalty_entries_user_idx").on(t.appId, t.userId, t.id)],
 );
 
 /** 85.2 Notification campaigns: drafts, sent once (now or later) or every week. */

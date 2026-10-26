@@ -4129,4 +4129,74 @@ class OverlayLocalizations extends AppLocalizations {
   String returnShopReply(String reply) =>
       overlay.format('returnShopReply', {'reply': reply}) ??
       base.returnShopReply(reply);
+
+  @override
+  String get myPoints => overlay.text('myPoints') ?? base.myPoints;
+
+  @override
+  String pointsBalance(int count) =>
+      overlay.format('pointsBalance', {'count': count}) ??
+      base.pointsBalance(count);
+
+  @override
+  String pointsWorth(String value) =>
+      overlay.format('pointsWorth', {'value': value}) ??
+      base.pointsWorth(value);
+
+  @override
+  String pointsRule(String spend, String value) =>
+      overlay.format('pointsRule', {'spend': spend, 'value': value}) ??
+      base.pointsRule(spend, value);
+
+  @override
+  String cartPointsFrom(int count) =>
+      overlay.format('cartPointsFrom', {'count': count}) ??
+      base.cartPointsFrom(count);
+
+  @override
+  String cartUsePoints(int count) =>
+      overlay.format('cartUsePoints', {'count': count}) ??
+      base.cartUsePoints(count);
+
+  @override
+  String cartPointsWorth(String value) =>
+      overlay.format('cartPointsWorth', {'value': value}) ??
+      base.cartPointsWorth(value);
+
+  @override
+  String get cartPointsDiscount =>
+      overlay.text('cartPointsDiscount') ?? base.cartPointsDiscount;
+
+  @override
+  String get pointsHistory =>
+      overlay.text('pointsHistory') ?? base.pointsHistory;
+
+  @override
+  String get pointsReasonEarned =>
+      overlay.text('pointsReasonEarned') ?? base.pointsReasonEarned;
+
+  @override
+  String get pointsReasonUsed =>
+      overlay.text('pointsReasonUsed') ?? base.pointsReasonUsed;
+
+  @override
+  String get pointsReasonGivenBack =>
+      overlay.text('pointsReasonGivenBack') ?? base.pointsReasonGivenBack;
+
+  @override
+  String get pointsReasonTakenBack =>
+      overlay.text('pointsReasonTakenBack') ?? base.pointsReasonTakenBack;
+
+  @override
+  String get noPointsYet => overlay.text('noPointsYet') ?? base.noPointsYet;
+
+  @override
+  String orderPointsUsed(int count, String amount) =>
+      overlay.format('orderPointsUsed', {'count': count, 'amount': amount}) ??
+      base.orderPointsUsed(count, amount);
+
+  @override
+  String orderPointsEarned(int count) =>
+      overlay.format('orderPointsEarned', {'count': count}) ??
+      base.orderPointsEarned(count);
 }

@@ -8,6 +8,7 @@ import {
   savePaymentKeysAction,
   saveProductAction,
   saveShopSettingsAction,
+  saveLoyaltyAction,
 } from "@/app/actions/catalog";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { btn } from "@/components/ui";
@@ -556,6 +557,53 @@ export function ShopSettingsForm({
       <div className="flex justify-end">
         <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
           {t("shop.saveSettings")}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 91.4 The shop's loyalty points. */
+export function LoyaltyForm({ values: saved, currency }: { values: { on: string; spend: string; value: string; minPoints: string }; currency: string }) {
+  const t = useDashT();
+  const [state, action] = useActionState(saveLoyaltyAction, initialFormState);
+  const values = { ...saved, ...state.values };
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4">
+      <FormMessage message={state.message} ok={state.ok} />
+      <Check name="on" label={t("shop.loyaltyOn")} hint={t("shop.loyaltyIntro")} defaultChecked={values.on === "on"} />
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Field
+          label={t("shop.loyaltySpend", { currency })}
+          id="f-loyalty-spend"
+          name="spend"
+          inputMode="decimal"
+          defaultValue={values.spend}
+          hint={t("shop.loyaltySpendHint")}
+          error={state.errors?.spend}
+        />
+        <Field
+          label={t("shop.loyaltyValue", { currency })}
+          id="f-loyalty-value"
+          name="value"
+          inputMode="decimal"
+          defaultValue={values.value}
+          hint={t("shop.loyaltyValueHint")}
+          error={state.errors?.value}
+        />
+        <Field
+          label={t("shop.loyaltyMin")}
+          id="f-loyalty-min"
+          name="minPoints"
+          inputMode="numeric"
+          defaultValue={values.minPoints}
+          hint={t("shop.loyaltyMinHint")}
+          error={state.errors?.minPoints}
+        />
+      </div>
+      <div className="flex justify-end">
+        <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
+          {t("shop.saveLoyalty")}
         </SubmitButton>
       </div>
     </form>

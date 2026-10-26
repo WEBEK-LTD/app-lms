@@ -14,6 +14,7 @@ import '../shared/shared_routes.dart';
 import 'data/cart_controller.dart';
 import 'screens/cart_screen.dart';
 import 'screens/menu_screen.dart';
+import 'screens/points_screen.dart';
 import 'screens/product_reviews_screen.dart';
 import 'screens/product_screen.dart';
 import 'screens/shop_screen.dart';
@@ -93,7 +94,16 @@ List<TabScreen> _screens() => [
   TabScreen(
     Paths.account,
     (state) => const ProfileScreen(),
-    routes: accountSubRoutes(),
+    routes: accountSubRoutes(
+      extra: [
+        // 91.4 The customer's loyalty points.
+        GoRoute(
+          path: 'points',
+          parentNavigatorKey: rootNavigatorKey,
+          pageBuilder: (context, state) => appPage(state, const PointsScreen()),
+        ),
+      ],
+    ),
   ),
 ];
 

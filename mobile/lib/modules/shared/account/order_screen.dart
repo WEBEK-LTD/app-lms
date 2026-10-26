@@ -168,6 +168,23 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
               value: order.total,
               strong: true,
             ),
+            // 91.4 The loyalty points used on it, and those it earned.
+            if (order.points case final points?) ...[
+              if (points.used > 0)
+                Text(
+                  l10n.orderPointsUsed(points.used, points.discount ?? ''),
+                  style: TextStyle(fontSize: 14, color: p.textSecondary),
+                ),
+              if (points.earned > 0)
+                Text(
+                  l10n.orderPointsEarned(points.earned),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: p.success,
+                  ),
+                ),
+            ],
             // 47 What the business refunded of it.
             if (order.refundedTotal != null)
               Text(

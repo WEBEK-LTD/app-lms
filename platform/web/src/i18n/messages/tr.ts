@@ -166,6 +166,7 @@ export const tr: Messages = {
     rowOffline: "Çevrimdışı mod",
     rowRebuilds: "Otomatik yeniden derleme",
     rowChat: "Uygulama içi sohbet",
+    rowLoyalty: "Sadakat puanları",
     rowPublishing: "Yayınlama",
     rowStoreUpdates: "Otomatik mağaza güncellemeleri",
     rowTeam: "Ekip üyeleri",

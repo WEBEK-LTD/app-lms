@@ -14,6 +14,7 @@ export const en = {
   shipping: "Shipping: {amount}",
   // 91.1
   coupon: "Coupon {code}: -{amount}",
+  points: "Loyalty points ({points}): -{amount}",
   deliveryFee: "Delivery fee: {amount}",
   withAddress: "{line}: {address}",
   phone: "Phone",
@@ -37,6 +38,7 @@ export const ar: Messages = {
   yourApp: "تطبيقك: {url}",
   shipping: "الشحن: {amount}",
   coupon: "القسيمة {code}: -{amount}",
+  points: "نقاط الولاء ({points}): -{amount}",
   deliveryFee: "رسوم التوصيل: {amount}",
   withAddress: "{line}: {address}",
   phone: "الهاتف",
@@ -58,6 +60,7 @@ export const tr: Messages = {
   yourApp: "Uygulamanız: {url}",
   shipping: "Kargo: {amount}",
   coupon: "Kupon {code}: -{amount}",
+  points: "Sadakat puanları ({points}): -{amount}",
   deliveryFee: "Teslimat ücreti: {amount}",
   withAddress: "{line}: {address}",
   phone: "Telefon",

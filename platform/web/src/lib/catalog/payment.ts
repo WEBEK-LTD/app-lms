@@ -1,4 +1,5 @@
 import { membershipEnd } from "../bookings/memberships";
+import { spendOrderPoints } from "./loyalty";
 import { bookingSetup } from "../bookings/setup";
 import { parseAnyPhone } from "../hosted/phone";
 import { hostedSettings } from "../hosted/service";
@@ -67,10 +68,10 @@ export async function startPayment(
   // 49 Tickets: never start a payment for places already released.
   await checkTicketHold(deps.store, deps.app, order, deps.now);
   const tickets = deps.app.connector?.kind === "events";
-  // 91.1 A coupon's discount comes off the products, so the lines add up to what is charged.
+  // 91.1 A coupon's discount (91.4 and the points') comes off the products, so the lines add up to what is charged.
   const lineCents = spreadDiscount(
     order.lines.map((l) => l.unitCents * l.quantity),
-    order.discountCents ?? 0,
+    (order.discountCents ?? 0) + (order.points?.discountCents ?? 0),
   );
   const lines: CheckoutLine[] = order.lines.map((l, i) => ({
     id: `${l.productId}-${i}`,
@@ -246,6 +247,7 @@ export function newOrderMailValues(order: CatalogOrder, appName: string, dashboa
     lang === "en" ? `${order.fulfilment ? "Delivery fee" : "Shipping"}: ${amount}` : t(order.fulfilment ? "emails.deliveryFee" : "emails.shipping", { amount });
   const discount = (amount: string) =>
     lang === "en" ? `Coupon ${order.couponCode}: -${amount}` : t("emails.coupon", { code: order.couponCode ?? "", amount });
+  const points = (n: number, amount: string) => (lang === "en" ? `Loyalty points (${n}): -${amount}` : t("emails.points", { points: String(n), amount }));
   const c = order.customer;
   return {
     app_name: appName,
@@ -255,6 +257,7 @@ export function newOrderMailValues(order: CatalogOrder, appName: string, dashboa
       // 26 A dish's options in brackets, and how a restaurant's order is collected.
       ...order.lines.map((l) => `${l.name}${l.options?.length ? ` (${optionsText(l)})` : ""} × ${l.quantity}: ${money(l.unitCents * l.quantity)}`),
       ...(order.discountCents ? [discount(money(order.discountCents))] : []),
+      ...(order.points?.discountCents ? [points(order.points.used, money(order.points.discountCents))] : []),
       ...(order.shippingCents > 0 ? [shipping(money(order.shippingCents))] : []),
       ...(order.fulfilment ? ["", fulfilmentLine(order.fulfilment, timezone, lang)] : []),
     ].join("\n"),
@@ -337,6 +340,8 @@ export async function deliverPaidOrder(store: DataStore, app: App, order: Catalo
     const coupon = await store.getCatalogCouponByCode(app.id, order.couponCode);
     if (coupon) await store.useCatalogCoupon(app.id, coupon.id);
   }
+  // 91.4 And spends the loyalty points it used.
+  await spendOrderPoints(store, order, now);
   await enrollPaidCourses(store, app, order, now);
   await startPaidMemberships(store, app, order, now);
   await issuePaidTickets(store, app, order, now, baseUrl);

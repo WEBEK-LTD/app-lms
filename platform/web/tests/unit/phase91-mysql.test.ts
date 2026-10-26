@@ -115,4 +115,23 @@ describe.skipIf(!url)("91.1 coupons on MySQL", () => {
     await store.updateCatalogOrder(app.id, order.id, { returnRequest: answered, updatedAt: NOW });
     expect((await store.getCatalogOrder(app.id, order.id))!.returnRequest).toEqual(answered);
   });
+
+  it("91.4 keeps points: four spends at once never take the balance below 0, each change in the history", async () => {
+    const suffix = randomUUID().slice(0, 8);
+    const { client } = await registerClient(stores[0]!, { name: "Points Shop", email: `p914-${suffix}@points.test`, whatsapp: "+905446731942", siteUrl: "", password: null }, NOW);
+    const app: App = { ...newApp(client.id, null, NOW, "store"), backend: "hosted", connector: { kind: "catalog" } };
+    await stores[0]!.createApp(app);
+    const user = (await stores[0]!.createHostedUser({ appId: app.id, phone: `+90533${Math.floor(Math.random() * 1e7)}`, name: "Ece", email: null, city: null, now: NOW }))!;
+    expect(await stores[0]!.getLoyaltyBalance(app.id, user.id)).toBe(0);
+    expect(await stores[0]!.changeLoyaltyPoints({ appId: app.id, userId: user.id, orderId: 9, points: 200, reason: "earned", now: NOW })).toBe(200);
+    const taken = await Promise.all(stores.map((s) => s.changeLoyaltyPoints({ appId: app.id, userId: user.id, orderId: 10, points: -150, reason: "used", now: NOW })));
+    expect(taken.reduce((a, b) => a + b, 0)).toBe(-200);
+    expect(await stores[0]!.getLoyaltyBalance(app.id, user.id)).toBe(0);
+    // Nothing is kept for a change of 0.
+    expect(await stores[0]!.changeLoyaltyPoints({ appId: app.id, userId: user.id, orderId: 11, points: -5, reason: "used", now: NOW })).toBe(0);
+    const history = await stores[0]!.listLoyaltyEntries(app.id, user.id, 50);
+    expect(history.map((e) => e.points).reduce((a, b) => a + b, 0)).toBe(0);
+    expect(history.at(-1)).toMatchObject({ points: 200, reason: "earned", orderId: 9 });
+    expect(history.length).toBe(1 + taken.filter((t) => t !== 0).length);
+  });
 });

@@ -27,8 +27,8 @@ export const PLAN_RANK: Record<Plan, number> = { starter: 0, growth: 1, pro: 2, 
  * Features a plan has or hasn't. They are also the license features the
  * license API reports to the plugin (docs/api/platform.yaml).
  */
-/** 77 `chat`: the app's chat with the business (and course groups). */
-export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat"] as const;
+/** 77 `chat`: the app's chat with the business (and course groups). 91.4 `loyalty`: loyalty points in shops without a website. */
+export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty"] as const;
 export type PlanFeature = (typeof PLAN_FEATURE_IDS)[number];
 
 export type SupportLevel = "email" | "whatsapp" | "priority" | "dedicated";
@@ -122,6 +122,8 @@ export type PlanSetting = Pick<PlanInfo, "name" | "tagline" | "features" | "high
   currency?: string;
   limits?: PlanLimits;
   version?: 2;
+  /** 91.4 The features the admin listed when this edit was saved; a later one is the plan's default until the team saves it again. */
+  knownFeatures?: string[];
 };
 
 const BASE_LIMITS: PlanLimits = { appUsers: null, languages: null, sources: null, storageGb: 2, analyticsMonths: 3, teamMembers: 1, support: "email", accountManager: false, customFeatures: false };
@@ -155,7 +157,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     id: "growth",
     name: "Growth",
     tagline: "Android and iOS apps that grow with you",
-    features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild"],
+    features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "loyalty"],
     limits: { ...BASE_LIMITS, appUsers: 10000, languages: 3, sources: null, storageGb: 20, analyticsMonths: 12, support: "whatsapp" },
     highlights: [
       "Android & iOS apps",
@@ -178,7 +180,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     id: "pro",
     name: "Pro",
     tagline: "We publish your apps for you",
-    features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat"],
+    features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty"],
     limits: { ...BASE_LIMITS, appUsers: null, languages: null, sources: null, storageGb: 100, analyticsMonths: 24, teamMembers: 3, support: "priority" },
     highlights: [
       "Everything in Growth",
@@ -200,7 +202,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     id: "business",
     name: "Business",
     tagline: "A partner for your app",
-    features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat"],
+    features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty"],
     limits: { ...BASE_LIMITS, appUsers: null, languages: null, sources: null, storageGb: 500, analyticsMonths: 36, teamMembers: 10, support: "dedicated", accountManager: true, customFeatures: true },
     highlights: ["Everything in Pro", "A dedicated account manager", "Custom features on request", "Several team members", "Fastest support"],
     price: "On request",
@@ -259,6 +261,12 @@ export const PLAN_FEATURES: PlanFeatureDef[] = [
     label: "Chat in the app",
     description: "Your app users write to you in the app, and academies get a group for each course.",
     enforced: "Config chat (hosted API and the plugin's license), the Chat endpoints and the dashboard's Chat page.",
+  },
+  {
+    id: "loyalty",
+    label: "Loyalty points",
+    description: "Customers earn points on their orders and use them on the next ones.",
+    enforced: "Config store.loyalty, the cart's points and GET /me/points (shops without a website), and the Products page's Loyalty points.",
   },
 ];
 
@@ -357,6 +365,19 @@ export function cleanPlanTranslations(value: unknown): PlanTranslations | undefi
 }
 
 /** The plans with the team's edits from the admin. */
+/**
+ * 91.4 A saved plan's features. A feature added after the edit was saved (not
+ * in its `knownFeatures`; edits before 91.4 knew the eight before loyalty)
+ * keeps the plan's default until the team saves the plan again.
+ */
+const FEATURES_BEFORE_LOYALTY: readonly string[] = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat"];
+function featuresOf(edit: PlanSetting, base: PlanInfo): PlanFeature[] {
+  const known = Array.isArray(edit.knownFeatures) ? edit.knownFeatures : FEATURES_BEFORE_LOYALTY;
+  const saved = (edit.features ?? []).filter((f): f is PlanFeature => (PLAN_FEATURE_IDS as readonly string[]).includes(f));
+  const later = base.features.filter((f) => !known.includes(f) && !saved.includes(f));
+  return [...saved, ...later];
+}
+
 export function plansWith(settings: Partial<Record<Plan, PlanSetting>> | null | undefined): Record<Plan, PlanInfo> {
   const merge = (plan: Plan): PlanInfo => {
     const base = PLAN_INFO[plan];
@@ -383,7 +404,7 @@ export function plansWith(settings: Partial<Record<Plan, PlanSetting>> | null | 
       name: edit.name || base.name,
       tagline: edit.tagline ?? base.tagline,
       highlights: Array.isArray(edit.highlights) && edit.highlights.length ? edit.highlights : base.highlights,
-      features: (edit.features ?? []).filter((f): f is PlanFeature => (PLAN_FEATURE_IDS as readonly string[]).includes(f)),
+      features: featuresOf(edit, base),
       limits: cleanLimits(edit.limits, base.limits),
       id: plan,
       ...(cleanPlanTranslations(edit.translations) ? { translations: cleanPlanTranslations(edit.translations) } : {}),
@@ -399,6 +420,7 @@ export function planSettingOf(plan: PlanInfo): PlanSetting {
     name: plan.name,
     tagline: plan.tagline,
     features: [...plan.features],
+    knownFeatures: [...PLAN_FEATURE_IDS],
     limits: { ...plan.limits },
     highlights: [...plan.highlights],
     price: plan.price,
@@ -524,6 +546,7 @@ export function comparisonRows(plans: Record<Plan, PlanInfo>): ComparisonRow[] {
     { label: "Offline mode", values: has("offline_downloads") },
     { label: "Automatic rebuilds", values: has("auto_rebuild") },
     { label: "Chat in the app", values: has("chat") },
+    { label: "Loyalty points", values: has("loyalty") },
     { label: "Publishing", values: each((p) => (hasFeature(p, "auto_publish") ? "We publish for you" : "You publish with our guides")) },
     { label: "Automatic store updates", values: has("auto_publish") },
     { label: "Team members", values: each((p) => formatLimit(p.limits.teamMembers)) },

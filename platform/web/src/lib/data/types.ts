@@ -813,6 +813,8 @@ export interface CatalogSettings {
   fulfilment?: FulfilmentSettings | null;
   /** 91.3 Days after an order is completed during which the customer may ask to return it; null or missing: no returns from the app. */
   returnDays?: number | null;
+  /** 91.4 Loyalty points; null or missing: none. */
+  loyalty?: LoyaltySettings | null;
 }
 
 /** 26 How a restaurant's orders are collected, and when its kitchen takes them. */
@@ -1024,6 +1026,44 @@ export interface CatalogOrder {
   discountCents?: number;
   /** 91.3 The return the customer asked for, and the shop's answer; null or missing: none. */
   returnRequest?: OrderReturn | null;
+  /** 91.4 Loyalty points used on it and earned by it; null or missing: none. */
+  points?: OrderPoints | null;
+}
+
+/** 91.4 An order's loyalty points. */
+export interface OrderPoints {
+  /** Points taken off the order on the payment page (spent when it is paid). */
+  used: number;
+  /** What they took off. */
+  discountCents: number;
+  /** Points credited when it was completed; 0 until then, and again once taken back. */
+  earned: number;
+  /** The used points were given back (the paid order was cancelled or refunded). */
+  givenBack?: boolean;
+  /** The earned points were taken back (a return approved, a full refund): never earned again. */
+  takenBack?: boolean;
+}
+
+/** 91.4 A shop's loyalty points: one point for every `spendPerPointCents` paid for products, each worth `pointValueCents`. */
+export interface LoyaltySettings {
+  spendPerPointCents: number;
+  pointValueCents: number;
+  /** The fewest points used at once. */
+  minPoints: number;
+}
+
+export type LoyaltyReason = "earned" | "used" | "given_back" | "taken_back";
+
+/** 91.4 A change to a customer's points. */
+export interface LoyaltyEntry {
+  id: number;
+  appId: string;
+  userId: number;
+  orderId: number | null;
+  /** Added (positive) or taken (negative). */
+  points: number;
+  reason: LoyaltyReason;
+  createdAt: Date;
 }
 
 export type ReturnReason = "damaged" | "wrong_item" | "not_as_described" | "no_longer_needed" | "other";
@@ -1119,7 +1159,7 @@ export interface CatalogFulfilment {
 export type CatalogOrderPatch = Partial<
   Pick<
     CatalogOrder,
-    "status" | "customer" | "updatedAt" | "commissionCents" | "itemTransactionIds" | "payoutApprovedAt" | "fulfilmentStatus" | "paymentProvider" | "providerRef" | "shipment" | "returnRequest"
+    "status" | "customer" | "updatedAt" | "commissionCents" | "itemTransactionIds" | "payoutApprovedAt" | "fulfilmentStatus" | "paymentProvider" | "providerRef" | "shipment" | "returnRequest" | "points"
   >
 >;
 

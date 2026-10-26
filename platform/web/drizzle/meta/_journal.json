@@ -575,6 +575,13 @@
       "when": 1793012191881,
       "tag": "0081_order_returns",
       "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "5",
+      "when": 1793015908382,
+      "tag": "0082_loyalty_points",
+      "breakpoints": true
     }
   ]
 }

@@ -4029,4 +4029,114 @@ class AppLocalizationsAr extends AppLocalizations {
   String returnShopReply(String reply) {
     return 'المتجر: $reply';
   }
+
+  @override
+  String get myPoints => 'نقاطي';
+
+  @override
+  String pointsBalance(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count نقطة',
+      many: '$count نقطة',
+      few: '$count نقاط',
+      two: 'نقطتان',
+      one: 'نقطة واحدة',
+      zero: 'لا نقاط',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String pointsWorth(String value) {
+    return 'تساوي $value من قيمة طلباتك القادمة';
+  }
+
+  @override
+  String pointsRule(String spend, String value) {
+    return 'اكسب نقطة واحدة مقابل كل $spend تنفقها على المنتجات. وقيمة كل نقطة $value.';
+  }
+
+  @override
+  String cartPointsFrom(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'استخدمها عندما يصبح لديك $count نقطة.',
+      many: 'استخدمها عندما يصبح لديك $count نقطة.',
+      few: 'استخدمها عندما يصبح لديك $count نقاط.',
+      two: 'استخدمها عندما يصبح لديك نقطتان.',
+      one: 'استخدمها عندما يصبح لديك نقطة واحدة.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String cartUsePoints(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'استخدم $count نقطة',
+      many: 'استخدم $count نقطة',
+      few: 'استخدم $count نقاط',
+      two: 'استخدم نقطتين',
+      one: 'استخدم نقطة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String cartPointsWorth(String value) {
+    return 'خصم $value من هذا الطلب';
+  }
+
+  @override
+  String get cartPointsDiscount => 'النقاط';
+
+  @override
+  String get pointsHistory => 'السجل';
+
+  @override
+  String get pointsReasonEarned => 'مكتسبة';
+
+  @override
+  String get pointsReasonUsed => 'مستخدمة';
+
+  @override
+  String get pointsReasonGivenBack => 'مُعادة';
+
+  @override
+  String get pointsReasonTakenBack => 'مسحوبة';
+
+  @override
+  String get noPointsYet => 'لا توجد نقاط بعد. تكسبها عند اكتمال طلباتك.';
+
+  @override
+  String orderPointsUsed(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'استُخدمت $count نقطة: −$amount',
+      many: 'استُخدمت $count نقطة: −$amount',
+      few: 'استُخدمت $count نقاط: −$amount',
+      two: 'استُخدمت نقطتان: −$amount',
+      one: 'استُخدمت نقطة واحدة: −$amount',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String orderPointsEarned(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'كُسبت $count نقطة',
+      many: 'كُسبت $count نقطة',
+      few: 'كُسبت $count نقاط',
+      two: 'كُسبت نقطتان',
+      one: 'كُسبت نقطة واحدة',
+    );
+    return '$_temp0';
+  }
 }

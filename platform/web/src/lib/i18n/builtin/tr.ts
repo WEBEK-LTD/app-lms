@@ -576,6 +576,7 @@ export const SERVER_MESSAGES_TR: Record<string, string> = {
   "Enter this code at checkout.": "Bu kodu ödeme adımında girin.",
   "This code goes with your order to the checkout.": "Bu kod siparişinizle birlikte ödeme sayfasına gider.",
   "You already asked to return this order.": "Bu sipariş için zaten iade talep ettiniz.",
+  "This shop has no loyalty points.": "Bu mağazada sadakat puanı yok.",
   "This shop doesn't take returns in the app. Contact the shop.": "Bu mağaza uygulamadan iade almıyor. Mağazayla iletişime geçin.",
   "This order can't be returned from the app. Contact the shop.": "Bu sipariş uygulamadan iade edilemez. Mağazayla iletişime geçin.",
   "Choose why you want to return it.": "Neden iade etmek istediğinizi seçin.",

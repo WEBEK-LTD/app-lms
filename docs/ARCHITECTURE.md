@@ -2373,6 +2373,25 @@ app opens on the site's links (`<site>/a/page/<slug>`).
   (`woocommerce_process_shop_order_meta`), then an `order_update` to the
   customer. Connected platforms take returns on their own sites: their orders
   never say `can_return`. Refunds stay where they were (Refund, WooCommerce).
+- **Loyalty points** (91.4), shops without a website, the plan feature
+  `loyalty` (every plan but Starter; a saved plan edit gains a feature added
+  after it, `knownFeatures`, until the team saves the plan again).
+  `catalog.loyalty` {spendPerPointCents, pointValueCents, minPoints} from
+  Products › Loyalty points; `StoreConfig.loyalty`. `lib/catalog/loyalty.ts`:
+  `loyalty_balances` (one row per customer, changed in a transaction that
+  locks it, never below 0) and `loyalty_entries` (the history), migration
+  0082; `catalog_orders.points` {used, discountCents, earned, givenBack,
+  takenBack}. The cart (`use_points`) takes as many as the customer has, up
+  to the products after the coupon less a cent per line (each line keeps a
+  cent for the providers); the checkout records them on the order and the
+  payment spends them (`deliverPaidOrder`). Completed (`changeOrderStatus`,
+  also the kitchen's): earns `floor((total - shipping) / spend)`, once.
+  Cancelled after paying: gives back the used points; refunded in full:
+  gives them back and takes back the earned ones; a return approved takes
+  back the earned ones. `GET /me/points` (balance, value, latest 50
+  changes). The payment page, the owner's email and the receipt show the
+  points' line. The plugin and connected platforms have no points
+  (`store.loyalty` missing).
 
 ## Academies, complete (Phase 90)
 

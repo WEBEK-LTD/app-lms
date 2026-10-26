@@ -2,6 +2,7 @@ import type { DataStore } from "../data/store";
 import type { App, CatalogOrder, CatalogSettings, OrderReturn, ReturnReason } from "../data/types";
 import { notifyReturnDecision } from "../hosted/auto-notifications";
 import type { sendPush } from "../hosted/push";
+import { undoOrderPoints } from "./loyalty";
 
 /**
  * 91.3 Returns asked for in the app (shops without a website): a completed
@@ -70,6 +71,8 @@ export async function decideReturn(deps: DecideDeps, app: App, order: CatalogOrd
   if (!current || current.status !== "requested") return false;
   const answer: OrderReturn = { ...current, status: decision, decidedAt: deps.now.toISOString(), reply: clean(reply, REPLY_MAX) };
   await deps.store.updateCatalogOrder(app.id, order.id, { returnRequest: answer });
+  // 91.4 An approved return takes back the points the order earned (the refund gives back those it used).
+  if (decision === "approved") await undoOrderPoints(deps.store, order, false, deps.now);
   if (order.userId !== null) {
     try {
       await notifyReturnDecision(deps, app, { id: order.id, userId: order.userId }, decision, answer.reply);

@@ -615,11 +615,40 @@ class FakeApi implements YallappApi {
   String? lastCoupon;
 
   @override
-  Future<CartQuote> quoteCart(List<CartLineInput> lines, {String? coupon}) {
+  Future<CartQuote> quoteCart(
+    List<CartLineInput> lines, {
+    String? coupon,
+    bool usePoints = false,
+  }) {
     lastCartLines = lines;
     lastCoupon = coupon;
-    return _answer('quoteCart', () => CartQuote.fromJson(cartQuote));
+    lastUsePoints = usePoints;
+    return _answer(
+      'quoteCart',
+      () => CartQuote.fromJson(
+        usePoints && cartQuoteWithPoints != null
+            ? cartQuoteWithPoints!
+            : cartQuote,
+      ),
+    );
   }
+
+  /// 91.4 Whether the last quote or checkout used the customer's points.
+  bool lastUsePoints = false;
+
+  /// 91.4 The cart's answer when the points are used; [cartQuote] otherwise.
+  Map<String, dynamic>? cartQuoteWithPoints;
+
+  /// 91.4 `GET /me/points`.
+  Map<String, dynamic> points = {
+    'balance': 0,
+    'value': '₺0.00',
+    'entries': <Map<String, dynamic>>[],
+  };
+
+  @override
+  Future<PointsAccount> getMyPoints() =>
+      _answer('getMyPoints', () => PointsAccount.fromJson(points));
 
   ({String? deliveryDate, String? giftMessage})? lastStoreCheckout;
 
@@ -640,9 +669,11 @@ class FakeApi implements YallappApi {
     DeliveryAddress? deliveryAddress,
     DateTime? scheduledFor,
     String? coupon,
+    bool usePoints = false,
   }) {
     lastCartLines = lines;
     lastCoupon = coupon;
+    lastUsePoints = usePoints;
     lastStoreCheckout = (deliveryDate: deliveryDate, giftMessage: giftMessage);
     lastFulfilment = (
       fulfilment: fulfilment,

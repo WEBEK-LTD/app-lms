@@ -1064,5 +1064,21 @@
   "returnStatusRequested": "İade talep edildi",
   "returnStatusApproved": "İade onaylandı",
   "returnStatusDeclined": "İade reddedildi",
-  "returnShopReply": "Mağaza: {reply}"
+  "returnShopReply": "Mağaza: {reply}",
+  "myPoints": "Puanlarım",
+  "pointsBalance": "{count, plural, =1{1 puan} other{{count} puan}}",
+  "pointsWorth": "Sonraki siparişlerinizde {value} değerinde",
+  "pointsRule": "Ürünlere harcadığınız her {spend} için 1 puan kazanın. Her puan {value} değerindedir.",
+  "cartPointsFrom": "{count, plural, =1{1 puanınız olduğunda kullanın.} other{{count} puanınız olduğunda kullanın.}}",
+  "cartUsePoints": "{count, plural, =1{1 puan kullan} other{{count} puan kullan}}",
+  "cartPointsWorth": "Bu siparişten {value} indirim",
+  "cartPointsDiscount": "Puanlar",
+  "pointsHistory": "Geçmiş",
+  "pointsReasonEarned": "Kazanıldı",
+  "pointsReasonUsed": "Kullanıldı",
+  "pointsReasonGivenBack": "İade edildi",
+  "pointsReasonTakenBack": "Geri alındı",
+  "noPointsYet": "Henüz puanınız yok. Siparişleriniz tamamlandığında puan kazanırsınız.",
+  "orderPointsUsed": "{count, plural, =1{1 puan kullanıldı: −{amount}} other{{count} puan kullanıldı: −{amount}}}",
+  "orderPointsEarned": "{count, plural, =1{1 puan kazanıldı} other{{count} puan kazanıldı}}"
 }

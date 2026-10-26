@@ -188,6 +188,7 @@ class Order {
     this.shipment,
     this.returnRequest,
     this.canReturn = false,
+    this.points,
   });
 
   factory Order.fromJson(Json json) => Order(
@@ -209,6 +210,7 @@ class Order {
     shipment: optObject(json, 'shipment', OrderShipment.fromJson),
     returnRequest: optObject(json, 'return_request', ReturnRequest.fromJson),
     canReturn: boolOr(json, 'can_return', false),
+    points: optObject(json, 'points', OrderPoints.fromJson),
   );
 
   final int id;
@@ -240,11 +242,29 @@ class Order {
   /// 91.3 Whether a return can be asked for now (the shop's days, once per order).
   final bool canReturn;
 
+  /// 91.4 The loyalty points used on it and earned by it.
+  final OrderPoints? points;
+
   /// Whether the order has steps to follow: a restaurant's, or a shipment.
   bool get trackable => fulfilmentStatus != null || shipment != null;
 
   /// Whether the order opens its own screen: to follow it, or for its return.
   bool get opensScreen => trackable || canReturn || returnRequest != null;
+}
+
+/// 91.4 An order's loyalty points.
+class OrderPoints {
+  const OrderPoints({required this.used, required this.earned, this.discount});
+
+  factory OrderPoints.fromJson(Json json) => OrderPoints(
+    used: reqInt(json, 'used'),
+    discount: optString(json, 'discount'),
+    earned: reqInt(json, 'earned'),
+  );
+
+  final int used;
+  final String? discount;
+  final int earned;
 }
 
 /// 91.3 Why a customer returns an order.

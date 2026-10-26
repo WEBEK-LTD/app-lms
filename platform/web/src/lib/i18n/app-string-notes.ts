@@ -10,6 +10,86 @@ import type { Lang } from "@/i18n/config";
  * its code names left out (tests/unit/phase62.test.ts lists those missing).
  */
 export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: string }> = {
+  "91.4 The account entry and title of the customer's loyalty points.": {
+    en: "The account entry and the page with the customer's loyalty points.",
+    ar: "عنصر الحساب والصفحة التي تعرض نقاط ولاء العميل.",
+    tr: "Müşterinin sadakat puanlarının hesap öğesi ve sayfası.",
+  },
+  "91.4 The customer's loyalty points balance.": {
+    en: "The customer's loyalty points balance.",
+    ar: "رصيد نقاط ولاء العميل.",
+    tr: "Müşterinin sadakat puanı bakiyesi.",
+  },
+  "91.4 What the balance takes off later orders.": {
+    en: "What the customer's points take off their next orders.",
+    ar: "ما تخصمه نقاط العميل من طلباته القادمة.",
+    tr: "Müşterinin puanlarının sonraki siparişlerinden düştüğü tutar.",
+  },
+  "91.4 How points are earned and what one is worth.": {
+    en: "How customers earn points, and what one point is worth.",
+    ar: "كيف يكسب العملاء النقاط، وكم تساوي النقطة الواحدة.",
+    tr: "Müşterilerin nasıl puan kazandığı ve bir puanın değeri.",
+  },
+  "91.4 Under the points in the cart and on My points: the fewest used at once.": {
+    en: "Under the points in the cart and on My points: the fewest points used at once.",
+    ar: "تحت النقاط في السلة وفي صفحة نقاطي: أقل عدد من النقاط يُستخدم مرة واحدة.",
+    tr: "Sepetteki puanların ve Puanlarım sayfasının altında: tek seferde kullanılan en az puan.",
+  },
+  "91.4 The cart's switch that uses the customer's points on this order.": {
+    en: "The switch in the cart that uses the customer's points on this order.",
+    ar: "المفتاح في السلة الذي يستخدم نقاط العميل في هذا الطلب.",
+    tr: "Sepette müşterinin puanlarını bu siparişte kullanan anahtar.",
+  },
+  "91.4 Under the cart's points switch: what the points take off.": {
+    en: "Under the points switch in the cart: what the points take off.",
+    ar: "تحت مفتاح النقاط في السلة: ما تخصمه النقاط.",
+    tr: "Sepetteki puan anahtarının altında: puanların düştüğü tutar.",
+  },
+  "91.4 The cart's line for what the loyalty points take off.": {
+    en: "The line in the cart's totals for what the points take off.",
+    ar: "السطر في إجمالي السلة لما تخصمه النقاط.",
+    tr: "Sepet toplamlarında puanların düştüğü tutarın satırı.",
+  },
+  "91.4 The heading over the changes to the customer's points.": {
+    en: "The heading over the changes to the customer's points on My points.",
+    ar: "العنوان فوق تغييرات نقاط العميل في صفحة نقاطي.",
+    tr: "Puanlarım sayfasında müşterinin puan değişikliklerinin başlığı.",
+  },
+  "91.4 A change to the points: earned on a completed order.": {
+    en: "In the points history: points earned on a completed order.",
+    ar: "في سجل النقاط: نقاط مكتسبة على طلب مكتمل.",
+    tr: "Puan geçmişinde: tamamlanan bir siparişte kazanılan puanlar.",
+  },
+  "91.4 A change to the points: used on an order.": {
+    en: "In the points history: points used on an order.",
+    ar: "في سجل النقاط: نقاط استُخدمت في طلب.",
+    tr: "Puan geçmişinde: bir siparişte kullanılan puanlar.",
+  },
+  "91.4 A change to the points: given back when a paid order was cancelled or refunded.": {
+    en: "In the points history: points given back when a paid order was cancelled or refunded.",
+    ar: "في سجل النقاط: نقاط أُعيدت عند إلغاء طلب مدفوع أو استرداد قيمته.",
+    tr: "Puan geçmişinde: ödenmiş bir sipariş iptal ya da iade edildiğinde geri verilen puanlar.",
+  },
+  "91.4 A change to the points: taken back when an order was refunded or returned.": {
+    en: "In the points history: points taken back when an order was refunded or returned.",
+    ar: "في سجل النقاط: نقاط سُحبت عند استرداد قيمة طلب أو إرجاعه.",
+    tr: "Puan geçmişinde: bir sipariş iade edildiğinde geri alınan puanlar.",
+  },
+  "91.4 My points without any changes yet.": {
+    en: "On My points before the customer has any.",
+    ar: "في صفحة نقاطي قبل أن يكون لدى العميل أي نقاط.",
+    tr: "Puanlarım sayfasında müşterinin henüz puanı yokken.",
+  },
+  "91.4 On an order: the loyalty points used on it and what they took off.": {
+    en: "On an order: the points used on it and what they took off.",
+    ar: "على الطلب: النقاط المستخدمة فيه وما خصمته.",
+    tr: "Siparişte: kullanılan puanlar ve düştükleri tutar.",
+  },
+  "91.4 On a completed order: the loyalty points it earned.": {
+    en: "On a completed order: the points it earned.",
+    ar: "على طلب مكتمل: النقاط التي كسبها.",
+    tr: "Tamamlanan bir siparişte: kazandırdığı puanlar.",
+  },
   "91.3 On a completed order: asks the shop to take it back.": {
     en: "The button on a completed order that asks your shop to take it back.",
     ar: "الزر في طلب مكتمل الذي يطلب من متجرك استرجاعه.",

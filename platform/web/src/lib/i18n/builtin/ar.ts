@@ -575,6 +575,7 @@ export const SERVER_MESSAGES_AR: Record<string, string> = {
   "Enter this code at checkout.": "أدخل هذا الرمز عند الدفع.",
   "This code goes with your order to the checkout.": "يُرسَل هذا الرمز مع طلبك إلى صفحة الدفع.",
   "You already asked to return this order.": "لقد طلبت إرجاع هذا الطلب من قبل.",
+  "This shop has no loyalty points.": "لا توجد نقاط ولاء في هذا المتجر.",
   "This shop doesn't take returns in the app. Contact the shop.": "لا يقبل هذا المتجر الإرجاع من التطبيق. تواصل مع المتجر.",
   "This order can't be returned from the app. Contact the shop.": "لا يمكن إرجاع هذا الطلب من التطبيق. تواصل مع المتجر.",
   "Choose why you want to return it.": "اختر سبب رغبتك في الإرجاع.",

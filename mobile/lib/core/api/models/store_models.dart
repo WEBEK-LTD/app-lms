@@ -13,6 +13,7 @@ class StoreConfig {
     required this.giftMessage,
     this.fulfilment,
     this.returns,
+    this.loyalty,
   });
 
   factory StoreConfig.fromJson(Json json) => StoreConfig(
@@ -32,6 +33,7 @@ class StoreConfig {
     ),
     fulfilment: optObject(json, 'fulfilment', FulfilmentConfig.fromJson),
     returns: optObject(json, 'returns', ReturnRules.fromJson),
+    loyalty: optObject(json, 'loyalty', LoyaltyRules.fromJson),
   );
 
   final String currency;
@@ -46,6 +48,111 @@ class StoreConfig {
 
   /// 91.3 Returns asked for in the app; null when the shop takes none there.
   final ReturnRules? returns;
+
+  /// 91.4 Loyalty points; null when the shop has none.
+  final LoyaltyRules? loyalty;
+}
+
+/// 91.4 One point for every [spendPerPoint] paid for products, each worth
+/// [pointValue] off a later order once the customer has [minPoints].
+class LoyaltyRules {
+  const LoyaltyRules({
+    required this.spendPerPoint,
+    required this.pointValue,
+    required this.minPoints,
+  });
+
+  factory LoyaltyRules.fromJson(Json json) => LoyaltyRules(
+    spendPerPoint: reqString(json, 'spend_per_point_formatted'),
+    pointValue: reqString(json, 'point_value_formatted'),
+    minPoints: reqInt(json, 'min_points'),
+  );
+
+  /// Formatted, like ₺10.00.
+  final String spendPerPoint;
+
+  /// Formatted, like ₺0.10.
+  final String pointValue;
+  final int minPoints;
+}
+
+/// 91.4 The signed-in customer's points for the cart.
+class CartPoints {
+  const CartPoints({
+    required this.balance,
+    required this.usable,
+    required this.applied,
+    this.usableValue,
+    this.discount,
+  });
+
+  factory CartPoints.fromJson(Json json) => CartPoints(
+    balance: reqInt(json, 'balance'),
+    usable: reqInt(json, 'usable'),
+    usableValue: optString(json, 'usable_value'),
+    applied: reqBool(json, 'applied'),
+    discount: optString(json, 'discount'),
+  );
+
+  final int balance;
+
+  /// How many this order can take (0 below the fewest used at once).
+  final int usable;
+  final String? usableValue;
+  final bool applied;
+
+  /// Formatted: what they take off the total; null when not applied.
+  final String? discount;
+}
+
+enum PointsReason { earned, used, givenBack, takenBack }
+
+/// 91.4 The customer's points and their latest changes (`GET /me/points`).
+class PointsAccount {
+  const PointsAccount({
+    required this.balance,
+    required this.value,
+    required this.entries,
+  });
+
+  factory PointsAccount.fromJson(Json json) => PointsAccount(
+    balance: reqInt(json, 'balance'),
+    value: reqString(json, 'value'),
+    entries: reqListOf(json, 'entries', PointsEntry.fromJson),
+  );
+
+  final int balance;
+  final String value;
+  final List<PointsEntry> entries;
+}
+
+class PointsEntry {
+  const PointsEntry({
+    required this.points,
+    required this.reason,
+    required this.createdAt,
+    this.orderId,
+    this.orderNumber,
+  });
+
+  factory PointsEntry.fromJson(Json json) => PointsEntry(
+    points: reqInt(json, 'points'),
+    reason: enumFromSnake(
+      PointsReason.values,
+      json['reason'],
+      PointsReason.earned,
+    ),
+    orderId: optInt(json, 'order_id'),
+    orderNumber: optString(json, 'order_number'),
+    createdAt: reqDate(json, 'created_at'),
+  );
+
+  /// Added (positive) or taken (negative).
+  final int points;
+  final PointsReason reason;
+  final int? orderId;
+  final String? orderNumber;
+  final DateTime createdAt;
 }
 
 /// 91.3 How long after an order is completed a return can be asked for.
@@ -480,6 +587,7 @@ class CartQuote {
     this.tax,
     this.total,
     this.totalFinal = false,
+    this.points,
   });
 
   factory CartQuote.fromJson(Json json) => CartQuote(
@@ -494,6 +602,7 @@ class CartQuote {
     tax: optString(json, 'tax'),
     total: optString(json, 'total'),
     totalFinal: boolOr(json, 'total_final', false),
+    points: optObject(json, 'points', CartPoints.fromJson),
   );
 
   final List<CartQuoteLine> lines;
@@ -518,6 +627,9 @@ class CartQuote {
 
   /// 91.1 False when the checkout still adds shipping or taxes.
   final bool totalFinal;
+
+  /// 91.4 The customer's loyalty points; null signed out or without any.
+  final CartPoints? points;
 }
 
 enum CouponStatus { applied, invalid, atCheckout }

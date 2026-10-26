@@ -3968,4 +3968,99 @@ class AppLocalizationsEn extends AppLocalizations {
   String returnShopReply(String reply) {
     return 'The shop: $reply';
   }
+
+  @override
+  String get myPoints => 'My points';
+
+  @override
+  String pointsBalance(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count points',
+      one: '1 point',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String pointsWorth(String value) {
+    return 'Worth $value off your next orders';
+  }
+
+  @override
+  String pointsRule(String spend, String value) {
+    return 'Earn 1 point for every $spend you spend on products. Each point is worth $value.';
+  }
+
+  @override
+  String cartPointsFrom(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Use them once you have $count points.',
+      one: 'Use them once you have 1 point.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String cartUsePoints(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Use $count points',
+      one: 'Use 1 point',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String cartPointsWorth(String value) {
+    return '$value off this order';
+  }
+
+  @override
+  String get cartPointsDiscount => 'Points';
+
+  @override
+  String get pointsHistory => 'History';
+
+  @override
+  String get pointsReasonEarned => 'Earned';
+
+  @override
+  String get pointsReasonUsed => 'Used';
+
+  @override
+  String get pointsReasonGivenBack => 'Given back';
+
+  @override
+  String get pointsReasonTakenBack => 'Taken back';
+
+  @override
+  String get noPointsYet =>
+      'No points yet. You earn them when your orders are completed.';
+
+  @override
+  String orderPointsUsed(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count points used: −$amount',
+      one: '1 point used: −$amount',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String orderPointsEarned(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count points earned',
+      one: '1 point earned',
+    );
+    return '$_temp0';
+  }
 }
