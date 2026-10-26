@@ -1,4 +1,5 @@
 import { recordAudit } from "../admin/audit";
+import { undoOrderPoints } from "../catalog/loyalty";
 import { formatCents } from "../catalog/money";
 import { accountForOrder, orderNumber } from "../catalog/settings";
 import type { DataStore } from "../data/store";
@@ -438,7 +439,7 @@ export async function refundOrder(deps: RefundDeps, app: App, order: CatalogOrde
       message: options.why ?? "Refund it here, through the provider.",
     };
   const account = input.method === "api" ? await orderAccount(deps, app, order) : null;
-  return refund(
+  const result = await refund(
     deps,
     app,
     {
@@ -465,6 +466,12 @@ export async function refundOrder(deps: RefundDeps, app: App, order: CatalogOrde
       apply: (revoked) => applyRevoke(deps.store, app, order, revoked, deps.now),
     },
   );
+  // 91.4 Refunded in full: the points it earned are taken back, and those it used given back.
+  if (result.ok) {
+    const after = await deps.store.getCatalogOrder(app.id, order.id);
+    if (after?.status === "refunded") await undoOrderPoints(deps.store, after, true, deps.now);
+  }
+  return result;
 }
 
 /** Refunds part or all of a donation; its campaign's total goes down by it. */

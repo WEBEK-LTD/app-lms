@@ -1497,6 +1497,29 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
 
+  /me/points:
+    get:
+      tags: [Commerce]
+      operationId: getMyPoints
+      summary: The customer's loyalty points
+      description: |
+        91.4 Loyalty points of shops without a website (`StoreConfig.loyalty`):
+        the balance, what it is worth, and the latest changes, newest first.
+        Points are earned when an order is completed (what was paid for the
+        products, after coupons and points), used in the cart
+        (`CartInput.use_points`), given back when a paid order that used them
+        is cancelled or refunded, and taken back when an order that earned
+        them is refunded or its return approved. `feature_disabled` (403) when
+        the shop has no loyalty points.
+      responses:
+        '200':
+          description: The points
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PointsAccount' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
   /me/orders:
     get:
       tags: [Commerce]
@@ -2444,6 +2467,11 @@ paths:
         A `coupon` (91.1) goes with the order: applied on the site's checkout
         (WooCommerce, or a connected platform's discount link) or on our payment
         page; one that doesn't apply any more is left out, never an error.
+
+        With `use_points` (91.4, shops without a website), the signed-in
+        customer's loyalty points take their value off the order on our
+        payment page: as many as they have then, up to what the products cost
+        after the coupon. They are used when the order is paid.
 
         Fails with `cart_changed` (409) when a line is no longer available,
         with `one_product_at_a_time` (409) when the shop's checkout can only
@@ -4977,6 +5005,26 @@ components:
         reason: { type: string, enum: [damaged, wrong_item, not_as_described, no_longer_needed, other] }
         note: { type: [string, 'null'], maxLength: 500, description: "More about it; needed with `other`." }
 
+    PointsAccount:
+      type: object
+      description: 91.4 A customer's loyalty points in a shop.
+      required: [balance, value, entries]
+      properties:
+        balance: { type: integer, minimum: 0, example: 250 }
+        value: { type: string, description: "Formatted: what the balance takes off an order.", example: ₺25.00 }
+        entries:
+          type: array
+          description: The latest 50 changes, newest first.
+          items:
+            type: object
+            required: [points, reason, created_at]
+            properties:
+              points: { type: integer, description: "Added (positive) or taken (negative).", example: 35 }
+              reason: { type: string, enum: [earned, used, given_back, taken_back] }
+              order_id: { type: [integer, 'null'] }
+              order_number: { type: [string, 'null'], example: '1042' }
+              created_at: { type: string, format: date-time }
+
     ReturnRequest:
       type: object
       description: 91.3 A return the customer asked for, and the shop's answer.
@@ -4999,6 +5047,16 @@ components:
             - type: 'null'
           description: 91.3 The return asked for this order; null or missing when none was.
         can_return: { type: boolean, description: "91.3 The customer may ask to return it now (`POST /me/orders/{order_id}/return`). Missing means false." }
+        points:
+          type: [object, 'null']
+          description: >-
+            91.4 The loyalty points of this order: those used on it (with what they took
+            off) and those it earned once completed. Null or missing for orders without any.
+          required: [used, earned]
+          properties:
+            used: { type: integer, minimum: 0 }
+            discount: { type: [string, 'null'], description: "Formatted: what the points used took off.", example: ₺25.00 }
+            earned: { type: integer, minimum: 0, description: "Points credited for it; 0 until it is completed, and again 0 when they were taken back." }
         id: { type: integer }
         number: { type: string, description: "The order number the site shows, e.g. on receipts.", example: '1042' }
         status: { type: string, enum: [pending, processing, on_hold, completed, cancelled, refunded, failed] }
@@ -5225,6 +5283,20 @@ components:
           properties:
             enabled: { type: boolean }
             days: { type: integer, minimum: 1, maximum: 365, example: 14 }
+        loyalty:
+          type: [object, 'null']
+          description: >-
+            91.4 Loyalty points (shops without a website, on every plan but Starter): one point
+            for every `spend_per_point` paid for products, each worth `point_value` off a later
+            order once the customer has `min_points`. Null or missing when the shop has none.
+          required: [enabled, spend_per_point, spend_per_point_formatted, point_value, point_value_formatted, min_points]
+          properties:
+            enabled: { type: boolean }
+            spend_per_point: { type: string, example: '10.00' }
+            spend_per_point_formatted: { type: string, example: ₺10.00 }
+            point_value: { type: string, example: '0.10' }
+            point_value_formatted: { type: string, example: ₺0.10 }
+            min_points: { type: integer, minimum: 1, description: "The fewest points used at once.", example: 100 }
 
     FulfilmentConfig:
       type: object
@@ -5475,6 +5547,12 @@ components:
           description: >-
             Roadmap 91.1. A coupon code the customer typed. The cart says whether it
             applies (`Cart.coupon`); the checkout link carries it to the checkout.
+        use_points:
+          type: boolean
+          description: >-
+            91.4 Use the signed-in customer's loyalty points on this order (`StoreConfig.loyalty`).
+            The cart shows what they take off (`Cart.points`); the checkout link uses the points
+            the customer has then, up to what the order can take. Ignored when signed out.
 
     Cart:
       type: object
@@ -5536,6 +5614,20 @@ components:
             Roadmap 91.1. True when `total` is what the customer pays; false when the
             checkout still adds shipping or taxes (the cart says "plus shipping at
             checkout"). Missing on older servers means false.
+        points:
+          type: [object, 'null']
+          description: >-
+            91.4 The signed-in customer's loyalty points for this cart: their balance, how many
+            this order can take (none below `StoreConfig.loyalty.min_points`; never more than
+            the products cost after the coupon), and, with `use_points`, what they take off
+            `total`. Null when the shop has no loyalty points or the customer is signed out.
+          required: [balance, usable, applied]
+          properties:
+            balance: { type: integer, minimum: 0, example: 250 }
+            usable: { type: integer, minimum: 0, example: 250 }
+            usable_value: { type: [string, 'null'], description: "Formatted: what the usable points take off.", example: ₺25.00 }
+            applied: { type: boolean, description: "`use_points` was asked and some points apply." }
+            discount: { type: [string, 'null'], description: "Formatted: what the points take off `total`; null when not applied.", example: ₺25.00 }
 
     BookingsConfig:
       type: object

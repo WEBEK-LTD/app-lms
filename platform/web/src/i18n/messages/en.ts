@@ -174,6 +174,7 @@ export const en = {
     rowOffline: "Offline mode",
     rowRebuilds: "Automatic rebuilds",
     rowChat: "Chat in the app",
+    rowLoyalty: "Loyalty points",
     rowPublishing: "Publishing",
     rowStoreUpdates: "Automatic store updates",
     rowTeam: "Team members",

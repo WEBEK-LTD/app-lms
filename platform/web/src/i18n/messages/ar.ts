@@ -166,6 +166,7 @@ export const ar: Messages = {
     rowOffline: "العمل دون اتصال",
     rowRebuilds: "إعادة البناء تلقائيًا",
     rowChat: "الدردشة داخل التطبيق",
+    rowLoyalty: "نقاط الولاء",
     rowPublishing: "النشر",
     rowStoreUpdates: "تحديثات المتاجر تلقائيًا",
     rowTeam: "أعضاء الفريق",

@@ -4,6 +4,7 @@ import { membershipActive, membershipFreezeSet, membershipToUse } from "../booki
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
 import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, PendingPayment, SavedSection } from "./types";
 import type { CampaignSend, HostedCart, HostedOrderWatch, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
+import type { LoyaltyEntry, LoyaltyReason } from "./types";
 import type {
   AppPatch,
   BuildPatch,
@@ -623,6 +624,9 @@ export class MemoryStore implements DataStore {
     for (const [key, r] of this.courseReviews) if (r.appId === appId && r.userId === id) this.courseReviews.delete(key);
     for (const [key, q] of this.courseQuestions) if (q.appId === appId && q.userId === id) this.deleteQuestion(key);
     for (const [key, a] of this.courseAnswers) if (a.appId === appId && a.userId === id) this.courseAnswers.delete(key);
+    // 91.4 Their points go with the account.
+    this.loyaltyBalances.delete(`${appId}:${id}`);
+    this.loyaltyEntries = this.loyaltyEntries.filter((e) => !(e.appId === appId && e.userId === id));
     // 28 Tickets stay with the organiser, with their holder's name.
     for (const ticket of this.tickets.values()) {
       if (ticket.appId === appId && ticket.userId === id) ticket.userId = null;
@@ -3249,6 +3253,33 @@ export class MemoryStore implements DataStore {
       }
     }
     return n;
+  }
+
+  // 91.4 Loyalty points
+
+  private loyaltyBalances = new Map<string, number>();
+  private loyaltyEntries: LoyaltyEntry[] = [];
+
+  async getLoyaltyBalance(appId: string, userId: number): Promise<number> {
+    return this.loyaltyBalances.get(`${appId}:${userId}`) ?? 0;
+  }
+
+  async changeLoyaltyPoints(input: { appId: string; userId: number; orderId: number | null; points: number; reason: LoyaltyReason; now: Date }): Promise<number> {
+    const key = `${input.appId}:${input.userId}`;
+    const balance = this.loyaltyBalances.get(key) ?? 0;
+    const change = Math.max(input.points, -balance);
+    if (change === 0) return 0;
+    this.loyaltyBalances.set(key, balance + change);
+    this.loyaltyEntries.push({ id: this.loyaltyEntries.length + 1, appId: input.appId, userId: input.userId, orderId: input.orderId, points: change, reason: input.reason, createdAt: new Date(input.now) });
+    return change;
+  }
+
+  async listLoyaltyEntries(appId: string, userId: number, limit: number): Promise<LoyaltyEntry[]> {
+    return this.loyaltyEntries
+      .filter((e) => e.appId === appId && e.userId === userId)
+      .sort((a, b) => b.id - a.id)
+      .slice(0, limit)
+      .map(clone);
   }
 
   // 85.2 Notification campaigns

@@ -1,4 +1,5 @@
 import { checkFulfilment, FULFILMENT_LABELS, fulfilmentConfigJson, fulfilmentOf, orderTimesJson } from "../../catalog/fulfilment";
+import { LOYALTY_HISTORY, loyaltyConfigJson, loyaltyOf, orderPointsJson, pointsAccountJson, usablePoints } from "../../catalog/loyalty";
 import { canReturn, parseReturnInput, requestReturn, returnDays, returnJson } from "../../catalog/returns";
 import { couponDiscount, normalizeCouponCode } from "../../catalog/coupons";
 import { centsToDecimal, formatCents } from "../../catalog/money";
@@ -7,7 +8,7 @@ import { catalogSettings, ORDER_STATUS_LABELS, orderNumber, PAY_LINK_MINUTES, pa
 import { shipmentJson } from "../../catalog/shipping";
 import { randomToken, sha256Hex } from "../../crypto/tokens";
 import type { DataStore } from "../../data/store";
-import type { App, CatalogCategory, CatalogOrder, CatalogOrderLine, CatalogProduct, CatalogSettings, FulfilmentSettings } from "../../data/types";
+import type { App, CatalogCategory, CatalogOrder, CatalogOrderLine, CatalogProduct, CatalogSettings, FulfilmentSettings, LoyaltySettings } from "../../data/types";
 import { cartLines, error, intParam, type CartLineInput } from "./common";
 import type { Connector, ConnectorRequest, ConnectorResult } from "./types";
 import { signingSecret } from "../../env";
@@ -32,6 +33,8 @@ export interface CatalogDeps {
   cardPayments?: boolean;
   /** 91.3 A customer asked to return an order (tells the owner's phones). */
   onReturnRequested?: (order: CatalogOrder) => Promise<void>;
+  /** 91.4 Loyalty points are in the app's plan (default false). */
+  loyalty?: boolean;
 }
 
 type OrderBy = "newest" | "popular" | "rating" | "price_asc" | "price_desc" | "title";
@@ -66,10 +69,13 @@ export class CatalogConnector implements Connector {
   private readonly settings: CatalogSettings;
   /** 26 A restaurant's pickup and delivery; null for other shops. */
   private readonly fulfilment: FulfilmentSettings | null;
+  /** 91.4 Loyalty points, when the shop has them and its plan does. */
+  private readonly loyalty: LoyaltySettings | null;
 
   constructor(private readonly deps: CatalogDeps) {
     this.settings = catalogSettings(deps.app);
     this.fulfilment = fulfilmentOf(deps.app);
+    this.loyalty = loyaltyOf(this.settings, deps.loyalty === true);
   }
 
   private money(cents: number): string {
@@ -99,6 +105,8 @@ export class CatalogConnector implements Connector {
         ...(this.fulfilment ? { fulfilment: fulfilmentConfigJson(this.fulfilment, this.settings.currency) } : {}),
         // 91.3 Returns asked for in the app (never a restaurant's).
         returns: !this.fulfilment && returnDays(this.settings) !== null ? { enabled: true, days: returnDays(this.settings)! } : null,
+        // 91.4 Loyalty points.
+        loyalty: loyaltyConfigJson(this.loyalty, this.settings.currency),
       },
       features: { orders: true },
     };
@@ -119,6 +127,8 @@ export class CatalogConnector implements Connector {
         return this.checkoutLink(request);
       case "GET /me/orders":
         return this.orders(request);
+      case "GET /me/points":
+        return this.points(request);
       case "GET /store/order-times":
         return this.fulfilment ? { status: 200, body: orderTimesJson(this.fulfilment, request.now) } : error(404, "not_found", "Not found.");
     }
@@ -379,6 +389,25 @@ export class CatalogConnector implements Connector {
       : { json: { code: shown, status: "invalid", message: check.message }, discountCents: 0, code: null };
   }
 
+  /** 91.4 The signed-in customer's points for a cart whose products cost `productsCents` after the coupon. */
+  private async cartPoints(request: ConnectorRequest, productsCents: number) {
+    if (!this.loyalty || !request.user) return { json: null, used: 0, discountCents: 0 };
+    const balance = await this.deps.store.getLoyaltyBalance(this.deps.app.id, request.user.id);
+    const usable = usablePoints(this.loyalty, balance, productsCents);
+    const applied = (request.body as { use_points?: unknown } | null)?.use_points === true && usable.points > 0;
+    return {
+      json: {
+        balance,
+        usable: usable.points,
+        usable_value: usable.points > 0 ? this.money(usable.valueCents) : null,
+        applied,
+        discount: applied ? this.money(usable.valueCents) : null,
+      },
+      used: applied ? usable.points : 0,
+      discountCents: applied ? usable.valueCents : 0,
+    };
+  }
+
   private async quote(request: ConnectorRequest): Promise<ConnectorResult> {
     const lines = cartLines(request.body);
     if (!lines) return error(400, "invalid_request", "The cart is empty or invalid.");
@@ -386,13 +415,16 @@ export class CatalogConnector implements Connector {
     const coupon = await this.coupon(request.body, priced.subtotal, request.now);
     // 91.1 The real total: a restaurant's delivery fee depends on how the order is collected, chosen at checkout.
     const shipping = this.fulfilment ? null : shippingFor(this.settings, priced.subtotal, priced.out.some((o) => o.line.available && !o.line.digital));
-    const total = priced.subtotal - coupon.discountCents + (shipping ?? 0);
+    // 91.4 The customer's points, on what the products cost after the coupon.
+    const points = await this.cartPoints(request, priced.subtotal - coupon.discountCents);
+    const total = priced.subtotal - coupon.discountCents - points.discountCents + (shipping ?? 0);
     return {
       status: 200,
       body: {
         ...priced.cart,
         coupon: coupon.json,
         discount: coupon.discountCents > 0 ? this.money(coupon.discountCents) : null,
+        points: points.json,
         shipping: shipping === null ? null : this.money(shipping),
         tax: null,
         total: this.money(total),
@@ -442,6 +474,8 @@ export class CatalogConnector implements Connector {
     }
     // 91.1 A coupon that no longer applies is left out, never an error.
     const coupon = await this.coupon(request.body, priced.subtotal, request.now);
+    // 91.4 The points the customer has now, up to what the products cost after the coupon.
+    const points = await this.cartPoints(request, priced.subtotal - coupon.discountCents);
     const token = randomToken(24);
     await this.deps.store.createCatalogOrder({
       appId: this.deps.app.id,
@@ -451,9 +485,10 @@ export class CatalogConnector implements Connector {
       lines: orderLines,
       subtotalCents: priced.subtotal,
       shippingCents: shipping,
-      totalCents: priced.subtotal - coupon.discountCents + shipping,
+      totalCents: priced.subtotal - coupon.discountCents - points.discountCents + shipping,
       couponCode: coupon.code,
       discountCents: coupon.discountCents,
+      points: points.used > 0 ? { used: points.used, discountCents: points.discountCents, earned: 0 } : null,
       currency: this.settings.currency,
       customer: null,
       paymentId: null,
@@ -500,6 +535,8 @@ export class CatalogConnector implements Connector {
       // 91.3 The return the customer asked for, and whether they may ask now.
       return_request: returnJson(order.returnRequest),
       can_return: canReturn(order, this.settings, now),
+      // 91.4 The points used on it and earned by it.
+      points: orderPointsJson(order.points, order.currency),
       // 47 What the shop refunded of it; all of it: the status is "refunded".
       refunded_total: order.refundedCents ? formatCents(order.refundedCents, order.currency) : null,
       // 71 The receipt as a PDF, from a signed link.
@@ -535,6 +572,22 @@ export class CatalogConnector implements Connector {
     const order = Number.isSafeInteger(id) && id > 0 ? await this.deps.store.getCatalogOrder(this.deps.app.id, id) : null;
     if (!order || order.userId !== request.user.id || !LISTED_STATUSES.includes(order.status)) return error(404, "not_found", "Order not found.");
     return { status: 200, body: this.orderJson(order, request.now) };
+  }
+
+  /** 91.4 GET /me/points: the customer's balance and its latest changes. */
+  private async points(request: ConnectorRequest): Promise<ConnectorResult> {
+    if (!request.user) return error(401, "invalid_token", "Your session has ended. Please sign in again.");
+    if (!this.loyalty) return error(403, "feature_disabled", "This shop has no loyalty points.");
+    const [balance, entries] = await Promise.all([
+      this.deps.store.getLoyaltyBalance(this.deps.app.id, request.user.id),
+      this.deps.store.listLoyaltyEntries(this.deps.app.id, request.user.id, LOYALTY_HISTORY),
+    ]);
+    const numbers = new Map<number, string>();
+    for (const id of new Set(entries.flatMap((e) => (e.orderId !== null ? [e.orderId] : [])))) {
+      const order = await this.deps.store.getCatalogOrder(this.deps.app.id, id);
+      if (order) numbers.set(id, orderNumber(order));
+    }
+    return { status: 200, body: pointsAccountJson(this.loyalty, balance, entries, numbers, this.settings.currency) };
   }
 
   /** 91.3 The customer asks to return one of their orders. */

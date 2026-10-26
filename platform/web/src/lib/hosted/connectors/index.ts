@@ -66,6 +66,8 @@ export function connectorFor(
     onReview?: CoursesDeps["onReview"];
     /** 13.1 Card payments in the app (dashboard products, courses and 28 tickets) are in the app's plan. */
     cardPayments?: boolean;
+    /** 91.4 Loyalty points are in the app's plan. */
+    loyalty?: boolean;
     /** 91.3 A customer asked to return an order. */
     onReturnRequested?: CatalogDeps["onReturnRequested"];
     /** 45 Lessons of courses managed in Yallapp may be saved for offline viewing (lib/courses/downloads.ts). */

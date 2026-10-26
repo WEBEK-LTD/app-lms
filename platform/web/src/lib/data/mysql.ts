@@ -48,6 +48,7 @@ import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatu
 import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
 import type { CampaignSend, HostedCart, HostedOrderWatch, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
+import type { LoyaltyEntry, LoyaltyReason } from "./types";
 import { mergeCrash } from "../crashes/report";
 import type {
   Activation,
@@ -4058,6 +4059,50 @@ export class MysqlStore implements DataStore {
     const t = schema.hostedOrderWatches;
     const [result] = await this.run((db) => db.delete(t).where(lte(t.until, now)));
     return result.affectedRows;
+  }
+
+  // 91.4 Loyalty points
+
+  async getLoyaltyBalance(appId: string, userId: number): Promise<number> {
+    const t = schema.loyaltyBalances;
+    const [row] = await this.run((db) => db.select({ balance: t.balance }).from(t).where(and(eq(t.appId, appId), eq(t.userId, userId))).limit(1));
+    return row?.balance ?? 0;
+  }
+
+  async changeLoyaltyPoints(input: { appId: string; userId: number; orderId: number | null; points: number; reason: LoyaltyReason; now: Date }): Promise<number> {
+    const t = schema.loyaltyBalances;
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        // The row is locked while it changes, so two orders at once can't both spend the same points.
+        await tx.insert(t).values({ appId: input.appId, userId: input.userId, balance: 0, updatedAt: input.now }).onDuplicateKeyUpdate({ set: { appId: sql`${t.appId}` } });
+        const [row] = await tx
+          .select({ balance: t.balance })
+          .from(t)
+          .where(and(eq(t.appId, input.appId), eq(t.userId, input.userId)))
+          .for("update");
+        const balance = row?.balance ?? 0;
+        const change = Math.max(input.points, -balance);
+        if (change === 0) return 0;
+        await tx
+          .update(t)
+          .set({ balance: balance + change, updatedAt: input.now })
+          .where(and(eq(t.appId, input.appId), eq(t.userId, input.userId)));
+        await tx.insert(schema.loyaltyEntries).values({ appId: input.appId, userId: input.userId, orderId: input.orderId, points: change, reason: input.reason, createdAt: input.now });
+        return change;
+      }),
+    );
+  }
+
+  async listLoyaltyEntries(appId: string, userId: number, limit: number): Promise<LoyaltyEntry[]> {
+    const t = schema.loyaltyEntries;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), eq(t.userId, userId)))
+        .orderBy(desc(t.id))
+        .limit(limit),
+    );
   }
 
   // 85.2 Notification campaigns

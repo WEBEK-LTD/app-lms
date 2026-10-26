@@ -4,6 +4,7 @@ import type { sendPush, ServiceAccount } from "../hosted/push";
 import type { ProviderUrls } from "../payments/provider";
 import { notifyOrderUpdate } from "../hosted/auto-notifications";
 import { canMoveTo, nextStep } from "./fulfilment";
+import { appLoyalty, earnOrderPoints, undoOrderPoints } from "./loyalty";
 import { moveOrder } from "./kitchen";
 import { approvePayout } from "./payment";
 import { accountForOrder } from "./settings";
@@ -65,6 +66,12 @@ export async function changeOrderStatus(deps: OrderMoveDeps, order: CatalogOrder
     } catch (e) {
       console.error(`[orders] the order update failed: ${e instanceof Error ? e.message : String(e)}`.slice(0, 400));
     }
+  }
+  // 91.4 A completed order earns its points; a cancelled paid one gives back the points it used.
+  if (moved && (status === "completed" || status === "cancelled")) {
+    const fresh = (await store.getCatalogOrder(app.id, order.id)) ?? order;
+    if (status === "completed") await earnOrderPoints(store, await appLoyalty(store, app, now), fresh, now);
+    else await undoOrderPoints(store, fresh, true, now);
   }
   // A completed marketplace order releases the shop's share; our team can also do it from the admin.
   if (moved && status === "completed" && order.commissionCents !== null && !order.payoutApprovedAt) {

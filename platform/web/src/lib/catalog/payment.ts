@@ -1,4 +1,5 @@
 import { membershipEnd } from "../bookings/memberships";
+import { spendOrderPoints } from "./loyalty";
 import { bookingSetup } from "../bookings/setup";
 import { parseAnyPhone } from "../hosted/phone";
 import { hostedSettings } from "../hosted/service";
@@ -337,6 +338,8 @@ export async function deliverPaidOrder(store: DataStore, app: App, order: Catalo
     const coupon = await store.getCatalogCouponByCode(app.id, order.couponCode);
     if (coupon) await store.useCatalogCoupon(app.id, coupon.id);
   }
+  // 91.4 And spends the loyalty points it used.
+  await spendOrderPoints(store, order, now);
   await enrollPaidCourses(store, app, order, now);
   await startPaidMemberships(store, app, order, now);
   await issuePaidTickets(store, app, order, now, baseUrl);

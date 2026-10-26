@@ -84,6 +84,7 @@ import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, Tea
 // 61
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
 import type { CampaignSend, HostedCart, HostedOrderWatch, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
+import type { LoyaltyEntry, LoyaltyReason } from "./types";
 // 66 Deleting a Yallapp account
 import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatus } from "./types";
 // 73 Deleting an app, and the billing records kept when an account goes
@@ -999,6 +1000,19 @@ export interface DataStore {
   saveOrderWatch(appId: string, userId: number, orders: Record<string, string>, checkedAt: Date): Promise<void>;
   /** 91.2 Removes the watches that ended; how many. */
   deleteEndedOrderWatches(now: Date): Promise<number>;
+
+  // 91.4 Loyalty points
+  /** A customer's points in the app (0 without any). */
+  getLoyaltyBalance(appId: string, userId: number): Promise<number>;
+  /**
+   * Adds points (positive) or takes them (negative, never below 0) in one
+   * step, and keeps the change in the customer's history. Returns the points
+   * actually changed (what was taken can be less than asked); nothing is kept
+   * for 0.
+   */
+  changeLoyaltyPoints(input: { appId: string; userId: number; orderId: number | null; points: number; reason: LoyaltyReason; now: Date }): Promise<number>;
+  /** The latest changes to a customer's points, newest first. */
+  listLoyaltyEntries(appId: string, userId: number, limit: number): Promise<LoyaltyEntry[]>;
 
   // 85.2 Notification campaigns
   createNotificationCampaign(input: Omit<NotificationCampaign, "id">): Promise<NotificationCampaign>;
