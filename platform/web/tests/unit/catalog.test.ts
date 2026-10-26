@@ -1,14 +1,15 @@
 import { createHmac } from "node:crypto";
 import { beforeEach, describe, expect, it } from "vitest";
 import { newApp } from "@/lib/app/setup";
+import { couponDiscount, normalizeCouponCode, parseCoupon, spreadDiscount } from "@/lib/catalog/coupons";
 import { formatCents, parsePrice } from "@/lib/catalog/money";
 import { shipOrder, shippable } from "@/lib/catalog/shipping";
-import { approvePayout, completePayment, newOrderMail, readCustomer, startPayment } from "@/lib/catalog/payment";
+import { approvePayout, completePayment, deliverPaidOrder, newOrderMail, readCustomer, startPayment } from "@/lib/catalog/payment";
 import { accountForOrder, checkoutAccount, encryptPaymentKeys, paymentKeys, shippingFor } from "@/lib/catalog/settings";
 import { encryptSetting } from "@/lib/settings/platform";
 import { sha256Hex } from "@/lib/crypto/tokens";
 import type { MemoryStore } from "@/lib/data/memory";
-import { DEFAULT_CATALOG_SETTINGS, type App, type CatalogOrder, type CatalogProductInput } from "@/lib/data/types";
+import { DEFAULT_CATALOG_SETTINGS, type App, type CatalogCoupon, type CatalogOrder, type CatalogProductInput } from "@/lib/data/types";
 import { CatalogConnector, descriptionHtml } from "@/lib/hosted/connectors/catalog";
 import { LogSender } from "@/lib/hosted/otp-sender";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
@@ -493,6 +494,114 @@ describe("catalog shop on the hosted API", () => {
       // Changed: told again, as an update.
       const again = await shipOrder({ store, app, order: (await store.getCatalogOrder(app.id, order.id))!, shipment: { ...shipment, trackingNumber: "3815602299" }, account: null, now, mail: async (_to, values) => void mails.push(values) });
       expect(again?.notification?.title).toBe(`Order ${1000 + order.id}: new tracking details`);
+    });
+  });
+
+  describe("91.1 coupons", () => {
+    const coupon = (input: Partial<Parameters<MemoryStore["createCatalogCoupon"]>[0]>) =>
+      store.createCatalogCoupon({ appId: app.id, code: "SPRING10", kind: "percent", value: 10, minOrderCents: null, endsAt: null, maxUses: null, active: true, createdAt: NOW, ...input });
+    const quote = (body: Record<string, unknown>) => call("POST", "/store/cart", { query: { platform: "android" }, body: { lines: [{ product_id: ids.roses, quantity: 2 }], ...body } });
+
+    it("gives the real total, with the coupon, shipping and what is left", async () => {
+      await coupon({});
+      expect((await quote({})).body).toMatchObject({ subtotal: "₺900.00", coupon: null, discount: null, shipping: "₺50.00", total: "₺950.00", total_amount: "950.00", total_final: true });
+      expect((await quote({ coupon: " spring10 " })).body).toMatchObject({
+        coupon: { code: "SPRING10", status: "applied", message: null },
+        discount: "₺90.00",
+        shipping: "₺50.00",
+        total: "₺860.00",
+        total_final: true,
+      });
+      // Free shipping over ₺2,000; a digital product ships nothing.
+      expect((await call("POST", "/store/cart", { query: { platform: "android" }, body: { lines: [{ product_id: ids.giftCard, quantity: 1 }] } })).body).toMatchObject({ shipping: "₺0.00", total: "₺200.00" });
+    });
+
+    it("says why a coupon doesn't apply", async () => {
+      await coupon({ code: "OLD", endsAt: new Date(NOW.getTime() - 1000) });
+      await coupon({ code: "BIG", kind: "amount", value: 10000, minOrderCents: 100000 });
+      await coupon({ code: "ONCE", maxUses: 1 });
+      await coupon({ code: "PAUSED", active: false });
+      const status = async (code: string) => ((await quote({ coupon: code })).body as { coupon: { status: string; message: string | null } }).coupon;
+      expect(await status("NOPE")).toEqual({ code: "NOPE", status: "invalid", message: "This coupon doesn't exist." });
+      expect(await status("PAUSED")).toMatchObject({ message: "This coupon doesn't exist." });
+      expect(await status("OLD")).toMatchObject({ message: "This coupon has expired." });
+      expect(await status("BIG")).toMatchObject({ message: "This coupon is for orders of ₺1,000.00 or more." });
+      expect(await status("!!")).toMatchObject({ status: "invalid" });
+      const once = (await store.getCatalogCouponByCode(app.id, "ONCE"))!;
+      expect(await store.useCatalogCoupon(app.id, once.id)).toBe(true);
+      expect(await store.useCatalogCoupon(app.id, once.id)).toBe(false);
+      expect(await status("ONCE")).toMatchObject({ message: "This coupon has been used up." });
+      expect((await quote({ coupon: "NOPE" })).body).toMatchObject({ discount: null, total: "₺950.00" });
+    });
+
+    it("takes the discount off the order, the payment's lines and counts the use when paid", async () => {
+      await coupon({ code: "FIFTY", kind: "amount", value: 5000, maxUses: 5 });
+      const link = await call("POST", "/store/checkout-link", { query: { platform: "android" }, body: { lines: [{ product_id: ids.roses, quantity: 2 }], coupon: "fifty" } });
+      const order = (await store.getCatalogOrderByToken(sha256Hex((link.body as { url: string }).url.split("/").pop()!)))!;
+      expect(order).toMatchObject({ subtotalCents: 90000, discountCents: 5000, shippingCents: 5000, totalCents: 90000, couponCode: "FIFTY" });
+      // A coupon that doesn't apply is left out, never an error.
+      const plain = await call("POST", "/store/checkout-link", { query: { platform: "android" }, body: { lines: [{ product_id: ids.roses, quantity: 1 }], coupon: "NOPE" } });
+      const without = (await store.getCatalogOrderByToken(sha256Hex((plain.body as { url: string }).url.split("/").pop()!)))!;
+      expect(without).toMatchObject({ discountCents: 0, couponCode: null, totalCents: 50000 });
+
+      const sent: Record<string, unknown>[] = [];
+      const fetcher = (async (url: string, init: RequestInit) => {
+        sent.push(JSON.parse(String(init.body)) as Record<string, unknown>);
+        return new URL(url).pathname.endsWith("/initialize/auth/ecom")
+          ? Response.json({ status: "success", token: "t", paymentPageUrl: "https://sandbox-cpp.iyzipay.com?token=t" })
+          : Response.json({ status: "success", paymentStatus: "SUCCESS", paymentId: "1", paidPrice: 900, basketId: String(order.id) });
+      }) as unknown as typeof fetch;
+      const keys = paymentKeys(app, KEY)!;
+      const customer = { name: "Sara Yilmaz", phone: "+905321234567", email: "sara@example.com", city: "Istanbul", address: "Moda Cd. 12" };
+      await startPayment({ store, app, account: { account: { provider: "iyzico", keys }, marketplace: null }, fetcher, now, order, customer, ip: "203.0.113.9", callbackUrls: { returnUrl: "https://yallapp.test/r", webhookUrl: null } });
+      expect(sent[0]).toMatchObject({ price: "900.00", paidPrice: "900.00", basketItems: [{ name: "Red Roses", price: "850.00" }, { id: "shipping", price: "50.00" }] });
+
+      const placed = (await store.getCatalogOrder(app.id, order.id))!;
+      expect(await completePayment({ store, app, account: { account: { provider: "iyzico", keys }, marketplace: null }, fetcher, now, order: placed, iyzicoToken: "t" })).toBe("paid");
+      await deliverPaidOrder(store, app, placed, now);
+      expect((await store.getCatalogCouponByCode(app.id, "FIFTY"))!.usedCount).toBe(1);
+      expect(newOrderMail(placed, "Rose Shop", "https://yallapp.test/dashboard/orders").text).toContain("Coupon FIFTY: -₺50.00");
+    });
+  });
+
+});
+
+describe("91.1 coupon rules", () => {
+  const coupon = (input: Partial<CatalogCoupon>): CatalogCoupon => ({ id: 1, appId: "a", code: "X", kind: "percent", value: 10, minOrderCents: null, endsAt: null, maxUses: null, usedCount: 0, active: true, createdAt: NOW, ...input });
+
+  it("reads codes and works out the discount, never more than the subtotal", () => {
+    expect(normalizeCouponCode(" spring 10 ")).toBe("SPRING10");
+    expect(normalizeCouponCode("x")).toBeNull();
+    expect(normalizeCouponCode("a$b")).toBeNull();
+    expect(couponDiscount(coupon({ value: 15 }), 12345, "TRY", NOW)).toEqual({ ok: true, discountCents: 1852 });
+    expect(couponDiscount(coupon({ kind: "amount", value: 50000 }), 30000, "TRY", NOW)).toEqual({ ok: true, discountCents: 30000 });
+    expect(couponDiscount(null, 100, "TRY", NOW)).toMatchObject({ ok: false });
+  });
+
+  it("spreads a discount over the lines so they add up to what is charged", () => {
+    expect(spreadDiscount([60000, 30000, 10000], 10000)).toEqual([54000, 27000, 9000]);
+    const odd = spreadDiscount([333, 333, 334], 100);
+    expect(odd.reduce((a, b) => a + b, 0)).toBe(900);
+    // Each line keeps a cent.
+    expect(spreadDiscount([100, 100], 1000)).toEqual([1, 1]);
+    expect(spreadDiscount([100], 0)).toEqual([100]);
+  });
+
+  it("reads the dashboard's form", () => {
+    expect(parseCoupon({ code: "spring10", kind: "percent", value: "10", minOrder: "", endsOn: "2026-12-31", maxUses: "" }, NOW)).toEqual({
+      ok: true,
+      value: { code: "SPRING10", kind: "percent", value: 10, minOrderCents: null, endsAt: new Date("2026-12-31T23:59:59Z"), maxUses: null },
+    });
+    expect(parseCoupon({ code: "OFF50", kind: "amount", value: "50", minOrder: "300", maxUses: "100" }, NOW)).toMatchObject({ ok: true, value: { value: 5000, minOrderCents: 30000, maxUses: 100 } });
+    expect(parseCoupon({ code: "!", kind: "percent", value: "120", minOrder: "x", endsOn: "2020-01-01", maxUses: "0" }, NOW)).toEqual({
+      ok: false,
+      errors: {
+        code: "Use 2 to 50 letters, digits or dashes, like SPRING10.",
+        value: "Enter a percentage from 1 to 100.",
+        minOrder: "Enter an amount, like 300, or leave it empty.",
+        endsOn: "Choose a day from today on, or leave it empty.",
+        maxUses: "Enter a number of uses, or leave it empty for no limit.",
+      },
     });
   });
 });

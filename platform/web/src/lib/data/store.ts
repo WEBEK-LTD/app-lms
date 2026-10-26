@@ -27,6 +27,7 @@ import type {
   CourseEnrollment,
   LessonProgress,
   QuizAttempt,
+  CatalogCoupon,
   CatalogProduct,
   CatalogProductInput,
   Client,
@@ -497,6 +498,15 @@ export interface DataStore {
   createCatalogProduct(input: CatalogProductInput, now: Date): Promise<CatalogProduct>;
   updateCatalogProduct(appId: string, id: number, input: Partial<CatalogProductInput>, now: Date): Promise<void>;
   deleteCatalogProduct(appId: string, id: number): Promise<void>;
+  // 91.1 Coupons of shops without a website.
+  listCatalogCoupons(appId: string): Promise<CatalogCoupon[]>;
+  getCatalogCouponByCode(appId: string, code: string): Promise<CatalogCoupon | null>;
+  /** Null when the shop already has a coupon with this code. */
+  createCatalogCoupon(input: Omit<CatalogCoupon, "id" | "usedCount">): Promise<CatalogCoupon | null>;
+  setCatalogCouponActive(appId: string, id: number, active: boolean): Promise<void>;
+  deleteCatalogCoupon(appId: string, id: number): Promise<void>;
+  /** Counts one use of a paid order; false when it was used up. */
+  useCatalogCoupon(appId: string, id: number): Promise<boolean>;
   createCatalogOrder(input: Omit<CatalogOrder, "id">): Promise<CatalogOrder>;
   getCatalogOrder(appId: string, id: number): Promise<CatalogOrder | null>;
   getCatalogOrderByToken(tokenHash: string): Promise<CatalogOrder | null>;

@@ -12,7 +12,9 @@ import { catalogSettings, paymentsSetUp } from "@/lib/catalog/settings";
 import { getStore } from "@/lib/data";
 import { priceOf } from "@/lib/hosted/connectors/catalog";
 import type { FulfilmentSettings } from "@/lib/data/types";
-import { AddCategoryForm, FulfilmentForm, ShopSettingsForm } from "./forms";
+import { AddCategoryForm, CouponForm, FulfilmentForm, ShopSettingsForm } from "./forms";
+import { deleteCouponAction, setCouponActiveAction } from "@/app/actions/catalog";
+import { formatDate } from "@/components/ui";
 import { CardPayments } from "./payments";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
@@ -53,7 +55,7 @@ function fulfilmentValues(f: FulfilmentSettings): Record<string, string> {
 /** Products (26 a restaurant's menu), categories and shop settings for apps without a website. */
 export default async function CatalogPage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
   const { app } = await requireClient("catalog");
-  const { t, num } = await dashboardText();
+  const { t, num, lang } = await dashboardText();
   const kind = app?.vertical === "restaurant" ? "restaurant" : "shop";
   const pageTitle = t("shop.page", { kind });
   if (!app || app.connector?.kind !== "catalog") {
@@ -68,7 +70,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
   }
   const { saved } = await searchParams;
   const store = await getStore();
-  const [products, categories] = await Promise.all([store.listCatalogProducts(app.id), store.listCatalogCategories(app.id)]);
+  const [products, categories, coupons] = await Promise.all([store.listCatalogProducts(app.id), store.listCatalogCategories(app.id), store.listCatalogCoupons(app.id)]);
   const settings = catalogSettings(app);
   const money = (cents: number) => formatCents(cents, settings.currency);
   const categoryName = new Map(categories.map((c) => [c.id, c.name]));
@@ -191,6 +193,56 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
           />
         </section>
       </div>
+
+      {/* 91.1 Coupons. */}
+      <section aria-labelledby="h-coupons" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+        <div className="flex flex-col gap-1">
+          <h2 id="h-coupons" className="m-0 text-lg font-bold">
+            {t("shop.coupons")}
+          </h2>
+          <p className="m-0 text-[15px] text-muted">{t("shop.couponsIntro")}</p>
+        </div>
+        {coupons.length ? (
+          <ul className="m-0 flex list-none flex-col gap-2 p-0">
+            {coupons.map((c) => (
+              <li key={c.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line-soft px-4 py-3" data-coupon={c.code}>
+                <div className="flex min-w-0 flex-col gap-0.5">
+                  <span className="flex items-center gap-2 font-semibold">
+                    <span dir="ltr">{c.code}</span>
+                    {!c.active ? <Badge tone="neutral">{t("shop.couponOff")}</Badge> : null}
+                  </span>
+                  <span className="text-[13px] text-muted">
+                    {[
+                      c.kind === "percent" ? t("shop.couponPercentOff", { value: c.value }) : t("shop.couponAmountOff", { amount: money(c.value) }),
+                      c.minOrderCents !== null ? t("shop.couponFrom", { amount: money(c.minOrderCents) }) : null,
+                      c.endsAt ? t("shop.couponUntil", { date: formatDate(c.endsAt, lang) }) : null,
+                      c.maxUses !== null ? t("shop.couponUsesOf", { used: c.usedCount, max: c.maxUses }) : t("shop.couponUses", { used: c.usedCount }),
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <form action={setCouponActiveAction}>
+                    <input type="hidden" name="id" value={c.id} />
+                    {c.active ? null : <input type="hidden" name="active" value="on" />}
+                    <SubmitButton variant="secondary" className="h-8 px-3 text-[13px]">
+                      {c.active ? t("shop.couponTurnOff") : t("shop.couponTurnOn")}
+                    </SubmitButton>
+                  </form>
+                  <form action={deleteCouponAction}>
+                    <input type="hidden" name="id" value={c.id} />
+                    <SubmitButton variant="danger" className="h-8 px-3 text-[13px]">
+                      {t("common.delete")}
+                    </SubmitButton>
+                  </form>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        <CouponForm currency={settings.currency} />
+      </section>
 
       {fulfilment ? (
         <section aria-labelledby="h-fulfilment" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">

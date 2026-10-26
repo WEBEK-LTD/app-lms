@@ -79,6 +79,7 @@ import type {
   CourseEnrollment,
   LessonProgress,
   QuizAttempt,
+  CatalogCoupon,
   PlatformSettingKey,
   PlatformSettingValues,
   Client,
@@ -1076,6 +1077,49 @@ export class MysqlStore implements DataStore {
     await this.run((db) =>
       db.delete(schema.catalogProducts).where(and(eq(schema.catalogProducts.appId, appId), eq(schema.catalogProducts.id, id))),
     );
+  }
+
+  async listCatalogCoupons(appId: string): Promise<CatalogCoupon[]> {
+    const t = schema.catalogCoupons;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(desc(t.id)));
+  }
+
+  async getCatalogCouponByCode(appId: string, code: string): Promise<CatalogCoupon | null> {
+    const t = schema.catalogCoupons;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.code, code))).limit(1));
+    return row ?? null;
+  }
+
+  async createCatalogCoupon(input: Omit<CatalogCoupon, "id" | "usedCount">): Promise<CatalogCoupon | null> {
+    try {
+      const [result] = await this.run((db) => db.insert(schema.catalogCoupons).values({ ...input, usedCount: 0 }));
+      return { id: Number(result.insertId), ...input, usedCount: 0 };
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return null;
+      throw error;
+    }
+  }
+
+  async setCatalogCouponActive(appId: string, id: number, active: boolean): Promise<void> {
+    const t = schema.catalogCoupons;
+    await this.run((db) => db.update(t).set({ active }).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async deleteCatalogCoupon(appId: string, id: number): Promise<void> {
+    const t = schema.catalogCoupons;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async useCatalogCoupon(appId: string, id: number): Promise<boolean> {
+    const t = schema.catalogCoupons;
+    // One statement, so two orders paid at once can't both take the last use.
+    const [done] = await this.run((db) =>
+      db
+        .update(t)
+        .set({ usedCount: sql`${t.usedCount} + 1` })
+        .where(and(eq(t.appId, appId), eq(t.id, id), or(isNull(t.maxUses), lt(t.usedCount, t.maxUses)))),
+    );
+    return done.affectedRows > 0;
   }
 
   async createCatalogOrder(input: Omit<CatalogOrder, "id">): Promise<CatalogOrder> {

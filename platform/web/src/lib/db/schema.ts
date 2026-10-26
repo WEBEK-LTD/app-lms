@@ -651,6 +651,9 @@ export const catalogOrders = mysqlTable(
     refundedCents: bigint("refunded_cents", { mode: "number", unsigned: true }).notNull().default(0),
     // 80.4 How the shop shipped it (JSON); null until it is shipped.
     shipment: jsonText<OrderShipment>("shipment"),
+    // 91.1 The coupon applied, and what it took off.
+    couponCode: varchar("coupon_code", { length: 50 }),
+    discountCents: bigint("discount_cents", { mode: "number", unsigned: true }).notNull().default(0),
   },
   (t) => [
     uniqueIndex("catalog_orders_token_unique").on(t.tokenHash),
@@ -865,6 +868,27 @@ export const lessonProgress = mysqlTable(
 );
 
 /** 90.1 Quiz attempts of courses managed in Yallapp. */
+// 91.1 Coupons of shops without a website.
+export const catalogCoupons = mysqlTable(
+  "catalog_coupons",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    code: varchar("code", { length: 50 }).notNull(),
+    kind: varchar("kind", { length: 8 }).notNull().$type<"percent" | "amount">(),
+    value: bigint("value", { mode: "number", unsigned: true }).notNull(),
+    minOrderCents: bigint("min_order_cents", { mode: "number", unsigned: true }),
+    endsAt: time("ends_at"),
+    maxUses: int("max_uses"),
+    usedCount: int("used_count").notNull().default(0),
+    active: boolean("active").notNull().default(true),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [uniqueIndex("catalog_coupons_code_unique").on(t.appId, t.code)],
+);
+
 export const quizAttempts = mysqlTable(
   "quiz_attempts",
   {
