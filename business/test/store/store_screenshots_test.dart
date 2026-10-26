@@ -46,7 +46,8 @@ class Device {
 }
 
 /// Google Play's phones (9:16) and tablets (7" and 10", 10:16), the App
-/// Store's 6.9" iPhone (1290 × 2796), 6.5" iPhone (1284 × 2778) and 13" iPad.
+/// Store's 6.9" iPhone (1290 × 2796), 6.5" iPhone (1284 × 2778), 6.3" iPhone
+/// (1206 × 2622), its 2007 × 2853 display and 13" iPad (2064 × 2752).
 const devices = [
   Device(
     'android-phone',
@@ -67,6 +68,20 @@ const devices = [
     Size(1284, 2778),
     3,
     EdgeInsets.only(top: 47, bottom: 34),
+  ),
+  Device(
+    'iphone-63',
+    Size(1206, 2622),
+    3,
+    EdgeInsets.only(top: 62, bottom: 34),
+  ),
+  // App Store Connect's 2007 × 2853 screenshots (it also takes 1398 × 2034).
+  Device(
+    'apple-2007x2853',
+    Size(2007, 2853),
+    3,
+    EdgeInsets.only(top: 24, bottom: 20),
+    tablet: true,
   ),
   Device(
     'ipad',
@@ -132,6 +147,29 @@ final shots = [
   Shot('stats', FakeOwnerApi.restaurantId, (tester, app, lang) async {
     await go(tester, app, '/stats');
   }),
+  Shot('chat', FakeOwnerApi.restaurantId, (tester, app, lang) async {
+    await go(tester, app, '/chat');
+  }),
+  Shot('appointments', FakeOwnerApi.clinicId, (tester, app, lang) async {
+    await go(tester, app, '/appointments');
+  }),
+  Shot('catalog', FakeOwnerApi.restaurantId, (tester, app, lang) async {
+    await go(tester, app, '/catalog');
+  }),
+  Shot('kitchen', FakeOwnerApi.restaurantId, (tester, app, lang) async {
+    await push(tester, app, '/kitchen');
+  }),
+  Shot('media', FakeOwnerApi.restaurantId, (tester, app, lang) async {
+    await push(tester, app, '/media');
+  }),
+];
+
+/// The App Store's wide artwork (landscape), in pixels.
+const banners = [
+  Size(5244, 2950),
+  Size(3840, 2560),
+  Size(1920, 1280),
+  Size(3840, 1646),
 ];
 
 /// The fonts the app bundles (Bricolage Grotesque, IBM Plex Sans Arabic,
@@ -242,6 +280,95 @@ void main() {
           }
         });
       }
+    }
+  }
+
+  // The wide artwork: three screens (Today, Orders, Stats) in iPhones beside
+  // the name and a line, in each language.
+  final iphone = devices.firstWhere((d) => d.name == 'iphone');
+  for (final banner in banners) {
+    for (final lang in languages) {
+      final name = 'banner-${banner.width.toInt()}x${banner.height.toInt()}';
+      testWidgets('$name $lang', (tester) async {
+        debugDisableShadows = false;
+        final screens = <ui.Image>[];
+        try {
+          for (final shot in [shots[0], shots[1], shots[4]]) {
+            final app = TestApp(
+              api: FakeOwnerApi()..language = lang,
+              appId: shot.appId,
+              language: lang,
+            );
+            await app.pump(
+              tester,
+              size: iphone.logical,
+              pixelRatio: iphone.pixelRatio,
+              padding: iphone.padding,
+              wrap: (root) => RepaintBoundary(key: frame, child: root),
+            );
+            await shot.open(tester, app, lang);
+            screens.add(await capture(tester, frame, iphone));
+          }
+          final icon = (await tester.runAsync(() async {
+            final bytes = File(
+              'ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png',
+            ).readAsBytesSync();
+            final codec = await ui.instantiateImageCodec(bytes);
+            return (await codec.getNextFrame()).image;
+          }))!;
+          final device = Device(name, banner, 2, EdgeInsets.zero);
+          tester.view.physicalSize = banner;
+          tester.view.devicePixelRatio = 2;
+          tester.view.resetPadding();
+          tester.view.resetViewPadding();
+          await tester.pumpWidget(
+            RepaintBoundary(
+              key: frame,
+              child: StoreBanner(
+                screens: screens,
+                screenSize: iphone.logical,
+                bars: iphone.padding,
+                icon: icon,
+                language: lang,
+              ),
+            ),
+          );
+          await tester.pump();
+          for (final text in tester.widgetList<Text>(
+            find.descendant(
+              of: find.byType(StoreBanner),
+              matching: find.byType(Text),
+            ),
+          )) {
+            final paragraph = tester.renderObject<RenderParagraph>(
+              find.byWidget(text),
+            );
+            expect(
+              paragraph.didExceedMaxLines,
+              isFalse,
+              reason: '${text.data} is too long for $name',
+            );
+          }
+          if (out.isNotEmpty) {
+            final art = await capture(tester, frame, device);
+            final file = File('$out/$name/$lang/banner.png');
+            await tester.runAsync(() async {
+              final png = await art.toByteData(format: ui.ImageByteFormat.png);
+              art.dispose();
+              file.parent.createSync(recursive: true);
+              file.writeAsBytesSync(png!.buffer.asUint8List());
+            });
+          }
+          // The three apps' timers (polling, animations) run out.
+          await tester.pumpWidget(const SizedBox());
+          await tester.pump(const Duration(minutes: 5));
+        } finally {
+          for (final screen in screens) {
+            screen.dispose();
+          }
+          debugDisableShadows = true;
+        }
+      });
     }
   }
 }

@@ -199,7 +199,6 @@ class _AddLessonScreenState extends ConsumerState<AddLessonScreen> {
                   const SizedBox(height: 4),
                   LinearProgressIndicator(
                     value: job.progress,
-                    semanticsValue: context.percent(job.progress),
                   ),
                 ],
                 if (_errors['video'] != null ||

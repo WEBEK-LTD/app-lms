@@ -219,7 +219,6 @@ class _StorageMeter extends ConsumerWidget {
               minHeight: 8,
               borderRadius: BorderRadius.circular(8),
               semanticsLabel: l10n.storage,
-              semanticsValue: context.percent(share),
             ),
           ],
           if (storage.full) ...[
@@ -273,7 +272,6 @@ class _JobTile extends ConsumerWidget {
               minHeight: 6,
               borderRadius: BorderRadius.circular(6),
               semanticsLabel: l10n.uploadingFile(job.name),
-              semanticsValue: context.percent(job.progress),
             ),
             const SizedBox(height: 6),
             Text(switch (job.status) {
