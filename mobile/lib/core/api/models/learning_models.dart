@@ -28,6 +28,7 @@ class CurriculumItem {
     this.durationMinutes,
     this.questionCount,
     this.preview = false,
+    this.availableAt,
   });
 
   factory CurriculumItem.fromJson(Json json) => CurriculumItem(
@@ -43,6 +44,7 @@ class CurriculumItem {
     preview: boolOr(json, 'preview', false),
     locked: reqBool(json, 'locked'),
     completed: reqBool(json, 'completed'),
+    availableAt: optDate(json, 'available_at'),
   );
 
   final int id;
@@ -53,6 +55,9 @@ class CurriculumItem {
   final bool preview;
   final bool locked;
   final bool completed;
+
+  /// 90.1 When a locked lesson opens for the student (drip); null otherwise.
+  final DateTime? availableAt;
 
   /// 39 Lessons and quizzes open in the app; assignments and live classes open
   /// on the website (and never complete from the app).
@@ -418,6 +423,7 @@ class MyCourse {
     required this.progress,
     this.nextItem,
     this.certificateUrl,
+    this.accessEndsAt,
   });
 
   factory MyCourse.fromJson(Json json) => MyCourse(
@@ -425,12 +431,16 @@ class MyCourse {
     progress: Progress.fromJson(asJson(json['progress'], 'progress')),
     nextItem: optObject(json, 'next_item', CurriculumItem.fromJson),
     certificateUrl: optString(json, 'certificate_url'),
+    accessEndsAt: optDate(json, 'access_ends_at'),
   );
 
   final CourseSummary course;
   final Progress progress;
   final CurriculumItem? nextItem;
   final String? certificateUrl;
+
+  /// 90.1 When the student's access ends; null when it doesn't.
+  final DateTime? accessEndsAt;
 }
 
 class Enrollment {

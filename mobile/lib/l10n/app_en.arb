@@ -2803,5 +2803,23 @@
         "type": "String"
       }
     }
+  },
+  "opensOn": "Opens {date}",
+  "@opensOn": {
+    "description": "90.1 A course lesson that opens later (drip), with its day.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "accessUntil": "Access until {date}",
+  "@accessUntil": {
+    "description": "90.1 The day a student's access to a course ends.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   }
 }

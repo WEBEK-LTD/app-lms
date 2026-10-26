@@ -2149,6 +2149,8 @@ paths:
               schema: { $ref: '#/components/schemas/AttemptResult' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
 
   /me/quiz-attempts:
@@ -3859,6 +3861,8 @@ components:
             - storage_full
             - too_big
             - update_required
+            - access_ended
+            - not_available_yet
             - invalid_answers
             - kitchen_closed
             - below_minimum
@@ -4315,6 +4319,10 @@ components:
               type: [string, 'null']
               format: uri
               description: Roadmap 62. The course's page on the website; null when it has none (academies without a website).
+            access_ends_at:
+              type: [string, 'null']
+              format: date-time
+              description: Roadmap 90.1. For an enrolled student, when their access ends (as `MyCourse.access_ends_at`).
             can_restart:
               type: boolean
               description: >-
@@ -4358,6 +4366,13 @@ components:
         preview: { type: boolean, description: Free preview available without enrollment. }
         locked: { type: boolean }
         completed: { type: boolean }
+        available_at:
+          type: [string, 'null']
+          format: date-time
+          description: >-
+            Roadmap 90.1. When a lesson that opens some days after enrolling (drip) opens
+            for this student; it's `locked` until then, and `GET /lessons/{id}` answers 403
+            `not_available_yet`. Null or missing: no wait.
 
     Lesson:
       type: object
@@ -4532,6 +4547,13 @@ components:
         progress: { $ref: '#/components/schemas/Progress' }
         next_item: { $ref: '#/components/schemas/CurriculumItem' }
         certificate_url: { type: [string, 'null'], format: uri }
+        access_ends_at:
+          type: [string, 'null']
+          format: date-time
+          description: >-
+            Roadmap 90.1. When the student's access to the course ends (a course open for a
+            number of days); after it, its lessons and quizzes answer 403 `access_ended`.
+            Null or missing: it doesn't end.
 
     Enrollment:
       type: object
@@ -4539,6 +4561,7 @@ components:
       properties:
         course_id: { type: integer }
         enrolled_at: { type: string, format: date-time }
+        access_ends_at: { type: [string, 'null'], format: date-time, description: Roadmap 90.1. As `MyCourse.access_ends_at`. }
 
     Quiz:
       type: object

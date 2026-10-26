@@ -1018,4 +1018,6 @@
 {"key":"chatOpenFile","en":"Open {name}","ar":"فتح {name}","tr":"{name} dosyasını aç","placeholders":{"name":"String"}},
 {"key":"chatMessageFrom","en":"{name}: {text}","ar":"{name}: {text}","tr":"{name}: {text}","placeholders":{"name":"String","text":"String"}},
 {"key":"chatMore","en":"More","ar":"المزيد","tr":"Daha fazla"},
-{"key":"chatBlockPerson","en":"Block {name}","ar":"حظر {name}","tr":"{name} kişisini engelle","placeholders":{"name":"String"}}]}
+{"key":"chatBlockPerson","en":"Block {name}","ar":"حظر {name}","tr":"{name} kişisini engelle","placeholders":{"name":"String"}},
+{"key":"opensOn","en":"Opens {date}","ar":"يُفتح في {date}","tr":"{date} tarihinde açılır","description":"90.1 A course lesson that opens later (drip), with its day.","placeholders":{"date":"String"}},
+{"key":"accessUntil","en":"Access until {date}","ar":"متاح حتى {date}","tr":"{date} tarihine kadar erişim","description":"90.1 The day a student's access to a course ends.","placeholders":{"date":"String"}}]}

@@ -3807,4 +3807,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String chatBlockPerson(String name) {
     return 'Block $name';
   }
+
+  @override
+  String opensOn(String date) {
+    return 'Opens $date';
+  }
+
+  @override
+  String accessUntil(String date) {
+    return 'Access until $date';
+  }
 }

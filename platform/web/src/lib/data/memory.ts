@@ -66,6 +66,7 @@ import type {
   MembershipPatch,
   CourseEnrollment,
   LessonProgress,
+  QuizAttempt,
   AdminMember,
   AdminMemberRow,
   AuditEntry,
@@ -152,6 +153,8 @@ export class MemoryStore implements DataStore {
   private nextClassId = 1;
   private courseEnrollments: CourseEnrollment[] = [];
   private lessonProgress = new Map<string, LessonProgress>();
+  // 90.1
+  private quizAttempts: QuizAttempt[] = [];
   // 44 Analytics: raw events, and daily totals keyed by app, day, metric and key.
   private analyticsEvents: AnalyticsEventRow[] = [];
   private analyticsDaily = new Map<string, AnalyticsDailyRecord & { appId: string }>();
@@ -1471,6 +1474,43 @@ export class MemoryStore implements DataStore {
       .map(clone);
   }
 
+  async createQuizAttempt(input: Omit<QuizAttempt, "id">): Promise<QuizAttempt> {
+    const attempt = { ...clone(input), id: this.quizAttempts.length + 1 };
+    this.quizAttempts.push(attempt);
+    return clone(attempt);
+  }
+
+  async getQuizAttempt(appId: string, id: number): Promise<QuizAttempt | null> {
+    const found = this.quizAttempts.find((a) => a.appId === appId && a.id === id);
+    return found ? clone(found) : null;
+  }
+
+  async submitQuizAttempt(appId: string, id: number, result: Pick<QuizAttempt, "answers" | "scorePercent" | "passed" | "submittedAt">): Promise<boolean> {
+    const found = this.quizAttempts.find((a) => a.appId === appId && a.id === id);
+    if (!found || found.submittedAt) return false;
+    Object.assign(found, clone(result));
+    return true;
+  }
+
+  async listQuizAttempts(input: { appId: string; userId?: number; courseId?: number; quizId?: number }): Promise<QuizAttempt[]> {
+    return this.quizAttempts
+      .filter(
+        (a) =>
+          a.appId === input.appId &&
+          (input.userId === undefined || a.userId === input.userId) &&
+          (input.courseId === undefined || a.courseId === input.courseId) &&
+          (input.quizId === undefined || a.quizId === input.quizId),
+      )
+      .sort((a, b) => b.id - a.id)
+      .map(clone);
+  }
+
+  async deleteQuizAttempts(input: { appId: string; userId: number; courseId: number }): Promise<number> {
+    const before = this.quizAttempts.length;
+    this.quizAttempts = this.quizAttempts.filter((a) => !(a.appId === input.appId && a.userId === input.userId && a.courseId === input.courseId));
+    return before - this.quizAttempts.length;
+  }
+
   async deleteLessonProgress(input: { appId: string; userId: number; courseId: number }): Promise<number> {
     let deleted = 0;
     for (const [key, p] of this.lessonProgress) {
@@ -2635,6 +2675,10 @@ export class MemoryStore implements DataStore {
         counts.progress++;
       }
     }
+    // 90.1 Quiz attempts count with the progress.
+    const attempts = this.quizAttempts.length;
+    this.quizAttempts = this.quizAttempts.filter((a) => !(a.appId === appId && old(a.startedAt)));
+    counts.progress += attempts - this.quizAttempts.length;
     for (const [id, notification] of this.hostedNotifications) {
       if (notification.appId === appId && notification.userId !== null && old(notification.createdAt)) {
         this.hostedNotifications.delete(id);

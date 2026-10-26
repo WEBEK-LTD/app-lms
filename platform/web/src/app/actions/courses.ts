@@ -7,6 +7,7 @@ import { getBlobStore } from "@/lib/blobs";
 import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
 import { parseCourse } from "@/lib/courses/forms";
 import { saveLesson, withCourse } from "@/lib/courses/edit";
+import { deleteQuiz, saveQuiz } from "@/lib/courses/quizzes";
 import { courseSetup } from "@/lib/courses/setup";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
@@ -49,6 +50,9 @@ export async function saveCourseAction(_: FormState, formData: FormData): Promis
   v.active = formData.get("active") === "on" ? "on" : "";
   // 73 Students can start the course again (on by default).
   v.restart = formData.get("restart") === "on" ? "on" : "";
+  // 90.1
+  v.certificate = formData.get("certificate") === "on" ? "on" : "";
+  v.accessDays = String(formData.get("accessDays") ?? "").trim();
   const categoryIds = formData.getAll("categoryIds").map(Number);
   v.categoryIds = categoryIds.join(",");
   const setup = courseSetup(app);
@@ -153,7 +157,7 @@ export async function saveLessonAction(_: FormState, formData: FormData): Promis
   const { app } = await requireCoursesApp();
   const courseId = Number(formData.get("courseId"));
   const topicId = Number(formData.get("topicId"));
-  const v = values(formData, ["id", "title", "videoUrl", "text", "duration"]);
+  const v = values(formData, ["id", "title", "videoUrl", "text", "duration", "dripDays", "attachments"]);
   v.preview = formData.get("preview") === "on" ? "on" : "";
   const saved = saveLesson(courseSetup(app), courseId, topicId, v, (url) => parseMediaLink(url, appUrl()) !== null);
   if (!saved.ok) return saved.errors ? { errors: saved.errors, values: v } : { message: saved.message };
@@ -176,6 +180,23 @@ export async function deleteLessonAction(formData: FormData): Promise<void> {
     app,
     withCourse(courseSetup(app), courseId, (c) => ({ ...c, topics: c.topics.map((t) => ({ ...t, lessons: t.lessons.filter((l) => l.id !== lessonId) })) })),
   );
+}
+
+/** 90.1 A quiz at the end of a section. */
+export async function saveQuizAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { app } = await requireCoursesApp();
+  const courseId = Number(formData.get("courseId"));
+  const topicId = Number(formData.get("topicId"));
+  const v = values(formData, ["id", "title", "passPercent", "attemptsAllowed", "timeLimit", "questions"]);
+  const saved = saveQuiz(courseSetup(app), courseId, topicId, v);
+  if (!saved.ok) return saved.errors ? { errors: saved.errors, values: v } : { message: saved.message };
+  await saveSetup(app, saved.setup);
+  return { ok: true, message: saved.added ? `Added “${saved.quiz.title}”.` : `Saved “${saved.quiz.title}”.`, values: saved.added ? undefined : v };
+}
+
+export async function deleteQuizAction(formData: FormData): Promise<void> {
+  const { app } = await requireCoursesApp();
+  await saveSetup(app, deleteQuiz(courseSetup(app), Number(formData.get("courseId")), Number(formData.get("quizId"))));
 }
 
 /** Our client adds a student who paid another way, by the phone number they sign in with. */

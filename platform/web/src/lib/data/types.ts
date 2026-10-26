@@ -1579,12 +1579,59 @@ export interface CourseLesson {
   durationMinutes: number | null;
   /** Open to everyone, before enrolling. */
   preview: boolean;
+  /** 90.1 Files that come with the lesson. */
+  attachments?: CourseAttachment[];
+  /** 90.1 Opens this many days after the student enrolled (drip); missing or 0: at once. */
+  dripDays?: number | null;
+}
+
+/** 90.1 A file with a lesson: a file of the app's Media library (a PDF, a picture) or an https address, with the name the student sees. */
+export interface CourseAttachment {
+  name: string;
+  url: string;
+}
+
+/** 90.1 A quiz's question: one right answer, several, or true or false. */
+export interface CourseQuizQuestion {
+  id: number;
+  text: string;
+  type: "single_choice" | "multiple_choice" | "true_false";
+  options: { id: string; text: string; correct: boolean }[];
+}
+
+/** 90.1 A quiz at the end of a topic. */
+export interface CourseQuiz {
+  id: number;
+  title: string;
+  /** The score that passes, 1 to 100. */
+  passPercent: number;
+  /** Null: as many attempts as the student wants. */
+  attemptsAllowed: number | null;
+  timeLimitMinutes: number | null;
+  questions: CourseQuizQuestion[];
 }
 
 export interface CourseTopic {
   id: number;
   title: string;
   lessons: CourseLesson[];
+  /** 90.1 Quizzes after the topic's lessons. */
+  quizzes?: CourseQuiz[];
+}
+
+/** 90.1 A student's attempt at a quiz: started, then submitted with its score. */
+export interface QuizAttempt {
+  id: number;
+  appId: string;
+  userId: number;
+  courseId: number;
+  quizId: number;
+  /** The option IDs chosen for each question ID; null until submitted. */
+  answers: Record<string, string[]> | null;
+  scorePercent: number | null;
+  passed: boolean | null;
+  startedAt: Date;
+  submittedAt: Date | null;
 }
 
 export interface Course {
@@ -1601,6 +1648,10 @@ export interface Course {
   active: boolean;
   /** 73 Students who finished it can start it again (missing: true). */
   canRestart?: boolean;
+  /** 90.1 Students who finish it get a certificate (missing: false). */
+  certificate?: boolean;
+  /** 90.1 Days a student keeps access after enrolling; missing or null: always. */
+  accessDays?: number | null;
   createdAt: string;
 }
 

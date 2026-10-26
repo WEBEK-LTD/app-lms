@@ -15,6 +15,7 @@ import '../data/lms_providers.dart';
 import '../../../core/data/paged_controller.dart';
 import '../navigation.dart';
 import '../widgets/course_cards.dart';
+import '../../../core/format/dates.dart';
 import '../../../core/l10n/l10n.dart';
 
 enum MyCoursesTab { inProgress, completed, wishlist }
@@ -218,6 +219,18 @@ class _InProgressCard extends StatelessWidget {
                           context.l10n.nextItem(next),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: p.textSecondary,
+                          ),
+                        ),
+                      ],
+                      // 90.1 Courses sold for a term.
+                      if (course.accessEndsAt case final ends?) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          context.l10n.accessUntil(shortDate(ends)),
+                          maxLines: 1,
                           style: TextStyle(
                             fontSize: 12,
                             color: p.textSecondary,

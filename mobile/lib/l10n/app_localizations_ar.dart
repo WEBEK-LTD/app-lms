@@ -3866,4 +3866,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String chatBlockPerson(String name) {
     return 'حظر $name';
   }
+
+  @override
+  String opensOn(String date) {
+    return 'يُفتح في $date';
+  }
+
+  @override
+  String accessUntil(String date) {
+    return 'متاح حتى $date';
+  }
 }
