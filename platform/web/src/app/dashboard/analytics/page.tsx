@@ -10,6 +10,7 @@ import { compactIn } from "@/lib/analytics/format";
 import { loadReport, rangeFrom, RANGE_PRESETS, MIN_SEARCH_COUNT, type AnalyticsReport } from "@/lib/analytics/report";
 import { relabel } from "@/lib/analytics/localize";
 import { analyticsKeep } from "@/lib/analytics/retention";
+import { loadSales } from "@/lib/analytics/sales";
 import { appPlan, effectivePlans } from "@/lib/entitlements";
 import { analyticsEventsKeepText, analyticsKeepText } from "@/components/plan-cards";
 import { funnelWords, itemWord, pushTypeWord } from "@/lib/analytics/words";
@@ -19,8 +20,13 @@ import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
+import { appUrl } from "@/lib/env";
 import type { App } from "@/lib/data/types";
+import type { AutoKind } from "@/lib/hosted/auto-notifications";
 
+import { SalesTiles } from "./sales";
+import { CAMPAIGN_NAME, ShareCard, shareLinks, SourcesSection } from "./sources";
+import { WeeklyForm } from "./weekly-form";
 import { ZoneForm } from "./zone-form";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -108,6 +114,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
   const kept = analyticsKeep(plan, now, zone, await effectivePlans(store));
   const range = rangeFrom({ range: one(query.range), from: one(query.from), to: one(query.to) }, now, zone, kept.from);
   const report = await loadReport(store, app.id, range, now, zone);
+  const sales = await loadSales(store, app, range, zone, report.funnel[0]?.value ?? 0);
   const planName = plan?.name ?? (await effectivePlans(store)).starter.name;
   const items = wordsOf(app).items;
   const funnel = funnelWords(app.appType);
@@ -116,6 +123,10 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
   const to = dayText(range.to, text);
   const zoneText = zoneLabel(zone, now);
   const short = (value: number) => compactIn(lang, value);
+  // 86.2 The campaign name for the link and QR code to share.
+  const asked = (one(query.campaign) ?? "").trim().toLowerCase();
+  const campaign = CAMPAIGN_NAME.test(asked) ? asked : "";
+  const share = shareLinks(app, appUrl(), campaign || null);
 
   return (
     <div className="flex flex-col gap-6">
@@ -131,6 +142,8 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
       />
       <RangeFilter report={report} text={text} />
       <ZoneForm zone={zone} label={zoneText} zones={timeZones()} chosen={Boolean(app.timeZone)} />
+      {/* 86.4 The weekly summary email. */}
+      <WeeklyForm on={app.weeklySummary !== false} />
       <Notice>
         {kept.from === null
           ? t("analytics.keptNoteForever", { plan: planName, days: analyticsEventsKeepText(lang) })
@@ -140,6 +153,13 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
       <Notice>{t("analytics.installsNote")}</Notice>
 
       <KpiTiles report={report} lang={lang} />
+
+      {/* 86.1 What the business sold over the same days. */}
+      {Object.values(sales.shows).some(Boolean) ? (
+        <Section id="sales" titleId="h-sales" title={t("analytics.sales")} description={t(app.backend === "wordpress" ? "analytics.salesTextSite" : "analytics.salesText")}>
+          <SalesTiles sales={sales} days={range.days} text={text} />
+        </Section>
+      ) : null}
 
       {!report.hasData ? <NoData app={app} text={text} /> : null}
 
@@ -194,6 +214,14 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
         </Section>
       </div>
 
+      {/* 86.2 Where people come from, and the app's link and QR code to share. */}
+      <Section id="sources" titleId="h-sources" title={t("analytics.sources")} description={t("analytics.sourcesText")}>
+        <SourcesSection sources={report.sources} text={text} />
+      </Section>
+      <Section id="share" titleId="h-share" title={t("analytics.shareTitle")} description={t("analytics.shareText")}>
+        <ShareCard links={share} campaign={campaign} invalid={asked !== "" && !campaign} text={text} />
+      </Section>
+
       <Section id="items" titleId="h-items" title={t("analytics.topItems", { items })} description={t("analytics.topItemsText", { items })}>
         {report.items.length === 0 ? (
           <p className="m-0 text-sm text-muted">{t("analytics.noItems", { items })}</p>
@@ -244,7 +272,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
 
       <div className="grid items-start gap-6 [grid-template-columns:repeat(auto-fit,minmax(min(440px,100%),1fr))]">
         <Section id="push" titleId="h-push" title={t("analytics.notifications")} description={t("analytics.notificationsText")}>
-          {report.push.length === 0 && report.pushFromSite.length === 0 ? (
+          {report.push.length === 0 && report.pushFromSite.length === 0 && report.auto.length === 0 ? (
             <p className="m-0 text-sm text-muted">{t("analytics.noNotifications")}</p>
           ) : (
             <>
@@ -253,6 +281,15 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
                   caption={t("analytics.sentCaption")}
                   head={[t("analytics.notification"), t("analytics.sent"), t("analytics.phones"), t("analytics.opened"), t("analytics.openRate")]}
                   rows={report.push.map((p) => [p.title, dayText(p.sentDay, text), num(p.pushed), num(p.opened), percent(p.rate, 1, lang)])}
+                />
+              ) : null}
+              {/* 86.3 The automatic ones, by kind. */}
+              {report.auto.length > 0 ? (
+                <DataTable
+                  caption={t("analytics.autoCaption")}
+                  hideCaption={report.push.length === 0}
+                  head={[t("analytics.autoKind"), t("analytics.autoPeople"), t("analytics.phones"), t("analytics.opened"), t("analytics.openRate")]}
+                  rows={report.auto.map((a) => [t(`campaigns.auto_${a.kind as AutoKind}`), num(a.people), num(a.pushed), num(a.opened), percent(a.rate, 1, lang)])}
                 />
               ) : null}
               {report.pushFromSite.length > 0 ? (

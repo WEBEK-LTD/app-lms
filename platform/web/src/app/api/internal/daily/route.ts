@@ -1,4 +1,5 @@
 import { runAnalyticsNightly } from "@/lib/analytics/aggregate";
+import { runWeeklySummaries } from "@/lib/analytics/weekly";
 import { purgeAnalyticsHistory } from "@/lib/analytics/retention";
 import { appZone } from "@/lib/analytics/zone";
 import { getStore } from "@/lib/data";
@@ -42,7 +43,8 @@ import { APP_ERROR_DAYS } from "@/lib/watch/app-errors";
  * messages over a year old go unless kept, and the business hears 30 days
  * before (lib/chat/retention.ts). 78 Every account's milestones are
  * recorded, before deleted apps are purged (lib/milestones), then the day's
- * snapshot for Admin › Product (lib/admin/product-days.ts). 78.3 Each run is
+ * snapshot for Admin › Product (lib/admin/product-days.ts). 86.4 On Mondays
+ * (to Wednesday), each active app's weekly summary goes to its owner. 78.3 Each run is
  * recorded; job runs older than 30 days go, and the watch checks that the
  * frequent job runs (lib/watch). Safe to call again.
  */
@@ -63,6 +65,11 @@ async function runDaily(store: DataStore, now: Date) {
   const analytics = await runAnalyticsNightly(store, now, undefined, async (appId) => {
     const app = await store.getAppById(appId);
     return app ? appZone(store, app) : "UTC";
+  });
+  // 86.4 The weekly summaries due (Mondays, by each app's time zone), once the days before are counted.
+  const weekly = await runWeeklySummaries(deps).catch((e: unknown) => {
+    console.error(`[daily] weekly summaries: ${e instanceof Error ? e.message : String(e)}`);
+    return null;
   });
   // 72 Daily totals kept as long as each app's plan says.
   const analyticsHistory = await purgeAnalyticsHistory(store, await effectivePlans(store), now);
@@ -103,5 +110,5 @@ async function runDaily(store: DataStore, now: Date) {
   // 78.4 Apps' errors not seen for 90 days.
   const appErrorsPurged = await store.deleteAppErrorsBefore(new Date(now.getTime() - APP_ERROR_DAYS * 86_400_000));
   const watch = await runWatch({ store, now, mail: teamMail, jobs: ["frequent"], dispatch: dispatchSet() });
-  return { ...report, analytics: { ...analytics, history: analyticsHistory }, media, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, jobRunsPurged, appErrorsPurged, watch };
+  return { ...report, analytics: { ...analytics, history: analyticsHistory, weekly }, media, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, jobRunsPurged, appErrorsPurged, watch };
 }

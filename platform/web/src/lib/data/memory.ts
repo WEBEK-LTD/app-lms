@@ -3039,6 +3039,19 @@ export class MemoryStore implements DataStore {
     return [...this.hostedUsers.values()].filter((u) => u.appId === appId && within(u.createdAt, from, to)).length;
   }
 
+  async sumRefunds(appId: string, from: Date, to: Date): Promise<PaidTotals> {
+    return paidTotals([...this.refunds.values()].filter((r) => r.appId === appId && within(r.createdAt, from, to)).map((r) => ({ currency: r.currency, cents: r.amountCents })));
+  }
+
+  async countEnrollmentsInWindow(appId: string, from: Date, to: Date): Promise<{ total: number; paid: number }> {
+    const rows = this.courseEnrollments.filter((e) => e.appId === appId && within(e.enrolledAt, from, to));
+    return { total: rows.length, paid: rows.filter((e) => e.source === "paid").length };
+  }
+
+  async countAppointmentsMade(appId: string, from: Date, to: Date): Promise<number> {
+    return [...this.bookingAppointments.values()].filter((a) => a.appId === appId && within(a.createdAt, from, to)).length;
+  }
+
   async countTicketsInWindow(appId: string, from: Date, to: Date): Promise<{ issued: number; checkedIn: number }> {
     const tickets = [...this.tickets.values()].filter((t) => t.appId === appId);
     return {
@@ -3190,11 +3203,11 @@ export class MemoryStore implements DataStore {
     this.campaignSends = this.campaignSends.filter((s) => !(s.appId === appId && s.id === id));
   }
 
-  async reportCampaignSend(appId: string, id: number, numbers: { pushed: number; failed: number }, now: Date): Promise<boolean> {
+  async reportCampaignSend(appId: string, id: number, numbers: { pushed: number; failed: number }, now: Date): Promise<CampaignSend | null> {
     const row = this.campaignSends.find((s) => s.appId === appId && s.id === id);
-    if (!row || row.reportedAt !== null) return false;
+    if (!row || row.reportedAt !== null) return null;
     Object.assign(row, { ...numbers, reportedAt: new Date(now) });
-    return true;
+    return clone(row);
   }
 
   async listCampaignSends(appId: string, campaignIds: number[]): Promise<CampaignSend[]> {

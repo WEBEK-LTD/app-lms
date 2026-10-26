@@ -520,3 +520,91 @@ describe("47 days in the owner's time zone", () => {
     expect(await appZone({ getClientById: async () => ({ whatsapp: "+201001234567" }) as never }, app)).toBe("Africa/Cairo");
   });
 });
+
+describe("86.2 where people come from", () => {
+  it("takes the store of a first open and a link's source, campaign and referrer, as the contract says", () => {
+    const body = batch([
+      { type: "app_open", at: "2026-10-19T10:00:00Z", first_open: true, store: "google_play" },
+      { type: "link_open", at: "2026-10-19T10:01:00Z", source: "qr", campaign: "menu-2026", referrer: "flyer" },
+      { type: "link_open", at: "2026-10-19T10:02:00Z" },
+      // Fields that don't go with the type are ignored.
+      { type: "app_open", at: "2026-10-19T10:03:00Z", store: "app_store", campaign: "x" },
+    ]);
+    expect(batchSchema(body)).toBe(true);
+    const parsed = parseBatch(body, NOW);
+    if (!parsed.ok) throw new Error(parsed.message);
+    expect(parsed.events.map((e) => [e.type, e.source, e.campaign, e.referrer])).toEqual([
+      ["app_open", "google_play", null, null],
+      ["link_open", "qr", "menu-2026", "flyer"],
+      ["link_open", "link", null, null],
+      ["app_open", null, null, null],
+    ]);
+    for (const bad of [{ store: "itunes" }, { source: "email" }, { campaign: "Summer Sale" }, { referrer: "-x" }, { campaign: "a".repeat(41) }]) {
+      const wrong = batch([{ type: "link_open", at: "2026-10-19T10:00:00Z", ...bad }]);
+      expect(parseBatch(wrong, NOW).ok).toBe(false);
+      expect(batchSchema(wrong)).toBe(false);
+    }
+  });
+
+  it("counts installs by store, links by source, campaign and referrer, and the rest of the sessions as on their own", () => {
+    const other = "9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d";
+    const events = [
+      row({ type: "app_open", firstOpen: true, source: "google_play" }),
+      row({ type: "app_open", firstOpen: true, source: "google_play", installId: other }),
+      row({ type: "app_open" }),
+      row({ type: "app_open", installId: other }),
+      row({ type: "app_open", installId: other }),
+      row({ type: "link_open", source: "qr", campaign: "menu" }),
+      row({ type: "link_open", source: "link", campaign: "menu", referrer: "instagram" }),
+      row({ type: "push_open", pushType: "announcement" }),
+    ];
+    const rows = totalsOfDay(events);
+    const of = (metric: string) => Object.fromEntries(rows.filter((r) => r.metric === metric).map((r) => [r.key, r.value]));
+    expect(of("install_store")).toEqual({ google_play: 2 });
+    expect(of("link_source")).toEqual({ qr: 1, link: 1 });
+    expect(of("utm_campaign")).toEqual({ menu: 2 });
+    expect(of("utm_source")).toEqual({ instagram: 1 });
+
+    const report = buildReport(
+      rows.map((r) => ({ ...r, day: TODAY })),
+      rangeFrom({ range: "7" }, NOW),
+      TODAY,
+    );
+    // 5 sessions: one from a notification, one from a link, one from a QR code, two on their own.
+    expect(report.sources.opens.map((s) => [s.key, s.value])).toEqual([
+      ["push", 1],
+      ["link", 1],
+      ["qr", 1],
+      ["direct", 2],
+    ]);
+    expect(report.sources.installs).toEqual([{ key: "google_play", label: "Google Play", value: 2, share: 1 }]);
+    expect(report.sources.campaigns).toEqual([{ name: "menu", opens: 2 }]);
+    expect(report.sources.referrers).toEqual([{ name: "instagram", opens: 1 }]);
+    const csv = reportCsv(report, itemWord);
+    expect(csv).toContain("Installs by store,Google Play,,2,");
+    expect(csv).toContain("Opens,From a QR code,,1,");
+    expect(csv).toContain("Opens,On their own,,2,");
+    expect(csv).toContain("Campaigns,menu,,2,");
+  });
+});
+
+describe("86.3 notifications' results, the automatic ones too", () => {
+  it("shows each automatic kind with the people notified, the phones reached and the opens, apart from a website's", () => {
+    const day = TODAY;
+    const rows = [
+      { metric: "auto_sent" as const, key: "new_lesson", label: "new_lesson", value: 40, day },
+      { metric: "auto_pushed" as const, key: "new_lesson", label: "new_lesson", value: 30, day },
+      { metric: "auto_sent" as const, key: "cart_left", label: "cart_left", value: 5, day },
+      { metric: "push_open" as const, key: "type:new_lesson", label: "new_lesson", value: 6, day },
+      // A website's own kind stays with the website's.
+      { metric: "push_open" as const, key: "type:order", label: "order", value: 2, day },
+    ];
+    const report = buildReport(rows, rangeFrom({ range: "7" }, NOW), TODAY);
+    expect(report.auto).toEqual([
+      { kind: "new_lesson", people: 40, pushed: 30, opened: 6, rate: 0.2 },
+      { kind: "cart_left", people: 5, pushed: 0, opened: 0, rate: null },
+    ]);
+    expect(report.pushFromSite).toEqual([{ type: "order", opened: 2 }]);
+    expect(reportCsv(report, itemWord)).toContain("Automatic notifications,New lesson,\"40 people notified, 30 phones\",6,");
+  });
+});

@@ -1,5 +1,6 @@
 import type { DashboardText } from "../dashboard-words";
 import { appLanguageName } from "../i18n/language-names";
+import type { AutoKind } from "../hosted/auto-notifications";
 import { ENGLISH_CSV_WORDS, type CsvWords } from "./csv";
 import type { AnalyticsReport, Share } from "./report";
 import { itemWord, pushTypeWord } from "./words";
@@ -36,6 +37,7 @@ export function localizedReport(report: AnalyticsReport, text: Pick<DashboardTex
     countries: relabel(report.countries, text, "country"),
     languages: relabel(report.languages, text, "language"),
     screens: relabel(report.screens, text, "other"),
+    sources: { ...report.sources, installs: relabel(report.sources.installs, text, "other") },
   };
 }
 
@@ -84,6 +86,14 @@ export function csvWords(text: Pick<DashboardText, "lang" | "t" | "k">): CsvWord
     searches: t("analytics.csv.searches"),
     screenshots: t("analytics.csv.screenshots"),
     otherProtected: t("analytics.otherProtected"),
+    installStores: t("analytics.csv.installStores"),
+    opens: t("analytics.csv.opens"),
+    openSource: (key) => t(`analytics.source.${key as "push" | "link" | "qr" | "direct"}`),
+    campaigns: t("analytics.csv.campaigns"),
+    referrers: t("analytics.csv.referrers"),
+    autoNotifications: t("analytics.csv.autoNotifications"),
+    autoKind: (kind) => t(`campaigns.auto_${kind as AutoKind}`),
+    autoDetail: (people, phones) => t("analytics.csv.autoDetail", { people, phones }),
     itemWord: (kind) => k(itemWord(kind)),
     pushType: (type) => k(pushTypeWord(type)),
   };

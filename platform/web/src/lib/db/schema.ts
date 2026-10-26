@@ -89,7 +89,7 @@ import type { EventSettings, EventStatus, TicketStatus } from "../data/types";
 // 29 Charity & donations
 import type { CampaignStatus, DonationRecurring, DonationSettings, DonationStatus } from "../data/types";
 // 44 Analytics
-import type { AnalyticsEventType, AnalyticsItemKind, AnalyticsMetric } from "../analytics/types";
+import type { AnalyticsEventType, AnalyticsItemKind, AnalyticsMetric, InstallStore, LinkSource } from "../analytics/types";
 // 14.1 We publish for you
 import type { PublishingChecklist, PublishingListing, PublishingMode, PublishingStatus, PublishingStore } from "../data/types";
 import type { AppErrorSource, MilestoneKind, ProductDay, SignupSource, TeamAlertKind, WatchedJob } from "../data/types";
@@ -285,6 +285,8 @@ export const apps = mysqlTable(
     crashReports: boolean("crash_reports").notNull().default(true),
     // 47 The owner's time zone for Analytics; null: from the account's country.
     timeZone: varchar("time_zone", { length: 64 }),
+    // 86.4 The weekly summary email, on unless the owner turns it off.
+    weeklySummary: boolean("weekly_summary").notNull().default(true),
     appTypeDoneAt: time("app_type_done_at"),
     websiteDoneAt: time("website_done_at"),
     brandingDoneAt: time("branding_done_at"),
@@ -717,6 +719,8 @@ export const bookingAppointments = mysqlTable(
   (t) => [
     index("booking_appointments_app_start_idx").on(t.appId, t.startAt),
     index("booking_appointments_user_idx").on(t.appId, t.userId, t.startAt),
+    // 86.1 Bookings made in a period.
+    index("booking_appointments_app_created_idx").on(t.appId, t.createdAt),
   ],
 );
 
@@ -816,7 +820,7 @@ export const courseEnrollments = mysqlTable(
     source: varchar("source", { length: 16 }).notNull().$type<"free" | "paid" | "manual">(),
     enrolledAt: time("enrolled_at").notNull(),
   },
-  (t) => [primaryKey({ columns: [t.appId, t.userId, t.courseId] }), index("course_enrollments_course_idx").on(t.appId, t.courseId)],
+  (t) => [primaryKey({ columns: [t.appId, t.userId, t.courseId] }), index("course_enrollments_course_idx").on(t.appId, t.courseId), index("course_enrollments_app_enrolled_idx").on(t.appId, t.enrolledAt)],
 );
 
 export const lessonProgress = mysqlTable(
@@ -1512,6 +1516,10 @@ export const analyticsEvents = mysqlTable(
     currency: varchar("currency", { length: 3 }),
     notificationId: varchar("notification_id", { length: 64 }),
     pushType: varchar("push_type", { length: 32 }),
+    // 86.2 The store of a first open, or how a link came (link, qr); a link's campaign and referrer.
+    source: varchar("source", { length: 16 }).$type<InstallStore | LinkSource>(),
+    campaign: varchar("campaign", { length: 40 }),
+    referrer: varchar("referrer", { length: 40 }),
   },
   (t) => [index("analytics_events_app_day_idx").on(t.appId, t.day, t.installId), index("analytics_events_day_idx").on(t.day)],
 );
@@ -1617,7 +1625,7 @@ export const paymentRefunds = mysqlTable(
     byEmail: varchar("by_email", { length: 191 }).notNull(),
     createdAt: time("created_at").notNull(),
   },
-  (t) => [index("payment_refunds_target_idx").on(t.appId, t.kind, t.targetId)],
+  (t) => [index("payment_refunds_target_idx").on(t.appId, t.kind, t.targetId), index("payment_refunds_app_created_idx").on(t.appId, t.createdAt)],
 );
 
 // 51 Videos and pictures hosted by Yallapp: each app's Media library and its storage packs.

@@ -43,6 +43,7 @@ export type ClientEmailKey = Extract<
   | "account_deletion_done"
   | "two_step_on"
   | "two_step_off"
+  | "weekly_summary"
 >;
 
 const AR: Record<ClientEmailKey, TemplateText> = {
@@ -235,6 +236,14 @@ const AR: Record<ClientEmailKey, TemplateText> = {
       "مرحبًا {{name}}،\n\nفُعّل تسجيل الدخول بخطوتين لحسابك في Yallapp في {{date}}. من الآن، يطلب تسجيل الدخول إلى yallapp.com.tr وYallapp Business رمزًا من تطبيق المصادقة بعد كلمة المرور.\n\n" +
       "احتفظ برموز الاسترداد في مكان آمن: كل رمز منها يتيح لك تسجيل الدخول مرة واحدة إن فقدت هاتفك. يمكنك إدارته من هنا:\n{{account_url}}\n\n" +
       "إن لم تفعل ذلك بنفسك، فأعد تعيين كلمة المرور فورًا وراسلنا على {{yallapp_email}}." +
+      SIGNATURE_AR,
+  },
+  weekly_summary: {
+    subject: "{{app_name}}: أسبوعك، {{week}}",
+    body:
+      "مرحبًا {{name}}،\n\nهكذا كان أداء {{app_name}} في أسبوع {{week}}، وبجانبه الأسبوع الذي قبله:\n\n{{summary}}\n\n" +
+      "كل الأرقام، يومًا بيوم، في صفحة «التحليلات»:\n{{analytics_url}}\n\n" +
+      "تصلك هذه الرسالة كل يوم اثنين. لإيقافها، أوقف «ملخص أسبوعي بالبريد» في الصفحة نفسها." +
       SIGNATURE_AR,
   },
   two_step_off: {
@@ -437,6 +446,14 @@ const TR: Record<ClientEmailKey, TemplateText> = {
       "Merhaba {{name}},\n\nYallapp hesabınızda iki adımlı giriş {{date}} tarihinde açıldı. Artık yallapp.com.tr'ye ve Yallapp Business'a girişte parolanızdan sonra doğrulama uygulamanızdan bir kod istenir.\n\n" +
       "Kurtarma kodlarınızı güvenli bir yerde saklayın: telefonunuzu kaybederseniz her biri bir kez giriş yapmanızı sağlar. Buradan yönetebilirsiniz:\n{{account_url}}\n\n" +
       "Bunu siz yapmadıysanız hemen parolanızı sıfırlayın ve bize {{yallapp_email}} adresinden yazın." +
+      SIGNATURE_TR,
+  },
+  weekly_summary: {
+    subject: "{{app_name}}: haftanız, {{week}}",
+    body:
+      "Merhaba {{name}},\n\n{{app_name}} uygulamasının {{week}} haftası, bir önceki haftanın yanında:\n\n{{summary}}\n\n" +
+      "Tüm sayılar, gün gün, Analiz sayfanızda:\n{{analytics_url}}\n\n" +
+      "Bu e-postayı her pazartesi alırsınız. Durdurmak için aynı sayfada \"E-postayla haftalık özet\" seçeneğini kapatın." +
       SIGNATURE_TR,
   },
   two_step_off: {

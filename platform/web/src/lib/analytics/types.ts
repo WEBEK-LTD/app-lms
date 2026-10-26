@@ -18,11 +18,20 @@ export const ANALYTICS_EVENT_TYPES = [
   "share",
   // 62 A screenshot while protected content was open (iPhone only; Android blocks them).
   "screenshot",
+  // 86.2 The app opened from one of its links tapped outside it.
+  "link_open",
 ] as const;
 export type AnalyticsEventType = (typeof ANALYTICS_EVENT_TYPES)[number];
 
 export const ANALYTICS_ITEM_KINDS = ["course", "lesson", "product", "service", "class", "membership", "listing", "article", "event", "campaign", "page"] as const;
 export type AnalyticsItemKind = (typeof ANALYTICS_ITEM_KINDS)[number];
+
+/** 86.2 The store an install came from (`app_open` with `first_open`). */
+export const INSTALL_STORES = ["google_play", "app_store", "galaxy_store", "appgallery", "testflight", "other"] as const;
+export type InstallStore = (typeof INSTALL_STORES)[number];
+/** 86.2 How a link reached the app (`link_open`): a QR code says `utm_medium=qr`. */
+export const LINK_SOURCES = ["link", "qr"] as const;
+export type LinkSource = (typeof LINK_SOURCES)[number];
 
 /** The events that mean "took a step" towards buying, joining or giving (the funnel's middle step). */
 export const INTENT_EVENTS = ["add_to_cart", "enroll", "book", "ticket", "donate"] as const satisfies readonly AnalyticsEventType[];
@@ -51,6 +60,11 @@ export interface AnalyticsEventRow {
   currency: string | null;
   notificationId: string | null;
   pushType: string | null;
+  /** 86.2 `app_open` with `first_open`: the store; `link_open`: link or qr. */
+  source?: InstallStore | LinkSource | null;
+  /** 86.2 A link's `utm_campaign` and `utm_source` (`link_open`). */
+  campaign?: string | null;
+  referrer?: string | null;
 }
 
 /** One daily total: a metric, an optional key (a screen, a country…) and its value. */
@@ -95,6 +109,18 @@ export const ANALYTICS_METRICS = [
   // 85.3 Automatic notifications by kind: the people notified, and the phones the push reached.
   "auto_sent",
   "auto_pushed",
+  // 86.2 Where people come from: installs by store, links opened by source (link, qr), by campaign and by referrer.
+  "install_store",
+  "link_source",
+  "utm_campaign",
+  "utm_source",
+  // 86.4 A WordPress site's shop totals (lib/analytics/site-sales.ts).
+  "site_orders",
+  "site_revenue",
+  "site_refunds",
+  "site_refunded",
+  // 86.4 The weekly summary went out (key: the week's first day).
+  "weekly_mail",
   // Book-keeping: the day was counted (value: when), or got late events since.
   "done",
   "dirty",

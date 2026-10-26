@@ -474,7 +474,13 @@ class License_Client {
 		if ( '' === $key ) {
 			return $this->status();
 		}
-		$result = $this->call( 'POST', '/licenses/check', $this->site_info( $key ) );
+		$info = $this->site_info( $key );
+		// 86.4 The shop's totals of the last days, with the check only (twice a day).
+		$sales = \Yallapp\Site_Sales::report();
+		if ( null !== $sales ) {
+			$info['sales'] = $sales;
+		}
+		$result = $this->call( 'POST', '/licenses/check', $info );
 		if ( is_wp_error( $result ) ) {
 			// 404 means the key is gone. Network failures keep the last status for the grace period.
 			if ( 'license_not_found' === $result->get_error_code() ) {

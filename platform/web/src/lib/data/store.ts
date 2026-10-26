@@ -945,6 +945,12 @@ export interface DataStore {
   countHostedUsersCreated(appId: string, from: Date, to: Date): Promise<number>;
   /** Tickets issued (valid or used) and tickets checked in, in the window. */
   countTicketsInWindow(appId: string, from: Date, to: Date): Promise<{ issued: number; checkedIn: number }>;
+  /** 86.1 Refunds made in the window (orders and donations), how many and their sum per currency. */
+  sumRefunds(appId: string, from: Date, to: Date): Promise<PaidTotals>;
+  /** 86.1 Enrolments in courses managed in Yallapp in the window: all, and those paid for. */
+  countEnrollmentsInWindow(appId: string, from: Date, to: Date): Promise<{ total: number; paid: number }>;
+  /** 86.1 Appointments booked in the window (when they were made, whatever happened to them since). */
+  countAppointmentsMade(appId: string, from: Date, to: Date): Promise<number>;
 
   // 61 Notifications to an app's users sent later (lib/hosted/scheduled-notifications.ts)
   createScheduledNotification(input: Omit<ScheduledNotification, "id">): Promise<ScheduledNotification>;
@@ -987,7 +993,8 @@ export interface DataStore {
   updateCampaignSend(appId: string, id: number, patch: Partial<Pick<CampaignSend, "notificationId" | "recipients" | "reportedAt">>): Promise<void>;
   deleteCampaignSend(appId: string, id: number): Promise<void>;
   /** 85.4 A WordPress site's numbers for one of its sends, once: false when it isn't this app's or was reported. */
-  reportCampaignSend(appId: string, id: number, numbers: { pushed: number; failed: number }, now: Date): Promise<boolean>;
+  /** Null when it isn't this app's or was already reported; else the send as it now is. */
+  reportCampaignSend(appId: string, id: number, numbers: { pushed: number; failed: number }, now: Date): Promise<CampaignSend | null>;
 
   // 61 Announcements pushed to the owners' phones when they start
   /** Marks the announcement pushed, only if it wasn't yet (atomic); false otherwise. */

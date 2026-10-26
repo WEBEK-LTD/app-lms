@@ -4,10 +4,14 @@ import { addDays, dayOf } from "./days";
 import {
   ANALYTICS_EVENT_TYPES,
   ANALYTICS_ITEM_KINDS,
+  INSTALL_STORES,
+  LINK_SOURCES,
   MAX_EVENT_AGE_DAYS,
   type AnalyticsEventRow,
   type AnalyticsEventType,
   type AnalyticsItemKind,
+  type InstallStore,
+  type LinkSource,
 } from "./types";
 
 /** 44 The request limits of POST /api/v1/apps/{app_id}/events (docs/api/platform.yaml). */
@@ -41,10 +45,12 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{1
 const SCREEN = /^[a-z][a-z0-9_]{0,39}$/;
 const PUSH_TYPE = /^[a-z][a-z0-9_]{0,31}$/;
 const CURRENCY = /^[A-Z]{3}$/;
+/** 86.2 A link's `utm_campaign` or `utm_source`, as the app sends it. */
+const UTM = /^[a-z0-9][a-z0-9._-]{0,39}$/;
 const ISO_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?(Z|[+-]\d{2}:\d{2})$/;
 
 const BATCH_FIELDS = new Set(["install_id", "platform", "app_version", "os_version", "locale", "events"]);
-const EVENT_FIELDS = new Set(["type", "at", "first_open", "screen", "item_kind", "item_id", "title", "amount", "currency", "query", "notification_id", "push_type"]);
+const EVENT_FIELDS = new Set(["type", "at", "first_open", "screen", "item_kind", "item_id", "title", "amount", "currency", "query", "notification_id", "push_type", "store", "source", "campaign", "referrer"]);
 /** Events that carry an item. */
 const ITEM_EVENTS = new Set<AnalyticsEventType>(["item_view", "add_to_cart", "purchase_click", "enroll", "book", "donate", "ticket", "share", "screenshot"]);
 
@@ -130,6 +136,10 @@ export function parseBatch(body: unknown, now: Date, zone = "UTC"): ({ ok: true 
     if (event.query !== undefined && (typeof event.query !== "string" || event.query.length > 80)) return fail(`${where}.query must be at most 80 characters.`);
     if (event.notification_id !== undefined && (typeof event.notification_id !== "string" || event.notification_id.length > 64)) return fail(`${where}.notification_id must be at most 64 characters.`);
     if (event.push_type !== undefined && (typeof event.push_type !== "string" || !PUSH_TYPE.test(event.push_type))) return fail(`${where}.push_type must be a type like "announcement".`);
+    if (event.store !== undefined && !(INSTALL_STORES as readonly unknown[]).includes(event.store)) return fail(`${where}.store isn't a known store.`);
+    if (event.source !== undefined && !(LINK_SOURCES as readonly unknown[]).includes(event.source)) return fail(`${where}.source must be link or qr.`);
+    if (event.campaign !== undefined && (typeof event.campaign !== "string" || !UTM.test(event.campaign))) return fail(`${where}.campaign must be a short name like "summer-sale".`);
+    if (event.referrer !== undefined && (typeof event.referrer !== "string" || !UTM.test(event.referrer))) return fail(`${where}.referrer must be a short name like "instagram".`);
 
     const at = new Date(event.at);
     if (at.getTime() < oldest || at.getTime() > newest) {
@@ -155,6 +165,15 @@ export function parseBatch(body: unknown, now: Date, zone = "UTC"): ({ ok: true 
       currency: amount === null ? null : (event.currency as string),
       notificationId: t === "push_open" ? cleanText(event.notification_id, 64) : null,
       pushType: t === "push_open" && typeof event.push_type === "string" ? event.push_type : null,
+      // 86.2 The store of a first open; how a link came, and its campaign and referrer.
+      source:
+        t === "app_open" && event.first_open === true
+          ? ((event.store as InstallStore | undefined) ?? null)
+          : t === "link_open"
+            ? ((event.source as LinkSource | undefined) ?? "link")
+            : null,
+      campaign: t === "link_open" && typeof event.campaign === "string" ? event.campaign : null,
+      referrer: t === "link_open" && typeof event.referrer === "string" ? event.referrer : null,
     });
     if (t === "search" && typeof event.query === "string") {
       const query = normalizeQuery(event.query);
