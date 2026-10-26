@@ -1,0 +1,1 @@
+ALTER TABLE `apps` ADD `guide_hidden_at` datetime(3);

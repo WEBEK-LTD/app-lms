@@ -17,6 +17,7 @@ import { getSiteContent } from "@/lib/content/get";
 import { headingId } from "@/lib/content/markdown";
 import { parseGuide } from "@/lib/content/site";
 import { breadcrumbLd, siteMetadata, siteUrl } from "@/lib/seo";
+import { SEARCH_MAX_QUERY, searchDocs } from "@/lib/docs/search";
 import { formatMessage, messagesFor, type Lang } from "@/i18n";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
@@ -94,6 +95,65 @@ export async function DocsIndexPage({ lang }: { lang: Lang }) {
         </section>
       ))}
 
+      <p className="m-0 flex flex-wrap items-center gap-2 text-[15px] text-ink-4">
+        <WhatsAppMark size={20} />
+        {richText(m.cantFind, {
+          whatsapp: (chunk) => <WhatsAppLink lines={contact.lines}>{chunk}</WhatsAppLink>,
+          faq: (chunk) => <Link href={localePath(lang, "/faq")}>{chunk}</Link>,
+        })}
+      </p>
+    </DocsShell>
+  );
+}
+
+/** 93.2 Search the documentation: every word of the query in the articles' text, in this language (with the team's edits). */
+export async function docsSearchMetadata(lang: Lang): Promise<Metadata> {
+  return siteMetadata(lang, { title: messagesFor(lang).docs.search, description: messagesFor(lang).docs.searchPrompt, path: "/docs/search" });
+}
+
+export async function DocsSearchPage({ lang, query }: { lang: Lang; query: string }) {
+  const m = messagesFor(lang).docs;
+  const q = query.trim().slice(0, SEARCH_MAX_QUERY);
+  const [texts, contact] = await Promise.all([Promise.all(DOCS.map(async (d) => ({ doc: d, text: await getSiteContent(d.key, lang) }))), getContact()]);
+  const hits = q
+    ? searchDocs(
+        texts.map(({ doc, text }) => ({ slug: doc.slug, section: doc.section, title: text.title!, description: text.description ?? "", body: text.body ?? "" })),
+        q,
+      )
+    : [];
+  return (
+    <DocsShell current="/docs/search" lang={lang}>
+      <div className="flex flex-col gap-4">
+        <h1 className="m-0 text-[32px] leading-[1.1] font-extrabold tracking-[-0.5px]">{m.search}</h1>
+        <form role="search" action={localePath(lang, "/docs/search")} className="flex flex-wrap gap-2">
+          <label className="min-w-0 flex-[1_1_260px]">
+            <span className="sr-only">{m.search}</span>
+            <input type="search" name="q" defaultValue={q} maxLength={SEARCH_MAX_QUERY} placeholder={m.searchPrompt} className="input w-full" />
+          </label>
+          <button type="submit" className="inline-flex h-11 cursor-pointer items-center gap-2 rounded-xl border-0 bg-midnight px-5 font-semibold text-white">
+            <Icon name="search" size={20} />
+            {m.searchButton}
+          </button>
+        </form>
+        {q ? (
+          <p role="status" className="m-0 text-[15px] text-ink-4">
+            {hits.length ? formatMessage(lang, m.searchFound, { count: hits.length, query: q }) : formatMessage(lang, m.searchNone, { query: q })}
+          </p>
+        ) : null}
+      </div>
+      {hits.length ? (
+        <ol className="m-0 flex list-none flex-col gap-3 p-0" aria-label={m.search}>
+          {hits.map((hit) => (
+            <li key={hit.slug} data-doc-hit={hit.slug} className="flex flex-col gap-1 rounded-2xl border border-line bg-white p-5">
+              <span className="text-xs font-bold tracking-[1px] text-muted uppercase">{docSectionName(lang, hit.section)}</span>
+              <Link href={localePath(lang, `/docs/${hit.slug}`)} className="text-lg font-bold">
+                {hit.title}
+              </Link>
+              <span className="text-[15px] leading-snug text-ink-4">{hit.snippet || hit.description}</span>
+            </li>
+          ))}
+        </ol>
+      ) : null}
       <p className="m-0 flex flex-wrap items-center gap-2 text-[15px] text-ink-4">
         <WhatsAppMark size={20} />
         {richText(m.cantFind, {

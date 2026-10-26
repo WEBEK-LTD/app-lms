@@ -290,6 +290,8 @@ export const apps = mysqlTable(
     weeklySummary: boolean("weekly_summary").notNull().default(true),
     // 87.4 The automatic build of the latest saves, a few minutes after the last one.
     autoBuildDueAt: time("auto_build_due_at"),
+    // 93.1 The overview's guide through the first app, hidden by the owner.
+    guideHiddenAt: time("guide_hidden_at"),
     // 88.2 The listing in more languages, tablet and iPad screenshots, framed screenshots.
     listingLanguage: varchar("listing_language", { length: 10 }),
     listingTranslations: jsonText<ListingTranslation[]>("listing_translations"),

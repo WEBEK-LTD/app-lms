@@ -56,7 +56,7 @@ export async function DocsShell({ current, children, lang = DEFAULT_LANG }: { cu
           <DocsNav
             groups={groups.map(({ title, links }) => ({ title, links }))}
             current={localePath(lang, current)}
-            labels={{ menu: m.menu, browse: m.browse, search: m.search, noMatch: m.noMatch }}
+            labels={{ menu: m.menu, browse: m.browse, search: m.search, noMatch: m.noMatch, searchAll: m.searchAll, searchHref: localePath(lang, "/docs/search") }}
           />
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-6">{children}</div>

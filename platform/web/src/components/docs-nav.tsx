@@ -19,6 +19,9 @@ export interface DocsNavLabels {
   browse: string;
   search: string;
   noMatch: string;
+  /** 93.2 The link to the search of every article's text, and its address. */
+  searchAll: string;
+  searchHref: string;
 }
 
 const ENGLISH: DocsNavLabels = {
@@ -26,6 +29,8 @@ const ENGLISH: DocsNavLabels = {
   browse: "Browse the documentation",
   search: "Search the documentation",
   noMatch: "No articles match “{query}”.",
+  searchAll: "Search every article",
+  searchHref: "/docs/search",
 };
 
 export function DocsNav({ groups, current, labels = ENGLISH }: { groups: DocsNavGroup[]; current: string; labels?: DocsNavLabels }) {
@@ -54,19 +59,29 @@ export function DocsNav({ groups, current, labels = ENGLISH }: { groups: DocsNav
         <Icon name="expand_more" size={22} className={`transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       <div id={listId} className={`${open ? "flex" : "hidden"} flex-col gap-5 lg:flex`}>
-        <label className="flex flex-col gap-1.5">
-          <span className="sr-only">{labels.search}</span>
-          <span className="relative flex items-center">
-            <Icon name="search" size={20} className="pointer-events-none absolute start-3 text-muted" />
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={labels.search}
-              className="input input-sm ps-10"
-            />
-          </span>
-        </label>
+        {/* 93.2 Typing narrows the menu; Enter searches every article's text. */}
+        <form role="search" action={labels.searchHref} className="flex flex-col gap-1.5">
+          <label className="flex flex-col gap-1.5">
+            <span className="sr-only">{labels.search}</span>
+            <span className="relative flex items-center">
+              <Icon name="search" size={20} className="pointer-events-none absolute start-3 text-muted" />
+              <input
+                type="search"
+                name="q"
+                value={query}
+                maxLength={100}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={labels.search}
+                className="input input-sm ps-10"
+              />
+            </span>
+          </label>
+          {query.trim() ? (
+            <Link href={`${labels.searchHref}?q=${encodeURIComponent(query.trim())}`} className="px-3 text-sm font-semibold">
+              {labels.searchAll}
+            </Link>
+          ) : null}
+        </form>
         {shown.length === 0 ? <p className="m-0 px-3 text-sm text-muted">{labels.noMatch.replace("{query}", query)}</p> : null}
         {shown.map((group) => (
           <div key={group.title} role="group" aria-label={group.title} className="flex flex-col gap-0.5">

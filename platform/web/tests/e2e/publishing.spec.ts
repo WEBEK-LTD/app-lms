@@ -194,7 +194,15 @@ test("the client works through the checklist and the listing details", async () 
   // The overview shows where it stands.
   await own.goto("/dashboard");
   await expect(own.getByRole("listitem").filter({ hasText: "Google Play" })).toContainText("Waiting for you");
-  // 19 The setup counts the step as done, but nothing is live yet.
+  // 19 The setup counts the step as done, but nothing is live yet: 93.1 the guide waits on our team.
+  const guide = own.getByRole("region", { name: "Your first app" });
+  await expect(guide.locator('[data-guide-step="publishing"]')).toHaveAttribute("data-state", "done");
+  await expect(guide.locator('[data-guide-step="ready"]')).toHaveAttribute("data-state", "done");
+  await expect(guide.locator('[data-guide-step="ready"]')).toContainText("Everything the stores check is in place.");
+  await expect(guide.locator('[data-guide-step="live"]')).toHaveAttribute("data-state", "waiting");
+  await expect(guide.locator('[data-guide-step="live"]')).toContainText("Our team is publishing it for you.");
+  // Hidden, the setup card says the same.
+  await guide.getByRole("button", { name: "Hide the guide" }).click();
   await expect(own.getByText("Publishing: our team is on it")).toBeVisible();
 });
 
@@ -335,10 +343,21 @@ test("a build that didn't finish says why, and Try again builds the same version
   const team = await mailsTo(E2E.publishingAdminEmail);
   expect(team.find((m) => m.subject === "Build problem: Franklin Lab #1")?.text).toContain("actions/runs/7");
 
+  // 93.3 Where the client works: the overview lists it, the menu counts it, and its link goes to the fix.
+  await own.goto("/dashboard");
+  const problems = own.getByRole("region", { name: "Needs your attention" });
+  await expect(problems.locator('[data-problem="build"]')).toHaveText(/Build #1 didn't finish\./);
+  await expect(own.locator('[data-nav-badge]').first()).toBeVisible();
+  await problems.getByRole("link", { name: "Fix: Build #1 didn't finish." }).click();
+  await expect(own).toHaveURL(/\/dashboard\/builds$/);
+
   await current.getByRole("button", { name: "Try again" }).click();
   await expect(own.getByText("Build #2 is queued.")).toBeVisible();
   await expect(own.getByRole("heading", { name: "Build #2 · App version 1.0.0" })).toBeVisible();
   await expect(own.getByRole("button", { name: "Start new build" })).toBeDisabled();
+  // The new build is running: the problem is gone.
+  await own.goto("/dashboard");
+  await expect(own.locator('[data-problem="build"]')).toHaveCount(0);
 });
 
 test("downloads appear only for files the build has, and are signed when clicked", async ({ request }) => {

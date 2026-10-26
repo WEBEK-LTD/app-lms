@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { PageHelp } from "@/components/page-help";
+import { helpLinks } from "@/lib/docs/help";
+import { appProblems } from "@/lib/app/problems-load";
 import Link from "next/link";
 import { Logo } from "@/components/brand";
 import { stopManagingAction } from "@/app/actions/admin";
@@ -64,10 +67,18 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   // Only what the current app uses: its content pages, and the app users pages on the hosted API (21 in the kind's words).
   const content = app ? contentNavOf(app) : null;
+  const problems = app && contextCan(context, "settings") ? await appProblems(app) : [];
   const groups: DashboardNavGroup[] = [
     {
       items: [
-        { href: "/dashboard", label: t("nav.overview"), icon: "dashboard", exact: true },
+        {
+          href: "/dashboard",
+          label: t("nav.overview"),
+          icon: "dashboard",
+          exact: true,
+          // 93.3 The app's problems, for whoever may fix them.
+          ...(problems.length ? { badge: { count: problems.length, label: t("nav.problems", { count: problems.length }) } } : {}),
+        },
         { href: "/dashboard/setup", label: t("nav.setup"), icon: "tune", prefix: "/dashboard/app-type" },
         { href: "/dashboard/pages", label: t("nav.pages"), icon: "palette" },
         // 51 The app's videos, pictures and PDFs, kept by Yallapp.
@@ -206,6 +217,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         />
         <main id="main" tabIndex={-1} className="min-w-0 flex-1 px-4 pt-6 pb-16 outline-none sm:px-8 sm:pt-8 lg:px-10">
           <div className="mx-auto flex max-w-[1120px] flex-col gap-6">
+            {/* 93.2 Help with this page. */}
+            <PageHelp links={helpLinks(lang)} label={t("nav.pageHelp")} />
             {staff ? (
               <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-midnight px-4 py-3 text-sm text-white">
                 <span className="flex items-center gap-2">

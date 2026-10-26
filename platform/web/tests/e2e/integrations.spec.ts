@@ -76,6 +76,21 @@ test("the page lists the app's connections with their state", async () => {
   await expect(card(own, "whatsapp")).toHaveCount(0);
 });
 
+test("93.2 every page links to its help article", async () => {
+  await own.goto("/dashboard/integrations");
+  const help = own.getByRole("link", { name: "Help with this page" });
+  await expect(help).toHaveAttribute("href", "/docs/integrations");
+  await expect(help).toHaveAttribute("target", "_blank");
+  await own.goto("/dashboard/publishing/links");
+  await expect(own.getByRole("link", { name: "Help with this page" })).toHaveAttribute("href", "/docs/app-links");
+  await own.goto("/dashboard/team");
+  await expect(own.getByRole("link", { name: "Help with this page" })).toHaveAttribute("href", "/docs/team");
+  await own.goto("/docs/integrations");
+  await expect(own.getByRole("heading", { level: 1 })).toBeVisible();
+  // The next test starts on Integrations.
+  await own.goto("/dashboard/integrations");
+});
+
 test("Test asks the website now and keeps the result", async () => {
   const website = card(own, "website");
   await website.getByRole("button", { name: "Test" }).click();
@@ -92,6 +107,8 @@ test("the page comes in Arabic", async () => {
   await expect(own.locator("html")).toHaveAttribute("dir", "rtl");
   await own.goto("/dashboard/integrations");
   await expect(own.getByRole("heading", { level: 1, name: "التكاملات" })).toBeVisible();
+  // 93.2 Help with this page, in the dashboard's language.
+  await expect(own.getByRole("link", { name: "مساعدة في هذه الصفحة" })).toHaveAttribute("href", "/ar/docs/integrations");
   await expect(card(own, "website").getByRole("button", { name: "اختبار" })).toBeVisible();
   await own.locator("[data-dashboard-languages]").getByRole("button", { name: "English" }).click();
 });

@@ -2410,6 +2410,32 @@ app opens on the site's links (`<site>/a/page/<slug>`).
   (`tax`), and the payment gets a "tax" line. `catalog_orders.tax` {label,
   rateBps, included, cents}, migration 0083; the pay page, receipt,
   owner's email and Orders page show it. `Cart.tax_label`, `tax_included`.
+- **Your first app** (93.1): `lib/app/first-app.ts` `firstAppGuide()`
+  turns the setup steps (`stepStatus`), the license state, the builds, the
+  88.1 readiness (once the owner chose who publishes) and the publishing
+  request's tracks into nine steps (done, next, waiting, to do) with their
+  links. The overview shows it instead of the setup card until a store
+  shows the app or the owner hides it (`apps.guide_hidden_at`, migration
+  0084, `setGuideAction`).
+- **Help and search** (93.2): `lib/docs/help.ts` `DASHBOARD_HELP` names the
+  article for each part of the dashboard (the longest address prefix wins,
+  `help-match.ts`); the layout's `PageHelp` links to it in the dashboard's
+  language, in a new tab. `/docs/search?q=` (and `/ar`, `/tr`) searches the
+  articles' titles, descriptions and text with the team's edits
+  (`lib/docs/search.ts`: every word, without accents or Arabic marks,
+  titles first, the text around the words), not indexed; Enter in the
+  docs' menu goes there. Nine articles joined (Integrations, builds and
+  connections, Ready to submit, Team, two-step sign-in and deleting an app,
+  Protection, Stability, Yallapp Business, links that open the app), the
+  Arabic and Turkish in `content/{ar,tr}/docs-8.ts`.
+- **Needs your attention** (93.3): `lib/app/problems.ts` `problemsOf()`
+  gathers what needs the owner now: a connection in `problem` (80), the
+  latest build failed or stalled, a store's rejection (88.3), what Ready to
+  submit still misses (88.1, once the owner chose who publishes) and fewer
+  than 99% crash-free sessions over at least 100 (46). `problems-load.ts`
+  `appProblems()` reads it once per request (React `cache`); the overview
+  lists each with Fix it and the menu shows the count on Overview (the
+  nav item's `badge`), for whoever may change settings.
 
 ## Academies, complete (Phase 90)
 

@@ -36,6 +36,13 @@ import { CLIENT_STATUS_LABEL, isLiveSomewhere, requestStores, statusTone, STORE_
 import type { App } from "@/lib/data/types";
 import { paymentsSetUp } from "@/lib/catalog/settings";
 import { stabilityOf } from "@/lib/crashes/service";
+import { firstAppGuide, type Guide, type GuideKey } from "@/lib/app/first-app";
+import { readiness } from "@/lib/publishing/readiness";
+import { appUrl } from "@/lib/env";
+import { setGuideAction } from "@/app/actions/guide";
+import { appProblems } from "@/lib/app/problems-load";
+import type { Problem } from "@/lib/app/problems";
+import type { PublishingStore } from "@/lib/data/types";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("overview.title") };
@@ -51,6 +58,119 @@ function Tile({ id, title, icon, children, actions }: { id: string; title: strin
       </h2>
       <div className="flex flex-1 flex-col gap-2">{children}</div>
       {actions ? <div className="flex flex-wrap items-center gap-2 pt-1">{actions}</div> : null}
+    </section>
+  );
+}
+
+const GUIDE_TITLE: Record<Exclude<GuideKey, "app-type" | "website" | "branding" | "listing" | "publishing">, DashKey> = {
+  activate: "overview.guideActivate",
+  build: "overview.guideBuild",
+  ready: "overview.guideReady",
+  live: "overview.guideLive",
+};
+
+/** 93.1 Your first app: every step from setup to the stores, with where to do it and how ready it is for the stores. */
+function FirstAppGuide({ guide, text, step }: { guide: Guide; text: DashboardText; step: (s: SetupStep) => string }) {
+  const { t } = text;
+  const line = (key: GuideKey, state: string, missing?: number): string => {
+    if (key === "activate") return t("overview.guideActivateText");
+    if (key === "build") return state === "waiting" ? t("overview.guideBuildWaiting") : t("overview.guideBuildText");
+    if (key === "ready") return missing === undefined ? t("overview.guideReadyChoose") : missing ? t("overview.guideReadyMissing", { count: missing }) : t("overview.guideReadyAll");
+    if (key === "live") return state === "done" ? t("overview.guideLiveDone") : state === "waiting" ? t("overview.guideLiveManaged") : t("overview.guideLiveSelf");
+    return t("overview.guideStepText");
+  };
+  return (
+    <section aria-labelledby="h-guide" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6" data-guide-done={guide.done}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <h2 id="h-guide" className="m-0 flex items-center gap-2 text-lg font-bold">
+            <Icon name="flag" size={22} className="text-accent" />
+            {t("overview.guideTitle")}
+          </h2>
+          <span className="text-sm text-muted">{t("overview.guideIntro")}</span>
+        </div>
+        <span className="text-xl font-extrabold">{t("overview.guideDone", { done: guide.done, total: guide.total })}</span>
+      </div>
+      <ProgressBar value={guide.done} max={guide.total} label={t("overview.guideProgress")} tone="accent" />
+      <ol className="m-0 flex list-none flex-col p-0">
+        {guide.steps.map((s, i) => {
+          const title = s.key in GUIDE_TITLE ? t(GUIDE_TITLE[s.key as keyof typeof GUIDE_TITLE]) : step(s.key as SetupStep);
+          const icon: IconName = s.state === "done" ? "check_circle" : s.state === "waiting" ? "hourglass_top" : s.state === "next" ? "arrow_forward" : "radio_button_unchecked";
+          return (
+            <li key={s.key} data-guide-step={s.key} data-state={s.state} className="flex items-start gap-3 border-t border-line-soft py-3 first:border-t-0 first:pt-0 last:pb-0">
+              <Icon
+                name={icon}
+                size={22}
+                filled={s.state === "done"}
+                className={`mt-0.5 ${s.state === "done" ? "text-success" : s.state === "todo" ? "text-faint" : "text-accent"}`}
+              />
+              <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className={`text-[15px] ${s.state === "next" ? "font-bold" : s.state === "done" ? "text-ink-4" : "font-semibold"}`}>
+                  <span className="text-muted">{i + 1}. </span>
+                  {title}
+                  <span className="sr-only">
+                    {s.state === "done" ? t("overview.stepDone") : s.state === "next" ? t("overview.stepNext") : s.state === "waiting" ? t("overview.guideWaiting") : t("overview.stepTodo")}
+                  </span>
+                </span>
+                {s.state === "done" && s.key !== "live" && s.key !== "ready" ? null : <span className="text-sm leading-relaxed text-ink-4">{line(s.key, s.state, s.missing)}</span>}
+              </div>
+              {s.state === "done" ? null : (
+                <Link href={s.href} className={`shrink-0 ${s.state === "next" ? `${btn.primary} h-9 px-3 text-sm` : "text-sm font-semibold"}`} aria-label={t("overview.guideGo", { step: title })}>
+                  {s.state === "next" ? <Icon name="arrow_forward" size={18} /> : <Icon name="chevron_right" size={18} />}
+                </Link>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+      <form action={setGuideAction} className="flex justify-end">
+        <input type="hidden" name="guide" value="hide" />
+        <button type="submit" className="cursor-pointer border-0 bg-transparent p-1 text-sm font-semibold text-muted">
+          {t("overview.guideHide")}
+        </button>
+      </form>
+    </section>
+  );
+}
+
+/** 93.3 Needs your attention: each problem in a sentence, with where to fix it. */
+function Problems({ problems, text }: { problems: Problem[]; text: DashboardText }) {
+  const { t, num } = text;
+  const sentence = (p: Problem): string => {
+    switch (p.kind) {
+      case "integration":
+        return t("overview.problemIntegration", { name: t(`integrations.names.${p.subject}` as DashKey) });
+      case "build":
+        return t("overview.problemBuild", { number: p.subject });
+      case "build_stalled":
+        return t("overview.problemBuildStalled", { number: p.subject });
+      case "rejected":
+        return t("overview.problemRejected", { store: STORE_TITLE[p.subject as PublishingStore] });
+      case "store_checks":
+        return t("overview.guideReadyMissing", { count: Number(p.subject) });
+      case "crashes":
+        return t("overview.problemCrashes", { percent: num(Number(p.subject)) });
+    }
+  };
+  return (
+    <section aria-labelledby="h-problems" className="flex flex-col gap-3 rounded-2xl border border-danger/40 bg-white p-5 sm:p-6" data-problems={problems.length}>
+      <h2 id="h-problems" className="m-0 flex items-center gap-2 text-lg font-bold">
+        <Icon name="error" size={22} className="text-danger" />
+        {t("overview.problemsTitle")}
+      </h2>
+      <ul className="m-0 flex list-none flex-col p-0">
+        {problems.map((p) => {
+          const words = sentence(p);
+          return (
+            <li key={`${p.kind}-${p.subject}`} data-problem={p.kind} className="flex items-center gap-3 border-t border-line-soft py-2.5 first:border-t-0 first:pt-0 last:pb-0">
+              <span className="min-w-0 flex-1 text-[15px] leading-relaxed">{words}</span>
+              <Link href={p.href} className="shrink-0 text-sm font-semibold" aria-label={t("overview.problemFixLabel", { problem: words })}>
+                {t("overview.problemFix")}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
     </section>
   );
 }
@@ -153,7 +273,8 @@ export default async function OverviewPage({ searchParams }: PageProps<"/dashboa
   const lastReady = builds.find((b) => b.status === "ready") ?? null;
   // 46 Crash-free sessions and the top crashes, once a build is ready.
   const stability = lastReady ? await stabilityOf(store, app.id, now) : null;
-  const publishing = app.publishingMode === "managed" ? await store.getPublishingRequest(app.id) : null;
+  const request = app.publishingMode ? await store.getPublishingRequest(app.id) : null;
+  const publishing = app.publishingMode === "managed" ? request : null;
   const plugin = usesPlugin(app);
   const activation = license && plugin ? await store.getActivation(license.id) : null;
   // 30 What the WordPress site runs, and whether the app's type can show it.
@@ -183,6 +304,21 @@ export default async function OverviewPage({ searchParams }: PageProps<"/dashboa
   const apk = lastReady?.artifacts.find((a) => a.kind === "apk");
   const apkHref = lastReady && apk && fileLink(apk.url, now).disabledReason === null ? dashboardFileHref(lastReady.id, "apk") : null;
   const building = isInProgress(latest, now);
+  // 93.1 The guide through the first app, until it's on a store or the owner hides it.
+  const guide = firstAppGuide({
+    status,
+    state,
+    building,
+    built: lastReady !== null,
+    ready: app.publishingMode
+      ? readiness({ app, listing: publishing?.listing ?? null, ios: hasFeature(current, "ios"), managed: app.publishingMode === "managed", platformUrl: appUrl() })
+      : null,
+    publishingMode: app.publishingMode,
+    live: request !== null && isLiveSomewhere(request),
+  });
+  const showGuide = !guide.complete && !app.guideHiddenAt;
+  // 93.3 What needs the owner now.
+  const problems = await appProblems(app);
 
   // The one thing to do next, as the main button of the app card.
   const primary =
@@ -295,42 +431,58 @@ export default async function OverviewPage({ searchParams }: PageProps<"/dashboa
         </div>
       </section>
 
+      {problems.length ? <Problems problems={problems} text={text} /> : null}
+
+      {showGuide ? <FirstAppGuide guide={guide} text={text} step={step} /> : null}
+
       <div className="grid gap-4 md:grid-cols-2">
-        <Tile
-          id="h-setup"
-          title={t("overview.setup")}
-          icon="tune"
-          actions={
-            <Link href={next ? stepHref(next === "app-type" ? "website" : next) : "/dashboard/setup"} className={`${next ? btn.primary : btn.secondary} h-10 px-4 text-sm`}>
-              {next ? t("overview.continueSetup") : t("overview.reviewSetup")}
-            </Link>
-          }
-        >
-          <span className="text-2xl font-extrabold">{next ? t("overview.stepsDone", { done, total: SETUP_STEPS.length }) : t("overview.complete")}</span>
-          <ProgressBar value={done} max={SETUP_STEPS.length} label={t("overview.setupProgress")} tone={next ? "accent" : "success"} />
-          <ol className="m-0 mt-1 flex list-none flex-col gap-1.5 p-0 text-sm">
-            {SETUP_STEPS.map((s) =>
-              s === "publishing" && teamOnIt ? (
-                // 19 The step counts as done ("Publish it for me" needs no keys), but nothing is live yet.
-                <li key={s} className="flex items-center gap-2 text-ink-4">
-                  <Icon name="hourglass_top" size={18} className="text-accent" />
-                  {t("overview.teamOnIt", { step: step(s) })}
-                </li>
-              ) : (
-                <li key={s} className={`flex items-center gap-2 ${status[s] ? "text-ink-4" : s === next ? "font-bold" : "text-muted"}`}>
-                  <Icon
-                    name={status[s] ? "check_circle" : s === next ? "arrow_forward" : "radio_button_unchecked"}
-                    size={18}
-                    filled={status[s]}
-                    className={status[s] ? "text-success" : s === next ? "text-accent" : "text-faint"}
-                  />
-                  {step(s)}
-                  <span className="sr-only">{status[s] ? t("overview.stepDone") : s === next ? t("overview.stepNext") : t("overview.stepTodo")}</span>
-                </li>
-              ),
-            )}
-          </ol>
-        </Tile>
+        {showGuide ? null : (
+          <Tile
+            id="h-setup"
+            title={t("overview.setup")}
+            icon="tune"
+            actions={
+              <>
+                <Link href={next ? stepHref(next === "app-type" ? "website" : next) : "/dashboard/setup"} className={`${next ? btn.primary : btn.secondary} h-10 px-4 text-sm`}>
+                  {next ? t("overview.continueSetup") : t("overview.reviewSetup")}
+                </Link>
+                {!guide.complete ? (
+                  <form action={setGuideAction}>
+                    <input type="hidden" name="guide" value="show" />
+                    <button type="submit" className="cursor-pointer border-0 bg-transparent p-1 text-sm font-semibold text-accent">
+                      {t("overview.guideShow")}
+                    </button>
+                  </form>
+                ) : null}
+              </>
+            }
+          >
+            <span className="text-2xl font-extrabold">{next ? t("overview.stepsDone", { done, total: SETUP_STEPS.length }) : t("overview.complete")}</span>
+            <ProgressBar value={done} max={SETUP_STEPS.length} label={t("overview.setupProgress")} tone={next ? "accent" : "success"} />
+            <ol className="m-0 mt-1 flex list-none flex-col gap-1.5 p-0 text-sm">
+              {SETUP_STEPS.map((s) =>
+                s === "publishing" && teamOnIt ? (
+                  // 19 The step counts as done ("Publish it for me" needs no keys), but nothing is live yet.
+                  <li key={s} className="flex items-center gap-2 text-ink-4">
+                    <Icon name="hourglass_top" size={18} className="text-accent" />
+                    {t("overview.teamOnIt", { step: step(s) })}
+                  </li>
+                ) : (
+                  <li key={s} className={`flex items-center gap-2 ${status[s] ? "text-ink-4" : s === next ? "font-bold" : "text-muted"}`}>
+                    <Icon
+                      name={status[s] ? "check_circle" : s === next ? "arrow_forward" : "radio_button_unchecked"}
+                      size={18}
+                      filled={status[s]}
+                      className={status[s] ? "text-success" : s === next ? "text-accent" : "text-faint"}
+                    />
+                    {step(s)}
+                    <span className="sr-only">{status[s] ? t("overview.stepDone") : s === next ? t("overview.stepNext") : t("overview.stepTodo")}</span>
+                  </li>
+                ),
+              )}
+            </ol>
+          </Tile>
+        )}
 
         <Tile
           id="h-build"

@@ -589,6 +589,13 @@
       "when": 1793019003996,
       "tag": "0083_variants_and_tax",
       "breakpoints": true
+    },
+    {
+      "idx": 84,
+      "version": "5",
+      "when": 1793019959321,
+      "tag": "0084_first_app_guide",
+      "breakpoints": true
     }
   ]
 }

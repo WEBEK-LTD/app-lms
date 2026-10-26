@@ -690,6 +690,10 @@ What you add or change shows in the app right away, without a new build.
     steps: true,
     body: `**App setup** in your dashboard takes you through five steps. Each one is saved when you select **Save & continue**, and you can come back to any of them later. Your first build starts when the last step is done.
 
+## Your first app
+
+On the **Overview**, **Your first app** lists every step from here to the stores: the five setup steps, then your plan activated, a first build, **Ready for the stores** (what Google Play and the App Store check, and how much is still missing) and **On the stores**. The next step has a button that takes you there. Select **Hide the guide** if you don't need it, and **Show the guide to your first app** under **App setup** brings it back. It goes away by itself once a store shows your app.
+
 ## App type
 
 Choose **Academy**, **Store**, **Bookings** or **Real estate**. See [Choose your app type](/docs/app-types).
@@ -1070,7 +1074,7 @@ On **Chat settings** you turn chat off or on, and in an academy you turn on **Co
 
 ## Answering
 
-Open a conversation and write your answer. It shows as your business, with your app's name and logo: your customers never see which person on your team wrote it (your team does). You can add a file from your [Media library](/docs/media). New messages come in by themselves every few seconds while a conversation is open, and Yallapp Business tells your phone about new messages (**New chat messages** in its notification settings).
+Open a conversation and write your answer. It shows as your business, with your app's name and logo: your customers never see which person on your team wrote it (your team does). You can add a file from your [Media library](/docs/media). New messages come in by themselves every few seconds while a conversation is open, and Yallapp Business tells your phone about new messages (**Chat messages** in its notification settings).
 
 People send text, photos, videos (up to 200 MB), voice messages and documents (PDF, Word, Excel, PowerPoint and text, up to 50 MB). Their files show in your Media library under **From the chat** and count in your app's storage.
 
@@ -1137,6 +1141,187 @@ What the app sends (each app open, screen or search) is kept for 90 days on ever
 ---
 
 Analytics comes with every plan. It counts from your first build made after it arrived: build and publish a new version to start.
+`,
+  }),
+  // 93.2
+  doc({
+    slug: "integrations",
+    section: "Your app",
+    title: "Integrations: everything your app is connected to",
+    description: "See whether your website, payments, sign-in codes, notifications and store keys work, test them, and what happens when a daily check finds a problem.",
+    steps: false,
+    body: `**Integrations**, in your dashboard menu, shows everything your app is connected to in one place: whether each connection works, when it was last tested and what failed lately. Each connection has a link to the page where you set it up: **Set up** when nothing is saved yet, otherwise **Change**.
+
+## What you see
+
+The connections are grouped like this. You only see the ones your app uses.
+
+- **Website and content**: **Website or platform** is your WordPress site and its Yallapp plugin, your Shopify shop or other platform, or your own API. If your app has no website, it says your content is managed in the dashboard and there is nothing to connect.
+- **Card payments**: **Payment provider**, for apps that take card payments. It shows whether payments go through Yallapp or through your own iyzico, Kashier or Fawaterk account, and whether your keys are live or test keys. See [Card payments](/docs/card-payments).
+- **Sign-in codes**: **WhatsApp codes** and **Email codes**, when Yallapp sends your app's sign-in codes. They show whether codes go out from Yallapp's number and email address, or from your own WhatsApp number and email server. See [App users and sign-in](/docs/app-users).
+- **Notifications**: **Firebase notifications**, your Firebase key (see [Push notifications with Firebase](/docs/push-notifications)), and **Huawei notifications** once you've added Huawei Push Kit.
+- **Stores**: **Google Play** and **App Store**, and **Samsung Galaxy Store**, **Huawei AppGallery** and **Xiaomi GetApps** once you've saved their keys.
+
+## What each state means
+
+- **Connected**: it's set up, and its last test, if it had one, worked. The card says what it's connected to, for example when the Yallapp plugin on your site last checked in.
+- **Needs attention**: its last test failed, or your own WhatsApp number or email server couldn't send a code. When your own number or server fails, Yallapp sends the codes instead, and the card says when it happened.
+- **Not set up**: nothing is saved yet. Without payment keys your app shows prices without a Pay button. Without a Firebase key your app's users get no notifications. Without a store key you upload the app yourself, or we do it for you.
+- **Waiting**: our team is still setting up WordPress for you, or your site is saved but the Yallapp plugin isn't active there yet.
+
+## Test a connection
+
+Your website or platform, your own payment keys, your Firebase key and Huawei Push Kit have a **Test** button. It asks the other side now, and nothing is sent to anyone. The card then shows **Last tested** with the date and the result, and the details when it failed. After a failed test the connection stays at **Needs attention** until a test works again. If you test many times in a row, wait a few minutes before the next one.
+
+Some connections can't be tested here:
+
+- **WhatsApp codes** and **Email codes** have **Send a test** instead. It opens **App sign-in**, where you send a test code or a test email to yourself. When it arrives, the warning goes away.
+- Store keys are checked when a build uploads with them. If a store refuses a key, **Builds & downloads** says so: see [When a build or a connection fails](/docs/builds-and-connections).
+
+## The daily checks
+
+Once a day we check your website or platform, your own payment keys, your Firebase key and Huawei Push Kit, while your app's plan is active. A website that doesn't answer is tried a second time before it counts, so a slow moment isn't reported. On WordPress, the Yallapp plugin checks in twice a day: a site whose plugin hasn't checked in for three days needs attention too. If a payment provider can't be reached at all, nobody is told and it's checked again the next day.
+
+## When a check fails
+
+When a connection that worked, or was never tested, fails its daily check, we tell you once:
+
+- a notice on your **Overview**, for example "your payment keys need attention", with **Open Integrations**;
+- a notification on your phone in Yallapp Business;
+- an email, in the language you use on the dashboard, with what the check found and a link to Integrations.
+
+Our team is told too. While the connection keeps failing, you aren't told again every day. The notice says what to do:
+
+- Your app couldn't load its content from your site: open Integrations, see what failed and test it again.
+- The Yallapp plugin hasn't checked in: make sure the plugin is active and your site is up.
+- The payment provider didn't accept your keys: your app can't take card payments until you check the keys in your provider's panel.
+- Google didn't accept your Firebase key: add a new key from Firebase.
+- Huawei didn't accept your Push Kit app ID and secret: notifications can't reach Huawei phones until you fix them.
+- Saved keys can't be read: save them again.
+
+## When it works again
+
+Fix the connection on the page its card links to, then choose **Test** on Integrations. When the test works, or the next daily check does, the notice on your Overview closes by itself. It also closes if your app no longer uses that connection.
+
+## Recent errors
+
+**Website or platform**, **Payment provider**, **WhatsApp codes**, **Email codes** and **Firebase notifications** show **Recent errors**: problems your app ran into with that connection over the last 30 days, the latest first. Each one shows how many times it happened and when it last did. When there were none, the card says "No errors in the last 30 days." If codes don't reach people, see [Sign-in codes don't arrive](/docs/sign-in-codes).
+`,
+  }),
+  // 93.2
+  doc({
+    slug: "protection",
+    section: "Your app",
+    title: "Screen protection",
+    description: "Block screenshots and screen recordings of course content or of the whole app, what people see on Android and iPhone, and how videos from YouTube and other sites play.",
+    steps: false,
+    body: `**Screen protection** in your dashboard keeps what people see in your app from being captured with screenshots or screen recordings, for example to keep paid courses private. You and your managers change it; Staff on your [team](/docs/team) can't open it.
+
+## Blocking screenshots and screen recording
+
+Under **Block screenshots and screen recording**, choose one:
+
+- **Off**: people can take screenshots and record the screen anywhere in the app. This is where every app starts.
+- **Course content only** (academies only): lessons, quizzes, their attachments and lesson videos, full screen too, are protected. The rest of the app isn't.
+- **The whole app**: every screen of the app is protected.
+- **As set in the Yallapp plugin** (WordPress only): follows "Block screenshots & screen recording" in the plugin's settings on your website. WordPress apps start here until you choose something else (see [the WordPress plugin](/docs/wordpress-plugin)).
+
+Select **Save**. The app follows your choice the next time it opens. On WordPress, your website gets it within a minute when it can be reached, otherwise at its next check, twice a day.
+
+## What people see
+
+- **Android**: screenshots and screen recordings of protected screens come out black, and the app is hidden in the list of recent apps.
+- **iPhone and iPad**: Apple doesn't let apps block screenshots. While the screen is recorded or shared, protected screens are covered. Screenshots of them come out blank where iOS allows it, and the app shows a short notice after one. The app is blurred in the app switcher.
+- **Attachments** (academies): while protection is on, course files open only in the app's own viewer, without sharing, saving to the phone or printing. Saved lessons always stay encrypted inside the app.
+
+No app can stop someone from filming the screen with another phone. In academies, the watermark on lesson videos shows whose account it was, and **Screenshots taken** on the [Analytics](/docs/analytics) page counts the screenshots people took of protected lessons, per lesson. Only iPhones tell the app about a screenshot; Android blocks them, so none are counted there.
+
+Protection works in the installed app. The preview in your browser can't block screenshots, so it looks the same with protection on or off (see [Preview your app](/docs/preview-your-app)).
+
+## Videos from YouTube and other video sites
+
+Lesson videos and video blocks from YouTube, Vimeo, Bunny Stream, Wistia, Dailymotion and Loom play in each site's own player, with its controls, logo and links, as the sites ask.
+
+With **Hide the video site's branding (at your own risk)** ticked, the app plays these videos behind its own controls and keeps the site's title, logo, buttons and end screens out of sight. It's off unless you turn it on. YouTube's terms don't allow apps to hide or cover its player or branding: YouTube can block your videos from playing in the app, or act against your app. Videos you upload to Media, or host on Bunny Stream or a paid Vimeo plan, don't carry this risk. If YouTube videos stop playing, see [Videos don't play](/docs/videos).
+
+## Apps on your own API
+
+An app on your own API gets both settings from that API: its \`/config\` sends \`app.screen_protection\` (\`off\`, \`content\` or \`app\`) and \`app.hide_video_branding\` (true or false). The page shows this instead of the choices. See [Connect your own API](/docs/my-own-api).
+`,
+  }),
+  // 93.2
+  doc({
+    slug: "stability",
+    section: "Your app",
+    title: "Crashes and stability",
+    description: "How well your app runs on people's phones: crash-free sessions, the most frequent problems, and your switches for the store's rating prompt and crash reports.",
+    steps: false,
+    body: `Open **Stability** under **Publish** in your dashboard's menu to see how well your app runs on people's phones over the last 30 days. You also choose there whether the app asks for a rating and sends crash reports. There's nothing to set up: it works for every app, wherever its content comes from.
+
+## Crash-free sessions
+
+**Crash-free sessions** is the share of app sessions in the last 30 days that ended without a crash. A session is one run of the app, from when it's opened. The number of sessions counted shows below it. Above 99% is good.
+
+The figures come from the app itself. They appear once people use a version of your app built after Stability arrived: build and publish a new version to start ([Release an update](/docs/updates)). Until then the page says there's no data yet.
+
+## Most frequent problems
+
+**Most frequent problems** lists up to three problems reported most often in the last 30 days, with how many times each happened, the last day it did and the app version. They're written the way the app reports them, so they read like technical notes.
+
+Our team gets these reports and fixes what comes from the app in a new version; you don't need to do anything. A problem leaves the list once our team has fixed it, and comes back if it's reported again.
+
+## Ask for a rating
+
+Under **Ratings and crash reports**, **Ask for a rating** lets the app show the store's own rating box after a good moment: a finished lesson, an order, a booking, tickets or a donation, or the third time someone opens the app. The app never asks before someone has opened it three times over at least two days, and asks at most once every four months. Google Play and the App Store decide whether the box appears, and show it only a few times a year. Everyone gets the same box: the app never asks first who is happy, which the stores don't allow. Ratings go to your app's page in the store.
+
+Turn it off or on and select **Save**. The app follows it the next time it opens. It's on until you turn it off.
+
+## Crash reports
+
+With **Send crash reports** on, when something goes wrong in the app it sends us what happened, the app version, the kind of phone and its system version, and the screen it happened on. It never sends names, phone numbers, emails or what people typed: the app removes anything like them before sending, and we remove it again when reports arrive.
+
+Turn it off and select **Save**: the app stops sending the next time it opens, reports that still arrive aren't kept, and Stability shows no figures. People using your app can also turn off **Send crash reports** in the app's **Settings**. Both switches are on by default. Crash reports are separate from [Analytics](/docs/analytics): turning one off doesn't turn off the other.
+`,
+  }),
+  // 93.2
+  doc({
+    slug: "yallapp-business",
+    section: "Your app",
+    title: "Yallapp Business, the app for you",
+    description: "Run your app from your phone with Yallapp Business: signing in, what it shows, the notifications it sends you, and signing a phone out on Your phones.",
+    steps: false,
+    body: `Yallapp Business is Yallapp's own app for the people who run an app on Yallapp: your dashboard on your phone, for Android phones and iPhones. It works on the same account and the same data as the dashboard, so what you do in one shows in the other. Nothing is bought or paid in it: your plan and storage are shown as they are, and **Manage on yallapp.com.tr** opens the website.
+
+## Signing in
+
+Sign in with the email and password of your dashboard. If you turned on two-step sign-in on **Your account**, the app also asks for the 6-digit code from your authenticator app, or a recovery code. **Forgot password?** opens the website's page to choose a new one.
+
+Under **More** you can turn on **Unlock with fingerprint or face**: the app then asks for your fingerprint, face or phone lock when it opens, and after 5 minutes away. The app uses your dashboard's language (English, Arabic or Turkish); changing it in the app changes it for the dashboard too.
+
+The people on your team sign in with their own email and password, and see only the screens and apps their role allows.
+
+## What it shows
+
+- **Today**: today's numbers, as your app has them (sales, orders, appointments, tickets, check-ins, donations, new users and app opens), and **Needs you now**: orders in progress, appointments to confirm, conversations waiting for your reply, course questions to answer, and notices about your account, such as a plan about to end or a connection that failed its daily check on **Integrations**.
+- Orders to accept, move on and refund, with **Kitchen mode** for restaurants; appointments to confirm or move; events, with a scanner for tickets at the door; members' check-in for gyms; donations.
+- Quick edits: the price, stock and availability of products and menu items, publishing courses and adding lessons, articles and listings. You upload pictures and videos to your Media library from the phone.
+- **Chat** and **Inbox**: answer people in your app's chat ([Chat in your app](/docs/chat)), messages about listings, and students' course questions and reviews.
+- Your app's users, **Stats** for the last 7, 30 or 90 days or your own dates ([Analytics](/docs/analytics)), **Send a notification** to everyone who uses your app ([Push notifications with Firebase](/docs/push-notifications)), a preview of your app, and your builds and their store status, with downloads.
+- The bell with Updates from Yallapp. What you've read there shows as read on the dashboard too.
+
+Each screen shows only when your app has it and your role allows it. If you have several apps, choose one at the top.
+
+## Notifications on your phone
+
+After you sign in, the app asks to send you notifications. Under **More › Notifications** you choose which ones this phone gets: **New orders**, **New bookings**, **New messages**, **Chat messages**, **New reviews**, **Payments**, **Builds**, **Updates from Yallapp** and **Account notices**. Account notices tell you about your plan ending, your storage, your app's users nearing your plan's limit, and your website or a connection needing attention: when your website, payment keys or notification keys fail their daily check, the notice comes to your phone, to your dashboard's **Overview** and by email. Tap a notification to open its screen.
+
+If you work on several businesses, notifications from another business start with its name, and tapping one switches to it.
+
+## Your phones
+
+On the dashboard, **Your phones** under **Account** lists the phones signed in to Yallapp Business with your account: each phone's name, Android or iPhone, the app's version, when it signed in, when it was last used, and **Notifications on** when it gets them. People on your team see their own phones there.
+
+Select **Sign out** next to a phone you no longer use or don't recognise; it stops getting your notifications. **Sign out every phone** signs them all out. The app lists the same phones under **More › Signed-in devices**. Changing your password also signs out every phone, and **Sign out everywhere** on **Your account** signs you out of the website and of every phone. Removing someone from your team signs them out at once. See [Your account and support](/docs/account-and-support).
 `,
   }),
 
@@ -1521,6 +1706,111 @@ Apple can reject apps that look like a web page in a frame. Build your home page
 ---
 
 Still stuck? Send us the rejection message on WhatsApp and we’ll help you reply.
+`,
+  }),
+  // 93.2
+  doc({
+    slug: "ready-to-submit",
+    section: "Publishing",
+    title: "Ready to submit: what the stores check",
+    description: "The Publishing page's list of what Google Play and the App Store check before they accept your app, and how to fix each item.",
+    steps: false,
+    body: `Before Google Play and the App Store accept an app, their reviewers check a few things. **Ready to submit?** on the **Publishing** page checks them for you, each with a link to where you fix it.
+
+## Where to find it
+
+It shows on the **Publishing** page once you've chosen who publishes your app: **I'll publish it myself** or **Publish it for me**. The **Your first app** guide on your **Overview** shows the same as **Ready for the stores**: how many things the stores check are missing, or that everything is in place. Before you choose, the guide asks you to choose who publishes the app.
+
+## How to read it
+
+At the top, it says "Nothing here stops the review." or how many things stop it. Each item has a mark:
+
+- **Ready**: nothing to do.
+- **Needed**: this stops the review. **Fix it** opens the page where you fix it.
+- **To know**: it doesn't stop the review by itself, but there's something for you to do or know. **Open** shows where.
+
+## Sign-in for the reviewers
+
+Apple and Google turn down apps they can't sign in to, and their reviewers can't receive a code.
+
+- **When Yallapp signs people in to your app**: set a **Review phone number** or a **Review email address** and a **Review code** on **App sign-in**. Until you do, this item is **Needed**. Then reviewers sign in with them and the fixed code, and no message is sent. See [App users and sign-in](/docs/app-users).
+- **On WordPress**: turn on review access in the Yallapp plugin's settings on your website, with a test number or email and a fixed code, and write it in the notes for the reviewers.
+- **On your own API**: give the reviewers an account they can sign in with, in the notes for the reviewers.
+
+When we publish for you, write these notes in **For the store reviewers (optional)** in your store listing details on the Publishing page. Once they're written, the item is **Ready**.
+
+## Privacy policy
+
+Both stores ask for a privacy policy on a public web page. Add its address on the **Store listing** step of **App setup**. The address must start with https:// and the page must be public. Until then, this item is **Needed**.
+
+## Account deletion
+
+This item is always **Ready**. People delete their account in the app, under **Account › Settings › Delete account**. Google Play's Data safety form also asks for a web page where people can ask to delete their account without the app. Yallapp gives your app one: its address is under this item and ends in /delete-account. Copy it into the Data safety form.
+
+## No prices on iPhone
+
+This item shows when your plan includes the iPhone app, and it's always **Ready**: the iPhone app is made to follow Apple's rule for your kind of app. In an academy, the iPhone app never shows buy buttons for paid courses; free enrolment works on both phones, and your Android app opens your checkout as usual. Shops, events and donations follow their own rule, which the item spells out. Keep prices and buy links out of your App Store description and screenshots too.
+
+## Store listing
+
+The stores need your app's name on the stores, a short description, a full description and a support email. You add them on the **Store listing** step of **App setup**. When we publish for you, they also need a Google Play category, an App Store category and content rating notes, in your store listing details on the Publishing page. Anything missing is listed under "Still missing", and the item is **Needed**.
+
+## Screenshots
+
+Google Play needs at least 2 phone screenshots. When your plan includes the iPhone app, the App Store needs at least 1 iPhone screenshot too. Add them on the **Store listing** step. When you publish yourself, too few screenshots is **Needed**. When we publish for you, it's **To know**: we take the rest from your app, and you can add your own if you prefer.
+
+## When everything is ready
+
+When you publish yourself, follow [Publish on Google Play](/docs/google-play) and [Publish on the App Store](/docs/app-store). When we publish for you, our team takes it from there. If a store turns your app down anyway, see [If the store rejects your app](/docs/store-rejections). If a build fails on the way, see [When a build or a connection fails](/docs/builds-and-connections).
+`,
+  }),
+  // 93.2
+  doc({
+    slug: "app-links",
+    section: "Publishing",
+    title: "Links that open your app",
+    description: "Links shared from your app open the right screen in the app when it's installed: the Google Play fingerprint and Apple Team ID the link files need, and Check links.",
+    steps: false,
+    body: `Links people share from your app open in the app when it's installed, and on the web when it isn't. Open **Publishing** and select **Links to your app** to see what your app's links look like, add what the link files need, and check that everything is in place.
+
+## How links work
+
+The Share buttons in your app share links to a course, product, service, listing, article, event, campaign or page. On a phone with your app, a link opens the right screen in the app. Notification links work the same way. **How links work** shows example links of your app:
+
+- Every app has links on Yallapp's address: yallapp.com.tr/a/ followed by your app's ID. Without the app, they open a page with your app's name, picture and store links.
+- WordPress apps also have links on your website, like yoursite.com/a/…. Without the app, they open the same page on your website.
+
+The next build of your app knows these addresses ([Builds and downloads](/docs/builds)).
+
+## What the files need
+
+Phones open a link in your app only when the address says it trusts your app, with two small files the address serves: one for Android and one for iPhone. Yallapp's are always ready, made from what your dashboard knows about your app. Under **What the files need** you add the two things only you can give:
+
+- **App signing key certificate: SHA-256 fingerprint** (Google Play). In Play Console, open your app, then **Test and release › App integrity › App signing**, and copy the **SHA-256 certificate fingerprint** under **App signing key certificate**. Google signs the app people download with that key, so without it the app from Google Play opens links in the browser. Paste it as Play Console shows it (pairs with colons); the SHA-1 fingerprint just above it isn't the one. Your upload key's fingerprint is added by our builds. See [Publish on Google Play](/docs/google-play).
+- **Apple Team ID**, when your plan includes the iPhone app. In your Apple Developer account, it's under **Membership details › Team ID**: 10 letters and digits. Your iOS builds fill it in, so it's usually there already; change it only if your app moved to another Apple developer account. See [Publish on the App Store](/docs/app-store).
+
+Select **Save**. Emptying a field removes what was saved. Phones read the change within a day.
+
+## Links on your website
+
+On a WordPress app, your website serves its own two files through the Yallapp plugin ([Install the WordPress plugin](/docs/wordpress-plugin)); keep the plugin up to date. For links on your website to open the app:
+
+- your website's address starts with https;
+- WordPress is at the root of its domain, not in a folder (yoursite.com, not yoursite.com/shop). Otherwise, links on Yallapp's address still work;
+- your server passes the /.well-known folder to WordPress, without redirecting it.
+
+After you save, we ask your website to pick up the change. If **Check links** says a fingerprint is missing, use **Check now** in the plugin's settings.
+
+## Check links
+
+Under **Link status**, select **Check links**. It checks, line by line:
+
+- **Google Play's signing key fingerprint**: the one you save above.
+- **Your upload key's fingerprint**: added with your next build.
+- **Apple Team ID**, when your plan includes the iPhone app. It also needs your iOS bundle ID in **App setup › Store listing**.
+- On a WordPress app, **Your website's address** and whether **Your website is at the root of its domain**, then your website's two files, fetched the way phones fetch them: over https, with no redirect, served as JSON, answering within 8 seconds, under 256 kB, and naming your app and its fingerprints.
+
+Each line passes or fails, and says what to do when it fails. At the top you see **Links open your app.** or **Some links don't open your app yet.**, with when it was checked (in UTC). **App setup** shows the last result too, with its own **Check links**. If you check many times in a row, wait a few minutes before trying again.
 `,
   }),
 
@@ -2169,7 +2459,7 @@ Your name, WhatsApp number and website are on your account. To change your email
 
 ## Working with your team
 
-Share your dashboard sign-in only with people you trust. Our team can open your dashboard to help you when you ask; you'll see a bar at the top while they do, and changes apply to your app.
+Never share your dashboard sign-in: invite the people who work with you on **Team**, each with only what they need. See [Your team](/docs/team). Our team can open your dashboard to help you when you ask; you'll see a bar at the top while they do, and changes apply to your app.
 
 ## Announcements
 
@@ -2182,6 +2472,130 @@ The bell at the top of your dashboard shows what our team sends you (updates, an
 - This documentation, for step-by-step answers
 
 Send us a screenshot and the step you're on, and we'll answer you directly.
+`,
+  }),
+  // 93.2
+  doc({
+    slug: "team",
+    section: "Account and billing",
+    title: "Your team",
+    description: "Invite the people who work with you, choose what each one can see and do and on which apps, see who did what, and remove someone.",
+    steps: false,
+    body: `Invite the people who work with you to your dashboard. Each one signs in with their own email and password, on the website and in Yallapp Business, and sees only what their role allows. Open **Team** under **Account** in the sidebar. Only you, the owner, see this page.
+
+## Roles
+
+- **Owner**: you. Everything, with **License & plugin** (called **Plan** for apps without a WordPress site), payments and the team.
+- **Manager**: everything except **License & plugin**, payments, the team, and changing an app's type or where its content comes from. Managers also can't add or delete apps, buy storage packs, or change the payment keys your shop or charity is paid through.
+- **Staff**: only what you tick. Never the app's settings: **App setup**, **Pages & look**, **Languages**, **Screen protection**, **App sign-in**, **Builds & downloads**, **Publishing** and the other settings pages stay closed to them.
+
+Everyone on the team sees the **Overview**, **Preview your app**, **Updates from Yallapp**, **Your phones** and **Your account**. The sidebar shows only the pages each person may open. If they open another page's address, they're sent to the overview with "Your role here doesn't include that page."
+
+## What Staff can work on
+
+When you choose **Staff**, tick at least one area under **What Staff can work on**:
+
+- **Orders & kitchen**: orders, their refunds and the kitchen.
+- **Bookings & appointments**: services, appointments, the timetable, memberships and members.
+- **Events & check-in**: events and checking tickets at the door.
+- **Donations**: campaigns and donations.
+- **Catalog & content**: products, courses, articles, listings and course reviews.
+- **Media**: your Media library.
+- **Messages**: enquiries about listings and students' questions in courses.
+- **Chat**: the **Chat** page: reading and answering conversations, reports, deleting messages and stopping someone from sending. Turning chat on or off and course groups are under **Chat settings**, which only you and managers can change. See [Chat in your app](/docs/chat).
+- **App users**: the people who sign in to your app.
+- **Analytics**: the **Analytics** page.
+- **Notifications to app users**: sending notifications to the people using your app.
+
+An area only matters when the app has it: a store has no appointments, for example. Yallapp Business shows each person the same areas, and sends them the alerts of their areas: a new order to those with **Orders & kitchen**, a new chat message to those with **Chat**, and so on. Finished builds and notices about the app go to you and your managers, and payments to Yallapp to you only.
+
+## Which apps
+
+If your account has [several apps](/docs/several-apps), choose under **Apps**: **All apps**, or **Only these apps** and tick them. Someone limited to some apps doesn't see the others anywhere: not in the app menu, the bell or Yallapp Business. **All apps** includes the apps you add later. You always have all of them. With one app, this choice doesn't show.
+
+## Inviting someone
+
+Under **Invite someone**, enter their **Name** and **Email**, choose a **Role** (for Staff, what they work on), choose the apps, and select **Send invitation**. We email them a link to join. It works once, for 7 days. The email is in their dashboard language if they already use Yallapp, and in yours otherwise.
+
+Invitations nobody has used yet are under **Invitations waiting**, with the date the link stops working. **Send again** emails a new link for another 7 days, and the old link stops working. **Cancel** stops the link at once.
+
+You can't invite your own email, someone who is on the team already, or an address that has an invitation waiting: send that one again instead. You can send up to 20 invitations an hour. You can also manage your team from Yallapp Business.
+
+## Joining the team
+
+The link opens a page to join your business. Someone new to Yallapp enters their name and chooses a password. Someone who already uses Yallapp enters their own password; if their account has no password yet, they set one with **Forgot your password?** first. Then they select **Join the team**. If they use two-step sign-in, they also enter a code from their phone (see [Two-step sign-in](/docs/account-security)).
+
+## Changing access and removing someone
+
+Under **People on the team**, each person shows with their role, what they work on, their apps, when they joined and when they last signed in.
+
+- **Change access** changes their role, areas and apps. Select **Save**: it applies at once.
+- **Remove**, then **Yes, remove**, takes them off the team. They're signed out at once, on the website and on every phone. Their sign-in itself isn't deleted: if they also work on another business, they sign in again to open it.
+
+## Activity
+
+**Activity** shows who did what, newest first: order steps, refunds, appointments, notifications sent to your app's users, and changes to the team. To see one person's, choose them under **Who** and select **Show**.
+
+## Several businesses
+
+Someone can be on more than one business's team, or run their own business as well. They switch between them with the **Business** menu in the dashboard, or in Yallapp Business. Each business keeps its own role and apps for them.
+`,
+  }),
+  // 93.2
+  doc({
+    slug: "account-security",
+    section: "Account and billing",
+    title: "Two-step sign-in and deleting an app",
+    description: "Protect your sign-in with a code from your phone, sign out of every device, and delete an app or your whole Yallapp account.",
+    steps: false,
+    body: `Your sign-in settings are on **Your account**, under **Account** in the sidebar. Everyone on your [team](/docs/team) has their own and sets it up for themselves.
+
+## Two-step sign-in
+
+With two-step sign-in, Yallapp asks for a 6-digit code after your password. The code comes from an authenticator app on your phone, such as Google Authenticator, Microsoft Authenticator or 1Password. Someone who learns your password still can't sign in. Until you turn it on, your overview suggests it.
+
+## Turning it on
+
+On **Your account**, select **Set up two-step sign-in**. Scan the QR code with your authenticator app, or add an account in the app by hand with the key shown beside it. Enter the 6-digit code the app shows for Yallapp and select **Turn on**. **Cancel** leaves the setup before it's on.
+
+You then get 10 recovery codes. If you lose your phone, each one signs you in once instead of a code from the app. They're shown only this once: save them somewhere safe, like your password manager, then select **I've saved them**. We email you whenever two-step sign-in is turned on or off.
+
+## Signing in with it
+
+After your password, the **Enter your code** page asks for the code from your app. Enter it and select **Verify and sign in**. Lost your phone? Enter one of your recovery codes instead. Each code works once.
+
+Choosing a new password after **Forgot password?**, joining a team and signing in to Yallapp Business ask for the code too. Keep Yallapp Business up to date: older versions can't sign in with two-step sign-in.
+
+If a code isn't accepted, check that your phone's time is set automatically. After several wrong codes, wait a few minutes and try again. If the code page waits too long, enter your email and password again.
+
+## Recovery codes and turning it off
+
+**Your account** shows how many recovery codes you have left. Under **New recovery codes**, enter a code from your app and select **Make new codes**: you get 10 new codes, and the old ones stop working.
+
+Under **Turn off two-step sign-in**, enter your password and a code from your app (or a recovery code), and select **Turn off**. If you've lost both your phone and your recovery codes, message us (see [Your account and support](/docs/account-and-support)).
+
+## Signing out of all devices
+
+Under **Sign out of all devices**, **Sign out everywhere** signs you out of the dashboard in every browser, this one too, and out of Yallapp Business on every phone. Use it after signing in on a computer that isn't yours, or if you lost a phone. Choosing a new password after **Forgot password?** also signs you out everywhere.
+
+## Deleting an app
+
+Only the owner can delete an app. Open the app in the dashboard, go to **App setup** and open **Delete this app** at the end of the page. Type the app's name and **Your password**, and select **Delete this app**. Your other apps and your Yallapp account stay as they are.
+
+- The app stops at once for the people who use it: its content, sign-in and notifications stop, and the Yallapp plugin on a WordPress site loses its license.
+- Its settings, pages, content, customers with their orders, bookings and messages, its Media files, builds and statistics are deleted.
+- Its plan ends with it: nothing renews or is charged. Payments already made are refunded only as the [Refund policy](/refund) says, and we keep their records for billing.
+- Its listings on Google Play, the App Store and the other stores stay, under your own developer accounts: remove or unpublish them there.
+
+If you'll ever update the app on Google Play again, download the Android upload key from **Builds & downloads** first (see [Builds and downloads](/docs/builds)). Changed your mind? Write to us within 7 days and we can restore the app as it was. After that, it's gone for good with its files.
+
+## Deleting your Yallapp account
+
+**Delete your Yallapp account**, on **Your account**, deletes your account with all its apps and their data. Type your email address and your password, say why you're leaving if you like, and select **Delete my account**. Every phone signed in to Yallapp Business with your account is signed out at once.
+
+Your account is deleted 7 days after you ask, and we email you when it's done. Until then, **Cancel the request** on the same page keeps it as it is. Your team loses access. Your apps stay in the stores until you remove them there, and we keep only the billing records the law requires and a record of your request.
+
+Only the owner can delete the account. Someone on your team asks you to remove them from the team; to delete their own sign-in as well, they follow [Delete your account](/delete-account).
 `,
   }),
 
@@ -2243,6 +2657,64 @@ Videos from YouTube, Vimeo and other video sites play in the site's own player, 
 ## Reopen the lesson
 
 Uploaded videos play from temporary links. If a lesson stayed open for a long time, or the phone’s date and time are wrong, close it and open it again.
+`,
+  }),
+  // 93.2
+  doc({
+    slug: "builds-and-connections",
+    section: "Troubleshooting",
+    title: "When a build or a connection fails",
+    description: "What each build problem means and where to fix it, what to do with a build that stopped, and where to look when a connection or a store review fails.",
+    steps: false,
+    body: `Most problems show on your dashboard with what happened and a link to fix it: your **Overview** lists everything that needs your attention under **Needs your attention**, each with **Fix it**, and the menu shows how many there are next to **Overview**. This article explains each one and where to go. For how builds work, see [Builds and downloads](/docs/builds).
+
+## Before your next build
+
+Before a build starts, we check what it will use. Anything that would make it fail shows on **Builds & downloads** under **Before your next build**, and **Fix it** opens the right step of **App setup**. A problem stops the build until it's fixed. Lines marked **Good to know** don't stop it.
+
+- **Your icon**: there's no icon, it can't be read, or it isn't a 1024 × 1024 PNG without transparency. Upload a new one on the **Branding** step.
+- **Your Firebase files**: the file for Android or iPhone doesn't match your app's package name or bundle ID. Upload the right google-services.json or GoogleService-Info.plist on the **Publishing** step.
+- **Your App Store Connect key**: the key ID, the issuer ID or the key file is wrong (it must be the .p8 file App Store Connect gives). Add it again on the **Publishing** step.
+- **Your signing keys**: your iPhone distribution certificate (.p12) or your Android upload key (keystore) can't be read. Upload it again on the **Publishing** step.
+- **Good to know**: without Firebase files, notifications won't reach phones. Without an App Store Connect key, the iPhone app can't be sent to App Store Connect.
+
+## When a build doesn't finish
+
+The build shows **Didn't finish**, and nothing from it is published. You get an email and a notification in Yallapp Business, and our team is told. The page says why in plain words, with **Fix it** when there's a page to fix it on. **What the build printed** shows the end of the build's output, without your keys and passwords.
+
+Once you've fixed the cause, choose **Try again**. It starts the build again with the same app version, since nothing was published. When the page has no explanation, it says which part failed, for example "The Android app couldn't be built.", and our team looks into it.
+
+## What each explanation means
+
+- **The build couldn't use your app's icon**: upload a 1024 × 1024 PNG without transparency on the **Branding** step.
+- **Your google-services.json is for another Android package name**: download it again from Firebase for your app's package name and upload it on the **Publishing** step.
+- **Your GoogleService-Info.plist is for another bundle ID**: download it again from Firebase for your app's bundle ID and upload it on the **Publishing** step.
+- **The Android upload key couldn't be opened**: its password doesn't match. Upload the keystore with its passwords again on the **Publishing** step.
+- **The iPhone app couldn't be signed**: check that the bundle ID exists in your Apple Developer account and that your App Store Connect key has the App Manager role.
+- **Apple didn't accept your App Store Connect key**: create a new key with the App Manager role in App Store Connect › Users and Access › Integrations, and add it on the **Publishing** step.
+- **Apple is waiting for you to accept an updated agreement**: accept it in App Store Connect › Business, or on developer.apple.com › Account.
+- **The store already has this version**: start the build again with a higher app version.
+- **Google Play refused the upload**: your service account can't release this app. In Play Console › Users and permissions, give it the Release apps permission for your app.
+- **Google Play doesn't have your app yet**: create it in Play Console with your app's package name and upload the first version by hand (the App Bundle on Builds & downloads). After that, uploads are automatic.
+- **Our build machine had a problem**: it wasn't your app. Start the build again; if it happens again, our team will look.
+
+A store problem can also show on a build that is **Ready**: your files were made, but the upload to a store didn't work. Fix the cause, then start a new build.
+
+## A build that stopped
+
+A build usually takes 15 to 45 minutes. If it waits to start for more than a day, or reports nothing for six hours while building, the page says it's taking much longer than usual and has probably stopped. Our team is told. Choose **Try again** to start it again: the stopped build is closed, and nothing from it is published.
+
+## When a connection fails
+
+Your website or platform, your payment keys and your notification keys are checked every day. When one fails, you see a notice on your **Overview**, a notification in Yallapp Business and an email. Open **Integrations**, see what failed, fix it and choose **Test**. See [Integrations](/docs/integrations). If your app uses your own API and it failed its last check, **Builds & downloads** also says so, with a link to check it. If people don't get their sign-in codes, see [Sign-in codes don't arrive](/docs/sign-in-codes).
+
+## When a store turns your app down
+
+Before you send your app for review, look at **Ready to submit?** on the **Publishing** page: see [Ready to submit](/docs/ready-to-submit). If a store turns your app down anyway, see [If the store rejects your app](/docs/store-rejections).
+
+---
+
+Still stuck? Message us on WhatsApp with your app's name and the build number, and we'll look.
 `,
   }),
 
