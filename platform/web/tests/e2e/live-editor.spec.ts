@@ -64,10 +64,11 @@ test("the editor shows the real app with the draft, and an edit reaches it witho
   expect((await firstRead).headers()["x-yallapp-preview"]).toMatch(/^p1\./);
   await expect(own.frameLocator("iframe[data-testid=editor-preview]").locator("flutter-view, flt-glass-pane").first()).toBeAttached();
 
-  // From here, the frame never loads again.
+  // From here, the frame never loads again: no new document for it (the app
+  // changing its own address inside the frame is not a load).
   let loads = 0;
-  own.on("framenavigated", (f) => {
-    if (f !== own.mainFrame()) loads += 1;
+  own.on("request", (r) => {
+    if (r.isNavigationRequest() && r.frame() !== own.mainFrame()) loads += 1;
   });
   const nextRead = own.waitForRequest(pagesRead, { timeout: 30_000 });
   await own.getByRole("tab", { name: "Tabs" }).click();
