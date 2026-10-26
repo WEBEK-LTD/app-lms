@@ -73,9 +73,29 @@ function media_fail(int $status, string $message, array $headers = array()): voi
 	exit;
 }
 
+/**
+ * The dashboard's origins that may upload: `allowed_origin` is one address, several
+ * (an array, or separated by commas or spaces), and each also counts with and without
+ * `www.` (the dashboard answers on both, so an owner may be on either).
+ */
+function media_allowed_origins(array $config): array {
+	$value = $config['allowed_origin'] ?? '';
+	$list = is_array($value) ? $value : preg_split('/[\s,]+/', (string) $value);
+	$origins = array();
+	foreach ($list as $item) {
+		$origin = rtrim(trim((string) $item), '/');
+		if (!preg_match('#^(https?://)(www\.)?([a-z0-9.-]+(?::\d+)?)$#i', $origin, $m)) {
+			continue;
+		}
+		$origins[] = strtolower($m[1] . $m[3]);
+		$origins[] = strtolower($m[1] . 'www.' . $m[3]);
+	}
+	return array_values(array_unique($origins));
+}
+
 function media_cors(array $config): void {
-	$origin = (string) ($config['allowed_origin'] ?? '');
-	if ($origin !== '' && ($_SERVER['HTTP_ORIGIN'] ?? '') === $origin) {
+	$origin = (string) ($_SERVER['HTTP_ORIGIN'] ?? '');
+	if ($origin !== '' && in_array(strtolower($origin), media_allowed_origins($config), true)) {
 		header('Access-Control-Allow-Origin: ' . $origin);
 		header('Access-Control-Allow-Methods: GET, HEAD, PUT, POST, DELETE');
 		header('Access-Control-Allow-Headers: Upload-Offset, Content-Type, Range');

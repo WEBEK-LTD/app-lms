@@ -17,6 +17,7 @@ return array(
 	// Apache then sends the files and answers range requests itself.
 	'x_sendfile'      => false,
 	// Only when the gate is on another address than the dashboard (a subdomain):
-	// the dashboard's origin, e.g. https://yallapp.com.tr. Empty: same address, no CORS.
+	// the dashboard's origin, e.g. https://yallapp.com.tr (www.yallapp.com.tr is then
+	// allowed too; several may be listed, separated by commas). Empty: same address, no CORS.
 	'allowed_origin'  => '',
 );

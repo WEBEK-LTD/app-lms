@@ -444,6 +444,10 @@ the bytes: the media gate on the host takes the uploads and plays the files.
       'https://yallapp.com.tr'` in config.php for the dashboard's uploads, and
       `MEDIA_BASE_URL=https://files.yallapp.com.tr/media`. Check:
       `https://files.yallapp.com.tr/media/ping` answers "Yallapp media gate 2".
+      The gate allows that address with and without `www.` (the dashboard
+      answers on both); copy the current `index.php` over an older one, or
+      uploads from www.yallapp.com.tr are refused by the browser (CORS: "No
+      'Access-Control-Allow-Origin' header").
 - [ ] In Netlify: `MEDIA_BASE_URL` (above; `https://yallapp.com.tr/media` only when the proxy keeps /media on the host) and
       `MEDIA_SIGNING_SECRET` (the same value as `signing_secret`). Redeploy,
       then Admin › Settings › Server shows "Media library: Our server" and
