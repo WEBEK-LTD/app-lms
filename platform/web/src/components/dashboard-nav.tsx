@@ -15,6 +15,8 @@ export interface DashboardNavItem {
   /** Also current for paths that start with this prefix. */
   prefix?: string;
   exact?: boolean;
+  /** 93.3 A count next to the label (the app's problems), with what it counts for screen readers. */
+  badge?: { count: number; label: string };
 }
 
 export interface DashboardNavGroup {
@@ -126,6 +128,12 @@ export function DashboardSidebar({
                       {current ? <span aria-hidden="true" className="absolute start-0 top-2 bottom-2 w-[3px] rounded-full bg-ember" /> : null}
                       <Icon name={item.icon} size={22} filled={current} className={current ? "text-accent" : "text-muted group-hover:text-midnight"} />
                       <span className="min-w-0 flex-1">{item.label}</span>
+                      {item.badge && item.badge.count > 0 ? (
+                        <span data-nav-badge={item.badge.count} className="flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1.5 text-xs font-bold text-white">
+                          <span aria-hidden="true">{item.badge.count}</span>
+                          <span className="sr-only">{item.badge.label}</span>
+                        </span>
+                      ) : null}
                       {item.external ? (
                         <>
                           <Icon name="open_in_new" size={16} className="text-muted" />

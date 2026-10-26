@@ -40,6 +40,9 @@ import { firstAppGuide, type Guide, type GuideKey } from "@/lib/app/first-app";
 import { readiness } from "@/lib/publishing/readiness";
 import { appUrl } from "@/lib/env";
 import { setGuideAction } from "@/app/actions/guide";
+import { appProblems } from "@/lib/app/problems-load";
+import type { Problem } from "@/lib/app/problems";
+import type { PublishingStore } from "@/lib/data/types";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("overview.title") };
@@ -126,6 +129,48 @@ function FirstAppGuide({ guide, text, step }: { guide: Guide; text: DashboardTex
           {t("overview.guideHide")}
         </button>
       </form>
+    </section>
+  );
+}
+
+/** 93.3 Needs your attention: each problem in a sentence, with where to fix it. */
+function Problems({ problems, text }: { problems: Problem[]; text: DashboardText }) {
+  const { t, num } = text;
+  const sentence = (p: Problem): string => {
+    switch (p.kind) {
+      case "integration":
+        return t("overview.problemIntegration", { name: t(`integrations.names.${p.subject}` as DashKey) });
+      case "build":
+        return t("overview.problemBuild", { number: p.subject });
+      case "build_stalled":
+        return t("overview.problemBuildStalled", { number: p.subject });
+      case "rejected":
+        return t("overview.problemRejected", { store: STORE_TITLE[p.subject as PublishingStore] });
+      case "store_checks":
+        return t("overview.guideReadyMissing", { count: Number(p.subject) });
+      case "crashes":
+        return t("overview.problemCrashes", { percent: num(Number(p.subject)) });
+    }
+  };
+  return (
+    <section aria-labelledby="h-problems" className="flex flex-col gap-3 rounded-2xl border border-danger/40 bg-white p-5 sm:p-6" data-problems={problems.length}>
+      <h2 id="h-problems" className="m-0 flex items-center gap-2 text-lg font-bold">
+        <Icon name="error" size={22} className="text-danger" />
+        {t("overview.problemsTitle")}
+      </h2>
+      <ul className="m-0 flex list-none flex-col p-0">
+        {problems.map((p) => {
+          const words = sentence(p);
+          return (
+            <li key={`${p.kind}-${p.subject}`} data-problem={p.kind} className="flex items-center gap-3 border-t border-line-soft py-2.5 first:border-t-0 first:pt-0 last:pb-0">
+              <span className="min-w-0 flex-1 text-[15px] leading-relaxed">{words}</span>
+              <Link href={p.href} className="shrink-0 text-sm font-semibold" aria-label={t("overview.problemFixLabel", { problem: words })}>
+                {t("overview.problemFix")}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
     </section>
   );
 }
@@ -272,6 +317,8 @@ export default async function OverviewPage({ searchParams }: PageProps<"/dashboa
     live: request !== null && isLiveSomewhere(request),
   });
   const showGuide = !guide.complete && !app.guideHiddenAt;
+  // 93.3 What needs the owner now.
+  const problems = await appProblems(app);
 
   // The one thing to do next, as the main button of the app card.
   const primary =
@@ -383,6 +430,8 @@ export default async function OverviewPage({ searchParams }: PageProps<"/dashboa
           </Link>
         </div>
       </section>
+
+      {problems.length ? <Problems problems={problems} text={text} /> : null}
 
       {showGuide ? <FirstAppGuide guide={guide} text={text} step={step} /> : null}
 

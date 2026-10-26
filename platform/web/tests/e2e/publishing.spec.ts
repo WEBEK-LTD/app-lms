@@ -343,10 +343,21 @@ test("a build that didn't finish says why, and Try again builds the same version
   const team = await mailsTo(E2E.publishingAdminEmail);
   expect(team.find((m) => m.subject === "Build problem: Franklin Lab #1")?.text).toContain("actions/runs/7");
 
+  // 93.3 Where the client works: the overview lists it, the menu counts it, and its link goes to the fix.
+  await own.goto("/dashboard");
+  const problems = own.getByRole("region", { name: "Needs your attention" });
+  await expect(problems.locator('[data-problem="build"]')).toHaveText(/Build #1 didn't finish\./);
+  await expect(own.locator('[data-nav-badge]').first()).toBeVisible();
+  await problems.getByRole("link", { name: "Fix: Build #1 didn't finish." }).click();
+  await expect(own).toHaveURL(/\/dashboard\/builds$/);
+
   await current.getByRole("button", { name: "Try again" }).click();
   await expect(own.getByText("Build #2 is queued.")).toBeVisible();
   await expect(own.getByRole("heading", { name: "Build #2 · App version 1.0.0" })).toBeVisible();
   await expect(own.getByRole("button", { name: "Start new build" })).toBeDisabled();
+  // The new build is running: the problem is gone.
+  await own.goto("/dashboard");
+  await expect(own.locator('[data-problem="build"]')).toHaveCount(0);
 });
 
 test("downloads appear only for files the build has, and are signed when clicked", async ({ request }) => {

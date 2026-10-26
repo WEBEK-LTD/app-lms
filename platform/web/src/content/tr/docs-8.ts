@@ -66,7 +66,7 @@ Bağlantıyı kartının yönlendirdiği sayfada düzeltin, ardından Entegrasyo
   "builds-and-connections": {
     title: "Bir derleme veya bağlantı başarısız olduğunda",
     description: "Her derleme sorununun ne anlama geldiği ve nerede düzeltileceği, duran bir derlemeyle ne yapılacağı ve bir bağlantı ya da mağaza incelemesi başarısız olduğunda nereye bakılacağı.",
-    body: `Çoğu sorun panelinizde, ne olduğu ve düzeltmek için bir bağlantıyla birlikte görünür. Bu makale her birini ve nereye gideceğinizi açıklar. Derlemelerin nasıl çalıştığı için bkz. [Derlemeler ve indirmeler](/docs/builds).
+    body: `Çoğu sorun panelinizde, ne olduğu ve düzeltmek için bir bağlantıyla birlikte görünür: **Genel bakış**, ilgilenmeniz gereken her şeyi **İlgilenmeniz gerekenler** altında, her biri **Düzelt** ile listeler; menü de sayılarını **Genel bakış**'ın yanında gösterir. Bu makale her birini ve nereye gideceğinizi açıklar. Derlemelerin nasıl çalıştığı için bkz. [Derlemeler ve indirmeler](/docs/builds).
 
 ## Bir sonraki derlemeden önce
 

@@ -2666,7 +2666,7 @@ Uploaded videos play from temporary links. If a lesson stayed open for a long ti
     title: "When a build or a connection fails",
     description: "What each build problem means and where to fix it, what to do with a build that stopped, and where to look when a connection or a store review fails.",
     steps: false,
-    body: `Most problems show on your dashboard with what happened and a link to fix it. This article explains each one and where to go. For how builds work, see [Builds and downloads](/docs/builds).
+    body: `Most problems show on your dashboard with what happened and a link to fix it: your **Overview** lists everything that needs your attention under **Needs your attention**, each with **Fix it**, and the menu shows how many there are next to **Overview**. This article explains each one and where to go. For how builds work, see [Builds and downloads](/docs/builds).
 
 ## Before your next build
 

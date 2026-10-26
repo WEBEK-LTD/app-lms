@@ -2101,7 +2101,7 @@ docs' titles, and problems told on their own pages, the bell and emails.
 |---|---|---|
 | [x] | 93.1 A guide through the first app, with how ready it is for the stores | e2e |
 | [x] | 93.2 Help on every page, search inside the docs, the missing articles | e2e |
-| [ ] | 93.3 Problems shown where the client works (from Phases 78 and 80) | e2e |
+| [x] | 93.3 Problems shown where the client works (from Phases 78 and 80) | e2e |
 
 ## Phase 94: What each plan includes (area 16)
 

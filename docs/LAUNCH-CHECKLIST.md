@@ -1085,6 +1085,10 @@ never in a chat or an issue.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **Needs your attention** (93.3): no migration. After deploying: on a
+      test app whose build failed, the overview lists "Build #… didn't
+      finish." with Fix it and the menu shows 1 next to Overview; a new
+      build clears it. The same in Arabic and Turkish.
 - [ ] **Help and search** (93.2): no migration. After deploying: every
       dashboard page has Help with this page, opening its article in the
       dashboard's language; /docs/search finds "loyalty points" in the

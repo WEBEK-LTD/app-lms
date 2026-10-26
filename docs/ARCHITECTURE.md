@@ -2428,6 +2428,14 @@ app opens on the site's links (`<site>/a/page/<slug>`).
   connections, Ready to submit, Team, two-step sign-in and deleting an app,
   Protection, Stability, Yallapp Business, links that open the app), the
   Arabic and Turkish in `content/{ar,tr}/docs-8.ts`.
+- **Needs your attention** (93.3): `lib/app/problems.ts` `problemsOf()`
+  gathers what needs the owner now: a connection in `problem` (80), the
+  latest build failed or stalled, a store's rejection (88.3), what Ready to
+  submit still misses (88.1, once the owner chose who publishes) and fewer
+  than 99% crash-free sessions over at least 100 (46). `problems-load.ts`
+  `appProblems()` reads it once per request (React `cache`); the overview
+  lists each with Fix it and the menu shows the count on Overview (the
+  nav item's `badge`), for whoever may change settings.
 
 ## Academies, complete (Phase 90)
 
