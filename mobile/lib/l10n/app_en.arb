@@ -2911,5 +2911,9 @@
   "plusShippingAtCheckout": "Plus shipping and taxes at checkout.",
   "@plusShippingAtCheckout": {
     "description": "91.1 Under the cart's total when the checkout still adds to it."
+  },
+  "notifyOrderUpdates": "Order updates",
+  "@notifyOrderUpdates": {
+    "description": "91.2 The settings switch for pushes about the customer's orders: shipped, completed, cancelled or refunded."
   }
 }

@@ -83,7 +83,7 @@ import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 // 61
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
-import type { CampaignSend, HostedCart, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
+import type { CampaignSend, HostedCart, HostedOrderWatch, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 // 66 Deleting a Yallapp account
 import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatus } from "./types";
 // 73 Deleting an app, and the billing records kept when an account goes
@@ -991,6 +991,14 @@ export interface DataStore {
   listLeftHostedCarts(after: Date, before: Date, limit: number): Promise<HostedCart[]>;
   /** Marks a cart reminded, unless it changed after `seenAt`; false then. */
   markHostedCartReminded(appId: string, userId: number, seenAt: Date, now: Date): Promise<boolean>;
+  /** 91.2 Watches a person's orders on a connected platform until `until` (kept if already later). */
+  watchHostedOrders(appId: string, userId: number, until: Date): Promise<void>;
+  /** 91.2 Watches still running not looked at since `checkedBefore`, every app's, the longest waiting first. */
+  listDueOrderWatches(checkedBefore: Date, now: Date, limit: number): Promise<HostedOrderWatch[]>;
+  /** 91.2 What the orders looked like now. */
+  saveOrderWatch(appId: string, userId: number, orders: Record<string, string>, checkedAt: Date): Promise<void>;
+  /** 91.2 Removes the watches that ended; how many. */
+  deleteEndedOrderWatches(now: Date): Promise<number>;
 
   // 85.2 Notification campaigns
   createNotificationCampaign(input: Omit<NotificationCampaign, "id">): Promise<NotificationCampaign>;

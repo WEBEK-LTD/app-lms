@@ -3,7 +3,7 @@ import { newId } from "../crypto/tokens";
 import { membershipActive, membershipFreezeSet, membershipToUse } from "../bookings/memberships";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
 import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, PendingPayment, SavedSection } from "./types";
-import type { CampaignSend, HostedCart, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
+import type { CampaignSend, HostedCart, HostedOrderWatch, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 import type {
   AppPatch,
   BuildPatch,
@@ -3211,6 +3211,44 @@ export class MemoryStore implements DataStore {
     if (!cart || cart.updatedAt.getTime() !== seenAt.getTime()) return false;
     this.hostedCarts.set(`${appId}:${userId}`, { ...cart, remindedAt: new Date(now) });
     return true;
+  }
+
+  // 91.2 Order watches
+
+  private orderWatches = new Map<string, HostedOrderWatch>();
+
+  async watchHostedOrders(appId: string, userId: number, until: Date): Promise<void> {
+    const key = `${appId}:${userId}`;
+    const found = this.orderWatches.get(key);
+    if (found) {
+      if (until > found.until) found.until = new Date(until);
+      return;
+    }
+    this.orderWatches.set(key, { appId, userId, orders: {}, checkedAt: null, until: new Date(until) });
+  }
+
+  async listDueOrderWatches(checkedBefore: Date, now: Date, limit: number): Promise<HostedOrderWatch[]> {
+    return [...this.orderWatches.values()]
+      .filter((w) => w.until > now && (w.checkedAt === null || w.checkedAt < checkedBefore))
+      .sort((a, b) => (a.checkedAt?.getTime() ?? 0) - (b.checkedAt?.getTime() ?? 0))
+      .slice(0, limit)
+      .map(clone);
+  }
+
+  async saveOrderWatch(appId: string, userId: number, orders: Record<string, string>, checkedAt: Date): Promise<void> {
+    const found = this.orderWatches.get(`${appId}:${userId}`);
+    if (found) Object.assign(found, { orders: { ...orders }, checkedAt: new Date(checkedAt) });
+  }
+
+  async deleteEndedOrderWatches(now: Date): Promise<number> {
+    let n = 0;
+    for (const [key, w] of this.orderWatches) {
+      if (w.until <= now) {
+        this.orderWatches.delete(key);
+        n++;
+      }
+    }
+    return n;
   }
 
   // 85.2 Notification campaigns

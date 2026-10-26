@@ -3925,4 +3925,7 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get plusShippingAtCheckout =>
       'Kargo ve vergiler ödeme adımında eklenir.';
+
+  @override
+  String get notifyOrderUpdates => 'Sipariş güncellemeleri';
 }

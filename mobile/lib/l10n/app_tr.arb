@@ -1048,5 +1048,6 @@
   "cartShipping": "Kargo",
   "cartTaxes": "Vergiler",
   "cartTotal": "Toplam",
-  "plusShippingAtCheckout": "Kargo ve vergiler ödeme adımında eklenir."
+  "plusShippingAtCheckout": "Kargo ve vergiler ödeme adımında eklenir.",
+  "notifyOrderUpdates": "Sipariş güncellemeleri"
 }

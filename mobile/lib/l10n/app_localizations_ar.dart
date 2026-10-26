@@ -3979,4 +3979,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get plusShippingAtCheckout => 'يُضاف الشحن والضرائب عند الدفع.';
+
+  @override
+  String get notifyOrderUpdates => 'تحديثات الطلبات';
 }

@@ -24,6 +24,9 @@ enum NotificationType {
   membershipEnding,
   cartLeft,
   studyReminder,
+
+  /// 91.2 One of the user's orders was shipped, completed, cancelled or refunded.
+  orderUpdate,
   unknown,
 }
 
@@ -45,6 +48,7 @@ class InboxNotification {
     this.link,
     this.imageUrl,
     this.appointmentId,
+    this.orderId,
   });
 
   factory InboxNotification.fromJson(Json json) => InboxNotification(
@@ -65,6 +69,7 @@ class InboxNotification {
     link: optString(json, 'link'),
     imageUrl: optString(json, 'image_url'),
     appointmentId: optInt(json, 'appointment_id'),
+    orderId: optInt(json, 'order_id'),
     createdAt: reqDate(json, 'created_at'),
     read: reqBool(json, 'read'),
   );
@@ -98,6 +103,9 @@ class InboxNotification {
   /// 85.3 For an appointment confirmed or coming up: the appointment.
   final int? appointmentId;
 
+  /// 91.2 For an order update: the order.
+  final int? orderId;
+
   Map<String, dynamic> get target => {
     'type': snake(type),
     'course_id': ?courseId,
@@ -108,6 +116,7 @@ class InboxNotification {
     'campaign_id': ?campaignId,
     'link': ?link,
     'appointment_id': ?appointmentId,
+    'order_id': ?orderId,
   };
 }
 

@@ -81,6 +81,8 @@ describe("80.4 marking an order shipped", () => {
       tracking_lines: "Carrier: Bosta\nTracking number: BOS-77\nWaybill: https://files.example/awb.pdf",
     });
     expect(result?.notification).toMatchObject({ userId: 7, title: `Order ${1000 + created.id} was shipped` });
+    // 91.2 An order update that opens the order.
+    expect(result?.notification?.data).toEqual({ type: "order_update", order_id: String(created.id) });
     // Not shippable: nothing saved, nobody told.
     expect(await shipOrder({ store, app, order: { ...created, lines: [line(true)] }, shipment, account: null, now: NOW, mail })).toBeNull();
     expect(mail).toHaveBeenCalledTimes(1);

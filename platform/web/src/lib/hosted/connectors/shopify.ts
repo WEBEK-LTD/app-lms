@@ -179,6 +179,7 @@ const ADMIN_QUERIES = {
         email phone customer { id } shippingAddress { phone }
         currentTotalPriceSet { shopMoney { amount currencyCode } }
         lineItems(first: 50) { nodes { name quantity image { url } product { id } } }
+        fulfillments(first: 5) { createdAt trackingInfo(first: 1) { company number url } }
       }
     }
   }`,
@@ -216,6 +217,25 @@ interface AdminOrder {
   displayFulfillmentStatus: string;
   currentTotalPriceSet: { shopMoney: Money };
   lineItems: { nodes: { name: string; quantity: number; image: { url: string } | null; product: { id: string } | null }[] };
+  /** 91.2 Its fulfillments, with their tracking. */
+  fulfillments?: { createdAt: string; trackingInfo: { company: string | null; number: string | null; url: string | null }[] }[] | null;
+}
+
+/** 91.2 The order's `shipment`: the newest fulfillment with a tracking number or link. */
+export function shopifyShipment(order: Pick<AdminOrder, "fulfillments">) {
+  const tracked = (order.fulfillments ?? [])
+    .map((f) => ({ at: f.createdAt, info: f.trackingInfo?.[0] ?? null }))
+    .filter((f) => f.info && (f.info.number?.trim() || f.info.url?.trim()))
+    .sort((a, b) => Date.parse(b.at) - Date.parse(a.at))[0];
+  if (!tracked?.info) return null;
+  const url = tracked.info.url?.trim() ?? "";
+  return {
+    carrier: tracked.info.company?.trim() || null,
+    tracking_number: tracked.info.number?.trim() || null,
+    tracking_url: /^https?:\/\/\S+$/i.test(url) ? url : null,
+    waybill: null,
+    shipped_at: new Date(tracked.at).toISOString(),
+  };
 }
 
 const ORDER_LABELS: Record<string, string> = {
@@ -785,6 +805,8 @@ export class ShopifyConnector implements Connector {
           quantity: Math.max(1, line.quantity),
           image_url: line.image?.url ?? null,
         })),
+        // 91.2 How it was shipped, with its tracking.
+        shipment: shopifyShipment(order),
       };
     });
     return {

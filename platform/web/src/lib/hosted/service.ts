@@ -1,4 +1,5 @@
 import { appSwitches } from "../app/switches";
+import { watchOrdersAfterCheckout } from "./order-watch";
 import { randomInt } from "node:crypto";
 import { hostedScreenProtection } from "../app/screen-protection";
 import { hidesVideoBranding } from "../app/video-branding";
@@ -331,7 +332,22 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
       const failed = errorOfBody(result.body);
       await noteAppError(ctx.store, { clientId: ctx.app.clientId, appId: ctx.app.id, source: "platform", code: failed?.code ?? `http_${result.status}`, detail: `${req.method} /${req.path.join("/")}: ${failed?.message ?? "no answer"}` }, ctx.now);
     }
+    // 91.2 Someone checked out on a connected platform: their orders are watched for updates.
+    if (result && result.status === 200 && route === "POST /store/checkout-link" && session) {
+      try {
+        await watchOrdersAfterCheckout(ctx.store, ctx.app, session.user.id, ctx.now);
+      } catch (e) {
+        console.error(`[hosted] app ${ctx.app.id}: the order watch couldn't start: ${errorText(e)}`);
+      }
+    }
     if (result) return result;
+    // 91.2 One order on a connected platform (an order update opens it): from the customer's orders.
+    if (session && req.method === "GET" && req.path.length === 3 && req.path[0] === "me" && req.path[1] === "orders" && /^\d{1,20}$/.test(req.path[2]!)) {
+      const list = await ctx.connector.handle({ method: "GET", path: ["me", "orders"], query: new URLSearchParams({ per_page: "50" }), body: null, user: session.user, now: ctx.now, lang: requestLanguage(req.headers?.get("accept-language")) });
+      if (list && list.status !== 200) return list;
+      const found = ((list?.body as { items?: { id: unknown }[] } | undefined)?.items ?? []).find((o) => String(o.id) === req.path[2]);
+      return found ? ok(found) : error(404, "not_found", "Order not found.");
+    }
   }
   return notFound();
 }
@@ -983,7 +999,7 @@ async function setPushToken(ctx: HostedContext, s: Session, body: Record<string,
   if (!token) return badRequest("The push token is missing.");
   const prefs = record(body.preferences);
   const preferences: Record<string, boolean> = {};
-  for (const key of ["announcements", "new_lessons", "daily_reminder", "news", "donations"]) {
+  for (const key of ["announcements", "new_lessons", "daily_reminder", "news", "donations", "orders"]) {
     if (typeof prefs[key] === "boolean") preferences[key] = prefs[key] as boolean;
   }
   // 36 Firebase (the default) or Huawei Push Kit, for phones without Google Play.
@@ -1027,6 +1043,8 @@ export function notificationJson(n: HostedNotification, readAt: Date | null) {
     question_id: null,
     ...(n.data?.appointment_id ? { appointment_id: numberOf(n.data.appointment_id) } : {}),
     ...(n.data?.event_id && !n.eventId ? { event_id: numberOf(n.data.event_id) } : {}),
+    // 91.2 The order an order update opens.
+    ...(n.data?.order_id ? { order_id: numberOf(n.data.order_id) } : {}),
     ...(n.articleId ? { article_id: n.articleId } : {}),
     ...(n.eventId ? { event_id: n.eventId } : {}),
     ...(n.campaignId ? { campaign_id: n.campaignId } : {}),

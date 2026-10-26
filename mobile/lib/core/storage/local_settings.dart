@@ -122,6 +122,7 @@ class LocalSettingsController extends Notifier<LocalSettings> {
   static const _reminder = 'settings.notify_daily_reminder';
   static const _news = 'settings.notify_news';
   static const _donations = 'settings.notify_donations';
+  static const _orders = 'settings.notify_orders';
   static const _guest = 'settings.guest_mode';
   static const _crashReports = 'settings.crash_reports';
   static const _language = languageKey;
@@ -155,6 +156,7 @@ class LocalSettingsController extends Notifier<LocalSettings> {
         dailyReminder: p.getBool(_reminder) ?? false,
         news: p.getBool(_news) ?? true,
         donations: p.getBool(_donations) ?? false,
+        orders: p.getBool(_orders) ?? true,
       ),
       guestMode: p.getBool(_guest) ?? false,
       language: p.getString(_language),
@@ -194,7 +196,8 @@ class LocalSettingsController extends Notifier<LocalSettings> {
       ..setBool(_announcements, value.announcements)
       ..setBool(_reminder, value.dailyReminder)
       ..setBool(_news, value.news)
-      ..setBool(_donations, value.donations);
+      ..setBool(_donations, value.donations)
+      ..setBool(_orders, value.orders);
     state = state.copyWith(notifications: value);
   }
 

@@ -50,7 +50,7 @@ test("a Growth client signs up and is activated", async ({ page }) => {
   await expect(page).toHaveURL(/\/pending$/);
 
   await page.context().clearCookies();
-  await signIn(page, E2E.adminEmail, E2E.adminPassword);
+  await signIn(page, E2E.starterAdminEmail, E2E.adminPassword);
   await page.goto("/admin/clients");
   await page.getByRole("searchbox", { name: "Search clients" }).fill(client.email);
   await page.getByRole("button", { name: "Search" }).click();
@@ -245,7 +245,7 @@ test("the App Store Connect key is optional on Growth and reaches the pipeline",
 });
 
 test("the super admin sees signed file links in the build queue", async ({ page }) => {
-  await signIn(page, E2E.adminEmail, E2E.adminPassword);
+  await signIn(page, E2E.starterAdminEmail, E2E.adminPassword);
   await page.goto("/admin/builds?status=ready");
   const row = page.getByRole("row").filter({ hasText: client.name });
   const apk = (await row.getByRole("link", { name: "Android APK" }).getAttribute("href"))!;

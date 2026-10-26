@@ -697,6 +697,8 @@ export interface HostedUser {
 export type HostedUserPatch = Partial<Pick<HostedUser, "name" | "email" | "city" | "notificationsReadAt">>;
 
 export interface PushPreferences {
+  /** 91.2 Order updates; on unless turned off. */
+  orders?: boolean;
   announcements?: boolean;
   new_lessons?: boolean;
   daily_reminder?: boolean;
@@ -2752,6 +2754,22 @@ export interface HostedCart {
   updatedAt: Date;
   /** When "You left something in your cart" went out for it; a change after that may bring another. */
   remindedAt: Date | null;
+}
+
+/**
+ * 91.2 A person's orders on a connected platform, watched for some days after
+ * they check out from the app: what each order looked like last time, so a
+ * change (shipped, completed, cancelled, refunded) is told once.
+ */
+export interface HostedOrderWatch {
+  appId: string;
+  userId: number;
+  /** Each order's last seen state, by order ID. */
+  orders: Record<string, string>;
+  /** Null before the first look (the orders seen then aren't told). */
+  checkedAt: Date | null;
+  /** Watched until then. */
+  until: Date;
 }
 
 // 85.2 Notification campaigns

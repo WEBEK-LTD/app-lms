@@ -121,6 +121,55 @@ describe("hosted API", () => {
     return registered.body as { access_token: string; refresh_token: string; user: { id: number } };
   }
 
+  it("91.2 watches a connected platform's orders after a checkout, tells their changes once, and opens one order", async () => {
+    const { runOrderWatches, WATCH_MINUTES } = await import("@/lib/hosted/order-watch");
+    const shop = { ...app, connector: { kind: "platform", platform: "ikas", settings: {}, secretsEncrypted: "x" } } as App;
+    const orders: Record<string, unknown>[] = [
+      { id: 501, number: "1501", status: "processing", status_label: "Processing", total: "₺450.00", created_at: NOW.toISOString(), items: [], shipment: null },
+    ];
+    const fake = {
+      config: async () => ({}),
+      handle: async (r: { method: string; path: string[] }) => {
+        const route = `${r.method} /${r.path.join("/")}`;
+        if (route === "POST /store/checkout-link") return { status: 200, body: { url: "https://rose.test/checkout", expires_at: NOW.toISOString(), open_in: "in_app" } };
+        if (route === "GET /me/orders") return { status: 200, body: { page: 1, per_page: 20, total: orders.length, total_pages: 1, items: orders } };
+        return null;
+      },
+    } as unknown as Connector;
+    const signed = await signUp();
+    const token = signed.access_token;
+    const hosted = (method: string, path: string, body?: unknown) =>
+      handleHosted(context({ app: shop, connector: fake }), { method, path: path.split("/").filter(Boolean), query: new URLSearchParams(), body, token });
+
+    // One order by its ID, from the customer's orders.
+    expect(await hosted("GET", "/me/orders/501")).toMatchObject({ status: 200, body: { id: 501, number: "1501" } });
+    expect(await hosted("GET", "/me/orders/999")).toMatchObject({ status: 404, body: { code: "not_found" } });
+
+    // Checking out starts the watch; the first look notes what's there.
+    expect((await hosted("POST", "/store/checkout-link", { lines: [{ product_id: 1, quantity: 1 }] })).status).toBe(200);
+    await store.updateApp(shop.id, { connector: shop.connector }, now);
+    const deps = (at: Date) => ({ store, key: KEY, now: at, connectorOf: () => fake });
+    expect(await runOrderWatches(deps(now))).toEqual({ checked: 1, told: 0, ended: 0 });
+    const inbox = async () => (await store.listHostedNotifications({ appId: shop.id, userId: signed.user.id, since: new Date(0), page: 1, perPage: 20 })).items;
+    expect(await inbox()).toEqual([]);
+
+    // Shipped with its tracking: told once.
+    orders[0] = { ...orders[0], shipment: { carrier: "Aras Kargo", tracking_number: "3815602243", tracking_url: null, waybill: null, shipped_at: NOW.toISOString() } };
+    const later = new Date(now.getTime() + (WATCH_MINUTES + 1) * 60_000);
+    expect(await runOrderWatches(deps(later))).toMatchObject({ checked: 1, told: 1 });
+    expect(await runOrderWatches(deps(new Date(later.getTime() + (WATCH_MINUTES + 1) * 60_000)))).toMatchObject({ told: 0 });
+    // Completed: told; a new order seen for the first time isn't.
+    orders[0] = { ...orders[0], status: "completed" };
+    orders.push({ id: 502, number: "1502", status: "processing", status_label: "Processing", total: "₺90.00", created_at: NOW.toISOString(), items: [], shipment: null });
+    expect(await runOrderWatches(deps(new Date(later.getTime() + 3 * (WATCH_MINUTES + 1) * 60_000)))).toMatchObject({ told: 1 });
+    const told = await inbox();
+    expect(told.map((n) => [n.body, n.data])).toEqual([
+      ["Your order is complete. Thank you!", { order_id: "501", type: "order_update" }],
+      ["Your order is on its way: Aras Kargo 3815602243. Tap to follow it.", { order_id: "501", type: "order_update" }],
+    ]);
+    expect(told[0]!.title).toBe("Order 1501");
+  });
+
   it("serves the configuration", async () => {
     const result = await call("GET", "/config", { query: { platform: "ios", app_version: "1.0.0" } });
     expect(result.status).toBe(200);

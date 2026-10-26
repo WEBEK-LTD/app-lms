@@ -2337,6 +2337,25 @@ app opens on the site's links (`<site>/a/page/<slug>`).
   `at_checkout`) and the checkout link applies it to the cart. Connected
   platforms answer `at_checkout`; Shopify carries the code in `cartCreate`'s
   `discountCodes`.
+- **Order updates** (91.2): an `order_update` notification (with `order_id`,
+  which opens the order) that phones can turn off (`orders` preference).
+  Shops without a website send it when an order is completed or cancelled
+  (the automatic kind `order_update`, `notifyOrderUpdate`, which the owner can
+  turn off) and, as before, when it's shipped (`shipOrder`). The plugin
+  (`Commerce\Order_Updates`, 0.4.16) sends it from WooCommerce: tracking
+  added with WooCommerce Shipment Tracking or Advanced Shipment Tracking
+  (`_wc_shipment_tracking_items`, `Commerce\Order_Tracking`, also the order's
+  `shipment`; each shipment once, remembered in `_yallapp_shipment_told`),
+  and completed, cancelled or refunded. Its inbox keeps `order_id`
+  (database version 6). Shops on Shopify and the other connected platforms
+  (`lib/hosted/order-watch.ts`): a checkout from the app starts a 30-day
+  watch of the person's orders (`hosted_order_watches`, migration 0080); the
+  frequent job looks at the due ones every 15 minutes through the connector's
+  `GET /me/orders` and tells an order shipped (its tracking appeared or
+  changed), completed, cancelled or refunded since the last look, once
+  (`auto_notices`); the first look only notes what's there. Shopify's orders
+  carry the newest fulfillment's tracking as `shipment`. `GET /me/orders/{id}`
+  on a connector without one answers from its order list.
 
 ## Academies, complete (Phase 90)
 

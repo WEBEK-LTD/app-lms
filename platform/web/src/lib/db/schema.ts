@@ -1919,6 +1919,23 @@ export const hostedCarts = mysqlTable(
   (t) => [primaryKey({ columns: [t.appId, t.userId] }), index("hosted_carts_left_idx").on(t.updatedAt)],
 );
 
+/** 91.2 A person's orders on a connected platform, watched after they check out (order updates). */
+export const hostedOrderWatches = mysqlTable(
+  "hosted_order_watches",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    orders: jsonText<Record<string, string>>("orders").notNull(),
+    checkedAt: time("checked_at"),
+    until: time("until_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.appId, t.userId] }), index("hosted_order_watches_due_idx").on(t.until, t.checkedAt)],
+);
+
 /** 85.2 Notification campaigns: drafts, sent once (now or later) or every week. */
 export const notificationCampaigns = mysqlTable(
   "notification_campaigns",

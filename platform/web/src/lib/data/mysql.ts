@@ -47,7 +47,7 @@ import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, Tea
 import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatus } from "./types";
 import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
-import type { CampaignSend, HostedCart, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
+import type { CampaignSend, HostedCart, HostedOrderWatch, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 import { mergeCrash } from "../crashes/report";
 import type {
   Activation,
@@ -4023,6 +4023,41 @@ export class MysqlStore implements DataStore {
     const t = schema.hostedCarts;
     const [result] = await this.run((db) => db.update(t).set({ remindedAt: now }).where(and(eq(t.appId, appId), eq(t.userId, userId), eq(t.updatedAt, seenAt))));
     return result.affectedRows === 1;
+  }
+
+  // 91.2 Order watches
+
+  async watchHostedOrders(appId: string, userId: number, until: Date): Promise<void> {
+    const t = schema.hostedOrderWatches;
+    await this.run((db) =>
+      db
+        .insert(t)
+        .values({ appId, userId, orders: {}, checkedAt: null, until })
+        .onDuplicateKeyUpdate({ set: { until: sql`GREATEST(${t.until}, VALUES(${t.until}))` } }),
+    );
+  }
+
+  async listDueOrderWatches(checkedBefore: Date, now: Date, limit: number): Promise<HostedOrderWatch[]> {
+    const t = schema.hostedOrderWatches;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(gt(t.until, now), or(isNull(t.checkedAt), lt(t.checkedAt, checkedBefore))))
+        .orderBy(asc(t.checkedAt))
+        .limit(limit),
+    );
+  }
+
+  async saveOrderWatch(appId: string, userId: number, orders: Record<string, string>, checkedAt: Date): Promise<void> {
+    const t = schema.hostedOrderWatches;
+    await this.run((db) => db.update(t).set({ orders, checkedAt }).where(and(eq(t.appId, appId), eq(t.userId, userId))));
+  }
+
+  async deleteEndedOrderWatches(now: Date): Promise<number> {
+    const t = schema.hostedOrderWatches;
+    const [result] = await this.run((db) => db.delete(t).where(lte(t.until, now)));
+    return result.affectedRows;
   }
 
   // 85.2 Notification campaigns

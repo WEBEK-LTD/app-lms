@@ -6393,6 +6393,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Plus shipping and taxes at checkout.'**
   String get plusShippingAtCheckout;
+
+  /// 91.2 The settings switch for pushes about the customer's orders: shipped, completed, cancelled or refunded.
+  ///
+  /// In en, this message translates to:
+  /// **'Order updates'**
+  String get notifyOrderUpdates;
 }
 
 class _AppLocalizationsDelegate

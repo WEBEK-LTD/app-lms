@@ -87,7 +87,7 @@ describe("85.3 automatic notifications", () => {
     expect(autoKindsFor(app("booking", "fitness", "bookings"))).toEqual(["appointment_confirmed", "appointment_reminder", "class_soon", "membership_ending"]);
     expect(autoKindsFor(app("booking", null, "bookings"))).toEqual(["appointment_confirmed", "appointment_reminder"]);
     expect(autoKindsFor(app("events", null, "events"))).toEqual(["event_soon"]);
-    expect(autoKindsFor(app("store", null, "catalog"))).toEqual(["cart_left"]);
+    expect(autoKindsFor(app("store", null, "catalog"))).toEqual(["cart_left", "order_update"]);
     // WordPress apps send theirs from the plugin.
     expect(autoKindsFor({ ...app("lms", null, "courses"), backend: "wordpress" })).toEqual([]);
   });
@@ -194,5 +194,62 @@ describe("85.3 automatic notifications", () => {
     // Emptied (ordered): nothing.
     await store.saveHostedCart(app.id, buyer.id, 0, at(10));
     expect(await runAutoNotifications(deps(at(20)))).toEqual({});
+  });
+});
+
+describe("91.2 order updates of a shop without a website", () => {
+  async function shop() {
+    const s = await setup("store", null, { connector: { kind: "catalog" } });
+    const order = async (userId: number) =>
+      s.store.createCatalogOrder({
+        appId: s.app.id,
+        tokenHash: `h-${userId}`,
+        userId,
+        status: "processing",
+        lines: [{ productId: 1, name: "Tulip vase", quantity: 1, unitCents: 40000, imageAssetId: null, digital: false }],
+        subtotalCents: 40000,
+        shippingCents: 5000,
+        totalCents: 45000,
+        currency: "TRY",
+        customer: { name: "Mona", phone: "+905321112233", email: null, city: "Istanbul", address: "Moda Cd. 12" },
+        paymentId: "PAY-1",
+        createdAt: NOW,
+        paidAt: NOW,
+        updatedAt: NOW,
+        commissionCents: null,
+        itemTransactionIds: null,
+        payoutApprovedAt: null,
+      } as never);
+    const moveDeps = { store: s.store, app: s.app, now: NOW, key: KEY, urls: { iyzico: "", kashier: "", fawaterk: "" } as never, account: null, send: undefined as typeof sendPush | undefined };
+    return { ...s, order, moveDeps };
+  }
+
+  it("tells the customer an order completed or cancelled, once, in their language, to the phones that allow it", async () => {
+    const { store, app, person, pushes, deps, order, moveDeps } = await shop();
+    expect(autoKindsFor(app)).toContain("order_update");
+    const { changeOrderStatus } = await import("@/lib/catalog/order-status");
+    const mona = await person({ language: "ar" });
+    const done = await order(mona.id);
+    const send = deps().send;
+    expect(await changeOrderStatus({ ...moveDeps, send }, done, "completed")).toBe(true);
+    expect(pushes).toHaveLength(1);
+    expect(pushes[0]).toMatchObject({ title: `الطلب ${1000 + done.id}`, body: "اكتمل طلبك. شكرًا لك!", data: { type: "order_update", order_id: String(done.id) } });
+    const [inbox] = await store.listHostedNotifications({ appId: app.id, userId: mona.id, since: new Date(0), page: 1, perPage: 10 }).then((r) => r.items);
+    expect(notificationJson(inbox!, null)).toMatchObject({ type: "order_update", order_id: done.id, title: `الطلب ${1000 + done.id}` });
+
+    // A phone that turned order updates off still has it in the inbox, without a push.
+    const quiet = await person({ pushPreferences: { orders: false } });
+    const cancelled = await order(quiet.id);
+    expect(await changeOrderStatus({ ...moveDeps, send }, cancelled, "cancelled")).toBe(true);
+    expect(pushes).toHaveLength(1);
+    const [told] = await store.listHostedNotifications({ appId: app.id, userId: quiet.id, since: new Date(0), page: 1, perPage: 10 }).then((r) => r.items);
+    expect(told).toMatchObject({ title: `Order ${1000 + cancelled.id}`, body: "Your order was cancelled." });
+
+    // The owner turned order updates off: nobody is told.
+    const off = { ...app, hostedSettings: { ...hostedSettings(app), autoNotifications: { order_update: false } } } as App;
+    await store.updateApp(app.id, { hostedSettings: off.hostedSettings }, NOW);
+    const later = await order(mona.id);
+    expect(await changeOrderStatus({ ...moveDeps, app: off, send }, later, "completed")).toBe(true);
+    expect(pushes).toHaveLength(1);
   });
 });

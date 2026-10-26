@@ -190,6 +190,7 @@ class NotificationPreferences {
     this.dailyReminder = false,
     this.news = true,
     this.donations = false,
+    this.orders = true,
   });
 
   factory NotificationPreferences.fromJson(Json json) =>
@@ -199,6 +200,7 @@ class NotificationPreferences {
         dailyReminder: boolOr(json, 'daily_reminder', false),
         news: boolOr(json, 'news', true),
         donations: boolOr(json, 'donations', false),
+        orders: boolOr(json, 'orders', true),
       );
 
   final bool newLessons;
@@ -211,18 +213,23 @@ class NotificationPreferences {
   /// 29 Updates about campaigns the user gave to; off until turned on.
   final bool donations;
 
+  /// 91.2 Updates about the user's orders (Store apps).
+  final bool orders;
+
   NotificationPreferences copyWith({
     bool? newLessons,
     bool? announcements,
     bool? dailyReminder,
     bool? news,
     bool? donations,
+    bool? orders,
   }) => NotificationPreferences(
     newLessons: newLessons ?? this.newLessons,
     announcements: announcements ?? this.announcements,
     dailyReminder: dailyReminder ?? this.dailyReminder,
     news: news ?? this.news,
     donations: donations ?? this.donations,
+    orders: orders ?? this.orders,
   );
 
   Json toJson() => {
@@ -231,6 +238,7 @@ class NotificationPreferences {
     'daily_reminder': dailyReminder,
     'news': news,
     'donations': donations,
+    'orders': orders,
   };
 }
 

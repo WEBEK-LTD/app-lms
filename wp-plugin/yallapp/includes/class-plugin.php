@@ -94,6 +94,8 @@ class Plugin {
 		( new App_Links( $this->license(), new Link_Paths( $this ) ) )->register();
 		$this->layout_client()->register();
 		$this->store_checkout()->register();
+		// 91.2 Order updates in the app (WooCommerce).
+		( new Commerce\Order_Updates( $this ) )->register();
 		// 51 [yallapp_video] on the website.
 		$this->yallapp_media()->register();
 		( new Rest\Gatekeeper( $this ) )->register();

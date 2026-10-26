@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.15
+Stable tag: 0.4.16
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -121,6 +121,9 @@ Terms: https://developer.huawei.com/consumer/en/devservice/term
 Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 
 == Changelog ==
+
+= 0.4.16 =
+* Order updates in the app: when you add tracking with WooCommerce Shipment Tracking or Advanced Shipment Tracking, the customer gets a notification and follows the parcel from the order in the app. Completed, cancelled and refunded orders are told too. Customers can turn order updates off in the app's settings.
 
 = 0.4.15 =
 * Coupons in the app's cart: customers type a WooCommerce coupon code, the cart checks it with your coupon rules and shows the discount and the total so far, and your checkout applies it. Coupons limited to some customers are checked on your checkout.
