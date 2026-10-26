@@ -196,8 +196,8 @@ missing.
 ## Store listing ids
 
 - Google Play: `tr.com.yallapp.business`, under Yallapp's developer account.
-- App Store: bundle id `tr.com.yallapp.business`, under Yallapp's team; the
-  App Store Connect app id is added here once the listing exists.
+- App Store: bundle id `tr.com.yallapp.business`, under Yallapp's team; App
+  Store Connect app id `6827042925`.
 - Release signing for Android reads `android/key.properties` (never
   committed; the release workflow writes it from the secrets); without it
   release builds use the debug key and can't be uploaded.
