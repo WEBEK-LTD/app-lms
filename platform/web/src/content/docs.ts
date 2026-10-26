@@ -1825,7 +1825,7 @@ Big videos upload in parts. If the connection drops, the upload tries again by i
 
 A picture's link works for anyone. A video's or PDF's link plays only in lessons, unless you select **Share the link**. Each file can be renamed; deleting it frees its space at once, and lessons that used it lose their video.
 
-Downloads for offline viewing work with videos from Media when your plan has offline mode.
+Downloads for offline viewing work with videos from Media when your plan has offline mode. On WordPress, they work when the plugin allows offline downloads and your license is active, since the videos come from Yallapp.
 
 ## Storage
 

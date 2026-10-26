@@ -200,7 +200,7 @@ class Push_Service {
 			(string) \Yallapp\News\Articles::excerpt_of( $post->post_excerpt, $post->post_content )
 		);
 		$this->plugin->inbox()->add( 'article', Inbox::AUDIENCE_ALL, 0, $notification['title'], $notification['body'], 0, 0, 0, $post->ID );
-		if ( $this->is_configured() && $this->plugin->license()->has_feature( 'push' ) ) {
+		if ( $this->is_configured() ) {
 			$this->queue(
 				$this->plugin->devices()->push_user_ids(),
 				'news',

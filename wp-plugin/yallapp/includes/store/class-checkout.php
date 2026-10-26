@@ -232,14 +232,19 @@ class Checkout {
 	 * WooCommerce loads the cart, on the request after sign-in, so the cart belongs to the
 	 * signed-in customer.
 	 *
+	 * This is not a form submission, so it has no nonce: the link is the credential. The token
+	 * is 32 random bytes made by link() for the app's request, stored only as a hash, valid for
+	 * 5 minutes and deleted the first time it is read. It only fills a cart with what the app
+	 * already checked, and a cart made for a signed-in customer opens for that customer only.
+	 *
 	 * @return void
 	 */
 	public function fill_cart() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- The token is the credential.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- A one-time token, not a form: the token is the credential (see above).
 		if ( empty( $_GET[ self::QUERY_ARG ] ) || ! Catalog::available() ) {
 			return;
 		}
-		$token = sanitize_text_field( wp_unslash( $_GET[ self::QUERY_ARG ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$token = sanitize_text_field( wp_unslash( $_GET[ self::QUERY_ARG ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- One-time token, see above.
 		$key   = 'yallapp_cart_' . Crypto::hash( $token );
 		$cart  = get_transient( $key );
 		delete_transient( $key );

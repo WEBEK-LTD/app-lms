@@ -112,6 +112,31 @@ class DownloadsTest extends TestCase {
 		$this->assertTrue( Downloads::choice( true, false ) );
 	}
 
+	public function test_no_license_or_plan_is_needed() {
+		$settings = $this->getMockBuilder( \Yallapp\Settings::class )->disableOriginalConstructor()->onlyMethods( array( 'get' ) )->getMock();
+		$settings->method( 'get' )->willReturnCallback(
+			static function ( $key ) {
+				return 'offline_downloads' === $key;
+			}
+		);
+		$media = $this->getMockBuilder( Media::class )->disableOriginalConstructor()->getMock();
+		// An ended plan without offline mode: the plugin's setting still decides.
+		$license = $this->getMockBuilder( \Yallapp\License\License_Client::class )->disableOriginalConstructor()->onlyMethods( array( 'has_key', 'status', 'state', 'is_active' ) )->getMock();
+		$license->method( 'has_key' )->willReturn( true );
+		$license->method( 'status' )->willReturn(
+			array(
+				'status'            => 'expired',
+				'features'          => array(),
+				'offline_downloads' => null,
+			)
+		);
+		$license->method( 'state' )->willReturn( 'expired' );
+		$license->method( 'is_active' )->willReturn( false );
+		$this->assertTrue( ( new Downloads( $settings, $license, $media ) )->enabled() );
+		// No license at all.
+		$this->assertTrue( ( new Downloads( $settings, null, $media ) )->enabled() );
+	}
+
 	public function test_images_in_the_lesson_text_once_each() {
 		$html = '<p><img src="https://academy.test/a.png" alt=""> <img class="x" src=\'https://academy.test/b.jpg?x=1&amp;y=2\'>'
 			. '<img src="https://academy.test/a.png"><img src="data:image/png;base64,AAAA"><img src="/relative.png"></p>';

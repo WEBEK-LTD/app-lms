@@ -38,25 +38,30 @@ info:
     owner while the app isn't active yet, signs in only the store review
     number, and serves the Pages & look draft when the preview asks for it.
 
-    A paused app (roadmap 68): when the app's plan ends (the end date has
-    passed) or the owner's Yallapp account is suspended, every call answers
-    503 `license_inactive` or `account_suspended` with the owner's `contact`,
-    on WordPress (plugin 0.4.6 and later, which also compares the plan's end
-    date with its own clock when it can't reach Yallapp) and on the hosted API
-    alike. `GET /config` answers the same error, so the app shows its paused
-    screen. What a person who is already signed in needs to delete their
-    account keeps working: `POST /auth/refresh`, `POST /auth/logout` and
-    `DELETE /me` (and, on WordPress, Yallapp's `POST /license/refresh`).
-    Signing in is paused with the rest, so someone who isn't signed in asks
-    the app's owner (`contact`) to delete their account. Everything comes back
-    as it was once the plan is renewed.
+    A paused app (roadmap 68), on the hosted API: when the app's plan ends
+    (the end date has passed) or the owner's Yallapp account is suspended,
+    every call answers 503 `license_inactive` or `account_suspended` with the
+    owner's `contact`. `GET /config` answers the same error, so the app shows
+    its paused screen. What a person who is already signed in needs to delete
+    their account keeps working: `POST /auth/refresh`, `POST /auth/logout`
+    and `DELETE /me`. Signing in is paused with the rest, so someone who isn't
+    signed in asks the app's owner (`contact`) to delete their account.
+    Everything comes back as it was once the plan is renewed.
+
+    The WordPress plugin never pauses its API for the license or the plan
+    (plugin 0.4.18, WordPress.org guideline 5; plugins 0.4.6 to 0.4.17 paused
+    it as above) and never answers `license_inactive` or `account_suspended`:
+    only the site owner's own switch answers 503 `maintenance`. On WordPress a
+    license that isn't active stops only what runs on Yallapp's servers: the
+    chat (no `Config.chat`), videos in Yallapp media, sign-in codes sent by
+    Yallapp and new layouts from the dashboard.
 
     A deleted app (roadmap 73): when the owner deletes the app in the Yallapp
     dashboard, the hosted API answers 404 `not_found` on every path at once
     (the app is gone for the app as for the dashboard), and a WordPress site
-    loses its license (`license_not_found` from Yallapp), so its app pauses
-    as above. Yallapp's team can restore it within 7 days; after that its
-    data and files are deleted.
+    loses its license (`license_not_found` from Yallapp), so Yallapp's
+    services stop for it as above. Yallapp's team can restore it within 7
+    days; after that its data and files are deleted.
 
     A client's own API can let Yallapp sign people in (roadmap 34): its app
     then sends sign-in, the account and its devices to the hosted API
@@ -695,8 +700,8 @@ paths:
       summary: Refresh tokens
       description: |
         Exchanges a refresh token for new tokens. The old refresh token stops
-        working (rotation). Roadmap 68: also while the app is paused, so a
-        signed-in person can still delete their account.
+        working (rotation). Roadmap 68: also while the app is paused on the
+        hosted API, so a signed-in person can still delete their account.
       security: []
       requestBody:
         required: true
@@ -720,7 +725,7 @@ paths:
       tags: [Auth]
       operationId: logout
       summary: Sign out this device
-      description: Also while the app is paused (roadmap 68).
+      description: Also while the app is paused on the hosted API (roadmap 68).
       responses:
         '204': { description: Signed out }
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -896,11 +901,11 @@ paths:
         according to the site's policy and signs out every device. In a demo
         app (one shared account) it signs out this device only.
 
-        Roadmap 68: it keeps working while the app is paused (its plan ended,
-        or the owner's account is suspended), together with `POST
-        /auth/refresh` and `POST /auth/logout`, on WordPress (plugin 0.4.6) and
-        on the hosted API. The app offers it on its paused screen to someone
-        who is signed in.
+        Roadmap 68: it keeps working while the app is paused on the hosted API
+        (its plan ended, or the owner's account is suspended), together with
+        `POST /auth/refresh` and `POST /auth/logout`. The app offers it on its
+        paused screen to someone who is signed in. (The WordPress plugin never
+        pauses since 0.4.18.)
       responses:
         '204': { description: Account deleted }
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -1071,7 +1076,7 @@ paths:
               schema: { $ref: '#/components/schemas/ChatSession' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403':
-          description: The app's plan has no chat, or the owner turned it off (`chat_not_available`).
+          description: The app's plan has no chat, the owner turned it off, or the WordPress site's Yallapp license isn't active (`chat_not_available`).
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
@@ -2123,7 +2128,8 @@ paths:
         student can't open it any more (their enrollment ended, was
         refunded or expired, or the lesson is gone); the app deletes it. The
         app also deletes everything when `downloads` is false (the owner
-        turned downloads off or the plan no longer includes offline mode),
+        turned downloads off or, on the hosted API, the plan no longer
+        includes offline mode),
         and a lesson it hasn't been able to check for `keep_days` days.
       requestBody:
         required: true
@@ -3636,8 +3642,8 @@ paths:
         from its clock (`invalid_signature`, 401). It checks at most once every
         30 seconds: a nudge within 30 seconds of the last one gets 429 and the
         plugin checks once when the 30 seconds are over, so the last change
-        still arrives. Reachable during maintenance and while the app API is
-        paused, so a renewed or reactivated plan reaches the site.
+        still arrives. Reachable during maintenance, so new settings reach
+        the site.
       security: []
       requestBody:
         required: true
@@ -3887,7 +3893,7 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
     ChatNotAvailable:
-      description: Roadmap 77. The app's plan has no chat, or its owner turned it off (`chat_not_available`).
+      description: Roadmap 77. The app's plan has no chat, its owner turned it off, or the WordPress site's Yallapp license isn't active (`chat_not_available`).
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
@@ -3913,14 +3919,16 @@ components:
           schema: { $ref: '#/components/schemas/Error' }
     Unavailable:
       description: |
-        The site is in maintenance mode, the app is paused (`license_inactive`:
-        its plan ended or isn't active yet; `account_suspended`: the owner's
-        Yallapp account is suspended), or the platform behind the hosted API (a
-        shop, school or booking account) can't be reached. `license_inactive`
-        and `account_suspended` carry `contact`: the app shows that the app's
-        owner can bring it back, with a way to reach them. Roadmap 68: a paused
-        app answers this on every call except `POST /auth/refresh`, `POST
-        /auth/logout`, `DELETE /me` and `POST /license/refresh`.
+        The site is in maintenance mode (`maintenance`), the app is paused on
+        the hosted API (`license_inactive`: its plan ended or isn't active
+        yet; `account_suspended`: the owner's Yallapp account is suspended), or
+        the platform behind the hosted API (a shop, school or booking account)
+        can't be reached. `license_inactive` and `account_suspended` carry
+        `contact`: the app shows that the app's owner can bring it back, with a
+        way to reach them. Roadmap 68: a paused app answers this on every call
+        except `POST /auth/refresh`, `POST /auth/logout` and `DELETE /me`. The
+        WordPress plugin answers only `maintenance` (since 0.4.18 it never
+        pauses for the license or the plan).
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
@@ -4039,19 +4047,20 @@ components:
             wishlist: { type: boolean }
             reviews: { type: boolean }
             qna: { type: boolean }
-            push: { type: boolean, description: "Whether push notifications are set up and included in the app's plan." }
+            push: { type: boolean, description: "Whether push notifications are set up: on WordPress, the site's own Firebase or Huawei keys are saved (never the plan, since plugin 0.4.18); on the hosted API, also included in the app's plan." }
             orders: { type: boolean, description: "Whether the site sells (courses or products), so customers have orders. Missing on older plugins means false." }
-            offline: { type: boolean, description: "Offline mode, when the app's plan includes it: the app keeps what the user last saw and shows it without a connection. Missing means false." }
+            offline: { type: boolean, description: "Offline mode: the app keeps what the user last saw and shows it without a connection. Always true on WordPress (plugin 0.4.18); on the hosted API, when the app's plan includes it. Missing means false." }
             downloads:
               type: boolean
               description: |
                 Roadmap 45. Students can save lessons and whole courses on the
                 phone to watch and read offline (`POST /lessons/{lesson_id}/download`):
-                the app's plan includes offline mode (`offline`) and the owner
-                turned downloads on (the dashboard's Courses page or, on
-                WordPress, the plugin's "Allow offline downloads"; the
-                dashboard's choice wins when it made one). Missing means false;
-                when it turns false the app deletes what it saved.
+                the owner turned downloads on (the dashboard's Courses page or,
+                on WordPress, the plugin's "Allow offline downloads"; the
+                dashboard's choice wins when it made one), and on the hosted API
+                the app's plan includes offline mode (`offline`). On WordPress
+                no license or plan is needed (plugin 0.4.18). Missing means
+                false; when it turns false the app deletes what it saved.
             memberships:
               type: boolean
               description: >-
@@ -4857,7 +4866,9 @@ components:
       description: |
         Roadmap 77. Chat with the business (and, in academies, course
         groups). Present only when the app's plan has chat (Pro and Business)
-        and the owner didn't turn it off; missing means no chat.
+        and the owner didn't turn it off, and on WordPress while the site's
+        Yallapp license is active (the chat runs on Yallapp's servers);
+        missing means no chat.
       required: [base_url, session, groups]
       properties:
         base_url: { type: string, format: uri, example: 'https://yallapp.com.tr/api/app/00000000-0000-0000-0000-000000000000', description: Where the Chat endpoints are (Yallapp's hosted API for the app). }

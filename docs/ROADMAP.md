@@ -1858,6 +1858,7 @@ account is `yallapp`.
 | [x] | 76.3 `bin/plugin-check.sh` and the CI job "Plugin Check (WordPress.org)": Plugin Check 2.1.0 on the zip, failing on any error or warning (0.4.7: 2 errors, 67 warnings; 0.4.8: none) | The script locally, CI |
 | [x] | 76.4 Docs: this phase, ARCHITECTURE, LAUNCH-CHECKLIST 7v | Review |
 | [ ] | 76.5 The owner: release 0.4.8 in Admin › Plugin releases, submit it to WordPress.org as `yallapp`, answer the review, then the first SVN commit | LAUNCH-CHECKLIST 7v |
+| [x] | 76.6 Plugin 0.4.18: WordPress.org review of 0.4.8. Guideline 5: nothing local depends on the license or plan any more (the app's API never pauses with `license_inactive`/`account_suspended`; push follows the site's own Firebase/Huawei keys and offline downloads the owner's setting; `allows_api()`, `has_feature()`, `enforced()` and `YALLAPP_ENFORCE_LICENSE` removed); the license only connects the site to Yallapp's services (chat, Yallapp media, the dashboard's layout, sign-in codes, app builds), as the readme and Settings › License say. The app-view style is enqueued (`wp_add_inline_style`), the settings page's inline `onclick` moved to `admin.js`, MasterStudy strings use the `yallapp` text domain, the magic link and checkout token say why they have no nonce. Contract first (`openapi.yaml`, `platform.yaml`: pausing is the hosted API's only) | `composer lint`, `php -l`, PHPUnit, `license-free-check.php` in the integration suite, Redocly |
 
 ## Phase 77: Chat in the app
 

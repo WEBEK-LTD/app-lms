@@ -14,19 +14,24 @@ use Yallapp\Detector;
 use Yallapp\Settings;
 
 /**
- * Talks to the platform API in docs/api/platform.yaml.
+ * Talks to the platform API in docs/api/platform.yaml: the connection between this site and
+ * Yallapp's own services, which run on Yallapp's servers (building and publishing the app, chat,
+ * videos in Yallapp media, the pages and look designed in the Yallapp dashboard, sign-in codes
+ * sent by Yallapp, campaign reports). The license key identifies the site to those services.
+ *
+ * Nothing the plugin does on this site depends on the license or a plan: the app's API, push
+ * notifications (sent with the site's own Firebase and Huawei keys) and offline downloads work
+ * whatever the license's state. Only requests to Yallapp's services need an active key.
  *
  * Only the site URL, plugin version, WordPress version and LMS are sent, plus, for sign-in codes
  * sent by Yallapp, the phone number and the code to deliver (the platform keeps neither), and
  * 51 the IDs of Media library videos a lesson plays.
- * 68 The license is enforced: while it isn't active (ended, suspended, not activated, or 72
- * hours without an answer from the platform) the app's API is paused. The plan's end date is
- * also compared locally. Only a development site can switch this off (enforced()).
  */
 class License_Client {
 
 	/**
-	 * Plan features the platform may report (docs/api/platform.yaml, LicenseStatus).
+	 * Plan features the platform may report (docs/api/platform.yaml, LicenseStatus). Kept with the
+	 * status as the platform sent them; the plugin doesn't turn anything on or off with them.
 	 */
 	const FEATURES = array( 'push', 'offline_downloads', 'auto_publish', 'ios', 'page_editor', 'card_payments', 'auto_rebuild', 'chat' );
 
@@ -283,75 +288,10 @@ class License_Client {
 	}
 
 	/**
-	 * Whether license checks block the app API. 68 Always on a live site: only a development
-	 * site (`WP_ENVIRONMENT_TYPE` `local` or `development`) can switch them off, with
-	 * `define( 'YALLAPP_ENFORCE_LICENSE', false )` or the `yallapp_enforce_license` filter (tests).
-	 *
-	 * @return bool
-	 */
-	public static function enforced() {
-		$environment = function_exists( 'wp_get_environment_type' ) ? wp_get_environment_type() : 'production';
-		$constant    = defined( 'YALLAPP_ENFORCE_LICENSE' ) ? (bool) YALLAPP_ENFORCE_LICENSE : null;
-		$enforced    = self::enforcement( $constant, $environment );
-		if ( function_exists( 'apply_filters' ) ) {
-			/**
-			 * Whether the license is enforced. Turning it off counts only on a development site.
-			 *
-			 * @param bool $enforced Whether the license is enforced.
-			 */
-			$filtered = (bool) apply_filters( 'yallapp_enforce_license', $enforced );
-			$enforced = $filtered || ! self::is_development( $environment );
-		}
-		return $enforced;
-	}
-
-	/**
-	 * 68 Whether the license is enforced, from YALLAPP_ENFORCE_LICENSE (null when not defined)
-	 * and the site's environment type: on unless it is set to false on a development site. Pure.
-	 *
-	 * @param bool|null $constant    YALLAPP_ENFORCE_LICENSE, or null.
-	 * @param string    $environment wp_get_environment_type().
-	 * @return bool
-	 */
-	public static function enforcement( $constant, $environment ) {
-		return false !== $constant || ! self::is_development( $environment );
-	}
-
-	/**
-	 * Whether the site says it is a development copy (`local` or `development`).
-	 *
-	 * @param string $environment wp_get_environment_type().
-	 * @return bool
-	 */
-	private static function is_development( $environment ) {
-		return in_array( (string) $environment, array( 'local', 'development' ), true );
-	}
-
-	/**
-	 * Whether the app API may serve requests.
-	 *
-	 * @return bool
-	 */
-	public function allows_api() {
-		return ! self::enforced() || $this->is_active();
-	}
-
-	/**
-	 * Whether the app's plan includes a feature (`push`, `offline_downloads`, …). Without
-	 * license enforcement every feature is on; with it, only an active license's features.
-	 *
-	 * @param string $feature Feature.
-	 * @return bool
-	 */
-	public function has_feature( $feature ) {
-		if ( ! self::enforced() ) {
-			return true;
-		}
-		return $this->is_active() && in_array( $feature, (array) $this->status()['features'], true );
-	}
-
-	/**
-	 * Whether the license is active, allowing the grace period after the last successful check.
+	 * Whether the site's connection to Yallapp's services is active (the license is active,
+	 * allowing the grace period after the last successful check). Only features that run on
+	 * Yallapp's servers use it: chat and the layout from the dashboard; Yallapp's own servers
+	 * also check the key for media, sign-in codes and campaigns.
 	 *
 	 * @return bool
 	 */

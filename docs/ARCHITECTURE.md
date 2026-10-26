@@ -1756,10 +1756,12 @@ its data to be deleted without the app. The address to give both stores is
      log. A request by email is handled the same way after checking it came
      from the account's address.
 
-## An ended plan stops the app everywhere (Phase 68)
+## An ended plan stops the app's Yallapp services (Phase 68)
 
-When a client's plan ends, their app stops everywhere, whatever serves it,
-and comes back as soon as the plan is renewed. Nothing stores "ended": every
+When a client's plan ends, Yallapp's services for their app stop (on the
+hosted API, the whole app), and come back as soon as the plan is renewed. A
+WordPress site keeps its own API: the plugin never limits what it does on the
+site by license or plan (WordPress.org guideline 5, plugin 0.4.18). Nothing stores "ended": every
 part asks the same question against the plan's end date at that moment,
 `appIsActive(license, client, now)` (`lib/license/status.ts`): the account is
 active and the app's own license hasn't reached `expires_at`.
@@ -1771,20 +1773,23 @@ active and the app's own license hasn't reached `expires_at`.
   `POST /auth/refresh`, `POST /auth/logout` and `DELETE /me` answering, so
   someone signed in can always delete their account (Apple 5.1.1(v), Google
   Play). Signing in stays paused (no codes are sent for an ended plan).
-- **WordPress** (plugin 0.4.6): the license is enforced on every site.
-  `License_Client::state_of()` reads the stored status: `active` until its
-  `expires_at` passes (compared with the site's clock, so the app pauses on
-  time even when the site can't reach Yallapp), `unreachable` when an active
-  plan hasn't been confirmed for 72 hours (the grace only covers network
-  failures before the end), else what the platform said (`expired`,
-  `suspended`, `invalid`, `none`). While it isn't `active` the Gatekeeper
-  answers 503 with the contact from the plugin settings (`/config` too),
-  except `POST /license/refresh` and the same three account routes; push and
-  offline mode follow the plan. Only a development site (`WP_ENVIRONMENT_TYPE`
-  `local` or `development`) can switch the checks off, with
-  `YALLAPP_ENFORCE_LICENSE` false (the dev site's `wp-config.php` does) or the
-  `yallapp_enforce_license` filter. Settings › License says active until …,
-  ended on … with how to renew, suspended, or not confirmed.
+- **WordPress** (plugin 0.4.18): the license only connects the site to
+  Yallapp's services. `License_Client::state_of()` reads the stored status:
+  `active` until its `expires_at` passes (compared with the site's clock),
+  `unreachable` when an active plan hasn't been confirmed for 72 hours (the
+  grace only covers network failures before the end), else what the
+  platform said (`expired`, `suspended`, `invalid`, `none`). While it isn't
+  `active` only what runs on Yallapp's servers stops: `Config.chat` is left
+  out, the layout isn't refreshed (the last one stays), and Yallapp refuses
+  media links and sign-in codes (403 `license_inactive` from the platform).
+  The app's API, push (the site's own Firebase and Huawei keys) and offline
+  downloads (the owner's setting, or the dashboard's choice) never depend on
+  it; the Gatekeeper answers 503 only for the owner's own maintenance switch.
+  Plugins 0.4.6 to 0.4.17 paused the whole API with `license_inactive` (and
+  `YALLAPP_ENFORCE_LICENSE` for development sites); WordPress.org's review
+  counted that as trialware, so 0.4.18 removed it. Settings › License says
+  the site is connected until …, ended on … with how to renew, suspended,
+  or not confirmed, and that the plugin keeps working.
 - **Telling the site at once**: the frequent job (every 5 minutes,
   `refreshEndedSites` in `lib/license/refresh.ts`) sends the signed
   `POST /license/refresh` to the site of every license that ended in the last
@@ -1807,7 +1812,7 @@ active and the app's own license hasn't reached `expires_at`.
   whose account was suspended after it was queued is closed as `failed`
   (`license_inactive` in `pipeline.yaml`) with the reason, the client is
   emailed, and the pipeline never sees it.
-- **The customer's app**: the paused screen keeps "Contact {App}" and "Try
+- **The customer's app** (hosted API): the paused screen keeps "Contact {App}" and "Try
   again", and offers "Delete account" to someone signed in (asked and
   answered on the screen, which sits above the app's navigator). Someone
   not signed in asks the owner (the Contact button); our team can delete an
@@ -2989,7 +2994,8 @@ build. The preview is the Flutter app from `mobile/`, built for the web.
     and serves the Pages & look draft when the link asks for it;
   - WordPress answers cross-origin REST requests itself; the plugin adds
     the headers the app sends and reads (`Rest\Cors`). A pending WordPress
-    app shows "paused" until its plugin is connected and its plan is active;
+    app's preview reaches the site as soon as the plugin is installed
+    (plugins before 0.4.18 answered "paused" until the plan was active);
   - a client's own API must allow `https://yallapp.com.tr` (CORS); the
     preview says so when the browser can't reach it, and "Connect your own
     API" shows how. On the web the app never sends `If-None-Match` (the

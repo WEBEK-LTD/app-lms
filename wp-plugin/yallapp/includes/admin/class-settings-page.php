@@ -485,38 +485,37 @@ class Settings_Page {
 		if ( 'expired' === $state ) {
 			echo '<p class="ya-help"><a href="' . esc_url( 'https://yallapp.com.tr/dashboard/license' ) . '" target="_blank" rel="noopener">' . esc_html__( 'Renew in your Yallapp dashboard', 'yallapp' ) . '</a></p>';
 		}
-		if ( ! $client::enforced() ) {
-			echo '<p class="ya-help">' . esc_html__( 'License checks are off on this development site (YALLAPP_ENFORCE_LICENSE). On a live site the app pauses whenever the license isn\'t active.', 'yallapp' ) . '</p>';
-		}
 		echo '</form>';
 		$this->close();
 	}
 
 	/**
-	 * 68 What the license's state means for the app, in plain words for the site admin. Pure.
+	 * What the license's state means, in plain words for the site admin. The plugin and the app's
+	 * API work in every state; the license only connects the site to Yallapp's services. Pure.
 	 *
 	 * @param string $state License_Client::state_of(): active|expired|suspended|invalid|none|unreachable.
 	 * @param string $date  The plan's end, formatted; empty when unknown.
 	 * @return string
 	 */
 	public static function license_state_text( $state, $date ) {
+		$works = __( 'Everything the plugin does on this site keeps working.', 'yallapp' );
 		switch ( $state ) {
 			case 'active':
 				/* translators: %s: the date the plan ends. */
-				return '' !== $date ? sprintf( __( 'The app is running. Your plan is active until %s.', 'yallapp' ), $date ) : __( 'The app is running. Your plan is active.', 'yallapp' );
+				return '' !== $date ? sprintf( __( 'This site is connected to Yallapp\'s services. Your plan is active until %s.', 'yallapp' ), $date ) : __( 'This site is connected to Yallapp\'s services. Your plan is active.', 'yallapp' );
 			case 'expired':
-				return '' !== $date
+				return ( '' !== $date
 					/* translators: %s: the date the plan ended. */
-					? sprintf( __( 'Your plan ended on %s, so the app is paused for everyone: it shows that it is paused, with your contact details, and sends no notifications. Renew the plan on yallapp.com.tr (License & plugin) and the app comes back within minutes.', 'yallapp' ), $date )
-					: __( 'Your plan has ended, so the app is paused for everyone: it shows that it is paused, with your contact details, and sends no notifications. Renew the plan on yallapp.com.tr (License & plugin) and the app comes back within minutes.', 'yallapp' );
+					? sprintf( __( 'Your Yallapp plan ended on %s, so Yallapp\'s services for this app (app updates, chat, Yallapp media, the pages from your dashboard and sign-in codes sent by Yallapp) are stopped. Renew the plan on yallapp.com.tr (License & plugin) to bring them back.', 'yallapp' ), $date )
+					: __( 'Your Yallapp plan has ended, so Yallapp\'s services for this app (app updates, chat, Yallapp media, the pages from your dashboard and sign-in codes sent by Yallapp) are stopped. Renew the plan on yallapp.com.tr (License & plugin) to bring them back.', 'yallapp' ) ) . ' ' . $works;
 			case 'suspended':
-				return __( 'Your Yallapp account is suspended, so the app is paused for everyone. Message Yallapp to bring it back.', 'yallapp' );
+				return __( 'Your Yallapp account is suspended, so Yallapp\'s services for this app are stopped. Message Yallapp to bring them back.', 'yallapp' ) . ' ' . $works;
 			case 'unreachable':
-				return __( 'This site hasn\'t reached yallapp.com.tr for over 3 days, so the app is paused. Check that the site can make outgoing connections, then click Check now.', 'yallapp' );
+				return __( 'This site hasn\'t reached yallapp.com.tr for over 3 days, so Yallapp\'s services for this app are stopped until it does. Check that the site can make outgoing connections, then click Check now.', 'yallapp' ) . ' ' . $works;
 			case 'none':
-				return __( 'Activate your license to turn the app on. Until then it shows that it is paused.', 'yallapp' );
+				return __( 'The plugin works without a license. Activate your Yallapp license to connect this site to Yallapp\'s services: building and publishing your app, chat, Yallapp media, the pages you design in your dashboard and sign-in codes sent by Yallapp.', 'yallapp' );
 			default:
-				return __( 'This license isn\'t valid on this site, so the app is paused. Check the key in your Yallapp dashboard.', 'yallapp' );
+				return __( 'This license isn\'t valid on this site, so Yallapp\'s services for this app are stopped. Check the key in your Yallapp dashboard.', 'yallapp' ) . ' ' . $works;
 		}
 	}
 
@@ -1518,7 +1517,7 @@ class Settings_Page {
 				esc_attr( self::name( $key ) ),
 				esc_attr( $value ),
 				checked( $locked || in_array( $value, (array) $this->values[ $key ], true ), true, false ),
-				$locked ? ' onclick="return false" aria-disabled="true"' : '',
+				$locked ? ' data-ya-locked aria-disabled="true"' : '',
 				esc_html( $text )
 			);
 		}

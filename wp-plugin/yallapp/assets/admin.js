@@ -5,6 +5,11 @@
 	$( function () {
 		$( '.yallapp .ya-sortable' ).sortable( { axis: 'y', handle: '.ya-grip, label' } );
 
+		// Choices that are always on stay ticked.
+		$( '.yallapp [data-ya-locked]' ).on( 'click', function ( event ) {
+			event.preventDefault();
+		} );
+
 		$( '.yallapp [data-ya-image]' ).each( function () {
 			var box = $( this );
 			var input = box.find( 'input[type=hidden]' );

@@ -591,8 +591,8 @@ class MasterStudy_Adapter extends Base_Adapter {
 			$course_title = get_the_title( $course_id );
 			$quiz_name    = get_the_title( $quiz_id );
 			$message      = sprintf(
-				/* translators: MasterStudy's own quiz email: 1: student, 2: quiz, 3: course, 4: passing grade, 5: result. */
-				esc_html__( '%1$s completed the %2$s on the course %3$s with a Passing grade of %4$s%% and a result of %5$s%%', 'masterstudy-lms-learning-management-system' ), // phpcs:ignore WordPress.WP.I18n.TextDomainMismatch -- MasterStudy's string.
+				/* translators: The quiz email MasterStudy sends (its own wording): 1: student, 2: quiz, 3: course, 4: passing grade, 5: result. */
+				esc_html__( '%1$s completed the %2$s on the course %3$s with a Passing grade of %4$s%% and a result of %5$s%%', 'yallapp' ),
 				$user_login,
 				$quiz_name,
 				$course_title,
@@ -825,8 +825,8 @@ class MasterStudy_Adapter extends Base_Adapter {
 				array(
 					'post_type'    => 'stm-reviews',
 					'post_title'   => wp_strip_all_tags(
-						/* translators: MasterStudy's own review title: 1: course, 2: student. */
-						sprintf( esc_html__( 'Review on %1$s by %2$s', 'masterstudy-lms-learning-management-system' ), get_the_title( $course_id ), $login ) // phpcs:ignore WordPress.WP.I18n.TextDomainMismatch -- MasterStudy's string.
+						/* translators: The review title MasterStudy uses (its own wording): 1: course, 2: student. */
+						sprintf( esc_html__( 'Review on %1$s by %2$s', 'yallapp' ), get_the_title( $course_id ), $login )
 					),
 					'post_content' => $text,
 					'post_status'  => 'pending',
@@ -842,9 +842,9 @@ class MasterStudy_Adapter extends Base_Adapter {
 			$course_title = get_the_title( $course_id );
 			STM_LMS_Helpers::send_email(
 				'admin',
-				esc_html__( 'New Review', 'masterstudy-lms-learning-management-system' ), // phpcs:ignore WordPress.WP.I18n.TextDomainMismatch -- MasterStudy's string.
-				/* translators: MasterStudy's own email: 1: course, 2: student. */
-				sprintf( esc_html__( 'Check out new review on course %1$s by %2$s', 'masterstudy-lms-learning-management-system' ), $course_title, $login ), // phpcs:ignore WordPress.WP.I18n.TextDomainMismatch -- MasterStudy's string.
+				esc_html__( 'New Review', 'yallapp' ),
+				/* translators: The new review email MasterStudy sends (its own wording): 1: course, 2: student. */
+				sprintf( esc_html__( 'Check out new review on course %1$s by %2$s', 'yallapp' ), $course_title, $login ),
 				'stm_lms_new_review',
 				compact( 'course_title', 'login' )
 			);

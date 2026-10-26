@@ -281,7 +281,7 @@ Büyük videolar parça parça yüklenir. Bağlantı koparsa yükleme kendiliği
 
 Bir görselin bağlantısı herkes için çalışır. Bir videonun veya PDF'in bağlantısı ise **Bağlantıyı paylaş**'ı seçmediğiniz sürece yalnızca derslerde açılır. Her dosya yeniden adlandırılabilir; silmek alanını hemen boşaltır ve onu kullanan dersler videosunu kaybeder.
 
-Planınızda çevrimdışı mod varsa, çevrimdışı izleme için indirmeler Medya'daki videolarla çalışır.
+Planınızda çevrimdışı mod varsa, çevrimdışı izleme için indirmeler Medya'daki videolarla çalışır. WordPress'te ise eklenti çevrimdışı indirmelere izin verdiğinde ve lisansınız aktif olduğunda çalışır, çünkü videolar Yallapp'tan gelir.
 
 ## Depolama
 

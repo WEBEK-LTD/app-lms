@@ -22,14 +22,17 @@ info:
     - If the platform can't be reached, the plugin keeps its last known status
       for a 72-hour grace period before treating the license as inactive. The
       grace never goes past the plan's end: from plugin 0.4.6 the plugin
-      compares `expires_at` with its own clock, so the app pauses at the end
-      of the plan even when the site can't reach the platform (roadmap 68).
-    - From plugin 0.4.6 the license is enforced on every site: while it isn't
-      active (ended, suspended, not activated, or 72 hours without an answer)
-      the app's API answers 503 `license_inactive` or `account_suspended`
-      (docs/api/openapi.yaml) and push and offline mode follow the plan. Only
-      a development site (`WP_ENVIRONMENT_TYPE` `local` or `development`) can
-      switch the checks off, with `YALLAPP_ENFORCE_LICENSE` set to false.
+      compares `expires_at` with its own clock (roadmap 68).
+    - The license connects the site to Yallapp's services only. From plugin
+      0.4.18 (WordPress.org guideline 5) nothing the plugin does on the site
+      depends on it: the app's API, push (the site's own Firebase and Huawei
+      keys) and offline downloads work whatever the license's state, and the
+      plugin never answers `license_inactive` or `account_suspended`. While
+      the license isn't active (ended, suspended, not activated, or 72 hours
+      without an answer) only what runs on Yallapp's servers stops: chat,
+      Yallapp media, sign-in codes sent by Yallapp and new layouts. (Plugins
+      0.4.6 to 0.4.17 paused the app's API too, unless a development site set
+      `YALLAPP_ENFORCE_LICENSE` to false; 0.4.18 drops that constant.)
     - When a plan ends, the platform's frequent job (every 5 minutes) asks the
       site to check at once (`POST /license/refresh`), once per end date, so
       the site hears of it within minutes instead of at its next check.
@@ -37,9 +40,9 @@ info:
       Yallapp dashboard, its license is gone for the plugin at once:
       `/licenses/activate`, `/licenses/check`, `/licenses/media`,
       `/apps/layout` and `/sign-in-codes/send` answer 404 `license_not_found`
-      (the plugin then treats the license as invalid and the app pauses), and
-      the platform asks the site to check at once (`POST /license/refresh`),
-      so the app pauses within moments. If Yallapp's team
+      (the plugin then treats the license as invalid, so Yallapp's services
+      stop for it), and the platform asks the site to check at once (`POST
+      /license/refresh`), so that happens within moments. If Yallapp's team
       restores the app within 7 days, the same key works again; after that it
       is deleted with the app.
     - Videos from the app's Media library (tag Media, roadmap 51) play from
@@ -917,9 +920,11 @@ components:
         features:
           type: array
           description: |
-            Plan features the plugin may enable (only while the license is
-            active). `push`: push notifications; `offline_downloads`: offline
-            mode in the app; `auto_publish`: we publish to the stores; `ios`:
+            The plan's features, for Yallapp's own services and the hosted
+            API. The plugin keeps them with the status but turns nothing on or
+            off with them (plugin 0.4.18; earlier plugins gated push and
+            offline mode on them). `push`: push notifications on the hosted
+            API; `offline_downloads`: offline mode on the hosted API; `auto_publish`: we publish to the stores; `ios`:
             the iOS app; `page_editor`: the full page editor (without it the
             app gets the ready-made pages); `card_payments`: card payments in
             the app through Yallapp's payment page; `auto_rebuild`: new builds
@@ -1038,8 +1043,8 @@ components:
             Roadmap 45. Whether students may save lessons for offline viewing,
             as the app's owner chose on the dashboard's Courses page. Null when
             the owner hasn't chosen: the plugin's own "Allow offline downloads"
-            applies. Downloads also need `offline_downloads` in `features`.
-            The plugin serves the result as `Config.features.downloads`.
+            applies. The plugin serves the result as `Config.features.downloads`
+            (from plugin 0.4.18 without looking at `features`).
             Missing on older platforms.
         screen_protection:
           type: [string, 'null']
@@ -1055,9 +1060,10 @@ components:
           type: [string, 'null']
           format: date-time
           description: |
-            When the plan ends. Roadmap 68: from plugin 0.4.6 the plugin pauses
-            the app once this time has passed, even when its last answer said
-            `active` and the platform can't be reached.
+            When the plan ends. Roadmap 68: from plugin 0.4.6 the plugin treats
+            the license as ended once this time has passed, even when its last
+            answer said `active` and the platform can't be reached (from 0.4.18
+            that stops only Yallapp's services, never the app's API).
         checked_at: { type: string, format: date-time }
         message: { type: [string, 'null'], description: Shown to the site admin. }
 

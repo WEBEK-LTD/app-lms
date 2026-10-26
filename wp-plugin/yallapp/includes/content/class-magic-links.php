@@ -23,13 +23,23 @@ class Magic_Links {
 	const APP_VIEW  = 'yallapp_app_view';
 
 	/**
+	 * The style handle for pages opened from the app (registered without a file).
+	 */
+	const STYLE_HANDLE = 'yallapp-app-view';
+
+	/**
+	 * Hides the site's header, footer and admin bar on pages opened from the app.
+	 */
+	const APP_VIEW_CSS = '#wpadminbar,header.site-header,.site-header,#masthead,footer.site-footer,.site-footer,#colophon,.tutor-header,.tutor-footer{display:none!important}html{margin-top:0!important}';
+
+	/**
 	 * Hooks the link handler and the in-app page styling.
 	 *
 	 * @return void
 	 */
 	public function register() {
 		add_action( 'init', array( $this, 'consume' ), 1 );
-		add_action( 'wp_head', array( $this, 'app_view_styles' ), 99 );
+		add_action( 'wp_enqueue_scripts', array( $this, 'app_view_styles' ), 99 );
 	}
 
 	/**
@@ -57,14 +67,20 @@ class Magic_Links {
 	/**
 	 * Signs the user in and redirects, once.
 	 *
+	 * This is not a form submission, so it has no nonce: the link itself is the credential. The
+	 * token is 32 random bytes made by create() for one user after the app signed them in, it is
+	 * stored only as a hash, it works for 5 minutes (TTL) and it is deleted the first time it is
+	 * read, whether or not it was valid. A link that is unknown, used or expired signs no one in
+	 * and only redirects to the home page; the target is checked with wp_validate_redirect().
+	 *
 	 * @return void
 	 */
 	public function consume() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- The token is the credential.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- A one-time signed token, not a form: the token is the credential (see above).
 		if ( empty( $_GET[ self::QUERY_ARG ] ) ) {
 			return;
 		}
-		$token = sanitize_text_field( wp_unslash( $_GET[ self::QUERY_ARG ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$token = sanitize_text_field( wp_unslash( $_GET[ self::QUERY_ARG ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- One-time token, see above.
 		$key   = 'yallapp_link_' . Crypto::hash( $token );
 		$link  = get_transient( $key );
 		delete_transient( $key );
@@ -83,7 +99,8 @@ class Magic_Links {
 	}
 
 	/**
-	 * Hides common site chrome on pages opened from the app.
+	 * Hides common site chrome on pages opened from the app: an inline style added to a
+	 * registered handle without a file, on wp_enqueue_scripts.
 	 *
 	 * @return void
 	 */
@@ -91,6 +108,8 @@ class Magic_Links {
 		if ( empty( $_COOKIE[ self::APP_VIEW ] ) ) {
 			return;
 		}
-		echo '<style id="yallapp-app-view">#wpadminbar,header.site-header,.site-header,#masthead,footer.site-footer,.site-footer,#colophon,.tutor-header,.tutor-footer{display:none!important}html{margin-top:0!important}</style>';
+		wp_register_style( self::STYLE_HANDLE, false, array(), YALLAPP_VERSION );
+		wp_enqueue_style( self::STYLE_HANDLE );
+		wp_add_inline_style( self::STYLE_HANDLE, self::APP_VIEW_CSS );
 	}
 }

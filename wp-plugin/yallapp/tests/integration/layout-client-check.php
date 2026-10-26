@@ -126,7 +126,7 @@ $result = $client->refresh();
 $check( 'layout: 200 stores the layout', 'updated' === $result && $yallapp_layout['version'] === ( $client->layout()['version'] ?? '' ), $result );
 $check( 'layout: refresh runs every 15 minutes', false !== wp_next_scheduled( Layout_Client::HOOK ) && 900 === ( wp_get_schedules()[ Layout_Client::SCHEDULE ]['interval'] ?? 0 ) );
 
-// Leave the layout stored, without a license, for the HTTP checks (licenses aren't enforced on the dev site).
+// Leave the layout stored, without a license, for the HTTP checks (the app's API never needs one).
 $settings->update( array( 'license_key' => '' ) );
 delete_option( 'yallapp_license' );
 

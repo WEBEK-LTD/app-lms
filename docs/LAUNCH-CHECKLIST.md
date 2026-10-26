@@ -889,6 +889,14 @@ never in a chat or an issue.
 
 ## 7r. An ended plan stops the app everywhere (Phase 68)
 
+> **Changed by plugin 0.4.18 (7v, roadmap 76.6).** WordPress.org's review
+> counted the paused API as trialware, so from 0.4.18 the plugin never pauses
+> the app's API and never limits push or offline downloads by license or
+> plan. On WordPress an ended plan stops only Yallapp's services (app builds
+> and updates, chat, Yallapp media, new layouts, sign-in codes sent by
+> Yallapp). The WordPress items below are kept for sites still on 0.4.6 to
+> 0.4.17; skip them once clients are on 0.4.18. The hosted API is unchanged.
+
 - [ ] Apply migration `0049_license_end_refresh.sql` after `0048`
       (`end_refreshed_for` on `licenses`). Deploy the platform after it: the
       frequent job reads that column (until it exists, only that part of the
@@ -915,7 +923,8 @@ never in a chat or an issue.
         (firewalls blocking outgoing requests); "Check now" brings it back.
       - Development copies set `WP_ENVIRONMENT_TYPE` to `local` (or
         `development`) and `define( 'YALLAPP_ENFORCE_LICENSE', false );` to
-        work without a license; it is ignored on live sites.
+        work without a license; it is ignored on live sites. (0.4.18 drops
+        the constant: no site needs it any more.)
 - [ ] What app users see when a plan ends, on every backend: the paused
       screen with "Contact {App}" and "Try again"; someone signed in can
       still delete their account there. Someone not signed in can't sign in
@@ -1062,6 +1071,18 @@ never in a chat or an issue.
 - [ ] From then on, every plugin release goes to WordPress.org's SVN (and
       may still go to Admin › Plugin releases for the dashboard's download
       button).
+- [ ] **Plugin 0.4.18** (roadmap 76.6, the review of 0.4.8): upload the zip
+      from the merged change to the review and answer the review team's email
+      (the draft is in the change's report). What changed for them: nothing
+      in the plugin depends on a license or plan any more (guideline 5), the
+      app-view style is enqueued, MasterStudy strings use the `yallapp` text
+      domain, and the one-time sign-in and checkout links say why they have
+      no nonce. Release 0.4.18 in Admin › Plugin releases too.
+- [ ] Tell WordPress clients what 0.4.18 changes: when a plan ends, their
+      app keeps reading their site (courses, products, bookings, posts, push
+      through their own Firebase), and only Yallapp's services stop (app
+      updates in the stores, chat, Yallapp media, new layouts, sign-in codes
+      sent by Yallapp). Settings › License says so.
 
 ## 7w. Chat in the app (Phase 77)
 

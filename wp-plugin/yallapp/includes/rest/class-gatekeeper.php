@@ -15,11 +15,10 @@ use WP_REST_Server;
 use Yallapp\Plugin;
 
 /**
- * Blocks the app API during maintenance, when it is switched off or the license is
- * inactive (`/config` stays reachable so the app can explain why, and 31 the platform's
- * `/license/refresh` so a renewed plan reaches the site; 68 while paused, a signed-in
- * student can still renew their session, sign out and delete their account), and adds
- * the plugin version header to every response.
+ * Answers 503 `maintenance` while the site's owner has the app API switched off or in
+ * maintenance in the plugin settings (`/config` stays reachable so the app can explain why, and
+ * 31 the platform's `/license/refresh` so new settings reach the site), and adds the plugin
+ * version header to every response. The API never depends on the Yallapp license or a plan.
  */
 class Gatekeeper {
 
@@ -27,13 +26,6 @@ class Gatekeeper {
 	 * Routes that stay reachable.
 	 */
 	const ALWAYS_OPEN = array( '/yallapp/v1/config', '/yallapp/v1/license/refresh' );
-
-	/**
-	 * 68 What a paused app still answers (its plan ended, or the owner's account is suspended):
-	 * a student who is signed in can always delete their account (the stores require it), so
-	 * the session can be renewed, ended, and the account deleted. Signing in stays paused.
-	 */
-	const OPEN_WHILE_PAUSED = array( 'POST /yallapp/v1/auth/refresh', 'POST /yallapp/v1/auth/logout', 'DELETE /yallapp/v1/me' );
 
 	/**
 	 * Plugin.
@@ -75,21 +67,10 @@ class Gatekeeper {
 			return $result;
 		}
 		$reason = $this->blocked_reason();
-		if ( $reason && ! ( isset( $reason['contact'] ) && self::open_while_paused( $request->get_method(), $route ) ) ) {
-			return Controller::error( $reason['code'], $reason['message'], 503, isset( $reason['contact'] ) ? array( 'contact' => $reason['contact'] ) : array() );
+		if ( $reason ) {
+			return Controller::error( $reason['code'], $reason['message'], 503 );
 		}
 		return $result;
-	}
-
-	/**
-	 * 68 Whether a request still answers while the app is paused (OPEN_WHILE_PAUSED). Pure.
-	 *
-	 * @param string $method HTTP method.
-	 * @param string $route  REST route, e.g. `/yallapp/v1/me`.
-	 * @return bool
-	 */
-	public static function open_while_paused( $method, $route ) {
-		return in_array( strtoupper( (string) $method ) . ' ' . rtrim( (string) $route, '/' ), self::OPEN_WHILE_PAUSED, true );
 	}
 
 	/**
@@ -127,11 +108,10 @@ class Gatekeeper {
 	}
 
 	/**
-	 * Why the API is unavailable, or null. A paused app (`license_inactive`, or
-	 * `account_suspended` when the owner's Yallapp account is suspended) names the app and
-	 * carries the owner's contact, so the app can say who can bring it back.
+	 * Why the API is unavailable, or null: only the owner's own switches in the plugin settings
+	 * (the app API turned off, or maintenance mode).
 	 *
-	 * @return array{code: string, message: string, contact?: array}|null
+	 * @return array{code: string, message: string}|null
 	 */
 	public function blocked_reason() {
 		$settings = $this->plugin->settings();
@@ -142,28 +122,6 @@ class Gatekeeper {
 				'message' => '' !== $message ? $message : __( 'The app is being updated. Please try again soon.', 'yallapp' ),
 			);
 		}
-		if ( ! $this->plugin->license()->allows_api() ) {
-			// 68 Where the license stands now: an ended plan is `expired` even before the platform says so.
-			return self::paused( $this->plugin->license()->state(), $this->contact() );
-		}
 		return null;
-	}
-
-	/**
-	 * The error of a paused app: its plan isn't active (`license_inactive`), or the owner's
-	 * Yallapp account is suspended (`account_suspended`). Never says "academy": every app
-	 * type uses its own name.
-	 *
-	 * @param string $license_status The license status from the platform.
-	 * @param array  $contact        OwnerContact.
-	 * @return array{code: string, message: string, contact: array}
-	 */
-	public static function paused( $license_status, array $contact ) {
-		return array(
-			'code'    => 'suspended' === $license_status ? 'account_suspended' : 'license_inactive',
-			/* translators: %1$s: the app's name. */
-			'message' => sprintf( __( '%1$s is paused right now. Please contact %1$s to bring it back.', 'yallapp' ), $contact['name'] ),
-			'contact' => $contact,
-		);
 	}
 }

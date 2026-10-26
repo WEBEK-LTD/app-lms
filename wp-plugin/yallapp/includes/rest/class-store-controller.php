@@ -25,6 +25,8 @@ class Store_Controller extends Controller {
 	 * @return void
 	 */
 	public function register_routes() {
+		// Public, as the shop is on the website: guests browse, price a cart and check out. A
+		// checkout link carries the signed-in customer only when the request has their token.
 		$open = '__return_true';
 		$this->route(
 			'/store/home',

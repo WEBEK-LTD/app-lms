@@ -91,7 +91,7 @@ class News_Controller extends Controller {
 		return self::config_of(
 			(bool) $settings->get( 'news_show_author' ),
 			(bool) $settings->get( 'news_show_dates' ),
-			(bool) $settings->get( 'notify_new_post' ) && $plugin->push()->is_configured() && $plugin->license()->has_feature( 'push' )
+			(bool) $settings->get( 'notify_new_post' ) && $plugin->push()->is_configured()
 		);
 	}
 

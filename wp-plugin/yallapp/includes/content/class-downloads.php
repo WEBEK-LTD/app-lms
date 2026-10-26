@@ -43,7 +43,7 @@ class Downloads {
 	private $settings;
 
 	/**
-	 * License (the plan and the owner's choice on the dashboard).
+	 * License status, for the owner's choice on the Yallapp dashboard.
 	 *
 	 * @var License_Client|null
 	 */
@@ -70,14 +70,12 @@ class Downloads {
 	}
 
 	/**
-	 * Whether downloads are on: the plan includes offline mode and the owner turned them on.
+	 * Whether downloads are on: the owner turned them on (the plugin's setting, or the choice
+	 * they made on the Yallapp dashboard). No license or plan is needed.
 	 *
 	 * @return bool
 	 */
 	public function enabled() {
-		if ( $this->license && ! $this->license->has_feature( 'offline_downloads' ) ) {
-			return false;
-		}
 		$choice = $this->license && $this->license->has_key() ? ( $this->license->status()['offline_downloads'] ?? null ) : null;
 		return self::choice( $choice, (bool) $this->settings->get( 'offline_downloads' ) );
 	}

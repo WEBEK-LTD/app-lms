@@ -31,6 +31,7 @@ class Bookings_Controller extends Controller {
 	 * @return void
 	 */
 	public function register_routes() {
+		// Public reads, as on the website; booking and anything about a person needs their token.
 		$open = '__return_true';
 		$auth = array( $this, 'require_user' );
 		$this->route(

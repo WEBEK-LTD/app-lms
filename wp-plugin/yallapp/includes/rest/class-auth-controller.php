@@ -25,6 +25,8 @@ class Auth_Controller extends Controller {
 	 * @return void
 	 */
 	public function register_routes() {
+		// Signing in is public by nature: these routes are how app users prove who they are (a
+		// rate-limited code, or their WordPress password). Everything else needs the app's token.
 		$device = array(
 			'type'     => 'object',
 			'required' => true,

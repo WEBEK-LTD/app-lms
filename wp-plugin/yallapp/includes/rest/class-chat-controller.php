@@ -49,7 +49,9 @@ class Chat_Controller extends Controller {
 	}
 
 	/**
-	 * `Config.chat`, or null when the app has no chat (its plan, or the owner turned it off).
+	 * `Config.chat`, or null when the app has no chat. Chat is a Yallapp service that runs on
+	 * Yallapp's servers, so it needs the site's connection to Yallapp: an active license and
+	 * the chat's address Yallapp sent with it (none when the owner turned chat off).
 	 *
 	 * @param \Yallapp\Plugin $plugin Plugin.
 	 * @return array{base_url: string, session: string, groups: bool}|null
@@ -57,7 +59,7 @@ class Chat_Controller extends Controller {
 	public static function config( $plugin ) {
 		$license = $plugin->license();
 		$chat    = $license->status()['chat'] ?? null;
-		if ( ! is_array( $chat ) || ! $license->has_feature( 'chat' ) ) {
+		if ( ! is_array( $chat ) || ! $license->is_active() ) {
 			return null;
 		}
 		return array(

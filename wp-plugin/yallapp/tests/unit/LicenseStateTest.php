@@ -1,8 +1,8 @@
 <?php
 /**
- * 68 An ended plan stops the app: the license is enforced by default, a passed `expires_at`
- * pauses the app even when the platform can't be reached, and the 72-hour grace only covers
- * network failures before the plan's end.
+ * 68 Where the license stands: a passed `expires_at` ends the plan even when the platform can't
+ * be reached, and the 72-hour grace only covers network failures before the plan's end. The
+ * license only connects the site to Yallapp's services: the plugin works in every state.
  *
  * @package Yallapp
  */
@@ -24,21 +24,6 @@ class LicenseStateTest extends TestCase {
 			),
 			$patch
 		);
-	}
-
-	public function test_enforced_by_default_everywhere() {
-		$this->assertTrue( License_Client::enforcement( null, 'production' ) );
-		$this->assertTrue( License_Client::enforcement( null, 'local' ) );
-		$this->assertTrue( License_Client::enforcement( true, 'staging' ) );
-		$this->assertTrue( License_Client::enforcement( true, 'development' ) );
-	}
-
-	public function test_only_a_development_site_turns_it_off() {
-		$this->assertFalse( License_Client::enforcement( false, 'local' ) );
-		$this->assertFalse( License_Client::enforcement( false, 'development' ) );
-		$this->assertTrue( License_Client::enforcement( false, 'production' ) );
-		$this->assertTrue( License_Client::enforcement( false, 'staging' ) );
-		$this->assertTrue( License_Client::enforcement( false, '' ) );
 	}
 
 	public function test_active_until_the_end_date() {
@@ -82,14 +67,21 @@ class LicenseStateTest extends TestCase {
 	}
 
 	public function test_the_settings_page_says_where_the_app_stands() {
-		$this->assertSame( 'The app is running. Your plan is active until 20 Nov 2026.', Settings_Page::license_state_text( 'active', '20 Nov 2026' ) );
+		$this->assertSame( 'This site is connected to Yallapp\'s services. Your plan is active until 20 Nov 2026.', Settings_Page::license_state_text( 'active', '20 Nov 2026' ) );
 		$ended = Settings_Page::license_state_text( 'expired', '20 Oct 2026' );
-		$this->assertStringContainsString( 'Your plan ended on 20 Oct 2026, so the app is paused for everyone', $ended );
+		$this->assertStringContainsString( 'Your Yallapp plan ended on 20 Oct 2026, so Yallapp\'s services for this app', $ended );
 		$this->assertStringContainsString( 'Renew the plan on yallapp.com.tr', $ended );
 		$this->assertStringContainsString( 'suspended', Settings_Page::license_state_text( 'suspended', '' ) );
 		$this->assertStringContainsString( 'over 3 days', Settings_Page::license_state_text( 'unreachable', '' ) );
+		$this->assertStringContainsString( 'The plugin works without a license.', Settings_Page::license_state_text( 'none', '' ) );
 		foreach ( array( 'active', 'expired', 'suspended', 'unreachable', 'none', 'invalid' ) as $state ) {
-			$this->assertStringNotContainsString( 'Test mode', Settings_Page::license_state_text( $state, '1 Jan 2027' ) );
+			$text = Settings_Page::license_state_text( $state, '1 Jan 2027' );
+			$this->assertStringNotContainsString( 'Test mode', $text );
+			// Nothing on the site stops: no state pauses the app.
+			$this->assertStringNotContainsString( 'paused', $text );
+		}
+		foreach ( array( 'expired', 'suspended', 'unreachable', 'invalid' ) as $state ) {
+			$this->assertStringContainsString( 'Everything the plugin does on this site keeps working.', Settings_Page::license_state_text( $state, '' ) );
 		}
 	}
 }

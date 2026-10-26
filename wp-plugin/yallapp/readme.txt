@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.17
+Stable tag: 0.4.18
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,11 +17,18 @@ branded Android and iOS apps. This plugin exposes your courses, lessons,
 quizzes, products, bookings, posts and sign-in to your Yallapp apps through
 a secure REST API (`/wp-json/yallapp/v1`).
 
-**A Yallapp account is required.** Yallapp builds and publishes the apps and
-runs the services below, on a paid plan; the plugin connects your site to
-it with your app's license key from your [Yallapp dashboard](https://yallapp.com.tr/dashboard).
-Without an active plan, the settings page works and the app shows that it is
-paused. Learn more at [yallapp.com.tr](https://yallapp.com.tr).
+**The plugin is free and fully functional.** It never limits its own features
+by a license, plan, trial or date: the REST API, sign-in with website passwords
+or Digits, push notifications through your own Firebase or Huawei keys, offline
+downloads and every setting work whatever the state of your Yallapp account.
+
+A Yallapp account is needed only for the services Yallapp runs on its own
+servers: building and publishing your Android and iOS apps, the chat, videos in
+Yallapp Media, the pages and look you design in the Yallapp dashboard, and
+sign-in codes sent by Yallapp (see External services). The plugin connects your
+site to them with your app's license key from your
+[Yallapp dashboard](https://yallapp.com.tr/dashboard). Learn more at
+[yallapp.com.tr](https://yallapp.com.tr).
 
 Works with Tutor LMS (Free and Pro), LearnPress, LifterLMS, MasterStudy LMS,
 Sensei LMS and Masteriyo. Sign-in codes are sent by Yallapp on WhatsApp, or by
@@ -68,7 +75,9 @@ paste a license key, except where noted.
 
 = Yallapp (yallapp.com.tr) =
 
-Yallapp is the service that builds and runs your apps; the plugin needs it to work.
+Yallapp builds and publishes your apps and runs the services below on its own
+servers. The plugin's REST API and settings work without it; these features
+need it because they happen on Yallapp's servers.
 
 * License checks (when you activate the key, every 12 hours, and when your Yallapp
   dashboard asks the site to check again): the license key, your site's address,
@@ -121,6 +130,11 @@ Terms: https://developer.huawei.com/consumer/en/devservice/term
 Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 
 == Changelog ==
+
+= 0.4.18 =
+* Nothing in the plugin depends on a license or plan any more: the app's API, push notifications and offline downloads work whatever the state of your Yallapp license. The license only connects your site to the services Yallapp runs (app builds and updates, chat, Yallapp Media, the pages from your dashboard and sign-in codes sent by Yallapp), and the License card says so.
+* Pages opened from the app hide the site's header and footer with an enqueued style, and the settings page's always-on choices are handled by its script.
+* MasterStudy LMS quiz and review emails sent from the app use the plugin's own translations.
 
 = 0.4.17 =
 * Returns from the app: set how many days after an order is completed customers may ask to return it (Settings › Store app). They choose a reason and add a note in the app; you get an email and see the request on the order, approve or decline it there with a reply, and the customer is told in the app. Refunds stay in WooCommerce.

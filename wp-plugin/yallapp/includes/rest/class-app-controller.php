@@ -58,16 +58,12 @@ class App_Controller extends Controller {
 	 * @return \WP_REST_Response
 	 */
 	public function config( WP_REST_Request $request ) {
-		$settings = $this->plugin->settings();
-		$platform = (string) $request['platform'];
-		$gate     = new Gatekeeper( $this->plugin );
-		$blocked  = $gate->blocked_reason();
-		if ( $blocked && in_array( $blocked['code'], array( 'license_inactive', 'account_suspended' ), true ) ) {
-			return self::error( $blocked['code'], $blocked['message'], 503, array( 'contact' => $blocked['contact'] ) );
-		}
+		$settings       = $this->plugin->settings();
+		$platform       = (string) $request['platform'];
+		$gate           = new Gatekeeper( $this->plugin );
+		$blocked        = $gate->blocked_reason();
 		$contact        = $gate->contact();
-		$license        = $this->plugin->license();
-		$license_status = $license->status();
+		$license_status = $this->plugin->license()->status();
 
 		$lms        = $this->plugin->lms();
 		$features   = $lms ? $lms->features() : array();
@@ -106,10 +102,11 @@ class App_Controller extends Controller {
 					'wishlist'     => ! empty( $features['wishlist'] ),
 					'reviews'      => ! empty( $features['reviews'] ),
 					'qna'          => ! empty( $features['qna'] ),
-					// The app's plan decides push and offline mode (license features).
-					'push'         => $this->plugin->push()->is_configured() && $license->has_feature( 'push' ),
-					'offline'      => $license->has_feature( 'offline_downloads' ),
-					// 45 Lessons saved for offline viewing: the plan and the owner's choice.
+					// Push works once the site's own Firebase or Huawei keys are set up.
+					'push'         => $this->plugin->push()->is_configured(),
+					// The app keeps what the user last saw to show it without a connection.
+					'offline'      => true,
+					// 45 Lessons saved for offline viewing: the owner's choice.
 					'downloads'    => $lms && $this->plugin->downloads()->enabled(),
 					'orders'       => $lms ? $lms->sells_courses() : \Yallapp\Commerce\Woo_Orders::available(),
 					// 90.3 Memberships, subscriptions and groups on the website.
