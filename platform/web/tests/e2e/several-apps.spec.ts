@@ -204,6 +204,12 @@ test("each app shows its own plan, and (75) no license key without WordPress", a
   await expect(own.getByLabel("License key")).toHaveCount(0);
   await expect(planRegion()).toContainText("Starter");
   await expect(planRegion()).toContainText("Maple Bookings");
+  // 94.1 Every app of the account with its own plan, this one marked.
+  const apps = own.getByRole("region", { name: "What you pay for" }).locator("[data-account-app]");
+  await expect(apps).toHaveCount(2);
+  await expect(apps.filter({ hasText: "(This app)" })).toContainText("Maple Bookings");
+  await expect(apps.filter({ hasText: "(This app)" })).toContainText("Starter");
+  await expect(apps.filter({ hasNotText: "Maple Bookings" })).toContainText("Pro");
 });
 
 test("a card payment for one app doesn't change the other", async () => {

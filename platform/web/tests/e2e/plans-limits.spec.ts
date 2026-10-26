@@ -206,6 +206,18 @@ test("a Starter app on the hosted API: ready-made pages, one language, usage and
   await expect(features.locator("[data-upgrade-hint]").filter({ hasText: "iOS app" }).getByRole("link", { name: "Upgrade to Growth" })).toBeVisible();
   await expect(features.locator("[data-upgrade-hint]").filter({ hasText: "We publish for you" }).getByRole("link", { name: "Upgrade to Pro" })).toBeVisible();
 
+  // 94.1 What you pay for: the plan's limits with what the app uses, what it includes, and what is on a higher plan.
+  await own.goto("/dashboard/license");
+  const usage = own.getByRole("region", { name: "What you pay for" });
+  await expect(usage).toContainText(/^What you pay forStarter for .+:/);
+  await expect(usage.locator('[data-usage-row="app_users"]')).toContainText("0 of 2");
+  await expect(usage.locator('[data-usage-row="languages"]')).toContainText("1 of 1");
+  await expect(usage.locator('[data-usage-row="languages"]')).toHaveAttribute("data-level", "full");
+  await expect(usage.locator('[data-usage-row="storage"]')).toContainText(/0 B of [\d.]+ GB/);
+  await expect(usage.locator('[data-usage-row="analytics"]')).toContainText("months");
+  await expect(usage).toContainText("Push notifications");
+  await expect(usage).toContainText("iOS app · Growth");
+
   // The page editor: ready-made pages only.
   await own.goto("/dashboard/pages");
   await expect(own.getByRole("tab", { name: "Look" })).toHaveAttribute("aria-selected", "true");

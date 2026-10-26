@@ -1082,6 +1082,11 @@ nothing is submitted there, and the review's email needs no answer.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **What you pay for** (94.1): no migration. After deploying: a test
+      app's Plan page shows its plan and price, app users, languages and
+      storage against the plan with bars, what's included and what a higher
+      plan adds; an account with two apps lists both with their plans. The
+      same in Arabic and Turkish.
 - [ ] **Needs your attention** (93.3): no migration. After deploying: on a
       test app whose build failed, the overview lists "Build #… didn't
       finish." with Fix it and the menu shows 1 next to Overview; a new
