@@ -1034,4 +1034,16 @@
 {"key":"courseMembershipTitle","en":"For members","ar":"للأعضاء","tr":"Üyelere özel"},
 {"key":"courseMembershipPlans","en":"This course comes with a membership on our website: {plans}.","ar":"هذه الدورة ضمن عضوية على موقعنا: {plans}.","tr":"Bu kurs web sitemizdeki bir üyelikle birlikte gelir: {plans}.","placeholders":{"plans":"String"}},
 {"key":"courseMembershipAny","en":"This course comes with a membership on our website.","ar":"هذه الدورة ضمن عضوية على موقعنا.","tr":"Bu kurs web sitemizdeki bir üyelikle birlikte gelir."},
-{"key":"courseMembershipWebsite","en":"See memberships on the website","ar":"عرض العضويات على الموقع","tr":"Üyelikleri web sitesinde gör"}]}
+{"key":"courseMembershipWebsite","en":"See memberships on the website","ar":"عرض العضويات على الموقع","tr":"Üyelikleri web sitesinde gör"},
+{"key":"couponHave","en":"Have a coupon?","ar":"لديك كوبون؟","tr":"Kuponunuz mu var?","description":"91.1 The cart's button that shows the coupon field."},
+{"key":"couponCode","en":"Coupon code","ar":"رمز الكوبون","tr":"Kupon kodu"},
+{"key":"couponApply","en":"Apply","ar":"تطبيق","tr":"Uygula"},
+{"key":"couponRemove","en":"Remove coupon","ar":"إزالة الكوبون","tr":"Kuponu kaldır"},
+{"key":"couponApplied","en":"{code} applied","ar":"تم تطبيق {code}","tr":"{code} uygulandı","description":"91.1 Under the coupon in the cart when it takes money off.","placeholders":{"code":"String"}},
+{"key":"couponAtCheckout","en":"{code} is applied at checkout.","ar":"يُطبَّق {code} عند الدفع.","tr":"{code} ödeme adımında uygulanır.","description":"91.1 The shop checks coupons only on its own checkout.","placeholders":{"code":"String"}},
+{"key":"couponNotApplied","en":"{code} doesn't apply.","ar":"لا ينطبق {code}.","tr":"{code} geçerli değil.","description":"91.1 Shown when the shop gives no reason.","placeholders":{"code":"String"}},
+{"key":"cartDiscount","en":"Discount","ar":"الخصم","tr":"İndirim"},
+{"key":"cartShipping","en":"Shipping","ar":"الشحن","tr":"Kargo"},
+{"key":"cartTaxes","en":"Taxes","ar":"الضرائب","tr":"Vergiler"},
+{"key":"cartTotal","en":"Total","ar":"الإجمالي","tr":"Toplam"},
+{"key":"plusShippingAtCheckout","en":"Plus shipping and taxes at checkout.","ar":"يُضاف الشحن والضرائب عند الدفع.","tr":"Kargo ve vergiler ödeme adımında eklenir.","description":"91.1 Under the cart's total when the checkout still adds to it."}]}

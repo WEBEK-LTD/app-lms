@@ -10,6 +10,31 @@ import type { Lang } from "@/i18n/config";
  * its code names left out (tests/unit/phase62.test.ts lists those missing).
  */
 export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: string }> = {
+  "91.1 The cart's button that shows the coupon field.": {
+    en: "The cart's button that shows the field for a coupon code.",
+    ar: "زر السلة الذي يُظهر خانة رمز الكوبون.",
+    tr: "Sepette kupon kodu alanını gösteren düğme.",
+  },
+  "91.1 Under the coupon in the cart when it takes money off.": {
+    en: "Under the coupon in the cart when it takes money off the order.",
+    ar: "تحت الكوبون في السلة عندما يخصم من الطلب.",
+    tr: "Sepetteki kuponun altında, siparişten indirim yaptığında.",
+  },
+  "91.1 The shop checks coupons only on its own checkout.": {
+    en: "Under the coupon in the cart when your shop checks coupons only on its own checkout page.",
+    ar: "تحت الكوبون في السلة عندما يتحقق متجرك من الكوبونات في صفحة الدفع فقط.",
+    tr: "Mağazanız kuponları yalnızca kendi ödeme sayfasında kontrol ettiğinde sepetteki kuponun altında.",
+  },
+  "91.1 Shown when the shop gives no reason.": {
+    en: "Under a coupon that doesn't apply, when the shop gives no reason.",
+    ar: "تحت كوبون لا ينطبق، عندما لا يذكر المتجر السبب.",
+    tr: "Geçerli olmayan bir kuponun altında, mağaza bir neden belirtmediğinde.",
+  },
+  "91.1 Under the cart's total when the checkout still adds to it.": {
+    en: "Under the cart's total when shipping or taxes are still added at checkout.",
+    ar: "تحت إجمالي السلة عندما يُضاف الشحن أو الضرائب عند الدفع.",
+    tr: "Kargo veya vergiler ödeme adımında eklenecekse sepet toplamının altında.",
+  },
   "90.3 The account item and screen listing the student's memberships, subscriptions and groups on the website.": {
     en: "The account item and screen that list the student's memberships, subscriptions and groups on your website.",
     ar: "عنصر الحساب والشاشة اللذان يعرضان عضويات الطالب واشتراكاته ومجموعاته على موقعك.",

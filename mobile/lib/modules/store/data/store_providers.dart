@@ -55,11 +55,30 @@ final productReviewsProvider = NotifierProvider.autoDispose
       ProductReviewsController.new,
     );
 
-/// The cart as the shop prices it now. Reloads when the cart changes.
+/// 91.1 The coupon code the customer typed in the cart; null without one.
+class CartCouponController extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void set(String? code) {
+    final value = code?.trim().replaceAll(RegExp(r'\s+'), '').toUpperCase();
+    state = value == null || value.isEmpty ? null : value;
+  }
+}
+
+final cartCouponProvider = NotifierProvider<CartCouponController, String?>(
+  CartCouponController.new,
+);
+
+/// The cart as the shop prices it now, with the customer's coupon. Reloads
+/// when the cart or the coupon changes.
 final cartQuoteProvider = FutureProvider.autoDispose<CartQuote?>((ref) {
   final items = ref.watch(cartProvider);
+  final coupon = ref.watch(cartCouponProvider);
   if (items.isEmpty) return Future.value();
-  return ref.contentApi.quoteCart([for (final i in items) i.toInput()]);
+  return ref.contentApi.quoteCart([
+    for (final i in items) i.toInput(),
+  ], coupon: coupon);
 });
 
 /// 26 Whether a restaurant's kitchen is open now and the times an order can

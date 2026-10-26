@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.14
+Stable tag: 0.4.15
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -121,6 +121,9 @@ Terms: https://developer.huawei.com/consumer/en/devservice/term
 Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 
 == Changelog ==
+
+= 0.4.15 =
+* Coupons in the app's cart: customers type a WooCommerce coupon code, the cart checks it with your coupon rules and shows the discount and the total so far, and your checkout applies it. Coupons limited to some customers are checked on your checkout.
 
 = 0.4.14 =
 * Memberships from your website in the app: a course that needs a Paid Memberships Pro level says which plans open it, can't be joined from the app without one, opens in one tap for members, and closes when their membership ends. Students see their memberships, WooCommerce subscriptions and LearnDash groups under Account › My memberships. Sold and managed on your website only.

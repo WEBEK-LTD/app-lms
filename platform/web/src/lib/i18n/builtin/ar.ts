@@ -568,4 +568,10 @@ export const SERVER_MESSAGES_AR: Record<string, string> = {
   "Your membership has no classes left.": "لم يتبقَّ في عضويتك أي حصص.",
   "Your session has ended. Please sign in again.": "انتهت جلستك. يُرجى تسجيل الدخول مرة أخرى.",
   "Your verification has expired. Please start again.": "انتهت صلاحية التحقق. يُرجى البدء من جديد.",
+  "This coupon doesn't exist.": "هذا الكوبون غير موجود.",
+  "This coupon has expired.": "انتهت صلاحية هذا الكوبون.",
+  "This coupon has been used up.": "استُنفد هذا الكوبون.",
+  "This coupon is for orders of {0} or more.": "هذا الكوبون للطلبات بقيمة {0} أو أكثر.",
+  "Enter this code at checkout.": "أدخل هذا الرمز عند الدفع.",
+  "This code goes with your order to the checkout.": "يُرسَل هذا الرمز مع طلبك إلى صفحة الدفع.",
 };

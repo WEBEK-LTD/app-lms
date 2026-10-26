@@ -1085,6 +1085,13 @@ never in a chat or an issue.
 - [ ] After deploying: on a test academy on Pro, write from the app (or the
       hosted API), answer from Dashboard › Chat, turn course groups on and
       see the course's group; the same page in Arabic and Turkish.
+- [ ] **Coupons** (91.1): migration `0079_catalog_coupons.sql` (a new table
+      and two columns on `catalog_orders`) goes with the production deploy,
+      migrations first; plugin 0.4.15. After deploying: on a test shop
+      without a website, add a coupon on Products › Coupons, apply it in the
+      app's cart, pay and see it on Orders with one use counted; on a
+      WooCommerce test site, a WooCommerce coupon in the app's cart shows its
+      discount and is on the checkout.
 - [ ] **Memberships from the site** (90.3): plugin 0.4.14. On a test site
       with Paid Memberships Pro, a course set to "Require membership": the
       app names the plan, a member joins it in one tap, and Account › My

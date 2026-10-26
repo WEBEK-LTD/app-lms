@@ -3937,4 +3937,46 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get courseMembershipWebsite => 'عرض العضويات على الموقع';
+
+  @override
+  String get couponHave => 'لديك كوبون؟';
+
+  @override
+  String get couponCode => 'رمز الكوبون';
+
+  @override
+  String get couponApply => 'تطبيق';
+
+  @override
+  String get couponRemove => 'إزالة الكوبون';
+
+  @override
+  String couponApplied(String code) {
+    return 'تم تطبيق $code';
+  }
+
+  @override
+  String couponAtCheckout(String code) {
+    return 'يُطبَّق $code عند الدفع.';
+  }
+
+  @override
+  String couponNotApplied(String code) {
+    return 'لا ينطبق $code.';
+  }
+
+  @override
+  String get cartDiscount => 'الخصم';
+
+  @override
+  String get cartShipping => 'الشحن';
+
+  @override
+  String get cartTaxes => 'الضرائب';
+
+  @override
+  String get cartTotal => 'الإجمالي';
+
+  @override
+  String get plusShippingAtCheckout => 'يُضاف الشحن والضرائب عند الدفع.';
 }

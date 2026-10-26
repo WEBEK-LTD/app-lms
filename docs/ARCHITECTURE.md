@@ -2319,6 +2319,25 @@ tries the next week), and the send's row is removed. WordPress campaigns go
 to everyone (the platform doesn't know the site's people); a page of the
 app opens on the site's links (`<site>/a/page/<slug>`).
 
+## Shops, complete (Phase 91)
+
+- **Coupons and the cart's total** (91.1, `lib/catalog/coupons.ts`):
+  `catalog_coupons` (migration 0079, a code once per app) holds a percentage
+  or an amount off the products, with an optional minimum order, last day
+  and number of uses; `catalog_orders.coupon_code` and `discount_cents` keep
+  what an order used. `POST /store/cart` takes `coupon` and answers the
+  coupon's status, the discount, shipping, taxes and `total`, with
+  `total_final` false when the checkout still adds to it (a restaurant's
+  delivery, a connected platform's shipping). The payment page charges the
+  total less the discount, spread over the lines for the providers
+  (`spreadDiscount`); a paid order counts one use in one statement
+  (`used_count < max_uses`), so the last use goes once. WooCommerce sites
+  check the code with WooCommerce's own rules (`Store\Coupon_Quote`;
+  coupons limited to products, emails or uses per customer say
+  `at_checkout`) and the checkout link applies it to the cart. Connected
+  platforms answer `at_checkout`; Shopify carries the code in `cartCreate`'s
+  `discountCodes`.
+
 ## Academies, complete (Phase 90)
 
 - **Without a website** (90.1, `lib/courses/learning.ts`,

@@ -585,9 +585,13 @@ class FakeApi implements YallappApi {
   Map<String, dynamic> cartQuote = cartQuoteJson();
   List<CartLineInput>? lastCartLines;
 
+  /// 91.1 The coupon of the last quote or checkout.
+  String? lastCoupon;
+
   @override
-  Future<CartQuote> quoteCart(List<CartLineInput> lines) {
+  Future<CartQuote> quoteCart(List<CartLineInput> lines, {String? coupon}) {
     lastCartLines = lines;
+    lastCoupon = coupon;
     return _answer('quoteCart', () => CartQuote.fromJson(cartQuote));
   }
 
@@ -609,8 +613,10 @@ class FakeApi implements YallappApi {
     FulfilmentType? fulfilment,
     DeliveryAddress? deliveryAddress,
     DateTime? scheduledFor,
+    String? coupon,
   }) {
     lastCartLines = lines;
+    lastCoupon = coupon;
     lastStoreCheckout = (deliveryDate: deliveryDate, giftMessage: giftMessage);
     lastFulfilment = (
       fulfilment: fulfilment,

@@ -1036,5 +1036,17 @@
   "courseMembershipTitle": "للأعضاء",
   "courseMembershipPlans": "هذه الدورة ضمن عضوية على موقعنا: {plans}.",
   "courseMembershipAny": "هذه الدورة ضمن عضوية على موقعنا.",
-  "courseMembershipWebsite": "عرض العضويات على الموقع"
+  "courseMembershipWebsite": "عرض العضويات على الموقع",
+  "couponHave": "لديك كوبون؟",
+  "couponCode": "رمز الكوبون",
+  "couponApply": "تطبيق",
+  "couponRemove": "إزالة الكوبون",
+  "couponApplied": "تم تطبيق {code}",
+  "couponAtCheckout": "يُطبَّق {code} عند الدفع.",
+  "couponNotApplied": "لا ينطبق {code}.",
+  "cartDiscount": "الخصم",
+  "cartShipping": "الشحن",
+  "cartTaxes": "الضرائب",
+  "cartTotal": "الإجمالي",
+  "plusShippingAtCheckout": "يُضاف الشحن والضرائب عند الدفع."
 }

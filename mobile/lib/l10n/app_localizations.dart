@@ -6321,6 +6321,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'See memberships on the website'**
   String get courseMembershipWebsite;
+
+  /// 91.1 The cart's button that shows the coupon field.
+  ///
+  /// In en, this message translates to:
+  /// **'Have a coupon?'**
+  String get couponHave;
+
+  /// No description provided for @couponCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon code'**
+  String get couponCode;
+
+  /// No description provided for @couponApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get couponApply;
+
+  /// No description provided for @couponRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove coupon'**
+  String get couponRemove;
+
+  /// 91.1 Under the coupon in the cart when it takes money off.
+  ///
+  /// In en, this message translates to:
+  /// **'{code} applied'**
+  String couponApplied(String code);
+
+  /// 91.1 The shop checks coupons only on its own checkout.
+  ///
+  /// In en, this message translates to:
+  /// **'{code} is applied at checkout.'**
+  String couponAtCheckout(String code);
+
+  /// 91.1 Shown when the shop gives no reason.
+  ///
+  /// In en, this message translates to:
+  /// **'{code} doesn\'t apply.'**
+  String couponNotApplied(String code);
+
+  /// No description provided for @cartDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount'**
+  String get cartDiscount;
+
+  /// No description provided for @cartShipping.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipping'**
+  String get cartShipping;
+
+  /// No description provided for @cartTaxes.
+  ///
+  /// In en, this message translates to:
+  /// **'Taxes'**
+  String get cartTaxes;
+
+  /// No description provided for @cartTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get cartTotal;
+
+  /// 91.1 Under the cart's total when the checkout still adds to it.
+  ///
+  /// In en, this message translates to:
+  /// **'Plus shipping and taxes at checkout.'**
+  String get plusShippingAtCheckout;
 }
 
 class _AppLocalizationsDelegate
