@@ -311,7 +311,9 @@ test("99.3 a block's style and where it shows, copied to another page; the page'
   // The page's background and the picture across its top.
   await own.getByLabel("Page background").selectOption("tint");
   await own.getByLabel("Picture at the top").fill("https://yallapp.test/m/top.jpg");
+  await own.getByRole("button", { name: "Quick view", exact: true }).click();
   await expect(own.locator("[data-page-header]")).toHaveAttribute("src", "https://yallapp.test/m/top.jpg");
+  await expect(own.locator("[data-block-look]").first()).toHaveAttribute("data-block-look", "none medium center large");
   await expect(own.getByText(/^Draft saved/)).toBeVisible();
   await own.getByRole("button", { name: "Publish", exact: true }).click();
   await expect(own.getByText("Published. Your app shows the new pages")).toBeVisible();
