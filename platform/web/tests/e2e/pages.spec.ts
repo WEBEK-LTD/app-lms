@@ -472,6 +472,11 @@ test("97.5 frames from a Figma link become pages of the app, their tab bar its t
   await expect(blocks.nth(0)).toContainText("Text: Welcome aboard");
   await expect(blocks.nth(1)).toContainText("Image");
   await expect(blocks.nth(2)).toContainText("Button: My courses");
+  // Like any block: opened and changed.
+  await blocks.nth(2).getByRole("button", { name: "Button: My courses" }).click();
+  await own.getByRole("group", { name: "Block 3 settings" }).getByLabel("Button text").fill("Start learning");
+  await expect(blocks.nth(2)).toContainText("Button: Start learning");
+  await expect(own.getByText(/^Draft saved/)).toBeVisible({ timeout: 15_000 });
   // The tab bar's labels are the app's tabs, each to the page or screen it names.
   await own.getByRole("tab", { name: "Tabs" }).click();
   await expect(own.getByRole("group", { name: /^Tab 1/ }).getByLabel("Label", { exact: true })).toHaveValue("Home");
@@ -479,7 +484,8 @@ test("97.5 frames from a Figma link become pages of the app, their tab bar its t
   await expect(own.getByRole("group", { name: /^Tab 2/ }).getByLabel("Screen")).toHaveValue("courses");
   await expect(own.getByRole("group", { name: /^Tab 3/ }).getByLabel("Screen")).toHaveValue("account");
 
-  // Undone in one step, for the tests after this one.
+  // Undone (the edit, then the pages), for the tests after this one.
+  await own.getByRole("button", { name: "Undo" }).click();
   await own.getByRole("button", { name: "Undo" }).click();
   await expect(own.getByText(/^Draft saved/)).toBeVisible({ timeout: 15_000 });
   await own.getByRole("tab", { name: "Pages" }).click();
