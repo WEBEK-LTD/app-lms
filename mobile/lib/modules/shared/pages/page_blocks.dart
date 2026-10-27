@@ -525,8 +525,11 @@ class _Button extends ConsumerWidget {
         onPressed: onPressed,
       ),
       // 99.3 Where the block's look puts it; in the middle without one.
+      // 99.3 Centred as before, unless the look moves it to the end.
       PageButtonStyle.text => Align(
-        alignment: look?.align.alignment ?? AlignmentDirectional.center,
+        alignment: look?.align == BlockAlign.end
+            ? AlignmentDirectional.centerEnd
+            : AlignmentDirectional.center,
         child: TextButton.icon(
           onPressed: onPressed,
           style: TextButton.styleFrom(
