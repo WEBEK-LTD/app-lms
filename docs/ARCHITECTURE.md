@@ -283,8 +283,11 @@ mobile/
   - a dedicated user with rights on the Yallapp database only;
   - a long random password, kept only in Netlify environment variables;
   - TLS required on the connection;
-  - one connection per function invocation, so cPanel's connection limit is
-    never reached.
+  - one connection per function instance, so cPanel's connection limit is
+    never reached; a warm instance keeps it up to 30 seconds for the next
+    request (98.1), since every query is a round trip to host.webek.org and
+    opening a connection costs several more. The functions region must be
+    the one closest to host.webek.org.
 - Secrets that clients give us (store API keys, signing keys) are encrypted
   with a key that never leaves the server environment.
 - Hosted API (`/api/app/{app_id}`), for apps without WordPress: it serves the

@@ -135,6 +135,9 @@ export function totalsOfDay(events: readonly AnalyticsEventRow[]): AnalyticsDail
  * is marked as counted.
  */
 export async function aggregateDay(store: AnalyticsStore, appId: string, day: string, now: Date, zone = "UTC"): Promise<void> {
+  const finished = day < dayOf(now, zone);
+  // 98.1 Today: events that come while it is counted mark it changed again.
+  if (!finished) await store.saveAnalyticsDaily(appId, day, [{ metric: "dirty", key: "", label: null, value: 0 }]);
   const events = await store.listAnalyticsEvents(appId, day);
   const rows = totalsOfDay(events);
   const [week, month] = await Promise.all([
@@ -142,8 +145,8 @@ export async function aggregateDay(store: AnalyticsStore, appId: string, day: st
     store.countAnalyticsActive(appId, addDays(day, -29), day),
   ]);
   rows.push({ metric: "active_7", key: "", label: null, value: week }, { metric: "active_30", key: "", label: null, value: month });
-  const finished = day < dayOf(now, zone);
   if (finished) rows.push({ metric: "done", key: "", label: null, value: Math.floor(now.getTime() / 1000) }, { metric: "dirty", key: "", label: null, value: 0 });
+  else rows.push({ metric: "counted", key: "", label: null, value: Math.floor(now.getTime() / 1000) });
   await store.saveAnalyticsDaily(appId, day, rows);
   for (const n of RETENTION_DAYS) {
     const cohort = addDays(day, -n);
@@ -181,11 +184,17 @@ export async function daysToCount(
 /**
  * Brings an app's totals up to date before a report: the finished days that
  * need it (so the report is right even before the nightly count ran) and
- * today so far.
+ * today so far, 98.1 when it has new events since it was last counted (its
+ * counting is about ten queries; opening Today again reads it as it is).
  */
 export async function refreshAnalytics(store: AnalyticsStore, appId: string, now: Date, also: string[] = [], zone = "UTC"): Promise<void> {
   for (const day of await daysToCount(store, appId, now, also, zone)) await aggregateDay(store, appId, day, now, zone);
-  await aggregateDay(store, appId, dayOf(now, zone), now, zone);
+  const today = dayOf(now, zone);
+  const marks = await store.listAnalyticsDaily(appId, today, today, ["counted", "dirty"]);
+  const counted = marks.some((r) => r.metric === "counted" && r.value > 0);
+  const changed = marks.some((r) => r.metric === "dirty" && r.value > 0);
+  if (counted && !changed) return;
+  await aggregateDay(store, appId, today, now, zone);
 }
 
 /**

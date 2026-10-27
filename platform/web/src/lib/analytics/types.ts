@@ -124,6 +124,8 @@ export const ANALYTICS_METRICS = [
   // Book-keeping: the day was counted (value: when), or got late events since.
   "done",
   "dirty",
+  // 98.1 Today so far was counted (value: when); with "dirty", today got events since.
+  "counted",
 ] as const;
 export type AnalyticsMetric = (typeof ANALYTICS_METRICS)[number];
 

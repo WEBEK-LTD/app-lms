@@ -188,7 +188,8 @@ export { countryFromHeaders } from "../geo";
 
 /**
  * Stores a parsed batch: the events, the day's search counts, and marks
- * days already counted as changed so the next count includes the late events.
+ * days already counted as changed so the next count includes the late events
+ * (98.1 today too, so a report counts today again only when it changed).
  */
 export async function storeBatch(
   store: Pick<DataStore, "insertAnalyticsEvents" | "addAnalyticsDaily">,
@@ -203,6 +204,6 @@ export async function storeBatch(
     await store.addAnalyticsDaily(appId, day, { metric: "search", key: query, label: null, value: 1 });
   }
   const today = dayOf(now, zone);
-  const late = new Set(batch.events.map((e) => e.day).filter((day) => day < today && day >= addDays(today, -MAX_EVENT_AGE_DAYS - 1)));
+  const late = new Set(batch.events.map((e) => e.day).filter((day) => day <= today && day >= addDays(today, -MAX_EVENT_AGE_DAYS - 1)));
   for (const day of late) await store.addAnalyticsDaily(appId, day, { metric: "dirty", key: "", label: null, value: 1 });
 }

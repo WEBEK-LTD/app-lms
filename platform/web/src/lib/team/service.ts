@@ -41,10 +41,11 @@ export function businessName(owner: Pick<User, "name">, apps: Pick<App, "appName
 }
 
 /** Every business the person works on: their own first, then the teams they joined, in that order. */
-export async function businessesOf(store: DataStore, user: Pick<User, "id">): Promise<Business[]> {
+export async function businessesOf(store: DataStore, user: Pick<User, "id"> | User): Promise<Business[]> {
   const out: Business[] = [];
   const own = await store.getClientByUserId(user.id);
-  const self = own ? await store.getUserById(own.userId) : null;
+  // 98.1 The person's own business: they are its owner (no second read when the caller has their record).
+  const self = own ? ("sessionVersion" in user ? user : await store.getUserById(own.userId)) : null;
   if (own && self) out.push({ client: own, owner: self, access: OWNER_ACCESS, member: null });
   for (const member of await store.listMembershipsOfUser(user.id)) {
     const client = await store.getClientById(member.clientId);

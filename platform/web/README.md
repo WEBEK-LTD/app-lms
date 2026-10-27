@@ -35,8 +35,9 @@ Built in Phase 4. See [`docs/ROADMAP.md`](../../docs/ROADMAP.md).
   `MysqlStore` in production, `MemoryStore` when `YALLAPP_DATA=memory` (tests
   and local runs; refused on Netlify).
 - **MySQL connection:** one pooled connection per function instance
-  (`connectionLimit: 1`), closed about a second after the last query
-  (`maxIdle: 0`), TLS 1.2+ with certificate verification, a retry when a
+  (`connectionLimit: 1`), kept for the next request up to 30 seconds with
+  TCP keep-alive (98.1: each new connection costs its TCP, TLS and sign-in
+  round trips), TLS 1.2+ with certificate verification, a retry when a
   frozen function's connection was dropped. See `src/lib/data/mysql.ts`.
 - **Accounts:** argon2id passwords; the session is an encrypted JWT (JWE,
   A256GCM) in an httpOnly, SameSite=Lax, Secure cookie. Changing the password

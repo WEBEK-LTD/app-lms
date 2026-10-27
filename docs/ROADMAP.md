@@ -2195,3 +2195,15 @@ published until the client publishes.
 | [x] | 97.2 Your own font: upload TTF or OTF files (up to four weights), with "I have a licence to use this font in apps"; checked as a font, counted in Media storage, used like any other (TrueType or OpenType; WOFF, collections, italic files and fonts whose own settings forbid embedding are refused; up to 10 per app, in Pages & look; files are assets, deleted with the app) | Unit and e2e tests (the app loads them like 97.1 fonts) |
 | [x] | 97.3 Figma mode, separate from the standard look: its own saved look and a switch between the two in Branding; import from files exported from Figma (design tokens JSON in the common formats, the logo and pictures), with a preview to choose from before applying (the draft keeps `figma_look` and `look_mode`; in the Figma mode the app gets the file's colors, font, corners and logo, the standard look staying as it was; tokens in the W3C format Figma exports its variables in, Tokens Studio, Style Dictionary and variable lists; the pictures are offered in the editor's Choose from Media; plugin 0.4.20 passes the main color and logo on) | Unit, e2e and Flutter tests |
 | [x] | 97.4 Figma mode from a link: the file's link and the client's personal access token (used once, never stored); colors and text styles, frames to pick the logo and pictures from; Figma's limits and errors explained (the token goes to Figma's API in its header only, stays in the page's memory between reading and importing and is cleared when the look is saved; variables too when Figma lets the token read them; frames drawn by Figma as PNG; 30 reads an hour per account; the owner's own try is in the launch checklist) | Unit and e2e tests against a fake Figma API; tried by the owner on a real file |
+
+## Phase 98: Speed
+
+The owner found Yallapp Business, the demo apps and the dashboard slow to
+answer. Every request that reads data goes from Netlify's functions to MySQL
+on host.webek.org, one query at a time, so each query costs a round trip
+between them. Measured locally through a link with 80 ms round trips.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 98.1 Fewer round trips: a warm function keeps its database connection for the next request (30 seconds, with keep-alive) instead of opening one each time (TCP, TLS and sign-in); Yallapp Business's sign-in check reads the person's businesses once (owner requests 9 → 6 queries before their own); today's analytics are counted again only when new events came since (Today 27 → 15 queries, Analytics 34 → 22). Through 80 ms round trips: /me 957 → 661 ms, Orders 788 → 662 ms, Today 1,449 → 1,323 ms | Unit and e2e tests; the owner checks that Netlify's functions region is the one closest to host.webek.org (LAUNCH-CHECKLIST) |
+

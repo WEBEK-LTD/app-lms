@@ -121,20 +121,25 @@ class ClassFullError extends Error {}
 
 /**
  * Pool settings for Netlify functions talking to cPanel MySQL:
- * at most one connection per function instance, closed about a second after
- * the last query (maxIdle 0), and TLS with certificate verification. Up to
- * 50 queries wait for that connection (DATABASE_QUEUE_LIMIT changes it; the
- * e2e suites on MariaDB, one `next start` for every request, lift it).
+ * at most one connection per function instance and TLS with certificate
+ * verification. 98.1 A warm instance keeps its connection for the next
+ * request for up to 30 seconds (each new connection costs its TCP, TLS and
+ * sign-in round trips, often more than the request's queries), with TCP
+ * keep-alive; a connection the server or a frozen function dropped is
+ * opened again (`run`'s retry). Up to 50 queries wait for that connection
+ * (DATABASE_QUEUE_LIMIT changes it; the e2e suites on MariaDB, one `next
+ * start` for every request, lift it).
  */
 export function createPool(config: DatabaseConfig): mysql.Pool {
   return mysql.createPool({
     uri: config.url,
     connectionLimit: 1,
-    maxIdle: 0,
-    idleTimeout: 5_000,
+    maxIdle: 1,
+    idleTimeout: 30_000,
     queueLimit: config.queueLimit ?? 50,
     connectTimeout: 10_000,
-    enableKeepAlive: false,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 10_000,
     timezone: "Z",
     dateStrings: false,
     charset: "utf8mb4_unicode_ci",
