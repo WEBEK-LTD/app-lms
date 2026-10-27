@@ -451,26 +451,27 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
-  /billing/notifications/google/{app_id}:
+  /billing/notifications/google:
     post:
       tags: [Store billing]
       operationId: googleBillingNotification
       summary: Google Play's real-time developer notifications (sent by Google)
       description: |
-        Roadmap 100. The push endpoint of the Pub/Sub subscription for the
-        app's Google Play real-time developer notifications. Yallapp checks the
-        Google-signed OIDC token in `Authorization` (issued by Google for the
-        push subscription's service account, audience this address), then
-        reads the purchase again from the Google Play Developer API: the
+        Roadmap 100. The push endpoint of the Pub/Sub subscription on
+        Yallapp's own topic for Google Play's real-time developer
+        notifications: the owner (or our team, with "We publish for you") puts
+        that topic's name in Play Console › Monetization setup, and the app is
+        found by the notification's `packageName`. Yallapp checks the
+        Google-signed OIDC token in `Authorization` (issued for the push
+        subscription's service account, audience this address), then reads
+        the purchase again from the Google Play Developer API: the
         notification itself is never trusted. It answers 204 once handled
         (Pub/Sub tries again otherwise), and also 204 for a notification it
-        can't use (an unknown package), so Pub/Sub stops sending it.
+        can't use (an unknown package), so Pub/Sub stops sending it. The
+        notifications only make changes arrive sooner: Yallapp also reads
+        Google's voided purchases and the subscriptions near their end every
+        hour, so refunds and renewals arrive without them.
       security: []
-      parameters:
-        - name: app_id
-          in: path
-          required: true
-          schema: { type: string, format: uuid }
       requestBody:
         required: true
         content:
@@ -506,7 +507,8 @@ paths:
       summary: App Store Server Notifications V2 (sent by Apple)
       description: |
         Roadmap 100. The app's App Store Server Notifications URL (production
-        and sandbox). Yallapp checks `signedPayload` (a JWS whose certificate
+        and sandbox), which Yallapp sets on the app in App Store Connect
+        through the owner's App Store Connect key. Yallapp checks `signedPayload` (a JWS whose certificate
         chain must end at Apple's root certificate, for the app's bundle ID),
         then handles refunds, revocations, renewals and expiries. It answers
         200 once handled; Apple tries again otherwise.
