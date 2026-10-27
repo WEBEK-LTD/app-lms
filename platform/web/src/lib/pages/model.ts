@@ -185,7 +185,7 @@ export function newBlock(type: BlockType, sources: ItemSource[], screens: readon
     case "cards":
       return { ...base, columns: 2, cards: [emptyCard(), emptyCard()] };
     case "gallery":
-      return { ...base, columns: 3, images: [] };
+      return { ...base, columns: 3, images: [emptyImage()] };
     case "map":
       return { ...base, latitude: 0, longitude: 0, name: null, address: null };
     case "divider":
