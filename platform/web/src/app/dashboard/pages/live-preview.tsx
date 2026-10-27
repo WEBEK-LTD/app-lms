@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { PhoneFrame } from "@/components/device-frame";
 import { useDashT } from "@/components/dashboard-i18n";
 import { Icon } from "@/components/icon";
@@ -22,7 +22,8 @@ export type DeviceSystem = "android" | "ios";
  * (`notifyDraftSaved`); the app reloads its tabs and pages in place
  * (mobile/lib/modules/shared/pages/draft_reload.dart). 82.3 At a small
  * phone's, a phone's or a tablet's size, as on Android or an iPhone (its
- * rules too: no purchase buttons), and light and dark side by side.
+ * rules too: no purchase buttons), and light and dark side by side. A frame
+ * wider than the column is drawn smaller, the app in it keeping its size.
  */
 export function LivePreview({ src, appName, framesRef }: { src: string; appName: string; framesRef: RefObject<HTMLDivElement | null> }) {
   const t = useDashT();
@@ -33,26 +34,42 @@ export function LivePreview({ src, appName, framesRef }: { src: string; appName:
   const device = DEVICE_SIZES[size];
   // Side by side, each a little smaller so both fit.
   const scale = both ? 0.82 : 1;
+  const width = Math.round(device.width * scale);
+  const height = Math.round(device.height * scale);
+  // The phone's bezel on each side (globals.css `--phone-bezel`).
+  const bezel = Math.min(10, Math.max(3, width * 0.026));
+  const box = useRef<HTMLDivElement>(null);
+  const [room, setRoom] = useState<number | null>(null);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => setRoom(entry!.contentRect.width));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  const fit = room ? Math.min(1, room / width) : 1;
   const frame = (theme: "light" | "dark" | null) => (
     <div key={theme ?? "app"} className="flex flex-col items-center gap-1.5">
-      <PhoneFrame
-        className="max-w-full"
-        style={{ width: Math.round(device.width * scale) }}
-        screenClassName="bg-white"
-        island={false}
-        dir="ltr"
-        data-device={`${size} ${system}${theme ? ` ${theme}` : ""}`}
-      >
-        <iframe
-          key={`${reloads}-${size}-${system}-${theme}`}
-          src={`${src}&os=${system}${theme ? `&theme=${theme}` : ""}&r=${reloads}`}
-          title={theme ? t("pages.previewFrameTheme", { app: appName, theme: theme === "light" ? t("pages.light") : t("pages.dark") }) : t("pages.previewFrame", { app: appName })}
-          className="block w-full border-0"
-          style={{ height: Math.round(device.height * scale) }}
-          referrerPolicy="no-referrer"
-          data-testid="editor-preview"
-        />
-      </PhoneFrame>
+      <div style={{ width: width * fit, height: (height + 2 * bezel) * fit }}>
+        <PhoneFrame
+          className="origin-top-left"
+          style={{ width, maxWidth: "none", transform: fit < 1 ? `scale(${fit})` : undefined }}
+          screenClassName="bg-white"
+          island={false}
+          dir="ltr"
+          data-device={`${size} ${system}${theme ? ` ${theme}` : ""}`}
+        >
+          <iframe
+            key={`${reloads}-${size}-${system}-${theme}`}
+            src={`${src}&os=${system}${theme ? `&theme=${theme}` : ""}&r=${reloads}`}
+            title={theme ? t("pages.previewFrameTheme", { app: appName, theme: theme === "light" ? t("pages.light") : t("pages.dark") }) : t("pages.previewFrame", { app: appName })}
+            className="block w-full border-0"
+            style={{ height }}
+            referrerPolicy="no-referrer"
+            data-testid="editor-preview"
+          />
+        </PhoneFrame>
+      </div>
       {theme ? <span className="text-xs font-semibold text-muted">{theme === "light" ? t("pages.light") : t("pages.dark")}</span> : null}
     </div>
   );
@@ -72,7 +89,7 @@ export function LivePreview({ src, appName, framesRef }: { src: string; appName:
     </div>
   );
   return (
-    <div className="flex max-w-full flex-col items-center gap-3">
+    <div ref={box} className="flex w-full max-w-full flex-col items-center gap-3">
       <div className="flex flex-wrap items-center justify-center gap-2">
         {choice(
           t("pages.size"),
