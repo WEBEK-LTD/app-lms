@@ -298,6 +298,41 @@ class Pages {
 	}
 
 	/**
+	 * 99.4 A form block on a published page, for its answers: the block's title, then its
+	 * fields as the app gets them, with the texts in the app's default language (the email
+	 * goes to the business). Null when the page has no such form, or the form isn't on the
+	 * page for this person now (`visibility`, and `show` by date and language; the request
+	 * names no platform).
+	 *
+	 * @param string $slug     Page slug.
+	 * @param string $block_id The form block's id.
+	 * @param string $language The language asked for.
+	 * @param int    $user_id  Current user, or 0.
+	 * @return array|null `title`, then FormBlock's fields.
+	 */
+	public function form( $slug, $block_id, $language, $user_id ) {
+		foreach ( $this->pages() as $page ) {
+			if ( $page['slug'] !== $slug ) {
+				continue;
+			}
+			foreach ( isset( $page['blocks'] ) && is_array( $page['blocks'] ) ? $page['blocks'] : array() as $raw ) {
+				if ( ! is_array( $raw ) || 'form' !== ( $raw['type'] ?? null ) || Block_Resolver::text( $raw['id'] ?? null ) !== $block_id ) {
+					continue;
+				}
+				$show = isset( $raw['show'] ) && is_array( $raw['show'] ) ? array_diff_key( $raw['show'], array( 'platforms' => true ) ) : null;
+				if ( ! Block_Resolver::visible_to( $raw['visibility'] ?? 'everyone', $user_id ) || ! Block_Resolver::shows( $show, '', $language, time() ) ) {
+					return null;
+				}
+				$block  = Translator::apply( $raw, $this->languages()['default'] );
+				$fields = Rich_Blocks::fields( 'form', $block, array( $this->resolver, 'action' ), time() );
+				return null === $fields ? null : array( 'title' => Block_Resolver::text( $block['title'] ?? null ) ) + $fields;
+			}
+			return null;
+		}
+		return null;
+	}
+
+	/**
 	 * 99.3 A page's background (none, tint or surface) and the picture across its top (an
 	 * https URL, or null). Pure.
 	 *

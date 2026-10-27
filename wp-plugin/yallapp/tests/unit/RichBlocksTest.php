@@ -47,9 +47,9 @@ class RichBlocksTest extends TestCase {
 	public function test_handles_the_new_types_only() {
 		$this->assertTrue( Rich_Blocks::handles( 'slider' ) );
 		$this->assertTrue( Rich_Blocks::handles( 'notice' ) );
-		$this->assertFalse( Rich_Blocks::handles( 'map' ) );
+		$this->assertFalse( Rich_Blocks::handles( 'chart' ) );
 		$this->assertFalse( Rich_Blocks::handles( 'banner' ) );
-		$this->assertNull( $this->fields( 'map', array() ) );
+		$this->assertNull( $this->fields( 'chart', array() ) );
 	}
 
 	public function test_slider_keeps_slides_with_an_image_or_heading_and_actions_it_can_follow() {
