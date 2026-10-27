@@ -726,6 +726,14 @@ never in a chat or an issue.
       (`YB_APP_REVIEW_EMAIL` changes it). The review notes are
       `business/store/ios/review_notes.txt`: no payments, accounts are made
       on the website.
+- [ ] Apple's first review asked (Guideline 2.1, an account with little
+      review history) for a screen recording on an iPhone with the latest
+      iOS, from launching the app: sign in, the main screens, the chat's
+      reports and "Stop from sending", hiding a review, More › Delete my
+      account. Keep the recording for later questions. The answers to its
+      other questions (purpose and audience, how to use it, external
+      services, regions, regulated industries) are in `review_notes.txt`,
+      which every release sends as the review notes.
 - [ ] Google Play › App content › App access › "All or some functionality is
       restricted" › add the same demo account with "Sign in with the email and
       password on the first screen".
