@@ -1084,5 +1084,12 @@
   "orderPointsUsed": "{count, plural, =1{استُخدمت نقطة واحدة: −{amount}} =2{استُخدمت نقطتان: −{amount}} few{استُخدمت {count} نقاط: −{amount}} many{استُخدمت {count} نقطة: −{amount}} other{استُخدمت {count} نقطة: −{amount}}}",
   "orderPointsEarned": "{count, plural, =1{كُسبت نقطة واحدة} =2{كُسبت نقطتان} few{كُسبت {count} نقاط} many{كُسبت {count} نقطة} other{كُسبت {count} نقطة}}",
   "cartTaxIncluded": "يشمل {amount} {tax}",
-  "payOutsideDue": "ادفع {total} قبل {date} كما هو موضح أدناه، واذكر رقم الطلب {number} مع دفعتك. يؤكد المتجر طلبك عند وصول المبلغ."
+  "payOutsideDue": "ادفع {total} قبل {date} كما هو موضح أدناه، واذكر رقم الطلب {number} مع دفعتك. يؤكد المتجر طلبك عند وصول المبلغ.",
+  "pageFormSent": "تم الإرسال. شكرًا لك.",
+  "pageFormSignIn": "سجّل الدخول للإرسال",
+  "pageFormRequired": "هذا الحقل مطلوب",
+  "pageFormInvalidEmail": "أدخل بريدًا إلكترونيًا صحيحًا",
+  "pageFormInvalidPhone": "أدخل رقم هاتف صحيحًا",
+  "pageFormInvalidNumber": "أدخل رقمًا",
+  "pageFormChooseOne": "اختر واحدًا"
 }

@@ -6609,6 +6609,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pay {total} by {date} as shown below, and give the order number {number} with your payment. The shop confirms your order once the payment arrives.'**
   String payOutsideDue(String total, String date, String number);
+
+  /// 99.4 Form block: shown in place of the form once its answers are sent, when the owner wrote no text for it.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent. Thank you.'**
+  String get pageFormSent;
+
+  /// 99.4 Form block whose answers go to the chat: its button while the person is signed out; opens sign-in.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to send'**
+  String get pageFormSignIn;
+
+  /// 99.4 Form block: under a required field left empty.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get pageFormRequired;
+
+  /// 99.4 Form block: under an email field whose answer isn't an email address.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email'**
+  String get pageFormInvalidEmail;
+
+  /// 99.4 Form block: under a phone field whose answer isn't a phone number.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid phone number'**
+  String get pageFormInvalidPhone;
+
+  /// 99.4 Form block: under a number field whose answer isn't a number.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number'**
+  String get pageFormInvalidNumber;
+
+  /// 99.4 Form block: under a choice field, when none of its choices is picked.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose one'**
+  String get pageFormChooseOne;
 }
 
 class _AppLocalizationsDelegate

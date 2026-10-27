@@ -4157,4 +4157,25 @@ class AppLocalizationsAr extends AppLocalizations {
   String payOutsideDue(String total, String date, String number) {
     return 'ادفع $total قبل $date كما هو موضح أدناه، واذكر رقم الطلب $number مع دفعتك. يؤكد المتجر طلبك عند وصول المبلغ.';
   }
+
+  @override
+  String get pageFormSent => 'تم الإرسال. شكرًا لك.';
+
+  @override
+  String get pageFormSignIn => 'سجّل الدخول للإرسال';
+
+  @override
+  String get pageFormRequired => 'هذا الحقل مطلوب';
+
+  @override
+  String get pageFormInvalidEmail => 'أدخل بريدًا إلكترونيًا صحيحًا';
+
+  @override
+  String get pageFormInvalidPhone => 'أدخل رقم هاتف صحيحًا';
+
+  @override
+  String get pageFormInvalidNumber => 'أدخل رقمًا';
+
+  @override
+  String get pageFormChooseOne => 'اختر واحدًا';
 }

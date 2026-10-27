@@ -4089,4 +4089,25 @@ class AppLocalizationsTr extends AppLocalizations {
   String payOutsideDue(String total, String date, String number) {
     return '$total tutarını $date tarihine kadar aşağıdaki gibi ödeyin ve ödemenizle birlikte $number sipariş numarasını belirtin. Mağaza, ödeme ulaştığında siparişinizi onaylar.';
   }
+
+  @override
+  String get pageFormSent => 'Gönderildi. Teşekkürler.';
+
+  @override
+  String get pageFormSignIn => 'Göndermek için giriş yapın';
+
+  @override
+  String get pageFormRequired => 'Bu alan zorunludur';
+
+  @override
+  String get pageFormInvalidEmail => 'Geçerli bir e-posta girin';
+
+  @override
+  String get pageFormInvalidPhone => 'Geçerli bir telefon numarası girin';
+
+  @override
+  String get pageFormInvalidNumber => 'Bir sayı girin';
+
+  @override
+  String get pageFormChooseOne => 'Birini seçin';
 }

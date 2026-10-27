@@ -578,6 +578,30 @@ sealed class PageBlock {
           label: optString(json, 'label'),
           action: PageAction.tryParse(json['action']),
         ),
+        // 99.4 Cards, photos, a place, a line and a short form.
+        'cards' => CardsBlock(
+          id: id,
+          title: title,
+          columns: _columns(json, 2),
+          cards: _entries(json, 'cards', PageCard.tryParse),
+        ).orNull,
+        'gallery' => GalleryBlock(
+          id: id,
+          title: title,
+          columns: _columns(json, 3),
+          images: _entries(json, 'images', GalleryImage.tryParse),
+        ).orNull,
+        'map' => MapBlock.tryParse(json, id: id, title: title),
+        'divider' => DividerBlock(
+          id: id,
+          title: title,
+          style: enumFrom(
+            DividerStyle.values,
+            json['style'],
+            DividerStyle.line,
+          ),
+        ),
+        'form' => FormBlock.tryParse(json, id: id, title: title),
         _ => null,
       };
     } on FormatException {
@@ -1178,4 +1202,346 @@ class NoticeBlock extends PageBlock {
   /// The link's text, shown with [action].
   final String? label;
   final PageAction? action;
+}
+
+// ------------------------------- 99.4 Cards, gallery, map, divider and form
+
+/// 99.4 Two or three columns, as the block asks; else [fallback].
+int _columns(Json json, int fallback) => switch (optInt(json, 'columns')) {
+  2 => 2,
+  3 => 3,
+  _ => fallback,
+};
+
+/// 99.4 A card in a cards block: a title, and a line of text, a picture on
+/// top and a tap when it has them.
+class PageCard {
+  const PageCard({required this.title, this.text, this.imageUrl, this.action});
+
+  /// Null without a title.
+  static PageCard? tryParse(Json json) {
+    final title = optString(json, 'title');
+    if (title == null || title.trim().isEmpty) return null;
+    return PageCard(
+      title: title,
+      text: optString(json, 'text'),
+      imageUrl: optString(json, 'image_url'),
+      action: PageAction.tryParse(json['action']),
+    );
+  }
+
+  final String title;
+  final String? text;
+  final String? imageUrl;
+
+  /// Null when the action is missing or unknown to this app: the card then
+  /// does nothing.
+  final PageAction? action;
+}
+
+/// 99.4 Cards in a grid of two or three columns.
+class CardsBlock extends PageBlock {
+  const CardsBlock({
+    required super.id,
+    super.title,
+    required this.cards,
+    this.columns = 2,
+  });
+
+  /// 2 or 3.
+  final int columns;
+  final List<PageCard> cards;
+
+  @override
+  bool get hasContent => cards.isNotEmpty;
+}
+
+/// 99.4 A photo in a gallery, with its caption.
+class GalleryImage {
+  const GalleryImage({required this.imageUrl, this.caption});
+
+  /// Null without a picture.
+  static GalleryImage? tryParse(Json json) {
+    final url = optString(json, 'image_url');
+    if (url == null || url.trim().isEmpty) return null;
+    return GalleryImage(imageUrl: url, caption: optString(json, 'caption'));
+  }
+
+  final String imageUrl;
+  final String? caption;
+}
+
+/// 99.4 Photos in a grid of two or three columns; a tap opens them full
+/// screen, to swipe through with their captions.
+class GalleryBlock extends PageBlock {
+  const GalleryBlock({
+    required super.id,
+    super.title,
+    required this.images,
+    this.columns = 3,
+  });
+
+  /// 2 or 3.
+  final int columns;
+  final List<GalleryImage> images;
+
+  @override
+  bool get hasContent => images.isNotEmpty;
+}
+
+/// 99.4 A place: its name and address on a card with a pin, and a button
+/// that opens directions in the phone's maps. No map tiles are loaded.
+class MapBlock extends PageBlock {
+  const MapBlock({
+    required super.id,
+    super.title,
+    required this.latitude,
+    required this.longitude,
+    this.name,
+    this.address,
+    this.label,
+  });
+
+  /// Null without a latitude and a longitude on Earth.
+  static MapBlock? tryParse(Json json, {required String id, String? title}) {
+    final latitude = optDouble(json, 'latitude');
+    final longitude = optDouble(json, 'longitude');
+    if (latitude == null ||
+        longitude == null ||
+        !(latitude.abs() <= 90 && longitude.abs() <= 180)) {
+      return null;
+    }
+    return MapBlock(
+      id: id,
+      title: title,
+      latitude: latitude,
+      longitude: longitude,
+      name: optString(json, 'name'),
+      address: optString(json, 'address'),
+      label: optString(json, 'label'),
+    );
+  }
+
+  final double latitude;
+  final double longitude;
+  final String? name;
+  final String? address;
+
+  /// The button's text; null: the app's own "Directions".
+  final String? label;
+}
+
+/// 99.4 A solid, dashed or dotted line.
+enum DividerStyle { line, dashed, dots }
+
+/// 99.4 A line between blocks.
+class DividerBlock extends PageBlock {
+  const DividerBlock({
+    required super.id,
+    super.title,
+    this.style = DividerStyle.line,
+  });
+
+  final DividerStyle style;
+}
+
+/// 99.4 Where a form's answers go: by email to the business
+/// (`POST /forms/{slug}/{block_id}`), or as a chat message to it.
+enum FormSendTo { email, chat }
+
+enum FormFieldKind { text, longText, email, phone, number, choice }
+
+/// 99.4 What needs a change in an answer before the form is sent.
+enum FormProblem { missing, email, phone, number, choice }
+
+final _fieldId = RegExp(r'^[A-Za-z0-9_-]{1,40}$');
+final _email = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
+final _phone = RegExp(r'^[0-9 +()-]+$');
+
+FormFieldKind? _fieldKind(Object? wire) {
+  for (final kind in FormFieldKind.values) {
+    if (snake(kind) == wire) return kind;
+  }
+  return null;
+}
+
+/// 99.4 One field of a form block.
+class PageFormField {
+  const PageFormField({
+    required this.id,
+    required this.kind,
+    required this.label,
+    this.required = false,
+    this.options = const [],
+  });
+
+  /// Null without a usable id, a kind this app knows or a label; a choice
+  /// also needs its options.
+  static PageFormField? tryParse(Json json) {
+    final id = optString(json, 'id');
+    final kind = _fieldKind(json['kind']);
+    final label = optString(json, 'label');
+    if (id == null ||
+        !_fieldId.hasMatch(id) ||
+        kind == null ||
+        label == null ||
+        label.trim().isEmpty) {
+      return null;
+    }
+    final options = <String>{
+      for (final option in stringList(json, 'options'))
+        if (option.trim().isNotEmpty) option,
+    }.toList();
+    if (kind == FormFieldKind.choice && options.isEmpty) return null;
+    return PageFormField(
+      id: id,
+      kind: kind,
+      label: label,
+      required: boolOr(json, 'required', false),
+      options: kind == FormFieldKind.choice ? options : const [],
+    );
+  }
+
+  /// The longest answer the server takes.
+  static const maxLength = 2000;
+
+  /// The key of its answer.
+  final String id;
+  final FormFieldKind kind;
+  final String label;
+  final bool required;
+
+  /// The choices of a [FormFieldKind.choice] field.
+  final List<String> options;
+
+  /// What needs a change in [answer], checked as the server checks it; null
+  /// when it can be sent (an empty answer to a field that isn't required is
+  /// left out).
+  FormProblem? problem(String answer) {
+    final value = answer.trim();
+    if (value.isEmpty) return required ? FormProblem.missing : null;
+    final ok = switch (kind) {
+      FormFieldKind.email => _email.hasMatch(value),
+      FormFieldKind.phone => isPhone(value),
+      FormFieldKind.number => double.tryParse(value)?.isFinite ?? false,
+      FormFieldKind.choice => options.contains(value),
+      FormFieldKind.text || FormFieldKind.longText => true,
+    };
+    if (ok) return null;
+    return switch (kind) {
+      FormFieldKind.email => FormProblem.email,
+      FormFieldKind.phone => FormProblem.phone,
+      FormFieldKind.number => FormProblem.number,
+      _ => FormProblem.choice,
+    };
+  }
+
+  /// Digits, spaces, +, - and parentheses, with 6 to 20 digits.
+  static bool isPhone(String value) {
+    if (!_phone.hasMatch(value)) return false;
+    final digits = value.replaceAll(RegExp('[^0-9]'), '').length;
+    return digits >= 6 && digits <= 20;
+  }
+}
+
+/// 99.4 A form's answers, checked: what to send and what needs a change.
+class FormCheck {
+  const FormCheck({required this.answers, required this.problems});
+
+  /// Trimmed, by field id; empty answers are left out.
+  final Map<String, String> answers;
+
+  /// By field id.
+  final Map<String, FormProblem> problems;
+
+  bool get ok => problems.isEmpty;
+}
+
+/// 99.4 A short form. Its answers go by email to the business, or as a chat
+/// message to it (the person signs in first; shown only in apps with chat).
+class FormBlock extends PageBlock {
+  const FormBlock({
+    required super.id,
+    super.title,
+    required this.fields,
+    required this.sendTo,
+    this.submitLabel,
+    this.successText,
+  });
+
+  /// Null without a field it can show, or sent somewhere this app doesn't
+  /// know. Fields it can't read, and repeated ids, are left out.
+  static FormBlock? tryParse(Json json, {required String id, String? title}) {
+    final sendTo = enumOrNull(FormSendTo.values, json['send_to']);
+    if (sendTo == null) return null;
+    final ids = <String>{};
+    final fields = [
+      for (final field in _entries(json, 'fields', PageFormField.tryParse))
+        if (ids.add(field.id)) field,
+    ];
+    if (fields.isEmpty) return null;
+    return FormBlock(
+      id: id,
+      title: title,
+      fields: fields,
+      sendTo: sendTo,
+      submitLabel: optString(json, 'submit_label'),
+      successText: optString(json, 'success_text'),
+    );
+  }
+
+  final List<PageFormField> fields;
+  final FormSendTo sendTo;
+
+  /// The button's text; null: the app's own "Send".
+  final String? submitLabel;
+
+  /// Shown once the answers are sent; null: the app's own "Sent".
+  final String? successText;
+
+  @override
+  bool get hasContent => fields.isNotEmpty;
+
+  /// [raw] answers by field id, checked as the server checks them. A form
+  /// with nothing filled in asks for its first field.
+  FormCheck check(Map<String, String> raw) {
+    final answers = <String, String>{};
+    final problems = <String, FormProblem>{};
+    for (final field in fields) {
+      final answer = (raw[field.id] ?? '').trim();
+      final problem = field.problem(answer);
+      if (problem != null) {
+        problems[field.id] = problem;
+      } else if (answer.isNotEmpty) {
+        answers[field.id] = answer;
+      }
+    }
+    if (answers.isEmpty && problems.isEmpty) {
+      problems[fields.first.id] = FormProblem.missing;
+    }
+    return FormCheck(answers: answers, problems: problems);
+  }
+
+  /// The chat message for [answers]: the form's title, then one line per
+  /// answered field, `Label: answer`.
+  String chatText(Map<String, String> answers) {
+    final heading = title?.trim() ?? '';
+    final lines = [if (heading.isNotEmpty) heading];
+    for (final field in fields) {
+      final answer = answers[field.id];
+      if (answer != null) lines.add('${field.label.trim()}: $answer');
+    }
+    return lines.join('\n');
+  }
+
+  /// The server's message for each field that needs a change, by field id
+  /// (`details.fields` of an `invalid_answers` error).
+  static Map<String, String> fieldErrors(Object? details) {
+    final fields = details is Map ? details['fields'] : null;
+    if (fields is! Map) return const {};
+    return {
+      for (final MapEntry(:key, :value) in fields.entries)
+        if (key is String && value is String) key: value,
+    };
+  }
 }

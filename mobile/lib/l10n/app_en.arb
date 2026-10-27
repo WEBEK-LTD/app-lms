@@ -3119,5 +3119,33 @@
         "type": "String"
       }
     }
+  },
+  "pageFormSent": "Sent. Thank you.",
+  "@pageFormSent": {
+    "description": "99.4 Form block: shown in place of the form once its answers are sent, when the owner wrote no text for it."
+  },
+  "pageFormSignIn": "Sign in to send",
+  "@pageFormSignIn": {
+    "description": "99.4 Form block whose answers go to the chat: its button while the person is signed out; opens sign-in."
+  },
+  "pageFormRequired": "This field is required",
+  "@pageFormRequired": {
+    "description": "99.4 Form block: under a required field left empty."
+  },
+  "pageFormInvalidEmail": "Enter a valid email",
+  "@pageFormInvalidEmail": {
+    "description": "99.4 Form block: under an email field whose answer isn't an email address."
+  },
+  "pageFormInvalidPhone": "Enter a valid phone number",
+  "@pageFormInvalidPhone": {
+    "description": "99.4 Form block: under a phone field whose answer isn't a phone number."
+  },
+  "pageFormInvalidNumber": "Enter a number",
+  "@pageFormInvalidNumber": {
+    "description": "99.4 Form block: under a number field whose answer isn't a number."
+  },
+  "pageFormChooseOne": "Choose one",
+  "@pageFormChooseOne": {
+    "description": "99.4 Form block: under a choice field, when none of its choices is picked."
   }
 }
