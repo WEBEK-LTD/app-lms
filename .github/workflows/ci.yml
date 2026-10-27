@@ -25,7 +25,7 @@ jobs:
       plugin: ${{ steps.files.outputs.plugin }}
       pipeline: ${{ steps.files.outputs.pipeline }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
       - id: files
@@ -54,8 +54,8 @@ jobs:
     name: API contract
     runs-on: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-24.04' || vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
       - name: Lint the API contracts
@@ -71,7 +71,7 @@ jobs:
       matrix:
         php: ['7.4', '8.3']
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:
           php-version: ${{ matrix.php }}
@@ -89,7 +89,7 @@ jobs:
       run:
         working-directory: wp-plugin/yallapp
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:
           php-version: '8.3'
@@ -109,7 +109,7 @@ jobs:
       run:
         working-directory: wp-plugin/yallapp
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Build the installable zip
         id: zip
         run: echo "path=$(bin/build-zip.sh "$RUNNER_TEMP/dist")" >> "$GITHUB_OUTPUT"
@@ -118,7 +118,7 @@ jobs:
           unzip -Z1 "${{ steps.zip.outputs.path }}" > files.txt
           grep -qx "yallapp/yallapp.php" files.txt
           ! grep -E "^yallapp/(tests|vendor|bin)/|composer|phpcs|phpunit" files.txt
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: yallapp-plugin
           path: ${{ steps.zip.outputs.path }}
@@ -134,14 +134,14 @@ jobs:
       run:
         working-directory: wp-plugin/yallapp
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:
           php-version: '8.3'
           coverage: none
           extensions: pdo_sqlite, sqlite3, curl, mbstring, dom
           tools: composer:v2
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/yallapp-dev
           key: yallapp-dev-wp7.1.3-sqlite3.1.0-cli2.12.0-plugin-check2.1.0
@@ -161,7 +161,7 @@ jobs:
       run:
         working-directory: wp-plugin/yallapp
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:
           php-version: ${{ matrix.php }}
@@ -181,14 +181,14 @@ jobs:
       run:
         working-directory: wp-plugin/yallapp
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:
           php-version: '8.3'
           coverage: none
           extensions: pdo_sqlite, sqlite3, curl, mbstring, dom
           tools: composer:v2
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/yallapp-dev
           key: yallapp-dev-wp7.1.3-tutor4.1.1-sqlite3.1.0-cli2.12.0
@@ -222,7 +222,7 @@ jobs:
       run:
         working-directory: wp-plugin/yallapp
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
       - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
@@ -231,7 +231,7 @@ jobs:
           coverage: none
           extensions: pdo_sqlite, sqlite3, curl, mbstring, dom, zip
           tools: composer:v2
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/yallapp-dev
           key: yallapp-dev-wp7.1.3-tutor-woo-${{ matrix.memberships || '0' }}-${{ hashFiles('wp-plugin/yallapp/tests/dev-site/setup.sh') }}
@@ -258,14 +258,14 @@ jobs:
       run:
         working-directory: wp-plugin/yallapp
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:
           php-version: '8.3'
           coverage: none
           extensions: pdo_sqlite, sqlite3, curl, mbstring, dom, zip
           tools: composer:v2
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/yallapp-dev
           key: yallapp-dev-wp7.1.3-${{ matrix.lms }}-${{ hashFiles('wp-plugin/yallapp/tests/dev-site/setup.sh') }}
@@ -283,14 +283,14 @@ jobs:
       run:
         working-directory: wp-plugin/yallapp
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:
           php-version: '8.3'
           coverage: none
           extensions: pdo_sqlite, sqlite3, curl, mbstring, dom, zip
           tools: composer:v2
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/yallapp-dev
           key: yallapp-dev-wp7.1.3-store-${{ hashFiles('wp-plugin/yallapp/tests/dev-site/setup.sh') }}
@@ -308,14 +308,14 @@ jobs:
       run:
         working-directory: wp-plugin/yallapp
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:
           php-version: '8.3'
           coverage: none
           extensions: pdo_sqlite, sqlite3, curl, mbstring, dom
           tools: composer:v2
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/yallapp-dev
           key: yallapp-dev-wp7.1.3-news-${{ hashFiles('wp-plugin/yallapp/tests/dev-site/setup.sh') }}
@@ -340,7 +340,7 @@ jobs:
       run:
         working-directory: wp-plugin/yallapp
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:
           php-version: '8.3'
@@ -362,8 +362,8 @@ jobs:
     if: needs.changes.outputs.pipeline == 'true'
     runs-on: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-24.04' || vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: '3.12'
       - run: pip install pillow==12.0.0
@@ -373,7 +373,7 @@ jobs:
         run: shellcheck build/scripts/*.sh build/runner/*.sh wp-plugin/yallapp/tests/integration/run.sh wp-plugin/yallapp/bin/plugin-check.sh
       - name: Files host
         run: php -l build/files-host/index.php
-      - uses: ruby/setup-ruby@e1bd6146574da5e0795075b5319b300edb30c5b0 # v1.333.0
+      - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
         with:
           ruby-version: '3.3'
           bundler-cache: true
