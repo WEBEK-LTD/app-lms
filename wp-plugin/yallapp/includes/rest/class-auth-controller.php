@@ -274,6 +274,10 @@ class Auth_Controller extends Controller {
 			(bool) $settings->get( 'android_enroll_button' ),
 			(bool) $course['has_checkout']
 		);
+		// 100.4 Where the app sells through the store on this platform, never the website's checkout.
+		if ( null !== Billing_Controller::config( $this->plugin, (string) $request['platform'] ) && ! $course['enrolled'] && ! $course['price']['is_free'] ) {
+			$action = 'none';
+		}
 		if ( 'checkout' !== $action ) {
 			return self::error( 'purchase_not_allowed', __( 'This course can not be bought in the app.', 'yallapp' ), 403 );
 		}

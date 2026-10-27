@@ -11,6 +11,8 @@ defined( 'ABSPATH' ) || exit;
 
 use WP_REST_Request;
 use WP_REST_Server;
+use Yallapp\Billing\Site_Plans;
+use Yallapp\Billing\Store_Billing;
 use Yallapp\Lms\Course_Completion;
 use Yallapp\Lms\Course_Password;
 use Yallapp\Lms\Course_Restart;
@@ -150,11 +152,24 @@ class Catalog_Controller extends Controller {
 				(bool) $course['has_checkout']
 			),
 		);
+		// 100.4 Where the app sells through the store on this platform: the course's store product.
+		$billing                                = Billing_Controller::billing( $this->plugin );
+		$store_on                               = null !== Store_Billing::config( $billing, (string) $request['platform'] );
+		$product                                = $store_on ? Store_Billing::course_product( $billing, (int) $course['id'] ) : null;
+		$course['purchase']['action']           = Store_Billing::course_action( $course['purchase']['action'], ! $course['price']['is_free'], (bool) $course['enrolled'], $store_on, $product );
+		$course['purchase']['store_product_id'] = 'store' === $course['purchase']['action'] ? $product : null;
 		// 90.3 A course that needs a membership on the website: the plans, and no way in without one.
 		$membership                   = Site_Memberships::course( (int) $course['id'], get_current_user_id() );
 		$course['membership']         = $membership;
 		$course['purchase']['action'] = Site_Memberships::action( $course['purchase']['action'], $membership, (bool) $course['enrolled'], (bool) $settings->get( 'free_enrollment' ) );
-		$course['intro_video']        = $this->plugin->lesson_renderer()->video( $course['intro_video'], get_current_user_id() );
+		if ( 'store' !== $course['purchase']['action'] ) {
+			$course['purchase']['store_product_id'] = null;
+		}
+		// 100.4 The store products of the plans that open it, offered to a student without one.
+		if ( $membership && $store_on ) {
+			$course['membership']['store_product_ids'] = Store_Billing::plan_products( $billing, Site_Plans::course_plan_ids( (int) $course['id'] ) );
+		}
+		$course['intro_video'] = $this->plugin->lesson_renderer()->video( $course['intro_video'], get_current_user_id() );
 		unset( $course['has_checkout'] );
 		// 62 A password on the website: the app opens the website for it, never asks for it.
 		$post                         = get_post( (int) $course['id'] );

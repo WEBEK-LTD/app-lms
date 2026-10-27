@@ -97,6 +97,9 @@ class Plugin {
 		// 91.2 Order updates in the app (WooCommerce).
 		( new Commerce\Order_Updates( $this ) )->register();
 		( new Commerce\Order_Returns( $this ) )->register();
+		// 100.4 Courses and memberships bought in the app: the catalog Yallapp sells, and the access.
+		( new Billing\Catalog_Sync( $this ) )->register();
+		( new Billing\Store_Access( $this ) )->register();
 		// 51 [yallapp_video] on the website.
 		$this->yallapp_media()->register();
 		( new Rest\Gatekeeper( $this ) )->register();
@@ -141,6 +144,8 @@ class Plugin {
 		( new Rest\Chat_Controller( $this ) )->register_routes();
 		// 85.4 Campaigns from the Yallapp dashboard.
 		( new Rest\Campaigns_Controller( $this ) )->register_routes();
+		// 100.4 The store billing token and Yallapp's "give or take access".
+		( new Rest\Billing_Controller( $this ) )->register_routes();
 	}
 
 	/**

@@ -42,7 +42,7 @@ use Yallapp\Commerce\Woo_Orders;
  * certificate threshold. Certificates and assignments come from MasterStudy Pro, so
  * certificates use the `yallapp_certificate_url` filter.
  */
-class MasterStudy_Adapter extends Base_Adapter {
+class MasterStudy_Adapter extends Base_Adapter implements Store_Enrolment {
 
 	const NATIVE_QUESTION_TYPES = array( 'single_choice', 'multi_choice', 'true_false' );
 
@@ -301,6 +301,40 @@ class MasterStudy_Adapter extends Base_Adapter {
 			'course_id'   => (int) $course_id,
 			'enrolled_at' => gmdate( 'Y-m-d\TH:i:s\Z', ! empty( $row['start_time'] ) ? (int) $row['start_time'] : time() ),
 		);
+	}
+
+	/**
+	 * 100.4 Enrols a student in a course bought in the app (Store_Enrolment).
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return true|WP_Error
+	 */
+	public function grant_course( $course_id, $user_id ) {
+		if ( ! Course_Visibility::live( get_post( (int) $course_id ), $this->post_types()['course'] ) ) {
+			return new WP_Error( 'not_found', __( 'Course not found.', 'yallapp' ), array( 'status' => 404 ) );
+		}
+		if ( $this->is_enrolled( $course_id, $user_id ) ) {
+			return true;
+		}
+		STM_LMS_Course::add_user_course( (int) $course_id, (int) $user_id, STM_LMS_Lesson::get_lesson_url( (int) $course_id, '' ), 0 );
+		STM_LMS_Course::add_student( (int) $course_id );
+		return $this->is_enrolled( $course_id, $user_id ) ? true : new WP_Error( 'enrollment_failed', __( 'Enrollment is not available for this course.', 'yallapp' ), array( 'status' => 503 ) );
+	}
+
+	/**
+	 * 100.4 Takes a student out of a course bought in the app (Store_Enrolment).
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return true|WP_Error
+	 */
+	public function revoke_course( $course_id, $user_id ) {
+		if ( function_exists( 'stm_lms_get_delete_user_course' ) && stm_lms_get_user_course( (int) $user_id, (int) $course_id, array( 'user_course_id' ) ) ) {
+			stm_lms_get_delete_user_course( (int) $user_id, (int) $course_id );
+			STM_LMS_Course::remove_student( (int) $course_id );
+		}
+		return true;
 	}
 
 	/**

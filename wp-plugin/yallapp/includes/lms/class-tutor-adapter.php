@@ -19,7 +19,7 @@ use Yallapp\Commerce\Woo_Orders;
  * Tutor LMS 2.0.6 and later, Free and Pro. Uses tutor_utils(), which keeps moved
  * helpers callable across versions.
  */
-class Tutor_Adapter implements Lms_Adapter {
+class Tutor_Adapter implements Lms_Adapter, Store_Enrolment {
 
 	/**
 	 * 83.4 This adapter's version: the third number for a fix, the second for something new it sends
@@ -327,6 +327,47 @@ class Tutor_Adapter implements Lms_Adapter {
 			'course_id'   => (int) $course_id,
 			'enrolled_at' => $this->enrolled_at( $course_id, $user_id ),
 		);
+	}
+
+	/**
+	 * 100.4 Enrols a student in a course bought in the app (Store_Enrolment).
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return true|WP_Error
+	 */
+	public function grant_course( $course_id, $user_id ) {
+		if ( ! Course_Visibility::live( get_post( (int) $course_id ), tutor()->course_post_type ) ) {
+			return new WP_Error( 'not_found', __( 'Course not found.', 'yallapp' ), array( 'status' => 404 ) );
+		}
+		if ( $this->is_enrolled( $course_id, $user_id ) ) {
+			return true;
+		}
+		$enrolment = (int) tutor_utils()->do_enroll( (int) $course_id, 0, (int) $user_id );
+		if ( $enrolment <= 0 ) {
+			return new WP_Error( 'enrollment_failed', __( 'Enrollment is not available for this course.', 'yallapp' ), array( 'status' => 503 ) );
+		}
+		// A paid course's enrolment starts pending, as before a payment: the store was paid.
+		if ( 'completed' !== get_post_status( $enrolment ) ) {
+			tutor_utils()->course_enrol_status_change( $enrolment, 'completed' );
+			/** This action is documented in Tutor LMS. */
+			do_action( 'tutor_after_enrolled', (int) $course_id, (int) $user_id, $enrolment ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Tutor LMS hook.
+		}
+		return true;
+	}
+
+	/**
+	 * 100.4 Takes a student out of a course bought in the app (Store_Enrolment).
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return true|WP_Error
+	 */
+	public function revoke_course( $course_id, $user_id ) {
+		if ( $this->is_enrolled( $course_id, $user_id ) ) {
+			tutor_utils()->cancel_course_enrol( (int) $course_id, (int) $user_id );
+		}
+		return true;
 	}
 
 	/**

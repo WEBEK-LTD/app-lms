@@ -28,7 +28,7 @@ class License_Client {
 	/**
 	 * Plan features the platform may report (docs/api/platform.yaml, LicenseStatus).
 	 */
-	const FEATURES = array( 'push', 'offline_downloads', 'auto_publish', 'ios', 'page_editor', 'card_payments', 'auto_rebuild', 'chat' );
+	const FEATURES = array( 'push', 'offline_downloads', 'auto_publish', 'ios', 'page_editor', 'card_payments', 'auto_rebuild', 'chat', 'store_billing' );
 
 	/**
 	 * App types (`LicenseStatus.app_type`) and kinds of business (`LicenseStatus.vertical`) the platform may send.
@@ -224,6 +224,52 @@ class License_Client {
 	}
 
 	/**
+	 * 100.4 A store billing token for a person signed in on this site (docs/api/platform.yaml,
+	 * startBillingSession): their WordPress ID, name and email.
+	 *
+	 * @param int    $user_id WordPress user ID.
+	 * @param string $name    Their display name.
+	 * @param string $email   Their email, or ''.
+	 * @return array|WP_Error `token`, `expires_at` and `base_url`.
+	 */
+	public function billing_session( $user_id, $name, $email ) {
+		$key = (string) $this->settings->get( 'license_key' );
+		if ( '' === $key ) {
+			return new WP_Error( 'feature_disabled', __( 'This app doesn\'t sell in the app.', 'yallapp' ), array( 'status' => 403 ) );
+		}
+		return $this->call(
+			'POST',
+			'/billing/sessions',
+			array_merge(
+				$this->site_info( $key ),
+				array(
+					'user' => array(
+						'id'    => (int) $user_id,
+						'name'  => $name,
+						'email' => '' !== $email ? $email : null,
+					),
+				)
+			)
+		);
+	}
+
+	/**
+	 * 100.4 Sends what the site sells that the app may sell through the stores
+	 * (docs/api/platform.yaml, sendBillingCatalog).
+	 *
+	 * @param array $catalog `currency`, `courses` and `plans` (Store_Billing::catalog()).
+	 * @return true|WP_Error
+	 */
+	public function send_billing_catalog( array $catalog ) {
+		$key = (string) $this->settings->get( 'license_key' );
+		if ( '' === $key ) {
+			return new WP_Error( 'license_missing', __( 'Activate your Yallapp license first.', 'yallapp' ) );
+		}
+		$result = $this->call( 'POST', '/billing/catalog', array_merge( $this->site_info( $key ), $catalog ) );
+		return is_wp_error( $result ) ? $result : true;
+	}
+
+	/**
 	 * 77 Tells Yallapp a person's account is gone, so their chat goes too (docs/api/platform.yaml,
 	 * forgetChatMember). Without waiting for the answer: a deletion never waits on Yallapp.
 	 *
@@ -411,7 +457,7 @@ class License_Client {
 	/**
 	 * The last known status.
 	 *
-	 * @return array{status: string, plan: string|null, features: string[], sign_in_methods: string[]|null, email_sign_in: string|null, offline_downloads: bool|null, screen_protection: string|null, app_type: string|null, vertical: string|null, app_links: array|null, review_prompt: bool, crash_reports: bool, hide_video_branding: bool, chat: array|null, switches: array<string, bool>, expires_at: string|null, checked_at: string|null, message: string|null, contacted_at: int}
+	 * @return array{status: string, plan: string|null, features: string[], sign_in_methods: string[]|null, email_sign_in: string|null, offline_downloads: bool|null, screen_protection: string|null, app_type: string|null, vertical: string|null, app_links: array|null, review_prompt: bool, crash_reports: bool, hide_video_branding: bool, chat: array|null, store_billing: array|null, switches: array<string, bool>, expires_at: string|null, checked_at: string|null, message: string|null, contacted_at: int}
 	 */
 	public function status() {
 		$stored = get_option( self::STATUS_OPTION, array() );
@@ -431,6 +477,7 @@ class License_Client {
 				'crash_reports'       => true,
 				'hide_video_branding' => false,
 				'chat'                => null,
+				'store_billing'       => null,
 				'switches'            => array(),
 				'expires_at'          => null,
 				'checked_at'          => null,
@@ -496,7 +543,14 @@ class License_Client {
 			}
 			return $result;
 		}
-		return $this->save_status( $result );
+		$status = $this->save_status( $result );
+		/**
+		 * Fires after a license check saved the platform's answer (100.4 the catalog follows).
+		 *
+		 * @param array $status The saved status.
+		 */
+		do_action( 'yallapp_license_checked', $status );
+		return $status;
 	}
 
 	/**
@@ -666,6 +720,8 @@ class License_Client {
 			'hide_video_branding' => self::hides_video_branding( $result ),
 			// 77 The app's chat, on Yallapp: where it is and whether academies have course groups.
 			'chat'                => self::chat_of( $result ),
+			// 100.4 Selling courses and memberships in the app through Google Play and the App Store.
+			'store_billing'       => \Yallapp\Billing\Store_Billing::of_status( $result ),
 			// 83.3 The team's switches for the app's modules and new features.
 			'switches'            => self::switches_of( $result ),
 			'expires_at'          => isset( $result['expires_at'] ) ? sanitize_text_field( (string) $result['expires_at'] ) : null,

@@ -32,7 +32,7 @@ use WP_Query;
  * The website finishes a course when the student presses "Finish course"; the app has no
  * such button, so the adapter finishes it with LearnPress's own rules once every item is done.
  */
-class LearnPress_Adapter extends Base_Adapter {
+class LearnPress_Adapter extends Base_Adapter implements Store_Enrolment {
 
 	const NATIVE_QUESTION_TYPES = array( 'true_or_false', 'single_choice', 'multi_choice' );
 
@@ -387,6 +387,60 @@ class LearnPress_Adapter extends Base_Adapter {
 			'course_id'   => (int) $course_id,
 			'enrolled_at' => self::iso( '' !== $start ? $start : gmdate( 'Y-m-d H:i:s' ) ),
 		);
+	}
+
+	/**
+	 * 100.4 Enrols a student in a course bought in the app (Store_Enrolment).
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return true|WP_Error
+	 */
+	public function grant_course( $course_id, $user_id ) {
+		if ( ! Course_Visibility::live( get_post( (int) $course_id ), $this->post_types()['course'] ) ) {
+			return new WP_Error( 'not_found', __( 'Course not found.', 'yallapp' ), array( 'status' => 404 ) );
+		}
+		if ( $this->is_enrolled( $course_id, $user_id ) ) {
+			return true;
+		}
+		try {
+			// An order of the site's own, completed: LearnPress gives the course as after a payment.
+			$order = new \LP_Order();
+			$order->set_status( 'pending' );
+			$order->set_user_id( (int) $user_id );
+			$order->set_created_via( 'yallapp' );
+			$order->save();
+			if ( ! $order->get_id() || ! $order->add_item( (int) $course_id ) ) {
+				return new WP_Error( 'enrollment_failed', __( 'Enrollment is not available for this course.', 'yallapp' ), array( 'status' => 503 ) );
+			}
+			$order->update_status( 'completed' );
+		} catch ( Throwable $e ) {
+			return new WP_Error( 'enrollment_failed', __( 'Enrollment is not available for this course.', 'yallapp' ), array( 'status' => 503 ) );
+		}
+		$this->start_if_purchased( $course_id, $user_id );
+		return true;
+	}
+
+	/**
+	 * 100.4 Takes a student out of a course bought in the app (Store_Enrolment).
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return true|WP_Error
+	 */
+	public function revoke_course( $course_id, $user_id ) {
+		$user_course = UserCourseModel::find( (int) $user_id, (int) $course_id, true );
+		if ( ! $user_course instanceof UserCourseModel ) {
+			return true;
+		}
+		// Cancelling the order that gave it takes the course back, as LearnPress does for a refund.
+		$order = function_exists( 'learn_press_get_order' ) ? learn_press_get_order( (int) $user_course->ref_id ) : null;
+		if ( ! $order || 'yallapp' !== $order->get_created_via() ) {
+			// The student has the course from another order (bought on the website since): it stays.
+			return true;
+		}
+		$order->update_status( 'cancelled' );
+		return true;
 	}
 
 	/**

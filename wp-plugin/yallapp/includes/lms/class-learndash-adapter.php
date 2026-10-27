@@ -45,7 +45,7 @@ use WP_Query;
  * certificate link. Orders are LearnDash's own transactions (Stripe, PayPal and Razorpay).
  * LearnDash has no reviews, wishlist or Q&A.
  */
-class LearnDash_Adapter extends Base_Adapter {
+class LearnDash_Adapter extends Base_Adapter implements Store_Enrolment {
 
 	const COURSE      = 'sfwd-courses';
 	const LESSON      = 'sfwd-lessons';
@@ -432,6 +432,36 @@ class LearnDash_Adapter extends Base_Adapter {
 			'course_id'   => (int) $course_id,
 			'enrolled_at' => gmdate( 'Y-m-d\TH:i:s\Z', $since > 0 ? $since : time() ),
 		);
+	}
+
+	/**
+	 * 100.4 Enrols a student in a course bought in the app (Store_Enrolment).
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return true|WP_Error
+	 */
+	public function grant_course( $course_id, $user_id ) {
+		if ( ! Course_Visibility::live( get_post( (int) $course_id ), self::COURSE ) ) {
+			return new WP_Error( 'not_found', __( 'Course not found.', 'yallapp' ), array( 'status' => 404 ) );
+		}
+		if ( $this->is_enrolled( $course_id, $user_id ) ) {
+			return true;
+		}
+		$this->ld( 'ld_update_course_access', false, (int) $user_id, (int) $course_id );
+		return $this->is_enrolled( $course_id, $user_id ) ? true : new WP_Error( 'enrollment_failed', __( 'Enrollment is not available for this course.', 'yallapp' ), array( 'status' => 503 ) );
+	}
+
+	/**
+	 * 100.4 Takes a student out of a course bought in the app (Store_Enrolment).
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return true|WP_Error
+	 */
+	public function revoke_course( $course_id, $user_id ) {
+		$this->ld( 'ld_update_course_access', false, (int) $user_id, (int) $course_id, true );
+		return true;
 	}
 
 	/**
