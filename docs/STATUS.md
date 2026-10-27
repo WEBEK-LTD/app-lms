@@ -7,7 +7,7 @@ and whenever a pull request is opened, merged or closed.
 
 Last updated: 27 October 2026.
 
-## Phase 100 (courses and memberships bought in the app): 100.1–100.6 merged, 100.7 done on its branch
+## Phase 100 (courses and memberships bought in the app): done, 100.1–100.7 merged
 
 | Step | State | Branch | Checks |
 |---|---|---|---|
@@ -17,7 +17,7 @@ Last updated: 27 October 2026.
 | 100.4 Plugin 0.4.23: give and take access | Merged (#160) | `wip-billing-plugin` | composer lint, `php -l`, PHPUnit 250 (16 new), redocly lint. The LMS integration suites run in CI |
 | 100.5 App: Google Play Billing and StoreKit | Merged (#161) | `wip-billing-app` | dart format, flutter analyze, flutter test 955, the preview rebuilt, the platform's app-string tests |
 | 100.6 Sales, the guide, the terms | Merged (#159) | `wip-billing-sales` | tsc, eslint, unit 2007, the store suites on MariaDB, redocly lint, e2e: analytics, owner API, public pages, integrations, site languages, hosted courses |
-| 100.7 Own API, Teachable and Thinkific | Done, waiting for review | `wip-billing-own` | tsc, eslint, unit 2028 (19 new), the store suites on MariaDB (migrations to 0092, 94 tests), redocly lint, e2e: in-app purchases on an own API (new), hosted courses, Yallapp sign-in, analytics, owner API, integrations, site languages, public pages, dashboard languages |
+| 100.7 Own API, Teachable and Thinkific | Merged (#163) | — | tsc, eslint, unit 2028 (19 new), the store suites on MariaDB (migrations to 0092, 94 tests), redocly lint, e2e: in-app purchases on an own API (new), hosted courses, Yallapp sign-in, analytics, owner API, integrations, site languages, public pages, dashboard languages |
 
 Notes:
 
@@ -63,11 +63,16 @@ Notes:
 | #92, #91, #90, #89 | Dependabot majors: eslint 10, pdfjs-dist 6, TypeScript 7, `@types/node` 26 | Each needs its own change; not merged |
 | #86 | Dependabot: fastlane 2.241.1 | Review |
 
+## Done by the owner
+
+- Google real-time notifications (27 October 2026): Yallapp's Pub/Sub topic
+  and push subscription, `GOOGLE_PUBSUB_PUSH_EMAIL` and `GOOGLE_PUBSUB_TOPIC`
+  in Netlify. One topic serves every client: each client enters it in their
+  own Play Console › Monetization setup (shown on In-app purchases), and the
+  platform finds the app by its package name.
+
 ## Waiting on the owner
 
-- Google real-time notifications: create the Pub/Sub topic and its push
-  subscription, then set `GOOGLE_PUBSUB_PUSH_EMAIL` and `GOOGLE_PUBSUB_TOPIC`
-  in Netlify (`docs/LAUNCH-CHECKLIST.md`).
 - Run migrations up to 0091 on production when 100.6 is deployed (0092 with 100.7).
 - Install plugin 0.4.23 on the client sites once 100.5's app update is out.
 - Yallapp Business iOS build 61.
