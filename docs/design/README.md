@@ -1,8 +1,8 @@
 # Designs
 
-Exported from the [Yallapp design canvas](https://claude.ai/artifact/KXsMPBp2at8HgoCssXzt44).
-Each `*.dc.html` file is one screen. The canvas is the source of truth; these
-copies are for reference while building.
+Exported from the Yallapp design canvas. Each `*.dc.html` file is one
+screen. The canvas is the source of truth; these copies are for reference
+while building.
 
 | Files | Screens |
 |---|---|

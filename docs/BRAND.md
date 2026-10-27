@@ -4,7 +4,7 @@ These rules apply to everything Yallapp ships under its own name: the website,
 the client dashboard, the super admin and the plugin's admin pages. Client apps
 use each client's own logo and colors; Yallapp's palette is only their default.
 
-Designs: [Yallapp design canvas](https://claude.ai/artifact/KXsMPBp2at8HgoCssXzt44)
+Designs: exported screens in [`docs/design/`](design).
 
 ## Colors
 

@@ -28,6 +28,7 @@ Website: [yallapp.com.tr](https://yallapp.com.tr)
 3. [`docs/api/openapi.yaml`](docs/api/openapi.yaml): the contract between the plugin and the app.
 4. [`docs/BRAND.md`](docs/BRAND.md): colors, type and icon rules for everything we ship.
 5. [`docs/CONNECTORS.md`](docs/CONNECTORS.md): the connectors and adapters, their versions and how to add one.
+6. [`CONTRIBUTING.md`](CONTRIBUTING.md): how work is done, the product rules and the checks before pushing.
 
 ## Checks
 
@@ -55,3 +56,30 @@ npm ci
 npm run lint && npm run typecheck && npm test && npm run build
 npm run test:e2e
 ```
+
+## Copyright and License
+
+Copyright (c) 2026 Webek LTD. All rights reserved.
+
+Yallapp's original source code, documentation and designs in this
+repository belong to Webek LTD and are protected by intellectual property
+law. The repository is public so that it can be viewed; this does not grant
+a licence to use it. Copying, modifying, distributing, reusing in another
+project or product, or any commercial or personal use of this code, in whole
+or in part, needs the prior written permission of Webek LTD. See
+[`LICENSE`](LICENSE) for the full terms.
+
+Exceptions:
+
+- The WordPress plugin in [`wp-plugin/yallapp/`](wp-plugin/yallapp) is
+  licensed under the GNU General Public License, version 2 or later, as its
+  header and `readme.txt` state.
+- Customers use Yallapp's apps and service under Yallapp's
+  [terms of service](https://yallapp.com.tr/terms).
+- Third-party packages, fonts, icons and other components keep their own
+  licences, which this notice does not change.
+
+For permission or a licence, contact Webek LTD:
+
+- Email: info@webek.org
+- Website: [https://webek.org](https://webek.org)
