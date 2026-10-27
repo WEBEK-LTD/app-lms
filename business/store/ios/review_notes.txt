@@ -11,7 +11,7 @@ The demo account in the sign-in details belongs to a test business with sample a
 - Inbox > Questions and Reviews (an academy app): answer, or hide a question, an answer or a review.
 - Today > Notify sends a push to the users of the business's own app, now or later.
 - Today > Upload picks a picture or a video and uploads it to the app's Media.
-More > Delete my account opens yallapp.com.tr/delete-account: the account is deleted from the website's Dashboard > Your account (it can be cancelled for 7 days, then the account and its data are deleted). Sign out is at the end of More.
+More > Delete my account opens yallapp.com.tr/delete-account: the request is made from the website's Dashboard > Your account, and the account and its data are deleted within 30 days of it, as the page says; until then the request can be cancelled from the dashboard. Sign out is at the end of More.
 
 The camera, microphone and photos are asked for only when the person scans a ticket or takes or picks a picture or video. Face ID is optional and only locks the app on the phone. Notifications are about the business's own orders, bookings and messages. No sample files are needed.
 
