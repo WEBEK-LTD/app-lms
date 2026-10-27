@@ -335,7 +335,10 @@ void main() {
     testWidgets('switched off, the blocks keep their usual look', (
       tester,
     ) async {
-      final config = {...configJson(), 'switches': {'block_looks': false}};
+      final config = {
+        ...configJson(),
+        'switches': {'block_looks': false},
+      };
       final api = FakeApi(config: config)
         ..navigation = navigationJson()
         ..pages = {
