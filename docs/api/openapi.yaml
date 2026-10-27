@@ -141,6 +141,20 @@ tags:
     description: Free enrollment, checkout hand-off and the student's orders.
   - name: Notifications
     description: The notifications inbox.
+  - name: Store billing
+    description: |
+      Roadmap 100. Courses and memberships bought in the app through Google
+      Play Billing (Android) and the App Store's In-App Purchase (iOS), on
+      Yallapp's hosted API for every app (`Config.store_billing.base_url`),
+      as the stores ask for digital content. The app buys with the store's
+      own SDK, then sends what the store gave it to `POST /billing/purchases`;
+      Yallapp checks it with Google or Apple, records it once and gives the
+      access where the course lives (the hosted API, the WordPress site
+      through the plugin's `POST /billing/access`, Teachable or Thinkific, or
+      an app's own API through the `purchase.completed` notice). Refunds and
+      ended subscriptions take it back. Physical goods and services (shop
+      products, orders, appointments, tickets to a venue, gym memberships,
+      donations) keep their payment pages.
   - name: Chat
     description: |
       Roadmap 77. A person and the business (`direct`), and course groups in
@@ -1093,6 +1107,167 @@ paths:
       responses:
         '204': { description: Marked as read }
         '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /billing/session:
+    post:
+      tags: [Store billing]
+      operationId: startStoreSession
+      summary: A store billing token for the signed-in person (WordPress)
+      description: |
+        Roadmap 100. Served by the Yallapp plugin (0.4.23 and later) when
+        `Config.store_billing.session` is `site`, like `POST /chat/session`:
+        the plugin gets the token from Yallapp (`POST /billing/sessions` in the
+        platform API) for the signed-in person's WordPress user ID, display
+        name and email. The app sends it as `Authorization: Bearer` to
+        `Config.store_billing.base_url` until `expires_at` (one hour), and
+        asks again on 401 `invalid_token`.
+      responses:
+        '200':
+          description: The token
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ChatSession' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403':
+          description: The app doesn't sell in the app (`feature_disabled`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /billing/products:
+    get:
+      tags: [Store billing]
+      operationId: listStoreProducts
+      summary: What the app sells through the store on this platform
+      description: |
+        Roadmap 100. Served by the hosted API at `Config.store_billing.base_url`
+        for every app that sells in the app. The store product IDs of the paid
+        courses and membership plans the owner sells, ready in the store.
+        The app asks the store for each product's price in the person's
+        currency and shows that price, never the site's. Public: no token
+        needed.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Platform'
+      responses:
+        '200':
+          description: The products
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/StoreProduct' }
+        '403':
+          description: The app doesn't sell in the app (`feature_disabled`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /billing/purchases:
+    post:
+      tags: [Store billing]
+      operationId: sendStorePurchase
+      summary: Send a purchase the store made, for the access it buys
+      description: |
+        Roadmap 100. After the store's purchase flow says the purchase went
+        through (Android: `purchased`; iOS: a verified transaction), the app
+        sends the Google purchase token or the App Store's signed transaction.
+        Yallapp checks it with the store (that it is this app's, for this
+        product, paid and not refunded), records it once, gives the access
+        (enrolment in the course, or the membership until `expires_at`) and
+        acknowledges it with the store. Only then does the app finish the
+        transaction with the store. Sending the same purchase again answers
+        the same grant. A purchase the store marks pending (`status`
+        `pending`, Android) gives nothing yet: Yallapp gives the access when
+        Google tells it the purchase completed.
+
+        `invalid_receipt` (400): not a valid purchase of this app's product.
+        `purchase_in_use` (409): the purchase gives access to another account
+        of this app already (a store account buys for one app account).
+        `store_unavailable` (503): the store couldn't be reached; the app keeps
+        the transaction unfinished and sends it again later (at the next start
+        too). A purchase never acknowledged is refunded by Google after three
+        days.
+      parameters:
+        - $ref: '#/components/parameters/Platform'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StorePurchase' }
+      responses:
+        '200':
+          description: The access the purchase gives
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StoreGrant' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403':
+          description: The app doesn't sell in the app (`feature_disabled`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /billing/purchases/restore:
+    post:
+      tags: [Store billing]
+      operationId: restoreStorePurchases
+      summary: Restore purchases
+      description: |
+        Roadmap 100. "Restore purchases" (which Apple asks for): the app sends
+        every purchase the store has for the person (Android: the purchase
+        tokens of `queryPurchases`; iOS: the signed transactions of
+        `Transaction.currentEntitlements`), and gets back the grants still
+        active for this account. Purchases already in use by another account
+        of the app are left out, never moved.
+      parameters:
+        - $ref: '#/components/parameters/Platform'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                purchase_tokens:
+                  type: array
+                  maxItems: 100
+                  description: Android.
+                  items: { type: string, maxLength: 2000 }
+                signed_transactions:
+                  type: array
+                  maxItems: 100
+                  description: iOS, each a JWS.
+                  items: { type: string, maxLength: 20000 }
+      responses:
+        '200':
+          description: The grants still active
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/StoreGrant' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403':
+          description: The app doesn't sell in the app (`feature_disabled`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 
   /chat/session:
     post:
@@ -3668,6 +3843,74 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /billing/access:
+    post:
+      tags: [Platform]
+      operationId: storeAccess
+      summary: Give or take access bought through a store
+      description: |
+        Roadmap 100. Sent by the Yallapp platform to the WordPress site (plugin
+        0.4.23 and later) once it has checked a store purchase, and again when
+        Google or Apple says it was refunded, revoked, renewed or ended. The
+        plugin gives the access (`grant`): enrols the user in the course (the
+        site's LMS), or gives the membership until `expires_at` (Paid
+        Memberships Pro level, LearnDash group, or the site's WooCommerce
+        Subscriptions product), and records a WooCommerce order marked paid by
+        the store when WooCommerce is active; or takes it back (`revoke`).
+        `grant_id` is the same on every try of one change: a repeat answers as
+        the first time did.
+
+        The request is signed like `POST /license/refresh`: the headers
+        `Yallapp-Timestamp` (Unix seconds) and `Yallapp-Signature`, the
+        lowercase hex HMAC-SHA256 of `yallapp-billing-access:<timestamp>:<the raw
+        body>`, keyed with the license key in capitals. A wrong signature, a
+        site without a license key or a timestamp more than 5 minutes away is
+        refused (`invalid_signature`, 401). Only sent to the https address of
+        the site the license is active on; tried again after 1, 5 and 30
+        minutes and 2, 6 and 24 hours when the site doesn't answer 2xx.
+      security: []
+      parameters:
+        - name: Yallapp-Timestamp
+          in: header
+          required: true
+          schema: { type: integer }
+        - name: Yallapp-Signature
+          in: header
+          required: true
+          schema: { type: string, pattern: '^[0-9a-f]{64}$' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [grant_id, action, user_id, kind, platform, transaction_id]
+              properties:
+                grant_id: { type: string, format: uuid }
+                action: { type: string, enum: [grant, revoke] }
+                user_id: { type: integer, minimum: 1, description: The WordPress user. }
+                kind: { type: string, enum: [course, membership] }
+                course_id: { type: [integer, 'null'], description: For `course`. }
+                plan_id: { type: [string, 'null'], description: 'For `membership`, as the plugin sent it in its catalog (`POST /billing/catalog`, platform API).' }
+                expires_at: { type: [string, 'null'], format: date-time, description: 'For `membership`, when the paid period ends (renewals send a later one).' }
+                platform: { type: string, enum: [android, ios] }
+                transaction_id: { type: string, description: The store's order ID (Google) or original transaction ID (Apple). }
+                amount: { type: [string, 'null'], description: 'What the person paid, in `currency`, for the WooCommerce order.' }
+                currency: { type: [string, 'null'], example: TRY }
+      responses:
+        '200':
+          description: Done (or already done).
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok]
+                properties:
+                  ok: { type: boolean }
+                  order_id: { type: [integer, 'null'], description: 'The WooCommerce order recorded, if any.' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /license/refresh:
     post:
       tags: [Platform]
@@ -3778,6 +4021,49 @@ webhooks:
                 as in their access tokens), `jti`, `iat`, `exp` and `events`
                 (`{ "account.deleted": {} }`).
               example: eyJhbGciOiJFUzI1NiIsInR5cCI6InNlY2V2ZW50K2p3dCIsImtpZCI6Ii4uLiJ9.eyJldmVudHMiOnsiYWNjb3VudC5kZWxldGVkIjp7fX19.c2lnbmF0dXJl
+      responses:
+        '202': { description: Received. Any 2xx answer delivers the notice. }
+  storePurchase:
+    post:
+      tags: [Store billing]
+      operationId: storePurchaseNotice
+      summary: A purchase in the store gives or takes access (sent to the client's API)
+      x-path: /webhooks/yallapp
+      description: |
+        Roadmap 100. Sent to an app on its own API that Yallapp signs people
+        in to and that sells in the app, at the same address and signed the
+        same way as `account.deleted` (a Security Event Token with the app's
+        key), once Yallapp has checked a store purchase (`purchase.completed`),
+        and when Google or Apple says it was refunded, revoked or ended
+        (`purchase.revoked`) or renewed (`purchase.completed` again, with a
+        later `expires_at`). The client gives or takes the access in its own
+        system. Retries, `Yallapp-Delivery` and the delivery log are as for
+        `account.deleted`.
+      security: []
+      parameters:
+        - name: Yallapp-Event
+          in: header
+          required: true
+          schema: { type: string, enum: [purchase.completed, purchase.revoked] }
+        - name: Yallapp-Delivery
+          in: header
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/secevent+jwt:
+            schema:
+              type: string
+              description: |
+                The signed token. Its `events` claim is
+                `{ "purchase.completed": { … } }` or
+                `{ "purchase.revoked": { … } }`, each with `product_id`, `kind`
+                (`course` or `membership`), `item_id` (the course's or plan's
+                ID as the owner set it in the dashboard), `platform`,
+                `transaction_id`, `expires_at` (memberships) and `reason`
+                (`refunded`, `revoked` or `expired`, for `purchase.revoked`).
+                `sub` is the person's Yallapp user ID.
       responses:
         '202': { description: Received. Any 2xx answer delivers the notice. }
 
@@ -4031,6 +4317,9 @@ components:
             - donations_unavailable
             - not_downloadable
             - restart_disabled
+            - invalid_receipt
+            - purchase_in_use
+            - store_unavailable
         message: { type: string, description: "A message safe to show to the student, in the language the app asked for with `Accept-Language` when the server has it (the hosted API: English, Arabic and Turkish), else in English." }
         retry_after_seconds: { type: integer }
         details: { type: object, additionalProperties: true }
@@ -4176,11 +4465,12 @@ components:
                 client's own API may send it too, for apps built before.
             base_url: { type: string, format: uri, example: 'https://yallapp.com.tr/api/app/00000000-0000-0000-0000-000000000000', description: "With `provider: yallapp`: Yallapp's hosted API for the app." }
         chat: { $ref: '#/components/schemas/ChatConfig' }
+        store_billing: { $ref: '#/components/schemas/StoreBillingConfig' }
         purchases:
           type: object
           required: [enroll_button, free_enrollment]
           properties:
-            enroll_button: { type: boolean, description: "Whether paid courses show \"Enroll now\" on this platform. Always false on iOS, and on the hosted API false when the app's plan has no card payments in the app." }
+            enroll_button: { type: boolean, description: "Whether paid courses show \"Enroll now\" (the website's checkout) on this platform. Always false on iOS, and on the hosted API false when the app's plan has no card payments in the app. Roadmap 100: also false on Android, as the stores ask: paid courses are bought through the store (`store_billing`) or not in the app." }
             free_enrollment: { type: boolean }
             checkout_opens_in: { type: string, enum: [in_app, browser] }
         content:
@@ -4517,6 +4807,10 @@ components:
                   type: array
                   items: { type: string }
                   example: [Gold, Annual]
+                store_product_ids:
+                  type: array
+                  description: Roadmap 100. The store products of the plans that open this course and are sold in the app, to offer when `has_access` is false. Missing or empty, none.
+                  items: { type: string }
             can_restart:
               type: boolean
               description: >-
@@ -4535,8 +4829,11 @@ components:
               properties:
                 action:
                   type: string
-                  description: What the course page's main button does on this platform.
-                  enum: [continue, enroll_free, checkout, none]
+                  description: What the course page's main button does on this platform. Roadmap 100 `store`, buy it through the store (`store_product_id`); older servers never send it.
+                  enum: [continue, enroll_free, checkout, store, none]
+                store_product_id:
+                  type: [string, 'null']
+                  description: Roadmap 100. With `store`, the store product to buy (`GET /billing/products`). Null otherwise.
 
     Topic:
       type: object
@@ -4904,6 +5201,60 @@ components:
         device: { type: [string, 'null'], enum: [phone, tablet, null], description: "The kind of device only, never its model or name." }
         screen: { type: [string, 'null'], maxLength: 80, description: "The route's pattern, without ids or query (`/course/:id`).", example: '/course/:id' }
         at: { type: string, format: date-time }
+
+    StoreBillingConfig:
+      type: object
+      description: |
+        Roadmap 100. Present when the app sells paid courses or memberships
+        through the store on this platform (every plan but Starter, the
+        owner's stores connected in the dashboard); missing means no buying in
+        the app for digital content.
+      required: [base_url, session]
+      properties:
+        base_url: { type: string, format: uri, description: Where the Store billing endpoints are (Yallapp's hosted API for the app). }
+        session:
+          type: string
+          enum: [access_token, site]
+          description: As `ChatConfig.session`; `site` gets a token from `POST /billing/session`.
+        terms_url: { type: [string, 'null'], format: uri, description: 'The terms shown with a subscription, as Apple asks (else `site.terms_url`).' }
+
+    StoreProduct:
+      type: object
+      required: [product_id, type, kind, title]
+      properties:
+        product_id: { type: string, example: course_123 }
+        type: { type: string, enum: [one_time, subscription] }
+        kind: { type: string, enum: [course, membership] }
+        course_id: { type: [integer, 'null'], description: For `course`. }
+        plan_id: { type: [string, 'null'], description: For `membership`. }
+        title: { type: string }
+        period: { type: [string, 'null'], enum: [month, year, null], description: For `subscription`. }
+        course_ids:
+          type: array
+          description: For `membership`, the courses it opens, when the source says.
+          items: { type: integer }
+
+    StorePurchase:
+      type: object
+      required: [product_id]
+      properties:
+        product_id: { type: string }
+        purchase_token: { type: [string, 'null'], maxLength: 2000, description: 'Android, from Google Play Billing.' }
+        signed_transaction: { type: [string, 'null'], maxLength: 20000, description: 'iOS, the transaction''s JWS from StoreKit.' }
+
+    StoreGrant:
+      type: object
+      required: [product_id, kind, status]
+      properties:
+        product_id: { type: string }
+        kind: { type: string, enum: [course, membership] }
+        course_id: { type: [integer, 'null'] }
+        plan_id: { type: [string, 'null'] }
+        status:
+          type: string
+          enum: [active, pending, expired, revoked]
+          description: '`pending`: Google still waits for the payment; access comes when it completes.'
+        expires_at: { type: [string, 'null'], format: date-time, description: Memberships. }
 
     ChatConfig:
       type: object

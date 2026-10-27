@@ -71,6 +71,20 @@ tags:
       copy it got, and serves it to the app as `GET /pages` and
       `Config.appearance`. Lists in a page are filled by the plugin from the
       site's own courses, products and posts.
+  - name: Store billing
+    description: |
+      Roadmap 100. Courses and memberships bought in the app through Google
+      Play Billing and the App Store (docs/api/openapi.yaml, tag Store
+      billing). For a WordPress app the plugin sends Yallapp what the site
+      sells (`POST /billing/catalog`), gets a token for the signed-in person
+      (`POST /billing/sessions`), and gives or takes the access when Yallapp
+      asks (`POST /billing/access` on the plugin, signed with the license
+      key). Google's real-time notifications and Apple's App Store Server
+      Notifications reach Yallapp at the addresses below; they carry the
+      store's own proof (a Google-signed token, Apple's signed payload) and
+      nothing is trusted without it. Only the WordPress user ID, display name
+      and email of a person who buys pass to Yallapp, to tie the purchase to
+      their account.
   - name: Chat
     description: |
       Roadmap 77. The chat of a WordPress app lives on Yallapp: the plugin
@@ -322,6 +336,200 @@ paths:
         '429': { $ref: '#/components/responses/TooManyRequests' }
         '502':
           description: The message couldn't be sent, or no sender is set up (`provider_error`). The plugin tells the person to try again.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /billing/sessions:
+    post:
+      tags: [Store billing]
+      operationId: startBillingSession
+      summary: A store billing token for a person signed in on the site
+      description: |
+        Roadmap 100. The plugin asks for it when the app calls its
+        `POST /billing/session`. The license must be active on this site and
+        its app must sell in the app (`LicenseStatus.store_billing`); otherwise
+        403 `license_inactive` or `feature_disabled`. The token works for an
+        hour on the hosted API's Store billing endpoints. 600 sessions an hour
+        per license.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/SiteInfo'
+                - type: object
+                  required: [user]
+                  properties:
+                    user:
+                      type: object
+                      required: [id, name]
+                      properties:
+                        id: { type: integer, minimum: 1 }
+                        name: { type: string, maxLength: 120 }
+                        email: { type: [string, 'null'], format: email, maxLength: 254 }
+      responses:
+        '200':
+          description: The token
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [token, expires_at, base_url]
+                properties:
+                  token: { type: string }
+                  expires_at: { type: string, format: date-time }
+                  base_url: { type: string, format: uri }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403':
+          description: The license isn't active on this site (`license_inactive`), or the app doesn't sell in the app (`feature_disabled`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /billing/catalog:
+    post:
+      tags: [Store billing]
+      operationId: sendBillingCatalog
+      summary: What the site sells that the app may sell through the stores
+      description: |
+        Roadmap 100. Sent by the plugin after each license check (twice a day)
+        and within a minute of a paid course or membership plan being saved
+        on the site. Yallapp keeps a store product for each (made in the
+        owner's Google Play and App Store accounts once they're connected), at
+        the nearest store price to `price` unless the owner set another, and
+        stops selling the ones no longer sent. Paid courses and membership
+        plans only; free courses never need one. At most 1,000 courses and 50
+        plans.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/SiteInfo'
+                - type: object
+                  required: [currency, courses, plans]
+                  properties:
+                    currency: { type: string, pattern: '^[A-Z]{3}$', example: TRY }
+                    courses:
+                      type: array
+                      maxItems: 1000
+                      items:
+                        type: object
+                        required: [id, title, price]
+                        properties:
+                          id: { type: integer }
+                          title: { type: string, maxLength: 200 }
+                          price: { type: string, description: "The site's price, a decimal string.", example: '450.00' }
+                    plans:
+                      type: array
+                      maxItems: 50
+                      items:
+                        type: object
+                        required: [id, title, price, period]
+                        properties:
+                          id: { type: string, maxLength: 64, description: 'The site''s own ID for it, as `POST /billing/access` sends back (pmpro:3, ld_group:12, wcs:45).' }
+                          title: { type: string, maxLength: 200 }
+                          price: { type: string, example: '199.00' }
+                          period: { type: string, enum: [month, year] }
+                          course_ids:
+                            type: array
+                            maxItems: 1000
+                            items: { type: integer }
+      responses:
+        '204': { description: Received. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403':
+          description: The license isn't active on this site (`license_inactive`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /billing/notifications/google/{app_id}:
+    post:
+      tags: [Store billing]
+      operationId: googleBillingNotification
+      summary: Google Play's real-time developer notifications (sent by Google)
+      description: |
+        Roadmap 100. The push endpoint of the Pub/Sub subscription for the
+        app's Google Play real-time developer notifications. Yallapp checks the
+        Google-signed OIDC token in `Authorization` (issued by Google for the
+        push subscription's service account, audience this address), then
+        reads the purchase again from the Google Play Developer API: the
+        notification itself is never trusted. It answers 204 once handled
+        (Pub/Sub tries again otherwise), and also 204 for a notification it
+        can't use (an unknown package), so Pub/Sub stops sending it.
+      security: []
+      parameters:
+        - name: app_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message]
+              properties:
+                message:
+                  type: object
+                  required: [data]
+                  properties:
+                    data: { type: string, description: 'Base64 JSON: the DeveloperNotification.' }
+                    messageId: { type: string }
+                subscription: { type: string }
+      responses:
+        '204': { description: Handled. }
+        '401':
+          description: "Not sent by Google: the token is missing or wrong (`invalid_signature`)."
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '503':
+          description: Google Play couldn't be reached to read the purchase; Pub/Sub tries again.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /billing/notifications/apple/{app_id}:
+    post:
+      tags: [Store billing]
+      operationId: appleBillingNotification
+      summary: App Store Server Notifications V2 (sent by Apple)
+      description: |
+        Roadmap 100. The app's App Store Server Notifications URL (production
+        and sandbox). Yallapp checks `signedPayload` (a JWS whose certificate
+        chain must end at Apple's root certificate, for the app's bundle ID),
+        then handles refunds, revocations, renewals and expiries. It answers
+        200 once handled; Apple tries again otherwise.
+      security: []
+      parameters:
+        - name: app_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [signedPayload]
+              properties:
+                signedPayload: { type: string }
+      responses:
+        '200': { description: Handled. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '503':
+          description: The App Store couldn't be reached; Apple tries again.
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
@@ -1010,6 +1218,33 @@ components:
           properties:
             base_url: { type: string, format: uri }
             groups: { type: boolean, description: The academy turned on course groups. }
+        store_billing:
+          type: [object, 'null']
+          description: |
+            Roadmap 100. Selling paid courses and memberships in the app
+            through the stores: null when the plan doesn't (Starter) or the
+            owner hasn't connected a store. The plugin serves it as
+            `Config.store_billing` with `session: site` on the platforms in
+            `platforms`, sends its catalog (`POST /billing/catalog`) and gives
+            the app's course pages the store product IDs below. Missing on
+            older platforms.
+          required: [base_url, platforms, products]
+          properties:
+            base_url: { type: string, format: uri }
+            platforms:
+              type: array
+              items: { type: string, enum: [android, ios] }
+            products:
+              type: array
+              description: The store products ready to sell, each with what it sells on the site.
+              items:
+                type: object
+                required: [product_id, kind]
+                properties:
+                  product_id: { type: string }
+                  kind: { type: string, enum: [course, membership] }
+                  course_id: { type: [integer, 'null'] }
+                  plan_id: { type: [string, 'null'] }
         switches:
           type: object
           description: |
