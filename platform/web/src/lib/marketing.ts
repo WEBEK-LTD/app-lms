@@ -1381,7 +1381,7 @@ export const FAQ: FaqGroup[] = [
       },
       {
         q: "Can you set up WordPress for me?",
-        a: "Yes. On the Website step, choose “I don't have WordPress” and tell us about your content. Our team messages you with the price and the next steps.",
+        a: "Yes. On the Website step, choose “Set up WordPress for me” and tell us about your content. Our team messages you with the price and the next steps.",
       },
       {
         q: "The store rejected my app. What now?",

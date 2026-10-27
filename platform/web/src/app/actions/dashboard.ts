@@ -232,8 +232,13 @@ export async function startFromWebsiteAction(formData: FormData): Promise<void> 
   const now = new Date();
   const draft = draftFromScan(scan, await appDefaults(store), now);
   const images = await siteImages(scan, deps);
+  const base = newApp(context.client.id, draft.details.siteUrl, now, draft.appType, draft.vertical);
+  const ownContent = ENGINES[base.appType].websites.includes("catalog") && (scan.platform.id !== "wordpress" || hostedOnly(base.appType));
   const app: App = {
-    ...newApp(context.client.id, draft.details.siteUrl, now, draft.appType, draft.vertical),
+    ...base,
+    // A WordPress site gets the plugin; any other site keeps its own place, and the app's content
+    // is added in the dashboard (the Website step's own content, which the owner can change).
+    ...(ownContent ? { siteUrl: null, backend: "hosted" as const, ...ownContentSetup(ENGINES[base.appType].ownContent.kind, base), websiteDoneAt: now } : {}),
     appName: draft.details.appName,
     shortName: draft.details.shortName,
     primaryColor: draft.details.primaryColor,

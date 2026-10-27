@@ -2,7 +2,7 @@ import type { App } from "../data/types";
 import { notifyWordpressReady, type NoticeDeps } from "../notices";
 
 /**
- * 19 "I don't have WordPress": our team sets up a WordPress site for the
+ * 19 "Set up WordPress for me": our team sets up a WordPress site for the
  * client. When it's ready (the team says so on the client's page, or the
  * plugin activates the app's license on a site) the app moves to it: backend
  * "wordpress" with the site's address, and the owner gets a dashboard notice

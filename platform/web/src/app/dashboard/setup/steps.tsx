@@ -397,6 +397,10 @@ export function WebsiteStep({
               <span className="flex flex-col gap-0.5">
                 <span className="text-[15px] font-bold">{b.title}</span>
                 <span className="text-sm text-ink-4">{b.text}</span>
+                {/* A website that isn't on WordPress is neither "Set up WordPress for me" nor a site to connect. */}
+                {b.id === "catalog" && offered.includes("wordpress") ? (
+                  <span className="text-sm text-ink-4">{t("setup.notWordpressHint")}</span>
+                ) : null}
               </span>
             </label>
           ))}

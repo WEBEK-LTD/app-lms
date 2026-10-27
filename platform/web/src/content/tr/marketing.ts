@@ -1098,7 +1098,7 @@ export const TR_MARKETING: MarketingTranslation = {
         },
         {
           q: "WordPress'i benim için kurabilir misiniz?",
-          a: "Evet. Web sitesi adımında “WordPress'im yok” seçeneğini seçip içeriğinizden bahsedin. Ekibimiz fiyat ve sonraki adımlarla size yazar.",
+          a: "Evet. Web sitesi adımında “WordPress'i benim için kurun” seçeneğini seçip içeriğinizden bahsedin. Ekibimiz fiyat ve sonraki adımlarla size yazar.",
         },
         {
           q: "Mağaza uygulamamı reddetti. Şimdi ne yapmalıyım?",

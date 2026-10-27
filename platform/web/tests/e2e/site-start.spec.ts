@@ -38,12 +38,23 @@ const HOME = `<!DOCTYPE html>
 <main><h1>Learn design with our online courses</h1><div class="tutor-course-card">Enroll now</div></main>
 </body></html>`;
 
+// A website that isn't on WordPress (served at /?plain).
+const PLAIN = `<!DOCTYPE html>
+<html lang="en">
+<head><title>Nile Bakery – Fresh bread every morning</title><meta name="description" content="Order fresh bread and cakes online." /></head>
+<body><header><nav><a href="/">Home</a><a href="/shop">Shop</a><a href="/about">About</a></nav></header>
+<main><h1>Fresh bread every morning</h1><div class="product"><span class="price">EGP 45</span><button>Add to cart</button></div></main>
+</body></html>`;
+
 test.beforeAll(async ({ browser }) => {
   const logo = solidPng(240, 80, [31, 122, 92]);
   site = createServer((req, res) => {
     if (req.url === "/") {
       res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
       res.end(HOME);
+    } else if (req.url === "/?plain") {
+      res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      res.end(PLAIN);
     } else if (req.url === "/wp-content/uploads/cedar-logo.png") {
       res.writeHead(200, { "content-type": "image/png" });
       res.end(logo);
@@ -133,4 +144,18 @@ test("the next app is the client's choice again: an app made already keeps its o
   await own.goto("/dashboard/app-type?new=1");
   await expect(own.getByRole("form", { name: "Start from your website" })).toBeVisible();
   await expect(own.getByLabel("Your website's address")).toHaveValue("");
+});
+
+test("a website that isn't on WordPress gets its content added here, not WordPress", async () => {
+  await own.goto("/dashboard/app-type?new=1");
+  await own.getByLabel("Your website's address").fill(`nile-bakery-${suffix}.test/?plain`);
+  await own.getByRole("button", { name: "Make my app" }).click();
+  await own.waitForURL(/\/dashboard\/pages\?from=site$/);
+  await own.goto("/dashboard/setup?step=website");
+  // Its content is added in the dashboard; nothing waits for a plugin or a WordPress set-up.
+  const choices = own.getByRole("group", { name: "Where your app gets its content" });
+  const chosen = choices.getByRole("radio", { checked: true });
+  await expect(chosen).not.toHaveAccessibleName(/^(My WordPress site|Set up WordPress for me)/);
+  await expect(chosen).toHaveAccessibleName(/Your website isn't on WordPress\? Choose this/);
+  await expect(choices.getByRole("radio", { name: /Set up WordPress for me/ })).not.toBeChecked();
 });

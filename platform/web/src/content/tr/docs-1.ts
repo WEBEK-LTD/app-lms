@@ -130,7 +130,7 @@ Yardım kuruluşları, gıda bankaları, vakıflar ve topluluk grupları için h
 - **Sitemin RSS akışı** (Haber ve blog uygulamaları): herhangi bir web sitesinin RSS veya Atom akışındaki haberler. [Haber ve blog uygulamaları](/docs/news) rehberine bakın.
 - **Web sitem yok**: içeriğinizi panelden ekleyin. [Web sitesi olmadan](/docs/no-website) rehberine bakın.
 - **Kendi API'm** (Akademi, Mağaza, Randevu ve Haber ve blog uygulamaları): geliştiriciler için. [Kendi API'nizi bağlayın](/docs/my-own-api) rehberine bakın.
-- **WordPress'im yok**: ekibimiz sizin için bir WordPress sitesi kurar ve içeriğinizi taşır.
+- **WordPress'i benim için kurun**: ekibimiz sizin için bir WordPress sitesi kurar ve içeriğinizi taşır.
 
 Emlak uygulamalarının tek bir seçeneği vardır: **Yallapp'te yönetilen ilanlar**; Yardım ve bağış uygulamalarının da tek bir seçeneği vardır: **Yallapp'te yönetilen kampanyalar**.
 
@@ -146,7 +146,7 @@ Platform anahtarları ve token'lar kaydedilmeden önce platformla kontrol edilir
 
 ## WordPress'i sizin için kuralım
 
-Henüz web siteniz yok ama bir tane mi istiyorsunuz? **WordPress'im yok** seçeneğini seçin, varsa mevcut web sitenizi girin ve içeriğinizden bahsedin: platformunuz, kaç ürününüz veya kursunuz olduğu ve bugün nerede oldukları. Ekibimiz WhatsApp'tan fiyat ve sonraki adımlarla size yazar. Yeni WordPress siteniz hazır olduğunda geri dönüp **WordPress sitem** seçeneğini seçin.
+Henüz web siteniz yok ama bir tane mi istiyorsunuz? **WordPress'i benim için kurun** seçeneğini seçin, varsa mevcut web sitenizi girin ve içeriğinizden bahsedin: platformunuz, kaç ürününüz veya kursunuz olduğu ve bugün nerede oldukları. Ekibimiz WhatsApp'tan fiyat ve sonraki adımlarla size yazar. Yeni WordPress siteniz hazır olduğunda geri dönüp **WordPress sitem** seçeneğini seçin.
 
 ## Seçiminizi sonradan değiştirmek
 
