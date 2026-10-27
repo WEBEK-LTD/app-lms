@@ -170,6 +170,12 @@ These are the parts on our servers and consoles.
       same `INTERNAL_JOB_SECRET`. To try it at once: `curl -X POST -H "Authorization: Bearer $INTERNAL_JOB_SECRET" https://yallapp.com.tr/api/internal/frequent`
       (a JSON report: `notifications` sent, waiting, cancelled, failed;
       `announcements` pushed).
+- [ ] 98.1 Netlify › Site configuration › Functions › Region: the region
+      closest to host.webek.org (in Europe or Türkiye: EU Central, Frankfurt).
+      Every query is a round trip between the two, so a far region (Netlify's
+      default is in the United States) makes every screen of the dashboard,
+      Yallapp Business and the hosted apps several times slower. Deploy again
+      after changing it.
 - [ ] `files.yallapp.com.tr`, GitHub secrets and variables: `build/README.md`
       › One-time setup.
 - [ ] GitHub › Settings › Billing: keep the Actions budget (USD 20) and watch

@@ -277,6 +277,22 @@ describe("44 POST /api/v1/apps/{app_id}/events", () => {
     const totals = await store.listAnalyticsDaily(app.id, "2026-10-16", "2026-10-16", ["active"]);
     expect(totals[0]!.value).toBe(1);
   });
+
+  it("98.1 counts today again only when it got events since it was counted", async () => {
+    const store = new MemoryStore();
+    const app = await appIn(store);
+    await refreshAnalytics(store, app.id, NOW);
+    const read = vi.spyOn(store, "listAnalyticsEvents");
+    // Opened again with nothing new: today is read as it is.
+    await refreshAnalytics(store, app.id, NOW);
+    expect(read).not.toHaveBeenCalled();
+    expect((await send(store, app, batch([{ type: "app_open", at: NOW.toISOString() }]))).status).toBe(202);
+    await refreshAnalytics(store, app.id, NOW);
+    expect(read).toHaveBeenCalledTimes(1);
+    expect((await store.listAnalyticsDaily(app.id, TODAY, TODAY, ["active"]))[0]!.value).toBe(1);
+    await refreshAnalytics(store, app.id, NOW);
+    expect(read).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("44 daily totals", () => {

@@ -9,7 +9,7 @@ import { hitRateLimit, RATE_LIMITS } from "../rate-limit";
 import { signInSchema } from "../validation";
 import { OwnerError, bodyObject, invalid, rateLimited, type OwnerContext, type OwnerDeps, type OwnerRequest } from "./http";
 import { acceptedLang, ownerLang } from "./lang";
-import { businessesOf, businessFor } from "../team/service";
+import { businessesOf, businessFor, type Business } from "../team/service";
 import { scopedApps } from "../team/permissions";
 import { accessKey, createAccessToken, newRefreshToken, readAccessToken, refreshHash } from "./tokens";
 
@@ -152,7 +152,9 @@ export async function authenticateRequest(deps: OwnerDeps, req: OwnerRequest): P
   if (!device) throw invalidToken();
   const user = await deps.store.getUserById(device.userId);
   // 60 The device's business: the person's own, or a team they're still on (removed: signed out at once).
-  const business = user ? await businessFor(deps.store, user, device.clientId) : null;
+  // 98.1 Read once for the request: the context needs the person's businesses too.
+  const businesses = user ? await businessesOf(deps.store, user) : [];
+  const business = businesses.find((b) => b.client.id === device.clientId) ?? null;
   if (!user || !business || user.sessionVersion !== device.sessionVersion || device.refreshExpiresAt.getTime() <= deps.now.getTime()) {
     await deps.store.deleteOwnerDevice(device.userId, device.id);
     throw invalidToken();
@@ -162,11 +164,11 @@ export async function authenticateRequest(deps: OwnerDeps, req: OwnerRequest): P
   if (deps.now.getTime() - device.lastSeenAt.getTime() > SEEN_EVERY_MS || (requested && requested !== device.language)) {
     await deps.store.updateOwnerDevice(device.id, { lastSeenAt: deps.now, ...(requested ? { language: requested } : {}) });
   }
-  return contextFor(deps, req, user, client, device);
+  return contextFor(deps, req, user, client, device, businesses);
 }
 
-export async function contextFor(deps: OwnerDeps, req: OwnerRequest, user: User, client: Client, device: OwnerDevice): Promise<OwnerContext> {
-  const [allApps, licenses, businesses] = await Promise.all([deps.store.listAppsByClient(client.id), deps.store.listLicensesByClient(client.id), businessesOf(deps.store, user)]);
+export async function contextFor(deps: OwnerDeps, req: OwnerRequest, user: User, client: Client, device: OwnerDevice, known?: Business[]): Promise<OwnerContext> {
+  const [allApps, licenses, businesses] = await Promise.all([deps.store.listAppsByClient(client.id), deps.store.listLicensesByClient(client.id), known ?? businessesOf(deps.store, user)]);
   const business = businesses.find((b) => b.client.id === client.id);
   if (!business) throw invalidToken();
   const lang = ownerLang(user.language, acceptedLang(req.acceptLanguage), device.language);
