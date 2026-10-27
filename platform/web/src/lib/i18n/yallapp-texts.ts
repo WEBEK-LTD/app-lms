@@ -74,6 +74,8 @@ export function yallappPageTexts(): string[] {
         now,
         // 99.1 With the Social links block the Contact page gets.
         social: [{ network: "instagram", url: "https://instagram.com/example" }],
+        // And the pictures, with the banner a home page without slides gets.
+        pictureBase: "https://yallapp.test",
       });
       add(layoutTexts(layout));
     }
