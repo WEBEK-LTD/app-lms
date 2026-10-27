@@ -281,6 +281,22 @@ export async function readFigmaFile(key: string, token: string, deps: FigmaDeps 
   }
 }
 
+/** 97.5 The frames chosen, each with everything in it (`/v1/files/:key/nodes`), for making them into pages. */
+export async function readFigmaNodes(key: string, token: string, ids: string[], deps: FigmaDeps = {}): Promise<{ ok: true; nodes: Map<string, Record<string, unknown>> } | FigmaFailure> {
+  try {
+    const body = await call(`/v1/files/${key}/nodes?${new URLSearchParams({ ids: ids.join(",") })}`, token, deps);
+    const found = isRecord(body) && isRecord(body.nodes) ? body.nodes : {};
+    const nodes = new Map<string, Record<string, unknown>>();
+    for (const id of ids) {
+      const entry = found[id];
+      if (isRecord(entry) && isRecord(entry.document)) nodes.set(id, entry.document);
+    }
+    return { ok: true, nodes };
+  } catch (err) {
+    return failure(err);
+  }
+}
+
 /**
  * The frames chosen, rendered by Figma as PNG and fetched from where Figma
  * put them (any public address, through the safe fetch): each one's file,
@@ -306,10 +322,14 @@ export async function renderFigmaFrames(key: string, token: string, ids: string[
     const images = new Map<string, Buffer | null>();
     const big: string[] = [];
     const links = await renderLinks(key, token, ids, FIGMA_LINK_LIMITS.pictureScale, deps);
-    for (const id of ids) {
-      const data = await download(links.get(id) ?? null);
-      if (data === "too_big") big.push(id);
-      images.set(id, data === "too_big" ? null : data);
+    // A few at a time (97.5 a page brings up to 30).
+    for (let i = 0; i < ids.length; i += 6) {
+      const batch = ids.slice(i, i + 6);
+      const files = await Promise.all(batch.map((id) => download(links.get(id) ?? null)));
+      batch.forEach((id, j) => {
+        if (files[j] === "too_big") big.push(id);
+        images.set(id, files[j] === "too_big" ? null : (files[j] as Buffer | null));
+      });
     }
     // Too large at twice the size: once more at the frame's own size.
     if (big.length) {

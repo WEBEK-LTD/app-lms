@@ -1,4 +1,5 @@
 import type { App } from "../data/types";
+import { appUrl } from "../env";
 import { lookArabicFont, lookFont } from "../fonts/look";
 import { parseInterfaceStrings } from "../i18n/app-strings";
 import { isLanguageCode, MAX_LANGUAGES } from "../i18n/locales";
@@ -120,7 +121,9 @@ class Checker {
     } catch {
       url = null;
     }
-    if (!url || url.protocol !== "https:" || text.length > 2000 || /\s/.test(text)) {
+    // 97.5 The platform's own files too (https in production; local tests serve them over http).
+    const own = url !== null && url.origin === new URL(appUrl()).origin && url.pathname.startsWith("/api/v1/assets/");
+    if (!url || (url.protocol !== "https:" && !own) || text.length > 2000 || /\s/.test(text)) {
       this.fail(where, `${what} must be a full https address.`);
       return null;
     }

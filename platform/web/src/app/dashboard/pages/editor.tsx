@@ -41,6 +41,7 @@ import { FontPicker } from "@/components/font-picker";
 import type { OwnFontView } from "@/lib/fonts/own";
 import { OwnFonts } from "./own-fonts";
 import { FigmaLookPanel } from "./figma-look";
+import { addFigmaPages } from "@/lib/figma/pages";
 import { MAX_LANGUAGES } from "@/lib/i18n/locales";
 import { appLanguageName } from "@/lib/i18n/language-names";
 import { useDashFormat, useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
@@ -1135,6 +1136,16 @@ export function PagesEditor({
                   if (!next.figma_look) delete next.figma_look;
                   return next;
                 })
+              }
+              onAddPages={
+                plan.pageEditor
+                  ? (imported, tabs) => {
+                      if (layout.pages.length >= LAYOUT_LIMITS.maxPages) return null;
+                      const result = addFigmaPages(layout, imported, { screens, sources, tabs, updatedAt: new Date().toISOString() });
+                      update(() => result.layout);
+                      return result.added;
+                    }
+                  : undefined
               }
             />
             <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">

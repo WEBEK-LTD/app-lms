@@ -8,7 +8,9 @@ import type { App, AppLayoutRecord, SavedSection } from "@/lib/data/types";
 import { discardDraft, hasUnpublishedChanges, layoutHistory, loadLayout, publishLayout, restoreLayoutVersion, saveDesignDraft, saveDraft, withoutStrings, type LayoutHistoryEntry } from "@/lib/pages/layout";
 import { getBlobStore } from "@/lib/blobs";
 import { FIGMA_IMAGE_BYTES, saveFigmaImage } from "@/lib/figma/images";
-import { FIGMA_LINK_LIMITS, figmaDeps, figmaFileKey, figmaNodeId, figmaTokenLooksRight, readFigmaFile, renderFigmaFrames, type FigmaApiError, type FigmaFileRead } from "@/lib/figma/api";
+import { FIGMA_LINK_LIMITS, figmaDeps, figmaFileKey, figmaNodeId, figmaTokenLooksRight, readFigmaFile, readFigmaNodes, renderFigmaFrames, type FigmaApiError, type FigmaFileRead } from "@/lib/figma/api";
+import { FIGMA_PAGE_LIMITS, figmaFramePage, figmaPictureNodes, type FigmaImportedPage, type FigmaNode } from "@/lib/figma/pages";
+import { assetUrl } from "@/lib/assets";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { addOwnFont, OWN_FONT_LIMITS, ownFontView, removeOwnFont, type OwnFontError, type OwnFontView } from "@/lib/fonts/own";
 import { saveSection, type SaveSectionError } from "@/lib/pages/sections";
@@ -149,6 +151,49 @@ export async function importFigmaFramesAction(
     else failed.push(frame.name.slice(0, 120));
   }
   return { ok: true, pictures, failed };
+}
+
+/**
+ * 97.5 The frames chosen in a Figma file made into pages: read with
+ * everything in them, made into blocks, and their pictures drawn by Figma
+ * and kept as the account's files (the token again used for this call only).
+ * The editor adds them to the draft.
+ */
+export async function importFigmaPagesAction(
+  link: string,
+  token: string,
+  frames: { id: string; name: string }[],
+): Promise<{ ok: true; pages: FigmaImportedPage[]; tabs: string[]; failed: string[] } | { ok: false; error: FigmaLinkError; retryAfterSeconds?: number }> {
+  const picked = (Array.isArray(frames) ? frames : []).filter((f) => f && typeof f.id === "string" && figmaNodeId(f.id) && typeof f.name === "string");
+  const ids = [...new Set(picked.map((f) => f.id))].slice(0, FIGMA_PAGE_LIMITS.frames);
+  const checked = await figmaCall(link, token);
+  if (!checked.ok) return checked;
+  if (!ids.length) return { ok: true, pages: [], tabs: [], failed: [] };
+  const read = await readFigmaNodes(checked.key, checked.token, ids, figmaDeps());
+  if (!read.ok) return read;
+  const name = (id: string) => (picked.find((f) => f.id === id)?.name ?? id).slice(0, 120);
+  const drafts = ids.flatMap((id) => {
+    const node = read.nodes.get(id);
+    return node ? [figmaFramePage(node as FigmaNode)] : [];
+  });
+  const failed = ids.filter((id) => !read.nodes.has(id)).map(name);
+  const nodes = figmaPictureNodes(drafts);
+  const pictures: Record<string, string> = {};
+  if (nodes.length) {
+    const rendered = await renderFigmaFrames(checked.key, checked.token, nodes, figmaDeps());
+    if (!rendered.ok) return rendered;
+    const deps = { store: await getStore(), blobs: getBlobStore(), now: new Date() };
+    for (const node of nodes) {
+      const data = rendered.images.get(node);
+      const saved = data ? await saveFigmaImage(deps, checked.app, data) : null;
+      if (saved?.ok) pictures[node] = assetUrl(saved.assetId);
+    }
+  }
+  const pages = drafts
+    .map((d) => ({ title: d.title, blocks: d.blocks, pictures: Object.fromEntries(Object.entries(pictures).filter(([node]) => d.blocks.some((b) => (b.kind === "image" || b.kind === "banner") && b.node === node))) }))
+    .filter((p) => p.blocks.some((b) => (b.kind !== "image" && b.kind !== "banner") || p.pictures[b.node]));
+  for (const d of drafts) if (!pages.some((p) => p.title === d.title)) failed.push(name(d.frameId));
+  return { ok: true, pages, tabs: drafts.find((d) => d.tabs.length >= 2)?.tabs ?? [], failed };
 }
 
 function parseJson(json: string): unknown {
