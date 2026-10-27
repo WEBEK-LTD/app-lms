@@ -126,8 +126,8 @@ test("82.3 the app at a small phone's, a phone's or a tablet's size, as on Andro
   await own.getByRole("group", { name: "System" }).getByRole("button", { name: "iPhone" }).click();
   await expect(frames).toHaveAttribute("src", /&os=ios/);
 
-  // A tablet is wider than a phone, a small phone narrower.
-  const width = async () => (await own.locator("[data-device]").first().boundingBox())!.width;
+  // A tablet is wider than a phone, a small phone narrower (the app's own width: a frame wider than the column is drawn smaller).
+  const width = () => own.locator("[data-device]").first().evaluate((e) => (e as HTMLElement).offsetWidth);
   const phone = await width();
   await own.getByRole("group", { name: "Size" }).getByRole("button", { name: "Tablet" }).click();
   await expect(own.locator("[data-device]")).toHaveAttribute("data-device", "tablet ios");
@@ -135,6 +135,14 @@ test("82.3 the app at a small phone's, a phone's or a tablet's size, as on Andro
   await own.getByRole("group", { name: "Size" }).getByRole("button", { name: "Small phone" }).click();
   expect(await width()).toBeLessThan(phone);
   await own.getByRole("group", { name: "Size" }).getByRole("button", { name: "Phone", exact: true }).click();
+  // Whatever its size, the frame stays inside the column.
+  const column = (await own.getByRole("group", { name: "Size" }).locator("xpath=../..").boundingBox())!;
+  for (const s of ["Tablet", "Phone"]) {
+    await own.getByRole("group", { name: "Size" }).getByRole("button", { name: s, exact: true }).click();
+    const drawn = (await own.locator("[data-device]").first().boundingBox())!;
+    expect(drawn.x).toBeGreaterThanOrEqual(column.x - 1);
+    expect(drawn.x + drawn.width).toBeLessThanOrEqual(column.x + column.width + 1);
+  }
 
   // Light and dark side by side: both apps follow the draft.
   await own.getByLabel("Light and dark").check();
