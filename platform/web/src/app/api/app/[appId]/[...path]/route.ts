@@ -217,7 +217,10 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
     { method: request.method, path, query: url.searchParams, body, token: bearer?.[1]?.trim() ?? null, headers: request.headers },
   );
   if (result.status === 304) return new Response(null, { status: 304, headers: { "cache-control": "no-store", ...result.headers } });
-  return result.status === 204 ? noContent() : json(result.body, result.status, result.headers);
+  if (result.status === 204) return noContent();
+  // 99.4 An answer without a body (202 for a form's answers).
+  if (result.body === undefined) return new Response(null, { status: result.status, headers: { "cache-control": "no-store", ...result.headers } });
+  return json(result.body, result.status, result.headers);
 }
 
 /**
