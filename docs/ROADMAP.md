@@ -2221,3 +2221,36 @@ the editor.
 | [x] | 99.2 Switch design: "Use this design" opens a panel with "Everything" (its pages, tabs and look; "Keep my other pages" keeps the draft's pages it doesn't have, in the side menu) or "Look only" (its colours, font, corners and cards; the pages, tabs and the design the app started from stay), the draft before and after side by side; after it, "Undo" brings back the draft, the main colour and the design from before. The Branding step offers "Its pages and look" or "Its look only" for an app with pages of its own | Unit tests (look only, pages kept), e2e (look only, undo, everything with a page kept) |
 | [x] | 99.3 Editor: each block's text position (start, centre, end), text size, corners (as the app, sharp, round) and picture fit (fill or the whole picture), with its background and spacing (82.5) and the image's shape; "When it shows": between two dates, on Android or iPhone only, in some of the app's languages (the hosted API and the plugin 0.4.21 leave the block out otherwise, and never send the rules); "Copy to another page" for a block, or for the blocks picked under "Save as a section"; page settings: background (as the app, tint, cards' colour), a picture across the top, in the side menu or not. The quick view shows all of it; the app shows the look, the page background and picture | Contract (`BlockLook`, `AppPage`, `LayoutBlock.show`), unit tests (platform, plugin, app), e2e |
 | [x] | 99.4 New blocks: Cards (2 or 3 columns, each with a picture, title, text and tap), Photo gallery (opens full screen to swipe through), Location (name, address and Directions in the phone's maps app; no map tiles), Divider (line, dashed, dots), Form (up to 10 questions: short or long text, email, phone, number, a choice; answers by email through `POST /forms/{slug}/{block_id}` — the hosted API to the app's support email, else the owner's; the plugin 0.4.22 to its support email, else the site's admin — or into Chat for a signed-in person); in the editor, the quick view, the app and the app preview | Contract, unit tests (platform, plugin, app), e2e (each block in the editor and the app API, a form's answers checked and sent) |
+
+## Phase 100: Courses and memberships bought in the app (Google Play Billing, App Store In-App Purchase)
+
+Google Play and the App Store require their own billing for digital content
+sold in an app (courses, and memberships or subscriptions that open
+courses), outside the few places and programmes that allow other ways.
+Until now iOS showed no purchase buttons and Android opened the website's
+checkout. The owner chose: the store price starts at the site price
+(the nearest price the store accepts) and can be changed per course or
+plan; every plan but Starter sells in the app (Starter apps show no
+purchase buttons for digital content on either platform); courses and
+memberships together. Apps are published under the client's own store
+accounts (also with "We publish for you"), so the stores pay the client;
+Google and Apple keep their fee. Physical goods and services (shop
+products, restaurant orders, appointments, tickets to a venue, gym
+memberships, donations) keep the payment page.
+
+Every source keeps working: Yallapp's platform checks each purchase with
+Google or Apple and then gives access where the course lives: the hosted
+API directly, a WordPress site through the plugin (enrolment in the LMS, a
+Paid Memberships Pro level, a LearnDash group, and a WooCommerce order for
+the books), Teachable and Thinkific through their APIs, and an app on its
+own API through a signed `purchase.completed` webhook. Refunds and ended
+subscriptions take the access back.
+
+| | Step | Done when |
+|---|---|---|
+| [ ] | 100.1 Contract: what the app buys (each paid course's and membership plan's store products, `Config.store_billing`), `POST /store/purchases` (a Google purchase token or an Apple signed transaction) and restore, on Yallapp's hosted API for every app (like the chat); the stores' notifications to the platform; the platform asking a WordPress site to give or take access (`platform.yaml`); the `purchase.completed` and `purchase.revoked` webhooks for apps on their own API | redocly lint; reviewed against Google's and Apple's documentation |
+| [ ] | 100.2 Store connections and products: Dashboard › In-app purchases (en/ar/tr): the client's Google Play service account and App Store Connect keys, kept encrypted and checked; a store product for each paid course (one-time) and membership plan (subscription, monthly or yearly), made and kept in step through the Google Play Developer API and the App Store Connect API, at the nearest store price to the site price, changeable per product; their state in the stores | Unit tests against recorded API answers; e2e of the dashboard |
+| [ ] | 100.3 Purchases: each purchase checked with Google (Play Developer API) or Apple (App Store Server API, signed data checked against Apple's root certificate), recorded once, acknowledged, access given on the app's source; refunds, revocations, renewals and expiries from Google's real-time notifications and Apple's App Store Server Notifications | Unit tests with recorded store answers and notifications; isolation tests |
+| [ ] | 100.4 Plugin: give and take access when the platform asks (all supported LMS plugins, Paid Memberships Pro, LearnDash groups, a WooCommerce order marked paid by the store) | PHPUnit, integration suites |
+| [ ] | 100.5 App: buying through Google Play Billing and StoreKit (`in_app_purchase`) on both platforms, the store's own price, restore purchases, managing a subscription in the store, the subscription terms Apple asks for; the website checkout no longer offered for digital content | flutter analyze, unit and widget tests, the app preview rebuilt |
+| [ ] | 100.6 Sales and guides: in-app sales, refunds and renewals in Analytics and Yallapp Business; the guides to connect each store (en/ar/tr); the terms | e2e; docs |
