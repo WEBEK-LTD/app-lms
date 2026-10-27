@@ -1,5 +1,6 @@
 import 'course_questions.dart';
 import 'course_reviews.dart';
+import 'store_purchase_bars.dart';
 
 import 'dart:async';
 
@@ -13,6 +14,7 @@ import '../../../core/auth/auth_controller.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/providers.dart';
 import '../../../core/purchase/purchase_rules.dart';
+import '../../../core/purchase/store_billing.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/services/external_links.dart';
 import '../../../core/theme/app_icons.dart';
@@ -243,11 +245,15 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
     final config = ref.watch(appConfigProvider);
     final env = ref.watch(appEnvironmentProvider);
     final topics = ref.watch(curriculumProvider(course.id));
+    // 100 Courses and memberships bought through Google Play or the App Store.
+    final storeBilling = ref.watch(storeClientProvider) != null;
     final cta = resolveCourseCta(
       serverAction: course.purchaseAction,
       platform: env.platform,
       rules: config.purchases,
       enrolled: course.enrolled,
+      storeBilling: storeBilling,
+      storeProductId: course.storeProductId,
     );
     final wishlisted = _wishlisted ?? course.wishlisted;
     // 45 A finished course says so, and its button reviews the curriculum.
@@ -440,14 +446,26 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
           // 62 A course with a password on the website: no password in the app.
           if (course.passwordProtected && !course.enrolled)
             _PasswordBar(course: course, platform: env.platform)
+          // 100 Its membership's subscriptions, sold in the app.
+          else if (course.membership case final membership?
+              when !membership.hasAccess &&
+                  !course.enrolled &&
+                  storeBilling &&
+                  membership.storeProductIds.isNotEmpty)
+            StoreMembershipBar(membership: membership, onSignIn: _signIn)
           // 90.3 A course that needs a membership the student doesn't have.
           else if (course.membership case final membership?
               when !membership.hasAccess && !course.enrolled)
             _MembershipBar(
               course: course,
               membership: membership,
-              platform: env.platform,
+              // 100 No way to the website's memberships where the app sells
+              // in the app (the stores' rule for digital content).
+              websiteLink: !storeBilling && env.platform != DevicePlatform.ios,
             )
+          // 100 A paid course bought through the store.
+          else if (cta == CourseCta.store)
+            StoreCourseBar(productId: course.storeProductId!, onSignIn: _signIn)
           else
             _CtaBar(
               course: course,
@@ -1033,6 +1051,8 @@ class _CtaBar extends StatelessWidget {
             ],
           ),
         );
+      // 100 Shown by StoreCourseBar instead.
+      case CourseCta.store:
       case CourseCta.unavailable:
         return BottomActionBar(
           key: const ValueKey('cta-unavailable'),
@@ -1157,19 +1177,22 @@ class _MembershipBar extends StatelessWidget {
   const _MembershipBar({
     required this.course,
     required this.membership,
-    required this.platform,
+    required this.websiteLink,
   });
 
   final CourseDetail course;
   final CourseMembership membership;
-  final DevicePlatform platform;
+
+  /// "See memberships on the website": never on iOS, nor where the app
+  /// sells in the app.
+  final bool websiteLink;
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
     final l10n = context.l10n;
     final website = course.websiteUrl;
-    final link = website != null && platform != DevicePlatform.ios;
+    final link = website != null && websiteLink;
     return BottomActionBar(
       key: const ValueKey('cta-membership'),
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 22),

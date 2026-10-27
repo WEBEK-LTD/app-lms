@@ -8,6 +8,9 @@ import '../../../core/config/build_config_data.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/l10n/language.dart';
 import '../../../core/providers.dart';
+import '../../../core/purchase/store_billing.dart';
+import '../../../core/purchase/store_billing_widgets.dart';
+import '../../../core/services/external_links.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/services/analytics_providers.dart';
 import '../../../core/services/push_registration.dart';
@@ -128,6 +131,11 @@ class SettingsScreen extends ConsumerWidget {
     final orderUpdates = env.build.appType == AppType.store;
     final languages = ref.watch(availableLanguagesProvider);
     final language = ref.watch(appLanguageProvider);
+    // 100 Courses and memberships bought through Google Play or the App Store.
+    final storeBilling = ref.watch(storeClientProvider) != null;
+    final restoring = ref.watch(
+      storeBillingProvider.select((state) => state.restoring),
+    );
 
     return AccountScaffold(
       title: l10n.settings,
@@ -332,6 +340,42 @@ class SettingsScreen extends ConsumerWidget {
                   style: TextStyle(fontSize: 12, color: p.textSecondary),
                 ),
               ),
+          ],
+          if (storeBilling) ...[
+            const SizedBox(height: 16),
+            SettingsGroup(
+              title: l10n.storePurchasesGroup,
+              children: [
+                SettingsTile(
+                  key: const ValueKey('settings-restore-purchases'),
+                  icon: AppIcons.restorePurchases,
+                  title: l10n.storeRestorePurchases,
+                  chevron: false,
+                  onTap: restoring
+                      ? null
+                      : !ref.read(authControllerProvider).isSignedIn
+                      ? () => context.push(
+                          Uri(
+                            path: Paths.signIn,
+                            queryParameters: {'from': Paths.settings},
+                          ).toString(),
+                        )
+                      : () => ref.read(storeBillingProvider.notifier).restore(),
+                ),
+                SettingsTile(
+                  key: const ValueKey('settings-manage-subscription'),
+                  icon: AppIcons.manageSubscription,
+                  title: l10n.storeManageSubscription,
+                  trailing: AppIcon(
+                    AppIcons.openInNew,
+                    size: 18,
+                    color: p.textSecondary,
+                  ),
+                  chevron: false,
+                  onTap: () => openExternal(manageSubscriptionsUrl(env)),
+                ),
+              ],
+            ),
           ],
           const SizedBox(height: 16),
           SettingsGroup(

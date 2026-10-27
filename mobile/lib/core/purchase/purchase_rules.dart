@@ -11,6 +11,10 @@ enum CourseCta {
   /// "Enroll now": the site's checkout. Android only.
   checkout,
 
+  /// 100 "Enroll now" through Google Play Billing or the App Store, at the
+  /// store's price. Both platforms, only when the app sells in the app.
+  store,
+
   /// The neutral "This course isn't available on your account yet." line.
   unavailable,
 }
@@ -19,13 +23,18 @@ enum CourseCta {
 /// `purchase.action`, the site's purchase rules and the platform.
 ///
 /// The server already applies the platform rules; the app checks again so
-/// iOS can never show a purchase button for a paid course, whatever the
-/// server sends (Apple's digital goods rule).
+/// iOS can never show a website checkout for a paid course, whatever the
+/// server sends (Apple's digital goods rule). 100 A paid course is bought
+/// through the store on both platforms (Apple's own In-App Purchase on iOS)
+/// only when `Config.store_billing` is there ([storeBilling]); without it,
+/// no purchase button for it at all on iOS.
 CourseCta resolveCourseCta({
   required PurchaseAction serverAction,
   required DevicePlatform platform,
   required PurchaseRules rules,
   required bool enrolled,
+  bool storeBilling = false,
+  String? storeProductId,
 }) {
   if (enrolled || serverAction == PurchaseAction.continueLearning) {
     return CourseCta.continueLearning;
@@ -38,6 +47,10 @@ CourseCta resolveCourseCta({
     case PurchaseAction.checkout:
       if (!canOpenCheckout(platform)) return CourseCta.unavailable;
       return rules.enrollButton ? CourseCta.checkout : CourseCta.unavailable;
+    case PurchaseAction.store:
+      return storeBilling && storeProductId != null
+          ? CourseCta.store
+          : CourseCta.unavailable;
     case PurchaseAction.none:
     case PurchaseAction.continueLearning:
       return CourseCta.unavailable;

@@ -4110,4 +4110,72 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get pageFormChooseOne => 'Birini seçin';
+
+  @override
+  String storePricePerMonth(String price) {
+    return 'Aylık $price';
+  }
+
+  @override
+  String storePricePerYear(String price) {
+    return 'Yıllık $price';
+  }
+
+  @override
+  String get storeSubscribe => 'Abone ol';
+
+  @override
+  String get storeMembershipSubscribe =>
+      'Bu kursu açmak için bir üyeliğe abone olun.';
+
+  @override
+  String storeSubscriptionTerms(String store) {
+    return 'Ödeme, satın almayı onayladığınızda $store hesabınızdan alınır. Abonelik, siz iptal edene kadar her dönem aynı fiyatla otomatik olarak yenilenir. Aboneliğinizi $store hesap ayarlarınızdan yönetebilir veya iptal edebilirsiniz.';
+  }
+
+  @override
+  String get storeManageSubscription => 'Aboneliği yönet';
+
+  @override
+  String get storeRestorePurchases => 'Satın alımları geri yükle';
+
+  @override
+  String get storePurchasesGroup => 'Satın alımlar';
+
+  @override
+  String get storeRestored => 'Satın alımlarınız geri yüklendi.';
+
+  @override
+  String get storeRestoredNone =>
+      'Bu hesap için geri yüklenecek satın alım yok.';
+
+  @override
+  String get storePending =>
+      'Ödeme bekleniyor. Ödeme tamamlandığında erişiminiz açılır.';
+
+  @override
+  String get storeMembershipActive => 'Üyeliğiniz etkin.';
+
+  @override
+  String get storeRetryLater =>
+      'Satın alımınız gerçekleşti. Şu anda onaylanamadı; otomatik olarak yeniden deneyeceğiz.';
+
+  @override
+  String get storeInvalidReceipt =>
+      'Bu satın alım kullanılamadı. Ücret alındıysa bizimle iletişime geçin.';
+
+  @override
+  String get storePurchaseInUse =>
+      'Bu satın alım bu uygulamadaki başka bir hesaba ait. Kullanmak için o hesapla giriş yapın.';
+
+  @override
+  String get storePurchaseEnded =>
+      'Bu satın alımın süresi doldu veya iadesi yapıldı.';
+
+  @override
+  String get storePurchaseFailed => 'Satın alma tamamlanamadı. Tekrar deneyin.';
+
+  @override
+  String get storeUnavailable =>
+      'Satın alma şu anda bu cihazda kullanılamıyor.';
 }

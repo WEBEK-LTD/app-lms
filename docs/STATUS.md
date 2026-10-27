@@ -7,7 +7,7 @@ and whenever a pull request is opened, merged or closed.
 
 Last updated: 27 October 2026.
 
-## In progress: Phase 100 (courses and memberships bought in the app)
+## Phase 100 (courses and memberships bought in the app): 100.1–100.6 merged, 100.7 next
 
 | Step | State | Branch | Checks |
 |---|---|---|---|
@@ -15,7 +15,7 @@ Last updated: 27 October 2026.
 | 100.2 Store connections and products | Merged (#157) | — | unit, e2e, MariaDB migrations |
 | 100.3 Purchases | Merged (#158) | — | unit (with the store suite on MariaDB), e2e |
 | 100.4 Plugin 0.4.23: give and take access | Merged (#160) | `wip-billing-plugin` | composer lint, `php -l`, PHPUnit 250 (16 new), redocly lint. The LMS integration suites run in CI |
-| 100.5 App: Google Play Billing and StoreKit | In review (#161) | `wip-billing-app` | dart format, flutter analyze, flutter test 955, the preview rebuilt, the platform's app-string tests |
+| 100.5 App: Google Play Billing and StoreKit | Merged (#161) | `wip-billing-app` | dart format, flutter analyze, flutter test 955, the preview rebuilt, the platform's app-string tests |
 | 100.6 Sales, the guide, the terms | Merged (#159) | `wip-billing-sales` | tsc, eslint, unit 2007, the store suites on MariaDB, redocly lint, e2e: analytics, owner API, public pages, integrations, site languages, hosted courses |
 | 100.7 Own API, Teachable and Thinkific | Not started | — | — |
 
@@ -46,7 +46,6 @@ Notes:
 
 | PR | What | Next |
 |---|---|---|
-| #161 | 100.5 App | Merge after #160 |
 | #154 Wip switch design | Older design branch | The owner closes it |
 | #122, #121 | Dependabot: mobile and business Flutter packages (minor and patch) | Review with the next app release |
 | #120 | Dependabot: `@playwright/test` 1.64 | Needs the pre-installed browser to match; leave for now |

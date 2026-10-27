@@ -4178,4 +4178,69 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get pageFormChooseOne => 'اختر واحدًا';
+
+  @override
+  String storePricePerMonth(String price) {
+    return '$price شهريًا';
+  }
+
+  @override
+  String storePricePerYear(String price) {
+    return '$price سنويًا';
+  }
+
+  @override
+  String get storeSubscribe => 'اشترك';
+
+  @override
+  String get storeMembershipSubscribe => 'اشترك في عضوية لفتح هذه الدورة.';
+
+  @override
+  String storeSubscriptionTerms(String store) {
+    return 'يُخصم المبلغ من حسابك في $store عند تأكيد الشراء. يتجدد الاشتراك تلقائيًا بالسعر نفسه في كل فترة حتى تلغيه. يمكنك إدارته أو إلغاؤه من إعدادات حسابك في $store.';
+  }
+
+  @override
+  String get storeManageSubscription => 'إدارة الاشتراك';
+
+  @override
+  String get storeRestorePurchases => 'استعادة المشتريات';
+
+  @override
+  String get storePurchasesGroup => 'المشتريات';
+
+  @override
+  String get storeRestored => 'تمت استعادة مشترياتك.';
+
+  @override
+  String get storeRestoredNone => 'لا توجد مشتريات لاستعادتها لهذا الحساب.';
+
+  @override
+  String get storePending =>
+      'بانتظار الدفع. ستحصل على الوصول بعد اكتمال الدفع.';
+
+  @override
+  String get storeMembershipActive => 'عضويتك مفعّلة.';
+
+  @override
+  String get storeRetryLater =>
+      'تمت عملية الشراء. تعذّر تأكيدها الآن، وسنعيد المحاولة تلقائيًا.';
+
+  @override
+  String get storeInvalidReceipt =>
+      'تعذّر استخدام عملية الشراء هذه. إذا خُصم منك مبلغ، تواصل معنا.';
+
+  @override
+  String get storePurchaseInUse =>
+      'عملية الشراء هذه تخص حسابًا آخر في هذا التطبيق. سجّل الدخول بذلك الحساب لاستخدامها.';
+
+  @override
+  String get storePurchaseEnded =>
+      'انتهت عملية الشراء هذه أو تم استرداد مبلغها.';
+
+  @override
+  String get storePurchaseFailed => 'لم تكتمل عملية الشراء. حاول مرة أخرى.';
+
+  @override
+  String get storeUnavailable => 'الشراء غير متاح على هذا الجهاز حاليًا.';
 }

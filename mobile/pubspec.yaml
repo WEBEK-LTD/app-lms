@@ -32,6 +32,12 @@ dependencies:
   html: ^0.15.7
   # 77 Photos and videos sent in the chat, from the camera or the gallery.
   image_picker: 1.2.3
+  # 100.5 Courses and memberships bought through Google Play Billing and the
+  # App Store (StoreKit 2).
+  in_app_purchase: 3.3.1
+  # Held back to releases at least two weeks old (project rule).
+  in_app_purchase_android: 0.5.3
+  in_app_purchase_storekit: 0.4.13+2
   # 46 The store's own rating prompt (Google Play In-App Review, SKStoreReviewController).
   in_app_review: 2.0.12
   intl: ^0.20.2

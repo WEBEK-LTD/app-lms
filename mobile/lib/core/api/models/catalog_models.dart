@@ -146,13 +146,15 @@ class CourseSummary {
   final bool wishlisted;
 }
 
-/// What the course page's main button does on this platform.
-enum PurchaseAction { continueLearning, enrollFree, checkout, none }
+/// What the course page's main button does on this platform. 100 `store`:
+/// buy it through Google Play or the App Store (`storeProductId`).
+enum PurchaseAction { continueLearning, enrollFree, checkout, store, none }
 
 PurchaseAction purchaseActionFromWire(Object? wire) => switch (wire) {
   'continue' => PurchaseAction.continueLearning,
   'enroll_free' => PurchaseAction.enrollFree,
   'checkout' => PurchaseAction.checkout,
+  'store' => PurchaseAction.store,
   _ => PurchaseAction.none,
 };
 
@@ -184,6 +186,7 @@ class CourseDetail extends CourseSummary {
     this.websiteUrl,
     this.canRestart = false,
     this.membership,
+    this.storeProductId,
   });
 
   factory CourseDetail.fromJson(Json json) {
@@ -218,6 +221,7 @@ class CourseDetail extends CourseSummary {
       websiteUrl: optString(json, 'website_url'),
       canRestart: boolOr(json, 'can_restart', false),
       membership: optObject(json, 'membership', CourseMembership.fromJson),
+      storeProductId: _nonEmpty(optString(purchase, 'store_product_id')),
     );
   }
 
@@ -261,12 +265,22 @@ class CourseDetail extends CourseSummary {
   /// 90.3 The website's memberships that open the course; null when it needs
   /// none.
   final CourseMembership? membership;
+
+  /// 100 With [PurchaseAction.store], the store product the main button buys.
+  final String? storeProductId;
+
+  static String? _nonEmpty(String? value) =>
+      value == null || value.isEmpty ? null : value;
 }
 
 /// 90.3 The plans on the website that open a course, and whether the student
 /// has one. Without one the course can't be joined from the app.
 class CourseMembership {
-  const CourseMembership({required this.hasAccess, required this.plans});
+  const CourseMembership({
+    required this.hasAccess,
+    required this.plans,
+    this.storeProductIds = const [],
+  });
 
   factory CourseMembership.fromJson(Json json) => CourseMembership(
     hasAccess: reqBool(json, 'has_access'),
@@ -274,10 +288,18 @@ class CourseMembership {
       for (final plan in (json['plans'] as List? ?? const []))
         if (plan is String && plan.isNotEmpty) plan,
     ],
+    storeProductIds: [
+      for (final id in stringList(json, 'store_product_ids'))
+        if (id.isNotEmpty) id,
+    ],
   );
 
   final bool hasAccess;
   final List<String> plans;
+
+  /// 100 The store subscriptions of the plans that open the course, sold in
+  /// the app, to offer while [hasAccess] is false.
+  final List<String> storeProductIds;
 }
 
 /// 30 What students learn, the requirements, who the course is for and what

@@ -178,9 +178,12 @@ writing. The normal `flutter test` run skips these tests.
   (`formatPhone`, `ltrIsolate`).
 - Icons are Google Material Symbols, Rounded style only (`AppIcons`).
 - No imagery or wording that suggests AI.
-- iOS never shows a purchase button for paid courses and never requests
-  `/auth/checkout-link`, whatever the server sends. Free enrollment works on
-  both platforms.
+- iOS never shows a website checkout for paid courses and never requests
+  `/auth/checkout-link`, whatever the server sends. Paid courses and
+  memberships are bought in the app only through the store (Google Play
+  Billing, Apple's In-App Purchase) when `Config.store_billing` is there
+  (roadmap 100); without it iOS shows no purchase button for them. Free
+  enrollment works on both platforms.
 - Icon buttons have screen reader labels and touch targets of at least
   48 points (`TapTarget`), also where they look smaller.
 - Lists show skeletons (`SkeletonList`, `SkeletonHome`, `SkeletonDetail`)

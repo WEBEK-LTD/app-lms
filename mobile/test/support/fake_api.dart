@@ -440,6 +440,16 @@ class FakeApi implements YallappApi {
     ),
   );
 
+  @override
+  Future<ChatSession> startBillingSession() => _answer(
+    'startBillingSession',
+    () => ChatSession(
+      token: 'billing-token-${count('startBillingSession')}',
+      expiresAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
+      baseUrl: 'https://yallapp.example/api/app/app-1',
+    ),
+  );
+
   /// 85.3 The item counts the app reported for its cart.
   final carts = <int>[];
 
