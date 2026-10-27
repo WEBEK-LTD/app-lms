@@ -14,6 +14,8 @@ import { descriptionHtml, myOrdersRoute, payUrl } from "./catalog";
 import { error, intParam } from "./common";
 import type { Connector, ConnectorRequest, ConnectorResult } from "./types";
 import type { ResolvedMedia } from "../../media/files";
+import { productIdFor } from "../../store-billing/products";
+import { readyIn } from "../../store-billing/hosted";
 
 /** 51 Videos in the app's Media library (a lesson's video address is its Yallapp link). */
 export interface CoursesMedia {
@@ -32,6 +34,8 @@ export interface CoursesDeps {
   cardPayments?: boolean;
   /** 45 Lessons may be saved for offline viewing: offline mode in the plan and the owner's choice (default false). */
   downloads?: boolean;
+  /** 100.3 Paid courses are bought through Google Play and the App Store (the app sells in the app); no payment page then. */
+  storeBilling?: boolean;
   /** 51 Videos from the Media library; without it, a Yallapp link is a plain address. */
   media?: CoursesMedia;
   /** 63 Tells the business of a question, or a student writing again under one (a push to its phones); failures don't fail it. */
@@ -66,7 +70,15 @@ export class CoursesConnector implements Connector {
 
   private get canSell(): boolean {
     // 16 A demo academy "sells" on its payment page, which charges nothing.
-    return paymentsSetUp(this.deps.app) && this.deps.cardPayments !== false;
+    // 100.3 Not when the stores sell the courses.
+    return paymentsSetUp(this.deps.app) && this.deps.cardPayments !== false && this.deps.storeBilling !== true;
+  }
+
+  /** 100.3 The store product that sells the course on this platform, when it's ready there. */
+  private async storeProduct(c: Course, platform: string | null): Promise<string | null> {
+    if (this.deps.storeBilling !== true || (platform !== "android" && platform !== "ios")) return null;
+    const product = await this.deps.store.getStoreProduct(this.deps.app.id, productIdFor("course", c.id));
+    return product && readyIn(product, platform) ? product.productId : null;
   }
 
   async config() {
@@ -331,7 +343,8 @@ export class CoursesConnector implements Connector {
     const enrollments = await this.enrollments(request);
     const enrolled = new Set(enrollments.keys());
     const ios = request.query.get("platform") === "ios";
-    const action = enrolled.has(c.id) ? "continue" : c.priceCents === 0 ? "enroll_free" : !ios && this.canSell ? "checkout" : "none";
+    const storeProduct = enrolled.has(c.id) || c.priceCents === 0 ? null : await this.storeProduct(c, request.query.get("platform"));
+    const action = enrolled.has(c.id) ? "continue" : c.priceCents === 0 ? "enroll_free" : storeProduct ? "store" : !ios && this.canSell ? "checkout" : "none";
     const minutes = lessonsOf(c).reduce((sum, l) => sum + (l.durationMinutes ?? 0), 0);
     return {
       status: 200,
@@ -343,7 +356,7 @@ export class CoursesConnector implements Connector {
         has_certificate: c.certificate === true,
         qna: true,
         categories: this.setup.categories.filter((cat) => c.categoryIds.includes(cat.id)).map((cat) => ({ ...cat, count: 0 })),
-        purchase: { action },
+        purchase: { action, store_product_id: storeProduct },
         // 73 Whether a student who finished it may start it again (the owner's choice per course, on by default).
         can_restart: canRestart(c),
         // 45 The student's progress, so a finished course says so; 90.1 the certificate once earned, and when access ends.

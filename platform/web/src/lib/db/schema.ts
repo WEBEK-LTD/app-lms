@@ -61,7 +61,7 @@ import type {
 } from "../data/types";
 // 11.6 and 11.8
 import type { BuildFailure, BuildRelease, ListingTranslation, ReviewsRow, RolloutState, ScreenshotFrame, StagedRelease } from "../data/types";
-import type { OwnFontFile, StoreBillingSettings, StoreProductKind, StoreProductSync } from "../data/types";
+import type { OwnFontFile, StoreAccountSource, StoreBillingSettings, StorePlatform, StoreProductKind, StoreProductSync } from "../data/types";
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
 import type { Plan } from "../plans";
 import type { Layout, LayoutBlock, LayoutContent } from "../pages/types";
@@ -1361,6 +1361,57 @@ export const storeProducts = mysqlTable(
     updatedAt: time("updated_at").notNull(),
   },
   (t) => [uniqueIndex("store_products_app_product_idx").on(t.appId, t.productId)],
+);
+
+// 100.3 Store purchases: each checked once, with the account it gives access to.
+export const storePurchases = mysqlTable(
+  "store_purchases",
+  {
+    id: id("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    platform: varchar("platform", { length: 8 }).notNull().$type<StorePlatform>(),
+    storeKey: varchar("store_key", { length: 128 }).notNull(),
+    purchaseToken: text("purchase_token"),
+    productId: varchar("product_id", { length: 100 }).notNull(),
+    kind: varchar("kind", { length: 16 }).notNull().$type<StoreProductKind>(),
+    courseId: int("course_id"),
+    planId: varchar("plan_id", { length: 64 }),
+    accountSource: varchar("account_source", { length: 16 }).notNull().$type<StoreAccountSource>(),
+    accountId: varchar("account_id", { length: 64 }).notNull(),
+    transactionId: varchar("transaction_id", { length: 128 }),
+    status: varchar("status", { length: 16 }).notNull().$type<"active" | "pending" | "expired" | "revoked">(),
+    expiresAt: time("expires_at"),
+    acknowledged: boolean("acknowledged").notNull(),
+    delivered: boolean("delivered").notNull(),
+    reason: varchar("reason", { length: 16 }).$type<"refunded" | "revoked" | "expired">(),
+    test: boolean("test").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    uniqueIndex("store_purchases_key_idx").on(t.appId, t.platform, t.storeKey),
+    index("store_purchases_account_idx").on(t.appId, t.accountSource, t.accountId),
+    index("store_purchases_due_idx").on(t.delivered, t.updatedAt),
+  ],
+);
+
+// 100.3 Store billing tokens of people signed in on a WordPress site.
+export const billingSessions = mysqlTable(
+  "billing_sessions",
+  {
+    tokenHash: varchar("token_hash", { length: 64 }).primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: int("user_id").notNull(),
+    name: varchar("name", { length: 120 }).notNull(),
+    email: varchar("email", { length: 191 }),
+    expiresAt: time("expires_at").notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("billing_sessions_expires_idx").on(t.expiresAt)],
 );
 
 // 11.7 Admin team and audit log

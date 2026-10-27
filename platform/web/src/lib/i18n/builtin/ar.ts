@@ -583,6 +583,12 @@ export const SERVER_MESSAGES_AR: Record<string, string> = {
   "You've sent many messages in a short time. Please try again later.": "أرسلت رسائل كثيرة في وقت قصير. يُرجى المحاولة لاحقًا.",
   "Your membership is frozen, so classes can't be booked until it's back.": "عضويتك مجمّدة، فلا يمكن حجز الحصص حتى تعود.",
   "Your membership has no classes left.": "لم يتبقَّ في عضويتك أي حصص.",
+  // 100.3 Store billing.
+  "This app doesn't sell in the app.": "هذا التطبيق لا يبيع داخل التطبيق.",
+  "Too many purchases sent. Try again in a few minutes.": "أُرسلت مشتريات كثيرة. حاول مرة أخرى بعد بضع دقائق.",
+  "This isn't a valid purchase in this app.": "هذه ليست عملية شراء صالحة في هذا التطبيق.",
+  "The store couldn't be reached. Your purchase is safe: the app will send it again shortly.": "تعذّر الوصول إلى المتجر. عملية الشراء محفوظة، وسيرسلها التطبيق مرة أخرى بعد قليل.",
+  "This purchase belongs to another account in this app.": "عملية الشراء هذه تخص حسابًا آخر في هذا التطبيق.",
   "Your session has ended. Please sign in again.": "انتهت جلستك. يُرجى تسجيل الدخول مرة أخرى.",
   "Your verification has expired. Please start again.": "انتهت صلاحية التحقق. يُرجى البدء من جديد.",
   "This coupon doesn't exist.": "هذا الكوبون غير موجود.",

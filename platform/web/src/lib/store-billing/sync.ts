@@ -1,12 +1,11 @@
 import { randomUUID } from "node:crypto";
-import { keyContext } from "../builds/signing";
-import { decrypt } from "../crypto/encryption";
 import type { DataStore } from "../data/store";
 import { appUrl } from "../env";
 import type { App, StoreBillingSettings, StoreProduct, StoreProductSync } from "../data/types";
 import { storeBillingSource } from "./access";
 import { findAppleAppId, removeFromSale, setNotificationUrls, territoryFor, upsertNonConsumable, upsertSubscription as upsertAppleSubscription } from "./apple";
 import { deactivateProduct, GoogleBillingError, googleBillingToken, playDefaultLanguage, upsertOneTimeProduct, upsertSubscription, type GoogleBillingDeps } from "./google";
+import { appleCredentials, googleKey } from "./keys";
 import { needsSync, reconcileProducts, storesOf, wantedFromCourses, wantedPrice } from "./products";
 
 /**
@@ -100,13 +99,7 @@ const description = (product: StoreProduct) => product.title;
 
 function googleRun(deps: SyncDeps, app: App, fetcher: typeof fetch): () => Promise<StoreRun> {
   return async () => {
-    let json: string;
-    try {
-      json = decrypt(app.googlePlayKeyEncrypted ?? "", deps.key, keyContext.googlePlay(app.id));
-    } catch {
-      throw { code: "unreadable" };
-    }
-    const token = await googleBillingToken(fetcher, json, deps.now);
+    const token = await googleBillingToken(fetcher, googleKey(app, deps.key), deps.now);
     const google: GoogleBillingDeps = { fetcher, token, packageName: app.androidPackage ?? "" };
     let language: string | null = null;
     const languageCode = async () => (language ??= await playDefaultLanguage(google));
@@ -127,15 +120,6 @@ export const APPLE_GROUP = "Memberships";
 /** Where Apple sends the app's App Store Server Notifications (platform.yaml). */
 export function appleNotificationsUrl(appId: string, base = appUrl()): string {
   return `${base}/api/v1/billing/notifications/apple/${appId}`;
-}
-
-/** The App Store Connect key of the app, read. */
-export function appleCredentials(app: App, key: Buffer) {
-  try {
-    return { keyId: app.ascKeyId ?? "", issuerId: app.ascIssuerId ?? "", privateKey: decrypt(app.ascPrivateKeyEncrypted ?? "", key, keyContext.appStore(app.id)) };
-  } catch {
-    throw { code: "unreadable" };
-  }
 }
 
 /**

@@ -13,13 +13,14 @@ import { refreshEndedSites, type EndedRefreshResult, type RefreshDeps } from "..
 import { pushStartedAnnouncements, type OwnerPushDeps } from "../owner/push";
 import { planHasStoreBilling } from "../store-billing/access";
 import { runStoreProductSync, type StoreProductsRunReport } from "../store-billing/sync";
+import { runStorePurchases, type PurchasesRunReport } from "../store-billing/jobs";
 import { appPlan } from "../entitlements";
 
 /**
  * 61 The frequent job: `netlify/functions/frequent-jobs.mts` calls `POST
  * /api/internal/frequent` every 5 minutes with INTERNAL_JOB_SECRET. It sends
  * the app notifications whose time came and pushes to the owners' phones the
- * announcements that started, and 85.2 the notification campaigns due. 88.3 It reads the App Store's review state of the iPhone versions in review. 100.2 It makes or changes the in-app products waiting for the stores. 68 It also asks the WordPress site of every
+ * announcements that started, and 85.2 the notification campaigns due. 88.3 It reads the App Store's review state of the iPhone versions in review. 100.2 It makes or changes the in-app products waiting for the stores, 100.3 and keeps purchases' access in step. 68 It also asks the WordPress site of every
  * plan that just ended to check its license now (once per end), so the app
  * pauses there within minutes. Safe to run twice at once: each notification,
  * announcement and ended plan is taken by one run.
@@ -41,6 +42,8 @@ export interface FrequentReport {
   orders: OrderWatchReport;
   /** 100.2 Store products made or changed in Google Play and the App Store. */
   storeProducts: StoreProductsRunReport;
+  /** 100.3 Access given or taken back on the source, Google's refunds, memberships that ended. */
+  storePurchases: PurchasesRunReport;
 }
 
 export async function runFrequentJobs(deps: {
@@ -119,5 +122,12 @@ export async function runFrequentJobs(deps: {
   } catch (error) {
     console.error("[frequent] store products", error instanceof Error ? error.message : String(error));
   }
-  return { notifications, announcements, ended, campaigns, automatic, builds, reviews, orders, storeProducts };
+  // 100.3 Purchases: access waiting for the source, refunds, memberships past their paid period.
+  let storePurchases: PurchasesRunReport = { delivered: 0, refunds: 0, ended: 0, failed: 0 };
+  try {
+    storePurchases = await runStorePurchases({ store: deps.store, key: deps.key, now: deps.now, fetcher: deps.storeFetch, site: deps.refresh });
+  } catch (error) {
+    console.error("[frequent] store purchases", error instanceof Error ? error.message : String(error));
+  }
+  return { notifications, announcements, ended, campaigns, automatic, builds, reviews, orders, storeProducts, storePurchases };
 }

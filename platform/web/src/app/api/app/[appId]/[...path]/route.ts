@@ -1,8 +1,9 @@
 import { assetUrl } from "@/lib/assets";
+import { storeBillingOn } from "@/lib/store-billing/access";
 import { sendMail } from "@/lib/mail";
 import { sendAccountDeleted } from "@/lib/hosted/api-webhooks";
 import { getStore } from "@/lib/data";
-import { appUrl, encryptionKey, signingSecret, waabekApiUrl } from "@/lib/env";
+import { appUrl, encryptionKey, licenseRefreshTestUrl, signingSecret, waabekApiUrl } from "@/lib/env";
 import { appOtpSender, recordOwnWhatsappFailure, senderWithFallback } from "@/lib/hosted/app-sender";
 import { resolvedOtpSenderConfig } from "@/lib/settings/platform";
 import { hmacSha256 } from "@/lib/crypto/tokens";
@@ -146,6 +147,8 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
       onAccountDeleted: async (sub) => {
         await sendAccountDeleted({ store, encryptionKey: encryptionKey(), platformUrl: appUrl(), now: () => new Date() }, app, sub);
       },
+      // 100.3 Store billing: the store keys (encrypted), Google and Apple, and the WordPress site that gives the access.
+      billing: { key: encryptionKey(), site: { testSiteUrl: licenseRefreshTestUrl() } },
       // 77 The chat: files on the media server, and pushes for new messages (also through a WordPress site).
       chat: { storage: getMediaStorage(), chunkBytes: MEDIA_CHUNK_BYTES, onMessage: chatPushes(store, chatBusiness(app, assetUrl).name) },
       // 18 The owner's own WhatsApp number when they connected one, else Yallapp's sender.
@@ -171,6 +174,8 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
         assetUrl,
         platformUrl: appUrl(),
         cardPayments: hasFeature(plan, "card_payments"),
+        // 100.3 Paid courses are bought through the stores when the app sells in the app.
+        storeBilling: storeBillingOn(app, plan),
         // 91.4 Loyalty points in shops without a website.
         loyalty: hasFeature(plan, "loyalty"),
         // 45 Lessons saved for offline viewing: offline mode in the plan and the owner's choice.

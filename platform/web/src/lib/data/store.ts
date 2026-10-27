@@ -7,6 +7,8 @@ import type {
   SavedSection,
   OwnFont,
   StoreProduct,
+  StorePurchaseRecord,
+  BillingSession,
   Asset,
   Build,
   BuildStatus,
@@ -724,6 +726,19 @@ export interface DataStore {
   getStoreProduct(appId: string, productId: string): Promise<StoreProduct | null>;
   /** Adds the product, or replaces the app's one with the same product ID (which keeps its id). */
   saveStoreProduct(product: StoreProduct): Promise<void>;
+  /** 100.3 A store purchase by its store key (Google: the token's SHA-256; Apple: the original transaction ID). */
+  getStorePurchase(appId: string, platform: StorePurchaseRecord["platform"], storeKey: string): Promise<StorePurchaseRecord | null>;
+  /** Keeps a new purchase; when one with the same store key is there already (sent twice at once), returns that one instead. */
+  createStorePurchase(purchase: StorePurchaseRecord): Promise<StorePurchaseRecord>;
+  saveStorePurchase(purchase: StorePurchaseRecord): Promise<void>;
+  /** An account's purchases in the app, newest first. */
+  listAccountStorePurchases(appId: string, accountSource: StorePurchaseRecord["accountSource"], accountId: string): Promise<StorePurchaseRecord[]>;
+  /** Purchases whose access wasn't given or taken on the source yet (changed before `before`), oldest first. */
+  listUndeliveredStorePurchases(before: Date, limit: number): Promise<StorePurchaseRecord[]>;
+  /** Active memberships whose paid period ends before `before`, soonest first. */
+  listEndingStorePurchases(before: Date, limit: number): Promise<StorePurchaseRecord[]>;
+  createBillingSession(session: BillingSession): Promise<void>;
+  getBillingSession(tokenHash: string): Promise<BillingSession | null>;
 
   // 11.7 Admin team and audit log
   /** Everyone in admin_members with their user, oldest first. */

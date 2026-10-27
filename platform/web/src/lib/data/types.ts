@@ -2101,6 +2101,59 @@ export interface StoreProduct {
   updatedAt: Date;
 }
 
+/** 100.3 Whose purchase it is: a person of the hosted API (also Yallapp's sign-in for an app on its own API) or a WordPress user. */
+export type StoreAccountSource = "hosted" | "wordpress";
+
+/**
+ * 100.3 A purchase made in Google Play or the App Store, checked with the
+ * store and kept once (one per app, platform and store purchase): Google's
+ * purchase token, or Apple's original transaction ID. It belongs to the
+ * account that sent it first and gives that account the access; refunds,
+ * revocations and ended subscriptions take it back.
+ */
+export interface StorePurchaseRecord {
+  id: string;
+  appId: string;
+  platform: StorePlatform;
+  /** Google: the purchase token's SHA-256; Apple: the original transaction ID. */
+  storeKey: string;
+  /** Google's purchase token, to read the purchase again (renewals, refunds). */
+  purchaseToken: string | null;
+  productId: string;
+  kind: StoreProductKind;
+  courseId: number | null;
+  planId: string | null;
+  accountSource: StoreAccountSource;
+  accountId: string;
+  /** Google's order ID, or Apple's latest transaction ID. */
+  transactionId: string | null;
+  status: "active" | "pending" | "expired" | "revoked";
+  /** Memberships: the end of the paid period. */
+  expiresAt: Date | null;
+  /** Google: acknowledged (else refunded after three days). */
+  acknowledged: boolean;
+  /** Access given on the app's source (hosted enrolment, the site, the client's API) for the current status. */
+  delivered: boolean;
+  /** Why it ended: refunded, revoked or expired. */
+  reason: "refunded" | "revoked" | "expired" | null;
+  /** A store test purchase (license tester, sandbox). */
+  test: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** 100.3 An hour's store billing token for a person signed in on a WordPress site (platform.yaml POST /billing/sessions). */
+export interface BillingSession {
+  tokenHash: string;
+  appId: string;
+  /** The WordPress user's ID. */
+  userId: number;
+  name: string;
+  email: string | null;
+  expiresAt: Date;
+  createdAt: Date;
+}
+
 /** 100.2 The app's store billing state, kept on the app. */
 export interface StoreBillingSettings {
   /** The owner turned selling in the app on (every plan but Starter). */
@@ -2114,6 +2167,8 @@ export interface StoreBillingSettings {
   appleCheck?: { at: string; error: string | null } | null;
   /** When the products were last made or changed in the stores. */
   syncedAt?: string | null;
+  /** 100.3 Up to when Google's voided purchases were read. */
+  voidedReadAt?: string | null;
 }
 
 // 11.7 Admin team and audit log

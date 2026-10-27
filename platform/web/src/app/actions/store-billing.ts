@@ -4,7 +4,9 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { clientFor, mayUseDashboard } from "@/lib/auth/session";
+import { usesPlugin } from "@/lib/app/label";
 import { getStore } from "@/lib/data";
+import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import { appPlan } from "@/lib/entitlements";
 import { encryptionKey } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
@@ -39,6 +41,8 @@ export async function saveStoreBillingAction(_: FormState, formData: FormData): 
   const enabled = formData.get("enabled") === "on";
   await store.updateApp(app.id, { storeBilling: { ...app.storeBilling, enabled } }, now);
   await recordStaffChange(context, `Turned in-app purchases ${enabled ? "on" : "off"}`);
+  // 100.3 A WordPress site hears it at once (its license status's store_billing).
+  if (usesPlugin(app)) refreshSitesSoon([app.id]);
   revalidatePath(PAGE);
   return { ok: true, message: enabled ? "In-app purchases are on. The stores get your products within minutes." : "In-app purchases are off." };
 }

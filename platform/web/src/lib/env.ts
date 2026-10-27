@@ -305,6 +305,11 @@ export function figmaApiTestUrl(): string | null {
   return testOnlyUrl("FIGMA_API_TEST_URL");
 }
 
+/** 100.3 The service account Yallapp's Pub/Sub push subscription signs Google Play's notifications with; null refuses every push. */
+export function googlePubSubPushEmail(): string | null {
+  return read("GOOGLE_PUBSUB_PUSH_EMAIL")?.trim().toLowerCase() || null;
+}
+
 /** 80.2 The daily checks of every app's connections (lib/integrations/schedule.ts); `INTEGRATION_CHECKS=off` turns them off (the e2e tests, whose sites are made up). */
 export function integrationChecksOn(): boolean {
   return read("INTEGRATION_CHECKS")?.toLowerCase() !== "off";

@@ -328,7 +328,7 @@ describe("61", () => {
       await store.createAnnouncement(announcement({ startsAt: new Date(NOW.getTime() + 30 * 60_000) }));
       const later = new Date(NOW.getTime() + 2 * HOUR);
       const report = await runFrequentJobs({ store, key: KEY, now: later, send, ownerPush: { store, now: later, account: null } });
-      expect(report).toEqual({ notifications: { sent: 1, waiting: 0, cancelled: 0, failed: 0 }, announcements: { announcements: 1, phones: 0 }, ended: { ended: 0, asked: 0, sent: 0 }, campaigns: { sent: 0, waiting: 0, failed: 0 }, automatic: {}, builds: { queued: 0, nothing: 0, later: 0 }, reviews: { checked: 0, changed: 0, failed: 0 }, orders: { checked: 0, told: 0, ended: 0 }, storeProducts: { apps: 0, done: 0, failed: 0 } });
+      expect(report).toEqual({ notifications: { sent: 1, waiting: 0, cancelled: 0, failed: 0 }, announcements: { announcements: 1, phones: 0 }, ended: { ended: 0, asked: 0, sent: 0 }, campaigns: { sent: 0, waiting: 0, failed: 0 }, automatic: {}, builds: { queued: 0, nothing: 0, later: 0 }, reviews: { checked: 0, changed: 0, failed: 0 }, orders: { checked: 0, told: 0, ended: 0 }, storeProducts: { apps: 0, done: 0, failed: 0 }, storePurchases: { delivered: 0, refunds: 0, ended: 0, failed: 0 } });
     });
   });
 

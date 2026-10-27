@@ -1477,6 +1477,19 @@ routine every few years):
       Notifications address points at Yallapp. Change a price on the page
       and update again: both stores have the new price.
 
+- Migration `0090_store_purchases` (100.3, store purchases and the
+  WordPress billing sessions) runs with the others at deploy.
+- [ ] 100.3 Google Play's real-time notifications, once for all apps: in
+      Yallapp's Google Cloud project make a Pub/Sub topic (say
+      `play-billing`), give `google-play-developer-notifications@system.gserviceaccount.com`
+      the Pub/Sub Publisher role on it, and add a push subscription to
+      `https://yallapp.com.tr/api/v1/billing/notifications/google` with
+      authentication on (a service account of the project, audience the
+      same address). Put that service account's email in Netlify as
+      `GOOGLE_PUBSUB_PUSH_EMAIL`. Each app's Play Console › Monetization
+      setup then names the topic (`projects/<project>/topics/play-billing`).
+      Without it, refunds and renewals still arrive within the hour.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |
