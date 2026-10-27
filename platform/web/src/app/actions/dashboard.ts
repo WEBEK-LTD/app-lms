@@ -616,8 +616,10 @@ export async function saveBrandingAction(_: FormState, formData: FormData): Prom
   };
   await store.updateApp(context.app.id, patch, now);
   // A newly chosen design becomes the Pages & look draft, with this template and font; what's published stays.
+  // 99.2 Or only its look, when the owner keeps their pages.
+  const mode = formData.get("designMode") === "look" ? "look" : "all";
   if (design && design.id !== context.app.design) {
-    const saved = await saveDesignDraft(store, { ...context.app, ...patch }, design, now, { template: parsed.data.template, ...lookFont(parsed.data.font) });
+    const saved = await saveDesignDraft(store, { ...context.app, ...patch }, design, now, { template: parsed.data.template, ...lookFont(parsed.data.font) }, { mode });
     if (!saved.ok) return { errors: { design: "This design couldn't be applied to your app. Choose another one." }, values };
     revalidatePath("/dashboard/pages");
   }

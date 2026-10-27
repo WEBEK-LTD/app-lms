@@ -144,6 +144,10 @@ export const en = {
     "Start from a ready-made design for your kind of app: its home page, tabs and look go to your draft in Pages & look, where you change anything you like. Your published pages stay until you publish.",
   keepPages: "Keep my pages",
   keepPagesText: "Your pages and tabs stay as they are.",
+  // 99.2
+  designTake: "From this design, take",
+  designTakeAll: "Its pages and look",
+  designTakeLook: "Its look only (my pages stay)",
   template: "Template",
   font: "Font",
   livePreview: "Live preview",
@@ -428,6 +432,10 @@ export const ar: Messages = {
     "ابدأ من تصميم جاهز لنوع تطبيقك: تنتقل صفحته الرئيسية وعلامات التبويب والمظهر إلى مسودتك في «الصفحات والمظهر»، حيث تغيّر ما تشاء. تبقى صفحاتك المنشورة كما هي حتى تنشر.",
   keepPages: "الإبقاء على صفحاتي",
   keepPagesText: "تبقى صفحاتك وعلامات التبويب كما هي.",
+  // 99.2
+  designTake: "خذ من هذا التصميم",
+  designTakeAll: "صفحاته ومظهره",
+  designTakeLook: "مظهره فقط (تبقى صفحاتي)",
   template: "القالب",
   font: "الخط",
   livePreview: "معاينة مباشرة",
@@ -705,6 +713,10 @@ export const tr: Messages = {
     "Uygulama türünüze uygun hazır bir tasarımla başlayın: ana sayfası, sekmeleri ve görünümü Sayfalar ve görünüm'deki taslağınıza gider; orada istediğinizi değiştirirsiniz. Yayındaki sayfalarınız siz yayınlayana kadar aynı kalır.",
   keepPages: "Sayfalarımı koru",
   keepPagesText: "Sayfalarınız ve sekmeleriniz olduğu gibi kalır.",
+  // 99.2
+  designTake: "Bu tasarımdan al",
+  designTakeAll: "Sayfalarını ve görünümünü",
+  designTakeLook: "Yalnızca görünümünü (sayfalarım kalır)",
   template: "Şablon",
   font: "Yazı tipi",
   livePreview: "Canlı önizleme",

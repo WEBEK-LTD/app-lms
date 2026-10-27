@@ -325,7 +325,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
 }
 
 /** 33 The Branding step's designs for the app's kind, each as the draft it makes, and the draft as it is for "Keep my pages". */
-async function brandingDesigns(store: DataStore, app: App): Promise<Pick<BrandingDesigns, "designs" | "current" | "design">> {
+async function brandingDesigns(store: DataStore, app: App): Promise<Pick<BrandingDesigns, "designs" | "current" | "design" | "established">> {
   const now = new Date();
   const record = await loadLayout(store, app, now);
   // 84.4 The built-in designs and the team's.
@@ -334,5 +334,7 @@ async function brandingDesigns(store: DataStore, app: App): Promise<Pick<Brandin
     designs: (await designsForApp(store, app)).map((d) => ({ id: d.id, name: d.name, description: d.description, layout: designLayout(app, d, record.draft, now) })),
     current: record.draft,
     design: chosen && (await designFitsApp(store, chosen, app)) ? chosen.id : null,
+    // 99.2 An app with pages of its own can take a design's look only.
+    established: record.published !== null || app.design != null,
   };
 }

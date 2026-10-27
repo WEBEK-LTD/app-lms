@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type DragEvent } from "react";
-import { applyDesignAction, deleteSectionAction, discardLayoutDraftAction, publishLayoutAction, restoreLayoutVersionAction, saveLayoutDraftAction, saveSectionAction, type LayoutSaveResult, type SectionView } from "@/app/actions/pages";
+import { applyDesignAction, deleteSectionAction, undoDesignAction, discardLayoutDraftAction, publishLayoutAction, restoreLayoutVersionAction, saveLayoutDraftAction, saveSectionAction, type LayoutSaveResult, type SectionView } from "@/app/actions/pages";
 import { sectionBlocks } from "@/lib/pages/section-blocks";
-import type { LayoutHistoryEntry } from "@/lib/pages/layout";
+import type { DesignMode, LayoutHistoryEntry } from "@/lib/pages/layout";
 import { Badge, btn, formatDateTime } from "@/components/ui";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import { newBlockId } from "@/lib/pages/defaults";
@@ -283,6 +283,7 @@ export function PagesEditor({
     dirty.current = true;
     setStatus("unsaved");
     setMessage(null);
+    setBeforeDesign(null);
     setLayout(change);
   }
 
@@ -380,25 +381,124 @@ export function PagesEditor({
   // 84.2 The colours chosen on each design's card (its own until another is picked).
   const [palettes, setPalettes] = useState<Record<string, string>>({});
 
-  async function chooseDesign(id: string, name: string) {
-    if (!window.confirm(t("pages.replaceDesign", { name }))) return;
+  // 99.2 The design being switched to: everything or its look only, the draft's other pages kept or not, seen before and after.
+  const [switching, setSwitching] = useState<{ id: string; mode: DesignMode; keep: boolean } | null>(null);
+  // 99.2 The draft, main colour and design from before the last design chosen, for one step back.
+  const [beforeDesign, setBeforeDesign] = useState<{ layout: LayoutContent; primaryColor: string; design: string | null } | null>(null);
+
+  async function chooseDesign() {
+    const choice = switching;
+    const design = choice ? designs.find((d) => d.id === choice.id) : undefined;
+    if (!choice || !design) return;
     setBusy(true);
     edits.current += 1;
     const sent = edits.current;
+    const before = { layout, primaryColor: app.primaryColor, design: currentDesign };
     try {
       // 84.2 With the colours chosen on its card.
-      const r = await applyDesignAction(id, palettes[id]);
+      const r = await applyDesignAction(choice.id, palettes[choice.id], choice.mode, choice.mode === "all" && choice.keep);
       applied(r, sent, true);
       if (r.ok) {
-        setSamples(r.samples ?? {});
-        setCurrentDesign(id);
-        setPageSlug(r.draft.pages[0]?.slug ?? null);
-        setOpenBlock(null);
+        if (r.samples) {
+          setSamples(r.samples);
+          setCurrentDesign(choice.id);
+          setPageSlug(r.draft.pages[0]?.slug ?? null);
+          setOpenBlock(null);
+        }
+        setSwitching(null);
         setDesignsOpen(false);
+        setBeforeDesign(before);
         setMessage({ text: r.message ? known(r.message) : t("pages.designApplied"), ok: true });
       } else {
         setMessage({ text: r.errors[0] ? known(r.errors[0]) : t("pages.designFailed"), ok: false });
       }
+    } catch {
+      setMessage({ text: t("pages.cantApply"), ok: false });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  /** 99.2 What the switch takes, with the draft before and after it, side by side. */
+  function switchPanel(choice: { id: string; mode: DesignMode; keep: boolean }) {
+    const design = designs.find((d) => d.id === choice.id);
+    if (!design) return null;
+    const palette = design.palettes.find((p) => p.id === (palettes[design.id] ?? design.palettes[0]?.id));
+    const look = design.layout.appearance;
+    const secondary = palette?.secondary ?? look.secondary_color;
+    const own = layout.pages.filter((p) => !design.layout.pages.some((d) => d.slug === p.slug));
+    const after: LayoutContent =
+      choice.mode === "look"
+        ? { ...layout, appearance: { ...layout.appearance, template: look.template, corners: look.corners, cards: look.cards, font: look.font, font_family: look.font_family, secondary_color: secondary } }
+        : { ...design.layout, appearance: { ...look, secondary_color: secondary } };
+    const light = (l: LayoutContent): LayoutContent => ({ ...l, appearance: { ...l.appearance, theme_mode: "light" } });
+    const name = known(design.name);
+    return (
+      <div role="group" aria-labelledby="h-switch" className="mt-4 flex flex-col gap-3 rounded-xl border-2 border-midnight p-4">
+        <h3 id="h-switch" className="m-0 text-base font-bold">
+          {t("pages.switchTitle", { name })}
+        </h3>
+        <fieldset className="m-0 flex flex-wrap gap-2 border-0 p-0">
+          <legend className="sr-only">{t("pages.switchTitle", { name })}</legend>
+          {(["all", "look"] as const).map((mode) => (
+            <label key={mode} className="flex min-w-[220px] flex-1 cursor-pointer items-start gap-2 rounded-lg border border-line p-3 has-[:checked]:border-midnight">
+              <input type="radio" name="design-mode" value={mode} checked={choice.mode === mode} onChange={() => setSwitching({ ...choice, mode })} className="mt-1 accent-midnight" />
+              <span className="flex flex-col gap-0.5">
+                <span className="text-[15px] font-semibold">{mode === "all" ? t("pages.takeAll") : t("pages.takeLook")}</span>
+                <span className="text-xs text-muted">{mode === "all" ? t("pages.takeAllText") : t("pages.takeLookText")}</span>
+              </span>
+            </label>
+          ))}
+        </fieldset>
+        {choice.mode === "all" && own.length ? (
+          <label className="flex cursor-pointer items-center gap-2 text-sm">
+            <input type="checkbox" checked={choice.keep} onChange={(e) => setSwitching({ ...choice, keep: e.currentTarget.checked })} className="accent-midnight" />
+            {t("pages.keepOwnPages", { count: own.length })}
+          </label>
+        ) : null}
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { label: t("pages.beforeDesign"), shown: layout, primary: app.primaryColor },
+            { label: t("pages.afterDesign"), shown: after, primary: palette?.primary ?? app.primaryColor },
+          ].map((side) => (
+            <figure key={side.label} className="m-0 flex min-w-0 flex-col gap-1.5">
+              <figcaption className="text-sm font-semibold">{side.label}</figcaption>
+              <div className="overflow-hidden rounded-xl bg-ivory outline outline-1 outline-line">
+                <DesignThumb layout={light(side.shown)} app={{ ...app, primaryColor: side.primary }} />
+              </div>
+            </figure>
+          ))}
+        </div>
+        <p className="m-0 text-xs text-muted">{t("pages.switchNote")}</p>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" className={`${btn.primary} h-10 px-4 text-sm`} disabled={busy} onClick={() => void chooseDesign()}>
+            {t("pages.useDesign")}
+          </button>
+          <button type="button" className={`${btn.secondary} h-10 px-4 text-sm`} disabled={busy} onClick={() => setSwitching(null)}>
+            {t("pages.cancelDesign")}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  /** 99.2 Back to the draft from before the design: its pages, the main colour and the design it started from. */
+  async function undoDesign() {
+    const before = beforeDesign;
+    if (!before) return;
+    setBusy(true);
+    edits.current += 1;
+    const sent = edits.current;
+    try {
+      const r = await undoDesignAction(JSON.stringify(before.layout), before.primaryColor, before.design);
+      applied(r, sent, true);
+      setBeforeDesign(null);
+      if (r.ok) {
+        setCurrentDesign(before.design);
+        setPageSlug(r.draft.pages[0]?.slug ?? null);
+        setOpenBlock(null);
+      }
+      setMessage(r.ok ? { text: r.message ? known(r.message) : t("pages.undo"), ok: true } : { text: r.errors.map((e) => known(e)).join(" "), ok: false });
     } catch {
       setMessage({ text: t("pages.cantApply"), ok: false });
     } finally {
@@ -653,8 +753,14 @@ export function PagesEditor({
             </details>
           ) : null}
           {message ? (
-            <p role={message.ok ? "status" : "alert"} className={`m-0 rounded-xl px-4 py-3 text-[15px] font-semibold ${message.ok ? "bg-success-bg text-success" : "bg-danger-bg text-danger"}`}>
-              {message.text}
+            <p role={message.ok ? "status" : "alert"} className={`m-0 flex flex-wrap items-center justify-between gap-2 rounded-xl px-4 py-3 text-[15px] font-semibold ${message.ok ? "bg-success-bg text-success" : "bg-danger-bg text-danger"}`}>
+              <span>{message.text}</span>
+              {/* 99.2 One step back from a design, right after it. */}
+              {message.ok && beforeDesign ? (
+                <button type="button" className={smallBtn} disabled={busy} onClick={() => void undoDesign()}>
+                  {t("pages.undo")}
+                </button>
+              ) : null}
             </p>
           ) : null}
         </section>
@@ -736,12 +842,13 @@ export function PagesEditor({
                           </fieldset>
                         ) : null}
                         {/* 38 Grows with its text: in four narrow columns "Use this design" takes two lines. */}
-                        <button type="button" className={`${btn.secondary} mt-auto min-h-9 px-3 py-1.5 text-center leading-tight`} disabled={busy} aria-label={t("pages.useNamed", { name: known(d.name) })} onClick={() => void chooseDesign(d.id, known(d.name))}>
+                        <button type="button" className={`${btn.secondary} mt-auto min-h-9 px-3 py-1.5 text-center leading-tight`} disabled={busy} aria-label={t("pages.useNamed", { name: known(d.name) })} onClick={() => setSwitching({ id: d.id, mode: "all", keep: true })}>
                           {t("pages.useDesign")}
                         </button>
                       </li>
                     ))}
                   </ul>
+                  {switching ? switchPanel(switching) : null}
                 </details>
               </section>
             ) : null}

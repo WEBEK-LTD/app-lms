@@ -3216,6 +3216,13 @@ neither), at `pictureBase` (the platform's address, which the validator
 accepts like its own assets), and a Social links block with the app's
 current profiles (`socialProfilesOf`) on the Contact page.
 
+99.2 `saveDesignDraft` takes a `mode`: "all" (the design's layout,
+`withKeptPages` adding the draft's pages it lacks to its side menu) or
+"look" (`designLookOnly`: only the design's look on the draft; the app's
+`design` and sample texts stay). The editor keeps the draft, main colour
+and design from before the switch for one "Undo" (`undoDesignAction`),
+until the next edit.
+
 ### One definition per block (83.1)
 
 Each block type has one definition in `lib/pages/blocks.ts`

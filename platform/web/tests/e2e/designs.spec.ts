@@ -186,8 +186,8 @@ test("starting from another design replaces the draft, not what's published", as
   for (const button of await designs.getByRole("button", { name: /^Use the / }).all()) {
     expect(await button.evaluate((b) => b.scrollHeight <= b.clientHeight + 1 && b.scrollWidth <= b.clientWidth + 1)).toBe(true);
   }
-  own.once("dialog", (dialog) => void dialog.accept());
   await designs.getByRole("button", { name: "Use the Coaching design" }).click();
+  await designs.getByRole("group", { name: "Switch to the Coaching design" }).getByRole("button", { name: "Use this design" }).click();
   await expect(own.getByText("Your draft now uses the Coaching design.")).toBeVisible();
   await expect(own.getByText("Unpublished changes")).toBeVisible();
   // Its About page and tab.
@@ -216,8 +216,8 @@ test("84.2 a design comes with its About us and Contact pages in the side menu, 
   const main = await third.locator("span[aria-hidden]").nth(0).evaluate((el) => getComputedStyle(el).backgroundColor);
   await third.click();
   await expect(colours.nth(2)).toBeChecked();
-  own.once("dialog", (dialog) => void dialog.accept());
   await card.getByRole("button", { name: "Use the Coaching design" }).click();
+  await designs.getByRole("group", { name: "Switch to the Coaching design" }).getByRole("button", { name: "Use this design" }).click();
   await expect(own.getByText("Your draft now uses the Coaching design.")).toBeVisible();
 
   // Its Contact page is in the side menu.
@@ -234,4 +234,49 @@ test("84.2 a design comes with its About us and Contact pages in the side menu, 
   expect((await own.locator("#look-secondary").inputValue()).toLowerCase()).toBe(hex(swatch));
   const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
   expect(config.branding.primary_color.toLowerCase()).toBe(hex(main));
+});
+
+test("99.2 another design's look only, one step back, and everything with the owner's own pages kept", async () => {
+  await own.goto("/dashboard/pages");
+  // A page of the owner's own, which no design has.
+  await own.getByLabel("New page title").fill("Timetable");
+  await own.getByRole("button", { name: "Add page" }).click();
+  await expect(own.getByRole("button", { name: "Duplicate Timetable" })).toBeVisible();
+  await expect(own.getByText(/^Draft saved/)).toBeVisible();
+  await own.getByRole("tab", { name: /^Look/ }).click();
+  const corners = await own.locator("#look-corners").inputValue();
+  await own.getByRole("tab", { name: "Pages", exact: true }).click();
+
+  const designs = own.getByRole("region", { name: "Start from a design" });
+  await designs.getByText("Show designs").click();
+  await designs.getByRole("button", { name: "Use the Online courses design" }).click();
+  const switching = designs.getByRole("group", { name: "Switch to the Online courses design" });
+  await expect(switching.getByRole("figure")).toHaveCount(2);
+  await switching.getByRole("radio", { name: /^Look only/ }).check();
+  // Nothing to keep when the pages stay.
+  await expect(switching.getByRole("checkbox")).toHaveCount(0);
+  await switching.getByRole("button", { name: "Use this design" }).click();
+  await expect(own.getByText("Your draft now has the Online courses design's look. Your pages stay as they are.")).toBeVisible();
+  await expect(own.getByRole("button", { name: "Duplicate Timetable" })).toBeVisible();
+  await own.getByRole("tab", { name: /^Look/ }).click();
+  await expect(own.locator("#look-corners")).toHaveValue("round");
+  expect(corners).not.toBe("round");
+
+  // One step back.
+  await own.getByRole("status").getByRole("button", { name: "Undo" }).click();
+  await expect(own.getByText("Your draft is back as it was before the design.")).toBeVisible();
+  await expect(own.locator("#look-corners")).toHaveValue(corners);
+
+  // Everything, keeping the owner's page in the side menu.
+  await own.getByRole("tab", { name: "Pages", exact: true }).click();
+  await designs.getByText("Show designs").click();
+  await designs.getByRole("button", { name: "Use the Kids academy design" }).click();
+  const kids = designs.getByRole("group", { name: "Switch to the Kids academy design" });
+  await expect(kids.getByRole("checkbox", { name: "Keep my other pages (1) in the side menu" })).toBeChecked();
+  await kids.getByRole("button", { name: "Use this design" }).click();
+  await expect(own.getByText("Your draft now uses the Kids academy design.")).toBeVisible();
+  await expect(own.getByRole("button", { name: "Duplicate Timetable" })).toBeVisible();
+  await own.getByRole("tab", { name: "Tabs" }).click();
+  const labels = await own.getByRole("region", { name: "Side menu" }).getByLabel("Label", { exact: true }).evaluateAll((inputs) => inputs.map((i) => (i as HTMLInputElement).value));
+  expect(labels).toContain("Timetable");
 });

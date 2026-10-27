@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { App, AppLayoutRecord, SavedSection } from "@/lib/data/types";
-import { discardDraft, hasUnpublishedChanges, layoutHistory, loadLayout, publishLayout, restoreLayoutVersion, saveDesignDraft, saveDraft, withoutStrings, type LayoutHistoryEntry } from "@/lib/pages/layout";
+import { discardDraft, hasUnpublishedChanges, isDesignMode, layoutHistory, loadLayout, publishLayout, restoreLayoutVersion, saveDesignDraft, saveDraft, withoutStrings, type DesignMode, type LayoutHistoryEntry } from "@/lib/pages/layout";
 import { getBlobStore } from "@/lib/blobs";
 import { FIGMA_IMAGE_BYTES, saveFigmaImage } from "@/lib/figma/images";
 import { FIGMA_LINK_LIMITS, figmaDeps, figmaFileKey, figmaNodeId, figmaTokenLooksRight, readFigmaFile, readFigmaNodes, renderFigmaFrames, type FigmaApiError, type FigmaFileRead } from "@/lib/figma/api";
@@ -249,21 +249,49 @@ export async function restoreLayoutVersionAction(number: number): Promise<Layout
 /**
  * 33 Replaces the draft with a ready-made design for the app's kind (the
  * editor asked the owner first). What's published stays until they publish.
+ * 99.2 `mode` "look" takes only its look; `keepPages` keeps the draft's
+ * pages the design doesn't have. `samples` is missing when they stay.
  */
-export async function applyDesignAction(designId: string, paletteId?: string): Promise<LayoutSaveResult & { samples?: Record<string, string> }> {
+export async function applyDesignAction(
+  designId: string,
+  paletteId?: string,
+  mode: DesignMode = "all",
+  keepPages = false,
+): Promise<LayoutSaveResult & { samples?: Record<string, string> }> {
   const { app } = await requireLayoutApp();
   const store = await getStore();
   const design = await findDesign(store, designId);
   if (!design || !(await designFitsApp(store, design, app))) return { ok: false, errors: ["This design isn't available for your app. Choose another one."] };
+  if (!isDesignMode(mode)) return { ok: false, errors: ["Choose what to take from the design."] };
   // 84.2 With one of its colours: the second colour in the look, and the main colour too when it has one.
   const palette = paletteId ? design.palettes?.find((p) => p.id === paletteId) : undefined;
   if (paletteId && !palette) return { ok: false, errors: ["Choose one of the colours shown."] };
   const now = new Date();
   if (palette?.primary) await store.updateApp(app.id, { primaryColor: palette.primary }, now);
-  const saved = await saveDesignDraft(store, palette?.primary ? { ...app, primaryColor: palette.primary } : app, design, now, palette ? { secondary_color: palette.secondary } : {});
+  const withPrimary = palette?.primary ? { ...app, primaryColor: palette.primary } : app;
+  const saved = await saveDesignDraft(store, withPrimary, design, now, palette ? { secondary_color: palette.secondary } : {}, { mode, keepPages: keepPages === true });
   if (!saved.ok) return saved;
   revalidatePath("/dashboard/pages");
-  return { ...result(saved.value.record, `Your draft now uses the ${design.name} design. Change anything you like, then publish.`), samples: saved.value.samples };
+  if (mode === "look") return result(saved.value.record, `Your draft now has the ${design.name} design's look. Your pages stay as they are.`);
+  return { ...result(saved.value.record, `Your draft now uses the ${design.name} design. Change anything you like, then publish.`), samples: saved.value.samples ?? {} };
+}
+
+/**
+ * 99.2 Back to the draft from before a design was chosen: its pages, the
+ * app's main colour and the design it started from, as the editor kept them.
+ */
+export async function undoDesignAction(json: string, primaryColor: string, designId: string | null): Promise<LayoutSaveResult> {
+  const { app } = await requireLayoutApp();
+  const store = await getStore();
+  if (!/^#[0-9a-f]{6}$/i.test(primaryColor)) return { ok: false, errors: ["This change can't be undone anymore."] };
+  const design = designId ? await findDesign(store, designId) : null;
+  if (designId && !design) return { ok: false, errors: ["This change can't be undone anymore."] };
+  const now = new Date();
+  const saved = await saveDraft(store, app, parseJson(json), now);
+  if (!saved.ok) return saved;
+  await store.updateApp(app.id, { primaryColor: primaryColor.toUpperCase(), design: design?.id ?? null }, now);
+  revalidatePath("/dashboard/pages");
+  return result(saved.value, "Your draft is back as it was before the design.");
 }
 
 /** Back to the published layout (or the defaults). */
