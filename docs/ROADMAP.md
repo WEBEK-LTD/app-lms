@@ -1,8 +1,7 @@
 # Roadmap
 
-Work moves one step at a time. A step is finished only when its "done when"
-check passes and the owner (WEBEK) approves it. The next step starts after
-that.
+The roadmap lists Yallapp's development in phases. Each step has a "done
+when" check that marks it finished.
 
 Status: `[x]` done · `[~]` in progress · `[ ]` not started
 
@@ -10,7 +9,7 @@ Status: `[x]` done · `[~]` in progress · `[ ]` not started
 
 | | Step | Owner | Done when |
 |---|---|---|---|
-| [x] | 0.1 Designs with the Yallapp brand and Google Material Symbols | Claude | Approved on the design canvas |
+| [x] | 0.1 Designs with the Yallapp brand and Google Material Symbols | — | Approved on the design canvas |
 | [x] | 0.2 Domain `yallapp.com.tr` | WEBEK | Registered |
 | [x] | 0.3 cPanel on `host.webek.org`: MySQL database and user, Remote MySQL, SSL | WEBEK | Database reachable over SSL with a dedicated user |
 | [x] | 0.4 Netlify site connected to this repository and the domain | WEBEK | A test deploy is live on `yallapp.com.tr` |
@@ -1201,7 +1200,7 @@ admin stays in English. No migration, no contract change.
 | [x] | 55.5 Right to left: logical spacing and positions, mirrored arrows and chevrons, the Works-with strip and the step timeline running the other way, phone and browser frames not mirrored, the comparison table and the plan cards in order; code, addresses, phone numbers and the API reference left to right. IBM Plex Sans Arabic for Arabic (`docs/BRAND.md` › Type); Turkish letters checked in Bricolage Grotesque | Screenshots at 1280 and 390 px |
 | [x] | 55.6 Every visible text in natural Arabic and Turkish: menus, sections, plans and the pricing table (prices still from Phase 52), the comparison, FAQ, Works-with, footer, forms and their messages, page titles, all 51 documentation articles and the developer guide (code examples as they are, headings keeping their English anchors), and the legal pages with a line that the English version prevails. The privacy policy names the language cookie | `site-i18n.test.ts` (every article and legal page has the same sections, links and contact placeholders as English) |
 | [x] | 55.7 Admin › Website content in English, Arabic and Turkish tabs: the built-in translations as defaults, each field editable per language, empty fields falling back; stored as `<key>@ar` and `<key>@tr` in `site_content` | `site-i18n.test.ts`, `site-languages.spec.ts` (the Turkish home title edited and reset) |
-| [x] | 55.8 `CLAUDE.md`: English is the default; the website and the client dashboard are in English, Arabic and Turkish, every new string in all three; the admin stays English; client apps keep their own languages | Review |
+| [x] | 55.8 `CONTRIBUTING.md`: English is the default; the website and the client dashboard are in English, Arabic and Turkish, every new string in all three; the admin stays English; client apps keep their own languages | Review |
 | [x] | 55.9 The client dashboard in Arabic and Turkish | Phase 56 |
 | [x] | 55.10 Plan texts edited in Admin › Plans, and English texts the team edits after this phase, aren't translated by themselves: the translated pages show the team's edit (plans) or keep the built-in translation until the team edits that language. Plans have Arabic and Turkish fields in Admin › Plans since 62.2; the other texts in Admin › Website content as before | Phase 62 |
 | [x] | 55.11 The Arabic share images use a simple letter shaper (joined letters, right-to-left words, no diacritics); a phrase with marks or mixed scripts may look plain. Replaced by shaping by joining types with marks and the bidirectional algorithm in 62.3 | Phase 62 |
@@ -1278,7 +1277,7 @@ an end-to-end spec on memory and MariaDB. Migration
 
 | | Step | Done when |
 |---|---|---|
-| [x] | 58.1 Contract first: `docs/api/owner.yaml` (OpenAPI 3.1, server `https://yallapp.com.tr/api/owner/v1`; tags Auth, Account, Updates, Today, Orders, Appointments, Events, Donations, Catalog, Media, Messages, App users, Analytics, Notifications, Publishing, License), linted with the other contracts in `CLAUDE.md`, the README and CI; not on the public developer pages | `redocly lint` of the four contracts; `owner-api.test.ts` checks every answer against it |
+| [x] | 58.1 Contract first: `docs/api/owner.yaml` (OpenAPI 3.1, server `https://yallapp.com.tr/api/owner/v1`; tags Auth, Account, Updates, Today, Orders, Appointments, Events, Donations, Catalog, Media, Messages, App users, Analytics, Notifications, Publishing, License), linted with the other contracts in `CONTRIBUTING.md`, the README and CI; not on the public developer pages | `redocly lint` of the four contracts; `owner-api.test.ts` checks every answer against it |
 | [x] | 58.2 Sign-in with the dashboard's account: the website's limits (the same counters) and password check; Yallapp's team and accounts without a client get `use_website`; pending and suspended accounts see their state only (403 elsewhere); a device per sign-in (at most 10) in `owner_devices`; a signed 15-minute access token read against the device on every request; a 60-day refresh token kept as its SHA-256 and replaced on each use (of two renewals at once one wins); sign-out, sign-out everywhere, a password change signs every device out; the website's password reset linked in the request's language | `owner-api.test.ts` (tokens, rotation, the 60 days, 10 devices, team refused, pending), `owner-mysql.test.ts` on MariaDB |
 | [x] | 58.3 Dashboard › Your phones (Account): each phone signed in to Yallapp Business with when it signed in and was last used and whether notifications are on, Sign out per phone and Sign out every phone (audited when our team does it); English, Arabic and Turkish | `owner-api.spec.ts`, `dashboard-i18n.test.ts` |
 | [x] | 58.4 Scope: every `/apps/{app_id}` path only for the client's own apps (another client's ID is 404 on every path of the contract); what an app has follows its type and content source as the dashboard's pages and actions test it (`lib/app/areas.ts`, `AppSummary.features`), else 404 `not_available` | `owner-api.test.ts` (every app path with another client's app; a restaurant without appointments) |

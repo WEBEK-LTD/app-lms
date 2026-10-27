@@ -1,4 +1,4 @@
-# Working on Yallapp
+# Contributing to Yallapp
 
 Read `README.md`, `docs/ROADMAP.md` and `docs/ARCHITECTURE.md` first.
 
@@ -7,9 +7,13 @@ Read `README.md`, `docs/ROADMAP.md` and `docs/ARCHITECTURE.md` first.
 - Follow `docs/ROADMAP.md` one step at a time. Finish a step, run its checks,
   push, report, and wait for approval before starting the next one. Update the
   step's status in the roadmap in the same change.
-- `docs/STATUS.md` holds where the work stands: the step in progress, the
-  checks it passed, the open pull requests and what waits on the owner. Read it
-  first and update it with every step and pull request.
+- `docs/STATUS.md` holds the project's current state: the release, what
+  still needs checking against real services, known gaps and what a
+  deployment needs. Read it first and update it with every step. Keep it
+  technical: no pull request lists, branch names or personal to-dos.
+- CI on a pull request checks only what its latest push changed and cancels
+  the run before it. After a small push, re-run the pull request's first full
+  run before merging.
 - The plugin and the app must match `docs/api/openapi.yaml`. Change the
   contract first, then the code, in the same change.
 

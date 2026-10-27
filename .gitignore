@@ -26,8 +26,6 @@ __pycache__/
 .bundle/
 .phpunit.result.cache
 
-# Claude Code agent worktrees
-.claude/worktrees/
 
 # Editors and OS
 .idea/

@@ -46,10 +46,11 @@ These are the parts on our servers and consoles.
       platform checks the length of the other secrets but not of this one,
       which reads every client's signing keys. Change it if it is shorter
       (Netlify, then GitHub › Settings › Secrets › `BUILD_PIPELINE_TOKEN`).
-- [ ] **Admin accounts:** the admin has no second sign-in step yet. Everyone
-      in `SUPER_ADMIN_EMAILS` and on Admin › Team uses a long password used
-      nowhere else (a password manager), and people who left are removed from
-      Admin › Team the same day.
+- [ ] **Admin accounts:** turn on "Require two-step sign-in for the team"
+      (Admin › Team, Phase 70). Everyone in `SUPER_ADMIN_EMAILS` and on
+      Admin › Team uses a long password used nowhere else (a password
+      manager), and people who left are removed from Admin › Team the same
+      day.
 - [ ] **After deploying:** `curl -sI https://yallapp.com.tr/faq` shows
       `content-security-policy: base-uri 'self'; object-src 'none';
       frame-ancestors 'none'` (the proxy passes it through), and

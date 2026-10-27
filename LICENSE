@@ -1,0 +1,69 @@
+Copyright (c) 2026 Webek LTD. All rights reserved.
+
+PROPRIETARY SOURCE CODE NOTICE
+
+1. Ownership
+
+   The original source code, documentation, designs and other materials in
+   this repository that were created by or for Webek LTD (the "Webek
+   Materials") are the property of Webek LTD and are protected by copyright
+   and other intellectual property laws. Yallapp is a product of Webek LTD.
+
+2. No licence granted
+
+   This repository is publicly visible so that its contents can be viewed.
+   Public visibility does not grant any licence or other right, express or
+   implied, in the Webek Materials, beyond what the hosting service's terms
+   require for public repositories (for example, viewing them and forking
+   them on GitHub). Except as set out in sections 4 and 5, no one may, without
+   the prior written permission of Webek LTD:
+
+   (a) copy, reproduce or download the Webek Materials for any use;
+   (b) modify, adapt, translate or create derivative works of them;
+   (c) distribute, publish, sublicense, sell, rent or otherwise make them
+       available to anyone;
+   (d) use them, in whole or in part, for any personal, commercial or other
+       project, product or service, whether for themselves or for any other
+       person, company or project;
+   (e) incorporate them into any other software or product; or
+   (f) present them, or any part of them, as the work or property of anyone
+       other than Webek LTD.
+
+   All rights not expressly granted in writing by Webek LTD are reserved.
+
+3. Permission requests
+
+   To ask for permission or a licence, contact Webek LTD:
+
+   Email:   info@webek.org
+   Website: https://webek.org
+
+   Permission is valid only if it is given in writing by Webek LTD.
+
+4. The Yallapp WordPress plugin and Yallapp customers
+
+   The WordPress plugin in the directory wp-plugin/yallapp is licensed under
+   the GNU General Public License, version 2 or (at your option) any later
+   version, as stated in its plugin header, readme.txt and composer.json.
+   This notice does not apply to the plugin and does not limit the rights
+   that licence gives. Customers use Yallapp's apps and service under
+   Yallapp's terms of service (https://yallapp.com.tr/terms).
+
+5. Third-party components
+
+   This repository also contains, refers to or is built with components that
+   Webek LTD does not own, including software packages installed through npm,
+   pub, Composer and Bundler, fonts (with their licences, for example the SIL
+   Open Font License files next to them), Google Material Symbols, the Apple
+   root certificate used to check App Store data, and generated bundles that
+   include third-party code (listed in their NOTICES files). Each of these
+   remains the property of its owners and is licensed under its own terms.
+   Nothing in this notice claims ownership of them or limits any right their
+   licences give. Names and logos of stores and platforms are trademarks of
+   their owners.
+
+6. No warranty
+
+   The Webek Materials are made visible "as is", without warranty of any
+   kind. To the extent the law allows, Webek LTD is not liable for any use of
+   them.
