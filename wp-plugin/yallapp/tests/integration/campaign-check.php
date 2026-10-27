@@ -66,11 +66,13 @@ $check( 'campaign: another key\'s campaign is refused (401)', 401 === $status &&
 list( $status ) = $call( '{"campaign":{}}' );
 $check( 'campaign: an unsigned campaign is refused (401)', 401 === $status, $status );
 
+// The reader joins before the campaign: the inbox shows what came from the second someone joined.
+$reader = wp_insert_user( array( 'user_login' => 'campaign' . wp_rand( 1000, 9999 ), 'user_pass' => wp_generate_password(), 'role' => 'subscriber' ) );
+
 list( $status, $data ) = $call( $body( $key ) );
 $first                 = $data;
 $check( 'campaign: a signed campaign is taken (202) with its inbox notification', 202 === $status && ( $data['notification_id'] ?? 0 ) > 0 && isset( $data['people'], $data['batches'] ), array( $status, $data ) );
 
-$reader = wp_insert_user( array( 'user_login' => 'campaign' . wp_rand( 1000, 9999 ), 'user_pass' => wp_generate_password(), 'role' => 'subscriber' ) );
 $inbox  = $plugin->inbox()->for_user( $reader, array(), 1, 20 );
 $item   = null;
 foreach ( $inbox['items'] as $entry ) {
