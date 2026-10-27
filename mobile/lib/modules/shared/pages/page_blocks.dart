@@ -16,6 +16,7 @@ import '../../../core/theme/symbol_names.dart';
 import '../../../core/web/web_page_screen.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import '../../chat/data/chat_providers.dart';
 import '../../lms/lesson/content/html_content.dart';
 import '../../lms/lesson/embeds/embed_frame.dart';
 import '../../lms/lesson/embeds/inline_embed.dart';
@@ -23,6 +24,7 @@ import '../../lms/lesson/video/hosted_video.dart';
 import '../../lms/navigation.dart';
 import '../../lms/widgets/course_cards.dart';
 import 'content_blocks.dart';
+import 'form_block.dart';
 import 'page_actions.dart';
 
 /// Spacing and type for pages in each template.
@@ -176,9 +178,12 @@ extension BlockAlignLayout on BlockAlign {
 /// One block, drawn in the current template. Every block type in the
 /// contract has a view; the page skips the ones [shows] rejects.
 class PageBlockView extends ConsumerWidget {
-  const PageBlockView({super.key, required this.block});
+  const PageBlockView({super.key, required this.block, required this.pageSlug});
 
   final PageBlock block;
+
+  /// 99.4 The page the block is on (a form sends its answers with it).
+  final String pageSlug;
 
   /// False for blocks with nothing to show in this app type (an empty list,
   /// a search for a source this app doesn't have, "continue learning"
@@ -199,6 +204,9 @@ class PageBlockView extends ConsumerWidget {
         b,
         ref.read(pageClockProvider)(),
       ),
+      // 99.4 A form whose answers go to the chat, in an app without chat.
+      FormBlock(:final sendTo) =>
+        sendTo == FormSendTo.email || ref.read(chatConfigProvider) != null,
       _ => block.hasContent,
     };
   }
@@ -241,6 +249,12 @@ class PageBlockView extends ConsumerWidget {
       final TeamBlock b => TeamView(block: b, style: style),
       final StatsBlock b => StatsView(block: b, style: style),
       final NoticeBlock b => NoticeView(block: b, style: style),
+      // 99.4 Cards, photos, a place, a line and a short form.
+      final CardsBlock b => CardsView(block: b, style: style),
+      final GalleryBlock b => GalleryView(block: b, style: style),
+      final MapBlock b => MapView(block: b, style: style),
+      final DividerBlock b => DividerView(block: b),
+      final FormBlock b => FormView(block: b, style: style, pageSlug: pageSlug),
     };
     // Lists carry their own header (with "See all"); banners show their
     // heading on the image.

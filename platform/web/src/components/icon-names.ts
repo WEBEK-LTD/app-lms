@@ -54,6 +54,7 @@ export const ICON_NAMES = [
   "help",
   "home",
   "home_work",
+  "horizontal_rule",
   "hourglass_top",
   "image",
   "info",

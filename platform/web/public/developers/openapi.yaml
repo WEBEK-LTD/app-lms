@@ -404,6 +404,52 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /forms/{slug}/{block_id}:
+    post:
+      tags: [Pages]
+      operationId: sendFormAnswers
+      summary: Send the answers to a form block by email
+      description: |
+        Roadmap 99.4. For a `form` block whose `send_to` is `email`: the
+        server checks the answers against the published block (each field
+        it knows, required fields filled, an email or phone that looks like
+        one, a choice among its options, at most 2,000 characters each) and
+        emails them to the business: the hosted API to the app's support
+        email (else its owner's), the plugin to the support email it has from
+        Yallapp (else the site's admin email). With a signed-in person's
+        token, their name and email go with the answers. A form whose
+        `send_to` is `chat` is sent by the app as a chat message instead
+        (`POST /chat/conversations/{conversation_id}/messages`), which needs
+        the person signed in. At most 5 answers a minute and 30 a day from
+        one address, counting only answers that pass the checks.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/PageSlug'
+        - name: block_id
+          in: path
+          required: true
+          schema: { type: string, pattern: '^[A-Za-z0-9_-]{1,40}$' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FormAnswers' }
+      responses:
+        '202':
+          description: The answers were sent. The app shows the block's `success_text`.
+        '400':
+          description: '`invalid_answers`, with `details.fields`: each field `id` that needs a change, then a message safe to show (in the language asked for with `Accept-Language` when the server has it); `invalid_request` when the form isn''t one to send by email.'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503':
+          description: '`send_failed`: the email couldn''t be sent; the app keeps the answers and offers to try again.'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
   /strings/{language}:
     get:
       tags: [App]
@@ -6177,6 +6223,11 @@ components:
         - $ref: '#/components/schemas/TeamBlock'
         - $ref: '#/components/schemas/StatsBlock'
         - $ref: '#/components/schemas/NoticeBlock'
+        - $ref: '#/components/schemas/CardsBlock'
+        - $ref: '#/components/schemas/GalleryBlock'
+        - $ref: '#/components/schemas/MapBlock'
+        - $ref: '#/components/schemas/DividerBlock'
+        - $ref: '#/components/schemas/FormBlock'
       discriminator:
         propertyName: type
         mapping:
@@ -6202,6 +6253,11 @@ components:
           team: '#/components/schemas/TeamBlock'
           stats: '#/components/schemas/StatsBlock'
           notice: '#/components/schemas/NoticeBlock'
+          cards: '#/components/schemas/CardsBlock'
+          gallery: '#/components/schemas/GalleryBlock'
+          map: '#/components/schemas/MapBlock'
+          divider: '#/components/schemas/DividerBlock'
+          form: '#/components/schemas/FormBlock'
       description: One block on a page. The app skips block types it does not know, so older apps keep working when new types are added.
 
     BlockBase:
@@ -6566,6 +6622,120 @@ components:
                   bio: { type: [string, 'null'] }
                   photo_url: { type: [string, 'null'], format: uri }
                   action: { $ref: '#/components/schemas/Action' }
+
+    CardsBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          description: 99.4 Cards in a grid of two or three columns, each with an optional picture, a title, a line of text and a tap.
+          required: [cards]
+          properties:
+            type: { const: cards }
+            columns: { type: integer, enum: [2, 3], default: 2 }
+            cards:
+              type: array
+              minItems: 1
+              maxItems: 12
+              items:
+                type: object
+                required: [title]
+                properties:
+                  title: { type: string }
+                  text: { type: [string, 'null'] }
+                  image_url: { type: [string, 'null'], format: uri }
+                  action: { $ref: '#/components/schemas/Action' }
+
+    GalleryBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          description: 99.4 Photos in a grid of two or three columns; a tap opens them full screen to swipe through, with their captions.
+          required: [images]
+          properties:
+            type: { const: gallery }
+            columns: { type: integer, enum: [2, 3], default: 3 }
+            images:
+              type: array
+              minItems: 1
+              maxItems: 24
+              items:
+                type: object
+                required: [image_url]
+                properties:
+                  image_url: { type: string, format: uri }
+                  caption: { type: [string, 'null'] }
+
+    MapBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          description: |
+            99.4 A place: its name and address on a card with a pin, and a
+            button that opens the phone's maps app with directions (Apple Maps
+            on iOS, else a `geo:` link, else Google Maps on the web). No map
+            tiles are loaded.
+          required: [latitude, longitude]
+          properties:
+            type: { const: map }
+            latitude: { type: number, minimum: -90, maximum: 90 }
+            longitude: { type: number, minimum: -180, maximum: 180 }
+            name: { type: [string, 'null'], example: Moda branch }
+            address: { type: [string, 'null'] }
+            label: { type: [string, 'null'], description: 'The button; null: the app''s own "Directions".' }
+
+    DividerBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          description: 99.4 A line between blocks.
+          properties:
+            type: { const: divider }
+            style: { type: string, enum: [line, dashed, dots], default: line }
+
+    FormBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          description: |
+            99.4 A short form. `send_to` `email`: the app posts the answers to
+            `POST /forms/{slug}/{block_id}`. `chat`: the app sends them as a
+            chat message to the business, one line per field (`label: answer`),
+            after the form's title; it asks the person to sign in first, and
+            shows the form only when the app has chat (`Config.chat`). Then it
+            shows `success_text`, else its own "Sent".
+          required: [fields, send_to]
+          properties:
+            type: { const: form }
+            fields:
+              type: array
+              minItems: 1
+              maxItems: 10
+              items: { $ref: '#/components/schemas/FormField' }
+            submit_label: { type: [string, 'null'], description: 'The button; null: the app''s own "Send".' }
+            success_text: { type: [string, 'null'] }
+            send_to: { type: string, enum: [email, chat] }
+
+    FormField:
+      type: object
+      required: [id, kind, label, required]
+      properties:
+        id: { type: string, pattern: '^[A-Za-z0-9_-]{1,40}$' }
+        kind: { type: string, enum: [text, long_text, email, phone, number, choice] }
+        label: { type: string }
+        required: { type: boolean }
+        options:
+          type: [array, 'null']
+          description: For `choice`, 2 to 10 options, shown as the person's choices.
+          items: { type: string }
+
+    FormAnswers:
+      type: object
+      required: [answers]
+      properties:
+        answers:
+          type: object
+          description: Each field's `id`, then the answer as text; fields left empty are left out.
+          additionalProperties: { type: string, maxLength: 2000 }
 
     StatsBlock:
       allOf:

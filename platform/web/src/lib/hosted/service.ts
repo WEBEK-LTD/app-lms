@@ -21,6 +21,7 @@ import { hitRateLimit, type RateLimitRule } from "../rate-limit";
 import type { Connector } from "./connectors/types";
 import { decodeJwt, encodeJwt } from "./jwt";
 import { handlePages } from "./pages";
+import { handleFormAnswers, type FormLine } from "./pages/forms";
 import { draftLayout, lookAndLanguages } from "../pages/layout";
 import type { OtpSender } from "./otp-sender";
 import { parseAnyPhone, parsePhone, type Phone } from "./phone";
@@ -126,6 +127,8 @@ export interface HostedContext {
    * Called after the account is gone; a failure never undoes the deletion.
    */
   onAccountDeleted?: (sub: string) => Promise<void>;
+  /** 99.4 A form's answers to email to the business (POST /forms/...). Missing: they go nowhere. */
+  onFormAnswers?: (input: { title: string; lines: FormLine[]; user: HostedUser | null; replyTo: string | null }) => Promise<void>;
   /**
    * 77 The chat's media server and pushes. Missing: the app has no chat
    * (`chat_not_available`), whatever its plan.
@@ -265,6 +268,9 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
   // 10.6 Pages
   const page = signInOnly ? null : await handlePages(ctx, req, session?.user ?? null);
   if (page) return page;
+  // 99.4 A form's answers, by email.
+  const form = signInOnly ? null : await handleFormAnswers(ctx, req, session?.user ?? null);
+  if (form) return form;
   if (req.path[0] === "me" || route === "POST /auth/logout") {
     if (!session) return unauthorized();
     if (req.path[1] === "devices" && req.path.length === 3 && req.method === "DELETE") {

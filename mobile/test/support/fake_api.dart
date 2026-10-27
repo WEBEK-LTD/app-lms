@@ -915,6 +915,18 @@ class FakeApi implements YallappApi {
     return AppPage.fromJson(page);
   });
 
+  /// 99.4 The answers sent to forms, by `slug/block_id`.
+  final formAnswers = <String, Map<String, String>>{};
+
+  @override
+  Future<void> sendFormAnswers(
+    String slug,
+    String blockId,
+    Map<String, String> answers,
+  ) => _answer('sendFormAnswers', () {
+    formAnswers['$slug/$blockId'] = answers;
+  });
+
   List<Map<String, dynamic>> listings = [
     listingSummaryJson(),
     listingSummaryJson(id: 43, title: 'Garden duplex', purpose: 'rent'),

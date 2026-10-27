@@ -1,4 +1,5 @@
 import { assetUrl } from "@/lib/assets";
+import { sendMail } from "@/lib/mail";
 import { sendAccountDeleted } from "@/lib/hosted/api-webhooks";
 import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey, signingSecret, waabekApiUrl } from "@/lib/env";
@@ -128,6 +129,19 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
       secret: hmacSha256(signingSecret(), "hosted-api"),
       // 34 Own API apps Yallapp signs people in to: ES256 tokens with the app's own keys.
       yallappSignIn: yallappSignsIn(app) ? appSignIn(store, app.id, { encryptionKey: encryptionKey(), platformUrl: appUrl(), now: () => now }) : null,
+      // 99.4 A form's answers, emailed to the business: its support address, else the owner's.
+      onFormAnswers: async ({ title, lines, user, replyTo }) => {
+        if (app.demo) return;
+        const owner = client ? await store.getUserById(client.userId) : null;
+        const to = app.supportEmail?.trim() || owner?.email;
+        if (!to) return;
+        const lang = owner ? emailLangOf(owner) : "en";
+        const t = getDashT(lang);
+        const appName = app.appName ?? t("emails.yourAppName");
+        const from = user ? t("emails.formFrom", { name: user.name ?? "", email: user.email ? ` (${user.email})` : "" }) : t("emails.formAnonymous");
+        const text = [t("emails.formIntro", { form: title, app: appName }), "", ...lines.map((l) => `${l.label}: ${l.value}`), "", from, replyTo ? `\n${t("emails.emailLine", { email: replyTo })}` : ""].join("\n").trim();
+        await sendMail({ to, subject: t("emails.formSubject", { app: appName, form: title }).slice(0, 150), text }, { fromName: app.appName?.trim() || undefined });
+      },
       // 49 The client's API hears of a deleted account (signed, retried by the webhook job).
       onAccountDeleted: async (sub) => {
         await sendAccountDeleted({ store, encryptionKey: encryptionKey(), platformUrl: appUrl(), now: () => new Date() }, app, sub);
@@ -203,7 +217,10 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
     { method: request.method, path, query: url.searchParams, body, token: bearer?.[1]?.trim() ?? null, headers: request.headers },
   );
   if (result.status === 304) return new Response(null, { status: 304, headers: { "cache-control": "no-store", ...result.headers } });
-  return result.status === 204 ? noContent() : json(result.body, result.status, result.headers);
+  if (result.status === 204) return noContent();
+  // 99.4 An answer without a body (202 for a form's answers).
+  if (result.body === undefined) return new Response(null, { status: result.status, headers: { "cache-control": "no-store", ...result.headers } });
+  return json(result.body, result.status, result.headers);
 }
 
 /**

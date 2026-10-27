@@ -502,6 +502,59 @@ function MoreBlockPreview({ block: b, theme, bold }: { block: LayoutBlock; theme
         </div>
       );
     }
+    // 99.4
+    case "cards":
+      return (
+        <div data-preview-cards="" style={{ display: "grid", gridTemplateColumns: `repeat(${b.columns ?? 2}, 1fr)`, gap: 6 }}>
+          {(b.cards ?? []).map((c, i) => (
+            <div key={i} style={{ ...theme.card, overflow: "hidden" }}>
+              {c.image_url ? <div style={{ aspectRatio: "4 / 3", background: `center / ${theme.fit ?? "cover"} no-repeat url("${encodeURI(c.image_url)}"), ${theme.line}` }} /> : null}
+              <div style={{ padding: 7 }}>
+                <div style={{ fontSize: 11, fontWeight: 700 }}>{c.title || "Title"}</div>
+                {c.text ? <Small theme={theme}>{c.text}</Small> : null}
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    case "gallery":
+      return (
+        <div data-preview-gallery="" style={{ display: "grid", gridTemplateColumns: `repeat(${b.columns ?? 3}, 1fr)`, gap: 3 }}>
+          {(b.images ?? []).map((g, i) => (
+            <div key={i} style={{ aspectRatio: "1", borderRadius: Math.min(theme.radius, 8), background: g.image_url ? `center / ${theme.fit ?? "cover"} no-repeat url("${encodeURI(g.image_url)}"), ${theme.line}` : theme.line }} />
+          ))}
+        </div>
+      );
+    case "map":
+      return (
+        <div data-preview-map="" style={{ ...theme.card, padding: 10, display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ width: 32, height: 32, flex: "none", borderRadius: 999, background: theme.primary, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <IconGlyph name="location_on" size={18} />
+          </span>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ fontSize: 11, fontWeight: 700 }}>{b.name || b.address || "Location"}</div>
+            {b.name && b.address ? <Small theme={theme}>{b.address}</Small> : null}
+          </div>
+          <span style={{ fontSize: 10, fontWeight: 700, color: theme.primary }}>{b.label || "Directions"}</span>
+        </div>
+      );
+    case "divider":
+      return <hr data-preview-divider={b.style ?? "line"} style={{ border: 0, borderTop: `${b.style === "dots" ? 3 : 1}px ${b.style === "dashed" ? "dashed" : b.style === "dots" ? "dotted" : "solid"} ${theme.line}`, margin: "4px 0" }} />;
+    case "form":
+      return (
+        <div data-preview-form="" style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {(b.fields ?? []).map((f, i) => (
+            <div key={i}>
+              <div style={{ fontSize: 10, fontWeight: 700, marginBottom: 2 }}>
+                {f.label || "Question"}
+                {f.required ? " *" : ""}
+              </div>
+              <div style={{ height: f.kind === "long_text" ? 38 : 22, borderRadius: Math.min(theme.radius, 8), border: `1px solid ${theme.line}`, background: theme.surface }} />
+            </div>
+          ))}
+          <div style={{ marginTop: 2, padding: "6px 0", borderRadius: Math.min(theme.radius, 10), background: theme.primary, color: "#fff", fontSize: 11, fontWeight: 700, textAlign: "center" }}>{b.submit_label || "Send"}</div>
+        </div>
+      );
     default: {
       // 83.1 A block the preview has no drawing for: its name and icon, from its definition.
       const def = BLOCK_DEFINITIONS[(b as LayoutBlock).type];

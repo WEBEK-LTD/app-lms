@@ -448,6 +448,15 @@ abstract class YallappApi {
   Future<Navigation?> getPages();
   Future<AppPage> getPage(String slug);
 
+  /// 99.4 Sends [answers] (field id, then the answer) to a form block whose
+  /// answers go by email. `invalid_answers` carries a message for each field
+  /// that needs a change (`details.fields`).
+  Future<void> sendFormAnswers(
+    String slug,
+    String blockId,
+    Map<String, String> answers,
+  );
+
   Future<OtpRequestResult> requestOtp({
     required String countryCode,
     required String phone,
@@ -961,6 +970,19 @@ class HttpYallappApi implements YallappApi {
     _optional,
     AppPage.fromJson,
     query: _pagesQuery,
+  );
+
+  @override
+  Future<void> sendFormAnswers(
+    String slug,
+    String blockId,
+    Map<String, String> answers,
+  ) => _send(
+    'POST',
+    '/forms/${Uri.encodeComponent(slug)}/${Uri.encodeComponent(blockId)}',
+    _optional,
+    _ignore,
+    body: {'answers': answers},
   );
 
   Map<String, String> get _pagesQuery => {

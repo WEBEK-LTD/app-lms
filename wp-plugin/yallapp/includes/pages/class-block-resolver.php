@@ -190,11 +190,22 @@ class Block_Resolver {
 	 * @return bool
 	 */
 	private function visible( $visibility ) {
+		return self::visible_to( $visibility, $this->user_id );
+	}
+
+	/**
+	 * Whether a user sees a block with this visibility (99.4 also for a form's answers). Pure.
+	 *
+	 * @param mixed $visibility everyone, signed_in or signed_out.
+	 * @param int   $user_id    The user, or 0.
+	 * @return bool
+	 */
+	public static function visible_to( $visibility, $user_id ) {
 		if ( 'signed_in' === $visibility ) {
-			return $this->user_id > 0;
+			return $user_id > 0;
 		}
 		if ( 'signed_out' === $visibility ) {
-			return 0 === $this->user_id;
+			return 0 === (int) $user_id;
 		}
 		return 'everyone' === $visibility;
 	}

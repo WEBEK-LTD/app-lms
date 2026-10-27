@@ -23,7 +23,8 @@ import 'page_blocks.dart';
 
 /// 33 The blocks whose content the owner writes in the dashboard: slider,
 /// quick links, testimonials, questions, countdown, contact, opening hours,
-/// social links, team, numbers and notice. Each is drawn in the current
+/// social links, team, numbers and notice; 99.4 cards, gallery, map and
+/// divider (the form is in form_block.dart). Each is drawn in the current
 /// template (PageStyle) and works right to left.
 
 /// The time the countdown and opening hours read: the phone's clock,
@@ -1546,4 +1547,485 @@ class NoticeView extends ConsumerWidget {
       ),
     );
   }
+}
+
+// ------------------------------------------------------------- 99.4 Cards
+
+/// 99.4 A card's outline, with the corners of the block around [context].
+ShapeBorder _blockCardShape(BuildContext context) {
+  final outline = context.cardShape(16, outlined: true);
+  if (outline is! RoundedRectangleBorder) return outline;
+  return outline.copyWith(
+    borderRadius: BorderRadius.circular(blockRadius(context, 16)),
+  );
+}
+
+/// 99.4 Cards in the block's two or three columns: a picture on top when
+/// the card has one, its title and its text; a tap runs its action.
+class CardsView extends ConsumerWidget {
+  const CardsView({super.key, required this.block, required this.style});
+
+  final CardsBlock block;
+  final PageStyle style;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final p = context.palette;
+    final align = blockAlign(context);
+    final fit = blockImageFit(context);
+    final shape = _blockCardShape(context);
+    final narrow = block.columns == 3;
+    Widget card(int i, PageCard c) {
+      final action = c.action;
+      final text = c.text?.trim() ?? '';
+      final opens = action != null && canOpenAction(ref, action);
+      return Semantics(
+        button: opens,
+        label: [c.title.trim(), text].where((t) => t.isNotEmpty).join(', '),
+        child: Material(
+          color: p.surface,
+          shape: shape,
+          elevation: context.cardElevation,
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: opens ? () => runPageAction(context, ref, action) : null,
+            child: ExcludeSemantics(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (c.imageUrl != null)
+                    AspectRatio(
+                      aspectRatio: 4 / 3,
+                      child: AppNetworkImage(
+                        url: c.imageUrl,
+                        seed: block.id.hashCode + i,
+                        fit: fit,
+                        clearPlaceholder: fit == BoxFit.contain,
+                      ),
+                    ),
+                  Padding(
+                    padding: EdgeInsets.all(narrow ? 8 : 12),
+                    child: Column(
+                      crossAxisAlignment: align.crossAxis,
+                      children: [
+                        Text(
+                          c.title,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: align.textAlign,
+                          style: TextStyle(
+                            fontSize: narrow ? 14 : 15,
+                            height: 1.3,
+                            fontWeight: FontWeight.w700,
+                            color: p.text,
+                          ),
+                        ),
+                        if (text.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            text,
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: align.textAlign,
+                            style: TextStyle(
+                              fontSize: narrow ? 12.5 : 13.5,
+                              height: 1.4,
+                              color: p.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const spacing = 12.0;
+        final columns = block.columns;
+        final width =
+            (constraints.maxWidth - spacing * (columns - 1)) / columns;
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            for (final (i, c) in block.cards.indexed)
+              SizedBox(width: width, child: card(i, c)),
+          ],
+        );
+      },
+    );
+  }
+}
+
+// ----------------------------------------------------------- 99.4 Gallery
+
+/// 99.4 Square thumbnails in the block's two or three columns; a tap opens
+/// the photos full screen ([GalleryViewer]).
+class GalleryView extends StatelessWidget {
+  const GalleryView({super.key, required this.block, required this.style});
+
+  final GalleryBlock block;
+  final PageStyle style;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final fit = blockImageFit(context);
+    final radius = blockRadius(context, 12);
+    final images = block.images;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const spacing = 8.0;
+        final columns = block.columns;
+        final size = (constraints.maxWidth - spacing * (columns - 1)) / columns;
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            for (final (i, image) in images.indexed)
+              SizedBox.square(
+                dimension: size,
+                child: Semantics(
+                  button: true,
+                  label: [
+                    l10n.photoOf(i + 1, images.length),
+                    image.caption?.trim() ?? '',
+                  ].where((t) => t.isNotEmpty).join(', '),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(radius),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        AppNetworkImage(
+                          url: image.imageUrl,
+                          seed: block.id.hashCode + i,
+                          fit: fit,
+                          clearPlaceholder: fit == BoxFit.contain,
+                        ),
+                        Material(
+                          type: MaterialType.transparency,
+                          child: InkWell(
+                            key: ValueKey('gallery-${block.id}-$i'),
+                            onTap: () => GalleryViewer.open(context, images, i),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// 99.4 A gallery's photos full screen: swipe through them, pinch to zoom,
+/// each with its caption.
+class GalleryViewer extends StatefulWidget {
+  const GalleryViewer({super.key, required this.images, this.initial = 0});
+
+  final List<GalleryImage> images;
+
+  /// The photo shown first.
+  final int initial;
+
+  static Future<void> open(
+    BuildContext context,
+    List<GalleryImage> images,
+    int initial,
+  ) => Navigator.of(context, rootNavigator: true).push(
+    MaterialPageRoute<void>(
+      fullscreenDialog: true,
+      builder: (_) => GalleryViewer(images: images, initial: initial),
+    ),
+  );
+
+  @override
+  State<GalleryViewer> createState() => _GalleryViewerState();
+}
+
+class _GalleryViewerState extends State<GalleryViewer> {
+  late final _controller = PageController(initialPage: widget.initial);
+  late int _index = widget.initial;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final images = widget.images;
+    final caption = images[_index].caption?.trim() ?? '';
+    final padding = MediaQuery.paddingOf(context);
+    const scrim = Color(0xA60E0D24);
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Semantics(
+            label: l10n.photoOf(_index + 1, images.length),
+            child: PageView.builder(
+              key: const ValueKey('gallery-viewer'),
+              controller: _controller,
+              itemCount: images.length,
+              onPageChanged: (i) => setState(() => _index = i),
+              itemBuilder: (context, i) => InteractiveViewer(
+                child: AppNetworkImage(
+                  url: images[i].imageUrl,
+                  seed: i,
+                  fit: BoxFit.contain,
+                  clearPlaceholder: true,
+                  semanticLabel: images[i].caption,
+                ),
+              ),
+            ),
+          ),
+          if (images.length > 1)
+            PositionedDirectional(
+              top: padding.top + 20,
+              start: 16,
+              child: ExcludeSemantics(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: scrim,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${_index + 1} / ${images.length}',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          PositionedDirectional(
+            top: padding.top + 8,
+            end: 8,
+            child: IconButton(
+              key: const ValueKey('gallery-close'),
+              tooltip: l10n.close,
+              style: IconButton.styleFrom(
+                backgroundColor: scrim,
+                minimumSize: const Size(48, 48),
+              ),
+              onPressed: () => Navigator.of(context).maybePop(),
+              icon: const AppIcon(AppIcons.close, color: Colors.white),
+            ),
+          ),
+          if (caption.isNotEmpty)
+            PositionedDirectional(
+              start: 0,
+              end: 0,
+              bottom: 0,
+              child: Container(
+                color: scrim,
+                padding: EdgeInsets.fromLTRB(20, 12, 20, 12 + padding.bottom),
+                child: Text(
+                  caption,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    height: 1.4,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// --------------------------------------------------------------- 99.4 Map
+
+/// 99.4 The links that open directions to [block]'s place, tried in turn:
+/// Apple Maps on iPhone; elsewhere the phone's maps app (`geo:`), then
+/// Google Maps on the web.
+List<String> directionsLinks(MapBlock block, {required bool ios}) {
+  final at = '${block.latitude},${block.longitude}';
+  if (ios) return ['https://maps.apple.com/?daddr=$at'];
+  final name = block.name?.trim() ?? '';
+  final label = name.isEmpty ? '' : '(${Uri.encodeComponent(name)})';
+  return [
+    'geo:$at?q=$at$label',
+    'https://www.google.com/maps/dir/?api=1&destination=$at',
+  ];
+}
+
+/// 99.4 A place on a card: a pin, its name and address, and a button that
+/// opens directions in the phone's maps.
+class MapView extends ConsumerWidget {
+  const MapView({super.key, required this.block, required this.style});
+
+  final MapBlock block;
+  final PageStyle style;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final ios = ref.watch(appEnvironmentProvider).isIos;
+    final name = block.name?.trim() ?? '';
+    final address = block.address?.trim() ?? '';
+    final label = block.label?.trim() ?? '';
+    Future<void> directions() async {
+      final open = ref.read(openExternalProvider);
+      for (final link in directionsLinks(block, ios: ios)) {
+        if (await open(link)) return;
+      }
+    }
+
+    return Material(
+      color: p.surface,
+      shape: _blockCardShape(context),
+      elevation: context.cardElevation,
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: p.accentSoft,
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: AppIcon(
+                    AppIcons.location,
+                    size: 24,
+                    color: p.link,
+                    filled: true,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (name.isNotEmpty)
+                        Text(
+                          name,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: p.text,
+                          ),
+                        ),
+                      if (address.isNotEmpty)
+                        Text(
+                          address,
+                          style: TextStyle(
+                            fontSize: 14,
+                            height: 1.4,
+                            color: p.textBody,
+                          ),
+                        ),
+                      // Without a name or an address: where it is, read
+                      // left to right in every language.
+                      if (name.isEmpty && address.isEmpty)
+                        Text(
+                          '\u2066${block.latitude.toStringAsFixed(5)}, '
+                          '${block.longitude.toStringAsFixed(5)}\u2069',
+                          style: TextStyle(fontSize: 14, color: p.textBody),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            PrimaryButton(
+              label: label.isEmpty ? l10n.pageDirections : label,
+              icon: AppIcons.directions,
+              height: 48,
+              onPressed: directions,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ----------------------------------------------------------- 99.4 Divider
+
+/// 99.4 A thin line in the palette's colour for lines: solid, dashed or
+/// dotted.
+class DividerView extends StatelessWidget {
+  const DividerView({super.key, required this.block});
+
+  final DividerBlock block;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: SizedBox(
+        key: ValueKey('divider-${block.style.name}'),
+        width: double.infinity,
+        height: block.style == DividerStyle.dots ? 3 : 1,
+        child: CustomPaint(
+          painter: _LinePainter(
+            color: context.palette.divider,
+            style: block.style,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LinePainter extends CustomPainter {
+  const _LinePainter({required this.color, required this.style});
+
+  final Color color;
+  final DividerStyle style;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = color;
+    switch (style) {
+      case DividerStyle.line:
+        canvas.drawRect(Offset.zero & size, paint);
+      case DividerStyle.dashed:
+        for (var x = 0.0; x < size.width; x += 10) {
+          final end = x + 6 < size.width ? x + 6 : size.width;
+          canvas.drawRect(Rect.fromLTRB(x, 0, end, size.height), paint);
+        }
+      case DividerStyle.dots:
+        final radius = size.height / 2;
+        for (var x = radius; x < size.width; x += 8) {
+          canvas.drawCircle(Offset(x, radius), radius, paint);
+        }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_LinePainter oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.style != style;
 }

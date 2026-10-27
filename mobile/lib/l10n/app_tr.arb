@@ -1084,5 +1084,12 @@
   "orderPointsUsed": "{count, plural, =1{1 puan kullanıldı: −{amount}} other{{count} puan kullanıldı: −{amount}}}",
   "orderPointsEarned": "{count, plural, =1{1 puan kazanıldı} other{{count} puan kazanıldı}}",
   "cartTaxIncluded": "{amount} {tax} dahil",
-  "payOutsideDue": "{total} tutarını {date} tarihine kadar aşağıdaki gibi ödeyin ve ödemenizle birlikte {number} sipariş numarasını belirtin. Mağaza, ödeme ulaştığında siparişinizi onaylar."
+  "payOutsideDue": "{total} tutarını {date} tarihine kadar aşağıdaki gibi ödeyin ve ödemenizle birlikte {number} sipariş numarasını belirtin. Mağaza, ödeme ulaştığında siparişinizi onaylar.",
+  "pageFormSent": "Gönderildi. Teşekkürler.",
+  "pageFormSignIn": "Göndermek için giriş yapın",
+  "pageFormRequired": "Bu alan zorunludur",
+  "pageFormInvalidEmail": "Geçerli bir e-posta girin",
+  "pageFormInvalidPhone": "Geçerli bir telefon numarası girin",
+  "pageFormInvalidNumber": "Bir sayı girin",
+  "pageFormChooseOne": "Birini seçin"
 }

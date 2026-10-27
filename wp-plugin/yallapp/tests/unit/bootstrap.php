@@ -105,6 +105,18 @@ if ( ! function_exists( 'esc_url_raw' ) ) {
 	}
 }
 
+if ( ! function_exists( 'is_email' ) ) {
+	/**
+	 * Minimal stand-in for WordPress's email check: the address, or false.
+	 *
+	 * @param string $email Email address.
+	 * @return string|false
+	 */
+	function is_email( $email ) {
+		return false !== filter_var( (string) $email, FILTER_VALIDATE_EMAIL ) ? (string) $email : false;
+	}
+}
+
 require_once YALLAPP_DIR . 'vendor/autoload.php';
 require_once YALLAPP_DIR . 'includes/class-autoloader.php';
 Yallapp\Autoloader::register();

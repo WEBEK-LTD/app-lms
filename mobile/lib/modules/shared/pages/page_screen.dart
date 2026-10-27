@@ -138,6 +138,7 @@ class AppPageView extends ConsumerWidget {
                   child: PageBlockView(
                     key: ValueKey('block-${block.id}'),
                     block: block,
+                    pageSlug: page.slug,
                   ),
                 ),
               ],

@@ -27,9 +27,10 @@ class Translator {
 	const LANGUAGES = 'af am ar as az be bg bn bo bs ca cs cy da de el en es et eu fa fi fil fr ga gl gsw gu he hi hr hu hy id is it ja ka kk km kn ko ky lo lt lv mk ml mn mr ms my nb ne nl no or pa pl ps pt ro ru si sk sl sq sr sv sw ta te th tl tr ug uk ur uz vi zh zu';
 
 	/**
-	 * Fields a translation may replace.
+	 * Fields a translation may replace (99.4 a map's `name`, a form's `submit_label` and
+	 * `success_text`).
 	 */
-	const TEXT_FIELDS = array( 'title', 'label', 'heading', 'subheading', 'html', 'placeholder', 'text', 'ended_text', 'note', 'address' );
+	const TEXT_FIELDS = array( 'title', 'label', 'heading', 'subheading', 'html', 'placeholder', 'text', 'ended_text', 'note', 'address', 'name', 'submit_label', 'success_text' );
 
 	/**
 	 * 33 A block's lists whose entries carry their own `translations`, and the fields those may replace.
@@ -41,6 +42,10 @@ class Translator {
 		'questions' => array( 'question', 'answer' ),
 		'people'    => array( 'name', 'role', 'bio' ),
 		'stats'     => array( 'value', 'label' ),
+		// 99.4 Cards, gallery photos and form fields.
+		'cards'     => array( 'title', 'text' ),
+		'images'    => array( 'caption' ),
+		'fields'    => array( 'label' ),
 	);
 
 	/**

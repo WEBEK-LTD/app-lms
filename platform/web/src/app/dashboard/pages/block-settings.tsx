@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import { blockListLimits, blockTextLimit, ENTRY_TEXT_LIMITS } from "@/lib/pages/blocks";
 import { NOTICE_TONE_LABELS, SOCIAL_LABELS, WEEKDAY_LABELS } from "@/lib/pages/labels";
-import { emptyPerson, emptyQuote, emptySlide, emptyStat, moveItem } from "@/lib/pages/model";
+import { emptyCard, emptyField, emptyImage, emptyPerson, emptyQuote, emptySlide, emptyStat, moveItem } from "@/lib/pages/model";
 import { SOURCE_NAMES, SOURCE_SORTS, sortFor, type ScreenOption } from "@/lib/pages/sources";
 import { localeInfo } from "@/lib/i18n/locales";
 import {
@@ -13,6 +13,9 @@ import {
   BLOCK_CORNERS,
   BLOCK_SPACINGS,
   BLOCK_TEXT_SIZES,
+  DIVIDER_STYLES,
+  FORM_FIELD_KINDS,
+  FORM_SEND_TO,
   IMAGE_FITS,
   SHOW_PLATFORMS,
   BUTTON_STYLES,
@@ -492,6 +495,94 @@ function MoreBlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ctx: 
           )}
         </Entries>
       );
+    // 99.4
+    case "cards":
+      return (
+        <>
+          <SelectInput id={`${id}-columns`} label={t("pages.columns")} value={String(block.columns ?? 2) as "2" | "3"} options={COLUMN_OPTIONS} onChange={(v) => set({ columns: v === "3" ? 3 : 2 })} />
+          <Entries id={`${id}-cards`} name={{ one: "pages.card", add: "pages.addCard" }} items={block.cards ?? []} max={blockListLimits("cards", "cards").max} make={emptyCard} onChange={(cards) => set({ cards })}>
+            {(card, setCard, i) => (
+              <>
+                <LangText id={`${id}-c${i}-title`} label={t("pages.entryTitle")} value={card} field="title" max={ENTRY_TEXT_LIMITS.cards.title} lang={lang} onChange={setCard} />
+                <LangText id={`${id}-c${i}-text`} label={t("pages.text")} value={card} field="text" max={ENTRY_TEXT_LIMITS.cards.text} lang={lang} rows={2} onChange={setCard} hint={t("pages.optionalHint")} />
+                <TextInput id={`${id}-c${i}-image`} label={t("pages.imageAddress")} dir="ltr" type="url" inputMode="url" placeholder="https://" value={card.image_url ?? ""} onChange={(v) => setCard({ ...card, image_url: v || null })} />
+                <MediaPicker kind="image" library onPick={(image_url) => setCard({ ...card, image_url })} />
+                <ActionEditor id={`${id}-c${i}-action`} label={t("pages.onTap")} action={card.action} optional onChange={(action) => setCard({ ...card, action })} {...actionProps} />
+              </>
+            )}
+          </Entries>
+        </>
+      );
+    case "gallery":
+      return (
+        <>
+          <SelectInput id={`${id}-columns`} label={t("pages.columns")} value={String(block.columns ?? 3) as "2" | "3"} options={COLUMN_OPTIONS} onChange={(v) => set({ columns: v === "2" ? 2 : 3 })} />
+          <Entries id={`${id}-images`} name={{ one: "pages.photo", add: "pages.addPhoto" }} items={block.images ?? []} max={blockListLimits("gallery", "images").max} make={emptyImage} onChange={(images) => set({ images })}>
+            {(image, setImage, i) => (
+              <>
+                <TextInput id={`${id}-g${i}-image`} label={t("pages.imageAddress")} dir="ltr" type="url" inputMode="url" placeholder="https://" value={image.image_url} onChange={(image_url) => setImage({ ...image, image_url })} />
+                <MediaPicker kind="image" library onPick={(image_url) => setImage({ ...image, image_url })} />
+                <LangText id={`${id}-g${i}-caption`} label={t("pages.caption")} value={image} field="caption" max={ENTRY_TEXT_LIMITS.images.caption} lang={lang} onChange={setImage} hint={t("pages.optionalHint")} />
+              </>
+            )}
+          </Entries>
+        </>
+      );
+    case "map":
+      return (
+        <>
+          <LangText id={`${id}-name`} label={t("pages.placeName")} value={block} field="name" max={blockTextLimit(block.type, "name")} lang={lang} onChange={onChange} hint={t("pages.optionalHint")} />
+          <LangText id={`${id}-address`} label={t("pages.address")} value={block} field="address" max={blockTextLimit(block.type, "address")} lang={lang} onChange={onChange} hint={t("pages.optionalHint")} />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <TextInput
+              id={`${id}-lat`}
+              label={t("pages.latitude")}
+              inputMode="decimal"
+              placeholder="30.0444"
+              dir="ltr"
+              hint={t("pages.latitudeHint")}
+              value={block.latitude ? String(block.latitude) : ""}
+              onChange={(v) => set({ latitude: Number(v.replace(",", ".")) || 0 })}
+            />
+            <TextInput id={`${id}-lng`} label={t("pages.longitude")} dir="ltr" inputMode="decimal" placeholder="31.2357" value={block.longitude ? String(block.longitude) : ""} onChange={(v) => set({ longitude: Number(v.replace(",", ".")) || 0 })} />
+          </div>
+          <LangText id={`${id}-label`} label={t("pages.buttonText")} value={block} field="label" max={blockTextLimit(block.type, "label")} lang={lang} onChange={onChange} hint={t("pages.directionsHint")} />
+        </>
+      );
+    case "divider":
+      return <SelectInput id={`${id}-style`} label={t("pages.style")} value={(block.style ?? "line") as (typeof DIVIDER_STYLES)[number]} options={opts(DIVIDER_STYLES, DIVIDER_LABELS, t)} onChange={(style) => set({ style })} />;
+    case "form": {
+      const fields = block.fields ?? [];
+      return (
+        <>
+          <SelectInput id={`${id}-send-to`} label={t("pages.sendTo")} value={block.send_to ?? "email"} options={opts(FORM_SEND_TO, SEND_TO_LABELS, t)} onChange={(send_to) => set({ send_to })} />
+          <Entries id={`${id}-fields`} name={{ one: "pages.question", add: "pages.addQuestion" }} items={fields} max={blockListLimits("form", "fields").max} make={() => emptyField(fields.map((f) => f.id))} onChange={(next) => set({ fields: next })}>
+            {(field, setField, i) => (
+              <>
+                <LangText id={`${id}-f${i}-label`} label={t("pages.questionText")} value={field} field="label" max={ENTRY_TEXT_LIMITS.fields.label} lang={lang} onChange={setField} />
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <SelectInput
+                    id={`${id}-f${i}-kind`}
+                    label={t("pages.answerKind")}
+                    value={field.kind}
+                    options={opts(FORM_FIELD_KINDS, FIELD_KIND_LABELS, t)}
+                    onChange={(kind) => setField({ ...field, kind, options: kind === "choice" ? (field.options ?? []) : null })}
+                  />
+                  <div className="flex items-end pb-2">
+                    <Check label={t("pages.requiredAnswer")} checked={field.required} onChange={(required) => setField({ ...field, required })} />
+                  </div>
+                </div>
+                {field.kind === "choice" ? (
+                  <TextInput id={`${id}-f${i}-options`} label={t("pages.choices")} rows={4} hint={t("pages.choicesHint")} value={(field.options ?? []).join("\n")} onChange={(v) => setField({ ...field, options: v.split("\n").map((o) => o.trimStart()) })} />
+                ) : null}
+              </>
+            )}
+          </Entries>
+          <LangText id={`${id}-submit`} label={t("pages.buttonText")} value={block} field="submit_label" max={blockTextLimit(block.type, "submit_label")} lang={lang} onChange={onChange} hint={t("pages.sendHint")} />
+          <LangText id={`${id}-success`} label={t("pages.successText")} value={block} field="success_text" max={blockTextLimit(block.type, "success_text")} lang={lang} rows={2} onChange={onChange} hint={t("pages.successHint")} />
+        </>
+      );
+    }
     case "notice":
       return (
         <>
@@ -520,6 +611,22 @@ const SPACING_LABELS: Record<BlockSpacing, DashKey> = {
   medium: "pages.medium",
   large: "pages.large",
 };
+// 99.4 The new blocks' choices.
+const COLUMN_OPTIONS = [
+  { value: "2" as const, label: "2" },
+  { value: "3" as const, label: "3" },
+];
+const DIVIDER_LABELS: Record<(typeof DIVIDER_STYLES)[number], DashKey> = { line: "pages.lineSolid", dashed: "pages.lineDashed", dots: "pages.lineDots" };
+const SEND_TO_LABELS: Record<(typeof FORM_SEND_TO)[number], DashKey> = { email: "pages.sendEmail", chat: "pages.sendChat" };
+const FIELD_KIND_LABELS: Record<(typeof FORM_FIELD_KINDS)[number], DashKey> = {
+  text: "pages.kindText",
+  long_text: "pages.kindLong",
+  email: "pages.kindEmail",
+  phone: "pages.kindPhone",
+  number: "pages.kindNumber",
+  choice: "pages.kindChoice",
+};
+
 // 99.3 Where its texts sit, their size, its corners and how its pictures fit.
 const ALIGN_LABELS: Record<(typeof BLOCK_ALIGNS)[number], DashKey> = { start: "pages.alignStart", center: "pages.alignCenter", end: "pages.alignEnd" };
 const TEXT_SIZE_LABELS: Record<(typeof BLOCK_TEXT_SIZES)[number], DashKey> = { small: "pages.small", medium: "pages.medium", large: "pages.large" };

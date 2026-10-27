@@ -26,6 +26,11 @@ export const en = {
   approval: "It waits for your approval.",
   phoneNotGiven: "Not given (signed in by email)",
   yourAppName: "your app",
+  // 99.4 A form's answers
+  formSubject: "{app}: new answers to {form}",
+  formIntro: "Someone sent the form \"{form}\" in {app}:",
+  formFrom: "Sent by {name}{email}.",
+  formAnonymous: "Sent by someone who wasn't signed in. Reply to the email address in the answers, if there is one.",
   unlimited: "unlimited",
 } as const;
 
@@ -52,6 +57,11 @@ export const ar: Messages = {
   approval: "ينتظر موافقتك.",
   phoneNotGiven: "غير متوفر (سجّل الدخول بالبريد الإلكتروني)",
   yourAppName: "تطبيقك",
+  // 99.4 A form's answers
+  formSubject: "{app}: إجابات جديدة على {form}",
+  formIntro: "أرسل أحدهم النموذج \"{form}\" في {app}:",
+  formFrom: "أرسلها {name}{email}.",
+  formAnonymous: "أرسلها شخص لم يسجّل الدخول. ردّ على البريد الإلكتروني الموجود في الإجابات إن وُجد.",
   unlimited: "غير محدودة",
 };
 
@@ -76,5 +86,10 @@ export const tr: Messages = {
   approval: "Onayınızı bekliyor.",
   phoneNotGiven: "Verilmedi (e-postayla giriş yaptı)",
   yourAppName: "uygulamanız",
+  // 99.4 A form's answers
+  formSubject: "{app}: {form} için yeni yanıtlar",
+  formIntro: "Biri {app} içinde \"{form}\" formunu gönderdi:",
+  formFrom: "Gönderen: {name}{email}.",
+  formAnonymous: "Giriş yapmamış biri gönderdi. Yanıtlarda bir e-posta adresi varsa ona yanıt verin.",
   unlimited: "sınırsız",
 };

@@ -4081,4 +4081,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String payOutsideDue(String total, String date, String number) {
     return 'Pay $total by $date as shown below, and give the order number $number with your payment. The shop confirms your order once the payment arrives.';
   }
+
+  @override
+  String get pageFormSent => 'Sent. Thank you.';
+
+  @override
+  String get pageFormSignIn => 'Sign in to send';
+
+  @override
+  String get pageFormRequired => 'This field is required';
+
+  @override
+  String get pageFormInvalidEmail => 'Enter a valid email';
+
+  @override
+  String get pageFormInvalidPhone => 'Enter a valid phone number';
+
+  @override
+  String get pageFormInvalidNumber => 'Enter a number';
+
+  @override
+  String get pageFormChooseOne => 'Choose one';
 }

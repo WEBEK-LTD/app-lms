@@ -12,12 +12,13 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Checks and cleans the blocks whose content the owner writes in the dashboard: slider,
  * quick links, testimonials, questions, countdown, contact, opening hours, social links,
- * team, numbers and notice (docs/api/openapi.yaml). Nothing here reads the site, so it
- * can be unit tested; actions are checked by the caller's `$action` (Block_Resolver::action).
+ * team, numbers and notice; 99.4 cards, gallery, map, divider and form (docs/api/openapi.yaml).
+ * Nothing here reads the site, so it can be unit tested; actions are checked by the caller's
+ * `$action` (Block_Resolver::action).
  */
 class Rich_Blocks {
 
-	const TYPES     = array( 'slider', 'quick_links', 'testimonials', 'faq', 'countdown', 'contact', 'hours', 'social', 'team', 'stats', 'notice' );
+	const TYPES     = array( 'slider', 'quick_links', 'testimonials', 'faq', 'countdown', 'contact', 'hours', 'social', 'team', 'stats', 'notice', 'cards', 'gallery', 'map', 'divider', 'form' );
 	const DAYS      = array( 'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun' );
 	const NETWORKS  = array( 'instagram', 'facebook', 'x', 'tiktok', 'youtube', 'linkedin', 'snapchat', 'telegram', 'whatsapp_channel' );
 	const CLOCK     = '/^([01][0-9]|2[0-3]):[0-5][0-9]$/';
@@ -26,6 +27,12 @@ class Rich_Blocks {
 	const ICON      = '/^[a-z0-9_]{1,64}$/';
 	const LAYOUTS   = array( 'carousel', 'grid', 'list' );
 	const MAX_SLIDE = 8;
+
+	/**
+	 * 99.4 A form field's id, and the kinds of field a form has.
+	 */
+	const FIELD_ID    = '/^[A-Za-z0-9_-]{1,40}$/';
+	const FIELD_KINDS = array( 'text', 'long_text', 'email', 'phone', 'number', 'choice' );
 
 	/**
 	 * Whether this class handles a block type.
@@ -70,6 +77,16 @@ class Rich_Blocks {
 				return self::stats( $raw );
 			case 'notice':
 				return self::notice( $raw, $action );
+			case 'cards':
+				return self::cards( $raw, $action );
+			case 'gallery':
+				return self::gallery( $raw );
+			case 'map':
+				return self::map( $raw );
+			case 'divider':
+				return array( 'style' => self::choice( $raw['style'] ?? null, array( 'line', 'dashed', 'dots' ), 'line' ) );
+			case 'form':
+				return self::form( $raw );
 		}
 		return null;
 	}
@@ -388,6 +405,162 @@ class Rich_Blocks {
 			$fields['action'] = $target;
 		}
 		return $fields;
+	}
+
+	/**
+	 * 99.4 Cards with a title, in two or three columns.
+	 *
+	 * @param array    $raw    Block.
+	 * @param callable $action Action check.
+	 * @return array|null
+	 */
+	private static function cards( array $raw, callable $action ) {
+		$cards = array();
+		foreach ( self::entries( $raw, 'cards', 12 ) as $entry ) {
+			$title = Block_Resolver::text( $entry['title'] ?? null );
+			if ( null === $title ) {
+				continue;
+			}
+			$card    = array(
+				'title'     => $title,
+				'text'      => Block_Resolver::text( $entry['text'] ?? null ),
+				'image_url' => Block_Resolver::https_url( $entry['image_url'] ?? null ),
+			);
+			$cards[] = self::with_action( $card, $entry['action'] ?? null, $action );
+		}
+		if ( ! $cards ) {
+			return null;
+		}
+		return array(
+			'columns' => self::columns( $raw['columns'] ?? null, 2 ),
+			'cards'   => $cards,
+		);
+	}
+
+	/**
+	 * 99.4 Photos (https only) with their captions, in two or three columns.
+	 *
+	 * @param array $raw Block.
+	 * @return array|null
+	 */
+	private static function gallery( array $raw ) {
+		$images = array();
+		foreach ( self::entries( $raw, 'images', 24 ) as $entry ) {
+			$url = Block_Resolver::https_url( $entry['image_url'] ?? null );
+			if ( null === $url ) {
+				continue;
+			}
+			$images[] = array(
+				'image_url' => $url,
+				'caption'   => Block_Resolver::text( $entry['caption'] ?? null ),
+			);
+		}
+		if ( ! $images ) {
+			return null;
+		}
+		return array(
+			'columns' => self::columns( $raw['columns'] ?? null, 3 ),
+			'images'  => $images,
+		);
+	}
+
+	/**
+	 * 99.4 A place on the map; left out without a latitude and longitude.
+	 *
+	 * @param array $raw Block.
+	 * @return array|null
+	 */
+	private static function map( array $raw ) {
+		$lat = self::coordinate( $raw['latitude'] ?? null, 90 );
+		$lng = self::coordinate( $raw['longitude'] ?? null, 180 );
+		if ( null === $lat || null === $lng ) {
+			return null;
+		}
+		return array(
+			'latitude'  => $lat,
+			'longitude' => $lng,
+			'name'      => Block_Resolver::text( $raw['name'] ?? null ),
+			'address'   => Block_Resolver::text( $raw['address'] ?? null ),
+			'label'     => Block_Resolver::text( $raw['label'] ?? null ),
+		);
+	}
+
+	/**
+	 * 99.4 A form: its fields (each id once), and where the answers go (email or chat).
+	 *
+	 * @param array $raw Block.
+	 * @return array|null
+	 */
+	private static function form( array $raw ) {
+		$send_to = $raw['send_to'] ?? null;
+		if ( ! in_array( $send_to, array( 'email', 'chat' ), true ) ) {
+			return null;
+		}
+		$fields = array();
+		$ids    = array();
+		foreach ( self::entries( $raw, 'fields', 10 ) as $entry ) {
+			$field = self::form_field( $entry );
+			if ( null === $field || in_array( $field['id'], $ids, true ) ) {
+				continue;
+			}
+			$ids[]    = $field['id'];
+			$fields[] = $field;
+		}
+		if ( ! $fields ) {
+			return null;
+		}
+		return array(
+			'fields'       => $fields,
+			'submit_label' => Block_Resolver::text( $raw['submit_label'] ?? null ),
+			'success_text' => Block_Resolver::text( $raw['success_text'] ?? null ),
+			'send_to'      => $send_to,
+		);
+	}
+
+	/**
+	 * 99.4 A FormField, or null: an id, a kind, a label, and for a choice 2 to 10 options.
+	 *
+	 * @param array $entry Field from the layout.
+	 * @return array|null
+	 */
+	private static function form_field( array $entry ) {
+		$id    = $entry['id'] ?? null;
+		$kind  = $entry['kind'] ?? null;
+		$label = Block_Resolver::text( $entry['label'] ?? null );
+		if ( ! is_string( $id ) || ! preg_match( self::FIELD_ID, $id ) || ! in_array( $kind, self::FIELD_KINDS, true ) || null === $label ) {
+			return null;
+		}
+		$options = null;
+		if ( 'choice' === $kind ) {
+			$options = array();
+			foreach ( isset( $entry['options'] ) && is_array( $entry['options'] ) ? $entry['options'] : array() as $option ) {
+				$option = is_string( $option ) ? Block_Resolver::text( $option ) : null;
+				if ( null !== $option && ! in_array( $option, $options, true ) ) {
+					$options[] = $option;
+				}
+			}
+			if ( count( $options ) < 2 || count( $options ) > 10 ) {
+				return null;
+			}
+		}
+		return array(
+			'id'       => $id,
+			'kind'     => $kind,
+			'label'    => $label,
+			'required' => true === ( $entry['required'] ?? false ),
+			'options'  => $options,
+		);
+	}
+
+	/**
+	 * 99.4 Two or three columns, else the default.
+	 *
+	 * @param mixed $value    Value.
+	 * @param int   $fallback Default.
+	 * @return int
+	 */
+	private static function columns( $value, $fallback ) {
+		return is_scalar( $value ) && ! is_bool( $value ) && in_array( (string) $value, array( '2', '3' ), true ) ? (int) $value : $fallback;
 	}
 
 	/**

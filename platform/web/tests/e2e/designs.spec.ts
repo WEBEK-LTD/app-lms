@@ -328,3 +328,45 @@ test("99.3 a block's style and where it shows, copied to another page; the page'
   const timetable = await page("timetable", "ios");
   expect(timetable.blocks.at(-1)).toMatchObject({ type: ios.blocks.find((b: { id: string }) => b.id === id).type, look: { align: "center" } });
 });
+
+test("99.4 cards, a gallery, a location, a divider and a form; the form's answers go to the business", async ({ request }) => {
+  await own.goto("/dashboard/pages");
+  const region = pageRegion();
+  const blocks = region.getByRole("list", { name: "Blocks" }).locator(":scope > li");
+  const add = async (name: string) => {
+    const before = await blocks.count();
+    await region.getByRole("button", { name: `Add ${name} block` }).click();
+    await expect(blocks).toHaveCount(before + 1);
+    return region.getByRole("group", { name: `Block ${before + 1} settings` });
+  };
+  const cards = await add("Cards");
+  await cards.getByLabel("Columns").selectOption("3");
+  await cards.getByLabel("Title", { exact: true }).nth(0).fill("Swimming");
+  await cards.getByLabel("Title", { exact: true }).nth(1).fill("Robotics");
+  const gallery = await add("Photo gallery");
+  await gallery.getByLabel("Image address", { exact: true }).fill("https://yallapp.test/m/hall.jpg");
+  const map = await add("Location");
+  await map.getByLabel("Latitude").fill("41.0082");
+  await map.getByLabel("Longitude").fill("28.9784");
+  await add("Divider");
+  const form = await add("Form");
+  await expect(form.getByLabel("Send the answers to")).toHaveValue("email");
+  const formId = (await blocks.last().getAttribute("id"))!.replace(/^block-/, "");
+  // The quick view draws them.
+  await own.getByRole("button", { name: "Quick view", exact: true }).click();
+  for (const kind of ["cards", "gallery", "map", "form"]) await expect(own.locator(`[data-preview-${kind}]`)).toBeVisible();
+  await expect(own.getByText(/^Draft saved/)).toBeVisible();
+  await own.getByRole("button", { name: "Publish", exact: true }).click();
+  await expect(own.getByText("Published. Your app shows the new pages")).toBeVisible();
+
+  const home = await (await request.get(`${api}/pages/home?platform=android`)).json();
+  const types = home.blocks.map((b: { type: string }) => b.type);
+  for (const type of ["cards", "gallery", "map", "divider", "form"]) expect(types, type).toContain(type);
+  expect(home.blocks.find((b: { type: string }) => b.type === "cards")).toMatchObject({ columns: 3, cards: [{ title: "Swimming" }, { title: "Robotics" }] });
+
+  const send = (answers: Record<string, string>) => request.post(`${api}/forms/home/${formId}`, { data: { answers }, headers: { "x-forwarded-for": "198.51.100.99" } });
+  const wrong = await send({ name: "Ayşe", email: "not an email" });
+  expect(wrong.status()).toBe(400);
+  expect(await wrong.json()).toMatchObject({ code: "invalid_answers", details: { fields: { email: "Enter a valid email address." } } });
+  expect((await send({ name: "Ayşe", email: "ayse@example.com", message: "Is there a trial lesson?" })).status()).toBe(202);
+});

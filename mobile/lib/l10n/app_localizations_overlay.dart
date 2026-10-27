@@ -4221,4 +4221,31 @@ class OverlayLocalizations extends AppLocalizations {
         'number': number,
       }) ??
       base.payOutsideDue(total, date, number);
+
+  @override
+  String get pageFormSent => overlay.text('pageFormSent') ?? base.pageFormSent;
+
+  @override
+  String get pageFormSignIn =>
+      overlay.text('pageFormSignIn') ?? base.pageFormSignIn;
+
+  @override
+  String get pageFormRequired =>
+      overlay.text('pageFormRequired') ?? base.pageFormRequired;
+
+  @override
+  String get pageFormInvalidEmail =>
+      overlay.text('pageFormInvalidEmail') ?? base.pageFormInvalidEmail;
+
+  @override
+  String get pageFormInvalidPhone =>
+      overlay.text('pageFormInvalidPhone') ?? base.pageFormInvalidPhone;
+
+  @override
+  String get pageFormInvalidNumber =>
+      overlay.text('pageFormInvalidNumber') ?? base.pageFormInvalidNumber;
+
+  @override
+  String get pageFormChooseOne =>
+      overlay.text('pageFormChooseOne') ?? base.pageFormChooseOne;
 }
