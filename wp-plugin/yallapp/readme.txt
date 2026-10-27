@@ -4,9 +4,9 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.23
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Stable tag: 0.4.24
+License: Proprietary
+License URI: https://webek.org
 
 Connects your WordPress site to your Yallapp mobile apps.
 
@@ -134,6 +134,9 @@ Terms: https://developer.huawei.com/consumer/en/devservice/term
 Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 
 == Changelog ==
+
+= 0.4.24 =
+* License: from this version the plugin is proprietary software of Webek LTD, all rights reserved (see LICENSE.txt). Yallapp customers may run it on the sites connected to their account; it may not be copied, modified, redistributed or reused in other products without the written permission of Webek LTD. Versions up to 0.4.23 were released under GPL-2.0-or-later.
 
 = 0.4.23 =
 * Courses and memberships bought in the app through Google Play and the App Store: when your Yallapp plan sells in the app and your stores are connected in the Yallapp dashboard, the app's course pages buy a paid course or a membership through the store. Yallapp checks each purchase with Google or Apple, then your site enrols the student (Tutor LMS, LearnDash, LearnPress, LifterLMS, MasterStudy, Sensei LMS, Masteriyo), gives the Paid Memberships Pro level, LearnDash group or WooCommerce Subscriptions product until the paid period ends, and with WooCommerce records a completed order paid by "Google Play" or "App Store". Refunds and ended subscriptions take the access back; access a student had from your website stays. The plugin tells Yallapp your paid courses and monthly or yearly plans, so a store product is kept for each. The website's checkout is no longer offered in the app where it sells through the store.

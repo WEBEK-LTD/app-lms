@@ -2,7 +2,9 @@
 # 76 Runs WordPress.org's Plugin Check on the installable zip, the same checks the
 # plugin directory runs on an upload. Any error or warning fails. 76.6 The plugin
 # isn't listed on WordPress.org and updates itself from Yallapp, so the one check
-# against updaters (allowed only outside WordPress.org) is left out.
+# against updaters (allowed only outside WordPress.org) is left out, and so are the
+# license checks: the plugin is proprietary (LICENSE.txt), which WordPress.org's
+# directory doesn't accept, and it isn't listed there.
 #
 # Usage: bin/plugin-check.sh [work-dir]
 set -euo pipefail
@@ -42,15 +44,16 @@ WP="php $CACHE/wp-cli-$WP_CLI_VERSION.phar --path=$SITE --allow-root"
 $WP plugin activate plugin-check yallapp --quiet
 REPORT=$WORK/plugin-check.csv
 $WP plugin check yallapp --exclude-checks=plugin_updater --format=csv --fields=file,line,type,code,message > "$REPORT" 2> "$WORK/plugin-check.log" || true
-FOUND=$(grep -cE ',(ERROR|WARNING),' "$REPORT" || true)
-if [ "$FOUND" = "0" ] && ! grep -q "No errors found" "$REPORT"; then
+if ! grep -qE "No errors found|^file,line,type,code,message" "$REPORT"; then
 	# Neither findings nor its all-clear: the check itself didn't run.
 	cat "$REPORT" "$WORK/plugin-check.log" >&2
 	exit 1
 fi
-if [ "$FOUND" != "0" ]; then
-	grep -E ',(ERROR|WARNING),' "$REPORT" >&2
-	echo "Plugin Check: $FOUND findings in $(basename "$ZIP")." >&2
+# WordPress.org's GPL license rules don't apply to the proprietary plugin.
+FINDINGS=$(grep -E ',(ERROR|WARNING),' "$REPORT" | grep -vE ',(ERROR|WARNING),(plugin_header_invalid_license|invalid_license|unknown_license),' || true)
+if [ -n "$FINDINGS" ]; then
+	echo "$FINDINGS" >&2
+	echo "Plugin Check: $(echo "$FINDINGS" | wc -l) findings in $(basename "$ZIP")." >&2
 	exit 1
 fi
 echo "Plugin Check: no errors or warnings in $(basename "$ZIP")."

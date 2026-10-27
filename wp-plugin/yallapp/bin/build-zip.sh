@@ -18,7 +18,7 @@ fi
 STAGE=$(mktemp -d)
 trap 'rm -rf "$STAGE"' EXIT
 mkdir "$STAGE/yallapp"
-cp -R "$PLUGIN_DIR/yallapp.php" "$PLUGIN_DIR/uninstall.php" "$PLUGIN_DIR/readme.txt" \
+cp -R "$PLUGIN_DIR/yallapp.php" "$PLUGIN_DIR/uninstall.php" "$PLUGIN_DIR/readme.txt" "$PLUGIN_DIR/LICENSE.txt" \
 	"$PLUGIN_DIR/includes" "$PLUGIN_DIR/assets" "$STAGE/yallapp/"
 find "$STAGE/yallapp" -name '.DS_Store' -delete
 

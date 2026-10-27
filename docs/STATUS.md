@@ -1,79 +1,57 @@
 # Status
 
-Where the work stands now: the step being done, the checks it passed, the
-open pull requests and what waits on the owner. `docs/ROADMAP.md` is the plan;
-this file is the current state. Update it in the same change as each step,
-and whenever a pull request is opened, merged or closed.
+The current state of the project: what is released in the code, what still
+needs checking against real services, and what a deployment needs.
+`docs/ROADMAP.md` is the plan; this file is the current state.
 
-Last updated: 27 October 2026.
+Last updated: 28 October 2026.
 
-## Phase 100 (courses and memberships bought in the app): done, 100.1–100.7 merged
+## Current release
 
-| Step | State | Branch | Checks |
-|---|---|---|---|
-| 100.1 Contract | Merged (#156) | — | redocly lint |
-| 100.2 Store connections and products | Merged (#157) | — | unit, e2e, MariaDB migrations |
-| 100.3 Purchases | Merged (#158) | — | unit (with the store suite on MariaDB), e2e |
-| 100.4 Plugin 0.4.23: give and take access | Merged (#160) | `wip-billing-plugin` | composer lint, `php -l`, PHPUnit 250 (16 new), redocly lint. The LMS integration suites run in CI |
-| 100.5 App: Google Play Billing and StoreKit | Merged (#161) | `wip-billing-app` | dart format, flutter analyze, flutter test 955, the preview rebuilt, the platform's app-string tests |
-| 100.6 Sales, the guide, the terms | Merged (#159) | `wip-billing-sales` | tsc, eslint, unit 2007, the store suites on MariaDB, redocly lint, e2e: analytics, owner API, public pages, integrations, site languages, hosted courses |
-| 100.7 Own API, Teachable and Thinkific | Merged (#163) | — | tsc, eslint, unit 2028 (19 new), the store suites on MariaDB (migrations to 0092, 94 tests), redocly lint, e2e: in-app purchases on an own API (new), hosted courses, Yallapp sign-in, analytics, owner API, integrations, site languages, public pages, dashboard languages |
+Phase 100 (courses and memberships bought in the app through Google Play
+Billing and the App Store's in-app purchase) is complete (steps 100.1 to
+100.7):
 
-Notes:
-
-- 100.4 adds three answers to `POST /billing/access` in `openapi.yaml`
-  (400, 409 `conflict`, 503); they go in with the plugin's pull request.
-- 100.4 calls into LearnDash and WooCommerce Subscriptions that could not be
-  run here (both are paid plugins); test them on a real site before release.
-- 100.5 changes the iOS rule in `CLAUDE.md` to what Phase 100 decided: no
-  website checkout on iOS; paid courses only through the App Store's in-app
-  purchase. Not tried on a device yet: restore on iOS, and phones without
-  Google Play.
-- 100.6 gives the Owner API `in_app_sales`; Yallapp Business doesn't show it
-  yet (a small change to the Business app after Phase 100).
-- Until an app turns on in-app purchases, its Android app keeps the website
-  checkout for paid courses, so no sales are lost before the app update ships.
-- The Analytics e2e failed between 21:00 and 24:00 UTC (the test dated its
-  events in UTC, the app counts days in Istanbul). Fixed in 100.6.
-- The plugin's campaign check failed now and then (its reader joined after
-  the campaign, and the inbox shows what came from the second someone
-  joined). Fixed in 100.6.
-- 100.7 Teachable's and Thinkific's enrolment calls (Teachable `POST /enroll`
-  and `POST /unenroll`, Thinkific `POST /enrollments` and
-  `PUT /enrollments/{id}` with `expiry_date`), Teachable's price unit (the
-  minor unit, as the app already shows it) and the `one_time` and
-  `one-time` payment types were tested against recorded answers only: try
-  them on real schools before release (LAUNCH-CHECKLIST).
-- 100.7 An app on its own API sends `store_billing` and the `store` action
-  from its own API (the developer guide's "Sell in the app"); the app isn't
-  changed.
-- CI on a pull request checks only what its latest push changed and cancels
-  the run before it: after a small push, re-run the pull request's first
-  full run (or push all of it again) before merging.
-
-## Open pull requests
-
-| PR | What | Next |
+| Step | What | Checks |
 |---|---|---|
-| #154 Wip switch design | Older design branch | The owner closes it |
-| #122, #121 | Dependabot: mobile and business Flutter packages (minor and patch) | Review with the next app release |
-| #120 | Dependabot: `@playwright/test` 1.64 | Needs the pre-installed browser to match; leave for now |
-| #113 | Dependabot: GitHub Actions | Review |
-| #97, #94 | Dependabot: `firebase_messaging` and `firebase_core` | Review with the next app release |
-| #92, #91, #90, #89 | Dependabot majors: eslint 10, pdfjs-dist 6, TypeScript 7, `@types/node` 26 | Each needs its own change; not merged |
-| #86 | Dependabot: fastlane 2.241.1 | Review |
+| 100.1 | Contract: store products, purchases, notifications, `Config.store_billing` | redocly lint |
+| 100.2 | Store connections and products in Google Play and App Store Connect | unit, e2e, MariaDB migrations |
+| 100.3 | Purchases checked with Google and Apple, access given and taken back | unit (with the store suite on MariaDB), e2e |
+| 100.4 | WordPress plugin 0.4.23: gives and takes access on the site | composer lint, `php -l`, PHPUnit, the LMS integration suites |
+| 100.5 | App: Google Play Billing and StoreKit, restore, manage subscription | dart format, flutter analyze, flutter test |
+| 100.6 | Sales in Analytics and the Owner API, the guide, the terms | unit, e2e (analytics, owner API, public pages) |
+| 100.7 | Apps on their own API, Teachable and Thinkific schools | unit, MariaDB store suites, e2e of the dashboard |
 
-## Done by the owner
+## To verify against real services before release
 
-- Google real-time notifications (27 October 2026): Yallapp's Pub/Sub topic
-  and push subscription, `GOOGLE_PUBSUB_PUSH_EMAIL` and `GOOGLE_PUBSUB_TOPIC`
-  in Netlify. One topic serves every client: each client enters it in their
-  own Play Console › Monetization setup (shown on In-app purchases), and the
-  platform finds the app by its package name.
+These parts were tested against recorded answers or could not run in the
+test environment:
 
-## Waiting on the owner
+- The plugin's calls into LearnDash and WooCommerce Subscriptions (both are
+  paid plugins).
+- Teachable's enrolment calls (`POST /enroll`, `POST /unenroll`), its price
+  unit (taken as the minor unit) and its `one_time` payment type.
+- Thinkific's enrolment calls (`POST /enrollments`,
+  `PUT /enrollments/{id}` with `expiry_date`) and its `one-time` payment
+  type.
+- Restore purchases on an iPhone, and phones without Google Play.
 
-- Run migrations up to 0091 on production when 100.6 is deployed (0092 with 100.7).
-- Install plugin 0.4.23 on the client sites once 100.5's app update is out.
-- Yallapp Business iOS build 61.
-- Close #154.
+## Known gaps
+
+- The Owner API returns `in_app_sales`, but Yallapp Business does not show it
+  yet.
+- Until an app turns on in-app purchases, its Android app keeps the website
+  checkout for paid courses.
+- An app on its own API returns `store_billing` and the `store` action from
+  its own API (the developer guide's "Sell in the app").
+
+## Deployment
+
+- Migrations up to `0092` (`npm run db:migrate` in `platform/web`).
+- Google real-time notifications use one Pub/Sub topic for every app
+  (`GOOGLE_PUBSUB_PUSH_EMAIL`, `GOOGLE_PUBSUB_TOPIC`; see
+  `docs/LAUNCH-CHECKLIST.md`). Each app's owner enters the topic in their own
+  Play Console › Monetization setup; the platform finds the app by its
+  package name.
+- Plugin 0.4.24 (0.4.23 with the proprietary license) goes to sites once the
+  app update with in-app purchases is in the stores.

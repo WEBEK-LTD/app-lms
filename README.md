@@ -55,3 +55,31 @@ npm ci
 npm run lint && npm run typecheck && npm test && npm run build
 npm run test:e2e
 ```
+
+## Copyright and License
+
+Copyright (c) 2026 Webek LTD. All rights reserved.
+
+Yallapp's original source code, documentation and designs in this
+repository belong to Webek LTD and are protected by intellectual property
+law. The repository is public so that it can be viewed; this does not grant
+a licence to use it. Copying, modifying, distributing, reusing in another
+project or product, or any commercial or personal use of this code, in whole
+or in part, needs the prior written permission of Webek LTD. See
+[`LICENSE`](LICENSE) for the full terms.
+
+Exceptions:
+
+- Yallapp customers use the apps, the WordPress plugin and the service
+  under Yallapp's [terms of service](https://yallapp.com.tr/terms). The
+  plugin's own license ([`wp-plugin/yallapp/LICENSE.txt`](wp-plugin/yallapp/LICENSE.txt))
+  lets customers run it on their connected sites. Plugin versions up to
+  0.4.23 were released under GPL-2.0-or-later, and whoever received them
+  keeps those rights for those versions.
+- Third-party packages, fonts, icons and other components keep their own
+  licences, which this notice does not change.
+
+For permission or a licence, contact Webek LTD:
+
+- Email: info@webek.org
+- Website: [https://webek.org](https://webek.org)

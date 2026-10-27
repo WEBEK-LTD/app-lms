@@ -1,8 +1,7 @@
 # Roadmap
 
-Work moves one step at a time. A step is finished only when its "done when"
-check passes and the owner (WEBEK) approves it. The next step starts after
-that.
+The roadmap lists Yallapp's development in phases. Each step has a "done
+when" check that marks it finished.
 
 Status: `[x]` done · `[~]` in progress · `[ ]` not started
 
@@ -10,7 +9,7 @@ Status: `[x]` done · `[~]` in progress · `[ ]` not started
 
 | | Step | Owner | Done when |
 |---|---|---|---|
-| [x] | 0.1 Designs with the Yallapp brand and Google Material Symbols | Claude | Approved on the design canvas |
+| [x] | 0.1 Designs with the Yallapp brand and Google Material Symbols | — | Approved on the design canvas |
 | [x] | 0.2 Domain `yallapp.com.tr` | WEBEK | Registered |
 | [x] | 0.3 cPanel on `host.webek.org`: MySQL database and user, Remote MySQL, SSL | WEBEK | Database reachable over SSL with a dedicated user |
 | [x] | 0.4 Netlify site connected to this repository and the domain | WEBEK | A test deploy is live on `yallapp.com.tr` |

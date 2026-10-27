@@ -2,7 +2,7 @@
     "name": "webek/yallapp-wp-plugin",
     "description": "The Yallapp WordPress plugin.",
     "type": "wordpress-plugin",
-    "license": "GPL-2.0-or-later",
+    "license": "proprietary",
     "require": {
         "php": ">=7.4"
     },
