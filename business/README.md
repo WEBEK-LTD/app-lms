@@ -160,8 +160,9 @@ missing.
 - **iOS** (macOS): the App Store Connect key (`YB_ASC_KEY_ID`,
   `YB_ASC_ISSUER_ID`, `YB_ASC_PRIVATE_KEY`) registers the App ID with push,
   gets the certificate (`YB_IOS_DISTRIBUTION_P12` and
-  `YB_IOS_DISTRIBUTION_PASSWORD`, or one made for the run and revoked once
-  Apple has processed the build) and the App Store profile, signs the IPA,
+  `YB_IOS_DISTRIBUTION_PASSWORD`, or one made for the run and kept once the
+  build is uploaded, since App Review checks the signature again when the
+  build is submitted) and the App Store profile, signs the IPA,
   uploads it to TestFlight and waits for processing, then sends the listing,
   screenshots, age rating and App Review's details and chooses the build for
   the version (lanes `business_ipa`, `business_testflight`,
