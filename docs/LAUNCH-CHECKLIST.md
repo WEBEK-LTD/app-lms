@@ -695,14 +695,13 @@ never in a chat or an issue.
 - [ ] App Store Connect › Apps › + › New App: iOS, name **Yallapp Business**,
       primary language English (U.S.), bundle ID **tr.com.yallapp.business**,
       SKU `yallapp-business`, Full Access.
-- [ ] Recommended: a distribution certificate of our own as
+- [ ] Nothing to do for the certificate: each run makes one and keeps it
+      for the build it signed (a revoked certificate makes App Review refuse
+      its builds: ITMS-90035, Invalid Signature, as build 51 was). When
+      Apple's few distribution certificates are all in use, the run revokes
+      the oldest one made over 30 days ago first. Optional:
       `YB_IOS_DISTRIBUTION_P12` (the .p12 in base64) and
-      `YB_IOS_DISTRIBUTION_PASSWORD`, used by every run. Without them each
-      run makes a certificate and keeps it for the build it signed (a revoked
-      certificate makes App Review refuse its builds: ITMS-90035, Invalid
-      Signature, as build 51 was), so Apple's few distribution certificates
-      fill up; then revoke only one whose builds are approved or no longer
-      wanted.
+      `YB_IOS_DISTRIBUTION_PASSWORD` to use one certificate for every run.
 
 ### Pushes (Firebase)
 

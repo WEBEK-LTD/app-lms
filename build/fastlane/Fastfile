@@ -131,6 +131,17 @@ def business_api_key(path)
   app_store_connect_api_key(key_id: asc.fetch("key_id"), issuer_id: asc.fetch("issuer_id"), key_content: asc.fetch("private_key"), duration: 1200, in_house: false)
 end
 
+# Yallapp Business: when Apple's few distribution certificates are all in use, the oldest one
+# made more than 30 days ago (a certificate lasts a year; Apple gives no creation date). Its
+# builds were approved or replaced long since; nil when every certificate is newer.
+def business_old_certificate
+  types = [Spaceship::ConnectAPI::Certificate::CertificateType::DISTRIBUTION, Spaceship::ConnectAPI::Certificate::CertificateType::IOS_DISTRIBUTION]
+  made_before = Time.now + (365 - 30) * 86_400
+  Spaceship::ConnectAPI::Certificate.all(filter: { certificateType: types.join(",") })
+    .select { |cert| !cert.expiration_date.to_s.empty? && Time.parse(cert.expiration_date) < made_before }
+    .min_by { |cert| Time.parse(cert.expiration_date) }
+end
+
 platform :ios do
   # Signs and exports the IPA.
   #
@@ -286,7 +297,9 @@ platform :ios do
   #     run and its ID written to options[:cert_out]. It is kept once the build is uploaded:
   #     App Review checks the signature again when the build is submitted, and a revoked
   #     certificate makes it refuse the build (ITMS-90035, Invalid Signature). business_revoke
-  #     revokes it only when the run stopped before the upload.
+  #     revokes it only when the run stopped before the upload. When Apple's few distribution
+  #     certificates are all in use, the oldest one made over 30 days ago is revoked first
+  #     (business_old_certificate), so every update just runs.
   #
   # options: asc, business (path to business/), out, status, cert_out
   lane :business_ipa do |options|
@@ -308,11 +321,22 @@ platform :ios do
     cert_id = nil
     p12_base64 = ENV["YB_IOS_DISTRIBUTION_P12"].to_s.gsub(/\s+/, "")
     if p12_base64.empty?
-      begin
+      certificate = lambda do
         get_certificates(api_key: api_key, development: false, keychain_path: "~/Library/Keychains/#{keychain}-db", keychain_password: keychain_password, output_path: options[:out])
+      end
+      begin
+        certificate.call
       rescue => error
-        File.write(options[:status], "certificate_limit") if error.message.include?("maximum")
-        raise
+        raise unless error.message.include?("maximum")
+        # Apple's limit: the oldest certificate made over 30 days ago makes room, once.
+        old = business_old_certificate
+        unless old
+          File.write(options[:status], "certificate_limit")
+          raise
+        end
+        UI.important("Apple's limit of distribution certificates is reached: revoking #{old.id}, made over 30 days ago.")
+        old.delete!
+        certificate.call
       end
       cert_id = lane_context[SharedValues::CERT_CERTIFICATE_ID].to_s
       File.write(options[:cert_out], cert_id)

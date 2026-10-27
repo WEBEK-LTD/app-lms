@@ -159,7 +159,7 @@ jobs:
                 echo "**The iOS app is skipped**: add the App Store Connect key as \`YB_ASC_KEY_ID\`, \`YB_ASC_ISSUER_ID\` and \`YB_ASC_PRIVATE_KEY\` (docs/LAUNCH-CHECKLIST.md 7l)."
               fi
               if ! all_set YB_IOS_DISTRIBUTION_P12; then
-                echo "No \`YB_IOS_DISTRIBUTION_P12\`: a distribution certificate is made for this run and kept for the build it signs (Apple allows a few; add the secret to use one certificate for every run, docs/LAUNCH-CHECKLIST.md 7l)."
+                echo "No \`YB_IOS_DISTRIBUTION_P12\`: a distribution certificate is made for this run and kept for the build it signs; when Apple's limit is reached, the oldest one made over 30 days ago is revoked first (nothing to do)."
               fi
               echo
             fi
@@ -621,7 +621,7 @@ jobs:
               no_app)
                 echo "- **The app doesn't exist in App Store Connect yet.** The App ID \`tr.com.yallapp.business\` is registered now: in App Store Connect › Apps › + › New App choose iOS, the name Yallapp Business, a primary language (English (U.S.)), the bundle ID **tr.com.yallapp.business** and the SKU \`yallapp-business\`, then run this workflow again." ;;
               certificate_limit)
-                echo "- **Apple's limit of distribution certificates is reached.** In developer.apple.com › Certificates, revoke a Distribution certificate whose builds are already approved or no longer wanted (revoking one makes App Review refuse the builds it signed that are not approved yet), then run this workflow again. To stop this, add one certificate as \`YB_IOS_DISTRIBUTION_P12\` (docs/LAUNCH-CHECKLIST.md 7l)." ;;
+                echo "- **Apple's limit of distribution certificates is reached** and every one was made in the last 30 days. In developer.apple.com › Certificates, revoke a Distribution certificate whose builds are already approved or no longer wanted (revoking one makes App Review refuse the builds it signed that are not approved yet), then run this workflow again." ;;
               *)
                 if [ "$OUTCOME" = success ]; then
                   echo "- Version $VERSION (build $BUILD) is in TestFlight, with the listing, screenshots (iPhone and iPad) and age rating in English, Arabic and Turkish, and chosen for the version."
