@@ -44,7 +44,7 @@ export function TrackForm({
     <form action={action} noValidate className="flex flex-col gap-3" key={JSON.stringify(state.values ?? {})}>
       <input type="hidden" name="appId" value={appId} />
       <input type="hidden" name="store" value={store} />
-      <fieldset disabled={disabled} className="m-0 flex flex-col gap-3 border-0 p-0">
+      <fieldset disabled={disabled} className="m-0 grid gap-3 border-0 p-0 sm:grid-cols-2">
         <div className="flex min-w-0 flex-col gap-1.5">
           <label htmlFor={`status-${id}`} className="text-sm font-semibold">
             {storeTitle} status
@@ -58,8 +58,20 @@ export function TrackForm({
           </select>
           <FieldError id={`status-${id}-error`} error={e.status} />
         </div>
+        {showLink ? (
+          <Field
+            id={`url-${id}`}
+            label={`${storeTitle} link`}
+            name="storeUrl"
+            type="url"
+            small
+            defaultValue={v.storeUrl}
+            placeholder={LINK_PLACEHOLDER[store]}
+            error={e.storeUrl}
+          />
+        ) : null}
         {status === "rejected" ? (
-          <div className="flex min-w-0 flex-col gap-1.5">
+          <div className="flex min-w-0 flex-col gap-1.5 sm:col-span-2">
             <label htmlFor={`rejection-${id}`} className="text-sm font-semibold">
               {storeTitle} rejection reason
             </label>
@@ -72,12 +84,12 @@ export function TrackForm({
               ))}
             </select>
             <span id={`rejection-${id}-hint`} className="text-xs text-muted">
-              The client sees what it means, what to do and where, in their language.
+              The client sees what it means, what to do and where, in their language. Without a reason, say why in the note.
             </span>
             <FieldError id={`rejection-${id}-error`} error={e.rejection} />
           </div>
         ) : null}
-        <div className="flex min-w-0 flex-col gap-1.5">
+        <div className="flex min-w-0 flex-col gap-1.5 sm:col-span-2">
           <label htmlFor={`note-${id}`} className="text-sm font-semibold">
             {storeTitle} note to the client
           </label>
@@ -87,28 +99,12 @@ export function TrackForm({
             rows={2}
             maxLength={2000}
             defaultValue={v.note}
-            className="input"
+            className="input min-h-[72px]"
             aria-invalid={e.note ? true : undefined}
-            aria-describedby={`note-${id}-hint${e.note ? ` note-${id}-error` : ""}`}
+            aria-describedby={e.note ? `note-${id}-error` : undefined}
           />
-          <span id={`note-${id}-hint`} className="text-xs text-muted">
-            Shown on their Publishing page and in the email. Needed when rejected without a reason above.
-          </span>
           <FieldError id={`note-${id}-error`} error={e.note} />
         </div>
-        {showLink ? (
-          <Field
-            id={`url-${id}`}
-            label={`${storeTitle} link`}
-            name="storeUrl"
-            type="url"
-            small
-            defaultValue={v.storeUrl}
-            placeholder={LINK_PLACEHOLDER[store]}
-            hint="The app's store page, once it's live."
-            error={e.storeUrl}
-          />
-        ) : null}
       </fieldset>
       <FormMessage message={state.message} ok={state.ok} />
       {disabled ? null : (

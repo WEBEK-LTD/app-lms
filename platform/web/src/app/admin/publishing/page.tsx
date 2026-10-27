@@ -9,7 +9,7 @@ import { getStore } from "@/lib/data";
 import { smtpConfigured } from "@/lib/mail";
 import { reviewNotesFor } from "@/lib/publishing/review-notes";
 import { REJECTION_GUIDELINE } from "@/lib/publishing/review";
-import { REJECTION_REASONS, type App, type Client, type PublishingEvent, type PublishingRequest, type User } from "@/lib/data/types";
+import { REJECTION_REASONS, type PublishingStore, type App, type Client, type PublishingEvent, type PublishingRequest, type User } from "@/lib/data/types";
 import { publishingTeamEmail } from "@/lib/publishing/service";
 import {
   checklistProgress,
@@ -31,6 +31,9 @@ import { TeamNotesForm, TrackForm } from "./forms";
 
 export const metadata: Metadata = { title: "Publishing" };
 export const dynamic = "force-dynamic";
+
+/** Store names short enough for the table. */
+const STORE_SHORT: Record<PublishingStore, string> = { android: "Play", ios: "App Store", galaxy: "Galaxy", huawei: "Huawei", xiaomi: "Xiaomi" };
 
 const TABS = [
   { id: "open", label: "In progress" },
@@ -149,9 +152,8 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
                         {requestStores(request).map((which) => (
                           <span key={which} title={STORE_TITLE[which]}>
                             <Badge tone={statusTone(trackOf(request, which).status)}>
-                              <Icon name={STORE_ICON[which]} size={14} />
-                              <span className="sr-only">{STORE_TITLE[which]}: </span>
-                              {PUBLISHING_STATUS_LABEL[trackOf(request, which).status]}
+                              <span aria-hidden="true">{STORE_SHORT[which]}</span>
+                              <span className="sr-only">{STORE_TITLE[which]}</span>: {PUBLISHING_STATUS_LABEL[trackOf(request, which).status]}
                             </Badge>
                           </span>
                         ))}
@@ -278,6 +280,7 @@ function RequestDetail({ row, statuses, mayManage }: { row: Row; statuses: { id:
 
         <div className="flex flex-col gap-3">
           <h3 className="m-0 text-xs font-bold tracking-wide text-muted uppercase">Stores</h3>
+          <p className="m-0 text-xs text-muted">A note goes to the client on their Publishing page and in the status email.</p>
           {requestStores(request).map((which) => {
             const track = trackOf(request, which);
             return (
