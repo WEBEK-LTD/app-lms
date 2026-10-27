@@ -3223,6 +3223,14 @@ current profiles (`socialProfilesOf`) on the Contact page.
 and design from before the switch for one "Undo" (`undoDesignAction`),
 until the next edit.
 
+99.3 `BlockLook` also has `align`, `text_size`, `corners` and
+`image_fit` (left out when usual); `LayoutPage` has `background` and
+`header_image_url`. `LayoutBlock.show` (dates, platforms, languages) is
+for servers only: the hosted API (`shownNow`) and the plugin
+(`Block_Resolver::shows`) leave the block out of the page they serve, at
+the time of the request, for the request's platform and its
+`Accept-Language`.
+
 ### One definition per block (83.1)
 
 Each block type has one definition in `lib/pages/blocks.ts`
