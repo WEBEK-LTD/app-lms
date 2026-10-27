@@ -2144,6 +2144,54 @@ If a pack ends while your files take more than your storage, nothing is deleted 
 `,
   }),
   doc({
+    slug: "in-app-purchases",
+    section: "Selling and bookings",
+    title: "In-app purchases: courses and memberships through Google Play and the App Store",
+    description: "Sell paid courses and memberships in your app through Google Play and the App Store: connect your store accounts, prices, testing, refunds and your sales.",
+    steps: false,
+    body: `Google Play and the App Store ask apps to sell digital content, such as courses and memberships that open courses, through their own payment. With **In-app purchases**, your app does exactly that: people buy with Google Play or the App Store, and Yallapp gives them the course, or the membership until it ends. It comes with every plan but Starter, for academies whose courses are in your dashboard or on your WordPress site.
+
+Google and Apple pay you directly, into your own developer accounts, and keep their fee (15% to 30%, depending on your program with each store). Physical things and services, such as shop products, restaurant orders, appointments and tickets, keep your card payment page.
+
+## Turn it on
+
+1. Open **In-app purchases** in your dashboard menu.
+2. Under **Selling in the app**, choose **Sell my courses and memberships in the app** and select **Save**.
+3. Under **Your store accounts**, select **Check**. Yallapp uses the keys you saved on the [Publishing step](/docs/developer-accounts).
+
+Yallapp then makes a product for each paid course, and a monthly or yearly subscription for each membership plan, in your own store accounts. Your app shows the buy buttons from its next version.
+
+## Google Play
+
+- Your service account needs the rights **View financial data**, **Manage orders and subscriptions** and **Manage store presence** (Play Console › **Users and permissions**).
+- Your Play Console needs a payments profile to sell, and your app must be uploaded once with in-app purchases before Google accepts its products: send your next build to Google Play (internal testing is enough).
+- Optional: in Play Console › **Monetization setup**, enter the topic shown on the In-app purchases page under **Real-time notifications**. Refunds then reach your app within seconds; without it they arrive within the hour.
+
+## App Store
+
+- Your App Store Connect key needs the **App Manager** role.
+- Your **Paid Applications** agreement, tax and banking must be active in App Store Connect (**Business**).
+- Apple reviews new in-app purchases with the next version of your app you send for review. Add a review screenshot to each in-app purchase in App Store Connect before you send it.
+- Yallapp sets your app's App Store Server Notifications address for you.
+
+## Prices
+
+Each product starts at the store price nearest your site's price: Google Play keeps your price exactly in your own currency, and the App Store uses its nearest price point. The stores show each person the price in their own currency. To charge something else in the app, enter **Your price** next to a product and select **Save**; leave it empty for the site's price. When a membership's price changes, the people already subscribed keep their price.
+
+## Testing
+
+Add yourself as a **license tester** in Play Console (**Settings** › **License testing**) and as a **Sandbox tester** in App Store Connect (**Users and Access** › **Sandbox**). Test purchases cost nothing and never count in your sales.
+
+## Refunds and renewals
+
+When Google or Apple refunds a purchase, or a membership isn't renewed, Yallapp takes the access back on its own. Renewals extend the membership. A person who reinstalls the app, or signs in on a new phone, selects **Restore purchases** to get their purchases back. A purchase belongs to the account that made it: it can't move to another account of your app.
+
+## Your sales
+
+**Analytics** › **Sales** shows **In-app purchases** (bought and renewed, before the stores' fee), **In-app refunds** and **Membership renewals**, beside the period before. Yallapp Business shows today's in-app sales too. Your payouts and the stores' reports are in Play Console and App Store Connect.
+`,
+  }),
+  doc({
     slug: "courses",
     section: "Selling and bookings",
     title: "Courses without a website",

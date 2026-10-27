@@ -2,7 +2,7 @@ import { clientAccountState, longestLicense } from "../license/status";
 import { newId } from "../crypto/tokens";
 import { membershipActive, membershipFreezeSet, membershipToUse } from "../bookings/memberships";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
-import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, PendingPayment, SavedSection, StoreProduct, StorePurchaseRecord, BillingSession } from "./types";
+import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, PendingPayment, SavedSection, StoreProduct, StorePurchaseRecord, StorePurchaseEvent, BillingSession } from "./types";
 import type { CampaignSend, HostedCart, HostedOrderWatch, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 import type { LoyaltyEntry, LoyaltyReason } from "./types";
 import type {
@@ -2291,6 +2291,19 @@ export class MemoryStore implements DataStore {
       .filter((p) => p.status === "active" && p.expiresAt !== null && p.expiresAt.getTime() < before.getTime())
       .sort((a, b) => a.expiresAt!.getTime() - b.expiresAt!.getTime())
       .slice(0, limit)
+      .map(clone);
+  }
+
+  private storePurchaseEvents: StorePurchaseEvent[] = [];
+
+  async addStorePurchaseEvent(event: StorePurchaseEvent): Promise<void> {
+    this.storePurchaseEvents.push(clone(event));
+  }
+
+  async listStorePurchaseEvents(appId: string, from: Date, to: Date): Promise<StorePurchaseEvent[]> {
+    return this.storePurchaseEvents
+      .filter((e) => e.appId === appId && !e.test && e.at.getTime() >= from.getTime() && e.at.getTime() < to.getTime())
+      .sort((a, b) => a.at.getTime() - b.at.getTime())
       .map(clone);
   }
 

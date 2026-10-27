@@ -52,6 +52,8 @@ function comparisonRowsFor(lang: Lang, plans: Record<Plan, PlanInfo>): Compariso
     { label: m.rowRebuilds, values: has("auto_rebuild") },
     { label: m.rowChat, values: has("chat") },
     { label: m.rowLoyalty, values: has("loyalty") },
+    // 100.6 Courses and memberships bought in the app through the stores.
+    { label: m.rowInAppPurchases, values: has("store_billing") },
     { label: m.rowPublishing, values: each((p) => (hasFeature(p, "auto_publish") ? words.weePublish : words.youPublish)) },
     { label: m.rowStoreUpdates, values: has("auto_publish") },
     { label: m.rowTeam, values: each((p) => limit(p.limits.teamMembers, m.unlimited)) },

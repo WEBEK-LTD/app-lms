@@ -7,6 +7,9 @@ Read `README.md`, `docs/ROADMAP.md` and `docs/ARCHITECTURE.md` first.
 - Follow `docs/ROADMAP.md` one step at a time. Finish a step, run its checks,
   push, report, and wait for approval before starting the next one. Update the
   step's status in the roadmap in the same change.
+- `docs/STATUS.md` holds where the work stands: the step in progress, the
+  checks it passed, the open pull requests and what waits on the owner. Read it
+  first and update it with every step and pull request.
 - The plugin and the app must match `docs/api/openapi.yaml`. Change the
   contract first, then the code, in the same change.
 

@@ -20,7 +20,7 @@ export const PRIVACY: LegalDefault = {
   key: "privacy",
   path: "/privacy",
   title: "Privacy policy",
-  updated: "22 October 2026",
+  updated: "27 October 2026",
   body: `## 1. Who we are
 
 Yallapp is based in Cairo, Egypt, and is the data controller for the personal data described here. We work with businesses in many countries, so we follow the data protection laws that apply to the data we handle: Egypt's Personal Data Protection Law (Law No. 151 of 2020), and, where they apply, the EU General Data Protection Regulation (GDPR) and the Turkish Personal Data Protection Law No. 6698 (KVKK). Contact: [{{contact_email}}](mailto:{{contact_email}}).
@@ -29,7 +29,7 @@ Yallapp is based in Cairo, Egypt, and is the data controller for the personal da
 
 - **Account details:** name, email, WhatsApp number and a securely hashed password.
 - **Website and app details:** your website address, app name, logo, icons, colors and store listing text.
-- **Publishing credentials:** Google Play, App Store Connect, Samsung Galaxy Store and Huawei AppGallery keys, if you choose to add them. These are stored encrypted.
+- **Publishing credentials:** Google Play, App Store Connect, Samsung Galaxy Store and Huawei AppGallery keys, if you choose to add them. These are stored encrypted. When you turn on in-app purchases, your Google Play and App Store Connect keys are also used to make your in-app products and to check your app's purchases.
 - **Billing records:** your plan, dates and payment notes.
 - **Messages** you send us, and **technical logs** such as IP address, browser and sign-in times.
 - **How you found us:** when you sign up, the source, medium and campaign of the link you came from, the name of the website that sent you (not the page), and whether you looked at our demo apps. We use it only to learn which pages and campaigns bring us clients, and nothing is stored in your browser for it.
@@ -43,6 +43,7 @@ How your app users' data is handled depends on where the app gets its content:
 - **No website (content managed in the Yallapp dashboard):** we host the data your app needs, such as your users' names, phone numbers, sign-ins, orders, bookings and enquiries, and the content you add. For this data you are the data controller and Yallapp is your data processor: we use it only to run your app and on your instructions, keep it secure, and delete it when your account ends or when you ask.
 - **Payments from your customers:** your customers pay you through your own payment provider account (your own iyzico, Kashier, Fawaterk, Stripe or PayPal account, or your website's own checkout). Yallapp isn't a party to those payments: it never receives the money or the card details, and keeps only an order's status and the provider's reference so your app can show them.
 - **Usage statistics (every app):** so you can see how your app is used, the app sends Yallapp what happens in it: app opens (and whether it's the first), the kind of screen opened, the courses, products or other items opened with their name, actions such as adding to the cart, enrolling, booking, giving or opening the checkout page (with the amount when there is one), search texts, opened notifications and shares, together with a random install number the app makes (not linked to the user's account, and new when they turn sharing off and on again), the platform, the app and system versions and the app's language. We work out the country from the connection when the data arrives and do not keep the IP address. No names, phone numbers, email addresses or advertising IDs are sent, there are no third-party analytics or advertising tools in the apps, and nothing is used to track people across apps or websites. Search texts are only counted per day, never stored with the install number. Reports show you totals only. Your app users can turn off "Share usage statistics" in the app's settings; the app then stops sending and deletes what it hadn't sent. For these statistics you are the data controller and Yallapp is your data processor.
+- **In-app purchases (every plan but Starter, when you turn them on):** when someone buys a course or membership in your app through Google Play or the App Store, Yallapp checks the purchase with the store and keeps a record of it: the store's purchase token or transaction ID, the product, its status and dates, and the account it belongs to in your app (for WordPress apps, the website user's ID). Google and Apple take the payment; Yallapp never receives the money or the card details. For these records you are the data controller and Yallapp is your data processor; they are kept while your app exists, so that refunds and restored purchases work, and deleted with it.
 - **Chat (Pro and Business plans):** when your app has a chat, Yallapp stores its messages and files, the name and picture of each person who writes (for WordPress apps, the website user's ID, name and picture, and their courses for course groups), and who reported or blocked whom. For this data you are the data controller and Yallapp is your data processor. Messages and files are deleted a year after they're sent unless you keep a conversation for longer, and at once when a person deletes their account or you delete them.
 
 In every case you are responsible for giving your app users your own privacy notice. Push notifications are sent through your own Firebase project. Sign-in codes may be sent on WhatsApp through waabek.com (from our number, or from yours if you connect it), or by email from our email server (or through your own email server if you set one up; we store its password encrypted). If you ask us for help with a problem involving one of your users, we use only the data you share with us, and only on your instructions.
@@ -56,7 +57,7 @@ In every case you are responsible for giving your app users your own privacy not
 
 ## 5. Who we share it with
 
-We share data only with providers that help us run Yallapp: hosting (webek.org) for the website, the database, apps without a website and build files, WhatsApp messaging (waabek.com) for sign-in codes, the build service that compiles your apps, and Apple or Google when we publish for you. We may also share data with professional advisers or authorities when the law requires it. We never sell personal data.
+We share data only with providers that help us run Yallapp: hosting (webek.org) for the website, the database, apps without a website and build files, WhatsApp messaging (waabek.com) for sign-in codes, the build service that compiles your apps, and Apple or Google when we publish for you or check your app's in-app purchases. We may also share data with professional advisers or authorities when the law requires it. We never sell personal data.
 
 ## 6. International transfers
 
@@ -88,7 +89,7 @@ export const TERMS: LegalDefault = {
   key: "terms",
   path: "/terms",
   title: "Terms of service",
-  updated: "22 October 2026",
+  updated: "27 October 2026",
   body: `## 1. About these terms
 
 These terms cover your use of Yallapp: the website at yallapp.com.tr, the client dashboard, the Yallapp WordPress plugin and the mobile apps we build for you. Yallapp is based in Cairo, Egypt. In these terms, “we” and “us” mean Yallapp. By creating an account, you agree to these terms.
@@ -101,7 +102,7 @@ Yallapp is a business service for academies, trainers, shops, service providers,
 
 Yallapp builds branded Android and iOS apps that get their content from your WordPress website, a supported platform, your own API, or content you manage in the Yallapp dashboard. Depending on your plan, we provide the WordPress plugin, hosting for apps without a website, your app build files, publishing guides, and publishing to the app stores on your behalf. Each app in your account has its own plan.
 
-When your app sells or takes donations, your customers pay you through your own payment provider account (your own iyzico, Kashier, Fawaterk, Stripe or PayPal account, or your website's own checkout). Yallapp doesn't collect, hold or pass on those payments and isn't a party to those sales: prices, delivery, refunds, taxes and disputes with your customers are between you and them. You pay Yallapp only for your plans and add-ons.
+When your app sells or takes donations, your customers pay you through your own payment provider account (your own iyzico, Kashier, Fawaterk, Stripe or PayPal account, or your website's own checkout). When your app sells courses or memberships through Google Play or the App Store (in-app purchases), the store charges your customers and pays you under its own terms, after its fee; Yallapp checks each purchase with the store and gives the access it buys. Yallapp doesn't collect, hold or pass on those payments and isn't a party to those sales: prices, delivery, refunds, taxes and disputes with your customers are between you and them (and the store, for in-app purchases). You pay Yallapp only for your plans and add-ons.
 
 ## 4. Your account
 
@@ -121,7 +122,7 @@ You keep ownership of your website, content and brand. You are responsible for h
 
 ## 8. App store accounts and publishing
 
-Your apps are published under your own developer accounts with each store you choose: Google Play, the App Store, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps. You are the publisher and are responsible for meeting each store’s policies, including your store listing and privacy disclosures. If you give us store API keys, we use them only to upload builds you request. You can revoke them at any time.
+Your apps are published under your own developer accounts with each store you choose: Google Play, the App Store, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps. You are the publisher and are responsible for meeting each store’s policies, including your store listing and privacy disclosures. If you give us store API keys, we use them only to upload builds you request and, when you turn on in-app purchases, to make and update your in-app products, check purchases and read refunds. You can revoke them at any time.
 
 ## 9. Signing keys
 

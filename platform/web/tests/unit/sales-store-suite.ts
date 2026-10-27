@@ -82,7 +82,7 @@ export function salesStoreSuite(store: () => DataStore) {
     await s.enrollInCourse({ appId: app.id, userId: c.id, courseId: 1, source: "paid", enrolledAt: BEFORE });
     // 40 item views in the report over the same days.
     const sales = await loadSales(s, app, RANGE, ZONE, 40);
-    expect(sales.shows).toEqual({ orders: true, refunds: true, enrolments: true, bookings: false, tickets: false, donations: false });
+    expect(sales.shows).toEqual({ orders: true, refunds: true, enrolments: true, bookings: false, tickets: false, donations: false, inApp: false });
     expect(sales.current).toMatchObject({
       orders: { count: 2, totals: [{ currency: "TRY", cents: 2_600 }] },
       refunds: { count: 1, totals: [{ currency: "TRY", cents: 400 }] },

@@ -7,6 +7,7 @@ import { UpgradeHint } from "@/components/upgrade";
 import { appLabel } from "@/lib/app/label";
 import { contextCan, requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
+import { googlePubSubTopic } from "@/lib/env";
 import type { StoreProduct, StoreProductSync } from "@/lib/data/types";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { appPlan, effectivePlans } from "@/lib/entitlements";
@@ -72,6 +73,8 @@ export default async function InAppPurchasesPage() {
   const keys = storesOf(app);
   const settings = app.storeBilling ?? { enabled: false };
   const canEdit = contextCan(context, "settings");
+  // 100.6 Yallapp's Pub/Sub topic, for Play Console's real-time notifications.
+  const topic = googlePubSubTopic();
   const price = (value: string, currency: string) => {
     try {
       // As the Courses page shows prices: "₺450.00".
@@ -125,6 +128,15 @@ export default async function InAppPurchasesPage() {
           </p>
         ) : null}
         <p className="m-0 text-sm text-ink-4">{t(which === "google" ? "inapp.googleHint" : "inapp.appleHint")}</p>
+        {which === "google" && topic ? (
+          <div className="flex flex-col gap-1 rounded-xl bg-sand px-3 py-2" data-pubsub-topic="">
+            <span className="text-sm font-semibold">{t("inapp.realtime")}</span>
+            <code className="text-xs break-all" dir="ltr">
+              {topic}
+            </code>
+            <span className="text-xs text-muted">{t("inapp.realtimeHint")}</span>
+          </div>
+        ) : null}
         <Link href="/dashboard/publishing" className="text-sm font-semibold text-midnight underline underline-offset-2">
           {t("inapp.openPublishing")}
         </Link>

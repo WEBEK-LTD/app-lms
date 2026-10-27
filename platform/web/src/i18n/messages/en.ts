@@ -175,6 +175,7 @@ export const en = {
     rowRebuilds: "Automatic rebuilds",
     rowChat: "Chat in the app",
     rowLoyalty: "Loyalty points",
+    rowInAppPurchases: "In-app purchases (Google Play, App Store)",
     rowPublishing: "Publishing",
     rowStoreUpdates: "Automatic store updates",
     rowTeam: "Team members",

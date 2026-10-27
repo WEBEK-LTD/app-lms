@@ -1,7 +1,7 @@
 import type { App, StorePurchaseRecord } from "../data/types";
 import { verifyNotification } from "./apple";
 import { GoogleBillingError, parseDeveloperNotification, verifyPubSubPush } from "./google";
-import { applyChecked, googleFor, readGooglePurchase, settlePurchase, tokenKey, type CheckedPurchase, type PurchaseDeps } from "./purchases";
+import { applyChecked, googleFor, savePurchaseChange, readGooglePurchase, settlePurchase, tokenKey, type CheckedPurchase, type PurchaseDeps } from "./purchases";
 
 /**
  * 100.3 What the stores tell Yallapp about the purchases it kept (platform.yaml
@@ -20,7 +20,7 @@ const answer = (status: NoticeResult["status"], code?: string, message?: string)
 async function update(deps: PurchaseDeps, app: App, purchase: StorePurchaseRecord, checked: CheckedPurchase, reason: StorePurchaseRecord["reason"] = null): Promise<boolean> {
   let next = applyChecked(purchase, checked, deps.now);
   if (reason && next.status === "revoked") next = { ...next, reason };
-  if (next !== purchase) await deps.store.saveStorePurchase(next);
+  await savePurchaseChange(deps, purchase, next);
   return (await settlePurchase(deps, app, next)).ok;
 }
 

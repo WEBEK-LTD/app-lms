@@ -2,7 +2,7 @@ import type { DataStore } from "../data/store";
 import type { App, StorePurchaseRecord } from "../data/types";
 import { listVoidedPurchases } from "./google";
 import { storesOf } from "./products";
-import { applyChecked, googleFor, readGooglePurchase, settlePurchase, tokenKey, type CheckedPurchase, type PurchaseDeps } from "./purchases";
+import { applyChecked, googleFor, savePurchaseChange, readGooglePurchase, settlePurchase, tokenKey, type CheckedPurchase, type PurchaseDeps } from "./purchases";
 
 /**
  * 100.3 The frequent job's part for purchases: access not given or taken
@@ -67,7 +67,7 @@ export async function runStorePurchases(deps: PurchaseDeps & { store: DataStore 
           if (!purchase || purchase.status === "revoked") continue;
           const checked: CheckedPurchase = { storeKey: purchase.storeKey, purchaseToken: purchase.purchaseToken, productId: purchase.productId, transactionId: purchase.transactionId, status: "revoked", expiresAt: purchase.expiresAt, acknowledged: purchase.acknowledged, test: purchase.test };
           const next = { ...applyChecked(purchase, checked, deps.now), reason: voided.reason === "refund" ? ("refunded" as const) : ("revoked" as const) };
-          await deps.store.saveStorePurchase(next);
+          await savePurchaseChange(deps, purchase, next);
           report.refunds += 1;
           await settle(app, next);
         }
@@ -94,7 +94,7 @@ export async function runStorePurchases(deps: PurchaseDeps & { store: DataStore 
       if (!checked) continue;
       const next = applyChecked(purchase, checked, deps.now);
       if (next.status !== "active") report.ended += 1;
-      await deps.store.saveStorePurchase(next);
+      await savePurchaseChange(deps, purchase, next);
       if (!next.delivered) await settle(app, next);
     } catch (error) {
       report.failed += 1;

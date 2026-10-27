@@ -1486,9 +1486,14 @@ routine every few years):
       `https://yallapp.com.tr/api/v1/billing/notifications/google` with
       authentication on (a service account of the project, audience the
       same address). Put that service account's email in Netlify as
-      `GOOGLE_PUBSUB_PUSH_EMAIL`. Each app's Play Console › Monetization
-      setup then names the topic (`projects/<project>/topics/play-billing`).
+      `GOOGLE_PUBSUB_PUSH_EMAIL`, and the topic's full name
+      (`projects/<project>/topics/play-billing`) as `GOOGLE_PUBSUB_TOPIC`:
+      the In-app purchases page shows it to owners for Play Console ›
+      Monetization setup.
       Without it, refunds and renewals still arrive within the hour.
+
+- Migration `0091_store_purchase_events` (100.6, sales of in-app
+  purchases) runs with the others at deploy.
 
 ## 8. Accounts the remaining roadmap steps wait on
 

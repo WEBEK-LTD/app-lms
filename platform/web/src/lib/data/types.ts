@@ -2142,6 +2142,25 @@ export interface StorePurchaseRecord {
   updatedAt: Date;
 }
 
+/** 100.6 What happened to a store purchase, for sales in Analytics and Yallapp Business. */
+export type StorePurchaseEventKind = "bought" | "renewed" | "refunded" | "revoked" | "expired";
+
+/** 100.6 One change of a store purchase, with what it brought in (the store price then; Google and Apple keep their fee). */
+export interface StorePurchaseEvent {
+  id: string;
+  appId: string;
+  purchaseId: string;
+  platform: StorePlatform;
+  kind: StorePurchaseEventKind;
+  productId: string;
+  /** Bought and renewed: the price, in cents of `currency`; null when unknown. */
+  amountCents: number | null;
+  currency: string | null;
+  /** A store test purchase: left out of sales. */
+  test: boolean;
+  at: Date;
+}
+
 /** 100.3 An hour's store billing token for a person signed in on a WordPress site (platform.yaml POST /billing/sessions). */
 export interface BillingSession {
   tokenHash: string;

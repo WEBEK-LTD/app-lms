@@ -55,6 +55,12 @@ export function SalesTiles({ sales, days, text }: { sales: SalesReport; days: nu
   if (shows.donations) {
     tiles.push({ key: "donations", label: t("analytics.salesDonations"), value: money(now.donations, num(0)), hint: t("analytics.salesDonationsHint", { count: now.donations.count }), compare: comparable(now.donations, before.donations) });
   }
+  // 100.6 Courses and memberships bought in the app through the stores.
+  if (shows.inApp) {
+    tiles.push({ key: "in_app", label: t("analytics.salesInApp"), value: money(now.inApp, num(0)), hint: t("analytics.salesInAppHint", { count: now.inApp.count }), compare: comparable(now.inApp, before.inApp) });
+    tiles.push({ key: "in_app_refunds", label: t("analytics.salesInAppRefunds"), value: money(now.inAppRefunds, num(0)), hint: t("analytics.salesInAppRefundsHint", { count: now.inAppRefunds.count }), compare: pair((f) => f.inAppRefunds.count) });
+    if (now.renewals + before.renewals > 0) tiles.push({ key: "renewals", label: t("analytics.salesRenewals"), value: count(now.renewals), hint: t("analytics.salesRenewalsHint"), compare: pair((f) => f.renewals) });
+  }
   if (shows.orders) {
     tiles.push({
       key: "conversion",

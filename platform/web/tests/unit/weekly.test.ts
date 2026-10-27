@@ -151,7 +151,7 @@ describe("86.4 the weekly summary", () => {
     expect(await store.listAnalyticsDaily(app.id, "2020-01-01", "2020-01-01")).toEqual([]);
     const range = { preset: "custom", from: "2026-10-05", to: "2026-10-11", days: 7, previous: { from: "2026-09-28", to: "2026-10-04" } };
     const report = await loadSales(store, app, range, ZONE, 40);
-    expect(report.shows).toEqual({ orders: true, refunds: true, enrolments: false, bookings: false, tickets: false, donations: false });
+    expect(report.shows).toEqual({ orders: true, refunds: true, enrolments: false, bookings: false, tickets: false, donations: false, inApp: false });
     expect(report.current.orders.count).toBe(4);
     expect(report.conversion).toBe(0.1);
     // A day sent again replaces what it had.

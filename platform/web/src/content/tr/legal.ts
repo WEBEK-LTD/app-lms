@@ -4,7 +4,7 @@ import type { LegalTranslation } from "../translation-types";
 export const TR_LEGAL: Partial<Record<"privacy" | "terms" | "refund", LegalTranslation>> = {
   privacy: {
     title: "Gizlilik politikası",
-    updated: "22 Ekim 2026",
+    updated: "27 Ekim 2026",
     body: `## 1. Biz kimiz
 
 Yallapp'in merkezi Kahire, Mısır'dadır ve burada açıklanan kişisel verilerin veri sorumlusudur. Pek çok ülkede işletmelerle çalışıyoruz; bu yüzden işlediğimiz verilere uygulanan veri koruma yasalarına uyuyoruz: Mısır Kişisel Verilerin Korunması Kanunu (2020 tarihli 151 sayılı Kanun) ve uygulandıkları durumlarda AB Genel Veri Koruma Tüzüğü (GDPR) ile 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK). İletişim: [{{contact_email}}](mailto:{{contact_email}}).
@@ -13,7 +13,7 @@ Yallapp'in merkezi Kahire, Mısır'dadır ve burada açıklanan kişisel veriler
 
 - **Hesap bilgileri:** ad, e-posta, WhatsApp numarası ve güvenli şekilde özetlenmiş (hash) bir şifre.
 - **Web sitesi ve uygulama bilgileri:** web sitenizin adresi, uygulama adı, logo, simgeler, renkler ve mağaza sayfası metni.
-- **Yayın kimlik bilgileri:** eklemeyi seçerseniz Google Play, App Store Connect, Samsung Galaxy Store ve Huawei AppGallery anahtarları. Bunlar şifreli olarak saklanır.
+- **Yayın kimlik bilgileri:** eklemeyi seçerseniz Google Play, App Store Connect, Samsung Galaxy Store ve Huawei AppGallery anahtarları. Bunlar şifreli olarak saklanır. Uygulama içi satın almayı açtığınızda Google Play ve App Store Connect anahtarlarınız, uygulama içi ürünlerinizi oluşturmak ve uygulamanızın satın almalarını doğrulamak için de kullanılır.
 - **Fatura kayıtları:** planınız, tarihleri ve ödeme notları.
 - Bize gönderdiğiniz **mesajlar** ve IP adresi, tarayıcı ve giriş zamanları gibi **teknik kayıtlar**.
 - **Bizi nasıl buldunuz:** kaydolurken geldiğiniz bağlantının kaynağı, ortamı ve kampanyası, sizi gönderen web sitesinin adı (sayfası değil) ve demo uygulamalarımıza bakıp bakmadığınız. Bunu yalnızca hangi sayfaların ve kampanyaların bize müşteri getirdiğini öğrenmek için kullanırız; bunun için tarayıcınızda hiçbir şey saklanmaz.
@@ -27,6 +27,7 @@ Uygulama kullanıcılarınızın verilerinin nasıl işlendiği, uygulamanın i�
 - **Web sitesi yok (Yallapp panelinde yönetilen içerik):** kullanıcılarınızın adları, telefon numaraları, girişleri, siparişleri, randevuları ve talepleri gibi uygulamanızın ihtiyaç duyduğu verileri ve eklediğiniz içeriği biz barındırırız. Bu veriler için veri sorumlusu sizsiniz, Yallapp ise veri işleyeninizdir: bunları yalnızca uygulamanızı çalıştırmak için ve talimatlarınız doğrultusunda kullanır, güvende tutar ve hesabınız sona erdiğinde veya siz istediğinizde sileriz.
 - **Müşterilerinizden gelen ödemeler:** müşterileriniz size kendi ödeme sağlayıcısı hesabınız üzerinden öder (kendi iyzico, Kashier, Fawaterk, Stripe veya PayPal hesabınız ya da web sitenizin kendi ödeme sayfası). Yallapp bu ödemelerin tarafı değildir: parayı veya kart bilgilerini asla almaz; uygulamanız gösterebilsin diye yalnızca siparişin durumunu ve sağlayıcının referansını saklar.
 - **Kullanım istatistikleri (her uygulama):** uygulamanızın nasıl kullanıldığını görebilmeniz için uygulama, içinde olanları Yallapp'e gönderir: uygulamanın açılışları (ve ilk açılış olup olmadığı), açılan ekranın türü, açılan kurslar, ürünler veya diğer öğeler ve adları, sepete ekleme, kayıt olma, randevu alma, bağış yapma veya ödeme sayfasını açma gibi işlemler (varsa tutarıyla), arama metinleri, açılan bildirimler ve paylaşımlar; bunlarla birlikte uygulamanın oluşturduğu rastgele bir kurulum numarası (kullanıcının hesabıyla bağlantılı değildir ve paylaşımı kapatıp yeniden açtığında yenilenir), platform, uygulama ve sistem sürümleri ve uygulamanın dili. Ülkeyi, veriler geldiğinde bağlantıdan çıkarırız ve IP adresini saklamayız. Hiçbir ad, telefon numarası, e-posta adresi veya reklam kimliği gönderilmez; uygulamalarda üçüncü taraf analiz veya reklam araçları yoktur ve hiçbir şey insanları uygulamalar veya web siteleri arasında izlemek için kullanılmaz. Arama metinleri yalnızca gün başına sayılır, asla kurulum numarasıyla birlikte saklanmaz. Raporlar size yalnızca toplamları gösterir. Uygulama kullanıcılarınız, uygulamanın ayarlarında "Kullanım istatistiklerini paylaş"ı kapatabilir; uygulama bu durumda göndermeyi durdurur ve henüz göndermediklerini siler. Bu istatistikler için veri sorumlusu sizsiniz, Yallapp ise veri işleyeninizdir.
+- **Uygulama içi satın alma (Starter dışındaki tüm planlar, açtığınızda):** Biri uygulamanızda Google Play veya App Store üzerinden bir kurs ya da üyelik satın aldığında Yallapp satın almayı mağazayla doğrular ve kaydını saklar: mağazanın satın alma belirteci veya işlem kimliği, ürün, durumu ve tarihleri ile uygulamanızda ait olduğu hesap (WordPress uygulamalarında web sitesi kullanıcısının kimliği). Ödemeyi Google ve Apple alır; Yallapp parayı veya kart bilgilerini asla almaz. Bu kayıtlarda veri sorumlusu sizsiniz, Yallapp ise veri işleyeninizdir; iadeler ve satın almaların geri yüklenmesi çalışsın diye uygulamanız var olduğu sürece saklanır ve onunla birlikte silinir.
 - **Sohbet (Pro ve Business planları):** Uygulamanızda sohbet olduğunda Yallapp; mesajlarını ve dosyalarını, yazan herkesin adını ve fotoğrafını (WordPress uygulamalarında web sitesi kullanıcısının kimliğini, adını ve fotoğrafını, kurs grupları için de kurslarını) ve kimin kimi şikâyet ettiğini veya engellediğini saklar. Bu verilerde veri sorumlusu sizsiniz, Yallapp ise veri işleyeninizdir. Mesajlar ve dosyalar, bir sohbeti daha uzun süre saklamadığınız sürece gönderildikten bir yıl sonra; bir kişi hesabını sildiğinde veya siz onu sildiğinizde ise hemen silinir.
 
 Her durumda, uygulama kullanıcılarınıza kendi gizlilik bildiriminizi sunmaktan siz sorumlusunuz. Anlık bildirimler kendi Firebase projeniz üzerinden gönderilir. Giriş kodları waabek.com aracılığıyla WhatsApp'tan (bizim numaramızdan ya da bağlarsanız sizinkinden) veya e-posta sunucumuzdan e-postayla (ya da kurarsanız kendi e-posta sunucunuz üzerinden; şifresini şifreli olarak saklarız) gönderilebilir. Kullanıcılarınızdan biriyle ilgili bir sorunda bizden yardım isterseniz, yalnızca bizimle paylaştığınız verileri ve yalnızca talimatlarınız doğrultusunda kullanırız.
@@ -40,7 +41,7 @@ Her durumda, uygulama kullanıcılarınıza kendi gizlilik bildiriminizi sunmakt
 
 ## 5. Kimlerle paylaşıyoruz
 
-Verileri yalnızca Yallapp'i çalıştırmamıza yardım eden sağlayıcılarla paylaşırız: web sitesi, veritabanı, web sitesi olmayan uygulamalar ve derleme dosyaları için barındırma (webek.org), giriş kodları için WhatsApp mesajlaşması (waabek.com), uygulamalarınızı derleyen derleme hizmeti ve sizin adınıza yayınladığımızda Apple veya Google. Yasa gerektirdiğinde verileri profesyonel danışmanlarla veya yetkili makamlarla da paylaşabiliriz. Kişisel verileri asla satmayız.
+Verileri yalnızca Yallapp'i çalıştırmamıza yardım eden sağlayıcılarla paylaşırız: web sitesi, veritabanı, web sitesi olmayan uygulamalar ve derleme dosyaları için barındırma (webek.org), giriş kodları için WhatsApp mesajlaşması (waabek.com), uygulamalarınızı derleyen derleme hizmeti ve sizin adınıza yayınladığımızda ya da uygulamanızın uygulama içi satın almalarını doğruladığımızda Apple veya Google. Yasa gerektirdiğinde verileri profesyonel danışmanlarla veya yetkili makamlarla da paylaşabiliriz. Kişisel verileri asla satmayız.
 
 ## 6. Uluslararası aktarımlar
 
@@ -69,7 +70,7 @@ Değişiklikleri burada yayınlar, önemli olanlar hakkında size e-posta gönde
   },
   terms: {
     title: "Hizmet koşulları",
-    updated: "22 Ekim 2026",
+    updated: "27 Ekim 2026",
     body: `## 1. Bu koşullar hakkında
 
 Bu koşullar Yallapp'i kullanımınızı kapsar: yallapp.com.tr'deki web sitesi, müşteri paneli, Yallapp WordPress eklentisi ve sizin için derlediğimiz mobil uygulamalar. Yallapp'in merkezi Kahire, Mısır'dadır. Bu koşullarda "biz" ifadesi Yallapp anlamına gelir. Bir hesap oluşturarak bu koşulları kabul etmiş olursunuz.
@@ -82,7 +83,7 @@ Yallapp; akademiler, eğitmenler, mağazalar, hizmet sağlayıcılar, emlak işl
 
 Yallapp, içeriğini WordPress web sitenizden, desteklenen bir platformdan, kendi API'nizden veya Yallapp panelinde yönettiğiniz içerikten alan, markanızı taşıyan Android ve iOS uygulamaları derler. Planınıza bağlı olarak WordPress eklentisini, web sitesi olmayan uygulamalar için barındırmayı, uygulama derleme dosyalarınızı, yayın rehberlerini ve sizin adınıza uygulama mağazalarında yayını sağlarız. Hesabınızdaki her uygulamanın kendi planı vardır.
 
-Uygulamanız satış yaptığında veya bağış aldığında müşterileriniz size kendi ödeme sağlayıcısı hesabınız üzerinden öder (kendi iyzico, Kashier, Fawaterk, Stripe veya PayPal hesabınız ya da web sitenizin kendi ödeme sayfası). Yallapp bu ödemeleri tahsil etmez, tutmaz veya aktarmaz ve bu satışların tarafı değildir: fiyatlar, teslimat, iadeler, vergiler ve müşterilerinizle anlaşmazlıklar sizinle onlar arasındadır. Yallapp'e yalnızca planlarınız ve eklentileriniz için ödeme yaparsınız.
+Uygulamanız satış yaptığında veya bağış aldığında müşterileriniz size kendi ödeme sağlayıcısı hesabınız üzerinden öder (kendi iyzico, Kashier, Fawaterk, Stripe veya PayPal hesabınız ya da web sitenizin kendi ödeme sayfası). Uygulamanız Google Play veya App Store üzerinden kurs ya da üyelik sattığında (uygulama içi satın alma), ödemeyi mağaza müşterilerinizden alır ve komisyonunu düştükten sonra kendi koşullarına göre size öder; Yallapp her satın almayı mağazayla doğrular ve satın alınan erişimi verir. Yallapp bu ödemeleri tahsil etmez, tutmaz veya aktarmaz ve bu satışların tarafı değildir: fiyatlar, teslimat, iadeler, vergiler ve müşterilerinizle anlaşmazlıklar sizinle onlar arasındadır (uygulama içi satın almalarda mağazayla da). Yallapp'e yalnızca planlarınız ve eklentileriniz için ödeme yaparsınız.
 
 ## 4. Hesabınız
 
@@ -102,7 +103,7 @@ Web sitenizin, içeriğinizin ve markanızın sahibi siz olmaya devam edersiniz.
 
 ## 8. Uygulama mağazası hesapları ve yayın
 
-Uygulamalarınız, seçtiğiniz her mağazadaki kendi geliştirici hesaplarınız altında yayınlanır: Google Play, App Store, Samsung Galaxy Store, Huawei AppGallery ve Xiaomi GetApps. Yayıncı sizsiniz ve mağaza sayfanız ile gizlilik beyanlarınız dahil her mağazanın politikalarına uymaktan siz sorumlusunuz. Bize mağaza API anahtarları verirseniz bunları yalnızca istediğiniz derlemeleri yüklemek için kullanırız. Bunları istediğiniz zaman iptal edebilirsiniz.
+Uygulamalarınız, seçtiğiniz her mağazadaki kendi geliştirici hesaplarınız altında yayınlanır: Google Play, App Store, Samsung Galaxy Store, Huawei AppGallery ve Xiaomi GetApps. Yayıncı sizsiniz ve mağaza sayfanız ile gizlilik beyanlarınız dahil her mağazanın politikalarına uymaktan siz sorumlusunuz. Bize mağaza API anahtarları verirseniz bunları yalnızca istediğiniz derlemeleri yüklemek ve uygulama içi satın almayı açtığınızda uygulama içi ürünlerinizi oluşturup güncellemek, satın almaları doğrulamak ve iadeleri okumak için kullanırız. Bunları istediğiniz zaman iptal edebilirsiniz.
 
 ## 9. İmzalama anahtarları
 
