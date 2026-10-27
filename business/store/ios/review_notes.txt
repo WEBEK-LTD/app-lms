@@ -1,12 +1,25 @@
-Yallapp Business is a companion app for businesses that already run an app on Yallapp (yallapp.com.tr). The people who run those apps sign in with the email and password of their Yallapp dashboard. Accounts are created on the website by the business; the app has no sign-up.
+PURPOSE AND AUDIENCE
+Yallapp (yallapp.com.tr) is a public service where small businesses (shops, restaurants, course academies, clinics and salons, gyms, event organisers, charities, news sites) make their own branded mobile app without code. Yallapp Business is the companion app for the people who run them, owners and their team members, to work from their phone: accept orders and move them through their steps (Kitchen mode for restaurants), manage appointments, scan event tickets and gym members at the door, answer customer messages, course questions and reviews, send push notifications to their own app's users, upload pictures and videos for their app, and see statistics and builds. Any business can sign up on the website; the app is not made for one company. Accounts are created on the website by the business; the app has no sign-up.
 
 The app sells nothing: no in-app purchases, no subscriptions and no payment screens. The business's plan and storage are shown read-only.
 
-The demo account in the sign-in details belongs to a test business with sample apps. After signing in, the name at the top of Today switches between them. Each screen shows only when the app has it:
-
+HOW TO USE IT
+The demo account in the sign-in details belongs to a test business with sample apps of several kinds. The name at the top of Today switches between them. Each screen shows only when the app has it:
 - Orders (a shop or restaurant app): accept an order and move it through its steps; Today > Kitchen mode shows them as big cards.
-- Door scanner (an events app): Events > Scan for this event. The camera reads a ticket's QR code; "Type the code" works without a ticket.
-- Today > Notify sends a push to the users of the business's own app.
+- Door scanner (an events app): Events > an event > Scan for this event. The camera reads a ticket's QR code; "Type the code" works without a ticket.
+- Inbox > Messages: reply to a customer. Messages customers report are listed under Reports, where the business deletes the message and stops the sender; "Stop from sending" blocks a person and "Allow to send again" undoes it.
+- Inbox > Questions and Reviews (an academy app): answer, or hide a question, an answer or a review.
+- Today > Notify sends a push to the users of the business's own app, now or later.
 - Today > Upload picks a picture or a video and uploads it to the app's Media.
+More > Delete my account opens yallapp.com.tr/delete-account: the account is deleted from the website's Dashboard > Your account (it can be cancelled for 7 days, then the account and its data are deleted). Sign out is at the end of More.
 
-The camera, microphone and photos are asked for only when the person scans a ticket or takes or picks a picture or video. Notifications are about the business's own orders, bookings and messages. Sign out is at the end of More.
+The camera, microphone and photos are asked for only when the person scans a ticket or takes or picks a picture or video. Face ID is optional and only locks the app on the phone. Notifications are about the business's own orders, bookings and messages. No sample files are needed.
+
+EXTERNAL SERVICES
+Yallapp's own platform at yallapp.com.tr (API, sign-in, data, stored media) and Firebase Cloud Messaging with Apple Push Notification service for notifications. No payment processors, no advertising or analytics SDKs, no third-party sign-in. QR codes are read on the device.
+
+REGIONS
+The app works the same in all regions, in English, Arabic and Turkish. What a person sees depends only on their own business's app.
+
+REGULATED INDUSTRIES
+None. The app processes no payments: donations made in a charity's own app go through that charity's own payment provider and Yallapp Business only shows the totals. Clinic and salon apps show appointment times only, with no medical records or health data. Businesses publish their own content and are responsible for it under Yallapp's terms (yallapp.com.tr/terms).
