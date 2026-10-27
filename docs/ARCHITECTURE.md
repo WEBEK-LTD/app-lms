@@ -3325,7 +3325,22 @@ without a new build. The app renders whatever the API sends.
   font, corners and, in `Appearance.primary_color` and `logo_url`, its
   main color and logo over the branding (plugin 0.4.20 passes them on);
   the template, the opening mode and the cards stay the standard look's.
-  Its pictures are offered in the editor's Choose from Media. Apps on their own API
+  Its pictures are offered in the editor's Choose from Media. 97.4 The
+  same look from a Figma link (`lib/figma/api.ts`): the owner pastes the
+  file's link and a personal access token; the token goes to Figma's REST
+  API (`api.figma.com`, in the `X-Figma-Token` header, through the safe
+  fetch) for that call only and is never saved or logged: it stays in the
+  dashboard page's memory between reading and importing and is cleared
+  when the look is saved. Reading takes the file (`depth=2`), its FILL and
+  TEXT styles' nodes, its local variables when Figma allows it (Enterprise
+  files; a refusal is ignored) and small pictures of its top-level frames
+  (logos first, up to 40); importing has Figma draw the chosen frames as
+  PNG at twice their size (once more at their own size when that is over
+  5 MB) and keeps them as `figma_image` assets. Figma's refusals are said
+  in the owner's words (wrong token, file not found or not shared, Figma's
+  rate limit with its Retry-After, too large, unreachable), and an account
+  reads at most 30 files an hour (`RATE_LIMITS.figmaRead`). Local tests use
+  a fake API (`FIGMA_API_TEST_URL`, refused on Netlify). Apps on their own API
   get only the bundled font from the build config, unless their API sends
   `font_files` itself.
 - **Pages.** `GET /pages` returns the bottom tabs and the page list;

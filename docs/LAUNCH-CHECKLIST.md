@@ -1440,6 +1440,12 @@ routine every few years):
       and a picture), save it as the Figma look, publish: the app shows its
       colors, font and logo; switch back to the standard look and publish:
       the app is as before.
+- [ ] 97.4 With a real Figma file of yours: make a personal access token in
+      Figma (Settings › Security › Personal access tokens, File content:
+      Read only), paste the file's link and the token in Pages & look ›
+      Import from a Figma link, read it, choose the logo and a picture from
+      its frames, save and publish: the app shows its colors, font and
+      logo. Then delete the token in Figma (Yallapp never kept it).
 - [ ] Upload a font of your own in Pages & look (a .ttf you have a licence
       for), choose it, publish and open the app: it shows that font.
 

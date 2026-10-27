@@ -300,6 +300,11 @@ export function googleFontsTestUrl(): string | null {
   return testOnlyUrl("GOOGLE_FONTS_TEST_URL");
 }
 
+/** 97.4 Local tests only (refused on Netlify): Figma's API is this fake one instead of api.figma.com. */
+export function figmaApiTestUrl(): string | null {
+  return testOnlyUrl("FIGMA_API_TEST_URL");
+}
+
 /** 80.2 The daily checks of every app's connections (lib/integrations/schedule.ts); `INTEGRATION_CHECKS=off` turns them off (the e2e tests, whose sites are made up). */
 export function integrationChecksOn(): boolean {
   return read("INTEGRATION_CHECKS")?.toLowerCase() !== "off";

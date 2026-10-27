@@ -123,6 +123,8 @@ export const E2E = {
   siteScanPort: Number(process.env.E2E_SITE_SCAN_PORT ?? 3293),
   /** 97.1 A fake github.com/google/fonts the font files are copied from (GOOGLE_FONTS_TEST_URL); tests/e2e/pages.spec.ts runs it. */
   googleFontsPort: Number(process.env.E2E_GOOGLE_FONTS_PORT ?? 3290),
+  /** 97.4 A fake Figma API, its rendered pictures on the same address (FIGMA_API_TEST_URL); tests/e2e/pages.spec.ts runs it. */
+  figmaPort: Number(process.env.E2E_FIGMA_PORT ?? 3289),
   /** 58 Pushes to the owners' phones, as JSON files (YALLAPP_OWNER_PUSH_DIR, never on Netlify). */
   ownerPushDir: ".data/e2e-owner-push",
   /** SIGNING_SECRET below: the analytics spec makes the app's analytics key with it, as the build config would. */
@@ -187,6 +189,7 @@ export default defineConfig({
       INTEGRATION_CHECKS: "off",
       SITE_SCAN_TEST_URL: `http://localhost:${E2E.siteScanPort}`,
       GOOGLE_FONTS_TEST_URL: `http://localhost:${E2E.googleFontsPort}`,
+      FIGMA_API_TEST_URL: `http://localhost:${E2E.figmaPort}`,
     },
   },
 });

@@ -20,6 +20,63 @@ let own: Page;
 let api = "";
 let fonts: Server;
 const fontsAsked: string[] = [];
+// 97.4 A fake Figma API: one file, its styles and frames, and the pictures it renders.
+let figma: Server;
+const FIGMA_KEY = "HarbourFile0123456789";
+const FIGMA_TOKEN = "figd_e2e-token-0123456789abcdef";
+const figmaTokens: string[] = [];
+const figmaBase = `http://localhost:${E2E.figmaPort}`;
+
+function figmaApi(req: { url?: string; headers: Record<string, string | string[] | undefined> }): { status: number; body: unknown } | { png: Buffer } {
+  const url = new URL(req.url ?? "/", figmaBase);
+  if (url.pathname.startsWith("/render/")) {
+    // As Figma draws it: the frame's size times the scale asked for.
+    const scale = Number(/-([\d.]+)\.png$/.exec(url.pathname)?.[1] ?? 1);
+    const [w, h, color] = url.pathname.includes("logo") ? [240, 64, [31, 78, 95] as const] : [390, 300, [255, 90, 31] as const];
+    return { png: solidPng(Math.round(w * scale), Math.round(h * scale), [...color]) };
+  }
+  const token = String(req.headers["x-figma-token"] ?? "");
+  figmaTokens.push(token);
+  if (token !== FIGMA_TOKEN) return { status: 403, body: { status: 403, err: "Invalid token" } };
+  if (url.pathname === `/v1/files/${FIGMA_KEY}`) {
+    return {
+      status: 200,
+      body: {
+        name: "Harbour app",
+        document: {
+          children: [
+            {
+              type: "CANVAS",
+              name: "Brand",
+              children: [
+                { id: "1:2", type: "FRAME", name: "Home", absoluteBoundingBox: { width: 390, height: 300 } },
+                { id: "1:3", type: "COMPONENT", name: "Logo", absoluteBoundingBox: { width: 240, height: 64 } },
+              ],
+            },
+          ],
+        },
+        styles: { "10:1": { name: "Brand/Primary", styleType: "FILL" }, "10:2": { name: "Brand/Accent", styleType: "FILL" }, "10:3": { name: "Body", styleType: "TEXT" } },
+      },
+    };
+  }
+  if (url.pathname === `/v1/files/${FIGMA_KEY}/nodes`) {
+    return {
+      status: 200,
+      body: {
+        nodes: {
+          "10:1": { document: { fills: [{ type: "SOLID", color: { r: 0.0549, g: 0.051, b: 0.1412, a: 1 } }] } },
+          "10:2": { document: { fills: [{ type: "SOLID", color: { r: 0.9098, g: 0.6902, b: 0.2941, a: 1 } }] } },
+          "10:3": { document: { style: { fontFamily: "Cairo" } } },
+        },
+      },
+    };
+  }
+  if (url.pathname === `/v1/images/${FIGMA_KEY}`) {
+    const ids = (url.searchParams.get("ids") ?? "").split(",");
+    return { status: 200, body: { err: null, images: Object.fromEntries(ids.map((id) => [id, `${figmaBase}/render/${id === "1:3" ? "logo" : "home"}-${url.searchParams.get("scale")}.png`])) } };
+  }
+  return { status: 404, body: { status: 404, err: "Not found" } };
+}
 const OUTFIT = readFileSync(path.resolve(__dirname, "../../../../mobile/assets/fonts/outfit/Outfit-Variable.ttf"));
 
 /** Picks a font in a font picker: typed, then chosen from the list. */
@@ -35,6 +92,12 @@ test.beforeAll(async ({ browser }) => {
     res.writeHead(200, { "content-type": "application/octet-stream" }).end(OUTFIT);
   });
   await new Promise<void>((resolve) => fonts.listen(E2E.googleFontsPort, resolve));
+  figma = createServer((req, res) => {
+    const answer = figmaApi(req);
+    if ("png" in answer) res.writeHead(200, { "content-type": "image/png" }).end(answer.png);
+    else res.writeHead(answer.status, { "content-type": "application/json" }).end(JSON.stringify(answer.body));
+  });
+  await new Promise<void>((resolve) => figma.listen(E2E.figmaPort, resolve));
   admin = await browser.newPage();
   await admin.goto("/sign-in");
   await admin.getByLabel("Email").fill(E2E.pagesAdminEmail);
@@ -54,6 +117,7 @@ test.afterAll(async () => {
   await admin.close();
   await own?.close();
   await new Promise((resolve) => fonts.close(resolve));
+  await new Promise((resolve) => figma.close(resolve));
 });
 
 test("the team sets the look and languages new apps start with", async () => {
@@ -268,21 +332,22 @@ test("97.3 the client brings a look from Figma, apart from the standard one", as
   };
   const importer = own.getByRole("region", { name: "Import from Figma files" });
   await importer.getByLabel("Design tokens (JSON)").setInputFiles({ name: "harbour-tokens.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(tokens)) });
-  const found = importer.getByRole("region", { name: "What we found in harbour-tokens.json" });
+  const found = own.getByRole("region", { name: "What we found in harbour-tokens.json" });
+  const fontAlert = own.getByRole("alert").filter({ hasText: "isn't one of the free fonts" });
   await expect(found.getByLabel("Main color")).toHaveValue("#1F4E5F");
   await expect(found.getByLabel("Second color")).toHaveValue("#FF5A1F");
   await expect(found.getByLabel("Font")).toHaveValue("Tajawal");
   await expect(found.getByLabel("Corners")).toHaveValue("round");
   // A font that isn't a free one is said so.
   await found.getByLabel("Font").selectOption("Harbour Display");
-  await expect(importer.getByRole("alert")).toContainText("Harbour Display isn't one of the free fonts.");
+  await expect(fontAlert).toContainText("Harbour Display isn't one of the free fonts.");
   await found.getByLabel("Font").selectOption("Tajawal");
-  await expect(importer.getByRole("alert")).toHaveCount(0);
+  await expect(fontAlert).toHaveCount(0);
   await importer.getByLabel("Logo", { exact: true }).setInputFiles({ name: "logo.png", mimeType: "image/png", buffer: solidPng(120, 40, [31, 78, 95]) });
   await importer.getByLabel("Pictures", { exact: true }).setInputFiles([{ name: "harbour.png", mimeType: "image/png", buffer: solidPng(320, 180, [255, 90, 31]) }]);
-  await expect(importer.getByRole("list", { name: "Logo · Pictures" }).getByRole("listitem")).toHaveCount(2);
-  await importer.getByRole("button", { name: "Save as the Figma look" }).click();
-  await expect(importer.getByRole("status")).toHaveText("Saved in your draft and shown in the preview. Publish to show it in your app.");
+  await expect(own.getByRole("list", { name: "Logo · Pictures" }).getByRole("listitem")).toHaveCount(2);
+  await own.getByRole("button", { name: "Save as the Figma look" }).click();
+  await expect(own.getByRole("status").filter({ hasText: "Saved in your draft" })).toHaveText("Saved in your draft and shown in the preview. Publish to show it in your app.");
   await expect(own.getByRole("radio", { name: "Figma look" })).toBeChecked();
   // The standard look's font, colors and corners wait, as they were.
   await expect(own.getByText("The Figma look sets the font, colors and corners.")).toBeVisible();
@@ -305,6 +370,55 @@ test("97.3 the client brings a look from Figma, apart from the standard one", as
   expect(standard.logo_url).toBeUndefined();
   // The Figma look is kept, to switch back to.
   await expect(own.getByRole("radio", { name: "Figma look" })).toBeEnabled();
+});
+
+test("97.4 the client brings the look from a Figma link with a token that isn't kept", async ({ request }) => {
+  await own.getByRole("tab", { name: "Look" }).click();
+  const fromLink = own.getByRole("region", { name: "Import from a Figma link" });
+  const read = fromLink.getByRole("button", { name: "Read the file" });
+  // A link that isn't to a design file, and a token Figma refuses, are said so.
+  await fromLink.getByLabel("Link to the Figma file").fill(`https://www.figma.com/board/${FIGMA_KEY}/Ideas`);
+  await fromLink.getByLabel("Personal access token").fill("figd_not-the-right-token-000000");
+  await read.click();
+  await expect(own.getByRole("alert").filter({ hasText: "isn't a link to a Figma design file" })).toBeVisible();
+  await fromLink.getByLabel("Link to the Figma file").fill(`https://www.figma.com/design/${FIGMA_KEY}/Harbour-app?node-id=0-1`);
+  await read.click();
+  await expect(own.getByRole("alert").filter({ hasText: "Figma didn't accept this token." })).toBeVisible();
+
+  await fromLink.getByLabel("Personal access token").fill(FIGMA_TOKEN);
+  await read.click();
+  const found = own.getByRole("region", { name: "What we found in Harbour app" });
+  await expect(found.getByLabel("Main color")).toHaveValue("#0E0D24");
+  await expect(found.getByLabel("Second color")).toHaveValue("#E8B04B");
+  await expect(found.getByLabel("Font")).toHaveValue("Cairo");
+  const frames = found.getByRole("group", { name: "Frames in Harbour app" });
+  // Logos first, each with the small picture Figma drew of it.
+  await expect(frames.getByRole("listitem")).toHaveCount(2);
+  await expect(frames.getByRole("listitem").first()).toContainText("Logo");
+  await expect(frames.locator("img").first()).toHaveAttribute("src", `${figmaBase}/render/logo-0.25.png`);
+  await frames.getByLabel("Use Logo as the logo").check();
+  await frames.getByLabel("Use Home as a picture").check();
+  await own.getByRole("button", { name: "Save as the Figma look" }).click();
+  await expect(own.getByRole("status").filter({ hasText: "Saved in your draft" })).toBeVisible();
+  await expect(own.getByRole("radio", { name: "Figma look" })).toBeChecked();
+  await expect(own.getByRole("heading", { name: /^The Figma look, from Harbour app/ })).toBeVisible();
+  // The token is gone from the page once the look is saved; Figma only ever got it in its header.
+  await expect(fromLink.getByLabel("Personal access token")).toHaveValue("");
+  expect(figmaTokens.filter((t) => t === FIGMA_TOKEN).length).toBeGreaterThanOrEqual(4);
+
+  await own.getByRole("button", { name: "Publish", exact: true }).click();
+  await expect(own.getByText("Published. Your app shows the new pages")).toBeVisible();
+  const look = (await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json()).appearance;
+  expect(look).toMatchObject({ primary_color: "#0E0D24", secondary_color: "#E8B04B", font_family: "Cairo", logo_url: expect.stringMatching(/\/api\/v1\/assets\/[0-9a-f-]{36}$/) });
+  const logo = await request.get(new URL(look.logo_url).pathname);
+  expect(logo.headers()["content-type"]).toBe("image/png");
+  // Drawn by Figma at twice the frame's size.
+  expect((await logo.body()).readUInt32BE(16)).toBe(480);
+
+  // Back to the standard look for the tests after this one.
+  await own.getByRole("radio", { name: "Standard look" }).check();
+  await own.getByRole("button", { name: "Publish", exact: true }).click();
+  await expect(own.getByText("Published. Your app shows the new pages")).toBeVisible();
 });
 
 test("31 the editor offers only what the app's type has, and flags what a type change left behind", async () => {
