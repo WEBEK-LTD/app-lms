@@ -154,7 +154,8 @@ test("a website that isn't on WordPress gets its content added here, not WordPre
   await own.goto("/dashboard/setup?step=website");
   // Its content is added in the dashboard; nothing waits for a plugin or a WordPress set-up.
   const choices = own.getByRole("group", { name: "Where your app gets its content" });
-  await expect(choices.getByRole("radio", { checked: true })).not.toHaveAccessibleName(/WordPress/);
+  const chosen = choices.getByRole("radio", { checked: true });
+  await expect(chosen).not.toHaveAccessibleName(/^(My WordPress site|Set up WordPress for me)/);
+  await expect(chosen).toHaveAccessibleName(/Your website isn't on WordPress\? Choose this/);
   await expect(choices.getByRole("radio", { name: /Set up WordPress for me/ })).not.toBeChecked();
-  await expect(choices).toContainText("Your website isn't on WordPress? Choose");
 });
