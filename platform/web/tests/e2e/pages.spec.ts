@@ -468,7 +468,10 @@ test("97.5 frames from a Figma link become pages of the app, their tab bar its t
   await own.getByRole("tab", { name: "Pages" }).click();
   await own.getByRole("button", { name: /^Harbour/ }).click();
   await expect(own.getByText("/harbour · 3 blocks")).toBeVisible();
-  await expect(own.getByText("Button: My courses")).toBeVisible();
+  const blocks = own.getByRole("list", { name: "Blocks" }).getByRole("listitem");
+  await expect(blocks.nth(0)).toContainText("Text: Welcome aboard");
+  await expect(blocks.nth(1)).toContainText("Image");
+  await expect(blocks.nth(2)).toContainText("Button: My courses");
   // The tab bar's labels are the app's tabs, each to the page or screen it names.
   await own.getByRole("tab", { name: "Tabs" }).click();
   await expect(own.getByRole("group", { name: /^Tab 1/ }).getByLabel("Label", { exact: true })).toHaveValue("Home");
