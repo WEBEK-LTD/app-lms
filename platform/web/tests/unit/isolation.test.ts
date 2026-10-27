@@ -550,7 +550,8 @@ describe("79.3 one client never reaches another's data through the Owner API", (
   function hostedOperations(): { route: string; method: string; open: boolean }[] {
     const out: { route: string; method: string; open: boolean }[] = [];
     for (const [route, operations] of Object.entries(contract.paths)) {
-      if (!route.includes("{") || route.startsWith("/pages/") || route.startsWith("/strings/")) continue;
+      // Pages, their forms (99.4) and string packs are named by the app's own slugs, not other objects' IDs.
+      if (!route.includes("{") || route.startsWith("/pages/") || route.startsWith("/forms/") || route.startsWith("/strings/")) continue;
       for (const [method, operation] of Object.entries(operations)) {
         if (!["get", "post", "put", "patch", "delete"].includes(method)) continue;
         out.push({ route, method: method.toUpperCase(), open: Array.isArray(operation.security) && operation.security.length === 0 });

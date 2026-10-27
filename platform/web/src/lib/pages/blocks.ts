@@ -65,6 +65,12 @@ export const BLOCK_DEFINITIONS: Record<BlockType, BlockDefinition> = {
   social: { label: "Social links", hint: "Buttons to your social profiles", icon: "share", group: "Contact", texts: { title: TITLE }, lists: { profiles: { min: 1, max: 9 } }, ...base },
   embed: { label: "Web page", hint: "A web page inside the app", icon: "web", group: "Layout", texts: { title: TITLE }, ...base },
   spacer: { label: "Space", hint: "Empty space between blocks", icon: "space_bar", group: "Layout", texts: { title: TITLE }, ...base },
+  // 99.4
+  cards: { label: "Cards", hint: "Cards in two or three columns", icon: "grid_view", group: "Content", texts: { title: TITLE }, lists: { cards: { min: 1, max: 12 } }, ...base },
+  gallery: { label: "Photo gallery", hint: "Photos that open full screen", icon: "photo_library", group: "Content", texts: { title: TITLE }, lists: { images: { min: 1, max: 24 } }, ...base },
+  map: { label: "Location", hint: "Your address, with directions", icon: "map", group: "Contact", texts: { title: TITLE, name: 80, address: 200, label: 40 }, ...base },
+  form: { label: "Form", hint: "Questions people answer and send you", icon: "assignment", group: "Engage", texts: { title: TITLE, submit_label: 40, success_text: 200 }, lists: { fields: { min: 1, max: 10 } }, ...base },
+  divider: { label: "Divider", hint: "A line between blocks", icon: "horizontal_rule", group: "Layout", texts: { title: TITLE }, ...base },
 };
 
 /** "Add a block" in groups, in this order; a group shows the blocks the app has. */
@@ -78,6 +84,9 @@ export const ENTRY_TEXT_LIMITS: { [L in EntryList]: Record<(typeof TRANSLATABLE_
   questions: { question: 200, answer: 1000 },
   people: { name: 60, role: 60, bio: 300 },
   stats: { value: 12, label: 40 },
+  cards: { title: 60, text: 200 },
+  images: { caption: 120 },
+  fields: { label: 80 },
 };
 
 /** The longest a block's own text can be; 0 for a text the block doesn't have. */

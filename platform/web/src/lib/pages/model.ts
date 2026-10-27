@@ -6,6 +6,9 @@ import {
   TRANSLATABLE,
   TRANSLATABLE_ENTRIES,
   type BlockType,
+  type Card,
+  type FormField,
+  type GalleryImage,
   type ItemSource,
   type LanguageCode,
   type LayoutBlock,
@@ -178,6 +181,28 @@ export function newBlock(type: BlockType, sources: ItemSource[], screens: readon
       return { ...base, stats: [emptyStat(), emptyStat(), emptyStat()] };
     case "notice":
       return { ...base, tone: "info", text: "", action: null };
+    // 99.4
+    case "cards":
+      return { ...base, columns: 2, cards: [emptyCard(), emptyCard()] };
+    case "gallery":
+      return { ...base, columns: 3, images: [] };
+    case "map":
+      return { ...base, latitude: 0, longitude: 0, name: null, address: null };
+    case "divider":
+      return { ...base, style: "line" };
+    case "form":
+      return {
+        ...base,
+        title: "",
+        fields: [
+          { id: "name", kind: "text", label: "Name", required: true, options: null },
+          { id: "email", kind: "email", label: "Email", required: true, options: null },
+          { id: "message", kind: "long_text", label: "Message", required: false, options: null },
+        ],
+        submit_label: null,
+        success_text: null,
+        send_to: "email",
+      };
   }
 }
 
@@ -186,6 +211,14 @@ export const emptySlide = (): Slide => ({ image_url: null, heading: "", subheadi
 export const emptyQuote = (): Quote => ({ text: "", name: "", role: null, photo_url: null, rating: 5 });
 export const emptyPerson = (): Person => ({ name: "", role: null, bio: null, photo_url: null, action: null });
 export const emptyStat = (): Stat => ({ value: "", label: "" });
+export const emptyCard = (): Card => ({ title: "", text: null, image_url: null, action: null });
+export const emptyImage = (): GalleryImage => ({ image_url: "", caption: null });
+/** 99.4 A new form field, with an ID the form doesn't have yet. */
+export function emptyField(taken: readonly string[]): FormField {
+  let n = taken.length + 1;
+  while (taken.includes(`field-${n}`)) n += 1;
+  return { id: `field-${n}`, kind: "text", label: "", required: false, options: null };
+}
 
 /** The icon a quick link to a screen starts with. */
 export const SCREEN_ICONS: Partial<Record<ScreenName, string>> = {

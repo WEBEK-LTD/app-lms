@@ -659,6 +659,71 @@ describe("pages on the hosted API", () => {
     expect(ids(await call("/pages/{slug}", { params: ["home"], headers: { "accept-language": "ar" } }))).toEqual(["styled", "usual", "now", "arabic"]);
   });
 
+  it("99.4 serves cards, a gallery, a location, a divider and a form, in the language asked for", async () => {
+    const layout = layoutWith([
+      { id: "cards", type: "cards", visibility: "everyone", columns: 3, cards: [{ title: "Swimming", text: "Mornings", image_url: "https://yallapp.test/m/pool.jpg", action: { type: "page", page_slug: "home" }, translations: { ar: { title: "السباحة" } } }] },
+      { id: "photos", type: "gallery", visibility: "everyone", images: [{ image_url: "https://yallapp.test/m/1.jpg", caption: "Our hall", translations: { ar: { caption: "قاعتنا" } } }] },
+      { id: "where", type: "map", visibility: "everyone", latitude: 41.0082, longitude: 28.9784, name: "Moda branch", address: "Moda, Istanbul" },
+      { id: "line", type: "divider", visibility: "everyone", style: "dots" },
+      { id: "ask", type: "form", visibility: "everyone", title: "Ask us", send_to: "email", fields: [{ id: "name", kind: "text", label: "Name", required: true, translations: { ar: { label: "الاسم" } } }] },
+    ]);
+    expect((await publishLayout(store, app, layout, "owner@lale.test", NOW)).ok).toBe(true);
+    const ar = await call("/pages/{slug}", { params: ["home"], headers: { "accept-language": "ar" } });
+    const blocks = (ar.body as { blocks: Record<string, unknown>[] }).blocks;
+    expect(blocks.map((b) => b.type)).toEqual(["cards", "gallery", "map", "divider", "form"]);
+    expect(blocks[0]).toMatchObject({ columns: 3, cards: [{ title: "السباحة", text: "Mornings" }] });
+    expect(blocks[1]).toMatchObject({ columns: 3, images: [{ caption: "قاعتنا" }] });
+    expect(blocks[2]).toMatchObject({ latitude: 41.0082, longitude: 28.9784, name: "Moda branch" });
+    expect(blocks[3]).toMatchObject({ style: "dots" });
+    expect(blocks[4]).toMatchObject({ send_to: "email", fields: [{ id: "name", label: "الاسم", required: true, options: null }] });
+    expect(JSON.stringify(blocks)).not.toContain("translations");
+  });
+
+  it("99.4 checks a form's answers, emails them to the business, and limits how often", async () => {
+    const layout = layoutWith([
+      {
+        id: "ask",
+        type: "form",
+        visibility: "everyone",
+        title: "Book a trial",
+        send_to: "email",
+        fields: [
+          { id: "name", kind: "text", label: "Name", required: true },
+          { id: "email", kind: "email", label: "Email", required: true },
+          { id: "phone", kind: "phone", label: "Phone", required: false },
+          { id: "age", kind: "number", label: "Age", required: false },
+          { id: "day", kind: "choice", label: "Day", required: true, options: ["Saturday", "Sunday"] },
+        ],
+      },
+      { id: "chat", type: "form", visibility: "everyone", send_to: "chat", fields: [{ id: "q", kind: "long_text", label: "Question", required: true }] },
+    ]);
+    expect((await publishLayout(store, app, layout, "owner@lale.test", NOW)).ok).toBe(true);
+    const sent: unknown[] = [];
+    const post = async (path: string, answers: unknown, extra: Partial<HostedContext> = {}, headers: Record<string, string> = {}) => {
+      const result = await handleHosted({ ...context(), onFormAnswers: async (input) => void sent.push(input), ...extra }, { method: "POST", path: path.split("/").filter(Boolean), query: new URLSearchParams(), body: { answers }, token: null, headers: new Headers(headers) });
+      // 202 has no body to check.
+      if (result.status !== 202) expectContract("POST", "/forms/{slug}/{block_id}", result);
+      return result;
+    };
+    const wrong = await post("/forms/home/ask", { name: " ", email: "nope", phone: "12", age: "ten", day: "Monday" }, {}, { "accept-language": "ar" });
+    expect(wrong.status).toBe(400);
+    expect(wrong.body).toMatchObject({ code: "invalid_answers", details: { fields: { name: "يُرجى تعبئة هذا الحقل.", email: "أدخل بريدًا إلكترونيًا صحيحًا.", phone: "أدخل رقم هاتف صحيحًا.", age: "أدخل رقمًا.", day: "اختر أحد الخيارات." } } });
+    expect(sent).toEqual([]);
+
+    const ok = await post("/forms/home/ask", { name: "Ayşe", email: "ayse@example.com", day: "Sunday", unknown: "ignored" });
+    expect(ok.status).toBe(202);
+    expect(sent).toEqual([{ title: "Book a trial", lines: [{ label: "Name", value: "Ayşe" }, { label: "Email", value: "ayse@example.com" }, { label: "Day", value: "Sunday" }], user: null, replyTo: "ayse@example.com" }]);
+
+    expect((await post("/forms/home/chat", { q: "Hi" })).status).toBe(400);
+    expect((await post("/forms/home/missing", { q: "Hi" })).status).toBe(404);
+    expect((await post("/forms/home/ask", { name: "A", email: "a@example.com", day: "Saturday" }, { onFormAnswers: async () => Promise.reject(new Error("smtp")) })).status).toBe(503);
+    // 5 answers a minute from one address.
+    for (let i = 0; i < 3; i++) expect((await post("/forms/home/ask", { name: "A", email: "a@example.com", day: "Saturday" })).status).toBe(202);
+    const limited = await post("/forms/home/ask", { name: "A", email: "a@example.com", day: "Saturday" });
+    expect(limited.status).toBe(429);
+    expect(limited.body).toMatchObject({ code: "rate_limited" });
+  });
+
   it("83.3 the team's switches leave out the side menu, own icons and looks, and /config says which are off", async () => {
     const icon = "https://yallapp.test/m/icon-star.png";
     const layout = layoutWith(
@@ -842,5 +907,38 @@ describe("99.3 the editor's new settings, checked", () => {
     expect(none.ok && none.value.pages[0]).not.toHaveProperty("header_image_url");
     expect(page({ header_image_url: "http://yallapp.test/m/top.jpg" }).ok).toBe(false);
     expect(page({ background: "primary" }).ok).toBe(false);
+  });
+});
+
+describe("99.4 the new blocks, checked", () => {
+  const one = (block: Record<string, unknown>) => parse(layoutWith([{ id: "b", visibility: "everyone", ...block }]));
+  const errors = (block: Record<string, unknown>) => {
+    const r = one(block);
+    return r.ok ? "" : r.errors.join(" ");
+  };
+
+  it("keeps good cards, photos, a place, a divider and a form", () => {
+    for (const block of [
+      { type: "cards", columns: 3, cards: [{ title: "A", text: null, image_url: null, action: null }] },
+      { type: "gallery", columns: 2, images: [{ image_url: "https://yallapp.test/m/1.jpg", caption: null }] },
+      { type: "map", latitude: 30.0444, longitude: 31.2357, name: "Cairo", address: null },
+      { type: "divider", style: "dashed" },
+      { type: "form", send_to: "chat", fields: [{ id: "pick", kind: "choice", label: "Pick", required: false, options: ["A", "B"] }] },
+    ]) {
+      const r = one(block);
+      expect(r.ok ? null : r.errors, block.type).toBeNull();
+    }
+  });
+
+  it("refuses what the app couldn't show or send", () => {
+    expect(errors({ type: "cards", cards: [] })).toContain("add a card.");
+    expect(errors({ type: "cards", cards: [{ title: "" }] })).toContain("add a title");
+    expect(errors({ type: "gallery", images: [{ image_url: "http://yallapp.test/1.jpg" }] })).toContain("https");
+    expect(errors({ type: "map", latitude: 0, longitude: 0 })).toContain("enter the place's latitude and longitude.");
+    expect(errors({ type: "map", latitude: 95, longitude: 10 })).toContain("the latitude must be a number from -90 to 90.");
+    expect(errors({ type: "form", send_to: "fax", fields: [{ id: "a", kind: "text", label: "A" }] })).toContain("choose where the answers go.");
+    expect(errors({ type: "form", send_to: "email", fields: [{ id: "a", kind: "text", label: "A" }, { id: "a", kind: "text", label: "B" }] })).toContain("two fields have the same ID.");
+    expect(errors({ type: "form", send_to: "email", fields: [{ id: "a", kind: "choice", label: "A", options: ["Only"] }] })).toContain("give 2 to 10 choices.");
+    expect(errors({ type: "form", send_to: "email", fields: [{ id: "a", kind: "date", label: "A" }] })).toContain("choose the kind of answer.");
   });
 });

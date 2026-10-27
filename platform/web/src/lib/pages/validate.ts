@@ -27,6 +27,9 @@ import {
   BLOCK_CORNERS,
   BLOCK_SPACINGS,
   BLOCK_TEXT_SIZES,
+  DIVIDER_STYLES,
+  FORM_FIELD_KINDS,
+  FORM_SEND_TO,
   IMAGE_FITS,
   PAGE_BACKGROUNDS,
   SHOW_PLATFORMS,
@@ -57,6 +60,9 @@ import {
   type ItemsQuery,
   type BlockLook,
   type BlockShow,
+  type Card,
+  type FormField,
+  type GalleryImage,
   type LanguageCode,
   type Languages,
   type LayoutBlock,
@@ -519,6 +525,70 @@ function parseMoreBlock(ctx: Context, at: string, type: string, v: Record<string
       block.label = c.optionalText(at, v.label, T("label"), "The link text") ?? undefined;
       block.action = parseAction(ctx, at, v.action, false);
       return true;
+    // 99.4
+    case "cards":
+      block.columns = v.columns === 3 ? 3 : 2;
+      block.cards = parseEntries(ctx, at, v.cards, { one: "card", many: "cards", max: list("cards").max }, (card, where) => {
+        const out: Card = {
+          title: c.text(where, card.title, L.cards.title, "a title"),
+          text: c.optionalText(where, card.text, L.cards.text, "The text"),
+          image_url: c.mediaUrl(where, card.image_url, "The picture's address", false),
+          action: parseAction(ctx, where, card.action, false),
+        };
+        return { ...out, ...entryTranslations(ctx, where, "cards", card.translations) };
+      });
+      return true;
+    case "gallery":
+      block.columns = v.columns === 2 ? 2 : 3;
+      block.images = parseEntries(ctx, at, v.images, { one: "photo", many: "photos", max: list("images").max }, (image, where) => {
+        const out: GalleryImage = {
+          image_url: c.mediaUrl(where, image.image_url, "a picture's address", true),
+          caption: c.optionalText(where, image.caption, L.images.caption, "The caption"),
+        };
+        return { ...out, ...entryTranslations(ctx, where, "images", image.translations) };
+      });
+      return true;
+    case "map": {
+      const latitude = coordinate(c, at, v.latitude, 90, "latitude");
+      const longitude = coordinate(c, at, v.longitude, 180, "longitude");
+      if (latitude === null || longitude === null || (latitude === 0 && longitude === 0)) c.fail(at, "enter the place's latitude and longitude.");
+      block.latitude = latitude ?? 0;
+      block.longitude = longitude ?? 0;
+      block.name = c.optionalText(at, v.name, T("name"), "The place's name");
+      block.address = c.optionalText(at, v.address, T("address"), "The address");
+      const label = c.optionalText(at, v.label, T("label"), "The button text");
+      if (label) block.label = label;
+      return true;
+    }
+    case "divider":
+      block.style = oneOf(DIVIDER_STYLES, v.style) ? v.style : "line";
+      return true;
+    case "form": {
+      if (!oneOf(FORM_SEND_TO, v.send_to)) c.fail(at, "choose where the answers go.");
+      block.send_to = oneOf(FORM_SEND_TO, v.send_to) ? v.send_to : "email";
+      const ids = new Set<string>();
+      block.fields = parseEntries(ctx, at, v.fields, { one: "field", many: "fields", max: list("fields").max }, (field, where) => {
+        const id = typeof field.id === "string" ? field.id : "";
+        if (!ID.test(id)) c.fail(where, "the field has no valid ID.");
+        else if (ids.has(id)) c.fail(where, "two fields have the same ID.");
+        ids.add(id);
+        if (!oneOf(FORM_FIELD_KINDS, field.kind)) c.fail(where, "choose the kind of answer.");
+        const kind = oneOf(FORM_FIELD_KINDS, field.kind) ? field.kind : "text";
+        let options: string[] | null = null;
+        if (kind === "choice") {
+          const raw = Array.isArray(field.options) ? field.options : [];
+          options = raw.map((o) => (typeof o === "string" ? o.trim() : "")).filter(Boolean).slice(0, 10);
+          if (options.length < 2 || raw.length > 10) c.fail(where, "give 2 to 10 choices.");
+          if (options.some((o) => o.length > 80)) c.fail(where, "a choice can have at most 80 characters.");
+          if (new Set(options).size !== options.length) c.fail(where, "each choice can be given once.");
+        }
+        const out: FormField = { id, kind, label: c.text(where, field.label, L.fields.label, "a question"), required: field.required === true, options };
+        return { ...out, ...entryTranslations(ctx, where, "fields", field.translations) };
+      });
+      block.submit_label = c.optionalText(at, v.submit_label, T("submit_label"), "The button text");
+      block.success_text = c.optionalText(at, v.success_text, T("success_text"), "The text after sending");
+      return true;
+    }
   }
   return false;
 }

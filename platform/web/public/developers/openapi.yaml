@@ -421,7 +421,7 @@ paths:
         `send_to` is `chat` is sent by the app as a chat message instead
         (`POST /chat/conversations/{conversation_id}/messages`), which needs
         the person signed in. At most 5 answers a minute and 30 a day from
-        one address.
+        one address, counting only answers that pass the checks.
       security: [{}, { bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/PageSlug'
@@ -444,6 +444,11 @@ paths:
               schema: { $ref: '#/components/schemas/Error' }
         '404': { $ref: '#/components/responses/NotFound' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503':
+          description: '`send_failed`: the email couldn''t be sent; the app keeps the answers and offers to try again.'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
 
   /strings/{language}:
     get:

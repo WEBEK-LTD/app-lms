@@ -37,6 +37,8 @@ export function blockTypesFor(app: Pick<App, "appType" | "backend">): BlockType[
   if (isAppType(app.appType)) types.push(...ENGINES[app.appType].pages.blocks);
   // 33 The general blocks every app has: none of them reads the app's content.
   types.push("quick_links", "team", "stats", "testimonials", "faq", "countdown", "contact", "hours", "social", "embed", "spacer");
+  // 99.4
+  types.push("cards", "gallery", "map", "form", "divider");
   return types;
 }
 

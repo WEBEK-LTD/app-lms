@@ -49,9 +49,13 @@ const FIELD_NAMES: Record<string, string> = {
   role: "role",
   bio: "about",
   value: "number",
+  // 99.4
+  caption: "caption",
+  submit_label: "button",
+  success_text: "text after sending",
 };
 
-const ENTRY_NAMES: Record<EntryList, string> = { slides: "Slide", links: "Link", quotes: "Quote", questions: "Question", people: "Person", stats: "Number" };
+const ENTRY_NAMES: Record<EntryList, string> = { slides: "Slide", links: "Link", quotes: "Quote", questions: "Question", people: "Person", stats: "Number", cards: "Card", images: "Photo", fields: "Field" };
 
 /** The owner's own texts in `lang`, translated from the default language. None for the default language itself. */
 export function contentRows(layout: LayoutContent, lang: string): TranslationRow[] {

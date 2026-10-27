@@ -43,6 +43,12 @@ export const BLOCK_TYPES = [
   "team",
   "stats",
   "notice",
+  // 99.4
+  "cards",
+  "gallery",
+  "map",
+  "divider",
+  "form",
 ] as const;
 export const VISIBILITIES = ["everyone", "signed_in", "signed_out"] as const;
 export const ACTION_TYPES = ["page", "screen", "course", "item", "url"] as const;
@@ -275,6 +281,38 @@ export interface Person {
   translations?: Translations;
 }
 
+/** 99.4 A card of a `cards` block. */
+export interface Card {
+  title: string;
+  text: string | null;
+  image_url: string | null;
+  action: Action | null;
+  translations?: Translations;
+}
+
+/** 99.4 A photo of a `gallery` block. */
+export interface GalleryImage {
+  image_url: string;
+  caption: string | null;
+  translations?: Translations;
+}
+
+export const FORM_FIELD_KINDS = ["text", "long_text", "email", "phone", "number", "choice"] as const;
+export const FORM_SEND_TO = ["email", "chat"] as const;
+export const DIVIDER_STYLES = ["line", "dashed", "dots"] as const;
+export const BLOCK_COLUMNS = [2, 3] as const;
+
+/** 99.4 A field of a `form` block. */
+export interface FormField {
+  id: string;
+  kind: (typeof FORM_FIELD_KINDS)[number];
+  label: string;
+  required: boolean;
+  /** For `choice`, 2 to 10; else null. */
+  options: string[] | null;
+  translations?: Translations;
+}
+
 export interface Stat {
   value: string;
   label: string;
@@ -364,6 +402,15 @@ export interface LayoutBlock {
   // notice (and label, action)
   tone?: NoticeTone;
   text?: string;
+  // 99.4 cards and gallery (columns), map (latitude, longitude, address, label), divider (style), form
+  columns?: (typeof BLOCK_COLUMNS)[number];
+  cards?: Card[];
+  images?: GalleryImage[];
+  name?: string | null;
+  fields?: FormField[];
+  submit_label?: string | null;
+  success_text?: string | null;
+  send_to?: (typeof FORM_SEND_TO)[number];
 }
 
 export interface LayoutTab {
@@ -432,7 +479,7 @@ export const LAYOUT_LIMITS = {
 export const TRANSLATABLE = {
   page: ["title"],
   tab: ["label"],
-  block: ["title", "heading", "subheading", "html", "label", "placeholder", "text", "ended_text", "note", "address"],
+  block: ["title", "heading", "subheading", "html", "label", "placeholder", "text", "ended_text", "note", "address", "name", "submit_label", "success_text"],
 } as const;
 
 /** 33 A block's lists whose entries have texts, and those texts. */
@@ -443,6 +490,10 @@ export const TRANSLATABLE_ENTRIES = {
   questions: ["question", "answer"],
   people: ["name", "role", "bio"],
   stats: ["value", "label"],
+  // 99.4
+  cards: ["title", "text"],
+  images: ["caption"],
+  fields: ["label"],
 } as const;
 export type EntryList = keyof typeof TRANSLATABLE_ENTRIES;
 export const ENTRY_LISTS = Object.keys(TRANSLATABLE_ENTRIES) as EntryList[];
