@@ -279,4 +279,17 @@ test("99.2 another design's look only, one step back, and everything with the ow
   await own.getByRole("tab", { name: "Tabs" }).click();
   const labels = await own.getByRole("region", { name: "Side menu" }).getByLabel("Label", { exact: true }).evaluateAll((inputs) => inputs.map((i) => (i as HTMLInputElement).value));
   expect(labels).toContain("Timetable");
+
+  // From the Branding step too: another design's look only.
+  await own.goto("/dashboard/setup?step=branding");
+  const design = own.getByRole("group", { name: "Design" });
+  await expect(own.getByRole("group", { name: "From this design, take" })).toHaveCount(0);
+  await design.getByRole("radio", { name: /^Coaching/ }).check();
+  await own.getByRole("group", { name: "From this design, take" }).getByRole("radio", { name: "Its look only (my pages stay)" }).check();
+  await own.getByRole("button", { name: "Save & continue" }).click();
+  await expect(own.getByRole("heading", { name: "Store listing" })).toBeVisible();
+  await own.goto("/dashboard/pages");
+  await expect(own.getByRole("button", { name: "Duplicate Timetable" })).toBeVisible();
+  await own.getByRole("tab", { name: /^Look/ }).click();
+  await expect(own.locator("#look-corners")).toHaveValue("sharp");
 });
