@@ -290,10 +290,26 @@ class Pages {
 				'title'      => self::title( $page ),
 				'updated_at' => self::date( $page['updated_at'] ?? '' ),
 				'show_title' => isset( $page['show_title'] ) ? (bool) $page['show_title'] : true,
-				'blocks'     => $this->resolver->resolve( $blocks, $platform, $user_id ),
+			) + self::page_look( $page ) + array(
+				'blocks' => $this->resolver->resolve( $blocks, $platform, $user_id, $language ),
 			);
 		}
 		return null;
+	}
+
+	/**
+	 * 99.3 A page's background (none, tint or surface) and the picture across its top (an
+	 * https URL, or null). Pure.
+	 *
+	 * @param array $page LayoutPage.
+	 * @return array{background: string, header_image_url: string|null}
+	 */
+	public static function page_look( array $page ) {
+		$background = $page['background'] ?? null;
+		return array(
+			'background'       => in_array( $background, array( 'none', 'tint', 'surface' ), true ) ? $background : 'none',
+			'header_image_url' => Block_Resolver::https_url( $page['header_image_url'] ?? null ),
+		);
 	}
 
 	/**

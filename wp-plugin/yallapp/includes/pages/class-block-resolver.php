@@ -32,6 +32,19 @@ class Block_Resolver {
 	const PRICE_POOL = 100;
 
 	/**
+	 * 82.5 BlockLook's fields and their values, the default first (99.3 align, text_size,
+	 * corners and image_fit).
+	 */
+	const LOOK = array(
+		'background' => array( 'none', 'tint', 'primary', 'secondary', 'surface' ),
+		'spacing'    => array( 'medium', 'none', 'small', 'large' ),
+		'align'      => array( 'start', 'center', 'end' ),
+		'text_size'  => array( 'medium', 'small', 'large' ),
+		'corners'    => array( 'app', 'sharp', 'round' ),
+		'image_fit'  => array( 'cover', 'contain' ),
+	);
+
+	/**
 	 * Plugin.
 	 *
 	 * @var Plugin
@@ -53,6 +66,13 @@ class Block_Resolver {
 	private $user_id = 0;
 
 	/**
+	 * 99.3 The language the page is served in, for blocks shown in some languages only.
+	 *
+	 * @var string
+	 */
+	private $language = '';
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Plugin $plugin Plugin.
@@ -66,11 +86,13 @@ class Block_Resolver {
 	 *
 	 * @param string $platform android or ios.
 	 * @param int    $user_id  Current user, or 0.
+	 * @param string $language 99.3 The language the page is served in.
 	 * @return void
 	 */
-	public function context( $platform, $user_id ) {
+	public function context( $platform, $user_id, $language = '' ) {
 		$this->platform = $platform;
 		$this->user_id  = (int) $user_id;
+		$this->language = (string) $language;
 	}
 
 	/**
@@ -79,10 +101,11 @@ class Block_Resolver {
 	 * @param array[] $blocks   LayoutBlocks, already in the request's language.
 	 * @param string  $platform android or ios.
 	 * @param int     $user_id  Current user, or 0.
+	 * @param string  $language 99.3 The language the page is served in.
 	 * @return array[] Blocks.
 	 */
-	public function resolve( array $blocks, $platform, $user_id ) {
-		$this->context( $platform, $user_id );
+	public function resolve( array $blocks, $platform, $user_id, $language = '' ) {
+		$this->context( $platform, $user_id, $language );
 		$out = array();
 		foreach ( $blocks as $block ) {
 			$resolved = is_array( $block ) ? $this->block( $block ) : null;
@@ -103,6 +126,10 @@ class Block_Resolver {
 		$id   = self::text( $raw['id'] ?? '' );
 		$type = (string) ( $raw['type'] ?? '' );
 		if ( null === $id || ! $this->visible( $raw['visibility'] ?? 'everyone' ) ) {
+			return null;
+		}
+		// 99.3 The owner's dates, platforms and languages; `show` itself never reaches the app.
+		if ( ! self::shows( $raw['show'] ?? null, $this->platform, $this->language, time() ) ) {
 			return null;
 		}
 		$base = array(
@@ -170,6 +197,46 @@ class Block_Resolver {
 			return 0 === $this->user_id;
 		}
 		return 'everyone' === $visibility;
+	}
+
+	/**
+	 * 99.3 Whether a block's `show` rules let it on the page: within `from` and `until` (a
+	 * date that can't be read sets no limit), on one of `platforms` and in one of `languages`
+	 * (by the language's main code, `ar` for `ar-EG`). Missing or null rules let it on. Pure.
+	 *
+	 * @param mixed  $show     LayoutBlock.show.
+	 * @param string $platform android or ios.
+	 * @param string $language The language the page is served in.
+	 * @param int    $now      The time.
+	 * @return bool
+	 */
+	public static function shows( $show, $platform, $language, $now ) {
+		if ( ! is_array( $show ) ) {
+			return true;
+		}
+		$from  = isset( $show['from'] ) && is_string( $show['from'] ) ? strtotime( $show['from'] ) : false;
+		$until = isset( $show['until'] ) && is_string( $show['until'] ) ? strtotime( $show['until'] ) : false;
+		if ( ( false !== $from && $now < $from ) || ( false !== $until && $now > $until ) ) {
+			return false;
+		}
+		if ( isset( $show['platforms'] ) && is_array( $show['platforms'] ) && ! in_array( (string) $platform, $show['platforms'], true ) ) {
+			return false;
+		}
+		if ( isset( $show['languages'] ) && is_array( $show['languages'] ) ) {
+			$code = self::language_code( $language );
+			return '' !== $code && in_array( $code, array_map( array( __CLASS__, 'language_code' ), $show['languages'] ), true );
+		}
+		return true;
+	}
+
+	/**
+	 * 99.3 A language's main code in lower case (`ar` for `ar-EG`), or ''.
+	 *
+	 * @param mixed $value Language tag.
+	 * @return string
+	 */
+	private static function language_code( $value ) {
+		return is_string( $value ) ? strtolower( trim( (string) strtok( $value, '-_' ) ) ) : '';
 	}
 
 	/**
@@ -902,7 +969,8 @@ class Block_Resolver {
 	}
 
 	/**
-	 * 82.5 A block's look (background and spacing), or null for none and the usual spacing.
+	 * 82.5 A block's look (background and spacing; 99.3 alignment, text size, corners and
+	 * picture fit), or null when every field is its default.
 	 *
 	 * @param mixed $value BlockLook.
 	 * @return array|null
@@ -911,11 +979,13 @@ class Block_Resolver {
 		if ( ! is_array( $value ) ) {
 			return null;
 		}
-		$look = array(
-			'background' => self::choice( $value['background'] ?? null, array( 'none', 'tint', 'primary', 'secondary', 'surface' ), 'none' ),
-			'spacing'    => self::choice( $value['spacing'] ?? null, array( 'none', 'small', 'medium', 'large' ), 'medium' ),
-		);
-		return 'none' === $look['background'] && 'medium' === $look['spacing'] ? null : $look;
+		$look    = array();
+		$changed = false;
+		foreach ( self::LOOK as $field => $allowed ) {
+			$look[ $field ] = self::choice( $value[ $field ] ?? null, $allowed, $allowed[0] );
+			$changed        = $changed || $allowed[0] !== $look[ $field ];
+		}
+		return $changed ? $look : null;
 	}
 
 	/**
@@ -925,6 +995,16 @@ class Block_Resolver {
 	 * @return string|null
 	 */
 	public static function icon_url( $value ) {
+		return self::https_url( $value );
+	}
+
+	/**
+	 * 99.3 An https URL, or null (a page's header picture).
+	 *
+	 * @param mixed $value Value.
+	 * @return string|null
+	 */
+	public static function https_url( $value ) {
 		$url = self::url( $value );
 		return null !== $url && 0 === strpos( $url, 'https://' ) ? $url : null;
 	}

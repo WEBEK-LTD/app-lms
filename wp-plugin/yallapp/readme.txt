@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.20
+Stable tag: 0.4.21
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -121,6 +121,9 @@ Terms: https://developer.huawei.com/consumer/en/devservice/term
 Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 
 == Changelog ==
+
+= 0.4.21 =
+* Block style and when a block shows: blocks keep the alignment, text size, corners and picture fit set in the Yallapp dashboard, and a block set to show only between two dates, on Android or iOS, or in some languages stays out of the app elsewhere. Pages get the background and the picture across their top chosen there too.
 
 = 0.4.20 =
 * The Figma look: when the app shows the look made from your Figma file in the Yallapp dashboard, its main color and logo reach the app too.

@@ -174,6 +174,10 @@ class RichBlocksTest extends TestCase {
 			array(
 				'background' => 'tint',
 				'spacing'    => 'large',
+				'align'      => 'start',
+				'text_size'  => 'medium',
+				'corners'    => 'app',
+				'image_fit'  => 'cover',
 			),
 			Block_Resolver::look(
 				array(
@@ -185,6 +189,54 @@ class RichBlocksTest extends TestCase {
 		$this->assertNull( Block_Resolver::look( array( 'background' => 'neon' ) ) );
 		$this->assertNull( Block_Resolver::look( 'primary' ) );
 		$this->assertSame( 'none', Block_Resolver::look( array( 'spacing' => 'none' ) )['spacing'] );
+	}
+
+	public function test_99_3_alignment_text_size_corners_and_picture_fit() {
+		$this->assertSame(
+			array(
+				'background' => 'none',
+				'spacing'    => 'medium',
+				'align'      => 'center',
+				'text_size'  => 'large',
+				'corners'    => 'round',
+				'image_fit'  => 'contain',
+			),
+			Block_Resolver::look(
+				array(
+					'align'     => 'center',
+					'text_size' => 'large',
+					'corners'   => 'round',
+					'image_fit' => 'contain',
+				)
+			)
+		);
+		$this->assertSame( 'end', Block_Resolver::look( array( 'align' => 'end' ) )['align'] );
+		$this->assertSame( 'small', Block_Resolver::look( array( 'text_size' => 'small' ) )['text_size'] );
+		$this->assertSame( 'sharp', Block_Resolver::look( array( 'corners' => 'sharp' ) )['corners'] );
+		// Unknown values fall back to the defaults, and a look of only defaults isn't sent.
+		$look = Block_Resolver::look(
+			array(
+				'align'     => 'left',
+				'text_size' => 'huge',
+				'corners'   => 'soft',
+				'image_fit' => 'fill',
+				'spacing'   => 'small',
+			)
+		);
+		$this->assertSame( array( 'small', 'start', 'medium', 'app', 'cover' ), array( $look['spacing'], $look['align'], $look['text_size'], $look['corners'], $look['image_fit'] ) );
+		$this->assertNull(
+			Block_Resolver::look(
+				array(
+					'background' => 'none',
+					'spacing'    => 'medium',
+					'align'      => 'start',
+					'text_size'  => 'medium',
+					'corners'    => 'app',
+					'image_fit'  => 'cover',
+				)
+			)
+		);
+		$this->assertNull( Block_Resolver::look( array( 'corners' => 'soft' ) ) );
 	}
 
 	public function test_testimonials_faq_team_and_numbers() {
