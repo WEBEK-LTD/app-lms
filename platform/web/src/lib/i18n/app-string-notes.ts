@@ -10,6 +10,41 @@ import type { Lang } from "@/i18n/config";
  * its code names left out (tests/unit/phase62.test.ts lists those missing).
  */
 export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: string }> = {
+  "99.4 Form block: shown in place of the form once its answers are sent, when the owner wrote no text for it.": {
+    en: "Shown in place of a form once its answers are sent, when you wrote no text for it.",
+    ar: "يظهر مكان النموذج بعد إرسال الإجابات، إذا لم تكتب نصًا لذلك.",
+    tr: "Yanıtlar gönderildikten sonra, bunun için bir metin yazmadıysanız formun yerinde görünür.",
+  },
+  "99.4 Form block whose answers go to the chat: its button while the person is signed out; opens sign-in.": {
+    en: "The button of a form whose answers go to the chat, while the person isn't signed in; it opens sign-in.",
+    ar: "زر النموذج الذي تُرسل إجاباته إلى المحادثة، عندما لا يكون الشخص مسجّلًا الدخول؛ يفتح تسجيل الدخول.",
+    tr: "Yanıtları sohbete giden bir formun düğmesi, kişi giriş yapmamışken; girişi açar.",
+  },
+  "99.4 Form block: under a required field left empty.": {
+    en: "Under a required question of a form left empty.",
+    ar: "تحت سؤال مطلوب في نموذج تُرك فارغًا.",
+    tr: "Bir formda boş bırakılan zorunlu sorunun altında.",
+  },
+  "99.4 Form block: under an email field whose answer isn't an email address.": {
+    en: "Under a form's email question when the answer isn't an email address.",
+    ar: "تحت سؤال البريد الإلكتروني في نموذج عندما لا تكون الإجابة بريدًا إلكترونيًا.",
+    tr: "Bir formun e-posta sorusunun altında, yanıt bir e-posta adresi değilse.",
+  },
+  "99.4 Form block: under a phone field whose answer isn't a phone number.": {
+    en: "Under a form's phone question when the answer isn't a phone number.",
+    ar: "تحت سؤال الهاتف في نموذج عندما لا تكون الإجابة رقم هاتف.",
+    tr: "Bir formun telefon sorusunun altında, yanıt bir telefon numarası değilse.",
+  },
+  "99.4 Form block: under a number field whose answer isn't a number.": {
+    en: "Under a form's number question when the answer isn't a number.",
+    ar: "تحت سؤال الرقم في نموذج عندما لا تكون الإجابة رقمًا.",
+    tr: "Bir formun sayı sorusunun altında, yanıt bir sayı değilse.",
+  },
+  "99.4 Form block: under a choice field, when none of its choices is picked.": {
+    en: "Under a form's choice question when none of its choices is picked.",
+    ar: "تحت سؤال الاختيار في نموذج عندما لا يُختار أي خيار.",
+    tr: "Bir formun seçim sorusunun altında, hiçbir seçenek seçilmediğinde.",
+  },
   "91.4 The account entry and title of the customer's loyalty points.": {
     en: "The account entry and the page with the customer's loyalty points.",
     ar: "عنصر الحساب والصفحة التي تعرض نقاط ولاء العميل.",
