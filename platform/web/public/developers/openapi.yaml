@@ -3908,8 +3908,19 @@ paths:
                 properties:
                   ok: { type: boolean }
                   order_id: { type: [integer, 'null'], description: 'The WooCommerce order recorded, if any.' }
+        '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: Another try of the same `grant_id` is still being made (`conflict`); tried again later, it answers as that one did.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '503':
+          description: The site couldn't give or take the access now (its LMS or membership plugin is off, `lms_unavailable` or `access_unavailable`); tried again later.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
 
   /license/refresh:
     post:

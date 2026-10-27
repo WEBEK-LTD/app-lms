@@ -37,7 +37,7 @@ use Yallapp\Commerce\Woo_Orders;
  * and its certificates come from an add-on, so certificates use the `yallapp_certificate_url`
  * filter.
  */
-class Sensei_Adapter extends Base_Adapter {
+class Sensei_Adapter extends Base_Adapter implements Store_Enrolment {
 
 	const NATIVE_QUESTION_TYPES = array( 'multiple-choice', 'boolean' );
 
@@ -333,6 +333,43 @@ class Sensei_Adapter extends Base_Adapter {
 			'course_id'   => (int) $course_id,
 			'enrolled_at' => self::iso( gmdate( 'Y-m-d H:i:s', $started ? $started->getTimestamp() : time() ) ),
 		);
+	}
+
+	/**
+	 * 100.4 Enrols a student in a course bought in the app (Store_Enrolment).
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return true|WP_Error
+	 */
+	public function grant_course( $course_id, $user_id ) {
+		if ( ! Course_Visibility::live( get_post( (int) $course_id ), $this->post_types()['course'] ) ) {
+			return new WP_Error( 'not_found', __( 'Course not found.', 'yallapp' ), array( 'status' => 404 ) );
+		}
+		if ( $this->is_enrolled( $course_id, $user_id ) ) {
+			return true;
+		}
+		$provider = \Sensei_Course_Enrolment_Manager::instance()->get_manual_enrolment_provider();
+		if ( ! $provider || ! $provider->enrol_learner( (int) $user_id, (int) $course_id ) ) {
+			return new WP_Error( 'enrollment_failed', __( 'Enrollment is not available for this course.', 'yallapp' ), array( 'status' => 503 ) );
+		}
+		Sensei_Utils::user_start_course( (int) $user_id, (int) $course_id );
+		return true;
+	}
+
+	/**
+	 * 100.4 Takes a student out of a course bought in the app (Store_Enrolment).
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return true|WP_Error
+	 */
+	public function revoke_course( $course_id, $user_id ) {
+		$provider = \Sensei_Course_Enrolment_Manager::instance()->get_manual_enrolment_provider();
+		if ( $provider ) {
+			$provider->withdraw_learner( (int) $user_id, (int) $course_id );
+		}
+		return true;
 	}
 
 	/**

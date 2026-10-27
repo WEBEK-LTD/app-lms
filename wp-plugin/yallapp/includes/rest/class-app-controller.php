@@ -80,8 +80,10 @@ class App_Controller extends Controller {
 		$methods    = $this->plugin->sign_in()->methods();
 		$by_email   = in_array( 'email', $methods, true );
 		// 53 Screenshots and screen recording: the dashboard's choice, else the plugin's settings.
-		$academy    = 'lms' === ( $license_status['app_type'] ?? null ) || ( null === ( $license_status['app_type'] ?? null ) && null !== $lms );
-		$protection = Screen_Protection::mode( $license_status['screen_protection'] ?? null, (bool) $settings->get( 'block_screen_capture' ), (string) $settings->get( 'screen_protection_scope' ), $academy );
+		$academy = 'lms' === ( $license_status['app_type'] ?? null ) || ( null === ( $license_status['app_type'] ?? null ) && null !== $lms );
+		// 100.4 Paid courses and memberships bought through the store on this platform.
+		$store_billing = Billing_Controller::config( $this->plugin, $platform );
+		$protection    = Screen_Protection::mode( $license_status['screen_protection'] ?? null, (bool) $settings->get( 'block_screen_capture' ), (string) $settings->get( 'screen_protection_scope' ), $academy );
 
 		return $this->ok(
 			array(
@@ -129,7 +131,8 @@ class App_Controller extends Controller {
 					'preview_sign_in'      => true,
 				) + ( $by_email ? $this->email_auth() : array() ),
 				'purchases' => array(
-					'enroll_button'     => Purchase_Rules::enroll_button( $platform, (bool) $settings->get( 'android_enroll_button' ) ),
+					// 100.4 Never the website's checkout where the app sells through the store.
+					'enroll_button'     => null === $store_billing && Purchase_Rules::enroll_button( $platform, (bool) $settings->get( 'android_enroll_button' ) ),
 					'free_enrollment'   => (bool) $settings->get( 'free_enrollment' ),
 					'checkout_opens_in' => (string) $settings->get( 'checkout_opens_in' ),
 				),
@@ -159,7 +162,7 @@ class App_Controller extends Controller {
 				'vertical'  => $license_status['vertical'],
 				// 83.3 The Yallapp team's switches for the app's modules and new features.
 				'switches'  => (object) ( is_array( $license_status['switches'] ?? null ) ? $license_status['switches'] : array() ),
-			) + $this->chat() + $this->look()
+			) + $this->chat() + ( $store_billing ? array( 'store_billing' => $store_billing ) : array() ) + $this->look()
 		);
 	}
 

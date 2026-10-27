@@ -14,9 +14,9 @@ Last updated: 27 October 2026.
 | 100.1 Contract | Merged (#156) | — | redocly lint |
 | 100.2 Store connections and products | Merged (#157) | — | unit, e2e, MariaDB migrations |
 | 100.3 Purchases | Merged (#158) | — | unit (with the store suite on MariaDB), e2e |
-| 100.4 Plugin 0.4.23: give and take access | In review (#160) | `wip-billing-plugin` | composer lint, `php -l`, PHPUnit 250 (16 new), redocly lint. The LMS integration suites run in CI |
+| 100.4 Plugin 0.4.23: give and take access | Merged (#160) | `wip-billing-plugin` | composer lint, `php -l`, PHPUnit 250 (16 new), redocly lint. The LMS integration suites run in CI |
 | 100.5 App: Google Play Billing and StoreKit | In review (#161) | `wip-billing-app` | dart format, flutter analyze, flutter test 955, the preview rebuilt, the platform's app-string tests |
-| 100.6 Sales, the guide, the terms | In review (#159) | `wip-billing-sales` | tsc, eslint, unit 2007, the store suites on MariaDB, redocly lint, e2e: analytics, owner API, public pages, integrations, site languages, hosted courses |
+| 100.6 Sales, the guide, the terms | Merged (#159) | `wip-billing-sales` | tsc, eslint, unit 2007, the store suites on MariaDB, redocly lint, e2e: analytics, owner API, public pages, integrations, site languages, hosted courses |
 | 100.7 Own API, Teachable and Thinkific | Not started | — | — |
 
 Notes:
@@ -35,13 +35,17 @@ Notes:
   checkout for paid courses, so no sales are lost before the app update ships.
 - The Analytics e2e failed between 21:00 and 24:00 UTC (the test dated its
   events in UTC, the app counts days in Istanbul). Fixed in 100.6.
+- The plugin's campaign check failed now and then (its reader joined after
+  the campaign, and the inbox shows what came from the second someone
+  joined). Fixed in 100.6.
+- CI on a pull request checks only what its latest push changed and cancels
+  the run before it: after a small push, re-run the pull request's first
+  full run (or push all of it again) before merging.
 
 ## Open pull requests
 
 | PR | What | Next |
 |---|---|---|
-| #159 | 100.6 Sales, the guide, the terms | Merge when CI is green |
-| #160 | 100.4 Plugin 0.4.23 | Merge after #159 |
 | #161 | 100.5 App | Merge after #160 |
 | #154 Wip switch design | Older design branch | The owner closes it |
 | #122, #121 | Dependabot: mobile and business Flutter packages (minor and patch) | Review with the next app release |
@@ -57,6 +61,6 @@ Notes:
   subscription, then set `GOOGLE_PUBSUB_PUSH_EMAIL` and `GOOGLE_PUBSUB_TOPIC`
   in Netlify (`docs/LAUNCH-CHECKLIST.md`).
 - Run migrations up to 0091 on production when 100.6 is deployed.
-- Install plugin 0.4.22 on the client sites (0.4.23 follows with 100.4).
+- Install plugin 0.4.23 on the client sites once 100.5's app update is out.
 - Yallapp Business iOS build 61.
 - Close #154.

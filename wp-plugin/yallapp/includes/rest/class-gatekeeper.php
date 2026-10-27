@@ -17,7 +17,9 @@ use Yallapp\Plugin;
 /**
  * Blocks the app API during maintenance, when it is switched off or the license is
  * inactive (`/config` stays reachable so the app can explain why, and 31 the platform's
- * `/license/refresh` so a renewed plan reaches the site; 68 while paused, a signed-in
+ * `/license/refresh` so a renewed plan reaches the site, and 100.4 Yallapp's signed
+ * `/billing/access`, so what people paid for in the app is given (or taken back) whatever
+ * state the app is in; 68 while paused, a signed-in
  * student can still renew their session, sign out and delete their account), and adds
  * the plugin version header to every response.
  */
@@ -26,7 +28,7 @@ class Gatekeeper {
 	/**
 	 * Routes that stay reachable.
 	 */
-	const ALWAYS_OPEN = array( '/yallapp/v1/config', '/yallapp/v1/license/refresh' );
+	const ALWAYS_OPEN = array( '/yallapp/v1/config', '/yallapp/v1/license/refresh', '/yallapp/v1/billing/access' );
 
 	/**
 	 * 68 What a paused app still answers (its plan ended, or the owner's account is suspended):

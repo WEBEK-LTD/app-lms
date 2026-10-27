@@ -31,7 +31,7 @@ use WP_Query;
  * that lesson is completed by the quiz, as on the website. LifterLMS reviews have no star
  * rating and it has no course wishlist or Q&A, so those features are off.
  */
-class LifterLMS_Adapter extends Base_Adapter {
+class LifterLMS_Adapter extends Base_Adapter implements Store_Enrolment {
 
 	const NATIVE_QUESTION_TYPES = array( 'choice', 'picture_choice', 'true_false' );
 
@@ -293,6 +293,36 @@ class LifterLMS_Adapter extends Base_Adapter {
 			'course_id'   => (int) $course_id,
 			'enrolled_at' => self::iso( $date ? get_gmt_from_date( $date ) : gmdate( 'Y-m-d H:i:s' ) ),
 		);
+	}
+
+	/**
+	 * 100.4 Enrols a student in a course bought in the app (Store_Enrolment).
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return true|WP_Error
+	 */
+	public function grant_course( $course_id, $user_id ) {
+		if ( ! Course_Visibility::live( get_post( (int) $course_id ), 'course' ) ) {
+			return new WP_Error( 'not_found', __( 'Course not found.', 'yallapp' ), array( 'status' => 404 ) );
+		}
+		if ( $this->is_enrolled( $course_id, $user_id ) ) {
+			return true;
+		}
+		llms_enroll_student( (int) $user_id, (int) $course_id, 'yallapp_store' );
+		return $this->is_enrolled( $course_id, $user_id ) ? true : new WP_Error( 'enrollment_failed', __( 'Enrollment is not available for this course.', 'yallapp' ), array( 'status' => 503 ) );
+	}
+
+	/**
+	 * 100.4 Takes a student out of a course bought in the app (Store_Enrolment).
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return true|WP_Error
+	 */
+	public function revoke_course( $course_id, $user_id ) {
+		llms_unenroll_student( (int) $user_id, (int) $course_id, 'cancelled', 'yallapp_store' );
+		return true;
 	}
 
 	/**

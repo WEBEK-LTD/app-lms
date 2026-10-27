@@ -31,7 +31,7 @@ use Yallapp\Commerce\Money;
  * lesson, and its wishlist and certificates are add-ons, so those use the documented
  * defaults (`feature_disabled` and the `yallapp_certificate_url` filter).
  */
-class Masteriyo_Adapter extends Base_Adapter {
+class Masteriyo_Adapter extends Base_Adapter implements Store_Enrolment {
 
 	const NATIVE_QUESTION_TYPES = array( 'single-choice', 'multiple-choice', 'true-false' );
 
@@ -305,6 +305,49 @@ class Masteriyo_Adapter extends Base_Adapter {
 			'course_id'   => (int) $course_id,
 			'enrolled_at' => gmdate( 'Y-m-d\TH:i:s\Z', $start ? $start->getTimestamp() : time() ),
 		);
+	}
+
+	/**
+	 * 100.4 Enrols a student in a course bought in the app (Store_Enrolment).
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return true|WP_Error
+	 */
+	public function grant_course( $course_id, $user_id ) {
+		if ( ! Course_Visibility::live( get_post( (int) $course_id ), $this->post_types()['course'] ) ) {
+			return new WP_Error( 'not_found', __( 'Course not found.', 'yallapp' ), array( 'status' => 404 ) );
+		}
+		if ( $this->is_enrolled( $course_id, $user_id ) ) {
+			return true;
+		}
+		$user_course = $this->user_course( $course_id, $user_id );
+		if ( ! $user_course ) {
+			$user_course = masteriyo( 'user-course' );
+			$user_course->set_course_id( (int) $course_id );
+			$user_course->set_user_id( (int) $user_id );
+		}
+		$user_course->set_status( UserCourseStatus::ACTIVE );
+		$user_course->set_date_start( current_time( 'mysql', true ) );
+		$user_course->save();
+		self::make_student( (int) $user_id );
+		return true;
+	}
+
+	/**
+	 * 100.4 Takes a student out of a course bought in the app (Store_Enrolment).
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return true|WP_Error
+	 */
+	public function revoke_course( $course_id, $user_id ) {
+		$user_course = $this->user_course( $course_id, $user_id );
+		if ( $user_course && UserCourseStatus::ACTIVE === $user_course->get_status() ) {
+			$user_course->set_status( UserCourseStatus::INACTIVE );
+			$user_course->save();
+		}
+		return true;
 	}
 
 	/**

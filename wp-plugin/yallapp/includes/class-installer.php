@@ -40,6 +40,7 @@ class Installer {
 		wp_clear_scheduled_hook( 'yallapp_license_check' );
 		wp_clear_scheduled_hook( 'yallapp_layout_refresh' );
 		wp_clear_scheduled_hook( 'yallapp_license_refresh' );
+		wp_clear_scheduled_hook( 'yallapp_billing_catalog' );
 		wp_unschedule_hook( 'yallapp_push_send' );
 	}
 

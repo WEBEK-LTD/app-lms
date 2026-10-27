@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.22
+Stable tag: 0.4.23
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -35,6 +35,7 @@ Digits if you prefer (with its REST API add-on). Digits is optional.
 * Uploaded videos through signed, expiring links with seeking support.
 * Progress, lesson completion with an optional watch requirement, quizzes graded by the LMS, certificates.
 * Android checkout through the website with the student signed in automatically. iOS is view-only.
+* Paid courses and memberships bought in the app through Google Play and the App Store, when your Yallapp plan has it: the student gets the course or membership on your site.
 * Push notifications through Firebase for new lessons, announcements and enrollments.
 * The pages, tabs, look and languages you publish in your Yallapp dashboard, filled with your own courses, products and posts.
 
@@ -51,6 +52,10 @@ When the app's chat is on (Pro and Business plans), its messages are kept by Yal
 when a person opens the chat, the plugin sends Yallapp their WordPress user ID,
 display name and profile picture address, and in an academy the courses they are
 enrolled in. When an account is deleted, the plugin asks Yallapp to delete its chat.
+
+When the app sells courses and memberships through Google Play and the App Store, the
+plugin sends Yallapp the WordPress user ID, display name and email of the person who
+opens a purchase in the app, so Yallapp can record their purchases for them.
 
 == Installation ==
 
@@ -96,6 +101,14 @@ Yallapp is the service that builds and runs your apps; the plugin needs it to wo
   site, signed with the license key, the campaign's title, text, picture address
   and link; once its push notifications are sent, the plugin tells Yallapp how
   many phones it reached and how many it missed (counts only, no people or devices).
+* In-app purchases, when your plan sells courses and memberships in the app through
+  Google Play and the App Store: after each license check and within a minute of a
+  course, membership level, LearnDash group or product being saved, the IDs, titles
+  and prices of your paid courses and of your monthly or yearly membership plans
+  (with the courses they open) and your currency; when a person starts a purchase in
+  the app, their WordPress user ID, display name and email. Yallapp sends the site,
+  signed with the license key, the purchases to give or take back: the user ID, the
+  course or plan, the store's transaction ID, what was paid and until when.
 
 Terms of use: https://yallapp.com.tr/terms
 Privacy policy: https://yallapp.com.tr/privacy
@@ -121,6 +134,9 @@ Terms: https://developer.huawei.com/consumer/en/devservice/term
 Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 
 == Changelog ==
+
+= 0.4.23 =
+* Courses and memberships bought in the app through Google Play and the App Store: when your Yallapp plan sells in the app and your stores are connected in the Yallapp dashboard, the app's course pages buy a paid course or a membership through the store. Yallapp checks each purchase with Google or Apple, then your site enrols the student (Tutor LMS, LearnDash, LearnPress, LifterLMS, MasterStudy, Sensei LMS, Masteriyo), gives the Paid Memberships Pro level, LearnDash group or WooCommerce Subscriptions product until the paid period ends, and with WooCommerce records a completed order paid by "Google Play" or "App Store". Refunds and ended subscriptions take the access back; access a student had from your website stays. The plugin tells Yallapp your paid courses and monthly or yearly plans, so a store product is kept for each. The website's checkout is no longer offered in the app where it sells through the store.
 
 = 0.4.22 =
 * Cards, photo gallery, map, divider and form blocks: pages built in the Yallapp dashboard can show cards in a grid, photos that open full screen, a place with directions, a line between blocks, and a short form. A form's answers are emailed to the support email in the plugin settings (else the site's admin email), at most 5 a minute and 30 a day from one address.

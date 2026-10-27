@@ -2362,6 +2362,34 @@ Yallapp kept. `Config.store_billing` (hosted API) and
 in a store; the dashboard's courses then show the `store` action and no
 payment page.
 
+100.4 The plugin (0.4.23, `includes/billing`). It keeps
+`LicenseStatus.store_billing` with its license status and serves it as
+`Config.store_billing` (`session: site`) on the platforms in `platforms`;
+there `purchases.enroll_button` is false, `POST /auth/checkout-link`
+refuses a paid course, and a paid course's page says `store` with its
+`store_product_id` when its product is in `products` (`none` otherwise),
+and the plans that open a Paid Memberships Pro course give
+`membership.store_product_ids`. `POST /billing/session` gets the token from
+`POST /billing/sessions` like the chat's. `Catalog_Sync` sends
+`POST /billing/catalog` (paid courses through the LMS adapter, PMPro
+levels, LearnDash groups and WooCommerce Subscriptions products that renew
+monthly or yearly) after each license check (`yallapp_license_checked`)
+and 45 seconds after a course, group, product or level is saved (one
+one-off event for many saves), only with the `store_billing` feature.
+`POST /billing/access` (`Rest\Billing_Controller`) checks the signature
+on the raw body (`Access_Request`), answers a handled `grant_id` as before
+(`Handled_Grants`, an option of the last 2,000 for 60 days, and a short
+lock per grant ID while it is made, 409 meanwhile) and calls
+`Store_Access`: courses through each LMS adapter's `Store_Enrolment`
+(`grant_course`, `revoke_course`), a PMPro level with its end date, a
+LearnDash group (the daily job ends it a day after `expires_at` without a
+renewal), a WooCommerce subscription with manual renewal ending at
+`expires_at`; with WooCommerce a completed order without a shop product,
+paid by "Google Play" or "App Store" with the store's transaction ID. What
+the app gave is kept in the user's `yallapp_store_access` meta, so a revoke
+never takes access the student had from the website. The route stays open
+during maintenance and while the app is paused.
+
 100.6 Sales. Each change of a purchase is kept as an event
 (`store_purchase_events`: bought, renewed, refunded, revoked, expired, with
 the store price the app had then; store test purchases are marked and left
