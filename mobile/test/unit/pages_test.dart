@@ -231,6 +231,85 @@ void main() {
       expect(hours.isOpenAt(DateTime(2026, 10, 19, 10)), isFalse);
     });
 
+    test('99.3 a block look: alignment, text size, corners, picture fit', () {
+      BlockLook? look(Object? json) => BlockLook.tryParse(json);
+      // Everything as its default changes nothing: no look.
+      const defaults = {
+        'background': 'none',
+        'spacing': 'medium',
+        'align': 'start',
+        'text_size': 'medium',
+        'corners': 'app',
+        'image_fit': 'cover',
+      };
+      expect(look(defaults), isNull);
+      // Values this app doesn't know are the defaults.
+      const unknown = {
+        'align': 'justify',
+        'text_size': 'huge',
+        'corners': 'wavy',
+        'image_fit': 'fill',
+      };
+      expect(look(unknown), isNull);
+
+      final centred = look({'align': 'center'})!;
+      expect(centred.align, BlockAlign.center);
+      expect(centred.background, BlockBackground.none);
+      expect(centred.spacing, BlockSpacing.medium);
+      expect(centred.textSize, BlockTextSize.medium);
+      expect(centred.corners, BlockCorners.app);
+      expect(centred.imageFit, BlockImageFit.cover);
+      expect(look({'align': 'end'})!.align, BlockAlign.end);
+      expect(look({'text_size': 'small'})!.textSize, BlockTextSize.small);
+      expect(look({'text_size': 'large'})!.textSize, BlockTextSize.large);
+      expect(look({'corners': 'sharp'})!.corners, BlockCorners.sharp);
+      expect(look({'corners': 'round'})!.corners, BlockCorners.round);
+      expect(look({'image_fit': 'contain'})!.imageFit, BlockImageFit.contain);
+
+      // Read with the page, by block id.
+      final page = AppPage.fromJson(
+        appPageJson(
+          blocks: [
+            {
+              'id': 'b1',
+              'type': 'text',
+              'html': '<p>Hi</p>',
+              'look': {'align': 'end', 'image_fit': 'contain'},
+            },
+          ],
+        ),
+      );
+      expect(page.looks['b1']!.align, BlockAlign.end);
+      expect(page.looks['b1']!.imageFit, BlockImageFit.contain);
+    });
+
+    test('99.3 the page background and header picture', () {
+      final page = AppPage.fromJson({
+        ...appPageJson(blocks: []),
+        'background': 'tint',
+        'header_image_url': 'https://cdn.example.com/top.jpg',
+      });
+      expect(page.background, PageBackground.tint);
+      expect(page.headerImageUrl, 'https://cdn.example.com/top.jpg');
+      final surface = AppPage.fromJson({
+        ...appPageJson(blocks: []),
+        'background': 'surface',
+      });
+      expect(surface.background, PageBackground.surface);
+      // Unknown values and pictures not on https are left out.
+      final odd = AppPage.fromJson({
+        ...appPageJson(blocks: []),
+        'background': 'neon',
+        'header_image_url': 'http://cdn.example.com/top.jpg',
+      });
+      expect(odd.background, PageBackground.none);
+      expect(odd.headerImageUrl, isNull);
+      // Older servers send neither.
+      final older = AppPage.fromJson(appPageJson(blocks: []));
+      expect(older.background, PageBackground.none);
+      expect(older.headerImageUrl, isNull);
+    });
+
     test('icons by Material Symbols name, with a fallback', () {
       expect(symbolByName('home'), AppIcons.home);
       expect(symbolByName('home_rounded'), AppIcons.home);

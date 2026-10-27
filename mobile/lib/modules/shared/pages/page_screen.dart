@@ -64,7 +64,8 @@ class PageScreen extends ConsumerWidget {
   }
 }
 
-/// A loaded page: its title in the template's style, then its blocks.
+/// A loaded page: its title in the template's style, then its blocks. 99.3
+/// On the page's background, with its header picture under the title.
 class AppPageView extends ConsumerWidget {
   const AppPageView({super.key, required this.page, this.pushed = false});
 
@@ -90,10 +91,31 @@ class AppPageView extends ConsumerWidget {
       pushed: pushed,
       top: top,
     );
-    return ListView(
+    final p = context.palette;
+    final picture = page.headerImageUrl;
+    final list = ListView(
       padding: EdgeInsets.zero,
       children: [
         header,
+        if (picture != null)
+          Padding(
+            key: const ValueKey('page-header-image'),
+            padding: EdgeInsets.fromLTRB(
+              style.gutter,
+              0,
+              style.gutter,
+              style.gap,
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(
+                context.shapes.r(style.bannerRadius),
+              ),
+              child: AspectRatio(
+                aspectRatio: 16 / 7,
+                child: AppNetworkImage(url: picture, seed: page.slug.hashCode),
+              ),
+            ),
+          ),
         Padding(
           padding: EdgeInsets.fromLTRB(style.gutter, 0, style.gutter, 24),
           child: Column(
@@ -129,6 +151,17 @@ class AppPageView extends ConsumerWidget {
           ),
         ),
       ],
+    );
+    final background = switch (page.background) {
+      PageBackground.none => null,
+      PageBackground.tint => p.primarySoft,
+      PageBackground.surface => p.surface,
+    };
+    if (background == null) return list;
+    return ColoredBox(
+      key: ValueKey('page-background-${page.background.name}'),
+      color: background,
+      child: list,
     );
   }
 }
@@ -241,7 +274,8 @@ double blockGap(double gap, BlockLook? above, BlockLook? below) {
 
 /// 82.5 A block's background, within the app's brand: a light wash of the
 /// main colour, the main or the second colour with light text, or the
-/// colour of cards.
+/// colour of cards. 99.3 Its texts' size, and its look for the views inside
+/// it ([BlockLookScope]).
 class BlockLookBox extends ConsumerWidget {
   const BlockLookBox({
     super.key,
@@ -257,7 +291,12 @@ class BlockLookBox extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final look = this.look;
-    if (look == null || look.background == BlockBackground.none) return child;
+    if (look == null) return child;
+    final inner = BlockLookScope(
+      look: look,
+      child: _textSized(context, look.textSize, child),
+    );
+    if (look.background == BlockBackground.none) return inner;
     final p = context.palette;
     final hasSecondary = ref.watch(appLookProvider).secondary != null;
     final (Color background, Color? foreground) = switch (look.background) {
@@ -273,14 +312,33 @@ class BlockLookBox extends ConsumerWidget {
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: inside),
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(context.shapes.r(16)),
+        borderRadius: BorderRadius.circular(
+          lookRadius(look, context.shapes, 16),
+        ),
         border: look.background == BlockBackground.surface
             ? Border.all(color: p.border)
             : null,
       ),
       child: foreground == null
-          ? child
-          : BlockForeground(color: foreground, child: child),
+          ? inner
+          : BlockForeground(color: foreground, child: inner),
     );
   }
+}
+
+/// 99.3 [child] with its text smaller or larger, on top of the size the
+/// user chose on their phone.
+Widget _textSized(BuildContext context, BlockTextSize size, Widget child) {
+  final factor = switch (size) {
+    BlockTextSize.small => 0.875,
+    BlockTextSize.medium => 1.0,
+    BlockTextSize.large => 1.2,
+  };
+  if (factor == 1.0) return child;
+  final user = MediaQuery.textScalerOf(context).scale(14) / 14;
+  final scaler = TextScaler.linear(user * factor);
+  return MediaQuery(
+    data: MediaQuery.of(context).copyWith(textScaler: scaler),
+    child: child,
+  );
 }

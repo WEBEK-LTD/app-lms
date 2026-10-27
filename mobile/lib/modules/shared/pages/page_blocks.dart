@@ -105,6 +105,74 @@ class BlockForeground extends InheritedWidget {
       color != oldWidget.color;
 }
 
+/// 99.3 A block's look for the views inside it: where its texts sit, its
+/// corners and how its pictures fit. A block without a look has none.
+class BlockLookScope extends InheritedWidget {
+  const BlockLookScope({super.key, required this.look, required super.child});
+
+  final BlockLook look;
+
+  static BlockLook? of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<BlockLookScope>()?.look;
+
+  @override
+  bool updateShouldNotify(BlockLookScope oldWidget) => look != oldWidget.look;
+}
+
+/// 99.3 The app's round corners, for a block whose look asks for them.
+const _roundShapes = AppShapes(
+  card: 0,
+  button: 0,
+  chip: 0,
+  corners: CornerStyle.round,
+);
+
+/// 99.3 A radius from the designs for a block with [look]: as the app's
+/// look has it, square for sharp corners, or as round corners have it.
+double lookRadius(BlockLook? look, AppShapes shapes, double designed) {
+  return switch (look?.corners) {
+    BlockCorners.sharp => 0,
+    BlockCorners.round => _roundShapes.r(designed),
+    BlockCorners.app || null => shapes.r(designed),
+  };
+}
+
+/// 99.3 [lookRadius] for the block around [context].
+double blockRadius(BuildContext context, double designed) =>
+    lookRadius(BlockLookScope.of(context), context.shapes, designed);
+
+/// 99.3 How the pictures of the block around [context] fill their space.
+BoxFit blockImageFit(BuildContext context) =>
+    BlockLookScope.of(context)?.imageFit == BlockImageFit.contain
+    ? BoxFit.contain
+    : BoxFit.cover;
+
+/// 99.3 Where the texts of the block around [context] sit: at the start
+/// unless its look says otherwise.
+BlockAlign blockAlign(BuildContext context) =>
+    BlockLookScope.of(context)?.align ?? BlockAlign.start;
+
+/// 99.3 A block's alignment for texts, columns and single widgets.
+extension BlockAlignLayout on BlockAlign {
+  TextAlign get textAlign => switch (this) {
+    BlockAlign.start => TextAlign.start,
+    BlockAlign.center => TextAlign.center,
+    BlockAlign.end => TextAlign.end,
+  };
+
+  CrossAxisAlignment get crossAxis => switch (this) {
+    BlockAlign.start => CrossAxisAlignment.start,
+    BlockAlign.center => CrossAxisAlignment.center,
+    BlockAlign.end => CrossAxisAlignment.end,
+  };
+
+  AlignmentDirectional get alignment => switch (this) {
+    BlockAlign.start => AlignmentDirectional.centerStart,
+    BlockAlign.center => AlignmentDirectional.center,
+    BlockAlign.end => AlignmentDirectional.centerEnd,
+  };
+}
+
 /// One block, drawn in the current template. Every block type in the
 /// contract has a view; the page skips the ones [shows] rejects.
 class PageBlockView extends ConsumerWidget {
@@ -139,11 +207,12 @@ class PageBlockView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final style = PageStyle.of(ref.watch(appLookProvider).template);
     final title = block.title?.trim();
+    final align = blockAlign(context);
     final Widget content = switch (block) {
       final BannerBlock b => _Banner(block: b, style: style),
       final TextBlock b => BlockForeground.text(
         context,
-        HtmlContent(html: b.html, title: b.title ?? ''),
+        HtmlContent(html: _alignedHtml(b.html, align), title: b.title ?? ''),
       ),
       final ImageBlock b => _Image(block: b, style: style),
       final VideoBlock b => _Video(block: b, style: style),
@@ -183,10 +252,13 @@ class PageBlockView extends ConsumerWidget {
       children: [
         BlockForeground.text(
           context,
-          SectionHeader(
-            title: title,
-            size: style.headerSize,
-            weight: style.headerWeight,
+          DefaultTextStyle.merge(
+            textAlign: align.textAlign,
+            child: SectionHeader(
+              title: title,
+              size: style.headerSize,
+              weight: style.headerWeight,
+            ),
           ),
         ),
         const SizedBox(height: 12),
@@ -194,6 +266,12 @@ class PageBlockView extends ConsumerWidget {
       ],
     );
   }
+}
+
+/// 99.3 [html] in a box that sets where its text sits.
+String _alignedHtml(String html, BlockAlign align) {
+  if (align == BlockAlign.start) return html;
+  return '<div style="text-align: ${align.name}">$html</div>';
 }
 
 // ----------------------------------------------------------------- Banner
@@ -209,6 +287,8 @@ class _Banner extends ConsumerWidget {
     final p = context.palette;
     final heading = block.heading?.trim();
     final subheading = block.subheading?.trim();
+    final align = blockAlign(context);
+    final fit = blockImageFit(context);
     final hasText =
         (heading != null && heading.isNotEmpty) ||
         (subheading != null && subheading.isNotEmpty);
@@ -222,9 +302,12 @@ class _Banner extends ConsumerWidget {
       ].whereType<String>().where((t) => t.isNotEmpty).join(', '),
       excludeSemantics: true,
       child: Material(
-        color: p.placeholderFor(block.id.hashCode),
+        // 99.3 A whole picture sits on the page's background.
+        color: fit == BoxFit.contain
+            ? Colors.transparent
+            : p.placeholderFor(block.id.hashCode),
         borderRadius: BorderRadius.circular(
-          context.shapes.r(style.bannerRadius),
+          blockRadius(context, style.bannerRadius),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -236,7 +319,12 @@ class _Banner extends ConsumerWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                AppNetworkImage(url: block.imageUrl, seed: block.id.hashCode),
+                AppNetworkImage(
+                  url: block.imageUrl,
+                  seed: block.id.hashCode,
+                  fit: fit,
+                  clearPlaceholder: fit == BoxFit.contain,
+                ),
                 if (hasText)
                   Align(
                     alignment: AlignmentDirectional.bottomStart,
@@ -247,13 +335,14 @@ class _Banner extends ConsumerWidget {
                       color: const Color(0xA60E0D24),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: align.crossAxis,
                         children: [
                           if (heading != null && heading.isNotEmpty)
                             Text(
                               heading,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
+                              textAlign: align.textAlign,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: style.template == AppTemplate.bold
@@ -267,6 +356,7 @@ class _Banner extends ConsumerWidget {
                               subheading,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
+                              textAlign: align.textAlign,
                               style: const TextStyle(
                                 color: Color(0xE6FFFFFF),
                                 fontSize: 14,
@@ -297,9 +387,10 @@ class _Image extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ratio = block.aspectRatio;
     final action = block.action;
+    final fit = blockImageFit(context);
     final image = ClipRRect(
       borderRadius: BorderRadius.circular(
-        context.shapes.r(style.bannerRadius - 4),
+        blockRadius(context, style.bannerRadius - 4),
       ),
       child: AspectRatio(
         aspectRatio: (ratio != null && ratio > 0.25 && ratio < 5)
@@ -309,6 +400,8 @@ class _Image extends ConsumerWidget {
           url: block.imageUrl,
           seed: block.id.hashCode,
           semanticLabel: block.title,
+          fit: fit,
+          clearPlaceholder: fit == BoxFit.contain,
         ),
       ),
     );
@@ -363,7 +456,7 @@ class _Video extends StatelessWidget {
       child: Material(
         color: p.primarySoft,
         borderRadius: BorderRadius.circular(
-          context.shapes.r(style.bannerRadius - 4),
+          blockRadius(context, style.bannerRadius - 4),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -418,6 +511,7 @@ class _Button extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
     final icon = block.icon == null ? null : symbolByName(block.icon);
+    final look = BlockLookScope.of(context);
     void onPressed() => runPageAction(context, ref, block.action);
     return switch (block.style) {
       PageButtonStyle.filled => PrimaryButton(
@@ -430,7 +524,9 @@ class _Button extends ConsumerWidget {
         icon: icon,
         onPressed: onPressed,
       ),
-      PageButtonStyle.text => Center(
+      // 99.3 Where the block's look puts it; in the middle without one.
+      PageButtonStyle.text => Align(
+        alignment: look?.align.alignment ?? AlignmentDirectional.center,
         child: TextButton.icon(
           onPressed: onPressed,
           style: TextButton.styleFrom(
@@ -478,13 +574,16 @@ class _Items extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (title.isNotEmpty || seeAll != null) ...[
-          SectionHeader(
-            title: title,
-            size: style.headerSize,
-            weight: style.headerWeight,
-            onSeeAll: seeAll == null
-                ? null
-                : () => runPageAction(context, ref, seeAll),
+          DefaultTextStyle.merge(
+            textAlign: blockAlign(context).textAlign,
+            child: SectionHeader(
+              title: title,
+              size: style.headerSize,
+              weight: style.headerWeight,
+              onSeeAll: seeAll == null
+                  ? null
+                  : () => runPageAction(context, ref, seeAll),
+            ),
           ),
           const SizedBox(height: 12),
         ],

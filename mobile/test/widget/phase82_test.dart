@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/core/preview/preview.dart';
+import 'package:yallapp/core/theme/app_theme.dart';
+import 'package:yallapp/core/widgets/common.dart';
 import 'package:yallapp/modules/shared/pages/draft_reload.dart';
+import 'package:yallapp/modules/shared/pages/page_blocks.dart';
 import 'package:yallapp/modules/shared/pages/page_screen.dart';
 
 import '../support/fake_api.dart';
@@ -252,6 +255,109 @@ void main() {
       );
       await app.pump(tester);
       expect(find.bySemanticsLabel('Open the menu'), findsNothing);
+    });
+  });
+
+  group('99.3', () {
+    test('corners: as the app has them, square or round', () {
+      const shapes = AppShapes(card: 16, button: 14, chip: 19);
+      const sharp = BlockLook(corners: BlockCorners.sharp);
+      const round = BlockLook(corners: BlockCorners.round);
+      expect(lookRadius(null, shapes, 16), 16);
+      expect(lookRadius(const BlockLook(), shapes, 16), 16);
+      expect(lookRadius(sharp, shapes, 16), 0);
+      expect(lookRadius(round, shapes, 16), 22);
+    });
+
+    testWidgets('a block sits, sizes and fits as its look says; the page has '
+        'its background and header picture', (tester) async {
+      final api = FakeApi()
+        ..navigation = navigationJson()
+        ..pages = {
+          'home': {
+            ...appPageJson(
+              blocks: [
+                {
+                  'id': 'b1',
+                  'type': 'button',
+                  'visibility': 'everyone',
+                  'label': 'Read more',
+                  'style': 'text',
+                  'action': {'type': 'screen', 'screen': 'courses'},
+                  'look': {'align': 'end', 'text_size': 'large'},
+                },
+                {
+                  'id': 'b2',
+                  'type': 'image',
+                  'visibility': 'everyone',
+                  'image_url': 'https://cdn.example.com/whole.png',
+                  'look': {'image_fit': 'contain', 'corners': 'sharp'},
+                },
+              ],
+            ),
+            'background': 'tint',
+            'header_image_url': 'https://cdn.example.com/top.jpg',
+          },
+        };
+      final app = TestApp(api: api, signedIn: true);
+      await app.pump(tester);
+      expect(
+        find.byKey(const ValueKey('page-background-tint')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const ValueKey('page-header-image')), findsOneWidget);
+
+      // The text button at the end of the line, its text larger.
+      final block = tester.getRect(find.byKey(const ValueKey('block-b1')));
+      final label = tester.getRect(find.text('Read more'));
+      expect(block.right - label.right, lessThan(40));
+      expect(label.left - block.left, greaterThan(100));
+      final scaler = MediaQuery.textScalerOf(
+        tester.element(find.text('Read more')),
+      );
+      expect(scaler.scale(14), closeTo(16.8, 0.01));
+
+      // The whole picture, with square corners.
+      final picture = find.descendant(
+        of: find.byKey(const ValueKey('block-b2')),
+        matching: find.byType(AppNetworkImage),
+      );
+      expect(tester.widget<AppNetworkImage>(picture).fit, BoxFit.contain);
+      final clips = find.descendant(
+        of: find.byKey(const ValueKey('block-b2')),
+        matching: find.byType(ClipRRect),
+      );
+      final clip = tester.widget<ClipRRect>(clips.first);
+      expect(clip.borderRadius, BorderRadius.zero);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('switched off, the blocks keep their usual look', (
+      tester,
+    ) async {
+      final config = {...configJson(), 'switches': {'block_looks': false}};
+      final api = FakeApi(config: config)
+        ..navigation = navigationJson()
+        ..pages = {
+          'home': appPageJson(
+            blocks: [
+              {
+                'id': 'b1',
+                'type': 'image',
+                'visibility': 'everyone',
+                'image_url': 'https://cdn.example.com/whole.png',
+                'look': {'image_fit': 'contain'},
+              },
+            ],
+          ),
+        };
+      final app = TestApp(api: api, signedIn: true);
+      await app.pump(tester);
+      final picture = find.descendant(
+        of: find.byKey(const ValueKey('block-b1')),
+        matching: find.byType(AppNetworkImage),
+      );
+      expect(tester.widget<AppNetworkImage>(picture).fit, BoxFit.cover);
     });
   });
 }
