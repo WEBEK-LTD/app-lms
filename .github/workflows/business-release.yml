@@ -159,7 +159,7 @@ jobs:
                 echo "**The iOS app is skipped**: add the App Store Connect key as \`YB_ASC_KEY_ID\`, \`YB_ASC_ISSUER_ID\` and \`YB_ASC_PRIVATE_KEY\` (docs/LAUNCH-CHECKLIST.md 7l)."
               fi
               if ! all_set YB_IOS_DISTRIBUTION_P12; then
-                echo "No \`YB_IOS_DISTRIBUTION_P12\`: a distribution certificate is made for this run and revoked at its end (optional secret, nothing to do)."
+                echo "No \`YB_IOS_DISTRIBUTION_P12\`: a distribution certificate is made for this run and kept for the build it signs (Apple allows a few; add the secret to use one certificate for every run, docs/LAUNCH-CHECKLIST.md 7l)."
               fi
               echo
             fi
@@ -570,6 +570,9 @@ jobs:
         run: |
           bundle exec fastlane ios business_testflight \
             asc:"$RUNNER_TEMP/yb-asc.json" ipa:"$RUNNER_TEMP/ipa/yallapp-business-$VERSION-$BUILD.ipa"
+          # The build is Apple's now: its certificate must stay valid until the build is
+          # approved, since App Review checks the signature again when it is submitted.
+          touch "$RUNNER_TEMP/yb-uploaded"
 
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         continue-on-error: true
@@ -591,13 +594,14 @@ jobs:
           bundle exec fastlane ios business_appstore \
             asc:"$RUNNER_TEMP/yb-asc.json" store:"$RUNNER_TEMP/asc-store" version:"$VERSION" build:"$BUILD"
 
-      # The certificate made for this run (none with YB_IOS_DISTRIBUTION_P12), also when
-      # the run stopped halfway; then the secrets' files.
-      - name: Revoke this run's certificate
+      # The certificate made for this run (none with YB_IOS_DISTRIBUTION_P12), only when the
+      # run stopped before the upload: one that signed an uploaded build is kept (a revoked
+      # certificate makes App Review refuse the build with ITMS-90035, Invalid Signature).
+      - name: Revoke this run's unused certificate
         if: always()
         working-directory: build
         run: |
-          if [ -s "$RUNNER_TEMP/yb-cert-id.txt" ] && [ -f "$RUNNER_TEMP/yb-asc.json" ]; then
+          if [ ! -f "$RUNNER_TEMP/yb-uploaded" ] && [ -s "$RUNNER_TEMP/yb-cert-id.txt" ] && [ -f "$RUNNER_TEMP/yb-asc.json" ]; then
             bundle exec fastlane ios business_revoke asc:"$RUNNER_TEMP/yb-asc.json" cert_file:"$RUNNER_TEMP/yb-cert-id.txt"
           fi
       - name: Remove the keys from the runner
@@ -617,7 +621,7 @@ jobs:
               no_app)
                 echo "- **The app doesn't exist in App Store Connect yet.** The App ID \`tr.com.yallapp.business\` is registered now: in App Store Connect › Apps › + › New App choose iOS, the name Yallapp Business, a primary language (English (U.S.)), the bundle ID **tr.com.yallapp.business** and the SKU \`yallapp-business\`, then run this workflow again." ;;
               certificate_limit)
-                echo "- **Apple's limit of distribution certificates is reached.** In developer.apple.com › Certificates, revoke a Distribution certificate nobody uses, then run this workflow again." ;;
+                echo "- **Apple's limit of distribution certificates is reached.** In developer.apple.com › Certificates, revoke a Distribution certificate whose builds are already approved or no longer wanted (revoking one makes App Review refuse the builds it signed that are not approved yet), then run this workflow again. To stop this, add one certificate as \`YB_IOS_DISTRIBUTION_P12\` (docs/LAUNCH-CHECKLIST.md 7l)." ;;
               *)
                 if [ "$OUTCOME" = success ]; then
                   echo "- Version $VERSION (build $BUILD) is in TestFlight, with the listing, screenshots (iPhone and iPad) and age rating in English, Arabic and Turkish, and chosen for the version."

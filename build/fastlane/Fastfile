@@ -283,9 +283,10 @@ platform :ios do
   #     options[:status] and stops before building.
   #   - The distribution certificate is YB_IOS_DISTRIBUTION_P12 (base64) with
   #     YB_IOS_DISTRIBUTION_PASSWORD when the repository has them. Otherwise one is made for this
-  #     run and its ID written to options[:cert_out]; business_revoke revokes it once the build is
-  #     processed, so the team never fills up with certificates. Builds already uploaded keep
-  #     working: Apple re-signs what it distributes.
+  #     run and its ID written to options[:cert_out]. It is kept once the build is uploaded:
+  #     App Review checks the signature again when the build is submitted, and a revoked
+  #     certificate makes it refuse the build (ITMS-90035, Invalid Signature). business_revoke
+  #     revokes it only when the run stopped before the upload.
   #
   # options: asc, business (path to business/), out, status, cert_out
   lane :business_ipa do |options|
@@ -445,6 +446,6 @@ platform :ios do
     next if id.empty?
     business_api_key(options[:asc])
     Spaceship::ConnectAPI::Certificate.get(certificate_id: id).delete!
-    UI.success("Revoked the distribution certificate made for this run.")
+    UI.success("Revoked the distribution certificate made for this run (it signed no uploaded build).")
   end
 end
