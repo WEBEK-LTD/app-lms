@@ -72,6 +72,10 @@ export function yallappPageTexts(): string[] {
         facts: { website: "https://example.com", email: "hello@example.com", whatsapp: "+905551112233" },
         current: { appearance: { ...BUILT_IN_APP_DEFAULTS.appearance, secondary_color: null }, languages: BUILT_IN_APP_DEFAULTS.languages },
         now,
+        // 99.1 With the Social links block the Contact page gets.
+        social: [{ network: "instagram", url: "https://instagram.com/example" }],
+        // And the pictures, with the banner a home page without slides gets.
+        pictureBase: "https://yallapp.test",
       });
       add(layoutTexts(layout));
     }

@@ -1,0 +1,138 @@
+{
+  "academy-classic": {
+    "primary": "#1D3557",
+    "secondary": "#E8B04B"
+  },
+  "academy-online": {
+    "primary": "#312E81",
+    "secondary": "#F97316"
+  },
+  "academy-coaching": {
+    "primary": "#1F2937",
+    "secondary": "#0F766E"
+  },
+  "academy-kids": {
+    "primary": "#0077B6",
+    "secondary": "#FFB703"
+  },
+  "store-fashion": {
+    "primary": "#111827",
+    "secondary": "#C2410C"
+  },
+  "store-grocery": {
+    "primary": "#14532D",
+    "secondary": "#16A34A"
+  },
+  "store-electronics": {
+    "primary": "#0F172A",
+    "secondary": "#2563EB"
+  },
+  "restaurant-menu": {
+    "primary": "#3D2C2E",
+    "secondary": "#E8795C"
+  },
+  "restaurant-delivery": {
+    "primary": "#B91C1C",
+    "secondary": "#F59E0B"
+  },
+  "restaurant-cafe": {
+    "primary": "#4B3621",
+    "secondary": "#8B5E3C"
+  },
+  "bookings-salon": {
+    "primary": "#4A044E",
+    "secondary": "#DB2777"
+  },
+  "bookings-wellness": {
+    "primary": "#0C4A6E",
+    "secondary": "#0EA5E9"
+  },
+  "bookings-consulting": {
+    "primary": "#0B1F33",
+    "secondary": "#1F4E5F"
+  },
+  "clinic-family": {
+    "primary": "#0F4C5C",
+    "secondary": "#14B8A6"
+  },
+  "clinic-dental": {
+    "primary": "#075985",
+    "secondary": "#38BDF8"
+  },
+  "clinic-therapy": {
+    "primary": "#2F3E46",
+    "secondary": "#7C9A82"
+  },
+  "fitness-gym": {
+    "primary": "#111111",
+    "secondary": "#EF4444"
+  },
+  "fitness-yoga": {
+    "primary": "#344E41",
+    "secondary": "#A3B18A"
+  },
+  "fitness-coach": {
+    "primary": "#1E293B",
+    "secondary": "#F97316"
+  },
+  "services-home": {
+    "primary": "#1E3A8A",
+    "secondary": "#F59E0B"
+  },
+  "services-consulting": {
+    "primary": "#0F172A",
+    "secondary": "#2563EB"
+  },
+  "services-agency": {
+    "primary": "#3B0764",
+    "secondary": "#EC4899"
+  },
+  "real-estate-agency": {
+    "primary": "#1C2E4A",
+    "secondary": "#C9A24B"
+  },
+  "real-estate-rentals": {
+    "primary": "#264653",
+    "secondary": "#2A9D8F"
+  },
+  "real-estate-luxury": {
+    "primary": "#121212",
+    "secondary": "#B08D57"
+  },
+  "news-daily": {
+    "primary": "#111827",
+    "secondary": "#DC2626"
+  },
+  "news-magazine": {
+    "primary": "#2E1065",
+    "secondary": "#A855F7"
+  },
+  "news-blog": {
+    "primary": "#064E3B",
+    "secondary": "#10B981"
+  },
+  "events-venue": {
+    "primary": "#1F1147",
+    "secondary": "#F59E0B"
+  },
+  "events-festival": {
+    "primary": "#4C1D95",
+    "secondary": "#EC4899"
+  },
+  "events-workshops": {
+    "primary": "#1E1B4B",
+    "secondary": "#6366F1"
+  },
+  "charity-classic": {
+    "primary": "#264653",
+    "secondary": "#E9C46A"
+  },
+  "charity-appeal": {
+    "primary": "#7F1D1D",
+    "secondary": "#E76F51"
+  },
+  "charity-community": {
+    "primary": "#354F52",
+    "secondary": "#84A98C"
+  }
+}

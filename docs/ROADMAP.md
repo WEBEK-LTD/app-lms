@@ -2208,3 +2208,16 @@ between them. Measured locally through a link with 80 ms round trips.
 |---|---|---|
 | [x] | 98.1 Fewer round trips: a warm function keeps its database connection for the next request (30 seconds, with keep-alive) instead of opening one each time (TCP, TLS and sign-in); Yallapp Business's sign-in check reads the person's businesses once (owner requests 9 → 6 queries before their own); today's analytics are counted again only when new events came since (Today 27 → 15 queries, Analytics 34 → 22). Through 80 ms round trips: /me 957 → 661 ms, Orders 788 → 662 ms, Today 1,449 → 1,323 ms | Unit and e2e tests; the owner checks that Netlify's functions region is the one closest to host.webek.org (LAUNCH-CHECKLIST) |
 | [x] | 98.2 Start from your website without assuming WordPress: a site that isn't on WordPress (as the scan says) makes an app whose content is added in the dashboard (the Website step's own content, done), not one waiting for the plugin; the Website step's "I don't have WordPress" is "Set up WordPress for me" (our team builds a WordPress site), with a line pointing a site that isn't on WordPress to the own content choice | e2e (site start, set-up requests, starter flow) |
+
+## Phase 99: Better designs and editor
+
+The owner asked for better ready-made designs, a way for an app that
+already has a design to move to another, and more ways to shape pages in
+the editor.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 99.1 Each design looks like itself: its own main colour with its second one (`designs/colours.json`), offered first, then "Your main colour" (the owner's, with the design's second) and one of `PALETTES`; two pictures of its own in those colours (`public/design-pictures/<design>-1.jpg`, `-2.jpg`) on its slides, and a banner welcoming to the app on a home page that has neither slides nor a banner; the Contact page gets a Social links block with the profiles the app's pages already have | Unit tests (each design's colours, pictures and social block pass the validator) |
+| [ ] | 99.2 Switch design: "Look only" (colours, font, corners, cards) or "Everything" (pages and tabs too, the app's own pages kept in the side menu), a before and after preview, one-step undo, also from Branding | e2e |
+| [ ] | 99.3 Editor: style options on each block (alignment, text size, palette colours, background, corners, picture height and fit), copy a block or a section to another page, when a block shows (dates, Android or iPhone only, a language), page settings (background, header picture, hidden from the menu) | Contract, plugin, app and e2e |
+| [ ] | 99.4 New blocks: cards grid (2 or 3 columns), photo gallery, map, divider, form (answers to Chat or email) | Contract, plugin, app and e2e |

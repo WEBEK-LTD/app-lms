@@ -124,6 +124,8 @@ export const PAGE_TEXTS_TR: Record<string, string> = {
   "Can I ask questions?": "Soru sorabilir miyim?",
   "Yes. Write to us from your account and we answer within a day.": "Evet. Hesabınızdan bize yazın, bir gün içinde yanıtlıyoruz.",
   "Contact us": "Bize ulaşın",
+  "Follow us": "Bizi takip edin",
+  "Welcome to {app}": "{app} uygulamasına hoş geldiniz",
   "See courses": "Kursları görün",
   "Enrollment for the new term is open.": "Yeni dönem kayıtları açıldı.",
   "Fun lessons for curious kids": "Meraklı çocuklar için eğlenceli dersler",

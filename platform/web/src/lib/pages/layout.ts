@@ -5,7 +5,8 @@ import { foreignFigmaImages } from "../figma/images";
 import { servedAppearance, shownAppearance, withLook } from "../fonts/look";
 import { platformSetting } from "../settings/platform";
 import { BUILT_IN_APP_DEFAULTS, defaultAppearance, defaultLayout } from "./defaults";
-import { applyDesign, contactFacts, missingScreens, sampleTexts, type Design } from "./designs";
+import { applyDesign, contactFacts, missingScreens, sampleTexts, socialProfilesOf, type Design } from "./designs";
+import { appUrl } from "../env";
 import type { AppDefaultsSetting, Appearance, Languages, Layout, LayoutContent, LayoutPage } from "./types";
 import { parseLayoutContent, type ParseResult } from "./validate";
 import type { PlanInfo } from "../plans";
@@ -177,8 +178,16 @@ export async function restoreLayoutVersion(store: DataStore, app: App, number: n
  * the draft's look and languages, `look` (the Branding step's template and
  * font) last.
  */
-export function designLayout(app: App, design: Design, current: Pick<LayoutContent, "appearance" | "languages">, now: Date, look: Partial<Appearance> = {}): LayoutContent {
-  const layout = applyDesign(design, { appName: app.appName, facts: contactFacts(app), current, now, missingScreens: missingScreens(app) });
+export function designLayout(app: App, design: Design, current: Pick<LayoutContent, "appearance" | "languages"> & Partial<Pick<LayoutContent, "pages">>, now: Date, look: Partial<Appearance> = {}): LayoutContent {
+  const layout = applyDesign(design, {
+    appName: app.appName,
+    facts: contactFacts(app),
+    current,
+    now,
+    missingScreens: missingScreens(app),
+    pictureBase: appUrl(),
+    social: current.pages ? socialProfilesOf({ pages: current.pages }) : [],
+  });
   return { ...layout, appearance: withLook(layout.appearance, look) };
 }
 

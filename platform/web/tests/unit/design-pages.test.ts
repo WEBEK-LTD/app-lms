@@ -21,11 +21,12 @@ describe("84.2 designs with several pages, colours and pictures", () => {
     }
   });
 
-  it("every design offers three colours: its own, then two others", () => {
+  it("every design offers three colours: its own (99.1 with its main colour), then two others", () => {
     for (const design of DESIGNS) {
       const palettes = design.palettes ?? [];
       expect(palettes, design.id).toHaveLength(3);
-      expect(palettes[0]).toMatchObject({ id: "design", primary: null });
+      expect(palettes[0]).toMatchObject({ id: "design" });
+      expect(palettes[0]!.primary, design.id).toMatch(HEX);
       expect(palettes[0]!.secondary).toBe(design.look.secondary_color ?? PALETTES[0]!.secondary);
       for (const p of palettes) {
         expect(p.secondary, design.id).toMatch(HEX);
