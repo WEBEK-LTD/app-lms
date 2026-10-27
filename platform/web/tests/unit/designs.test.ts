@@ -182,9 +182,9 @@ describe("99.1 each design's own colours, pictures and social links", () => {
         if (block.type === "banner") expect(block.image_url, design.id).toMatch(new RegExp(`^${base}/design-pictures/${design.id}-[12]\\.jpg$`));
         for (const slide of block.slides ?? []) expect(slide.image_url, design.id).toMatch(new RegExp(`^${base}/design-pictures/${design.id}-[12]\\.jpg$`));
       }
-      // A banner of the app's name, after a search box that leads the page.
+      // A banner welcoming to the app, after a search box that leads the page.
       if (hero!.type === "banner") {
-        expect(hero!.heading, design.id).toBe("Nile");
+        expect(hero!.heading, design.id).toBe("Welcome to Nile");
         expect(home.blocks.indexOf(hero!), design.id).toBe(home.blocks[0]!.type === "search" ? 1 : 0);
       }
       const checked = parseLayoutContent(layout, { app: { appType: kindOfDesign(design).engine, backend: "hosted" }, now: NOW, ownFonts: [] });

@@ -188,7 +188,7 @@ export function designPictures(design: Pick<Design, "id">, base: string | undefi
 
 /**
  * 99.1 The design's pictures where it has none: each slide in turn, and on
- * a home page without a slider or banner, a banner with the app's name at
+ * a home page without a slider or banner, a banner welcoming to the app at
  * its top (after a search box that leads it).
  */
 function withPictures(slug: string, blocks: LayoutBlock[], pictures: string[]): LayoutBlock[] {
@@ -199,7 +199,7 @@ function withPictures(slug: string, blocks: LayoutBlock[], pictures: string[]): 
     return { ...block, slides: block.slides.map((slide) => (slide.image_url ? slide : { ...slide, image_url: pictures[next++ % pictures.length]! })) };
   });
   if (slug !== "home" || out.some((b) => b.type === "slider" || b.type === "banner")) return out;
-  const banner: LayoutBlock = { id: "hero", type: "banner", visibility: "everyone", title: null, image_url: pictures[0]!, heading: "{app}", subheading: null, aspect_ratio: null, action: null };
+  const banner: LayoutBlock = { id: "hero", type: "banner", visibility: "everyone", title: null, image_url: pictures[0]!, heading: "Welcome to {app}", subheading: null, aspect_ratio: null, action: null };
   const at = out[0]?.type === "search" ? 1 : 0;
   return [...out.slice(0, at), banner, ...out.slice(at)];
 }

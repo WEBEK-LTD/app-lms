@@ -124,6 +124,7 @@ export const PAGE_TEXTS_AR: Record<string, string> = {
   "Yes. Write to us from your account and we answer within a day.": "نعم. راسلنا من حسابك ونجيبك خلال يوم.",
   "Contact us": "تواصل معنا",
   "Follow us": "تابعنا",
+  "Welcome to {app}": "مرحبًا بك في {app}",
   "See courses": "اطّلع على الدورات",
   "Enrollment for the new term is open.": "التسجيل للفصل الجديد مفتوح.",
   "Fun lessons for curious kids": "دروس ممتعة للأطفال الفضوليين",
