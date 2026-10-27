@@ -632,6 +632,33 @@ describe("pages on the hosted API", () => {
     expect(served.find((b) => b.id === "links")!.links).toEqual([{ icon: "star", icon_url: icon, label: "Offers", action: { type: "page", page_slug: "home" } }]);
   });
 
+  it("99.3 serves the block's text position, size, corners and picture fit, the page's background and picture, and only the blocks shown now", async () => {
+    const header = "https://yallapp.test/m/top.jpg";
+    const later = new Date(NOW.getTime() + 86_400_000).toISOString();
+    const earlier = new Date(NOW.getTime() - 86_400_000).toISOString();
+    const layout = layoutWith([
+      { id: "styled", type: "text", visibility: "everyone", html: "<p>Styled</p>", look: { background: "none", spacing: "medium", align: "center", text_size: "large", corners: "round", image_fit: "contain" } },
+      { id: "usual", type: "text", visibility: "everyone", html: "<p>Usual</p>", look: { background: "none", spacing: "medium", align: "start", text_size: "medium", corners: "app", image_fit: "cover" } },
+      { id: "soon", type: "text", visibility: "everyone", html: "<p>Soon</p>", show: { from: later } },
+      { id: "over", type: "text", visibility: "everyone", html: "<p>Over</p>", show: { until: earlier } },
+      { id: "now", type: "text", visibility: "everyone", html: "<p>Now</p>", show: { from: earlier, until: later } },
+      { id: "iphone", type: "text", visibility: "everyone", html: "<p>iPhone</p>", show: { platforms: ["ios"] } },
+      { id: "arabic", type: "text", visibility: "everyone", html: "<p>Arabic</p>", show: { languages: ["ar"] } },
+    ]);
+    (layout.pages as Record<string, unknown>[])[0] = { ...(layout.pages as Record<string, unknown>[])[0], background: "tint", header_image_url: header };
+    expect((await publishLayout(store, app, layout, "owner@lale.test", NOW)).ok).toBe(true);
+    const ids = (r: HostedResult) => (r.body as { blocks: { id: string }[] }).blocks.map((b) => b.id);
+    const home = await call("/pages/{slug}", { params: ["home"] });
+    expect(home.body).toMatchObject({ background: "tint", header_image_url: header });
+    const served = (home.body as { blocks: { id: string; look?: unknown; show?: unknown }[] }).blocks;
+    expect(served.find((b) => b.id === "styled")!.look).toEqual({ background: "none", spacing: "medium", align: "center", text_size: "large", corners: "round", image_fit: "contain" });
+    expect(served.find((b) => b.id === "usual")).not.toHaveProperty("look");
+    expect(ids(home)).toEqual(["styled", "usual", "now"]);
+    expect(served.some((b) => "show" in b)).toBe(false);
+    expect(ids(await call("/pages/{slug}", { params: ["home"], query: { platform: "ios" } }))).toEqual(["styled", "usual", "now", "iphone"]);
+    expect(ids(await call("/pages/{slug}", { params: ["home"], headers: { "accept-language": "ar" } }))).toEqual(["styled", "usual", "now", "arabic"]);
+  });
+
   it("83.3 the team's switches leave out the side menu, own icons and looks, and /config says which are off", async () => {
     const icon = "https://yallapp.test/m/icon-star.png";
     const layout = layoutWith(
@@ -780,3 +807,40 @@ describe("app defaults", () => {
   });
 });
 
+describe("99.3 the editor's new settings, checked", () => {
+  it("keeps a block's look only where it differs, and refuses values not on the lists", () => {
+    const ok = parse(layoutWith([{ id: "a", type: "text", visibility: "everyone", html: "<p>A</p>", look: { background: "none", spacing: "medium", align: "end", corners: "sharp" } }]));
+    expect(ok.ok && ok.value.pages[0]!.blocks[0]!.look).toEqual({ background: "none", spacing: "medium", align: "end", corners: "sharp" });
+    const bad = parse(layoutWith([{ id: "a", type: "text", visibility: "everyone", html: "<p>A</p>", look: { background: "none", spacing: "medium", text_size: "huge" } }]));
+    expect(bad.ok ? [] : bad.errors.join(" ")).toContain("choose the text size from the list.");
+  });
+
+  it("keeps when a block shows: dates with a zone in order, Android or iPhone, the app's languages; none when it always shows", () => {
+    const at = (show: unknown) => parse(layoutWith([{ id: "a", type: "text", visibility: "everyone", html: "<p>A</p>", show }]));
+    const ok = at({ from: "2026-11-01T09:00:00.000Z", until: "2026-11-02T09:00:00+03:00", platforms: ["ios"], languages: ["ar"] });
+    expect(ok.ok && ok.value.pages[0]!.blocks[0]!.show).toEqual({ from: "2026-11-01T09:00:00Z", until: "2026-11-02T06:00:00Z", platforms: ["ios"], languages: ["ar"] });
+    // Both platforms, every language, nothing set: always.
+    const always = at({ from: null, until: "", platforms: ["android", "ios"], languages: ["en", "ar"] });
+    expect(always.ok && always.value.pages[0]!.blocks[0]).not.toHaveProperty("show");
+    const errors = (show: unknown) => {
+      const r = at(show);
+      return r.ok ? "" : r.errors.join(" ");
+    };
+    expect(errors({ from: "2026-11-02T09:00:00Z", until: "2026-11-01T09:00:00Z" })).toContain("the end must come after the start.");
+    expect(errors({ from: "next week" })).toContain("The start must be a date and time.");
+    expect(errors({ from: "2026-11-01T09:00" })).toContain("The start must be a date and time.");
+    expect(errors({ platforms: ["web"] })).toContain("choose Android, iPhone or both.");
+    expect(errors({ languages: ["fr"] })).toContain("choose languages the app has.");
+  });
+
+  it("keeps a page's background and header picture, and refuses a picture that isn't https", () => {
+    const page = (extra: Record<string, unknown>) => parse(layoutWith([], { pages: [{ slug: "home", title: "Home", show_title: true, updated_at: NOW.toISOString(), blocks: [], ...extra }] }));
+    const ok = page({ background: "surface", header_image_url: "https://yallapp.test/m/top.jpg" });
+    expect(ok.ok && ok.value.pages[0]).toMatchObject({ background: "surface", header_image_url: "https://yallapp.test/m/top.jpg" });
+    const none = page({ background: "none", header_image_url: null });
+    expect(none.ok && none.value.pages[0]).not.toHaveProperty("background");
+    expect(none.ok && none.value.pages[0]).not.toHaveProperty("header_image_url");
+    expect(page({ header_image_url: "http://yallapp.test/m/top.jpg" }).ok).toBe(false);
+    expect(page({ background: "primary" }).ok).toBe(false);
+  });
+});

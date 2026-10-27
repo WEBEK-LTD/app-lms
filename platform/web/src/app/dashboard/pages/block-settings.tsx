@@ -6,9 +6,15 @@ import { blockListLimits, blockTextLimit, ENTRY_TEXT_LIMITS } from "@/lib/pages/
 import { NOTICE_TONE_LABELS, SOCIAL_LABELS, WEEKDAY_LABELS } from "@/lib/pages/labels";
 import { emptyPerson, emptyQuote, emptySlide, emptyStat, moveItem } from "@/lib/pages/model";
 import { SOURCE_NAMES, SOURCE_SORTS, sortFor, type ScreenOption } from "@/lib/pages/sources";
+import { localeInfo } from "@/lib/i18n/locales";
 import {
+  BLOCK_ALIGNS,
   BLOCK_BACKGROUNDS,
+  BLOCK_CORNERS,
   BLOCK_SPACINGS,
+  BLOCK_TEXT_SIZES,
+  IMAGE_FITS,
+  SHOW_PLATFORMS,
   BUTTON_STYLES,
   CATEGORY_STYLES,
   ITEMS_LAYOUTS,
@@ -27,7 +33,9 @@ import {
   type QuickLink,
   type BlockBackground,
   type BlockLook,
+  type BlockShow,
   type BlockSpacing,
+  type LanguageCode,
 } from "@/lib/pages/types";
 import { ActionEditor, Check, firstScreen, IconGlyph, IconPicker, LangText, OwnIcon, SelectInput, TextInput, type Lang } from "./controls";
 import { MediaPicker } from "@/components/media-picker";
@@ -43,6 +51,8 @@ export interface BlockContext {
   /** 31 The screens this app's type opens. */
   screens: ScreenOption[];
   pickable: Pickable;
+  /** 99.3 The app's languages, for "Shows in". */
+  languages: LanguageCode[];
 }
 
 const VISIBILITY_LABELS: Record<(typeof VISIBILITIES)[number], DashKey> = {
@@ -510,8 +520,45 @@ const SPACING_LABELS: Record<BlockSpacing, DashKey> = {
   medium: "pages.medium",
   large: "pages.large",
 };
-/** The usual look is stored as none. */
-const lookOf = (look: BlockLook): BlockLook | null => (look.background === "none" && look.spacing === "medium" ? null : look);
+// 99.3 Where its texts sit, their size, its corners and how its pictures fit.
+const ALIGN_LABELS: Record<(typeof BLOCK_ALIGNS)[number], DashKey> = { start: "pages.alignStart", center: "pages.alignCenter", end: "pages.alignEnd" };
+const TEXT_SIZE_LABELS: Record<(typeof BLOCK_TEXT_SIZES)[number], DashKey> = { small: "pages.small", medium: "pages.medium", large: "pages.large" };
+const CORNERS_LABELS: Record<(typeof BLOCK_CORNERS)[number], DashKey> = { app: "pages.cornersApp", sharp: "pages.cornersSharp", round: "pages.cornersRound" };
+const FIT_LABELS: Record<(typeof IMAGE_FITS)[number], DashKey> = { cover: "pages.fitCover", contain: "pages.fitContain" };
+const PLATFORM_LABELS: Record<(typeof SHOW_PLATFORMS)[number], DashKey> = { android: "pages.onAndroid", ios: "pages.onIphone" };
+/** 99.3 Blocks with pictures, whose fit can change. */
+const PICTURE_BLOCKS: readonly LayoutBlock["type"][] = ["banner", "image", "slider"];
+
+/** The usual look is stored as none; 99.3 so are its usual parts. */
+const lookOf = (look: BlockLook): BlockLook | null => {
+  const { background, spacing, align, text_size, corners, image_fit } = look;
+  const more = {
+    ...(align && align !== "start" ? { align } : {}),
+    ...(text_size && text_size !== "medium" ? { text_size } : {}),
+    ...(corners && corners !== "app" ? { corners } : {}),
+    ...(image_fit && image_fit !== "cover" ? { image_fit } : {}),
+  };
+  return background === "none" && spacing === "medium" && !Object.keys(more).length ? null : { background, spacing, ...more };
+};
+
+/** 99.3 A date and time as the browser's date field shows it, in the owner's time zone. */
+function localTime(iso: string | null | undefined): string {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+/** 99.3 The rules stored as none when the block always shows. */
+function showOf(show: BlockShow): BlockShow | null {
+  const out: BlockShow = {};
+  if (show.from) out.from = show.from;
+  if (show.until) out.until = show.until;
+  if (show.platforms?.length) out.platforms = show.platforms;
+  if (show.languages?.length) out.languages = show.languages;
+  return Object.keys(out).length ? out : null;
+}
 
 /** The settings of one block, in the language being edited. */
 export function BlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ctx: BlockContext; onChange: (block: LayoutBlock) => void }) {
@@ -667,6 +714,63 @@ export function BlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ct
           onChange={(spacing) => set({ look: lookOf({ background: block.look?.background ?? "none", spacing }) })}
         />
       </div>
+      <BlockStyle block={block} ctx={ctx} onChange={onChange} />
     </div>
+  );
+}
+
+/** 99.3 More of the block's look, and when it shows. */
+function BlockStyle({ block, ctx, onChange }: { block: LayoutBlock; ctx: BlockContext; onChange: (block: LayoutBlock) => void }) {
+  const t = useDashT();
+  const id = `blk-${block.id}`;
+  const look: BlockLook = block.look ?? { background: "none", spacing: "medium" };
+  const setLook = (patch: Partial<BlockLook>) => onChange({ ...block, look: lookOf({ ...look, ...patch }) });
+  const show = block.show ?? {};
+  const setShow = (patch: Partial<BlockShow>) => onChange({ ...block, show: showOf({ ...show, ...patch }) });
+  const time = (value: string) => {
+    const date = value ? new Date(value) : null;
+    return date && !Number.isNaN(date.getTime()) ? date.toISOString().replace(/\.000Z$/, "Z") : null;
+  };
+  const toggle = <T extends string>(list: readonly T[] | null | undefined, all: readonly T[], value: T, on: boolean): T[] | null => {
+    const now = new Set(list?.length ? list : all);
+    if (on) now.add(value);
+    else now.delete(value);
+    const chosen = all.filter((v) => now.has(v));
+    // Every one (or none): no rule.
+    return chosen.length === all.length || chosen.length === 0 ? null : chosen;
+  };
+  return (
+    <>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <SelectInput id={`${id}-align`} label={t("pages.textPosition")} value={look.align ?? "start"} options={opts(BLOCK_ALIGNS, ALIGN_LABELS, t)} onChange={(align) => setLook({ align })} />
+        <SelectInput id={`${id}-text-size`} label={t("pages.textSize")} value={look.text_size ?? "medium"} options={opts(BLOCK_TEXT_SIZES, TEXT_SIZE_LABELS, t)} onChange={(text_size) => setLook({ text_size })} />
+        <SelectInput id={`${id}-corners`} label={t("pages.corners")} value={look.corners ?? "app"} options={opts(BLOCK_CORNERS, CORNERS_LABELS, t)} onChange={(corners) => setLook({ corners })} />
+        {PICTURE_BLOCKS.includes(block.type) ? (
+          <SelectInput id={`${id}-fit`} label={t("pages.pictureFit")} value={look.image_fit ?? "cover"} options={opts(IMAGE_FITS, FIT_LABELS, t)} onChange={(image_fit) => setLook({ image_fit })} />
+        ) : null}
+      </div>
+      <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-line p-3">
+        <legend className="px-1 text-sm font-semibold">{t("pages.whenShows")}</legend>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <TextInput id={`${id}-from`} label={t("pages.showFrom")} type="datetime-local" value={localTime(show.from)} onChange={(v) => setShow({ from: time(v) })} />
+          <TextInput id={`${id}-until`} label={t("pages.showUntil")} type="datetime-local" value={localTime(show.until)} onChange={(v) => setShow({ until: time(v) })} />
+        </div>
+        <p className="m-0 text-xs text-muted">{t("pages.showDatesHint")}</p>
+        <div className="flex flex-wrap gap-x-4 gap-y-2" role="group" aria-label={t("pages.showOn")}>
+          <span className="text-sm font-semibold">{t("pages.showOn")}</span>
+          {SHOW_PLATFORMS.map((p) => (
+            <Check key={p} label={t(PLATFORM_LABELS[p])} checked={!show.platforms?.length || show.platforms.includes(p)} onChange={(on) => setShow({ platforms: toggle(show.platforms, SHOW_PLATFORMS, p, on) })} />
+          ))}
+        </div>
+        {ctx.languages.length > 1 ? (
+          <div className="flex flex-wrap gap-x-4 gap-y-2" role="group" aria-label={t("pages.showIn")}>
+            <span className="text-sm font-semibold">{t("pages.showIn")}</span>
+            {ctx.languages.map((l) => (
+              <Check key={l} label={localeInfo(l)?.nativeName ?? l} checked={!show.languages?.length || show.languages.includes(l)} onChange={(on) => setShow({ languages: toggle(show.languages, ctx.languages, l, on) })} />
+            ))}
+          </div>
+        ) : null}
+      </fieldset>
+    </>
   );
 }

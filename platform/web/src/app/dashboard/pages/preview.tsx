@@ -30,7 +30,19 @@ interface Theme {
   secondary: string;
   radius: number;
   card: CSSProperties;
+  /** 99.3 How the block's pictures fit; cover unless its look says contain. */
+  fit?: "cover" | "contain";
 }
+
+/** 99.3 The theme for one block: its own corners and picture fit. */
+function blockTheme(theme: Theme, look: BlockLook | null | undefined): Theme {
+  if (!look) return theme;
+  const radius = look.corners === "sharp" ? 2 : look.corners === "round" ? 18 : theme.radius;
+  return { ...theme, radius, card: { ...theme.card, borderRadius: radius }, fit: look.image_fit ?? "cover" };
+}
+
+/** 99.3 Where the block's texts sit and their size, as the app shows them. */
+const TEXT_ZOOM = { small: 0.875, medium: 1, large: 1.2 } as const;
 
 function themeOf(appearance: Appearance, primary: string): Theme {
   const dark = appearance.theme_mode === "dark";
@@ -89,15 +101,19 @@ function LookBox({ look, theme, children }: { look?: BlockLook | null; theme: Th
   const space = LOOK_SPACE[look.spacing];
   const background = { none: undefined, tint: `color-mix(in srgb, ${theme.primary} 10%, ${theme.bg})`, primary: theme.primary, secondary: theme.secondary, surface: theme.surface }[look.background];
   const light = look.background === "primary" || look.background === "secondary";
+  const align = look.align && look.align !== "start" ? look.align : undefined;
   return (
     <div
-      data-block-look={`${look.background} ${look.spacing}`}
+      data-block-look={`${look.background} ${look.spacing}${align ? ` ${align}` : ""}${look.text_size && look.text_size !== "medium" ? ` ${look.text_size}` : ""}`}
       style={{
         margin: `${space - 6}px 0`,
         padding: background ? `${Math.max(space, 8)}px 10px` : 0,
         background,
         color: light ? "#fff" : undefined,
         borderRadius: background ? theme.radius : undefined,
+        // 99.3 Its texts' place and size.
+        textAlign: align,
+        zoom: look.text_size ? TEXT_ZOOM[look.text_size] : undefined,
       }}
     >
       {children}
@@ -119,7 +135,7 @@ function BlockPreview({ block, theme, appearance, pickable, lang, def }: { block
             style={{
               borderRadius: theme.radius,
               minHeight: bold ? 130 : 110,
-              background: b.image_url ? `center / cover no-repeat url("${encodeURI(b.image_url)}"), ${theme.primary}` : theme.primary,
+              background: b.image_url ? `center / ${theme.fit ?? "cover"} no-repeat url("${encodeURI(b.image_url)}"), ${theme.fit === "contain" ? theme.bg : theme.primary}` : theme.primary,
               color: "#fff",
               display: "flex",
               flexDirection: "column",
@@ -145,7 +161,7 @@ function BlockPreview({ block, theme, appearance, pickable, lang, def }: { block
           {title}
           {b.image_url ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={b.image_url} alt="" style={{ width: "100%", borderRadius: theme.radius, aspectRatio: b.aspect_ratio ? String(b.aspect_ratio) : undefined, objectFit: "cover", display: "block" }} />
+            <img src={b.image_url} alt="" style={{ width: "100%", borderRadius: theme.radius, aspectRatio: b.aspect_ratio ? String(b.aspect_ratio) : undefined, objectFit: theme.fit ?? "cover", display: "block" }} />
           ) : (
             <div style={{ background: theme.line, borderRadius: theme.radius, aspectRatio: String(b.aspect_ratio ?? 1.78) }} />
           )}
@@ -346,7 +362,7 @@ function MoreBlockPreview({ block: b, theme, bold }: { block: LayoutBlock; theme
             style={{
               borderRadius: theme.radius,
               minHeight: bold ? 130 : 110,
-              background: first?.image_url ? `center / cover no-repeat url("${encodeURI(first.image_url)}"), ${theme.primary}` : `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
+              background: first?.image_url ? `center / ${theme.fit ?? "cover"} no-repeat url("${encodeURI(first.image_url)}"), ${theme.primary}` : `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
               color: "#fff",
               display: "flex",
               flexDirection: "column",
@@ -621,13 +637,25 @@ export function PhonePreview({
               setDropAt(null);
               if (type) editing.onDrop(type as LayoutBlock["type"], at);
             }}
-            style={{ flex: 1, overflowY: still ? "hidden" : "auto", padding: 12, display: "flex", flexDirection: "column", gap: 12 }}
+            style={{
+              flex: 1,
+              overflowY: still ? "hidden" : "auto",
+              padding: 12,
+              display: "flex",
+              flexDirection: "column",
+              gap: 12,
+              // 99.3 The page's own background.
+              background: page?.background === "tint" ? `color-mix(in srgb, ${theme.primary} 8%, ${theme.bg})` : page?.background === "surface" ? theme.surface : undefined,
+            }}
           >
+            {/* 99.3 The picture across the page's top. */}
+            {/* eslint-disable-next-line @next/next/no-img-element -- the owner's own picture, any address */}
+            {page?.header_image_url ? <img data-page-header="" src={page.header_image_url} alt="" style={{ width: "100%", aspectRatio: "16 / 7", objectFit: "cover", borderRadius: theme.radius, display: "block", flex: "none" }} /> : null}
             {page?.blocks.length ? (
               page.blocks.map((block, i) => {
                 const preview = (
-                  <LookBox key={block.id} look={block.look} theme={theme}>
-                    <BlockPreview block={block} theme={theme} appearance={appearance} pickable={pickable} lang={lang} def={def} />
+                  <LookBox key={block.id} look={block.look} theme={blockTheme(theme, block.look)}>
+                    <BlockPreview block={block} theme={blockTheme(theme, block.look)} appearance={appearance} pickable={pickable} lang={lang} def={def} />
                   </LookBox>
                 );
                 if (!editing) return preview;

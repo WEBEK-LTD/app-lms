@@ -22,8 +22,14 @@ import {
   ITEMS_LAYOUTS,
   ITEMS_SORTS,
   LAYOUT_LIMITS,
+  BLOCK_ALIGNS,
   BLOCK_BACKGROUNDS,
+  BLOCK_CORNERS,
   BLOCK_SPACINGS,
+  BLOCK_TEXT_SIZES,
+  IMAGE_FITS,
+  PAGE_BACKGROUNDS,
+  SHOW_PLATFORMS,
   NOTICE_TONES,
   QUICK_LINK_STYLES,
   SCREENS,
@@ -49,6 +55,8 @@ import {
   type Stat,
   type ItemSource,
   type ItemsQuery,
+  type BlockLook,
+  type BlockShow,
   type LanguageCode,
   type Languages,
   type LayoutBlock,
@@ -68,6 +76,8 @@ export type ParseResult<T> = { ok: true; value: T } | { ok: false; errors: strin
 
 export const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const ID = /^[A-Za-z0-9_-]{1,40}$/;
+/** 99.3 A date and time with its zone, as `toISOString` writes it. */
+const ISO_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?(Z|[+-]\d{2}:\d{2})$/;
 const HEX = /^#[0-9A-Fa-f]{6}$/;
 
 const BLOCK_NAMES: Record<string, string> = BLOCK_LABELS;
@@ -541,6 +551,45 @@ function parseQuery(ctx: Context, where: string, value: unknown, source: unknown
   };
 }
 
+/** 99.3 Between two dates, on one platform, in some languages; null when always. */
+function parseShow(ctx: Context, at: string, value: unknown): BlockShow | null {
+  const { c } = ctx;
+  if (value === undefined || value === null) return null;
+  const v = record(value);
+  if (!v) {
+    c.fail(at, "choose when the block shows.");
+    return null;
+  }
+  const date = (raw: unknown, what: string): string | null => {
+    if (raw === undefined || raw === null || raw === "") return null;
+    const time = typeof raw === "string" && ISO_TIME.test(raw) ? new Date(raw) : null;
+    if (!time || Number.isNaN(time.getTime())) {
+      c.fail(at, `${what} must be a date and time.`);
+      return null;
+    }
+    return time.toISOString().replace(/\.000Z$/, "Z");
+  };
+  const show: BlockShow = {};
+  const from = date(v.from, "The start");
+  const until = date(v.until, "The end");
+  if (from && until && from >= until) c.fail(at, "the end must come after the start.");
+  if (from) show.from = from;
+  if (until) show.until = until;
+  if (v.platforms !== undefined && v.platforms !== null) {
+    const platforms = Array.isArray(v.platforms) ? v.platforms : [];
+    if (!platforms.length || !platforms.every((p) => oneOf(SHOW_PLATFORMS, p))) c.fail(at, "choose Android, iPhone or both.");
+    const chosen = SHOW_PLATFORMS.filter((p) => platforms.includes(p));
+    if (chosen.length && chosen.length < SHOW_PLATFORMS.length) show.platforms = chosen;
+  }
+  if (v.languages !== undefined && v.languages !== null) {
+    const languages = Array.isArray(v.languages) ? v.languages : [];
+    if (!languages.length || !languages.every((l) => typeof l === "string" && ctx.languages.available.includes(l as LanguageCode))) c.fail(at, "choose languages the app has.");
+    const chosen = ctx.languages.available.filter((l) => languages.includes(l));
+    if (chosen.length && chosen.length < ctx.languages.available.length) show.languages = chosen;
+  }
+  return Object.keys(show).length ? show : null;
+}
+
 function parseBlock(ctx: Context, where: string, value: unknown, allowed: string[]): LayoutBlock | null {
   const { c } = ctx;
   const v = record(value);
@@ -572,8 +621,23 @@ function parseBlock(ctx: Context, where: string, value: unknown, allowed: string
     if (look.spacing !== undefined && !oneOf(BLOCK_SPACINGS, look.spacing)) c.fail(at, "choose the spacing from the list.");
     const background = oneOf(BLOCK_BACKGROUNDS, look.background) ? look.background : "none";
     const spacing = oneOf(BLOCK_SPACINGS, look.spacing) ? look.spacing : "medium";
-    if (background !== "none" || spacing !== "medium") block.look = { background, spacing };
+    // 99.3 Where its texts sit, their size, its corners and how its pictures fit.
+    const more: Omit<BlockLook, "background" | "spacing"> = {};
+    for (const [field, list, usual, what] of [
+      ["align", BLOCK_ALIGNS, "start", "where the texts sit"],
+      ["text_size", BLOCK_TEXT_SIZES, "medium", "the text size"],
+      ["corners", BLOCK_CORNERS, "app", "the corners"],
+      ["image_fit", IMAGE_FITS, "cover", "how the picture fits"],
+    ] as const) {
+      const value = look[field];
+      if (value !== undefined && !oneOf(list as readonly string[], value)) c.fail(at, `choose ${what} from the list.`);
+      if (oneOf(list as readonly string[], value) && value !== usual) (more as Record<string, string>)[field] = value;
+    }
+    if (background !== "none" || spacing !== "medium" || Object.keys(more).length) block.look = { background, spacing, ...more };
   }
+  // 99.3 When it shows.
+  const show = parseShow(ctx, at, v.show);
+  if (show) block.show = show;
   switch (type) {
     case "banner":
       block.image_url = c.mediaUrl(at, v.image_url, "an image address", true);
@@ -681,6 +745,11 @@ function parsePage(ctx: Context, index: number, value: unknown, allowedBlocks: s
   };
   const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.page, { title: 60 });
   if (translations) page.translations = translations;
+  // 99.3 Its background and a picture across its top.
+  if (v.background !== undefined && !oneOf(PAGE_BACKGROUNDS, v.background)) c.fail(where, "choose the background from the list.");
+  if (oneOf(PAGE_BACKGROUNDS, v.background) && v.background !== "none") page.background = v.background;
+  const header = v.header_image_url === undefined || v.header_image_url === null || v.header_image_url === "" ? null : c.mediaUrl(where, v.header_image_url, "the header picture's address", true);
+  if (header) page.header_image_url = header;
   return page;
 }
 

@@ -84,10 +84,35 @@ export const BLOCK_SPACINGS = ["none", "small", "medium", "large"] as const;
 export type BlockBackground = (typeof BLOCK_BACKGROUNDS)[number];
 export type BlockSpacing = (typeof BLOCK_SPACINGS)[number];
 
-/** 82.5 `BlockLook` in the app API. */
+// 99.3 More of a block's look, and a page's background.
+export const BLOCK_ALIGNS = ["start", "center", "end"] as const;
+export const BLOCK_TEXT_SIZES = ["small", "medium", "large"] as const;
+export const BLOCK_CORNERS = ["app", "sharp", "round"] as const;
+export const IMAGE_FITS = ["cover", "contain"] as const;
+export const PAGE_BACKGROUNDS = ["none", "tint", "surface"] as const;
+export const SHOW_PLATFORMS = ["android", "ios"] as const;
+export type BlockAlign = (typeof BLOCK_ALIGNS)[number];
+export type BlockTextSize = (typeof BLOCK_TEXT_SIZES)[number];
+export type BlockCorners = (typeof BLOCK_CORNERS)[number];
+export type ImageFit = (typeof IMAGE_FITS)[number];
+export type PageBackground = (typeof PAGE_BACKGROUNDS)[number];
+
+/** 82.5 `BlockLook` in the app API; 99.3 the fields after `spacing` are left out when usual. */
 export interface BlockLook {
   background: BlockBackground;
   spacing: BlockSpacing;
+  align?: BlockAlign;
+  text_size?: BlockTextSize;
+  corners?: BlockCorners;
+  image_fit?: ImageFit;
+}
+
+/** 99.3 When a block shows (`LayoutBlock.show` in the platform API); servers leave it out otherwise. */
+export interface BlockShow {
+  from?: string | null;
+  until?: string | null;
+  platforms?: (typeof SHOW_PLATFORMS)[number][] | null;
+  languages?: LanguageCode[] | null;
 }
 
 export const SOCIAL_NETWORKS = ["instagram", "facebook", "x", "tiktok", "youtube", "linkedin", "snapchat", "telegram", "whatsapp_channel"] as const;
@@ -280,6 +305,8 @@ export interface LayoutBlock {
   translations?: Translations;
   /** 82.5 Background and spacing within the brand; missing: none and medium. */
   look?: BlockLook | null;
+  /** 99.3 When it shows; missing: always. Never sent to apps. */
+  show?: BlockShow | null;
   // banner, image
   image_url?: string;
   heading?: string | null;
@@ -355,6 +382,9 @@ export interface LayoutPage {
   show_title: boolean;
   updated_at: string;
   translations?: Translations;
+  /** 99.3 The page's background and a picture across its top; missing: none. */
+  background?: PageBackground;
+  header_image_url?: string | null;
   blocks: LayoutBlock[];
 }
 
