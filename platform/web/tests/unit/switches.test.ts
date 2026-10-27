@@ -83,8 +83,8 @@ describe("switches", () => {
   it("takes switched-off features out of the license features", () => {
     const plans = plansWithSwitches(PLAN_INFO, { off: ["feature:push"], offByPlan: { pro: ["feature:auto_publish"] } });
     expect(plans.starter.features).toEqual([]);
-    expect(plans.growth.features).toEqual(["ios", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "loyalty"]);
-    expect(plans.pro.features).toEqual(["ios", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "chat", "loyalty"]);
+    expect(plans.growth.features).toEqual(["ios", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "loyalty", "store_billing"]);
+    expect(plans.pro.features).toEqual(["ios", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "chat", "loyalty", "store_billing"]);
     expect(PLAN_INFO.pro.features).toContain("push");
   });
 

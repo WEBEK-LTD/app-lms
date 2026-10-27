@@ -8,7 +8,7 @@ import { clientAccountState, longestLicense } from "../license/status";
 import type { BuildConfig } from "../build-config/types";
 import * as schema from "../db/schema";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
-import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, SavedSection } from "./types";
+import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, SavedSection, StoreProduct } from "./types";
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
@@ -2899,6 +2899,29 @@ export class MysqlStore implements DataStore {
     return result.affectedRows > 0;
   }
 
+  // 100.2 Store products
+
+  async listStoreProducts(appId: string): Promise<StoreProduct[]> {
+    const t = schema.storeProducts;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(asc(t.kind), asc(t.title), asc(t.productId)));
+  }
+
+  async getStoreProduct(appId: string, productId: string): Promise<StoreProduct | null> {
+    const t = schema.storeProducts;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.productId, productId))).limit(1));
+    return row ?? null;
+  }
+
+  async saveStoreProduct(product: StoreProduct): Promise<void> {
+    // The unique (app, product ID) keeps the first id.
+    const { id: _id, appId: _appId, productId: _productId, createdAt: _createdAt, ...rest } = product;
+    void _id;
+    void _appId;
+    void _productId;
+    void _createdAt;
+    await this.run((db) => db.insert(schema.storeProducts).values(product).onDuplicateKeyUpdate({ set: rest }));
+  }
+
   async deleteSavedSection(clientId: string, id: string): Promise<boolean> {
     const t = schema.savedSections;
     const [result] = await this.run((db) => db.delete(t).where(and(eq(t.clientId, clientId), eq(t.id, id))));
@@ -3004,6 +3027,17 @@ export class MysqlStore implements DataStore {
         .orderBy(asc(checked), asc(schema.apps.createdAt))
         .limit(limit),
     );
+  }
+
+  async listStoreBillingApps(): Promise<App[]> {
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(schema.apps)
+        .where(and(liveApp(), eq(schema.apps.demo, false), isNotNull(schema.apps.storeBilling)))
+        .orderBy(asc(schema.apps.createdAt)),
+    );
+    return rows.filter((app) => app.storeBilling?.enabled);
   }
 
   async listBuildsSince(since: Date): Promise<Build[]> {

@@ -96,6 +96,39 @@ test("the app sees the course and its preview lesson", async ({ request }) => {
   expect(await (await request.get(`${api}/lessons/${lesson.id}`)).json()).toMatchObject({ video: { source: "youtube", url: "https://www.youtube.com/watch?v=abc123" } });
 });
 
+test("100.2 In-app purchases: the paid course becomes a store product, sold in the app once turned on", async () => {
+  await own.goto("/dashboard");
+  await own.getByRole("link", { name: "In-app purchases" }).click();
+  await expect(own.getByRole("heading", { level: 1, name: "In-app purchases" })).toBeVisible();
+  // No store key yet: the product waits, at the site's price.
+  const stores = own.getByRole("region", { name: "Your store accounts" });
+  await expect(stores.locator('[data-store-key="google"][data-state="missing"]')).toContainText("No key yet. Add it on the Publishing step.");
+  const products = own.getByRole("region", { name: "Products" });
+  const row = products.locator('tr[data-product^="course_"]');
+  await expect(row).toContainText("Turkish for Beginners");
+  await expect(row).toContainText("₺450.00");
+  await expect(row.locator('[data-store="google"]')).toHaveAttribute("data-state", "no_key");
+  await expect(row.locator('[data-store="apple"]')).toContainText("No key");
+
+  // The owner's own price, then back to the site's.
+  const price = row.getByLabel(/Your price/);
+  await price.fill("4,5x");
+  await row.getByRole("button", { name: "Save" }).click();
+  await expect(row.getByText("Enter a price like 450 or 450.00.")).toBeVisible();
+  await price.fill("399.99");
+  await row.getByRole("button", { name: "Save" }).click();
+  await expect(row.getByText("Saved.")).toBeVisible();
+  await own.reload();
+  await expect(own.locator('tr[data-product^="course_"]').getByLabel(/Your price/)).toHaveValue("399.99");
+
+  const selling = own.getByRole("region", { name: "Selling in the app" });
+  await selling.getByLabel("Sell my courses and memberships in the app").check();
+  await selling.getByRole("button", { name: "Save" }).click();
+  await expect(selling.getByText("In-app purchases are on. The stores get your products within minutes.")).toBeVisible();
+  await own.reload();
+  await expect(own.getByRole("region", { name: "Selling in the app" }).getByLabel("Sell my courses and memberships in the app")).toBeChecked();
+});
+
 test("45 offline downloads come with the plan, and the owner turns them off and on", async ({ request }) => {
   const config = async () => (await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json()).features;
   const before = await config();

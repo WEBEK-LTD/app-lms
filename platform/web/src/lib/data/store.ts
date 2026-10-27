@@ -6,6 +6,7 @@ import type {
   AppLayoutVersionSummary,
   SavedSection,
   OwnFont,
+  StoreProduct,
   Asset,
   Build,
   BuildStatus,
@@ -718,6 +719,11 @@ export interface DataStore {
   saveOwnFont(font: OwnFont): Promise<void>;
   /** False when the app has no such font. */
   deleteOwnFont(appId: string, id: string): Promise<boolean>;
+  /** 100.2 The app's store products (courses, then memberships, by title). */
+  listStoreProducts(appId: string): Promise<StoreProduct[]>;
+  getStoreProduct(appId: string, productId: string): Promise<StoreProduct | null>;
+  /** Adds the product, or replaces the app's one with the same product ID (which keeps its id). */
+  saveStoreProduct(product: StoreProduct): Promise<void>;
 
   // 11.7 Admin team and audit log
   /** Everyone in admin_members with their user, oldest first. */
@@ -744,6 +750,8 @@ export interface DataStore {
   markPaymentChecked(kind: PendingPayment["kind"], id: string | number, now: Date): Promise<void>;
   /** 80.2 Apps (not demos) whose connections the daily checks last looked at `before` or earlier, or never: never first, then oldest. */
   listAppsToCheck(before: Date, limit: number): Promise<App[]>;
+  /** 100.2 Live apps (not demos) whose owner turned in-app purchases on, oldest first. */
+  listStoreBillingApps(): Promise<App[]>;
   /** Builds queued at or after `since`, newest first. */
   listBuildsSince(since: Date): Promise<Build[]>;
   /** Plan payments paid at or after `since`. */

@@ -61,7 +61,7 @@ import type {
 } from "../data/types";
 // 11.6 and 11.8
 import type { BuildFailure, BuildRelease, ListingTranslation, ReviewsRow, RolloutState, ScreenshotFrame, StagedRelease } from "../data/types";
-import type { OwnFontFile } from "../data/types";
+import type { OwnFontFile, StoreBillingSettings, StoreProductKind, StoreProductSync } from "../data/types";
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
 import type { Plan } from "../plans";
 import type { Layout, LayoutBlock, LayoutContent } from "../pages/types";
@@ -250,6 +250,8 @@ export const apps = mysqlTable(
     switches: jsonText<Partial<Record<string, boolean>>>("switches"),
     bookingSetup: jsonText<BookingSetup>("booking_setup"),
     courseSetup: jsonText<CourseSetup>("course_setup"),
+    // 100.2 Courses and memberships sold through the stores.
+    storeBilling: jsonText<StoreBillingSettings>("store_billing"),
     firebaseServiceAccountEncrypted: text("firebase_service_account_encrypted"),
     googlePlayKeyEncrypted: text("google_play_key_encrypted"),
     googlePlayClientEmail: varchar("google_play_client_email", { length: 191 }),
@@ -1332,6 +1334,33 @@ export const ownFonts = mysqlTable(
     updatedAt: time("updated_at").notNull(),
   },
   (t) => [uniqueIndex("own_fonts_app_family_idx").on(t.appId, t.family)],
+);
+
+// 100.2 Store products: paid courses and membership plans sold through Google Play and the App Store.
+export const storeProducts = mysqlTable(
+  "store_products",
+  {
+    id: id("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    productId: varchar("product_id", { length: 100 }).notNull(),
+    kind: varchar("kind", { length: 16 }).notNull().$type<StoreProductKind>(),
+    courseId: int("course_id"),
+    planId: varchar("plan_id", { length: 64 }),
+    title: varchar("title", { length: 200 }).notNull(),
+    period: varchar("period", { length: 8 }).$type<"month" | "year">(),
+    courseIds: jsonText<number[]>("course_ids").notNull(),
+    currency: varchar("currency", { length: 3 }).notNull(),
+    sitePrice: varchar("site_price", { length: 20 }).notNull(),
+    ownPrice: varchar("own_price", { length: 20 }),
+    active: boolean("active").notNull(),
+    google: jsonText<StoreProductSync>("google"),
+    apple: jsonText<StoreProductSync>("apple"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("store_products_app_product_idx").on(t.appId, t.productId)],
 );
 
 // 11.7 Admin team and audit log

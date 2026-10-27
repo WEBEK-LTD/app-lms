@@ -1465,6 +1465,18 @@ routine every few years):
 - [ ] Upload a font of your own in Pages & look (a .ttf you have a licence
       for), choose it, publish and open the app: it shows that font.
 
+- Migration `0089_store_products` (100.2, in-app purchases' store
+  products and the app's `store_billing`) runs with the others at deploy.
+- [ ] 100.2 With a test academy whose Google Play service account has
+      "View financial data", "Manage orders and subscriptions" and "Manage
+      store presence", and whose App Store Connect key has App Manager:
+      turn on In-app purchases, press Check (both work), then Update the
+      stores now: each paid course is a one-time product in Play Console
+      (Monetize › One-time products) and an In-App Purchase in App Store
+      Connect at the nearest price, and the app's App Store Server
+      Notifications address points at Yallapp. Change a price on the page
+      and update again: both stores have the new price.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |
@@ -1488,4 +1500,5 @@ routine every few years):
 | 35.4 | A Galaxy Store Seller Portal account (commercial seller) with a test app already on sale, and a service account with the Publishing scope: one build uploaded and submitted by the pipeline |
 | 36.5, 36.6 | An AppGallery Connect account with a test app (first version submitted by hand), a Connect API client (App administrator), Push Kit on, and a Huawei phone without Google Play to install the build and receive a push |
 | 42.7 | A Xiaomi developer account with a test app already on GetApps, its automatic publishing API private key and public certificate: one build checked with `/dev/query`, uploaded and submitted by the pipeline |
+| 100.2–100.6 | A test academy published in Google Play (internal testing) and App Store Connect (TestFlight), its service account and App Store Connect key with the rights the In-app purchases page lists, a license tester in Play Console and a sandbox tester in App Store Connect |
 | 25.5 | Yallapp's partner apps: a Salla Partners app (custom mode, callback `/oauth/salla`, webhook `/api/webhooks/salla`) and a Zid Partner Dashboard app (redirect `/oauth/zid`), saved in admin Settings, plus a Salla demo store and a Zid test store to connect |
