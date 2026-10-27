@@ -46,7 +46,7 @@ export interface FigmaPageDraft {
 }
 
 /** The most pictures drawn for one page, and for one import. */
-export const FIGMA_PAGE_LIMITS = { frames: 10, picturesPerPage: 10, pictures: 30, nodes: 4000 } as const;
+export const FIGMA_PAGE_LIMITS = { frames: 10, screens: 20, picturesPerPage: 10, pictures: 30, nodes: 4000 } as const;
 
 type Box = { x: number; y: number; width: number; height: number };
 
@@ -141,6 +141,36 @@ function looksLikeButton(node: FigmaNode, box: Box): boolean {
 function buttonStyle(node: FigmaNode): "filled" | "outlined" | "text" {
   if (hasSolidFill(node)) return "filled";
   return hasStroke(node) ? "outlined" : "text";
+}
+
+/** A phone's or a tablet's screen by its size: upright, as wide as a phone or a tablet. */
+function screenSized(box: Box): boolean {
+  return box.width >= 280 && box.width <= 1100 && box.height >= box.width * 1.2;
+}
+
+const GENERIC_NAME = /^(frame|group|screen|iphone|android|pixel|galaxy|ipad|artboard|rectangle|section)\b/i;
+
+/**
+ * The screens in a chosen frame: the frame itself when it is a screen, else
+ * the screens drawn on it (a board of several screens side by side, as
+ * design kits are), in reading order; the frame itself when it has none.
+ */
+export function figmaScreens(frame: FigmaNode): FigmaNode[] {
+  const box = boxOf(frame);
+  if (box && screenSized(box)) return [frame];
+  const found: FigmaNode[] = [];
+  const look = (node: FigmaNode, depth: number) => {
+    for (const child of node.children ?? []) {
+      if (!shown(child) || !CONTAINERS.has(String(child.type)) || found.length >= FIGMA_PAGE_LIMITS.screens) continue;
+      const b = boxOf(child);
+      if (b && screenSized(b)) found.push(child);
+      else if (depth < 3) look(child, depth + 1);
+    }
+  };
+  look(frame, 0);
+  if (!found.length) return [frame];
+  const board = (frame.name ?? "").split("/").pop()!.trim();
+  return inOrder(found).map((screen, i) => (GENERIC_NAME.test(screen.name ?? "") || !screen.name?.trim() ? { ...screen, name: `${board || "Page"} ${i + 1}` } : screen));
 }
 
 /** Reads a frame into blocks, in reading order. */

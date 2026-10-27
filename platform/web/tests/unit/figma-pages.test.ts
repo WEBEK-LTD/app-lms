@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addFigmaPages, figmaFramePage, figmaPictureNodes, type FigmaNode } from "@/lib/figma/pages";
+import { addFigmaPages, figmaFramePage, figmaPictureNodes, figmaScreens, type FigmaNode } from "@/lib/figma/pages";
 import { parseLayoutContent } from "@/lib/pages/validate";
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
 import type { App } from "@/lib/data/types";
@@ -98,6 +98,30 @@ describe("97.5 a Figma frame as blocks", () => {
     const plain = figmaFramePage({ id: "1:9", type: "FRAME", name: "Flows / Checkout", absoluteBoundingBox: box(0, 0, 390, 844), children: [text("1:10", "Pay <now> & go", 100, 30, 700)] });
     expect(plain.title).toBe("Checkout");
     expect(plain.blocks).toEqual([{ kind: "text", html: "<h2>Pay &lt;now&gt; &amp; go</h2>" }]);
+  });
+});
+
+describe("97.5 a board of screens", () => {
+  it("gives each screen drawn on it, in reading order, named after the board when the screen's own name says nothing", () => {
+    const screen = (id: string, name: string, x: number, y: number): FigmaNode => ({ id, type: "FRAME", name, absoluteBoundingBox: box(x, y, 375, 812), children: [text(`${id}t`, name, y + 100)] });
+    const board: FigmaNode = {
+      id: "1:1",
+      type: "FRAME",
+      name: "Templates/E-commerce",
+      absoluteBoundingBox: box(0, 0, 2000, 1800),
+      children: [
+        text("1:2", "E-commerce", 20, 40),
+        screen("2:1", "Cart", 900, 100),
+        screen("2:2", "iPhone 14 - 3", 0, 100),
+        { id: "3:1", type: "GROUP", name: "Row", absoluteBoundingBox: box(0, 950, 2000, 812), children: [screen("3:2", "Checkout", 0, 950)] },
+        { ...screen("2:3", "Hidden", 1400, 100), visible: false },
+      ],
+    };
+    expect(figmaScreens(board).map((s) => s.name)).toEqual(["E-commerce 1", "Cart", "Checkout"]);
+    // A screen is its own page; a frame without screens on it too.
+    expect(figmaScreens(screen("4:1", "Home", 0, 0)).map((s) => s.id)).toEqual(["4:1"]);
+    const banner: FigmaNode = { id: "5:1", type: "FRAME", name: "Banner", absoluteBoundingBox: box(0, 0, 1200, 400), children: [] };
+    expect(figmaScreens(banner)).toEqual([banner]);
   });
 });
 

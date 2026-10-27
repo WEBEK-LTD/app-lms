@@ -9,7 +9,7 @@ import { discardDraft, hasUnpublishedChanges, layoutHistory, loadLayout, publish
 import { getBlobStore } from "@/lib/blobs";
 import { FIGMA_IMAGE_BYTES, saveFigmaImage } from "@/lib/figma/images";
 import { FIGMA_LINK_LIMITS, figmaDeps, figmaFileKey, figmaNodeId, figmaTokenLooksRight, readFigmaFile, readFigmaNodes, renderFigmaFrames, type FigmaApiError, type FigmaFileRead } from "@/lib/figma/api";
-import { FIGMA_PAGE_LIMITS, figmaFramePage, figmaPictureNodes, type FigmaImportedPage, type FigmaNode } from "@/lib/figma/pages";
+import { FIGMA_PAGE_LIMITS, figmaFramePage, figmaPictureNodes, figmaScreens, type FigmaImportedPage, type FigmaNode } from "@/lib/figma/pages";
 import { assetUrl } from "@/lib/assets";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { addOwnFont, OWN_FONT_LIMITS, ownFontView, removeOwnFont, type OwnFontError, type OwnFontView } from "@/lib/fonts/own";
@@ -172,10 +172,13 @@ export async function importFigmaPagesAction(
   const read = await readFigmaNodes(checked.key, checked.token, ids, figmaDeps());
   if (!read.ok) return read;
   const name = (id: string) => (picked.find((f) => f.id === id)?.name ?? id).slice(0, 120);
-  const drafts = ids.flatMap((id) => {
-    const node = read.nodes.get(id);
-    return node ? [figmaFramePage(node as FigmaNode)] : [];
-  });
+  // A board of several screens gives a page for each.
+  const drafts = ids
+    .flatMap((id) => {
+      const node = read.nodes.get(id);
+      return node ? figmaScreens(node as FigmaNode).map((screen) => ({ ...figmaFramePage(screen), frameId: id })) : [];
+    })
+    .slice(0, FIGMA_PAGE_LIMITS.screens);
   const failed = ids.filter((id) => !read.nodes.has(id)).map(name);
   const nodes = figmaPictureNodes(drafts);
   const pictures: Record<string, string> = {};
@@ -193,7 +196,7 @@ export async function importFigmaPagesAction(
     .map((d) => ({ title: d.title, blocks: d.blocks, pictures: Object.fromEntries(Object.entries(pictures).filter(([node]) => d.blocks.some((b) => (b.kind === "image" || b.kind === "banner") && b.node === node))) }))
     .filter((p) => p.blocks.some((b) => (b.kind !== "image" && b.kind !== "banner") || p.pictures[b.node]));
   for (const d of drafts) if (!pages.some((p) => p.title === d.title)) failed.push(name(d.frameId));
-  return { ok: true, pages, tabs: drafts.find((d) => d.tabs.length >= 2)?.tabs ?? [], failed };
+  return { ok: true, pages, tabs: drafts.find((d) => d.tabs.length >= 2)?.tabs ?? [], failed: [...new Set(failed)] };
 }
 
 function parseJson(json: string): unknown {
