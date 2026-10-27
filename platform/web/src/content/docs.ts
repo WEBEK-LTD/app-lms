@@ -218,7 +218,7 @@ Open **App setup** and choose another type. Your next build includes the new typ
 - **My site's RSS feed** (News & blog apps): the articles of any website's RSS or Atom feed. See [News and blog apps](/docs/news).
 - **I don't have a website**: add your content in the dashboard. See [No website](/docs/no-website).
 - **My own API** (Academy, Store, Bookings and News & blog apps): for developers. See [Connect your own API](/docs/my-own-api).
-- **I don't have WordPress**: our team sets up a WordPress site for you and moves your content over.
+- **Set up WordPress for me**: our team sets up a WordPress site for you and moves your content over.
 
 Real estate apps have one choice, **Listings managed in Yallapp**, and Charity & donations apps one too, **Campaigns managed in Yallapp**.
 
@@ -234,7 +234,7 @@ Platform keys and tokens are checked with the platform before they're saved, sto
 
 ## We set up WordPress for you
 
-No website yet, but you'd like one? Choose **I don't have WordPress**, enter your current website (if any) and tell us about your content: your platform, how many products or courses you have, and where they are today. Our team messages you on WhatsApp with the price and the next steps. When your new WordPress site is ready, come back and choose **My WordPress site**.
+No website yet, but you'd like one? Choose **Set up WordPress for me**, enter your current website (if any) and tell us about your content: your platform, how many products or courses you have, and where they are today. Our team messages you on WhatsApp with the price and the next steps. When your new WordPress site is ready, come back and choose **My WordPress site**.
 
 ## Changing your choice later
 

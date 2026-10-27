@@ -22,7 +22,7 @@ import { websiteSchema } from "@/lib/validation";
 import { KEY, NOW, days } from "./helpers";
 
 /**
- * Roadmap 19: "I don't have WordPress, set it up for me" (setup_requested),
+ * Roadmap 19: "Set up WordPress for me, set it up for me" (setup_requested),
  * hosted apps without a content source, the API check on save, and
  * "Publish it for me" (team emails that fail, switching back, re-requests).
  */

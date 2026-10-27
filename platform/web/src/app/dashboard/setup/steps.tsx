@@ -372,6 +372,10 @@ export function WebsiteStep({
         ) : null}
         <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
           <legend className="mb-2 text-sm font-semibold">{t("setup.contentFrom")}</legend>
+          {/* A website that isn't on WordPress is neither "Set up WordPress for me" nor a site to connect. */}
+          {offered.includes("catalog") && offered.includes("wordpress") ? (
+            <p className="m-0 mb-1 text-sm text-ink-4">{t("setup.notWordpressHint", { choice: known(ownContentTitle(appType)) })}</p>
+          ) : null}
           {BACKENDS.filter((b) => engine.websites.includes(b.id))
             .map((b) =>
               b.id === "catalog"

@@ -76,9 +76,9 @@ test("their own API is saved even when its check fails, and the dashboard says s
   await expect(own.getByText("Your API didn't pass its last check")).toBeVisible();
 });
 
-test("“I don't have WordPress” needs no website, and App sign-in can be chosen while they wait", async () => {
+test("“Set up WordPress for me” needs no website, and App sign-in can be chosen while they wait", async () => {
   await own.goto("/dashboard/setup?step=website");
-  await own.getByRole("radio", { name: /I don't have WordPress/ }).check();
+  await own.getByRole("radio", { name: /Set up WordPress for me/ }).check();
   await expect(own.getByLabel("Your current website (optional)")).toBeVisible();
   await own.getByLabel("Your current website (optional)").fill("");
   await own.getByRole("button", { name: "Save & continue" }).click();
@@ -124,7 +124,7 @@ test("our team marks the WordPress site ready, and the client is told", async ()
 
 test("activating the license in the plugin on the new site does the same", async ({ request }) => {
   // They ask again (another site this time).
-  await own.getByRole("radio", { name: /I don't have WordPress/ }).check();
+  await own.getByRole("radio", { name: /Set up WordPress for me/ }).check();
   await own.getByRole("button", { name: "Save & continue" }).click();
   await expect(own.getByText("Thanks! Our team will message you on WhatsApp")).toBeVisible();
 
