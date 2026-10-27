@@ -1,3 +1,4 @@
+import 'billing_models.dart';
 import 'bookings_models.dart';
 import '../../config/build_config_data.dart';
 import '../../l10n/locales.dart';
@@ -32,6 +33,7 @@ class AppConfig {
     this.vertical,
     this.shareBaseUrl,
     this.chat,
+    this.storeBilling,
     this.switches = const {},
   });
 
@@ -54,6 +56,7 @@ class AppConfig {
     vertical: AppVertical.fromWire(json['vertical']),
     shareBaseUrl: _shareBase(json['links']),
     chat: _chat(json['chat']),
+    storeBilling: _storeBilling(json['store_billing']),
     switches: _switches(json['switches']),
   );
 
@@ -83,6 +86,23 @@ class AppConfig {
       final chat = ChatConfig.fromJson(asJson(value, 'chat'));
       final uri = Uri.tryParse(chat.baseUrl);
       return uri != null && uri.hasScheme && uri.host.isNotEmpty ? chat : null;
+    } on FormatException {
+      return null;
+    }
+  }
+
+  /// 100 `Config.store_billing`, when its address is a web address the app
+  /// can call.
+  static StoreBillingConfig? _storeBilling(Object? value) {
+    if (value is! Map) return null;
+    try {
+      final billing = StoreBillingConfig.fromJson(
+        asJson(value, 'store_billing'),
+      );
+      final uri = Uri.tryParse(billing.baseUrl);
+      return uri != null && uri.hasScheme && uri.host.isNotEmpty
+          ? billing
+          : null;
     } on FormatException {
       return null;
     }
@@ -147,6 +167,11 @@ class AppConfig {
   /// 77 Chat with the business (and an academy's course groups); null when
   /// the plan has no chat, the owner turned it off, or on older servers.
   final ChatConfig? chat;
+
+  /// 100 Courses and memberships bought through Google Play Billing and the
+  /// App Store; null when the app doesn't sell in the app (Starter, stores
+  /// not connected) and on older servers.
+  final StoreBillingConfig? storeBilling;
 }
 
 /// `Config.languages`. Codes the app doesn't ship are dropped.

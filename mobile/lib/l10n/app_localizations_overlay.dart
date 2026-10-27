@@ -4248,4 +4248,78 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get pageFormChooseOne =>
       overlay.text('pageFormChooseOne') ?? base.pageFormChooseOne;
+
+  @override
+  String storePricePerMonth(String price) =>
+      overlay.format('storePricePerMonth', {'price': price}) ??
+      base.storePricePerMonth(price);
+
+  @override
+  String storePricePerYear(String price) =>
+      overlay.format('storePricePerYear', {'price': price}) ??
+      base.storePricePerYear(price);
+
+  @override
+  String get storeSubscribe =>
+      overlay.text('storeSubscribe') ?? base.storeSubscribe;
+
+  @override
+  String get storeMembershipSubscribe =>
+      overlay.text('storeMembershipSubscribe') ?? base.storeMembershipSubscribe;
+
+  @override
+  String storeSubscriptionTerms(String store) =>
+      overlay.format('storeSubscriptionTerms', {'store': store}) ??
+      base.storeSubscriptionTerms(store);
+
+  @override
+  String get storeManageSubscription =>
+      overlay.text('storeManageSubscription') ?? base.storeManageSubscription;
+
+  @override
+  String get storeRestorePurchases =>
+      overlay.text('storeRestorePurchases') ?? base.storeRestorePurchases;
+
+  @override
+  String get storePurchasesGroup =>
+      overlay.text('storePurchasesGroup') ?? base.storePurchasesGroup;
+
+  @override
+  String get storeRestored =>
+      overlay.text('storeRestored') ?? base.storeRestored;
+
+  @override
+  String get storeRestoredNone =>
+      overlay.text('storeRestoredNone') ?? base.storeRestoredNone;
+
+  @override
+  String get storePending => overlay.text('storePending') ?? base.storePending;
+
+  @override
+  String get storeMembershipActive =>
+      overlay.text('storeMembershipActive') ?? base.storeMembershipActive;
+
+  @override
+  String get storeRetryLater =>
+      overlay.text('storeRetryLater') ?? base.storeRetryLater;
+
+  @override
+  String get storeInvalidReceipt =>
+      overlay.text('storeInvalidReceipt') ?? base.storeInvalidReceipt;
+
+  @override
+  String get storePurchaseInUse =>
+      overlay.text('storePurchaseInUse') ?? base.storePurchaseInUse;
+
+  @override
+  String get storePurchaseEnded =>
+      overlay.text('storePurchaseEnded') ?? base.storePurchaseEnded;
+
+  @override
+  String get storePurchaseFailed =>
+      overlay.text('storePurchaseFailed') ?? base.storePurchaseFailed;
+
+  @override
+  String get storeUnavailable =>
+      overlay.text('storeUnavailable') ?? base.storeUnavailable;
 }

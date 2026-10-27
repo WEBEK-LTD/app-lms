@@ -4102,4 +4102,72 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pageFormChooseOne => 'Choose one';
+
+  @override
+  String storePricePerMonth(String price) {
+    return '$price / month';
+  }
+
+  @override
+  String storePricePerYear(String price) {
+    return '$price / year';
+  }
+
+  @override
+  String get storeSubscribe => 'Subscribe';
+
+  @override
+  String get storeMembershipSubscribe =>
+      'Subscribe to a membership to open this course.';
+
+  @override
+  String storeSubscriptionTerms(String store) {
+    return 'Payment is charged to your $store account when you confirm the purchase. The subscription renews automatically at the same price each period until you cancel it. You can manage or cancel it in your $store account settings.';
+  }
+
+  @override
+  String get storeManageSubscription => 'Manage subscription';
+
+  @override
+  String get storeRestorePurchases => 'Restore purchases';
+
+  @override
+  String get storePurchasesGroup => 'Purchases';
+
+  @override
+  String get storeRestored => 'Your purchases are restored.';
+
+  @override
+  String get storeRestoredNone =>
+      'There are no purchases to restore for this account.';
+
+  @override
+  String get storePending =>
+      'Waiting for payment. You\'ll get access once the payment is complete.';
+
+  @override
+  String get storeMembershipActive => 'Your membership is active.';
+
+  @override
+  String get storeRetryLater =>
+      'Your purchase went through. We couldn\'t confirm it just now and will try again automatically.';
+
+  @override
+  String get storeInvalidReceipt =>
+      'This purchase couldn\'t be used. If you were charged, contact us.';
+
+  @override
+  String get storePurchaseInUse =>
+      'This purchase belongs to another account in this app. Sign in with that account to use it.';
+
+  @override
+  String get storePurchaseEnded => 'This purchase has ended or was refunded.';
+
+  @override
+  String get storePurchaseFailed =>
+      'The purchase didn\'t go through. Try again.';
+
+  @override
+  String get storeUnavailable =>
+      'Purchases aren\'t available on this device right now.';
 }

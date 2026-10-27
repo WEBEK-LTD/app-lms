@@ -10,6 +10,96 @@ import type { Lang } from "@/i18n/config";
  * its code names left out (tests/unit/phase62.test.ts lists those missing).
  */
 export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: string }> = {
+  "100 A membership's subscription in the app: its price in the store, charged each month.": {
+    en: "A membership's subscription in the app: its price in the store, charged each month.",
+    ar: "اشتراك العضوية في التطبيق: سعره في المتجر، يُدفع كل شهر.",
+    tr: "Uygulamadaki üyelik aboneliği: mağazadaki fiyatı, her ay alınır.",
+  },
+  "100 A membership's subscription in the app: its price in the store, charged each year.": {
+    en: "A membership's subscription in the app: its price in the store, charged each year.",
+    ar: "اشتراك العضوية في التطبيق: سعره في المتجر، يُدفع كل سنة.",
+    tr: "Uygulamadaki üyelik aboneliği: mağazadaki fiyatı, her yıl alınır.",
+  },
+  "100 Course page of a course that comes with a membership: the button that shows the membership's subscriptions sold in the app, and each subscription's button to buy it in the store.": {
+    en: "On a course that comes with a membership: the button that shows the membership's subscriptions sold in the app, and each subscription's button to buy it in the store.",
+    ar: "في دورة ضمن عضوية: الزر الذي يعرض اشتراكات العضوية المباعة في التطبيق، وزر كل اشتراك لشرائه من المتجر.",
+    tr: "Üyelikle gelen bir kursta: uygulamada satılan üyelik aboneliklerini gösteren düğme ve her aboneliği mağazadan satın alma düğmesi.",
+  },
+  "100 Course page of a course that comes with a membership sold in the app, for a student who has none.": {
+    en: "On a course that comes with a membership sold in the app, for a student who doesn't have one.",
+    ar: "في دورة ضمن عضوية تُباع في التطبيق، للطالب الذي لا يملكها.",
+    tr: "Uygulamada satılan bir üyelikle gelen kursta, üyeliği olmayan öğrenci için.",
+  },
+  "100 The subscription terms shown next to a membership's subscriptions sold in the app, as the stores ask. {store} is Google Play or App Store.": {
+    en: "The subscription terms shown next to a membership's subscriptions sold in the app, as Google Play and the App Store ask. {store} is Google Play or App Store.",
+    ar: "شروط الاشتراك المعروضة بجانب اشتراكات العضوية المباعة في التطبيق، كما يطلب Google Play وApp Store. {store} هو Google Play أو App Store.",
+    tr: "Uygulamada satılan üyelik aboneliklerinin yanında, Google Play ve App Store'un istediği gibi gösterilen abonelik koşulları. {store}, Google Play veya App Store'dur.",
+  },
+  "100 Opens the store's page of the person's subscriptions (Google Play or the App Store), to change or cancel one.": {
+    en: "Opens the store's page of the person's subscriptions (Google Play or the App Store), to change or cancel one.",
+    ar: "يفتح صفحة اشتراكات الشخص في المتجر (Google Play أو App Store) لتغيير اشتراك أو إلغائه.",
+    tr: "Kişinin mağazadaki abonelikler sayfasını (Google Play veya App Store) açar; bir aboneliği değiştirmek ya da iptal etmek için.",
+  },
+  "100 Course page and Settings: gives this account the courses and memberships bought before with the same store account.": {
+    en: "On a course's page and in Settings: gives this account the courses and memberships bought before with the same store account.",
+    ar: "في صفحة الدورة وفي الإعدادات: يمنح هذا الحساب الدورات والعضويات التي اشتُريت سابقًا بحساب المتجر نفسه.",
+    tr: "Kurs sayfasında ve Ayarlar'da: aynı mağaza hesabıyla daha önce satın alınan kursları ve üyelikleri bu hesaba verir.",
+  },
+  "100 Settings: the heading over Restore purchases and Manage subscription.": {
+    en: "In Settings: the heading over Restore purchases and Manage subscription.",
+    ar: "في الإعدادات: العنوان فوق استعادة المشتريات وإدارة الاشتراك.",
+    tr: "Ayarlar'da: Satın alımları geri yükle ve Aboneliği yönet'in üstündeki başlık.",
+  },
+  "100 After Restore purchases, when purchases were found for this account.": {
+    en: "After Restore purchases, when purchases were found for this account.",
+    ar: "بعد استعادة المشتريات، عند العثور على مشتريات لهذا الحساب.",
+    tr: "Satın alımları geri yükledikten sonra, bu hesap için satın alım bulunduğunda.",
+  },
+  "100 After Restore purchases, when nothing was found for this account.": {
+    en: "After Restore purchases, when nothing was found for this account.",
+    ar: "بعد استعادة المشتريات، عندما لا يُعثر على شيء لهذا الحساب.",
+    tr: "Satın alımları geri yükledikten sonra, bu hesap için bir şey bulunamadığında.",
+  },
+  "100 A purchase in the store that waits for the payment (for example cash at a shop): nothing is given yet.": {
+    en: "A purchase in the store that waits for the payment (for example cash at a shop): nothing is given yet.",
+    ar: "عملية شراء في المتجر بانتظار الدفع (مثل الدفع نقدًا في متجر): لا يُمنح شيء بعد.",
+    tr: "Mağazada ödemeyi bekleyen bir satın alım (örneğin bir dükkânda nakit): henüz bir şey verilmez.",
+  },
+  "100 After a membership's subscription was bought in the app and confirmed.": {
+    en: "After a membership's subscription was bought in the app and confirmed.",
+    ar: "بعد شراء اشتراك العضوية في التطبيق وتأكيده.",
+    tr: "Bir üyelik aboneliği uygulamada satın alınıp onaylandıktan sonra.",
+  },
+  "100 A purchase made in the store that couldn't be confirmed yet (no connection, the store not answering); the app sends it again later.": {
+    en: "A purchase made in the store that couldn't be confirmed yet (no connection, the store not answering); the app sends it again later.",
+    ar: "عملية شراء تمت في المتجر ولم يمكن تأكيدها بعد (لا يوجد اتصال، أو المتجر لا يستجيب)؛ يرسلها التطبيق مرة أخرى لاحقًا.",
+    tr: "Mağazada yapılan ama henüz onaylanamayan bir satın alım (bağlantı yok, mağaza yanıt vermiyor); uygulama daha sonra yeniden gönderir.",
+  },
+  "100 A purchase from the store that isn't a valid purchase of this app's product.": {
+    en: "A purchase from the store that isn't a valid purchase of your app's product.",
+    ar: "عملية شراء من المتجر ليست شراءً صالحًا لمنتج تطبيقك.",
+    tr: "Mağazadan gelen ve uygulamanızın ürününün geçerli bir satın alımı olmayan satın alım.",
+  },
+  "100 A purchase from the store that already gives access to another account of the app.": {
+    en: "A purchase from the store that already gives access to another account of your app.",
+    ar: "عملية شراء من المتجر تمنح الوصول بالفعل لحساب آخر في تطبيقك.",
+    tr: "Mağazadan gelen ve uygulamanızdaki başka bir hesaba zaten erişim veren satın alım.",
+  },
+  "100 A purchase from the store that no longer gives access (an ended subscription, a refund).": {
+    en: "A purchase from the store that no longer gives access (an ended subscription, a refund).",
+    ar: "عملية شراء من المتجر لم تعد تمنح الوصول (اشتراك منتهٍ، أو استرداد).",
+    tr: "Artık erişim vermeyen bir mağaza satın alımı (sona ermiş abonelik, iade).",
+  },
+  "100 The store couldn't make the purchase.": {
+    en: "The store couldn't make the purchase.",
+    ar: "تعذّر على المتجر إتمام عملية الشراء.",
+    tr: "Mağaza satın alımı gerçekleştiremedi.",
+  },
+  "100 Buying in the app when the phone's store can't take payments (no Google Play, purchases turned off).": {
+    en: "Buying in the app when the phone's store can't take payments (no Google Play, purchases turned off).",
+    ar: "الشراء في التطبيق عندما لا يستطيع متجر الهاتف قبول الدفع (لا يوجد Google Play، أو المشتريات معطّلة).",
+    tr: "Telefonun mağazası ödeme alamadığında uygulamada satın alma (Google Play yok, satın almalar kapalı).",
+  },
   "99.4 Form block: shown in place of the form once its answers are sent, when the owner wrote no text for it.": {
     en: "Shown in place of a form once its answers are sent, when you wrote no text for it.",
     ar: "يظهر مكان النموذج بعد إرسال الإجابات، إذا لم تكتب نصًا لذلك.",

@@ -553,6 +553,11 @@ abstract class YallappApi {
   /// 77 A chat token for the signed-in person from the WordPress site
   /// (`POST /chat/session`), when `Config.chat.session` is `site`.
   Future<ChatSession> startChatSession();
+
+  /// 100 A store billing token for the signed-in person from the WordPress
+  /// site (`POST /billing/session`), when `Config.store_billing.session` is
+  /// `site`. Same shape as the chat's.
+  Future<ChatSession> startBillingSession();
   Future<Paged<Order>> listOrders({int page = 1});
 
   /// 26 One of the customer's orders, for following it.
@@ -1373,6 +1378,14 @@ class HttpYallappApi implements YallappApi {
   Future<ChatSession> startChatSession() => _send(
     'POST',
     '/chat/session',
+    _required,
+    (data) => ChatSession.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<ChatSession> startBillingSession() => _send(
+    'POST',
+    '/billing/session',
     _required,
     (data) => ChatSession.fromJson(asJson(data)),
   );

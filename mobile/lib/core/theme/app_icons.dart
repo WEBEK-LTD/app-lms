@@ -129,6 +129,9 @@ abstract final class AppIcons {
   static const closed = Symbols.door_front_rounded;
   static const fitness = Symbols.fitness_center_rounded;
   static const membership = Symbols.card_membership_rounded;
+  // 100 Purchases in the stores: restore them, manage a subscription.
+  static const restorePurchases = Symbols.restore_rounded;
+  static const manageSubscription = Symbols.autorenew_rounded;
 
   // Events & tickets apps (28).
   static const event = Symbols.event_rounded;

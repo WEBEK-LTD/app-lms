@@ -7,6 +7,8 @@ import 'core/gate/gate_view.dart';
 import 'core/l10n/l10n.dart';
 import 'core/l10n/language.dart';
 import 'core/providers.dart';
+import 'core/purchase/store_billing.dart';
+import 'core/purchase/store_billing_widgets.dart';
 import 'core/routing/app_router.dart';
 import 'core/services/analytics_providers.dart';
 import 'core/services/app_health.dart';
@@ -50,7 +52,9 @@ class YallappApp extends ConsumerWidget {
       // 53 Screenshots and screen recording blocked as the owner chose.
       ..watch(screenProtectionSyncProvider)
       // 82.1 The preview in the Pages & look editor follows the draft.
-      ..watch(draftReloadProvider);
+      ..watch(draftReloadProvider)
+      // 100 Store purchases not confirmed yet are sent again at each start.
+      ..watch(storeBillingProvider);
 
     return MaterialApp.router(
       title: env.build.appName,
@@ -72,7 +76,10 @@ class YallappApp extends ConsumerWidget {
           textDirection: direction,
           // 53 Covers protected screens while the screen is recorded (iOS).
           child: ScreenProtectionShield(
-            child: GateView(child: child ?? const SizedBox()),
+            // 100 What a store purchase came to, on any screen.
+            child: StoreBillingMessages(
+              child: GateView(child: child ?? const SizedBox()),
+            ),
           ),
         ),
       ),

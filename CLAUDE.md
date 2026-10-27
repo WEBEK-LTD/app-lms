@@ -25,7 +25,9 @@ Read `README.md`, `docs/ROADMAP.md` and `docs/ARCHITECTURE.md` first.
 - No imagery, icons or wording that suggests AI.
 - Yallapp's own pages follow `docs/BRAND.md`. Client apps use each client's
   branding; Yallapp's palette is only the default.
-- iOS never shows purchase buttons for paid courses.
+- iOS never shows a website checkout, or a link to one, for paid courses. It
+  sells them only through the App Store's in-app purchase, when the app has it
+  on (Phase 100); without it, iOS shows no purchase button.
 
 ## Checks before pushing
 

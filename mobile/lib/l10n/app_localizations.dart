@@ -6651,6 +6651,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose one'**
   String get pageFormChooseOne;
+
+  /// 100 A membership's subscription in the app: its price in the store, charged each month.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} / month'**
+  String storePricePerMonth(String price);
+
+  /// 100 A membership's subscription in the app: its price in the store, charged each year.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} / year'**
+  String storePricePerYear(String price);
+
+  /// 100 Course page of a course that comes with a membership: the button that shows the membership's subscriptions sold in the app, and each subscription's button to buy it in the store.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe'**
+  String get storeSubscribe;
+
+  /// 100 Course page of a course that comes with a membership sold in the app, for a student who has none.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe to a membership to open this course.'**
+  String get storeMembershipSubscribe;
+
+  /// 100 The subscription terms shown next to a membership's subscriptions sold in the app, as the stores ask. {store} is Google Play or App Store.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment is charged to your {store} account when you confirm the purchase. The subscription renews automatically at the same price each period until you cancel it. You can manage or cancel it in your {store} account settings.'**
+  String storeSubscriptionTerms(String store);
+
+  /// 100 Opens the store's page of the person's subscriptions (Google Play or the App Store), to change or cancel one.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage subscription'**
+  String get storeManageSubscription;
+
+  /// 100 Course page and Settings: gives this account the courses and memberships bought before with the same store account.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore purchases'**
+  String get storeRestorePurchases;
+
+  /// 100 Settings: the heading over Restore purchases and Manage subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases'**
+  String get storePurchasesGroup;
+
+  /// 100 After Restore purchases, when purchases were found for this account.
+  ///
+  /// In en, this message translates to:
+  /// **'Your purchases are restored.'**
+  String get storeRestored;
+
+  /// 100 After Restore purchases, when nothing was found for this account.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no purchases to restore for this account.'**
+  String get storeRestoredNone;
+
+  /// 100 A purchase in the store that waits for the payment (for example cash at a shop): nothing is given yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for payment. You\'ll get access once the payment is complete.'**
+  String get storePending;
+
+  /// 100 After a membership's subscription was bought in the app and confirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your membership is active.'**
+  String get storeMembershipActive;
+
+  /// 100 A purchase made in the store that couldn't be confirmed yet (no connection, the store not answering); the app sends it again later.
+  ///
+  /// In en, this message translates to:
+  /// **'Your purchase went through. We couldn\'t confirm it just now and will try again automatically.'**
+  String get storeRetryLater;
+
+  /// 100 A purchase from the store that isn't a valid purchase of this app's product.
+  ///
+  /// In en, this message translates to:
+  /// **'This purchase couldn\'t be used. If you were charged, contact us.'**
+  String get storeInvalidReceipt;
+
+  /// 100 A purchase from the store that already gives access to another account of the app.
+  ///
+  /// In en, this message translates to:
+  /// **'This purchase belongs to another account in this app. Sign in with that account to use it.'**
+  String get storePurchaseInUse;
+
+  /// 100 A purchase from the store that no longer gives access (an ended subscription, a refund).
+  ///
+  /// In en, this message translates to:
+  /// **'This purchase has ended or was refunded.'**
+  String get storePurchaseEnded;
+
+  /// 100 The store couldn't make the purchase.
+  ///
+  /// In en, this message translates to:
+  /// **'The purchase didn\'t go through. Try again.'**
+  String get storePurchaseFailed;
+
+  /// 100 Buying in the app when the phone's store can't take payments (no Google Play, purchases turned off).
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases aren\'t available on this device right now.'**
+  String get storeUnavailable;
 }
 
 class _AppLocalizationsDelegate

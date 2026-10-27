@@ -3147,5 +3147,92 @@
   "pageFormChooseOne": "Choose one",
   "@pageFormChooseOne": {
     "description": "99.4 Form block: under a choice field, when none of its choices is picked."
+  },
+  "storePricePerMonth": "{price} / month",
+  "@storePricePerMonth": {
+    "description": "100 A membership's subscription in the app: its price in the store, charged each month.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "storePricePerYear": "{price} / year",
+  "@storePricePerYear": {
+    "description": "100 A membership's subscription in the app: its price in the store, charged each year.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "storeSubscribe": "Subscribe",
+  "@storeSubscribe": {
+    "description": "100 Course page of a course that comes with a membership: the button that shows the membership's subscriptions sold in the app, and each subscription's button to buy it in the store."
+  },
+  "storeMembershipSubscribe": "Subscribe to a membership to open this course.",
+  "@storeMembershipSubscribe": {
+    "description": "100 Course page of a course that comes with a membership sold in the app, for a student who has none."
+  },
+  "storeSubscriptionTerms": "Payment is charged to your {store} account when you confirm the purchase. The subscription renews automatically at the same price each period until you cancel it. You can manage or cancel it in your {store} account settings.",
+  "@storeSubscriptionTerms": {
+    "description": "100 The subscription terms shown next to a membership's subscriptions sold in the app, as the stores ask. {store} is Google Play or App Store.",
+    "placeholders": {
+      "store": {
+        "type": "String"
+      }
+    }
+  },
+  "storeManageSubscription": "Manage subscription",
+  "@storeManageSubscription": {
+    "description": "100 Opens the store's page of the person's subscriptions (Google Play or the App Store), to change or cancel one."
+  },
+  "storeRestorePurchases": "Restore purchases",
+  "@storeRestorePurchases": {
+    "description": "100 Course page and Settings: gives this account the courses and memberships bought before with the same store account."
+  },
+  "storePurchasesGroup": "Purchases",
+  "@storePurchasesGroup": {
+    "description": "100 Settings: the heading over Restore purchases and Manage subscription."
+  },
+  "storeRestored": "Your purchases are restored.",
+  "@storeRestored": {
+    "description": "100 After Restore purchases, when purchases were found for this account."
+  },
+  "storeRestoredNone": "There are no purchases to restore for this account.",
+  "@storeRestoredNone": {
+    "description": "100 After Restore purchases, when nothing was found for this account."
+  },
+  "storePending": "Waiting for payment. You'll get access once the payment is complete.",
+  "@storePending": {
+    "description": "100 A purchase in the store that waits for the payment (for example cash at a shop): nothing is given yet."
+  },
+  "storeMembershipActive": "Your membership is active.",
+  "@storeMembershipActive": {
+    "description": "100 After a membership's subscription was bought in the app and confirmed."
+  },
+  "storeRetryLater": "Your purchase went through. We couldn't confirm it just now and will try again automatically.",
+  "@storeRetryLater": {
+    "description": "100 A purchase made in the store that couldn't be confirmed yet (no connection, the store not answering); the app sends it again later."
+  },
+  "storeInvalidReceipt": "This purchase couldn't be used. If you were charged, contact us.",
+  "@storeInvalidReceipt": {
+    "description": "100 A purchase from the store that isn't a valid purchase of this app's product."
+  },
+  "storePurchaseInUse": "This purchase belongs to another account in this app. Sign in with that account to use it.",
+  "@storePurchaseInUse": {
+    "description": "100 A purchase from the store that already gives access to another account of the app."
+  },
+  "storePurchaseEnded": "This purchase has ended or was refunded.",
+  "@storePurchaseEnded": {
+    "description": "100 A purchase from the store that no longer gives access (an ended subscription, a refund)."
+  },
+  "storePurchaseFailed": "The purchase didn't go through. Try again.",
+  "@storePurchaseFailed": {
+    "description": "100 The store couldn't make the purchase."
+  },
+  "storeUnavailable": "Purchases aren't available on this device right now.",
+  "@storeUnavailable": {
+    "description": "100 Buying in the app when the phone's store can't take payments (no Google Play, purchases turned off)."
   }
 }

@@ -2390,6 +2390,41 @@ the app gave is kept in the user's `yallapp_store_access` meta, so a revoke
 never takes access the student had from the website. The route stays open
 during maintenance and while the app is paused.
 
+100.5 The app (`mobile/lib/core/purchase/`). `Config.store_billing` turns
+buying in the app on; without it no digital content is sold in the app
+(iOS shows no purchase button, as before). The store sits behind
+`StoreClient`: `InAppStoreClient` uses the official `in_app_purchase`
+plugin (Google Play Billing; StoreKit 2, the plugin's default), the app
+preview uses `PreviewStoreClient` (products without a price; buying says
+it works in the installed app), tests a fake. `HttpStoreBillingApi` calls
+`store_billing.base_url`: `GET /billing/products` without a token, the
+purchases with the app's access token or, for WordPress (`session: site`),
+a token from `POST /billing/session` renewed on a 401 (the chat's
+`SiteChatTokens`). The prices shown are the store's (`queryProductDetails`;
+a Google subscription's base plan). `StoreBillingController` (watched at
+the app root) sends each purchase on the plugin's purchase stream (the
+Google purchase token or the StoreKit transaction's JWS) and finishes it
+only after a 200 with an active grant; 400 `invalid_receipt`, 409
+`purchase_in_use` and an expired or revoked grant also finish it (with
+their messages); a `pending` grant, 503 `store_unavailable`, no network,
+429 or a 401 leave it unfinished: it is sent again after 1, 5, 15 and 30
+minutes, when the app comes back to the front, at the next start
+(StoreKit hands unfinished transactions over again; on Android
+`queryPastPurchases`' unacknowledged ones) and when the store delivers it
+again. "Restore purchases" (the course page's bar, Settings › Purchases)
+sends Android's owned purchases or iOS's current entitlements to
+`POST /billing/purchases/restore`. `StoreBillingMessages` shows the
+outcome on any screen and reloads the courses after a grant, so the course
+page opens as enrolled. The course page's `store` action shows the store's
+price and "Enroll now"; a membership's `store_product_ids` show
+"Subscribe" and a sheet with each plan's price per month or year, the
+terms Apple asks for (renews until cancelled, managed in the store's
+account settings), `store_billing.terms_url` (else the site's terms, else
+on iOS Apple's standard licence agreement), the privacy policy, "Manage
+subscription" (Google Play's or the App Store's subscriptions page) and
+"Restore purchases". Where the app sells in the app, "See memberships on
+the website" isn't offered on either platform.
+
 100.6 Sales. Each change of a purchase is kept as an event
 (`store_purchase_events`: bought, renewed, refunded, revoked, expired, with
 the store price the app had then; store test purchases are marked and left
