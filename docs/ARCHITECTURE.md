@@ -3345,7 +3345,18 @@ without a new build. The app renders whatever the API sends.
   reads at most 30 files an hour (`RATE_LIMITS.figmaRead`). Local tests use
   a fake API (`FIGMA_API_TEST_URL`, refused on Netlify). Apps on their own API
   get only the bundled font from the build config, unless their API sends
-  `font_files` itself.
+  `font_files` itself. 97.5 Frames marked Page become pages of the draft
+  (`lib/figma/pages.ts`): the frames are read with everything in them
+  (`/v1/files/:key/nodes`, up to 10), their texts made Text blocks (headings
+  by size and weight), buttons Button blocks, a search field a Search box, a
+  picture with a heading over it a Banner, and pictures, drawings and rows
+  of cards Image blocks that Figma draws (up to 30, kept as `figma_image`
+  assets and named by their own `/api/v1/assets/` address, which the page
+  checks accept). The status bar, top bar (its title names the page) and
+  tab bar are the app's own; the tab bar's labels can become the tabs.
+  Buttons and tabs open the page of the same name or the screen their words
+  name, else the first page. The editor adds the pages to the draft as one
+  step (undone in one), saved and checked like any edit.
 - **Pages.** `GET /pages` returns the bottom tabs and the page list;
   `GET /pages/{slug}` returns one page as a list of blocks: banner, text
   (HTML), image, video, button, a list of items, categories, search,

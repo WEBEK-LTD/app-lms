@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { importFigmaFramesAction, readFigmaLinkAction, uploadFigmaImageAction, type FigmaLinkError } from "@/app/actions/pages";
+import { importFigmaFramesAction, importFigmaPagesAction, readFigmaLinkAction, uploadFigmaImageAction, type FigmaLinkError } from "@/app/actions/pages";
 import { useDashFormat, useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
 import type { FigmaFrame } from "@/lib/figma/api";
+import { FIGMA_PAGE_LIMITS, type FigmaImportedPage } from "@/lib/figma/pages";
 import { readTokens, suggestLook, TOKEN_LIMITS, type FigmaTokens } from "@/lib/figma/tokens";
 import { CORNER_LABELS } from "@/lib/pages/labels";
 import { CORNERS, type Corners, type FigmaLook, type FigmaPicture, type LookMode } from "@/lib/pages/types";
@@ -37,18 +38,22 @@ async function usableFont(family: string, own: readonly string[]): Promise<boole
  * 97.3 The Figma look, apart from the standard one: the switch between the
  * two, what the Figma look holds, and its import from files exported from
  * Figma (design tokens, logo, pictures) with a preview to choose from. What
- * is chosen goes into the draft; publishing shows it in the app.
+ * is chosen goes into the draft; publishing shows it in the app. 97.5 With
+ * `onAddPages`, frames read from a link can also become pages.
  */
 export function FigmaLookPanel({
   mode,
   look,
   ownFonts,
   onChange,
+  onAddPages,
 }: {
   mode: LookMode;
   look: FigmaLook | undefined;
   ownFonts: readonly string[];
   onChange: (patch: { look_mode?: LookMode; figma_look?: FigmaLook | undefined }) => void;
+  /** 97.5 Adds the pages (and the tab bar's labels as tabs) to the draft; the titles added, or null when there's no room. */
+  onAddPages?: (pages: FigmaImportedPage[], tabs: string[] | null) => string[] | null;
 }) {
   const t = useDashT();
   const known = useKnownText();
@@ -64,6 +69,8 @@ export function FigmaLookPanel({
   const [token, setToken] = useState("");
   const [logoFrame, setLogoFrame] = useState<string | null>(null);
   const [pictureFrames, setPictureFrames] = useState<string[]>([]);
+  const [pageFrames, setPageFrames] = useState<string[]>([]);
+  const [useTabs, setUseTabs] = useState(true);
 
   function figmaError(error: FigmaLinkError, retryAfterSeconds?: number): string {
     if (error === "limit") return t("pages.figmaErrLimit", { minutes: Math.max(1, Math.ceil((retryAfterSeconds ?? 60) / 60)) });
@@ -84,6 +91,7 @@ export function FigmaLookPanel({
     setDraft({ file, source, frames, tokens, primary: suggested.primary ?? "#0E0D24", secondary: suggested.secondary, font: suggested.font, corners: suggested.corners ?? "soft" });
     setLogoFrame(null);
     setPictureFrames([]);
+    setPageFrames([]);
     return checkFont(suggested.font);
   }
 
@@ -146,6 +154,31 @@ export function FigmaLookPanel({
     setStatus(null);
     try {
       setLogo(await upload(file));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  /** 97.5 The frames marked Page, read from Figma and added to the draft as pages. */
+  async function addPages() {
+    if (!draft || !onAddPages) return;
+    const frames = pageFrames.map((id) => draft.frames.find((f) => f.id === id)).filter((f): f is FigmaFrame => Boolean(f));
+    if (!frames.length) return;
+    setBusy(true);
+    setStatus(null);
+    try {
+      const result = await importFigmaPagesAction(
+        link,
+        token,
+        frames.map((f) => ({ id: f.id, name: f.name })),
+      );
+      if (!result.ok) return setStatus({ ok: false, text: figmaError(result.error, result.retryAfterSeconds) });
+      if (!result.pages.length) return setStatus({ ok: false, text: t("pages.figmaPagesNone", { frames: frames.map((f) => f.name).join(", ") }) });
+      const added = onAddPages(result.pages, useTabs ? result.tabs : null);
+      if (!added) return setStatus({ ok: false, text: t("pages.figmaPagesFull") });
+      setPageFrames([]);
+      const failed = result.failed.length ? ` ${t("pages.figmaPagesNone", { frames: result.failed.join(", ") })}` : "";
+      setStatus({ ok: true, text: `${t("pages.figmaPagesAdded", { pages: added.join(", ") })}${failed}` });
     } finally {
       setBusy(false);
     }
@@ -376,9 +409,11 @@ export function FigmaLookPanel({
               <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
                 <legend className="mb-1 p-0 text-sm font-bold">{t("pages.figmaFrames", { file: draft.file })}</legend>
                 <p className="m-0 text-xs text-muted">{t("pages.figmaFramesHint")}</p>
+                {onAddPages ? <p className="m-0 text-xs text-muted">{t("pages.figmaPagesHint")}</p> : null}
                 <ul className="m-0 grid list-none grid-cols-2 gap-2 p-0 sm:grid-cols-3 lg:grid-cols-4">
                   {draft.frames.map((f) => {
                     const asPicture = pictureFrames.includes(f.id);
+                    const asPage = pageFrames.includes(f.id);
                     return (
                       <li key={f.id} className="flex min-w-0 flex-col gap-1.5 rounded-lg border border-line p-2 text-sm">
                         <span className="flex h-24 items-center justify-center overflow-hidden rounded-md bg-ivory">
@@ -415,11 +450,36 @@ export function FigmaLookPanel({
                             />
                             <span aria-hidden="true">{t("pages.figmaPicture")}</span>
                           </label>
+                          {onAddPages ? (
+                            <label className="flex items-center gap-1.5">
+                              <input
+                                type="checkbox"
+                                checked={asPage}
+                                disabled={!asPage && pageFrames.length >= FIGMA_PAGE_LIMITS.frames}
+                                aria-label={t("pages.figmaUsePage", { name: f.name })}
+                                onChange={(e) => setPageFrames((all) => (e.target.checked ? [...all, f.id] : all.filter((id) => id !== f.id)))}
+                                className="h-4 w-4 accent-midnight"
+                              />
+                              <span aria-hidden="true">{t("pages.figmaPage")}</span>
+                            </label>
+                          ) : null}
                         </span>
                       </li>
                     );
                   })}
                 </ul>
+                {onAddPages ? (
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button type="button" className={`${btn.secondary} h-10`} disabled={!pageFrames.length || busy} onClick={() => void addPages()}>
+                      <Icon name="add" size={18} />
+                      {t("pages.figmaAddPages")}
+                    </button>
+                    <label className="flex items-center gap-1.5 text-sm">
+                      <input type="checkbox" checked={useTabs} onChange={(e) => setUseTabs(e.target.checked)} className="h-4 w-4 accent-midnight" />
+                      {t("pages.figmaUseTabs")}
+                    </label>
+                  </div>
+                ) : null}
               </fieldset>
             ) : null}
           </section>

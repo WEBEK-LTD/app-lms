@@ -59,6 +59,34 @@ function figmaApi(req: { url?: string; headers: Record<string, string | string[]
       },
     };
   }
+  if (url.pathname === `/v1/files/${FIGMA_KEY}/nodes` && url.searchParams.get("ids") === "1:2") {
+    // 97.5 The Home frame with everything in it, as a designer draws a screen.
+    const box = (x: number, y: number, width: number, height: number) => ({ x, y, width, height });
+    const text = (id: string, characters: string, y: number, fontSize: number, x = 16) => ({ id, type: "TEXT", name: characters, characters, style: { fontSize, fontWeight: fontSize > 20 ? 700 : 400 }, absoluteBoundingBox: box(x, y, 200, fontSize * 1.4) });
+    return {
+      status: 200,
+      body: {
+        nodes: {
+          "1:2": {
+            document: {
+              id: "1:2",
+              type: "FRAME",
+              name: "Home",
+              absoluteBoundingBox: box(0, 0, 390, 844),
+              children: [
+                { id: "2:1", type: "FRAME", name: "Top bar", absoluteBoundingBox: box(0, 0, 390, 56), children: [text("2:2", "Harbour", 16, 20)] },
+                text("2:3", "Welcome aboard", 80, 28),
+                text("2:4", "Courses for sailors", 124, 14),
+                { id: "2:5", type: "RECTANGLE", name: "Photo", fills: [{ type: "IMAGE", imageRef: "a" }], absoluteBoundingBox: box(16, 160, 358, 200) },
+                { id: "2:6", type: "INSTANCE", name: "Button", fills: [{ type: "SOLID", color: { r: 0, g: 0, b: 0, a: 1 } }], cornerRadius: 12, absoluteBoundingBox: box(16, 380, 358, 52), children: [text("2:7", "My courses", 394, 16)] },
+                { id: "2:8", type: "FRAME", name: "Tab bar", absoluteBoundingBox: box(0, 780, 390, 64), children: [text("2:9", "Home", 810, 11), text("2:10", "Courses", 810, 11, 140), text("2:11", "Account", 810, 11, 280)] },
+              ],
+            },
+          },
+        },
+      },
+    };
+  }
   if (url.pathname === `/v1/files/${FIGMA_KEY}/nodes`) {
     return {
       status: 200,
@@ -419,6 +447,43 @@ test("97.4 the client brings the look from a Figma link with a token that isn't 
   await own.getByRole("radio", { name: "Standard look" }).check();
   await own.getByRole("button", { name: "Publish", exact: true }).click();
   await expect(own.getByText("Published. Your app shows the new pages")).toBeVisible();
+});
+
+test("97.5 frames from a Figma link become pages of the app, their tab bar its tabs", async () => {
+  await own.goto("/dashboard/pages");
+  await own.getByRole("tab", { name: "Look" }).click();
+  const fromLink = own.getByRole("region", { name: "Import from a Figma link" });
+  await fromLink.getByLabel("Link to the Figma file").fill(`https://www.figma.com/design/${FIGMA_KEY}/Harbour-app`);
+  await fromLink.getByLabel("Personal access token").fill(FIGMA_TOKEN);
+  await fromLink.getByRole("button", { name: "Read the file" }).click();
+  const frames = own.getByRole("group", { name: "Frames in Harbour app" });
+  await frames.getByLabel("Make Home a page of the app").check();
+  await expect(own.getByLabel("Make the app's tabs from the file's tab bar")).toBeChecked();
+  await own.getByRole("button", { name: "Add as pages" }).click();
+  await expect(own.getByRole("status").filter({ hasText: "Added to your draft: Harbour. They're in the Pages tab." })).toBeVisible();
+  // Checked and saved like any edit.
+  await expect(own.getByText(/^Draft saved/)).toBeVisible({ timeout: 15_000 });
+
+  // Its texts as one Text block, its photo drawn by Figma, its button opening the screen its words name.
+  await own.getByRole("tab", { name: "Pages" }).click();
+  await own.getByRole("button", { name: /^Harbour/ }).click();
+  await expect(own.getByText("/harbour · 3 blocks")).toBeVisible();
+  const blocks = own.getByRole("list", { name: "Blocks" }).getByRole("listitem");
+  await expect(blocks.nth(0)).toContainText("Text: Welcome aboard");
+  await expect(blocks.nth(1)).toContainText("Image");
+  await expect(blocks.nth(2)).toContainText("Button: My courses");
+  // The tab bar's labels are the app's tabs, each to the page or screen it names.
+  await own.getByRole("tab", { name: "Tabs" }).click();
+  await expect(own.getByRole("group", { name: /^Tab 1/ }).getByLabel("Label", { exact: true })).toHaveValue("Home");
+  await expect(own.getByRole("group", { name: /^Tab 2/ }).getByLabel("Label", { exact: true })).toHaveValue("Courses");
+  await expect(own.getByRole("group", { name: /^Tab 2/ }).getByLabel("Screen")).toHaveValue("courses");
+  await expect(own.getByRole("group", { name: /^Tab 3/ }).getByLabel("Screen")).toHaveValue("account");
+
+  // Undone in one step, for the tests after this one.
+  await own.getByRole("button", { name: "Undo" }).click();
+  await expect(own.getByText(/^Draft saved/)).toBeVisible({ timeout: 15_000 });
+  await own.getByRole("tab", { name: "Pages" }).click();
+  await expect(own.getByRole("button", { name: /^Harbour/ })).toHaveCount(0);
 });
 
 test("31 the editor offers only what the app's type has, and flags what a type change left behind", async () => {
