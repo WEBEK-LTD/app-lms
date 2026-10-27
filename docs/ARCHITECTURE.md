@@ -2439,6 +2439,48 @@ Console's real-time notifications. The pricing table has an In-app purchases
 row, and the terms and the privacy policy say what the stores' keys and the
 purchase records are used for.
 
+100.7 Apps on their own API, Teachable and Thinkific. `storeBillingSource`
+(`access.ts`) adds `own_api` (an academy on its own API that Yallapp signs
+people in to: the purchases are those accounts') and `teachable` and
+`thinkific` (hosted connector apps). The owner's list of what the app sells
+(`store_billing_items`, `items.ts`, Dashboard › In-app purchases › What the
+app sells) holds courses (the ID in the owner's system, title, site price,
+currency) and membership plans (ID, title, price, monthly or yearly, the
+course IDs they open); items are stopped, never deleted, and a plan's
+period stays as it was made. For a school, the connector's `storeCourses`
+reads the paid courses and their one-time price (Teachable: the cheapest
+`one_time` pricing plan, in the minor unit as the app already shows it;
+Thinkific: the primary price when its `payment_type` is `one-time`); a
+listed course of the same ID replaces the school's, a stopped one isn't
+sold, and courses sold only by subscription or payment plan are listed by
+the owner. `wantedFromItems` turns both into the plugin's catalog shape, one
+currency at a time, so `wantedFromCatalog` and `reconcileProducts` make the
+products as in 100.2 (`reconcileSource`, before each sync and when the page
+opens); a school that can't be read changes nothing. Access
+(`delivery.ts`): an own API gets the signed `purchase.completed` or
+`purchase.revoked` notice (`api_webhooks`, the 49 notices: same key, tries
+and job), its `jti` the purchase change's grant ID, its claim in the row's
+`data`; the purchase is delivered (and a Google purchase acknowledged) only
+once the API answered 2xx, so the purchase job looks at an own API's
+waiting purchases on every run, and "Send again" on In-app purchases
+settles the purchase at once. A notice whose purchase changed again before
+it was delivered is dropped (`A newer change of this purchase replaced
+it`). A school enrols the student the app shows courses to (the connectors'
+`student`, by the verified email or Yallapp's stable address) through
+`storeAccess`: Teachable `POST /enroll` and `POST /unenroll`, Thinkific
+`POST /enrollments` and `PUT /enrollments/{id}` with `expiry_date` (a
+membership's until a day after its paid period). A course the student had
+already is left alone; the courses Yallapp gave are kept on the purchase
+(`grantedCourseIds`), a revoke ends only those, and one another active
+purchase of the person opens stays and becomes that purchase's. A school's
+course page says `store` (or names the plans that open it,
+`membership.store_product_ids`) through the hosted API (`offerInStore` in
+`lib/hosted/service.ts`); `Config.store_billing` comes as for the
+dashboard's courses. An own API sends `store_billing` and the `store`
+action itself, from `GET /billing/products` (the developer guide's "Sell in
+the app", and the page's For your developer). Analytics' in-app sales
+follow `storeBillingSource`, so these apps get them too.
+
 ## Notification campaigns (Phase 85)
 
 ### Audiences (85.1)

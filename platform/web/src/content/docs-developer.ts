@@ -26,7 +26,7 @@ The rules that apply everywhere:
 
 - JSON in and out, UTF-8. Dates and times in ISO 8601, in UTC (for example \`2026-10-14T09:30:00Z\`).
 - Signed-in calls send \`Authorization: Bearer\` followed by the access token you issued.
-- The app sends \`platform=android\` or \`platform=ios\` where the reference asks for it. Use it for the purchase rules: never offer paid digital content on iOS.
+- The app sends \`platform=android\` or \`platform=ios\` where the reference asks for it. Use it for the purchase rules: never offer a website checkout for paid digital content on iOS. Sell it in the app through the stores instead ([Sell in the app](#sell-in-the-app)), or not at all.
 - \`Accept-Language\` carries the language the user picked (\`en\`, \`ar\` or \`tr\`). Answer with your texts in that language when you have them.
 - Image and link addresses are full https URLs.
 
@@ -362,6 +362,59 @@ An app built before the owner chose Yallapp still sends sign-in to your API. The
 "auth": { "provider": "yallapp", "base_url": "https://yallapp.com.tr/api/app/{app_id}" }
 ~~~
 
+## Sell in the app
+
+Paid courses and memberships are bought in the app through Google Play and the App Store, as both stores ask for digital content. Yallapp checks each purchase with the store and keeps it; your API shows what is for sale and gives the access. It needs [Yallapp signing people in](#let-yallapp-sign-people-in): a purchase belongs to that account.
+
+1. In the dashboard, open **In-app purchases**. List each paid course (its ID in your API, its title and price) and each membership plan (its ID, price, monthly or yearly, and the IDs of the courses it opens), then turn on selling in the app. Yallapp makes the products in the owner's Google Play and App Store accounts: \`course_<course ID>\` and \`plan_<plan ID>\`.
+2. \`GET https://yallapp.com.tr/api/app/{app_id}/billing/products?platform=android\` (or \`ios\`, no token) lists the products ready in that store. Read it every few minutes.
+3. While it lists a product for the platform, add \`store_billing\` to your \`/config\`, and no website checkout:
+
+~~~json
+"store_billing": { "base_url": "https://yallapp.com.tr/api/app/{app_id}", "session": "access_token" },
+"purchases": { "enroll_button": false, "free_enrollment": true }
+~~~
+
+4. On the page of a paid course the person hasn't got (\`GET /courses/{course_id}\`), when its product is in the list:
+
+~~~json
+"purchase": { "action": "store", "store_product_id": "course_12" }
+~~~
+
+A course that only a membership opens says \`"action": "none"\` and names the plans' products instead:
+
+~~~json
+"membership": { "has_access": false, "plans": ["Gold"], "store_product_ids": ["plan_gold"] }
+~~~
+
+5. Take the purchase notices below, and give the access.
+
+The app buys with the store, sends the purchase to Yallapp with the person's access token, and opens the course once Yallapp answers that the access is given.
+
+### Purchase notices
+
+Each purchase, renewal, refund and ended membership reaches \`<your API address>/webhooks/yallapp\` like the [account deletion notices](#account-deletion-notices), signed the same way, with \`Yallapp-Event\` set to \`purchase.completed\` or \`purchase.revoked\`. Its \`events\` claim:
+
+~~~json
+{
+  "purchase.completed": {
+    "product_id": "plan_gold", "kind": "membership", "item_id": "gold",
+    "course_ids": [12, 15], "platform": "android",
+    "transaction_id": "GPA.3300-1111-2222-33333",
+    "expires_at": "2026-11-12T10:00:00Z",
+    "amount": "99.00", "currency": "TRY", "test": false
+  }
+}
+~~~
+
+- \`purchase.completed\`: give the person (\`sub\`) the course, or the plan's courses until \`expires_at\`. A renewal sends it again with a later \`expires_at\`.
+- \`purchase.revoked\`: take it back. \`reason\` is \`refunded\`, \`revoked\` or \`expired\`.
+- \`jti\` is the same on every try of one change, and new for the next change: act once per \`jti\`, and answer 2xx to repeats.
+- Answer 2xx only once the access is given or taken. Until then the app tells the buyer the store couldn't be reached and sends the purchase again, and Google refunds an Android purchase that isn't confirmed within three days.
+- \`test\` is true for the stores' test purchases: give the access, but don't count them as sales.
+
+**In-app purchases** in the dashboard lists the purchase notices of the last 30 days, with **Send again** for a failed one.
+
 ## Content, with an example
 
 Lists are paged. The app sends \`page\` (from 1) and \`per_page\` (up to 50) and expects the page details next to the \`items\`:
@@ -464,7 +517,7 @@ The preview never sends sign-in codes. To let your client try the signed-in scre
 - Sign-in works end to end for each method in \`auth.methods\`, including a new number (or email address), refresh and sign-out. When Yallapp signs people in: your API accepts a test token, and finds or creates the user by \`sub\`
 - Signed-in calls answer 401 with an expired token, and refresh works once per refresh token
 - Deleting the account (\`DELETE /me\`) works, as Apple and Google require. When Yallapp signs people in: your API takes the signed notice at \`/webhooks/yallapp\` and deletes the user by \`sub\`
-- On iOS, no paid digital content offers a purchase
+- On iOS, no paid digital content offers a website checkout: it's sold through the App Store's in-app purchase, or not at all
 - A test number with a fixed code works for store reviewers, and a test email address too when you offer email sign-in
 - The app preview reaches your API: requests from https://yallapp.com.tr are allowed
 - Lists are paged and stay fast with \`per_page\` set to 50

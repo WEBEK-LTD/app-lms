@@ -1,6 +1,6 @@
 import type { HostedUser } from "../../data/types";
 import { error, intParam, verifiedEmail } from "./common";
-import { registerPlatform, type PlatformConnector, type PlatformDefinition, type PlatformDeps } from "./platforms";
+import { registerPlatform, type PlatformConnector, type PlatformDefinition, type PlatformDeps, StoreAccessError, type StoreAccessInput } from "./platforms";
 import { ConnectorError, type ConnectorRequest, type ConnectorResult } from "./types";
 
 /**
@@ -25,7 +25,10 @@ import { ConnectorError, type ConnectorRequest, type ConnectorResult } from "./t
  * The app doesn't sell courses: a purchase on Teachable's checkout is made
  * with whatever e-mail the buyer types and can't be matched to the app's
  * student, so paid courses are sold on the school's website only. Free
- * courses are enrolled in from the app.
+ * courses are enrolled in from the app. 100.7 Paid courses can also be
+ * bought in the app through Google Play and the App Store when the owner
+ * sells in the app (lib/store-billing): the hosted API turns the course
+ * page's `none` into `store`, and `storeAccess` enrols the buyer.
  */
 
 const API = "https://developers.teachable.com/v1";
@@ -297,6 +300,14 @@ const percentOf = (value: unknown) => {
 
 /** Whether a plan is free. Unverified: `frequency.type` "free" comes from a mirror of the API's schema; a price of 0 counts too. */
 const isFreePlan = (plan: TPlan) => plan.frequency?.type === "free" || plan.price === 0;
+
+/**
+ * 100.7 A plan paid once, with a price in a named currency: the only kind
+ * whose price becomes a one-time store product. Unverified: the value
+ * "one_time" of `frequency.type` (from the same mirror of the schema).
+ */
+const isOneTimePlan = (plan: TPlan) =>
+  plan.frequency?.type === "one_time" && typeof plan.price === "number" && Number.isSafeInteger(plan.price) && plan.price > 0 && /^[A-Za-z]{3}$/.test(plan.currency?.trim() ?? "");
 
 function formatPrice(cents: number, currency: string | null): string {
   const amount = cents / 100;
@@ -1077,6 +1088,82 @@ export class TeachableConnector implements PlatformConnector {
     const done = await this.completed(request, found.course.id);
     done.add(id);
     return { status: 200, body: this.progressJson(found.course.id, found.outline, done) };
+  }
+
+  // 100.7 Selling in the app through Google Play and the App Store
+
+  /**
+   * The school's paid courses: each with its cheapest one-time plan's price
+   * (Unverified, as the app shows it: `price` in the currency's minor unit),
+   * or no price when the course is sold only by subscription or payment
+   * plan (the owner lists it on In-app purchases then).
+   */
+  async storeCourses(): Promise<{ id: number; title: string; price: string | null; currency: string | null }[]> {
+    const plans = await this.plans();
+    return (await this.courseList()).flatMap((course) => {
+      const pricing = this.pricing(course.id, plans);
+      if (pricing.free) return [];
+      const once = plans.filter((p) => p.course_id === course.id && isOneTimePlan(p)).sort((a, b) => a.price! - b.price!)[0];
+      return [
+        {
+          id: course.id,
+          title: course.name?.trim() || `Course ${course.id}`,
+          price: once ? (once.price! / 100).toFixed(2) : null,
+          currency: once ? once.currency!.trim().toUpperCase() : null,
+        },
+      ];
+    });
+  }
+
+  /** The student's enrolments as Teachable has them now (not cached). */
+  private async activeEnrollments(studentId: number): Promise<Set<number>> {
+    this.forget(`account:${studentId}`);
+    const body = await this.client.request<{ user?: TUser } & Partial<TUser>>("GET", `/users/${studentId}`);
+    const courses = (body?.user?.courses ?? body?.courses ?? []).filter((c) => Number.isSafeInteger(c?.course_id) && c.is_active_enrollment !== false);
+    return new Set(courses.map((c) => c.course_id));
+  }
+
+  /**
+   * Enrols the app's student (the same Teachable student the app shows
+   * courses to) in courses bought in the app, or unenrols them. A course
+   * the student had already from the school is left alone. Teachable has
+   * no end date on an enrolment: a membership's courses are unenrolled
+   * when it ends. Unverified: `POST /unenroll` with the same body as
+   * `POST /enroll`, and 404 or 422 for a student who isn't (or is already) enrolled.
+   */
+  async storeAccess(input: StoreAccessInput): Promise<{ granted: number[] }> {
+    const studentId = await this.student(input.user);
+    const granted: number[] = [];
+    if (input.action === "grant") {
+      const enrolled = await this.activeEnrollments(studentId);
+      try {
+        for (const courseId of input.courseIds) {
+          if (enrolled.has(courseId) && !input.ours.includes(courseId)) continue;
+          if (!enrolled.has(courseId)) {
+            try {
+              await this.client.request("POST", "/enroll", { body: { user_id: studentId, course_id: courseId } });
+            } catch (e) {
+              if (!(e instanceof TeachableError && e.status === 422)) throw e;
+            }
+          }
+          granted.push(courseId);
+        }
+      } catch (e) {
+        // What was given before it failed is Yallapp's to take back later.
+        if (e instanceof ConnectorError) throw new StoreAccessError(e.message, granted);
+        throw e;
+      }
+    } else {
+      for (const courseId of input.courseIds) {
+        try {
+          await this.client.request("POST", "/unenroll", { body: { user_id: studentId, course_id: courseId } });
+        } catch (e) {
+          if (!(e instanceof TeachableError && (e.status === 404 || e.status === 422))) throw e;
+        }
+      }
+    }
+    this.forget(`account:${studentId}`);
+    return { granted };
   }
 
   /**

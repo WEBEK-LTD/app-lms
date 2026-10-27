@@ -2138,6 +2138,40 @@ export interface StorePurchaseRecord {
   reason: "refunded" | "revoked" | "expired" | null;
   /** A store test purchase (license tester, sandbox). */
   test: boolean;
+  /**
+   * 100.7 Teachable or Thinkific: the courses Yallapp enrolled the person in
+   * for this purchase, never ones they had already (bought on the school's
+   * website), so taking it back leaves those. Missing or null: none.
+   */
+  grantedCourseIds?: number[] | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * 100.7 One thing the owner sells in the app, listed on Dashboard › In-app
+ * purchases, for apps whose source can't say it (an app on its own API) or
+ * can't price it (Teachable, Thinkific): a course (its ID in the owner's
+ * system) or a membership plan (its ID, period and the courses it opens).
+ * Its store product is made from it as from the plugin's catalog. Never
+ * deleted: a stopped item stops its product, and can be sold again.
+ */
+export interface StoreBillingItem {
+  id: string;
+  appId: string;
+  kind: StoreProductKind;
+  /** The course's ID (a whole number, as text) or the plan's ID, as the owner's system has it. */
+  itemId: string;
+  title: string;
+  /** The price on the owner's site, a decimal string. */
+  price: string;
+  currency: string;
+  /** A membership's period. */
+  period: "month" | "year" | null;
+  /** The courses a membership opens. */
+  courseIds: number[];
+  /** Sold; false: stopped by the owner (on Teachable or Thinkific, also a school's course the owner stopped). */
+  active: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -2899,7 +2933,16 @@ export interface DonationSettings {
  * signs people in to. Retried with backoff (lib/hosted/api-webhooks.ts),
  * listed on App sign-in › For your developer, kept 30 days (`api_webhooks`).
  */
-export type ApiWebhookEvent = "account.deleted";
+/** 100.7 `purchase.completed` and `purchase.revoked`: a store purchase gives or takes access in the client's system. */
+export type ApiWebhookEvent = "account.deleted" | "purchase.completed" | "purchase.revoked";
+
+/** 100.7 What a purchase notice carries besides its event. */
+export interface ApiWebhookData {
+  /** The change of the purchase it tells of; the notice is dropped when the purchase changed again before it was delivered. */
+  purchase?: { id: string; platform: StorePlatform; storeKey: string; status: StorePurchaseRecord["status"]; expiresAt: string | null };
+  /** The event's claim (`events["purchase.completed"]`). */
+  event?: Record<string, unknown>;
+}
 /** pending: waiting for its next try; delivered: the API answered 2xx; failed: no more tries. */
 export type ApiWebhookStatus = "pending" | "delivered" | "failed";
 
@@ -2921,6 +2964,8 @@ export interface ApiWebhook {
   lastError: string | null;
   createdAt: Date;
   deliveredAt: Date | null;
+  /** 100.7 A purchase notice's change and claim; null or missing for `account.deleted`. */
+  data?: ApiWebhookData | null;
 }
 
 export type ApiWebhookPatch = Partial<Pick<ApiWebhook, "status" | "attempts" | "nextAttemptAt" | "lastAttemptAt" | "lastStatus" | "lastError" | "deliveredAt">>;

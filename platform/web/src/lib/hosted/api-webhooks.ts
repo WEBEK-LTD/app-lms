@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { isPrivateAddress, resolveHost } from "../app/api-check";
 import { pinnedFetch } from "../net/safe-fetch";
 import type { DataStore } from "../data/store";
-import type { ApiWebhook, App } from "../data/types";
+import type { ApiWebhook, ApiWebhookData, ApiWebhookEvent, App } from "../data/types";
 import { ensureAuthKey, signSecurityEvent, tokenIssuer } from "./app-auth";
 import { yallappSignsIn } from "./sign-in-methods";
 import { noteAppError } from "../watch/app-errors";
@@ -33,6 +33,12 @@ import { noteAppError } from "../watch/app-errors";
  *
  * The app still calls the client's `DELETE /me` first, when the API answers
  * it; it goes on to Yallapp whatever that call answers.
+ *
+ * 100.7 The same notices tell the client's API of store purchases
+ * (`purchase.completed`, `purchase.revoked`, queued by
+ * lib/store-billing/delivery.ts with the purchase change's grant ID as
+ * `jti`), listed on In-app purchases. One whose purchase changed again
+ * before it was delivered is dropped, never sent late.
  */
 
 export const WEBHOOK_PATH = "/webhooks/yallapp";
@@ -94,6 +100,54 @@ export async function queueAccountDeleted(deps: WebhookDeps, app: App, subject: 
   return webhook;
 }
 
+/**
+ * 100.7 Queues a store purchase's notice (`purchase.completed` or
+ * `purchase.revoked`, openapi.yaml webhook `storePurchase`), due now, under
+ * the ID that is the same for every try of this change of the purchase. A
+ * notice queued already under it (two sends at once) is returned instead.
+ * Null for apps that don't get notices.
+ */
+export async function queuePurchaseNotice(
+  deps: Pick<WebhookDeps, "store" | "now">,
+  app: App,
+  input: { id: string; event: Extract<ApiWebhookEvent, "purchase.completed" | "purchase.revoked">; subject: string; data: ApiWebhookData },
+): Promise<ApiWebhook | null> {
+  if (!sendsApiWebhooks(app)) return null;
+  const now = deps.now();
+  const webhook: ApiWebhook = {
+    id: input.id,
+    appId: app.id,
+    event: input.event,
+    subject: input.subject.slice(0, 64),
+    status: "pending",
+    attempts: 0,
+    nextAttemptAt: now,
+    lastAttemptAt: null,
+    lastStatus: null,
+    lastError: null,
+    createdAt: now,
+    deliveredAt: null,
+    data: input.data,
+  };
+  try {
+    await deps.store.createApiWebhook(webhook);
+  } catch (error) {
+    const found = await deps.store.getApiWebhook(input.id);
+    if (found) return found;
+    throw error;
+  }
+  return webhook;
+}
+
+/** 100.7 A purchase notice whose purchase changed again (or is gone) since it was queued: never sent late. */
+export const REPLACED = "A newer change of this purchase replaced it.";
+async function replaced(store: DataStore, webhook: ApiWebhook): Promise<boolean> {
+  const change = webhook.data?.purchase;
+  if (!change) return false;
+  const purchase = await store.getStorePurchase(webhook.appId, change.platform, change.storeKey);
+  return !purchase || purchase.id !== change.id || purchase.status !== change.status || (purchase.expiresAt?.toISOString() ?? null) !== change.expiresAt;
+}
+
 /** What a try's answer means: delivered, worth another try, or failed for good. */
 export function outcomeOf(status: number | null): "delivered" | "retry" | "failed" {
   if (status === null) return "retry";
@@ -123,7 +177,8 @@ export async function signedNotice(deps: WebhookDeps, webhook: ApiWebhook, now: 
     jti: webhook.id,
     iat,
     exp: iat + 300,
-    events: { [webhook.event]: {} },
+    // 100.7 A purchase notice carries its claim (product, kind, item, platform...).
+    events: { [webhook.event]: webhook.data?.event ?? {} },
   });
 }
 
@@ -142,6 +197,8 @@ export async function attemptWebhook(deps: WebhookDeps, webhook: ApiWebhook, tim
   let finalError: string | null = null;
   if (!app || !sendsApiWebhooks(app)) {
     finalError = "The app no longer has its own API with Yallapp signing people in.";
+  } else if (await replaced(deps.store, webhook)) {
+    finalError = REPLACED;
   } else {
     const url = webhookUrl(app.apiBaseUrl!);
     try {
@@ -183,8 +240,8 @@ export async function attemptWebhook(deps: WebhookDeps, webhook: ApiWebhook, tim
         ? { status: "pending" as const, nextAttemptAt: new Date(done.getTime() + RETRY_MINUTES[attempts - 1]! * MINUTE), lastError: errorText(status, reason) }
         : { status: "failed" as const, nextAttemptAt: null, lastError: finalError ?? errorText(status, reason) };
   await deps.store.updateApiWebhook(webhook.id, { ...patch, attempts, lastAttemptAt: done, lastStatus: status });
-  // 78.4 A try that didn't reach the app's API: counted for the team.
-  if (outcome !== "delivered" && app) {
+  // 78.4 A try that didn't reach the app's API: counted for the team (100.7 not a replaced purchase notice).
+  if (outcome !== "delivered" && app && finalError !== REPLACED) {
     await noteAppError(deps.store, { clientId: app.clientId, appId: app.id, source: "webhook", code: patch.status === "failed" ? "delivery_failed" : "delivery_retry", detail: `${webhook.event}: ${patch.lastError ?? "not delivered"}` }, done);
   }
   return { ...webhook, ...patch, attempts, lastAttemptAt: done, lastStatus: status };

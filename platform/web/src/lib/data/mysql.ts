@@ -8,7 +8,7 @@ import { clientAccountState, longestLicense } from "../license/status";
 import type { BuildConfig } from "../build-config/types";
 import * as schema from "../db/schema";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
-import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, SavedSection, StoreProduct, StorePurchaseRecord, StorePurchaseEvent, BillingSession } from "./types";
+import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, SavedSection, StoreProduct, StorePurchaseRecord, StorePurchaseEvent, StoreBillingItem, BillingSession } from "./types";
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
@@ -40,7 +40,7 @@ import type { OwnerNotice, OwnerNoticeKind, OwnerNoticePatch } from "./types";
 import type { DemoPurgeCounts } from "./types";
 // 46 Links and crash reports
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
-import type { ApiWebhook, ApiWebhookPatch } from "./types";
+import type { ApiWebhook, ApiWebhookEvent, ApiWebhookPatch } from "./types";
 import type { PaymentRefund, RefundKind } from "./types";
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
@@ -2922,6 +2922,24 @@ export class MysqlStore implements DataStore {
     await this.run((db) => db.insert(schema.storeProducts).values(product).onDuplicateKeyUpdate({ set: rest }));
   }
 
+  // 100.7 What the owner listed as sold in the app
+
+  async listStoreBillingItems(appId: string): Promise<StoreBillingItem[]> {
+    const t = schema.storeBillingItems;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(asc(t.kind), asc(t.title), asc(t.itemId)));
+  }
+
+  async saveStoreBillingItem(item: StoreBillingItem): Promise<void> {
+    // The unique (app, kind, item ID) keeps the first id and creation time.
+    const { id: _id, appId: _appId, kind: _kind, itemId: _itemId, createdAt: _createdAt, ...rest } = item;
+    void _id;
+    void _appId;
+    void _kind;
+    void _itemId;
+    void _createdAt;
+    await this.run((db) => db.insert(schema.storeBillingItems).values(item).onDuplicateKeyUpdate({ set: rest }));
+  }
+
   // 100.3 Store purchases and billing sessions
 
   async getStorePurchase(appId: string, platform: StorePurchaseRecord["platform"], storeKey: string): Promise<StorePurchaseRecord | null> {
@@ -3505,9 +3523,17 @@ export class MysqlStore implements DataStore {
     await this.run((db) => db.update(schema.apiWebhooks).set(patch).where(eq(schema.apiWebhooks.id, id)));
   }
 
-  async listApiWebhooks(appId: string, limit: number): Promise<ApiWebhook[]> {
+  async listApiWebhooks(appId: string, limit: number, events?: ApiWebhookEvent[]): Promise<ApiWebhook[]> {
     const w = schema.apiWebhooks;
-    return this.run((db) => db.select().from(w).where(eq(w.appId, appId)).orderBy(desc(w.createdAt), asc(w.id)).limit(limit));
+    if (events && events.length === 0) return [];
+    return this.run((db) =>
+      db
+        .select()
+        .from(w)
+        .where(events ? and(eq(w.appId, appId), inArray(w.event, events)) : eq(w.appId, appId))
+        .orderBy(desc(w.createdAt), asc(w.id))
+        .limit(limit),
+    );
   }
 
   async purgeApiWebhooks(before: Date): Promise<number> {

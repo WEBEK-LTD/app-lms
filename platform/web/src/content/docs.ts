@@ -2149,7 +2149,7 @@ If a pack ends while your files take more than your storage, nothing is deleted 
     title: "In-app purchases: courses and memberships through Google Play and the App Store",
     description: "Sell paid courses and memberships in your app through Google Play and the App Store: connect your store accounts, prices, testing, refunds and your sales.",
     steps: false,
-    body: `Google Play and the App Store ask apps to sell digital content, such as courses and memberships that open courses, through their own payment. With **In-app purchases**, your app does exactly that: people buy with Google Play or the App Store, and Yallapp gives them the course, or the membership until it ends. It comes with every plan but Starter, for academies whose courses are in your dashboard or on your WordPress site.
+    body: `Google Play and the App Store ask apps to sell digital content, such as courses and memberships that open courses, through their own payment. With **In-app purchases**, your app does exactly that: people buy with Google Play or the App Store, and Yallapp gives them the course, or the membership until it ends. It comes with every plan but Starter, for academies whose courses are in your dashboard, on your WordPress site, on Teachable or Thinkific, or on your own API.
 
 Google and Apple pay you directly, into your own developer accounts, and keep their fee (15% to 30%, depending on your program with each store). Physical things and services, such as shop products, restaurant orders, appointments and tickets, keep your card payment page.
 
@@ -2173,6 +2173,18 @@ Yallapp then makes a product for each paid course, and a monthly or yearly subsc
 - Your **Paid Applications** agreement, tax and banking must be active in App Store Connect (**Business**).
 - Apple reviews new in-app purchases with the next version of your app you send for review. Add a review screenshot to each in-app purchase in App Store Connect before you send it.
 - Yallapp sets your app's App Store Server Notifications address for you.
+
+## Teachable and Thinkific
+
+Your school's paid courses are sold at their one-time price, read from your school. On **In-app purchases**, under **What the app sells**, select **Change** to set a course's price for the app, or **Stop selling** to leave one out. Add the courses your school sells only by subscription or payment plan, and your membership plans with the IDs of the courses they open.
+
+A buyer is enrolled in your school as the student the app shows courses to. When a refund or the end of a membership takes the access back, Yallapp unenrolls them only from what the app gave, never from a course they bought on your website. On Thinkific, a membership's enrolments end a day after its paid period unless it renews.
+
+## Your own API
+
+Your app needs Yallapp to sign people in (**App sign-in**). On **In-app purchases**, under **What the app sells**, add each paid course with its ID in your API, its title and price, and each membership plan with its ID, price, monthly or yearly, and the IDs of the courses it opens. **Stop selling** leaves one out; the people who bought it keep it.
+
+Your developer adds what the app needs to your API, and takes Yallapp's signed notice of each purchase, renewal and refund: see [Sell in the app](/docs/my-own-api#sell-in-the-app). Until your API confirms a purchase, the buyer doesn't get the course. **For your developer** lists the notices of the last 30 days, with **Send again** for a failed one.
 
 ## Prices
 

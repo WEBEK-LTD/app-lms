@@ -37,8 +37,8 @@ export const CONNECTOR_VERSIONS: Record<ConnectorId, ConnectorVersion> = {
   wix: { name: "Wix", version: "1.0.0", api: "Wix REST APIs (Stores, Bookings)" },
   salla: { name: "Salla", version: "1.0.0", api: "Salla Admin API v2 (OAuth 2)" },
   zid: { name: "Zid", version: "1.0.0", api: "Zid API v1 (OAuth 2)" },
-  teachable: { name: "Teachable", version: "1.0.0", api: "Teachable API v1" },
-  thinkific: { name: "Thinkific", version: "1.0.0", api: "Thinkific Public API v1" },
+  teachable: { name: "Teachable", version: "1.1.0", api: "Teachable API v1" },
+  thinkific: { name: "Thinkific", version: "1.1.0", api: "Thinkific Public API v1" },
   simplybook: { name: "SimplyBook.me", version: "1.0.0", api: "SimplyBook.me API v2 (REST)" },
   rss: { name: "RSS feed", version: "1.0.0", api: "RSS 2.0 and Atom feeds" },
 };

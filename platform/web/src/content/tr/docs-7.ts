@@ -32,7 +32,7 @@ Her yerde geçerli kurallar:
 
 - Giriş ve çıkışta JSON, UTF-8. Tarihler ve saatler ISO 8601 biçiminde, UTC olarak (örneğin \`2026-10-14T09:30:00Z\`).
 - Giriş gerektiren çağrılar \`Authorization: Bearer\` ve ardından sizin verdiğiniz erişim belirtecini gönderir.
-- Uygulama, başvurunun istediği yerlerde \`platform=android\` veya \`platform=ios\` gönderir. Bunu satın alma kuralları için kullanın: iOS'ta asla ücretli dijital içerik sunmayın.
+- Uygulama, başvurunun istediği yerlerde \`platform=android\` veya \`platform=ios\` gönderir. Bunu satın alma kuralları için kullanın: iOS'ta ücretli dijital içerik için asla web sitesi ödemesi sunmayın. Bunun yerine mağazalar üzerinden uygulama içinde satın ([Uygulama içinde satış](#sell-in-the-app)) ya da hiç satmayın.
 - \`Accept-Language\`, kullanıcının seçtiği dili taşır (\`en\`, \`ar\` veya \`tr\`). Elinizde varsa metinlerinizi o dilde yanıtlayın.
 - Görsel ve bağlantı adresleri tam https URL'leridir.
 
@@ -368,6 +368,59 @@ Sahibi Yallapp'i seçmeden önce derlenen bir uygulama girişi hâlâ API'nize g
 "auth": { "provider": "yallapp", "base_url": "https://yallapp.com.tr/api/app/{app_id}" }
 ~~~
 
+## Uygulama içinde satış {#sell-in-the-app}
+
+Ücretli kurslar ve üyelikler, iki mağazanın da dijital içerik için istediği gibi uygulama içinde Google Play ve App Store üzerinden satın alınır. Yallapp her satın almayı mağazayla doğrular ve saklar; API'niz satışta olanı gösterir ve erişimi verir. Bunun için [oturum açmayı Yallapp'ın yapması](#let-yallapp-sign-people-in) gerekir: satın alma o hesaba aittir.
+
+1. Panelde **Uygulama içi satın alma** sayfasını açın. Her ücretli kursu (API'nizdeki kimliği, başlığı ve fiyatı) ve her üyelik planını (kimliği, fiyatı, aylık veya yıllık oluşu ve açtığı kursların kimlikleri) ekleyin, ardından uygulama içi satışı açın. Yallapp ürünleri sahibin Google Play ve App Store hesaplarında oluşturur: \`course_<course ID>\` ve \`plan_<plan ID>\`.
+2. \`GET https://yallapp.com.tr/api/app/{app_id}/billing/products?platform=android\` (veya \`ios\`, belirteç gerekmez) o mağazada hazır olan ürünleri listeler. Birkaç dakikada bir okuyun.
+3. Platform için bir ürün listelendiği sürece \`/config\` yanıtınıza \`store_billing\` ekleyin ve web sitesi ödemesi sunmayın:
+
+~~~json
+"store_billing": { "base_url": "https://yallapp.com.tr/api/app/{app_id}", "session": "access_token" },
+"purchases": { "enroll_button": false, "free_enrollment": true }
+~~~
+
+4. Kişinin sahip olmadığı ücretli bir kursun sayfasında (\`GET /courses/{course_id}\`), ürünü listedeyse:
+
+~~~json
+"purchase": { "action": "store", "store_product_id": "course_12" }
+~~~
+
+Yalnızca bir üyeliğin açtığı bir kurs \`"action": "none"\` der ve bunun yerine planların ürünlerini verir:
+
+~~~json
+"membership": { "has_access": false, "plans": ["Gold"], "store_product_ids": ["plan_gold"] }
+~~~
+
+5. Aşağıdaki satın alma bildirimlerini alın ve erişimi verin.
+
+Uygulama mağazadan satın alır, satın almayı kişinin erişim belirteciyle Yallapp'a gönderir ve Yallapp erişimin verildiğini söyleyince kursu açar.
+
+### Satın alma bildirimleri {#purchase-notices}
+
+Her satın alma, yenileme, iade ve biten üyelik, [hesap silme bildirimleri](#account-deletion-notices) gibi aynı şekilde imzalanmış olarak \`<your API address>/webhooks/yallapp\` adresine gelir; \`Yallapp-Event\` değeri \`purchase.completed\` veya \`purchase.revoked\` olur. \`events\` talebi:
+
+~~~json
+{
+  "purchase.completed": {
+    "product_id": "plan_gold", "kind": "membership", "item_id": "gold",
+    "course_ids": [12, 15], "platform": "android",
+    "transaction_id": "GPA.3300-1111-2222-33333",
+    "expires_at": "2026-11-12T10:00:00Z",
+    "amount": "99.00", "currency": "TRY", "test": false
+  }
+}
+~~~
+
+- \`purchase.completed\`: kişiye (\`sub\`) kursu ya da planın kurslarını \`expires_at\` tarihine kadar verin. Yenilemede daha sonraki bir \`expires_at\` ile yeniden gönderilir.
+- \`purchase.revoked\`: erişimi geri alın. \`reason\` değeri \`refunded\`, \`revoked\` veya \`expired\` olur.
+- \`jti\` bir değişikliğin her denemesinde aynıdır, sonraki değişiklikte yenidir: her \`jti\` için bir kez işlem yapın ve tekrarlara 2xx ile yanıt verin.
+- Yalnızca erişim verildikten veya geri alındıktan sonra 2xx ile yanıt verin. O zamana kadar uygulama alıcıya mağazaya ulaşılamadığını söyler ve satın almayı yeniden gönderir; Google da üç gün içinde onaylanmayan bir Android satın almasını iade eder.
+- Mağazaların test satın almalarında \`test\` true olur: erişimi verin ama bunları satış olarak saymayın.
+
+Paneldeki **Uygulama içi satın alma** sayfası son 30 günün satın alma bildirimlerini, başarısız olanlar için **Yeniden gönder** ile listeler.
+
 ## İçerik, bir örnekle
 
 Listeler sayfalıdır. Uygulama \`page\` (1'den başlayarak) ve \`per_page\` (en fazla 50) gönderir ve sayfa bilgilerini \`items\`'ın yanında bekler:
@@ -470,7 +523,7 @@ Vary: Origin
 - Giriş, \`auth.methods\` içindeki her yöntem için baştan sona çalışıyor; yeni bir numara (veya e-posta adresi), yenileme ve çıkış dahil. Girişi Yallapp yaptığında: API'niz bir test belirtecini kabul ediyor ve kullanıcıyı \`sub\` ile buluyor ya da oluşturuyor
 - Giriş gerektiren çağrılar süresi dolmuş bir belirteçle 401 yanıtı veriyor ve yenileme her yenileme belirteci için bir kez çalışıyor
 - Apple ve Google'ın istediği gibi hesap silme (\`DELETE /me\`) çalışıyor. Girişi Yallapp yaptığında: API'niz \`/webhooks/yallapp\` adresindeki imzalı bildirimi alıyor ve kullanıcıyı \`sub\` ile siliyor
-- iOS'ta hiçbir ücretli dijital içerik satın alma sunmuyor
+- iOS'ta hiçbir ücretli dijital içerik web sitesi ödemesi sunmuyor: App Store'un uygulama içi satın alımıyla satılıyor ya da hiç satılmıyor
 - Mağaza inceleyicileri için sabit kodlu bir test numarası ve e-postayla giriş sunuyorsanız bir test e-posta adresi de çalışıyor
 - Uygulama önizlemesi API'nize ulaşıyor: https://yallapp.com.tr adresinden gelen isteklere izin veriliyor
 - Listeler sayfalı ve \`per_page\` 50 olduğunda da hızlı

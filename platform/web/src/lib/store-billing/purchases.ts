@@ -202,10 +202,10 @@ export async function savePurchaseChange(deps: Pick<PurchaseDeps, "store" | "now
 export async function settlePurchase(deps: PurchaseDeps, app: App, purchase: StorePurchaseRecord): Promise<{ ok: boolean; purchase: StorePurchaseRecord }> {
   let current = purchase;
   if (!current.delivered && current.status !== "pending") {
-    const delivered = await deliverPurchase(deps, app, current);
-    current = { ...current, delivered, updatedAt: deps.now };
+    const delivery = await deliverPurchase(deps, app, current);
+    current = { ...current, delivered: delivery.ok, ...(delivery.grantedCourseIds ? { grantedCourseIds: delivery.grantedCourseIds } : {}), updatedAt: deps.now };
     await deps.store.saveStorePurchase(current);
-    if (!delivered) return { ok: false, purchase: current };
+    if (!delivery.ok) return { ok: false, purchase: current };
   }
   if (current.platform === "android" && current.status === "active" && !current.acknowledged && current.purchaseToken) {
     try {

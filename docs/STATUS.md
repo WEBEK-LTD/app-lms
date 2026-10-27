@@ -7,7 +7,7 @@ and whenever a pull request is opened, merged or closed.
 
 Last updated: 27 October 2026.
 
-## Phase 100 (courses and memberships bought in the app): 100.1–100.6 merged, 100.7 next
+## Phase 100 (courses and memberships bought in the app): 100.1–100.6 merged, 100.7 done on its branch
 
 | Step | State | Branch | Checks |
 |---|---|---|---|
@@ -17,7 +17,7 @@ Last updated: 27 October 2026.
 | 100.4 Plugin 0.4.23: give and take access | Merged (#160) | `wip-billing-plugin` | composer lint, `php -l`, PHPUnit 250 (16 new), redocly lint. The LMS integration suites run in CI |
 | 100.5 App: Google Play Billing and StoreKit | Merged (#161) | `wip-billing-app` | dart format, flutter analyze, flutter test 955, the preview rebuilt, the platform's app-string tests |
 | 100.6 Sales, the guide, the terms | Merged (#159) | `wip-billing-sales` | tsc, eslint, unit 2007, the store suites on MariaDB, redocly lint, e2e: analytics, owner API, public pages, integrations, site languages, hosted courses |
-| 100.7 Own API, Teachable and Thinkific | Not started | — | — |
+| 100.7 Own API, Teachable and Thinkific | Done, waiting for review | `wip-billing-own` | tsc, eslint, unit 2028 (19 new), the store suites on MariaDB (migrations to 0092, 94 tests), redocly lint, e2e: in-app purchases on an own API (new), hosted courses, Yallapp sign-in, analytics, owner API, integrations, site languages, public pages, dashboard languages |
 
 Notes:
 
@@ -38,6 +38,15 @@ Notes:
 - The plugin's campaign check failed now and then (its reader joined after
   the campaign, and the inbox shows what came from the second someone
   joined). Fixed in 100.6.
+- 100.7 Teachable's and Thinkific's enrolment calls (Teachable `POST /enroll`
+  and `POST /unenroll`, Thinkific `POST /enrollments` and
+  `PUT /enrollments/{id}` with `expiry_date`), Teachable's price unit (the
+  minor unit, as the app already shows it) and the `one_time` and
+  `one-time` payment types were tested against recorded answers only: try
+  them on real schools before release (LAUNCH-CHECKLIST).
+- 100.7 An app on its own API sends `store_billing` and the `store` action
+  from its own API (the developer guide's "Sell in the app"); the app isn't
+  changed.
 - CI on a pull request checks only what its latest push changed and cancels
   the run before it: after a small push, re-run the pull request's first
   full run (or push all of it again) before merging.
@@ -59,7 +68,7 @@ Notes:
 - Google real-time notifications: create the Pub/Sub topic and its push
   subscription, then set `GOOGLE_PUBSUB_PUSH_EMAIL` and `GOOGLE_PUBSUB_TOPIC`
   in Netlify (`docs/LAUNCH-CHECKLIST.md`).
-- Run migrations up to 0091 on production when 100.6 is deployed.
+- Run migrations up to 0091 on production when 100.6 is deployed (0092 with 100.7).
 - Install plugin 0.4.23 on the client sites once 100.5's app update is out.
 - Yallapp Business iOS build 61.
 - Close #154.

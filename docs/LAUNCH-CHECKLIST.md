@@ -1495,6 +1495,19 @@ routine every few years):
 - Migration `0091_store_purchase_events` (100.6, sales of in-app
   purchases) runs with the others at deploy.
 
+- Migration `0092_store_billing_items` (100.7, the owner's list of what
+  the app sells, purchase notices' claims, the courses given on a school)
+  runs with the others at deploy.
+- [ ] 100.7 With a Teachable (Growth) and a Thinkific (Grow) test school:
+      In-app purchases lists the paid courses at their one-time price
+      (check Teachable's price is the course's real price, not a hundred
+      times it: its API's unit isn't documented); buy a course with a
+      license tester or sandbox account: the student the app shows courses
+      to is enrolled; refund it in Play Console: they're unenrolled, and a
+      course they bought on the school's website stays. With a test API
+      that takes the signed notices: a purchase reaches it as
+      `purchase.completed`, a refund as `purchase.revoked`.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |
@@ -1519,4 +1532,5 @@ routine every few years):
 | 36.5, 36.6 | An AppGallery Connect account with a test app (first version submitted by hand), a Connect API client (App administrator), Push Kit on, and a Huawei phone without Google Play to install the build and receive a push |
 | 42.7 | A Xiaomi developer account with a test app already on GetApps, its automatic publishing API private key and public certificate: one build checked with `/dev/query`, uploaded and submitted by the pipeline |
 | 100.2–100.6 | A test academy published in Google Play (internal testing) and App Store Connect (TestFlight), its service account and App Store Connect key with the rights the In-app purchases page lists, a license tester in Play Console and a sandbox tester in App Store Connect |
+| 100.7 | A Teachable school (Growth plan) and a Thinkific school (Grow plan) with paid courses, to check their prices and the enrolment and unenrolment endpoints; a test API on its own that takes the signed purchase notices |
 | 25.5 | Yallapp's partner apps: a Salla Partners app (custom mode, callback `/oauth/salla`, webhook `/api/webhooks/salla`) and a Zid Partner Dashboard app (redirect `/oauth/zid`), saved in admin Settings, plus a Salla demo store and a Zid test store to connect |

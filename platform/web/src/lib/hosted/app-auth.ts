@@ -138,7 +138,8 @@ export interface SecurityEventClaims {
   jti: string;
   iat: number;
   exp: number;
-  events: Record<string, Record<string, never>>;
+  /** 100.7 A purchase notice's event carries its claim; `account.deleted` an empty one. */
+  events: Record<string, Record<string, unknown>>;
 }
 
 /** 49 Signs a notice with the app's key, as `secevent+jwt`. */

@@ -61,7 +61,7 @@ import type {
 } from "../data/types";
 // 11.6 and 11.8
 import type { BuildFailure, BuildRelease, ListingTranslation, ReviewsRow, RolloutState, ScreenshotFrame, StagedRelease } from "../data/types";
-import type { OwnFontFile, StorePurchaseEventKind, StoreAccountSource, StoreBillingSettings, StorePlatform, StoreProductKind, StoreProductSync } from "../data/types";
+import type { ApiWebhookData, OwnFontFile, StorePurchaseEventKind, StoreAccountSource, StoreBillingSettings, StorePlatform, StoreProductKind, StoreProductSync } from "../data/types";
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
 import type { Plan } from "../plans";
 import type { Layout, LayoutBlock, LayoutContent } from "../pages/types";
@@ -1387,6 +1387,8 @@ export const storePurchases = mysqlTable(
     delivered: boolean("delivered").notNull(),
     reason: varchar("reason", { length: 16 }).$type<"refunded" | "revoked" | "expired">(),
     test: boolean("test").notNull(),
+    // 100.7 Teachable and Thinkific: the courses Yallapp enrolled the person in for it.
+    grantedCourseIds: jsonText<number[]>("granted_course_ids"),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -1395,6 +1397,28 @@ export const storePurchases = mysqlTable(
     index("store_purchases_account_idx").on(t.appId, t.accountSource, t.accountId),
     index("store_purchases_due_idx").on(t.delivered, t.updatedAt),
   ],
+);
+
+// 100.7 What an app on its own API (or a Teachable or Thinkific school) sells in the app, as the owner listed it.
+export const storeBillingItems = mysqlTable(
+  "store_billing_items",
+  {
+    id: id("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    kind: varchar("kind", { length: 16 }).notNull().$type<StoreProductKind>(),
+    itemId: varchar("item_id", { length: 64 }).notNull(),
+    title: varchar("title", { length: 200 }).notNull(),
+    price: varchar("price", { length: 20 }).notNull(),
+    currency: varchar("currency", { length: 3 }).notNull(),
+    period: varchar("period", { length: 8 }).$type<"month" | "year">(),
+    courseIds: jsonText<number[]>("course_ids").notNull(),
+    active: boolean("active").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("store_billing_items_app_item_idx").on(t.appId, t.kind, t.itemId)],
 );
 
 // 100.6 What happened to each store purchase, for sales.
@@ -1810,6 +1834,8 @@ export const apiWebhooks = mysqlTable(
     lastError: varchar("last_error", { length: 200 }),
     createdAt: time("created_at").notNull(),
     deliveredAt: time("delivered_at"),
+    // 100.7 A purchase notice's change and claim.
+    data: jsonText<ApiWebhookData>("data"),
   },
   (t) => [index("api_webhooks_due_idx").on(t.status, t.nextAttemptAt), index("api_webhooks_app_idx").on(t.appId, t.createdAt)],
 );

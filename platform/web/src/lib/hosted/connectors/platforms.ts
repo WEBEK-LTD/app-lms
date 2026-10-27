@@ -1,6 +1,6 @@
 import { decrypt, encrypt } from "../../crypto/encryption";
 import type { DataStore } from "../../data/store";
-import type { App, AppType, ConnectorConfig } from "../../data/types";
+import type { App, AppType, ConnectorConfig, HostedUser } from "../../data/types";
 import { partnerAppCredentials, type PartnerAppKey, type PartnerCredentials } from "./partner-apps";
 import { ConnectorError, type Connector } from "./types";
 
@@ -40,6 +40,45 @@ export interface PlatformField {
 export interface PlatformConnector extends Connector {
   /** Checks the keys; returns the shop's or school's name. Throws ConnectorError when they don't work. */
   check(): Promise<string>;
+  /**
+   * 100.7 A school's paid courses for selling in the app, each with its
+   * one-time price when the platform's API gives one it can be sure of
+   * (null otherwise: the owner lists it). Throws ConnectorError when the
+   * school can't be read.
+   */
+  storeCourses?(): Promise<{ id: number; title: string; price: string | null; currency: string | null }[]>;
+  /**
+   * 100.7 Gives (`grant`) or takes back (`revoke`) a student's access to
+   * courses bought in the app, through the platform's enrolment API, with
+   * the student the app's content uses. A grant leaves alone a course the
+   * student has already (from the school's website) unless Yallapp gave it
+   * (`ours`), and returns the courses Yallapp gave; a revoke ends exactly
+   * `courseIds`. Throws ConnectorError when the platform can't be reached.
+   */
+  storeAccess?(input: StoreAccessInput): Promise<{ granted: number[] }>;
+}
+
+/** 100.7 A `storeAccess` that stopped part way: the courses it gave before it failed. */
+export class StoreAccessError extends ConnectorError {
+  constructor(
+    message: string,
+    readonly granted: number[],
+  ) {
+    super(message);
+    this.name = "StoreAccessError";
+  }
+}
+
+/** 100.7 What a platform's `storeAccess` gets. */
+export interface StoreAccessInput {
+  user: HostedUser;
+  action: "grant" | "revoke";
+  courseIds: number[];
+  /** Courses Yallapp enrolled the student in already for this purchase. */
+  ours: number[];
+  /** A membership's end of the paid period (null: a course, for good). */
+  expiresAt: Date | null;
+  now: Date;
 }
 
 export interface PlatformDeps {

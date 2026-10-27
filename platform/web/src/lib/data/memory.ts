@@ -2,7 +2,7 @@ import { clientAccountState, longestLicense } from "../license/status";
 import { newId } from "../crypto/tokens";
 import { membershipActive, membershipFreezeSet, membershipToUse } from "../bookings/memberships";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
-import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, PendingPayment, SavedSection, StoreProduct, StorePurchaseRecord, StorePurchaseEvent, BillingSession } from "./types";
+import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, PendingPayment, SavedSection, StoreProduct, StorePurchaseRecord, StorePurchaseEvent, StoreBillingItem, BillingSession } from "./types";
 import type { CampaignSend, HostedCart, HostedOrderWatch, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 import type { LoyaltyEntry, LoyaltyReason } from "./types";
 import type {
@@ -99,7 +99,7 @@ import { assetIdsIn } from "./asset-ids";
 import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 // 46 Links and crash reports
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
-import type { ApiWebhook, ApiWebhookPatch } from "./types";
+import type { ApiWebhook, ApiWebhookEvent, ApiWebhookPatch } from "./types";
 import type { PaymentRefund, RefundKind } from "./types";
 import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
 import { mergeCrash } from "../crashes/report";
@@ -2307,6 +2307,23 @@ export class MemoryStore implements DataStore {
       .map(clone);
   }
 
+  // 100.7 What the owner listed as sold in the app
+
+  private storeBillingItems: StoreBillingItem[] = [];
+
+  async listStoreBillingItems(appId: string): Promise<StoreBillingItem[]> {
+    return this.storeBillingItems
+      .filter((i) => i.appId === appId)
+      .sort((a, b) => a.kind.localeCompare(b.kind) || a.title.localeCompare(b.title) || a.itemId.localeCompare(b.itemId))
+      .map(clone);
+  }
+
+  async saveStoreBillingItem(item: StoreBillingItem): Promise<void> {
+    const same = this.storeBillingItems.find((i) => i.appId === item.appId && i.kind === item.kind && i.itemId === item.itemId);
+    const saved = clone({ ...item, id: same?.id ?? item.id, createdAt: same?.createdAt ?? item.createdAt });
+    this.storeBillingItems = [...this.storeBillingItems.filter((i) => i !== same), saved];
+  }
+
   async createBillingSession(session: BillingSession): Promise<void> {
     this.billingSessions.set(session.tokenHash, clone(session));
   }
@@ -2976,9 +2993,9 @@ export class MemoryStore implements DataStore {
     if (found) this.apiWebhooks.set(id, clone({ ...found, ...patch }));
   }
 
-  async listApiWebhooks(appId: string, limit: number): Promise<ApiWebhook[]> {
+  async listApiWebhooks(appId: string, limit: number, events?: ApiWebhookEvent[]): Promise<ApiWebhook[]> {
     return [...this.apiWebhooks.values()]
-      .filter((w) => w.appId === appId)
+      .filter((w) => w.appId === appId && (!events || events.includes(w.event)))
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
       .slice(0, limit)
       .map(clone);

@@ -119,6 +119,8 @@ export const E2E = {
   gatewaysAdminEmail: "gateways-admin@yallapp.test",
   // 96.2 Bank transfer and the owner's own method.
   manualPayAdminEmail: "manual-pay-admin@yallapp.test",
+  /** 100.7 The super admin of tests/e2e/in-app-purchases-own-api.spec.ts. */
+  inAppAdminEmail: "in-app-admin@yallapp.test",
   /** 81.3 A fake website every site scan (and 81.4 every import link and picture) reads (SITE_SCAN_TEST_URL); tests/e2e/site-start.spec.ts and import.spec.ts run it. */
   siteScanPort: Number(process.env.E2E_SITE_SCAN_PORT ?? 3293),
   /** 97.1 A fake github.com/google/fonts the font files are copied from (GOOGLE_FONTS_TEST_URL); tests/e2e/pages.spec.ts runs it. */
@@ -168,7 +170,7 @@ export default defineConfig({
       YALLAPP_MEDIA_DIR: ".data/e2e-media",
       YALLAPP_MAIL_DIR: E2E.mailDir,
       YALLAPP_OWNER_PUSH_DIR: E2E.ownerPushDir,
-      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail},${E2E.teamAdminEmail},${E2E.contentAdminEmail},${E2E.appsAdminEmail},${E2E.publishingAdminEmail},${E2E.plansAdminEmail},${E2E.demosAdminEmail},${E2E.clinicAdminEmail},${E2E.newsAdminEmail},${E2E.restaurantAdminEmail},${E2E.fitnessAdminEmail},${E2E.eventsAdminEmail},${E2E.charityAdminEmail},${E2E.paymentsAdminEmail},${E2E.signInAdminEmail},${E2E.translationsAdminEmail},${E2E.analyticsAdminEmail},${E2E.linksAdminEmail},${E2E.pricesAdminEmail},${E2E.refundsAdminEmail},${E2E.mediaAdminEmail},${E2E.languagesAdminEmail},${E2E.bellAdminEmail},${E2E.dashboardLanguagesAdminEmail},${E2E.ownerApiAdminEmail},${E2E.teamMembersAdminEmail},${E2E.accountDeletionAdminEmail},${E2E.twoStepAdminEmail},${E2E.phase73AdminEmail},${E2E.chatAdminEmail},${E2E.productAdminEmail},${E2E.watchingAdminEmail},${E2E.isolationAdminEmail},${E2E.integrationsAdminEmail},${E2E.siteStartAdminEmail},${E2E.importAdminEmail},${E2E.liveEditorAdminEmail},${E2E.starterAdminEmail},${E2E.invoicesAdminEmail},${E2E.gatewaysAdminEmail},${E2E.manualPayAdminEmail}`,
+      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail},${E2E.teamAdminEmail},${E2E.contentAdminEmail},${E2E.appsAdminEmail},${E2E.publishingAdminEmail},${E2E.plansAdminEmail},${E2E.demosAdminEmail},${E2E.clinicAdminEmail},${E2E.newsAdminEmail},${E2E.restaurantAdminEmail},${E2E.fitnessAdminEmail},${E2E.eventsAdminEmail},${E2E.charityAdminEmail},${E2E.paymentsAdminEmail},${E2E.signInAdminEmail},${E2E.translationsAdminEmail},${E2E.analyticsAdminEmail},${E2E.linksAdminEmail},${E2E.pricesAdminEmail},${E2E.refundsAdminEmail},${E2E.mediaAdminEmail},${E2E.languagesAdminEmail},${E2E.bellAdminEmail},${E2E.dashboardLanguagesAdminEmail},${E2E.ownerApiAdminEmail},${E2E.teamMembersAdminEmail},${E2E.accountDeletionAdminEmail},${E2E.twoStepAdminEmail},${E2E.phase73AdminEmail},${E2E.chatAdminEmail},${E2E.productAdminEmail},${E2E.watchingAdminEmail},${E2E.isolationAdminEmail},${E2E.integrationsAdminEmail},${E2E.siteStartAdminEmail},${E2E.importAdminEmail},${E2E.liveEditorAdminEmail},${E2E.starterAdminEmail},${E2E.invoicesAdminEmail},${E2E.gatewaysAdminEmail},${E2E.manualPayAdminEmail},${E2E.inAppAdminEmail}`,
       YALLAPP_SEED_ADMIN_PASSWORD: E2E.adminPassword,
       SESSION_SECRET: "e2e-session-secret-0123456789abcdef0123456789",
       SIGNING_SECRET: E2E.signingSecret,
