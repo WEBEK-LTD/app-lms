@@ -1207,9 +1207,11 @@ components:
             the app through Yallapp's payment page; `auto_rebuild`: new builds
             start when the app's settings change; (77) `chat`: chat with the
             business in the app; (91.4) `loyalty`: loyalty points in shops
-            without a website (the plugin doesn't use it). Unknown values are
-            ignored.
-          items: { type: string, enum: [push, offline_downloads, auto_publish, ios, page_editor, card_payments, auto_rebuild, chat, loyalty] }
+            without a website (the plugin doesn't use it); (100)
+            `store_billing`: courses and memberships bought in the app
+            through Google Play and the App Store (every plan but Starter).
+            Unknown values are ignored.
+          items: { type: string, enum: [push, offline_downloads, auto_publish, ios, page_editor, card_payments, auto_rebuild, chat, loyalty, store_billing] }
         chat:
           type: [object, 'null']
           description: |

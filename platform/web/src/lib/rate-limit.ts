@@ -102,6 +102,8 @@ export const RATE_LIMITS = {
   mediaLinksLicense: { name: "media-links:license", limit: 3000, windowSeconds: 60 * 60 },
   // 77 The plugin asks for chat tokens (and forgets deleted people) for its signed-in people.
   chatSessionsIp: { name: "chat-sessions:ip", limit: 300, windowSeconds: 60 },
+  // 100.2 The plugin sends its paid courses and plans (twice a day, and when one is saved).
+  billingCatalogIp: { name: "billing-catalog:ip", limit: 60, windowSeconds: 60 },
   // 51 Uploads an owner starts in the Media library, per app.
   mediaUploads: { name: "media-uploads:app", limit: 200, windowSeconds: 60 * 60 },
   // 58 Yallapp Business renewing its tokens (POST /api/owner/v1/auth/refresh), per IP. Signing in counts with the website's (signInIp, signInEmail).

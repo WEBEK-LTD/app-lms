@@ -2,7 +2,7 @@ import { clientAccountState, longestLicense } from "../license/status";
 import { newId } from "../crypto/tokens";
 import { membershipActive, membershipFreezeSet, membershipToUse } from "../bookings/memberships";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
-import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, PendingPayment, SavedSection } from "./types";
+import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, PendingPayment, SavedSection, StoreProduct } from "./types";
 import type { CampaignSend, HostedCart, HostedOrderWatch, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 import type { LoyaltyEntry, LoyaltyReason } from "./types";
 import type {
@@ -2228,6 +2228,28 @@ export class MemoryStore implements DataStore {
     return this.ownFonts.length < before;
   }
 
+  // 100.2 Store products
+
+  private storeProducts: StoreProduct[] = [];
+
+  async listStoreProducts(appId: string): Promise<StoreProduct[]> {
+    return this.storeProducts
+      .filter((p) => p.appId === appId)
+      .sort((a, b) => a.kind.localeCompare(b.kind) || a.title.localeCompare(b.title) || a.productId.localeCompare(b.productId))
+      .map(clone);
+  }
+
+  async getStoreProduct(appId: string, productId: string): Promise<StoreProduct | null> {
+    const found = this.storeProducts.find((p) => p.appId === appId && p.productId === productId);
+    return found ? clone(found) : null;
+  }
+
+  async saveStoreProduct(product: StoreProduct): Promise<void> {
+    const same = this.storeProducts.find((p) => p.appId === product.appId && p.productId === product.productId);
+    const saved = clone({ ...product, id: same?.id ?? product.id });
+    this.storeProducts = [...this.storeProducts.filter((p) => p !== same), saved];
+  }
+
   async deleteSavedSection(clientId: string, id: string): Promise<boolean> {
     const before = this.savedSections.length;
     this.savedSections = this.savedSections.filter((s) => !(s.clientId === clientId && s.id === id));
@@ -2316,6 +2338,13 @@ export class MemoryStore implements DataStore {
       .filter((a) => !a.demo && !a.deletedAt && at(a) <= before.getTime())
       .sort((a, b) => at(a) - at(b) || a.createdAt.getTime() - b.createdAt.getTime())
       .slice(0, limit)
+      .map(clone);
+  }
+
+  async listStoreBillingApps(): Promise<App[]> {
+    return [...this.apps.values()]
+      .filter((a) => !a.demo && !a.deletedAt && a.storeBilling?.enabled)
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
       .map(clone);
   }
 

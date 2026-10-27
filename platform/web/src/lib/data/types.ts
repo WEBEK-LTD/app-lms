@@ -449,6 +449,8 @@ export interface App {
   bookingSetup: BookingSetup | null;
   /** Courses when they're managed in the dashboard (connector "courses"). */
   courseSetup: CourseSetup | null;
+  /** 100.2 Courses and memberships sold through the stores; null or missing: off. */
+  storeBilling?: StoreBillingSettings | null;
   /** Encrypted Google Play service account JSON. Never leaves the server. */
   googlePlayKeyEncrypted: string | null;
   googlePlayClientEmail: string | null;
@@ -2045,6 +2047,73 @@ export interface OwnFontFile {
   assetId: string;
   weight: number | null;
   sizeBytes: number;
+}
+
+// 100.2 Store billing: courses and memberships sold through Google Play and the App Store
+
+export type StoreProductKind = "course" | "membership";
+export type StorePlatform = "android" | "ios";
+
+/** How a product stands in one store, after Yallapp last made or changed it there. */
+export interface StoreProductSync {
+  /** synced: on sale at `price`; failed: the store refused (see `error`); stopped: no longer sold. */
+  status: "synced" | "failed" | "stopped";
+  /** The store's own word for it, as its console shows (Apple: READY_TO_SUBMIT, APPROVED…; Google: ACTIVE…). */
+  storeState: string | null;
+  /** The price the store has, a decimal string in the app's currency; null before the first sync. */
+  price: string | null;
+  /** Why it failed (StoreSyncErrorCode); null when it didn't. */
+  error: string | null;
+  at: string;
+}
+
+/**
+ * 100.2 A paid course (one-time product) or membership plan (subscription)
+ * the app sells through the stores, made in the owner's Google Play and App
+ * Store accounts under the same product ID. Never deleted: one no longer on
+ * sale is stopped in the stores and kept for the people who bought it.
+ */
+export interface StoreProduct {
+  id: string;
+  appId: string;
+  /** The ID in both stores (course_12, plan_pmpro_3); never changes or comes back for something else. */
+  productId: string;
+  kind: StoreProductKind;
+  /** The course's ID on the app's source (a course). */
+  courseId: number | null;
+  /** The plan's ID on the site, as the plugin sent it (a membership). */
+  planId: string | null;
+  title: string;
+  /** Monthly or yearly (a membership). */
+  period: "month" | "year" | null;
+  /** The courses a membership opens. */
+  courseIds: number[];
+  currency: string;
+  /** The site's price, a decimal string. */
+  sitePrice: string;
+  /** The price the owner chose instead; null: the store price nearest the site's. */
+  ownPrice: string | null;
+  /** Still sold on the source; false: stopped in the stores. */
+  active: boolean;
+  google: StoreProductSync | null;
+  apple: StoreProductSync | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** 100.2 The app's store billing state, kept on the app. */
+export interface StoreBillingSettings {
+  /** The owner turned selling in the app on (every plan but Starter). */
+  enabled: boolean;
+  /** The app's ID in App Store Connect, found by its bundle ID. */
+  appleAppId?: string | null;
+  /** The App Store Server Notifications URL Yallapp set, and when. */
+  appleNotificationsUrl?: string | null;
+  /** The last check of each store's key, and its error code (null: fine). */
+  googleCheck?: { at: string; error: string | null } | null;
+  appleCheck?: { at: string; error: string | null } | null;
+  /** When the products were last made or changed in the stores. */
+  syncedAt?: string | null;
 }
 
 // 11.7 Admin team and audit log

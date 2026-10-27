@@ -2290,6 +2290,49 @@ runs the rest of it.
   app's chat (as the App Store and Google Play ask of apps where people
   write to each other); the privacy policy says what the chat keeps.
 
+## In-app purchases through the stores (Phase 100)
+
+Courses and memberships are bought in the app through Google Play Billing
+and the App Store's In-App Purchase (docs/api/openapi.yaml, the Store
+billing tag), on every plan but Starter (plan feature `store_billing`).
+Code in `lib/store-billing`.
+
+100.2 Store products. `store_products` keeps one row per paid course
+(`course_<id>`, a one-time product) and membership plan (`plan_<site id>`,
+a monthly or yearly subscription) with the same product ID in both stores.
+They come from the dashboard's courses (`reconcileHostedCourses`, read
+when the page opens and before each sync) or from the plugin's
+`POST /api/v1/billing/catalog` (`catalog.ts`); `reconcileProducts` adds
+new ones, changes their title, price or courses, and stops the ones no
+longer sent. Products are never deleted (the stores never give an ID back,
+and buyers keep what they bought). The owner may set a product's own price
+on Dashboard › In-app purchases (`ownPrice`; empty: the site's).
+
+The products are made in the owner's own Google Play and App Store
+accounts with the keys of the Publishing step (`sync.ts`), by the frequent
+job (`runStoreProductSync`, apps whose owner turned it on) and by "Update
+the stores now", ten per store per run. Google (`google.ts`, the Android
+Publisher API's `monetization.onetimeproducts` and
+`monetization.subscriptions`): Google converts the price to every region
+(`convertRegionPrices`) and the regions that use the site's currency keep
+the site's price exactly; listings are in the app's default language in
+Play. Apple (`apple.ts`, App Store Connect API): the nearest price point
+in the currency's territory (one manual price for a one-time product,
+which Apple equalizes; each territory's equalization for a subscription),
+the English text on a product version, availability everywhere; all
+memberships share one subscription group ("Memberships"). The first sync
+(or "Check") finds the app in App Store Connect and points its App Store
+Server Notifications (V2, production and sandbox) at
+`/api/v1/billing/notifications/apple/<app id>`. Each store's result
+(`synced`, `failed` with its code, `stopped`) is kept on the product; a
+failed product is tried again after an hour; a refused key stops that
+store's run and shows on the page. Stopping a product deactivates its
+purchase option or base plan in Play and removes its territories in App
+Store Connect. Signed data from Apple (transactions, notifications) is
+checked offline against Apple Root CA - G3 (`apple-root.ts`); Google's
+Pub/Sub pushes by their OIDC token (`verifyPubSubPush`). Apple reviews new
+in-app purchases with the next version sent for review.
+
 ## Notification campaigns (Phase 85)
 
 ### Audiences (85.1)

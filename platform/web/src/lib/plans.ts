@@ -27,8 +27,11 @@ export const PLAN_RANK: Record<Plan, number> = { starter: 0, growth: 1, pro: 2, 
  * Features a plan has or hasn't. They are also the license features the
  * license API reports to the plugin (docs/api/platform.yaml).
  */
-/** 77 `chat`: the app's chat with the business (and course groups). 91.4 `loyalty`: loyalty points in shops without a website. */
-export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty"] as const;
+/**
+ * 77 `chat`: the app's chat with the business (and course groups). 91.4 `loyalty`: loyalty points in shops without a website.
+ * 100.2 `store_billing`: courses and memberships bought in the app through Google Play and the App Store.
+ */
+export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing"] as const;
 export type PlanFeature = (typeof PLAN_FEATURE_IDS)[number];
 
 export type SupportLevel = "email" | "whatsapp" | "priority" | "dedicated";
@@ -157,7 +160,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     id: "growth",
     name: "Growth",
     tagline: "Android and iOS apps that grow with you",
-    features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "loyalty"],
+    features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "loyalty", "store_billing"],
     limits: { ...BASE_LIMITS, appUsers: 10000, languages: 3, sources: null, storageGb: 20, analyticsMonths: 12, support: "whatsapp" },
     highlights: [
       "Android & iOS apps",
@@ -180,7 +183,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     id: "pro",
     name: "Pro",
     tagline: "We publish your apps for you",
-    features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty"],
+    features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing"],
     limits: { ...BASE_LIMITS, appUsers: null, languages: null, sources: null, storageGb: 100, analyticsMonths: 24, teamMembers: 3, support: "priority" },
     highlights: [
       "Everything in Growth",
@@ -202,7 +205,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     id: "business",
     name: "Business",
     tagline: "A partner for your app",
-    features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty"],
+    features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing"],
     limits: { ...BASE_LIMITS, appUsers: null, languages: null, sources: null, storageGb: 500, analyticsMonths: 36, teamMembers: 10, support: "dedicated", accountManager: true, customFeatures: true },
     highlights: ["Everything in Pro", "A dedicated account manager", "Custom features on request", "Several team members", "Fastest support"],
     price: "On request",
@@ -267,6 +270,12 @@ export const PLAN_FEATURES: PlanFeatureDef[] = [
     label: "Loyalty points",
     description: "Customers earn points on their orders and use them on the next ones.",
     enforced: "Config store.loyalty, the cart's points and GET /me/points (shops without a website), and the Products page's Loyalty points.",
+  },
+  {
+    id: "store_billing",
+    label: "In-app purchases",
+    description: "Sell courses and memberships in the app through Google Play and the App Store.",
+    enforced: "Config store_billing, the /billing endpoints, the license's store_billing and the In-app purchases page.",
   },
 ];
 

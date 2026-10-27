@@ -21,6 +21,7 @@ import { appLabel, licensePageName, MAX_APPS_PER_CLIENT } from "@/lib/app/label"
 import { appTypeName, contentNavOf, kindOf, usersLabelOf } from "@/lib/app/kinds";
 import { chatSessionKind } from "@/lib/chat/access";
 import { contextCan, requireClient } from "@/lib/auth/session";
+import { storeBillingSource } from "@/lib/store-billing/access";
 import { pathPermission } from "@/lib/team/permissions";
 import type { DashKey } from "@/i18n/dashboard";
 import { getVisitorContact } from "@/lib/contact";
@@ -94,6 +95,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         { href: "/dashboard/analytics", label: t("nav.analytics"), icon: "monitoring" },
         // 80.1 Everything the app is connected to, with its state and a test.
         ...(app ? [{ href: "/dashboard/integrations", label: t("integrations.title"), icon: "link" as const }] : []),
+        // 100.2 Courses and memberships sold through Google Play and the App Store (academies on the dashboard's courses or WordPress).
+        ...(app && storeBillingSource(app) && contextCan(context, "settings") ? [{ href: "/dashboard/in-app-purchases", label: t("inapp.nav"), icon: "shopping_bag" as const }] : []),
       ],
     },
     ...(content ? [{ label: k(content.label), items: content.items.map((item) => ({ ...item, label: k(item.label) })) }] : []),
