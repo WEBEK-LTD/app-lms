@@ -99,6 +99,8 @@ describe("website content pages", () => {
       "The sign-in flow, simply",
       // 34
       "Let Yallapp sign people in",
+      // 100.7
+      "Sell in the app",
       "Content, with an example",
       "Errors",
       "Images and HTML",

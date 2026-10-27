@@ -9,6 +9,7 @@ import type {
   StoreProduct,
   StorePurchaseRecord,
   StorePurchaseEvent,
+  StoreBillingItem,
   BillingSession,
   Asset,
   Build,
@@ -77,7 +78,7 @@ import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, D
 // 46 Links and crash reports
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
 // 49
-import type { ApiWebhook, ApiWebhookPatch } from "./types";
+import type { ApiWebhook, ApiWebhookEvent, ApiWebhookPatch } from "./types";
 // 47 Refunds
 import type { PaymentRefund, RefundKind } from "./types";
 // 51 Media and storage
@@ -742,6 +743,10 @@ export interface DataStore {
   addStorePurchaseEvent(event: StorePurchaseEvent): Promise<void>;
   /** 100.6 The app's store purchase changes in [from, to), store tests left out, oldest first. */
   listStorePurchaseEvents(appId: string, from: Date, to: Date): Promise<StorePurchaseEvent[]>;
+  /** 100.7 What the owner listed as sold in the app (courses, then plans, by title). */
+  listStoreBillingItems(appId: string): Promise<StoreBillingItem[]>;
+  /** Adds the item, or replaces the app's one of the same kind and item ID (which keeps its id and creation time). */
+  saveStoreBillingItem(item: StoreBillingItem): Promise<void>;
   createBillingSession(session: BillingSession): Promise<void>;
   getBillingSession(tokenHash: string): Promise<BillingSession | null>;
 
@@ -892,8 +897,8 @@ export interface DataStore {
    */
   claimApiWebhook(id: string, until: Date, now: Date): Promise<boolean>;
   updateApiWebhook(id: string, patch: ApiWebhookPatch): Promise<void>;
-  /** An app's notices, newest first. */
-  listApiWebhooks(appId: string, limit: number): Promise<ApiWebhook[]>;
+  /** An app's notices, newest first; 100.7 only these events when given. */
+  listApiWebhooks(appId: string, limit: number, events?: ApiWebhookEvent[]): Promise<ApiWebhook[]>;
   /** Deletes notices created before `before`; returns how many. */
   purgeApiWebhooks(before: Date): Promise<number>;
 

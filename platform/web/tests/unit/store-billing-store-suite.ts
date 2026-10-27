@@ -3,14 +3,16 @@ import { expect, it } from "vitest";
 import { newApp } from "@/lib/app/setup";
 import { registerClient } from "@/lib/auth/accounts";
 import type { DataStore } from "@/lib/data/store";
-import type { StoreProduct, StorePurchaseRecord } from "@/lib/data/types";
+import type { ApiWebhook, StoreBillingItem, StoreProduct, StorePurchaseRecord } from "@/lib/data/types";
 
 /**
  * 100.2/100.3 Store billing in the store, the same on the memory store and
  * on MySQL or MariaDB (migrations 0089 to 0091): products kept once per product
  * ID, purchases once per store key, an account's purchases, the ones waiting
  * for their source or past their paid period, and the WordPress billing
- * sessions.
+ * sessions. 100.7 (migration 0092): the owner's list of what the app sells,
+ * the courses Yallapp gave on a school for a purchase, and purchase notices
+ * with their claim, listed by event.
  */
 
 const NOW = new Date("2031-06-01T09:00:00.000Z");
@@ -124,6 +126,77 @@ export function storeBillingStoreSuite(store: () => DataStore) {
     const listed = await s.listStorePurchaseEvents(app.id, NOW, new Date(NOW.getTime() + 2 * MIN));
     expect(listed.map((e) => [e.kind, e.amountCents, e.currency, e.test])).toEqual([["bought", 45000, "TRY", false]]);
     expect((await s.listStorePurchaseEvents(app.id, NOW, new Date(NOW.getTime() + 3 * MIN))).map((e) => e.kind)).toEqual(["bought", "refunded"]);
+  });
+
+  it("100.7 keeps the owner's list once per kind and ID, the creation kept on a change", async () => {
+    const s = store();
+    const app = await appOf();
+    const item = (patch: Partial<StoreBillingItem> = {}): StoreBillingItem => ({
+      id: randomUUID(),
+      appId: app.id,
+      kind: "course",
+      itemId: "12",
+      title: "Arabic for beginners",
+      price: "450.00",
+      currency: "TRY",
+      period: null,
+      courseIds: [12],
+      active: true,
+      createdAt: NOW,
+      updatedAt: NOW,
+      ...patch,
+    });
+    const course = item();
+    await s.saveStoreBillingItem(course);
+    await s.saveStoreBillingItem(item({ kind: "membership", itemId: "gold", title: "Gold", price: "99.00", period: "month", courseIds: [12, 15] }));
+    // The same course again (an edit, or stopped): one row, its id and creation kept.
+    await s.saveStoreBillingItem(item({ title: "Arabic 1", price: "500.00", active: false, createdAt: new Date(NOW.getTime() + MIN), updatedAt: new Date(NOW.getTime() + MIN) }));
+    const listed = await s.listStoreBillingItems(app.id);
+    expect(listed.map((i) => [i.kind, i.itemId, i.title, i.price, i.active])).toEqual([
+      ["course", "12", "Arabic 1", "500.00", false],
+      ["membership", "gold", "Gold", "99.00", true],
+    ]);
+    expect(listed[0]).toMatchObject({ id: course.id, createdAt: NOW, updatedAt: new Date(NOW.getTime() + MIN) });
+    expect(listed[1]).toMatchObject({ period: "month", courseIds: [12, 15] });
+    expect(await s.listStoreBillingItems((await appOf()).id)).toEqual([]);
+  });
+
+  it("100.7 keeps the courses Yallapp gave on a school for a purchase", async () => {
+    const s = store();
+    const app = await appOf();
+    const kept = await s.createStorePurchase(purchase(app.id));
+    expect((await s.getStorePurchase(app.id, "android", kept.storeKey))?.grantedCourseIds ?? null).toBeNull();
+    await s.saveStorePurchase({ ...kept, grantedCourseIds: [15, 1001] });
+    expect((await s.getStorePurchase(app.id, "android", kept.storeKey))?.grantedCourseIds).toEqual([15, 1001]);
+  });
+
+  it("100.7 keeps a purchase notice's claim, and lists an app's notices by event", async () => {
+    const s = store();
+    const app = await appOf();
+    const notice = (event: ApiWebhook["event"], at: number, data: ApiWebhook["data"] = null): ApiWebhook => ({
+      id: randomUUID(),
+      appId: app.id,
+      event,
+      subject: "7",
+      status: "pending",
+      attempts: 0,
+      nextAttemptAt: new Date(NOW.getTime() + at * MIN),
+      lastAttemptAt: null,
+      lastStatus: null,
+      lastError: null,
+      createdAt: new Date(NOW.getTime() + at * MIN),
+      deliveredAt: null,
+      data,
+    });
+    const claim = { product_id: "course_12", kind: "course", item_id: "12", course_ids: [12], amount: "450.00", test: false };
+    const bought = notice("purchase.completed", 1, { purchase: { id: randomUUID(), platform: "android", storeKey: "abc", status: "active", expiresAt: null }, event: claim });
+    await s.createApiWebhook(notice("account.deleted", 0));
+    await s.createApiWebhook(bought);
+    await s.createApiWebhook(notice("purchase.revoked", 2, { event: { ...claim, reason: "refunded" } }));
+    expect((await s.getApiWebhook(bought.id))?.data).toEqual(bought.data);
+    expect((await s.listApiWebhooks(app.id, 10, ["purchase.completed", "purchase.revoked"])).map((w) => w.event)).toEqual(["purchase.revoked", "purchase.completed"]);
+    expect((await s.listApiWebhooks(app.id, 10, ["account.deleted"])).map((w) => [w.event, w.data ?? null])).toEqual([["account.deleted", null]]);
+    expect(await s.listApiWebhooks(app.id, 10)).toHaveLength(3);
   });
 
   it("keeps billing sessions by their token's hash", async () => {

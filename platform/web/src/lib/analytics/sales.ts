@@ -76,7 +76,7 @@ export async function inAppFigures(store: Pick<DataStore, "listStorePurchaseEven
   return { inApp: sold, inAppRefunds: refunded, renewals: events.filter((e) => e.kind === "renewed").length };
 }
 
-export function salesShows(app: Pick<App, "connector" | "backend" | "vertical" | "catalogSettings" | "appType" | "storeBilling">): SalesReport["shows"] {
+export function salesShows(app: Pick<App, "connector" | "backend" | "vertical" | "catalogSettings" | "appType" | "storeBilling" | "apiBaseUrl" | "hostedSettings">): SalesReport["shows"] {
   const areas = appAreas(app);
   return {
     orders: areas.orders,
@@ -91,7 +91,7 @@ export function salesShows(app: Pick<App, "connector" | "backend" | "vertical" |
 }
 
 /** 100.6 The app sells (or sold) courses and memberships through the stores. */
-function inAppShows(app: Pick<App, "connector" | "backend" | "appType" | "storeBilling">): boolean {
+function inAppShows(app: Pick<App, "connector" | "backend" | "appType" | "storeBilling" | "apiBaseUrl" | "hostedSettings">): boolean {
   return storeBillingSource(app) !== null && app.storeBilling != null;
 }
 

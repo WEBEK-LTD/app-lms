@@ -6,6 +6,7 @@ import { storeBillingSource } from "./access";
 import { findAppleAppId, removeFromSale, setNotificationUrls, territoryFor, upsertNonConsumable, upsertSubscription as upsertAppleSubscription } from "./apple";
 import { deactivateProduct, GoogleBillingError, googleBillingToken, playDefaultLanguage, upsertOneTimeProduct, upsertSubscription, type GoogleBillingDeps } from "./google";
 import { appleCredentials, googleKey } from "./keys";
+import { reconcileListedItems } from "./items";
 import { needsSync, reconcileProducts, storesOf, wantedFromCourses, wantedPrice } from "./products";
 
 /**
@@ -18,10 +19,12 @@ import { needsSync, reconcileProducts, storesOf, wantedFromCourses, wantedPrice 
  */
 
 export interface SyncDeps {
-  store: Pick<DataStore, "listStoreProducts" | "getStoreProduct" | "saveStoreProduct" | "updateApp">;
+  store: DataStore;
   key: Buffer;
   now: Date;
   fetcher?: typeof fetch;
+  /** 100.7 How a Teachable or Thinkific school is read (tests: recorded answers). */
+  platformFetch?: typeof fetch;
   /** At most this many store calls' worth of products per store (a run stays short); the rest wait for the next one. */
   limit?: number;
   /** Try failed products again now (the owner asked). */
@@ -38,10 +41,20 @@ export interface SyncReport {
 const DEFAULT_LIMIT = 10;
 
 /** The dashboard's courses on the hosted API, as store products (the plugin sends a WordPress site's). */
-export async function reconcileHostedCourses(store: SyncDeps["store"], app: App, now: Date): Promise<void> {
+export async function reconcileHostedCourses(store: Pick<DataStore, "listStoreProducts" | "saveStoreProduct">, app: App, now: Date): Promise<void> {
   if (storeBillingSource(app) !== "courses") return;
   const existing = await store.listStoreProducts(app.id);
   for (const product of reconcileProducts(app.id, existing, wantedFromCourses(app.courseSetup), now, randomUUID)) await store.saveStoreProduct(product);
+}
+
+/**
+ * The app's products as its source has them now: the dashboard's courses,
+ * or 100.7 the owner's list (with a Teachable or Thinkific school's
+ * courses). A WordPress site sends its own catalog.
+ */
+export async function reconcileSource(deps: Pick<SyncDeps, "store" | "key" | "platformFetch">, app: App, now: Date): Promise<void> {
+  await reconcileHostedCourses(deps.store, app, now);
+  await reconcileListedItems(deps, app, now);
 }
 
 const errorCode = (error: unknown, fallback: string): string => (error instanceof GoogleBillingError ? error.code : error && typeof error === "object" && "code" in error && typeof error.code === "string" ? error.code : fallback);
@@ -163,7 +176,7 @@ function appleRun(deps: SyncDeps, app: App, fetcher: typeof fetch): () => Promis
 /** Brings the stores in step with the app's products; returns what happened in each. */
 export async function syncStoreProducts(deps: SyncDeps, app: App): Promise<{ google: SyncReport; apple: SyncReport }> {
   const fetcher = deps.fetcher ?? fetch;
-  await reconcileHostedCourses(deps.store, app, deps.now);
+  await reconcileSource(deps, app, deps.now);
   const products = await deps.store.listStoreProducts(app.id);
   const stores = storesOf(app);
   const due = (which: "google" | "apple") => products.filter((p) => needsSync(p, p[which], deps.force ? undefined : deps.now));
@@ -195,7 +208,7 @@ export interface StoreProductsRunReport {
  * still has it gets its waiting products made or changed in the stores
  * (failed ones after an hour). One app's trouble never stops the others.
  */
-export async function runStoreProductSync(deps: Omit<SyncDeps, "store" | "force"> & { store: SyncDeps["store"] & Pick<DataStore, "listStoreBillingApps" | "getLicenseForApp"> }, plans: (license: Awaited<ReturnType<DataStore["getLicenseForApp"]>>) => Promise<boolean>): Promise<StoreProductsRunReport> {
+export async function runStoreProductSync(deps: Omit<SyncDeps, "force">, plans: (license: Awaited<ReturnType<DataStore["getLicenseForApp"]>>) => Promise<boolean>): Promise<StoreProductsRunReport> {
   const report: StoreProductsRunReport = { apps: 0, done: 0, failed: 0 };
   for (const app of await deps.store.listStoreBillingApps()) {
     if (!storeBillingSource(app)) continue;

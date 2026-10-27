@@ -2,7 +2,7 @@ import { createHash, createHmac } from "node:crypto";
 import type { HostedUser } from "../../data/types";
 import { descriptionHtml } from "./catalog";
 import { error, intParam, verifiedEmail } from "./common";
-import { registerPlatform, type PlatformConnector, type PlatformDefinition } from "./platforms";
+import { registerPlatform, type PlatformConnector, type PlatformDefinition, StoreAccessError, type StoreAccessInput } from "./platforms";
 import { ConnectorError, type ConnectorRequest, type ConnectorResult } from "./types";
 
 /**
@@ -15,7 +15,9 @@ import { ConnectorError, type ConnectorRequest, type ConnectorResult } from "./t
  * already signed in, without it as a link the student follows. Free courses
  * are enrolled in from the app. Paid courses aren't sold from the app: a
  * purchase on Thinkific's checkout can't be matched to the app's student
- * (see below), so they're bought on the school's website. Progress is the
+ * (see below), so they're bought on the school's website (100.7 or in the
+ * app through Google Play and the App Store, when the owner sells in the
+ * app: lib/store-billing, `storeAccess` below). Progress is the
  * enrollment's `percentage_completed`, which Thinkific's player keeps up to
  * date.
  *
@@ -930,6 +932,71 @@ export class ThinkificConnector implements PlatformConnector {
     const found = await this.locate(request, id);
     if (!found?.enrollment) return error(403, "not_enrolled", "Enroll in the course to complete lessons.");
     return { status: 200, body: this.progressJson(found.entry.course.id, found.contents.length, found.enrollment) };
+  }
+
+  // 100.7 Selling in the app through Google Play and the App Store
+
+  /**
+   * The school's listed paid courses, each with its primary price when that
+   * is a one-time price in a named currency; a course sold by subscription
+   * or payment plan has none (the owner lists it on In-app purchases).
+   */
+  async storeCourses(): Promise<{ id: number; title: string; price: string | null; currency: string | null }[]> {
+    const catalog = await this.catalog();
+    return catalog.listed.flatMap((entry) => {
+      if (isFree(entry.product)) return [];
+      const price = primaryPrice(entry.product);
+      const amount = Number(price?.price);
+      const currency = price?.currency?.trim().toUpperCase() ?? "";
+      // Unverified: "one-time" is how a single payment's `payment_type` reads (subscription and payment-plan are known).
+      const once = price && price.payment_type === "one-time" && Number.isFinite(amount) && amount > 0 && /^[A-Z]{3}$/.test(currency);
+      return [{ id: entry.course.id, title: entry.course.name || entry.product?.name || `Course ${entry.course.id}`, price: once ? amount.toFixed(2) : null, currency: once ? currency : null }];
+    });
+  }
+
+  /**
+   * Enrols the app's student (the same Thinkific student the app shows
+   * courses to, created when needed) in courses bought in the app, or ends
+   * those enrolments: `POST /enrollments`, or `PUT /enrollments/{id}` with
+   * `expiry_date`. A membership's enrolments end a day after its paid period
+   * (renewals move it on), so access ends even if Yallapp can't reach the
+   * school then. A course the student has already from the school is left
+   * alone. Unverified: `PUT /enrollments/{id}` taking `expiry_date: null`
+   * for an enrolment without an end, and the list including expired ones.
+   */
+  async storeAccess(input: StoreAccessInput): Promise<{ granted: number[] }> {
+    const student = await this.student(input.user, true);
+    if (!student) throw new ConnectorError("Thinkific didn't return the student.");
+    const rows = (await this.client.all<ThinkificEnrollment>("/enrollments", { "query[user_id]": student.id })).filter((e) => e.user_id === undefined || e.user_id === student.id);
+    const rowOf = (courseId: number) => rows.filter((e) => e.course_id === courseId).sort((a, b) => Number(Boolean(a.expired)) - Number(Boolean(b.expired)))[0] ?? null;
+    const granted: number[] = [];
+    if (input.action === "grant") {
+      const expiry = input.expiresAt ? new Date(input.expiresAt.getTime() + 24 * 60 * 60_000).toISOString() : null;
+      try {
+        for (const courseId of input.courseIds) {
+          const row = rowOf(courseId);
+          if (row && !row.expired && !input.ours.includes(courseId)) continue;
+          if (row) {
+            await this.client.request("PUT", `/enrollments/${row.id}`, { body: { activated_at: row.activated_at ?? input.now.toISOString(), expiry_date: expiry } });
+          } else {
+            // With activated_at, not a free trial.
+            await this.client.request("POST", "/enrollments", { body: { course_id: courseId, user_id: student.id, activated_at: input.now.toISOString(), expiry_date: expiry } });
+          }
+          granted.push(courseId);
+        }
+      } catch (e) {
+        // What was given before it failed is Yallapp's to take back later.
+        if (e instanceof ConnectorError) throw new StoreAccessError(e.message, granted);
+        throw e;
+      }
+    } else {
+      for (const courseId of input.courseIds) {
+        const row = rowOf(courseId);
+        if (row && !row.expired) await this.client.request("PUT", `/enrollments/${row.id}`, { body: { expiry_date: input.now.toISOString() } });
+      }
+    }
+    this.forget(`enrollments:${student.id}`);
+    return { granted };
   }
 
   /**

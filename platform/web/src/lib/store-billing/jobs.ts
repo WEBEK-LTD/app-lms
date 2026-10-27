@@ -1,6 +1,7 @@
 import type { DataStore } from "../data/store";
 import type { App, StorePurchaseRecord } from "../data/types";
 import { listVoidedPurchases } from "./google";
+import { storeBillingSource } from "./access";
 import { storesOf } from "./products";
 import { applyChecked, googleFor, savePurchaseChange, readGooglePurchase, settlePurchase, tokenKey, type CheckedPurchase, type PurchaseDeps } from "./purchases";
 
@@ -47,7 +48,8 @@ export async function runStorePurchases(deps: PurchaseDeps & { store: DataStore 
   // Access that couldn't be given or taken back yet.
   for (const purchase of await deps.store.listUndeliveredStorePurchases(new Date(deps.now.getTime() - MINUTE), limit)) {
     const app = await appOf(purchase.appId);
-    if (!app || !retryDue(purchase, deps.now)) continue;
+    // 100.7 A notice to the client's own API keeps its own tries (the webhook job): each run only looks whether it was delivered.
+    if (!app || (!retryDue(purchase, deps.now) && storeBillingSource(app) !== "own_api")) continue;
     await settle(app, purchase);
   }
 

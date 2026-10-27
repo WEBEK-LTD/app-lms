@@ -203,7 +203,7 @@ export default async function AppSignInPage() {
         </p>
       </div>
       {ownApi ? <ProviderSection app={app} text={text} /> : null}
-      {ownApi ? <DeveloperSection app={app} webhooks={await (await getStore()).listApiWebhooks(app.id, 20)} text={text} /> : null}
+      {ownApi ? <DeveloperSection app={app} webhooks={await (await getStore()).listApiWebhooks(app.id, 20, ["account.deleted"])} text={text} /> : null}
       {waiting ? <Notice icon="hourglass_top">{t("signin.waiting")}</Notice> : null}
 
       {emailOff ? (

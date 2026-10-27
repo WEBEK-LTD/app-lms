@@ -51,8 +51,8 @@ plugin's `AdapterVersionsTest.php` check them.
 | `wix` | Wix | 1.0.0 | Wix REST APIs (Stores, Bookings) |
 | `salla` | Salla | 1.0.0 | Salla Admin API v2 (OAuth 2) |
 | `zid` | Zid | 1.0.0 | Zid API v1 (OAuth 2) |
-| `teachable` | Teachable | 1.0.0 | Teachable API v1 |
-| `thinkific` | Thinkific | 1.0.0 | Thinkific Public API v1 |
+| `teachable` | Teachable | 1.1.0 | Teachable API v1 |
+| `thinkific` | Thinkific | 1.1.0 | Thinkific Public API v1 |
 | `simplybook` | SimplyBook.me | 1.0.0 | SimplyBook.me API v2 (REST) |
 | `rss` | RSS feed | 1.0.0 | RSS 2.0 and Atom feeds |
 

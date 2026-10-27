@@ -35,7 +35,7 @@ import { handleChatRoute, type HostedChatDeps } from "../chat/hosted";
 import { forgetChatMember, memberForChatToken, memberForHostedUser } from "../chat/service";
 import { errorOfBody, noteAppError } from "../watch/app-errors";
 import { handleBillingRoute, readyIn } from "../store-billing/hosted";
-import { storeBillingOn } from "../store-billing/access";
+import { storeBillingOn, storeBillingSource } from "../store-billing/access";
 import { storeBillingConfig } from "../store-billing/config";
 import type { PurchaseDeps } from "../store-billing/purchases";
 import { accountForBillingToken } from "../store-billing/sessions";
@@ -348,6 +348,10 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
       const failed = errorOfBody(result.body);
       await noteAppError(ctx.store, { clientId: ctx.app.clientId, appId: ctx.app.id, source: "platform", code: failed?.code ?? `http_${result.status}`, detail: `${req.method} /${req.path.join("/")}: ${failed?.message ?? "no answer"}` }, ctx.now);
     }
+    // 100.7 A Teachable or Thinkific course sold in the app: its page offers the store's purchase.
+    if (result && result.status === 200 && req.method === "GET" && req.path.length === 2 && req.path[0] === "courses") {
+      await offerInStore(ctx, req, result);
+    }
     // 91.2 Someone checked out on a connected platform: their orders are watched for updates.
     if (result && result.status === 200 && route === "POST /store/checkout-link" && session) {
       try {
@@ -366,6 +370,31 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
     }
   }
   return notFound();
+}
+
+/**
+ * 100.7 A Teachable or Thinkific course page when the app sells in the app:
+ * a paid course the student hasn't got (`none`) says `store` with its
+ * product when it is ready in this platform's store; a course only a
+ * membership plan opens names the plans and their products instead
+ * (`membership.store_product_ids`, as the plugin does).
+ */
+async function offerInStore(ctx: HostedContext, req: HostedRequest, result: HostedResult): Promise<void> {
+  const source = storeBillingSource(ctx.app);
+  if ((source !== "teachable" && source !== "thinkific") || !ctx.billing || !storeBillingOn(ctx.app, ctx.plan)) return;
+  const platform = req.query.get("platform");
+  if (platform !== "android" && platform !== "ios") return;
+  const body = result.body as { id?: unknown; enrolled?: unknown; purchase?: { action?: unknown } } | null;
+  const courseId = Number(body?.id);
+  if (!body || body.enrolled === true || body.purchase?.action !== "none" || !Number.isSafeInteger(courseId)) return;
+  const products = (await ctx.store.listStoreProducts(ctx.app.id)).filter((p) => readyIn(p, platform));
+  const own = products.find((p) => p.kind === "course" && p.courseId === courseId);
+  if (own) {
+    Object.assign(body, { purchase: { action: "store", store_product_id: own.productId } });
+    return;
+  }
+  const plans = products.filter((p) => p.kind === "membership" && p.courseIds.includes(courseId));
+  if (plans.length > 0) Object.assign(body, { membership: { has_access: false, plans: plans.map((p) => p.title), store_product_ids: plans.map((p) => p.productId) } });
 }
 
 // 77 Chat

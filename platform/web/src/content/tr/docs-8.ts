@@ -437,7 +437,7 @@ Her satır başarılı ya da başarısız olur; başarısızsa ne yapmanız gere
   "in-app-purchases": {
     title: "Uygulama içi satın alma: Google Play ve App Store üzerinden kurslar ve üyelikler",
     description: "Ücretli kursları ve üyelikleri uygulamanızda Google Play ve App Store üzerinden satın: mağaza hesaplarınızı bağlama, fiyatlar, test, iadeler ve satışlarınız.",
-    body: `Google Play ve App Store, kurslar ve kursları açan üyelikler gibi dijital içeriğin kendi ödeme sistemleriyle satılmasını ister. **Uygulama içi satın alma** ile uygulamanız tam olarak bunu yapar: insanlar Google Play ya da App Store ile satın alır, Yallapp da onlara kursu ya da sona erene kadar üyeliği verir. Starter dışındaki tüm paketlerde, kursları panelinizde ya da WordPress sitenizde olan akademiler için vardır.
+    body: `Google Play ve App Store, kurslar ve kursları açan üyelikler gibi dijital içeriğin kendi ödeme sistemleriyle satılmasını ister. **Uygulama içi satın alma** ile uygulamanız tam olarak bunu yapar: insanlar Google Play ya da App Store ile satın alır, Yallapp da onlara kursu ya da sona erene kadar üyeliği verir. Starter dışındaki tüm paketlerde, kursları panelinizde, WordPress sitenizde, Teachable veya Thinkific'te ya da kendi API'nizde olan akademiler için vardır.
 
 Google ve Apple ödemeyi doğrudan kendi geliştirici hesaplarınıza yapar ve komisyonlarını alır (her mağazadaki programınıza göre %15 ile %30 arası). Mağaza ürünleri, restoran siparişleri, randevular ve biletler gibi fiziksel ürünler ve hizmetler kart ödeme sayfanızda kalır.
 
@@ -461,6 +461,18 @@ Ardından Yallapp her ücretli kurs için bir ürünü, her üyelik planı için
 - **Paid Applications** sözleşmeniz, vergi ve banka bilgileriniz App Store Connect'te (**Business**) etkin olmalı.
 - Apple yeni uygulama içi satın almaları, incelemeye gönderdiğiniz uygulamanın bir sonraki sürümüyle birlikte inceler. Göndermeden önce App Store Connect'te her uygulama içi satın almaya bir inceleme ekran görüntüsü ekleyin.
 - Uygulamanızın App Store Server Notifications adresini Yallapp sizin için ayarlar.
+
+## Teachable ve Thinkific {#teachable-and-thinkific}
+
+Okulunuzun ücretli kursları, okulunuzdan okunan tek seferlik fiyatlarıyla satılır. **Uygulama içi satın alma** sayfasında, **Uygulamanın sattıkları** altında, bir kursun uygulamadaki fiyatını belirlemek için **Değiştir**'i, bir kursu dışarıda bırakmak için **Satışı durdur**'u seçin. Okulunuzun yalnızca abonelikle veya taksitle sattığı kursları ve üyelik planlarınızı açtıkları kursların kimlikleriyle ekleyin.
+
+Alıcı, uygulamanın kursları gösterdiği öğrenci olarak okulunuza kaydedilir. Bir iade ya da üyeliğin sona ermesi erişimi geri aldığında Yallapp, kaydını yalnızca uygulamanın verdiklerinden siler; web sitenizden satın aldığı bir kurstan asla silmez. Thinkific'te bir üyeliğin kayıtları, yenilenmezse ücretli döneminin bitiminden bir gün sonra sona erer.
+
+## Kendi API'niz {#your-own-api}
+
+Uygulamanızda oturum açmayı Yallapp'ın yapması gerekir (**Uygulamada giriş**). **Uygulama içi satın alma** sayfasında, **Uygulamanın sattıkları** altında, her ücretli kursu API'nizdeki kimliği, başlığı ve fiyatıyla; her üyelik planını kimliği, fiyatı, aylık ya da yıllık oluşu ve açtığı kursların kimlikleriyle ekleyin. **Satışı durdur** birini dışarıda bırakır; satın alanlar onu korur.
+
+Geliştiriciniz uygulamanın ihtiyacı olanları API'nize ekler ve Yallapp'ın her satın alma, yenileme ve iade için gönderdiği imzalı bildirimi alır: [Uygulama içinde satış](/docs/my-own-api#sell-in-the-app) bölümüne bakın. API'niz bir satın almayı onaylayana kadar alıcı kursu almaz. **Geliştiriciniz için** bölümü son 30 günün bildirimlerini, başarısız olanlar için **Yeniden gönder** ile listeler.
 
 ## Fiyatlar
 

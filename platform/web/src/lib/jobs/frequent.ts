@@ -116,7 +116,7 @@ export async function runFrequentJobs(deps: {
   // 100.2 The in-app products waiting for Google Play or the App Store.
   let storeProducts: StoreProductsRunReport = { apps: 0, done: 0, failed: 0 };
   try {
-    storeProducts = await runStoreProductSync({ store: deps.store, key: deps.key, now: deps.now, fetcher: deps.storeFetch }, async (license) =>
+    storeProducts = await runStoreProductSync({ store: deps.store, key: deps.key, now: deps.now, fetcher: deps.storeFetch, platformFetch: deps.platformFetch }, async (license) =>
       planHasStoreBilling(await appPlan(deps.store, license, deps.now)),
     );
   } catch (error) {
@@ -125,7 +125,15 @@ export async function runFrequentJobs(deps: {
   // 100.3 Purchases: access waiting for the source, refunds, memberships past their paid period.
   let storePurchases: PurchasesRunReport = { delivered: 0, refunds: 0, ended: 0, failed: 0 };
   try {
-    storePurchases = await runStorePurchases({ store: deps.store, key: deps.key, now: deps.now, fetcher: deps.storeFetch, site: deps.refresh });
+    storePurchases = await runStorePurchases({
+      store: deps.store,
+      key: deps.key,
+      now: deps.now,
+      fetcher: deps.storeFetch,
+      site: deps.refresh,
+      // 100.7 The notices to apps' own APIs, and Teachable and Thinkific enrolments.
+      api: { fetcher: deps.platformFetch, platformUrl: deps.platformUrl },
+    });
   } catch (error) {
     console.error("[frequent] store purchases", error instanceof Error ? error.message : String(error));
   }
