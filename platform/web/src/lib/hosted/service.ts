@@ -34,6 +34,12 @@ import { chatConfig, chatSessionKind } from "../chat/access";
 import { handleChatRoute, type HostedChatDeps } from "../chat/hosted";
 import { forgetChatMember, memberForChatToken, memberForHostedUser } from "../chat/service";
 import { errorOfBody, noteAppError } from "../watch/app-errors";
+import { handleBillingRoute, readyIn } from "../store-billing/hosted";
+import { storeBillingOn } from "../store-billing/access";
+import { storeBillingConfig } from "../store-billing/config";
+import type { PurchaseDeps } from "../store-billing/purchases";
+import { accountForBillingToken } from "../store-billing/sessions";
+import { usesPlugin } from "../app/label";
 
 /**
  * The hosted API: the app contract's configuration, sign-in, account,
@@ -134,6 +140,8 @@ export interface HostedContext {
    * (`chat_not_available`), whatever its plan.
    */
   chat?: HostedChatDeps | null;
+  /** 100.3 Store billing: the encryption key (the store keys), and how the stores and the WordPress site are reached. Missing: feature_disabled. */
+  billing?: Pick<PurchaseDeps, "key" | "fetcher" | "appleRoots" | "site"> | null;
 }
 
 export interface HostedRequest {
@@ -237,6 +245,8 @@ export async function handleHosted(ctx: HostedContext, req: HostedRequest): Prom
 async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResult> {
   // 77 The chat, for every app that has it (WordPress apps too, with their site's chat token).
   if (req.path[0] === "chat") return chatRequest(ctx, req);
+  // 100.3 Store billing, for every app that sells in the app (WordPress apps with their site's billing token).
+  if (req.path[0] === "billing") return billingRequest(ctx, req);
   // 34 An app on its own API reaches the hosted API only for Yallapp's sign-in.
   const signInOnly = signsForOwnApi(ctx);
   if (ctx.app.backend !== "hosted" && !signInOnly) return notFound();
@@ -373,6 +383,19 @@ async function chatRequest(ctx: HostedContext, req: HostedRequest): Promise<Host
   return handleChatRoute({ store: ctx.store, app: ctx.app, plan: ctx.plan, now: ctx.now, assetUrl: ctx.assetUrl, chat: ctx.chat }, req, member);
 }
 
+async function billingRequest(ctx: HostedContext, req: HostedRequest): Promise<HostedResult> {
+  if (ctx.suspended || (!ctx.active && !ctx.preview)) return pausedError(ctx.app, Boolean(ctx.suspended));
+  if (!ctx.billing) return error(403, "feature_disabled", "This app doesn't sell in the app.");
+  let account: { source: "hosted" | "wordpress"; id: string } | null = null;
+  if (ctx.app.backend === "hosted" || signsForOwnApi(ctx)) {
+    const session = await authenticate(ctx, req.token);
+    if (session) account = { source: "hosted", id: String(session.user.id) };
+  } else if (usesPlugin(ctx.app)) {
+    account = await accountForBillingToken(ctx.store, ctx.app, req.token, ctx.now);
+  }
+  return handleBillingRoute({ ...ctx.billing, store: ctx.store, now: ctx.now, app: ctx.app, plan: ctx.plan }, req, account);
+}
+
 // Configuration
 
 /** An error for the server log: its kind and message only (never a request, headers or keys). */
@@ -452,6 +475,7 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     vertical: toVertical(app.vertical),
     // 77 Chat with the business (and course groups).
     ...chatField(ctx),
+    ...(await storeBillingField(ctx, platform)),
     // 83.3 The team's switches for the app's modules and new features.
     switches: appSwitches(app),
     ...(extra.store ? { store: extra.store } : {}),
@@ -520,6 +544,14 @@ function signInConfig(ctx: HostedContext, req: HostedRequest): HostedResult {
     app: { update_required: false, maintenance: false, maintenance_message: null },
     ...chatField(ctx),
   });
+}
+
+/** 100.3 `Config.store_billing` when the app sells in the app and a product is ready in this platform's store. */
+async function storeBillingField(ctx: HostedContext, platform: "android" | "ios"): Promise<{ store_billing?: NonNullable<ReturnType<typeof storeBillingConfig>> }> {
+  if (!ctx.billing || !storeBillingOn(ctx.app, ctx.plan)) return {};
+  const ready = (await ctx.store.listStoreProducts(ctx.app.id)).some((p) => readyIn(p, platform));
+  const config = storeBillingConfig(ctx.app, ctx.plan, ctx.platformUrl, { session: "access_token", ready, termsUrl: null });
+  return config ? { store_billing: config } : {};
 }
 
 /** 77 `Config.chat` when the app has chat. */

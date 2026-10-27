@@ -179,6 +179,8 @@ describe("saves that change what the license status carries ask the site", () =>
     ["app/actions/chat.ts", "saveChatSettingsAction"],
     // 83.3 The team's switches for the app.
     ["app/actions/admin-clients.ts", "setAppSwitchesAction"],
+    // 100.3 In-app purchases on or off.
+    ["app/actions/store-billing.ts", "saveStoreBillingAction"],
   ])("%s %s", (file, name) => {
     expect(body(file, name)).toContain("refreshSitesSoon(");
   });
@@ -206,6 +208,8 @@ describe("saves that change what the license status carries ask the site", () =>
       "chat",
       // 83.3 The team's switches (Admin › the client › App switches).
       "switches",
+      // 100.3 In-app purchases (Dashboard › In-app purchases); products made in the stores reach the site at its next check.
+      "store_billing",
       "expires_at",
       "checked_at",
       "message",

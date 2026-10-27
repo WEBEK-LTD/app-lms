@@ -2333,6 +2333,35 @@ checked offline against Apple Root CA - G3 (`apple-root.ts`); Google's
 Pub/Sub pushes by their OIDC token (`verifyPubSubPush`). Apple reviews new
 in-app purchases with the next version sent for review.
 
+100.3 Purchases. The app buys with the store's SDK and sends what the
+store gave it to the hosted API (`/api/app/<app id>/billing/…`,
+`lib/store-billing/hosted.ts`): the person is the hosted API's (a token of
+the app's sign-in) or, for a WordPress app, the site's (an hour's billing
+token the plugin gets from `POST /api/v1/billing/sessions`,
+`billing_sessions`). `purchases.ts` checks the purchase with the store
+(Google: the Play Developer API reads the token, which must be this app's
+product, paid; Apple: the signed transaction against Apple's root, this
+bundle ID and product), keeps it once in `store_purchases` (unique per app,
+platform and store key: the token's SHA-256 or Apple's original
+transaction ID) for the account that sent it first (another account gets
+`purchase_in_use`), gives the access where the course lives
+(`delivery.ts`: the dashboard's course enrolment, or the site's signed
+`POST /wp-json/yallapp/v1/billing/access` with a `grant_id` that is the same
+on every try of one change), and only then acknowledges a Google purchase;
+when the access couldn't be given the app hears `store_unavailable` and
+sends it again. The frequent job (`jobs.ts`) tries waiting access again
+(after a quarter of its age, from a minute to a day), reads each app's
+Google voided purchases every hour, and reads memberships past their paid
+period again (Google) or ends them a day later (Apple). Google's real-time
+notifications come through one Yallapp Pub/Sub topic to
+`/api/v1/billing/notifications/google` (the push's OIDC token, from the
+service account in `GOOGLE_PUBSUB_PUSH_EMAIL`), Apple's to
+`/api/v1/billing/notifications/apple/<app id>`; both only change purchases
+Yallapp kept. `Config.store_billing` (hosted API) and
+`LicenseStatus.store_billing` (WordPress) appear once a product is ready
+in a store; the dashboard's courses then show the `store` action and no
+payment page.
+
 ## Notification campaigns (Phase 85)
 
 ### Audiences (85.1)

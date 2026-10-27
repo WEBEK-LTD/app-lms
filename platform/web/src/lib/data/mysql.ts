@@ -8,7 +8,7 @@ import { clientAccountState, longestLicense } from "../license/status";
 import type { BuildConfig } from "../build-config/types";
 import * as schema from "../db/schema";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
-import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, SavedSection, StoreProduct } from "./types";
+import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, SavedSection, StoreProduct, StorePurchaseRecord, BillingSession } from "./types";
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
@@ -2920,6 +2920,55 @@ export class MysqlStore implements DataStore {
     void _productId;
     void _createdAt;
     await this.run((db) => db.insert(schema.storeProducts).values(product).onDuplicateKeyUpdate({ set: rest }));
+  }
+
+  // 100.3 Store purchases and billing sessions
+
+  async getStorePurchase(appId: string, platform: StorePurchaseRecord["platform"], storeKey: string): Promise<StorePurchaseRecord | null> {
+    const t = schema.storePurchases;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.platform, platform), eq(t.storeKey, storeKey))).limit(1));
+    return row ?? null;
+  }
+
+  async createStorePurchase(purchase: StorePurchaseRecord): Promise<StorePurchaseRecord> {
+    // The unique (app, platform, store key) keeps the first.
+    await this.run((db) => db.insert(schema.storePurchases).ignore().values(purchase));
+    return (await this.getStorePurchase(purchase.appId, purchase.platform, purchase.storeKey)) ?? purchase;
+  }
+
+  async saveStorePurchase(purchase: StorePurchaseRecord): Promise<void> {
+    const { id, ...rest } = purchase;
+    await this.run((db) => db.update(schema.storePurchases).set(rest).where(eq(schema.storePurchases.id, id)));
+  }
+
+  async listAccountStorePurchases(appId: string, accountSource: StorePurchaseRecord["accountSource"], accountId: string): Promise<StorePurchaseRecord[]> {
+    const t = schema.storePurchases;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), eq(t.accountSource, accountSource), eq(t.accountId, accountId)))
+        .orderBy(desc(t.createdAt)),
+    );
+  }
+
+  async listUndeliveredStorePurchases(before: Date, limit: number): Promise<StorePurchaseRecord[]> {
+    const t = schema.storePurchases;
+    return this.run((db) => db.select().from(t).where(and(eq(t.delivered, false), lt(t.updatedAt, before))).orderBy(asc(t.updatedAt)).limit(limit));
+  }
+
+  async listEndingStorePurchases(before: Date, limit: number): Promise<StorePurchaseRecord[]> {
+    const t = schema.storePurchases;
+    return this.run((db) => db.select().from(t).where(and(eq(t.status, "active"), isNotNull(t.expiresAt), lt(t.expiresAt, before))).orderBy(asc(t.expiresAt)).limit(limit));
+  }
+
+  async createBillingSession(session: BillingSession): Promise<void> {
+    await this.run((db) => db.insert(schema.billingSessions).values(session));
+  }
+
+  async getBillingSession(tokenHash: string): Promise<BillingSession | null> {
+    const [row] = await this.run((db) => db.select().from(schema.billingSessions).where(eq(schema.billingSessions.tokenHash, tokenHash)).limit(1));
+    return row ?? null;
   }
 
   async deleteSavedSection(clientId: string, id: string): Promise<boolean> {

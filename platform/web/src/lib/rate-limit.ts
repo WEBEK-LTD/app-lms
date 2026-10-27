@@ -104,6 +104,9 @@ export const RATE_LIMITS = {
   chatSessionsIp: { name: "chat-sessions:ip", limit: 300, windowSeconds: 60 },
   // 100.2 The plugin sends its paid courses and plans (twice a day, and when one is saved).
   billingCatalogIp: { name: "billing-catalog:ip", limit: 60, windowSeconds: 60 },
+  // 100.3 Purchases and restores an app sends, per account; billing sessions the plugin asks for, per IP.
+  billingPurchases: { name: "billing-purchases:account", limit: 30, windowSeconds: 10 * 60 },
+  billingSessionsIp: { name: "billing-sessions:ip", limit: 300, windowSeconds: 60 },
   // 51 Uploads an owner starts in the Media library, per app.
   mediaUploads: { name: "media-uploads:app", limit: 200, windowSeconds: 60 * 60 },
   // 58 Yallapp Business renewing its tokens (POST /api/owner/v1/auth/refresh), per IP. Signing in counts with the website's (signInIp, signInEmail).

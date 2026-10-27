@@ -2,7 +2,7 @@ import { clientAccountState, longestLicense } from "../license/status";
 import { newId } from "../crypto/tokens";
 import { membershipActive, membershipFreezeSet, membershipToUse } from "../bookings/memberships";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
-import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, PendingPayment, SavedSection, StoreProduct } from "./types";
+import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, PendingPayment, SavedSection, StoreProduct, StorePurchaseRecord, BillingSession } from "./types";
 import type { CampaignSend, HostedCart, HostedOrderWatch, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 import type { LoyaltyEntry, LoyaltyReason } from "./types";
 import type {
@@ -2248,6 +2248,59 @@ export class MemoryStore implements DataStore {
     const same = this.storeProducts.find((p) => p.appId === product.appId && p.productId === product.productId);
     const saved = clone({ ...product, id: same?.id ?? product.id });
     this.storeProducts = [...this.storeProducts.filter((p) => p !== same), saved];
+  }
+
+  // 100.3 Store purchases and billing sessions
+
+  private storePurchases = new Map<string, StorePurchaseRecord>();
+  private billingSessions = new Map<string, BillingSession>();
+
+  async getStorePurchase(appId: string, platform: StorePurchaseRecord["platform"], storeKey: string): Promise<StorePurchaseRecord | null> {
+    const found = [...this.storePurchases.values()].find((p) => p.appId === appId && p.platform === platform && p.storeKey === storeKey);
+    return found ? clone(found) : null;
+  }
+
+  async createStorePurchase(purchase: StorePurchaseRecord): Promise<StorePurchaseRecord> {
+    const same = await this.getStorePurchase(purchase.appId, purchase.platform, purchase.storeKey);
+    if (same) return same;
+    this.storePurchases.set(purchase.id, clone(purchase));
+    return clone(purchase);
+  }
+
+  async saveStorePurchase(purchase: StorePurchaseRecord): Promise<void> {
+    if (this.storePurchases.has(purchase.id)) this.storePurchases.set(purchase.id, clone(purchase));
+  }
+
+  async listAccountStorePurchases(appId: string, accountSource: StorePurchaseRecord["accountSource"], accountId: string): Promise<StorePurchaseRecord[]> {
+    return [...this.storePurchases.values()]
+      .filter((p) => p.appId === appId && p.accountSource === accountSource && p.accountId === accountId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .map(clone);
+  }
+
+  async listUndeliveredStorePurchases(before: Date, limit: number): Promise<StorePurchaseRecord[]> {
+    return [...this.storePurchases.values()]
+      .filter((p) => !p.delivered && p.updatedAt.getTime() < before.getTime())
+      .sort((a, b) => a.updatedAt.getTime() - b.updatedAt.getTime())
+      .slice(0, limit)
+      .map(clone);
+  }
+
+  async listEndingStorePurchases(before: Date, limit: number): Promise<StorePurchaseRecord[]> {
+    return [...this.storePurchases.values()]
+      .filter((p) => p.status === "active" && p.expiresAt !== null && p.expiresAt.getTime() < before.getTime())
+      .sort((a, b) => a.expiresAt!.getTime() - b.expiresAt!.getTime())
+      .slice(0, limit)
+      .map(clone);
+  }
+
+  async createBillingSession(session: BillingSession): Promise<void> {
+    this.billingSessions.set(session.tokenHash, clone(session));
+  }
+
+  async getBillingSession(tokenHash: string): Promise<BillingSession | null> {
+    const found = this.billingSessions.get(tokenHash);
+    return found ? clone(found) : null;
   }
 
   async deleteSavedSection(clientId: string, id: string): Promise<boolean> {

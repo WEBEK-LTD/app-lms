@@ -1,10 +1,9 @@
-import { keyContext } from "../builds/signing";
-import { decrypt } from "../crypto/encryption";
 import type { DataStore } from "../data/store";
 import type { App, StoreBillingSettings } from "../data/types";
 import { checkGoogleBilling, googleBillingToken } from "./google";
 import { storesOf } from "./products";
-import { appleAppOf, appleCredentials } from "./sync";
+import { appleCredentials, googleKey } from "./keys";
+import { appleAppOf } from "./sync";
 
 /**
  * 100.2 "Check" on In-app purchases: whether each store's key (from the
@@ -23,14 +22,7 @@ export async function checkStoreKeys(deps: { store: Pick<DataStore, "updateApp">
   let apple: string | null = null;
   if (stores.google) {
     try {
-      const json = (() => {
-        try {
-          return decrypt(app.googlePlayKeyEncrypted ?? "", deps.key, keyContext.googlePlay(app.id));
-        } catch {
-          throw { code: "unreadable" };
-        }
-      })();
-      const token = await googleBillingToken(fetcher, json, deps.now);
+      const token = await googleBillingToken(fetcher, googleKey(app, deps.key), deps.now);
       await checkGoogleBilling({ fetcher, token, packageName: app.androidPackage ?? "" });
     } catch (error) {
       google = codeOf(error, "google_failed");

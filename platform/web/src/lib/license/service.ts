@@ -1,9 +1,10 @@
 import { parseSiteSales, saveSiteSales, type SiteSalesDay } from "../analytics/site-sales";
 import { appSwitches, type AppSwitches } from "../app/switches";
+import { licenseStoreBilling } from "../store-billing/config";
 import { httpsSiteAddress, moveToWordpress } from "../app/wordpress-ready";
 import type { DataStore } from "../data/store";
 import type { Mailer } from "../notices";
-import { DEFAULT_HOSTED_SETTINGS, type App, type AppType, type AppVertical, type Client, type License, type LicenseState, type PluginRelease, type SignInMethod, type SiteBrandReport } from "../data/types";
+import { DEFAULT_HOSTED_SETTINGS, type App, type AppType, type AppVertical, type Client, type License, type LicenseState, type PluginRelease, type SignInMethod, type SiteBrandReport, type StoreProduct } from "../data/types";
 import { toVertical } from "../app/kinds";
 import { downloadsChoice } from "../courses/downloads";
 import { screenProtectionChoice, type ScreenProtection } from "../app/screen-protection";
@@ -60,6 +61,8 @@ export interface LicenseStatusBody {
   chat: { base_url: string; groups: boolean } | null;
   /** 83.3 The team's switches for the app's modules and new features (`Config.switches`). */
   switches: AppSwitches;
+  /** 100.3 Selling courses and memberships in the app through the stores; null when the plan doesn't or nothing is ready in a store. */
+  store_billing: ReturnType<typeof licenseStoreBilling>;
   expires_at: string | null;
   checked_at: string;
   message: string | null;
@@ -250,6 +253,8 @@ interface AppFacts {
   hideVideoBranding: boolean;
   /** 77 The app, for its chat. */
   app: App | null;
+  /** 100.3 The app's store products, for `store_billing`. */
+  storeProducts?: StoreProduct[];
 }
 
 function statusBody(
@@ -278,6 +283,7 @@ function statusBody(
     hide_video_branding: facts.hideVideoBranding,
     chat: state === "active" && facts.app && chatAvailable(facts.app, plan) ? { base_url: chatBaseUrl(appUrl(), facts.app.id), groups: chatGroupsOn(facts.app) } : null,
     switches: appSwitches(facts.app ?? {}),
+    store_billing: state === "active" && facts.app ? licenseStoreBilling(facts.app, plan, facts.storeProducts ?? [], appUrl()) : null,
     expires_at: license ? license.expiresAt.toISOString() : null,
     checked_at: now.toISOString(),
     message,
@@ -312,6 +318,7 @@ async function appFactsOf(store: DataStore, license: License): Promise<AppFacts>
     screenProtection: screenProtectionChoice(app),
     hideVideoBranding: hidesVideoBranding(app),
     app,
+    storeProducts: app.storeBilling?.enabled ? await store.listStoreProducts(app.id) : [],
   };
 }
 

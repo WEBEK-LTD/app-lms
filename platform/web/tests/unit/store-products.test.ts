@@ -15,6 +15,7 @@ import { needsSync, priceText, productIdFor, reconcileProducts, RETRY_AFTER_MS, 
 import { APPLE_GROUP, appleNotificationsUrl, runStoreProductSync, syncStoreProducts } from "@/lib/store-billing/sync";
 import { PLAN_INFO } from "@/lib/plans";
 import { days, KEY, NOW } from "./helpers";
+import { storeBillingStoreSuite } from "./store-billing-store-suite";
 
 const later = (ms: number) => new Date(NOW.getTime() + ms);
 let ids = 0;
@@ -335,4 +336,9 @@ describe("100.2 making the products in the stores", () => {
     expect(await checkStoreKeys({ store, key: Buffer.alloc(32, 9), now: NOW, fetcher }, app)).toMatchObject({ google: "unreadable", apple: "unreadable" });
     expect(APPLE_GROUP).toBe("Memberships");
   });
+});
+
+describe("100.2/100.3 store billing in the memory store", () => {
+  const store = new MemoryStore();
+  storeBillingStoreSuite(() => store);
 });

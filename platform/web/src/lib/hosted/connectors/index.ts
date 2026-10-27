@@ -72,6 +72,8 @@ export function connectorFor(
     onReturnRequested?: CatalogDeps["onReturnRequested"];
     /** 45 Lessons of courses managed in Yallapp may be saved for offline viewing (lib/courses/downloads.ts). */
     downloads?: boolean;
+    /** 100.3 Courses managed in Yallapp are bought through the stores. */
+    storeBilling?: boolean;
     /** 51 Lesson videos from the app's Media library (lib/media/hosted.ts). */
     media?: CoursesMedia;
     /** 28 Signs ticket QR codes (each app's key is made from it); read from the environment when left out. */

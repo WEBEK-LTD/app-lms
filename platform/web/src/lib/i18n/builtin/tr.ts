@@ -584,6 +584,12 @@ export const SERVER_MESSAGES_TR: Record<string, string> = {
   "You've sent many messages in a short time. Please try again later.": "Kısa sürede çok fazla mesaj gönderdiniz. Lütfen daha sonra tekrar deneyin.",
   "Your membership is frozen, so classes can't be booked until it's back.": "Üyeliğiniz donduruldu; geri gelene kadar ders ayırtılamaz.",
   "Your membership has no classes left.": "Üyeliğinizde ders hakkı kalmadı.",
+  // 100.3 Store billing.
+  "This app doesn't sell in the app.": "Bu uygulama uygulama içinden satış yapmıyor.",
+  "Too many purchases sent. Try again in a few minutes.": "Çok fazla satın alma gönderildi. Birkaç dakika sonra tekrar deneyin.",
+  "This isn't a valid purchase in this app.": "Bu, bu uygulamada geçerli bir satın alma değil.",
+  "The store couldn't be reached. Your purchase is safe: the app will send it again shortly.": "Mağazaya ulaşılamadı. Satın almanız güvende: uygulama kısa süre içinde yeniden gönderecek.",
+  "This purchase belongs to another account in this app.": "Bu satın alma bu uygulamadaki başka bir hesaba ait.",
   "Your session has ended. Please sign in again.": "Oturumunuz sona erdi. Lütfen tekrar giriş yapın.",
   "Your verification has expired. Please start again.": "Doğrulamanızın süresi doldu. Lütfen baştan başlayın.",
   "This coupon doesn't exist.": "Bu kupon bulunamadı.",
