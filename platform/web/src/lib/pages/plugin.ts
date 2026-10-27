@@ -6,7 +6,7 @@ import { licenseState } from "../license/status";
 import { effectivePlans, planOfLicense } from "../entitlements";
 import { withLanguageList } from "../i18n/packs";
 import { withBuiltInTexts } from "./builtin";
-import { servedAppearance } from "../fonts/look";
+import { servedAppearance, shownAppearance } from "../fonts/look";
 import { appDefaults } from "./layout";
 import { layoutForPlan } from "./plan";
 import type { Layout } from "./types";
@@ -49,14 +49,22 @@ export async function pluginLayout(store: DataStore, site: SiteInfo, ifNoneMatch
   // 13.1 The layout as the app's plan allows it (languages, sources, the full page editor).
   // 43 With Yallapp's own translations, and each language's name, direction and string pack
   // for the plugin's Config.languages; the interface strings themselves stay on the platform.
-  const planned = withBuiltInTexts(layoutForPlan(published, app, planOfLicense(await effectivePlans(store), license, now), await appDefaults(store)));
+  // 97.3 The Figma look stays on the platform: the plugin gets the look shown.
+  const own = await store.listOwnFonts(app.id);
+  const { look_mode: _mode, figma_look: _figma, ...shown } = {
+    ...published,
+    appearance: shownAppearance(published, (id) => `${platformUrl}/api/v1/assets/${id}`, own.map((f) => f.family)),
+  };
+  void _mode;
+  void _figma;
+  const planned = withBuiltInTexts(layoutForPlan(shown, app, planOfLicense(await effectivePlans(store), license, now), await appDefaults(store)));
   const { strings: _strings, ...rest } = planned;
   void _strings;
   // Strings are published with the pages, so a changed pack always comes with a new version.
   // 97.1 With the files of the look's free fonts, on Yallapp.
   const layout: Layout = {
     ...rest,
-    appearance: servedAppearance(rest.appearance, platformUrl, await store.listOwnFonts(app.id)),
+    appearance: servedAppearance(rest.appearance, platformUrl, own),
     languages: withLanguageList(planned.languages, published.strings, { platformUrl, appId: app.id }),
   };
   if (etagValues(ifNoneMatch).includes(layout.version)) return { status: 304 };

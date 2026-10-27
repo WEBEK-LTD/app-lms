@@ -13,6 +13,8 @@ export { APP_FONTS, APP_TEMPLATES };
 
 export const THEME_MODES = ["system", "light", "dark"] as const;
 export const CORNERS = ["sharp", "soft", "round"] as const;
+/** 97.3 Which look the app shows: the standard one, or the one made from a Figma file. */
+export const LOOK_MODES = ["standard", "figma"] as const;
 export const CARD_STYLES = ["flat", "outlined", "elevated"] as const;
 /** 43 The languages Yallapp ships its own translations in; an app can offer any of `LOCALES` (lib/i18n/locales.ts). */
 export const LANGUAGE_CODES = BUILT_IN_LANGUAGES;
@@ -93,6 +95,33 @@ export const SOCIAL_NETWORKS = ["instagram", "facebook", "x", "tiktok", "youtube
 export type AppTemplateName = (typeof APP_TEMPLATES)[number];
 export type ThemeMode = (typeof THEME_MODES)[number];
 export type Corners = (typeof CORNERS)[number];
+export type LookMode = (typeof LOOK_MODES)[number];
+
+/**
+ * 97.3 The look made from a Figma file, kept apart from the standard look
+ * (`appearance`): choosing one never changes the other. In the draft until
+ * published, like everything in the layout.
+ */
+export interface FigmaLook {
+  /** #RRGGBB */
+  primary_color: string;
+  secondary_color: string | null;
+  /** A free font or one of the app's own; null: the bundled default. */
+  font_family: string | null;
+  arabic_font?: string;
+  corners: Corners;
+  /** An asset (the file's logo), or none. */
+  logo_asset_id: string | null;
+  /** Pictures from the file, offered in the editor's picture pickers. */
+  pictures: FigmaPicture[];
+  /** Where it came from: exported files, or (97.4) the file's link. */
+  source: { kind: "files" | "link"; name: string; imported_at: string };
+}
+
+export interface FigmaPicture {
+  asset_id: string;
+  name: string;
+}
 export type CardStyle = (typeof CARD_STYLES)[number];
 /** 43 A language code from `LOCALES` ("en", "ar", "fr", "fil"). */
 export type LanguageCode = string;
@@ -125,6 +154,9 @@ export interface Appearance {
   /** 97.1 Added when served, never stored: the files of `font_family` and `arabic_font`. */
   font_files?: FontFile[];
   arabic_font_files?: FontFile[];
+  /** 97.3 Served only, in the Figma look: the file's main color and logo, over Config.branding's. */
+  primary_color?: string;
+  logo_url?: string;
   corners: Corners;
   cards: CardStyle;
 }
@@ -336,6 +368,10 @@ export interface LayoutContent {
   pages: LayoutPage[];
   /** 43 The owner's translations of the app's own interface strings; apps get them as string packs, never in the layout. */
   strings?: InterfaceStrings;
+  /** 97.3 The look the app shows; missing: the standard one. */
+  look_mode?: LookMode;
+  /** 97.3 The look made from a Figma file, kept even while the standard look is shown. */
+  figma_look?: FigmaLook;
 }
 
 /** `Layout` in docs/api/platform.yaml: a published layout. */

@@ -3,6 +3,7 @@ import { createServer, type Server } from "node:http";
 import path from "node:path";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
+import { solidPng } from "./png";
 
 /**
  * Pages, looks and languages (roadmap 10.4, 10.6, 10.8 and 11.9): the team
@@ -253,6 +254,57 @@ test("97.2 the client uploads a font of their own and the app gets it", async ({
   await own.reload();
   await own.getByRole("tab", { name: "Look" }).click();
   await expect(own.getByLabel("Font", { exact: true })).toHaveValue("DM Sans");
+});
+
+test("97.3 the client brings a look from Figma, apart from the standard one", async ({ request }) => {
+  await own.getByRole("tab", { name: "Look" }).click();
+  // No Figma file yet: the standard look only.
+  await expect(own.getByRole("radio", { name: "Standard look" })).toBeChecked();
+  await expect(own.getByRole("radio", { name: "Figma look" })).toBeDisabled();
+  const tokens = {
+    color: { $type: "color", brand: { primary: { $value: "#1F4E5F" }, accent: { $value: "#FF5A1F" } }, neutral: { 100: { $value: "#F4F4F4" } } },
+    font: { body: { $type: "fontFamily", $value: "Tajawal" }, display: { $type: "fontFamily", $value: "Harbour Display" } },
+    radius: { card: { $type: "dimension", $value: "16px" } },
+  };
+  const importer = own.getByRole("region", { name: "Import from Figma files" });
+  await importer.getByLabel("Design tokens (JSON)").setInputFiles({ name: "harbour-tokens.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(tokens)) });
+  const found = importer.getByRole("region", { name: "What we found in harbour-tokens.json" });
+  await expect(found.getByLabel("Main color")).toHaveValue("#1F4E5F");
+  await expect(found.getByLabel("Second color")).toHaveValue("#FF5A1F");
+  await expect(found.getByLabel("Font")).toHaveValue("Tajawal");
+  await expect(found.getByLabel("Corners")).toHaveValue("round");
+  // A font that isn't a free one is said so.
+  await found.getByLabel("Font").selectOption("Harbour Display");
+  await expect(importer.getByRole("alert")).toContainText("Harbour Display isn't one of the free fonts.");
+  await found.getByLabel("Font").selectOption("Tajawal");
+  await expect(importer.getByRole("alert")).toHaveCount(0);
+  await importer.getByLabel("Logo", { exact: true }).setInputFiles({ name: "logo.png", mimeType: "image/png", buffer: solidPng(120, 40, [31, 78, 95]) });
+  await importer.getByLabel("Pictures", { exact: true }).setInputFiles([{ name: "harbour.png", mimeType: "image/png", buffer: solidPng(320, 180, [255, 90, 31]) }]);
+  await expect(importer.getByRole("list", { name: "Logo · Pictures" }).getByRole("listitem")).toHaveCount(2);
+  await importer.getByRole("button", { name: "Save as the Figma look" }).click();
+  await expect(importer.getByRole("status")).toHaveText("Saved in your draft and shown in the preview. Publish to show it in your app.");
+  await expect(own.getByRole("radio", { name: "Figma look" })).toBeChecked();
+  // The standard look's font, colors and corners wait, as they were.
+  await expect(own.getByText("The Figma look sets the font, colors and corners.")).toBeVisible();
+  await expect(own.getByLabel("Corners", { exact: true })).toHaveCount(0);
+
+  await own.getByRole("button", { name: "Publish", exact: true }).click();
+  await expect(own.getByText("Published. Your app shows the new pages")).toBeVisible();
+  const figma = (await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json()).appearance;
+  expect(figma).toMatchObject({ primary_color: "#1F4E5F", secondary_color: "#FF5A1F", font_family: "Tajawal", corners: "round", logo_url: expect.stringMatching(/\/api\/v1\/assets\/[0-9a-f-]{36}$/) });
+  expect((await request.get(new URL(figma.logo_url).pathname)).headers()["content-type"]).toBe("image/png");
+
+  // Back to the standard look: as it was before the import.
+  await own.getByRole("radio", { name: "Standard look" }).check();
+  await expect(own.getByLabel("Corners", { exact: true })).toHaveValue("sharp");
+  await own.getByRole("button", { name: "Publish", exact: true }).click();
+  await expect(own.getByText("Published. Your app shows the new pages")).toBeVisible();
+  const standard = (await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json()).appearance;
+  expect(standard).toMatchObject({ corners: "sharp", font: "DM Sans" });
+  expect(standard.primary_color).toBeUndefined();
+  expect(standard.logo_url).toBeUndefined();
+  // The Figma look is kept, to switch back to.
+  await expect(own.getByRole("radio", { name: "Figma look" })).toBeEnabled();
 });
 
 test("31 the editor offers only what the app's type has, and flags what a type change left behind", async () => {

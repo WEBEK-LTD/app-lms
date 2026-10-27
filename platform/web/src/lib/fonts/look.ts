@@ -1,5 +1,5 @@
 import type { AppFont } from "../build-config/types";
-import type { Appearance } from "../pages/types";
+import type { Appearance, LayoutContent } from "../pages/types";
 import type { OwnFont } from "../data/types";
 import { DEFAULT_ARABIC_FONT, fontFiles, freeFont, isBundledFont, type FontFile, type FreeFont } from "./catalog";
 
@@ -72,4 +72,31 @@ export function withLook<T extends Pick<Appearance, "font" | "font_family">>(bas
   const { font_family: _drop, ...rest } = base;
   void _drop;
   return { ...(look.font && !look.font_family ? (rest as T) : base), ...look };
+}
+
+/**
+ * 97.3 The look the app shows: the standard one, or (in the Figma mode) the
+ * Figma look over it: its colors, fonts, corners and logo, nothing of the
+ * standard look's; the template, the opening mode and the cards stay.
+ * `assetUrl` makes the logo's address; `own`: the app's own fonts' names.
+ */
+export function shownAppearance(
+  layout: Pick<LayoutContent, "appearance" | "look_mode" | "figma_look">,
+  assetUrl: (assetId: string) => string,
+  own: readonly string[] = [],
+): Appearance {
+  const figma = layout.figma_look;
+  if (layout.look_mode !== "figma" || !figma) return layout.appearance;
+  const { font_family: _font, arabic_font: _arabic, ...base } = layout.appearance;
+  void _font;
+  void _arabic;
+  return {
+    ...base,
+    ...(lookFont(figma.font_family, own) ?? {}),
+    ...(figma.arabic_font ? { arabic_font: figma.arabic_font } : {}),
+    secondary_color: figma.secondary_color,
+    corners: figma.corners,
+    primary_color: figma.primary_color,
+    ...(figma.logo_asset_id ? { logo_url: assetUrl(figma.logo_asset_id) } : {}),
+  };
 }

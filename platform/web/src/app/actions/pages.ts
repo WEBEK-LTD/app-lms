@@ -7,6 +7,7 @@ import { getStore } from "@/lib/data";
 import type { App, AppLayoutRecord, SavedSection } from "@/lib/data/types";
 import { discardDraft, hasUnpublishedChanges, layoutHistory, loadLayout, publishLayout, restoreLayoutVersion, saveDesignDraft, saveDraft, withoutStrings, type LayoutHistoryEntry } from "@/lib/pages/layout";
 import { getBlobStore } from "@/lib/blobs";
+import { FIGMA_IMAGE_BYTES, saveFigmaImage } from "@/lib/figma/images";
 import { addOwnFont, OWN_FONT_LIMITS, ownFontView, removeOwnFont, type OwnFontError, type OwnFontView } from "@/lib/fonts/own";
 import { saveSection, type SaveSectionError } from "@/lib/pages/sections";
 import type { LayoutContent } from "@/lib/pages/types";
@@ -87,6 +88,17 @@ export async function deleteOwnFontAction(id: string): Promise<{ ok: true; fonts
   }
   revalidatePath("/dashboard/pages");
   return { ok: true, fonts: (await store.listOwnFonts(app.id)).map(ownFontView) };
+}
+
+/** 97.3 A logo or picture exported from Figma, for the Figma look: kept as the account's file, named in the draft by the editor. */
+export async function uploadFigmaImageAction(formData: FormData): Promise<{ ok: true; assetId: string; url: string; name: string } | { ok: false; error: "type" | "size" }> {
+  const { app } = await requireLayoutApp();
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) return { ok: false, error: "type" };
+  if (file.size > FIGMA_IMAGE_BYTES) return { ok: false, error: "size" };
+  const saved = await saveFigmaImage({ store: await getStore(), blobs: getBlobStore(), now: new Date() }, app, Buffer.from(await file.arrayBuffer()));
+  if (!saved.ok) return saved;
+  return { ok: true, assetId: saved.assetId, url: `/api/v1/assets/${saved.assetId}`, name: file.name.replace(/\.[a-z0-9]+$/i, "").slice(0, 120) };
 }
 
 function parseJson(json: string): unknown {

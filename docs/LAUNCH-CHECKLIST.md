@@ -1426,9 +1426,9 @@ routine every few years):
 
 ## 7z4. Every free font (Phase 97.1)
 
-- [ ] Release plugin **0.4.19** in Admin › Plugin releases, so WordPress
-      apps get the free fonts too (older plugins send only the bundled
-      font, and their apps keep it).
+- [ ] Release plugin **0.4.20** in Admin › Plugin releases (it has 0.4.19's
+      free fonts and 97.3's Figma look), so WordPress apps get them too
+      (older plugins send only the bundled font and the site's branding).
 - [ ] Choose a free font (say Cairo) for a test app in Pages & look,
       publish, open the app: the bundled font first, the chosen one once
       downloaded, and still after a restart in flight mode.
@@ -1436,6 +1436,10 @@ routine every few years):
   is asked for; after that it is served from Netlify Blobs.
 - Migration `0088_own_fonts` (97.2, the owners' own fonts) runs with the
   others at deploy.
+- [ ] Import a Figma file in Pages & look (its design tokens JSON, logo
+      and a picture), save it as the Figma look, publish: the app shows its
+      colors, font and logo; switch back to the standard look and publish:
+      the app is as before.
 - [ ] Upload a font of your own in Pages & look (a .ttf you have a licence
       for), choose it, publish and open the app: it shows that font.
 

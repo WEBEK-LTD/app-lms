@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useLayoutEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { publishTranslationsAction, saveLanguagesAction, saveTranslationsAction, type TranslationsResult } from "@/app/actions/translations";
 import { Icon } from "@/components/icon";
 import { Badge, btn, formatDateTime, ProgressBar, Section } from "@/components/ui";
@@ -489,6 +489,15 @@ function RowEditor({
   known: (english: string) => string;
 }) {
   const field = useRef<HTMLTextAreaElement>(null);
+  // Where the cursor goes after a placeholder is inserted: set as the new text is shown, not a frame later (when it could undo a selection made since).
+  const caret = useRef<number | null>(null);
+  useLayoutEffect(() => {
+    const el = field.current;
+    if (!el || caret.current === null) return;
+    el.focus();
+    el.setSelectionRange(caret.current, caret.current);
+    caret.current = null;
+  }, [value]);
   const id = `row-${row.id.replace(/[^A-Za-z0-9_-]/g, "_")}`;
   const sourceName = row.kind === "content" ? defaultName : englishName;
   const where = row.kind === "content" ? whereIn(row.where, known) : row.where;
@@ -500,11 +509,8 @@ function RowEditor({
     if (!el) return onChange(value + token);
     const start = el.selectionStart ?? value.length;
     const end = el.selectionEnd ?? value.length;
+    caret.current = start + token.length;
     onChange(value.slice(0, start) + token + value.slice(end));
-    requestAnimationFrame(() => {
-      el.focus();
-      el.setSelectionRange(start + token.length, start + token.length);
-    });
   }
 
   return (

@@ -616,6 +616,8 @@ class Appearance {
     this.arabicFontFiles = const [],
     this.corners,
     this.cards,
+    this.primaryColor,
+    this.logoUrl,
   });
 
   factory Appearance.fromJson(Json json) => Appearance(
@@ -630,6 +632,8 @@ class Appearance {
     arabicFontFiles: listOf(json, 'arabic_font_files', FontFileRef.fromJson),
     corners: enumOrNull(CornerStyle.values, json['corners']),
     cards: enumOrNull(CardStyle.values, json['cards']),
+    primaryColor: optString(json, 'primary_color'),
+    logoUrl: optString(json, 'logo_url'),
   );
 
   final AppTemplate? template;
@@ -650,6 +654,10 @@ class Appearance {
   final List<FontFileRef> arabicFontFiles;
   final CornerStyle? corners;
   final CardStyle? cards;
+
+  /// 97.3 The Figma look's main color and logo, over `Config.branding`'s.
+  final String? primaryColor;
+  final String? logoUrl;
 }
 
 /// 97.1 `FontFile`: a font file on Yallapp, for one weight or (null) all.

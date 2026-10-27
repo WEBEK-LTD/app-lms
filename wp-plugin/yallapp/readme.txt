@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.19
+Stable tag: 0.4.20
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -121,6 +121,9 @@ Terms: https://developer.huawei.com/consumer/en/devservice/term
 Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 
 == Changelog ==
+
+= 0.4.20 =
+* The Figma look: when the app shows the look made from your Figma file in the Yallapp dashboard, its main color and logo reach the app too.
 
 = 0.4.19 =
 * Every free font: the font and the Arabic text's font chosen in the Yallapp dashboard reach the app, which downloads them from Yallapp once and keeps them.

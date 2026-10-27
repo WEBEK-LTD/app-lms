@@ -32,6 +32,8 @@ export function MediaPicker({ kind, onPick, label, share = false, library = fals
   const [items, setItems] = useState<PickableMedia[] | null>(null);
   // 84.2 Yallapp's pictures, for pictures on pages.
   const [pictures, setPictures] = useState<LibraryPicture[]>([]);
+  // 97.3 The pictures of the draft's Figma look.
+  const [figma, setFigma] = useState<{ name: string; url: string }[]>([]);
   const [available, setAvailable] = useState(true);
   const [pending, start] = useTransition();
   const words = KIND_WORDS[kind];
@@ -42,6 +44,7 @@ export function MediaPicker({ kind, onPick, label, share = false, library = fals
       const result = await listMediaAction({ kind, library });
       setItems(result.items);
       setPictures(result.library);
+      setFigma(result.figma);
       setAvailable(result.available);
     });
   };
@@ -114,6 +117,31 @@ export function MediaPicker({ kind, onPick, label, share = false, library = fals
               ))}
             </ul>
           )}
+          {figma.length ? (
+            <section aria-labelledby="h-figma-pictures" className="flex flex-col gap-2 border-t border-line-soft pt-3">
+              <h3 id="h-figma-pictures" className="m-0 text-[15px] font-bold">
+                {t("media.figmaPictures")}
+              </h3>
+              <ul className="m-0 grid max-h-[40vh] list-none grid-cols-3 gap-2 overflow-y-auto p-0">
+                {figma.map((picture) => (
+                  <li key={picture.url}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onPick(picture.url);
+                        dialog.current?.close();
+                      }}
+                      className="block w-full cursor-pointer overflow-hidden rounded-lg border border-line p-0 hover:border-midnight"
+                      aria-label={t("media.use", { name: picture.name || t("media.figmaPictures") })}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element -- the owner's own picture, on Yallapp */}
+                      <img src={picture.url} alt="" className="block aspect-video w-full object-cover" loading="lazy" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
           {pictures.length ? (
             <section aria-labelledby="h-picture-library" className="flex flex-col gap-2 border-t border-line-soft pt-3">
               <h3 id="h-picture-library" className="m-0 text-[15px] font-bold">

@@ -371,6 +371,9 @@ $layout = array(
 		'arabic_font_files'    => array( array( 'url' => 'http://yallapp.example/api/v1/fonts/ofl/tajawal/Tajawal-Regular.ttf', 'weight' => 400 ) ),
 		'corners'              => 'round',
 		'cards'                => 'elevated',
+		// 97.3 The Figma look's main color and logo; a logo that isn't https is dropped.
+		'primary_color'        => '#1f4e5f',
+		'logo_url'             => 'javascript:alert(1)',
 	),
 	'languages'  => array( 'default' => 'en', 'available' => array( 'en', 'ar' ) ),
 	'tabs'       => array(
@@ -452,6 +455,7 @@ check(
 		'font_family'          => 'Cairo',
 		'font_files'           => array( array( 'url' => 'https://yallapp.example/api/v1/fonts/ofl/cairo/Cairo%5Bslnt%2Cwght%5D.ttf', 'weight' => null ) ),
 		'arabic_font'          => 'Tajawal',
+		'primary_color'        => '#1F4E5F',
 	) === ( $r['json']['appearance'] ?? null ),
 	$r['json']['appearance'] ?? null
 );
