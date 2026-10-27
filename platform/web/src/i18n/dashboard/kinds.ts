@@ -35,6 +35,7 @@ export const en = {
     reqServices: "Works with: Amelia, BookingPress, LatePoint, SimplyBook.me · or no website",
     // 84.2 The designs' colours.
     palDesign: "The design's colours",
+    palYours: "Your main colour",
     palOcean: "Ocean",
     palForest: "Forest",
     palSunset: "Sunset",
@@ -293,6 +294,7 @@ export const ar: Messages = {
     descServices: "التنظيف والصيانة والاستشارات والوكالات: خدماتك وفريقك وعروضك، تُحجز من التطبيق.",
     reqServices: "يعمل مع: Amelia وBookingPress وLatePoint وSimplyBook.me · أو دون موقع إلكتروني",
     palDesign: "ألوان التصميم",
+    palYours: "لونك الأساسي",
     palOcean: "المحيط",
     palForest: "الغابة",
     palSunset: "الغروب",
@@ -532,6 +534,7 @@ export const tr: Messages = {
     descServices: "Temizlik, tamir, danışmanlık ve ajanslar: hizmetleriniz, ekibiniz ve kampanyalarınız, uygulamadan randevuyla.",
     reqServices: "Birlikte çalıştığı: Amelia, BookingPress, LatePoint, SimplyBook.me · ya da web sitesi olmadan",
     palDesign: "Tasarımın renkleri",
+    palYours: "Kendi ana renginiz",
     palOcean: "Okyanus",
     palForest: "Orman",
     palSunset: "Gün batımı",

@@ -1,6 +1,9 @@
 """84.2 Yallapp's picture library for the designs (33.8): plain shapes in the
-designs' colours, 1200x675 JPEGs in public/design-pictures. Run again after
+designs' colours, 1200x675 JPEGs in public/design-pictures. 99.1 Two for
+each design too, in its own colours (src/lib/pages/designs/colours.json):
+<design>-1.jpg (waves) and <design>-2.jpg (circles). Run again after
 changing it: python3 scripts/design-pictures.py (needs Pillow)."""
+import json
 import math
 import os
 import random
@@ -83,3 +86,10 @@ if __name__ == "__main__":
         for index, (shape, make) in enumerate(SHAPES.items()):
             image = make(rgb(primary), rgb(secondary), seed=hash((name, shape)) % 1000 + index)
             image.save(os.path.join(OUT, f"{name}-{shape}.jpg"), "JPEG", quality=78, optimize=True, progressive=True)
+    colours = os.path.join(os.path.dirname(__file__), "..", "src", "lib", "pages", "designs", "colours.json")
+    with open(colours, encoding="utf-8") as f:
+        designs = json.load(f)
+    for design, pair in designs.items():
+        for number, make in ((1, waves), (2, circles)):
+            image = make(rgb(pair["primary"]), rgb(pair["secondary"]), seed=sum(map(ord, design)) + number)
+            image.save(os.path.join(OUT, f"{design}-{number}.jpg"), "JPEG", quality=78, optimize=True, progressive=True)

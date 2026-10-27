@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { ICON_NAMES } from "@/components/icon-names";
@@ -150,5 +150,55 @@ describe("block icons", () => {
       expect(dart, icon).toContain(`'${icon}':`);
     }
     for (const type of BLOCK_TYPES) expect(ICON_NAMES as readonly string[], type).toContain(BLOCK_ICONS[type]);
+  });
+});
+
+describe("99.1 each design's own colours, pictures and social links", () => {
+  const base = "https://yallapp.test";
+  const pictures = readdirSync(path.resolve(__dirname, "../../public/design-pictures"));
+
+  it("offers its own main and second colour first, then the owner's main colour with its second one", () => {
+    for (const design of DESIGNS) {
+      const [own, yours, other] = design.palettes!;
+      expect(own, design.id).toMatchObject({ id: "design", primary: expect.stringMatching(/^#[0-9A-F]{6}$/), secondary: design.look.secondary_color });
+      expect(yours, design.id).toMatchObject({ id: "yours", primary: null, secondary: design.look.secondary_color });
+      expect(other!.primary, design.id).toMatch(/^#[0-9A-F]{6}$/);
+    }
+    // No two designs of a kind look alike: each has its own main colour.
+    for (const kind of KINDS) {
+      const mains = DESIGNS.filter((d) => d.kind === kind.id).map((d) => d.palettes![0]!.primary);
+      expect(new Set(mains).size, kind.id).toBe(mains.length);
+    }
+  });
+
+  it("starts every home page with its pictures, and a design publishing accepts", () => {
+    for (const design of DESIGNS) {
+      expect(pictures, design.id).toEqual(expect.arrayContaining([`${design.id}-1.jpg`, `${design.id}-2.jpg`]));
+      const layout = applyDesign(design, { appName: "Nile", facts, current, now: NOW, pictureBase: base });
+      const home = layout.pages.find((p) => p.slug === "home")!;
+      const hero = home.blocks.find((b) => b.type === "slider" || b.type === "banner");
+      expect(hero, design.id).toBeDefined();
+      for (const block of layout.pages.flatMap((p) => p.blocks)) {
+        if (block.type === "banner") expect(block.image_url, design.id).toMatch(new RegExp(`^${base}/design-pictures/${design.id}-[12]\\.jpg$`));
+        for (const slide of block.slides ?? []) expect(slide.image_url, design.id).toMatch(new RegExp(`^${base}/design-pictures/${design.id}-[12]\\.jpg$`));
+      }
+      // A banner of the app's name, after a search box that leads the page.
+      if (hero!.type === "banner") {
+        expect(hero!.heading, design.id).toBe("Nile");
+        expect(home.blocks.indexOf(hero!), design.id).toBe(home.blocks[0]!.type === "search" ? 1 : 0);
+      }
+      const checked = parseLayoutContent(layout, { app: { appType: kindOfDesign(design).engine, backend: "hosted" }, now: NOW, ownFonts: [] });
+      expect(checked.ok ? null : checked.errors, design.id).toBeNull();
+    }
+  });
+
+  it("puts the business's social profiles on the Contact page, and nothing without them", () => {
+    const social = [{ network: "instagram" as const, url: "https://instagram.com/nile" }];
+    for (const design of DESIGNS) {
+      const withThem = applyDesign(design, { appName: "Nile", facts, current, now: NOW, social });
+      expect(withThem.pages.find((p) => p.slug === "contact")!.blocks.at(-1), design.id).toMatchObject({ type: "social", profiles: social });
+      const without = applyDesign(design, { appName: "Nile", facts, current, now: NOW });
+      expect(without.pages.flatMap((p) => p.blocks).some((b) => b.type === "social"), design.id).toBe(false);
+    }
   });
 });

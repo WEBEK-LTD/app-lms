@@ -2,7 +2,8 @@ import { isAppType, kindOf } from "../../app/kinds";
 import type { App, AppVertical } from "../../data/types";
 import { withLook } from "../../fonts/look";
 import { safeHref } from "../html";
-import type { Action, LayoutBlock, LayoutContent, LayoutPage, LayoutTab, ScreenName } from "../types";
+import type { Action, LayoutBlock, LayoutContent, LayoutPage, LayoutTab, ScreenName, SocialProfile } from "../types";
+import COLOURS from "./colours.json";
 import { ACADEMY_DESIGNS } from "./academy";
 import { BOOKINGS_DESIGNS, CLINIC_DESIGNS, FITNESS_DESIGNS, SERVICES_DESIGNS } from "./bookings";
 import { aboutPage, contactPage, page, PALETTES, tab, type Design, type Palette } from "./build";
@@ -19,6 +20,9 @@ export { blockTexts, sampleTexts } from "./texts";
  * what's published, and they edit everything after. tests/unit/designs.test.ts
  * checks each against the same validator publishing uses.
  */
+/** 99.1 Each built-in design's own main and second colour (also what scripts/design-pictures.py draws its pictures in). */
+const DESIGN_COLOURS: Record<string, { primary: string; secondary: string }> = COLOURS;
+
 const MENU_ICONS: Record<string, string> = { about: "info", contact: "call", offers: "local_offer" };
 
 export const DESIGNS: readonly Design[] = [
@@ -38,7 +42,8 @@ export const DESIGNS: readonly Design[] = [
 /**
  * 84.2 Every design has an About us and a Contact page besides its own
  * (those it lacks are added), in the side menu with the pages it has that
- * no tab opens; and colours to choose from: its own, then two of PALETTES.
+ * no tab opens; and colours to choose from: its own (99.1 its main colour
+ * too), the owner's main colour with its second one, then one of PALETTES.
  */
 export function withCompanyPages(design: Design, index: number): Design {
   const pages = [...design.pages];
@@ -48,10 +53,13 @@ export function withCompanyPages(design: Design, index: number): Design {
   const menu: LayoutTab[] = pages
     .filter((p) => p.slug !== "home" && !inTabs.has(p.slug))
     .map((p) => tab(`menu-${p.slug}`, p.title, MENU_ICONS[p.slug] ?? "info", page(p.slug)));
-  // Its own: the app keeps its main colour.
-  const own: Palette = { id: "design", name: "The design's colours", primary: null, secondary: design.look.secondary_color ?? PALETTES[0]!.secondary };
-  const others = [PALETTES[index % PALETTES.length]!, PALETTES[(index + 3) % PALETTES.length]!];
-  return { ...design, pages, ...(menu.length ? { menu } : {}), palettes: [own, ...others] };
+  const secondary = design.look.secondary_color ?? PALETTES[0]!.secondary;
+  const primary = DESIGN_COLOURS[design.id]?.primary ?? null;
+  const own: Palette = { id: "design", name: "The design's colours", primary, secondary };
+  // The owner's main colour stays, with the design's second one.
+  const yours: Palette = { id: "yours", name: "Your main colour", primary: null, secondary };
+  const palettes = primary ? [own, yours, PALETTES[index % PALETTES.length]!] : [own, PALETTES[index % PALETTES.length]!, PALETTES[(index + 3) % PALETTES.length]!];
+  return { ...design, pages, ...(menu.length ? { menu } : {}), palettes };
 }
 
 
@@ -143,16 +151,23 @@ export function applyDesign(
     now: Date;
     /** 38.21 Screens this app doesn't have (a hosted academy's wishlist): its tabs and quick links to them are left out. */
     missingScreens?: readonly ScreenName[];
+    /** 99.1 The platform's https address: the design's own pictures are served there. */
+    pictureBase?: string;
+    /** 99.1 The business's social profiles (from its current pages): a Social links block on the Contact page. */
+    social?: SocialProfile[];
   },
 ): LayoutContent {
   const missing = context.missingScreens ?? [];
   const name = context.appName?.trim() || "our app";
+  const pictures = designPictures(design, context.pictureBase);
   const pages: LayoutPage[] = design.pages.map((p) => ({
     slug: p.slug,
     title: p.title,
     show_title: p.show_title,
     updated_at: context.now.toISOString(),
-    blocks: p.blocks.map((b) => fillBlock(b, name, context.facts, context.now, missing)).filter((b): b is LayoutBlock => b !== null),
+    blocks: withSocial(withPictures(p.slug, p.blocks, pictures), p.slug, context.social)
+      .map((b) => fillBlock(b, name, context.facts, context.now, missing))
+      .filter((b): b is LayoutBlock => b !== null),
   }));
   return {
     appearance: withLook(context.current.appearance, design.look),
@@ -162,6 +177,43 @@ export function applyDesign(
     ...(design.menu?.length ? { menu: structuredClone(design.menu) } : {}),
     pages,
   };
+}
+
+/** 99.1 A built-in design's two pictures (public/design-pictures), at the platform's address; none for the team's own designs or without one. */
+export function designPictures(design: Pick<Design, "id">, base: string | undefined): string[] {
+  if (!base || !DESIGN_COLOURS[design.id]) return [];
+  const root = base.replace(/\/+$/, "");
+  return [1, 2].map((n) => `${root}/design-pictures/${design.id}-${n}.jpg`);
+}
+
+/**
+ * 99.1 The design's pictures where it has none: each slide in turn, and on
+ * a home page without a slider or banner, a banner with the app's name at
+ * its top (after a search box that leads it).
+ */
+function withPictures(slug: string, blocks: LayoutBlock[], pictures: string[]): LayoutBlock[] {
+  if (!pictures.length) return blocks;
+  let next = 0;
+  const out = blocks.map((block) => {
+    if (block.type !== "slider" || !block.slides) return block;
+    return { ...block, slides: block.slides.map((slide) => (slide.image_url ? slide : { ...slide, image_url: pictures[next++ % pictures.length]! })) };
+  });
+  if (slug !== "home" || out.some((b) => b.type === "slider" || b.type === "banner")) return out;
+  const banner: LayoutBlock = { id: "hero", type: "banner", visibility: "everyone", title: null, image_url: pictures[0]!, heading: "{app}", subheading: null, aspect_ratio: null, action: null };
+  const at = out[0]?.type === "search" ? 1 : 0;
+  return [...out.slice(0, at), banner, ...out.slice(at)];
+}
+
+/** 99.1 The Contact page gets a Social links block with the business's profiles, when it has some. */
+function withSocial(blocks: LayoutBlock[], slug: string, social: SocialProfile[] | undefined): LayoutBlock[] {
+  if (slug !== "contact" || !social?.length || blocks.some((b) => b.type === "social")) return blocks;
+  return [...blocks, { id: "social", type: "social", visibility: "everyone", title: "Follow us", profiles: structuredClone(social) }];
+}
+
+/** 99.1 The social profiles on an app's pages: the first Social links block's. */
+export function socialProfilesOf(layout: Pick<LayoutContent, "pages">): SocialProfile[] {
+  for (const page of layout.pages) for (const block of page.blocks) if (block.type === "social" && block.profiles?.length) return block.profiles;
+  return [];
 }
 
 /** 38.21 The screens an app's designs can't link to: a hosted academy has no wishlist. */

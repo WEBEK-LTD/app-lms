@@ -121,8 +121,8 @@ class Checker {
     } catch {
       url = null;
     }
-    // 97.5 The platform's own files too (https in production; local tests serve them over http).
-    const own = url !== null && url.origin === new URL(appUrl()).origin && url.pathname.startsWith("/api/v1/assets/");
+    // 97.5 The platform's own files too, 99.1 and the designs' pictures (https in production; local tests serve them over http).
+    const own = url !== null && url.origin === new URL(appUrl()).origin && /^\/(api\/v1\/assets|design-pictures)\//.test(url.pathname);
     if (!url || (url.protocol !== "https:" && !own) || text.length > 2000 || /\s/.test(text)) {
       this.fail(where, `${what} must be a full https address.`);
       return null;

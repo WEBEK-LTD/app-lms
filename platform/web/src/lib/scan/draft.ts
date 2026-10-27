@@ -1,4 +1,5 @@
 import { RULES } from "../build-config/types";
+import { appUrl } from "../env";
 import type { AppType, AppVertical } from "../data/types";
 import { lookFont, withLook } from "../fonts/look";
 import { blockListLimits } from "../pages/blocks";
@@ -121,7 +122,7 @@ export function draftFromScan(scan: SiteScan, defaults: AppDefaultsSetting, now:
       : structuredClone(defaults.languages);
   const appearance = { ...defaults.appearance, secondary_color: null };
   const base: LayoutContent = design
-    ? applyDesign(design, { appName, facts: { website: site.protocol === "https:" ? siteUrl : null, email: null, whatsapp: null }, current: { appearance, languages }, now })
+    ? applyDesign(design, { appName, facts: { website: site.protocol === "https:" ? siteUrl : null, email: null, whatsapp: null }, current: { appearance, languages }, now, pictureBase: appUrl() })
     : { appearance, languages, tabs: [], pages: [] };
   const layout: LayoutContent = { ...base, appearance: { ...withLook(base.appearance, lookFont(scan.fonts.appFont) ?? {}), secondary_color: scan.colors.accent?.toUpperCase() ?? base.appearance.secondary_color } };
 

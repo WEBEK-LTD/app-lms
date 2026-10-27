@@ -3208,6 +3208,14 @@ and the app's main colour (`applyDesignAction`). Yallapp's picture library
 made by `scripts/design-pictures.py` into `public/design-pictures`,
 offered in "Choose from Media" for slides, banners and images.
 
+99.1 Each built-in design also has its own main colour
+(`designs/colours.json`, its first palette's) and two pictures in its
+colours (`<design>-1.jpg`, `-2.jpg`, by the same script). `applyDesign`
+puts them on the design's slides (or a banner on a home page with
+neither), at `pictureBase` (the platform's address, which the validator
+accepts like its own assets), and a Social links block with the app's
+current profiles (`socialProfilesOf`) on the Contact page.
+
 ### One definition per block (83.1)
 
 Each block type has one definition in `lib/pages/blocks.ts`
