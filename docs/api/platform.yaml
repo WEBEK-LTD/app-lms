@@ -1236,6 +1236,15 @@ components:
         show_title: { type: boolean }
         updated_at: { type: string, format: date-time }
         translations: { $ref: '#/components/schemas/Translations' }
+        background:
+          type: string
+          enum: [none, tint, surface]
+          default: none
+          description: 99.3 As `AppPage.background` in the app API, passed on as it is.
+        header_image_url:
+          type: [string, 'null']
+          format: uri
+          description: 99.3 As `AppPage.header_image_url` in the app API, passed on as it is.
         blocks:
           type: array
           items: { $ref: '#/components/schemas/LayoutBlock' }
@@ -1266,6 +1275,23 @@ components:
         id: { type: string }
         type: { type: string, example: items }
         visibility: { type: string, enum: [everyone, signed_in, signed_out] }
+        show:
+          type: [object, 'null']
+          description: |
+            99.3 When the block shows; missing or null, always. The plugin
+            leaves the block out of the page it serves outside `from` and
+            `until` (at the time of the request), for a `platform` not in
+            `platforms`, and for an `Accept-Language` whose language isn't in
+            `languages`; it never sends `show` to the app.
+          properties:
+            from: { type: [string, 'null'], format: date-time }
+            until: { type: [string, 'null'], format: date-time }
+            platforms:
+              type: [array, 'null']
+              items: { type: string, enum: [android, ios] }
+            languages:
+              type: [array, 'null']
+              items: { type: string, example: ar }
         query:
           type: object
           description: For `items` blocks.

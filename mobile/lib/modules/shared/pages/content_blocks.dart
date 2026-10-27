@@ -89,7 +89,7 @@ class _SliderViewState extends ConsumerState<SliderView> {
   Widget build(BuildContext context) {
     final p = context.palette;
     final slides = widget.block.slides;
-    final radius = context.shapes.r(widget.style.bannerRadius);
+    final radius = blockRadius(context, widget.style.bannerRadius);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -162,15 +162,18 @@ class _SlideView extends ConsumerWidget {
     final image = slide.imageUrl;
     final action = slide.action;
     final bold = style.template == AppTemplate.bold;
+    final align = blockAlign(context);
+    final fit = blockImageFit(context);
     final text = Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: align.crossAxis,
       children: [
         if (heading.isNotEmpty)
           Text(
             heading,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
+            textAlign: align.textAlign,
             style: TextStyle(
               color: image == null ? p.onPrimary : Colors.white,
               fontSize: bold ? 24 : 21,
@@ -184,6 +187,7 @@ class _SlideView extends ConsumerWidget {
             subheading,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
+            textAlign: align.textAlign,
             style: TextStyle(
               color: (image == null ? p.onPrimary : Colors.white).withValues(
                 alpha: 0.9,
@@ -199,7 +203,10 @@ class _SlideView extends ConsumerWidget {
       label: [label, heading, subheading].where((t) => t.isNotEmpty).join(', '),
       excludeSemantics: true,
       child: Material(
-        color: p.placeholderFor(seed),
+        // 99.3 A whole picture sits on the page's background.
+        color: image != null && fit == BoxFit.contain
+            ? Colors.transparent
+            : p.placeholderFor(seed),
         child: InkWell(
           onTap: action == null
               ? null
@@ -208,7 +215,12 @@ class _SlideView extends ConsumerWidget {
             fit: StackFit.expand,
             children: [
               if (image != null)
-                AppNetworkImage(url: image, seed: seed)
+                AppNetworkImage(
+                  url: image,
+                  seed: seed,
+                  fit: fit,
+                  clearPlaceholder: fit == BoxFit.contain,
+                )
               else
                 // Without an image: the app's main color, a soft circle
                 // and a dot of its secondary color in a corner.
@@ -1473,6 +1485,7 @@ class NoticeView extends ConsumerWidget {
     final action = block.action;
     final label = block.label?.trim() ?? '';
     final link = action != null && label.isNotEmpty;
+    final align = blockAlign(context);
     return Semantics(
       container: true,
       child: Material(
@@ -1495,10 +1508,11 @@ class NoticeView extends ConsumerWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: align.crossAxis,
                     children: [
                       Text(
                         block.text,
+                        textAlign: align.textAlign,
                         style: TextStyle(
                           fontSize: 14.5,
                           height: 1.4,
@@ -1512,6 +1526,7 @@ class NoticeView extends ConsumerWidget {
                         const SizedBox(height: 4),
                         Text(
                           label,
+                          textAlign: align.textAlign,
                           style: TextStyle(
                             fontSize: 14.5,
                             fontWeight: FontWeight.w800,

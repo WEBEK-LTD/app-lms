@@ -103,6 +103,8 @@ class AppPage {
     required this.blocks,
     this.showTitle = true,
     this.looks = const {},
+    this.background = PageBackground.none,
+    this.headerImageUrl,
   });
 
   /// Blocks the app doesn't know, or can't read, are skipped.
@@ -111,6 +113,12 @@ class AppPage {
     title: reqString(json, 'title'),
     updatedAt: reqDate(json, 'updated_at'),
     showTitle: boolOr(json, 'show_title', true),
+    background: enumFrom(
+      PageBackground.values,
+      json['background'],
+      PageBackground.none,
+    ),
+    headerImageUrl: httpsUrl(json['header_image_url']),
     blocks: [
       for (final block in reqListOf(json, 'blocks', PageBlock.tryParse)) ?block,
     ],
@@ -135,21 +143,50 @@ class AppPage {
 
   /// 82.5 Each block's look, by block id; a block without one has none.
   final Map<String, BlockLook> looks;
+
+  /// 99.3 The page's background within the brand.
+  final PageBackground background;
+
+  /// 99.3 A picture across the top of the page (https only), under its
+  /// title when the title shows.
+  final String? headerImageUrl;
 }
+
+/// 99.3 The app's usual background, a light wash of the main colour, or
+/// the colour of cards.
+enum PageBackground { none, tint, surface }
 
 enum BlockBackground { none, tint, primary, secondary, surface }
 
 enum BlockSpacing { none, small, medium, large }
 
+/// 99.3 Where a block's own texts and buttons sit across the page.
+enum BlockAlign { start, center, end }
+
+/// 99.3 A block's texts, smaller or larger than the app's usual size.
+enum BlockTextSize { small, medium, large }
+
+/// 99.3 The corners of a block's background and pictures: as the app's
+/// look has them, square, or round.
+enum BlockCorners { app, sharp, round }
+
+/// 99.3 Pictures fill their space (cropped) or show whole.
+enum BlockImageFit { cover, contain }
+
 /// 82.5 How a block sits on its page: a background within the app's brand,
-/// and the space around it.
+/// and the space around it. 99.3 Also where its texts sit, their size, its
+/// corners and how its pictures fit.
 class BlockLook {
   const BlockLook({
     this.background = BlockBackground.none,
     this.spacing = BlockSpacing.medium,
+    this.align = BlockAlign.start,
+    this.textSize = BlockTextSize.medium,
+    this.corners = BlockCorners.app,
+    this.imageFit = BlockImageFit.cover,
   });
 
-  /// Null when it changes nothing: no background and the usual spacing.
+  /// Null when it changes nothing: every field as its default.
   static BlockLook? tryParse(Object? value) {
     if (value is! Map) return null;
     final look = BlockLook(
@@ -163,15 +200,43 @@ class BlockLook {
         value['spacing'],
         BlockSpacing.medium,
       ),
+      align: enumFrom(BlockAlign.values, value['align'], BlockAlign.start),
+      textSize: enumFrom(
+        BlockTextSize.values,
+        value['text_size'],
+        BlockTextSize.medium,
+      ),
+      corners: enumFrom(
+        BlockCorners.values,
+        value['corners'],
+        BlockCorners.app,
+      ),
+      imageFit: enumFrom(
+        BlockImageFit.values,
+        value['image_fit'],
+        BlockImageFit.cover,
+      ),
     );
-    return look.background == BlockBackground.none &&
-            look.spacing == BlockSpacing.medium
-        ? null
-        : look;
+    return look.isDefault ? null : look;
   }
 
   final BlockBackground background;
   final BlockSpacing spacing;
+
+  /// 99.3 See [BlockAlign], [BlockTextSize], [BlockCorners], [BlockImageFit].
+  final BlockAlign align;
+  final BlockTextSize textSize;
+  final BlockCorners corners;
+  final BlockImageFit imageFit;
+
+  /// Whether it changes nothing on the page.
+  bool get isDefault =>
+      background == BlockBackground.none &&
+      spacing == BlockSpacing.medium &&
+      align == BlockAlign.start &&
+      textSize == BlockTextSize.medium &&
+      corners == BlockCorners.app &&
+      imageFit == BlockImageFit.cover;
 }
 
 enum PageActionType { page, screen, course, item, url }

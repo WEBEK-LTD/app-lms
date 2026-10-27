@@ -44,7 +44,7 @@
           "method": "GET",
           "path": "/pages/{slug}",
           "summary": "Get one page with its blocks",
-          "description": "Blocks in the order set in the dashboard, with lists (courses, products, services, posts, listings) already resolved. Blocks meant only for signed-in or signed-out users are filtered here. On iOS, blocks and items never carry purchase actions for paid content.",
+          "description": "Blocks in the order set in the dashboard, with lists (courses, products, services, posts, listings) already resolved. Blocks meant only for signed-in or signed-out users are filtered here. On iOS, blocks and items never carry purchase actions for paid content. 99.3 So are blocks the owner shows only between two dates, on the other platform or in other languages (than the one asked for with `Accept-Language`): the app never gets them.",
           "access": "optional"
         }
       ]

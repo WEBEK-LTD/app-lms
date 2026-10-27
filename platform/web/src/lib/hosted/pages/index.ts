@@ -51,7 +51,16 @@ export async function handlePages(ctx: HostedContext, req: HostedRequest, user: 
   const text = translated(page, lang, layout.languages.default);
   return {
     status: 200,
-    body: { slug: page.slug, title: text.title, updated_at: page.updated_at, show_title: page.show_title, blocks },
+    body: {
+      slug: page.slug,
+      title: text.title,
+      updated_at: page.updated_at,
+      show_title: page.show_title,
+      // 99.3 Its background and the picture across its top.
+      ...(page.background ? { background: page.background } : {}),
+      ...(page.header_image_url ? { header_image_url: page.header_image_url } : {}),
+      blocks,
+    },
     headers: VARY,
   };
 }
@@ -90,6 +99,17 @@ function visible(block: LayoutBlock, user: HostedUser | null): boolean {
   return true;
 }
 
+/** 99.3 Whether the block shows now, on this platform and in this language (`LayoutBlock.show`). */
+export function shownNow(show: LayoutBlock["show"], now: Date, platform: "android" | "ios", lang: LanguageCode): boolean {
+  if (!show) return true;
+  const time = now.getTime();
+  if (show.from && Date.parse(show.from) > time) return false;
+  if (show.until && Date.parse(show.until) <= time) return false;
+  if (show.platforms?.length && !show.platforms.includes(platform)) return false;
+  if (show.languages?.length && !show.languages.includes(lang)) return false;
+  return true;
+}
+
 /** Whether the hosted API can fill lists and searches of this source for the app. */
 function servable(app: App, connector: Connector | null | undefined, source: ItemSource | undefined): boolean {
   if (!source || !itemSourcesFor(app).includes(source)) return false;
@@ -102,11 +122,12 @@ function servable(app: App, connector: Connector | null | undefined, source: Ite
 /** The block as the app gets it (`Block`), or null to leave it out. */
 async function resolveBlock(pc: PageContext, block: LayoutBlock): Promise<Record<string, unknown> | null> {
   const { ctx, user } = pc;
-  if (!visible(block, user)) return null;
+  if (!visible(block, user) || !shownNow(block.show, ctx.now, pc.platform, pc.lang)) return null;
   // 33 With the texts of its entries (slides, quotes, ...) in the language too.
   const text = translatedBlock(block, pc.lang, pc.layout.languages.default);
-  const { visibility: _v, query, ...rest } = text;
+  const { visibility: _v, show: _s, query, ...rest } = text;
   void _v;
+  void _s;
   const out = withoutMissingActions(rest);
   try {
     switch (block.type) {

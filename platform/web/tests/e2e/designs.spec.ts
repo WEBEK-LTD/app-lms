@@ -293,3 +293,38 @@ test("99.2 another design's look only, one step back, and everything with the ow
   await own.getByRole("tab", { name: /^Look/ }).click();
   await expect(own.locator("#look-corners")).toHaveValue("sharp");
 });
+
+test("99.3 a block's style and where it shows, copied to another page; the page's background and picture", async ({ request }) => {
+  await own.goto("/dashboard/pages");
+  const first = own.getByRole("list", { name: "Blocks" }).getByRole("listitem").first();
+  const id = (await first.getAttribute("id"))!.replace(/^block-/, "");
+  await first.locator("[aria-expanded]").click();
+  const settings = own.getByRole("group", { name: "Block 1 settings" });
+  await settings.getByLabel("Text position").selectOption("center");
+  await settings.getByLabel("Text size").selectOption("large");
+  // Only on iPhones.
+  await settings.getByRole("group", { name: "Shows on" }).getByLabel("Android").uncheck();
+  // A copy on the owner's Timetable page.
+  await settings.getByLabel("Copy to another page").selectOption({ label: "Timetable" });
+  await settings.getByRole("button", { name: "Copy", exact: true }).click();
+  await expect(own.getByText("Copied to Timetable.")).toBeVisible();
+  // The page's background and the picture across its top.
+  await own.getByLabel("Page background").selectOption("tint");
+  await own.getByLabel("Picture at the top").fill("https://yallapp.test/m/top.jpg");
+  await own.getByRole("button", { name: "Quick view", exact: true }).click();
+  await expect(own.locator("[data-page-header]")).toHaveAttribute("src", "https://yallapp.test/m/top.jpg");
+  await expect(own.locator("[data-block-look]").first()).toHaveAttribute("data-block-look", "none medium center large");
+  await expect(own.getByText(/^Draft saved/)).toBeVisible();
+  await own.getByRole("button", { name: "Publish", exact: true }).click();
+  await expect(own.getByText("Published. Your app shows the new pages")).toBeVisible();
+
+  const page = async (slug: string, platform: string) => (await request.get(`${api}/pages/${slug}?platform=${platform}`)).json();
+  const android = await page("home", "android");
+  expect(android).toMatchObject({ background: "tint", header_image_url: "https://yallapp.test/m/top.jpg" });
+  expect(android.blocks.map((b: { id: string }) => b.id)).not.toContain(id);
+  const ios = await page("home", "ios");
+  expect(ios.blocks.find((b: { id: string }) => b.id === id)).toMatchObject({ look: { background: "none", spacing: "medium", align: "center", text_size: "large" } });
+  expect(ios.blocks.find((b: { id: string }) => b.id === id)).not.toHaveProperty("show");
+  const timetable = await page("timetable", "ios");
+  expect(timetable.blocks.at(-1)).toMatchObject({ type: ios.blocks.find((b: { id: string }) => b.id === id).type, look: { align: "center" } });
+});

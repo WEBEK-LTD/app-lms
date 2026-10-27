@@ -21,6 +21,7 @@ import {
   CARD_STYLES,
   CORNERS,
   LAYOUT_LIMITS,
+  PAGE_BACKGROUNDS,
   THEME_MODES,
   type Appearance,
   type BlockType,
@@ -33,6 +34,7 @@ import {
   type LayoutTab,
 } from "@/lib/pages/types";
 import { BlockSettings, type BlockContext } from "./block-settings";
+import { MediaPicker } from "@/components/media-picker";
 import { ActionEditor, Check, firstScreen, IconGlyph, IconPicker, LangText, OwnIcon, SelectInput, TextInput, type Lang } from "./controls";
 import { BLOCK_DRAG_TYPE, DesignThumb, PhonePreview } from "./preview";
 import { LivePreview, notifyDraftSaved } from "./live-preview";
@@ -225,7 +227,9 @@ export function PagesEditor({
   const lang: Lang = { edit: layout.languages.available.includes(editLang) ? editLang : def, default: def };
   const page = layout.pages.find((p) => p.slug === pageSlug) ?? layout.pages[0] ?? null;
   const pages = layout.pages.map((p) => ({ slug: p.slug, title: p.title }));
-  const blockCtx: BlockContext = { lang, pages, sources, categorySources, screens, pickable };
+  const blockCtx: BlockContext = { lang, pages, sources, categorySources, screens, pickable, languages: layout.languages.available };
+  // 99.3 The pages blocks can be copied to.
+  const otherPages = (slug: string) => layout.pages.filter((p) => p.slug !== slug).map((p) => ({ slug: p.slug, title: translated(p, lang.edit, def).title || p.slug }));
 
   const applied = useCallback((r: LayoutSaveResult, sent: number, replace: boolean) => {
     if (!r.ok) {
@@ -602,6 +606,30 @@ export function PagesEditor({
     setMessage({ text: left ? t("pages.sectionPartly") : t("pages.sectionAdded"), ok: true });
   }
 
+  /** 99.3 Copies of blocks (with new IDs) at the end of another page. */
+  function copyBlocks(blocks: LayoutBlock[], to: string) {
+    const target = layout.pages.find((p) => p.slug === to);
+    if (!target || !blocks.length) return;
+    const name = translated(target, lang.edit, def).title || target.slug;
+    if (target.blocks.length + blocks.length > LAYOUT_LIMITS.maxBlocks) return setMessage({ text: t("pages.copyNoRoom", { page: name, max: LAYOUT_LIMITS.maxBlocks }), ok: false });
+    const copies = sectionBlocks({ blocks }, blockTypes).blocks;
+    updateBlocks(to, (list) => [...list, ...copies]);
+    setMessage({ text: t("pages.copied", { page: name }), ok: true });
+  }
+
+  /** 99.3 The page in the side menu, or out of it. */
+  function setInMenu(p: LayoutPage, on: boolean) {
+    update((l) => {
+      const menu = l.menu ?? [];
+      const opens = (m: LayoutTab) => m.target.type === "page" && m.target.page_slug === p.slug;
+      if (!on) return { ...l, menu: menu.filter((m) => !opens(m)) };
+      if (menu.some(opens) || menu.length >= LAYOUT_LIMITS.maxMenu) return l;
+      let id = `menu-${p.slug}`;
+      for (let n = 2; menu.some((m) => m.id === id); n += 1) id = `menu-${p.slug}-${n}`;
+      return { ...l, menu: [...menu, { id, label: p.title, icon: "description", target: { type: "page", page_slug: p.slug } }] };
+    });
+  }
+
   async function removeSection(section: SectionView) {
     if (!window.confirm(t("pages.deleteSectionConfirm", { name: section.name }))) return;
     const r = await deleteSectionAction(section.id);
@@ -902,6 +930,43 @@ export function PagesEditor({
                   <TextInput id={`page-${page.slug}-slug`} label={t("pages.pageAddress")} dir="ltr" value={page.slug} hint={t("pages.pageAddressHint")} onChange={(v) => changeSlug(page, v)} />
                 </div>
                 <Check label={t("pages.showTitle")} checked={page.show_title} onChange={(show_title) => updatePage(page.slug, (p) => ({ ...p, show_title }))} />
+                {/* 99.3 The page's background, a picture across its top, and its place in the side menu. */}
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <SelectInput
+                    id={`page-${page.slug}-background`}
+                    label={t("pages.pageBackground")}
+                    value={page.background ?? "none"}
+                    options={PAGE_BACKGROUNDS.map((b) => ({ value: b, label: t(b === "none" ? "pages.cornersApp" : b === "tint" ? "pages.bgTint" : "pages.bgSurface") }))}
+                    onChange={(background) =>
+                      updatePage(page.slug, (p) => {
+                        const { background: _old, ...rest } = p;
+                        void _old;
+                        return background === "none" ? rest : { ...rest, background };
+                      })
+                    }
+                  />
+                  <div className="flex min-w-0 flex-col gap-1.5">
+                    <TextInput
+                      id={`page-${page.slug}-header`}
+                      label={t("pages.headerPicture")}
+                      dir="ltr"
+                      type="url"
+                      inputMode="url"
+                      placeholder="https://"
+                      value={page.header_image_url ?? ""}
+                      onChange={(v) => updatePage(page.slug, (p) => ({ ...p, header_image_url: v.trim() || null }))}
+                    />
+                    <MediaPicker kind="image" library onPick={(link) => updatePage(page.slug, (p) => ({ ...p, header_image_url: link }))} />
+                  </div>
+                </div>
+                {page.slug !== layout.pages[0]?.slug ? (
+                  <Check
+                    label={t("pages.inSideMenu")}
+                    checked={(layout.menu ?? []).some((m) => m.target.type === "page" && m.target.page_slug === page.slug)}
+                    disabled={!(layout.menu ?? []).some((m) => m.target.type === "page" && m.target.page_slug === page.slug) && (layout.menu ?? []).length >= LAYOUT_LIMITS.maxMenu}
+                    onChange={(on) => setInMenu(page, on)}
+                  />
+                ) : null}
 
                 <h3 className="m-0 text-base font-bold">{t("pages.blocks")}</h3>
                 {page.blocks.length ? (
@@ -974,6 +1039,7 @@ export function PagesEditor({
                           {open ? (
                             <div className="border-t border-line-soft p-3" role="group" aria-label={t("pages.blockSettings", { n: i + 1 })}>
                               <BlockSettings block={block} ctx={blockCtx} onChange={(next) => updateBlocks(page.slug, (b) => b.map((x) => (x.id === block.id ? next : x)))} />
+                              {layout.pages.length > 1 ? <CopyTo id={`copy-${block.id}`} pages={otherPages(page.slug)} onCopy={(to) => copyBlocks([block], to)} /> : null}
                             </div>
                           ) : null}
                         </li>
@@ -1005,6 +1071,10 @@ export function PagesEditor({
                       <button type="button" className={`${btn.secondary} h-9 self-start px-3 text-sm`} disabled={busy} onClick={() => void saveSectionNow()}>
                         {t("pages.saveSectionButton")}
                       </button>
+                      {/* 99.3 Or the blocks picked, copied to another page of this app. */}
+                      {layout.pages.length > 1 ? (
+                        <CopyTo id="copy-section" pages={otherPages(page.slug)} disabled={!sectionPick.length} onCopy={(to) => copyBlocks(page.blocks.filter((b) => sectionPick.includes(b.id)), to)} />
+                      ) : null}
                     </div>
                   </details>
                 ) : null}
@@ -1425,6 +1495,23 @@ export function PagesEditor({
           />
         )}
       </div>
+    </div>
+  );
+}
+
+/** 99.3 Copies to another page of the app: which page, then Copy. */
+function CopyTo({ id, pages, disabled = false, onCopy }: { id: string; pages: { slug: string; title: string }[]; disabled?: boolean; onCopy: (slug: string) => void }) {
+  const t = useDashT();
+  const [to, setTo] = useState(pages[0]?.slug ?? "");
+  const target = pages.some((p) => p.slug === to) ? to : (pages[0]?.slug ?? "");
+  return (
+    <div className="mt-3 flex flex-wrap items-end gap-2 border-t border-line-soft pt-3">
+      <div className="min-w-[180px] flex-1">
+        <SelectInput id={id} label={t("pages.copyToPage")} value={target} options={pages.map((p) => ({ value: p.slug, label: p.title }))} onChange={setTo} />
+      </div>
+      <button type="button" className={`${btn.secondary} h-11 px-4 text-sm`} disabled={disabled || !target} onClick={() => onCopy(target)}>
+        {t("pages.copyButton")}
+      </button>
     </div>
   );
 }

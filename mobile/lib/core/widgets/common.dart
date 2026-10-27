@@ -22,6 +22,7 @@ class AppNetworkImage extends StatelessWidget {
     this.fit = BoxFit.cover,
     this.semanticLabel,
     this.placeholderIcon,
+    this.clearPlaceholder = false,
   });
 
   final String? url;
@@ -34,6 +35,10 @@ class AppNetworkImage extends StatelessWidget {
 
   /// Drawn on the placeholder; a picture icon by default.
   final IconData? placeholderIcon;
+
+  /// 99.3 The placeholder fades out once the picture shows, so a whole
+  /// picture ([BoxFit.contain]) sits on what is behind it.
+  final bool clearPlaceholder;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +66,15 @@ class AppNetworkImage extends StatelessWidget {
               return Stack(
                 fit: StackFit.passthrough,
                 children: [
-                  placeholder,
+                  if (clearPlaceholder)
+                    AnimatedOpacity(
+                      opacity: frame == null ? 1 : 0,
+                      duration: const Duration(milliseconds: 220),
+                      curve: Curves.easeOut,
+                      child: placeholder,
+                    )
+                  else
+                    placeholder,
                   AnimatedOpacity(
                     opacity: frame == null ? 0 : 1,
                     duration: const Duration(milliseconds: 220),

@@ -386,7 +386,10 @@ paths:
         Blocks in the order set in the dashboard, with lists (courses,
         products, services, posts, listings) already resolved. Blocks meant only for
         signed-in or signed-out users are filtered here. On iOS, blocks and
-        items never carry purchase actions for paid content.
+        items never carry purchase actions for paid content. 99.3 So are
+        blocks the owner shows only between two dates, on the other platform
+        or in other languages (than the one asked for with `Accept-Language`):
+        the app never gets them.
       security: [{}, { bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/PageSlug'
@@ -6093,6 +6096,15 @@ components:
           required: [blocks]
           properties:
             show_title: { type: boolean, default: true }
+            background:
+              type: string
+              enum: [none, tint, surface]
+              default: none
+              description: 99.3 The page's background within the brand. `none`, the app's usual background; `tint`, a light wash of the main colour; `surface`, the colour of cards. Apps that don't know it show the usual background.
+            header_image_url:
+              type: [string, 'null']
+              format: uri
+              description: 99.3 A picture across the top of the page, under its title when the title shows. Apps that don't know it leave it out.
             blocks:
               type: array
               items: { $ref: '#/components/schemas/Block' }
@@ -6205,7 +6217,8 @@ components:
       type: [object, 'null']
       description: |
         82.5 How the block sits on its page, within the app's brand. Null or
-        missing: no background and the page's usual spacing.
+        missing: no background and the page's usual spacing. Apps ignore
+        the fields they don't know.
       properties:
         background:
           type: string
@@ -6217,6 +6230,26 @@ components:
           enum: [none, small, medium, large]
           default: medium
           description: The space above and below the block, and inside it when it has a background.
+        align:
+          type: string
+          enum: [start, center, end]
+          default: start
+          description: 99.3 Where the block's own texts and buttons sit across the page (start is the left in left-to-right languages).
+        text_size:
+          type: string
+          enum: [small, medium, large]
+          default: medium
+          description: 99.3 The block's texts smaller or larger than the app's usual size, on top of the size the user chose on their phone.
+        corners:
+          type: string
+          enum: [app, sharp, round]
+          default: app
+          description: 99.3 The corners of the block's background and pictures; `app`, as the app's look has them.
+        image_fit:
+          type: string
+          enum: [cover, contain]
+          default: cover
+          description: '99.3 For pictures (banner, image, slider): `cover` fills the space and crops; `contain` shows the whole picture on the page''s background.'
 
     BannerBlock:
       allOf:
