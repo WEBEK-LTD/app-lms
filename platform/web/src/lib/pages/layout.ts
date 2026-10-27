@@ -7,7 +7,7 @@ import { platformSetting } from "../settings/platform";
 import { BUILT_IN_APP_DEFAULTS, defaultAppearance, defaultLayout } from "./defaults";
 import { applyDesign, contactFacts, missingScreens, sampleTexts, socialProfilesOf, type Design } from "./designs";
 import { appUrl } from "../env";
-import type { AppDefaultsSetting, Appearance, Languages, Layout, LayoutContent, LayoutPage } from "./types";
+import { LAYOUT_LIMITS, type AppDefaultsSetting, type Appearance, type Languages, type Layout, type LayoutContent, type LayoutPage, type LayoutTab } from "./types";
 import { parseLayoutContent, type ParseResult } from "./validate";
 import type { PlanInfo } from "../plans";
 import { languagesForPlan, layoutForPlan, planLayoutErrors } from "./plan";
@@ -191,10 +191,54 @@ export function designLayout(app: App, design: Design, current: Pick<LayoutConte
   return { ...layout, appearance: withLook(layout.appearance, look) };
 }
 
+/** 99.2 How a design is taken: everything (its pages, tabs and look), or only its look. */
+export type DesignMode = "all" | "look";
+
+export function isDesignMode(value: unknown): value is DesignMode {
+  return value === "all" || value === "look";
+}
+
+/** 99.2 The draft in the design's look (colours, font, corners and cards); its pages, tabs and menu stay. */
+export function designLookOnly(draft: LayoutContent, design: Pick<Design, "look">, look: Partial<Appearance> = {}): LayoutContent {
+  return { ...draft, appearance: withLook(draft.appearance, { ...design.look, ...look }) };
+}
+
+/**
+ * 99.2 The design's layout with the draft's pages it doesn't have, after its
+ * own (as many as an app can have), each in the side menu: as the draft's
+ * menu had it, or under its title.
+ */
+export function withKeptPages(layout: LayoutContent, draft: Pick<LayoutContent, "pages" | "menu">): LayoutContent {
+  const own = new Set(layout.pages.map((p) => p.slug));
+  const kept = draft.pages.filter((p) => !own.has(p.slug)).slice(0, Math.max(0, LAYOUT_LIMITS.maxPages - layout.pages.length));
+  if (!kept.length) return layout;
+  const menu = [...(layout.menu ?? [])];
+  for (const page of kept) {
+    if (menu.length >= LAYOUT_LIMITS.maxMenu || menu.some((m) => m.target.type === "page" && m.target.page_slug === page.slug)) continue;
+    const before = draft.menu?.find((m) => m.target.type === "page" && m.target.page_slug === page.slug);
+    menu.push(before && !menu.some((m) => m.id === before.id) ? structuredClone(before) : keptPageEntry(page, menu));
+  }
+  return { ...layout, pages: [...layout.pages, ...structuredClone(kept)], menu };
+}
+
+function keptPageEntry(page: LayoutPage, menu: readonly LayoutTab[]): LayoutTab {
+  let id = `menu-${page.slug}`;
+  for (let n = 2; menu.some((m) => m.id === id); n += 1) id = `menu-${page.slug}-${n}`;
+  const translations = Object.fromEntries(
+    Object.entries(page.translations ?? {})
+      .filter(([, texts]) => texts.title)
+      .map(([lang, texts]) => [lang, { label: texts.title! }]),
+  );
+  return { id, label: page.title, icon: "description", target: { type: "page", page_slug: page.slug }, ...(Object.keys(translations).length ? { translations } : {}) };
+}
+
 /**
  * 33 Replaces the draft with a design (never what's published) and
  * remembers it on the app. `samples`: the texts of the blocks the design
  * wrote samples in, which the editor marks until the owner changes them.
+ * 99.2 Or takes only its look (`mode` "look"): the pages stay, and so do
+ * the design the app started from and its samples; `keepPages` keeps the
+ * draft's pages the design doesn't have.
  */
 export async function saveDesignDraft(
   store: DataStore,
@@ -202,9 +246,15 @@ export async function saveDesignDraft(
   design: Design,
   now: Date,
   look: Partial<Appearance> = {},
-): Promise<ParseResult<{ record: AppLayoutRecord; samples: Record<string, string> }>> {
+  options: { mode?: DesignMode; keepPages?: boolean } = {},
+): Promise<ParseResult<{ record: AppLayoutRecord; samples: Record<string, string> | null }>> {
   const record = await loadLayout(store, app, now);
-  const layout = designLayout(app, design, record.draft, now, look);
+  if (options.mode === "look") {
+    const saved = await saveDraft(store, app, designLookOnly(record.draft, design, look), now);
+    return saved.ok ? { ok: true, value: { record: saved.value, samples: null } } : saved;
+  }
+  const made = designLayout(app, design, record.draft, now, look);
+  const layout = options.keepPages ? withKeptPages(made, record.draft) : made;
   const saved = await saveDraft(store, app, layout, now);
   if (!saved.ok) return saved;
   await store.updateApp(app.id, { design: design.id }, now);

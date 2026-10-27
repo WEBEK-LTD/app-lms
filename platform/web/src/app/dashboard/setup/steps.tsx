@@ -702,6 +702,11 @@ function Upload({
   );
 }
 
+/** 99.2 A design's look (what "Its look only" takes) from the appearance it makes. */
+function lookOf(a: Appearance): Partial<Appearance> {
+  return { template: a.template, corners: a.corners, cards: a.cards, font: a.font, font_family: a.font_family, secondary_color: a.secondary_color };
+}
+
 /** 33 The ready-made designs the Branding step offers, each as the draft it makes. */
 export interface BrandingDesigns {
   designs: { id: string; name: string; description: string; layout: LayoutContent }[];
@@ -709,6 +714,8 @@ export interface BrandingDesigns {
   current: LayoutContent;
   /** The design the app last started from. */
   design: string | null;
+  /** 99.2 Whether the app has pages of its own (published, or from a design): it can take a design's look only. */
+  established: boolean;
 }
 
 export function BrandingStep({
@@ -732,6 +739,9 @@ export function BrandingStep({
   const [template, setTemplate] = useState(v(state, "template", values.template));
   const [font, setFont] = useState(v(state, "font", values.font));
   const [design, setDesign] = useState(v(state, "design", designs.design ?? ""));
+  const [designMode, setDesignMode] = useState(v(state, "designMode", "all"));
+  // 99.2 Another design than the app's, for an app with pages of its own: its pages too, or its look only.
+  const switching = designs.established && design !== "" && design !== designs.design;
   // A design brings its template and font; both can still be changed below.
   function chooseDesign(id: string) {
     setDesign(id);
@@ -750,6 +760,7 @@ export function BrandingStep({
       {/* Sent from state: React resets the form's own radios after each submit. */}
       <input type="hidden" name="template" value={template} />
       <input type="hidden" name="design" value={design} />
+      <input type="hidden" name="designMode" value={switching ? designMode : "all"} />
       <StepCard title={t("setup.branding")} id="h-brand">
         <FormMessage message={state.message} />
         <Field
@@ -829,7 +840,13 @@ export function BrandingStep({
               ...designs.designs.map((d) => ({ ...d, name: known(d.name), description: known(d.description) })),
             ].map((d) => {
               const checked = design === d.id;
-              const layout = d.id ? d.layout : { ...d.layout, appearance: { ...d.layout.appearance, template: template as Appearance["template"] } };
+              // 99.2 Its look only: the pages as they are, in its look.
+              const lookOnly = checked && switching && designMode === "look";
+              const layout = !d.id
+                ? { ...d.layout, appearance: { ...d.layout.appearance, template: template as Appearance["template"] } }
+                : lookOnly
+                  ? { ...designs.current, appearance: { ...designs.current.appearance, ...lookOf(d.layout.appearance) } }
+                  : d.layout;
               return (
                 <label key={d.id || "keep"} className="flex min-w-0 cursor-pointer flex-col gap-1.5">
                   <div className={`overflow-hidden rounded-xl ${checked ? "outline-2 outline-midnight" : "outline-1 outline-line"} bg-ivory outline`}>
@@ -851,6 +868,17 @@ export function BrandingStep({
               );
             })}
           </div>
+          {switching ? (
+            <fieldset className="m-0 flex flex-wrap gap-x-4 gap-y-1.5 border-0 p-0">
+              <legend className="mb-1 p-0 text-sm font-semibold">{t("setup.designTake")}</legend>
+              {(["all", "look"] as const).map((mode) => (
+                <label key={mode} className="flex cursor-pointer items-center gap-2 text-sm">
+                  <input type="radio" name="designModeChoice" value={mode} checked={designMode === mode} onChange={() => setDesignMode(mode)} className="m-0 h-[18px] w-[18px] accent-midnight" />
+                  {mode === "all" ? t("setup.designTakeAll") : t("setup.designTakeLook")}
+                </label>
+              ))}
+            </fieldset>
+          ) : null}
           <FieldError id="f-design-error" error={state.errors?.design} />
         </fieldset>
         <div className="flex flex-wrap gap-3.5">
