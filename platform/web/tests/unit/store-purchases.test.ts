@@ -16,7 +16,8 @@ import { ACCESS_PATH, accessSignature, grantId } from "@/lib/store-billing/deliv
 import { retryDue, runStorePurchases } from "@/lib/store-billing/jobs";
 import { handleAppleNotification } from "@/lib/store-billing/notifications";
 import { reconcileProducts, wantedFromCourses } from "@/lib/store-billing/products";
-import { tokenKey } from "@/lib/store-billing/purchases";
+import { eventKindOf, tokenKey } from "@/lib/store-billing/purchases";
+import { inAppFigures, salesShows } from "@/lib/analytics/sales";
 import { startSiteBillingSession } from "@/lib/store-billing/sessions";
 import { chain } from "./apple-chain";
 import { expectContract } from "./contract";
@@ -220,6 +221,14 @@ describe("100.3 purchases in an academy on the dashboard's courses", () => {
     expect(report).toMatchObject({ refunds: 1, delivered: 1, failed: 0 });
     expect(await enrolled(user.id)).toEqual([]);
     expect(await store.getStorePurchase(app.id, "android", tokenKey("tok-1"))).toMatchObject({ status: "revoked", reason: "refunded", delivered: true });
+    // 100.6 In Analytics: one bought at the store price then, and its refund.
+    const day = [new Date(NOW.getTime() - 3600_000), new Date(NOW.getTime() + 86_400_000)] as const;
+    expect(await inAppFigures(store, app.id, ...day)).toEqual({
+      inApp: { count: 1, totals: [{ currency: "TRY", cents: 45000 }] },
+      inAppRefunds: { count: 1, totals: [{ currency: "TRY", cents: 45000 }] },
+      renewals: 0,
+    });
+    expect(salesShows(app).inApp).toBe(true);
     // Read once an hour.
     const again = googleFake({}, [{ token: "tok-1" }]);
     await runStorePurchases({ store, key: KEY, now: new Date(now.getTime() + 10 * MINUTE), fetcher: again.fetcher });
@@ -400,5 +409,21 @@ describe("100.3 purchases in a WordPress academy", () => {
     expect(retryDue({ createdAt: NOW, updatedAt: at(60) }, at(80))).toBe(true);
     expect(retryDue({ createdAt: NOW, updatedAt: at(10 * 24 * 60) }, at(10 * 24 * 60 + 23 * 60))).toBe(false);
     expect(retryDue({ createdAt: NOW, updatedAt: at(10 * 24 * 60) }, at(11 * 24 * 60))).toBe(true);
+  });
+});
+
+describe("100.6 sales events of store purchases", () => {
+  const at = (minutes: number) => new Date(NOW.getTime() + minutes * MINUTE);
+  it("names each change once", () => {
+    expect(eventKindOf(null, { status: "active", expiresAt: null, reason: null })).toBe("bought");
+    expect(eventKindOf(null, { status: "pending", expiresAt: null, reason: null })).toBeNull();
+    expect(eventKindOf({ status: "pending", expiresAt: null }, { status: "active", expiresAt: null, reason: null })).toBe("bought");
+    expect(eventKindOf({ status: "active", expiresAt: at(10) }, { status: "active", expiresAt: at(20), reason: null })).toBe("renewed");
+    expect(eventKindOf({ status: "active", expiresAt: at(10) }, { status: "active", expiresAt: at(10), reason: null })).toBeNull();
+    expect(eventKindOf({ status: "expired", expiresAt: at(10) }, { status: "active", expiresAt: at(20), reason: null })).toBe("renewed");
+    expect(eventKindOf({ status: "active", expiresAt: null }, { status: "revoked", expiresAt: null, reason: "refunded" })).toBe("refunded");
+    expect(eventKindOf({ status: "active", expiresAt: null }, { status: "revoked", expiresAt: null, reason: "revoked" })).toBe("revoked");
+    expect(eventKindOf({ status: "active", expiresAt: at(1) }, { status: "expired", expiresAt: at(1), reason: "expired" })).toBe("expired");
+    expect(eventKindOf({ status: "revoked", expiresAt: null }, { status: "revoked", expiresAt: null, reason: "refunded" })).toBeNull();
   });
 });

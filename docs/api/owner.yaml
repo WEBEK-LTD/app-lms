@@ -3017,6 +3017,10 @@ components:
         donations:
           type: array
           items: { $ref: '#/components/schemas/Money' }
+        in_app_sales:
+          type: array
+          description: Roadmap 100.6. Courses and memberships bought or renewed today in the app through Google Play and the App Store, at their store price before the stores' fee. Empty when the app doesn't sell in the app; missing on older servers.
+          items: { $ref: '#/components/schemas/Money' }
         counts:
           type: object
           description: Only what the app has.
@@ -3027,6 +3031,7 @@ components:
             check_ins: { type: integer, description: Tickets used today. }
             member_check_ins: { type: integer, description: "63 A gym's members checked in today (once a member a day)." }
             donations: { type: integer }
+            in_app_purchases: { type: integer, description: 'Roadmap 100.6. Bought or renewed today through the stores.' }
             new_users: { type: integer }
             app_opens: { type: [integer, 'null'], description: 'Sessions today, from Analytics (apps built before roadmap 44 send none).' }
         needs_you:

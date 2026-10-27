@@ -19,12 +19,14 @@ let appId = "";
 const a = randomUUID();
 const b = randomUUID();
 
+/** `hour` o'clock on Istanbul's date `offset` days from today: the app counts its days in Istanbul (UTC+3, no summer time). */
+const ISTANBUL = 3 * 3_600_000;
 const day = (offset: number, hour = 10) => {
-  const date = new Date();
+  const date = new Date(Date.now() + ISTANBUL);
   date.setUTCDate(date.getUTCDate() + offset);
   date.setUTCHours(hour, 0, 0, 0);
   // Today's events are a minute in the past at most, never ahead of the server.
-  return new Date(Math.min(date.getTime(), Date.now() - 60_000)).toISOString();
+  return new Date(Math.min(date.getTime() - ISTANBUL, Date.now() - 60_000)).toISOString();
 };
 
 /** The app's analytics key, as the platform puts it in the build config. */
@@ -182,7 +184,7 @@ test("Dashboard › Analytics shows the numbers, compared and split", async () =
 
   // A custom range.
   const custom = own.getByRole("form", { name: "Custom range" });
-  const yesterday = day(-1).slice(0, 10);
+  const yesterday = new Date(Date.parse(day(-1)) + ISTANBUL).toISOString().slice(0, 10);
   await custom.getByLabel("From").fill(yesterday);
   await custom.getByLabel("To").fill(yesterday);
   await custom.getByRole("button", { name: "Apply" }).click();

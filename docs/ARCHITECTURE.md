@@ -2362,6 +2362,20 @@ Yallapp kept. `Config.store_billing` (hosted API) and
 in a store; the dashboard's courses then show the `store` action and no
 payment page.
 
+100.6 Sales. Each change of a purchase is kept as an event
+(`store_purchase_events`: bought, renewed, refunded, revoked, expired, with
+the store price the app had then; store test purchases are marked and left
+out). Analytics › Sales (`lib/analytics/sales.ts` `inAppFigures`) shows in-app
+purchases, in-app refunds and membership renewals beside the period before,
+for apps on the hosted API and WordPress apps alike; the weekly summary has a
+line for them, and the Owner API's `GET /apps/{app_id}/today` (Yallapp
+Business) carries `in_app_sales` and `counts.in_app_purchases`. The guide is
+`/docs/in-app-purchases` (en/ar/tr), linked from the In-app purchases page,
+which also shows Yallapp's Pub/Sub topic (`GOOGLE_PUBSUB_TOPIC`) for Play
+Console's real-time notifications. The pricing table has an In-app purchases
+row, and the terms and the privacy policy say what the stores' keys and the
+purchase records are used for.
+
 ## Notification campaigns (Phase 85)
 
 ### Audiences (85.1)

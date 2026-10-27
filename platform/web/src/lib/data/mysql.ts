@@ -8,7 +8,7 @@ import { clientAccountState, longestLicense } from "../license/status";
 import type { BuildConfig } from "../build-config/types";
 import * as schema from "../db/schema";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
-import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, SavedSection, StoreProduct, StorePurchaseRecord, BillingSession } from "./types";
+import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, SavedSection, StoreProduct, StorePurchaseRecord, StorePurchaseEvent, BillingSession } from "./types";
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
@@ -2960,6 +2960,21 @@ export class MysqlStore implements DataStore {
   async listEndingStorePurchases(before: Date, limit: number): Promise<StorePurchaseRecord[]> {
     const t = schema.storePurchases;
     return this.run((db) => db.select().from(t).where(and(eq(t.status, "active"), isNotNull(t.expiresAt), lt(t.expiresAt, before))).orderBy(asc(t.expiresAt)).limit(limit));
+  }
+
+  async addStorePurchaseEvent(event: StorePurchaseEvent): Promise<void> {
+    await this.run((db) => db.insert(schema.storePurchaseEvents).values(event));
+  }
+
+  async listStorePurchaseEvents(appId: string, from: Date, to: Date): Promise<StorePurchaseEvent[]> {
+    const t = schema.storePurchaseEvents;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), eq(t.test, false), gte(t.at, from), lt(t.at, to)))
+        .orderBy(asc(t.at)),
+    );
   }
 
   async createBillingSession(session: BillingSession): Promise<void> {

@@ -305,6 +305,12 @@ export function figmaApiTestUrl(): string | null {
   return testOnlyUrl("FIGMA_API_TEST_URL");
 }
 
+/** 100.6 Yallapp's Pub/Sub topic for Google Play's real-time notifications (`projects/<project>/topics/<name>`), shown to owners; null: not set up. */
+export function googlePubSubTopic(): string | null {
+  const topic = read("GOOGLE_PUBSUB_TOPIC")?.trim();
+  return topic && /^projects\/[a-z][a-z0-9-]{4,28}[a-z0-9]\/topics\/[A-Za-z][\w.~+%-]{2,254}$/.test(topic) ? topic : null;
+}
+
 /** 100.3 The service account Yallapp's Pub/Sub push subscription signs Google Play's notifications with; null refuses every push. */
 export function googlePubSubPushEmail(): string | null {
   return read("GOOGLE_PUBSUB_PUSH_EMAIL")?.trim().toLowerCase() || null;

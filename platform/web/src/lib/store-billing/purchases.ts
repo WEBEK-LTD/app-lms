@@ -1,10 +1,11 @@
 import { createHash, randomUUID } from "node:crypto";
 import type { DataStore } from "../data/store";
-import type { App, StoreAccountSource, StorePlatform, StoreProduct, StorePurchaseRecord } from "../data/types";
+import type { App, StoreAccountSource, StorePlatform, StoreProduct, StorePurchaseEventKind, StorePurchaseRecord } from "../data/types";
 import { AppleBillingError, verifySignedTransaction } from "./apple";
 import { acknowledgeProductPurchase, acknowledgeSubscription, GoogleBillingError, googleBillingToken, readProductPurchase, readSubscriptionPurchase, type GoogleBillingDeps } from "./google";
 import { deliverPurchase, type DeliveryDeps } from "./delivery";
 import { googleKey } from "./keys";
+import { wantedPrice } from "./products";
 
 /**
  * 100.3 A purchase the app made with the store's own SDK, checked with the
@@ -159,6 +160,40 @@ export function applyChecked(purchase: StorePurchaseRecord, checked: CheckedPurc
   };
 }
 
+/** 100.6 The sales event of a purchase's change: bought, renewed, refunded, revoked or ended; null when nothing changed. */
+export function eventKindOf(before: Pick<StorePurchaseRecord, "status" | "expiresAt"> | null, after: Pick<StorePurchaseRecord, "status" | "expiresAt" | "reason">): StorePurchaseEventKind | null {
+  if (after.status === "active") {
+    if (!before || before.status === "pending") return "bought";
+    if (before.status !== "active") return "renewed";
+    return after.expiresAt && before.expiresAt && after.expiresAt.getTime() > before.expiresAt.getTime() ? "renewed" : null;
+  }
+  if (before?.status !== "active") return null;
+  if (after.status === "revoked") return after.reason === "revoked" ? "revoked" : "refunded";
+  return after.status === "expired" ? "expired" : null;
+}
+
+/** Saves a purchase's change and keeps its sales event (the price it was sold at: the store price the app had then). */
+export async function savePurchaseChange(deps: Pick<PurchaseDeps, "store" | "now">, before: StorePurchaseRecord | null, after: StorePurchaseRecord): Promise<void> {
+  if (before) await deps.store.saveStorePurchase(after);
+  const kind = eventKindOf(before, after);
+  if (!kind) return;
+  // What it brought in, or what a refund took back: the store price the app had then.
+  const product = kind === "expired" ? null : await deps.store.getStoreProduct(after.appId, after.productId);
+  const cents = product ? Math.round(Number(wantedPrice(product)) * 100) : null;
+  await deps.store.addStorePurchaseEvent({
+    id: randomUUID(),
+    appId: after.appId,
+    purchaseId: after.id,
+    platform: after.platform,
+    kind,
+    productId: after.productId,
+    amountCents: cents !== null && Number.isFinite(cents) ? cents : null,
+    currency: product?.currency ?? null,
+    test: after.test,
+    at: deps.now,
+  });
+}
+
 /**
  * Gives (or takes back) the access on the source when it changed, then
  * acknowledges an active Google purchase. False when the source couldn't be
@@ -200,10 +235,11 @@ export async function submitPurchase(
   const { product, checked } = result;
   const existing = await deps.store.getStorePurchase(app.id, platform, checked.storeKey);
   if (existing && (existing.accountSource !== account.source || existing.accountId !== account.id)) return { ok: false, fail: PURCHASE_IN_USE() };
+  const newId = randomUUID();
   const kept =
     existing ??
     (await deps.store.createStorePurchase({
-      id: randomUUID(),
+      id: newId,
       appId: app.id,
       platform,
       storeKey: checked.storeKey,
@@ -227,7 +263,9 @@ export async function submitPurchase(
   // Two sends at once: the other one kept it first, for its account.
   if (kept.accountSource !== account.source || kept.accountId !== account.id) return { ok: false, fail: PURCHASE_IN_USE() };
   const updated = existing ? applyChecked(kept, checked, deps.now) : kept;
-  if (updated !== kept) await deps.store.saveStorePurchase(updated);
+  // A new purchase is saved already: only its event; a known one, its change.
+  if (existing) await savePurchaseChange(deps, kept, updated);
+  else if (kept.id === newId) await savePurchaseChange(deps, null, kept);
   const settled = await settlePurchase(deps, app, updated);
   if (!settled.ok) return { ok: false, fail: STORE_UNAVAILABLE() };
   return { ok: true, grant: grantOf(settled.purchase) };

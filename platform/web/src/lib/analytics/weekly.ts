@@ -61,6 +61,8 @@ export function summaryLines(report: AnalyticsReport, sales: SalesReport, lang: 
   if (shows.bookings) lines.push(t("analytics.weeklyBookings", { now: n(c.bookings), before: n(p.bookings) }));
   if (shows.tickets) lines.push(t("analytics.weeklyTickets", { now: n(c.tickets), before: n(p.tickets) }));
   if (shows.donations) lines.push(t("analytics.weeklyDonations", { now: n(c.donations.count), money: money(c.donations, lang), before: n(p.donations.count) }));
+  // 100.6 Bought and renewed through the stores.
+  if (shows.inApp) lines.push(t("analytics.weeklyInApp", { now: n(c.inApp.count), money: money(c.inApp, lang), before: n(p.inApp.count) }));
   const top = report.items[0];
   if (top) lines.push(t("analytics.weeklyTopItem", { title: top.title, views: n(top.views) }));
   const pushed = report.push.reduce((sum, row) => sum + row.pushed, 0) + report.auto.reduce((sum, row) => sum + row.pushed, 0);
@@ -122,6 +124,6 @@ export async function runWeeklySummaries(deps: WeeklyDeps): Promise<{ sent: numb
 
 function hasSales(sales: SalesReport): boolean {
   const c = sales.current;
-  return c.orders.count + c.refunds.count + c.donations.count + c.enrolments.total + c.bookings + c.tickets > 0;
+  return c.orders.count + c.refunds.count + c.donations.count + c.enrolments.total + c.bookings + c.tickets + c.inApp.count + c.inAppRefunds.count > 0;
 }
 

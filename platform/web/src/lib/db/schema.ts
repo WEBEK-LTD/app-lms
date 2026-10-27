@@ -61,7 +61,7 @@ import type {
 } from "../data/types";
 // 11.6 and 11.8
 import type { BuildFailure, BuildRelease, ListingTranslation, ReviewsRow, RolloutState, ScreenshotFrame, StagedRelease } from "../data/types";
-import type { OwnFontFile, StoreAccountSource, StoreBillingSettings, StorePlatform, StoreProductKind, StoreProductSync } from "../data/types";
+import type { OwnFontFile, StorePurchaseEventKind, StoreAccountSource, StoreBillingSettings, StorePlatform, StoreProductKind, StoreProductSync } from "../data/types";
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
 import type { Plan } from "../plans";
 import type { Layout, LayoutBlock, LayoutContent } from "../pages/types";
@@ -1395,6 +1395,28 @@ export const storePurchases = mysqlTable(
     index("store_purchases_account_idx").on(t.appId, t.accountSource, t.accountId),
     index("store_purchases_due_idx").on(t.delivered, t.updatedAt),
   ],
+);
+
+// 100.6 What happened to each store purchase, for sales.
+export const storePurchaseEvents = mysqlTable(
+  "store_purchase_events",
+  {
+    id: id("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    purchaseId: id("purchase_id")
+      .notNull()
+      .references(() => storePurchases.id, { onDelete: "cascade" }),
+    platform: varchar("platform", { length: 8 }).notNull().$type<StorePlatform>(),
+    kind: varchar("kind", { length: 16 }).notNull().$type<StorePurchaseEventKind>(),
+    productId: varchar("product_id", { length: 100 }).notNull(),
+    amountCents: int("amount_cents"),
+    currency: varchar("currency", { length: 3 }),
+    test: boolean("test").notNull(),
+    at: time("at").notNull(),
+  },
+  (t) => [index("store_purchase_events_app_idx").on(t.appId, t.at)],
 );
 
 // 100.3 Store billing tokens of people signed in on a WordPress site.

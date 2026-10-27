@@ -8,6 +8,7 @@ import type {
   OwnFont,
   StoreProduct,
   StorePurchaseRecord,
+  StorePurchaseEvent,
   BillingSession,
   Asset,
   Build,
@@ -737,6 +738,10 @@ export interface DataStore {
   listUndeliveredStorePurchases(before: Date, limit: number): Promise<StorePurchaseRecord[]>;
   /** Active memberships whose paid period ends before `before`, soonest first. */
   listEndingStorePurchases(before: Date, limit: number): Promise<StorePurchaseRecord[]>;
+  /** 100.6 Keeps a change of a store purchase. */
+  addStorePurchaseEvent(event: StorePurchaseEvent): Promise<void>;
+  /** 100.6 The app's store purchase changes in [from, to), store tests left out, oldest first. */
+  listStorePurchaseEvents(appId: string, from: Date, to: Date): Promise<StorePurchaseEvent[]>;
   createBillingSession(session: BillingSession): Promise<void>;
   getBillingSession(tokenHash: string): Promise<BillingSession | null>;
 

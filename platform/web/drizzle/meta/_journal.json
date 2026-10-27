@@ -638,6 +638,13 @@
       "when": 1793132685863,
       "tag": "0090_store_purchases",
       "breakpoints": true
+    },
+    {
+      "idx": 91,
+      "version": "5",
+      "when": 1793135167431,
+      "tag": "0091_store_purchase_events",
+      "breakpoints": true
     }
   ]
 }

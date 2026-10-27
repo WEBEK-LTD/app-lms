@@ -1,3 +1,5 @@
+import { inAppFigures } from "../analytics/sales";
+import { storeBillingSource } from "../store-billing/access";
 import { formatDate } from "@/i18n/format";
 import { addDays, dayOf, isDay } from "../analytics/days";
 import { refreshAnalytics } from "../analytics/aggregate";
@@ -111,6 +113,13 @@ export async function today(ctx: OwnerContext, params: Record<string, string>): 
     for (const total of paid.totals) addTo(given, total.currency, total.cents);
     counts.donations = paid.count;
   }
+  // 100.6 Courses and memberships bought or renewed in the app through the stores (before their fee).
+  const inApp = new Map<string, number>();
+  if (storeBillingSource(app) && app.storeBilling) {
+    const figures = await inAppFigures(store, app.id, day.start, day.end);
+    for (const total of figures.inApp.totals) addTo(inApp, total.currency, total.cents);
+    counts.in_app_purchases = figures.inApp.count;
+  }
   if (areas.inquiries) {
     const unread = await store.countUnreadListingInquiries(app.id);
     if (unread) needs.push({ kind: "unanswered_messages", count: unread, title: ctx.t("owner.needs.unanswered", { count: unread }), notice_id: null });
@@ -129,7 +138,7 @@ export async function today(ctx: OwnerContext, params: Record<string, string>): 
   for (const notice of teamCan(ctx.access, "settings", app.id) ? await store.listOwnerNotices({ clientId: ctx.client.id, appId: app.id, open: true, limit: 10 }) : []) {
     needs.push({ kind: "notice", count: 1, title: ctx.k(notice.title), notice_id: notice.id });
   }
-  return { status: 200, body: { date: day.date, time_zone: day.zone, sales: totalsJson(sales), donations: totalsJson(given), counts, needs_you: needs } };
+  return { status: 200, body: { date: day.date, time_zone: day.zone, sales: totalsJson(sales), donations: totalsJson(given), in_app_sales: totalsJson(inApp), counts, needs_you: needs } };
 }
 
 // Orders

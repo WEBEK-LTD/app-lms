@@ -167,6 +167,7 @@ export const tr: Messages = {
     rowRebuilds: "Otomatik yeniden derleme",
     rowChat: "Uygulama içi sohbet",
     rowLoyalty: "Sadakat puanları",
+    rowInAppPurchases: "Uygulama içi satın alma (Google Play, App Store)",
     rowPublishing: "Yayınlama",
     rowStoreUpdates: "Otomatik mağaza güncellemeleri",
     rowTeam: "Ekip üyeleri",

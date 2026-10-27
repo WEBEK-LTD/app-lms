@@ -434,4 +434,49 @@ Kaydettikten sonra web sitenizden değişikliği almasını isteriz. **Bağlant�
 Her satır başarılı ya da başarısız olur; başarısızsa ne yapmanız gerektiğini söyler. Üstte, kontrol zamanıyla (UTC) birlikte **Bağlantılar uygulamanızı açıyor.** ya da **Bazı bağlantılar henüz uygulamanızı açmıyor.** görürsünüz. **Uygulama kurulumu** da son sonucu kendi **Bağlantıları kontrol et** düğmesiyle gösterir. Arka arkaya çok kez kontrol ederseniz yeniden denemeden önce birkaç dakika bekleyin.
 `,
   },
+  "in-app-purchases": {
+    title: "Uygulama içi satın alma: Google Play ve App Store üzerinden kurslar ve üyelikler",
+    description: "Ücretli kursları ve üyelikleri uygulamanızda Google Play ve App Store üzerinden satın: mağaza hesaplarınızı bağlama, fiyatlar, test, iadeler ve satışlarınız.",
+    body: `Google Play ve App Store, kurslar ve kursları açan üyelikler gibi dijital içeriğin kendi ödeme sistemleriyle satılmasını ister. **Uygulama içi satın alma** ile uygulamanız tam olarak bunu yapar: insanlar Google Play ya da App Store ile satın alır, Yallapp da onlara kursu ya da sona erene kadar üyeliği verir. Starter dışındaki tüm paketlerde, kursları panelinizde ya da WordPress sitenizde olan akademiler için vardır.
+
+Google ve Apple ödemeyi doğrudan kendi geliştirici hesaplarınıza yapar ve komisyonlarını alır (her mağazadaki programınıza göre %15 ile %30 arası). Mağaza ürünleri, restoran siparişleri, randevular ve biletler gibi fiziksel ürünler ve hizmetler kart ödeme sayfanızda kalır.
+
+## Açın
+
+1. Panel menünüzde **Uygulama içi satın alma**'yı açın.
+2. **Uygulamada satış** altında **Kurslarımı ve üyeliklerimi uygulamada sat**'ı seçin ve **Kaydet**'e basın.
+3. **Mağaza hesaplarınız** altında **Kontrol et**'e basın. Yallapp, [Yayınlama adımında](/docs/developer-accounts) kaydettiğiniz anahtarları kullanır.
+
+Ardından Yallapp her ücretli kurs için bir ürünü, her üyelik planı için aylık ya da yıllık bir aboneliği kendi mağaza hesaplarınızda oluşturur. Uygulamanız satın alma düğmelerini bir sonraki sürümünden itibaren gösterir.
+
+## Google Play
+
+- Hizmet hesabınızın **Finansal verileri görüntüleme**, **Siparişleri ve abonelikleri yönetme** ve **Mağaza girişini yönetme** izinleri olmalı (Play Console › **Kullanıcılar ve izinler**).
+- Satış yapmak için Play Console'unuzun bir ödeme profili olmalı ve Google ürünlerini kabul etmeden önce uygulamanız uygulama içi satın almayla bir kez yüklenmeli: bir sonraki derlemenizi Google Play'e gönderin (dahili test yeterli).
+- İsteğe bağlı: Play Console › **Para kazanma kurulumu** bölümünde, Uygulama içi satın alma sayfasında **Gerçek zamanlı bildirimler** altında gösterilen konuyu girin. İadeler böylece saniyeler içinde uygulamanıza ulaşır; olmadan bir saat içinde ulaşır.
+
+## App Store
+
+- App Store Connect anahtarınızın **App Manager** rolü olmalı.
+- **Paid Applications** sözleşmeniz, vergi ve banka bilgileriniz App Store Connect'te (**Business**) etkin olmalı.
+- Apple yeni uygulama içi satın almaları, incelemeye gönderdiğiniz uygulamanın bir sonraki sürümüyle birlikte inceler. Göndermeden önce App Store Connect'te her uygulama içi satın almaya bir inceleme ekran görüntüsü ekleyin.
+- Uygulamanızın App Store Server Notifications adresini Yallapp sizin için ayarlar.
+
+## Fiyatlar
+
+Her ürün, sitenizdeki fiyata en yakın mağaza fiyatıyla başlar: Google Play fiyatınızı kendi para biriminizde aynen tutar, App Store en yakın fiyat noktasını kullanır. Mağazalar herkese fiyatı kendi para biriminde gösterir. Uygulamada başka bir fiyat almak için ürünün yanındaki **Sizin fiyatınız** alanını doldurup **Kaydet**'e basın; site fiyatı için boş bırakın. Bir üyeliğin fiyatı değişince, mevcut aboneler kendi fiyatlarını korur.
+
+## Test
+
+Kendinizi Play Console'da **lisans test kullanıcısı** (**Ayarlar** › **Lisans testi**) ve App Store Connect'te **Sandbox test kullanıcısı** (**Users and Access** › **Sandbox**) olarak ekleyin. Test satın almaları ücretsizdir ve satışlarınızda asla sayılmaz.
+
+## İadeler ve yenilemeler
+
+Google ya da Apple bir satın almayı iade ettiğinde ya da bir üyelik yenilenmediğinde Yallapp erişimi kendiliğinden geri alır. Yenilemeler üyeliği uzatır. Uygulamayı yeniden yükleyen ya da yeni bir telefonda oturum açan kişi, satın aldıklarını geri almak için **Satın almaları geri yükle**'yi seçer. Bir satın alma, onu yapan hesaba aittir: uygulamanızdaki başka bir hesaba taşınamaz.
+
+## Satışlarınız
+
+**Analitik** › **Satışlar**, **Uygulama içi satın almalar** (satın alma ve yenileme, mağaza komisyonundan önce), **Uygulama içi iadeler** ve **Üyelik yenilemeleri**ni önceki dönemin yanında gösterir. Yallapp Business bugünkü uygulama içi satışları da gösterir. Ödemeleriniz ve mağazaların raporları Play Console ile App Store Connect'tedir.
+`,
+  },
 };

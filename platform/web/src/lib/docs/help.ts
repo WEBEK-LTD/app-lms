@@ -20,6 +20,7 @@ export const DASHBOARD_HELP: Record<string, string> = {
   "/dashboard/preview": "preview-your-app",
   "/dashboard/analytics": "analytics",
   "/dashboard/integrations": "integrations",
+  "/dashboard/in-app-purchases": "in-app-purchases",
   "/dashboard/app-sign-in": "app-users",
   "/dashboard/notifications": "push-notifications",
   "/dashboard/campaigns": "push-notifications",

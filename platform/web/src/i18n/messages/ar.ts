@@ -167,6 +167,7 @@ export const ar: Messages = {
     rowRebuilds: "إعادة البناء تلقائيًا",
     rowChat: "الدردشة داخل التطبيق",
     rowLoyalty: "نقاط الولاء",
+    rowInAppPurchases: "الشراء داخل التطبيق (Google Play وApp Store)",
     rowPublishing: "النشر",
     rowStoreUpdates: "تحديثات المتاجر تلقائيًا",
     rowTeam: "أعضاء الفريق",

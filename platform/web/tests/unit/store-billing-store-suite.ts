@@ -7,7 +7,7 @@ import type { StoreProduct, StorePurchaseRecord } from "@/lib/data/types";
 
 /**
  * 100.2/100.3 Store billing in the store, the same on the memory store and
- * on MySQL or MariaDB (migrations 0089, 0090): products kept once per product
+ * on MySQL or MariaDB (migrations 0089 to 0091): products kept once per product
  * ID, purchases once per store key, an account's purchases, the ones waiting
  * for their source or past their paid period, and the WordPress billing
  * sessions.
@@ -111,6 +111,19 @@ export function storeBillingStoreSuite(store: () => DataStore) {
     expect((await s.listUndeliveredStorePurchases(NOW, 10)).filter((p) => p.appId === app.id).map((p) => p.id)).toEqual([waiting.id]);
     expect((await s.listEndingStorePurchases(new Date(NOW.getTime() + 11 * MIN), 10)).filter((p) => p.appId === app.id).map((p) => p.id)).toEqual([membership.id]);
     expect((await s.listEndingStorePurchases(new Date(NOW.getTime() + 9 * MIN), 10)).filter((p) => p.appId === app.id)).toEqual([]);
+  });
+
+  it("keeps each purchase's sales events, and lists a range without store tests", async () => {
+    const s = store();
+    const app = await appOf();
+    const kept = await s.createStorePurchase(purchase(app.id));
+    const event = (kind: "bought" | "refunded", at: Date, test = false) => ({ id: randomUUID(), appId: app.id, purchaseId: kept.id, platform: "android" as const, kind, productId: "course_12", amountCents: 45000, currency: "TRY", test, at });
+    await s.addStorePurchaseEvent(event("bought", NOW));
+    await s.addStorePurchaseEvent(event("bought", new Date(NOW.getTime() + MIN), true));
+    await s.addStorePurchaseEvent(event("refunded", new Date(NOW.getTime() + 2 * MIN)));
+    const listed = await s.listStorePurchaseEvents(app.id, NOW, new Date(NOW.getTime() + 2 * MIN));
+    expect(listed.map((e) => [e.kind, e.amountCents, e.currency, e.test])).toEqual([["bought", 45000, "TRY", false]]);
+    expect((await s.listStorePurchaseEvents(app.id, NOW, new Date(NOW.getTime() + 3 * MIN))).map((e) => e.kind)).toEqual(["bought", "refunded"]);
   });
 
   it("keeps billing sessions by their token's hash", async () => {
