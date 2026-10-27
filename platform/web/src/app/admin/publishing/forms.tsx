@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { savePublishingTeamNotesAction, updatePublishingTrackAction } from "@/app/actions/admin-publishing";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import type { PublishingStore } from "@/lib/data/types";
@@ -15,7 +15,7 @@ const LINK_PLACEHOLDER: Record<PublishingStore, string> = {
   xiaomi: "https://global.app.mi.com/details?id=…",
 };
 
-/** One store's status, the note to the client and the store link. */
+/** One store's status, the note to the client and the store link: the rejection reason once rejected, the link once live. */
 export function TrackForm({
   appId,
   store,
@@ -38,6 +38,8 @@ export function TrackForm({
   const v = { ...current, ...state.values };
   const e = state.errors ?? {};
   const id = `${appId}-${store}`;
+  const [status, setStatus] = useState(v.status);
+  const showLink = status === "live" || Boolean(v.storeUrl);
   return (
     <form action={action} noValidate className="flex flex-col gap-3" key={JSON.stringify(state.values ?? {})}>
       <input type="hidden" name="appId" value={appId} />
@@ -47,7 +49,7 @@ export function TrackForm({
           <label htmlFor={`status-${id}`} className="text-sm font-semibold">
             {storeTitle} status
           </label>
-          <select id={`status-${id}`} name="status" defaultValue={v.status} className="input input-sm" aria-invalid={e.status ? true : undefined}>
+          <select id={`status-${id}`} name="status" value={status} onChange={(event) => setStatus(event.target.value)} className="input input-sm" aria-invalid={e.status ? true : undefined}>
             {statuses.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.label}
@@ -56,23 +58,25 @@ export function TrackForm({
           </select>
           <FieldError id={`status-${id}-error`} error={e.status} />
         </div>
-        <div className="flex min-w-0 flex-col gap-1.5">
-          <label htmlFor={`rejection-${id}`} className="text-sm font-semibold">
-            {storeTitle} rejection reason
-          </label>
-          <select id={`rejection-${id}`} name="rejection" defaultValue={v.rejection} className="input input-sm" aria-describedby={`rejection-${id}-hint`} aria-invalid={e.rejection ? true : undefined}>
-            <option value="">Not rejected</option>
-            {reasons.map((r) => (
-              <option key={r.id} value={r.id}>
-                {r.label}
-              </option>
-            ))}
-          </select>
-          <span id={`rejection-${id}-hint`} className="text-xs text-muted">
-            When rejected: the client sees what it means, what to do and where, in their language.
-          </span>
-          <FieldError id={`rejection-${id}-error`} error={e.rejection} />
-        </div>
+        {status === "rejected" ? (
+          <div className="flex min-w-0 flex-col gap-1.5">
+            <label htmlFor={`rejection-${id}`} className="text-sm font-semibold">
+              {storeTitle} rejection reason
+            </label>
+            <select id={`rejection-${id}`} name="rejection" defaultValue={v.rejection} className="input input-sm" aria-describedby={`rejection-${id}-hint`} aria-invalid={e.rejection ? true : undefined}>
+              <option value="">Choose the reason</option>
+              {reasons.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.label}
+                </option>
+              ))}
+            </select>
+            <span id={`rejection-${id}-hint`} className="text-xs text-muted">
+              The client sees what it means, what to do and where, in their language.
+            </span>
+            <FieldError id={`rejection-${id}-error`} error={e.rejection} />
+          </div>
+        ) : null}
         <div className="flex min-w-0 flex-col gap-1.5">
           <label htmlFor={`note-${id}`} className="text-sm font-semibold">
             {storeTitle} note to the client
@@ -80,7 +84,7 @@ export function TrackForm({
           <textarea
             id={`note-${id}`}
             name="note"
-            rows={3}
+            rows={2}
             maxLength={2000}
             defaultValue={v.note}
             className="input"
@@ -92,17 +96,19 @@ export function TrackForm({
           </span>
           <FieldError id={`note-${id}-error`} error={e.note} />
         </div>
-        <Field
-          id={`url-${id}`}
-          label={`${storeTitle} link`}
-          name="storeUrl"
-          type="url"
-          small
-          defaultValue={v.storeUrl}
-          placeholder={LINK_PLACEHOLDER[store]}
-          hint="The app's store page, once it's live."
-          error={e.storeUrl}
-        />
+        {showLink ? (
+          <Field
+            id={`url-${id}`}
+            label={`${storeTitle} link`}
+            name="storeUrl"
+            type="url"
+            small
+            defaultValue={v.storeUrl}
+            placeholder={LINK_PLACEHOLDER[store]}
+            hint="The app's store page, once it's live."
+            error={e.storeUrl}
+          />
+        ) : null}
       </fieldset>
       <FormMessage message={state.message} ok={state.ok} />
       {disabled ? null : (

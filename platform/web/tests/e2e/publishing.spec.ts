@@ -210,6 +210,7 @@ test("the team moves each store along, and the client is emailed", async () => {
   await admin.goto("/admin/publishing");
   // 19 The open requests are counted next to Publishing.
   await expect(admin.getByRole("navigation", { name: "Super admin" }).getByRole("link", { name: /^Publishing \d+ open requests?$/ })).toBeVisible();
+  await admin.getByRole("link", { name: "Open Franklin Lab" }).click();
   const card = admin.getByRole("region", { name: `Franklin Lab (${client.name})` });
   await expect(card).toContainText("Client ready");
   await expect(card).toContainText("Firebase project: we create it");
@@ -280,6 +281,7 @@ test("35, 36 the client adds Samsung Galaxy Store, and the team moves it along",
   await expect.poll(async () => (await mailsTo(teamEmail)).map((m) => m.subject)).toContain(`Publishing: ${client.name} asked us to publish their app on Samsung Galaxy Store too`);
 
   await admin.goto("/admin/publishing");
+  await admin.getByRole("link", { name: "Open Franklin Lab" }).click();
   const card = admin.getByRole("region", { name: `Franklin Lab (${client.name})` });
   await expect(card).toContainText("Invite our team to Seller Portal");
   await card.getByLabel("Samsung Galaxy Store status").selectOption("in_review");
@@ -308,6 +310,7 @@ test("42 the client adds Xiaomi GetApps, and the team marks it live", async () =
   await expect.poll(async () => (await mailsTo(teamEmail)).map((m) => m.subject)).toContain(`Publishing: ${client.name} asked us to publish their app on Xiaomi GetApps too`);
 
   await admin.goto("/admin/publishing");
+  await admin.getByRole("link", { name: "Open Franklin Lab" }).click();
   const card = admin.getByRole("region", { name: `Franklin Lab (${client.name})` });
   await expect(card).toContainText("Give our team access to your Xiaomi developer account");
   await card.getByLabel("Xiaomi GetApps status").selectOption("live");
@@ -423,7 +426,7 @@ test("publishing yourself after all tells the team, and the setup's Publishing s
   await expect(own.getByText("Saved: you publish Franklin Lab yourself.")).toBeVisible();
   await expect.poll(async () => (await mailsTo(teamEmail)).map((m) => m.subject)).toContain(`Publishing: ${client.name} will publish their app themselves`);
   await admin.goto("/admin/publishing");
-  await expect(admin.getByRole("region", { name: `Franklin Lab (${client.name})` })).toHaveCount(0);
+  await expect(admin.getByRole("link", { name: "Open Franklin Lab" })).toHaveCount(0);
 
   // 19 The same choice in the setup: "Publish it for me" needs no store keys.
   await own.goto("/dashboard/setup?step=publishing");
@@ -439,6 +442,7 @@ test("publishing yourself after all tells the team, and the setup's Publishing s
     .toBe(2);
 
   await admin.goto("/admin/publishing");
+  await admin.getByRole("link", { name: "Open Franklin Lab" }).click();
   const card = admin.getByRole("region", { name: `Franklin Lab (${client.name})` });
   await card.locator("summary").filter({ hasText: "History" }).click();
   await expect(card).toContainText("Will publish the app themselves");
