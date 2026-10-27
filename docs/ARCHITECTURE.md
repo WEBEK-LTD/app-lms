@@ -3231,6 +3231,14 @@ for servers only: the hosted API (`shownNow`) and the plugin
 the time of the request, for the request's platform and its
 `Accept-Language`.
 
+99.4 Five more blocks (`cards`, `gallery`, `map`, `divider`, `form`) in
+`BLOCK_DEFINITIONS`, with entry lists `cards`, `images` and `fields`. A
+form's answers by email reach `lib/hosted/pages/forms.ts`
+(`checkFormAnswers`, rate-limited per address once they pass), which
+hands them to `HostedContext.onFormAnswers` (the route emails the
+business); the plugin has its own `Form_Answers`. Answers to the chat are
+sent by the app itself as a chat message.
+
 ### One definition per block (83.1)
 
 Each block type has one definition in `lib/pages/blocks.ts`

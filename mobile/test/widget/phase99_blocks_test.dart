@@ -3,9 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/api/api_exception.dart';
 import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
-import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/core/services/external_links.dart';
 import 'package:yallapp/modules/chat/data/chat_providers.dart';
+import 'package:yallapp/modules/shared/auth/sign_in_screen.dart';
 
 import '../support/fake_api.dart';
 import '../support/fake_chat_api.dart';
@@ -75,13 +75,6 @@ Future<void> scrollTo(WidgetTester tester, Finder finder) async {
 Finder field(String id) => find.byKey(ValueKey('form-f1-$id'));
 
 final send = find.byKey(const ValueKey('form-send-f1'));
-
-String location(TestApp app) => app.container
-    .read(appRouterProvider)
-    .routerDelegate
-    .currentConfiguration
-    .uri
-    .path;
 
 void main() {
   const sizes = {'small phone': Size(320, 568), 'tablet': Size(768, 1024)};
@@ -345,9 +338,12 @@ void main() {
       );
       await app.pump(tester);
       expect(find.text('Sign in to send'), findsOneWidget);
+      await tester.ensureVisible(send);
+      await TestApp.settle(tester);
       await tester.tap(send);
       await TestApp.settle(tester);
-      expect(location(app), '/sign-in');
+      // Sign-in opens on top of the page, to come back to it.
+      expect(find.byType(SignInScreen), findsOneWidget);
     });
 
     testWidgets('signed in, one message to the business: the title, then a '

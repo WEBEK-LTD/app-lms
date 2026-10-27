@@ -1949,8 +1949,8 @@ class MapView extends ConsumerWidget {
                       // left to right in every language.
                       if (name.isEmpty && address.isEmpty)
                         Text(
-                          '⁦${block.latitude.toStringAsFixed(5)}, '
-                          '${block.longitude.toStringAsFixed(5)}⁩',
+                          '\u2066${block.latitude.toStringAsFixed(5)}, '
+                          '${block.longitude.toStringAsFixed(5)}\u2069',
                           style: TextStyle(fontSize: 14, color: p.textBody),
                         ),
                     ],
