@@ -4,6 +4,7 @@ import { encryptionKey } from "../env";
 import { serviceAccountOf } from "../hosted/notify";
 import type { sendPush, ServiceAccount } from "../hosted/push";
 import { tellCouriers, tellCustomer, type DeliveryNotifyDeps } from "./notify";
+import { courierMayHave, reviewUserId } from "./review";
 import { COURIER_ACTIVE, LIVE_STATUSES, stage } from "./service";
 import { deliverySettingsOf } from "./settings";
 
@@ -35,6 +36,12 @@ function notifyDeps(deps: FlowDeps): DeliveryNotifyDeps {
   return { store: deps.store, app: deps.app, now: deps.now, account, send: deps.send };
 }
 
+/** 104.7 The couriers on duty who may take the shipment (the review account's go to the review courier only). */
+async function waitingCouriers(deps: FlowDeps, shipment: Shipment, except: number | null = null): Promise<Courier[]> {
+  const reviewId = await reviewUserId(deps.store, deps.app);
+  return (await deps.store.listCouriers(deps.app.id)).filter((c) => c.active && c.onDuty && c.id !== except && courierMayHave(deps.app, c, shipment, reviewId));
+}
+
 async function settingsOf(deps: FlowDeps): Promise<DeliverySettings> {
   return deliverySettingsOf(await deps.store.getDeliverySettings(deps.app.id));
 }
@@ -45,8 +52,7 @@ export async function announceWaiting(deps: FlowDeps, shipment: Shipment): Promi
   await tellCustomer(n, shipment);
   const settings = await settingsOf(deps);
   if (settings.assignment !== "open") return;
-  const onDuty = (await deps.store.listCouriers(deps.app.id)).filter((c) => c.active && c.onDuty);
-  await tellCouriers(n, shipment, onDuty, "waiting");
+  await tellCouriers(n, shipment, await waitingCouriers(deps, shipment), "waiting");
 }
 
 export type MoveResult = { ok: true; shipment: Shipment } | { ok: false; reason: "changed" };
@@ -91,8 +97,7 @@ export async function moveShipment(deps: FlowDeps, shipment: Shipment, status: S
     // Back to waiting: told again only to couriers, the customer already knows it waits.
     const settings = await settingsOf(deps);
     if (settings.assignment === "open") {
-      const onDuty = (await deps.store.listCouriers(deps.app.id)).filter((c) => c.active && c.onDuty && c.id !== shipment.courierId);
-      await tellCouriers(notifyDeps(deps), saved, onDuty, "waiting");
+      await tellCouriers(notifyDeps(deps), saved, await waitingCouriers(deps, saved, shipment.courierId), "waiting");
     }
   } else {
     await tellCustomer(notifyDeps(deps), saved);

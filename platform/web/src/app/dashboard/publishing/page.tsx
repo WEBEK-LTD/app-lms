@@ -36,6 +36,9 @@ import { reviewNotesFor, suggestedReviewNotes } from "@/lib/publishing/review-no
 import { ChecklistForm, ListingForm } from "./forms";
 import { ReadySection } from "./ready";
 import { ReviewSection } from "./review-section";
+import { courierAppNameOf } from "@/lib/delivery/courier-app";
+import { reviewNotes } from "@/lib/delivery/review";
+import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { readiness } from "@/lib/publishing/readiness";
 import { REJECTION_LINK } from "@/lib/publishing/review";
 import { appUrl } from "@/lib/env";
@@ -112,6 +115,10 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
   const allowed = canUseManagedPublishing(current);
   const notIncluded = allowed ? undefined : t("publishing.notIncluded", { page: k(licensePageName(app)) });
   const autoUpload = hasFeature(current, "auto_publish");
+  // 104.7 A delivery app's notes for the reviewers of both its apps.
+  const delivery = app.appType === "delivery" ? deliverySettingsOf(await store.getDeliverySettings(app.id)) : null;
+  const notes = delivery ? reviewNotes(app, delivery) : null;
+  const deliveryNotes = notes && delivery ? { ...notes, courierName: courierAppNameOf(app, delivery) } : null;
 
   // 41 Every store Yallapp publishes to.
   // 46 Links that open the app: the Play signing fingerprint and the Team ID live on their own page.
@@ -163,7 +170,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
           />
         </div>
         {passwords}
-        <ReviewSection app={app} text={text} managed={false} />
+        <ReviewSection app={app} text={text} managed={false} delivery={deliveryNotes} />
       </>
     );
   }
@@ -200,7 +207,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
             ) : null}
           </ol>
         </section>
-        <ReviewSection app={app} text={text} managed={false} />
+        <ReviewSection app={app} text={text} managed={false} delivery={deliveryNotes} />
         <ReadySection items={readiness({ app, listing: null, ios: hasFeature(current, "ios"), managed: false, platformUrl: appUrl() })} text={text} />
         <form action={choosePublishingModeAction} className="flex flex-col gap-2 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <input type="hidden" name="mode" value="managed" />
@@ -297,7 +304,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
         </div>
       </section>
 
-      <ReviewSection app={app} text={text} managed />
+      <ReviewSection app={app} text={text} managed delivery={deliveryNotes} />
       <ReadySection items={readiness({ app, listing: request.listing, ios: hasFeature(current, "ios"), managed: true, platformUrl: appUrl() })} text={text} />
 
       {/* 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, when the client wants them too. */}

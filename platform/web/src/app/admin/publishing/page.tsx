@@ -9,6 +9,8 @@ import { getStore } from "@/lib/data";
 import { smtpConfigured } from "@/lib/mail";
 import { reviewNotesFor } from "@/lib/publishing/review-notes";
 import { reviewSignIn } from "@/lib/publishing/review-account";
+import { reviewNotes } from "@/lib/delivery/review";
+import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { encryptionKey } from "@/lib/env";
 import { REJECTION_GUIDELINE } from "@/lib/publishing/review";
 import { REJECTION_REASONS, type PublishingStore, type App, type Client, type PublishingEvent, type PublishingRequest, type User } from "@/lib/data/types";
@@ -64,7 +66,9 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
         store.listPublishingEvents(request.appId),
       ]);
       const user = client ? await store.getUserById(client.userId) : null;
-      return { request, client, user, app, events };
+      // 104.7 A delivery app's notes for the reviewers of both apps.
+      const deliveryNotes = app?.appType === "delivery" ? reviewNotes(app, deliverySettingsOf(await store.getDeliverySettings(app.id))) : null;
+      return { request, client, user, app, events, deliveryNotes };
     }),
   );
   const statuses = PUBLISHING_STATUSES.map((id) => ({ id, label: PUBLISHING_STATUS_LABEL[id] }));
@@ -200,11 +204,11 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
   );
 }
 
-type Row = { request: PublishingRequest; client: Client | null; user: User | null; app: App | null; events: PublishingEvent[] };
+type Row = { request: PublishingRequest; client: Client | null; user: User | null; app: App | null; events: PublishingEvent[]; deliveryNotes: { customer: string; courier: string | null } | null };
 
 /** One request: what the client did and gave, each store's status, the team's notes and the history. */
 function RequestDetail({ row, statuses, mayManage }: { row: Row; statuses: { id: string; label: string }[]; mayManage: boolean }) {
-  const { request, client, user, app, events } = row;
+  const { request, client, user, app, events, deliveryNotes } = row;
   const progress = app ? checklistProgress(request, app) : { done: 0, total: 0, complete: false };
   const missing = app ? listingMissing(app, request.listing) : [];
   const name = appLabel(app);
@@ -277,7 +281,7 @@ function RequestDetail({ row, statuses, mayManage }: { row: Row; statuses: { id:
               </dl>
             </details>
             {/* 102 The sign-in the team enters in Play Console (App access) and App Store Connect (App Review Information). */}
-            <ReviewSignIn app={app} />
+            <ReviewSignIn app={app} delivery={deliveryNotes} />
           </div>
           <TeamNotesForm appId={request.appId} current={request.teamNotes ?? ""} disabled={!mayManage} />
         </div>
@@ -337,7 +341,7 @@ function RequestDetail({ row, statuses, mayManage }: { row: Row; statuses: { id:
 }
 
 /** 102 The reviewers' sign-in, the password or code shown only when opened. */
-function ReviewSignIn({ app }: { app: App | null }) {
+function ReviewSignIn({ app, delivery }: { app: App | null; delivery: { customer: string; courier: string | null } | null }) {
   const signIn = app ? reviewSignIn(app, encryptionKey()) : null;
   if (!signIn) return <p className="m-0 text-sm font-semibold text-danger">Store review account: missing</p>;
   return (
@@ -354,6 +358,18 @@ function ReviewSignIn({ app }: { app: App | null }) {
           <>
             <dt className="text-muted">Notes</dt>
             <dd className="m-0 whitespace-pre-line">{signIn.notes}</dd>
+          </>
+        ) : null}
+        {delivery ? (
+          <>
+            <dt className="text-muted">Notes (customers&apos; app)</dt>
+            <dd className="m-0 whitespace-pre-line">{delivery.customer}</dd>
+          </>
+        ) : null}
+        {delivery?.courier ? (
+          <>
+            <dt className="text-muted">Notes (courier app)</dt>
+            <dd className="m-0 whitespace-pre-line">{delivery.courier}</dd>
           </>
         ) : null}
       </dl>

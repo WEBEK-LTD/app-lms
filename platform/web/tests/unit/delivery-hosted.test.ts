@@ -8,6 +8,7 @@ import { parseCourierForm, parseDeliverySettings, parseServiceForm, parseZones, 
 import { coordinatesIn, isMapsLink, locateMapLink } from "@/lib/delivery/locate";
 import { deliveryServicePageItems } from "@/lib/delivery/page-items";
 import { distanceKm, quoteShipment } from "@/lib/delivery/pricing";
+import { reviewNotes } from "@/lib/delivery/review";
 import { shipmentIdOf, shipmentReference } from "@/lib/delivery/service";
 import { DEFAULT_DELIVERY_SETTINGS, pricesSet } from "@/lib/delivery/settings";
 import { DeliveryConnector } from "@/lib/hosted/connectors/delivery";
@@ -341,6 +342,60 @@ describe("104 delivery apps on the hosted API", () => {
     expect(((await call("GET", "/courier/jobs", { token: omar.access_token, query: { scope: "done" } })).body as { total: number }).total).toBe(1);
     const told = await store.listHostedNotifications({ appId: app.id, userId: customer.user.id, since: new Date(0), page: 1, perPage: 20 });
     expect(told.items.map((n) => n.title).reverse()).toEqual(["We got your shipment", "A courier has your shipment", "Your parcel was picked up", "Your parcel is on the way", "Delivered"]);
+  });
+
+  it("104.7 makes the store review account a test courier with its own parcels and a sample job", async () => {
+    app = { ...app, hostedSettings: { ...app.hostedSettings!, reviewPhone: "+201009990000", reviewCode: "424242" } };
+    await store.updateApp(app.id, { hostedSettings: app.hostedSettings }, NOW);
+    await store.saveDeliverySettings(app.id, { ...SETTINGS, assignment: "open", courierApp: "bundle" }, NOW);
+    await store.createCourier({ appId: app.id, name: "Omar Said", phone: "+201005556666", email: null, vehicle: null, active: true }, NOW);
+    const customer = await signUp("1001112222", "Karim Hassan");
+    const omar = await signUp("1005556666", "Omar");
+    // The reviewers sign in with the fixed code; no message is sent.
+    now = new Date(now.getTime() + 61_000);
+    const requested = await call("POST", "/auth/otp/request", { body: { country_code: "+20", phone: "1009990000" } });
+    const requestId = (requested.body as { request_id: string }).request_id;
+    expect(sender.sent.has("+201009990000")).toBe(false);
+    const verified = await call("POST", "/auth/otp/verify", { body: { request_id: requestId, code: "424242", device: { ...DEVICE, id: "install-review" } } });
+    const signupToken = (verified.body as { signup_token: string }).signup_token;
+    const reviewer = (await call("POST", "/auth/register", { body: { signup_token: signupToken, name: "Reviewer", device: { ...DEVICE, id: "install-review" } } })).body as { access_token: string };
+    // A courier from the start, named for what it is.
+    expect(((await call("GET", "/me", { token: reviewer.access_token })).body as { roles: string[] }).roles).toEqual(["courier"]);
+    expect((await call("GET", "/courier/me", { token: reviewer.access_token })).body).toMatchObject({ name: "App Review", phone: "+201009990000" });
+
+    // With nothing to do, a sample job is given to it, and only one at a time.
+    const active = (await call("GET", "/courier/jobs", { token: reviewer.access_token, query: { scope: "active" } })).body as { items: { id: number; status: string }[] };
+    expect(active.items).toEqual([expect.objectContaining({ status: "assigned" })]);
+    expect(((await call("GET", "/courier/jobs", { token: reviewer.access_token, query: { scope: "active" } })).body as { total: number }).total).toBe(1);
+    const sample = active.items[0]!.id;
+    for (const status of ["picked_up", "on_the_way", "delivered"]) {
+      expect((await call("POST", "/courier/jobs/{shipment_id}/status", { params: [String(sample)], token: reviewer.access_token, body: { status } })).status).toBe(200);
+    }
+    // The company's couriers never see it.
+    expect((await call("GET", "/courier/jobs/{shipment_id}", { params: [String(sample)], token: omar.access_token })).status).toBe(404);
+
+    // The reviewers' own parcels go to the review courier only, a customer's never.
+    for (const token of [omar.access_token, reviewer.access_token]) await call("PATCH", "/courier/me", { token, body: { on_duty: true } });
+    const own = ((await send(reviewer.access_token)).body as { shipment: { id: number } }).shipment.id;
+    const real = ((await send(customer.access_token)).body as { shipment: { id: number } }).shipment.id;
+    const waiting = async (token: string) => ((await call("GET", "/courier/jobs", { token, query: { scope: "available" } })).body as { items: { id: number }[] }).items.map((j) => j.id);
+    expect(await waiting(omar.access_token)).toEqual([real]);
+    expect(await waiting(reviewer.access_token)).toEqual([own]);
+    expect((await call("POST", "/courier/jobs/{shipment_id}/accept", { params: [String(own)], token: omar.access_token })).status).toBe(404);
+    expect((await call("POST", "/courier/jobs/{shipment_id}/accept", { params: [String(real)], token: reviewer.access_token })).status).toBe(404);
+    expect((await call("POST", "/courier/jobs/{shipment_id}/accept", { params: [String(own)], token: reviewer.access_token })).status).toBe(200);
+    // Only the review courier heard of the reviewers' parcel.
+    const omarUser = (await store.getHostedUserByPhone(app.id, "+201005556666"))!;
+    const toldOmar = await store.listHostedNotifications({ appId: app.id, userId: omarUser.id, since: new Date(0), page: 1, perPage: 20 });
+    expect(toldOmar.items).toHaveLength(1);
+
+    // The notes for both apps' reviewers.
+    const notes = reviewNotes(app, { courierApp: "bundle", courierAppName: null, assignment: "open" })!;
+    expect(notes.customer).toContain("+201009990000");
+    expect(notes.customer).toContain("424242");
+    expect(notes.courier).toContain("Nile Express Courier is for Nile Express's couriers only");
+    expect(reviewNotes(app, { courierApp: "same", courierAppName: null, assignment: "open" })!.courier).toBeNull();
+    expect(reviewNotes({ ...app, hostedSettings: { ...app.hostedSettings!, reviewCode: null } }, { courierApp: "same", courierAppName: null, assignment: "open" })).toBeNull();
   });
 
   it("gives a card shipment a payment page, and sends it to couriers once paid", async () => {

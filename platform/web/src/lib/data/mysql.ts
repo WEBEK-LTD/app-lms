@@ -2803,6 +2803,7 @@ export class MysqlStore implements DataStore {
     const where = and(
       eq(t.appId, query.appId),
       query.userId !== undefined ? eq(t.userId, query.userId) : undefined,
+      query.notUserId !== undefined ? or(isNull(t.userId), ne(t.userId, query.notUserId)) : undefined,
       query.courierId !== undefined ? eq(t.courierId, query.courierId) : undefined,
       query.statuses ? inArray(t.status, query.statuses) : undefined,
       query.unassigned ? isNull(t.courierId) : undefined,
