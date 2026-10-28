@@ -396,6 +396,10 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await expect(own).toHaveURL(/\/studio\/project$/);
   await expect(own.getByRole("heading", { level: 1, name: "Spring Studio" })).toBeVisible();
   await expect(own.getByRole("heading", { name: "Before you publish" })).toBeVisible();
+  // Its home starts from the template chosen: designed already, the rest of the steps to go.
+  const checklist = own.getByRole("list").filter({ hasText: "Design the pages in the editor" });
+  await expect(checklist.getByRole("listitem").filter({ hasText: "Design the pages in the editor" }).getByRole("link")).toHaveCount(0);
+  await expect(checklist.getByRole("listitem").filter({ hasText: "Choose one of Studio's plans" }).getByRole("link", { name: "Plans" })).toBeVisible();
   await expect(own.getByRole("navigation", { name: "Project dashboard" }).getByRole("link", { name: "Overview" })).toHaveAttribute("aria-current", "page");
   // The dashboard's pages open in Studio's frame for a Studio project, and its plans are Studio's.
   await own.goto("/dashboard/license");

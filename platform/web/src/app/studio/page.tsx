@@ -29,7 +29,7 @@ export default async function StudioHomePage() {
   const sourceWord = (card: Awaited<ReturnType<typeof studioProjectCard>>) =>
     card.source.key === "platform"
       ? card.source.name
-      : t(({ catalog: "studio.srcCatalogShort", wordpress: "studio.srcWordpress", shopify: "studio.srcShopify", custom_api: "studio.srcApi" } as const)[card.source.key]);
+      : t(({ catalog: "studio.srcCatalogShort", wordpress: "studio.srcWordpress", shopify: "studio.srcShopify", custom_api: "studio.srcApi", none: "studio.srcNone" } as const)[card.source.key]);
   const cards: ProjectCardView[] = await Promise.all(
     projects.map(async (app) => {
       const card = await studioProjectCard(store, app, context.licenses.find((l) => l.appId === app.id) ?? null, plans, now);

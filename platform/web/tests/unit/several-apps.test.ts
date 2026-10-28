@@ -90,6 +90,19 @@ describe("several apps in the memory store", () => {
     expect(await setup.store.listPlanPayments({ appId: second.id, limit: 5 })).toEqual([]);
   });
 
+  it("103R.3 leaves what came before the first app to the first regular app, never to a Studio project", async () => {
+    const setup = await setupClient();
+    const before = (await setup.store.getLicenseForApp(setup.client.id, null))!;
+    expect(before.appId).toBeNull();
+    const project = { ...app(setup.client.id, "Studio", NOW), section: "studio" as const };
+    await setup.store.createApp(project);
+    expect(await setup.store.getLicenseForApp(setup.client.id, project.id)).toBeNull();
+    expect(await setup.store.getLicenseForApp(setup.client.id, null)).toMatchObject({ id: before.id });
+    const regular = app(setup.client.id, "Regular", days(1));
+    await setup.store.createApp(regular);
+    expect(await setup.store.getLicenseForApp(setup.client.id, regular.id)).toMatchObject({ id: before.id, appId: regular.id });
+  });
+
   it("keeps one license per app, and never answers with another client's", async () => {
     const { store, client, first, second } = await twoApps();
     const license = (await store.getLicenseForApp(client.id, first.id))!;

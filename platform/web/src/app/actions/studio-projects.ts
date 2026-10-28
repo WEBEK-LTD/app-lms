@@ -90,12 +90,13 @@ export async function createStudioProjectAction(formData: FormData): Promise<voi
     w: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: name }),
   });
   const pages = layout.pages.some((p) => p.slug === "home")
-    ? layout.pages.map((p) => (p.slug === "home" ? { ...p, studio: home } : p))
+    ? layout.pages.map((p) => (p.slug === "home" ? { ...p, blocks: [], studio: home } : p))
     : [{ slug: "home", title: "Home", show_title: false, updated_at: now.toISOString(), blocks: [], studio: home }, ...layout.pages];
   const saved = await saveDraft(store, app, { ...layout, pages }, now);
   // The ready-made pages then; the project is made all the same.
   if (!saved.ok) console.error("[studio] new project draft", saved.errors.slice(0, 3).join("; "));
   await recordStaffChange({ ...context, app }, `Added a Studio project: ${kind.name}`, { appType: null }, { appType: kind.engine, vertical: kind.vertical, section: "studio" });
   revalidatePath("/studio", "layout");
-  redirect("/studio/project");
+  // Content kept in Yallapp is ready; a website, platform or API is connected next.
+  redirect(source === "catalog" ? "/studio/project" : "/studio/project/setup?step=website");
 }

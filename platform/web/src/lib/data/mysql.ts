@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, getTableColumns, gt, gte, inArray, isNotNull, isNull, like, lt, lte, not, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, getTableColumns, gt, gte, inArray, isNotNull, isNull, like, lt, lte, ne, not, or, sql } from "drizzle-orm";
 import { drizzle, type MySql2Database } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import type { DatabaseConfig } from "../env";
@@ -464,9 +464,10 @@ export class MysqlStore implements DataStore {
       db.transaction(async (tx) => {
         // Locks the account's row, so two apps created at once can't both be "the first".
         await tx.select({ id: schema.clients.id }).from(schema.clients).where(eq(schema.clients.id, app.clientId)).for("update");
-        const [existing] = await tx.select({ n: count() }).from(schema.apps).where(eq(schema.apps.clientId, app.clientId));
+        // 103R.3 A Studio project is on Studio's own plans: only the first regular app takes what came before it.
+        const [existing] = await tx.select({ n: count() }).from(schema.apps).where(and(eq(schema.apps.clientId, app.clientId), ne(schema.apps.section, "studio")));
         await tx.insert(schema.apps).values(app);
-        if (Number(existing?.n ?? 0) > 0) return;
+        if (app.section === "studio" || Number(existing?.n ?? 0) > 0) return;
         // The account's first app takes what was paid and given before it existed.
         await tx
           .update(schema.licenses)

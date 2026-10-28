@@ -65,7 +65,9 @@ describe("103R.3 Studio's own section", () => {
   });
 
   it("names where a project's content comes from", () => {
-    expect(projectSource({ backend: "wordpress", connector: null })).toEqual({ key: "wordpress" });
+    expect(projectSource({ backend: "wordpress", connector: null, websiteDoneAt: new Date() })).toEqual({ key: "wordpress" });
+    // A website or API not connected yet.
+    expect(projectSource({ backend: "wordpress", connector: null, websiteDoneAt: null })).toEqual({ key: "none" });
     expect(projectSource({ backend: "custom_api", connector: null })).toEqual({ key: "custom_api" });
     expect(projectSource({ backend: "hosted", connector: { kind: "catalog" } })).toEqual({ key: "catalog" });
     expect(projectSource({ backend: "hosted", connector: { kind: "shopify", shopDomain: "x.myshopify.com", storefrontTokenEncrypted: "e" } })).toEqual({ key: "shopify" });

@@ -17,6 +17,7 @@ fixed size, light and dark, with motion. Done:
 - the editor at `/studio/editor`, as in the approved design;
 - serving by the hosted API and plugin 0.4.26, with forms on a Studio page
   answered like the form block;
+<<<<<<< HEAD
 - the app drawing the tree natively;
 - Studio's own section of the account: its home with the projects, a new
   project in three steps and each project's dashboard, as the owner
@@ -28,6 +29,15 @@ until then a project designs and tries everything, and publishing it to
 the stores waits for a plan. Checks: redocly lint, platform unit tests, e2e
 of Studio's section and editor, composer lint, plugin unit tests, flutter
 analyze and widget tests.
+=======
+- the app drawing the tree natively.
+
+Studio's own section (home, projects, its plans in the admin) waits on the
+owner's design approval. Studio is the plan feature `studio`, off on every
+plan; until it is on, a Studio page isn't served. Checks: redocly lint,
+platform unit tests, e2e of the editor, composer lint, plugin unit tests,
+flutter analyze and widget tests.
+>>>>>>> origin/main
 
 Phase 102 (a store review account in every app, required) is complete:
 Publishing › Store review account holds the reviewers' sign-in for every

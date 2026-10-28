@@ -16,7 +16,7 @@ import type { StudioLook } from "@/components/studio/view";
  * plan, whether they are published, and their home page as drawn in Studio.
  */
 
-export type ProjectSource = { key: "catalog" | "wordpress" | "shopify" | "custom_api" } | { key: "platform"; name: string };
+export type ProjectSource = { key: "catalog" | "wordpress" | "shopify" | "custom_api" | "none" } | { key: "platform"; name: string };
 
 export interface StudioProjectCard {
   id: string;
@@ -35,8 +35,9 @@ export interface StudioProjectCard {
   languages: number;
 }
 
-/** Where a project's content comes from. */
-export function projectSource(app: Pick<App, "backend" | "connector">): ProjectSource {
+/** Where a project's content comes from; "none" before its website or API is connected. */
+export function projectSource(app: Pick<App, "backend" | "connector"> & { websiteDoneAt?: Date | null }): ProjectSource {
+  if (app.backend !== "hosted" && app.websiteDoneAt === null) return { key: "none" };
   if (app.backend === "custom_api") return { key: "custom_api" };
   if (app.backend !== "hosted") return { key: "wordpress" };
   if (app.connector?.kind === "shopify") return { key: "shopify" };

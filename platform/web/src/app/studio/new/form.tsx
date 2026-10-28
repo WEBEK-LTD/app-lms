@@ -107,7 +107,7 @@ export function NewProjectForm({ studioKinds, kinds, error }: { studioKinds: Stu
                 return (
                   <label
                     key={k.id}
-                    className={`relative flex flex-col gap-1.5 rounded-[14px] p-3.5 ${k.soon ? "" : "cursor-pointer"}`}
+                    className={`relative flex flex-col items-start gap-1.5 rounded-[14px] p-3.5 ${k.soon ? "" : "cursor-pointer"}`}
                     style={
                       on
                         ? { border: `2px solid ${C.accent}`, background: "#FFF2EC" }
