@@ -70,7 +70,7 @@ export default async function TeamPage({ searchParams }: PageProps<"/admin/team"
       </section>
 
       <div className="flex flex-wrap items-start gap-5">
-        <section aria-label="Team members" className="min-w-0 flex-[999_1_560px] overflow-x-auto rounded-2xl border border-line bg-white">
+        <section aria-label="Team members" className="relative min-w-0 flex-[999_1_560px] overflow-x-auto rounded-2xl border border-line bg-white">
           <table className="w-full min-w-[640px] border-collapse text-sm">
             <thead>
               <tr className="bg-sand text-left text-muted">

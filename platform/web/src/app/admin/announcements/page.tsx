@@ -45,7 +45,7 @@ export default async function AnnouncementsPage({ searchParams }: PageProps<"/ad
           Announcement deleted.
         </Notice>
       ) : null}
-      <section aria-label="Announcements" className="overflow-x-auto rounded-2xl border border-line bg-white">
+      <section aria-label="Announcements" className="relative overflow-x-auto rounded-2xl border border-line bg-white">
         {announcements.length === 0 ? (
           <p className="m-0 p-6 text-[15px] text-muted">No announcements yet.</p>
         ) : (

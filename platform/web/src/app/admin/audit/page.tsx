@@ -116,7 +116,7 @@ export default async function AuditPage({ searchParams }: PageProps<"/admin/audi
         </p>
       ) : null}
 
-      <section aria-label="Log entries" className="overflow-x-auto rounded-2xl border border-line bg-white">
+      <section aria-label="Log entries" className="relative overflow-x-auto rounded-2xl border border-line bg-white">
         {items.length === 0 ? (
           <p className="m-0 p-6 text-[15px] text-muted">No entries match.</p>
         ) : (

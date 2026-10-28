@@ -218,7 +218,7 @@ export default async function OverviewPage({ searchParams }: PageProps<"/admin">
                 />
               ))}
             </div>
-            <div className="overflow-x-auto rounded-2xl border border-line bg-white">
+            <div className="relative overflow-x-auto rounded-2xl border border-line bg-white">
               <table className="w-full min-w-[560px] border-collapse text-sm">
                 <caption className="sr-only">Revenue per month</caption>
                 <thead>

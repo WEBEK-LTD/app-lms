@@ -395,7 +395,7 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
         {errors.length === 0 ? (
           <p className="m-0 text-sm text-muted">Nothing failed for this client&apos;s apps in the last {APP_ERROR_DAYS} days.</p>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="relative overflow-x-auto">
             <table className="w-full min-w-[640px] border-collapse text-sm">
               <caption className="sr-only">Errors of the client&apos;s apps</caption>
               <thead>
@@ -644,7 +644,7 @@ async function AppEntry({
           {builds.length === 0 ? (
             <p className="m-0 text-sm text-muted">No builds yet.</p>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="relative overflow-x-auto">
               <table className="w-full min-w-[640px] border-collapse text-sm">
                 <thead>
                   <tr className="bg-sand text-left text-muted">

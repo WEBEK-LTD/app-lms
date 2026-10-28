@@ -161,7 +161,7 @@ export default async function InvoicesPage({ searchParams }: PageProps<"/admin/i
             ))}
           </nav>
         </div>
-        <div className="overflow-x-auto rounded-2xl border border-line bg-white">
+        <div className="relative overflow-x-auto rounded-2xl border border-line bg-white">
           {invoices.length === 0 ? (
             <p className="m-0 p-6 text-[15px] text-muted">No invoices{filter === "all" ? "" : " of this kind"} yet.</p>
           ) : (

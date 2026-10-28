@@ -34,7 +34,7 @@ export default async function CouponsPage() {
           New coupon
         </Link>
       </div>
-      <section aria-label="Coupons" className="overflow-x-auto rounded-2xl border border-line bg-white">
+      <section aria-label="Coupons" className="relative overflow-x-auto rounded-2xl border border-line bg-white">
         {coupons.length === 0 ? (
           <p className="m-0 p-6 text-[15px] text-muted">No coupons yet.</p>
         ) : (

@@ -60,7 +60,7 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/admin/p
           Plans paid by card into Yallapp&apos;s account (iyzico, Kashier, Fawaterk, Stripe or PayPal), each for one app. A paid one activates that app or extends its license at once.
         </span>
       </div>
-      <section aria-label="Card payments" className="overflow-x-auto rounded-2xl border border-line bg-white">
+      <section aria-label="Card payments" className="relative overflow-x-auto rounded-2xl border border-line bg-white">
         {payments.length === 0 ? (
           <p className="m-0 p-6 text-[15px] text-muted">No card payments yet. Set Yallapp&apos;s Kashier account in Settings and a price in Plans.</p>
         ) : (
@@ -150,7 +150,7 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/admin/p
           iyzico didn&apos;t release the payout. Check the order in the iyzico merchant panel.
         </Notice>
       ) : null}
-      <section aria-label="Shop sales" className="overflow-x-auto rounded-2xl border border-line bg-white">
+      <section aria-label="Shop sales" className="relative overflow-x-auto rounded-2xl border border-line bg-white">
         {sales.length === 0 ? (
           <p className="m-0 p-6 text-[15px] text-muted">No shop sales through Yallapp yet.</p>
         ) : (

@@ -35,7 +35,7 @@ export default async function ReleasesPage() {
           <ReleaseForm />
         </section>
 
-        <section aria-labelledby="h-releases" className="min-w-0 flex-[2_1_480px] overflow-x-auto rounded-2xl border border-line bg-white">
+        <section aria-labelledby="h-releases" className="relative min-w-0 flex-[2_1_480px] overflow-x-auto rounded-2xl border border-line bg-white">
           <h2 id="h-releases" className="m-0 border-b border-line-soft px-5 py-4 text-[19px] font-bold">
             Plugin releases
           </h2>
