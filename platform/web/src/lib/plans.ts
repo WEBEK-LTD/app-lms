@@ -21,7 +21,9 @@ export const REGULAR_PLANS = ["starter", "growth", "pro", "business"] as const;
  * offered by the team in Admin › Plans › Yallapp Studio. A Studio project is
  * paid on a Studio plan only, a regular app on a regular plan only.
  */
-export const STUDIO_PLANS = ["studio_1", "studio_2", "studio_3"] as const;
+export const STUDIO_PLANS = ["studio_1", "studio_2", "studio_3", "studio_4", "studio_5", "studio_6", "studio_7", "studio_8"] as const;
+/** 103R The Studio plans Admin › Plans always shows; the team adds the others one at a time. */
+export const STUDIO_PLANS_SHOWN = 3;
 /** Every plan a license can be on. */
 export const PLANS = [...REGULAR_PLANS, ...STUDIO_PLANS] as const;
 export type Plan = (typeof PLANS)[number];
@@ -44,7 +46,12 @@ export function plansOfFamily(family: PlanFamily): readonly Plan[] {
 export const FEATURED_PLAN: Plan = "growth";
 
 /** Lower to higher within a family: an upgrade moves up, a downgrade down. */
-export const PLAN_RANK: Record<Plan, number> = { starter: 0, growth: 1, pro: 2, business: 3, studio_1: 0, studio_2: 1, studio_3: 2 };
+/** 103R The plans of a family the team can give: Studio's first three and those it added (saved in Admin › Plans), and the app's own. */
+export function plansShown(family: PlanFamily, saved: Partial<Record<string, unknown>> | null | undefined, current?: Plan): Plan[] {
+  return plansOfFamily(family).filter((p, i) => family !== "studio" || i < STUDIO_PLANS_SHOWN || Boolean(saved?.[p]) || p === current);
+}
+
+export const PLAN_RANK: Record<Plan, number> = { starter: 0, growth: 1, pro: 2, business: 3, studio_1: 0, studio_2: 1, studio_3: 2, studio_4: 3, studio_5: 4, studio_6: 5, studio_7: 6, studio_8: 7 };
 
 /**
  * Features a plan has or hasn't. They are also the license features the
@@ -261,6 +268,12 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
   studio_1: studioPlan("studio_1", "Studio plan 1"),
   studio_2: studioPlan("studio_2", "Studio plan 2"),
   studio_3: studioPlan("studio_3", "Studio plan 3"),
+  // Added by the team from Admin › Plans › Yallapp Studio.
+  studio_4: studioPlan("studio_4", "Studio plan 4"),
+  studio_5: studioPlan("studio_5", "Studio plan 5"),
+  studio_6: studioPlan("studio_6", "Studio plan 6"),
+  studio_7: studioPlan("studio_7", "Studio plan 7"),
+  studio_8: studioPlan("studio_8", "Studio plan 8"),
 };
 
 function studioPlan(id: StudioPlan, name: string): PlanInfo {

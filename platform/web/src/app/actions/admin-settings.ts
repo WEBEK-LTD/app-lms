@@ -31,6 +31,8 @@ import {
   planPriceOf,
   planSettingOf,
   plansWith,
+  STUDIO_PLANS,
+  STUDIO_PLANS_SHOWN,
   SUPPORT_LEVELS,
   type Plan,
   type PlanInfo,
@@ -475,7 +477,7 @@ export async function saveStudioPlanAction(_: FormState, formData: FormData): Pr
   const plan = str(formData, "plan");
   if (!isPlan(plan) || planFamily(plan) !== "studio") return { message: "Unknown plan." };
   const values: Record<string, string> = {};
-  for (const name of ["name", "egpPrice", "usdPrice", "months", "studioPages"]) values[name] = str(formData, name);
+  for (const name of ["name", "egpPrice", "usdPrice", "months", "studioPages", "storageGb"]) values[name] = str(formData, name);
   const offered = formData.get("offered") === "on";
   values.offered = offered ? "on" : "";
   const chosen = formData.getAll("features").map(String);
@@ -497,6 +499,8 @@ export async function saveStudioPlanAction(_: FormState, formData: FormData): Pr
   if (values.months !== "1" && values.months !== "12") errors.months = "Choose monthly or yearly.";
   const pages = readLimit(values.studioPages!);
   if (pages === undefined || (pages !== null && (pages < 1 || pages > 20))) errors.studioPages = "Enter 1 to 20 pages, or leave it empty for no limit.";
+  const storage = readLimit(values.storageGb!);
+  if (storage === undefined || (storage !== null && (storage < 1 || storage > 100_000))) errors.storageGb = "Enter the storage in GB, like 20, or leave it empty for unlimited.";
   if (Object.keys(errors).length) return { errors, values };
   const features = [...STUDIO_BASE_FEATURES, ...STUDIO_PLAN_CHOICES.filter((f) => chosen.includes(f))];
   const setting: PlanSetting = {
@@ -508,7 +512,7 @@ export async function saveStudioPlanAction(_: FormState, formData: FormData): Pr
     // Without a price in pounds it can't be paid by card: the team activates it.
     onRequest: priceCents === null,
     billingMonths: values.months === "1" ? 1 : 12,
-    limits: { ...info.limits, studioPages: pages ?? null },
+    limits: { ...info.limits, studioPages: pages ?? null, storageGb: storage ?? null },
     offered: true,
   };
   delete setting.currency;
@@ -522,6 +526,41 @@ export async function saveStudioPlanAction(_: FormState, formData: FormData): Pr
   await revalidatePlans();
   revalidatePath("/studio", "layout");
   return { ok: true, message: `${setting.name} saved. Studio projects can choose it now.` };
+}
+
+/**
+ * 103R Adds the next Studio plan to Admin › Plans (beyond the three always
+ * shown), not offered and without a price until the team sets them.
+ */
+export async function addStudioPlanAction(): Promise<void> {
+  const admin = await requireAdmin("plans.edit");
+  const store = await getStore();
+  const saved = (await platformSetting(store, "plans", { fresh: true }))?.value ?? {};
+  const next = STUDIO_PLANS.slice(STUDIO_PLANS_SHOWN).find((id) => !saved[id]);
+  if (!next) return;
+  const info = PLAN_INFO[next];
+  const setting: PlanSetting = { ...planSettingOf(info), offered: false };
+  await save("plans", { ...saved, [next]: setting }, admin, { action: "plan.save", target: { type: "plan", id: next }, summary: `Added ${info.name}`, before: null, after: setting });
+  await revalidatePlans();
+}
+
+/** 103R Takes an added Studio plan off Admin › Plans while it isn't offered and no app is on it. */
+export async function removeStudioPlanAction(formData: FormData): Promise<void> {
+  const admin = await requireAdmin("plans.edit");
+  const plan = str(formData, "plan");
+  if (!isPlan(plan) || planFamily(plan) !== "studio" || (STUDIO_PLANS as readonly string[]).indexOf(plan) < STUDIO_PLANS_SHOWN) return;
+  const store = await getStore();
+  const saved = (await platformSetting(store, "plans", { fresh: true }))?.value ?? {};
+  if (saved[plan]?.offered || (await studioPlanInUse(plan))) return;
+  const { [plan]: removed, ...rest } = saved;
+  await save("plans", Object.keys(rest).length ? rest : null, admin, { action: "plan.reset", target: { type: "plan", id: plan }, summary: `Removed ${plan}`, before: removed ?? null, after: null });
+  await revalidatePlans();
+}
+
+/** Whether a license is on the plan, now or next. */
+async function studioPlanInUse(plan: Plan): Promise<boolean> {
+  const store = await getStore();
+  return (await store.listLicenses()).some((l) => l.plan === plan || l.nextPlan === plan);
 }
 
 /** "" or "unlimited" is no limit; otherwise a whole number up to 10,000,000. */

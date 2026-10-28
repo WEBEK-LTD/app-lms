@@ -24,7 +24,7 @@ const DEVICE = { id: "install-1", platform: "android", name: "Pixel 8", app_vers
 describe("13.1 plans", () => {
   it("has four tiers, each a step up", () => {
     // 103R.3 Then Yallapp Studio's own plans.
-    expect(Object.keys(PLAN_INFO)).toEqual(["starter", "growth", "pro", "business", "studio_1", "studio_2", "studio_3"]);
+    expect(Object.keys(PLAN_INFO)).toEqual(["starter", "growth", "pro", "business", "studio_1", "studio_2", "studio_3", "studio_4", "studio_5", "studio_6", "studio_7", "studio_8"]);
     expect(PLAN_INFO.starter.features).toEqual(["push"]);
     expect(PLAN_INFO.starter.limits).toMatchObject({ appUsers: 1000, languages: 1, sources: 1 });
     expect(PLAN_INFO.growth.limits).toMatchObject({ appUsers: 10000, languages: 3 });

@@ -10,7 +10,7 @@ import { isStudioProject, studioPathFor, studioSourcesFor } from "@/lib/studio/s
 describe("103R.3 Studio's own plans", () => {
   it("keeps the two families apart", () => {
     expect(plansOfFamily("regular")).toEqual(["starter", "growth", "pro", "business"]);
-    expect(plansOfFamily("studio")).toEqual(["studio_1", "studio_2", "studio_3"]);
+    expect(plansOfFamily("studio")).toEqual(["studio_1", "studio_2", "studio_3", "studio_4", "studio_5", "studio_6", "studio_7", "studio_8"]);
     expect(planFamily("pro")).toBe("regular");
     expect(planFamily("studio_2")).toBe("studio");
     expect(planFitsSection("growth", undefined)).toBe(true);

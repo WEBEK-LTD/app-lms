@@ -377,8 +377,20 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await studioPlan.getByLabel("Price (EGP)").fill("500");
   await studioPlan.getByLabel("Motion in the editor").check();
   await studioPlan.getByLabel("Pages per project").fill("5");
+  // Each Studio plan has its own storage.
+  await expect(studioPlan.getByLabel("Storage (GB)")).toHaveValue("20");
+  await studioPlan.getByLabel("Storage (GB)").fill("30");
   await studioPlan.getByRole("button", { name: "Save plan" }).click();
   await expect(admin.getByText("Studio Start saved. Studio projects can choose it now.")).toBeVisible();
+  await admin.reload();
+  await expect(studioPlan.getByLabel("Storage (GB)")).toHaveValue("30");
+  // The team adds plans past the first three, and takes off one no app is on.
+  await expect(admin.locator('[data-studio-plan="studio_4"]')).toHaveCount(0);
+  await admin.getByRole("button", { name: "Add a Studio plan" }).click();
+  const added = admin.locator('[data-studio-plan="studio_4"]');
+  await expect(added.getByRole("heading", { name: "Studio plan 4" })).toBeVisible();
+  await added.getByRole("button", { name: "Remove plan" }).click();
+  await expect(added).toHaveCount(0);
 
   // 103R.3 Studio's home: the account's Studio projects only.
   await own.goto("/studio");

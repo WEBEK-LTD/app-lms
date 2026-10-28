@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { resetPlanAction } from "@/app/actions/admin-settings";
+import { addStudioPlanAction, resetPlanAction } from "@/app/actions/admin-settings";
 import { SubmitButton } from "@/components/form";
 import { ReadOnly } from "@/components/read-only";
 import { can } from "@/lib/admin/permissions";
@@ -8,7 +8,7 @@ import { centsToDecimal } from "@/lib/catalog/money";
 import { getStore } from "@/lib/data";
 import type { SwitchesSetting } from "@/lib/data/types";
 import Link from "next/link";
-import { PLAN_FEATURES, PLAN_LIMITS, planPrice, REGULAR_PLANS, STUDIO_ONLY_FEATURES, STUDIO_PLAN_CHOICES, STUDIO_PLANS, SUPPORT_LABEL, SUPPORT_LEVELS, type Plan, type PlanInfo } from "@/lib/plans";
+import { PLAN_FEATURES, PLAN_LIMITS, planPrice, REGULAR_PLANS, STUDIO_ONLY_FEATURES, STUDIO_PLAN_CHOICES, STUDIO_PLANS, STUDIO_PLANS_SHOWN, SUPPORT_LABEL, SUPPORT_LEVELS, type Plan, type PlanInfo } from "@/lib/plans";
 import { getPlans, platformSetting, yallappBilling } from "@/lib/settings/platform";
 import { formatMoney, usdCentsOf } from "@/lib/billing/prices";
 import { getSwitches, LICENSE_FEATURE_SWITCHES, switchGroups, switchKey } from "@/lib/switches";
@@ -32,6 +32,9 @@ export default async function PlansPage({ searchParams }: PageProps<"/admin/plan
     yallappBilling(store, { fresh: true }),
     platformSetting(store, "storagePacks", { fresh: true }),
   ]);
+  // 103R The Studio plans: the first three, and those the team added (each saved once added).
+  const studioShown = STUDIO_PLANS.filter((id, i) => i < STUDIO_PLANS_SHOWN || edits?.value[id]);
+  const inUse = new Set<string>(family === "studio" ? (await store.listLicenses()).flatMap((l) => [l.plan, l.nextPlan ?? ""]) : []);
   // One regular plan at a time, picked from the row of plans.
   const selected: Plan = REGULAR_PLANS.find((p) => p === query.plan) ?? REGULAR_PLANS[0];
   const priceOf = (id: Plan) => {
@@ -85,8 +88,10 @@ export default async function PlansPage({ searchParams }: PageProps<"/admin/plan
       </div>
       <ReadOnly when={!can(adminRole, "plans.edit")} what="change plans or prices">
         {family === "studio" ? (
+          <div className="flex flex-col gap-4">
           <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
-            {STUDIO_PLANS.map((id, i) => {
+            {/* The first three always, then the ones the team added. */}
+            {studioShown.map((id, i) => {
               const plan = plans[id];
               const usdAtRate = plan.priceCents ? usdCentsOf({ egpCents: plan.priceCents, usdCents: null }, billing.egpPerUsd) : null;
               return (
@@ -103,12 +108,22 @@ export default async function PlansPage({ searchParams }: PageProps<"/admin/plan
                     months: String(plan.billingMonths),
                     features: plan.features,
                     studioPages: plan.limits.studioPages ? String(plan.limits.studioPages) : "",
+                    storageGb: plan.limits.storageGb === null ? "" : String(plan.limits.storageGb),
+                    removable: i >= STUDIO_PLANS_SHOWN && !plan.offered && !inUse.has(id),
                     usdAtRate: usdAtRate !== null ? formatMoney({ cents: usdAtRate, currency: "USD" }) : "",
                   }}
                   choices={STUDIO_PLAN_CHOICES.map((f) => ({ id: f, label: PLAN_FEATURES.find((d) => d.id === f)!.label }))}
                 />
               );
             })}
+          </div>
+          {studioShown.length < STUDIO_PLANS.length ? (
+            <form action={addStudioPlanAction}>
+              <SubmitButton variant="secondary" className="h-10 px-4 text-sm" pendingText="Adding…">
+                Add a Studio plan
+              </SubmitButton>
+            </form>
+          ) : null}
           </div>
         ) : family === "packs" ? (
           // 51 Extra storage for the Media library, bought by card with the plans' gateway; 52 priced in pounds like the plans.
@@ -160,6 +175,7 @@ export default async function PlansPage({ searchParams }: PageProps<"/admin/plan
               })}
             </nav>
             <RegularPlan
+              key={selected}
               id={selected}
               plan={plans[selected]}
               edited={Boolean(edits?.value[selected])}

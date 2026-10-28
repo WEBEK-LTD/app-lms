@@ -23,10 +23,10 @@ import type { ClientAppRow, ClientFilter, ClientRow } from "@/lib/data/store";
 import { encryptionKey } from "@/lib/env";
 import { ACCOUNT_STATE_LABEL, appState, clientAccountState, type AccountState } from "@/lib/license/status";
 import { appLabel } from "@/lib/app/label";
-import { planName, planNamesOf } from "@/lib/plans";
+import { planName, planNamesOf, plansShown } from "@/lib/plans";
 import { ActivateForm, AddClientForm, ClientDetailsForm } from "../forms";
 import { countryOptions } from "@/lib/account/country";
-import { getPlans } from "@/lib/settings/platform";
+import { getPlans, platformSetting } from "@/lib/settings/platform";
 import { PAYMENT_STATUS, PAYMENT_TONE } from "../payments/labels";
 import { formatAmount } from "@/lib/billing/prices";
 
@@ -437,6 +437,7 @@ async function ClientPanel({ row, now, may }: { row: ClientRow; now: Date; may: 
             pending={!license}
             planNames={planNamesOf(plans)}
             family={app?.section === "studio" ? "studio" : "regular"}
+            shown={plansShown(app?.section === "studio" ? "studio" : "regular", (await platformSetting(store, "plans"))?.value, license?.plan)}
           />
         </div>
       ) : null}

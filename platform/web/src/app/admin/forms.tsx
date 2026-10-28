@@ -16,6 +16,7 @@ export function ActivateForm({
   planNames,
   from,
   family = "regular",
+  shown,
 }: {
   clientId: string;
   /** The app whose plan this is; null for a client without an app yet. */
@@ -28,6 +29,8 @@ export function ActivateForm({
   from?: "client";
   /** 103R A Studio project's plans, or a regular app's. */
   family?: PlanFamily;
+  /** The plans offered in the list; all the family's when left out. */
+  shown?: readonly Plan[];
 }) {
   const [state, action] = useActionState(activateClientAction, initialFormState);
   // Unique per app: the client's page has one form per app.
@@ -43,7 +46,7 @@ export function ActivateForm({
           Plan
         </label>
         <select id={id("plan")} name="plan" className="input input-sm" defaultValue={state.values?.plan ?? plan}>
-          {plansOfFamily(family).map((p) => (
+          {(shown ?? plansOfFamily(family)).map((p) => (
             <option key={p} value={p}>
               {planNames[p]}
             </option>
