@@ -70,6 +70,8 @@ export const PAGE_ICONS = [
   // 104 Delivery and courier companies.
   "package_2",
   "two_wheeler",
+  // 105.2 Ride hailing.
+  "local_taxi",
 ] as const;
 
 /** A Material Symbols name: lowercase letters, digits and underscores. */

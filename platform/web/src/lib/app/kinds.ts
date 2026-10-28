@@ -759,7 +759,7 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       blocks: [],
       screens: ["ride", "my_rides", "driver", "account", "settings", "notifications"],
       aliases: { orders: "my_rides" },
-      tabs: [tab("ride", "Ride", "directions_car", "ride"), tab("rides", "My rides", "history", "my_rides")],
+      tabs: [tab("ride", "Ride", "directions_car", "ride"), tab("rides", "My rides", "receipt_long", "my_rides")],
       home: [
         {
           id: "vehicle_types",

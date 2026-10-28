@@ -122,6 +122,8 @@ const symbolsByName = <String, IconData>{
   // 104 Delivery and courier companies.
   'package_2': Symbols.package_2_rounded,
   'two_wheeler': Symbols.two_wheeler_rounded,
+  // 105.2 Ride hailing.
+  'local_taxi': Symbols.local_taxi_rounded,
 };
 
 /// Shown for a name the app doesn't have.

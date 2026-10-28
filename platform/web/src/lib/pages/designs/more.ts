@@ -508,3 +508,82 @@ export const FOOD_DESIGNS: Design[] = [
     ],
   },
 ];
+
+const ridesTabs = [homeTab, screenTab("ride", "Ride", "local_taxi", "ride"), screenTab("rides", "My rides", "receipt_long", "my_rides"), accountTab];
+
+/** 105.2 Ride hailing. */
+export const RIDES_DESIGNS: Design[] = [
+  {
+    id: "rides-city",
+    kind: "rides",
+    name: "City rides",
+    description: "Where to? A big button to ask for a ride, your vehicle types and how fast a driver comes.",
+    look: { template: "bold", corners: "round", cards: "elevated", font: "Outfit", secondary_color: "#F4D35E" },
+    tabs: ridesTabs,
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          slider([slide("Where to?", "A driver comes to you in minutes", screen("ride"))], false),
+          button("ride", "Ask for a ride", screen("ride")),
+          list("vehicle_types", "Ride with us", "vehicle_types", "list", { seeAll: screen("ride") }),
+          stats([stat("5 min", "To your door"), stat("24/7", "Day and night"), stat("100+", "Drivers")]),
+          faq("Questions", [question("How do I pay?", "In cash to the driver, or by card when your ride ends.")]),
+          contact(),
+        ],
+      },
+    ],
+  },
+  {
+    id: "rides-quick",
+    kind: "rides",
+    name: "Quick rides",
+    description: "Speed first: a notice, quick links to ride and follow, and your vehicle types side by side.",
+    look: { template: "classic", corners: "soft", cards: "outlined", font: "Plus Jakarta Sans", secondary_color: "#2EC4B6" },
+    tabs: ridesTabs,
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          notice("info", "Write today's offer or a promo code here.", "Ride now", screen("ride")),
+          quickLinks([
+            link("local_taxi", "Ride", screen("ride")),
+            link("receipt_long", "My rides", screen("my_rides")),
+            link("notifications", "Updates", screen("notifications")),
+            link("person", "Account", screen("account")),
+          ]),
+          list("vehicle_types", "Choose your ride", "vehicle_types", "carousel", { seeAll: screen("ride") }),
+          testimonials("What riders say", [quote("Write what a rider says about your drivers.", "Rider's name")]),
+          contact(),
+        ],
+      },
+    ],
+  },
+  {
+    id: "rides-comfort",
+    kind: "rides",
+    name: "Comfort rides",
+    description: "Calm and premium: a welcome, your cars, safety on every ride and a team to talk to.",
+    look: { template: "minimal", corners: "soft", cards: "flat", font: "Manrope", secondary_color: "#C9A227" },
+    tabs: ridesTabs,
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          text("welcome", "<h2>Ride in comfort</h2><p>{app} takes you there with drivers you can trust.</p>"),
+          button("ride", "Book a ride", screen("ride")),
+          list("vehicle_types", "Our cars", "vehicle_types", "list", { seeAll: screen("ride") }),
+          faq("Safety", [question("Can I share my ride?", "Yes: share the ride's link with anyone, they see the driver, the car and where it is until you arrive.")]),
+          team("Talk to us", [person("Your name", "Customer service")]),
+          contact(),
+        ],
+      },
+    ],
+  },
+];
