@@ -684,6 +684,7 @@ export const ENGINES: Record<AppType, EngineInfo> = {
         items: [
           { href: "/dashboard/food-orders", label: "Food orders", icon: "receipt_long" },
           { href: "/dashboard/restaurants", label: "Restaurants", icon: "storefront" },
+          { href: "/dashboard/shipments", label: "Courier jobs", icon: "package_2" },
           { href: "/dashboard/couriers", label: "Couriers", icon: "two_wheeler" },
           { href: "/dashboard/orders", label: "Paid orders", icon: "payments" },
           { href: "/dashboard/delivery", label: "Delivery settings", icon: "local_shipping" },

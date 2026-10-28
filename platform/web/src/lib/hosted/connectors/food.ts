@@ -1,6 +1,5 @@
 import { paymentsSetUp } from "../../catalog/settings";
 import { centsToDecimal, formatCents } from "../../catalog/money";
-import type { DataStore } from "../../data/store";
 import type { DeliverySettings, FoodOrder, HostedUser, Restaurant } from "../../data/types";
 import { localToUtc, utcToLocal } from "../../bookings/time";
 import { courierWho } from "../../delivery/service";

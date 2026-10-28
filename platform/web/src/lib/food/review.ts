@@ -20,7 +20,7 @@ export async function reviewRestaurantFor(store: DataStore, app: App, user: Pick
 }
 
 /** Whose orders a restaurant's list holds: the reviewers' own only, or everyone's but theirs. */
-export async function ordersFor(store: DataStore, app: Pick<App, "id" | "hostedSettings">, review: boolean): Promise<{ userId: number } | { notUserId: number } | {} | null> {
+export async function ordersFor(store: DataStore, app: Pick<App, "id" | "hostedSettings">, review: boolean): Promise<{ userId?: number; notUserId?: number } | null> {
   const id = await reviewUserId(store, app);
   if (review) return id === null ? null : { userId: id };
   return id === null ? {} : { notUserId: id };
