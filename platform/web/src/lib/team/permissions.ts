@@ -98,6 +98,7 @@ export function teamCan(access: TeamAccess | null | undefined, permission: TeamP
 export const DASHBOARD_PATHS: readonly (readonly [string, TeamPermission])[] = [
   ["/dashboard/team", "team"],
   ["/dashboard/license", "billing"],
+  ["/dashboard/invoices", "billing"],
   ["/dashboard/app-type", "apps"],
   ["/dashboard/setup", "settings"],
   ["/dashboard/pages", "settings"],

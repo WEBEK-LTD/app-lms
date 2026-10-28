@@ -2391,8 +2391,14 @@ the owner: every option is built and each company picks its own.
 
 ## Phase 105: More Studio project types
 
-Multi-restaurant food delivery, car rental, hotels and rentals, home
-services, laundry. One at a time, after Phase 104.
+Multi-restaurant food delivery, ride hailing, academies with many
+teachers, schools and universities, home services, multi-store grocery and
+pharmacy delivery, hotels and stays, car rental, laundry. One at a time,
+after Phase 104, each a Studio project type on its own Studio plan feature
+(off until the owner ticks and prices it in Admin › Plans › Yallapp
+Studio), each with its own Studio templates and sections, review accounts
+for every role, en/ar/tr, and Yallapp setting none of the amounts (fares,
+fees, commissions, tuition): the company sets them.
 
 ### 105.1 Food delivery from many restaurants (Studio project type `food`)
 
@@ -2437,6 +2443,191 @@ Every option is built and each company picks its own.
 | [x] | 105.1.4 App, customer: restaurants, a restaurant's menu, the cart, checkout, my orders with their stages and the courier, ratings | flutter analyze and widget tests |
 | [x] | 105.1.5 App, restaurant: the Restaurant tab (new orders, accept with a time, turn down, ready, open or busy); new orders come with the push's sound | widget tests |
 | [x] | 105.1.6 Studio templates and sections for food (the welcome section; three ready-made designs: Restaurants, Food offers, Food brand, their buttons opening the restaurants and the steps saying how an order reaches the door), the courier app (104.6) for food companies (`FoodConfig.courier_app`, the choice in Delivery settings, its builds and listing as a delivery company's), the store reviewers' notes for the three roles (the review account orders, takes its own orders as the first restaurant's staff and delivers them; its orders reach no real restaurant or courier) | unit tests, flutter widget tests, e2e |
+
+### 105.2 Ride hailing, like Uber (Studio project type `rides`)
+
+A company that runs a ride app: riders ask for a ride, the company's
+drivers take it, both follow it on the map; built on Phase 104's couriers,
+jobs, live position and second app.
+
+- **Riders**: pickup and drop-off on the map (or typed), the vehicle types
+  the company offers (economy, comfort, van, motorbike…) each with its
+  fare estimate before asking; ride now or at a time; the driver's name,
+  photo, car and plate, the driver on the way; share the trip, an SOS
+  button that calls the company's emergency number; cancel with the
+  company's cancellation rule; rate the driver; ride history with
+  receipts.
+- **Drivers** (the Driver tab, or the company's driver app as in 104.6):
+  online or offline, ride requests with a sound and a time to answer
+  (accept or let it go to the next driver), navigate to the pickup in the
+  phone's maps app, arrived, start, end; the fare shown at the end; their
+  earnings by day and week.
+- **The company** (dashboard in Studio): vehicle types with their fares
+  (base, per km, per minute, minimum, waiting), service areas, drivers
+  (documents, car, plate, approve or suspend), rides live on the map,
+  cancellation and no-show fees, the company's share of each fare per
+  driver and a statement per driver, promo codes, ratings.
+- **Matching**: the nearest online driver of the asked vehicle type first,
+  then the next ones; or the company assigns.
+- **Payment**: cash to the driver, card through the company's own gateway,
+  or both.
+
+| Done | Step | Checked by |
+| --- | --- | --- |
+| [ ] | 105.2.1 Contract: `app_type` `rides`; `Config.rides`; vehicle types and estimates, rides (ask, mine, cancel, rate, share), the Driver tag (online, requests, accept, arrived, start, end, earnings); notifications; plan feature `rides` | redocly lint |
+| [ ] | 105.2.2 Platform: vehicle types, fares, areas, drivers and their documents, rides and their stages, matching by distance, live positions, cash or card, the company's share and statements, pushes (a migration) | unit tests, isolation tests |
+| [ ] | 105.2.3 Dashboard (en/ar/tr) in Studio: Rides (live map, list), Drivers (documents, approve, suspend), Vehicle types and fares, Areas, Statements, Promo codes; settings | unit tests, e2e |
+| [ ] | 105.2.4 App, rider: map home, where to, vehicle types with estimates, asking, the driver on the way, the ride, rating, history and receipts, share and SOS | flutter analyze and widget tests |
+| [ ] | 105.2.5 App, driver: online, requests with sound and countdown, the ride's stages, earnings; the driver app in the company's name (104.6) | widget tests |
+| [ ] | 105.2.6 Studio templates and sections for rides; review accounts for both roles (the reviewers' rides reach no real driver) | unit tests, e2e |
+
+### 105.3 Academies with many teachers (Studio project type `instructors`)
+
+An academy (or a course marketplace, like Udemy) where many teachers each
+publish their own courses and the academy takes a share.
+
+- **Teachers**: added by the academy, or apply from the app and wait for
+  approval; a profile (photo, bio, subjects, rating); their own courses,
+  lessons, quizzes and live sessions (the academy approves a course before
+  it is published); their students' questions; their sales and earnings.
+- **Students**: browse by teacher, subject or level; a teacher's page with
+  their courses and reviews; buy a course or the academy's membership;
+  rate the course and the teacher; follow a teacher (new courses pushed).
+- **The academy** (dashboard): teachers (approve, suspend, their share in
+  percent per teacher), course reviews before publishing, the earnings
+  statement per teacher for any period and what is owed, featured
+  teachers and courses, categories.
+- Built on the courses engine (8.6, 100): payment through the academy's
+  own gateway or the stores' in-app purchases.
+
+| Done | Step | Checked by |
+| --- | --- | --- |
+| [ ] | 105.3.1 Contract: `app_type` `instructors`; teachers (list, one), a course's teacher, follow; the Teacher tag (my courses, lessons, students' questions, earnings); plan feature `instructors` | redocly lint |
+| [ ] | 105.3.2 Platform: teachers, applications, courses owned by a teacher, course review before publishing, shares and statements (a migration) | unit tests, isolation tests |
+| [ ] | 105.3.3 Dashboard (en/ar/tr): Teachers, Applications, Courses to review, Statements per teacher | unit tests, e2e |
+| [ ] | 105.3.4 App, student: teachers, a teacher's page, follow, rate the teacher | widget tests |
+| [ ] | 105.3.5 App, teacher: the Teacher tab (my courses and lessons, add a lesson with video or PDF, questions, earnings) | widget tests |
+| [ ] | 105.3.6 Studio templates and sections; review accounts for student and teacher | unit tests, e2e |
+
+### 105.4 Schools and universities (Studio project type `school`)
+
+One app for a school (or a university, a nursery, a training centre):
+students, parents and teachers each see their own part.
+
+- **Structure**: grades or years, classes or sections (a university:
+  faculties, departments, programs, course registration each term),
+  subjects, teachers, rooms; the school year and its terms.
+- **Students**: their timetable, homework and assignments (hand in a photo
+  or a file), grades and report cards, attendance, exams' schedule and
+  results, the school's announcements and calendar, the library's books
+  borrowed (optional), the bus (optional, live on the map with 104's
+  tracking).
+- **Parents**: one account for all their children; each child's
+  attendance (pushed when absent or late), grades, homework, fees and
+  receipts, messages with the class teacher (77's chat), permission
+  slips, pick-up notes.
+- **Teachers**: their classes and timetable, take attendance in a tap, give
+  homework, grade, write to a class or a parent.
+- **Fees**: the school's fee items and instalments per student, paid by
+  card through the school's own gateway or recorded as paid at the office,
+  with receipts.
+- **The school** (dashboard): import students, parents and teachers from a
+  sheet, classes, timetable builder, terms, grading scales, report-card
+  templates, announcements to the whole school, a grade, a class or one
+  family.
+
+| Done | Step | Checked by |
+| --- | --- | --- |
+| [ ] | 105.4.1 Contract: `app_type` `school`; the roles student, parent, teacher; timetable, homework, grades, attendance, exams, announcements, fees; plan feature `school` | redocly lint |
+| [ ] | 105.4.2 Platform: the school's structure, people and their links (parent ↔ children), timetable, attendance, homework and submissions, grades and report cards, fees and receipts, pushes (migrations) | unit tests, isolation tests |
+| [ ] | 105.4.3 Dashboard (en/ar/tr): Structure, People (import), Timetable, Attendance, Homework, Grades and report cards, Fees, Announcements | unit tests, e2e |
+| [ ] | 105.4.4 App, student and parent (switching between children) | widget tests |
+| [ ] | 105.4.5 App, teacher: classes, attendance, homework, grading, messages | widget tests |
+| [ ] | 105.4.6 Universities: faculties, departments, programs, course registration, results by term | unit tests, e2e, widget tests |
+| [ ] | 105.4.7 Studio templates and sections; review accounts for the three roles | unit tests, e2e |
+
+### 105.5 Home services (Studio project type `services_market`)
+
+A company that sends professionals to people's homes (cleaning, plumbing,
+electricity, AC, beauty…): the customer books a service at a time and an
+address, a professional of the company takes it. Built on bookings
+(7.4–7.6) and 104's jobs and tracking.
+
+| Done | Step | Checked by |
+| --- | --- | --- |
+| [ ] | 105.5.1 Contract, platform and dashboard: services with their options and prices (fixed, per hour, or a quote after a visit), areas, professionals (skills, areas, hours), bookings and their stages, the company's share per professional | redocly lint, unit tests, e2e |
+| [ ] | 105.5.2 App: customer (book, follow, pay, rate) and professional (jobs, on the way, started, done, extra items) | widget tests |
+| [ ] | 105.5.3 Studio templates and review accounts | unit tests, e2e |
+
+### 105.6 Grocery and pharmacy delivery from many stores (Studio project type `stores_market`)
+
+105.1 for shops: many stores (supermarkets, pharmacies, flowers…) each with
+their catalogue, one store's cart at a time, a prescription photo for
+medicines that need one, substitutions agreed with the customer while the
+order is picked, couriers from 104.
+
+| Done | Step | Checked by |
+| --- | --- | --- |
+| [ ] | 105.6.1 Platform and dashboard on 105.1's model: stores, catalogues (import from a sheet), stock, prescriptions, substitutions | unit tests, e2e |
+| [ ] | 105.6.2 App: customer and store staff | widget tests |
+| [ ] | 105.6.3 Studio templates and review accounts | unit tests, e2e |
+
+### 105.7 Hotels and stays (Studio project type `hotels`)
+
+One app for a hotel, a resort, a chain of hotels, or holiday apartments and
+chalets: guests find and book a room, and use the app during their stay.
+
+- **Properties and rooms**: one or many properties (a chain: each hotel
+  with its own page, address on the map, photos, facilities, policies);
+  room types (photos, size, beds, view, how many adults and children,
+  amenities) and the rooms of each type (numbers, floors), or units for
+  apartments and chalets.
+- **Rates and availability**: a price per night per room type, by season
+  and by day of the week, rate plans (room only, breakfast, half board,
+  non-refundable cheaper), minimum nights, extra adult or child, taxes and
+  fees; an availability calendar per room type; closing dates.
+- **Booking**: dates and guests, the room types free for them with their
+  total, extras (airport pickup, early check-in, late check-out, extra
+  bed), the guests' names, special requests; pay in full, a deposit, or at
+  the hotel, by card through the hotel's own gateway; the company's
+  cancellation policy per rate plan; a booking number, confirmation by
+  push and email, add to calendar; change or cancel within the policy.
+- **The stay**: online check-in (ID photo, arrival time), the room number
+  when it is ready, a digital key code if the hotel uses one (shown, not
+  made by Yallapp), room service (the hotel's menu, ordered to the room,
+  105.1's ordering), requests (towels, housekeeping, maintenance, a taxi),
+  the hotel's services and their hours (restaurant, spa, pool, gym) with
+  their own bookings (7.4–7.6), chat with reception (77), the bill so far,
+  check-out and the final invoice, a review after the stay.
+- **Loyalty and offers**: points per night, member prices,
+  promo codes, packages (room + dinner + spa).
+- **The hotel** (dashboard in Studio): properties, room types and rooms,
+  rates and the calendar, bookings (arrivals and departures of the day,
+  in house, no-shows), the front desk's room board (clean, dirty, out of
+  order), guests and their history, requests and room-service orders as
+  they come (with a sound), housekeeping tasks, staff with roles
+  (reception, housekeeping, restaurant), reports (occupancy, average
+  rate, revenue per available room, by period), invoices.
+- **Staff in the app**: a Staff tab per role: reception (arrivals, assign
+  a room, check in, check out), housekeeping (rooms to clean, done),
+  restaurant (room-service orders).
+- Later, after it works: two-way sync of availability with Booking.com,
+  Airbnb and others through a channel manager, when the owner chooses one.
+
+| Done | Step | Checked by |
+| --- | --- | --- |
+| [ ] | 105.7.1 Contract: `app_type` `hotels`; `Config.hotels`; properties, room types, availability and prices for dates, bookings (quote, book, mine, change, cancel), the stay (check-in, room, requests, room service, bill, check-out, review); the Staff tag per role; notifications; plan feature `hotels` | redocly lint |
+| [ ] | 105.7.2 Platform: properties, room types, rooms, rates (seasons, days, rate plans, minimum nights), availability that never sells a room twice, bookings and their stages, deposits and payments, cancellation policies, stays, requests, room service, invoices, pushes (migrations) | unit tests, isolation tests |
+| [ ] | 105.7.3 Dashboard (en/ar/tr) in Studio: Properties, Room types and rooms, Rates and calendar, Bookings (today's arrivals and departures), Room board, Requests and room service, Housekeeping, Guests, Staff, Reports | unit tests, e2e |
+| [ ] | 105.7.4 App, guest: search by dates and guests, a hotel's page, room types and rate plans, booking and payment, my bookings, online check-in, the stay (room, requests, room service, services, chat, bill), review | flutter analyze and widget tests |
+| [ ] | 105.7.5 App, staff: reception, housekeeping and restaurant tabs | widget tests |
+| [ ] | 105.7.6 Studio templates and sections for hotels; review accounts for guest and staff (the reviewers' bookings hold no real room) | unit tests, e2e |
+
+### 105.8 Car rental and laundry
+
+Each its own small step after the ones above: car rental (cars, dates,
+pickup and return places, deposits), laundry (pickup and delivery with
+104's couriers, items priced by piece or by kilo).
 
 ## Phase 106: Studio template marketplace (postponed)
 
