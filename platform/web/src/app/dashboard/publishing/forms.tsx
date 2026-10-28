@@ -1,7 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
-import { savePublishingChecklistAction, savePublishingListingAction } from "@/app/actions/publishing";
+import { useActionState, useState } from "react";
+import { saveReviewAccountAction, savePublishingChecklistAction, savePublishingListingAction } from "@/app/actions/publishing";
 import { FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { initialFormState } from "@/lib/forms";
@@ -211,5 +211,70 @@ export function ListingForm({
         </SubmitButton>
       </div>
     </form>
+  );
+}
+
+/** 102 The account the store reviewers sign in with on the app's website or API; the saved password is never sent back. */
+export function ReviewAccountForm({ current, saved }: { current: { username: string; notes: string }; saved: boolean }) {
+  const t = useDashT();
+  const [state, action] = useActionState(saveReviewAccountAction, initialFormState);
+  const v = { ...current, ...state.values };
+  const e = state.errors ?? {};
+  const field = (name: "username" | "password", label: string, hint?: string) => {
+    const id = `f-review-${name}`;
+    return (
+      <div className="flex min-w-0 flex-col gap-1.5">
+        <label htmlFor={id} className="text-sm font-semibold">
+          {label}
+        </label>
+        <input
+          id={id}
+          name={name}
+          type={name === "password" ? "password" : "text"}
+          defaultValue={name === "username" ? v.username : ""}
+          autoComplete="off"
+          dir="ltr"
+          maxLength={200}
+          className="input"
+          aria-invalid={e[name] ? true : undefined}
+          aria-describedby={[hint ? `${id}-hint` : null, e[name] ? `${id}-error` : null].filter(Boolean).join(" ") || undefined}
+        />
+        {hint ? (
+          <span id={`${id}-hint`} className="text-xs text-muted">
+            {hint}
+          </span>
+        ) : null}
+        <FieldError id={`${id}-error`} error={e[name]} />
+      </div>
+    );
+  };
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4" aria-label={t("publishing.reviewTitle")} key={JSON.stringify(state.values ?? {})}>
+      <div className="grid gap-4 sm:grid-cols-2">
+        {field("username", t("publishing.reviewUsername"))}
+        {field("password", t("publishing.reviewPassword"), saved ? t("publishing.reviewPasswordSaved") : undefined)}
+      </div>
+      <TextArea name="notes" label={t("publishing.reviewNotesLabel")} value={v.notes} hint={t("publishing.reviewNotesHint")} error={e.notes} />
+      <FormMessage message={state.message} ok={state.ok} />
+      <div className="flex justify-end">
+        <SubmitButton className="h-11" pendingText={t("common.saving")}>
+          {t("publishing.reviewSave")}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 102 A password shown as dots until asked for, to copy into the stores. */
+export function SecretValue({ value, label }: { value: string; label: string }) {
+  const [shown, setShown] = useState(false);
+  return shown ? (
+    <code dir="ltr" className="break-all" data-secret="">
+      {value}
+    </code>
+  ) : (
+    <button type="button" className="text-sm font-semibold underline" onClick={() => setShown(true)}>
+      {label}
+    </button>
   );
 }

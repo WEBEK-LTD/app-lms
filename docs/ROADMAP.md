@@ -2264,3 +2264,15 @@ customer's account and settings.
 | | Step | Done when |
 |---|---|---|
 | [x] | 101.1 Pages & look › Look › Header: Title (the template's, with the buttons above the title), Centered (one bar, the page's title in the middle), Logo (the app's logo, the title under it) or Search (the logo with a search field under it that opens the app's search); up to four buttons from search, cart, notifications, chat and account, offered as the app's type has them (the chat's shows while the chat is on; the cart and the chat show their counts); `Appearance.header` (`AppHeader`) to the app from the hosted API and the plugin 0.4.24; the quick view and the app show it on the pages in the bottom tabs, pages opened on top keep their back button | Contract, unit tests (platform), plugin integration suite, flutter analyze and widget tests |
+
+## Phase 102: A store review account in every app, required
+
+Google Play (App access) and the App Store (App Review Information) sign in
+to an app before they accept it, and turn it down when they can't. Until
+now only apps on the hosted API had to set a review sign-in; the owner
+asked to make it required for every app, with the steps to give it to the
+stores.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 102.1 Dashboard › Publishing › Store review account (en/ar/tr), in every publishing mode: apps whose sign-in Yallapp runs show App sign-in's fixed review number or email with its code; WordPress sites and own APIs save the user name or email and password of an account made for the reviewers (or the plugin's review access email and fixed code), the password encrypted and shown only when asked, with notes for the reviewers; the steps for Google Play Console and App Store Connect; Ready to submit marks it missing until set (notes alone no longer count); a build stops on it before it is queued (the first build after the setup still runs); the publishing team sees it in Admin › Publishing; the guides point to it | Unit tests (the account, readiness, the checks before a build), e2e (publishing, client flow) |

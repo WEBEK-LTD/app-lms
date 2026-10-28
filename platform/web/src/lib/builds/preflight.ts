@@ -2,6 +2,8 @@ import { createPrivateKey } from "node:crypto";
 import { decrypt } from "../crypto/encryption";
 import type { App } from "../data/types";
 import { readPngInfo } from "../png";
+import { REVIEW_LINK } from "../publishing/readiness";
+import { hasReviewSignIn } from "../publishing/review-account";
 import { checkGoogleServiceInfoPlist, checkGoogleServicesJson } from "../store-files";
 import { androidUploadKeySchema, iosDistributionSchema, keyContext } from "./signing";
 
@@ -25,10 +27,11 @@ export const PREFLIGHT_TEXT = {
   appleKeyInvalid: "Your App Store Connect key can't be used: {problem} Add it again on the Publishing step.",
   iosCertificateInvalid: "Your iPhone distribution certificate can't be read. Upload the .p12 file again on the Publishing step.",
   androidKeyInvalid: "Your Android upload key can't be read. Upload the keystore again on the Publishing step.",
+  reviewMissing: "Google Play and the App Store turn down apps their reviewers can't sign in to. Add your store review account on the Publishing page.",
 } as const;
 
 export interface PreflightCheck {
-  key: "icon" | "firebase_android" | "firebase_ios" | "firebase" | "apple_key" | "ios_certificate" | "android_key";
+  key: "icon" | "firebase_android" | "firebase_ios" | "firebase" | "apple_key" | "ios_certificate" | "android_key" | "review";
   level: "error" | "warning";
   /** The English text (a known text of the builds area), with its values. */
   message: string;
@@ -60,6 +63,9 @@ export async function preflightChecks(deps: PreflightDeps, app: App, build: { io
     if (!data) add("icon", "error", PREFLIGHT_TEXT.iconUnreadable, "/dashboard/setup?step=branding");
     else if (!png || png.width !== 1024 || png.height !== 1024 || png.hasTransparency) add("icon", "error", PREFLIGHT_TEXT.iconSize, "/dashboard/setup?step=branding");
   }
+
+  // 102 A sign-in for the stores' reviewers, required for every app.
+  if (!hasReviewSignIn(app)) add("review", "error", PREFLIGHT_TEXT.reviewMissing, REVIEW_LINK);
 
   // Firebase, against the package name and bundle ID the build will use.
   const notifications = "/dashboard/setup?step=publishing";

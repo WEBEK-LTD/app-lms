@@ -1395,7 +1395,7 @@ For notifications, apps on Yallapp's hosted API keep each signed-in phone's push
 
 Data safety also asks how people delete their account. They do it in the app (**Account › Settings › Delete account**); for the web link Google asks for, give your app's own page, where they can ask without the app: the **Ready to submit?** section on [Publishing](/dashboard/publishing) shows its address (\`/a/<app ID>/delete-account\` on yallapp.com.tr), and checks the rest of what the stores ask before you send the app.
 
-> Under **App access**, give reviewers your review phone number and fixed code: from the dashboard's **App sign-in** page, or the plugin's **Store review access** setting on WordPress. Without it, reviewers can’t sign in and the app may be rejected.
+> Under **App access**, give reviewers your review phone number and fixed code: from the dashboard's **App sign-in** page, or, for apps on WordPress or their own API, the **Store review account** on **Publishing** (required before a build). Without it, reviewers can’t sign in and the app may be rejected.
 
 ## Run a closed test
 
@@ -1444,7 +1444,7 @@ Answer the App Privacy questions (your app collects phone numbers for sign-in, p
 
 Your app also sends usage statistics to Yallapp (see [Analytics](/docs/analytics)). In App Privacy, add **Usage Data › Product Interaction** and **Search History**, and **Identifiers › Device ID** for the random install ID. For each choose the purpose **Analytics**, answer **No** to "linked to the user's identity" and **No** to "used for tracking". The app doesn't ask for tracking permission and needs no App Tracking Transparency prompt: it uses no advertising ID and shares nothing with data brokers.
 
-> Under **App Review Information**, add your review phone number and fixed code, so reviewers can sign in: from the dashboard's **App sign-in** page, or the plugin's **Store review access** setting on WordPress.
+> Under **App Review Information**, add your review phone number and fixed code, so reviewers can sign in: from the dashboard's **App sign-in** page, or, for apps on WordPress or their own API, the **Store review account** on **Publishing** (required before a build).
 
 ## Submit for review
 
@@ -1485,7 +1485,7 @@ In Seller Portal, choose **Add New Application**, select **Android**, and enter 
 
 Add the description, icon (512 × 512) and screenshots from your store assets, your privacy policy link and the age rating. Under **Country/Region**, choose where to sell it. Then select **Submit**. Samsung reviews the app, usually within a few days.
 
-> Give the reviewers your review phone number and fixed code in the notes for the review: from the dashboard's **App sign-in** page, or the plugin's **Store review access** setting on WordPress.
+> Give the reviewers your review phone number and fixed code in the notes for the review: from the dashboard's **App sign-in** page, or, for apps on WordPress or their own API, the **Store review account** on **Publishing** (required before a build).
 
 ## Pro and Business: let us upload every update
 
@@ -1570,7 +1570,7 @@ Create your app with your app's package name (from your Store listing step) and 
 
 Add the description, icon, screenshots, your privacy policy link and the age rating, then submit. Xiaomi reviews the app, usually within a few working days.
 
-> Give the reviewers your review phone number and fixed code in the notes for the review: from the dashboard's **App sign-in** page, or the plugin's **Store review access** setting on WordPress.
+> Give the reviewers your review phone number and fixed code in the notes for the review: from the dashboard's **App sign-in** page, or, for apps on WordPress or their own API, the **Store review account** on **Publishing** (required before a build).
 
 ## Pro and Business: let us upload every update
 

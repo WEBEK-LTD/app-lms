@@ -50,12 +50,15 @@ describe("88.1 ready to submit", () => {
     expect(byKey(readiness({ ...base, app: withEmail })).review).toMatchObject({ state: "ok", values: { who: "review@academy.test" } });
   });
 
-  it("asks WordPress and own API apps to tell the reviewers how to sign in", () => {
+  it("102 requires a review account from WordPress and own API apps; notes alone don't do", () => {
     const site = { ...ready(), backend: "wordpress" as const, siteUrl: "https://academy.test" };
-    expect(byKey(readiness({ ...base, app: site })).review).toMatchObject({ state: "note", text: "reviewWordpress" });
-    expect(byKey(readiness({ ...base, app: site, listing: { ...listing, reviewNotes: "Sign in with review@academy.test and 000000." } })).review).toMatchObject({ state: "ok", text: "reviewNoted" });
+    expect(byKey(readiness({ ...base, app: site })).review).toMatchObject({ state: "missing", text: "reviewAccountMissing", link: "/dashboard/publishing#h-review" });
+    expect(byKey(readiness({ ...base, app: site, listing: { ...listing, reviewNotes: "Sign in with review@academy.test and 000000." } })).review!.state).toBe("missing");
+    const account = { username: "review@academy.test", passwordEncrypted: "sealed", notes: null, savedAt: NOW.toISOString() };
+    const withAccount = { ...site, hostedSettings: { ...site.hostedSettings!, reviewAccount: account } };
+    expect(byKey(readiness({ ...base, app: withAccount })).review).toMatchObject({ state: "ok", text: "reviewAccountOk", values: { who: "review@academy.test" } });
     const api = { ...ready(), backend: "custom_api" as const };
-    expect(byKey(readiness({ ...base, app: api })).review).toMatchObject({ state: "note", text: "reviewOwnApi" });
+    expect(byKey(readiness({ ...base, app: api })).review).toMatchObject({ state: "missing", text: "reviewAccountMissing" });
     // An own API app Yallapp signs people in to has the hosted review access.
     const signedByUs = { ...api, hostedSettings: { ...api.hostedSettings!, signInBy: "yallapp" as const } };
     expect(byKey(readiness({ ...base, app: signedByUs })).review!.state).toBe("ok");

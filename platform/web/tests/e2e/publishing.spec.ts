@@ -165,23 +165,43 @@ test("the client works through the checklist and the listing details", async () 
   await expect(listing.getByText("Saved. Everything is ready: our team takes it from here.")).toBeVisible();
   await expect.poll(async () => (await mailsTo(teamEmail)).map((m) => m.subject)).toContain(`Publishing: ${client.name} finished the publishing checklist`);
 
-  // 88.1 Ready to submit: a WordPress app tells the reviewers how to sign in; we take the screenshots.
+  // 88.1 Ready to submit: 102 a WordPress app needs the store review account, even with notes for the reviewers; we take the screenshots.
   await own.reload();
   const ready = own.getByRole("region", { name: "Ready to submit?" });
-  await expect(ready).toHaveAttribute("data-ready", "yes");
+  await expect(ready).toHaveAttribute("data-ready", "no");
   await expect(ready.locator('[data-ready-item="listing"]')).toHaveAttribute("data-state", "ok");
-  await expect(ready.locator('[data-ready-item="review"]')).toHaveAttribute("data-state", "note");
-  await expect(ready.locator('[data-ready-item="review"]')).toContainText("Turn on review access in the Yallapp plugin's settings");
+  await expect(ready.locator('[data-ready-item="review"]')).toHaveAttribute("data-state", "missing");
+  await expect(ready.locator('[data-ready-item="review"]')).toContainText("Required: Apple and Google turn down apps they can't sign in to.");
   await expect(ready.locator('[data-ready-item="screenshots"]')).toHaveAttribute("data-state", "note");
   await expect(ready.locator('[data-ready-item="ios"]')).toContainText("never shows buy buttons for paid courses");
   const deletion = new URL((await ready.locator("[data-ready-url]").textContent())!);
   expect(deletion.pathname).toBe(`/a/${appId}/delete-account`);
   await listing.getByLabel("For the store reviewers (optional)").fill("Sign in with review@rosalind.test and the code 000000 (review access in the plugin).");
   await listing.getByRole("button", { name: "Save listing details" }).click();
-  await expect(async () => {
-    await own.reload();
-    await expect(ready.locator('[data-ready-item="review"]')).toHaveAttribute("data-state", "ok", { timeout: 1000 });
-  }).toPass();
+  await expect(listing.getByText(/^Saved/)).toBeVisible();
+  await own.reload();
+  await expect(ready.locator('[data-ready-item="review"]')).toHaveAttribute("data-state", "missing");
+
+  // 102 The account itself, with the steps for both stores; the password is kept encrypted and shown when asked.
+  const review = own.getByRole("region", { name: "Store review account (required)" });
+  await expect(review).toContainText("Choose “All or some functionality in my app is restricted”.");
+  await expect(review).toContainText("In App Review Information, tick “Sign-in required”.");
+  await review.getByRole("button", { name: "Save the review account" }).click();
+  await expect(review.getByText("Enter the user name or email the reviewers sign in with.")).toBeVisible();
+  await expect(review.getByText("Enter the password of this account.")).toBeVisible();
+  await review.getByLabel("User name or email").fill("review@rosalind.test");
+  await review.getByLabel("Password", { exact: true }).fill("Review-pass-2026");
+  await review.getByLabel("Notes for the reviewers (in English, optional)").fill("Open My courses to see a paid course.");
+  await review.getByRole("button", { name: "Save the review account" }).click();
+  await expect(review.getByText("Saved. Enter it in Google Play Console and App Store Connect as the steps say.")).toBeVisible();
+  await own.reload();
+  await expect(review).toHaveAttribute("data-review", "set");
+  await expect(review.getByLabel("Password", { exact: true })).toHaveValue("");
+  await expect(own.locator("body")).not.toContainText("Review-pass-2026");
+  await review.getByRole("button", { name: "Show the password" }).click();
+  await expect(review.locator("[data-secret]")).toHaveText("Review-pass-2026");
+  await expect(ready).toHaveAttribute("data-ready", "yes");
+  await expect(ready.locator('[data-ready-item="review"]')).toContainText("Reviewers sign in with review@rosalind.test");
 
   // The app's own account deletion page, for Google Play's Data safety form, in the browser's language.
   await own.goto(deletion.pathname);
@@ -215,6 +235,10 @@ test("the team moves each store along, and the client is emailed", async () => {
   await expect(card).toContainText("Client ready");
   await expect(card).toContainText("Firebase project: we create it");
   await expect(card).toContainText("Science courses for adults");
+  // 102 The team enters the reviewers' sign-in in both stores.
+  await card.getByText("Store review account").click();
+  await expect(card.locator("[data-review-sign-in]")).toContainText("review@rosalind.test");
+  await expect(card.locator("[data-review-sign-in]")).toContainText("Review-pass-2026");
 
   await card.getByLabel("Google Play status").selectOption("in_review");
   await card.getByRole("button", { name: "Save Google Play" }).click();

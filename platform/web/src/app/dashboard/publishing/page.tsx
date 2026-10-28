@@ -35,6 +35,7 @@ import { kindOf, suggestedCategories, wordsOf } from "@/lib/app/kinds";
 import { reviewNotesFor, suggestedReviewNotes } from "@/lib/publishing/review-notes";
 import { ChecklistForm, ListingForm } from "./forms";
 import { ReadySection } from "./ready";
+import { ReviewSection } from "./review-section";
 import { readiness } from "@/lib/publishing/readiness";
 import { REJECTION_LINK } from "@/lib/publishing/review";
 import { appUrl } from "@/lib/env";
@@ -162,6 +163,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
           />
         </div>
         {passwords}
+        <ReviewSection app={app} text={text} managed={false} />
       </>
     );
   }
@@ -198,6 +200,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
             ) : null}
           </ol>
         </section>
+        <ReviewSection app={app} text={text} managed={false} />
         <ReadySection items={readiness({ app, listing: null, ios: hasFeature(current, "ios"), managed: false, platformUrl: appUrl() })} text={text} />
         <form action={choosePublishingModeAction} className="flex flex-col gap-2 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <input type="hidden" name="mode" value="managed" />
@@ -294,6 +297,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
         </div>
       </section>
 
+      <ReviewSection app={app} text={text} managed />
       <ReadySection items={readiness({ app, listing: request.listing, ios: hasFeature(current, "ios"), managed: true, platformUrl: appUrl() })} text={text} />
 
       {/* 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, when the client wants them too. */}

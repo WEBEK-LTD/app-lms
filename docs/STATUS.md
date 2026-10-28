@@ -8,6 +8,14 @@ Last updated: 28 October 2026.
 
 ## Current release
 
+Phase 102 (a store review account in every app, required) is complete:
+Publishing › Store review account holds the reviewers' sign-in for every
+app (App sign-in's fixed number or email and code where Yallapp signs people
+in; an account of the site or API, its password encrypted, elsewhere), with
+the steps for Play Console and App Store Connect. Ready to submit and the
+checks before a build need it. Checks: platform unit tests, e2e of
+publishing and the client flow.
+
 Phase 101 (header types in the regular editor) is complete: Pages & look ›
 Look › Header offers Title, Centered, Logo and Search, with up to four
 buttons (search, cart, notifications, chat, account). The app shows it on
@@ -47,6 +55,8 @@ test environment:
 
 - The Owner API returns `in_app_sales`, but Yallapp Business does not show it
   yet.
+- Apps built before Phase 102 without a review sign-in can't start a new
+  build until the owner adds one on Publishing.
 - Until an app turns on in-app purchases, its Android app keeps the website
   checkout for paid courses.
 - An app on its own API returns `store_billing` and the `store` action from
@@ -65,16 +75,6 @@ test environment:
 
 ## Planned (to agree on before any work)
 
-- **A store review account in every app, required.** Google Play (App
-  access) and the App Store (App Review Information) need a working
-  sign-in for their reviewers, or the app is rejected. Today only apps on
-  the hosted API must set one (a fixed review phone or email with a fixed
-  code, checked in Publishing's readiness); WordPress apps and apps on
-  their own API only get a note. Make a fixed review sign-in (user name and
-  password, or the review number or email with its fixed code) required
-  for every app source before a store build, and show the owner the exact
-  steps to enter it in Play Console and App Store Connect, in English,
-  Arabic and Turkish.
 - **Yallapp Studio** (a separate mode with its own plans and prices): a
   free-form editor with drag and drop, layers and full styling, rendered
   natively by the app from data; the same data sources as the regular

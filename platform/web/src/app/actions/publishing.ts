@@ -10,8 +10,10 @@ import { startPipeline } from "@/lib/builds/dispatch";
 import { getStore } from "@/lib/data";
 import { appPlan } from "@/lib/entitlements";
 import type { DataStore } from "@/lib/data/store";
-import type { App, PublishingRequest } from "@/lib/data/types";
+import { DEFAULT_HOSTED_SETTINGS, type App, type PublishingRequest } from "@/lib/data/types";
+import { encryptionKey } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
+import { encryptReviewAccount, parseReviewAccountForm, reviewSignInKind } from "@/lib/publishing/review-account";
 import { choosePublishingMode, notifyPublishingTeam } from "@/lib/publishing/service";
 import { APP_STORE_CATEGORIES, applyChecklist, canUseManagedPublishing, checklistProgress, MORE_STORES, PLAY_CATEGORIES, STORE_TITLE, withMoreStores } from "@/lib/publishing/steps";
 
@@ -144,4 +146,36 @@ export async function savePublishingListingAction(_: FormState, formData: FormDa
   await recordStaffChange(context, "Saved the publishing listing details", request.listing, listing);
   revalidatePath(PAGE);
   return { ok: true, message: saved.readyAt ? "Saved. Everything is ready: our team takes it from here." : "Saved.", values };
+}
+
+/**
+ * 102 The account the store reviewers sign in with, for apps on a WordPress
+ * site or their own API (apps whose sign-in Yallapp runs use App sign-in's
+ * fixed review number or email). The password is kept encrypted and never
+ * sent back to the form.
+ */
+export async function saveReviewAccountAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireApp();
+  const app = context.app;
+  const values = {
+    username: String(formData.get("username") ?? ""),
+    password: String(formData.get("password") ?? ""),
+    notes: String(formData.get("notes") ?? ""),
+  };
+  const shown = { username: values.username, notes: values.notes };
+  if (reviewSignInKind(app) !== "account") return { message: "Your app signs people in with a code: set the review number or email on App sign-in.", values: shown };
+  const saved = app.hostedSettings?.reviewAccount ?? null;
+  const parsed = parseReviewAccountForm(values, saved !== null);
+  if (!parsed.ok) return { errors: parsed.errors, values: shown };
+  const now = new Date();
+  const key = encryptionKey();
+  const account = parsed.value.password === null && saved
+    ? { ...saved, username: parsed.value.username, notes: parsed.value.notes, savedAt: now.toISOString() }
+    : encryptReviewAccount(app.id, { username: parsed.value.username, password: parsed.value.password ?? "", notes: parsed.value.notes }, key, now);
+  const store = await getStore();
+  await store.updateApp(app.id, { hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, ...(app.hostedSettings ?? {}), reviewAccount: account } }, now);
+  // The audit log keeps who and when, never the password.
+  await recordStaffChange(context, "Saved the store review account", saved ? { username: saved.username } : null, { username: account.username, passwordChanged: parsed.value.password !== null });
+  revalidatePath(PAGE);
+  return { ok: true, message: "Saved. Enter it in Google Play Console and App Store Connect as the steps say.", values: shown };
 }

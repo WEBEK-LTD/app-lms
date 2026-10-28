@@ -161,6 +161,8 @@ describe("queueing builds safely", () => {
     if (stopped.ok || stopped.reason !== "preflight") return;
     expect(stopped.checks.map((c) => [c.key, c.level])).toEqual([
       ["icon", "error"],
+      // 102 Nor has it a sign-in for the store reviewers.
+      ["review", "error"],
       ["firebase", "warning"],
     ]);
     expect(await store.listBuildsByApp(app.id, 5)).toEqual([]);
