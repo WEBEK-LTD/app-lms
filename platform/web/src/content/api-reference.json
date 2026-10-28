@@ -1115,7 +1115,7 @@
           "method": "POST",
           "path": "/rides/estimate",
           "summary": "The fare of each vehicle type between two places",
-          "description": "Both places need their coordinates. The distance and time are estimated from the straight line between them (the road is taken as a third longer, at the company's usual speed), so the fare is `upfront` (the one the rider pays, plus waiting) or an estimate when the company charges what the meter says (`RidesConfig.fare_mode`). Vehicle types without an online driver nearby are listed with `available` false (asking for one still waits for a driver). Fails with `outside_service_area` (400) when the pickup is outside the company's areas, and with `invalid_request` (400) for a place without coordinates or an unknown promo code (`field` names it).",
+          "description": "Both places need their coordinates. The distance and time are estimated from the straight line between them (the road is taken as a third longer, at the company's usual speed), so the fare is `upfront` (the one the rider pays, plus waiting) or an estimate when the company charges what the meter says (`RidesConfig.fare_mode`). Vehicle types without an online driver nearby are listed with `available` false (asking for one still waits for a driver). Fails with `outside_service_area` (400) when the pickup is outside the company's areas, with `invalid_request` (400) for a place without coordinates or an unknown promo code (`field` names it), and with `rides_unavailable` (503) while the company has no vehicle type with fares.",
           "access": "signed-in"
         },
         {

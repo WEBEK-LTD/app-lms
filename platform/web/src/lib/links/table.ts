@@ -11,7 +11,7 @@ import type { AppType } from "../data/types";
 export type LinkKind = "course" | "product" | "service" | "listing" | "article" | "event" | "campaign" | "page";
 type IdShape = "number" | "text" | "slug";
 
-const ALL_TYPES: AppType[] = ["lms", "store", "booking", "real_estate", "news", "events", "donations", "delivery", "food"];
+const ALL_TYPES: AppType[] = ["lms", "store", "booking", "real_estate", "news", "events", "donations", "delivery", "food", "rides"];
 
 export const LINK_KINDS: readonly { kind: LinkKind; route: string; id: IdShape; appTypes: AppType[] }[] = [
   { kind: "course", route: "/course/{id}", id: "number", appTypes: ["lms"] },

@@ -15,12 +15,13 @@ import { planHasStoreBilling } from "../store-billing/access";
 import { runStoreProductSync, type StoreProductsRunReport } from "../store-billing/sync";
 import { runStorePurchases, type PurchasesRunReport } from "../store-billing/jobs";
 import { appPlan } from "../entitlements";
+import { runRideTicks } from "../rides/tick";
 
 /**
  * 61 The frequent job: `netlify/functions/frequent-jobs.mts` calls `POST
  * /api/internal/frequent` every 5 minutes with INTERNAL_JOB_SECRET. It sends
  * the app notifications whose time came and pushes to the owners' phones the
- * announcements that started, and 85.2 the notification campaigns due. 88.3 It reads the App Store's review state of the iPhone versions in review. 100.2 It makes or changes the in-app products waiting for the stores, 100.3 and keeps purchases' access in step. 68 It also asks the WordPress site of every
+ * announcements that started, and 85.2 the notification campaigns due. 105.2 It moves rides on with time. 88.3 It reads the App Store's review state of the iPhone versions in review. 100.2 It makes or changes the in-app products waiting for the stores, 100.3 and keeps purchases' access in step. 68 It also asks the WordPress site of every
  * plan that just ended to check its license now (once per end), so the app
  * pauses there within minutes. Safe to run twice at once: each notification,
  * announcement and ended plan is taken by one run.
@@ -44,6 +45,8 @@ export interface FrequentReport {
   storeProducts: StoreProductsRunReport;
   /** 100.3 Access given or taken back on the source, Google's refunds, memberships that ended. */
   storePurchases: PurchasesRunReport;
+  /** 105.2 Rides looked at and moved on with time (scheduled ones due, offers that ran out, nobody found). */
+  rides: { looked: number; moved: number };
 }
 
 export async function runFrequentJobs(deps: {
@@ -137,5 +140,12 @@ export async function runFrequentJobs(deps: {
   } catch (error) {
     console.error("[frequent] store purchases", error instanceof Error ? error.message : String(error));
   }
-  return { notifications, announcements, ended, campaigns, automatic, builds, reviews, orders, storeProducts, storePurchases };
+  // 105.2 Rides nobody looked at lately, moved on with time.
+  let rides = { looked: 0, moved: 0 };
+  try {
+    rides = await runRideTicks({ store: deps.store, now: deps.now, send: deps.send });
+  } catch (error) {
+    console.error("[frequent] rides", error instanceof Error ? error.message : String(error));
+  }
+  return { notifications, announcements, ended, campaigns, automatic, builds, reviews, orders, storeProducts, storePurchases, rides };
 }

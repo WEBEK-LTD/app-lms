@@ -74,7 +74,7 @@ async function addApp(store: MemoryStore, client: Client, app: Partial<App> & Pi
 }
 
 /** One app of each kind the Owner API serves. */
-type Kinds = Record<"shop" | "clinic" | "gym" | "school" | "news" | "estate" | "events" | "donations" | "delivery" | "food", App>;
+type Kinds = Record<"shop" | "clinic" | "gym" | "school" | "news" | "estate" | "events" | "donations" | "delivery" | "food" | "rides", App>;
 
 async function appsOf(store: MemoryStore, client: Client, name: string, courses: CourseSetup["courses"]): Promise<Kinds> {
   return {
@@ -95,6 +95,8 @@ async function appsOf(store: MemoryStore, client: Client, name: string, courses:
     delivery: await addApp(store, client, { appType: "delivery", appName: `${name} delivery`, connector: { kind: "deliveries" }, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS } }),
     // 105.1 A food delivery company.
     food: await addApp(store, client, { appType: "food", appName: `${name} food`, connector: { kind: "restaurants" }, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS } }),
+    // 105.2 A ride company.
+    rides: await addApp(store, client, { appType: "rides", appName: `${name} rides`, connector: { kind: "rides" }, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS } }),
   };
 }
 
@@ -529,7 +531,57 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       createdAt: NOW,
       updatedAt: NOW,
     });
+    // 105.2 A ride of the other client's ride company.
+    const ride = await store.createRide({
+      appId: theirs.rides.id,
+      userId: null,
+      riderName: `${MARK} rider`,
+      riderPhone: "+201001112222",
+      vehicleTypeId: null,
+      vehicleTypeName: `${MARK} economy`,
+      vehicleTypeIcon: "directions_car",
+      fares: { baseCents: 10_00, perKmCents: 5_00, perMinuteCents: 1_00, minCents: 20_00, waitPerMinuteCents: 1_00 },
+      fareMode: "upfront",
+      pickup: { address: `${MARK} pickup`, details: null, lat: 30.04, lng: 31.23 },
+      dropoff: { address: `${MARK} drop-off`, details: null, lat: 30.05, lng: 31.22 },
+      scheduledAt: null,
+      estimateKm: 1.5,
+      estimateMinutes: 4,
+      quotedCents: 27_50,
+      promoCode: null,
+      discountCents: 0,
+      previousFeeCents: 0,
+      previousFeeRideId: null,
+      finalCents: null,
+      meterKm: 0,
+      rideMinutes: null,
+      waitMinutes: null,
+      commissionBp: null,
+      commissionCents: null,
+      currency: "EGP",
+      paymentMethod: "cash",
+      paymentStatus: "unpaid",
+      orderId: null,
+      status: "searching",
+      pin: null,
+      notes: `${MARK} note`,
+      driverId: null,
+      driverName: null,
+      offeredTo: null,
+      offerExpiresAt: null,
+      declinedBy: [],
+      searchingSince: NOW,
+      cancellation: null,
+      feeCarriedTo: null,
+      shareToken: null,
+      rating: null,
+      timeline: [{ status: "searching", at: NOW.toISOString(), by: "rider" }],
+      lang: null,
+      createdAt: NOW,
+      updatedAt: NOW,
+    });
     Object.assign(hostedIds, {
+      ride_id: String(ride.id),
       restaurant_id: String(restaurant.id),
       // Food orders are numbered apart from shop orders: their paths get this one (see hosted()).
       food_order_id: String(foodOrder.id),
@@ -603,6 +655,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     if (/^\/donations/.test(route)) return "donations";
     if (/^\/(delivery|courier|me\/shipments)/.test(route)) return "delivery";
     if (/^\/(food|restaurant|me\/food-orders)/.test(route)) return "food";
+    if (/^\/(rides|driver|me\/rides)/.test(route)) return "rides";
     return "shop";
   }
 

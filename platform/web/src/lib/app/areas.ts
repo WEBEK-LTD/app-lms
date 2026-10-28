@@ -36,7 +36,7 @@ export interface AppAreas {
 }
 
 /** 47 Apps whose orders the dashboard lists and refunds (app/actions/refunds.ts, Dashboard › Orders). */
-export const ORDER_KINDS: ReadonlySet<string> = new Set(["catalog", "courses", "bookings", "events", "deliveries", "restaurants"]);
+export const ORDER_KINDS: ReadonlySet<string> = new Set(["catalog", "courses", "bookings", "events", "deliveries", "restaurants", "rides"]);
 
 export function appAreas(app: Pick<App, "connector" | "backend" | "vertical" | "catalogSettings">): AppAreas {
   const kind = app.connector?.kind ?? "";

@@ -2455,6 +2455,14 @@ export class MemoryStore implements DataStore {
     return true;
   }
 
+  async listDueRides(dueBy: Date, limit: number): Promise<Ride[]> {
+    return [...this.rides.values()]
+      .filter((r) => r.status === "searching" || (r.status === "scheduled" && r.scheduledAt !== null && r.scheduledAt.getTime() <= dueBy.getTime()))
+      .sort((a, b) => a.updatedAt.getTime() - b.updatedAt.getTime() || a.id - b.id)
+      .slice(0, limit)
+      .map(clone);
+  }
+
   async addDriverRating(appId: string, courierId: number, stars: number, now: Date): Promise<void> {
     const courier = this.couriers.get(courierId);
     if (!courier || courier.appId !== appId || !courier.driver) return;

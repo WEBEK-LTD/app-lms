@@ -802,6 +802,8 @@ export interface DataStore {
    * drivers, or a driver and the rider, change it once. False when it didn't.
    */
   updateRide(appId: string, id: number, patch: RidePatch, expect?: { statuses?: RideStatus[]; offeredTo?: number | null; driverId?: number | null }): Promise<boolean>;
+  /** Rides time moves on, in every app: searching ones, and scheduled ones due by `dueBy`; the oldest first. */
+  listDueRides(dueBy: Date, limit: number): Promise<Ride[]>;
   /** Adds one rating (1 to 5) to the driver's average. */
   addDriverRating(appId: string, courierId: number, stars: number, now: Date): Promise<void>;
   /** Completed rides created in `[since, until)`, per driver: for the drivers' statements. */

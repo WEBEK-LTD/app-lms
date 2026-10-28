@@ -3193,6 +3193,18 @@ export class MysqlStore implements DataStore {
     return result.affectedRows === 1;
   }
 
+  async listDueRides(dueBy: Date, limit: number): Promise<Ride[]> {
+    const t = schema.rides;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(or(eq(t.status, "searching"), and(eq(t.status, "scheduled"), lte(t.scheduledAt, dueBy))))
+        .orderBy(asc(t.updatedAt), asc(t.id))
+        .limit(limit),
+    );
+  }
+
   async addDriverRating(appId: string, courierId: number, stars: number, now: Date): Promise<void> {
     const t = schema.couriers;
     await this.run((db) =>

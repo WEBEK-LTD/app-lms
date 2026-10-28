@@ -217,7 +217,8 @@ export function rideJson(
 /** `DriverRide`: the rider's number only while the ride is the driver's and not over. */
 export function driverRideJson(ride: Ride, extra: { mine: boolean; pickupKm?: number | null }) {
   const fare = shownFare(ride);
-  const collect = ride.status === "completed" && ride.paymentMethod === "cash" ? (ride.finalCents ?? 0) : ride.paymentMethod === "cash" && DRIVER_ACTIVE.includes(ride.status) ? ride.quotedCents : 0;
+  // Cash: the fare given, then the final one once the ride ends.
+  const collect = ride.paymentMethod !== "cash" ? 0 : ride.status === "completed" ? (ride.finalCents ?? 0) : ride.status === "searching" || DRIVER_ACTIVE.includes(ride.status) ? ride.quotedCents : 0;
   const offered = ride.status === "searching" && ride.offerExpiresAt !== null && !extra.mine;
   return {
     id: ride.id,
