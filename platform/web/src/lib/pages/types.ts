@@ -16,12 +16,43 @@ export const CORNERS = ["sharp", "soft", "round"] as const;
 /** 97.3 Which look the app shows: the standard one, or the one made from a Figma file. */
 export const LOOK_MODES = ["standard", "figma"] as const;
 export const CARD_STYLES = ["flat", "outlined", "elevated"] as const;
-/** 103 Yallapp Studio: the layers of a canvas and what they can be. */
-export const STUDIO_LAYER_TYPES = ["box", "text", "image", "button", "icon", "items"] as const;
-export const STUDIO_FONT_WEIGHTS = [400, 500, 600, 700, 800] as const;
-export const STUDIO_ALIGNS = ["start", "center", "end"] as const;
+/** 103R Yallapp Studio: the elements of a page and what they can be (`StudioNode` in the app API). */
+export const STUDIO_LAYOUT_TYPES = ["row", "column", "stack", "grid", "slider", "spacer"] as const;
+export const STUDIO_CONTENT_TYPES = ["text", "image", "button", "icon", "items", "categories", "video", "form", "map", "ratings", "search", "divider"] as const;
+export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
+export const STUDIO_HEADER_TYPES = ["logo_center", "title_search", "logo_actions", "transparent"] as const;
+export const STUDIO_HEADER_BUTTONS = ["menu", "search", "cart", "notifications", "chat", "account"] as const;
+export const STUDIO_ALIGNS = ["start", "center", "end", "between", "around"] as const;
+export const STUDIO_CROSS = ["start", "center", "end", "stretch"] as const;
+export const STUDIO_TEXT_ALIGNS = ["start", "center", "end"] as const;
+export const STUDIO_PINS = ["none", "top", "bottom"] as const;
+export const STUDIO_SHADOWS = ["none", "light", "medium", "strong"] as const;
 export const STUDIO_FITS = ["cover", "contain"] as const;
-export const STUDIO_LIMITS = { minWidth: 320, maxWidth: 480, minHeight: 200, maxHeight: 10000, maxLayers: 200, textChars: 2000, minFont: 8, maxFont: 120, maxRadius: 500, maxBorder: 20 } as const;
+export const STUDIO_FONT_WEIGHTS = [300, 400, 500, 600, 700, 800, 900] as const;
+export const STUDIO_BINDS = ["title", "subtitle", "image", "price", "badge"] as const;
+export const STUDIO_ENTERS = ["none", "fade", "slide_up", "slide_down", "slide_start", "slide_end", "zoom"] as const;
+export const STUDIO_PRESSES = ["none", "shrink", "bounce"] as const;
+export const STUDIO_LOOPS = ["none", "pulse", "float", "shake"] as const;
+export const STUDIO_PLATFORMS = ["android", "ios"] as const;
+export const STUDIO_VISIBILITY = ["everyone", "signed_in", "signed_out"] as const;
+export const STUDIO_LIMITS = {
+  maxNodes: 600,
+  maxDepth: 12,
+  maxChildren: 60,
+  maxSize: 4000,
+  maxSide: 400,
+  maxGap: 200,
+  maxRadius: 500,
+  maxBorder: 20,
+  minFont: 8,
+  maxFont: 120,
+  textChars: 2000,
+  nameChars: 80,
+  maxColumns: 6,
+  maxFormFields: 10,
+  /** The whole page as JSON. */
+  maxBytes: 200 * 1024,
+} as const;
 /** 101 The header of the pages in the bottom tabs, and the buttons it can have. */
 export const HEADER_LAYOUTS = ["title", "centered", "logo", "search"] as const;
 export const HEADER_ICONS = ["search", "cart", "notifications", "chat", "account"] as const;
@@ -164,10 +195,17 @@ export interface FigmaPicture {
   name: string;
 }
 export type CardStyle = (typeof CARD_STYLES)[number];
-export type StudioLayerType = (typeof STUDIO_LAYER_TYPES)[number];
-export type StudioFontWeight = (typeof STUDIO_FONT_WEIGHTS)[number];
+export type StudioNodeType = (typeof STUDIO_NODE_TYPES)[number];
+export type StudioLayoutType = (typeof STUDIO_LAYOUT_TYPES)[number];
+export type StudioHeaderType = (typeof STUDIO_HEADER_TYPES)[number];
+export type StudioHeaderButton = (typeof STUDIO_HEADER_BUTTONS)[number];
 export type StudioAlign = (typeof STUDIO_ALIGNS)[number];
+export type StudioCross = (typeof STUDIO_CROSS)[number];
+export type StudioTextAlign = (typeof STUDIO_TEXT_ALIGNS)[number];
+export type StudioShadow = (typeof STUDIO_SHADOWS)[number];
 export type StudioFit = (typeof STUDIO_FITS)[number];
+export type StudioFontWeight = (typeof STUDIO_FONT_WEIGHTS)[number];
+export type StudioBind = (typeof STUDIO_BINDS)[number];
 export type HeaderLayout = (typeof HEADER_LAYOUTS)[number];
 export type HeaderIcon = (typeof HEADER_ICONS)[number];
 /** 43 A language code from `LOCALES` ("en", "ar", "fr", "fil"). */
@@ -452,46 +490,132 @@ export interface LayoutTab {
   translations?: Translations;
 }
 
+/** 103R `fill` the parent's space, `hug` the content, or logical pixels (`StudioSize`). */
+export type StudioSize = "fill" | "hug" | number;
+
+/** 103R Space on each side (`StudioSides`); logical sides, a side left out is 0. */
+export interface StudioSides {
+  top?: number;
+  end?: number;
+  bottom?: number;
+  start?: number;
+}
+
+export interface StudioFont {
+  family?: string | null;
+  weight?: StudioFontWeight;
+  size?: number;
+  line_height?: number;
+  letter_spacing?: number;
+  italic?: boolean;
+  underline?: boolean;
+}
+
+export interface StudioMotion {
+  enter?: (typeof STUDIO_ENTERS)[number];
+  duration_ms?: number;
+  delay_ms?: number;
+  press?: (typeof STUDIO_PRESSES)[number];
+  loop?: (typeof STUDIO_LOOPS)[number];
+}
+
+export interface StudioForm {
+  fields: FormField[];
+  submit_label?: string | null;
+  success_text?: string | null;
+  send_to: (typeof FORM_SEND_TO)[number];
+}
+
+export interface StudioMap {
+  lat: number;
+  lng: number;
+  zoom?: number;
+  label?: string | null;
+}
+
 /**
- * 103 One layer of a Studio canvas (`StudioLayer` in the app API), in design
- * units from the canvas's top start corner. An `items` layer keeps its
- * `query` here; the servers fill its `items`.
+ * 103R One element of a Studio page (`StudioNode` in the app API). In the
+ * layout an `items` element keeps its `query` (and `categories` its
+ * `source`); the servers fill `items` and `categories`. Texts are in the
+ * layout's default language with `translations` for the others.
  */
-export interface StudioLayer {
+export interface StudioNode {
   id: string;
-  type: StudioLayerType;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  fill?: string | null;
+  type: StudioNodeType;
+  name?: string | null;
+  children?: StudioNode[];
+  width?: StudioSize;
+  height?: StudioSize;
+  min_height?: number;
+  aspect_ratio?: number | null;
+  padding?: StudioSides;
+  margin?: StudioSides;
+  gap?: number;
+  align?: StudioAlign;
+  cross?: StudioCross;
+  self_align?: StudioCross | null;
+  columns?: number;
+  pin?: (typeof STUDIO_PINS)[number];
+  background?: string | null;
+  color?: string | null;
+  dark_background?: string | null;
+  dark_color?: string | null;
+  gradient?: { from: string; to: string; angle?: number } | null;
+  image_background_url?: string | null;
   radius?: number;
   border_color?: string | null;
   border_width?: number;
+  shadow?: StudioShadow;
   opacity?: number;
-  shadow?: boolean;
+  font?: StudioFont | null;
+  text_align?: StudioTextAlign;
   text?: string | null;
-  font_size?: number;
-  font_weight?: StudioFontWeight;
-  color?: string | null;
-  align?: StudioAlign;
+  max_lines?: number | null;
   image_url?: string | null;
   fit?: StudioFit;
   icon?: string | null;
-  action?: Action | null;
+  icon_position?: "start" | "end";
+  icon_size?: number;
+  video_url?: string | null;
+  autoplay?: boolean;
+  interval_ms?: number;
+  per_view?: number;
+  dots?: boolean;
   source?: ItemSource;
   layout?: (typeof ITEMS_LAYOUTS)[number];
   query?: ItemsQuery;
+  card?: StudioNode | null;
+  bind?: StudioBind | null;
+  form?: StudioForm | null;
+  map?: StudioMap | null;
+  rating?: number | null;
+  action?: Action | null;
+  platforms?: (typeof STUDIO_PLATFORMS)[number][];
+  visibility?: (typeof STUDIO_VISIBILITY)[number];
+  motion?: StudioMotion | null;
   translations?: Translations;
 }
 
-/** 103 A page designed in Yallapp Studio (`StudioCanvas`). */
-export interface StudioCanvas {
-  width: number;
-  height: number;
-  background: string | null;
-  /** Back to front. */
-  layers: StudioLayer[];
+/** 103R The bar at the top of a Studio page (`StudioHeader`). */
+export interface StudioHeader {
+  type: StudioHeaderType;
+  title?: string | null;
+  logo_url?: string | null;
+  buttons?: StudioHeaderButton[];
+  background?: string | null;
+  color?: string | null;
+  dark_background?: string | null;
+  dark_color?: string | null;
+  translations?: Translations;
+}
+
+/** 103R A page designed in Yallapp Studio (`StudioPage`). */
+export interface StudioPage {
+  header?: StudioHeader | null;
+  body: StudioNode;
+  background?: string | null;
+  dark_background?: string | null;
+  show_tabs?: boolean;
 }
 
 export interface LayoutPage {
@@ -504,8 +628,8 @@ export interface LayoutPage {
   background?: PageBackground;
   header_image_url?: string | null;
   blocks: LayoutBlock[];
-  /** 103 A Studio page: its canvas, drawn instead of blocks (none). */
-  canvas?: StudioCanvas;
+  /** 103R A Studio page: drawn instead of blocks (none). */
+  studio?: StudioPage;
 }
 
 /** A layout without its version: what the dashboard edits. */
@@ -552,8 +676,9 @@ export const LAYOUT_LIMITS = {
 export const TRANSLATABLE = {
   page: ["title"],
   tab: ["label"],
-  // 103 A Studio layer's text.
+  // 103R A Studio element's text, and the header's title.
   studio: ["text"],
+  studioHeader: ["title"],
   block: ["title", "heading", "subheading", "html", "label", "placeholder", "text", "ended_text", "note", "address", "name", "submit_label", "success_text"],
 } as const;
 

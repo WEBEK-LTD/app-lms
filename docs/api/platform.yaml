@@ -1489,15 +1489,16 @@ components:
         blocks:
           type: array
           items: { $ref: '#/components/schemas/LayoutBlock' }
-        canvas:
+        studio:
           type: object
           description: |
-            103 A Studio page: `StudioCanvas` in the app API, with each layer's
-            `text` in the default language and `translations` for the others
-            (like a block's), and `items` layers carrying a `query` (as the
-            `items` block) instead of `items`. The plugin fills the lists from
-            the site, leaves out a list it can't serve, and serves the rest
-            as it is (plugin 0.4.25).
+            103R A Studio page: `StudioPage` in the app API, with each
+            element's `text` (and the header's `title`) in the default
+            language and `translations` for the others (like a block's),
+            and `items` and `categories` elements carrying a `query` (as the
+            `items` and `categories` blocks) instead of their lists. The
+            plugin fills the lists from the site, leaves out an element whose
+            list it can't serve, and serves the rest as it is.
 
     LayoutBlock:
       type: object
