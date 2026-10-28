@@ -525,6 +525,8 @@ async function AppEntry({
           {app ? appLabel(app) : "No app yet"}
         </h2>
         <Badge tone={stateTone(state)}>{ACCOUNT_STATE_LABEL[state]}</Badge>
+        {/* 103R A Yallapp Studio project, on Studio's plans. */}
+        {app?.section === "studio" ? <span className="rounded-md bg-midnight px-2 py-0.5 text-[11px] font-bold tracking-wide text-white">YALLAPP STUDIO</span> : null}
         {typeName ? <span className="text-sm text-muted">{typeName}</span> : null}
       </div>
 

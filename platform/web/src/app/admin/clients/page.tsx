@@ -142,7 +142,7 @@ export default async function ClientsPage({ searchParams }: PageProps<"/admin/cl
           {filter !== "all" ? <input type="hidden" name="filter" value={filter} /> : null}
           <label className="flex-1">
             <span className="sr-only">Search clients</span>
-            <input name="q" type="search" defaultValue={q} placeholder="Search by name, phone or website" className="input input-sm" />
+            <input name="q" type="search" defaultValue={q} placeholder="Name, phone or website" className="input input-sm" />
           </label>
           <button type="submit" className={`${btn.secondary} h-11 px-3`} aria-label="Search">
             <Icon name="search" size={20} />
@@ -218,7 +218,11 @@ export default async function ClientsPage({ searchParams }: PageProps<"/admin/cl
                           <span className="text-xs text-muted">{row.client.whatsapp}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3.5 break-all">{hostOf(row.client.siteUrl)}</td>
+                      <td className="max-w-[220px] px-4 py-3.5">
+                        <span className="block truncate" title={hostOf(row.client.siteUrl)}>
+                          {hostOf(row.client.siteUrl)}
+                        </span>
+                      </td>
                       <td className="px-4 py-3.5">
                         {appRows.length === 0 ? (
                           <span className="text-muted">None yet</span>
@@ -226,7 +230,9 @@ export default async function ClientsPage({ searchParams }: PageProps<"/admin/cl
                           <div className="flex flex-col gap-0.5">
                             {appRows.length > 1 ? <span className="font-semibold">{appRows.length} apps</span> : null}
                             {appRows.map((e) => (
-                              <span key={e.app!.id} className="text-xs text-muted">
+                              <span key={e.app!.id} className="flex flex-wrap items-center gap-1.5 text-xs text-muted">
+                                {/* 103R A Yallapp Studio project, apart from the regular apps. */}
+                                {e.app!.section === "studio" ? <span className="rounded-md bg-midnight px-1.5 py-px text-[10px] font-bold tracking-wide text-white">STUDIO</span> : null}
                                 {appLabel(e.app)} · {ACCOUNT_STATE_LABEL[appState(row.client, e.license, now)]}
                               </span>
                             ))}
