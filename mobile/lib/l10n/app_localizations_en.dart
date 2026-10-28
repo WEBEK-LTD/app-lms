@@ -4173,4 +4173,386 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get headerSearch => 'Search';
+
+  @override
+  String get tabSend => 'Send';
+
+  @override
+  String get tabShipments => 'My shipments';
+
+  @override
+  String get tabCourier => 'Courier';
+
+  @override
+  String get sendTitle => 'Send a parcel';
+
+  @override
+  String get sendService => 'Service';
+
+  @override
+  String get sendPickup => 'Pickup';
+
+  @override
+  String get sendDropoff => 'Drop-off';
+
+  @override
+  String get placeAddress => 'Address';
+
+  @override
+  String get placeDetails => 'Building, floor, landmark (optional)';
+
+  @override
+  String get placeUseMyLocation => 'My location';
+
+  @override
+  String get placePasteLink => 'Paste a maps link';
+
+  @override
+  String get placeOnMap => 'On the map';
+
+  @override
+  String get placeLocated => 'Location set';
+
+  @override
+  String get placeNotLocated => 'No location yet (optional)';
+
+  @override
+  String get placeLocationNeeded =>
+      'Set this place with your location, a maps link or the map: the price is by distance.';
+
+  @override
+  String get placeRemoveLocation => 'Remove';
+
+  @override
+  String get pasteLinkTitle => 'Paste a maps link';
+
+  @override
+  String get pasteLinkHint =>
+      'A Google Maps or Apple Maps link, or a location shared on WhatsApp';
+
+  @override
+  String get pasteLinkUse => 'Use this place';
+
+  @override
+  String get pasteLinkFailed => 'We couldn\'t find a place in this link.';
+
+  @override
+  String get locateOff => 'Turn on location in your phone\'s settings.';
+
+  @override
+  String get locateDenied =>
+      'Allow the app to use your location in your phone\'s settings.';
+
+  @override
+  String get locateFailed =>
+      'We couldn\'t find where you are. Try again or set the place on the map.';
+
+  @override
+  String get mapPickTitle => 'Move the map to the place';
+
+  @override
+  String get mapPickConfirm => 'Use this place';
+
+  @override
+  String get sendZone => 'Area';
+
+  @override
+  String get sendRecipient => 'Recipient';
+
+  @override
+  String get recipientName => 'Name';
+
+  @override
+  String get recipientPhone => 'Mobile number';
+
+  @override
+  String get sendParcelSection => 'Parcel';
+
+  @override
+  String get parcelSmall => 'Small';
+
+  @override
+  String get parcelMedium => 'Medium';
+
+  @override
+  String get parcelLarge => 'Large';
+
+  @override
+  String get parcelDescription => 'What\'s inside (optional)';
+
+  @override
+  String get sendNotes => 'Notes for the courier (optional)';
+
+  @override
+  String get sendPayment => 'Payment';
+
+  @override
+  String get payCash => 'Cash to the courier';
+
+  @override
+  String get payCard => 'Card';
+
+  @override
+  String get sendPrice => 'Price';
+
+  @override
+  String get sendPriceCalculating => 'Calculating…';
+
+  @override
+  String get sendPriceMissing => 'Enter both addresses to see the price.';
+
+  @override
+  String distanceKm(String km) {
+    return '$km km';
+  }
+
+  @override
+  String get sendButton => 'Send the parcel';
+
+  @override
+  String get sendSignIn => 'Sign in to send';
+
+  @override
+  String get sendFillPlace => 'Enter the pickup and drop-off addresses.';
+
+  @override
+  String get sendFillRecipient =>
+      'Enter the recipient\'s name and mobile number.';
+
+  @override
+  String get sendSent => 'Sent. We\'ll tell you when a courier is on the way.';
+
+  @override
+  String get sendPaid => 'Paid. Your parcel is waiting for a courier.';
+
+  @override
+  String get loadingShipments => 'Loading shipments';
+
+  @override
+  String get noShipmentsTitle => 'No shipments yet';
+
+  @override
+  String get noShipmentsMessage =>
+      'Parcels you send show here, with each stage.';
+
+  @override
+  String get shipmentsSignInTitle => 'Your shipments';
+
+  @override
+  String get shipmentsSignInMessage =>
+      'Sign in to send parcels and follow them.';
+
+  @override
+  String shipmentHeading(String reference) {
+    return 'Shipment $reference';
+  }
+
+  @override
+  String get shipmentAwaitingPayment => 'Waiting for payment';
+
+  @override
+  String get shipmentPending => 'Waiting for a courier';
+
+  @override
+  String get shipmentAssigned => 'Courier on the way to pick up';
+
+  @override
+  String get shipmentPickedUp => 'Picked up';
+
+  @override
+  String get shipmentOnTheWay => 'On the way';
+
+  @override
+  String get shipmentDelivered => 'Delivered';
+
+  @override
+  String get shipmentFailed => 'Couldn\'t be delivered';
+
+  @override
+  String get shipmentCancelled => 'Cancelled';
+
+  @override
+  String get shipmentCourier => 'Courier';
+
+  @override
+  String get callCourier => 'Call';
+
+  @override
+  String get shipmentWaitingCourier =>
+      'We\'re finding a courier for your parcel.';
+
+  @override
+  String trackingCourierAt(String time) {
+    return 'The courier\'s position at $time';
+  }
+
+  @override
+  String get trackingOpenMap => 'Open in maps';
+
+  @override
+  String get trackingNoPosition =>
+      'You\'ll see where the courier is once they share their position.';
+
+  @override
+  String get paymentPaid => 'Paid';
+
+  @override
+  String get paymentUnpaid => 'Not paid yet';
+
+  @override
+  String get payNow => 'Pay now';
+
+  @override
+  String get cancelShipment => 'Cancel the shipment';
+
+  @override
+  String get cancelShipmentConfirm => 'Cancel this shipment?';
+
+  @override
+  String get cancelShipmentYes => 'Cancel it';
+
+  @override
+  String get keepIt => 'Keep it';
+
+  @override
+  String get shipmentCancelledToast => 'Cancelled.';
+
+  @override
+  String get shipmentStages => 'Stages';
+
+  @override
+  String get directionsButton => 'Directions';
+
+  @override
+  String get courierTitle => 'Courier';
+
+  @override
+  String get courierOnDuty => 'On duty';
+
+  @override
+  String get courierOffDutyHint => 'Off duty: you\'re not offered new jobs.';
+
+  @override
+  String courierDeliveredToday(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count delivered today',
+      one: '1 delivered today',
+      zero: 'Nothing delivered today yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get courierMyJobs => 'My jobs';
+
+  @override
+  String get courierWaiting => 'Waiting';
+
+  @override
+  String get courierDone => 'Done';
+
+  @override
+  String get loadingJobs => 'Loading jobs';
+
+  @override
+  String get noJobsTitle => 'No jobs here';
+
+  @override
+  String get noJobsMessage => 'New jobs show here, and you get a notification.';
+
+  @override
+  String get noWaitingTitle => 'No jobs are waiting';
+
+  @override
+  String get noWaitingOffDuty => 'Go on duty to see waiting jobs.';
+
+  @override
+  String get notCourierTitle => 'For our couriers';
+
+  @override
+  String get notCourierMessage =>
+      'This screen is for the company\'s couriers. Ask the company to add your number.';
+
+  @override
+  String get customerView => 'Customer view';
+
+  @override
+  String get sharingLocation =>
+      'While a parcel is on the way and this screen is open, its customer sees where you are.';
+
+  @override
+  String jobTitle(String reference) {
+    return 'Job $reference';
+  }
+
+  @override
+  String jobCollect(String amount) {
+    return 'Collect $amount';
+  }
+
+  @override
+  String jobCollectBanner(String amount) {
+    return 'Collect $amount in cash at the drop-off.';
+  }
+
+  @override
+  String get jobPaidByCard => 'Paid by card: nothing to collect.';
+
+  @override
+  String get jobPhonesAfterTaking => 'The numbers show once you take the job.';
+
+  @override
+  String callSender(String name) {
+    return 'Call $name';
+  }
+
+  @override
+  String callRecipient(String name) {
+    return 'Call $name';
+  }
+
+  @override
+  String get jobTake => 'Take this job';
+
+  @override
+  String get jobTaken => 'It\'s yours. Go to the pickup.';
+
+  @override
+  String get jobUpdated => 'Saved. The customer was told.';
+
+  @override
+  String get deliveredDone => 'Delivered. Well done.';
+
+  @override
+  String get stepPickedUp => 'I picked it up';
+
+  @override
+  String get stepOnTheWay => 'On my way';
+
+  @override
+  String get stepDelivered => 'Delivered';
+
+  @override
+  String get stepFailed => 'Couldn\'t deliver';
+
+  @override
+  String get stepReleased => 'Give the job back';
+
+  @override
+  String get releaseConfirm =>
+      'Give this job back? Another courier will take it.';
+
+  @override
+  String get failReasonTitle => 'Why couldn\'t it be delivered?';
+
+  @override
+  String get failReasonHint => 'Like: nobody answered';
+
+  @override
+  String get failReasonSend => 'Send';
+
+  @override
+  String get courierMode => 'Courier mode';
 }

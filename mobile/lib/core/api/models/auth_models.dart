@@ -86,6 +86,7 @@ class User {
     this.email,
     this.city,
     this.avatarUrl,
+    this.roles = const [],
   });
 
   factory User.fromJson(Json json) => User(
@@ -96,6 +97,8 @@ class User {
     email: optString(json, 'email'),
     city: optString(json, 'city'),
     avatarUrl: optString(json, 'avatar_url'),
+    // 104 In delivery apps, `courier` for the company's couriers.
+    roles: stringList(json, 'roles'),
   );
 
   final int id;
@@ -104,6 +107,10 @@ class User {
   final String? email;
   final String? city;
   final String? avatarUrl;
+  final List<String> roles;
+
+  /// 104 One of the delivery company's couriers.
+  bool get isCourier => roles.contains('courier');
 
   Json toJson() => {
     'id': id,
@@ -112,6 +119,7 @@ class User {
     'email': email,
     'city': city,
     'avatar_url': avatarUrl,
+    'roles': roles,
   };
 }
 

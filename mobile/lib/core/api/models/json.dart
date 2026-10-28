@@ -145,7 +145,8 @@ T enumFromSnake<T extends Enum>(List<T> values, Object? wire, T fallback) {
 T? enumOrNull<T extends Enum>(List<T> values, Object? wire) {
   if (wire is! String) return null;
   for (final value in values) {
-    if (value.name == wire) return value;
+    // 104 Snake-case wire names too (`delivery_services`).
+    if (value.name == wire || snake(value) == wire) return value;
   }
   return null;
 }

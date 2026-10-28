@@ -119,6 +119,9 @@ const symbolsByName = <String, IconData>{
   'restaurant_menu': Symbols.restaurant_menu_rounded,
   'spa': Symbols.spa_rounded,
   'stethoscope': Symbols.stethoscope_rounded,
+  // 104 Delivery and courier companies.
+  'package_2': Symbols.package_2_rounded,
+  'two_wheeler': Symbols.two_wheeler_rounded,
 };
 
 /// Shown for a name the app doesn't have.

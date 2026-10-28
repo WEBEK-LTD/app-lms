@@ -37,6 +37,7 @@ BuildConfigData buildConfigFromJson(Map<String, dynamic> json) {
       'news' => AppType.news,
       'events' => AppType.events,
       'donations' => AppType.donations,
+      'delivery' => AppType.delivery,
       _ => AppType.lms,
     },
     vertical: AppVertical.fromWire(json['vertical']),

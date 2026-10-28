@@ -6,6 +6,7 @@ import 'catalog_models.dart';
 import 'chat_models.dart';
 import 'event_models.dart';
 import 'donation_models.dart';
+import 'delivery_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
 import 'listing_models.dart';
@@ -30,6 +31,7 @@ class AppConfig {
     this.news,
     this.events,
     this.donations,
+    this.delivery,
     this.vertical,
     this.shareBaseUrl,
     this.chat,
@@ -53,6 +55,7 @@ class AppConfig {
     news: optObject(json, 'news', NewsConfig.fromJson),
     events: optObject(json, 'events', EventsConfig.fromJson),
     donations: optObject(json, 'donations', DonationsConfig.fromJson),
+    delivery: optObject(json, 'delivery', DeliveryConfig.fromJson),
     vertical: AppVertical.fromWire(json['vertical']),
     shareBaseUrl: _shareBase(json['links']),
     chat: _chat(json['chat']),
@@ -154,6 +157,9 @@ class AppConfig {
 
   /// How donations work (Charity & donations apps, 29).
   final DonationsConfig? donations;
+
+  /// 104 How a delivery company prices, takes payment and follows parcels.
+  final DeliveryConfig? delivery;
 
   /// The kind of business (wording and defaults only); null for none, on
   /// older servers, and for values this app doesn't know.

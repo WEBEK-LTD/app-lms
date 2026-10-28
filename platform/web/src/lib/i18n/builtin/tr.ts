@@ -432,6 +432,22 @@ export const PAGE_TEXTS_TR: Record<string, string> = {
   "My shipments": "Gönderilerim",
   "Send a parcel": "Paket gönder",
   "Courier": "Kurye",
+  "Send a parcel across the city": "Şehrin her yerine paket gönderin",
+  "A courier picks it up at your door": "Kurye kapınızdan alır",
+  "30 min": "30 dk",
+  "To pick up": "Alıma kadar",
+  "Parcels a month": "Aylık paket",
+  "A week": "Haftada",
+  "How do I follow my parcel?": "Paketimi nasıl takip ederim?",
+  "Open My shipments: each stage shows with its time.": "Gönderilerim'i açın: her aşama saatiyle görünür.",
+  "Send now": "Şimdi gönder",
+  "Write your delivery hours or today's offer here.": "Teslimat saatlerinizi veya bugünün teklifini buraya yazın.",
+  "Choose a service": "Bir hizmet seçin",
+  "Write what a customer says about your deliveries.": "Bir müşterinin teslimatlarınız hakkında söylediklerini yazın.",
+  "<h2>Deliveries for your business</h2><p>{app} picks up from your shop and delivers to your customers.</p>": "<h2>İşletmeniz için teslimat</h2><p>{app} mağazanızdan alır ve müşterilerinize teslim eder.</p>",
+  "<h2>Deliveries for your business</h2><p>our app picks up from your shop and delivers to your customers.</p>": "<h2>İşletmeniz için teslimat</h2><p>Uygulamamız mağazanızdan alır ve müşterilerinize teslim eder.</p>",
+  "Working hours": "Çalışma saatleri",
+  "Customer service": "Müşteri hizmetleri",
 };
 
 /** Messages the hosted API answers with (errors, refusals). */

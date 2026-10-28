@@ -169,12 +169,11 @@ export default async function DeliverySettingsPage() {
             </li>
           ))}
         </ul>
-        <details className="rounded-xl border border-line p-4" open={services.length === 0}>
-          <summary className="cursor-pointer text-[15px] font-bold">{t("delivery.addService")}</summary>
-          <div className="pt-3">
-            <ServiceForm currency={settings.currency} service={{ id: null, name: "", description: "", extra: "", eta: "", active: true, imageUrl: null }} />
-          </div>
-        </details>
+        {/* Always open, so the form's confirmation stays in view once the first service is added. */}
+        <div className="flex flex-col gap-3 rounded-xl border border-line p-4">
+          <h3 className="m-0 text-[15px] font-bold">{t("delivery.addService")}</h3>
+          <ServiceForm currency={settings.currency} service={{ id: null, name: "", description: "", extra: "", eta: "", active: true, imageUrl: null }} />
+        </div>
       </section>
 
       {settings.card || isOwnPayment(catalogSettings(app).payment) ? <DeliveryPayments app={app} /> : null}

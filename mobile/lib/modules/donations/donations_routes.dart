@@ -24,6 +24,9 @@ final donationsModule = AppModule(
     BuiltInScreen.account => Paths.account,
     BuiltInScreen.settings => Paths.settings,
     BuiltInScreen.notifications => Paths.notifications,
+    BuiltInScreen.sendParcel ||
+    BuiltInScreen.shipments ||
+    BuiltInScreen.courier ||
     BuiltInScreen.search ||
     BuiltInScreen.myCourses ||
     BuiltInScreen.favorites ||

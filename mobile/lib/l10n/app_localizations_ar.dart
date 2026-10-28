@@ -4246,4 +4246,382 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get headerSearch => 'بحث';
+
+  @override
+  String get tabSend => 'إرسال';
+
+  @override
+  String get tabShipments => 'شحناتي';
+
+  @override
+  String get tabCourier => 'المندوب';
+
+  @override
+  String get sendTitle => 'أرسل طردًا';
+
+  @override
+  String get sendService => 'الخدمة';
+
+  @override
+  String get sendPickup => 'الاستلام';
+
+  @override
+  String get sendDropoff => 'التسليم';
+
+  @override
+  String get placeAddress => 'العنوان';
+
+  @override
+  String get placeDetails => 'المبنى والدور وعلامة مميزة (اختياري)';
+
+  @override
+  String get placeUseMyLocation => 'موقعي';
+
+  @override
+  String get placePasteLink => 'الصق رابط خرائط';
+
+  @override
+  String get placeOnMap => 'على الخريطة';
+
+  @override
+  String get placeLocated => 'تم تحديد الموقع';
+
+  @override
+  String get placeNotLocated => 'لم يُحدَّد الموقع بعد (اختياري)';
+
+  @override
+  String get placeLocationNeeded =>
+      'حدّد هذا المكان بموقعك أو برابط خرائط أو على الخريطة: السعر حسب المسافة.';
+
+  @override
+  String get placeRemoveLocation => 'إزالة';
+
+  @override
+  String get pasteLinkTitle => 'الصق رابط الخرائط';
+
+  @override
+  String get pasteLinkHint =>
+      'رابط Google Maps أو Apple Maps، أو موقع تمت مشاركته على واتساب';
+
+  @override
+  String get pasteLinkUse => 'استخدم هذا المكان';
+
+  @override
+  String get pasteLinkFailed => 'لم نجد مكانًا في هذا الرابط.';
+
+  @override
+  String get locateOff => 'شغّل خدمة الموقع من إعدادات هاتفك.';
+
+  @override
+  String get locateDenied => 'اسمح للتطبيق باستخدام موقعك من إعدادات هاتفك.';
+
+  @override
+  String get locateFailed =>
+      'لم نتمكن من تحديد مكانك. حاول مجددًا أو حدّد المكان على الخريطة.';
+
+  @override
+  String get mapPickTitle => 'حرّك الخريطة إلى المكان';
+
+  @override
+  String get mapPickConfirm => 'استخدم هذا المكان';
+
+  @override
+  String get sendZone => 'المنطقة';
+
+  @override
+  String get sendRecipient => 'المستلم';
+
+  @override
+  String get recipientName => 'الاسم';
+
+  @override
+  String get recipientPhone => 'رقم الجوال';
+
+  @override
+  String get sendParcelSection => 'الطرد';
+
+  @override
+  String get parcelSmall => 'صغير';
+
+  @override
+  String get parcelMedium => 'متوسط';
+
+  @override
+  String get parcelLarge => 'كبير';
+
+  @override
+  String get parcelDescription => 'ما بداخله (اختياري)';
+
+  @override
+  String get sendNotes => 'ملاحظات للمندوب (اختياري)';
+
+  @override
+  String get sendPayment => 'الدفع';
+
+  @override
+  String get payCash => 'نقدًا للمندوب';
+
+  @override
+  String get payCard => 'بطاقة';
+
+  @override
+  String get sendPrice => 'السعر';
+
+  @override
+  String get sendPriceCalculating => 'جارٍ الحساب…';
+
+  @override
+  String get sendPriceMissing => 'أدخل العنوانين لترى السعر.';
+
+  @override
+  String distanceKm(String km) {
+    return '$km كم';
+  }
+
+  @override
+  String get sendButton => 'أرسل الطرد';
+
+  @override
+  String get sendSignIn => 'سجّل الدخول للإرسال';
+
+  @override
+  String get sendFillPlace => 'أدخل عنواني الاستلام والتسليم.';
+
+  @override
+  String get sendFillRecipient => 'أدخل اسم المستلم ورقم جواله.';
+
+  @override
+  String get sendSent => 'تم الإرسال. سنخبرك حين يكون المندوب في الطريق.';
+
+  @override
+  String get sendPaid => 'تم الدفع. طردك بانتظار مندوب.';
+
+  @override
+  String get loadingShipments => 'جارٍ تحميل الشحنات';
+
+  @override
+  String get noShipmentsTitle => 'لا توجد شحنات بعد';
+
+  @override
+  String get noShipmentsMessage => 'تظهر هنا الطرود التي ترسلها، بكل مراحلها.';
+
+  @override
+  String get shipmentsSignInTitle => 'شحناتك';
+
+  @override
+  String get shipmentsSignInMessage => 'سجّل الدخول لإرسال الطرود ومتابعتها.';
+
+  @override
+  String shipmentHeading(String reference) {
+    return 'الشحنة $reference';
+  }
+
+  @override
+  String get shipmentAwaitingPayment => 'بانتظار الدفع';
+
+  @override
+  String get shipmentPending => 'بانتظار مندوب';
+
+  @override
+  String get shipmentAssigned => 'المندوب في الطريق للاستلام';
+
+  @override
+  String get shipmentPickedUp => 'تم الاستلام';
+
+  @override
+  String get shipmentOnTheWay => 'في الطريق';
+
+  @override
+  String get shipmentDelivered => 'تم التسليم';
+
+  @override
+  String get shipmentFailed => 'تعذّر التسليم';
+
+  @override
+  String get shipmentCancelled => 'أُلغيت';
+
+  @override
+  String get shipmentCourier => 'المندوب';
+
+  @override
+  String get callCourier => 'اتصال';
+
+  @override
+  String get shipmentWaitingCourier => 'نبحث عن مندوب لطردك.';
+
+  @override
+  String trackingCourierAt(String time) {
+    return 'موقع المندوب الساعة $time';
+  }
+
+  @override
+  String get trackingOpenMap => 'افتح في الخرائط';
+
+  @override
+  String get trackingNoPosition => 'سترى مكان المندوب حين يشارك موقعه.';
+
+  @override
+  String get paymentPaid => 'مدفوع';
+
+  @override
+  String get paymentUnpaid => 'لم يُدفع بعد';
+
+  @override
+  String get payNow => 'ادفع الآن';
+
+  @override
+  String get cancelShipment => 'إلغاء الشحنة';
+
+  @override
+  String get cancelShipmentConfirm => 'إلغاء هذه الشحنة؟';
+
+  @override
+  String get cancelShipmentYes => 'ألغِها';
+
+  @override
+  String get keepIt => 'أبقِها';
+
+  @override
+  String get shipmentCancelledToast => 'تم الإلغاء.';
+
+  @override
+  String get shipmentStages => 'المراحل';
+
+  @override
+  String get directionsButton => 'الاتجاهات';
+
+  @override
+  String get courierTitle => 'المندوب';
+
+  @override
+  String get courierOnDuty => 'في الخدمة';
+
+  @override
+  String get courierOffDutyHint => 'خارج الخدمة: لن تُعرض عليك مهام جديدة.';
+
+  @override
+  String courierDeliveredToday(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count توصيلة اليوم',
+      many: '$count توصيلة اليوم',
+      few: '$count توصيلات اليوم',
+      two: 'توصيلتان اليوم',
+      one: 'توصيلة واحدة اليوم',
+      zero: 'لا توصيلات اليوم بعد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get courierMyJobs => 'مهامي';
+
+  @override
+  String get courierWaiting => 'المنتظرة';
+
+  @override
+  String get courierDone => 'المنتهية';
+
+  @override
+  String get loadingJobs => 'جارٍ تحميل المهام';
+
+  @override
+  String get noJobsTitle => 'لا توجد مهام هنا';
+
+  @override
+  String get noJobsMessage => 'تظهر هنا المهام الجديدة، ويصلك إشعار بها.';
+
+  @override
+  String get noWaitingTitle => 'لا توجد مهام منتظرة';
+
+  @override
+  String get noWaitingOffDuty => 'ادخل الخدمة لترى المهام المنتظرة.';
+
+  @override
+  String get notCourierTitle => 'لمناديبنا';
+
+  @override
+  String get notCourierMessage =>
+      'هذه الشاشة لمناديب الشركة. اطلب من الشركة إضافة رقمك.';
+
+  @override
+  String get customerView => 'شاشات العميل';
+
+  @override
+  String get sharingLocation =>
+      'ما دام الطرد في الطريق وهذه الشاشة مفتوحة، يرى العميل مكانك.';
+
+  @override
+  String jobTitle(String reference) {
+    return 'المهمة $reference';
+  }
+
+  @override
+  String jobCollect(String amount) {
+    return 'حصّل $amount';
+  }
+
+  @override
+  String jobCollectBanner(String amount) {
+    return 'حصّل $amount نقدًا عند التسليم.';
+  }
+
+  @override
+  String get jobPaidByCard => 'مدفوعة بالبطاقة: لا شيء للتحصيل.';
+
+  @override
+  String get jobPhonesAfterTaking => 'تظهر الأرقام بعد أن تأخذ المهمة.';
+
+  @override
+  String callSender(String name) {
+    return 'اتصل بـ $name';
+  }
+
+  @override
+  String callRecipient(String name) {
+    return 'اتصل بـ $name';
+  }
+
+  @override
+  String get jobTake => 'خذ هذه المهمة';
+
+  @override
+  String get jobTaken => 'المهمة لك. توجّه إلى مكان الاستلام.';
+
+  @override
+  String get jobUpdated => 'تم الحفظ. تم إبلاغ العميل.';
+
+  @override
+  String get deliveredDone => 'تم التسليم. أحسنت.';
+
+  @override
+  String get stepPickedUp => 'استلمت الطرد';
+
+  @override
+  String get stepOnTheWay => 'في الطريق';
+
+  @override
+  String get stepDelivered => 'تم التسليم';
+
+  @override
+  String get stepFailed => 'تعذّر التسليم';
+
+  @override
+  String get stepReleased => 'أعِد المهمة';
+
+  @override
+  String get releaseConfirm => 'إعادة هذه المهمة؟ سيأخذها مندوب آخر.';
+
+  @override
+  String get failReasonTitle => 'لماذا تعذّر التسليم؟';
+
+  @override
+  String get failReasonHint => 'مثل: لم يرد أحد';
+
+  @override
+  String get failReasonSend => 'إرسال';
+
+  @override
+  String get courierMode => 'وضع المندوب';
 }

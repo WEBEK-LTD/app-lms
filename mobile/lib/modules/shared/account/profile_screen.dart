@@ -16,6 +16,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../chat/data/chat_providers.dart';
+import '../../delivery/data/delivery_providers.dart';
 import '../../lms/downloads/download_manager.dart';
 import '../../lms/downloads/download_widgets.dart';
 
@@ -54,6 +55,10 @@ class ProfileScreen extends ConsumerWidget {
         config.features.orders &&
         (env.build.appType == AppType.events ||
             env.build.appType == AppType.booking);
+    // 104 Delivery apps: the customer's shipments, and the courier's screens
+    // for the company's couriers.
+    final delivery = env.build.appType == AppType.delivery;
+    final courier = ref.watch(isCourierProvider);
     // 45 Academy apps whose students can save lessons on this phone.
     final downloads = lms && downloadsOffered(ref);
     final savedBytes = downloads
@@ -214,6 +219,20 @@ class ProfileScreen extends ConsumerWidget {
                     icon: AppIcons.orders,
                     title: context.l10n.myOrders,
                     onTap: () => context.push(Paths.orders),
+                  ),
+                if (courier)
+                  SettingsTile(
+                    key: const ValueKey('account-courier'),
+                    icon: AppIcons.courier,
+                    title: context.l10n.courierMode,
+                    onTap: () => context.go(Paths.courier),
+                  ),
+                if (delivery && user != null)
+                  SettingsTile(
+                    key: const ValueKey('account-shipments'),
+                    icon: AppIcons.parcel,
+                    title: context.l10n.tabShipments,
+                    onTap: () => context.go(Paths.shipments),
                   ),
                 if (chatHere)
                   SettingsTile(

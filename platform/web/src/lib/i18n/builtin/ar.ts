@@ -431,6 +431,22 @@ export const PAGE_TEXTS_AR: Record<string, string> = {
   "My shipments": "شحناتي",
   "Send a parcel": "أرسل طردًا",
   "Courier": "المندوب",
+  "Send a parcel across the city": "أرسل طردًا إلى أي مكان في المدينة",
+  "A courier picks it up at your door": "يستلمه المندوب من باب بيتك",
+  "30 min": "30 دقيقة",
+  "To pick up": "حتى الاستلام",
+  "Parcels a month": "طرد شهريًا",
+  "A week": "أيام في الأسبوع",
+  "How do I follow my parcel?": "كيف أتابع طردي؟",
+  "Open My shipments: each stage shows with its time.": "افتح شحناتي: تظهر كل مرحلة مع وقتها.",
+  "Send now": "أرسل الآن",
+  "Write your delivery hours or today's offer here.": "اكتب هنا مواعيد التوصيل أو عرض اليوم.",
+  "Choose a service": "اختر خدمة",
+  "Write what a customer says about your deliveries.": "اكتب ما يقوله أحد العملاء عن خدمة التوصيل لديكم.",
+  "<h2>Deliveries for your business</h2><p>{app} picks up from your shop and delivers to your customers.</p>": "<h2>توصيل لنشاطك التجاري</h2><p>تستلم {app} من متجرك وتوصّل إلى عملائك.</p>",
+  "<h2>Deliveries for your business</h2><p>our app picks up from your shop and delivers to your customers.</p>": "<h2>توصيل لنشاطك التجاري</h2><p>يستلم تطبيقنا من متجرك ويوصّل إلى عملائك.</p>",
+  "Working hours": "ساعات العمل",
+  "Customer service": "خدمة العملاء",
 };
 
 /** Messages the hosted API answers with (errors, refusals). */

@@ -71,6 +71,7 @@ const appTypes = [
   'news',
   'events',
   'donations',
+  'delivery',
 ];
 
 /// Kinds of business (`vertical` in the schema), on top of the app type.

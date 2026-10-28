@@ -4325,4 +4325,425 @@ class OverlayLocalizations extends AppLocalizations {
 
   @override
   String get headerSearch => overlay.text('headerSearch') ?? base.headerSearch;
+
+  @override
+  String get tabSend => overlay.text('tabSend') ?? base.tabSend;
+
+  @override
+  String get tabShipments => overlay.text('tabShipments') ?? base.tabShipments;
+
+  @override
+  String get tabCourier => overlay.text('tabCourier') ?? base.tabCourier;
+
+  @override
+  String get sendTitle => overlay.text('sendTitle') ?? base.sendTitle;
+
+  @override
+  String get sendService => overlay.text('sendService') ?? base.sendService;
+
+  @override
+  String get sendPickup => overlay.text('sendPickup') ?? base.sendPickup;
+
+  @override
+  String get sendDropoff => overlay.text('sendDropoff') ?? base.sendDropoff;
+
+  @override
+  String get placeAddress => overlay.text('placeAddress') ?? base.placeAddress;
+
+  @override
+  String get placeDetails => overlay.text('placeDetails') ?? base.placeDetails;
+
+  @override
+  String get placeUseMyLocation =>
+      overlay.text('placeUseMyLocation') ?? base.placeUseMyLocation;
+
+  @override
+  String get placePasteLink =>
+      overlay.text('placePasteLink') ?? base.placePasteLink;
+
+  @override
+  String get placeOnMap => overlay.text('placeOnMap') ?? base.placeOnMap;
+
+  @override
+  String get placeLocated => overlay.text('placeLocated') ?? base.placeLocated;
+
+  @override
+  String get placeNotLocated =>
+      overlay.text('placeNotLocated') ?? base.placeNotLocated;
+
+  @override
+  String get placeLocationNeeded =>
+      overlay.text('placeLocationNeeded') ?? base.placeLocationNeeded;
+
+  @override
+  String get placeRemoveLocation =>
+      overlay.text('placeRemoveLocation') ?? base.placeRemoveLocation;
+
+  @override
+  String get pasteLinkTitle =>
+      overlay.text('pasteLinkTitle') ?? base.pasteLinkTitle;
+
+  @override
+  String get pasteLinkHint =>
+      overlay.text('pasteLinkHint') ?? base.pasteLinkHint;
+
+  @override
+  String get pasteLinkUse => overlay.text('pasteLinkUse') ?? base.pasteLinkUse;
+
+  @override
+  String get pasteLinkFailed =>
+      overlay.text('pasteLinkFailed') ?? base.pasteLinkFailed;
+
+  @override
+  String get locateOff => overlay.text('locateOff') ?? base.locateOff;
+
+  @override
+  String get locateDenied => overlay.text('locateDenied') ?? base.locateDenied;
+
+  @override
+  String get locateFailed => overlay.text('locateFailed') ?? base.locateFailed;
+
+  @override
+  String get mapPickTitle => overlay.text('mapPickTitle') ?? base.mapPickTitle;
+
+  @override
+  String get mapPickConfirm =>
+      overlay.text('mapPickConfirm') ?? base.mapPickConfirm;
+
+  @override
+  String get sendZone => overlay.text('sendZone') ?? base.sendZone;
+
+  @override
+  String get sendRecipient =>
+      overlay.text('sendRecipient') ?? base.sendRecipient;
+
+  @override
+  String get recipientName =>
+      overlay.text('recipientName') ?? base.recipientName;
+
+  @override
+  String get recipientPhone =>
+      overlay.text('recipientPhone') ?? base.recipientPhone;
+
+  @override
+  String get sendParcelSection =>
+      overlay.text('sendParcelSection') ?? base.sendParcelSection;
+
+  @override
+  String get parcelSmall => overlay.text('parcelSmall') ?? base.parcelSmall;
+
+  @override
+  String get parcelMedium => overlay.text('parcelMedium') ?? base.parcelMedium;
+
+  @override
+  String get parcelLarge => overlay.text('parcelLarge') ?? base.parcelLarge;
+
+  @override
+  String get parcelDescription =>
+      overlay.text('parcelDescription') ?? base.parcelDescription;
+
+  @override
+  String get sendNotes => overlay.text('sendNotes') ?? base.sendNotes;
+
+  @override
+  String get sendPayment => overlay.text('sendPayment') ?? base.sendPayment;
+
+  @override
+  String get payCash => overlay.text('payCash') ?? base.payCash;
+
+  @override
+  String get payCard => overlay.text('payCard') ?? base.payCard;
+
+  @override
+  String get sendPrice => overlay.text('sendPrice') ?? base.sendPrice;
+
+  @override
+  String get sendPriceCalculating =>
+      overlay.text('sendPriceCalculating') ?? base.sendPriceCalculating;
+
+  @override
+  String get sendPriceMissing =>
+      overlay.text('sendPriceMissing') ?? base.sendPriceMissing;
+
+  @override
+  String distanceKm(String km) =>
+      overlay.format('distanceKm', {'km': km}) ?? base.distanceKm(km);
+
+  @override
+  String get sendButton => overlay.text('sendButton') ?? base.sendButton;
+
+  @override
+  String get sendSignIn => overlay.text('sendSignIn') ?? base.sendSignIn;
+
+  @override
+  String get sendFillPlace =>
+      overlay.text('sendFillPlace') ?? base.sendFillPlace;
+
+  @override
+  String get sendFillRecipient =>
+      overlay.text('sendFillRecipient') ?? base.sendFillRecipient;
+
+  @override
+  String get sendSent => overlay.text('sendSent') ?? base.sendSent;
+
+  @override
+  String get sendPaid => overlay.text('sendPaid') ?? base.sendPaid;
+
+  @override
+  String get loadingShipments =>
+      overlay.text('loadingShipments') ?? base.loadingShipments;
+
+  @override
+  String get noShipmentsTitle =>
+      overlay.text('noShipmentsTitle') ?? base.noShipmentsTitle;
+
+  @override
+  String get noShipmentsMessage =>
+      overlay.text('noShipmentsMessage') ?? base.noShipmentsMessage;
+
+  @override
+  String get shipmentsSignInTitle =>
+      overlay.text('shipmentsSignInTitle') ?? base.shipmentsSignInTitle;
+
+  @override
+  String get shipmentsSignInMessage =>
+      overlay.text('shipmentsSignInMessage') ?? base.shipmentsSignInMessage;
+
+  @override
+  String shipmentHeading(String reference) =>
+      overlay.format('shipmentHeading', {'reference': reference}) ??
+      base.shipmentHeading(reference);
+
+  @override
+  String get shipmentAwaitingPayment =>
+      overlay.text('shipmentAwaitingPayment') ?? base.shipmentAwaitingPayment;
+
+  @override
+  String get shipmentPending =>
+      overlay.text('shipmentPending') ?? base.shipmentPending;
+
+  @override
+  String get shipmentAssigned =>
+      overlay.text('shipmentAssigned') ?? base.shipmentAssigned;
+
+  @override
+  String get shipmentPickedUp =>
+      overlay.text('shipmentPickedUp') ?? base.shipmentPickedUp;
+
+  @override
+  String get shipmentOnTheWay =>
+      overlay.text('shipmentOnTheWay') ?? base.shipmentOnTheWay;
+
+  @override
+  String get shipmentDelivered =>
+      overlay.text('shipmentDelivered') ?? base.shipmentDelivered;
+
+  @override
+  String get shipmentFailed =>
+      overlay.text('shipmentFailed') ?? base.shipmentFailed;
+
+  @override
+  String get shipmentCancelled =>
+      overlay.text('shipmentCancelled') ?? base.shipmentCancelled;
+
+  @override
+  String get shipmentCourier =>
+      overlay.text('shipmentCourier') ?? base.shipmentCourier;
+
+  @override
+  String get callCourier => overlay.text('callCourier') ?? base.callCourier;
+
+  @override
+  String get shipmentWaitingCourier =>
+      overlay.text('shipmentWaitingCourier') ?? base.shipmentWaitingCourier;
+
+  @override
+  String trackingCourierAt(String time) =>
+      overlay.format('trackingCourierAt', {'time': time}) ??
+      base.trackingCourierAt(time);
+
+  @override
+  String get trackingOpenMap =>
+      overlay.text('trackingOpenMap') ?? base.trackingOpenMap;
+
+  @override
+  String get trackingNoPosition =>
+      overlay.text('trackingNoPosition') ?? base.trackingNoPosition;
+
+  @override
+  String get paymentPaid => overlay.text('paymentPaid') ?? base.paymentPaid;
+
+  @override
+  String get paymentUnpaid =>
+      overlay.text('paymentUnpaid') ?? base.paymentUnpaid;
+
+  @override
+  String get payNow => overlay.text('payNow') ?? base.payNow;
+
+  @override
+  String get cancelShipment =>
+      overlay.text('cancelShipment') ?? base.cancelShipment;
+
+  @override
+  String get cancelShipmentConfirm =>
+      overlay.text('cancelShipmentConfirm') ?? base.cancelShipmentConfirm;
+
+  @override
+  String get cancelShipmentYes =>
+      overlay.text('cancelShipmentYes') ?? base.cancelShipmentYes;
+
+  @override
+  String get keepIt => overlay.text('keepIt') ?? base.keepIt;
+
+  @override
+  String get shipmentCancelledToast =>
+      overlay.text('shipmentCancelledToast') ?? base.shipmentCancelledToast;
+
+  @override
+  String get shipmentStages =>
+      overlay.text('shipmentStages') ?? base.shipmentStages;
+
+  @override
+  String get directionsButton =>
+      overlay.text('directionsButton') ?? base.directionsButton;
+
+  @override
+  String get courierTitle => overlay.text('courierTitle') ?? base.courierTitle;
+
+  @override
+  String get courierOnDuty =>
+      overlay.text('courierOnDuty') ?? base.courierOnDuty;
+
+  @override
+  String get courierOffDutyHint =>
+      overlay.text('courierOffDutyHint') ?? base.courierOffDutyHint;
+
+  @override
+  String courierDeliveredToday(int count) =>
+      overlay.format('courierDeliveredToday', {'count': count}) ??
+      base.courierDeliveredToday(count);
+
+  @override
+  String get courierMyJobs =>
+      overlay.text('courierMyJobs') ?? base.courierMyJobs;
+
+  @override
+  String get courierWaiting =>
+      overlay.text('courierWaiting') ?? base.courierWaiting;
+
+  @override
+  String get courierDone => overlay.text('courierDone') ?? base.courierDone;
+
+  @override
+  String get loadingJobs => overlay.text('loadingJobs') ?? base.loadingJobs;
+
+  @override
+  String get noJobsTitle => overlay.text('noJobsTitle') ?? base.noJobsTitle;
+
+  @override
+  String get noJobsMessage =>
+      overlay.text('noJobsMessage') ?? base.noJobsMessage;
+
+  @override
+  String get noWaitingTitle =>
+      overlay.text('noWaitingTitle') ?? base.noWaitingTitle;
+
+  @override
+  String get noWaitingOffDuty =>
+      overlay.text('noWaitingOffDuty') ?? base.noWaitingOffDuty;
+
+  @override
+  String get notCourierTitle =>
+      overlay.text('notCourierTitle') ?? base.notCourierTitle;
+
+  @override
+  String get notCourierMessage =>
+      overlay.text('notCourierMessage') ?? base.notCourierMessage;
+
+  @override
+  String get customerView => overlay.text('customerView') ?? base.customerView;
+
+  @override
+  String get sharingLocation =>
+      overlay.text('sharingLocation') ?? base.sharingLocation;
+
+  @override
+  String jobTitle(String reference) =>
+      overlay.format('jobTitle', {'reference': reference}) ??
+      base.jobTitle(reference);
+
+  @override
+  String jobCollect(String amount) =>
+      overlay.format('jobCollect', {'amount': amount}) ??
+      base.jobCollect(amount);
+
+  @override
+  String jobCollectBanner(String amount) =>
+      overlay.format('jobCollectBanner', {'amount': amount}) ??
+      base.jobCollectBanner(amount);
+
+  @override
+  String get jobPaidByCard =>
+      overlay.text('jobPaidByCard') ?? base.jobPaidByCard;
+
+  @override
+  String get jobPhonesAfterTaking =>
+      overlay.text('jobPhonesAfterTaking') ?? base.jobPhonesAfterTaking;
+
+  @override
+  String callSender(String name) =>
+      overlay.format('callSender', {'name': name}) ?? base.callSender(name);
+
+  @override
+  String callRecipient(String name) =>
+      overlay.format('callRecipient', {'name': name}) ??
+      base.callRecipient(name);
+
+  @override
+  String get jobTake => overlay.text('jobTake') ?? base.jobTake;
+
+  @override
+  String get jobTaken => overlay.text('jobTaken') ?? base.jobTaken;
+
+  @override
+  String get jobUpdated => overlay.text('jobUpdated') ?? base.jobUpdated;
+
+  @override
+  String get deliveredDone =>
+      overlay.text('deliveredDone') ?? base.deliveredDone;
+
+  @override
+  String get stepPickedUp => overlay.text('stepPickedUp') ?? base.stepPickedUp;
+
+  @override
+  String get stepOnTheWay => overlay.text('stepOnTheWay') ?? base.stepOnTheWay;
+
+  @override
+  String get stepDelivered =>
+      overlay.text('stepDelivered') ?? base.stepDelivered;
+
+  @override
+  String get stepFailed => overlay.text('stepFailed') ?? base.stepFailed;
+
+  @override
+  String get stepReleased => overlay.text('stepReleased') ?? base.stepReleased;
+
+  @override
+  String get releaseConfirm =>
+      overlay.text('releaseConfirm') ?? base.releaseConfirm;
+
+  @override
+  String get failReasonTitle =>
+      overlay.text('failReasonTitle') ?? base.failReasonTitle;
+
+  @override
+  String get failReasonHint =>
+      overlay.text('failReasonHint') ?? base.failReasonHint;
+
+  @override
+  String get failReasonSend =>
+      overlay.text('failReasonSend') ?? base.failReasonSend;
+
+  @override
+  String get courierMode => overlay.text('courierMode') ?? base.courierMode;
 }

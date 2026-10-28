@@ -3,7 +3,7 @@ import { newApp } from "@/lib/app/setup";
 import { deliverPaidOrder } from "@/lib/catalog/payment";
 import { encryptPaymentKeys } from "@/lib/catalog/settings";
 import type { MemoryStore } from "@/lib/data/memory";
-import { DEFAULT_CATALOG_SETTINGS, type App, type DeliverySettings } from "@/lib/data/types";
+import { DEFAULT_CATALOG_SETTINGS, DEFAULT_HOSTED_SETTINGS, type App, type DeliverySettings } from "@/lib/data/types";
 import { parseCourierForm, parseDeliverySettings, parseServiceForm, parseZones, zonesText } from "@/lib/delivery/forms";
 import { coordinatesIn, isMapsLink, locateMapLink } from "@/lib/delivery/locate";
 import { deliveryServicePageItems } from "@/lib/delivery/page-items";
@@ -139,7 +139,7 @@ describe("104 delivery apps on the hosted API", () => {
       appName: "Nile Express",
       websiteDoneAt: NOW,
       connector: { kind: "deliveries" },
-      hostedSettings: { ...base.hostedSettings, defaultCountryCode: "+20" },
+      hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, ...base.hostedSettings, defaultCountryCode: "+20" },
       catalogSettings: { ...DEFAULT_CATALOG_SETTINGS, payment: encryptPaymentKeys(base.id, "sandbox-api", "sandbox-secret", true, KEY) },
     };
     await store.createApp(app);

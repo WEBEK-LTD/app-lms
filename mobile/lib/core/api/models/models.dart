@@ -11,6 +11,7 @@ export 'community_models.dart';
 export 'config_models.dart';
 export 'event_models.dart';
 export 'donation_models.dart';
+export 'delivery_models.dart';
 export 'json.dart' show Json;
 export 'learning_models.dart';
 export 'listing_models.dart';

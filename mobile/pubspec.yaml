@@ -28,6 +28,10 @@ dependencies:
   flutter_riverpod: ^3.4.3
   flutter_secure_storage: ^11.2.0
   flutter_widget_from_html_core: ^0.17.4
+  # 104 The live map of a delivery's courier, on the tiles Yallapp sets (Config.delivery.map).
+  flutter_map: 8.3.2
+  # 104 The customer's place and the courier's position (only while the app is open).
+  geolocator: 14.1.1
   go_router: ^17.5.0
   html: ^0.15.7
   # 77 Photos and videos sent in the chat, from the camera or the gallery.
@@ -41,6 +45,7 @@ dependencies:
   # 46 The store's own rating prompt (Google Play In-App Review, SKStoreReviewController).
   in_app_review: 2.0.12
   intl: ^0.20.2
+  latlong2: 0.10.1
   material_symbols_icons: ^4.2960.0
   package_info_plus: 10.2.1
   path_provider: ^2.1.6
@@ -100,6 +105,10 @@ flutter:
 # Transitive packages held back to releases that are at least two weeks old
 # (project rule). Remove an entry once its newer release has aged.
 dependency_overrides:
+  geolocator_android: 5.1.1+1
+  geolocator_apple: 2.3.15
+  geolocator_platform_interface: 4.4.0
+  posix: 6.5.2
   jni: 1.0.3
   jni_flutter: 1.0.3
   video_player_avfoundation: 2.12.0
