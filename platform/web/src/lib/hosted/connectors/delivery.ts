@@ -22,6 +22,7 @@ import {
   stage,
   type QuoteRequest,
 } from "../../delivery/service";
+import { courierMayHave, createSampleJob, isReviewCourier, reviewCourierFor, reviewUserId } from "../../delivery/review";
 import { deliverySettingsOf, pricesSet } from "../../delivery/settings";
 import { centsToDecimal, formatCents } from "../../catalog/money";
 import { hitRateLimit, RATE_LIMITS } from "../../rate-limit";
@@ -272,16 +273,21 @@ export class DeliveryConnector implements Connector {
 
   // The courier
 
-  /** The courier the signed-in person is, or null. Paused couriers aren't. */
-  private async courierOf(user: HostedUser | null): Promise<Courier | null> {
+  /** The courier the signed-in person is, or null. Paused couriers aren't. 104.7 The store review account is a courier too. */
+  private async courierOf(user: HostedUser | null, now: Date): Promise<Courier | null> {
     if (!user) return null;
-    const courier = await this.deps.store.findCourier(this.deps.app.id, courierWho(user));
+    const courier = (await this.deps.store.findCourier(this.deps.app.id, courierWho(user))) ?? (await reviewCourierFor(this.deps.store, this.deps.app, user, now));
     return courier && courier.active ? courier : null;
+  }
+
+  /** 104.7 Whether the courier may have this shipment (the review account's go to the review courier only). */
+  private async mayHave(courier: Courier, shipment: Shipment): Promise<boolean> {
+    return courierMayHave(this.deps.app, courier, shipment, await reviewUserId(this.deps.store, this.deps.app));
   }
 
   private async withCourier(request: ConnectorRequest, then: (courier: Courier) => Promise<ConnectorResult>): Promise<ConnectorResult> {
     if (!request.user) return signIn();
-    const courier = await this.courierOf(request.user);
+    const courier = await this.courierOf(request.user, request.now);
     return courier ? then(courier) : notCourier();
   }
 
@@ -315,14 +321,23 @@ export class DeliveryConnector implements Connector {
       const perPage = intParam(request.query, "per_page", 20, 50);
       const base = { appId: this.deps.app.id, offset: (page - 1) * perPage, limit: perPage };
       let result: { items: Shipment[]; total: number };
+      // 104.7 The review account's parcels are the review courier's only.
+      const reviewId = await reviewUserId(this.deps.store, this.deps.app);
+      const review = isReviewCourier(this.deps.app, courier);
       if (scope === "available") {
         const settings = await this.settings();
+        const whose = review ? (reviewId === null ? null : { userId: reviewId }) : reviewId === null ? {} : { notUserId: reviewId };
         result =
-          settings.assignment === "open" && courier.onDuty
-            ? await this.deps.store.listShipments({ ...base, statuses: ["pending"], unassigned: true, order: "oldest" })
+          settings.assignment === "open" && courier.onDuty && whose
+            ? await this.deps.store.listShipments({ ...base, ...whose, statuses: ["pending"], unassigned: true, order: "oldest" })
             : { items: [], total: 0 };
       } else if (scope === "active") {
         result = await this.deps.store.listShipments({ ...base, courierId: courier.id, statuses: COURIER_ACTIVE, order: "oldest" });
+        // 104.7 A reviewer with no job gets a sample one, so the courier app can be reviewed on its own.
+        if (review && result.total === 0 && page === 1 && request.user) {
+          const sample = await createSampleJob(this.deps.store, this.deps.app, await this.settings(), courier, request.user, request.now);
+          result = { items: [sample], total: 1 };
+        }
       } else {
         const since = new Date(request.now.getTime() - DONE_DAYS * 86_400_000);
         result = await this.deps.store.listShipments({ ...base, courierId: courier.id, statuses: ["delivered", "failed", "cancelled"], updatedSince: since, order: "newest" });
@@ -345,7 +360,7 @@ export class DeliveryConnector implements Connector {
     const shipment = await this.deps.store.getShipment(this.deps.app.id, id);
     if (!shipment) return null;
     if (shipment.courierId === courier.id) return shipment;
-    if (shipment.status === "pending" && shipment.courierId === null && courier.onDuty && (await this.settings()).assignment === "open") return shipment;
+    if (shipment.status === "pending" && shipment.courierId === null && courier.onDuty && (await this.settings()).assignment === "open" && (await this.mayHave(courier, shipment))) return shipment;
     return null;
   }
 
@@ -365,6 +380,7 @@ export class DeliveryConnector implements Connector {
       if (!shipment) return jobNotFound();
       if (shipment.courierId === courier.id) return { status: 200, body: courierJobJson(shipment, true) };
       if (shipment.status !== "pending" || shipment.courierId !== null) return error(409, "job_taken", "Another courier took this job.");
+      if (!(await this.mayHave(courier, shipment))) return jobNotFound();
       const moved = await assignShipment({ store: this.deps.store, app: this.deps.app, now: request.now }, shipment, courier, "courier");
       if (!moved.ok) return error(409, "job_taken", "Another courier took this job.");
       return { status: 200, body: courierJobJson(moved.shipment, true) };

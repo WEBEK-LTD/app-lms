@@ -11,6 +11,7 @@ import type { App } from "@/lib/data/types";
 import { SHIPMENT_STATUSES } from "@/lib/data/types";
 import { courierPlistProblem } from "@/lib/delivery/courier-app";
 import { assignShipment, moveShipment } from "@/lib/delivery/flow";
+import { courierMayHave, reviewUserId } from "@/lib/delivery/review";
 import { parseCourierForm, parseDeliverySettings, parseServiceForm } from "@/lib/delivery/forms";
 import { COMPANY_STEPS, shipmentReference } from "@/lib/delivery/service";
 import { DELIVERY_LIMITS, deliverySettingsOf } from "@/lib/delivery/settings";
@@ -228,6 +229,8 @@ export async function assignShipmentAction(_: FormState, formData: FormData): Pr
   const courier = Number.isSafeInteger(courierId) ? await store.getCourier(app.id, courierId) : null;
   if (!courier || !courier.active) return { errors: { courierId: "Choose one of your active couriers." } };
   if (shipment.status !== "pending" && shipment.status !== "assigned") return { message: "Only a shipment waiting for a courier, or not picked up yet, can be given to a courier." };
+  // 104.7 The store review account's parcels go to the review courier only, and it gets no others.
+  if (!courierMayHave(app, courier, shipment, await reviewUserId(store, app))) return { errors: { courierId: "The store review courier only gets the store review account's parcels." } };
   const moved = await assignShipment({ store, app, now: new Date() }, shipment, courier, "company");
   if (!moved.ok) return { message: "This shipment changed meanwhile. Reload the page." };
   await recordStaffChange(context, `Gave shipment ${shipmentReference(shipment)} to ${courier.name}`);

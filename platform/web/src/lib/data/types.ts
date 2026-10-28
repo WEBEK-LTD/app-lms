@@ -3131,6 +3131,8 @@ export type ShipmentPatch = Partial<Pick<Shipment, "status" | "courierId" | "cou
 export interface ShipmentQuery {
   appId: string;
   userId?: number;
+  /** 104.7 Not this customer's (the store review account's, for the company's own couriers). */
+  notUserId?: number;
   courierId?: number;
   statuses?: ShipmentStatus[];
   /** Only those without a courier. */

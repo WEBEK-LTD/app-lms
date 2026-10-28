@@ -13,7 +13,18 @@ import { ReviewAccountForm, SecretValue } from "./forms";
  * number or email of App sign-in, or the account on the owner's website or
  * API; then where to enter it in Google Play Console and App Store Connect.
  */
-export function ReviewSection({ app, text, managed }: { app: App; text: DashboardText; managed: boolean }) {
+export function ReviewSection({
+  app,
+  text,
+  managed,
+  delivery = null,
+}: {
+  app: App;
+  text: DashboardText;
+  managed: boolean;
+  /** 104.7 A delivery app's notes for the reviewers, and the courier app's when it has one. */
+  delivery?: { customer: string; courier: string | null; courierName: string } | null;
+}) {
   const { t, lang } = text;
   const kind = reviewSignInKind(app);
   const signInLink = (chunk: ReactNode) => <Link href="/dashboard/app-sign-in">{chunk}</Link>;
@@ -68,6 +79,26 @@ export function ReviewSection({ app, text, managed }: { app: App; text: Dashboar
                 </dd>
               </>
             ) : null}
+            {delivery ? (
+              <>
+                <dt className="font-semibold">{t("publishing.reviewDeliveryNotes")}</dt>
+                <dd className="m-0 whitespace-pre-line break-words" dir="ltr" data-review-notes="customer">
+                  {delivery.customer}
+                </dd>
+              </>
+            ) : null}
+          </dl>
+        </div>
+      ) : null}
+      {set && delivery?.courier ? (
+        <div className="flex flex-col gap-2 rounded-xl bg-sand p-4" data-review-copy="courier">
+          <h3 className="m-0 text-base font-bold">{t("publishing.reviewCourierTitle", { name: delivery.courierName })}</h3>
+          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("publishing.reviewCourierText")}</p>
+          <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-[15px]">
+            <dt className="font-semibold">{t("publishing.reviewDeliveryNotes")}</dt>
+            <dd className="m-0 whitespace-pre-line break-words" dir="ltr" data-review-notes="courier">
+              {delivery.courier}
+            </dd>
           </dl>
         </div>
       ) : null}

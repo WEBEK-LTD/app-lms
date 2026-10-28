@@ -8,7 +8,7 @@ Last updated: 28 October 2026.
 
 ## Current release
 
-Phase 104 (delivery and courier companies) steps 104.1 to 104.6 are
+Phase 104 (delivery and courier companies) steps 104.1 to 104.7 are
 complete: a new project type in Yallapp Studio, Delivery, with no website
 (a Studio project only, on Studio's plans). Customers send a
 parcel (pickup and drop-off by address, their position, a pasted maps link
@@ -26,8 +26,11 @@ picks the second app in its name gets it from Builds: the same app built
 with the courier's screens only, under its own package name and bundle ID
 (the app's own with `.courier`) and its own name, listed for the company's
 couriers only (Unlisted on the App Store).
-Still to come: review accounts for both roles (104.7) and the shared Yallapp Courier app (104.8,
-published together with the owner). Checks: redocly lint, platform unit
+The store reviewers sign in with the App sign-in review number and code as
+a customer and as a test courier (its parcels are its own; a sample job
+waits in the courier app), and Publishing gives the notes for both apps.
+Still to come: the shared Yallapp Courier app (104.8, published together
+with the owner). Checks: redocly lint, platform unit
 tests, tsc, eslint, flutter analyze and widget tests.
 
 Phase 103R (Yallapp Studio as the owner approved it) is under way. A

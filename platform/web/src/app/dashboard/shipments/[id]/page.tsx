@@ -11,6 +11,7 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import type { PackageSize, ShipmentPlace, ShipmentStage } from "@/lib/data/types";
 import { COMPANY_STEPS, LIVE_STATUSES, shipmentReference } from "@/lib/delivery/service";
+import { courierMayHave, reviewUserId } from "@/lib/delivery/review";
 import { AssignForm, MoveForm } from "../forms";
 import { isDelivery, mapsLink, NotDelivery, ShipmentStatusBadge, STATUS_KEYS } from "../parts";
 
@@ -51,7 +52,9 @@ export default async function ShipmentPage({ params }: { params: Promise<{ id: s
   const courier = shipment.courierId !== null ? (couriers.find((c) => c.id === shipment.courierId) ?? null) : null;
   const steps = COMPANY_STEPS[shipment.status] ?? [];
   const canGive = shipment.status === "pending" || shipment.status === "assigned";
-  const active = couriers.filter((c) => c.active);
+  // 104.7 The store review account's parcels go to the review courier only, and it gets no others.
+  const reviewId = await reviewUserId(store, app);
+  const active = couriers.filter((c) => c.active && courierMayHave(app, c, shipment, reviewId));
   const live = courier && LIVE_STATUSES.includes(shipment.status) && courier.lat !== null && courier.lng !== null && courier.locatedAt;
 
   const place = (title: string, p: ShipmentPlace) => (

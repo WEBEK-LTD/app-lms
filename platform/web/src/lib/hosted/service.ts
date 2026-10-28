@@ -1,4 +1,5 @@
 import { courierWho } from "../delivery/service";
+import { reviewCourierFor } from "../delivery/review";
 import { appSwitches } from "../app/switches";
 import { watchOrdersAfterCheckout } from "./order-watch";
 import { randomInt } from "node:crypto";
@@ -1015,10 +1016,13 @@ async function authenticate(ctx: HostedContext, token: string | null): Promise<S
 
 // Account
 
-/** 104 The signed-in person with their roles: in delivery apps, `courier` for the company's active couriers. */
+/**
+ * 104 The signed-in person with their roles: in delivery apps, `courier` for the company's active couriers.
+ * 104.7 The store review account is one too, so reviewers see the courier's screens.
+ */
 async function meJson(ctx: HostedContext, user: HostedUser) {
   if (ctx.app.connector?.kind !== "deliveries") return userJson(user);
-  const courier = await ctx.store.findCourier(ctx.app.id, courierWho(user));
+  const courier = (await ctx.store.findCourier(ctx.app.id, courierWho(user))) ?? (await reviewCourierFor(ctx.store, ctx.app, user, ctx.now));
   return { ...userJson(user), roles: courier?.active ? ["courier"] : [] };
 }
 
