@@ -885,6 +885,22 @@ function optionalColor(c: Checker, where: string, value: unknown, what: string):
   return null;
 }
 
+/** 103R A Studio page on its own (an owner's own template): checked as in a layout of the app's. */
+export function parseStudioPage(value: unknown, app: Pick<App, "appType" | "backend">, languages: Languages): ParseResult<StudioPage> {
+  const c = new Checker();
+  const ctx: Context = {
+    c,
+    app,
+    sources: itemSourcesFor(app),
+    categorySources: categorySourcesFor(app),
+    slugs: new Set(),
+    languages,
+  };
+  const page = parseStudio(ctx, "The page", value);
+  const errors = c.errors;
+  return page && errors.length === 0 ? { ok: true, value: page } : { ok: false, errors: errors.length ? errors : ["The page isn't valid."] };
+}
+
 /** 103R A Studio page (`StudioPage`): its header, its elements and its colours. */
 function parseStudio(ctx: Context, where: string, value: unknown): StudioPage | null {
   const { c } = ctx;

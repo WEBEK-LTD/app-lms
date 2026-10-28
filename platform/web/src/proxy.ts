@@ -21,7 +21,7 @@ export const config = {
   matcher: [
     {
       source:
-        "/((?:ar/|tr/)?(?:dashboard|admin|sign-in|sign-up|reset-password|pending|team/join)(?:/.*)?)",
+        "/((?:ar/|tr/)?(?:dashboard|studio|admin|sign-in|sign-up|reset-password|pending|team/join)(?:/.*)?)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },

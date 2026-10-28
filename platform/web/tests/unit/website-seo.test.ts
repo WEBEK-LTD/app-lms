@@ -362,7 +362,7 @@ describe("67 Google: the favicon, and every public page indexed", () => {
       return e.name === "page.tsx" ? [{ route: route || "/", file: path.join(dir, e.name) }] : [];
     });
   /** Pages kept out of the sitemap: each one is noindex (checked below), or "page not found". */
-  const NOT_LISTED = /^(\/\[lang\])?\/(dashboard|admin|pay|give|receipts|shop|pending|team|a|docs\/search|sign-in|sign-up|forgot-password|reset-password|\[\.\.\.rest\])(\/|$)/;
+  const NOT_LISTED = /^(\/\[lang\])?\/(dashboard|studio|admin|pay|give|receipts|shop|pending|team|a|docs\/search|sign-in|sign-up|forgot-password|reset-password|\[\.\.\.rest\])(\/|$)/;
 
   it("links square PNG favicons of 48 px and more, /favicon.ico with 16, 32 and 48 px, the SVG and the Apple touch icon", () => {
     const pngs = SITE_ICONS.icon.filter((i) => i.type === "image/png");

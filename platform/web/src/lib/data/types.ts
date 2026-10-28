@@ -1,6 +1,6 @@
 import type { Plan, PlanSetting } from "../plans";
 import type { BuildConfig } from "../build-config/types";
-import type { AppDefaultsSetting, Layout, LayoutBlock, LayoutContent } from "../pages/types";
+import type { AppDefaultsSetting, Layout, LayoutBlock, LayoutContent, StudioPage } from "../pages/types";
 import type { Design } from "../pages/designs/build";
 import type { AdminRole } from "../admin/permissions";
 import type { YallappPrice } from "../billing/prices";
@@ -2037,6 +2037,17 @@ export interface SavedSection {
   clientId: string;
   name: string;
   blocks: LayoutBlock[];
+  createdAt: Date;
+  /** Email of whoever saved it. */
+  createdBy: string | null;
+}
+
+/** 103R A Studio page an account saved as its own template, for any of its Studio pages. */
+export interface StudioTemplate {
+  id: string;
+  clientId: string;
+  name: string;
+  page: StudioPage;
   createdAt: Date;
   /** Email of whoever saved it. */
   createdBy: string | null;

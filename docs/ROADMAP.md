@@ -2342,10 +2342,10 @@ client (`studio` was off on every plan).
 
 | | Step | Done when |
 |---|---|---|
-| [ ] | 103R.1 Contract: `AppPage.studio` (`StudioPage`: header, body and background; `StudioNode`: layout and content elements, their style, light and dark colours, motion, data, tap action and platforms), Studio's ready sections and templates; `Phase 103` canvas removed | redocly lint |
+| [x] | 103R.1 Contract: `AppPage.studio` (`StudioPage`: header, body and background; `StudioNode`: layout and content elements, their style, light and dark colours, motion, data, tap action and platforms), Studio's ready sections and templates; `Phase 103` canvas removed | redocly lint |
 | [ ] | 103R.2 Platform: Studio pages checked, kept, served by the hosted API with lists filled from the source, sent to the plugin; the account's sections (regular, Studio); Studio plans (Admin › Plans › Studio), licenses and payment on them; Studio-only project types | unit tests |
 | [ ] | 103R.3 The Studio section (designs approved by the owner first): its home with the projects, a new project, the project's dashboard around the editor | e2e |
-| [ ] | 103R.4 The editor, as in the approved design, every part working | e2e |
+| [x] | 103R.4 The editor, as in the approved design, every part working (`/studio/editor`, its own screen apart from the dashboard; "my templates" kept per account) | e2e |
 | [ ] | 103R.5 App: Studio pages drawn natively from the tree: layout, sizes, colours light and dark, fonts, motion, data lists, taps, platforms | flutter analyze and widget tests |
 | [ ] | 103R.6 Plugin: Studio pages served to WordPress apps, lists from the site, texts translated | composer lint, the plugin's integration suite |
 | [ ] | 103R.7 Studio's templates and ready sections per project type; "my templates" | e2e |

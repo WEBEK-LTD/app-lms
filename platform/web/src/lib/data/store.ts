@@ -5,6 +5,7 @@ import type {
   AppLayoutVersion,
   AppLayoutVersionSummary,
   SavedSection,
+  StudioTemplate,
   OwnFont,
   StoreProduct,
   StorePurchaseRecord,
@@ -717,6 +718,11 @@ export interface DataStore {
   createSavedSection(section: SavedSection): Promise<void>;
   /** False when the account has no such section. */
   deleteSavedSection(clientId: string, id: string): Promise<boolean>;
+  /** 103R An account's own Studio templates, newest first. */
+  listStudioTemplates(clientId: string): Promise<StudioTemplate[]>;
+  createStudioTemplate(template: StudioTemplate): Promise<void>;
+  /** False when the account has no such template. */
+  deleteStudioTemplate(clientId: string, id: string): Promise<boolean>;
   /** 97.2 The app's own fonts, by name. */
   listOwnFonts(appId: string): Promise<OwnFont[]>;
   /** Adds the font, or replaces it (same id, or the app's font with the same name, which keeps its id). */
