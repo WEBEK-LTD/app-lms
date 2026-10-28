@@ -105,7 +105,7 @@ class AppPage {
     this.looks = const {},
     this.background = PageBackground.none,
     this.headerImageUrl,
-    this.canvas,
+    this.studio,
   });
 
   /// Blocks the app doesn't know, or can't read, are skipped.
@@ -124,7 +124,7 @@ class AppPage {
       for (final block in reqListOf(json, 'blocks', PageBlock.tryParse)) ?block,
     ],
     looks: _looks(json['blocks']),
-    canvas: StudioCanvas.tryParse(json['canvas']),
+    studio: StudioPage.tryParse(json['studio']),
   );
 
   static Map<String, BlockLook> _looks(Object? blocks) {
@@ -143,8 +143,8 @@ class AppPage {
   final bool showTitle;
   final List<PageBlock> blocks;
 
-  /// 103 A Studio page: drawn from its canvas instead of its blocks.
-  final StudioCanvas? canvas;
+  /// 103R A page designed in Yallapp Studio: drawn instead of its blocks.
+  final StudioPage? studio;
 
   /// 82.5 Each block's look, by block id; a block without one has none.
   final Map<String, BlockLook> looks;
@@ -1551,121 +1551,419 @@ class FormBlock extends PageBlock {
   }
 }
 
-/// 103 `StudioCanvas`: a page designed in Yallapp Studio, its layers placed
-/// on a canvas [width] design units wide, back to front.
-class StudioCanvas {
-  const StudioCanvas({
-    required this.width,
-    required this.height,
+/// 103R `StudioPage`: a page designed in Yallapp Studio, a header and a
+/// body of elements laid out in rows, columns, layers, grids and sliders.
+class StudioPage {
+  const StudioPage({
+    required this.body,
+    this.header,
     this.background,
-    this.layers = const [],
+    this.darkBackground,
+    this.showTabs = true,
   });
 
-  /// Null when it is missing or can't be read; layers the app doesn't know,
-  /// or can't read, are skipped.
-  static StudioCanvas? tryParse(Object? value) {
+  /// Null when it is missing or its body can't be read.
+  static StudioPage? tryParse(Object? value) {
     if (value is! Map) return null;
     final json = asJson(value);
-    final width = json['width'];
-    final height = json['height'];
-    if (width is! num || height is! num || width <= 0 || height <= 0) {
-      return null;
-    }
-    final raw = json['layers'];
-    return StudioCanvas(
-      width: width.toDouble(),
-      height: height.toDouble(),
+    final body = StudioNode.tryParse(json['body']);
+    if (body == null) return null;
+    return StudioPage(
+      body: body,
+      header: StudioHeader.tryParse(json['header']),
       background: optString(json, 'background'),
-      layers: [
-        for (final layer in raw is List ? raw : const [])
-          if (layer is Map) ?StudioLayer.tryParse(asJson(layer)),
-      ],
+      darkBackground: optString(json, 'dark_background'),
+      showTabs: boolOr(json, 'show_tabs', true),
     );
   }
 
-  final double width;
-  final double height;
+  final StudioNode body;
+  final StudioHeader? header;
   final String? background;
-  final List<StudioLayer> layers;
+  final String? darkBackground;
+  final bool showTabs;
 }
 
-enum StudioLayerType { box, text, image, button, icon, items }
+enum StudioHeaderType { logoCenter, titleSearch, logoActions, transparent }
 
-enum StudioAlign { start, center, end }
+enum StudioHeaderButton { menu, search, cart, notifications, chat, account }
 
-/// 103 `StudioLayer`: one layer, in design units from the canvas's top
-/// start corner.
-class StudioLayer {
-  const StudioLayer({
+/// 103R `StudioHeader`: the bar at the top of a Studio page.
+class StudioHeader {
+  const StudioHeader({
+    required this.type,
+    this.title,
+    this.logoUrl,
+    this.buttons = const [],
+    this.background,
+    this.color,
+    this.darkBackground,
+    this.darkColor,
+  });
+
+  /// Null for none, or a type this app doesn't know.
+  static StudioHeader? tryParse(Object? value) {
+    if (value is! Map) return null;
+    final json = asJson(value);
+    final type = _snakeOrNull(StudioHeaderType.values, json['type']);
+    if (type == null) return null;
+    final raw = json['buttons'];
+    return StudioHeader(
+      type: type,
+      title: optString(json, 'title'),
+      logoUrl: optString(json, 'logo_url'),
+      buttons: [
+        for (final b in raw is List ? raw : const [])
+          ?enumOrNull(StudioHeaderButton.values, b),
+      ],
+      background: optString(json, 'background'),
+      color: optString(json, 'color'),
+      darkBackground: optString(json, 'dark_background'),
+      darkColor: optString(json, 'dark_color'),
+    );
+  }
+
+  final StudioHeaderType type;
+  final String? title;
+  final String? logoUrl;
+  final List<StudioHeaderButton> buttons;
+  final String? background;
+  final String? color;
+  final String? darkBackground;
+  final String? darkColor;
+}
+
+enum StudioNodeType {
+  row,
+  column,
+  stack,
+  grid,
+  slider,
+  spacer,
+  text,
+  image,
+  button,
+  icon,
+  items,
+  categories,
+  video,
+  form,
+  map,
+  ratings,
+  search,
+  divider,
+}
+
+/// 103R `StudioSize`: fill the parent's space, hug the content, or [fixed]
+/// logical pixels.
+class StudioSize {
+  const StudioSize.fill() : fixed = null, hug = false;
+  const StudioSize.hug() : fixed = null, hug = true;
+  const StudioSize.fixed(double this.fixed) : hug = false;
+
+  static StudioSize? tryParse(Object? value) => switch (value) {
+    'fill' => const StudioSize.fill(),
+    'hug' => const StudioSize.hug(),
+    final num n when n >= 0 => StudioSize.fixed(n.toDouble()),
+    _ => null,
+  };
+
+  final double? fixed;
+  final bool hug;
+  bool get fill => fixed == null && !hug;
+}
+
+/// 103R `StudioSides`: logical sides, a side left out is 0.
+class StudioSides {
+  const StudioSides({
+    this.top = 0,
+    this.end = 0,
+    this.bottom = 0,
+    this.start = 0,
+  });
+
+  static StudioSides? tryParse(Object? value) {
+    if (value is! Map) return null;
+    final json = asJson(value);
+    double n(String key) => (optDouble(json, key) ?? 0).clamp(0, 400);
+    return StudioSides(
+      top: n('top'),
+      end: n('end'),
+      bottom: n('bottom'),
+      start: n('start'),
+    );
+  }
+
+  final double top;
+  final double end;
+  final double bottom;
+  final double start;
+}
+
+class StudioGradient {
+  const StudioGradient({
+    required this.from,
+    required this.to,
+    this.angle = 180,
+  });
+
+  static StudioGradient? tryParse(Object? value) {
+    if (value is! Map) return null;
+    final json = asJson(value);
+    final from = optString(json, 'from');
+    final to = optString(json, 'to');
+    if (from == null || to == null) return null;
+    return StudioGradient(
+      from: from,
+      to: to,
+      angle: optDouble(json, 'angle') ?? 180,
+    );
+  }
+
+  final String from;
+  final String to;
+
+  /// Degrees, as in CSS: 180 from top to bottom.
+  final double angle;
+}
+
+class StudioFont {
+  const StudioFont({
+    this.family,
+    this.weight,
+    this.size,
+    this.lineHeight,
+    this.letterSpacing,
+    this.italic = false,
+    this.underline = false,
+  });
+
+  static StudioFont? tryParse(Object? value) {
+    if (value is! Map) return null;
+    final json = asJson(value);
+    return StudioFont(
+      family: optString(json, 'family'),
+      weight: optInt(json, 'weight'),
+      size: optDouble(json, 'size'),
+      lineHeight: optDouble(json, 'line_height'),
+      letterSpacing: optDouble(json, 'letter_spacing'),
+      italic: boolOr(json, 'italic', false),
+      underline: boolOr(json, 'underline', false),
+    );
+  }
+
+  final String? family;
+  final int? weight;
+  final double? size;
+  final double? lineHeight;
+  final double? letterSpacing;
+  final bool italic;
+  final bool underline;
+}
+
+enum StudioEnter { none, fade, slideUp, slideDown, slideStart, slideEnd, zoom }
+
+enum StudioPress { none, shrink, bounce }
+
+enum StudioLoop { none, pulse, float, shake }
+
+class StudioMotion {
+  const StudioMotion({
+    this.enter = StudioEnter.none,
+    this.durationMs = 400,
+    this.delayMs = 0,
+    this.press = StudioPress.none,
+    this.loop = StudioLoop.none,
+  });
+
+  static StudioMotion? tryParse(Object? value) {
+    if (value is! Map) return null;
+    final json = asJson(value);
+    return StudioMotion(
+      enter: enumFromSnake(StudioEnter.values, json['enter'], StudioEnter.none),
+      durationMs: intOr(json, 'duration_ms', 400).clamp(100, 3000),
+      delayMs: intOr(json, 'delay_ms', 0).clamp(0, 5000),
+      press: enumFrom(StudioPress.values, json['press'], StudioPress.none),
+      loop: enumFrom(StudioLoop.values, json['loop'], StudioLoop.none),
+    );
+  }
+
+  final StudioEnter enter;
+  final int durationMs;
+  final int delayMs;
+  final StudioPress press;
+  final StudioLoop loop;
+
+  bool get moves =>
+      enter != StudioEnter.none ||
+      press != StudioPress.none ||
+      loop != StudioLoop.none;
+}
+
+enum StudioAlign { start, center, end, between, around }
+
+enum StudioCross { start, center, end, stretch }
+
+enum StudioPin { none, top, bottom }
+
+enum StudioShadow { none, light, medium, strong }
+
+enum StudioTextAlign { start, center, end }
+
+enum StudioBind { title, subtitle, image, price, badge }
+
+enum StudioVisibility { everyone, signedIn, signedOut }
+
+enum StudioPlatform { android, ios }
+
+/// 103R `StudioNode`: one element of a Studio page.
+class StudioNode {
+  const StudioNode({
     required this.id,
     required this.type,
-    required this.x,
-    required this.y,
-    required this.w,
-    required this.h,
-    this.fill,
+    this.children = const [],
+    this.width,
+    this.height,
+    this.minHeight,
+    this.aspectRatio,
+    this.padding,
+    this.margin,
+    this.gap = 0,
+    this.align = StudioAlign.start,
+    this.cross = StudioCross.stretch,
+    this.selfAlign,
+    this.columns = 2,
+    this.pin = StudioPin.none,
+    this.background,
+    this.color,
+    this.darkBackground,
+    this.darkColor,
+    this.gradient,
+    this.imageBackgroundUrl,
     this.radius = 0,
     this.borderColor,
     this.borderWidth = 0,
+    this.shadow = StudioShadow.none,
     this.opacity = 1,
-    this.shadow = false,
+    this.font,
+    this.textAlign = StudioTextAlign.start,
     this.text,
-    this.fontSize = 16,
-    this.fontWeight = 400,
-    this.color,
-    this.align = StudioAlign.start,
+    this.maxLines,
     this.imageUrl,
     this.contain = false,
     this.icon,
+    this.iconAtStart = false,
+    this.iconSize = 24,
+    this.videoUrl,
+    this.autoplay = false,
+    this.intervalMs = 4000,
+    this.perView = 1,
+    this.dots = true,
+    this.source,
+    this.layout = ItemsLayout.grid,
+    this.card,
+    this.bind,
+    this.items = const [],
+    this.categories = const [],
+    this.form,
+    this.map,
+    this.rating,
     this.action,
-    this.items,
+    this.platforms,
+    this.visibility = StudioVisibility.everyone,
+    this.motion,
   });
 
-  static StudioLayer? tryParse(Json json) {
+  /// Null for a type this app doesn't know (left out with what it holds),
+  /// or one it can't read.
+  static StudioNode? tryParse(Object? value, {int depth = 0}) {
+    if (value is! Map || depth > 16) return null;
     try {
-      final type = enumOrNull(StudioLayerType.values, json['type']);
-      if (type == null) return null;
-      double n(String key, double fallback) {
-        final value = json[key];
-        return value is num ? value.toDouble() : fallback;
-      }
-
+      final json = asJson(value);
       final id = reqString(json, 'id');
-      final items = type == StudioLayerType.items
-          ? PageBlock.tryParse({
-              'id': id,
-              'type': 'items',
-              'source': json['source'],
-              'layout': json['layout'],
-              'items': json['items'],
-            })
-          : null;
-      if (type == StudioLayerType.items && items is! ItemsBlock) return null;
-      final imageUrl = httpsUrl(json['image_url']);
-      if (type == StudioLayerType.image && imageUrl == null) return null;
-      return StudioLayer(
+      final type = enumOrNull(StudioNodeType.values, json['type']);
+      if (type == null) return null;
+      double n(String key, double fallback, double min, double max) =>
+          (optDouble(json, key) ?? fallback).clamp(min, max).toDouble();
+      final rawChildren = json['children'];
+      final rawPlatforms = json['platforms'];
+      final mapJson = json['map'];
+      return StudioNode(
         id: id,
         type: type,
-        x: n('x', 0),
-        y: n('y', 0),
-        w: n('w', 1),
-        h: n('h', 1),
-        fill: optString(json, 'fill'),
-        radius: n('radius', 0),
-        borderColor: optString(json, 'border_color'),
-        borderWidth: n('border_width', 0),
-        opacity: n('opacity', 1).clamp(0, 1).toDouble(),
-        shadow: boolOr(json, 'shadow', false),
-        text: optString(json, 'text'),
-        fontSize: n('font_size', 16),
-        fontWeight: n('font_weight', 400).round(),
-        color: optString(json, 'color'),
+        children: [
+          for (final child in rawChildren is List ? rawChildren : const [])
+            ?StudioNode.tryParse(child, depth: depth + 1),
+        ],
+        width: StudioSize.tryParse(json['width']),
+        height: StudioSize.tryParse(json['height']),
+        minHeight: optDouble(json, 'min_height'),
+        aspectRatio: optDouble(json, 'aspect_ratio'),
+        padding: StudioSides.tryParse(json['padding']),
+        margin: StudioSides.tryParse(json['margin']),
+        gap: n('gap', 0, 0, 200),
         align: enumFrom(StudioAlign.values, json['align'], StudioAlign.start),
-        imageUrl: imageUrl,
+        cross: enumFrom(StudioCross.values, json['cross'], StudioCross.stretch),
+        selfAlign: enumOrNull(StudioCross.values, json['self_align']),
+        columns: intOr(json, 'columns', 2).clamp(1, 6),
+        pin: enumFrom(StudioPin.values, json['pin'], StudioPin.none),
+        background: optString(json, 'background'),
+        color: optString(json, 'color'),
+        darkBackground: optString(json, 'dark_background'),
+        darkColor: optString(json, 'dark_color'),
+        gradient: StudioGradient.tryParse(json['gradient']),
+        imageBackgroundUrl: optString(json, 'image_background_url'),
+        radius: n('radius', 0, 0, 500),
+        borderColor: optString(json, 'border_color'),
+        borderWidth: n('border_width', 0, 0, 20),
+        shadow: enumFrom(
+          StudioShadow.values,
+          json['shadow'],
+          StudioShadow.none,
+        ),
+        opacity: n('opacity', 1, 0, 1),
+        font: StudioFont.tryParse(json['font']),
+        textAlign: enumFrom(
+          StudioTextAlign.values,
+          json['text_align'],
+          StudioTextAlign.start,
+        ),
+        text: optString(json, 'text'),
+        maxLines: optInt(json, 'max_lines'),
+        imageUrl: optString(json, 'image_url'),
         contain: json['fit'] == 'contain',
         icon: optString(json, 'icon'),
+        iconAtStart: json['icon_position'] == 'start',
+        iconSize: n('icon_size', 24, 8, 200),
+        videoUrl: optString(json, 'video_url'),
+        autoplay: boolOr(json, 'autoplay', false),
+        intervalMs: intOr(json, 'interval_ms', 4000).clamp(1500, 20000),
+        perView: n('per_view', 1, 1, 4),
+        dots: boolOr(json, 'dots', true),
+        source: enumOrNull(ItemSource.values, json['source']),
+        layout: enumFrom(ItemsLayout.values, json['layout'], ItemsLayout.grid),
+        card: StudioNode.tryParse(json['card'], depth: depth + 1),
+        bind: enumOrNull(StudioBind.values, json['bind']),
+        items: _entries(json, 'items', _itemOrNull),
+        categories: _entries(json, 'categories', _categoryOrNull),
+        form: json['form'] is Map
+            ? FormBlock.tryParse(asJson(json['form'], 'form'), id: id)
+            : null,
+        map: mapJson is Map ? StudioMapPlace.tryParse(asJson(mapJson)) : null,
+        rating: optDouble(json, 'rating'),
         action: PageAction.tryParse(json['action']),
-        items: items is ItemsBlock ? items : null,
+        platforms: rawPlatforms is List
+            ? [
+                for (final p in rawPlatforms)
+                  ?enumOrNull(StudioPlatform.values, p),
+              ]
+            : null,
+        visibility: enumFromSnake(
+          StudioVisibility.values,
+          json['visibility'],
+          StudioVisibility.everyone,
+        ),
+        motion: StudioMotion.tryParse(json['motion']),
       );
     } on FormatException {
       return null;
@@ -1673,29 +1971,129 @@ class StudioLayer {
   }
 
   final String id;
-  final StudioLayerType type;
-  final double x;
-  final double y;
-  final double w;
-  final double h;
-  final String? fill;
+  final StudioNodeType type;
+  final List<StudioNode> children;
+  final StudioSize? width;
+  final StudioSize? height;
+  final double? minHeight;
+  final double? aspectRatio;
+  final StudioSides? padding;
+  final StudioSides? margin;
+  final double gap;
+  final StudioAlign align;
+  final StudioCross cross;
+  final StudioCross? selfAlign;
+  final int columns;
+  final StudioPin pin;
+  final String? background;
+  final String? color;
+  final String? darkBackground;
+  final String? darkColor;
+  final StudioGradient? gradient;
+  final String? imageBackgroundUrl;
   final double radius;
   final String? borderColor;
   final double borderWidth;
+  final StudioShadow shadow;
   final double opacity;
-  final bool shadow;
+  final StudioFont? font;
+  final StudioTextAlign textAlign;
   final String? text;
-  final double fontSize;
-  final int fontWeight;
-  final String? color;
-  final StudioAlign align;
+  final int? maxLines;
   final String? imageUrl;
 
-  /// The whole picture shows, instead of filling the frame.
+  /// The whole picture shows, instead of filling its frame.
   final bool contain;
+
+  /// A Google Material Symbols (Rounded) name.
   final String? icon;
+  final bool iconAtStart;
+  final double iconSize;
+  final String? videoUrl;
+  final bool autoplay;
+  final int intervalMs;
+  final double perView;
+  final bool dots;
+  final ItemSource? source;
+  final ItemsLayout layout;
+
+  /// For [StudioNodeType.items]: the card drawn for each entry; null, the
+  /// app's own card.
+  final StudioNode? card;
+  final StudioBind? bind;
+  final List<PageItem> items;
+  final List<Category> categories;
+
+  /// For [StudioNodeType.form], as a form block with this element's id.
+  final FormBlock? form;
+  final StudioMapPlace? map;
+  final double? rating;
   final PageAction? action;
 
-  /// For [StudioLayerType.items]: its list, as an items block.
-  final ItemsBlock? items;
+  /// Null: both.
+  final List<StudioPlatform>? platforms;
+  final StudioVisibility visibility;
+  final StudioMotion? motion;
+
+  bool get holdsChildren => switch (type) {
+    StudioNodeType.row ||
+    StudioNodeType.column ||
+    StudioNodeType.stack ||
+    StudioNodeType.grid ||
+    StudioNodeType.slider => true,
+    _ => false,
+  };
+}
+
+/// 103R `StudioMap`: a place on the map.
+class StudioMapPlace {
+  const StudioMapPlace({
+    required this.lat,
+    required this.lng,
+    this.zoom = 15,
+    this.label,
+  });
+
+  static StudioMapPlace? tryParse(Json json) {
+    final lat = optDouble(json, 'lat');
+    final lng = optDouble(json, 'lng');
+    if (lat == null || lng == null || lat.abs() > 90 || lng.abs() > 180) {
+      return null;
+    }
+    return StudioMapPlace(
+      lat: lat,
+      lng: lng,
+      zoom: optDouble(json, 'zoom') ?? 15,
+      label: optString(json, 'label'),
+    );
+  }
+
+  final double lat;
+  final double lng;
+  final double zoom;
+  final String? label;
+}
+
+PageItem? _itemOrNull(Json json) {
+  try {
+    return PageItem.fromJson(json);
+  } on FormatException {
+    return null;
+  }
+}
+
+Category? _categoryOrNull(Json json) {
+  try {
+    return Category.fromJson(json);
+  } on FormatException {
+    return null;
+  }
+}
+
+/// [enumFromSnake] without a fallback: null for a value this app doesn't know.
+T? _snakeOrNull<T extends Enum>(List<T> values, Object? wire) {
+  for (final value in values) {
+    if (snake(value) == wire) return value;
+  }
+  return null;
 }

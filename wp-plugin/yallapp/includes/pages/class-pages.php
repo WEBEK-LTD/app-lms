@@ -327,15 +327,11 @@ class Pages {
 			) + self::page_look( $page ) + array(
 				'blocks' => $this->resolver->resolve( $blocks, $platform, $user_id, $language ),
 			);
-			// 103 A Studio page: its canvas, each layer in the language asked for.
-			if ( isset( $page['canvas']['layers'] ) && is_array( $page['canvas']['layers'] ) ) {
-				$canvas = $page['canvas'];
-				foreach ( $canvas['layers'] as $i => $layer ) {
-					$canvas['layers'][ $i ] = is_array( $layer ) ? Translator::apply( $layer, $language ) : null;
-				}
-				$canvas = $this->resolver->canvas( $canvas, $platform, $user_id, $language );
-				if ( $canvas ) {
-					$served['canvas'] = $canvas;
+			// 103R A Studio page: its header and elements in the language asked for.
+			if ( isset( $page['studio'] ) && is_array( $page['studio'] ) ) {
+				$studio = $this->resolver->studio( $page['studio'], $platform, $user_id, $language );
+				if ( $studio ) {
+					$served['studio'] = $studio;
 				}
 			}
 			return $served;
@@ -373,7 +369,37 @@ class Pages {
 				$fields = Rich_Blocks::fields( 'form', $block, array( $this->resolver, 'action' ), time() );
 				return null === $fields ? null : array( 'title' => Block_Resolver::text( $block['title'] ?? null ) ) + $fields;
 			}
+			// 103R A form element of a Studio page.
+			$node = is_array( $page['studio']['body'] ?? null ) ? self::studio_form( $page['studio']['body'], $block_id, 0 ) : null;
+			if ( null === $node || ! Block_Resolver::visible_to( $node['visibility'] ?? 'everyone', $user_id ) ) {
+				return null;
+			}
+			$fields = Rich_Blocks::fields( 'form', Translator::apply( $node['form'], $this->languages()['default'] ), array( $this->resolver, 'action' ), time() );
+			return null === $fields ? null : array( 'title' => self::title( $page ) ) + $fields;
+		}
+		return null;
+	}
+
+	/**
+	 * 103R The form element with this id in a Studio page's tree, or null.
+	 *
+	 * @param array  $node     An element.
+	 * @param string $block_id The form's id.
+	 * @param int    $depth    How deep the element is.
+	 * @return array|null
+	 */
+	private static function studio_form( array $node, $block_id, $depth ) {
+		if ( $depth > Block_Resolver::STUDIO_MAX_DEPTH ) {
 			return null;
+		}
+		if ( 'form' === ( $node['type'] ?? null ) && ( $node['id'] ?? null ) === $block_id && is_array( $node['form'] ?? null ) ) {
+			return $node;
+		}
+		foreach ( isset( $node['children'] ) && is_array( $node['children'] ) ? $node['children'] : array() as $child ) {
+			$found = is_array( $child ) ? self::studio_form( $child, $block_id, $depth + 1 ) : null;
+			if ( null !== $found ) {
+				return $found;
+			}
 		}
 		return null;
 	}
