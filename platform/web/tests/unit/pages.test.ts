@@ -132,6 +132,20 @@ describe("layout validation", () => {
     );
     expect(errorsOf(layoutWith([], { appearance: { template: "fancy" } })).length).toBeGreaterThan(3);
   });
+
+  it("101 keeps the header: its layout and up to four buttons, each once", () => {
+    const look = (layoutWith([]).appearance as Record<string, unknown>);
+    const withHeader = (header: unknown) => layoutWith([], { appearance: { ...look, header } });
+    const result = parse(withHeader({ layout: "search", icons: ["cart", "account", "cart"], extra: 1 }));
+    expect(result.ok && result.value.appearance.header).toEqual({ layout: "search", icons: ["cart", "account"] });
+    // Missing or null: the template's header.
+    const plain = parse(layoutWith([]));
+    expect(plain.ok && "header" in plain.value.appearance).toBe(false);
+    expect(errorsOf(withHeader(null))).toEqual([]);
+    expect(errorsOf(withHeader({ layout: "banner", icons: [] }))).toEqual(["Look: choose the header."]);
+    expect(errorsOf(withHeader({ layout: "logo", icons: ["wishlist"] }))).toEqual(["Look: a header button isn't one the app has."]);
+    expect(errorsOf(withHeader({ layout: "logo", icons: ["search", "cart", "notifications", "chat", "account"] }))).toEqual(["Look: keep at most 4 buttons in the header."]);
+  });
 });
 
 describe("31 only what the app's type has", () => {
@@ -344,7 +358,8 @@ describe("POST /apps/layout", () => {
       { id: "posts", type: "items", visibility: "everyone", title: "From the blog", source: "posts", layout: "list", query: { limit: 5, sort: "newest" } },
       { id: "courses", type: "items", visibility: "everyone", source: "courses", layout: "carousel", query: { ids: ["12", "7"], limit: 2 } },
     ];
-    expect((await publishLayout(store, app, layoutWith(blocks), "owner@academy.test", NOW)).ok).toBe(true);
+    const header = { layout: "logo", icons: ["search", "cart"] };
+    expect((await publishLayout(store, app, layoutWith(blocks, { appearance: { ...(layoutWith([]).appearance as object), header } }), "owner@academy.test", NOW)).ok).toBe(true);
     const result = await pluginLayout(store, site(), null, NOW);
     expect(result.status).toBe(200);
     expectPlatformContract("POST", "/apps/layout", result);
@@ -352,6 +367,8 @@ describe("POST /apps/layout", () => {
     expect(result.etag).toBe(result.body.version);
     expect(result.body.pages[0]!.blocks[1]).toMatchObject({ query: { ids: ["12", "7"], category_id: null, featured: false, sort: "newest", limit: 2 } });
     expect(result.body.tabs[0]!.translations).toEqual({ ar: { label: "الرئيسية" } });
+    // 101 The header goes to the plugin with the look.
+    expect(result.body.appearance.header).toEqual(header);
 
     expect((await pluginLayout(store, site(), `"${result.body.version}"`, NOW)).status).toBe(304);
     expect((await pluginLayout(store, site(), `W/"other", ${result.body.version}`, NOW)).status).toBe(304);
@@ -515,6 +532,14 @@ describe("pages on the hosted API", () => {
     const config = await handleHosted(context(), { method: "GET", path: ["config"], query: new URLSearchParams({ platform: "ios", app_version: "1.0.0" }), body: undefined, token: null });
     expectContract("GET", "/config", config);
     expect(config.body).toMatchObject({ appearance: { template: "classic", theme_mode: "system", secondary_color: null }, languages: { default: "en", available: ["en"] } });
+  });
+
+  it("101 serves the header chosen in the look", async () => {
+    const look = { ...(layoutWith([]).appearance as Record<string, unknown>), header: { layout: "centered", icons: ["notifications", "account"] } };
+    expect((await publishLayout(store, app, layoutWith(blocks, { appearance: look }), "owner@lale.test", NOW)).ok).toBe(true);
+    const config = await handleHosted(context(), { method: "GET", path: ["config"], query: new URLSearchParams({ platform: "ios", app_version: "1.0.0" }), body: undefined, token: null });
+    expectContract("GET", "/config", config);
+    expect(config.body).toMatchObject({ appearance: { header: { layout: "centered", icons: ["notifications", "account"] } } });
   });
 
   it("lists services of a bookings app", async () => {

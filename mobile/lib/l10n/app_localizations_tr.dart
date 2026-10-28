@@ -4178,4 +4178,7 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get storeUnavailable =>
       'Satın alma şu anda bu cihazda kullanılamıyor.';
+
+  @override
+  String get headerSearch => 'Ara';
 }

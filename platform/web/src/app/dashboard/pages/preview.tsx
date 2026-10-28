@@ -9,7 +9,7 @@ import { SOCIAL_LABELS, WEEKDAY_LABELS } from "@/lib/pages/labels";
 import { SOURCE_NAMES } from "@/lib/pages/sources";
 import { withFilledTexts } from "@/lib/pages/fill-texts";
 import { translated, translatedBlock } from "@/lib/pages/translate";
-import { RTL_LANGUAGES, type Appearance, type BlockLook, type BlockSpacing, type LanguageCode, type LayoutBlock, type LayoutContent, type LayoutPage } from "@/lib/pages/types";
+import { RTL_LANGUAGES, type Appearance, type BlockLook, type BlockSpacing, type HeaderIcon, type LanguageCode, type LayoutBlock, type LayoutContent, type LayoutPage } from "@/lib/pages/types";
 import { useOptionalDashT } from "@/components/dashboard-i18n";
 import { IconGlyph } from "./controls";
 
@@ -575,7 +575,7 @@ function MoreBlockPreview({ block: b, theme, bold }: { block: LayoutBlock; theme
  * "Start from a design"): the same drawing at a smaller size, hidden from
  * screen readers since the design's name and description say what it is.
  */
-export function DesignThumb({ layout, app }: { layout: LayoutContent; app: { name: string; primaryColor: string } }) {
+export function DesignThumb({ layout, app }: { layout: LayoutContent; app: { name: string; primaryColor: string; logoUrl?: string | null } }) {
   return (
     <div aria-hidden="true" inert className="pointer-events-none flex h-[300px] justify-center overflow-hidden">
       <div style={{ zoom: 0.46 }}>
@@ -597,6 +597,128 @@ export interface PhoneEditing {
   onDrop: (type: LayoutBlock["type"], index: number) => void;
 }
 
+/** 101 The header buttons' icons (Material Symbols), in the editor and the preview. */
+export const HEADER_ICON_GLYPHS: Record<HeaderIcon, string> = {
+  search: "search",
+  cart: "shopping_cart",
+  notifications: "notifications",
+  chat: "chat",
+  account: "account_circle",
+};
+
+/**
+ * The top of the page as the app draws it: the template's bar with the
+ * page's title, or (101) the header chosen in the look, with its buttons.
+ */
+function PhoneHeader({
+  appearance,
+  theme,
+  classic,
+  menu,
+  title,
+  app,
+  search,
+}: {
+  appearance: Appearance;
+  theme: Theme;
+  classic: boolean;
+  menu: boolean;
+  title: string | null;
+  app: { name: string; logoUrl?: string | null };
+  search: string;
+}) {
+  const header = appearance.header;
+  const style: CSSProperties = {
+    // Room for the status bar and the camera above the title.
+    padding: "12cqw 14px 10px",
+    background: classic ? theme.primary : theme.bg,
+    color: classic ? "#fff" : theme.text,
+    borderBottom: appearance.template === "minimal" ? `1px solid ${theme.line}` : undefined,
+    fontWeight: 800,
+    fontSize: appearance.template === "bold" ? 20 : 15,
+  };
+  // 82.5 The side menu's button.
+  const menuButton = menu ? (
+    <span aria-hidden="true" style={{ display: "inline-flex", verticalAlign: "middle", marginInlineEnd: 6 }} data-phone-menu="">
+      <IconGlyph name="menu" size={20} />
+    </span>
+  ) : null;
+  if (!header) {
+    return (
+      <div style={style}>
+        {menuButton}
+        {title ?? app.name}
+      </div>
+    );
+  }
+  const icons = header.icons.length ? (
+    <span style={{ display: "inline-flex", gap: 8, marginInlineStart: "auto", flex: "none" }} data-phone-header-icons={header.icons.join(" ")}>
+      {header.icons.map((icon) => (
+        <IconGlyph key={icon} name={HEADER_ICON_GLYPHS[icon]} size={20} />
+      ))}
+    </span>
+  ) : null;
+  const row: CSSProperties = { display: "flex", alignItems: "center", gap: 6, minHeight: 24 };
+  const logo = (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, minWidth: 0, fontSize: 15 }}>
+      {/* eslint-disable-next-line @next/next/no-img-element -- the app's own logo, any address */}
+      {app.logoUrl ? <img src={app.logoUrl} alt="" style={{ height: 22, width: "auto", maxWidth: 90, objectFit: "contain" }} /> : null}
+      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{app.name}</span>
+    </span>
+  );
+  return (
+    <div style={style} data-phone-header={header.layout}>
+      {header.layout === "centered" ? (
+        <div style={{ ...row, position: "relative" }}>
+          {menuButton ?? <span />}
+          <span style={{ position: "absolute", insetInline: 40, textAlign: "center", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 15 }}>{title ?? app.name}</span>
+          {icons}
+        </div>
+      ) : header.layout === "title" ? (
+        <>
+          {menuButton || icons ? (
+            <div style={{ ...row, marginBottom: title ? 8 : 0 }}>
+              {menuButton}
+              {icons}
+            </div>
+          ) : null}
+          {title ?? (menuButton || icons ? null : app.name)}
+        </>
+      ) : (
+        <>
+          <div style={row}>
+            {menuButton}
+            {logo}
+            {icons}
+          </div>
+          {header.layout === "search" ? (
+            <div
+              style={{
+                marginTop: 10,
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "7px 10px",
+                borderRadius: theme.radius,
+                background: classic ? "rgba(255,255,255,.18)" : theme.surface,
+                border: classic ? undefined : `1px solid ${theme.line}`,
+                fontSize: 12,
+                fontWeight: 500,
+                opacity: 0.85,
+              }}
+            >
+              <IconGlyph name="search" size={16} />
+              {search}
+            </div>
+          ) : title ? (
+            <div style={{ marginTop: 8 }}>{title}</div>
+          ) : null}
+        </>
+      )}
+    </div>
+  );
+}
+
 /** 82.2 What a block from Add a block carries while it is dragged. */
 export const BLOCK_DRAG_TYPE = "application/x-yallapp-block";
 
@@ -615,7 +737,7 @@ export function PhonePreview({
   page: LayoutPage | null;
   lang: LanguageCode;
   pickable: Pickable;
-  app: { name: string; primaryColor: string };
+  app: { name: string; primaryColor: string; logoUrl?: string | null };
   onOpenPage: (slug: string) => void;
   /** 33 A thumbnail: no caption and nothing scrolls. */
   still?: boolean;
@@ -652,25 +774,15 @@ export function PhonePreview({
             flexDirection: "column",
           }}
         >
-          <div
-            style={{
-              // Room for the status bar and the camera above the title.
-              padding: "12cqw 14px 10px",
-              background: classic ? theme.primary : theme.bg,
-              color: classic ? "#fff" : theme.text,
-              borderBottom: appearance.template === "minimal" ? `1px solid ${theme.line}` : undefined,
-              fontWeight: 800,
-              fontSize: appearance.template === "bold" ? 20 : 15,
-            }}
-          >
-            {/* 82.5 The side menu's button. */}
-            {layout.menu?.length ? (
-              <span aria-hidden="true" style={{ display: "inline-flex", verticalAlign: "middle", marginInlineEnd: 6 }} data-phone-menu="">
-                <IconGlyph name="menu" size={20} />
-              </span>
-            ) : null}
-            {shown?.show_title ? shown.title : app.name}
-          </div>
+          <PhoneHeader
+            appearance={appearance}
+            theme={theme}
+            classic={classic}
+            menu={Boolean(layout.menu?.length)}
+            title={shown?.show_title ? shown.title : null}
+            app={app}
+            search={dt?.("pages.headerSearch") ?? "Search"} // i18n-ok: English outside the dashboard
+          />
           <div
             data-phone-blocks
             onDragOver={(event) => {

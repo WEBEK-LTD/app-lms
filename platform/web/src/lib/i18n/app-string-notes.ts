@@ -10,6 +10,11 @@ import type { Lang } from "@/i18n/config";
  * its code names left out (tests/unit/phase62.test.ts lists those missing).
  */
 export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: string }> = {
+  "101 The search button and search field in the header of the pages in the bottom tabs.": {
+    en: "The search button and search field at the top of the pages in the bottom tabs.",
+    ar: "زر البحث وخانة البحث أعلى الصفحات في الأزرار السفلية.",
+    tr: "Alt sekmelerdeki sayfaların üstündeki arama düğmesi ve arama alanı.",
+  },
   "100 A membership's subscription in the app: its price in the store, charged each month.": {
     en: "A membership's subscription in the app: its price in the store, charged each month.",
     ar: "اشتراك العضوية في التطبيق: سعره في المتجر، يُدفع كل شهر.",

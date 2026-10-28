@@ -6475,6 +6475,40 @@ components:
           type: string
           format: uri
           description: 97.3 Only with the Figma look, when its file has a logo (on Yallapp), used over `Branding.logo_url`.
+        header: { $ref: '#/components/schemas/AppHeader' }
+
+    AppHeader:
+      type: object
+      description: |
+        101 The top of the pages in the bottom tabs, chosen in the client
+        dashboard (from plugin 0.4.24). Missing: the template's header (the
+        page's title, with the side menu's button). Pages opened on top of
+        the tabs keep their back button and title. Apps that don't know it
+        show the template's header.
+      required: [layout, icons]
+      properties:
+        layout:
+          type: string
+          enum: [title, centered, logo, search]
+          description: |
+            `title`, the page's title in the template's style, with the side
+            menu's button and the icons in a row above it; `centered`, one bar
+            with the page's title in the middle (the app's name when the
+            title is hidden); `logo`, one bar with the app's logo at the
+            start (its name without a logo), the page's title under it when
+            shown; `search`, the logo bar with a search field under it that
+            opens the app's search, and no title.
+        icons:
+          type: array
+          maxItems: 4
+          uniqueItems: true
+          description: |
+            Buttons at the end of the bar, from the start. The app leaves out
+            one it can't open (a cart in an app without one, the chat while
+            it's off, a search the app doesn't have). `account` opens the
+            customer's account and settings, or sign-in when signed out;
+            `cart` and `chat` show their counts.
+          items: { type: string, enum: [search, cart, notifications, chat, account] }
 
     FontFile:
       type: object

@@ -6759,6 +6759,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Purchases aren\'t available on this device right now.'**
   String get storeUnavailable;
+
+  /// 101 The search button and search field in the header of the pages in the bottom tabs.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get headerSearch;
 }
 
 class _AppLocalizationsDelegate

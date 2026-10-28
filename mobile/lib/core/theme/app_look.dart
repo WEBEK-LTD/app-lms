@@ -24,6 +24,7 @@ class AppLook {
     this.cards,
     this.defaultThemeMode = ThemeMode.system,
     this.userCanChangeMode = true,
+    this.header,
   });
 
   /// [ready]: the free fonts on the phone now (`remoteFontsProvider`).
@@ -65,6 +66,7 @@ class AppLook {
         AppearanceMode.system || null => ThemeMode.system,
       },
       userCanChangeMode: appearance?.userCanChangeMode ?? true,
+      header: appearance?.header,
     );
   }
 
@@ -87,6 +89,9 @@ class AppLook {
 
   /// Whether Settings shows the light and dark switch.
   final bool userCanChangeMode;
+
+  /// 101 The header of the pages in the bottom tabs; null: the template's.
+  final AppHeader? header;
 
   /// The student's choice when allowed and made, else the client's default.
   ThemeMode themeModeFor(LocalSettings settings) =>

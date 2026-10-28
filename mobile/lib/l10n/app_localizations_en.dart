@@ -4170,4 +4170,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get storeUnavailable =>
       'Purchases aren\'t available on this device right now.';
+
+  @override
+  String get headerSearch => 'Search';
 }

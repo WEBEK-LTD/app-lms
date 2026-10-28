@@ -4322,4 +4322,7 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get storeUnavailable =>
       overlay.text('storeUnavailable') ?? base.storeUnavailable;
+
+  @override
+  String get headerSearch => overlay.text('headerSearch') ?? base.headerSearch;
 }

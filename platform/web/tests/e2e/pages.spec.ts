@@ -348,6 +348,25 @@ test("97.2 the client uploads a font of their own and the app gets it", async ({
   await expect(own.getByLabel("Font", { exact: true })).toHaveValue("DM Sans");
 });
 
+test("101 the client picks a header and its buttons, and the app gets them", async ({ request }) => {
+  await own.getByRole("tab", { name: "Look" }).click();
+  const header = own.getByRole("group", { name: "Header" });
+  // The template's header until one is chosen; an academy has no cart.
+  await expect(header.getByRole("radio", { name: /^Title/ })).toBeChecked();
+  await expect(header.getByRole("checkbox", { name: "Cart" })).toHaveCount(0);
+  await header.getByRole("radio", { name: /^Search/ }).check();
+  await header.getByRole("checkbox", { name: "Notifications" }).check();
+  await header.getByRole("checkbox", { name: "Account and settings" }).check();
+  // The quick view shows it.
+  await own.getByRole("button", { name: "Quick view", exact: true }).click();
+  await expect(own.locator('[data-phone-header="search"]')).toBeVisible();
+  await expect(own.locator('[data-phone-header-icons="notifications account"]')).toBeVisible();
+  await own.getByRole("button", { name: "Publish", exact: true }).click();
+  await expect(own.getByText("Published. Your app shows the new pages")).toBeVisible();
+  const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
+  expect(config.appearance.header).toEqual({ layout: "search", icons: ["notifications", "account"] });
+});
+
 test("97.3 the client brings a look from Figma, apart from the standard one", async ({ request }) => {
   await own.getByRole("tab", { name: "Look" }).click();
   // No Figma file yet: the standard look only.
