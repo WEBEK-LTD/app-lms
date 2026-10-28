@@ -340,6 +340,8 @@ export const en = {
   corners: "Corners",
   cards: "Cards",
   switchMode: "People can switch between light and dark mode in Settings",
+  // 103
+  studioPage: "This page is designed in Studio. <link>Open it in Studio</link>.",
   // 101 The header of the pages in the bottom tabs.
   header: "Header",
   headerText: "The top of the pages in your bottom tabs. Pages opened from them keep their back button and title.",
@@ -1014,6 +1016,8 @@ export const ar: Messages = {
   corners: "الزوايا",
   cards: "البطاقات",
   switchMode: "يمكن للناس التبديل بين الوضعين الفاتح والداكن من الإعدادات",
+  // 103
+  studioPage: "هذه الصفحة مصمّمة في الاستوديو. <link>افتحها في الاستوديو</link>.",
   // 101 The header of the pages in the bottom tabs.
   header: "رأس الصفحة",
   headerText: "أعلى الصفحات في الأزرار السفلية. الصفحات التي تُفتح منها تبقى بزر الرجوع وعنوانها.",
@@ -1682,6 +1686,8 @@ export const tr: Messages = {
   corners: "Köşeler",
   cards: "Kartlar",
   switchMode: "Kişiler Ayarlar'da açık ve koyu mod arasında geçiş yapabilir",
+  // 103
+  studioPage: "Bu sayfa Stüdyo'da tasarlandı. <link>Stüdyo'da açın</link>.",
   // 101 The header of the pages in the bottom tabs.
   header: "Üst kısım",
   headerText: "Alt sekmelerdeki sayfaların üst kısmı. Bunlardan açılan sayfalar geri düğmesini ve başlığını korur.",

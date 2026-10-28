@@ -2276,3 +2276,41 @@ stores.
 | | Step | Done when |
 |---|---|---|
 | [x] | 102.1 Dashboard › Publishing › Store review account (en/ar/tr), in every publishing mode: apps whose sign-in Yallapp runs show App sign-in's fixed review number or email with its code; WordPress sites and own APIs save the user name or email and password of an account made for the reviewers (or the plugin's review access email and fixed code), the password encrypted and shown only when asked, with notes for the reviewers; the steps for Google Play Console and App Store Connect; Ready to submit marks it missing until set (notes alone no longer count); a build stops on it before it is queued (the first build after the setup still runs); the publishing team sees it in Admin › Publishing; the guides point to it | Unit tests (the account, readiness, the checks before a build), e2e (publishing, client flow) |
+
+## Phase 103: Yallapp Studio
+
+A separate mode for owners who want to design every screen freely: a
+canvas where they place, size and style layers (shapes, texts, pictures,
+buttons, icons and lists from their data) by dragging, like a design tool.
+The app draws it natively from data, scaled to the phone's width, from the
+same sources as the regular editor (WordPress, Shopify and the other
+platforms, no website, own API). Studio comes with the plan feature
+`studio`, off on every plan until the team turns it on (Admin › Plans):
+Studio's own plans and prices are the team's to set there.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 103.1 Contract: `AppPage.canvas` (`StudioCanvas`: design width, height, background and layers; `StudioLayer`: box, text, image, button, icon and items, each with its frame, style and tap action; an items layer carries its list like the items block); the plan feature `studio` | redocly lint |
+| [x] | 103.2 Platform: a page's canvas checked and kept in the layout, served by the hosted API (lists filled from the app's source) and sent to the plugin; a canvas only with `studio` on the app's plan | Unit tests |
+| [x] | 103.3 Dashboard › Studio (en/ar/tr): the pages, a page made a Studio page; the canvas editor: add layers, drag to move, resize from the corner, arrows to nudge, layers in order (front, back, duplicate, delete), a panel for the selected layer's frame, colours, corners, border, opacity, text, picture, icon, list and tap action; starting canvases (Studio templates); saved in the draft and published like the rest | e2e |
+| [x] | 103.4 App: a Studio page drawn natively from its canvas, scaled to the screen's width, scrolling, with taps and lists from the source | flutter analyze and widget tests |
+| [x] | 103.5 Plugin 0.4.25: a page's canvas served to the app, its lists filled from the site, its texts translated | composer lint, the plugin's integration suite |
+
+## Phase 104: Delivery and courier companies (Studio project type)
+
+The first project type only Studio has: send a parcel, follow it on the
+way, the courier's own screens and the business's dashboard. To agree on
+with the owner before work starts (who the couriers are, maps, prices by
+distance or zone, payment).
+
+## Phase 105: More Studio project types
+
+Multi-restaurant food delivery, car rental, hotels and rentals, home
+services, laundry. One at a time, after Phase 104.
+
+## Phase 106: Studio template marketplace (postponed)
+
+Sharing Studio templates for free or selling them by monthly, yearly or
+lifetime subscription; Yallapp's share 25% (taxes, payout and gateway fees
+included); payouts to the seller's bank account (SWIFT). After Studio is
+finished and tested.

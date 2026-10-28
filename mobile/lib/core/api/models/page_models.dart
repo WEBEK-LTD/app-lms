@@ -105,6 +105,7 @@ class AppPage {
     this.looks = const {},
     this.background = PageBackground.none,
     this.headerImageUrl,
+    this.canvas,
   });
 
   /// Blocks the app doesn't know, or can't read, are skipped.
@@ -123,6 +124,7 @@ class AppPage {
       for (final block in reqListOf(json, 'blocks', PageBlock.tryParse)) ?block,
     ],
     looks: _looks(json['blocks']),
+    canvas: StudioCanvas.tryParse(json['canvas']),
   );
 
   static Map<String, BlockLook> _looks(Object? blocks) {
@@ -140,6 +142,9 @@ class AppPage {
   final DateTime updatedAt;
   final bool showTitle;
   final List<PageBlock> blocks;
+
+  /// 103 A Studio page: drawn from its canvas instead of its blocks.
+  final StudioCanvas? canvas;
 
   /// 82.5 Each block's look, by block id; a block without one has none.
   final Map<String, BlockLook> looks;
@@ -1544,4 +1549,153 @@ class FormBlock extends PageBlock {
         if (key is String && value is String) key: value,
     };
   }
+}
+
+/// 103 `StudioCanvas`: a page designed in Yallapp Studio, its layers placed
+/// on a canvas [width] design units wide, back to front.
+class StudioCanvas {
+  const StudioCanvas({
+    required this.width,
+    required this.height,
+    this.background,
+    this.layers = const [],
+  });
+
+  /// Null when it is missing or can't be read; layers the app doesn't know,
+  /// or can't read, are skipped.
+  static StudioCanvas? tryParse(Object? value) {
+    if (value is! Map) return null;
+    final json = asJson(value);
+    final width = json['width'];
+    final height = json['height'];
+    if (width is! num || height is! num || width <= 0 || height <= 0) {
+      return null;
+    }
+    final raw = json['layers'];
+    return StudioCanvas(
+      width: width.toDouble(),
+      height: height.toDouble(),
+      background: optString(json, 'background'),
+      layers: [
+        for (final layer in raw is List ? raw : const [])
+          if (layer is Map) ?StudioLayer.tryParse(asJson(layer)),
+      ],
+    );
+  }
+
+  final double width;
+  final double height;
+  final String? background;
+  final List<StudioLayer> layers;
+}
+
+enum StudioLayerType { box, text, image, button, icon, items }
+
+enum StudioAlign { start, center, end }
+
+/// 103 `StudioLayer`: one layer, in design units from the canvas's top
+/// start corner.
+class StudioLayer {
+  const StudioLayer({
+    required this.id,
+    required this.type,
+    required this.x,
+    required this.y,
+    required this.w,
+    required this.h,
+    this.fill,
+    this.radius = 0,
+    this.borderColor,
+    this.borderWidth = 0,
+    this.opacity = 1,
+    this.shadow = false,
+    this.text,
+    this.fontSize = 16,
+    this.fontWeight = 400,
+    this.color,
+    this.align = StudioAlign.start,
+    this.imageUrl,
+    this.contain = false,
+    this.icon,
+    this.action,
+    this.items,
+  });
+
+  static StudioLayer? tryParse(Json json) {
+    try {
+      final type = enumOrNull(StudioLayerType.values, json['type']);
+      if (type == null) return null;
+      double n(String key, double fallback) {
+        final value = json[key];
+        return value is num ? value.toDouble() : fallback;
+      }
+
+      final id = reqString(json, 'id');
+      final items = type == StudioLayerType.items
+          ? PageBlock.tryParse({
+              'id': id,
+              'type': 'items',
+              'source': json['source'],
+              'layout': json['layout'],
+              'items': json['items'],
+            })
+          : null;
+      if (type == StudioLayerType.items && items is! ItemsBlock) return null;
+      final imageUrl = httpsUrl(json['image_url']);
+      if (type == StudioLayerType.image && imageUrl == null) return null;
+      return StudioLayer(
+        id: id,
+        type: type,
+        x: n('x', 0),
+        y: n('y', 0),
+        w: n('w', 1),
+        h: n('h', 1),
+        fill: optString(json, 'fill'),
+        radius: n('radius', 0),
+        borderColor: optString(json, 'border_color'),
+        borderWidth: n('border_width', 0),
+        opacity: n('opacity', 1).clamp(0, 1).toDouble(),
+        shadow: boolOr(json, 'shadow', false),
+        text: optString(json, 'text'),
+        fontSize: n('font_size', 16),
+        fontWeight: n('font_weight', 400).round(),
+        color: optString(json, 'color'),
+        align: enumFrom(StudioAlign.values, json['align'], StudioAlign.start),
+        imageUrl: imageUrl,
+        contain: json['fit'] == 'contain',
+        icon: optString(json, 'icon'),
+        action: PageAction.tryParse(json['action']),
+        items: items is ItemsBlock ? items : null,
+      );
+    } on FormatException {
+      return null;
+    }
+  }
+
+  final String id;
+  final StudioLayerType type;
+  final double x;
+  final double y;
+  final double w;
+  final double h;
+  final String? fill;
+  final double radius;
+  final String? borderColor;
+  final double borderWidth;
+  final double opacity;
+  final bool shadow;
+  final String? text;
+  final double fontSize;
+  final int fontWeight;
+  final String? color;
+  final StudioAlign align;
+  final String? imageUrl;
+
+  /// The whole picture shows, instead of filling the frame.
+  final bool contain;
+  final String? icon;
+  final PageAction? action;
+
+  /// For [StudioLayerType.items]: its list, as an items block.
+  final ItemsBlock? items;
 }

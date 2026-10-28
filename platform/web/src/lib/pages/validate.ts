@@ -41,6 +41,11 @@ import {
   SCREENS,
   SOCIAL_NETWORKS,
   SPACER_SIZES,
+  STUDIO_ALIGNS,
+  STUDIO_FITS,
+  STUDIO_FONT_WEIGHTS,
+  STUDIO_LAYER_TYPES,
+  STUDIO_LIMITS,
   THEME_MODES,
   TRANSLATABLE,
   TRANSLATABLE_ENTRIES,
@@ -53,6 +58,8 @@ import {
   type BlockType,
   type EntryList,
   type HeaderIcon,
+  type StudioCanvas,
+  type StudioLayer,
   type FaqEntry,
   type HoursPeriod,
   type Person,
@@ -844,7 +851,122 @@ function parsePage(ctx: Context, index: number, value: unknown, allowedBlocks: s
   if (oneOf(PAGE_BACKGROUNDS, v.background) && v.background !== "none") page.background = v.background;
   const header = v.header_image_url === undefined || v.header_image_url === null || v.header_image_url === "" ? null : c.mediaUrl(where, v.header_image_url, "the header picture's address", true);
   if (header) page.header_image_url = header;
+  // 103 A Studio page: its canvas, and no blocks.
+  if (v.canvas !== undefined && v.canvas !== null) {
+    const canvas = parseCanvas(ctx, where, v.canvas);
+    if (canvas) {
+      if (blocks.length) c.fail(where, "a Studio page has its canvas instead of blocks.");
+      page.canvas = canvas;
+    }
+  }
   return page;
+}
+
+/** 103 A Studio page's canvas (`StudioCanvas`): its size, colour and layers, each inside it. */
+function parseCanvas(ctx: Context, where: string, value: unknown): StudioCanvas | null {
+  const { c } = ctx;
+  const v = record(value);
+  if (!v) {
+    c.fail(where, "the Studio canvas is missing.");
+    return null;
+  }
+  const L = STUDIO_LIMITS;
+  const width = Number(v.width);
+  const height = Number(v.height);
+  if (!Number.isInteger(width) || width < L.minWidth || width > L.maxWidth) c.fail(where, `the canvas must be ${L.minWidth} to ${L.maxWidth} wide.`);
+  if (!Number.isInteger(height) || height < L.minHeight || height > L.maxHeight) c.fail(where, `the canvas must be ${L.minHeight} to ${L.maxHeight} high.`);
+  const background = optionalColor(c, where, v.background, "the canvas colour");
+  const layersIn = Array.isArray(v.layers) ? v.layers : [];
+  if (!Array.isArray(v.layers)) c.fail(where, "the canvas's layers are missing.");
+  if (layersIn.length > L.maxLayers) c.fail(where, `a canvas can have at most ${L.maxLayers} layers.`);
+  const layers: StudioLayer[] = [];
+  const ids = new Set<string>();
+  layersIn.slice(0, L.maxLayers).forEach((raw, i) => {
+    const layer = parseLayer(ctx, `${where}, layer ${i + 1}`, raw, { width, height });
+    if (!layer) return;
+    if (ids.has(layer.id)) c.fail(`${where}, layer ${i + 1}`, "two layers have the same ID.");
+    ids.add(layer.id);
+    layers.push(layer);
+  });
+  return { width, height, background, layers };
+}
+
+function optionalColor(c: Checker, where: string, value: unknown, what: string): string | null {
+  if (value === undefined || value === null || value === "") return null;
+  if (typeof value === "string" && HEX.test(value)) return value.toUpperCase();
+  c.fail(where, `${what} must look like #1F4E5F.`);
+  return null;
+}
+
+function parseLayer(ctx: Context, where: string, value: unknown, canvas: { width: number; height: number }): StudioLayer | null {
+  const { c } = ctx;
+  const v = record(value);
+  if (!v || !oneOf(STUDIO_LAYER_TYPES, v.type)) {
+    c.fail(where, "this kind of layer isn't available.");
+    return null;
+  }
+  const L = STUDIO_LIMITS;
+  const id = typeof v.id === "string" && /^[A-Za-z0-9_-]{1,64}$/.test(v.id) ? v.id : null;
+  if (!id) c.fail(where, "the layer's ID isn't valid.");
+  const num = (x: unknown) => (typeof x === "number" && Number.isFinite(x) ? Math.round(x * 10) / 10 : NaN);
+  const [x, y, w, h] = [num(v.x), num(v.y), num(v.w), num(v.h)];
+  if ([x, y, w, h].some(Number.isNaN) || x < 0 || y < 0 || w < 1 || h < 1 || x + w > canvas.width + 0.5 || y + h > canvas.height + 0.5) {
+    c.fail(where, "keep the layer inside the canvas.");
+  }
+  const layer: StudioLayer = { id: id ?? "", type: v.type, x, y, w, h };
+  const fill = optionalColor(c, where, v.fill, "the fill colour");
+  if (fill) layer.fill = fill;
+  const radius = v.radius === undefined ? 0 : num(v.radius);
+  if (Number.isNaN(radius) || radius < 0 || radius > L.maxRadius) c.fail(where, `the corners must be 0 to ${L.maxRadius}.`);
+  else if (radius) layer.radius = radius;
+  const borderWidth = v.border_width === undefined ? 0 : num(v.border_width);
+  if (Number.isNaN(borderWidth) || borderWidth < 0 || borderWidth > L.maxBorder) c.fail(where, `the border must be 0 to ${L.maxBorder} wide.`);
+  const borderColor = optionalColor(c, where, v.border_color, "the border colour");
+  if (borderWidth > 0 && borderColor) {
+    layer.border_width = borderWidth;
+    layer.border_color = borderColor;
+  }
+  const opacity = v.opacity === undefined ? 1 : num(v.opacity);
+  if (Number.isNaN(opacity) || opacity < 0 || opacity > 1) c.fail(where, "the opacity must be 0 to 1.");
+  else if (opacity !== 1) layer.opacity = opacity;
+  if (v.shadow === true) layer.shadow = true;
+  const textual = v.type === "text" || v.type === "button";
+  if (textual) {
+    layer.text = c.text(where, v.text, L.textChars, "a text");
+    const size = v.font_size === undefined ? 16 : num(v.font_size);
+    if (Number.isNaN(size) || size < L.minFont || size > L.maxFont) c.fail(where, `the text size must be ${L.minFont} to ${L.maxFont}.`);
+    else layer.font_size = size;
+    if (v.font_weight !== undefined && !(STUDIO_FONT_WEIGHTS as readonly unknown[]).includes(v.font_weight)) c.fail(where, "choose the text's weight.");
+    else layer.font_weight = (v.font_weight as StudioLayer["font_weight"]) ?? 400;
+    if (v.align !== undefined && !oneOf(STUDIO_ALIGNS, v.align)) c.fail(where, "choose where the text sits.");
+    else layer.align = oneOf(STUDIO_ALIGNS, v.align) ? v.align : "start";
+    const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.studio, { text: L.textChars });
+    if (translations) layer.translations = translations;
+  }
+  if (textual || v.type === "icon") {
+    const color = optionalColor(c, where, v.color, "the text colour");
+    if (color) layer.color = color;
+  }
+  if (v.type === "image") {
+    layer.image_url = c.mediaUrl(where, v.image_url, "the picture's address", true);
+    if (v.fit !== undefined && !oneOf(STUDIO_FITS, v.fit)) c.fail(where, "choose how the picture fits.");
+    layer.fit = oneOf(STUDIO_FITS, v.fit) ? v.fit : "cover";
+  }
+  if (v.type === "icon") {
+    if (!(typeof v.icon === "string" && ICON_NAME.test(v.icon))) c.fail(where, "choose an icon.");
+    else layer.icon = v.icon;
+  }
+  if (v.type === "items") {
+    if (!oneOf(ctx.sources, v.source)) c.fail(where, "choose what the list shows.");
+    layer.source = v.source as ItemSource;
+    if (!oneOf(ITEMS_LAYOUTS, v.layout)) c.fail(where, "choose how the list looks.");
+    layer.layout = oneOf(ITEMS_LAYOUTS, v.layout) ? v.layout : "carousel";
+    layer.query = parseQuery(ctx, where, v.query, v.source);
+  } else {
+    const action = parseAction(ctx, where, v.action, false);
+    if (action) layer.action = action;
+  }
+  return layer;
 }
 
 function parseTab(ctx: Context, index: number, value: unknown, kind: "Tab" | "Menu entry" = "Tab"): LayoutTab | null {

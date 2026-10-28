@@ -6582,7 +6582,66 @@ components:
               description: 99.3 A picture across the top of the page, under its title when the title shows. Apps that don't know it leave it out.
             blocks:
               type: array
+              description: 103 Empty on a Studio page (`canvas`).
               items: { $ref: '#/components/schemas/Block' }
+            canvas: { $ref: '#/components/schemas/StudioCanvas' }
+
+    StudioCanvas:
+      type: object
+      description: |
+        103 A page designed in Yallapp Studio: layers placed freely on a
+        canvas `width` design units wide, drawn by the app scaled to the
+        screen's width (every position, size, corner, border and text size
+        times screen width / `width`), scrolling when it is taller than the
+        screen. The page's title and header picture aren't shown. Apps that
+        don't know it show the page's blocks (none).
+      required: [width, height, layers]
+      properties:
+        width: { type: integer, minimum: 320, maximum: 480, example: 390 }
+        height: { type: integer, minimum: 200, maximum: 10000, example: 1400 }
+        background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The canvas colour; null, the app's background." }
+        layers:
+          type: array
+          maxItems: 200
+          description: Back to front.
+          items: { $ref: '#/components/schemas/StudioLayer' }
+
+    StudioLayer:
+      type: object
+      description: |
+        103 One layer of a Studio canvas, in design units from the canvas's
+        top start corner (left, or right in a right-to-left language).
+        Layers the app doesn't know are left out.
+      required: [id, type, x, y, w, h]
+      properties:
+        id: { type: string, maxLength: 64 }
+        type: { type: string, enum: [box, text, image, button, icon, items] }
+        x: { type: number, minimum: 0 }
+        y: { type: number, minimum: 0 }
+        w: { type: number, minimum: 1 }
+        h: { type: number, minimum: 1 }
+        fill: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "Background colour; null, none." }
+        radius: { type: number, minimum: 0, maximum: 500, default: 0 }
+        border_color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
+        border_width: { type: number, minimum: 0, maximum: 20, default: 0 }
+        opacity: { type: number, minimum: 0, maximum: 1, default: 1 }
+        shadow: { type: boolean, default: false }
+        text: { type: [string, 'null'], maxLength: 2000, description: "For `text` and `button`, in the language asked for." }
+        font_size: { type: number, minimum: 8, maximum: 120, default: 16 }
+        font_weight: { type: integer, enum: [400, 500, 600, 700, 800], default: 400 }
+        color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "Text and icon colour; null, the app's text colour." }
+        align: { type: string, enum: [start, center, end], default: start }
+        image_url: { type: [string, 'null'], format: uri, description: For `image`. }
+        fit: { type: string, enum: [cover, contain], default: cover }
+        icon: { type: [string, 'null'], description: "For `icon`, a Google Material Symbols (Rounded) name." }
+        action: { $ref: '#/components/schemas/Action' }
+        source: { $ref: '#/components/schemas/ItemSource' }
+        layout: { type: string, enum: [carousel, grid, list], description: For `items`. }
+        items:
+          type: array
+          maxItems: 30
+          description: For `items`, filled from the app's source like the items block, drawn inside the layer's frame.
+          items: { $ref: '#/components/schemas/Item' }
 
     Action:
       type: object

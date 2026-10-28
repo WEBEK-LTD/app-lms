@@ -16,6 +16,8 @@ import { discardDraft, hasUnpublishedChanges, layoutVersion, loadLayout, lookAnd
 import { duplicatePage, renamePageLinks, switchDefaultLanguage, textIn, uniqueSlug, withText } from "@/lib/pages/model";
 import { pluginLayout } from "@/lib/pages/plugin";
 import { pickLanguage, translated } from "@/lib/pages/translate";
+import { layoutForPlan } from "@/lib/pages/plan";
+import { PLAN_INFO } from "@/lib/plans";
 import { clearPlatformSettingsCache } from "@/lib/settings/platform";
 import { DICTIONARY_VERSION } from "@/lib/i18n/builtin";
 import type { LayoutBlock, LayoutContent } from "@/lib/pages/types";
@@ -131,6 +133,39 @@ describe("layout validation", () => {
       'Page "Home", block 2: two blocks have the same ID.',
     );
     expect(errorsOf(layoutWith([], { appearance: { template: "fancy" } })).length).toBeGreaterThan(3);
+  });
+
+  it("103 checks a Studio canvas: its size, its layers inside it, and no blocks beside it", () => {
+    const page = (canvas: unknown, blocks: unknown[] = []) => layoutWith(blocks, { pages: [{ slug: "home", title: "Home", show_title: true, blocks, canvas }] });
+    const text = { id: "t", type: "text", x: 10, y: 10, w: 100, h: 40, text: "Hi", translations: { ar: { text: "مرحبا" } } };
+    const ok = parse(page({ width: 390, height: 800, background: "#ffffff", layers: [text] }));
+    expect(ok.ok && ok.value.pages[0]!.canvas).toEqual({
+      width: 390,
+      height: 800,
+      background: "#FFFFFF",
+      layers: [{ id: "t", type: "text", x: 10, y: 10, w: 100, h: 40, text: "Hi", font_size: 16, font_weight: 400, align: "start", translations: { ar: { text: "مرحبا" } } }],
+    });
+    const where = 'Page "Home", layer 1';
+    expect(errorsOf(page({ width: 100, height: 800, layers: [] }))).toEqual(['Page "Home": the canvas must be 320 to 480 wide.']);
+    expect(errorsOf(page({ width: 390, height: 800, layers: [{ ...text, x: 350 }] }))).toEqual([`${where}: keep the layer inside the canvas.`]);
+    expect(errorsOf(page({ width: 390, height: 800, layers: [{ ...text, type: "video" }] }))).toEqual([`${where}: this kind of layer isn't available.`]);
+    expect(errorsOf(page({ width: 390, height: 800, layers: [{ id: "i", type: "image", x: 0, y: 0, w: 10, h: 10, image_url: "javascript:x" }] }))).toEqual([`${where}: the picture's address must be a full https address.`]);
+    // Products aren't in an academy.
+    expect(errorsOf(page({ width: 390, height: 800, layers: [{ id: "l", type: "items", x: 0, y: 0, w: 390, h: 200, source: "products", layout: "grid", query: { limit: 4 } }] }))).toEqual([
+      `${where}: choose what the list shows.`,
+    ]);
+    expect(errorsOf(page({ width: 390, height: 800, layers: [text, text] }))).toEqual(['Page "Home", layer 2: two layers have the same ID.']);
+    expect(errorsOf(page({ width: 390, height: 800, layers: [] }, [{ id: "s", type: "spacer", visibility: "everyone", size: "small" }]))).toEqual(['Page "Home": a Studio page has its canvas instead of blocks.']);
+  });
+
+  it("103 serves a canvas only with Studio on the app's plan", () => {
+    const app = { ...newApp("c", null, NOW, "lms"), backend: "hosted" as const };
+    const canvas = { width: 390, height: 600, background: null, layers: [{ id: "b", type: "box" as const, x: 0, y: 0, w: 390, h: 100, fill: "#1F4E5F" }] };
+    const layout = { version: "v1", ...(layoutWith([], { pages: [{ slug: "home", title: "Home", show_title: true, updated_at: NOW.toISOString(), blocks: [], canvas }] }) as unknown as LayoutContent) };
+    const without = layoutForPlan(layout, app, PLAN_INFO.pro, BUILT_IN_APP_DEFAULTS);
+    expect(without.pages[0]!.canvas).toBeUndefined();
+    const withStudio = layoutForPlan(layout, app, { ...PLAN_INFO.pro, features: [...PLAN_INFO.pro.features, "studio"] }, BUILT_IN_APP_DEFAULTS);
+    expect(withStudio.pages[0]!.canvas).toEqual(canvas);
   });
 
   it("101 keeps the header: its layout and up to four buttons, each once", () => {
@@ -540,6 +575,34 @@ describe("pages on the hosted API", () => {
     const config = await handleHosted(context(), { method: "GET", path: ["config"], query: new URLSearchParams({ platform: "ios", app_version: "1.0.0" }), body: undefined, token: null });
     expectContract("GET", "/config", config);
     expect(config.body).toMatchObject({ appearance: { header: { layout: "centered", icons: ["notifications", "account"] } } });
+  });
+
+  it("103 serves a Studio page's canvas, in the language asked for, with its lists filled", async () => {
+    const canvas = {
+      width: 390,
+      height: 900,
+      background: "#ffffff",
+      layers: [
+        { id: "hero", type: "box", x: 0, y: 0, w: 390, h: 300, fill: "#1f4e5f", radius: 0 },
+        { id: "title", type: "text", x: 20, y: 40, w: 350, h: 60, text: "Learn faster", font_size: 32, font_weight: 800, color: "#ffffff", translations: { ar: { text: "تعلم أسرع" } } },
+        { id: "go", type: "button", x: 20, y: 220, w: 160, h: 48, text: "Courses", fill: "#e8b04b", radius: 24, action: { type: "screen", screen: "courses" } },
+        { id: "list", type: "items", x: 0, y: 320, w: 390, h: 260, source: "courses", layout: "carousel", query: { limit: 5 } },
+      ],
+    };
+    const page = { slug: "home", title: "Home", show_title: true, updated_at: NOW.toISOString(), blocks: [], canvas };
+    expect((await publishLayout(store, app, layoutWith([], { pages: [page] }), "owner@lale.test", NOW)).ok).toBe(true);
+    type Served = { blocks: unknown[]; canvas: { background: string; layers: Record<string, unknown>[] } };
+    const served = (await call("/pages/{slug}", { params: ["home"] })).body as Served;
+    expect(served.blocks).toEqual([]);
+    expect(served.canvas.background).toBe("#FFFFFF");
+    expect(served.canvas.layers.map((l) => l.id)).toEqual(["hero", "title", "go", "list"]);
+    expect(served.canvas.layers[1]).toMatchObject({ text: "Learn faster", color: "#FFFFFF" });
+    expect(served.canvas.layers[1]).not.toHaveProperty("translations");
+    expect(served.canvas.layers[2]).toMatchObject({ action: { type: "screen", screen: "courses" } });
+    expect((served.canvas.layers[3]!.items as unknown[]).length).toBeGreaterThan(0);
+    expect(served.canvas.layers[3]).not.toHaveProperty("query");
+    const arabic = (await call("/pages/{slug}", { params: ["home"], headers: { "accept-language": "ar" } })).body as Served;
+    expect(arabic.canvas.layers[1]).toMatchObject({ text: "تعلم أسرع" });
   });
 
   it("lists services of a bookings app", async () => {

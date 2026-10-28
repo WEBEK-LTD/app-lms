@@ -952,6 +952,118 @@ class Block_Resolver {
 	}
 
 	/**
+	 * 103 A Studio page's canvas (`StudioCanvas`) for one request: its layers, already in the
+	 * request's language, with known fields only; an items layer filled from the site like the
+	 * items block (left out when the site can't serve it), and taps the app may follow.
+	 *
+	 * @param mixed  $raw      The stored canvas.
+	 * @param string $platform android or ios.
+	 * @param int    $user_id  Current user, or 0.
+	 * @param string $language The language the page is served in.
+	 * @return array|null
+	 */
+	public function canvas( $raw, $platform, $user_id, $language = '' ) {
+		if ( ! is_array( $raw ) || ! isset( $raw['width'], $raw['height'] ) || ! is_array( $raw['layers'] ?? null ) ) {
+			return null;
+		}
+		$this->context( $platform, $user_id, $language );
+		$layers = array();
+		foreach ( array_slice( $raw['layers'], 0, 200 ) as $layer ) {
+			$served = is_array( $layer ) ? $this->layer( $layer ) : null;
+			if ( $served ) {
+				$layers[] = $served;
+			}
+		}
+		return array(
+			'width'      => max( 320, min( 480, (int) $raw['width'] ) ),
+			'height'     => max( 200, min( 10000, (int) $raw['height'] ) ),
+			'background' => self::hex( $raw['background'] ?? null ),
+			'layers'     => $layers,
+		);
+	}
+
+	/**
+	 * 103 One Studio layer, or null when it is left out.
+	 *
+	 * @param array $raw StudioLayer as stored.
+	 * @return array|null
+	 */
+	private function layer( array $raw ) {
+		$type = (string) ( $raw['type'] ?? '' );
+		$id   = self::text( $raw['id'] ?? '' );
+		if ( null === $id || ! in_array( $type, array( 'box', 'text', 'image', 'button', 'icon', 'items' ), true ) ) {
+			return null;
+		}
+		$layer = array(
+			'id'   => substr( $id, 0, 64 ),
+			'type' => $type,
+		);
+		foreach ( array( 'x', 'y', 'w', 'h' ) as $field ) {
+			if ( ! isset( $raw[ $field ] ) || ! is_numeric( $raw[ $field ] ) ) {
+				return null;
+			}
+			$layer[ $field ] = round( (float) $raw[ $field ], 1 );
+		}
+		foreach ( array( 'radius', 'border_width', 'opacity', 'font_size' ) as $field ) {
+			if ( isset( $raw[ $field ] ) && is_numeric( $raw[ $field ] ) ) {
+				$layer[ $field ] = round( (float) $raw[ $field ], 2 );
+			}
+		}
+		foreach ( array( 'fill', 'border_color', 'color' ) as $field ) {
+			$color = self::hex( $raw[ $field ] ?? null );
+			if ( null !== $color ) {
+				$layer[ $field ] = $color;
+			}
+		}
+		if ( ! empty( $raw['shadow'] ) ) {
+			$layer['shadow'] = true;
+		}
+		if ( 'text' === $type || 'button' === $type ) {
+			$text          = is_scalar( $raw['text'] ?? null ) ? sanitize_textarea_field( (string) $raw['text'] ) : '';
+			$layer['text'] = '' === $text ? null : $text;
+			if ( in_array( $raw['font_weight'] ?? null, array( 400, 500, 600, 700, 800 ), true ) ) {
+				$layer['font_weight'] = $raw['font_weight'];
+			}
+			$layer['align'] = self::choice( $raw['align'] ?? null, array( 'start', 'center', 'end' ), 'start' );
+		}
+		if ( 'image' === $type ) {
+			$layer['image_url'] = self::url( $raw['image_url'] ?? null );
+			if ( null === $layer['image_url'] ) {
+				return null;
+			}
+			$layer['fit'] = self::choice( $raw['fit'] ?? null, array( 'cover', 'contain' ), 'cover' );
+		}
+		if ( 'icon' === $type ) {
+			$icon = is_string( $raw['icon'] ?? null ) && preg_match( '/^[a-z0-9_]{1,64}$/', $raw['icon'] ) ? $raw['icon'] : null;
+			if ( null === $icon ) {
+				return null;
+			}
+			$layer['icon'] = $icon;
+		}
+		if ( 'items' === $type ) {
+			$list = $this->items_block( $raw );
+			if ( ! $list ) {
+				return null;
+			}
+			$layer['source'] = $list['source'];
+			$layer['layout'] = $list['layout'];
+			$layer['items']  = $list['items'];
+			return $layer;
+		}
+		return $this->with_action( $layer, 'action', $raw['action'] ?? null );
+	}
+
+	/**
+	 * 103 A #RRGGBB colour in capitals, or null.
+	 *
+	 * @param mixed $value Value.
+	 * @return string|null
+	 */
+	private static function hex( $value ) {
+		return is_string( $value ) && preg_match( '/^#[0-9A-Fa-f]{6}$/', $value ) ? strtoupper( $value ) : null;
+	}
+
+	/**
 	 * A single-line text, or null when empty.
 	 *
 	 * @param mixed $value Value.

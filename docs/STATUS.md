@@ -8,6 +8,17 @@ Last updated: 28 October 2026.
 
 ## Current release
 
+Phase 103 (Yallapp Studio) is complete: Dashboard › Studio designs a
+page freely on a canvas (shapes, texts, pictures, buttons, icons and lists
+from the app's source; drag, resize, layers, starting templates including
+one for delivery companies), saved in the Pages & look draft. The hosted
+API and plugin 0.4.25 serve the page's canvas (`AppPage.canvas`), and the
+app draws it natively, scaled to the screen. Studio is the plan feature
+`studio`, off on every plan: the team turns it on, with Studio's plans and
+prices, in Admin › Plans; until then a canvas isn't served. Checks: redocly
+lint, platform unit tests, e2e of the editors, composer lint, flutter
+analyze and widget tests.
+
 Phase 102 (a store review account in every app, required) is complete:
 Publishing › Store review account holds the reviewers' sign-in for every
 app (App sign-in's fixed number or email and code where Yallapp signs people
@@ -61,6 +72,9 @@ test environment:
   checkout for paid courses.
 - An app on its own API returns `store_billing` and the `store` action from
   its own API (the developer guide's "Sell in the app").
+- Studio pages need the app update that draws them: older apps show a
+  Studio page empty. The Studio editor shows the canvas left to right; the
+  app mirrors it in right-to-left languages.
 
 ## Deployment
 
@@ -71,18 +85,11 @@ test environment:
   Play Console › Monetization setup; the platform finds the app by its
   package name.
 - Plugin 0.4.23 goes to sites once the app update with in-app purchases is
-  in the stores; 0.4.24 (the header) after the app update that shows it.
+  in the stores; 0.4.24 (the header) and 0.4.25 (Studio pages) after the
+  app update that shows them.
 
 ## Planned (to agree on before any work)
 
-- **Yallapp Studio** (a separate mode with its own plans and prices): a
-  free-form editor with drag and drop, layers and full styling, rendered
-  natively by the app from data; the same data sources as the regular
-  editor (WordPress, Wix, Shopify, Salla, Zid, no website, own API);
-  advanced Studio templates; new project types only in Studio, starting
-  with delivery and courier companies (then multi-restaurant food delivery,
-  car rental, hotels and rentals, home services, laundry). Later, after
-  Studio is finished and tested: sharing templates for free or selling
-  them by monthly, yearly or lifetime subscription, with Yallapp's share
-  at 25% (taxes, payout and gateway fees included) and payouts to the
-  seller's bank account (SWIFT).
+- **Delivery and courier companies** (Phase 104, the first project type
+  only Studio has), then more project types (Phase 105) and the Studio
+  template marketplace (Phase 106, postponed): see `docs/ROADMAP.md`.

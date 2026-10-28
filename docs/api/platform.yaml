@@ -1209,9 +1209,11 @@ components:
             business in the app; (91.4) `loyalty`: loyalty points in shops
             without a website (the plugin doesn't use it); (100)
             `store_billing`: courses and memberships bought in the app
-            through Google Play and the App Store (every plan but Starter).
-            Unknown values are ignored.
-          items: { type: string, enum: [push, offline_downloads, auto_publish, ios, page_editor, card_payments, auto_rebuild, chat, loyalty, store_billing] }
+            through Google Play and the App Store (every plan but Starter);
+            (103) `studio`: pages designed in Yallapp Studio (the plugin
+            serves a page's canvas whatever it says). Unknown values are
+            ignored.
+          items: { type: string, enum: [push, offline_downloads, auto_publish, ios, page_editor, card_payments, auto_rebuild, chat, loyalty, store_billing, studio] }
         chat:
           type: [object, 'null']
           description: |
@@ -1487,6 +1489,15 @@ components:
         blocks:
           type: array
           items: { $ref: '#/components/schemas/LayoutBlock' }
+        canvas:
+          type: object
+          description: |
+            103 A Studio page: `StudioCanvas` in the app API, with each layer's
+            `text` in the default language and `translations` for the others
+            (like a block's), and `items` layers carrying a `query` (as the
+            `items` block) instead of `items`. The plugin fills the lists from
+            the site, leaves out a list it can't serve, and serves the rest
+            as it is (plugin 0.4.25).
 
     LayoutBlock:
       type: object
