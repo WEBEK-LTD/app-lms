@@ -487,6 +487,12 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   // The regular apps stay apart: their dashboard, and Studio's editor isn't theirs.
   await own.getByRole("button", { name: "Regular apps" }).click();
   await expect(own).toHaveURL(/\/dashboard$/);
+  // The dashboard's dark bar switches back to Studio, like Studio's own.
+  const sections = own.getByRole("navigation", { name: "Section" });
+  await expect(sections.getByRole("link", { name: "Regular apps" })).toHaveAttribute("aria-current", "page");
+  await sections.getByRole("link", { name: "Yallapp Studio" }).click();
+  await expect(own).toHaveURL(/\/studio$/);
+  await own.goto("/dashboard");
   await own.goto("/studio/editor");
   await expect(own).toHaveURL(/\/studio$/);
   await own.goto("/dashboard/pages");
