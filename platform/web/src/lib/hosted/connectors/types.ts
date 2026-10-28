@@ -38,6 +38,8 @@ export interface Connector {
     donations?: { currency: string; ios_mode: "browser" | "off"; monthly: boolean; updates_push: boolean };
     /** 104 Config.delivery. */
     delivery?: unknown;
+    /** 105.1 Config.food. */
+    food?: unknown;
     features?: Record<string, unknown>;
     purchases?: { enroll_button: boolean; free_enrollment: boolean };
   }>;

@@ -678,7 +678,7 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       },
       next: "After this step, add your restaurants and their menus on the **Restaurants** page, set delivery prices and how customers pay on the **Delivery settings** page, then add your couriers on the **Couriers** page; every order shows on the **Food orders** page. Customers, restaurant staff and couriers sign in to the app with",
       switchLabel: "No website: restaurants in the dashboard",
-      adminLabel: "Food delivery: restaurants in the dashboard",
+      adminLabel: "No website: restaurants in the dashboard",
       nav: {
         label: "Your food delivery",
         items: [

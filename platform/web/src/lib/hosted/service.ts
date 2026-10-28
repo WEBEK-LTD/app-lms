@@ -525,6 +525,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
       : {}),
     // 104 Delivery and courier companies
     ...(extra.delivery ? { delivery: extra.delivery } : {}),
+    // 105.1 Food delivery from many restaurants
+    ...(extra.food ? { food: extra.food } : {}),
     // 10.6 Looks and languages (17: the draft's, in a draft preview)
     // 43 With each language's name, direction and the owner's string pack.
     ...(await lookAndLanguages(ctx.store, app, ctx.preview?.draft ? await draftLayout(ctx.store, app, ctx.now) : undefined, ctx.plan ?? null, {
