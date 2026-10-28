@@ -93,7 +93,7 @@ test("Vehicle types: not on the plan yet; one added with its fares", async () =>
   await own.getByLabel(/^Per km \(/).fill("6");
   await own.getByLabel(/^Per minute \(/).fill("1");
   await own.getByLabel(/^Smallest fare \(/).fill("30");
-  await own.getByRole("button", { name: "Save" }).click();
+  await own.getByRole("button", { name: "Add", exact: true }).click();
   await expect(own.getByText("Added. Riders choose it when they ask for a ride.")).toBeVisible();
   await own.reload();
   await expect(own.getByText("Economy", { exact: true })).toBeVisible();
@@ -109,7 +109,7 @@ test("Drivers: one added with their car", async () => {
   await own.getByLabel("Car (make and model)").fill("Toyota Corolla");
   await own.getByLabel("Colour").fill("White");
   await own.getByLabel("Plate").fill("ABC 123");
-  await own.getByRole("button", { name: "Save" }).click();
+  await own.getByRole("button", { name: "Add", exact: true }).click();
   await expect(own.getByText("Added. They sign in to the app with this number, go online and get rides.")).toBeVisible();
   await own.reload();
   await expect(own.getByText("1 driver")).toBeVisible();
