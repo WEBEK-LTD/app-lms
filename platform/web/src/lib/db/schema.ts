@@ -64,7 +64,7 @@ import type { BuildFailure, BuildRelease, ListingTranslation, ReviewsRow, Rollou
 import type { ApiWebhookData, OwnFontFile, StorePurchaseEventKind, StoreAccountSource, StoreBillingSettings, StorePlatform, StoreProductKind, StoreProductSync } from "../data/types";
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
 import type { Plan } from "../plans";
-import type { Layout, LayoutBlock, LayoutContent } from "../pages/types";
+import type { Layout, LayoutBlock, LayoutContent, StudioPage } from "../pages/types";
 import type { AdminRole } from "../admin/permissions";
 import {
   type AnyMySqlColumn,
@@ -1316,6 +1316,22 @@ export const savedSections = mysqlTable(
     createdBy: varchar("created_by", { length: 191 }),
   },
   (t) => [index("saved_sections_client_idx").on(t.clientId, t.createdAt)],
+);
+
+// 103R An account's own Studio templates: a Studio page saved to start others from.
+export const studioTemplates = mysqlTable(
+  "studio_templates",
+  {
+    id: id("id").primaryKey(),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 60 }).notNull(),
+    page: jsonText<StudioPage>("page").notNull(),
+    createdAt: time("created_at").notNull(),
+    createdBy: varchar("created_by", { length: 191 }),
+  },
+  (t) => [index("studio_templates_client_idx").on(t.clientId, t.createdAt)],
 );
 
 // 97.2 Own fonts: an app's uploaded fonts (their files are assets of kind "font").

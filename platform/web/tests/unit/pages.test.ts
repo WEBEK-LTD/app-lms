@@ -135,37 +135,68 @@ describe("layout validation", () => {
     expect(errorsOf(layoutWith([], { appearance: { template: "fancy" } })).length).toBeGreaterThan(3);
   });
 
-  it("103 checks a Studio canvas: its size, its layers inside it, and no blocks beside it", () => {
-    const page = (canvas: unknown, blocks: unknown[] = []) => layoutWith(blocks, { pages: [{ slug: "home", title: "Home", show_title: true, blocks, canvas }] });
-    const text = { id: "t", type: "text", x: 10, y: 10, w: 100, h: 40, text: "Hi", translations: { ar: { text: "مرحبا" } } };
-    const ok = parse(page({ width: 390, height: 800, background: "#ffffff", layers: [text] }));
-    expect(ok.ok && ok.value.pages[0]!.canvas).toEqual({
-      width: 390,
-      height: 800,
-      background: "#FFFFFF",
-      layers: [{ id: "t", type: "text", x: 10, y: 10, w: 100, h: 40, text: "Hi", font_size: 16, font_weight: 400, align: "start", translations: { ar: { text: "مرحبا" } } }],
+  it("103R checks a Studio page: its elements, their sizes and colours, and no blocks beside it", () => {
+    const page = (studio: unknown, blocks: unknown[] = []) => layoutWith(blocks, { pages: [{ slug: "home", title: "Home", show_title: true, blocks, studio }] });
+    const text = { id: "t", type: "text", text: "Hi", translations: { ar: { text: "مرحبا" } }, font: { weight: 800, size: 20 }, color: "#ffffff" };
+    const button = { id: "b", type: "button", text: "Order now", width: "fill", height: 46, padding: { top: 14, end: 24, bottom: 14, start: 24 }, radius: 14, shadow: "medium", action: { type: "screen", screen: "courses" }, platforms: ["android", "ios"], motion: { enter: "slide_up", press: "shrink" } };
+    const body = { id: "root", type: "column", gap: 12, children: [{ id: "row", type: "row", align: "between", children: [text] }, button] };
+    const ok = parse(page({ header: { type: "logo_actions", buttons: ["cart", "account", "cart"] }, body, background: "#fbf8f2" }));
+    expect(ok.ok ? [] : ok.errors).toEqual([]);
+    const studio = ok.ok ? ok.value.pages[0]!.studio : undefined;
+    expect(studio).toEqual({
+      header: { type: "logo_actions", buttons: ["cart", "account"] },
+      background: "#FBF8F2",
+      body: {
+        id: "root",
+        type: "column",
+        gap: 12,
+        children: [
+          { id: "row", type: "row", align: "between", children: [{ id: "t", type: "text", text: "Hi", translations: { ar: { text: "مرحبا" } }, font: { weight: 800, size: 20 }, color: "#FFFFFF" }] },
+          // Both platforms is the default; a press and an entrance are kept.
+          { id: "b", type: "button", text: "Order now", width: "fill", height: 46, padding: { top: 14, end: 24, bottom: 14, start: 24 }, radius: 14, shadow: "medium", action: { type: "screen", screen: "courses" }, motion: { enter: "slide_up", press: "shrink" } },
+        ],
+      },
     });
-    const where = 'Page "Home", layer 1';
-    expect(errorsOf(page({ width: 100, height: 800, layers: [] }))).toEqual(['Page "Home": the canvas must be 320 to 480 wide.']);
-    expect(errorsOf(page({ width: 390, height: 800, layers: [{ ...text, x: 350 }] }))).toEqual([`${where}: keep the layer inside the canvas.`]);
-    expect(errorsOf(page({ width: 390, height: 800, layers: [{ ...text, type: "video" }] }))).toEqual([`${where}: this kind of layer isn't available.`]);
-    expect(errorsOf(page({ width: 390, height: 800, layers: [{ id: "i", type: "image", x: 0, y: 0, w: 10, h: 10, image_url: "javascript:x" }] }))).toEqual([`${where}: the picture's address must be a full https address.`]);
-    // Products aren't in an academy.
-    expect(errorsOf(page({ width: 390, height: 800, layers: [{ id: "l", type: "items", x: 0, y: 0, w: 390, h: 200, source: "products", layout: "grid", query: { limit: 4 } }] }))).toEqual([
-      `${where}: choose what the list shows.`,
-    ]);
-    expect(errorsOf(page({ width: 390, height: 800, layers: [text, text] }))).toEqual(['Page "Home", layer 2: two layers have the same ID.']);
-    expect(errorsOf(page({ width: 390, height: 800, layers: [] }, [{ id: "s", type: "spacer", visibility: "everyone", size: "small" }]))).toEqual(['Page "Home": a Studio page has its canvas instead of blocks.']);
+    const where = 'Page "Home", page';
+    expect(errorsOf(page({ body: { id: "t", type: "text", text: "Hi" } }))).toEqual(['Page "Home": the page must start with a row, a column or another layout.']);
+    expect(errorsOf(page({ body: { ...body, children: [{ ...text, type: "marquee" }] } }))).toEqual([`${where} › 1: this kind of element isn't available.`]);
+    expect(errorsOf(page({ body: { ...body, children: [{ id: "i", type: "image", image_url: "javascript:x" }] } }))).toEqual([`${where} › 1: the picture's address must be a full https address.`]);
+    expect(errorsOf(page({ body: { ...body, children: [text, text] } }))).toEqual([`${where} › 2: two elements have the same ID.`]);
+    expect(errorsOf(page({ body: { ...body, children: [{ ...text, width: "wide" }] } }))).toEqual([`${where} › 1: the width must be fill, hug or 0 to 4000.`]);
+    expect(errorsOf(page({ body: { ...body, children: [{ ...text, children: [text] }] } }))).toEqual([`${where} › 1: only rows, columns and other layouts hold elements.`]);
+    // Products aren't in an academy; a list's card takes texts from the list, nothing else does.
+    expect(errorsOf(page({ body: { ...body, children: [{ id: "l", type: "items", source: "products", query: { limit: 4 } }] } }))).toEqual([`${where} › 1: choose what the list shows.`]);
+    const list = { id: "l", type: "items", source: "courses", layout: "grid", columns: 2, query: { limit: 4 }, card: { id: "card", type: "column", children: [{ id: "ct", type: "text", bind: "title" }, { id: "ci", type: "image", bind: "image" }] } };
+    const withList = parse(page({ body: { ...body, children: [list] } }));
+    expect(withList.ok && withList.value.pages[0]!.studio!.body.children![0]!.card!.children!.map((n) => n.bind)).toEqual(["title", "image"]);
+    expect(errorsOf(page({ body: { ...body, children: [{ ...text, bind: "title" }] } }))).toEqual([`${where} › 1: only a list's card takes its texts from the list.`]);
+    expect(errorsOf(page({ body }, [{ id: "s", type: "spacer", visibility: "everyone", size: "small" }]))).toEqual(['Page "Home": a Studio page has its elements instead of blocks.']);
+    const deep = Array.from({ length: 14 }).reduce<Record<string, unknown>>((inner, _, i) => ({ id: `c${i}`, type: "column", children: [inner] }), { id: "leaf", type: "spacer" });
+    expect(errorsOf(page({ body: deep })).some((e) => e.includes("nested at most 12 deep"))).toBe(true);
   });
 
-  it("103 serves a canvas only with Studio on the app's plan", () => {
+  it("103R serves a Studio page only with Studio on the app's plan, within its sources", () => {
     const app = { ...newApp("c", null, NOW, "lms"), backend: "hosted" as const };
-    const canvas = { width: 390, height: 600, background: null, layers: [{ id: "b", type: "box" as const, x: 0, y: 0, w: 390, h: 100, fill: "#1F4E5F" }] };
-    const layout = { version: "v1", ...(layoutWith([], { pages: [{ slug: "home", title: "Home", show_title: true, updated_at: NOW.toISOString(), blocks: [], canvas }] }) as unknown as LayoutContent) };
+    const studio = {
+      body: {
+        id: "root",
+        type: "column" as const,
+        children: [
+          { id: "b", type: "button" as const, text: "Go", action: { type: "item" as const, item: { source: "products" as const, id: "7" } } },
+          { id: "l", type: "items" as const, source: "products" as const, layout: "grid" as const, query: { limit: 4 } },
+          { id: "c", type: "items" as const, source: "courses" as const, layout: "grid" as const, query: { limit: 4 } },
+        ],
+      },
+    };
+    const layout = { version: "v1", ...(layoutWith([], { pages: [{ slug: "home", title: "Home", show_title: true, updated_at: NOW.toISOString(), blocks: [], studio }] }) as unknown as LayoutContent) };
     const without = layoutForPlan(layout, app, PLAN_INFO.pro, BUILT_IN_APP_DEFAULTS);
-    expect(without.pages[0]!.canvas).toBeUndefined();
+    expect(without.pages[0]!.studio).toBeUndefined();
     const withStudio = layoutForPlan(layout, app, { ...PLAN_INFO.pro, features: [...PLAN_INFO.pro.features, "studio"] }, BUILT_IN_APP_DEFAULTS);
-    expect(withStudio.pages[0]!.canvas).toEqual(canvas);
+    // An academy has no products: the tap to one is dropped, the products list left out.
+    expect(withStudio.pages[0]!.studio!.body.children!.map((n) => [n.id, n.action ?? null])).toEqual([
+      ["b", null],
+      ["c", null],
+    ]);
   });
 
   it("101 keeps the header: its layout and up to four buttons, each once", () => {
@@ -577,32 +608,37 @@ describe("pages on the hosted API", () => {
     expect(config.body).toMatchObject({ appearance: { header: { layout: "centered", icons: ["notifications", "account"] } } });
   });
 
-  it("103 serves a Studio page's canvas, in the language asked for, with its lists filled", async () => {
-    const canvas = {
-      width: 390,
-      height: 900,
+  it("103R serves a Studio page in the language asked for, with its lists filled", async () => {
+    const studio = {
+      header: { type: "title_search", title: "Lessons", translations: { ar: { title: "الدروس" } } },
       background: "#ffffff",
-      layers: [
-        { id: "hero", type: "box", x: 0, y: 0, w: 390, h: 300, fill: "#1f4e5f", radius: 0 },
-        { id: "title", type: "text", x: 20, y: 40, w: 350, h: 60, text: "Learn faster", font_size: 32, font_weight: 800, color: "#ffffff", translations: { ar: { text: "تعلم أسرع" } } },
-        { id: "go", type: "button", x: 20, y: 220, w: 160, h: 48, text: "Courses", fill: "#e8b04b", radius: 24, action: { type: "screen", screen: "courses" } },
-        { id: "list", type: "items", x: 0, y: 320, w: 390, h: 260, source: "courses", layout: "carousel", query: { limit: 5 } },
-      ],
+      body: {
+        id: "root",
+        type: "column",
+        children: [
+          { id: "hero", type: "stack", height: 300, background: "#1f4e5f", children: [{ id: "title", type: "text", text: "Learn faster", font: { size: 32, weight: 800 }, color: "#ffffff", translations: { ar: { text: "تعلم أسرع" } } }] },
+          { id: "go", type: "button", text: "Courses", background: "#e8b04b", radius: 24, action: { type: "screen", screen: "courses" } },
+          { id: "list", type: "items", source: "courses", layout: "carousel", query: { limit: 5 } },
+        ],
+      },
     };
-    const page = { slug: "home", title: "Home", show_title: true, updated_at: NOW.toISOString(), blocks: [], canvas };
+    const page = { slug: "home", title: "Home", show_title: true, updated_at: NOW.toISOString(), blocks: [], studio };
     expect((await publishLayout(store, app, layoutWith([], { pages: [page] }), "owner@lale.test", NOW)).ok).toBe(true);
-    type Served = { blocks: unknown[]; canvas: { background: string; layers: Record<string, unknown>[] } };
+    type Node = Record<string, unknown> & { children?: Node[] };
+    type Served = { blocks: unknown[]; studio: { background: string; header: Record<string, unknown>; body: Node } };
     const served = (await call("/pages/{slug}", { params: ["home"] })).body as Served;
     expect(served.blocks).toEqual([]);
-    expect(served.canvas.background).toBe("#FFFFFF");
-    expect(served.canvas.layers.map((l) => l.id)).toEqual(["hero", "title", "go", "list"]);
-    expect(served.canvas.layers[1]).toMatchObject({ text: "Learn faster", color: "#FFFFFF" });
-    expect(served.canvas.layers[1]).not.toHaveProperty("translations");
-    expect(served.canvas.layers[2]).toMatchObject({ action: { type: "screen", screen: "courses" } });
-    expect((served.canvas.layers[3]!.items as unknown[]).length).toBeGreaterThan(0);
-    expect(served.canvas.layers[3]).not.toHaveProperty("query");
+    expect(served.studio.background).toBe("#FFFFFF");
+    expect(served.studio.header).toEqual({ type: "title_search", title: "Lessons" });
+    const [hero, go, list] = served.studio.body.children!;
+    expect(hero!.children![0]).toMatchObject({ text: "Learn faster", color: "#FFFFFF" });
+    expect(hero!.children![0]).not.toHaveProperty("translations");
+    expect(go).toMatchObject({ action: { type: "screen", screen: "courses" } });
+    expect((list!.items as unknown[]).length).toBeGreaterThan(0);
+    expect(list).not.toHaveProperty("query");
     const arabic = (await call("/pages/{slug}", { params: ["home"], headers: { "accept-language": "ar" } })).body as Served;
-    expect(arabic.canvas.layers[1]).toMatchObject({ text: "تعلم أسرع" });
+    expect(arabic.studio.body.children![0]!.children![0]).toMatchObject({ text: "تعلم أسرع" });
+    expect(arabic.studio.header.title).toBe("الدروس");
   });
 
   it("lists services of a bookings app", async () => {

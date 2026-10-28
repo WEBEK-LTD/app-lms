@@ -367,49 +367,46 @@ test("101 the client picks a header and its buttons, and the app gets them", asy
   expect(config.appearance.header).toEqual({ layout: "search", icons: ["notifications", "account"] });
 });
 
-test("103 the client designs a page in Studio and publishes it", async ({ request }) => {
-  await own.goto("/dashboard/studio");
-  // Studio isn't on the plan yet: designing works, the app gets the page once it is.
-  await expect(own.locator('[data-studio-plan="off"]')).toBeVisible();
-  const create = own.getByRole("region", { name: "New Studio page" });
-  await create.getByLabel("Page name").fill("Spring");
-  await create.getByRole("radio", { name: /^Welcome/ }).check();
-  await create.getByRole("button", { name: "Create the page" }).click();
-  const canvas = own.locator("[data-studio-canvas]");
-  // A coloured header, its texts and button, and a list of the academy's courses.
-  await expect(canvas.locator("[data-layer]")).toHaveCount(6);
-  await expect(own.locator('[data-studio-status="unsaved"]')).toBeVisible();
+test("103R the client designs a page in Yallapp Studio, apart from the dashboard, and publishes it", async ({ request }) => {
+  await own.goto("/studio/editor");
+  // Its own screen: the dark bar of the approved design, no dashboard menu.
+  await expect(own.getByRole("link", { name: "Yallapp Studio" })).toBeVisible();
+  await expect(own.locator("nav")).toHaveCount(0);
+  // A new page starts blank, with its header.
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await own.getByLabel("Page name").fill("Spring");
+  await own.getByRole("button", { name: "Add the page" }).click();
+  await expect(own.getByRole("button", { name: "Page: Spring" })).toBeVisible();
+  const phone = own.getByRole("main", { name: "The page in the phone" });
+  await expect(phone.locator('[data-studio-header="logo_actions"]')).toBeVisible();
 
-  await own.getByRole("toolbar", { name: "Add" }).getByRole("button", { name: "Text" }).click();
-  await expect(canvas.locator("[data-layer]")).toHaveCount(7);
-  await own.getByRole("region", { name: "Your text" }).getByLabel("Text", { exact: true }).fill("Hello Studio");
-  const panel = own.getByRole("region", { name: "Hello Studio" });
-  await expect(canvas.getByText("Hello Studio")).toBeVisible();
-  // The arrow keys move it, its corner resizes it.
-  const x = Number(await panel.getByLabel("X", { exact: true }).inputValue());
-  await canvas.focus();
-  await own.keyboard.press("ArrowRight");
-  await own.keyboard.press("Shift+ArrowRight");
-  await expect(panel.getByLabel("X", { exact: true })).toHaveValue(String(x + 11));
-  const w = Number(await panel.getByLabel("Width", { exact: true }).inputValue());
-  const handle = (await own.locator("[data-resize]").boundingBox())!;
-  await own.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2);
-  await own.mouse.down();
-  await own.mouse.move(handle.x + handle.width / 2 - 40, handle.y + handle.height / 2 + 20, { steps: 4 });
-  await own.mouse.up();
-  await expect(panel.getByLabel("Width", { exact: true })).toHaveValue(String(w - 40));
+  // A ready section, then a text, added by a click; the text is written in the inspector.
+  await own.getByRole("tab", { name: "Ready sections" }).click();
+  await own.locator('[data-studio-section="hero"]').click();
+  await own.getByRole("tab", { name: "Elements" }).click();
+  await own.locator('[data-studio-element="text"]').click();
+  await own.locator("[data-studio-text]").fill("Hello Studio");
+  await expect(phone.getByText("Hello Studio")).toBeVisible();
+  // Copied and undone; the header type changes below the phone.
+  await own.keyboard.press("Escape");
+  await phone.getByText("Hello Studio").click();
+  await own.keyboard.press("Control+d");
+  await expect(phone.getByText("Hello Studio")).toHaveCount(2);
+  await own.getByRole("button", { name: "Undo" }).click();
+  await expect(phone.getByText("Hello Studio")).toHaveCount(1);
+  await own.getByRole("group", { name: "Header type:" }).getByRole("button", { name: "1 Logo in the middle" }).click();
+  await expect(phone.locator('[data-studio-header="logo_center"]')).toBeVisible();
+  await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
 
-  await own.getByRole("button", { name: "Save draft" }).click();
-  await expect(own.locator('[data-studio-status="saved"]')).toBeVisible();
   await own.getByRole("button", { name: "Publish", exact: true }).click();
-  await expect(own.getByText("Published. Your app shows the new pages")).toBeVisible();
-  // Not on this plan: the app gets the page without its canvas.
+  await expect(own.getByText("Published. The app shows this design once Yallapp Studio is on your plan.")).toBeVisible();
+  // Studio isn't on this plan: the app gets the page without its design.
   const served = await (await request.get(`${api}/pages/spring?platform=android`)).json();
   expect(served).toMatchObject({ slug: "spring", blocks: [] });
-  expect(served.canvas).toBeUndefined();
-  // The page editor sends it back to Studio.
-  await own.reload();
-  await expect(own.getByRole("button", { name: /^Spring/ })).toHaveAttribute("aria-pressed", "true");
+  expect(served.studio).toBeUndefined();
+  // The draft keeps it.
+  await own.goto("/studio/editor?page=spring");
+  await expect(own.getByRole("main", { name: "The page in the phone" }).getByText("Hello Studio")).toBeVisible();
   await own.goto("/dashboard/pages");
 });
 

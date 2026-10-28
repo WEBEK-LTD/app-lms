@@ -82,8 +82,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
         },
         { href: "/dashboard/setup", label: t("nav.setup"), icon: "tune", prefix: "/dashboard/app-type" },
         { href: "/dashboard/pages", label: t("nav.pages"), icon: "palette" },
-        // 103 Yallapp Studio.
-        { href: "/dashboard/studio", label: t("nav.studio"), icon: "grid_view" },
         // 51 The app's videos, pictures and PDFs, kept by Yallapp.
         ...(app ? [{ href: "/dashboard/media", label: t("nav.media"), icon: "photo_library" as const }] : []),
         // 77 The people using the app write to the business (apps whose people Yallapp knows).

@@ -87,6 +87,8 @@ export function FontPicker({
   labels,
   arabicOnly = false,
   own = NO_FONTS,
+  compact = false,
+  placeholder,
 }: {
   id: string;
   /** The form field holding the chosen family, when inside a form. */
@@ -99,6 +101,10 @@ export function FontPicker({
   arabicOnly?: boolean;
   /** 97.2 The owner's own fonts, listed first. */
   own?: readonly { family: string; previewUrl: string }[];
+  /** 103R One line, as in Yallapp Studio's inspector: the field alone, its label read out only. */
+  compact?: boolean;
+  /** Shown while no font is chosen. */
+  placeholder?: string;
 }) {
   const listId = useId();
   const hintId = useId();
@@ -190,7 +196,7 @@ export function FontPicker({
 
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-semibold">
+      <label htmlFor={id} className={compact ? "sr-only" : "text-sm font-semibold"}>
         {label}
       </label>
       {name ? <input type="hidden" name={name} value={chosen} /> : null}
@@ -205,7 +211,9 @@ export function FontPicker({
           aria-describedby={labels.hint ? hintId : undefined}
           autoComplete="off"
           spellCheck={false}
-          className="input input-sm w-full"
+          placeholder={placeholder}
+          className={compact ? "h-[34px] w-full rounded-lg border bg-white ps-2.5 pe-7 text-[13px]" : "input input-sm w-full"}
+          style={compact ? { borderColor: "var(--studio-line)" } : undefined}
           value={open ? query : chosen}
           onFocus={(e) => {
             e.target.select();
@@ -215,6 +223,14 @@ export function FontPicker({
           onKeyDown={onKey}
           onBlur={() => setTimeout(() => setQuery(null), 150)}
         />
+        {compact ? (
+          // The arrow's wrapper keeps the field's direction (the icon font is left to right).
+          <span aria-hidden="true" className="pointer-events-none absolute end-2 top-1/2 flex -translate-y-1/2">
+            <span className="material-symbols-rounded" style={{ fontSize: 16 }}>
+              expand_more
+            </span>
+          </span>
+        ) : null}
         {open ? (
           <ul
             id={listId}
@@ -245,20 +261,22 @@ export function FontPicker({
           </ul>
         ) : null}
       </div>
-      {!arabicOnly ? (
+      {!arabicOnly && !compact ? (
         <label className="flex cursor-pointer items-center gap-2 text-xs text-muted">
           <input type="checkbox" checked={arabic} onChange={(e) => setArabic(e.target.checked)} className="h-3.5 w-3.5 accent-midnight" />
           {labels.arabicOnly}
         </label>
       ) : null}
-      <span
-        aria-hidden="true"
-        className="truncate text-[15px]"
-        style={preview && preview.family === chosen ? { fontFamily: `"${cssFamily(preview.family)}", sans-serif` } : undefined}
-      >
-        {labels.sample}
-      </span>
-      {labels.hint ? (
+      {compact ? null : (
+        <span
+          aria-hidden="true"
+          className="truncate text-[15px]"
+          style={preview && preview.family === chosen ? { fontFamily: `"${cssFamily(preview.family)}", sans-serif` } : undefined}
+        >
+          {labels.sample}
+        </span>
+      )}
+      {labels.hint && !compact ? (
         <span id={hintId} className="text-xs text-muted">
           {labels.hint}
         </span>

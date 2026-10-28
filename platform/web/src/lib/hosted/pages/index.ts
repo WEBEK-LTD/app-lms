@@ -1,10 +1,11 @@
+import { mapTreeAsync } from "../../studio/tree";
 import { ENGINES, isAppType } from "../../app/kinds";
 import type { App, HostedUser } from "../../data/types";
 import { servedLayout } from "../../pages/layout";
 import { etagValues } from "../../pages/plugin";
 import { itemSourcesFor } from "../../pages/sources";
 import { pickLanguage, translated, translatedBlock } from "../../pages/translate";
-import { ENTRY_LISTS, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock, type LayoutTab, type StudioCanvas, type StudioLayer } from "../../pages/types";
+import { ENTRY_LISTS, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock, type LayoutTab, type StudioNode, type StudioPage } from "../../pages/types";
 import { ConnectorError, type Connector } from "../connectors/types";
 import type { HostedContext, HostedRequest, HostedResult } from "../service";
 import { durationLabel, itemWords } from "./item-words";
@@ -49,8 +50,8 @@ export async function handlePages(ctx: HostedContext, req: HostedRequest, user: 
     if (resolved) blocks.push(resolved);
   }
   const text = translated(page, lang, layout.languages.default);
-  // 103 A Studio page: its canvas, with its texts in the language asked for and its lists filled.
-  const canvas = page.canvas ? await servedCanvas(pc, page.canvas) : null;
+  // 103R A Studio page: its texts in the language asked for and its lists filled.
+  const studio = page.studio ? await servedStudio(pc, page.studio) : null;
   return {
     status: 200,
     body: {
@@ -62,29 +63,35 @@ export async function handlePages(ctx: HostedContext, req: HostedRequest, user: 
       ...(page.background ? { background: page.background } : {}),
       ...(page.header_image_url ? { header_image_url: page.header_image_url } : {}),
       blocks,
-      ...(canvas ? { canvas } : {}),
+      ...(studio ? { studio } : {}),
     },
     headers: VARY,
   };
 }
 
 /**
- * 103 A Studio canvas as the app gets it (`StudioCanvas`): each layer in the
- * language asked for; an items layer filled like the items block (left out
- * when its source can't be served), without its query.
+ * 103R A Studio page as the app gets it (`StudioPage`): each text in the
+ * language asked for; an items element filled like the items block and a
+ * categories element like the categories block, without their queries, and
+ * left out when their source can't be served.
  */
-async function servedCanvas(pc: PageContext, canvas: StudioCanvas): Promise<StudioCanvas> {
-  const layers: StudioLayer[] = [];
-  for (const layer of canvas.layers) {
-    const { query, ...shown } = translated(layer, pc.lang, pc.layout.languages.default);
-    if (layer.type !== "items") {
-      layers.push(shown);
-      continue;
+async function servedStudio(pc: PageContext, studio: StudioPage): Promise<StudioPage> {
+  const def = pc.layout.languages.default;
+  const body = await mapTreeAsync(studio.body, async (node) => {
+    const { query, translations: _t, ...shown } = translated(node, pc.lang, def);
+    void _t;
+    if (node.type === "items") {
+      const list = (await resolveBlock(pc, { id: node.id, type: "items", visibility: "everyone", title: null, source: node.source, layout: node.layout, query })) as { items?: unknown[] } | null;
+      return list?.items ? ({ ...shown, items: list.items } as StudioNode) : null;
     }
-    const list = (await resolveBlock(pc, { id: layer.id, type: "items", visibility: "everyone", title: null, source: layer.source, layout: layer.layout, query })) as { items?: unknown[] } | null;
-    if (list?.items) layers.push({ ...shown, items: list.items } as StudioLayer);
-  }
-  return { ...canvas, layers };
+    if (node.type === "categories") {
+      const list = (await resolveBlock(pc, { id: node.id, type: "categories", visibility: "everyone", title: null, source: node.source })) as { categories?: unknown[] } | null;
+      return list?.categories ? ({ ...shown, categories: list.categories } as StudioNode) : null;
+    }
+    return shown as StudioNode;
+  });
+  const header = studio.header ? (({ translations: _h, ...rest }) => (void _h, rest))(translated(studio.header, pc.lang, def)) : studio.header;
+  return { ...studio, ...(header !== undefined ? { header } : {}), body: body ?? studio.body };
 }
 
 /** A tab or a side menu entry as the app gets it (`NavTab`): 82.5 with the owner's own icon. */

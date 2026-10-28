@@ -2296,6 +2296,60 @@ Studio's own plans and prices are the team's to set there.
 | [x] | 103.4 App: a Studio page drawn natively from its canvas, scaled to the screen's width, scrolling, with taps and lists from the source | flutter analyze and widget tests |
 | [x] | 103.5 Plugin 0.4.25: a page's canvas served to the app, its lists filled from the site, its texts translated | composer lint, the plugin's integration suite |
 
+## Phase 103R: Yallapp Studio as the owner approved it
+
+The owner's review of Phase 103 (28 October): the editor isn't the one in
+the approved design, and Studio was built inside the regular editor. What
+was agreed instead:
+
+- **A separate section of the same account.** Studio has its own entry,
+  its own projects, its own dashboard around them and its own editor;
+  nothing of the regular editor is inside it, and the regular dashboard
+  shows no Studio page. An account can have regular apps and Studio
+  projects side by side.
+- **Its own plans.** A family of Studio plans, separate from the regular
+  ones, named and priced by the team in Admin › Plans › Studio; a Studio
+  project is paid on a Studio plan and a regular app on a regular plan,
+  never across.
+- **Its own projects and templates.** Studio has project types the regular
+  app types don't (delivery and courier companies first, Phase 104), its
+  own templates and ready sections; it also takes every regular app type
+  and source (WordPress, Wix and the other platforms, no website, own API).
+- **The editor in the approved design, in full** (the design "Yallapp
+  Studio — المحرر"): the top bar (the page, small phone, phone and tablet,
+  the content's language, undo and redo, saved, Preview on the phone,
+  Publish); on one side Elements (layout: row, column, layers, grid,
+  slider, space; content: text, picture, button, products and every list
+  from the data, video, form, map, ratings and more), Ready sections and
+  Templates with search, and the page's layers as a tree; the phone in the
+  middle on a dotted board with drag and drop anywhere and where it will
+  land, the selected element's handles and size, zoom, light and dark, and
+  the header's type; on the other side the selected element with copy and
+  delete and three tabs: Design (size and place: width fill, hug or fixed,
+  height, padding, margin, alignment, pinned to the screen; colours with
+  the project's palette; font, weight and size; corners and shadow; what a
+  tap opens; Android and iOS), Motion and Data; and "Save the page as my
+  own template".
+- **Asked before built.** Screens that aren't in the approved design (the
+  Studio home, a new project, Studio's plans in the admin) are shown to
+  the owner as a design first.
+
+The page is a tree of elements (`StudioNode`), not Phase 103's canvas of
+absolutely placed layers: rows, columns, layers, grids and sliders hold
+other elements, sized to fill, hug or a fixed size, so a page fits every
+phone and tablet. Phase 103's canvas is replaced; it never reached a
+client (`studio` was off on every plan).
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 103R.1 Contract: `AppPage.studio` (`StudioPage`: header, body and background; `StudioNode`: layout and content elements, their style, light and dark colours, motion, data, tap action and platforms), Studio's ready sections and templates; `Phase 103` canvas removed | redocly lint |
+| [ ] | 103R.2 Platform: Studio pages checked, kept, served by the hosted API with lists filled from the source, sent to the plugin; the account's sections (regular, Studio); Studio plans (Admin › Plans › Studio), licenses and payment on them; Studio-only project types | unit tests |
+| [ ] | 103R.3 The Studio section (designs approved by the owner first): its home with the projects, a new project, the project's dashboard around the editor | e2e |
+| [x] | 103R.4 The editor, as in the approved design, every part working (`/studio/editor`, its own screen apart from the dashboard; "my templates" kept per account) | e2e |
+| [ ] | 103R.5 App: Studio pages drawn natively from the tree: layout, sizes, colours light and dark, fonts, motion, data lists, taps, platforms | flutter analyze and widget tests |
+| [ ] | 103R.6 Plugin: Studio pages served to WordPress apps, lists from the site, texts translated | composer lint, the plugin's integration suite |
+| [ ] | 103R.7 Studio's templates and ready sections per project type; "my templates" | e2e |
+
 ## Phase 104: Delivery and courier companies (Studio project type)
 
 The first project type only Studio has: send a parcel, follow it on the
