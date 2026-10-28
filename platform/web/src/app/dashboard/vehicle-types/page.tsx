@@ -81,14 +81,14 @@ export default async function VehicleTypesPage() {
               <details className="rounded-xl border border-line p-4">
                 <summary className="cursor-pointer text-[15px] font-semibold">{t("rides.editType", { name: type.name })}</summary>
                 <div className="pt-3">
-                  <VehicleTypeForm id={type.id} values={vehicleTypeFormValues(type)} currency={currency} icons={VEHICLE_ICONS} imageUrl={type.imageAssetId ? assetUrl(type.imageAssetId) : null} />
+                  <VehicleTypeForm id={type.id} values={vehicleTypeFormValues(type)} currency={currency} iconNames={VEHICLE_ICONS} imageUrl={type.imageAssetId ? assetUrl(type.imageAssetId) : null} />
                 </div>
               </details>
             </li>
           ))}
         </ul>
         <AddServiceBox title={t("rides.addVehicleType")} open={types.length === 0}>
-          <VehicleTypeForm id={null} values={vehicleTypeFormValues(null)} currency={currency} icons={VEHICLE_ICONS} imageUrl={null} />
+          <VehicleTypeForm id={null} values={vehicleTypeFormValues(null)} currency={currency} iconNames={VEHICLE_ICONS} imageUrl={null} />
         </AddServiceBox>
       </section>
     </div>

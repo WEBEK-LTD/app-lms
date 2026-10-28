@@ -11,13 +11,13 @@ export function VehicleTypeForm({
   id,
   values,
   currency,
-  icons,
+  iconNames,
   imageUrl,
 }: {
   id: number | null;
   values: Record<string, string>;
   currency: string;
-  icons: readonly string[];
+  iconNames: readonly string[];
   imageUrl: string | null;
 }) {
   const t = useDashT();
@@ -37,7 +37,7 @@ export function VehicleTypeForm({
       <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
         <legend className="mb-1 text-sm font-semibold">{t("rides.icon")}</legend>
         <div className="flex flex-wrap gap-2">
-          {icons.map((icon) => (
+          {iconNames.map((icon) => (
             <label key={icon} className="flex cursor-pointer items-center gap-2 rounded-xl border border-line px-3 py-2 has-[:checked]:border-midnight has-[:checked]:bg-sand">
               <input type="radio" name="icon" value={icon} defaultChecked={value("icon") === icon} className="sr-only" />
               <span aria-hidden="true" className="material-symbols-rounded text-[22px]">

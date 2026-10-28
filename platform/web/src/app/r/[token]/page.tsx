@@ -78,6 +78,11 @@ const WORDS: Record<Lang, Words> = {
   },
 };
 
+/** Whether the driver's app sent its position lately. */
+function recent(at: Date | null): boolean {
+  return at !== null && Date.now() - at.getTime() <= DRIVER_FRESH_MINUTES * 60_000;
+}
+
 /**
  * 105.2 A shared ride (`Ride.share_url`): whoever has the link sees the
  * ride's stage, the driver, the car and where it is, until the ride ends
@@ -103,7 +108,7 @@ export default async function SharedRidePage({ params }: { params: Promise<{ tok
     );
   }
   const driver = ride.driverId !== null ? await store.getCourier(app.id, ride.driverId) : null;
-  const fresh = driver?.locatedAt && Date.now() - driver.locatedAt.getTime() <= DRIVER_FRESH_MINUTES * 60_000 && driver.lat !== null && driver.lng !== null;
+  const fresh = Boolean(driver && driver.lat !== null && driver.lng !== null && recent(driver.locatedAt));
   const status = ride.status === "scheduled" || ride.status === "searching" || ride.status === "accepted" || ride.status === "arrived" || ride.status === "in_progress" ? w[ride.status] : "";
   return (
     <div dir={dir} lang={lang}>
