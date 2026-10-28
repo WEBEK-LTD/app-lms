@@ -20,4 +20,5 @@ export 'news_models.dart';
 export 'page_models.dart';
 export 'quiz_models.dart';
 export 'restaurant_models.dart';
+export 'rides_models.dart';
 export 'store_models.dart';

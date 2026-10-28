@@ -2306,3 +2306,212 @@ Map<String, dynamic> deskOrderJson({int id = 1, String status = 'placed'}) => {
       {'status': status, 'at': '2026-10-28T10:02:00.000Z', 'note': null},
   ],
 };
+
+// 105.2 Ride hailing.
+
+Map<String, dynamic> vehicleTypeJson({
+  int id = 1,
+  String name = 'Economy',
+  String icon = 'directions_car',
+  int seats = 4,
+}) => {
+  'id': id,
+  'name': name,
+  'description': 'Everyday cars',
+  'icon': icon,
+  'image_url': null,
+  'seats': seats,
+};
+
+Map<String, dynamic> ridesConfigJson({
+  bool card = true,
+  bool scheduling = true,
+  bool pin = true,
+  String fareMode = 'upfront',
+  String driverApp = 'same',
+}) => {
+  'currency': 'EGP',
+  'timezone': 'Africa/Cairo',
+  'vehicle_types': [
+    vehicleTypeJson(),
+    vehicleTypeJson(id: 2, name: 'Comfort', icon: 'local_taxi'),
+  ],
+  'payment': {'cash': true, 'card': card},
+  'fare_mode': fareMode,
+  'scheduling': scheduling,
+  'matching': 'nearest',
+  'cancellation': {
+    'free_minutes': 2,
+    'fee': '20.00',
+    'fee_formatted': 'E£20.00',
+    'no_show_minutes': 5,
+  },
+  'pin': pin,
+  'emergency_phone': null,
+  'driver_app': driverApp,
+  'map': {
+    'tiles_url': 'https://tiles.example.com/{z}/{x}/{y}.png',
+    'attribution': '© Map data',
+  },
+};
+
+Map<String, dynamic> rideEstimateJson() => {
+  'distance_km': 7.4,
+  'minutes': 18,
+  'options': [
+    {
+      'vehicle_type': vehicleTypeJson(),
+      'fare': '96.00',
+      'fare_formatted': 'E£96.00',
+      'available': true,
+      'pickup_minutes': 4,
+    },
+    {
+      'vehicle_type': vehicleTypeJson(
+        id: 2,
+        name: 'Comfort',
+        icon: 'local_taxi',
+      ),
+      'fare': '130.00',
+      'fare_formatted': 'E£130.00',
+      'available': false,
+      'pickup_minutes': null,
+    },
+  ],
+  'discount_formatted': null,
+  'previous_fee_formatted': null,
+};
+
+Map<String, dynamic> _ridePlace(String address, double lat, double lng) => {
+  'address': address,
+  'details': null,
+  'lat': lat,
+  'lng': lng,
+};
+
+Map<String, dynamic> rideJson({
+  int id = 1,
+  String status = 'accepted',
+  String method = 'cash',
+  bool paid = false,
+  Map<String, dynamic>? rating,
+}) {
+  final withDriver = const [
+    'accepted',
+    'arrived',
+    'in_progress',
+    'completed',
+  ].contains(status);
+  return {
+    'id': id,
+    'reference': 'R-${2000 + id}',
+    'status': status,
+    'vehicle_type': {'id': 1, 'name': 'Economy', 'icon': 'directions_car'},
+    'pickup': _ridePlace('Cairo Tower, Zamalek', 30.0459, 31.2243),
+    'dropoff': _ridePlace('Tahrir Square', 30.0444, 31.2357),
+    'scheduled_at': null,
+    'distance_km': 7.4,
+    'minutes': 18,
+    'fare': '96.00',
+    'fare_formatted': 'E£96.00',
+    'final': status == 'completed',
+    'payment': {'method': method, 'status': paid ? 'paid' : 'unpaid'},
+    'pin': status == 'accepted' || status == 'arrived' ? '4821' : null,
+    'notes': null,
+    'driver': withDriver
+        ? {
+            'name': 'Mahmoud Adel',
+            'phone': status == 'completed' ? null : '+201005556677',
+            'photo_url': null,
+            'rating': 4.8,
+            'car': {
+              'model': 'Toyota Corolla',
+              'color': 'White',
+              'plate': 'ق ر ب 1234',
+            },
+          }
+        : null,
+    'driver_location': withDriver && status != 'completed'
+        ? {
+            'lat': 30.0466,
+            'lng': 31.2290,
+            'heading': 90,
+            'updated_at': '2026-10-28T10:03:00.000Z',
+          }
+        : null,
+    'pickup_minutes': status == 'accepted' ? 4 : null,
+    'share_url': withDriver ? 'https://yallapp.com.tr/r/abc123' : null,
+    'cancellation': status == 'cancelled'
+        ? {'by': 'rider', 'reason': 'changed_plans', 'fee_formatted': null}
+        : null,
+    'rating': rating,
+    'timeline': [
+      {'status': 'searching', 'at': '2026-10-28T10:00:00.000Z', 'note': null},
+      if (withDriver)
+        {'status': 'accepted', 'at': '2026-10-28T10:01:00.000Z', 'note': null},
+      if (status == 'completed')
+        {'status': 'completed', 'at': '2026-10-28T10:25:00.000Z', 'note': null},
+    ],
+    'created_at': '2026-10-28T10:00:00.000Z',
+  };
+}
+
+Map<String, dynamic> driverJson({bool online = false, int? activeRideId}) => {
+  'id': 1,
+  'name': 'Mahmoud Adel',
+  'photo_url': null,
+  'vehicle_type': {'id': 1, 'name': 'Economy'},
+  'car': {'model': 'Toyota Corolla', 'color': 'White', 'plate': 'ق ر ب 1234'},
+  'online': online,
+  'rating': 4.8,
+  'ratings_count': 112,
+  'active_ride_id': activeRideId,
+  'today': {'rides': 6, 'earned_formatted': 'E£540.00'},
+};
+
+Map<String, dynamic> driverRideJson({
+  int id = 1,
+  String status = 'accepted',
+  String? offerExpiresAt,
+}) => {
+  'id': id,
+  'reference': 'R-${2000 + id}',
+  'status': status,
+  'vehicle_type': 'Economy',
+  'pickup': _ridePlace('Cairo Tower, Zamalek', 30.0459, 31.2243),
+  'dropoff': _ridePlace('Tahrir Square', 30.0444, 31.2357),
+  'distance_km': 7.4,
+  'minutes': 18,
+  'fare': '96.00',
+  'fare_formatted': 'E£96.00',
+  'final': status == 'completed',
+  'payment': {'method': 'cash', 'status': 'unpaid'},
+  'collect': '96.00',
+  'collect_formatted': 'E£96.00',
+  'notes': 'By the main gate',
+  'rider': {
+    'name': 'Karim',
+    'phone': offerExpiresAt == null ? '+201112223334' : null,
+    'rating': null,
+  },
+  'offer_expires_at': offerExpiresAt,
+  'pickup_km': 1.2,
+  'waiting_since': status == 'arrived' ? '2026-10-28T10:05:00.000Z' : null,
+  'started_at': status == 'in_progress' ? '2026-10-28T10:07:00.000Z' : null,
+  'timeline': [
+    {'status': 'searching', 'at': '2026-10-28T10:00:00.000Z', 'note': null},
+  ],
+  'created_at': '2026-10-28T10:00:00.000Z',
+};
+
+Map<String, dynamic> driverEarningsJson() => {
+  'period': 'today',
+  'rides': 6,
+  'fares_formatted': 'E£640.00',
+  'cash_formatted': 'E£420.00',
+  'company_share_formatted': 'E£100.00',
+  'earned_formatted': 'E£540.00',
+  'days': [
+    {'date': '2026-10-28', 'rides': 6, 'earned_formatted': 'E£540.00'},
+  ],
+};
