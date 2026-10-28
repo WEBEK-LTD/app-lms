@@ -10,6 +10,11 @@ import { checkGoogleServiceInfoPlist, checkGoogleServicesJson } from "../store-f
  * Its builds are the app's builds with `variant` "courier".
  */
 
+/** Whether the app's couriers have jobs, so a courier app can be made: delivery companies, and (105.1.6) food delivery ones. */
+export function hasCourierJobs(app: Pick<App, "appType">): boolean {
+  return app.appType === "delivery" || app.appType === "food";
+}
+
 /** The courier app's Android package and iOS bundle ID: the app's own with `.courier`. */
 export const courierPackageOf = (androidPackage: string) => `${androidPackage}.courier`;
 export const courierBundleIdOf = (iosBundleId: string) => `${iosBundleId}.courier`;

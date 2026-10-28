@@ -10,6 +10,7 @@ import { smtpConfigured } from "@/lib/mail";
 import { reviewNotesFor } from "@/lib/publishing/review-notes";
 import { reviewSignIn } from "@/lib/publishing/review-account";
 import { reviewNotes } from "@/lib/delivery/review";
+import { hasCourierJobs } from "@/lib/delivery/courier-app";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { encryptionKey } from "@/lib/env";
 import { REJECTION_GUIDELINE } from "@/lib/publishing/review";
@@ -67,7 +68,7 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
       ]);
       const user = client ? await store.getUserById(client.userId) : null;
       // 104.7 A delivery app's notes for the reviewers of both apps.
-      const deliveryNotes = app?.appType === "delivery" ? reviewNotes(app, deliverySettingsOf(await store.getDeliverySettings(app.id))) : null;
+      const deliveryNotes = app && hasCourierJobs(app) ? reviewNotes(app, deliverySettingsOf(await store.getDeliverySettings(app.id))) : null;
       return { request, client, user, app, events, deliveryNotes };
     }),
   );

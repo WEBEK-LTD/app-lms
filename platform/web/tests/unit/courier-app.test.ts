@@ -42,13 +42,14 @@ const googleServices = (...packages: string[]) =>
     client: packages.map((p) => ({ client_info: { mobilesdk_app_id: `1:123:android:${p}`, android_client_info: { package_name: p } }, api_key: [{ current_key: "k" }] })),
   });
 
-async function setup(features: ("delivery" | "courier_app")[] = ["delivery", "courier_app"]) {
+async function setup(features: ("delivery" | "courier_app" | "food")[] = ["delivery", "courier_app"], food = false) {
   const s = await setupClient({ plan: "studio_3", activeUntil: days(60) });
   const store = s.store;
   await store.setPlatformSetting("plans", { studio_3: { ...planSettingOf(PLAN_INFO.studio_3), offered: true, features: [...PLAN_INFO.studio_3.features, ...features] } }, "test", NOW);
   clearPlatformSettingsCache();
   const client = (await store.getClientById(s.client.id))!;
-  const app = deliveryApp(client.id);
+  // 105.1.6 A food delivery company's app has couriers too.
+  const app: App = food ? { ...deliveryApp(client.id), appType: "food", connector: { kind: "restaurants" } } : deliveryApp(client.id);
   await store.createApp(app);
   const license = await licenseOf(store, client.id);
   return { store, client, app, license };
@@ -126,6 +127,16 @@ describe("104.6 building the courier app", () => {
     expect((await store.listBuildsByApp(app.id, 10)).map((b) => b.id)).toEqual([customers.build.id]);
     expect((await store.listBuildsByApp(app.id, 10, "courier")).map((b) => b.id)).toEqual([queued.build.id]);
     expect(await store.listBuildsByApp(app.id, 10, "all")).toHaveLength(2);
+  });
+
+  it("105.1.6 builds a food delivery company's courier app the same way", async () => {
+    const { store, client, app, license } = await setup(["food", "courier_app"], true);
+    expect(await queueBuild(store, { client, app, license, versionName: "1.0.0", variant: "courier" }, NOW, assetUrl)).toMatchObject({ ok: false, reason: "courier_app_off" });
+    await store.saveDeliverySettings(app.id, SETTINGS, NOW);
+    const queued = await queueBuild(store, { client, app, license, versionName: "1.0.0", variant: "courier" }, NOW, assetUrl);
+    if (!queued.ok) throw new Error(`not queued: ${queued.reason}`);
+    expect(queued.build.config).toMatchObject({ app_type: "food", role: "courier", app_name: "Speedy Parcels Courier", android_package: "com.speedy.app.courier" });
+    expect(validateBuildConfig(queued.build.config).ok).toBe(true);
   });
 
   it("needs the courier app on the plan", async () => {

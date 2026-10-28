@@ -101,10 +101,12 @@ export async function createSampleJob(store: DataStore, app: App, settings: Deli
 /**
  * The notes for the stores' reviewers (Google Play › App access, App Store ›
  * App Review Information), in English as the reviewers read them: the
- * customers' app, and the courier app when the company has one.
+ * customers' app, and the courier app when the company has one. 105.1.6 In
+ * a food delivery app the same account also works for the company's first
+ * restaurant, on its own orders only.
  */
 export function reviewNotes(
-  app: Pick<App, "appName" | "hostedSettings">,
+  app: Pick<App, "appName" | "hostedSettings" | "appType">,
   settings: Pick<DeliverySettings, "courierApp" | "courierAppName" | "assignment">,
 ): { customer: string; courier: string | null } | null {
   const who = reviewWho(app);
@@ -113,13 +115,19 @@ export function reviewNotes(
   const code = app.hostedSettings!.reviewCode!;
   const company = (app.appName ?? "").trim() || "the company";
   const signIn = `Sign in with ${login} and the code ${code} (no message is sent to it).`;
-  const courierSteps =
-    "Turn on duty, open the job, then move it on: Picked up, On the way, Delivered (the position is shared only while a parcel is on the way, and only while the screen is open).";
+  const food = app.appType === "food";
+  const what = food ? "order" : "parcel";
+  const courierSteps = `Turn on duty, open the job, then move it on: Picked up, On the way, Delivered (the position is shared only while ${food ? "an order" : "a parcel"} is on the way, and only while the screen is open).`;
   const customer = [
-    `${company} delivers parcels. ${signIn}`,
-    "Tap Send, choose a pickup and a drop-off (type an address or set it on the map), add the recipient and the parcel, pay in cash and send. My shipments shows its stages.",
+    food ? `${company} delivers food from many restaurants. ${signIn}` : `${company} delivers parcels. ${signIn}`,
+    food
+      ? "Open a restaurant, add a dish to the cart, check out with an address (type it or set it on the map) and pay in cash. My orders shows its stages."
+      : "Tap Send, choose a pickup and a drop-off (type an address or set it on the map), add the recipient and the parcel, pay in cash and send. My shipments shows its stages.",
+    food
+      ? "The same account is also staff of the first restaurant in the list: the Restaurant tab shows this account's orders only. Accept one with the time it needs, then mark it Ready. Setting the restaurant busy is shown but not kept, and real customers' orders never reach this account."
+      : null,
     settings.courierApp === "same"
-      ? `The same account is also a test courier: Account › Courier mode shows the courier's screens with the parcels this account sent. ${courierSteps}`
+      ? `The same account is also a test courier: Account › Courier mode shows the courier's screens with the ${what}s this account ${food ? "ordered" : "sent"}. ${courierSteps}`
       : null,
   ]
     .filter(Boolean)

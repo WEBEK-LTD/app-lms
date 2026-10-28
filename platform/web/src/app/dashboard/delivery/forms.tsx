@@ -190,9 +190,6 @@ export function DeliverySettingsForm({
             { value: "open", label: t("delivery.assignOpen"), hint: t("delivery.assignOpenHint") },
           ]}
         />
-        {food ? (
-          <input type="hidden" name="courierApp" value="same" />
-        ) : (
         <Choices
           legend={t("delivery.courierApp")}
           name="courierApp"
@@ -211,9 +208,8 @@ export function DeliverySettingsForm({
             { value: "yallapp_courier", label: t("delivery.courierYallapp"), hint: t("delivery.courierYallappHint"), disabled: settings.courierApp !== "yallapp_courier" },
           ]}
         />
-        )}
         {/* 104.6 The courier app's name in the stores, and the Firebase file of its iPhone app. */}
-        {!food && courierApp === "bundle" && bundleAllowed ? (
+        {courierApp === "bundle" && bundleAllowed ? (
           <div className="ms-7 flex max-w-[420px] flex-col gap-3">
             <Field
               label={t("delivery.courierAppName")}

@@ -46,8 +46,7 @@ Still to come: the shared Yallapp Courier app (104.8, published together
 with the owner). Checks: redocly lint, platform unit
 tests, tsc, eslint, flutter analyze and widget tests.
 
-Phase 105.1 (food delivery from many restaurants) steps 105.1.1 to
-105.1.5 are complete: a new Studio project type, Food delivery (no website,
+Phase 105.1 (food delivery from many restaurants) is complete: a new Studio project type, Food delivery (no website,
 on Studio's plans). Customers browse the company's restaurants and their
 menus, order from one restaurant (dishes with their choices, the delivery
 fee from the restaurant by the company's delivery prices), pay in cash or by
@@ -60,9 +59,11 @@ order or once it is ready, as the company chooses. The dashboard in Studio
 has Restaurants (details, hours, menu, staff and the company's share of each
 order, set by the company), Food orders with a monthly statement per
 restaurant, Courier jobs, Couriers and Delivery settings (with the cuisines
-and the time zone). Food delivery is the Studio plan feature `food`. Still
-to come: Studio templates for food and the second courier app for food
-companies (105.1.6). Checks: redocly lint, platform unit tests (with the
+and the time zone). Food delivery is the Studio plan feature `food`. In
+Studio, a food project starts from one of three ready-made designs
+(Restaurants, Food offers, Food brand) and has its own welcome section;
+its couriers can have their own app in the company's name (104.6), and the
+store reviewers' notes walk through all three roles. Checks: redocly lint, platform unit tests (with the
 isolation tests), tsc, eslint, e2e of the dashboard, flutter analyze and
 widget tests.
 

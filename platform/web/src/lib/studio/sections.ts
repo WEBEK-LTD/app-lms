@@ -47,7 +47,16 @@ export type SectionWord =
   | "stepsTitle"
   | "stepOne"
   | "stepTwo"
-  | "stepThree";
+  | "stepThree"
+  // 105.1.6 Food delivery from many restaurants.
+  | "foodTitle"
+  | "foodText"
+  | "foodButton"
+  | "foodOrders"
+  | "foodStepOne"
+  | "foodStepTwo"
+  | "foodStepThree"
+  | "ctaFood";
 
 export interface SectionContext {
   brand: string;
@@ -57,6 +66,8 @@ export interface SectionContext {
   newId?: () => string;
   /** 103R.7 What the main buttons say and open, as a template for the project type sets them. */
   button?: { word: SectionWord; action: Action | null };
+  /** 105.1.6 The three steps' words, as a template for the project type sets them. */
+  steps?: readonly [SectionWord, SectionWord, SectionWord];
 }
 
 /** 103R.7 The project types a section or template is made for; none: every type. */
@@ -336,7 +347,7 @@ export const SECTIONS: readonly SectionInfo[] = [
         background: "#FFFFFF",
         dark_background: "#22203A",
         shadow: "light",
-        children: [text(ctx, ctx.w("stepsTitle"), { font: { size: 17, weight: 800 } }), step(1, "stepOne"), step(2, "stepTwo"), step(3, "stepThree")],
+        children: [text(ctx, ctx.w("stepsTitle"), { font: { size: 17, weight: 800 } }), ...(ctx.steps ?? (["stepOne", "stepTwo", "stepThree"] as const)).map((word, i) => step(i + 1, word))],
       };
     },
   },
@@ -396,6 +407,62 @@ export const SECTIONS: readonly SectionInfo[] = [
       ],
     }),
   },
+  {
+    // 105.1.6 A food delivery company's welcome: order from the restaurants near you, or follow an order.
+    id: "food",
+    icon: "delivery_dining",
+    fits: { types: ["food"] },
+    make: (ctx) => ({
+      id: (ctx.newId ?? newNodeId)(),
+      type: "column",
+      name: ctx.w("foodTitle"),
+      gap: 10,
+      padding: pad(22, 18),
+      margin: pad(12, 10),
+      radius: 18,
+      background: ctx.brand,
+      color: "#FFFFFF",
+      children: [
+        { id: (ctx.newId ?? newNodeId)(), type: "icon", icon: "restaurant", icon_size: 34, color: "#FFFFFF" },
+        text(ctx, ctx.w("foodTitle"), { font: { size: 24, weight: 800, line_height: 1.25 } }),
+        text(ctx, ctx.w("foodText"), { font: { size: 14 }, opacity: 0.9 }),
+        {
+          id: (ctx.newId ?? newNodeId)(),
+          type: "row",
+          gap: 8,
+          children: [
+            {
+              id: (ctx.newId ?? newNodeId)(),
+              type: "button",
+              text: ctx.w("foodButton"),
+              width: "hug",
+              height: 42,
+              radius: 12,
+              background: "#FFFFFF",
+              color: ctx.brand,
+              font: { weight: 800, size: 14 },
+              padding: pad(0, 18),
+              action: screen("restaurants"),
+              motion: { press: "shrink" },
+            },
+            {
+              id: (ctx.newId ?? newNodeId)(),
+              type: "button",
+              text: ctx.w("foodOrders"),
+              width: "hug",
+              height: 42,
+              radius: 12,
+              border: { width: 1.5, color: "#FFFFFF" },
+              color: "#FFFFFF",
+              font: { weight: 700, size: 14 },
+              padding: pad(0, 16),
+              action: screen("food_orders"),
+            },
+          ],
+        },
+      ],
+    }),
+  },
 ];
 
 /** 103R.7 Whether a section or template is made for this project (or for every project). */
@@ -427,9 +494,14 @@ function pageOf(ctx: SectionContext, sections: string[], header: StudioPage["hea
 }
 
 /** A template for one kind of project: its sections, with its main buttons saying and opening `button`. */
-function typed(id: string, icon: string, fits: Fits, sections: string[], header: StudioPage["header"], button?: SectionContext["button"]): TemplateInfo {
-  return { id, icon, fits, make: (ctx) => pageOf(button ? { ...ctx, button } : ctx, sections, header) };
+function typed(id: string, icon: string, fits: Fits, sections: string[], header: StudioPage["header"], button?: SectionContext["button"], steps?: SectionContext["steps"]): TemplateInfo {
+  return { id, icon, fits, make: (ctx) => pageOf({ ...ctx, ...(button ? { button } : {}), ...(steps ? { steps } : {}) }, sections, header) };
 }
+
+// 105.1.6 Food delivery: the main buttons open the restaurants; the steps say how an order reaches the door.
+const FOOD: Fits = { types: ["food"] };
+const FOOD_BUTTON: SectionContext["button"] = { word: "ctaFood", action: screen("restaurants") };
+const FOOD_STEPS: SectionContext["steps"] = ["foodStepOne", "foodStepTwo", "foodStepThree"];
 
 const SHOP_HEADER: StudioPage["header"] = { type: "logo_actions", buttons: ["menu", "notifications", "cart", "account"] };
 
@@ -444,6 +516,10 @@ export const TEMPLATES: readonly TemplateInfo[] = [
   typed("events", "confirmation_number", { types: ["events"] }, ["hero", "products", "cta"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, { word: "ctaEvents", action: screen("events") }),
   typed("charity", "volunteer_activism", { types: ["donations"] }, ["hero", "stats", "products", "review"], { type: "logo_center", buttons: ["menu", "notifications"] }, { word: "ctaDonate", action: screen("campaigns") }),
   typed("delivery", "local_shipping", { types: ["delivery"] }, ["send", "steps", "products", "contact"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }),
+  // 105.1.6 Three ready-made designs for a food delivery company.
+  typed("food", "delivery_dining", FOOD, ["food", "products", "steps", "cta"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, FOOD_BUTTON, FOOD_STEPS),
+  typed("food_offers", "local_offer", FOOD, ["offer", "products", "review", "cta"], { type: "logo_center", buttons: ["menu", "notifications"] }, FOOD_BUTTON),
+  typed("food_brand", "restaurant", FOOD, ["hero", "stats", "products", "steps", "contact"], { type: "transparent", buttons: ["menu", "account"] }, FOOD_BUTTON, FOOD_STEPS),
   // For every project.
   { id: "brand", icon: "auto_awesome", make: (ctx) => pageOf(ctx, ["hero", "stats", "features", "review", "contact"], { type: "transparent", buttons: ["menu", "account"] }) },
   { id: "contact", icon: "call", make: (ctx) => pageOf(ctx, ["contact", "form"], { type: "title_search", buttons: [] }) },

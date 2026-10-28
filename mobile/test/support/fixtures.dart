@@ -2109,6 +2109,7 @@ Map<String, dynamic> courierJobJson({
 Map<String, dynamic> foodConfigJson({
   bool card = true,
   String tracking = 'live',
+  String courierApp = 'same',
 }) => {
   'currency': 'EGP',
   'timezone': 'Africa/Cairo',
@@ -2119,6 +2120,7 @@ Map<String, dynamic> foodConfigJson({
   'payment': {'cash': true, 'card': card},
   'tracking': tracking,
   'courier_job': 'accepted',
+  'courier_app': courierApp,
   'map': {
     'tiles_url': 'https://tiles.example.com/{z}/{x}/{y}.png',
     'attribution': '© Map data',

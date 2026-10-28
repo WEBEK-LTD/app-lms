@@ -40,7 +40,7 @@ import { FIRST_SHARES, nextFraction } from "@/lib/publishing/rollout";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
-import { courierAppNameOf, courierBundleIdOf, courierPackageOf } from "@/lib/delivery/courier-app";
+import { courierAppNameOf, courierBundleIdOf, courierPackageOf, hasCourierJobs } from "@/lib/delivery/courier-app";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -178,8 +178,8 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   const wa = { wa: (chunk: string) => <a href={contact.whatsappUrl}>{chunk}</a> };
   const autoRebuildTo = lowestPlanWith(effective, (p) => hasFeature(p, "auto_rebuild"), plan);
 
-  // 104.6 The delivery company's courier app, when it chose one in its own name.
-  const delivery = app.appType === "delivery" ? deliverySettingsOf(await store.getDeliverySettings(app.id)) : null;
+  // 104.6 The delivery (105.1.6 or food) company's courier app, when it chose one in its own name.
+  const delivery = hasCourierJobs(app) ? deliverySettingsOf(await store.getDeliverySettings(app.id)) : null;
   const courier =
     delivery?.courierApp === "bundle"
       ? {

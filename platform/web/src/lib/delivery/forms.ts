@@ -112,7 +112,7 @@ export function parseCuisines(text: string, saved: Cuisine[]): { cuisines: Cuisi
   return { cuisines, error: null };
 }
 
-/** The settings form; `saved` keeps the zones' IDs. 105.1 A food company's form has its cuisines, when courier jobs are made and its time zone, and no second courier app. */
+/** The settings form; `saved` keeps the zones' IDs. 105.1 A food company's form has its cuisines, when courier jobs are made and its time zone; 105.1.6 its couriers may have a second app too. */
 export function parseDeliverySettings(form: Record<string, string>, saved: DeliverySettings, courierAppAllowed: boolean, food = false): Parsed<DeliverySettings> {
   const errors: Record<string, string> = {};
   const currency = CATALOG_CURRENCIES.find((c) => c === str(form, "currency")) as CatalogCurrency | undefined;
@@ -140,7 +140,7 @@ export function parseDeliverySettings(form: Record<string, string>, saved: Deliv
   if (!tracking) errors.tracking = "Choose how customers follow a shipment.";
   const assignment = DELIVERY_ASSIGNMENTS.find((v) => v === str(form, "assignment"));
   if (!assignment) errors.assignment = "Choose who gives out the jobs.";
-  const courierApp = food ? "same" : (COURIER_APPS.find((v) => v === str(form, "courierApp")) as CourierApp | undefined);
+  const courierApp = COURIER_APPS.find((v) => v === str(form, "courierApp")) as CourierApp | undefined;
   if (!courierApp) errors.courierApp = "Choose where your couriers work.";
   else if (courierApp === "bundle" && !courierAppAllowed && saved.courierApp !== "bundle") errors.courierApp = "A second app for couriers isn't in your plan.";
   // 104.6 The courier app's own name, when the company gives one.
