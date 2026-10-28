@@ -2,16 +2,18 @@ import { expect, test, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 
 /**
- * A Delivery & couriers app (roadmap 104): the company picks the app type,
- * sets one price, adds a service and a courier, and finds its empty
- * Shipments page. Delivery isn't on any plan yet, so the dashboard says so
- * and the app's delivery routes answer that the feature is off.
+ * A Delivery & couriers app (roadmap 104), a Yallapp Studio project only: the
+ * company makes it in Studio, the team activates it on a Studio plan without
+ * delivery, the company sets one price, adds a service and a courier, and
+ * finds its empty Shipments page. Delivery isn't on that plan, so the
+ * dashboard says so and the app's delivery routes answer that the feature is off.
  */
 test.describe.configure({ mode: "serial" });
 
 const suffix = Date.now().toString(36);
 const client = { name: "Nile Express", email: `nile-${suffix}@delivery.test`, password: "nile-express-strong-password-1" };
 let own: Page;
+let admin: Page;
 let api = "";
 /** Its own address, so this spec's sign-up and sign-in don't count against the other specs' per-IP limits. */
 const extraHTTPHeaders = { "x-forwarded-for": "198.51.100.196" };
@@ -28,7 +30,7 @@ test.beforeAll(async ({ browser }) => {
   await own.getByRole("button", { name: "Create account" }).click();
   await expect(own).toHaveURL(/\/pending$/);
 
-  const admin = await browser.newPage({ extraHTTPHeaders });
+  admin = await browser.newPage({ extraHTTPHeaders });
   await admin.goto("/sign-in");
   await admin.getByLabel("Email").fill(E2E.deliveryAdminEmail);
   await admin.getByLabel("Password", { exact: true }).fill(E2E.adminPassword);
@@ -38,32 +40,59 @@ test.beforeAll(async ({ browser }) => {
   await admin.getByRole("link", { name: `Activate ${client.name}` }).click();
   await admin.getByRole("complementary").getByRole("button", { name: "Activate & send license" }).click();
   await expect(admin.getByRole("status")).toContainText("Activated");
-  await admin.close();
 });
 
 test.afterAll(async () => {
+  await admin.close();
   await own.close();
 });
 
-test("the company picks Delivery & couriers: shipments managed in Yallapp", async () => {
-  await own.goto("/dashboard/app-type");
-  await own.getByText("Delivery & couriers", { exact: true }).click();
-  await own.getByRole("button", { name: "Continue" }).click();
-  await expect(own.getByText("My WordPress site")).toHaveCount(0);
-  await own.getByText("Shipments managed in Yallapp").click();
-  await own.getByRole("button", { name: "Save & continue" }).click();
-  await expect(own.getByRole("heading", { name: "Branding" })).toBeVisible();
+test("the company makes a Delivery & couriers project in Yallapp Studio, not among the regular apps", async () => {
+  // 103R.3 Delivery companies are Studio projects only.
+  await own.goto("/dashboard/app-type?new=1");
+  await expect(own.getByText("Delivery & couriers", { exact: true })).toHaveCount(0);
+
+  await own.goto("/studio/new");
+  await own.getByRole("radio", { name: "Delivery and couriers company" }).check();
+  // Its content is kept in Yallapp only.
+  const sources = own.getByRole("radiogroup", { name: "2 · Where does the content come from?" }).getByRole("radio");
+  await expect(sources).toHaveText(["No website: everything from here"]);
+  await own.getByLabel("Project name").fill(client.name);
+  await own.getByRole("button", { name: "Next" }).click();
+  await own.getByRole("radio", { name: "Blank page" }).click();
+  await own.getByRole("button", { name: "Next" }).click();
+  await expect(own).toHaveURL(/\/studio\/project$/);
+  await expect(own.getByRole("heading", { level: 1, name: client.name })).toBeVisible();
+  // The approved design's delivery group, checklist and numbers.
+  const nav = own.getByRole("navigation", { name: "Project dashboard" });
+  for (const link of ["Shipments", "Couriers", "Paid orders", "Delivery settings"]) {
+    await expect(nav.getByRole("link", { name: link, exact: true })).toBeVisible();
+  }
+  await expect(own.getByText("Prices and how customers pay, in Delivery settings")).toBeVisible();
+  await expect(own.getByText("Shipments today")).toBeVisible();
+  await expect(own.getByText("Couriers on duty")).toBeVisible();
+
   await own.goto("/dashboard/setup?step=website");
+  await expect(own).toHaveURL(/\/studio\/project\/setup\?step=website$/);
   api = (await own.locator("code").filter({ hasText: "/api/app/" }).textContent())!.trim();
   expect(api).toMatch(/\/api\/app\/[0-9a-f-]{36}$/);
 
-  for (const link of ["Shipments", "Couriers", "Delivery settings"]) {
-    await expect(own.getByRole("link", { name: link, exact: true }).first()).toBeVisible();
-  }
+  // The team activates the project on a Studio plan, which leaves delivery out.
+  await admin.goto(`/admin/clients?q=${encodeURIComponent(client.email)}`);
+  await admin.getByRole("link", { name: client.name, exact: true }).click();
+  await admin.waitForURL(/\/admin\/clients\/[0-9a-f-]{36}$/);
+  const plan = admin.getByRole("region", { name: client.name }).getByRole("region", { name: "Plan and license" });
+  // Studio's plans only.
+  await expect(plan.getByLabel("Plan").locator("option")).toHaveCount(3);
+  await expect(plan.getByLabel("Plan").locator("option", { hasText: "Starter" })).toHaveCount(0);
+  await plan.getByLabel("Plan").selectOption("studio_1");
+  await plan.getByRole("button", { name: "Activate & send license" }).click();
+  await expect(admin.getByRole("status")).toContainText("Activated");
 });
 
 test("Delivery settings: not on the plan yet, one price, a service", async () => {
   await own.goto("/dashboard/delivery");
+  await expect(own).toHaveURL(/\/studio\/project\/delivery$/);
   await expect(own.getByRole("heading", { name: "Delivery settings", level: 1 })).toBeVisible();
   await expect(own.getByText("Delivery & couriers isn't included in this app's plan yet")).toBeVisible();
   // A second courier app isn't on the plan either.

@@ -397,9 +397,14 @@ export const DEFAULT_HOSTED_SETTINGS: HostedSettings = {
   reviewCode: null,
 };
 
+/** 103R Where an app lives: the regular dashboard, or Yallapp Studio (its own projects, editor and plans). */
+export type AppSection = "regular" | "studio";
+
 export interface App {
   id: string;
   clientId: string;
+  /** 103R A Studio project, paid on a Studio plan; missing: a regular app. */
+  section?: AppSection;
   appType: AppType;
   /** 20 The kind of business (null: the engine's own wording); chosen with the app type. */
   vertical?: AppVertical | null;

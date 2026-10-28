@@ -77,9 +77,17 @@ export function layoutForPlan(layout: Layout, app: App, plan: PlanInfo | null, d
         void _studio;
         return rest;
       }
+      const motion = hasFeature(plan, "studio_motion");
       const body = mapTree(page.studio.body, (n) => {
         if ((n.type === "items" || n.type === "categories") && (n.source === undefined || !sources.includes(n.source))) return null;
-        return n.action && !actionAllowed(n.action, sources) ? { ...n, action: null } : n;
+        let node = n.action && !actionAllowed(n.action, sources) ? { ...n, action: null } : n;
+        // 103R Motion only with "Motion in the editor" on the plan.
+        if (!motion && node.motion) {
+          const { motion: _motion, ...still } = node;
+          void _motion;
+          node = still;
+        }
+        return node;
       });
       return { ...page, studio: { ...page.studio, body: body ?? page.studio.body } };
     }),
@@ -130,6 +138,12 @@ export function planLayoutErrors(content: LayoutContent, plan: PlanInfo | null):
   const limit = plan.limits.languages;
   if (limit !== null && content.languages.available.length > limit) {
     errors.push(`Your ${plan.name} plan includes ${limit} app language${limit === 1 ? "" : "s"}. Turn off the others, or upgrade your plan.`);
+  }
+  // 103R Studio pages per project, on a Studio plan.
+  const pages = plan.limits.studioPages;
+  const studioPages = content.pages.filter((p) => p.studio).length;
+  if (pages !== undefined && pages !== null && studioPages > pages) {
+    errors.push(`Your ${plan.name} plan includes up to ${pages} Studio pages. Take the others out of Studio, or upgrade your plan.`);
   }
   return errors;
 }

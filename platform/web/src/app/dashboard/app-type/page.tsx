@@ -12,6 +12,7 @@ import { richText } from "@/i18n/rich";
 import { getStore } from "@/lib/data";
 import { appTypeOn, getSwitches } from "@/lib/switches";
 import { KINDS, kindOf } from "@/lib/app/kinds";
+import { STUDIO_ONLY_KINDS } from "@/lib/studio/section";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("setup.typeTitle") };
@@ -30,7 +31,8 @@ export default async function AppTypePage({ searchParams }: PageProps<"/dashboar
   // 11.5 Switches: types the team switched off aren't offered (the app's own type stays).
   // 20 The picker shows kinds (lib/app/kinds.ts): an engine, with a kind of business for some.
   const switches = await getSwitches(await getStore());
-  const types = KINDS.filter((k) => k.engine === app?.appType || appTypeOn(switches, k.engine, license?.plan ?? null));
+  // 104 Kinds only Yallapp Studio offers (a delivery company) are made there, not among the regular apps.
+  const types = KINDS.filter((k) => !STUDIO_ONLY_KINDS.has(k.id) && (k.engine === app?.appType || appTypeOn(switches, k.engine, license?.plan ?? null)));
   const current = app ? kindOf(app).id : (types[0]?.id ?? KINDS[0]!.id);
   const unavailable = query.unavailable === "1";
   // 81.3 A new app can start from the website: its first version made from it.

@@ -3,6 +3,7 @@
 import { createHash } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { planFitsSection } from "@/lib/plans";
 import { activateClient, endOfDayUtc, regenerateLicenseKey, reinstateClient, resolveClientApp, suspendClient } from "@/lib/admin/clients";
 import { activationEmail, appLabel } from "@/lib/app/label";
 import { httpsSiteAddress, moveToWordpress } from "@/lib/app/wordpress-ready";
@@ -92,6 +93,8 @@ export async function activateClientAction(_: FormState, formData: FormData): Pr
   // Each app has its own plan: the form names the app it activates or extends.
   const app = await appFromForm(client.id, formData);
   if (app === undefined) return { message: "Choose the app to activate on the client's page.", values };
+  // 103R A Studio project goes on a Studio plan, a regular app on a regular one.
+  if (!planFitsSection(parsed.data.plan, app?.section)) return { errors: { plan: app?.section === "studio" ? "Choose a Studio plan for a Studio project." : "Choose a regular plan for this app." }, values };
   const user = await store.getUserById(client.userId);
   const before = await store.getLicenseForApp(client.id, app?.id ?? null);
   const outcome = await activateClient(

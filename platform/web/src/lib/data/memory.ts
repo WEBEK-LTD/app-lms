@@ -398,7 +398,8 @@ export class MemoryStore implements DataStore {
 
   async createApp(app: App): Promise<void> {
     if (this.apps.has(app.id) || this.deletedApps.has(app.id)) throw new Error("Duplicate app ID");
-    const first = this.appsOf(app.clientId).length === 0;
+    // 103R.3 A Studio project is on Studio's own plans: only the first regular app takes what came before it.
+    const first = app.section !== "studio" && this.appsOf(app.clientId).every((a) => a.section === "studio");
     this.apps.set(app.id, clone(app));
     if (!first) return;
     // The account's first app takes what was paid and given before it existed.

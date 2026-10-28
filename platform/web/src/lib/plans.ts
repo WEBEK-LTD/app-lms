@@ -14,14 +14,37 @@ import { RAW_RETENTION_DAYS } from "./analytics/types";
  * dashboard, handled by the team by hand.
  */
 
-export const PLANS = ["starter", "growth", "pro", "business"] as const;
+/** The regular apps' plans, on the pricing page and in the dashboard. */
+export const REGULAR_PLANS = ["starter", "growth", "pro", "business"] as const;
+/**
+ * 103R Yallapp Studio's plans: a family of their own, named, priced and
+ * offered by the team in Admin › Plans › Yallapp Studio. A Studio project is
+ * paid on a Studio plan only, a regular app on a regular plan only.
+ */
+export const STUDIO_PLANS = ["studio_1", "studio_2", "studio_3"] as const;
+/** Every plan a license can be on. */
+export const PLANS = [...REGULAR_PLANS, ...STUDIO_PLANS] as const;
 export type Plan = (typeof PLANS)[number];
+export type RegularPlan = (typeof REGULAR_PLANS)[number];
+export type StudioPlan = (typeof STUDIO_PLANS)[number];
+
+/** 103R Regular apps or Yallapp Studio projects: the family of plans an app is paid on. */
+export type PlanFamily = "regular" | "studio";
+
+export function planFamily(plan: Plan): PlanFamily {
+  return (STUDIO_PLANS as readonly string[]).includes(plan) ? "studio" : "regular";
+}
+
+/** 103R The plans of one family, lower to higher. */
+export function plansOfFamily(family: PlanFamily): readonly Plan[] {
+  return family === "studio" ? STUDIO_PLANS : REGULAR_PLANS;
+}
 
 /** 32 The plan most clients pick, marked "Most popular" on the pricing and home pages. */
 export const FEATURED_PLAN: Plan = "growth";
 
-/** Lower to higher: an upgrade moves up, a downgrade down. */
-export const PLAN_RANK: Record<Plan, number> = { starter: 0, growth: 1, pro: 2, business: 3 };
+/** Lower to higher within a family: an upgrade moves up, a downgrade down. */
+export const PLAN_RANK: Record<Plan, number> = { starter: 0, growth: 1, pro: 2, business: 3, studio_1: 0, studio_2: 1, studio_3: 2 };
 
 /**
  * Features a plan has or hasn't. They are also the license features the
@@ -34,8 +57,20 @@ export const PLAN_RANK: Record<Plan, number> = { starter: 0, growth: 1, pro: 2, 
  * 104 `delivery`: delivery and courier apps; `courier_app`: the company's second app for its couriers. Both off on
  * every plan until the team turns them on and prices them (Admin › Plans).
  */
-export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing", "studio", "delivery", "courier_app"] as const;
+export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing", "studio", "studio_motion", "studio_templates", "delivery", "courier_app"] as const;
 export type PlanFeature = (typeof PLAN_FEATURE_IDS)[number];
+
+/** 103R Features only Studio plans have, so the regular plans' editor leaves them out (104 delivery companies are Studio projects). */
+export const STUDIO_ONLY_FEATURES: readonly PlanFeature[] = ["studio", "studio_motion", "studio_templates", "delivery", "courier_app"];
+
+/**
+ * 103R What every Studio plan includes, besides what the team ticks in
+ * Admin › Plans › Yallapp Studio (`STUDIO_PLAN_CHOICES`).
+ */
+export const STUDIO_BASE_FEATURES: readonly PlanFeature[] = ["studio", "push", "page_editor", "offline_downloads", "card_payments", "auto_rebuild", "chat", "loyalty", "store_billing"];
+
+/** 103R The features the team ticks for each Studio plan, as the admin's design lists them. */
+export const STUDIO_PLAN_CHOICES: readonly PlanFeature[] = ["ios", "auto_publish", "delivery", "courier_app", "studio_motion", "studio_templates"];
 
 export type SupportLevel = "email" | "whatsapp" | "priority" | "dedicated";
 export const SUPPORT_LEVELS: SupportLevel[] = ["email", "whatsapp", "priority", "dedicated"];
@@ -71,6 +106,8 @@ export interface PlanLimits {
   accountManager: boolean;
   /** Display-only: custom features built on request. */
   customFeatures: boolean;
+  /** 103R Studio pages in a project (null: as many as the layout takes). Enforced: the Studio editor and publishing. */
+  studioPages?: number | null;
 }
 
 /** 62 A plan's texts in Arabic or Turkish, as the team wrote them in Admin › Plans; empty ones fall back. */
@@ -108,6 +145,8 @@ export interface PlanInfo {
   billingMonths: 1 | 12;
   /** 62 The team's Arabic and Turkish texts (lib/marketing-lang.ts `planFor` shows them, else the built-in ones, else English). */
   translations?: PlanTranslations;
+  /** 103R A Studio plan the team offers; one it doesn't is neither shown nor paid. Regular plans are always offered. */
+  offered?: boolean;
 }
 
 /**
@@ -121,7 +160,7 @@ export interface PlanInfo {
  * dollar price, and any other price is dropped (the plan shows its price
  * text until the team sets a price in pounds).
  */
-export type PlanSetting = Pick<PlanInfo, "name" | "tagline" | "features" | "highlights" | "price" | "priceCents" | "billingMonths" | "translations"> & {
+export type PlanSetting = Pick<PlanInfo, "name" | "tagline" | "features" | "highlights" | "price" | "priceCents" | "billingMonths" | "translations" | "offered"> & {
   usdCents?: number | null;
   onRequest?: boolean;
   /** Before Phase 52: the price's currency. */
@@ -218,7 +257,29 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     onRequest: true,
     billingMonths: 12,
   },
+  // 103R Not offered, without a name or a price, until the team sets them.
+  studio_1: studioPlan("studio_1", "Studio plan 1"),
+  studio_2: studioPlan("studio_2", "Studio plan 2"),
+  studio_3: studioPlan("studio_3", "Studio plan 3"),
 };
+
+function studioPlan(id: StudioPlan, name: string): PlanInfo {
+  return {
+    id,
+    name,
+    tagline: "",
+    features: [...STUDIO_BASE_FEATURES],
+    limits: { ...BASE_LIMITS, appUsers: null, languages: null, sources: null, storageGb: 20, analyticsMonths: 12, studioPages: null },
+    highlights: [],
+    price: "On request",
+    period: null,
+    priceCents: null,
+    usdCents: null,
+    onRequest: true,
+    billingMonths: 1,
+    offered: false,
+  };
+}
 
 export interface PlanFeatureDef {
   id: PlanFeature;
@@ -283,18 +344,30 @@ export const PLAN_FEATURES: PlanFeatureDef[] = [
   {
     id: "studio",
     label: "Yallapp Studio",
-    description: "Design every screen freely: place, size and style texts, pictures, buttons and lists from your data.",
-    enforced: "The Studio page and the served layout (a page's canvas only with Studio).",
+    description: "Design every screen element by element: rows, columns, layers, texts, pictures, buttons and lists from your data.",
+    enforced: "Every Studio plan has it: the served layout keeps a page's Studio design only with it.",
+  },
+  {
+    id: "studio_motion",
+    label: "Motion in the editor",
+    description: "Elements that come in, move while tapped and move again and again.",
+    enforced: "The served layout leaves out the elements' motion without it.",
+  },
+  {
+    id: "studio_templates",
+    label: "Save pages as own templates",
+    description: "Keep any page as your own template and start new pages from it.",
+    enforced: "The Studio editor's \"Save the page as my own template\" refuses without it.",
   },
   {
     id: "delivery",
-    label: "Delivery & couriers",
+    label: "Delivery & courier projects",
     description: "Customers send parcels and follow them; your couriers get their jobs in the app.",
     enforced: "The hosted API's /delivery, /me/shipments and /courier endpoints, and the Shipments, Couriers and Delivery settings pages.",
   },
   {
     id: "courier_app",
-    label: "Courier app",
+    label: "A second app for couriers",
     description: "A second app in your name, made only for your couriers.",
     enforced: "Delivery settings › Where couriers work (a second app), and its builds.",
   },
@@ -331,19 +404,31 @@ export function isPlan(value: unknown): value is Plan {
   return typeof value === "string" && (PLANS as readonly string[]).includes(value);
 }
 
+/** 103R Whether an app of this section can be on the plan: Studio projects on Studio plans, regular apps on regular ones. */
+export function planFitsSection(plan: Plan, section: "regular" | "studio" | undefined): boolean {
+  return planFamily(plan) === (section ?? "regular");
+}
+
+/** 103R Whether clients can see and pay the plan: every regular plan, the Studio plans the team offers. */
+export function planOffered(plan: Pick<PlanInfo, "id" | "offered">): boolean {
+  return planFamily(plan.id) === "regular" || plan.offered === true;
+}
+
 export function hasFeature(plan: Pick<PlanInfo, "features"> | null | undefined, feature: PlanFeature): boolean {
   return Boolean(plan?.features.includes(feature));
 }
 
-/** -1, 0 or 1: whether `to` is a downgrade, the same plan or an upgrade from `from`. */
+/** -1, 0 or 1: whether `to` is a downgrade, the same plan or an upgrade from `from` (plans of one family). */
 export function comparePlans(from: Plan, to: Plan): -1 | 0 | 1 {
   const d = PLAN_RANK[to] - PLAN_RANK[from];
   return d < 0 ? -1 : d > 0 ? 1 : 0;
 }
 
 /** The lowest plan above `current` (any plan without one) that passes `test`, for "Upgrade" hints. */
-export function lowestPlanWith(plans: Record<Plan, PlanInfo>, test: (plan: PlanInfo) => boolean, current?: Plan | null): PlanInfo | null {
-  for (const id of PLANS) {
+export function lowestPlanWith(plans: Record<Plan, PlanInfo>, test: (plan: PlanInfo) => boolean, current?: Plan | null, family?: PlanFamily): PlanInfo | null {
+  // 103R Within the family asked for, else the current plan's; the regular plans without one.
+  for (const id of plansOfFamily(family ?? (current ? planFamily(current) : "regular"))) {
+    if (!planOffered(plans[id])) continue;
     if (current && PLAN_RANK[id] <= PLAN_RANK[current]) continue;
     if (test(plans[id])) return plans[id];
   }
@@ -370,6 +455,7 @@ function cleanLimits(value: unknown, fallback: PlanLimits): PlanLimits {
     support: SUPPORT_LEVELS.includes(v.support as SupportLevel) ? (v.support as SupportLevel) : fallback.support,
     accountManager: typeof v.accountManager === "boolean" ? v.accountManager : fallback.accountManager,
     customFeatures: typeof v.customFeatures === "boolean" ? v.customFeatures : fallback.customFeatures,
+    ...(fallback.studioPages !== undefined ? { studioPages: count(v.studioPages, fallback.studioPages) } : {}),
   };
 }
 
@@ -438,9 +524,11 @@ export function plansWith(settings: Partial<Record<Plan, PlanSetting>> | null | 
       limits: cleanLimits(edit.limits, base.limits),
       id: plan,
       ...(cleanPlanTranslations(edit.translations) ? { translations: cleanPlanTranslations(edit.translations) } : {}),
+      // 103R A Studio plan is offered only when the team says so.
+      ...(planFamily(plan) === "studio" ? { offered: edit.offered === true } : {}),
     };
   };
-  return { starter: merge("starter"), growth: merge("growth"), pro: merge("pro"), business: merge("business") };
+  return Object.fromEntries(PLANS.map((plan) => [plan, merge(plan)])) as Record<Plan, PlanInfo>;
 }
 
 /** A full edit of a plan, as the admin saves it. */
@@ -459,12 +547,13 @@ export function planSettingOf(plan: PlanInfo): PlanSetting {
     onRequest: plan.onRequest,
     billingMonths: plan.billingMonths,
     ...(plan.translations ? { translations: plan.translations } : {}),
+    ...(plan.offered !== undefined ? { offered: plan.offered } : {}),
   };
 }
 
 /** Each plan's name as the team set it. */
 export function planNamesOf(plans: Record<Plan, PlanInfo>): Record<Plan, string> {
-  return { starter: plans.starter.name, growth: plans.growth.name, pro: plans.pro.name, business: plans.business.name };
+  return Object.fromEntries(PLANS.map((plan) => [plan, plans[plan].name])) as Record<Plan, string>;
 }
 
 export function planName(plan: Plan | null | undefined, plans: Record<Plan, PlanInfo> = PLAN_INFO): string {
@@ -548,14 +637,15 @@ export type ComparisonValue = boolean | string;
 
 export interface ComparisonRow {
   label: string;
-  values: Record<Plan, ComparisonValue>;
+  /** The regular plans only: the pricing page shows them. */
+  values: Record<RegularPlan, ComparisonValue>;
   /** 41 A store's row, shown with its mark. */
   store?: AppStore;
 }
 
 /** The pricing page's comparison table, from the plans as the team set them. */
 export function comparisonRows(plans: Record<Plan, PlanInfo>): ComparisonRow[] {
-  const each = (fn: (p: PlanInfo) => ComparisonValue): Record<Plan, ComparisonValue> =>
+  const each = (fn: (p: PlanInfo) => ComparisonValue): Record<RegularPlan, ComparisonValue> =>
     ({ starter: fn(plans.starter), growth: fn(plans.growth), pro: fn(plans.pro), business: fn(plans.business) });
   const has = (f: PlanFeature) => each((p) => hasFeature(p, f));
   return [

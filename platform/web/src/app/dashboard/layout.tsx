@@ -25,6 +25,9 @@ import { needsYallappSignIn, storeBillingSource } from "@/lib/store-billing/acce
 import { pathPermission } from "@/lib/team/permissions";
 import type { DashKey } from "@/i18n/dashboard";
 import { getVisitorContact } from "@/lib/contact";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { studioPathFor } from "@/lib/studio/section";
 import { bellWords, dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import { ACCOUNT_STATE_LABEL, appState } from "@/lib/license/status";
@@ -39,7 +42,14 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const contact = await getVisitorContact();
   const context = await requireClient();
-  const { user, staff, member, app, apps, client, licenses, state, businesses } = context;
+  const { user, staff, member, app, client, licenses, state, businesses } = context;
+  // 103R A Yallapp Studio project lives in Studio: its pages open there (the same page in Studio's frame).
+  if (app?.section === "studio") {
+    const target = studioPathFor((await headers()).get("x-yallapp-path") ?? "");
+    if (target) redirect(target);
+  }
+  // 103R The regular apps only: Studio projects have their own home.
+  const apps = context.apps.filter((a) => a.section !== "studio");
   // 60 The person signed in: a team member shows as themselves.
   const me = member ?? user;
   // 56 The signed-in person's language (our team member managing a dashboard sees it in their own).
@@ -82,6 +92,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         },
         { href: "/dashboard/setup", label: t("nav.setup"), icon: "tune", prefix: "/dashboard/app-type" },
         { href: "/dashboard/pages", label: t("nav.pages"), icon: "palette" },
+        // 103R.3 Yallapp Studio, the account's own section for apps designed screen by screen.
+        { href: "/studio", label: t("studio.title"), icon: "draw" },
         // 51 The app's videos, pictures and PDFs, kept by Yallapp.
         ...(app ? [{ href: "/dashboard/media", label: t("nav.media"), icon: "photo_library" as const }] : []),
         // 77 The people using the app write to the business (apps whose people Yallapp knows).
@@ -185,7 +197,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
                   />
                 ) : null}
                 {apps.length ? (
-                  <AppSwitcher apps={switcherApps} current={app?.id ?? null} currentApp={currentApp} canAdd={apps.length < MAX_APPS_PER_CLIENT && contextCan(context, "apps")} />
+                  <AppSwitcher apps={switcherApps} current={app?.id ?? null} currentApp={currentApp} canAdd={context.apps.length < MAX_APPS_PER_CLIENT && contextCan(context, "apps")} />
                 ) : null}
               </div>
             ) : null

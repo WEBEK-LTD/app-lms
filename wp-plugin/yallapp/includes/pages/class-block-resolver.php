@@ -952,109 +952,374 @@ class Block_Resolver {
 	}
 
 	/**
-	 * 103 A Studio page's canvas (`StudioCanvas`) for one request: its layers, already in the
-	 * request's language, with known fields only; an items layer filled from the site like the
-	 * items block (left out when the site can't serve it), and taps the app may follow.
+	 * 103R Elements served of one Studio page so far, against `STUDIO_MAX_NODES`.
 	 *
-	 * @param mixed  $raw      The stored canvas.
+	 * @var int
+	 */
+	private $studio_nodes = 0;
+
+	/**
+	 * 103R At most this many elements in a Studio page, and this deep.
+	 */
+	const STUDIO_MAX_NODES = 600;
+	const STUDIO_MAX_DEPTH = 12;
+
+	/**
+	 * 103R The element types of a Studio page, and those that hold others.
+	 */
+	const STUDIO_TYPES  = array( 'row', 'column', 'stack', 'grid', 'slider', 'spacer', 'text', 'image', 'button', 'icon', 'items', 'categories', 'video', 'form', 'map', 'ratings', 'search', 'divider' );
+	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider' );
+
+	/**
+	 * 103R A Studio page (`StudioPage`) for one request: its header and its tree of elements
+	 * in the request's language, with known fields only; lists and categories filled from the
+	 * site (an element whose source the site can't serve is left out), and taps the app may
+	 * follow. Null when its body can't be served.
+	 *
+	 * @param mixed  $raw      The stored page's `studio`.
 	 * @param string $platform android or ios.
 	 * @param int    $user_id  Current user, or 0.
 	 * @param string $language The language the page is served in.
 	 * @return array|null
 	 */
-	public function canvas( $raw, $platform, $user_id, $language = '' ) {
-		if ( ! is_array( $raw ) || ! isset( $raw['width'], $raw['height'] ) || ! is_array( $raw['layers'] ?? null ) ) {
+	public function studio( $raw, $platform, $user_id, $language = '' ) {
+		if ( ! is_array( $raw ) || ! is_array( $raw['body'] ?? null ) ) {
 			return null;
 		}
 		$this->context( $platform, $user_id, $language );
-		$layers = array();
-		foreach ( array_slice( $raw['layers'], 0, 200 ) as $layer ) {
-			$served = is_array( $layer ) ? $this->layer( $layer ) : null;
-			if ( $served ) {
-				$layers[] = $served;
-			}
-		}
-		return array(
-			'width'      => max( 320, min( 480, (int) $raw['width'] ) ),
-			'height'     => max( 200, min( 10000, (int) $raw['height'] ) ),
-			'background' => self::hex( $raw['background'] ?? null ),
-			'layers'     => $layers,
-		);
-	}
-
-	/**
-	 * 103 One Studio layer, or null when it is left out.
-	 *
-	 * @param array $raw StudioLayer as stored.
-	 * @return array|null
-	 */
-	private function layer( array $raw ) {
-		$type = (string) ( $raw['type'] ?? '' );
-		$id   = self::text( $raw['id'] ?? '' );
-		if ( null === $id || ! in_array( $type, array( 'box', 'text', 'image', 'button', 'icon', 'items' ), true ) ) {
+		$this->studio_nodes = 0;
+		$body               = $this->studio_node( $raw['body'], 0, $language );
+		if ( null === $body ) {
 			return null;
 		}
-		$layer = array(
-			'id'   => substr( $id, 0, 64 ),
-			'type' => $type,
+		$page = array(
+			'header' => is_array( $raw['header'] ?? null ) ? $this->studio_header( Translator::apply( $raw['header'], $language ) ) : null,
+			'body'   => $body,
 		);
-		foreach ( array( 'x', 'y', 'w', 'h' ) as $field ) {
-			if ( ! isset( $raw[ $field ] ) || ! is_numeric( $raw[ $field ] ) ) {
-				return null;
-			}
-			$layer[ $field ] = round( (float) $raw[ $field ], 1 );
+		foreach ( array( 'background', 'dark_background' ) as $field ) {
+			$page[ $field ] = self::hex( $raw[ $field ] ?? null );
 		}
-		foreach ( array( 'radius', 'border_width', 'opacity', 'font_size' ) as $field ) {
-			if ( isset( $raw[ $field ] ) && is_numeric( $raw[ $field ] ) ) {
-				$layer[ $field ] = round( (float) $raw[ $field ], 2 );
-			}
-		}
-		foreach ( array( 'fill', 'border_color', 'color' ) as $field ) {
-			$color = self::hex( $raw[ $field ] ?? null );
-			if ( null !== $color ) {
-				$layer[ $field ] = $color;
-			}
-		}
-		if ( ! empty( $raw['shadow'] ) ) {
-			$layer['shadow'] = true;
-		}
-		if ( 'text' === $type || 'button' === $type ) {
-			$text          = is_scalar( $raw['text'] ?? null ) ? sanitize_textarea_field( (string) $raw['text'] ) : '';
-			$layer['text'] = '' === $text ? null : $text;
-			if ( in_array( $raw['font_weight'] ?? null, array( 400, 500, 600, 700, 800 ), true ) ) {
-				$layer['font_weight'] = $raw['font_weight'];
-			}
-			$layer['align'] = self::choice( $raw['align'] ?? null, array( 'start', 'center', 'end' ), 'start' );
-		}
-		if ( 'image' === $type ) {
-			$layer['image_url'] = self::url( $raw['image_url'] ?? null );
-			if ( null === $layer['image_url'] ) {
-				return null;
-			}
-			$layer['fit'] = self::choice( $raw['fit'] ?? null, array( 'cover', 'contain' ), 'cover' );
-		}
-		if ( 'icon' === $type ) {
-			$icon = is_string( $raw['icon'] ?? null ) && preg_match( '/^[a-z0-9_]{1,64}$/', $raw['icon'] ) ? $raw['icon'] : null;
-			if ( null === $icon ) {
-				return null;
-			}
-			$layer['icon'] = $icon;
-		}
-		if ( 'items' === $type ) {
-			$list = $this->items_block( $raw );
-			if ( ! $list ) {
-				return null;
-			}
-			$layer['source'] = $list['source'];
-			$layer['layout'] = $list['layout'];
-			$layer['items']  = $list['items'];
-			return $layer;
-		}
-		return $this->with_action( $layer, 'action', $raw['action'] ?? null );
+		$page['show_tabs'] = ! isset( $raw['show_tabs'] ) || false !== $raw['show_tabs'];
+		return $page;
 	}
 
 	/**
-	 * 103 A #RRGGBB colour in capitals, or null.
+	 * 103R A StudioHeader, or null.
+	 *
+	 * @param array $raw Header, in the request's language.
+	 * @return array|null
+	 */
+	private function studio_header( array $raw ) {
+		$type = $raw['type'] ?? null;
+		if ( ! in_array( $type, array( 'logo_center', 'title_search', 'logo_actions', 'transparent' ), true ) ) {
+			return null;
+		}
+		$buttons = array();
+		foreach ( isset( $raw['buttons'] ) && is_array( $raw['buttons'] ) ? $raw['buttons'] : array() as $button ) {
+			if ( in_array( $button, array( 'menu', 'search', 'cart', 'notifications', 'chat', 'account' ), true ) && ! in_array( $button, $buttons, true ) && count( $buttons ) < 4 ) {
+				$buttons[] = $button;
+			}
+		}
+		$title  = self::text( $raw['title'] ?? null );
+		$header = array(
+			'type'     => $type,
+			'title'    => null === $title ? null : mb_substr( $title, 0, 80 ),
+			'logo_url' => self::url( $raw['logo_url'] ?? null ),
+			'buttons'  => $buttons,
+		);
+		foreach ( array( 'background', 'color', 'dark_background', 'dark_color' ) as $field ) {
+			$header[ $field ] = self::hex( $raw[ $field ] ?? null );
+		}
+		return $header;
+	}
+
+	/**
+	 * 103R One StudioNode with what it holds, or null when it is left out: a type this
+	 * plugin doesn't know, a list or categories the site can't serve, a picture or video
+	 * without a web address, or past the page's limits.
+	 *
+	 * @param array  $raw      Element as stored.
+	 * @param int    $depth    How deep it is (the page's own element is 0).
+	 * @param string $language The language the page is served in.
+	 * @return array|null
+	 */
+	private function studio_node( array $raw, $depth, $language ) {
+		if ( $depth > self::STUDIO_MAX_DEPTH || ++$this->studio_nodes > self::STUDIO_MAX_NODES ) {
+			return null;
+		}
+		$raw  = Translator::apply( $raw, $language );
+		$type = (string) ( $raw['type'] ?? '' );
+		$id   = is_string( $raw['id'] ?? null ) && preg_match( '/^[A-Za-z0-9_-]{1,64}$/', $raw['id'] ) ? $raw['id'] : null;
+		if ( null === $id || ! in_array( $type, self::STUDIO_TYPES, true ) ) {
+			return null;
+		}
+		$node = array(
+			'id'   => $id,
+			'type' => $type,
+		);
+		foreach ( array( 'width', 'height' ) as $field ) {
+			$size = self::studio_size( $raw[ $field ] ?? null );
+			if ( null !== $size ) {
+				$node[ $field ] = $size;
+			}
+		}
+		$numbers = array(
+			'min_height'   => array( 0, 4000 ),
+			'aspect_ratio' => array( 0.1, 10 ),
+			'gap'          => array( 0, 200 ),
+			'radius'       => array( 0, 500 ),
+			'border_width' => array( 0, 20 ),
+			'opacity'      => array( 0, 1 ),
+			'icon_size'    => array( 8, 200 ),
+			'per_view'     => array( 1, 4 ),
+			'rating'       => array( 0, 5 ),
+		);
+		foreach ( $numbers as $field => $range ) {
+			if ( isset( $raw[ $field ] ) && is_numeric( $raw[ $field ] ) ) {
+				$node[ $field ] = round( max( $range[0], min( $range[1], (float) $raw[ $field ] ) ), 2 );
+			}
+		}
+		$integers = array(
+			'columns'     => array( 1, 6 ),
+			'interval_ms' => array( 1500, 20000 ),
+			'max_lines'   => array( 1, 50 ),
+		);
+		foreach ( $integers as $field => $range ) {
+			if ( isset( $raw[ $field ] ) && is_numeric( $raw[ $field ] ) ) {
+				$node[ $field ] = max( $range[0], min( $range[1], (int) $raw[ $field ] ) );
+			}
+		}
+		$choices = array(
+			'align'         => array( 'start', 'center', 'end', 'between', 'around' ),
+			'cross'         => array( 'start', 'center', 'end', 'stretch' ),
+			'self_align'    => array( 'start', 'center', 'end', 'stretch' ),
+			'pin'           => array( 'none', 'top', 'bottom' ),
+			'shadow'        => array( 'none', 'light', 'medium', 'strong' ),
+			'text_align'    => array( 'start', 'center', 'end' ),
+			'fit'           => array( 'cover', 'contain' ),
+			'icon_position' => array( 'start', 'end' ),
+			'layout'        => array( 'list', 'grid', 'carousel' ),
+			'bind'          => array( 'title', 'subtitle', 'image', 'price', 'badge' ),
+			'visibility'    => array( 'everyone', 'signed_in', 'signed_out' ),
+		);
+		foreach ( $choices as $field => $values ) {
+			if ( isset( $raw[ $field ] ) && in_array( $raw[ $field ], $values, true ) ) {
+				$node[ $field ] = $raw[ $field ];
+			}
+		}
+		foreach ( array( 'background', 'color', 'dark_background', 'dark_color', 'border_color' ) as $field ) {
+			$color = self::hex( $raw[ $field ] ?? null );
+			if ( null !== $color ) {
+				$node[ $field ] = $color;
+			}
+		}
+		foreach ( array( 'padding', 'margin' ) as $field ) {
+			$sides = self::studio_sides( $raw[ $field ] ?? null );
+			if ( null !== $sides ) {
+				$node[ $field ] = $sides;
+			}
+		}
+		foreach ( array( 'autoplay', 'dots' ) as $field ) {
+			if ( isset( $raw[ $field ] ) && is_bool( $raw[ $field ] ) ) {
+				$node[ $field ] = $raw[ $field ];
+			}
+		}
+		if ( isset( $raw['gradient']['from'], $raw['gradient']['to'] ) && null !== self::hex( $raw['gradient']['from'] ) && null !== self::hex( $raw['gradient']['to'] ) ) {
+			$node['gradient'] = array(
+				'from'  => self::hex( $raw['gradient']['from'] ),
+				'to'    => self::hex( $raw['gradient']['to'] ),
+				'angle' => isset( $raw['gradient']['angle'] ) && is_numeric( $raw['gradient']['angle'] ) ? max( 0, min( 360, (float) $raw['gradient']['angle'] ) ) : 180,
+			);
+		}
+		$font = self::studio_font( $raw['font'] ?? null );
+		if ( null !== $font ) {
+			$node['font'] = $font;
+		}
+		$motion = self::studio_motion( $raw['motion'] ?? null );
+		if ( null !== $motion ) {
+			$node['motion'] = $motion;
+		}
+		if ( isset( $raw['text'] ) && is_scalar( $raw['text'] ) ) {
+			$text         = sanitize_textarea_field( (string) $raw['text'] );
+			$node['text'] = '' === $text ? null : mb_substr( $text, 0, 2000 );
+		}
+		if ( isset( $raw['icon'] ) && is_string( $raw['icon'] ) && preg_match( '/^[a-z0-9_]{1,64}$/', $raw['icon'] ) ) {
+			$node['icon'] = $raw['icon'];
+		}
+		foreach ( array( 'image_url', 'video_url', 'image_background_url' ) as $field ) {
+			$url = self::url( $raw[ $field ] ?? null );
+			if ( null !== $url ) {
+				$node[ $field ] = $url;
+			}
+		}
+		if ( isset( $raw['platforms'] ) && is_array( $raw['platforms'] ) ) {
+			$node['platforms'] = array_values( array_intersect( array( 'android', 'ios' ), $raw['platforms'] ) );
+		}
+		switch ( $type ) {
+			case 'image':
+				// A picture bound to a list's entry gets its address from the entry.
+				if ( ! isset( $node['image_url'] ) && ! isset( $node['bind'] ) ) {
+					return null;
+				}
+				break;
+			case 'video':
+				if ( ! isset( $node['video_url'] ) ) {
+					return null;
+				}
+				break;
+			case 'items':
+				$list = $this->items_block( $raw );
+				if ( ! $list ) {
+					return null;
+				}
+				$node['source'] = $list['source'];
+				$node['items']  = $list['items'];
+				$node['layout'] = $node['layout'] ?? 'grid';
+				if ( is_array( $raw['card'] ?? null ) ) {
+					$card = $this->studio_node( $raw['card'], $depth + 1, $language );
+					if ( null !== $card ) {
+						$node['card'] = $card;
+					}
+				}
+				return $node;
+			case 'categories':
+				$list = $this->categories_block( $raw );
+				if ( ! $list ) {
+					return null;
+				}
+				$node['source']     = $list['source'];
+				$node['categories'] = $list['categories'];
+				return $node;
+			case 'search':
+				if ( isset( $raw['source'] ) ) {
+					if ( ! $this->serves( $raw['source'] ) ) {
+						return null;
+					}
+					$node['source'] = $raw['source'];
+				}
+				break;
+			case 'form':
+				$form = is_array( $raw['form'] ?? null ) ? Rich_Blocks::fields( 'form', Translator::apply( $raw['form'], $language ), array( $this, 'action' ), time() ) : null;
+				if ( null === $form ) {
+					return null;
+				}
+				$node['form'] = $form;
+				return $node;
+			case 'map':
+				$map = $raw['map'] ?? null;
+				if ( ! is_array( $map ) || ! isset( $map['lat'], $map['lng'] ) || ! is_numeric( $map['lat'] ) || ! is_numeric( $map['lng'] ) || abs( (float) $map['lat'] ) > 90 || abs( (float) $map['lng'] ) > 180 ) {
+					return null;
+				}
+				$node['map'] = array(
+					'lat'   => (float) $map['lat'],
+					'lng'   => (float) $map['lng'],
+					'zoom'  => isset( $map['zoom'] ) && is_numeric( $map['zoom'] ) ? max( 1, min( 19, (float) $map['zoom'] ) ) : 15,
+					'label' => self::text( $map['label'] ?? null ),
+				);
+				break;
+		}
+		if ( in_array( $type, self::STUDIO_LAYOUT, true ) ) {
+			$children = array();
+			foreach ( array_slice( isset( $raw['children'] ) && is_array( $raw['children'] ) ? $raw['children'] : array(), 0, 60 ) as $child ) {
+				$served = is_array( $child ) ? $this->studio_node( $child, $depth + 1, $language ) : null;
+				if ( null !== $served ) {
+					$children[] = $served;
+				}
+			}
+			$node['children'] = $children;
+		}
+		return $this->with_action( $node, 'action', $raw['action'] ?? null );
+	}
+
+	/**
+	 * 103R A StudioSize: `fill`, `hug` or logical pixels; null otherwise.
+	 *
+	 * @param mixed $value Value.
+	 * @return string|float|null
+	 */
+	private static function studio_size( $value ) {
+		if ( 'fill' === $value || 'hug' === $value ) {
+			return $value;
+		}
+		return is_numeric( $value ) && ! is_string( $value ) ? max( 0, min( 4000, round( (float) $value, 1 ) ) ) : null;
+	}
+
+	/**
+	 * 103R StudioSides: each side in logical pixels, 0 to 400.
+	 *
+	 * @param mixed $value Value.
+	 * @return array|null
+	 */
+	private static function studio_sides( $value ) {
+		if ( ! is_array( $value ) ) {
+			return null;
+		}
+		$sides = array();
+		foreach ( array( 'top', 'end', 'bottom', 'start' ) as $side ) {
+			if ( isset( $value[ $side ] ) && is_numeric( $value[ $side ] ) ) {
+				$sides[ $side ] = max( 0, min( 400, round( (float) $value[ $side ], 1 ) ) );
+			}
+		}
+		return $sides ? $sides : null;
+	}
+
+	/**
+	 * 103R A StudioFont with known parts only.
+	 *
+	 * @param mixed $value Value.
+	 * @return array|null
+	 */
+	private static function studio_font( $value ) {
+		if ( ! is_array( $value ) ) {
+			return null;
+		}
+		$font = array();
+		if ( isset( $value['family'] ) && is_string( $value['family'] ) && preg_match( '/^[A-Za-z0-9 ]{1,60}$/', $value['family'] ) ) {
+			$font['family'] = $value['family'];
+		}
+		if ( in_array( $value['weight'] ?? null, array( 300, 400, 500, 600, 700, 800, 900 ), true ) ) {
+			$font['weight'] = $value['weight'];
+		}
+		$numbers = array(
+			'size'           => array( 8, 120 ),
+			'line_height'    => array( 0.8, 3 ),
+			'letter_spacing' => array( -5, 20 ),
+		);
+		foreach ( $numbers as $field => $range ) {
+			if ( isset( $value[ $field ] ) && is_numeric( $value[ $field ] ) ) {
+				$font[ $field ] = round( max( $range[0], min( $range[1], (float) $value[ $field ] ) ), 2 );
+			}
+		}
+		foreach ( array( 'italic', 'underline' ) as $field ) {
+			if ( ! empty( $value[ $field ] ) ) {
+				$font[ $field ] = true;
+			}
+		}
+		return $font ? $font : null;
+	}
+
+	/**
+	 * 103R A StudioMotion with known parts only.
+	 *
+	 * @param mixed $value Value.
+	 * @return array|null
+	 */
+	private static function studio_motion( $value ) {
+		if ( ! is_array( $value ) ) {
+			return null;
+		}
+		$motion = array(
+			'enter'       => self::choice( $value['enter'] ?? null, array( 'none', 'fade', 'slide_up', 'slide_down', 'slide_start', 'slide_end', 'zoom' ), 'none' ),
+			'duration_ms' => isset( $value['duration_ms'] ) && is_numeric( $value['duration_ms'] ) ? max( 100, min( 3000, (int) $value['duration_ms'] ) ) : 400,
+			'delay_ms'    => isset( $value['delay_ms'] ) && is_numeric( $value['delay_ms'] ) ? max( 0, min( 5000, (int) $value['delay_ms'] ) ) : 0,
+			'press'       => self::choice( $value['press'] ?? null, array( 'none', 'shrink', 'bounce' ), 'none' ),
+			'loop'        => self::choice( $value['loop'] ?? null, array( 'none', 'pulse', 'float', 'shake' ), 'none' ),
+		);
+		return 'none' === $motion['enter'] && 'none' === $motion['press'] && 'none' === $motion['loop'] ? null : $motion;
+	}
+
+	/**
+	 * 103R A #RRGGBB colour in capitals, or null.
 	 *
 	 * @param mixed $value Value.
 	 * @return string|null

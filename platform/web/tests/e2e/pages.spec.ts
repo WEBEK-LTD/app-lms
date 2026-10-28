@@ -367,8 +367,47 @@ test("101 the client picks a header and its buttons, and the app gets them", asy
   expect(config.appearance.header).toEqual({ layout: "search", icons: ["notifications", "account"] });
 });
 
-test("103R the client designs a page in Yallapp Studio, apart from the dashboard, and publishes it", async ({ request }) => {
-  await own.goto("/studio/editor");
+test("103R the team offers a Studio plan; the client makes a Studio project apart from the regular apps, designs it and publishes it", async () => {
+  // 103R.2 Studio's plans are their own family, offered when the team turns them on.
+  await admin.goto("/admin/plans?family=studio");
+  const studioPlan = admin.locator('[data-studio-plan="studio_1"]');
+  await expect(studioPlan.getByText("Not offered.")).toBeVisible();
+  await studioPlan.getByLabel("Offered").check();
+  await studioPlan.getByLabel("Name").fill("Studio Start");
+  await studioPlan.getByLabel("Price (EGP)").fill("500");
+  await studioPlan.getByLabel("Motion in the editor").check();
+  await studioPlan.getByLabel("Pages per project").fill("5");
+  await studioPlan.getByRole("button", { name: "Save plan" }).click();
+  await expect(admin.getByText("Studio Start saved. Studio projects can choose it now.")).toBeVisible();
+
+  // 103R.3 Studio's home: the account's Studio projects only.
+  await own.goto("/studio");
+  await expect(own.getByRole("heading", { level: 1, name: "Your projects in Studio" })).toBeVisible();
+  await expect(own.getByRole("article")).toHaveCount(0);
+  await own.getByRole("link", { name: "New project" }).first().click();
+  await expect(own).toHaveURL(/\/studio\/new$/);
+  await own.getByRole("radio", { name: "Academy" }).check();
+  await own.getByRole("radio", { name: "No website: everything from here" }).click();
+  await own.getByRole("radio", { name: "Shop" }).click();
+  await own.getByLabel("Project name").fill("Spring Studio");
+  await own.getByRole("button", { name: "Next" }).click();
+
+  // The project's own dashboard, in Studio.
+  await expect(own).toHaveURL(/\/studio\/project$/);
+  await expect(own.getByRole("heading", { level: 1, name: "Spring Studio" })).toBeVisible();
+  await expect(own.getByRole("heading", { name: "Before you publish" })).toBeVisible();
+  // Its home starts from the template chosen: designed already, the rest of the steps to go.
+  const checklist = own.getByRole("list").filter({ hasText: "Design the pages in the editor" });
+  await expect(checklist.getByRole("listitem").filter({ hasText: "Design the pages in the editor" }).getByRole("link")).toHaveCount(0);
+  await expect(checklist.getByRole("listitem").filter({ hasText: "Choose one of Studio's plans" }).getByRole("link", { name: "Plans" })).toBeVisible();
+  await expect(own.getByRole("navigation", { name: "Project dashboard" }).getByRole("link", { name: "Overview" })).toHaveAttribute("aria-current", "page");
+  // The dashboard's pages open in Studio's frame for a Studio project, and its plans are Studio's.
+  await own.goto("/dashboard/license");
+  await expect(own).toHaveURL(/\/studio\/project\/license$/);
+  await expect(own.getByText("Studio Start").first()).toBeVisible();
+
+  await own.getByRole("link", { name: "Open the editor" }).first().click();
+  await expect(own).toHaveURL(/\/studio\/editor$/);
   // Its own screen: the dark bar of the approved design, no dashboard menu.
   await expect(own.getByRole("link", { name: "Yallapp Studio" })).toBeVisible();
   await expect(own.locator("nav")).toHaveCount(0);
@@ -398,15 +437,29 @@ test("103R the client designs a page in Yallapp Studio, apart from the dashboard
   await expect(phone.locator('[data-studio-header="logo_center"]')).toBeVisible();
   await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
 
+  // Before a plan the project tries everything; publishing works.
   await own.getByRole("button", { name: "Publish", exact: true }).click();
-  await expect(own.getByText("Published. The app shows this design once Yallapp Studio is on your plan.")).toBeVisible();
-  // Studio isn't on this plan: the app gets the page without its design.
-  const served = await (await request.get(`${api}/pages/spring?platform=android`)).json();
-  expect(served).toMatchObject({ slug: "spring", blocks: [] });
-  expect(served.studio).toBeUndefined();
+  await expect(own.getByText("Published. The app shows it the next time it opens.")).toBeVisible();
   // The draft keeps it.
   await own.goto("/studio/editor?page=spring");
   await expect(own.getByRole("main", { name: "The page in the phone" }).getByText("Hello Studio")).toBeVisible();
+
+  // Back on Studio's home: the project, published, found and filtered.
+  await own.goto("/studio");
+  const card = own.getByRole("article").filter({ hasText: "Spring Studio" });
+  await expect(card.getByText("Published", { exact: true })).toBeVisible();
+  await expect(card).toContainText("Academy");
+  await own.getByRole("button", { name: /^Draft · / }).click();
+  await expect(own.getByRole("article")).toHaveCount(0);
+  await own.getByRole("button", { name: /^All · / }).click();
+  await own.getByLabel("Find a project").fill("nothing like it");
+  await expect(own.getByText("No project matches “nothing like it”.")).toBeVisible();
+
+  // The regular apps stay apart: their dashboard, and Studio's editor isn't theirs.
+  await own.getByRole("button", { name: "Regular apps" }).click();
+  await expect(own).toHaveURL(/\/dashboard$/);
+  await own.goto("/studio/editor");
+  await expect(own).toHaveURL(/\/studio$/);
   await own.goto("/dashboard/pages");
 });
 

@@ -7,20 +7,22 @@ import { requireAdmin } from "@/lib/auth/session";
 import { centsToDecimal } from "@/lib/catalog/money";
 import { getStore } from "@/lib/data";
 import type { SwitchesSetting } from "@/lib/data/types";
-import { PLAN_FEATURES, PLAN_LIMITS, planPrice, PLANS, SUPPORT_LABEL, SUPPORT_LEVELS, type Plan } from "@/lib/plans";
+import Link from "next/link";
+import { PLAN_FEATURES, PLAN_LIMITS, planPrice, REGULAR_PLANS, STUDIO_ONLY_FEATURES, STUDIO_PLAN_CHOICES, STUDIO_PLANS, SUPPORT_LABEL, SUPPORT_LEVELS, type Plan } from "@/lib/plans";
 import { getPlans, platformSetting, yallappBilling } from "@/lib/settings/platform";
 import { formatMoney, usdCentsOf } from "@/lib/billing/prices";
 import { getSwitches, LICENSE_FEATURE_SWITCHES, switchGroups, switchKey } from "@/lib/switches";
 import { PlanAvailabilityForm, type AvailabilityGroup } from "./availability";
-import { PlanForm, PlanLimitsForm, StoragePacksForm } from "./forms";
+import { PlanForm, PlanLimitsForm, StoragePacksForm, StudioPlanForm } from "./forms";
 import { packOffers } from "@/lib/media/packs";
 
 export const metadata: Metadata = { title: "Plans" };
 export const dynamic = "force-dynamic";
 
-/** Plans and prices: shown on the pricing page, used by licenses and card payments. */
-export default async function PlansPage() {
+/** Plans and prices: shown on the pricing page, used by licenses and card payments. 103R Regular apps and Studio projects apart. */
+export default async function PlansPage({ searchParams }: PageProps<"/admin/plans">) {
   const { adminRole } = await requireAdmin();
+  const studio = (await searchParams).family === "studio";
   const store = await getStore();
   const [plans, edits, switches, billing, packs] = await Promise.all([
     getPlans(store),
@@ -39,9 +41,60 @@ export default async function PlansPage() {
           pounds, charged to everyone; people outside Egypt see US dollars (set the exchange rate in Settings › Yallapp&apos;s plan payments).
         </span>
       </div>
+      {/* 103R Regular apps and Yallapp Studio projects have their own plans. */}
+      <p className="m-0 text-[15px] text-muted">Regular apps and Studio projects have separate plans. A Studio project is paid on a Studio plan only.</p>
+      <div role="tablist" aria-label="Plan families" className="flex gap-1 border-b border-line">
+        {(
+          [
+            ["regular", "Regular apps", "/admin/plans"],
+            ["studio", "Yallapp Studio", "/admin/plans?family=studio"],
+          ] as const
+        ).map(([key, label, href]) => {
+          const on = (key === "studio") === studio;
+          return (
+            <Link
+              key={key}
+              href={href}
+              role="tab"
+              aria-selected={on}
+              className={`flex h-10 items-center px-4 text-sm no-underline ${on ? "border-b-2 border-midnight font-bold text-ink" : "border-b-2 border-transparent text-muted"}`}
+            >
+              {label}
+            </Link>
+          );
+        })}
+      </div>
       <ReadOnly when={!can(adminRole, "plans.edit")} what="change plans or prices">
+      {studio ? (
+        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
+          {STUDIO_PLANS.map((id, i) => {
+            const plan = plans[id];
+            const usdAtRate = plan.priceCents ? usdCentsOf({ egpCents: plan.priceCents, usdCents: null }, billing.egpPerUsd) : null;
+            return (
+              <StudioPlanForm
+                key={id}
+                plan={{
+                  id,
+                  heading: `Studio plan ${i + 1}`,
+                  offered: plan.offered === true,
+                  // A plan never named keeps its placeholder name out of the field.
+                  name: edits?.value[id]?.name ? plan.name : "",
+                  egpPrice: plan.priceCents !== null ? centsToDecimal(plan.priceCents) : "",
+                  usdPrice: plan.usdCents !== null ? centsToDecimal(plan.usdCents) : "",
+                  months: String(plan.billingMonths),
+                  features: plan.features,
+                  studioPages: plan.limits.studioPages ? String(plan.limits.studioPages) : "",
+                  usdAtRate: usdAtRate !== null ? formatMoney({ cents: usdAtRate, currency: "USD" }) : "",
+                }}
+                choices={STUDIO_PLAN_CHOICES.map((f) => ({ id: f, label: PLAN_FEATURES.find((d) => d.id === f)!.label }))}
+              />
+            );
+          })}
+        </div>
+      ) : (
+      <>
       <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(380px,100%),1fr))]">
-        {PLANS.map((id) => {
+        {REGULAR_PLANS.map((id) => {
           const plan = plans[id];
           const shown = planPrice(plan);
           // 52 The dollar price people outside Egypt see: the plan's own, or the pounds at the rate.
@@ -99,7 +152,7 @@ export default async function PlansPage() {
                     accountManager: plan.limits.accountManager,
                     customFeatures: plan.limits.customFeatures,
                   }}
-                  features={PLAN_FEATURES}
+                  features={PLAN_FEATURES.filter((f) => !STUDIO_ONLY_FEATURES.includes(f.id))}
                   limits={PLAN_LIMITS}
                   supportLevels={SUPPORT_LEVELS.map((s) => ({ id: s, label: SUPPORT_LABEL[s] }))}
                 />
@@ -150,6 +203,8 @@ export default async function PlansPage() {
           })}
         />
       </section>
+      </>
+      )}
       </ReadOnly>
     </>
   );

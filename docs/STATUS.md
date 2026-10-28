@@ -9,32 +9,43 @@ Last updated: 28 October 2026.
 ## Current release
 
 Phase 104 (delivery and courier companies) steps 104.1 to 104.5 are
-complete: a new app type, Delivery, with no website. Customers send a
+complete: a new project type in Yallapp Studio, Delivery, with no website
+(a Studio project only, on Studio's plans). Customers send a
 parcel (pickup and drop-off by address, their position, a pasted maps link
 or the map), see the price as they type, pay in cash or by card through the
 company's own gateway, and follow the stages and, where the company picks
 it, the courier on a map. The company's couriers get a Courier tab in the
 same app (no one else sees it): on duty, their jobs, waiting jobs to take,
 each step, cash to collect and the position shared while a parcel is on the
-way. The dashboard has Shipments, Couriers, Delivery settings and the
-services; prices by distance, area or fixed, cash or card, jobs given or
+way. The project's dashboard in Studio has Shipments, Couriers, Delivery settings
+and the services; prices by distance, area or fixed, cash or card, jobs given or
 taken and where couriers work are each company's choice. Delivery is the
-plan feature `delivery` (and `courier_app` for a second courier app), off
-on every plan until the team turns it on and prices it in Admin › Plans.
+Studio plan feature `delivery` (and `courier_app` for a second courier
+app), ticked per plan in Admin › Plans › Yallapp Studio.
 Still to come: the courier app under the company's name (104.6), review
 accounts for both roles (104.7) and the shared Yallapp Courier app (104.8,
 published together with the owner). Checks: redocly lint, platform unit
 tests, tsc, eslint, flutter analyze and widget tests.
 
-Phase 103 (Yallapp Studio) is complete: Dashboard › Studio designs a
-page freely on a canvas (shapes, texts, pictures, buttons, icons and lists
-from the app's source; drag, resize, layers, starting templates including
-one for delivery companies), saved in the Pages & look draft. The hosted
-API and plugin 0.4.25 serve the page's canvas (`AppPage.canvas`), and the
-app draws it natively, scaled to the screen. Studio is the plan feature
-`studio`, off on every plan: the team turns it on, with Studio's plans and
-prices, in Admin › Plans; until then a canvas isn't served. Checks: redocly
-lint, platform unit tests, e2e of the editors, composer lint, flutter
+Phase 103R (Yallapp Studio as the owner approved it) is under way. A
+Studio page is a tree of elements (`AppPage.studio`): rows, columns, layers,
+grids and sliders; texts, pictures, buttons, lists with the owner's own card,
+categories, videos, forms, maps, ratings and search, sized to fill, hug or a
+fixed size, light and dark, with motion. Done:
+- the contract;
+- the editor at `/studio/editor`, as in the approved design;
+- serving by the hosted API and plugin 0.4.26, with forms on a Studio page
+  answered like the form block;
+- the app drawing the tree natively;
+- Studio's own section of the account: its home with the projects, a new
+  project in three steps and each project's dashboard, as the owner
+  approved them; Studio projects (`App.section` "studio") apart from the
+  regular apps, on Studio's own plans (Admin › Plans › Yallapp Studio).
+
+Studio's plans are offered once the team turns them on and prices them;
+until then a project designs and tries everything, and publishing it to
+the stores waits for a plan. Checks: redocly lint, platform unit tests, e2e
+of Studio's section and editor, composer lint, plugin unit tests, flutter
 analyze and widget tests.
 
 Phase 102 (a store review account in every app, required) is complete:
@@ -108,7 +119,7 @@ test environment:
   Play Console › Monetization setup; the platform finds the app by its
   package name.
 - Plugin 0.4.23 goes to sites once the app update with in-app purchases is
-  in the stores; 0.4.24 (the header) and 0.4.25 (Studio pages) after the
+  in the stores; 0.4.24 (the header) and 0.4.26 (Studio pages) after the
   app update that shows them.
 
 ## Planned (to agree on before any work)

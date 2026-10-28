@@ -2343,11 +2343,11 @@ client (`studio` was off on every plan).
 | | Step | Done when |
 |---|---|---|
 | [x] | 103R.1 Contract: `AppPage.studio` (`StudioPage`: header, body and background; `StudioNode`: layout and content elements, their style, light and dark colours, motion, data, tap action and platforms), Studio's ready sections and templates; `Phase 103` canvas removed | redocly lint |
-| [ ] | 103R.2 Platform: Studio pages checked, kept, served by the hosted API with lists filled from the source, sent to the plugin; the account's sections (regular, Studio); Studio plans (Admin › Plans › Studio), licenses and payment on them; Studio-only project types | unit tests |
-| [ ] | 103R.3 The Studio section (designs approved by the owner first): its home with the projects, a new project, the project's dashboard around the editor | e2e |
+| [x] | 103R.2 Platform: Studio pages checked, kept, served by the hosted API with lists filled from the source, sent to the plugin; the account's sections (`App.section`: regular, Studio; migration 0094); Studio plans (`studio_1`–`studio_3`, Admin › Plans › Yallapp Studio, offered when the team turns them on, with Motion, own templates and pages per project), licenses and payment on them, each family on its own apps only; Studio-only project types (the delivery company, 104) | unit tests |
+| [x] | 103R.3 The Studio section (the four designs the owner approved): its home with the projects (`/studio`), a new project in three steps (`/studio/new`), the project's dashboard around the editor (`/studio/project`, the dashboard's pages in Studio's frame); a Studio project's dashboard addresses open there | e2e |
 | [x] | 103R.4 The editor, as in the approved design, every part working (`/studio/editor`, its own screen apart from the dashboard; "my templates" kept per account) | e2e |
-| [ ] | 103R.5 App: Studio pages drawn natively from the tree: layout, sizes, colours light and dark, fonts, motion, data lists, taps, platforms | flutter analyze and widget tests |
-| [ ] | 103R.6 Plugin: Studio pages served to WordPress apps, lists from the site, texts translated | composer lint, the plugin's integration suite |
+| [x] | 103R.5 App: Studio pages drawn natively from the tree: layout, sizes, colours light and dark, fonts, motion, data lists, taps, platforms | flutter analyze and widget tests |
+| [x] | 103R.6 Plugin 0.4.26: Studio pages served to WordPress apps, lists from the site, texts translated | composer lint, the plugin's integration suite |
 | [ ] | 103R.7 Studio's templates and ready sections per project type; "my templates" | e2e |
 
 ## Phase 104: Delivery and courier companies (Studio project type)
@@ -2370,14 +2370,18 @@ the owner: every option is built and each company picks its own.
   gateway, or both.
 - **Jobs**: the company gives each job to a courier, or couriers on duty
   take the waiting ones.
+- A Studio project only: made from Studio's new project (never among the
+  regular apps' types), its dashboard in Studio as the owner approved it
+  (Delivery: Shipments, Couriers, Paid orders, Delivery settings; today's
+  shipments and the couriers on duty).
 - The plan features `delivery` and `courier_app` (the second courier app)
-  are off on every plan until the owner turns them on and prices them in
-  Admin › Plans.
+  are Studio plan features, ticked per plan by the owner in Admin › Plans ›
+  Yallapp Studio.
 
 | Done | Step | Checked by |
 | --- | --- | --- |
 | [x] | 104.1 Contract: the Delivery and Courier tags (`/delivery/services`, `/delivery/quote`, `/delivery/locate`, `/delivery/shipments`, `/me/shipments` with cancel and pay, `/courier/me`, `/courier/jobs` with accept and status, `/courier/location`), `Config.delivery`, `User.roles`, the `shipment_update` and `courier_job` notifications, the `send_parcel`, `shipments` and `courier` screens, the `delivery_services` source, `app_type` `delivery`; the plan features `delivery` and `courier_app` | redocly lint |
-| [x] | 104.2 Platform: delivery settings, services, couriers and shipments (migration 0094), prices by distance, area or fixed, maps links read for their place, shipments paid by card through the company's gateway (its catalog payment page) or in cash, jobs given or taken (one courier wins a race), the courier's position kept only while a parcel is on the way and shown for 10 minutes, pushes to the customer and the couriers | `delivery-hosted.test.ts`, `isolation.test.ts` |
+| [x] | 104.2 Platform: delivery settings, services, couriers and shipments (migration 0095), prices by distance, area or fixed, maps links read for their place, shipments paid by card through the company's gateway (its catalog payment page) or in cash, jobs given or taken (one courier wins a race), the courier's position kept only while a parcel is on the way and shown for 10 minutes, pushes to the customer and the couriers | `delivery-hosted.test.ts`, `isolation.test.ts` |
 | [x] | 104.3 Dashboard (en/ar/tr): Shipments (give to a courier, move on, cancel), Couriers (add by mobile number or email, active, on duty), Delivery settings (prices, areas, payment, map, jobs, where couriers work), Our services; Admin › Settings › Maps | unit tests, tsc, eslint |
 | [x] | 104.4 App, customer: Send (service, pickup and drop-off by address, the phone's position, a pasted maps link or the map; recipient, parcel, payment, the price as it is typed), My shipments, a shipment's stages, the courier and their position on the map, pay and cancel | flutter analyze and widget tests |
 | [x] | 104.5 App, courier: the Courier tab only for the company's couriers (Account › Courier mode too), on and off duty, my jobs, waiting jobs and done ones, take a job, its steps (picked up, on the way, delivered, couldn't deliver with a reason, give back), cash to collect, calls and directions, the position shared while a parcel is on the way and the screen is open | widget tests |

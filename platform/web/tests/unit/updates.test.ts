@@ -127,7 +127,7 @@ describe("57 the bell's items", () => {
         build({ appId: APP_B.id, finishedAt: days(-15) }),
       ],
       payments: [payment({ paidAt: days(-3) }), payment({ status: "pending", paidAt: null }), payment({ paidAt: days(-31) }), payment({ purpose: "storage", storagePacks: [{ offer: "plus25", gb: 25 }] as PlanPayment["storagePacks"], amountCents: 25000 })],
-      planNames: { starter: "Starter", growth: "Growth+", pro: "Pro", business: "Business" },
+      planNames: { starter: "Starter", growth: "Growth+", pro: "Pro", business: "Business", studio_1: "Studio 1", studio_2: "Studio 2", studio_3: "Studio 3" },
     };
     const items = accountItems(sources, NOW);
     expect(items.map((i) => i.topic)).toEqual(["plan", "storage", "build_ready", "build_failed", "build_ready", "payment", "payment"]);

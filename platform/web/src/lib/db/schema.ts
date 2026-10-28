@@ -1,6 +1,7 @@
 import type {
   AppAuthKey,
   AppBackend,
+  AppSection,
   AppType,
   AppVertical,
   AssetKind,
@@ -215,6 +216,8 @@ export const apps = mysqlTable(
       .notNull()
       .references(() => clients.id, { onDelete: "cascade" }),
     appType: varchar("app_type", { length: 16 }).notNull().$type<AppType>(),
+    // 103R "studio" for a Yallapp Studio project (lib/data/types.ts AppSection).
+    section: varchar("section", { length: 8 }).notNull().default("regular").$type<AppSection>(),
     // 20 The kind of business (lib/app/kinds.ts); null for the engine's own wording.
     vertical: varchar("vertical", { length: 16 }).$type<AppVertical>(),
     siteUrl: varchar("site_url", { length: 255 }),

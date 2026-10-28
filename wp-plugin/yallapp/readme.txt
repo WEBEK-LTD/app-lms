@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.25
+Stable tag: 0.4.26
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,9 @@ Terms: https://developer.huawei.com/consumer/en/devservice/term
 Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 
 == Changelog ==
+
+= 0.4.26 =
+* Yallapp Studio pages are now built element by element (rows, columns, layers, grids and sliders, texts, pictures, buttons, lists with your own card, categories, forms, maps and more) and reach the app in the app's language with their lists filled from your site. A form on a Studio page sends its answers to you by email like the form block.
 
 = 0.4.25 =
 * Yallapp Studio: pages designed freely in the Yallapp dashboard's Studio reach the app with their layers, their texts in the app's language and their lists filled from your site.

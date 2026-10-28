@@ -4,6 +4,7 @@ import { servedLayout } from "../../pages/layout";
 import { pickLanguage, translatedBlock } from "../../pages/translate";
 import type { FormField, LayoutBlock } from "../../pages/types";
 import { hitRateLimit, type RateLimitRule } from "../../rate-limit";
+import { findNode } from "../../studio/tree";
 import type { HostedContext, HostedRequest, HostedResult } from "../service";
 
 /**
@@ -60,7 +61,11 @@ export async function handleFormAnswers(ctx: HostedContext, req: HostedRequest, 
   // The published form (the preview's draft for the owner trying it).
   const layout = await servedLayout(ctx.store, ctx.app, ctx.plan ?? null, { draft: Boolean(ctx.preview?.draft), now: ctx.now });
   const page = layout.pages.find((p) => p.slug === slug);
-  const block: LayoutBlock | undefined = page?.blocks.find((b) => b.id === blockId);
+  // 103R A form element of a Studio page is sent the same way.
+  const node = page?.studio ? findNode(page.studio.body, blockId) : null;
+  const block: LayoutBlock | undefined =
+    page?.blocks.find((b) => b.id === blockId) ??
+    (node?.type === "form" && node.form ? ({ id: node.id, type: "form", fields: node.form.fields, send_to: node.form.send_to } as LayoutBlock) : undefined);
   if (!page || !block || block.type !== "form" || !block.fields?.length) return error(404, "not_found", "This form isn't available anymore.");
   if (block.send_to !== "email") return error(400, "invalid_request", "This form can't be sent this way.");
   const body = req.body && typeof req.body === "object" ? (req.body as Record<string, unknown>) : {};
