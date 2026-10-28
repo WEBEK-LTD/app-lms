@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/api/models/models.dart';
+import 'package:yallapp/core/widgets/app_nav_bar.dart';
 import 'package:yallapp/modules/shared/account/notifications_screen.dart';
 
 import '../support/fake_api.dart';
@@ -223,5 +224,42 @@ void main() {
     );
     expect((box.decoration as BoxDecoration).color, const Color(0xFF0B1F26));
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a page set to show no tabs hides them, the others keep them', (
+    tester,
+  ) async {
+    final app = TestApp(
+      api: FakeApi()
+        ..navigation = navigationJson()
+        ..pages = {
+          'home': {
+            ...appPageJson(blocks: []),
+            'studio': {...studioJson(), 'show_tabs': false},
+          },
+        },
+      signedIn: true,
+    );
+    await app.pump(tester);
+    await TestApp.settle(tester, 10);
+    expect(find.text('Learn faster'), findsOneWidget);
+    expect(find.byType(AppNavBar), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a Studio page shows the tabs unless it says otherwise', (
+    tester,
+  ) async {
+    final app = TestApp(
+      api: FakeApi()
+        ..navigation = navigationJson()
+        ..pages = {
+          'home': {...appPageJson(blocks: []), 'studio': studioJson()},
+        },
+      signedIn: true,
+    );
+    await app.pump(tester);
+    await TestApp.settle(tester, 10);
+    expect(find.byType(AppNavBar), findsOneWidget);
   });
 }
