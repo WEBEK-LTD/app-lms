@@ -1,0 +1,1 @@
+ALTER TABLE `builds` ADD `variant` varchar(8) DEFAULT 'app' NOT NULL;

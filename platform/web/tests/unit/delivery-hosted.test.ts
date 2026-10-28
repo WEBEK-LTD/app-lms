@@ -87,6 +87,12 @@ describe("104 delivery prices", () => {
     // The second app for couriers needs it in the plan.
     expect(parseDeliverySettings({ ...form, courierApp: "bundle" }, DEFAULT_DELIVERY_SETTINGS, false)).toMatchObject({ ok: false, errors: { courierApp: expect.any(String) } });
     expect(parseDeliverySettings({ ...form, courierApp: "bundle" }, DEFAULT_DELIVERY_SETTINGS, true).ok).toBe(true);
+    // 104.6 Its own name, within the stores' limit; the iPhone Firebase file stays as saved.
+    expect(parseDeliverySettings({ ...form, courierApp: "bundle", courierAppName: " Speedy Riders " }, { ...DEFAULT_DELIVERY_SETTINGS, courierFirebaseIosAssetId: "plist-1" }, true)).toMatchObject({
+      ok: true,
+      value: { courierAppName: "Speedy Riders", courierFirebaseIosAssetId: "plist-1" },
+    });
+    expect(parseDeliverySettings({ ...form, courierApp: "bundle", courierAppName: "x".repeat(31) }, DEFAULT_DELIVERY_SETTINGS, true)).toMatchObject({ ok: false, errors: { courierAppName: expect.any(String) } });
     expect(parseServiceForm({ name: "Same-day", extra: "25", eta: "Within 4 hours", active: "on" })).toEqual({ ok: true, value: { name: "Same-day", description: null, extraCents: 25_00, eta: "Within 4 hours", active: true } });
     expect(parseCourierForm({ name: "Omar", phone: "0100 123 4567" }, "+20", false)).toEqual({ ok: true, value: { name: "Omar", phone: "+201001234567", email: null, vehicle: null } });
     expect(parseCourierForm({ name: "Omar", phone: "" }, "+20", false)).toMatchObject({ ok: false, errors: { phone: expect.any(String) } });

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/api/models/models.dart';
+import 'package:yallapp/core/auth/auth_controller.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/core/routing/paths.dart';
@@ -46,11 +47,13 @@ TestApp deliveryApp(
   FakeApi api, {
   bool signedIn = true,
   FakeLocator? locator,
+  AppRole role = AppRole.customer,
 }) => TestApp(
   api: api,
   appType: AppType.delivery,
   signedIn: signedIn,
   guest: !signedIn,
+  build: (b) => b.copyWith(role: role),
   overrides: [locatorProvider.overrideWithValue(locator ?? FakeLocator())],
 );
 
@@ -309,6 +312,65 @@ void main() {
     await go(app, tester, Paths.courier);
     expect(find.text('For our couriers'), findsOneWidget);
     expect(api.count('listCourierJobs'), 0);
+  });
+
+  group('104.6 The courier app', () {
+    testWidgets('opens on the courier\'s screen, with Courier and Account '
+        'only', (tester) async {
+      usePhone(tester);
+      // The company's customers' app sends its couriers here.
+      final api = deliveryApi(courier: true, courierApp: 'bundle');
+      final app = deliveryApp(api, role: AppRole.courier);
+      await app.pump(tester);
+      expect(find.text('On duty'), findsOneWidget);
+      expect(
+        app.container.read(shellTabsProvider).map((t) => t.path).toList(),
+        [Paths.courier, Paths.account],
+      );
+      expect(find.text('Send'), findsNothing);
+      // Nowhere to switch to the customer's screens.
+      expect(find.byKey(const ValueKey('courier-customer-view')), findsNothing);
+    });
+
+    testWidgets('asks to sign in first', (tester) async {
+      usePhone(tester);
+      final api = deliveryApi(courierApp: 'bundle');
+      final app = deliveryApp(api, role: AppRole.courier, signedIn: false);
+      await app.pump(tester);
+      expect(
+        app.container.read(appRouterProvider).state.uri.path,
+        Paths.signIn,
+      );
+      expect(api.count('listCourierJobs'), 0);
+    });
+
+    testWidgets('someone who isn\'t one of the couriers is told so', (
+      tester,
+    ) async {
+      usePhone(tester);
+      final api = deliveryApi(courierApp: 'bundle');
+      final app = deliveryApp(api, role: AppRole.courier);
+      await app.pump(tester);
+      expect(find.text('For our couriers'), findsOneWidget);
+      expect(api.count('listCourierJobs'), 0);
+    });
+  });
+
+  test('104.6 the courier app starts at the courier\'s screen', () {
+    const out = SignedOut();
+    expect(
+      redirectFor(
+        location: '/',
+        auth: out,
+        guestMode: true,
+        home: Paths.courier,
+      ),
+      Paths.courier,
+    );
+    expect(
+      redirectFor(location: Paths.courier, auth: out, guestMode: true),
+      '${Paths.signIn}?from=%2Fcourier',
+    );
   });
 
   testWidgets('104 "My location" sets the pickup', (tester) async {

@@ -54,7 +54,7 @@ export default async function AccountDeletionPage({ searchParams }: PageProps<"/
       store.listPlanPayments({ clientId: client.id, limit: 500 }),
       store.listTeamMembers(client.id),
     ]);
-    const builds = (await Promise.all(apps.map((app) => store.listBuildsByApp(app.id, 500)))).flat();
+    const builds = (await Promise.all(apps.map((app) => store.listBuildsByApp(app.id, 500, "all")))).flat();
     return { client, apps, builds, paid: payments.filter((p) => p.status === "paid").length, team: team.length };
   }
 

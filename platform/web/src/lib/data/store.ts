@@ -70,7 +70,7 @@ import type { Article, ArticleCategory, ArticleInput, NewsSettings } from "./typ
 // 28 Events & tickets
 import type { CheckInResult, EventInput, EventRecord, EventSettings, EventTicket, TicketClaim, TicketClaimRefusal, TicketType, TicketTypeInput } from "./types";
 // 34 Yallapp sign-in for own API apps
-import type { AppAuthKey } from "./types";
+import type { AppAuthKey, BuildVariant } from "./types";
 // 63
 import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 // 29 Charity & donations
@@ -241,7 +241,8 @@ export interface DataStore {
   createBuild(build: Omit<Build, "number" | "versionCode">, options?: { exclusive?: boolean }): Promise<Build>;
   getBuild(id: string): Promise<Build | null>;
   /** An app's builds, newest first. */
-  listBuildsByApp(appId: string, limit: number): Promise<Build[]>;
+  /** 104.6 The app's own builds, or the courier app's, or every one ("all"). */
+  listBuildsByApp(appId: string, limit: number, variant?: BuildVariant | "all"): Promise<Build[]>;
   /** Oldest first (the pipeline's queue), or newest first with `newestFirst` (the admin's lists). */
   listBuilds(input: { status?: BuildStatus; limit: number; newestFirst?: boolean }): Promise<Build[]>;
   updateBuild(id: string, patch: BuildPatch, now: Date): Promise<void>;

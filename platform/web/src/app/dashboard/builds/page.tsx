@@ -6,7 +6,7 @@ import { BuildBadge, BuildStages, BuildStatusText } from "@/components/build-sta
 import { Icon } from "@/components/icon";
 import { LinkCard } from "@/components/dashboard";
 import { EmptyState, Notice, PageHeader, Section, formatDate, formatDateTime } from "@/components/ui";
-import { hasStoreKeys, isSetupComplete, nextStep } from "@/lib/app/setup";
+import { firebaseListsCourierApp, hasStoreKeys, isSetupComplete, nextStep } from "@/lib/app/setup";
 import { failedApiCheck } from "@/lib/app/api-check-notice";
 import { appLabel, licensePageName, usesPlugin } from "@/lib/app/label";
 import { wordsOf } from "@/lib/app/kinds";
@@ -40,6 +40,8 @@ import { FIRST_SHARES, nextFraction } from "@/lib/publishing/rollout";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
+import { courierAppNameOf, courierBundleIdOf, courierPackageOf } from "@/lib/delivery/courier-app";
+import { deliverySettingsOf } from "@/lib/delivery/settings";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("builds.title") };
@@ -160,7 +162,8 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   // 87.1 What the next build would trip over.
   const checks = currentPlan ? await preflightChecks(preflightDeps(store), app, { ios: hasFeature(currentPlan, "ios"), autoPublish: hasFeature(currentPlan, "auto_publish") }) : [];
   const setupDone = isSetupComplete(app, plan, effective);
-  const running = isInProgress(current, now);
+  // 104.6 One build at a time for the app, its courier app's included.
+  const running = isInProgress((await store.listBuildsByApp(app.id, 1, "all"))[0] ?? null, now);
   const stalled = current !== null && isStalled(current, now);
   const licenseName = k(licensePageName(app));
   const licenseProblem =
@@ -174,6 +177,30 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   const disabledReason = licenseProblem ?? (!setupDone ? t("builds.finishSetup") : running ? t("builds.inProgress") : null);
   const wa = { wa: (chunk: string) => <a href={contact.whatsappUrl}>{chunk}</a> };
   const autoRebuildTo = lowestPlanWith(effective, (p) => hasFeature(p, "auto_rebuild"), plan);
+
+  // 104.6 The delivery company's courier app, when it chose one in its own name.
+  const delivery = app.appType === "delivery" ? deliverySettingsOf(await store.getDeliverySettings(app.id)) : null;
+  const courier =
+    delivery?.courierApp === "bundle"
+      ? {
+          name: courierAppNameOf(app, delivery),
+          android: app.androidPackage ? courierPackageOf(app.androidPackage) : "—",
+          ios: app.iosBundleId ? courierBundleIdOf(app.iosBundleId) : "—",
+          onPlan: currentPlan ? hasFeature(currentPlan, "courier_app") : false,
+          firebaseAndroid: await firebaseListsCourierApp(app, preflightDeps(store)),
+          firebaseIos: Boolean(delivery.courierFirebaseIosAssetId),
+          builds: await store.listBuildsByApp(app.id, 20, "courier"),
+        }
+      : null;
+  const courierCurrent = courier?.builds[0] ?? null;
+  const courierReady = courier?.builds.find((b) => b.status === "ready") ?? null;
+  const courierStalled = courierCurrent !== null && isStalled(courierCurrent, now);
+  const courierFileRow = (kind: ArtifactKind) => {
+    const url = courierReady?.artifacts.find((a) => a.kind === kind)?.url;
+    const link = url ? fileLink(url, now) : null;
+    const unavailable = fileUnavailableReason({ kind, build: courierReady, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null });
+    return { href: unavailable === null && courierReady ? dashboardFileHref(courierReady.id, kind) : null, unavailable: unavailable === null ? null : k(unavailable) };
+  };
 
   return (
     <>
@@ -358,6 +385,69 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
           <DownloadRow t={t} title={k(ARTIFACT_LABEL.store_assets)} text={k(fileDescription("store_assets", autoPublish))} {...fileRow("store_assets")} last />
         </ul>
       </Section>
+
+      {courier ? (
+        <Section id="courier-app" titleId="h-courier-app" title={t("builds.courierTitle")} description={t("builds.courierText", { name: courier.name, android: courier.android, ios: courier.ios })}>
+          <div className="flex flex-col gap-4">
+            {!courier.onPlan ? (
+              <Notice tone="warn" icon="info">
+                {t("builds.courierOff")}
+              </Notice>
+            ) : null}
+            <ul className="m-0 flex list-none flex-col gap-2 p-0 text-sm">
+              <li className="flex items-start gap-2" data-courier-firebase="android">
+                <Icon name={courier.firebaseAndroid ? "check_circle" : "info"} size={20} className={courier.firebaseAndroid ? "text-success" : "text-ink-4"} />
+                <span>{courier.firebaseAndroid ? t("builds.courierFirebaseAndroidOk") : t("builds.courierFirebaseAndroidMissing", { android: courier.android })}</span>
+              </li>
+              <li className="flex items-start gap-2" data-courier-firebase="ios">
+                <Icon name={courier.firebaseIos ? "check_circle" : "info"} size={20} className={courier.firebaseIos ? "text-success" : "text-ink-4"} />
+                <span>{courier.firebaseIos ? t("builds.courierFirebaseIosOk") : t("builds.courierFirebaseIosMissing")}</span>
+              </li>
+            </ul>
+            <StartBuildForm
+              courier
+              suggestedVersion={suggestedVersion(courierCurrent)}
+              disabledReason={disabledReason ?? (!courier.onPlan ? t("builds.courierOff") : null)}
+            />
+            {courierCurrent ? (
+              <div className="flex flex-col gap-4 rounded-xl border border-line p-4" data-courier-build>
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="flex min-w-0 flex-col gap-1">
+                    <span className="text-sm font-semibold text-muted">{t("builds.courierLatest")}</span>
+                    <h3 className="m-0 text-base font-bold">{t("builds.buildTitle", { number: courierCurrent.number, version: courierCurrent.versionName })}</h3>
+                  </div>
+                  <BuildBadge status={courierCurrent.status} lang={lang} />
+                </div>
+                <Times build={courierCurrent} now={now} text={text} />
+                <BuildStages stages={courierCurrent.stages} lang={lang} />
+                {courierCurrent.status === "queued" || courierCurrent.status === "building" ? (
+                  <p className="m-0 text-sm text-muted">{k(statusExplanation(courierCurrent, now))}</p>
+                ) : null}
+                {courierCurrent.status === "failed" ? (
+                  <Notice tone="danger" icon="error">
+                    {richText(t("builds.failedNotice", { reason: k(failureReason(courierCurrent)) }), { b: (chunk) => <span className="font-semibold">{chunk}</span> })}
+                  </Notice>
+                ) : null}
+                {(courierCurrent.status === "failed" || courierStalled) && !licenseProblem && setupDone && courier.onPlan ? (
+                  <RetryBuildForm courier versionName={courierCurrent.versionName} />
+                ) : null}
+              </div>
+            ) : (
+              <p className="m-0 text-sm text-muted">{t("builds.courierNone")}</p>
+            )}
+            {courierReady ? (
+              <div className="overflow-hidden rounded-xl border border-line">
+                <h3 className="m-0 border-b border-line-soft px-4 py-3 text-base font-bold sm:px-6">{t("builds.courierFiles")}</h3>
+                <ul className="m-0 list-none p-0">
+                  {(["apk", "aab", "ipa"] as const).map((kind, i, all) => (
+                    <DownloadRow key={kind} t={t} title={k(ARTIFACT_LABEL[kind])} text={k(fileDescription(kind, autoPublish))} last={i === all.length - 1} {...courierFileRow(kind)} />
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </div>
+        </Section>
+      ) : null}
 
       {/* 31 Apple's rules for what this app sells; nothing for apps that sell nothing. */}
       {wordsOf(app).iphone ? (

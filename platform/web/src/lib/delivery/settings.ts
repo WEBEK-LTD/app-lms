@@ -20,6 +20,8 @@ export const DEFAULT_DELIVERY_SETTINGS: DeliverySettings = {
   tracking: "stages",
   assignment: "dispatch",
   courierApp: "same",
+  courierAppName: null,
+  courierFirebaseIosAssetId: null,
 };
 
 export const DELIVERY_LIMITS = {
@@ -35,6 +37,8 @@ export const DELIVERY_LIMITS = {
   /** The largest price or amount a company can enter. */
   maxCents: 100_000_00,
   maxKm: 2000,
+  /** 104.6 The stores' limit for an app's name. */
+  courierAppName: 30,
 } as const;
 
 export function deliverySettingsOf(saved: DeliverySettings | null): DeliverySettings {

@@ -61,7 +61,7 @@ import type {
   ChatReportOutcome,
 } from "../data/types";
 // 11.6 and 11.8
-import type { BuildFailure, BuildRelease, ListingTranslation, ReviewsRow, RolloutState, ScreenshotFrame, StagedRelease } from "../data/types";
+import type { BuildFailure, BuildRelease, BuildVariant, ListingTranslation, ReviewsRow, RolloutState, ScreenshotFrame, StagedRelease } from "../data/types";
 import type { ApiWebhookData, OwnFontFile, StorePurchaseEventKind, StoreAccountSource, StoreBillingSettings, StorePlatform, StoreProductKind, StoreProductSync } from "../data/types";
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
 import type { Plan } from "../plans";
@@ -344,6 +344,8 @@ export const builds = mysqlTable(
       .notNull()
       .references(() => apps.id, { onDelete: "cascade" }),
     number: int("number").notNull(),
+    // 104.6 "app", or "courier" for a delivery company's courier app.
+    variant: varchar("variant", { length: 8 }).notNull().default("app").$type<BuildVariant>(),
     versionName: varchar("version_name", { length: 32 }).notNull(),
     versionCode: int("version_code").notNull(),
     status: varchar("status", { length: 16 }).notNull().$type<"queued" | "building" | "ready" | "failed">(),

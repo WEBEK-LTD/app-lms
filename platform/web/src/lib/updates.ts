@@ -256,7 +256,7 @@ export async function loadUpdates(store: DataStore, reader: UpdatesReader, now: 
     store.listAnnouncements(),
     sees.notices ? store.listOwnerNotices({ clientId: reader.clientId, limit: 50 }).then((list) => list.filter((n) => !n.appId || appIds.has(n.appId))) : [],
     sees.payments ? store.listPlanPayments({ clientId: reader.clientId, limit: 20 }) : [],
-    sees.builds ? Promise.all(reader.apps.map((a) => store.listBuildsByApp(a.id, 10))).then((lists) => lists.flat()) : [],
+    sees.builds ? Promise.all(reader.apps.map((a) => store.listBuildsByApp(a.id, 10, "all"))).then((lists) => lists.flat()) : [],
     getPlans(store),
   ]);
   const planNames = Object.fromEntries(Object.entries(plans).map(([id, info]) => [id, info.name])) as Record<Plan, string>;

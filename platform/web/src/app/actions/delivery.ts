@@ -9,6 +9,7 @@ import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
 import { SHIPMENT_STATUSES } from "@/lib/data/types";
+import { courierPlistProblem } from "@/lib/delivery/courier-app";
 import { assignShipment, moveShipment } from "@/lib/delivery/flow";
 import { parseCourierForm, parseDeliverySettings, parseServiceForm } from "@/lib/delivery/forms";
 import { COMPANY_STEPS, shipmentReference } from "@/lib/delivery/service";
@@ -29,6 +30,8 @@ import type { TeamPermission } from "@/lib/team/permissions";
  */
 
 const SERVICE_IMAGE_MAX_BYTES = 3 * 1024 * 1024;
+/** 104.6 A GoogleService-Info.plist is a few kilobytes. */
+const FIREBASE_FILE_MAX_BYTES = 64 * 1024;
 
 async function requireDeliveryApp(permission: TeamPermission): Promise<ClientContext & { app: App }> {
   const context = await clientFor(permission);
@@ -56,6 +59,20 @@ export async function saveDeliverySettingsAction(_: FormState, formData: FormDat
   const plan = await appPlan(store, context.license, now);
   const parsed = parseDeliverySettings(values, saved, hasFeature(plan, "courier_app"));
   if (!parsed.ok) return { errors: parsed.errors, values };
+  // 104.6 The courier iPhone app's Firebase file, checked against its bundle ID.
+  const plist = formData.get("courierFirebaseIos");
+  if (plist && typeof plist !== "string" && plist.size > 0) {
+    if (!app.iosBundleId) return { errors: { courierFirebaseIos: "Add your app's bundle ID in Publishing first." }, values };
+    if (plist.size > FIREBASE_FILE_MAX_BYTES) return { errors: { courierFirebaseIos: "This file is too large for a GoogleService-Info.plist." }, values };
+    const data = Buffer.from(await plist.arrayBuffer());
+    const problem = courierPlistProblem(data.toString("utf8"), app.iosBundleId);
+    if (problem) return { errors: { courierFirebaseIos: problem }, values };
+    const assetId = newId();
+    const blobKey = `assets/${context.client.id}/${assetId}.plist`;
+    await getBlobStore().put(blobKey, data, "application/xml");
+    await store.createAsset({ id: assetId, clientId: context.client.id, kind: "firebase_ios", blobKey, contentType: "application/xml", size: data.length, createdAt: now });
+    parsed.value.courierFirebaseIosAssetId = assetId;
+  }
   await store.saveDeliverySettings(app.id, parsed.value, now);
   await recordStaffChange(context, `Saved the delivery settings (${parsed.value.pricing} pricing, ${parsed.value.tracking} tracking)`);
   refresh();

@@ -21,6 +21,8 @@ export interface BuildConfig {
   app_type: AppType;
   /** 20 The kind of business; left out when the app has none. */
   vertical?: AppVertical;
+  /** 104.6 "courier": a delivery company's second app for its couriers; left out for the customers' app. */
+  role?: "customer" | "courier";
   /** Only for apps whose content isn't served by the WordPress plugin. */
   api_base_url?: string;
   /** 34 Own API apps Yallapp signs people in to: the hosted API's address for the app, for sign-in and the account. */

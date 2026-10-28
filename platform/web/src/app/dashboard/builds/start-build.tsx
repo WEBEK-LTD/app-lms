@@ -7,20 +7,32 @@ import { Icon } from "@/components/icon";
 import { initialFormState } from "@/lib/forms";
 import { useDashT, useKnownText } from "@/components/dashboard-i18n";
 
-export function StartBuildForm({ suggestedVersion, disabledReason }: { suggestedVersion: string; disabledReason: string | null }) {
+export function StartBuildForm({
+  suggestedVersion,
+  disabledReason,
+  courier = false,
+}: {
+  suggestedVersion: string;
+  disabledReason: string | null;
+  /** 104.6 Starts a build of the delivery company's courier app. */
+  courier?: boolean;
+}) {
   const t = useDashT();
   const known = useKnownText();
   const [state, action] = useActionState(startBuildAction, initialFormState);
   const error = state.errors?.versionName;
+  const id = courier ? "f-courierVersionName" : "f-versionName";
+  const hint = courier ? "start-courier-build-hint" : "start-build-hint";
   return (
-    <form action={action} noValidate className="flex flex-col items-stretch gap-2 sm:items-end">
+    <form action={action} noValidate className={`flex flex-col items-stretch gap-2 ${courier ? "" : "sm:items-end"}`}>
+      {courier ? <input type="hidden" name="variant" value="courier" /> : null}
       <div className="flex flex-wrap items-end gap-2.5">
         <div className="flex flex-col gap-1">
-          <label htmlFor="f-versionName" className="text-[13px] font-semibold text-muted">
+          <label htmlFor={id} className="text-[13px] font-semibold text-muted">
             {t("builds.appVersion")}
           </label>
           <input
-            id="f-versionName"
+            id={id}
             name="versionName"
             defaultValue={state.values?.versionName ?? suggestedVersion}
             inputMode="decimal"
@@ -28,21 +40,23 @@ export function StartBuildForm({ suggestedVersion, disabledReason }: { suggested
             className="input input-sm w-[110px]"
             dir="ltr"
             aria-invalid={error ? true : undefined}
-            aria-describedby={error ? "f-versionName-error" : undefined}
+            aria-describedby={error ? `${id}-error` : undefined}
           />
         </div>
-        <SubmitButton className="h-11" pendingText={t("builds.starting")} disabled={Boolean(disabledReason)} describedBy={disabledReason ? "start-build-hint" : undefined}>
-          {t("builds.startNew")}
+        <SubmitButton className="h-11" pendingText={t("builds.starting")} disabled={Boolean(disabledReason)} describedBy={disabledReason ? hint : undefined}>
+          {t(courier ? "builds.courierStart" : "builds.startNew")}
         </SubmitButton>
       </div>
       {error ? (
-        <span id="f-versionName-error" className="text-[13px] font-semibold text-danger">
+        <span id={`${id}-error`} className="text-[13px] font-semibold text-danger">
           {known(error)}
         </span>
       ) : null}
-      {disabledReason ? <span id="start-build-hint" className="max-w-[360px] text-[13px] text-muted sm:text-end">
+      {disabledReason ? (
+        <span id={hint} className={`max-w-[360px] text-[13px] text-muted ${courier ? "" : "sm:text-end"}`}>
           {disabledReason}
-        </span> : null}
+        </span>
+      ) : null}
       <div className="sm:max-w-[420px]">
         <FormMessage message={state.message} ok={state.ok} />
       </div>
@@ -51,12 +65,13 @@ export function StartBuildForm({ suggestedVersion, disabledReason }: { suggested
 }
 
 /** "Try again": the same app version as the build that didn't finish (nothing of it was published). */
-export function RetryBuildForm({ versionName }: { versionName: string }) {
+export function RetryBuildForm({ versionName, courier = false }: { versionName: string; courier?: boolean }) {
   const t = useDashT();
   const [state, action] = useActionState(retryBuildAction, initialFormState);
   return (
     <form action={action} className="flex flex-col items-start gap-2">
       <input type="hidden" name="versionName" value={versionName} />
+      {courier ? <input type="hidden" name="variant" value="courier" /> : null}
       <SubmitButton variant="secondary" className="h-[42px]" pendingText={t("builds.starting")}>
         <Icon name="refresh" size={20} />
         {t("builds.tryAgain")}

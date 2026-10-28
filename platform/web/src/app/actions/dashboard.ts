@@ -32,7 +32,7 @@ import { encrypt } from "@/lib/crypto/encryption";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import type { AppPatch } from "@/lib/data/store";
-import { DEFAULT_HOSTED_SETTINGS, type App, type AssetKind, type ConnectorConfig } from "@/lib/data/types";
+import { DEFAULT_HOSTED_SETTINGS, type App, type AssetKind, type BuildVariant, type ConnectorConfig } from "@/lib/data/types";
 import { appUrl, encryptionKey, sessionSecret, superAdminEmails } from "@/lib/env";
 import { shopifyAdminToken, shopifyConnectorConfig, shopifyToken } from "@/lib/hosted/connectors";
 import { oauthRedirectUri, partnerAppCredentials, signOAuthState } from "@/lib/hosted/connectors/partner-apps";
@@ -867,9 +867,11 @@ export async function uploadAssetAction(formData: FormData): Promise<UploadResul
 async function startBuild(
   context: ClientContext & { app: App },
   versionName: string,
+  /** 104.6 "courier": the delivery company's courier app. */
+  variant: BuildVariant = "app",
 ): Promise<{ ok: true; number: number; versionName: string } | { ok: false; message: string; versionTooLow: boolean }> {
   const store = await getStore();
-  const result = await queueBuild(store, { client: context.client, app: context.app, license: context.license, versionName }, new Date(), assetUrl, preflightDeps(store));
+  const result = await queueBuild(store, { client: context.client, app: context.app, license: context.license, versionName, variant }, new Date(), assetUrl, preflightDeps(store));
   if (!result.ok && result.reason === "preflight") {
     // 87.1 The first thing to fix; the Builds page lists them all.
     const first = result.checks.find((c) => c.level === "error")!;
@@ -887,13 +889,14 @@ async function startBuild(
       build_running: "A build is already in progress. You can start a new one when it finishes.",
       version_too_low: "Use the same or a higher app version than your last build.",
       invalid_config: "Some app details aren't valid. Check the app setup and try again.",
+      courier_app_off: "The courier app isn't on. Choose \"In a second app in your name\" in Delivery settings, on a plan with it.",
     } as const;
     return { ok: false, message: messages[result.reason], versionTooLow: result.reason === "version_too_low" };
   }
   // 87.4 The automatic build that was waiting is this one now.
-  if (context.app.autoBuildDueAt) await store.updateApp(context.app.id, { autoBuildDueAt: null }, new Date());
+  if (variant === "app" && context.app.autoBuildDueAt) await store.updateApp(context.app.id, { autoBuildDueAt: null }, new Date());
   await startPipeline();
-  await recordStaffChange(context, `Started build #${result.build.number} (${result.build.versionName})`);
+  await recordStaffChange(context, `Started ${variant === "courier" ? "courier app " : ""}build #${result.build.number} (${result.build.versionName})`);
   revalidatePath("/dashboard", "layout");
   return { ok: true, number: result.build.number, versionName: result.build.versionName };
 }
@@ -903,7 +906,7 @@ export async function startBuildAction(_: FormState, formData: FormData): Promis
   const values = formValues(formData);
   const parsed = startBuildSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
-  const result = await startBuild(context, parsed.data.versionName);
+  const result = await startBuild(context, parsed.data.versionName, formData.get("variant") === "courier" ? "courier" : "app");
   if (!result.ok) return { message: result.message, errors: result.versionTooLow ? { versionName: result.message } : undefined, values };
   return { ok: true, message: `Build #${result.number} is queued.`, values: { versionName: bumpPatch(result.versionName) } };
 }
@@ -916,7 +919,7 @@ export async function retryBuildAction(_: FormState, formData: FormData): Promis
   const context = await requireApp("settings");
   const parsed = startBuildSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { message: "This build can't be started again. Use Start new build." };
-  const result = await startBuild(context, parsed.data.versionName);
+  const result = await startBuild(context, parsed.data.versionName, formData.get("variant") === "courier" ? "courier" : "app");
   if (!result.ok) return { message: result.message };
   redirect(`/dashboard/builds?queued=${result.number}`);
 }
@@ -931,10 +934,11 @@ export async function rebuildBuildAction(_: FormState, formData: FormData): Prom
   const store = await getStore();
   const from = await store.getBuild(String(formData.get("buildId") ?? ""));
   if (!from || from.appId !== context.app.id || from.status !== "ready" || !from.sourceCommit) return { message: "This build can't be rebuilt as it was." };
-  const latest = (await store.listBuildsByApp(context.app.id, 1))[0] ?? null;
+  const variant = from.variant ?? "app";
+  const latest = (await store.listBuildsByApp(context.app.id, 1, variant))[0] ?? null;
   const result = await queueBuild(
     store,
-    { client: context.client, app: context.app, license: context.license, versionName: suggestedVersion(latest), from },
+    { client: context.client, app: context.app, license: context.license, versionName: suggestedVersion(latest), from, variant },
     new Date(),
     assetUrl,
     preflightDeps(store),

@@ -2,7 +2,9 @@ import { blocking, preflightChecks, type PreflightCheck, type PreflightDeps } fr
 import { newId } from "../crypto/tokens";
 import { BuildRunningError, type DataStore } from "../data/store";
 import { isInProgress, STALLED_MESSAGE } from "../builds/view";
-import type { App, AppType, AppVertical, Build, BuildRelease, BuildStages, Client, License, StoreListing } from "../data/types";
+import type { App, AppType, AppVertical, Build, BuildRelease, BuildStages, BuildVariant, Client, License, StoreListing } from "../data/types";
+import { courierBuildConfig, courierListing, firebaseHasCourierApp } from "../delivery/courier-app";
+import { deliverySettingsOf } from "../delivery/settings";
 import type { BuildConfig } from "../build-config/types";
 import { validateBuildConfig, type ConfigError } from "../build-config/validate";
 import { lookFont } from "../fonts/look";
@@ -255,14 +257,22 @@ export function buildHasIos(build: Pick<Build, "stages">): boolean {
 
 export type QueueBuildResult =
   | { ok: true; build: Build; checks: PreflightCheck[] }
-  | { ok: false; reason: "setup_incomplete" | "license_inactive" | "build_running" | "version_too_low" | "invalid_config"; errors?: ConfigError[] }
+  | { ok: false; reason: "setup_incomplete" | "license_inactive" | "build_running" | "version_too_low" | "invalid_config" | "courier_app_off"; errors?: ConfigError[] }
   | { ok: false; reason: "preflight"; checks: PreflightCheck[] };
 
 /** Validates the config against the schema and queues a build with a snapshot of it. `license` is the app's own. */
 export async function queueBuild(
   store: DataStore,
   /** 87.3 `from`: an earlier build of the app to rebuild as it was (its config, its listing and its code). */
-  input: { client: Client; app: App; license: License | null; versionName: string; from?: Build },
+  input: {
+    client: Client;
+    app: App;
+    license: License | null;
+    versionName: string;
+    from?: Build;
+    /** 104.6 "courier": the delivery company's courier app, built from the same app. */
+    variant?: BuildVariant;
+  },
   now: Date,
   assetUrl: (assetId: string) => string,
   /** 87.1 The checks before a build (lib/builds/preflight.ts); without them none run. */
@@ -284,21 +294,36 @@ export async function queueBuild(
   const planId = currentPlanId(license, now);
   const plan = plans[planId];
   if (!isSetupComplete(app, planId, plans)) return { ok: false, reason: "setup_incomplete" };
-  const previous = await store.listBuildsByApp(app.id, 1);
-  const last = previous[0];
-  if (isInProgress(last, now)) return { ok: false, reason: "build_running" };
+  const variant = input.variant ?? "app";
+  // 104.6 The courier app: a delivery company that chose it, on a plan with it.
+  const delivery = variant === "courier" ? deliverySettingsOf(await store.getDeliverySettings(app.id)) : null;
+  if (delivery && (app.appType !== "delivery" || delivery.courierApp !== "bundle" || !hasFeature(plan, "courier_app"))) {
+    return { ok: false, reason: "courier_app_off" };
+  }
+  // One build at a time per app, whichever of its apps; versions go up within each.
+  const running = (await store.listBuildsByApp(app.id, 1, "all"))[0];
+  if (isInProgress(running, now)) return { ok: false, reason: "build_running" };
+  const last = (await store.listBuildsByApp(app.id, 1, variant))[0];
   if (last && compareVersions(input.versionName, last.versionName) < 0) return { ok: false, reason: "version_too_low" };
 
   // The store assigns the final version code; 1 is a valid placeholder for validation.
   // 87.3 A rebuild takes the earlier build's config as it was, with the new version.
-  const config = input.from
+  const base = input.from
     ? ({ ...input.from.config, version_name: input.versionName, version_code: 1 } as typeof input.from.config)
     : buildConfigFor(app, client, { name: input.versionName, code: 1 }, assetUrl);
+  const config =
+    delivery && !input.from
+      ? courierBuildConfig(base, app, delivery, {
+          android: await firebaseListsCourierApp(app, preflight),
+          iosConfigUrl: delivery.courierFirebaseIosAssetId ? assetUrl(delivery.courierFirebaseIosAssetId) : null,
+        })
+      : base;
   const validation = validateBuildConfig(config);
   if (!validation.ok) return { ok: false, reason: "invalid_config", errors: validation.errors };
-  const listing = input.from ? input.from.storeListing : storeListingOf(app, assetUrl);
+  const appListing = input.from ? input.from.storeListing : storeListingOf(app, assetUrl);
+  const listing = appListing && delivery && !input.from ? courierListing(appListing, app, delivery) : appListing;
   if (!listing) return { ok: false, reason: "setup_incomplete" };
-  if (input.from && (input.from.appId !== app.id || !input.from.sourceCommit)) return { ok: false, reason: "invalid_config" };
+  if (input.from && (input.from.appId !== app.id || !input.from.sourceCommit || (input.from.variant ?? "app") !== variant)) return { ok: false, reason: "invalid_config" };
 
   // "We publish for you" and the iOS app come with the plan (and its switches, 11.5).
   const autoPublish = hasFeature(plan, "auto_publish");
@@ -307,8 +332,8 @@ export async function queueBuild(
   const checks = preflight ? await preflightChecks(preflight, app, { ios, autoPublish }) : [];
   if (blocking(checks).length > 0) return { ok: false, reason: "preflight", checks };
   // A build that stopped without reporting (a cancelled or crashed run) mustn't block the app for ever: close it.
-  if (last && (last.status === "queued" || last.status === "building")) {
-    await store.updateBuild(last.id, { status: "failed", message: STALLED_MESSAGE, finishedAt: now }, now);
+  if (running && (running.status === "queued" || running.status === "building")) {
+    await store.updateBuild(running.id, { status: "failed", message: STALLED_MESSAGE, finishedAt: now }, now);
   }
   let build: Build;
   try {
@@ -317,6 +342,7 @@ export async function queueBuild(
         id: newId(),
         clientId: client.id,
         appId: app.id,
+        variant,
         versionName: input.versionName,
         status: "queued",
         stages: initialStages(autoPublish, app, ios),
@@ -342,6 +368,13 @@ export async function queueBuild(
     throw error;
   }
   return { ok: true, build, checks };
+}
+
+/** 104.6 Whether the app's google-services.json has the courier app too: its Android build then gets pushes. */
+export async function firebaseListsCourierApp(app: App, preflight: PreflightDeps | undefined): Promise<boolean> {
+  if (!app.firebaseAndroidAssetId || !app.androidPackage || !preflight) return false;
+  const data = await preflight.readAsset(app.firebaseAndroidAssetId);
+  return data ? firebaseHasCourierApp(data.toString("utf8"), app.androidPackage) : false;
 }
 
 /** 89.2 A build's release from the app's choice; null when nothing is staged. */

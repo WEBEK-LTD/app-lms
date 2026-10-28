@@ -59,12 +59,17 @@ final _defaultTabs = [
     label: (c) => c.l10n.tabShipments,
     location: Paths.shipments,
   ),
-  ShellTab(
-    icon: AppIcons.account,
-    label: (c) => c.l10n.tabAccount,
-    location: Paths.account,
-  ),
+  _accountTab,
 ];
+
+final _accountTab = ShellTab(
+  icon: AppIcons.account,
+  label: (c) => c.l10n.tabAccount,
+  location: Paths.account,
+);
+
+/// 104.6 The courier app's tabs: the courier's screen and the account.
+final courierAppTabs = [courierTab, _accountTab];
 
 /// 104 The Courier tab, for the company's couriers only.
 final courierTab = ShellTab(

@@ -57,6 +57,7 @@ import type {
   Artifact,
   Asset,
   Build,
+  BuildVariant,
   BuildStatus,
   CatalogCategory,
   CatalogOrder,
@@ -549,9 +550,14 @@ export class MysqlStore implements DataStore {
     return rows[0] ? toBuild(rows[0]) : null;
   }
 
-  async listBuildsByApp(appId: string, limit: number): Promise<Build[]> {
+  async listBuildsByApp(appId: string, limit: number, variant: BuildVariant | "all" = "app"): Promise<Build[]> {
     const rows = await this.run((db) =>
-      db.select().from(schema.builds).where(eq(schema.builds.appId, appId)).orderBy(desc(schema.builds.number)).limit(limit),
+      db
+        .select()
+        .from(schema.builds)
+        .where(and(eq(schema.builds.appId, appId), variant === "all" ? undefined : eq(schema.builds.variant, variant)))
+        .orderBy(desc(schema.builds.number))
+        .limit(limit),
     );
     return rows.map(toBuild);
   }
