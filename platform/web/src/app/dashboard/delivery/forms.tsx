@@ -260,3 +260,18 @@ export function ServiceForm({ service, currency }: { service: ServiceFormValues;
     </form>
   );
 }
+
+/**
+ * The "Add a service" box, open while there are no services. Once opened it
+ * stays open across the page's refresh after an add, so the form's message
+ * stays in view.
+ */
+export function AddServiceBox({ title, open, children }: { title: string; open: boolean; children: ReactNode }) {
+  const [shown, setShown] = useState(open);
+  return (
+    <details className="rounded-xl border border-line p-4" open={shown} onToggle={(e) => setShown(e.currentTarget.open)}>
+      <summary className="cursor-pointer text-[15px] font-bold">{title}</summary>
+      <div className="pt-3">{children}</div>
+    </details>
+  );
+}

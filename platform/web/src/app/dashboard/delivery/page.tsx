@@ -22,7 +22,7 @@ import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { hasFeature } from "@/lib/plans";
 import { ConfirmButton } from "../chat/forms";
 import { isDelivery, NotDelivery, PlanNotice } from "../shipments/parts";
-import { DeliverySettingsForm, ServiceForm } from "./forms";
+import { AddServiceBox, DeliverySettingsForm, ServiceForm } from "./forms";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("delivery.settings") };
@@ -169,11 +169,9 @@ export default async function DeliverySettingsPage() {
             </li>
           ))}
         </ul>
-        {/* Always open, so the form's confirmation stays in view once the first service is added. */}
-        <div className="flex flex-col gap-3 rounded-xl border border-line p-4">
-          <h3 className="m-0 text-[15px] font-bold">{t("delivery.addService")}</h3>
+        <AddServiceBox title={t("delivery.addService")} open={services.length === 0}>
           <ServiceForm currency={settings.currency} service={{ id: null, name: "", description: "", extra: "", eta: "", active: true, imageUrl: null }} />
-        </div>
+        </AddServiceBox>
       </section>
 
       {settings.card || isOwnPayment(catalogSettings(app).payment) ? <DeliveryPayments app={app} /> : null}
