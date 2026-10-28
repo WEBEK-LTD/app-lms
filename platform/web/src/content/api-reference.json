@@ -984,6 +984,130 @@
       ]
     },
     {
+      "name": "Food",
+      "description": "Roadmap 105.1. Food delivery from many restaurants, on Yallapp's hosted API. The company adds its restaurants with their menus; the customer picks a restaurant (`GET /food/restaurants`), fills one restaurant's cart, sees the total before ordering (`POST /food/quote`: the dishes, their choices, the delivery fee by the company's delivery prices from the restaurant to the customer, and the restaurant's smallest order), and orders, paying cash to the courier or by card on the company's payment page as the company allows (`FoodConfig.payment`). The restaurant accepts the order with the time it needs, or turns it down; the company's couriers deliver it (the Courier tag: each order's delivery is a courier job, picked up at the restaurant). The customer follows the order's stages, and the courier on a map while it is on the way when the company chose live tracking, then rates the restaurant and the courier.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/food/restaurants",
+          "summary": "List the restaurants",
+          "description": "The company's active restaurants: open ones first, then by `sort`. With the customer's position (`lat`, `lng`) each has its distance and whether it delivers there (`delivers`); restaurants that don't are listed last. `cuisine` keeps one cuisine (`FoodConfig.cuisines`), `q` searches restaurant and dish names.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/food/restaurants/{restaurant_id}",
+          "summary": "A restaurant with its menu",
+          "description": "The restaurant and its menu in sections, the company's order. Sold-out dishes are listed with `available` false.",
+          "access": "optional"
+        },
+        {
+          "method": "POST",
+          "path": "/food/quote",
+          "summary": "Price one restaurant's cart",
+          "description": "The cart's lines with their prices, the subtotal, the delivery fee to the drop-off and the total. Fails with `invalid_request` (400) for a dish or choice the restaurant doesn't have (or a missing required choice), with `unavailable_item` (409) for a sold-out dish (`field` names the line), `restaurant_closed` (409) while the restaurant is closed or busy, `below_minimum` (409) under the restaurant's smallest order, and `outside_delivery_area` (400) when the restaurant doesn't deliver to the drop-off.",
+          "access": "optional"
+        },
+        {
+          "method": "POST",
+          "path": "/food/orders",
+          "summary": "Order from a restaurant",
+          "description": "Places the order at the prices `POST /food/quote` gives for the same cart. Paid in cash, it goes to the restaurant at once (`placed`). Paid by card, it waits for the payment (`awaiting_payment`) and the answer has `pay_url`, the company's payment page, opened in the app on both platforms (food delivered is a service in the physical world); it goes to the restaurant once the payment is confirmed. Fails as the quote does, for a payment method the company doesn't take, and with `payments_unavailable` (503) for a card payment while the company's payments aren't set up.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/food-orders",
+          "summary": "List the signed-in customer's food orders",
+          "description": "Newest first; `active` only those not yet delivered, turned down or cancelled.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/food-orders/{order_id}",
+          "summary": "Follow a food order",
+          "description": "The order with its stages, the courier and, with live tracking while the courier has it (`picked_up`, `on_the_way`), where the courier is. The app asks again every 15 seconds or so while the screen is open and the order is active.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/food-orders/{order_id}/cancel",
+          "summary": "Cancel a food order",
+          "description": "Only before the restaurant accepts it (`awaiting_payment` or `placed`); then `not_cancellable` (409). A card payment already made is refunded by the company.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/food-orders/{order_id}/pay",
+          "summary": "A new payment page for an order waiting for its payment",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/me/food-orders/{order_id}/rating",
+          "summary": "Rate a delivered order",
+          "description": "Once, after it is delivered, within 7 days. The restaurant's rating counts in its average; the courier's is seen by the company.",
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
+      "name": "Restaurant",
+      "description": "Roadmap 105.1. A restaurant's screens. Its staff are people the company added to the restaurant on the dashboard by mobile number (or by email, for apps that sign in by email only); whoever signs in with that number, proven by its code, works for that restaurant (`User.roles` has `restaurant`). Every endpoint here answers `not_restaurant` (403) to anyone else, and to staff of a restaurant the company paused. Staff see their restaurant's orders only: new ones (with a push and a sound), accept each with the minutes it needs or turn it down with a reason, mark it ready for the courier, and set the restaurant busy for a while (no new orders) or open again.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/restaurant/me",
+          "summary": "The restaurant the signed-in person works for",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "PATCH",
+          "path": "/restaurant/me",
+          "summary": "Busy for a while, or open again",
+          "description": "`busy_minutes` 15 to 240 stops new orders for that long; 0 opens again. Opening hours still apply.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/restaurant/orders",
+          "summary": "The restaurant's orders",
+          "description": "`new`: waiting to be accepted, oldest first; `active`: accepted and not yet picked up, the soonest ready first; `done`: picked up, delivered, turned down or cancelled in the last 2 days, newest first.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/restaurant/orders/{order_id}",
+          "summary": "One of the restaurant's orders",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/restaurant/orders/{order_id}/accept",
+          "summary": "Accept a new order with the minutes it needs",
+          "description": "From `placed` only; then `invalid_status` (409). The customer is told when it will be ready, and, when the company makes courier jobs on acceptance (`FoodConfig.courier_job`), a courier job is made at once.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/restaurant/orders/{order_id}/reject",
+          "summary": "Turn down a new order",
+          "description": "From `placed` only. The customer is told the reason; a card payment is refunded by the company.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/restaurant/orders/{order_id}/ready",
+          "summary": "The order is ready for the courier",
+          "description": "From `accepted` only. Makes the courier job when the company makes them once orders are ready (`FoodConfig.courier_job`).",
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
       "name": "Bookings",
       "description": "Services, staff, free times and appointments, for Bookings apps. The plugin reads them from the site's booking plugin (Amelia, BookingPress or LatePoint); the booking plugin's own rules decide the free times and whether a new appointment is approved or waits for the business. Appointments are paid at the business.",
       "endpoints": [

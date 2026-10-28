@@ -176,7 +176,7 @@ export interface ScreenshotFrame {
  * donations app (29, hosted API only). What each engine is and offers is in
  * lib/app/kinds.ts.
  */
-export type AppType = "lms" | "store" | "booking" | "real_estate" | "news" | "events" | "donations" | "delivery";
+export type AppType = "lms" | "store" | "booking" | "real_estate" | "news" | "events" | "donations" | "delivery" | "food";
 
 /** 20 The kind of business, on top of the engine: wording, defaults, the demo and marketing, never routes (lib/app/kinds.ts). */
 export type AppVertical = "restaurant" | "clinic" | "fitness" | "charity" | "services";
@@ -212,6 +212,8 @@ export type ConnectorConfig =
   | { kind: "campaigns" }
   /** 104 Delivery and courier companies: services, couriers, shipments and settings in the delivery_* tables and shipments; card payments as catalog orders. */
   | { kind: "deliveries" }
+  // 105.1 Food delivery from many restaurants.
+  | { kind: "restaurants" }
   /**
    * A platform connected with keys (ikas, Ticimax, IdeaSoft, Wix, Teachable,
    * Thinkific, SimplyBook) or with OAuth through Yallapp's partner app
@@ -3018,6 +3020,12 @@ export interface DeliverySettings {
   courierAppName?: string | null;
   /** 104.6 The courier iPhone app's GoogleService-Info.plist (an asset); null: no pushes on the courier iPhone app. */
   courierFirebaseIosAssetId?: string | null;
+  /** 105.1 Food apps: the cuisines restaurants are filed under, in the company's order. */
+  cuisines?: Cuisine[];
+  /** 105.1 Food apps: when an order's courier job is made (default `accepted`). */
+  foodCourierJob?: FoodCourierJob;
+  /** 105.1 Food apps: the IANA time zone restaurants' opening hours are in (default Africa/Cairo). */
+  timezone?: string;
 }
 
 /** A service the customer chooses (same-day, express, documents), adding its own amount to the price. */
@@ -3120,6 +3128,8 @@ export interface Shipment {
   timeline: ShipmentStage[];
   /** The app's language when the customer sent it ("ar"), for what they are told. */
   lang: string | null;
+  /** 105.1 The food order this job delivers; null for a parcel. */
+  foodOrderId?: number | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -3142,6 +3152,219 @@ export interface ShipmentQuery {
   /** Updated at or after. */
   updatedSince?: Date;
   /** The reference ("S-12"), the sender's or recipient's name or number. */
+  search?: string;
+  order: "newest" | "oldest";
+  offset: number;
+  limit: number;
+}
+
+// 105.1 Food delivery from many restaurants
+
+/** When a food order's courier job is made: once the restaurant accepts it, or once it is ready. */
+export const FOOD_COURIER_JOBS = ["accepted", "ready"] as const;
+export type FoodCourierJob = (typeof FOOD_COURIER_JOBS)[number];
+
+/** A cuisine the company files its restaurants under (`FoodConfig.cuisines`). */
+export interface Cuisine {
+  id: string;
+  name: string;
+}
+
+/** A period a restaurant is open, in the app's time zone; `closes` before `opens` runs past midnight. */
+export interface OpeningPeriod {
+  day: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
+  /** "HH:MM". */
+  opens: string;
+  closes: string;
+}
+
+export interface DishChoice {
+  id: number;
+  name: string;
+  extraCents: number;
+  available: boolean;
+}
+
+export interface DishChoiceGroup {
+  id: number;
+  name: string;
+  /** 1 or more: required. */
+  min: number;
+  max: number;
+  choices: DishChoice[];
+}
+
+export interface Dish {
+  id: number;
+  name: string;
+  description: string | null;
+  imageAssetId: string | null;
+  priceCents: number;
+  /** False while sold out. */
+  available: boolean;
+  popular: boolean;
+  choiceGroups: DishChoiceGroup[];
+}
+
+export interface MenuSection {
+  id: number;
+  name: string;
+  dishes: Dish[];
+}
+
+/** A restaurant's menu: its sections in order; IDs are unique within the restaurant and never reused (`nextId`). */
+export interface RestaurantMenu {
+  sections: MenuSection[];
+  nextId: number;
+}
+
+export interface Restaurant {
+  id: number;
+  appId: string;
+  name: string;
+  description: string | null;
+  logoAssetId: string | null;
+  coverAssetId: string | null;
+  /** `Cuisine` ids. */
+  cuisines: string[];
+  address: ShipmentPlace;
+  /** E.164. */
+  phone: string | null;
+  hours: OpeningPeriod[];
+  /** How long it usually takes to prepare an order. */
+  prepMinutes: number;
+  /** The smallest subtotal; 0 for none. */
+  minOrderCents: number;
+  /** The furthest it delivers, in a straight line; null: the company's limit (`DeliverySettings.maxKm`). */
+  maxKm: number | null;
+  /** The company's share of each order's subtotal, in basis points (1250 = 12.5%). */
+  commissionBp: number;
+  /** Hidden from the app when false. */
+  active: boolean;
+  /** No new orders until then ("busy"). */
+  busyUntil: Date | null;
+  ratingSum: number;
+  ratingCount: number;
+  position: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type RestaurantInput = Omit<Restaurant, "id" | "busyUntil" | "ratingSum" | "ratingCount" | "createdAt" | "updatedAt">;
+export type RestaurantPatch = Partial<Omit<Restaurant, "id" | "appId" | "createdAt">>;
+
+/** A restaurant's staff: whoever signs in with this number (or email) works for it. */
+export interface RestaurantStaff {
+  id: number;
+  appId: string;
+  restaurantId: number;
+  name: string;
+  /** E.164. */
+  phone: string | null;
+  /** Lowercase. */
+  email: string | null;
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type RestaurantStaffInput = Pick<RestaurantStaff, "appId" | "restaurantId" | "name" | "phone" | "email" | "active">;
+
+export const FOOD_ORDER_STATUSES = ["awaiting_payment", "placed", "accepted", "ready", "picked_up", "on_the_way", "delivered", "rejected", "cancelled", "failed"] as const;
+export type FoodOrderStatus = (typeof FOOD_ORDER_STATUSES)[number];
+export const FOOD_REJECTIONS = ["closing", "too_busy", "item_unavailable", "other"] as const;
+export type FoodRejection = (typeof FOOD_REJECTIONS)[number];
+
+/** A line of a food order as it was ordered, its prices kept. */
+export interface FoodOrderLine {
+  dishId: number | null;
+  name: string;
+  quantity: number;
+  /** "Size: Large". */
+  choices: string[];
+  note: string | null;
+  /** With its choices. */
+  unitCents: number;
+}
+
+/** A stage the order went through. `at` is an ISO string. */
+export interface FoodOrderStage {
+  status: FoodOrderStatus;
+  at: string;
+  note?: string | null;
+  by?: "customer" | "restaurant" | "courier" | "company" | "payment";
+}
+
+export interface FoodOrder {
+  id: number;
+  appId: string;
+  restaurantId: number | null;
+  /** Kept when the restaurant is deleted. */
+  restaurantName: string;
+  /** The customer; null once they deleted their account. */
+  userId: number | null;
+  customerName: string;
+  /** E.164, where the courier calls. */
+  customerPhone: string;
+  lines: FoodOrderLine[];
+  subtotalCents: number;
+  deliveryFeeCents: number;
+  totalCents: number;
+  /** The company's share of the subtotal, at the restaurant's rate when ordered. */
+  commissionCents: number;
+  currency: CatalogCurrency;
+  paymentMethod: "cash" | "card";
+  paymentStatus: "unpaid" | "paid" | "refunded";
+  /** Paid by card: the catalog order of its last payment link. */
+  orderId: number | null;
+  status: FoodOrderStatus;
+  dropoff: ShipmentPlace;
+  zoneId: string | null;
+  distanceKm: number | null;
+  notes: string | null;
+  /** Once accepted. */
+  readyAt: Date | null;
+  rejection: { reason: FoodRejection; note: string | null } | null;
+  /** Its courier job, once made. */
+  shipmentId: number | null;
+  rating: { restaurant: number; courier: number | null; comment: string | null; at: string } | null;
+  timeline: FoodOrderStage[];
+  lang: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type FoodOrderInput = Omit<FoodOrder, "id">;
+export type FoodOrderPatch = Partial<Pick<FoodOrder, "status" | "paymentStatus" | "orderId" | "readyAt" | "rejection" | "shipmentId" | "rating" | "timeline" | "userId" | "updatedAt">>;
+
+/** One restaurant's delivered orders over a period: what it sold and what the company keeps. */
+export interface FoodStatementRow {
+  restaurantId: number | null;
+  restaurantName: string;
+  orders: number;
+  subtotalCents: number;
+  deliveryFeeCents: number;
+  commissionCents: number;
+  /** Subtotals paid in cash to the company's couriers (the company owes the restaurant these, less commission). */
+  cashSubtotalCents: number;
+  /** Subtotals paid by card into the company's account. */
+  cardSubtotalCents: number;
+}
+
+/** Which food orders a list holds. */
+export interface FoodOrderQuery {
+  appId: string;
+  userId?: number;
+  /** 105.1 Not this customer's (the store review account's). */
+  notUserId?: number;
+  restaurantId?: number;
+  statuses?: FoodOrderStatus[];
+  /** Created at or after, and before. */
+  since?: Date;
+  until?: Date;
+  /** Updated at or after. */
+  updatedSince?: Date;
+  /** The reference ("F-12"), the customer's name or number, or the restaurant's name. */
   search?: string;
   order: "newest" | "oldest";
   offset: number;

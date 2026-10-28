@@ -74,7 +74,7 @@ async function addApp(store: MemoryStore, client: Client, app: Partial<App> & Pi
 }
 
 /** One app of each kind the Owner API serves. */
-type Kinds = Record<"shop" | "clinic" | "gym" | "school" | "news" | "estate" | "events" | "donations" | "delivery", App>;
+type Kinds = Record<"shop" | "clinic" | "gym" | "school" | "news" | "estate" | "events" | "donations" | "delivery" | "food", App>;
 
 async function appsOf(store: MemoryStore, client: Client, name: string, courses: CourseSetup["courses"]): Promise<Kinds> {
   return {
@@ -93,6 +93,8 @@ async function appsOf(store: MemoryStore, client: Client, name: string, courses:
     donations: await addApp(store, client, { appType: "donations", vertical: "charity", appName: `${name} charity`, connector: { kind: "campaigns" }, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS } }),
     // 104 A delivery company.
     delivery: await addApp(store, client, { appType: "delivery", appName: `${name} delivery`, connector: { kind: "deliveries" }, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS } }),
+    // 105.1 A food delivery company.
+    food: await addApp(store, client, { appType: "food", appName: `${name} food`, connector: { kind: "restaurants" }, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS } }),
   };
 }
 
@@ -475,7 +477,62 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       createdAt: NOW,
       updatedAt: NOW,
     });
+    // 105.1 A restaurant and a food order of the other client's food delivery company.
+    const restaurant = await store.createRestaurant(
+      {
+        appId: theirs.food.id,
+        name: `${MARK} kitchen`,
+        description: null,
+        logoAssetId: null,
+        coverAssetId: null,
+        cuisines: [],
+        address: { address: `${MARK} street`, details: null, lat: null, lng: null },
+        phone: null,
+        hours: [],
+        prepMinutes: 20,
+        minOrderCents: 0,
+        maxKm: null,
+        commissionBp: 1000,
+        active: true,
+        position: 1,
+      },
+      { sections: [{ id: 1, name: `${MARK} mains`, dishes: [] }], nextId: 2 },
+      NOW,
+    );
+    const foodOrder = await store.createFoodOrder({
+      appId: theirs.food.id,
+      restaurantId: restaurant.id,
+      restaurantName: `${MARK} kitchen`,
+      userId: null,
+      customerName: `${MARK} customer`,
+      customerPhone: "+201001112222",
+      lines: [{ dishId: null, name: `${MARK} koshari`, quantity: 1, choices: [], note: null, unitCents: 50_00 }],
+      subtotalCents: 50_00,
+      deliveryFeeCents: 20_00,
+      totalCents: 70_00,
+      commissionCents: 5_00,
+      currency: "EGP",
+      paymentMethod: "cash",
+      paymentStatus: "unpaid",
+      orderId: null,
+      status: "placed",
+      dropoff: { address: `${MARK} drop-off`, details: null, lat: null, lng: null },
+      zoneId: null,
+      distanceKm: null,
+      notes: null,
+      readyAt: null,
+      rejection: null,
+      shipmentId: null,
+      rating: null,
+      timeline: [{ status: "placed", at: NOW.toISOString(), by: "customer" }],
+      lang: null,
+      createdAt: NOW,
+      updatedAt: NOW,
+    });
     Object.assign(hostedIds, {
+      restaurant_id: String(restaurant.id),
+      // Food orders are numbered apart from shop orders: their paths get this one (see hosted()).
+      food_order_id: String(foodOrder.id),
       device_id: customerDevice,
       conversation_id: conversation.id,
       message_id: String(message.id),
@@ -545,6 +602,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     if (/^\/(events|me\/tickets)/.test(route)) return "events";
     if (/^\/donations/.test(route)) return "donations";
     if (/^\/(delivery|courier|me\/shipments)/.test(route)) return "delivery";
+    if (/^\/(food|restaurant|me\/food-orders)/.test(route)) return "food";
     return "shop";
   }
 
@@ -558,7 +616,8 @@ describe("79.3 one client never reaches another's data through the Owner API", (
   }
 
   async function hosted(app: App, method: string, route: string, token: string | null, body: unknown = {}) {
-    const concrete = route.replace(/\{(\w+)\}/g, (_, name: string) => hostedIds[name]!);
+    const food = hostedKind(route) === "food";
+    const concrete = route.replace(/\{(\w+)\}/g, (_, name: string) => hostedIds[food && name === "order_id" ? "food_order_id" : name]!);
     const assetUrl = (id: string) => `https://yallapp.test/a/${id}`;
     return handleHosted(
       {

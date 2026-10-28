@@ -48,6 +48,8 @@ IconData _iconFor(NotificationType type) => switch (type) {
   NotificationType.orderUpdate => AppIcons.shipping,
   NotificationType.shipmentUpdate => AppIcons.parcel,
   NotificationType.courierJob => AppIcons.courier,
+  NotificationType.foodOrderUpdate => AppIcons.foodDelivery,
+  NotificationType.restaurantOrder => AppIcons.restaurant,
   NotificationType.announcement ||
   NotificationType.unknown => AppIcons.notifications,
 };

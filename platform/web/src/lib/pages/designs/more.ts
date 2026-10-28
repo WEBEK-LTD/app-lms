@@ -25,6 +25,7 @@ import {
   team,
   testimonials,
   text,
+  WEEK,
   WEEKDAYS_ONLY,
   type Design,
 } from "./build";
@@ -422,6 +423,84 @@ export const DELIVERY_DESIGNS: Design[] = [
           button("send", "Send a parcel", screen("send_parcel")),
           list("services", "Services", "delivery_services", "list", { seeAll: screen("send_parcel") }),
           hours("Working hours", days(WEEKDAYS_ONLY, "09:00", "21:00")),
+          team("Talk to us", [person("Your name", "Customer service")]),
+          contact(),
+        ],
+      },
+    ],
+  },
+];
+
+const foodTabs = [homeTab, screenTab("restaurants", "Restaurants", "restaurant_menu", "restaurants"), screenTab("orders", "My orders", "receipt_long", "food_orders"), accountTab];
+
+/** 105.1 Food delivery from many restaurants. */
+export const FOOD_DESIGNS: Design[] = [
+  {
+    id: "food-city",
+    kind: "food",
+    name: "City food",
+    description: "Hungry in one tap: an offer, the restaurants near you and how fast food arrives.",
+    look: { template: "bold", corners: "round", cards: "elevated", font: "Outfit", secondary_color: "#F4A261" },
+    tabs: foodTabs,
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          slider([slide("Your city's restaurants, delivered", "Order from any of them and follow your food", screen("restaurants"))], false),
+          list("restaurants", "Restaurants", "restaurants", "list", { seeAll: screen("restaurants") }),
+          stats([stat("35 min", "To your door"), stat("40+", "Restaurants"), stat("7 days", "A week")]),
+          faq("Questions", [question("How do I follow my order?", "Open My orders: each stage shows with its time.")]),
+          contact(),
+        ],
+      },
+    ],
+  },
+  {
+    id: "food-express",
+    kind: "food",
+    name: "Quick bites",
+    description: "Speed first: a notice, quick links to order and follow, and the restaurants side by side.",
+    look: { template: "classic", corners: "soft", cards: "outlined", font: "Plus Jakarta Sans", secondary_color: "#E63946" },
+    tabs: foodTabs,
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          notice("info", "Write today's offer or your delivery hours here.", "Order now", screen("restaurants")),
+          quickLinks([
+            link("restaurant_menu", "Restaurants", screen("restaurants")),
+            link("receipt_long", "My orders", screen("food_orders")),
+            link("notifications", "Updates", screen("notifications")),
+            link("person", "Account", screen("account")),
+          ]),
+          list("restaurants", "Order from", "restaurants", "carousel", { seeAll: screen("restaurants") }),
+          testimonials("What customers say", [quote("Write what a customer says about your deliveries.", "Customer's name")]),
+          contact(),
+        ],
+      },
+    ],
+  },
+  {
+    id: "food-neighbourhood",
+    kind: "food",
+    name: "Neighbourhood kitchens",
+    description: "Warm and local: a welcome, the restaurants, your delivery hours and a team to talk to.",
+    look: { template: "minimal", corners: "soft", cards: "flat", font: "Manrope", secondary_color: "#2A9D8F" },
+    tabs: foodTabs,
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          text("welcome", "<h2>Your neighbourhood's kitchens</h2><p>{app} brings you food from the restaurants around you.</p>"),
+          button("order", "Order food", screen("restaurants")),
+          list("restaurants", "Restaurants", "restaurants", "list", { seeAll: screen("restaurants") }),
+          hours("Delivery hours", days(WEEK, "11:00", "23:00")),
           team("Talk to us", [person("Your name", "Customer service")]),
           contact(),
         ],

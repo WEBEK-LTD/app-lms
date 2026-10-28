@@ -2394,6 +2394,50 @@ the owner: every option is built and each company picks its own.
 Multi-restaurant food delivery, car rental, hotels and rentals, home
 services, laundry. One at a time, after Phase 104.
 
+### 105.1 Food delivery from many restaurants (Studio project type `food`)
+
+A company that runs a food delivery app for many restaurants: customers
+pick a restaurant, order from its menu and follow the order to the door;
+each restaurant's staff take and prepare its orders in the same app; the
+company's couriers deliver them (Phase 104's couriers, jobs and map).
+Every option is built and each company picks its own.
+
+- **Restaurants**: added by the company in the dashboard (name, logo, cover,
+  cuisines, address on the map, phone, opening hours, how long it takes to
+  prepare, the smallest order, active or paused), each with its own menu
+  (sections, dishes with pictures, prices and choices like size and extras,
+  dishes sold out for the day).
+- **Restaurant staff**: mobile numbers (or emails) the company adds to a
+  restaurant; they get the Restaurant tab in the app: new orders with a
+  sound, accept with the time it needs or turn down with a reason, ready
+  for pickup; open or busy for now.
+- **Delivery**: the company's delivery prices (Phase 104: by distance from
+  the restaurant, by area, or fixed), how far each restaurant delivers, and
+  the courier's job made when the restaurant accepts (or when it is ready,
+  the company's choice); the customer follows the order and the courier.
+- **Payment**: cash to the courier, card through the company's own gateway,
+  or both; the company's commission from each restaurant (a percent set per
+  restaurant by the company) and a statement per restaurant for any period
+  (orders, sales, commission, what is owed either way). Yallapp sets none
+  of these amounts.
+- **The app**: restaurants near the customer (open first; cuisines,
+  search, sort by distance, rating or delivery time), a restaurant's page
+  with its menu, one restaurant's cart at a time, checkout with the
+  address, notes and payment, my orders with their stages, rating the
+  restaurant and the courier after delivery.
+- A Studio project only, on the Studio plan feature `food` (with
+  `courier_app` for a second courier app, as in 104), off until the owner
+  ticks and prices it in Admin › Plans › Yallapp Studio.
+
+| Done | Step | Checked by |
+| --- | --- | --- |
+| [x] | 105.1.1 Contract: `app_type` `food`; `Config.food`; restaurants (list with filters, one with its menu), the cart's quote, orders (place, mine, cancel, pay, rate), the Restaurant tag (`/restaurant/me`, its orders, accept, turn down, ready, open or busy); `User.roles` `restaurant`; the `food_order_update` and `restaurant_order` notifications; screens and item sources; the plan feature `food` | redocly lint |
+| [x] | 105.1.2 Platform: restaurants, their staff, menus and choices, food orders and their courier jobs (a migration), the quote (dishes, choices, delivery by distance from the restaurant, the smallest order), cash or card, commission and statements, pushes | unit tests, isolation tests |
+| [x] | 105.1.3 Dashboard (en/ar/tr) in Studio: Restaurants (details, hours, menu, staff, commission), Food orders, statements per restaurant; Couriers and Delivery settings shared with 104 | unit tests, e2e |
+| [x] | 105.1.4 App, customer: restaurants, a restaurant's menu, the cart, checkout, my orders with their stages and the courier, ratings | flutter analyze and widget tests |
+| [x] | 105.1.5 App, restaurant: the Restaurant tab (new orders, accept with a time, turn down, ready, open or busy); new orders come with the push's sound | widget tests |
+| [ ] | 105.1.6 Studio templates and sections for food, the courier app (104.6) for food companies. Done: three ready-made designs, review accounts for the three roles (the reviewers' orders reach no real restaurant) | unit tests, e2e |
+
 ## Phase 106: Studio template marketplace (postponed)
 
 Sharing Studio templates for free or selling them by monthly, yearly or

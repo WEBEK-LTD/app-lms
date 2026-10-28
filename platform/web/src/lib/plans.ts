@@ -21,7 +21,9 @@ export const REGULAR_PLANS = ["starter", "growth", "pro", "business"] as const;
  * offered by the team in Admin › Plans › Yallapp Studio. A Studio project is
  * paid on a Studio plan only, a regular app on a regular plan only.
  */
-export const STUDIO_PLANS = ["studio_1", "studio_2", "studio_3"] as const;
+export const STUDIO_PLANS = ["studio_1", "studio_2", "studio_3", "studio_4", "studio_5", "studio_6", "studio_7", "studio_8"] as const;
+/** 103R The Studio plans Admin › Plans always shows; the team adds the others one at a time. */
+export const STUDIO_PLANS_SHOWN = 3;
 /** Every plan a license can be on. */
 export const PLANS = [...REGULAR_PLANS, ...STUDIO_PLANS] as const;
 export type Plan = (typeof PLANS)[number];
@@ -44,7 +46,17 @@ export function plansOfFamily(family: PlanFamily): readonly Plan[] {
 export const FEATURED_PLAN: Plan = "growth";
 
 /** Lower to higher within a family: an upgrade moves up, a downgrade down. */
-export const PLAN_RANK: Record<Plan, number> = { starter: 0, growth: 1, pro: 2, business: 3, studio_1: 0, studio_2: 1, studio_3: 2 };
+/** 103R Every plan the team can give: the regular ones, and Studio's first three with those the team added. */
+export function plansInList(saved: Partial<Record<string, unknown>> | null | undefined): Plan[] {
+  return [...plansShown("regular", saved), ...plansShown("studio", saved)];
+}
+
+/** 103R The plans of a family the team can give: Studio's first three and those it added (saved in Admin › Plans), and the app's own. */
+export function plansShown(family: PlanFamily, saved: Partial<Record<string, unknown>> | null | undefined, current?: Plan): Plan[] {
+  return plansOfFamily(family).filter((p, i) => family !== "studio" || i < STUDIO_PLANS_SHOWN || Boolean(saved?.[p]) || p === current);
+}
+
+export const PLAN_RANK: Record<Plan, number> = { starter: 0, growth: 1, pro: 2, business: 3, studio_1: 0, studio_2: 1, studio_3: 2, studio_4: 3, studio_5: 4, studio_6: 5, studio_7: 6, studio_8: 7 };
 
 /**
  * Features a plan has or hasn't. They are also the license features the
@@ -57,11 +69,11 @@ export const PLAN_RANK: Record<Plan, number> = { starter: 0, growth: 1, pro: 2, 
  * 104 `delivery`: delivery and courier apps; `courier_app`: the company's second app for its couriers. Both off on
  * every plan until the team turns them on and prices them (Admin › Plans).
  */
-export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing", "studio", "studio_motion", "studio_templates", "delivery", "courier_app"] as const;
+export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing", "studio", "studio_motion", "studio_templates", "delivery", "courier_app", "food"] as const;
 export type PlanFeature = (typeof PLAN_FEATURE_IDS)[number];
 
 /** 103R Features only Studio plans have, so the regular plans' editor leaves them out (104 delivery companies are Studio projects). */
-export const STUDIO_ONLY_FEATURES: readonly PlanFeature[] = ["studio", "studio_motion", "studio_templates", "delivery", "courier_app"];
+export const STUDIO_ONLY_FEATURES: readonly PlanFeature[] = ["studio", "studio_motion", "studio_templates", "delivery", "courier_app", "food"];
 
 /**
  * 103R What every Studio plan includes, besides what the team ticks in
@@ -70,7 +82,7 @@ export const STUDIO_ONLY_FEATURES: readonly PlanFeature[] = ["studio", "studio_m
 export const STUDIO_BASE_FEATURES: readonly PlanFeature[] = ["studio", "push", "page_editor", "offline_downloads", "card_payments", "auto_rebuild", "chat", "loyalty", "store_billing"];
 
 /** 103R The features the team ticks for each Studio plan, as the admin's design lists them. */
-export const STUDIO_PLAN_CHOICES: readonly PlanFeature[] = ["ios", "auto_publish", "delivery", "courier_app", "studio_motion", "studio_templates"];
+export const STUDIO_PLAN_CHOICES: readonly PlanFeature[] = ["ios", "auto_publish", "delivery", "courier_app", "food", "studio_motion", "studio_templates"];
 
 export type SupportLevel = "email" | "whatsapp" | "priority" | "dedicated";
 export const SUPPORT_LEVELS: SupportLevel[] = ["email", "whatsapp", "priority", "dedicated"];
@@ -261,6 +273,12 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
   studio_1: studioPlan("studio_1", "Studio plan 1"),
   studio_2: studioPlan("studio_2", "Studio plan 2"),
   studio_3: studioPlan("studio_3", "Studio plan 3"),
+  // Added by the team from Admin › Plans › Yallapp Studio.
+  studio_4: studioPlan("studio_4", "Studio plan 4"),
+  studio_5: studioPlan("studio_5", "Studio plan 5"),
+  studio_6: studioPlan("studio_6", "Studio plan 6"),
+  studio_7: studioPlan("studio_7", "Studio plan 7"),
+  studio_8: studioPlan("studio_8", "Studio plan 8"),
 };
 
 function studioPlan(id: StudioPlan, name: string): PlanInfo {
@@ -370,6 +388,12 @@ export const PLAN_FEATURES: PlanFeatureDef[] = [
     label: "A second app for couriers",
     description: "A second app in your name, made only for your couriers.",
     enforced: "Delivery settings › Where couriers work (a second app), and its builds.",
+  },
+  {
+    id: "food",
+    label: "Food delivery from many restaurants",
+    description: "Customers order from your restaurants; each restaurant takes its orders and your couriers deliver them.",
+    enforced: "The hosted API's /food, /me/food-orders and /restaurant endpoints, and the Restaurants and Food orders pages.",
   },
 ];
 

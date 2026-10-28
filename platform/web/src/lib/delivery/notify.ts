@@ -23,7 +23,7 @@ export interface DeliveryNotifyDeps {
   send?: typeof sendPush;
 }
 
-type Words = { title: string; body: string };
+export type Words = { title: string; body: string };
 
 const CUSTOMER: Partial<Record<ShipmentStatus, Record<Lang, (ref: string, courier: string) => Words>>> = {
   pending: {
@@ -76,9 +76,10 @@ const COURIER: Record<"given" | "waiting", Record<Lang, (ref: string, place: str
   },
 };
 
-const asLang = (code: string | null | undefined): Lang | null => (code === "en" || code === "ar" || code === "tr" ? code : null);
+export const asLang = (code: string | null | undefined): Lang | null => (code === "en" || code === "ar" || code === "tr" ? code : null);
 
-async function deliver(deps: DeliveryNotifyDeps, userId: number, words: Words, data: Record<string, string>, onlyOrders: boolean): Promise<number> {
+/** To the person's inbox and phones (`onlyOrders`: those that allow order updates); returns the phones reached. */
+export async function deliver(deps: DeliveryNotifyDeps, userId: number, words: Words, data: Record<string, string>, onlyOrders: boolean): Promise<number> {
   const { store, app, now } = deps;
   const title = words.title.slice(0, NOTIFICATION_TITLE_MAX);
   const body = words.body.slice(0, NOTIFICATION_BODY_MAX);
@@ -99,7 +100,8 @@ async function deliver(deps: DeliveryNotifyDeps, userId: number, words: Words, d
 /** Tells the customer their shipment moved to `status`; returns the phones reached. */
 export async function tellCustomer(deps: DeliveryNotifyDeps, shipment: Shipment): Promise<number> {
   const text = CUSTOMER[shipment.status];
-  if (!text || shipment.userId === null) return 0;
+  // 105.1 A food order's courier job: the customer hears of the order itself (lib/food/notify.ts).
+  if (!text || shipment.userId === null || shipment.foodOrderId) return 0;
   const lang = asLang(shipment.lang) ?? (await appLang(deps.store, deps.app.id));
   const words = text[lang](shipmentReference(shipment), shipment.courierName ?? "");
   return deliver(deps, shipment.userId, words, { type: "shipment_update", shipment_id: String(shipment.id) }, true);

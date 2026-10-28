@@ -76,6 +76,20 @@ import type {
   AuditEntry,
   AuditQuery,
 } from "./types";
+import type {
+  FoodOrder,
+  FoodOrderInput,
+  FoodOrderPatch,
+  FoodOrderQuery,
+  FoodOrderStatus,
+  FoodStatementRow,
+  Restaurant,
+  RestaurantInput,
+  RestaurantMenu,
+  RestaurantPatch,
+  RestaurantStaff,
+  RestaurantStaffInput,
+} from "./types";
 // 11.3, 11.4, 11.6 and 11.8
 import type { Announcement, AnnouncementPatch, Coupon, CouponPatch, CouponRedemption, EmailTemplateRecord, SiteContentRecord } from "./types";
 // 23 News & blog
@@ -642,6 +656,10 @@ export class MemoryStore implements DataStore {
     // 104 And shipments, with the delivery company.
     for (const shipment of this.shipments.values()) {
       if (shipment.appId === appId && shipment.userId === id) shipment.userId = null;
+    }
+    // 105.1 And food orders, with the company and its restaurants.
+    for (const order of this.foodOrders.values()) {
+      if (order.appId === appId && order.userId === id) order.userId = null;
     }
     this.forgetListingUser(appId, id);
   }
@@ -2165,6 +2183,163 @@ export class MemoryStore implements DataStore {
     if (expect.courierId !== undefined && shipment.courierId !== expect.courierId) return false;
     this.shipments.set(id, clone({ ...shipment, ...patch, appId, id }));
     return true;
+  }
+
+  // 105.1 Food delivery from many restaurants
+
+  private restaurants = new Map<number, Restaurant>();
+  private restaurantMenus = new Map<number, RestaurantMenu>();
+  private nextRestaurantId = 1;
+  private restaurantStaff = new Map<number, RestaurantStaff>();
+  private nextRestaurantStaffId = 1;
+  private foodOrders = new Map<number, FoodOrder>();
+  private nextFoodOrderId = 1;
+
+  async listRestaurants(appId: string, filter: { q?: string } = {}): Promise<Restaurant[]> {
+    const q = filter.q?.trim().toLowerCase() ?? "";
+    const dishes = (id: number) => (this.restaurantMenus.get(id)?.sections ?? []).flatMap((s) => s.dishes.map((d) => d.name.toLowerCase()));
+    return [...this.restaurants.values()]
+      .filter((r) => r.appId === appId && (!q || r.name.toLowerCase().includes(q) || dishes(r.id).some((name) => name.includes(q))))
+      .sort((a, b) => a.position - b.position || a.id - b.id)
+      .map(clone);
+  }
+
+  async getRestaurant(appId: string, id: number): Promise<Restaurant | null> {
+    const restaurant = this.restaurants.get(id);
+    return restaurant && restaurant.appId === appId ? clone(restaurant) : null;
+  }
+
+  async getRestaurantMenu(appId: string, id: number): Promise<RestaurantMenu | null> {
+    if (this.restaurants.get(id)?.appId !== appId) return null;
+    return clone(this.restaurantMenus.get(id) ?? { sections: [], nextId: 1 });
+  }
+
+  async createRestaurant(input: RestaurantInput, menu: RestaurantMenu, now: Date): Promise<Restaurant> {
+    const restaurant: Restaurant = { ...clone(input), id: this.nextRestaurantId++, busyUntil: null, ratingSum: 0, ratingCount: 0, createdAt: now, updatedAt: now };
+    this.restaurants.set(restaurant.id, clone(restaurant));
+    this.restaurantMenus.set(restaurant.id, clone(menu));
+    return restaurant;
+  }
+
+  async updateRestaurant(appId: string, id: number, patch: RestaurantPatch, now: Date): Promise<void> {
+    const restaurant = this.restaurants.get(id);
+    if (restaurant && restaurant.appId === appId) this.restaurants.set(id, clone({ ...restaurant, ...patch, appId, id, updatedAt: now }));
+  }
+
+  async saveRestaurantMenu(appId: string, id: number, menu: RestaurantMenu, now: Date): Promise<void> {
+    const restaurant = this.restaurants.get(id);
+    if (!restaurant || restaurant.appId !== appId) return;
+    this.restaurantMenus.set(id, clone(menu));
+    restaurant.updatedAt = now;
+  }
+
+  async deleteRestaurant(appId: string, id: number): Promise<void> {
+    if (this.restaurants.get(id)?.appId !== appId) return;
+    this.restaurants.delete(id);
+    this.restaurantMenus.delete(id);
+    for (const [key, staff] of this.restaurantStaff) if (staff.restaurantId === id) this.restaurantStaff.delete(key);
+    for (const order of this.foodOrders.values()) if (order.appId === appId && order.restaurantId === id) order.restaurantId = null;
+  }
+
+  async addRestaurantRating(appId: string, id: number, stars: number): Promise<void> {
+    const restaurant = this.restaurants.get(id);
+    if (!restaurant || restaurant.appId !== appId) return;
+    restaurant.ratingSum += stars;
+    restaurant.ratingCount += 1;
+  }
+
+  async listRestaurantStaff(appId: string, restaurantId?: number): Promise<RestaurantStaff[]> {
+    return [...this.restaurantStaff.values()]
+      .filter((s) => s.appId === appId && (restaurantId === undefined || s.restaurantId === restaurantId))
+      .sort((a, b) => a.name.localeCompare(b.name) || a.id - b.id)
+      .map(clone);
+  }
+
+  async findRestaurantStaff(appId: string, who: { phone: string | null; email: string | null }): Promise<RestaurantStaff | null> {
+    const found = [...this.restaurantStaff.values()].find(
+      (s) => s.appId === appId && (who.phone ? s.phone === who.phone : who.email !== null && s.email === who.email.toLowerCase()),
+    );
+    return found ? clone(found) : null;
+  }
+
+  private staffTaken(appId: string, id: number | null, phone: string | null, email: string | null): boolean {
+    return [...this.restaurantStaff.values()].some((s) => s.appId === appId && s.id !== id && ((phone !== null && s.phone === phone) || (email !== null && s.email === email)));
+  }
+
+  async createRestaurantStaff(input: RestaurantStaffInput, now: Date): Promise<{ ok: true; staff: RestaurantStaff } | { ok: false; reason: "duplicate" }> {
+    if (this.staffTaken(input.appId, null, input.phone, input.email)) return { ok: false, reason: "duplicate" };
+    const staff: RestaurantStaff = { ...clone(input), id: this.nextRestaurantStaffId++, createdAt: now, updatedAt: now };
+    this.restaurantStaff.set(staff.id, clone(staff));
+    return { ok: true, staff };
+  }
+
+  async updateRestaurantStaff(appId: string, id: number, patch: Partial<Pick<RestaurantStaff, "name" | "phone" | "email" | "active">>, now: Date): Promise<{ ok: boolean; reason?: "duplicate" }> {
+    const staff = this.restaurantStaff.get(id);
+    if (!staff || staff.appId !== appId) return { ok: false };
+    const next = { ...staff, ...clone(patch), appId, id, updatedAt: now };
+    if (("phone" in patch || "email" in patch) && this.staffTaken(appId, id, next.phone, next.email)) return { ok: false, reason: "duplicate" };
+    this.restaurantStaff.set(id, next);
+    return { ok: true };
+  }
+
+  async deleteRestaurantStaff(appId: string, id: number): Promise<void> {
+    if (this.restaurantStaff.get(id)?.appId === appId) this.restaurantStaff.delete(id);
+  }
+
+  async createFoodOrder(input: FoodOrderInput): Promise<FoodOrder> {
+    const order: FoodOrder = { ...clone(input), id: this.nextFoodOrderId++ };
+    this.foodOrders.set(order.id, clone(order));
+    return order;
+  }
+
+  async getFoodOrder(appId: string, id: number): Promise<FoodOrder | null> {
+    const order = this.foodOrders.get(id);
+    return order && order.appId === appId ? clone(order) : null;
+  }
+
+  async listFoodOrders(query: FoodOrderQuery): Promise<{ items: FoodOrder[]; total: number }> {
+    const search = query.search?.trim().toLowerCase() ?? "";
+    const reference = /^f-?(\d+)$/i.exec(search);
+    const all = [...this.foodOrders.values()]
+      .filter(
+        (o) =>
+          o.appId === query.appId &&
+          (query.userId === undefined || o.userId === query.userId) &&
+          (query.notUserId === undefined || o.userId !== query.notUserId) &&
+          (query.restaurantId === undefined || o.restaurantId === query.restaurantId) &&
+          (!query.statuses || query.statuses.includes(o.status)) &&
+          (!query.since || o.createdAt.getTime() >= query.since.getTime()) &&
+          (!query.until || o.createdAt.getTime() < query.until.getTime()) &&
+          (!query.updatedSince || o.updatedAt.getTime() >= query.updatedSince.getTime()) &&
+          (!search || (reference ? o.id === Number(reference[1]) : [o.customerName, o.customerPhone, o.restaurantName].some((v) => v.toLowerCase().includes(search)))),
+      )
+      .sort((a, b) => (query.order === "newest" ? b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id : a.createdAt.getTime() - b.createdAt.getTime() || a.id - b.id));
+    return { items: all.slice(query.offset, query.offset + query.limit).map(clone), total: all.length };
+  }
+
+  async updateFoodOrder(appId: string, id: number, patch: FoodOrderPatch, expect: { statuses?: FoodOrderStatus[] } = {}): Promise<boolean> {
+    const order = this.foodOrders.get(id);
+    if (!order || order.appId !== appId) return false;
+    if (expect.statuses && !expect.statuses.includes(order.status)) return false;
+    this.foodOrders.set(id, clone({ ...order, ...patch, appId, id }));
+    return true;
+  }
+
+  async foodStatement(appId: string, since: Date, until: Date): Promise<FoodStatementRow[]> {
+    const rows = new Map<string, FoodStatementRow>();
+    for (const o of this.foodOrders.values()) {
+      if (o.appId !== appId || o.status !== "delivered" || o.createdAt < since || o.createdAt >= until) continue;
+      const key = o.restaurantId === null ? `name:${o.restaurantName}` : `id:${o.restaurantId}`;
+      const row = rows.get(key) ?? { restaurantId: o.restaurantId, restaurantName: o.restaurantName, orders: 0, subtotalCents: 0, deliveryFeeCents: 0, commissionCents: 0, cashSubtotalCents: 0, cardSubtotalCents: 0 };
+      row.orders += 1;
+      row.subtotalCents += o.subtotalCents;
+      row.deliveryFeeCents += o.deliveryFeeCents;
+      row.commissionCents += o.commissionCents;
+      if (o.paymentMethod === "cash") row.cashSubtotalCents += o.subtotalCents;
+      else row.cardSubtotalCents += o.subtotalCents;
+      rows.set(key, row);
+    }
+    return [...rows.values()].sort((a, b) => b.subtotalCents - a.subtotalCents || a.restaurantName.localeCompare(b.restaurantName));
   }
 
   // 10.7 Listings

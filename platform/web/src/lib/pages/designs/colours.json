@@ -146,5 +146,17 @@
   "delivery-business": {
     "primary": "#264653",
     "secondary": "#2A9D8F"
+  },
+  "food-city": {
+    "primary": "#7F2704",
+    "secondary": "#F4A261"
+  },
+  "food-express": {
+    "primary": "#5F0F40",
+    "secondary": "#E63946"
+  },
+  "food-neighbourhood": {
+    "primary": "#344E41",
+    "secondary": "#2A9D8F"
   }
 }

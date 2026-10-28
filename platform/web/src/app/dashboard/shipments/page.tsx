@@ -66,7 +66,7 @@ export default async function ShipmentsPage({ searchParams }: { searchParams: Pr
         <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("delivery.shipments")}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("delivery.shipmentsIntro")}</p>
       </div>
-      <PlanNotice plan={plan} t={t} />
+      <PlanNotice plan={plan} t={t} app={app} />
       {!pricesSet(settings) ? (
         <p role="note" className="m-0 rounded-xl bg-peach-soft px-4 py-3 text-[15px] leading-relaxed">
           {richText(t("delivery.pricesFirst"), { link: (chunk) => <Link href="/dashboard/delivery">{chunk}</Link> })}

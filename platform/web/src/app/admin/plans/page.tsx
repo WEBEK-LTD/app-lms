@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { resetPlanAction } from "@/app/actions/admin-settings";
+import { addStudioPlanAction, resetPlanAction } from "@/app/actions/admin-settings";
 import { SubmitButton } from "@/components/form";
 import { ReadOnly } from "@/components/read-only";
 import { can } from "@/lib/admin/permissions";
@@ -8,12 +8,12 @@ import { centsToDecimal } from "@/lib/catalog/money";
 import { getStore } from "@/lib/data";
 import type { SwitchesSetting } from "@/lib/data/types";
 import Link from "next/link";
-import { PLAN_FEATURES, PLAN_LIMITS, planPrice, REGULAR_PLANS, STUDIO_ONLY_FEATURES, STUDIO_PLAN_CHOICES, STUDIO_PLANS, SUPPORT_LABEL, SUPPORT_LEVELS, type Plan, type PlanInfo } from "@/lib/plans";
+import { PLAN_FEATURES, PLAN_LIMITS, planPrice, REGULAR_PLANS, STUDIO_ONLY_FEATURES, STUDIO_PLANS, STUDIO_PLANS_SHOWN, SUPPORT_LABEL, SUPPORT_LEVELS, type Plan, type PlanInfo } from "@/lib/plans";
 import { getPlans, platformSetting, yallappBilling } from "@/lib/settings/platform";
 import { formatMoney, usdCentsOf } from "@/lib/billing/prices";
 import { getSwitches, LICENSE_FEATURE_SWITCHES, switchGroups, switchKey } from "@/lib/switches";
 import { PlanAvailabilityForm, type AvailabilityGroup } from "./availability";
-import { PlanForm, PlanLimitsForm, StoragePacksForm, StudioPlanForm } from "./forms";
+import { PlanForm, PlanLimitsForm, StoragePacksForm, StudioOfferForm } from "./forms";
 import { packOffers } from "@/lib/media/packs";
 
 export const metadata: Metadata = { title: "Plans" };
@@ -32,8 +32,12 @@ export default async function PlansPage({ searchParams }: PageProps<"/admin/plan
     yallappBilling(store, { fresh: true }),
     platformSetting(store, "storagePacks", { fresh: true }),
   ]);
+  // 103R The Studio plans: the first three, and those the team added (each saved once added).
+  const studioShown = STUDIO_PLANS.filter((id, i) => i < STUDIO_PLANS_SHOWN || edits?.value[id]);
+  const inUse = new Set<string>(family === "studio" ? (await store.listLicenses()).flatMap((l) => [l.plan, l.nextPlan ?? ""]) : []);
   // One regular plan at a time, picked from the row of plans.
   const selected: Plan = REGULAR_PLANS.find((p) => p === query.plan) ?? REGULAR_PLANS[0];
+  const studioSelected: Plan = studioShown.find((p) => p === query.plan) ?? studioShown[0]!;
   const priceOf = (id: Plan) => {
     const plan = plans[id];
     const shown = planPrice(plan);
@@ -85,31 +89,55 @@ export default async function PlansPage({ searchParams }: PageProps<"/admin/plan
       </div>
       <ReadOnly when={!can(adminRole, "plans.edit")} what="change plans or prices">
         {family === "studio" ? (
-          <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
-            {STUDIO_PLANS.map((id, i) => {
-              const plan = plans[id];
-              const usdAtRate = plan.priceCents ? usdCentsOf({ egpCents: plan.priceCents, usdCents: null }, billing.egpPerUsd) : null;
-              return (
-                <StudioPlanForm
-                  key={id}
-                  plan={{
-                    id,
-                    heading: `Studio plan ${i + 1}`,
-                    offered: plan.offered === true,
-                    // A plan never named keeps its placeholder name out of the field.
-                    name: edits?.value[id]?.name ? plan.name : "",
-                    egpPrice: plan.priceCents !== null ? centsToDecimal(plan.priceCents) : "",
-                    usdPrice: plan.usdCents !== null ? centsToDecimal(plan.usdCents) : "",
-                    months: String(plan.billingMonths),
-                    features: plan.features,
-                    studioPages: plan.limits.studioPages ? String(plan.limits.studioPages) : "",
-                    usdAtRate: usdAtRate !== null ? formatMoney({ cents: usdAtRate, currency: "USD" }) : "",
-                  }}
-                  choices={STUDIO_PLAN_CHOICES.map((f) => ({ id: f, label: PLAN_FEATURES.find((d) => d.id === f)!.label }))}
-                />
-              );
-            })}
-          </div>
+          <>
+            {/* 103R Studio's plans: the first three, then the ones the team added; one at a time, like the regular ones. */}
+            <div className="flex flex-col gap-3">
+              <nav aria-label="Studio plans" className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr))]">
+                {studioShown.map((id, i) => {
+                  const on = id === studioSelected;
+                  const plan = plans[id];
+                  return (
+                    <Link
+                      key={id}
+                      href={`/admin/plans?family=studio&plan=${id}`}
+                      aria-current={on ? "page" : undefined}
+                      data-studio-plan={id}
+                      className={`flex flex-col gap-1 rounded-2xl border px-4 py-3 text-ink no-underline hover:text-ink ${on ? "border-midnight bg-white shadow-sm" : "border-line bg-white/60 hover:border-line-strong"}`}
+                    >
+                      <span className="flex items-center justify-between gap-2">
+                        <span className="text-base font-bold text-ink">{edits?.value[id]?.name ? plan.name : `Studio plan ${i + 1}`}</span>
+                        <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${plan.offered ? "bg-success-bg text-success" : "bg-sand text-ink-2"}`}>{plan.offered ? "Offered" : "Not offered"}</span>
+                      </span>
+                      <span className="text-sm text-ink-2">{priceOf(id).main}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+              {studioShown.length < STUDIO_PLANS.length ? (
+                <form action={addStudioPlanAction}>
+                  <SubmitButton variant="secondary" className="h-10 px-4 text-sm" pendingText="Adding…">
+                    Add a Studio plan
+                  </SubmitButton>
+                </form>
+              ) : null}
+            </div>
+            <PlanPanels
+              key={studioSelected}
+              id={studioSelected}
+              family="studio"
+              plan={plans[studioSelected]}
+              edited={Boolean(edits?.value[studioSelected]) && STUDIO_PLANS.indexOf(studioSelected as (typeof STUDIO_PLANS)[number]) < STUDIO_PLANS_SHOWN}
+              price={priceOf(studioSelected)}
+              usdAtRate={plans[studioSelected].priceCents ? usdCentsOf({ egpCents: plans[studioSelected].priceCents!, usdCents: null }, billing.egpPerUsd) : null}
+              groups={availabilityGroups(switches, studioSelected)}
+              studio={{
+                offered: plans[studioSelected].offered === true,
+                named: Boolean(edits?.value[studioSelected]?.name),
+                studioPages: plans[studioSelected].limits.studioPages ? String(plans[studioSelected].limits.studioPages) : "",
+                removable: STUDIO_PLANS.indexOf(studioSelected as (typeof STUDIO_PLANS)[number]) >= STUDIO_PLANS_SHOWN && !plans[studioSelected].offered && !inUse.has(studioSelected),
+              }}
+            />
+          </>
         ) : family === "packs" ? (
           // 51 Extra storage for the Media library, bought by card with the plans' gateway; 52 priced in pounds like the plans.
           <section aria-labelledby="h-storage-packs" className="flex max-w-[860px] flex-col gap-4 rounded-2xl border border-line bg-white p-6">
@@ -159,8 +187,10 @@ export default async function PlansPage({ searchParams }: PageProps<"/admin/plan
                 );
               })}
             </nav>
-            <RegularPlan
+            <PlanPanels
+              key={selected}
               id={selected}
+              family="regular"
               plan={plans[selected]}
               edited={Boolean(edits?.value[selected])}
               price={priceOf(selected)}
@@ -174,21 +204,28 @@ export default async function PlansPage({ searchParams }: PageProps<"/admin/plan
   );
 }
 
-/** One regular plan: its name and price, its features and limits, and what its clients can choose, each in its own panel. */
-function RegularPlan({
+/**
+ * One plan: its name and price, its features and limits, and what its clients can choose, each in its own panel.
+ * 103R A Studio plan also has whether it is offered and its pages per project; its features are Studio's.
+ */
+function PlanPanels({
   id,
+  family,
   plan,
   edited,
   price,
   usdAtRate,
   groups,
+  studio,
 }: {
   id: Plan;
+  family: "regular" | "studio";
   plan: PlanInfo;
   edited: boolean;
   price: { main: string; usd: string | null };
   usdAtRate: number | null;
   groups: AvailabilityGroup[];
+  studio?: { offered: boolean; named: boolean; studioPages: string; removable: boolean };
 }) {
   const panel = "flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6";
   return (
@@ -212,6 +249,11 @@ function RegularPlan({
           </form>
         ) : null}
       </div>
+      {studio ? (
+        <div className={panel}>
+          <StudioOfferForm plan={{ id, name: plan.name, offered: studio.offered, named: studio.named, studioPages: studio.studioPages, removable: studio.removable }} />
+        </div>
+      ) : null}
       <div className="grid items-start gap-4 xl:grid-cols-2">
         <div className={panel}>
           <div className="flex flex-col gap-1">
@@ -262,7 +304,7 @@ function RegularPlan({
               accountManager: plan.limits.accountManager,
               customFeatures: plan.limits.customFeatures,
             }}
-            features={PLAN_FEATURES.filter((f) => !STUDIO_ONLY_FEATURES.includes(f.id))}
+            features={family === "studio" ? PLAN_FEATURES.filter((f) => f.id !== "studio") : PLAN_FEATURES.filter((f) => !STUDIO_ONLY_FEATURES.includes(f.id))}
             limits={PLAN_LIMITS}
             supportLevels={SUPPORT_LEVELS.map((s) => ({ id: s, label: SUPPORT_LABEL[s] }))}
           />

@@ -46,6 +46,26 @@ Still to come: the shared Yallapp Courier app (104.8, published together
 with the owner). Checks: redocly lint, platform unit
 tests, tsc, eslint, flutter analyze and widget tests.
 
+Phase 105.1 (food delivery from many restaurants) steps 105.1.1 to
+105.1.5 are complete: a new Studio project type, Food delivery (no website,
+on Studio's plans). Customers browse the company's restaurants and their
+menus, order from one restaurant (dishes with their choices, the delivery
+fee from the restaurant by the company's delivery prices), pay in cash or by
+card through the company's own gateway, follow the order and rate it. A
+restaurant's staff (added by number on its page) get a Restaurant tab: new
+orders, accept with the minutes it needs, turn down with a reason, ready,
+busy for a while. The company's couriers deliver through the courier
+screens of Phase 104; a courier job is made when the restaurant accepts an
+order or once it is ready, as the company chooses. The dashboard in Studio
+has Restaurants (details, hours, menu, staff and the company's share of each
+order, set by the company), Food orders with a monthly statement per
+restaurant, Courier jobs, Couriers and Delivery settings (with the cuisines
+and the time zone). Food delivery is the Studio plan feature `food`. Still
+to come: Studio templates for food and the second courier app for food
+companies (105.1.6). Checks: redocly lint, platform unit tests (with the
+isolation tests), tsc, eslint, e2e of the dashboard, flutter analyze and
+widget tests.
+
 Phase 103R (Yallapp Studio as the owner approved it) is complete. A
 Studio page is a tree of elements (`AppPage.studio`): rows, columns, layers,
 grids and sliders; texts, pictures, buttons, lists with the owner's own card,
@@ -129,12 +149,14 @@ test environment:
 
 ## Deployment
 
-- Migrations up to `0096` (`npm run db:migrate` in `platform/web`).
+- Migrations up to `0097` (`npm run db:migrate` in `platform/web`).
 - Delivery apps (Phase 104): turn on the plan features `delivery` and,
   for a second courier app, `courier_app`, with their prices, in Admin ›
   Plans; set the map tiles (an address with `{z}`, `{x}`, `{y}` and its
   attribution) in Admin › Settings › Maps before any company picks the
   live map. Without tiles, maps show the stages only.
+- Food delivery apps (105.1): turn on the plan feature `food`, with its
+  price, in Admin › Plans › Yallapp Studio.
 - Google real-time notifications use one Pub/Sub topic for every app
   (`GOOGLE_PUBSUB_PUSH_EMAIL`, `GOOGLE_PUBSUB_TOPIC`; see
   `docs/LAUNCH-CHECKLIST.md`). Each app's owner enters the topic in their own

@@ -7455,6 +7455,624 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Courier mode'**
   String get courierMode;
+
+  /// 105.1 The tab with the company's restaurants.
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurants'**
+  String get tabRestaurants;
+
+  /// 105.1 The tab with the customer's food orders.
+  ///
+  /// In en, this message translates to:
+  /// **'My orders'**
+  String get tabFoodOrders;
+
+  /// 105.1 The tab of a restaurant's staff.
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurant'**
+  String get tabRestaurantDesk;
+
+  /// 105.1 Account: a restaurant's staff open the restaurant's screens.
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurant mode'**
+  String get restaurantMode;
+
+  /// 105.1 The restaurants list's search box.
+  ///
+  /// In en, this message translates to:
+  /// **'Search restaurants and dishes'**
+  String get restaurantsSearchHint;
+
+  /// 105.1 The cuisine chip that shows every restaurant.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get cuisineAll;
+
+  /// 105.1 Read while the restaurants load.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading restaurants'**
+  String get loadingRestaurants;
+
+  /// 105.1 The restaurants list is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No restaurants here yet'**
+  String get noRestaurantsTitle;
+
+  /// 105.1 The restaurants list is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Try another search or cuisine, or come back later.'**
+  String get noRestaurantsMessage;
+
+  /// 105.1 A restaurant isn't taking orders now.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get restaurantClosed;
+
+  /// 105.1 When a closed restaurant opens.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens {time}'**
+  String restaurantOpensAt(String time);
+
+  /// 105.1 A restaurant paused new orders for a while.
+  ///
+  /// In en, this message translates to:
+  /// **'Busy now'**
+  String get restaurantBusy;
+
+  /// 105.1 The restaurant is too far.
+  ///
+  /// In en, this message translates to:
+  /// **'Doesn\'t deliver to you'**
+  String get restaurantNoDelivery;
+
+  /// 105.1 A number of minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String restaurantMinutes(int minutes);
+
+  /// 105.1 A restaurant's smallest order.
+  ///
+  /// In en, this message translates to:
+  /// **'Min. {amount}'**
+  String restaurantMinOrder(String amount);
+
+  /// 105.1 The delivery fee.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery {amount}'**
+  String restaurantFee(String amount);
+
+  /// 105.1 A dish or choice that is sold out.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold out'**
+  String get dishSoldOut;
+
+  /// 105.1 A dish the restaurant marks as popular.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular'**
+  String get dishPopular;
+
+  /// 105.1 A dish's note.
+  ///
+  /// In en, this message translates to:
+  /// **'Note for the kitchen (optional)'**
+  String get dishNote;
+
+  /// 105.1 A dish was added.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to your cart.'**
+  String get foodAdded;
+
+  /// 105.1 Asks before replacing another restaurant's dishes.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a new cart?'**
+  String get cartReplaceTitle;
+
+  /// 105.1 Asks before replacing another restaurant's dishes.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cart has dishes from {restaurant}. Adding this one empties it.'**
+  String cartReplaceMessage(String restaurant);
+
+  /// 105.1 Replaces the cart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a new cart'**
+  String get cartReplaceYes;
+
+  /// 105.1 Opens the cart.
+  ///
+  /// In en, this message translates to:
+  /// **'View cart ({count})'**
+  String foodViewCart(int count);
+
+  /// 105.1 The checkout screen's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order'**
+  String get foodCartTitle;
+
+  /// 105.1 The cart has nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cart is empty'**
+  String get foodCartEmptyTitle;
+
+  /// 105.1 The cart has nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a restaurant and add dishes.'**
+  String get foodCartEmptyMessage;
+
+  /// 105.1 The drop-off section.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliver to'**
+  String get foodDeliverTo;
+
+  /// 105.1 The dishes' total.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal'**
+  String get foodSubtotal;
+
+  /// 105.1 The delivery fee.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get foodDeliveryFee;
+
+  /// 105.1 The order's total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get foodTotal;
+
+  /// 105.1 The total before the address.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the address to see the total.'**
+  String get foodTotalMissing;
+
+  /// 105.1 Asked of accounts without a number.
+  ///
+  /// In en, this message translates to:
+  /// **'Your mobile number, for the courier'**
+  String get foodYourPhone;
+
+  /// 105.1 Places the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Place order'**
+  String get foodPlaceOrder;
+
+  /// 105.1 The order button for signed-out customers.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to order'**
+  String get foodSignInToOrder;
+
+  /// 105.1 The address is missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the delivery address.'**
+  String get foodFillAddress;
+
+  /// 105.1 The phone is missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your mobile number so the courier can call you.'**
+  String get foodFillPhone;
+
+  /// 105.1 A cash order was placed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order was sent to the restaurant.'**
+  String get foodOrderSent;
+
+  /// 105.1 A card order was paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid. Your order went to the restaurant.'**
+  String get foodOrderPaid;
+
+  /// 105.1 How long until it arrives.
+  ///
+  /// In en, this message translates to:
+  /// **'About {minutes} min'**
+  String foodEta(int minutes);
+
+  /// 105.1 A food order's stage.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for payment'**
+  String get foodAwaitingPayment;
+
+  /// 105.1 A food order's stage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to the restaurant'**
+  String get foodPlaced;
+
+  /// 105.1 A food order's stage.
+  ///
+  /// In en, this message translates to:
+  /// **'Being prepared'**
+  String get foodAccepted;
+
+  /// 105.1 A food order's stage.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready for the courier'**
+  String get foodReady;
+
+  /// 105.1 A food order's stage.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked up'**
+  String get foodPickedUp;
+
+  /// 105.1 A food order's stage.
+  ///
+  /// In en, this message translates to:
+  /// **'On the way'**
+  String get foodOnTheWay;
+
+  /// 105.1 A food order's stage.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get foodDelivered;
+
+  /// 105.1 A food order's stage.
+  ///
+  /// In en, this message translates to:
+  /// **'Not accepted'**
+  String get foodRejected;
+
+  /// 105.1 A food order's stage.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get foodCancelled;
+
+  /// 105.1 A food order's stage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t be delivered'**
+  String get foodFailed;
+
+  /// 105.1 A food order's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Order {reference}'**
+  String foodOrderHeading(String reference);
+
+  /// 105.1 When the restaurant said it is ready.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready around {time}'**
+  String foodReadyAt(String time);
+
+  /// 105.1 Why a restaurant turned an order down.
+  ///
+  /// In en, this message translates to:
+  /// **'The restaurant is closing'**
+  String get rejectClosing;
+
+  /// 105.1 Why a restaurant turned an order down.
+  ///
+  /// In en, this message translates to:
+  /// **'Too busy right now'**
+  String get rejectTooBusy;
+
+  /// 105.1 Why a restaurant turned an order down.
+  ///
+  /// In en, this message translates to:
+  /// **'Something isn\'t available'**
+  String get rejectItemUnavailable;
+
+  /// 105.1 Why a restaurant turned an order down.
+  ///
+  /// In en, this message translates to:
+  /// **'Another reason'**
+  String get rejectOther;
+
+  /// 105.1 Cancels a food order.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel order'**
+  String get foodCancel;
+
+  /// 105.1 Asks before cancelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this order?'**
+  String get foodCancelConfirm;
+
+  /// 105.1 The order was cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Order cancelled.'**
+  String get foodCancelledToast;
+
+  /// 105.1 Calls the restaurant.
+  ///
+  /// In en, this message translates to:
+  /// **'Call the restaurant'**
+  String get foodCallRestaurant;
+
+  /// 105.1 The order's restaurant.
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurant'**
+  String get foodRestaurant;
+
+  /// 105.1 The order's dishes.
+  ///
+  /// In en, this message translates to:
+  /// **'Dishes'**
+  String get foodDishes;
+
+  /// 105.1 The order waits for the restaurant.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the restaurant to accept it.'**
+  String get foodWaitingRestaurant;
+
+  /// 105.1 The rating section.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate your order'**
+  String get foodRateTitle;
+
+  /// 105.1 The restaurant's stars.
+  ///
+  /// In en, this message translates to:
+  /// **'The restaurant'**
+  String get rateRestaurant;
+
+  /// 105.1 The courier's stars.
+  ///
+  /// In en, this message translates to:
+  /// **'The courier'**
+  String get rateCourier;
+
+  /// 105.1 The rating's comment.
+  ///
+  /// In en, this message translates to:
+  /// **'Anything to add? (optional)'**
+  String get rateComment;
+
+  /// 105.1 Sends the rating.
+  ///
+  /// In en, this message translates to:
+  /// **'Send rating'**
+  String get rateSend;
+
+  /// 105.1 The rating was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks for rating.'**
+  String get rateThanks;
+
+  /// 105.1 No stars were chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the restaurant\'s stars.'**
+  String get ratePickStars;
+
+  /// 105.1 The order's rating.
+  ///
+  /// In en, this message translates to:
+  /// **'You rated it {stars} out of 5.'**
+  String foodRated(int stars);
+
+  /// 105.1 A star button's label for screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'{stars} stars'**
+  String rateStar(int stars);
+
+  /// 105.1 Read while the orders load.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading your orders'**
+  String get loadingFoodOrders;
+
+  /// 105.1 The orders list is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders yet'**
+  String get noFoodOrdersTitle;
+
+  /// 105.1 The orders list is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Your food orders show here.'**
+  String get noFoodOrdersMessage;
+
+  /// 105.1 Opens the restaurants.
+  ///
+  /// In en, this message translates to:
+  /// **'Order food'**
+  String get foodOrderFood;
+
+  /// 105.1 Orders while signed out.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to see your orders'**
+  String get foodOrdersSignInTitle;
+
+  /// 105.1 Orders while signed out.
+  ///
+  /// In en, this message translates to:
+  /// **'Your orders and where they are show here.'**
+  String get foodOrdersSignInMessage;
+
+  /// 105.1 The restaurant's new orders.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get deskNew;
+
+  /// 105.1 The restaurant's accepted orders.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing'**
+  String get deskPreparing;
+
+  /// 105.1 The restaurant's finished orders.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get deskDone;
+
+  /// 105.1 The restaurant takes orders.
+  ///
+  /// In en, this message translates to:
+  /// **'Taking orders'**
+  String get deskAccepting;
+
+  /// 105.1 The restaurant paused new orders.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused until {time}'**
+  String deskPausedUntil(String time);
+
+  /// 105.1 Outside the restaurant's hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed by its opening hours'**
+  String get deskClosedHours;
+
+  /// 105.1 Today's orders and sales.
+  ///
+  /// In en, this message translates to:
+  /// **'Today: {count} orders · {sales}'**
+  String deskToday(int count, String sales);
+
+  /// 105.1 Stops new orders for a while.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause new orders'**
+  String get deskPause;
+
+  /// 105.1 Asks for how long.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause new orders for'**
+  String get deskPauseFor;
+
+  /// 105.1 Ends the pause.
+  ///
+  /// In en, this message translates to:
+  /// **'Take orders again'**
+  String get deskOpenAgain;
+
+  /// 105.1 Someone who isn't a restaurant's staff opened its screen.
+  ///
+  /// In en, this message translates to:
+  /// **'For our restaurants'**
+  String get notRestaurantTitle;
+
+  /// 105.1 Someone who isn't a restaurant's staff opened its screen.
+  ///
+  /// In en, this message translates to:
+  /// **'This screen is for the staff of the restaurants we deliver for.'**
+  String get notRestaurantMessage;
+
+  /// 105.1 Read while the restaurant's orders load.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading orders'**
+  String get loadingRestaurantOrders;
+
+  /// 105.1 A restaurant's list is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders here'**
+  String get noRestaurantOrdersTitle;
+
+  /// 105.1 A restaurant's list is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'New orders show here as they come in.'**
+  String get noRestaurantOrdersMessage;
+
+  /// 105.1 Accepts an order.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get deskAccept;
+
+  /// 105.1 Asks how long the order takes.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready in how many minutes?'**
+  String get deskAcceptTitle;
+
+  /// 105.1 The order was accepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted. The customer was told.'**
+  String get deskAccepted;
+
+  /// 105.1 Turns an order down.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t take it'**
+  String get deskReject;
+
+  /// 105.1 Asks why.
+  ///
+  /// In en, this message translates to:
+  /// **'Why can\'t you take it?'**
+  String get deskRejectTitle;
+
+  /// 105.1 The reason's note.
+  ///
+  /// In en, this message translates to:
+  /// **'Note for the customer (optional)'**
+  String get deskRejectNote;
+
+  /// 105.1 The order was turned down.
+  ///
+  /// In en, this message translates to:
+  /// **'Turned down. The customer was told.'**
+  String get deskRejected;
+
+  /// 105.1 Marks the order ready.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready for the courier'**
+  String get deskMarkReady;
+
+  /// 105.1 The order is ready.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked ready.'**
+  String get deskMarkedReady;
+
+  /// 105.1 The order's customer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get deskCustomer;
 }
 
 class _AppLocalizationsDelegate

@@ -3743,5 +3743,485 @@
   "courierMode": "Courier mode",
   "@courierMode": {
     "description": "104 Account: a courier opens the courier's screens."
+  },
+  "tabRestaurants": "Restaurants",
+  "@tabRestaurants": {
+    "description": "105.1 The tab with the company's restaurants."
+  },
+  "tabFoodOrders": "My orders",
+  "@tabFoodOrders": {
+    "description": "105.1 The tab with the customer's food orders."
+  },
+  "tabRestaurantDesk": "Restaurant",
+  "@tabRestaurantDesk": {
+    "description": "105.1 The tab of a restaurant's staff."
+  },
+  "restaurantMode": "Restaurant mode",
+  "@restaurantMode": {
+    "description": "105.1 Account: a restaurant's staff open the restaurant's screens."
+  },
+  "restaurantsSearchHint": "Search restaurants and dishes",
+  "@restaurantsSearchHint": {
+    "description": "105.1 The restaurants list's search box."
+  },
+  "cuisineAll": "All",
+  "@cuisineAll": {
+    "description": "105.1 The cuisine chip that shows every restaurant."
+  },
+  "loadingRestaurants": "Loading restaurants",
+  "@loadingRestaurants": {
+    "description": "105.1 Read while the restaurants load."
+  },
+  "noRestaurantsTitle": "No restaurants here yet",
+  "@noRestaurantsTitle": {
+    "description": "105.1 The restaurants list is empty."
+  },
+  "noRestaurantsMessage": "Try another search or cuisine, or come back later.",
+  "@noRestaurantsMessage": {
+    "description": "105.1 The restaurants list is empty."
+  },
+  "restaurantClosed": "Closed",
+  "@restaurantClosed": {
+    "description": "105.1 A restaurant isn't taking orders now."
+  },
+  "restaurantOpensAt": "Opens {time}",
+  "@restaurantOpensAt": {
+    "description": "105.1 When a closed restaurant opens.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "restaurantBusy": "Busy now",
+  "@restaurantBusy": {
+    "description": "105.1 A restaurant paused new orders for a while."
+  },
+  "restaurantNoDelivery": "Doesn't deliver to you",
+  "@restaurantNoDelivery": {
+    "description": "105.1 The restaurant is too far."
+  },
+  "restaurantMinutes": "{minutes} min",
+  "@restaurantMinutes": {
+    "description": "105.1 A number of minutes.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "restaurantMinOrder": "Min. {amount}",
+  "@restaurantMinOrder": {
+    "description": "105.1 A restaurant's smallest order.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "restaurantFee": "Delivery {amount}",
+  "@restaurantFee": {
+    "description": "105.1 The delivery fee.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "dishSoldOut": "Sold out",
+  "@dishSoldOut": {
+    "description": "105.1 A dish or choice that is sold out."
+  },
+  "dishPopular": "Popular",
+  "@dishPopular": {
+    "description": "105.1 A dish the restaurant marks as popular."
+  },
+  "dishNote": "Note for the kitchen (optional)",
+  "@dishNote": {
+    "description": "105.1 A dish's note."
+  },
+  "foodAdded": "Added to your cart.",
+  "@foodAdded": {
+    "description": "105.1 A dish was added."
+  },
+  "cartReplaceTitle": "Start a new cart?",
+  "@cartReplaceTitle": {
+    "description": "105.1 Asks before replacing another restaurant's dishes."
+  },
+  "cartReplaceMessage": "Your cart has dishes from {restaurant}. Adding this one empties it.",
+  "@cartReplaceMessage": {
+    "description": "105.1 Asks before replacing another restaurant's dishes.",
+    "placeholders": {
+      "restaurant": {
+        "type": "String"
+      }
+    }
+  },
+  "cartReplaceYes": "Start a new cart",
+  "@cartReplaceYes": {
+    "description": "105.1 Replaces the cart."
+  },
+  "foodViewCart": "View cart ({count})",
+  "@foodViewCart": {
+    "description": "105.1 Opens the cart.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "foodCartTitle": "Your order",
+  "@foodCartTitle": {
+    "description": "105.1 The checkout screen's title."
+  },
+  "foodCartEmptyTitle": "Your cart is empty",
+  "@foodCartEmptyTitle": {
+    "description": "105.1 The cart has nothing."
+  },
+  "foodCartEmptyMessage": "Choose a restaurant and add dishes.",
+  "@foodCartEmptyMessage": {
+    "description": "105.1 The cart has nothing."
+  },
+  "foodDeliverTo": "Deliver to",
+  "@foodDeliverTo": {
+    "description": "105.1 The drop-off section."
+  },
+  "foodSubtotal": "Subtotal",
+  "@foodSubtotal": {
+    "description": "105.1 The dishes' total."
+  },
+  "foodDeliveryFee": "Delivery",
+  "@foodDeliveryFee": {
+    "description": "105.1 The delivery fee."
+  },
+  "foodTotal": "Total",
+  "@foodTotal": {
+    "description": "105.1 The order's total."
+  },
+  "foodTotalMissing": "Enter the address to see the total.",
+  "@foodTotalMissing": {
+    "description": "105.1 The total before the address."
+  },
+  "foodYourPhone": "Your mobile number, for the courier",
+  "@foodYourPhone": {
+    "description": "105.1 Asked of accounts without a number."
+  },
+  "foodPlaceOrder": "Place order",
+  "@foodPlaceOrder": {
+    "description": "105.1 Places the order."
+  },
+  "foodSignInToOrder": "Sign in to order",
+  "@foodSignInToOrder": {
+    "description": "105.1 The order button for signed-out customers."
+  },
+  "foodFillAddress": "Enter the delivery address.",
+  "@foodFillAddress": {
+    "description": "105.1 The address is missing."
+  },
+  "foodFillPhone": "Enter your mobile number so the courier can call you.",
+  "@foodFillPhone": {
+    "description": "105.1 The phone is missing."
+  },
+  "foodOrderSent": "Your order was sent to the restaurant.",
+  "@foodOrderSent": {
+    "description": "105.1 A cash order was placed."
+  },
+  "foodOrderPaid": "Paid. Your order went to the restaurant.",
+  "@foodOrderPaid": {
+    "description": "105.1 A card order was paid."
+  },
+  "foodEta": "About {minutes} min",
+  "@foodEta": {
+    "description": "105.1 How long until it arrives.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "foodAwaitingPayment": "Waiting for payment",
+  "@foodAwaitingPayment": {
+    "description": "105.1 A food order's stage."
+  },
+  "foodPlaced": "Sent to the restaurant",
+  "@foodPlaced": {
+    "description": "105.1 A food order's stage."
+  },
+  "foodAccepted": "Being prepared",
+  "@foodAccepted": {
+    "description": "105.1 A food order's stage."
+  },
+  "foodReady": "Ready for the courier",
+  "@foodReady": {
+    "description": "105.1 A food order's stage."
+  },
+  "foodPickedUp": "Picked up",
+  "@foodPickedUp": {
+    "description": "105.1 A food order's stage."
+  },
+  "foodOnTheWay": "On the way",
+  "@foodOnTheWay": {
+    "description": "105.1 A food order's stage."
+  },
+  "foodDelivered": "Delivered",
+  "@foodDelivered": {
+    "description": "105.1 A food order's stage."
+  },
+  "foodRejected": "Not accepted",
+  "@foodRejected": {
+    "description": "105.1 A food order's stage."
+  },
+  "foodCancelled": "Cancelled",
+  "@foodCancelled": {
+    "description": "105.1 A food order's stage."
+  },
+  "foodFailed": "Couldn't be delivered",
+  "@foodFailed": {
+    "description": "105.1 A food order's stage."
+  },
+  "foodOrderHeading": "Order {reference}",
+  "@foodOrderHeading": {
+    "description": "105.1 A food order's title.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "foodReadyAt": "Ready around {time}",
+  "@foodReadyAt": {
+    "description": "105.1 When the restaurant said it is ready.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "rejectClosing": "The restaurant is closing",
+  "@rejectClosing": {
+    "description": "105.1 Why a restaurant turned an order down."
+  },
+  "rejectTooBusy": "Too busy right now",
+  "@rejectTooBusy": {
+    "description": "105.1 Why a restaurant turned an order down."
+  },
+  "rejectItemUnavailable": "Something isn't available",
+  "@rejectItemUnavailable": {
+    "description": "105.1 Why a restaurant turned an order down."
+  },
+  "rejectOther": "Another reason",
+  "@rejectOther": {
+    "description": "105.1 Why a restaurant turned an order down."
+  },
+  "foodCancel": "Cancel order",
+  "@foodCancel": {
+    "description": "105.1 Cancels a food order."
+  },
+  "foodCancelConfirm": "Cancel this order?",
+  "@foodCancelConfirm": {
+    "description": "105.1 Asks before cancelling."
+  },
+  "foodCancelledToast": "Order cancelled.",
+  "@foodCancelledToast": {
+    "description": "105.1 The order was cancelled."
+  },
+  "foodCallRestaurant": "Call the restaurant",
+  "@foodCallRestaurant": {
+    "description": "105.1 Calls the restaurant."
+  },
+  "foodRestaurant": "Restaurant",
+  "@foodRestaurant": {
+    "description": "105.1 The order's restaurant."
+  },
+  "foodDishes": "Dishes",
+  "@foodDishes": {
+    "description": "105.1 The order's dishes."
+  },
+  "foodWaitingRestaurant": "Waiting for the restaurant to accept it.",
+  "@foodWaitingRestaurant": {
+    "description": "105.1 The order waits for the restaurant."
+  },
+  "foodRateTitle": "Rate your order",
+  "@foodRateTitle": {
+    "description": "105.1 The rating section."
+  },
+  "rateRestaurant": "The restaurant",
+  "@rateRestaurant": {
+    "description": "105.1 The restaurant's stars."
+  },
+  "rateCourier": "The courier",
+  "@rateCourier": {
+    "description": "105.1 The courier's stars."
+  },
+  "rateComment": "Anything to add? (optional)",
+  "@rateComment": {
+    "description": "105.1 The rating's comment."
+  },
+  "rateSend": "Send rating",
+  "@rateSend": {
+    "description": "105.1 Sends the rating."
+  },
+  "rateThanks": "Thanks for rating.",
+  "@rateThanks": {
+    "description": "105.1 The rating was sent."
+  },
+  "ratePickStars": "Choose the restaurant's stars.",
+  "@ratePickStars": {
+    "description": "105.1 No stars were chosen."
+  },
+  "foodRated": "You rated it {stars} out of 5.",
+  "@foodRated": {
+    "description": "105.1 The order's rating.",
+    "placeholders": {
+      "stars": {
+        "type": "int"
+      }
+    }
+  },
+  "rateStar": "{stars} stars",
+  "@rateStar": {
+    "description": "105.1 A star button's label for screen readers.",
+    "placeholders": {
+      "stars": {
+        "type": "int"
+      }
+    }
+  },
+  "loadingFoodOrders": "Loading your orders",
+  "@loadingFoodOrders": {
+    "description": "105.1 Read while the orders load."
+  },
+  "noFoodOrdersTitle": "No orders yet",
+  "@noFoodOrdersTitle": {
+    "description": "105.1 The orders list is empty."
+  },
+  "noFoodOrdersMessage": "Your food orders show here.",
+  "@noFoodOrdersMessage": {
+    "description": "105.1 The orders list is empty."
+  },
+  "foodOrderFood": "Order food",
+  "@foodOrderFood": {
+    "description": "105.1 Opens the restaurants."
+  },
+  "foodOrdersSignInTitle": "Sign in to see your orders",
+  "@foodOrdersSignInTitle": {
+    "description": "105.1 Orders while signed out."
+  },
+  "foodOrdersSignInMessage": "Your orders and where they are show here.",
+  "@foodOrdersSignInMessage": {
+    "description": "105.1 Orders while signed out."
+  },
+  "deskNew": "New",
+  "@deskNew": {
+    "description": "105.1 The restaurant's new orders."
+  },
+  "deskPreparing": "Preparing",
+  "@deskPreparing": {
+    "description": "105.1 The restaurant's accepted orders."
+  },
+  "deskDone": "Done",
+  "@deskDone": {
+    "description": "105.1 The restaurant's finished orders."
+  },
+  "deskAccepting": "Taking orders",
+  "@deskAccepting": {
+    "description": "105.1 The restaurant takes orders."
+  },
+  "deskPausedUntil": "Paused until {time}",
+  "@deskPausedUntil": {
+    "description": "105.1 The restaurant paused new orders.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskClosedHours": "Closed by its opening hours",
+  "@deskClosedHours": {
+    "description": "105.1 Outside the restaurant's hours."
+  },
+  "deskToday": "Today: {count} orders · {sales}",
+  "@deskToday": {
+    "description": "105.1 Today's orders and sales.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "sales": {
+        "type": "String"
+      }
+    }
+  },
+  "deskPause": "Pause new orders",
+  "@deskPause": {
+    "description": "105.1 Stops new orders for a while."
+  },
+  "deskPauseFor": "Pause new orders for",
+  "@deskPauseFor": {
+    "description": "105.1 Asks for how long."
+  },
+  "deskOpenAgain": "Take orders again",
+  "@deskOpenAgain": {
+    "description": "105.1 Ends the pause."
+  },
+  "notRestaurantTitle": "For our restaurants",
+  "@notRestaurantTitle": {
+    "description": "105.1 Someone who isn't a restaurant's staff opened its screen."
+  },
+  "notRestaurantMessage": "This screen is for the staff of the restaurants we deliver for.",
+  "@notRestaurantMessage": {
+    "description": "105.1 Someone who isn't a restaurant's staff opened its screen."
+  },
+  "loadingRestaurantOrders": "Loading orders",
+  "@loadingRestaurantOrders": {
+    "description": "105.1 Read while the restaurant's orders load."
+  },
+  "noRestaurantOrdersTitle": "No orders here",
+  "@noRestaurantOrdersTitle": {
+    "description": "105.1 A restaurant's list is empty."
+  },
+  "noRestaurantOrdersMessage": "New orders show here as they come in.",
+  "@noRestaurantOrdersMessage": {
+    "description": "105.1 A restaurant's list is empty."
+  },
+  "deskAccept": "Accept",
+  "@deskAccept": {
+    "description": "105.1 Accepts an order."
+  },
+  "deskAcceptTitle": "Ready in how many minutes?",
+  "@deskAcceptTitle": {
+    "description": "105.1 Asks how long the order takes."
+  },
+  "deskAccepted": "Accepted. The customer was told.",
+  "@deskAccepted": {
+    "description": "105.1 The order was accepted."
+  },
+  "deskReject": "Can't take it",
+  "@deskReject": {
+    "description": "105.1 Turns an order down."
+  },
+  "deskRejectTitle": "Why can't you take it?",
+  "@deskRejectTitle": {
+    "description": "105.1 Asks why."
+  },
+  "deskRejectNote": "Note for the customer (optional)",
+  "@deskRejectNote": {
+    "description": "105.1 The reason's note."
+  },
+  "deskRejected": "Turned down. The customer was told.",
+  "@deskRejected": {
+    "description": "105.1 The order was turned down."
+  },
+  "deskMarkReady": "Ready for the courier",
+  "@deskMarkReady": {
+    "description": "105.1 Marks the order ready."
+  },
+  "deskMarkedReady": "Marked ready.",
+  "@deskMarkedReady": {
+    "description": "105.1 The order is ready."
+  },
+  "deskCustomer": "Customer",
+  "@deskCustomer": {
+    "description": "105.1 The order's customer."
   }
 }

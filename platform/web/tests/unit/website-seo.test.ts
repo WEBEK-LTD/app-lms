@@ -1,4 +1,5 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { STUDIO_ONLY_KINDS } from "@/lib/studio/section";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { DOCS } from "@/content/docs";
@@ -98,8 +99,8 @@ describe("32 the home page's texts and counts", () => {
   it("has a plan title for four plans and counts in the defaults", () => {
     const home = contentPage("home")!.defaults;
     expect(home.plansTitle).toBe("A plan for every app");
-    // 104 The site counts the kinds it has a page for (delivery apps get theirs when they open to everyone).
-    expect(home.solutionsTitle).toBe(`One platform, ${numberWord(KINDS.filter((k) => k.engine !== "delivery").length)} kinds of apps`);
+    // 104 The site counts the kinds it has a page for (Studio's own kinds, 105.1 food delivery too, get theirs when they open to everyone).
+    expect(home.solutionsTitle).toBe(`One platform, ${numberWord(KINDS.filter((k) => !STUDIO_ONLY_KINDS.has(k.id)).length)} kinds of apps`);
     expect(home.solutionsTitle).toBe("One platform, eleven kinds of apps");
     expect(home.badge).toBe("Android and iOS apps for eleven kinds of business");
     expect(home.stepsTitle).toBe(`From sign-up to the app stores in ${numberWord(STEPS.length)} steps`);

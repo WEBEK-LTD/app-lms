@@ -31,7 +31,7 @@ import { adminFileHref, artifactLinks, FILES_NOT_CONFIGURED } from "@/lib/files"
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX } from "@/lib/hosted/notify";
 import { signInCodesSentToday } from "@/lib/license/sign-in-codes";
 import { ACCOUNT_STATE_LABEL, appState, clientAccountState, type AccountState } from "@/lib/license/status";
-import { formatLimit, planName, planNamesOf, type Plan, type PlanInfo } from "@/lib/plans";
+import { formatLimit, planName, planNamesOf, plansShown, type Plan, type PlanInfo } from "@/lib/plans";
 import { currentPlanId, scheduledPlan } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { getPlans } from "@/lib/settings/platform";
@@ -585,6 +585,7 @@ async function AppEntry({
                 planNames={planNamesOf(plans)}
                 from="client"
                 family={app?.section === "studio" ? "studio" : "regular"}
+                shown={plansShown(app?.section === "studio" ? "studio" : "regular", (await platformSetting(store, "plans"))?.value, license?.plan)}
               />
             </div>
           ) : null}

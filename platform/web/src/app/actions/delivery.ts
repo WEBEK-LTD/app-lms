@@ -38,7 +38,8 @@ async function requireDeliveryApp(permission: TeamPermission): Promise<ClientCon
   const context = await clientFor(permission);
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
-  if (!context.app || context.app.connector?.kind !== "deliveries") redirect("/dashboard");
+  // 105.1 Food delivery companies have couriers and delivery settings too.
+  if (!context.app || (context.app.connector?.kind !== "deliveries" && context.app.connector?.kind !== "restaurants")) redirect("/dashboard");
   return context as ClientContext & { app: App };
 }
 
@@ -58,7 +59,7 @@ export async function saveDeliverySettingsAction(_: FormState, formData: FormDat
   const saved = deliverySettingsOf(await store.getDeliverySettings(app.id));
   const now = new Date();
   const plan = await appPlan(store, context.license, now);
-  const parsed = parseDeliverySettings(values, saved, hasFeature(plan, "courier_app"));
+  const parsed = parseDeliverySettings(values, saved, hasFeature(plan, "courier_app"), app.connector?.kind === "restaurants");
   if (!parsed.ok) return { errors: parsed.errors, values };
   // 104.6 The courier iPhone app's Firebase file, checked against its bundle ID.
   const plist = formData.get("courierFirebaseIos");

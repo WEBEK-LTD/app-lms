@@ -97,7 +97,8 @@ class User {
     email: optString(json, 'email'),
     city: optString(json, 'city'),
     avatarUrl: optString(json, 'avatar_url'),
-    // 104 In delivery apps, `courier` for the company's couriers.
+    // 104 In delivery apps, `courier` for the company's couriers; 105.1 in
+    // food delivery apps also `restaurant` for its restaurants' staff.
     roles: stringList(json, 'roles'),
   );
 
@@ -111,6 +112,9 @@ class User {
 
   /// 104 One of the delivery company's couriers.
   bool get isCourier => roles.contains('courier');
+
+  /// 105.1 Works for one of the food delivery company's restaurants.
+  bool get isRestaurant => roles.contains('restaurant');
 
   Json toJson() => {
     'id': id,

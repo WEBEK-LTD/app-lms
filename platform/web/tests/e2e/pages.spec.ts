@@ -370,15 +370,42 @@ test("101 the client picks a header and its buttons, and the app gets them", asy
 test("103R the team offers a Studio plan; the client makes a Studio project apart from the regular apps, designs it and publishes it", async () => {
   // 103R.2 Studio's plans are their own family, offered when the team turns them on.
   await admin.goto("/admin/plans?family=studio");
-  const studioPlan = admin.locator('[data-studio-plan="studio_1"]');
-  await expect(studioPlan.getByText("Not offered.")).toBeVisible();
+  await expect(admin.locator('[data-studio-plan="studio_1"]')).toContainText("Not offered");
+  const studioPlan = admin.locator('section[aria-labelledby="h-studio_1"]');
+  // Offered with its own name only.
   await studioPlan.getByLabel("Offered").check();
-  await studioPlan.getByLabel("Name").fill("Studio Start");
-  await studioPlan.getByLabel("Price (EGP)").fill("500");
-  await studioPlan.getByLabel("Motion in the editor").check();
-  await studioPlan.getByLabel("Pages per project").fill("5");
+  await studioPlan.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(studioPlan.getByText("Give the plan its name and price below first, then offer it.")).toBeVisible();
+  // Its name, texts and price, like a regular plan's.
+  await studioPlan.getByLabel("Name", { exact: true }).first().fill("Studio Start");
+  await studioPlan.getByLabel("Tagline", { exact: true }).first().fill("Your first Studio project");
+  await studioPlan.getByLabel("What's included", { exact: true }).first().fill("Pages designed freely\nThe app in the stores");
+  await studioPlan.getByLabel("A price").check();
+  await studioPlan.getByLabel("Price in EGP").fill("500");
   await studioPlan.getByRole("button", { name: "Save plan" }).click();
-  await expect(admin.getByText("Studio Start saved. Studio projects can choose it now.")).toBeVisible();
+  await expect(studioPlan.getByText("Studio Start saved. The pricing page shows it now.")).toBeVisible();
+  // Its features and limits: Studio's own and every regular one, storage included.
+  await expect(studioPlan.getByLabel("Storage (GB)")).toHaveValue("20");
+  await studioPlan.getByLabel("Motion in the editor").check();
+  await studioPlan.getByLabel("Storage (GB)").fill("30");
+  await studioPlan.getByRole("button", { name: "Save features and limits" }).click();
+  await expect(studioPlan.getByText("Studio Start: features and limits saved.")).toBeVisible();
+  await studioPlan.getByLabel("Offered").check();
+  await studioPlan.getByLabel("Pages per project").fill("5");
+  await studioPlan.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(studioPlan.getByText("Studio Start is offered. Studio projects can choose it now.")).toBeVisible();
+  await admin.reload();
+  await expect(admin.locator('[data-studio-plan="studio_1"]')).toContainText("Offered");
+  await expect(studioPlan.getByLabel("Storage (GB)")).toHaveValue("30");
+  await expect(studioPlan.getByLabel("Pages per project")).toHaveValue("5");
+  await expect(studioPlan.getByRole("heading", { name: "What Studio Start offers" })).toBeVisible();
+  // The team adds plans past the first three, and takes off one no app is on.
+  await expect(admin.locator('[data-studio-plan="studio_4"]')).toHaveCount(0);
+  await admin.getByRole("button", { name: "Add a Studio plan" }).click();
+  await admin.locator('[data-studio-plan="studio_4"]').click();
+  await expect(admin.getByRole("heading", { name: "Studio plan 4", level: 2 })).toBeVisible();
+  await admin.getByRole("button", { name: "Remove plan" }).click();
+  await expect(admin.locator('[data-studio-plan="studio_4"]')).toHaveCount(0);
   // The website shows the offered Studio plan on Yallapp Studio's page and on pricing, apart from the regular plans.
   await admin.goto("/yallapp-studio");
   const offered = admin.locator('#plans [data-plan="studio_1"]');
@@ -476,7 +503,7 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   // The Studio plan isn't offered any more, for the specs that run after this one.
   await admin.goto("/admin/plans?family=studio");
   await studioPlan.getByLabel("Offered").uncheck();
-  await studioPlan.getByRole("button", { name: "Save plan" }).click();
+  await studioPlan.getByRole("button", { name: "Save", exact: true }).click();
   await expect(admin.getByText("Studio Start isn't offered. Clients don't see it.")).toBeVisible();
 });
 

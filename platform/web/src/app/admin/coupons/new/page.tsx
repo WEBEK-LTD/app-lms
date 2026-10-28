@@ -1,10 +1,10 @@
-import { planNamesOf } from "@/lib/plans";
+import { planNamesOf, plansInList } from "@/lib/plans";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
 import { requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
-import { getPlans } from "@/lib/settings/platform";
+import { getPlans, platformSetting } from "@/lib/settings/platform";
 import { NEW_COUPON } from "@/lib/billing/coupons";
 import { CouponForm } from "../forms";
 
@@ -24,7 +24,7 @@ export default async function NewCouponPage() {
         <h1 className="m-0 text-[28px] font-extrabold">New coupon</h1>
       </div>
       <section aria-label="Coupon" className="max-w-[760px] rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <CouponForm coupon={NEW_COUPON} planNames={planNamesOf(plans)} />
+        <CouponForm coupon={NEW_COUPON} planNames={planNamesOf(plans)} shown={plansInList((await platformSetting(await getStore(), "plans"))?.value)} />
       </section>
     </>
   );
