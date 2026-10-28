@@ -15,7 +15,7 @@ import 'app_header.dart';
 import 'page_blocks.dart';
 import 'page_providers.dart';
 import 'side_menu.dart';
-import 'studio_canvas.dart';
+import 'studio_page.dart';
 
 /// A page built in the client dashboard (`GET /pages/{slug}`), as a tab or
 /// opened on top of the tabs ([pushed]). Pull down to reload.
@@ -76,14 +76,10 @@ class AppPageView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 103 A page designed in Yallapp Studio.
-    final canvas = page.canvas;
-    if (canvas != null) {
-      return StudioCanvasView(
-        canvas: canvas,
-        pageSlug: page.slug,
-        pushed: pushed,
-      );
+    // 103R A page designed in Yallapp Studio.
+    final studio = page.studio;
+    if (studio != null) {
+      return StudioPageView(page: studio, pageSlug: page.slug, pushed: pushed);
     }
     final template = ref.watch(appLookProvider).template;
     final style = PageStyle.of(template);

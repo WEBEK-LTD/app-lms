@@ -167,7 +167,8 @@ PageAction? _actionOf(HeaderIcon icon) => switch (icon) {
   HeaderIcon.chat => null,
 };
 
-void _open(BuildContext context, WidgetRef ref, HeaderIcon icon) {
+/// Opens what the header's [icon] stands for (103R also Studio's header).
+void openHeaderIcon(BuildContext context, WidgetRef ref, HeaderIcon icon) {
   final action = _actionOf(icon);
   if (action == null) {
     openLocation(context, Paths.chat);
@@ -214,7 +215,7 @@ class _HeaderButton extends ConsumerWidget {
       background: onDark ? p.primarySoft : null,
       foreground: onDark ? p.onPrimarySoft : null,
       bordered: !onDark,
-      onPressed: () => _open(context, ref, icon),
+      onPressed: () => openHeaderIcon(context, ref, icon),
     );
   }
 }
@@ -285,7 +286,7 @@ class _SearchField extends ConsumerWidget {
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: () => _open(context, ref, HeaderIcon.search),
+          onTap: () => openHeaderIcon(context, ref, HeaderIcon.search),
           child: SizedBox(
             height: 48,
             child: Padding(

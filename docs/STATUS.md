@@ -8,16 +8,22 @@ Last updated: 28 October 2026.
 
 ## Current release
 
-Phase 103 (Yallapp Studio) is complete: Dashboard › Studio designs a
-page freely on a canvas (shapes, texts, pictures, buttons, icons and lists
-from the app's source; drag, resize, layers, starting templates including
-one for delivery companies), saved in the Pages & look draft. The hosted
-API and plugin 0.4.25 serve the page's canvas (`AppPage.canvas`), and the
-app draws it natively, scaled to the screen. Studio is the plan feature
-`studio`, off on every plan: the team turns it on, with Studio's plans and
-prices, in Admin › Plans; until then a canvas isn't served. Checks: redocly
-lint, platform unit tests, e2e of the editors, composer lint, flutter
-analyze and widget tests.
+Phase 103R (Yallapp Studio as the owner approved it) is under way. A
+Studio page is a tree of elements (`AppPage.studio`): rows, columns, layers,
+grids and sliders; texts, pictures, buttons, lists with the owner's own card,
+categories, videos, forms, maps, ratings and search, sized to fill, hug or a
+fixed size, light and dark, with motion. Done:
+- the contract;
+- the editor at `/studio/editor`, as in the approved design;
+- serving by the hosted API and plugin 0.4.26, with forms on a Studio page
+  answered like the form block;
+- the app drawing the tree natively.
+
+Studio's own section (home, projects, its plans in the admin) waits on the
+owner's design approval. Studio is the plan feature `studio`, off on every
+plan; until it is on, a Studio page isn't served. Checks: redocly lint,
+platform unit tests, e2e of the editor, composer lint, plugin unit tests,
+flutter analyze and widget tests.
 
 Phase 102 (a store review account in every app, required) is complete:
 Publishing › Store review account holds the reviewers' sign-in for every
@@ -85,7 +91,7 @@ test environment:
   Play Console › Monetization setup; the platform finds the app by its
   package name.
 - Plugin 0.4.23 goes to sites once the app update with in-app purchases is
-  in the stores; 0.4.24 (the header) and 0.4.25 (Studio pages) after the
+  in the stores; 0.4.24 (the header) and 0.4.26 (Studio pages) after the
   app update that shows them.
 
 ## Planned (to agree on before any work)

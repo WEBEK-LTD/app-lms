@@ -641,6 +641,27 @@ describe("pages on the hosted API", () => {
     expect(arabic.studio.header.title).toBe("الدروس");
   });
 
+  it("103R takes the answers of a form element on a Studio page", async () => {
+    const studio = {
+      body: {
+        id: "root",
+        type: "column",
+        children: [{ id: "contact", type: "form", form: { send_to: "email", submit_label: "Send", fields: [{ id: "name", kind: "text", label: "Name", required: true }] } }],
+      },
+    };
+    const page = { slug: "home", title: "Home", show_title: true, updated_at: NOW.toISOString(), blocks: [], studio };
+    expect((await publishLayout(store, app, layoutWith([], { pages: [page] }), "owner@lale.test", NOW)).ok).toBe(true);
+    const sent: unknown[] = [];
+    const post = (path: string, answers: unknown) =>
+      handleHosted({ ...context(), onFormAnswers: async (input) => void sent.push(input) }, { method: "POST", path: path.split("/").filter(Boolean), query: new URLSearchParams(), body: { answers }, token: null, headers: new Headers() });
+    const wrong = await post("/forms/home/contact", { name: " " });
+    expect(wrong.status).toBe(400);
+    expect((await post("/forms/home/contact", { name: "Ayşe" })).status).toBe(202);
+    expect(sent).toEqual([{ title: "Home", lines: [{ label: "Name", value: "Ayşe" }], user: null, replyTo: null }]);
+    // Only a form element: not the page's own column.
+    expect((await post("/forms/home/root", { name: "Ayşe" })).status).toBe(404);
+  });
+
   it("lists services of a bookings app", async () => {
     app = {
       ...app,
