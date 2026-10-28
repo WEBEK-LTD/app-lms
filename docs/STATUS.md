@@ -55,3 +55,32 @@ test environment:
   package name.
 - Plugin 0.4.23 goes to sites once the app update with in-app purchases is
   in the stores.
+
+## Planned (to agree on before any work)
+
+- **Header types in the regular editor.** Several app header layouts to
+  choose from, each with the icons the owner picks (cart, chat,
+  notifications, search, profile); the profile icon opens the customer's
+  account and settings. Today the header is fixed by the template
+  (classic, bold, minimal).
+- **A store review account in every app, required.** Google Play (App
+  access) and the App Store (App Review Information) need a working
+  sign-in for their reviewers, or the app is rejected. Today only apps on
+  the hosted API must set one (a fixed review phone or email with a fixed
+  code, checked in Publishing's readiness); WordPress apps and apps on
+  their own API only get a note. Make a fixed review sign-in (user name and
+  password, or the review number or email with its fixed code) required
+  for every app source before a store build, and show the owner the exact
+  steps to enter it in Play Console and App Store Connect, in English,
+  Arabic and Turkish.
+- **Yallapp Studio** (a separate mode with its own plans and prices): a
+  free-form editor with drag and drop, layers and full styling, rendered
+  natively by the app from data; the same data sources as the regular
+  editor (WordPress, Wix, Shopify, Salla, Zid, no website, own API);
+  advanced Studio templates; new project types only in Studio, starting
+  with delivery and courier companies (then multi-restaurant food delivery,
+  car rental, hotels and rentals, home services, laundry). Later, after
+  Studio is finished and tested: sharing templates for free or selling
+  them by monthly, yearly or lifetime subscription, with Yallapp's share
+  at 25% (taxes, payout and gateway fees included) and payouts to the
+  seller's bank account (SWIFT).
