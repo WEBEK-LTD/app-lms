@@ -36,6 +36,7 @@ export function newApp(clientId: string, siteUrl: string | null, now: Date, appT
   return {
     id: newId(),
     clientId,
+    section: "regular",
     appType,
     vertical,
     // Clients may sign up without a website (stored as ""): the app then starts without one.

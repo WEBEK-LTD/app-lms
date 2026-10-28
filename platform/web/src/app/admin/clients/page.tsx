@@ -426,10 +426,11 @@ async function ClientPanel({ row, now, may }: { row: ClientRow; now: Date; may: 
           <ActivateForm
             clientId={client.id}
             appId={app?.id ?? null}
-            plan={license?.plan ?? "pro"}
+            plan={license?.plan ?? (app?.section === "studio" ? "studio_1" : "pro")}
             activeUntil={isoDate(nextYear)}
             pending={!license}
             planNames={planNamesOf(plans)}
+            family={app?.section === "studio" ? "studio" : "regular"}
           />
         </div>
       ) : null}

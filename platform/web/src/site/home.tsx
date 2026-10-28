@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PLANS } from "@/lib/plans";
+import { REGULAR_PLANS } from "@/lib/plans";
 import { BrowserFrame, DASHBOARD_PATHS, DeviceFrame } from "@/components/device-frame";
 import { Icon } from "@/components/icon";
 import { JsonLdScript } from "@/components/json-ld";
@@ -32,7 +32,7 @@ export async function HomePage({ lang }: { lang: Lang }) {
   const store = await getStore();
   // 52 Prices in the visitor's currency: pounds in Egypt, dollars elsewhere.
   const [all, view] = await Promise.all([effectivePlans(store), visitorPriceView(store)]);
-  const plans = PLANS.map((id) => planFor(lang, all[id]));
+  const plans = REGULAR_PLANS.map((id) => planFor(lang, all[id]));
   const base = siteUrl();
   const text = await getSiteContent("home", lang);
   const m = messagesFor(lang);

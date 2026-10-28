@@ -3,7 +3,10 @@
 import { redirect } from "next/navigation";
 import { clientFor, mayUseDashboard } from "@/lib/auth/session";
 import { newId } from "@/lib/crypto/tokens";
+import { currentPlanId } from "@/lib/billing/plan-change";
 import { getStore } from "@/lib/data";
+import { effectivePlans } from "@/lib/entitlements";
+import { hasFeature } from "@/lib/plans";
 import type { StudioTemplate } from "@/lib/data/types";
 import { loadLayout } from "@/lib/pages/layout";
 import { parseStudioPage } from "@/lib/pages/validate";
@@ -25,8 +28,11 @@ async function requireStudioApp() {
 
 /** Saves a Studio page as one of the account's own templates. */
 export async function saveStudioTemplateAction(name: string, pageJson: string): Promise<{ ok: true; template: StudioTemplateView } | { ok: false; error: string }> {
-  const { app, user, staff } = await requireStudioApp();
+  const { app, user, staff, license } = await requireStudioApp();
   const store = await getStore();
+  // 103R Own templates with "Save pages as own templates" on the plan; before activation, to try.
+  const planId = license ? currentPlanId(license, new Date()) : null;
+  if (planId && !hasFeature((await effectivePlans(store))[planId], "studio_templates")) return { ok: false, error: "Saving pages as your own templates isn't on your plan." };
   const title = typeof name === "string" ? name.trim() : "";
   if (!title || title.length > 60) return { ok: false, error: "Give the template a name of up to 60 characters." };
   if ((await store.listStudioTemplates(app.clientId)).length >= MAX_STUDIO_TEMPLATES) return { ok: false, error: `You can keep up to ${MAX_STUDIO_TEMPLATES} templates. Delete one first.` };

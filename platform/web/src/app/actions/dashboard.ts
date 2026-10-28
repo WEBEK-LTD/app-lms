@@ -2,13 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { ownContentSetup } from "@/lib/app/own-content";
 import { checkApi, type ApiCheckResult } from "@/lib/app/api-check";
 import { listingLanguages, parseListingExtras } from "@/lib/app/listing-languages";
 import { versionSettingsProblems } from "@/lib/app/version-policy";
 import { changeRollout, FIRST_SHARES, RolloutError, type RolloutAction } from "@/lib/publishing/rollout";
 import { restoreFromBuild } from "@/lib/builds/go-back";
 import { apiCheckSignIn } from "@/lib/hosted/test-token";
-import { appTypeName, connectorFits, ENGINES, hostedOnly, isAppType, kindById, defaultKind, ownContentTitle, type OwnContentKind } from "@/lib/app/kinds";
+import { appTypeName, connectorFits, ENGINES, hostedOnly, isAppType, kindById, defaultKind, ownContentTitle } from "@/lib/app/kinds";
 import { isSetupComplete, managedPublishing, newApp, queueBuild, STEP_LABEL, type SetupStep } from "@/lib/app/setup";
 import { currentPlanId } from "@/lib/billing/plan-change";
 import { appPlan, effectivePlans } from "@/lib/entitlements";
@@ -30,7 +31,7 @@ import { encrypt } from "@/lib/crypto/encryption";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import type { AppPatch } from "@/lib/data/store";
-import { DEFAULT_BOOKING_SETUP, DEFAULT_CATALOG_SETTINGS, DEFAULT_COURSE_SETUP, DEFAULT_HOSTED_SETTINGS, type App, type AssetKind, type ConnectorConfig } from "@/lib/data/types";
+import { DEFAULT_HOSTED_SETTINGS, type App, type AssetKind, type ConnectorConfig } from "@/lib/data/types";
 import { appUrl, encryptionKey, sessionSecret, superAdminEmails } from "@/lib/env";
 import { shopifyAdminToken, shopifyConnectorConfig, shopifyToken } from "@/lib/hosted/connectors";
 import { oauthRedirectUri, partnerAppCredentials, signOAuthState } from "@/lib/hosted/connectors/partner-apps";
@@ -134,6 +135,8 @@ export async function switchAppAction(formData: FormData): Promise<void> {
   const app = context.apps.find((a) => a.id === appId);
   if (app) await chooseApp(app.id);
   revalidatePath("/dashboard", "layout");
+  // 103R A Studio project opens in Studio.
+  if (app?.section === "studio") redirect("/studio/project");
   // Pages every app has stay open; the others (products, bookings…) belong to one kind of app.
   const from = String(formData.get("from") ?? "");
   const stays = ["/dashboard/setup", "/dashboard/pages", "/dashboard/builds", "/dashboard/publishing", "/dashboard/license", "/dashboard/announcements"];
@@ -258,25 +261,6 @@ export async function startFromWebsiteAction(formData: FormData): Promise<void> 
   await recordStaffChange({ ...context, app }, `Started an app from ${new URL(draft.details.siteUrl).hostname} (${kind})`, { appType: null }, { appType: app.appType, vertical: app.vertical });
   revalidatePath("/dashboard", "layout");
   redirect("/dashboard/pages?from=site");
-}
-
-/** 20 The connector and starting settings of content managed in the dashboard. */
-function ownContentSetup(kind: OwnContentKind, app: App): AppPatch {
-  switch (kind) {
-    case "courses":
-      return { connector: { kind }, courseSetup: app.courseSetup ?? DEFAULT_COURSE_SETUP, catalogSettings: app.catalogSettings ?? DEFAULT_CATALOG_SETTINGS };
-    case "bookings":
-      return { connector: { kind }, bookingSetup: app.bookingSetup ?? DEFAULT_BOOKING_SETUP };
-    case "catalog":
-    // 28 Paid tickets use the shop's card payment settings, like paid courses.
-    case "events":
-    // 29 A charity's donations are paid into its own account (iyzico, Kashier, Fawaterk, Stripe or PayPal), kept with the shop's payment settings.
-    case "campaigns":
-      return { connector: { kind }, catalogSettings: app.catalogSettings ?? DEFAULT_CATALOG_SETTINGS };
-    case "listings":
-    case "articles":
-      return { connector: { kind } };
-  }
 }
 
 export interface WebsiteFormState extends FormState {

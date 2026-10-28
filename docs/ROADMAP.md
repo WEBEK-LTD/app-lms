@@ -2343,8 +2343,8 @@ client (`studio` was off on every plan).
 | | Step | Done when |
 |---|---|---|
 | [x] | 103R.1 Contract: `AppPage.studio` (`StudioPage`: header, body and background; `StudioNode`: layout and content elements, their style, light and dark colours, motion, data, tap action and platforms), Studio's ready sections and templates; `Phase 103` canvas removed | redocly lint |
-| [ ] | 103R.2 Platform: Studio pages checked, kept, served by the hosted API with lists filled from the source, sent to the plugin; the account's sections (regular, Studio); Studio plans (Admin › Plans › Studio), licenses and payment on them; Studio-only project types | unit tests |
-| [ ] | 103R.3 The Studio section (designs approved by the owner first): its home with the projects, a new project, the project's dashboard around the editor | e2e |
+| [x] | 103R.2 Platform: Studio pages checked, kept, served by the hosted API with lists filled from the source, sent to the plugin; the account's sections (`App.section`: regular, Studio; migration 0094); Studio plans (`studio_1`–`studio_3`, Admin › Plans › Yallapp Studio, offered when the team turns them on, with Motion, own templates and pages per project), licenses and payment on them, each family on its own apps only; Studio-only project types (the delivery company arrives with 104) | unit tests |
+| [x] | 103R.3 The Studio section (the four designs the owner approved): its home with the projects (`/studio`), a new project in three steps (`/studio/new`), the project's dashboard around the editor (`/studio/project`, the dashboard's pages in Studio's frame); a Studio project's dashboard addresses open there | e2e |
 | [x] | 103R.4 The editor, as in the approved design, every part working (`/studio/editor`, its own screen apart from the dashboard; "my templates" kept per account) | e2e |
 | [x] | 103R.5 App: Studio pages drawn natively from the tree: layout, sizes, colours light and dark, fonts, motion, data lists, taps, platforms | flutter analyze and widget tests |
 | [x] | 103R.6 Plugin 0.4.26: Studio pages served to WordPress apps, lists from the site, texts translated | composer lint, the plugin's integration suite |

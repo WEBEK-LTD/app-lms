@@ -347,7 +347,7 @@ describe("20 app kinds registry", () => {
   });
 
   it("offers every engine to announcements, Real estate included", () => {
-    const planNames = { starter: "Starter", growth: "Growth", pro: "Pro", business: "Business" };
+    const planNames = { starter: "Starter", growth: "Growth", pro: "Pro", business: "Business", studio_1: "Studio 1", studio_2: "Studio 2", studio_3: "Studio 3" };
     expect(audienceOptions(planNames).appTypes).toEqual([
       { id: "lms", label: "Academy" },
       { id: "store", label: "Store" },

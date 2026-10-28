@@ -13,6 +13,7 @@ import { loadLayout, withoutStrings } from "@/lib/pages/layout";
 import { allowedSources } from "@/lib/pages/plan";
 import { categorySourcesFor, itemSourcesFor, screenOptionsFor } from "@/lib/pages/sources";
 import { hasFeature } from "@/lib/plans";
+import { isStudioProject } from "@/lib/studio/section";
 import { StudioEditor } from "./editor";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -24,7 +25,8 @@ export const dynamic = "force-dynamic";
 /** 103R.4 Yallapp Studio's editor: the app's pages, designed element by element, in the layout's draft. */
 export default async function StudioEditorPage({ searchParams }: PageProps<"/studio/editor">) {
   const { app, license } = await requireClient("settings");
-  if (!app) redirect("/dashboard/app-type");
+  // 103R.3 Studio's editor is for Studio projects; a regular app keeps the dashboard's page editor.
+  if (!app || !isStudioProject(app)) redirect("/studio");
   const { t } = await dashboardText();
   const store = await getStore();
   const now = new Date();
@@ -48,7 +50,7 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
       pickable={await pickableContent(app, { store, key: encryptionKey(), assetUrl, platformUrl: appUrl() }, now)}
       myTemplates={(await store.listStudioTemplates(app.clientId)).map(({ id, name, page }) => ({ id, name, page }))}
       // 17 The real app with the saved draft on the hosted API, else with what's published.
-      previewHref={app.backend === "hosted" ? "/dashboard/preview?pages=draft" : "/dashboard/preview"}
+      previewHref={app.backend === "hosted" ? "/studio/project/preview?pages=draft" : "/studio/project/preview"}
       fontCount={FREE_FONT_COUNT}
       startSlug={typeof query.page === "string" ? query.page : null}
       // Designing works on any plan; the app gets the design with Studio on the plan (before activation, everything).

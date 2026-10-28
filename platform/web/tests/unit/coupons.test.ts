@@ -119,8 +119,11 @@ describe("coupon rules", () => {
   });
 });
 
+// 103R.3 Every plan of both families (the regular apps' and Studio's).
+const ALL = ["starter", "growth", "pro", "business", "studio_1", "studio_2", "studio_3"];
+
 describe("the admin's coupon form", () => {
-  const form = (values: Record<string, string>, plans = ["starter", "growth", "pro", "business"], periods = ["1", "12"]) => readCouponForm({ values, plans, periods });
+  const form = (values: Record<string, string>, plans: string[] = [...ALL], periods = ["1", "12"]) => readCouponForm({ values, plans, periods });
 
   it("reads a coupon, storing every plan or period ticked as all", () => {
     expect(

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { savePlanAction, savePlanLimitsAction, saveStoragePacksAction } from "@/app/actions/admin-settings";
+import { savePlanAction, savePlanLimitsAction, saveStoragePacksAction, saveStudioPlanAction } from "@/app/actions/admin-settings";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
 
@@ -300,6 +300,109 @@ export function PlanLimitsForm({
           Save features and limits
         </SubmitButton>
       </div>
+    </form>
+  );
+}
+
+/** 103R A Studio plan's card on Admin › Plans › Yallapp Studio. */
+export interface StudioPlanValues {
+  id: string;
+  /** "Studio plan 1": the card's heading. */
+  heading: string;
+  offered: boolean;
+  name: string;
+  egpPrice: string;
+  usdPrice: string;
+  months: string;
+  features: string[];
+  studioPages: string;
+  /** The dollar price at the exchange rate, for the hint; empty without a rate. */
+  usdAtRate: string;
+}
+
+export function StudioPlanForm({ plan, choices }: { plan: StudioPlanValues; choices: { id: string; label: string }[] }) {
+  const [state, action] = useActionState(saveStudioPlanAction, initialFormState);
+  const v = (name: keyof StudioPlanValues & string, fallback: string) => state.values?.[name] ?? fallback;
+  const [offered, setOffered] = useState(state.values ? state.values.offered === "on" : plan.offered);
+  const checked = state.values ? (state.values.features ?? "").split(",") : plan.features;
+  const id = (name: string) => `${plan.id}-${name}`;
+  const toggle = (
+    <label className="flex cursor-pointer items-center gap-1.5 text-[13px]">
+      <input type="checkbox" name="offered" checked={offered} onChange={(e) => setOffered(e.target.checked)} className="h-4 w-4 accent-midnight" />
+      Offered
+    </label>
+  );
+  if (!offered) {
+    return (
+      <form action={action} noValidate aria-labelledby={id("h")} className="flex flex-col items-start gap-2.5 rounded-2xl border border-dashed border-[#B9B3A5] bg-white p-[18px]" data-studio-plan={plan.id}>
+        <input type="hidden" name="plan" value={plan.id} />
+        <h2 id={id("h")} className="m-0 text-[17px] font-extrabold">
+          {plan.heading}
+        </h2>
+        <FormMessage message={state.message} ok={state.ok} />
+        <p className="m-0 text-sm text-muted">Not offered. Turn it on to give it a name, a price and what it includes.</p>
+        {toggle}
+        {/* Only an offered plan needs saving to stop offering it. */}
+        {plan.offered ? (
+          <SubmitButton variant="secondary" className="h-9 px-3 text-sm" pendingText="Saving…">
+            Save plan
+          </SubmitButton>
+        ) : null}
+      </form>
+    );
+  }
+  return (
+    <form action={action} noValidate aria-labelledby={id("h")} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-[18px]" data-studio-plan={plan.id}>
+      <input type="hidden" name="plan" value={plan.id} />
+      <div className="flex items-center justify-between gap-2">
+        <h2 id={id("h")} className="m-0 text-[17px] font-extrabold">
+          {plan.heading}
+        </h2>
+        {toggle}
+      </div>
+      <FormMessage message={state.message} ok={state.ok} />
+      <Field id={id("name")} label="Name" name="name" maxLength={30} placeholder="[Plan name]" defaultValue={v("name", plan.name)} error={state.errors?.name} small />
+      <div className="grid grid-cols-2 gap-2">
+        <Field id={id("egpPrice")} label="Price (EGP)" name="egpPrice" inputMode="decimal" placeholder="[price]" defaultValue={v("egpPrice", plan.egpPrice)} error={state.errors?.egpPrice} small />
+        <Field
+          id={id("usdPrice")}
+          label="Price (USD)"
+          name="usdPrice"
+          inputMode="decimal"
+          placeholder="[price]"
+          defaultValue={v("usdPrice", plan.usdPrice)}
+          hint={plan.usdAtRate ? `Empty: ${plan.usdAtRate} at the rate.` : undefined}
+          error={state.errors?.usdPrice}
+          small
+        />
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor={id("months")} className="text-[13px] font-bold">
+          Billing
+        </label>
+        <select id={id("months")} name="months" defaultValue={v("months", plan.months)} className="input input-sm">
+          <option value="1">Monthly</option>
+          <option value="12">Yearly</option>
+        </select>
+        <FieldError id={`${id("months")}-error`} error={state.errors?.months} />
+      </div>
+      <fieldset className="m-0 flex flex-col gap-1.5 rounded-[10px] border border-[#EDE8DD] px-3 py-2.5 text-[13px]">
+        <legend className="px-1 font-bold">What the plan includes</legend>
+        {choices.map((c) => (
+          <label key={c.id} className="flex cursor-pointer gap-2">
+            <input type="checkbox" name="features" value={c.id} defaultChecked={checked.includes(c.id)} className="accent-midnight" />
+            {c.label}
+          </label>
+        ))}
+        <label className="flex items-center gap-2">
+          Pages per project
+          <input id={id("studioPages")} name="studioPages" inputMode="numeric" placeholder="[n]" defaultValue={v("studioPages", plan.studioPages)} className="input input-sm h-[30px] w-16 px-2" aria-describedby={state.errors?.studioPages ? `${id("studioPages")}-error` : undefined} />
+        </label>
+        <FieldError id={`${id("studioPages")}-error`} error={state.errors?.studioPages} />
+      </fieldset>
+      <SubmitButton className="h-10" pendingText="Saving…">
+        Save plan
+      </SubmitButton>
     </form>
   );
 }
