@@ -89,7 +89,7 @@ test("card payment shows once the team sets the account and a card price", async
   await billing.getByRole("button", { name: "Save plan payments" }).click();
   await expect(billing.getByText("Plans are paid through Yallapp's iyzico account.")).toBeVisible();
 
-  await admin.goto("/admin/plans");
+  await admin.goto("/admin/plans?plan=pro");
   const pro = admin.getByRole("region", { name: "Pro" });
   await pro.getByLabel("A price").check();
   await pro.getByLabel("Price in EGP").fill("4800");
@@ -152,7 +152,7 @@ test("the team sees the payment", async () => {
 });
 
 test("the team puts the settings back", async () => {
-  await admin.goto("/admin/plans");
+  await admin.goto("/admin/plans?plan=pro");
   await admin.getByRole("region", { name: "Pro" }).getByRole("button", { name: "Back to the default plan" }).click();
   await admin.goto("/admin/settings/payments");
   const billing = admin.getByRole("region", { name: "Yallapp's plan payments" });

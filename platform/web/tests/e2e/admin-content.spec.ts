@@ -179,7 +179,7 @@ test("a coupon lowers the client's card payment", async () => {
   await billing.getByLabel("Gateway for plans").selectOption("iyzico");
   await billing.getByRole("button", { name: "Save plan payments" }).click();
   await expect(billing.getByText("Plans are paid through Yallapp's iyzico account.")).toBeVisible();
-  await admin.goto("/admin/plans");
+  await admin.goto("/admin/plans?plan=pro");
   const pro = admin.getByRole("region", { name: "Pro" });
   await pro.getByLabel("A price").check();
   await pro.getByLabel("Price in EGP").fill("4800");
@@ -228,7 +228,7 @@ test("a coupon lowers the client's card payment", async () => {
   await admin.goto(couponUrl);
   await admin.getByRole("button", { name: "Turn off" }).click();
   await expect(admin.getByText("Coupon turned off.")).toBeVisible();
-  await admin.goto("/admin/plans");
+  await admin.goto("/admin/plans?plan=pro");
   await admin.getByRole("region", { name: "Pro" }).getByRole("button", { name: "Back to the default plan" }).click();
   await admin.goto("/admin/settings/payments");
   const billingBack = admin.getByRole("region", { name: "Yallapp's plan payments" });

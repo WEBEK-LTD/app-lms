@@ -144,7 +144,7 @@ test("the team adds Yallapp's iyzico account", async () => {
 });
 
 test("the team changes a plan's price and the pricing page shows it", async () => {
-  await page.goto("/admin/plans");
+  await page.goto("/admin/plans?plan=pro");
   const pro = page.getByRole("region", { name: "Pro" });
   await pro.getByLabel("A price").check();
   await pro.getByLabel("Price in EGP").fill("4800");
@@ -166,7 +166,7 @@ test("the team changes a plan's price and the pricing page shows it", async () =
   await expect(page.locator('[data-pricing-plans] [data-plan="pro"]')).toContainText(/EGP\s4,800/);
   await expect(page.getByText("We publish the apps for you, every time")).toBeVisible();
 
-  await page.goto("/admin/plans");
+  await page.goto("/admin/plans?plan=pro");
   const reset = page.getByRole("region", { name: "Pro" }).getByRole("button", { name: "Back to the default plan" });
   await reset.click();
   // The button goes once the default is back; on a database that takes a moment.

@@ -61,7 +61,7 @@ test("the team adds Yallapp's Kashier account, the rate, and Growth's price in p
   await billing.getByRole("button", { name: "Save plan payments" }).click();
   await expect(billing.getByText("Plans are paid through Yallapp's Kashier account.")).toBeVisible();
 
-  await admin.goto("/admin/plans");
+  await admin.goto("/admin/plans?plan=growth");
   const growth = admin.getByRole("region", { name: "Growth" });
   await growth.getByLabel("A price").check();
   await growth.getByRole("button", { name: "Save plan" }).click();
@@ -71,7 +71,7 @@ test("the team adds Yallapp's Kashier account, the rate, and Growth's price in p
   await growth.getByRole("button", { name: "Save plan" }).click();
   await expect(growth.getByText("Growth saved.")).toBeVisible();
   await admin.reload();
-  await expect(admin.getByRole("region", { name: "Growth" })).toContainText(/EGP\s1,500 \(\$30 outside Egypt\) \/ year/);
+  await expect(admin.getByRole("region", { name: "Growth" })).toContainText(/EGP\s1,500 \/ year · \$30 outside Egypt/);
 });
 
 test("the pricing page shows pounds in Egypt and dollars everywhere else", async ({ browser }) => {
@@ -150,7 +150,7 @@ test("a client outside Egypt sees dollars, pays EGP 1,500 on Kashier and gets a 
 });
 
 test("the team puts the settings back", async () => {
-  await admin.goto("/admin/plans");
+  await admin.goto("/admin/plans?plan=growth");
   const reset = admin.getByRole("region", { name: "Growth" }).getByRole("button", { name: "Back to the default plan" });
   await reset.click();
   await expect(reset).toHaveCount(0);
