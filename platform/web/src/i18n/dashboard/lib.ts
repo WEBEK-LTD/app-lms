@@ -61,6 +61,10 @@ export const en = {
     featLoyaltyText: "Customers earn points on their orders and use them on the next ones.",
     featStudio: "Yallapp Studio",
     featStudioText: "Design every screen freely: place, size and style texts, pictures, buttons and lists from your data.",
+    featDelivery: "Delivery & couriers",
+    featDeliveryText: "Customers send parcels and follow them; your couriers get their jobs in the app.",
+    featCourierApp: "Courier app",
+    featCourierAppText: "A second app in your name, made only for your couriers.",
     noCoursePlugin:
       "Your website has no course plugin the app can read. Install Tutor LMS, LearnDash, LearnPress, LifterLMS, MasterStudy, Sensei LMS or Masteriyo, or change the app type.",
     noShopPlugin: "Your website has no shop plugin the app can read. Install WooCommerce, or change the app type.",
@@ -131,6 +135,10 @@ export const ar: Messages = {
     featLoyaltyText: "يكسب العملاء نقاطًا على طلباتهم ويستخدمونها في الطلبات التالية.",
     featStudio: "استوديو Yallapp",
     featStudioText: "صمّم كل شاشة بحرية: ضع النصوص والصور والأزرار والقوائم من بياناتك وغيّر أحجامها وأشكالها.",
+    featDelivery: "التوصيل والمناديب",
+    featDeliveryText: "يرسل عملاؤك الطرود ويتابعونها، ويستلم مناديبك مهامهم في التطبيق.",
+    featCourierApp: "تطبيق المناديب",
+    featCourierAppText: "تطبيق ثانٍ باسمك، مخصص لمناديبك فقط.",
     noCoursePlugin:
       "لا توجد في موقعك إضافة دورات يستطيع التطبيق قراءتها. ثبّت Tutor LMS أو LearnDash أو LearnPress أو LifterLMS أو MasterStudy أو Sensei LMS أو Masteriyo، أو غيّر نوع التطبيق.",
     noShopPlugin: "لا توجد في موقعك إضافة متجر يستطيع التطبيق قراءتها. ثبّت WooCommerce، أو غيّر نوع التطبيق.",
@@ -199,6 +207,10 @@ export const tr: Messages = {
     featLoyaltyText: "Müşteriler siparişlerinden puan kazanır ve sonraki siparişlerinde kullanır.",
     featStudio: "Yallapp Stüdyo",
     featStudioText: "Her ekranı özgürce tasarlayın: metinleri, resimleri, düğmeleri ve verilerinizden listeleri yerleştirin, boyutlandırın ve biçimlendirin.",
+    featDelivery: "Teslimat ve kuryeler",
+    featDeliveryText: "Müşterileriniz paket gönderir ve takip eder; kuryeleriniz işlerini uygulamada alır.",
+    featCourierApp: "Kurye uygulaması",
+    featCourierAppText: "Adınıza, yalnızca kuryeleriniz için yapılmış ikinci bir uygulama.",
     noCoursePlugin:
       "Web sitenizde uygulamanın okuyabileceği bir kurs eklentisi yok. Tutor LMS, LearnDash, LearnPress, LifterLMS, MasterStudy, Sensei LMS ya da Masteriyo yükleyin veya uygulama türünü değiştirin.",
     noShopPlugin: "Web sitenizde uygulamanın okuyabileceği bir mağaza eklentisi yok. WooCommerce yükleyin veya uygulama türünü değiştirin.",

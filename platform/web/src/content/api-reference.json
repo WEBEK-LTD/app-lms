@@ -867,6 +867,123 @@
       ]
     },
     {
+      "name": "Delivery",
+      "description": "Roadmap 104. Delivery and courier companies, on Yallapp's hosted API. The customer sends a parcel: picks a service, the pickup and drop-off places, sees the price before sending, and pays cash to the courier or by card on the company's payment page (its own iyzico, Kashier, Fawaterk, Stripe or PayPal account), as the company allows (`DeliveryConfig.payment`). Delivery is a service in the physical world, so the card payment page opens in the app on Android and iOS alike. Prices follow the company's choice (`DeliveryConfig.pricing`): by distance (a straight line between the two places, so both need their coordinates), by the drop-off zone, or one fixed price; a service may add its own amount. The customer follows the shipment by its stages, or also sees the courier on a map while it is on the way when the company chose live tracking (`DeliveryConfig.tracking`).",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/delivery/services",
+          "summary": "List the company's delivery services",
+          "description": "The services a customer can choose (same-day, express, documents...), in the company's order. Empty when the company has none; the shipment then has no service.",
+          "access": "optional"
+        },
+        {
+          "method": "POST",
+          "path": "/delivery/quote",
+          "summary": "Price a shipment before sending it",
+          "description": "The price of sending a parcel between two places with a service. Fails with `invalid_request` (400) when a place needs its coordinates (pricing by distance), the zone is missing or unknown (pricing by zone), or the places are further apart than the company delivers (`DeliveryConfig.max_distance_km`).",
+          "access": "optional"
+        },
+        {
+          "method": "POST",
+          "path": "/delivery/locate",
+          "summary": "Read a place's coordinates from a maps link",
+          "description": "For a place shared as a Google Maps or Apple Maps link (a WhatsApp location, a short `maps.app.goo.gl` link): the coordinates it points at. Only links of those maps are followed. Fails with `invalid_request` (400) when the link has no coordinates.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/delivery/shipments",
+          "summary": "Send a parcel",
+          "description": "Creates the shipment at the price `POST /delivery/quote` gives for the same places and service. Paid in cash (`payment: cash`), it waits for a courier at once (`pending`). Paid by card (`payment: card`), it waits for the payment (`awaiting_payment`) and the answer has `pay_url`, the company's payment page, opened in the app on both platforms (a service in the physical world); it waits for a courier once the payment is confirmed.\n\nFails with `invalid_request` (400) as the quote does, or for a payment method the company doesn't take (`DeliveryConfig.payment`); with `payments_unavailable` (503) for a card payment while the company's payments aren't set up.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/shipments",
+          "summary": "List the signed-in customer's shipments",
+          "description": "Newest first; `active` only those not yet delivered, failed or cancelled.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/shipments/{shipment_id}",
+          "summary": "Follow a shipment",
+          "description": "The shipment with its stages, its courier and, with live tracking while the courier has it (`picked_up`, `on_the_way`), where the courier is. The app asks again every 15 seconds or so while the screen is open and the shipment is active.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/shipments/{shipment_id}/cancel",
+          "summary": "Cancel a shipment",
+          "description": "Only before a courier has it (`awaiting_payment`, `pending`). A shipment paid by card is refunded by the company. Fails with `not_cancellable` (409) once a courier has it.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/shipments/{shipment_id}/pay",
+          "summary": "Get a new payment link for a shipment",
+          "description": "For a shipment still `awaiting_payment`, when the first link was closed or ran out. Fails with `not_payable` (409) for any other.",
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
+      "name": "Courier",
+      "description": "Roadmap 104. The courier's screens. A courier is a person the company added on the dashboard's Couriers page by mobile number (or by email, for apps that sign in by email only); whoever signs in to the app with that number, proven by its code, is that courier (`User.roles` has `courier`). Every endpoint here answers `not_courier` (403) to anyone else, and to couriers the company paused. Couriers see only the jobs given to them, and, when the company lets couriers take jobs (`DeliveryConfig.assignment` is `open`), the jobs waiting for a courier, without the customer's and recipient's numbers until they take one. The courier's position is sent while the app is open and they have a job on the way, kept only while it is, and shown only to the customer of that job.\n\nWhere these screens are depends on the company's choice (`DeliveryConfig.courier_app`): `same`, in the company's app, shown only to couriers, who can switch between their courier screens and the customer's; `bundle`, in the company's second app made for couriers (build config `delivery_role: courier`), while its customer app has none; `yallapp_courier`, in the shared Yallapp Courier app, while the company's app has none.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/courier/me",
+          "summary": "The signed-in courier",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "PATCH",
+          "path": "/courier/me",
+          "summary": "Go on or off duty",
+          "description": "Only couriers on duty are offered new jobs and told of them.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/courier/jobs",
+          "summary": "The courier's jobs",
+          "description": "`active`: the courier's jobs not yet delivered, oldest first. `available`: shipments waiting for a courier, oldest first, only when the company lets couriers take jobs and the courier is on duty (else empty). `done`: the courier's delivered, failed and cancelled jobs of the last 30 days, newest first.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/courier/jobs/{shipment_id}",
+          "summary": "A job",
+          "description": "One of the courier's jobs, or one waiting for a courier that they could take.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/courier/jobs/{shipment_id}/accept",
+          "summary": "Take a job",
+          "description": "Only when the company lets couriers take jobs and the courier is on duty. The first courier to take it gets it; the others get `job_taken` (409).",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/courier/jobs/{shipment_id}/status",
+          "summary": "Move a job to its next stage",
+          "description": "In order: `picked_up` (the parcel is with the courier), `on_the_way`, then `delivered`, or `failed` when it couldn't be delivered (with a `note`). A cash shipment is paid once delivered: the courier collected `CourierJob.collect`. `released` gives a job that isn't picked up back to the company (to other couriers when they take jobs themselves). Fails with `invalid_status` (409) for any other step.",
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/courier/location",
+          "summary": "Send the courier's position",
+          "description": "Sent every 20 seconds or so while the app is open and the courier has a job picked up or on the way (no position is taken in the background). Kept only while they have one; answered 204 and dropped otherwise. At most one every 5 seconds is kept.",
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
       "name": "Bookings",
       "description": "Services, staff, free times and appointments, for Bookings apps. The plugin reads them from the site's booking plugin (Amelia, BookingPress or LatePoint); the booking plugin's own rules decide the free times and whether a new appointment is approved or waits for the business. Appointments are paid at the business.",
       "endpoints": [

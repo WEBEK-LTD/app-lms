@@ -21,7 +21,7 @@ import type { BlockType, ItemSource, LayoutBlock, LayoutTab, ScreenName } from "
 export const APP_VERTICALS = ["restaurant", "clinic", "fitness", "charity", "services"] as const satisfies readonly AppVertical[];
 
 /** Content the client manages in the dashboard, served by the hosted API (a connector kind). */
-export type OwnContentKind = Extract<ConnectorConfig["kind"], "catalog" | "courses" | "bookings" | "listings" | "articles" | "events" | "campaigns">;
+export type OwnContentKind = Extract<ConnectorConfig["kind"], "catalog" | "courses" | "bookings" | "listings" | "articles" | "events" | "campaigns" | "deliveries">;
 
 /** The Website step's choices: where the app's content comes from. */
 export type WebsiteChoice = "wordpress" | "custom_api" | "setup_requested" | "shopify" | "catalog" | "platform";
@@ -102,8 +102,8 @@ export interface EngineInfo {
     /** The plan feature "Card payments in the app", for this engine; null where it doesn't apply. */
     cardPayments: string | null;
   };
-  /** The demo app on /demo: /demo/download/<slug>. */
-  demo: { slug: string };
+  /** The demo app on /demo: /demo/download/<slug>; 104 null while the engine has none. */
+  demo: { slug: string } | null;
 }
 
 export interface KindInfo {
@@ -598,6 +598,67 @@ export const ENGINES: Record<AppType, EngineInfo> = {
     },
     demo: { slug: "charity" },
   },
+  // 104 Delivery and courier companies: shipments, couriers and prices set in the dashboard, on the hosted API only.
+  delivery: {
+    id: "delivery",
+    name: "Delivery & couriers",
+    icon: "local_shipping",
+    homePath: "/delivery/services",
+    configCheck: { label: "Config has the delivery settings", fix: "Add `delivery` to /config.", key: "delivery", in: "root", type: "object" },
+    websites: ["catalog"],
+    sitePlaceholder: "https://your-delivery.com",
+    platformChoice: { title: "Another platform", text: "Your shipments come from another platform." },
+    platformPhoneNote: null,
+    ownContent: {
+      kind: "deliveries",
+      choice: {
+        title: "Shipments managed in Yallapp",
+        text: "Set your prices, services and couriers here in the dashboard. Customers send parcels in the app and pay cash to the courier or by card into your own iyzico, Kashier, Fawaterk, Stripe or PayPal account.",
+      },
+      next: "After this step, set your prices and how customers pay on the **Delivery settings** page, then add your couriers on the **Couriers** page; every shipment shows on the **Shipments** page. Customers and couriers sign in to the app with",
+      switchLabel: "No website: shipments in the dashboard",
+      adminLabel: "Delivery: shipments in the dashboard",
+      nav: {
+        label: "Your deliveries",
+        items: [
+          { href: "/dashboard/shipments", label: "Shipments", icon: "package_2" },
+          { href: "/dashboard/couriers", label: "Couriers", icon: "two_wheeler" },
+          // Shipments paid by card are orders: their receipts and refunds.
+          { href: "/dashboard/orders", label: "Orders", icon: "receipt_long" },
+          { href: "/dashboard/delivery", label: "Delivery settings", icon: "local_shipping" },
+        ],
+      },
+    },
+    pages: {
+      source: "delivery_services",
+      read: null,
+      blocks: [],
+      screens: ["send_parcel", "shipments", "courier", "account", "settings", "notifications"],
+      aliases: { orders: "shipments" },
+      tabs: [tab("send", "Send", "local_shipping", "send_parcel"), tab("shipments", "My shipments", "package_2", "shipments")],
+      home: [
+        {
+          id: "services",
+          type: "items",
+          visibility: "everyone",
+          title: "Our services",
+          source: "delivery_services",
+          layout: "list",
+          see_all: { type: "screen", screen: "send_parcel" },
+          query: newest(10),
+        },
+      ],
+    },
+    categories: { play: "Maps & Navigation", appStore: "Navigation" },
+    words: {
+      items: "deliveries",
+      storeDescription: "Describe your delivery service, where you deliver and how customers send a parcel and follow it in the app.",
+      ratingExample: "For example: a city courier's deliveries. No violence, gambling or dating. No chat. No ads.",
+      iphone: null,
+      cardPayments: "Take delivery payments by card, through your payment page.",
+    },
+    demo: null,
+  },
 };
 
 /** What the app type picker offers, in its order. The first kind of each engine is its default (vertical null). */
@@ -796,6 +857,20 @@ export const KINDS: readonly KindInfo[] = [
     tile: "bg-tile-2 text-[#2F6B3A]",
     marketing: { slug: "charity", icon: "volunteer_activism" },
   },
+  {
+    // 104 The delivery engine's one kind.
+    id: "delivery",
+    engine: "delivery",
+    vertical: null,
+    name: "Delivery & couriers",
+    description: "Customers send parcels and follow them; your couriers get their jobs in the app.",
+    requires: "No website needed: you set your prices and couriers here in the dashboard · Cash to the courier, or your own iyzico, Kashier, Fawaterk, Stripe or PayPal account",
+    icon: "local_shipping",
+    tile: "bg-tile-1 text-[#8A4B12]",
+    marketing: { slug: "delivery", icon: "local_shipping" },
+    reviewNote:
+      "This app has two roles. Customers send parcels and follow them. Couriers of the company sign in with a number the company added and see a Courier tab with their jobs. Use the customer review account for the customer's screens and the courier review account for the courier's.",
+  },
 ];
 
 /** Every engine id, in order. */
@@ -863,7 +938,7 @@ export function appTypeName(app: Pick<App, "appType"> & { vertical?: AppVertical
 
 /** The engine's demo whose slug this is. */
 export function engineOfDemoSlug(slug: string): AppType | null {
-  return APP_TYPES.find((type) => ENGINES[type].demo.slug === slug) ?? null;
+  return APP_TYPES.find((type) => ENGINES[type].demo?.slug === slug) ?? null;
 }
 
 /**
@@ -872,7 +947,7 @@ export function engineOfDemoSlug(slug: string): AppType | null {
  * kind as its default.
  */
 export function demoSlugOfKind(kind: KindInfo): string | null {
-  return kind.demo?.slug ?? (defaultKind(kind.engine) === kind ? ENGINES[kind.engine].demo.slug : null);
+  return kind.demo?.slug ?? (defaultKind(kind.engine) === kind ? (ENGINES[kind.engine].demo?.slug ?? null) : null);
 }
 
 /** 21 The dashboard's group for the app's content managed here: the kind's words, else the engine's. */

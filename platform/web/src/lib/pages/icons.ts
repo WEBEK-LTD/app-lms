@@ -67,6 +67,9 @@ export const PAGE_ICONS = [
   "volunteer_activism",
   "photo_camera",
   "directions",
+  // 104 Delivery and courier companies.
+  "package_2",
+  "two_wheeler",
 ] as const;
 
 /** A Material Symbols name: lowercase letters, digits and underscores. */

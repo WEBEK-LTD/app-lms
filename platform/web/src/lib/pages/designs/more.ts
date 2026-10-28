@@ -29,7 +29,7 @@ import {
   type Design,
 } from "./build";
 
-// 33 Real estate, news, events and charity apps: one engine and one kind each.
+// 33 Real estate, news, events and charity apps: one engine and one kind each. 104 Delivery apps too.
 
 const listingsTabs = [
   homeTab,
@@ -345,6 +345,84 @@ export const CHARITY_DESIGNS: Design[] = [
           list("campaigns", "Campaigns", "campaigns", "list", { seeAll: screen("campaigns") }),
           team("Our volunteers", [person("Volunteer's name", "Coordinator"), person("Volunteer's name", "Volunteer")]),
           stats([stat("12", "Projects"), stat("300", "Neighbours")]),
+          contact(),
+        ],
+      },
+    ],
+  },
+];
+
+const deliveryTabs = [homeTab, screenTab("send", "Send", "local_shipping", "send_parcel"), screenTab("shipments", "My shipments", "package_2", "shipments"), accountTab];
+
+/** 104 Delivery and courier companies. */
+export const DELIVERY_DESIGNS: Design[] = [
+  {
+    id: "delivery-city",
+    kind: "delivery",
+    name: "City courier",
+    description: "Send a parcel in one tap, your services, how it works and your numbers.",
+    look: { template: "bold", corners: "round", cards: "elevated", font: "Outfit", secondary_color: "#F4A261" },
+    tabs: deliveryTabs,
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          slider([slide("Send a parcel across the city", "A courier picks it up at your door", screen("send_parcel"))], false),
+          list("services", "Our services", "delivery_services", "list", { seeAll: screen("send_parcel") }),
+          stats([stat("30 min", "To pick up"), stat("1,000+", "Parcels a month"), stat("7 days", "A week")]),
+          faq("Questions", [question("How do I follow my parcel?", "Open My shipments: each stage shows with its time.")]),
+          contact(),
+        ],
+      },
+    ],
+  },
+  {
+    id: "delivery-express",
+    kind: "delivery",
+    name: "Express",
+    description: "Speed first: a notice, quick links to send and follow, and your services.",
+    look: { template: "classic", corners: "soft", cards: "outlined", font: "Plus Jakarta Sans", secondary_color: "#E63946" },
+    tabs: deliveryTabs,
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          notice("info", "Write your delivery hours or today's offer here.", "Send now", screen("send_parcel")),
+          quickLinks([
+            link("local_shipping", "Send", screen("send_parcel")),
+            link("package_2", "My shipments", screen("shipments")),
+            link("notifications", "Updates", screen("notifications")),
+            link("person", "Account", screen("account")),
+          ]),
+          list("services", "Choose a service", "delivery_services", "carousel", { seeAll: screen("send_parcel") }),
+          testimonials("What customers say", [quote("Write what a customer says about your deliveries.", "Customer's name")]),
+          contact(),
+        ],
+      },
+    ],
+  },
+  {
+    id: "delivery-business",
+    kind: "delivery",
+    name: "Business deliveries",
+    description: "For shops and companies: your services, working hours and a team to talk to.",
+    look: { template: "minimal", corners: "soft", cards: "flat", font: "Manrope", secondary_color: "#2A9D8F" },
+    tabs: deliveryTabs,
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          text("welcome", "<h2>Deliveries for your business</h2><p>{app} picks up from your shop and delivers to your customers.</p>"),
+          button("send", "Send a parcel", screen("send_parcel")),
+          list("services", "Services", "delivery_services", "list", { seeAll: screen("send_parcel") }),
+          hours("Working hours", days(WEEKDAYS_ONLY, "09:00", "21:00")),
+          team("Talk to us", [person("Your name", "Customer service")]),
           contact(),
         ],
       },

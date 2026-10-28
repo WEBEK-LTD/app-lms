@@ -31,8 +31,10 @@ export const PLAN_RANK: Record<Plan, number> = { starter: 0, growth: 1, pro: 2, 
  * 77 `chat`: the app's chat with the business (and course groups). 91.4 `loyalty`: loyalty points in shops without a website.
  * 100.2 `store_billing`: courses and memberships bought in the app through Google Play and the App Store.
  * 103 `studio`: Yallapp Studio, off on every plan until the team turns it on (Admin › Plans).
+ * 104 `delivery`: delivery and courier apps; `courier_app`: the company's second app for its couriers. Both off on
+ * every plan until the team turns them on and prices them (Admin › Plans).
  */
-export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing", "studio"] as const;
+export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing", "studio", "delivery", "courier_app"] as const;
 export type PlanFeature = (typeof PLAN_FEATURE_IDS)[number];
 
 export type SupportLevel = "email" | "whatsapp" | "priority" | "dedicated";
@@ -283,6 +285,18 @@ export const PLAN_FEATURES: PlanFeatureDef[] = [
     label: "Yallapp Studio",
     description: "Design every screen freely: place, size and style texts, pictures, buttons and lists from your data.",
     enforced: "The Studio page and the served layout (a page's canvas only with Studio).",
+  },
+  {
+    id: "delivery",
+    label: "Delivery & couriers",
+    description: "Customers send parcels and follow them; your couriers get their jobs in the app.",
+    enforced: "The hosted API's /delivery, /me/shipments and /courier endpoints, and the Shipments, Couriers and Delivery settings pages.",
+  },
+  {
+    id: "courier_app",
+    label: "Courier app",
+    description: "A second app in your name, made only for your couriers.",
+    enforced: "Delivery settings › Where couriers work (a second app), and its builds.",
   },
 ];
 

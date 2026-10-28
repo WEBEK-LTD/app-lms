@@ -134,5 +134,17 @@
   "charity-community": {
     "primary": "#354F52",
     "secondary": "#84A98C"
+  },
+  "delivery-city": {
+    "primary": "#1D3557",
+    "secondary": "#F4A261"
+  },
+  "delivery-express": {
+    "primary": "#9B2226",
+    "secondary": "#E63946"
+  },
+  "delivery-business": {
+    "primary": "#264653",
+    "secondary": "#2A9D8F"
   }
 }

@@ -272,6 +272,8 @@ function ownContentSetup(kind: OwnContentKind, app: App): AppPatch {
     case "events":
     // 29 A charity's donations are paid into its own account (iyzico, Kashier, Fawaterk, Stripe or PayPal), kept with the shop's payment settings.
     case "campaigns":
+    // 104 A delivery company's card payments are orders on the shop's payment settings too.
+    case "deliveries":
       return { connector: { kind }, catalogSettings: app.catalogSettings ?? DEFAULT_CATALOG_SETTINGS };
     case "listings":
     case "articles":

@@ -1211,9 +1211,11 @@ components:
             `store_billing`: courses and memberships bought in the app
             through Google Play and the App Store (every plan but Starter);
             (103) `studio`: pages designed in Yallapp Studio (the plugin
-            serves a page's canvas whatever it says). Unknown values are
-            ignored.
-          items: { type: string, enum: [push, offline_downloads, auto_publish, ios, page_editor, card_payments, auto_rebuild, chat, loyalty, store_billing, studio] }
+            serves a page's canvas whatever it says); (104) `delivery`:
+            delivery and courier apps, and `courier_app`: the company's own
+            second app for its couriers (both on the hosted API only; the
+            plugin doesn't use them). Unknown values are ignored.
+          items: { type: string, enum: [push, offline_downloads, auto_publish, ios, page_editor, card_payments, auto_rebuild, chat, loyalty, store_billing, studio, delivery, courier_app] }
         chat:
           type: [object, 'null']
           description: |
@@ -1290,7 +1292,7 @@ components:
             `Config.auth.email_sign_in`. Missing on older platforms.
         app_type:
           type: [string, 'null']
-          enum: [lms, store, booking, real_estate, news, events, donations, null]
+          enum: [lms, store, booking, real_estate, news, events, donations, delivery, null]
           description: |
             The app's type, as its owner chose it in the dashboard: the module
             its build includes. The plugin uses it instead of guessing from the
@@ -1588,7 +1590,7 @@ components:
           required: [schema_version, app_type, app_name, short_name, site_url, android_package, ios_bundle_id, version_name, version_code, branding]
           properties:
             schema_version: { const: 1 }
-            app_type: { type: string, enum: [lms, store, booking, real_estate, news, events, donations] }
+            app_type: { type: string, enum: [lms, store, booking, real_estate, news, events, donations, delivery] }
             app_name: { type: string, minLength: 1 }
             short_name: { type: string, minLength: 1 }
             site_url: { type: string, format: uri }

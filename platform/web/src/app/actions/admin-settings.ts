@@ -37,6 +37,7 @@ import {
   type SupportLevel,
 } from "@/lib/plans";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
+import { validTilesUrl } from "@/lib/delivery/settings";
 import { refreshPlanSitesSoon } from "@/lib/license/refresh-soon";
 import { checkMediaGate, gateRequest } from "@/lib/media/check";
 import { getMediaStorage, localMediaDisk } from "@/lib/media/storage";
@@ -59,6 +60,7 @@ const SETTING_LABELS: Partial<Record<PlatformSettingKey, string>> = {
   sallaApp: "Salla partner app",
   zidApp: "Zid partner app",
   storagePacks: "storage packs",
+  maps: "map tiles for delivery apps",
 };
 
 /** Saves a setting (null: back to the defaults) and logs it, secrets redacted; `audit` replaces parts of the log entry. */
@@ -662,3 +664,13 @@ export async function checkTestCodeAction(_: FormState, formData: FormData): Pro
   return { ok: true, message: `The code is right: sign-in codes work. ${ticket.phone} got it and it was checked.` };
 }
 
+
+/** 104 The map tiles delivery apps draw live tracking on. */
+export async function saveMapsSettingAction(_: FormState, formData: FormData): Promise<FormState> {
+  const admin = await requireAdmin("settings.edit");
+  const values = { tilesUrl: str(formData, "tilesUrl"), attribution: str(formData, "attribution") };
+  if (!validTilesUrl(values.tilesUrl)) return { errors: { tilesUrl: "Enter an https address with {z}, {x} and {y}." }, values };
+  if (values.attribution.length > 200) return { errors: { attribution: "Keep it under 200 characters." }, values };
+  await save("maps", { tilesUrl: values.tilesUrl, attribution: values.attribution || null }, admin);
+  return { ok: true, message: "Saved. Delivery apps with live tracking show the map the next time they open.", values };
+}

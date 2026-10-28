@@ -1,4 +1,5 @@
 import { campaignPageItems } from "../../donations/page-items";
+import { deliveryServicePageItems } from "../../delivery/page-items";
 import { eventPageItems } from "../../events/page-items";
 import { listingPageItems } from "../listings/page-items";
 import { registerItemSource } from "./items";
@@ -13,6 +14,8 @@ export function registerPlatformItemSources(): void {
   registerItemSource("listings", (ctx, query) => listingPageItems(ctx.appId, ctx.userId, query, { store: ctx.store, lang: ctx.lang }));
   registerItemSource("events", (ctx, query) => eventPageItems(ctx.appId, query, { store: ctx.store, lang: ctx.lang }));
   registerItemSource("campaigns", (ctx, query) => campaignPageItems(ctx.appId, query, { store: ctx.store, lang: ctx.lang }));
+  // 104 A delivery company's services.
+  registerItemSource("delivery_services", (ctx, query) => deliveryServicePageItems(ctx.appId, query, { store: ctx.store }));
 }
 
 registerPlatformItemSources();

@@ -83,6 +83,7 @@ import type { Article, ArticleCategory, ArticleInput, NewsSettings } from "./typ
 import type { CheckInResult, EventInput, EventRecord, EventSettings, EventTicket, TicketClaim, TicketClaimRefusal, TicketType, TicketTypeInput } from "./types";
 // 29 Charity & donations
 import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, DonationSettings, DonationStatus } from "./types";
+import type { Courier, CourierInput, CourierPatch, DeliveryService, DeliveryServiceInput, DeliverySettings, Shipment, ShipmentInput, ShipmentPatch, ShipmentQuery, ShipmentStatus } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 import type { PublishingEvent, PublishingRequest } from "./types";
@@ -635,6 +636,10 @@ export class MemoryStore implements DataStore {
     // 29 So do donations, with the charity.
     for (const donation of this.donations.values()) {
       if (donation.appId === appId && donation.userId === id) donation.userId = null;
+    }
+    // 104 And shipments, with the delivery company.
+    for (const shipment of this.shipments.values()) {
+      if (shipment.appId === appId && shipment.userId === id) shipment.userId = null;
     }
     this.forgetListingUser(appId, id);
   }
@@ -2015,6 +2020,148 @@ export class MemoryStore implements DataStore {
   async saveDonationSettings(appId: string, settings: DonationSettings, now: Date): Promise<void> {
     void now;
     this.donationSettings.set(appId, clone(settings));
+  }
+
+  // 104 Delivery and courier companies
+
+  private deliverySettings = new Map<string, DeliverySettings>();
+  private deliveryServices = new Map<number, DeliveryService>();
+  private nextDeliveryServiceId = 1;
+  private couriers = new Map<number, Courier>();
+  private nextCourierId = 1;
+  private shipments = new Map<number, Shipment>();
+  private nextShipmentId = 1;
+
+  async getDeliverySettings(appId: string): Promise<DeliverySettings | null> {
+    const settings = this.deliverySettings.get(appId);
+    return settings ? clone(settings) : null;
+  }
+
+  async saveDeliverySettings(appId: string, settings: DeliverySettings, now: Date): Promise<void> {
+    void now;
+    this.deliverySettings.set(appId, clone(settings));
+  }
+
+  async listDeliveryServices(appId: string): Promise<DeliveryService[]> {
+    return [...this.deliveryServices.values()]
+      .filter((s) => s.appId === appId)
+      .sort((a, b) => a.position - b.position || a.id - b.id)
+      .map(clone);
+  }
+
+  async getDeliveryService(appId: string, id: number): Promise<DeliveryService | null> {
+    const service = this.deliveryServices.get(id);
+    return service && service.appId === appId ? clone(service) : null;
+  }
+
+  async createDeliveryService(input: DeliveryServiceInput, now: Date): Promise<DeliveryService> {
+    const service: DeliveryService = { ...clone(input), id: this.nextDeliveryServiceId++, createdAt: now, updatedAt: now };
+    this.deliveryServices.set(service.id, clone(service));
+    return service;
+  }
+
+  async updateDeliveryService(appId: string, id: number, patch: Partial<DeliveryServiceInput>, now: Date): Promise<void> {
+    const service = this.deliveryServices.get(id);
+    if (service && service.appId === appId) this.deliveryServices.set(id, clone({ ...service, ...patch, appId, id, updatedAt: now }));
+  }
+
+  async deleteDeliveryService(appId: string, id: number): Promise<void> {
+    if (this.deliveryServices.get(id)?.appId !== appId) return;
+    this.deliveryServices.delete(id);
+    for (const shipment of this.shipments.values()) if (shipment.appId === appId && shipment.serviceId === id) shipment.serviceId = null;
+  }
+
+  async listCouriers(appId: string): Promise<Courier[]> {
+    return [...this.couriers.values()]
+      .filter((c) => c.appId === appId)
+      .sort((a, b) => a.name.localeCompare(b.name) || a.id - b.id)
+      .map(clone);
+  }
+
+  async getCourier(appId: string, id: number): Promise<Courier | null> {
+    const courier = this.couriers.get(id);
+    return courier && courier.appId === appId ? clone(courier) : null;
+  }
+
+  async findCourier(appId: string, who: { phone: string | null; email: string | null }): Promise<Courier | null> {
+    const found = [...this.couriers.values()].find(
+      (c) => c.appId === appId && (who.phone ? c.phone === who.phone : who.email !== null && c.email === who.email.toLowerCase()),
+    );
+    return found ? clone(found) : null;
+  }
+
+  private courierTaken(appId: string, id: number | null, phone: string | null, email: string | null): boolean {
+    return [...this.couriers.values()].some((c) => c.appId === appId && c.id !== id && ((phone !== null && c.phone === phone) || (email !== null && c.email === email)));
+  }
+
+  async createCourier(input: CourierInput, now: Date): Promise<{ ok: true; courier: Courier } | { ok: false; reason: "duplicate" }> {
+    if (this.courierTaken(input.appId, null, input.phone, input.email)) return { ok: false, reason: "duplicate" };
+    const courier: Courier = { ...clone(input), id: this.nextCourierId++, onDuty: false, lat: null, lng: null, locatedAt: null, createdAt: now, updatedAt: now };
+    this.couriers.set(courier.id, clone(courier));
+    return { ok: true, courier };
+  }
+
+  async updateCourier(appId: string, id: number, patch: CourierPatch, now: Date): Promise<{ ok: boolean; reason?: "duplicate" }> {
+    const courier = this.couriers.get(id);
+    if (!courier || courier.appId !== appId) return { ok: false };
+    const next = { ...courier, ...clone(patch), appId, id, updatedAt: now };
+    if (("phone" in patch || "email" in patch) && this.courierTaken(appId, id, next.phone, next.email)) return { ok: false, reason: "duplicate" };
+    this.couriers.set(id, next);
+    return { ok: true };
+  }
+
+  async deleteCourier(appId: string, id: number, now: Date): Promise<void> {
+    if (this.couriers.get(id)?.appId !== appId) return;
+    this.couriers.delete(id);
+    for (const shipment of this.shipments.values()) {
+      if (shipment.appId !== appId || shipment.courierId !== id) continue;
+      shipment.courierId = null;
+      if (shipment.status === "assigned") {
+        shipment.status = "pending";
+        shipment.timeline = [...shipment.timeline, { status: "pending", at: now.toISOString(), by: "company" }];
+        shipment.updatedAt = now;
+      }
+    }
+  }
+
+  async createShipment(input: ShipmentInput): Promise<Shipment> {
+    const shipment: Shipment = { ...clone(input), id: this.nextShipmentId++ };
+    this.shipments.set(shipment.id, clone(shipment));
+    return shipment;
+  }
+
+  async getShipment(appId: string, id: number): Promise<Shipment | null> {
+    const shipment = this.shipments.get(id);
+    return shipment && shipment.appId === appId ? clone(shipment) : null;
+  }
+
+  async listShipments(query: ShipmentQuery): Promise<{ items: Shipment[]; total: number }> {
+    const search = query.search?.trim().toLowerCase() ?? "";
+    const reference = /^s-?(\d+)$/i.exec(search);
+    const all = [...this.shipments.values()]
+      .filter(
+        (s) =>
+          s.appId === query.appId &&
+          (query.userId === undefined || s.userId === query.userId) &&
+          (query.courierId === undefined || s.courierId === query.courierId) &&
+          (!query.statuses || query.statuses.includes(s.status)) &&
+          (!query.unassigned || s.courierId === null) &&
+          (!query.since || s.createdAt.getTime() >= query.since.getTime()) &&
+          (!query.updatedSince || s.updatedAt.getTime() >= query.updatedSince.getTime()) &&
+          (!search ||
+            (reference ? s.id === Number(reference[1]) : [s.senderName, s.senderPhone ?? "", s.recipientName, s.recipientPhone].some((v) => v.toLowerCase().includes(search)))),
+      )
+      .sort((a, b) => (query.order === "newest" ? b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id : a.createdAt.getTime() - b.createdAt.getTime() || a.id - b.id));
+    return { items: all.slice(query.offset, query.offset + query.limit).map(clone), total: all.length };
+  }
+
+  async updateShipment(appId: string, id: number, patch: ShipmentPatch, expect: { statuses?: ShipmentStatus[]; courierId?: number | null } = {}): Promise<boolean> {
+    const shipment = this.shipments.get(id);
+    if (!shipment || shipment.appId !== appId) return false;
+    if (expect.statuses && !expect.statuses.includes(shipment.status)) return false;
+    if (expect.courierId !== undefined && shipment.courierId !== expect.courierId) return false;
+    this.shipments.set(id, clone({ ...shipment, ...patch, appId, id }));
+    return true;
   }
 
   // 10.7 Listings

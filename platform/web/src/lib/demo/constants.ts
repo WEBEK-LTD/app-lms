@@ -49,7 +49,8 @@ export const DEMO_LICENSE_UNTIL = new Date("2099-12-31T23:59:59.999Z");
  * 21 Which demo: an engine's (its default kind), or a vertical's that has
  * its own demo (a clinic and 27 a gym, on the bookings engine; 26 a café, on the store engine).
  */
-export type DemoId = AppType | Extract<AppVertical, "clinic" | "restaurant" | "fitness">;
+/** 104 Delivery apps have no demo yet. */
+export type DemoId = Exclude<AppType, "delivery"> | Extract<AppVertical, "clinic" | "restaurant" | "fitness">;
 
 /** The kind a demo shows. */
 export function demoKind(id: DemoId): KindInfo {
@@ -62,7 +63,7 @@ export function demoKind(id: DemoId): KindInfo {
  * vertical (the charity is the donations engine's).
  */
 export const DEMO_TYPES: readonly DemoId[] = KINDS.filter((k) => demoSlugOfKind(k) !== null).map((k) =>
-  defaultKind(k.engine) === k ? k.engine : (k.vertical as DemoId),
+  defaultKind(k.engine) === k ? (k.engine as DemoId) : (k.vertical as DemoId),
 );
 
 /** Each demo's address on /demo and of its download: /demo/download/<slug> (lib/app/kinds.ts). */
@@ -75,5 +76,5 @@ export function demoTypeOfSlug(slug: string): DemoId | null {
 /** 21 Which demo an app is: its vertical's, when that has a demo, else its engine's. */
 export function demoIdOf(app: Pick<App, "appType"> & { vertical?: AppVertical | null }): DemoId {
   const vertical = app.vertical ?? null;
-  return vertical && (DEMO_TYPES as readonly string[]).includes(vertical) ? (vertical as DemoId) : app.appType;
+  return vertical && (DEMO_TYPES as readonly string[]).includes(vertical) ? (vertical as DemoId) : (app.appType as DemoId);
 }

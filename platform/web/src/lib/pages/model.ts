@@ -242,6 +242,9 @@ export const SCREEN_ICONS: Partial<Record<ScreenName, string>> = {
   tickets: "confirmation_number",
   campaigns: "volunteer_activism",
   my_donations: "receipt_long",
+  send_parcel: "local_shipping",
+  shipments: "package_2",
+  courier: "two_wheeler",
 };
 
 /** Four quick links to the app's first screens, named as the editor names them. */

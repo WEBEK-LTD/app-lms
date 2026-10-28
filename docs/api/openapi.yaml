@@ -217,6 +217,43 @@ tags:
       Store guideline 3.2.2), on Android in the app or in the browser as
       `open_in` says. A donation counts towards a campaign only after the
       payment is confirmed.
+  - name: Delivery
+    description: |
+      Roadmap 104. Delivery and courier companies, on Yallapp's hosted API.
+      The customer sends a parcel: picks a service, the pickup and drop-off
+      places, sees the price before sending, and pays cash to the courier or
+      by card on the company's payment page (its own iyzico, Kashier,
+      Fawaterk, Stripe or PayPal account), as the company allows
+      (`DeliveryConfig.payment`). Delivery is a service in the physical world,
+      so the card payment page opens in the app on Android and iOS alike.
+      Prices follow the company's choice (`DeliveryConfig.pricing`): by
+      distance (a straight line between the two places, so both need their
+      coordinates), by the drop-off zone, or one fixed price; a service may
+      add its own amount. The customer follows the shipment by its stages, or
+      also sees the courier on a map while it is on the way when the company
+      chose live tracking (`DeliveryConfig.tracking`).
+  - name: Courier
+    description: |
+      Roadmap 104. The courier's screens. A courier is a person the company
+      added on the dashboard's Couriers page by mobile number (or by email,
+      for apps that sign in by email only); whoever signs in to the app with
+      that number, proven by its code, is that courier (`User.roles` has
+      `courier`). Every endpoint here answers `not_courier` (403) to anyone
+      else, and to couriers the company paused. Couriers see only the jobs
+      given to them, and, when the company lets couriers take jobs
+      (`DeliveryConfig.assignment` is `open`), the jobs waiting for a
+      courier, without the customer's and recipient's numbers until they
+      take one. The courier's position is sent while the app is open and
+      they have a job on the way, kept only while it is, and shown only to
+      the customer of that job.
+
+      Where these screens are depends on the company's choice
+      (`DeliveryConfig.courier_app`): `same`, in the company's app, shown
+      only to couriers, who can switch between their courier screens and the
+      customer's; `bundle`, in the company's second app made for couriers
+      (build config `delivery_role: courier`), while its customer app has
+      none; `yallapp_courier`, in the shared Yallapp Courier app, while the
+      company's app has none.
   - name: Bookings
     description: |
       Services, staff, free times and appointments, for Bookings apps. The
@@ -3848,6 +3885,401 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /delivery/services:
+    get:
+      tags: [Delivery]
+      operationId: listDeliveryServices
+      summary: List the company's delivery services
+      description: The services a customer can choose (same-day, express, documents...), in the company's order. Empty when the company has none; the shipment then has no service.
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        '200':
+          description: Services
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/DeliveryService' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /delivery/quote:
+    post:
+      tags: [Delivery]
+      operationId: quoteShipment
+      summary: Price a shipment before sending it
+      description: |
+        The price of sending a parcel between two places with a service.
+        Fails with `invalid_request` (400) when a place needs its coordinates
+        (pricing by distance), the zone is missing or unknown (pricing by
+        zone), or the places are further apart than the company delivers
+        (`DeliveryConfig.max_distance_km`).
+      security: [{}, { bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/QuoteInput' }
+      responses:
+        '200':
+          description: The price
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Quote' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /delivery/locate:
+    post:
+      tags: [Delivery]
+      operationId: locateMapLink
+      summary: Read a place's coordinates from a maps link
+      description: |
+        For a place shared as a Google Maps or Apple Maps link (a WhatsApp
+        location, a short `maps.app.goo.gl` link): the coordinates it points
+        at. Only links of those maps are followed. Fails with
+        `invalid_request` (400) when the link has no coordinates.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url: { type: string, maxLength: 500 }
+      responses:
+        '200':
+          description: The coordinates
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [lat, lng]
+                properties:
+                  lat: { type: number, minimum: -90, maximum: 90 }
+                  lng: { type: number, minimum: -180, maximum: 180 }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /delivery/shipments:
+    post:
+      tags: [Delivery]
+      operationId: createShipment
+      summary: Send a parcel
+      description: |
+        Creates the shipment at the price `POST /delivery/quote` gives for the
+        same places and service. Paid in cash (`payment: cash`), it waits for
+        a courier at once (`pending`). Paid by card (`payment: card`), it
+        waits for the payment (`awaiting_payment`) and the answer has
+        `pay_url`, the company's payment page, opened in the app on both
+        platforms (a service in the physical world); it waits for a courier
+        once the payment is confirmed.
+
+        Fails with `invalid_request` (400) as the quote does, or for a payment
+        method the company doesn't take (`DeliveryConfig.payment`); with
+        `payments_unavailable` (503) for a card payment while the company's
+        payments aren't set up.
+      parameters:
+        - $ref: '#/components/parameters/Platform'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ShipmentInput' }
+      responses:
+        '201':
+          description: The shipment
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [shipment, pay_url]
+                properties:
+                  shipment: { $ref: '#/components/schemas/Shipment' }
+                  pay_url: { type: [string, 'null'], format: uri, description: 'For `payment: card`: the payment page, good for 60 minutes. Null for cash.' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /me/shipments:
+    get:
+      tags: [Delivery]
+      operationId: listMyShipments
+      summary: List the signed-in customer's shipments
+      description: Newest first; `active` only those not yet delivered, failed or cancelled.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - { name: active, in: query, schema: { type: boolean } }
+      responses:
+        '200':
+          description: Shipments
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Shipment' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/shipments/{shipment_id}:
+    get:
+      tags: [Delivery]
+      operationId: getMyShipment
+      summary: Follow a shipment
+      description: |
+        The shipment with its stages, its courier and, with live tracking
+        while the courier has it (`picked_up`, `on_the_way`), where the
+        courier is. The app asks again every 15 seconds or so while the
+        screen is open and the shipment is active.
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+      responses:
+        '200':
+          description: The shipment
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Shipment' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/shipments/{shipment_id}/cancel:
+    post:
+      tags: [Delivery]
+      operationId: cancelMyShipment
+      summary: Cancel a shipment
+      description: |
+        Only before a courier has it (`awaiting_payment`, `pending`). A
+        shipment paid by card is refunded by the company. Fails with
+        `not_cancellable` (409) once a courier has it.
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+      responses:
+        '200':
+          description: The cancelled shipment
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Shipment' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/shipments/{shipment_id}/pay:
+    post:
+      tags: [Delivery]
+      operationId: payMyShipment
+      summary: Get a new payment link for a shipment
+      description: For a shipment still `awaiting_payment`, when the first link was closed or ran out. Fails with `not_payable` (409) for any other.
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+      responses:
+        '200':
+          description: The payment page
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [url]
+                properties:
+                  url: { type: string, format: uri }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /courier/me:
+    get:
+      tags: [Courier]
+      operationId: getCourier
+      summary: The signed-in courier
+      responses:
+        '200':
+          description: The courier
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Courier' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [Courier]
+      operationId: updateCourier
+      summary: Go on or off duty
+      description: Only couriers on duty are offered new jobs and told of them.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [on_duty]
+              properties:
+                on_duty: { type: boolean }
+      responses:
+        '200':
+          description: The courier
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Courier' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /courier/jobs:
+    get:
+      tags: [Courier]
+      operationId: listCourierJobs
+      summary: The courier's jobs
+      description: |
+        `active`: the courier's jobs not yet delivered, oldest first.
+        `available`: shipments waiting for a courier, oldest first, only when
+        the company lets couriers take jobs and the courier is on duty (else
+        empty). `done`: the courier's delivered, failed and cancelled jobs
+        of the last 30 days, newest first.
+      parameters:
+        - { name: scope, in: query, required: true, schema: { type: string, enum: [active, available, done] } }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Jobs
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/CourierJob' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /courier/jobs/{shipment_id}:
+    get:
+      tags: [Courier]
+      operationId: getCourierJob
+      summary: A job
+      description: One of the courier's jobs, or one waiting for a courier that they could take.
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+      responses:
+        '200':
+          description: The job
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CourierJob' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /courier/jobs/{shipment_id}/accept:
+    post:
+      tags: [Courier]
+      operationId: acceptCourierJob
+      summary: Take a job
+      description: |
+        Only when the company lets couriers take jobs and the courier is on
+        duty. The first courier to take it gets it; the others get
+        `job_taken` (409).
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+      responses:
+        '200':
+          description: The job, now the courier's
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CourierJob' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /courier/jobs/{shipment_id}/status:
+    post:
+      tags: [Courier]
+      operationId: updateCourierJob
+      summary: Move a job to its next stage
+      description: |
+        In order: `picked_up` (the parcel is with the courier), `on_the_way`,
+        then `delivered`, or `failed` when it couldn't be delivered (with a
+        `note`). A cash shipment is paid once delivered: the courier collected
+        `CourierJob.collect`. `released` gives a job that isn't picked up back
+        to the company (to other couriers when they take jobs themselves).
+        Fails with `invalid_status` (409) for any other step.
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [picked_up, on_the_way, delivered, failed, released] }
+                note: { type: [string, 'null'], maxLength: 300, description: 'Why it failed, or a word for the company.' }
+      responses:
+        '200':
+          description: The job
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CourierJob' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /courier/location:
+    put:
+      tags: [Courier]
+      operationId: putCourierLocation
+      summary: Send the courier's position
+      description: |
+        Sent every 20 seconds or so while the app is open and the courier has
+        a job picked up or on the way (no position is taken in the
+        background). Kept only while they have one; answered 204 and
+        dropped otherwise. At most one every 5 seconds is kept.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [lat, lng]
+              properties:
+                lat: { type: number, minimum: -90, maximum: 90 }
+                lng: { type: number, minimum: -180, maximum: 180 }
+                accuracy: { type: [number, 'null'], minimum: 0, description: In metres. }
+      responses:
+        '204': { description: Received }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
   /billing/access:
     post:
       tags: [Platform]
@@ -4123,7 +4555,7 @@ components:
       description: >-
         The type of the app asking (its build config's `app_type`). Default pages are built
         for it. Unknown values are ignored.
-      schema: { type: string, enum: [lms, store, booking, real_estate, news, events, donations] }
+      schema: { type: string, enum: [lms, store, booking, real_estate, news, events, donations, delivery] }
     ConversationId:
       name: conversation_id
       in: path
@@ -4225,6 +4657,11 @@ components:
       schema: { type: string, pattern: '^[A-HJ-NP-Z2-9]{12}$', example: K7QM4XP2HD9W }
     CampaignId:
       name: campaign_id
+      in: path
+      required: true
+      schema: { type: integer }
+    ShipmentId:
+      name: shipment_id
       in: path
       required: true
       schema: { type: integer }
@@ -4600,6 +5037,7 @@ components:
         news: { $ref: '#/components/schemas/NewsConfig' }
         events: { $ref: '#/components/schemas/EventsConfig' }
         donations: { $ref: '#/components/schemas/DonationsConfig' }
+        delivery: { $ref: '#/components/schemas/DeliveryConfig' }
         vertical:
           type: [string, 'null']
           enum: [restaurant, clinic, fitness, charity, services, null]
@@ -4684,6 +5122,14 @@ components:
         email: { type: [string, 'null'], format: email }
         city: { type: [string, 'null'] }
         avatar_url: { type: [string, 'null'], format: uri }
+        roles:
+          type: array
+          uniqueItems: true
+          items: { type: string, enum: [courier] }
+          description: |
+            Roadmap 104. In delivery apps, `courier` for a courier of the
+            company (the Courier endpoints). Missing or empty: a customer
+            only. Apps ignore roles they don't know.
 
     DeviceInput:
       type: object
@@ -5409,7 +5855,7 @@ components:
         body: { type: string }
         type:
           type: string
-          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update]
+          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job]
           description: >-
             85.3 Automatic notifications on Yallapp's hosted API have their own types:
             `appointment_confirmed` and `appointment_reminder` (with `appointment_id`), `class_soon`,
@@ -5417,6 +5863,10 @@ components:
             their pushes carry the same `type` and ids, and no `notification_id` (opens count by type).
             91.2 `order_update` (with `order_id`): one of the user's orders was shipped, completed,
             cancelled or refunded; its push carries `order_id` and opens the order.
+            104 `shipment_update` (with `shipment_id`): one of the customer's shipments moved
+            to another stage, and opens it; `courier_job` (with `shipment_id`): a courier was
+            given a job, or, when couriers take jobs themselves, a new one is waiting; it opens
+            the job in the courier's screens.
             An app that doesn't know a type opens Home.
         course_id: { type: [integer, 'null'] }
         lesson_id: { type: [integer, 'null'] }
@@ -5426,6 +5876,7 @@ components:
         event_id: { type: [integer, 'null'], description: "For event, the event that changed or was cancelled (Events & tickets apps, sent to its ticket holders). Missing on older servers." }
         campaign_id: { type: [integer, 'null'], description: "For campaign_update, the campaign to open (Charity & donations apps). Missing on older servers." }
         order_id: { type: [integer, 'null'], description: "91.2 For order_update, the order to open (`GET /me/orders/{order_id}`). Missing on older servers." }
+        shipment_id: { type: [integer, 'null'], description: "104 For shipment_update and courier_job, the shipment to open. Missing on older servers." }
         link: { type: [string, 'null'], format: uri, description: "46 A link in the format of the Links tag (`<base>/<kind>/<id>`): what the notification opens when no other field here says. 85.2 Or another `https` address (a campaign's web page), which the app opens in the browser. Push notifications carry it in their data too. Missing on older servers." }
         image_url:
           type: [string, 'null']
@@ -6653,7 +7104,7 @@ components:
         screen:
           type: [string, 'null']
           description: For `screen`, a built-in screen.
-          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, null]
+          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, null]
         course_id: { type: [integer, 'null'], description: For `course`. }
         item: { $ref: '#/components/schemas/ItemRef' }
         url: { type: [string, 'null'], format: uri, description: For `url`. }
@@ -6669,8 +7120,8 @@ components:
 
     ItemSource:
       type: string
-      description: Where a list comes from. `courses` needs an LMS; `products` needs WooCommerce or a hosted store; `services` needs a bookings plugin or hosted bookings; `listings` is hosted only; `articles` are a News & blog app's articles (posts on WordPress), opened in the app, while `posts` open on the website; `events` are an Events & tickets app's upcoming events (hosted only); `campaigns` are a Charity & donations app's campaigns (hosted only).
-      enum: [courses, products, services, posts, listings, articles, events, campaigns]
+      description: Where a list comes from. `courses` needs an LMS; `products` needs WooCommerce or a hosted store; `services` needs a bookings plugin or hosted bookings; `listings` is hosted only; `articles` are a News & blog app's articles (posts on WordPress), opened in the app, while `posts` open on the website; `events` are an Events & tickets app's upcoming events (hosted only); `campaigns` are a Charity & donations app's campaigns (hosted only); 104 `delivery_services` are a delivery company's services, each opening the send screen with it chosen (hosted only).
+      enum: [courses, products, services, posts, listings, articles, events, campaigns, delivery_services]
 
     Item:
       type: object
@@ -7839,3 +8290,264 @@ components:
             `amount_formatted`; null or missing when nothing was. A fully
             refunded donation stays in `GET /me/donations` with this equal
             to its amount, and no longer counts towards the campaign.
+
+    DeliveryConfig:
+      type: object
+      description: Settings for delivery and courier apps (roadmap 104).
+      required: [currency, pricing, zones, max_distance_km, payment, tracking, assignment, courier_app, map]
+      properties:
+        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        pricing:
+          type: string
+          enum: [distance, zone, fixed]
+          description: |
+            How a shipment is priced. `distance`: by the straight-line distance
+            between the pickup and the drop-off, so both places need their
+            coordinates; `zone`: by the drop-off zone the customer picks from
+            `zones`; `fixed`: one price. `POST /delivery/quote` gives the price.
+        zones:
+          type: array
+          description: The drop-off zones, for `pricing` `zone`; empty otherwise.
+          items:
+            type: object
+            required: [id, name, price_formatted]
+            properties:
+              id: { type: string }
+              name: { type: string }
+              price_formatted: { type: string, example: 'EGP 60.00' }
+        max_distance_km: { type: [number, 'null'], description: 'For `pricing` `distance`: the furthest the company delivers; null for no limit.' }
+        payment:
+          type: object
+          required: [cash, card]
+          description: How customers can pay. At least one is true.
+          properties:
+            cash: { type: boolean, description: 'To the courier, in cash.' }
+            card: { type: boolean, description: "By card, on the company's payment page." }
+        tracking:
+          type: string
+          enum: [stages, live]
+          description: '`stages`: the shipment''s stages only; `live`: also the courier''s position while it is on the way.'
+        assignment:
+          type: string
+          enum: [dispatch, open]
+          description: '`dispatch`: the company gives each job to a courier; `open`: couriers on duty take waiting jobs themselves.'
+        courier_app:
+          type: string
+          enum: [same, bundle, yallapp_courier]
+          description: Where the couriers' screens are (see the Courier tag). This build shows them only when it is `same`, or when the build is the courier app (`delivery_role` courier).
+        map:
+          type: object
+          required: [tiles_url, attribution]
+          description: |
+            The map for live tracking: a tile address with `{z}`, `{x}` and
+            `{y}` (and `{s}` when it has subdomains), set by Yallapp. While
+            `tiles_url` is null the app shows where the courier is without a
+            map, with a button that opens it in the phone's maps.
+          properties:
+            tiles_url: { type: [string, 'null'] }
+            attribution: { type: [string, 'null'], example: '© OpenStreetMap contributors' }
+
+    DeliveryService:
+      type: object
+      required: [id, name, description, image_url, extra, extra_formatted, eta]
+      properties:
+        id: { type: integer }
+        name: { type: string, example: Same-day }
+        description: { type: [string, 'null'] }
+        image_url: { type: [string, 'null'], format: uri }
+        extra: { type: string, description: 'What the service adds to the price, as a decimal string; "0.00" for none.', example: '25.00' }
+        extra_formatted: { type: [string, 'null'], description: 'Null when it adds nothing.', example: '+EGP 25.00' }
+        eta: { type: [string, 'null'], description: 'How long it takes, as the company words it.', example: 'Within 4 hours' }
+
+    PlaceInput:
+      type: object
+      required: [address]
+      properties:
+        address: { type: string, minLength: 3, maxLength: 300 }
+        details: { type: [string, 'null'], maxLength: 200, description: 'Building, floor, flat, a landmark.' }
+        lat: { type: [number, 'null'], minimum: -90, maximum: 90, description: 'Needed (with `lng`) when pricing is by distance.' }
+        lng: { type: [number, 'null'], minimum: -180, maximum: 180 }
+
+    Place:
+      type: object
+      required: [address, details, lat, lng]
+      properties:
+        address: { type: string }
+        details: { type: [string, 'null'] }
+        lat: { type: [number, 'null'] }
+        lng: { type: [number, 'null'] }
+
+    QuoteInput:
+      type: object
+      required: [pickup, dropoff]
+      properties:
+        service_id: { type: [integer, 'null'], description: 'Needed when the company has services.' }
+        zone_id: { type: [string, 'null'], description: 'Needed when pricing is by zone.' }
+        pickup: { $ref: '#/components/schemas/PlaceInput' }
+        dropoff: { $ref: '#/components/schemas/PlaceInput' }
+
+    Quote:
+      type: object
+      required: [price, price_formatted, currency, distance_km]
+      properties:
+        price: { type: string, example: '85.00' }
+        price_formatted: { type: string, example: 'EGP 85.00' }
+        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        distance_km: { type: [number, 'null'], description: 'The straight-line distance, when both places have coordinates.' }
+
+    ShipmentInput:
+      allOf:
+        - $ref: '#/components/schemas/QuoteInput'
+        - type: object
+          required: [recipient, package, payment]
+          properties:
+            recipient:
+              type: object
+              required: [name, phone]
+              properties:
+                name: { type: string, minLength: 2, maxLength: 80 }
+                phone: { type: string, maxLength: 24, description: 'With or without the country code (`Config.auth.default_country_code`).' }
+            package:
+              type: object
+              required: [size]
+              properties:
+                size: { type: string, enum: [small, medium, large] }
+                description: { type: [string, 'null'], maxLength: 200, example: 'Documents' }
+            notes: { type: [string, 'null'], maxLength: 300, description: 'For the courier.' }
+            payment: { type: string, enum: [cash, card] }
+
+    ShipmentStatus:
+      type: string
+      enum: [awaiting_payment, pending, assigned, picked_up, on_the_way, delivered, failed, cancelled]
+      description: |
+        `awaiting_payment`: paid by card, not paid yet; `pending`: waiting for
+        a courier; `assigned`: a courier has it and is going to the pickup;
+        `picked_up`; `on_the_way` to the drop-off; `delivered`; `failed`:
+        couldn't be delivered (the company gets in touch); `cancelled`.
+
+    Shipment:
+      type: object
+      required: [id, reference, status, service, pickup, dropoff, zone, distance_km, package, recipient, notes, price, price_formatted, currency, payment, courier, courier_location, timeline, created_at]
+      properties:
+        id: { type: integer }
+        reference: { type: string, example: 'S-1042' }
+        status: { $ref: '#/components/schemas/ShipmentStatus' }
+        service:
+          type: [object, 'null']
+          required: [id, name]
+          properties:
+            id: { type: [integer, 'null'], description: 'Null once the company deleted the service.' }
+            name: { type: string }
+        pickup: { $ref: '#/components/schemas/Place' }
+        dropoff: { $ref: '#/components/schemas/Place' }
+        zone:
+          type: [object, 'null']
+          required: [id, name]
+          properties:
+            id: { type: string }
+            name: { type: string }
+        distance_km: { type: [number, 'null'] }
+        package:
+          type: object
+          required: [size, description]
+          properties:
+            size: { type: string, enum: [small, medium, large] }
+            description: { type: [string, 'null'] }
+        recipient:
+          type: object
+          required: [name, phone]
+          properties:
+            name: { type: string }
+            phone: { type: string, description: E.164. }
+        notes: { type: [string, 'null'] }
+        price: { type: string, example: '85.00' }
+        price_formatted: { type: string, example: 'EGP 85.00' }
+        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        payment:
+          type: object
+          required: [method, status]
+          properties:
+            method: { type: string, enum: [cash, card] }
+            status: { type: string, enum: [unpaid, paid, refunded], description: 'A cash shipment is paid once delivered.' }
+        courier:
+          type: [object, 'null']
+          required: [name, phone]
+          description: Once a courier has it, until it is delivered, failed or cancelled (then only the name).
+          properties:
+            name: { type: string }
+            phone: { type: [string, 'null'] }
+        courier_location:
+          type: [object, 'null']
+          required: [lat, lng, updated_at]
+          description: With live tracking, while the shipment is `picked_up` or `on_the_way` and the courier's app sent its position in the last 10 minutes; null otherwise.
+          properties:
+            lat: { type: number }
+            lng: { type: number }
+            updated_at: { type: string, format: date-time }
+        timeline:
+          type: array
+          description: The stages it went through, oldest first.
+          items:
+            type: object
+            required: [status, at]
+            properties:
+              status: { $ref: '#/components/schemas/ShipmentStatus' }
+              at: { type: string, format: date-time }
+              note: { type: [string, 'null'] }
+        created_at: { type: string, format: date-time }
+
+    Courier:
+      type: object
+      required: [id, name, phone, vehicle, on_duty, assignment, delivered_today]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        phone: { type: [string, 'null'] }
+        vehicle: { type: [string, 'null'], example: Motorbike }
+        on_duty: { type: boolean }
+        assignment: { type: string, enum: [dispatch, open], description: '`DeliveryConfig.assignment`, for the courier app.' }
+        delivered_today: { type: integer }
+
+    CourierJob:
+      type: object
+      required: [id, reference, status, service, pickup, dropoff, distance_km, package, notes, sender, recipient, collect, collect_formatted, created_at, timeline]
+      description: A shipment as its courier sees it. Phone numbers are null on a job waiting for a courier.
+      properties:
+        id: { type: integer }
+        reference: { type: string }
+        status: { $ref: '#/components/schemas/ShipmentStatus' }
+        service: { type: [string, 'null'] }
+        pickup: { $ref: '#/components/schemas/Place' }
+        dropoff: { $ref: '#/components/schemas/Place' }
+        distance_km: { type: [number, 'null'] }
+        package:
+          type: object
+          required: [size, description]
+          properties:
+            size: { type: string, enum: [small, medium, large] }
+            description: { type: [string, 'null'] }
+        notes: { type: [string, 'null'] }
+        sender:
+          type: object
+          required: [name, phone]
+          properties:
+            name: { type: string }
+            phone: { type: [string, 'null'] }
+        recipient:
+          type: object
+          required: [name, phone]
+          properties:
+            name: { type: string }
+            phone: { type: [string, 'null'] }
+        collect: { type: string, description: 'Cash to collect at the drop-off, as a decimal string; "0.00" when paid by card.', example: '85.00' }
+        collect_formatted: { type: [string, 'null'], description: 'Null when there is nothing to collect.' }
+        created_at: { type: string, format: date-time }
+        timeline:
+          type: array
+          items:
+            type: object
+            required: [status, at]
+            properties:
+              status: { $ref: '#/components/schemas/ShipmentStatus' }
+              at: { type: string, format: date-time }
+              note: { type: [string, 'null'] }

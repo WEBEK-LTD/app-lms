@@ -51,7 +51,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
   const { app } = await requireClient("orders");
   const { t, k, lang, num } = await dashboardText();
   // 27 A gym's membership payments are orders too, and 28 paid tickets.
-  if (!app || (app.connector?.kind !== "catalog" && app.connector?.kind !== "courses" && app.connector?.kind !== "bookings" && app.connector?.kind !== "events")) {
+  if (!app || (app.connector?.kind !== "catalog" && app.connector?.kind !== "courses" && app.connector?.kind !== "bookings" && app.connector?.kind !== "events" && app.connector?.kind !== "deliveries")) {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
         <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("orders.title")}</h1>

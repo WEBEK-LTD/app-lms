@@ -176,7 +176,7 @@ export interface ScreenshotFrame {
  * donations app (29, hosted API only). What each engine is and offers is in
  * lib/app/kinds.ts.
  */
-export type AppType = "lms" | "store" | "booking" | "real_estate" | "news" | "events" | "donations";
+export type AppType = "lms" | "store" | "booking" | "real_estate" | "news" | "events" | "donations" | "delivery";
 
 /** 20 The kind of business, on top of the engine: wording, defaults, the demo and marketing, never routes (lib/app/kinds.ts). */
 export type AppVertical = "restaurant" | "clinic" | "fitness" | "charity" | "services";
@@ -210,6 +210,8 @@ export type ConnectorConfig =
   | { kind: "events" }
   /** 29 Charity & donations: campaigns and donations (campaigns, donations, donation_settings), paid into the charity's own iyzico account (`catalogSettings.payment`). */
   | { kind: "campaigns" }
+  /** 104 Delivery and courier companies: services, couriers, shipments and settings in the delivery_* tables and shipments; card payments as catalog orders. */
+  | { kind: "deliveries" }
   /**
    * A platform connected with keys (ikas, Ticimax, IdeaSoft, Wix, Teachable,
    * Thinkific, SimplyBook) or with OAuth through Yallapp's partner app
@@ -2574,6 +2576,17 @@ export interface PlatformSettingValues {
   publishing: PublishingSetting;
 }
 
+/** 104 The map tiles delivery apps draw live tracking on (admin Settings › Maps); none until the team sets them. */
+export interface MapTilesSetting {
+  /** With {z}, {x} and {y} (and {s} for subdomains). */
+  tilesUrl: string;
+  attribution: string | null;
+}
+
+export interface PlatformSettingValues {
+  maps: MapTilesSetting;
+}
+
 /**
  * 71 What Yallapp's receipts say under its name (admin Settings › Invoices):
  * the lines the team writes, like a legal name, an address or a tax number.
@@ -2940,6 +2953,172 @@ export interface DonationSettings {
   currency: CatalogCurrency;
   /** "browser": the iPhone app's button opens the donation page in the browser; "off": no donate button on iPhone. */
   iosMode: "browser" | "off";
+}
+
+// 104 Delivery and courier companies
+
+export const DELIVERY_PRICINGS = ["distance", "zone", "fixed"] as const;
+export type DeliveryPricing = (typeof DELIVERY_PRICINGS)[number];
+export const DELIVERY_TRACKINGS = ["stages", "live"] as const;
+export type DeliveryTracking = (typeof DELIVERY_TRACKINGS)[number];
+export const DELIVERY_ASSIGNMENTS = ["dispatch", "open"] as const;
+export type DeliveryAssignment = (typeof DELIVERY_ASSIGNMENTS)[number];
+/** Where the couriers' screens are: the company's app, its second app for couriers, or the shared Yallapp Courier app. */
+export const COURIER_APPS = ["same", "bundle", "yallapp_courier"] as const;
+export type CourierApp = (typeof COURIER_APPS)[number];
+
+/** A drop-off zone with its price (pricing by zone). */
+export interface DeliveryZone {
+  id: string;
+  name: string;
+  cents: number;
+}
+
+/** How the company prices, takes payment and follows shipments (`Config.delivery`), one row per app. */
+export interface DeliverySettings {
+  currency: CatalogCurrency;
+  pricing: DeliveryPricing;
+  /** Pricing "fixed": the one price. */
+  fixedCents: number;
+  /** Pricing "distance": a start price, then per kilometre in a straight line, never under the minimum. */
+  baseCents: number;
+  perKmCents: number;
+  minCents: number;
+  /** The furthest it delivers; null: no limit. */
+  maxKm: number | null;
+  /** Pricing "zone". */
+  zones: DeliveryZone[];
+  cash: boolean;
+  card: boolean;
+  tracking: DeliveryTracking;
+  assignment: DeliveryAssignment;
+  courierApp: CourierApp;
+}
+
+/** A service the customer chooses (same-day, express, documents), adding its own amount to the price. */
+export interface DeliveryService {
+  id: number;
+  appId: string;
+  name: string;
+  description: string | null;
+  imageAssetId: string | null;
+  extraCents: number;
+  /** How long it takes, as the company words it ("Within 4 hours"). */
+  eta: string | null;
+  position: number;
+  /** Hidden from the app when false. */
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type DeliveryServiceInput = Omit<DeliveryService, "id" | "createdAt" | "updatedAt">;
+
+/** A courier of the company: whoever signs in to the app with this number (or, in apps signing in by email only, this email). */
+export interface Courier {
+  id: number;
+  appId: string;
+  name: string;
+  /** E.164. */
+  phone: string | null;
+  /** Lowercase. */
+  email: string | null;
+  vehicle: string | null;
+  /** Paused couriers can't use the courier screens. */
+  active: boolean;
+  /** Offered new jobs and told of them. */
+  onDuty: boolean;
+  /** The last position the app sent while a job was on the way; cleared when none is. */
+  lat: number | null;
+  lng: number | null;
+  locatedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type CourierInput = Pick<Courier, "appId" | "name" | "phone" | "email" | "vehicle" | "active">;
+export type CourierPatch = Partial<Pick<Courier, "name" | "phone" | "email" | "vehicle" | "active" | "onDuty" | "lat" | "lng" | "locatedAt">>;
+
+export const SHIPMENT_STATUSES = ["awaiting_payment", "pending", "assigned", "picked_up", "on_the_way", "delivered", "failed", "cancelled"] as const;
+export type ShipmentStatus = (typeof SHIPMENT_STATUSES)[number];
+export const PACKAGE_SIZES = ["small", "medium", "large"] as const;
+export type PackageSize = (typeof PACKAGE_SIZES)[number];
+
+export interface ShipmentPlace {
+  address: string;
+  /** Building, floor, flat, a landmark. */
+  details: string | null;
+  lat: number | null;
+  lng: number | null;
+}
+
+/** A stage the shipment went through. `at` is an ISO string. */
+export interface ShipmentStage {
+  status: ShipmentStatus;
+  at: string;
+  note?: string | null;
+  /** Who moved it: the customer, the courier, the company (dashboard) or the payment. */
+  by?: "customer" | "courier" | "company" | "payment";
+}
+
+export interface Shipment {
+  id: number;
+  appId: string;
+  /** The customer; null once they deleted their account. */
+  userId: number | null;
+  senderName: string;
+  /** E.164; the customer's when they signed in by phone. */
+  senderPhone: string | null;
+  serviceId: number | null;
+  serviceName: string | null;
+  pickup: ShipmentPlace;
+  dropoff: ShipmentPlace;
+  zoneId: string | null;
+  zoneName: string | null;
+  distanceKm: number | null;
+  packageSize: PackageSize;
+  packageDescription: string | null;
+  recipientName: string;
+  /** E.164. */
+  recipientPhone: string;
+  notes: string | null;
+  priceCents: number;
+  currency: CatalogCurrency;
+  paymentMethod: "cash" | "card";
+  paymentStatus: "unpaid" | "paid" | "refunded";
+  /** Paid by card: the catalog order of its last payment link (its line's productId is the shipment's ID). */
+  orderId: number | null;
+  status: ShipmentStatus;
+  courierId: number | null;
+  /** Kept when the courier is deleted. */
+  courierName: string | null;
+  timeline: ShipmentStage[];
+  /** The app's language when the customer sent it ("ar"), for what they are told. */
+  lang: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type ShipmentInput = Omit<Shipment, "id">;
+export type ShipmentPatch = Partial<Pick<Shipment, "status" | "courierId" | "courierName" | "timeline" | "paymentStatus" | "orderId" | "userId" | "updatedAt">>;
+
+/** Which shipments a list holds. */
+export interface ShipmentQuery {
+  appId: string;
+  userId?: number;
+  courierId?: number;
+  statuses?: ShipmentStatus[];
+  /** Only those without a courier. */
+  unassigned?: boolean;
+  /** Created at or after. */
+  since?: Date;
+  /** Updated at or after. */
+  updatedSince?: Date;
+  /** The reference ("S-12"), the sender's or recipient's name or number. */
+  search?: string;
+  order: "newest" | "oldest";
+  offset: number;
+  limit: number;
 }
 
 /**

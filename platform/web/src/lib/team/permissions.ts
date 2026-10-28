@@ -128,6 +128,10 @@ export const DASHBOARD_PATHS: readonly (readonly [string, TeamPermission])[] = [
   ["/dashboard/check-in", "events"],
   ["/dashboard/campaigns", "donations"],
   ["/dashboard/donations", "donations"],
+  // 104 A delivery company's shipments and couriers are its orders; its prices and choices are its settings.
+  ["/dashboard/shipments", "orders"],
+  ["/dashboard/couriers", "orders"],
+  ["/dashboard/delivery", "settings"],
   ["/dashboard/notifications", "notifications"],
   ["/dashboard/preview", "dashboard"],
   ["/dashboard/announcements", "dashboard"],

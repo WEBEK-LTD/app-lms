@@ -7,6 +7,7 @@ export const SETTINGS_PAGES = [
   { href: "/admin/settings/invoices", label: "Invoices", text: "The company lines on Yallapp's receipts and invoices." },
   { href: "/admin/settings/store-platforms", label: "Store platforms", text: "The Salla and Zid partner apps stores connect through." },
   { href: "/admin/settings/app-defaults", label: "New apps", text: "The look and languages a new app starts with." },
+  { href: "/admin/settings/maps", label: "Maps", text: "The map delivery apps show live tracking on." },
   { href: "/admin/settings/server", label: "Server", text: "What comes from the Netlify variables, and the media server check." },
 ] as const;
 

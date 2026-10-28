@@ -63,6 +63,11 @@ export async function pickableContent(
       const campaigns = (await deps.store.listCampaigns(app.id)).filter((c) => c.status !== "draft").slice(0, 200);
       out.items.campaigns = campaigns.map((c) => ({ id: String(c.id), title: c.title }));
     }
+    // 104 A delivery company's services the app shows.
+    if (engine.source === "delivery_services") {
+      const services = (await deps.store.listDeliveryServices(app.id)).filter((s) => s.active);
+      out.items.delivery_services = services.map((s) => ({ id: String(s.id), title: s.name }));
+    }
     return out;
   }
   const connector = connectorFor(app, deps.key, { store: deps.store, assetUrl: deps.assetUrl, platformUrl: deps.platformUrl });
