@@ -1,8 +1,9 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { savePlanAction, savePlanLimitsAction, saveStoragePacksAction, saveStudioPlanAction } from "@/app/actions/admin-settings";
+import { savePlanAction, savePlanLimitsAction, saveStoragePacksAction, removeStudioPlanAction, saveStudioPlanAction } from "@/app/actions/admin-settings";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
+import { btn } from "@/components/ui";
 import { initialFormState } from "@/lib/forms";
 
 export interface PlanFormValues {
@@ -322,6 +323,10 @@ export interface StudioPlanValues {
   months: string;
   features: string[];
   studioPages: string;
+  /** Media library storage in GB; empty: unlimited. */
+  storageGb: string;
+  /** Added by the team and on no license: it can be taken off the page. */
+  removable: boolean;
   /** The dollar price at the exchange rate, for the hint; empty without a rate. */
   usdAtRate: string;
 }
@@ -353,6 +358,10 @@ export function StudioPlanForm({ plan, choices }: { plan: StudioPlanValues; choi
           <SubmitButton variant="secondary" className="h-9 px-3 text-sm" pendingText="Saving…">
             Save plan
           </SubmitButton>
+        ) : plan.removable ? (
+          <button type="submit" formAction={removeStudioPlanAction} className={`${btn.secondary} h-9 px-3 text-sm`}>
+            Remove plan
+          </button>
         ) : null}
       </form>
     );
@@ -405,6 +414,11 @@ export function StudioPlanForm({ plan, choices }: { plan: StudioPlanValues; choi
           <input id={id("studioPages")} name="studioPages" inputMode="numeric" placeholder="[n]" defaultValue={v("studioPages", plan.studioPages)} className="input input-sm h-[30px] w-16 px-2" aria-describedby={state.errors?.studioPages ? `${id("studioPages")}-error` : undefined} />
         </label>
         <FieldError id={`${id("studioPages")}-error`} error={state.errors?.studioPages} />
+        <label className="flex items-center gap-2">
+          Storage (GB)
+          <input id={id("storageGb")} name="storageGb" inputMode="numeric" placeholder="Unlimited" defaultValue={v("storageGb", plan.storageGb)} className="input input-sm h-[30px] w-24 px-2" aria-describedby={state.errors?.storageGb ? `${id("storageGb")}-error` : undefined} />
+        </label>
+        <FieldError id={`${id("storageGb")}-error`} error={state.errors?.storageGb} />
       </fieldset>
       <SubmitButton className="h-10" pendingText="Saving…">
         Save plan
