@@ -15,14 +15,15 @@ import { catalogSettings, isOwnPayment } from "@/lib/catalog/settings";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
-import { zonesText } from "@/lib/delivery/forms";
+import { FOOD_TIMEZONES, zonesText } from "@/lib/delivery/forms";
+import { DEFAULT_FOOD_TIMEZONE } from "@/lib/food/service";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { appPlan } from "@/lib/entitlements";
 import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { hasFeature } from "@/lib/plans";
 import { courierAppNameOf } from "@/lib/delivery/courier-app";
 import { ConfirmButton } from "../chat/forms";
-import { isDelivery, NotDelivery, PlanNotice } from "../shipments/parts";
+import { isDelivery, isFood, NotDelivery, PlanNotice } from "../shipments/parts";
 import { AddServiceBox, DeliverySettingsForm, ServiceForm } from "./forms";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -84,7 +85,7 @@ export default async function DeliverySettingsPage() {
         <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("delivery.settings")}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("delivery.settingsIntro")}</p>
       </div>
-      <PlanNotice plan={plan} t={t} />
+      <PlanNotice plan={plan} t={t} app={app} />
 
       <section aria-labelledby="h-settings" className="flex max-w-[760px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-settings" className="sr-only">
@@ -112,9 +113,21 @@ export default async function DeliverySettingsPage() {
             courierAppNameDefault: courierAppNameOf(app, { courierAppName: null }),
             courierFirebaseIos: Boolean(settings.courierFirebaseIosAssetId),
           }}
+          food={
+            isFood(app)
+              ? {
+                  cuisines: (settings.cuisines ?? []).map((c) => c.name).join("\n"),
+                  foodCourierJob: settings.foodCourierJob ?? "accepted",
+                  timezone: settings.timezone ?? DEFAULT_FOOD_TIMEZONE,
+                  timezones: FOOD_TIMEZONES,
+                }
+              : undefined
+          }
         />
       </section>
 
+      {/* 105.1 A food company's prices are the delivery fee only: no services. */}
+      {isFood(app) ? null : (
       <section aria-labelledby="h-services" className="flex max-w-[760px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-col gap-1">
           <h2 id="h-services" className="m-0 text-lg font-bold">
@@ -177,6 +190,7 @@ export default async function DeliverySettingsPage() {
           <ServiceForm currency={settings.currency} service={{ id: null, name: "", description: "", extra: "", eta: "", active: true, imageUrl: null }} />
         </AddServiceBox>
       </section>
+      )}
 
       {settings.card || isOwnPayment(catalogSettings(app).payment) ? <DeliveryPayments app={app} /> : null}
     </div>

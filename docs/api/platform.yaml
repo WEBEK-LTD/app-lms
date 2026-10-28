@@ -1214,8 +1214,10 @@ components:
             serves a page's canvas whatever it says); (104) `delivery`:
             delivery and courier apps, and `courier_app`: the company's own
             second app for its couriers (both on the hosted API only; the
-            plugin doesn't use them). Unknown values are ignored.
-          items: { type: string, enum: [push, offline_downloads, auto_publish, ios, page_editor, card_payments, auto_rebuild, chat, loyalty, store_billing, studio, delivery, courier_app] }
+            plugin doesn't use them); (105.1) `food`: food delivery apps
+            from many restaurants (the hosted API only). Unknown values are
+            ignored.
+          items: { type: string, enum: [push, offline_downloads, auto_publish, ios, page_editor, card_payments, auto_rebuild, chat, loyalty, store_billing, studio, delivery, courier_app, food] }
         chat:
           type: [object, 'null']
           description: |
@@ -1591,7 +1593,7 @@ components:
           required: [schema_version, app_type, app_name, short_name, site_url, android_package, ios_bundle_id, version_name, version_code, branding]
           properties:
             schema_version: { const: 1 }
-            app_type: { type: string, enum: [lms, store, booking, real_estate, news, events, donations, delivery] }
+            app_type: { type: string, enum: [lms, store, booking, real_estate, news, events, donations, delivery, food] }
             app_name: { type: string, minLength: 1 }
             short_name: { type: string, minLength: 1 }
             site_url: { type: string, format: uri }

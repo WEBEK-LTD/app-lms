@@ -16,6 +16,8 @@ export function ownContentSetup(kind: OwnContentKind, app: App): AppPatch {
     case "campaigns":
     // 104 A delivery company's card payments are orders on the shop's payment settings too.
     case "deliveries":
+    // 105.1 So are a food company's card payments.
+    case "restaurants":
       return { connector: { kind }, catalogSettings: app.catalogSettings ?? DEFAULT_CATALOG_SETTINGS };
     case "listings":
     case "articles":

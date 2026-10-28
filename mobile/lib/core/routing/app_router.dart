@@ -8,6 +8,8 @@ import '../../modules/events/events_routes.dart';
 import '../../modules/donations/donations_routes.dart';
 import '../../modules/delivery/data/delivery_providers.dart';
 import '../../modules/delivery/delivery_routes.dart';
+import '../../modules/food/data/food_providers.dart';
+import '../../modules/food/food_routes.dart';
 import '../../modules/lms/lms_routes.dart';
 import '../../modules/news/news_routes.dart';
 import '../../modules/real_estate/real_estate_routes.dart';
@@ -75,6 +77,7 @@ final appModuleProvider = Provider<AppModule>(
     AppType.events => eventsModule,
     AppType.donations => donationsModule,
     AppType.delivery => deliveryModule,
+    AppType.food => foodModule,
   },
 );
 
@@ -88,39 +91,52 @@ final shellTabsProvider = Provider<List<ShellTab>>((ref) {
   final gate = ref.watch(appGateProvider);
   final config = gate is GateReady ? gate.config : null;
   final navigation = gate is GateReady ? gate.navigation : null;
-  // 104 Delivery apps: the Courier tab for the company's couriers only.
-  final courier =
-      ref.watch(appEnvironmentProvider).build.appType == AppType.delivery
+  // 104 Delivery apps (105.1 and food delivery apps): the Courier tab for
+  // the company's couriers only.
+  final appType = ref.watch(appEnvironmentProvider).build.appType;
+  final courier = appType == AppType.delivery || appType == AppType.food
       ? ref.watch(isCourierProvider)
       : null;
+  // 105.1 Food delivery apps: the Restaurant tab for the restaurants' staff.
+  final restaurant = appType == AppType.food
+      ? ref.watch(isRestaurantProvider)
+      : null;
+  List<ShellTab> withRoles(List<ShellTab> tabs) =>
+      withRestaurantTab(withCourierTab(tabs, courier), restaurant);
   if (navigation != null) {
     final tabs = tabsFromNavigation(navigation, module, config);
     if (tabs.length >= Navigation.minTabs &&
         tabs.any((t) => t.location != null)) {
-      return withCourierTab(withChatTab(tabs, config), courier);
+      return withRoles(withChatTab(tabs, config));
     }
   }
-  return withCourierTab(
-    withChatTab(module.defaultTabs(config), config),
-    courier,
-  );
+  return withRoles(withChatTab(module.defaultTabs(config), config));
 });
 
 /// 104 The tabs of a delivery app: the Courier tab added for couriers
 /// (before Account, in place of the tab before it when the bar is full),
 /// and left out for everyone else even when the owner's tabs have it.
 /// Null: not a delivery app.
-List<ShellTab> withCourierTab(List<ShellTab> tabs, bool? courier) {
-  if (courier == null) return tabs;
+List<ShellTab> withCourierTab(List<ShellTab> tabs, bool? courier) =>
+    _withRoleTab(tabs, courierTab, courier);
+
+/// 105.1 The tabs of a food delivery app: the Restaurant tab added for the
+/// restaurants' staff, as the Courier tab is for couriers. Null: not a food
+/// delivery app.
+List<ShellTab> withRestaurantTab(List<ShellTab> tabs, bool? restaurant) =>
+    _withRoleTab(tabs, restaurantTab, restaurant);
+
+List<ShellTab> _withRoleTab(List<ShellTab> tabs, ShellTab tab, bool? show) {
+  if (show == null) return tabs;
   final others = [
     for (final t in tabs)
-      if (t.path != Paths.courier) t,
+      if (t.path != tab.path) t,
   ];
-  if (!courier) return others;
+  if (!show) return others;
   final at = others.isNotEmpty && others.last.path == Paths.account
       ? others.length - 1
       : others.length;
-  final out = [...others]..insert(at, courierTab);
+  final out = [...others]..insert(at, tab);
   if (out.length > Navigation.maxTabs) out.removeAt(at - 1);
   return out;
 }

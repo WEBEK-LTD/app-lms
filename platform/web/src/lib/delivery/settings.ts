@@ -39,6 +39,9 @@ export const DELIVERY_LIMITS = {
   maxKm: 2000,
   /** 104.6 The stores' limit for an app's name. */
   courierAppName: 30,
+  /** 105.1 Food apps. */
+  cuisines: 40,
+  cuisineName: 40,
 } as const;
 
 export function deliverySettingsOf(saved: DeliverySettings | null): DeliverySettings {

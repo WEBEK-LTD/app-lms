@@ -2103,3 +2103,204 @@ Map<String, dynamic> courierJobJson({
   ],
   'created_at': '2026-10-28T09:40:00.000Z',
 };
+
+// 105.1 Food delivery from many restaurants.
+
+Map<String, dynamic> foodConfigJson({
+  bool card = true,
+  String tracking = 'live',
+}) => {
+  'currency': 'EGP',
+  'timezone': 'Africa/Cairo',
+  'cuisines': [
+    {'id': 'egyptian', 'name': 'Egyptian'},
+    {'id': 'grill', 'name': 'Grill'},
+  ],
+  'payment': {'cash': true, 'card': card},
+  'tracking': tracking,
+  'courier_job': 'accepted',
+  'map': {
+    'tiles_url': 'https://tiles.example.com/{z}/{x}/{y}.png',
+    'attribution': '© Map data',
+  },
+};
+
+Map<String, dynamic> restaurantSummaryJson({
+  int id = 1,
+  String name = 'Abou Tarek',
+  bool open = true,
+  bool busy = false,
+}) => {
+  'id': id,
+  'name': name,
+  'logo_url': null,
+  'cover_url': null,
+  'cuisines': ['Egyptian'],
+  'rating': 4.5,
+  'ratings_count': 12,
+  'open': open,
+  'opens_at': open ? null : '2026-10-29T15:00:00.000Z',
+  'busy': busy,
+  'prep_minutes': 20,
+  'delivery_minutes': 33,
+  'min_order': '60.00',
+  'min_order_formatted': 'E£60.00',
+  'delivery_fee_formatted': 'E£32.00',
+  'distance_km': 1.2,
+  'delivers': true,
+};
+
+Map<String, dynamic> restaurantJson({int id = 1, bool open = true}) => {
+  ...restaurantSummaryJson(id: id, open: open),
+  'description': 'Koshari since 1950',
+  'address': {
+    'address': 'Tahrir Square, Cairo',
+    'details': null,
+    'lat': 30.0444,
+    'lng': 31.2357,
+  },
+  'phone': '+20225775935',
+  'hours': [
+    {'day': 'mon', 'opens': '10:00', 'closes': '23:00'},
+  ],
+  'menu': [
+    {
+      'id': 1,
+      'name': 'Mains',
+      'dishes': [
+        {
+          'id': 2,
+          'name': 'Koshari',
+          'description': 'Rice, lentils and pasta',
+          'image_url': null,
+          'price': '50.00',
+          'price_formatted': 'E£50.00',
+          'available': true,
+          'popular': true,
+          'choice_groups': [
+            {
+              'id': 3,
+              'name': 'Size',
+              'min': 1,
+              'max': 1,
+              'choices': [
+                {
+                  'id': 4,
+                  'name': 'Regular',
+                  'extra': '0.00',
+                  'extra_formatted': null,
+                  'available': true,
+                },
+                {
+                  'id': 5,
+                  'name': 'Large',
+                  'extra': '15.00',
+                  'extra_formatted': '+E£15.00',
+                  'available': true,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          'id': 10,
+          'name': 'Om Ali',
+          'description': null,
+          'image_url': null,
+          'price': '40.00',
+          'price_formatted': 'E£40.00',
+          'available': false,
+          'popular': false,
+          'choice_groups': [],
+        },
+      ],
+    },
+  ],
+};
+
+Map<String, dynamic> foodLineJson() => {
+  'dish_id': 2,
+  'name': 'Koshari',
+  'quantity': 2,
+  'choices': ['Size: Large'],
+  'note': null,
+  'unit_price': '65.00',
+  'total': '130.00',
+  'total_formatted': 'E£130.00',
+};
+
+Map<String, dynamic> foodOrderJson({
+  int id = 1,
+  String status = 'accepted',
+  String method = 'cash',
+  bool withCourier = false,
+  Map<String, dynamic>? rating,
+}) => {
+  'id': id,
+  'reference': 'F-${1000 + id}',
+  'status': status,
+  'restaurant': {
+    'id': 1,
+    'name': 'Abou Tarek',
+    'logo_url': null,
+    'phone': '+20225775935',
+  },
+  'lines': [foodLineJson()],
+  'subtotal_formatted': 'E£130.00',
+  'delivery_fee_formatted': 'E£32.00',
+  'total': '162.00',
+  'total_formatted': 'E£162.00',
+  'currency': 'EGP',
+  'payment': {'method': method, 'status': 'unpaid'},
+  'dropoff': {
+    'address': 'Cairo Tower, Zamalek',
+    'details': null,
+    'lat': 30.0459,
+    'lng': 31.2243,
+  },
+  'notes': null,
+  'ready_at': status == 'accepted' ? '2026-10-28T10:25:00.000Z' : null,
+  'rejection': null,
+  'courier': withCourier
+      ? {'name': 'Karim Hassan', 'phone': '+201112223334'}
+      : null,
+  'courier_location': null,
+  'rating': rating,
+  'timeline': [
+    {'status': 'placed', 'at': '2026-10-28T10:00:00.000Z', 'note': null},
+    if (status != 'placed')
+      {'status': 'accepted', 'at': '2026-10-28T10:02:00.000Z', 'note': null},
+    if (status == 'delivered')
+      {'status': 'delivered', 'at': '2026-10-28T10:40:00.000Z', 'note': null},
+  ],
+  'created_at': '2026-10-28T10:00:00.000Z',
+};
+
+Map<String, dynamic> restaurantDeskJson({String? busyUntil}) => {
+  'id': 1,
+  'name': 'Abou Tarek',
+  'logo_url': null,
+  'open': true,
+  'busy_until': busyUntil,
+  'accepting': busyUntil == null,
+  'today': {'orders': 4, 'sales_formatted': 'E£520.00'},
+};
+
+Map<String, dynamic> deskOrderJson({int id = 1, String status = 'placed'}) => {
+  'id': id,
+  'reference': 'F-${1000 + id}',
+  'status': status,
+  'lines': [foodLineJson()],
+  'subtotal_formatted': 'E£130.00',
+  'customer': {'name': 'Karim'},
+  'notes': 'Ring twice',
+  'payment': {'method': 'cash', 'status': 'unpaid'},
+  'ready_at': status == 'accepted' ? '2026-10-28T10:25:00.000Z' : null,
+  'courier': null,
+  'created_at': '2026-10-28T10:00:00.000Z',
+  'timeline': [
+    {'status': 'placed', 'at': '2026-10-28T10:00:00.000Z', 'note': null},
+    if (status != 'placed')
+      {'status': status, 'at': '2026-10-28T10:02:00.000Z', 'note': null},
+  ],
+};

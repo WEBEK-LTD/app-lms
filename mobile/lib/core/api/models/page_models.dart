@@ -279,6 +279,11 @@ enum BuiltInScreen {
   sendParcel,
   shipments,
   courier,
+
+  /// 105.1 Food delivery from many restaurants.
+  restaurants,
+  foodOrders,
+  restaurant,
 }
 
 enum OpenIn { inApp, browser }
@@ -344,6 +349,9 @@ enum ItemSource {
 
   /// 104 A delivery company's services.
   deliveryServices,
+
+  /// 105.1 A food delivery company's restaurants.
+  restaurants,
 }
 
 /// An entry from a list source, for `item` actions.

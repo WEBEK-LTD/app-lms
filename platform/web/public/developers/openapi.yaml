@@ -254,6 +254,34 @@ tags:
       (build config `delivery_role: courier`), while its customer app has
       none; `yallapp_courier`, in the shared Yallapp Courier app, while the
       company's app has none.
+  - name: Food
+    description: |
+      Roadmap 105.1. Food delivery from many restaurants, on Yallapp's hosted
+      API. The company adds its restaurants with their menus; the customer
+      picks a restaurant (`GET /food/restaurants`), fills one restaurant's
+      cart, sees the total before ordering (`POST /food/quote`: the dishes,
+      their choices, the delivery fee by the company's delivery prices from
+      the restaurant to the customer, and the restaurant's smallest order),
+      and orders, paying cash to the courier or by card on the company's
+      payment page as the company allows (`FoodConfig.payment`). The
+      restaurant accepts the order with the time it needs, or turns it down;
+      the company's couriers deliver it (the Courier tag: each order's
+      delivery is a courier job, picked up at the restaurant). The customer
+      follows the order's stages, and the courier on a map while it is on the
+      way when the company chose live tracking, then rates the restaurant and
+      the courier.
+  - name: Restaurant
+    description: |
+      Roadmap 105.1. A restaurant's screens. Its staff are people the company
+      added to the restaurant on the dashboard by mobile number (or by email,
+      for apps that sign in by email only); whoever signs in with that number,
+      proven by its code, works for that restaurant (`User.roles` has
+      `restaurant`). Every endpoint here answers `not_restaurant` (403) to
+      anyone else, and to staff of a restaurant the company paused. Staff see
+      their restaurant's orders only: new ones (with a push and a sound),
+      accept each with the minutes it needs or turn it down with a reason,
+      mark it ready for the courier, and set the restaurant busy for a while
+      (no new orders) or open again.
   - name: Bookings
     description: |
       Services, staff, free times and appointments, for Bookings apps. The
@@ -4280,6 +4308,416 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
 
+  /food/restaurants:
+    get:
+      tags: [Food]
+      operationId: listRestaurants
+      summary: List the restaurants
+      description: |
+        The company's active restaurants: open ones first, then by `sort`.
+        With the customer's position (`lat`, `lng`) each has its distance and
+        whether it delivers there (`delivers`); restaurants that don't are
+        listed last. `cuisine` keeps one cuisine (`FoodConfig.cuisines`), `q`
+        searches restaurant and dish names.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - { name: lat, in: query, schema: { type: number, minimum: -90, maximum: 90 } }
+        - { name: lng, in: query, schema: { type: number, minimum: -180, maximum: 180 } }
+        - { name: cuisine, in: query, schema: { type: string, maxLength: 40 } }
+        - { name: q, in: query, schema: { type: string, maxLength: 80 } }
+        - { name: sort, in: query, schema: { type: string, enum: [recommended, distance, rating, delivery_time], default: recommended } }
+      responses:
+        '200':
+          description: Restaurants
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/RestaurantSummary' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /food/restaurants/{restaurant_id}:
+    get:
+      tags: [Food]
+      operationId: getRestaurant
+      summary: A restaurant with its menu
+      description: The restaurant and its menu in sections, the company's order. Sold-out dishes are listed with `available` false.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/RestaurantId'
+        - { name: lat, in: query, schema: { type: number, minimum: -90, maximum: 90 } }
+        - { name: lng, in: query, schema: { type: number, minimum: -180, maximum: 180 } }
+      responses:
+        '200':
+          description: The restaurant
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Restaurant' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /food/quote:
+    post:
+      tags: [Food]
+      operationId: quoteFoodOrder
+      summary: Price one restaurant's cart
+      description: |
+        The cart's lines with their prices, the subtotal, the delivery fee to
+        the drop-off and the total. Fails with `invalid_request` (400) for a
+        dish or choice the restaurant doesn't have (or a missing required
+        choice), with `unavailable_item` (409) for a sold-out dish (`field`
+        names the line), `restaurant_closed` (409) while the restaurant is
+        closed or busy, `below_minimum` (409) under the restaurant's smallest
+        order, and `outside_delivery_area` (400) when the restaurant doesn't
+        deliver to the drop-off.
+      security: [{}, { bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FoodCartInput' }
+      responses:
+        '200':
+          description: The cart's prices
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FoodQuote' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /food/orders:
+    post:
+      tags: [Food]
+      operationId: placeFoodOrder
+      summary: Order from a restaurant
+      description: |
+        Places the order at the prices `POST /food/quote` gives for the same
+        cart. Paid in cash, it goes to the restaurant at once (`placed`). Paid
+        by card, it waits for the payment (`awaiting_payment`) and the answer
+        has `pay_url`, the company's payment page, opened in the app on both
+        platforms (food delivered is a service in the physical world); it goes
+        to the restaurant once the payment is confirmed. Fails as the quote
+        does, for a payment method the company doesn't take, and with
+        `payments_unavailable` (503) for a card payment while the company's
+        payments aren't set up.
+      parameters:
+        - $ref: '#/components/parameters/Platform'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FoodOrderInput' }
+      responses:
+        '201':
+          description: The order
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [order, pay_url]
+                properties:
+                  order: { $ref: '#/components/schemas/FoodOrder' }
+                  pay_url: { type: [string, 'null'], format: uri, description: 'For `payment: card`: the payment page, good for 60 minutes. Null for cash.' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /me/food-orders:
+    get:
+      tags: [Food]
+      operationId: listMyFoodOrders
+      summary: List the signed-in customer's food orders
+      description: Newest first; `active` only those not yet delivered, turned down or cancelled.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - { name: active, in: query, schema: { type: boolean } }
+      responses:
+        '200':
+          description: Orders
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/FoodOrder' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/food-orders/{order_id}:
+    get:
+      tags: [Food]
+      operationId: getMyFoodOrder
+      summary: Follow a food order
+      description: |
+        The order with its stages, the courier and, with live tracking while
+        the courier has it (`picked_up`, `on_the_way`), where the courier is.
+        The app asks again every 15 seconds or so while the screen is open and
+        the order is active.
+      parameters:
+        - $ref: '#/components/parameters/FoodOrderId'
+      responses:
+        '200':
+          description: The order
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FoodOrder' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/food-orders/{order_id}/cancel:
+    post:
+      tags: [Food]
+      operationId: cancelMyFoodOrder
+      summary: Cancel a food order
+      description: Only before the restaurant accepts it (`awaiting_payment` or `placed`); then `not_cancellable` (409). A card payment already made is refunded by the company.
+      parameters:
+        - $ref: '#/components/parameters/FoodOrderId'
+      responses:
+        '200':
+          description: The order, cancelled
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FoodOrder' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/food-orders/{order_id}/pay:
+    post:
+      tags: [Food]
+      operationId: payMyFoodOrder
+      summary: A new payment page for an order waiting for its payment
+      parameters:
+        - $ref: '#/components/parameters/FoodOrderId'
+      responses:
+        '200':
+          description: The payment page
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [url]
+                properties:
+                  url: { type: string, format: uri }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /me/food-orders/{order_id}/rating:
+    put:
+      tags: [Food]
+      operationId: rateMyFoodOrder
+      summary: Rate a delivered order
+      description: Once, after it is delivered, within 7 days. The restaurant's rating counts in its average; the courier's is seen by the company.
+      parameters:
+        - $ref: '#/components/parameters/FoodOrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [restaurant]
+              properties:
+                restaurant: { type: integer, minimum: 1, maximum: 5 }
+                courier: { type: [integer, 'null'], minimum: 1, maximum: 5 }
+                comment: { type: [string, 'null'], maxLength: 500 }
+      responses:
+        '200':
+          description: The order with its rating
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FoodOrder' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /restaurant/me:
+    get:
+      tags: [Restaurant]
+      operationId: getMyRestaurant
+      summary: The restaurant the signed-in person works for
+      responses:
+        '200':
+          description: The restaurant
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RestaurantDesk' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    patch:
+      tags: [Restaurant]
+      operationId: setRestaurantBusy
+      summary: Busy for a while, or open again
+      description: '`busy_minutes` 15 to 240 stops new orders for that long; 0 opens again. Opening hours still apply.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [busy_minutes]
+              properties:
+                busy_minutes: { type: integer, minimum: 0, maximum: 240 }
+      responses:
+        '200':
+          description: The restaurant
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RestaurantDesk' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /restaurant/orders:
+    get:
+      tags: [Restaurant]
+      operationId: listRestaurantOrders
+      summary: The restaurant's orders
+      description: '`new`: waiting to be accepted, oldest first; `active`: accepted and not yet picked up, the soonest ready first; `done`: picked up, delivered, turned down or cancelled in the last 2 days, newest first.'
+      parameters:
+        - { name: scope, in: query, required: true, schema: { type: string, enum: [new, active, done] } }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Orders
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/RestaurantOrder' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /restaurant/orders/{order_id}:
+    get:
+      tags: [Restaurant]
+      operationId: getRestaurantOrder
+      summary: One of the restaurant's orders
+      parameters:
+        - $ref: '#/components/parameters/FoodOrderId'
+      responses:
+        '200':
+          description: The order
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RestaurantOrder' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /restaurant/orders/{order_id}/accept:
+    post:
+      tags: [Restaurant]
+      operationId: acceptRestaurantOrder
+      summary: Accept a new order with the minutes it needs
+      description: From `placed` only; then `invalid_status` (409). The customer is told when it will be ready, and, when the company makes courier jobs on acceptance (`FoodConfig.courier_job`), a courier job is made at once.
+      parameters:
+        - $ref: '#/components/parameters/FoodOrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [prep_minutes]
+              properties:
+                prep_minutes: { type: integer, minimum: 5, maximum: 180 }
+      responses:
+        '200':
+          description: The order
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RestaurantOrder' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /restaurant/orders/{order_id}/reject:
+    post:
+      tags: [Restaurant]
+      operationId: rejectRestaurantOrder
+      summary: Turn down a new order
+      description: From `placed` only. The customer is told the reason; a card payment is refunded by the company.
+      parameters:
+        - $ref: '#/components/parameters/FoodOrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { type: string, enum: [closing, too_busy, item_unavailable, other] }
+                note: { type: [string, 'null'], maxLength: 300 }
+      responses:
+        '200':
+          description: The order
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RestaurantOrder' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /restaurant/orders/{order_id}/ready:
+    post:
+      tags: [Restaurant]
+      operationId: readyRestaurantOrder
+      summary: The order is ready for the courier
+      description: From `accepted` only. Makes the courier job when the company makes them once orders are ready (`FoodConfig.courier_job`).
+      parameters:
+        - $ref: '#/components/parameters/FoodOrderId'
+      responses:
+        '200':
+          description: The order
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RestaurantOrder' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
   /billing/access:
     post:
       tags: [Platform]
@@ -4555,7 +4993,7 @@ components:
       description: >-
         The type of the app asking (its build config's `app_type`). Default pages are built
         for it. Unknown values are ignored.
-      schema: { type: string, enum: [lms, store, booking, real_estate, news, events, donations, delivery] }
+      schema: { type: string, enum: [lms, store, booking, real_estate, news, events, donations, delivery, food] }
     ConversationId:
       name: conversation_id
       in: path
@@ -4662,6 +5100,16 @@ components:
       schema: { type: integer }
     ShipmentId:
       name: shipment_id
+      in: path
+      required: true
+      schema: { type: integer }
+    RestaurantId:
+      name: restaurant_id
+      in: path
+      required: true
+      schema: { type: integer }
+    FoodOrderId:
+      name: order_id
       in: path
       required: true
       schema: { type: integer }
@@ -5038,6 +5486,7 @@ components:
         events: { $ref: '#/components/schemas/EventsConfig' }
         donations: { $ref: '#/components/schemas/DonationsConfig' }
         delivery: { $ref: '#/components/schemas/DeliveryConfig' }
+        food: { $ref: '#/components/schemas/FoodConfig' }
         vertical:
           type: [string, 'null']
           enum: [restaurant, clinic, fitness, charity, services, null]
@@ -5125,11 +5574,13 @@ components:
         roles:
           type: array
           uniqueItems: true
-          items: { type: string, enum: [courier] }
+          items: { type: string, enum: [courier, restaurant] }
           description: |
             Roadmap 104. In delivery apps, `courier` for a courier of the
-            company (the Courier endpoints). Missing or empty: a customer
-            only. Apps ignore roles they don't know.
+            company (the Courier endpoints). 105.1 In food apps, also
+            `restaurant` for a restaurant's staff (the Restaurant endpoints).
+            Missing or empty: a customer only. Apps ignore roles they don't
+            know.
 
     DeviceInput:
       type: object
@@ -5855,7 +6306,7 @@ components:
         body: { type: string }
         type:
           type: string
-          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job]
+          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order]
           description: >-
             85.3 Automatic notifications on Yallapp's hosted API have their own types:
             `appointment_confirmed` and `appointment_reminder` (with `appointment_id`), `class_soon`,
@@ -5867,6 +6318,9 @@ components:
             to another stage, and opens it; `courier_job` (with `shipment_id`): a courier was
             given a job, or, when couriers take jobs themselves, a new one is waiting; it opens
             the job in the courier's screens.
+            105.1 `food_order_update` (with `food_order_id`): one of the customer's food orders
+            moved to another stage, and opens it; `restaurant_order` (with `food_order_id`): a
+            new order reached the restaurant, and opens it in the Restaurant tab.
             An app that doesn't know a type opens Home.
         course_id: { type: [integer, 'null'] }
         lesson_id: { type: [integer, 'null'] }
@@ -5877,6 +6331,7 @@ components:
         campaign_id: { type: [integer, 'null'], description: "For campaign_update, the campaign to open (Charity & donations apps). Missing on older servers." }
         order_id: { type: [integer, 'null'], description: "91.2 For order_update, the order to open (`GET /me/orders/{order_id}`). Missing on older servers." }
         shipment_id: { type: [integer, 'null'], description: "104 For shipment_update and courier_job, the shipment to open. Missing on older servers." }
+        food_order_id: { type: [integer, 'null'], description: "105.1 For food_order_update and restaurant_order, the food order to open. Missing on older servers." }
         link: { type: [string, 'null'], format: uri, description: "46 A link in the format of the Links tag (`<base>/<kind>/<id>`): what the notification opens when no other field here says. 85.2 Or another `https` address (a campaign's web page), which the app opens in the browser. Push notifications carry it in their data too. Missing on older servers." }
         image_url:
           type: [string, 'null']
@@ -7245,7 +7700,7 @@ components:
         screen:
           type: [string, 'null']
           description: For `screen`, a built-in screen.
-          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, null]
+          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, restaurants, food_orders, restaurant, null]
         course_id: { type: [integer, 'null'], description: For `course`. }
         item: { $ref: '#/components/schemas/ItemRef' }
         url: { type: [string, 'null'], format: uri, description: For `url`. }
@@ -7261,8 +7716,8 @@ components:
 
     ItemSource:
       type: string
-      description: Where a list comes from. `courses` needs an LMS; `products` needs WooCommerce or a hosted store; `services` needs a bookings plugin or hosted bookings; `listings` is hosted only; `articles` are a News & blog app's articles (posts on WordPress), opened in the app, while `posts` open on the website; `events` are an Events & tickets app's upcoming events (hosted only); `campaigns` are a Charity & donations app's campaigns (hosted only); 104 `delivery_services` are a delivery company's services, each opening the send screen with it chosen (hosted only).
-      enum: [courses, products, services, posts, listings, articles, events, campaigns, delivery_services]
+      description: Where a list comes from. `courses` needs an LMS; `products` needs WooCommerce or a hosted store; `services` needs a bookings plugin or hosted bookings; `listings` is hosted only; `articles` are a News & blog app's articles (posts on WordPress), opened in the app, while `posts` open on the website; `events` are an Events & tickets app's upcoming events (hosted only); `campaigns` are a Charity & donations app's campaigns (hosted only); 104 `delivery_services` are a delivery company's services, each opening the send screen with it chosen (hosted only); 105.1 `restaurants` are a food app's restaurants, each opening its menu (hosted only).
+      enum: [courses, products, services, posts, listings, articles, events, campaigns, delivery_services, restaurants]
 
     Item:
       type: object
@@ -8690,5 +9145,346 @@ components:
             required: [status, at]
             properties:
               status: { $ref: '#/components/schemas/ShipmentStatus' }
+              at: { type: string, format: date-time }
+              note: { type: [string, 'null'] }
+
+    FoodConfig:
+      type: object
+      description: Settings for food delivery apps from many restaurants (roadmap 105.1).
+      required: [currency, timezone, cuisines, payment, tracking, courier_job, map]
+      properties:
+        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        timezone: { type: string, description: "The company's IANA time zone: restaurants' opening hours are in it.", example: Africa/Cairo }
+        cuisines:
+          type: array
+          description: The cuisines the company's restaurants are filed under, in the company's order, for the filter.
+          items:
+            type: object
+            required: [id, name]
+            properties:
+              id: { type: string, example: grills }
+              name: { type: string, example: Grills }
+        payment:
+          type: object
+          required: [cash, card]
+          description: How customers can pay. At least one is true.
+          properties:
+            cash: { type: boolean, description: 'To the courier, in cash.' }
+            card: { type: boolean, description: "By card, on the company's payment page." }
+        tracking:
+          type: string
+          enum: [stages, live]
+          description: '`stages`: the order''s stages only; `live`: also the courier''s position while it is on the way.'
+        courier_job:
+          type: string
+          enum: [accepted, ready]
+          description: "When the order's courier job is made, so a courier heads to the restaurant: once the restaurant accepts it, or once it is ready."
+        map:
+          type: object
+          required: [tiles_url, attribution]
+          description: As `DeliveryConfig.map`.
+          properties:
+            tiles_url: { type: [string, 'null'] }
+            attribution: { type: [string, 'null'] }
+
+    RestaurantSummary:
+      type: object
+      required: [id, name, logo_url, cover_url, cuisines, rating, ratings_count, open, opens_at, busy, prep_minutes, delivery_minutes, min_order, min_order_formatted, delivery_fee_formatted, distance_km, delivers]
+      properties:
+        id: { type: integer }
+        name: { type: string, example: Abou Tarek }
+        logo_url: { type: [string, 'null'], format: uri }
+        cover_url: { type: [string, 'null'], format: uri }
+        cuisines:
+          type: array
+          items: { type: string, description: 'A `FoodConfig.cuisines` id.' }
+        rating: { type: [number, 'null'], description: 'The average of its ratings, 1 to 5, one decimal; null before its first.', example: 4.6 }
+        ratings_count: { type: integer }
+        open: { type: boolean, description: 'Taking orders now: within its hours and not busy.' }
+        opens_at: { type: [string, 'null'], format: date-time, description: 'While closed: when it opens next, within the next 7 days.' }
+        busy: { type: boolean, description: 'Open hours, but not taking orders for a while.' }
+        prep_minutes: { type: integer, description: 'How long it usually takes to prepare an order.' }
+        delivery_minutes: { type: [integer, 'null'], description: 'Preparing and delivering, with the customer''s position; null without it.' }
+        min_order: { type: [string, 'null'], description: 'The smallest subtotal, as a decimal string; null for none.', example: '100.00' }
+        min_order_formatted: { type: [string, 'null'], example: 'EGP 100.00' }
+        delivery_fee_formatted: { type: [string, 'null'], description: 'With the customer''s position (or with fixed prices): the delivery fee; null otherwise.', example: 'EGP 25.00' }
+        distance_km: { type: [number, 'null'], description: 'From the customer''s position, a straight line.' }
+        delivers: { type: [boolean, 'null'], description: 'Whether it delivers to the customer''s position; null without it.' }
+
+    Restaurant:
+      allOf:
+        - $ref: '#/components/schemas/RestaurantSummary'
+        - type: object
+          required: [description, address, phone, hours, menu]
+          properties:
+            description: { type: [string, 'null'] }
+            address: { $ref: '#/components/schemas/Place' }
+            phone: { type: [string, 'null'], description: E.164. }
+            hours:
+              type: array
+              description: Its opening hours, in `FoodConfig.timezone`; a day may have two periods.
+              items:
+                type: object
+                required: [day, opens, closes]
+                properties:
+                  day: { type: string, enum: [mon, tue, wed, thu, fri, sat, sun] }
+                  opens: { type: string, pattern: '^\d{2}:\d{2}$', example: '12:00' }
+                  closes: { type: string, pattern: '^\d{2}:\d{2}$', description: 'Earlier than `opens` when it closes after midnight.', example: '02:00' }
+            menu:
+              type: array
+              items: { $ref: '#/components/schemas/MenuSection' }
+
+    MenuSection:
+      type: object
+      required: [id, name, dishes]
+      properties:
+        id: { type: integer }
+        name: { type: string, example: Sandwiches }
+        dishes:
+          type: array
+          items: { $ref: '#/components/schemas/Dish' }
+
+    Dish:
+      type: object
+      required: [id, name, description, image_url, price, price_formatted, available, popular, choice_groups]
+      properties:
+        id: { type: integer }
+        name: { type: string, example: 'Koshari, large' }
+        description: { type: [string, 'null'] }
+        image_url: { type: [string, 'null'], format: uri }
+        price: { type: string, description: 'Before choices, as a decimal string.', example: '65.00' }
+        price_formatted: { type: string, example: 'EGP 65.00' }
+        available: { type: boolean, description: 'False while sold out.' }
+        popular: { type: boolean }
+        choice_groups:
+          type: array
+          items: { $ref: '#/components/schemas/DishChoiceGroup' }
+
+    DishChoiceGroup:
+      type: object
+      required: [id, name, min, max, choices]
+      description: 'A group of choices on a dish, like its size (pick one) or extras (pick up to 3).'
+      properties:
+        id: { type: integer }
+        name: { type: string, example: Extras }
+        min: { type: integer, minimum: 0, description: '1 or more: required.' }
+        max: { type: integer, minimum: 1 }
+        choices:
+          type: array
+          items:
+            type: object
+            required: [id, name, extra, extra_formatted, available]
+            properties:
+              id: { type: integer }
+              name: { type: string, example: Extra fried onions }
+              extra: { type: string, description: 'What it adds to the dish, as a decimal string.', example: '10.00' }
+              extra_formatted: { type: [string, 'null'], description: 'Null when it adds nothing.', example: '+EGP 10.00' }
+              available: { type: boolean }
+
+    FoodCartInput:
+      type: object
+      required: [restaurant_id, lines, dropoff]
+      properties:
+        restaurant_id: { type: integer }
+        lines:
+          type: array
+          minItems: 1
+          maxItems: 50
+          items:
+            type: object
+            required: [dish_id, quantity]
+            properties:
+              dish_id: { type: integer }
+              quantity: { type: integer, minimum: 1, maximum: 50 }
+              choices:
+                type: array
+                maxItems: 30
+                items: { type: integer, description: 'A choice id of the dish''s groups.' }
+              note: { type: [string, 'null'], maxLength: 200, example: 'No onions' }
+        dropoff: { $ref: '#/components/schemas/PlaceInput' }
+        zone_id: { type: [string, 'null'], description: 'Needed when the company prices deliveries by zone (`DeliveryConfig.pricing`).' }
+
+    FoodQuote:
+      type: object
+      required: [lines, subtotal, subtotal_formatted, delivery_fee, delivery_fee_formatted, total, total_formatted, currency, distance_km, delivery_minutes]
+      properties:
+        lines:
+          type: array
+          items: { $ref: '#/components/schemas/FoodOrderLine' }
+        subtotal: { type: string, example: '180.00' }
+        subtotal_formatted: { type: string, example: 'EGP 180.00' }
+        delivery_fee: { type: string, example: '25.00' }
+        delivery_fee_formatted: { type: string, example: 'EGP 25.00' }
+        total: { type: string, example: '205.00' }
+        total_formatted: { type: string, example: 'EGP 205.00' }
+        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        distance_km: { type: [number, 'null'] }
+        delivery_minutes: { type: [integer, 'null'], description: 'Preparing and delivering, roughly.' }
+
+    FoodOrderLine:
+      type: object
+      required: [dish_id, name, quantity, choices, note, unit_price, total, total_formatted]
+      properties:
+        dish_id: { type: [integer, 'null'], description: 'Null once the restaurant deleted the dish.' }
+        name: { type: string }
+        quantity: { type: integer }
+        choices:
+          type: array
+          items: { type: string, description: 'The choice''s name, with its group.', example: 'Size: Large' }
+        note: { type: [string, 'null'] }
+        unit_price: { type: string, description: 'With its choices.', example: '75.00' }
+        total: { type: string, example: '150.00' }
+        total_formatted: { type: string, example: 'EGP 150.00' }
+
+    FoodOrderInput:
+      allOf:
+        - $ref: '#/components/schemas/FoodCartInput'
+        - type: object
+          required: [payment]
+          properties:
+            payment: { type: string, enum: [cash, card] }
+            phone: { type: [string, 'null'], maxLength: 24, description: 'Where the courier calls; the account''s number when left out (required for accounts without one).' }
+            notes: { type: [string, 'null'], maxLength: 300, description: 'For the restaurant and the courier.' }
+
+    FoodOrderStatus:
+      type: string
+      enum: [awaiting_payment, placed, accepted, ready, picked_up, on_the_way, delivered, rejected, cancelled, failed]
+      description: |
+        `awaiting_payment`: paid by card, not paid yet; `placed`: waiting for
+        the restaurant; `accepted`: being prepared (`ready_at`); `ready`:
+        waiting for the courier; `picked_up`; `on_the_way`; `delivered`;
+        `rejected`: the restaurant turned it down (`rejection`); `cancelled`;
+        `failed`: couldn't be delivered (the company gets in touch).
+
+    FoodOrder:
+      type: object
+      required: [id, reference, status, restaurant, lines, subtotal_formatted, delivery_fee_formatted, total, total_formatted, currency, payment, dropoff, notes, ready_at, rejection, courier, courier_location, rating, timeline, created_at]
+      properties:
+        id: { type: integer }
+        reference: { type: string, example: 'F-1042' }
+        status: { $ref: '#/components/schemas/FoodOrderStatus' }
+        restaurant:
+          type: object
+          required: [id, name, logo_url, phone]
+          properties:
+            id: { type: [integer, 'null'], description: 'Null once the company deleted the restaurant.' }
+            name: { type: string }
+            logo_url: { type: [string, 'null'], format: uri }
+            phone: { type: [string, 'null'] }
+        lines:
+          type: array
+          items: { $ref: '#/components/schemas/FoodOrderLine' }
+        subtotal_formatted: { type: string }
+        delivery_fee_formatted: { type: string }
+        total: { type: string, example: '205.00' }
+        total_formatted: { type: string, example: 'EGP 205.00' }
+        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        payment:
+          type: object
+          required: [method, status]
+          properties:
+            method: { type: string, enum: [cash, card] }
+            status: { type: string, enum: [unpaid, paid, refunded], description: 'A cash order is paid once delivered.' }
+        dropoff: { $ref: '#/components/schemas/Place' }
+        notes: { type: [string, 'null'] }
+        ready_at: { type: [string, 'null'], format: date-time, description: 'Once accepted: when the restaurant expects it ready.' }
+        rejection:
+          type: [object, 'null']
+          required: [reason, note]
+          properties:
+            reason: { type: string, enum: [closing, too_busy, item_unavailable, other] }
+            note: { type: [string, 'null'] }
+        courier:
+          type: [object, 'null']
+          required: [name, phone]
+          description: Once a courier has it, until it is delivered (then only the name).
+          properties:
+            name: { type: string }
+            phone: { type: [string, 'null'] }
+        courier_location:
+          type: [object, 'null']
+          required: [lat, lng, updated_at]
+          description: As `Shipment.courier_location`.
+          properties:
+            lat: { type: number }
+            lng: { type: number }
+            updated_at: { type: string, format: date-time }
+        rating:
+          type: [object, 'null']
+          required: [restaurant, courier, comment]
+          properties:
+            restaurant: { type: integer }
+            courier: { type: [integer, 'null'] }
+            comment: { type: [string, 'null'] }
+        timeline:
+          type: array
+          description: The stages it went through, oldest first.
+          items:
+            type: object
+            required: [status, at]
+            properties:
+              status: { $ref: '#/components/schemas/FoodOrderStatus' }
+              at: { type: string, format: date-time }
+              note: { type: [string, 'null'] }
+        created_at: { type: string, format: date-time }
+
+    RestaurantDesk:
+      type: object
+      required: [id, name, logo_url, open, busy_until, accepting, today]
+      description: The restaurant as its staff see it.
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        logo_url: { type: [string, 'null'], format: uri }
+        open: { type: boolean, description: 'Within its opening hours.' }
+        busy_until: { type: [string, 'null'], format: date-time }
+        accepting: { type: boolean, description: 'Open and not busy: new orders come in.' }
+        today:
+          type: object
+          required: [orders, sales_formatted]
+          properties:
+            orders: { type: integer, description: 'Accepted today, the restaurant''s time zone.' }
+            sales_formatted: { type: string, description: 'Their subtotals.' }
+
+    RestaurantOrder:
+      type: object
+      required: [id, reference, status, lines, subtotal_formatted, customer, notes, payment, ready_at, courier, created_at, timeline]
+      description: An order as the restaurant sees it. The customer's number and address are not shown; the courier calls them.
+      properties:
+        id: { type: integer }
+        reference: { type: string }
+        status: { $ref: '#/components/schemas/FoodOrderStatus' }
+        lines:
+          type: array
+          items: { $ref: '#/components/schemas/FoodOrderLine' }
+        subtotal_formatted: { type: string }
+        customer:
+          type: object
+          required: [name]
+          properties:
+            name: { type: string }
+        notes: { type: [string, 'null'] }
+        payment:
+          type: object
+          required: [method, status]
+          properties:
+            method: { type: string, enum: [cash, card] }
+            status: { type: string, enum: [unpaid, paid, refunded] }
+        ready_at: { type: [string, 'null'], format: date-time }
+        courier:
+          type: [object, 'null']
+          required: [name, phone]
+          description: Once a courier has the job.
+          properties:
+            name: { type: string }
+            phone: { type: [string, 'null'] }
+        created_at: { type: string, format: date-time }
+        timeline:
+          type: array
+          items:
+            type: object
+            required: [status, at]
+            properties:
+              status: { $ref: '#/components/schemas/FoodOrderStatus' }
               at: { type: string, format: date-time }
               note: { type: [string, 'null'] }

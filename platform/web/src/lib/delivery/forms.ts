@@ -1,6 +1,7 @@
 import { CATALOG_CURRENCIES, centsToDecimal, parsePrice } from "../catalog/money";
-import type { CatalogCurrency, CourierApp, DeliveryService, DeliverySettings, DeliveryZone } from "../data/types";
-import { COURIER_APPS, DELIVERY_ASSIGNMENTS, DELIVERY_PRICINGS, DELIVERY_TRACKINGS } from "../data/types";
+import type { CatalogCurrency, CourierApp, Cuisine, DeliveryService, DeliverySettings, DeliveryZone } from "../data/types";
+import { COURIER_APPS, DELIVERY_ASSIGNMENTS, DELIVERY_PRICINGS, DELIVERY_TRACKINGS, FOOD_COURIER_JOBS } from "../data/types";
+import { DEFAULT_FOOD_TIMEZONE } from "../food/service";
 import { parseAnyPhone } from "../hosted/phone";
 import { DELIVERY_LIMITS } from "./settings";
 
@@ -65,8 +66,54 @@ export function parseZones(text: string, saved: DeliveryZone[]): { zones: Delive
   return { zones, error: null };
 }
 
-/** The settings form; `saved` keeps the zones' IDs. */
-export function parseDeliverySettings(form: Record<string, string>, saved: DeliverySettings, courierAppAllowed: boolean): Parsed<DeliverySettings> {
+/** 105.1 The time zones a food company's opening hours can be in. */
+export const FOOD_TIMEZONES = [
+  "Africa/Cairo",
+  "Europe/Istanbul",
+  "Asia/Riyadh",
+  "Asia/Dubai",
+  "Asia/Kuwait",
+  "Asia/Qatar",
+  "Asia/Bahrain",
+  "Asia/Amman",
+  "Asia/Beirut",
+  "Asia/Baghdad",
+  "Africa/Casablanca",
+  "Africa/Algiers",
+  "Africa/Tunis",
+  "Africa/Tripoli",
+  "Africa/Khartoum",
+  "Europe/London",
+  "Europe/Berlin",
+  "America/New_York",
+] as const;
+
+/** 105.1 The cuisines of the text area, one a line; their IDs stay with their names. */
+export function parseCuisines(text: string, saved: Cuisine[]): { cuisines: Cuisine[]; error: string | null } {
+  const names = text
+    .split(/\r?\n/)
+    .map((l) => l.replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+  if (names.length > DELIVERY_LIMITS.cuisines) return { cuisines: [], error: `Add up to ${DELIVERY_LIMITS.cuisines} cuisines.` };
+  const used = new Set(saved.map((c) => c.id));
+  const cuisines: Cuisine[] = [];
+  let next = 1;
+  for (const name of names) {
+    if (name.length > DELIVERY_LIMITS.cuisineName) return { cuisines: [], error: `Keep each cuisine under ${DELIVERY_LIMITS.cuisineName} characters.` };
+    if (cuisines.some((c) => c.name.toLowerCase() === name.toLowerCase())) return { cuisines: [], error: `"${name}" is there twice.` };
+    let id = saved.find((c) => c.name.toLowerCase() === name.toLowerCase())?.id;
+    if (!id) {
+      while (used.has(`c${next}`)) next++;
+      id = `c${next}`;
+      used.add(id);
+    }
+    cuisines.push({ id, name });
+  }
+  return { cuisines, error: null };
+}
+
+/** The settings form; `saved` keeps the zones' IDs. 105.1 A food company's form has its cuisines, when courier jobs are made and its time zone, and no second courier app. */
+export function parseDeliverySettings(form: Record<string, string>, saved: DeliverySettings, courierAppAllowed: boolean, food = false): Parsed<DeliverySettings> {
   const errors: Record<string, string> = {};
   const currency = CATALOG_CURRENCIES.find((c) => c === str(form, "currency")) as CatalogCurrency | undefined;
   if (!currency) errors.currency = "Choose a currency.";
@@ -93,12 +140,22 @@ export function parseDeliverySettings(form: Record<string, string>, saved: Deliv
   if (!tracking) errors.tracking = "Choose how customers follow a shipment.";
   const assignment = DELIVERY_ASSIGNMENTS.find((v) => v === str(form, "assignment"));
   if (!assignment) errors.assignment = "Choose who gives out the jobs.";
-  const courierApp = COURIER_APPS.find((v) => v === str(form, "courierApp")) as CourierApp | undefined;
+  const courierApp = food ? "same" : (COURIER_APPS.find((v) => v === str(form, "courierApp")) as CourierApp | undefined);
   if (!courierApp) errors.courierApp = "Choose where your couriers work.";
   else if (courierApp === "bundle" && !courierAppAllowed && saved.courierApp !== "bundle") errors.courierApp = "A second app for couriers isn't in your plan.";
   // 104.6 The courier app's own name, when the company gives one.
   const courierAppName = str(form, "courierAppName") || null;
   if (courierAppName && courierAppName.length > DELIVERY_LIMITS.courierAppName) errors.courierAppName = `Give the courier app a name of up to ${DELIVERY_LIMITS.courierAppName} characters.`;
+  let foodValues: Pick<DeliverySettings, "cuisines" | "foodCourierJob" | "timezone"> = { cuisines: saved.cuisines, foodCourierJob: saved.foodCourierJob, timezone: saved.timezone };
+  if (food) {
+    const parsed = parseCuisines(str(form, "cuisines"), saved.cuisines ?? []);
+    if (parsed.error) errors.cuisines = parsed.error;
+    const foodCourierJob = FOOD_COURIER_JOBS.find((v) => v === str(form, "foodCourierJob"));
+    if (!foodCourierJob) errors.foodCourierJob = "Choose when a courier gets the order.";
+    const timezone = FOOD_TIMEZONES.find((z) => z === str(form, "timezone"));
+    if (!timezone) errors.timezone = "Choose the time zone of your restaurants' hours.";
+    foodValues = { cuisines: parsed.cuisines, foodCourierJob: foodCourierJob ?? "accepted", timezone: timezone ?? DEFAULT_FOOD_TIMEZONE };
+  }
   if (Object.keys(errors).length || !currency || !pricing || !tracking || !assignment || !courierApp) return { ok: false, errors };
   return {
     ok: true,
@@ -118,6 +175,7 @@ export function parseDeliverySettings(form: Record<string, string>, saved: Deliv
       courierApp,
       courierAppName,
       courierFirebaseIosAssetId: saved.courierFirebaseIosAssetId ?? null,
+      ...foodValues,
     },
   };
 }

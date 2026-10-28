@@ -17,6 +17,7 @@ import '../../../core/widgets/common.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../chat/data/chat_providers.dart';
 import '../../delivery/data/delivery_providers.dart';
+import '../../food/data/food_providers.dart';
 import '../../lms/downloads/download_manager.dart';
 import '../../lms/downloads/download_widgets.dart';
 
@@ -59,6 +60,10 @@ class ProfileScreen extends ConsumerWidget {
     // for the company's couriers.
     final delivery = env.build.appType == AppType.delivery;
     final courier = ref.watch(isCourierProvider);
+    // 105.1 Food delivery apps: the customer's orders, and the restaurant's
+    // screens for its staff.
+    final food = env.build.appType == AppType.food;
+    final restaurant = ref.watch(isRestaurantProvider);
     // 45 Academy apps whose students can save lessons on this phone.
     final downloads = lms && downloadsOffered(ref);
     final savedBytes = downloads
@@ -220,6 +225,13 @@ class ProfileScreen extends ConsumerWidget {
                     title: context.l10n.myOrders,
                     onTap: () => context.push(Paths.orders),
                   ),
+                if (restaurant)
+                  SettingsTile(
+                    key: const ValueKey('account-restaurant'),
+                    icon: AppIcons.restaurant,
+                    title: context.l10n.restaurantMode,
+                    onTap: () => context.go(Paths.restaurantDesk),
+                  ),
                 if (courier)
                   SettingsTile(
                     key: const ValueKey('account-courier'),
@@ -233,6 +245,13 @@ class ProfileScreen extends ConsumerWidget {
                     icon: AppIcons.parcel,
                     title: context.l10n.tabShipments,
                     onTap: () => context.go(Paths.shipments),
+                  ),
+                if (food && user != null)
+                  SettingsTile(
+                    key: const ValueKey('account-food-orders'),
+                    icon: AppIcons.orders,
+                    title: context.l10n.tabFoodOrders,
+                    onTap: () => context.go(Paths.foodOrders),
                   ),
                 if (chatHere)
                   SettingsTile(

@@ -1434,6 +1434,422 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "الحساب: المندوب يفتح شاشات المندوب.",
     tr: "Hesap: kurye, kurye ekranlarını açar.",
   },
+  // 105.1 Food delivery
+  "105.1 The tab with the company's restaurants.": {
+    en: "The tab with the company's restaurants.",
+    ar: "التبويب الذي يعرض مطاعم الشركة.",
+    tr: "Şirketin restoranlarının bulunduğu sekme.",
+  },
+  "105.1 The tab with the customer's food orders.": {
+    en: "The tab with the customer's food orders.",
+    ar: "التبويب الذي يعرض طلبات الطعام الخاصة بالعميل.",
+    tr: "Müşterinin yemek siparişlerinin bulunduğu sekme.",
+  },
+  "105.1 The tab of a restaurant's staff.": {
+    en: "The tab of a restaurant's staff.",
+    ar: "تبويب موظفي المطعم.",
+    tr: "Restoran personelinin sekmesi.",
+  },
+  "105.1 Account: a restaurant's staff open the restaurant's screens.": {
+    en: "Account: a restaurant's staff open the restaurant's screens.",
+    ar: "الحساب: يفتح موظفو المطعم شاشات المطعم.",
+    tr: "Hesap: restoran personeli restoranın ekranlarını açar.",
+  },
+  "105.1 The restaurants list's search box.": {
+    en: "The restaurants list's search box.",
+    ar: "خانة البحث في قائمة المطاعم.",
+    tr: "Restoran listesinin arama kutusu.",
+  },
+  "105.1 The cuisine chip that shows every restaurant.": {
+    en: "The cuisine chip that shows every restaurant.",
+    ar: "زر التصنيف الذي يعرض كل المطاعم.",
+    tr: "Tüm restoranları gösteren mutfak düğmesi.",
+  },
+  "105.1 Read while the restaurants load.": {
+    en: "Read while the restaurants load.",
+    ar: "يُقرأ أثناء تحميل المطاعم.",
+    tr: "Restoranlar yüklenirken okunur.",
+  },
+  "105.1 The restaurants list is empty.": {
+    en: "The restaurants list is empty.",
+    ar: "قائمة المطاعم فارغة.",
+    tr: "Restoran listesi boş.",
+  },
+  "105.1 A restaurant isn't taking orders now.": {
+    en: "A restaurant isn't taking orders now.",
+    ar: "المطعم لا يستقبل طلبات الآن.",
+    tr: "Restoran şu an sipariş almıyor.",
+  },
+  "105.1 When a closed restaurant opens.": {
+    en: "When a closed restaurant opens.",
+    ar: "متى يفتح المطعم المغلق.",
+    tr: "Kapalı bir restoranın ne zaman açılacağı.",
+  },
+  "105.1 A restaurant paused new orders for a while.": {
+    en: "A restaurant paused new orders for a while.",
+    ar: "أوقف المطعم الطلبات الجديدة لفترة.",
+    tr: "Restoran yeni siparişleri bir süreliğine durdurdu.",
+  },
+  "105.1 The restaurant is too far.": {
+    en: "The restaurant is too far.",
+    ar: "المطعم بعيد جدًا.",
+    tr: "Restoran çok uzakta.",
+  },
+  "105.1 A number of minutes.": {
+    en: "A number of minutes.",
+    ar: "عدد من الدقائق.",
+    tr: "Dakika sayısı.",
+  },
+  "105.1 A restaurant's smallest order.": {
+    en: "A restaurant's smallest order.",
+    ar: "أقل طلب لدى المطعم.",
+    tr: "Restoranın en düşük sipariş tutarı.",
+  },
+  "105.1 The delivery fee.": {
+    en: "The delivery fee.",
+    ar: "رسوم التوصيل.",
+    tr: "Teslimat ücreti.",
+  },
+  "105.1 A dish or choice that is sold out.": {
+    en: "A dish or choice that is sold out.",
+    ar: "صنف أو خيار نفد.",
+    tr: "Tükenen bir yemek veya seçenek.",
+  },
+  "105.1 A dish the restaurant marks as popular.": {
+    en: "A dish the restaurant marks as popular.",
+    ar: "صنف يعلّمه المطعم بأنه الأكثر طلبًا.",
+    tr: "Restoranın popüler olarak işaretlediği yemek.",
+  },
+  "105.1 A dish's note.": {
+    en: "A dish's note.",
+    ar: "ملاحظة على الصنف.",
+    tr: "Bir yemeğe eklenen not.",
+  },
+  "105.1 A dish was added.": {
+    en: "A dish was added.",
+    ar: "تمت إضافة صنف.",
+    tr: "Bir yemek eklendi.",
+  },
+  "105.1 Asks before replacing another restaurant's dishes.": {
+    en: "Asks before replacing another restaurant's dishes.",
+    ar: "يسأل قبل استبدال أصناف من مطعم آخر.",
+    tr: "Başka bir restoranın yemeklerini değiştirmeden önce sorar.",
+  },
+  "105.1 Replaces the cart.": {
+    en: "Replaces the cart.",
+    ar: "يستبدل محتوى السلة.",
+    tr: "Sepeti değiştirir.",
+  },
+  "105.1 Opens the cart.": {
+    en: "Opens the cart.",
+    ar: "يفتح السلة.",
+    tr: "Sepeti açar.",
+  },
+  "105.1 The checkout screen's title.": {
+    en: "The checkout screen's title.",
+    ar: "عنوان شاشة إتمام الطلب.",
+    tr: "Ödeme ekranının başlığı.",
+  },
+  "105.1 The cart has nothing.": {
+    en: "The cart has nothing.",
+    ar: "السلة فارغة.",
+    tr: "Sepet boş.",
+  },
+  "105.1 The drop-off section.": {
+    en: "The drop-off section.",
+    ar: "قسم عنوان التوصيل.",
+    tr: "Teslimat adresi bölümü.",
+  },
+  "105.1 The dishes' total.": {
+    en: "The dishes' total.",
+    ar: "إجمالي الأصناف.",
+    tr: "Yemeklerin toplamı.",
+  },
+  "105.1 The order's total.": {
+    en: "The order's total.",
+    ar: "إجمالي الطلب.",
+    tr: "Siparişin toplamı.",
+  },
+  "105.1 The total before the address.": {
+    en: "The total before the address.",
+    ar: "الإجمالي قبل إدخال العنوان.",
+    tr: "Adres girilmeden önceki toplam.",
+  },
+  "105.1 Asked of accounts without a number.": {
+    en: "Asked of accounts without a number.",
+    ar: "يُطلب من الحسابات التي ليس لها رقم هاتف.",
+    tr: "Telefon numarası olmayan hesaplardan istenir.",
+  },
+  "105.1 Places the order.": {
+    en: "Places the order.",
+    ar: "يرسل الطلب.",
+    tr: "Siparişi verir.",
+  },
+  "105.1 The order button for signed-out customers.": {
+    en: "The order button for signed-out customers.",
+    ar: "زر الطلب للعملاء غير المسجلين دخولهم.",
+    tr: "Giriş yapmamış müşteriler için sipariş düğmesi.",
+  },
+  "105.1 The address is missing.": {
+    en: "The address is missing.",
+    ar: "العنوان غير مُدخل.",
+    tr: "Adres eksik.",
+  },
+  "105.1 The phone is missing.": {
+    en: "The phone is missing.",
+    ar: "رقم الهاتف غير مُدخل.",
+    tr: "Telefon numarası eksik.",
+  },
+  "105.1 A cash order was placed.": {
+    en: "A cash order was placed.",
+    ar: "تم إرسال طلب بالدفع نقدًا.",
+    tr: "Nakit ödemeli bir sipariş verildi.",
+  },
+  "105.1 A card order was paid.": {
+    en: "A card order was paid.",
+    ar: "تم دفع طلب بالبطاقة.",
+    tr: "Kartla ödenen bir sipariş ödendi.",
+  },
+  "105.1 How long until it arrives.": {
+    en: "How long until it arrives.",
+    ar: "المدة حتى وصول الطلب.",
+    tr: "Siparişin ulaşmasına kalan süre.",
+  },
+  "105.1 A food order's stage.": {
+    en: "A food order's stage.",
+    ar: "مرحلة طلب الطعام.",
+    tr: "Yemek siparişinin aşaması.",
+  },
+  "105.1 A food order's title.": {
+    en: "A food order's title.",
+    ar: "عنوان طلب الطعام.",
+    tr: "Yemek siparişinin başlığı.",
+  },
+  "105.1 When the restaurant said it is ready.": {
+    en: "When the restaurant said it is ready.",
+    ar: "الموعد الذي حدده المطعم لجاهزية الطلب.",
+    tr: "Restoranın siparişin hazır olacağını söylediği saat.",
+  },
+  "105.1 Why a restaurant turned an order down.": {
+    en: "Why a restaurant turned an order down.",
+    ar: "سبب رفض المطعم للطلب.",
+    tr: "Restoranın siparişi neden reddettiği.",
+  },
+  "105.1 Cancels a food order.": {
+    en: "Cancels a food order.",
+    ar: "يلغي طلب الطعام.",
+    tr: "Yemek siparişini iptal eder.",
+  },
+  "105.1 Asks before cancelling.": {
+    en: "Asks before cancelling.",
+    ar: "يسأل قبل الإلغاء.",
+    tr: "İptal etmeden önce sorar.",
+  },
+  "105.1 The order was cancelled.": {
+    en: "The order was cancelled.",
+    ar: "تم إلغاء الطلب.",
+    tr: "Sipariş iptal edildi.",
+  },
+  "105.1 Calls the restaurant.": {
+    en: "Calls the restaurant.",
+    ar: "يتصل بالمطعم.",
+    tr: "Restoranı arar.",
+  },
+  "105.1 The order's restaurant.": {
+    en: "The order's restaurant.",
+    ar: "مطعم الطلب.",
+    tr: "Siparişin restoranı.",
+  },
+  "105.1 The order's dishes.": {
+    en: "The order's dishes.",
+    ar: "أصناف الطلب.",
+    tr: "Siparişin yemekleri.",
+  },
+  "105.1 The order waits for the restaurant.": {
+    en: "The order waits for the restaurant.",
+    ar: "الطلب بانتظار المطعم.",
+    tr: "Sipariş restoranı bekliyor.",
+  },
+  "105.1 The rating section.": {
+    en: "The rating section.",
+    ar: "قسم التقييم.",
+    tr: "Değerlendirme bölümü.",
+  },
+  "105.1 The restaurant's stars.": {
+    en: "The restaurant's stars.",
+    ar: "نجوم المطعم.",
+    tr: "Restoranın yıldızları.",
+  },
+  "105.1 The courier's stars.": {
+    en: "The courier's stars.",
+    ar: "نجوم المندوب.",
+    tr: "Kuryenin yıldızları.",
+  },
+  "105.1 The rating's comment.": {
+    en: "The rating's comment.",
+    ar: "تعليق التقييم.",
+    tr: "Değerlendirmenin yorumu.",
+  },
+  "105.1 Sends the rating.": {
+    en: "Sends the rating.",
+    ar: "يرسل التقييم.",
+    tr: "Değerlendirmeyi gönderir.",
+  },
+  "105.1 The rating was sent.": {
+    en: "The rating was sent.",
+    ar: "تم إرسال التقييم.",
+    tr: "Değerlendirme gönderildi.",
+  },
+  "105.1 No stars were chosen.": {
+    en: "No stars were chosen.",
+    ar: "لم يتم اختيار أي نجمة.",
+    tr: "Yıldız seçilmedi.",
+  },
+  "105.1 The order's rating.": {
+    en: "The order's rating.",
+    ar: "تقييم الطلب.",
+    tr: "Siparişin değerlendirmesi.",
+  },
+  "105.1 A star button's label for screen readers.": {
+    en: "A star button's label for screen readers.",
+    ar: "وصف زر النجمة لقارئات الشاشة.",
+    tr: "Ekran okuyucular için yıldız düğmesinin etiketi.",
+  },
+  "105.1 Read while the orders load.": {
+    en: "Read while the orders load.",
+    ar: "يُقرأ أثناء تحميل الطلبات.",
+    tr: "Siparişler yüklenirken okunur.",
+  },
+  "105.1 The orders list is empty.": {
+    en: "The orders list is empty.",
+    ar: "قائمة الطلبات فارغة.",
+    tr: "Sipariş listesi boş.",
+  },
+  "105.1 Opens the restaurants.": {
+    en: "Opens the restaurants.",
+    ar: "يفتح المطاعم.",
+    tr: "Restoranları açar.",
+  },
+  "105.1 Orders while signed out.": {
+    en: "Orders while signed out.",
+    ar: "الطلبات قبل تسجيل الدخول.",
+    tr: "Giriş yapılmadan siparişler.",
+  },
+  "105.1 The restaurant's new orders.": {
+    en: "The restaurant's new orders.",
+    ar: "الطلبات الجديدة للمطعم.",
+    tr: "Restoranın yeni siparişleri.",
+  },
+  "105.1 The restaurant's accepted orders.": {
+    en: "The restaurant's accepted orders.",
+    ar: "الطلبات المقبولة لدى المطعم.",
+    tr: "Restoranın kabul ettiği siparişler.",
+  },
+  "105.1 The restaurant's finished orders.": {
+    en: "The restaurant's finished orders.",
+    ar: "الطلبات المنتهية لدى المطعم.",
+    tr: "Restoranın tamamlanan siparişleri.",
+  },
+  "105.1 The restaurant takes orders.": {
+    en: "The restaurant takes orders.",
+    ar: "المطعم يستقبل الطلبات.",
+    tr: "Restoran sipariş alıyor.",
+  },
+  "105.1 The restaurant paused new orders.": {
+    en: "The restaurant paused new orders.",
+    ar: "أوقف المطعم الطلبات الجديدة.",
+    tr: "Restoran yeni siparişleri durdurdu.",
+  },
+  "105.1 Outside the restaurant's hours.": {
+    en: "Outside the restaurant's hours.",
+    ar: "خارج مواعيد عمل المطعم.",
+    tr: "Restoranın çalışma saatleri dışında.",
+  },
+  "105.1 Today's orders and sales.": {
+    en: "Today's orders and sales.",
+    ar: "طلبات اليوم ومبيعاته.",
+    tr: "Bugünün siparişleri ve satışları.",
+  },
+  "105.1 Stops new orders for a while.": {
+    en: "Stops new orders for a while.",
+    ar: "يوقف الطلبات الجديدة لفترة.",
+    tr: "Yeni siparişleri bir süreliğine durdurur.",
+  },
+  "105.1 Asks for how long.": {
+    en: "Asks for how long.",
+    ar: "يسأل عن المدة.",
+    tr: "Ne kadar süreyle olduğunu sorar.",
+  },
+  "105.1 Ends the pause.": {
+    en: "Ends the pause.",
+    ar: "ينهي الإيقاف.",
+    tr: "Durdurmayı sona erdirir.",
+  },
+  "105.1 Someone who isn't a restaurant's staff opened its screen.": {
+    en: "Someone who isn't a restaurant's staff opened its screen.",
+    ar: "فتح شخص ليس من موظفي المطعم شاشته.",
+    tr: "Restoran personeli olmayan biri restoran ekranını açtı.",
+  },
+  "105.1 Read while the restaurant's orders load.": {
+    en: "Read while the restaurant's orders load.",
+    ar: "يُقرأ أثناء تحميل طلبات المطعم.",
+    tr: "Restoranın siparişleri yüklenirken okunur.",
+  },
+  "105.1 A restaurant's list is empty.": {
+    en: "A restaurant's list is empty.",
+    ar: "قائمة من قوائم المطعم فارغة.",
+    tr: "Restoranın listelerinden biri boş.",
+  },
+  "105.1 Accepts an order.": {
+    en: "Accepts an order.",
+    ar: "يقبل الطلب.",
+    tr: "Siparişi kabul eder.",
+  },
+  "105.1 Asks how long the order takes.": {
+    en: "Asks how long the order takes.",
+    ar: "يسأل كم يستغرق تحضير الطلب.",
+    tr: "Siparişin ne kadar süreceğini sorar.",
+  },
+  "105.1 The order was accepted.": {
+    en: "The order was accepted.",
+    ar: "تم قبول الطلب.",
+    tr: "Sipariş kabul edildi.",
+  },
+  "105.1 Turns an order down.": {
+    en: "Turns an order down.",
+    ar: "يرفض الطلب.",
+    tr: "Siparişi reddeder.",
+  },
+  "105.1 Asks why.": {
+    en: "Asks why.",
+    ar: "يسأل عن السبب.",
+    tr: "Nedenini sorar.",
+  },
+  "105.1 The reason's note.": {
+    en: "The reason's note.",
+    ar: "ملاحظة السبب.",
+    tr: "Nedenin notu.",
+  },
+  "105.1 The order was turned down.": {
+    en: "The order was turned down.",
+    ar: "تم رفض الطلب.",
+    tr: "Sipariş reddedildi.",
+  },
+  "105.1 Marks the order ready.": {
+    en: "Marks the order ready.",
+    ar: "يعلّم الطلب بأنه جاهز.",
+    tr: "Siparişi hazır olarak işaretler.",
+  },
+  "105.1 The order is ready.": {
+    en: "The order is ready.",
+    ar: "الطلب جاهز.",
+    tr: "Sipariş hazır.",
+  },
+  "105.1 The order's customer.": {
+    en: "The order's customer.",
+    ar: "عميل الطلب.",
+    tr: "Siparişin müşterisi.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

@@ -68,18 +68,28 @@ function Choices({
   );
 }
 
-/** 104 How the company prices, takes payment, follows parcels, gives out jobs and where its couriers work. */
+/** 105.1 A food company's own settings. */
+export interface FoodSettingsValues {
+  cuisines: string;
+  foodCourierJob: string;
+  timezone: string;
+  timezones: readonly string[];
+}
+
+/** 104 How the company prices, takes payment, follows parcels, gives out jobs and where its couriers work. 105.1 A food company's too, with its cuisines, when a courier gets an order and its time zone. */
 export function DeliverySettingsForm({
   settings,
   currencies,
   bundleAllowed,
   bundleOff,
+  food,
 }: {
   settings: SettingsFormValues;
   currencies: readonly string[];
   bundleAllowed: boolean;
   /** Shown under the second app when the plan doesn't have it. */
   bundleOff: ReactNode;
+  food?: FoodSettingsValues;
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveDeliverySettingsAction, initialFormState);
@@ -180,6 +190,9 @@ export function DeliverySettingsForm({
             { value: "open", label: t("delivery.assignOpen"), hint: t("delivery.assignOpenHint") },
           ]}
         />
+        {food ? (
+          <input type="hidden" name="courierApp" value="same" />
+        ) : (
         <Choices
           legend={t("delivery.courierApp")}
           name="courierApp"
@@ -198,8 +211,9 @@ export function DeliverySettingsForm({
             { value: "yallapp_courier", label: t("delivery.courierYallapp"), hint: t("delivery.courierYallappHint"), disabled: settings.courierApp !== "yallapp_courier" },
           ]}
         />
+        )}
         {/* 104.6 The courier app's name in the stores, and the Firebase file of its iPhone app. */}
-        {courierApp === "bundle" && bundleAllowed ? (
+        {!food && courierApp === "bundle" && bundleAllowed ? (
           <div className="ms-7 flex max-w-[420px] flex-col gap-3">
             <Field
               label={t("delivery.courierAppName")}
@@ -221,6 +235,45 @@ export function DeliverySettingsForm({
           </div>
         ) : null}
       </div>
+
+      {food ? (
+        <section className="flex flex-col gap-5 border-t border-line-soft pt-5">
+          <h3 className="m-0 text-[17px] font-bold">{t("food.foodSettings")}</h3>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="f-cuisines" className="text-sm font-semibold">
+              {t("food.cuisinesText")}
+            </label>
+            <textarea id="f-cuisines" name="cuisines" rows={5} maxLength={2000} defaultValue={state.values?.cuisines ?? food.cuisines} className="input min-h-24 py-3" aria-describedby="f-cuisines-hint f-cuisines-error" />
+            <span id="f-cuisines-hint" className="text-[13px] text-muted">
+              {t("food.cuisinesTextHint")}
+            </span>
+            <FieldError id="f-cuisines-error" error={state.errors?.cuisines} />
+          </div>
+          <Choices
+            legend={t("food.courierJob_legend")}
+            name="foodCourierJob"
+            value={state.values?.foodCourierJob ?? food.foodCourierJob}
+            error={state.errors?.foodCourierJob}
+            options={[
+              { value: "accepted", label: t("food.courierJob_accepted"), hint: t("food.courierJob_acceptedHint") },
+              { value: "ready", label: t("food.courierJob_ready"), hint: t("food.courierJob_readyHint") },
+            ]}
+          />
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="f-timezone" className="text-sm font-semibold">
+              {t("food.timezone")}
+            </label>
+            <select id="f-timezone" name="timezone" defaultValue={state.values?.timezone ?? food.timezone} className="input max-w-[280px]" dir="ltr">
+              {food.timezones.map((z) => (
+                <option key={z} value={z}>
+                  {z}
+                </option>
+              ))}
+            </select>
+            <FieldError id="f-timezone-error" error={state.errors?.timezone} />
+          </div>
+        </section>
+      ) : null}
 
       <div className="flex justify-end">
         <SubmitButton className="h-11" pendingText={t("common.saving")}>

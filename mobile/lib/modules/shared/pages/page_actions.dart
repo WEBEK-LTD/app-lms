@@ -116,6 +116,8 @@ String? itemLocation(ItemRef item, AppType appType) {
     (ItemSource.campaigns, AppType.donations) => Paths.campaign(id),
     // 104 A service opens the send screen with it chosen.
     (ItemSource.deliveryServices, AppType.delivery) => Paths.sendWith(id),
+    // 105.1 A restaurant opens with its menu.
+    (ItemSource.restaurants, AppType.food) => Paths.restaurant(id),
     _ => null,
   };
 }

@@ -38,7 +38,7 @@ export default async function CouriersPage() {
         <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("delivery.couriers")}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("delivery.couriersIntro")}</p>
       </div>
-      <PlanNotice plan={plan} t={t} />
+      <PlanNotice plan={plan} t={t} app={app} />
 
       <section aria-labelledby="h-add" className="flex max-w-[760px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-add" className="m-0 text-lg font-bold">

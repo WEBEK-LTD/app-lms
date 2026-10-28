@@ -48,6 +48,7 @@ import * as chat from "./chat";
 import * as campaigns from "./campaigns";
 import * as studio from "./studio";
 import * as delivery from "./delivery";
+import * as food from "./food";
 
 /**
  * 56 The client dashboard's texts in English (the source), Arabic and
@@ -69,7 +70,7 @@ import * as delivery from "./delivery";
  */
 
 /** Every area. A new area is one import and one entry here. */
-const AREAS = { common, nav, lib, forms, kinds, overview, license, setup, pages, media, languages, health, preview, analytics, notify, signin, builds, publishing, stores, courses, shop, orders, articles, events, bookings, donations, listings, checks, emails, owner, team, providers, community, door, freeze, account, security, apps, chat, integrations, imports, campaigns, inapp, studio, delivery } as const;
+const AREAS = { common, nav, lib, forms, kinds, overview, license, setup, pages, media, languages, health, preview, analytics, notify, signin, builds, publishing, stores, courses, shop, orders, articles, events, bookings, donations, listings, checks, emails, owner, team, providers, community, door, freeze, account, security, apps, chat, integrations, imports, campaigns, inapp, studio, delivery, food } as const;
 
 type Areas = typeof AREAS;
 type English = { [K in keyof Areas]: Areas[K]["en"] };

@@ -22,8 +22,6 @@ import { cardPlans } from "@/lib/billing/plan-payment";
 import {
   isPlan,
   planFamily,
-  STUDIO_BASE_FEATURES,
-  STUDIO_PLAN_CHOICES,
   PLAN_FEATURE_IDS,
   MAX_ANALYTICS_MONTHS,
   PLAN_INFO,
@@ -467,65 +465,33 @@ export async function savePlanAction(_: FormState, formData: FormData): Promise<
 }
 
 /**
- * 103R A Studio plan, as Admin › Plans › Yallapp Studio edits it: offered or
- * not, its name, its price in pounds (and dollars by hand), monthly or
- * yearly, what it includes besides what every Studio plan has, and the
- * Studio pages a project may have. Clients see and pay only offered plans.
+ * 103R Whether a Studio plan is offered to Studio projects, and the Studio
+ * pages a project on it may have. Its name, texts and price, and its
+ * features and limits, are saved like a regular plan's (savePlanAction,
+ * savePlanLimitsAction). Clients see and pay only offered plans.
  */
-export async function saveStudioPlanAction(_: FormState, formData: FormData): Promise<FormState> {
+export async function saveStudioOfferAction(_: FormState, formData: FormData): Promise<FormState> {
   const admin = await requireAdmin("plans.edit");
   const plan = str(formData, "plan");
   if (!isPlan(plan) || planFamily(plan) !== "studio") return { message: "Unknown plan." };
-  const values: Record<string, string> = {};
-  for (const name of ["name", "egpPrice", "usdPrice", "months", "studioPages", "storageGb"]) values[name] = str(formData, name);
   const offered = formData.get("offered") === "on";
-  values.offered = offered ? "on" : "";
-  const chosen = formData.getAll("features").map(String);
-  values.features = chosen.join(",");
-  const { saved, info } = await currentPlan(plan);
-  if (!offered) {
-    // Not offered: kept as it was, hidden from clients.
-    const setting: PlanSetting = { ...planSettingOf(info), offered: false };
-    await save("plans", { ...saved, [plan]: setting }, admin, { action: "plan.save", target: { type: "plan", id: plan }, summary: `Stopped offering ${info.name}`, before: saved[plan] ?? null, after: setting });
-    await revalidatePlans();
-    return { ok: true, message: `${info.name} isn't offered. Clients don't see it.` };
-  }
-  const errors: Record<string, string> = {};
-  if (!values.name || values.name.length > 30) errors.name = "Enter a name of up to 30 characters.";
-  const priceCents = values.egpPrice ? parsePrice(values.egpPrice) : null;
-  if (values.egpPrice && (priceCents === null || priceCents === 0)) errors.egpPrice = "Enter a price in Egyptian pounds, like 1500.";
-  const usdCents = values.usdPrice ? parsePrice(values.usdPrice) : null;
-  if (values.usdPrice && (usdCents === null || usdCents === 0)) errors.usdPrice = "Enter a price in US dollars, like 29, or leave it empty to use the rate.";
-  if (values.months !== "1" && values.months !== "12") errors.months = "Choose monthly or yearly.";
+  const values: Record<string, string> = { offered: offered ? "on" : "", studioPages: str(formData, "studioPages") };
   const pages = readLimit(values.studioPages!);
-  if (pages === undefined || (pages !== null && (pages < 1 || pages > 20))) errors.studioPages = "Enter 1 to 20 pages, or leave it empty for no limit.";
-  const storage = readLimit(values.storageGb!);
-  if (storage === undefined || (storage !== null && (storage < 1 || storage > 100_000))) errors.storageGb = "Enter the storage in GB, like 20, or leave it empty for unlimited.";
-  if (Object.keys(errors).length) return { errors, values };
-  const features = [...STUDIO_BASE_FEATURES, ...STUDIO_PLAN_CHOICES.filter((f) => chosen.includes(f))];
-  const setting: PlanSetting = {
-    ...planSettingOf(info),
-    name: values.name!,
-    features,
-    priceCents,
-    usdCents,
-    // Without a price in pounds it can't be paid by card: the team activates it.
-    onRequest: priceCents === null,
-    billingMonths: values.months === "1" ? 1 : 12,
-    limits: { ...info.limits, studioPages: pages ?? null, storageGb: storage ?? null },
-    offered: true,
-  };
+  if (pages === undefined || (pages !== null && (pages < 1 || pages > 20))) return { errors: { studioPages: "Enter 1 to 20 pages, or leave it empty for no limit." }, values };
+  const { saved, info } = await currentPlan(plan);
+  if (offered && !saved[plan]?.name) return { message: "Give the plan its name and price below first, then offer it.", values };
+  const setting: PlanSetting = { ...planSettingOf(info), offered, limits: { ...info.limits, studioPages: pages ?? null } };
   delete setting.currency;
   await save("plans", { ...saved, [plan]: setting }, admin, {
     action: "plan.save",
     target: { type: "plan", id: plan },
-    summary: `Saved the Studio plan ${setting.name}`,
+    summary: offered ? `Offered the Studio plan ${info.name}` : `Stopped offering ${info.name}`,
     before: saved[plan] ?? null,
     after: setting,
   });
   await revalidatePlans();
   revalidatePath("/studio", "layout");
-  return { ok: true, message: `${setting.name} saved. Studio projects can choose it now.` };
+  return { ok: true, message: offered ? `${info.name} is offered. Studio projects can choose it now.` : `${info.name} isn't offered. Clients don't see it.`, values };
 }
 
 /**
@@ -614,7 +580,8 @@ export async function savePlanLimitsAction(_: FormState, formData: FormData): Pr
   const { saved, info } = await currentPlan(plan);
   const setting: PlanSetting = {
     ...planSettingOf(info),
-    features: PLAN_FEATURE_IDS.filter((f) => features.includes(f)),
+    // 103R A Studio plan is always a Studio plan.
+    features: PLAN_FEATURE_IDS.filter((f) => features.includes(f) || (f === "studio" && planFamily(plan) === "studio")),
     limits: {
       appUsers: limits.appUsers ?? null,
       languages: limits.languages ?? null,
@@ -625,6 +592,8 @@ export async function savePlanLimitsAction(_: FormState, formData: FormData): Pr
       support: values.support as SupportLevel,
       accountManager: values.accountManager === "on",
       customFeatures: values.customFeatures === "on",
+      // 103R Set with whether a Studio plan is offered (saveStudioOfferAction).
+      ...(info.limits.studioPages !== undefined ? { studioPages: info.limits.studioPages } : {}),
     },
   };
   await save("plans", { ...saved, [plan]: setting }, admin, {

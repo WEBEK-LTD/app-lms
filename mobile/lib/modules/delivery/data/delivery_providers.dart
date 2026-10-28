@@ -11,18 +11,23 @@ import '../../../core/gate/app_gate.dart';
 import '../../../core/providers.dart';
 
 /// 104 How the delivery company works (`Config.delivery`); the defaults on
-/// older servers.
+/// older servers. 105.1 In food delivery apps, its tracking and map from
+/// `Config.food`, for the courier's screens.
 final deliveryConfigProvider = Provider<DeliveryConfig>((ref) {
   final gate = ref.watch(appGateProvider);
   return gate is GateReady
-      ? (gate.config.delivery ?? const DeliveryConfig())
+      ? (gate.config.delivery ??
+            gate.config.food?.mapConfig ??
+            const DeliveryConfig())
       : const DeliveryConfig();
 });
 
 /// Whether this build shows the couriers' screens: the company's app when
-/// its couriers work in it, and (104.6) its courier app always.
+/// its couriers work in it, and (104.6) its courier app always. 105.1 A
+/// food delivery company's couriers work in its app.
 final courierScreensHereProvider = Provider<bool>((ref) {
   final env = ref.watch(appEnvironmentProvider);
+  if (env.build.appType == AppType.food) return true;
   if (env.build.appType != AppType.delivery) return false;
   if (env.build.role == AppRole.courier) return true;
   return ref.watch(deliveryConfigProvider).courierApp == CourierApp.same;

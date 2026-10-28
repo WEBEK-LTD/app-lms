@@ -43,17 +43,22 @@ export function NotDelivery({ title, t }: { title: string; t: DashT }) {
   );
 }
 
-/** Delivery isn't in the plan yet: everything can be set up, the app takes shipments once it is. */
-export function PlanNotice({ plan, t }: { plan: PlanInfo | null; t: DashT }) {
-  if (!plan || hasFeature(plan, "delivery")) return null;
+/** Delivery (105.1 food delivery) isn't in the plan yet: everything can be set up, the app takes orders once it is. */
+export function PlanNotice({ plan, t, app }: { plan: PlanInfo | null; t: DashT; app?: App | null }) {
+  const food = isFood(app ?? null);
+  if (!plan || hasFeature(plan, food ? "food" : "delivery")) return null;
   return (
     <p role="note" className="m-0 rounded-xl bg-peach-soft px-4 py-3 text-[15px] leading-relaxed">
-      {richText(t("delivery.notOnPlan"), { link: (chunk) => <Link href="/dashboard/license">{chunk}</Link> })}
+      {richText(t(food ? "food.notOnPlan" : "delivery.notOnPlan"), { link: (chunk) => <Link href="/dashboard/license">{chunk}</Link> })}
     </p>
   );
 }
 
-export const isDelivery = (app: App | null): app is App => app?.connector?.kind === "deliveries";
+/** Apps with couriers: delivery companies, and 105.1 food delivery companies. */
+export const isDelivery = (app: App | null): app is App => app?.connector?.kind === "deliveries" || app?.connector?.kind === "restaurants";
+
+/** 105.1 Food delivery from many restaurants. */
+export const isFood = (app: App | null): app is App => app?.connector?.kind === "restaurants";
 
 /** Google Maps at a place, for the team. */
 export function mapsLink(lat: number, lng: number): string {

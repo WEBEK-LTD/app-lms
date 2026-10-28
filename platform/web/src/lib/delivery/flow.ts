@@ -4,6 +4,7 @@ import { encryptionKey } from "../env";
 import { serviceAccountOf } from "../hosted/notify";
 import type { sendPush, ServiceAccount } from "../hosted/push";
 import { tellCouriers, tellCustomer, type DeliveryNotifyDeps } from "./notify";
+import { followCourierJob } from "../food/sync";
 import { courierMayHave, reviewUserId } from "./review";
 import { COURIER_ACTIVE, LIVE_STATUSES, stage } from "./service";
 import { deliverySettingsOf } from "./settings";
@@ -24,7 +25,7 @@ export interface FlowDeps {
   send?: typeof sendPush;
 }
 
-function notifyDeps(deps: FlowDeps): DeliveryNotifyDeps {
+export function notifyDeps(deps: FlowDeps): DeliveryNotifyDeps {
   let account = deps.account;
   if (account === undefined) {
     try {
@@ -42,7 +43,7 @@ async function waitingCouriers(deps: FlowDeps, shipment: Shipment, except: numbe
   return (await deps.store.listCouriers(deps.app.id)).filter((c) => c.active && c.onDuty && c.id !== except && courierMayHave(deps.app, c, shipment, reviewId));
 }
 
-async function settingsOf(deps: FlowDeps): Promise<DeliverySettings> {
+export async function settingsOf(deps: FlowDeps): Promise<DeliverySettings> {
   return deliverySettingsOf(await deps.store.getDeliverySettings(deps.app.id));
 }
 
@@ -102,6 +103,8 @@ export async function moveShipment(deps: FlowDeps, shipment: Shipment, status: S
   } else {
     await tellCustomer(notifyDeps(deps), saved);
   }
+  // 105.1 A food order's job: the order follows it.
+  if (saved.foodOrderId) await followCourierJob(notifyDeps(deps), saved);
   if (shipment.courierId !== null && LIVE_STATUSES.includes(shipment.status) && !LIVE_STATUSES.includes(status)) {
     await forgetIdleLocation(deps.store, deps.app.id, shipment.courierId, deps.now);
   }
