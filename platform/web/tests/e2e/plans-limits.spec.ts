@@ -142,7 +142,7 @@ test("the pricing page shows the four plans and compares every feature", async (
 });
 
 test("the team changes what a plan includes, and it's logged", async ({ page }) => {
-  await admin.goto("/admin/plans");
+  await admin.goto("/admin/plans?plan=starter");
   const form = starterLimits();
   await expect(form.getByLabel("App users")).toHaveValue("1000");
   await form.getByLabel("App users").fill("2");
@@ -311,7 +311,7 @@ test("changing plans: a lower plan from the end of the period, an upgrade by car
   await billing.getByLabel("Gateway for plans").selectOption("iyzico");
   await billing.getByRole("button", { name: "Save plan payments" }).click();
   await expect(billing.getByText("Plans are paid through Yallapp's iyzico account.")).toBeVisible();
-  await admin.goto("/admin/plans");
+  await admin.goto("/admin/plans?plan=business");
   const business = admin.getByRole("region", { name: "Business" });
   await business.getByLabel("A price").check();
   await business.getByLabel("Price in EGP").fill("9000");
@@ -334,7 +334,7 @@ test("changing plans: a lower plan from the end of the period, an upgrade by car
   await expect(own.getByRole("region", { name: "Change plan" }).locator('[data-plan="business"]')).toContainText("Current plan");
 
   // Put the settings back.
-  await admin.goto("/admin/plans");
+  await admin.goto("/admin/plans?plan=business");
   await admin.getByRole("region", { name: "Business" }).getByRole("button", { name: "Back to the default plan" }).click();
   await admin.goto("/admin/settings/payments");
   const billingBack = admin.getByRole("region", { name: "Yallapp's plan payments" });
@@ -371,6 +371,6 @@ test("the daily job reminds the owner before the plan ends, once", async ({ requ
   await expect(own).toHaveURL(/\/dashboard\/license#renew$/);
 
   // Put the Starter limit back.
-  await admin.goto("/admin/plans");
+  await admin.goto("/admin/plans?plan=starter");
   await admin.getByRole("region", { name: "Starter" }).getByRole("button", { name: "Back to the default plan" }).click();
 });

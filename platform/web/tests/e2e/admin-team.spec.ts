@@ -98,7 +98,7 @@ test("an owner invites a support admin", async ({ browser }) => {
 });
 
 test("a support admin can't change plan prices but can activate a client", async () => {
-  await helper.goto("/admin/plans");
+  await helper.goto("/admin/plans?plan=pro");
   await expect(helper.getByText("Your role can see this but not change plans or prices.")).toBeVisible();
   const pro = helper.getByRole("region", { name: "Pro" });
   await expect(pro.getByRole("button", { name: "Save plan" })).toBeDisabled();

@@ -68,10 +68,10 @@ test.beforeAll(async ({ browser }) => {
 
 test.afterAll(async () => {
   // The plan and the payment account back as they were for the other specs.
-  await admin.goto("/admin/plans");
+  await admin.goto("/admin/plans?plan=starter");
   const starter = admin.getByRole("region", { name: "Starter" });
   if (await starter.getByRole("button", { name: "Back to the default plan" }).count()) await starter.getByRole("button", { name: "Back to the default plan" }).click();
-  await admin.goto("/admin/plans");
+  await admin.goto("/admin/plans?family=packs");
   const packs = admin.getByRole("form", { name: "Storage packs" });
   await packs.getByLabel("Monthly price in EGP").first().fill("");
   await packs.getByLabel("Monthly price in USD (optional)").first().fill("");
@@ -218,7 +218,7 @@ test("the owner picks the video for a lesson, and the app plays it from a signed
 });
 
 test("uploads past the storage are refused, with Buy more storage", async () => {
-  await admin.goto("/admin/plans");
+  await admin.goto("/admin/plans?plan=starter");
   const starter = admin.getByRole("region", { name: "Starter" });
   const limits = starter.getByRole("form", { name: "Starter: features and limits" });
   await limits.getByLabel("Storage (GB)").fill("0.01");
@@ -248,7 +248,7 @@ test("the owner buys a storage pack by card, then uploads", async () => {
   await account.getByRole("button", { name: "Save keys" }).click();
   await expect(account.getByText("Kashier account saved.")).toBeVisible();
   // 52 A pack's monthly price is set like a plan's: pounds charged, dollars shown outside Egypt.
-  await admin.goto("/admin/plans");
+  await admin.goto("/admin/plans?family=packs");
   const packs = admin.getByRole("form", { name: "Storage packs" });
   await packs.getByLabel("Monthly price in USD (optional)").first().fill("5");
   await packs.getByRole("button", { name: "Save storage packs" }).click();
@@ -300,7 +300,7 @@ test("the owner buys a storage pack by card, then uploads", async () => {
 
 test("renewing the plan by card renews the pack with it", async () => {
   // Starter gets a monthly price for this test (put back in afterAll).
-  await admin.goto("/admin/plans");
+  await admin.goto("/admin/plans?plan=starter");
   const starter = admin.getByRole("region", { name: "Starter" });
   await starter.getByLabel("A price").check();
   await starter.getByLabel("Price in EGP").fill("1000");

@@ -224,7 +224,7 @@ test("a card payment for one app doesn't change the other", async () => {
   await billing.getByLabel("Gateway for plans").selectOption("iyzico");
   await billing.getByRole("button", { name: "Save plan payments" }).click();
   await expect(billing.getByText("Plans are paid through Yallapp's iyzico account.")).toBeVisible();
-  await admin.goto("/admin/plans");
+  await admin.goto("/admin/plans?plan=starter");
   const starter = admin.getByRole("region", { name: "Starter" });
   await starter.getByLabel("A price").check();
   await starter.getByLabel("Price in EGP").fill("300");
@@ -260,7 +260,7 @@ test("a card payment for one app doesn't change the other", async () => {
 });
 
 test("the team puts the settings back", async () => {
-  await admin.goto("/admin/plans");
+  await admin.goto("/admin/plans?plan=starter");
   await admin.getByRole("region", { name: "Starter" }).getByRole("button", { name: "Back to the default plan" }).click();
   await admin.goto("/admin/settings/payments");
   const billing = admin.getByRole("region", { name: "Yallapp's plan payments" });
