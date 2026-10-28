@@ -153,19 +153,18 @@ export function parseChoices(text: string, saved: DishChoiceGroup[], nextId: num
   const groups: DishChoiceGroup[] = [];
   let next = nextId;
   for (const line of lines) {
-    const match = /^([^:(]{1,60}?)\s*(?:\((\d{1,2})\s*-\s*(\d{1,2})\))?\s*:\s*(.+)$/.exec(line.replace(/،/g, ","));
-    if (!match) return { error: `Write each group on its own line as its name, how many to choose and its choices, like "Size (1-1): Regular, Large +15". Check: ${line.slice(0, 60)}` };
-    const name = oneLine(match[1]!);
-    const min = match[2] === undefined ? 0 : Number(match[2]);
-    const max = match[3] === undefined ? 1 : Number(match[3]);
+    const group = readGroupLine(line.replace(/،/g, ","));
+    if (!group) return { error: `Write each group on its own line as its name, how many to choose and its choices, like "Size (1-1): Regular, Large +15". Check: ${line.slice(0, 60)}` };
+    const { name, min, max } = group;
     const known = saved.find((g) => g.name.toLowerCase() === name.toLowerCase());
     const choices: DishChoiceGroup["choices"] = [];
-    for (const raw of match[4]!.split(",").map((c) => c.trim()).filter(Boolean)) {
-      const soldOut = /\((?:sold out|نفد|tükendi)\)\s*$/i.test(raw);
-      const body = raw.replace(/\((?:sold out|نفد|tükendi)\)\s*$/i, "").trim();
-      const priced = /^(.*?)\s*\+\s*([\d.,]+)$/.exec(body);
-      const choiceName = oneLine(priced ? priced[1]! : body);
-      const extraCents = priced ? parsePrice(priced[2]!) : 0;
+    for (const raw of group.choices.split(",").map((c) => c.trim()).filter(Boolean)) {
+      const { body, soldOut } = withoutSoldOut(raw);
+      const plus = body.lastIndexOf("+");
+      const amount = plus >= 0 ? body.slice(plus + 1).trim() : "";
+      const priced = plus >= 0 && /^[\d.,]+$/.test(amount);
+      const choiceName = oneLine(priced ? body.slice(0, plus) : body);
+      const extraCents = priced ? parsePrice(amount) : 0;
       if (!choiceName || choiceName.length > 60 || extraCents === null || extraCents > DELIVERY_LIMITS.maxCents) return { error: `Check the choice "${raw.slice(0, 40)}" of ${name}: a name, then + and what it adds, like "Large +15".` };
       if (choices.some((c) => c.name.toLowerCase() === choiceName.toLowerCase())) return { error: `"${choiceName}" is there twice in ${name}.` };
       const id = known?.choices.find((c) => c.name.toLowerCase() === choiceName.toLowerCase())?.id ?? next++;
@@ -177,6 +176,36 @@ export function parseChoices(text: string, saved: DishChoiceGroup[], nextId: num
     groups.push({ id: known?.id ?? next++, name, min, max, choices });
   }
   return { groups, nextId: next };
+}
+
+const SOLD_OUT = ["(sold out)", "(نفد)", "(tükendi)"];
+
+/** A choice's text without its "(sold out)" mark, and whether it had one. */
+function withoutSoldOut(raw: string): { body: string; soldOut: boolean } {
+  const lower = raw.toLowerCase();
+  const mark = SOLD_OUT.find((m) => lower.endsWith(m));
+  return mark ? { body: raw.slice(0, raw.length - mark.length).trim(), soldOut: true } : { body: raw, soldOut: false };
+}
+
+/** "Size (1-1): Regular, Large +15" as its name, how many to choose (0 to 1 when left out) and its choices' text. */
+function readGroupLine(line: string): { name: string; min: number; max: number; choices: string } | null {
+  const colon = line.indexOf(":");
+  if (colon <= 0) return null;
+  let head = line.slice(0, colon).trim();
+  const choices = line.slice(colon + 1).trim();
+  let min = 0;
+  let max = 1;
+  if (head.endsWith(")")) {
+    const open = head.lastIndexOf("(");
+    const range = open >= 0 ? head.slice(open + 1, -1).split("-").map((n) => n.trim()) : [];
+    if (range.length !== 2 || !range.every((n) => /^\d{1,2}$/.test(n))) return null;
+    min = Number(range[0]);
+    max = Number(range[1]);
+    head = head.slice(0, open).trim();
+  }
+  const name = oneLine(head);
+  if (!name || name.length > 60 || name.includes("(") || !choices) return null;
+  return { name, min, max, choices };
 }
 
 export interface DishForm {
