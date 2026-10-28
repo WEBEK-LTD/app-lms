@@ -144,8 +144,15 @@ test("the team adds Yallapp's iyzico account", async () => {
 });
 
 test("the team changes a plan's price and the pricing page shows it", async () => {
-  await page.goto("/admin/plans?plan=pro");
+  // Picking another plan in the row shows that plan's own form.
+  await page.goto("/admin/plans");
+  const plans = page.getByRole("navigation", { name: "Regular plans" });
+  await plans.getByRole("link", { name: /^Growth/ }).click();
+  await expect(page.getByRole("region", { name: "Growth" }).getByLabel("Name", { exact: true }).first()).toHaveValue("Growth");
+  await plans.getByRole("link", { name: /^Pro/ }).click();
+  await expect(page).toHaveURL(/\/admin\/plans\?plan=pro$/);
   const pro = page.getByRole("region", { name: "Pro" });
+  await expect(pro.getByLabel("Name", { exact: true }).first()).toHaveValue("Pro");
   await pro.getByLabel("A price").check();
   await pro.getByLabel("Price in EGP").fill("4800");
   await pro.getByLabel("Billed").selectOption("12");

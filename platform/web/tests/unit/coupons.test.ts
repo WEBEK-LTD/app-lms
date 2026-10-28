@@ -120,7 +120,7 @@ describe("coupon rules", () => {
 });
 
 // 103R.3 Every plan of both families (the regular apps' and Studio's).
-const ALL = ["starter", "growth", "pro", "business", "studio_1", "studio_2", "studio_3"];
+const ALL = ["starter", "growth", "pro", "business", "studio_1", "studio_2", "studio_3", "studio_4", "studio_5", "studio_6", "studio_7", "studio_8"];
 
 describe("the admin's coupon form", () => {
   const form = (values: Record<string, string>, plans: string[] = [...ALL], periods = ["1", "12"]) => readCouponForm({ values, plans, periods });
