@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { savePlanAction, savePlanLimitsAction, saveStoragePacksAction, removeStudioPlanAction, saveStudioPlanAction } from "@/app/actions/admin-settings";
+import { savePlanAction, savePlanLimitsAction, saveStoragePacksAction, removeStudioPlanAction, saveStudioOfferAction } from "@/app/actions/admin-settings";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { btn } from "@/components/ui";
 import { initialFormState } from "@/lib/forms";
@@ -312,117 +312,45 @@ export function PlanLimitsForm({
 }
 
 /** 103R A Studio plan's card on Admin › Plans › Yallapp Studio. */
-export interface StudioPlanValues {
+/** 103R Whether a Studio plan is offered to Studio projects, and how many Studio pages a project on it may have. */
+export interface StudioOfferValues {
   id: string;
-  /** "Studio plan 1": the card's heading. */
-  heading: string;
-  offered: boolean;
   name: string;
-  egpPrice: string;
-  usdPrice: string;
-  months: string;
-  features: string[];
+  offered: boolean;
+  /** Named by the team: a plan is offered with its own name. */
+  named: boolean;
   studioPages: string;
-  /** Media library storage in GB; empty: unlimited. */
-  storageGb: string;
   /** Added by the team and on no license: it can be taken off the page. */
   removable: boolean;
-  /** The dollar price at the exchange rate, for the hint; empty without a rate. */
-  usdAtRate: string;
 }
 
-export function StudioPlanForm({ plan, choices }: { plan: StudioPlanValues; choices: { id: string; label: string }[] }) {
-  const [state, action] = useActionState(saveStudioPlanAction, initialFormState);
-  const v = (name: keyof StudioPlanValues & string, fallback: string) => state.values?.[name] ?? fallback;
-  const [offered, setOffered] = useState(state.values ? state.values.offered === "on" : plan.offered);
-  const checked = state.values ? (state.values.features ?? "").split(",") : plan.features;
-  const id = (name: string) => `${plan.id}-${name}`;
-  const toggle = (
-    <label className="flex cursor-pointer items-center gap-1.5 text-[13px]">
-      <input type="checkbox" name="offered" checked={offered} onChange={(e) => setOffered(e.target.checked)} className="h-4 w-4 accent-midnight" />
-      Offered
-    </label>
-  );
-  if (!offered) {
-    return (
-      <form action={action} noValidate aria-labelledby={id("h")} className="flex flex-col items-start gap-2.5 rounded-2xl border border-dashed border-[#B9B3A5] bg-white p-[18px]" data-studio-plan={plan.id}>
-        <input type="hidden" name="plan" value={plan.id} />
-        <h2 id={id("h")} className="m-0 text-[17px] font-extrabold">
-          {plan.heading}
-        </h2>
-        <FormMessage message={state.message} ok={state.ok} />
-        <p className="m-0 text-sm text-muted">Not offered. Turn it on to give it a name, a price and what it includes.</p>
-        {toggle}
-        {/* Only an offered plan needs saving to stop offering it. */}
-        {plan.offered ? (
-          <SubmitButton variant="secondary" className="h-9 px-3 text-sm" pendingText="Saving…">
-            Save plan
-          </SubmitButton>
-        ) : plan.removable ? (
-          <button type="submit" formAction={removeStudioPlanAction} className={`${btn.secondary} h-9 px-3 text-sm`}>
+export function StudioOfferForm({ plan }: { plan: StudioOfferValues }) {
+  const [state, action] = useActionState(saveStudioOfferAction, initialFormState);
+  const v = (name: "studioPages", fallback: string) => state.values?.[name] ?? fallback;
+  const offered = state.values ? state.values.offered === "on" : plan.offered;
+  return (
+    <form action={action} noValidate className="flex flex-col gap-3">
+      <input type="hidden" name="plan" value={plan.id} />
+      <div className="flex flex-col gap-1">
+        <h3 className="m-0 text-base font-bold">Offered to Studio projects</h3>
+        <p className="m-0 text-[13px] text-muted">Studio projects see and pay only offered plans. Name the plan and set its price first.</p>
+      </div>
+      <FormMessage message={state.message} ok={state.ok} />
+      <div className="flex flex-wrap items-end gap-x-6 gap-y-3">
+        <label className="flex h-10 cursor-pointer items-center gap-2 text-[15px] font-semibold">
+          <input type="checkbox" name="offered" defaultChecked={offered} className="h-4 w-4 accent-midnight" />
+          Offered
+        </label>
+        <Field id={`${plan.id}-studioPages`} label="Pages per project" name="studioPages" inputMode="numeric" placeholder="No limit" defaultValue={v("studioPages", plan.studioPages)} error={state.errors?.studioPages} className="w-[180px]" small />
+        <SubmitButton className="h-10" pendingText="Saving…">
+          Save
+        </SubmitButton>
+        {plan.removable ? (
+          <button type="submit" formAction={removeStudioPlanAction} className={`${btn.secondary} h-10 px-3 text-sm`}>
             Remove plan
           </button>
         ) : null}
-      </form>
-    );
-  }
-  return (
-    <form action={action} noValidate aria-labelledby={id("h")} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-[18px]" data-studio-plan={plan.id}>
-      <input type="hidden" name="plan" value={plan.id} />
-      <div className="flex items-center justify-between gap-2">
-        <h2 id={id("h")} className="m-0 text-[17px] font-extrabold">
-          {plan.heading}
-        </h2>
-        {toggle}
       </div>
-      <FormMessage message={state.message} ok={state.ok} />
-      <Field id={id("name")} label="Name" name="name" maxLength={30} placeholder="[Plan name]" defaultValue={v("name", plan.name)} error={state.errors?.name} small />
-      <div className="grid grid-cols-2 gap-2">
-        <Field id={id("egpPrice")} label="Price (EGP)" name="egpPrice" inputMode="decimal" placeholder="[price]" defaultValue={v("egpPrice", plan.egpPrice)} error={state.errors?.egpPrice} small />
-        <Field
-          id={id("usdPrice")}
-          label="Price (USD)"
-          name="usdPrice"
-          inputMode="decimal"
-          placeholder="[price]"
-          defaultValue={v("usdPrice", plan.usdPrice)}
-          hint={plan.usdAtRate ? `Empty: ${plan.usdAtRate} at the rate.` : undefined}
-          error={state.errors?.usdPrice}
-          small
-        />
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={id("months")} className="text-[13px] font-bold">
-          Billing
-        </label>
-        <select id={id("months")} name="months" defaultValue={v("months", plan.months)} className="input input-sm">
-          <option value="1">Monthly</option>
-          <option value="12">Yearly</option>
-        </select>
-        <FieldError id={`${id("months")}-error`} error={state.errors?.months} />
-      </div>
-      <fieldset className="m-0 flex flex-col gap-1.5 rounded-[10px] border border-[#EDE8DD] px-3 py-2.5 text-[13px]">
-        <legend className="px-1 font-bold">What the plan includes</legend>
-        {choices.map((c) => (
-          <label key={c.id} className="flex cursor-pointer gap-2">
-            <input type="checkbox" name="features" value={c.id} defaultChecked={checked.includes(c.id)} className="accent-midnight" />
-            {c.label}
-          </label>
-        ))}
-        <label className="flex items-center gap-2">
-          Pages per project
-          <input id={id("studioPages")} name="studioPages" inputMode="numeric" placeholder="[n]" defaultValue={v("studioPages", plan.studioPages)} className="input input-sm h-[30px] w-16 px-2" aria-describedby={state.errors?.studioPages ? `${id("studioPages")}-error` : undefined} />
-        </label>
-        <FieldError id={`${id("studioPages")}-error`} error={state.errors?.studioPages} />
-        <label className="flex items-center gap-2">
-          Storage (GB)
-          <input id={id("storageGb")} name="storageGb" inputMode="numeric" placeholder="Unlimited" defaultValue={v("storageGb", plan.storageGb)} className="input input-sm h-[30px] w-24 px-2" aria-describedby={state.errors?.storageGb ? `${id("storageGb")}-error` : undefined} />
-        </label>
-        <FieldError id={`${id("storageGb")}-error`} error={state.errors?.storageGb} />
-      </fieldset>
-      <SubmitButton className="h-10" pendingText="Saving…">
-        Save plan
-      </SubmitButton>
     </form>
   );
 }

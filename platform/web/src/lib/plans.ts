@@ -46,6 +46,11 @@ export function plansOfFamily(family: PlanFamily): readonly Plan[] {
 export const FEATURED_PLAN: Plan = "growth";
 
 /** Lower to higher within a family: an upgrade moves up, a downgrade down. */
+/** 103R Every plan the team can give: the regular ones, and Studio's first three with those the team added. */
+export function plansInList(saved: Partial<Record<string, unknown>> | null | undefined): Plan[] {
+  return [...plansShown("regular", saved), ...plansShown("studio", saved)];
+}
+
 /** 103R The plans of a family the team can give: Studio's first three and those it added (saved in Admin › Plans), and the app's own. */
 export function plansShown(family: PlanFamily, saved: Partial<Record<string, unknown>> | null | undefined, current?: Plan): Plan[] {
   return plansOfFamily(family).filter((p, i) => family !== "studio" || i < STUDIO_PLANS_SHOWN || Boolean(saved?.[p]) || p === current);
