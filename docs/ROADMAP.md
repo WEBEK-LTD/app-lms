@@ -2431,12 +2431,12 @@ Every option is built and each company picks its own.
 
 | Done | Step | Checked by |
 | --- | --- | --- |
-| [ ] | 105.1.1 Contract: `app_type` `food`; `Config.food`; restaurants (list with filters, one with its menu), the cart's quote, orders (place, mine, cancel, pay, rate), the Restaurant tag (`/restaurant/me`, its orders, accept, turn down, ready, open or busy); `User.roles` `restaurant`; the `food_order_update` and `restaurant_order` notifications; screens and item sources; the plan feature `food` | redocly lint |
-| [ ] | 105.1.2 Platform: restaurants, their staff, menus and choices, food orders and their courier jobs (a migration), the quote (dishes, choices, delivery by distance from the restaurant, the smallest order), cash or card, commission and statements, pushes | unit tests, isolation tests |
-| [ ] | 105.1.3 Dashboard (en/ar/tr) in Studio: Restaurants (details, hours, menu, staff, commission), Food orders, statements per restaurant; Couriers and Delivery settings shared with 104 | unit tests, e2e |
-| [ ] | 105.1.4 App, customer: restaurants, a restaurant's menu, the cart, checkout, my orders with their stages and the courier, ratings | flutter analyze and widget tests |
-| [ ] | 105.1.5 App, restaurant: the Restaurant tab (new orders with a sound, accept with a time, turn down, ready, open or busy) | widget tests |
-| [ ] | 105.1.6 Studio templates and sections for food, review accounts for the three roles, the courier app (104.6) for food companies | unit tests, e2e |
+| [x] | 105.1.1 Contract: `app_type` `food`; `Config.food`; restaurants (list with filters, one with its menu), the cart's quote, orders (place, mine, cancel, pay, rate), the Restaurant tag (`/restaurant/me`, its orders, accept, turn down, ready, open or busy); `User.roles` `restaurant`; the `food_order_update` and `restaurant_order` notifications; screens and item sources; the plan feature `food` | redocly lint |
+| [x] | 105.1.2 Platform: restaurants, their staff, menus and choices, food orders and their courier jobs (a migration), the quote (dishes, choices, delivery by distance from the restaurant, the smallest order), cash or card, commission and statements, pushes | unit tests, isolation tests |
+| [x] | 105.1.3 Dashboard (en/ar/tr) in Studio: Restaurants (details, hours, menu, staff, commission), Food orders, statements per restaurant; Couriers and Delivery settings shared with 104 | unit tests, e2e |
+| [x] | 105.1.4 App, customer: restaurants, a restaurant's menu, the cart, checkout, my orders with their stages and the courier, ratings | flutter analyze and widget tests |
+| [x] | 105.1.5 App, restaurant: the Restaurant tab (new orders, accept with a time, turn down, ready, open or busy); new orders come with the push's sound | widget tests |
+| [ ] | 105.1.6 Studio templates and sections for food, the courier app (104.6) for food companies. Done: three ready-made designs, review accounts for the three roles (the reviewers' orders reach no real restaurant) | unit tests, e2e |
 
 ## Phase 106: Studio template marketplace (postponed)
 
