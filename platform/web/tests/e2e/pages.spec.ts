@@ -415,6 +415,10 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await admin.goto("/pricing");
   await expect(admin.locator('#studio [data-plan="studio_1"]')).toContainText("Studio Start");
   await expect(admin.locator('#regular [data-plan="studio_1"]')).toHaveCount(0);
+  // And on the home page, under the regular plans.
+  await admin.goto("/");
+  await expect(admin.locator('#studio-plans [data-plan="studio_1"]')).toContainText("Studio Start");
+  await expect(admin.locator('#plans [data-plan="studio_1"]')).toHaveCount(0);
 
   // 103R.3 Studio's home: the account's Studio projects only.
   await own.goto("/studio");
@@ -433,6 +437,12 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   // The project's own dashboard, in Studio.
   await expect(own).toHaveURL(/\/studio\/project$/);
   await expect(own.getByRole("heading", { level: 1, name: "Spring Studio" })).toBeVisible();
+  // The Studio projects' invoices, in one list; none yet.
+  await own.getByRole("link", { name: "Invoices" }).click();
+  await expect(own).toHaveURL(/\/studio\/project\/invoices$/);
+  await expect(own.getByRole("heading", { level: 1, name: "Invoices" })).toBeVisible();
+  await expect(own.getByText("No invoices yet. They show here once a project's plan is paid.")).toBeVisible();
+  await own.goto("/studio/project");
   await expect(own.getByRole("heading", { name: "Before you publish" })).toBeVisible();
   // Its home starts from the template chosen: designed already, the rest of the steps to go.
   const checklist = own.getByRole("list").filter({ hasText: "Design the pages in the editor" });

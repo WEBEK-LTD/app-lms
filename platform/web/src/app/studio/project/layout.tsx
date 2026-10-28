@@ -68,6 +68,7 @@ export default async function StudioProjectLayout({ children }: { children: Reac
         item("/dashboard/publishing", t("studio.navStores"), "storefront"),
         item("/dashboard/builds", t("studio.navBuilds"), "build"),
         item("/dashboard/license", t("studio.navPlan"), "workspace_premium"),
+        item("/dashboard/invoices", t("studio.navInvoices"), "receipt_long"),
         item("/dashboard/setup", t("studio.navSettings"), "settings"),
       ],
     },

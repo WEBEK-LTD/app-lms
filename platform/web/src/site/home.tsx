@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { REGULAR_PLANS } from "@/lib/plans";
+import { planOffered, REGULAR_PLANS, STUDIO_PLANS } from "@/lib/plans";
+import { StudioPlans } from "@/components/studio-marketing";
 import { BrowserFrame, DASHBOARD_PATHS, DeviceFrame } from "@/components/device-frame";
 import { Icon } from "@/components/icon";
 import { JsonLdScript } from "@/components/json-ld";
@@ -33,6 +34,8 @@ export async function HomePage({ lang }: { lang: Lang }) {
   // 52 Prices in the visitor's currency: pounds in Egypt, dollars elsewhere.
   const [all, view] = await Promise.all([effectivePlans(store), visitorPriceView(store)]);
   const plans = REGULAR_PLANS.map((id) => planFor(lang, all[id]));
+  // 103R Yallapp Studio's own plans under the regular ones: the ones the team offers.
+  const studioPlans = STUDIO_PLANS.map((id) => all[id]).filter(planOffered).map((plan) => planFor(lang, plan));
   const base = siteUrl();
   const text = await getSiteContent("home", lang);
   const m = messagesFor(lang);
@@ -277,8 +280,13 @@ export async function HomePage({ lang }: { lang: Lang }) {
           <p data-currency-note="" className="m-0 text-[15px] text-ink-4">
             {currencyNote(view, lang)}
           </p>
-          <p className="m-0 text-[15px] text-ink-4">{richText(s.pricingStudio, { link: (chunk) => <Link href={lp("/yallapp-studio#plans")}>{chunk}</Link> })}</p>
           <MoreLink href={lp("/pricing")}>{h.compareFeatures}</MoreLink>
+        </Section>
+
+        <Section id="studio-plans">
+          <SectionTitle eyebrow={s.studio} title={s.plansTitle} text={s.plansText} />
+          <StudioPlans lang={lang} plans={studioPlans} view={view} contact={contact} />
+          <MoreLink href={lp("/yallapp-studio")}>{s.homeLink}</MoreLink>
         </Section>
 
         <ContactBand lang={lang} />
