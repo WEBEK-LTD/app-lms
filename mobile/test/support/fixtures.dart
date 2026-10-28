@@ -1967,3 +1967,139 @@ Map<String, dynamic> donationJson({
   'created_at': '2026-10-12T10:00:00.000Z',
   'receipt_url': 'https://yallapp.com.tr/receipts/abc123abc123abc123abc123',
 };
+
+// 104 Delivery and courier companies.
+
+Map<String, dynamic> deliveryConfigJson({
+  String pricing = 'distance',
+  bool card = true,
+  String tracking = 'live',
+  String assignment = 'open',
+  String courierApp = 'same',
+}) => {
+  'currency': 'EGP',
+  'pricing': pricing,
+  'zones': [
+    {'id': 'z1', 'name': 'Nasr City', 'price_formatted': 'E£40.00'},
+    {'id': 'z2', 'name': 'Maadi', 'price_formatted': 'E£55.00'},
+  ],
+  'max_distance_km': 30,
+  'payment': {'cash': true, 'card': card},
+  'tracking': tracking,
+  'assignment': assignment,
+  'courier_app': courierApp,
+  'map': {
+    'tiles_url': 'https://tiles.example.com/{z}/{x}/{y}.png',
+    'attribution': '© Map data',
+  },
+};
+
+Map<String, dynamic> deliveryServiceJson({
+  int id = 1,
+  String name = 'Same-day delivery',
+}) => {
+  'id': id,
+  'name': name,
+  'description': 'Picked up within the hour.',
+  'image_url': null,
+  'extra_formatted': null,
+  'eta': '2 to 4 hours',
+};
+
+Map<String, dynamic> shipmentJson({
+  int id = 1,
+  String status = 'assigned',
+  String method = 'cash',
+  String paymentStatus = 'unpaid',
+  bool withCourier = true,
+  bool withPosition = false,
+}) => {
+  'id': id,
+  'reference': 'S-${1000 + id}',
+  'status': status,
+  'service': {'id': 1, 'name': 'Same-day delivery'},
+  'zone': null,
+  'pickup': {
+    'address': '12 Abbas El Akkad St, Nasr City',
+    'details': 'Floor 3',
+    'lat': 30.0561,
+    'lng': 31.3301,
+  },
+  'dropoff': {
+    'address': '9 Road 233, Maadi',
+    'details': null,
+    'lat': 29.9602,
+    'lng': 31.2569,
+  },
+  'recipient': {'name': 'Mona Adel', 'phone': '+201001234567'},
+  'package': {'size': 'small', 'description': 'Documents'},
+  'notes': 'Call before you come.',
+  'distance_km': 12.4,
+  'price_formatted': 'E£62.00',
+  'payment': {'method': method, 'status': paymentStatus},
+  'courier': withCourier
+      ? {
+          'name': 'Karim Hassan',
+          'phone': '+201112223334',
+          'vehicle': 'Motorbike',
+        }
+      : null,
+  'courier_location': withPosition
+      ? {'lat': 30.01, 'lng': 31.29, 'updated_at': '2026-10-28T10:05:00.000Z'}
+      : null,
+  'timeline': [
+    {'status': 'pending', 'at': '2026-10-28T09:40:00.000Z', 'note': null},
+    if (withCourier)
+      {'status': 'assigned', 'at': '2026-10-28T09:45:00.000Z', 'note': null},
+  ],
+  'created_at': '2026-10-28T09:40:00.000Z',
+};
+
+Map<String, dynamic> courierJson({
+  bool onDuty = true,
+  String assignment = 'open',
+}) => {
+  'id': 1,
+  'name': 'Karim Hassan',
+  'phone': '+201112223334',
+  'vehicle': 'Motorbike',
+  'on_duty': onDuty,
+  'assignment': assignment,
+  'delivered_today': 3,
+};
+
+Map<String, dynamic> courierJobJson({
+  int id = 1,
+  String status = 'assigned',
+  String? collect = 'E£62.00',
+  bool mine = true,
+}) => {
+  'id': id,
+  'reference': 'S-${1000 + id}',
+  'status': status,
+  'service': 'Same-day delivery',
+  'pickup': {
+    'address': '12 Abbas El Akkad St, Nasr City',
+    'details': 'Floor 3',
+    'lat': 30.0561,
+    'lng': 31.3301,
+  },
+  'dropoff': {
+    'address': '9 Road 233, Maadi',
+    'details': null,
+    'lat': 29.9602,
+    'lng': 31.2569,
+  },
+  'sender': {'name': 'Omar Said', 'phone': mine ? '+201005556667' : null},
+  'recipient': {'name': 'Mona Adel', 'phone': mine ? '+201001234567' : null},
+  'package': {'size': 'small', 'description': 'Documents'},
+  'notes': 'Call before you come.',
+  'distance_km': 12.4,
+  'collect_formatted': collect,
+  'timeline': [
+    {'status': 'pending', 'at': '2026-10-28T09:40:00.000Z', 'note': null},
+    if (status != 'pending')
+      {'status': 'assigned', 'at': '2026-10-28T09:45:00.000Z', 'note': null},
+  ],
+  'created_at': '2026-10-28T09:40:00.000Z',
+};

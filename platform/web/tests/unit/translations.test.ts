@@ -80,7 +80,7 @@ describe("43 Yallapp's own texts in Arabic and Turkish", () => {
   it("has every message the hosted API answers with", () => {
     // The literal messages in the hosted API's code (`error(…, "…")`, `badRequest("…")`,
     // `message: "…"`), with `${…}` as {0}, {1}. Add them to lib/i18n/builtin when this fails.
-    const files = ["hosted", "events", "news", "bookings", "donations", "listings", "courses", "catalog", "store-billing"].flatMap((d) => tsFiles(join(ROOT, "src/lib", d)));
+    const files = ["hosted", "events", "news", "bookings", "donations", "listings", "courses", "catalog", "store-billing", "delivery"].flatMap((d) => tsFiles(join(ROOT, "src/lib", d)));
     // Not answered to apps: a store's webhook, and the sign-in code's text message.
     // 58 Nor what the dashboard and Yallapp Business tell the owner (their catalogs translate it): 61 also sending later and moving appointments, 85.2 campaigns.
     // 100.3 Of the store billing, only what the app hears (the plugin's and the stores' endpoints answer in English).

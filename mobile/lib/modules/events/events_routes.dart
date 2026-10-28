@@ -37,7 +37,11 @@ final eventsModule = AppModule(
     BuiltInScreen.articles ||
     BuiltInScreen.bookmarks => null,
     BuiltInScreen.classes || BuiltInScreen.memberships => null,
-    BuiltInScreen.campaigns || BuiltInScreen.myDonations => null,
+    BuiltInScreen.sendParcel ||
+    BuiltInScreen.shipments ||
+    BuiltInScreen.courier ||
+    BuiltInScreen.campaigns ||
+    BuiltInScreen.myDonations => null,
   },
   routes: _pushedRoutes,
 );

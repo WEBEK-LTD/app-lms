@@ -74,7 +74,7 @@ async function addApp(store: MemoryStore, client: Client, app: Partial<App> & Pi
 }
 
 /** One app of each kind the Owner API serves. */
-type Kinds = Record<"shop" | "clinic" | "gym" | "school" | "news" | "estate" | "events" | "donations", App>;
+type Kinds = Record<"shop" | "clinic" | "gym" | "school" | "news" | "estate" | "events" | "donations" | "delivery", App>;
 
 async function appsOf(store: MemoryStore, client: Client, name: string, courses: CourseSetup["courses"]): Promise<Kinds> {
   return {
@@ -91,6 +91,8 @@ async function appsOf(store: MemoryStore, client: Client, name: string, courses:
     estate: await addApp(store, client, { appType: "real_estate", appName: `${name} estate`, connector: { kind: "listings" } }),
     events: await addApp(store, client, { appType: "events", appName: `${name} events`, connector: { kind: "events" }, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS } }),
     donations: await addApp(store, client, { appType: "donations", vertical: "charity", appName: `${name} charity`, connector: { kind: "campaigns" }, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS } }),
+    // 104 A delivery company.
+    delivery: await addApp(store, client, { appType: "delivery", appName: `${name} delivery`, connector: { kind: "deliveries" }, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS } }),
   };
 }
 
@@ -442,6 +444,37 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       },
       NOW,
     );
+    // 104 A shipment of the other client's delivery company.
+    const shipment = await store.createShipment({
+      appId: theirs.delivery.id,
+      userId: null,
+      senderName: `${MARK} sender`,
+      senderPhone: "+201001112222",
+      serviceId: null,
+      serviceName: null,
+      pickup: { address: `${MARK} pickup`, details: null, lat: null, lng: null },
+      dropoff: { address: `${MARK} drop-off`, details: null, lat: null, lng: null },
+      zoneId: null,
+      zoneName: null,
+      distanceKm: null,
+      packageSize: "small",
+      packageDescription: null,
+      recipientName: `${MARK} recipient`,
+      recipientPhone: "+201003334444",
+      notes: null,
+      priceCents: 50_00,
+      currency: "EGP",
+      paymentMethod: "cash",
+      paymentStatus: "unpaid",
+      orderId: null,
+      status: "pending",
+      courierId: null,
+      courierName: null,
+      timeline: [{ status: "pending", at: NOW.toISOString(), by: "customer" }],
+      lang: null,
+      createdAt: NOW,
+      updatedAt: NOW,
+    });
     Object.assign(hostedIds, {
       device_id: customerDevice,
       conversation_id: conversation.id,
@@ -465,6 +498,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       event_id: String(event.id),
       ticket_code: "ABCDEFGHJKLM",
       campaign_id: String(campaign.id),
+      shipment_id: String(shipment.id),
     });
     theirCustomerIds = [customerDevice, conversation.id];
   });
@@ -510,6 +544,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     if (/^\/(listings|me\/favorites|me\/inquiries)/.test(route)) return "estate";
     if (/^\/(events|me\/tickets)/.test(route)) return "events";
     if (/^\/donations/.test(route)) return "donations";
+    if (/^\/(delivery|courier|me\/shipments)/.test(route)) return "delivery";
     return "shop";
   }
 

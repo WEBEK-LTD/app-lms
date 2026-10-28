@@ -8,6 +8,7 @@ import { CatalogConnector, type CatalogDeps } from "./catalog";
 import { CoursesConnector, type CoursesDeps, type CoursesMedia } from "./courses";
 import { EventsConnector } from "./events";
 import { DonationsConnector } from "./donations";
+import { DeliveryConnector } from "./delivery";
 import { ListingsConnector, type ListingsDeps } from "./listings";
 import { platformConnector } from "./platforms";
 import "./registry";
@@ -68,6 +69,8 @@ export function connectorFor(
     cardPayments?: boolean;
     /** 91.4 Loyalty points are in the app's plan. */
     loyalty?: boolean;
+    /** 104 Delivery apps are in the app's plan. */
+    delivery?: boolean;
     /** 91.3 A customer asked to return an order. */
     onReturnRequested?: CatalogDeps["onReturnRequested"];
     /** 45 Lessons of courses managed in Yallapp may be saved for offline viewing (lib/courses/downloads.ts). */
@@ -88,6 +91,7 @@ export function connectorFor(
   if (app.connector?.kind === "articles") return new ArticlesConnector({ ...deps, app });
   if (app.connector?.kind === "events") return new EventsConnector({ ...deps, app });
   if (app.connector?.kind === "campaigns") return new DonationsConnector({ ...deps, app });
+  if (app.connector?.kind === "deliveries") return new DeliveryConnector({ ...deps, app, fetcher });
   if (app.connector?.kind === "platform") return platformConnector(app, key, deps, fetcher);
   if (app.connector?.kind === "shopify") {
     const token = shopifyToken(app, key);

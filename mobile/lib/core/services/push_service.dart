@@ -48,6 +48,7 @@ abstract class PushService {
 /// - `event` (a change to an event the user holds tickets to, 28) opens it;
 /// - `campaign_update` (29) opens the campaign;
 /// - `chat` (77) opens the conversation;
+/// - 104 `shipment_update` opens the shipment, `courier_job` the courier's job;
 /// - 85.3 the app's own: an appointment, the classes, an event, the
 ///   memberships, the cart or My courses;
 /// - anything else opens Home.
@@ -78,6 +79,12 @@ String pushTargetLocation(Map<String, dynamic> data) {
     case 'campaign_update':
       final campaign = id('campaign_id');
       if (campaign != null) return Paths.campaign(campaign);
+    case 'shipment_update':
+      final shipment = id('shipment_id');
+      return shipment != null ? Paths.shipment(shipment) : Paths.shipments;
+    case 'courier_job':
+      final job = id('shipment_id');
+      return job != null ? Paths.courierJob(job) : Paths.courier;
     case 'chat':
       final conversation = '${data['conversation_id'] ?? ''}'.trim();
       if (conversation.isNotEmpty) return Paths.chatConversation(conversation);

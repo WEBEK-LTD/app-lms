@@ -2343,7 +2343,7 @@ client (`studio` was off on every plan).
 | | Step | Done when |
 |---|---|---|
 | [x] | 103R.1 Contract: `AppPage.studio` (`StudioPage`: header, body and background; `StudioNode`: layout and content elements, their style, light and dark colours, motion, data, tap action and platforms), Studio's ready sections and templates; `Phase 103` canvas removed | redocly lint |
-| [x] | 103R.2 Platform: Studio pages checked, kept, served by the hosted API with lists filled from the source, sent to the plugin; the account's sections (`App.section`: regular, Studio; migration 0094); Studio plans (`studio_1`–`studio_3`, Admin › Plans › Yallapp Studio, offered when the team turns them on, with Motion, own templates and pages per project), licenses and payment on them, each family on its own apps only; Studio-only project types (the delivery company arrives with 104) | unit tests |
+| [x] | 103R.2 Platform: Studio pages checked, kept, served by the hosted API with lists filled from the source, sent to the plugin; the account's sections (`App.section`: regular, Studio; migration 0094); Studio plans (`studio_1`–`studio_3`, Admin › Plans › Yallapp Studio, offered when the team turns them on, with Motion, own templates and pages per project), licenses and payment on them, each family on its own apps only; Studio-only project types (the delivery company, 104) | unit tests |
 | [x] | 103R.3 The Studio section (the four designs the owner approved): its home with the projects (`/studio`), a new project in three steps (`/studio/new`), the project's dashboard around the editor (`/studio/project`, the dashboard's pages in Studio's frame); a Studio project's dashboard addresses open there | e2e |
 | [x] | 103R.4 The editor, as in the approved design, every part working (`/studio/editor`, its own screen apart from the dashboard; "my templates" kept per account) | e2e |
 | [x] | 103R.5 App: Studio pages drawn natively from the tree: layout, sizes, colours light and dark, fonts, motion, data lists, taps, platforms | flutter analyze and widget tests |
@@ -2353,9 +2353,41 @@ client (`studio` was off on every plan).
 ## Phase 104: Delivery and courier companies (Studio project type)
 
 The first project type only Studio has: send a parcel, follow it on the
-way, the courier's own screens and the business's dashboard. To agree on
-with the owner before work starts (who the couriers are, maps, prices by
-distance or zone, payment).
+way, the courier's own screens and the business's dashboard. Agreed with
+the owner: every option is built and each company picks its own.
+
+- **Where couriers work**: in the company's app (the Courier tab and
+  screens only for the company's couriers, who switch back to the
+  customer's screens), in a second courier app under the company's name
+  (a bundle, published Unlisted on the App Store), or in the shared
+  Yallapp Courier app (built last, published together with the owner).
+- **Maps**: stages only, or the courier's position on a live map while the
+  parcel is on the way (map tiles set in Admin › Settings › Maps; never
+  OpenStreetMap's own tile servers).
+- **Prices**: by distance (base, per km, minimum, a longest distance), by
+  area, or one fixed price; a service may add to it.
+- **Payment**: cash to the courier, card through the company's own payment
+  gateway, or both.
+- **Jobs**: the company gives each job to a courier, or couriers on duty
+  take the waiting ones.
+- A Studio project only: made from Studio's new project (never among the
+  regular apps' types), its dashboard in Studio as the owner approved it
+  (Delivery: Shipments, Couriers, Paid orders, Delivery settings; today's
+  shipments and the couriers on duty).
+- The plan features `delivery` and `courier_app` (the second courier app)
+  are Studio plan features, ticked per plan by the owner in Admin › Plans ›
+  Yallapp Studio.
+
+| Done | Step | Checked by |
+| --- | --- | --- |
+| [x] | 104.1 Contract: the Delivery and Courier tags (`/delivery/services`, `/delivery/quote`, `/delivery/locate`, `/delivery/shipments`, `/me/shipments` with cancel and pay, `/courier/me`, `/courier/jobs` with accept and status, `/courier/location`), `Config.delivery`, `User.roles`, the `shipment_update` and `courier_job` notifications, the `send_parcel`, `shipments` and `courier` screens, the `delivery_services` source, `app_type` `delivery`; the plan features `delivery` and `courier_app` | redocly lint |
+| [x] | 104.2 Platform: delivery settings, services, couriers and shipments (migration 0095), prices by distance, area or fixed, maps links read for their place, shipments paid by card through the company's gateway (its catalog payment page) or in cash, jobs given or taken (one courier wins a race), the courier's position kept only while a parcel is on the way and shown for 10 minutes, pushes to the customer and the couriers | `delivery-hosted.test.ts`, `isolation.test.ts` |
+| [x] | 104.3 Dashboard (en/ar/tr): Shipments (give to a courier, move on, cancel), Couriers (add by mobile number or email, active, on duty), Delivery settings (prices, areas, payment, map, jobs, where couriers work), Our services; Admin › Settings › Maps | unit tests, tsc, eslint |
+| [x] | 104.4 App, customer: Send (service, pickup and drop-off by address, the phone's position, a pasted maps link or the map; recipient, parcel, payment, the price as it is typed), My shipments, a shipment's stages, the courier and their position on the map, pay and cancel | flutter analyze and widget tests |
+| [x] | 104.5 App, courier: the Courier tab only for the company's couriers (Account › Courier mode too), on and off duty, my jobs, waiting jobs and done ones, take a job, its steps (picked up, on the way, delivered, couldn't deliver with a reason, give back), cash to collect, calls and directions, the position shared while a parcel is on the way and the screen is open | widget tests |
+| [ ] | 104.6 The courier app under the company's name: a second build of the same app showing the courier's screens only, its own package name, published Unlisted on the App Store | |
+| [ ] | 104.7 Review accounts for both roles (customer and courier), the notes for the stores written for the company | |
+| [ ] | 104.8 Yallapp Courier: one courier app for every company that picks it (last, published together with the owner) | |
 
 ## Phase 105: More Studio project types
 

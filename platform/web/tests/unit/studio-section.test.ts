@@ -1,3 +1,5 @@
+import { existsSync, readdirSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { kindById } from "@/lib/app/kinds";
 import { cardPlanOptions } from "@/lib/billing/card-plans";
@@ -66,6 +68,15 @@ describe("103R.3 Studio's own section", () => {
     expect(studioPathFor("/dashboard/setup?step=branding")).toBe("/studio/project/setup?step=branding");
     // The account's own pages stay where they are.
     for (const page of ["app-type", "businesses", "account", "team", "open"]) expect(studioPathFor(`/dashboard/${page}`)).toBeNull();
+  });
+
+  it("has every dashboard page of an app in Studio's frame too", () => {
+    const root = path.join(process.cwd(), "src/app/dashboard");
+    const pages = (readdirSync(root, { recursive: true }) as string[]).filter((f) => f.endsWith("page.tsx")).map((f) => path.dirname(f)).filter((d) => d !== ".");
+    // The account's own pages, and the regular page editor (Studio has its own), stay in the dashboard.
+    const own = pages.filter((d) => !["app-type", "businesses", "account", "team", "open", "pages"].includes(d.split(path.sep)[0]!));
+    expect(own.length).toBeGreaterThan(50);
+    expect(own.filter((d) => !existsSync(path.join(process.cwd(), "src/app/studio/project", d, "page.tsx")))).toEqual([]);
   });
 
   it("offers each kind the content sources its engine takes, content kept in Yallapp first", () => {

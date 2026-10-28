@@ -32,7 +32,22 @@ export default async function StudioProjectLayout({ children }: { children: Reac
   const item = (dashboardHref: string, label: string, icon: string) => ({ dashboardHref, href: inStudio(dashboardHref), label, icon });
   const groups = [
     { items: [item("/dashboard", t("studio.overview"), "space_dashboard"), { ...item("/dashboard/pages", t("studio.navEditor"), "draw"), href: "/studio/editor" }] },
-    ...(content ? [{ label: k(content.label), items: content.items.map((i) => item(i.href, k(i.label), i.icon)) }] : []),
+    ...(app.appType === "delivery"
+      ? // 104 A delivery company's group, in the approved design's words.
+        [
+          {
+            label: t("studio.navDelivery"),
+            items: [
+              item("/dashboard/shipments", t("studio.navShipments"), "package_2"),
+              item("/dashboard/couriers", t("studio.navCouriers"), "two_wheeler"),
+              item("/dashboard/orders", t("studio.navPaidOrders"), "receipt_long"),
+              item("/dashboard/delivery", t("studio.navDeliverySettings"), "local_shipping"),
+            ],
+          },
+        ]
+      : content
+        ? [{ label: k(content.label), items: content.items.map((i) => item(i.href, k(i.label), i.icon)) }]
+        : []),
     {
       label: t("studio.groupApp"),
       items: [

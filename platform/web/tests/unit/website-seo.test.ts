@@ -96,7 +96,8 @@ describe("32 the home page's texts and counts", () => {
   it("has a plan title for four plans and counts in the defaults", () => {
     const home = contentPage("home")!.defaults;
     expect(home.plansTitle).toBe("A plan for every app");
-    expect(home.solutionsTitle).toBe(`One platform, ${numberWord(KINDS.length)} kinds of apps`);
+    // 104 The site counts the kinds it has a page for (delivery apps get theirs when they open to everyone).
+    expect(home.solutionsTitle).toBe(`One platform, ${numberWord(KINDS.filter((k) => k.engine !== "delivery").length)} kinds of apps`);
     expect(home.solutionsTitle).toBe("One platform, eleven kinds of apps");
     expect(home.badge).toBe("Android and iOS apps for eleven kinds of business");
     expect(home.stepsTitle).toBe(`From sign-up to the app stores in ${numberWord(STEPS.length)} steps`);

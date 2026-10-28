@@ -6765,6 +6765,696 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search'**
   String get headerSearch;
+
+  /// 104 Delivery apps: the tab for sending a parcel.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get tabSend;
+
+  /// 104 Delivery apps: the customer's shipments tab.
+  ///
+  /// In en, this message translates to:
+  /// **'My shipments'**
+  String get tabShipments;
+
+  /// 104 Delivery apps: the courier's tab, shown to the company's couriers only.
+  ///
+  /// In en, this message translates to:
+  /// **'Courier'**
+  String get tabCourier;
+
+  /// 104 The send screen's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a parcel'**
+  String get sendTitle;
+
+  /// 104 Choosing a delivery service.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get sendService;
+
+  /// 104 Where the courier picks up the parcel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup'**
+  String get sendPickup;
+
+  /// 104 Where the parcel goes.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop-off'**
+  String get sendDropoff;
+
+  /// 104 A place's address field.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get placeAddress;
+
+  /// 104 A place's details field.
+  ///
+  /// In en, this message translates to:
+  /// **'Building, floor, landmark (optional)'**
+  String get placeDetails;
+
+  /// 104 Sets a place to the phone's position.
+  ///
+  /// In en, this message translates to:
+  /// **'My location'**
+  String get placeUseMyLocation;
+
+  /// 104 Sets a place from a Google Maps or Apple Maps link.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste a maps link'**
+  String get placePasteLink;
+
+  /// 104 Sets a place by moving a map.
+  ///
+  /// In en, this message translates to:
+  /// **'On the map'**
+  String get placeOnMap;
+
+  /// 104 The place has coordinates.
+  ///
+  /// In en, this message translates to:
+  /// **'Location set'**
+  String get placeLocated;
+
+  /// 104 The place has no coordinates, and the price doesn't need them.
+  ///
+  /// In en, this message translates to:
+  /// **'No location yet (optional)'**
+  String get placeNotLocated;
+
+  /// 104 The place needs coordinates for pricing by distance.
+  ///
+  /// In en, this message translates to:
+  /// **'Set this place with your location, a maps link or the map: the price is by distance.'**
+  String get placeLocationNeeded;
+
+  /// 104 Removes a place's coordinates.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get placeRemoveLocation;
+
+  /// 104 The paste-a-link dialog's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste a maps link'**
+  String get pasteLinkTitle;
+
+  /// 104 The paste-a-link field's hint.
+  ///
+  /// In en, this message translates to:
+  /// **'A Google Maps or Apple Maps link, or a location shared on WhatsApp'**
+  String get pasteLinkHint;
+
+  /// 104 Confirms a pasted link.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this place'**
+  String get pasteLinkUse;
+
+  /// 104 A pasted link had no coordinates.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find a place in this link.'**
+  String get pasteLinkFailed;
+
+  /// 104 Location services are off.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on location in your phone\'s settings.'**
+  String get locateOff;
+
+  /// 104 The location permission was refused.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow the app to use your location in your phone\'s settings.'**
+  String get locateDenied;
+
+  /// 104 The position couldn't be read.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find where you are. Try again or set the place on the map.'**
+  String get locateFailed;
+
+  /// 104 The map picker's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Move the map to the place'**
+  String get mapPickTitle;
+
+  /// 104 Confirms the place under the pin.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this place'**
+  String get mapPickConfirm;
+
+  /// 104 The drop-off area (pricing by area).
+  ///
+  /// In en, this message translates to:
+  /// **'Area'**
+  String get sendZone;
+
+  /// 104 Who receives the parcel.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient'**
+  String get sendRecipient;
+
+  /// 104 The recipient's name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get recipientName;
+
+  /// 104 The recipient's number field.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile number'**
+  String get recipientPhone;
+
+  /// 104 The parcel's size and contents.
+  ///
+  /// In en, this message translates to:
+  /// **'Parcel'**
+  String get sendParcelSection;
+
+  /// 104 A parcel's size.
+  ///
+  /// In en, this message translates to:
+  /// **'Small'**
+  String get parcelSmall;
+
+  /// 104 A parcel's size.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get parcelMedium;
+
+  /// 104 A parcel's size.
+  ///
+  /// In en, this message translates to:
+  /// **'Large'**
+  String get parcelLarge;
+
+  /// 104 The parcel's contents field.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s inside (optional)'**
+  String get parcelDescription;
+
+  /// 104 Notes for the courier.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes for the courier (optional)'**
+  String get sendNotes;
+
+  /// 104 How the customer pays.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get sendPayment;
+
+  /// 104 Paying in cash at the drop-off.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash to the courier'**
+  String get payCash;
+
+  /// 104 Paying by card on the company's payment page.
+  ///
+  /// In en, this message translates to:
+  /// **'Card'**
+  String get payCard;
+
+  /// 104 The price before sending.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get sendPrice;
+
+  /// 104 The price is being worked out.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculating…'**
+  String get sendPriceCalculating;
+
+  /// 104 No price yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter both addresses to see the price.'**
+  String get sendPriceMissing;
+
+  /// 104 A distance in kilometres.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km'**
+  String distanceKm(String km);
+
+  /// 104 Sends the parcel.
+  ///
+  /// In en, this message translates to:
+  /// **'Send the parcel'**
+  String get sendButton;
+
+  /// 104 Sending needs an account.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to send'**
+  String get sendSignIn;
+
+  /// 104 An address is missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the pickup and drop-off addresses.'**
+  String get sendFillPlace;
+
+  /// 104 The recipient is missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the recipient\'s name and mobile number.'**
+  String get sendFillRecipient;
+
+  /// 104 A cash shipment was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent. We\'ll tell you when a courier is on the way.'**
+  String get sendSent;
+
+  /// 104 A card shipment was paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid. Your parcel is waiting for a courier.'**
+  String get sendPaid;
+
+  /// 104 The shipments list is loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading shipments'**
+  String get loadingShipments;
+
+  /// 104 The customer has sent nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No shipments yet'**
+  String get noShipmentsTitle;
+
+  /// 104 The empty shipments list.
+  ///
+  /// In en, this message translates to:
+  /// **'Parcels you send show here, with each stage.'**
+  String get noShipmentsMessage;
+
+  /// 104 Signed out on My shipments.
+  ///
+  /// In en, this message translates to:
+  /// **'Your shipments'**
+  String get shipmentsSignInTitle;
+
+  /// 104 Signed out on My shipments.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to send parcels and follow them.'**
+  String get shipmentsSignInMessage;
+
+  /// 104 A shipment's page title, like "Shipment S-1042".
+  ///
+  /// In en, this message translates to:
+  /// **'Shipment {reference}'**
+  String shipmentHeading(String reference);
+
+  /// 104 A shipment's stage.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for payment'**
+  String get shipmentAwaitingPayment;
+
+  /// 104 A shipment's stage.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for a courier'**
+  String get shipmentPending;
+
+  /// 104 A shipment's stage.
+  ///
+  /// In en, this message translates to:
+  /// **'Courier on the way to pick up'**
+  String get shipmentAssigned;
+
+  /// 104 A shipment's stage.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked up'**
+  String get shipmentPickedUp;
+
+  /// 104 A shipment's stage.
+  ///
+  /// In en, this message translates to:
+  /// **'On the way'**
+  String get shipmentOnTheWay;
+
+  /// 104 A shipment's stage.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get shipmentDelivered;
+
+  /// 104 A shipment's stage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t be delivered'**
+  String get shipmentFailed;
+
+  /// 104 A shipment's stage.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get shipmentCancelled;
+
+  /// 104 The shipment's courier.
+  ///
+  /// In en, this message translates to:
+  /// **'Courier'**
+  String get shipmentCourier;
+
+  /// 104 Calls the courier.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get callCourier;
+
+  /// 104 No courier yet.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'re finding a courier for your parcel.'**
+  String get shipmentWaitingCourier;
+
+  /// 104 When the courier's position was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'The courier\'s position at {time}'**
+  String trackingCourierAt(String time);
+
+  /// 104 Opens the courier's position in the phone's maps.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in maps'**
+  String get trackingOpenMap;
+
+  /// 104 Live tracking without a position yet.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll see where the courier is once they share their position.'**
+  String get trackingNoPosition;
+
+  /// 104 The shipment is paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get paymentPaid;
+
+  /// 104 The shipment isn't paid yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not paid yet'**
+  String get paymentUnpaid;
+
+  /// 104 Pays a card shipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay now'**
+  String get payNow;
+
+  /// 104 Cancels a shipment that waits.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the shipment'**
+  String get cancelShipment;
+
+  /// 104 Asks before cancelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this shipment?'**
+  String get cancelShipmentConfirm;
+
+  /// 104 Confirms cancelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel it'**
+  String get cancelShipmentYes;
+
+  /// 104 Doesn't cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it'**
+  String get keepIt;
+
+  /// 104 The shipment was cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled.'**
+  String get shipmentCancelledToast;
+
+  /// 104 The shipment's stages.
+  ///
+  /// In en, this message translates to:
+  /// **'Stages'**
+  String get shipmentStages;
+
+  /// 104 Directions to a place in the phone's maps.
+  ///
+  /// In en, this message translates to:
+  /// **'Directions'**
+  String get directionsButton;
+
+  /// 104 The courier's screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Courier'**
+  String get courierTitle;
+
+  /// 104 The courier's on-duty switch.
+  ///
+  /// In en, this message translates to:
+  /// **'On duty'**
+  String get courierOnDuty;
+
+  /// 104 The courier is off duty.
+  ///
+  /// In en, this message translates to:
+  /// **'Off duty: you\'re not offered new jobs.'**
+  String get courierOffDutyHint;
+
+  /// 104 How many the courier delivered today.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Nothing delivered today yet} =1{1 delivered today} other{{count} delivered today}}'**
+  String courierDeliveredToday(int count);
+
+  /// 104 The courier's jobs.
+  ///
+  /// In en, this message translates to:
+  /// **'My jobs'**
+  String get courierMyJobs;
+
+  /// 104 Jobs waiting for a courier.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get courierWaiting;
+
+  /// 104 The courier's done jobs.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get courierDone;
+
+  /// 104 The courier's jobs are loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading jobs'**
+  String get loadingJobs;
+
+  /// 104 An empty job list.
+  ///
+  /// In en, this message translates to:
+  /// **'No jobs here'**
+  String get noJobsTitle;
+
+  /// 104 An empty job list.
+  ///
+  /// In en, this message translates to:
+  /// **'New jobs show here, and you get a notification.'**
+  String get noJobsMessage;
+
+  /// 104 No jobs waiting for a courier.
+  ///
+  /// In en, this message translates to:
+  /// **'No jobs are waiting'**
+  String get noWaitingTitle;
+
+  /// 104 Off duty, waiting jobs aren't shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Go on duty to see waiting jobs.'**
+  String get noWaitingOffDuty;
+
+  /// 104 Someone who isn't a courier opened the courier's screen.
+  ///
+  /// In en, this message translates to:
+  /// **'For our couriers'**
+  String get notCourierTitle;
+
+  /// 104 Someone who isn't a courier opened the courier's screen.
+  ///
+  /// In en, this message translates to:
+  /// **'This screen is for the company\'s couriers. Ask the company to add your number.'**
+  String get notCourierMessage;
+
+  /// 104 A courier switches to the customer's screens.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer view'**
+  String get customerView;
+
+  /// 104 The courier's position is being shared.
+  ///
+  /// In en, this message translates to:
+  /// **'While a parcel is on the way and this screen is open, its customer sees where you are.'**
+  String get sharingLocation;
+
+  /// 104 A courier's job, like "Job S-1042".
+  ///
+  /// In en, this message translates to:
+  /// **'Job {reference}'**
+  String jobTitle(String reference);
+
+  /// 104 Cash to collect, in a job's line.
+  ///
+  /// In en, this message translates to:
+  /// **'Collect {amount}'**
+  String jobCollect(String amount);
+
+  /// 104 Cash to collect.
+  ///
+  /// In en, this message translates to:
+  /// **'Collect {amount} in cash at the drop-off.'**
+  String jobCollectBanner(String amount);
+
+  /// 104 Nothing to collect.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid by card: nothing to collect.'**
+  String get jobPaidByCard;
+
+  /// 104 A waiting job hides the numbers.
+  ///
+  /// In en, this message translates to:
+  /// **'The numbers show once you take the job.'**
+  String get jobPhonesAfterTaking;
+
+  /// 104 Calls the sender.
+  ///
+  /// In en, this message translates to:
+  /// **'Call {name}'**
+  String callSender(String name);
+
+  /// 104 Calls the recipient.
+  ///
+  /// In en, this message translates to:
+  /// **'Call {name}'**
+  String callRecipient(String name);
+
+  /// 104 A courier takes a waiting job.
+  ///
+  /// In en, this message translates to:
+  /// **'Take this job'**
+  String get jobTake;
+
+  /// 104 The courier took the job.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s yours. Go to the pickup.'**
+  String get jobTaken;
+
+  /// 104 A job moved on.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved. The customer was told.'**
+  String get jobUpdated;
+
+  /// 104 A job was delivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered. Well done.'**
+  String get deliveredDone;
+
+  /// 104 The courier picked up the parcel.
+  ///
+  /// In en, this message translates to:
+  /// **'I picked it up'**
+  String get stepPickedUp;
+
+  /// 104 The courier is on the way to the drop-off.
+  ///
+  /// In en, this message translates to:
+  /// **'On my way'**
+  String get stepOnTheWay;
+
+  /// 104 The courier delivered the parcel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get stepDelivered;
+
+  /// 104 The courier couldn't deliver it.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t deliver'**
+  String get stepFailed;
+
+  /// 104 The courier gives the job back.
+  ///
+  /// In en, this message translates to:
+  /// **'Give the job back'**
+  String get stepReleased;
+
+  /// 104 Asks before giving a job back.
+  ///
+  /// In en, this message translates to:
+  /// **'Give this job back? Another courier will take it.'**
+  String get releaseConfirm;
+
+  /// 104 Asks why the parcel wasn't delivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Why couldn\'t it be delivered?'**
+  String get failReasonTitle;
+
+  /// 104 The reason field's hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Like: nobody answered'**
+  String get failReasonHint;
+
+  /// 104 Sends the reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get failReasonSend;
+
+  /// 104 Account: a courier opens the courier's screens.
+  ///
+  /// In en, this message translates to:
+  /// **'Courier mode'**
+  String get courierMode;
 }
 
 class _AppLocalizationsDelegate

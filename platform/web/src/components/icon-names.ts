@@ -149,6 +149,13 @@ export const ICON_NAMES = [
   "flag",
   "mic",
   "send",
+  // 104 Delivery and courier companies
+  "my_location",
+  "near_me",
+  "package_2",
+  "pin_drop",
+  "route",
+  "two_wheeler",
   // 103R Yallapp Studio's editor.
   "auto_awesome",
   "bookmark_add",

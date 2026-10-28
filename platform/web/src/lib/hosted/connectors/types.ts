@@ -36,6 +36,8 @@ export interface Connector {
     events?: unknown;
     /** 29 Config.donations. */
     donations?: { currency: string; ios_mode: "browser" | "off"; monthly: boolean; updates_push: boolean };
+    /** 104 Config.delivery. */
+    delivery?: unknown;
     features?: Record<string, unknown>;
     purchases?: { enroll_button: boolean; free_enrollment: boolean };
   }>;

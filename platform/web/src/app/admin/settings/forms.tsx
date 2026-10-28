@@ -10,6 +10,7 @@ import {
   checkMediaGateAction,
   savePlanBillingAction,
   savePublishingSettingAction,
+  saveMapsSettingAction,
   saveOtpSettingAction,
   savePartnerAppAction,
   saveSmtpSettingAction,
@@ -459,6 +460,39 @@ export function PartnerAppForm({
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText="Saving…">
           Save {name} app
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 104 The map tiles delivery apps draw live tracking on. */
+export function MapsSettingForm({ tilesUrl, attribution }: { tilesUrl: string; attribution: string }) {
+  const [state, action] = useActionState(saveMapsSettingAction, initialFormState);
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4">
+      <FormMessage message={state.message} ok={state.ok} />
+      <Field
+        label="Tile address"
+        name="tilesUrl"
+        type="url"
+        dir="ltr"
+        defaultValue={state.values?.tilesUrl ?? tilesUrl}
+        placeholder="https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=…"
+        hint="An https address with {z}, {x} and {y} (and {s} for subdomains), from a provider whose terms allow apps to use it. A key in it is seen by the apps."
+        error={state.errors?.tilesUrl}
+      />
+      <Field
+        label="Attribution"
+        name="attribution"
+        defaultValue={state.values?.attribution ?? attribution}
+        placeholder="© MapTiler © OpenStreetMap contributors"
+        hint="What the provider asks to be shown on the map."
+        error={state.errors?.attribution}
+      />
+      <div className="flex justify-end">
+        <SubmitButton className="h-10" pendingText="Saving…">
+          Save
         </SubmitButton>
       </div>
     </form>

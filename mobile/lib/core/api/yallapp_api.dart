@@ -714,6 +714,29 @@ abstract class YallappApi {
   /// guideline 3.2.2): the app never opens it in a web view there.
   Future<CheckoutLink> createDonationLink(DonationRequest request);
   Future<Paged<Donation>> listMyDonations({int page = 1});
+
+  // 104 Delivery and courier companies.
+  Future<List<DeliveryService>> listDeliveryServices();
+  Future<Quote> quoteShipment(ShipmentRequest request);
+
+  /// The coordinates of a Google Maps or Apple Maps link.
+  Future<({double lat, double lng})> locateMapLink(String url);
+
+  /// The shipment and, paid by card, its payment page.
+  Future<({Shipment shipment, String? payUrl})> createShipment(
+    ShipmentRequest request,
+  );
+  Future<Paged<Shipment>> listMyShipments({int page = 1, bool active = false});
+  Future<Shipment> getMyShipment(int id);
+  Future<Shipment> cancelMyShipment(int id);
+  Future<String> payMyShipment(int id);
+  Future<CourierProfile> getCourier();
+  Future<CourierProfile> setCourierDuty(bool onDuty);
+  Future<Paged<CourierJob>> listCourierJobs(JobScope scope, {int page = 1});
+  Future<CourierJob> getCourierJob(int id);
+  Future<CourierJob> acceptCourierJob(int id);
+  Future<CourierJob> moveCourierJob(int id, JobStep step, {String? note});
+  Future<void> sendCourierLocation(double lat, double lng, {double? accuracy});
 }
 
 /// [YallappApi] over HTTP.
@@ -1905,5 +1928,139 @@ class HttpYallappApi implements YallappApi {
     _required,
     (json) => Paged.fromJson(json, Donation.fromJson),
     query: {'page': page, 'per_page': 20},
+  );
+
+  // 104 Delivery and courier companies.
+
+  @override
+  Future<List<DeliveryService>> listDeliveryServices() => _get(
+    '/delivery/services',
+    _optional,
+    (json) => reqListOf(json, 'items', DeliveryService.fromJson),
+  );
+
+  @override
+  Future<Quote> quoteShipment(ShipmentRequest request) => _send(
+    'POST',
+    '/delivery/quote',
+    _optional,
+    (data) => Quote.fromJson(asJson(data)),
+    body: request.quoteJson(),
+  );
+
+  @override
+  Future<({double lat, double lng})> locateMapLink(String url) =>
+      _send('POST', '/delivery/locate', _required, (data) {
+        final json = asJson(data);
+        return (
+          lat: optDouble(json, 'lat') ?? 0,
+          lng: optDouble(json, 'lng') ?? 0,
+        );
+      }, body: {'url': url.trim()});
+
+  @override
+  Future<({Shipment shipment, String? payUrl})> createShipment(
+    ShipmentRequest request,
+  ) => _send(
+    'POST',
+    '/delivery/shipments',
+    _required,
+    (data) {
+      final json = asJson(data);
+      return (
+        shipment: Shipment.fromJson(asJson(json['shipment'], 'shipment')),
+        payUrl: optString(json, 'pay_url'),
+      );
+    },
+    body: request.toJson(),
+    query: {'platform': platform.name},
+  );
+
+  @override
+  Future<Paged<Shipment>> listMyShipments({
+    int page = 1,
+    bool active = false,
+  }) => _get(
+    '/me/shipments',
+    _required,
+    (json) => Paged.fromJson(json, Shipment.fromJson),
+    query: {'page': page, 'per_page': 20, if (active) 'active': 'true'},
+  );
+
+  @override
+  Future<Shipment> getMyShipment(int id) =>
+      _get('/me/shipments/$id', _required, Shipment.fromJson);
+
+  @override
+  Future<Shipment> cancelMyShipment(int id) => _send(
+    'POST',
+    '/me/shipments/$id/cancel',
+    _required,
+    (data) => Shipment.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<String> payMyShipment(int id) => _send(
+    'POST',
+    '/me/shipments/$id/pay',
+    _required,
+    (data) => reqString(asJson(data), 'url'),
+  );
+
+  @override
+  Future<CourierProfile> getCourier() =>
+      _get('/courier/me', _required, CourierProfile.fromJson);
+
+  @override
+  Future<CourierProfile> setCourierDuty(bool onDuty) => _send(
+    'PATCH',
+    '/courier/me',
+    _required,
+    (data) => CourierProfile.fromJson(asJson(data)),
+    body: {'on_duty': onDuty},
+  );
+
+  @override
+  Future<Paged<CourierJob>> listCourierJobs(JobScope scope, {int page = 1}) =>
+      _get(
+        '/courier/jobs',
+        _required,
+        (json) => Paged.fromJson(json, CourierJob.fromJson),
+        query: {'scope': scope.name, 'page': page, 'per_page': 20},
+      );
+
+  @override
+  Future<CourierJob> getCourierJob(int id) =>
+      _get('/courier/jobs/$id', _required, CourierJob.fromJson);
+
+  @override
+  Future<CourierJob> acceptCourierJob(int id) => _send(
+    'POST',
+    '/courier/jobs/$id/accept',
+    _required,
+    (data) => CourierJob.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<CourierJob> moveCourierJob(int id, JobStep step, {String? note}) =>
+      _send(
+        'POST',
+        '/courier/jobs/$id/status',
+        _required,
+        (data) => CourierJob.fromJson(asJson(data)),
+        body: {'status': snake(step), 'note': ?note},
+      );
+
+  @override
+  Future<void> sendCourierLocation(
+    double lat,
+    double lng, {
+    double? accuracy,
+  }) => _send(
+    'PUT',
+    '/courier/location',
+    _required,
+    _ignore,
+    body: {'lat': lat, 'lng': lng, 'accuracy': ?accuracy},
   );
 }

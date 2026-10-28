@@ -178,6 +178,8 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
         storeBilling: storeBillingOn(app, plan),
         // 91.4 Loyalty points in shops without a website.
         loyalty: hasFeature(plan, "loyalty"),
+        // 104 Delivery and courier apps.
+        delivery: hasFeature(plan, "delivery"),
         // 45 Lessons saved for offline viewing: offline mode in the plan and the owner's choice.
         downloads: hostedDownloadsOn(app, plan),
         // 51 Lesson videos from the Media library, signed for each request.

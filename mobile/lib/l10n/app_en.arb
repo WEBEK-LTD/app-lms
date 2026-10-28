@@ -3238,5 +3238,510 @@
   "headerSearch": "Search",
   "@headerSearch": {
     "description": "101 The search button and search field in the header of the pages in the bottom tabs."
+  },
+  "tabSend": "Send",
+  "@tabSend": {
+    "description": "104 Delivery apps: the tab for sending a parcel."
+  },
+  "tabShipments": "My shipments",
+  "@tabShipments": {
+    "description": "104 Delivery apps: the customer's shipments tab."
+  },
+  "tabCourier": "Courier",
+  "@tabCourier": {
+    "description": "104 Delivery apps: the courier's tab, shown to the company's couriers only."
+  },
+  "sendTitle": "Send a parcel",
+  "@sendTitle": {
+    "description": "104 The send screen's title."
+  },
+  "sendService": "Service",
+  "@sendService": {
+    "description": "104 Choosing a delivery service."
+  },
+  "sendPickup": "Pickup",
+  "@sendPickup": {
+    "description": "104 Where the courier picks up the parcel."
+  },
+  "sendDropoff": "Drop-off",
+  "@sendDropoff": {
+    "description": "104 Where the parcel goes."
+  },
+  "placeAddress": "Address",
+  "@placeAddress": {
+    "description": "104 A place's address field."
+  },
+  "placeDetails": "Building, floor, landmark (optional)",
+  "@placeDetails": {
+    "description": "104 A place's details field."
+  },
+  "placeUseMyLocation": "My location",
+  "@placeUseMyLocation": {
+    "description": "104 Sets a place to the phone's position."
+  },
+  "placePasteLink": "Paste a maps link",
+  "@placePasteLink": {
+    "description": "104 Sets a place from a Google Maps or Apple Maps link."
+  },
+  "placeOnMap": "On the map",
+  "@placeOnMap": {
+    "description": "104 Sets a place by moving a map."
+  },
+  "placeLocated": "Location set",
+  "@placeLocated": {
+    "description": "104 The place has coordinates."
+  },
+  "placeNotLocated": "No location yet (optional)",
+  "@placeNotLocated": {
+    "description": "104 The place has no coordinates, and the price doesn't need them."
+  },
+  "placeLocationNeeded": "Set this place with your location, a maps link or the map: the price is by distance.",
+  "@placeLocationNeeded": {
+    "description": "104 The place needs coordinates for pricing by distance."
+  },
+  "placeRemoveLocation": "Remove",
+  "@placeRemoveLocation": {
+    "description": "104 Removes a place's coordinates."
+  },
+  "pasteLinkTitle": "Paste a maps link",
+  "@pasteLinkTitle": {
+    "description": "104 The paste-a-link dialog's title."
+  },
+  "pasteLinkHint": "A Google Maps or Apple Maps link, or a location shared on WhatsApp",
+  "@pasteLinkHint": {
+    "description": "104 The paste-a-link field's hint."
+  },
+  "pasteLinkUse": "Use this place",
+  "@pasteLinkUse": {
+    "description": "104 Confirms a pasted link."
+  },
+  "pasteLinkFailed": "We couldn't find a place in this link.",
+  "@pasteLinkFailed": {
+    "description": "104 A pasted link had no coordinates."
+  },
+  "locateOff": "Turn on location in your phone's settings.",
+  "@locateOff": {
+    "description": "104 Location services are off."
+  },
+  "locateDenied": "Allow the app to use your location in your phone's settings.",
+  "@locateDenied": {
+    "description": "104 The location permission was refused."
+  },
+  "locateFailed": "We couldn't find where you are. Try again or set the place on the map.",
+  "@locateFailed": {
+    "description": "104 The position couldn't be read."
+  },
+  "mapPickTitle": "Move the map to the place",
+  "@mapPickTitle": {
+    "description": "104 The map picker's title."
+  },
+  "mapPickConfirm": "Use this place",
+  "@mapPickConfirm": {
+    "description": "104 Confirms the place under the pin."
+  },
+  "sendZone": "Area",
+  "@sendZone": {
+    "description": "104 The drop-off area (pricing by area)."
+  },
+  "sendRecipient": "Recipient",
+  "@sendRecipient": {
+    "description": "104 Who receives the parcel."
+  },
+  "recipientName": "Name",
+  "@recipientName": {
+    "description": "104 The recipient's name field."
+  },
+  "recipientPhone": "Mobile number",
+  "@recipientPhone": {
+    "description": "104 The recipient's number field."
+  },
+  "sendParcelSection": "Parcel",
+  "@sendParcelSection": {
+    "description": "104 The parcel's size and contents."
+  },
+  "parcelSmall": "Small",
+  "@parcelSmall": {
+    "description": "104 A parcel's size."
+  },
+  "parcelMedium": "Medium",
+  "@parcelMedium": {
+    "description": "104 A parcel's size."
+  },
+  "parcelLarge": "Large",
+  "@parcelLarge": {
+    "description": "104 A parcel's size."
+  },
+  "parcelDescription": "What's inside (optional)",
+  "@parcelDescription": {
+    "description": "104 The parcel's contents field."
+  },
+  "sendNotes": "Notes for the courier (optional)",
+  "@sendNotes": {
+    "description": "104 Notes for the courier."
+  },
+  "sendPayment": "Payment",
+  "@sendPayment": {
+    "description": "104 How the customer pays."
+  },
+  "payCash": "Cash to the courier",
+  "@payCash": {
+    "description": "104 Paying in cash at the drop-off."
+  },
+  "payCard": "Card",
+  "@payCard": {
+    "description": "104 Paying by card on the company's payment page."
+  },
+  "sendPrice": "Price",
+  "@sendPrice": {
+    "description": "104 The price before sending."
+  },
+  "sendPriceCalculating": "Calculating…",
+  "@sendPriceCalculating": {
+    "description": "104 The price is being worked out."
+  },
+  "sendPriceMissing": "Enter both addresses to see the price.",
+  "@sendPriceMissing": {
+    "description": "104 No price yet."
+  },
+  "distanceKm": "{km} km",
+  "@distanceKm": {
+    "description": "104 A distance in kilometres.",
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "sendButton": "Send the parcel",
+  "@sendButton": {
+    "description": "104 Sends the parcel."
+  },
+  "sendSignIn": "Sign in to send",
+  "@sendSignIn": {
+    "description": "104 Sending needs an account."
+  },
+  "sendFillPlace": "Enter the pickup and drop-off addresses.",
+  "@sendFillPlace": {
+    "description": "104 An address is missing."
+  },
+  "sendFillRecipient": "Enter the recipient's name and mobile number.",
+  "@sendFillRecipient": {
+    "description": "104 The recipient is missing."
+  },
+  "sendSent": "Sent. We'll tell you when a courier is on the way.",
+  "@sendSent": {
+    "description": "104 A cash shipment was sent."
+  },
+  "sendPaid": "Paid. Your parcel is waiting for a courier.",
+  "@sendPaid": {
+    "description": "104 A card shipment was paid."
+  },
+  "loadingShipments": "Loading shipments",
+  "@loadingShipments": {
+    "description": "104 The shipments list is loading."
+  },
+  "noShipmentsTitle": "No shipments yet",
+  "@noShipmentsTitle": {
+    "description": "104 The customer has sent nothing."
+  },
+  "noShipmentsMessage": "Parcels you send show here, with each stage.",
+  "@noShipmentsMessage": {
+    "description": "104 The empty shipments list."
+  },
+  "shipmentsSignInTitle": "Your shipments",
+  "@shipmentsSignInTitle": {
+    "description": "104 Signed out on My shipments."
+  },
+  "shipmentsSignInMessage": "Sign in to send parcels and follow them.",
+  "@shipmentsSignInMessage": {
+    "description": "104 Signed out on My shipments."
+  },
+  "shipmentHeading": "Shipment {reference}",
+  "@shipmentHeading": {
+    "description": "104 A shipment's page title, like \"Shipment S-1042\".",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "shipmentAwaitingPayment": "Waiting for payment",
+  "@shipmentAwaitingPayment": {
+    "description": "104 A shipment's stage."
+  },
+  "shipmentPending": "Waiting for a courier",
+  "@shipmentPending": {
+    "description": "104 A shipment's stage."
+  },
+  "shipmentAssigned": "Courier on the way to pick up",
+  "@shipmentAssigned": {
+    "description": "104 A shipment's stage."
+  },
+  "shipmentPickedUp": "Picked up",
+  "@shipmentPickedUp": {
+    "description": "104 A shipment's stage."
+  },
+  "shipmentOnTheWay": "On the way",
+  "@shipmentOnTheWay": {
+    "description": "104 A shipment's stage."
+  },
+  "shipmentDelivered": "Delivered",
+  "@shipmentDelivered": {
+    "description": "104 A shipment's stage."
+  },
+  "shipmentFailed": "Couldn't be delivered",
+  "@shipmentFailed": {
+    "description": "104 A shipment's stage."
+  },
+  "shipmentCancelled": "Cancelled",
+  "@shipmentCancelled": {
+    "description": "104 A shipment's stage."
+  },
+  "shipmentCourier": "Courier",
+  "@shipmentCourier": {
+    "description": "104 The shipment's courier."
+  },
+  "callCourier": "Call",
+  "@callCourier": {
+    "description": "104 Calls the courier."
+  },
+  "shipmentWaitingCourier": "We're finding a courier for your parcel.",
+  "@shipmentWaitingCourier": {
+    "description": "104 No courier yet."
+  },
+  "trackingCourierAt": "The courier's position at {time}",
+  "@trackingCourierAt": {
+    "description": "104 When the courier's position was sent.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "trackingOpenMap": "Open in maps",
+  "@trackingOpenMap": {
+    "description": "104 Opens the courier's position in the phone's maps."
+  },
+  "trackingNoPosition": "You'll see where the courier is once they share their position.",
+  "@trackingNoPosition": {
+    "description": "104 Live tracking without a position yet."
+  },
+  "paymentPaid": "Paid",
+  "@paymentPaid": {
+    "description": "104 The shipment is paid."
+  },
+  "paymentUnpaid": "Not paid yet",
+  "@paymentUnpaid": {
+    "description": "104 The shipment isn't paid yet."
+  },
+  "payNow": "Pay now",
+  "@payNow": {
+    "description": "104 Pays a card shipment."
+  },
+  "cancelShipment": "Cancel the shipment",
+  "@cancelShipment": {
+    "description": "104 Cancels a shipment that waits."
+  },
+  "cancelShipmentConfirm": "Cancel this shipment?",
+  "@cancelShipmentConfirm": {
+    "description": "104 Asks before cancelling."
+  },
+  "cancelShipmentYes": "Cancel it",
+  "@cancelShipmentYes": {
+    "description": "104 Confirms cancelling."
+  },
+  "keepIt": "Keep it",
+  "@keepIt": {
+    "description": "104 Doesn't cancel."
+  },
+  "shipmentCancelledToast": "Cancelled.",
+  "@shipmentCancelledToast": {
+    "description": "104 The shipment was cancelled."
+  },
+  "shipmentStages": "Stages",
+  "@shipmentStages": {
+    "description": "104 The shipment's stages."
+  },
+  "directionsButton": "Directions",
+  "@directionsButton": {
+    "description": "104 Directions to a place in the phone's maps."
+  },
+  "courierTitle": "Courier",
+  "@courierTitle": {
+    "description": "104 The courier's screen title."
+  },
+  "courierOnDuty": "On duty",
+  "@courierOnDuty": {
+    "description": "104 The courier's on-duty switch."
+  },
+  "courierOffDutyHint": "Off duty: you're not offered new jobs.",
+  "@courierOffDutyHint": {
+    "description": "104 The courier is off duty."
+  },
+  "courierDeliveredToday": "{count, plural, =0{Nothing delivered today yet} =1{1 delivered today} other{{count} delivered today}}",
+  "@courierDeliveredToday": {
+    "description": "104 How many the courier delivered today.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "courierMyJobs": "My jobs",
+  "@courierMyJobs": {
+    "description": "104 The courier's jobs."
+  },
+  "courierWaiting": "Waiting",
+  "@courierWaiting": {
+    "description": "104 Jobs waiting for a courier."
+  },
+  "courierDone": "Done",
+  "@courierDone": {
+    "description": "104 The courier's done jobs."
+  },
+  "loadingJobs": "Loading jobs",
+  "@loadingJobs": {
+    "description": "104 The courier's jobs are loading."
+  },
+  "noJobsTitle": "No jobs here",
+  "@noJobsTitle": {
+    "description": "104 An empty job list."
+  },
+  "noJobsMessage": "New jobs show here, and you get a notification.",
+  "@noJobsMessage": {
+    "description": "104 An empty job list."
+  },
+  "noWaitingTitle": "No jobs are waiting",
+  "@noWaitingTitle": {
+    "description": "104 No jobs waiting for a courier."
+  },
+  "noWaitingOffDuty": "Go on duty to see waiting jobs.",
+  "@noWaitingOffDuty": {
+    "description": "104 Off duty, waiting jobs aren't shown."
+  },
+  "notCourierTitle": "For our couriers",
+  "@notCourierTitle": {
+    "description": "104 Someone who isn't a courier opened the courier's screen."
+  },
+  "notCourierMessage": "This screen is for the company's couriers. Ask the company to add your number.",
+  "@notCourierMessage": {
+    "description": "104 Someone who isn't a courier opened the courier's screen."
+  },
+  "customerView": "Customer view",
+  "@customerView": {
+    "description": "104 A courier switches to the customer's screens."
+  },
+  "sharingLocation": "While a parcel is on the way and this screen is open, its customer sees where you are.",
+  "@sharingLocation": {
+    "description": "104 The courier's position is being shared."
+  },
+  "jobTitle": "Job {reference}",
+  "@jobTitle": {
+    "description": "104 A courier's job, like \"Job S-1042\".",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCollect": "Collect {amount}",
+  "@jobCollect": {
+    "description": "104 Cash to collect, in a job's line.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCollectBanner": "Collect {amount} in cash at the drop-off.",
+  "@jobCollectBanner": {
+    "description": "104 Cash to collect.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "jobPaidByCard": "Paid by card: nothing to collect.",
+  "@jobPaidByCard": {
+    "description": "104 Nothing to collect."
+  },
+  "jobPhonesAfterTaking": "The numbers show once you take the job.",
+  "@jobPhonesAfterTaking": {
+    "description": "104 A waiting job hides the numbers."
+  },
+  "callSender": "Call {name}",
+  "@callSender": {
+    "description": "104 Calls the sender.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "callRecipient": "Call {name}",
+  "@callRecipient": {
+    "description": "104 Calls the recipient.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jobTake": "Take this job",
+  "@jobTake": {
+    "description": "104 A courier takes a waiting job."
+  },
+  "jobTaken": "It's yours. Go to the pickup.",
+  "@jobTaken": {
+    "description": "104 The courier took the job."
+  },
+  "jobUpdated": "Saved. The customer was told.",
+  "@jobUpdated": {
+    "description": "104 A job moved on."
+  },
+  "deliveredDone": "Delivered. Well done.",
+  "@deliveredDone": {
+    "description": "104 A job was delivered."
+  },
+  "stepPickedUp": "I picked it up",
+  "@stepPickedUp": {
+    "description": "104 The courier picked up the parcel."
+  },
+  "stepOnTheWay": "On my way",
+  "@stepOnTheWay": {
+    "description": "104 The courier is on the way to the drop-off."
+  },
+  "stepDelivered": "Delivered",
+  "@stepDelivered": {
+    "description": "104 The courier delivered the parcel."
+  },
+  "stepFailed": "Couldn't deliver",
+  "@stepFailed": {
+    "description": "104 The courier couldn't deliver it."
+  },
+  "stepReleased": "Give the job back",
+  "@stepReleased": {
+    "description": "104 The courier gives the job back."
+  },
+  "releaseConfirm": "Give this job back? Another courier will take it.",
+  "@releaseConfirm": {
+    "description": "104 Asks before giving a job back."
+  },
+  "failReasonTitle": "Why couldn't it be delivered?",
+  "@failReasonTitle": {
+    "description": "104 Asks why the parcel wasn't delivered."
+  },
+  "failReasonHint": "Like: nobody answered",
+  "@failReasonHint": {
+    "description": "104 The reason field's hint."
+  },
+  "failReasonSend": "Send",
+  "@failReasonSend": {
+    "description": "104 Sends the reason."
+  },
+  "courierMode": "Courier mode",
+  "@courierMode": {
+    "description": "104 Account: a courier opens the courier's screens."
   }
 }

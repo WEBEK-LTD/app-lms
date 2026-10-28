@@ -54,12 +54,14 @@ export const PLAN_RANK: Record<Plan, number> = { starter: 0, growth: 1, pro: 2, 
  * 77 `chat`: the app's chat with the business (and course groups). 91.4 `loyalty`: loyalty points in shops without a website.
  * 100.2 `store_billing`: courses and memberships bought in the app through Google Play and the App Store.
  * 103 `studio`: Yallapp Studio, off on every plan until the team turns it on (Admin › Plans).
+ * 104 `delivery`: delivery and courier apps; `courier_app`: the company's second app for its couriers. Both off on
+ * every plan until the team turns them on and prices them (Admin › Plans).
  */
-export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing", "studio", "studio_motion", "studio_templates"] as const;
+export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing", "studio", "studio_motion", "studio_templates", "delivery", "courier_app"] as const;
 export type PlanFeature = (typeof PLAN_FEATURE_IDS)[number];
 
-/** 103R Features only Studio plans have, so the regular plans' editor leaves them out. */
-export const STUDIO_ONLY_FEATURES: readonly PlanFeature[] = ["studio", "studio_motion", "studio_templates"];
+/** 103R Features only Studio plans have, so the regular plans' editor leaves them out (104 delivery companies are Studio projects). */
+export const STUDIO_ONLY_FEATURES: readonly PlanFeature[] = ["studio", "studio_motion", "studio_templates", "delivery", "courier_app"];
 
 /**
  * 103R What every Studio plan includes, besides what the team ticks in
@@ -68,7 +70,7 @@ export const STUDIO_ONLY_FEATURES: readonly PlanFeature[] = ["studio", "studio_m
 export const STUDIO_BASE_FEATURES: readonly PlanFeature[] = ["studio", "push", "page_editor", "offline_downloads", "card_payments", "auto_rebuild", "chat", "loyalty", "store_billing"];
 
 /** 103R The features the team ticks for each Studio plan, as the admin's design lists them. */
-export const STUDIO_PLAN_CHOICES: readonly PlanFeature[] = ["ios", "auto_publish", "studio_motion", "studio_templates"];
+export const STUDIO_PLAN_CHOICES: readonly PlanFeature[] = ["ios", "auto_publish", "delivery", "courier_app", "studio_motion", "studio_templates"];
 
 export type SupportLevel = "email" | "whatsapp" | "priority" | "dedicated";
 export const SUPPORT_LEVELS: SupportLevel[] = ["email", "whatsapp", "priority", "dedicated"];
@@ -356,6 +358,18 @@ export const PLAN_FEATURES: PlanFeatureDef[] = [
     label: "Save pages as own templates",
     description: "Keep any page as your own template and start new pages from it.",
     enforced: "The Studio editor's \"Save the page as my own template\" refuses without it.",
+  },
+  {
+    id: "delivery",
+    label: "Delivery & courier projects",
+    description: "Customers send parcels and follow them; your couriers get their jobs in the app.",
+    enforced: "The hosted API's /delivery, /me/shipments and /courier endpoints, and the Shipments, Couriers and Delivery settings pages.",
+  },
+  {
+    id: "courier_app",
+    label: "A second app for couriers",
+    description: "A second app in your name, made only for your couriers.",
+    enforced: "Delivery settings › Where couriers work (a second app), and its builds.",
   },
 ];
 

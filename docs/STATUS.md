@@ -8,6 +8,25 @@ Last updated: 28 October 2026.
 
 ## Current release
 
+Phase 104 (delivery and courier companies) steps 104.1 to 104.5 are
+complete: a new project type in Yallapp Studio, Delivery, with no website
+(a Studio project only, on Studio's plans). Customers send a
+parcel (pickup and drop-off by address, their position, a pasted maps link
+or the map), see the price as they type, pay in cash or by card through the
+company's own gateway, and follow the stages and, where the company picks
+it, the courier on a map. The company's couriers get a Courier tab in the
+same app (no one else sees it): on duty, their jobs, waiting jobs to take,
+each step, cash to collect and the position shared while a parcel is on the
+way. The project's dashboard in Studio has Shipments, Couriers, Delivery settings
+and the services; prices by distance, area or fixed, cash or card, jobs given or
+taken and where couriers work are each company's choice. Delivery is the
+Studio plan feature `delivery` (and `courier_app` for a second courier
+app), ticked per plan in Admin › Plans › Yallapp Studio.
+Still to come: the courier app under the company's name (104.6), review
+accounts for both roles (104.7) and the shared Yallapp Courier app (104.8,
+published together with the owner). Checks: redocly lint, platform unit
+tests, tsc, eslint, flutter analyze and widget tests.
+
 Phase 103R (Yallapp Studio as the owner approved it) is under way. A
 Studio page is a tree of elements (`AppPage.studio`): rows, columns, layers,
 grids and sliders; texts, pictures, buttons, lists with the owner's own card,
@@ -88,7 +107,12 @@ test environment:
 
 ## Deployment
 
-- Migrations up to `0092` (`npm run db:migrate` in `platform/web`).
+- Migrations up to `0093` (`npm run db:migrate` in `platform/web`).
+- Delivery apps (Phase 104): turn on the plan features `delivery` and,
+  for a second courier app, `courier_app`, with their prices, in Admin ›
+  Plans; set the map tiles (an address with `{z}`, `{x}`, `{y}` and its
+  attribution) in Admin › Settings › Maps before any company picks the
+  live map. Without tiles, maps show the stages only.
 - Google real-time notifications use one Pub/Sub topic for every app
   (`GOOGLE_PUBSUB_PUSH_EMAIL`, `GOOGLE_PUBSUB_TOPIC`; see
   `docs/LAUNCH-CHECKLIST.md`). Each app's owner enters the topic in their own
@@ -100,6 +124,5 @@ test environment:
 
 ## Planned (to agree on before any work)
 
-- **Delivery and courier companies** (Phase 104, the first project type
-  only Studio has), then more project types (Phase 105) and the Studio
-  template marketplace (Phase 106, postponed): see `docs/ROADMAP.md`.
+- More Studio project types (Phase 105) and the Studio template
+  marketplace (Phase 106, postponed): see `docs/ROADMAP.md`.

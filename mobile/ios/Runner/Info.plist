@@ -64,6 +64,8 @@
 	<string>The microphone records the voice messages you send in the chat, and the sound of the videos you take for it.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>The pictures and videos you choose are sent in the chat.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Your location sets where a courier picks up your parcel and, for couriers, shows the customer where their parcel is while it is on the way.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSAppTransportSecurity</key>

@@ -34,6 +34,7 @@ import type {
   UserPatch,
 } from "./store";
 import { BuildRunningError, DuplicateEmailError } from "./store";
+import type { Courier, CourierInput, CourierPatch, DeliveryService, DeliveryServiceInput, DeliverySettings, Shipment, ShipmentInput, ShipmentPatch, ShipmentQuery, ShipmentStatus } from "./types";
 // 51 Media and storage
 import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, StoragePackPatch } from "./types";
 import type { OwnerNotice, OwnerNoticeKind, OwnerNoticePatch } from "./types";
@@ -2669,6 +2670,177 @@ export class MysqlStore implements DataStore {
         .values({ appId, settings, updatedAt: now })
         .onDuplicateKeyUpdate({ set: { settings, updatedAt: now } }),
     );
+  }
+
+  // 104 Delivery and courier companies
+
+  async getDeliverySettings(appId: string): Promise<DeliverySettings | null> {
+    const t = schema.deliverySettings;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.appId, appId)).limit(1));
+    return row?.settings ?? null;
+  }
+
+  async saveDeliverySettings(appId: string, settings: DeliverySettings, now: Date): Promise<void> {
+    await this.run((db) =>
+      db
+        .insert(schema.deliverySettings)
+        .values({ appId, settings, updatedAt: now })
+        .onDuplicateKeyUpdate({ set: { settings, updatedAt: now } }),
+    );
+  }
+
+  async listDeliveryServices(appId: string): Promise<DeliveryService[]> {
+    const t = schema.deliveryServices;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(asc(t.position), asc(t.id)));
+  }
+
+  async getDeliveryService(appId: string, id: number): Promise<DeliveryService | null> {
+    const t = schema.deliveryServices;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async createDeliveryService(input: DeliveryServiceInput, now: Date): Promise<DeliveryService> {
+    const values = { ...input, createdAt: now, updatedAt: now };
+    const [result] = await this.run((db) => db.insert(schema.deliveryServices).values(values));
+    return { id: Number(result.insertId), ...values };
+  }
+
+  async updateDeliveryService(appId: string, id: number, patch: Partial<DeliveryServiceInput>, now: Date): Promise<void> {
+    const { appId: _ignored, ...rest } = patch;
+    void _ignored;
+    const t = schema.deliveryServices;
+    await this.run((db) => db.update(t).set({ ...rest, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async deleteDeliveryService(appId: string, id: number): Promise<void> {
+    const t = schema.deliveryServices;
+    // Shipments keep its name; their service_id is set to null by the foreign key.
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async listCouriers(appId: string): Promise<Courier[]> {
+    const t = schema.couriers;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(asc(t.name), asc(t.id)));
+  }
+
+  async getCourier(appId: string, id: number): Promise<Courier | null> {
+    const t = schema.couriers;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async findCourier(appId: string, who: { phone: string | null; email: string | null }): Promise<Courier | null> {
+    const t = schema.couriers;
+    const match = who.phone ? eq(t.phone, who.phone) : who.email ? eq(t.email, who.email.toLowerCase()) : null;
+    if (!match) return null;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), match)).limit(1));
+    return row ?? null;
+  }
+
+  async createCourier(input: CourierInput, now: Date): Promise<{ ok: true; courier: Courier } | { ok: false; reason: "duplicate" }> {
+    const values = { ...input, onDuty: false, lat: null, lng: null, locatedAt: null, createdAt: now, updatedAt: now };
+    try {
+      const [result] = await this.run((db) => db.insert(schema.couriers).values(values));
+      return { ok: true, courier: { id: Number(result.insertId), ...values } };
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return { ok: false, reason: "duplicate" };
+      throw error;
+    }
+  }
+
+  async updateCourier(appId: string, id: number, patch: CourierPatch, now: Date): Promise<{ ok: boolean; reason?: "duplicate" }> {
+    const t = schema.couriers;
+    try {
+      const [result] = await this.run((db) => db.update(t).set({ ...patch, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
+      return { ok: result.affectedRows === 1 };
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return { ok: false, reason: "duplicate" };
+      throw error;
+    }
+  }
+
+  async deleteCourier(appId: string, id: number, now: Date): Promise<void> {
+    const s = schema.shipments;
+    const t = schema.couriers;
+    await this.run((db) =>
+      db.transaction(async (tx) => {
+        // Jobs they hadn't picked up yet wait for a courier again; the others keep the name.
+        const waiting = await tx.select({ id: s.id, timeline: s.timeline }).from(s).where(and(eq(s.appId, appId), eq(s.courierId, id), eq(s.status, "assigned")));
+        for (const row of waiting) {
+          await tx
+            .update(s)
+            .set({ status: "pending", courierId: null, timeline: [...row.timeline, { status: "pending", at: now.toISOString(), by: "company" }], updatedAt: now })
+            .where(and(eq(s.id, row.id), eq(s.status, "assigned")));
+        }
+        await tx.delete(t).where(and(eq(t.appId, appId), eq(t.id, id)));
+      }),
+    );
+  }
+
+  async createShipment(input: ShipmentInput): Promise<Shipment> {
+    const [result] = await this.run((db) => db.insert(schema.shipments).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async getShipment(appId: string, id: number): Promise<Shipment | null> {
+    const t = schema.shipments;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async listShipments(query: ShipmentQuery): Promise<{ items: Shipment[]; total: number }> {
+    const t = schema.shipments;
+    const search = query.search?.trim() ?? "";
+    const reference = /^s-?(\d{1,15})$/i.exec(search);
+    const pattern = `%${search.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
+    const where = and(
+      eq(t.appId, query.appId),
+      query.userId !== undefined ? eq(t.userId, query.userId) : undefined,
+      query.courierId !== undefined ? eq(t.courierId, query.courierId) : undefined,
+      query.statuses ? inArray(t.status, query.statuses) : undefined,
+      query.unassigned ? isNull(t.courierId) : undefined,
+      query.since ? gte(t.createdAt, query.since) : undefined,
+      query.updatedSince ? gte(t.updatedAt, query.updatedSince) : undefined,
+      !search
+        ? undefined
+        : reference
+          ? eq(t.id, Number(reference[1]))
+          : or(like(t.senderName, pattern), like(t.senderPhone, pattern), like(t.recipientName, pattern), like(t.recipientPhone, pattern)),
+    );
+    const order = query.order === "newest" ? [desc(t.createdAt), desc(t.id)] : [asc(t.createdAt), asc(t.id)];
+    const [items, totals] = await Promise.all([
+      this.run((db) =>
+        db
+          .select()
+          .from(t)
+          .where(where)
+          .orderBy(...order)
+          .limit(query.limit)
+          .offset(query.offset),
+      ),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: totals[0]?.n ?? 0 };
+  }
+
+  async updateShipment(appId: string, id: number, patch: ShipmentPatch, expect: { statuses?: ShipmentStatus[]; courierId?: number | null } = {}): Promise<boolean> {
+    const t = schema.shipments;
+    if (Object.keys(patch).length === 0) return false;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set(patch)
+        .where(
+          and(
+            eq(t.appId, appId),
+            eq(t.id, id),
+            expect.statuses ? inArray(t.status, expect.statuses) : undefined,
+            expect.courierId === undefined ? undefined : expect.courierId === null ? isNull(t.courierId) : eq(t.courierId, expect.courierId),
+          ),
+        ),
+    );
+    return result.affectedRows === 1;
   }
 
   // 10.7 Listings

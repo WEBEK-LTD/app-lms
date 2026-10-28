@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { ownContentSetup } from "@/lib/app/own-content";
+import { STUDIO_ONLY_KINDS } from "@/lib/studio/section";
 import { checkApi, type ApiCheckResult } from "@/lib/app/api-check";
 import { listingLanguages, parseListingExtras } from "@/lib/app/listing-languages";
 import { versionSettingsProblems } from "@/lib/app/version-policy";
@@ -156,7 +157,8 @@ export async function chooseAppTypeAction(formData: FormData): Promise<void> {
   // 20 The picker sends a kind (an engine with a vertical); a bare engine id means its default kind.
   const rawType = formData.get("appType");
   const kind = kindById(formData.get("kind")) ?? (isAppType(rawType) ? defaultKind(rawType) : null);
-  if (!kind) redirect(back);
+  // 104 A delivery company is a Yallapp Studio project, made in Studio.
+  if (!kind || STUDIO_ONLY_KINDS.has(kind.id)) redirect(back);
   const appType = kind.engine;
   const vertical = kind.vertical;
   const store = await getStore();

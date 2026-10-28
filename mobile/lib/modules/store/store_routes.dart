@@ -47,7 +47,11 @@ final storeModule = AppModule(
     BuiltInScreen.bookmarks => null,
     BuiltInScreen.classes || BuiltInScreen.memberships => null,
     BuiltInScreen.events || BuiltInScreen.tickets => null,
-    BuiltInScreen.campaigns || BuiltInScreen.myDonations => null,
+    BuiltInScreen.sendParcel ||
+    BuiltInScreen.shipments ||
+    BuiltInScreen.courier ||
+    BuiltInScreen.campaigns ||
+    BuiltInScreen.myDonations => null,
   },
   routes: _pushedRoutes,
   badges: (ref) => {Paths.cart: ref.watch(cartCountProvider)},

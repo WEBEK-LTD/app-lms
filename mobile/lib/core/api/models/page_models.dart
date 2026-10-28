@@ -274,6 +274,11 @@ enum BuiltInScreen {
   /// 29 Charity & donations apps.
   campaigns,
   myDonations,
+
+  /// 104 Delivery and courier companies.
+  sendParcel,
+  shipments,
+  courier,
 }
 
 enum OpenIn { inApp, browser }
@@ -336,6 +341,9 @@ enum ItemSource {
   articles,
   events,
   campaigns,
+
+  /// 104 A delivery company's services.
+  deliveryServices,
 }
 
 /// An entry from a list source, for `item` actions.

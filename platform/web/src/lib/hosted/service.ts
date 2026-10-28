@@ -1,3 +1,4 @@
+import { courierWho } from "../delivery/service";
 import { appSwitches } from "../app/switches";
 import { watchOrdersAfterCheckout } from "./order-watch";
 import { randomInt } from "node:crypto";
@@ -291,7 +292,7 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
         await ctx.store.deleteHostedDevice(ctx.app.id, session.device.id);
         return noContent;
       case "GET /me":
-        return ok(userJson(session.user));
+        return ok(await meJson(ctx, session.user));
       case "PATCH /me":
         // 16 Everyone shares the demo account: nobody can rename it for the others.
         if (ctx.app.demo) return error(403, "feature_disabled", "The demo account can't be changed. In your own app, people edit their details here.");
@@ -520,6 +521,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     ...(extra.donations
       ? { donations: { ...extra.donations, updates_push: extra.donations.updates_push && ctx.push && (ctx.plan === undefined || hasFeature(ctx.plan, "push")) } }
       : {}),
+    // 104 Delivery and courier companies
+    ...(extra.delivery ? { delivery: extra.delivery } : {}),
     // 10.6 Looks and languages (17: the draft's, in a draft preview)
     // 43 With each language's name, direction and the owner's string pack.
     ...(await lookAndLanguages(ctx.store, app, ctx.preview?.draft ? await draftLayout(ctx.store, app, ctx.now) : undefined, ctx.plan ?? null, {
@@ -944,7 +947,7 @@ async function session(ctx: HostedContext, user: HostedUser, rawDevice: Record<s
     };
     await ctx.store.createHostedDevice(device);
   }
-  return ok({ ...(await issueTokens(ctx, user, device.id)), user: userJson(user) });
+  return ok({ ...(await issueTokens(ctx, user, device.id)), user: await meJson(ctx, user) });
 }
 
 async function issueTokens(ctx: HostedContext, user: HostedUser, deviceRowId: string) {
@@ -1011,6 +1014,13 @@ async function authenticate(ctx: HostedContext, token: string | null): Promise<S
 }
 
 // Account
+
+/** 104 The signed-in person with their roles: in delivery apps, `courier` for the company's active couriers. */
+async function meJson(ctx: HostedContext, user: HostedUser) {
+  if (ctx.app.connector?.kind !== "deliveries") return userJson(user);
+  const courier = await ctx.store.findCourier(ctx.app.id, courierWho(user));
+  return { ...userJson(user), roles: courier?.active ? ["courier"] : [] };
+}
 
 export function userJson(user: HostedUser) {
   return { id: user.id, name: user.name, phone: user.phone, email: user.email, city: user.city, avatar_url: null };
@@ -1112,6 +1122,8 @@ export function notificationJson(n: HostedNotification, readAt: Date | null) {
     ...(n.data?.event_id && !n.eventId ? { event_id: numberOf(n.data.event_id) } : {}),
     // 91.2 The order an order update opens.
     ...(n.data?.order_id ? { order_id: numberOf(n.data.order_id) } : {}),
+    // 104 The shipment a shipment update or a courier's job opens.
+    ...(n.data?.shipment_id ? { shipment_id: numberOf(n.data.shipment_id) } : {}),
     ...(n.articleId ? { article_id: n.articleId } : {}),
     ...(n.eventId ? { event_id: n.eventId } : {}),
     ...(n.campaignId ? { campaign_id: n.campaignId } : {}),

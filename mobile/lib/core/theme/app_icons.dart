@@ -170,6 +170,18 @@ abstract final class AppIcons {
   static const file = Symbols.description_rounded;
   static const gallery = Symbols.photo_library_rounded;
   static const more = Symbols.more_vert_rounded;
+
+  // 104 Delivery and courier companies.
+  static const ship = Symbols.local_shipping_rounded;
+  static const parcel = Symbols.package_2_rounded;
+  static const courier = Symbols.two_wheeler_rounded;
+  static const myLocation = Symbols.my_location_rounded;
+  static const pinDrop = Symbols.pin_drop_rounded;
+  static const route = Symbols.route_rounded;
+  static const paste = Symbols.content_paste_rounded;
+  static const card = Symbols.credit_card_rounded;
+  static const cash = Symbols.payments_rounded;
+  static const swap = Symbols.swap_horiz_rounded;
 }
 
 /// A Material Symbols icon with an optional filled style.

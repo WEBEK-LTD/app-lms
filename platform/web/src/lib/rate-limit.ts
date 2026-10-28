@@ -70,6 +70,8 @@ export const RATE_LIMITS = {
   hostedNotify: { name: "hosted-notify:app", limit: 10, windowSeconds: 60 * 60 },
   planPayment: { name: "plan-payment:client", limit: 10, windowSeconds: 60 * 60 },
   otpTest: { name: "otp-test:admin", limit: 5, windowSeconds: 10 * 60 },
+  // 104 Maps links a delivery app's customer asks us to read, per person.
+  mapLink: { name: "map-link:user", limit: 30, windowSeconds: 10 * 60 },
   // 17 The app preview reads its config once per load (and on "Reload after changes").
   previewIp: { name: "preview:ip", limit: 120, windowSeconds: 10 * 60 },
   // 18 Sign-in codes WordPress sites send through Yallapp (POST /api/v1/sign-in-codes/send).

@@ -27,6 +27,10 @@ enum NotificationType {
 
   /// 91.2 One of the user's orders was shipped, completed, cancelled or refunded.
   orderUpdate,
+
+  /// 104 One of the customer's shipments moved on; a courier's job.
+  shipmentUpdate,
+  courierJob,
   unknown,
 }
 
@@ -49,6 +53,7 @@ class InboxNotification {
     this.imageUrl,
     this.appointmentId,
     this.orderId,
+    this.shipmentId,
   });
 
   factory InboxNotification.fromJson(Json json) => InboxNotification(
@@ -70,6 +75,7 @@ class InboxNotification {
     imageUrl: optString(json, 'image_url'),
     appointmentId: optInt(json, 'appointment_id'),
     orderId: optInt(json, 'order_id'),
+    shipmentId: optInt(json, 'shipment_id'),
     createdAt: reqDate(json, 'created_at'),
     read: reqBool(json, 'read'),
   );
@@ -106,6 +112,9 @@ class InboxNotification {
   /// 91.2 For an order update: the order.
   final int? orderId;
 
+  /// 104 For a shipment update or a courier's job: the shipment.
+  final int? shipmentId;
+
   Map<String, dynamic> get target => {
     'type': snake(type),
     'course_id': ?courseId,
@@ -117,6 +126,7 @@ class InboxNotification {
     'link': ?link,
     'appointment_id': ?appointmentId,
     'order_id': ?orderId,
+    'shipment_id': ?shipmentId,
   };
 }
 

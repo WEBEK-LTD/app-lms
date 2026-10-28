@@ -19,12 +19,12 @@ export function itemSourcesFor(app: Pick<App, "appType" | "backend">): ItemSourc
 
 /** Sources with categories the app can show (29 campaigns have none). */
 export function categorySourcesFor(app: Pick<App, "appType" | "backend">): ItemSource[] {
-  return itemSourcesFor(app).filter((s) => s !== "listings" && s !== "campaigns");
+  return itemSourcesFor(app).filter((s) => s !== "listings" && s !== "campaigns" && s !== "delivery_services");
 }
 
 /** 29 Sources the app can search: campaigns are a short list, without a search. */
 export function searchSourcesFor(app: Pick<App, "appType" | "backend">): ItemSource[] {
-  return itemSourcesFor(app).filter((s) => s !== "campaigns");
+  return itemSourcesFor(app).filter((s) => s !== "campaigns" && s !== "delivery_services");
 }
 
 /** Block types the app's pages can use. */
@@ -51,6 +51,7 @@ export const SOURCE_NAMES: Record<ItemSource, string> = {
   articles: "Articles",
   events: "Events",
   campaigns: "Campaigns",
+  delivery_services: "Delivery services",
 };
 
 // 31 Screens and orders per app
@@ -120,6 +121,8 @@ export const SOURCE_SORTS: Record<ItemSource, readonly ItemsSort[]> = {
   articles: ["newest", "popular"],
   events: ["newest"],
   campaigns: ["newest"],
+  // 104 In the company's order.
+  delivery_services: ["newest"],
 };
 
 /** The list's order, or the first one when the source can't be sorted that way. */

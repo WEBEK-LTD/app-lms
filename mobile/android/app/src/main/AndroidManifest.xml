@@ -2,6 +2,10 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- 77 Voice messages in the chat (asked when the person records one). -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- 104 Delivery apps: the customer's place, and the courier's position
+         while a parcel is on the way, only while the app is open. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <!-- The label comes from res/values/yallapp_config.xml, written by
          tool/apply_config.dart from the client's build config. -->

@@ -6,7 +6,7 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import { effectivePlans } from "@/lib/entitlements";
 import { hasReviewSignIn } from "@/lib/publishing/review-account";
-import { studioProjectCard } from "@/lib/studio/projects";
+import { deliveryOverview, studioProjectCard } from "@/lib/studio/projects";
 import { isStudioProject } from "@/lib/studio/section";
 import { ago, C, Glyph, ProjectPhone, StateBadge } from "../chrome";
 
@@ -29,13 +29,27 @@ export default async function StudioProjectPage() {
     card.source.key === "platform"
       ? card.source.name
       : t(({ catalog: "studio.srcCatalogShort", wordpress: "studio.srcWordpress", shopify: "studio.srcShopify", custom_api: "studio.srcApi", none: "studio.srcNone" } as const)[card.source.key]);
+  // 104 A delivery company: its prices and payment instead of a content source, and today's shipments and couriers.
+  const delivery = app.appType === "delivery" ? await deliveryOverview(store, app, now) : null;
   const steps = [
     { done: card.home !== null, label: t("studio.checkDesign"), href: "/studio/editor", link: t("studio.continue") },
     { done: Boolean(app.brandingDoneAt), label: t("studio.checkIdentity"), href: "/studio/project/setup?step=branding", link: t("studio.continue") },
-    { done: Boolean(app.websiteDoneAt), label: t("studio.checkSource"), href: "/studio/project/setup?step=website", link: t("studio.continue") },
-    { done: hasReviewSignIn(app), label: t("studio.checkReview"), href: "/studio/project/publishing", link: t("studio.continue") },
+    delivery
+      ? { done: delivery.pricesSet, label: t("studio.checkDeliveryPrices"), href: "/studio/project/delivery", link: t("studio.continue") }
+      : { done: Boolean(app.websiteDoneAt), label: t("studio.checkSource"), href: "/studio/project/setup?step=website", link: t("studio.continue") },
+    { done: hasReviewSignIn(app), label: t(delivery ? "studio.checkReviewBoth" : "studio.checkReview"), href: "/studio/project/publishing", link: t("studio.continue") },
     { done: card.plan !== null, label: t("studio.checkPlan"), href: "/studio/project/license", link: t("studio.plansLink") },
   ];
+  const number = (n: number) => n.toLocaleString(lang === "ar" ? "ar-EG" : lang);
+  const stats = delivery
+    ? [
+        { label: t("studio.statShipmentsToday"), value: number(delivery.shipmentsToday) },
+        { label: t("studio.statCouriersOnDuty"), value: number(delivery.couriersOnDuty) },
+      ]
+    : [
+        { label: t("studio.statPages"), value: number(card.pages) },
+        { label: t("studio.statLanguages"), value: number(card.languages) },
+      ];
   const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search") };
   const box = { background: "#FFFFFF", border: `1px solid ${C.line}` };
   return (
@@ -85,18 +99,14 @@ export default async function StudioProjectPage() {
       </section>
 
       <div className="grid gap-3.5" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
-        <div className="flex flex-col gap-1 rounded-2xl p-4" style={box}>
-          <span className="text-[13px]" style={{ color: C.muted }}>
-            {t("studio.statPages")}
-          </span>
-          <span className="text-[26px] font-extrabold">{card.pages.toLocaleString(lang === "ar" ? "ar-EG" : lang)}</span>
-        </div>
-        <div className="flex flex-col gap-1 rounded-2xl p-4" style={box}>
-          <span className="text-[13px]" style={{ color: C.muted }}>
-            {t("studio.statLanguages")}
-          </span>
-          <span className="text-[26px] font-extrabold">{card.languages.toLocaleString(lang === "ar" ? "ar-EG" : lang)}</span>
-        </div>
+        {stats.map((stat) => (
+          <div key={stat.label} className="flex flex-col gap-1 rounded-2xl p-4" style={box}>
+            <span className="text-[13px]" style={{ color: C.muted }}>
+              {stat.label}
+            </span>
+            <span className="text-[26px] font-extrabold">{stat.value}</span>
+          </div>
+        ))}
         <div className="flex flex-col gap-1 rounded-2xl p-4" style={box}>
           <span className="text-[13px]" style={{ color: C.muted }}>
             {t("studio.statPlan")}

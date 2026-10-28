@@ -114,6 +114,8 @@ String? itemLocation(ItemRef item, AppType appType) {
     (ItemSource.services, AppType.booking) => Paths.service(id),
     (ItemSource.listings, AppType.realEstate) => Paths.listing(id),
     (ItemSource.campaigns, AppType.donations) => Paths.campaign(id),
+    // 104 A service opens the send screen with it chosen.
+    (ItemSource.deliveryServices, AppType.delivery) => Paths.sendWith(id),
     _ => null,
   };
 }

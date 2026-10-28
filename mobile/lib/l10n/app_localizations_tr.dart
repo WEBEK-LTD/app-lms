@@ -4181,4 +4181,384 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get headerSearch => 'Ara';
+
+  @override
+  String get tabSend => 'Gönder';
+
+  @override
+  String get tabShipments => 'Gönderilerim';
+
+  @override
+  String get tabCourier => 'Kurye';
+
+  @override
+  String get sendTitle => 'Paket gönder';
+
+  @override
+  String get sendService => 'Hizmet';
+
+  @override
+  String get sendPickup => 'Alış';
+
+  @override
+  String get sendDropoff => 'Teslim';
+
+  @override
+  String get placeAddress => 'Adres';
+
+  @override
+  String get placeDetails => 'Bina, kat, tarif (isteğe bağlı)';
+
+  @override
+  String get placeUseMyLocation => 'Konumum';
+
+  @override
+  String get placePasteLink => 'Harita bağlantısı yapıştır';
+
+  @override
+  String get placeOnMap => 'Haritada';
+
+  @override
+  String get placeLocated => 'Konum belirlendi';
+
+  @override
+  String get placeNotLocated => 'Henüz konum yok (isteğe bağlı)';
+
+  @override
+  String get placeLocationNeeded =>
+      'Bu yeri konumunuzla, bir harita bağlantısıyla veya haritada belirleyin: fiyat mesafeye göre.';
+
+  @override
+  String get placeRemoveLocation => 'Kaldır';
+
+  @override
+  String get pasteLinkTitle => 'Harita bağlantısını yapıştırın';
+
+  @override
+  String get pasteLinkHint =>
+      'Bir Google Haritalar veya Apple Haritalar bağlantısı ya da WhatsApp\'ta paylaşılan bir konum';
+
+  @override
+  String get pasteLinkUse => 'Bu yeri kullan';
+
+  @override
+  String get pasteLinkFailed => 'Bu bağlantıda bir yer bulamadık.';
+
+  @override
+  String get locateOff => 'Telefonunuzun ayarlarından konumu açın.';
+
+  @override
+  String get locateDenied =>
+      'Telefonunuzun ayarlarından uygulamanın konumunuzu kullanmasına izin verin.';
+
+  @override
+  String get locateFailed =>
+      'Nerede olduğunuzu bulamadık. Yeniden deneyin veya yeri haritada belirleyin.';
+
+  @override
+  String get mapPickTitle => 'Haritayı yere kaydırın';
+
+  @override
+  String get mapPickConfirm => 'Bu yeri kullan';
+
+  @override
+  String get sendZone => 'Bölge';
+
+  @override
+  String get sendRecipient => 'Alıcı';
+
+  @override
+  String get recipientName => 'Ad';
+
+  @override
+  String get recipientPhone => 'Cep numarası';
+
+  @override
+  String get sendParcelSection => 'Paket';
+
+  @override
+  String get parcelSmall => 'Küçük';
+
+  @override
+  String get parcelMedium => 'Orta';
+
+  @override
+  String get parcelLarge => 'Büyük';
+
+  @override
+  String get parcelDescription => 'İçinde ne var (isteğe bağlı)';
+
+  @override
+  String get sendNotes => 'Kurye için notlar (isteğe bağlı)';
+
+  @override
+  String get sendPayment => 'Ödeme';
+
+  @override
+  String get payCash => 'Kuryeye nakit';
+
+  @override
+  String get payCard => 'Kart';
+
+  @override
+  String get sendPrice => 'Fiyat';
+
+  @override
+  String get sendPriceCalculating => 'Hesaplanıyor…';
+
+  @override
+  String get sendPriceMissing => 'Fiyatı görmek için iki adresi de girin.';
+
+  @override
+  String distanceKm(String km) {
+    return '$km km';
+  }
+
+  @override
+  String get sendButton => 'Paketi gönder';
+
+  @override
+  String get sendSignIn => 'Göndermek için giriş yapın';
+
+  @override
+  String get sendFillPlace => 'Alış ve teslim adreslerini girin.';
+
+  @override
+  String get sendFillRecipient => 'Alıcının adını ve cep numarasını girin.';
+
+  @override
+  String get sendSent => 'Gönderildi. Kurye yola çıkınca size haber vereceğiz.';
+
+  @override
+  String get sendPaid => 'Ödendi. Paketiniz bir kurye bekliyor.';
+
+  @override
+  String get loadingShipments => 'Gönderiler yükleniyor';
+
+  @override
+  String get noShipmentsTitle => 'Henüz gönderi yok';
+
+  @override
+  String get noShipmentsMessage =>
+      'Gönderdiğiniz paketler her aşamasıyla burada görünür.';
+
+  @override
+  String get shipmentsSignInTitle => 'Gönderileriniz';
+
+  @override
+  String get shipmentsSignInMessage =>
+      'Paket göndermek ve takip etmek için giriş yapın.';
+
+  @override
+  String shipmentHeading(String reference) {
+    return '$reference gönderisi';
+  }
+
+  @override
+  String get shipmentAwaitingPayment => 'Ödeme bekliyor';
+
+  @override
+  String get shipmentPending => 'Kurye bekliyor';
+
+  @override
+  String get shipmentAssigned => 'Kurye almaya geliyor';
+
+  @override
+  String get shipmentPickedUp => 'Alındı';
+
+  @override
+  String get shipmentOnTheWay => 'Yolda';
+
+  @override
+  String get shipmentDelivered => 'Teslim edildi';
+
+  @override
+  String get shipmentFailed => 'Teslim edilemedi';
+
+  @override
+  String get shipmentCancelled => 'İptal edildi';
+
+  @override
+  String get shipmentCourier => 'Kurye';
+
+  @override
+  String get callCourier => 'Ara';
+
+  @override
+  String get shipmentWaitingCourier => 'Paketiniz için bir kurye arıyoruz.';
+
+  @override
+  String trackingCourierAt(String time) {
+    return 'Kuryenin $time konumu';
+  }
+
+  @override
+  String get trackingOpenMap => 'Haritada aç';
+
+  @override
+  String get trackingNoPosition =>
+      'Kurye konumunu paylaşınca nerede olduğunu göreceksiniz.';
+
+  @override
+  String get paymentPaid => 'Ödendi';
+
+  @override
+  String get paymentUnpaid => 'Henüz ödenmedi';
+
+  @override
+  String get payNow => 'Şimdi öde';
+
+  @override
+  String get cancelShipment => 'Gönderiyi iptal et';
+
+  @override
+  String get cancelShipmentConfirm => 'Bu gönderi iptal edilsin mi?';
+
+  @override
+  String get cancelShipmentYes => 'İptal et';
+
+  @override
+  String get keepIt => 'Kalsın';
+
+  @override
+  String get shipmentCancelledToast => 'İptal edildi.';
+
+  @override
+  String get shipmentStages => 'Aşamalar';
+
+  @override
+  String get directionsButton => 'Yol tarifi';
+
+  @override
+  String get courierTitle => 'Kurye';
+
+  @override
+  String get courierOnDuty => 'Görevde';
+
+  @override
+  String get courierOffDutyHint => 'Görev dışı: size yeni iş önerilmez.';
+
+  @override
+  String courierDeliveredToday(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Bugün $count teslimat',
+      zero: 'Bugün henüz teslimat yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get courierMyJobs => 'İşlerim';
+
+  @override
+  String get courierWaiting => 'Bekleyen';
+
+  @override
+  String get courierDone => 'Biten';
+
+  @override
+  String get loadingJobs => 'İşler yükleniyor';
+
+  @override
+  String get noJobsTitle => 'Burada iş yok';
+
+  @override
+  String get noJobsMessage =>
+      'Yeni işler burada görünür ve bildirim alırsınız.';
+
+  @override
+  String get noWaitingTitle => 'Bekleyen iş yok';
+
+  @override
+  String get noWaitingOffDuty => 'Bekleyen işleri görmek için göreve başlayın.';
+
+  @override
+  String get notCourierTitle => 'Kuryelerimiz için';
+
+  @override
+  String get notCourierMessage =>
+      'Bu ekran şirketin kuryeleri içindir. Numaranızı eklemesini şirketten isteyin.';
+
+  @override
+  String get customerView => 'Müşteri görünümü';
+
+  @override
+  String get sharingLocation =>
+      'Paket yoldayken ve bu ekran açıkken müşteri nerede olduğunuzu görür.';
+
+  @override
+  String jobTitle(String reference) {
+    return '$reference işi';
+  }
+
+  @override
+  String jobCollect(String amount) {
+    return '$amount tahsil et';
+  }
+
+  @override
+  String jobCollectBanner(String amount) {
+    return 'Teslimatta $amount nakit tahsil edin.';
+  }
+
+  @override
+  String get jobPaidByCard => 'Kartla ödendi: tahsil edilecek bir şey yok.';
+
+  @override
+  String get jobPhonesAfterTaking => 'Numaralar işi aldığınızda görünür.';
+
+  @override
+  String callSender(String name) {
+    return '$name kişisini ara';
+  }
+
+  @override
+  String callRecipient(String name) {
+    return '$name kişisini ara';
+  }
+
+  @override
+  String get jobTake => 'Bu işi al';
+
+  @override
+  String get jobTaken => 'İş sizin. Alış yerine gidin.';
+
+  @override
+  String get jobUpdated => 'Kaydedildi. Müşteriye haber verildi.';
+
+  @override
+  String get deliveredDone => 'Teslim edildi. Tebrikler.';
+
+  @override
+  String get stepPickedUp => 'Aldım';
+
+  @override
+  String get stepOnTheWay => 'Yoldayım';
+
+  @override
+  String get stepDelivered => 'Teslim edildi';
+
+  @override
+  String get stepFailed => 'Teslim edemedim';
+
+  @override
+  String get stepReleased => 'İşi geri ver';
+
+  @override
+  String get releaseConfirm =>
+      'Bu iş geri verilsin mi? Başka bir kurye alacak.';
+
+  @override
+  String get failReasonTitle => 'Neden teslim edilemedi?';
+
+  @override
+  String get failReasonHint => 'Örneğin: kimse açmadı';
+
+  @override
+  String get failReasonSend => 'Gönder';
+
+  @override
+  String get courierMode => 'Kurye modu';
 }

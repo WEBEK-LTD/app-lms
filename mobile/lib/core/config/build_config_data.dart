@@ -15,7 +15,10 @@ enum AppType {
   realEstate,
   news,
   events,
-  donations;
+  donations,
+
+  /// 104 Delivery and courier companies.
+  delivery;
 
   /// The value as the build config writes it (`app_type`).
   String get wire => this == realEstate ? 'real_estate' : name;

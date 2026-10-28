@@ -61,7 +61,7 @@ void main() {
     expect(
       validateBuildConfig(example()..['app_type'] = 'salon').errors.join(),
       contains(
-        '"app_type" must be one of lms, store, booking, real_estate, news, events, donations.',
+        '"app_type" must be one of lms, store, booking, real_estate, news, events, donations, delivery.',
       ),
     );
     expect(

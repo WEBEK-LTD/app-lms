@@ -153,8 +153,11 @@ class FakeApi implements YallappApi {
     );
   });
 
+  /// 104 What [getMe] answers (a courier has `roles: ['courier']`).
+  Map<String, dynamic> me = userJson();
+
   @override
-  Future<User> getMe() => _answer('getMe', () => User.fromJson(userJson()));
+  Future<User> getMe() => _answer('getMe', () => User.fromJson(me));
 
   @override
   Future<User> updateMe({String? name, String? email, String? city}) =>
@@ -1241,4 +1244,160 @@ class FakeApi implements YallappApi {
     'listMyDonations',
     () => Paged.fromJson(pageJson(donations), Donation.fromJson),
   );
+
+  // 104 Delivery and courier companies.
+
+  List<Map<String, dynamic>> deliveryServices = [
+    deliveryServiceJson(),
+    deliveryServiceJson(id: 2, name: 'Express'),
+  ];
+  List<Map<String, dynamic>> shipments = [shipmentJson()];
+  Map<String, dynamic> courier = courierJson();
+  Map<String, List<Map<String, dynamic>>> courierJobs = {
+    'active': [courierJobJson()],
+    'available': [courierJobJson(id: 2, status: 'pending', mine: false)],
+    'done': [],
+  };
+
+  /// What [createShipment] answers as `pay_url` (null: cash).
+  String? shipmentPayUrl;
+  final shipmentRequests = <ShipmentRequest>[];
+  final quoteRequests = <ShipmentRequest>[];
+  final jobMoves = <({int id, JobStep step, String? note})>[];
+  final courierLocations = <({double lat, double lng})>[];
+
+  @override
+  Future<List<DeliveryService>> listDeliveryServices() => _answer(
+    'listDeliveryServices',
+    () => [for (final s in deliveryServices) DeliveryService.fromJson(s)],
+  );
+
+  @override
+  Future<Quote> quoteShipment(ShipmentRequest request) {
+    quoteRequests.add(request);
+    return _answer(
+      'quoteShipment',
+      () => Quote.fromJson({'price_formatted': 'E£62.00', 'distance_km': 12.4}),
+    );
+  }
+
+  @override
+  Future<({double lat, double lng})> locateMapLink(String url) =>
+      _answer('locateMapLink', () => (lat: 30.0444, lng: 31.2357));
+
+  @override
+  Future<({Shipment shipment, String? payUrl})> createShipment(
+    ShipmentRequest request,
+  ) {
+    shipmentRequests.add(request);
+    return _answer('createShipment', () {
+      final json = shipmentJson(
+        id: shipments.length + 1,
+        status: shipmentPayUrl == null ? 'pending' : 'awaiting_payment',
+        method: shipmentPayUrl == null ? 'cash' : 'card',
+        withCourier: false,
+      );
+      shipments = [json, ...shipments];
+      return (shipment: Shipment.fromJson(json), payUrl: shipmentPayUrl);
+    });
+  }
+
+  @override
+  Future<Paged<Shipment>> listMyShipments({
+    int page = 1,
+    bool active = false,
+  }) => _answer(
+    'listMyShipments',
+    () => Paged.fromJson(pageJson(shipments), Shipment.fromJson),
+  );
+
+  @override
+  Future<Shipment> getMyShipment(int id) => _answer(
+    'getMyShipment',
+    () => Shipment.fromJson(shipments.firstWhere((s) => s['id'] == id)),
+  );
+
+  @override
+  Future<Shipment> cancelMyShipment(int id) => _answer('cancelMyShipment', () {
+    shipments = [
+      for (final s in shipments)
+        s['id'] == id ? {...s, 'status': 'cancelled', 'courier': null} : s,
+    ];
+    return Shipment.fromJson(shipments.firstWhere((s) => s['id'] == id));
+  });
+
+  @override
+  Future<String> payMyShipment(int id) =>
+      _answer('payMyShipment', () => 'https://yallapp.com.tr/pay/shipment-$id');
+
+  @override
+  Future<CourierProfile> getCourier() =>
+      _answer('getCourier', () => CourierProfile.fromJson(courier));
+
+  @override
+  Future<CourierProfile> setCourierDuty(bool onDuty) =>
+      _answer('setCourierDuty', () {
+        courier = {...courier, 'on_duty': onDuty};
+        return CourierProfile.fromJson(courier);
+      });
+
+  @override
+  Future<Paged<CourierJob>> listCourierJobs(JobScope scope, {int page = 1}) =>
+      _answer(
+        'listCourierJobs',
+        () => Paged.fromJson(
+          pageJson(courierJobs[scope.name] ?? const []),
+          CourierJob.fromJson,
+        ),
+      );
+
+  Map<String, dynamic> _job(int id) => courierJobs.values
+      .expand((jobs) => jobs)
+      .firstWhere((j) => j['id'] == id);
+
+  @override
+  Future<CourierJob> getCourierJob(int id) =>
+      _answer('getCourierJob', () => CourierJob.fromJson(_job(id)));
+
+  @override
+  Future<CourierJob> acceptCourierJob(int id) =>
+      _answer('acceptCourierJob', () {
+        final job = courierJobJson(id: id);
+        courierJobs = {
+          'active': [job, ...?courierJobs['active']],
+          'available': [
+            for (final j
+                in courierJobs['available'] ?? const <Map<String, dynamic>>[])
+              if (j['id'] != id) j,
+          ],
+          'done': [...?courierJobs['done']],
+        };
+        return CourierJob.fromJson(job);
+      });
+
+  @override
+  Future<CourierJob> moveCourierJob(int id, JobStep step, {String? note}) {
+    jobMoves.add((id: id, step: step, note: note));
+    return _answer('moveCourierJob', () {
+      final status = switch (step) {
+        JobStep.pickedUp => 'picked_up',
+        JobStep.onTheWay => 'on_the_way',
+        JobStep.delivered => 'delivered',
+        JobStep.failed => 'failed',
+        JobStep.released => 'pending',
+      };
+      final job = {..._job(id), 'status': status};
+      courierJobs = {
+        for (final e in courierJobs.entries)
+          e.key: [for (final j in e.value) j['id'] == id ? job : j],
+      };
+      return CourierJob.fromJson(job);
+    });
+  }
+
+  @override
+  Future<void> sendCourierLocation(double lat, double lng, {double? accuracy}) {
+    courierLocations.add((lat: lat, lng: lng));
+    return _answer('sendCourierLocation', () {});
+  }
 }

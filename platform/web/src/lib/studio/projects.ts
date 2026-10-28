@@ -4,6 +4,9 @@ import { currentPlanId } from "../billing/plan-change";
 import type { DataStore } from "../data/store";
 import type { App, License } from "../data/types";
 import { platformDefinition } from "../hosted/connectors/registry";
+import { deliverySettingsOf, pricesSet } from "../delivery/settings";
+import { localToUtc } from "../bookings/time";
+import { dayOf } from "../analytics/days";
 import { loadLayout } from "../pages/layout";
 import type { LanguageCode, StudioPage } from "../pages/types";
 import type { PlanInfo } from "../plans";
@@ -78,4 +81,19 @@ export async function studioProjectCard(store: DataStore, app: App, license: Lic
     pages: draft.pages.length,
     languages: draft.languages.available.length,
   };
+}
+
+/**
+ * 104 Where a delivery company's day starts: delivery settings keep no time
+ * zone, so its currency's country (pounds Cairo, liras Istanbul), else UTC.
+ */
+const DELIVERY_ZONE: Record<string, string> = { EGP: "Africa/Cairo", TRY: "Europe/Istanbul" };
+
+/** 104 A delivery company's overview: whether its prices are set, today's shipments and its couriers on duty. */
+export async function deliveryOverview(store: DataStore, app: Pick<App, "id">, now: Date): Promise<{ pricesSet: boolean; shipmentsToday: number; couriersOnDuty: number }> {
+  const settings = deliverySettingsOf(await store.getDeliverySettings(app.id));
+  const zone = DELIVERY_ZONE[settings.currency] ?? "UTC";
+  const since = localToUtc(dayOf(now, zone), "00:00", zone);
+  const [shipments, couriers] = await Promise.all([store.listShipments({ appId: app.id, since, order: "newest", offset: 0, limit: 1 }), store.listCouriers(app.id)]);
+  return { pricesSet: pricesSet(settings), shipmentsToday: shipments.total, couriersOnDuty: couriers.filter((c) => c.active && c.onDuty).length };
 }

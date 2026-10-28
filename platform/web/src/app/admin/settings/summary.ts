@@ -84,6 +84,7 @@ export function settingsSummary(settings: Map<PlatformSettingKey, PlatformSettin
     },
     "/admin/settings/store-platforms": { now: partners === 2 ? "Salla and Zid are set." : partners === 1 ? (get("sallaApp") ? "Salla is set, Zid isn't." : "Zid is set, Salla isn't.") : "Neither is set.", attention: false },
     "/admin/settings/app-defaults": { now: get("appDefaults") ? "Set here." : "The built-in defaults.", attention: false },
+    "/admin/settings/maps": { now: get("maps") ? "Set: delivery apps show the live map." : "No map: delivery apps show the courier's position without one.", attention: false },
     "/admin/settings/server": {
       now: rows.every((r) => r.ok) ? "Everything checks out." : `${rows.filter((r) => !r.ok).length} to check.`,
       attention: !rows.every((r) => r.ok),

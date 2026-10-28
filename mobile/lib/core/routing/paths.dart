@@ -53,6 +53,16 @@ abstract final class Paths {
   static const campaigns = '/campaigns';
   static const myDonations = '/my-donations';
 
+  // 104 Delivery and courier companies.
+  static const send = '/send';
+  static const shipments = '/shipments';
+  static const courier = '/courier';
+
+  /// Sending with a service chosen.
+  static String sendWith(int serviceId) => '$send?service=$serviceId';
+  static String shipment(int id) => '/shipment/$id';
+  static String courierJob(int id) => '/courier-job/$id';
+
   /// 77 The chat: the conversation with the business and course groups.
   static const chat = '/chat';
   static String chatConversation(String id) =>
@@ -155,7 +165,10 @@ abstract final class Paths {
       location.startsWith('/question/') ||
       location.startsWith('/quiz/') ||
       // 28 A ticket is the signed-in user's own.
-      location.startsWith('/ticket/');
+      location.startsWith('/ticket/') ||
+      // 104 A shipment and a courier's job too.
+      location.startsWith('/shipment/') ||
+      location.startsWith('/courier');
 
   static bool isSignIn(String location) => location.startsWith(signIn);
 }

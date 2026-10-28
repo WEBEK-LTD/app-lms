@@ -59,4 +59,7 @@ export const SCREEN_LABELS: Record<ScreenName, string> = {
   tickets: "My tickets",
   campaigns: "All campaigns",
   my_donations: "My donations",
+  send_parcel: "Send a parcel",
+  shipments: "My shipments",
+  courier: "Courier",
 };

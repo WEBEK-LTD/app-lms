@@ -919,6 +919,521 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "يفتح صفحة التتبّع لدى شركة الشحن في المتصفح.",
     tr: "Kargo firmasının takip sayfasını tarayıcıda açar.",
   },
+  "104 Delivery apps: the tab for sending a parcel.": {
+    en: "Delivery apps: the tab for sending a parcel.",
+    ar: "تطبيقات التوصيل: تبويب إرسال طرد.",
+    tr: "Teslimat uygulamaları: paket gönderme sekmesi.",
+  },
+  "104 Delivery apps: the customer's shipments tab.": {
+    en: "Delivery apps: the customer's shipments tab.",
+    ar: "تطبيقات التوصيل: تبويب شحنات العميل.",
+    tr: "Teslimat uygulamaları: müşterinin gönderileri sekmesi.",
+  },
+  "104 Delivery apps: the courier's tab, shown to the company's couriers only.": {
+    en: "Delivery apps: the courier's tab, shown to the company's couriers only.",
+    ar: "تطبيقات التوصيل: تبويب المندوب، ويظهر لمناديب الشركة فقط.",
+    tr: "Teslimat uygulamaları: yalnızca şirketin kuryelerine görünen kurye sekmesi.",
+  },
+  "104 The send screen's title.": {
+    en: "The send screen's title.",
+    ar: "عنوان شاشة الإرسال.",
+    tr: "Gönderme ekranının başlığı.",
+  },
+  "104 Choosing a delivery service.": {
+    en: "Choosing a delivery service.",
+    ar: "اختيار خدمة التوصيل.",
+    tr: "Teslimat hizmetini seçme.",
+  },
+  "104 Where the courier picks up the parcel.": {
+    en: "Where the courier picks up the parcel.",
+    ar: "المكان الذي يستلم منه المندوب الطرد.",
+    tr: "Kuryenin paketi aldığı yer.",
+  },
+  "104 Where the parcel goes.": {
+    en: "Where the parcel goes.",
+    ar: "المكان الذي يذهب إليه الطرد.",
+    tr: "Paketin gideceği yer.",
+  },
+  "104 A place's address field.": {
+    en: "A place's address field.",
+    ar: "حقل عنوان المكان.",
+    tr: "Yerin adres alanı.",
+  },
+  "104 A place's details field.": {
+    en: "A place's details field.",
+    ar: "حقل تفاصيل المكان.",
+    tr: "Yerin ayrıntı alanı.",
+  },
+  "104 Sets a place to the phone's position.": {
+    en: "Sets a place to the phone's position.",
+    ar: "يحدد المكان بموقع الهاتف.",
+    tr: "Yeri telefonun konumuna ayarlar.",
+  },
+  "104 Sets a place from a Google Maps or Apple Maps link.": {
+    en: "Sets a place from a Google Maps or Apple Maps link.",
+    ar: "يحدد المكان من رابط Google Maps أو Apple Maps.",
+    tr: "Yeri bir Google Haritalar veya Apple Haritalar bağlantısından ayarlar.",
+  },
+  "104 Sets a place by moving a map.": {
+    en: "Sets a place by moving a map.",
+    ar: "يحدد المكان بتحريك الخريطة.",
+    tr: "Yeri haritayı kaydırarak ayarlar.",
+  },
+  "104 The place has coordinates.": {
+    en: "The place has coordinates.",
+    ar: "المكان محدد على الخريطة.",
+    tr: "Yerin koordinatları var.",
+  },
+  "104 The place has no coordinates, and the price doesn't need them.": {
+    en: "The place has no coordinates, and the price doesn't need them.",
+    ar: "المكان غير محدد على الخريطة، والسعر لا يحتاج ذلك.",
+    tr: "Yerin koordinatı yok ve fiyat için gerekmiyor.",
+  },
+  "104 The place needs coordinates for pricing by distance.": {
+    en: "The place needs coordinates for pricing by distance.",
+    ar: "يلزم تحديد المكان على الخريطة لأن السعر حسب المسافة.",
+    tr: "Mesafeye göre fiyat için yerin koordinatları gerekli.",
+  },
+  "104 Removes a place's coordinates.": {
+    en: "Removes a place's coordinates.",
+    ar: "يزيل تحديد المكان على الخريطة.",
+    tr: "Yerin koordinatlarını kaldırır.",
+  },
+  "104 The paste-a-link dialog's title.": {
+    en: "The paste-a-link dialog's title.",
+    ar: "عنوان نافذة لصق الرابط.",
+    tr: "Bağlantı yapıştırma penceresinin başlığı.",
+  },
+  "104 The paste-a-link field's hint.": {
+    en: "The paste-a-link field's hint.",
+    ar: "تلميح حقل لصق الرابط.",
+    tr: "Bağlantı yapıştırma alanının ipucu.",
+  },
+  "104 Confirms a pasted link.": {
+    en: "Confirms a pasted link.",
+    ar: "يؤكد الرابط الملصوق.",
+    tr: "Yapıştırılan bağlantıyı onaylar.",
+  },
+  "104 A pasted link had no coordinates.": {
+    en: "A pasted link had no coordinates.",
+    ar: "الرابط الملصوق لا يحتوي على مكان.",
+    tr: "Yapıştırılan bağlantıda konum yoktu.",
+  },
+  "104 Location services are off.": {
+    en: "Location services are off.",
+    ar: "خدمة الموقع متوقفة.",
+    tr: "Konum hizmetleri kapalı.",
+  },
+  "104 The location permission was refused.": {
+    en: "The location permission was refused.",
+    ar: "رُفض إذن الموقع.",
+    tr: "Konum izni reddedildi.",
+  },
+  "104 The position couldn't be read.": {
+    en: "The position couldn't be read.",
+    ar: "تعذّر تحديد الموقع.",
+    tr: "Konum okunamadı.",
+  },
+  "104 The map picker's title.": {
+    en: "The map picker's title.",
+    ar: "عنوان شاشة اختيار المكان على الخريطة.",
+    tr: "Haritadan yer seçme ekranının başlığı.",
+  },
+  "104 Confirms the place under the pin.": {
+    en: "Confirms the place under the pin.",
+    ar: "يؤكد المكان الموجود تحت الدبوس.",
+    tr: "İğnenin altındaki yeri onaylar.",
+  },
+  "104 The drop-off area (pricing by area).": {
+    en: "The drop-off area (pricing by area).",
+    ar: "منطقة التسليم (التسعير حسب المنطقة).",
+    tr: "Teslim bölgesi (bölgeye göre fiyat).",
+  },
+  "104 Who receives the parcel.": {
+    en: "Who receives the parcel.",
+    ar: "من يستلم الطرد.",
+    tr: "Paketi kimin teslim alacağı.",
+  },
+  "104 The recipient's name field.": {
+    en: "The recipient's name field.",
+    ar: "حقل اسم المستلم.",
+    tr: "Alıcının ad alanı.",
+  },
+  "104 The recipient's number field.": {
+    en: "The recipient's number field.",
+    ar: "حقل رقم المستلم.",
+    tr: "Alıcının numara alanı.",
+  },
+  "104 The parcel's size and contents.": {
+    en: "The parcel's size and contents.",
+    ar: "حجم الطرد ومحتواه.",
+    tr: "Paketin boyutu ve içeriği.",
+  },
+  "104 A parcel's size.": {
+    en: "A parcel's size.",
+    ar: "حجم الطرد.",
+    tr: "Paketin boyutu.",
+  },
+  "104 The parcel's contents field.": {
+    en: "The parcel's contents field.",
+    ar: "حقل محتوى الطرد.",
+    tr: "Paketin içerik alanı.",
+  },
+  "104 Notes for the courier.": {
+    en: "Notes for the courier.",
+    ar: "ملاحظات للمندوب.",
+    tr: "Kurye için notlar.",
+  },
+  "104 How the customer pays.": {
+    en: "How the customer pays.",
+    ar: "طريقة دفع العميل.",
+    tr: "Müşterinin nasıl ödeyeceği.",
+  },
+  "104 Paying in cash at the drop-off.": {
+    en: "Paying in cash at the drop-off.",
+    ar: "الدفع نقدًا عند التسليم.",
+    tr: "Teslimatta nakit ödeme.",
+  },
+  "104 Paying by card on the company's payment page.": {
+    en: "Paying by card on the company's payment page.",
+    ar: "الدفع بالبطاقة في صفحة الدفع الخاصة بالشركة.",
+    tr: "Şirketin ödeme sayfasında kartla ödeme.",
+  },
+  "104 The price before sending.": {
+    en: "The price before sending.",
+    ar: "السعر قبل الإرسال.",
+    tr: "Göndermeden önceki fiyat.",
+  },
+  "104 The price is being worked out.": {
+    en: "The price is being worked out.",
+    ar: "جارٍ حساب السعر.",
+    tr: "Fiyat hesaplanıyor.",
+  },
+  "104 No price yet.": {
+    en: "No price yet.",
+    ar: "لا يوجد سعر بعد.",
+    tr: "Henüz fiyat yok.",
+  },
+  "104 A distance in kilometres.": {
+    en: "A distance in kilometres.",
+    ar: "مسافة بالكيلومتر.",
+    tr: "Kilometre cinsinden mesafe.",
+  },
+  "104 Sends the parcel.": {
+    en: "Sends the parcel.",
+    ar: "يرسل الطرد.",
+    tr: "Paketi gönderir.",
+  },
+  "104 Sending needs an account.": {
+    en: "Sending needs an account.",
+    ar: "الإرسال يحتاج إلى حساب.",
+    tr: "Göndermek için hesap gerekir.",
+  },
+  "104 An address is missing.": {
+    en: "An address is missing.",
+    ar: "أحد العناوين ناقص.",
+    tr: "Bir adres eksik.",
+  },
+  "104 The recipient is missing.": {
+    en: "The recipient is missing.",
+    ar: "بيانات المستلم ناقصة.",
+    tr: "Alıcı bilgisi eksik.",
+  },
+  "104 A cash shipment was sent.": {
+    en: "A cash shipment was sent.",
+    ar: "تم إرسال شحنة تُدفع نقدًا.",
+    tr: "Nakit ödenecek bir gönderi gönderildi.",
+  },
+  "104 A card shipment was paid.": {
+    en: "A card shipment was paid.",
+    ar: "تم دفع شحنة بالبطاقة.",
+    tr: "Kartla ödenen bir gönderinin ödemesi yapıldı.",
+  },
+  "104 The shipments list is loading.": {
+    en: "The shipments list is loading.",
+    ar: "جارٍ تحميل قائمة الشحنات.",
+    tr: "Gönderi listesi yükleniyor.",
+  },
+  "104 The customer has sent nothing.": {
+    en: "The customer has sent nothing.",
+    ar: "العميل لم يرسل شيئًا بعد.",
+    tr: "Müşteri henüz bir şey göndermedi.",
+  },
+  "104 The empty shipments list.": {
+    en: "The empty shipments list.",
+    ar: "قائمة الشحنات الفارغة.",
+    tr: "Boş gönderi listesi.",
+  },
+  "104 Signed out on My shipments.": {
+    en: "Signed out on My shipments.",
+    ar: "شاشة شحناتي قبل تسجيل الدخول.",
+    tr: "Giriş yapılmadan Gönderilerim ekranı.",
+  },
+  "104 A shipment's page title, like \"Shipment S-1042\".": {
+    en: "A shipment's page title, like \"Shipment S-1042\".",
+    ar: "عنوان صفحة الشحنة، مثل \"الشحنة S-1042\".",
+    tr: "Gönderi sayfasının başlığı, örneğin \"S-1042 gönderisi\".",
+  },
+  "104 A shipment's stage.": {
+    en: "A shipment's stage.",
+    ar: "مرحلة من مراحل الشحنة.",
+    tr: "Gönderinin bir aşaması.",
+  },
+  "104 The shipment's courier.": {
+    en: "The shipment's courier.",
+    ar: "مندوب الشحنة.",
+    tr: "Gönderinin kuryesi.",
+  },
+  "104 Calls the courier.": {
+    en: "Calls the courier.",
+    ar: "يتصل بالمندوب.",
+    tr: "Kuryeyi arar.",
+  },
+  "104 No courier yet.": {
+    en: "No courier yet.",
+    ar: "لا يوجد مندوب بعد.",
+    tr: "Henüz kurye yok.",
+  },
+  "104 When the courier's position was sent.": {
+    en: "When the courier's position was sent.",
+    ar: "وقت إرسال موقع المندوب.",
+    tr: "Kuryenin konumunun gönderildiği zaman.",
+  },
+  "104 Opens the courier's position in the phone's maps.": {
+    en: "Opens the courier's position in the phone's maps.",
+    ar: "يفتح موقع المندوب في خرائط الهاتف.",
+    tr: "Kuryenin konumunu telefonun haritasında açar.",
+  },
+  "104 Live tracking without a position yet.": {
+    en: "Live tracking without a position yet.",
+    ar: "التتبع المباشر قبل وصول موقع المندوب.",
+    tr: "Henüz konum gelmeden canlı takip.",
+  },
+  "104 The shipment is paid.": {
+    en: "The shipment is paid.",
+    ar: "الشحنة مدفوعة.",
+    tr: "Gönderi ödendi.",
+  },
+  "104 The shipment isn't paid yet.": {
+    en: "The shipment isn't paid yet.",
+    ar: "الشحنة لم تُدفع بعد.",
+    tr: "Gönderi henüz ödenmedi.",
+  },
+  "104 Pays a card shipment.": {
+    en: "Pays a card shipment.",
+    ar: "يدفع شحنة بالبطاقة.",
+    tr: "Kartla ödenecek gönderiyi öder.",
+  },
+  "104 Cancels a shipment that waits.": {
+    en: "Cancels a shipment that waits.",
+    ar: "يلغي شحنة لم يبدأ توصيلها.",
+    tr: "Bekleyen bir gönderiyi iptal eder.",
+  },
+  "104 Asks before cancelling.": {
+    en: "Asks before cancelling.",
+    ar: "سؤال قبل الإلغاء.",
+    tr: "İptalden önce sorar.",
+  },
+  "104 Confirms cancelling.": {
+    en: "Confirms cancelling.",
+    ar: "يؤكد الإلغاء.",
+    tr: "İptali onaylar.",
+  },
+  "104 Doesn't cancel.": {
+    en: "Doesn't cancel.",
+    ar: "لا يلغي.",
+    tr: "İptal etmez.",
+  },
+  "104 The shipment was cancelled.": {
+    en: "The shipment was cancelled.",
+    ar: "أُلغيت الشحنة.",
+    tr: "Gönderi iptal edildi.",
+  },
+  "104 The shipment's stages.": {
+    en: "The shipment's stages.",
+    ar: "مراحل الشحنة.",
+    tr: "Gönderinin aşamaları.",
+  },
+  "104 Directions to a place in the phone's maps.": {
+    en: "Directions to a place in the phone's maps.",
+    ar: "الاتجاهات إلى المكان في خرائط الهاتف.",
+    tr: "Telefonun haritasında yere yol tarifi.",
+  },
+  "104 The courier's screen title.": {
+    en: "The courier's screen title.",
+    ar: "عنوان شاشة المندوب.",
+    tr: "Kurye ekranının başlığı.",
+  },
+  "104 The courier's on-duty switch.": {
+    en: "The courier's on-duty switch.",
+    ar: "مفتاح دخول المندوب الخدمة.",
+    tr: "Kuryenin görev anahtarı.",
+  },
+  "104 The courier is off duty.": {
+    en: "The courier is off duty.",
+    ar: "المندوب خارج الخدمة.",
+    tr: "Kurye görev dışında.",
+  },
+  "104 How many the courier delivered today.": {
+    en: "How many the courier delivered today.",
+    ar: "عدد ما سلّمه المندوب اليوم.",
+    tr: "Kuryenin bugün kaç teslimat yaptığı.",
+  },
+  "104 The courier's jobs.": {
+    en: "The courier's jobs.",
+    ar: "مهام المندوب.",
+    tr: "Kuryenin işleri.",
+  },
+  "104 Jobs waiting for a courier.": {
+    en: "Jobs waiting for a courier.",
+    ar: "مهام بانتظار مندوب.",
+    tr: "Kurye bekleyen işler.",
+  },
+  "104 The courier's done jobs.": {
+    en: "The courier's done jobs.",
+    ar: "المهام التي أنهاها المندوب.",
+    tr: "Kuryenin bitirdiği işler.",
+  },
+  "104 The courier's jobs are loading.": {
+    en: "The courier's jobs are loading.",
+    ar: "جارٍ تحميل مهام المندوب.",
+    tr: "Kuryenin işleri yükleniyor.",
+  },
+  "104 An empty job list.": {
+    en: "An empty job list.",
+    ar: "قائمة مهام فارغة.",
+    tr: "Boş iş listesi.",
+  },
+  "104 No jobs waiting for a courier.": {
+    en: "No jobs waiting for a courier.",
+    ar: "لا توجد مهام بانتظار مندوب.",
+    tr: "Kurye bekleyen iş yok.",
+  },
+  "104 Off duty, waiting jobs aren't shown.": {
+    en: "Off duty, waiting jobs aren't shown.",
+    ar: "خارج الخدمة لا تظهر المهام المنتظرة.",
+    tr: "Görev dışındayken bekleyen işler gösterilmez.",
+  },
+  "104 Someone who isn't a courier opened the courier's screen.": {
+    en: "Someone who isn't a courier opened the courier's screen.",
+    ar: "شخص ليس مندوبًا فتح شاشة المندوب.",
+    tr: "Kurye olmayan biri kurye ekranını açtı.",
+  },
+  "104 A courier switches to the customer's screens.": {
+    en: "A courier switches to the customer's screens.",
+    ar: "المندوب ينتقل إلى شاشات العميل.",
+    tr: "Kurye müşteri ekranlarına geçer.",
+  },
+  "104 The courier's position is being shared.": {
+    en: "The courier's position is being shared.",
+    ar: "موقع المندوب تتم مشاركته.",
+    tr: "Kuryenin konumu paylaşılıyor.",
+  },
+  "104 A courier's job, like \"Job S-1042\".": {
+    en: "A courier's job, like \"Job S-1042\".",
+    ar: "مهمة المندوب، مثل \"المهمة S-1042\".",
+    tr: "Kuryenin işi, örneğin \"S-1042 işi\".",
+  },
+  "104 Cash to collect, in a job's line.": {
+    en: "Cash to collect, in a job's line.",
+    ar: "المبلغ النقدي المطلوب تحصيله، في سطر المهمة.",
+    tr: "İş satırında tahsil edilecek nakit.",
+  },
+  "104 Cash to collect.": {
+    en: "Cash to collect.",
+    ar: "المبلغ النقدي المطلوب تحصيله.",
+    tr: "Tahsil edilecek nakit.",
+  },
+  "104 Nothing to collect.": {
+    en: "Nothing to collect.",
+    ar: "لا شيء للتحصيل.",
+    tr: "Tahsil edilecek bir şey yok.",
+  },
+  "104 A waiting job hides the numbers.": {
+    en: "A waiting job hides the numbers.",
+    ar: "المهمة المنتظرة تُخفي الأرقام.",
+    tr: "Bekleyen iş numaraları gizler.",
+  },
+  "104 Calls the sender.": {
+    en: "Calls the sender.",
+    ar: "يتصل بالمرسل.",
+    tr: "Göndericiyi arar.",
+  },
+  "104 Calls the recipient.": {
+    en: "Calls the recipient.",
+    ar: "يتصل بالمستلم.",
+    tr: "Alıcıyı arar.",
+  },
+  "104 A courier takes a waiting job.": {
+    en: "A courier takes a waiting job.",
+    ar: "المندوب يأخذ مهمة منتظرة.",
+    tr: "Kurye bekleyen bir işi alır.",
+  },
+  "104 The courier took the job.": {
+    en: "The courier took the job.",
+    ar: "أخذ المندوب المهمة.",
+    tr: "Kurye işi aldı.",
+  },
+  "104 A job moved on.": {
+    en: "A job moved on.",
+    ar: "انتقلت المهمة إلى مرحلة تالية.",
+    tr: "İş bir sonraki aşamaya geçti.",
+  },
+  "104 A job was delivered.": {
+    en: "A job was delivered.",
+    ar: "تم تسليم المهمة.",
+    tr: "İş teslim edildi.",
+  },
+  "104 The courier picked up the parcel.": {
+    en: "The courier picked up the parcel.",
+    ar: "المندوب استلم الطرد.",
+    tr: "Kurye paketi aldı.",
+  },
+  "104 The courier is on the way to the drop-off.": {
+    en: "The courier is on the way to the drop-off.",
+    ar: "المندوب في الطريق إلى مكان التسليم.",
+    tr: "Kurye teslim yerine gidiyor.",
+  },
+  "104 The courier delivered the parcel.": {
+    en: "The courier delivered the parcel.",
+    ar: "المندوب سلّم الطرد.",
+    tr: "Kurye paketi teslim etti.",
+  },
+  "104 The courier couldn't deliver it.": {
+    en: "The courier couldn't deliver it.",
+    ar: "المندوب لم يتمكن من التسليم.",
+    tr: "Kurye teslim edemedi.",
+  },
+  "104 The courier gives the job back.": {
+    en: "The courier gives the job back.",
+    ar: "المندوب يعيد المهمة.",
+    tr: "Kurye işi geri verir.",
+  },
+  "104 Asks before giving a job back.": {
+    en: "Asks before giving a job back.",
+    ar: "سؤال قبل إعادة المهمة.",
+    tr: "İşi geri vermeden önce sorar.",
+  },
+  "104 Asks why the parcel wasn't delivered.": {
+    en: "Asks why the parcel wasn't delivered.",
+    ar: "يسأل عن سبب تعذّر التسليم.",
+    tr: "Paketin neden teslim edilemediğini sorar.",
+  },
+  "104 The reason field's hint.": {
+    en: "The reason field's hint.",
+    ar: "تلميح حقل السبب.",
+    tr: "Neden alanının ipucu.",
+  },
+  "104 Sends the reason.": {
+    en: "Sends the reason.",
+    ar: "يرسل السبب.",
+    tr: "Nedeni gönderir.",
+  },
+  "104 Account: a courier opens the courier's screens.": {
+    en: "Account: a courier opens the courier's screens.",
+    ar: "الحساب: المندوب يفتح شاشات المندوب.",
+    tr: "Hesap: kurye, kurye ekranlarını açar.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

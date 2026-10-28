@@ -76,6 +76,8 @@ import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInp
 // 29 Charity & donations
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
 import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, DonationSettings, DonationStatus } from "./types";
+// 104 Delivery and courier companies
+import type { Courier, CourierInput, CourierPatch, DeliveryService, DeliveryServiceInput, DeliverySettings, Shipment, ShipmentInput, ShipmentPatch, ShipmentQuery, ShipmentStatus } from "./types";
 // 46 Links and crash reports
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
 // 49
@@ -703,6 +705,37 @@ export interface DataStore {
   /** How the app takes donations; null until saved (the defaults apply). */
   getDonationSettings(appId: string): Promise<DonationSettings | null>;
   saveDonationSettings(appId: string, settings: DonationSettings, now: Date): Promise<void>;
+
+  // 104 Delivery and courier companies
+  /** How the company prices and works; null until saved (the defaults apply). */
+  getDeliverySettings(appId: string): Promise<DeliverySettings | null>;
+  saveDeliverySettings(appId: string, settings: DeliverySettings, now: Date): Promise<void>;
+  /** In the company's order (position, then oldest). */
+  listDeliveryServices(appId: string): Promise<DeliveryService[]>;
+  getDeliveryService(appId: string, id: number): Promise<DeliveryService | null>;
+  createDeliveryService(input: DeliveryServiceInput, now: Date): Promise<DeliveryService>;
+  updateDeliveryService(appId: string, id: number, patch: Partial<DeliveryServiceInput>, now: Date): Promise<void>;
+  /** Shipments keep its name. */
+  deleteDeliveryService(appId: string, id: number): Promise<void>;
+  /** By name. */
+  listCouriers(appId: string): Promise<Courier[]>;
+  getCourier(appId: string, id: number): Promise<Courier | null>;
+  /** The courier with this number (E.164) or, given only an email, this email. */
+  findCourier(appId: string, who: { phone: string | null; email: string | null }): Promise<Courier | null>;
+  /** Fails (`duplicate`) when the app has a courier with the same number or email. */
+  createCourier(input: CourierInput, now: Date): Promise<{ ok: true; courier: Courier } | { ok: false; reason: "duplicate" }>;
+  updateCourier(appId: string, id: number, patch: CourierPatch, now: Date): Promise<{ ok: boolean; reason?: "duplicate" }>;
+  /** Their shipments keep the name; jobs not yet delivered go back to waiting for a courier. */
+  deleteCourier(appId: string, id: number, now: Date): Promise<void>;
+  createShipment(input: ShipmentInput): Promise<Shipment>;
+  getShipment(appId: string, id: number): Promise<Shipment | null>;
+  listShipments(query: ShipmentQuery): Promise<{ items: Shipment[]; total: number }>;
+  /**
+   * Changes the shipment only while it is still as `expect` says (its status
+   * one of `statuses`, its courier `courierId`), so two couriers taking the
+   * same job, or two changes at once, change it once. False when it didn't.
+   */
+  updateShipment(appId: string, id: number, patch: ShipmentPatch, expect?: { statuses?: ShipmentStatus[]; courierId?: number | null }): Promise<boolean>;
 
   // 10.4 Pages, looks and languages
   getAppLayout(appId: string): Promise<AppLayoutRecord | null>;

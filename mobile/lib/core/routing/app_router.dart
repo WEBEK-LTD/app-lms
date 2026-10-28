@@ -6,6 +6,8 @@ import '../../modules/bookings/bookings_routes.dart';
 import '../../modules/chat/chat_routes.dart';
 import '../../modules/events/events_routes.dart';
 import '../../modules/donations/donations_routes.dart';
+import '../../modules/delivery/data/delivery_providers.dart';
+import '../../modules/delivery/delivery_routes.dart';
 import '../../modules/lms/lms_routes.dart';
 import '../../modules/news/news_routes.dart';
 import '../../modules/real_estate/real_estate_routes.dart';
@@ -70,6 +72,7 @@ final appModuleProvider = Provider<AppModule>(
     AppType.news => newsModule,
     AppType.events => eventsModule,
     AppType.donations => donationsModule,
+    AppType.delivery => deliveryModule,
   },
 );
 
@@ -81,15 +84,42 @@ final shellTabsProvider = Provider<List<ShellTab>>((ref) {
   final gate = ref.watch(appGateProvider);
   final config = gate is GateReady ? gate.config : null;
   final navigation = gate is GateReady ? gate.navigation : null;
+  // 104 Delivery apps: the Courier tab for the company's couriers only.
+  final courier =
+      ref.watch(appEnvironmentProvider).build.appType == AppType.delivery
+      ? ref.watch(isCourierProvider)
+      : null;
   if (navigation != null) {
     final tabs = tabsFromNavigation(navigation, module, config);
     if (tabs.length >= Navigation.minTabs &&
         tabs.any((t) => t.location != null)) {
-      return withChatTab(tabs, config);
+      return withCourierTab(withChatTab(tabs, config), courier);
     }
   }
-  return withChatTab(module.defaultTabs(config), config);
+  return withCourierTab(
+    withChatTab(module.defaultTabs(config), config),
+    courier,
+  );
 });
+
+/// 104 The tabs of a delivery app: the Courier tab added for couriers
+/// (before Account, in place of the tab before it when the bar is full),
+/// and left out for everyone else even when the owner's tabs have it.
+/// Null: not a delivery app.
+List<ShellTab> withCourierTab(List<ShellTab> tabs, bool? courier) {
+  if (courier == null) return tabs;
+  final others = [
+    for (final t in tabs)
+      if (t.path != Paths.courier) t,
+  ];
+  if (!courier) return others;
+  final at = others.isNotEmpty && others.last.path == Paths.account
+      ? others.length - 1
+      : others.length;
+  final out = [...others]..insert(at, courierTab);
+  if (out.length > Navigation.maxTabs) out.removeAt(at - 1);
+  return out;
+}
 
 /// Turns the published tabs into shell tabs. A tab whose target this app
 /// type can't open is left out, and so is a second tab for the same screen.
