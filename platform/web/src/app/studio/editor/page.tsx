@@ -55,6 +55,7 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
       startSlug={typeof query.page === "string" ? query.page : null}
       // Designing works on any plan; the app gets the design with Studio on the plan (before activation, everything).
       studioOnPlan={plan ? hasFeature(plan, "studio") : true}
+      kind={{ type: app.appType, vertical: app.vertical ?? null }}
     />
   );
 }

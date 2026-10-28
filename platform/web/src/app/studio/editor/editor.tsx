@@ -13,7 +13,7 @@ import { uniqueSlug } from "@/lib/pages/model";
 import { STUDIO_HEADER_TYPES, type ItemSource, type LanguageCode, type LayoutContent, type LayoutPage, type StudioHeader, type StudioNode, type StudioPage } from "@/lib/pages/types";
 import { duplicateNode, historyOf, holdsChildren, insertNode, isInside, moveNode, placeOf, pushHistory, redo, removeNode, undo, updateNode, wrapNode, type History } from "@/lib/studio/edit";
 import { elementInfo, newNode, newNodeId } from "@/lib/studio/elements";
-import { SECTIONS, TEMPLATES, type SectionContext, type SectionWord } from "@/lib/studio/sections";
+import { SECTIONS, sectionsFor, TEMPLATES, templatesFor, type ProjectKind, type SectionContext, type SectionWord, type TemplateInfo } from "@/lib/studio/sections";
 import { findNode } from "@/lib/studio/tree";
 import { Inspector, type InspectorTab } from "./inspector";
 import { LeftPanel, elementLabel, type LeftTab, type MyTemplate } from "./left-panel";
@@ -52,6 +52,8 @@ export interface StudioEditorProps {
   fontCount: number;
   startSlug: string | null;
   studioOnPlan: boolean;
+  /** 103R.7 The project's type: its own templates and sections come first. */
+  kind: ProjectKind;
 }
 
 export function StudioEditor(props: StudioEditorProps) {
@@ -107,6 +109,8 @@ export function StudioEditor(props: StudioEditorProps) {
   };
   const palette = useMemo(() => [...new Set([app.brand, layout.appearance.secondary_color, "#FFFFFF", "#0E0D24", "#F4EFE6", "#FF5A1F"].filter((c): c is string => !!c))], [app.brand, layout.appearance.secondary_color]);
   const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search") };
+  const kindSections = useMemo(() => sectionsFor(props.kind, { categories: props.categorySources.length > 0 }), [props.kind, props.categorySources]);
+  const kindTemplates = useMemo(() => templatesFor(props.kind), [props.kind]);
   const sectionContext: SectionContext = {
     brand: app.brand,
     source,
@@ -639,6 +643,8 @@ export function StudioEditor(props: StudioEditorProps) {
           onUseMyTemplate={(tpl) => startWith(() => structuredClone(tpl.page))}
           onDeleteMyTemplate={(id) => void deleteTemplate(id)}
           myTemplates={myTemplates}
+          sections={kindSections}
+          templates={kindTemplates}
           onDragStart={startDrag}
           onLayerDragOver={(e, node) => dropOver(e, node, true)}
           onLayerDrop={dropHere}
@@ -703,7 +709,7 @@ export function StudioEditor(props: StudioEditorProps) {
                 {studio ? (
                   <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} editing={editing} words={words} />
                 ) : page ? (
-                  <StartPage title={pageTitle(page)} regular={page.blocks.length > 0} onPick={applyTemplate} />
+                  <StartPage title={pageTitle(page)} regular={page.blocks.length > 0} onPick={applyTemplate} templates={kindTemplates} />
                 ) : null}
               </div>
             </div>
@@ -810,7 +816,7 @@ function Chip(props: { icon: string; children: ReactNode; onClick?: (e: MouseEve
 }
 
 /** A page that isn't designed in Studio yet: how it starts. */
-function StartPage({ title, regular, onPick }: { title: string; regular: boolean; onPick: (id: string) => void }) {
+function StartPage({ title, regular, onPick, templates }: { title: string; regular: boolean; onPick: (id: string) => void; templates: readonly TemplateInfo[] }) {
   const t = useDashT();
   const rtl = useDashLang() === "ar";
   return (
@@ -825,7 +831,7 @@ function StartPage({ title, regular, onPick }: { title: string; regular: boolean
         </p>
       ) : null}
       <div className="grid grid-cols-2 gap-2">
-        {TEMPLATES.map((tpl) => (
+        {templates.map((tpl) => (
           <button key={tpl.id} type="button" onClick={() => onPick(tpl.id)} className="flex flex-col items-center gap-1.5 rounded-xl bg-white px-2 py-3 text-[13px] font-bold" style={{ border: `1px solid ${C.line}` }}>
             <Glyph name={tpl.icon} size={26} className="text-[#FF5A1F]" />
             {t(`studio.tpl_${tpl.id}` as DashKey)}

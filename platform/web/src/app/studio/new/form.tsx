@@ -7,7 +7,8 @@ import { SubmitButton } from "@/components/form";
 import { useDashLang, useDashT } from "@/components/dashboard-i18n";
 import { StudioView } from "@/components/studio/view";
 import type { DashKey } from "@/i18n/dashboard";
-import { TEMPLATES, type SectionWord } from "@/lib/studio/sections";
+import { kindById } from "@/lib/app/kinds";
+import { templatesFor, type SectionWord } from "@/lib/studio/sections";
 import { Glyph, STUDIO_COLORS as C } from "../editor/shared";
 import { StudioBar } from "../chrome";
 
@@ -32,6 +33,12 @@ export function NewProjectForm({ studioKinds, kinds, error }: { studioKinds: Stu
   const [sourceValue, setSourceValue] = useState<string | null>(null);
   const source = kind?.sources.find((s) => s.value === sourceValue) ?? kind?.sources[0] ?? null;
   const [template, setTemplate] = useState<string | null>(null);
+  // 103R.7 The project type's own templates first; a choice another type's list had counts as none.
+  const kindTemplates = useMemo(() => {
+    const info = kindById(kindId);
+    return templatesFor(info ? { type: info.engine, vertical: info.vertical } : null);
+  }, [kindId]);
+  const pick = template && kindTemplates.some((x) => x.id === template) ? template : null;
   const [name, setName] = useState("");
   const [step, setStep] = useState(1);
   const go = (to: number) => {
@@ -48,19 +55,19 @@ export function NewProjectForm({ studioKinds, kinds, error }: { studioKinds: Stu
   const pages = useMemo(
     () =>
       Object.fromEntries(
-        TEMPLATES.filter((x) => x.id !== "blank").map((x) => [
+        kindTemplates.filter((x) => x.id !== "blank").map((x) => [
           x.id,
           x.make({ brand: "#0E0D24", source: null, w: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: name.trim() || t("studio.untitledProject") }), newId: () => `t${x.id}` }),
         ]),
       ),
-    [t, name],
+    [t, name, kindTemplates],
   );
 
   return (
     <form action={createStudioProjectAction} className="flex min-h-dvh flex-col">
       <input type="hidden" name="kind" value={kind?.id ?? ""} />
       <input type="hidden" name="source" value={source?.value ?? ""} />
-      <input type="hidden" name="template" value={template ?? "blank"} />
+      <input type="hidden" name="template" value={pick ?? "blank"} />
       <StudioBar>
         <Link href="/studio" className="flex items-center gap-1 text-sm no-underline" style={{ color: C.barMuted }}>
           <Glyph name="arrow_back" size={18} flip />
@@ -213,8 +220,8 @@ export function NewProjectForm({ studioKinds, kinds, error }: { studioKinds: Stu
               {t("studio.newStartTitle")}
             </h2>
             <div role="radiogroup" aria-labelledby="h-start" className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))" }}>
-              {TEMPLATES.filter((x) => x.id !== "blank").map((x) => {
-                const on = template === x.id;
+              {kindTemplates.filter((x) => x.id !== "blank").map((x) => {
+                const on = pick === x.id;
                 return (
                   <button
                     key={x.id}
@@ -248,14 +255,14 @@ export function NewProjectForm({ studioKinds, kinds, error }: { studioKinds: Stu
               <button
                 type="button"
                 role="radio"
-                aria-checked={template === null || template === "blank"}
+                aria-checked={pick === null || pick === "blank"}
                 onClick={() => {
                   setTemplate("blank");
                   setStep(3);
                 }}
                 className="flex min-h-[160px] cursor-pointer flex-col items-center justify-center gap-1.5 rounded-[14px] p-2.5"
                 style={{
-                  border: template === "blank" ? `2px solid ${C.ink}` : "2px dashed #B9B3A5",
+                  border: pick === "blank" ? `2px solid ${C.ink}` : "2px dashed #B9B3A5",
                   background: "rgba(255,255,255,0.5)",
                   color: C.ink,
                   fontFamily: "inherit",
@@ -299,7 +306,7 @@ export function NewProjectForm({ studioKinds, kinds, error }: { studioKinds: Stu
           ) : null}
           <div className="flex items-center gap-2 text-sm" style={{ color: C.muted }}>
             <Glyph name="dashboard" />
-            {t("studio.templateLine", { name: templateName(template ?? "blank") })}
+            {t("studio.templateLine", { name: templateName(pick ?? "blank") })}
           </div>
           <div className="h-px" style={{ background: "#EDE8DD" }} />
           <p className="m-0 text-[13px]" style={{ color: C.muted }}>
