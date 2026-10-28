@@ -5,7 +5,7 @@ import { useDashT } from "@/components/dashboard-i18n";
 import type { DashKey } from "@/i18n/dashboard";
 import type { ItemSource, StudioHeader, StudioNode, StudioPage } from "@/lib/pages/types";
 import { ELEMENTS, type ElementGroup } from "@/lib/studio/elements";
-import { SECTIONS, TEMPLATES } from "@/lib/studio/sections";
+import type { SectionInfo, TemplateInfo } from "@/lib/studio/sections";
 import { holdsChildren } from "@/lib/studio/edit";
 import { Glyph, type DragPayload } from "./shared";
 
@@ -40,6 +40,9 @@ export function LeftPanel(props: {
   onUseMyTemplate: (template: MyTemplate) => void;
   onDeleteMyTemplate: (id: string) => void;
   myTemplates: MyTemplate[];
+  /** 103R.7 The project type's own first. */
+  sections: readonly SectionInfo[];
+  templates: readonly TemplateInfo[];
   onDragStart: (e: DragEvent, payload: DragPayload) => void;
   onLayerDragOver: (e: DragEvent, node: StudioNode) => void;
   onLayerDrop: (e: DragEvent) => void;
@@ -60,8 +63,8 @@ export function LeftPanel(props: {
     { id: "content", label: t("studio.groupContent") },
     { id: "more", label: t("studio.groupMore") },
   ];
-  const sections = SECTIONS.filter((s) => matches(t(`studio.sec_${s.id}` as DashKey), s.id));
-  const templates = TEMPLATES.filter((tpl) => matches(t(`studio.tpl_${tpl.id}` as DashKey), tpl.id));
+  const sections = props.sections.filter((s) => matches(t(`studio.sec_${s.id}` as DashKey), s.id));
+  const templates = props.templates.filter((tpl) => matches(t(`studio.tpl_${tpl.id}` as DashKey), tpl.id));
 
   return (
     <aside aria-label={t("studio.elements")} className="studio-left flex min-h-0 flex-col border-line bg-white" style={{ flex: "1 1 260px", maxWidth: 300, minWidth: 240, borderInlineEnd: "1px solid var(--studio-line)" }}>

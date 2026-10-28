@@ -2348,7 +2348,7 @@ client (`studio` was off on every plan).
 | [x] | 103R.4 The editor, as in the approved design, every part working (`/studio/editor`, its own screen apart from the dashboard; "my templates" kept per account) | e2e |
 | [x] | 103R.5 App: Studio pages drawn natively from the tree: layout, sizes, colours light and dark, fonts, motion, data lists, taps, platforms | flutter analyze and widget tests |
 | [x] | 103R.6 Plugin 0.4.26: Studio pages served to WordPress apps, lists from the site, texts translated | composer lint, the plugin's integration suite |
-| [ ] | 103R.7 Studio's templates and ready sections per project type; "my templates" | e2e |
+| [x] | 103R.7 Studio's templates and ready sections per project type: each type's own first (shop, menu for restaurants, courses, services, listings, news, events, charity, delivery), then brand, contact and blank; their main buttons say and open the type's screen; the delivery company's own sections (send a parcel and my shipments, how it works); no categories section where there are none; "my templates" kept per account (103R.4) | unit tests (every template and section, for every project type, taken by the page checker), e2e |
 
 ## Phase 104: Delivery and courier companies (Studio project type)
 
