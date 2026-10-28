@@ -45,7 +45,7 @@ export function LogoLink({
   alt?: string;
 }) {
   return (
-    <Link href={href} className="flex rounded-md">
+    <Link href={href} className="flex flex-none rounded-md">
       <Logo height={height} reversed={reversed} adaptive={adaptive} alt={alt} />
     </Link>
   );

@@ -192,6 +192,15 @@ export async function HowItWorksPage({ lang }: { lang: Lang }) {
             </li>
           ))}
         </ol>
+        {/* 103R Studio projects are made in Yallapp Studio; the rest of the way is the same. */}
+        <div className="flex flex-wrap items-start gap-5 rounded-2xl bg-peach-soft p-6 sm:p-7" data-how-studio="">
+          <FeatureIcon name="dashboard_customize" />
+          <div className="flex min-w-0 flex-[1_1_280px] flex-col gap-2.5">
+            <h2 className="m-0 text-xl font-bold">{m.studio.howTitle}</h2>
+            <p className="m-0 text-[15px] leading-relaxed text-ink-4">{m.studio.howText}</p>
+            <MoreLink href={localePath(lang, "/yallapp-studio")}>{m.studio.homeLink}</MoreLink>
+          </div>
+        </div>
       </Section>
       <Section tinted>
         <SectionTitle title={t.dashboardTitle} text={t.dashboardText} />

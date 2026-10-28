@@ -56,11 +56,17 @@ export const APP_SCREENS = [
   "events-ticket",
   "charity-home",
   "charity-campaign",
+  // 103R Yallapp Studio: a home page designed in the editor, light and dark; 104 a delivery company's app.
+  "studio-cafe-home",
+  "studio-cafe-home-dark",
+  "delivery-send",
+  "delivery-shipment",
+  "delivery-courier",
 ] as const;
 export type AppScreen = (typeof APP_SCREENS)[number];
 
 /** Screenshots of the client dashboard in public/screens (scripts/capture-dashboard-screens.ts). */
-export const DASHBOARD_SCREENS = ["dashboard-pages", "dashboard-setup", "dashboard-builds"] as const;
+export const DASHBOARD_SCREENS = ["dashboard-pages", "dashboard-setup", "dashboard-builds", "studio-editor", "studio-home", "studio-project"] as const;
 export type DashboardScreen = (typeof DASHBOARD_SCREENS)[number];
 
 export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
@@ -95,6 +101,14 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
   "dashboard-pages": "The pages and look editor in the Yallapp dashboard",
   "dashboard-setup": "The app setup steps in the Yallapp dashboard",
   "dashboard-builds": "Builds and downloads in the Yallapp dashboard",
+  "studio-cafe-home": "A café's home page designed in Yallapp Studio, with its own cards for the dishes",
+  "studio-cafe-home-dark": "The same Studio page in dark mode, with its dark colors",
+  "delivery-send": "A delivery app's screen to send a parcel: the service, the pickup and the drop-off",
+  "delivery-shipment": "A shipment on its way, with the courier and each stage",
+  "delivery-courier": "A courier's jobs in the same app, with the on-duty switch",
+  "studio-editor": "The Yallapp Studio editor: elements on the left, the page on the phone, its settings on the right",
+  "studio-home": "Yallapp Studio's home with the account's projects",
+  "studio-project": "A Studio project's dashboard",
 };
 
 // ---------------------------------------------------------------------------
@@ -1169,6 +1183,28 @@ export const FAQ: FaqGroup[] = [
       {
         q: "Can I try my app before it's built?",
         a: "Yes. Preview your app in the dashboard runs your real app in your browser, with your current setup, content, pages and languages, in light and dark. Scan its QR code to open it on your phone. It works before the setup is complete and never sends sign-in codes or takes payments.",
+      },
+    ],
+  },
+  {
+    // 103R Yallapp Studio, apart from the regular apps.
+    title: "Yallapp Studio",
+    items: [
+      {
+        q: "What is Yallapp Studio?",
+        a: "A space of its own in your Yallapp account for projects you design freely in a visual editor: rows, columns, layers, pictures, buttons and lists in cards you design, with colors for light and dark mode and motion, drawn natively in your Android and iOS app. Studio also makes project types only it offers, like a delivery company's app with its couriers. See [Yallapp Studio](/yallapp-studio).",
+      },
+      {
+        q: "How are Studio plans different from the regular plans?",
+        a: "They're separate. A Studio project is paid on one of Studio's own plans, and a regular app on a regular plan (Starter, Growth, Pro or Business). Every Studio plan has the Studio editor, push notifications, card payments, chat and loyalty points; the iOS app, publishing for you, delivery and couriers, motion, templates and the number of Studio pages are chosen plan by plan. See [Pricing](/pricing).",
+      },
+      {
+        q: "Do I still need Studio for a regular app?",
+        a: "No. Regular apps keep their page editor and ready-made designs, and stay in your dashboard. Your Studio projects are kept apart, in Studio, each with its own dashboard.",
+      },
+      {
+        q: "Can I see a Studio project before I start?",
+        a: "Yes. The [Studio demo](/demo/studio) shows screens from real Studio projects, drawn by the app itself: a café's home page designed in the editor, in light and dark mode, a delivery company's customer and courier screens, and the editor. The demo apps of regular apps are on the [Demo](/demo) page.",
       },
     ],
   },

@@ -7,6 +7,7 @@ import { TR_DOCS_5 } from "./docs-5";
 import { TR_DOCS_6 } from "./docs-6";
 import { TR_DOCS_7 } from "./docs-7";
 import { TR_DOCS_8 } from "./docs-8";
+import { TR_DOCS_9 } from "./docs-9";
 
 /** 55 The documentation (src/content/docs.ts) in this language, by article slug. */
-export const TR_DOCS: Record<string, DocTranslation> = { ...TR_DOCS_1, ...TR_DOCS_2, ...TR_DOCS_3, ...TR_DOCS_4, ...TR_DOCS_5, ...TR_DOCS_6, ...TR_DOCS_7, ...TR_DOCS_8 };
+export const TR_DOCS: Record<string, DocTranslation> = { ...TR_DOCS_1, ...TR_DOCS_2, ...TR_DOCS_3, ...TR_DOCS_4, ...TR_DOCS_5, ...TR_DOCS_6, ...TR_DOCS_7, ...TR_DOCS_8, ...TR_DOCS_9 };

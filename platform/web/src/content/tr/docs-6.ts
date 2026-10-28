@@ -240,6 +240,10 @@ Uygulamanızın **Paket** sayfasındaki **Neye ödüyorsunuz** bölümü, uygula
 
 Uygulama kullanıcısı sınırları, bizim barındırdığımız uygulamalara giriş yapan kişileri sayar. WordPress sitenizdeki uygulamalar kullanıcılarını sitenizde, sınırsız olarak tutar. Güncel fiyatlar ve tam karşılaştırma için [fiyatlandırma sayfasına](/pricing) bakın.
 
+## Yallapp Studio planları
+
+Bu dört plan normal uygulamalar içindir. Yallapp Studio'da yapılan projeler bunlardan ayrı, Studio'nun kendi planlarıyla ödenir: bir Studio projesi Starter, Growth, Pro ya da Business'ta olamaz, normal bir uygulama da bir Studio planında olamaz. Bkz. [Yallapp Studio](/docs/yallapp-studio).
+
 ## Plan değiştirme
 
 **Lisans ve eklenti**'de (WordPress sitesi olmayan uygulamalarda adı **Paket**'tir) mevcut uygulama için başka bir plan seçin. Daha yüksek bir plan hemen başlar, kartla ödenir ve mevcut planınızda kalan günler hesabınıza yansıtılır. Daha düşük bir plan ödenmiş döneminiz bittiğinde başlar ve o zamana kadar mevcut planınızı koruyabilirsiniz.

@@ -137,12 +137,26 @@ describe("55 addresses in each language", () => {
   });
 
   it("key the caches of the Arabic and Turkish priced pages on the country too", () => {
-    for (const page of ["/ar", "/ar/pricing", "/tr", "/tr/pricing"]) expect(PRICED_PAGES).toContain(page);
+    for (const page of ["/ar", "/ar/pricing", "/ar/yallapp-studio", "/tr", "/tr/pricing", "/tr/yallapp-studio"]) expect(PRICED_PAGES).toContain(page);
+  });
+
+  it("103R give Yallapp Studio's page and its demo a version in every language, apart from /studio", () => {
+    for (const path of ["/yallapp-studio", "/demo/studio"]) {
+      expect(isLocalizedPath(path)).toBe(true);
+      expect(localePath("ar", path)).toBe(`/ar${path}`);
+      expect(localePath("tr", path)).toBe(`/tr${path}`);
+    }
+    // The Studio section of the account has one address in every language.
+    expect(isLocalizedPath("/studio")).toBe(false);
+    expect(localePath("ar", "/studio")).toBe("/studio");
+    const nav = siteNavFor("tr", messagesFor("tr").nav);
+    const product = nav.find((e) => e.id === "product");
+    expect(product?.kind === "group" && product.items[0]).toMatchObject({ id: "studio", href: "/tr/yallapp-studio", label: "Yallapp Studio", description: "Uygulamanı özgürce tasarla" });
   });
 
   it("build the menu in each language with its links", () => {
     const nav = siteNavFor("ar", messagesFor("ar").nav);
-    expect(nav.map((e) => e.label)).toEqual(["الرئيسية", "المنتج", "الأسعار", "تجربة", "المصادر", "تواصل معنا"]);
+    expect(nav.map((e) => e.label)).toEqual(["الرئيسية", "المنتج", "Studio", "الأسعار", "تجربة", "المصادر", "تواصل معنا"]);
     expect(nav.flatMap((e) => (e.kind === "group" ? e.items.map((i) => i.href) : [e.href]))).toContain("/ar/how-it-works");
   });
 
