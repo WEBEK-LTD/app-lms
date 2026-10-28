@@ -461,6 +461,12 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await own.goto("/studio/editor");
   await expect(own).toHaveURL(/\/studio$/);
   await own.goto("/dashboard/pages");
+
+  // The Studio plan isn't offered any more, for the specs that run after this one.
+  await admin.goto("/admin/plans?family=studio");
+  await studioPlan.getByLabel("Offered").uncheck();
+  await studioPlan.getByRole("button", { name: "Save plan" }).click();
+  await expect(admin.getByText("Studio Start isn't offered. Clients don't see it.")).toBeVisible();
 });
 
 test("97.3 the client brings a look from Figma, apart from the standard one", async ({ request }) => {

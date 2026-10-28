@@ -2,6 +2,7 @@ import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { kindById } from "@/lib/app/kinds";
+import { cardPlanOptions } from "@/lib/billing/card-plans";
 import { lowestPlanWith, PLAN_INFO, planFamily, planFitsSection, planOffered, plansOfFamily, plansWith, planSettingOf, hasFeature } from "@/lib/plans";
 import { projectSource } from "@/lib/studio/projects";
 import { isStudioProject, studioPathFor, studioSourcesFor } from "@/lib/studio/section";
@@ -36,6 +37,18 @@ describe("103R.3 Studio's own plans", () => {
     expect(lowestPlanWith(plans, (p) => hasFeature(p, "studio_motion"), "studio_1")?.id).toBe("studio_2");
     // A regular app is never pointed at a Studio plan.
     expect(lowestPlanWith(plans, (p) => hasFeature(p, "studio_motion"), "starter")).toBeNull();
+  });
+});
+
+describe("103R.3 paying a plan by card", () => {
+  it("offers a regular app (and an account before its first app) the regular plans only, a Studio project the Studio plans the team offers", () => {
+    const plans = plansWith({
+      growth: { ...planSettingOf(PLAN_INFO.growth), priceCents: 150_000, onRequest: false },
+      studio_1: { ...planSettingOf(PLAN_INFO.studio_1), offered: true, priceCents: 50_000, onRequest: false },
+      studio_2: { ...planSettingOf(PLAN_INFO.studio_2), priceCents: 90_000, onRequest: false },
+    });
+    expect(cardPlanOptions(plans).map((p) => p.id)).toEqual(["growth"]);
+    expect(cardPlanOptions(plans, null, undefined, undefined, "studio").map((p) => p.id)).toEqual(["studio_1"]);
   });
 });
 
