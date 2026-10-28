@@ -93,7 +93,19 @@ import type { EventSettings, EventStatus, TicketStatus } from "../data/types";
 // 29 Charity & donations
 import type { CampaignStatus, DonationRecurring, DonationSettings, DonationStatus } from "../data/types";
 // 104 Delivery and courier companies
-import type { DeliverySettings, PackageSize, ShipmentPlace, ShipmentStage, ShipmentStatus } from "../data/types";
+import type {
+  DeliverySettings,
+  FoodOrderLine,
+  FoodOrderStage,
+  FoodOrderStatus,
+  FoodRejection,
+  OpeningPeriod,
+  PackageSize,
+  RestaurantMenu,
+  ShipmentPlace,
+  ShipmentStage,
+  ShipmentStatus,
+} from "../data/types";
 // 44 Analytics
 import type { AnalyticsEventType, AnalyticsItemKind, AnalyticsMetric, InstallStore, LinkSource } from "../analytics/types";
 // 14.1 We publish for you
@@ -1298,6 +1310,8 @@ export const shipments = mysqlTable(
     courierName: varchar("courier_name", { length: 80 }),
     timeline: jsonText<ShipmentStage[]>("timeline").notNull(),
     lang: varchar("lang", { length: 8 }),
+    // 105.1 The food order this job delivers.
+    foodOrderId: bigint("food_order_id", { mode: "number", unsigned: true }),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -1305,6 +1319,104 @@ export const shipments = mysqlTable(
     index("shipments_app_idx").on(t.appId, t.status, t.createdAt),
     index("shipments_user_idx").on(t.appId, t.userId, t.createdAt),
     index("shipments_courier_idx").on(t.appId, t.courierId, t.status),
+  ],
+);
+
+// 105.1 Food delivery from many restaurants
+
+export const restaurants = mysqlTable(
+  "restaurants",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 80 }).notNull(),
+    description: varchar("description", { length: 500 }),
+    logoAssetId: varchar("logo_asset_id", { length: 36 }),
+    coverAssetId: varchar("cover_asset_id", { length: 36 }),
+    cuisines: jsonText<string[]>("cuisines").notNull(),
+    address: jsonText<ShipmentPlace>("address").notNull(),
+    phone: varchar("phone", { length: 24 }),
+    hours: jsonText<OpeningPeriod[]>("hours").notNull(),
+    prepMinutes: int("prep_minutes").notNull(),
+    minOrderCents: bigint("min_order_cents", { mode: "number", unsigned: true }).notNull(),
+    maxKm: double("max_km"),
+    commissionBp: int("commission_bp").notNull(),
+    active: boolean("active").notNull(),
+    busyUntil: time("busy_until"),
+    ratingSum: int("rating_sum").notNull().default(0),
+    ratingCount: int("rating_count").notNull().default(0),
+    position: int("position").notNull(),
+    // Its menu (read with the restaurant, never listed), and its dishes' names for search.
+    menu: jsonText<RestaurantMenu>("menu").notNull(),
+    dishNames: text("dish_names").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("restaurants_app_idx").on(t.appId, t.position)],
+);
+
+export const restaurantStaff = mysqlTable(
+  "restaurant_staff",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    restaurantId: bigint("restaurant_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => restaurants.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 80 }).notNull(),
+    phone: varchar("phone", { length: 24 }),
+    email: varchar("email", { length: 191 }),
+    active: boolean("active").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  // One person works for one restaurant of an app.
+  (t) => [uniqueIndex("restaurant_staff_app_phone_unique").on(t.appId, t.phone), uniqueIndex("restaurant_staff_app_email_unique").on(t.appId, t.email)],
+);
+
+export const foodOrders = mysqlTable(
+  "food_orders",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    restaurantId: bigint("restaurant_id", { mode: "number", unsigned: true }).references(() => restaurants.id, { onDelete: "set null" }),
+    restaurantName: varchar("restaurant_name", { length: 80 }).notNull(),
+    userId: bigint("user_id", { mode: "number", unsigned: true }).references(() => hostedUsers.id, { onDelete: "set null" }),
+    customerName: varchar("customer_name", { length: 120 }).notNull(),
+    customerPhone: varchar("customer_phone", { length: 24 }).notNull(),
+    lines: jsonText<FoodOrderLine[]>("order_lines").notNull(),
+    subtotalCents: bigint("subtotal_cents", { mode: "number", unsigned: true }).notNull(),
+    deliveryFeeCents: bigint("delivery_fee_cents", { mode: "number", unsigned: true }).notNull(),
+    totalCents: bigint("total_cents", { mode: "number", unsigned: true }).notNull(),
+    commissionCents: bigint("commission_cents", { mode: "number", unsigned: true }).notNull(),
+    currency: varchar("currency", { length: 3 }).notNull().$type<CatalogCurrency>(),
+    paymentMethod: varchar("payment_method", { length: 8 }).notNull().$type<"cash" | "card">(),
+    paymentStatus: varchar("payment_status", { length: 16 }).notNull().$type<"unpaid" | "paid" | "refunded">(),
+    orderId: bigint("order_id", { mode: "number", unsigned: true }),
+    status: varchar("status", { length: 20 }).notNull().$type<FoodOrderStatus>(),
+    dropoff: jsonText<ShipmentPlace>("dropoff").notNull(),
+    zoneId: varchar("zone_id", { length: 32 }),
+    distanceKm: double("distance_km"),
+    notes: varchar("notes", { length: 300 }),
+    readyAt: time("ready_at"),
+    rejection: jsonText<{ reason: FoodRejection; note: string | null } | null>("rejection"),
+    shipmentId: bigint("shipment_id", { mode: "number", unsigned: true }),
+    rating: jsonText<{ restaurant: number; courier: number | null; comment: string | null; at: string } | null>("rating"),
+    timeline: jsonText<FoodOrderStage[]>("timeline").notNull(),
+    lang: varchar("lang", { length: 8 }),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    index("food_orders_app_idx").on(t.appId, t.status, t.createdAt),
+    index("food_orders_user_idx").on(t.appId, t.userId, t.createdAt),
+    index("food_orders_restaurant_idx").on(t.appId, t.restaurantId, t.status, t.createdAt),
   ],
 );
 

@@ -78,6 +78,20 @@ import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, Analyt
 import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, DonationSettings, DonationStatus } from "./types";
 // 104 Delivery and courier companies
 import type { Courier, CourierInput, CourierPatch, DeliveryService, DeliveryServiceInput, DeliverySettings, Shipment, ShipmentInput, ShipmentPatch, ShipmentQuery, ShipmentStatus } from "./types";
+import type {
+  FoodOrder,
+  FoodOrderInput,
+  FoodOrderPatch,
+  FoodOrderQuery,
+  FoodOrderStatus,
+  FoodStatementRow,
+  Restaurant,
+  RestaurantInput,
+  RestaurantMenu,
+  RestaurantPatch,
+  RestaurantStaff,
+  RestaurantStaffInput,
+} from "./types";
 // 46 Links and crash reports
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
 // 49
@@ -737,6 +751,35 @@ export interface DataStore {
    * same job, or two changes at once, change it once. False when it didn't.
    */
   updateShipment(appId: string, id: number, patch: ShipmentPatch, expect?: { statuses?: ShipmentStatus[]; courierId?: number | null }): Promise<boolean>;
+
+  // 105.1 Food delivery from many restaurants
+  /** In the company's order; `q` matches the restaurant's name or a dish's. Menus aren't read. */
+  listRestaurants(appId: string, filter?: { q?: string }): Promise<Restaurant[]>;
+  getRestaurant(appId: string, id: number): Promise<Restaurant | null>;
+  getRestaurantMenu(appId: string, id: number): Promise<RestaurantMenu | null>;
+  createRestaurant(input: RestaurantInput, menu: RestaurantMenu, now: Date): Promise<Restaurant>;
+  updateRestaurant(appId: string, id: number, patch: RestaurantPatch, now: Date): Promise<void>;
+  /** Also keeps the dishes' names for search. */
+  saveRestaurantMenu(appId: string, id: number, menu: RestaurantMenu, now: Date): Promise<void>;
+  /** Its staff go with it; its orders keep its name. */
+  deleteRestaurant(appId: string, id: number): Promise<void>;
+  /** Adds one rating (1 to 5) to its average, at once. */
+  addRestaurantRating(appId: string, id: number, stars: number): Promise<void>;
+  /** By name; one restaurant's when `restaurantId` is given. */
+  listRestaurantStaff(appId: string, restaurantId?: number): Promise<RestaurantStaff[]>;
+  /** The staff member with this number (E.164) or, given only an email, this email. */
+  findRestaurantStaff(appId: string, who: { phone: string | null; email: string | null }): Promise<RestaurantStaff | null>;
+  /** Fails (`duplicate`) when the app has staff with the same number or email. */
+  createRestaurantStaff(input: RestaurantStaffInput, now: Date): Promise<{ ok: true; staff: RestaurantStaff } | { ok: false; reason: "duplicate" }>;
+  updateRestaurantStaff(appId: string, id: number, patch: Partial<Pick<RestaurantStaff, "name" | "phone" | "email" | "active">>, now: Date): Promise<{ ok: boolean; reason?: "duplicate" }>;
+  deleteRestaurantStaff(appId: string, id: number): Promise<void>;
+  createFoodOrder(input: FoodOrderInput): Promise<FoodOrder>;
+  getFoodOrder(appId: string, id: number): Promise<FoodOrder | null>;
+  listFoodOrders(query: FoodOrderQuery): Promise<{ items: FoodOrder[]; total: number }>;
+  /** Changes the order only while its status is one of `expect.statuses`; false when it didn't (two changes at once change it once). */
+  updateFoodOrder(appId: string, id: number, patch: FoodOrderPatch, expect?: { statuses?: FoodOrderStatus[] }): Promise<boolean>;
+  /** Delivered orders created in `[since, until)`, per restaurant: for the restaurants' statements. */
+  foodStatement(appId: string, since: Date, until: Date): Promise<FoodStatementRow[]>;
 
   // 10.4 Pages, looks and languages
   getAppLayout(appId: string): Promise<AppLayoutRecord | null>;
