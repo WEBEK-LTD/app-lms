@@ -81,11 +81,11 @@ export function parseRestaurantForm(form: Record<string, string>, cuisineIds: st
   let maxKm: number | null = null;
   const maxText = str(form, "maxKm");
   if (maxText) {
-    const n = Number(maxText.replace(",", "."));
+    const n = Number(maxText.replaceAll(",", "."));
     if (!Number.isFinite(n) || n <= 0 || n > DELIVERY_LIMITS.maxKm) errors.maxKm = `Enter a distance from 1 to ${DELIVERY_LIMITS.maxKm} km, or leave it empty.`;
     else maxKm = Math.round(n * 10) / 10;
   }
-  const percent = Number(str(form, "commission").replace(",", ".").replace("%", "") || "0");
+  const percent = Number(str(form, "commission").replaceAll(",", ".").replaceAll("%", "") || "0");
   const commissionBp = Math.round(percent * 100);
   if (!Number.isFinite(percent) || percent < 0 || commissionBp > FOOD_LIMITS.maxCommissionBp) errors.commission = "Enter your share from 0 to 50%.";
   const cuisines = cuisineIds.filter((id) => form[`cuisine-${id}`] === "on");

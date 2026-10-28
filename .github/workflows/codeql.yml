@@ -43,7 +43,3 @@ jobs:
       - uses: github/codeql-action/analyze@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4
         with:
           category: /language:${{ matrix.language }}
-          output: sarif-results
-      - name: List results (temporary)
-        if: always()
-        run: jq -r '.runs[].results[] | "\(.ruleId) \(.locations[0].physicalLocation.artifactLocation.uri):\(.locations[0].physicalLocation.region.startLine) \(.message.text | .[0:120])"' sarif-results/*.sarif | grep -v '^$' | head -200
