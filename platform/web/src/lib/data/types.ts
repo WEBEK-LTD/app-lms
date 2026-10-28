@@ -176,7 +176,7 @@ export interface ScreenshotFrame {
  * donations app (29, hosted API only). What each engine is and offers is in
  * lib/app/kinds.ts.
  */
-export type AppType = "lms" | "store" | "booking" | "real_estate" | "news" | "events" | "donations" | "delivery";
+export type AppType = "lms" | "store" | "booking" | "real_estate" | "news" | "events" | "donations" | "delivery" | "food";
 
 /** 20 The kind of business, on top of the engine: wording, defaults, the demo and marketing, never routes (lib/app/kinds.ts). */
 export type AppVertical = "restaurant" | "clinic" | "fitness" | "charity" | "services";
@@ -212,6 +212,8 @@ export type ConnectorConfig =
   | { kind: "campaigns" }
   /** 104 Delivery and courier companies: services, couriers, shipments and settings in the delivery_* tables and shipments; card payments as catalog orders. */
   | { kind: "deliveries" }
+  // 105.1 Food delivery from many restaurants.
+  | { kind: "restaurants" }
   /**
    * A platform connected with keys (ikas, Ticimax, IdeaSoft, Wix, Teachable,
    * Thinkific, SimplyBook) or with OAuth through Yallapp's partner app
