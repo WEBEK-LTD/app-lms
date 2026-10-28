@@ -43,7 +43,10 @@ final deliveryModule = AppModule(
     BuiltInScreen.events ||
     BuiltInScreen.tickets ||
     BuiltInScreen.campaigns ||
-    BuiltInScreen.myDonations => null,
+    BuiltInScreen.myDonations ||
+    BuiltInScreen.restaurants ||
+    BuiltInScreen.foodOrders ||
+    BuiltInScreen.restaurant => null,
   },
   routes: _pushedRoutes,
 );

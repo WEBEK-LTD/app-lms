@@ -38,6 +38,9 @@ final newsModule = AppModule(
     BuiltInScreen.sendParcel ||
     BuiltInScreen.shipments ||
     BuiltInScreen.courier ||
+    BuiltInScreen.restaurants ||
+    BuiltInScreen.foodOrders ||
+    BuiltInScreen.restaurant ||
     BuiltInScreen.campaigns ||
     BuiltInScreen.myDonations => null,
   },

@@ -737,6 +737,51 @@ abstract class YallappApi {
   Future<CourierJob> acceptCourierJob(int id);
   Future<CourierJob> moveCourierJob(int id, JobStep step, {String? note});
   Future<void> sendCourierLocation(double lat, double lng, {double? accuracy});
+
+  // 105.1 Food delivery from many restaurants.
+  Future<Paged<RestaurantSummary>> listRestaurants({
+    int page = 1,
+    String? query,
+    String? cuisine,
+    double? lat,
+    double? lng,
+  });
+  Future<Restaurant> getRestaurant(int id, {double? lat, double? lng});
+  Future<FoodQuote> quoteFoodOrder(FoodOrderRequest request);
+
+  /// The order and, paid by card, its payment page.
+  Future<({FoodOrder order, String? payUrl})> placeFoodOrder(
+    FoodOrderRequest request,
+  );
+  Future<Paged<FoodOrder>> listMyFoodOrders({
+    int page = 1,
+    bool active = false,
+  });
+  Future<FoodOrder> getMyFoodOrder(int id);
+  Future<FoodOrder> cancelMyFoodOrder(int id);
+  Future<String> payMyFoodOrder(int id);
+  Future<FoodOrder> rateMyFoodOrder(
+    int id, {
+    required int restaurant,
+    int? courier,
+    String? comment,
+  });
+  Future<RestaurantDesk> getRestaurantDesk();
+
+  /// 0 opens again; 15 to 240 stops new orders for that long.
+  Future<RestaurantDesk> setRestaurantBusy(int minutes);
+  Future<Paged<RestaurantOrder>> listRestaurantOrders(
+    RestaurantScope scope, {
+    int page = 1,
+  });
+  Future<RestaurantOrder> getRestaurantOrder(int id);
+  Future<RestaurantOrder> acceptRestaurantOrder(int id, int prepMinutes);
+  Future<RestaurantOrder> rejectRestaurantOrder(
+    int id,
+    FoodRejection reason, {
+    String? note,
+  });
+  Future<RestaurantOrder> readyRestaurantOrder(int id);
 }
 
 /// [YallappApi] over HTTP.
@@ -2062,5 +2107,171 @@ class HttpYallappApi implements YallappApi {
     _required,
     _ignore,
     body: {'lat': lat, 'lng': lng, 'accuracy': ?accuracy},
+  );
+
+  // 105.1 Food delivery from many restaurants.
+
+  @override
+  Future<Paged<RestaurantSummary>> listRestaurants({
+    int page = 1,
+    String? query,
+    String? cuisine,
+    double? lat,
+    double? lng,
+  }) => _get(
+    '/food/restaurants',
+    _optional,
+    (json) => Paged.fromJson(json, RestaurantSummary.fromJson),
+    query: {
+      'page': page,
+      'per_page': 20,
+      if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
+      'cuisine': ?cuisine,
+      'lat': ?lat,
+      'lng': ?lng,
+    },
+  );
+
+  @override
+  Future<Restaurant> getRestaurant(int id, {double? lat, double? lng}) => _get(
+    '/food/restaurants/$id',
+    _optional,
+    Restaurant.fromJson,
+    query: {'lat': ?lat, 'lng': ?lng},
+  );
+
+  @override
+  Future<FoodQuote> quoteFoodOrder(FoodOrderRequest request) => _send(
+    'POST',
+    '/food/quote',
+    _optional,
+    (data) => FoodQuote.fromJson(asJson(data)),
+    body: request.cartJson(),
+  );
+
+  @override
+  Future<({FoodOrder order, String? payUrl})> placeFoodOrder(
+    FoodOrderRequest request,
+  ) => _send(
+    'POST',
+    '/food/orders',
+    _required,
+    (data) {
+      final json = asJson(data);
+      return (
+        order: FoodOrder.fromJson(asJson(json['order'], 'order')),
+        payUrl: optString(json, 'pay_url'),
+      );
+    },
+    body: request.toJson(),
+    query: {'platform': platform.name},
+  );
+
+  @override
+  Future<Paged<FoodOrder>> listMyFoodOrders({
+    int page = 1,
+    bool active = false,
+  }) => _get(
+    '/me/food-orders',
+    _required,
+    (json) => Paged.fromJson(json, FoodOrder.fromJson),
+    query: {'page': page, 'per_page': 20, if (active) 'active': 'true'},
+  );
+
+  @override
+  Future<FoodOrder> getMyFoodOrder(int id) =>
+      _get('/me/food-orders/$id', _required, FoodOrder.fromJson);
+
+  @override
+  Future<FoodOrder> cancelMyFoodOrder(int id) => _send(
+    'POST',
+    '/me/food-orders/$id/cancel',
+    _required,
+    (data) => FoodOrder.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<String> payMyFoodOrder(int id) => _send(
+    'POST',
+    '/me/food-orders/$id/pay',
+    _required,
+    (data) => reqString(asJson(data), 'url'),
+  );
+
+  @override
+  Future<FoodOrder> rateMyFoodOrder(
+    int id, {
+    required int restaurant,
+    int? courier,
+    String? comment,
+  }) => _send(
+    'PUT',
+    '/me/food-orders/$id/rating',
+    _required,
+    (data) => FoodOrder.fromJson(asJson(data)),
+    body: {
+      'restaurant': restaurant,
+      'courier': courier,
+      'comment': (comment?.trim().isEmpty ?? true) ? null : comment!.trim(),
+    },
+  );
+
+  @override
+  Future<RestaurantDesk> getRestaurantDesk() =>
+      _get('/restaurant/me', _required, RestaurantDesk.fromJson);
+
+  @override
+  Future<RestaurantDesk> setRestaurantBusy(int minutes) => _send(
+    'PATCH',
+    '/restaurant/me',
+    _required,
+    (data) => RestaurantDesk.fromJson(asJson(data)),
+    body: {'busy_minutes': minutes},
+  );
+
+  @override
+  Future<Paged<RestaurantOrder>> listRestaurantOrders(
+    RestaurantScope scope, {
+    int page = 1,
+  }) => _get(
+    '/restaurant/orders',
+    _required,
+    (json) => Paged.fromJson(json, RestaurantOrder.fromJson),
+    query: {'scope': scope.wire, 'page': page, 'per_page': 20},
+  );
+
+  @override
+  Future<RestaurantOrder> getRestaurantOrder(int id) =>
+      _get('/restaurant/orders/$id', _required, RestaurantOrder.fromJson);
+
+  @override
+  Future<RestaurantOrder> acceptRestaurantOrder(int id, int prepMinutes) =>
+      _send(
+        'POST',
+        '/restaurant/orders/$id/accept',
+        _required,
+        (data) => RestaurantOrder.fromJson(asJson(data)),
+        body: {'prep_minutes': prepMinutes},
+      );
+
+  @override
+  Future<RestaurantOrder> rejectRestaurantOrder(
+    int id,
+    FoodRejection reason, {
+    String? note,
+  }) => _send(
+    'POST',
+    '/restaurant/orders/$id/reject',
+    _required,
+    (data) => RestaurantOrder.fromJson(asJson(data)),
+    body: {'reason': snake(reason), 'note': ?note},
+  );
+
+  @override
+  Future<RestaurantOrder> readyRestaurantOrder(int id) => _send(
+    'POST',
+    '/restaurant/orders/$id/ready',
+    _required,
+    (data) => RestaurantOrder.fromJson(asJson(data)),
   );
 }

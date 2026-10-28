@@ -69,11 +69,11 @@ export const PLAN_RANK: Record<Plan, number> = { starter: 0, growth: 1, pro: 2, 
  * 104 `delivery`: delivery and courier apps; `courier_app`: the company's second app for its couriers. Both off on
  * every plan until the team turns them on and prices them (Admin › Plans).
  */
-export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing", "studio", "studio_motion", "studio_templates", "delivery", "courier_app"] as const;
+export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing", "studio", "studio_motion", "studio_templates", "delivery", "courier_app", "food"] as const;
 export type PlanFeature = (typeof PLAN_FEATURE_IDS)[number];
 
 /** 103R Features only Studio plans have, so the regular plans' editor leaves them out (104 delivery companies are Studio projects). */
-export const STUDIO_ONLY_FEATURES: readonly PlanFeature[] = ["studio", "studio_motion", "studio_templates", "delivery", "courier_app"];
+export const STUDIO_ONLY_FEATURES: readonly PlanFeature[] = ["studio", "studio_motion", "studio_templates", "delivery", "courier_app", "food"];
 
 /**
  * 103R What every Studio plan includes, besides what the team ticks in
@@ -82,7 +82,7 @@ export const STUDIO_ONLY_FEATURES: readonly PlanFeature[] = ["studio", "studio_m
 export const STUDIO_BASE_FEATURES: readonly PlanFeature[] = ["studio", "push", "page_editor", "offline_downloads", "card_payments", "auto_rebuild", "chat", "loyalty", "store_billing"];
 
 /** 103R The features the team ticks for each Studio plan, as the admin's design lists them. */
-export const STUDIO_PLAN_CHOICES: readonly PlanFeature[] = ["ios", "auto_publish", "delivery", "courier_app", "studio_motion", "studio_templates"];
+export const STUDIO_PLAN_CHOICES: readonly PlanFeature[] = ["ios", "auto_publish", "delivery", "courier_app", "food", "studio_motion", "studio_templates"];
 
 export type SupportLevel = "email" | "whatsapp" | "priority" | "dedicated";
 export const SUPPORT_LEVELS: SupportLevel[] = ["email", "whatsapp", "priority", "dedicated"];
@@ -388,6 +388,12 @@ export const PLAN_FEATURES: PlanFeatureDef[] = [
     label: "A second app for couriers",
     description: "A second app in your name, made only for your couriers.",
     enforced: "Delivery settings › Where couriers work (a second app), and its builds.",
+  },
+  {
+    id: "food",
+    label: "Food delivery from many restaurants",
+    description: "Customers order from your restaurants; each restaurant takes its orders and your couriers deliver them.",
+    enforced: "The hosted API's /food, /me/food-orders and /restaurant endpoints, and the Restaurants and Food orders pages.",
   },
 ];
 

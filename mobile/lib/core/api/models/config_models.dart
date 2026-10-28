@@ -7,6 +7,7 @@ import 'chat_models.dart';
 import 'event_models.dart';
 import 'donation_models.dart';
 import 'delivery_models.dart';
+import 'food_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
 import 'listing_models.dart';
@@ -32,6 +33,7 @@ class AppConfig {
     this.events,
     this.donations,
     this.delivery,
+    this.food,
     this.vertical,
     this.shareBaseUrl,
     this.chat,
@@ -56,6 +58,7 @@ class AppConfig {
     events: optObject(json, 'events', EventsConfig.fromJson),
     donations: optObject(json, 'donations', DonationsConfig.fromJson),
     delivery: optObject(json, 'delivery', DeliveryConfig.fromJson),
+    food: optObject(json, 'food', FoodConfig.fromJson),
     vertical: AppVertical.fromWire(json['vertical']),
     shareBaseUrl: _shareBase(json['links']),
     chat: _chat(json['chat']),
@@ -160,6 +163,9 @@ class AppConfig {
 
   /// 104 How a delivery company prices, takes payment and follows parcels.
   final DeliveryConfig? delivery;
+
+  /// 105.1 How a food delivery company takes orders from its restaurants.
+  final FoodConfig? food;
 
   /// The kind of business (wording and defaults only); null for none, on
   /// older servers, and for values this app doesn't know.

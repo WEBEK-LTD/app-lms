@@ -4624,4 +4624,341 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get courierMode => 'وضع المندوب';
+
+  @override
+  String get tabRestaurants => 'المطاعم';
+
+  @override
+  String get tabFoodOrders => 'طلباتي';
+
+  @override
+  String get tabRestaurantDesk => 'المطعم';
+
+  @override
+  String get restaurantMode => 'وضع المطعم';
+
+  @override
+  String get restaurantsSearchHint => 'ابحث عن المطاعم والأطباق';
+
+  @override
+  String get cuisineAll => 'الكل';
+
+  @override
+  String get loadingRestaurants => 'جارٍ تحميل المطاعم';
+
+  @override
+  String get noRestaurantsTitle => 'لا توجد مطاعم هنا بعد';
+
+  @override
+  String get noRestaurantsMessage => 'جرّب بحثًا أو مطبخًا آخر، أو عد لاحقًا.';
+
+  @override
+  String get restaurantClosed => 'مغلق';
+
+  @override
+  String restaurantOpensAt(String time) {
+    return 'يفتح $time';
+  }
+
+  @override
+  String get restaurantBusy => 'مشغول الآن';
+
+  @override
+  String get restaurantNoDelivery => 'لا يوصّل إليك';
+
+  @override
+  String restaurantMinutes(int minutes) {
+    return '$minutes د';
+  }
+
+  @override
+  String restaurantMinOrder(String amount) {
+    return 'الحد الأدنى $amount';
+  }
+
+  @override
+  String restaurantFee(String amount) {
+    return 'التوصيل $amount';
+  }
+
+  @override
+  String get dishSoldOut => 'نفد';
+
+  @override
+  String get dishPopular => 'الأكثر طلبًا';
+
+  @override
+  String get dishNote => 'ملاحظة للمطبخ (اختياري)';
+
+  @override
+  String get foodAdded => 'أُضيف إلى سلتك.';
+
+  @override
+  String get cartReplaceTitle => 'بدء سلة جديدة؟';
+
+  @override
+  String cartReplaceMessage(String restaurant) {
+    return 'سلتك فيها أطباق من $restaurant. إضافة هذا الطبق تفرغها.';
+  }
+
+  @override
+  String get cartReplaceYes => 'ابدأ سلة جديدة';
+
+  @override
+  String foodViewCart(int count) {
+    return 'عرض السلة ($count)';
+  }
+
+  @override
+  String get foodCartTitle => 'طلبك';
+
+  @override
+  String get foodCartEmptyTitle => 'سلتك فارغة';
+
+  @override
+  String get foodCartEmptyMessage => 'اختر مطعمًا وأضف أطباقًا.';
+
+  @override
+  String get foodDeliverTo => 'التوصيل إلى';
+
+  @override
+  String get foodSubtotal => 'المجموع الفرعي';
+
+  @override
+  String get foodDeliveryFee => 'التوصيل';
+
+  @override
+  String get foodTotal => 'الإجمالي';
+
+  @override
+  String get foodTotalMissing => 'أدخل العنوان لرؤية الإجمالي.';
+
+  @override
+  String get foodYourPhone => 'رقم هاتفك المحمول للمندوب';
+
+  @override
+  String get foodPlaceOrder => 'أرسل الطلب';
+
+  @override
+  String get foodSignInToOrder => 'سجّل الدخول للطلب';
+
+  @override
+  String get foodFillAddress => 'أدخل عنوان التوصيل.';
+
+  @override
+  String get foodFillPhone => 'أدخل رقم هاتفك المحمول ليتصل بك المندوب.';
+
+  @override
+  String get foodOrderSent => 'أُرسل طلبك إلى المطعم.';
+
+  @override
+  String get foodOrderPaid => 'تم الدفع. وصل طلبك إلى المطعم.';
+
+  @override
+  String foodEta(int minutes) {
+    return 'نحو $minutes دقيقة';
+  }
+
+  @override
+  String get foodAwaitingPayment => 'بانتظار الدفع';
+
+  @override
+  String get foodPlaced => 'أُرسل إلى المطعم';
+
+  @override
+  String get foodAccepted => 'قيد التحضير';
+
+  @override
+  String get foodReady => 'جاهز للمندوب';
+
+  @override
+  String get foodPickedUp => 'استلمه المندوب';
+
+  @override
+  String get foodOnTheWay => 'في الطريق';
+
+  @override
+  String get foodDelivered => 'تم التوصيل';
+
+  @override
+  String get foodRejected => 'لم يُقبل';
+
+  @override
+  String get foodCancelled => 'أُلغي';
+
+  @override
+  String get foodFailed => 'تعذّر التوصيل';
+
+  @override
+  String foodOrderHeading(String reference) {
+    return 'الطلب $reference';
+  }
+
+  @override
+  String foodReadyAt(String time) {
+    return 'يجهز نحو $time';
+  }
+
+  @override
+  String get rejectClosing => 'المطعم على وشك الإغلاق';
+
+  @override
+  String get rejectTooBusy => 'مشغول جدًا الآن';
+
+  @override
+  String get rejectItemUnavailable => 'صنف غير متوفر';
+
+  @override
+  String get rejectOther => 'سبب آخر';
+
+  @override
+  String get foodCancel => 'إلغاء الطلب';
+
+  @override
+  String get foodCancelConfirm => 'إلغاء هذا الطلب؟';
+
+  @override
+  String get foodCancelledToast => 'أُلغي الطلب.';
+
+  @override
+  String get foodCallRestaurant => 'اتصل بالمطعم';
+
+  @override
+  String get foodRestaurant => 'المطعم';
+
+  @override
+  String get foodDishes => 'الأطباق';
+
+  @override
+  String get foodWaitingRestaurant => 'بانتظار قبول المطعم للطلب.';
+
+  @override
+  String get foodRateTitle => 'قيّم طلبك';
+
+  @override
+  String get rateRestaurant => 'المطعم';
+
+  @override
+  String get rateCourier => 'المندوب';
+
+  @override
+  String get rateComment => 'هل من إضافة؟ (اختياري)';
+
+  @override
+  String get rateSend => 'أرسل التقييم';
+
+  @override
+  String get rateThanks => 'شكرًا على التقييم.';
+
+  @override
+  String get ratePickStars => 'اختر نجوم المطعم.';
+
+  @override
+  String foodRated(int stars) {
+    return 'قيّمته $stars من 5.';
+  }
+
+  @override
+  String rateStar(int stars) {
+    return '$stars نجوم';
+  }
+
+  @override
+  String get loadingFoodOrders => 'جارٍ تحميل طلباتك';
+
+  @override
+  String get noFoodOrdersTitle => 'لا توجد طلبات بعد';
+
+  @override
+  String get noFoodOrdersMessage => 'تظهر طلبات الطعام هنا.';
+
+  @override
+  String get foodOrderFood => 'اطلب طعامًا';
+
+  @override
+  String get foodOrdersSignInTitle => 'سجّل الدخول لرؤية طلباتك';
+
+  @override
+  String get foodOrdersSignInMessage => 'تظهر هنا طلباتك وأين وصلت.';
+
+  @override
+  String get deskNew => 'جديدة';
+
+  @override
+  String get deskPreparing => 'قيد التحضير';
+
+  @override
+  String get deskDone => 'المنتهية';
+
+  @override
+  String get deskAccepting => 'يستقبل الطلبات';
+
+  @override
+  String deskPausedUntil(String time) {
+    return 'متوقف حتى $time';
+  }
+
+  @override
+  String get deskClosedHours => 'مغلق حسب ساعات العمل';
+
+  @override
+  String deskToday(int count, String sales) {
+    return 'اليوم: $count طلبات · $sales';
+  }
+
+  @override
+  String get deskPause => 'إيقاف الطلبات الجديدة';
+
+  @override
+  String get deskPauseFor => 'إيقاف الطلبات الجديدة لمدة';
+
+  @override
+  String get deskOpenAgain => 'استقبال الطلبات من جديد';
+
+  @override
+  String get notRestaurantTitle => 'لمطاعمنا';
+
+  @override
+  String get notRestaurantMessage =>
+      'هذه الشاشة لموظفي المطاعم التي نوصّل طلباتها.';
+
+  @override
+  String get loadingRestaurantOrders => 'جارٍ تحميل الطلبات';
+
+  @override
+  String get noRestaurantOrdersTitle => 'لا توجد طلبات هنا';
+
+  @override
+  String get noRestaurantOrdersMessage =>
+      'تظهر الطلبات الجديدة هنا فور وصولها.';
+
+  @override
+  String get deskAccept => 'قبول';
+
+  @override
+  String get deskAcceptTitle => 'يجهز خلال كم دقيقة؟';
+
+  @override
+  String get deskAccepted => 'تم القبول. أُبلغ العميل.';
+
+  @override
+  String get deskReject => 'لا يمكن قبوله';
+
+  @override
+  String get deskRejectTitle => 'لماذا لا يمكنك قبوله؟';
+
+  @override
+  String get deskRejectNote => 'ملاحظة للعميل (اختياري)';
+
+  @override
+  String get deskRejected => 'تم الرفض. أُبلغ العميل.';
+
+  @override
+  String get deskMarkReady => 'جاهز للمندوب';
+
+  @override
+  String get deskMarkedReady => 'تم وضع علامة جاهز.';
+
+  @override
+  String get deskCustomer => 'العميل';
 }

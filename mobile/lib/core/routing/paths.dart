@@ -63,6 +63,15 @@ abstract final class Paths {
   static String shipment(int id) => '/shipment/$id';
   static String courierJob(int id) => '/courier-job/$id';
 
+  // 105.1 Food delivery from many restaurants.
+  static const restaurants = '/restaurants';
+  static const foodOrders = '/food-orders';
+  static const restaurantDesk = '/restaurant-desk';
+  static const foodCart = '/food-cart';
+  static String restaurant(int id) => '/restaurant/$id';
+  static String foodOrder(int id) => '/food-order/$id';
+  static String restaurantOrder(int id) => '/restaurant-order/$id';
+
   /// 77 The chat: the conversation with the business and course groups.
   static const chat = '/chat';
   static String chatConversation(String id) =>
@@ -168,7 +177,11 @@ abstract final class Paths {
       location.startsWith('/ticket/') ||
       // 104 A shipment and a courier's job too.
       location.startsWith('/shipment/') ||
-      location.startsWith('/courier');
+      location.startsWith('/courier') ||
+      // 105.1 A food order, and the restaurant's screens.
+      location.startsWith('/food-order/') ||
+      location.startsWith(restaurantDesk) ||
+      location.startsWith('/restaurant-order/');
 
   static bool isSignIn(String location) => location.startsWith(signIn);
 }

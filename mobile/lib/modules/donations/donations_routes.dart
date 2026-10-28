@@ -27,6 +27,9 @@ final donationsModule = AppModule(
     BuiltInScreen.sendParcel ||
     BuiltInScreen.shipments ||
     BuiltInScreen.courier ||
+    BuiltInScreen.restaurants ||
+    BuiltInScreen.foodOrders ||
+    BuiltInScreen.restaurant ||
     BuiltInScreen.search ||
     BuiltInScreen.myCourses ||
     BuiltInScreen.favorites ||

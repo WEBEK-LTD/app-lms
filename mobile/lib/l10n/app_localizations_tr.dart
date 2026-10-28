@@ -4561,4 +4561,345 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get courierMode => 'Kurye modu';
+
+  @override
+  String get tabRestaurants => 'Restoranlar';
+
+  @override
+  String get tabFoodOrders => 'Siparişlerim';
+
+  @override
+  String get tabRestaurantDesk => 'Restoran';
+
+  @override
+  String get restaurantMode => 'Restoran modu';
+
+  @override
+  String get restaurantsSearchHint => 'Restoran ve yemek ara';
+
+  @override
+  String get cuisineAll => 'Tümü';
+
+  @override
+  String get loadingRestaurants => 'Restoranlar yükleniyor';
+
+  @override
+  String get noRestaurantsTitle => 'Henüz restoran yok';
+
+  @override
+  String get noRestaurantsMessage =>
+      'Başka bir arama ya da mutfak deneyin veya daha sonra tekrar bakın.';
+
+  @override
+  String get restaurantClosed => 'Kapalı';
+
+  @override
+  String restaurantOpensAt(String time) {
+    return '$time açılır';
+  }
+
+  @override
+  String get restaurantBusy => 'Şu an yoğun';
+
+  @override
+  String get restaurantNoDelivery => 'Size teslimat yapmıyor';
+
+  @override
+  String restaurantMinutes(int minutes) {
+    return '$minutes dk';
+  }
+
+  @override
+  String restaurantMinOrder(String amount) {
+    return 'En az $amount';
+  }
+
+  @override
+  String restaurantFee(String amount) {
+    return 'Teslimat $amount';
+  }
+
+  @override
+  String get dishSoldOut => 'Tükendi';
+
+  @override
+  String get dishPopular => 'Popüler';
+
+  @override
+  String get dishNote => 'Mutfak için not (isteğe bağlı)';
+
+  @override
+  String get foodAdded => 'Sepetinize eklendi.';
+
+  @override
+  String get cartReplaceTitle => 'Yeni sepet başlatılsın mı?';
+
+  @override
+  String cartReplaceMessage(String restaurant) {
+    return 'Sepetinizde $restaurant yemekleri var. Bunu eklemek sepeti boşaltır.';
+  }
+
+  @override
+  String get cartReplaceYes => 'Yeni sepet başlat';
+
+  @override
+  String foodViewCart(int count) {
+    return 'Sepeti gör ($count)';
+  }
+
+  @override
+  String get foodCartTitle => 'Siparişiniz';
+
+  @override
+  String get foodCartEmptyTitle => 'Sepetiniz boş';
+
+  @override
+  String get foodCartEmptyMessage => 'Bir restoran seçin ve yemek ekleyin.';
+
+  @override
+  String get foodDeliverTo => 'Teslimat adresi';
+
+  @override
+  String get foodSubtotal => 'Ara toplam';
+
+  @override
+  String get foodDeliveryFee => 'Teslimat';
+
+  @override
+  String get foodTotal => 'Toplam';
+
+  @override
+  String get foodTotalMissing => 'Toplamı görmek için adresi girin.';
+
+  @override
+  String get foodYourPhone => 'Kurye için cep telefonunuz';
+
+  @override
+  String get foodPlaceOrder => 'Siparişi ver';
+
+  @override
+  String get foodSignInToOrder => 'Sipariş için giriş yapın';
+
+  @override
+  String get foodFillAddress => 'Teslimat adresini girin.';
+
+  @override
+  String get foodFillPhone =>
+      'Kuryenin sizi arayabilmesi için cep telefonunuzu girin.';
+
+  @override
+  String get foodOrderSent => 'Siparişiniz restorana gönderildi.';
+
+  @override
+  String get foodOrderPaid => 'Ödendi. Siparişiniz restorana gitti.';
+
+  @override
+  String foodEta(int minutes) {
+    return 'Yaklaşık $minutes dk';
+  }
+
+  @override
+  String get foodAwaitingPayment => 'Ödeme bekleniyor';
+
+  @override
+  String get foodPlaced => 'Restorana gönderildi';
+
+  @override
+  String get foodAccepted => 'Hazırlanıyor';
+
+  @override
+  String get foodReady => 'Kurye için hazır';
+
+  @override
+  String get foodPickedUp => 'Kurye aldı';
+
+  @override
+  String get foodOnTheWay => 'Yolda';
+
+  @override
+  String get foodDelivered => 'Teslim edildi';
+
+  @override
+  String get foodRejected => 'Kabul edilmedi';
+
+  @override
+  String get foodCancelled => 'İptal edildi';
+
+  @override
+  String get foodFailed => 'Teslim edilemedi';
+
+  @override
+  String foodOrderHeading(String reference) {
+    return 'Sipariş $reference';
+  }
+
+  @override
+  String foodReadyAt(String time) {
+    return 'Yaklaşık $time hazır';
+  }
+
+  @override
+  String get rejectClosing => 'Restoran kapanıyor';
+
+  @override
+  String get rejectTooBusy => 'Şu an çok yoğun';
+
+  @override
+  String get rejectItemUnavailable => 'Bir ürün yok';
+
+  @override
+  String get rejectOther => 'Başka bir neden';
+
+  @override
+  String get foodCancel => 'Siparişi iptal et';
+
+  @override
+  String get foodCancelConfirm => 'Bu sipariş iptal edilsin mi?';
+
+  @override
+  String get foodCancelledToast => 'Sipariş iptal edildi.';
+
+  @override
+  String get foodCallRestaurant => 'Restoranı ara';
+
+  @override
+  String get foodRestaurant => 'Restoran';
+
+  @override
+  String get foodDishes => 'Yemekler';
+
+  @override
+  String get foodWaitingRestaurant => 'Restoranın kabul etmesi bekleniyor.';
+
+  @override
+  String get foodRateTitle => 'Siparişinizi değerlendirin';
+
+  @override
+  String get rateRestaurant => 'Restoran';
+
+  @override
+  String get rateCourier => 'Kurye';
+
+  @override
+  String get rateComment =>
+      'Eklemek istediğiniz bir şey var mı? (isteğe bağlı)';
+
+  @override
+  String get rateSend => 'Değerlendirmeyi gönder';
+
+  @override
+  String get rateThanks => 'Değerlendirdiğiniz için teşekkürler.';
+
+  @override
+  String get ratePickStars => 'Restoranın yıldızlarını seçin.';
+
+  @override
+  String foodRated(int stars) {
+    return '5 üzerinden $stars verdiniz.';
+  }
+
+  @override
+  String rateStar(int stars) {
+    return '$stars yıldız';
+  }
+
+  @override
+  String get loadingFoodOrders => 'Siparişleriniz yükleniyor';
+
+  @override
+  String get noFoodOrdersTitle => 'Henüz sipariş yok';
+
+  @override
+  String get noFoodOrdersMessage => 'Yemek siparişleriniz burada görünür.';
+
+  @override
+  String get foodOrderFood => 'Yemek sipariş et';
+
+  @override
+  String get foodOrdersSignInTitle => 'Siparişlerinizi görmek için giriş yapın';
+
+  @override
+  String get foodOrdersSignInMessage =>
+      'Siparişleriniz ve nerede oldukları burada görünür.';
+
+  @override
+  String get deskNew => 'Yeni';
+
+  @override
+  String get deskPreparing => 'Hazırlanıyor';
+
+  @override
+  String get deskDone => 'Biten';
+
+  @override
+  String get deskAccepting => 'Sipariş alıyor';
+
+  @override
+  String deskPausedUntil(String time) {
+    return '$time saatine kadar duraklatıldı';
+  }
+
+  @override
+  String get deskClosedHours => 'Çalışma saatleri dışında kapalı';
+
+  @override
+  String deskToday(int count, String sales) {
+    return 'Bugün: $count sipariş · $sales';
+  }
+
+  @override
+  String get deskPause => 'Yeni siparişleri duraklat';
+
+  @override
+  String get deskPauseFor => 'Yeni siparişleri şu süre duraklat';
+
+  @override
+  String get deskOpenAgain => 'Yeniden sipariş al';
+
+  @override
+  String get notRestaurantTitle => 'Restoranlarımız için';
+
+  @override
+  String get notRestaurantMessage =>
+      'Bu ekran, teslimat yaptığımız restoranların çalışanları içindir.';
+
+  @override
+  String get loadingRestaurantOrders => 'Siparişler yükleniyor';
+
+  @override
+  String get noRestaurantOrdersTitle => 'Burada sipariş yok';
+
+  @override
+  String get noRestaurantOrdersMessage =>
+      'Yeni siparişler geldikçe burada görünür.';
+
+  @override
+  String get deskAccept => 'Kabul et';
+
+  @override
+  String get deskAcceptTitle => 'Kaç dakikada hazır olur?';
+
+  @override
+  String get deskAccepted => 'Kabul edildi. Müşteriye bildirildi.';
+
+  @override
+  String get deskReject => 'Alamıyoruz';
+
+  @override
+  String get deskRejectTitle => 'Neden alamıyorsunuz?';
+
+  @override
+  String get deskRejectNote => 'Müşteri için not (isteğe bağlı)';
+
+  @override
+  String get deskRejected => 'Reddedildi. Müşteriye bildirildi.';
+
+  @override
+  String get deskMarkReady => 'Kurye için hazır';
+
+  @override
+  String get deskMarkedReady => 'Hazır olarak işaretlendi.';
+
+  @override
+  String get deskCustomer => 'Müşteri';
 }
