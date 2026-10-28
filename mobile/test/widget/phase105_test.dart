@@ -14,19 +14,27 @@ import '../support/fake_api.dart';
 import '../support/fixtures.dart';
 import '../support/test_app.dart';
 
-FakeApi foodApi({List<String> roles = const []}) {
+FakeApi foodApi({List<String> roles = const [], String courierApp = 'same'}) {
   final api = FakeApi(
-    config: {...configJson(lms: null), 'food': foodConfigJson()},
+    config: {
+      ...configJson(lms: null),
+      'food': foodConfigJson(courierApp: courierApp),
+    },
   );
   api.me = {...userJson(), 'roles': roles};
   return api;
 }
 
-TestApp foodApp(FakeApi api, {bool signedIn = true}) => TestApp(
+TestApp foodApp(
+  FakeApi api, {
+  bool signedIn = true,
+  AppRole role = AppRole.customer,
+}) => TestApp(
   api: api,
   appType: AppType.food,
   signedIn: signedIn,
   guest: !signedIn,
+  build: (b) => b.copyWith(role: role),
 );
 
 void usePhone(WidgetTester tester) {
@@ -324,5 +332,38 @@ void main() {
     expect(find.byKey(const ValueKey('account-food-orders')), findsOneWidget);
     await tapKey(tester, 'account-restaurant');
     expect(find.text('Taking orders'), findsOneWidget);
+  });
+
+  group('105.1.6 A food company\'s courier app', () {
+    testWidgets('opens on the courier\'s screen, with Courier and Account '
+        'only', (tester) async {
+      usePhone(tester);
+      final api = foodApi(roles: ['courier'], courierApp: 'bundle');
+      final app = foodApp(api, role: AppRole.courier);
+      await app.pump(tester);
+      expect(find.text('On duty'), findsOneWidget);
+      expect(tabPaths(app), [Paths.courier, Paths.account]);
+      expect(api.count('listRestaurants'), 0);
+    });
+
+    testWidgets('leaves the Courier tab out of the customers\' app', (
+      tester,
+    ) async {
+      usePhone(tester);
+      final api = foodApi(roles: ['courier'], courierApp: 'bundle');
+      final app = foodApp(api);
+      await app.pump(tester);
+      expect(tabPaths(app), isNot(contains(Paths.courier)));
+      expect(app.container.read(isCourierProvider), isFalse);
+    });
+
+    testWidgets('keeps the Courier tab in the app when couriers work in it', (
+      tester,
+    ) async {
+      usePhone(tester);
+      final app = foodApp(foodApi(roles: ['courier']));
+      await app.pump(tester);
+      expect(tabPaths(app), contains(Paths.courier));
+    });
   });
 }

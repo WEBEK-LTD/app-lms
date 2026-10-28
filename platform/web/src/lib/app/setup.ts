@@ -3,7 +3,7 @@ import { newId } from "../crypto/tokens";
 import { BuildRunningError, type DataStore } from "../data/store";
 import { isInProgress, STALLED_MESSAGE } from "../builds/view";
 import type { App, AppType, AppVertical, Build, BuildRelease, BuildStages, BuildVariant, Client, License, StoreListing } from "../data/types";
-import { courierBuildConfig, courierListing, firebaseHasCourierApp } from "../delivery/courier-app";
+import { courierBuildConfig, courierListing, firebaseHasCourierApp, hasCourierJobs } from "../delivery/courier-app";
 import { deliverySettingsOf } from "../delivery/settings";
 import type { BuildConfig } from "../build-config/types";
 import { validateBuildConfig, type ConfigError } from "../build-config/validate";
@@ -295,9 +295,9 @@ export async function queueBuild(
   const plan = plans[planId];
   if (!isSetupComplete(app, planId, plans)) return { ok: false, reason: "setup_incomplete" };
   const variant = input.variant ?? "app";
-  // 104.6 The courier app: a delivery company that chose it, on a plan with it.
+  // 104.6 The courier app: a delivery company (105.1.6 or a food one) that chose it, on a plan with it.
   const delivery = variant === "courier" ? deliverySettingsOf(await store.getDeliverySettings(app.id)) : null;
-  if (delivery && (app.appType !== "delivery" || delivery.courierApp !== "bundle" || !hasFeature(plan, "courier_app"))) {
+  if (delivery && (!hasCourierJobs(app) || delivery.courierApp !== "bundle" || !hasFeature(plan, "courier_app"))) {
     return { ok: false, reason: "courier_app_off" };
   }
   // One build at a time per app, whichever of its apps; versions go up within each.

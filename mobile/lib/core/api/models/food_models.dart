@@ -30,6 +30,7 @@ class FoodConfig {
     this.card = false,
     this.tracking = DeliveryTracking.stages,
     this.courierJob = FoodCourierJob.accepted,
+    this.courierApp = CourierApp.same,
     this.tilesUrl,
     this.attribution,
   });
@@ -53,6 +54,11 @@ class FoodConfig {
         json['courier_job'],
         FoodCourierJob.accepted,
       ),
+      courierApp: enumFromSnake(
+        CourierApp.values,
+        json['courier_app'],
+        CourierApp.same,
+      ),
       tilesUrl: optString(map, 'tiles_url'),
       attribution: optString(map, 'attribution'),
     );
@@ -65,6 +71,9 @@ class FoodConfig {
   final bool card;
   final DeliveryTracking tracking;
   final FoodCourierJob courierJob;
+
+  /// 105.1.6 Where the couriers work: here, or in the company's courier app.
+  final CourierApp courierApp;
   final String? tilesUrl;
   final String? attribution;
 
@@ -74,6 +83,7 @@ class FoodConfig {
     cash: cash,
     card: card,
     tracking: tracking,
+    courierApp: courierApp,
     tilesUrl: tilesUrl,
     attribution: attribution,
   );

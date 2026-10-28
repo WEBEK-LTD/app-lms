@@ -2436,7 +2436,7 @@ Every option is built and each company picks its own.
 | [x] | 105.1.3 Dashboard (en/ar/tr) in Studio: Restaurants (details, hours, menu, staff, commission), Food orders, statements per restaurant; Couriers and Delivery settings shared with 104 | unit tests, e2e |
 | [x] | 105.1.4 App, customer: restaurants, a restaurant's menu, the cart, checkout, my orders with their stages and the courier, ratings | flutter analyze and widget tests |
 | [x] | 105.1.5 App, restaurant: the Restaurant tab (new orders, accept with a time, turn down, ready, open or busy); new orders come with the push's sound | widget tests |
-| [ ] | 105.1.6 Studio templates and sections for food, the courier app (104.6) for food companies. Done: three ready-made designs, review accounts for the three roles (the reviewers' orders reach no real restaurant) | unit tests, e2e |
+| [x] | 105.1.6 Studio templates and sections for food (the welcome section; three ready-made designs: Restaurants, Food offers, Food brand, their buttons opening the restaurants and the steps saying how an order reaches the door), the courier app (104.6) for food companies (`FoodConfig.courier_app`, the choice in Delivery settings, its builds and listing as a delivery company's), the store reviewers' notes for the three roles (the review account orders, takes its own orders as the first restaurant's staff and delivers them; its orders reach no real restaurant or courier) | unit tests, flutter widget tests, e2e |
 
 ## Phase 106: Studio template marketplace (postponed)
 

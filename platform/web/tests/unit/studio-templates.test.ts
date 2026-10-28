@@ -22,6 +22,10 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
     expect(templatesFor(kindOf("clinic"))[0]!.id).toBe("services");
     expect(templatesFor(kindOf("delivery")).map((t) => t.id)).toEqual(["delivery", "brand", "contact", "blank"]);
     expect(templatesFor(null).map((t) => t.id)).toEqual(["brand", "contact", "blank"]);
+    // 105.1.6 Three ready-made designs for a food delivery company, and its welcome section first.
+    expect(templatesFor(kindOf("food")).map((t) => t.id)).toEqual(["food", "food_offers", "food_brand", "brand", "contact", "blank"]);
+    expect(sectionsFor(kindOf("food"))[0]!.id).toBe("food");
+    expect(sectionsFor(kindOf("delivery")).map((s) => s.id)).not.toContain("food");
     // The delivery company's sections come first, and only for it.
     expect(sectionsFor(kindOf("delivery"))[0]!.id).toBe("send");
     expect(sectionsFor(kindOf("store")).map((s) => s.id)).not.toContain("send");
@@ -53,5 +57,20 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
       .filter(Boolean);
     expect(screens).toEqual(["send_parcel", "shipments"]);
     expect(allNodes(page).some((n) => n.type === "items" && n.source === "delivery_services")).toBe(true);
+  });
+
+  it("105.1.6 sends a food delivery company's customers to the restaurants and their orders", () => {
+    for (const template of templatesFor(kindOf("food")).filter((t) => t.id.startsWith("food"))) {
+      const page = template.make({ brand: "#1F4E5F", source: "restaurants", w: (word) => word });
+      const nodes = allNodes(page);
+      expect(nodes.some((n) => n.type === "items" && n.source === "restaurants"), template.id).toBe(true);
+      expect(nodes.map((n) => n.action?.screen).filter(Boolean), template.id).toContain("restaurants");
+      // The steps, where there are steps, say how an order reaches the door.
+      const words = nodes.map((n) => n.text).filter(Boolean);
+      if (words.includes("stepsTitle")) expect(words, template.id).toEqual(expect.arrayContaining(["foodStepOne", "foodStepTwo", "foodStepThree"]));
+      expect(words, template.id).not.toContain("stepOne");
+    }
+    const welcome = templatesFor(kindOf("food"))[0]!.make({ brand: "#1F4E5F", source: "restaurants", w: (word) => word });
+    expect(allNodes(welcome).map((n) => n.action?.screen).filter(Boolean)).toEqual(["restaurants", "food_orders", "restaurants"]);
   });
 });

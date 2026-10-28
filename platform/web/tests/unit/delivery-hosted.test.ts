@@ -94,6 +94,10 @@ describe("104 delivery prices", () => {
       value: { courierAppName: "Speedy Riders", courierFirebaseIosAssetId: "plist-1" },
     });
     expect(parseDeliverySettings({ ...form, courierApp: "bundle", courierAppName: "x".repeat(31) }, DEFAULT_DELIVERY_SETTINGS, true)).toMatchObject({ ok: false, errors: { courierAppName: expect.any(String) } });
+    // 105.1.6 A food delivery company's couriers may have their own app too.
+    const food = { ...form, courierApp: "bundle", cuisines: "Grills", foodCourierJob: "accepted", timezone: "Africa/Cairo" };
+    expect(parseDeliverySettings(food, DEFAULT_DELIVERY_SETTINGS, true, true)).toMatchObject({ ok: true, value: { courierApp: "bundle" } });
+    expect(parseDeliverySettings(food, DEFAULT_DELIVERY_SETTINGS, false, true)).toMatchObject({ ok: false, errors: { courierApp: expect.any(String) } });
     expect(parseServiceForm({ name: "Same-day", extra: "25", eta: "Within 4 hours", active: "on" })).toEqual({ ok: true, value: { name: "Same-day", description: null, extraCents: 25_00, eta: "Within 4 hours", active: true } });
     expect(parseCourierForm({ name: "Omar", phone: "0100 123 4567" }, "+20", false)).toEqual({ ok: true, value: { name: "Omar", phone: "+201001234567", email: null, vehicle: null } });
     expect(parseCourierForm({ name: "Omar", phone: "" }, "+20", false)).toMatchObject({ ok: false, errors: { phone: expect.any(String) } });
@@ -396,6 +400,13 @@ describe("104 delivery apps on the hosted API", () => {
     expect(notes.courier).toContain("Nile Express Courier is for Nile Express's couriers only");
     expect(reviewNotes(app, { courierApp: "same", courierAppName: null, assignment: "open" })!.courier).toBeNull();
     expect(reviewNotes({ ...app, hostedSettings: { ...app.hostedSettings!, reviewCode: null } }, { courierApp: "same", courierAppName: null, assignment: "open" })).toBeNull();
+    // 105.1.6 A food delivery app's reviewers order, take the order as the first restaurant's staff, and deliver it.
+    const food = reviewNotes({ ...app, appType: "food" }, { courierApp: "same", courierAppName: null, assignment: "open" })!;
+    expect(food.customer).toContain("delivers food from many restaurants");
+    expect(food.customer).toContain("the Restaurant tab shows this account's orders only");
+    expect(food.customer).toContain("Courier mode shows the courier's screens with the orders this account ordered");
+    expect(food.customer).not.toContain("parcel");
+    expect(reviewNotes({ ...app, appType: "food" }, { courierApp: "bundle", courierAppName: null, assignment: "open" })!.courier).toContain("Nile Express Courier is for Nile Express's couriers only");
   });
 
   it("gives a card shipment a payment page, and sends it to couriers once paid", async () => {

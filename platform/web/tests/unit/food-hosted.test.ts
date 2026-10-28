@@ -209,6 +209,7 @@ describe("105.1 food delivery apps on the hosted API", () => {
       payment: { cash: true, card: true },
       tracking: "stages",
       courier_job: "accepted",
+      courier_app: "same",
       map: { tiles_url: null, attribution: null },
     });
     expect(config).not.toHaveProperty("delivery");

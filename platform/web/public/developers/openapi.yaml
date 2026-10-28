@@ -9151,7 +9151,7 @@ components:
     FoodConfig:
       type: object
       description: Settings for food delivery apps from many restaurants (roadmap 105.1).
-      required: [currency, timezone, cuisines, payment, tracking, courier_job, map]
+      required: [currency, timezone, cuisines, payment, tracking, courier_job, courier_app, map]
       properties:
         currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
         timezone: { type: string, description: "The company's IANA time zone: restaurants' opening hours are in it.", example: Africa/Cairo }
@@ -9179,6 +9179,10 @@ components:
           type: string
           enum: [accepted, ready]
           description: "When the order's courier job is made, so a courier heads to the restaurant: once the restaurant accepts it, or once it is ready."
+        courier_app:
+          type: string
+          enum: [same, bundle, yallapp_courier]
+          description: As `DeliveryConfig.courier_app` (roadmap 105.1.6). This build shows the couriers' screens only when it is `same`, or when the build is the courier app.
         map:
           type: object
           required: [tiles_url, attribution]

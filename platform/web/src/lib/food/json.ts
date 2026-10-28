@@ -28,6 +28,8 @@ export function foodConfig(settings: DeliverySettings, map: { tilesUrl: string; 
     payment: { cash: settings.cash, card: settings.card },
     tracking: settings.tracking,
     courier_job: settings.foodCourierJob ?? "accepted",
+    // 105.1.6 Where the couriers work: in this app, or in the company's courier app.
+    courier_app: settings.courierApp,
     map: { tiles_url: map?.tilesUrl ?? null, attribution: map?.tilesUrl ? map.attribution : null },
   };
 }
