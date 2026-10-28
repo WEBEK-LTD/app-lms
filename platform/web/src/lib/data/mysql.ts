@@ -9,6 +9,21 @@ import type { BuildConfig } from "../build-config/types";
 import * as schema from "../db/schema";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
 import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, SavedSection, StudioTemplate, StoreProduct, StorePurchaseRecord, StorePurchaseEvent, StoreBillingItem, BillingSession } from "./types";
+import type {
+  FoodOrder,
+  FoodOrderInput,
+  FoodOrderPatch,
+  FoodOrderQuery,
+  FoodOrderStatus,
+  FoodStatementRow,
+  Restaurant,
+  RestaurantInput,
+  RestaurantMenu,
+  RestaurantPatch,
+  RestaurantStaff,
+  RestaurantStaffInput,
+} from "./types";
+import { dishNamesOf } from "../food/menu";
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
@@ -2848,6 +2863,210 @@ export class MysqlStore implements DataStore {
         ),
     );
     return result.affectedRows === 1;
+  }
+
+  // 105.1 Food delivery from many restaurants
+
+  /** A restaurant's columns without its menu (read on its own). */
+  private restaurantColumns() {
+    const { menu: _menu, dishNames: _dishNames, ...columns } = getTableColumns(schema.restaurants);
+    void _menu;
+    void _dishNames;
+    return columns;
+  }
+
+  async listRestaurants(appId: string, filter: { q?: string } = {}): Promise<Restaurant[]> {
+    const t = schema.restaurants;
+    const q = filter.q?.trim().toLowerCase() ?? "";
+    const pattern = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
+    return this.run((db) =>
+      db
+        .select(this.restaurantColumns())
+        .from(t)
+        .where(and(eq(t.appId, appId), q ? or(like(t.name, pattern), like(t.dishNames, pattern)) : undefined))
+        .orderBy(asc(t.position), asc(t.id)),
+    );
+  }
+
+  async getRestaurant(appId: string, id: number): Promise<Restaurant | null> {
+    const t = schema.restaurants;
+    const [row] = await this.run((db) => db.select(this.restaurantColumns()).from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async getRestaurantMenu(appId: string, id: number): Promise<RestaurantMenu | null> {
+    const t = schema.restaurants;
+    const [row] = await this.run((db) => db.select({ menu: t.menu }).from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row?.menu ?? null;
+  }
+
+  async createRestaurant(input: RestaurantInput, menu: RestaurantMenu, now: Date): Promise<Restaurant> {
+    const values = { ...input, busyUntil: null, ratingSum: 0, ratingCount: 0, createdAt: now, updatedAt: now };
+    const [result] = await this.run((db) => db.insert(schema.restaurants).values({ ...values, menu, dishNames: dishNamesOf(menu) }));
+    return { id: Number(result.insertId), ...values };
+  }
+
+  async updateRestaurant(appId: string, id: number, patch: RestaurantPatch, now: Date): Promise<void> {
+    const t = schema.restaurants;
+    const { appId: _ignored, ...rest } = patch as RestaurantPatch & { appId?: string };
+    void _ignored;
+    await this.run((db) => db.update(t).set({ ...rest, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async saveRestaurantMenu(appId: string, id: number, menu: RestaurantMenu, now: Date): Promise<void> {
+    const t = schema.restaurants;
+    await this.run((db) => db.update(t).set({ menu, dishNames: dishNamesOf(menu), updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async deleteRestaurant(appId: string, id: number): Promise<void> {
+    const t = schema.restaurants;
+    // Its staff go with it (foreign key); its orders keep its name, their restaurant_id set to null.
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async addRestaurantRating(appId: string, id: number, stars: number): Promise<void> {
+    const t = schema.restaurants;
+    await this.run((db) =>
+      db
+        .update(t)
+        .set({ ratingSum: sql`${t.ratingSum} + ${stars}`, ratingCount: sql`${t.ratingCount} + 1` })
+        .where(and(eq(t.appId, appId), eq(t.id, id))),
+    );
+  }
+
+  async listRestaurantStaff(appId: string, restaurantId?: number): Promise<RestaurantStaff[]> {
+    const t = schema.restaurantStaff;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), restaurantId === undefined ? undefined : eq(t.restaurantId, restaurantId)))
+        .orderBy(asc(t.name), asc(t.id)),
+    );
+  }
+
+  async findRestaurantStaff(appId: string, who: { phone: string | null; email: string | null }): Promise<RestaurantStaff | null> {
+    const t = schema.restaurantStaff;
+    const match = who.phone ? eq(t.phone, who.phone) : who.email ? eq(t.email, who.email.toLowerCase()) : null;
+    if (!match) return null;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), match)).limit(1));
+    return row ?? null;
+  }
+
+  async createRestaurantStaff(input: RestaurantStaffInput, now: Date): Promise<{ ok: true; staff: RestaurantStaff } | { ok: false; reason: "duplicate" }> {
+    const values = { ...input, createdAt: now, updatedAt: now };
+    try {
+      const [result] = await this.run((db) => db.insert(schema.restaurantStaff).values(values));
+      return { ok: true, staff: { id: Number(result.insertId), ...values } };
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return { ok: false, reason: "duplicate" };
+      throw error;
+    }
+  }
+
+  async updateRestaurantStaff(appId: string, id: number, patch: Partial<Pick<RestaurantStaff, "name" | "phone" | "email" | "active">>, now: Date): Promise<{ ok: boolean; reason?: "duplicate" }> {
+    const t = schema.restaurantStaff;
+    try {
+      const [result] = await this.run((db) => db.update(t).set({ ...patch, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
+      return { ok: result.affectedRows === 1 };
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return { ok: false, reason: "duplicate" };
+      throw error;
+    }
+  }
+
+  async deleteRestaurantStaff(appId: string, id: number): Promise<void> {
+    const t = schema.restaurantStaff;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async createFoodOrder(input: FoodOrderInput): Promise<FoodOrder> {
+    const [result] = await this.run((db) => db.insert(schema.foodOrders).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async getFoodOrder(appId: string, id: number): Promise<FoodOrder | null> {
+    const t = schema.foodOrders;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async listFoodOrders(query: FoodOrderQuery): Promise<{ items: FoodOrder[]; total: number }> {
+    const t = schema.foodOrders;
+    const search = query.search?.trim() ?? "";
+    const reference = /^f-?(\d{1,15})$/i.exec(search);
+    const pattern = `%${search.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
+    const where = and(
+      eq(t.appId, query.appId),
+      query.userId !== undefined ? eq(t.userId, query.userId) : undefined,
+      query.restaurantId !== undefined ? eq(t.restaurantId, query.restaurantId) : undefined,
+      query.statuses ? inArray(t.status, query.statuses) : undefined,
+      query.since ? gte(t.createdAt, query.since) : undefined,
+      query.until ? lt(t.createdAt, query.until) : undefined,
+      query.updatedSince ? gte(t.updatedAt, query.updatedSince) : undefined,
+      !search ? undefined : reference ? eq(t.id, Number(reference[1])) : or(like(t.customerName, pattern), like(t.customerPhone, pattern), like(t.restaurantName, pattern)),
+    );
+    const order = query.order === "newest" ? [desc(t.createdAt), desc(t.id)] : [asc(t.createdAt), asc(t.id)];
+    const [items, totals] = await Promise.all([
+      this.run((db) =>
+        db
+          .select()
+          .from(t)
+          .where(where)
+          .orderBy(...order)
+          .limit(query.limit)
+          .offset(query.offset),
+      ),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: totals[0]?.n ?? 0 };
+  }
+
+  async updateFoodOrder(appId: string, id: number, patch: FoodOrderPatch, expect: { statuses?: FoodOrderStatus[] } = {}): Promise<boolean> {
+    const t = schema.foodOrders;
+    if (Object.keys(patch).length === 0) return false;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set(patch)
+        .where(and(eq(t.appId, appId), eq(t.id, id), expect.statuses ? inArray(t.status, expect.statuses) : undefined)),
+    );
+    return result.affectedRows === 1;
+  }
+
+  async foodStatement(appId: string, since: Date, until: Date): Promise<FoodStatementRow[]> {
+    const t = schema.foodOrders;
+    const rows = await this.run((db) =>
+      db
+        .select({
+          restaurantId: t.restaurantId,
+          restaurantName: sql<string>`max(${t.restaurantName})`,
+          orders: count(),
+          subtotalCents: sql<string>`sum(${t.subtotalCents})`,
+          deliveryFeeCents: sql<string>`sum(${t.deliveryFeeCents})`,
+          commissionCents: sql<string>`sum(${t.commissionCents})`,
+          cashSubtotalCents: sql<string>`sum(case when ${t.paymentMethod} = 'cash' then ${t.subtotalCents} else 0 end)`,
+        })
+        .from(t)
+        .where(and(eq(t.appId, appId), eq(t.status, "delivered"), gte(t.createdAt, since), lt(t.createdAt, until)))
+        .groupBy(t.restaurantId, sql`case when ${t.restaurantId} is null then ${t.restaurantName} else '' end`),
+    );
+    return rows
+      .map((r) => {
+        const subtotalCents = Number(r.subtotalCents ?? 0);
+        const cashSubtotalCents = Number(r.cashSubtotalCents ?? 0);
+        return {
+          restaurantId: r.restaurantId,
+          restaurantName: r.restaurantName,
+          orders: r.orders,
+          subtotalCents,
+          deliveryFeeCents: Number(r.deliveryFeeCents ?? 0),
+          commissionCents: Number(r.commissionCents ?? 0),
+          cashSubtotalCents,
+          cardSubtotalCents: subtotalCents - cashSubtotalCents,
+        };
+      })
+      .sort((a, b) => b.subtotalCents - a.subtotalCents || a.restaurantName.localeCompare(b.restaurantName));
   }
 
   // 10.7 Listings

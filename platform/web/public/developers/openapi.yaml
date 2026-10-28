@@ -9151,9 +9151,10 @@ components:
     FoodConfig:
       type: object
       description: Settings for food delivery apps from many restaurants (roadmap 105.1).
-      required: [currency, cuisines, payment, tracking, courier_job, map]
+      required: [currency, timezone, cuisines, payment, tracking, courier_job, map]
       properties:
         currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        timezone: { type: string, description: "The company's IANA time zone: restaurants' opening hours are in it.", example: Africa/Cairo }
         cuisines:
           type: array
           description: The cuisines the company's restaurants are filed under, in the company's order, for the filter.
@@ -9221,7 +9222,7 @@ components:
             phone: { type: [string, 'null'], description: E.164. }
             hours:
               type: array
-              description: Its opening hours, in the restaurant's time zone (`Config.timezone`); a day may have two periods.
+              description: Its opening hours, in `FoodConfig.timezone`; a day may have two periods.
               items:
                 type: object
                 required: [day, opens, closes]

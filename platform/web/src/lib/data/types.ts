@@ -3022,6 +3022,8 @@ export interface DeliverySettings {
   cuisines?: Cuisine[];
   /** 105.1 Food apps: when an order's courier job is made (default `accepted`). */
   foodCourierJob?: FoodCourierJob;
+  /** 105.1 Food apps: the IANA time zone restaurants' opening hours are in (default Africa/Cairo). */
+  timezone?: string;
 }
 
 /** A service the customer chooses (same-day, express, documents), adding its own amount to the price. */
