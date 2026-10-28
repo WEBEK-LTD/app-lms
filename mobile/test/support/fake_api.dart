@@ -1400,4 +1400,226 @@ class FakeApi implements YallappApi {
     courierLocations.add((lat: lat, lng: lng));
     return _answer('sendCourierLocation', () {});
   }
+
+  // 105.1 Food delivery from many restaurants.
+
+  List<Map<String, dynamic>> restaurants = [
+    restaurantSummaryJson(),
+    restaurantSummaryJson(id: 2, name: 'Night Grill', open: false),
+  ];
+  Map<int, Map<String, dynamic>> restaurantMenus = {1: restaurantJson()};
+  List<Map<String, dynamic>> foodOrders = [foodOrderJson()];
+  Map<String, dynamic> restaurantDesk = restaurantDeskJson();
+  Map<String, List<Map<String, dynamic>>> restaurantOrders = {
+    'new': [deskOrderJson()],
+    'active': [],
+    'done': [],
+  };
+
+  /// What [placeFoodOrder] answers as `pay_url` (null: cash).
+  String? foodPayUrl;
+  final restaurantQueries = <({String? query, String? cuisine})>[];
+  final foodQuotes = <FoodOrderRequest>[];
+  final foodOrderRequests = <FoodOrderRequest>[];
+  final foodRatings = <({int id, int restaurant, int? courier})>[];
+  final restaurantMoves = <({int id, String move, int? minutes})>[];
+  final busyMinutes = <int>[];
+
+  @override
+  Future<Paged<RestaurantSummary>> listRestaurants({
+    int page = 1,
+    String? query,
+    String? cuisine,
+    double? lat,
+    double? lng,
+  }) {
+    restaurantQueries.add((query: query, cuisine: cuisine));
+    return _answer('listRestaurants', () {
+      final q = (query ?? '').toLowerCase();
+      return Paged.fromJson(
+        pageJson([
+          for (final r in restaurants)
+            if (q.isEmpty || '${r['name']}'.toLowerCase().contains(q)) r,
+        ]),
+        RestaurantSummary.fromJson,
+      );
+    });
+  }
+
+  @override
+  Future<Restaurant> getRestaurant(int id, {double? lat, double? lng}) =>
+      _answer(
+        'getRestaurant',
+        () =>
+            Restaurant.fromJson(restaurantMenus[id] ?? restaurantJson(id: id)),
+      );
+
+  @override
+  Future<FoodQuote> quoteFoodOrder(FoodOrderRequest request) {
+    foodQuotes.add(request);
+    return _answer(
+      'quoteFoodOrder',
+      () => FoodQuote.fromJson({
+        'lines': [foodLineJson()],
+        'subtotal': '130.00',
+        'subtotal_formatted': 'E£130.00',
+        'delivery_fee': '32.00',
+        'delivery_fee_formatted': 'E£32.00',
+        'total': '162.00',
+        'total_formatted': 'E£162.00',
+        'currency': 'EGP',
+        'distance_km': 1.2,
+        'delivery_minutes': 33,
+      }),
+    );
+  }
+
+  @override
+  Future<({FoodOrder order, String? payUrl})> placeFoodOrder(
+    FoodOrderRequest request,
+  ) {
+    foodOrderRequests.add(request);
+    return _answer('placeFoodOrder', () {
+      final json = foodOrderJson(
+        id: foodOrders.length + 1,
+        status: foodPayUrl == null ? 'placed' : 'awaiting_payment',
+        method: foodPayUrl == null ? 'cash' : 'card',
+      );
+      foodOrders = [json, ...foodOrders];
+      return (order: FoodOrder.fromJson(json), payUrl: foodPayUrl);
+    });
+  }
+
+  @override
+  Future<Paged<FoodOrder>> listMyFoodOrders({
+    int page = 1,
+    bool active = false,
+  }) => _answer(
+    'listMyFoodOrders',
+    () => Paged.fromJson(pageJson(foodOrders), FoodOrder.fromJson),
+  );
+
+  @override
+  Future<FoodOrder> getMyFoodOrder(int id) => _answer(
+    'getMyFoodOrder',
+    () => FoodOrder.fromJson(foodOrders.firstWhere((o) => o['id'] == id)),
+  );
+
+  void _setFoodOrder(int id, Map<String, dynamic> patch) => foodOrders = [
+    for (final o in foodOrders) o['id'] == id ? {...o, ...patch} : o,
+  ];
+
+  @override
+  Future<FoodOrder> cancelMyFoodOrder(int id) =>
+      _answer('cancelMyFoodOrder', () {
+        _setFoodOrder(id, {'status': 'cancelled'});
+        return FoodOrder.fromJson(foodOrders.firstWhere((o) => o['id'] == id));
+      });
+
+  @override
+  Future<String> payMyFoodOrder(int id) =>
+      _answer('payMyFoodOrder', () => 'https://yallapp.com.tr/pay/food-$id');
+
+  @override
+  Future<FoodOrder> rateMyFoodOrder(
+    int id, {
+    required int restaurant,
+    int? courier,
+    String? comment,
+  }) {
+    foodRatings.add((id: id, restaurant: restaurant, courier: courier));
+    return _answer('rateMyFoodOrder', () {
+      _setFoodOrder(id, {
+        'rating': {
+          'restaurant': restaurant,
+          'courier': courier,
+          'comment': comment,
+        },
+      });
+      return FoodOrder.fromJson(foodOrders.firstWhere((o) => o['id'] == id));
+    });
+  }
+
+  @override
+  Future<RestaurantDesk> getRestaurantDesk() => _answer(
+    'getRestaurantDesk',
+    () => RestaurantDesk.fromJson(restaurantDesk),
+  );
+
+  @override
+  Future<RestaurantDesk> setRestaurantBusy(int minutes) {
+    busyMinutes.add(minutes);
+    return _answer('setRestaurantBusy', () {
+      restaurantDesk = restaurantDeskJson(
+        busyUntil: minutes == 0 ? null : '2026-10-28T11:00:00.000Z',
+      );
+      return RestaurantDesk.fromJson(restaurantDesk);
+    });
+  }
+
+  @override
+  Future<Paged<RestaurantOrder>> listRestaurantOrders(
+    RestaurantScope scope, {
+    int page = 1,
+  }) => _answer(
+    'listRestaurantOrders',
+    () => Paged.fromJson(
+      pageJson(restaurantOrders[scope.wire] ?? const []),
+      RestaurantOrder.fromJson,
+    ),
+  );
+
+  Map<String, dynamic> _restaurantOrder(int id) => restaurantOrders.values
+      .expand((orders) => orders)
+      .firstWhere((o) => o['id'] == id);
+
+  RestaurantOrder _moveRestaurantOrder(int id, String status, String to) {
+    final order = {..._restaurantOrder(id), 'status': status};
+    restaurantOrders = {
+      for (final e in restaurantOrders.entries)
+        e.key: [
+          for (final o in e.value)
+            if (o['id'] != id) o,
+          if (e.key == to) order,
+        ],
+    };
+    return RestaurantOrder.fromJson(order);
+  }
+
+  @override
+  Future<RestaurantOrder> getRestaurantOrder(int id) => _answer(
+    'getRestaurantOrder',
+    () => RestaurantOrder.fromJson(_restaurantOrder(id)),
+  );
+
+  @override
+  Future<RestaurantOrder> acceptRestaurantOrder(int id, int prepMinutes) {
+    restaurantMoves.add((id: id, move: 'accept', minutes: prepMinutes));
+    return _answer(
+      'acceptRestaurantOrder',
+      () => _moveRestaurantOrder(id, 'accepted', 'active'),
+    );
+  }
+
+  @override
+  Future<RestaurantOrder> rejectRestaurantOrder(
+    int id,
+    FoodRejection reason, {
+    String? note,
+  }) {
+    restaurantMoves.add((id: id, move: 'reject', minutes: null));
+    return _answer(
+      'rejectRestaurantOrder',
+      () => _moveRestaurantOrder(id, 'rejected', 'done'),
+    );
+  }
+
+  @override
+  Future<RestaurantOrder> readyRestaurantOrder(int id) {
+    restaurantMoves.add((id: id, move: 'ready', minutes: null));
+    return _answer(
+      'readyRestaurantOrder',
+      () => _moveRestaurantOrder(id, 'ready', 'active'),
+    );
+  }
 }

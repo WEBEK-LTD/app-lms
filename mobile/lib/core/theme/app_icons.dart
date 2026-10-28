@@ -182,6 +182,10 @@ abstract final class AppIcons {
   static const card = Symbols.credit_card_rounded;
   static const cash = Symbols.payments_rounded;
   static const swap = Symbols.swap_horiz_rounded;
+
+  // 105.1 Food delivery from many restaurants.
+  static const restaurant = Symbols.restaurant_rounded;
+  static const foodDelivery = Symbols.delivery_dining_rounded;
 }
 
 /// A Material Symbols icon with an optional filled style.

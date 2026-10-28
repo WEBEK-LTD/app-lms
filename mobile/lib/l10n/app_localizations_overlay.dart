@@ -4746,4 +4746,396 @@ class OverlayLocalizations extends AppLocalizations {
 
   @override
   String get courierMode => overlay.text('courierMode') ?? base.courierMode;
+
+  @override
+  String get tabRestaurants =>
+      overlay.text('tabRestaurants') ?? base.tabRestaurants;
+
+  @override
+  String get tabFoodOrders =>
+      overlay.text('tabFoodOrders') ?? base.tabFoodOrders;
+
+  @override
+  String get tabRestaurantDesk =>
+      overlay.text('tabRestaurantDesk') ?? base.tabRestaurantDesk;
+
+  @override
+  String get restaurantMode =>
+      overlay.text('restaurantMode') ?? base.restaurantMode;
+
+  @override
+  String get restaurantsSearchHint =>
+      overlay.text('restaurantsSearchHint') ?? base.restaurantsSearchHint;
+
+  @override
+  String get cuisineAll => overlay.text('cuisineAll') ?? base.cuisineAll;
+
+  @override
+  String get loadingRestaurants =>
+      overlay.text('loadingRestaurants') ?? base.loadingRestaurants;
+
+  @override
+  String get noRestaurantsTitle =>
+      overlay.text('noRestaurantsTitle') ?? base.noRestaurantsTitle;
+
+  @override
+  String get noRestaurantsMessage =>
+      overlay.text('noRestaurantsMessage') ?? base.noRestaurantsMessage;
+
+  @override
+  String get restaurantClosed =>
+      overlay.text('restaurantClosed') ?? base.restaurantClosed;
+
+  @override
+  String restaurantOpensAt(String time) =>
+      overlay.format('restaurantOpensAt', {'time': time}) ??
+      base.restaurantOpensAt(time);
+
+  @override
+  String get restaurantBusy =>
+      overlay.text('restaurantBusy') ?? base.restaurantBusy;
+
+  @override
+  String get restaurantNoDelivery =>
+      overlay.text('restaurantNoDelivery') ?? base.restaurantNoDelivery;
+
+  @override
+  String restaurantMinutes(int minutes) =>
+      overlay.format('restaurantMinutes', {'minutes': minutes}) ??
+      base.restaurantMinutes(minutes);
+
+  @override
+  String restaurantMinOrder(String amount) =>
+      overlay.format('restaurantMinOrder', {'amount': amount}) ??
+      base.restaurantMinOrder(amount);
+
+  @override
+  String restaurantFee(String amount) =>
+      overlay.format('restaurantFee', {'amount': amount}) ??
+      base.restaurantFee(amount);
+
+  @override
+  String get dishSoldOut => overlay.text('dishSoldOut') ?? base.dishSoldOut;
+
+  @override
+  String get dishPopular => overlay.text('dishPopular') ?? base.dishPopular;
+
+  @override
+  String get dishNote => overlay.text('dishNote') ?? base.dishNote;
+
+  @override
+  String get foodAdded => overlay.text('foodAdded') ?? base.foodAdded;
+
+  @override
+  String get cartReplaceTitle =>
+      overlay.text('cartReplaceTitle') ?? base.cartReplaceTitle;
+
+  @override
+  String cartReplaceMessage(String restaurant) =>
+      overlay.format('cartReplaceMessage', {'restaurant': restaurant}) ??
+      base.cartReplaceMessage(restaurant);
+
+  @override
+  String get cartReplaceYes =>
+      overlay.text('cartReplaceYes') ?? base.cartReplaceYes;
+
+  @override
+  String foodViewCart(int count) =>
+      overlay.format('foodViewCart', {'count': count}) ??
+      base.foodViewCart(count);
+
+  @override
+  String get foodCartTitle =>
+      overlay.text('foodCartTitle') ?? base.foodCartTitle;
+
+  @override
+  String get foodCartEmptyTitle =>
+      overlay.text('foodCartEmptyTitle') ?? base.foodCartEmptyTitle;
+
+  @override
+  String get foodCartEmptyMessage =>
+      overlay.text('foodCartEmptyMessage') ?? base.foodCartEmptyMessage;
+
+  @override
+  String get foodDeliverTo =>
+      overlay.text('foodDeliverTo') ?? base.foodDeliverTo;
+
+  @override
+  String get foodSubtotal => overlay.text('foodSubtotal') ?? base.foodSubtotal;
+
+  @override
+  String get foodDeliveryFee =>
+      overlay.text('foodDeliveryFee') ?? base.foodDeliveryFee;
+
+  @override
+  String get foodTotal => overlay.text('foodTotal') ?? base.foodTotal;
+
+  @override
+  String get foodTotalMissing =>
+      overlay.text('foodTotalMissing') ?? base.foodTotalMissing;
+
+  @override
+  String get foodYourPhone =>
+      overlay.text('foodYourPhone') ?? base.foodYourPhone;
+
+  @override
+  String get foodPlaceOrder =>
+      overlay.text('foodPlaceOrder') ?? base.foodPlaceOrder;
+
+  @override
+  String get foodSignInToOrder =>
+      overlay.text('foodSignInToOrder') ?? base.foodSignInToOrder;
+
+  @override
+  String get foodFillAddress =>
+      overlay.text('foodFillAddress') ?? base.foodFillAddress;
+
+  @override
+  String get foodFillPhone =>
+      overlay.text('foodFillPhone') ?? base.foodFillPhone;
+
+  @override
+  String get foodOrderSent =>
+      overlay.text('foodOrderSent') ?? base.foodOrderSent;
+
+  @override
+  String get foodOrderPaid =>
+      overlay.text('foodOrderPaid') ?? base.foodOrderPaid;
+
+  @override
+  String foodEta(int minutes) =>
+      overlay.format('foodEta', {'minutes': minutes}) ?? base.foodEta(minutes);
+
+  @override
+  String get foodAwaitingPayment =>
+      overlay.text('foodAwaitingPayment') ?? base.foodAwaitingPayment;
+
+  @override
+  String get foodPlaced => overlay.text('foodPlaced') ?? base.foodPlaced;
+
+  @override
+  String get foodAccepted => overlay.text('foodAccepted') ?? base.foodAccepted;
+
+  @override
+  String get foodReady => overlay.text('foodReady') ?? base.foodReady;
+
+  @override
+  String get foodPickedUp => overlay.text('foodPickedUp') ?? base.foodPickedUp;
+
+  @override
+  String get foodOnTheWay => overlay.text('foodOnTheWay') ?? base.foodOnTheWay;
+
+  @override
+  String get foodDelivered =>
+      overlay.text('foodDelivered') ?? base.foodDelivered;
+
+  @override
+  String get foodRejected => overlay.text('foodRejected') ?? base.foodRejected;
+
+  @override
+  String get foodCancelled =>
+      overlay.text('foodCancelled') ?? base.foodCancelled;
+
+  @override
+  String get foodFailed => overlay.text('foodFailed') ?? base.foodFailed;
+
+  @override
+  String foodOrderHeading(String reference) =>
+      overlay.format('foodOrderHeading', {'reference': reference}) ??
+      base.foodOrderHeading(reference);
+
+  @override
+  String foodReadyAt(String time) =>
+      overlay.format('foodReadyAt', {'time': time}) ?? base.foodReadyAt(time);
+
+  @override
+  String get rejectClosing =>
+      overlay.text('rejectClosing') ?? base.rejectClosing;
+
+  @override
+  String get rejectTooBusy =>
+      overlay.text('rejectTooBusy') ?? base.rejectTooBusy;
+
+  @override
+  String get rejectItemUnavailable =>
+      overlay.text('rejectItemUnavailable') ?? base.rejectItemUnavailable;
+
+  @override
+  String get rejectOther => overlay.text('rejectOther') ?? base.rejectOther;
+
+  @override
+  String get foodCancel => overlay.text('foodCancel') ?? base.foodCancel;
+
+  @override
+  String get foodCancelConfirm =>
+      overlay.text('foodCancelConfirm') ?? base.foodCancelConfirm;
+
+  @override
+  String get foodCancelledToast =>
+      overlay.text('foodCancelledToast') ?? base.foodCancelledToast;
+
+  @override
+  String get foodCallRestaurant =>
+      overlay.text('foodCallRestaurant') ?? base.foodCallRestaurant;
+
+  @override
+  String get foodRestaurant =>
+      overlay.text('foodRestaurant') ?? base.foodRestaurant;
+
+  @override
+  String get foodDishes => overlay.text('foodDishes') ?? base.foodDishes;
+
+  @override
+  String get foodWaitingRestaurant =>
+      overlay.text('foodWaitingRestaurant') ?? base.foodWaitingRestaurant;
+
+  @override
+  String get foodRateTitle =>
+      overlay.text('foodRateTitle') ?? base.foodRateTitle;
+
+  @override
+  String get rateRestaurant =>
+      overlay.text('rateRestaurant') ?? base.rateRestaurant;
+
+  @override
+  String get rateCourier => overlay.text('rateCourier') ?? base.rateCourier;
+
+  @override
+  String get rateComment => overlay.text('rateComment') ?? base.rateComment;
+
+  @override
+  String get rateSend => overlay.text('rateSend') ?? base.rateSend;
+
+  @override
+  String get rateThanks => overlay.text('rateThanks') ?? base.rateThanks;
+
+  @override
+  String get ratePickStars =>
+      overlay.text('ratePickStars') ?? base.ratePickStars;
+
+  @override
+  String foodRated(int stars) =>
+      overlay.format('foodRated', {'stars': stars}) ?? base.foodRated(stars);
+
+  @override
+  String rateStar(int stars) =>
+      overlay.format('rateStar', {'stars': stars}) ?? base.rateStar(stars);
+
+  @override
+  String get loadingFoodOrders =>
+      overlay.text('loadingFoodOrders') ?? base.loadingFoodOrders;
+
+  @override
+  String get noFoodOrdersTitle =>
+      overlay.text('noFoodOrdersTitle') ?? base.noFoodOrdersTitle;
+
+  @override
+  String get noFoodOrdersMessage =>
+      overlay.text('noFoodOrdersMessage') ?? base.noFoodOrdersMessage;
+
+  @override
+  String get foodOrderFood =>
+      overlay.text('foodOrderFood') ?? base.foodOrderFood;
+
+  @override
+  String get foodOrdersSignInTitle =>
+      overlay.text('foodOrdersSignInTitle') ?? base.foodOrdersSignInTitle;
+
+  @override
+  String get foodOrdersSignInMessage =>
+      overlay.text('foodOrdersSignInMessage') ?? base.foodOrdersSignInMessage;
+
+  @override
+  String get deskNew => overlay.text('deskNew') ?? base.deskNew;
+
+  @override
+  String get deskPreparing =>
+      overlay.text('deskPreparing') ?? base.deskPreparing;
+
+  @override
+  String get deskDone => overlay.text('deskDone') ?? base.deskDone;
+
+  @override
+  String get deskAccepting =>
+      overlay.text('deskAccepting') ?? base.deskAccepting;
+
+  @override
+  String deskPausedUntil(String time) =>
+      overlay.format('deskPausedUntil', {'time': time}) ??
+      base.deskPausedUntil(time);
+
+  @override
+  String get deskClosedHours =>
+      overlay.text('deskClosedHours') ?? base.deskClosedHours;
+
+  @override
+  String deskToday(int count, String sales) =>
+      overlay.format('deskToday', {'count': count, 'sales': sales}) ??
+      base.deskToday(count, sales);
+
+  @override
+  String get deskPause => overlay.text('deskPause') ?? base.deskPause;
+
+  @override
+  String get deskPauseFor => overlay.text('deskPauseFor') ?? base.deskPauseFor;
+
+  @override
+  String get deskOpenAgain =>
+      overlay.text('deskOpenAgain') ?? base.deskOpenAgain;
+
+  @override
+  String get notRestaurantTitle =>
+      overlay.text('notRestaurantTitle') ?? base.notRestaurantTitle;
+
+  @override
+  String get notRestaurantMessage =>
+      overlay.text('notRestaurantMessage') ?? base.notRestaurantMessage;
+
+  @override
+  String get loadingRestaurantOrders =>
+      overlay.text('loadingRestaurantOrders') ?? base.loadingRestaurantOrders;
+
+  @override
+  String get noRestaurantOrdersTitle =>
+      overlay.text('noRestaurantOrdersTitle') ?? base.noRestaurantOrdersTitle;
+
+  @override
+  String get noRestaurantOrdersMessage =>
+      overlay.text('noRestaurantOrdersMessage') ??
+      base.noRestaurantOrdersMessage;
+
+  @override
+  String get deskAccept => overlay.text('deskAccept') ?? base.deskAccept;
+
+  @override
+  String get deskAcceptTitle =>
+      overlay.text('deskAcceptTitle') ?? base.deskAcceptTitle;
+
+  @override
+  String get deskAccepted => overlay.text('deskAccepted') ?? base.deskAccepted;
+
+  @override
+  String get deskReject => overlay.text('deskReject') ?? base.deskReject;
+
+  @override
+  String get deskRejectTitle =>
+      overlay.text('deskRejectTitle') ?? base.deskRejectTitle;
+
+  @override
+  String get deskRejectNote =>
+      overlay.text('deskRejectNote') ?? base.deskRejectNote;
+
+  @override
+  String get deskRejected => overlay.text('deskRejected') ?? base.deskRejected;
+
+  @override
+  String get deskMarkReady =>
+      overlay.text('deskMarkReady') ?? base.deskMarkReady;
+
+  @override
+  String get deskMarkedReady =>
+      overlay.text('deskMarkedReady') ?? base.deskMarkedReady;
+
+  @override
+  String get deskCustomer => overlay.text('deskCustomer') ?? base.deskCustomer;
 }

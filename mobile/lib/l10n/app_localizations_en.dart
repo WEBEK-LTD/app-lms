@@ -4555,4 +4555,345 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get courierMode => 'Courier mode';
+
+  @override
+  String get tabRestaurants => 'Restaurants';
+
+  @override
+  String get tabFoodOrders => 'My orders';
+
+  @override
+  String get tabRestaurantDesk => 'Restaurant';
+
+  @override
+  String get restaurantMode => 'Restaurant mode';
+
+  @override
+  String get restaurantsSearchHint => 'Search restaurants and dishes';
+
+  @override
+  String get cuisineAll => 'All';
+
+  @override
+  String get loadingRestaurants => 'Loading restaurants';
+
+  @override
+  String get noRestaurantsTitle => 'No restaurants here yet';
+
+  @override
+  String get noRestaurantsMessage =>
+      'Try another search or cuisine, or come back later.';
+
+  @override
+  String get restaurantClosed => 'Closed';
+
+  @override
+  String restaurantOpensAt(String time) {
+    return 'Opens $time';
+  }
+
+  @override
+  String get restaurantBusy => 'Busy now';
+
+  @override
+  String get restaurantNoDelivery => 'Doesn\'t deliver to you';
+
+  @override
+  String restaurantMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String restaurantMinOrder(String amount) {
+    return 'Min. $amount';
+  }
+
+  @override
+  String restaurantFee(String amount) {
+    return 'Delivery $amount';
+  }
+
+  @override
+  String get dishSoldOut => 'Sold out';
+
+  @override
+  String get dishPopular => 'Popular';
+
+  @override
+  String get dishNote => 'Note for the kitchen (optional)';
+
+  @override
+  String get foodAdded => 'Added to your cart.';
+
+  @override
+  String get cartReplaceTitle => 'Start a new cart?';
+
+  @override
+  String cartReplaceMessage(String restaurant) {
+    return 'Your cart has dishes from $restaurant. Adding this one empties it.';
+  }
+
+  @override
+  String get cartReplaceYes => 'Start a new cart';
+
+  @override
+  String foodViewCart(int count) {
+    return 'View cart ($count)';
+  }
+
+  @override
+  String get foodCartTitle => 'Your order';
+
+  @override
+  String get foodCartEmptyTitle => 'Your cart is empty';
+
+  @override
+  String get foodCartEmptyMessage => 'Choose a restaurant and add dishes.';
+
+  @override
+  String get foodDeliverTo => 'Deliver to';
+
+  @override
+  String get foodSubtotal => 'Subtotal';
+
+  @override
+  String get foodDeliveryFee => 'Delivery';
+
+  @override
+  String get foodTotal => 'Total';
+
+  @override
+  String get foodTotalMissing => 'Enter the address to see the total.';
+
+  @override
+  String get foodYourPhone => 'Your mobile number, for the courier';
+
+  @override
+  String get foodPlaceOrder => 'Place order';
+
+  @override
+  String get foodSignInToOrder => 'Sign in to order';
+
+  @override
+  String get foodFillAddress => 'Enter the delivery address.';
+
+  @override
+  String get foodFillPhone =>
+      'Enter your mobile number so the courier can call you.';
+
+  @override
+  String get foodOrderSent => 'Your order was sent to the restaurant.';
+
+  @override
+  String get foodOrderPaid => 'Paid. Your order went to the restaurant.';
+
+  @override
+  String foodEta(int minutes) {
+    return 'About $minutes min';
+  }
+
+  @override
+  String get foodAwaitingPayment => 'Waiting for payment';
+
+  @override
+  String get foodPlaced => 'Sent to the restaurant';
+
+  @override
+  String get foodAccepted => 'Being prepared';
+
+  @override
+  String get foodReady => 'Ready for the courier';
+
+  @override
+  String get foodPickedUp => 'Picked up';
+
+  @override
+  String get foodOnTheWay => 'On the way';
+
+  @override
+  String get foodDelivered => 'Delivered';
+
+  @override
+  String get foodRejected => 'Not accepted';
+
+  @override
+  String get foodCancelled => 'Cancelled';
+
+  @override
+  String get foodFailed => 'Couldn\'t be delivered';
+
+  @override
+  String foodOrderHeading(String reference) {
+    return 'Order $reference';
+  }
+
+  @override
+  String foodReadyAt(String time) {
+    return 'Ready around $time';
+  }
+
+  @override
+  String get rejectClosing => 'The restaurant is closing';
+
+  @override
+  String get rejectTooBusy => 'Too busy right now';
+
+  @override
+  String get rejectItemUnavailable => 'Something isn\'t available';
+
+  @override
+  String get rejectOther => 'Another reason';
+
+  @override
+  String get foodCancel => 'Cancel order';
+
+  @override
+  String get foodCancelConfirm => 'Cancel this order?';
+
+  @override
+  String get foodCancelledToast => 'Order cancelled.';
+
+  @override
+  String get foodCallRestaurant => 'Call the restaurant';
+
+  @override
+  String get foodRestaurant => 'Restaurant';
+
+  @override
+  String get foodDishes => 'Dishes';
+
+  @override
+  String get foodWaitingRestaurant =>
+      'Waiting for the restaurant to accept it.';
+
+  @override
+  String get foodRateTitle => 'Rate your order';
+
+  @override
+  String get rateRestaurant => 'The restaurant';
+
+  @override
+  String get rateCourier => 'The courier';
+
+  @override
+  String get rateComment => 'Anything to add? (optional)';
+
+  @override
+  String get rateSend => 'Send rating';
+
+  @override
+  String get rateThanks => 'Thanks for rating.';
+
+  @override
+  String get ratePickStars => 'Choose the restaurant\'s stars.';
+
+  @override
+  String foodRated(int stars) {
+    return 'You rated it $stars out of 5.';
+  }
+
+  @override
+  String rateStar(int stars) {
+    return '$stars stars';
+  }
+
+  @override
+  String get loadingFoodOrders => 'Loading your orders';
+
+  @override
+  String get noFoodOrdersTitle => 'No orders yet';
+
+  @override
+  String get noFoodOrdersMessage => 'Your food orders show here.';
+
+  @override
+  String get foodOrderFood => 'Order food';
+
+  @override
+  String get foodOrdersSignInTitle => 'Sign in to see your orders';
+
+  @override
+  String get foodOrdersSignInMessage =>
+      'Your orders and where they are show here.';
+
+  @override
+  String get deskNew => 'New';
+
+  @override
+  String get deskPreparing => 'Preparing';
+
+  @override
+  String get deskDone => 'Done';
+
+  @override
+  String get deskAccepting => 'Taking orders';
+
+  @override
+  String deskPausedUntil(String time) {
+    return 'Paused until $time';
+  }
+
+  @override
+  String get deskClosedHours => 'Closed by its opening hours';
+
+  @override
+  String deskToday(int count, String sales) {
+    return 'Today: $count orders · $sales';
+  }
+
+  @override
+  String get deskPause => 'Pause new orders';
+
+  @override
+  String get deskPauseFor => 'Pause new orders for';
+
+  @override
+  String get deskOpenAgain => 'Take orders again';
+
+  @override
+  String get notRestaurantTitle => 'For our restaurants';
+
+  @override
+  String get notRestaurantMessage =>
+      'This screen is for the staff of the restaurants we deliver for.';
+
+  @override
+  String get loadingRestaurantOrders => 'Loading orders';
+
+  @override
+  String get noRestaurantOrdersTitle => 'No orders here';
+
+  @override
+  String get noRestaurantOrdersMessage =>
+      'New orders show here as they come in.';
+
+  @override
+  String get deskAccept => 'Accept';
+
+  @override
+  String get deskAcceptTitle => 'Ready in how many minutes?';
+
+  @override
+  String get deskAccepted => 'Accepted. The customer was told.';
+
+  @override
+  String get deskReject => 'Can\'t take it';
+
+  @override
+  String get deskRejectTitle => 'Why can\'t you take it?';
+
+  @override
+  String get deskRejectNote => 'Note for the customer (optional)';
+
+  @override
+  String get deskRejected => 'Turned down. The customer was told.';
+
+  @override
+  String get deskMarkReady => 'Ready for the courier';
+
+  @override
+  String get deskMarkedReady => 'Marked ready.';
+
+  @override
+  String get deskCustomer => 'Customer';
 }

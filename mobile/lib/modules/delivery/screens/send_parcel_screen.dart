@@ -35,7 +35,8 @@ class SendParcelScreen extends ConsumerStatefulWidget {
   ConsumerState<SendParcelScreen> createState() => _SendParcelScreenState();
 }
 
-class _PlaceFields {
+/// A place's fields (105.1 the food checkout's drop-off too).
+class PlaceFields {
   final address = TextEditingController();
   final details = TextEditingController();
   ({double lat, double lng})? at;
@@ -54,8 +55,8 @@ class _PlaceFields {
 }
 
 class _SendParcelScreenState extends ConsumerState<SendParcelScreen> {
-  final _pickup = _PlaceFields();
-  final _dropoff = _PlaceFields();
+  final _pickup = PlaceFields();
+  final _dropoff = PlaceFields();
   final _recipientName = TextEditingController();
   final _recipientPhone = TextEditingController();
   final _description = TextEditingController();
@@ -147,12 +148,12 @@ class _SendParcelScreenState extends ConsumerState<SendParcelScreen> {
     }
   }
 
-  void _setAt(_PlaceFields fields, ({double lat, double lng})? at) {
+  void _setAt(PlaceFields fields, ({double lat, double lng})? at) {
     setState(() => fields.at = at);
     _requote();
   }
 
-  Future<void> _useMyLocation(_PlaceFields fields) async {
+  Future<void> _useMyLocation(PlaceFields fields) async {
     final l10n = context.l10n;
     final found = await ref.read(locatorProvider).current();
     if (!mounted) return;
@@ -168,11 +169,11 @@ class _SendParcelScreenState extends ConsumerState<SendParcelScreen> {
     _setAt(fields, (lat: p.lat, lng: p.lng));
   }
 
-  Future<void> _pasteLink(_PlaceFields fields) async {
+  Future<void> _pasteLink(PlaceFields fields) async {
     final l10n = context.l10n;
     final text = await showDialog<String>(
       context: context,
-      builder: (_) => const _PasteLinkDialog(),
+      builder: (_) => const PasteLinkDialog(),
     );
     if (text == null || text.trim().isEmpty || !mounted) return;
     var at = coordinatesIn(text);
@@ -193,7 +194,7 @@ class _SendParcelScreenState extends ConsumerState<SendParcelScreen> {
     _setAt(fields, at);
   }
 
-  Future<void> _onMap(_PlaceFields fields, DeliveryConfig config) async {
+  Future<void> _onMap(PlaceFields fields, DeliveryConfig config) async {
     final l10n = context.l10n;
     final at = await Navigator.of(context).push<({double lat, double lng})>(
       MaterialPageRoute(
@@ -311,7 +312,7 @@ class _SendParcelScreenState extends ConsumerState<SendParcelScreen> {
           orElse: () => const <Widget>[],
         ),
         _SectionTitle(l10n.sendPickup),
-        _PlaceEditor(
+        PlaceEditor(
           keyPrefix: 'pickup',
           fields: _pickup,
           config: config,
@@ -322,7 +323,7 @@ class _SendParcelScreenState extends ConsumerState<SendParcelScreen> {
         ),
         const SizedBox(height: 16),
         _SectionTitle(l10n.sendDropoff),
-        _PlaceEditor(
+        PlaceEditor(
           keyPrefix: 'dropoff',
           fields: _dropoff,
           config: config,
@@ -572,8 +573,10 @@ class _ServiceOption extends StatelessWidget {
   }
 }
 
-class _PlaceEditor extends StatelessWidget {
-  const _PlaceEditor({
+/// A place: its address and details, and where it is on Earth.
+class PlaceEditor extends StatelessWidget {
+  const PlaceEditor({
+    super.key,
     required this.keyPrefix,
     required this.fields,
     required this.config,
@@ -584,7 +587,7 @@ class _PlaceEditor extends StatelessWidget {
   });
 
   final String keyPrefix;
-  final _PlaceFields fields;
+  final PlaceFields fields;
   final DeliveryConfig config;
   final VoidCallback onMyLocation;
   final VoidCallback onPaste;
@@ -679,14 +682,15 @@ class _PlaceEditor extends StatelessWidget {
   }
 }
 
-class _PasteLinkDialog extends StatefulWidget {
-  const _PasteLinkDialog();
+/// Asks for a maps link.
+class PasteLinkDialog extends StatefulWidget {
+  const PasteLinkDialog({super.key});
 
   @override
-  State<_PasteLinkDialog> createState() => _PasteLinkDialogState();
+  State<PasteLinkDialog> createState() => _PasteLinkDialogState();
 }
 
-class _PasteLinkDialogState extends State<_PasteLinkDialog> {
+class _PasteLinkDialogState extends State<PasteLinkDialog> {
   final _text = TextEditingController();
 
   @override
