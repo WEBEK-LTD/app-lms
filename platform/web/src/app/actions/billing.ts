@@ -152,7 +152,8 @@ export async function checkCouponAction(_: CouponState, formData: FormData): Pro
   }
   // 52 The prices as the form shows them: the client's currency, lowered from the charge in pounds.
   const [{ planProvider }, view] = await Promise.all([yallappBilling(store, { fresh: true }), priceView(store, context.client, { fresh: true })]);
-  const plans = cardPlans(await getPlans(store), planProvider, view.egpPerUsd);
+  // 103R The plans of the app's family the clients may see (a regular app's before the first app).
+  const plans = cardPlans(await getPlans(store), planProvider, view.egpPerUsd).filter((p) => planFitsSection(p.id, context.app?.section) && planOffered(p));
   const prices: NonNullable<CouponState["prices"]> = {};
   let firstError: string | undefined;
   for (const plan of plans) {

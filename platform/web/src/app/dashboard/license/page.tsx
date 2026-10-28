@@ -16,7 +16,7 @@ import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import { encryptionKey } from "@/lib/env";
 import { latestRelease } from "@/lib/license/service";
 import { ACCOUNT_STATE_LABEL } from "@/lib/license/status";
-import { comparePlans, formatStorage, hasFeature, isPlan, lowestPlanWith, planFeaturesFor, planFitsSection, planName, planOffered, planPrice, plansOfFamily, STUDIO_ONLY_FEATURES, type Plan, type PlanInfo } from "@/lib/plans";
+import { comparePlans, formatStorage, hasFeature, isPlan, lowestPlanWith, planFeaturesFor, planName, planOffered, planPrice, plansOfFamily, STUDIO_ONLY_FEATURES, type Plan, type PlanInfo } from "@/lib/plans";
 import { packOffers, renewablePacks, renewalLabel } from "@/lib/media/packs";
 import { cardPlanOptions } from "@/lib/billing/card-plans";
 import { currentPlanId, planChangeFor, scheduledPlan } from "@/lib/billing/plan-change";
@@ -120,7 +120,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
     const id = l ? currentPlanId(l, now) : null;
     return { id: a.id, name: appLabel(a) === "Untitled app" ? k("Untitled app") : appLabel(a), plan: id ? planName(id, effective) : null, until: l ? date(l.expiresAt) : null, price: id ? priceOf(id) : null, current: a.id === app?.id };
   });
-  const payable = yallappAccount ? cardPlanOptions(plans, await getSwitches(store), yallappAccount.provider, view).filter((p) => planFitsSection(p.id, family) && planOffered(plans[p.id])) : [];
+  const payable = yallappAccount ? cardPlanOptions(plans, await getSwitches(store), yallappAccount.provider, view, family) : [];
   // 52 This app's card payments, with their receipts (before the first app exists, the account's).
   const paid = (await store.listPlanPayments({ clientId: client.id, limit: 50 })).filter((p) => p.status === "paid" && p.appId === (app?.id ?? null)).slice(0, 20);
   // 13.3 What paying for each plan does: an upgrade starts today with the old days credited, a downgrade waits for the end of the period.
