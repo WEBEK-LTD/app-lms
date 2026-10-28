@@ -2,6 +2,7 @@ import type { Lang } from "@/i18n/config";
 import { appLang } from "../bookings/reschedule";
 import type { FoodOrder, FoodOrderStatus, FoodRejection } from "../data/types";
 import { asLang, deliver, type DeliveryNotifyDeps, type Words } from "../delivery/notify";
+import { isReviewOrder } from "./review";
 import { foodOrderReference } from "./service";
 
 /**
@@ -64,7 +65,7 @@ const CUSTOMER: Partial<Record<FoodOrderStatus, Text>> = {
   },
 };
 
-const RESTAURANT: Record<Lang, (ref: string, total: string) => Words> = {
+const RESTAURANT: Record<Lang, (ref: string, items: string) => Words> = {
   en: (ref, items) => ({ title: "New order", body: `${ref}: ${items}. Accept it in the app.` }),
   ar: (ref, items) => ({ title: "طلب جديد", body: `${ref}: ${items}. اقبله من التطبيق.` }),
   tr: (ref, items) => ({ title: "Yeni sipariş", body: `${ref}: ${items}. Uygulamada kabul edin.` }),
@@ -85,19 +86,25 @@ export async function tellFoodCustomer(deps: DeliveryNotifyDeps, order: FoodOrde
   return deliver(deps, order.userId, words, { type: "food_order_update", food_order_id: String(order.id) }, true);
 }
 
-/** Tells the restaurant's active staff of a new order; returns the phones reached. */
+/** Tells the restaurant's active staff of a new order (the store review account's, the reviewers only); returns the phones reached. */
 export async function tellRestaurant(deps: DeliveryNotifyDeps, order: FoodOrder): Promise<number> {
   if (order.restaurantId === null) return 0;
-  const staff = (await deps.store.listRestaurantStaff(deps.app.id, order.restaurantId)).filter((s) => s.active);
+  const people: number[] = [];
+  if (await isReviewOrder(deps.store, deps.app, order)) {
+    people.push(order.userId!);
+  } else {
+    for (const person of (await deps.store.listRestaurantStaff(deps.app.id, order.restaurantId)).filter((s) => s.active)) {
+      const user = person.phone ? await deps.store.getHostedUserByPhone(deps.app.id, person.phone) : person.email ? await deps.store.getHostedEmailUser(deps.app.id, person.email) : null;
+      if (user) people.push(user.id);
+    }
+  }
   const appLanguage = await appLang(deps.store, deps.app.id);
   const items = order.lines.map((l) => `${l.quantity}× ${l.name}`).join(", ").slice(0, 120);
   let pushed = 0;
-  for (const person of staff) {
-    const user = person.phone ? await deps.store.getHostedUserByPhone(deps.app.id, person.phone) : person.email ? await deps.store.getHostedEmailUser(deps.app.id, person.email) : null;
-    if (!user) continue;
-    const devices = await deps.store.listHostedPushDevices(deps.app.id, [user.id]);
+  for (const userId of people) {
+    const devices = await deps.store.listHostedPushDevices(deps.app.id, [userId]);
     const lang = asLang(devices[0]?.language) ?? appLanguage;
-    pushed += await deliver(deps, user.id, RESTAURANT[lang](foodOrderReference(order), items), { type: "restaurant_order", food_order_id: String(order.id) }, false);
+    pushed += await deliver(deps, userId, RESTAURANT[lang](foodOrderReference(order), items), { type: "restaurant_order", food_order_id: String(order.id) }, false);
   }
   return pushed;
 }

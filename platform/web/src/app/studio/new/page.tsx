@@ -48,11 +48,14 @@ export default async function NewStudioProjectPage({ searchParams }: PageProps<"
   const offered = KINDS.filter((kind) => appTypeOn(switches, kind.engine, null));
   // 104 Kinds only Studio offers; the ones still being made show as soon.
   const delivery = kindById("delivery");
+  const food = kindById("food");
   const studioKinds = [
     delivery && offered.includes(delivery)
       ? { ...choiceOf(delivery), name: t("studio.kindDelivery"), text: t("studio.kindDeliveryText"), soon: false }
       : { id: "delivery", name: t("studio.kindDelivery"), icon: "local_shipping", sources: [], text: t("studio.soon"), soon: true },
-    { id: "food", name: t("studio.kindFood"), icon: "delivery_dining", sources: [], text: t("studio.soon"), soon: true },
+    food && offered.includes(food)
+      ? { ...choiceOf(food), name: t("studio.kindFood"), icon: "delivery_dining", text: t("studio.kindFoodText"), soon: false }
+      : { id: "food", name: t("studio.kindFood"), icon: "delivery_dining", sources: [], text: t("studio.soon"), soon: true },
     { id: "cars", name: t("studio.kindCars"), icon: "directions_car", sources: [], text: t("studio.soon"), soon: true },
   ];
   const problem = typeof query.error === "string" ? query.error : null;

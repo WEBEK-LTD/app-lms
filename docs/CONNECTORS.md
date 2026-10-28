@@ -45,6 +45,7 @@ plugin's `AdapterVersionsTest.php` check them.
 | `events` | Events and tickets | 1.0.0 | Yallapp |
 | `campaigns` | Campaigns and donations | 1.0.0 | Yallapp |
 | `deliveries` | Shipments and couriers | 1.0.0 | Yallapp |
+| `restaurants` | Restaurants and food orders | 1.0.0 | Yallapp |
 | `shopify` | Shopify | 1.0.0 | Storefront API and Admin API (GraphQL) |
 | `ikas` | ikas | 1.0.0 | ikas Admin API (GraphQL, v1) |
 | `ticimax` | Ticimax | 1.0.0 | Ticimax web services (SOAP) |

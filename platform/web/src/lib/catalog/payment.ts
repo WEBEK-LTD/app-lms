@@ -1,5 +1,7 @@
 import { announceWaiting } from "../delivery/flow";
 import { payShipmentOrder } from "../delivery/payment";
+import { announceOrder } from "../food/flow";
+import { payFoodOrder } from "../food/payment";
 import { membershipEnd } from "../bookings/memberships";
 import { spendOrderPoints } from "./loyalty";
 import { taxLabel } from "./tax";
@@ -357,4 +359,7 @@ export async function deliverPaidOrder(store: DataStore, app: App, order: Catalo
   // 104 A delivery paid by card waits for a courier.
   const waiting = await payShipmentOrder(store, app, order, now);
   if (waiting) await announceWaiting({ store, app, now }, waiting);
+  // 105.1 A food order paid by card reaches its restaurant.
+  const placed = await payFoodOrder(store, app, order, now);
+  if (placed) await announceOrder({ store, app, now }, placed);
 }

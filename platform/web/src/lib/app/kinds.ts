@@ -696,7 +696,7 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       blocks: [],
       screens: ["restaurants", "food_orders", "restaurant", "courier", "account", "settings", "notifications"],
       aliases: { orders: "food_orders" },
-      tabs: [tab("restaurants", "Restaurants", "restaurant", "restaurants"), tab("orders", "My orders", "receipt_long", "food_orders")],
+      tabs: [tab("restaurants", "Restaurants", "restaurant_menu", "restaurants"), tab("orders", "My orders", "receipt_long", "food_orders")],
       home: [
         {
           id: "restaurants",

@@ -3355,6 +3355,8 @@ export interface FoodStatementRow {
 export interface FoodOrderQuery {
   appId: string;
   userId?: number;
+  /** 105.1 Not this customer's (the store review account's). */
+  notUserId?: number;
   restaurantId?: number;
   statuses?: FoodOrderStatus[];
   /** Created at or after, and before. */

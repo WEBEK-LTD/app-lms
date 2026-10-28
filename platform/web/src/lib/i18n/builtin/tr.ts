@@ -448,6 +448,19 @@ export const PAGE_TEXTS_TR: Record<string, string> = {
   "<h2>Deliveries for your business</h2><p>our app picks up from your shop and delivers to your customers.</p>": "<h2>İşletmeniz için teslimat</h2><p>Uygulamamız mağazanızdan alır ve müşterilerinize teslim eder.</p>",
   "Working hours": "Çalışma saatleri",
   "Customer service": "Müşteri hizmetleri",
+  // 105.1 Food delivery
+  "Restaurants": "Restoranlar",
+  "Restaurant": "Restoran",
+  "Your city's restaurants, delivered": "Şehrinin restoranları kapında",
+  "Order from any of them and follow your food": "Dilediğinden sipariş ver, yemeğini takip et",
+  "35 min": "35 dk",
+  "To your door": "Kapına kadar",
+  "Open My orders: each stage shows with its time.": "Siparişlerim'i açın: her aşama saatiyle görünür.",
+  "Write today's offer or your delivery hours here.": "Bugünün kampanyasını veya teslimat saatlerinizi buraya yazın.",
+  "Order from": "Şuradan sipariş ver",
+  "<h2>Your neighbourhood's kitchens</h2><p>{app} brings you food from the restaurants around you.</p>": "<h2>Mahallenin mutfakları</h2><p>{app} çevrendeki restoranlardan yemeğini getirir.</p>",
+  "<h2>Your neighbourhood's kitchens</h2><p>our app brings you food from the restaurants around you.</p>": "<h2>Mahallenin mutfakları</h2><p>Uygulamamız çevrendeki restoranlardan yemeğini getirir.</p>",
+  "Order food": "Yemek sipariş et",
 };
 
 /** Messages the hosted API answers with (errors, refusals). */

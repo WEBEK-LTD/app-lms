@@ -1,5 +1,6 @@
 import { courierWho } from "../delivery/service";
 import { reviewCourierFor } from "../delivery/review";
+import { reviewRestaurantFor } from "../food/review";
 import { appSwitches } from "../app/switches";
 import { watchOrdersAfterCheckout } from "./order-watch";
 import { randomInt } from "node:crypto";
@@ -1021,9 +1022,19 @@ async function authenticate(ctx: HostedContext, token: string | null): Promise<S
  * 104.7 The store review account is one too, so reviewers see the courier's screens.
  */
 async function meJson(ctx: HostedContext, user: HostedUser) {
-  if (ctx.app.connector?.kind !== "deliveries") return userJson(user);
+  const kind = ctx.app.connector?.kind;
+  if (kind !== "deliveries" && kind !== "restaurants") return userJson(user);
   const courier = (await ctx.store.findCourier(ctx.app.id, courierWho(user))) ?? (await reviewCourierFor(ctx.store, ctx.app, user, ctx.now));
-  return { ...userJson(user), roles: courier?.active ? ["courier"] : [] };
+  const roles = courier?.active ? ["courier"] : [];
+  // 105.1 In food delivery apps, `restaurant` for an active restaurant's staff (and the store review account).
+  if (kind === "restaurants" && (await worksAtRestaurant(ctx, user))) roles.push("restaurant");
+  return { ...userJson(user), roles };
+}
+
+async function worksAtRestaurant(ctx: HostedContext, user: HostedUser): Promise<boolean> {
+  const staff = await ctx.store.findRestaurantStaff(ctx.app.id, courierWho(user));
+  if (staff?.active) return (await ctx.store.getRestaurant(ctx.app.id, staff.restaurantId))?.active === true;
+  return (await reviewRestaurantFor(ctx.store, ctx.app, user)) !== null;
 }
 
 export function userJson(user: HostedUser) {

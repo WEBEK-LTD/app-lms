@@ -2305,6 +2305,7 @@ export class MemoryStore implements DataStore {
         (o) =>
           o.appId === query.appId &&
           (query.userId === undefined || o.userId === query.userId) &&
+          (query.notUserId === undefined || o.userId !== query.notUserId) &&
           (query.restaurantId === undefined || o.restaurantId === query.restaurantId) &&
           (!query.statuses || query.statuses.includes(o.status)) &&
           (!query.since || o.createdAt.getTime() >= query.since.getTime()) &&
