@@ -2393,7 +2393,7 @@ the owner: every option is built and each company picks its own.
 
 Multi-restaurant food delivery, ride hailing, academies with many
 teachers, schools and universities, home services, multi-store grocery and
-pharmacy delivery, car rental, hotels and rentals, laundry. One at a time,
+pharmacy delivery, hotels and stays, car rental, laundry. One at a time,
 after Phase 104, each a Studio project type on its own Studio plan feature
 (off until the owner ticks and prices it in Admin › Plans › Yallapp
 Studio), each with its own Studio templates and sections, review accounts
@@ -2572,11 +2572,61 @@ order is picked, couriers from 104.
 | [ ] | 105.6.2 App: customer and store staff | widget tests |
 | [ ] | 105.6.3 Studio templates and review accounts | unit tests, e2e |
 
-### 105.7 Car rental, hotels and rentals, laundry
+### 105.7 Hotels and stays (Studio project type `hotels`)
+
+One app for a hotel, a resort, a chain of hotels, or holiday apartments and
+chalets: guests find and book a room, and use the app during their stay.
+
+- **Properties and rooms**: one or many properties (a chain: each hotel
+  with its own page, address on the map, photos, facilities, policies);
+  room types (photos, size, beds, view, how many adults and children,
+  amenities) and the rooms of each type (numbers, floors), or units for
+  apartments and chalets.
+- **Rates and availability**: a price per night per room type, by season
+  and by day of the week, rate plans (room only, breakfast, half board,
+  non-refundable cheaper), minimum nights, extra adult or child, taxes and
+  fees; an availability calendar per room type; closing dates.
+- **Booking**: dates and guests, the room types free for them with their
+  total, extras (airport pickup, early check-in, late check-out, extra
+  bed), the guests' names, special requests; pay in full, a deposit, or at
+  the hotel, by card through the hotel's own gateway; the company's
+  cancellation policy per rate plan; a booking number, confirmation by
+  push and email, add to calendar; change or cancel within the policy.
+- **The stay**: online check-in (ID photo, arrival time), the room number
+  when it is ready, a digital key code if the hotel uses one (shown, not
+  made by Yallapp), room service (the hotel's menu, ordered to the room,
+  105.1's ordering), requests (towels, housekeeping, maintenance, a taxi),
+  the hotel's services and their hours (restaurant, spa, pool, gym) with
+  their own bookings (7.4–7.6), chat with reception (77), the bill so far,
+  check-out and the final invoice, a review after the stay.
+- **Loyalty and offers**: points per night, member prices,
+  promo codes, packages (room + dinner + spa).
+- **The hotel** (dashboard in Studio): properties, room types and rooms,
+  rates and the calendar, bookings (arrivals and departures of the day,
+  in house, no-shows), the front desk's room board (clean, dirty, out of
+  order), guests and their history, requests and room-service orders as
+  they come (with a sound), housekeeping tasks, staff with roles
+  (reception, housekeeping, restaurant), reports (occupancy, average
+  rate, revenue per available room, by period), invoices.
+- **Staff in the app**: a Staff tab per role: reception (arrivals, assign
+  a room, check in, check out), housekeeping (rooms to clean, done),
+  restaurant (room-service orders).
+- Later, after it works: two-way sync of availability with Booking.com,
+  Airbnb and others through a channel manager, when the owner chooses one.
+
+| Done | Step | Checked by |
+| --- | --- | --- |
+| [ ] | 105.7.1 Contract: `app_type` `hotels`; `Config.hotels`; properties, room types, availability and prices for dates, bookings (quote, book, mine, change, cancel), the stay (check-in, room, requests, room service, bill, check-out, review); the Staff tag per role; notifications; plan feature `hotels` | redocly lint |
+| [ ] | 105.7.2 Platform: properties, room types, rooms, rates (seasons, days, rate plans, minimum nights), availability that never sells a room twice, bookings and their stages, deposits and payments, cancellation policies, stays, requests, room service, invoices, pushes (migrations) | unit tests, isolation tests |
+| [ ] | 105.7.3 Dashboard (en/ar/tr) in Studio: Properties, Room types and rooms, Rates and calendar, Bookings (today's arrivals and departures), Room board, Requests and room service, Housekeeping, Guests, Staff, Reports | unit tests, e2e |
+| [ ] | 105.7.4 App, guest: search by dates and guests, a hotel's page, room types and rate plans, booking and payment, my bookings, online check-in, the stay (room, requests, room service, services, chat, bill), review | flutter analyze and widget tests |
+| [ ] | 105.7.5 App, staff: reception, housekeeping and restaurant tabs | widget tests |
+| [ ] | 105.7.6 Studio templates and sections for hotels; review accounts for guest and staff (the reviewers' bookings hold no real room) | unit tests, e2e |
+
+### 105.8 Car rental and laundry
 
 Each its own small step after the ones above: car rental (cars, dates,
-pickup and return places, deposits), hotels and holiday rentals (rooms or
-units, calendars, nights, guests), laundry (pickup and delivery with
+pickup and return places, deposits), laundry (pickup and delivery with
 104's couriers, items priced by piece or by kilo).
 
 ## Phase 106: Studio template marketplace (postponed)
