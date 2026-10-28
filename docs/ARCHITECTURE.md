@@ -1138,12 +1138,12 @@ app owners sell to their own customers keeps each app's own currency.
   from the request at sign-up) comes before the request's
   (`lib/billing/display.ts`). Spoofing a header only changes what is shown:
   the charge is the same pounds.
-- **Caching.** The pages with prices (`/`, `/pricing`, the dashboard) are
+- **Caching.** The pages with prices (`/`, `/pricing`, `/yallapp-studio`, the dashboard) are
   rendered per request (`dynamic = "force-dynamic"`, so Next.js sends
   `Cache-Control: private, no-cache, no-store`): no CDN or proxy keeps a
   copy, and the country is read on each request. As a second guard,
   `next.config.ts` sends `Netlify-Vary: header=X-Yallapp-Client-Country|
-  X-Country|CF-IPCountry|Accept-Language,country=eg` on `/` and `/pricing`
+  X-Country|CF-IPCountry|Accept-Language,country=eg` on `/`, `/pricing` and `/yallapp-studio`
   (`lib/geo-vary.ts`), so Netlify's cache, if turned on for them later,
   keeps one copy per country. A plain `Vary` can't be added: Next.js
   replaces it on app pages with its own. Static or ISR pages must never show
@@ -1168,7 +1168,8 @@ are separate.
 
 - **Addresses.** English pages keep their addresses, with no prefix. Arabic
   and Turkish ones live under `/ar/…` and `/tr/…`: the home page, solutions,
-  features, integrations, how it works, pricing, demo, contact, FAQ, docs (the
+  features, integrations, how it works, pricing, demo, (103R) Yallapp Studio
+  (`/yallapp-studio`) and its demo (`/demo/studio`), contact, FAQ, docs (the
   index and every article), developers, terms, privacy, refund, (66) delete-account, sign-in,
   sign-up, forgot and reset password, and "page not found". Dashboard, admin,
   API, `/pay`, `/give`, `/shop`, `/receipts`, `/a`, `/m`, `/media`, `/oauth`
@@ -1180,7 +1181,7 @@ are separate.
   (`src/site/lang.ts` `routeLang`), so `/xyz` is "page not found" in English
   and `/ar/xyz` (`[lang]/[...rest]`) is in Arabic
   (`components/localized-not-found.tsx`). Every page keeps how it was
-  rendered: `/`, `/pricing` and their `/ar`, `/tr` versions are dynamic
+  rendered: `/`, `/pricing`, `/yallapp-studio` and their `/ar`, `/tr` versions are dynamic
   (prices, Phase 52, and `lib/geo-vary.ts` lists them), the others are
   static. Pages never redirect by the browser's languages.
 - **Paths** (`src/i18n/paths.ts`). `localePath(lang, href)` gives a link in a

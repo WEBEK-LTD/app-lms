@@ -418,4 +418,27 @@ final websiteShots = <Shot>[
     template: AppTemplate.bold,
     location: '/campaign/1',
   ),
+  // 103R A home page designed in Yallapp Studio, light and dark.
+  Shot('studio-cafe-home', api: DemoApi.studioCafe, appType: AppType.store),
+  Shot(
+    'studio-cafe-home-dark',
+    api: DemoApi.studioCafe,
+    appType: AppType.store,
+    dark: true,
+  ),
+  // 104 A delivery company (Yallapp Studio): sending a parcel, following
+  // it, and a courier's jobs.
+  Shot('delivery-send', api: DemoApi.delivery, appType: AppType.delivery),
+  Shot(
+    'delivery-shipment',
+    api: DemoApi.delivery,
+    appType: AppType.delivery,
+    location: '/shipment/1',
+  ),
+  Shot(
+    'delivery-courier',
+    api: () => DemoApi.delivery(courier: true),
+    appType: AppType.delivery,
+    after: (tester, router) async => router.go('/courier'),
+  ),
 ];

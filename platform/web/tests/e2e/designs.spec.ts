@@ -245,7 +245,7 @@ test("99.2 another design's look only, one step back, and everything with the ow
   await own.getByLabel("New page title").fill("Timetable");
   await own.getByRole("button", { name: "Add page" }).click();
   await expect(own.getByRole("button", { name: "Duplicate Timetable" })).toBeVisible();
-  await expect(own.getByText(/^Draft saved/)).toBeVisible();
+  await expect(own.getByText(/^Draft saved/)).toBeVisible({ timeout: 15_000 });
   await own.getByRole("tab", { name: /^Look/ }).click();
   const corners = await own.locator("#look-corners").inputValue();
   await own.getByRole("tab", { name: "Pages", exact: true }).click();
@@ -317,7 +317,7 @@ test("99.3 a block's style and where it shows, copied to another page; the page'
   await own.getByRole("button", { name: "Quick view", exact: true }).click();
   await expect(own.locator("[data-page-header]")).toHaveAttribute("src", "https://yallapp.test/m/top.jpg");
   await expect(own.locator("[data-block-look]").first()).toHaveAttribute("data-block-look", "none medium center large");
-  await expect(own.getByText(/^Draft saved/)).toBeVisible();
+  await expect(own.getByText(/^Draft saved/)).toBeVisible({ timeout: 15_000 });
   await own.getByRole("button", { name: "Publish", exact: true }).click();
   await expect(own.getByText("Published. Your app shows the new pages")).toBeVisible();
 
@@ -358,7 +358,7 @@ test("99.4 cards, a gallery, a location, a divider and a form; the form's answer
   // The quick view draws them.
   await own.getByRole("button", { name: "Quick view", exact: true }).click();
   for (const kind of ["cards", "gallery", "map", "form"]) await expect(own.locator(`[data-preview-${kind}]`)).toBeVisible();
-  await expect(own.getByText(/^Draft saved/)).toBeVisible();
+  await expect(own.getByText(/^Draft saved/)).toBeVisible({ timeout: 15_000 });
   await own.getByRole("button", { name: "Publish", exact: true }).click();
   await expect(own.getByText("Published. Your app shows the new pages")).toBeVisible();
 

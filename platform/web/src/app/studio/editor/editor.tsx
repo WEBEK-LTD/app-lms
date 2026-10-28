@@ -17,7 +17,7 @@ import { SECTIONS, sectionsFor, TEMPLATES, templatesFor, type ProjectKind, type 
 import { findNode } from "@/lib/studio/tree";
 import { Inspector, type InspectorTab } from "./inspector";
 import { LeftPanel, elementLabel, type LeftTab, type MyTemplate } from "./left-panel";
-import { DRAG_TYPE, Glyph, STUDIO_COLORS as C, type DragPayload } from "./shared";
+import { DRAG_TYPE, Glyph, STUDIO_COLORS as C, StudioMark, type DragPayload } from "./shared";
 
 /**
  * 103R.4 Yallapp Studio's editor, as the owner approved it: the dark bar on
@@ -520,12 +520,7 @@ export function StudioEditor(props: StudioEditorProps) {
     <div className="studio flex min-h-dvh flex-col lg:h-dvh lg:overflow-hidden" style={{ fontFamily: "var(--font-studio), 'Cairo', system-ui, sans-serif", color: C.ink, background: C.board }} onDragEnd={endDrag}>
       <header className="flex flex-wrap items-center gap-4 px-5 py-2.5" style={{ background: C.ink, color: C.ivory }}>
         <Link href="/studio/project" className="flex items-center gap-2.5 no-underline" style={{ color: C.ivory }} title={t("studio.back")}>
-          <span className="flex size-8 items-center justify-center rounded-[9px] text-lg font-extrabold" style={{ background: C.ivory, color: C.ink }}>
-            y<span style={{ color: C.accent }}>.</span>
-          </span>
-          <span dir="ltr" className="text-[17px] font-extrabold tracking-[0.2px]">
-            Yallapp Studio
-          </span>
+          <StudioMark />
         </Link>
 
         <div className="relative">

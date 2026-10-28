@@ -38,6 +38,14 @@ export const TR_MARKETING: MarketingTranslation = {
     "dashboard-pages": "Yallapp panelindeki sayfa ve görünüm düzenleyici",
     "dashboard-setup": "Yallapp panelindeki uygulama kurulum adımları",
     "dashboard-builds": "Yallapp panelindeki derlemeler ve indirmeler",
+    "studio-cafe-home": "Yallapp Studio'da tasarlanmış bir kafenin ana sayfası, yemekler için kendi kartlarıyla",
+    "studio-cafe-home-dark": "Aynı Studio sayfası karanlık modda, karanlık renkleriyle",
+    "delivery-send": "Bir teslimat uygulamasında paket gönderme ekranı: hizmet, alış ve teslim yeri",
+    "delivery-shipment": "Yoldaki bir gönderi, kuryesi ve her aşamasıyla",
+    "delivery-courier": "Aynı uygulamada bir kuryenin işleri, mesai düğmesiyle",
+    "studio-editor": "Yallapp Studio düzenleyicisi: solda öğeler, telefonda sayfa, sağda ayarları",
+    "studio-home": "Hesabın projeleriyle Yallapp Studio ana sayfası",
+    "studio-project": "Bir Studio projesinin paneli",
   },
   kindNames: {
     Academy: "Akademi",
@@ -886,6 +894,28 @@ export const TR_MARKETING: MarketingTranslation = {
         {
           q: "Uygulamamı derlenmeden önce deneyebilir miyim?",
           a: "Evet. Paneldeki Uygulama önizlemesi gerçek uygulamanızı mevcut kurulumunuz, içeriğiniz, sayfalarınız ve dillerinizle, açık ve koyu temada tarayıcınızda çalıştırır. Telefonunuzda açmak için QR kodunu tarayın. Kurulum tamamlanmadan çalışır; asla giriş kodu göndermez ve ödeme almaz.",
+        },
+      ],
+    },
+    {
+      // 103R Yallapp Studio, apart from the regular apps.
+      title: "Yallapp Studio",
+      items: [
+        {
+          q: "Yallapp Studio nedir?",
+          a: "Yallapp hesabında, görsel bir düzenleyicide özgürce tasarladığın projeler için ayrı bir alan: satırlar, sütunlar, katmanlar, resimler, düğmeler ve tasarladığın kartlarda listeler; açık ve karanlık mod renkleri ve hareketle, Android ve iOS uygulamanda yerel olarak çizilir. Studio, kuryeleriyle bir teslimat şirketinin uygulaması gibi yalnızca kendisinin sunduğu proje türlerini de yapar. Bkz. [Yallapp Studio](/yallapp-studio).",
+        },
+        {
+          q: "Studio planları normal planlardan nasıl farklı?",
+          a: "Ayrıdırlar. Bir Studio projesi Studio'nun kendi planlarından biriyle, normal bir uygulama ise normal bir planla (Starter, Growth, Pro ya da Business) ödenir. Her Studio planında Studio düzenleyicisi, anlık bildirimler, kartla ödeme, sohbet ve sadakat puanları vardır; iOS uygulaması, senin için yayınlama, teslimat ve kuryeler, hareket, şablonlar ve Studio sayfası sayısı plan plan seçilir. Bkz. [Fiyatlar](/pricing).",
+        },
+        {
+          q: "Normal bir uygulama için Studio gerekli mi?",
+          a: "Hayır. Normal uygulamalar sayfa düzenleyicilerini ve hazır tasarımlarını korur ve panelinde kalır. Studio projelerin ise Studio'da, her biri kendi paneliyle ayrı tutulur.",
+        },
+        {
+          q: "Başlamadan önce bir Studio projesi görebilir miyim?",
+          a: "Evet. [Studio demosu](/demo/studio), uygulamanın kendisinin çizdiği gerçek Studio projelerinden ekranlar gösterir: düzenleyicide tasarlanmış bir kafenin ana sayfası, açık ve karanlık modda, bir teslimat şirketinin müşteri ve kurye ekranları ve düzenleyici. Normal uygulamaların demo uygulamaları [Demo](/demo) sayfasında.",
         },
       ],
     },

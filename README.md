@@ -6,6 +6,14 @@ optional: Yallapp can send the sign-in codes); Yallapp provides the WordPress pl
 app, the white-label Flutter app, and the platform that builds and delivers
 each client's apps.
 
+Clients can also make projects in **Yallapp Studio**, a space of their
+account apart from the regular apps: pages designed element by element in
+the Studio editor and drawn natively by the app, project types only Studio
+makes (delivery and courier companies), and Studio's own plans, apart from
+the regular Starter, Growth, Pro and Business. The website shows it at
+`/yallapp-studio`, its demo at `/demo/studio`, and its plans apart on
+`/pricing`.
+
 Yallapp is based in Cairo, Egypt.
 Website: [yallapp.com.tr](https://yallapp.com.tr)
 

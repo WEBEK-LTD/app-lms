@@ -52,12 +52,13 @@ const footerLink = "text-ivory no-underline hover:text-white hover:underline";
 /** The footer's Product links in a language. */
 function productLinks(lang: Lang, m: Messages): { id: string; href: string; label: string }[] {
   const nav = m.nav;
-  const label: Record<string, string> = { solutions: nav.solutions, features: nav.features, integrations: nav.integrations, how: nav.how };
+  const label: Record<string, string> = { studio: nav.studio, solutions: nav.solutions, features: nav.features, integrations: nav.integrations, how: nav.how };
   return [
     { id: "home", href: "/", label: nav.home },
     ...PRODUCT_LINKS.map((l) => ({ id: l.id, href: l.href, label: label[l.id] ?? l.label })),
     { id: "pricing", href: "/pricing", label: nav.pricing },
     { id: "demo", href: "/demo", label: nav.demo },
+    { id: "studio-demo", href: "/demo/studio", label: m.footer.studioDemo },
   ].map((l) => ({ ...l, href: localePath(lang, l.href) }));
 }
 

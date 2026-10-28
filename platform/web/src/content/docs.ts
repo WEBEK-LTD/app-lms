@@ -1,5 +1,6 @@
 import { MAIL_PRESETS } from "../lib/email/app-mail-presets";
 import { DEVELOPER_GUIDE } from "./docs-developer";
+import type { AppScreen, DashboardScreen } from "../lib/marketing";
 
 /**
  * The documentation at yallapp.com.tr/docs: the user manual for clients, as
@@ -52,6 +53,8 @@ export interface DocDefault {
   /** Step-by-step articles number their sections. */
   steps: boolean;
   body: string;
+  /** 103R Real screenshots under the introduction (public/screens), in phone or browser frames. */
+  figures?: (AppScreen | DashboardScreen)[];
 }
 
 /** The old guide addresses, /guides/<slug>, and the article each one moved to. */
@@ -200,6 +203,65 @@ Open **App setup** and choose another type. Your next build includes the new typ
   }),
 
   // -------------------------------------------------------------------------
+  doc({
+    // 103R Yallapp Studio, apart from the regular apps.
+    slug: "yallapp-studio",
+    section: "Getting started",
+    title: "Yallapp Studio: design your app freely",
+    description: "What Yallapp Studio is, how its projects differ from regular apps, making a project, the Studio editor, delivery companies and Studio's own plans.",
+    steps: false,
+    figures: ["studio-editor", "studio-cafe-home", "studio-cafe-home-dark", "delivery-courier"],
+    body: `Yallapp Studio is a space of its own in your account for projects you design element by element: rows, columns, layers, pictures, buttons and lists in cards you design, with colours for light and dark mode and motion. What you design is drawn natively in your Android and iOS app, not shown as a web page. Studio also makes project types only it offers, like a delivery company's app with its couriers.
+
+Open it from **Yallapp Studio** in your dashboard's menu. Its first page, **Your projects in Studio**, lists your Studio projects, apart from your regular apps.
+
+## Regular apps and Studio projects
+
+- **Pages**: regular apps use the page editor, with its blocks and ready-made designs. Studio projects use the Studio editor, where any element goes anywhere.
+- **Kinds of apps**: Studio makes every kind of app Yallapp makes, and the project types only Studio offers, like delivery companies.
+- **Plans**: they're separate. A regular app is paid on a regular plan (Starter, Growth, Pro or Business), and a Studio project on one of Studio's own plans.
+- **In your account**: your regular apps stay in the dashboard; your Studio projects are in Studio, each with its own dashboard.
+
+Building, the setup steps and publishing on the app stores work the same way for both.
+
+## Making a project
+
+Choose **New project**. It takes three steps:
+
+1. **Project type**: what your project is. **Studio projects only** come first, then every kind of app.
+2. **Content source**: where its content comes from, as for a regular app of the same kind. Delivery companies have no website: their shipments, couriers and prices are set in the project's dashboard.
+3. **The start**: a template made for your kind of project, or a blank page, and your project's name.
+
+The project's dashboard opens, with the same pages as a regular app of its kind. You can design and try before you choose a plan. Publishing needs one of Studio's plans.
+
+## The Studio editor
+
+Choose **Open the editor**. The page sits in the phone in the middle; **Elements**, **Ready sections**, **Templates** and **Page layers** are on one side, and the chosen element's settings on the other.
+
+- **Elements**: Row, Column, Layers, Grid, Slider and Space to lay the page out; Text, Picture, Button, Icon and Divider; a List of your products, courses, services or other entries, in a card you design; Categories, Video, Form, Map, Ratings and Search. Drag any element and drop it anywhere.
+- **Size and place**: each element can **Fill** the space, **Hug** its content or take a **Fixed** size, with space inside, space outside and space between.
+- **Colours**: a background, a gradient or a picture behind it, and a text colour, each with its own colour **In dark mode**. Fonts, corners, shadows and borders too.
+- **Motion**: what happens **When it shows** (fade in, slide or grow), **While tapped** (shrink or bounce) and **Again and again** (pulse, float or shake). Phones set to reduce motion show it still.
+- **When the customer taps**: open a screen of the app, a page, a web address or one entry.
+- **Shows on** Android, iOS or both, and **Who sees it**: everyone, people signed in, or people not signed in.
+
+Check the page on a small phone, a large phone and a tablet, in light and dark. **Undo** and **Redo** go back and forward, and the page is saved as you go. **Preview on the phone** lets you try it on your phone; **Publish** sends it to your app, which shows it the next time it opens. **Save the page as my own template** keeps it in **My templates** for your other pages.
+
+## Delivery companies
+
+A delivery company's project is made in Studio only. Customers send a parcel with its pickup and drop-off, see the price as they type, pay in cash or by card through your own payment account, and follow it stage by stage or on a live map. Your couriers get a **Courier** tab in the same app, with their jobs, or a second app of their own on plans that include it.
+
+In the project's dashboard, set your prices and how customers pay on **Delivery settings**, add your couriers on **Couriers**, and follow every shipment on **Shipments**.
+
+## Studio's plans
+
+Every Studio plan has the Studio editor, push notifications, card payments through your own payment account, offline downloads, automatic rebuilds, chat, loyalty points, and courses and memberships sold through the app stores. The iOS app, publishing for you, delivery and couriers, a second app for couriers, motion, templates and the number of Studio pages in a project are chosen plan by plan.
+
+See Studio's plans on the [pricing page](/pricing) and on [Yallapp Studio](/yallapp-studio). When they say **On request**, message us on WhatsApp and we'll suggest the plan that fits your project.
+
+> The [Studio demo](/demo/studio) shows screens from real Studio projects, drawn by the app itself.
+`,
+  }),
   doc({
     slug: "content-sources",
     section: "Your content",
@@ -2463,6 +2525,10 @@ The app takes one-off donations. Monthly donations need a card saved for a subsc
 - **Business**: everything in Pro, with a dedicated account manager and custom features on request.
 
 App users limits count the people signed in to apps on our hosting. Apps on your WordPress site keep their users on your site, with no limit. See the [pricing page](/pricing) for the current prices and the full comparison.
+
+## Yallapp Studio's plans
+
+These four plans are for regular apps. Projects made in Yallapp Studio are paid on Studio's own plans, apart from these: a Studio project can't be on Starter, Growth, Pro or Business, and a regular app can't be on a Studio plan. See [Yallapp Studio](/docs/yallapp-studio).
 
 ## Changing plans
 

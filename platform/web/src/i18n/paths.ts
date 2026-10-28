@@ -17,6 +17,9 @@ const EXACT_PAGES = new Set([
   "/how-it-works",
   "/pricing",
   "/demo",
+  // 103R Yallapp Studio's page and its demo.
+  "/yallapp-studio",
+  "/demo/studio",
   "/contact",
   "/faq",
   "/docs",

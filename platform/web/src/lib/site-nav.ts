@@ -15,6 +15,7 @@ export type SitePage =
   | "features"
   | "integrations"
   | "how"
+  | "studio"
   | "pricing"
   | "demo"
   | "docs"
@@ -29,6 +30,12 @@ export interface SiteLink {
   /** One line under the label in the menus. */
   description?: string;
   icon?: IconName;
+  /** A short word beside the label on the top bar ("New"). */
+  badge?: string;
+  /** On the top bar only: the phone's menu lists it in its group. */
+  desktopOnly?: boolean;
+  /** On the top bar only from extra-large screens; the footer has it at every size. */
+  wideOnly?: boolean;
 }
 
 export interface SiteGroup {
@@ -40,6 +47,8 @@ export interface SiteGroup {
 export type SiteNavEntry = ({ kind: "link" } & SiteLink) | ({ kind: "group" } & SiteGroup);
 
 export const PRODUCT_LINKS: SiteLink[] = [
+  // 103R Yallapp Studio, apart from the regular apps.
+  { id: "studio", href: "/yallapp-studio", label: "Yallapp Studio", description: "Design your app freely", icon: "dashboard_customize" },
   { id: "solutions", href: "/solutions", label: "Solutions", description: "An app for each kind of business", icon: "grid_view" },
   { id: "features", href: "/features", label: "Features", description: "Pages, languages, payments and more", icon: "tune" },
   { id: "integrations", href: "/integrations", label: "Integrations", description: "Where your app's content comes from", icon: "link" },
@@ -55,20 +64,20 @@ export const RESOURCE_LINKS: SiteLink[] = [
 export const SITE_NAV: SiteNavEntry[] = [
   { kind: "link", id: "home", href: "/", label: "Home" },
   { kind: "group", id: "product", label: "Product", items: PRODUCT_LINKS },
+  // 103R Yallapp Studio also on the bar itself, with "New", while it is new.
+  { kind: "link", id: "studio", href: "/yallapp-studio", label: "Studio", badge: "New", desktopOnly: true },
   { kind: "link", id: "pricing", href: "/pricing", label: "Pricing" },
   { kind: "link", id: "demo", href: "/demo", label: "Demo" },
   { kind: "group", id: "resources", label: "Resources", items: RESOURCE_LINKS },
-  { kind: "link", id: "contact", href: "/contact", label: "Contact" },
+  { kind: "link", id: "contact", href: "/contact", label: "Contact", wideOnly: true },
 ];
 
 /** The menu entry to mark for a page: a link's own id, or the group the page is in. */
 export function activeEntry(current: SitePage | undefined): string | null {
   if (!current) return null;
-  for (const entry of SITE_NAV) {
-    if (entry.kind === "link" && entry.id === current) return entry.id;
-    if (entry.kind === "group" && entry.items.some((item) => item.id === current)) return entry.id;
-  }
-  return null;
+  // A page with its own link on the bar marks that link, before the group it's also in.
+  if (SITE_NAV.some((entry) => entry.kind === "link" && entry.id === current)) return current;
+  return SITE_NAV.find((entry) => entry.kind === "group" && entry.items.some((item) => item.id === current))?.id ?? null;
 }
 
 /** 55 The menu in a language: its labels from the catalog (nav), its links to that language's pages. */
@@ -76,6 +85,7 @@ export function siteNavFor(lang: Lang, m: Messages["nav"]): SiteNavEntry[] {
   const label: Record<string, [string, string?]> = {
     home: [m.home],
     product: [m.product],
+    studio: [m.studio, m.studioText],
     pricing: [m.pricing],
     demo: [m.demo],
     resources: [m.resources],
@@ -90,6 +100,8 @@ export function siteNavFor(lang: Lang, m: Messages["nav"]): SiteNavEntry[] {
   };
   const link = (item: SiteLink): SiteLink => ({ ...item, href: localePath(lang, item.href), label: label[item.id]![0], description: item.description && label[item.id]![1] });
   return SITE_NAV.map((entry) =>
-    entry.kind === "group" ? { ...entry, label: label[entry.id]![0], items: entry.items.map(link) } : { kind: "link" as const, ...link(entry) },
+    entry.kind === "group"
+      ? { ...entry, label: label[entry.id]![0], items: entry.items.map(link) }
+      : { kind: "link" as const, ...link(entry), ...(entry.id === "studio" ? { label: m.studioShort } : {}), ...(entry.badge ? { badge: m.newBadge } : {}) },
   );
 }
