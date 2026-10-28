@@ -156,7 +156,7 @@ describe("55 addresses in each language", () => {
 
   it("build the menu in each language with its links", () => {
     const nav = siteNavFor("ar", messagesFor("ar").nav);
-    expect(nav.map((e) => e.label)).toEqual(["الرئيسية", "المنتج", "الأسعار", "تجربة", "المصادر", "تواصل معنا"]);
+    expect(nav.map((e) => e.label)).toEqual(["الرئيسية", "المنتج", "Studio", "الأسعار", "تجربة", "المصادر", "تواصل معنا"]);
     expect(nav.flatMap((e) => (e.kind === "group" ? e.items.map((i) => i.href) : [e.href]))).toContain("/ar/how-it-works");
   });
 

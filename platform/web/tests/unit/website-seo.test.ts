@@ -39,8 +39,9 @@ import nextConfig from "../../next.config";
 const BASE = "https://yallapp.test";
 
 describe("32 the website's menu", () => {
-  it("has Home, Product and Resources lists, then Pricing, Demo and Contact", () => {
-    expect(SITE_NAV.map((e) => e.label)).toEqual(["Home", "Product", "Pricing", "Demo", "Resources", "Contact"]);
+  it("has Home, Product and Resources lists, then Studio, Pricing, Demo and Contact", () => {
+    // 103R Studio also on the bar itself, with "New".
+    expect(SITE_NAV.map((e) => e.label)).toEqual(["Home", "Product", "Studio", "Pricing", "Demo", "Resources", "Contact"]);
     const hrefs = (id: string) => SITE_NAV.flatMap((e) => (e.kind === "group" && e.id === id ? e.items.map((i) => i.href) : []));
     // 103R Yallapp Studio first: its own page, apart from the regular apps.
     expect(hrefs("product")).toEqual(["/yallapp-studio", "/solutions", "/features", "/integrations", "/how-it-works"]);
@@ -49,7 +50,8 @@ describe("32 the website's menu", () => {
 
   it("marks the page's own link, or the list it's in", () => {
     expect(activeEntry("pricing")).toBe("pricing");
-    expect(activeEntry("studio")).toBe("product");
+    // Studio's page marks its own link on the bar, before the Product list it's also in.
+    expect(activeEntry("studio")).toBe("studio");
     expect(activeEntry("features")).toBe("product");
     expect(activeEntry("how")).toBe("product");
     expect(activeEntry("developers")).toBe("resources");
