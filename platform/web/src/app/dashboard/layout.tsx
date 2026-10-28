@@ -92,8 +92,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
         },
         { href: "/dashboard/setup", label: t("nav.setup"), icon: "tune", prefix: "/dashboard/app-type" },
         { href: "/dashboard/pages", label: t("nav.pages"), icon: "palette" },
-        // 103R.3 Yallapp Studio, the account's own section for apps designed screen by screen.
-        { href: "/studio", label: t("studio.title"), icon: "draw" },
         // 51 The app's videos, pictures and PDFs, kept by Yallapp.
         ...(app ? [{ href: "/dashboard/media", label: t("nav.media"), icon: "photo_library" as const }] : []),
         // 77 The people using the app write to the business (apps whose people Yallapp knows).
@@ -231,30 +229,45 @@ export default async function DashboardLayout({ children }: { children: React.Re
             </div>
           }
         />
-        <main id="main" tabIndex={-1} className="min-w-0 flex-1 px-4 pt-6 pb-16 outline-none sm:px-8 sm:pt-8 lg:px-10">
-          <div className="mx-auto flex max-w-[1120px] flex-col gap-6">
-            {/* 93.2 Help with this page. */}
-            <PageHelp links={helpLinks(lang)} label={t("nav.pageHelp")} />
-            {staff ? (
-              <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-midnight px-4 py-3 text-sm text-white">
-                <span className="flex items-center gap-2">
-                  <Icon name="key" size={20} />
-                  <span>
-                    {app && apps.length > 1
-                      ? richText(t("nav.staffApp", { name: user.name, app: appLabel(app) }), bold)
-                      : richText(t("nav.staff", { name: user.name }), bold)}
+        <div className="flex min-w-0 flex-1 flex-col">
+          {/* 103R.3 The regular apps and Yallapp Studio, switched from a dark bar like Studio's own. */}
+          <header className="flex items-center gap-3 bg-midnight px-4 py-2.5 sm:px-8 lg:px-10">
+            <nav aria-label={t("studio.section")} className="flex items-center gap-1 rounded-[10px] bg-night-2 p-1">
+              <Link href="/dashboard" aria-current="page" className="flex h-8 items-center gap-1.5 rounded-lg bg-ivory px-3 text-[13px] font-bold text-midnight no-underline hover:text-midnight">
+                <Icon name="apps" size={18} />
+                {t("studio.regularApps")}
+              </Link>
+              <Link href="/studio" className="flex h-8 items-center gap-1.5 rounded-lg px-3 text-[13px] text-night-text no-underline hover:bg-night-line hover:text-white">
+                <Icon name="draw" size={18} />
+                {t("studio.title")}
+              </Link>
+            </nav>
+          </header>
+          <main id="main" tabIndex={-1} className="min-w-0 flex-1 px-4 pt-6 pb-16 outline-none sm:px-8 sm:pt-8 lg:px-10">
+            <div className="mx-auto flex max-w-[1120px] flex-col gap-6">
+              {/* 93.2 Help with this page. */}
+              <PageHelp links={helpLinks(lang)} label={t("nav.pageHelp")} />
+              {staff ? (
+                <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-midnight px-4 py-3 text-sm text-white">
+                  <span className="flex items-center gap-2">
+                    <Icon name="key" size={20} />
+                    <span>
+                      {app && apps.length > 1
+                        ? richText(t("nav.staffApp", { name: user.name, app: appLabel(app) }), bold)
+                        : richText(t("nav.staff", { name: user.name }), bold)}
+                    </span>
                   </span>
-                </span>
-                <form action={stopManagingAction}>
-                  <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
-                    {t("nav.backToAdmin")}
-                  </SubmitButton>
-                </form>
-              </div>
-            ) : null}
-            {children}
-          </div>
-        </main>
+                  <form action={stopManagingAction}>
+                    <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+                      {t("nav.backToAdmin")}
+                    </SubmitButton>
+                  </form>
+                </div>
+              ) : null}
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
     </DashboardI18n>
   );
