@@ -644,10 +644,15 @@ export interface Artifact {
   sha256?: string;
 }
 
+/** 104.6 Which of the app's builds: the customers' app, or a delivery company's courier app. */
+export type BuildVariant = "app" | "courier";
+
 export interface Build {
   id: string;
   clientId: string;
   appId: string;
+  /** 104.6 The courier app's builds have their own list; missing: the app's. */
+  variant?: BuildVariant;
   number: number;
   versionName: string;
   versionCode: number;
@@ -3009,6 +3014,10 @@ export interface DeliverySettings {
   tracking: DeliveryTracking;
   assignment: DeliveryAssignment;
   courierApp: CourierApp;
+  /** 104.6 The courier app's name in the stores; null: "<app name> Courier". */
+  courierAppName?: string | null;
+  /** 104.6 The courier iPhone app's GoogleService-Info.plist (an asset); null: no pushes on the courier iPhone app. */
+  courierFirebaseIosAssetId?: string | null;
 }
 
 /** A service the customer chooses (same-day, express, documents), adding its own amount to the price. */

@@ -98,6 +98,24 @@ void main() {
     );
   });
 
+  test('104.6 a delivery company\'s courier app', () {
+    final courier = example()
+      ..['app_type'] = 'delivery'
+      ..['role'] = 'courier';
+    expect(validateBuildConfig(courier).isValid, isTrue);
+    expect(renderDartConfig(courier), contains('role: AppRole.courier,'));
+    // Every other build is the customers' app.
+    expect(renderDartConfig(example()), contains('role: AppRole.customer,'));
+    expect(
+      validateBuildConfig(example()..['role'] = 'courier').errors,
+      contains('"role" courier is for delivery apps only.'),
+    );
+    expect(
+      validateBuildConfig(courier..['role'] = 'driver').errors.single,
+      startsWith('"role" must be one of'),
+    );
+  });
+
   test('an API address for sites without WordPress', () {
     expect(
       validateBuildConfig(

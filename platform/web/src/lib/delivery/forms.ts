@@ -96,8 +96,30 @@ export function parseDeliverySettings(form: Record<string, string>, saved: Deliv
   const courierApp = COURIER_APPS.find((v) => v === str(form, "courierApp")) as CourierApp | undefined;
   if (!courierApp) errors.courierApp = "Choose where your couriers work.";
   else if (courierApp === "bundle" && !courierAppAllowed && saved.courierApp !== "bundle") errors.courierApp = "A second app for couriers isn't in your plan.";
+  // 104.6 The courier app's own name, when the company gives one.
+  const courierAppName = str(form, "courierAppName") || null;
+  if (courierAppName && courierAppName.length > DELIVERY_LIMITS.courierAppName) errors.courierAppName = `Give the courier app a name of up to ${DELIVERY_LIMITS.courierAppName} characters.`;
   if (Object.keys(errors).length || !currency || !pricing || !tracking || !assignment || !courierApp) return { ok: false, errors };
-  return { ok: true, value: { currency, pricing, fixedCents, baseCents, perKmCents, minCents, maxKm, zones, cash, card, tracking, assignment, courierApp } };
+  return {
+    ok: true,
+    value: {
+      currency,
+      pricing,
+      fixedCents,
+      baseCents,
+      perKmCents,
+      minCents,
+      maxKm,
+      zones,
+      cash,
+      card,
+      tracking,
+      assignment,
+      courierApp,
+      courierAppName,
+      courierFirebaseIosAssetId: saved.courierFirebaseIosAssetId ?? null,
+    },
+  };
 }
 
 export interface ServiceForm {

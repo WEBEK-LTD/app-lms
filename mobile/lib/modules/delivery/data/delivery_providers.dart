@@ -20,12 +20,21 @@ final deliveryConfigProvider = Provider<DeliveryConfig>((ref) {
 });
 
 /// Whether this build shows the couriers' screens: the company's app when
-/// its couriers work in it.
+/// its couriers work in it, and (104.6) its courier app always.
 final courierScreensHereProvider = Provider<bool>((ref) {
   final env = ref.watch(appEnvironmentProvider);
   if (env.build.appType != AppType.delivery) return false;
+  if (env.build.role == AppRole.courier) return true;
   return ref.watch(deliveryConfigProvider).courierApp == CourierApp.same;
 });
+
+/// 104.6 This build is the delivery company's courier app: the courier's
+/// screens and the account only.
+final courierAppProvider = Provider<bool>(
+  (ref) =>
+      ref.watch(appEnvironmentProvider).build.appType == AppType.delivery &&
+      ref.watch(appEnvironmentProvider).build.role == AppRole.courier,
+);
 
 /// The signed-in person is one of the company's couriers, and this build
 /// shows the couriers' screens: the Courier tab is theirs only.

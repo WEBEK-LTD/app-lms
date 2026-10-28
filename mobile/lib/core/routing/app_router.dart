@@ -36,13 +36,15 @@ String? redirectFor({
   required String location,
   required AuthState auth,
   required bool guestMode,
+  // 104.6 Where the app starts: the courier's screen in a courier app.
+  String home = Paths.home,
 }) {
   if (auth is AuthChecking) return null;
   final signingIn = Paths.isSignIn(location);
   if (auth.isSignedIn) {
     if (!signingIn) return null;
     final from = Uri.parse(location).queryParameters['from'];
-    return (from != null && from.startsWith('/')) ? from : Paths.home;
+    return (from != null && from.startsWith('/')) ? from : home;
   }
   if (signingIn) return null;
   if (Paths.requiresAuth(location)) {
@@ -51,10 +53,10 @@ String? redirectFor({
       queryParameters: {'from': location},
     ).toString();
   }
-  if (!guestMode && (location == '/' || location.startsWith(Paths.home))) {
+  if (!guestMode && (location == '/' || location.startsWith(home))) {
     return Paths.signIn;
   }
-  if (location == '/') return Paths.home;
+  if (location == '/') return home;
   return null;
 }
 
@@ -81,6 +83,8 @@ final appModuleProvider = Provider<AppModule>(
 /// With chat, a Chat tab when there's room.
 final shellTabsProvider = Provider<List<ShellTab>>((ref) {
   final module = ref.watch(appModuleProvider);
+  // 104.6 The courier app: the courier's screen and the account, nothing else.
+  if (ref.watch(courierAppProvider)) return courierAppTabs;
   final gate = ref.watch(appGateProvider);
   final config = gate is GateReady ? gate.config : null;
   final navigation = gate is GateReady ? gate.navigation : null;
@@ -195,7 +199,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final module = ref.read(appModuleProvider);
   final router = GoRouter(
     navigatorKey: rootNavigatorKey,
-    initialLocation: Paths.home,
+    initialLocation: ref.read(courierAppProvider) ? Paths.courier : Paths.home,
     refreshListenable: refresh,
     debugLogDiagnostics: false,
     redirect: (context, state) {
@@ -212,6 +216,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             location: state.uri.toString(),
             auth: ref.read(authControllerProvider),
             guestMode: ref.read(localSettingsProvider).guestMode,
+            home: ref.read(courierAppProvider) ? Paths.courier : Paths.home,
           );
     },
     routes: tabbedRoutes(module: module, tabs: ref.read(shellTabsProvider)),

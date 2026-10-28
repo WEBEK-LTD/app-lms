@@ -673,6 +673,13 @@
       "when": 1793200484963,
       "tag": "0095_delivery",
       "breakpoints": true
+    },
+    {
+      "idx": 96,
+      "version": "5",
+      "when": 1793203306542,
+      "tag": "0096_courier_app_builds",
+      "breakpoints": true
     }
   ]
 }

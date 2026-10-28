@@ -20,6 +20,11 @@ export interface SettingsFormValues {
   tracking: string;
   assignment: string;
   courierApp: string;
+  /** 104.6 The courier app's own name, and its name when none is given. */
+  courierAppName: string;
+  courierAppNameDefault: string;
+  /** 104.6 Whether the courier iPhone app's Firebase file is in. */
+  courierFirebaseIos: boolean;
 }
 
 function Choices({
@@ -78,10 +83,11 @@ export function DeliverySettingsForm({
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveDeliverySettingsAction, initialFormState);
-  const value = (key: Exclude<keyof SettingsFormValues, "cash" | "card">) => state.values?.[key] ?? settings[key];
+  const value = (key: Exclude<keyof SettingsFormValues, "cash" | "card" | "courierFirebaseIos">) => state.values?.[key] ?? settings[key];
   const checked = (key: "cash" | "card") => (state.values ? state.values[key] === "on" : settings[key]);
   const [pricing, setPricing] = useState(value("pricing"));
   const [currency, setCurrency] = useState(value("currency"));
+  const [courierApp, setCourierApp] = useState(value("courierApp"));
   const money = (key: "delivery.fixed" | "delivery.base" | "delivery.perKm" | "delivery.min") => t(key, { currency });
   return (
     <form action={action} noValidate className="flex flex-col gap-6">
@@ -178,6 +184,7 @@ export function DeliverySettingsForm({
           legend={t("delivery.courierApp")}
           name="courierApp"
           value={value("courierApp")}
+          onChange={setCourierApp}
           error={state.errors?.courierApp}
           options={[
             { value: "same", label: t("delivery.courierSame"), hint: t("delivery.courierSameHint") },
@@ -191,6 +198,28 @@ export function DeliverySettingsForm({
             { value: "yallapp_courier", label: t("delivery.courierYallapp"), hint: t("delivery.courierYallappHint"), disabled: settings.courierApp !== "yallapp_courier" },
           ]}
         />
+        {/* 104.6 The courier app's name in the stores, and the Firebase file of its iPhone app. */}
+        {courierApp === "bundle" && bundleAllowed ? (
+          <div className="ms-7 flex max-w-[420px] flex-col gap-3">
+            <Field
+              label={t("delivery.courierAppName")}
+              name="courierAppName"
+              maxLength={30}
+              defaultValue={value("courierAppName")}
+              placeholder={settings.courierAppNameDefault}
+              hint={t("delivery.courierAppNameHint", { name: settings.courierAppNameDefault })}
+              error={state.errors?.courierAppName}
+            />
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="f-courierFirebaseIos" className="text-sm font-semibold">
+                {t("delivery.courierFirebaseIos")}
+              </label>
+              <input id="f-courierFirebaseIos" type="file" name="courierFirebaseIos" accept=".plist,application/xml,text/xml" className="text-sm" />
+              <span className="text-[13px] text-muted">{t(settings.courierFirebaseIos ? "delivery.courierFirebaseIosSaved" : "delivery.courierFirebaseIosHint")}</span>
+              <FieldError id="f-courierFirebaseIos-error" error={state.errors?.courierFirebaseIos} />
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <div className="flex justify-end">

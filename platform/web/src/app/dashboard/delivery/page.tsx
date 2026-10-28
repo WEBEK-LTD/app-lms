@@ -20,6 +20,7 @@ import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { appPlan } from "@/lib/entitlements";
 import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { hasFeature } from "@/lib/plans";
+import { courierAppNameOf } from "@/lib/delivery/courier-app";
 import { ConfirmButton } from "../chat/forms";
 import { isDelivery, NotDelivery, PlanNotice } from "../shipments/parts";
 import { AddServiceBox, DeliverySettingsForm, ServiceForm } from "./forms";
@@ -107,6 +108,9 @@ export default async function DeliverySettingsPage() {
             tracking: settings.tracking,
             assignment: settings.assignment,
             courierApp: settings.courierApp,
+            courierAppName: settings.courierAppName ?? "",
+            courierAppNameDefault: courierAppNameOf(app, { courierAppName: null }),
+            courierFirebaseIos: Boolean(settings.courierFirebaseIosAssetId),
           }}
         />
       </section>

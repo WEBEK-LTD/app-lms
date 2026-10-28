@@ -11,6 +11,7 @@ const _topLevelKeys = {
   'client_id',
   'app_type',
   'vertical',
+  'role',
   'app_name',
   'short_name',
   'site_url',
@@ -76,6 +77,9 @@ const appTypes = [
 
 /// Kinds of business (`vertical` in the schema), on top of the app type.
 const verticals = ['restaurant', 'clinic', 'fitness', 'charity', 'services'];
+
+/// 104.6 `role`: the customers' app, or a delivery company's courier app.
+const roles = ['customer', 'courier'];
 
 /// The Dart `AppType` value for a schema `app_type`.
 String dartAppType(String wire) =>
@@ -176,6 +180,14 @@ ValidationResult validateBuildConfig(Object? decoded) {
   }
   if (c.containsKey('vertical') && !verticals.contains(c['vertical'])) {
     errors.add('"vertical" must be one of ${verticals.join(', ')}.');
+  }
+  // 104.6 The delivery company's courier app: only the courier's screens.
+  if (c.containsKey('role')) {
+    if (!roles.contains(c['role'])) {
+      errors.add('"role" must be one of ${roles.join(', ')}.');
+    } else if (c['role'] == 'courier' && c['app_type'] != 'delivery') {
+      errors.add('"role" courier is for delivery apps only.');
+    }
   }
   _string(c, 'client_id', errors);
   _string(c, 'app_name', errors, min: 1, max: 30);
@@ -597,6 +609,7 @@ import '../core/config/build_config_data.dart';
 const buildConfig = BuildConfigData(
   appType: AppType.${dartAppType(c['app_type'] as String)},
   vertical: ${c['vertical'] == null ? 'null' : 'AppVertical.${c['vertical']}'},
+  role: AppRole.${c['role'] ?? 'customer'},
   appName: ${_dartString(c['app_name'] as String)},
   shortName: ${_dartString(c['short_name'] as String)},
   siteUrl: ${_dartString(_trimSlash(c['site_url'] as String))},

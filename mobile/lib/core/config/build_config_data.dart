@@ -46,6 +46,10 @@ enum AppVertical {
   }
 }
 
+/// 104.6 Who the build is for (`role` in the build config): the customers'
+/// app, or a delivery company's second app for its couriers only.
+enum AppRole { customer, courier }
+
 /// Firebase settings read from the client's google-services.json or
 /// GoogleService-Info.plist by `tool/apply_config.dart`.
 class FirebaseOptionsData {
@@ -70,6 +74,7 @@ class BuildConfigData {
   const BuildConfigData({
     this.appType = AppType.lms,
     this.vertical,
+    this.role = AppRole.customer,
     required this.appName,
     required this.shortName,
     required this.siteUrl,
@@ -103,6 +108,9 @@ class BuildConfigData {
   /// The kind of business; `Config.vertical` replaces it when the server
   /// sends one.
   final AppVertical? vertical;
+
+  /// 104.6 [AppRole.courier]: the courier app, with the courier's screens only.
+  final AppRole role;
   final String appName;
   final String shortName;
 
@@ -167,6 +175,7 @@ class BuildConfigData {
     bool clearApiBaseUrl = false,
     AppTemplate? template,
     AppType? appType,
+    AppRole? role,
     String? analyticsUrl,
     String? analyticsKey,
     String? appId,
@@ -177,6 +186,7 @@ class BuildConfigData {
   }) => BuildConfigData(
     appType: appType ?? this.appType,
     vertical: vertical,
+    role: role ?? this.role,
     appName: appName,
     shortName: shortName,
     siteUrl: siteUrl ?? this.siteUrl,

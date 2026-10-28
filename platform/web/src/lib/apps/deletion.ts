@@ -125,7 +125,7 @@ export async function purgeAppFiles(deps: PurgeDeps, app: App): Promise<{ pendin
   await deleteAppMedia({ store, storage: deps.media }, app.id);
 
   const pendingBuilds: string[] = [];
-  for (const build of await store.listBuildsByApp(app.id, 5000)) {
+  for (const build of await store.listBuildsByApp(app.id, 5000, "all")) {
     if (!deps.removeBuildFolder) {
       // Only builds that reported files have a folder to remove.
       if (build.artifacts.length) pendingBuilds.push(build.id);

@@ -29,6 +29,7 @@ import type {
   App,
   Asset,
   Build,
+  BuildVariant,
   BuildStatus,
   Client,
   HostedChallenge,
@@ -453,9 +454,9 @@ export class MemoryStore implements DataStore {
     return build ? clone(build) : null;
   }
 
-  async listBuildsByApp(appId: string, limit: number): Promise<Build[]> {
+  async listBuildsByApp(appId: string, limit: number, variant: BuildVariant | "all" = "app"): Promise<Build[]> {
     return [...this.builds.values()]
-      .filter((b) => b.appId === appId)
+      .filter((b) => b.appId === appId && (variant === "all" || (b.variant ?? "app") === variant))
       .sort((a, b) => b.number - a.number)
       .slice(0, limit)
       .map(clone);

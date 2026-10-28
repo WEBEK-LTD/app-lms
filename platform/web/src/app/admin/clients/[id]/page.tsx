@@ -181,7 +181,7 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
     store.listAppErrors({ clientId: client.id, limit: 50 }),
     store.listOwnerNotices({ clientId: client.id, limit: 50 }),
     store.listClientMilestones(client.id),
-    Promise.all(apps.map((a) => store.listBuildsByApp(a.id, 20))).then((lists) => lists.flat()),
+    Promise.all(apps.map((a) => store.listBuildsByApp(a.id, 20, "all"))).then((lists) => lists.flat()),
     Promise.all(apps.map(async (a) => ({ appId: a.id, events: await store.listPublishingEvents(a.id) }))),
   ]);
   const timeline = buildTimeline({ appNames, builds, errors, notices, payments, milestones, publishing, audit: audit.items });
@@ -497,7 +497,7 @@ async function AppEntry({
   const { app, license } = entry;
   const [activation, builds] = await Promise.all([
     license ? store.getActivation(license.id) : Promise.resolve(null),
-    app ? store.listBuildsByApp(app.id, 20) : Promise.resolve([]),
+    app ? store.listBuildsByApp(app.id, 20, "all") : Promise.resolve([]),
   ]);
   const state = appState(client, license, now);
   // 13.2 App users against the plan's limit (hosted apps; WordPress sites keep their own users).
