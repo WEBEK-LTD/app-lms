@@ -1,6 +1,6 @@
 import { wordsOf } from "../app/kinds";
 import type { App, PublishingListing } from "../data/types";
-import { hostedSignInMethods, yallappSignsIn } from "../hosted/sign-in-methods";
+import { reviewCodeWho, reviewSignInKind } from "./review-account";
 import { listingMissing } from "./steps";
 
 /**
@@ -53,23 +53,21 @@ export function accountDeletionUrl(platformUrl: string, appId: string): string {
 
 export function readiness({ app, listing, ios, managed, platformUrl }: ReadyInput): ReadyItem[] {
   const out: ReadyItem[] = [];
-  const notes = listing?.reviewNotes?.trim() ?? "";
-
-  // Reviewers sign in without a code sent to them: the hosted API's review access, else the notes.
-  const hostedSignIn = app.backend === "hosted" || yallappSignsIn(app);
-  if (hostedSignIn) {
-    const settings = app.hostedSettings;
-    const methods = hostedSignInMethods(app);
-    const who = settings?.reviewCode ? (methods.includes("phone") && settings.reviewPhone) || (methods.includes("email") && settings.reviewEmail) || null : null;
+  // 102 Reviewers sign in without a code sent to them: the fixed review number or email of App sign-in, or the account the owner made for them.
+  if (reviewSignInKind(app) === "code") {
+    const who = reviewCodeWho(app);
     out.push(
       who
         ? { key: "review", state: "ok", text: "reviewOk", values: { who } }
         : { key: "review", state: "missing", text: "reviewMissing", link: "/dashboard/app-sign-in" },
     );
-  } else if (app.backend === "wordpress" || app.backend === "setup_requested") {
-    out.push(notes ? { key: "review", state: "ok", text: "reviewNoted" } : { key: "review", state: "note", text: "reviewWordpress", link: "#h-listing" });
   } else {
-    out.push(notes ? { key: "review", state: "ok", text: "reviewNoted" } : { key: "review", state: "note", text: "reviewOwnApi", link: managed ? "#h-listing" : undefined });
+    const account = app.hostedSettings?.reviewAccount;
+    out.push(
+      account
+        ? { key: "review", state: "ok", text: "reviewAccountOk", values: { who: account.username } }
+        : { key: "review", state: "missing", text: "reviewAccountMissing", link: REVIEW_LINK },
+    );
   }
 
   // A privacy policy on a public https page.
@@ -105,6 +103,9 @@ export function readiness({ app, listing, ios, managed, platformUrl }: ReadyInpu
 
   return out;
 }
+
+/** 102 Where the owner enters the account for the store reviewers. */
+export const REVIEW_LINK = "/dashboard/publishing#h-review";
 
 /** Ready when nothing stops the review. */
 export function readyToSubmit(items: readonly ReadyItem[]): boolean {

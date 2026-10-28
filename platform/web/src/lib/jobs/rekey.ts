@@ -10,6 +10,7 @@ import { keyContext as appAuthContext } from "../hosted/app-auth";
 import { context as whatsappContext } from "../hosted/app-sender";
 import { context as connectorContext } from "../hosted/connectors";
 import { SERVICE_ACCOUNT_CONTEXT } from "../hosted/notify";
+import { reviewAccountContext } from "../publishing/review-account";
 import { settingContext } from "../settings/platform";
 import type { PlatformSettingKey } from "../data/types";
 import { recordJobRun } from "../watch/runs";
@@ -35,6 +36,8 @@ export const CONTEXT_TEMPLATES: ((id: string) => string)[] = [
   appAuthContext,
   whatsappContext,
   connectorContext,
+  // 102 The store review account's password.
+  reviewAccountContext,
   (id) => `${SERVICE_ACCOUNT_CONTEXT}:${id}`,
   (id) => settingContext(id as PlatformSettingKey),
   ...Object.values(signingContext),

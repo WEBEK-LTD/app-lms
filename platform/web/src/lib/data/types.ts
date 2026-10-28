@@ -218,6 +218,16 @@ export type ConnectorConfig =
    */
   | { kind: "platform"; platform: string; settings: Record<string, string>; secretsEncrypted: string };
 
+/** 102 A sign-in for the store reviewers on the app's own website or API. */
+export interface ReviewAccount {
+  /** The user name or email they type. */
+  username: string;
+  passwordEncrypted: string;
+  /** For the reviewers, in English: what to try once signed in. */
+  notes: string | null;
+  savedAt: string;
+}
+
 /** Sign-in and account rules of the hosted API, set per app. */
 export interface HostedSettings {
   /** Asked at sign-up besides the name. */
@@ -233,6 +243,11 @@ export interface HostedSettings {
   reviewCode: string | null;
   /** 19 App store review access for email sign-in: this address signs in with `reviewCode`, no email sent. */
   reviewEmail?: string | null;
+  /**
+   * 102 WordPress sites and own APIs: the account the owner made for the
+   * store reviewers (lib/publishing/review-account.ts), its password encrypted.
+   */
+  reviewAccount?: ReviewAccount | null;
   /**
    * 18 How people sign in, as the owner chose on App sign-in (hosted and
    * WordPress apps). Missing until they choose: phone on the hosted API, the

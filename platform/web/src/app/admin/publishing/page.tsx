@@ -8,6 +8,8 @@ import { adminCan, requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { smtpConfigured } from "@/lib/mail";
 import { reviewNotesFor } from "@/lib/publishing/review-notes";
+import { reviewSignIn } from "@/lib/publishing/review-account";
+import { encryptionKey } from "@/lib/env";
 import { REJECTION_GUIDELINE } from "@/lib/publishing/review";
 import { REJECTION_REASONS, type PublishingStore, type App, type Client, type PublishingEvent, type PublishingRequest, type User } from "@/lib/data/types";
 import { publishingTeamEmail } from "@/lib/publishing/service";
@@ -274,6 +276,8 @@ function RequestDetail({ row, statuses, mayManage }: { row: Row; statuses: { id:
                 <dd className="m-0 whitespace-pre-line">{(app && reviewNotesFor(app, request.listing.reviewNotes)) || "Nothing"}</dd>
               </dl>
             </details>
+            {/* 102 The sign-in the team enters in Play Console (App access) and App Store Connect (App Review Information). */}
+            <ReviewSignIn app={app} />
           </div>
           <TeamNotesForm appId={request.appId} current={request.teamNotes ?? ""} disabled={!mayManage} />
         </div>
@@ -329,5 +333,30 @@ function RequestDetail({ row, statuses, mayManage }: { row: Row; statuses: { id:
         </details>
       ) : null}
     </section>
+  );
+}
+
+/** 102 The reviewers' sign-in, the password or code shown only when opened. */
+function ReviewSignIn({ app }: { app: App | null }) {
+  const signIn = app ? reviewSignIn(app, encryptionKey()) : null;
+  if (!signIn) return <p className="m-0 text-sm font-semibold text-danger">Store review account: missing</p>;
+  return (
+    <details className="text-sm" data-review-sign-in="">
+      <summary className="cursor-pointer font-semibold">Store review account</summary>
+      <dl className="mt-2 mb-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
+        <dt className="text-muted">User name</dt>
+        <dd className="m-0 break-all">{signIn.who}</dd>
+        <dt className="text-muted">{signIn.kind === "code" ? "Fixed code" : "Password"}</dt>
+        <dd className="m-0 break-all">
+          <code>{signIn.secret}</code>
+        </dd>
+        {signIn.notes ? (
+          <>
+            <dt className="text-muted">Notes</dt>
+            <dd className="m-0 whitespace-pre-line">{signIn.notes}</dd>
+          </>
+        ) : null}
+      </dl>
+    </details>
   );
 }

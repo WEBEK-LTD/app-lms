@@ -4,7 +4,7 @@ import { newApp } from "@/lib/app/setup";
 import { blocking, preflightChecks, PREFLIGHT_TEXT, renderCheck } from "@/lib/builds/preflight";
 import { keyContext } from "@/lib/builds/signing";
 import { encrypt } from "@/lib/crypto/encryption";
-import type { App } from "@/lib/data/types";
+import { DEFAULT_HOSTED_SETTINGS, type App } from "@/lib/data/types";
 import { KEY, NOW } from "./helpers";
 
 function png(width: number, height: number, colorType = 2): Buffer {
@@ -32,8 +32,18 @@ const plist = (bundleId: string) =>
 const p8 = generateKeyPairSync("ec", { namedCurve: "P-256" }).privateKey.export({ type: "pkcs8", format: "pem" }).toString();
 const rsa = generateKeyPairSync("rsa", { modulusLength: 1024 }).privateKey.export({ type: "pkcs8", format: "pem" }).toString();
 
+// 102 With the account the store reviewers sign in with.
+const reviewAccount = { username: "review@rose.shop", passwordEncrypted: "sealed", notes: null, savedAt: NOW.toISOString() };
+
 function app(patch: Partial<App> = {}): App {
-  return { ...newApp("client-1", null, NOW, "store"), androidPackage: "com.rose.shop", iosBundleId: "com.rose.shop", iconAssetId: "icon", ...patch };
+  return {
+    ...newApp("client-1", null, NOW, "store"),
+    androidPackage: "com.rose.shop",
+    iosBundleId: "com.rose.shop",
+    iconAssetId: "icon",
+    hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, reviewAccount },
+    ...patch,
+  };
 }
 
 describe("87.1 the checks before a build", () => {
@@ -60,6 +70,17 @@ describe("87.1 the checks before a build", () => {
     // Encrypted for this app's own context.
     ready.ascPrivateKeyEncrypted = encrypt(p8, KEY, keyContext.appStore(ready.id));
     expect(await preflightChecks(deps, ready, { ios: true, autoPublish: true })).toEqual([]);
+  });
+
+  it("102 stops until the store reviewers have a sign-in", async () => {
+    const without = await preflightChecks(deps, app({ hostedSettings: null }), { ios: false, autoPublish: false });
+    expect(keys(blocking(without))).toEqual(["review"]);
+    expect(without[0]!.link).toBe("/dashboard/publishing#h-review");
+    // An app on the hosted API: App sign-in's fixed review number with its code.
+    const hosted = app({ backend: "hosted", hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, reviewPhone: "+905320000000", reviewCode: "246810" } });
+    expect(keys(blocking(await preflightChecks(deps, hosted, { ios: false, autoPublish: false })))).toEqual([]);
+    const noCode = app({ backend: "hosted", hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, reviewPhone: "+905320000000", reviewCode: null } });
+    expect(keys(blocking(await preflightChecks(deps, noCode, { ios: false, autoPublish: false })))).toEqual(["review"]);
   });
 
   it("stops on an icon the stores refuse, and Firebase files for another package or bundle ID", async () => {

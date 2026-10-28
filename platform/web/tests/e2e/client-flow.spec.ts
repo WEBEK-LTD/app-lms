@@ -222,6 +222,18 @@ test("the pipeline reads the config and the client starts a new build", async ({
   expect((await request.get(button, { maxRedirects: 0 })).headers()["location"]).toMatch(/\/sign-in$/);
   await expect(page.getByRole("button", { name: "Download Android upload key (keep it safe)" })).toBeDisabled();
   await expect(page.getByRole("textbox", { name: "App version" })).toHaveValue("1.0.1");
+  // 102 Builds wait for the account the store reviewers sign in with.
+  const reviewCheck = page.locator('[data-check="review"]');
+  await expect(reviewCheck).toContainText("Add your store review account on the Publishing page.");
+  await reviewCheck.getByRole("link", { name: "Fix it" }).click();
+  await expect(page).toHaveURL(/\/dashboard\/publishing#h-review$/);
+  const review = page.getByRole("region", { name: "Store review account (required)" });
+  await review.getByLabel("User name or email").fill("review@academy.test");
+  await review.getByLabel("Password", { exact: true }).fill("Review-pass-2026");
+  await review.getByRole("button", { name: "Save the review account" }).click();
+  await expect(review.getByText("Saved. Enter it in Google Play Console and App Store Connect as the steps say.")).toBeVisible();
+  await page.goto("/dashboard/builds");
+  await expect(page.locator('[data-check="review"]')).toHaveCount(0);
   await page.getByRole("button", { name: "Start new build" }).click();
   await expect(page.getByText("Build #2 is queued.")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Build #2 · App version 1.0.1" })).toBeVisible();

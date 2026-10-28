@@ -64,7 +64,7 @@ Bildirimler için Yallapp'in barındırılan API'sindeki uygulamalar, oturum aç
 
 Veri güvenliği, kullanıcıların hesaplarını nasıl sildiğini de sorar. Bunu uygulamada yaparlar (**Hesap › Ayarlar › Hesabı sil**); Google'ın istediği web bağlantısı için uygulamanızın, uygulama olmadan silme isteyebilecekleri kendi sayfasını verin: [Yayın](/dashboard/publishing) sayfasındaki **Göndermeye hazır mı?** bölümü adresini (yallapp.com.tr'de \`/a/<app ID>/delete-account\`) gösterir ve uygulamayı göndermeden önce mağazaların istediği diğer her şeyi kontrol eder.
 
-> **App access** altında inceleyicilere inceleme telefon numaranızı ve sabit kodunuzu verin: panelin **Uygulamaya giriş** sayfasından ya da WordPress'te eklentinin **Store review access** ayarından. Bu olmadan inceleyiciler giriş yapamaz ve uygulama reddedilebilir.
+> **App access** altında inceleyicilere inceleme telefon numaranızı ve sabit kodunuzu verin: panelin **Uygulamaya giriş** sayfasından ya da WordPress veya kendi API'si olan uygulamalarda **Yayınlama** sayfasındaki **Mağaza inceleme hesabı**ndan (derlemeden önce zorunlu). Bu olmadan inceleyiciler giriş yapamaz ve uygulama reddedilebilir.
 
 ## Kapalı bir test yürütün
 
@@ -109,7 +109,7 @@ App Privacy sorularını yanıtlayın (uygulamanız giriş için telefon numaras
 
 Uygulamanız Yallapp'e kullanım istatistikleri de gönderir ([Analiz](/docs/analytics) rehberine bakın). App Privacy'de **Usage Data › Product Interaction** ve **Search History**'yi, rastgele kurulum kimliği için de **Identifiers › Device ID**'yi ekleyin. Her biri için amaç olarak **Analytics**'i seçin, "linked to the user's identity" sorusuna **No**, "used for tracking" sorusuna **No** yanıtı verin. Uygulama takip izni istemez ve App Tracking Transparency penceresine ihtiyaç duymaz: reklam kimliği kullanmaz ve veri simsarlarıyla hiçbir şey paylaşmaz.
 
-> İnceleyicilerin giriş yapabilmesi için **App Review Information** altına inceleme telefon numaranızı ve sabit kodunuzu ekleyin: panelin **Uygulamaya giriş** sayfasından ya da WordPress'te eklentinin **Store review access** ayarından.
+> İnceleyicilerin giriş yapabilmesi için **App Review Information** altına inceleme telefon numaranızı ve sabit kodunuzu ekleyin: panelin **Uygulamaya giriş** sayfasından ya da WordPress veya kendi API'si olan uygulamalarda **Yayınlama** sayfasındaki **Mağaza inceleme hesabı**ndan (derlemeden önce zorunlu).
 
 ## İncelemeye gönderin
 
@@ -146,7 +146,7 @@ Seller Portal'da **Add New Application**'ı seçin, **Android**'i işaretleyin v
 
 Mağaza görsellerinizden açıklamayı, simgeyi (512 × 512) ve ekran görüntülerini, gizlilik politikası bağlantınızı ve yaş derecelendirmesini ekleyin. **Country/Region** altında nerede satılacağını seçin. Ardından **Submit**'i seçin. Samsung uygulamayı genellikle birkaç gün içinde inceler.
 
-> İnceleme notlarında inceleyicilere inceleme telefon numaranızı ve sabit kodunuzu verin: panelin **Uygulamaya giriş** sayfasından ya da WordPress'te eklentinin **Store review access** ayarından.
+> İnceleme notlarında inceleyicilere inceleme telefon numaranızı ve sabit kodunuzu verin: panelin **Uygulamaya giriş** sayfasından ya da WordPress veya kendi API'si olan uygulamalarda **Yayınlama** sayfasındaki **Mağaza inceleme hesabı**ndan (derlemeden önce zorunlu).
 
 ## Pro ve Business: her güncellemeyi bize yükletin
 
@@ -223,7 +223,7 @@ Uygulamanızı paket adıyla (Mağaza sayfası adımınızdan) oluşturun ve Der
 
 Açıklamayı, simgeyi, ekran görüntülerini, gizlilik politikası bağlantınızı ve yaş derecelendirmesini ekleyip gönderin. Xiaomi uygulamayı genellikle birkaç iş günü içinde inceler.
 
-> İnceleme notlarında inceleyicilere inceleme telefon numaranızı ve sabit kodunuzu verin: panelin **Uygulamaya giriş** sayfasından ya da WordPress'te eklentinin **Store review access** ayarından.
+> İnceleme notlarında inceleyicilere inceleme telefon numaranızı ve sabit kodunuzu verin: panelin **Uygulamaya giriş** sayfasından ya da WordPress veya kendi API'si olan uygulamalarda **Yayınlama** sayfasındaki **Mağaza inceleme hesabı**ndan (derlemeden önce zorunlu).
 
 ## Pro ve Business: her güncellemeyi bize yükletin
 
