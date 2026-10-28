@@ -487,6 +487,7 @@ describe("31 each engine's screens match its Flutter module", () => {
     donations: "donations",
     delivery: "delivery",
     food: "food",
+    rides: "rides",
   };
   const snake = (name: string) => name.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
 

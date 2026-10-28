@@ -99,6 +99,7 @@ import type { CheckInResult, EventInput, EventRecord, EventSettings, EventTicket
 // 29 Charity & donations
 import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, DonationSettings, DonationStatus } from "./types";
 import type { Courier, CourierInput, CourierPatch, DeliveryService, DeliveryServiceInput, DeliverySettings, Shipment, ShipmentInput, ShipmentPatch, ShipmentQuery, ShipmentStatus } from "./types";
+import type { Ride, RideInput, RidePatch, RideQuery, RideStatementRow, RideStatus, VehicleType, VehicleTypeInput } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 import type { PublishingEvent, PublishingRequest } from "./types";
@@ -660,6 +661,10 @@ export class MemoryStore implements DataStore {
     // 105.1 And food orders, with the company and its restaurants.
     for (const order of this.foodOrders.values()) {
       if (order.appId === appId && order.userId === id) order.userId = null;
+    }
+    // 105.2 And rides, with the company and its drivers.
+    for (const ride of this.rides.values()) {
+      if (ride.appId === appId && ride.userId === id) ride.userId = null;
     }
     this.forgetListingUser(appId, id);
   }
@@ -2116,7 +2121,7 @@ export class MemoryStore implements DataStore {
 
   async createCourier(input: CourierInput, now: Date): Promise<{ ok: true; courier: Courier } | { ok: false; reason: "duplicate" }> {
     if (this.courierTaken(input.appId, null, input.phone, input.email)) return { ok: false, reason: "duplicate" };
-    const courier: Courier = { ...clone(input), id: this.nextCourierId++, onDuty: false, lat: null, lng: null, locatedAt: null, createdAt: now, updatedAt: now };
+    const courier: Courier = { ...clone(input), driver: input.driver ?? null, id: this.nextCourierId++, onDuty: false, lat: null, lng: null, locatedAt: null, createdAt: now, updatedAt: now };
     this.couriers.set(courier.id, clone(courier));
     return { ok: true, courier };
   }
@@ -2140,6 +2145,23 @@ export class MemoryStore implements DataStore {
         shipment.status = "pending";
         shipment.timeline = [...shipment.timeline, { status: "pending", at: now.toISOString(), by: "company" }];
         shipment.updatedAt = now;
+      }
+    }
+    // 105.2 Rides they hadn't started look for another driver; the others keep the name.
+    for (const ride of this.rides.values()) {
+      if (ride.appId !== appId) continue;
+      if (ride.offeredTo === id) {
+        ride.offeredTo = null;
+        ride.offerExpiresAt = null;
+      }
+      if (ride.driverId !== id) continue;
+      ride.driverId = null;
+      if (ride.status === "accepted" || ride.status === "arrived") {
+        ride.status = "searching";
+        ride.driverName = null;
+        ride.searchingSince = now;
+        ride.timeline = [...ride.timeline, { status: "searching", at: now.toISOString(), by: "company" }];
+        ride.updatedAt = now;
       }
     }
   }
@@ -2340,6 +2362,122 @@ export class MemoryStore implements DataStore {
       rows.set(key, row);
     }
     return [...rows.values()].sort((a, b) => b.subtotalCents - a.subtotalCents || a.restaurantName.localeCompare(b.restaurantName));
+  }
+
+  // 105.2 Ride hailing
+
+  private vehicleTypes = new Map<number, VehicleType>();
+  private nextVehicleTypeId = 1;
+  private rides = new Map<number, Ride>();
+  private nextRideId = 1;
+
+  async listVehicleTypes(appId: string): Promise<VehicleType[]> {
+    return [...this.vehicleTypes.values()]
+      .filter((v) => v.appId === appId)
+      .sort((a, b) => a.position - b.position || a.id - b.id)
+      .map(clone);
+  }
+
+  async getVehicleType(appId: string, id: number): Promise<VehicleType | null> {
+    const type = this.vehicleTypes.get(id);
+    return type && type.appId === appId ? clone(type) : null;
+  }
+
+  async createVehicleType(input: VehicleTypeInput, now: Date): Promise<VehicleType> {
+    const type: VehicleType = { ...clone(input), id: this.nextVehicleTypeId++, createdAt: now, updatedAt: now };
+    this.vehicleTypes.set(type.id, clone(type));
+    return type;
+  }
+
+  async updateVehicleType(appId: string, id: number, patch: Partial<VehicleTypeInput>, now: Date): Promise<void> {
+    const type = this.vehicleTypes.get(id);
+    if (type && type.appId === appId) this.vehicleTypes.set(id, clone({ ...type, ...patch, appId, id, updatedAt: now }));
+  }
+
+  async deleteVehicleType(appId: string, id: number, now: Date): Promise<void> {
+    if (this.vehicleTypes.get(id)?.appId !== appId) return;
+    this.vehicleTypes.delete(id);
+    for (const ride of this.rides.values()) if (ride.appId === appId && ride.vehicleTypeId === id) ride.vehicleTypeId = null;
+    for (const courier of this.couriers.values()) {
+      if (courier.appId === appId && courier.driver?.vehicleTypeId === id) {
+        courier.driver = { ...courier.driver, vehicleTypeId: null };
+        courier.updatedAt = now;
+      }
+    }
+  }
+
+  async createRide(input: RideInput): Promise<Ride> {
+    const ride: Ride = { ...clone(input), id: this.nextRideId++ };
+    this.rides.set(ride.id, clone(ride));
+    return ride;
+  }
+
+  async getRide(appId: string, id: number): Promise<Ride | null> {
+    const ride = this.rides.get(id);
+    return ride && ride.appId === appId ? clone(ride) : null;
+  }
+
+  async findRideByShareToken(token: string): Promise<Ride | null> {
+    if (!token) return null;
+    const ride = [...this.rides.values()].find((r) => r.shareToken === token);
+    return ride ? clone(ride) : null;
+  }
+
+  async listRides(query: RideQuery): Promise<{ items: Ride[]; total: number }> {
+    const search = query.search?.trim().toLowerCase() ?? "";
+    const reference = /^r-?(\d+)$/i.exec(search);
+    const all = [...this.rides.values()]
+      .filter(
+        (r) =>
+          r.appId === query.appId &&
+          (query.userId === undefined || r.userId === query.userId) &&
+          (query.notUserId === undefined || r.userId !== query.notUserId) &&
+          (query.driverId === undefined || r.driverId === query.driverId) &&
+          (query.offeredTo === undefined || r.offeredTo === query.offeredTo) &&
+          (!query.statuses || query.statuses.includes(r.status)) &&
+          (query.promoCode === undefined || r.promoCode === query.promoCode) &&
+          (!query.since || r.createdAt.getTime() >= query.since.getTime()) &&
+          (!query.until || r.createdAt.getTime() < query.until.getTime()) &&
+          (!query.updatedSince || r.updatedAt.getTime() >= query.updatedSince.getTime()) &&
+          (!search || (reference ? r.id === Number(reference[1]) : [r.riderName, r.riderPhone ?? "", r.driverName ?? ""].some((v) => v.toLowerCase().includes(search)))),
+      )
+      .sort((a, b) => (query.order === "newest" ? b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id : a.createdAt.getTime() - b.createdAt.getTime() || a.id - b.id));
+    return { items: all.slice(query.offset, query.offset + query.limit).map(clone), total: all.length };
+  }
+
+  async updateRide(appId: string, id: number, patch: RidePatch, expect: { statuses?: RideStatus[]; offeredTo?: number | null; driverId?: number | null } = {}): Promise<boolean> {
+    const ride = this.rides.get(id);
+    if (!ride || ride.appId !== appId) return false;
+    if (expect.statuses && !expect.statuses.includes(ride.status)) return false;
+    if (expect.offeredTo !== undefined && ride.offeredTo !== expect.offeredTo) return false;
+    if (expect.driverId !== undefined && ride.driverId !== expect.driverId) return false;
+    this.rides.set(id, clone({ ...ride, ...patch, appId, id }));
+    return true;
+  }
+
+  async addDriverRating(appId: string, courierId: number, stars: number, now: Date): Promise<void> {
+    const courier = this.couriers.get(courierId);
+    if (!courier || courier.appId !== appId || !courier.driver) return;
+    courier.driver = { ...courier.driver, ratingSum: courier.driver.ratingSum + stars, ratingCount: courier.driver.ratingCount + 1 };
+    courier.updatedAt = now;
+  }
+
+  async rideStatement(appId: string, since: Date, until: Date): Promise<RideStatementRow[]> {
+    const rows = new Map<string, RideStatementRow>();
+    for (const r of this.rides.values()) {
+      if (r.appId !== appId || r.status !== "completed" || r.createdAt < since || r.createdAt >= until) continue;
+      const key = r.driverId === null ? `name:${r.driverName ?? ""}` : `id:${r.driverId}`;
+      const row = rows.get(key) ?? { driverId: r.driverId, driverName: r.driverName ?? "", rides: 0, faresCents: 0, cashCents: 0, cardCents: 0, commissionCents: 0, feesCents: 0 };
+      const total = r.finalCents ?? 0;
+      row.rides += 1;
+      row.faresCents += total - r.previousFeeCents;
+      row.feesCents += r.previousFeeCents;
+      row.commissionCents += r.commissionCents ?? 0;
+      if (r.paymentMethod === "cash") row.cashCents += total;
+      else row.cardCents += total;
+      rows.set(key, row);
+    }
+    return [...rows.values()].sort((a, b) => b.faresCents - a.faresCents || a.driverName.localeCompare(b.driverName));
   }
 
   // 10.7 Listings

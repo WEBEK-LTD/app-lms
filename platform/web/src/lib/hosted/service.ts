@@ -1,6 +1,7 @@
 import { courierWho } from "../delivery/service";
 import { reviewCourierFor } from "../delivery/review";
 import { reviewRestaurantFor } from "../food/review";
+import { isDriver } from "./connectors/rides";
 import { appSwitches } from "../app/switches";
 import { watchOrdersAfterCheckout } from "./order-watch";
 import { randomInt } from "node:crypto";
@@ -527,6 +528,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     ...(extra.delivery ? { delivery: extra.delivery } : {}),
     // 105.1 Food delivery from many restaurants
     ...(extra.food ? { food: extra.food } : {}),
+    // 105.2 Ride hailing
+    ...(extra.rides ? { rides: extra.rides } : {}),
     // 10.6 Looks and languages (17: the draft's, in a draft preview)
     // 43 With each language's name, direction and the owner's string pack.
     ...(await lookAndLanguages(ctx.store, app, ctx.preview?.draft ? await draftLayout(ctx.store, app, ctx.now) : undefined, ctx.plan ?? null, {
@@ -1025,6 +1028,8 @@ async function authenticate(ctx: HostedContext, token: string | null): Promise<S
  */
 async function meJson(ctx: HostedContext, user: HostedUser) {
   const kind = ctx.app.connector?.kind;
+  // 105.2 In ride apps, `driver` for the company's active drivers (and the store review account).
+  if (kind === "rides") return { ...userJson(user), roles: (await isDriver({ store: ctx.store, app: ctx.app }, user, ctx.now)) ? ["driver"] : [] };
   if (kind !== "deliveries" && kind !== "restaurants") return userJson(user);
   const courier = (await ctx.store.findCourier(ctx.app.id, courierWho(user))) ?? (await reviewCourierFor(ctx.store, ctx.app, user, ctx.now));
   const roles = courier?.active ? ["courier"] : [];

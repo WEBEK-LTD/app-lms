@@ -10,6 +10,7 @@ import { EventsConnector } from "./events";
 import { DonationsConnector } from "./donations";
 import { DeliveryConnector } from "./delivery";
 import { FoodConnector } from "./food";
+import { RidesConnector } from "./rides";
 import { ListingsConnector, type ListingsDeps } from "./listings";
 import { platformConnector } from "./platforms";
 import "./registry";
@@ -74,6 +75,8 @@ export function connectorFor(
     delivery?: boolean;
     /** 105.1 Food delivery apps are in the app's plan. */
     food?: boolean;
+    /** 105.2 Ride apps are in the app's plan. */
+    rides?: boolean;
     /** 91.3 A customer asked to return an order. */
     onReturnRequested?: CatalogDeps["onReturnRequested"];
     /** 45 Lessons of courses managed in Yallapp may be saved for offline viewing (lib/courses/downloads.ts). */
@@ -96,6 +99,7 @@ export function connectorFor(
   if (app.connector?.kind === "campaigns") return new DonationsConnector({ ...deps, app });
   if (app.connector?.kind === "deliveries") return new DeliveryConnector({ ...deps, app, fetcher });
   if (app.connector?.kind === "restaurants") return new FoodConnector({ ...deps, app, fetcher });
+  if (app.connector?.kind === "rides") return new RidesConnector({ ...deps, app, fetcher });
   if (app.connector?.kind === "platform") return platformConnector(app, key, deps, fetcher);
   if (app.connector?.kind === "shopify") {
     const token = shopifyToken(app, key);

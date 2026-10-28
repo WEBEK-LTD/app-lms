@@ -182,6 +182,8 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
         delivery: hasFeature(plan, "delivery"),
         // 105.1 Food delivery apps.
         food: hasFeature(plan, "food"),
+        // 105.2 Ride apps.
+        rides: hasFeature(plan, "rides"),
         // 45 Lessons saved for offline viewing: offline mode in the plan and the owner's choice.
         downloads: hostedDownloadsOn(app, plan),
         // 51 Lesson videos from the Media library, signed for each request.

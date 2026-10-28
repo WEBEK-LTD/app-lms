@@ -2,6 +2,8 @@ import { announceWaiting } from "../delivery/flow";
 import { payShipmentOrder } from "../delivery/payment";
 import { announceOrder } from "../food/flow";
 import { payFoodOrder } from "../food/payment";
+import { settleFee } from "../rides/flow";
+import { payRide } from "../rides/payment";
 import { membershipEnd } from "../bookings/memberships";
 import { spendOrderPoints } from "./loyalty";
 import { taxLabel } from "./tax";
@@ -362,4 +364,7 @@ export async function deliverPaidOrder(store: DataStore, app: App, order: Catalo
   // 105.1 A food order paid by card reaches its restaurant.
   const placed = await payFoodOrder(store, app, order, now);
   if (placed) await announceOrder({ store, app, now }, placed);
+  // 105.2 A card ride's fare is paid, and the cancellation fee it carried with it.
+  const ride = await payRide(store, app, order, now);
+  if (ride) await settleFee({ store, app, now }, ride);
 }

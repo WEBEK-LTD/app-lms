@@ -19,12 +19,12 @@ export function itemSourcesFor(app: Pick<App, "appType" | "backend">): ItemSourc
 
 /** Sources with categories the app can show (29 campaigns have none). */
 export function categorySourcesFor(app: Pick<App, "appType" | "backend">): ItemSource[] {
-  return itemSourcesFor(app).filter((s) => s !== "listings" && s !== "campaigns" && s !== "delivery_services" && s !== "restaurants");
+  return itemSourcesFor(app).filter((s) => s !== "listings" && s !== "campaigns" && s !== "delivery_services" && s !== "restaurants" && s !== "vehicle_types");
 }
 
 /** 29 Sources the app can search: campaigns are a short list, without a search. */
 export function searchSourcesFor(app: Pick<App, "appType" | "backend">): ItemSource[] {
-  return itemSourcesFor(app).filter((s) => s !== "campaigns" && s !== "delivery_services" && s !== "restaurants");
+  return itemSourcesFor(app).filter((s) => s !== "campaigns" && s !== "delivery_services" && s !== "restaurants" && s !== "vehicle_types");
 }
 
 /** Block types the app's pages can use. */
@@ -53,6 +53,7 @@ export const SOURCE_NAMES: Record<ItemSource, string> = {
   campaigns: "Campaigns",
   delivery_services: "Delivery services",
   restaurants: "Restaurants",
+  vehicle_types: "Vehicle types",
 };
 
 // 31 Screens and orders per app
@@ -126,6 +127,8 @@ export const SOURCE_SORTS: Record<ItemSource, readonly ItemsSort[]> = {
   delivery_services: ["newest"],
   // 105.1 Open ones first, in the company's order.
   restaurants: ["newest"],
+  // 105.2 In the company's order.
+  vehicle_types: ["newest"],
 };
 
 /** The list's order, or the first one when the source can't be sorted that way. */

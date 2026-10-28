@@ -21,7 +21,7 @@ import type { BlockType, ItemSource, LayoutBlock, LayoutTab, ScreenName } from "
 export const APP_VERTICALS = ["restaurant", "clinic", "fitness", "charity", "services"] as const satisfies readonly AppVertical[];
 
 /** Content the client manages in the dashboard, served by the hosted API (a connector kind). */
-export type OwnContentKind = Extract<ConnectorConfig["kind"], "catalog" | "courses" | "bookings" | "listings" | "articles" | "events" | "campaigns" | "deliveries" | "restaurants">;
+export type OwnContentKind = Extract<ConnectorConfig["kind"], "catalog" | "courses" | "bookings" | "listings" | "articles" | "events" | "campaigns" | "deliveries" | "restaurants" | "rides">;
 
 /** The Website step's choices: where the app's content comes from. */
 export type WebsiteChoice = "wordpress" | "custom_api" | "setup_requested" | "shopify" | "catalog" | "platform";
@@ -721,6 +721,68 @@ export const ENGINES: Record<AppType, EngineInfo> = {
     },
     demo: null,
   },
+  // 105.2 Ride hailing: vehicle types, fares and drivers set in the dashboard, on the hosted API only.
+  rides: {
+    id: "rides",
+    name: "Ride hailing",
+    icon: "directions_car",
+    homePath: "/rides/estimate",
+    configCheck: { label: "Config has the ride settings", fix: "Add `rides` to /config.", key: "rides", in: "root", type: "object" },
+    websites: ["catalog"],
+    sitePlaceholder: "https://your-ride-app.com",
+    platformChoice: { title: "Another platform", text: "Your rides come from another platform." },
+    platformPhoneNote: null,
+    ownContent: {
+      kind: "rides",
+      choice: {
+        title: "Rides managed in Yallapp",
+        text: "Set your vehicle types and their fares and add your drivers here in the dashboard. Riders ask for a ride in the app and pay the driver in cash or by card into your own iyzico, Kashier, Fawaterk, Stripe or PayPal account.",
+      },
+      next: "After this step, add your vehicle types and their fares on the **Vehicle types** page, set how rides are matched, cancelled and paid on the **Ride settings** page, then add your drivers on the **Drivers** page; every ride shows on the **Rides** page. Riders and drivers sign in to the app with",
+      switchLabel: "No website: rides in the dashboard",
+      adminLabel: "No website: rides in the dashboard",
+      nav: {
+        label: "Your rides",
+        items: [
+          { href: "/dashboard/rides", label: "Rides", icon: "directions_car" },
+          { href: "/dashboard/drivers", label: "Drivers", icon: "person" },
+          { href: "/dashboard/vehicle-types", label: "Vehicle types", icon: "category" },
+          { href: "/dashboard/rides/statement", label: "Statements", icon: "receipt_long" },
+          { href: "/dashboard/orders", label: "Paid orders", icon: "payments" },
+          { href: "/dashboard/ride-settings", label: "Ride settings", icon: "tune" },
+        ],
+      },
+    },
+    pages: {
+      source: "vehicle_types",
+      read: null,
+      blocks: [],
+      screens: ["ride", "my_rides", "driver", "account", "settings", "notifications"],
+      aliases: { orders: "my_rides" },
+      tabs: [tab("ride", "Ride", "directions_car", "ride"), tab("rides", "My rides", "history", "my_rides")],
+      home: [
+        {
+          id: "vehicle_types",
+          type: "items",
+          visibility: "everyone",
+          title: "Ride with us",
+          source: "vehicle_types",
+          layout: "list",
+          see_all: { type: "screen", screen: "ride" },
+          query: newest(10),
+        },
+      ],
+    },
+    categories: { play: "Maps & Navigation", appStore: "Travel" },
+    words: {
+      items: "rides",
+      storeDescription: "Describe your ride service: where you operate, your vehicle types and how riders ask for a ride and follow their driver in the app.",
+      ratingExample: "For example: a city's ride service with its own drivers. No violence, gambling or dating. No chat. No ads.",
+      iphone: null,
+      cardPayments: "Take ride fares by card, through your payment page.",
+    },
+    demo: null,
+  },
 };
 
 /** What the app type picker offers, in its order. The first kind of each engine is its default (vertical null). */
@@ -946,6 +1008,20 @@ export const KINDS: readonly KindInfo[] = [
     marketing: { slug: "food", icon: "restaurant" },
     reviewNote:
       "This app has three roles. Customers order food from the restaurants. A restaurant's staff sign in with a number the company added and see a Restaurant tab with its orders. Couriers see a Courier tab with their jobs.",
+  },
+  {
+    // 105.2 The rides engine's one kind.
+    id: "rides",
+    engine: "rides",
+    vertical: null,
+    name: "Ride hailing",
+    description: "Riders ask for a ride and follow their driver on the map; your drivers get the rides in the app.",
+    requires: "No website needed: you set your vehicle types, fares and drivers here in the dashboard · Cash to the driver, or your own iyzico, Kashier, Fawaterk, Stripe or PayPal account",
+    icon: "directions_car",
+    tile: "bg-tile-3 text-[#8A4B12]",
+    marketing: { slug: "rides", icon: "directions_car" },
+    reviewNote:
+      "This app has two roles. Riders ask for a ride and follow the driver. Drivers of the company sign in with a number the company added and see a Driver tab with the rides offered to them.",
   },
 ];
 

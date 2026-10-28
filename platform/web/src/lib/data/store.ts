@@ -92,6 +92,8 @@ import type {
   RestaurantStaff,
   RestaurantStaffInput,
 } from "./types";
+// 105.2 Ride hailing
+import type { Ride, RideInput, RidePatch, RideQuery, RideStatementRow, RideStatus, VehicleType, VehicleTypeInput } from "./types";
 // 46 Links and crash reports
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
 // 49
@@ -780,6 +782,30 @@ export interface DataStore {
   updateFoodOrder(appId: string, id: number, patch: FoodOrderPatch, expect?: { statuses?: FoodOrderStatus[] }): Promise<boolean>;
   /** Delivered orders created in `[since, until)`, per restaurant: for the restaurants' statements. */
   foodStatement(appId: string, since: Date, until: Date): Promise<FoodStatementRow[]>;
+
+  // 105.2 Ride hailing
+  /** In the company's order (position, then oldest). */
+  listVehicleTypes(appId: string): Promise<VehicleType[]>;
+  getVehicleType(appId: string, id: number): Promise<VehicleType | null>;
+  createVehicleType(input: VehicleTypeInput, now: Date): Promise<VehicleType>;
+  updateVehicleType(appId: string, id: number, patch: Partial<VehicleTypeInput>, now: Date): Promise<void>;
+  /** Rides keep its name; drivers of it have none until the company gives them one. */
+  deleteVehicleType(appId: string, id: number, now: Date): Promise<void>;
+  createRide(input: RideInput): Promise<Ride>;
+  getRide(appId: string, id: number): Promise<Ride | null>;
+  /** The ride its share link names, in any app; null once it ended (the token is cleared). */
+  findRideByShareToken(token: string): Promise<Ride | null>;
+  listRides(query: RideQuery): Promise<{ items: Ride[]; total: number }>;
+  /**
+   * Changes the ride only while it is still as `expect` says (its status one
+   * of `statuses`, offered to `offeredTo`, its driver `driverId`), so two
+   * drivers, or a driver and the rider, change it once. False when it didn't.
+   */
+  updateRide(appId: string, id: number, patch: RidePatch, expect?: { statuses?: RideStatus[]; offeredTo?: number | null; driverId?: number | null }): Promise<boolean>;
+  /** Adds one rating (1 to 5) to the driver's average. */
+  addDriverRating(appId: string, courierId: number, stars: number, now: Date): Promise<void>;
+  /** Completed rides created in `[since, until)`, per driver: for the drivers' statements. */
+  rideStatement(appId: string, since: Date, until: Date): Promise<RideStatementRow[]>;
 
   // 10.4 Pages, looks and languages
   getAppLayout(appId: string): Promise<AppLayoutRecord | null>;

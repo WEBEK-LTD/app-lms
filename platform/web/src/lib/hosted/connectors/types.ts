@@ -40,6 +40,8 @@ export interface Connector {
     delivery?: unknown;
     /** 105.1 Config.food. */
     food?: unknown;
+    /** 105.2 Config.rides. */
+    rides?: unknown;
     features?: Record<string, unknown>;
     purchases?: { enroll_button: boolean; free_enrollment: boolean };
   }>;

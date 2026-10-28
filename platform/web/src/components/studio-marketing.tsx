@@ -19,6 +19,7 @@ function choiceLabels(lang: Lang): Record<string, { label: string; icon: IconNam
     delivery: { label: m.choiceDelivery, icon: "local_shipping" },
     courier_app: { label: m.choiceCourierApp, icon: "two_wheeler" },
     food: { label: m.choiceFood, icon: "restaurant" },
+    rides: { label: m.choiceRides, icon: "directions_car" },
     studio_motion: { label: m.choiceMotion, icon: "touch_app" },
     studio_templates: { label: m.choiceTemplates, icon: "dashboard_customize" },
   };
