@@ -120,7 +120,7 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
         ))}
       </nav>
 
-      <section aria-label="Publishing requests" className="overflow-x-auto rounded-2xl border border-line bg-white">
+      <section aria-label="Publishing requests" className="relative overflow-x-auto rounded-2xl border border-line bg-white">
         {rows.length === 0 ? (
           <p className="m-0 p-6 text-[15px] text-muted">No apps here.</p>
         ) : (

@@ -67,7 +67,7 @@ export default async function BuildQueuePage({ searchParams }: PageProps<"/admin
           </Link>
         ))}
       </nav>
-      <section aria-label="Builds" className="overflow-x-auto rounded-2xl border border-line bg-white">
+      <section aria-label="Builds" className="relative overflow-x-auto rounded-2xl border border-line bg-white">
         {rows.length === 0 ? (
           <p className="m-0 p-6 text-[15px] text-muted">No builds here.</p>
         ) : (

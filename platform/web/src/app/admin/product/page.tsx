@@ -39,7 +39,7 @@ function Empty({ children }: { children: React.ReactNode }) {
 
 function Table({ caption, head, width, children }: { caption: string; head: string[]; width: string; children: React.ReactNode }) {
   return (
-    <div className="overflow-x-auto rounded-2xl border border-line bg-white">
+    <div className="relative overflow-x-auto rounded-2xl border border-line bg-white">
       <table className={`w-full border-collapse text-sm ${width}`}>
         <caption className="sr-only">{caption}</caption>
         <thead>

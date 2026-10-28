@@ -21,7 +21,7 @@ export default async function EmailsPage() {
           default text.
         </span>
       </div>
-      <section aria-label="Emails" className="overflow-x-auto rounded-2xl border border-line bg-white">
+      <section aria-label="Emails" className="relative overflow-x-auto rounded-2xl border border-line bg-white">
         <table className="w-full min-w-[720px] border-collapse text-sm">
           <thead>
             <tr className="bg-sand text-left text-muted">

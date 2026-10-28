@@ -25,7 +25,7 @@ export default async function ContentPage() {
         </span>
       </div>
       {GROUPS.map((group) => (
-        <section key={group} aria-labelledby={`h-${group}`} className="overflow-x-auto rounded-2xl border border-line bg-white">
+        <section key={group} aria-labelledby={`h-${group}`} className="relative overflow-x-auto rounded-2xl border border-line bg-white">
           <h2 id={`h-${group}`} className="m-0 border-b border-line-soft px-4 py-3 text-base font-bold">
             {group}
           </h2>

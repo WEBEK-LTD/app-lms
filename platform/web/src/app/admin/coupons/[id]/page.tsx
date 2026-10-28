@@ -77,7 +77,7 @@ export default async function CouponPage({ params, searchParams }: PageProps<"/a
         <h2 className="m-0 text-[22px] font-extrabold">Uses</h2>
         <span className="text-[15px] text-muted">Each card payment with this coupon. Only used ones count against the limits, and ones still on the payment page for an hour.</span>
       </div>
-      <section aria-label="Uses" className="overflow-x-auto rounded-2xl border border-line bg-white">
+      <section aria-label="Uses" className="relative overflow-x-auto rounded-2xl border border-line bg-white">
         {uses.length === 0 ? (
           <p className="m-0 p-6 text-[15px] text-muted">Not used yet.</p>
         ) : (

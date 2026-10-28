@@ -106,7 +106,7 @@ export default async function WatchingPage() {
       </Section>
 
       <Section id="h-health" title="Health" text="Checked now: the database, the media gate, the files host, email, the owners' push key, the build pipeline, the encryption keys and the jobs.">
-        <div className="overflow-x-auto rounded-2xl border border-line bg-white">
+        <div className="relative overflow-x-auto rounded-2xl border border-line bg-white">
           <table className="w-full min-w-[560px] border-collapse text-sm">
             <caption className="sr-only">Health checks</caption>
             <thead>
@@ -137,7 +137,7 @@ export default async function WatchingPage() {
         {runs.length === 0 ? (
           <p className="m-0 rounded-2xl border border-line bg-white p-5 text-[15px] text-muted">No runs recorded yet.</p>
         ) : (
-          <div className="overflow-x-auto rounded-2xl border border-line bg-white">
+          <div className="relative overflow-x-auto rounded-2xl border border-line bg-white">
             <table className="w-full min-w-[620px] border-collapse text-sm">
               <caption className="sr-only">Recent job runs</caption>
               <thead>

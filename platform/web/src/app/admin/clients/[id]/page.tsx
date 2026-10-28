@@ -395,7 +395,7 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
         {errors.length === 0 ? (
           <p className="m-0 text-sm text-muted">Nothing failed for this client&apos;s apps in the last {APP_ERROR_DAYS} days.</p>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="relative overflow-x-auto">
             <table className="w-full min-w-[640px] border-collapse text-sm">
               <caption className="sr-only">Errors of the client&apos;s apps</caption>
               <thead>
@@ -525,6 +525,8 @@ async function AppEntry({
           {app ? appLabel(app) : "No app yet"}
         </h2>
         <Badge tone={stateTone(state)}>{ACCOUNT_STATE_LABEL[state]}</Badge>
+        {/* 103R A Yallapp Studio project, on Studio's plans. */}
+        {app?.section === "studio" ? <span className="rounded-md bg-midnight px-2 py-0.5 text-[11px] font-bold tracking-wide text-white">YALLAPP STUDIO</span> : null}
         {typeName ? <span className="text-sm text-muted">{typeName}</span> : null}
       </div>
 
@@ -642,7 +644,7 @@ async function AppEntry({
           {builds.length === 0 ? (
             <p className="m-0 text-sm text-muted">No builds yet.</p>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="relative overflow-x-auto">
               <table className="w-full min-w-[640px] border-collapse text-sm">
                 <thead>
                   <tr className="bg-sand text-left text-muted">
