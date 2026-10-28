@@ -29,6 +29,12 @@ class Pages {
 	);
 
 	/**
+	 * 101 The header's layouts and buttons (`AppHeader`).
+	 */
+	const HEADER_LAYOUTS = array( 'title', 'centered', 'logo', 'search' );
+	const HEADER_ICONS   = array( 'search', 'cart', 'notifications', 'chat', 'account' );
+
+	/**
 	 * 97.1 The Appearance fields naming a free font, each with the field of its files.
 	 */
 	const FONTS = array(
@@ -172,7 +178,35 @@ class Pages {
 		if ( isset( $raw['logo_url'] ) && is_string( $raw['logo_url'] ) && preg_match( '#^https://[^\s"\'<>\\\\]{1,490}$#', $raw['logo_url'] ) ) {
 			$appearance['logo_url'] = $raw['logo_url'];
 		}
+		// 101 The header of the pages in the bottom tabs; without it, the template's.
+		$header = self::header( $raw['header'] ?? null );
+		if ( $header ) {
+			$appearance['header'] = $header;
+		}
 		return $appearance;
+	}
+
+	/**
+	 * 101 The header as the platform sent it: a known layout, and its known buttons each once,
+	 * at most four. An unknown layout drops it.
+	 *
+	 * @param mixed $raw The stored header.
+	 * @return array{layout: string, icons: string[]}|null
+	 */
+	private static function header( $raw ) {
+		if ( ! is_array( $raw ) || ! in_array( $raw['layout'] ?? null, self::HEADER_LAYOUTS, true ) ) {
+			return null;
+		}
+		$icons = array();
+		foreach ( is_array( $raw['icons'] ?? null ) ? $raw['icons'] : array() as $icon ) {
+			if ( in_array( $icon, self::HEADER_ICONS, true ) && ! in_array( $icon, $icons, true ) ) {
+				$icons[] = $icon;
+			}
+		}
+		return array(
+			'layout' => $raw['layout'],
+			'icons'  => array_slice( $icons, 0, 4 ),
+		);
 	}
 
 	/**

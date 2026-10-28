@@ -8,6 +8,13 @@ Last updated: 28 October 2026.
 
 ## Current release
 
+Phase 101 (header types in the regular editor) is complete: Pages & look ›
+Look › Header offers Title, Centered, Logo and Search, with up to four
+buttons (search, cart, notifications, chat, account). The app shows it on
+the pages in the bottom tabs; WordPress sites pass it on from plugin
+0.4.24. Checks: redocly lint, platform unit tests, composer lint and the
+plugin's integration suite, flutter analyze and widget tests.
+
 Phase 100 (courses and memberships bought in the app through Google Play
 Billing and the App Store's in-app purchase) is complete (steps 100.1 to
 100.7):
@@ -54,15 +61,10 @@ test environment:
   Play Console › Monetization setup; the platform finds the app by its
   package name.
 - Plugin 0.4.23 goes to sites once the app update with in-app purchases is
-  in the stores.
+  in the stores; 0.4.24 (the header) after the app update that shows it.
 
 ## Planned (to agree on before any work)
 
-- **Header types in the regular editor.** Several app header layouts to
-  choose from, each with the icons the owner picks (cart, chat,
-  notifications, search, profile); the profile icon opens the customer's
-  account and settings. Today the header is fixed by the template
-  (classic, bold, minimal).
 - **A store review account in every app, required.** Google Play (App
   access) and the App Store (App Review Information) need a working
   sign-in for their reviewers, or the app is rejected. Today only apps on

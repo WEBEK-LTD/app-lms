@@ -20,11 +20,17 @@ import {
   APP_TEMPLATES,
   CARD_STYLES,
   CORNERS,
+  appHeader,
+  HEADER_ICONS,
+  HEADER_LAYOUTS,
   LAYOUT_LIMITS,
+  MAX_HEADER_ICONS,
   PAGE_BACKGROUNDS,
   THEME_MODES,
   type Appearance,
   type BlockType,
+  type HeaderIcon,
+  type HeaderLayout,
   type ItemSource,
   type LanguageCode,
   type Languages,
@@ -36,7 +42,7 @@ import {
 import { BlockSettings, type BlockContext } from "./block-settings";
 import { MediaPicker } from "@/components/media-picker";
 import { ActionEditor, Check, firstScreen, IconGlyph, IconPicker, LangText, OwnIcon, SelectInput, TextInput, type Lang } from "./controls";
-import { BLOCK_DRAG_TYPE, DesignThumb, PhonePreview } from "./preview";
+import { BLOCK_DRAG_TYPE, DesignThumb, HEADER_ICON_GLYPHS, PhonePreview } from "./preview";
 import { LivePreview, notifyDraftSaved } from "./live-preview";
 import { UpgradeHint } from "@/components/upgrade";
 import { FontPicker } from "@/components/font-picker";
@@ -79,6 +85,21 @@ const TEMPLATE_TEXT: Record<(typeof APP_TEMPLATES)[number], DashKey> = {
   classic: "pages.templateClassic",
   bold: "pages.templateBold",
   minimal: "pages.templateMinimal",
+};
+
+// 101 The header of the pages in the bottom tabs.
+const HEADER_TEXT: Record<HeaderLayout, { name: DashKey; text: DashKey }> = {
+  title: { name: "pages.headerTitle", text: "pages.headerTitleText" },
+  centered: { name: "pages.headerCentered", text: "pages.headerCenteredText" },
+  logo: { name: "pages.headerLogo", text: "pages.headerLogoText" },
+  search: { name: "pages.headerSearch", text: "pages.headerSearchText" },
+};
+const HEADER_ICON_TEXT: Record<HeaderIcon, DashKey> = {
+  search: "pages.headerIconSearch",
+  cart: "pages.headerIconCart",
+  notifications: "pages.headerIconNotifications",
+  chat: "pages.headerIconChat",
+  account: "pages.headerIconAccount",
 };
 
 /**
@@ -673,6 +694,11 @@ export function PagesEditor({
   // 97.3 The Figma look shown: the standard look's font, colors and corners wait.
   const figmaShown = layout.look_mode === "figma" && Boolean(layout.figma_look);
   const setLook = (patch: Partial<Appearance>) => update((l) => ({ ...l, appearance: { ...l.appearance, ...patch } }));
+  // 101 The header: the template's (Title) until one is chosen; the buttons this app can open, and the chat's.
+  const headerLayout: HeaderLayout = layout.appearance.header?.layout ?? "title";
+  const headerIconChoices = HEADER_ICONS.filter((icon) => icon === "chat" || screens.some((s) => s.value === icon));
+  const headerIcons = (layout.appearance.header?.icons ?? []).filter((icon) => headerIconChoices.includes(icon));
+  const setHeader = (layout: HeaderLayout, buttons: HeaderIcon[]) => setLook({ header: appHeader(layout, buttons) });
 
   // 43 Added, removed, reordered or a new default; a new default takes its translations as the main texts.
   function changeLanguages(next: Languages, defaultTo?: string) {
@@ -1341,6 +1367,58 @@ export function PagesEditor({
                   </label>
                 ))}
               </div>
+            </fieldset>
+            {/* 101 The header of the pages in the bottom tabs, and its buttons (the chat's shows while the chat is on). */}
+            <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+              <legend className="mb-1.5 p-0 text-sm font-semibold">{t("pages.header")}</legend>
+              <p className="m-0 text-sm text-muted">{t("pages.headerText")}</p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {HEADER_LAYOUTS.map((value) => (
+                  <label
+                    key={value}
+                    className="flex cursor-pointer flex-col gap-1 rounded-xl border border-line p-3 has-[:checked]:border-2 has-[:checked]:border-midnight has-[:checked]:p-[11px]"
+                  >
+                    <span className="flex items-center gap-2 text-[15px] font-bold">
+                      <input
+                        type="radio"
+                        name="header-layout"
+                        checked={headerLayout === value}
+                        onChange={() => setHeader(value, headerIcons)}
+                        className="h-4 w-4 accent-midnight"
+                      />
+                      {t(HEADER_TEXT[value].name)}
+                    </span>
+                    <span className="text-xs text-muted">{t(HEADER_TEXT[value].text)}</span>
+                  </label>
+                ))}
+              </div>
+              <p className="m-0 mt-2 text-sm font-semibold">{t("pages.headerIcons", { count: MAX_HEADER_ICONS })}</p>
+              <div className="flex flex-wrap gap-x-5 gap-y-2">
+                {headerIconChoices.map((icon) => {
+                  const on = headerIcons.includes(icon);
+                  return (
+                    <Check
+                      key={icon}
+                      label={
+                        <span className="inline-flex items-center gap-1.5">
+                          <IconGlyph name={HEADER_ICON_GLYPHS[icon]} size={18} />
+                          {t(HEADER_ICON_TEXT[icon])}
+                        </span>
+                      }
+                      checked={on}
+                      disabled={!on && headerIcons.length >= MAX_HEADER_ICONS}
+                      onChange={(checked) =>
+                        // In the order offered, start to end.
+                        setHeader(
+                          headerLayout,
+                          headerIconChoices.filter((i) => (i === icon ? checked : headerIcons.includes(i))),
+                        )
+                      }
+                    />
+                  );
+                })}
+              </div>
+              <p className="m-0 text-xs text-muted">{t("pages.headerIconsHint")}</p>
             </fieldset>
             <div className="grid gap-3 sm:grid-cols-2">
               <SelectInput

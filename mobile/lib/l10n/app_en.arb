@@ -3234,5 +3234,9 @@
   "storeUnavailable": "Purchases aren't available on this device right now.",
   "@storeUnavailable": {
     "description": "100 Buying in the app when the phone's store can't take payments (no Google Play, purchases turned off)."
+  },
+  "headerSearch": "Search",
+  "@headerSearch": {
+    "description": "101 The search button and search field in the header of the pages in the bottom tabs."
   }
 }

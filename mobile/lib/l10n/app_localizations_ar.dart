@@ -4243,4 +4243,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get storeUnavailable => 'الشراء غير متاح على هذا الجهاز حاليًا.';
+
+  @override
+  String get headerSearch => 'بحث';
 }

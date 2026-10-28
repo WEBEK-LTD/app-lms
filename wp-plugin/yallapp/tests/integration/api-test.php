@@ -374,6 +374,8 @@ $layout = array(
 		// 97.3 The Figma look's main color and logo; a logo that isn't https is dropped.
 		'primary_color'        => '#1f4e5f',
 		'logo_url'             => 'javascript:alert(1)',
+		// 101 The header: an unknown button and a repeat are dropped.
+		'header'               => array( 'layout' => 'logo', 'icons' => array( 'cart', 'wishlist', 'cart', 'account' ) ),
 	),
 	'languages'  => array( 'default' => 'en', 'available' => array( 'en', 'ar' ) ),
 	'tabs'       => array(
@@ -456,6 +458,10 @@ check(
 		'font_files'           => array( array( 'url' => 'https://yallapp.example/api/v1/fonts/ofl/cairo/Cairo%5Bslnt%2Cwght%5D.ttf', 'weight' => null ) ),
 		'arabic_font'          => 'Tajawal',
 		'primary_color'        => '#1F4E5F',
+		'header'               => array(
+			'layout' => 'logo',
+			'icons'  => array( 'cart', 'account' ),
+		),
 	) === ( $r['json']['appearance'] ?? null ),
 	$r['json']['appearance'] ?? null
 );

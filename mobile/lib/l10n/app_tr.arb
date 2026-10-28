@@ -1109,5 +1109,6 @@
   "storePurchaseInUse": "Bu satın alım bu uygulamadaki başka bir hesaba ait. Kullanmak için o hesapla giriş yapın.",
   "storePurchaseEnded": "Bu satın alımın süresi doldu veya iadesi yapıldı.",
   "storePurchaseFailed": "Satın alma tamamlanamadı. Tekrar deneyin.",
-  "storeUnavailable": "Satın alma şu anda bu cihazda kullanılamıyor."
+  "storeUnavailable": "Satın alma şu anda bu cihazda kullanılamıyor.",
+  "headerSearch": "Ara"
 }

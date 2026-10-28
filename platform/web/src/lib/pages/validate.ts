@@ -30,7 +30,10 @@ import {
   DIVIDER_STYLES,
   FORM_FIELD_KINDS,
   FORM_SEND_TO,
+  HEADER_ICONS,
+  HEADER_LAYOUTS,
   IMAGE_FITS,
+  MAX_HEADER_ICONS,
   PAGE_BACKGROUNDS,
   SHOW_PLATFORMS,
   NOTICE_TONES,
@@ -44,10 +47,12 @@ import {
   VISIBILITIES,
   WEEKDAYS,
   type Action,
+  type AppHeader,
   type Appearance,
   type AppDefaultsSetting,
   type BlockType,
   type EntryList,
+  type HeaderIcon,
   type FaqEntry,
   type HoursPeriod,
   type Person,
@@ -171,6 +176,7 @@ export function parseAppearance(value: unknown, c: Checker = new Checker(), wher
   if (!arabic || (v.arabic_font != null && typeof v.arabic_font !== "string")) c.fail(where, "choose an Arabic font from the list.");
   if (!oneOf(CORNERS, v.corners)) c.fail(where, "choose the corners.");
   if (!oneOf(CARD_STYLES, v.cards)) c.fail(where, "choose the card style.");
+  const header = v.header === undefined || v.header === null ? null : parseHeader(v.header, c, where);
   return {
     template: v.template as Appearance["template"],
     theme_mode: v.theme_mode as Appearance["theme_mode"],
@@ -181,7 +187,25 @@ export function parseAppearance(value: unknown, c: Checker = new Checker(), wher
     ...(arabic ?? {}),
     corners: v.corners as Appearance["corners"],
     cards: v.cards as Appearance["cards"],
+    ...(header ? { header } : {}),
   };
+}
+
+/** 101 The header of the pages in the bottom tabs: a layout and up to four buttons, each once. */
+function parseHeader(value: unknown, c: Checker, where: string): AppHeader | null {
+  const v = record(value);
+  if (!v || !oneOf(HEADER_LAYOUTS, v.layout)) {
+    c.fail(where, "choose the header.");
+    return null;
+  }
+  const icons: HeaderIcon[] = [];
+  for (const icon of Array.isArray(v.icons) ? v.icons : []) {
+    if (!oneOf(HEADER_ICONS, icon)) c.fail(where, "a header button isn't one the app has.");
+    else if (!icons.includes(icon)) icons.push(icon);
+  }
+  if (v.icons !== undefined && !Array.isArray(v.icons)) c.fail(where, "a header button isn't one the app has.");
+  if (icons.length > MAX_HEADER_ICONS) c.fail(where, `keep at most ${MAX_HEADER_ICONS} buttons in the header.`);
+  return { layout: v.layout, icons: icons.slice(0, MAX_HEADER_ICONS) };
 }
 
 /** 97.3 The look made from a Figma file. */

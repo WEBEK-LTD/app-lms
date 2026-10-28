@@ -643,6 +643,7 @@ class Appearance {
     this.cards,
     this.primaryColor,
     this.logoUrl,
+    this.header,
   });
 
   factory Appearance.fromJson(Json json) => Appearance(
@@ -659,6 +660,9 @@ class Appearance {
     cards: enumOrNull(CardStyle.values, json['cards']),
     primaryColor: optString(json, 'primary_color'),
     logoUrl: optString(json, 'logo_url'),
+    header: json['header'] is Map
+        ? AppHeader.fromJson(asJson(json['header'], 'header'))
+        : null,
   );
 
   final AppTemplate? template;
@@ -683,6 +687,41 @@ class Appearance {
   /// 97.3 The Figma look's main color and logo, over `Config.branding`'s.
   final String? primaryColor;
   final String? logoUrl;
+
+  /// 101 The header of the pages in the bottom tabs; null: the template's.
+  final AppHeader? header;
+}
+
+/// 101 The header's layouts (`AppHeader.layout`).
+enum HeaderLayout { title, centered, logo, search }
+
+/// 101 The header's buttons (`AppHeader.icons`).
+enum HeaderIcon { search, cart, notifications, chat, account }
+
+/// 101 `AppHeader`: the top of the pages in the bottom tabs, chosen in the
+/// dashboard. An unknown layout falls back to [HeaderLayout.title]; unknown
+/// buttons are left out.
+class AppHeader {
+  const AppHeader({required this.layout, this.icons = const []});
+
+  factory AppHeader.fromJson(Json json) {
+    final icons = <HeaderIcon>[];
+    final raw = json['icons'];
+    for (final wire in raw is List ? raw : const []) {
+      final icon = enumOrNull(HeaderIcon.values, wire);
+      if (icon != null && !icons.contains(icon)) icons.add(icon);
+    }
+    return AppHeader(
+      layout:
+          enumOrNull(HeaderLayout.values, json['layout']) ?? HeaderLayout.title,
+      icons: icons.take(4).toList(),
+    );
+  }
+
+  final HeaderLayout layout;
+
+  /// From the start of the bar.
+  final List<HeaderIcon> icons;
 }
 
 /// 97.1 `FontFile`: a font file on Yallapp, for one weight or (null) all.

@@ -11,6 +11,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import 'app_header.dart';
 import 'page_blocks.dart';
 import 'page_providers.dart';
 import 'side_menu.dart';
@@ -185,7 +186,27 @@ class _PageHeader extends ConsumerWidget {
     final p = context.palette;
     final style = PageStyle.of(template);
     final showTitle = page.showTitle && page.title.trim().isNotEmpty;
-    final bold = template == AppTemplate.bold && showTitle;
+    // 101 The header chosen in the dashboard, on the pages in the bottom tabs.
+    final chosen = pushed ? null : ref.watch(appLookProvider).header;
+    final bold = template == AppTemplate.bold && (showTitle || chosen != null);
+    final titleStyle = switch (template) {
+      AppTemplate.classic => TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.w700,
+        color: p.text,
+      ),
+      AppTemplate.bold => TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.w800,
+        color: p.onPrimary,
+      ),
+      AppTemplate.minimal => TextStyle(
+        fontSize: 34,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -1,
+        color: p.text,
+      ),
+    };
     // 82.5 A page in the bottom tabs opens the side menu where a pushed
     // page has its back button.
     final back = pushed
@@ -199,35 +220,25 @@ class _PageHeader extends ConsumerWidget {
               page.title,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
-              style: switch (template) {
-                AppTemplate.classic => TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: p.text,
-                ),
-                AppTemplate.bold => TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                  color: p.onPrimary,
-                ),
-                AppTemplate.minimal => TextStyle(
-                  fontSize: 34,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -1,
-                  color: p.text,
-                ),
-              },
+              style: titleStyle,
             ),
           );
-    final content = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (back != null)
-          Align(alignment: AlignmentDirectional.centerStart, child: back),
-        if (back != null && title != null) const SizedBox(height: 14),
-        ?title,
-      ],
-    );
+    final Widget content = chosen != null
+        ? ChosenHeader(
+            header: chosen,
+            title: showTitle ? page.title : null,
+            titleStyle: titleStyle,
+            onDark: bold,
+          )
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (back != null)
+                Align(alignment: AlignmentDirectional.centerStart, child: back),
+              if (back != null && title != null) const SizedBox(height: 14),
+              ?title,
+            ],
+          );
     if (bold) {
       return Container(
         margin: const EdgeInsets.only(bottom: 22),
@@ -246,7 +257,7 @@ class _PageHeader extends ConsumerWidget {
         child: content,
       );
     }
-    final empty = back == null && title == null;
+    final empty = chosen == null && back == null && title == null;
     return Padding(
       padding: EdgeInsets.fromLTRB(
         style.gutter,

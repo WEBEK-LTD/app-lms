@@ -16,6 +16,10 @@ export const CORNERS = ["sharp", "soft", "round"] as const;
 /** 97.3 Which look the app shows: the standard one, or the one made from a Figma file. */
 export const LOOK_MODES = ["standard", "figma"] as const;
 export const CARD_STYLES = ["flat", "outlined", "elevated"] as const;
+/** 101 The header of the pages in the bottom tabs, and the buttons it can have. */
+export const HEADER_LAYOUTS = ["title", "centered", "logo", "search"] as const;
+export const HEADER_ICONS = ["search", "cart", "notifications", "chat", "account"] as const;
+export const MAX_HEADER_ICONS = 4;
 /** 43 The languages Yallapp ships its own translations in; an app can offer any of `LOCALES` (lib/i18n/locales.ts). */
 export const LANGUAGE_CODES = BUILT_IN_LANGUAGES;
 export const ITEM_SOURCES = ["courses", "products", "services", "posts", "listings", "articles", "events", "campaigns"] as const;
@@ -154,6 +158,8 @@ export interface FigmaPicture {
   name: string;
 }
 export type CardStyle = (typeof CARD_STYLES)[number];
+export type HeaderLayout = (typeof HEADER_LAYOUTS)[number];
+export type HeaderIcon = (typeof HEADER_ICONS)[number];
 /** 43 A language code from `LOCALES` ("en", "ar", "fr", "fil"). */
 export type LanguageCode = string;
 export type ItemSource = (typeof ITEM_SOURCES)[number];
@@ -190,6 +196,19 @@ export interface Appearance {
   logo_url?: string;
   corners: Corners;
   cards: CardStyle;
+  /** 101 The header of the pages in the bottom tabs; missing: the template's. */
+  header?: AppHeader;
+}
+
+/** 101 `AppHeader` in the app API: its layout and its buttons, from the start. */
+export interface AppHeader {
+  layout: HeaderLayout;
+  icons: HeaderIcon[];
+}
+
+/** 101 A header with its buttons, in the order given. */
+export function appHeader(layout: HeaderLayout, buttons: HeaderIcon[]): AppHeader {
+  return { layout, icons: buttons };
 }
 
 /** `Languages` in the app API. */

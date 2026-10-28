@@ -2254,3 +2254,13 @@ subscriptions take the access back.
 | [x] | 100.5 App: buying through Google Play Billing and StoreKit (`in_app_purchase`) on both platforms, the store's own price, restore purchases, managing a subscription in the store, the subscription terms Apple asks for; the website checkout no longer offered for digital content | flutter analyze, unit and widget tests, the app preview rebuilt |
 | [x] | 100.6 Sales and guides: in-app sales, refunds and renewals in Analytics and Yallapp Business; the guides to connect each store (en/ar/tr); the terms | e2e; docs |
 | [x] | 100.7 Apps on their own API and schools on Teachable or Thinkific: the owner's list of what the app sells (products made in the stores as in 100.2), access through the signed `purchase.completed` and `purchase.revoked` notices (own API) and the platforms' enrolment APIs | Unit tests with recorded answers; e2e of the dashboard |
+
+## Phase 101: Header types
+
+The owner asked for several app headers to choose from in the regular
+editor, each with the buttons they pick; the account button opens the
+customer's account and settings.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 101.1 Pages & look › Look › Header: Title (the template's, with the buttons above the title), Centered (one bar, the page's title in the middle), Logo (the app's logo, the title under it) or Search (the logo with a search field under it that opens the app's search); up to four buttons from search, cart, notifications, chat and account, offered as the app's type has them (the chat's shows while the chat is on; the cart and the chat show their counts); `Appearance.header` (`AppHeader`) to the app from the hosted API and the plugin 0.4.24; the quick view and the app show it on the pages in the bottom tabs, pages opened on top keep their back button | Contract, unit tests (platform), plugin integration suite, flutter analyze and widget tests |
