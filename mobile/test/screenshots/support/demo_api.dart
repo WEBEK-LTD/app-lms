@@ -454,6 +454,270 @@ class DemoApi extends FakeApi {
     return api;
   }
 
+  /// 103R A café whose home page was designed in Yallapp Studio: a hero
+  /// with the café's photo, quick buttons, its dishes in its own cards and
+  /// its rating.
+  factory DemoApi.studioCafe() {
+    final api = DemoApi.restaurant();
+    api
+      ..navigation = navigationJson(
+        tabs: [
+          navTabJson('t1', 'Home', 'home', {
+            'type': 'page',
+            'page_slug': 'home',
+          }),
+          navTabJson('t2', 'Cart', 'shopping_bag', {
+            'type': 'screen',
+            'screen': 'cart',
+          }),
+          navTabJson('t3', 'Orders', 'receipt_long', {
+            'type': 'screen',
+            'screen': 'orders',
+          }),
+          navTabJson('t4', 'Account', 'person', {
+            'type': 'screen',
+            'screen': 'account',
+          }),
+        ],
+      )
+      ..pages = {
+        'home': {
+          ...appPageJson(title: 'Home', showTitle: false, blocks: []),
+          'studio': _studioCafe(),
+        },
+      };
+    return api;
+  }
+
+  static Map<String, dynamic> _studioDish(
+    int id,
+    String title,
+    String price,
+    String image,
+  ) => {
+    'source': 'products',
+    'id': '$id',
+    'title': title,
+    'subtitle': null,
+    'image_url': demoImage(image),
+    'price_label': price,
+    'badge': null,
+    'favorited': false,
+    'action': {
+      'type': 'item',
+      'item': {'source': 'products', 'id': '$id'},
+    },
+  };
+
+  static Map<String, dynamic> _studioCafe() => {
+    'header': {
+      'type': 'logo_actions',
+      'title': 'Defne Café',
+      'buttons': ['cart', 'account'],
+      'background': '#FBF4EC',
+      'color': '#3B1E10',
+      'dark_background': '#1B120D',
+      'dark_color': '#F6EFD9',
+    },
+    'background': '#FBF4EC',
+    'dark_background': '#1B120D',
+    'body': {
+      'id': 'root',
+      'type': 'column',
+      'gap': 16,
+      'padding': {'top': 6, 'bottom': 24},
+      'children': [
+        {
+          'id': 'hero',
+          'type': 'column',
+          'radius': 26,
+          'margin': {'start': 16, 'end': 16},
+          'padding': {'top': 14, 'end': 14, 'bottom': 18, 'start': 14},
+          'gap': 10,
+          'gradient': {'from': '#C4622F', 'to': '#7A2E14', 'angle': 160},
+          'children': [
+            {
+              'id': 'hero-image',
+              'type': 'image',
+              'image_url': demoImage('dish-breakfast'),
+              'height': 120,
+              'radius': 18,
+            },
+            {
+              'id': 'hero-badge',
+              'type': 'text',
+              'text': 'Open until 23:00',
+              'color': '#3B1E10',
+              'background': '#F6C453',
+              'radius': 999,
+              'self_align': 'start',
+              'padding': {'top': 4, 'end': 10, 'bottom': 4, 'start': 10},
+              'font': {'size': 12, 'weight': 700},
+            },
+            {
+              'id': 'hero-title',
+              'type': 'text',
+              'text': 'Breakfast all day, on its way to you',
+              'color': '#FFFFFF',
+              'font': {'size': 26, 'weight': 800},
+              'motion': {'enter': 'slide_up', 'duration_ms': 300},
+            },
+            {
+              'id': 'hero-cta',
+              'type': 'button',
+              'text': 'Order now',
+              'icon': 'arrow_forward',
+              'background': '#3B1E10',
+              'color': '#FFFFFF',
+              'radius': 14,
+              'self_align': 'start',
+              'motion': {'press': 'shrink'},
+              'action': {'type': 'screen', 'screen': 'cart'},
+            },
+          ],
+        },
+        {
+          'id': 'quick',
+          'type': 'row',
+          'gap': 10,
+          'margin': {'start': 16, 'end': 16},
+          'children': [
+            for (final (id, icon, label) in [
+              ('q-delivery', 'two_wheeler', 'Delivery'),
+              ('q-pickup', 'storefront', 'Pickup'),
+              ('q-later', 'schedule', 'Later'),
+            ])
+              {
+                'id': id,
+                'type': 'column',
+                'width': 'fill',
+                'gap': 6,
+                'cross': 'center',
+                'background': '#FFFFFF',
+                'dark_background': '#2A1D16',
+                'radius': 18,
+                'shadow': 'light',
+                'padding': {'top': 14, 'end': 8, 'bottom': 14, 'start': 8},
+                'children': [
+                  {
+                    'id': '$id-icon',
+                    'type': 'icon',
+                    'icon': icon,
+                    'icon_size': 26,
+                    'color': '#B5552A',
+                  },
+                  {
+                    'id': '$id-text',
+                    'type': 'text',
+                    'text': label,
+                    'font': {'size': 14, 'weight': 700},
+                  },
+                ],
+              },
+          ],
+        },
+        {
+          'id': 'popular-title',
+          'type': 'text',
+          'text': 'Popular this week',
+          'margin': {'start': 16, 'end': 16},
+          'font': {'size': 20, 'weight': 800},
+        },
+        {
+          'id': 'popular',
+          'type': 'items',
+          'source': 'products',
+          'layout': 'carousel',
+          'margin': {'start': 16},
+          'card': {
+            'id': 'dish-card',
+            'type': 'column',
+            'width': 170,
+            'gap': 6,
+            'background': '#FFFFFF',
+            'dark_background': '#2A1D16',
+            'radius': 20,
+            'shadow': 'light',
+            'padding': {'top': 8, 'end': 8, 'bottom': 12, 'start': 8},
+            'children': [
+              {
+                'id': 'dish-image',
+                'type': 'image',
+                'bind': 'image',
+                'height': 110,
+                'radius': 14,
+              },
+              {
+                'id': 'dish-title',
+                'type': 'text',
+                'bind': 'title',
+                'max_lines': 1,
+                'font': {'size': 15, 'weight': 700},
+              },
+              {
+                'id': 'dish-price',
+                'type': 'text',
+                'bind': 'price',
+                'color': '#B5552A',
+                'font': {'size': 14, 'weight': 800},
+              },
+            ],
+          },
+          'items': [
+            _studioDish(53, 'Defne burger', '₺420', 'dish-burger'),
+            _studioDish(51, 'Village breakfast', '₺380', 'dish-breakfast'),
+            _studioDish(55, 'Lentil soup', '₺150', 'dish-soup'),
+          ],
+        },
+        {
+          'id': 'rating',
+          'type': 'ratings',
+          'rating': 4.8,
+          'text': '4.8 · 1,240 reviews',
+          'margin': {'start': 16, 'end': 16},
+        },
+      ],
+    },
+  };
+
+  /// 104 A courier company in Cairo: the customer sends a parcel and follows
+  /// it; its couriers see their jobs in the same app.
+  factory DemoApi.delivery({bool courier = false}) {
+    final api = DemoApi._(
+      config: {
+        ...configJson(lms: null, languages: _languages),
+        'site': _site('Nile Express'),
+        'branding': {'logo_url': null, 'primary_color': '#123A5C'},
+        'delivery': {
+          ...deliveryConfigJson(pricing: 'distance', tracking: 'stages'),
+          'map': {'tiles_url': null, 'attribution': null},
+        },
+      },
+    );
+    api.shipments = [
+      shipmentJson(status: 'on_the_way'),
+      shipmentJson(id: 2, status: 'delivered', withCourier: true),
+    ];
+    api.shipments[0]['timeline'] = [
+      {'status': 'pending', 'at': '2026-10-28T09:40:00.000Z', 'note': null},
+      {'status': 'assigned', 'at': '2026-10-28T09:45:00.000Z', 'note': null},
+      {'status': 'picked_up', 'at': '2026-10-28T10:05:00.000Z', 'note': null},
+      {'status': 'on_the_way', 'at': '2026-10-28T10:07:00.000Z', 'note': null},
+    ];
+    if (courier) {
+      api.me = {
+        ...userJson(),
+        'roles': ['courier'],
+      };
+      api.courierJobs = {
+        'active': [courierJobJson(status: 'picked_up')],
+        'available': [courierJobJson(id: 2, status: 'pending', mine: false)],
+        'done': [],
+      };
+    }
+    return api;
+  }
+
   final bool arabic;
 
   static const _languages = {
@@ -473,8 +737,10 @@ class DemoApi extends FakeApi {
 
   @override
   Future<User> getMe() => super.getMe().then(
-    (_) => User.fromJson({
+    (me) => User.fromJson({
       ...userJson(),
+      // 104 A courier keeps their role.
+      if (me.roles.isNotEmpty) 'roles': me.roles,
       'name': arabic ? 'سارة يلماز' : 'Sara Yılmaz',
       'email': 'sara@example.com',
     }),

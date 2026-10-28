@@ -15,6 +15,7 @@ export type SitePage =
   | "features"
   | "integrations"
   | "how"
+  | "studio"
   | "pricing"
   | "demo"
   | "docs"
@@ -40,6 +41,8 @@ export interface SiteGroup {
 export type SiteNavEntry = ({ kind: "link" } & SiteLink) | ({ kind: "group" } & SiteGroup);
 
 export const PRODUCT_LINKS: SiteLink[] = [
+  // 103R Yallapp Studio, apart from the regular apps.
+  { id: "studio", href: "/yallapp-studio", label: "Yallapp Studio", description: "Design your app freely", icon: "dashboard_customize" },
   { id: "solutions", href: "/solutions", label: "Solutions", description: "An app for each kind of business", icon: "grid_view" },
   { id: "features", href: "/features", label: "Features", description: "Pages, languages, payments and more", icon: "tune" },
   { id: "integrations", href: "/integrations", label: "Integrations", description: "Where your app's content comes from", icon: "link" },
@@ -76,6 +79,7 @@ export function siteNavFor(lang: Lang, m: Messages["nav"]): SiteNavEntry[] {
   const label: Record<string, [string, string?]> = {
     home: [m.home],
     product: [m.product],
+    studio: [m.studio, m.studioText],
     pricing: [m.pricing],
     demo: [m.demo],
     resources: [m.resources],

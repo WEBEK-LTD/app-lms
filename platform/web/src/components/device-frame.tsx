@@ -111,4 +111,7 @@ export const DASHBOARD_PATHS: Record<DashboardScreen, string> = {
   "dashboard-pages": "/dashboard/pages",
   "dashboard-setup": "/dashboard/setup?step=branding",
   "dashboard-builds": "/dashboard/builds",
+  "studio-editor": "/studio/editor",
+  "studio-home": "/studio",
+  "studio-project": "/studio/project",
 };

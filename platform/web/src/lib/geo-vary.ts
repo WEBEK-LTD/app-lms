@@ -14,8 +14,11 @@
 
 export const COUNTRY_VARY_HEADERS = ["X-Yallapp-Client-Country", "X-Country", "CF-IPCountry", "Accept-Language"] as const;
 
-/** The pages that show plan prices: the home page and the pricing page (the dashboard is private anyway), 55 also in Arabic and Turkish. */
-export const PRICED_PAGES = ["/", "/pricing", "/ar", "/ar/pricing", "/tr", "/tr/pricing"] as const;
+/**
+ * The pages that show plan prices: the home page, the pricing page and (103R) Yallapp Studio's page
+ * (the dashboard is private anyway), 55 also in Arabic and Turkish.
+ */
+export const PRICED_PAGES = ["/", "/pricing", "/yallapp-studio", "/ar", "/ar/pricing", "/ar/yallapp-studio", "/tr", "/tr/pricing", "/tr/yallapp-studio"] as const;
 
 /** The cache key Netlify uses for those pages: the headers above, and Egypt or not by its own geolocation. */
 export function countryVaryHeaders(): { key: string; value: string }[] {

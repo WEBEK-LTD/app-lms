@@ -37,6 +37,7 @@ export async function HomePage({ lang }: { lang: Lang }) {
   const text = await getSiteContent("home", lang);
   const m = messagesFor(lang);
   const h = m.home;
+  const s = m.studio;
   const lp = (path: string) => localePath(lang, path);
   const alt = screenAltFor(lang);
   const solutions = solutionsFor(lang);
@@ -137,6 +138,41 @@ export async function HomePage({ lang }: { lang: Lang }) {
           </div>
           <MoreLink href={lp("/demo")}>{formatMessage(lang, h.tryDemos, { count: numberWordFor(lang, solutions.length) })}</MoreLink>
         </Section>
+
+        {/* 103R Yallapp Studio, apart from the regular apps, with its own page, demo and plans. */}
+        <section aria-labelledby="studio-title" className="on-dark overflow-hidden bg-night-2 text-white" data-home-studio="">
+          <div className="mx-auto flex max-w-[1160px] flex-wrap items-center gap-x-12 gap-y-12 px-4 py-16 sm:px-6 sm:py-24">
+            <div className="flex min-w-0 flex-[1_1_400px] flex-col gap-5">
+              <span className="flex items-center gap-2 self-start rounded-full bg-ember px-3 py-1 text-[12px] font-bold tracking-[0.5px] text-white uppercase">
+                <Icon name="dashboard_customize" size={16} />
+                {s.homeBadge}
+              </span>
+              <h2 id="studio-title" className="m-0 text-[30px] leading-[1.1] font-extrabold tracking-[-0.8px] text-balance sm:text-[40px] sm:tracking-[-1px]">
+                {s.homeTitle}
+              </h2>
+              <p className="m-0 text-[17px] leading-relaxed text-night-text sm:text-lg">{s.homeText}</p>
+              <div className="flex flex-wrap gap-3 pt-1">
+                <Link
+                  href={lp("/yallapp-studio")}
+                  className="flex h-[50px] items-center gap-2 rounded-xl bg-ivory px-[22px] text-base font-bold text-midnight no-underline hover:bg-white hover:text-midnight"
+                >
+                  {s.homeLink}
+                  <Icon name="arrow_forward" size={20} />
+                </Link>
+                <Link
+                  href={lp("/demo/studio")}
+                  className="flex h-[50px] items-center rounded-xl border border-night-line px-[22px] text-base font-semibold text-white no-underline hover:border-ivory hover:text-white"
+                >
+                  {s.seeDemo}
+                </Link>
+              </div>
+            </div>
+            <div className="relative flex min-w-0 flex-[1_1_520px] items-end justify-center">
+              <BrowserFrame screen="studio-editor" path={DASHBOARD_PATHS["studio-editor"]} alt={alt["studio-editor"]} className="w-full" />
+              <DeviceFrame screen="studio-cafe-home" size="xs" alt={alt["studio-cafe-home"]} className="absolute -bottom-6 end-[-8px] hidden sm:flex" />
+            </div>
+          </div>
+        </section>
 
         <Section>
           <SectionTitle title={text.featuresTitle!} text={text.featuresText} />
@@ -241,6 +277,7 @@ export async function HomePage({ lang }: { lang: Lang }) {
           <p data-currency-note="" className="m-0 text-[15px] text-ink-4">
             {currencyNote(view, lang)}
           </p>
+          <p className="m-0 text-[15px] text-ink-4">{richText(s.pricingStudio, { link: (chunk) => <Link href={lp("/yallapp-studio#plans")}>{chunk}</Link> })}</p>
           <MoreLink href={lp("/pricing")}>{h.compareFeatures}</MoreLink>
         </Section>
 

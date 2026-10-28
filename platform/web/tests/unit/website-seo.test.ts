@@ -41,12 +41,14 @@ describe("32 the website's menu", () => {
   it("has Home, Product and Resources lists, then Pricing, Demo and Contact", () => {
     expect(SITE_NAV.map((e) => e.label)).toEqual(["Home", "Product", "Pricing", "Demo", "Resources", "Contact"]);
     const hrefs = (id: string) => SITE_NAV.flatMap((e) => (e.kind === "group" && e.id === id ? e.items.map((i) => i.href) : []));
-    expect(hrefs("product")).toEqual(["/solutions", "/features", "/integrations", "/how-it-works"]);
+    // 103R Yallapp Studio first: its own page, apart from the regular apps.
+    expect(hrefs("product")).toEqual(["/yallapp-studio", "/solutions", "/features", "/integrations", "/how-it-works"]);
     expect(hrefs("resources")).toEqual(["/docs", "/faq", "/developers"]);
   });
 
   it("marks the page's own link, or the list it's in", () => {
     expect(activeEntry("pricing")).toBe("pricing");
+    expect(activeEntry("studio")).toBe("product");
     expect(activeEntry("features")).toBe("product");
     expect(activeEntry("how")).toBe("product");
     expect(activeEntry("developers")).toBe("resources");
@@ -161,12 +163,12 @@ describe("32 search engines", () => {
   it("list every public page in the sitemap, and nothing private", () => {
     const entries = sitemapEntries(BASE, { "/terms": "15 October 2026", "/privacy": "not a date" });
     const urls = entries.map((e) => e.url);
-    for (const path of ["", "/solutions", "/features", "/integrations", "/how-it-works", "/pricing", "/demo", "/docs", "/developers", "/faq", "/contact", "/terms", "/privacy", "/refund", "/delete-account"]) {
+    for (const path of ["", "/solutions", "/features", "/integrations", "/how-it-works", "/pricing", "/yallapp-studio", "/demo", "/demo/studio", "/docs", "/developers", "/faq", "/contact", "/terms", "/privacy", "/refund", "/delete-account"]) {
       expect(urls).toContain(`${BASE}${path}`);
     }
     for (const s of SOLUTIONS) expect(urls).toContain(`${BASE}/solutions/${s.id}`);
     for (const d of DOCS) expect(urls).toContain(`${BASE}/docs/${d.slug}`);
-    expect(urls).toHaveLength(15 + SOLUTIONS.length + DOCS.length);
+    expect(urls).toHaveLength(17 + SOLUTIONS.length + DOCS.length);
     expect(new Set(urls).size).toBe(urls.length);
     for (const url of urls) {
       expect(url.startsWith(BASE)).toBe(true);

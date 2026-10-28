@@ -379,6 +379,15 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await studioPlan.getByLabel("Pages per project").fill("5");
   await studioPlan.getByRole("button", { name: "Save plan" }).click();
   await expect(admin.getByText("Studio Start saved. Studio projects can choose it now.")).toBeVisible();
+  // The website shows the offered Studio plan on Yallapp Studio's page and on pricing, apart from the regular plans.
+  await admin.goto("/yallapp-studio");
+  const offered = admin.locator('#plans [data-plan="studio_1"]');
+  await expect(offered.getByRole("heading", { level: 3, name: "Studio Start" })).toBeVisible();
+  await expect(offered).toContainText("5 Studio pages per project");
+  await expect(offered.locator("li[data-included]").filter({ hasText: "Motion in the editor" })).toHaveCount(1);
+  await admin.goto("/pricing");
+  await expect(admin.locator('#studio [data-plan="studio_1"]')).toContainText("Studio Start");
+  await expect(admin.locator('#regular [data-plan="studio_1"]')).toHaveCount(0);
 
   // 103R.3 Studio's home: the account's Studio projects only.
   await own.goto("/studio");

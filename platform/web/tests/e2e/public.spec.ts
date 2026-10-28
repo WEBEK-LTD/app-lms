@@ -18,6 +18,9 @@ const PAGES: { path: string; heading: RegExp; footer: boolean }[] = [
   { path: "/integrations", heading: /Your content, from wherever it lives/, footer: true },
   { path: "/how-it-works", heading: /From sign-up to the app stores in five steps/, footer: true },
   { path: "/pricing", heading: /A plan for every app/, footer: true },
+  { path: "/yallapp-studio", heading: /Design your app your way, element by element/, footer: true },
+  { path: "/demo/studio", heading: /See what a Studio project looks like/, footer: true },
+  { path: "/docs/yallapp-studio", heading: /Yallapp Studio: design your app freely/, footer: true },
   { path: "/faq", heading: /Questions, answered/, footer: true },
   { path: "/contact", heading: /Talk to us/, footer: true },
   { path: "/docs", heading: /Yallapp documentation/, footer: true },
@@ -191,6 +194,7 @@ test("the phones on the landing page have thin bezels that scale with their size
 test("every menu link opens its own page and marks it", async ({ page }) => {
   const pages = [
     { group: null, name: "Home", path: "/" },
+    { group: "Product", name: "Yallapp Studio", path: "/yallapp-studio" },
     { group: "Product", name: "Solutions", path: "/solutions" },
     { group: "Product", name: "Features", path: "/features" },
     { group: "Product", name: "Integrations", path: "/integrations" },
@@ -223,6 +227,71 @@ test("every menu link opens its own page and marks it", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Compare plans" })).toBeVisible();
 });
 
+test("103R Yallapp Studio has its own page: the editor, apps made in it, Studio-only types, the differences and its own plans", async ({ page }) => {
+  await page.goto("/yallapp-studio");
+  await expect(page.getByRole("heading", { level: 1, name: "Design your app your way, element by element" })).toBeVisible();
+  await expect(page.getByRole("img", { name: /^The Yallapp Studio editor/ }).first()).toBeVisible();
+  // Real screenshots of apps made in Studio, light and dark, and a delivery company's.
+  for (const screen of ["studio-cafe-home", "studio-cafe-home-dark", "delivery-send", "delivery-shipment", "delivery-courier"]) {
+    await expect(page.locator(`#apps img[src*="${screen}.png"]`)).toHaveCount(1);
+  }
+  await expect(page.locator("[data-studio-only]").filter({ hasText: "Delivery & couriers" })).toContainText("Only in Studio");
+  await expect(page.getByRole("link", { name: "Restaurant & café" })).toHaveAttribute("href", "/solutions/restaurant");
+  // Regular apps next to Studio projects.
+  const differences = page.getByRole("table", { name: "Regular apps and Studio projects" });
+  await expect(differences.getByRole("columnheader")).toContainText(["Topic", "Regular apps", "Yallapp Studio"]);
+  await expect(differences.getByRole("row", { name: /^Plans/ })).toContainText("Starter, Growth, Pro and Business");
+  await expect(differences.getByRole("row", { name: /^Plans/ })).toContainText("a Studio project is paid on a Studio plan only");
+  // Studio's own plans: the offered ones, or on request; what every plan has and what changes plan by plan.
+  const plans = page.locator("#plans [data-studio-plans]");
+  await expect(page.getByRole("heading", { level: 2, name: "Studio's own plans" })).toBeVisible();
+  await expect(plans.locator("[data-studio-on-request], [data-plan]").first()).toBeVisible();
+  await expect(plans.locator('[data-plan="starter"], [data-plan="growth"], [data-plan="pro"], [data-plan="business"]')).toHaveCount(0);
+  await expect(plans.getByRole("heading", { name: "Every Studio plan has" })).toBeVisible();
+  await expect(plans.getByText("Delivery & couriers").first()).toBeVisible();
+  await expect(page.getByRole("link", { name: "Start a Studio project" })).toHaveAttribute("href", "/sign-up");
+  await page.getByRole("link", { name: "See the Studio demo" }).first().click();
+  await expect(page).toHaveURL(/\/demo\/studio$/);
+});
+
+test("103R the Studio demo has its own page; the regular demo stays as it is", async ({ page }) => {
+  await page.goto("/demo/studio");
+  await expect(page.getByRole("heading", { level: 1, name: "See what a Studio project looks like" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "A café designed in Studio" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "A delivery company" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "The editor behind them" })).toBeVisible();
+  for (const screen of ["studio-cafe-home", "studio-cafe-home-dark", "delivery-send", "delivery-shipment", "delivery-courier", "studio-editor", "studio-home", "studio-project"]) {
+    await expect(page.locator(`main img[src*="${screen}.png"]`).first()).toBeVisible();
+  }
+  // The Demo menu entry is marked, and the regular demo apps are a link away.
+  await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Demo", exact: true })).toHaveAttribute("aria-current", "page");
+  await page.getByRole("link", { name: "Demo apps of regular apps" }).click();
+  await expect(page).toHaveURL(/\/demo$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Try a real app on your phone" })).toBeVisible();
+  await expect(page.locator("main img[src*=\"studio-\"]")).toHaveCount(0);
+});
+
+test("103R pricing keeps the regular plans and Studio's own plans apart, with the differences", async ({ page }) => {
+  await page.goto("/pricing");
+  await expect(page.getByRole("heading", { level: 2, name: "Plans for regular apps" })).toBeVisible();
+  const regular = page.locator("#regular [data-pricing-plans]");
+  for (const name of ["Starter", "Growth", "Pro", "Business"]) await expect(regular.getByRole("heading", { level: 3, name, exact: true })).toBeVisible();
+  await expect(regular.locator('[data-plan^="studio_"]')).toHaveCount(0);
+  await expect(page.locator("#regular")).toContainText("Studio projects are paid on Studio's own plans, not on these.");
+  const studio = page.locator("#studio");
+  await expect(studio.getByRole("heading", { level: 2, name: "Studio's own plans" })).toBeVisible();
+  await expect(studio.locator('[data-plan="starter"], [data-plan="growth"], [data-plan="pro"], [data-plan="business"]')).toHaveCount(0);
+  await expect(page.getByRole("table", { name: "Regular apps and Studio projects" })).toBeVisible();
+  // The home page has its Studio section, and the footer links to the Studio page and its demo.
+  await page.goto("/");
+  const section = page.locator("[data-home-studio]");
+  await expect(section.getByRole("heading", { level: 2, name: "Yallapp Studio: design your app freely" })).toBeVisible();
+  await expect(section.getByRole("link", { name: "Discover Yallapp Studio" })).toHaveAttribute("href", "/yallapp-studio");
+  const footer = page.getByRole("contentinfo");
+  await expect(footer.getByRole("link", { name: "Yallapp Studio", exact: true })).toHaveAttribute("href", "/yallapp-studio");
+  await expect(footer.getByRole("link", { name: "Studio demo", exact: true })).toHaveAttribute("href", "/demo/studio");
+});
+
 test("the menu's lists open with the keyboard and close on Escape or a click outside", async ({ page }) => {
   await page.goto("/pricing");
   const nav = page.getByRole("navigation", { name: "Main" });
@@ -239,9 +308,9 @@ test("the menu's lists open with the keyboard and close on Escape or a click out
   await expect(product).toBeFocused();
   // Arrow down opens the list on its first link; arrows move between links.
   await page.keyboard.press("ArrowDown");
-  await expect(list.getByRole("link", { name: /^Solutions/ })).toBeFocused();
+  await expect(list.getByRole("link", { name: /^Yallapp Studio/ })).toBeFocused();
   await page.keyboard.press("ArrowDown");
-  await expect(list.getByRole("link", { name: /^Features/ })).toBeFocused();
+  await expect(list.getByRole("link", { name: /^Solutions/ })).toBeFocused();
   // One list at a time.
   await nav.getByRole("button", { name: "Resources" }).click();
   await expect(product).toHaveAttribute("aria-expanded", "false");

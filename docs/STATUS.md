@@ -8,6 +8,19 @@ Last updated: 28 October 2026.
 
 ## Current release
 
+The website shows Yallapp Studio apart from the regular apps: its own page
+(`/yallapp-studio`) with the editor, apps made in it, the Studio-only project
+types, a Regular apps and Studio projects table and Studio's own plans (the
+offered ones with their prices, else "on request"); its own demo page
+(`/demo/studio`, the regular `/demo` unchanged); the two plan families apart
+on `/pricing`; a section on the home page; a menu and footer link; FAQ
+entries; a note on How it works; and the docs article `yallapp-studio`
+(plus a Studio section in `plans-and-billing`), in English, Arabic and
+Turkish. Its screenshots are real: the app's (`studio-cafe-home`, its dark
+version, `delivery-send`, `delivery-shipment`, `delivery-courier`) from the
+Flutter screenshot test, the dashboard's (`studio-editor`, `studio-home`,
+`studio-project`) from `tests/screens/studio.screens.ts`.
+
 Phase 104 (delivery and courier companies) steps 104.1 to 104.7 are
 complete: a new project type in Yallapp Studio, Delivery, with no website
 (a Studio project only, on Studio's plans). Customers send a

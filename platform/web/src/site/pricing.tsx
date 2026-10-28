@@ -4,9 +4,10 @@ import { JsonLdScript } from "@/components/json-ld";
 import { analyticsEventsKeepText, analyticsKeepText, currencyNote, PlanCards, storageText } from "@/components/plan-cards";
 import { StoreName } from "@/components/brand-marks";
 import { Icon } from "@/components/icon";
-import { MarketingPage, Section, SectionTitle } from "@/components/marketing";
+import { MarketingPage, MoreLink, Section, SectionTitle } from "@/components/marketing";
 import { getSiteContent } from "@/lib/content/get";
-import { comparisonRows, FEATURED_PLAN, hasFeature, REGULAR_PLANS, planStores, type ComparisonRow, type ComparisonValue, type PlanInfo, type Plan, type RegularPlan } from "@/lib/plans";
+import { StudioDifferences, StudioPlans } from "@/components/studio-marketing";
+import { comparisonRows, FEATURED_PLAN, hasFeature, REGULAR_PLANS, STUDIO_PLANS, planOffered, planStores, type ComparisonRow, type ComparisonValue, type PlanInfo, type Plan, type RegularPlan } from "@/lib/plans";
 import { getStore } from "@/lib/data";
 import { effectivePlans } from "@/lib/entitlements";
 import { getVisitorContact } from "@/lib/contact";
@@ -93,6 +94,9 @@ export async function PricingPage({ lang }: { lang: Lang }) {
   const store = await getStore();
   const [all, view] = await Promise.all([effectivePlans(store), visitorPriceView(store)]);
   const plans = REGULAR_PLANS.map((id) => planFor(lang, all[id]));
+  // 103R Yallapp Studio's own plans, apart: the ones the team offers.
+  const studioPlans = STUDIO_PLANS.map((id) => all[id]).filter(planOffered).map((plan) => planFor(lang, plan));
+  const s = messagesFor(lang).studio;
   const rows = comparisonRowsFor(lang, all);
   const text = await getSiteContent("pricing", lang);
   const m = messagesFor(lang).pricing;
@@ -100,11 +104,16 @@ export async function PricingPage({ lang }: { lang: Lang }) {
   return (
     <MarketingPage current="pricing" eyebrow={text.eyebrow} title={text.title!} intro={text.intro!} lang={lang}>
       <JsonLdScript data={softwareLd(siteUrl(), plans, view, lang === "en" ? undefined : lang)} />
-      <Section>
-        <PlanCards plans={plans} view={view} lang={lang} />
+      <Section id="regular">
+        <SectionTitle title={s.pricingRegular} text={s.pricingRegularText} />
+        <PlanCards plans={plans} view={view} headingLevel={3} lang={lang} />
         <p className="m-0 text-[15px] text-ink-4">
           <span data-currency-note="">{currencyNote(view, lang)}</span>{" "}
           {richText(m.eachApp, { link: (chunk) => <WhatsAppLink lines={contact.lines} country={contact.country}>{chunk}</WhatsAppLink> })}
+        </p>
+        <p className="m-0 flex gap-2.5 rounded-2xl bg-peach-soft p-4 text-[15px] leading-relaxed text-ink-3">
+          <Icon name="dashboard_customize" size={20} className="mt-0.5 flex-none text-accent" />
+          <span>{richText(s.pricingStudio, { link: (chunk) => <Link href="#studio">{chunk}</Link> })}</span>
         </p>
       </Section>
       <Section tinted>
@@ -147,6 +156,15 @@ export async function PricingPage({ lang }: { lang: Lang }) {
           <p className="m-0">{richText(m.stores, strong)}</p>
           <p className="m-0">{richText(m.fees, { link: (chunk) => <Link href={localePath(lang, "/refund")}>{chunk}</Link> })}</p>
         </div>
+      </Section>
+      <Section id="studio">
+        <SectionTitle eyebrow={s.studio} title={s.plansTitle} text={s.plansText} />
+        <StudioPlans lang={lang} plans={studioPlans} view={view} contact={contact} />
+      </Section>
+      <Section tinted id="differences">
+        <SectionTitle title={s.diffTitle} text={s.diffText} />
+        <StudioDifferences lang={lang} />
+        <MoreLink href={localePath(lang, "/yallapp-studio")}>{s.homeLink}</MoreLink>
       </Section>
     </MarketingPage>
   );

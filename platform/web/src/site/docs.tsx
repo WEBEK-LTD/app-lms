@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import reference from "@/content/api-reference.json";
 import { DocArticle, DocsShell, docSectionName, docsNavGroups } from "@/components/docs-shell";
+import { BrowserFrame, DASHBOARD_PATHS, DeviceFrame } from "@/components/device-frame";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import { JsonLdScript } from "@/components/json-ld";
@@ -16,6 +17,8 @@ import { WhatsAppLink } from "@/components/whatsapp-link";
 import { getSiteContent } from "@/lib/content/get";
 import { headingId } from "@/lib/content/markdown";
 import { parseGuide } from "@/lib/content/site";
+import { DASHBOARD_SCREENS, type AppScreen, type DashboardScreen } from "@/lib/marketing";
+import { screenAltFor } from "@/lib/marketing-lang";
 import { breadcrumbLd, siteMetadata, siteUrl } from "@/lib/seo";
 import { SEARCH_MAX_QUERY, searchDocs } from "@/lib/docs/search";
 import { formatMessage, messagesFor, type Lang } from "@/i18n";
@@ -185,6 +188,28 @@ function Notice({ children }: { children: ReactNode }) {
   );
 }
 
+/** 103R An article's screenshots: the dashboard's in a browser frame, the app's in phones side by side. */
+function DocFigures({ screens, lang }: { screens: (AppScreen | DashboardScreen)[]; lang: Lang }) {
+  const alt = screenAltFor(lang);
+  const isDashboard = (screen: string): screen is DashboardScreen => (DASHBOARD_SCREENS as readonly string[]).includes(screen);
+  const pages = screens.filter(isDashboard);
+  const phones = screens.filter((screen): screen is AppScreen => !isDashboard(screen));
+  return (
+    <div className="flex flex-col gap-5 rounded-[18px] bg-sand p-4 sm:p-6" data-doc-figures="">
+      {pages.map((screen) => (
+        <BrowserFrame key={screen} screen={screen} path={DASHBOARD_PATHS[screen]} alt={alt[screen]} />
+      ))}
+      {phones.length ? (
+        <div className="flex flex-wrap justify-center gap-4">
+          {phones.map((screen) => (
+            <DeviceFrame key={screen} screen={screen} size="xs" alt={alt[screen]} />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export async function DocPage({ lang, slug }: { lang: Lang; slug: string }) {
   const article = docBySlug(slug);
   if (!article) notFound();
@@ -219,6 +244,7 @@ export async function DocPage({ lang, slug }: { lang: Lang; slug: string }) {
         </nav>
         <h1 className="m-0 text-[30px] leading-[1.15] font-extrabold tracking-[-0.5px] text-midnight sm:text-4xl">{text.title}</h1>
         <MarkdownBlocks blocks={doc.intro} anchors lang={lang} />
+        {article.figures?.length ? <DocFigures screens={article.figures} lang={lang} /> : null}
 
         {doc.steps.length >= 3 ? (
           <nav aria-label={m.onThisPage} className="flex flex-col gap-1.5 rounded-[14px] border border-line-soft px-5 py-4 text-[15px]">
