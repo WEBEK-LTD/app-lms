@@ -29,7 +29,9 @@ export type AssetKind =
   // 97.2 The files of an owner's own font.
   | "font"
   // 97.3 The logo and pictures exported from a Figma file.
-  | "figma_image";
+  | "figma_image"
+  // 105.2 A driver's papers (licence, car registration): only the company sees them, never at the public address.
+  | "driver_document";
 export type AppTemplate = "classic" | "bold" | "minimal";
 
 export interface User {

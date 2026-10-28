@@ -1017,9 +1017,9 @@ export const KINDS: readonly KindInfo[] = [
     name: "Ride hailing",
     description: "Riders ask for a ride and follow their driver on the map; your drivers get the rides in the app.",
     requires: "No website needed: you set your vehicle types, fares and drivers here in the dashboard · Cash to the driver, or your own iyzico, Kashier, Fawaterk, Stripe or PayPal account",
-    icon: "directions_car",
+    icon: "local_taxi",
     tile: "bg-tile-3 text-[#8A4B12]",
-    marketing: { slug: "rides", icon: "directions_car" },
+    marketing: { slug: "rides", icon: "local_taxi" },
     reviewNote:
       "This app has two roles. Riders ask for a ride and follow the driver. Drivers of the company sign in with a number the company added and see a Driver tab with the rides offered to them.",
   },
