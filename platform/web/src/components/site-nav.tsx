@@ -72,7 +72,7 @@ function moveFocus(event: ReactKeyboardEvent, root: HTMLElement | null) {
   links[next]!.focus();
 }
 
-const topLink = "flex h-10 items-center gap-1 rounded-lg px-3 text-[15px] font-semibold no-underline";
+const topLink = "flex h-10 items-center gap-1 rounded-lg px-2 text-[15px] font-semibold whitespace-nowrap no-underline xl:px-3";
 
 /** The ember line under the page or section the visitor is on. */
 function Marked({ on, children }: { on: boolean; children: React.ReactNode }) {
@@ -192,7 +192,7 @@ function DesktopNav({ current, nav, labels }: NavProps) {
   const marked = activeEntry(current);
   return (
     <nav aria-label={labels.main} className="hidden lg:block">
-      <ul className="m-0 flex list-none items-center gap-1 p-0">
+      <ul className="m-0 flex list-none items-center gap-0.5 p-0 xl:gap-1">
         {nav.map((entry) =>
           entry.kind === "group" ? (
             <Dropdown
@@ -204,13 +204,15 @@ function DesktopNav({ current, nav, labels }: NavProps) {
               setOpen={(open) => setOpenId(open ? entry.id : null)}
             />
           ) : (
-            <li key={entry.id}>
+            <li key={entry.id} className={entry.wideOnly ? "hidden xl:block" : undefined}>
               <Link
                 href={entry.href}
                 aria-current={entry.id === current ? "page" : undefined}
                 className={`${topLink} ${entry.id === current ? "text-midnight hover:text-midnight" : "text-ink-3 hover:text-midnight"}`}
               >
                 <Marked on={entry.id === current}>{entry.label}</Marked>
+                {entry.badge ? " " : null}
+                {entry.badge ? <span className="rounded-full bg-ember px-1.5 py-px text-[11px] leading-4 font-bold text-white">{entry.badge}</span> : null}
               </Link>
             </li>
           ),
@@ -309,7 +311,7 @@ function MobileMenu({ current, lang, nav, labels, languages }: NavProps) {
           </div>
           <nav aria-label={labels.main} className="flex-1 overflow-y-auto overscroll-contain px-4 py-5 sm:px-6">
             <ul className="m-0 flex list-none flex-col gap-1 p-0">
-              {nav.map((entry) =>
+              {nav.filter((entry) => !(entry.kind === "link" && entry.desktopOnly)).map((entry) =>
                 entry.kind === "group" ? (
                   <li key={entry.id} className="flex flex-col gap-1 pt-2 pb-3">
                     <span
@@ -407,7 +409,7 @@ export function SiteNav({
         <AccountLink
           href={localePath(lang, "/sign-in")}
           signedIn={null}
-          className="hidden h-[42px] items-center rounded-[10px] px-3 text-[15px] font-semibold text-midnight no-underline hover:text-midnight hover:underline lg:flex"
+          className="hidden h-[42px] items-center rounded-[10px] px-2 text-[15px] font-semibold whitespace-nowrap text-midnight no-underline hover:text-midnight hover:underline lg:flex xl:px-3"
         >
           {labels.signIn}
         </AccountLink>
@@ -419,7 +421,7 @@ export function SiteNav({
               {labels.dashboard}
             </>
           }
-          className="hidden h-[42px] items-center gap-2 rounded-[10px] bg-midnight px-[18px] text-[15px] font-semibold text-white no-underline hover:bg-ink-3 hover:text-white sm:flex"
+          className="hidden h-[42px] items-center gap-2 rounded-[10px] bg-midnight px-4 text-[15px] font-semibold whitespace-nowrap text-white no-underline hover:bg-ink-3 hover:text-white sm:flex xl:px-[18px]"
         >
           {labels.getStarted}
         </AccountLink>

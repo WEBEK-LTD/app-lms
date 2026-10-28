@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import type { Lang } from "@/i18n/config";
-import { Glyph, STUDIO_COLORS as C } from "./editor/shared";
+import { Glyph, STUDIO_COLORS as C, StudioMark } from "./editor/shared";
 import { ProjectPhone } from "./phone";
 
 /**
@@ -16,12 +16,7 @@ export function StudioBar({ children, home = "/studio" }: { children?: ReactNode
   return (
     <header className="flex flex-wrap items-center gap-4 px-5 py-2.5" style={{ background: C.ink, color: C.ivory }}>
       <Link href={home} className="flex items-center gap-2.5 no-underline" style={{ color: C.ivory }}>
-        <span className="flex h-8 w-8 items-center justify-center rounded-[9px] text-lg font-extrabold" style={{ background: C.ivory, color: C.ink }}>
-          y<span style={{ color: C.accent }}>.</span>
-        </span>
-        <span className="text-[17px] font-extrabold" dir="ltr">
-          Yallapp Studio
-        </span>
+        <StudioMark />
       </Link>
       {children}
     </header>

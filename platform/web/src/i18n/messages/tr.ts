@@ -31,6 +31,8 @@ export const tr: Messages = {
     developersText: "Geliştiriciler için",
     studio: "Yallapp Studio",
     studioText: "Uygulamanı özgürce tasarla",
+    studioShort: "Studio",
+    newBadge: "Yeni",
     signIn: "Giriş yap",
     getStarted: "Hemen başla",
     dashboard: "Panel",

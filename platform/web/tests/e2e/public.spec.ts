@@ -194,7 +194,8 @@ test("the phones on the landing page have thin bezels that scale with their size
 test("every menu link opens its own page and marks it", async ({ page }) => {
   const pages = [
     { group: null, name: "Home", path: "/" },
-    { group: "Product", name: "Yallapp Studio", path: "/yallapp-studio" },
+    // 103R Studio has its own link on the bar, with "New"; it's first in Product's list too.
+    { group: null, name: "Studio", path: "/yallapp-studio" },
     { group: "Product", name: "Solutions", path: "/solutions" },
     { group: "Product", name: "Features", path: "/features" },
     { group: "Product", name: "Integrations", path: "/integrations" },
@@ -220,11 +221,15 @@ test("every menu link opens its own page and marks it", async ({ page }) => {
       await button.click();
       await expect(here.getByRole("link", { name: new RegExp(`^${target.name}`) })).toHaveAttribute("aria-current", "page");
     } else {
-      await expect(here.getByRole("link", { name: target.name, exact: true })).toHaveAttribute("aria-current", "page");
+      await expect(here.getByRole("link", { name: new RegExp(`^${target.name}`) })).toHaveAttribute("aria-current", "page");
     }
   }
   await page.goto("/pricing");
   await expect(page.getByRole("heading", { name: "Compare plans" })).toBeVisible();
+  const nav = page.getByRole("navigation", { name: "Main" });
+  await expect(nav.getByRole("link", { name: "Studio New" })).toHaveAttribute("href", "/yallapp-studio");
+  await nav.getByRole("button", { name: "Product" }).click();
+  await expect(nav.getByRole("link", { name: /^Yallapp Studio/ })).toHaveAttribute("href", "/yallapp-studio");
 });
 
 test("103R Yallapp Studio has its own page: the editor, apps made in it, Studio-only types, the differences and its own plans", async ({ page }) => {

@@ -1,3 +1,4 @@
+import { Logo } from "@/components/brand";
 import type { StudioNodeType } from "@/lib/pages/types";
 
 /** 103R What is being dragged in the editor: a new element, a ready section, or an element of the page. */
@@ -28,3 +29,15 @@ export const STUDIO_COLORS = {
   barMuted: "#A7A3C2",
   barLine: "#3A3760",
 } as const;
+
+/** Yallapp's logo, then "Studio": the mark on the dark bar of every Studio screen. */
+export function StudioMark() {
+  return (
+    <>
+      <Logo height={24} reversed alt="Yallapp" />{" "}
+      <span dir="ltr" className="text-[17px] font-extrabold tracking-[0.2px]">
+        Studio
+      </span>
+    </>
+  );
+}

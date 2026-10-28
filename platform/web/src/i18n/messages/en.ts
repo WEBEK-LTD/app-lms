@@ -36,6 +36,8 @@ export const en = {
     developersText: "For developers",
     studio: "Yallapp Studio",
     studioText: "Design your app freely",
+    studioShort: "Studio",
+    newBadge: "New",
     signIn: "Sign in",
     getStarted: "Get started",
     dashboard: "Dashboard",

@@ -31,6 +31,8 @@ export const ar: Messages = {
     developersText: "للمطوّرين",
     studio: "Yallapp Studio",
     studioText: "صمّم تطبيقك بحرية",
+    studioShort: "Studio",
+    newBadge: "جديد",
     signIn: "تسجيل الدخول",
     getStarted: "ابدأ الآن",
     dashboard: "لوحة التحكم",
