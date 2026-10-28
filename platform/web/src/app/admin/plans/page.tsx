@@ -175,6 +175,7 @@ export default async function PlansPage({ searchParams }: PageProps<"/admin/plan
               })}
             </nav>
             <RegularPlan
+              key={selected}
               id={selected}
               plan={plans[selected]}
               edited={Boolean(edits?.value[selected])}
