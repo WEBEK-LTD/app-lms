@@ -282,6 +282,39 @@ tags:
       accept each with the minutes it needs or turn it down with a reason,
       mark it ready for the courier, and set the restaurant busy for a while
       (no new orders) or open again.
+  - name: Rides
+    description: |
+      Roadmap 105.2. Ride hailing, on Yallapp's hosted API. The rider sets the
+      pickup and the drop-off, sees each of the company's vehicle types with
+      its fare (`POST /rides/estimate`) and asks for a ride now or, when the
+      company allows it, at a later time (`POST /rides`). The company's
+      drivers get the request one at a time, nearest first, each with a few
+      seconds to accept (`RidesConfig.matching`), or the company gives it to
+      a driver from the dashboard. The rider follows the driver to the
+      pickup and along the ride on the map, can share the ride with a link,
+      call the company's emergency number, cancel (with the company's fee
+      once the free minutes after a driver accepted are over), pay the fare
+      in cash to the driver or by card on the company's payment page, and
+      rate the driver. Fares, fees and the company's share are the
+      company's: Yallapp sets none of them.
+  - name: Driver
+    description: |
+      Roadmap 105.2. The driver's screens. A driver is a person the company
+      added on the dashboard's Drivers page by mobile number (or by email,
+      for apps that sign in by email only), with their car; whoever signs in
+      with that number, proven by its code, is that driver (`User.roles` has
+      `driver`). Every endpoint here answers `not_driver` (403) to anyone
+      else, and to drivers the company suspended. A driver goes online to
+      get ride requests; while online, the app sends the driver's position
+      (only while it is open), which is used to offer rides nearest first
+      and shown to the rider of their ride; it is dropped when they go
+      offline. The rider's number is shown once the driver accepted, until
+      the ride ends.
+
+      Where these screens are depends on the company's choice
+      (`RidesConfig.driver_app`): `same`, in the company's app, shown only to
+      drivers; `bundle`, in the company's second app made for drivers (build
+      config `role: driver`), while its riders' app has none.
   - name: Bookings
     description: |
       Services, staff, free times and appointments, for Bookings apps. The
@@ -4718,6 +4751,445 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
 
+  /rides/estimate:
+    post:
+      tags: [Rides]
+      operationId: estimateRide
+      summary: The fare of each vehicle type between two places
+      description: |
+        Both places need their coordinates. The distance and time are
+        estimated from the straight line between them (the road is taken as
+        a third longer, at the company's usual speed), so the fare is
+        `upfront` (the one the rider pays, plus waiting) or an estimate when
+        the company charges what the meter says (`RidesConfig.fare_mode`).
+        Vehicle types without an online driver nearby are listed with
+        `available` false (asking for one still waits for a driver). Fails
+        with `outside_service_area` (400) when the pickup is outside the
+        company's areas, and with `invalid_request` (400) for a place without
+        coordinates or an unknown promo code (`field` names it).
+      parameters:
+        - $ref: '#/components/parameters/Platform'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RideEstimateInput' }
+      responses:
+        '200':
+          description: The fares
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RideEstimate' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /rides:
+    post:
+      tags: [Rides]
+      operationId: requestRide
+      summary: Ask for a ride
+      description: |
+        At the fare `POST /rides/estimate` gives for the same places, vehicle
+        type and promo code. Now: it is offered to the drivers at once
+        (`searching`). Later (`scheduled_at`, when `RidesConfig.scheduling`
+        allows it, 30 minutes to 7 days ahead): it waits (`scheduled`) and is
+        offered 15 minutes before. A card ride is paid once it ends, on the
+        company's payment page (`POST /me/rides/{ride_id}/pay`). An unpaid
+        cancellation fee from the rider's last ride is added to this one's
+        fare.
+
+        Fails as the estimate does; with `ride_in_progress` (409) while the
+        rider has another ride that isn't over (scheduled ones aside); with
+        `invalid_request` (400) for a payment method the company doesn't take
+        or a time it doesn't allow; with `payments_unavailable` (503) for a
+        card ride while the company's payments aren't set up.
+      parameters:
+        - $ref: '#/components/parameters/Platform'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RideInput' }
+      responses:
+        '201':
+          description: The ride
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Ride' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /me/rides:
+    get:
+      tags: [Rides]
+      operationId: listMyRides
+      summary: List the signed-in rider's rides
+      description: Newest first; `active` only those not yet completed or cancelled (scheduled ones too).
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - { name: active, in: query, schema: { type: boolean } }
+      responses:
+        '200':
+          description: Rides
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Ride' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /me/rides/{ride_id}:
+    get:
+      tags: [Rides]
+      operationId: getMyRide
+      summary: Follow a ride
+      description: |
+        The ride with its stages, its driver and car and, from the driver's
+        accepting until the ride ends, where the driver is. The app asks
+        again every 5 seconds or so while the screen is open and the ride is
+        active.
+      parameters:
+        - $ref: '#/components/parameters/RideId'
+      responses:
+        '200':
+          description: The ride
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Ride' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/rides/{ride_id}/cancel:
+    post:
+      tags: [Rides]
+      operationId: cancelMyRide
+      summary: Cancel a ride
+      description: |
+        Before it starts (`scheduled`, `searching`, `accepted`, `arrived`);
+        then `not_cancellable` (409). Free while no driver has it, and for
+        `RidesConfig.cancellation.free_minutes` after a driver accepted; after
+        that the company's fee (`cancellation.fee`) is charged, added to the
+        rider's next ride.
+      parameters:
+        - $ref: '#/components/parameters/RideId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: [string, 'null'], enum: [changed_plans, driver_late, driver_asked, wrong_place, other, null] }
+      responses:
+        '200':
+          description: The cancelled ride
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Ride' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/rides/{ride_id}/pay:
+    post:
+      tags: [Rides]
+      operationId: payMyRide
+      summary: Pay a card ride
+      description: For a card ride `completed` and not paid yet, the company's payment page (good for 60 minutes), opened in the app on both platforms (a service in the physical world). Fails with `not_payable` (409) for any other.
+      parameters:
+        - $ref: '#/components/parameters/RideId'
+      responses:
+        '200':
+          description: The payment page
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [url]
+                properties:
+                  url: { type: string, format: uri }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /me/rides/{ride_id}/rating:
+    post:
+      tags: [Rides]
+      operationId: rateMyRide
+      summary: Rate the driver
+      description: Once, after the ride is completed, within 7 days; then `already_rated` or `not_ratable` (409). The rating counts in the driver's average; the comment is seen by the company.
+      parameters:
+        - $ref: '#/components/parameters/RideId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [driver]
+              properties:
+                driver: { type: integer, minimum: 1, maximum: 5 }
+                comment: { type: [string, 'null'], maxLength: 500 }
+      responses:
+        '200':
+          description: The ride
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Ride' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /driver/me:
+    get:
+      tags: [Driver]
+      operationId: getDriver
+      summary: The signed-in driver
+      responses:
+        '200':
+          description: The driver
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Driver' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    patch:
+      tags: [Driver]
+      operationId: updateDriver
+      summary: Go online or offline
+      description: Only online drivers are offered rides. Going offline drops their position; it is refused with `ride_in_progress` (409) while they have a ride that isn't over.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [online]
+              properties:
+                online: { type: boolean }
+      responses:
+        '200':
+          description: The driver
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Driver' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /driver/location:
+    put:
+      tags: [Driver]
+      operationId: putDriverLocation
+      summary: Send the driver's position
+      description: |
+        Sent every 5 to 10 seconds while the app is open and the driver is
+        online (no position is taken in the background). Kept only while
+        they are online; answered 204 and dropped otherwise. At most one
+        every 3 seconds is kept. During a ride, the positions also measure
+        the distance the meter charges (`RidesConfig.fare_mode` `metered`).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [lat, lng]
+              properties:
+                lat: { type: number, minimum: -90, maximum: 90 }
+                lng: { type: number, minimum: -180, maximum: 180 }
+                accuracy: { type: [number, 'null'], minimum: 0, description: In metres. }
+                heading: { type: [number, 'null'], minimum: 0, maximum: 360, description: 'Degrees from north, for the car on the rider''s map.' }
+      responses:
+        '204': { description: Received }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /driver/offers:
+    get:
+      tags: [Driver]
+      operationId: listDriverOffers
+      summary: The ride offered to the driver now
+      description: |
+        A ride offered to this driver, with when the offer ends
+        (`offer_expires_at`); at most one at a time; empty when none is or the
+        driver is offline. The app asks every 3 seconds or so while online
+        and free, and on a `ride_offer` push. The rider's number is not shown
+        until the driver accepts.
+      responses:
+        '200':
+          description: Offers
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/DriverRide' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /driver/rides:
+    get:
+      tags: [Driver]
+      operationId: listDriverRides
+      summary: The driver's rides
+      description: '`active`: the driver''s ride that isn''t over (at most one). `done`: their completed and cancelled rides of the last 30 days, newest first.'
+      parameters:
+        - { name: scope, in: query, required: true, schema: { type: string, enum: [active, done] } }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Rides
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/DriverRide' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /driver/rides/{ride_id}:
+    get:
+      tags: [Driver]
+      operationId: getDriverRide
+      summary: A ride
+      description: One of the driver's rides, or the one offered to them now.
+      parameters:
+        - $ref: '#/components/parameters/RideId'
+      responses:
+        '200':
+          description: The ride
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DriverRide' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /driver/rides/{ride_id}/accept:
+    post:
+      tags: [Driver]
+      operationId: acceptDriverRide
+      summary: Accept the ride offered
+      description: While it is offered to this driver; then `offer_expired` (409). The rider is told the driver is on the way.
+      parameters:
+        - $ref: '#/components/parameters/RideId'
+      responses:
+        '200':
+          description: The ride, now the driver's
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DriverRide' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /driver/rides/{ride_id}/decline:
+    post:
+      tags: [Driver]
+      operationId: declineDriverRide
+      summary: Let the ride go to the next driver
+      description: The offer ends at once and isn't made to this driver again. Answered 204 also when it had already ended.
+      parameters:
+        - $ref: '#/components/parameters/RideId'
+      responses:
+        '204': { description: Declined }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /driver/rides/{ride_id}/status:
+    post:
+      tags: [Driver]
+      operationId: updateDriverRide
+      summary: Move a ride to its next stage
+      description: |
+        In order: `arrived` at the pickup, `in_progress` once the rider is in
+        (with the rider's `pin` when `RidesConfig.pin` is true; a wrong one
+        is `wrong_pin`, 400), then `completed` at the drop-off, which works
+        out the final fare (shown on the answer's `fare`); a cash ride is
+        paid once completed: the driver collected `collect`. `cancelled`
+        before the ride starts, with a `reason`: `rider_no_show` (only
+        `RidesConfig.cancellation.no_show_minutes` after arriving; the rider
+        is charged the cancellation fee) or `other` (the ride goes back to
+        the next driver). Fails with `invalid_status` (409) for any other
+        step.
+      parameters:
+        - $ref: '#/components/parameters/RideId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [arrived, in_progress, completed, cancelled] }
+                pin: { type: [string, 'null'], pattern: '^[0-9]{4}$' }
+                reason: { type: [string, 'null'], enum: [rider_no_show, other, null] }
+                note: { type: [string, 'null'], maxLength: 300 }
+      responses:
+        '200':
+          description: The ride
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DriverRide' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /driver/earnings:
+    get:
+      tags: [Driver]
+      operationId: getDriverEarnings
+      summary: What the driver made
+      description: The driver's completed rides over today, this week (from Monday) or this month, in `RidesConfig.timezone`, with each day's totals.
+      parameters:
+        - { name: period, in: query, required: true, schema: { type: string, enum: [today, week, month] } }
+      responses:
+        '200':
+          description: Earnings
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DriverEarnings' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
   /billing/access:
     post:
       tags: [Platform]
@@ -4993,7 +5465,7 @@ components:
       description: >-
         The type of the app asking (its build config's `app_type`). Default pages are built
         for it. Unknown values are ignored.
-      schema: { type: string, enum: [lms, store, booking, real_estate, news, events, donations, delivery, food] }
+      schema: { type: string, enum: [lms, store, booking, real_estate, news, events, donations, delivery, food, rides] }
     ConversationId:
       name: conversation_id
       in: path
@@ -5110,6 +5582,11 @@ components:
       schema: { type: integer }
     FoodOrderId:
       name: order_id
+      in: path
+      required: true
+      schema: { type: integer }
+    RideId:
+      name: ride_id
       in: path
       required: true
       schema: { type: integer }
@@ -5487,6 +5964,7 @@ components:
         donations: { $ref: '#/components/schemas/DonationsConfig' }
         delivery: { $ref: '#/components/schemas/DeliveryConfig' }
         food: { $ref: '#/components/schemas/FoodConfig' }
+        rides: { $ref: '#/components/schemas/RidesConfig' }
         vertical:
           type: [string, 'null']
           enum: [restaurant, clinic, fitness, charity, services, null]
@@ -5574,11 +6052,13 @@ components:
         roles:
           type: array
           uniqueItems: true
-          items: { type: string, enum: [courier, restaurant] }
+          items: { type: string, enum: [courier, restaurant, driver] }
           description: |
             Roadmap 104. In delivery apps, `courier` for a courier of the
             company (the Courier endpoints). 105.1 In food apps, also
             `restaurant` for a restaurant's staff (the Restaurant endpoints).
+            105.2 In ride apps, `driver` for a driver of the company (the
+            Driver endpoints).
             Missing or empty: a customer only. Apps ignore roles they don't
             know.
 
@@ -6306,7 +6786,7 @@ components:
         body: { type: string }
         type:
           type: string
-          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order]
+          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, ride_update, ride_offer]
           description: >-
             85.3 Automatic notifications on Yallapp's hosted API have their own types:
             `appointment_confirmed` and `appointment_reminder` (with `appointment_id`), `class_soon`,
@@ -6321,6 +6801,10 @@ components:
             105.1 `food_order_update` (with `food_order_id`): one of the customer's food orders
             moved to another stage, and opens it; `restaurant_order` (with `food_order_id`): a
             new order reached the restaurant, and opens it in the Restaurant tab.
+            105.2 `ride_update` (with `ride_id`): one of the rider's rides moved to another
+            stage (a driver accepted, arrived, the ride ended, or no driver was found), and
+            opens it; `ride_offer` (with `ride_id`): a ride is offered to the driver, and
+            opens the Driver tab (pushed with the push's sound).
             An app that doesn't know a type opens Home.
         course_id: { type: [integer, 'null'] }
         lesson_id: { type: [integer, 'null'] }
@@ -6332,6 +6816,7 @@ components:
         order_id: { type: [integer, 'null'], description: "91.2 For order_update, the order to open (`GET /me/orders/{order_id}`). Missing on older servers." }
         shipment_id: { type: [integer, 'null'], description: "104 For shipment_update and courier_job, the shipment to open. Missing on older servers." }
         food_order_id: { type: [integer, 'null'], description: "105.1 For food_order_update and restaurant_order, the food order to open. Missing on older servers." }
+        ride_id: { type: [integer, 'null'], description: "105.2 For ride_update and ride_offer, the ride to open. Missing on older servers." }
         link: { type: [string, 'null'], format: uri, description: "46 A link in the format of the Links tag (`<base>/<kind>/<id>`): what the notification opens when no other field here says. 85.2 Or another `https` address (a campaign's web page), which the app opens in the browser. Push notifications carry it in their data too. Missing on older servers." }
         image_url:
           type: [string, 'null']
@@ -7700,7 +8185,7 @@ components:
         screen:
           type: [string, 'null']
           description: For `screen`, a built-in screen.
-          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, restaurants, food_orders, restaurant, null]
+          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, restaurants, food_orders, restaurant, ride, my_rides, driver, null]
         course_id: { type: [integer, 'null'], description: For `course`. }
         item: { $ref: '#/components/schemas/ItemRef' }
         url: { type: [string, 'null'], format: uri, description: For `url`. }
@@ -7716,8 +8201,8 @@ components:
 
     ItemSource:
       type: string
-      description: Where a list comes from. `courses` needs an LMS; `products` needs WooCommerce or a hosted store; `services` needs a bookings plugin or hosted bookings; `listings` is hosted only; `articles` are a News & blog app's articles (posts on WordPress), opened in the app, while `posts` open on the website; `events` are an Events & tickets app's upcoming events (hosted only); `campaigns` are a Charity & donations app's campaigns (hosted only); 104 `delivery_services` are a delivery company's services, each opening the send screen with it chosen (hosted only); 105.1 `restaurants` are a food app's restaurants, each opening its menu (hosted only).
-      enum: [courses, products, services, posts, listings, articles, events, campaigns, delivery_services, restaurants]
+      description: Where a list comes from. `courses` needs an LMS; `products` needs WooCommerce or a hosted store; `services` needs a bookings plugin or hosted bookings; `listings` is hosted only; `articles` are a News & blog app's articles (posts on WordPress), opened in the app, while `posts` open on the website; `events` are an Events & tickets app's upcoming events (hosted only); `campaigns` are a Charity & donations app's campaigns (hosted only); 104 `delivery_services` are a delivery company's services, each opening the send screen with it chosen (hosted only); 105.1 `restaurants` are a food app's restaurants, each opening its menu (hosted only); 105.2 `vehicle_types` are a ride app's vehicle types, each opening the ride screen with it chosen (hosted only).
+      enum: [courses, products, services, posts, listings, articles, events, campaigns, delivery_services, restaurants, vehicle_types]
 
     Item:
       type: object
@@ -9492,3 +9977,309 @@ components:
               status: { $ref: '#/components/schemas/FoodOrderStatus' }
               at: { type: string, format: date-time }
               note: { type: [string, 'null'] }
+
+    RidesConfig:
+      type: object
+      description: Settings for ride hailing apps (roadmap 105.2). Every amount is the company's.
+      required: [currency, timezone, vehicle_types, payment, fare_mode, scheduling, matching, areas, cancellation, pin, emergency_phone, driver_app, map]
+      properties:
+        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        timezone: { type: string, description: "The company's IANA time zone, for scheduled rides and the drivers' earnings.", example: Africa/Cairo }
+        vehicle_types:
+          type: array
+          description: The vehicle types riders choose from, in the company's order.
+          items: { $ref: '#/components/schemas/VehicleType' }
+        payment:
+          type: object
+          required: [cash, card]
+          description: How riders can pay. At least one is true.
+          properties:
+            cash: { type: boolean, description: 'To the driver, in cash.' }
+            card: { type: boolean, description: "By card, on the company's payment page, once the ride ends." }
+        fare_mode:
+          type: string
+          enum: [upfront, metered]
+          description: '`upfront`: the fare given before asking is the fare (plus waiting at the pickup); `metered`: the fare is worked out at the end from the distance driven and the time, and the one given before is an estimate.'
+        scheduling: { type: boolean, description: 'Riders may ask for a ride at a later time.' }
+        matching:
+          type: string
+          enum: [nearest, dispatch]
+          description: '`nearest`: offered to the nearest online drivers of the vehicle type, one at a time; `dispatch`: the company gives each ride to a driver from the dashboard.'
+        areas:
+          type: array
+          description: Where pickups may be (each a circle on the map); empty for anywhere.
+          items:
+            type: object
+            required: [id, name, lat, lng, radius_km]
+            properties:
+              id: { type: string }
+              name: { type: string, example: Cairo }
+              lat: { type: number }
+              lng: { type: number }
+              radius_km: { type: number }
+        cancellation:
+          type: object
+          required: [free_minutes, fee_formatted, no_show_minutes]
+          properties:
+            free_minutes: { type: integer, description: 'After a driver accepted, how long the rider may still cancel for free.' }
+            fee_formatted: { type: [string, 'null'], description: 'Charged after that, and when the rider doesn''t show up; null for none.', example: 'EGP 15.00' }
+            no_show_minutes: { type: integer, description: 'How long the driver waits at the pickup before they may cancel for a no-show.' }
+        pin: { type: boolean, description: 'The rider tells the driver a 4-digit code (`Ride.pin`) to start the ride.' }
+        emergency_phone: { type: [string, 'null'], description: "E.164. The company's number the SOS button calls; null: the button calls the phone's emergency number." }
+        driver_app:
+          type: string
+          enum: [same, bundle]
+          description: Where the drivers' screens are (see the Driver tag). This build shows them only when it is `same`, or when the build is the drivers' app (build config `role` driver).
+        map:
+          type: object
+          required: [tiles_url, attribution]
+          description: As `DeliveryConfig.map`.
+          properties:
+            tiles_url: { type: [string, 'null'] }
+            attribution: { type: [string, 'null'] }
+
+    VehicleType:
+      type: object
+      required: [id, name, description, icon, image_url, seats]
+      properties:
+        id: { type: integer }
+        name: { type: string, example: Comfort }
+        description: { type: [string, 'null'], example: 'Newer cars with extra legroom' }
+        icon: { type: string, description: A Google Material Symbols (Rounded) name., example: directions_car }
+        image_url: { type: [string, 'null'], format: uri }
+        seats: { type: integer, minimum: 1, example: 4 }
+
+    RideEstimateInput:
+      type: object
+      required: [pickup, dropoff]
+      properties:
+        pickup: { $ref: '#/components/schemas/PlaceInput' }
+        dropoff: { $ref: '#/components/schemas/PlaceInput' }
+        scheduled_at: { type: [string, 'null'], format: date-time, description: 'For a ride later.' }
+        promo_code: { type: [string, 'null'], maxLength: 40 }
+
+    RideEstimate:
+      type: object
+      required: [distance_km, minutes, currency, discount_formatted, previous_fee_formatted, options]
+      properties:
+        distance_km: { type: number, description: 'By road, estimated.' }
+        minutes: { type: integer, description: 'The ride, estimated.' }
+        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        discount_formatted: { type: [string, 'null'], description: 'What the promo code takes off (shown on each fare already).' }
+        previous_fee_formatted: { type: [string, 'null'], description: 'An unpaid cancellation fee from the rider''s last ride, added to each fare.' }
+        options:
+          type: array
+          description: Each vehicle type, in the company's order.
+          items:
+            type: object
+            required: [vehicle_type, fare, fare_formatted, available, pickup_minutes]
+            properties:
+              vehicle_type: { $ref: '#/components/schemas/VehicleType' }
+              fare: { type: string, example: '96.00' }
+              fare_formatted: { type: string, example: 'EGP 96.00' }
+              available: { type: boolean, description: 'An online driver of this type is near.' }
+              pickup_minutes: { type: [integer, 'null'], description: 'How long the nearest one would take to the pickup; null when none is near.' }
+
+    RideInput:
+      allOf:
+        - $ref: '#/components/schemas/RideEstimateInput'
+        - type: object
+          required: [vehicle_type_id, payment]
+          properties:
+            vehicle_type_id: { type: integer }
+            payment: { type: string, enum: [cash, card] }
+            notes: { type: [string, 'null'], maxLength: 300, description: 'For the driver ("At gate 2").' }
+
+    RideStatus:
+      type: string
+      enum: [scheduled, searching, accepted, arrived, in_progress, completed, cancelled, no_driver]
+      description: |
+        `scheduled`: asked for later; `searching`: offered to drivers;
+        `accepted`: a driver is on the way to the pickup; `arrived`: at the
+        pickup; `in_progress`: the ride; `completed`; `cancelled` (by the
+        rider, the driver or the company, `cancellation`); `no_driver`: no
+        driver accepted in time.
+
+    Ride:
+      type: object
+      required: [id, reference, status, vehicle_type, pickup, dropoff, scheduled_at, distance_km, minutes, fare, fare_formatted, final, currency, payment, pin, notes, driver, driver_location, pickup_minutes, share_url, cancellation, rating, timeline, created_at]
+      properties:
+        id: { type: integer }
+        reference: { type: string, example: 'R-2051' }
+        status: { $ref: '#/components/schemas/RideStatus' }
+        vehicle_type:
+          type: object
+          required: [id, name, icon]
+          properties:
+            id: { type: [integer, 'null'], description: 'Null once the company deleted it.' }
+            name: { type: string }
+            icon: { type: string }
+        pickup: { $ref: '#/components/schemas/Place' }
+        dropoff: { $ref: '#/components/schemas/Place' }
+        scheduled_at: { type: [string, 'null'], format: date-time }
+        distance_km: { type: number, description: 'Estimated; once completed, as charged.' }
+        minutes: { type: integer, description: 'Estimated; once completed, as charged.' }
+        fare: { type: string, description: 'The fare given when asked, or once completed the final one (with waiting, discount and any previous fee).', example: '96.00' }
+        fare_formatted: { type: string }
+        final: { type: boolean, description: 'The fare is final (completed, or a cancellation fee).' }
+        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        payment:
+          type: object
+          required: [method, status]
+          properties:
+            method: { type: string, enum: [cash, card] }
+            status: { type: string, enum: [unpaid, paid, refunded], description: 'A cash ride is paid once completed.' }
+        pin: { type: [string, 'null'], description: 'With `RidesConfig.pin`: the code to tell the driver, until the ride starts.' }
+        notes: { type: [string, 'null'] }
+        driver:
+          type: [object, 'null']
+          required: [name, phone, photo_url, rating, car]
+          description: Once a driver accepted (then only the name and car once it ends).
+          properties:
+            name: { type: string }
+            phone: { type: [string, 'null'] }
+            photo_url: { type: [string, 'null'], format: uri }
+            rating: { type: [number, 'null'], example: 4.8 }
+            car:
+              type: object
+              required: [model, color, plate]
+              properties:
+                model: { type: [string, 'null'], example: Toyota Corolla }
+                color: { type: [string, 'null'], example: White }
+                plate: { type: [string, 'null'], example: 'ABC 123' }
+        driver_location:
+          type: [object, 'null']
+          required: [lat, lng, heading, updated_at]
+          description: From `accepted` until the ride ends, when the driver's app sent its position in the last 2 minutes; null otherwise.
+          properties:
+            lat: { type: number }
+            lng: { type: number }
+            heading: { type: [number, 'null'] }
+            updated_at: { type: string, format: date-time }
+        pickup_minutes: { type: [integer, 'null'], description: 'While `accepted`: how long the driver should take to the pickup.' }
+        share_url: { type: [string, 'null'], format: uri, description: 'A web page anyone with the link sees the ride on (the driver, the car and where it is) until it ends; null once it ended.' }
+        cancellation:
+          type: [object, 'null']
+          required: [by, reason, fee_formatted]
+          properties:
+            by: { type: string, enum: [rider, driver, company] }
+            reason: { type: [string, 'null'] }
+            fee_formatted: { type: [string, 'null'], description: 'Charged to the rider, added to their next ride.' }
+        rating:
+          type: [object, 'null']
+          required: [driver, comment]
+          properties:
+            driver: { type: integer }
+            comment: { type: [string, 'null'] }
+        timeline:
+          type: array
+          description: The stages it went through, oldest first.
+          items:
+            type: object
+            required: [status, at]
+            properties:
+              status: { $ref: '#/components/schemas/RideStatus' }
+              at: { type: string, format: date-time }
+              note: { type: [string, 'null'] }
+        created_at: { type: string, format: date-time }
+
+    Driver:
+      type: object
+      required: [id, name, phone, photo_url, vehicle_type, car, online, rating, ratings_count, active_ride_id, today]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        phone: { type: [string, 'null'] }
+        photo_url: { type: [string, 'null'], format: uri }
+        vehicle_type:
+          type: [object, 'null']
+          required: [id, name]
+          properties:
+            id: { type: integer }
+            name: { type: string }
+        car:
+          type: object
+          required: [model, color, plate]
+          properties:
+            model: { type: [string, 'null'] }
+            color: { type: [string, 'null'] }
+            plate: { type: [string, 'null'] }
+        online: { type: boolean }
+        rating: { type: [number, 'null'] }
+        ratings_count: { type: integer }
+        active_ride_id: { type: [integer, 'null'] }
+        today:
+          type: object
+          required: [rides, earned_formatted]
+          properties:
+            rides: { type: integer }
+            earned_formatted: { type: string, description: 'Fares less the company''s share.' }
+
+    DriverRide:
+      type: object
+      required: [id, reference, status, vehicle_type, pickup, dropoff, distance_km, minutes, fare, fare_formatted, final, payment, collect, collect_formatted, notes, rider, offer_expires_at, pickup_km, waiting_since, started_at, timeline, created_at]
+      description: A ride as its driver sees it. The rider's number is null on an offer and once the ride ends.
+      properties:
+        id: { type: integer }
+        reference: { type: string }
+        status: { $ref: '#/components/schemas/RideStatus' }
+        vehicle_type: { type: string }
+        pickup: { $ref: '#/components/schemas/Place' }
+        dropoff: { $ref: '#/components/schemas/Place' }
+        distance_km: { type: number }
+        minutes: { type: integer }
+        fare: { type: string }
+        fare_formatted: { type: string }
+        final: { type: boolean }
+        payment:
+          type: object
+          required: [method, status]
+          properties:
+            method: { type: string, enum: [cash, card] }
+            status: { type: string, enum: [unpaid, paid, refunded] }
+        collect: { type: string, description: 'Cash to collect at the end, as a decimal string; "0.00" for a card ride.', example: '96.00' }
+        collect_formatted: { type: [string, 'null'] }
+        notes: { type: [string, 'null'] }
+        rider:
+          type: object
+          required: [name, phone, rating]
+          properties:
+            name: { type: string }
+            phone: { type: [string, 'null'] }
+            rating: { type: [number, 'null'], description: 'Unused for now; null.' }
+        offer_expires_at: { type: [string, 'null'], format: date-time, description: 'On an offer: when it goes to the next driver.' }
+        pickup_km: { type: [number, 'null'], description: 'On an offer and while `accepted`: from the driver to the pickup, in a straight line.' }
+        waiting_since: { type: [string, 'null'], format: date-time, description: 'Once `arrived`.' }
+        started_at: { type: [string, 'null'], format: date-time }
+        timeline:
+          type: array
+          items:
+            type: object
+            required: [status, at]
+            properties:
+              status: { $ref: '#/components/schemas/RideStatus' }
+              at: { type: string, format: date-time }
+              note: { type: [string, 'null'] }
+        created_at: { type: string, format: date-time }
+
+    DriverEarnings:
+      type: object
+      required: [period, from, to, rides, fares_formatted, cash_formatted, company_share_formatted, earned_formatted, days]
+      properties:
+        period: { type: string, enum: [today, week, month] }
+        from: { type: string, format: date }
+        to: { type: string, format: date }
+        rides: { type: integer }
+        fares_formatted: { type: string }
+        cash_formatted: { type: string, description: 'Collected in cash by the driver.' }
+        company_share_formatted: { type: string }
+        earned_formatted: { type: string, description: 'Fares less the company''s share.' }
+        days:
+          type: array
+          items:
+            type: object
+            required: [date, rides, earned_formatted]
+            properties:
+              date: { type: string, format: date }
+              rides: { type: integer }
+              earned_formatted: { type: string }

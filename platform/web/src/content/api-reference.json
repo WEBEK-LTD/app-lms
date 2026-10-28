@@ -1108,6 +1108,137 @@
       ]
     },
     {
+      "name": "Rides",
+      "description": "Roadmap 105.2. Ride hailing, on Yallapp's hosted API. The rider sets the pickup and the drop-off, sees each of the company's vehicle types with its fare (`POST /rides/estimate`) and asks for a ride now or, when the company allows it, at a later time (`POST /rides`). The company's drivers get the request one at a time, nearest first, each with a few seconds to accept (`RidesConfig.matching`), or the company gives it to a driver from the dashboard. The rider follows the driver to the pickup and along the ride on the map, can share the ride with a link, call the company's emergency number, cancel (with the company's fee once the free minutes after a driver accepted are over), pay the fare in cash to the driver or by card on the company's payment page, and rate the driver. Fares, fees and the company's share are the company's: Yallapp sets none of them.",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/rides/estimate",
+          "summary": "The fare of each vehicle type between two places",
+          "description": "Both places need their coordinates. The distance and time are estimated from the straight line between them (the road is taken as a third longer, at the company's usual speed), so the fare is `upfront` (the one the rider pays, plus waiting) or an estimate when the company charges what the meter says (`RidesConfig.fare_mode`). Vehicle types without an online driver nearby are listed with `available` false (asking for one still waits for a driver). Fails with `outside_service_area` (400) when the pickup is outside the company's areas, and with `invalid_request` (400) for a place without coordinates or an unknown promo code (`field` names it).",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/rides",
+          "summary": "Ask for a ride",
+          "description": "At the fare `POST /rides/estimate` gives for the same places, vehicle type and promo code. Now: it is offered to the drivers at once (`searching`). Later (`scheduled_at`, when `RidesConfig.scheduling` allows it, 30 minutes to 7 days ahead): it waits (`scheduled`) and is offered 15 minutes before. A card ride is paid once it ends, on the company's payment page (`POST /me/rides/{ride_id}/pay`). An unpaid cancellation fee from the rider's last ride is added to this one's fare.\n\nFails as the estimate does; with `ride_in_progress` (409) while the rider has another ride that isn't over (scheduled ones aside); with `invalid_request` (400) for a payment method the company doesn't take or a time it doesn't allow; with `payments_unavailable` (503) for a card ride while the company's payments aren't set up.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/rides",
+          "summary": "List the signed-in rider's rides",
+          "description": "Newest first; `active` only those not yet completed or cancelled (scheduled ones too).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/rides/{ride_id}",
+          "summary": "Follow a ride",
+          "description": "The ride with its stages, its driver and car and, from the driver's accepting until the ride ends, where the driver is. The app asks again every 5 seconds or so while the screen is open and the ride is active.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/rides/{ride_id}/cancel",
+          "summary": "Cancel a ride",
+          "description": "Before it starts (`scheduled`, `searching`, `accepted`, `arrived`); then `not_cancellable` (409). Free while no driver has it, and for `RidesConfig.cancellation.free_minutes` after a driver accepted; after that the company's fee (`cancellation.fee`) is charged, added to the rider's next ride.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/rides/{ride_id}/pay",
+          "summary": "Pay a card ride",
+          "description": "For a card ride `completed` and not paid yet, the company's payment page (good for 60 minutes), opened in the app on both platforms (a service in the physical world). Fails with `not_payable` (409) for any other.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/rides/{ride_id}/rating",
+          "summary": "Rate the driver",
+          "description": "Once, after the ride is completed, within 7 days; then `already_rated` or `not_ratable` (409). The rating counts in the driver's average; the comment is seen by the company.",
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
+      "name": "Driver",
+      "description": "Roadmap 105.2. The driver's screens. A driver is a person the company added on the dashboard's Drivers page by mobile number (or by email, for apps that sign in by email only), with their car; whoever signs in with that number, proven by its code, is that driver (`User.roles` has `driver`). Every endpoint here answers `not_driver` (403) to anyone else, and to drivers the company suspended. A driver goes online to get ride requests; while online, the app sends the driver's position (only while it is open), which is used to offer rides nearest first and shown to the rider of their ride; it is dropped when they go offline. The rider's number is shown once the driver accepted, until the ride ends.\n\nWhere these screens are depends on the company's choice (`RidesConfig.driver_app`): `same`, in the company's app, shown only to drivers; `bundle`, in the company's second app made for drivers (build config `role: driver`), while its riders' app has none.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/driver/me",
+          "summary": "The signed-in driver",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "PATCH",
+          "path": "/driver/me",
+          "summary": "Go online or offline",
+          "description": "Only online drivers are offered rides. Going offline drops their position; it is refused with `ride_in_progress` (409) while they have a ride that isn't over.",
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/driver/location",
+          "summary": "Send the driver's position",
+          "description": "Sent every 5 to 10 seconds while the app is open and the driver is online (no position is taken in the background). Kept only while they are online; answered 204 and dropped otherwise. At most one every 3 seconds is kept. During a ride, the positions also measure the distance the meter charges (`RidesConfig.fare_mode` `metered`).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/driver/offers",
+          "summary": "The ride offered to the driver now",
+          "description": "A ride offered to this driver, with when the offer ends (`offer_expires_at`); at most one at a time; empty when none is or the driver is offline. The app asks every 3 seconds or so while online and free, and on a `ride_offer` push. The rider's number is not shown until the driver accepts.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/driver/rides",
+          "summary": "The driver's rides",
+          "description": "`active`: the driver's ride that isn't over (at most one). `done`: their completed and cancelled rides of the last 30 days, newest first.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/driver/rides/{ride_id}",
+          "summary": "A ride",
+          "description": "One of the driver's rides, or the one offered to them now.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/driver/rides/{ride_id}/accept",
+          "summary": "Accept the ride offered",
+          "description": "While it is offered to this driver; then `offer_expired` (409). The rider is told the driver is on the way.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/driver/rides/{ride_id}/decline",
+          "summary": "Let the ride go to the next driver",
+          "description": "The offer ends at once and isn't made to this driver again. Answered 204 also when it had already ended.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/driver/rides/{ride_id}/status",
+          "summary": "Move a ride to its next stage",
+          "description": "In order: `arrived` at the pickup, `in_progress` once the rider is in (with the rider's `pin` when `RidesConfig.pin` is true; a wrong one is `wrong_pin`, 400), then `completed` at the drop-off, which works out the final fare (shown on the answer's `fare`); a cash ride is paid once completed: the driver collected `collect`. `cancelled` before the ride starts, with a `reason`: `rider_no_show` (only `RidesConfig.cancellation.no_show_minutes` after arriving; the rider is charged the cancellation fee) or `other` (the ride goes back to the next driver). Fails with `invalid_status` (409) for any other step.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/driver/earnings",
+          "summary": "What the driver made",
+          "description": "The driver's completed rides over today, this week (from Monday) or this month, in `RidesConfig.timezone`, with each day's totals.",
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
       "name": "Bookings",
       "description": "Services, staff, free times and appointments, for Bookings apps. The plugin reads them from the site's booking plugin (Amelia, BookingPress or LatePoint); the booking plugin's own rules decide the free times and whether a new appointment is approved or waits for the business. Appointments are paid at the business.",
       "endpoints": [

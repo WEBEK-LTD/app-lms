@@ -10,7 +10,7 @@
     { "kind": "article", "route": "/article/{id}", "id": "text", "app_types": ["news"] },
     { "kind": "event", "route": "/event/{id}", "id": "number", "app_types": ["events"] },
     { "kind": "campaign", "route": "/campaign/{id}", "id": "number", "app_types": ["donations"] },
-    { "kind": "page", "route": "/page/{id}", "id": "slug", "app_types": ["lms", "store", "booking", "real_estate", "news", "events", "donations", "delivery", "food"] }
+    { "kind": "page", "route": "/page/{id}", "id": "slug", "app_types": ["lms", "store", "booking", "real_estate", "news", "events", "donations", "delivery", "food", "rides"] }
   ],
   "resolved_kinds": [
     { "kind": "course", "route": "/course/{id}", "app_types": ["lms"] },

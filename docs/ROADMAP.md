@@ -2474,7 +2474,7 @@ jobs, live position and second app.
 
 | Done | Step | Checked by |
 | --- | --- | --- |
-| [ ] | 105.2.1 Contract: `app_type` `rides`; `Config.rides`; vehicle types and estimates, rides (ask, mine, cancel, rate, share), the Driver tag (online, requests, accept, arrived, start, end, earnings); notifications; plan feature `rides` | redocly lint |
+| [x] | 105.2.1 Contract: `app_type` `rides`; `Config.rides`; vehicle types and estimates, rides (ask, mine, cancel, rate, share), the Driver tag (online, requests, accept, arrived, start, end, earnings); notifications; plan feature `rides` | redocly lint |
 | [ ] | 105.2.2 Platform: vehicle types, fares, areas, drivers and their documents, rides and their stages, matching by distance, live positions, cash or card, the company's share and statements, pushes (a migration) | unit tests, isolation tests |
 | [ ] | 105.2.3 Dashboard (en/ar/tr) in Studio: Rides (live map, list), Drivers (documents, approve, suspend), Vehicle types and fares, Areas, Statements, Promo codes; settings | unit tests, e2e |
 | [ ] | 105.2.4 App, rider: map home, where to, vehicle types with estimates, asking, the driver on the way, the ride, rating, history and receipts, share and SOS | flutter analyze and widget tests |
