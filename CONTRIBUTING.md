@@ -16,6 +16,11 @@ Read `README.md`, `docs/ROADMAP.md` and `docs/ARCHITECTURE.md` first.
   run before merging.
 - The plugin and the app must match `docs/api/openapi.yaml`. Change the
   contract first, then the code, in the same change.
+- Commits are made as `WEBEK LTD <info@webek.org>` (set it in each new
+  clone: `git config user.name "WEBEK LTD"` and
+  `git config user.email info@webek.org`). Commit messages, pull request
+  descriptions and comments describe the change only, with no lines naming
+  the tools or sessions used to make it.
 
 ## Product rules
 
