@@ -42,10 +42,23 @@ import {
   SOCIAL_NETWORKS,
   SPACER_SIZES,
   STUDIO_ALIGNS,
+  STUDIO_BINDS,
+  STUDIO_CROSS,
+  STUDIO_ENTERS,
   STUDIO_FITS,
   STUDIO_FONT_WEIGHTS,
-  STUDIO_LAYER_TYPES,
+  STUDIO_HEADER_BUTTONS,
+  STUDIO_HEADER_TYPES,
+  STUDIO_LAYOUT_TYPES,
   STUDIO_LIMITS,
+  STUDIO_LOOPS,
+  STUDIO_NODE_TYPES,
+  STUDIO_PINS,
+  STUDIO_PLATFORMS,
+  STUDIO_PRESSES,
+  STUDIO_SHADOWS,
+  STUDIO_TEXT_ALIGNS,
+  STUDIO_VISIBILITY,
   THEME_MODES,
   TRANSLATABLE,
   TRANSLATABLE_ENTRIES,
@@ -58,8 +71,11 @@ import {
   type BlockType,
   type EntryList,
   type HeaderIcon,
-  type StudioCanvas,
-  type StudioLayer,
+  type StudioHeader,
+  type StudioNode,
+  type StudioPage,
+  type StudioSides,
+  type StudioSize,
   type FaqEntry,
   type HoursPeriod,
   type Person,
@@ -851,44 +867,15 @@ function parsePage(ctx: Context, index: number, value: unknown, allowedBlocks: s
   if (oneOf(PAGE_BACKGROUNDS, v.background) && v.background !== "none") page.background = v.background;
   const header = v.header_image_url === undefined || v.header_image_url === null || v.header_image_url === "" ? null : c.mediaUrl(where, v.header_image_url, "the header picture's address", true);
   if (header) page.header_image_url = header;
-  // 103 A Studio page: its canvas, and no blocks.
-  if (v.canvas !== undefined && v.canvas !== null) {
-    const canvas = parseCanvas(ctx, where, v.canvas);
-    if (canvas) {
-      if (blocks.length) c.fail(where, "a Studio page has its canvas instead of blocks.");
-      page.canvas = canvas;
+  // 103R A Studio page: its elements, and no blocks.
+  if (v.studio !== undefined && v.studio !== null) {
+    const studio = parseStudio(ctx, where, v.studio);
+    if (studio) {
+      if (blocks.length) c.fail(where, "a Studio page has its elements instead of blocks.");
+      page.studio = studio;
     }
   }
   return page;
-}
-
-/** 103 A Studio page's canvas (`StudioCanvas`): its size, colour and layers, each inside it. */
-function parseCanvas(ctx: Context, where: string, value: unknown): StudioCanvas | null {
-  const { c } = ctx;
-  const v = record(value);
-  if (!v) {
-    c.fail(where, "the Studio canvas is missing.");
-    return null;
-  }
-  const L = STUDIO_LIMITS;
-  const width = Number(v.width);
-  const height = Number(v.height);
-  if (!Number.isInteger(width) || width < L.minWidth || width > L.maxWidth) c.fail(where, `the canvas must be ${L.minWidth} to ${L.maxWidth} wide.`);
-  if (!Number.isInteger(height) || height < L.minHeight || height > L.maxHeight) c.fail(where, `the canvas must be ${L.minHeight} to ${L.maxHeight} high.`);
-  const background = optionalColor(c, where, v.background, "the canvas colour");
-  const layersIn = Array.isArray(v.layers) ? v.layers : [];
-  if (!Array.isArray(v.layers)) c.fail(where, "the canvas's layers are missing.");
-  if (layersIn.length > L.maxLayers) c.fail(where, `a canvas can have at most ${L.maxLayers} layers.`);
-  const layers: StudioLayer[] = [];
-  const ids = new Set<string>();
-  layersIn.slice(0, L.maxLayers).forEach((raw, i) => {
-    const layer = parseLayer(ctx, `${where}, layer ${i + 1}`, raw, { width, height });
-    if (!layer) return;
-    if (ids.has(layer.id)) c.fail(`${where}, layer ${i + 1}`, "two layers have the same ID.");
-    ids.add(layer.id);
-    layers.push(layer);
-  });
-  return { width, height, background, layers };
 }
 
 function optionalColor(c: Checker, where: string, value: unknown, what: string): string | null {
@@ -898,75 +885,437 @@ function optionalColor(c: Checker, where: string, value: unknown, what: string):
   return null;
 }
 
-function parseLayer(ctx: Context, where: string, value: unknown, canvas: { width: number; height: number }): StudioLayer | null {
+/** 103R A Studio page on its own (an owner's own template): checked as in a layout of the app's. */
+export function parseStudioPage(value: unknown, app: Pick<App, "appType" | "backend">, languages: Languages): ParseResult<StudioPage> {
+  const c = new Checker();
+  const ctx: Context = {
+    c,
+    app,
+    sources: itemSourcesFor(app),
+    categorySources: categorySourcesFor(app),
+    slugs: new Set(),
+    languages,
+  };
+  const page = parseStudio(ctx, "The page", value);
+  const errors = c.errors;
+  return page && errors.length === 0 ? { ok: true, value: page } : { ok: false, errors: errors.length ? errors : ["The page isn't valid."] };
+}
+
+/** 103R A Studio page (`StudioPage`): its header, its elements and its colours. */
+function parseStudio(ctx: Context, where: string, value: unknown): StudioPage | null {
   const { c } = ctx;
   const v = record(value);
-  if (!v || !oneOf(STUDIO_LAYER_TYPES, v.type)) {
-    c.fail(where, "this kind of layer isn't available.");
+  if (!v) {
+    c.fail(where, "the Studio page is missing.");
     return null;
   }
+  if (JSON.stringify(v).length > STUDIO_LIMITS.maxBytes) {
+    c.fail(where, "the Studio page is too large. Remove some elements.");
+    return null;
+  }
+  const state = { count: 0, ids: new Set<string>() };
+  const body = parseNode(ctx, `${where}, page`, v.body, state, 0, false);
+  if (!body) return null;
+  if (!(STUDIO_LAYOUT_TYPES as readonly string[]).includes(body.type)) c.fail(where, "the page must start with a row, a column or another layout.");
+  const page: StudioPage = { body };
+  if (v.header !== undefined && v.header !== null) {
+    const header = parseStudioHeader(ctx, `${where}, header`, v.header);
+    if (header) page.header = header;
+  }
+  const background = optionalColor(c, where, v.background, "the page's colour");
+  if (background) page.background = background;
+  const dark = optionalColor(c, where, v.dark_background, "the page's dark colour");
+  if (dark) page.dark_background = dark;
+  if (v.show_tabs === false) page.show_tabs = false;
+  return page;
+}
+
+function parseStudioHeader(ctx: Context, where: string, value: unknown): StudioHeader | null {
+  const { c } = ctx;
+  const v = record(value);
+  if (!v || !oneOf(STUDIO_HEADER_TYPES, v.type)) {
+    c.fail(where, "choose the header's type.");
+    return null;
+  }
+  const header: StudioHeader = { type: v.type };
+  const title = c.optionalText(where, v.title, 80, "The header's title");
+  if (title) header.title = title;
+  const logo = c.mediaUrl(where, v.logo_url, "the logo's address", false);
+  if (logo) header.logo_url = logo;
+  if (v.buttons !== undefined) {
+    const raw = Array.isArray(v.buttons) ? v.buttons : [];
+    const buttons = raw.filter((b): b is (typeof STUDIO_HEADER_BUTTONS)[number] => oneOf(STUDIO_HEADER_BUTTONS, b));
+    // Each button once, as in the regular header (101).
+    if (buttons.length !== raw.length) c.fail(where, "a header button isn't one the app has.");
+    else if (new Set(buttons).size > 4) c.fail(where, "keep at most 4 buttons in the header.");
+    if (buttons.length) header.buttons = [...new Set(buttons)].slice(0, 4);
+  }
+  for (const [key, what] of [
+    ["background", "the header's colour"],
+    ["color", "the header's text colour"],
+    ["dark_background", "the header's dark colour"],
+    ["dark_color", "the header's dark text colour"],
+  ] as const) {
+    const color = optionalColor(c, where, v[key], what);
+    if (color) header[key] = color;
+  }
+  const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.studioHeader, { title: 80 });
+  if (translations) header.translations = translations;
+  return header;
+}
+
+const NODE_ID = /^[A-Za-z0-9_-]{1,64}$/;
+
+/** A number in [min, max], rounded to tenths; `undefined` when left out; NaN when wrong. */
+function studioNumber(value: unknown, min: number, max: number): number | undefined {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value !== "number" || !Number.isFinite(value) || value < min || value > max) return NaN;
+  return Math.round(value * 10) / 10;
+}
+
+function parseSize(c: Checker, where: string, value: unknown, what: string): StudioSize | undefined {
+  if (value === undefined || value === null) return undefined;
+  if (value === "fill" || value === "hug") return value;
+  const n = studioNumber(value, 0, STUDIO_LIMITS.maxSize);
+  if (n === undefined || Number.isNaN(n)) {
+    c.fail(where, `${what} must be fill, hug or 0 to ${STUDIO_LIMITS.maxSize}.`);
+    return undefined;
+  }
+  return n;
+}
+
+function parseSides(c: Checker, where: string, value: unknown, what: string): StudioSides | undefined {
+  if (value === undefined || value === null) return undefined;
+  const v = record(value);
+  if (!v) {
+    c.fail(where, `${what} isn't valid.`);
+    return undefined;
+  }
+  const out: StudioSides = {};
+  for (const side of ["top", "end", "bottom", "start"] as const) {
+    const n = studioNumber(v[side], 0, STUDIO_LIMITS.maxSide);
+    if (n === undefined) continue;
+    if (Number.isNaN(n)) c.fail(where, `${what} must be 0 to ${STUDIO_LIMITS.maxSide} on each side.`);
+    else if (n) out[side] = n;
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
+/** 103R One element and what it holds (`StudioNode`). `card`: inside an items element's card, where elements take `bind`. */
+function parseNode(ctx: Context, where: string, value: unknown, state: { count: number; ids: Set<string> }, depth: number, card: boolean): StudioNode | null {
+  const { c } = ctx;
   const L = STUDIO_LIMITS;
-  const id = typeof v.id === "string" && /^[A-Za-z0-9_-]{1,64}$/.test(v.id) ? v.id : null;
-  if (!id) c.fail(where, "the layer's ID isn't valid.");
-  const num = (x: unknown) => (typeof x === "number" && Number.isFinite(x) ? Math.round(x * 10) / 10 : NaN);
-  const [x, y, w, h] = [num(v.x), num(v.y), num(v.w), num(v.h)];
-  if ([x, y, w, h].some(Number.isNaN) || x < 0 || y < 0 || w < 1 || h < 1 || x + w > canvas.width + 0.5 || y + h > canvas.height + 0.5) {
-    c.fail(where, "keep the layer inside the canvas.");
+  const v = record(value);
+  if (!v || !oneOf(STUDIO_NODE_TYPES, v.type)) {
+    c.fail(where, "this kind of element isn't available.");
+    return null;
   }
-  const layer: StudioLayer = { id: id ?? "", type: v.type, x, y, w, h };
-  const fill = optionalColor(c, where, v.fill, "the fill colour");
-  if (fill) layer.fill = fill;
-  const radius = v.radius === undefined ? 0 : num(v.radius);
-  if (Number.isNaN(radius) || radius < 0 || radius > L.maxRadius) c.fail(where, `the corners must be 0 to ${L.maxRadius}.`);
-  else if (radius) layer.radius = radius;
-  const borderWidth = v.border_width === undefined ? 0 : num(v.border_width);
-  if (Number.isNaN(borderWidth) || borderWidth < 0 || borderWidth > L.maxBorder) c.fail(where, `the border must be 0 to ${L.maxBorder} wide.`);
-  const borderColor = optionalColor(c, where, v.border_color, "the border colour");
-  if (borderWidth > 0 && borderColor) {
-    layer.border_width = borderWidth;
-    layer.border_color = borderColor;
+  if (depth > L.maxDepth) {
+    c.fail(where, `elements can be nested at most ${L.maxDepth} deep.`);
+    return null;
   }
-  const opacity = v.opacity === undefined ? 1 : num(v.opacity);
-  if (Number.isNaN(opacity) || opacity < 0 || opacity > 1) c.fail(where, "the opacity must be 0 to 1.");
-  else if (opacity !== 1) layer.opacity = opacity;
-  if (v.shadow === true) layer.shadow = true;
-  const textual = v.type === "text" || v.type === "button";
+  state.count += 1;
+  if (state.count === L.maxNodes + 1) c.fail(where, `a page can have at most ${L.maxNodes} elements.`);
+  if (state.count > L.maxNodes) return null;
+  const id = typeof v.id === "string" && NODE_ID.test(v.id) ? v.id : null;
+  if (!id) c.fail(where, "the element's ID isn't valid.");
+  else if (state.ids.has(id)) c.fail(where, "two elements have the same ID.");
+  if (id) state.ids.add(id);
+  const node: StudioNode = { id: id ?? "", type: v.type };
+  const bad = (what: string) => c.fail(where, what);
+  const num = (key: string, min: number, max: number, what: string) => {
+    const n = studioNumber(v[key], min, max);
+    if (n !== undefined && Number.isNaN(n)) bad(`${what} must be ${min} to ${max}.`);
+    return n === undefined || Number.isNaN(n) ? undefined : n;
+  };
+  const pick = <T extends string>(key: string, list: readonly T[], what: string): T | undefined => {
+    if (v[key] === undefined || v[key] === null) return undefined;
+    if (!oneOf(list, v[key])) {
+      bad(what);
+      return undefined;
+    }
+    return v[key] as T;
+  };
+
+  const name = c.optionalText(where, v.name, L.nameChars, "The element's name");
+  if (name) node.name = name;
+
+  // Size and place.
+  const width = parseSize(c, where, v.width, "the width");
+  if (width !== undefined) node.width = width;
+  const height = parseSize(c, where, v.height, "the height");
+  if (height !== undefined) node.height = height;
+  const minHeight = num("min_height", 0, L.maxSize, "the lowest height");
+  if (minHeight) node.min_height = minHeight;
+  const ratio = num("aspect_ratio", 0.1, 10, "the width over the height");
+  if (ratio) node.aspect_ratio = ratio;
+  const padding = parseSides(c, where, v.padding, "the space inside");
+  if (padding) node.padding = padding;
+  const margin = parseSides(c, where, v.margin, "the space outside");
+  if (margin) node.margin = margin;
+  const gap = num("gap", 0, L.maxGap, "the space between");
+  if (gap) node.gap = gap;
+  const align = pick("align", STUDIO_ALIGNS, "choose how the elements are spread.");
+  if (align && align !== "start") node.align = align;
+  const cross = pick("cross", STUDIO_CROSS, "choose how the elements line up.");
+  if (cross && cross !== "stretch") node.cross = cross;
+  const self = pick("self_align", STUDIO_CROSS, "choose where the element sits.");
+  if (self) node.self_align = self;
+  const pin = pick("pin", STUDIO_PINS, "choose whether it stays on the screen.");
+  if (pin && pin !== "none") node.pin = pin;
+
+  // Colours and shape.
+  for (const [key, what] of [
+    ["background", "the background"],
+    ["color", "the text colour"],
+    ["dark_background", "the dark background"],
+    ["dark_color", "the dark text colour"],
+    ["border_color", "the border colour"],
+  ] as const) {
+    const color = optionalColor(c, where, v[key], what);
+    if (color) node[key] = color;
+  }
+  if (v.gradient !== undefined && v.gradient !== null) {
+    const g = record(v.gradient);
+    const from = optionalColor(c, where, g?.from, "the gradient's first colour");
+    const to = optionalColor(c, where, g?.to, "the gradient's second colour");
+    const angle = studioNumber(g?.angle, 0, 360);
+    if (!from || !to || (angle !== undefined && Number.isNaN(angle))) bad("the gradient needs two colours and an angle of 0 to 360.");
+    else node.gradient = { from, to, ...(angle !== undefined && angle !== 180 ? { angle } : {}) };
+  }
+  const picture = c.mediaUrl(where, v.image_background_url, "the background picture's address", false);
+  if (picture) node.image_background_url = picture;
+  const radius = num("radius", 0, L.maxRadius, "the corners");
+  if (radius) node.radius = radius;
+  const border = num("border_width", 0, L.maxBorder, "the border");
+  if (border && node.border_color) node.border_width = border;
+  else delete node.border_color;
+  const shadow = pick("shadow", STUDIO_SHADOWS, "choose the shadow.");
+  if (shadow && shadow !== "none") node.shadow = shadow;
+  const opacity = num("opacity", 0, 1, "the opacity");
+  if (opacity !== undefined && opacity !== 1) node.opacity = opacity;
+
+  // Text.
+  if (v.font !== undefined && v.font !== null) {
+    const f = record(v.font);
+    if (!f) bad("the font isn't valid.");
+    else {
+      const font: NonNullable<StudioNode["font"]> = {};
+      if (typeof f.family === "string" && f.family.trim()) {
+        if (f.family.length > 60) bad("the font's name is too long.");
+        else font.family = f.family.trim();
+      }
+      if (f.weight !== undefined) {
+        if (!(STUDIO_FONT_WEIGHTS as readonly unknown[]).includes(f.weight)) bad("choose the text's weight.");
+        else font.weight = f.weight as (typeof STUDIO_FONT_WEIGHTS)[number];
+      }
+      const size = studioNumber(f.size, L.minFont, L.maxFont);
+      if (size !== undefined && Number.isNaN(size)) bad(`the text size must be ${L.minFont} to ${L.maxFont}.`);
+      else if (size !== undefined) font.size = size;
+      const line = studioNumber(f.line_height, 0.8, 3);
+      if (line !== undefined && Number.isNaN(line)) bad("the line height must be 0.8 to 3.");
+      else if (line !== undefined) font.line_height = line;
+      const spacing = studioNumber(f.letter_spacing, -5, 20);
+      if (spacing !== undefined && Number.isNaN(spacing)) bad("the letter spacing must be -5 to 20.");
+      else if (spacing !== undefined) font.letter_spacing = spacing;
+      if (f.italic === true) font.italic = true;
+      if (f.underline === true) font.underline = true;
+      if (Object.keys(font).length) node.font = font;
+    }
+  }
+  const textAlign = pick("text_align", STUDIO_TEXT_ALIGNS, "choose where the text sits.");
+  if (textAlign && textAlign !== "start") node.text_align = textAlign;
+  const textual = node.type === "text" || node.type === "button" || node.type === "ratings" || node.type === "search";
   if (textual) {
-    layer.text = c.text(where, v.text, L.textChars, "a text");
-    const size = v.font_size === undefined ? 16 : num(v.font_size);
-    if (Number.isNaN(size) || size < L.minFont || size > L.maxFont) c.fail(where, `the text size must be ${L.minFont} to ${L.maxFont}.`);
-    else layer.font_size = size;
-    if (v.font_weight !== undefined && !(STUDIO_FONT_WEIGHTS as readonly unknown[]).includes(v.font_weight)) c.fail(where, "choose the text's weight.");
-    else layer.font_weight = (v.font_weight as StudioLayer["font_weight"]) ?? 400;
-    if (v.align !== undefined && !oneOf(STUDIO_ALIGNS, v.align)) c.fail(where, "choose where the text sits.");
-    else layer.align = oneOf(STUDIO_ALIGNS, v.align) ? v.align : "start";
+    const text = node.type === "text" && !card ? c.text(where, v.text, L.textChars, "a text") : c.optionalText(where, v.text, L.textChars, "The text");
+    if (text) node.text = text;
     const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.studio, { text: L.textChars });
-    if (translations) layer.translations = translations;
+    if (translations) node.translations = translations;
   }
-  if (textual || v.type === "icon") {
-    const color = optionalColor(c, where, v.color, "the text colour");
-    if (color) layer.color = color;
+  const lines = num("max_lines", 1, 50, "the lines");
+  if (lines) node.max_lines = Math.round(lines);
+
+  // What each kind holds.
+  switch (node.type) {
+    case "image": {
+      const url = card ? c.mediaUrl(where, v.image_url, "the picture's address", false) : c.mediaUrl(where, v.image_url, "the picture's address", true);
+      if (url) node.image_url = url;
+      const fit = pick("fit", STUDIO_FITS, "choose how the picture fits.");
+      if (fit && fit !== "cover") node.fit = fit;
+      break;
+    }
+    case "icon":
+      if (!(typeof v.icon === "string" && ICON_NAME.test(v.icon))) bad("choose an icon.");
+      else node.icon = v.icon;
+      break;
+    case "button":
+      if (v.icon !== undefined && v.icon !== null && v.icon !== "") {
+        if (!(typeof v.icon === "string" && ICON_NAME.test(v.icon))) bad("choose an icon.");
+        else node.icon = v.icon;
+      }
+      break;
+    case "video":
+      if (typeof v.video_url !== "string" || !/^https:\/\//.test(v.video_url)) bad("add the video's address.");
+      else node.video_url = v.video_url;
+      if (v.autoplay === true) node.autoplay = true;
+      break;
+    case "grid": {
+      const columns = num("columns", 1, L.maxColumns, "the columns");
+      node.columns = columns ? Math.round(columns) : 2;
+      break;
+    }
+    case "slider": {
+      if (v.autoplay === true) node.autoplay = true;
+      const interval = num("interval_ms", 1500, 20000, "the time between slides");
+      if (interval) node.interval_ms = Math.round(interval);
+      const perView = num("per_view", 1, 4, "how many show at a time");
+      if (perView && perView !== 1) node.per_view = perView;
+      if (v.dots === false) node.dots = false;
+      break;
+    }
+    case "items": {
+      if (!oneOf(ctx.sources, v.source)) bad("choose what the list shows.");
+      node.source = v.source as ItemSource;
+      const layout = pick("layout", ITEMS_LAYOUTS, "choose how the list looks.");
+      node.layout = layout ?? "grid";
+      node.query = parseQuery(ctx, where, v.query, v.source);
+      const columns = num("columns", 1, L.maxColumns, "the columns");
+      if (columns) node.columns = Math.round(columns);
+      if (v.card !== undefined && v.card !== null) {
+        if (card) bad("a card can't hold another list.");
+        else {
+          const cardNode = parseNode(ctx, `${where}, card`, v.card, state, depth + 1, true);
+          if (cardNode) node.card = cardNode;
+        }
+      }
+      break;
+    }
+    case "categories":
+      if (!oneOf(ctx.categorySources, v.source)) bad("choose whose categories to show.");
+      node.source = v.source as ItemSource;
+      break;
+    case "form": {
+      const f = record(v.form);
+      if (!f) {
+        bad("add the form's questions.");
+        break;
+      }
+      const send = oneOf(FORM_SEND_TO, f.send_to) ? f.send_to : null;
+      if (!send) bad("choose where the answers go.");
+      const raw = Array.isArray(f.fields) ? f.fields : [];
+      if (raw.length < 1 || raw.length > L.maxFormFields) bad(`a form has 1 to ${L.maxFormFields} questions.`);
+      const ids = new Set<string>();
+      const fields: FormField[] = raw.slice(0, L.maxFormFields).flatMap((item, i) => {
+        const at = `${where}, question ${i + 1}`;
+        const field = record(item);
+        const fid = typeof field?.id === "string" ? field.id : "";
+        if (!ID.test(fid)) c.fail(at, "the question has no valid ID.");
+        else if (ids.has(fid)) c.fail(at, "two questions have the same ID.");
+        ids.add(fid);
+        if (!oneOf(FORM_FIELD_KINDS, field?.kind)) c.fail(at, "choose the kind of answer.");
+        const kind = oneOf(FORM_FIELD_KINDS, field?.kind) ? field.kind : "text";
+        let options: string[] | null = null;
+        if (kind === "choice") {
+          const list = Array.isArray(field?.options) ? field.options : [];
+          options = list.map((o) => (typeof o === "string" ? o.trim() : "")).filter(Boolean).slice(0, 10);
+          if (options.length < 2 || list.length > 10) c.fail(at, "give 2 to 10 choices.");
+        }
+        return [{ id: fid, kind, label: c.text(at, field?.label, 80, "a question"), required: field?.required === true, options }];
+      });
+      node.form = {
+        fields,
+        send_to: send ?? "email",
+        submit_label: c.optionalText(where, f.submit_label, 40, "The button text") || null,
+        success_text: c.optionalText(where, f.success_text, 200, "The text after sending") || null,
+      };
+      break;
+    }
+    case "map": {
+      const m = record(v.map);
+      const lat = studioNumber(m?.lat, -90, 90);
+      const lng = studioNumber(m?.lng, -180, 180);
+      if (lat === undefined || lng === undefined || Number.isNaN(lat) || Number.isNaN(lng)) bad("set the place on the map.");
+      else {
+        const zoom = studioNumber(m?.zoom, 1, 19);
+        node.map = { lat: typeof m?.lat === "number" ? m.lat : lat, lng: typeof m?.lng === "number" ? m.lng : lng };
+        if (zoom !== undefined && !Number.isNaN(zoom) && zoom !== 15) node.map.zoom = zoom;
+        const label = c.optionalText(where, m?.label, 120, "The place's name");
+        if (label) node.map.label = label;
+      }
+      break;
+    }
+    case "ratings": {
+      const rating = num("rating", 0, 5, "the stars");
+      if (rating !== undefined) node.rating = rating;
+      break;
+    }
+    default:
+      break;
   }
-  if (v.type === "image") {
-    layer.image_url = c.mediaUrl(where, v.image_url, "the picture's address", true);
-    if (v.fit !== undefined && !oneOf(STUDIO_FITS, v.fit)) c.fail(where, "choose how the picture fits.");
-    layer.fit = oneOf(STUDIO_FITS, v.fit) ? v.fit : "cover";
+  if (node.type === "button" || node.type === "icon") {
+    const iconSize = num("icon_size", 8, 200, "the icon's size");
+    if (iconSize && iconSize !== 24) node.icon_size = iconSize;
+    const pos = pick("icon_position", ["start", "end"] as const, "choose where the icon sits.");
+    if (pos && pos !== "end") node.icon_position = pos;
   }
-  if (v.type === "icon") {
-    if (!(typeof v.icon === "string" && ICON_NAME.test(v.icon))) c.fail(where, "choose an icon.");
-    else layer.icon = v.icon;
+  if (node.type === "image" || node.type === "video" || node.type === "map") {
+    // aspect_ratio kept above.
   }
-  if (v.type === "items") {
-    if (!oneOf(ctx.sources, v.source)) c.fail(where, "choose what the list shows.");
-    layer.source = v.source as ItemSource;
-    if (!oneOf(ITEMS_LAYOUTS, v.layout)) c.fail(where, "choose how the list looks.");
-    layer.layout = oneOf(ITEMS_LAYOUTS, v.layout) ? v.layout : "carousel";
-    layer.query = parseQuery(ctx, where, v.query, v.source);
-  } else {
+
+  // The data of an items card.
+  if (v.bind !== undefined && v.bind !== null) {
+    if (!card) bad("only a list's card takes its texts from the list.");
+    else {
+      const bind = pick("bind", STUDIO_BINDS, "choose what the element shows from the list.");
+      if (bind) node.bind = bind;
+    }
+  }
+
+  // A tap, where it shows, and motion.
+  if (node.type !== "items" && node.type !== "categories" && node.type !== "form" && node.type !== "search" && !card) {
     const action = parseAction(ctx, where, v.action, false);
-    if (action) layer.action = action;
+    if (action) node.action = action;
   }
-  return layer;
+  if (v.platforms !== undefined) {
+    const raw = Array.isArray(v.platforms) ? v.platforms : [];
+    const platforms = [...new Set(raw.filter((p): p is (typeof STUDIO_PLATFORMS)[number] => oneOf(STUDIO_PLATFORMS, p)))];
+    if (platforms.length !== raw.length || platforms.length === 0) bad("show it on Android, iOS or both.");
+    else if (platforms.length < STUDIO_PLATFORMS.length) node.platforms = platforms;
+  }
+  const visibility = pick("visibility", STUDIO_VISIBILITY, "choose who sees it.");
+  if (visibility && visibility !== "everyone") node.visibility = visibility;
+  if (v.motion !== undefined && v.motion !== null) {
+    const m = record(v.motion);
+    if (!m) bad("the motion isn't valid.");
+    else {
+      const motion: NonNullable<StudioNode["motion"]> = {};
+      if (m.enter !== undefined && !oneOf(STUDIO_ENTERS, m.enter)) bad("choose how it comes in.");
+      else if (m.enter && m.enter !== "none") motion.enter = m.enter as (typeof STUDIO_ENTERS)[number];
+      const duration = studioNumber(m.duration_ms, 100, 3000);
+      if (duration !== undefined && Number.isNaN(duration)) bad("the motion takes 100 to 3000 ms.");
+      else if (duration !== undefined && duration !== 400) motion.duration_ms = Math.round(duration);
+      const delay = studioNumber(m.delay_ms, 0, 5000);
+      if (delay !== undefined && Number.isNaN(delay)) bad("the wait before it is 0 to 5000 ms.");
+      else if (delay) motion.delay_ms = Math.round(delay);
+      if (m.press !== undefined && !oneOf(STUDIO_PRESSES, m.press)) bad("choose how it moves when tapped.");
+      else if (m.press && m.press !== "none") motion.press = m.press as (typeof STUDIO_PRESSES)[number];
+      if (m.loop !== undefined && !oneOf(STUDIO_LOOPS, m.loop)) bad("choose how it keeps moving.");
+      else if (m.loop && m.loop !== "none") motion.loop = m.loop as (typeof STUDIO_LOOPS)[number];
+      if (Object.keys(motion).length) node.motion = motion;
+    }
+  }
+
+  // What a layout holds.
+  const layout = (STUDIO_LAYOUT_TYPES as readonly string[]).includes(node.type) && node.type !== "spacer";
+  if (layout) {
+    const raw = Array.isArray(v.children) ? v.children : [];
+    if (raw.length > L.maxChildren) bad(`a layout can hold at most ${L.maxChildren} elements.`);
+    node.children = raw
+      .slice(0, L.maxChildren)
+      .map((child, i) => parseNode(ctx, `${where} › ${i + 1}`, child, state, depth + 1, card))
+      .filter((child): child is StudioNode => child !== null);
+  } else if (Array.isArray(v.children) && v.children.length) bad("only rows, columns and other layouts hold elements.");
+  return node;
 }
 
 function parseTab(ctx: Context, index: number, value: unknown, kind: "Tab" | "Menu entry" = "Tab"): LayoutTab | null {

@@ -7033,66 +7033,207 @@ components:
               description: 99.3 A picture across the top of the page, under its title when the title shows. Apps that don't know it leave it out.
             blocks:
               type: array
-              description: 103 Empty on a Studio page (`canvas`).
+              description: 103R Empty on a Studio page (`studio`).
               items: { $ref: '#/components/schemas/Block' }
-            canvas: { $ref: '#/components/schemas/StudioCanvas' }
+            studio: { $ref: '#/components/schemas/StudioPage' }
 
-    StudioCanvas:
+    StudioPage:
       type: object
       description: |
-        103 A page designed in Yallapp Studio: layers placed freely on a
-        canvas `width` design units wide, drawn by the app scaled to the
-        screen's width (every position, size, corner, border and text size
-        times screen width / `width`), scrolling when it is taller than the
-        screen. The page's title and header picture aren't shown. Apps that
+        103R A page designed in Yallapp Studio: a header, and a body of
+        elements (`StudioNode`) laid out in rows, columns, layers, grids and
+        sliders, sized to fill, hug their content or a fixed size, so the
+        page fits every phone and tablet. Sizes are in logical pixels.
+        The page's title, header picture and blocks aren't shown. Apps that
         don't know it show the page's blocks (none).
-      required: [width, height, layers]
+      required: [body]
       properties:
-        width: { type: integer, minimum: 320, maximum: 480, example: 390 }
-        height: { type: integer, minimum: 200, maximum: 10000, example: 1400 }
-        background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The canvas colour; null, the app's background." }
-        layers:
-          type: array
-          maxItems: 200
-          description: Back to front.
-          items: { $ref: '#/components/schemas/StudioLayer' }
+        header: { $ref: '#/components/schemas/StudioHeader' }
+        body: { $ref: '#/components/schemas/StudioNode' }
+        background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The page's colour; null, the app's background." }
+        dark_background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "In dark mode; null, `background` (or the app's dark background when that is null too)." }
+        show_tabs: { type: boolean, default: true, description: "The app's bottom tabs under the page, when it is one of them." }
 
-    StudioLayer:
+    StudioHeader:
+      type: [object, 'null']
+      description: |
+        103R The bar at the top of a Studio page; null, none. `logo_center`:
+        the logo in the middle; `title_search`: the page's title and a
+        search field; `logo_actions`: the logo and the `buttons`;
+        `transparent`: over the page's first element, the buttons on it.
+      required: [type]
+      properties:
+        type: { type: string, enum: [logo_center, title_search, logo_actions, transparent] }
+        title: { type: [string, 'null'], maxLength: 80, description: "In the language asked for; null, the app's name." }
+        logo_url: { type: [string, 'null'], format: uri, description: "Null, the app's logo." }
+        buttons:
+          type: array
+          maxItems: 4
+          items: { type: string, enum: [menu, search, cart, notifications, chat, account] }
+        background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
+        color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
+        dark_background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
+        dark_color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
+
+    StudioNode:
       type: object
       description: |
-        103 One layer of a Studio canvas, in design units from the canvas's
-        top start corner (left, or right in a right-to-left language).
-        Layers the app doesn't know are left out.
-      required: [id, type, x, y, w, h]
+        103R One element of a Studio page. Layout elements hold `children`:
+        `row` side by side, `column` one under another, `stack` on top of
+        each other (the first at the back), `grid` in `columns`, `slider`
+        one or more at a time, swiped sideways; `spacer` is empty space.
+        Content elements: `text`, `image`, `button`, `icon`, `items` (a list
+        from the app's data: products, courses, services and the rest),
+        `categories` (the source's categories as chips), `video`, `form`,
+        `map`, `ratings`, `search` and `divider`. An element the app doesn't
+        know is left out with what it holds. Sides are logical: `start` is
+        the left in a left-to-right language and the right in Arabic.
+      required: [id, type]
       properties:
         id: { type: string, maxLength: 64 }
-        type: { type: string, enum: [box, text, image, button, icon, items] }
-        x: { type: number, minimum: 0 }
-        y: { type: number, minimum: 0 }
-        w: { type: number, minimum: 1 }
-        h: { type: number, minimum: 1 }
-        fill: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "Background colour; null, none." }
+        type:
+          type: string
+          enum: [row, column, stack, grid, slider, spacer, text, image, button, icon, items, categories, video, form, map, ratings, search, divider]
+        name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app." }
+        children:
+          type: array
+          maxItems: 60
+          description: For layout elements.
+          items: { $ref: '#/components/schemas/StudioNode' }
+        width: { $ref: '#/components/schemas/StudioSize' }
+        height: { $ref: '#/components/schemas/StudioSize' }
+        min_height: { type: number, minimum: 0, maximum: 4000 }
+        aspect_ratio: { type: [number, 'null'], minimum: 0.1, maximum: 10, description: "Width over height; for pictures, videos and maps." }
+        padding: { $ref: '#/components/schemas/StudioSides' }
+        margin: { $ref: '#/components/schemas/StudioSides' }
+        gap: { type: number, minimum: 0, maximum: 200, default: 0 }
+        align: { type: string, enum: [start, center, end, between, around], default: start, description: "Along a row or column: where its children go." }
+        cross: { type: string, enum: [start, center, end, stretch], default: stretch, description: "Across a row or column; across the parent for a child of a stack." }
+        self_align: { type: [string, 'null'], enum: [start, center, end, stretch, null], description: "This element across its parent, instead of the parent's `cross`." }
+        columns: { type: integer, minimum: 1, maximum: 6, default: 2, description: "For `grid`." }
+        pin: { type: string, enum: [none, top, bottom], default: none, description: "Kept on the screen while the page scrolls (a button pinned at the bottom)." }
+        background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
+        color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "Text and icon colour; null, inherited." }
+        dark_background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "In dark mode; null, `background`." }
+        dark_color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "In dark mode; null, `color`." }
+        gradient: { $ref: '#/components/schemas/StudioGradient' }
+        image_background_url: { type: [string, 'null'], format: uri, description: "A picture behind the element, covering it." }
         radius: { type: number, minimum: 0, maximum: 500, default: 0 }
         border_color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
         border_width: { type: number, minimum: 0, maximum: 20, default: 0 }
+        shadow: { type: string, enum: [none, light, medium, strong], default: none }
         opacity: { type: number, minimum: 0, maximum: 1, default: 1 }
-        shadow: { type: boolean, default: false }
-        text: { type: [string, 'null'], maxLength: 2000, description: "For `text` and `button`, in the language asked for." }
-        font_size: { type: number, minimum: 8, maximum: 120, default: 16 }
-        font_weight: { type: integer, enum: [400, 500, 600, 700, 800], default: 400 }
-        color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "Text and icon colour; null, the app's text colour." }
-        align: { type: string, enum: [start, center, end], default: start }
-        image_url: { type: [string, 'null'], format: uri, description: For `image`. }
+        font: { $ref: '#/components/schemas/StudioFont' }
+        text_align: { type: string, enum: [start, center, end], default: start }
+        text: { type: [string, 'null'], maxLength: 2000, description: "For `text` and `button` (and the `search` hint), in the language asked for." }
+        max_lines: { type: [integer, 'null'], minimum: 1, maximum: 50 }
+        image_url: { type: [string, 'null'], format: uri, description: "For `image`." }
         fit: { type: string, enum: [cover, contain], default: cover }
-        icon: { type: [string, 'null'], description: "For `icon`, a Google Material Symbols (Rounded) name." }
-        action: { $ref: '#/components/schemas/Action' }
+        icon: { type: [string, 'null'], description: "A Google Material Symbols (Rounded) name: an `icon`, or a button's icon." }
+        icon_position: { type: string, enum: [start, end], default: end }
+        icon_size: { type: number, minimum: 8, maximum: 200, default: 24 }
+        video_url: { type: [string, 'null'], format: uri, description: "For `video`, a YouTube, Vimeo or MP4 address." }
+        autoplay: { type: boolean, default: false, description: "For `video` (muted) and `slider` (every `interval_ms`)." }
+        interval_ms: { type: integer, minimum: 1500, maximum: 20000, default: 4000 }
+        per_view: { type: number, minimum: 1, maximum: 4, default: 1, description: "For `slider`, how many show at a time (1.2 peeks at the next)." }
+        dots: { type: boolean, default: true, description: "For `slider`." }
         source: { $ref: '#/components/schemas/ItemSource' }
-        layout: { type: string, enum: [carousel, grid, list], description: For `items`. }
+        layout: { type: string, enum: [list, grid, carousel], default: grid, description: "For `items`." }
+        card: { $ref: '#/components/schemas/StudioNode', description: "For `items`: the card drawn for each entry, its elements' `bind` filled from the entry. Missing, the app's own card." }
+        bind: { type: [string, 'null'], enum: [title, subtitle, image, price, badge, null], description: "Inside an `items` card: this element's text (or a picture's address) comes from the entry." }
         items:
           type: array
           maxItems: 30
-          description: For `items`, filled from the app's source like the items block, drawn inside the layer's frame.
+          description: For `items`, filled from the app's source like the items block.
           items: { $ref: '#/components/schemas/Item' }
+        categories:
+          type: array
+          maxItems: 30
+          description: For `categories`, the source's categories; a tap opens the list of that category.
+          items: { $ref: '#/components/schemas/Category' }
+        form: { $ref: '#/components/schemas/StudioForm' }
+        map: { $ref: '#/components/schemas/StudioMap' }
+        rating: { type: [number, 'null'], minimum: 0, maximum: 5, description: "For `ratings`, the stars shown with `text` (like \"4.8 · 320 reviews\")." }
+        action: { $ref: '#/components/schemas/Action' }
+        platforms:
+          type: array
+          items: { type: string, enum: [android, ios] }
+          description: Shown on these; missing, on both.
+        visibility: { type: string, enum: [everyone, signed_in, signed_out], default: everyone }
+        motion: { $ref: '#/components/schemas/StudioMotion' }
+
+    StudioSize:
+      description: "103R `fill` the space the parent gives, `hug` the content, or a number of logical pixels. Missing: `fill` across a column, `hug` along a row."
+      oneOf:
+        - { type: string, enum: [fill, hug] }
+        - { type: number, minimum: 0, maximum: 4000 }
+
+    StudioSides:
+      type: object
+      description: 103R Space on each side, in logical pixels; a side left out is 0.
+      properties:
+        top: { type: number, minimum: 0, maximum: 400 }
+        end: { type: number, minimum: 0, maximum: 400 }
+        bottom: { type: number, minimum: 0, maximum: 400 }
+        start: { type: number, minimum: 0, maximum: 400 }
+
+    StudioGradient:
+      type: [object, 'null']
+      description: 103R A background from one colour to another, over `background`.
+      required: [from, to]
+      properties:
+        from: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
+        to: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
+        angle: { type: number, minimum: 0, maximum: 360, default: 180 }
+
+    StudioFont:
+      type: [object, 'null']
+      description: 103R The text's font; a part left out is inherited (the app's font, 16, regular).
+      properties:
+        family: { type: [string, 'null'], maxLength: 60, description: "A Google Fonts family the app has (`Config.appearance`); one it hasn't, the app's font." }
+        weight: { type: integer, enum: [300, 400, 500, 600, 700, 800, 900] }
+        size: { type: number, minimum: 8, maximum: 120 }
+        line_height: { type: number, minimum: 0.8, maximum: 3 }
+        letter_spacing: { type: number, minimum: -5, maximum: 20 }
+        italic: { type: boolean }
+        underline: { type: boolean }
+
+    StudioMotion:
+      type: [object, 'null']
+      description: |
+        103R How the element moves: `enter` when it first shows on the
+        screen, after `delay_ms`; `press` while it is tapped; `loop` again
+        and again. Phones set to reduce motion show it still.
+      properties:
+        enter: { type: string, enum: [none, fade, slide_up, slide_down, slide_start, slide_end, zoom], default: none }
+        duration_ms: { type: integer, minimum: 100, maximum: 3000, default: 400 }
+        delay_ms: { type: integer, minimum: 0, maximum: 5000, default: 0 }
+        press: { type: string, enum: [none, shrink, bounce], default: none }
+        loop: { type: string, enum: [none, pulse, float, shake], default: none }
+
+    StudioForm:
+      type: [object, 'null']
+      description: "103R For `form`, sent like the form block: `send_to` `email`, the app posts the answers to `POST /forms/{slug}/{node id}`; `chat`, as a chat message to the business."
+      required: [fields, send_to]
+      properties:
+        fields:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items: { $ref: '#/components/schemas/FormField' }
+        submit_label: { type: [string, 'null'] }
+        success_text: { type: [string, 'null'] }
+        send_to: { type: string, enum: [email, chat] }
+
+    StudioMap:
+      type: [object, 'null']
+      description: 103R For `map`, a place shown on a map (the app's map tiles); a tap opens it in the phone's maps.
+      required: [lat, lng]
+      properties:
+        lat: { type: number, minimum: -90, maximum: 90 }
+        lng: { type: number, minimum: -180, maximum: 180 }
+        zoom: { type: number, minimum: 1, maximum: 19, default: 15 }
+        label: { type: [string, 'null'], maxLength: 120 }
 
     Action:
       type: object

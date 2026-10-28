@@ -2,7 +2,7 @@ import { clientAccountState, longestLicense } from "../license/status";
 import { newId } from "../crypto/tokens";
 import { membershipActive, membershipFreezeSet, membershipToUse } from "../bookings/memberships";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
-import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, PendingPayment, SavedSection, StoreProduct, StorePurchaseRecord, StorePurchaseEvent, StoreBillingItem, BillingSession } from "./types";
+import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, PendingPayment, SavedSection, StudioTemplate, StoreProduct, StorePurchaseRecord, StorePurchaseEvent, StoreBillingItem, BillingSession } from "./types";
 import type { CampaignSend, HostedCart, HostedOrderWatch, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 import type { LoyaltyEntry, LoyaltyReason } from "./types";
 import type {
@@ -2352,6 +2352,22 @@ export class MemoryStore implements DataStore {
 
   async createSavedSection(section: SavedSection): Promise<void> {
     this.savedSections.push(clone(section));
+  }
+
+  private studioTemplates: StudioTemplate[] = [];
+
+  async listStudioTemplates(clientId: string): Promise<StudioTemplate[]> {
+    return this.studioTemplates.filter((s) => s.clientId === clientId).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).map(clone);
+  }
+
+  async createStudioTemplate(template: StudioTemplate): Promise<void> {
+    this.studioTemplates.push(clone(template));
+  }
+
+  async deleteStudioTemplate(clientId: string, id: string): Promise<boolean> {
+    const before = this.studioTemplates.length;
+    this.studioTemplates = this.studioTemplates.filter((s) => !(s.clientId === clientId && s.id === id));
+    return this.studioTemplates.length < before;
   }
 
   // 97.2 Own fonts

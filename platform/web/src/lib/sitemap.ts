@@ -9,6 +9,7 @@ import { SOLUTIONS } from "./marketing";
 /** Paths that are never for search engines: signed-in areas, the API, payment and donation pages, shop links and downloads. */
 export const PRIVATE_PATHS = [
   "/dashboard",
+  "/studio",
   "/admin",
   "/api/",
   "/pay/",

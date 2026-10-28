@@ -8,7 +8,7 @@ import { clientAccountState, longestLicense } from "../license/status";
 import type { BuildConfig } from "../build-config/types";
 import * as schema from "../db/schema";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
-import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, SavedSection, StoreProduct, StorePurchaseRecord, StorePurchaseEvent, StoreBillingItem, BillingSession } from "./types";
+import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, SavedSection, StudioTemplate, StoreProduct, StorePurchaseRecord, StorePurchaseEvent, StoreBillingItem, BillingSession } from "./types";
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
@@ -3050,6 +3050,21 @@ export class MysqlStore implements DataStore {
 
   async createSavedSection(section: SavedSection): Promise<void> {
     await this.run((db) => db.insert(schema.savedSections).values(section));
+  }
+
+  async listStudioTemplates(clientId: string): Promise<StudioTemplate[]> {
+    const t = schema.studioTemplates;
+    return this.run((db) => db.select().from(t).where(eq(t.clientId, clientId)).orderBy(desc(t.createdAt)));
+  }
+
+  async createStudioTemplate(template: StudioTemplate): Promise<void> {
+    await this.run((db) => db.insert(schema.studioTemplates).values(template));
+  }
+
+  async deleteStudioTemplate(clientId: string, id: string): Promise<boolean> {
+    const t = schema.studioTemplates;
+    const [result] = await this.run((db) => db.delete(t).where(and(eq(t.clientId, clientId), eq(t.id, id))));
+    return result.affectedRows > 0;
   }
 
   // 97.2 Own fonts
