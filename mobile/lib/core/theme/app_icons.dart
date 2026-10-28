@@ -186,6 +186,12 @@ abstract final class AppIcons {
   // 105.1 Food delivery from many restaurants.
   static const restaurant = Symbols.restaurant_rounded;
   static const foodDelivery = Symbols.delivery_dining_rounded;
+
+  // 105.2 Ride hailing.
+  static const ride = Symbols.local_taxi_rounded;
+  static const car = Symbols.directions_car_rounded;
+  static const sos = Symbols.sos_rounded;
+  static const earnings = Symbols.account_balance_wallet_rounded;
 }
 
 /// A Material Symbols icon with an optional filled style.

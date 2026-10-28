@@ -3,7 +3,7 @@ import { newId } from "../crypto/tokens";
 import { BuildRunningError, type DataStore } from "../data/store";
 import { isInProgress, STALLED_MESSAGE } from "../builds/view";
 import type { App, AppType, AppVertical, Build, BuildRelease, BuildStages, BuildVariant, Client, License, StoreListing } from "../data/types";
-import { courierBuildConfig, courierListing, firebaseHasCourierApp, hasCourierJobs } from "../delivery/courier-app";
+import { courierBuildConfig, courierListing, firebaseHasCourierApp, hasCourierJobs, secondAppRoleOf } from "../delivery/courier-app";
 import { deliverySettingsOf } from "../delivery/settings";
 import type { BuildConfig } from "../build-config/types";
 import { validateBuildConfig, type ConfigError } from "../build-config/validate";
@@ -295,7 +295,7 @@ export async function queueBuild(
   const plan = plans[planId];
   if (!isSetupComplete(app, planId, plans)) return { ok: false, reason: "setup_incomplete" };
   const variant = input.variant ?? "app";
-  // 104.6 The courier app: a delivery company (105.1.6 or a food one) that chose it, on a plan with it.
+  // 104.6 The courier app: a delivery company (105.1.6 or a food one, 105.2 a ride company's drivers' app) that chose it, on a plan with it.
   const delivery = variant === "courier" ? deliverySettingsOf(await store.getDeliverySettings(app.id)) : null;
   if (delivery && (!hasCourierJobs(app) || delivery.courierApp !== "bundle" || !hasFeature(plan, "courier_app"))) {
     return { ok: false, reason: "courier_app_off" };
@@ -374,7 +374,7 @@ export async function queueBuild(
 export async function firebaseListsCourierApp(app: App, preflight: PreflightDeps | undefined): Promise<boolean> {
   if (!app.firebaseAndroidAssetId || !app.androidPackage || !preflight) return false;
   const data = await preflight.readAsset(app.firebaseAndroidAssetId);
-  return data ? firebaseHasCourierApp(data.toString("utf8"), app.androidPackage) : false;
+  return data ? firebaseHasCourierApp(data.toString("utf8"), app.androidPackage, secondAppRoleOf(app)) : false;
 }
 
 /** 89.2 A build's release from the app's choice; null when nothing is staged. */

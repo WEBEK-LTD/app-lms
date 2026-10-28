@@ -15,6 +15,7 @@ export function RideSettingsForm({
   bundleAllowed,
   bundleOff,
   driverAppNameDefault,
+  driverFirebaseIos,
 }: {
   values: Record<string, string>;
   currencies: readonly string[];
@@ -23,6 +24,8 @@ export function RideSettingsForm({
   /** Shown under the second app when the plan doesn't have it. */
   bundleOff: ReactNode;
   driverAppNameDefault: string;
+  /** The drivers' iPhone app's Firebase file is in. */
+  driverFirebaseIos: boolean;
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveRideSettingsAction, initialFormState);
@@ -165,6 +168,14 @@ export function RideSettingsForm({
         />
         <div className={driverApp === "bundle" ? "grid gap-4 sm:grid-cols-2" : "hidden"}>
           <Field label={t("rides.driverAppName")} name="driverAppName" defaultValue={value("driverAppName")} maxLength={30} error={state.errors?.driverAppName} hint={t("rides.driverAppNameHint", { name: driverAppNameDefault })} />
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="f-driverFirebaseIos" className="text-sm font-semibold">
+              {t("rides.driverFirebaseIos")}
+            </label>
+            <input id="f-driverFirebaseIos" type="file" name="driverFirebaseIos" accept=".plist,application/xml,text/xml" className="text-sm" />
+            <span className="text-[13px] text-muted">{t(driverFirebaseIos ? "rides.driverFirebaseIosSaved" : "rides.driverFirebaseIosHint")}</span>
+            <FieldError id="f-driverFirebaseIos-error" error={state.errors?.driverFirebaseIos} />
+          </div>
         </div>
       </section>
 

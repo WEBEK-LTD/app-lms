@@ -11,11 +11,14 @@ export function StartBuildForm({
   suggestedVersion,
   disabledReason,
   courier = false,
+  driver = false,
 }: {
   suggestedVersion: string;
   disabledReason: string | null;
   /** 104.6 Starts a build of the delivery company's courier app. */
   courier?: boolean;
+  /** 105.2 That second app is a ride company's drivers' app. */
+  driver?: boolean;
 }) {
   const t = useDashT();
   const known = useKnownText();
@@ -44,7 +47,7 @@ export function StartBuildForm({
           />
         </div>
         <SubmitButton className="h-11" pendingText={t("builds.starting")} disabled={Boolean(disabledReason)} describedBy={disabledReason ? hint : undefined}>
-          {t(courier ? "builds.courierStart" : "builds.startNew")}
+          {t(courier ? (driver ? "builds.driverStart" : "builds.courierStart") : "builds.startNew")}
         </SubmitButton>
       </div>
       {error ? (

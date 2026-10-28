@@ -72,6 +72,13 @@ abstract final class Paths {
   static String foodOrder(int id) => '/food-order/$id';
   static String restaurantOrder(int id) => '/restaurant-order/$id';
 
+  // 105.2 Ride hailing.
+  static const ride = '/ride';
+  static const myRides = '/my-rides';
+  static const driver = '/driver';
+  static String rideFollow(int id) => '/ride/$id';
+  static String driverRide(int id) => '/driver-ride/$id';
+
   /// 77 The chat: the conversation with the business and course groups.
   static const chat = '/chat';
   static String chatConversation(String id) =>
@@ -181,7 +188,11 @@ abstract final class Paths {
       // 105.1 A food order, and the restaurant's screens.
       location.startsWith('/food-order/') ||
       location.startsWith(restaurantDesk) ||
-      location.startsWith('/restaurant-order/');
+      location.startsWith('/restaurant-order/') ||
+      // 105.2 A ride, the rider's rides and the driver's screens.
+      location.startsWith('$ride/') ||
+      location.startsWith(myRides) ||
+      location.startsWith(driver);
 
   static bool isSignIn(String location) => location.startsWith(signIn);
 }

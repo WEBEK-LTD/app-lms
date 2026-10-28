@@ -9,7 +9,8 @@ import { deliverySettingsOf } from "../../delivery/settings";
 import { discountCents, exactKm, fareCents, located, meterStep, minutesFor, promoFor, roadKm, ROAD_FACTOR } from "../../rides/fares";
 import { acceptRide, advanceRide, arriveRide, cancelByDriver, cancelByRider, candidatesFor, completeRide, declineRide, offerNext, startRide } from "../../rides/flow";
 import { ridePayLink } from "../../rides/payment";
-import { reviewDriverFor } from "../../rides/review";
+import { isReviewCourier } from "../../delivery/review";
+import { createSampleRide, reviewDriverFor } from "../../rides/review";
 import {
   DRIVER_ACTIVE,
   DRIVER_STEPS,
@@ -486,6 +487,11 @@ export class RidesConnector implements Connector {
       await this.moveRidesOn(request.now);
       const { items } = await this.deps.store.listRides({ appId: this.deps.app.id, offeredTo: driver.id, statuses: ["searching"], order: "oldest", offset: 0, limit: 1 });
       const live = items.filter((r) => r.offerExpiresAt && r.offerExpiresAt.getTime() > request.now.getTime());
+      // 105.2.6 In the drivers' app the reviewers have no riders' app: an online review driver with no ride gets a sample one.
+      if (live.length === 0 && request.user && isReviewCourier(this.deps.app, driver) && !(await this.activeRide(driver))) {
+        const { settings } = await this.settings();
+        if (settings.courierApp === "bundle") live.push(await createSampleRide(this.deps.store, this.deps.app, settings, driver, request.user, request.now));
+      }
       const json = await Promise.all(live.map(async (r) => driverRideJson(r, { mine: false, pickupKm: await this.pickupKm(driver, r) })));
       return { status: 200, body: { items: json } };
     });

@@ -118,6 +118,8 @@ String? itemLocation(ItemRef item, AppType appType) {
     (ItemSource.deliveryServices, AppType.delivery) => Paths.sendWith(id),
     // 105.1 A restaurant opens with its menu.
     (ItemSource.restaurants, AppType.food) => Paths.restaurant(id),
+    // 105.2 A vehicle type opens the ride screen.
+    (ItemSource.vehicleTypes, AppType.rides) => Paths.ride,
     _ => null,
   };
 }

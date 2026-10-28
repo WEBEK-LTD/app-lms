@@ -41,6 +41,9 @@ final eventsModule = AppModule(
     BuiltInScreen.shipments ||
     BuiltInScreen.courier ||
     BuiltInScreen.restaurants ||
+    BuiltInScreen.ride ||
+    BuiltInScreen.myRides ||
+    BuiltInScreen.driver ||
     BuiltInScreen.foodOrders ||
     BuiltInScreen.restaurant ||
     BuiltInScreen.campaigns ||

@@ -8,6 +8,7 @@ import { getBlobStore } from "@/lib/blobs";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import type { App, DriverDocument } from "@/lib/data/types";
+import { courierPlistProblem } from "@/lib/delivery/courier-app";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { appPlan } from "@/lib/entitlements";
 import { formValues, type FormState } from "@/lib/forms";
@@ -78,6 +79,9 @@ async function paper(context: ClientContext, file: FormDataEntryValue | null, no
 
 // Ride settings
 
+/** The most a GoogleService-Info.plist may weigh. */
+const FIREBASE_FILE_MAX_BYTES = 64 * 1024;
+
 export async function saveRideSettingsAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await requireRidesApp("settings");
   const { app } = context;
@@ -88,6 +92,20 @@ export async function saveRideSettingsAction(_: FormState, formData: FormData): 
   const plan = await appPlan(store, context.license, now);
   const parsed = parseRideSettings(values, saved, hasFeature(plan, "courier_app"), hostedSettings(app).defaultCountryCode);
   if (!parsed.ok) return { errors: parsed.errors, values };
+  // The drivers' iPhone app's Firebase file, checked against its bundle ID.
+  const plist = formData.get("driverFirebaseIos");
+  if (plist && typeof plist !== "string" && plist.size > 0) {
+    if (!app.iosBundleId) return { errors: { driverFirebaseIos: "Add your app's bundle ID in Publishing first." }, values };
+    if (plist.size > FIREBASE_FILE_MAX_BYTES) return { errors: { driverFirebaseIos: "This file is too large for a GoogleService-Info.plist." }, values };
+    const data = Buffer.from(await plist.arrayBuffer());
+    const problem = courierPlistProblem(data.toString("utf8"), app.iosBundleId, "driver");
+    if (problem) return { errors: { driverFirebaseIos: problem }, values };
+    const assetId = newId();
+    const blobKey = `assets/${context.client.id}/${assetId}.plist`;
+    await getBlobStore().put(blobKey, data, "application/xml");
+    await store.createAsset({ id: assetId, clientId: context.client.id, kind: "firebase_ios", blobKey, contentType: "application/xml", size: data.length, createdAt: now });
+    parsed.value.courierFirebaseIosAssetId = assetId;
+  }
   await store.saveDeliverySettings(app.id, parsed.value, now);
   await recordStaffChange(context, `Saved the ride settings (${parsed.value.rides?.fareMode} fares, ${parsed.value.rides?.matching} matching)`);
   refresh();

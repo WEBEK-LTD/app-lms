@@ -56,7 +56,16 @@ export type SectionWord =
   | "foodStepOne"
   | "foodStepTwo"
   | "foodStepThree"
-  | "ctaFood";
+  | "ctaFood"
+  // 105.2 Ride hailing.
+  | "rideTitle"
+  | "rideText"
+  | "rideButton"
+  | "rideMyRides"
+  | "rideStepOne"
+  | "rideStepTwo"
+  | "rideStepThree"
+  | "ctaRide";
 
 export interface SectionContext {
   brand: string;
@@ -463,6 +472,62 @@ export const SECTIONS: readonly SectionInfo[] = [
       ],
     }),
   },
+  {
+    // 105.2 A ride company's welcome: ask for a ride, or see my rides.
+    id: "ride",
+    icon: "local_taxi",
+    fits: { types: ["rides"] },
+    make: (ctx) => ({
+      id: (ctx.newId ?? newNodeId)(),
+      type: "column",
+      name: ctx.w("rideTitle"),
+      gap: 10,
+      padding: pad(22, 18),
+      margin: pad(12, 10),
+      radius: 18,
+      background: ctx.brand,
+      color: "#FFFFFF",
+      children: [
+        { id: (ctx.newId ?? newNodeId)(), type: "icon", icon: "local_taxi", icon_size: 34, color: "#FFFFFF" },
+        text(ctx, ctx.w("rideTitle"), { font: { size: 24, weight: 800, line_height: 1.25 } }),
+        text(ctx, ctx.w("rideText"), { font: { size: 14 }, opacity: 0.9 }),
+        {
+          id: (ctx.newId ?? newNodeId)(),
+          type: "row",
+          gap: 8,
+          children: [
+            {
+              id: (ctx.newId ?? newNodeId)(),
+              type: "button",
+              text: ctx.w("rideButton"),
+              width: "hug",
+              height: 42,
+              radius: 12,
+              background: "#FFFFFF",
+              color: ctx.brand,
+              font: { weight: 800, size: 14 },
+              padding: pad(0, 18),
+              action: screen("ride"),
+              motion: { press: "shrink" },
+            },
+            {
+              id: (ctx.newId ?? newNodeId)(),
+              type: "button",
+              text: ctx.w("rideMyRides"),
+              width: "hug",
+              height: 42,
+              radius: 12,
+              border: { width: 1.5, color: "#FFFFFF" },
+              color: "#FFFFFF",
+              font: { weight: 700, size: 14 },
+              padding: pad(0, 16),
+              action: screen("my_rides"),
+            },
+          ],
+        },
+      ],
+    }),
+  },
 ];
 
 /** 103R.7 Whether a section or template is made for this project (or for every project). */
@@ -503,6 +568,11 @@ const FOOD: Fits = { types: ["food"] };
 const FOOD_BUTTON: SectionContext["button"] = { word: "ctaFood", action: screen("restaurants") };
 const FOOD_STEPS: SectionContext["steps"] = ["foodStepOne", "foodStepTwo", "foodStepThree"];
 
+// 105.2 Ride hailing: the main buttons ask for a ride; the steps say how a ride comes.
+const RIDES: Fits = { types: ["rides"] };
+const RIDE_BUTTON: SectionContext["button"] = { word: "ctaRide", action: screen("ride") };
+const RIDE_STEPS: SectionContext["steps"] = ["rideStepOne", "rideStepTwo", "rideStepThree"];
+
 const SHOP_HEADER: StudioPage["header"] = { type: "logo_actions", buttons: ["menu", "notifications", "cart", "account"] };
 
 export const TEMPLATES: readonly TemplateInfo[] = [
@@ -520,6 +590,10 @@ export const TEMPLATES: readonly TemplateInfo[] = [
   typed("food", "delivery_dining", FOOD, ["food", "products", "steps", "cta"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, FOOD_BUTTON, FOOD_STEPS),
   typed("food_offers", "local_offer", FOOD, ["offer", "products", "review", "cta"], { type: "logo_center", buttons: ["menu", "notifications"] }, FOOD_BUTTON),
   typed("food_brand", "restaurant", FOOD, ["hero", "stats", "products", "steps", "contact"], { type: "transparent", buttons: ["menu", "account"] }, FOOD_BUTTON, FOOD_STEPS),
+  // 105.2 Three ready-made designs for a ride company.
+  typed("ride", "local_taxi", RIDES, ["ride", "products", "steps", "cta"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, RIDE_BUTTON, RIDE_STEPS),
+  typed("ride_offers", "local_offer", RIDES, ["offer", "products", "review", "cta"], { type: "logo_center", buttons: ["menu", "notifications"] }, RIDE_BUTTON),
+  typed("ride_brand", "directions_car", RIDES, ["hero", "stats", "features", "steps", "contact"], { type: "transparent", buttons: ["menu", "account"] }, RIDE_BUTTON, RIDE_STEPS),
   // For every project.
   { id: "brand", icon: "auto_awesome", make: (ctx) => pageOf(ctx, ["hero", "stats", "features", "review", "contact"], { type: "transparent", buttons: ["menu", "account"] }) },
   { id: "contact", icon: "call", make: (ctx) => pageOf(ctx, ["contact", "form"], { type: "title_search", buttons: [] }) },

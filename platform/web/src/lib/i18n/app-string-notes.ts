@@ -1850,6 +1850,517 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "عميل الطلب.",
     tr: "Siparişin müşterisi.",
   },
+  // 105.2 Ride hailing
+  "105.2 The tab where the rider asks for a ride.": {
+    en: "The tab where the rider asks for a ride.",
+    ar: "التبويب الذي يطلب منه الراكب مشوارًا.",
+    tr: "Yolcunun yolculuk istediği sekme.",
+  },
+  "105.2 The tab with the rider's rides.": {
+    en: "The tab with the rider's rides.",
+    ar: "التبويب الذي يعرض مشاوير الراكب.",
+    tr: "Yolcunun yolculuklarının bulunduğu sekme.",
+  },
+  "105.2 The tab of the company's drivers.": {
+    en: "The tab of the company's drivers.",
+    ar: "تبويب سائقي الشركة.",
+    tr: "Şirketin sürücülerinin sekmesi.",
+  },
+  "105.2 The title of the screen where the rider asks for a ride.": {
+    en: "The title of the screen where the rider asks for a ride.",
+    ar: "عنوان الشاشة التي يطلب منها الراكب مشوارًا.",
+    tr: "Yolcunun yolculuk istediği ekranın başlığı.",
+  },
+  "105.2 Where the driver picks the rider up.": {
+    en: "Where the driver picks the rider up.",
+    ar: "المكان الذي يركب منه الراكب.",
+    tr: "Sürücünün yolcuyu aldığı yer.",
+  },
+  "105.2 Where the ride ends.": {
+    en: "Where the ride ends.",
+    ar: "المكان الذي ينتهي فيه المشوار.",
+    tr: "Yolculuğun bittiği yer.",
+  },
+  "105.2 The pickup's address when the rider used their position.": {
+    en: "The pickup's address when the rider used their position.",
+    ar: "عنوان مكان الركوب عندما يستخدم الراكب موقعه.",
+    tr: "Yolcu konumunu kullandığında alış noktasının adresi.",
+  },
+  "105.2 Now or later.": {
+    en: "Now or later.",
+    ar: "الآن أو لاحقًا.",
+    tr: "Şimdi veya daha sonra.",
+  },
+  "105.2 A ride now.": {
+    en: "A ride now.",
+    ar: "مشوار الآن.",
+    tr: "Şimdi yolculuk.",
+  },
+  "105.2 A ride booked for later.": {
+    en: "A ride booked for later.",
+    ar: "مشوار محجوز لوقت لاحق.",
+    tr: "Daha sonraya ayrılan yolculuk.",
+  },
+  "105.2 When a booked ride picks the rider up.": {
+    en: "When a booked ride picks the rider up.",
+    ar: "موعد ركوب المشوار المحجوز.",
+    tr: "Ayrılan yolculuğun alış zamanı.",
+  },
+  "105.2 The vehicle types with their fares.": {
+    en: "The vehicle types with their fares.",
+    ar: "أنواع السيارات وأسعارها.",
+    tr: "Araç türleri ve ücretleri.",
+  },
+  "105.2 Fares while signed out.": {
+    en: "Fares while signed out.",
+    ar: "الأسعار قبل تسجيل الدخول.",
+    tr: "Giriş yapılmadan ücretler.",
+  },
+  "105.2 Both places need their position.": {
+    en: "Both places need their position.",
+    ar: "يحتاج المكانان إلى موقعهما على الخريطة.",
+    tr: "İki yerin de konumu gerekir.",
+  },
+  "105.2 How far and how long a ride is.": {
+    en: "How far and how long a ride is.",
+    ar: "مسافة المشوار ومدته.",
+    tr: "Yolculuğun mesafesi ve süresi.",
+  },
+  "105.2 The company charges what the meter says.": {
+    en: "The company charges what the meter says.",
+    ar: "تحاسب الشركة بما يقوله العداد.",
+    tr: "Şirket taksimetreye göre ücret alır.",
+  },
+  "105.2 A vehicle type's seats.": {
+    en: "A vehicle type's seats.",
+    ar: "عدد مقاعد نوع السيارة.",
+    tr: "Araç türünün koltuk sayısı.",
+  },
+  "105.2 How soon a driver can be at the pickup.": {
+    en: "How soon a driver can be at the pickup.",
+    ar: "متى يمكن أن يصل السائق إلى مكان الركوب.",
+    tr: "Sürücünün alış noktasına ne zaman gelebileceği.",
+  },
+  "105.2 No online driver of this type is near.": {
+    en: "No online driver of this type is near.",
+    ar: "لا يوجد سائق متصل من هذا النوع بالقرب.",
+    tr: "Yakında bu türden çevrimiçi sürücü yok.",
+  },
+  "105.2 The promo code's discount.": {
+    en: "The promo code's discount.",
+    ar: "قيمة خصم الكود.",
+    tr: "İndirim kodunun indirimi.",
+  },
+  "105.2 A cancellation fee carried into this ride.": {
+    en: "A cancellation fee carried into this ride.",
+    ar: "رسوم إلغاء مضافة إلى هذا المشوار.",
+    tr: "Bu yolculuğa eklenen iptal ücreti.",
+  },
+  "105.2 The promo code box.": {
+    en: "The promo code box.",
+    ar: "خانة كود الخصم.",
+    tr: "İndirim kodu kutusu.",
+  },
+  "105.2 The rider's note.": {
+    en: "The rider's note.",
+    ar: "ملاحظة الراكب.",
+    tr: "Yolcunun notu.",
+  },
+  "105.2 When a card ride is paid.": {
+    en: "When a card ride is paid.",
+    ar: "متى يُدفع مشوار البطاقة.",
+    tr: "Kartlı yolculuğun ne zaman ödendiği.",
+  },
+  "105.2 The button that asks for a ride now.": {
+    en: "The button that asks for a ride now.",
+    ar: "زر طلب مشوار الآن.",
+    tr: "Şimdi yolculuk isteyen düğme.",
+  },
+  "105.2 The button that books a ride for later.": {
+    en: "The button that books a ride for later.",
+    ar: "زر حجز مشوار لوقت لاحق.",
+    tr: "Daha sonrası için yolculuk ayıran düğme.",
+  },
+  "105.2 The ride is offered to the drivers.": {
+    en: "The ride is offered to the drivers.",
+    ar: "المشوار معروض على السائقين.",
+    tr: "Yolculuk sürücülere sunuluyor.",
+  },
+  "105.2 A driver took the ride.": {
+    en: "A driver took the ride.",
+    ar: "قبل سائق المشوار.",
+    tr: "Bir sürücü yolculuğu aldı.",
+  },
+  "105.2 The driver is at the pickup.": {
+    en: "The driver is at the pickup.",
+    ar: "السائق عند مكان الركوب.",
+    tr: "Sürücü alış noktasında.",
+  },
+  "105.2 The ride has started.": {
+    en: "The ride has started.",
+    ar: "بدأ المشوار.",
+    tr: "Yolculuk başladı.",
+  },
+  "105.2 The ride ended.": {
+    en: "The ride ended.",
+    ar: "انتهى المشوار.",
+    tr: "Yolculuk bitti.",
+  },
+  "105.2 The ride was cancelled.": {
+    en: "The ride was cancelled.",
+    ar: "أُلغي المشوار.",
+    tr: "Yolculuk iptal edildi.",
+  },
+  "105.2 No driver took the ride.": {
+    en: "No driver took the ride.",
+    ar: "لم يقبل أي سائق المشوار.",
+    tr: "Hiçbir sürücü yolculuğu almadı.",
+  },
+  "105.2 While a driver is looked for.": {
+    en: "While a driver is looked for.",
+    ar: "أثناء البحث عن سائق.",
+    tr: "Sürücü aranırken.",
+  },
+  "105.2 What to do when no driver took the ride.": {
+    en: "What to do when no driver took the ride.",
+    ar: "ما يفعله الراكب عندما لا يقبل أي سائق المشوار.",
+    tr: "Hiçbir sürücü almadığında yapılacak şey.",
+  },
+  "105.2 Asking again after no driver took the ride.": {
+    en: "Asking again after no driver took the ride.",
+    ar: "الطلب من جديد بعد ألا يقبل أي سائق.",
+    tr: "Hiçbir sürücü almadıktan sonra yeniden isteme.",
+  },
+  "105.2 A ride's screen title.": {
+    en: "A ride's screen title.",
+    ar: "عنوان شاشة المشوار.",
+    tr: "Yolculuk ekranının başlığı.",
+  },
+  "105.2 The code the rider tells the driver.": {
+    en: "The code the rider tells the driver.",
+    ar: "الكود الذي يقوله الراكب للسائق.",
+    tr: "Yolcunun sürücüye söylediği kod.",
+  },
+  "105.2 When to tell the code.": {
+    en: "When to tell the code.",
+    ar: "متى يقول الراكب الكود.",
+    tr: "Kodun ne zaman söyleneceği.",
+  },
+  "105.2 Calls the driver or the rider.": {
+    en: "Calls the driver or the rider.",
+    ar: "اتصال بالسائق أو بالراكب.",
+    tr: "Sürücüyü veya yolcuyu arar.",
+  },
+  "105.2 When the driver's position was sent.": {
+    en: "When the driver's position was sent.",
+    ar: "وقت إرسال موقع السائق.",
+    tr: "Sürücünün konumunun gönderildiği zaman.",
+  },
+  "105.2 Sends the ride's page to someone.": {
+    en: "Sends the ride's page to someone.",
+    ar: "يرسل صفحة المشوار إلى شخص آخر.",
+    tr: "Yolculuğun sayfasını birine gönderir.",
+  },
+  "105.2 The text sent when sharing the ride.": {
+    en: "The text sent when sharing the ride.",
+    ar: "النص المرسل عند مشاركة المشوار.",
+    tr: "Yolculuk paylaşılırken gönderilen metin.",
+  },
+  "105.2 The emergency button.": {
+    en: "The emergency button.",
+    ar: "زر الطوارئ.",
+    tr: "Acil durum düğmesi.",
+  },
+  "105.2 The emergency button's question.": {
+    en: "The emergency button's question.",
+    ar: "سؤال زر الطوارئ.",
+    tr: "Acil durum düğmesinin sorusu.",
+  },
+  "105.2 The number the emergency button calls.": {
+    en: "The number the emergency button calls.",
+    ar: "الرقم الذي يتصل به زر الطوارئ.",
+    tr: "Acil durum düğmesinin aradığı numara.",
+  },
+  "105.2 Calls the emergency number.": {
+    en: "Calls the emergency number.",
+    ar: "يتصل برقم الطوارئ.",
+    tr: "Acil numarayı arar.",
+  },
+  "105.2 Cancels the ride.": {
+    en: "Cancels the ride.",
+    ar: "يلغي المشوار.",
+    tr: "Yolculuğu iptal eder.",
+  },
+  "105.2 The question before cancelling a ride.": {
+    en: "The question before cancelling a ride.",
+    ar: "السؤال قبل إلغاء المشوار.",
+    tr: "Yolculuğu iptal etmeden önceki soru.",
+  },
+  "105.2 The company's cancellation fee.": {
+    en: "The company's cancellation fee.",
+    ar: "رسوم الإلغاء التي تحددها الشركة.",
+    tr: "Şirketin iptal ücreti.",
+  },
+  "105.2 A reason to cancel.": {
+    en: "A reason to cancel.",
+    ar: "سبب للإلغاء.",
+    tr: "İptal nedeni.",
+  },
+  "105.2 After cancelling.": {
+    en: "After cancelling.",
+    ar: "بعد إلغاء المشوار.",
+    tr: "İptal ettikten sonra.",
+  },
+  "105.2 After cancelling with a fee.": {
+    en: "After cancelling with a fee.",
+    ar: "بعد إلغاء المشوار مع رسوم.",
+    tr: "Ücretli iptalden sonra.",
+  },
+  "105.2 Who cancelled the ride.": {
+    en: "Who cancelled the ride.",
+    ar: "من ألغى المشوار.",
+    tr: "Yolculuğu kimin iptal ettiği.",
+  },
+  "105.2 The cancellation fee charged.": {
+    en: "The cancellation fee charged.",
+    ar: "رسوم الإلغاء المحتسبة.",
+    tr: "Alınan iptal ücreti.",
+  },
+  "105.2 The fare charged.": {
+    en: "The fare charged.",
+    ar: "الأجرة المحتسبة.",
+    tr: "Alınan ücret.",
+  },
+  "105.2 The fare before the ride ends.": {
+    en: "The fare before the ride ends.",
+    ar: "الأجرة قبل انتهاء المشوار.",
+    tr: "Yolculuk bitmeden önceki ücret.",
+  },
+  "105.2 After paying a card ride.": {
+    en: "After paying a card ride.",
+    ar: "بعد دفع مشوار البطاقة.",
+    tr: "Kartlı yolculuk ödendikten sonra.",
+  },
+  "105.2 Rating the driver.": {
+    en: "Rating the driver.",
+    ar: "تقييم السائق.",
+    tr: "Sürücüyü puanlama.",
+  },
+  "105.2 The driver's rating.": {
+    en: "The driver's rating.",
+    ar: "تقييم السائق.",
+    tr: "Sürücünün puanı.",
+  },
+  "105.2 Rides while signed out.": {
+    en: "Rides while signed out.",
+    ar: "المشاوير قبل تسجيل الدخول.",
+    tr: "Giriş yapılmadan yolculuklar.",
+  },
+  "105.2 Read while the rides load.": {
+    en: "Read while the rides load.",
+    ar: "تُقرأ أثناء تحميل المشاوير.",
+    tr: "Yolculuklar yüklenirken okunur.",
+  },
+  "105.2 The rides list is empty.": {
+    en: "The rides list is empty.",
+    ar: "قائمة المشاوير فارغة.",
+    tr: "Yolculuk listesi boş.",
+  },
+  "105.2 The driver's screen title.": {
+    en: "The driver's screen title.",
+    ar: "عنوان شاشة السائق.",
+    tr: "Sürücü ekranının başlığı.",
+  },
+  "105.2 A driver switches to the riders' screens.": {
+    en: "A driver switches to the riders' screens.",
+    ar: "ينتقل السائق إلى شاشات الراكب.",
+    tr: "Sürücü yolcu ekranlarına geçer.",
+  },
+  "105.2 Account: a driver opens the driver's screens.": {
+    en: "Account: a driver opens the driver's screens.",
+    ar: "الحساب: يفتح السائق شاشات السائق.",
+    tr: "Hesap: sürücü, sürücü ekranlarını açar.",
+  },
+  "105.2 Someone who isn't a driver opened the driver's screen.": {
+    en: "Someone who isn't a driver opened the driver's screen.",
+    ar: "شخص ليس سائقًا فتح شاشة السائق.",
+    tr: "Sürücü olmayan biri sürücü ekranını açtı.",
+  },
+  "105.2 The switch that makes the driver available.": {
+    en: "The switch that makes the driver available.",
+    ar: "المفتاح الذي يجعل السائق متاحًا.",
+    tr: "Sürücüyü müsait yapan anahtar.",
+  },
+  "105.2 The driver is offline.": {
+    en: "The driver is offline.",
+    ar: "السائق غير متصل.",
+    tr: "Sürücü çevrimdışı.",
+  },
+  "105.2 The driver's rides today and what they made.": {
+    en: "The driver's rides today and what they made.",
+    ar: "مشاوير السائق اليوم وما كسبه.",
+    tr: "Sürücünün bugünkü yolculukları ve kazancı.",
+  },
+  "105.2 An online driver without a ride.": {
+    en: "An online driver without a ride.",
+    ar: "سائق متصل بلا مشوار.",
+    tr: "Yolculuğu olmayan çevrimiçi sürücü.",
+  },
+  "105.2 The driver's position is being shared.": {
+    en: "The driver's position is being shared.",
+    ar: "يجري إرسال موقع السائق.",
+    tr: "Sürücünün konumu paylaşılıyor.",
+  },
+  "105.2 A ride offered to the driver.": {
+    en: "A ride offered to the driver.",
+    ar: "مشوار معروض على السائق.",
+    tr: "Sürücüye sunulan yolculuk.",
+  },
+  "105.2 The seconds left to take the offered ride.": {
+    en: "The seconds left to take the offered ride.",
+    ar: "الثواني المتبقية لقبول المشوار المعروض.",
+    tr: "Sunulan yolculuğu almak için kalan saniye.",
+  },
+  "105.2 How far the pickup is.": {
+    en: "How far the pickup is.",
+    ar: "بُعد مكان الركوب.",
+    tr: "Alış noktasının uzaklığı.",
+  },
+  "105.2 Takes the offered ride.": {
+    en: "Takes the offered ride.",
+    ar: "يقبل المشوار المعروض.",
+    tr: "Sunulan yolculuğu alır.",
+  },
+  "105.2 Passes the offered ride to the next driver.": {
+    en: "Passes the offered ride to the next driver.",
+    ar: "يمرر المشوار المعروض إلى السائق التالي.",
+    tr: "Sunulan yolculuğu sıradaki sürücüye bırakır.",
+  },
+  "105.2 The driver's ride that isn't over.": {
+    en: "The driver's ride that isn't over.",
+    ar: "مشوار السائق الذي لم ينته.",
+    tr: "Sürücünün bitmemiş yolculuğu.",
+  },
+  "105.2 The driver's rides that aren't over.": {
+    en: "The driver's rides that aren't over.",
+    ar: "مشاوير السائق التي لم تنته.",
+    tr: "Sürücünün bitmemiş yolculukları.",
+  },
+  "105.2 The driver's finished rides.": {
+    en: "The driver's finished rides.",
+    ar: "مشاوير السائق المنتهية.",
+    tr: "Sürücünün biten yolculukları.",
+  },
+  "105.2 What the driver made.": {
+    en: "What the driver made.",
+    ar: "ما كسبه السائق.",
+    tr: "Sürücünün kazancı.",
+  },
+  "105.2 A driver's list is empty.": {
+    en: "A driver's list is empty.",
+    ar: "قائمة السائق فارغة.",
+    tr: "Sürücünün listesi boş.",
+  },
+  "105.2 Earnings over today.": {
+    en: "Earnings over today.",
+    ar: "الأرباح اليوم.",
+    tr: "Bugünkü kazanç.",
+  },
+  "105.2 Earnings over this week.": {
+    en: "Earnings over this week.",
+    ar: "الأرباح هذا الأسبوع.",
+    tr: "Bu haftaki kazanç.",
+  },
+  "105.2 Earnings over this month.": {
+    en: "Earnings over this month.",
+    ar: "الأرباح هذا الشهر.",
+    tr: "Bu ayki kazanç.",
+  },
+  "105.2 How many rides the driver completed.": {
+    en: "How many rides the driver completed.",
+    ar: "عدد المشاوير التي أكملها السائق.",
+    tr: "Sürücünün tamamladığı yolculuk sayısı.",
+  },
+  "105.2 The fares of the driver's rides.": {
+    en: "The fares of the driver's rides.",
+    ar: "أجرة مشاوير السائق.",
+    tr: "Sürücünün yolculuklarının ücretleri.",
+  },
+  "105.2 The cash the driver collected.": {
+    en: "The cash the driver collected.",
+    ar: "النقد الذي حصّله السائق.",
+    tr: "Sürücünün tahsil ettiği nakit.",
+  },
+  "105.2 The company's share of the fares.": {
+    en: "The company's share of the fares.",
+    ar: "حصة الشركة من الأجرة.",
+    tr: "Şirketin ücretlerden payı.",
+  },
+  "105.2 A day's rides.": {
+    en: "A day's rides.",
+    ar: "مشاوير يوم واحد.",
+    tr: "Bir günün yolculukları.",
+  },
+  "105.2 The rider is in: the ride starts.": {
+    en: "The rider is in: the ride starts.",
+    ar: "ركب الراكب: يبدأ المشوار.",
+    tr: "Yolcu bindi: yolculuk başlar.",
+  },
+  "105.2 The ride ends at the drop-off.": {
+    en: "The ride ends at the drop-off.",
+    ar: "ينتهي المشوار عند الوجهة.",
+    tr: "Yolculuk bırakış noktasında biter.",
+  },
+  "105.2 When the driver arrived at the pickup.": {
+    en: "When the driver arrived at the pickup.",
+    ar: "وقت وصول السائق إلى مكان الركوب.",
+    tr: "Sürücünün alış noktasına geldiği zaman.",
+  },
+  "105.2 The cash the driver collects at the end.": {
+    en: "The cash the driver collects at the end.",
+    ar: "النقد الذي يحصّله السائق في النهاية.",
+    tr: "Sürücünün sonunda tahsil ettiği nakit.",
+  },
+  "105.2 A card ride: nothing to collect.": {
+    en: "A card ride: nothing to collect.",
+    ar: "مشوار بالبطاقة: لا شيء للتحصيل.",
+    tr: "Kartlı yolculuk: tahsil edilecek bir şey yok.",
+  },
+  "105.2 The rider's name.": {
+    en: "The rider's name.",
+    ar: "اسم الراكب.",
+    tr: "Yolcunun adı.",
+  },
+  "105.2 Where the code is.": {
+    en: "Where the code is.",
+    ar: "مكان الكود.",
+    tr: "Kodun yeri.",
+  },
+  "105.2 The question before a driver cancels.": {
+    en: "The question before a driver cancels.",
+    ar: "السؤال قبل أن يلغي السائق.",
+    tr: "Sürücü iptal etmeden önceki soru.",
+  },
+  "105.2 When a driver may cancel because the rider didn't come.": {
+    en: "When a driver may cancel because the rider didn't come.",
+    ar: "متى يمكن للسائق الإلغاء لعدم حضور الراكب.",
+    tr: "Sürücünün yolcu gelmediği için ne zaman iptal edebileceği.",
+  },
+  "105.2 Cancelling because the rider didn't come.": {
+    en: "Cancelling because the rider didn't come.",
+    ar: "الإلغاء لعدم حضور الراكب.",
+    tr: "Yolcu gelmediği için iptal.",
+  },
+  "105.2 The driver gives the ride back.": {
+    en: "The driver gives the ride back.",
+    ar: "يعيد السائق المشوار.",
+    tr: "Sürücü yolculuğu geri verir.",
+  },
+  "105.2 The driver cancels because the rider didn't come.": {
+    en: "The driver cancels because the rider didn't come.",
+    ar: "يلغي السائق لأن الراكب لم يحضر.",
+    tr: "Sürücü, yolcu gelmediği için iptal eder.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

@@ -115,6 +115,8 @@ class RidesConfig {
     currency: currency,
     cash: cash,
     card: card,
+    // Both places need their coordinates.
+    pricing: DeliveryPricing.distance,
     tracking: DeliveryTracking.live,
     tilesUrl: tilesUrl,
     attribution: attribution,

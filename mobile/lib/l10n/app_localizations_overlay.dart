@@ -5138,4 +5138,444 @@ class OverlayLocalizations extends AppLocalizations {
 
   @override
   String get deskCustomer => overlay.text('deskCustomer') ?? base.deskCustomer;
+
+  @override
+  String get tabRide => overlay.text('tabRide') ?? base.tabRide;
+
+  @override
+  String get tabMyRides => overlay.text('tabMyRides') ?? base.tabMyRides;
+
+  @override
+  String get tabDriver => overlay.text('tabDriver') ?? base.tabDriver;
+
+  @override
+  String get rideWhereTo => overlay.text('rideWhereTo') ?? base.rideWhereTo;
+
+  @override
+  String get ridePickup => overlay.text('ridePickup') ?? base.ridePickup;
+
+  @override
+  String get rideDropoff => overlay.text('rideDropoff') ?? base.rideDropoff;
+
+  @override
+  String get rideMyLocation =>
+      overlay.text('rideMyLocation') ?? base.rideMyLocation;
+
+  @override
+  String get rideWhen => overlay.text('rideWhen') ?? base.rideWhen;
+
+  @override
+  String get rideNow => overlay.text('rideNow') ?? base.rideNow;
+
+  @override
+  String get rideLater => overlay.text('rideLater') ?? base.rideLater;
+
+  @override
+  String rideScheduledFor(String time) =>
+      overlay.format('rideScheduledFor', {'time': time}) ??
+      base.rideScheduledFor(time);
+
+  @override
+  String get rideChooseCar =>
+      overlay.text('rideChooseCar') ?? base.rideChooseCar;
+
+  @override
+  String get rideSignInForFares =>
+      overlay.text('rideSignInForFares') ?? base.rideSignInForFares;
+
+  @override
+  String get rideFillPlaces =>
+      overlay.text('rideFillPlaces') ?? base.rideFillPlaces;
+
+  @override
+  String rideTrip(String km, int minutes) =>
+      overlay.format('rideTrip', {'km': km, 'minutes': minutes}) ??
+      base.rideTrip(km, minutes);
+
+  @override
+  String get rideMeteredNote =>
+      overlay.text('rideMeteredNote') ?? base.rideMeteredNote;
+
+  @override
+  String rideSeats(int seats) =>
+      overlay.format('rideSeats', {'seats': seats}) ?? base.rideSeats(seats);
+
+  @override
+  String ridePickupIn(int minutes) =>
+      overlay.format('ridePickupIn', {'minutes': minutes}) ??
+      base.ridePickupIn(minutes);
+
+  @override
+  String get rideNoneNearby =>
+      overlay.text('rideNoneNearby') ?? base.rideNoneNearby;
+
+  @override
+  String rideDiscount(String amount) =>
+      overlay.format('rideDiscount', {'amount': amount}) ??
+      base.rideDiscount(amount);
+
+  @override
+  String ridePreviousFee(String amount) =>
+      overlay.format('ridePreviousFee', {'amount': amount}) ??
+      base.ridePreviousFee(amount);
+
+  @override
+  String get ridePromoCode =>
+      overlay.text('ridePromoCode') ?? base.ridePromoCode;
+
+  @override
+  String get rideNotes => overlay.text('rideNotes') ?? base.rideNotes;
+
+  @override
+  String get rideCardAfter =>
+      overlay.text('rideCardAfter') ?? base.rideCardAfter;
+
+  @override
+  String get rideRequest => overlay.text('rideRequest') ?? base.rideRequest;
+
+  @override
+  String get rideBook => overlay.text('rideBook') ?? base.rideBook;
+
+  @override
+  String get rideScheduled =>
+      overlay.text('rideScheduled') ?? base.rideScheduled;
+
+  @override
+  String get rideSearching =>
+      overlay.text('rideSearching') ?? base.rideSearching;
+
+  @override
+  String get rideAccepted => overlay.text('rideAccepted') ?? base.rideAccepted;
+
+  @override
+  String get rideArrived => overlay.text('rideArrived') ?? base.rideArrived;
+
+  @override
+  String get rideInProgress =>
+      overlay.text('rideInProgress') ?? base.rideInProgress;
+
+  @override
+  String get rideCompleted =>
+      overlay.text('rideCompleted') ?? base.rideCompleted;
+
+  @override
+  String get rideCancelled =>
+      overlay.text('rideCancelled') ?? base.rideCancelled;
+
+  @override
+  String get rideNoDriver => overlay.text('rideNoDriver') ?? base.rideNoDriver;
+
+  @override
+  String get rideSearchingHint =>
+      overlay.text('rideSearchingHint') ?? base.rideSearchingHint;
+
+  @override
+  String get rideArrivedHint =>
+      overlay.text('rideArrivedHint') ?? base.rideArrivedHint;
+
+  @override
+  String get rideNoDriverHint =>
+      overlay.text('rideNoDriverHint') ?? base.rideNoDriverHint;
+
+  @override
+  String get rideTryAgain => overlay.text('rideTryAgain') ?? base.rideTryAgain;
+
+  @override
+  String rideHeading(String reference) =>
+      overlay.format('rideHeading', {'reference': reference}) ??
+      base.rideHeading(reference);
+
+  @override
+  String get ridePin => overlay.text('ridePin') ?? base.ridePin;
+
+  @override
+  String get ridePinHint => overlay.text('ridePinHint') ?? base.ridePinHint;
+
+  @override
+  String get rideCall => overlay.text('rideCall') ?? base.rideCall;
+
+  @override
+  String rideDriverSeen(String time) =>
+      overlay.format('rideDriverSeen', {'time': time}) ??
+      base.rideDriverSeen(time);
+
+  @override
+  String get rideShare => overlay.text('rideShare') ?? base.rideShare;
+
+  @override
+  String rideShareText(String url) =>
+      overlay.format('rideShareText', {'url': url}) ?? base.rideShareText(url);
+
+  @override
+  String get rideSos => overlay.text('rideSos') ?? base.rideSos;
+
+  @override
+  String get rideSosTitle => overlay.text('rideSosTitle') ?? base.rideSosTitle;
+
+  @override
+  String rideSosMessage(String number) =>
+      overlay.format('rideSosMessage', {'number': number}) ??
+      base.rideSosMessage(number);
+
+  @override
+  String get rideSosCall => overlay.text('rideSosCall') ?? base.rideSosCall;
+
+  @override
+  String get rideCancel => overlay.text('rideCancel') ?? base.rideCancel;
+
+  @override
+  String get rideCancelConfirm =>
+      overlay.text('rideCancelConfirm') ?? base.rideCancelConfirm;
+
+  @override
+  String rideCancelFeeNote(String fee, int minutes) =>
+      overlay.format('rideCancelFeeNote', {'fee': fee, 'minutes': minutes}) ??
+      base.rideCancelFeeNote(fee, minutes);
+
+  @override
+  String get rideReasonChangedPlans =>
+      overlay.text('rideReasonChangedPlans') ?? base.rideReasonChangedPlans;
+
+  @override
+  String get rideReasonDriverLate =>
+      overlay.text('rideReasonDriverLate') ?? base.rideReasonDriverLate;
+
+  @override
+  String get rideReasonDriverAsked =>
+      overlay.text('rideReasonDriverAsked') ?? base.rideReasonDriverAsked;
+
+  @override
+  String get rideReasonWrongPlace =>
+      overlay.text('rideReasonWrongPlace') ?? base.rideReasonWrongPlace;
+
+  @override
+  String get rideReasonOther =>
+      overlay.text('rideReasonOther') ?? base.rideReasonOther;
+
+  @override
+  String get rideCancelledToast =>
+      overlay.text('rideCancelledToast') ?? base.rideCancelledToast;
+
+  @override
+  String rideCancelledFee(String fee) =>
+      overlay.format('rideCancelledFee', {'fee': fee}) ??
+      base.rideCancelledFee(fee);
+
+  @override
+  String get rideCancelledByYou =>
+      overlay.text('rideCancelledByYou') ?? base.rideCancelledByYou;
+
+  @override
+  String get rideCancelledByCompany =>
+      overlay.text('rideCancelledByCompany') ?? base.rideCancelledByCompany;
+
+  @override
+  String rideFeeCharged(String fee) =>
+      overlay.format('rideFeeCharged', {'fee': fee}) ??
+      base.rideFeeCharged(fee);
+
+  @override
+  String get rideFare => overlay.text('rideFare') ?? base.rideFare;
+
+  @override
+  String get rideFareEstimate =>
+      overlay.text('rideFareEstimate') ?? base.rideFareEstimate;
+
+  @override
+  String get ridePaid => overlay.text('ridePaid') ?? base.ridePaid;
+
+  @override
+  String get rideRateTitle =>
+      overlay.text('rideRateTitle') ?? base.rideRateTitle;
+
+  @override
+  String rideRated(int stars) =>
+      overlay.format('rideRated', {'stars': stars}) ?? base.rideRated(stars);
+
+  @override
+  String get myRidesSignInTitle =>
+      overlay.text('myRidesSignInTitle') ?? base.myRidesSignInTitle;
+
+  @override
+  String get myRidesSignInMessage =>
+      overlay.text('myRidesSignInMessage') ?? base.myRidesSignInMessage;
+
+  @override
+  String get loadingRides => overlay.text('loadingRides') ?? base.loadingRides;
+
+  @override
+  String get noRidesTitle => overlay.text('noRidesTitle') ?? base.noRidesTitle;
+
+  @override
+  String get noRidesMessage =>
+      overlay.text('noRidesMessage') ?? base.noRidesMessage;
+
+  @override
+  String get driverTitle => overlay.text('driverTitle') ?? base.driverTitle;
+
+  @override
+  String get riderView => overlay.text('riderView') ?? base.riderView;
+
+  @override
+  String get driverMode => overlay.text('driverMode') ?? base.driverMode;
+
+  @override
+  String get notDriverTitle =>
+      overlay.text('notDriverTitle') ?? base.notDriverTitle;
+
+  @override
+  String get notDriverMessage =>
+      overlay.text('notDriverMessage') ?? base.notDriverMessage;
+
+  @override
+  String get driverOnline => overlay.text('driverOnline') ?? base.driverOnline;
+
+  @override
+  String get driverOfflineHint =>
+      overlay.text('driverOfflineHint') ?? base.driverOfflineHint;
+
+  @override
+  String driverToday(int rides, String earned) =>
+      overlay.format('driverToday', {'rides': rides, 'earned': earned}) ??
+      base.driverToday(rides, earned);
+
+  @override
+  String get driverWaiting =>
+      overlay.text('driverWaiting') ?? base.driverWaiting;
+
+  @override
+  String get driverSharing =>
+      overlay.text('driverSharing') ?? base.driverSharing;
+
+  @override
+  String get driverOffer => overlay.text('driverOffer') ?? base.driverOffer;
+
+  @override
+  String driverSecondsLeft(int seconds) =>
+      overlay.format('driverSecondsLeft', {'seconds': seconds}) ??
+      base.driverSecondsLeft(seconds);
+
+  @override
+  String driverPickupKm(String km) =>
+      overlay.format('driverPickupKm', {'km': km}) ?? base.driverPickupKm(km);
+
+  @override
+  String get driverAccept => overlay.text('driverAccept') ?? base.driverAccept;
+
+  @override
+  String get driverDecline =>
+      overlay.text('driverDecline') ?? base.driverDecline;
+
+  @override
+  String get driverOpenRide =>
+      overlay.text('driverOpenRide') ?? base.driverOpenRide;
+
+  @override
+  String get driverCurrent =>
+      overlay.text('driverCurrent') ?? base.driverCurrent;
+
+  @override
+  String get driverDone => overlay.text('driverDone') ?? base.driverDone;
+
+  @override
+  String get driverEarnings =>
+      overlay.text('driverEarnings') ?? base.driverEarnings;
+
+  @override
+  String get driverNoRides =>
+      overlay.text('driverNoRides') ?? base.driverNoRides;
+
+  @override
+  String get driverNoRidesMessage =>
+      overlay.text('driverNoRidesMessage') ?? base.driverNoRidesMessage;
+
+  @override
+  String get earningsToday =>
+      overlay.text('earningsToday') ?? base.earningsToday;
+
+  @override
+  String get earningsWeek => overlay.text('earningsWeek') ?? base.earningsWeek;
+
+  @override
+  String get earningsMonth =>
+      overlay.text('earningsMonth') ?? base.earningsMonth;
+
+  @override
+  String get earningsRides =>
+      overlay.text('earningsRides') ?? base.earningsRides;
+
+  @override
+  String get earningsFares =>
+      overlay.text('earningsFares') ?? base.earningsFares;
+
+  @override
+  String get earningsCash => overlay.text('earningsCash') ?? base.earningsCash;
+
+  @override
+  String get earningsCompany =>
+      overlay.text('earningsCompany') ?? base.earningsCompany;
+
+  @override
+  String get earningsEarned =>
+      overlay.text('earningsEarned') ?? base.earningsEarned;
+
+  @override
+  String earningsRidesCount(int count) =>
+      overlay.format('earningsRidesCount', {'count': count}) ??
+      base.earningsRidesCount(count);
+
+  @override
+  String get driverArrived =>
+      overlay.text('driverArrived') ?? base.driverArrived;
+
+  @override
+  String get driverStart => overlay.text('driverStart') ?? base.driverStart;
+
+  @override
+  String get driverEnd => overlay.text('driverEnd') ?? base.driverEnd;
+
+  @override
+  String driverWaitingSince(String time) =>
+      overlay.format('driverWaitingSince', {'time': time}) ??
+      base.driverWaitingSince(time);
+
+  @override
+  String driverCollect(String amount) =>
+      overlay.format('driverCollect', {'amount': amount}) ??
+      base.driverCollect(amount);
+
+  @override
+  String get driverCardRide =>
+      overlay.text('driverCardRide') ?? base.driverCardRide;
+
+  @override
+  String get driverRider => overlay.text('driverRider') ?? base.driverRider;
+
+  @override
+  String get driverPinTitle =>
+      overlay.text('driverPinTitle') ?? base.driverPinTitle;
+
+  @override
+  String get driverPinHint =>
+      overlay.text('driverPinHint') ?? base.driverPinHint;
+
+  @override
+  String get driverCancelTitle =>
+      overlay.text('driverCancelTitle') ?? base.driverCancelTitle;
+
+  @override
+  String driverNoShowAfter(int minutes) =>
+      overlay.format('driverNoShowAfter', {'minutes': minutes}) ??
+      base.driverNoShowAfter(minutes);
+
+  @override
+  String get driverCancelNoShowHint =>
+      overlay.text('driverCancelNoShowHint') ?? base.driverCancelNoShowHint;
+
+  @override
+  String get driverCantMakeIt =>
+      overlay.text('driverCantMakeIt') ?? base.driverCantMakeIt;
+
+  @override
+  String get driverNoShow => overlay.text('driverNoShow') ?? base.driverNoShow;
 }

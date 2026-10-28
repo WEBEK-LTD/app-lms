@@ -91,6 +91,7 @@ export default async function RideSettingsPage() {
           bundleAllowed={hasFeature(plan, "courier_app")}
           bundleOff={richText(t("rides.driverAppBundleOff"), { link: (chunk) => <Link href="/dashboard/license">{chunk}</Link> })}
           driverAppNameDefault={`${name.slice(0, 23)} Driver`.trim()}
+          driverFirebaseIos={Boolean(settings.courierFirebaseIosAssetId)}
         />
       </section>
       {settings.card || isOwnPayment(catalogSettings(app).payment) ? <RidePayments app={app} /> : null}

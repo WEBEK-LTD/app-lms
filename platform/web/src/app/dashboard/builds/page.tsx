@@ -39,8 +39,9 @@ import { versionsInUse } from "@/lib/builds/go-back";
 import { FIRST_SHARES, nextFraction } from "@/lib/publishing/rollout";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
+import type { DashKey } from "@/i18n/dashboard";
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
-import { courierAppNameOf, courierBundleIdOf, courierPackageOf, hasCourierJobs } from "@/lib/delivery/courier-app";
+import { courierAppNameOf, courierBundleIdOf, courierPackageOf, hasCourierJobs, secondAppRoleOf } from "@/lib/delivery/courier-app";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -184,16 +185,19 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
     delivery?.courierApp === "bundle"
       ? {
           name: courierAppNameOf(app, delivery),
-          android: app.androidPackage ? courierPackageOf(app.androidPackage) : "—",
-          ios: app.iosBundleId ? courierBundleIdOf(app.iosBundleId) : "—",
+          android: app.androidPackage ? courierPackageOf(app.androidPackage, secondAppRoleOf(app)) : "—",
+          ios: app.iosBundleId ? courierBundleIdOf(app.iosBundleId, secondAppRoleOf(app)) : "—",
           onPlan: currentPlan ? hasFeature(currentPlan, "courier_app") : false,
           firebaseAndroid: await firebaseListsCourierApp(app, preflightDeps(store)),
           firebaseIos: Boolean(delivery.courierFirebaseIosAssetId),
           builds: await store.listBuildsByApp(app.id, 20, "courier"),
+          role: secondAppRoleOf(app),
         }
       : null;
   const courierCurrent = courier?.builds[0] ?? null;
   const courierReady = courier?.builds.find((b) => b.status === "ready") ?? null;
+  /** The second app's words: the couriers' (104.6) or 105.2 the drivers'. */
+  const ck = (key: "Title" | "Text" | "Off" | "FirebaseAndroidOk" | "FirebaseAndroidMissing" | "FirebaseIosOk" | "FirebaseIosMissing" | "Latest" | "None" | "Files"): DashKey => `builds.${courier?.role ?? "courier"}${key}`;
   const courierStalled = courierCurrent !== null && isStalled(courierCurrent, now);
   const courierFileRow = (kind: ArtifactKind) => {
     const url = courierReady?.artifacts.find((a) => a.kind === kind)?.url;
@@ -387,33 +391,35 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
       </Section>
 
       {courier ? (
-        <Section id="courier-app" titleId="h-courier-app" title={t("builds.courierTitle")} description={t("builds.courierText", { name: courier.name, android: courier.android, ios: courier.ios })}>
+        // 105.2 A ride company's second app is its drivers'.
+        <Section id="courier-app" titleId="h-courier-app" title={t(ck("Title"))} description={t(ck("Text"), { name: courier.name, android: courier.android, ios: courier.ios })}>
           <div className="flex flex-col gap-4">
             {!courier.onPlan ? (
               <Notice tone="warn" icon="info">
-                {t("builds.courierOff")}
+                {t(ck("Off"))}
               </Notice>
             ) : null}
             <ul className="m-0 flex list-none flex-col gap-2 p-0 text-sm">
               <li className="flex items-start gap-2" data-courier-firebase="android">
                 <Icon name={courier.firebaseAndroid ? "check_circle" : "info"} size={20} className={courier.firebaseAndroid ? "text-success" : "text-ink-4"} />
-                <span>{courier.firebaseAndroid ? t("builds.courierFirebaseAndroidOk") : t("builds.courierFirebaseAndroidMissing", { android: courier.android })}</span>
+                <span>{courier.firebaseAndroid ? t(ck("FirebaseAndroidOk")) : t(ck("FirebaseAndroidMissing"), { android: courier.android })}</span>
               </li>
               <li className="flex items-start gap-2" data-courier-firebase="ios">
                 <Icon name={courier.firebaseIos ? "check_circle" : "info"} size={20} className={courier.firebaseIos ? "text-success" : "text-ink-4"} />
-                <span>{courier.firebaseIos ? t("builds.courierFirebaseIosOk") : t("builds.courierFirebaseIosMissing")}</span>
+                <span>{courier.firebaseIos ? t(ck("FirebaseIosOk")) : t(ck("FirebaseIosMissing"))}</span>
               </li>
             </ul>
             <StartBuildForm
               courier
+              driver={courier.role === "driver"}
               suggestedVersion={suggestedVersion(courierCurrent)}
-              disabledReason={disabledReason ?? (!courier.onPlan ? t("builds.courierOff") : null)}
+              disabledReason={disabledReason ?? (!courier.onPlan ? t(ck("Off")) : null)}
             />
             {courierCurrent ? (
               <div className="flex flex-col gap-4 rounded-xl border border-line p-4" data-courier-build>
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="flex min-w-0 flex-col gap-1">
-                    <span className="text-sm font-semibold text-muted">{t("builds.courierLatest")}</span>
+                    <span className="text-sm font-semibold text-muted">{t(ck("Latest"))}</span>
                     <h3 className="m-0 text-base font-bold">{t("builds.buildTitle", { number: courierCurrent.number, version: courierCurrent.versionName })}</h3>
                   </div>
                   <BuildBadge status={courierCurrent.status} lang={lang} />
@@ -433,11 +439,11 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
                 ) : null}
               </div>
             ) : (
-              <p className="m-0 text-sm text-muted">{t("builds.courierNone")}</p>
+              <p className="m-0 text-sm text-muted">{t(ck("None"))}</p>
             )}
             {courierReady ? (
               <div className="overflow-hidden rounded-xl border border-line">
-                <h3 className="m-0 border-b border-line-soft px-4 py-3 text-base font-bold sm:px-6">{t("builds.courierFiles")}</h3>
+                <h3 className="m-0 border-b border-line-soft px-4 py-3 text-base font-bold sm:px-6">{t(ck("Files"))}</h3>
                 <ul className="m-0 list-none p-0">
                   {(["apk", "aab", "ipa"] as const).map((kind, i, all) => (
                     <DownloadRow key={kind} t={t} title={k(ARTIFACT_LABEL[kind])} text={k(fileDescription(kind, autoPublish))} last={i === all.length - 1} {...courierFileRow(kind)} />

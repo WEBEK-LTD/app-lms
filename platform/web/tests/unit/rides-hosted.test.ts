@@ -4,6 +4,7 @@ import { deliverPaidOrder } from "@/lib/catalog/payment";
 import { encryptPaymentKeys } from "@/lib/catalog/settings";
 import type { MemoryStore } from "@/lib/data/memory";
 import { DEFAULT_CATALOG_SETTINGS, DEFAULT_HOSTED_SETTINGS, type App, type DeliverySettings, type Ride, type RidesSettings, type VehicleTypeInput } from "@/lib/data/types";
+import { reviewNotes } from "@/lib/delivery/review";
 import { DEFAULT_DELIVERY_SETTINGS } from "@/lib/delivery/settings";
 import { RidesConnector } from "@/lib/hosted/connectors/rides";
 import { LogSender } from "@/lib/hosted/otp-sender";
@@ -469,6 +470,37 @@ describe("105.2 ride apps on the hosted API", () => {
     await call("POST", "/driver/rides/{ride_id}/accept", { params: [String(id)], token: reviewer.access_token });
     const real = ((await ask(rider.access_token)).body as { id: number }).id;
     expect((await offers(omar.access_token)).map((r) => r.id)).toEqual([real]);
+  });
+
+  it("105.2.6 offers the review driver a sample ride in the drivers' app, and the reviewers' notes say how to try both sides", async () => {
+    app = { ...app, hostedSettings: { ...app.hostedSettings!, reviewPhone: "+201009990000", reviewCode: "246810" } };
+    await store.updateApp(app.id, { hostedSettings: app.hostedSettings }, NOW);
+    await store.saveDeliverySettings(app.id, { ...SETTINGS, courierApp: "bundle" }, NOW);
+    const requested = await call("POST", "/auth/otp/request", { body: { country_code: "+20", phone: "1009990000" } });
+    const verified = await call("POST", "/auth/otp/verify", { body: { request_id: (requested.body as { request_id: string }).request_id, code: "246810", device: { ...DEVICE, id: "install-review" } } });
+    const reviewer = (await call("POST", "/auth/register", { body: { signup_token: (verified.body as { signup_token: string }).signup_token, name: "App Review", device: { ...DEVICE, id: "install-review" } } })).body as { access_token: string };
+    await call("PATCH", "/driver/me", { token: reviewer.access_token, body: { online: true } });
+    const [sample] = await offers(reviewer.access_token);
+    expect(sample).toMatchObject({ status: "searching", payment: { method: "card", status: "paid" }, rider: { name: "App Review (sample)" } });
+    // The same one while it is offered; it goes through every step.
+    expect((await offers(reviewer.access_token)).map((r) => r.id)).toEqual([sample!.id]);
+    const steps = ["arrived", "in_progress", "completed"];
+    await call("POST", "/driver/rides/{ride_id}/accept", { params: [String(sample!.id)], token: reviewer.access_token });
+    for (const status of steps) {
+      const moved = await call("POST", "/driver/rides/{ride_id}/status", { params: [String(sample!.id)], token: reviewer.access_token, body: { status, pin: status === "in_progress" ? "1234" : null } });
+      expect(moved.body).toMatchObject({ status });
+    }
+    // Another once it is done; a real driver never gets one.
+    expect((await offers(reviewer.access_token))[0]?.id).not.toBe(sample!.id);
+    const omar = await driverAt("1005556666", "Omar Said", NEAR);
+    expect(await offers(omar.access_token)).toEqual([]);
+
+    const notes = reviewNotes(app, { ...SETTINGS, courierApp: "bundle" })!;
+    expect(notes.customer).toContain("Nile Rides is a ride service.");
+    expect(notes.customer).not.toContain("Driver mode");
+    expect(notes.courier).toContain("Nile Rides Driver is for Nile Rides's drivers only");
+    expect(notes.courier).toContain("a sample ride is offered");
+    expect(reviewNotes(app, SETTINGS)!.customer).toContain("Account › Driver mode");
   });
 
   it("refuses everything when the plan has no ride apps", async () => {

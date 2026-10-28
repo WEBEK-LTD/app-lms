@@ -45,6 +45,9 @@ final deliveryModule = AppModule(
     BuiltInScreen.campaigns ||
     BuiltInScreen.myDonations ||
     BuiltInScreen.restaurants ||
+    BuiltInScreen.ride ||
+    BuiltInScreen.myRides ||
+    BuiltInScreen.driver ||
     BuiltInScreen.foodOrders ||
     BuiltInScreen.restaurant => null,
   },

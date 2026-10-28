@@ -8073,6 +8073,702 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Customer'**
   String get deskCustomer;
+
+  /// 105.2 The tab where the rider asks for a ride.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride'**
+  String get tabRide;
+
+  /// 105.2 The tab with the rider's rides.
+  ///
+  /// In en, this message translates to:
+  /// **'My rides'**
+  String get tabMyRides;
+
+  /// 105.2 The tab of the company's drivers.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver'**
+  String get tabDriver;
+
+  /// 105.2 The title of the screen where the rider asks for a ride.
+  ///
+  /// In en, this message translates to:
+  /// **'Where to?'**
+  String get rideWhereTo;
+
+  /// 105.2 Where the driver picks the rider up.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup'**
+  String get ridePickup;
+
+  /// 105.2 Where the ride ends.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop-off'**
+  String get rideDropoff;
+
+  /// 105.2 The pickup's address when the rider used their position.
+  ///
+  /// In en, this message translates to:
+  /// **'My location'**
+  String get rideMyLocation;
+
+  /// 105.2 Now or later.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get rideWhen;
+
+  /// 105.2 A ride now.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get rideNow;
+
+  /// 105.2 A ride booked for later.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get rideLater;
+
+  /// 105.2 When a booked ride picks the rider up.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup at {time}'**
+  String rideScheduledFor(String time);
+
+  /// 105.2 The vehicle types with their fares.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a ride'**
+  String get rideChooseCar;
+
+  /// 105.2 Fares while signed out.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to see the fares.'**
+  String get rideSignInForFares;
+
+  /// 105.2 Both places need their position.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the pickup and the drop-off with your location, a maps link or the map.'**
+  String get rideFillPlaces;
+
+  /// 105.2 How far and how long a ride is.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km · about {minutes} min'**
+  String rideTrip(String km, int minutes);
+
+  /// 105.2 The company charges what the meter says.
+  ///
+  /// In en, this message translates to:
+  /// **'The meter sets the final fare'**
+  String get rideMeteredNote;
+
+  /// 105.2 A vehicle type's seats.
+  ///
+  /// In en, this message translates to:
+  /// **'{seats, plural, =1{1 seat} other{{seats} seats}}'**
+  String rideSeats(int seats);
+
+  /// 105.2 How soon a driver can be at the pickup.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min away'**
+  String ridePickupIn(int minutes);
+
+  /// 105.2 No online driver of this type is near.
+  ///
+  /// In en, this message translates to:
+  /// **'No car nearby now'**
+  String get rideNoneNearby;
+
+  /// 105.2 The promo code's discount.
+  ///
+  /// In en, this message translates to:
+  /// **'Promo code: {amount} off'**
+  String rideDiscount(String amount);
+
+  /// 105.2 A cancellation fee carried into this ride.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes {amount} from your last cancelled ride'**
+  String ridePreviousFee(String amount);
+
+  /// 105.2 The promo code box.
+  ///
+  /// In en, this message translates to:
+  /// **'Promo code (optional)'**
+  String get ridePromoCode;
+
+  /// 105.2 The rider's note.
+  ///
+  /// In en, this message translates to:
+  /// **'Note for the driver'**
+  String get rideNotes;
+
+  /// 105.2 When a card ride is paid.
+  ///
+  /// In en, this message translates to:
+  /// **'You pay by card once the ride ends.'**
+  String get rideCardAfter;
+
+  /// 105.2 The button that asks for a ride now.
+  ///
+  /// In en, this message translates to:
+  /// **'Request a ride'**
+  String get rideRequest;
+
+  /// 105.2 The button that books a ride for later.
+  ///
+  /// In en, this message translates to:
+  /// **'Book the ride'**
+  String get rideBook;
+
+  /// 105.2 A ride booked for later.
+  ///
+  /// In en, this message translates to:
+  /// **'Booked'**
+  String get rideScheduled;
+
+  /// 105.2 The ride is offered to the drivers.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking for a driver'**
+  String get rideSearching;
+
+  /// 105.2 A driver took the ride.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver on the way'**
+  String get rideAccepted;
+
+  /// 105.2 The driver is at the pickup.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver is here'**
+  String get rideArrived;
+
+  /// 105.2 The ride has started.
+  ///
+  /// In en, this message translates to:
+  /// **'On the way'**
+  String get rideInProgress;
+
+  /// 105.2 The ride ended.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get rideCompleted;
+
+  /// 105.2 The ride was cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get rideCancelled;
+
+  /// 105.2 No driver took the ride.
+  ///
+  /// In en, this message translates to:
+  /// **'No driver found'**
+  String get rideNoDriver;
+
+  /// 105.2 While a driver is looked for.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'re asking the nearest drivers.'**
+  String get rideSearchingHint;
+
+  /// 105.2 The driver is at the pickup.
+  ///
+  /// In en, this message translates to:
+  /// **'Your driver is waiting at the pickup.'**
+  String get rideArrivedHint;
+
+  /// 105.2 What to do when no driver took the ride.
+  ///
+  /// In en, this message translates to:
+  /// **'No driver took it. Try again in a few minutes.'**
+  String get rideNoDriverHint;
+
+  /// 105.2 Asking again after no driver took the ride.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get rideTryAgain;
+
+  /// 105.2 A ride's screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride {reference}'**
+  String rideHeading(String reference);
+
+  /// 105.2 The code the rider tells the driver.
+  ///
+  /// In en, this message translates to:
+  /// **'Your code'**
+  String get ridePin;
+
+  /// 105.2 When to tell the code.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell your driver this code when you get in.'**
+  String get ridePinHint;
+
+  /// 105.2 Calls the driver or the rider.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get rideCall;
+
+  /// 105.2 When the driver's position was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver\'s position at {time}'**
+  String rideDriverSeen(String time);
+
+  /// 105.2 Sends the ride's page to someone.
+  ///
+  /// In en, this message translates to:
+  /// **'Share the ride'**
+  String get rideShare;
+
+  /// 105.2 The text sent when sharing the ride.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow my ride: {url}'**
+  String rideShareText(String url);
+
+  /// 105.2 The emergency button.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency'**
+  String get rideSos;
+
+  /// 105.2 The emergency button's question.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency call'**
+  String get rideSosTitle;
+
+  /// 105.2 The number the emergency button calls.
+  ///
+  /// In en, this message translates to:
+  /// **'Call {number}? Use it only in an emergency.'**
+  String rideSosMessage(String number);
+
+  /// 105.2 Calls the emergency number.
+  ///
+  /// In en, this message translates to:
+  /// **'Call now'**
+  String get rideSosCall;
+
+  /// 105.2 Cancels the ride.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the ride'**
+  String get rideCancel;
+
+  /// 105.2 The question before cancelling a ride.
+  ///
+  /// In en, this message translates to:
+  /// **'Why are you cancelling?'**
+  String get rideCancelConfirm;
+
+  /// 105.2 The company's cancellation fee.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelling more than {minutes} min after a driver accepted costs {fee}, added to your next ride.'**
+  String rideCancelFeeNote(String fee, int minutes);
+
+  /// 105.2 A reason to cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'My plans changed'**
+  String get rideReasonChangedPlans;
+
+  /// 105.2 A reason to cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'The driver is taking too long'**
+  String get rideReasonDriverLate;
+
+  /// 105.2 A reason to cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'The driver asked me to cancel'**
+  String get rideReasonDriverAsked;
+
+  /// 105.2 A reason to cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong pickup place'**
+  String get rideReasonWrongPlace;
+
+  /// 105.2 A reason to cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else'**
+  String get rideReasonOther;
+
+  /// 105.2 After cancelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride cancelled.'**
+  String get rideCancelledToast;
+
+  /// 105.2 After cancelling with a fee.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride cancelled. {fee} is added to your next ride.'**
+  String rideCancelledFee(String fee);
+
+  /// 105.2 Who cancelled the ride.
+  ///
+  /// In en, this message translates to:
+  /// **'You cancelled it'**
+  String get rideCancelledByYou;
+
+  /// 105.2 Who cancelled the ride.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled by the company'**
+  String get rideCancelledByCompany;
+
+  /// 105.2 The cancellation fee charged.
+  ///
+  /// In en, this message translates to:
+  /// **'Fee: {fee}'**
+  String rideFeeCharged(String fee);
+
+  /// 105.2 The fare charged.
+  ///
+  /// In en, this message translates to:
+  /// **'Fare'**
+  String get rideFare;
+
+  /// 105.2 The fare before the ride ends.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated fare'**
+  String get rideFareEstimate;
+
+  /// 105.2 After paying a card ride.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid. Thank you.'**
+  String get ridePaid;
+
+  /// 105.2 Rating the driver.
+  ///
+  /// In en, this message translates to:
+  /// **'How was your driver?'**
+  String get rideRateTitle;
+
+  /// 105.2 The driver's rating.
+  ///
+  /// In en, this message translates to:
+  /// **'You rated your driver {stars} out of 5.'**
+  String rideRated(int stars);
+
+  /// 105.2 Rides while signed out.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to see your rides'**
+  String get myRidesSignInTitle;
+
+  /// 105.2 Rides while signed out.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rides and their receipts show here.'**
+  String get myRidesSignInMessage;
+
+  /// 105.2 Read while the rides load.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading the rides'**
+  String get loadingRides;
+
+  /// 105.2 The rides list is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No rides yet'**
+  String get noRidesTitle;
+
+  /// 105.2 The rides list is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Where would you like to go?'**
+  String get noRidesMessage;
+
+  /// 105.2 The driver's screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver'**
+  String get driverTitle;
+
+  /// 105.2 A driver switches to the riders' screens.
+  ///
+  /// In en, this message translates to:
+  /// **'Rider view'**
+  String get riderView;
+
+  /// 105.2 Account: a driver opens the driver's screens.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver mode'**
+  String get driverMode;
+
+  /// 105.2 Someone who isn't a driver opened the driver's screen.
+  ///
+  /// In en, this message translates to:
+  /// **'For our drivers'**
+  String get notDriverTitle;
+
+  /// 105.2 Someone who isn't a driver opened the driver's screen.
+  ///
+  /// In en, this message translates to:
+  /// **'This screen is for the company\'s drivers. Ask the company to add your number.'**
+  String get notDriverMessage;
+
+  /// 105.2 The switch that makes the driver available.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get driverOnline;
+
+  /// 105.2 The driver is offline.
+  ///
+  /// In en, this message translates to:
+  /// **'Go online to get rides.'**
+  String get driverOfflineHint;
+
+  /// 105.2 The driver's rides today and what they made.
+  ///
+  /// In en, this message translates to:
+  /// **'{rides, plural, =0{No rides today yet} =1{1 ride today · {earned}} other{{rides} rides today · {earned}}}'**
+  String driverToday(int rides, String earned);
+
+  /// 105.2 An online driver without a ride.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for a ride. Keep this screen open: your position is shared while you are online.'**
+  String get driverWaiting;
+
+  /// 105.2 The driver's position is being shared.
+  ///
+  /// In en, this message translates to:
+  /// **'While you are online and this screen is open, your position is shared with the company and your rider.'**
+  String get driverSharing;
+
+  /// 105.2 A ride offered to the driver.
+  ///
+  /// In en, this message translates to:
+  /// **'New ride'**
+  String get driverOffer;
+
+  /// 105.2 The seconds left to take the offered ride.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds} s'**
+  String driverSecondsLeft(int seconds);
+
+  /// 105.2 How far the pickup is.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km to the pickup'**
+  String driverPickupKm(String km);
+
+  /// 105.2 Takes the offered ride.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get driverAccept;
+
+  /// 105.2 Passes the offered ride to the next driver.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get driverDecline;
+
+  /// 105.2 The driver's ride that isn't over.
+  ///
+  /// In en, this message translates to:
+  /// **'Open my current ride'**
+  String get driverOpenRide;
+
+  /// 105.2 The driver's rides that aren't over.
+  ///
+  /// In en, this message translates to:
+  /// **'Current'**
+  String get driverCurrent;
+
+  /// 105.2 The driver's finished rides.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get driverDone;
+
+  /// 105.2 What the driver made.
+  ///
+  /// In en, this message translates to:
+  /// **'Earnings'**
+  String get driverEarnings;
+
+  /// 105.2 A driver's list is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No rides here'**
+  String get driverNoRides;
+
+  /// 105.2 A driver's list is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Rides you take show here.'**
+  String get driverNoRidesMessage;
+
+  /// 105.2 Earnings over today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get earningsToday;
+
+  /// 105.2 Earnings over this week.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get earningsWeek;
+
+  /// 105.2 Earnings over this month.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get earningsMonth;
+
+  /// 105.2 How many rides the driver completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Rides'**
+  String get earningsRides;
+
+  /// 105.2 The fares of the driver's rides.
+  ///
+  /// In en, this message translates to:
+  /// **'Fares'**
+  String get earningsFares;
+
+  /// 105.2 The cash the driver collected.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash collected'**
+  String get earningsCash;
+
+  /// 105.2 The company's share of the fares.
+  ///
+  /// In en, this message translates to:
+  /// **'Company\'s share'**
+  String get earningsCompany;
+
+  /// 105.2 What the driver made.
+  ///
+  /// In en, this message translates to:
+  /// **'You made'**
+  String get earningsEarned;
+
+  /// 105.2 A day's rides.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 ride} other{{count} rides}}'**
+  String earningsRidesCount(int count);
+
+  /// 105.2 The driver is at the pickup.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ve arrived'**
+  String get driverArrived;
+
+  /// 105.2 The rider is in: the ride starts.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the ride'**
+  String get driverStart;
+
+  /// 105.2 The ride ends at the drop-off.
+  ///
+  /// In en, this message translates to:
+  /// **'End the ride'**
+  String get driverEnd;
+
+  /// 105.2 When the driver arrived at the pickup.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting since {time}'**
+  String driverWaitingSince(String time);
+
+  /// 105.2 The cash the driver collects at the end.
+  ///
+  /// In en, this message translates to:
+  /// **'Collect {amount} in cash.'**
+  String driverCollect(String amount);
+
+  /// 105.2 A card ride: nothing to collect.
+  ///
+  /// In en, this message translates to:
+  /// **'The rider pays by card in the app.'**
+  String get driverCardRide;
+
+  /// 105.2 The rider's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Rider'**
+  String get driverRider;
+
+  /// 105.2 The code the rider tells the driver.
+  ///
+  /// In en, this message translates to:
+  /// **'Rider\'s code'**
+  String get driverPinTitle;
+
+  /// 105.2 Where the code is.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the rider for the 4-digit code in their app.'**
+  String get driverPinHint;
+
+  /// 105.2 The question before a driver cancels.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this ride?'**
+  String get driverCancelTitle;
+
+  /// 105.2 When a driver may cancel because the rider didn't come.
+  ///
+  /// In en, this message translates to:
+  /// **'If the rider doesn\'t come, you can cancel {minutes} min after arriving. Otherwise the ride goes to another driver.'**
+  String driverNoShowAfter(int minutes);
+
+  /// 105.2 Cancelling because the rider didn't come.
+  ///
+  /// In en, this message translates to:
+  /// **'The rider didn\'t come: the company\'s cancellation fee is charged to them.'**
+  String get driverCancelNoShowHint;
+
+  /// 105.2 The driver gives the ride back.
+  ///
+  /// In en, this message translates to:
+  /// **'I can\'t make it'**
+  String get driverCantMakeIt;
+
+  /// 105.2 The driver cancels because the rider didn't come.
+  ///
+  /// In en, this message translates to:
+  /// **'The rider didn\'t come'**
+  String get driverNoShow;
 }
 
 class _AppLocalizationsDelegate

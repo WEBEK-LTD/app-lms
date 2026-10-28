@@ -61,7 +61,7 @@ void main() {
     expect(
       validateBuildConfig(example()..['app_type'] = 'salon').errors.join(),
       contains(
-        '"app_type" must be one of lms, store, booking, real_estate, news, events, donations, delivery.',
+        '"app_type" must be one of lms, store, booking, real_estate, news, events, donations, delivery, food, rides.',
       ),
     );
     expect(
@@ -132,7 +132,10 @@ void main() {
     expect(validateBuildConfig(drivers).isValid, isTrue);
     expect(
       renderDartConfig(drivers),
-      allOf(contains('appType: AppType.rides,'), contains('role: AppRole.driver,')),
+      allOf(
+        contains('appType: AppType.rides,'),
+        contains('role: AppRole.driver,'),
+      ),
     );
   });
 
