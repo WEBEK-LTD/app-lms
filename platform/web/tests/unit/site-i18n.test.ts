@@ -14,7 +14,7 @@ import { icuArguments, parseIcu } from "@/lib/i18n/icu";
 import { PRICED_PAGES } from "@/lib/geo-vary";
 import { COMPARISON, FAQ, FEATURE_GROUPS, INTEGRATION_GROUPS, REQUIREMENTS, SCREEN_ALT, SOLUTIONS, STEPS } from "@/lib/marketing";
 import { faqFor, integrationGroupsFor, planFor, solutionsFor } from "@/lib/marketing-lang";
-import { PLAN_INFO, PLANS } from "@/lib/plans";
+import { PLAN_INFO, REGULAR_PLANS } from "@/lib/plans";
 import { DEMO_GUIDES } from "@/lib/demo/content";
 import { siteMetadata } from "@/lib/seo";
 import { PRIVATE_PATHS, siteSitemap, sitemapEntries } from "@/lib/sitemap";
@@ -182,7 +182,7 @@ describe("55 the long texts in Arabic and Turkish", () => {
       expect(x.requirements).toHaveLength(REQUIREMENTS.length);
       expect(Object.keys(x.demos).sort()).toEqual(Object.keys(DEMO_GUIDES).sort());
       for (const [id, guide] of Object.entries(DEMO_GUIDES)) expect(x.demos[id as keyof typeof DEMO_GUIDES].tryThis, id).toHaveLength(guide.tryThis.length);
-      for (const plan of PLANS) expect(x.plans[plan].highlights, plan).toHaveLength(PLAN_INFO[plan].highlights.length);
+      for (const plan of REGULAR_PLANS) expect(x.plans[plan].highlights, plan).toHaveLength(PLAN_INFO[plan].highlights.length);
     });
 
     it(`${lang}: the FAQ has the same questions and links`, () => {

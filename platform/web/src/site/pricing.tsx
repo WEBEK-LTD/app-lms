@@ -6,7 +6,7 @@ import { StoreName } from "@/components/brand-marks";
 import { Icon } from "@/components/icon";
 import { MarketingPage, Section, SectionTitle } from "@/components/marketing";
 import { getSiteContent } from "@/lib/content/get";
-import { comparisonRows, FEATURED_PLAN, hasFeature, PLANS, planStores, type ComparisonRow, type ComparisonValue, type PlanInfo, type Plan } from "@/lib/plans";
+import { comparisonRows, FEATURED_PLAN, hasFeature, REGULAR_PLANS, planStores, type ComparisonRow, type ComparisonValue, type PlanInfo, type Plan, type RegularPlan } from "@/lib/plans";
 import { getStore } from "@/lib/data";
 import { effectivePlans } from "@/lib/entitlements";
 import { getVisitorContact } from "@/lib/contact";
@@ -28,7 +28,7 @@ export function pricingMetadata(lang: Lang): Metadata {
 function comparisonRowsFor(lang: Lang, plans: Record<Plan, PlanInfo>): ComparisonRow[] {
   if (lang === "en") return comparisonRows(plans);
   const m = messagesFor(lang).pricing;
-  const each = (fn: (p: PlanInfo) => ComparisonValue): Record<Plan, ComparisonValue> =>
+  const each = (fn: (p: PlanInfo) => ComparisonValue): Record<RegularPlan, ComparisonValue> =>
     ({ starter: fn(plans.starter), growth: fn(plans.growth), pro: fn(plans.pro), business: fn(plans.business) });
   const has = (f: Parameters<typeof hasFeature>[1]) => each((p) => hasFeature(p, f));
   const limit = (value: number | null, unlimited: string) => (value === null ? unlimited : formatNumber(lang, value));
@@ -92,7 +92,7 @@ export async function PricingPage({ lang }: { lang: Lang }) {
   const contact = await getVisitorContact();
   const store = await getStore();
   const [all, view] = await Promise.all([effectivePlans(store), visitorPriceView(store)]);
-  const plans = PLANS.map((id) => planFor(lang, all[id]));
+  const plans = REGULAR_PLANS.map((id) => planFor(lang, all[id]));
   const rows = comparisonRowsFor(lang, all);
   const text = await getSiteContent("pricing", lang);
   const m = messagesFor(lang).pricing;
@@ -132,7 +132,7 @@ export async function PricingPage({ lang }: { lang: Lang }) {
                   </th>
                   {plans.map((plan) => (
                     <td key={plan.id} className={`px-4 py-3.5 text-center ${plan.id === FEATURED_PLAN ? "bg-peach-soft" : ""}`}>
-                      <Cell value={row.values[plan.id]} plan={plan.name} lang={lang} />
+                      <Cell value={row.values[plan.id as RegularPlan]} plan={plan.name} lang={lang} />
                     </td>
                   ))}
                 </tr>

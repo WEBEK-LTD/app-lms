@@ -23,7 +23,7 @@ import {
   type Solution,
   type Step,
 } from "./marketing";
-import { PLAN_INFO, type PlanInfo } from "./plans";
+import { PLAN_INFO, planFamily, type PlanInfo, type RegularPlan } from "./plans";
 
 /**
  * 55 The marketing pages' lists (lib/marketing.ts) in a language: the
@@ -154,7 +154,7 @@ export function numberWordFor(lang: Lang, n: number): string {
 export function planFor(lang: Lang, plan: PlanInfo): PlanInfo {
   if (lang === "en") return plan;
   const own = plan.translations?.[lang] ?? {};
-  const x = translation(lang)?.plans[plan.id];
+  const x = planFamily(plan.id) === "regular" ? translation(lang)?.plans[plan.id as RegularPlan] : undefined;
   const base = PLAN_INFO[plan.id];
   const sameHighlights = plan.highlights.length === base.highlights.length && plan.highlights.every((h, i) => h === base.highlights[i]);
   return {

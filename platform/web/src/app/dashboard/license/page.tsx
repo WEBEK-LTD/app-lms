@@ -16,7 +16,7 @@ import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import { encryptionKey } from "@/lib/env";
 import { latestRelease } from "@/lib/license/service";
 import { ACCOUNT_STATE_LABEL } from "@/lib/license/status";
-import { comparePlans, formatStorage, hasFeature, isPlan, lowestPlanWith, planFeaturesFor, PLANS, planName, planPrice, type Plan, type PlanInfo } from "@/lib/plans";
+import { comparePlans, formatStorage, hasFeature, isPlan, lowestPlanWith, planFeaturesFor, planFitsSection, planName, planOffered, planPrice, plansOfFamily, STUDIO_ONLY_FEATURES, type Plan, type PlanInfo } from "@/lib/plans";
 import { packOffers, renewablePacks, renewalLabel } from "@/lib/media/packs";
 import { cardPlanOptions } from "@/lib/billing/card-plans";
 import { currentPlanId, planChangeFor, scheduledPlan } from "@/lib/billing/plan-change";
@@ -105,7 +105,9 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
         return planUsage({ plan: currentPlan, hosted, appUsers: users, languages, storage });
       })()
     : [];
-  const features = app ? planFeaturesFor(wordsOf(app).cardPayments) : [];
+  // 103R A Studio project is on a Studio plan, a regular app on a regular one: each sees its own family's plans and features.
+  const family = app?.section === "studio" ? "studio" : "regular";
+  const features = app ? planFeaturesFor(wordsOf(app).cardPayments).filter((f) => family === "studio" || !STUDIO_ONLY_FEATURES.includes(f.id)) : [];
   // 52 Paid into Yallapp's account with the gateway the team chose for plans (Kashier, in pounds); prices in the client's currency.
   const yallappAccount = await yallappPlanAccount(store, encryptionKey());
   const view = await priceView(store, client);
@@ -118,7 +120,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
     const id = l ? currentPlanId(l, now) : null;
     return { id: a.id, name: appLabel(a) === "Untitled app" ? k("Untitled app") : appLabel(a), plan: id ? planName(id, effective) : null, until: l ? date(l.expiresAt) : null, price: id ? priceOf(id) : null, current: a.id === app?.id };
   });
-  const payable = yallappAccount ? cardPlanOptions(plans, await getSwitches(store), yallappAccount.provider, view) : [];
+  const payable = yallappAccount ? cardPlanOptions(plans, await getSwitches(store), yallappAccount.provider, view).filter((p) => planFitsSection(p.id, family) && planOffered(plans[p.id])) : [];
   // 52 This app's card payments, with their receipts (before the first app exists, the account's).
   const paid = (await store.listPlanPayments({ clientId: client.id, limit: 50 })).filter((p) => p.status === "paid" && p.appId === (app?.id ?? null)).slice(0, 20);
   // 13.3 What paying for each plan does: an upgrade starts today with the old days credited, a downgrade waits for the end of the period.
@@ -287,7 +289,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
           included={currentPlan ? features.filter((f) => hasFeature(currentPlan, f.id)).map((f) => k(f.label)) : []}
           more={features.flatMap((f) => {
             if (hasFeature(currentPlan, f.id)) return [];
-            const to = lowestPlanWith(effective, (p) => hasFeature(p, f.id), currentId);
+            const to = lowestPlanWith(effective, (p) => hasFeature(p, f.id), currentId, family);
             return to ? [{ label: k(f.label), plan: to.name }] : [];
           })}
           apps={accountApps}
@@ -300,7 +302,9 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
             {currentId ? t("license.changePlan") : t("license.plans")}
           </h2>
           <p className="m-0 text-sm text-muted">
-            {active ? t("license.changeActive") : t("license.changeInactive")} <Link href={localePath(lang, "/pricing")}>{t("license.compare")}</Link>
+            {active ? t("license.changeActive") : t("license.changeInactive")}{" "}
+            {/* 103R The pricing page shows the regular plans only. */}
+            {family === "regular" ? <Link href={localePath(lang, "/pricing")}>{t("license.compare")}</Link> : null}
           </p>
             {/* 73 The account's country decides the currency shown (52.9). */}
             <p className="m-0 text-sm text-muted" data-country={client.country ?? ""}>
@@ -319,7 +323,9 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
           </form>
         ) : null}
         <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(210px,100%),1fr))]">
-          {PLANS.map((id) => {
+          {plansOfFamily(family)
+            .filter((id) => planOffered(plans[id]) || id === currentId)
+            .map((id) => {
             const plan = effective[id];
             const shown = planPrice(plans[id], view);
             const isCurrent = id === currentId;

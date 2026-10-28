@@ -1,6 +1,6 @@
 import type { AppScreen, DashboardScreen } from "@/lib/marketing";
 import type { DemoId } from "@/lib/demo/constants";
-import type { Plan } from "@/lib/plans";
+import type { RegularPlan } from "@/lib/plans";
 
 /**
  * 55 The shapes of the Arabic and Turkish versions of yallapp.com.tr's long
@@ -49,7 +49,8 @@ export interface MarketingTranslation {
   faq: { title: string; items: { q: string; a: string }[] }[];
   demos: Record<DemoId, { summary: string; tryThis: string[] }>;
   /** The default plans' words (an edit in the admin shows as the team wrote it). */
-  plans: Record<Plan, { tagline: string; highlights: string[] }>;
+  /** The regular plans' built-in texts; Studio plans have only the team's. */
+  plans: Record<RegularPlan, { tagline: string; highlights: string[] }>;
 }
 
 /** A documentation article: its title, description and Markdown body. */

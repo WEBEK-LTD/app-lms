@@ -1,0 +1,1 @@
+ALTER TABLE `apps` ADD `section` varchar(8) DEFAULT 'regular' NOT NULL;

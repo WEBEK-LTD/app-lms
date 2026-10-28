@@ -20,7 +20,7 @@ import { featureOn, getSwitches } from "@/lib/switches";
 import { revalidatePath } from "next/cache";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { cancelScheduledPlan, scheduleDowngrade } from "@/lib/billing/plan-change";
-import { isPlan, planPriceOf } from "@/lib/plans";
+import { isPlan, planFitsSection, planOffered, planPriceOf } from "@/lib/plans";
 
 /**
  * The client pays the current app's plan by card: off to the provider's payment
@@ -42,6 +42,8 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
   const plan = isPlan(values.plan) ? plans[values.plan] : null;
   const price = plan ? planPriceOf(plan) : null;
   if (!plan || !price) return { errors: { plan: "Choose a plan." }, values };
+  // 103R A Studio project is paid on a Studio plan the team offers, a regular app on a regular plan.
+  if (!planFitsSection(plan.id, context.app?.section) || !planOffered(plan)) return { errors: { plan: "Choose a plan." }, values };
   // 11.5 Switches: card payments can be switched off, for everyone or per plan.
   if (!featureOn(await getSwitches(store), "plan_card_payments", plan.id)) {
     return { message: "Card payments aren't available for this plan. Message us on WhatsApp to pay.", values };
@@ -188,6 +190,7 @@ export async function scheduleDowngradeAction(formData: FormData): Promise<void>
   const context = await contextFor(formData);
   const to = String(formData.get("plan") ?? "");
   if (!context.license || !isPlan(to) || context.client.status === "suspended") redirect("/dashboard/license#change-plan");
+  if (!planFitsSection(to, context.app?.section)) redirect("/dashboard/license?plan_change=refused#change-plan");
   const store = await getStore();
   const result = await scheduleDowngrade(store, context.license, to, new Date());
   if (result.ok) {

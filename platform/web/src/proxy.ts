@@ -12,6 +12,8 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   const policy = noncePolicy(newNonce(), await themeScriptHash(), process.env.NODE_ENV === "development");
   const headers = new Headers(request.headers);
   headers.set("content-security-policy", policy);
+  // 103R The page asked for, so the dashboard can send a Studio project's pages to Studio.
+  headers.set("x-yallapp-path", `${request.nextUrl.pathname}${request.nextUrl.search}`);
   const response = NextResponse.next({ request: { headers } });
   response.headers.set("content-security-policy", policy);
   return response;

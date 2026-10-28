@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { activateClientAction, addClientAction, saveClientDetailsAction, uploadReleaseAction } from "@/app/actions/admin";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
-import { PLANS, type Plan } from "@/lib/plans";
+import { plansOfFamily, type Plan, type PlanFamily } from "@/lib/plans";
 
 /** Activates or extends one app's plan (each app of an account has its own). */
 export function ActivateForm({
@@ -15,6 +15,7 @@ export function ActivateForm({
   pending,
   planNames,
   from,
+  family = "regular",
 }: {
   clientId: string;
   /** The app whose plan this is; null for a client without an app yet. */
@@ -25,6 +26,8 @@ export function ActivateForm({
   planNames: Record<Plan, string>;
   /** "client": the form is on the client's own page, which it goes back to. */
   from?: "client";
+  /** 103R A Studio project's plans, or a regular app's. */
+  family?: PlanFamily;
 }) {
   const [state, action] = useActionState(activateClientAction, initialFormState);
   // Unique per app: the client's page has one form per app.
@@ -40,7 +43,7 @@ export function ActivateForm({
           Plan
         </label>
         <select id={id("plan")} name="plan" className="input input-sm" defaultValue={state.values?.plan ?? plan}>
-          {PLANS.map((p) => (
+          {plansOfFamily(family).map((p) => (
             <option key={p} value={p}>
               {planNames[p]}
             </option>

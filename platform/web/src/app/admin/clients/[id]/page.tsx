@@ -579,11 +579,12 @@ async function AppEntry({
               <ActivateForm
                 clientId={client.id}
                 appId={app?.id ?? null}
-                plan={license?.plan ?? "pro"}
+                plan={license?.plan ?? (app?.section === "studio" ? "studio_1" : "pro")}
                 activeUntil={isoDate(nextYear)}
                 pending={!license}
                 planNames={planNamesOf(plans)}
                 from="client"
+                family={app?.section === "studio" ? "studio" : "regular"}
               />
             </div>
           ) : null}

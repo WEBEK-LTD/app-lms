@@ -184,6 +184,16 @@ export const ICON_NAMES = [
   "web_asset",
   "widgets",
   "zoom_in",
+  // 103R.3 Yallapp Studio's home, new project and project dashboard.
+  "cloud_off",
+  "directions_car",
+  "draw",
+  "hub",
+  "package_2",
+  "qr_code_2",
+  "space_dashboard",
+  "translate",
+  "two_wheeler",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];

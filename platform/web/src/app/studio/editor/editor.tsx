@@ -515,7 +515,7 @@ export function StudioEditor(props: StudioEditorProps) {
   return (
     <div className="studio flex min-h-dvh flex-col lg:h-dvh lg:overflow-hidden" style={{ fontFamily: "var(--font-studio), 'Cairo', system-ui, sans-serif", color: C.ink, background: C.board }} onDragEnd={endDrag}>
       <header className="flex flex-wrap items-center gap-4 px-5 py-2.5" style={{ background: C.ink, color: C.ivory }}>
-        <Link href="/dashboard" className="flex items-center gap-2.5 no-underline" style={{ color: C.ivory }} title={t("studio.back")}>
+        <Link href="/studio/project" className="flex items-center gap-2.5 no-underline" style={{ color: C.ivory }} title={t("studio.back")}>
           <span className="flex size-8 items-center justify-center rounded-[9px] text-lg font-extrabold" style={{ background: C.ivory, color: C.ink }}>
             y<span style={{ color: C.accent }}>.</span>
           </span>
