@@ -319,7 +319,7 @@ class Pages {
 					$blocks[] = Translator::apply( $block, $language );
 				}
 			}
-			return array(
+			$served = array(
 				'slug'       => $page['slug'],
 				'title'      => self::title( $page ),
 				'updated_at' => self::date( $page['updated_at'] ?? '' ),
@@ -327,6 +327,18 @@ class Pages {
 			) + self::page_look( $page ) + array(
 				'blocks' => $this->resolver->resolve( $blocks, $platform, $user_id, $language ),
 			);
+			// 103 A Studio page: its canvas, each layer in the language asked for.
+			if ( isset( $page['canvas']['layers'] ) && is_array( $page['canvas']['layers'] ) ) {
+				$canvas = $page['canvas'];
+				foreach ( $canvas['layers'] as $i => $layer ) {
+					$canvas['layers'][ $i ] = is_array( $layer ) ? Translator::apply( $layer, $language ) : null;
+				}
+				$canvas = $this->resolver->canvas( $canvas, $platform, $user_id, $language );
+				if ( $canvas ) {
+					$served['canvas'] = $canvas;
+				}
+			}
+			return $served;
 		}
 		return null;
 	}

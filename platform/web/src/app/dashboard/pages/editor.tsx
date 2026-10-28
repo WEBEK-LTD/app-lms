@@ -994,6 +994,13 @@ export function PagesEditor({
                   />
                 ) : null}
 
+                {/* 103 A page designed in Studio has its canvas instead of blocks. */}
+                {page.canvas ? (
+                  <p className="m-0 rounded-xl bg-sand p-3 text-[15px]" data-studio-page="">
+                    {richText(t("pages.studioPage"), { link: (chunk) => <Link href="/dashboard/studio">{chunk}</Link> })}
+                  </p>
+                ) : (
+                  <>
                 <h3 className="m-0 text-base font-bold">{t("pages.blocks")}</h3>
                 {page.blocks.length ? (
                   <ol aria-label={t("pages.blocks")} className="m-0 flex list-none flex-col gap-2 p-0">
@@ -1172,6 +1179,8 @@ export function PagesEditor({
                     </div>
                   );
                 })}
+                  </>
+                )}
               </section>
             ) : (
               <p className="m-0 text-[15px] text-muted">{t("pages.addPageFirst")}</p>

@@ -367,6 +367,52 @@ test("101 the client picks a header and its buttons, and the app gets them", asy
   expect(config.appearance.header).toEqual({ layout: "search", icons: ["notifications", "account"] });
 });
 
+test("103 the client designs a page in Studio and publishes it", async ({ request }) => {
+  await own.goto("/dashboard/studio");
+  // Studio isn't on the plan yet: designing works, the app gets the page once it is.
+  await expect(own.locator('[data-studio-plan="off"]')).toBeVisible();
+  const create = own.getByRole("region", { name: "New Studio page" });
+  await create.getByLabel("Page name").fill("Spring");
+  await create.getByRole("radio", { name: /^Welcome/ }).check();
+  await create.getByRole("button", { name: "Create the page" }).click();
+  const canvas = own.locator("[data-studio-canvas]");
+  // A coloured header, its texts and button, and a list of the academy's courses.
+  await expect(canvas.locator("[data-layer]")).toHaveCount(6);
+  await expect(own.locator('[data-studio-status="unsaved"]')).toBeVisible();
+
+  await own.getByRole("toolbar", { name: "Add" }).getByRole("button", { name: "Text" }).click();
+  await expect(canvas.locator("[data-layer]")).toHaveCount(7);
+  await own.getByRole("region", { name: "Your text" }).getByLabel("Text", { exact: true }).fill("Hello Studio");
+  const panel = own.getByRole("region", { name: "Hello Studio" });
+  await expect(canvas.getByText("Hello Studio")).toBeVisible();
+  // The arrow keys move it, its corner resizes it.
+  const x = Number(await panel.getByLabel("X", { exact: true }).inputValue());
+  await canvas.focus();
+  await own.keyboard.press("ArrowRight");
+  await own.keyboard.press("Shift+ArrowRight");
+  await expect(panel.getByLabel("X", { exact: true })).toHaveValue(String(x + 11));
+  const w = Number(await panel.getByLabel("Width", { exact: true }).inputValue());
+  const handle = (await own.locator("[data-resize]").boundingBox())!;
+  await own.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2);
+  await own.mouse.down();
+  await own.mouse.move(handle.x + handle.width / 2 - 40, handle.y + handle.height / 2 + 20, { steps: 4 });
+  await own.mouse.up();
+  await expect(panel.getByLabel("Width", { exact: true })).toHaveValue(String(w - 40));
+
+  await own.getByRole("button", { name: "Save draft" }).click();
+  await expect(own.locator('[data-studio-status="saved"]')).toBeVisible();
+  await own.getByRole("button", { name: "Publish", exact: true }).click();
+  await expect(own.getByText("Published. Your app shows the new pages")).toBeVisible();
+  // Not on this plan: the app gets the page without its canvas.
+  const served = await (await request.get(`${api}/pages/spring?platform=android`)).json();
+  expect(served).toMatchObject({ slug: "spring", blocks: [] });
+  expect(served.canvas).toBeUndefined();
+  // The page editor sends it back to Studio.
+  await own.reload();
+  await expect(own.getByRole("button", { name: /^Spring/ })).toHaveAttribute("aria-pressed", "true");
+  await own.goto("/dashboard/pages");
+});
+
 test("97.3 the client brings a look from Figma, apart from the standard one", async ({ request }) => {
   await own.getByRole("tab", { name: "Look" }).click();
   // No Figma file yet: the standard look only.

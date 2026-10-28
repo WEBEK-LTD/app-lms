@@ -67,7 +67,20 @@ export function layoutForPlan(layout: Layout, app: App, plan: PlanInfo | null, d
     languages: content.languages,
     tabs: content.tabs.filter((t) => actionAllowed(t.target, sources)),
     ...menuOf({ menu }),
-    pages: content.pages.map((p) => ({ ...p, blocks: p.blocks.filter((b) => blockAllowed(b, sources)).map((b) => cleanBlock(b, sources)) })),
+    pages: content.pages.map((p) => {
+      const page = { ...p, blocks: p.blocks.filter((b) => blockAllowed(b, sources)).map((b) => cleanBlock(b, sources)) };
+      // 103 A Studio page only with Studio on the plan; its lists and taps within the plan's sources.
+      if (!page.canvas) return page;
+      if (!hasFeature(plan, "studio")) {
+        const { canvas: _canvas, ...rest } = page;
+        void _canvas;
+        return rest;
+      }
+      const layers = page.canvas.layers
+        .filter((l) => l.type !== "items" || (l.source !== undefined && sources.includes(l.source)))
+        .map((l) => (l.action && !actionAllowed(l.action, sources) ? { ...l, action: null } : l));
+      return { ...page, canvas: { ...page.canvas, layers } };
+    }),
   };
   return withSwitches(layout, app, content);
 }

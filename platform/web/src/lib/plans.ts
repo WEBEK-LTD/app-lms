@@ -30,8 +30,9 @@ export const PLAN_RANK: Record<Plan, number> = { starter: 0, growth: 1, pro: 2, 
 /**
  * 77 `chat`: the app's chat with the business (and course groups). 91.4 `loyalty`: loyalty points in shops without a website.
  * 100.2 `store_billing`: courses and memberships bought in the app through Google Play and the App Store.
+ * 103 `studio`: Yallapp Studio, off on every plan until the team turns it on (Admin › Plans).
  */
-export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing"] as const;
+export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing", "studio"] as const;
 export type PlanFeature = (typeof PLAN_FEATURE_IDS)[number];
 
 export type SupportLevel = "email" | "whatsapp" | "priority" | "dedicated";
@@ -276,6 +277,12 @@ export const PLAN_FEATURES: PlanFeatureDef[] = [
     label: "In-app purchases",
     description: "Sell courses and memberships in the app through Google Play and the App Store.",
     enforced: "Config store_billing, the /billing endpoints, the license's store_billing and the In-app purchases page.",
+  },
+  {
+    id: "studio",
+    label: "Yallapp Studio",
+    description: "Design every screen freely: place, size and style texts, pictures, buttons and lists from your data.",
+    enforced: "The Studio page and the served layout (a page's canvas only with Studio).",
   },
 ];
 

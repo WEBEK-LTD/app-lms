@@ -4,7 +4,7 @@ import { servedLayout } from "../../pages/layout";
 import { etagValues } from "../../pages/plugin";
 import { itemSourcesFor } from "../../pages/sources";
 import { pickLanguage, translated, translatedBlock } from "../../pages/translate";
-import { ENTRY_LISTS, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock, type LayoutTab } from "../../pages/types";
+import { ENTRY_LISTS, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock, type LayoutTab, type StudioCanvas, type StudioLayer } from "../../pages/types";
 import { ConnectorError, type Connector } from "../connectors/types";
 import type { HostedContext, HostedRequest, HostedResult } from "../service";
 import { durationLabel, itemWords } from "./item-words";
@@ -49,6 +49,8 @@ export async function handlePages(ctx: HostedContext, req: HostedRequest, user: 
     if (resolved) blocks.push(resolved);
   }
   const text = translated(page, lang, layout.languages.default);
+  // 103 A Studio page: its canvas, with its texts in the language asked for and its lists filled.
+  const canvas = page.canvas ? await servedCanvas(pc, page.canvas) : null;
   return {
     status: 200,
     body: {
@@ -60,9 +62,29 @@ export async function handlePages(ctx: HostedContext, req: HostedRequest, user: 
       ...(page.background ? { background: page.background } : {}),
       ...(page.header_image_url ? { header_image_url: page.header_image_url } : {}),
       blocks,
+      ...(canvas ? { canvas } : {}),
     },
     headers: VARY,
   };
+}
+
+/**
+ * 103 A Studio canvas as the app gets it (`StudioCanvas`): each layer in the
+ * language asked for; an items layer filled like the items block (left out
+ * when its source can't be served), without its query.
+ */
+async function servedCanvas(pc: PageContext, canvas: StudioCanvas): Promise<StudioCanvas> {
+  const layers: StudioLayer[] = [];
+  for (const layer of canvas.layers) {
+    const { query, ...shown } = translated(layer, pc.lang, pc.layout.languages.default);
+    if (layer.type !== "items") {
+      layers.push(shown);
+      continue;
+    }
+    const list = (await resolveBlock(pc, { id: layer.id, type: "items", visibility: "everyone", title: null, source: layer.source, layout: layer.layout, query })) as { items?: unknown[] } | null;
+    if (list?.items) layers.push({ ...shown, items: list.items } as StudioLayer);
+  }
+  return { ...canvas, layers };
 }
 
 /** A tab or a side menu entry as the app gets it (`NavTab`): 82.5 with the owner's own icon. */

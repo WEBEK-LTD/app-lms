@@ -59,6 +59,8 @@ export const en = {
     featChatText: "Your app users write to you in the app, and academies get a group for each course.",
     featLoyalty: "Loyalty points",
     featLoyaltyText: "Customers earn points on their orders and use them on the next ones.",
+    featStudio: "Yallapp Studio",
+    featStudioText: "Design every screen freely: place, size and style texts, pictures, buttons and lists from your data.",
     noCoursePlugin:
       "Your website has no course plugin the app can read. Install Tutor LMS, LearnDash, LearnPress, LifterLMS, MasterStudy, Sensei LMS or Masteriyo, or change the app type.",
     noShopPlugin: "Your website has no shop plugin the app can read. Install WooCommerce, or change the app type.",
@@ -127,6 +129,8 @@ export const ar: Messages = {
     featChatText: "يراسلك مستخدمو تطبيقك من داخل التطبيق، وتحصل الأكاديميات على مجموعة لكل دورة.",
     featLoyalty: "نقاط الولاء",
     featLoyaltyText: "يكسب العملاء نقاطًا على طلباتهم ويستخدمونها في الطلبات التالية.",
+    featStudio: "استوديو Yallapp",
+    featStudioText: "صمّم كل شاشة بحرية: ضع النصوص والصور والأزرار والقوائم من بياناتك وغيّر أحجامها وأشكالها.",
     noCoursePlugin:
       "لا توجد في موقعك إضافة دورات يستطيع التطبيق قراءتها. ثبّت Tutor LMS أو LearnDash أو LearnPress أو LifterLMS أو MasterStudy أو Sensei LMS أو Masteriyo، أو غيّر نوع التطبيق.",
     noShopPlugin: "لا توجد في موقعك إضافة متجر يستطيع التطبيق قراءتها. ثبّت WooCommerce، أو غيّر نوع التطبيق.",
@@ -193,6 +197,8 @@ export const tr: Messages = {
     featChatText: "Uygulama kullanıcılarınız size uygulamadan yazar; akademiler her kurs için bir grup alır.",
     featLoyalty: "Sadakat puanları",
     featLoyaltyText: "Müşteriler siparişlerinden puan kazanır ve sonraki siparişlerinde kullanır.",
+    featStudio: "Yallapp Stüdyo",
+    featStudioText: "Her ekranı özgürce tasarlayın: metinleri, resimleri, düğmeleri ve verilerinizden listeleri yerleştirin, boyutlandırın ve biçimlendirin.",
     noCoursePlugin:
       "Web sitenizde uygulamanın okuyabileceği bir kurs eklentisi yok. Tutor LMS, LearnDash, LearnPress, LifterLMS, MasterStudy, Sensei LMS ya da Masteriyo yükleyin veya uygulama türünü değiştirin.",
     noShopPlugin: "Web sitenizde uygulamanın okuyabileceği bir mağaza eklentisi yok. WooCommerce yükleyin veya uygulama türünü değiştirin.",

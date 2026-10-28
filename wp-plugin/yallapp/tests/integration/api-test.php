@@ -438,6 +438,20 @@ $layout = array(
 				array( 'id' => 'deal', 'type' => 'image', 'visibility' => 'everyone', 'image_url' => 'https://example.org/deal.png', 'aspect_ratio' => 2, 'action' => array( 'type' => 'url', 'url' => 'https://example.org/deal' ) ),
 				array( 'id' => 'clip', 'type' => 'video', 'visibility' => 'everyone', 'url' => 'https://example.org/clip.mp4' ),
 			),
+			// 103 A Studio canvas: an unknown layer and a picture that isn't a web address are left out.
+			'canvas'     => array(
+				'width'      => 390,
+				'height'     => 900,
+				'background' => '#ffffff',
+				'layers'     => array(
+					array( 'id' => 'hero', 'type' => 'box', 'x' => 0, 'y' => 0, 'w' => 390, 'h' => 300, 'fill' => '#1f4e5f', 'radius' => 0 ),
+					array( 'id' => 'title', 'type' => 'text', 'x' => 20, 'y' => 40, 'w' => 350, 'h' => 60, 'text' => "Learn\nfaster", 'font_size' => 32, 'font_weight' => 800, 'color' => '#ffffff', 'translations' => array( 'ar' => array( 'text' => 'تعلم أسرع' ) ) ),
+					array( 'id' => 'go', 'type' => 'button', 'x' => 20, 'y' => 220, 'w' => 160, 'h' => 48, 'text' => 'Courses', 'fill' => '#e8b04b', 'radius' => 24, 'action' => array( 'type' => 'screen', 'screen' => 'courses' ) ),
+					array( 'id' => 'list', 'type' => 'items', 'x' => 0, 'y' => 320, 'w' => 390, 'h' => 260, 'source' => 'courses', 'layout' => 'carousel', 'query' => array( 'limit' => 2 ) ),
+					array( 'id' => 'bad-picture', 'type' => 'image', 'x' => 0, 'y' => 600, 'w' => 100, 'h' => 100, 'image_url' => 'javascript:alert(1)' ),
+					array( 'id' => 'video', 'type' => 'video', 'x' => 0, 'y' => 700, 'w' => 100, 'h' => 100 ),
+				),
+			),
 		),
 	),
 );
@@ -531,6 +545,16 @@ call( 'DELETE', '/me/wishlist/' . $seed['design'], null, $token );
 set_settings( array( 'featured_course_ids' => array() ) );
 
 $r = call( 'GET', '/pages/offers?platform=ios' );
+$canvas = $r['json']['canvas'] ?? array();
+check(
+	'103 studio canvas',
+	390 === ( $canvas['width'] ?? 0 ) && '#FFFFFF' === ( $canvas['background'] ?? '' )
+		&& array( 'hero', 'title', 'go', 'list' ) === array_column( $canvas['layers'] ?? array(), 'id' )
+		&& "Learn\nfaster" === ( $canvas['layers'][1]['text'] ?? '' ) && ! isset( $canvas['layers'][1]['translations'] )
+		&& 'courses' === ( $canvas['layers'][2]['action']['screen'] ?? '' )
+		&& 2 === count( $canvas['layers'][3]['items'] ?? array() ) && ! isset( $canvas['layers'][3]['query'] ),
+	$canvas
+);
 check( 'second page', 200 === $r['status'] && false === $r['json']['show_title'] && 2.0 === (float) ( page_block( $r['json'], 'deal' )['aspect_ratio'] ?? 0 ) && 'https://example.org/deal' === ( page_block( $r['json'], 'deal' )['action']['url'] ?? '' ) && 'https://example.org/clip.mp4' === ( page_block( $r['json'], 'clip' )['url'] ?? '' ), $r['raw'] );
 forget_layout();
 $r = call( 'GET', '/pages?platform=android' );

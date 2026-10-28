@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.24
+Stable tag: 0.4.25
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,9 @@ Terms: https://developer.huawei.com/consumer/en/devservice/term
 Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 
 == Changelog ==
+
+= 0.4.25 =
+* Yallapp Studio: pages designed freely in the Yallapp dashboard's Studio reach the app with their layers, their texts in the app's language and their lists filled from your site.
 
 = 0.4.24 =
 * Header types: the header chosen in the Yallapp dashboard (title, centered, logo or search, with up to four buttons: search, cart, notifications, chat, account) reaches the app with its look.
