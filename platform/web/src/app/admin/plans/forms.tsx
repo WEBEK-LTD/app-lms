@@ -43,19 +43,22 @@ export function PlanForm({ plan }: { plan: PlanFormValues }) {
     <form action={action} noValidate className="flex flex-col gap-4">
       <input type="hidden" name="plan" value={plan.id} />
       <FormMessage message={state.message} ok={state.ok} />
-      <Field id={id("name")} label="Name" name="name" maxLength={30} defaultValue={v("name", plan.name)} error={state.errors?.name} />
-      <Field id={id("tagline")} label="Tagline" name="tagline" maxLength={80} defaultValue={v("tagline", plan.tagline)} error={state.errors?.tagline} />
+      <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+        <Field id={id("name")} label="Name" name="name" maxLength={30} defaultValue={v("name", plan.name)} error={state.errors?.name} />
+        <Field id={id("tagline")} label="Tagline" name="tagline" maxLength={80} defaultValue={v("tagline", plan.tagline)} error={state.errors?.tagline} />
+      </div>
       <div className="flex flex-col gap-1.5">
         <label htmlFor={id("highlights")} className="text-sm font-semibold">
           What&apos;s included
         </label>
-        <textarea id={id("highlights")} name="highlights" rows={5} defaultValue={v("highlights", plan.highlights)} className="input min-h-28 py-3" />
+        <textarea id={id("highlights")} name="highlights" rows={4} defaultValue={v("highlights", plan.highlights)} className="input min-h-24 py-3" />
         <span className="text-[13px] text-muted">One line per point on the pricing page.</span>
         <FieldError id={`${id("highlights")}-error`} error={state.errors?.highlights} />
       </div>
       {/* 52 A price in pounds (charged through Kashier), shown in dollars outside Egypt; or the price text ("On request"). */}
       {/* The choice is sent from state: React resets the form's own radios after each submit. */}
       <input type="hidden" name="pricing" value={pricing} />
+      <div className="flex flex-col gap-4 rounded-xl border border-line-soft bg-sand/40 p-4">
       <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
         <legend className="mb-1 text-sm font-semibold">Price</legend>
         <div className="flex flex-wrap gap-5">
@@ -78,14 +81,14 @@ export function PlanForm({ plan }: { plan: PlanFormValues }) {
         </div>
         <FieldError id={`${id("pricing")}-error`} error={state.errors?.pricing} />
       </fieldset>
-      <div className="grid gap-4 sm:grid-cols-[1fr_1fr_150px]">
+      <div className="grid gap-4 sm:grid-cols-[1fr_1fr_130px]">
         <Field
           id={id("egpPrice")}
           label="Price in EGP"
           name="egpPrice"
           inputMode="decimal"
           defaultValue={v("egpPrice", plan.egpPrice)}
-          hint="What everyone is charged, in Egypt or not. Shown to people in Egypt."
+          hint="Charged to everyone; shown in Egypt."
           error={state.errors?.egpPrice}
         />
         <Field
@@ -94,7 +97,7 @@ export function PlanForm({ plan }: { plan: PlanFormValues }) {
           name="usdPrice"
           inputMode="decimal"
           defaultValue={v("usdPrice", plan.usdPrice)}
-          hint={plan.usdAtRate ? `Shown outside Egypt. Empty: ${plan.usdAtRate} at the exchange rate.` : "Shown outside Egypt. Empty: the EGP price at the exchange rate in Settings."}
+          hint={plan.usdAtRate ? `Shown outside Egypt. Empty: ${plan.usdAtRate} at the rate.` : "Shown outside Egypt. Empty: the EGP price at the rate."}
           error={state.errors?.usdPrice}
         />
         <div className="flex flex-col gap-1.5">
@@ -116,11 +119,12 @@ export function PlanForm({ plan }: { plan: PlanFormValues }) {
         hint="Shown instead of a price when the plan is On request."
         error={state.errors?.price}
       />
+      </div>
       {/* 62 The website and the dashboard in Arabic and Turkish show these; empty: the built-in translation of the default texts, else the English. */}
       {TEXT_LANGS.map((lang) => {
         const key = (field: "Name" | "Tagline" | "Highlights" | "Price") => `${lang.code}${field}` as keyof PlanFormValues & string;
         return (
-          <details key={lang.code} className="rounded-xl border border-line-soft p-3.5" open={Boolean(plan[key("Name")] || plan[key("Tagline")] || plan[key("Highlights")] || plan[key("Price")])}>
+          <details key={lang.code} className="rounded-xl border border-line-soft px-3.5 py-3" open={Boolean(plan[key("Name")] || plan[key("Tagline")] || plan[key("Highlights")] || plan[key("Price")])}>
             <summary className="cursor-pointer text-sm font-semibold">In {lang.name} (optional)</summary>
             <div role="group" aria-label={`${lang.name} texts`} className="mt-3 flex flex-col gap-4" lang={lang.code} dir={lang.dir}>
               <p className="m-0 text-[13px] text-muted" lang="en" dir="ltr">
@@ -243,17 +247,19 @@ export function PlanLimitsForm({
       <FormMessage message={state.message} ok={state.ok} />
       <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
         <legend className="mb-1 text-sm font-semibold">Features</legend>
-        {features.map((f) => (
-          <label key={f.id} className="flex cursor-pointer items-start gap-2 text-[15px]">
-            <input type="checkbox" name="features" value={f.id} defaultChecked={checked.includes(f.id)} className="mt-1 h-4 w-4 accent-midnight" />
-            <span className="flex flex-col">
-              <span>{f.label}</span>
-              <span className="text-[12px] text-muted">Enforced: {f.enforced}</span>
-            </span>
-          </label>
-        ))}
+        <div className="grid gap-2 sm:grid-cols-2">
+          {features.map((f) => (
+            <label key={f.id} className="flex cursor-pointer items-start gap-2 rounded-lg border border-line-soft px-3 py-2 text-sm has-[:checked]:border-line-strong has-[:checked]:bg-sand/40">
+              <input type="checkbox" name="features" value={f.id} defaultChecked={checked.includes(f.id)} className="mt-0.5 h-4 w-4 flex-none accent-midnight" />
+              <span className="flex min-w-0 flex-col gap-0.5">
+                <span className="font-semibold">{f.label}</span>
+                <span className="text-[12px] leading-snug text-muted">Enforced: {f.enforced}</span>
+              </span>
+            </label>
+          ))}
+        </div>
       </fieldset>
-      <div className="grid gap-4 sm:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-3">
         {limits.map((l) => (
           <Field
             key={l.id}

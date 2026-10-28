@@ -59,6 +59,9 @@ test("the company makes a Delivery & couriers project in Yallapp Studio, not amo
   await expect(sources).toHaveText(["No website: everything from here"]);
   await own.getByLabel("Project name").fill(client.name);
   await own.getByRole("button", { name: "Next" }).click();
+  // 103R.7 The delivery company's own template, with no shop or menu.
+  await expect(own.getByRole("radio", { name: "Delivery", exact: true })).toBeVisible();
+  await expect(own.getByRole("radio", { name: "Shop", exact: true })).toHaveCount(0);
   await own.getByRole("radio", { name: "Blank page" }).click();
   await own.getByRole("button", { name: "Next" }).click();
   await expect(own).toHaveURL(/\/studio\/project$/);

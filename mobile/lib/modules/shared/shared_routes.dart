@@ -23,6 +23,7 @@ import 'auth/otp_screen.dart';
 import 'auth/sign_in_screen.dart';
 import 'auth/signup_screen.dart';
 import 'pages/page_actions.dart';
+import 'pages/page_providers.dart';
 import 'links/link_open_screen.dart';
 import 'pages/page_screen.dart';
 import 'pages/side_menu.dart';
@@ -302,35 +303,62 @@ class MainShell extends ConsumerWidget {
         )
         .key;
     final hasMenu = sideMenuEntries(ref).isNotEmpty;
+    // 103R A Studio page can be shown without the tabs under it
+    // (`StudioPage.show_tabs`); the side menu and its own buttons lead on.
+    final path = current < tabs.length ? tabs[current].path : null;
+    final hideTabs =
+        path != null &&
+        path.startsWith(Paths.pagePrefix) &&
+        ref
+                .watch(
+                  pageProvider(
+                    Uri.decodeComponent(
+                      path.substring(Paths.pagePrefix.length),
+                    ),
+                  ),
+                )
+                .value
+                ?.studio
+                ?.showTabs ==
+            false;
     return Scaffold(
       body: shell,
       // 82.5 The side menu built in the dashboard.
       drawer: hasMenu
           ? SideMenu(onOpen: (action) => runPageAction(context, ref, action))
           : null,
-      bottomNavigationBar: AppNavBar(
-        template: template,
-        destinations: [
-          for (final tab in tabs)
-            NavDestination(tab.icon, tab.label(context), iconUrl: tab.iconUrl),
-        ],
-        badges: {
-          for (final (i, tab) in tabs.indexed)
-            i: ?counts[tab.path ?? tab.pushLocation],
-        },
-        currentIndex: current,
-        onSelected: (i) {
-          final tab = tabs[i];
-          final index = branchOf[i];
-          if (index != null) {
-            shell.goBranch(index, initialLocation: index == shell.currentIndex);
-          } else if (tab.pushLocation != null) {
-            context.push(tab.pushLocation!);
-          } else if (tab.action != null) {
-            runPageAction(context, ref, tab.action!);
-          }
-        },
-      ),
+      bottomNavigationBar: hideTabs
+          ? null
+          : AppNavBar(
+              template: template,
+              destinations: [
+                for (final tab in tabs)
+                  NavDestination(
+                    tab.icon,
+                    tab.label(context),
+                    iconUrl: tab.iconUrl,
+                  ),
+              ],
+              badges: {
+                for (final (i, tab) in tabs.indexed)
+                  i: ?counts[tab.path ?? tab.pushLocation],
+              },
+              currentIndex: current,
+              onSelected: (i) {
+                final tab = tabs[i];
+                final index = branchOf[i];
+                if (index != null) {
+                  shell.goBranch(
+                    index,
+                    initialLocation: index == shell.currentIndex,
+                  );
+                } else if (tab.pushLocation != null) {
+                  context.push(tab.pushLocation!);
+                } else if (tab.action != null) {
+                  runPageAction(context, ref, tab.action!);
+                }
+              },
+            ),
     );
   }
 }

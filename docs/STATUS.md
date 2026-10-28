@@ -53,7 +53,7 @@ companies (105.1.6). Checks: redocly lint, platform unit tests (with the
 isolation tests), tsc, eslint, e2e of the dashboard, flutter analyze and
 widget tests.
 
-Phase 103R (Yallapp Studio as the owner approved it) is under way. A
+Phase 103R (Yallapp Studio as the owner approved it) is complete. A
 Studio page is a tree of elements (`AppPage.studio`): rows, columns, layers,
 grids and sliders; texts, pictures, buttons, lists with the owner's own card,
 categories, videos, forms, maps, ratings and search, sized to fill, hug or a
@@ -66,7 +66,10 @@ fixed size, light and dark, with motion. Done:
 - Studio's own section of the account: its home with the projects, a new
   project in three steps and each project's dashboard, as the owner
   approved them; Studio projects (`App.section` "studio") apart from the
-  regular apps, on Studio's own plans (Admin › Plans › Yallapp Studio).
+  regular apps, on Studio's own plans (Admin › Plans › Yallapp Studio);
+- templates and ready sections for each project type, its own first (the
+  shop, a restaurant's menu, courses, services, listings, news, events,
+  charity, the delivery company's), then the ones for every project.
 
 Studio's plans are offered once the team turns them on and prices them;
 until then a project designs and tries everything, and publishing it to

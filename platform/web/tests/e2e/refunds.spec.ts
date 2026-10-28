@@ -210,7 +210,7 @@ test("the team edits what a plan includes, and the WordPress site on it is asked
   // A new app is a WordPress app until the owner picks another source; only the plan's edit is counted from here.
   const before = refreshes.length;
 
-  await admin.goto("/admin/plans");
+  await admin.goto("/admin/plans?plan=business");
   const form = admin.getByRole("form", { name: "Business: features and limits" });
   await form.getByRole("button", { name: "Save features and limits" }).click();
   await expect(form.getByText("Business: features and limits saved.")).toBeVisible();

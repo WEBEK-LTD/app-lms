@@ -15,7 +15,7 @@ import type { App } from "@/lib/data/types";
 import { defaultLayout } from "@/lib/pages/defaults";
 import { appDefaults, saveDraft } from "@/lib/pages/layout";
 import { itemSourcesFor } from "@/lib/pages/sources";
-import { TEMPLATES, type SectionWord } from "@/lib/studio/sections";
+import { templatesFor, TEMPLATES, type SectionWord } from "@/lib/studio/sections";
 import { studioSourcesFor, type StudioSource } from "@/lib/studio/section";
 import { appTypeOn, getSwitches } from "@/lib/switches";
 import type { TeamPermission } from "@/lib/team/permissions";
@@ -72,7 +72,8 @@ export async function createStudioProjectAction(formData: FormData): Promise<voi
   const sources = studioSourcesFor(kind);
   const chosen = String(formData.get("source") ?? "");
   const source: StudioSource = (sources as readonly string[]).includes(chosen) ? (chosen as StudioSource) : (sources[0] ?? "catalog");
-  const template = TEMPLATES.find((x) => x.id === formData.get("template")) ?? TEMPLATES.find((x) => x.id === "blank")!;
+  // 103R.7 One of the project type's templates (or the ones for every project).
+  const template = templatesFor({ type: kind.engine, vertical: kind.vertical }).find((x) => x.id === formData.get("template")) ?? TEMPLATES.find((x) => x.id === "blank")!;
   const now = new Date();
   const base: App = { ...newApp(context.client.id, null, now, kind.engine, kind.vertical), section: "studio", appName: name };
   const app: App =
