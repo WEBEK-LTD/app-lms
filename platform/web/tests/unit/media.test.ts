@@ -476,7 +476,7 @@ describe("storage per plan (51)", () => {
     expect(storageLimitBytes(PLAN_INFO.growth, [pack(25, days(10)), pack(100, days(-1))], NOW)).toBe(45 * GB);
     expect(activePacks([pack(25, days(10)), pack(100, days(-1))], NOW).map((p) => p.gb)).toEqual([25]);
     expect(storageLimitBytes({ limits: { ...PLAN_INFO.pro.limits, storageGb: null } }, [], NOW)).toBeNull();
-    expect(storageLimitBytes(null, [pack(25, days(10))], NOW)).toBe(0);
+    expect(storageLimitBytes(null, [pack(25, days(10))], NOW)).toBe(100 * 1024 ** 2);
     // An edit saved before storage was a limit keeps the default; a new edit changes it.
     const old = plansWith({ growth: { ...PLAN_INFO.growth, version: 2, limits: { ...PLAN_INFO.growth.limits, storageGb: undefined as unknown as number } } });
     expect(old.growth.limits.storageGb).toBe(20);
