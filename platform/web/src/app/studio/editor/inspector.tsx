@@ -1262,7 +1262,7 @@ function TabsPanel(props: Props) {
     else setTab(i, { translations: { ...tab.translations, [props.lang]: { ...tab.translations?.[props.lang], label } } });
   };
   const add = () =>
-    props.onTabs([...tabs, { id: newBlockId("t"), label: "", icon: "star", target: props.pages[0] ? { type: "page", page_slug: props.pages[0].slug } : { type: "screen", screen: (props.screens[0]?.value ?? "account") as Action["screen"] } }]);
+    props.onTabs([...tabs, { id: newBlockId("t"), label: t("studio.tabN", { n: tabs.length + 1 }), icon: "star", target: props.pages[0] ? { type: "page", page_slug: props.pages[0].slug } : { type: "screen", screen: (props.screens[0]?.value ?? "account") as Action["screen"] } }]);
   // The middle of the bar: a tab only when three or five show and it isn't More.
   const shown = tabs.length > LAYOUT_LIMITS.shownTabs ? LAYOUT_LIMITS.shownTabs : tabs.length;
   const middle = shown % 2 === 1 && shown >= 3 ? tabs[(shown - 1) / 2] : undefined;
