@@ -375,33 +375,46 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await admin.goto("/admin/plans?family=studio");
   await expect(admin.locator('[data-studio-plan="studio_1"]')).toContainText("Not offered");
   const studioPlan = admin.locator('section[aria-labelledby="h-studio_1"]');
-  // Offered with its own name only.
+  // One Save button for the whole plan, at the bottom of the screen.
+  await expect(studioPlan.getByRole("button", { name: /^Save/ })).toHaveCount(1);
+  const save = studioPlan.getByRole("button", { name: "Save plan" });
+  // Offered with its own name only; nothing is saved while a field is wrong.
   await studioPlan.getByLabel("Offered").check();
-  await studioPlan.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(studioPlan.getByText("Give the plan its name and price below first, then offer it.")).toBeVisible();
-  // Its name, texts and price, like a regular plan's.
+  await expect(studioPlan.getByText("Changes not saved yet.")).toBeVisible();
+  await save.click();
+  await expect(studioPlan.getByText("Check the fields marked below. Nothing was saved.")).toBeVisible();
+  await expect(studioPlan.getByText("Give the plan its own name before offering it.")).toBeVisible();
+  // Leaving with changes not saved asks first.
+  admin.once("dialog", (dialog) => void dialog.dismiss());
+  await admin.locator('[data-studio-plan="studio_2"]').click();
+  await expect(admin).toHaveURL(/family=studio$/);
+  // Its name, texts and price, like a regular plan's; "What's included" left empty is written from its numbers.
   await studioPlan.getByLabel("Name", { exact: true }).first().fill("Studio Start");
   await studioPlan.getByLabel("Tagline", { exact: true }).first().fill("Your first Studio project");
-  await studioPlan.getByLabel("What's included", { exact: true }).first().fill("Pages designed freely\nThe app in the stores");
   await studioPlan.getByLabel("A price").check();
   await studioPlan.getByLabel("Price in EGP").fill("500");
-  await studioPlan.getByRole("button", { name: "Save plan" }).click();
-  await expect(studioPlan.getByText("Studio Start saved. The pricing page shows it now.")).toBeVisible();
-  // Its features and limits: Studio's own and every regular one, storage included.
+  // Its features and limits, Pages per project with them: Studio's own and every regular one, storage included.
   await expect(studioPlan.getByLabel("Storage (GB)")).toHaveValue("20");
   await studioPlan.getByLabel("Motion in the editor").check();
   await studioPlan.getByLabel("Storage (GB)").fill("30");
-  await studioPlan.getByRole("button", { name: "Save features and limits" }).click();
-  await expect(studioPlan.getByText("Studio Start: features and limits saved.")).toBeVisible();
-  await studioPlan.getByLabel("Offered").check();
   await studioPlan.getByLabel("Pages per project").fill("5");
-  await studioPlan.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(studioPlan.getByText("Studio Start is offered. Studio projects can choose it now.")).toBeVisible();
+  await save.click();
+  await expect(studioPlan.getByText("Studio Start saved and offered. Studio projects can choose it now.")).toBeVisible();
+  await expect(studioPlan.getByLabel("What's included", { exact: true }).first()).toHaveValue(/^Up to 5 pages per project\n30 GB of media storage\n/);
+  await expect(studioPlan.getByLabel("What's included", { exact: true }).nth(1)).toHaveValue(/^حتى 5 صفحات لكل مشروع\n/);
   await admin.reload();
   await expect(admin.locator('[data-studio-plan="studio_1"]')).toContainText("Offered");
   await expect(studioPlan.getByLabel("Storage (GB)")).toHaveValue("30");
   await expect(studioPlan.getByLabel("Pages per project")).toHaveValue("5");
   await expect(studioPlan.getByRole("heading", { name: "What Studio Start offers" })).toBeVisible();
+  // Its numbers change: the written "What's included" follows; one the team writes stays.
+  await studioPlan.getByLabel("Pages per project").fill("8");
+  await save.click();
+  await expect(studioPlan.getByText("Studio Start saved and offered.", { exact: false })).toBeVisible();
+  await expect(studioPlan.getByLabel("What's included", { exact: true }).first()).toHaveValue(/^Up to 8 pages per project\n/);
+  await studioPlan.getByLabel("What's included", { exact: true }).first().fill("Pages designed freely\nThe app in the stores");
+  await save.click();
+  await expect(studioPlan.getByLabel("What's included", { exact: true }).first()).toHaveValue("Pages designed freely\nThe app in the stores");
   // The team adds plans past the first three, and takes off one no app is on.
   await expect(admin.locator('[data-studio-plan="studio_4"]')).toHaveCount(0);
   await admin.getByRole("button", { name: "Add a Studio plan" }).click();
@@ -413,7 +426,7 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await admin.goto("/yallapp-studio");
   const offered = admin.locator('#plans [data-plan="studio_1"]');
   await expect(offered.getByRole("heading", { level: 3, name: "Studio Start" })).toBeVisible();
-  await expect(offered).toContainText("5 Studio pages per project");
+  await expect(offered).toContainText("8 Studio pages per project");
   await expect(offered.locator("li[data-included]").filter({ hasText: "Motion in the editor" })).toHaveCount(1);
   await admin.goto("/pricing");
   await expect(admin.locator('#studio [data-plan="studio_1"]')).toContainText("Studio Start");
@@ -807,8 +820,8 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   // The Studio plan isn't offered any more, for the specs that run after this one.
   await admin.goto("/admin/plans?family=studio");
   await studioPlan.getByLabel("Offered").uncheck();
-  await studioPlan.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(admin.getByText("Studio Start isn't offered. Clients don't see it.")).toBeVisible();
+  await studioPlan.getByRole("button", { name: "Save plan" }).click();
+  await expect(admin.getByText("Studio Start saved. It isn't offered: clients don't see it.")).toBeVisible();
 });
 
 test("97.3 the client brings a look from Figma, apart from the standard one", async ({ request }) => {
