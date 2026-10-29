@@ -1,4 +1,6 @@
 import { assetUrl } from "@/lib/assets";
+import { notifyDeps } from "@/lib/delivery/flow";
+import { tellStudentAnswered, tellTeacherQuestion } from "@/lib/teachers/notify";
 import { storeBillingOn } from "@/lib/store-billing/access";
 import { sendMail } from "@/lib/mail";
 import { sendAccountDeleted } from "@/lib/hosted/api-webhooks";
@@ -222,6 +224,13 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
         },
         onReview: async ({ review, course, user }) => {
           await pushOwnerSafely((d) => pushNewReview(d, app, { review, course, name: user.name }));
+        },
+        // 105.3 A teacher's students and the teacher hear of each other's questions and answers.
+        onTeacherQuestion: async ({ teacher, question, course, text }) => {
+          await tellTeacherQuestion(notifyDeps({ store, app, now }), teacher, course, question, text);
+        },
+        onTeacherAnswer: async ({ teacher, question, course, text }) => {
+          await tellStudentAnswered(notifyDeps({ store, app, now }), teacher, course, question, text);
         },
       }),
     },

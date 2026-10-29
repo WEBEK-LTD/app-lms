@@ -177,3 +177,89 @@ export const ACADEMY_DESIGNS: Design[] = [
     ],
   },
 ];
+
+// 105.3 Academies with many teachers: their teachers as a tab, and a teacher's own screens for the teachers.
+const teachersTab = screenTab("teachers", "Teachers", "groups", "teachers");
+
+export const INSTRUCTORS_DESIGNS: Design[] = [
+  {
+    id: "teachers-marketplace",
+    kind: "instructors",
+    name: "Course marketplace",
+    description: "Many teachers, many courses: slides, the teachers, the newest and most popular courses and reviews.",
+    look: { template: "classic", corners: "soft", cards: "outlined", font: "Plus Jakarta Sans", secondary_color: "#F2A541" },
+    tabs: [homeTab, coursesTab, teachersTab, learningTab, accountTab],
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          slider([
+            slide("Learn from the best teachers", "Each one teaches what they know best", screen("teachers")),
+            slide("Start with a free lesson", "Try a course before you enroll", screen("courses")),
+          ]),
+          search("courses", "Search courses"),
+          continueLearning(),
+          button("teachers", "Meet the teachers", screen("teachers")),
+          list("new-courses", "New courses", "courses", "carousel", { seeAll: screen("courses") }),
+          categories("Categories", "courses"),
+          list("popular", "Popular courses", "courses", "grid", { sort: "popular", limit: 4 }),
+          testimonials("What students say", [quote("Write what one of your students says about your teachers.", "Student's name", "Student")]),
+        ],
+      },
+    ],
+  },
+  {
+    id: "teachers-school",
+    kind: "instructors",
+    name: "Online school",
+    description: "Calm and clear: a welcome, quick links to the teachers and courses, numbers and questions.",
+    look: { template: "minimal", corners: "soft", cards: "flat", font: "Manrope", secondary_color: "#7BC8A4" },
+    tabs: [homeTab, coursesTab, teachersTab, learningTab, accountTab],
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          slider([slide("Teachers you can trust", "Courses for every level", screen("courses"))], false),
+          quickLinks([
+            link("groups", "Teachers", screen("teachers")),
+            link("school", "All courses", screen("courses")),
+            link("menu_book", "My courses", screen("my_courses")),
+            link("person", "Account", screen("account")),
+          ]),
+          list("new-courses", "New courses", "courses", "list", { seeAll: screen("courses") }),
+          stats([stat("50+", "Teachers"), stat("200+", "Courses"), stat("4.8", "Rating")]),
+          faq("Questions", [
+            question("Who teaches the courses?", "Our teachers. Open a teacher to see their courses and what students say, and follow them to hear of new ones."),
+            question("Can I teach here?", "Yes: open Account and choose Teach here. We answer every application."),
+          ]),
+        ],
+      },
+    ],
+  },
+  {
+    id: "teachers-tutors",
+    kind: "instructors",
+    name: "Tutors",
+    description: "Bold and personal: your teachers first, an offer with a countdown and what students say.",
+    look: { template: "bold", corners: "round", cards: "elevated", font: "Outfit", secondary_color: "#FF8C42" },
+    tabs: [homeTab, teachersTab, coursesTab, learningTab, accountTab],
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          slider([slide("Find your teacher", "Search by subject, then learn at your pace", screen("teachers"))], false),
+          button("teachers", "Meet the teachers", screen("teachers")),
+          countdown("New courses this month", 14, "The offer has ended.", { label: "See the courses", action: screen("courses") }),
+          list("popular", "Popular courses", "courses", "carousel", { sort: "popular", seeAll: screen("courses") }),
+          testimonials("What students say", [quote("Write what a student says about their teacher.", "Student's name", "Student")]),
+        ],
+      },
+    ],
+  },
+];

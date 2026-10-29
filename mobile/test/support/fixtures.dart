@@ -2515,3 +2515,137 @@ Map<String, dynamic> driverEarningsJson() => {
     {'date': '2026-10-28', 'rides': 6, 'earned_formatted': 'E£540.00'},
   ],
 };
+
+// 105.3 Academies with many teachers.
+
+Map<String, dynamic> teacherSummaryJson({
+  int id = 7,
+  String name = 'Salma Fathy',
+  bool featured = true,
+}) => {
+  'id': id,
+  'name': name,
+  'avatar_url': null,
+  'headline': 'Arabic grammar, simply.',
+  'subjects': ['Arabic', 'Grammar'],
+  'rating': 4.5,
+  'rating_count': 12,
+  'course_count': 1,
+  'featured': featured,
+};
+
+Map<String, dynamic> teacherDetailJson({
+  int id = 7,
+  bool following = false,
+  bool canReview = false,
+  Map<String, dynamic>? myReview,
+}) => {
+  ...teacherSummaryJson(id: id),
+  'bio': 'Arabic grammar, simply.\nTen years in classrooms.',
+  'student_count': 40,
+  'follower_count': 18,
+  'following': following,
+  'can_review': canReview,
+  'my_review': myReview,
+  'courses': [courseSummaryJson(id: 30, title: 'Arabic grammar')],
+};
+
+Map<String, dynamic> teacherReviewJson({
+  int id = 1,
+  int rating = 5,
+  String text = 'Clear and patient.',
+  bool mine = false,
+}) => {
+  'id': id,
+  'rating': rating,
+  'text': text,
+  'author': {
+    'name': mine ? 'Omar' : 'Mona',
+    'avatar_url': null,
+    'instructor': false,
+  },
+  'created_at': '2026-10-20T10:00:00.000Z',
+  'mine': mine,
+  'hidden': false,
+};
+
+Map<String, dynamic> teacherProfileJson() => {
+  'id': 7,
+  'name': 'Salma Fathy',
+  'avatar_url': null,
+  'bio': 'Arabic grammar, simply.',
+  'subjects': ['Arabic', 'Grammar'],
+  'share_percent': 70,
+  'rating': 4.5,
+  'rating_count': 12,
+  'follower_count': 18,
+  'student_count': 40,
+};
+
+Map<String, dynamic> teacherCourseJson({
+  int id = 30,
+  String title = 'Arabic grammar',
+  String stage = 'draft',
+  String? note,
+  bool withLesson = true,
+}) => {
+  'id': id,
+  'title': title,
+  'description': 'Nahw from the start.',
+  'price': '450.00',
+  'price_formatted': 'E£450.00',
+  'level': 'beginner',
+  'category_id': 1,
+  'stage': stage,
+  'review_note': note,
+  'student_count': stage == 'published' ? 40 : 0,
+  'lesson_count': withLesson ? 1 : 0,
+  'sections': [
+    {
+      'id': 31,
+      'title': 'The sentence',
+      'lessons': [
+        if (withLesson)
+          {
+            'id': 32,
+            'title': 'Subject and verb',
+            'kind': 'video',
+            'duration_minutes': 12,
+            'preview': true,
+          },
+      ],
+    },
+  ],
+  'created_at': '2026-10-20T10:00:00.000Z',
+};
+
+Map<String, dynamic> teacherQuestionJson({int id = 5, bool answered = false}) =>
+    {
+      'id': id,
+      'course_id': 30,
+      'course_title': 'Arabic grammar',
+      'text': 'Is the verb always first?',
+      'student_name': 'Omar',
+      'answered': answered,
+      'answer_count': answered ? 1 : 0,
+      'updated_at': '2026-10-28T09:00:00.000Z',
+    };
+
+Map<String, dynamic> teacherEarningsJson() => {
+  'period': 'month',
+  'from': '2026-10-01',
+  'to': '2026-10-28',
+  'sales': 2,
+  'sales_formatted': 'E£900.00',
+  'refunds_formatted': 'E£100.00',
+  'share_percent': 70,
+  'earned_formatted': 'E£560.00',
+  'courses': [
+    {
+      'id': 30,
+      'title': 'Arabic grammar',
+      'sales': 2,
+      'earned_formatted': 'E£560.00',
+    },
+  ],
+};

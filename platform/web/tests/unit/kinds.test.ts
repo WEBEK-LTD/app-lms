@@ -177,7 +177,7 @@ describe("20 app kinds registry", () => {
     // 21 Clinic is the first kind with a vertical; the four default kinds are as they were. 23 News is a new engine. 26 Restaurant & café after Store.
     // 27 Gym & fitness: the bookings engine with the fitness vertical, after Clinic. 28 Events & tickets, a new engine. 29 Charity & donations, a new
     // engine whose only kind has the charity vertical, last. 84.1 Services & companies: the bookings engine, after Gym & fitness.
-    expect(KINDS.map((k) => k.id)).toEqual(["academy", "store", "restaurant", "bookings", "clinic", "fitness", "services", "real_estate", "news", "events", "charity", "delivery", "food", "rides"]);
+    expect(KINDS.map((k) => k.id)).toEqual(["academy", "store", "restaurant", "bookings", "clinic", "fitness", "services", "real_estate", "news", "events", "charity", "delivery", "food", "rides", "instructors"]);
     for (const type of FOUR) {
       expect(ENGINES[type].name).toBe(BEFORE.names[type]);
       expect(ENGINES[type].icon).toBe(BEFORE.icons[type]);
@@ -386,7 +386,7 @@ describe("20 app kinds registry", () => {
   });
 
   it("reads verticals and kinds", () => {
-    expect(APP_VERTICALS).toEqual(["restaurant", "clinic", "fitness", "charity", "services"]);
+    expect(APP_VERTICALS).toEqual(["restaurant", "clinic", "fitness", "charity", "services", "instructors"]);
     expect(kindOf({ appType: "booking", vertical: "services" }).id).toBe("services");
     expect(toVertical("clinic")).toBe("clinic");
     expect(toVertical("salon")).toBeNull();
@@ -514,7 +514,9 @@ describe("31 each engine's screens match its Flutter module", () => {
     // The switch covers every screen of the contract.
     expect(all).toEqual([...SCREENS].sort());
     const pages = ENGINES[appType].pages;
-    expect([...pages.screens, ...Object.keys(pages.aliases)].sort()).toEqual(opened);
+    // 105.3 With the screens some of its kinds add (an academy's teachers).
+    const added = KINDS.filter((k) => k.engine === appType).flatMap((k) => k.screens ?? []);
+    expect([...pages.screens, ...Object.keys(pages.aliases), ...added].sort()).toEqual(opened);
     expect(pages.screens.filter((s) => s in pages.aliases)).toEqual([]);
     for (const to of Object.values(pages.aliases)) expect(pages.screens).toContain(to);
   });

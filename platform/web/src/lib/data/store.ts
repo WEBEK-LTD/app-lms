@@ -76,6 +76,8 @@ import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInp
 // 29 Charity & donations
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
 import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, DonationSettings, DonationStatus } from "./types";
+// 105.3 Academies with many teachers
+import type { Teacher, TeacherInput, TeacherPatch, TeacherReview, TeacherStatus } from "./types";
 // 104 Delivery and courier companies
 import type { Courier, CourierInput, CourierPatch, DeliveryService, DeliveryServiceInput, DeliverySettings, Shipment, ShipmentInput, ShipmentPatch, ShipmentQuery, ShipmentStatus } from "./types";
 import type {
@@ -753,6 +755,33 @@ export interface DataStore {
    * same job, or two changes at once, change it once. False when it didn't.
    */
   updateShipment(appId: string, id: number, patch: ShipmentPatch, expect?: { statuses?: ShipmentStatus[]; courierId?: number | null }): Promise<boolean>;
+
+  // 105.3 Academies with many teachers
+  /** Featured first, then by name; only those with one of `statuses` when given. */
+  listTeachers(appId: string, filter?: { statuses?: TeacherStatus[] }): Promise<Teacher[]>;
+  getTeacher(appId: string, id: number): Promise<Teacher | null>;
+  /** The teacher with this number (E.164) or, given only an email, this email. */
+  findTeacher(appId: string, who: { phone: string | null; email: string | null }): Promise<Teacher | null>;
+  /** The teacher whose app user this is (who applied, or used the Teacher screens). */
+  findTeacherByUser(appId: string, userId: number): Promise<Teacher | null>;
+  /** Fails (`duplicate`) when the app has a teacher with the same number or email. */
+  createTeacher(input: TeacherInput, now: Date): Promise<{ ok: true; teacher: Teacher } | { ok: false; reason: "duplicate" }>;
+  updateTeacher(appId: string, id: number, patch: TeacherPatch, now: Date): Promise<{ ok: boolean; reason?: "duplicate" }>;
+  /** Their follows and reviews go with them; their courses become the academy's. */
+  deleteTeacher(appId: string, id: number): Promise<void>;
+  setTeacherFollow(input: { appId: string; teacherId: number; userId: number; follow: boolean; now: Date }): Promise<void>;
+  isFollowingTeacher(appId: string, teacherId: number, userId: number): Promise<boolean>;
+  listTeacherFollowerIds(appId: string, teacherId: number): Promise<number[]>;
+  countTeacherFollowers(appId: string): Promise<{ teacherId: number; count: number }[]>;
+  /** One per student and teacher: saving again changes it. */
+  saveTeacherReview(input: { appId: string; teacherId: number; userId: number; rating: number; text: string; now: Date }): Promise<TeacherReview>;
+  getTeacherReview(appId: string, id: number): Promise<TeacherReview | null>;
+  getTeacherReviewOf(appId: string, teacherId: number, userId: number): Promise<TeacherReview | null>;
+  /** Newest first. */
+  listTeacherReviews(input: { appId: string; teacherId?: number; hidden?: boolean; offset: number; limit: number }): Promise<{ items: TeacherReview[]; total: number }>;
+  /** The reviews everyone sees, counted per teacher and stars. */
+  countTeacherRatings(appId: string): Promise<{ teacherId: number; rating: number; count: number }[]>;
+  updateTeacherReview(appId: string, id: number, patch: { hidden: boolean; updatedAt: Date }): Promise<void>;
 
   // 105.1 Food delivery from many restaurants
   /** In the company's order; `q` matches the restaurant's name or a dish's. Menus aren't read. */

@@ -40,7 +40,10 @@ enum AppVertical {
   charity,
 
   /// 84.1 Services and companies: the bookings wording.
-  services;
+  services,
+
+  /// 105.3 An academy with many teachers.
+  instructors;
 
   /// The value as the build config and `Config` send it; anything unknown
   /// (a newer platform) is none.

@@ -181,7 +181,7 @@ export interface ScreenshotFrame {
 export type AppType = "lms" | "store" | "booking" | "real_estate" | "news" | "events" | "donations" | "delivery" | "food" | "rides";
 
 /** 20 The kind of business, on top of the engine: wording, defaults, the demo and marketing, never routes (lib/app/kinds.ts). */
-export type AppVertical = "restaurant" | "clinic" | "fitness" | "charity" | "services";
+export type AppVertical = "restaurant" | "clinic" | "fitness" | "charity" | "services" | "instructors";
 
 /**
  * Where the app's content comes from: the Yallapp plugin on the client's
@@ -1880,6 +1880,15 @@ export interface Course {
   certificate?: boolean;
   /** 90.1 Days a student keeps access after enrolling; missing or null: always. */
   accessDays?: number | null;
+  /** 105.3 The academy's teacher whose course it is; missing or null: the academy's own. */
+  teacherId?: number | null;
+  /**
+   * 105.3 A teacher's course before the academy published it: a draft, sent
+   * for review, or sent back (`reviewNote` says why). Missing or null once
+   * published: then `active` says whether it shows (`hidden` when not).
+   */
+  teacherStage?: "draft" | "in_review" | "returned" | null;
+  reviewNote?: string | null;
   createdAt: string;
 }
 
@@ -1889,6 +1898,8 @@ export interface CourseSetup {
   courses: Course[];
   /** The next ID for a category, course, topic or lesson. */
   nextId: number;
+  /** 105.3 Academies with many teachers: people may apply to teach from the app (missing: false). */
+  teachersApply?: boolean;
 }
 
 export const DEFAULT_COURSE_SETUP: CourseSetup = { currency: "TRY", categories: [], courses: [], nextId: 1 };
@@ -4402,4 +4413,55 @@ export interface SiteBrandReport {
   iconUrl: string | null;
   colors: string[];
   menus: { location: string; items: { title: string; url: string; children: { title: string; url: string }[] }[] }[];
+}
+
+// 105.3 Academies with many teachers
+
+export const TEACHER_STATUSES = ["applied", "active", "suspended", "declined"] as const;
+export type TeacherStatus = (typeof TEACHER_STATUSES)[number];
+
+/**
+ * One of an academy's teachers: added by the academy by number (or email),
+ * or someone who applied from the app (`applied` until the academy answers).
+ * Whoever signs in with the number is the teacher.
+ */
+export interface Teacher {
+  id: number;
+  appId: string;
+  name: string;
+  /** E.164. */
+  phone: string | null;
+  /** Lowercase. */
+  email: string | null;
+  /** The app user who applied, or who last used the Teacher screens. */
+  userId: number | null;
+  photoAssetId: string | null;
+  bio: string;
+  subjects: string[];
+  status: TeacherStatus;
+  /** The teacher's share of their courses' sales, in basis points (0 to 10000), set by the academy. */
+  shareBp: number;
+  /** Shown first in the app's list of teachers. */
+  featured: boolean;
+  /** The academy's note when it declined an application. */
+  note: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type TeacherInput = Pick<Teacher, "appId" | "name" | "phone" | "email" | "userId" | "photoAssetId" | "bio" | "subjects" | "status" | "shareBp" | "featured">;
+export type TeacherPatch = Partial<Pick<Teacher, "name" | "phone" | "email" | "userId" | "photoAssetId" | "bio" | "subjects" | "status" | "shareBp" | "featured" | "note">>;
+
+/** A student's review of a teacher; one per student and teacher. */
+export interface TeacherReview {
+  id: number;
+  appId: string;
+  teacherId: number;
+  userId: number;
+  rating: number;
+  text: string;
+  /** Hidden by the academy: only its author sees it. */
+  hidden: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }

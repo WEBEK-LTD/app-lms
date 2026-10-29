@@ -1217,8 +1217,9 @@ components:
             plugin doesn't use them); (105.1) `food`: food delivery apps
             from many restaurants (the hosted API only); (105.2) `rides`:
             ride hailing apps (the hosted API only), whose drivers' second app
-            is `courier_app`'s. Unknown values are ignored.
-          items: { type: string, enum: [push, offline_downloads, auto_publish, ios, page_editor, card_payments, auto_rebuild, chat, loyalty, store_billing, studio, delivery, courier_app, food, rides] }
+            is `courier_app`'s; (105.3) `instructors`: academies with many
+            teachers (the hosted API only). Unknown values are ignored.
+          items: { type: string, enum: [push, offline_downloads, auto_publish, ios, page_editor, card_payments, auto_rebuild, chat, loyalty, store_billing, studio, delivery, courier_app, food, rides, instructors] }
         chat:
           type: [object, 'null']
           description: |
@@ -1304,7 +1305,7 @@ components:
             are treated as null. Missing on older platforms.
         vertical:
           type: [string, 'null']
-          enum: [restaurant, clinic, fitness, charity, services, null]
+          enum: [restaurant, clinic, fitness, charity, services, instructors, null]
           description: |
             The kind of business, on top of `app_type` (`Config.vertical` in the
             app API): wording and defaults only. Null when the app has none.

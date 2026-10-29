@@ -1,4 +1,11 @@
 import { courierWho } from "../delivery/service";
+import { appZone } from "../analytics/zone";
+import { courseSetup } from "../courses/setup";
+import { encryptionKey } from "../env";
+import { MEDIA_CHUNK_BYTES } from "../media/signing";
+import { handleTeachersRoute } from "../teachers/hosted";
+import { notifyNewLesson } from "./auto-notifications";
+import { teacherOf, teachersOn } from "../teachers/service";
 import { reviewCourierFor } from "../delivery/review";
 import { reviewRestaurantFor } from "../food/review";
 import { isDriver } from "./connectors/rides";
@@ -336,6 +343,28 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
         return noContent;
     }
   }
+  // 105.3 Academies with many teachers: the Teachers and Teacher endpoints.
+  if (req.path[0] === "teachers" || req.path[0] === "teacher") {
+    if (!teachersOn(ctx.app, ctx.plan)) return error(403, "feature_disabled", "This app has no teachers.");
+    const answer = await handleTeachersRoute(
+      {
+        store: ctx.store,
+        app: ctx.app,
+        plan: ctx.plan,
+        now: ctx.now,
+        assetUrl: ctx.assetUrl,
+        platformUrl: ctx.platformUrl,
+        connector: ctx.connector,
+        storage: ctx.chat?.storage ?? null,
+        chunkBytes: ctx.chat?.chunkBytes ?? MEDIA_CHUNK_BYTES,
+        onNewLesson: async (course, lesson) => {
+          await notifyNewLesson({ store: ctx.store, key: encryptionKey(), now: ctx.now }, ctx.app, course, lesson).catch(() => undefined);
+        },
+      },
+      { method: req.method, path: req.path, query: req.query, body: req.body, user: session?.user ?? null, now: ctx.now, lang: requestLanguage(req.headers?.get("accept-language")) },
+    );
+    return answer ?? notFound();
+  }
   if (ctx.connector) {
     const result = await ctx.connector.handle({
       method: req.method,
@@ -530,6 +559,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     ...(extra.food ? { food: extra.food } : {}),
     // 105.2 Ride hailing
     ...(extra.rides ? { rides: extra.rides } : {}),
+    // 105.3 Academies with many teachers
+    ...(teachersOn(app, ctx.plan) ? { instructors: { applications: courseSetup(app).teachersApply === true, timezone: await appZone(ctx.store, app) } } : {}),
     // 10.6 Looks and languages (17: the draft's, in a draft preview)
     // 43 With each language's name, direction and the owner's string pack.
     ...(await lookAndLanguages(ctx.store, app, ctx.preview?.draft ? await draftLayout(ctx.store, app, ctx.now) : undefined, ctx.plan ?? null, {
@@ -1028,6 +1059,8 @@ async function authenticate(ctx: HostedContext, token: string | null): Promise<S
  */
 async function meJson(ctx: HostedContext, user: HostedUser) {
   const kind = ctx.app.connector?.kind;
+  // 105.3 In academies with many teachers, `teacher` for the academy's active teachers.
+  if (kind === "courses") return teachersOn(ctx.app, ctx.plan) && (await teacherOf(ctx.store, ctx.app, user, ctx.now)) ? { ...userJson(user), roles: ["teacher"] } : userJson(user);
   // 105.2 In ride apps, `driver` for the company's active drivers (and the store review account).
   if (kind === "rides") return { ...userJson(user), roles: (await isDriver({ store: ctx.store, app: ctx.app }, user, ctx.now)) ? ["driver"] : [] };
   if (kind !== "deliveries" && kind !== "restaurants") return userJson(user);

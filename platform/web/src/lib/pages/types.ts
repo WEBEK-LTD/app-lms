@@ -127,6 +127,9 @@ export const SCREENS = [
   "ride",
   "my_rides",
   "driver",
+  // 105.3 Academies with many teachers
+  "teachers",
+  "teacher",
 ] as const;
 export const ITEMS_LAYOUTS = ["carousel", "grid", "list"] as const;
 export const ITEMS_SORTS = ["newest", "popular", "price_asc", "price_desc"] as const;

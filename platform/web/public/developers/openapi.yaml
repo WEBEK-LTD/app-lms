@@ -315,6 +315,33 @@ tags:
       (`RidesConfig.driver_app`): `same`, in the company's app, shown only to
       drivers; `bundle`, in the company's second app made for drivers (build
       config `role: driver`), while its riders' app has none.
+  - name: Teachers
+    description: |
+      Roadmap 105.3. Academies with many teachers, on Yallapp's hosted API
+      (`Config.instructors`). Each course may belong to one of the academy's
+      teachers (`CourseSummary.instructor.id` is the teacher's ID; 0 for a
+      course of the academy itself). Students browse the teachers, open a
+      teacher's page with their courses and reviews, follow a teacher (a push
+      when a new course of theirs is published) and rate a teacher once they
+      are a student in one of their courses. When the academy lets people
+      apply (`InstructorsConfig.applications`), a signed-in person can apply
+      to teach and waits for the academy's answer. Teachers' shares are the
+      academy's: Yallapp sets none.
+  - name: Teacher
+    description: |
+      Roadmap 105.3. The teacher's screens. A teacher is a person the academy
+      added on the dashboard's Teachers page by mobile number (or by email,
+      for apps that sign in by email only), or whose application it
+      approved; whoever signs in with that number is that teacher
+      (`User.roles` has `teacher`). Every endpoint here answers
+      `not_teacher` (403) to anyone else, and to teachers the academy
+      suspended. A teacher makes courses (title, description, price, level),
+      adds sections and lessons (a video or a PDF sent from the phone, or a
+      video address) and sends a course for review; the academy publishes it
+      or sends it back with a note. Lessons added to a published course are
+      live at once. A teacher answers their students' questions through
+      `POST /questions/{question_id}/answers` (the answer's author has
+      `instructor` true) and sees what their courses sold and their share.
   - name: Bookings
     description: |
       Services, staff, free times and appointments, for Bookings apps. The
@@ -5193,6 +5220,539 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
 
+  /teachers:
+    get:
+      tags: [Teachers]
+      operationId: listTeachers
+      summary: The academy's teachers
+      description: Active teachers, the academy's featured ones first, then by rating. `feature_disabled` (403) when the app has no teachers (`Config.instructors` null).
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - name: search
+          in: query
+          description: In the name and the subjects.
+          schema: { type: string, maxLength: 100 }
+        - name: subject
+          in: query
+          schema: { type: string, maxLength: 60 }
+      responses:
+        '200':
+          description: Teachers
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items, subjects]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/TeacherSummary' }
+                      subjects:
+                        type: array
+                        description: Every subject the active teachers teach, for filtering.
+                        items: { type: string }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /teachers/{teacher_id}:
+    get:
+      tags: [Teachers]
+      operationId: getTeacher
+      summary: A teacher's page
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TeacherId'
+      responses:
+        '200':
+          description: The teacher
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeacherDetail' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /teachers/{teacher_id}/follow:
+    put:
+      tags: [Teachers]
+      operationId: followTeacher
+      summary: Follow a teacher
+      description: The student gets a push (`new_course`) when a new course of the teacher is published.
+      parameters:
+        - $ref: '#/components/parameters/TeacherId'
+      responses:
+        '204': { description: Following }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Teachers]
+      operationId: unfollowTeacher
+      summary: Stop following a teacher
+      parameters:
+        - $ref: '#/components/parameters/TeacherId'
+      responses:
+        '204': { description: Not following }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /teachers/{teacher_id}/reviews:
+    get:
+      tags: [Teachers]
+      operationId: listTeacherReviews
+      summary: Students' reviews of a teacher
+      description: Newest first. A review the academy hid is sent to its author only.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TeacherId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Reviews
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/TeacherReview' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /teachers/{teacher_id}/reviews/mine:
+    put:
+      tags: [Teachers]
+      operationId: saveTeacherReview
+      summary: Rate a teacher
+      description: One review per student and teacher, changed by sending it again. Only a student enrolled in one of the teacher's courses may rate them (`not_student`, 403); a teacher can't rate themselves.
+      parameters:
+        - $ref: '#/components/parameters/TeacherId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReviewInput' }
+      responses:
+        '200':
+          description: The review
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeacherReview' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /teachers/application:
+    get:
+      tags: [Teachers]
+      operationId: getTeacherApplication
+      summary: The signed-in person's application to teach
+      description: 404 when they never applied.
+      responses:
+        '200':
+          description: The application
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeacherApplication' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      tags: [Teachers]
+      operationId: applyToTeach
+      summary: Apply to teach
+      description: |
+        Only when `InstructorsConfig.applications` is true (`feature_disabled`,
+        403, otherwise). The academy sees the application on its Teachers
+        page and approves or declines it; once approved, the person is a
+        teacher. Sending it again replaces a declined application; a pending
+        or approved one answers `already_applied` (409).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, bio, subjects]
+              properties:
+                name: { type: string, minLength: 1, maxLength: 80 }
+                bio: { type: string, minLength: 1, maxLength: 1000, description: Who they are and what they would teach. }
+                subjects: { type: array, minItems: 1, maxItems: 8, items: { type: string, minLength: 1, maxLength: 40 } }
+      responses:
+        '201':
+          description: Sent
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeacherApplication' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /teacher/me:
+    get:
+      tags: [Teacher]
+      operationId: getTeacherMe
+      summary: The signed-in teacher
+      responses:
+        '200':
+          description: The teacher
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeacherProfile' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    patch:
+      tags: [Teacher]
+      operationId: updateTeacherMe
+      summary: Change the teacher's bio and subjects
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bio: { type: string, maxLength: 1000 }
+                subjects: { type: array, maxItems: 8, items: { type: string, minLength: 1, maxLength: 40 } }
+      responses:
+        '200':
+          description: The teacher
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeacherProfile' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /teacher/courses:
+    get:
+      tags: [Teacher]
+      operationId: listTeacherCourses
+      summary: The teacher's courses
+      description: Every course of the teacher, whatever its stage, newest first.
+      responses:
+        '200':
+          description: Courses
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, categories, currency]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/TeacherCourse' }
+                  categories:
+                    type: array
+                    description: The academy's categories a course can be in.
+                    items: { $ref: '#/components/schemas/Category' }
+                  currency: { type: string, example: EGP }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Teacher]
+      operationId: createTeacherCourse
+      summary: Start a course
+      description: The course starts as a draft, which only the teacher and the academy see.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TeacherCourseInput' }
+      responses:
+        '201':
+          description: The course
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeacherCourse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /teacher/courses/{course_id}:
+    get:
+      tags: [Teacher]
+      operationId: getTeacherCourse
+      summary: One of the teacher's courses, with its sections and lessons
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+      responses:
+        '200':
+          description: The course
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeacherCourse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [Teacher]
+      operationId: updateTeacherCourse
+      summary: Change a draft or returned course
+      description: Only a `draft` or `returned` course (`not_editable`, 409, otherwise); the academy changes published ones.
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TeacherCourseInput' }
+      responses:
+        '200':
+          description: The course
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeacherCourse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /teacher/courses/{course_id}/submit:
+    post:
+      tags: [Teacher]
+      operationId: submitTeacherCourse
+      summary: Send a course for review
+      description: A `draft` or `returned` course with at least one lesson goes to the academy (`in_review`); `no_lessons` (409) without one, `not_editable` (409) at another stage.
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+      responses:
+        '200':
+          description: The course
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeacherCourse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /teacher/courses/{course_id}/sections:
+    post:
+      tags: [Teacher]
+      operationId: addTeacherSection
+      summary: Add a section to a course
+      description: Not while the course is `in_review` (`not_editable`, 409).
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title: { type: string, minLength: 1, maxLength: 120 }
+      responses:
+        '201':
+          description: The course
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeacherCourse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /teacher/courses/{course_id}/lessons:
+    post:
+      tags: [Teacher]
+      operationId: addTeacherLesson
+      summary: Add a lesson
+      description: |
+        A lesson in one of the course's sections: a video (`upload_id` of a
+        finished upload of a video, or `video_url`, a YouTube, Vimeo or
+        https video address), a PDF (`upload_id` of a PDF, attached to the
+        lesson) or text only. Uploads go to the academy's Media library and
+        count in its storage. In a published course the lesson is live at
+        once (and students who follow the course are told, like any new
+        lesson). Not while the course is `in_review` (`not_editable`, 409).
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [section_id, title]
+              properties:
+                section_id: { type: integer }
+                title: { type: string, minLength: 1, maxLength: 120 }
+                text: { type: string, maxLength: 5000 }
+                video_url: { type: [string, 'null'], format: uri }
+                upload_id: { type: [string, 'null'], format: uuid }
+                duration_minutes: { type: [integer, 'null'], minimum: 1, maximum: 600 }
+                preview: { type: boolean, default: false, description: Open to everyone before enrolling. }
+      responses:
+        '201':
+          description: The course
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeacherCourse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /teacher/courses/{course_id}/lessons/{lesson_id}:
+    delete:
+      tags: [Teacher]
+      operationId: deleteTeacherLesson
+      summary: Remove a lesson
+      description: From a `draft` or `returned` course only (`not_editable`, 409); the academy removes lessons of published courses.
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+        - $ref: '#/components/parameters/LessonId'
+      responses:
+        '200':
+          description: The course
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeacherCourse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /teacher/uploads:
+    post:
+      tags: [Teacher]
+      operationId: startTeacherUpload
+      summary: Start sending a lesson's video or PDF
+      description: |
+        Videos (MP4, MOV, WebM) up to 5 GB and PDFs up to 200 MB, into the
+        academy's Media library (413 `storage_full` when its storage is full),
+        named with the teacher's name. The app sends the file in chunks to
+        `upload_url` as for chat uploads, calls `/complete`, then adds the
+        lesson with `upload_id`. A file not used in a lesson stays in the
+        Media library, where the academy can delete it.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, size, type]
+              properties:
+                name: { type: string, maxLength: 200 }
+                size: { type: integer, minimum: 1 }
+                type: { type: string, example: video/mp4 }
+      responses:
+        '201':
+          description: Started
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeacherUpload' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '413':
+          description: Too big for its kind (`too_big`), or the academy's storage is full (`storage_full`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /teacher/uploads/{upload_id}/resume:
+    post:
+      tags: [Teacher]
+      operationId: resumeTeacherUpload
+      summary: A fresh link to carry on with an upload
+      parameters:
+        - $ref: '#/components/parameters/UploadId'
+      responses:
+        '200':
+          description: A new link
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeacherUpload' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /teacher/uploads/{upload_id}/complete:
+    post:
+      tags: [Teacher]
+      operationId: completeTeacherUpload
+      summary: Finish an upload
+      description: 409 `incomplete` with the offset reached when part of the file is missing.
+      parameters:
+        - $ref: '#/components/parameters/UploadId'
+      responses:
+        '204': { description: Ready to use }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /teacher/questions:
+    get:
+      tags: [Teacher]
+      operationId: listTeacherQuestions
+      summary: Students' questions in the teacher's courses
+      description: Waiting for an answer first, then the newest. The teacher answers with `POST /questions/{question_id}/answers`, which marks the question answered.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Questions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/TeacherQuestion' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /teacher/earnings:
+    get:
+      tags: [Teacher]
+      operationId: getTeacherEarnings
+      summary: What the teacher's courses sold and the teacher's share
+      description: |
+        Sales paid on the academy's payment page over this month, last month
+        or this year, in `InstructorsConfig.timezone`, less refunds, with the
+        teacher's share (`share_percent`, set by the academy) and each
+        course's totals. The academy pays its teachers itself.
+      parameters:
+        - { name: period, in: query, required: true, schema: { type: string, enum: [month, last_month, year] } }
+      responses:
+        '200':
+          description: Earnings
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeacherEarnings' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
   /billing/access:
     post:
       tags: [Platform]
@@ -5588,6 +6148,11 @@ components:
       in: path
       required: true
       schema: { type: integer }
+    TeacherId:
+      name: teacher_id
+      in: path
+      required: true
+      schema: { type: integer }
     RideId:
       name: ride_id
       in: path
@@ -5968,9 +6533,14 @@ components:
         delivery: { $ref: '#/components/schemas/DeliveryConfig' }
         food: { $ref: '#/components/schemas/FoodConfig' }
         rides: { $ref: '#/components/schemas/RidesConfig' }
+        instructors:
+          description: Roadmap 105.3. Academies with many teachers; null or missing for other apps.
+          oneOf:
+            - $ref: '#/components/schemas/InstructorsConfig'
+            - type: 'null'
         vertical:
           type: [string, 'null']
-          enum: [restaurant, clinic, fitness, charity, services, null]
+          enum: [restaurant, clinic, fitness, charity, services, instructors, null]
           description: |
             The kind of business the app is for, on top of its type (the module
             in the build): it changes wording and defaults in the app, never
@@ -6055,13 +6625,15 @@ components:
         roles:
           type: array
           uniqueItems: true
-          items: { type: string, enum: [courier, restaurant, driver] }
+          items: { type: string, enum: [courier, restaurant, driver, teacher] }
           description: |
             Roadmap 104. In delivery apps, `courier` for a courier of the
             company (the Courier endpoints). 105.1 In food apps, also
             `restaurant` for a restaurant's staff (the Restaurant endpoints).
             105.2 In ride apps, `driver` for a driver of the company (the
             Driver endpoints).
+            105.3 In academies with many teachers, `teacher` for one of
+            the academy's teachers (the Teacher endpoints).
             Missing or empty: a customer only. Apps ignore roles they don't
             know.
 
@@ -6106,7 +6678,7 @@ components:
       type: object
       required: [id, name]
       properties:
-        id: { type: integer }
+        id: { type: integer, description: "105.3 In academies with many teachers (`Config.instructors`), the teacher's ID (`GET /teachers/{teacher_id}`); 0 for a course of the academy itself." }
         name: { type: string }
         avatar_url: { type: [string, 'null'], format: uri }
         bio: { type: [string, 'null'] }
@@ -6789,7 +7361,7 @@ components:
         body: { type: string }
         type:
           type: string
-          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, ride_update, ride_offer]
+          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, ride_update, ride_offer, new_course, teacher_course, teacher_question]
           description: >-
             85.3 Automatic notifications on Yallapp's hosted API have their own types:
             `appointment_confirmed` and `appointment_reminder` (with `appointment_id`), `class_soon`,
@@ -6808,6 +7380,11 @@ components:
             stage (a driver accepted, arrived, the ride ended, or no driver was found), and
             opens it; `ride_offer` (with `ride_id`): a ride is offered to the driver, and
             opens the Driver tab (pushed with the push's sound).
+            105.3 `new_course` (with `course_id`): a teacher the student follows published a
+            new course, and opens it; `teacher_course` (with `course_id`): the academy
+            published or sent back one of the teacher's courses, and opens it in the Teacher
+            tab; `teacher_question` (with `course_id` and `question_id`): a student asked in
+            one of the teacher's courses, and opens the question.
             An app that doesn't know a type opens Home.
         course_id: { type: [integer, 'null'] }
         lesson_id: { type: [integer, 'null'] }
@@ -8188,7 +8765,7 @@ components:
         screen:
           type: [string, 'null']
           description: For `screen`, a built-in screen.
-          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, restaurants, food_orders, restaurant, ride, my_rides, driver, null]
+          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, restaurants, food_orders, restaurant, ride, my_rides, driver, teachers, teacher, null]
         course_id: { type: [integer, 'null'], description: For `course`. }
         item: { $ref: '#/components/schemas/ItemRef' }
         url: { type: [string, 'null'], format: uri, description: For `url`. }
@@ -10285,4 +10862,178 @@ components:
             properties:
               date: { type: string, format: date }
               rides: { type: integer }
+              earned_formatted: { type: string }
+
+    InstructorsConfig:
+      type: object
+      description: Roadmap 105.3. An academy with many teachers (the Teachers and Teacher endpoints).
+      required: [applications, timezone]
+      properties:
+        applications: { type: boolean, description: People may apply to teach from the app (`POST /teachers/application`). }
+        timezone: { type: string, description: "The academy's IANA time zone, for the teachers' earnings.", example: Africa/Cairo }
+
+    TeacherSummary:
+      type: object
+      required: [id, name, avatar_url, headline, subjects, rating, rating_count, course_count, featured]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        avatar_url: { type: [string, 'null'], format: uri }
+        headline: { type: [string, 'null'], description: 'The first line of the bio.' }
+        subjects: { type: array, items: { type: string } }
+        rating: { type: [number, 'null'], minimum: 0, maximum: 5 }
+        rating_count: { type: integer }
+        course_count: { type: integer, description: Published courses. }
+        featured: { type: boolean }
+
+    TeacherDetail:
+      allOf:
+        - $ref: '#/components/schemas/TeacherSummary'
+        - type: object
+          required: [bio, student_count, follower_count, following, can_review, my_review, courses]
+          properties:
+            bio: { type: string }
+            student_count: { type: integer, description: Students in their published courses. }
+            follower_count: { type: integer }
+            following: { type: boolean, description: The signed-in person follows them. }
+            can_review: { type: boolean, description: The signed-in person is a student in one of their courses (and isn't the teacher). }
+            my_review:
+              oneOf:
+                - $ref: '#/components/schemas/TeacherReview'
+                - type: 'null'
+            courses:
+              type: array
+              items: { $ref: '#/components/schemas/CourseSummary' }
+
+    TeacherReview:
+      type: object
+      required: [id, rating, text, author, created_at, mine]
+      properties:
+        id: { type: integer }
+        rating: { type: integer, minimum: 1, maximum: 5 }
+        text: { type: string }
+        author: { $ref: '#/components/schemas/Person' }
+        created_at: { type: string, format: date-time }
+        mine: { type: boolean }
+        hidden: { type: boolean, description: "The academy hid it: only its author gets it. Missing: false." }
+
+    TeacherApplication:
+      type: object
+      required: [status, name, bio, subjects, note, created_at]
+      properties:
+        status: { type: string, enum: [pending, approved, declined] }
+        name: { type: string }
+        bio: { type: string }
+        subjects: { type: array, items: { type: string } }
+        note: { type: [string, 'null'], description: "The academy's note when it declined." }
+        created_at: { type: string, format: date-time }
+
+    TeacherProfile:
+      type: object
+      required: [id, name, avatar_url, bio, subjects, share_percent, rating, rating_count, follower_count, student_count]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        avatar_url: { type: [string, 'null'], format: uri }
+        bio: { type: string }
+        subjects: { type: array, items: { type: string } }
+        share_percent: { type: number, minimum: 0, maximum: 100, description: "The teacher's share of their courses' sales, set by the academy." }
+        rating: { type: [number, 'null'] }
+        rating_count: { type: integer }
+        follower_count: { type: integer }
+        student_count: { type: integer }
+
+    TeacherCourseInput:
+      type: object
+      required: [title]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 120 }
+        description: { type: string, maxLength: 5000 }
+        price: { type: string, description: 'Decimal in `currency`; "0" or missing for a free course.', example: '450.00' }
+        level: { type: [string, 'null'], enum: [beginner, intermediate, advanced, null] }
+        category_id: { type: [integer, 'null'] }
+
+    TeacherCourse:
+      type: object
+      required: [id, title, description, price, price_formatted, level, category_id, stage, review_note, student_count, lesson_count, sections, created_at]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        description: { type: string }
+        price: { type: string, example: '450.00' }
+        price_formatted: { type: string, description: '"Free" in the app''s language is the app''s to show when price is "0".' }
+        level: { type: [string, 'null'], enum: [beginner, intermediate, advanced, null] }
+        category_id: { type: [integer, 'null'] }
+        stage:
+          type: string
+          enum: [draft, in_review, returned, published, hidden]
+          description: "`returned`: the academy sent it back (`review_note` says why); `hidden`: the academy took it out of the app."
+        review_note: { type: [string, 'null'] }
+        student_count: { type: integer }
+        lesson_count: { type: integer }
+        sections:
+          type: array
+          items:
+            type: object
+            required: [id, title, lessons]
+            properties:
+              id: { type: integer }
+              title: { type: string }
+              lessons:
+                type: array
+                items:
+                  type: object
+                  required: [id, title, kind, duration_minutes, preview]
+                  properties:
+                    id: { type: integer }
+                    title: { type: string }
+                    kind: { type: string, enum: [video, pdf, text] }
+                    duration_minutes: { type: [integer, 'null'] }
+                    preview: { type: boolean }
+        created_at: { type: string, format: date-time }
+
+    TeacherUpload:
+      type: object
+      required: [id, kind, upload_url, chunk_bytes, size]
+      properties:
+        id: { type: string, format: uuid }
+        kind: { type: string, enum: [video, pdf] }
+        upload_url: { type: string, format: uri }
+        chunk_bytes: { type: integer, example: 5242880 }
+        size: { type: integer }
+
+    TeacherQuestion:
+      type: object
+      required: [id, course_id, course_title, text, student_name, answered, answer_count, updated_at]
+      properties:
+        id: { type: integer }
+        course_id: { type: integer }
+        course_title: { type: string }
+        text: { type: string }
+        student_name: { type: string }
+        answered: { type: boolean }
+        answer_count: { type: integer }
+        updated_at: { type: string, format: date-time }
+
+    TeacherEarnings:
+      type: object
+      required: [period, from, to, sales, sales_formatted, refunds_formatted, share_percent, earned_formatted, courses]
+      properties:
+        period: { type: string, enum: [month, last_month, year] }
+        from: { type: string, format: date }
+        to: { type: string, format: date }
+        sales: { type: integer, description: Courses sold. }
+        sales_formatted: { type: string, description: What they sold for. }
+        refunds_formatted: { type: string }
+        share_percent: { type: number }
+        earned_formatted: { type: string, description: "The teacher's share of the sales less refunds." }
+        courses:
+          type: array
+          items:
+            type: object
+            required: [id, title, sales, earned_formatted]
+            properties:
+              id: { type: integer }
+              title: { type: string }
+              sales: { type: integer }
               earned_formatted: { type: string }

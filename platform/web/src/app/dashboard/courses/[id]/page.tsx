@@ -13,6 +13,10 @@ import { getStore } from "@/lib/data";
 import type { CourseLesson, CourseQuiz } from "@/lib/data/types";
 import { questionsText } from "@/lib/courses/quizzes";
 import { CourseForm, LessonForm, QuizForm, StudentForm, TopicForm } from "../forms";
+import { setCourseTeacherAction } from "@/app/actions/teachers";
+import { courseStage, isTeachersApp } from "@/lib/teachers/service";
+import { ReviewForm } from "../../teachers/forms";
+import { StageBadge } from "../../teachers/parts";
 import { dashboardText } from "@/lib/dashboard-lang";
 
 export async function generateMetadata({ params }: PageProps<"/dashboard/courses/[id]">): Promise<Metadata> {
@@ -58,6 +62,9 @@ export default async function CoursePage({ params }: PageProps<"/dashboard/cours
   const enrollments = await store.listCourseEnrollments({ appId: app.id, courseId: course.id });
   const { t, lang } = await dashboardText();
   const students = await Promise.all(enrollments.slice(0, 50).map(async (e) => ({ ...e, user: await store.getHostedUser(app.id, e.userId) })));
+  // 105.3 An academy with many teachers: whose course it is, and its review.
+  const teachers = isTeachersApp(app) ? (await store.listTeachers(app.id)).filter((teacher) => teacher.status === "active" || teacher.status === "suspended") : null;
+  const stage = courseStage(course);
 
   return (
     <div className="flex flex-col gap-6">
@@ -67,7 +74,42 @@ export default async function CoursePage({ params }: PageProps<"/dashboard/cours
           {t("courses.backToCourses")}
         </Link>
         <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{course.title}</h1>
+        {teachers && course.teacherId ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <StageBadge stage={stage} t={t} />
+            {stage === "returned" && course.reviewNote ? <span className="text-sm text-muted">{t("teachers.reviewNote", { note: course.reviewNote })}</span> : null}
+          </div>
+        ) : null}
       </div>
+
+      {teachers ? (
+        <section aria-labelledby="h-teacher" className="flex max-w-[860px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+          <div className="flex flex-col gap-1">
+            <h2 id="h-teacher" className="m-0 text-lg font-bold">
+              {t("teachers.courseTeacher")}
+            </h2>
+            <p className="m-0 text-sm leading-relaxed text-muted">{t("teachers.courseTeacherIntro")}</p>
+          </div>
+          <form action={setCourseTeacherAction} className="flex flex-wrap items-end gap-3">
+            <input type="hidden" name="courseId" value={course.id} />
+            <label htmlFor="f-course-teacher" className="sr-only">
+              {t("teachers.courseTeacher")}
+            </label>
+            <select id="f-course-teacher" name="teacherId" defaultValue={course.teacherId ? String(course.teacherId) : ""} className="input h-10 min-w-[240px]">
+              <option value="">{t("teachers.theAcademy")}</option>
+              {teachers.map((teacher) => (
+                <option key={teacher.id} value={teacher.id}>
+                  {teacher.name}
+                </option>
+              ))}
+            </select>
+            <SubmitButton variant="secondary" className="h-10">
+              {t("teachers.setTeacher")}
+            </SubmitButton>
+          </form>
+          {course.teacherId && stage === "in_review" ? <ReviewForm courseId={course.id} /> : null}
+        </section>
+      ) : null}
 
       <section aria-labelledby="h-details" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-details" className="m-0 text-lg font-bold">

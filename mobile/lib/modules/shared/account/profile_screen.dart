@@ -18,6 +18,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../chat/data/chat_providers.dart';
 import '../../delivery/data/delivery_providers.dart';
 import '../../food/data/food_providers.dart';
+import '../../lms/teachers/teachers_providers.dart';
 import '../../rides/data/rides_providers.dart';
 import '../../lms/downloads/download_manager.dart';
 import '../../lms/downloads/download_widgets.dart';
@@ -69,6 +70,10 @@ class ProfileScreen extends ConsumerWidget {
     // company's drivers.
     final rides = env.build.appType == AppType.rides;
     final driver = ref.watch(isDriverProvider);
+    // 105.3 Academies with many teachers: their teachers' pages, applying
+    // to teach, and the teacher's screens for the teachers.
+    final instructors = ref.watch(instructorsConfigProvider);
+    final teacher = ref.watch(isTeacherProvider);
     // 45 Academy apps whose students can save lessons on this phone.
     final downloads = lms && downloadsOffered(ref);
     final savedBytes = downloads
@@ -236,6 +241,29 @@ class ProfileScreen extends ConsumerWidget {
                     icon: AppIcons.restaurant,
                     title: context.l10n.restaurantMode,
                     onTap: () => context.go(Paths.restaurantDesk),
+                  ),
+                if (instructors != null)
+                  SettingsTile(
+                    key: const ValueKey('account-teachers'),
+                    icon: AppIcons.people,
+                    title: context.l10n.teachersTitle,
+                    onTap: () => context.push(Paths.teachers),
+                  ),
+                if (teacher)
+                  SettingsTile(
+                    key: const ValueKey('account-teacher'),
+                    icon: AppIcons.teacher,
+                    title: context.l10n.tabTeacher,
+                    onTap: () => context.go(Paths.teacherDesk),
+                  )
+                else if (instructors != null &&
+                    instructors.applications &&
+                    user != null)
+                  SettingsTile(
+                    key: const ValueKey('account-teach'),
+                    icon: AppIcons.teacher,
+                    title: context.l10n.teachHere,
+                    onTap: () => context.push(Paths.teachApply),
                   ),
                 if (driver)
                   SettingsTile(

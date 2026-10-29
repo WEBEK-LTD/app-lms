@@ -8,9 +8,28 @@ import '../../../core/api/http_client.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/api/models/json.dart';
 
+/// The steps of a file sent in chunks through the media gate: chat files,
+/// and 105.3 a teacher's lesson videos and PDFs.
+abstract class ChunkedUploads {
+  Future<ChatUpload> startUpload({
+    required String name,
+    required int size,
+    required String type,
+    int? durationSeconds,
+  });
+  Future<ChatUpload> resumeUpload(String uploadId);
+  Future<void> completeUpload(String uploadId);
+
+  /// The media gate: how much of an upload has arrived.
+  Future<int> uploadOffset(String uploadUrl);
+
+  /// The media gate: sends [bytes] at [offset]; the offset reached.
+  Future<int> sendChunk(String uploadUrl, int offset, List<int> bytes);
+}
+
 /// 77 The app's chat on Yallapp's hosted API (`Config.chat.base_url`, the
 /// Chat tag of docs/api/openapi.yaml), whatever runs the rest of the app.
-abstract class ChatApi {
+abstract class ChatApi implements ChunkedUploads {
   Future<ChatConversations> conversations();
 
   /// The unread count for the tab's badge (cheap).
@@ -37,21 +56,6 @@ abstract class ChatApi {
   Future<void> deleteMessage(String messageId);
   Future<void> report(String messageId, ChatReportReason reason);
   Future<void> block(String memberId, {required bool blocked});
-
-  Future<ChatUpload> startUpload({
-    required String name,
-    required int size,
-    required String type,
-    int? durationSeconds,
-  });
-  Future<ChatUpload> resumeUpload(String uploadId);
-  Future<void> completeUpload(String uploadId);
-
-  /// The media gate: how much of an upload has arrived.
-  Future<int> uploadOffset(String uploadUrl);
-
-  /// The media gate: sends [bytes] at [offset]; the offset reached.
-  Future<int> sendChunk(String uploadUrl, int offset, List<int> bytes);
 }
 
 /// Error codes of the Chat endpoints.
@@ -320,6 +324,39 @@ class HttpChatApi implements ChatApi {
   Future<void> completeUpload(String uploadId) =>
       _send('POST', '/chat/uploads/${_id(uploadId)}/complete', _ignore);
 
+  late final MediaGate _gateClient = MediaGate(_gate);
+
+  /// The link with the chunk's offset.
+  static String chunkUrl(String uploadUrl, int offset) =>
+      MediaGate.chunkUrl(uploadUrl, offset);
+
+  @override
+  Future<int> uploadOffset(String uploadUrl) =>
+      _gateClient.uploadOffset(uploadUrl);
+
+  @override
+  Future<int> sendChunk(String uploadUrl, int offset, List<int> bytes) =>
+      _gateClient.sendChunk(uploadUrl, offset, bytes);
+}
+
+/// The media gate's side of an upload: how much arrived, and sending a
+/// chunk (for the chat and 105.3 a teacher's lesson files alike).
+class MediaGate {
+  MediaGate(this._gate);
+
+  /// A client for the gate with long send and receive times.
+  factory MediaGate.standalone() => MediaGate(
+    Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 20),
+        sendTimeout: const Duration(minutes: 5),
+        receiveTimeout: const Duration(minutes: 2),
+      ),
+    ),
+  );
+
+  final Dio _gate;
+
   /// The gate's offset: the `Upload-Offset` header, else `{"offset": n}`.
   static int? _offsetOf(Response<dynamic>? response) {
     final header = int.tryParse(
@@ -359,7 +396,6 @@ class HttpChatApi implements ChatApi {
         .toString();
   }
 
-  @override
   Future<int> uploadOffset(String uploadUrl) async {
     try {
       return _offsetOf(await _gate.get<dynamic>(uploadUrl)) ?? 0;
@@ -371,7 +407,6 @@ class HttpChatApi implements ChatApi {
   /// 64b Each chunk as a `POST` with `application/octet-stream` and the
   /// offset in `Upload-Offset` and the query, as Yallapp Business sends it:
   /// server firewalls refuse `PUT`, and proxies may drop unknown headers.
-  @override
   Future<int> sendChunk(String uploadUrl, int offset, List<int> bytes) async {
     final Response<dynamic> response;
     try {
@@ -420,7 +455,7 @@ abstract class ChatFile {
 /// for the message. A refused link is renewed (`resume`) and a missing part
 /// is sent again, a few times before giving up.
 Future<String> uploadChatFile(
-  ChatApi api,
+  ChunkedUploads api,
   ChatFile file, {
   void Function(double progress)? onProgress,
   bool Function()? cancelled,

@@ -426,11 +426,11 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await expect(own.getByRole("article")).toHaveCount(0);
   await own.getByRole("link", { name: "New project" }).first().click();
   await expect(own).toHaveURL(/\/studio\/new$/);
-  await own.getByRole("radio", { name: "Academy" }).check();
+  await own.getByRole("radio", { name: "Academy", exact: true }).check();
   await own.getByRole("radio", { name: "No website: everything from here" }).click();
   // 103R.7 An academy's own template first; a shop's isn't offered.
   await expect(own.getByRole("radio", { name: "Shop" })).toHaveCount(0);
-  await own.getByRole("radio", { name: "Courses" }).click();
+  await own.getByRole("radio", { name: "Courses", exact: true }).click();
   await own.getByLabel("Project name").fill("Spring Studio");
   await own.getByRole("button", { name: "Next" }).click();
 

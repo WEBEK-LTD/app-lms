@@ -58,6 +58,8 @@ final bookingsModule = AppModule(
     BuiltInScreen.ride ||
     BuiltInScreen.myRides ||
     BuiltInScreen.driver ||
+    BuiltInScreen.teachers ||
+    BuiltInScreen.teacher ||
     BuiltInScreen.foodOrders ||
     BuiltInScreen.restaurant ||
     BuiltInScreen.campaigns ||

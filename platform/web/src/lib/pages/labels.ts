@@ -68,4 +68,6 @@ export const SCREEN_LABELS: Record<ScreenName, string> = {
   ride: "Ask for a ride",
   my_rides: "My rides",
   driver: "Driver",
+  teachers: "Teachers",
+  teacher: "Teacher",
 };

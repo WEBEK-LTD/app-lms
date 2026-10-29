@@ -1818,4 +1818,323 @@ class FakeApi implements YallappApi {
     'getDriverEarnings',
     () => DriverEarnings.fromJson(driverEarningsJson()),
   );
+
+  // 105.3 Academies with many teachers.
+
+  List<Map<String, dynamic>> teachers = [teacherSummaryJson()];
+  List<String> teacherSubjects = ['Arabic', 'Grammar'];
+  Map<String, dynamic> teacher = teacherDetailJson();
+  List<Map<String, dynamic>> teacherReviews = [teacherReviewJson()];
+  Map<String, dynamic>? teacherApplication;
+  final follows = <({int id, bool follow})>[];
+  Map<String, dynamic> teacherMe = teacherProfileJson();
+  List<Map<String, dynamic>> teacherCourses = [teacherCourseJson()];
+  List<Map<String, dynamic>> teacherQuestions = [teacherQuestionJson()];
+  final teacherLessons = <TeacherLessonInput>[];
+  final teacherUploads = <String>[];
+
+  Map<String, dynamic> _teacherCourse(int id) => teacherCourses.firstWhere(
+    (c) => c['id'] == id,
+    orElse: () => throw const ApiException(
+      code: 'not_found',
+      message: 'Course not found.',
+      statusCode: 404,
+    ),
+  );
+
+  TeacherCourse _changeCourse(
+    int id,
+    Map<String, dynamic> Function(Map<String, dynamic> c) change,
+  ) {
+    final next = change(_teacherCourse(id));
+    teacherCourses = [for (final c in teacherCourses) c['id'] == id ? next : c];
+    return TeacherCourse.fromJson(next);
+  }
+
+  @override
+  Future<TeacherPage> listTeachers({
+    String? search,
+    String? subject,
+    int page = 1,
+  }) => _answer('listTeachers', () {
+    final q = search?.trim().toLowerCase() ?? '';
+    final items = [
+      for (final t in teachers)
+        if ((q.isEmpty || (t['name'] as String).toLowerCase().contains(q)) &&
+            (subject == null || (t['subjects'] as List).contains(subject)))
+          t,
+    ];
+    return TeacherPage.fromJson({
+      'items': items,
+      'subjects': teacherSubjects,
+      'page': 1,
+      'total_pages': 1,
+    });
+  });
+
+  @override
+  Future<TeacherDetail> getTeacher(int id) => _answer(
+    'getTeacher',
+    () => TeacherDetail.fromJson({...teacher, 'id': id}),
+  );
+
+  @override
+  Future<void> followTeacher(int id, {required bool follow}) {
+    follows.add((id: id, follow: follow));
+    return _answer('followTeacher', () {
+      final count = teacher['follower_count'] as int;
+      teacher = {
+        ...teacher,
+        'following': follow,
+        'follower_count': follow ? count + 1 : count - 1,
+      };
+    });
+  }
+
+  @override
+  Future<Paged<TeacherReview>> listTeacherReviews(int id, {int page = 1}) =>
+      _answer(
+        'listTeacherReviews',
+        () => Paged.fromJson({
+          'items': teacherReviews,
+          'page': 1,
+          'per_page': 10,
+          'total': teacherReviews.length,
+          'total_pages': 1,
+        }, TeacherReview.fromJson),
+      );
+
+  @override
+  Future<TeacherReview> rateTeacher(
+    int id, {
+    required int rating,
+    String? text,
+  }) => _answer('rateTeacher', () {
+    final review = teacherReviewJson(
+      id: 9,
+      rating: rating,
+      text: text ?? '',
+      mine: true,
+    );
+    teacher = {...teacher, 'my_review': review};
+    return TeacherReview.fromJson(review);
+  });
+
+  @override
+  Future<TeacherApplication?> getTeacherApplication() => _answer(
+    'getTeacherApplication',
+    () => teacherApplication == null
+        ? null
+        : TeacherApplication.fromJson(teacherApplication!),
+  );
+
+  @override
+  Future<TeacherApplication> applyToTeach({
+    required String name,
+    required String bio,
+    required List<String> subjects,
+  }) => _answer('applyToTeach', () {
+    teacherApplication = {
+      'status': 'pending',
+      'name': name,
+      'bio': bio,
+      'subjects': subjects,
+      'note': null,
+      'created_at': '2026-10-28T10:00:00.000Z',
+    };
+    return TeacherApplication.fromJson(teacherApplication!);
+  });
+
+  @override
+  Future<TeacherProfile> getTeacherMe() =>
+      _answer('getTeacherMe', () => TeacherProfile.fromJson(teacherMe));
+
+  @override
+  Future<TeacherProfile> updateTeacherMe({
+    String? bio,
+    List<String>? subjects,
+  }) => _answer('updateTeacherMe', () {
+    teacherMe = {...teacherMe, 'bio': ?bio, 'subjects': ?subjects};
+    return TeacherProfile.fromJson(teacherMe);
+  });
+
+  @override
+  Future<TeacherCourses> listTeacherCourses() => _answer(
+    'listTeacherCourses',
+    () => TeacherCourses.fromJson({
+      'items': teacherCourses,
+      'categories': [
+        {'id': 1, 'name': 'Languages', 'count': 0},
+      ],
+      'currency': 'EGP',
+    }),
+  );
+
+  @override
+  Future<TeacherCourse> getTeacherCourse(int id) => _answer(
+    'getTeacherCourse',
+    () => TeacherCourse.fromJson(_teacherCourse(id)),
+  );
+
+  @override
+  Future<TeacherCourse> createTeacherCourse(TeacherCourseInput input) =>
+      _answer('createTeacherCourse', () {
+        final made = {
+          ...teacherCourseJson(id: 40, title: input.title, withLesson: false),
+          'description': input.description,
+          'sections': <Object>[],
+        };
+        teacherCourses = [made, ...teacherCourses];
+        return TeacherCourse.fromJson(made);
+      });
+
+  @override
+  Future<TeacherCourse> updateTeacherCourse(int id, TeacherCourseInput input) =>
+      _answer(
+        'updateTeacherCourse',
+        () => _changeCourse(
+          id,
+          (c) => {...c, 'title': input.title, 'description': input.description},
+        ),
+      );
+
+  @override
+  Future<TeacherCourse> submitTeacherCourse(int id) => _answer(
+    'submitTeacherCourse',
+    () => _changeCourse(
+      id,
+      (c) => {...c, 'stage': 'in_review', 'review_note': null},
+    ),
+  );
+
+  @override
+  Future<TeacherCourse> addTeacherSection(int courseId, String title) =>
+      _answer(
+        'addTeacherSection',
+        () => _changeCourse(
+          courseId,
+          (c) => {
+            ...c,
+            'sections': [
+              ...c['sections'] as List,
+              {'id': 50, 'title': title, 'lessons': <Object>[]},
+            ],
+          },
+        ),
+      );
+
+  @override
+  Future<TeacherCourse> addTeacherLesson(
+    int courseId,
+    TeacherLessonInput input,
+  ) {
+    teacherLessons.add(input);
+    return _answer(
+      'addTeacherLesson',
+      () => _changeCourse(courseId, (c) {
+        final kind = input.uploadId != null
+            ? 'pdf'
+            : input.videoUrl != null
+            ? 'video'
+            : 'text';
+        final lesson = {
+          'id': 60 + teacherLessons.length,
+          'title': input.title,
+          'kind': kind,
+          'duration_minutes': input.durationMinutes,
+          'preview': input.preview,
+        };
+        return {
+          ...c,
+          'lesson_count': (c['lesson_count'] as int) + 1,
+          'sections': [
+            for (final s in c['sections'] as List)
+              (s as Map)['id'] == input.sectionId
+                  ? {
+                      ...s,
+                      'lessons': [...s['lessons'] as List, lesson],
+                    }
+                  : s,
+          ],
+        };
+      }),
+    );
+  }
+
+  @override
+  Future<TeacherCourse> deleteTeacherLesson(int courseId, int lessonId) =>
+      _answer(
+        'deleteTeacherLesson',
+        () => _changeCourse(
+          courseId,
+          (c) => {
+            ...c,
+            'lesson_count': (c['lesson_count'] as int) - 1,
+            'sections': [
+              for (final s in c['sections'] as List)
+                {
+                  ...s as Map<String, dynamic>,
+                  'lessons': [
+                    for (final l in s['lessons'] as List)
+                      if ((l as Map)['id'] != lessonId) l,
+                  ],
+                },
+            ],
+          },
+        ),
+      );
+
+  @override
+  Future<ChatUpload> startTeacherUpload({
+    required String name,
+    required int size,
+    required String type,
+  }) => _answer('startTeacherUpload', () {
+    teacherUploads.add(name);
+    return ChatUpload.fromJson({
+      'id': '00000000-0000-4000-8000-00000000000${teacherUploads.length}',
+      'kind': 'file',
+      'upload_url': 'https://media.test/u/x',
+      'chunk_bytes': 1024,
+      'size': size,
+    });
+  });
+
+  @override
+  Future<ChatUpload> resumeTeacherUpload(String uploadId) => _answer(
+    'resumeTeacherUpload',
+    () => ChatUpload.fromJson({
+      'id': uploadId,
+      'kind': 'file',
+      'upload_url': 'https://media.test/u/x',
+      'chunk_bytes': 1024,
+      'size': 1,
+    }),
+  );
+
+  @override
+  Future<void> completeTeacherUpload(String uploadId) =>
+      _answer('completeTeacherUpload', () {});
+
+  @override
+  Future<Paged<TeacherQuestion>> listTeacherQuestions({int page = 1}) =>
+      _answer(
+        'listTeacherQuestions',
+        () => Paged.fromJson({
+          'items': teacherQuestions,
+          'page': 1,
+          'per_page': 20,
+          'total': teacherQuestions.length,
+          'total_pages': 1,
+        }, TeacherQuestion.fromJson),
+      );
+
+  @override
+  Future<TeacherEarnings> getTeacherEarnings(TeacherPeriod period) => _answer(
+    'getTeacherEarnings',
+    () => TeacherEarnings.fromJson({
+      ...teacherEarningsJson(),
+      'period': snake(period),
+    }),
+  );
 }

@@ -327,6 +327,7 @@ export const tr: Messages = {
     choiceCourierApp: "Kuryeler için ikinci bir uygulama",
     choiceFood: "Yemek teslimatı",
     choiceRides: "Araç çağırma",
+    choiceInstructors: "Çok eğitmenli akademiler",
     choiceMotion: "Düzenleyicide hareket",
     choiceTemplates: "Şablonlar",
     choicePages: "Bir projenin kaç Studio sayfası olduğu",

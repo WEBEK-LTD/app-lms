@@ -1,4 +1,4 @@
-import { ENGINES, hostedOnly, isAppType } from "../app/kinds";
+import { ENGINES, hostedOnly, isAppType, kindOf } from "../app/kinds";
 import type { App } from "../data/types";
 import { blockActions } from "./block-actions";
 import { SCREEN_LABELS } from "./labels";
@@ -65,19 +65,24 @@ export interface ScreenOption {
   alias?: true;
 }
 
-/** The screens the app opens (lib/app/kinds.ts, from its Flutter module), then the older names it also opens. */
-export function screenOptionsFor(app: Pick<App, "appType">): ScreenOption[] {
+/**
+ * The screens the app opens (lib/app/kinds.ts, from its Flutter module), then
+ * the older names it also opens. 105.3 Some kinds open more than their engine
+ * (an academy with many teachers: its teachers and the Teacher tab).
+ */
+export function screenOptionsFor(app: Pick<App, "appType" | "vertical">): ScreenOption[] {
   if (!isAppType(app.appType)) return SCREENS.map((value) => ({ value, label: SCREEN_LABELS[value] }));
   const pages = ENGINES[app.appType].pages;
   const label = (screen: ScreenName) => pages.screenLabels?.[screen] ?? SCREEN_LABELS[screen];
   return [
     ...pages.screens.map((value) => ({ value, label: label(value) })),
+    ...(kindOf(app).screens ?? []).map((value) => ({ value, label: label(value) })),
     ...(Object.entries(pages.aliases) as [ScreenName, ScreenName][]).map(([value, to]) => ({ value, label: label(to), alias: true as const })),
   ];
 }
 
 /** Whether the app can open a screen. */
-export function appOpensScreen(app: Pick<App, "appType">, screen: unknown): screen is ScreenName {
+export function appOpensScreen(app: Pick<App, "appType" | "vertical">, screen: unknown): screen is ScreenName {
   return screenOptionsFor(app).some((o) => o.value === screen);
 }
 

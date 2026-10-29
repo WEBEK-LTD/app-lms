@@ -101,6 +101,29 @@ Admin › Demo apps and picks their builds there; until then the page shows
 sides: the customer, then the courier, the restaurant's staff or the
 driver. The daily clean-up removes their shipments, orders and rides.
 
+Phase 105.3 (academies with many teachers, like Udemy) is complete: a new
+Studio project type, an academy whose teachers each publish their own
+courses (the Academy app type with the vertical `instructors`, on Studio's
+plans). The academy adds its teachers by number (or lets people apply from
+the app), sets each one's share in percent, features some, and publishes
+or returns (with a note) the courses they send. Teachers get a Teacher tab:
+their courses, sections and lessons (a video link, an uploaded video or
+PDF into the academy's Media library, or text), sending a course for
+review, their students' questions (answered in their name) and their
+earnings this month, last month or this year. Students browse the teachers
+(by name or subject, featured first), open a teacher's page, follow them
+(a push when they publish a course) and rate them once in one of their
+courses. The dashboard in Studio has Teachers, Courses to review and
+Teacher statements for any period, from paid orders after coupons and
+refunds. Academies with many teachers are the Studio plan feature
+`instructors`. In Studio, such an academy starts from one of three
+ready-made designs (Teachers, Course offers, Academy brand), and Studio
+pages can open its teachers and the Teacher tab; the store review account
+is a student and a test teacher students never see. Every price and share
+is the academy's: Yallapp sets none. Checks: redocly lint, platform unit
+tests (with the isolation tests), tsc, eslint, e2e of the dashboard,
+flutter analyze and widget tests.
+
 Phase 103R (Yallapp Studio as the owner approved it) is complete. A
 Studio page is a tree of elements (`AppPage.studio`): rows, columns, layers,
 grids and sliders; texts, pictures, buttons, lists with the owner's own card,
@@ -195,6 +218,8 @@ test environment:
 - Ride hailing apps (105.2): turn on the plan feature `rides`, with its
   price, in Admin › Plans › Yallapp Studio; the drivers' own app is the
   plan feature `courier_app`, as for couriers.
+- Academies with many teachers (105.3): turn on the plan feature
+  `instructors`, with its price, in Admin › Plans › Yallapp Studio.
 - Google real-time notifications use one Pub/Sub topic for every app
   (`GOOGLE_PUBSUB_PUSH_EMAIL`, `GOOGLE_PUBSUB_TOPIC`; see
   `docs/LAUNCH-CHECKLIST.md`). Each app's owner enters the topic in their own

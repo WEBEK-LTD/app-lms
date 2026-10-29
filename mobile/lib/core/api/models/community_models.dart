@@ -41,6 +41,12 @@ enum NotificationType {
   /// driver.
   rideUpdate,
   rideOffer,
+
+  /// 105.3 A teacher the student follows published a course; the academy
+  /// published or returned a teacher's course; a student asked a teacher.
+  newCourse,
+  teacherCourse,
+  teacherQuestion,
   unknown,
 }
 

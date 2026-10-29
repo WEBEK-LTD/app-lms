@@ -5581,4 +5581,348 @@ class OverlayLocalizations extends AppLocalizations {
 
   @override
   String get ridePayCash => overlay.text('ridePayCash') ?? base.ridePayCash;
+
+  @override
+  String get teachersTitle =>
+      overlay.text('teachersTitle') ?? base.teachersTitle;
+
+  @override
+  String get teachersSearch =>
+      overlay.text('teachersSearch') ?? base.teachersSearch;
+
+  @override
+  String get teachersEmpty =>
+      overlay.text('teachersEmpty') ?? base.teachersEmpty;
+
+  @override
+  String get teachersAllSubjects =>
+      overlay.text('teachersAllSubjects') ?? base.teachersAllSubjects;
+
+  @override
+  String get teacherFeatured =>
+      overlay.text('teacherFeatured') ?? base.teacherFeatured;
+
+  @override
+  String teacherCourseCount(int count) =>
+      overlay.format('teacherCourseCount', {'count': count}) ??
+      base.teacherCourseCount(count);
+
+  @override
+  String teacherStudentCount(int count) =>
+      overlay.format('teacherStudentCount', {'count': count}) ??
+      base.teacherStudentCount(count);
+
+  @override
+  String teacherFollowerCount(int count) =>
+      overlay.format('teacherFollowerCount', {'count': count}) ??
+      base.teacherFollowerCount(count);
+
+  @override
+  String get teacherFollow =>
+      overlay.text('teacherFollow') ?? base.teacherFollow;
+
+  @override
+  String get teacherFollowing =>
+      overlay.text('teacherFollowing') ?? base.teacherFollowing;
+
+  @override
+  String teacherFollowed(String name) =>
+      overlay.format('teacherFollowed', {'name': name}) ??
+      base.teacherFollowed(name);
+
+  @override
+  String teacherCoursesTitle(String name) =>
+      overlay.format('teacherCoursesTitle', {'name': name}) ??
+      base.teacherCoursesTitle(name);
+
+  @override
+  String teacherRate(String name) =>
+      overlay.format('teacherRate', {'name': name}) ?? base.teacherRate(name);
+
+  @override
+  String get teacherRateHint =>
+      overlay.text('teacherRateHint') ?? base.teacherRateHint;
+
+  @override
+  String teacherRated(String name) =>
+      overlay.format('teacherRated', {'name': name}) ?? base.teacherRated(name);
+
+  @override
+  String get teacherYourRating =>
+      overlay.text('teacherYourRating') ?? base.teacherYourRating;
+
+  @override
+  String get teachersSeeAll =>
+      overlay.text('teachersSeeAll') ?? base.teachersSeeAll;
+
+  @override
+  String get teachHere => overlay.text('teachHere') ?? base.teachHere;
+
+  @override
+  String get teachIntro => overlay.text('teachIntro') ?? base.teachIntro;
+
+  @override
+  String get teachName => overlay.text('teachName') ?? base.teachName;
+
+  @override
+  String get teachBio => overlay.text('teachBio') ?? base.teachBio;
+
+  @override
+  String get teachBioHint => overlay.text('teachBioHint') ?? base.teachBioHint;
+
+  @override
+  String get teachSubjects =>
+      overlay.text('teachSubjects') ?? base.teachSubjects;
+
+  @override
+  String get teachSubjectsHint =>
+      overlay.text('teachSubjectsHint') ?? base.teachSubjectsHint;
+
+  @override
+  String get teachSend => overlay.text('teachSend') ?? base.teachSend;
+
+  @override
+  String get teachPending => overlay.text('teachPending') ?? base.teachPending;
+
+  @override
+  String get teachApproved =>
+      overlay.text('teachApproved') ?? base.teachApproved;
+
+  @override
+  String get teachDeclined =>
+      overlay.text('teachDeclined') ?? base.teachDeclined;
+
+  @override
+  String teachNote(String note) =>
+      overlay.format('teachNote', {'note': note}) ?? base.teachNote(note);
+
+  @override
+  String get teachApplyAgain =>
+      overlay.text('teachApplyAgain') ?? base.teachApplyAgain;
+
+  @override
+  String get tabTeacher => overlay.text('tabTeacher') ?? base.tabTeacher;
+
+  @override
+  String teacherShare(String percent) =>
+      overlay.format('teacherShare', {'percent': percent}) ??
+      base.teacherShare(percent);
+
+  @override
+  String get teacherTabCourses =>
+      overlay.text('teacherTabCourses') ?? base.teacherTabCourses;
+
+  @override
+  String get teacherTabQuestions =>
+      overlay.text('teacherTabQuestions') ?? base.teacherTabQuestions;
+
+  @override
+  String get teacherTabEarnings =>
+      overlay.text('teacherTabEarnings') ?? base.teacherTabEarnings;
+
+  @override
+  String get teacherNewCourse =>
+      overlay.text('teacherNewCourse') ?? base.teacherNewCourse;
+
+  @override
+  String get teacherNoCourses =>
+      overlay.text('teacherNoCourses') ?? base.teacherNoCourses;
+
+  @override
+  String get stageDraft => overlay.text('stageDraft') ?? base.stageDraft;
+
+  @override
+  String get stageInReview =>
+      overlay.text('stageInReview') ?? base.stageInReview;
+
+  @override
+  String get stageReturned =>
+      overlay.text('stageReturned') ?? base.stageReturned;
+
+  @override
+  String get stagePublished =>
+      overlay.text('stagePublished') ?? base.stagePublished;
+
+  @override
+  String get stageHidden => overlay.text('stageHidden') ?? base.stageHidden;
+
+  @override
+  String get courseFieldTitle =>
+      overlay.text('courseFieldTitle') ?? base.courseFieldTitle;
+
+  @override
+  String get courseFieldDescription =>
+      overlay.text('courseFieldDescription') ?? base.courseFieldDescription;
+
+  @override
+  String courseFieldPrice(String currency) =>
+      overlay.format('courseFieldPrice', {'currency': currency}) ??
+      base.courseFieldPrice(currency);
+
+  @override
+  String get courseFieldPriceHint =>
+      overlay.text('courseFieldPriceHint') ?? base.courseFieldPriceHint;
+
+  @override
+  String get courseFieldLevel =>
+      overlay.text('courseFieldLevel') ?? base.courseFieldLevel;
+
+  @override
+  String get levelBeginner =>
+      overlay.text('levelBeginner') ?? base.levelBeginner;
+
+  @override
+  String get levelIntermediate =>
+      overlay.text('levelIntermediate') ?? base.levelIntermediate;
+
+  @override
+  String get levelAdvanced =>
+      overlay.text('levelAdvanced') ?? base.levelAdvanced;
+
+  @override
+  String get courseFieldCategory =>
+      overlay.text('courseFieldCategory') ?? base.courseFieldCategory;
+
+  @override
+  String get courseNoCategory =>
+      overlay.text('courseNoCategory') ?? base.courseNoCategory;
+
+  @override
+  String get courseCreate => overlay.text('courseCreate') ?? base.courseCreate;
+
+  @override
+  String get courseSave => overlay.text('courseSave') ?? base.courseSave;
+
+  @override
+  String get courseEditDetails =>
+      overlay.text('courseEditDetails') ?? base.courseEditDetails;
+
+  @override
+  String get courseAddSection =>
+      overlay.text('courseAddSection') ?? base.courseAddSection;
+
+  @override
+  String get courseSectionTitle =>
+      overlay.text('courseSectionTitle') ?? base.courseSectionTitle;
+
+  @override
+  String get courseAddLesson =>
+      overlay.text('courseAddLesson') ?? base.courseAddLesson;
+
+  @override
+  String get lessonFieldTitle =>
+      overlay.text('lessonFieldTitle') ?? base.lessonFieldTitle;
+
+  @override
+  String get lessonFieldText =>
+      overlay.text('lessonFieldText') ?? base.lessonFieldText;
+
+  @override
+  String get lessonFieldVideo =>
+      overlay.text('lessonFieldVideo') ?? base.lessonFieldVideo;
+
+  @override
+  String get lessonPickFile =>
+      overlay.text('lessonPickFile') ?? base.lessonPickFile;
+
+  @override
+  String lessonUploading(int percent) =>
+      overlay.format('lessonUploading', {'percent': percent}) ??
+      base.lessonUploading(percent);
+
+  @override
+  String get lessonFieldMinutes =>
+      overlay.text('lessonFieldMinutes') ?? base.lessonFieldMinutes;
+
+  @override
+  String get lessonFieldPreview =>
+      overlay.text('lessonFieldPreview') ?? base.lessonFieldPreview;
+
+  @override
+  String get lessonNeedsContent =>
+      overlay.text('lessonNeedsContent') ?? base.lessonNeedsContent;
+
+  @override
+  String get lessonFileTooBig =>
+      overlay.text('lessonFileTooBig') ?? base.lessonFileTooBig;
+
+  @override
+  String get lessonFileType =>
+      overlay.text('lessonFileType') ?? base.lessonFileType;
+
+  @override
+  String get lessonKindVideo =>
+      overlay.text('lessonKindVideo') ?? base.lessonKindVideo;
+
+  @override
+  String get lessonKindPdf =>
+      overlay.text('lessonKindPdf') ?? base.lessonKindPdf;
+
+  @override
+  String get lessonKindText =>
+      overlay.text('lessonKindText') ?? base.lessonKindText;
+
+  @override
+  String get lessonRemove => overlay.text('lessonRemove') ?? base.lessonRemove;
+
+  @override
+  String get courseSendForReview =>
+      overlay.text('courseSendForReview') ?? base.courseSendForReview;
+
+  @override
+  String get courseSentForReview =>
+      overlay.text('courseSentForReview') ?? base.courseSentForReview;
+
+  @override
+  String get courseInReviewNote =>
+      overlay.text('courseInReviewNote') ?? base.courseInReviewNote;
+
+  @override
+  String get coursePublishedNote =>
+      overlay.text('coursePublishedNote') ?? base.coursePublishedNote;
+
+  @override
+  String get teacherNoQuestions =>
+      overlay.text('teacherNoQuestions') ?? base.teacherNoQuestions;
+
+  @override
+  String get questionWaiting =>
+      overlay.text('questionWaiting') ?? base.questionWaiting;
+
+  @override
+  String get questionAnswered =>
+      overlay.text('questionAnswered') ?? base.questionAnswered;
+
+  @override
+  String get periodLastMonth =>
+      overlay.text('periodLastMonth') ?? base.periodLastMonth;
+
+  @override
+  String get periodYear => overlay.text('periodYear') ?? base.periodYear;
+
+  @override
+  String teacherSold(int count, String amount) =>
+      overlay.format('teacherSold', {'count': count, 'amount': amount}) ??
+      base.teacherSold(count, amount);
+
+  @override
+  String teacherRefunds(String amount) =>
+      overlay.format('teacherRefunds', {'amount': amount}) ??
+      base.teacherRefunds(amount);
+
+  @override
+  String get teacherEarned =>
+      overlay.text('teacherEarned') ?? base.teacherEarned;
+
+  @override
+  String get teacherPaidBy =>
+      overlay.text('teacherPaidBy') ?? base.teacherPaidBy;
+
+  @override
+  String get teacherEditProfile =>
+      overlay.text('teacherEditProfile') ?? base.teacherEditProfile;
+
+  @override
+  String get teacherProfileSaved =>
+      overlay.text('teacherProfileSaved') ?? base.teacherProfileSaved;
 }

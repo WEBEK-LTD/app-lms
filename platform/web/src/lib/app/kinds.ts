@@ -18,7 +18,7 @@ import type { BlockType, ItemSource, LayoutBlock, LayoutTab, ScreenName } from "
  */
 
 /** 20 The verticals, as stored and sent (`Config.vertical`, build config `vertical`). */
-export const APP_VERTICALS = ["restaurant", "clinic", "fitness", "charity", "services"] as const satisfies readonly AppVertical[];
+export const APP_VERTICALS = ["restaurant", "clinic", "fitness", "charity", "services", "instructors"] as const satisfies readonly AppVertical[];
 
 /** Content the client manages in the dashboard, served by the hosted API (a connector kind). */
 export type OwnContentKind = Extract<ConnectorConfig["kind"], "catalog" | "courses" | "bookings" | "listings" | "articles" | "events" | "campaigns" | "deliveries" | "restaurants" | "rides">;
@@ -143,6 +143,8 @@ export interface KindInfo {
   tabs?: LayoutTab[];
   /** 27 What to tell the store reviewers about this kind (Publishing › For the store reviewers). */
   reviewNote?: string;
+  /** 105.3 Screens its app opens besides its engine's (an academy's teachers). */
+  screens?: ScreenName[];
 }
 
 const tab = (id: string, label: string, icon: string, screen: string): LayoutTab => ({ id, label, icon, target: { type: "screen", screen } as LayoutTab["target"] });
@@ -1025,6 +1027,40 @@ export const KINDS: readonly KindInfo[] = [
     marketing: { slug: "rides", icon: "local_taxi" },
     reviewNote:
       "This app has two roles. Riders ask for a ride and follow the driver. Drivers of the company sign in with a number the company added and see a Driver tab with the rides offered to them.",
+  },
+  {
+    // 105.3 An academy with many teachers: the courses engine, each course possibly a teacher's.
+    id: "instructors",
+    engine: "lms",
+    vertical: "instructors",
+    name: "Academy with many teachers",
+    description: "Your teachers publish their own courses after your review, answer their students and see their share of the sales.",
+    requires: "No website needed: you add your teachers and review their courses here in the dashboard · Your own iyzico, Kashier, Fawaterk, Stripe or PayPal account",
+    icon: "groups",
+    tile: "bg-tile-4 text-[#2F6B3A]",
+    marketing: { slug: "instructors", icon: "groups" },
+    wording: {
+      nav: {
+        label: "Your academy",
+        items: [
+          { href: "/dashboard/courses", label: "Courses", icon: "school" },
+          { href: "/dashboard/teachers", label: "Teachers", icon: "groups" },
+          { href: "/dashboard/teachers/review", label: "Courses to review", icon: "task_alt" },
+          { href: "/dashboard/teachers/statement", label: "Teacher statements", icon: "receipt_long" },
+          { href: "/dashboard/courses/questions", label: "Questions", icon: "help" },
+          { href: "/dashboard/courses/reviews", label: "Reviews", icon: "star" },
+          { href: "/dashboard/orders", label: "Orders", icon: "receipt_long" },
+        ],
+      },
+      users: "Students",
+      ownContent: {
+        text: "Add your teachers here in the dashboard; they make their courses in the app and you publish them. Students buy courses on your own payment page.",
+        next: "After this step, add your teachers on the **Teachers** page, then review the courses they send on **Courses to review**. Teachers and students sign in to the app with",
+      },
+    },
+    reviewNote:
+      "This app has two roles. Students browse the academy's teachers and courses. Teachers of the academy sign in with a number the academy added and see a Teacher tab with their courses, students' questions and earnings. The review account is both: a student, and a test teacher (\"App Review\") whose Teacher tab makes a course and sends it to the academy for review. Students never see the test teacher.",
+    screens: ["teachers", "teacher"],
   },
 ];
 

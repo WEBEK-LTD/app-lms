@@ -4,7 +4,8 @@ import { DOWNLOAD_CHECK_MAX, DOWNLOAD_KEEP_DAYS, DOWNLOAD_LINK_MINUTES, isVideoF
 import { findLesson, lessonsOf, courseSetup, videoSource } from "../../courses/setup";
 import { randomToken, sha256Hex } from "../../crypto/tokens";
 import type { DataStore } from "../../data/store";
-import type { App, Course, CourseLesson, CourseQuestion, CourseQuiz, CourseReview, CourseSetup, HostedUser, LessonProgress, QuizAttempt } from "../../data/types";
+import type { App, Course, CourseLesson, CourseQuestion, CourseQuiz, CourseReview, CourseSetup, HostedUser, LessonProgress, QuizAttempt, Teacher } from "../../data/types";
+import { isTeachersApp, teacherOf } from "../../teachers/service";
 import { accessEndsAt, certificateCode, certificateUrl, courseProgress, findQuiz, lessonOpensAt, passedQuizzes, quizzesOf, scoreQuiz, topicItems } from "../../courses/learning";
 import { signingSecret } from "../../env";
 import { answersFor, QUESTION_LIMIT, ratingSummary, readCommunityText, readReview, REVIEW_LIMIT } from "../../courses/community";
@@ -44,6 +45,10 @@ export interface CoursesDeps {
   onReview?: (input: { review: CourseReview; course: Course; user: HostedUser }) => Promise<void>;
   /** 90.1 Signs certificate codes; read from the environment when left out. */
   signingSecret?: string;
+  /** 105.3 A student asked (or wrote again) in a teacher's course: the teacher hears of it. */
+  onTeacherQuestion?: (input: { teacher: Teacher; question: CourseQuestion; course: Course; text: string }) => Promise<void>;
+  /** 105.3 A teacher answered: the student hears of it. */
+  onTeacherAnswer?: (input: { teacher: Teacher; question: CourseQuestion; course: Course; text: string }) => Promise<void>;
 }
 
 type Ratings = { courseId: number; rating: number; count: number }[];
@@ -63,6 +68,8 @@ const noCourse = () => error(404, "not_found", "Course not found.");
  */
 export class CoursesConnector implements Connector {
   private readonly setup: CourseSetup;
+  /** 105.3 The academy's teachers by ID, read once per request in an academy with many teachers. */
+  private teachers = new Map<number, Teacher>();
 
   constructor(private readonly deps: CoursesDeps) {
     this.setup = courseSetup(deps.app);
@@ -103,6 +110,7 @@ export class CoursesConnector implements Connector {
   }
 
   async handle(request: ConnectorRequest): Promise<ConnectorResult | null> {
+    await this.loadTeachers();
     const mine = myOrdersRoute(this.deps, request);
     if (mine) return mine;
     const route = `${request.method} /${request.path.join("/")}`;
@@ -166,8 +174,28 @@ export class CoursesConnector implements Connector {
 
   // Data
 
+  /** Published courses: 105.3 a teacher's once the academy published it. */
   private active(): Course[] {
-    return this.setup.courses.filter((c) => c.active);
+    return this.setup.courses.filter((c) => c.active && !c.teacherStage);
+  }
+
+  /** 105.3 The academy's teachers, for the courses' teacher. */
+  async loadTeachers(): Promise<void> {
+    if (!isTeachersApp(this.deps.app)) return;
+    this.teachers = new Map((await this.deps.store.listTeachers(this.deps.app.id)).map((t) => [t.id, t]));
+  }
+
+  /** 105.3 The course's teacher, while they are one of the academy's. */
+  private teacherOfCourse(c: Pick<Course, "teacherId">): Teacher | null {
+    return c.teacherId ? (this.teachers.get(c.teacherId) ?? null) : null;
+  }
+
+  /** 105.3 Course summaries for a teacher's page (`GET /teachers/{id}`). */
+  async summariesFor(request: ConnectorRequest, courses: Course[]) {
+    if (this.teachers.size === 0) await this.loadTeachers();
+    const enrolled = await this.enrolled(request);
+    const ratings = await this.ratings();
+    return courses.map((c) => this.summary(c, enrolled, ratings));
   }
 
   private course(id: number): Course | null {
@@ -227,7 +255,7 @@ export class CoursesConnector implements Connector {
       id: c.id,
       title: c.title,
       image_url: c.imageAssetId ? this.deps.assetUrl(c.imageAssetId) : null,
-      instructor: { id: 0, name: c.instructorName ?? this.deps.app.appName ?? "Instructor", avatar_url: null, bio: null },
+      instructor: this.instructor(c),
       price: this.price(c),
       lesson_count: lessonsOf(c).length,
       rating: rated.rating,
@@ -235,6 +263,13 @@ export class CoursesConnector implements Connector {
       enrolled: enrolled.has(c.id),
       wishlisted: false,
     };
+  }
+
+  /** The course's teacher (105.3 one of the academy's, with their ID), else the academy. */
+  private instructor(c: Course) {
+    const teacher = this.teacherOfCourse(c);
+    if (teacher) return { id: teacher.id, name: teacher.name, avatar_url: teacher.photoAssetId ? this.deps.assetUrl(teacher.photoAssetId) : null, bio: teacher.bio || null };
+    return { id: 0, name: c.instructorName ?? this.deps.app.appName ?? "Instructor", avatar_url: null, bio: null };
   }
 
   /** 45 Progress over the lessons and 90.1 the quizzes; finished when the last of them was. */
@@ -752,6 +787,21 @@ export class CoursesConnector implements Connector {
     return { name: course?.instructorName ?? this.deps.app.appName ?? "Instructor", avatar_url: null, instructor: true };
   }
 
+  /** 105.3 An answer's author: the course's teacher when they wrote it, else the student. */
+  private answerAuthor(course: Course, userId: number, user: HostedUser | null | undefined) {
+    const teacher = this.teacherOfCourse(course);
+    if (teacher && teacher.userId === userId) return { name: teacher.name, avatar_url: teacher.photoAssetId ? this.deps.assetUrl(teacher.photoAssetId) : null, instructor: true };
+    return this.person(user);
+  }
+
+  /** 105.3 The signed-in person is the course's teacher. */
+  private async isTeacherOf(request: ConnectorRequest, c: Course): Promise<Teacher | null> {
+    const teacher = this.teacherOfCourse(c);
+    if (!teacher || !request.user) return null;
+    const me = await teacherOf(this.deps.store, this.deps.app, request.user, request.now);
+    return me && me.id === teacher.id ? me : null;
+  }
+
   private async users(ids: number[]): Promise<Map<number, HostedUser | null>> {
     const out = new Map<number, HostedUser | null>();
     for (const id of new Set(ids)) out.set(id, await this.deps.store.getHostedUser(this.deps.app.id, id));
@@ -814,7 +864,9 @@ export class CoursesConnector implements Connector {
   private async mayTalk(request: ConnectorRequest, c: Course | null): Promise<ConnectorResult | null> {
     if (!request.user) return signIn();
     if (!c) return noCourse();
-    return (await this.enrolled(request)).has(c.id) ? null : error(403, "not_enrolled", "Enroll in the course to see and ask questions.");
+    if ((await this.enrolled(request)).has(c.id)) return null;
+    // 105.3 The course's teacher reads and answers its questions.
+    return (await this.isTeacherOf(request, c)) ? null : error(403, "not_enrolled", "Enroll in the course to see and ask questions.");
   }
 
   private async limited(request: ConnectorRequest, rule: RateLimitRule = QUESTION_LIMIT): Promise<ConnectorResult | null> {
@@ -865,6 +917,8 @@ export class CoursesConnector implements Connector {
       updatedAt: request.now,
     });
     await this.tell(() => this.deps.onQuestion?.({ question, course: c!, user: request.user!, text: read.text, followUp: false }));
+    const teacher = this.teacherOfCourse(c!);
+    if (teacher?.status === "active") await this.tell(() => this.deps.onTeacherQuestion?.({ teacher, question, course: c!, text: read.text }));
     return { status: 201, body: this.questionJson(question, request.user, true) };
   }
 
@@ -893,7 +947,7 @@ export class CoursesConnector implements Connector {
         answers: answers.map((a) => ({
           id: a.id,
           text: a.text,
-          author: a.userId === null ? this.business(course) : this.person(users.get(a.userId)),
+          author: a.userId === null ? this.business(course) : this.answerAuthor(course, a.userId, users.get(a.userId)),
           created_at: a.createdAt.toISOString(),
           mine: a.userId === request.user!.id,
           hidden: a.hidden,
@@ -910,10 +964,19 @@ export class CoursesConnector implements Connector {
     const wait = await this.limited(request);
     if (wait) return wait;
     const { question, course } = found;
+    // 105.3 The course's teacher answers: the question is answered, in the teacher's name.
+    const teacher = question.userId === request.user!.id ? null : await this.isTeacherOf(request, course);
+    if (teacher) {
+      const answer = await this.deps.store.addCourseAnswer({ appId: this.deps.app.id, questionId: question.id, userId: request.user!.id, text: read.text, createdAt: request.now }, "answered");
+      await this.tell(() => this.deps.onTeacherAnswer?.({ teacher, question, course, text: read.text }));
+      return { status: 201, body: { id: answer.id, text: answer.text, author: this.answerAuthor(course, request.user!.id, request.user), created_at: answer.createdAt.toISOString(), mine: true, hidden: false } };
+    }
     // A student writing again: the question waits for the business again.
     const answer = await this.deps.store.addCourseAnswer({ appId: this.deps.app.id, questionId: question.id, userId: request.user!.id, text: read.text, createdAt: request.now }, "open");
     // 64 A question the business hid isn't pushed to its phones again.
     if (!question.hidden) await this.tell(() => this.deps.onQuestion?.({ question, course, user: request.user!, text: read.text, followUp: true }));
+    const owner = this.teacherOfCourse(course);
+    if (!question.hidden && owner?.status === "active" && question.userId === request.user!.id) await this.tell(() => this.deps.onTeacherQuestion?.({ teacher: owner, question, course, text: read.text }));
     return { status: 201, body: { id: answer.id, text: answer.text, author: this.person(request.user), created_at: answer.createdAt.toISOString(), mine: true, hidden: false } };
   }
 

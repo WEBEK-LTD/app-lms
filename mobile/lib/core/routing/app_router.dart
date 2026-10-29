@@ -11,6 +11,7 @@ import '../../modules/delivery/delivery_routes.dart';
 import '../../modules/food/data/food_providers.dart';
 import '../../modules/food/food_routes.dart';
 import '../../modules/lms/lms_routes.dart';
+import '../../modules/lms/teachers/teachers_providers.dart';
 import '../../modules/news/news_routes.dart';
 import '../../modules/real_estate/real_estate_routes.dart';
 import '../../modules/rides/data/rides_providers.dart';
@@ -108,9 +109,14 @@ final shellTabsProvider = Provider<List<ShellTab>>((ref) {
       : null;
   // 105.2 Ride apps: the Driver tab for the company's drivers.
   final driver = appType == AppType.rides ? ref.watch(isDriverProvider) : null;
-  List<ShellTab> withRoles(List<ShellTab> tabs) => withDriverTab(
-    withRestaurantTab(withCourierTab(tabs, courier), restaurant),
-    driver,
+  // 105.3 Academies: the Teacher tab for the academy's teachers.
+  final teacher = appType == AppType.lms ? ref.watch(isTeacherProvider) : null;
+  List<ShellTab> withRoles(List<ShellTab> tabs) => withTeacherTab(
+    withDriverTab(
+      withRestaurantTab(withCourierTab(tabs, courier), restaurant),
+      driver,
+    ),
+    teacher,
   );
   if (navigation != null) {
     final tabs = tabsFromNavigation(navigation, module, config);
@@ -139,6 +145,11 @@ List<ShellTab> withRestaurantTab(List<ShellTab> tabs, bool? restaurant) =>
 /// drivers, as the Courier tab is for couriers. Null: not a ride app.
 List<ShellTab> withDriverTab(List<ShellTab> tabs, bool? driver) =>
     _withRoleTab(tabs, driverTab, driver);
+
+/// 105.3 The tabs of an academy: the Teacher tab added for its teachers,
+/// as the Courier tab is for couriers. Null: not an academy.
+List<ShellTab> withTeacherTab(List<ShellTab> tabs, bool? teacher) =>
+    _withRoleTab(tabs, teacherTab, teacher);
 
 List<ShellTab> _withRoleTab(List<ShellTab> tabs, ShellTab tab, bool? show) {
   if (show == null) return tabs;

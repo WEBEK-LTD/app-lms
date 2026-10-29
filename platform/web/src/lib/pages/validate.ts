@@ -176,7 +176,8 @@ class Checker {
 }
 
 export interface ParseOptions {
-  app: Pick<App, "appType" | "backend">;
+  /** 105.3 With its vertical: some open more screens than their engine. */
+  app: Pick<App, "appType" | "backend" | "vertical">;
   now: Date;
   /** 97.2 The names of the app's own fonts, which its look may use. */
   ownFonts?: readonly string[];
@@ -886,7 +887,7 @@ function optionalColor(c: Checker, where: string, value: unknown, what: string):
 }
 
 /** 103R A Studio page on its own (an owner's own template): checked as in a layout of the app's. */
-export function parseStudioPage(value: unknown, app: Pick<App, "appType" | "backend">, languages: Languages): ParseResult<StudioPage> {
+export function parseStudioPage(value: unknown, app: Pick<App, "appType" | "backend" | "vertical">, languages: Languages): ParseResult<StudioPage> {
   const c = new Checker();
   const ctx: Context = {
     c,

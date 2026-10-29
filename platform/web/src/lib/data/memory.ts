@@ -99,6 +99,7 @@ import type { CheckInResult, EventInput, EventRecord, EventSettings, EventTicket
 // 29 Charity & donations
 import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, DonationSettings, DonationStatus } from "./types";
 import type { Courier, CourierInput, CourierPatch, DeliveryService, DeliveryServiceInput, DeliverySettings, Shipment, ShipmentInput, ShipmentPatch, ShipmentQuery, ShipmentStatus } from "./types";
+import type { Teacher, TeacherInput, TeacherPatch, TeacherReview, TeacherStatus } from "./types";
 import type { Ride, RideInput, RidePatch, RideQuery, RideStatementRow, RideStatus, VehicleType, VehicleTypeInput } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
@@ -641,6 +642,10 @@ export class MemoryStore implements DataStore {
     // 63 Their check-ins, reviews, questions and answers go with the account, as in the database.
     for (const [key, c] of this.memberCheckIns) if (c.appId === appId && c.userId === id) this.memberCheckIns.delete(key);
     for (const [key, r] of this.courseReviews) if (r.appId === appId && r.userId === id) this.courseReviews.delete(key);
+    // 105.3 Their follows and reviews of teachers go with the account; a teacher keeps their profile.
+    for (const [key, f] of this.teacherFollows) if (f.appId === appId && f.userId === id) this.teacherFollows.delete(key);
+    for (const [key, r] of this.teacherReviews) if (r.appId === appId && r.userId === id) this.teacherReviews.delete(key);
+    for (const t of this.teachers.values()) if (t.appId === appId && t.userId === id) t.userId = null;
     for (const [key, q] of this.courseQuestions) if (q.appId === appId && q.userId === id) this.deleteQuestion(key);
     for (const [key, a] of this.courseAnswers) if (a.appId === appId && a.userId === id) this.courseAnswers.delete(key);
     // 91.4 Their points go with the account.
@@ -2094,6 +2099,130 @@ export class MemoryStore implements DataStore {
     if (this.deliveryServices.get(id)?.appId !== appId) return;
     this.deliveryServices.delete(id);
     for (const shipment of this.shipments.values()) if (shipment.appId === appId && shipment.serviceId === id) shipment.serviceId = null;
+  }
+
+  // 105.3 Academies with many teachers
+
+  private teachers = new Map<number, Teacher>();
+  private nextTeacherId = 1;
+  /** Keyed `teacherId:userId`. */
+  private teacherFollows = new Map<string, { appId: string; teacherId: number; userId: number; createdAt: Date }>();
+  private teacherReviews = new Map<number, TeacherReview>();
+  private nextTeacherReviewId = 1;
+
+  async listTeachers(appId: string, filter: { statuses?: TeacherStatus[] } = {}): Promise<Teacher[]> {
+    return [...this.teachers.values()]
+      .filter((t) => t.appId === appId && (!filter.statuses || filter.statuses.includes(t.status)))
+      .sort((a, b) => Number(b.featured) - Number(a.featured) || a.name.localeCompare(b.name) || a.id - b.id)
+      .map(clone);
+  }
+
+  async getTeacher(appId: string, id: number): Promise<Teacher | null> {
+    const teacher = this.teachers.get(id);
+    return teacher && teacher.appId === appId ? clone(teacher) : null;
+  }
+
+  async findTeacher(appId: string, who: { phone: string | null; email: string | null }): Promise<Teacher | null> {
+    const found = [...this.teachers.values()].find(
+      (t) => t.appId === appId && (who.phone ? t.phone === who.phone : who.email !== null && t.email === who.email.toLowerCase()),
+    );
+    return found ? clone(found) : null;
+  }
+
+  async findTeacherByUser(appId: string, userId: number): Promise<Teacher | null> {
+    const found = [...this.teachers.values()].find((t) => t.appId === appId && t.userId === userId);
+    return found ? clone(found) : null;
+  }
+
+  private teacherTaken(appId: string, id: number | null, phone: string | null, email: string | null): boolean {
+    return [...this.teachers.values()].some((t) => t.appId === appId && t.id !== id && ((phone !== null && t.phone === phone) || (email !== null && t.email === email)));
+  }
+
+  async createTeacher(input: TeacherInput, now: Date): Promise<{ ok: true; teacher: Teacher } | { ok: false; reason: "duplicate" }> {
+    if (this.teacherTaken(input.appId, null, input.phone, input.email)) return { ok: false, reason: "duplicate" };
+    const teacher: Teacher = { ...clone(input), id: this.nextTeacherId++, note: null, createdAt: now, updatedAt: now };
+    this.teachers.set(teacher.id, clone(teacher));
+    return { ok: true, teacher };
+  }
+
+  async updateTeacher(appId: string, id: number, patch: TeacherPatch, now: Date): Promise<{ ok: boolean; reason?: "duplicate" }> {
+    const teacher = this.teachers.get(id);
+    if (!teacher || teacher.appId !== appId) return { ok: false };
+    const next = { ...teacher, ...clone(patch), appId, id, updatedAt: now };
+    if (("phone" in patch || "email" in patch) && this.teacherTaken(appId, id, next.phone, next.email)) return { ok: false, reason: "duplicate" };
+    this.teachers.set(id, next);
+    return { ok: true };
+  }
+
+  async deleteTeacher(appId: string, id: number): Promise<void> {
+    if (this.teachers.get(id)?.appId !== appId) return;
+    this.teachers.delete(id);
+    for (const [key, f] of this.teacherFollows) if (f.teacherId === id) this.teacherFollows.delete(key);
+    for (const [key, r] of this.teacherReviews) if (r.teacherId === id) this.teacherReviews.delete(key);
+  }
+
+  async setTeacherFollow(input: { appId: string; teacherId: number; userId: number; follow: boolean; now: Date }): Promise<void> {
+    if (this.teachers.get(input.teacherId)?.appId !== input.appId) return;
+    const key = `${input.teacherId}:${input.userId}`;
+    if (!input.follow) this.teacherFollows.delete(key);
+    else if (!this.teacherFollows.has(key)) this.teacherFollows.set(key, { appId: input.appId, teacherId: input.teacherId, userId: input.userId, createdAt: input.now });
+  }
+
+  async isFollowingTeacher(appId: string, teacherId: number, userId: number): Promise<boolean> {
+    return this.teacherFollows.get(`${teacherId}:${userId}`)?.appId === appId;
+  }
+
+  async listTeacherFollowerIds(appId: string, teacherId: number): Promise<number[]> {
+    return [...this.teacherFollows.values()].filter((f) => f.appId === appId && f.teacherId === teacherId).map((f) => f.userId);
+  }
+
+  async countTeacherFollowers(appId: string): Promise<{ teacherId: number; count: number }[]> {
+    const counts = new Map<number, number>();
+    for (const f of this.teacherFollows.values()) if (f.appId === appId) counts.set(f.teacherId, (counts.get(f.teacherId) ?? 0) + 1);
+    return [...counts.entries()].map(([teacherId, count]) => ({ teacherId, count }));
+  }
+
+  async saveTeacherReview(input: { appId: string; teacherId: number; userId: number; rating: number; text: string; now: Date }): Promise<TeacherReview> {
+    const there = [...this.teacherReviews.values()].find((r) => r.appId === input.appId && r.teacherId === input.teacherId && r.userId === input.userId);
+    const row: TeacherReview = there
+      ? { ...there, rating: input.rating, text: input.text, updatedAt: input.now }
+      : { id: this.nextTeacherReviewId++, appId: input.appId, teacherId: input.teacherId, userId: input.userId, rating: input.rating, text: input.text, hidden: false, createdAt: input.now, updatedAt: input.now };
+    this.teacherReviews.set(row.id, clone(row));
+    return clone(row);
+  }
+
+  async getTeacherReview(appId: string, id: number): Promise<TeacherReview | null> {
+    const row = this.teacherReviews.get(id);
+    return row && row.appId === appId ? clone(row) : null;
+  }
+
+  async getTeacherReviewOf(appId: string, teacherId: number, userId: number): Promise<TeacherReview | null> {
+    const row = [...this.teacherReviews.values()].find((r) => r.appId === appId && r.teacherId === teacherId && r.userId === userId);
+    return row ? clone(row) : null;
+  }
+
+  async listTeacherReviews(input: { appId: string; teacherId?: number; hidden?: boolean; offset: number; limit: number }): Promise<{ items: TeacherReview[]; total: number }> {
+    const all = [...this.teacherReviews.values()]
+      .filter((r) => r.appId === input.appId && (input.teacherId === undefined || r.teacherId === input.teacherId) && (input.hidden === undefined || r.hidden === input.hidden))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
+    return { items: all.slice(input.offset, input.offset + input.limit).map(clone), total: all.length };
+  }
+
+  async countTeacherRatings(appId: string): Promise<{ teacherId: number; rating: number; count: number }[]> {
+    const counts = new Map<string, { teacherId: number; rating: number; count: number }>();
+    for (const r of this.teacherReviews.values()) {
+      if (r.appId !== appId || r.hidden) continue;
+      const key = `${r.teacherId}:${r.rating}`;
+      const row = counts.get(key) ?? { teacherId: r.teacherId, rating: r.rating, count: 0 };
+      row.count++;
+      counts.set(key, row);
+    }
+    return [...counts.values()];
+  }
+
+  async updateTeacherReview(appId: string, id: number, patch: { hidden: boolean; updatedAt: Date }): Promise<void> {
+    const row = this.teacherReviews.get(id);
+    if (row && row.appId === appId) this.teacherReviews.set(id, clone({ ...row, ...patch }));
   }
 
   async listCouriers(appId: string): Promise<Courier[]> {
