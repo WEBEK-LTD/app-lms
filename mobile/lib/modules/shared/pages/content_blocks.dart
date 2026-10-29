@@ -1404,7 +1404,9 @@ class StatsView extends StatelessWidget {
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
-                    s.value,
+                    // 110 Isolated, so "10+" doesn't read "+10" right to
+                    // left; a value in words ("7 أيام") keeps its own way.
+                    '\u2068${s.value}\u2069',
                     maxLines: 1,
                     style: TextStyle(
                       fontSize: bold ? 28 : 24,

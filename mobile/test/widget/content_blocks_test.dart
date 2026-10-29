@@ -216,6 +216,62 @@ void main() {
     },
   );
 
+  testWidgets('110 numbers keep their order right to left: "10+" not "+10"', (
+    tester,
+  ) async {
+    final api =
+        FakeApi(
+            config: configJson(
+              languages: languagesJson(available: const ['en', 'ar']),
+            ),
+          )
+          ..navigation = navigationJson()
+          ..pages = {
+            'home': appPageJson(
+              blocks: [
+                {
+                  'id': 's',
+                  'type': 'stats',
+                  'title': 'أرقامنا',
+                  'stats': [
+                    {'value': '10+', 'label': 'سنوات من العمل'},
+                    {'value': '7 أيام', 'label': 'في الأسبوع'},
+                  ],
+                },
+              ],
+            ),
+          };
+    await contentApp(api: api, language: 'ar').pump(tester);
+    expect(tester.takeException(), isNull);
+    final value = find.text('\u206810+\u2069');
+    expect(value, findsOneWidget);
+    expect(find.text('\u20687 أيام\u2069'), findsOneWidget);
+    expect(Directionality.of(tester.element(value)), TextDirection.rtl);
+    // Laid out right to left, the "+" still comes after the "10".
+    final painter = TextPainter(
+      text: TextSpan(text: tester.widget<Text>(value).data),
+      textDirection: TextDirection.rtl,
+    )..layout();
+    addTearDown(painter.dispose);
+    double left(int i) => painter
+        .getBoxesForSelection(TextSelection(baseOffset: i, extentOffset: i + 1))
+        .single
+        .left;
+    expect(left(1), lessThan(left(2)));
+    expect(left(2), lessThan(left(3)));
+    // Without the isolation it would read "+10".
+    final bare = TextPainter(
+      text: const TextSpan(text: '10+'),
+      textDirection: TextDirection.rtl,
+    )..layout();
+    addTearDown(bare.dispose);
+    double bareLeft(int i) => bare
+        .getBoxesForSelection(TextSelection(baseOffset: i, extentOffset: i + 1))
+        .single
+        .left;
+    expect(bareLeft(2), lessThan(bareLeft(0)));
+  });
+
   // One app per test: each opens the page at another time.
   for (final (now, status, why) in [
     (monday10, 'Open now', 'Monday morning'),
