@@ -9210,10 +9210,10 @@ components:
         field left out keeps the usual look for it.
       properties:
         background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The bar's colour; null, the app's surface colour." }
-        dark_background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: In dark mode; null, `background`, or the app's dark surface when that is null too. }
+        dark_background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "In dark mode; null, `background`, or the app's dark surface when that is null too." }
         active: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The open tab's icon and name; null, the app's main colour." }
         inactive: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The other tabs' icons and names; null, the app's muted text colour." }
-        radius: { type: integer, minimum: 0, maximum: 32, default: 0, description: How round the bar's corners are, in logical pixels. }
+        radius: { type: integer, minimum: 0, maximum: 32, default: 0, description: "How round the bar's corners are, in logical pixels." }
         margin: { type: integer, minimum: 0, maximum: 24, default: 0, description: "The space around the bar, in logical pixels: 0, across the bottom of the screen; more, a floating bar." }
         font: { type: [string, 'null'], description: "The names' font family (`StudioFont.family`); null, or one the app can't show, the app's font." }
         labels:
