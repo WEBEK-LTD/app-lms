@@ -143,7 +143,8 @@ interface Item {
 
 /** What sits on what: each shape goes into the smallest box drawn before it that holds it. */
 function nest(shapes: DesignShape[]): Item[] {
-  const items = shapes.map((shape) => ({ shape, kids: [] as Item[] }));
+  // A frame's own children are its first; what is drawn over it later joins them.
+  const items = shapes.map((shape) => ({ shape, kids: shape.children?.length ? nest(shape.children) : ([] as Item[]) }));
   const top: Item[] = [];
   items.forEach((item, i) => {
     let parent: Item | null = null;

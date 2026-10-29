@@ -666,7 +666,8 @@ export function StudioEditor(props: StudioEditorProps) {
     const saving = [...urls].filter((url) => design.pictures[url]);
     let failed = 0;
     let busy = false;
-    for (const url of urls) if (!design.pictures[url] && /^https:\/\//.test(url)) moved.set(url, url);
+    // Pictures already at an address (another site, or saved by the import from Figma) stay there; the page checker says which it takes.
+    for (const url of urls) if (!design.pictures[url] && /^https?:\/\//.test(url)) moved.set(url, url);
     for (const [i, url] of saving.entries()) {
       setNotice(t("studio.importing", { done: i, total: saving.length }));
       const picture = design.pictures[url]!;

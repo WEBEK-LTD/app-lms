@@ -303,9 +303,10 @@ export async function readFigmaNodes(key: string, token: string, ids: string[], 
  * or null when Figma couldn't render it or it is larger than 5 MB at half
  * the size.
  */
-export async function renderFigmaFrames(key: string, token: string, ids: string[], deps: FigmaDeps = {}): Promise<{ ok: true; images: Map<string, Buffer | null> } | FigmaFailure> {
+/** A picture Figma put at a link (any public address, through the safe fetch), up to 5 MB. */
+function downloader(deps: FigmaDeps) {
   const fetcher = deps.fetcher ?? safeFetcher();
-  const download = async (link: string | null): Promise<Buffer | "too_big" | null> => {
+  return async (link: string | null): Promise<Buffer | "too_big" | null> => {
     if (!link) return null;
     try {
       const response = await fetcher(link, { signal: AbortSignal.timeout(25_000) });
@@ -318,6 +319,10 @@ export async function renderFigmaFrames(key: string, token: string, ids: string[
       return err instanceof FigmaCallError && err.error === "too_big" ? "too_big" : null;
     }
   };
+}
+
+export async function renderFigmaFrames(key: string, token: string, ids: string[], deps: FigmaDeps = {}): Promise<{ ok: true; images: Map<string, Buffer | null> } | FigmaFailure> {
+  const download = downloader(deps);
   try {
     const images = new Map<string, Buffer | null>();
     const big: string[] = [];
@@ -338,6 +343,34 @@ export async function renderFigmaFrames(key: string, token: string, ids: string[
         const data = await download(again.get(id) ?? null);
         images.set(id, data === "too_big" ? null : data);
       }
+    }
+    return { ok: true, images };
+  } catch (err) {
+    return failure(err);
+  }
+}
+
+/**
+ * 108.4 The pictures a file's shapes are filled with (`/v1/files/:key/images`),
+ * by their reference: each one's file, or null when it can't be fetched or
+ * is larger than 5 MB.
+ */
+export async function figmaImageFills(key: string, token: string, refs: string[], deps: FigmaDeps = {}): Promise<{ ok: true; images: Map<string, Buffer | null> } | FigmaFailure> {
+  const download = downloader(deps);
+  try {
+    const images = new Map<string, Buffer | null>();
+    if (!refs.length) return { ok: true, images };
+    const body = await call(`/v1/files/${key}/images`, token, deps);
+    const meta = isRecord(body) && isRecord(body.meta) && isRecord(body.meta.images) ? body.meta.images : {};
+    for (let i = 0; i < refs.length; i += 6) {
+      const batch = refs.slice(i, i + 6);
+      const files = await Promise.all(
+        batch.map((ref) => {
+          const link = meta[ref];
+          return download(typeof link === "string" && (/^https:\/\//.test(link) || (deps.apiUrl !== undefined && link.startsWith(`${deps.apiUrl}/`))) ? link : null);
+        }),
+      );
+      batch.forEach((ref, j) => images.set(ref, files[j] === "too_big" ? null : (files[j] as Buffer | null)));
     }
     return { ok: true, images };
   } catch (err) {

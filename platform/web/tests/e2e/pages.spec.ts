@@ -4,6 +4,7 @@ import path from "node:path";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 import { solidPng } from "./png";
+import { zip } from "./zip";
 
 /**
  * Pages, looks and languages (roadmap 10.4, 10.6, 10.8 and 11.9): the team
@@ -99,6 +100,8 @@ function figmaApi(req: { url?: string; headers: Record<string, string | string[]
       },
     };
   }
+  // 108.4 The pictures the file's shapes are filled with.
+  if (url.pathname === `/v1/files/${FIGMA_KEY}/images`) return { status: 200, body: { error: false, status: 200, meta: { images: { a: `${figmaBase}/render/photo-2.png` } } } };
   if (url.pathname === `/v1/images/${FIGMA_KEY}`) {
     const ids = (url.searchParams.get("ids") ?? "").split(",");
     return { status: 200, body: { err: null, images: Object.fromEntries(ids.map((id) => [id, `${figmaBase}/render/${id === "1:3" ? "logo" : "home"}-${url.searchParams.get("scale")}.png`])) } };
@@ -656,6 +659,76 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await expect(phone.getByText("Order now")).toBeVisible();
   await expect(phone.getByText("9:41")).toHaveCount(0);
   // The page checker takes it: it saves.
+  await own.getByRole("button", { name: "Undo" }).click();
+  await own.getByRole("button", { name: "Redo" }).click();
+  await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
+
+  // 108.4 A Figma link: the file read with the owner's token, a screen chosen and brought with its picture.
+  const asked = figmaTokens.length;
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await own.getByRole("menuitem", { name: "Import a design…" }).click();
+  await importing.getByRole("tab", { name: "A Figma link" }).click();
+  await importing.getByLabel("The Figma file's link").fill(`https://www.figma.com/design/${FIGMA_KEY}/Harbour-app`);
+  await importing.getByLabel("Your personal access token").fill("figd_not-the-right-token-000000");
+  await importing.getByRole("button", { name: "Read the file" }).click();
+  await expect(importing.getByRole("alert")).toContainText("Figma didn't accept this token.");
+  await importing.getByLabel("Your personal access token").fill(FIGMA_TOKEN);
+  await importing.getByRole("button", { name: "Read the file" }).click();
+  await expect(importing.getByRole("checkbox", { name: "Home" })).toHaveAttribute("aria-checked", "true");
+  await expect(importing.getByRole("checkbox", { name: "Logo" })).toHaveAttribute("aria-checked", "false");
+  await importing.getByRole("button", { name: "Next" }).click();
+  await expect(importing.getByText("1 page found in “Harbour app”")).toBeVisible({ timeout: 15_000 });
+  await expect(importing.getByText("1 picture is saved with your project")).toHaveCount(0);
+  await importing.getByRole("button", { name: "Import", exact: true }).click();
+  await expect(own.getByRole("status").filter({ hasText: "The design is imported." })).toBeVisible({ timeout: 15_000 });
+  await expect(phone.getByText("Welcome aboard")).toBeVisible();
+  // Its button, on the page (the app's tabs have one of the same name).
+  await expect(phone.locator("[data-studio-node]").filter({ hasText: /^My courses$/ }).first()).toBeVisible();
+  // The photo Figma filled the box with, saved as the account's file; the tab bar left out.
+  await expect(phone.locator('img[src*="/api/v1/assets/"]')).not.toHaveCount(0);
+  await expect(phone.getByText("Account", { exact: true })).toHaveCount(0);
+  // The token went to Figma only with these calls.
+  expect(figmaTokens.slice(asked).every((tk) => tk === FIGMA_TOKEN || tk === "figd_not-the-right-token-000000")).toBe(true);
+  await own.getByRole("button", { name: "Undo" }).click();
+  await own.getByRole("button", { name: "Redo" }).click();
+  await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
+
+  // 108.5–108.6 A Sketch file: its artboard a page, the symbol a button with its text; a Figma file it can't read says what to do.
+  const sketchColor = (red: number, green: number, blue: number) => ({ _class: "color", red, green, blue, alpha: 1 });
+  const rect = (x: number, y: number, width: number, height: number) => ({ _class: "rect", x, y, width, height });
+  const sketchText = (id: string, string: string, frame: object, name: string, size: number) => ({
+    _class: "text",
+    do_objectID: id,
+    name: string,
+    frame,
+    attributedString: { string, attributes: [{ location: 0, length: string.length, attributes: { MSAttributedStringFontAttribute: { attributes: { name, size } }, MSAttributedStringColorAttribute: sketchColor(0.05, 0.05, 0.14) } }] },
+  });
+  const sketchPage = {
+    _class: "page",
+    layers: [
+      {
+        _class: "artboard",
+        name: "Bakery",
+        frame: rect(0, 0, 390, 844),
+        layers: [
+          sketchText("A", "Fresh bread daily", rect(24, 80, 300, 34), "Cairo-Bold", 24),
+          { _class: "symbolInstance", name: "Order", symbolID: "S1", frame: rect(24, 140, 342, 52), overrideValues: [{ overrideName: "T1_stringValue", value: "Order bread" }] },
+        ],
+      },
+      { _class: "symbolMaster", symbolID: "S1", name: "Button", frame: rect(0, 0, 200, 48), layers: [{ _class: "rectangle", fixedRadius: 12, frame: rect(0, 0, 200, 48), style: { fills: [{ isEnabled: true, fillType: 0, color: sketchColor(1, 0.35, 0.12) }] } }, sketchText("T1", "Label", rect(16, 12, 168, 22), "Cairo-SemiBold", 16)] },
+    ],
+  };
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await own.getByRole("menuitem", { name: "Import a design…" }).click();
+  await importing.getByLabel("Choose a file").setInputFiles({ name: "Old app.fig", mimeType: "application/octet-stream", buffer: Buffer.from("not a figma file at all") });
+  await expect(importing.getByRole("alert")).toContainText("This Figma file can't be read here");
+  await importing.getByLabel("Choose a file").setInputFiles({ name: "Bakery.sketch", mimeType: "application/zip", buffer: Buffer.from(zip({ "document.json": "{}", "meta.json": "{}", "pages/p1.json": JSON.stringify(sketchPage) })) });
+  await importing.getByRole("button", { name: "Next" }).click();
+  await expect(importing.getByText("1 page found in “Bakery.sketch”")).toBeVisible();
+  await importing.getByRole("button", { name: "Import", exact: true }).click();
+  await expect(own.getByRole("status").filter({ hasText: "The design is imported." })).toBeVisible({ timeout: 15_000 });
+  await expect(phone.getByText("Fresh bread daily")).toBeVisible();
+  await expect(phone.getByText("Order bread")).toBeVisible();
   await own.getByRole("button", { name: "Undo" }).click();
   await own.getByRole("button", { name: "Redo" }).click();
   await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
