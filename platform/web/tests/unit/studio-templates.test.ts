@@ -94,6 +94,9 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
     expect(sectionsFor(kindOf("instructors"))[0]!.id).toBe("teachers");
     // A plain academy has neither.
     expect(templatesFor(kindOf("academy")).map((t) => t.id)).not.toContain("teachers");
+    // 105.4 A school's own three, with its welcome first.
+    expect(templatesFor(kindOf("school")).map((t) => t.id)).toEqual(["school", "school_news", "school_brand", "brand", "contact", "blank"]);
+    expect(sectionsFor(kindOf("school"))[0]!.id).toBe("school");
     expect(sectionsFor(kindOf("academy")).map((s) => s.id)).not.toContain("teachers");
     const welcome = templatesFor(kindOf("instructors"))[0]!.make({ brand: "#1F4E5F", source: "courses", w: (word) => word });
     expect(allNodes(welcome).map((n) => n.action?.screen).filter(Boolean)).toEqual(["teachers", "courses", "teachers"]);

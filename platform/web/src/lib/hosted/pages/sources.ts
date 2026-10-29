@@ -2,6 +2,7 @@ import { campaignPageItems } from "../../donations/page-items";
 import { deliveryServicePageItems } from "../../delivery/page-items";
 import { eventPageItems } from "../../events/page-items";
 import { listingPageItems } from "../listings/page-items";
+import { schoolNewsPageItems } from "../../school/page-items";
 import { registerItemSource } from "./items";
 
 /**
@@ -16,6 +17,8 @@ export function registerPlatformItemSources(): void {
   registerItemSource("campaigns", (ctx, query) => campaignPageItems(ctx.appId, query, { store: ctx.store, lang: ctx.lang }));
   // 104 A delivery company's services.
   registerItemSource("delivery_services", (ctx, query) => deliveryServicePageItems(ctx.appId, query, { store: ctx.store }));
+  // 105.4 A school's news to the whole school.
+  registerItemSource("school_news", (ctx, query) => schoolNewsPageItems(ctx.appId, query, { store: ctx.store }));
 }
 
 registerPlatformItemSources();

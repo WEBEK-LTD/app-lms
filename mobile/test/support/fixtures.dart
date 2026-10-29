@@ -2649,3 +2649,251 @@ Map<String, dynamic> teacherEarningsJson() => {
     },
   ],
 };
+
+// 105.4 Schools.
+
+Map<String, dynamic> schoolConfigJson() => {
+  'timezone': 'Africa/Cairo',
+  'currency': 'EGP',
+  'term': {
+    'name': 'First term',
+    'starts_on': '2026-09-27',
+    'ends_on': '2027-01-20',
+  },
+  'absence_alerts': true,
+  'fees_by_card': true,
+};
+
+Map<String, dynamic> schoolStudentJson({
+  int id = 11,
+  String name = 'Omar Hassan',
+  String className = 'Grade 5 A',
+}) => {
+  'id': id,
+  'name': name,
+  'photo_url': null,
+  'code': '10$id',
+  'class_id': 3,
+  'class_name': className,
+};
+
+Map<String, dynamic> schoolMeJson({List<String> roles = const ['parent']}) => {
+  'name': 'Hassan Ali',
+  'roles': roles,
+  'students': [
+    schoolStudentJson(),
+    schoolStudentJson(id: 12, name: 'Laila Hassan', className: 'Grade 3 B'),
+  ],
+};
+
+Map<String, dynamic> schoolLessonJson({
+  int id = 1,
+  String subject = 'Mathematics',
+  String starts = '08:00',
+  String ends = '08:45',
+}) => {
+  'id': id,
+  'starts': starts,
+  'ends': ends,
+  'subject': subject,
+  'class_id': 3,
+  'class_name': 'Grade 5 A',
+  'teacher_name': 'Mona Adel',
+  'room': 'B2',
+};
+
+Map<String, dynamic> schoolTimetableJson() => {
+  'days': [
+    for (var weekday = 1; weekday <= 5; weekday++)
+      {
+        'weekday': weekday,
+        'lessons': [
+          schoolLessonJson(id: weekday * 10),
+          schoolLessonJson(
+            id: weekday * 10 + 1,
+            subject: 'Arabic',
+            starts: '09:00',
+            ends: '09:45',
+          ),
+        ],
+      },
+  ],
+};
+
+Map<String, dynamic> schoolHomeworkJson({
+  int id = 21,
+  Map<String, dynamic>? submission,
+}) => {
+  'id': id,
+  'subject': 'Mathematics',
+  'title': 'Fractions, page 12',
+  'text': 'Questions 1 to 5.',
+  'due_on': '2026-10-14',
+  'attachments': [
+    {
+      'name': 'page-12.pdf',
+      'url': 'https://yallapp.test/m/page-12',
+      'kind': 'pdf',
+    },
+  ],
+  'teacher_name': 'Mona Adel',
+  'submission': submission,
+};
+
+Map<String, dynamic> studentGradesJson() => {
+  'subjects': [
+    {
+      'subject': 'Mathematics',
+      'percent': 85,
+      'scores': [
+        {
+          'assessment_id': 31,
+          'title': 'Quiz 1',
+          'kind': 'quiz',
+          'date': '2026-10-12',
+          'score': 8.5,
+          'max_score': 10,
+          'note': null,
+        },
+      ],
+    },
+  ],
+  'upcoming': [
+    schoolAssessmentJson(id: 32, title: 'Midterm', date: '2026-11-10'),
+  ],
+};
+
+Map<String, dynamic> schoolAssessmentJson({
+  int id = 31,
+  String title = 'Quiz 1',
+  String date = '2026-10-12',
+  int scored = 0,
+}) => {
+  'id': id,
+  'class_id': 3,
+  'class_name': 'Grade 5 A',
+  'subject': 'Mathematics',
+  'kind': 'quiz',
+  'title': title,
+  'date': date,
+  'max_score': 10,
+  'scored': scored,
+};
+
+Map<String, dynamic> studentAttendanceJson() => {
+  'from': '2026-09-27',
+  'to': '2026-10-12',
+  'counts': {'present': 0, 'absent': 1, 'late': 1, 'excused': 0},
+  'days': [
+    {'date': '2026-10-12', 'status': 'absent', 'note': 'Sick'},
+    {'date': '2026-10-05', 'status': 'late', 'note': null},
+  ],
+};
+
+Map<String, dynamic> schoolFeeJson({int id = 41, String status = 'due'}) => {
+  'id': id,
+  'title': 'First term tuition',
+  'amount': '4500.00',
+  'amount_formatted': 'E£4,500.00',
+  'due_on': '2026-10-31',
+  'status': status,
+  'paid_at': status == 'paid' ? '2026-10-12T10:00:00Z' : null,
+  'paid_by': status == 'paid' ? 'card' : null,
+  'receipt_url': status == 'paid'
+      ? 'https://yallapp.test/fee-receipts/abc'
+      : null,
+};
+
+Map<String, dynamic> studentFeesJson() => {
+  'currency': 'EGP',
+  'due_formatted': 'E£4,500.00',
+  'can_pay': true,
+  'items': [schoolFeeJson(), schoolFeeJson(id: 42, status: 'paid')],
+};
+
+Map<String, dynamic> schoolAnnouncementJson() => {
+  'id': 51,
+  'title': 'Sports day',
+  'body': 'Thursday, in sports clothes.',
+  'audience': 'school',
+  'class_name': null,
+  'author': 'Nile School',
+  'created_at': '2026-10-12T08:00:00Z',
+};
+
+Map<String, dynamic> classroomMeJson() => {
+  'name': 'Mona Adel',
+  'photo_url': null,
+  'classes': [
+    {
+      'id': 3,
+      'name': 'Grade 5 A',
+      'student_count': 2,
+      'subjects': [
+        {'id': 7, 'name': 'Mathematics'},
+      ],
+      'class_teacher': true,
+    },
+  ],
+  'today': [schoolLessonJson()],
+};
+
+Map<String, dynamic> classAttendanceJson() => {
+  'class_id': 3,
+  'date': '2026-10-12',
+  'students': [
+    {'student': schoolStudentJson(), 'status': null, 'note': null},
+    {
+      'student': schoolStudentJson(id: 13, name: 'Youssef Samir'),
+      'status': null,
+      'note': null,
+    },
+  ],
+};
+
+Map<String, dynamic> classroomHomeworkJson({int id = 21}) => {
+  'id': id,
+  'class_id': 3,
+  'class_name': 'Grade 5 A',
+  'subject': 'Mathematics',
+  'title': 'Fractions, page 12',
+  'text': 'Questions 1 to 5.',
+  'due_on': '2026-10-14',
+  'attachments': <Map<String, dynamic>>[],
+  'students': 2,
+  'handed_in': 1,
+  'marked': 0,
+};
+
+Map<String, dynamic> classroomHomeworkDetailJson() => {
+  ...classroomHomeworkJson(),
+  'submissions': [
+    {
+      'student': schoolStudentJson(),
+      'submission': {
+        'text': '1) 3/4',
+        'file': null,
+        'submitted_at': '2026-10-12T15:00:00Z',
+        'late': false,
+        'mark': null,
+        'feedback': null,
+      },
+    },
+    {
+      'student': schoolStudentJson(id: 13, name: 'Youssef Samir'),
+      'submission': null,
+    },
+  ],
+};
+
+Map<String, dynamic> assessmentScoresJson() => {
+  'assessment': schoolAssessmentJson(),
+  'students': [
+    {'student': schoolStudentJson(), 'score': null, 'note': null},
+    {
+      'student': schoolStudentJson(id: 13, name: 'Youssef Samir'),
+      'score': 7,
+      'note': null,
+    },
+  ],
+};

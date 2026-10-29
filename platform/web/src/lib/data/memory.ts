@@ -100,6 +100,25 @@ import type { CheckInResult, EventInput, EventRecord, EventSettings, EventTicket
 import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, DonationSettings, DonationStatus } from "./types";
 import type { Courier, CourierInput, CourierPatch, DeliveryService, DeliveryServiceInput, DeliverySettings, Shipment, ShipmentInput, ShipmentPatch, ShipmentQuery, ShipmentStatus } from "./types";
 import type { Teacher, TeacherInput, TeacherPatch, TeacherReview, TeacherStatus } from "./types";
+// 105.4 Schools
+import type {
+  SchoolAnnouncement,
+  SchoolAssessment,
+  SchoolAttendance,
+  SchoolClass,
+  SchoolFamilyLink,
+  SchoolFee,
+  SchoolHomework,
+  SchoolPeriod,
+  SchoolPerson,
+  SchoolPersonInput,
+  SchoolPersonPatch,
+  SchoolRole,
+  SchoolScore,
+  SchoolSettings,
+  SchoolSubject,
+  SchoolSubmission,
+} from "./types";
 import type { Ride, RideInput, RidePatch, RideQuery, RideStatementRow, RideStatus, VehicleType, VehicleTypeInput } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
@@ -644,6 +663,7 @@ export class MemoryStore implements DataStore {
     for (const [key, r] of this.courseReviews) if (r.appId === appId && r.userId === id) this.courseReviews.delete(key);
     // 105.3 Their follows and reviews of teachers go with the account; a teacher keeps their profile.
     for (const [key, f] of this.teacherFollows) if (f.appId === appId && f.userId === id) this.teacherFollows.delete(key);
+    for (const p of this.schoolPeople.values()) if (p.appId === appId && p.userId === id) p.userId = null;
     for (const [key, r] of this.teacherReviews) if (r.appId === appId && r.userId === id) this.teacherReviews.delete(key);
     for (const t of this.teachers.values()) if (t.appId === appId && t.userId === id) t.userId = null;
     for (const [key, q] of this.courseQuestions) if (q.appId === appId && q.userId === id) this.deleteQuestion(key);
@@ -2099,6 +2119,344 @@ export class MemoryStore implements DataStore {
     if (this.deliveryServices.get(id)?.appId !== appId) return;
     this.deliveryServices.delete(id);
     for (const shipment of this.shipments.values()) if (shipment.appId === appId && shipment.serviceId === id) shipment.serviceId = null;
+  }
+
+  // 105.4 Schools
+
+  private schoolSettings = new Map<string, SchoolSettings>();
+  private schoolClasses = new Map<number, SchoolClass>();
+  private schoolSubjects = new Map<number, SchoolSubject>();
+  private schoolPeople = new Map<number, SchoolPerson>();
+  private schoolFamily: SchoolFamilyLink[] = [];
+  private schoolPeriods = new Map<number, SchoolPeriod>();
+  /** Keyed `studentId:date`. */
+  private schoolAttendance = new Map<string, SchoolAttendance>();
+  private schoolHomework = new Map<number, SchoolHomework>();
+  /** Keyed `homeworkId:studentId`. */
+  private schoolSubmissions = new Map<string, SchoolSubmission>();
+  private schoolAssessments = new Map<number, SchoolAssessment>();
+  /** Keyed `assessmentId:studentId`. */
+  private schoolScores = new Map<string, SchoolScore>();
+  private schoolAnnouncements = new Map<number, SchoolAnnouncement>();
+  private schoolFees = new Map<number, SchoolFee>();
+  private nextSchoolId = 1;
+
+  async getSchoolSettings(appId: string): Promise<SchoolSettings | null> {
+    const settings = this.schoolSettings.get(appId);
+    return settings ? clone(settings) : null;
+  }
+
+  async saveSchoolSettings(appId: string, settings: SchoolSettings): Promise<void> {
+    this.schoolSettings.set(appId, clone(settings));
+  }
+
+  async listSchoolClasses(appId: string): Promise<SchoolClass[]> {
+    return [...this.schoolClasses.values()].filter((c) => c.appId === appId).sort((a, b) => a.position - b.position || a.id - b.id).map(clone);
+  }
+
+  async saveSchoolClass(input: Pick<SchoolClass, "appId" | "name" | "grade" | "homeroomTeacherId"> & { id: number | null }, now: Date): Promise<SchoolClass | null> {
+    if (input.id === null) {
+      const position = Math.max(0, ...[...this.schoolClasses.values()].filter((c) => c.appId === input.appId).map((c) => c.position)) + 1;
+      const made: SchoolClass = { id: this.nextSchoolId++, appId: input.appId, name: input.name, grade: input.grade, homeroomTeacherId: input.homeroomTeacherId, position, createdAt: now, updatedAt: now };
+      this.schoolClasses.set(made.id, clone(made));
+      return made;
+    }
+    const found = this.schoolClasses.get(input.id);
+    if (!found || found.appId !== input.appId) return null;
+    const next = { ...found, name: input.name, grade: input.grade, homeroomTeacherId: input.homeroomTeacherId, updatedAt: now };
+    this.schoolClasses.set(found.id, clone(next));
+    return clone(next);
+  }
+
+  async deleteSchoolClass(appId: string, id: number): Promise<void> {
+    const found = this.schoolClasses.get(id);
+    if (!found || found.appId !== appId) return;
+    this.schoolClasses.delete(id);
+    for (const p of this.schoolPeople.values()) if (p.classId === id) p.classId = null;
+    for (const [key, p] of this.schoolPeriods) if (p.classId === id) this.schoolPeriods.delete(key);
+    for (const h of [...this.schoolHomework.values()]) if (h.classId === id) await this.deleteSchoolHomework(appId, h.id);
+    for (const a of [...this.schoolAssessments.values()]) if (a.classId === id) await this.deleteSchoolAssessment(appId, a.id);
+  }
+
+  async listSchoolSubjects(appId: string): Promise<SchoolSubject[]> {
+    return [...this.schoolSubjects.values()].filter((s) => s.appId === appId).sort((a, b) => a.name.localeCompare(b.name)).map(clone);
+  }
+
+  async saveSchoolSubject(input: { appId: string; id: number | null; name: string }, now: Date): Promise<{ ok: true; subject: SchoolSubject } | { ok: false; reason: "duplicate" | "not_found" }> {
+    const taken = [...this.schoolSubjects.values()].some((s) => s.appId === input.appId && s.id !== input.id && s.name.toLowerCase() === input.name.toLowerCase());
+    if (taken) return { ok: false, reason: "duplicate" };
+    if (input.id === null) {
+      const made: SchoolSubject = { id: this.nextSchoolId++, appId: input.appId, name: input.name, createdAt: now };
+      this.schoolSubjects.set(made.id, clone(made));
+      return { ok: true, subject: made };
+    }
+    const found = this.schoolSubjects.get(input.id);
+    if (!found || found.appId !== input.appId) return { ok: false, reason: "not_found" };
+    found.name = input.name;
+    return { ok: true, subject: clone(found) };
+  }
+
+  async deleteSchoolSubject(appId: string, id: number): Promise<void> {
+    const found = this.schoolSubjects.get(id);
+    if (!found || found.appId !== appId) return;
+    this.schoolSubjects.delete(id);
+    for (const [key, p] of this.schoolPeriods) if (p.subjectId === id) this.schoolPeriods.delete(key);
+  }
+
+  async listSchoolPeople(appId: string, filter: { role?: SchoolRole; classId?: number; ids?: number[] } = {}): Promise<SchoolPerson[]> {
+    return [...this.schoolPeople.values()]
+      .filter((p) => p.appId === appId && (!filter.role || p.role === filter.role) && (filter.classId === undefined || p.classId === filter.classId) && (!filter.ids || filter.ids.includes(p.id)))
+      .sort((a, b) => a.name.localeCompare(b.name) || a.id - b.id)
+      .map(clone);
+  }
+
+  async getSchoolPerson(appId: string, id: number): Promise<SchoolPerson | null> {
+    const found = this.schoolPeople.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async findSchoolPeople(appId: string, who: { phone: string | null; email: string | null }): Promise<SchoolPerson[]> {
+    if (!who.phone && !who.email) return [];
+    return [...this.schoolPeople.values()]
+      .filter((p) => p.appId === appId && (who.phone ? p.phone === who.phone : who.email !== null && p.email === who.email.toLowerCase()))
+      .sort((a, b) => a.id - b.id)
+      .map(clone);
+  }
+
+  private schoolPersonTaken(appId: string, role: SchoolRole, id: number | null, phone: string | null, email: string | null): boolean {
+    return [...this.schoolPeople.values()].some((p) => p.appId === appId && p.role === role && p.id !== id && ((phone !== null && p.phone === phone) || (email !== null && p.email === email)));
+  }
+
+  async createSchoolPerson(input: SchoolPersonInput, now: Date): Promise<{ ok: true; person: SchoolPerson } | { ok: false; reason: "duplicate" }> {
+    if (this.schoolPersonTaken(input.appId, input.role, null, input.phone, input.email)) return { ok: false, reason: "duplicate" };
+    const person: SchoolPerson = { ...clone(input), id: this.nextSchoolId++, userId: null, createdAt: now, updatedAt: now };
+    this.schoolPeople.set(person.id, clone(person));
+    return { ok: true, person };
+  }
+
+  async updateSchoolPerson(appId: string, id: number, patch: SchoolPersonPatch, now: Date): Promise<{ ok: boolean; reason?: "duplicate" }> {
+    const found = this.schoolPeople.get(id);
+    if (!found || found.appId !== appId) return { ok: false };
+    const next = { ...found, ...clone(patch), updatedAt: now };
+    if (this.schoolPersonTaken(appId, found.role, id, next.phone, next.email)) return { ok: false, reason: "duplicate" };
+    this.schoolPeople.set(id, next);
+    return { ok: true };
+  }
+
+  async deleteSchoolPerson(appId: string, id: number): Promise<void> {
+    const found = this.schoolPeople.get(id);
+    if (!found || found.appId !== appId) return;
+    this.schoolPeople.delete(id);
+    this.schoolFamily = this.schoolFamily.filter((l) => l.parentId !== id && l.studentId !== id);
+    for (const [key, a] of this.schoolAttendance) if (a.studentId === id) this.schoolAttendance.delete(key);
+    for (const [key, x] of this.schoolSubmissions) if (x.studentId === id) this.schoolSubmissions.delete(key);
+    for (const [key, x] of this.schoolScores) if (x.studentId === id) this.schoolScores.delete(key);
+    for (const [key, f] of this.schoolFees) if (f.studentId === id) this.schoolFees.delete(key);
+    for (const p of this.schoolPeriods.values()) if (p.teacherId === id) p.teacherId = null;
+  }
+
+  async listSchoolFamily(appId: string, filter: { parentId?: number; studentId?: number }): Promise<SchoolFamilyLink[]> {
+    return this.schoolFamily
+      .filter((l) => l.appId === appId && (filter.parentId === undefined || l.parentId === filter.parentId) && (filter.studentId === undefined || l.studentId === filter.studentId))
+      .map(clone);
+  }
+
+  async setSchoolChildren(appId: string, parentId: number, studentIds: number[]): Promise<void> {
+    this.schoolFamily = this.schoolFamily.filter((l) => !(l.appId === appId && l.parentId === parentId));
+    for (const studentId of [...new Set(studentIds)]) {
+      const student = this.schoolPeople.get(studentId);
+      if (student && student.appId === appId && student.role === "student") this.schoolFamily.push({ appId, parentId, studentId });
+    }
+  }
+
+  async listSchoolPeriods(appId: string, filter: { classId?: number; teacherId?: number } = {}): Promise<SchoolPeriod[]> {
+    return [...this.schoolPeriods.values()]
+      .filter((p) => p.appId === appId && (filter.classId === undefined || p.classId === filter.classId) && (filter.teacherId === undefined || p.teacherId === filter.teacherId))
+      .sort((a, b) => a.weekday - b.weekday || a.startMinute - b.startMinute || a.id - b.id)
+      .map(clone);
+  }
+
+  async saveSchoolPeriod(input: Omit<SchoolPeriod, "id"> & { id: number | null }): Promise<SchoolPeriod | null> {
+    if (input.id !== null) {
+      const found = this.schoolPeriods.get(input.id);
+      if (!found || found.appId !== input.appId) return null;
+    }
+    const period: SchoolPeriod = { ...clone(input), id: input.id ?? this.nextSchoolId++ };
+    this.schoolPeriods.set(period.id, clone(period));
+    return period;
+  }
+
+  async deleteSchoolPeriod(appId: string, id: number): Promise<void> {
+    const found = this.schoolPeriods.get(id);
+    if (found && found.appId === appId) this.schoolPeriods.delete(id);
+  }
+
+  async listSchoolAttendance(appId: string, filter: { classId?: number; studentId?: number; from?: string; to?: string }): Promise<SchoolAttendance[]> {
+    return [...this.schoolAttendance.values()]
+      .filter(
+        (a) =>
+          a.appId === appId &&
+          (filter.classId === undefined || a.classId === filter.classId) &&
+          (filter.studentId === undefined || a.studentId === filter.studentId) &&
+          (!filter.from || a.date >= filter.from) &&
+          (!filter.to || a.date <= filter.to),
+      )
+      .sort((a, b) => b.date.localeCompare(a.date) || a.studentId - b.studentId)
+      .map(clone);
+  }
+
+  async saveSchoolAttendance(rows: SchoolAttendance[]): Promise<void> {
+    for (const row of rows) this.schoolAttendance.set(`${row.studentId}:${row.date}`, clone(row));
+  }
+
+  async listSchoolHomework(appId: string, filter: { classId?: number; classIds?: number[]; teacherId?: number } = {}): Promise<SchoolHomework[]> {
+    return [...this.schoolHomework.values()]
+      .filter(
+        (h) =>
+          h.appId === appId &&
+          (filter.classId === undefined || h.classId === filter.classId) &&
+          (!filter.classIds || filter.classIds.includes(h.classId)) &&
+          (filter.teacherId === undefined || h.teacherId === filter.teacherId),
+      )
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .map(clone);
+  }
+
+  async getSchoolHomework(appId: string, id: number): Promise<SchoolHomework | null> {
+    const found = this.schoolHomework.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async createSchoolHomework(input: Omit<SchoolHomework, "id">): Promise<SchoolHomework> {
+    const made: SchoolHomework = { ...clone(input), id: this.nextSchoolId++ };
+    this.schoolHomework.set(made.id, clone(made));
+    return made;
+  }
+
+  async deleteSchoolHomework(appId: string, id: number): Promise<void> {
+    const found = this.schoolHomework.get(id);
+    if (!found || found.appId !== appId) return;
+    this.schoolHomework.delete(id);
+    for (const [key, x] of this.schoolSubmissions) if (x.homeworkId === id) this.schoolSubmissions.delete(key);
+  }
+
+  async listSchoolSubmissions(appId: string, filter: { homeworkId?: number; studentId?: number; homeworkIds?: number[] }): Promise<SchoolSubmission[]> {
+    return [...this.schoolSubmissions.values()]
+      .filter(
+        (x) =>
+          x.appId === appId &&
+          (filter.homeworkId === undefined || x.homeworkId === filter.homeworkId) &&
+          (filter.studentId === undefined || x.studentId === filter.studentId) &&
+          (!filter.homeworkIds || filter.homeworkIds.includes(x.homeworkId)),
+      )
+      .map(clone);
+  }
+
+  async saveSchoolSubmission(submission: SchoolSubmission): Promise<void> {
+    this.schoolSubmissions.set(`${submission.homeworkId}:${submission.studentId}`, clone(submission));
+  }
+
+  async listSchoolAssessments(appId: string, filter: { classId?: number; classIds?: number[]; teacherId?: number } = {}): Promise<SchoolAssessment[]> {
+    return [...this.schoolAssessments.values()]
+      .filter(
+        (a) =>
+          a.appId === appId &&
+          (filter.classId === undefined || a.classId === filter.classId) &&
+          (!filter.classIds || filter.classIds.includes(a.classId)) &&
+          (filter.teacherId === undefined || a.teacherId === filter.teacherId),
+      )
+      .sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id)
+      .map(clone);
+  }
+
+  async getSchoolAssessment(appId: string, id: number): Promise<SchoolAssessment | null> {
+    const found = this.schoolAssessments.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async createSchoolAssessment(input: Omit<SchoolAssessment, "id">): Promise<SchoolAssessment> {
+    const made: SchoolAssessment = { ...clone(input), id: this.nextSchoolId++ };
+    this.schoolAssessments.set(made.id, clone(made));
+    return made;
+  }
+
+  async deleteSchoolAssessment(appId: string, id: number): Promise<void> {
+    const found = this.schoolAssessments.get(id);
+    if (!found || found.appId !== appId) return;
+    this.schoolAssessments.delete(id);
+    for (const [key, x] of this.schoolScores) if (x.assessmentId === id) this.schoolScores.delete(key);
+  }
+
+  async listSchoolScores(appId: string, filter: { assessmentId?: number; studentId?: number }): Promise<SchoolScore[]> {
+    return [...this.schoolScores.values()]
+      .filter((x) => x.appId === appId && (filter.assessmentId === undefined || x.assessmentId === filter.assessmentId) && (filter.studentId === undefined || x.studentId === filter.studentId))
+      .map(clone);
+  }
+
+  async saveSchoolScores(appId: string, assessmentId: number, rows: { studentId: number; score: number | null; note: string | null }[], now: Date): Promise<void> {
+    for (const row of rows) {
+      const key = `${assessmentId}:${row.studentId}`;
+      if (row.score === null) this.schoolScores.delete(key);
+      else this.schoolScores.set(key, { appId, assessmentId, studentId: row.studentId, score: row.score, note: row.note, updatedAt: now });
+    }
+  }
+
+  async listSchoolAnnouncements(appId: string, filter: { offset?: number; limit?: number } = {}): Promise<SchoolAnnouncement[]> {
+    const all = [...this.schoolAnnouncements.values()].filter((a) => a.appId === appId).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
+    const offset = filter.offset ?? 0;
+    return all.slice(offset, filter.limit === undefined ? undefined : offset + filter.limit).map(clone);
+  }
+
+  async createSchoolAnnouncement(input: Omit<SchoolAnnouncement, "id">): Promise<SchoolAnnouncement> {
+    const made: SchoolAnnouncement = { ...clone(input), id: this.nextSchoolId++ };
+    this.schoolAnnouncements.set(made.id, clone(made));
+    return made;
+  }
+
+  async deleteSchoolAnnouncement(appId: string, id: number): Promise<void> {
+    const found = this.schoolAnnouncements.get(id);
+    if (found && found.appId === appId) this.schoolAnnouncements.delete(id);
+  }
+
+  async listSchoolFees(appId: string, filter: { studentId?: number; status?: SchoolFee["status"] } = {}): Promise<SchoolFee[]> {
+    return [...this.schoolFees.values()]
+      .filter((f) => f.appId === appId && (filter.studentId === undefined || f.studentId === filter.studentId) && (!filter.status || f.status === filter.status))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .map(clone);
+  }
+
+  async getSchoolFee(appId: string, id: number): Promise<SchoolFee | null> {
+    const found = this.schoolFees.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async getSchoolFeeByReceipt(code: string): Promise<SchoolFee | null> {
+    const found = [...this.schoolFees.values()].find((f) => f.receiptCode === code);
+    return found ? clone(found) : null;
+  }
+
+  async createSchoolFee(input: Omit<SchoolFee, "id">): Promise<SchoolFee> {
+    const made: SchoolFee = { ...clone(input), id: this.nextSchoolId++ };
+    this.schoolFees.set(made.id, clone(made));
+    return made;
+  }
+
+  async updateSchoolFee(
+    appId: string,
+    id: number,
+    patch: Partial<Pick<SchoolFee, "title" | "amountCents" | "dueOn" | "status" | "paidAt" | "paidBy" | "orderId" | "receiptCode" | "updatedAt">>,
+    expect: { statuses?: SchoolFee["status"][] } = {},
+  ): Promise<boolean> {
+    const found = this.schoolFees.get(id);
+    if (!found || found.appId !== appId) return false;
+    if (expect.statuses && !expect.statuses.includes(found.status)) return false;
+    this.schoolFees.set(id, { ...found, ...clone(patch) });
+    return true;
+  }
+
+  async deleteSchoolFee(appId: string, id: number): Promise<void> {
+    const found = this.schoolFees.get(id);
+    if (found && found.appId === appId) this.schoolFees.delete(id);
   }
 
   // 105.3 Academies with many teachers

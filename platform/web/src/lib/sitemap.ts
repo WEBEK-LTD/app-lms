@@ -15,6 +15,7 @@ export const PRIVATE_PATHS = [
   "/pay/",
   "/give/",
   "/receipts/",
+  "/fee-receipts/",
   "/oauth/",
   "/shop/",
   // 105.2 Shared rides.

@@ -122,6 +122,11 @@ class User {
   /// 105.3 Teaches at the academy.
   bool get isTeacher => roles.contains('teacher');
 
+  /// 105.4 A student or a parent the school added (a school's teachers are
+  /// [isTeacher]).
+  bool get isStudent => roles.contains('student');
+  bool get isParent => roles.contains('parent');
+
   Json toJson() => {
     'id': id,
     'name': name,

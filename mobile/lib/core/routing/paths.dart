@@ -87,6 +87,19 @@ abstract final class Paths {
   static const newTeacherCourse = '/teacher-course/new';
   static String teacherCourse(int id) => '/teacher-course/$id';
 
+  // 105.4 Schools: a student's or parent's school (for one of the students
+  // they see, `student`), and the teachers' Classroom.
+  static const school = '/school';
+  static String schoolPart(String part, {int? student}) => Uri(
+    path: '$school/$part',
+    queryParameters: student == null ? null : {'student': '$student'},
+  ).toString();
+  static const classroom = '/classroom';
+  static String classroomClass(int id) => '$classroom/class/$id';
+  static String classAttendance(int id) => '$classroom/class/$id/attendance';
+  static String classroomHomework(int id) => '$classroom/homework/$id';
+  static String classroomAssessment(int id) => '$classroom/assessment/$id';
+
   /// 77 The chat: the conversation with the business and course groups.
   static const chat = '/chat';
   static String chatConversation(String id) =>
@@ -204,7 +217,10 @@ abstract final class Paths {
       // 105.3 Applying to teach, and the teacher's screens.
       location.startsWith(teachApply) ||
       location.startsWith(teacherDesk) ||
-      location.startsWith('/teacher-course/');
+      location.startsWith('/teacher-course/') ||
+      // 105.4 A school's screens, for the people it added.
+      location.startsWith(school) ||
+      location.startsWith(classroom);
 
   static bool isSignIn(String location) => location.startsWith(signIn);
 }

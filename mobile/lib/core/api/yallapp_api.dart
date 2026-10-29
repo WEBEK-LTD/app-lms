@@ -860,6 +860,76 @@ abstract class YallappApi {
   Future<void> completeTeacherUpload(String uploadId);
   Future<Paged<TeacherQuestion>> listTeacherQuestions({int page = 1});
   Future<TeacherEarnings> getTeacherEarnings(TeacherPeriod period);
+
+  // 105.4 Schools: a student and their parents.
+  Future<SchoolMe> getSchoolMe();
+  Future<SchoolTimetable> getStudentTimetable(int studentId);
+  Future<StudentAttendance> getStudentAttendance(
+    int studentId, {
+    String? from,
+    String? to,
+  });
+  Future<Paged<Homework>> listStudentHomework(
+    int studentId, {
+    HomeworkStatus status = HomeworkStatus.due,
+    int page = 1,
+  });
+  Future<Homework> submitHomework(
+    int studentId,
+    int homeworkId, {
+    String text = '',
+    String? uploadId,
+  });
+  Future<StudentGrades> getStudentGrades(int studentId);
+  Future<StudentFees> getStudentFees(int studentId);
+
+  /// The school's payment page for the fee.
+  Future<String> payStudentFee(int studentId, int feeId);
+  Future<Paged<SchoolAnnouncement>> listSchoolAnnouncements({int page = 1});
+  Future<ChatUpload> startSchoolUpload({
+    required String name,
+    required int size,
+    required String type,
+  });
+  Future<ChatUpload> resumeSchoolUpload(String uploadId);
+  Future<void> completeSchoolUpload(String uploadId);
+
+  // 105.4 Schools: the school's teachers (the Classroom tab).
+  Future<ClassroomMe> getClassroomMe();
+  Future<SchoolTimetable> getClassroomTimetable();
+  Future<ClassAttendance> getClassAttendance(int classId, {String? date});
+  Future<ClassAttendance> saveClassAttendance(
+    int classId,
+    String date,
+    List<({int studentId, AttendanceStatus status, String? note})> items,
+  );
+  Future<Paged<ClassroomHomework>> listClassroomHomework({
+    int? classId,
+    int page = 1,
+  });
+  Future<ClassroomHomework> giveHomework(HomeworkInput input);
+  Future<ClassroomHomeworkDetail> getClassroomHomework(int id);
+  Future<ClassroomHomeworkDetail> markHomework(
+    int homeworkId,
+    int studentId, {
+    required String mark,
+    String? feedback,
+  });
+  Future<Paged<SchoolAssessment>> listClassroomAssessments({
+    int? classId,
+    int page = 1,
+  });
+  Future<SchoolAssessment> createAssessment(AssessmentInput input);
+  Future<AssessmentScores> getAssessmentScores(int id);
+  Future<AssessmentScores> saveAssessmentScores(
+    int id,
+    List<({int studentId, double? score})> items,
+  );
+  Future<SchoolAnnouncement> postClassAnnouncement(
+    int classId, {
+    required String title,
+    required String body,
+  });
 }
 
 /// [YallappApi] over HTTP.
@@ -2708,5 +2778,253 @@ class HttpYallappApi implements YallappApi {
     _required,
     TeacherEarnings.fromJson,
     query: {'period': snake(period)},
+  );
+
+  // 105.4 Schools: a student and their parents.
+
+  @override
+  Future<SchoolMe> getSchoolMe() =>
+      _get('/school/me', _required, SchoolMe.fromJson);
+
+  @override
+  Future<SchoolTimetable> getStudentTimetable(int studentId) => _get(
+    '/school/students/$studentId/timetable',
+    _required,
+    SchoolTimetable.fromJson,
+  );
+
+  @override
+  Future<StudentAttendance> getStudentAttendance(
+    int studentId, {
+    String? from,
+    String? to,
+  }) => _get(
+    '/school/students/$studentId/attendance',
+    _required,
+    StudentAttendance.fromJson,
+    query: {'from': ?from, 'to': ?to},
+  );
+
+  @override
+  Future<Paged<Homework>> listStudentHomework(
+    int studentId, {
+    HomeworkStatus status = HomeworkStatus.due,
+    int page = 1,
+  }) => _get(
+    '/school/students/$studentId/homework',
+    _required,
+    (json) => Paged.fromJson(json, Homework.fromJson),
+    query: {'status': status.name, 'page': page, 'per_page': 20},
+  );
+
+  @override
+  Future<Homework> submitHomework(
+    int studentId,
+    int homeworkId, {
+    String text = '',
+    String? uploadId,
+  }) => _send(
+    'PUT',
+    '/school/students/$studentId/homework/$homeworkId/submission',
+    _required,
+    (data) => Homework.fromJson(asJson(data)),
+    body: {'text': text, 'upload_id': ?uploadId},
+  );
+
+  @override
+  Future<StudentGrades> getStudentGrades(int studentId) => _get(
+    '/school/students/$studentId/grades',
+    _required,
+    StudentGrades.fromJson,
+  );
+
+  @override
+  Future<StudentFees> getStudentFees(int studentId) =>
+      _get('/school/students/$studentId/fees', _required, StudentFees.fromJson);
+
+  @override
+  Future<String> payStudentFee(int studentId, int feeId) => _send(
+    'POST',
+    '/school/students/$studentId/fees/$feeId/pay',
+    _required,
+    (data) => reqString(asJson(data), 'payment_url'),
+  );
+
+  @override
+  Future<Paged<SchoolAnnouncement>> listSchoolAnnouncements({int page = 1}) =>
+      _get(
+        '/school/announcements',
+        _required,
+        (json) => Paged.fromJson(json, SchoolAnnouncement.fromJson),
+        query: {'page': page, 'per_page': 20},
+      );
+
+  @override
+  Future<ChatUpload> startSchoolUpload({
+    required String name,
+    required int size,
+    required String type,
+  }) => _send(
+    'POST',
+    '/school/uploads',
+    _required,
+    (data) => ChatUpload.fromJson(asJson(data)),
+    body: {'name': name, 'size': size, 'type': type},
+  );
+
+  @override
+  Future<ChatUpload> resumeSchoolUpload(String uploadId) => _send(
+    'POST',
+    '/school/uploads/${Uri.encodeComponent(uploadId)}/resume',
+    _required,
+    (data) => ChatUpload.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<void> completeSchoolUpload(String uploadId) => _send(
+    'POST',
+    '/school/uploads/${Uri.encodeComponent(uploadId)}/complete',
+    _required,
+    _ignore,
+  );
+
+  // 105.4 Schools: the Classroom.
+
+  @override
+  Future<ClassroomMe> getClassroomMe() =>
+      _get('/classroom/me', _required, ClassroomMe.fromJson);
+
+  @override
+  Future<SchoolTimetable> getClassroomTimetable() =>
+      _get('/classroom/timetable', _required, SchoolTimetable.fromJson);
+
+  @override
+  Future<ClassAttendance> getClassAttendance(int classId, {String? date}) =>
+      _get(
+        '/classroom/classes/$classId/attendance',
+        _required,
+        ClassAttendance.fromJson,
+        query: {'date': ?date},
+      );
+
+  @override
+  Future<ClassAttendance> saveClassAttendance(
+    int classId,
+    String date,
+    List<({int studentId, AttendanceStatus status, String? note})> items,
+  ) => _send(
+    'PUT',
+    '/classroom/classes/$classId/attendance',
+    _required,
+    (data) => ClassAttendance.fromJson(asJson(data)),
+    body: {
+      'date': date,
+      'items': [
+        for (final item in items)
+          {
+            'student_id': item.studentId,
+            'status': item.status.name,
+            'note': ?item.note,
+          },
+      ],
+    },
+  );
+
+  @override
+  Future<Paged<ClassroomHomework>> listClassroomHomework({
+    int? classId,
+    int page = 1,
+  }) => _get(
+    '/classroom/homework',
+    _required,
+    (json) => Paged.fromJson(json, ClassroomHomework.fromJson),
+    query: {'class_id': ?classId, 'page': page, 'per_page': 20},
+  );
+
+  @override
+  Future<ClassroomHomework> giveHomework(HomeworkInput input) => _send(
+    'POST',
+    '/classroom/homework',
+    _required,
+    (data) => ClassroomHomework.fromJson(asJson(data)),
+    body: input.toJson(),
+  );
+
+  @override
+  Future<ClassroomHomeworkDetail> getClassroomHomework(int id) => _get(
+    '/classroom/homework/$id',
+    _required,
+    ClassroomHomeworkDetail.fromJson,
+  );
+
+  @override
+  Future<ClassroomHomeworkDetail> markHomework(
+    int homeworkId,
+    int studentId, {
+    required String mark,
+    String? feedback,
+  }) => _send(
+    'PUT',
+    '/classroom/homework/$homeworkId/submissions/$studentId',
+    _required,
+    (data) => ClassroomHomeworkDetail.fromJson(asJson(data)),
+    body: {'mark': mark, 'feedback': ?feedback},
+  );
+
+  @override
+  Future<Paged<SchoolAssessment>> listClassroomAssessments({
+    int? classId,
+    int page = 1,
+  }) => _get(
+    '/classroom/assessments',
+    _required,
+    (json) => Paged.fromJson(json, SchoolAssessment.fromJson),
+    query: {'class_id': ?classId, 'page': page, 'per_page': 20},
+  );
+
+  @override
+  Future<SchoolAssessment> createAssessment(AssessmentInput input) => _send(
+    'POST',
+    '/classroom/assessments',
+    _required,
+    (data) => SchoolAssessment.fromJson(asJson(data)),
+    body: input.toJson(),
+  );
+
+  @override
+  Future<AssessmentScores> getAssessmentScores(int id) => _get(
+    '/classroom/assessments/$id/scores',
+    _required,
+    AssessmentScores.fromJson,
+  );
+
+  @override
+  Future<AssessmentScores> saveAssessmentScores(
+    int id,
+    List<({int studentId, double? score})> items,
+  ) => _send(
+    'PUT',
+    '/classroom/assessments/$id/scores',
+    _required,
+    (data) => AssessmentScores.fromJson(asJson(data)),
+    body: {
+      'items': [
+        for (final item in items)
+          {'student_id': item.studentId, 'score': item.score},
+      ],
+    },
+  );
+
+  @override
+  Future<SchoolAnnouncement> postClassAnnouncement(
+    int classId, {
+    required String title,
+    required String body,
+  }) => _send(
+    'POST',
+    '/classroom/announcements',
+    _required,
+    (data) => SchoolAnnouncement.fromJson(asJson(data)),
+    body: {'class_id': classId, 'title': title, 'body': body},
   );
 }

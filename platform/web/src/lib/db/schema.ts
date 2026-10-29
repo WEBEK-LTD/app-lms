@@ -119,6 +119,8 @@ import type { PublishingChecklist, PublishingListing, PublishingMode, Publishing
 import type { AppErrorSource, MilestoneKind, ProductDay, SignupSource, TeamAlertKind, WatchedJob } from "../data/types";
 import type { NotificationAudience, NotificationCampaignStatus } from "../data/types";
 import type { TeacherStatus } from "../data/types";
+// 105.4 Schools
+import type { SchoolAssessmentKind, SchoolAttendanceStatus, SchoolFeeStatus, SchoolFileRef, SchoolRole, SchoolSettings } from "../data/types";
 
 /**
  * MySQL schema (MySQL 8.0.13+ and MariaDB 10.3+, the usual cPanel servers).
@@ -3071,3 +3073,254 @@ export const appErrors = mysqlTable(
   },
   (t) => [uniqueIndex("app_errors_unique").on(t.clientId, t.appKey, t.source, t.code), index("app_errors_last_idx").on(t.lastAt)],
 );
+
+// 105.4 Schools
+
+export const schoolSettings = mysqlTable("school_settings", {
+  appId: id("app_id")
+    .primaryKey()
+    .references(() => apps.id, { onDelete: "cascade" }),
+  settings: jsonText<SchoolSettings>("settings").notNull(),
+  updatedAt: time("updated_at").notNull(),
+});
+
+export const schoolClasses = mysqlTable(
+  "school_classes",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 80 }).notNull(),
+    grade: varchar("grade", { length: 80 }),
+    homeroomTeacherId: bigint("homeroom_teacher_id", { mode: "number", unsigned: true }),
+    position: int("position").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("school_classes_app_idx").on(t.appId, t.position)],
+);
+
+export const schoolSubjects = mysqlTable(
+  "school_subjects",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 80 }).notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [uniqueIndex("school_subjects_app_name_unique").on(t.appId, t.name)],
+);
+
+/** Students, parents and teachers; one row per role (a teacher who is a parent is on twice). */
+export const schoolPeople = mysqlTable(
+  "school_people",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    role: varchar("role", { length: 10 }).notNull().$type<SchoolRole>(),
+    name: varchar("name", { length: 120 }).notNull(),
+    phone: varchar("phone", { length: 24 }),
+    email: varchar("email", { length: 191 }),
+    userId: bigint("user_id", { mode: "number", unsigned: true }).references(() => hostedUsers.id, { onDelete: "set null" }),
+    classId: bigint("class_id", { mode: "number", unsigned: true }).references(() => schoolClasses.id, { onDelete: "set null" }),
+    code: varchar("code", { length: 40 }),
+    photoAssetId: id("photo_asset_id"),
+    active: boolean("active").notNull().default(true),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    uniqueIndex("school_people_role_phone_unique").on(t.appId, t.role, t.phone),
+    uniqueIndex("school_people_role_email_unique").on(t.appId, t.role, t.email),
+    index("school_people_class_idx").on(t.appId, t.classId),
+  ],
+);
+
+export const schoolFamily = mysqlTable(
+  "school_family",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    parentId: bigint("parent_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolPeople.id, { onDelete: "cascade" }),
+    studentId: bigint("student_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolPeople.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.parentId, t.studentId] }), index("school_family_student_idx").on(t.studentId)],
+);
+
+export const schoolPeriods = mysqlTable(
+  "school_periods",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    classId: bigint("class_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolClasses.id, { onDelete: "cascade" }),
+    subjectId: bigint("subject_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolSubjects.id, { onDelete: "cascade" }),
+    teacherId: bigint("teacher_id", { mode: "number", unsigned: true }).references(() => schoolPeople.id, { onDelete: "set null" }),
+    weekday: tinyint("weekday").notNull(),
+    startMinute: int("start_minute").notNull(),
+    endMinute: int("end_minute").notNull(),
+    room: varchar("room", { length: 40 }),
+  },
+  (t) => [index("school_periods_class_idx").on(t.classId, t.weekday), index("school_periods_teacher_idx").on(t.teacherId)],
+);
+
+export const schoolAttendance = mysqlTable(
+  "school_attendance",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    classId: bigint("class_id", { mode: "number", unsigned: true }).notNull(),
+    studentId: bigint("student_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolPeople.id, { onDelete: "cascade" }),
+    date: varchar("date", { length: 10 }).notNull(),
+    status: varchar("status", { length: 8 }).notNull().$type<SchoolAttendanceStatus>(),
+    note: varchar("note", { length: 300 }),
+    takenBy: bigint("taken_by", { mode: "number", unsigned: true }),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.studentId, t.date] }), index("school_attendance_class_idx").on(t.classId, t.date)],
+);
+
+export const schoolHomework = mysqlTable(
+  "school_homework",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    classId: bigint("class_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolClasses.id, { onDelete: "cascade" }),
+    subjectId: bigint("subject_id", { mode: "number", unsigned: true }).notNull(),
+    teacherId: bigint("teacher_id", { mode: "number", unsigned: true }),
+    title: varchar("title", { length: 200 }).notNull(),
+    text: text("text").notNull(),
+    dueOn: varchar("due_on", { length: 10 }).notNull(),
+    files: jsonText<SchoolFileRef[]>("files").notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("school_homework_class_idx").on(t.classId, t.dueOn), index("school_homework_teacher_idx").on(t.appId, t.teacherId)],
+);
+
+export const schoolSubmissions = mysqlTable(
+  "school_submissions",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    homeworkId: bigint("homework_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolHomework.id, { onDelete: "cascade" }),
+    studentId: bigint("student_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolPeople.id, { onDelete: "cascade" }),
+    text: text("text").notNull(),
+    file: jsonText<SchoolFileRef>("file"),
+    submittedAt: time("submitted_at"),
+    late: boolean("late").notNull().default(false),
+    mark: varchar("mark", { length: 20 }),
+    feedback: varchar("feedback", { length: 1000 }),
+    markedAt: time("marked_at"),
+  },
+  (t) => [primaryKey({ columns: [t.homeworkId, t.studentId] }), index("school_submissions_student_idx").on(t.studentId)],
+);
+
+export const schoolAssessments = mysqlTable(
+  "school_assessments",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    classId: bigint("class_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolClasses.id, { onDelete: "cascade" }),
+    subjectId: bigint("subject_id", { mode: "number", unsigned: true }).notNull(),
+    teacherId: bigint("teacher_id", { mode: "number", unsigned: true }),
+    kind: varchar("kind", { length: 12 }).notNull().$type<SchoolAssessmentKind>(),
+    title: varchar("title", { length: 120 }).notNull(),
+    date: varchar("date", { length: 10 }).notNull(),
+    maxScore: double("max_score").notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("school_assessments_class_idx").on(t.classId, t.date), index("school_assessments_teacher_idx").on(t.appId, t.teacherId)],
+);
+
+export const schoolScores = mysqlTable(
+  "school_scores",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    assessmentId: bigint("assessment_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolAssessments.id, { onDelete: "cascade" }),
+    studentId: bigint("student_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolPeople.id, { onDelete: "cascade" }),
+    score: double("score").notNull(),
+    note: varchar("note", { length: 300 }),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.assessmentId, t.studentId] }), index("school_scores_student_idx").on(t.studentId)],
+);
+
+export const schoolAnnouncements = mysqlTable(
+  "school_announcements",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    audience: varchar("audience", { length: 8 }).notNull().$type<"school" | "class" | "student">(),
+    classId: bigint("class_id", { mode: "number", unsigned: true }),
+    studentId: bigint("student_id", { mode: "number", unsigned: true }),
+    title: varchar("title", { length: 120 }).notNull(),
+    body: text("body").notNull(),
+    teacherId: bigint("teacher_id", { mode: "number", unsigned: true }),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("school_announcements_app_idx").on(t.appId, t.createdAt)],
+);
+
+export const schoolFees = mysqlTable(
+  "school_fees",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    studentId: bigint("student_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolPeople.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 120 }).notNull(),
+    amountCents: bigint("amount_cents", { mode: "number" }).notNull(),
+    dueOn: varchar("due_on", { length: 10 }),
+    status: varchar("status", { length: 10 }).notNull().$type<SchoolFeeStatus>(),
+    paidAt: time("paid_at"),
+    paidBy: varchar("paid_by", { length: 8 }).$type<"card" | "office">(),
+    orderId: bigint("order_id", { mode: "number", unsigned: true }),
+    receiptCode: varchar("receipt_code", { length: 40 }),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("school_fees_student_idx").on(t.appId, t.studentId), uniqueIndex("school_fees_receipt_unique").on(t.receiptCode)],
+);
+

@@ -74,7 +74,7 @@ async function addApp(store: MemoryStore, client: Client, app: Partial<App> & Pi
 }
 
 /** One app of each kind the Owner API serves. */
-type Kinds = Record<"shop" | "clinic" | "gym" | "school" | "news" | "estate" | "events" | "donations" | "delivery" | "food" | "rides", App>;
+type Kinds = Record<"shop" | "clinic" | "gym" | "school" | "news" | "estate" | "events" | "donations" | "delivery" | "food" | "rides" | "k12", App>;
 
 async function appsOf(store: MemoryStore, client: Client, name: string, courses: CourseSetup["courses"]): Promise<Kinds> {
   return {
@@ -99,6 +99,8 @@ async function appsOf(store: MemoryStore, client: Client, name: string, courses:
     food: await addApp(store, client, { appType: "food", appName: `${name} food`, connector: { kind: "restaurants" }, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS } }),
     // 105.2 A ride company.
     rides: await addApp(store, client, { appType: "rides", appName: `${name} rides`, connector: { kind: "rides" }, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS } }),
+    // 105.4 A school for students, parents and teachers.
+    k12: await addApp(store, client, { appType: "school", appName: `${name} k12`, connector: { kind: "school" }, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS } }),
   };
 }
 
@@ -588,7 +590,21 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       createdAt: NOW,
       updatedAt: NOW,
     });
+    // 105.4 A class of the other client's school, its student and their homework, scores and fee.
+    const k12 = theirs.k12.id;
+    const theirClass = (await store.saveSchoolClass({ appId: k12, id: null, name: `${MARK} 5 A`, grade: null, homeroomTeacherId: null }, NOW))!;
+    const theirSubject = await store.saveSchoolSubject({ appId: k12, id: null, name: `${MARK} maths` }, NOW);
+    const theirStudent = await store.createSchoolPerson({ appId: k12, role: "student", name: `${MARK} student`, phone: "+201007776666", email: null, classId: theirClass.id, code: MARK, photoAssetId: null, active: true }, NOW);
+    if (!theirSubject.ok || !theirStudent.ok) throw new Error("school");
+    const homework = await store.createSchoolHomework({ appId: k12, classId: theirClass.id, subjectId: theirSubject.subject.id, teacherId: null, title: `${MARK} homework`, text: MARK, dueOn: "2026-10-20", files: [], createdAt: NOW });
+    const assessment = await store.createSchoolAssessment({ appId: k12, classId: theirClass.id, subjectId: theirSubject.subject.id, teacherId: null, kind: "exam", title: `${MARK} exam`, date: "2026-10-20", maxScore: 100, createdAt: NOW });
+    await store.saveSchoolScores(k12, assessment.id, [{ studentId: theirStudent.person.id, score: 90, note: MARK }], NOW);
+    const fee = await store.createSchoolFee({ appId: k12, studentId: theirStudent.person.id, title: `${MARK} fee`, amountCents: 100_00, dueOn: null, status: "due", paidAt: null, paidBy: null, orderId: null, receiptCode: null, createdAt: NOW, updatedAt: NOW });
     Object.assign(hostedIds, {
+      student_id: String(theirStudent.person.id),
+      homework_id: String(homework.id),
+      assessment_id: String(assessment.id),
+      fee_id: String(fee.id),
       teacher_id: String(teacher.teacher.id),
       ride_id: String(ride.id),
       restaurant_id: String(restaurant.id),
@@ -665,6 +681,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     if (/^\/(delivery|courier|me\/shipments)/.test(route)) return "delivery";
     if (/^\/(food|restaurant|me\/food-orders)/.test(route)) return "food";
     if (/^\/(rides|driver|me\/rides)/.test(route)) return "rides";
+    if (/^\/(school|classroom)\//.test(route)) return "k12";
     return "shop";
   }
 
@@ -673,6 +690,14 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     const user = (await store.createHostedUser({ appId: app.id, phone: `+9053${Math.floor(Math.random() * 1e8).toString().padStart(8, "0")}`, name: "Intruder", email: null, city: null, now: NOW }))!;
     const device = randomUUID();
     await store.createHostedDevice({ id: device, appId: app.id, userId: user.id, deviceId: device, platform: "android", name: "Pixel", appVersion: "1.0.0", pushToken: null, pushPreferences: null, createdAt: NOW, lastSeenAt: NOW });
+    // 105.4 At a school: its student, a parent and a teacher with a class of their own, so the paths go past who they are.
+    if (app.connector?.kind === "school") {
+      const klass = (await store.saveSchoolClass({ appId: app.id, id: null, name: "Mine", grade: null, homeroomTeacherId: null }, NOW))!;
+      for (const role of ["student", "parent", "teacher"] as const) {
+        const made = await store.createSchoolPerson({ appId: app.id, role, name: "Intruder", phone: user.phone, email: null, classId: role === "student" ? klass.id : null, code: null, photoAssetId: null, active: true }, NOW);
+        if (made.ok && role === "teacher") await store.saveSchoolClass({ appId: app.id, id: klass.id, name: "Mine", grade: null, homeroomTeacherId: made.person.id }, NOW);
+      }
+    }
     const iat = Math.floor(NOW.getTime() / 1000);
     return encodeJwt({ aud: app.id, sub: user.id, did: device, iat, exp: iat + 3600 }, HOSTED_SECRET);
   }
@@ -687,7 +712,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
         app,
         active: true,
         // 105.3 With academies with many teachers, so their paths answer.
-        plan: { ...PLAN_INFO.pro, features: [...PLAN_INFO.pro.features, "instructors"] },
+        plan: { ...PLAN_INFO.pro, features: [...PLAN_INFO.pro.features, "instructors", "school"] },
         now: NOW,
         ip: "203.0.113.9",
         secret: HOSTED_SECRET,

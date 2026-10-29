@@ -9297,6 +9297,660 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saved.'**
   String get teacherProfileSaved;
+
+  /// 105.4 The tab of a school's students and parents.
+  ///
+  /// In en, this message translates to:
+  /// **'School'**
+  String get tabSchool;
+
+  /// 105.4 The tab of a school's teachers.
+  ///
+  /// In en, this message translates to:
+  /// **'Classroom'**
+  String get tabClassroom;
+
+  /// 105.4 The School tab before signing in.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to see your school'**
+  String get schoolSignInTitle;
+
+  /// 105.4 Under the School tab's sign-in title.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the mobile number you gave the school. Parents see each of their children.'**
+  String get schoolSignInMessage;
+
+  /// 105.4 Someone the school didn't add opens the School tab.
+  ///
+  /// In en, this message translates to:
+  /// **'This number isn\'t on the school\'s list'**
+  String get schoolNotMemberTitle;
+
+  /// 105.4 Under the title for someone the school didn't add.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the school to add the number you signed in with, then open this tab again.'**
+  String get schoolNotMemberMessage;
+
+  /// 105.4 A parent the school hasn't linked to a child yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No student yet'**
+  String get schoolNoStudents;
+
+  /// 105.4 Under the title for a parent without children linked.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the school to link your children to your number.'**
+  String get schoolNoStudentsMessage;
+
+  /// 105.4 Today's lessons on the School and Classroom tabs.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get schoolToday;
+
+  /// 105.4 Today's day in the week's timetable.
+  ///
+  /// In en, this message translates to:
+  /// **'Today, {day}'**
+  String schoolTodayDay(String day);
+
+  /// 105.4 Today has no lessons.
+  ///
+  /// In en, this message translates to:
+  /// **'No lessons today.'**
+  String get schoolNoLessonsToday;
+
+  /// 105.4 The list of the school's parts on the School tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school'**
+  String get schoolEverything;
+
+  /// 105.4 The student's homework, and a class's on the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Homework'**
+  String get schoolHomework;
+
+  /// 105.4 The student's scores by subject.
+  ///
+  /// In en, this message translates to:
+  /// **'Grades'**
+  String get schoolGrades;
+
+  /// 105.4 The days the student was absent, late or excused.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance'**
+  String get schoolAttendance;
+
+  /// 105.4 The class's lessons in the week.
+  ///
+  /// In en, this message translates to:
+  /// **'Timetable'**
+  String get schoolTimetable;
+
+  /// 105.4 What the school asks of the family.
+  ///
+  /// In en, this message translates to:
+  /// **'Fees'**
+  String get schoolFees;
+
+  /// 105.4 The school's and the teachers' news.
+  ///
+  /// In en, this message translates to:
+  /// **'School news'**
+  String get schoolNews;
+
+  /// 105.4 The school hasn't posted news.
+  ///
+  /// In en, this message translates to:
+  /// **'No news yet.'**
+  String get schoolNoNews;
+
+  /// 105.4 Where a lesson is.
+  ///
+  /// In en, this message translates to:
+  /// **'Room {room}'**
+  String schoolRoom(String room);
+
+  /// 105.4 The class has no lessons in the week.
+  ///
+  /// In en, this message translates to:
+  /// **'No timetable yet'**
+  String get schoolNoTimetable;
+
+  /// 105.4 Under the title when there is no timetable.
+  ///
+  /// In en, this message translates to:
+  /// **'The school adds the week\'s lessons; they show here.'**
+  String get schoolNoTimetableMessage;
+
+  /// 105.4 Under Fees on the School tab: what is still due.
+  ///
+  /// In en, this message translates to:
+  /// **'Due: {amount}'**
+  String feesDue(String amount);
+
+  /// 105.4 Homework still to hand in.
+  ///
+  /// In en, this message translates to:
+  /// **'To do'**
+  String get homeworkDue;
+
+  /// 105.4 Homework handed in, or past its date.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get homeworkDone;
+
+  /// 105.4 No homework still to hand in.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to do. Well done!'**
+  String get homeworkNoneDue;
+
+  /// 105.4 No homework handed in yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No homework here yet.'**
+  String get homeworkNoneDone;
+
+  /// 105.4 When homework is to be handed in.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {date}'**
+  String homeworkDueOn(String date);
+
+  /// 105.4 The student handed the homework in.
+  ///
+  /// In en, this message translates to:
+  /// **'Handed in'**
+  String get homeworkHandedIn;
+
+  /// 105.4 The homework was handed in after its date.
+  ///
+  /// In en, this message translates to:
+  /// **'Handed in late'**
+  String get homeworkLate;
+
+  /// 105.4 The student's work on a homework's page.
+  ///
+  /// In en, this message translates to:
+  /// **'What was handed in'**
+  String get homeworkYourWork;
+
+  /// 105.4 The teacher's mark on homework.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark'**
+  String get homeworkMark;
+
+  /// 105.4 What the student writes to hand homework in.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer'**
+  String get homeworkAnswer;
+
+  /// 105.4 Adds a photo of the work to homework.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get homeworkAddPhoto;
+
+  /// 105.4 Adds a file to homework.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a PDF or a picture'**
+  String get homeworkAddFile;
+
+  /// 105.4 Takes the picked file off the homework.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the file'**
+  String get homeworkRemoveFile;
+
+  /// 105.4 The picked file isn't one homework takes.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a photo (JPEG, PNG or WebP) or a PDF.'**
+  String get homeworkFileType;
+
+  /// 105.4 The picked file is over the size allowed.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is too big: photos up to 20 MB, PDFs up to 200 MB.'**
+  String get homeworkFileTooBig;
+
+  /// 105.4 Handing in empty homework.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your answer or add a photo or a PDF.'**
+  String get homeworkNeedsSomething;
+
+  /// 105.4 Hands the homework in.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand in'**
+  String get homeworkSend;
+
+  /// 105.4 Hands in homework again before it is marked.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand in again'**
+  String get homeworkSendAgain;
+
+  /// 105.4 Shown after handing homework in.
+  ///
+  /// In en, this message translates to:
+  /// **'Handed in. Your teacher sees it now.'**
+  String get homeworkSent;
+
+  /// 105.4 The student has no scores yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No grades yet'**
+  String get gradesNone;
+
+  /// 105.4 Under the title when there are no grades.
+  ///
+  /// In en, this message translates to:
+  /// **'Scores show here as teachers enter them.'**
+  String get gradesNoneMessage;
+
+  /// 105.4 Exams, quizzes and assignments still to come.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming up'**
+  String get gradesComing;
+
+  /// 105.4 An exam.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam'**
+  String get assessmentExam;
+
+  /// 105.4 A short test.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiz'**
+  String get assessmentQuiz;
+
+  /// 105.4 An assignment with a score.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignment'**
+  String get assessmentAssignment;
+
+  /// 105.4 The start of the attendance period shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Since {date}'**
+  String attendanceSince(String date);
+
+  /// 105.4 The student has no marks besides present.
+  ///
+  /// In en, this message translates to:
+  /// **'No absences or late days. Keep it up!'**
+  String get attendanceNone;
+
+  /// 105.4 A student came to school.
+  ///
+  /// In en, this message translates to:
+  /// **'Present'**
+  String get attendancePresent;
+
+  /// 105.4 A student didn't come.
+  ///
+  /// In en, this message translates to:
+  /// **'Absent'**
+  String get attendanceAbsent;
+
+  /// 105.4 A student came late.
+  ///
+  /// In en, this message translates to:
+  /// **'Late'**
+  String get attendanceLate;
+
+  /// 105.4 A student was away with the school's leave.
+  ///
+  /// In en, this message translates to:
+  /// **'Excused'**
+  String get attendanceExcused;
+
+  /// 105.4 The school asks nothing of the family.
+  ///
+  /// In en, this message translates to:
+  /// **'No fees'**
+  String get feesNone;
+
+  /// 105.4 Under the title when there are no fees.
+  ///
+  /// In en, this message translates to:
+  /// **'Fees the school adds show here, with a receipt for each payment.'**
+  String get feesNoneMessage;
+
+  /// 105.4 The total of the fees not paid yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Still due'**
+  String get feesStillDue;
+
+  /// 105.4 The school doesn't take fees by card in the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay at the school; the payment shows here with its receipt.'**
+  String get feesPayAtSchool;
+
+  /// 105.4 A fee not paid yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Due'**
+  String get feeDue;
+
+  /// 105.4 The date a fee is due.
+  ///
+  /// In en, this message translates to:
+  /// **'Due by {date}'**
+  String feeDueOn(String date);
+
+  /// 105.4 A fee paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get feePaid;
+
+  /// 105.4 When a fee was paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid on {date}'**
+  String feePaidOn(String date);
+
+  /// 105.4 Pays a fee by card.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay {amount}'**
+  String feePay(String amount);
+
+  /// 105.4 Shown after paying a fee.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid. The receipt is here.'**
+  String get feePaidThanks;
+
+  /// 105.4 Opens a paid fee's receipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt'**
+  String get feeReceipt;
+
+  /// 105.4 Someone who isn't a teacher opens the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'For the school\'s teachers'**
+  String get classroomNotTeacher;
+
+  /// 105.4 Under the title for someone who isn't a teacher.
+  ///
+  /// In en, this message translates to:
+  /// **'The school adds its teachers\' numbers; they sign in with them and their classes show here.'**
+  String get classroomNotTeacherMessage;
+
+  /// 105.4 The classes a teacher teaches.
+  ///
+  /// In en, this message translates to:
+  /// **'Your classes'**
+  String get classroomClasses;
+
+  /// 105.4 A teacher without classes.
+  ///
+  /// In en, this message translates to:
+  /// **'No classes yet: the school adds you to its timetable.'**
+  String get classroomNoClasses;
+
+  /// 105.4 The class the teacher is the own teacher of.
+  ///
+  /// In en, this message translates to:
+  /// **'Your class'**
+  String get classroomYourClass;
+
+  /// 105.4 How many students a class has.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 student} other{{count} students}}'**
+  String classroomStudents(int count);
+
+  /// 105.4 Opens a class's attendance for today.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance'**
+  String get classroomTakeAttendance;
+
+  /// 105.4 Writes news to a class and its families.
+  ///
+  /// In en, this message translates to:
+  /// **'Write to the class'**
+  String get classroomWrite;
+
+  /// 105.4 The title of the message to a class.
+  ///
+  /// In en, this message translates to:
+  /// **'Write to {name}'**
+  String classroomWriteTo(String name);
+
+  /// 105.4 A class's exams, quizzes and assignments.
+  ///
+  /// In en, this message translates to:
+  /// **'Exams and scores'**
+  String get classroomAssessments;
+
+  /// 105.4 Gives a class homework.
+  ///
+  /// In en, this message translates to:
+  /// **'Give homework'**
+  String get classroomGiveHomework;
+
+  /// 105.4 A class has no homework.
+  ///
+  /// In en, this message translates to:
+  /// **'No homework given yet.'**
+  String get classroomNoHomework;
+
+  /// 105.4 Adds an exam, a quiz or an assignment.
+  ///
+  /// In en, this message translates to:
+  /// **'New exam or quiz'**
+  String get classroomNewAssessment;
+
+  /// 105.4 A class has no assessments.
+  ///
+  /// In en, this message translates to:
+  /// **'No exams or quizzes yet.'**
+  String get classroomNoAssessments;
+
+  /// 105.4 How many of a class handed homework in, and how many the teacher marked.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} handed in · {marked} marked'**
+  String classroomHandedIn(int done, int total, int marked);
+
+  /// 105.4 How many of a class have a score, and the full mark.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} scored · out of {max}'**
+  String classroomScored(int count, String max);
+
+  /// 105.4 An assessment's full mark.
+  ///
+  /// In en, this message translates to:
+  /// **'out of {max}'**
+  String classroomOutOf(String max);
+
+  /// 105.4 The subject of homework or an exam.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject'**
+  String get classroomSubject;
+
+  /// 105.4 The title of homework, an exam or a message.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get classroomTitle;
+
+  /// 105.4 What the students are to do.
+  ///
+  /// In en, this message translates to:
+  /// **'Instructions (optional)'**
+  String get classroomInstructions;
+
+  /// 105.4 The day homework is due.
+  ///
+  /// In en, this message translates to:
+  /// **'Due'**
+  String get classroomDue;
+
+  /// 105.4 The day of an exam or of the attendance.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get classroomDate;
+
+  /// 105.4 No day chosen yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get classroomChooseDay;
+
+  /// 105.4 The highest score of an exam.
+  ///
+  /// In en, this message translates to:
+  /// **'Full mark'**
+  String get classroomFullMark;
+
+  /// 105.4 Gives the homework.
+  ///
+  /// In en, this message translates to:
+  /// **'Give'**
+  String get classroomGive;
+
+  /// 105.4 Adds the exam, quiz or assignment.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get classroomAdd;
+
+  /// 105.4 Giving homework without what it needs.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the subject, write a title and choose the due day.'**
+  String get classroomHomeworkMissing;
+
+  /// 105.4 Shown after giving homework.
+  ///
+  /// In en, this message translates to:
+  /// **'Given. The class and their families were told.'**
+  String get classroomHomeworkGiven;
+
+  /// 105.4 Adding an exam without what it needs.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the subject, and write a title, the full mark and the day.'**
+  String get classroomAssessmentMissing;
+
+  /// 105.4 The text of a message to a class.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get classroomMessage;
+
+  /// 105.4 Sending an empty message.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a title and the message.'**
+  String get classroomMessageMissing;
+
+  /// 105.4 Shown after writing to a class.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to the class and their families.'**
+  String get classroomMessageSent;
+
+  /// 105.4 The title of a class's attendance.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance: {name}'**
+  String classroomAttendanceOf(String name);
+
+  /// 105.4 The day's attendance wasn't saved yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not taken yet: everyone is present until you change it.'**
+  String get classroomNotTaken;
+
+  /// 105.4 A class without students.
+  ///
+  /// In en, this message translates to:
+  /// **'No students in this class yet.'**
+  String get classroomNoStudents;
+
+  /// 105.4 Saves the day's attendance.
+  ///
+  /// In en, this message translates to:
+  /// **'Save attendance'**
+  String get classroomSaveAttendance;
+
+  /// 105.4 Shown after saving attendance.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved. Families of those absent or late were told.'**
+  String get classroomAttendanceSaved;
+
+  /// 105.4 A student didn't hand the homework in.
+  ///
+  /// In en, this message translates to:
+  /// **'Not handed in'**
+  String get classroomNotHandedIn;
+
+  /// 105.4 How a mark may be written.
+  ///
+  /// In en, this message translates to:
+  /// **'Like 9/10, A or Excellent'**
+  String get classroomMarkHint;
+
+  /// 105.4 The teacher's words on homework.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback (optional)'**
+  String get classroomFeedback;
+
+  /// 105.4 Saving a mark without one.
+  ///
+  /// In en, this message translates to:
+  /// **'Write the mark.'**
+  String get classroomMarkMissing;
+
+  /// 105.4 Saves an exam's scores.
+  ///
+  /// In en, this message translates to:
+  /// **'Save scores'**
+  String get classroomSaveScores;
+
+  /// 105.4 Shown after saving scores.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved. Students and families were told of new scores.'**
+  String get classroomScoresSaved;
+
+  /// 105.4 A score over the full mark.
+  ///
+  /// In en, this message translates to:
+  /// **'A score is from 0 to {max}.'**
+  String classroomScoreRange(String max);
 }
 
 class _AppLocalizationsDelegate

@@ -178,7 +178,7 @@ export interface ScreenshotFrame {
  * donations app (29, hosted API only). What each engine is and offers is in
  * lib/app/kinds.ts.
  */
-export type AppType = "lms" | "store" | "booking" | "real_estate" | "news" | "events" | "donations" | "delivery" | "food" | "rides";
+export type AppType = "lms" | "store" | "booking" | "real_estate" | "news" | "events" | "donations" | "delivery" | "food" | "rides" | "school";
 
 /** 20 The kind of business, on top of the engine: wording, defaults, the demo and marketing, never routes (lib/app/kinds.ts). */
 export type AppVertical = "restaurant" | "clinic" | "fitness" | "charity" | "services" | "instructors";
@@ -218,6 +218,8 @@ export type ConnectorConfig =
   | { kind: "restaurants" }
   // 105.2 Ride hailing.
   | { kind: "rides" }
+  /** 105.4 Schools: classes, people, timetable, attendance, homework, grades, news and fees in the school_* tables. */
+  | { kind: "school" }
   /**
    * A platform connected with keys (ikas, Ticimax, IdeaSoft, Wix, Teachable,
    * Thinkific, SimplyBook) or with OAuth through Yallapp's partner app
@@ -4465,3 +4467,203 @@ export interface TeacherReview {
   createdAt: Date;
   updatedAt: Date;
 }
+
+// 105.4 Schools
+
+/** Who a person is at a school. One person may be on the list twice (a teacher who is also a parent). */
+export type SchoolRole = "student" | "parent" | "teacher";
+export const SCHOOL_ROLES: readonly SchoolRole[] = ["student", "parent", "teacher"];
+
+/** The school's settings (school_settings). */
+export interface SchoolSettings {
+  /** IANA, for today's lessons and attendance. */
+  timezone: string;
+  currency: string;
+  /** The current term; attendance and grades default to it. */
+  term: { name: string; startsOn: string; endsOn: string } | null;
+  /** Parents get a push when their child is marked absent or late. */
+  absenceAlerts: boolean;
+  /** Fees can be paid by card on the school's payment page. */
+  feesByCard: boolean;
+}
+
+export interface SchoolClass {
+  id: number;
+  appId: string;
+  /** "Grade 5 A". */
+  name: string;
+  /** "Grade 5", to group classes; null when the school doesn't. */
+  grade: string | null;
+  /** The class's own teacher. */
+  homeroomTeacherId: number | null;
+  position: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface SchoolSubject {
+  id: number;
+  appId: string;
+  name: string;
+  createdAt: Date;
+}
+
+/** A student, parent or teacher the school added. Whoever signs in with their number (or email) is them. */
+export interface SchoolPerson {
+  id: number;
+  appId: string;
+  role: SchoolRole;
+  name: string;
+  /** E.164. */
+  phone: string | null;
+  /** Lowercase. */
+  email: string | null;
+  /** The app user who last signed in as them. */
+  userId: number | null;
+  /** A student's class. */
+  classId: number | null;
+  /** The school's own number for a student. */
+  code: string | null;
+  photoAssetId: string | null;
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type SchoolPersonInput = Pick<SchoolPerson, "appId" | "role" | "name" | "phone" | "email" | "classId" | "code" | "photoAssetId" | "active">;
+export type SchoolPersonPatch = Partial<Pick<SchoolPerson, "name" | "phone" | "email" | "userId" | "classId" | "code" | "photoAssetId" | "active">>;
+
+/** A parent's child. */
+export interface SchoolFamilyLink {
+  appId: string;
+  parentId: number;
+  studentId: number;
+}
+
+/** A lesson in a class's weekly timetable. */
+export interface SchoolPeriod {
+  id: number;
+  appId: string;
+  classId: number;
+  subjectId: number;
+  teacherId: number | null;
+  /** 1 Monday … 7 Sunday. */
+  weekday: number;
+  /** Minutes from midnight. */
+  startMinute: number;
+  endMinute: number;
+  room: string | null;
+}
+
+export type SchoolAttendanceStatus = "present" | "absent" | "late" | "excused";
+export const SCHOOL_ATTENDANCE_STATUSES: readonly SchoolAttendanceStatus[] = ["present", "absent", "late", "excused"];
+
+/** A student's mark on a school day; one per student and day. */
+export interface SchoolAttendance {
+  appId: string;
+  classId: number;
+  studentId: number;
+  /** YYYY-MM-DD in the school's time zone. */
+  date: string;
+  status: SchoolAttendanceStatus;
+  note: string | null;
+  /** The teacher who took it; null from the dashboard. */
+  takenBy: number | null;
+  updatedAt: Date;
+}
+
+/** A file in the school's Media library, attached to homework or handed in. */
+export interface SchoolFileRef {
+  fileId: string;
+  name: string;
+  kind: "image" | "pdf";
+}
+
+export interface SchoolHomework {
+  id: number;
+  appId: string;
+  classId: number;
+  subjectId: number;
+  teacherId: number | null;
+  title: string;
+  text: string;
+  dueOn: string;
+  files: SchoolFileRef[];
+  createdAt: Date;
+}
+
+/** What a student handed in, and the teacher's mark; one per student and homework. */
+export interface SchoolSubmission {
+  appId: string;
+  homeworkId: number;
+  studentId: number;
+  text: string;
+  file: SchoolFileRef | null;
+  /** Null when the teacher marked it without anything handed in. */
+  submittedAt: Date | null;
+  late: boolean;
+  mark: string | null;
+  feedback: string | null;
+  markedAt: Date | null;
+}
+
+export type SchoolAssessmentKind = "exam" | "quiz" | "assignment";
+export const SCHOOL_ASSESSMENT_KINDS: readonly SchoolAssessmentKind[] = ["exam", "quiz", "assignment"];
+
+export interface SchoolAssessment {
+  id: number;
+  appId: string;
+  classId: number;
+  subjectId: number;
+  teacherId: number | null;
+  kind: SchoolAssessmentKind;
+  title: string;
+  date: string;
+  maxScore: number;
+  createdAt: Date;
+}
+
+export interface SchoolScore {
+  appId: string;
+  assessmentId: number;
+  studentId: number;
+  score: number;
+  note: string | null;
+  updatedAt: Date;
+}
+
+/** The school's news: to everyone, a class, or one student and their family. */
+export interface SchoolAnnouncement {
+  id: number;
+  appId: string;
+  audience: "school" | "class" | "student";
+  classId: number | null;
+  studentId: number | null;
+  title: string;
+  body: string;
+  /** The teacher who wrote it; null: the school. */
+  teacherId: number | null;
+  createdAt: Date;
+}
+
+export type SchoolFeeStatus = "due" | "paid" | "cancelled";
+
+/** An amount the school asks of a student's family; every amount is the school's. */
+export interface SchoolFee {
+  id: number;
+  appId: string;
+  studentId: number;
+  title: string;
+  amountCents: number;
+  dueOn: string | null;
+  status: SchoolFeeStatus;
+  paidAt: Date | null;
+  paidBy: "card" | "office" | null;
+  /** The card payment's order. */
+  orderId: number | null;
+  /** The receipt's address code, made when it is paid. */
+  receiptCode: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+

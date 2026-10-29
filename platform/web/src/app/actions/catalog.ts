@@ -41,12 +41,24 @@ const PRODUCT_IMAGES_MAX = 6;
   * `courses` also paid courses, 27 memberships and 28 paid tickets: card payments and orders; 29 with `campaigns`
   * also a charity's own payment keys), or a redirect.
  */
-async function requireCatalogApp(options: { courses?: boolean; campaigns?: boolean } = {}, permission: TeamPermission = "catalog"): Promise<ClientContext & { app: App }> {
+/** 104–105.4 Apps whose card payments go to the owner's own account without a shop: delivery, food, ride and school apps. */
+const OWN_MONEY_KINDS = ["deliveries", "restaurants", "rides", "school"];
+
+async function requireCatalogApp(options: { courses?: boolean; campaigns?: boolean; ownMoney?: boolean } = {}, permission: TeamPermission = "catalog"): Promise<ClientContext & { app: App }> {
   const context = await clientFor(permission);
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
   const kind = context.app?.connector?.kind;
-  if (!context.app || !(kind === "catalog" || (options.courses && (kind === "courses" || kind === "bookings" || kind === "events")) || (options.campaigns && kind === "campaigns"))) redirect("/dashboard");
+  if (
+    !context.app ||
+    !(
+      kind === "catalog" ||
+      (options.courses && (kind === "courses" || kind === "bookings" || kind === "events")) ||
+      (options.campaigns && kind === "campaigns") ||
+      (options.ownMoney && kind !== undefined && OWN_MONEY_KINDS.includes(kind))
+    )
+  )
+    redirect("/dashboard");
   return context as ClientContext & { app: App };
 }
 
@@ -59,6 +71,10 @@ function refresh() {
   revalidatePath("/dashboard/events", "layout");
   revalidatePath("/dashboard/campaigns", "layout");
   revalidatePath("/dashboard/orders");
+  // 104–105.4 Card payments of delivery, ride and school apps.
+  revalidatePath("/dashboard/delivery");
+  revalidatePath("/dashboard/ride-settings");
+  revalidatePath("/dashboard/school/settings");
 }
 
 // Categories
@@ -329,7 +345,7 @@ export async function saveFulfilmentAction(_: FormState, formData: FormData): Pr
  * call that changes nothing, then kept encrypted.
  */
 export async function savePaymentKeysAction(_: FormState, formData: FormData): Promise<FormState> {
-  const context = await requireCatalogApp({ courses: true, campaigns: true }, "billing");
+  const context = await requireCatalogApp({ courses: true, campaigns: true, ownMoney: true }, "billing");
   const { app } = context;
   const provider = str(formData, "provider") || "iyzico";
   const sandbox = formData.get("sandbox") === "on";
@@ -401,7 +417,7 @@ function accountOf(input: OwnPaymentInput): PaymentAccount {
 }
 
 export async function removePaymentKeysAction(): Promise<void> {
-  const context = await requireCatalogApp({ courses: true, campaigns: true }, "billing");
+  const context = await requireCatalogApp({ courses: true, campaigns: true, ownMoney: true }, "billing");
   const { app } = context;
   await (await getStore()).updateApp(app.id, { catalogSettings: { ...catalogSettings(app), payment: null } }, new Date());
   await recordStaffChange(context, "Turned off the shop's card payments");

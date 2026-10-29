@@ -5221,5 +5221,525 @@
   "teacherProfileSaved": "Saved.",
   "@teacherProfileSaved": {
     "description": "105.3 The teacher's profile was saved."
+  },
+  "tabSchool": "School",
+  "@tabSchool": {
+    "description": "105.4 The tab of a school's students and parents."
+  },
+  "tabClassroom": "Classroom",
+  "@tabClassroom": {
+    "description": "105.4 The tab of a school's teachers."
+  },
+  "schoolSignInTitle": "Sign in to see your school",
+  "@schoolSignInTitle": {
+    "description": "105.4 The School tab before signing in."
+  },
+  "schoolSignInMessage": "Use the mobile number you gave the school. Parents see each of their children.",
+  "@schoolSignInMessage": {
+    "description": "105.4 Under the School tab's sign-in title."
+  },
+  "schoolNotMemberTitle": "This number isn't on the school's list",
+  "@schoolNotMemberTitle": {
+    "description": "105.4 Someone the school didn't add opens the School tab."
+  },
+  "schoolNotMemberMessage": "Ask the school to add the number you signed in with, then open this tab again.",
+  "@schoolNotMemberMessage": {
+    "description": "105.4 Under the title for someone the school didn't add."
+  },
+  "schoolNoStudents": "No student yet",
+  "@schoolNoStudents": {
+    "description": "105.4 A parent the school hasn't linked to a child yet."
+  },
+  "schoolNoStudentsMessage": "Ask the school to link your children to your number.",
+  "@schoolNoStudentsMessage": {
+    "description": "105.4 Under the title for a parent without children linked."
+  },
+  "schoolToday": "Today",
+  "@schoolToday": {
+    "description": "105.4 Today's lessons on the School and Classroom tabs."
+  },
+  "schoolTodayDay": "Today, {day}",
+  "@schoolTodayDay": {
+    "description": "105.4 Today's day in the week's timetable.",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "schoolNoLessonsToday": "No lessons today.",
+  "@schoolNoLessonsToday": {
+    "description": "105.4 Today has no lessons."
+  },
+  "schoolEverything": "Your school",
+  "@schoolEverything": {
+    "description": "105.4 The list of the school's parts on the School tab."
+  },
+  "schoolHomework": "Homework",
+  "@schoolHomework": {
+    "description": "105.4 The student's homework, and a class's on the Classroom tab."
+  },
+  "schoolGrades": "Grades",
+  "@schoolGrades": {
+    "description": "105.4 The student's scores by subject."
+  },
+  "schoolAttendance": "Attendance",
+  "@schoolAttendance": {
+    "description": "105.4 The days the student was absent, late or excused."
+  },
+  "schoolTimetable": "Timetable",
+  "@schoolTimetable": {
+    "description": "105.4 The class's lessons in the week."
+  },
+  "schoolFees": "Fees",
+  "@schoolFees": {
+    "description": "105.4 What the school asks of the family."
+  },
+  "schoolNews": "School news",
+  "@schoolNews": {
+    "description": "105.4 The school's and the teachers' news."
+  },
+  "schoolNoNews": "No news yet.",
+  "@schoolNoNews": {
+    "description": "105.4 The school hasn't posted news."
+  },
+  "schoolRoom": "Room {room}",
+  "@schoolRoom": {
+    "description": "105.4 Where a lesson is.",
+    "placeholders": {
+      "room": {
+        "type": "String"
+      }
+    }
+  },
+  "schoolNoTimetable": "No timetable yet",
+  "@schoolNoTimetable": {
+    "description": "105.4 The class has no lessons in the week."
+  },
+  "schoolNoTimetableMessage": "The school adds the week's lessons; they show here.",
+  "@schoolNoTimetableMessage": {
+    "description": "105.4 Under the title when there is no timetable."
+  },
+  "feesDue": "Due: {amount}",
+  "@feesDue": {
+    "description": "105.4 Under Fees on the School tab: what is still due.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "homeworkDue": "To do",
+  "@homeworkDue": {
+    "description": "105.4 Homework still to hand in."
+  },
+  "homeworkDone": "Done",
+  "@homeworkDone": {
+    "description": "105.4 Homework handed in, or past its date."
+  },
+  "homeworkNoneDue": "Nothing to do. Well done!",
+  "@homeworkNoneDue": {
+    "description": "105.4 No homework still to hand in."
+  },
+  "homeworkNoneDone": "No homework here yet.",
+  "@homeworkNoneDone": {
+    "description": "105.4 No homework handed in yet."
+  },
+  "homeworkDueOn": "Due {date}",
+  "@homeworkDueOn": {
+    "description": "105.4 When homework is to be handed in.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "homeworkHandedIn": "Handed in",
+  "@homeworkHandedIn": {
+    "description": "105.4 The student handed the homework in."
+  },
+  "homeworkLate": "Handed in late",
+  "@homeworkLate": {
+    "description": "105.4 The homework was handed in after its date."
+  },
+  "homeworkYourWork": "What was handed in",
+  "@homeworkYourWork": {
+    "description": "105.4 The student's work on a homework's page."
+  },
+  "homeworkMark": "Mark",
+  "@homeworkMark": {
+    "description": "105.4 The teacher's mark on homework."
+  },
+  "homeworkAnswer": "Your answer",
+  "@homeworkAnswer": {
+    "description": "105.4 What the student writes to hand homework in."
+  },
+  "homeworkAddPhoto": "Take a photo",
+  "@homeworkAddPhoto": {
+    "description": "105.4 Adds a photo of the work to homework."
+  },
+  "homeworkAddFile": "Add a PDF or a picture",
+  "@homeworkAddFile": {
+    "description": "105.4 Adds a file to homework."
+  },
+  "homeworkRemoveFile": "Remove the file",
+  "@homeworkRemoveFile": {
+    "description": "105.4 Takes the picked file off the homework."
+  },
+  "homeworkFileType": "Send a photo (JPEG, PNG or WebP) or a PDF.",
+  "@homeworkFileType": {
+    "description": "105.4 The picked file isn't one homework takes."
+  },
+  "homeworkFileTooBig": "This file is too big: photos up to 20 MB, PDFs up to 200 MB.",
+  "@homeworkFileTooBig": {
+    "description": "105.4 The picked file is over the size allowed."
+  },
+  "homeworkNeedsSomething": "Write your answer or add a photo or a PDF.",
+  "@homeworkNeedsSomething": {
+    "description": "105.4 Handing in empty homework."
+  },
+  "homeworkSend": "Hand in",
+  "@homeworkSend": {
+    "description": "105.4 Hands the homework in."
+  },
+  "homeworkSendAgain": "Hand in again",
+  "@homeworkSendAgain": {
+    "description": "105.4 Hands in homework again before it is marked."
+  },
+  "homeworkSent": "Handed in. Your teacher sees it now.",
+  "@homeworkSent": {
+    "description": "105.4 Shown after handing homework in."
+  },
+  "gradesNone": "No grades yet",
+  "@gradesNone": {
+    "description": "105.4 The student has no scores yet."
+  },
+  "gradesNoneMessage": "Scores show here as teachers enter them.",
+  "@gradesNoneMessage": {
+    "description": "105.4 Under the title when there are no grades."
+  },
+  "gradesComing": "Coming up",
+  "@gradesComing": {
+    "description": "105.4 Exams, quizzes and assignments still to come."
+  },
+  "assessmentExam": "Exam",
+  "@assessmentExam": {
+    "description": "105.4 An exam."
+  },
+  "assessmentQuiz": "Quiz",
+  "@assessmentQuiz": {
+    "description": "105.4 A short test."
+  },
+  "assessmentAssignment": "Assignment",
+  "@assessmentAssignment": {
+    "description": "105.4 An assignment with a score."
+  },
+  "attendanceSince": "Since {date}",
+  "@attendanceSince": {
+    "description": "105.4 The start of the attendance period shown.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "attendanceNone": "No absences or late days. Keep it up!",
+  "@attendanceNone": {
+    "description": "105.4 The student has no marks besides present."
+  },
+  "attendancePresent": "Present",
+  "@attendancePresent": {
+    "description": "105.4 A student came to school."
+  },
+  "attendanceAbsent": "Absent",
+  "@attendanceAbsent": {
+    "description": "105.4 A student didn't come."
+  },
+  "attendanceLate": "Late",
+  "@attendanceLate": {
+    "description": "105.4 A student came late."
+  },
+  "attendanceExcused": "Excused",
+  "@attendanceExcused": {
+    "description": "105.4 A student was away with the school's leave."
+  },
+  "feesNone": "No fees",
+  "@feesNone": {
+    "description": "105.4 The school asks nothing of the family."
+  },
+  "feesNoneMessage": "Fees the school adds show here, with a receipt for each payment.",
+  "@feesNoneMessage": {
+    "description": "105.4 Under the title when there are no fees."
+  },
+  "feesStillDue": "Still due",
+  "@feesStillDue": {
+    "description": "105.4 The total of the fees not paid yet."
+  },
+  "feesPayAtSchool": "Pay at the school; the payment shows here with its receipt.",
+  "@feesPayAtSchool": {
+    "description": "105.4 The school doesn't take fees by card in the app."
+  },
+  "feeDue": "Due",
+  "@feeDue": {
+    "description": "105.4 A fee not paid yet."
+  },
+  "feeDueOn": "Due by {date}",
+  "@feeDueOn": {
+    "description": "105.4 The date a fee is due.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "feePaid": "Paid",
+  "@feePaid": {
+    "description": "105.4 A fee paid."
+  },
+  "feePaidOn": "Paid on {date}",
+  "@feePaidOn": {
+    "description": "105.4 When a fee was paid.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "feePay": "Pay {amount}",
+  "@feePay": {
+    "description": "105.4 Pays a fee by card.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "feePaidThanks": "Paid. The receipt is here.",
+  "@feePaidThanks": {
+    "description": "105.4 Shown after paying a fee."
+  },
+  "feeReceipt": "Receipt",
+  "@feeReceipt": {
+    "description": "105.4 Opens a paid fee's receipt."
+  },
+  "classroomNotTeacher": "For the school's teachers",
+  "@classroomNotTeacher": {
+    "description": "105.4 Someone who isn't a teacher opens the Classroom tab."
+  },
+  "classroomNotTeacherMessage": "The school adds its teachers' numbers; they sign in with them and their classes show here.",
+  "@classroomNotTeacherMessage": {
+    "description": "105.4 Under the title for someone who isn't a teacher."
+  },
+  "classroomClasses": "Your classes",
+  "@classroomClasses": {
+    "description": "105.4 The classes a teacher teaches."
+  },
+  "classroomNoClasses": "No classes yet: the school adds you to its timetable.",
+  "@classroomNoClasses": {
+    "description": "105.4 A teacher without classes."
+  },
+  "classroomYourClass": "Your class",
+  "@classroomYourClass": {
+    "description": "105.4 The class the teacher is the own teacher of."
+  },
+  "classroomStudents": "{count, plural, =1{1 student} other{{count} students}}",
+  "@classroomStudents": {
+    "description": "105.4 How many students a class has.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "classroomTakeAttendance": "Attendance",
+  "@classroomTakeAttendance": {
+    "description": "105.4 Opens a class's attendance for today."
+  },
+  "classroomWrite": "Write to the class",
+  "@classroomWrite": {
+    "description": "105.4 Writes news to a class and its families."
+  },
+  "classroomWriteTo": "Write to {name}",
+  "@classroomWriteTo": {
+    "description": "105.4 The title of the message to a class.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "classroomAssessments": "Exams and scores",
+  "@classroomAssessments": {
+    "description": "105.4 A class's exams, quizzes and assignments."
+  },
+  "classroomGiveHomework": "Give homework",
+  "@classroomGiveHomework": {
+    "description": "105.4 Gives a class homework."
+  },
+  "classroomNoHomework": "No homework given yet.",
+  "@classroomNoHomework": {
+    "description": "105.4 A class has no homework."
+  },
+  "classroomNewAssessment": "New exam or quiz",
+  "@classroomNewAssessment": {
+    "description": "105.4 Adds an exam, a quiz or an assignment."
+  },
+  "classroomNoAssessments": "No exams or quizzes yet.",
+  "@classroomNoAssessments": {
+    "description": "105.4 A class has no assessments."
+  },
+  "classroomHandedIn": "{done} of {total} handed in · {marked} marked",
+  "@classroomHandedIn": {
+    "description": "105.4 How many of a class handed homework in, and how many the teacher marked.",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "marked": {
+        "type": "int"
+      }
+    }
+  },
+  "classroomScored": "{count} scored · out of {max}",
+  "@classroomScored": {
+    "description": "105.4 How many of a class have a score, and the full mark.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "classroomOutOf": "out of {max}",
+  "@classroomOutOf": {
+    "description": "105.4 An assessment's full mark.",
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "classroomSubject": "Subject",
+  "@classroomSubject": {
+    "description": "105.4 The subject of homework or an exam."
+  },
+  "classroomTitle": "Title",
+  "@classroomTitle": {
+    "description": "105.4 The title of homework, an exam or a message."
+  },
+  "classroomInstructions": "Instructions (optional)",
+  "@classroomInstructions": {
+    "description": "105.4 What the students are to do."
+  },
+  "classroomDue": "Due",
+  "@classroomDue": {
+    "description": "105.4 The day homework is due."
+  },
+  "classroomDate": "Date",
+  "@classroomDate": {
+    "description": "105.4 The day of an exam or of the attendance."
+  },
+  "classroomChooseDay": "Choose",
+  "@classroomChooseDay": {
+    "description": "105.4 No day chosen yet."
+  },
+  "classroomFullMark": "Full mark",
+  "@classroomFullMark": {
+    "description": "105.4 The highest score of an exam."
+  },
+  "classroomGive": "Give",
+  "@classroomGive": {
+    "description": "105.4 Gives the homework."
+  },
+  "classroomAdd": "Add",
+  "@classroomAdd": {
+    "description": "105.4 Adds the exam, quiz or assignment."
+  },
+  "classroomHomeworkMissing": "Choose the subject, write a title and choose the due day.",
+  "@classroomHomeworkMissing": {
+    "description": "105.4 Giving homework without what it needs."
+  },
+  "classroomHomeworkGiven": "Given. The class and their families were told.",
+  "@classroomHomeworkGiven": {
+    "description": "105.4 Shown after giving homework."
+  },
+  "classroomAssessmentMissing": "Choose the subject, and write a title, the full mark and the day.",
+  "@classroomAssessmentMissing": {
+    "description": "105.4 Adding an exam without what it needs."
+  },
+  "classroomMessage": "Message",
+  "@classroomMessage": {
+    "description": "105.4 The text of a message to a class."
+  },
+  "classroomMessageMissing": "Write a title and the message.",
+  "@classroomMessageMissing": {
+    "description": "105.4 Sending an empty message."
+  },
+  "classroomMessageSent": "Sent to the class and their families.",
+  "@classroomMessageSent": {
+    "description": "105.4 Shown after writing to a class."
+  },
+  "classroomAttendanceOf": "Attendance: {name}",
+  "@classroomAttendanceOf": {
+    "description": "105.4 The title of a class's attendance.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "classroomNotTaken": "Not taken yet: everyone is present until you change it.",
+  "@classroomNotTaken": {
+    "description": "105.4 The day's attendance wasn't saved yet."
+  },
+  "classroomNoStudents": "No students in this class yet.",
+  "@classroomNoStudents": {
+    "description": "105.4 A class without students."
+  },
+  "classroomSaveAttendance": "Save attendance",
+  "@classroomSaveAttendance": {
+    "description": "105.4 Saves the day's attendance."
+  },
+  "classroomAttendanceSaved": "Saved. Families of those absent or late were told.",
+  "@classroomAttendanceSaved": {
+    "description": "105.4 Shown after saving attendance."
+  },
+  "classroomNotHandedIn": "Not handed in",
+  "@classroomNotHandedIn": {
+    "description": "105.4 A student didn't hand the homework in."
+  },
+  "classroomMarkHint": "Like 9/10, A or Excellent",
+  "@classroomMarkHint": {
+    "description": "105.4 How a mark may be written."
+  },
+  "classroomFeedback": "Feedback (optional)",
+  "@classroomFeedback": {
+    "description": "105.4 The teacher's words on homework."
+  },
+  "classroomMarkMissing": "Write the mark.",
+  "@classroomMarkMissing": {
+    "description": "105.4 Saving a mark without one."
+  },
+  "classroomSaveScores": "Save scores",
+  "@classroomSaveScores": {
+    "description": "105.4 Saves an exam's scores."
+  },
+  "classroomScoresSaved": "Saved. Students and families were told of new scores.",
+  "@classroomScoresSaved": {
+    "description": "105.4 Shown after saving scores."
+  },
+  "classroomScoreRange": "A score is from 0 to {max}.",
+  "@classroomScoreRange": {
+    "description": "105.4 A score over the full mark.",
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
   }
 }

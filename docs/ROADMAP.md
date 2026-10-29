@@ -2539,13 +2539,15 @@ students, parents and teachers each see their own part.
 
 | Done | Step | Checked by |
 | --- | --- | --- |
-| [ ] | 105.4.1 Contract: `app_type` `school`; the roles student, parent, teacher; timetable, homework, grades, attendance, exams, announcements, fees; plan feature `school` | redocly lint |
-| [ ] | 105.4.2 Platform: the school's structure, people and their links (parent ↔ children), timetable, attendance, homework and submissions, grades and report cards, fees and receipts, pushes (migrations) | unit tests, isolation tests |
-| [ ] | 105.4.3 Dashboard (en/ar/tr): Structure, People (import), Timetable, Attendance, Homework, Grades and report cards, Fees, Announcements | unit tests, e2e |
-| [ ] | 105.4.4 App, student and parent (switching between children) | widget tests |
-| [ ] | 105.4.5 App, teacher: classes, attendance, homework, grading, messages | widget tests |
+| [x] | 105.4.1 Contract: `app_type` `school`; the roles student, parent, teacher; timetable, homework, grades, attendance, exams, announcements, fees; plan feature `school` | redocly lint |
+| [x] | 105.4.2 Platform: the school's structure, people and their links (parent ↔ children), timetable, attendance, homework and submissions, grades and report cards, fees and receipts, pushes (migrations) | unit tests, isolation tests |
+| [x] | 105.4.3 Dashboard (en/ar/tr): Structure, People (import), Timetable, Attendance, Homework, Grades and report cards, Fees, Announcements | unit tests, e2e |
+| [x] | 105.4.4 App, student and parent (switching between children) | widget tests |
+| [x] | 105.4.5 App, teacher: classes, attendance, homework, grading, messages | widget tests |
 | [ ] | 105.4.6 Universities: faculties, departments, programs, course registration, results by term | unit tests, e2e, widget tests |
-| [ ] | 105.4.7 Studio templates and sections; review accounts for the three roles | unit tests, e2e |
+| [x] | 105.4.7a Studio templates and sections (School, School news, School brand), three ready-made designs, the School project in Studio's new-project list | unit tests, e2e |
+| [ ] | 105.4.7b Review accounts for the three roles (a student, a parent and a teacher the store reviewers sign in as) | unit tests, e2e |
+| [ ] | 105.4.8 Report cards and grading scales; the school's calendar; the bus and the library (optional) | unit tests, e2e, widget tests |
 
 ### 105.5 Home services (Studio project type `services_market`)
 

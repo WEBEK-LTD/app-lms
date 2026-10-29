@@ -74,7 +74,15 @@ export type SectionWord =
   | "teachersStepOne"
   | "teachersStepTwo"
   | "teachersStepThree"
-  | "ctaTeachers";
+  | "ctaTeachers"
+  | "schoolTitle"
+  | "schoolText"
+  | "schoolButton"
+  | "schoolUpdates"
+  | "schoolStepOne"
+  | "schoolStepTwo"
+  | "schoolStepThree"
+  | "ctaSchool";
 
 export interface SectionContext {
   brand: string;
@@ -593,6 +601,62 @@ export const SECTIONS: readonly SectionInfo[] = [
       ],
     }),
   },
+  {
+    // 105.4 A school's welcome: the school (timetable, homework, grades), or what's new.
+    id: "school",
+    icon: "school",
+    fits: { types: ["school"] },
+    make: (ctx) => ({
+      id: (ctx.newId ?? newNodeId)(),
+      type: "column",
+      name: ctx.w("schoolTitle"),
+      gap: 10,
+      padding: pad(22, 18),
+      margin: pad(12, 10),
+      radius: 18,
+      background: ctx.brand,
+      color: "#FFFFFF",
+      children: [
+        { id: (ctx.newId ?? newNodeId)(), type: "icon", icon: "school", icon_size: 34, color: "#FFFFFF" },
+        text(ctx, ctx.w("schoolTitle"), { font: { size: 24, weight: 800, line_height: 1.25 } }),
+        text(ctx, ctx.w("schoolText"), { font: { size: 14 }, opacity: 0.9 }),
+        {
+          id: (ctx.newId ?? newNodeId)(),
+          type: "row",
+          gap: 8,
+          children: [
+            {
+              id: (ctx.newId ?? newNodeId)(),
+              type: "button",
+              text: ctx.w("schoolButton"),
+              width: "hug",
+              height: 42,
+              radius: 12,
+              background: "#FFFFFF",
+              color: ctx.brand,
+              font: { weight: 800, size: 14 },
+              padding: pad(0, 18),
+              action: screen("school"),
+              motion: { press: "shrink" },
+            },
+            {
+              id: (ctx.newId ?? newNodeId)(),
+              type: "button",
+              text: ctx.w("schoolUpdates"),
+              width: "hug",
+              height: 42,
+              radius: 12,
+              border: { width: 1.5, color: "#FFFFFF" },
+              color: "#FFFFFF",
+              font: { weight: 700, size: 14 },
+              padding: pad(0, 16),
+              action: screen("notifications"),
+            },
+          ],
+        },
+      ],
+    }),
+  },
 ];
 
 /** 103R.7 Whether a section or template is made for this project (or for every project). */
@@ -643,6 +707,11 @@ const TEACHERS: Fits = { types: ["lms"], verticals: ["instructors"] };
 const TEACHERS_BUTTON: SectionContext["button"] = { word: "ctaTeachers", action: screen("teachers") };
 const TEACHERS_STEPS: SectionContext["steps"] = ["teachersStepOne", "teachersStepTwo", "teachersStepThree"];
 
+// 105.4 Schools: the main buttons open the school; the steps say how a family follows it.
+const SCHOOL: Fits = { types: ["school"] };
+const SCHOOL_BUTTON: SectionContext["button"] = { word: "ctaSchool", action: screen("school") };
+const SCHOOL_STEPS: SectionContext["steps"] = ["schoolStepOne", "schoolStepTwo", "schoolStepThree"];
+
 const SHOP_HEADER: StudioPage["header"] = { type: "logo_actions", buttons: ["menu", "notifications", "cart", "account"] };
 
 export const TEMPLATES: readonly TemplateInfo[] = [
@@ -668,6 +737,10 @@ export const TEMPLATES: readonly TemplateInfo[] = [
   typed("teachers", "groups", TEACHERS, ["teachers", "products", "steps", "cta"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, TEACHERS_BUTTON, TEACHERS_STEPS),
   typed("teachers_offers", "local_offer", TEACHERS, ["offer", "products", "review", "cta"], { type: "logo_center", buttons: ["menu", "notifications"] }, { word: "ctaLearn", action: screen("courses") }),
   typed("teachers_brand", "school", TEACHERS, ["hero", "stats", "features", "steps", "contact"], { type: "transparent", buttons: ["menu", "account"] }, TEACHERS_BUTTON, TEACHERS_STEPS),
+  // 105.4 Three ready-made designs for a school.
+  typed("school", "school", SCHOOL, ["school", "products", "steps", "cta"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, SCHOOL_BUTTON, SCHOOL_STEPS),
+  typed("school_news", "campaign", SCHOOL, ["hero", "products", "review", "contact"], { type: "logo_center", buttons: ["menu", "notifications"] }, SCHOOL_BUTTON),
+  typed("school_brand", "workspace_premium", SCHOOL, ["hero", "stats", "features", "steps", "contact"], { type: "transparent", buttons: ["menu", "account"] }, SCHOOL_BUTTON, SCHOOL_STEPS),
   // For every project.
   { id: "brand", icon: "auto_awesome", make: (ctx) => pageOf(ctx, ["hero", "stats", "features", "review", "contact"], { type: "transparent", buttons: ["menu", "account"] }) },
   { id: "contact", icon: "call", make: (ctx) => pageOf(ctx, ["contact", "form"], { type: "title_search", buttons: [] }) },

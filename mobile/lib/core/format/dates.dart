@@ -38,6 +38,16 @@ String dayLabel(DateTime day) => _format('EEEE, d MMMM', day);
 /// "Mon".
 String shortWeekday(DateTime day) => _format('EEE', day);
 
+/// 105.4 "Monday" for 1 … "Sunday" for 7 (a timetable's day).
+String weekdayName(int weekday) =>
+    _format('EEEE', DateTime(2024, 1, weekday.clamp(1, 7)));
+
+/// 105.4 "Mon 12 Oct" for a `yyyy-MM-dd` date; the text itself otherwise.
+String isoDayLabel(String date) {
+  final day = parseIsoDate(date);
+  return day == null ? date : shortDayLabel(day);
+}
+
 /// "Oct".
 String shortMonth(DateTime day) => _format('MMM', day);
 

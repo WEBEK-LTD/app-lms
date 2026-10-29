@@ -5925,4 +5925,434 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get teacherProfileSaved =>
       overlay.text('teacherProfileSaved') ?? base.teacherProfileSaved;
+
+  @override
+  String get tabSchool => overlay.text('tabSchool') ?? base.tabSchool;
+
+  @override
+  String get tabClassroom => overlay.text('tabClassroom') ?? base.tabClassroom;
+
+  @override
+  String get schoolSignInTitle =>
+      overlay.text('schoolSignInTitle') ?? base.schoolSignInTitle;
+
+  @override
+  String get schoolSignInMessage =>
+      overlay.text('schoolSignInMessage') ?? base.schoolSignInMessage;
+
+  @override
+  String get schoolNotMemberTitle =>
+      overlay.text('schoolNotMemberTitle') ?? base.schoolNotMemberTitle;
+
+  @override
+  String get schoolNotMemberMessage =>
+      overlay.text('schoolNotMemberMessage') ?? base.schoolNotMemberMessage;
+
+  @override
+  String get schoolNoStudents =>
+      overlay.text('schoolNoStudents') ?? base.schoolNoStudents;
+
+  @override
+  String get schoolNoStudentsMessage =>
+      overlay.text('schoolNoStudentsMessage') ?? base.schoolNoStudentsMessage;
+
+  @override
+  String get schoolToday => overlay.text('schoolToday') ?? base.schoolToday;
+
+  @override
+  String schoolTodayDay(String day) =>
+      overlay.format('schoolTodayDay', {'day': day}) ??
+      base.schoolTodayDay(day);
+
+  @override
+  String get schoolNoLessonsToday =>
+      overlay.text('schoolNoLessonsToday') ?? base.schoolNoLessonsToday;
+
+  @override
+  String get schoolEverything =>
+      overlay.text('schoolEverything') ?? base.schoolEverything;
+
+  @override
+  String get schoolHomework =>
+      overlay.text('schoolHomework') ?? base.schoolHomework;
+
+  @override
+  String get schoolGrades => overlay.text('schoolGrades') ?? base.schoolGrades;
+
+  @override
+  String get schoolAttendance =>
+      overlay.text('schoolAttendance') ?? base.schoolAttendance;
+
+  @override
+  String get schoolTimetable =>
+      overlay.text('schoolTimetable') ?? base.schoolTimetable;
+
+  @override
+  String get schoolFees => overlay.text('schoolFees') ?? base.schoolFees;
+
+  @override
+  String get schoolNews => overlay.text('schoolNews') ?? base.schoolNews;
+
+  @override
+  String get schoolNoNews => overlay.text('schoolNoNews') ?? base.schoolNoNews;
+
+  @override
+  String schoolRoom(String room) =>
+      overlay.format('schoolRoom', {'room': room}) ?? base.schoolRoom(room);
+
+  @override
+  String get schoolNoTimetable =>
+      overlay.text('schoolNoTimetable') ?? base.schoolNoTimetable;
+
+  @override
+  String get schoolNoTimetableMessage =>
+      overlay.text('schoolNoTimetableMessage') ?? base.schoolNoTimetableMessage;
+
+  @override
+  String feesDue(String amount) =>
+      overlay.format('feesDue', {'amount': amount}) ?? base.feesDue(amount);
+
+  @override
+  String get homeworkDue => overlay.text('homeworkDue') ?? base.homeworkDue;
+
+  @override
+  String get homeworkDone => overlay.text('homeworkDone') ?? base.homeworkDone;
+
+  @override
+  String get homeworkNoneDue =>
+      overlay.text('homeworkNoneDue') ?? base.homeworkNoneDue;
+
+  @override
+  String get homeworkNoneDone =>
+      overlay.text('homeworkNoneDone') ?? base.homeworkNoneDone;
+
+  @override
+  String homeworkDueOn(String date) =>
+      overlay.format('homeworkDueOn', {'date': date}) ??
+      base.homeworkDueOn(date);
+
+  @override
+  String get homeworkHandedIn =>
+      overlay.text('homeworkHandedIn') ?? base.homeworkHandedIn;
+
+  @override
+  String get homeworkLate => overlay.text('homeworkLate') ?? base.homeworkLate;
+
+  @override
+  String get homeworkYourWork =>
+      overlay.text('homeworkYourWork') ?? base.homeworkYourWork;
+
+  @override
+  String get homeworkMark => overlay.text('homeworkMark') ?? base.homeworkMark;
+
+  @override
+  String get homeworkAnswer =>
+      overlay.text('homeworkAnswer') ?? base.homeworkAnswer;
+
+  @override
+  String get homeworkAddPhoto =>
+      overlay.text('homeworkAddPhoto') ?? base.homeworkAddPhoto;
+
+  @override
+  String get homeworkAddFile =>
+      overlay.text('homeworkAddFile') ?? base.homeworkAddFile;
+
+  @override
+  String get homeworkRemoveFile =>
+      overlay.text('homeworkRemoveFile') ?? base.homeworkRemoveFile;
+
+  @override
+  String get homeworkFileType =>
+      overlay.text('homeworkFileType') ?? base.homeworkFileType;
+
+  @override
+  String get homeworkFileTooBig =>
+      overlay.text('homeworkFileTooBig') ?? base.homeworkFileTooBig;
+
+  @override
+  String get homeworkNeedsSomething =>
+      overlay.text('homeworkNeedsSomething') ?? base.homeworkNeedsSomething;
+
+  @override
+  String get homeworkSend => overlay.text('homeworkSend') ?? base.homeworkSend;
+
+  @override
+  String get homeworkSendAgain =>
+      overlay.text('homeworkSendAgain') ?? base.homeworkSendAgain;
+
+  @override
+  String get homeworkSent => overlay.text('homeworkSent') ?? base.homeworkSent;
+
+  @override
+  String get gradesNone => overlay.text('gradesNone') ?? base.gradesNone;
+
+  @override
+  String get gradesNoneMessage =>
+      overlay.text('gradesNoneMessage') ?? base.gradesNoneMessage;
+
+  @override
+  String get gradesComing => overlay.text('gradesComing') ?? base.gradesComing;
+
+  @override
+  String get assessmentExam =>
+      overlay.text('assessmentExam') ?? base.assessmentExam;
+
+  @override
+  String get assessmentQuiz =>
+      overlay.text('assessmentQuiz') ?? base.assessmentQuiz;
+
+  @override
+  String get assessmentAssignment =>
+      overlay.text('assessmentAssignment') ?? base.assessmentAssignment;
+
+  @override
+  String attendanceSince(String date) =>
+      overlay.format('attendanceSince', {'date': date}) ??
+      base.attendanceSince(date);
+
+  @override
+  String get attendanceNone =>
+      overlay.text('attendanceNone') ?? base.attendanceNone;
+
+  @override
+  String get attendancePresent =>
+      overlay.text('attendancePresent') ?? base.attendancePresent;
+
+  @override
+  String get attendanceAbsent =>
+      overlay.text('attendanceAbsent') ?? base.attendanceAbsent;
+
+  @override
+  String get attendanceLate =>
+      overlay.text('attendanceLate') ?? base.attendanceLate;
+
+  @override
+  String get attendanceExcused =>
+      overlay.text('attendanceExcused') ?? base.attendanceExcused;
+
+  @override
+  String get feesNone => overlay.text('feesNone') ?? base.feesNone;
+
+  @override
+  String get feesNoneMessage =>
+      overlay.text('feesNoneMessage') ?? base.feesNoneMessage;
+
+  @override
+  String get feesStillDue => overlay.text('feesStillDue') ?? base.feesStillDue;
+
+  @override
+  String get feesPayAtSchool =>
+      overlay.text('feesPayAtSchool') ?? base.feesPayAtSchool;
+
+  @override
+  String get feeDue => overlay.text('feeDue') ?? base.feeDue;
+
+  @override
+  String feeDueOn(String date) =>
+      overlay.format('feeDueOn', {'date': date}) ?? base.feeDueOn(date);
+
+  @override
+  String get feePaid => overlay.text('feePaid') ?? base.feePaid;
+
+  @override
+  String feePaidOn(String date) =>
+      overlay.format('feePaidOn', {'date': date}) ?? base.feePaidOn(date);
+
+  @override
+  String feePay(String amount) =>
+      overlay.format('feePay', {'amount': amount}) ?? base.feePay(amount);
+
+  @override
+  String get feePaidThanks =>
+      overlay.text('feePaidThanks') ?? base.feePaidThanks;
+
+  @override
+  String get feeReceipt => overlay.text('feeReceipt') ?? base.feeReceipt;
+
+  @override
+  String get classroomNotTeacher =>
+      overlay.text('classroomNotTeacher') ?? base.classroomNotTeacher;
+
+  @override
+  String get classroomNotTeacherMessage =>
+      overlay.text('classroomNotTeacherMessage') ??
+      base.classroomNotTeacherMessage;
+
+  @override
+  String get classroomClasses =>
+      overlay.text('classroomClasses') ?? base.classroomClasses;
+
+  @override
+  String get classroomNoClasses =>
+      overlay.text('classroomNoClasses') ?? base.classroomNoClasses;
+
+  @override
+  String get classroomYourClass =>
+      overlay.text('classroomYourClass') ?? base.classroomYourClass;
+
+  @override
+  String classroomStudents(int count) =>
+      overlay.format('classroomStudents', {'count': count}) ??
+      base.classroomStudents(count);
+
+  @override
+  String get classroomTakeAttendance =>
+      overlay.text('classroomTakeAttendance') ?? base.classroomTakeAttendance;
+
+  @override
+  String get classroomWrite =>
+      overlay.text('classroomWrite') ?? base.classroomWrite;
+
+  @override
+  String classroomWriteTo(String name) =>
+      overlay.format('classroomWriteTo', {'name': name}) ??
+      base.classroomWriteTo(name);
+
+  @override
+  String get classroomAssessments =>
+      overlay.text('classroomAssessments') ?? base.classroomAssessments;
+
+  @override
+  String get classroomGiveHomework =>
+      overlay.text('classroomGiveHomework') ?? base.classroomGiveHomework;
+
+  @override
+  String get classroomNoHomework =>
+      overlay.text('classroomNoHomework') ?? base.classroomNoHomework;
+
+  @override
+  String get classroomNewAssessment =>
+      overlay.text('classroomNewAssessment') ?? base.classroomNewAssessment;
+
+  @override
+  String get classroomNoAssessments =>
+      overlay.text('classroomNoAssessments') ?? base.classroomNoAssessments;
+
+  @override
+  String classroomHandedIn(int done, int total, int marked) =>
+      overlay.format('classroomHandedIn', {
+        'done': done,
+        'total': total,
+        'marked': marked,
+      }) ??
+      base.classroomHandedIn(done, total, marked);
+
+  @override
+  String classroomScored(int count, String max) =>
+      overlay.format('classroomScored', {'count': count, 'max': max}) ??
+      base.classroomScored(count, max);
+
+  @override
+  String classroomOutOf(String max) =>
+      overlay.format('classroomOutOf', {'max': max}) ??
+      base.classroomOutOf(max);
+
+  @override
+  String get classroomSubject =>
+      overlay.text('classroomSubject') ?? base.classroomSubject;
+
+  @override
+  String get classroomTitle =>
+      overlay.text('classroomTitle') ?? base.classroomTitle;
+
+  @override
+  String get classroomInstructions =>
+      overlay.text('classroomInstructions') ?? base.classroomInstructions;
+
+  @override
+  String get classroomDue => overlay.text('classroomDue') ?? base.classroomDue;
+
+  @override
+  String get classroomDate =>
+      overlay.text('classroomDate') ?? base.classroomDate;
+
+  @override
+  String get classroomChooseDay =>
+      overlay.text('classroomChooseDay') ?? base.classroomChooseDay;
+
+  @override
+  String get classroomFullMark =>
+      overlay.text('classroomFullMark') ?? base.classroomFullMark;
+
+  @override
+  String get classroomGive =>
+      overlay.text('classroomGive') ?? base.classroomGive;
+
+  @override
+  String get classroomAdd => overlay.text('classroomAdd') ?? base.classroomAdd;
+
+  @override
+  String get classroomHomeworkMissing =>
+      overlay.text('classroomHomeworkMissing') ?? base.classroomHomeworkMissing;
+
+  @override
+  String get classroomHomeworkGiven =>
+      overlay.text('classroomHomeworkGiven') ?? base.classroomHomeworkGiven;
+
+  @override
+  String get classroomAssessmentMissing =>
+      overlay.text('classroomAssessmentMissing') ??
+      base.classroomAssessmentMissing;
+
+  @override
+  String get classroomMessage =>
+      overlay.text('classroomMessage') ?? base.classroomMessage;
+
+  @override
+  String get classroomMessageMissing =>
+      overlay.text('classroomMessageMissing') ?? base.classroomMessageMissing;
+
+  @override
+  String get classroomMessageSent =>
+      overlay.text('classroomMessageSent') ?? base.classroomMessageSent;
+
+  @override
+  String classroomAttendanceOf(String name) =>
+      overlay.format('classroomAttendanceOf', {'name': name}) ??
+      base.classroomAttendanceOf(name);
+
+  @override
+  String get classroomNotTaken =>
+      overlay.text('classroomNotTaken') ?? base.classroomNotTaken;
+
+  @override
+  String get classroomNoStudents =>
+      overlay.text('classroomNoStudents') ?? base.classroomNoStudents;
+
+  @override
+  String get classroomSaveAttendance =>
+      overlay.text('classroomSaveAttendance') ?? base.classroomSaveAttendance;
+
+  @override
+  String get classroomAttendanceSaved =>
+      overlay.text('classroomAttendanceSaved') ?? base.classroomAttendanceSaved;
+
+  @override
+  String get classroomNotHandedIn =>
+      overlay.text('classroomNotHandedIn') ?? base.classroomNotHandedIn;
+
+  @override
+  String get classroomMarkHint =>
+      overlay.text('classroomMarkHint') ?? base.classroomMarkHint;
+
+  @override
+  String get classroomFeedback =>
+      overlay.text('classroomFeedback') ?? base.classroomFeedback;
+
+  @override
+  String get classroomMarkMissing =>
+      overlay.text('classroomMarkMissing') ?? base.classroomMarkMissing;
+
+  @override
+  String get classroomSaveScores =>
+      overlay.text('classroomSaveScores') ?? base.classroomSaveScores;
+
+  @override
+  String get classroomScoresSaved =>
+      overlay.text('classroomScoresSaved') ?? base.classroomScoresSaved;
+
+  @override
+  String classroomScoreRange(String max) =>
+      overlay.format('classroomScoreRange', {'max': max}) ??
+      base.classroomScoreRange(max);
 }

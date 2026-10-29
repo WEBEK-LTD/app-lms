@@ -69,11 +69,11 @@ export const PLAN_RANK: Record<Plan, number> = { starter: 0, growth: 1, pro: 2, 
  * 104 `delivery`: delivery and courier apps; `courier_app`: the company's second app for its couriers. Both off on
  * every plan until the team turns them on and prices them (Admin › Plans).
  */
-export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing", "studio", "studio_motion", "studio_templates", "delivery", "courier_app", "food", "rides", "instructors"] as const;
+export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing", "studio", "studio_motion", "studio_templates", "delivery", "courier_app", "food", "rides", "instructors", "school"] as const;
 export type PlanFeature = (typeof PLAN_FEATURE_IDS)[number];
 
 /** 103R Features only Studio plans have, so the regular plans' editor leaves them out (104 delivery companies are Studio projects). */
-export const STUDIO_ONLY_FEATURES: readonly PlanFeature[] = ["studio", "studio_motion", "studio_templates", "delivery", "courier_app", "food", "rides", "instructors"];
+export const STUDIO_ONLY_FEATURES: readonly PlanFeature[] = ["studio", "studio_motion", "studio_templates", "delivery", "courier_app", "food", "rides", "instructors", "school"];
 
 /**
  * 103R What every Studio plan includes, besides what the team ticks in
@@ -82,7 +82,7 @@ export const STUDIO_ONLY_FEATURES: readonly PlanFeature[] = ["studio", "studio_m
 export const STUDIO_BASE_FEATURES: readonly PlanFeature[] = ["studio", "push", "page_editor", "offline_downloads", "card_payments", "auto_rebuild", "chat", "loyalty", "store_billing"];
 
 /** 103R The features the team ticks for each Studio plan, as the admin's design lists them. */
-export const STUDIO_PLAN_CHOICES: readonly PlanFeature[] = ["ios", "auto_publish", "delivery", "courier_app", "food", "rides", "instructors", "studio_motion", "studio_templates"];
+export const STUDIO_PLAN_CHOICES: readonly PlanFeature[] = ["ios", "auto_publish", "delivery", "courier_app", "food", "rides", "instructors", "school", "studio_motion", "studio_templates"];
 
 export type SupportLevel = "email" | "whatsapp" | "priority" | "dedicated";
 export const SUPPORT_LEVELS: SupportLevel[] = ["email", "whatsapp", "priority", "dedicated"];
@@ -406,6 +406,12 @@ export const PLAN_FEATURES: PlanFeatureDef[] = [
     label: "Academies with many teachers",
     description: "Your teachers publish their own courses after your review, answer their students and see their share of the sales.",
     enforced: "The hosted API's /teachers and /teacher endpoints, and the Teachers and Teacher statements pages.",
+  },
+  {
+    id: "school",
+    label: "Schools",
+    description: "Students and parents follow the timetable, homework, grades, attendance and fees; your teachers take attendance and give homework in the app.",
+    enforced: "The hosted API's /school and /classroom endpoints, and the school's pages.",
   },
 ];
 

@@ -21,7 +21,7 @@ import type { BlockType, ItemSource, LayoutBlock, LayoutTab, ScreenName } from "
 export const APP_VERTICALS = ["restaurant", "clinic", "fitness", "charity", "services", "instructors"] as const satisfies readonly AppVertical[];
 
 /** Content the client manages in the dashboard, served by the hosted API (a connector kind). */
-export type OwnContentKind = Extract<ConnectorConfig["kind"], "catalog" | "courses" | "bookings" | "listings" | "articles" | "events" | "campaigns" | "deliveries" | "restaurants" | "rides">;
+export type OwnContentKind = Extract<ConnectorConfig["kind"], "catalog" | "courses" | "bookings" | "listings" | "articles" | "events" | "campaigns" | "deliveries" | "restaurants" | "rides" | "school">;
 
 /** The Website step's choices: where the app's content comes from. */
 export type WebsiteChoice = "wordpress" | "custom_api" | "setup_requested" | "shopify" | "catalog" | "platform";
@@ -788,6 +788,71 @@ export const ENGINES: Record<AppType, EngineInfo> = {
     // A Studio demo, on /demo/studio only.
     demo: { slug: "rides" },
   },
+  // 105.4 Schools: classes, students, parents and teachers set in the dashboard, on the hosted API only.
+  school: {
+    id: "school",
+    name: "School",
+    icon: "school",
+    homePath: "/school/me",
+    configCheck: { label: "Config has the school settings", fix: "Add `school` to /config.", key: "school", in: "root", type: "object" },
+    websites: ["catalog"],
+    sitePlaceholder: "https://your-school.com",
+    platformChoice: { title: "Another platform", text: "Your school's data comes from another platform." },
+    platformPhoneNote: null,
+    ownContent: {
+      kind: "school",
+      choice: {
+        title: "The school managed in Yallapp",
+        text: "Add your classes, subjects, students, parents and teachers here in the dashboard. Teachers take attendance and give homework in the app; families follow their children and pay fees by card into your own iyzico, Kashier, Fawaterk, Stripe or PayPal account.",
+      },
+      next: "After this step, add your classes and subjects on the **Classes** page, your students, parents and teachers on the **People** page, then the week's lessons on the **Timetable** page. Students, parents and teachers sign in to the app with",
+      switchLabel: "No website: the school in the dashboard",
+      adminLabel: "No website: the school in the dashboard",
+      nav: {
+        label: "Your school",
+        items: [
+          { href: "/dashboard/school/classes", label: "Classes", icon: "menu_book" },
+          { href: "/dashboard/school/people", label: "People", icon: "groups" },
+          { href: "/dashboard/school/timetable", label: "Timetable", icon: "calendar_month" },
+          { href: "/dashboard/school/attendance", label: "Attendance", icon: "task_alt" },
+          { href: "/dashboard/school/homework", label: "Homework", icon: "assignment" },
+          { href: "/dashboard/school/grades", label: "Grades", icon: "workspace_premium" },
+          { href: "/dashboard/school/fees", label: "Fees", icon: "payments" },
+          { href: "/dashboard/school/news", label: "News", icon: "campaign" },
+          { href: "/dashboard/school/settings", label: "School settings", icon: "tune" },
+        ],
+      },
+    },
+    pages: {
+      source: "school_news",
+      read: null,
+      blocks: [],
+      screens: ["school", "classroom", "account", "settings", "notifications"],
+      aliases: {},
+      tabs: [tab("school", "School", "school", "school")],
+      home: [
+        {
+          id: "school_news",
+          type: "items",
+          visibility: "everyone",
+          title: "School news",
+          source: "school_news",
+          layout: "list",
+          see_all: { type: "screen", screen: "school" },
+          query: newest(10),
+        },
+      ],
+    },
+    categories: { play: "Education", appStore: "Education" },
+    words: {
+      items: "school",
+      storeDescription: "Describe your school and what its app gives students, parents and teachers: the timetable, homework, grades, attendance, news and fees.",
+      ratingExample: "For example: a school's app for its students, their parents and its teachers. No violence, gambling or dating. No ads.",
+      iphone: null,
+      cardPayments: "Take school fees by card, through your payment page.",
+    },
+    demo: null,
+  },
 };
 
 /** What the app type picker offers, in its order. The first kind of each engine is its default (vertical null). */
@@ -1027,6 +1092,20 @@ export const KINDS: readonly KindInfo[] = [
     marketing: { slug: "rides", icon: "local_taxi" },
     reviewNote:
       "This app has two roles. Riders ask for a ride and follow the driver. Drivers of the company sign in with a number the company added and see a Driver tab with the rides offered to them.",
+  },
+  {
+    // 105.4 The school engine's one kind.
+    id: "school",
+    engine: "school",
+    vertical: null,
+    name: "School",
+    description: "Students and parents follow the timetable, homework, grades, attendance and fees; your teachers take attendance and give homework in the app.",
+    requires: "No website needed: you add your classes, students, parents and teachers here in the dashboard · Fees by card into your own iyzico, Kashier, Fawaterk, Stripe or PayPal account",
+    icon: "school",
+    tile: "bg-tile-1 text-[#1F4E79]",
+    marketing: { slug: "school", icon: "school" },
+    reviewNote:
+      "This app has three roles. Students see their timetable, homework, grades, attendance and the school's news. Parents see the same for each of their children and pay fees. Teachers of the school sign in with a number the school added and see a Classroom tab where they take attendance, give homework and enter scores.",
   },
   {
     // 105.3 An academy with many teachers: the courses engine, each course possibly a teacher's.

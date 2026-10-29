@@ -4,6 +4,9 @@ import { courseSetup } from "../courses/setup";
 import { encryptionKey } from "../env";
 import { MEDIA_CHUNK_BYTES } from "../media/signing";
 import { handleTeachersRoute } from "../teachers/hosted";
+import { handleSchoolRoute } from "../school/hosted";
+import { memberRoles, schoolConfig, schoolMemberOf } from "../school/service";
+import { feesByCardReady, schoolOn, schoolSettingsOf } from "../school/settings";
 import { notifyNewLesson } from "./auto-notifications";
 import { teacherOf, teachersOn } from "../teachers/service";
 import { reviewCourierFor } from "../delivery/review";
@@ -365,6 +368,24 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
     );
     return answer ?? notFound();
   }
+  // 105.4 Schools: the School endpoints (students and parents) and the Classroom endpoints (teachers).
+  if (req.path[0] === "school" || req.path[0] === "classroom") {
+    if (!schoolOn(ctx.app, ctx.plan)) return error(403, "feature_disabled", "This app has no school.");
+    const answer = await handleSchoolRoute(
+      {
+        store: ctx.store,
+        app: ctx.app,
+        plan: ctx.plan,
+        now: ctx.now,
+        assetUrl: ctx.assetUrl,
+        platformUrl: ctx.platformUrl,
+        storage: ctx.chat?.storage ?? null,
+        chunkBytes: ctx.chat?.chunkBytes ?? MEDIA_CHUNK_BYTES,
+      },
+      { method: req.method, path: req.path, query: req.query, body: req.body, user: session?.user ?? null, now: ctx.now, lang: requestLanguage(req.headers?.get("accept-language")) },
+    );
+    return answer ?? notFound();
+  }
   if (ctx.connector) {
     const result = await ctx.connector.handle({
       method: req.method,
@@ -561,6 +582,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     ...(extra.rides ? { rides: extra.rides } : {}),
     // 105.3 Academies with many teachers
     ...(teachersOn(app, ctx.plan) ? { instructors: { applications: courseSetup(app).teachersApply === true, timezone: await appZone(ctx.store, app) } } : {}),
+    // 105.4 Schools
+    ...(schoolOn(app, ctx.plan) ? { school: await schoolConfigOf(ctx) } : {}),
     // 10.6 Looks and languages (17: the draft's, in a draft preview)
     // 43 With each language's name, direction and the owner's string pack.
     ...(await lookAndLanguages(ctx.store, app, ctx.preview?.draft ? await draftLayout(ctx.store, app, ctx.now) : undefined, ctx.plan ?? null, {
@@ -568,6 +591,12 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
       draft: Boolean(ctx.preview?.draft),
     })),
   });
+}
+
+/** 105.4 `Config.school`. */
+async function schoolConfigOf(ctx: HostedContext) {
+  const settings = schoolSettingsOf(await ctx.store.getSchoolSettings(ctx.app.id), ctx.app);
+  return schoolConfig(settings, feesByCardReady(ctx.app, ctx.plan, settings));
 }
 
 /** `Config.auth`: the owner's sign-in choices. */
@@ -1061,6 +1090,8 @@ async function meJson(ctx: HostedContext, user: HostedUser) {
   const kind = ctx.app.connector?.kind;
   // 105.3 In academies with many teachers, `teacher` for the academy's active teachers.
   if (kind === "courses") return teachersOn(ctx.app, ctx.plan) && (await teacherOf(ctx.store, ctx.app, user, ctx.now)) ? { ...userJson(user), roles: ["teacher"] } : userJson(user);
+  // 105.4 In schools, `student`, `parent` and `teacher` for the people the school added.
+  if (kind === "school") return { ...userJson(user), roles: schoolOn(ctx.app, ctx.plan) ? memberRoles(await schoolMemberOf(ctx.store, ctx.app, user, ctx.now)) : [] };
   // 105.2 In ride apps, `driver` for the company's active drivers (and the store review account).
   if (kind === "rides") return { ...userJson(user), roles: (await isDriver({ store: ctx.store, app: ctx.app }, user, ctx.now)) ? ["driver"] : [] };
   if (kind !== "deliveries" && kind !== "restaurants") return userJson(user);
@@ -1179,6 +1210,11 @@ export function notificationJson(n: HostedNotification, readAt: Date | null) {
     ...(n.data?.order_id ? { order_id: numberOf(n.data.order_id) } : {}),
     // 104 The shipment a shipment update or a courier's job opens.
     ...(n.data?.shipment_id ? { shipment_id: numberOf(n.data.shipment_id) } : {}),
+    // 105.1 The food order, 105.2 the ride, 105.4 the student and the homework they open.
+    ...(n.data?.food_order_id ? { food_order_id: numberOf(n.data.food_order_id) } : {}),
+    ...(n.data?.ride_id ? { ride_id: numberOf(n.data.ride_id) } : {}),
+    ...(n.data?.student_id ? { student_id: numberOf(n.data.student_id) } : {}),
+    ...(n.data?.homework_id ? { homework_id: numberOf(n.data.homework_id) } : {}),
     ...(n.articleId ? { article_id: n.articleId } : {}),
     ...(n.eventId ? { event_id: n.eventId } : {}),
     ...(n.campaignId ? { campaign_id: n.campaignId } : {}),

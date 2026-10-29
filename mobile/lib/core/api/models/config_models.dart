@@ -9,6 +9,7 @@ import 'donation_models.dart';
 import 'delivery_models.dart';
 import 'food_models.dart';
 import 'rides_models.dart';
+import 'school_models.dart';
 import 'teachers_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
@@ -38,6 +39,7 @@ class AppConfig {
     this.food,
     this.rides,
     this.instructors,
+    this.school,
     this.vertical,
     this.shareBaseUrl,
     this.chat,
@@ -65,6 +67,7 @@ class AppConfig {
     food: optObject(json, 'food', FoodConfig.fromJson),
     rides: optObject(json, 'rides', RidesConfig.fromJson),
     instructors: optObject(json, 'instructors', InstructorsConfig.fromJson),
+    school: optObject(json, 'school', SchoolConfig.fromJson),
     vertical: AppVertical.fromWire(json['vertical']),
     shareBaseUrl: _shareBase(json['links']),
     chat: _chat(json['chat']),
@@ -178,6 +181,9 @@ class AppConfig {
 
   /// 105.3 An academy with many teachers: its teachers, and applying to teach.
   final InstructorsConfig? instructors;
+
+  /// 105.4 A school: its time zone, term, and whether fees are paid by card.
+  final SchoolConfig? school;
 
   /// The kind of business (wording and defaults only); null for none, on
   /// older servers, and for values this app doesn't know.

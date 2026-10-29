@@ -53,7 +53,9 @@ final ridesModule = AppModule(
     BuiltInScreen.foodOrders ||
     BuiltInScreen.restaurant ||
     BuiltInScreen.teachers ||
-    BuiltInScreen.teacher => null,
+    BuiltInScreen.teacher ||
+    BuiltInScreen.school ||
+    BuiltInScreen.classroom => null,
   },
   routes: _pushedRoutes,
 );
