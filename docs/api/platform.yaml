@@ -1218,8 +1218,10 @@ components:
             from many restaurants (the hosted API only); (105.2) `rides`:
             ride hailing apps (the hosted API only), whose drivers' second app
             is `courier_app`'s; (105.3) `instructors`: academies with many
-            teachers (the hosted API only). Unknown values are ignored.
-          items: { type: string, enum: [push, offline_downloads, auto_publish, ios, page_editor, card_payments, auto_rebuild, chat, loyalty, store_billing, studio, delivery, courier_app, food, rides, instructors] }
+            teachers; (105.4) `school`: school apps for students, parents
+            and teachers (both on the hosted API only). Unknown values are
+            ignored.
+          items: { type: string, enum: [push, offline_downloads, auto_publish, ios, page_editor, card_payments, auto_rebuild, chat, loyalty, store_billing, studio, delivery, courier_app, food, rides, instructors, school] }
         chat:
           type: [object, 'null']
           description: |
@@ -1595,7 +1597,7 @@ components:
           required: [schema_version, app_type, app_name, short_name, site_url, android_package, ios_bundle_id, version_name, version_code, branding]
           properties:
             schema_version: { const: 1 }
-            app_type: { type: string, enum: [lms, store, booking, real_estate, news, events, donations, delivery, food, rides] }
+            app_type: { type: string, enum: [lms, store, booking, real_estate, news, events, donations, delivery, food, rides, school] }
             app_name: { type: string, minLength: 1 }
             short_name: { type: string, minLength: 1 }
             site_url: { type: string, format: uri }

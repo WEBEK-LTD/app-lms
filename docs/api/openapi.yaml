@@ -342,6 +342,34 @@ tags:
       live at once. A teacher answers their students' questions through
       `POST /questions/{question_id}/answers` (the answer's author has
       `instructor` true) and sees what their courses sold and their share.
+  - name: School
+    description: |
+      Roadmap 105.4. A school's app for its students and their parents, on
+      Yallapp's hosted API. The school adds its students, parents and
+      teachers on the dashboard (by mobile number, or by email for apps that
+      sign in by email only), links each parent to their children, and puts
+      the students in classes. Whoever signs in with a student's number is
+      that student; with a parent's number, that parent (`User.roles` has
+      `student` or `parent`). `GET /school/me` lists whom the person may
+      see: a student themselves, a parent each of their children. Every
+      `/school/students/{student_id}` endpoint answers `not_found` (404) for
+      a student the person may not see, and `not_school_member` (403) to
+      anyone the school didn't add. A student sees their timetable,
+      attendance, homework (and hands it in), grades, upcoming exams and
+      fees; a parent sees the same for each child and pays fees by card
+      through the school's own payment page. Every amount is the school's:
+      Yallapp sets none.
+  - name: Classroom
+    description: |
+      Roadmap 105.4. The school's teachers' screens. A teacher is a person
+      the school added as a teacher on the dashboard; whoever signs in with
+      their number is that teacher (`User.roles` has `teacher`). Every
+      endpoint here answers `not_teacher` (403) to anyone else. A teacher
+      sees the classes and subjects they teach and their timetable, takes
+      attendance in a tap (the parents of a student marked absent or late
+      are told), gives homework and marks what was handed in, enters the
+      scores of exams and quizzes, and writes to a class (its students and
+      their parents).
   - name: Bookings
     description: |
       Services, staff, free times and appointments, for Bookings apps. The
@@ -6007,6 +6035,623 @@ webhooks:
       responses:
         '202': { description: Received. Any 2xx answer delivers the notice. }
 
+  /school/me:
+    get:
+      tags: [School]
+      operationId: getSchoolMe
+      summary: Whom the signed-in person may see at the school
+      description: A student sees themselves; a parent each of their children, in the order the school added them. A teacher who is also a parent sees their children here too.
+      responses:
+        '200':
+          description: The person and their students
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SchoolMe' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /school/students/{student_id}/timetable:
+    get:
+      tags: [School]
+      operationId: getStudentTimetable
+      summary: The student's class timetable for the week
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200':
+          description: The timetable
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Timetable' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /school/students/{student_id}/attendance:
+    get:
+      tags: [School]
+      operationId: getStudentAttendance
+      summary: The student's attendance over a period
+      description: Days a teacher took attendance, newest first, with how many of each. The current term (`SchoolConfig.term`) by default, else the last 90 days.
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - name: from
+          in: query
+          schema: { type: string, format: date }
+        - name: to
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Attendance
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StudentAttendance' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /school/students/{student_id}/homework:
+    get:
+      tags: [School]
+      operationId: listStudentHomework
+      summary: The homework of the student's class
+      description: '`due`: not handed in yet, soonest due first; `done`: handed in or past due, newest first.'
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - name: status
+          in: query
+          schema: { type: string, enum: [due, done], default: due }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Homework
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Homework' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /school/students/{student_id}/homework/{homework_id}/submission:
+    put:
+      tags: [School]
+      operationId: submitHomework
+      summary: Hand in homework
+      description: |
+        By the student only (a parent gets `not_student`, 403): some text,
+        a file (a photo or a PDF sent with `/school/uploads`), or both. It
+        can be handed in again until the teacher marks it; after the due
+        date it is marked late. Refused with `already_marked` (409) once
+        marked.
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - $ref: '#/components/parameters/HomeworkId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text: { type: string, maxLength: 5000 }
+                upload_id: { type: [string, 'null'], format: uuid }
+      responses:
+        '200':
+          description: The homework with its submission
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Homework' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /school/students/{student_id}/grades:
+    get:
+      tags: [School]
+      operationId: getStudentGrades
+      summary: The student's scores by subject, and the exams coming up
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200':
+          description: Grades
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StudentGrades' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /school/students/{student_id}/fees:
+    get:
+      tags: [School]
+      operationId: listStudentFees
+      summary: The student's fees, due and paid
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200':
+          description: Fees
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StudentFees' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /school/students/{student_id}/fees/{fee_id}/pay:
+    post:
+      tags: [School]
+      operationId: payStudentFee
+      summary: Pay a fee by card on the school's payment page
+      description: |
+        When the school takes fees by card (`SchoolConfig.fees_by_card`) and
+        has set up its payment gateway; `payments_unavailable` (503)
+        otherwise, and `already_paid` (409) for a fee paid. The app opens
+        `payment_url`; once paid the fee is `paid` with its receipt.
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - $ref: '#/components/parameters/FeeId'
+      responses:
+        '200':
+          description: The payment page
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [payment_url]
+                properties:
+                  payment_url: { type: string, format: uri }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /school/announcements:
+    get:
+      tags: [School]
+      operationId: listSchoolAnnouncements
+      summary: The school's news for the person
+      description: Newest first. To the whole school, to the class of one of the person's students, or to one of them (and their family). A teacher also sees what they wrote.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Announcements
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/SchoolAnnouncement' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /school/uploads:
+    post:
+      tags: [School]
+      operationId: startSchoolUpload
+      summary: Start sending a file for homework
+      description: |
+        A photo (JPEG, PNG, WebP) up to 20 MB or a PDF up to 50 MB, by a
+        student handing in homework or a teacher giving it, into the
+        school's Media library (413 `storage_full` when its storage is full).
+        Sent in chunks to `upload_url` as chat files are, then `/complete`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, size, type]
+              properties:
+                name: { type: string, maxLength: 200 }
+                size: { type: integer, minimum: 1 }
+                type: { type: string, example: application/pdf }
+      responses:
+        '201':
+          description: Started
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SchoolUpload' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '413':
+          description: Too big for its kind (`too_big`), or the school's storage is full (`storage_full`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /school/uploads/{upload_id}/resume:
+    post:
+      tags: [School]
+      operationId: resumeSchoolUpload
+      summary: A fresh link to carry on with an upload
+      parameters:
+        - $ref: '#/components/parameters/UploadId'
+      responses:
+        '200':
+          description: A new link
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SchoolUpload' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /school/uploads/{upload_id}/complete:
+    post:
+      tags: [School]
+      operationId: completeSchoolUpload
+      summary: Finish an upload
+      description: 409 `incomplete` with the offset reached when part of the file is missing.
+      parameters:
+        - $ref: '#/components/parameters/UploadId'
+      responses:
+        '204': { description: Ready to use }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /classroom/me:
+    get:
+      tags: [Classroom]
+      operationId: getClassroomMe
+      summary: The signed-in teacher, their classes and today's lessons
+      responses:
+        '200':
+          description: The teacher
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ClassroomMe' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /classroom/timetable:
+    get:
+      tags: [Classroom]
+      operationId: getClassroomTimetable
+      summary: The teacher's lessons for the week
+      responses:
+        '200':
+          description: The timetable
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Timetable' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /classroom/classes/{class_id}/students:
+    get:
+      tags: [Classroom]
+      operationId: listClassStudents
+      summary: The students of a class the teacher teaches
+      parameters:
+        - $ref: '#/components/parameters/ClassId'
+      responses:
+        '200':
+          description: Students, by name
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/SchoolStudent' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /classroom/classes/{class_id}/attendance:
+    get:
+      tags: [Classroom]
+      operationId: getClassAttendance
+      summary: A class's attendance on a day
+      description: Every student of the class, with their mark that day (null when not taken). Today in the school's time zone by default.
+      parameters:
+        - $ref: '#/components/parameters/ClassId'
+        - name: date
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: The day's attendance
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ClassAttendance' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Classroom]
+      operationId: takeClassAttendance
+      summary: Take a class's attendance
+      description: |
+        For today or a day in the last 7 (`date_out_of_range`, 400, else).
+        Students left out keep their mark. When the school tells families
+        (`SchoolConfig.absence_alerts`), the parents of a student newly
+        marked absent or late get a push (`school_absence`).
+      parameters:
+        - $ref: '#/components/parameters/ClassId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [date, items]
+              properties:
+                date: { type: string, format: date }
+                items:
+                  type: array
+                  maxItems: 200
+                  items:
+                    type: object
+                    required: [student_id, status]
+                    properties:
+                      student_id: { type: integer }
+                      status: { type: string, enum: [present, absent, late, excused] }
+                      note: { type: [string, 'null'], maxLength: 300 }
+      responses:
+        '200':
+          description: The day's attendance
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ClassAttendance' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /classroom/homework:
+    get:
+      tags: [Classroom]
+      operationId: listClassroomHomework
+      summary: The homework the teacher gave
+      description: Newest first, of every class they teach or one (`class_id`).
+      parameters:
+        - name: class_id
+          in: query
+          schema: { type: integer }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Homework
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/ClassroomHomework' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Classroom]
+      operationId: giveHomework
+      summary: Give homework to a class
+      description: For a subject the teacher teaches in that class (`not_your_class`, 403, else). The class's students and their parents get a push (`school_homework`).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/HomeworkInput' }
+      responses:
+        '201':
+          description: Given
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ClassroomHomework' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /classroom/homework/{homework_id}:
+    get:
+      tags: [Classroom]
+      operationId: getClassroomHomework
+      summary: Homework with what each student handed in
+      parameters:
+        - $ref: '#/components/parameters/HomeworkId'
+      responses:
+        '200':
+          description: The homework
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ClassroomHomeworkDetail' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /classroom/homework/{homework_id}/submissions/{student_id}:
+    put:
+      tags: [Classroom]
+      operationId: markHomework
+      summary: Mark a student's homework
+      description: Also when nothing was handed in. The student and their parents get a push (`school_grade`).
+      parameters:
+        - $ref: '#/components/parameters/HomeworkId'
+        - $ref: '#/components/parameters/StudentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mark]
+              properties:
+                mark: { type: string, minLength: 1, maxLength: 20, description: 'As the teacher writes it: "9/10", "A", "Good".' }
+                feedback: { type: [string, 'null'], maxLength: 1000 }
+      responses:
+        '200':
+          description: The homework
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ClassroomHomeworkDetail' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /classroom/assessments:
+    get:
+      tags: [Classroom]
+      operationId: listClassroomAssessments
+      summary: The exams, quizzes and assignments the teacher set
+      description: Coming up first (soonest first), then past ones (newest first), of every class they teach or one (`class_id`).
+      parameters:
+        - name: class_id
+          in: query
+          schema: { type: integer }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Assessments
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Assessment' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Classroom]
+      operationId: addAssessment
+      summary: Set an exam, a quiz or an assignment for a class
+      description: For a subject the teacher teaches in that class. It shows to the class's students and parents among the exams coming up.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AssessmentInput' }
+      responses:
+        '201':
+          description: Set
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Assessment' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /classroom/assessments/{assessment_id}/scores:
+    get:
+      tags: [Classroom]
+      operationId: getAssessmentScores
+      summary: Every student of the class with their score
+      parameters:
+        - $ref: '#/components/parameters/AssessmentId'
+      responses:
+        '200':
+          description: Scores
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AssessmentScores' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Classroom]
+      operationId: enterAssessmentScores
+      summary: Enter scores
+      description: From 0 to the assessment's `max_score`; null clears one. Students left out keep theirs. A student given a score for the first time, and their parents, get a push (`school_grade`).
+      parameters:
+        - $ref: '#/components/parameters/AssessmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [items]
+              properties:
+                items:
+                  type: array
+                  maxItems: 200
+                  items:
+                    type: object
+                    required: [student_id, score]
+                    properties:
+                      student_id: { type: integer }
+                      score: { type: [number, 'null'], minimum: 0 }
+                      note: { type: [string, 'null'], maxLength: 300 }
+      responses:
+        '200':
+          description: Scores
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AssessmentScores' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /classroom/announcements:
+    post:
+      tags: [Classroom]
+      operationId: postClassAnnouncement
+      summary: Write to a class
+      description: To a class the teacher teaches; its students and their parents see it with the school's news and get a push (`school_announcement`).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [class_id, title, body]
+              properties:
+                class_id: { type: integer }
+                title: { type: string, minLength: 1, maxLength: 120 }
+                body: { type: string, minLength: 1, maxLength: 2000 }
+      responses:
+        '201':
+          description: Sent
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SchoolAnnouncement' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -6028,7 +6673,7 @@ components:
       description: >-
         The type of the app asking (its build config's `app_type`). Default pages are built
         for it. Unknown values are ignored.
-      schema: { type: string, enum: [lms, store, booking, real_estate, news, events, donations, delivery, food, rides] }
+      schema: { type: string, enum: [lms, store, booking, real_estate, news, events, donations, delivery, food, rides, school] }
     ConversationId:
       name: conversation_id
       in: path
@@ -6049,6 +6694,26 @@ components:
       in: path
       required: true
       schema: { type: string, format: uuid }
+    StudentId:
+      name: student_id
+      in: path
+      required: true
+      schema: { type: integer }
+    HomeworkId:
+      name: homework_id
+      in: path
+      required: true
+      schema: { type: integer }
+    AssessmentId:
+      name: assessment_id
+      in: path
+      required: true
+      schema: { type: integer }
+    FeeId:
+      name: fee_id
+      in: path
+      required: true
+      schema: { type: integer }
     Page:
       name: page
       in: query
@@ -6533,6 +7198,7 @@ components:
         delivery: { $ref: '#/components/schemas/DeliveryConfig' }
         food: { $ref: '#/components/schemas/FoodConfig' }
         rides: { $ref: '#/components/schemas/RidesConfig' }
+        school: { $ref: '#/components/schemas/SchoolConfig' }
         instructors:
           description: Roadmap 105.3. Academies with many teachers; null or missing for other apps.
           oneOf:
@@ -6625,7 +7291,7 @@ components:
         roles:
           type: array
           uniqueItems: true
-          items: { type: string, enum: [courier, restaurant, driver, teacher] }
+          items: { type: string, enum: [courier, restaurant, driver, teacher, student, parent] }
           description: |
             Roadmap 104. In delivery apps, `courier` for a courier of the
             company (the Courier endpoints). 105.1 In food apps, also
@@ -6634,6 +7300,9 @@ components:
             Driver endpoints).
             105.3 In academies with many teachers, `teacher` for one of
             the academy's teachers (the Teacher endpoints).
+            105.4 In school apps, `student` and `parent` for the school's
+            students and parents (the School endpoints), `teacher` for its
+            teachers (the Classroom endpoints).
             Missing or empty: a customer only. Apps ignore roles they don't
             know.
 
@@ -7361,7 +8030,7 @@ components:
         body: { type: string }
         type:
           type: string
-          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, ride_update, ride_offer, new_course, teacher_course, teacher_question]
+          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, ride_update, ride_offer, new_course, teacher_course, teacher_question, school_absence, school_homework, school_grade, school_announcement, school_fee]
           description: >-
             85.3 Automatic notifications on Yallapp's hosted API have their own types:
             `appointment_confirmed` and `appointment_reminder` (with `appointment_id`), `class_soon`,
@@ -7385,6 +8054,12 @@ components:
             published or sent back one of the teacher's courses, and opens it in the Teacher
             tab; `teacher_question` (with `course_id` and `question_id`): a student asked in
             one of the teacher's courses, and opens the question.
+            105.4 In school apps (each with `student_id`): `school_absence`, the student was
+            marked absent or late, and opens their attendance; `school_homework` (with
+            `homework_id`), homework was given to their class, and opens it; `school_grade`, a
+            teacher marked homework or entered a score, and opens their grades; `school_fee`, a
+            fee was added or paid, and opens their fees. `school_announcement` (with
+            `student_id` when it is for one student's class or family) opens the school's news.
             An app that doesn't know a type opens Home.
         course_id: { type: [integer, 'null'] }
         lesson_id: { type: [integer, 'null'] }
@@ -7397,6 +8072,8 @@ components:
         shipment_id: { type: [integer, 'null'], description: "104 For shipment_update and courier_job, the shipment to open. Missing on older servers." }
         food_order_id: { type: [integer, 'null'], description: "105.1 For food_order_update and restaurant_order, the food order to open. Missing on older servers." }
         ride_id: { type: [integer, 'null'], description: "105.2 For ride_update and ride_offer, the ride to open. Missing on older servers." }
+        student_id: { type: [integer, 'null'], description: "105.4 For the school's notifications, the student it is about. Missing on older servers." }
+        homework_id: { type: [integer, 'null'], description: "105.4 For school_homework, the homework to open. Missing on older servers." }
         link: { type: [string, 'null'], format: uri, description: "46 A link in the format of the Links tag (`<base>/<kind>/<id>`): what the notification opens when no other field here says. 85.2 Or another `https` address (a campaign's web page), which the app opens in the browser. Push notifications carry it in their data too. Missing on older servers." }
         image_url:
           type: [string, 'null']
@@ -8765,7 +9442,7 @@ components:
         screen:
           type: [string, 'null']
           description: For `screen`, a built-in screen.
-          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, restaurants, food_orders, restaurant, ride, my_rides, driver, teachers, teacher, null]
+          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, restaurants, food_orders, restaurant, ride, my_rides, driver, teachers, teacher, school, classroom, null]
         course_id: { type: [integer, 'null'], description: For `course`. }
         item: { $ref: '#/components/schemas/ItemRef' }
         url: { type: [string, 'null'], format: uri, description: For `url`. }
@@ -11037,3 +11714,369 @@ components:
               title: { type: string }
               sales: { type: integer }
               earned_formatted: { type: string }
+
+    SchoolConfig:
+      type: object
+      description: Settings for school apps (roadmap 105.4). Every amount is the school's.
+      required: [timezone, currency, term, absence_alerts, fees_by_card]
+      properties:
+        timezone: { type: string, description: "The school's IANA time zone, for today's lessons and attendance.", example: Africa/Cairo }
+        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        term:
+          description: The current term, when the school set one; attendance and grades default to it.
+          oneOf:
+            - type: object
+              required: [name, starts_on, ends_on]
+              properties:
+                name: { type: string, example: First term }
+                starts_on: { type: string, format: date }
+                ends_on: { type: string, format: date }
+            - type: 'null'
+        absence_alerts: { type: boolean, description: 'Parents get a push when their child is marked absent or late.' }
+        fees_by_card: { type: boolean, description: "Fees can be paid by card on the school's payment page." }
+
+    SchoolMe:
+      type: object
+      required: [name, roles, students]
+      properties:
+        name: { type: string }
+        roles:
+          type: array
+          uniqueItems: true
+          items: { type: string, enum: [student, parent, teacher] }
+        students:
+          type: array
+          description: Whom the person may see; empty for a teacher who is no parent.
+          items: { $ref: '#/components/schemas/SchoolStudent' }
+
+    SchoolStudent:
+      type: object
+      required: [id, name, class_id, class_name]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        photo_url: { type: [string, 'null'], format: uri }
+        code: { type: [string, 'null'], description: "The school's student number." }
+        class_id: { type: [integer, 'null'] }
+        class_name: { type: [string, 'null'], example: Grade 5 A }
+
+    SchoolFile:
+      type: object
+      required: [name, url, kind]
+      properties:
+        name: { type: string }
+        url: { type: string, format: uri }
+        kind: { type: string, enum: [image, pdf] }
+
+    SchoolUpload:
+      type: object
+      required: [id, kind, upload_url, chunk_bytes, size]
+      properties:
+        id: { type: string, format: uuid }
+        kind: { type: string, enum: [image, pdf] }
+        upload_url: { type: string, format: uri }
+        chunk_bytes: { type: integer, example: 5242880 }
+        size: { type: integer }
+
+    Timetable:
+      type: object
+      required: [days]
+      properties:
+        days:
+          type: array
+          description: The school days with lessons, Monday first (weekday 1 is Monday, 7 Sunday).
+          items:
+            type: object
+            required: [weekday, lessons]
+            properties:
+              weekday: { type: integer, minimum: 1, maximum: 7 }
+              lessons:
+                type: array
+                description: In the order they start.
+                items: { $ref: '#/components/schemas/TimetableLesson' }
+
+    TimetableLesson:
+      type: object
+      required: [id, starts, ends, subject, class_id, class_name, teacher_name, room]
+      properties:
+        id: { type: integer }
+        starts: { type: string, pattern: '^\d{2}:\d{2}$', example: '08:00' }
+        ends: { type: string, pattern: '^\d{2}:\d{2}$', example: '08:45' }
+        subject: { type: string }
+        class_id: { type: integer }
+        class_name: { type: string }
+        teacher_name: { type: [string, 'null'] }
+        room: { type: [string, 'null'] }
+
+    AttendanceStatus:
+      type: string
+      enum: [present, absent, late, excused]
+
+    StudentAttendance:
+      type: object
+      required: [from, to, counts, days]
+      properties:
+        from: { type: string, format: date }
+        to: { type: string, format: date }
+        counts:
+          type: object
+          required: [present, absent, late, excused]
+          properties:
+            present: { type: integer }
+            absent: { type: integer }
+            late: { type: integer }
+            excused: { type: integer }
+        days:
+          type: array
+          items:
+            type: object
+            required: [date, status]
+            properties:
+              date: { type: string, format: date }
+              status: { $ref: '#/components/schemas/AttendanceStatus' }
+              note: { type: [string, 'null'] }
+
+    Homework:
+      type: object
+      description: Homework as a student and their parents see it.
+      required: [id, subject, title, text, due_on, attachments, teacher_name, submission]
+      properties:
+        id: { type: integer }
+        subject: { type: string }
+        title: { type: string }
+        text: { type: string }
+        due_on: { type: string, format: date }
+        attachments:
+          type: array
+          items: { $ref: '#/components/schemas/SchoolFile' }
+        teacher_name: { type: [string, 'null'] }
+        submission:
+          description: What the student handed in and the teacher's mark; null when nothing yet.
+          oneOf:
+            - $ref: '#/components/schemas/HomeworkSubmission'
+            - type: 'null'
+
+    HomeworkSubmission:
+      type: object
+      required: [text, file, submitted_at, late, mark, feedback]
+      properties:
+        text: { type: string }
+        file:
+          oneOf:
+            - $ref: '#/components/schemas/SchoolFile'
+            - type: 'null'
+        submitted_at: { type: [string, 'null'], format: date-time, description: Null when the teacher marked it without anything handed in. }
+        late: { type: boolean }
+        mark: { type: [string, 'null'] }
+        feedback: { type: [string, 'null'] }
+
+    StudentGrades:
+      type: object
+      required: [subjects, upcoming]
+      properties:
+        subjects:
+          type: array
+          description: Subjects with at least one score, by name.
+          items:
+            type: object
+            required: [subject, percent, scores]
+            properties:
+              subject: { type: string }
+              percent: { type: [number, 'null'], description: 'The share of the marks the student got over all scored assessments, 0 to 100.' }
+              scores:
+                type: array
+                description: Newest first.
+                items:
+                  type: object
+                  required: [assessment_id, title, kind, date, score, max_score]
+                  properties:
+                    assessment_id: { type: integer }
+                    title: { type: string }
+                    kind: { type: string, enum: [exam, quiz, assignment] }
+                    date: { type: string, format: date }
+                    score: { type: number }
+                    max_score: { type: number }
+                    note: { type: [string, 'null'] }
+        upcoming:
+          type: array
+          description: Exams, quizzes and assignments from today, soonest first.
+          items: { $ref: '#/components/schemas/Assessment' }
+
+    SchoolFee:
+      type: object
+      required: [id, title, amount, amount_formatted, due_on, status, paid_at, paid_by, receipt_url]
+      properties:
+        id: { type: integer }
+        title: { type: string, example: Second instalment }
+        amount: { type: string, example: '4500.00' }
+        amount_formatted: { type: string, example: 'E£4,500.00' }
+        due_on: { type: [string, 'null'], format: date }
+        status: { type: string, enum: [due, paid] }
+        paid_at: { type: [string, 'null'], format: date-time }
+        paid_by: { type: [string, 'null'], enum: [card, office, null] }
+        receipt_url: { type: [string, 'null'], format: uri, description: The receipt once paid. }
+
+    StudentFees:
+      type: object
+      required: [currency, due_formatted, can_pay, items]
+      properties:
+        currency: { type: string }
+        due_formatted: { type: string, description: What is still due in all. }
+        can_pay: { type: boolean, description: 'Due fees can be paid by card in the app.' }
+        items:
+          type: array
+          description: Due first (soonest due first), then paid (newest first).
+          items: { $ref: '#/components/schemas/SchoolFee' }
+
+    SchoolAnnouncement:
+      type: object
+      required: [id, title, body, audience, class_name, author, created_at]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        body: { type: string }
+        audience: { type: string, enum: [school, class, student] }
+        class_name: { type: [string, 'null'] }
+        author: { type: string, description: 'The school, or the teacher who wrote it.' }
+        created_at: { type: string, format: date-time }
+
+    ClassroomMe:
+      type: object
+      required: [name, classes, today]
+      properties:
+        name: { type: string }
+        photo_url: { type: [string, 'null'], format: uri }
+        classes:
+          type: array
+          description: The classes the teacher teaches (or is the class teacher of), by name.
+          items:
+            type: object
+            required: [id, name, student_count, subjects, class_teacher]
+            properties:
+              id: { type: integer }
+              name: { type: string }
+              student_count: { type: integer }
+              subjects:
+                type: array
+                items:
+                  type: object
+                  required: [id, name]
+                  properties:
+                    id: { type: integer }
+                    name: { type: string }
+              class_teacher: { type: boolean, description: The teacher is the class's own teacher. }
+        today:
+          type: array
+          description: Today's lessons in the school's time zone, in order.
+          items: { $ref: '#/components/schemas/TimetableLesson' }
+
+    ClassAttendance:
+      type: object
+      required: [class_id, date, students]
+      properties:
+        class_id: { type: integer }
+        date: { type: string, format: date }
+        students:
+          type: array
+          items:
+            type: object
+            required: [student, status, note]
+            properties:
+              student: { $ref: '#/components/schemas/SchoolStudent' }
+              status:
+                oneOf:
+                  - $ref: '#/components/schemas/AttendanceStatus'
+                  - type: 'null'
+              note: { type: [string, 'null'] }
+
+    HomeworkInput:
+      type: object
+      required: [class_id, subject_id, title, due_on]
+      properties:
+        class_id: { type: integer }
+        subject_id: { type: integer }
+        title: { type: string, minLength: 1, maxLength: 200 }
+        text: { type: string, maxLength: 5000 }
+        due_on: { type: string, format: date, description: Today or later. }
+        upload_ids:
+          type: array
+          maxItems: 5
+          items: { type: string, format: uuid }
+
+    ClassroomHomework:
+      type: object
+      required: [id, class_id, class_name, subject, title, text, due_on, attachments, students, handed_in, marked]
+      properties:
+        id: { type: integer }
+        class_id: { type: integer }
+        class_name: { type: string }
+        subject: { type: string }
+        title: { type: string }
+        text: { type: string }
+        due_on: { type: string, format: date }
+        attachments:
+          type: array
+          items: { $ref: '#/components/schemas/SchoolFile' }
+        students: { type: integer, description: Students in the class. }
+        handed_in: { type: integer }
+        marked: { type: integer }
+
+    ClassroomHomeworkDetail:
+      allOf:
+        - $ref: '#/components/schemas/ClassroomHomework'
+        - type: object
+          required: [submissions]
+          properties:
+            submissions:
+              type: array
+              description: Every student of the class, by name.
+              items:
+                type: object
+                required: [student, submission]
+                properties:
+                  student: { $ref: '#/components/schemas/SchoolStudent' }
+                  submission:
+                    oneOf:
+                      - $ref: '#/components/schemas/HomeworkSubmission'
+                      - type: 'null'
+
+    AssessmentInput:
+      type: object
+      required: [class_id, subject_id, kind, title, date, max_score]
+      properties:
+        class_id: { type: integer }
+        subject_id: { type: integer }
+        kind: { type: string, enum: [exam, quiz, assignment] }
+        title: { type: string, minLength: 1, maxLength: 120 }
+        date: { type: string, format: date }
+        max_score: { type: number, exclusiveMinimum: 0, maximum: 1000 }
+
+    Assessment:
+      type: object
+      required: [id, class_id, class_name, subject, kind, title, date, max_score, scored]
+      properties:
+        id: { type: integer }
+        class_id: { type: integer }
+        class_name: { type: string }
+        subject: { type: string }
+        kind: { type: string, enum: [exam, quiz, assignment] }
+        title: { type: string }
+        date: { type: string, format: date }
+        max_score: { type: number }
+        scored: { type: integer, description: Students with a score. }
+
+    AssessmentScores:
+      type: object
+      required: [assessment, students]
+      properties:
+        assessment: { $ref: '#/components/schemas/Assessment' }
+        students:
+          type: array
+          description: Every student of the class, by name.
+          items:
+            type: object
+            required: [student, score, note]
+            properties:
+              student: { $ref: '#/components/schemas/SchoolStudent' }
+              score: { type: [number, 'null'] }
+              note: { type: [string, 'null'] }
