@@ -5717,4 +5717,381 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherProfileSaved => 'تم الحفظ.';
+
+  @override
+  String get tabSchool => 'المدرسة';
+
+  @override
+  String get tabClassroom => 'الفصل';
+
+  @override
+  String get schoolSignInTitle => 'سجّل الدخول لترى مدرستك';
+
+  @override
+  String get schoolSignInMessage =>
+      'استخدم رقم الجوال الذي أعطيته للمدرسة. يرى أولياء الأمور كل أبنائهم.';
+
+  @override
+  String get schoolNotMemberTitle => 'هذا الرقم ليس في قائمة المدرسة';
+
+  @override
+  String get schoolNotMemberMessage =>
+      'اطلب من المدرسة إضافة الرقم الذي سجّلت الدخول به، ثم افتح هذا التبويب مرة أخرى.';
+
+  @override
+  String get schoolNoStudents => 'لا يوجد طالب بعد';
+
+  @override
+  String get schoolNoStudentsMessage => 'اطلب من المدرسة ربط أبنائك برقمك.';
+
+  @override
+  String get schoolToday => 'اليوم';
+
+  @override
+  String schoolTodayDay(String day) {
+    return 'اليوم، $day';
+  }
+
+  @override
+  String get schoolNoLessonsToday => 'لا حصص اليوم.';
+
+  @override
+  String get schoolEverything => 'مدرستك';
+
+  @override
+  String get schoolHomework => 'الواجبات';
+
+  @override
+  String get schoolGrades => 'الدرجات';
+
+  @override
+  String get schoolAttendance => 'الحضور';
+
+  @override
+  String get schoolTimetable => 'الجدول';
+
+  @override
+  String get schoolFees => 'الرسوم';
+
+  @override
+  String get schoolNews => 'أخبار المدرسة';
+
+  @override
+  String get schoolNoNews => 'لا أخبار بعد.';
+
+  @override
+  String schoolRoom(String room) {
+    return 'القاعة $room';
+  }
+
+  @override
+  String get schoolNoTimetable => 'لا يوجد جدول بعد';
+
+  @override
+  String get schoolNoTimetableMessage => 'تضيف المدرسة حصص الأسبوع وتظهر هنا.';
+
+  @override
+  String feesDue(String amount) {
+    return 'المستحق: $amount';
+  }
+
+  @override
+  String get homeworkDue => 'المطلوب';
+
+  @override
+  String get homeworkDone => 'المنتهي';
+
+  @override
+  String get homeworkNoneDue => 'لا شيء مطلوب. أحسنت!';
+
+  @override
+  String get homeworkNoneDone => 'لا توجد واجبات هنا بعد.';
+
+  @override
+  String homeworkDueOn(String date) {
+    return 'التسليم $date';
+  }
+
+  @override
+  String get homeworkHandedIn => 'سُلّم';
+
+  @override
+  String get homeworkLate => 'سُلّم متأخرًا';
+
+  @override
+  String get homeworkYourWork => 'ما تم تسليمه';
+
+  @override
+  String get homeworkMark => 'الدرجة';
+
+  @override
+  String get homeworkAnswer => 'إجابتك';
+
+  @override
+  String get homeworkAddPhoto => 'التقط صورة';
+
+  @override
+  String get homeworkAddFile => 'أضف ملف PDF أو صورة';
+
+  @override
+  String get homeworkRemoveFile => 'إزالة الملف';
+
+  @override
+  String get homeworkFileType => 'أرسل صورة (JPEG أو PNG أو WebP) أو ملف PDF.';
+
+  @override
+  String get homeworkFileTooBig =>
+      'هذا الملف كبير جدًا: الصور حتى 20 ميغابايت وملفات PDF حتى 200 ميغابايت.';
+
+  @override
+  String get homeworkNeedsSomething => 'اكتب إجابتك أو أضف صورة أو ملف PDF.';
+
+  @override
+  String get homeworkSend => 'تسليم';
+
+  @override
+  String get homeworkSendAgain => 'تسليم مرة أخرى';
+
+  @override
+  String get homeworkSent => 'تم التسليم. يراه معلّمك الآن.';
+
+  @override
+  String get gradesNone => 'لا درجات بعد';
+
+  @override
+  String get gradesNoneMessage => 'تظهر الدرجات هنا عندما يُدخلها المعلّمون.';
+
+  @override
+  String get gradesComing => 'قادمة';
+
+  @override
+  String get assessmentExam => 'امتحان';
+
+  @override
+  String get assessmentQuiz => 'اختبار قصير';
+
+  @override
+  String get assessmentAssignment => 'تكليف';
+
+  @override
+  String attendanceSince(String date) {
+    return 'منذ $date';
+  }
+
+  @override
+  String get attendanceNone => 'لا غياب ولا تأخير. استمر!';
+
+  @override
+  String get attendancePresent => 'حاضر';
+
+  @override
+  String get attendanceAbsent => 'غائب';
+
+  @override
+  String get attendanceLate => 'متأخر';
+
+  @override
+  String get attendanceExcused => 'بعذر';
+
+  @override
+  String get feesNone => 'لا رسوم';
+
+  @override
+  String get feesNoneMessage =>
+      'تظهر هنا الرسوم التي تضيفها المدرسة، مع إيصال لكل دفعة.';
+
+  @override
+  String get feesStillDue => 'المتبقي';
+
+  @override
+  String get feesPayAtSchool => 'ادفع في المدرسة، وتظهر الدفعة هنا مع إيصالها.';
+
+  @override
+  String get feeDue => 'مستحقة';
+
+  @override
+  String feeDueOn(String date) {
+    return 'مستحقة قبل $date';
+  }
+
+  @override
+  String get feePaid => 'مدفوعة';
+
+  @override
+  String feePaidOn(String date) {
+    return 'دُفعت يوم $date';
+  }
+
+  @override
+  String feePay(String amount) {
+    return 'ادفع $amount';
+  }
+
+  @override
+  String get feePaidThanks => 'تم الدفع. الإيصال هنا.';
+
+  @override
+  String get feeReceipt => 'الإيصال';
+
+  @override
+  String get classroomNotTeacher => 'لمعلّمي المدرسة';
+
+  @override
+  String get classroomNotTeacherMessage =>
+      'تضيف المدرسة أرقام معلّميها؛ يسجّلون الدخول بها وتظهر فصولهم هنا.';
+
+  @override
+  String get classroomClasses => 'فصولك';
+
+  @override
+  String get classroomNoClasses => 'لا فصول بعد: تضيفك المدرسة إلى جدولها.';
+
+  @override
+  String get classroomYourClass => 'فصلك';
+
+  @override
+  String classroomStudents(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طالب',
+      many: '$count طالبًا',
+      few: '$count طلاب',
+      two: 'طالبان',
+      one: 'طالب واحد',
+      zero: 'لا طلاب',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get classroomTakeAttendance => 'الحضور';
+
+  @override
+  String get classroomWrite => 'اكتب للفصل';
+
+  @override
+  String classroomWriteTo(String name) {
+    return 'اكتب إلى $name';
+  }
+
+  @override
+  String get classroomAssessments => 'الامتحانات والدرجات';
+
+  @override
+  String get classroomGiveHomework => 'إعطاء واجب';
+
+  @override
+  String get classroomNoHomework => 'لم يُعطَ أي واجب بعد.';
+
+  @override
+  String get classroomNewAssessment => 'امتحان أو اختبار جديد';
+
+  @override
+  String get classroomNoAssessments => 'لا امتحانات أو اختبارات بعد.';
+
+  @override
+  String classroomHandedIn(int done, int total, int marked) {
+    return 'سلّم $done من $total · صُحّح $marked';
+  }
+
+  @override
+  String classroomScored(int count, String max) {
+    return 'رُصدت $count · من $max';
+  }
+
+  @override
+  String classroomOutOf(String max) {
+    return 'من $max';
+  }
+
+  @override
+  String get classroomSubject => 'المادة';
+
+  @override
+  String get classroomTitle => 'العنوان';
+
+  @override
+  String get classroomInstructions => 'التعليمات (اختياري)';
+
+  @override
+  String get classroomDue => 'موعد التسليم';
+
+  @override
+  String get classroomDate => 'التاريخ';
+
+  @override
+  String get classroomChooseDay => 'اختر';
+
+  @override
+  String get classroomFullMark => 'الدرجة النهائية';
+
+  @override
+  String get classroomGive => 'إعطاء';
+
+  @override
+  String get classroomAdd => 'إضافة';
+
+  @override
+  String get classroomHomeworkMissing =>
+      'اختر المادة واكتب عنوانًا واختر يوم التسليم.';
+
+  @override
+  String get classroomHomeworkGiven => 'تم. أُبلغ الفصل وأسرهم.';
+
+  @override
+  String get classroomAssessmentMissing =>
+      'اختر المادة، واكتب العنوان والدرجة النهائية واليوم.';
+
+  @override
+  String get classroomMessage => 'الرسالة';
+
+  @override
+  String get classroomMessageMissing => 'اكتب عنوانًا والرسالة.';
+
+  @override
+  String get classroomMessageSent => 'أُرسلت إلى الفصل وأسرهم.';
+
+  @override
+  String classroomAttendanceOf(String name) {
+    return 'الحضور: $name';
+  }
+
+  @override
+  String get classroomNotTaken =>
+      'لم يُسجَّل بعد: الجميع حاضرون حتى تغيّر ذلك.';
+
+  @override
+  String get classroomNoStudents => 'لا طلاب في هذا الفصل بعد.';
+
+  @override
+  String get classroomSaveAttendance => 'حفظ الحضور';
+
+  @override
+  String get classroomAttendanceSaved =>
+      'تم الحفظ. أُبلغت أسر الغائبين والمتأخرين.';
+
+  @override
+  String get classroomNotHandedIn => 'لم يُسلَّم';
+
+  @override
+  String get classroomMarkHint => 'مثل 9/10 أو أ أو ممتاز';
+
+  @override
+  String get classroomFeedback => 'ملاحظات (اختياري)';
+
+  @override
+  String get classroomMarkMissing => 'اكتب الدرجة.';
+
+  @override
+  String get classroomSaveScores => 'حفظ الدرجات';
+
+  @override
+  String get classroomScoresSaved =>
+      'تم الحفظ. أُبلغ الطلاب والأسر بالدرجات الجديدة.';
+
+  @override
+  String classroomScoreRange(String max) {
+    return 'الدرجة من 0 إلى $max.';
+  }
 }

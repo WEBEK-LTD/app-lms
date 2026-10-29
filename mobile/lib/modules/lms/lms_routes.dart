@@ -65,6 +65,7 @@ final lmsModule = AppModule(
     BuiltInScreen.bookmarks => null,
     BuiltInScreen.classes || BuiltInScreen.memberships => null,
     BuiltInScreen.events || BuiltInScreen.tickets => null,
+    BuiltInScreen.school || BuiltInScreen.classroom => null,
     BuiltInScreen.sendParcel ||
     BuiltInScreen.shipments ||
     BuiltInScreen.courier ||

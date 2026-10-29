@@ -5635,4 +5635,383 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get teacherProfileSaved => 'Saved.';
+
+  @override
+  String get tabSchool => 'School';
+
+  @override
+  String get tabClassroom => 'Classroom';
+
+  @override
+  String get schoolSignInTitle => 'Sign in to see your school';
+
+  @override
+  String get schoolSignInMessage =>
+      'Use the mobile number you gave the school. Parents see each of their children.';
+
+  @override
+  String get schoolNotMemberTitle => 'This number isn\'t on the school\'s list';
+
+  @override
+  String get schoolNotMemberMessage =>
+      'Ask the school to add the number you signed in with, then open this tab again.';
+
+  @override
+  String get schoolNoStudents => 'No student yet';
+
+  @override
+  String get schoolNoStudentsMessage =>
+      'Ask the school to link your children to your number.';
+
+  @override
+  String get schoolToday => 'Today';
+
+  @override
+  String schoolTodayDay(String day) {
+    return 'Today, $day';
+  }
+
+  @override
+  String get schoolNoLessonsToday => 'No lessons today.';
+
+  @override
+  String get schoolEverything => 'Your school';
+
+  @override
+  String get schoolHomework => 'Homework';
+
+  @override
+  String get schoolGrades => 'Grades';
+
+  @override
+  String get schoolAttendance => 'Attendance';
+
+  @override
+  String get schoolTimetable => 'Timetable';
+
+  @override
+  String get schoolFees => 'Fees';
+
+  @override
+  String get schoolNews => 'School news';
+
+  @override
+  String get schoolNoNews => 'No news yet.';
+
+  @override
+  String schoolRoom(String room) {
+    return 'Room $room';
+  }
+
+  @override
+  String get schoolNoTimetable => 'No timetable yet';
+
+  @override
+  String get schoolNoTimetableMessage =>
+      'The school adds the week\'s lessons; they show here.';
+
+  @override
+  String feesDue(String amount) {
+    return 'Due: $amount';
+  }
+
+  @override
+  String get homeworkDue => 'To do';
+
+  @override
+  String get homeworkDone => 'Done';
+
+  @override
+  String get homeworkNoneDue => 'Nothing to do. Well done!';
+
+  @override
+  String get homeworkNoneDone => 'No homework here yet.';
+
+  @override
+  String homeworkDueOn(String date) {
+    return 'Due $date';
+  }
+
+  @override
+  String get homeworkHandedIn => 'Handed in';
+
+  @override
+  String get homeworkLate => 'Handed in late';
+
+  @override
+  String get homeworkYourWork => 'What was handed in';
+
+  @override
+  String get homeworkMark => 'Mark';
+
+  @override
+  String get homeworkAnswer => 'Your answer';
+
+  @override
+  String get homeworkAddPhoto => 'Take a photo';
+
+  @override
+  String get homeworkAddFile => 'Add a PDF or a picture';
+
+  @override
+  String get homeworkRemoveFile => 'Remove the file';
+
+  @override
+  String get homeworkFileType => 'Send a photo (JPEG, PNG or WebP) or a PDF.';
+
+  @override
+  String get homeworkFileTooBig =>
+      'This file is too big: photos up to 20 MB, PDFs up to 200 MB.';
+
+  @override
+  String get homeworkNeedsSomething =>
+      'Write your answer or add a photo or a PDF.';
+
+  @override
+  String get homeworkSend => 'Hand in';
+
+  @override
+  String get homeworkSendAgain => 'Hand in again';
+
+  @override
+  String get homeworkSent => 'Handed in. Your teacher sees it now.';
+
+  @override
+  String get gradesNone => 'No grades yet';
+
+  @override
+  String get gradesNoneMessage => 'Scores show here as teachers enter them.';
+
+  @override
+  String get gradesComing => 'Coming up';
+
+  @override
+  String get assessmentExam => 'Exam';
+
+  @override
+  String get assessmentQuiz => 'Quiz';
+
+  @override
+  String get assessmentAssignment => 'Assignment';
+
+  @override
+  String attendanceSince(String date) {
+    return 'Since $date';
+  }
+
+  @override
+  String get attendanceNone => 'No absences or late days. Keep it up!';
+
+  @override
+  String get attendancePresent => 'Present';
+
+  @override
+  String get attendanceAbsent => 'Absent';
+
+  @override
+  String get attendanceLate => 'Late';
+
+  @override
+  String get attendanceExcused => 'Excused';
+
+  @override
+  String get feesNone => 'No fees';
+
+  @override
+  String get feesNoneMessage =>
+      'Fees the school adds show here, with a receipt for each payment.';
+
+  @override
+  String get feesStillDue => 'Still due';
+
+  @override
+  String get feesPayAtSchool =>
+      'Pay at the school; the payment shows here with its receipt.';
+
+  @override
+  String get feeDue => 'Due';
+
+  @override
+  String feeDueOn(String date) {
+    return 'Due by $date';
+  }
+
+  @override
+  String get feePaid => 'Paid';
+
+  @override
+  String feePaidOn(String date) {
+    return 'Paid on $date';
+  }
+
+  @override
+  String feePay(String amount) {
+    return 'Pay $amount';
+  }
+
+  @override
+  String get feePaidThanks => 'Paid. The receipt is here.';
+
+  @override
+  String get feeReceipt => 'Receipt';
+
+  @override
+  String get classroomNotTeacher => 'For the school\'s teachers';
+
+  @override
+  String get classroomNotTeacherMessage =>
+      'The school adds its teachers\' numbers; they sign in with them and their classes show here.';
+
+  @override
+  String get classroomClasses => 'Your classes';
+
+  @override
+  String get classroomNoClasses =>
+      'No classes yet: the school adds you to its timetable.';
+
+  @override
+  String get classroomYourClass => 'Your class';
+
+  @override
+  String classroomStudents(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count students',
+      one: '1 student',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get classroomTakeAttendance => 'Attendance';
+
+  @override
+  String get classroomWrite => 'Write to the class';
+
+  @override
+  String classroomWriteTo(String name) {
+    return 'Write to $name';
+  }
+
+  @override
+  String get classroomAssessments => 'Exams and scores';
+
+  @override
+  String get classroomGiveHomework => 'Give homework';
+
+  @override
+  String get classroomNoHomework => 'No homework given yet.';
+
+  @override
+  String get classroomNewAssessment => 'New exam or quiz';
+
+  @override
+  String get classroomNoAssessments => 'No exams or quizzes yet.';
+
+  @override
+  String classroomHandedIn(int done, int total, int marked) {
+    return '$done of $total handed in · $marked marked';
+  }
+
+  @override
+  String classroomScored(int count, String max) {
+    return '$count scored · out of $max';
+  }
+
+  @override
+  String classroomOutOf(String max) {
+    return 'out of $max';
+  }
+
+  @override
+  String get classroomSubject => 'Subject';
+
+  @override
+  String get classroomTitle => 'Title';
+
+  @override
+  String get classroomInstructions => 'Instructions (optional)';
+
+  @override
+  String get classroomDue => 'Due';
+
+  @override
+  String get classroomDate => 'Date';
+
+  @override
+  String get classroomChooseDay => 'Choose';
+
+  @override
+  String get classroomFullMark => 'Full mark';
+
+  @override
+  String get classroomGive => 'Give';
+
+  @override
+  String get classroomAdd => 'Add';
+
+  @override
+  String get classroomHomeworkMissing =>
+      'Choose the subject, write a title and choose the due day.';
+
+  @override
+  String get classroomHomeworkGiven =>
+      'Given. The class and their families were told.';
+
+  @override
+  String get classroomAssessmentMissing =>
+      'Choose the subject, and write a title, the full mark and the day.';
+
+  @override
+  String get classroomMessage => 'Message';
+
+  @override
+  String get classroomMessageMissing => 'Write a title and the message.';
+
+  @override
+  String get classroomMessageSent => 'Sent to the class and their families.';
+
+  @override
+  String classroomAttendanceOf(String name) {
+    return 'Attendance: $name';
+  }
+
+  @override
+  String get classroomNotTaken =>
+      'Not taken yet: everyone is present until you change it.';
+
+  @override
+  String get classroomNoStudents => 'No students in this class yet.';
+
+  @override
+  String get classroomSaveAttendance => 'Save attendance';
+
+  @override
+  String get classroomAttendanceSaved =>
+      'Saved. Families of those absent or late were told.';
+
+  @override
+  String get classroomNotHandedIn => 'Not handed in';
+
+  @override
+  String get classroomMarkHint => 'Like 9/10, A or Excellent';
+
+  @override
+  String get classroomFeedback => 'Feedback (optional)';
+
+  @override
+  String get classroomMarkMissing => 'Write the mark.';
+
+  @override
+  String get classroomSaveScores => 'Save scores';
+
+  @override
+  String get classroomScoresSaved =>
+      'Saved. Students and families were told of new scores.';
+
+  @override
+  String classroomScoreRange(String max) {
+    return 'A score is from 0 to $max.';
+  }
 }

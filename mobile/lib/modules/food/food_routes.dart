@@ -63,7 +63,9 @@ final foodModule = AppModule(
     BuiltInScreen.myRides ||
     BuiltInScreen.driver ||
     BuiltInScreen.teachers ||
-    BuiltInScreen.teacher => null,
+    BuiltInScreen.teacher ||
+    BuiltInScreen.school ||
+    BuiltInScreen.classroom => null,
   },
   routes: _pushedRoutes,
 );

@@ -47,6 +47,14 @@ enum NotificationType {
   newCourse,
   teacherCourse,
   teacherQuestion,
+
+  /// 105.4 A school's: a child absent or late, homework given, a mark or a
+  /// score, the school's or a teacher's news, a fee due or paid.
+  schoolAbsence,
+  schoolHomework,
+  schoolGrade,
+  schoolAnnouncement,
+  schoolFee,
   unknown,
 }
 
@@ -72,6 +80,8 @@ class InboxNotification {
     this.shipmentId,
     this.foodOrderId,
     this.rideId,
+    this.studentId,
+    this.homeworkId,
   });
 
   factory InboxNotification.fromJson(Json json) => InboxNotification(
@@ -96,6 +106,8 @@ class InboxNotification {
     shipmentId: optInt(json, 'shipment_id'),
     foodOrderId: optInt(json, 'food_order_id'),
     rideId: optInt(json, 'ride_id'),
+    studentId: optInt(json, 'student_id'),
+    homeworkId: optInt(json, 'homework_id'),
     createdAt: reqDate(json, 'created_at'),
     read: reqBool(json, 'read'),
   );
@@ -141,6 +153,11 @@ class InboxNotification {
   /// 105.2 For a ride update or offer: the ride.
   final int? rideId;
 
+  /// 105.4 For a school's notification: the student it is about, and for
+  /// homework given, the homework.
+  final int? studentId;
+  final int? homeworkId;
+
   Map<String, dynamic> get target => {
     'type': snake(type),
     'course_id': ?courseId,
@@ -155,6 +172,8 @@ class InboxNotification {
     'shipment_id': ?shipmentId,
     'food_order_id': ?foodOrderId,
     'ride_id': ?rideId,
+    'student_id': ?studentId,
+    'homework_id': ?homeworkId,
   };
 }
 

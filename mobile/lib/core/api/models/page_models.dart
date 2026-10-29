@@ -293,6 +293,11 @@ enum BuiltInScreen {
   /// 105.3 Academies with many teachers: the teachers and the Teacher tab.
   teachers,
   teacher,
+
+  /// 105.4 Schools: a student's or parent's school, and the teachers'
+  /// Classroom.
+  school,
+  classroom,
 }
 
 enum OpenIn { inApp, browser }
@@ -364,6 +369,9 @@ enum ItemSource {
 
   /// 105.2 A ride company's vehicle types.
   vehicleTypes,
+
+  /// 105.4 A school's news to the whole school.
+  schoolNews,
 }
 
 /// An entry from a list source, for `item` actions.

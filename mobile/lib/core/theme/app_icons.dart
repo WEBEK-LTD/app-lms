@@ -196,6 +196,10 @@ abstract final class AppIcons {
   // 105.3 Academies with many teachers.
   static const teacher = Symbols.school_rounded;
   static const upload = Symbols.upload_rounded;
+
+  // 105.4 Schools.
+  static const school = Symbols.school_rounded;
+  static const attendance = Symbols.task_alt_rounded;
 }
 
 /// A Material Symbols icon with an optional filled style.

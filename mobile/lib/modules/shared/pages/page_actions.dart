@@ -120,6 +120,8 @@ String? itemLocation(ItemRef item, AppType appType) {
     (ItemSource.restaurants, AppType.food) => Paths.restaurant(id),
     // 105.2 A vehicle type opens the ride screen.
     (ItemSource.vehicleTypes, AppType.rides) => Paths.ride,
+    // 105.4 The school's news opens with the rest of it.
+    (ItemSource.schoolNews, AppType.school) => Paths.schoolPart('news'),
     _ => null,
   };
 }

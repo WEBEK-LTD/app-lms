@@ -50,6 +50,8 @@ final deliveryModule = AppModule(
     BuiltInScreen.driver ||
     BuiltInScreen.teachers ||
     BuiltInScreen.teacher ||
+    BuiltInScreen.school ||
+    BuiltInScreen.classroom ||
     BuiltInScreen.foodOrders ||
     BuiltInScreen.restaurant => null,
   },

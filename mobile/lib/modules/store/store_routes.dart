@@ -56,6 +56,8 @@ final storeModule = AppModule(
     BuiltInScreen.driver ||
     BuiltInScreen.teachers ||
     BuiltInScreen.teacher ||
+    BuiltInScreen.school ||
+    BuiltInScreen.classroom ||
     BuiltInScreen.foodOrders ||
     BuiltInScreen.restaurant ||
     BuiltInScreen.campaigns ||

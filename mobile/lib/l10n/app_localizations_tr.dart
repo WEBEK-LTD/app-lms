@@ -5625,4 +5625,383 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get teacherProfileSaved => 'Kaydedildi.';
+
+  @override
+  String get tabSchool => 'Okul';
+
+  @override
+  String get tabClassroom => 'Sınıf';
+
+  @override
+  String get schoolSignInTitle => 'Okulunu görmek için giriş yap';
+
+  @override
+  String get schoolSignInMessage =>
+      'Okula verdiğin cep telefonunu kullan. Veliler çocuklarının her birini görür.';
+
+  @override
+  String get schoolNotMemberTitle => 'Bu numara okulun listesinde yok';
+
+  @override
+  String get schoolNotMemberMessage =>
+      'Okuldan giriş yaptığın numarayı eklemesini iste, sonra bu sekmeyi yeniden aç.';
+
+  @override
+  String get schoolNoStudents => 'Henüz öğrenci yok';
+
+  @override
+  String get schoolNoStudentsMessage =>
+      'Okuldan çocuklarını numarana bağlamasını iste.';
+
+  @override
+  String get schoolToday => 'Bugün';
+
+  @override
+  String schoolTodayDay(String day) {
+    return 'Bugün, $day';
+  }
+
+  @override
+  String get schoolNoLessonsToday => 'Bugün ders yok.';
+
+  @override
+  String get schoolEverything => 'Okulun';
+
+  @override
+  String get schoolHomework => 'Ödevler';
+
+  @override
+  String get schoolGrades => 'Notlar';
+
+  @override
+  String get schoolAttendance => 'Devam durumu';
+
+  @override
+  String get schoolTimetable => 'Ders programı';
+
+  @override
+  String get schoolFees => 'Ücretler';
+
+  @override
+  String get schoolNews => 'Okul duyuruları';
+
+  @override
+  String get schoolNoNews => 'Henüz duyuru yok.';
+
+  @override
+  String schoolRoom(String room) {
+    return 'Derslik $room';
+  }
+
+  @override
+  String get schoolNoTimetable => 'Henüz ders programı yok';
+
+  @override
+  String get schoolNoTimetableMessage =>
+      'Okul haftanın derslerini ekler; burada görünür.';
+
+  @override
+  String feesDue(String amount) {
+    return 'Ödenecek: $amount';
+  }
+
+  @override
+  String get homeworkDue => 'Yapılacak';
+
+  @override
+  String get homeworkDone => 'Biten';
+
+  @override
+  String get homeworkNoneDue => 'Yapılacak bir şey yok. Aferin!';
+
+  @override
+  String get homeworkNoneDone => 'Burada henüz ödev yok.';
+
+  @override
+  String homeworkDueOn(String date) {
+    return 'Teslim $date';
+  }
+
+  @override
+  String get homeworkHandedIn => 'Teslim edildi';
+
+  @override
+  String get homeworkLate => 'Geç teslim edildi';
+
+  @override
+  String get homeworkYourWork => 'Teslim edilen';
+
+  @override
+  String get homeworkMark => 'Not';
+
+  @override
+  String get homeworkAnswer => 'Cevabın';
+
+  @override
+  String get homeworkAddPhoto => 'Fotoğraf çek';
+
+  @override
+  String get homeworkAddFile => 'PDF veya resim ekle';
+
+  @override
+  String get homeworkRemoveFile => 'Dosyayı kaldır';
+
+  @override
+  String get homeworkFileType =>
+      'Bir fotoğraf (JPEG, PNG veya WebP) ya da PDF gönder.';
+
+  @override
+  String get homeworkFileTooBig =>
+      'Bu dosya çok büyük: fotoğraflar en fazla 20 MB, PDF\'ler en fazla 200 MB.';
+
+  @override
+  String get homeworkNeedsSomething =>
+      'Cevabını yaz ya da fotoğraf veya PDF ekle.';
+
+  @override
+  String get homeworkSend => 'Teslim et';
+
+  @override
+  String get homeworkSendAgain => 'Yeniden teslim et';
+
+  @override
+  String get homeworkSent => 'Teslim edildi. Öğretmenin şimdi görüyor.';
+
+  @override
+  String get gradesNone => 'Henüz not yok';
+
+  @override
+  String get gradesNoneMessage =>
+      'Puanlar öğretmenler girdikçe burada görünür.';
+
+  @override
+  String get gradesComing => 'Yaklaşanlar';
+
+  @override
+  String get assessmentExam => 'Sınav';
+
+  @override
+  String get assessmentQuiz => 'Kısa sınav';
+
+  @override
+  String get assessmentAssignment => 'Ödev';
+
+  @override
+  String attendanceSince(String date) {
+    return '$date tarihinden beri';
+  }
+
+  @override
+  String get attendanceNone => 'Devamsızlık veya geç kalma yok. Böyle devam!';
+
+  @override
+  String get attendancePresent => 'Var';
+
+  @override
+  String get attendanceAbsent => 'Yok';
+
+  @override
+  String get attendanceLate => 'Geç';
+
+  @override
+  String get attendanceExcused => 'İzinli';
+
+  @override
+  String get feesNone => 'Ücret yok';
+
+  @override
+  String get feesNoneMessage =>
+      'Okulun eklediği ücretler, her ödemenin makbuzuyla burada görünür.';
+
+  @override
+  String get feesStillDue => 'Kalan';
+
+  @override
+  String get feesPayAtSchool => 'Okulda öde; ödeme makbuzuyla burada görünür.';
+
+  @override
+  String get feeDue => 'Ödenecek';
+
+  @override
+  String feeDueOn(String date) {
+    return 'Son ödeme $date';
+  }
+
+  @override
+  String get feePaid => 'Ödendi';
+
+  @override
+  String feePaidOn(String date) {
+    return '$date tarihinde ödendi';
+  }
+
+  @override
+  String feePay(String amount) {
+    return '$amount öde';
+  }
+
+  @override
+  String get feePaidThanks => 'Ödendi. Makbuz burada.';
+
+  @override
+  String get feeReceipt => 'Makbuz';
+
+  @override
+  String get classroomNotTeacher => 'Okulun öğretmenleri için';
+
+  @override
+  String get classroomNotTeacherMessage =>
+      'Okul öğretmenlerinin numaralarını ekler; onlarla giriş yaparlar ve sınıfları burada görünür.';
+
+  @override
+  String get classroomClasses => 'Sınıfların';
+
+  @override
+  String get classroomNoClasses =>
+      'Henüz sınıf yok: okul seni ders programına ekler.';
+
+  @override
+  String get classroomYourClass => 'Sınıfın';
+
+  @override
+  String classroomStudents(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count öğrenci',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get classroomTakeAttendance => 'Yoklama';
+
+  @override
+  String get classroomWrite => 'Sınıfa yaz';
+
+  @override
+  String classroomWriteTo(String name) {
+    return '$name sınıfına yaz';
+  }
+
+  @override
+  String get classroomAssessments => 'Sınavlar ve puanlar';
+
+  @override
+  String get classroomGiveHomework => 'Ödev ver';
+
+  @override
+  String get classroomNoHomework => 'Henüz ödev verilmedi.';
+
+  @override
+  String get classroomNewAssessment => 'Yeni sınav veya kısa sınav';
+
+  @override
+  String get classroomNoAssessments => 'Henüz sınav veya kısa sınav yok.';
+
+  @override
+  String classroomHandedIn(int done, int total, int marked) {
+    return '$total öğrenciden $done teslim etti · $marked notlandırıldı';
+  }
+
+  @override
+  String classroomScored(int count, String max) {
+    return '$count puanlandı · $max üzerinden';
+  }
+
+  @override
+  String classroomOutOf(String max) {
+    return '$max üzerinden';
+  }
+
+  @override
+  String get classroomSubject => 'Ders';
+
+  @override
+  String get classroomTitle => 'Başlık';
+
+  @override
+  String get classroomInstructions => 'Açıklama (isteğe bağlı)';
+
+  @override
+  String get classroomDue => 'Teslim tarihi';
+
+  @override
+  String get classroomDate => 'Tarih';
+
+  @override
+  String get classroomChooseDay => 'Seç';
+
+  @override
+  String get classroomFullMark => 'Tam puan';
+
+  @override
+  String get classroomGive => 'Ver';
+
+  @override
+  String get classroomAdd => 'Ekle';
+
+  @override
+  String get classroomHomeworkMissing =>
+      'Dersi seç, başlık yaz ve teslim gününü seç.';
+
+  @override
+  String get classroomHomeworkGiven =>
+      'Verildi. Sınıf ve ailelerine bildirildi.';
+
+  @override
+  String get classroomAssessmentMissing =>
+      'Dersi seç; başlığı, tam puanı ve günü yaz.';
+
+  @override
+  String get classroomMessage => 'Mesaj';
+
+  @override
+  String get classroomMessageMissing => 'Bir başlık ve mesajı yaz.';
+
+  @override
+  String get classroomMessageSent => 'Sınıfa ve ailelerine gönderildi.';
+
+  @override
+  String classroomAttendanceOf(String name) {
+    return 'Yoklama: $name';
+  }
+
+  @override
+  String get classroomNotTaken =>
+      'Henüz alınmadı: sen değiştirene kadar herkes var.';
+
+  @override
+  String get classroomNoStudents => 'Bu sınıfta henüz öğrenci yok.';
+
+  @override
+  String get classroomSaveAttendance => 'Yoklamayı kaydet';
+
+  @override
+  String get classroomAttendanceSaved =>
+      'Kaydedildi. Devamsız veya geç kalanların ailelerine bildirildi.';
+
+  @override
+  String get classroomNotHandedIn => 'Teslim edilmedi';
+
+  @override
+  String get classroomMarkHint => '9/10, A veya Pekiyi gibi';
+
+  @override
+  String get classroomFeedback => 'Geri bildirim (isteğe bağlı)';
+
+  @override
+  String get classroomMarkMissing => 'Notu yaz.';
+
+  @override
+  String get classroomSaveScores => 'Puanları kaydet';
+
+  @override
+  String get classroomScoresSaved =>
+      'Kaydedildi. Yeni puanlar öğrencilere ve ailelere bildirildi.';
+
+  @override
+  String classroomScoreRange(String max) {
+    return 'Puan 0 ile $max arasındadır.';
+  }
 }

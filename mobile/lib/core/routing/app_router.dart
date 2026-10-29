@@ -12,6 +12,8 @@ import '../../modules/food/data/food_providers.dart';
 import '../../modules/food/food_routes.dart';
 import '../../modules/lms/lms_routes.dart';
 import '../../modules/lms/teachers/teachers_providers.dart';
+import '../../modules/school/data/school_providers.dart';
+import '../../modules/school/school_routes.dart';
 import '../../modules/news/news_routes.dart';
 import '../../modules/real_estate/real_estate_routes.dart';
 import '../../modules/rides/data/rides_providers.dart';
@@ -82,6 +84,7 @@ final appModuleProvider = Provider<AppModule>(
     AppType.delivery => deliveryModule,
     AppType.food => foodModule,
     AppType.rides => ridesModule,
+    AppType.school => schoolModule,
   },
 );
 
@@ -111,12 +114,17 @@ final shellTabsProvider = Provider<List<ShellTab>>((ref) {
   final driver = appType == AppType.rides ? ref.watch(isDriverProvider) : null;
   // 105.3 Academies: the Teacher tab for the academy's teachers.
   final teacher = appType == AppType.lms ? ref.watch(isTeacherProvider) : null;
-  List<ShellTab> withRoles(List<ShellTab> tabs) => withTeacherTab(
-    withDriverTab(
-      withRestaurantTab(withCourierTab(tabs, courier), restaurant),
-      driver,
+  // 105.4 Schools: the Classroom tab for the school's teachers.
+  final classroom = ref.watch(isSchoolTeacherProvider);
+  List<ShellTab> withRoles(List<ShellTab> tabs) => withClassroomTab(
+    withTeacherTab(
+      withDriverTab(
+        withRestaurantTab(withCourierTab(tabs, courier), restaurant),
+        driver,
+      ),
+      teacher,
     ),
-    teacher,
+    classroom,
   );
   if (navigation != null) {
     final tabs = tabsFromNavigation(navigation, module, config);
@@ -150,6 +158,11 @@ List<ShellTab> withDriverTab(List<ShellTab> tabs, bool? driver) =>
 /// as the Courier tab is for couriers. Null: not an academy.
 List<ShellTab> withTeacherTab(List<ShellTab> tabs, bool? teacher) =>
     _withRoleTab(tabs, teacherTab, teacher);
+
+/// 105.4 The tabs of a school: the Classroom tab added for its teachers, as
+/// the Courier tab is for couriers. Null: not a school.
+List<ShellTab> withClassroomTab(List<ShellTab> tabs, bool? teacher) =>
+    _withRoleTab(tabs, classroomTab, teacher);
 
 List<ShellTab> _withRoleTab(List<ShellTab> tabs, ShellTab tab, bool? show) {
   if (show == null) return tabs;
