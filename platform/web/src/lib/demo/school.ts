@@ -32,9 +32,9 @@ export const SCHOOL_TEACHERS = ["Mona Saleh", "Youssef Kamal", "Nadia Fahmy", "D
 export const DEMO_TEACHER = SCHOOL_TEACHERS[0]!;
 
 export const SCHOOL_CLASSES: { name: string; grade: string; homeroom: string; room: string; students: string[] }[] = [
-  { name: "Grade 3 B", grade: "Grade 3", homeroom: "Nadia Fahmy", room: "Room 7", students: ["Adam Haddad", "Jana Ashraf", "Hamza Lotfy", "Salma Wagdy", "Karma Ezzat"] },
-  { name: "Grade 5 A", grade: "Grade 5", homeroom: "Mona Saleh", room: "Room 12", students: ["Lina Haddad", "Omar Khalil", "Farida Nabil", "Ziad Samir", "Malak Hosny", "Yassin Fawzy"] },
-  { name: "Grade 5 B", grade: "Grade 5", homeroom: "Tarek Adel", room: "Room 14", students: ["Nour Hegazy", "Ali Mostafa", "Habiba Gamal", "Seif Ramzy", "Mariam Ayman"] },
+  { name: "Grade 3 B", grade: "Grade 3", homeroom: "Nadia Fahmy", room: "7", students: ["Adam Haddad", "Jana Ashraf", "Hamza Lotfy", "Salma Wagdy", "Karma Ezzat"] },
+  { name: "Grade 5 A", grade: "Grade 5", homeroom: "Mona Saleh", room: "12", students: ["Lina Haddad", "Omar Khalil", "Farida Nabil", "Ziad Samir", "Malak Hosny", "Yassin Fawzy"] },
+  { name: "Grade 5 B", grade: "Grade 5", homeroom: "Tarek Adel", room: "14", students: ["Nour Hegazy", "Ali Mostafa", "Habiba Gamal", "Seif Ramzy", "Mariam Ayman"] },
 ];
 
 /** The demo number is Lina (a student) and Rania, the parent of Lina and Adam. */
@@ -65,7 +65,8 @@ const WEEK: string[][] = [
   ["Social studies", "Arabic", "Science", "Maths", "English"],
 ];
 
-const ROOMS: Record<string, string> = { Science: "Lab 1", Art: "Art room", PE: "Sports hall" };
+/** The lab, the art room and the sports hall have numbers too: the app writes "Room 21". */
+const ROOMS: Record<string, string> = { Science: "21", Art: "23", PE: "25" };
 
 /** A class's lessons: [weekday, lesson number, subject, teacher, room]. */
 export function classWeek(index: number): [number, number, string, string, string][] {

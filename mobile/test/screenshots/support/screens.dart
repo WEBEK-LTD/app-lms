@@ -5,12 +5,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/core/routing/app_router.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:yallapp/modules/delivery/data/delivery_providers.dart';
 import 'package:yallapp/modules/store/data/cart_controller.dart';
 
 import '../../support/fake_api.dart';
 import '../../support/test_app.dart';
 import 'demo_api.dart';
 import 'demo_images.dart';
+import 'map_tiles.dart';
 import 'shot.dart';
 
 export 'shot.dart';
@@ -40,6 +43,50 @@ Map<String, dynamic> _appearance({
   'cards': cards,
 };
 
+/// The build with another app name.
+BuildConfigData _named(BuildConfigData b, String name) => BuildConfigData(
+  appType: b.appType,
+  vertical: b.vertical,
+  role: b.role,
+  appName: name,
+  shortName: b.shortName,
+  siteUrl: b.siteUrl,
+  apiBaseUrl: b.apiBaseUrl,
+  authBaseUrl: b.authBaseUrl,
+  androidPackage: b.androidPackage,
+  iosBundleId: b.iosBundleId,
+  versionName: b.versionName,
+  versionCode: b.versionCode,
+  primaryColor: b.primaryColor,
+  splashColor: b.splashColor,
+  template: b.template,
+  font: b.font,
+  clientId: b.clientId,
+  iconUrl: b.iconUrl,
+  logoUrl: b.logoUrl,
+  firebaseAndroid: b.firebaseAndroid,
+  firebaseIos: b.firebaseIos,
+  huaweiAppId: b.huaweiAppId,
+  analyticsUrl: b.analyticsUrl,
+  analyticsKey: b.analyticsKey,
+  appId: b.appId,
+  linkBaseUrl: b.linkBaseUrl,
+  siteLinkBaseUrl: b.siteLinkBaseUrl,
+  crashReportUrl: b.crashReportUrl,
+  sitePaths: b.sitePaths,
+);
+
+/// 110.5 The rider at Tahrir Square, for the live taxi screens.
+class _TahrirLocator implements Locator {
+  const _TahrirLocator();
+
+  @override
+  Future<LocateResult> current() async =>
+      const LocateResult.found((lat: 30.0444, lng: 31.2357, accuracy: 8));
+}
+
+final _atTahrir = [locatorProvider.overrideWithValue(const _TahrirLocator())];
+
 /// One screenshot: which app, how it looks and where it goes.
 class Shot {
   const Shot(
@@ -55,6 +102,9 @@ class Shot {
     this.size = shotSize,
     this.signedIn = true,
     this.loading = false,
+    this.overrides = const [],
+    this.mapTiles = false,
+    this.appName,
   });
 
   final String name;
@@ -76,11 +126,23 @@ class Shot {
   /// Captures the first frame after [location] opens (loading states).
   final bool loading;
 
-  Future<void> render(WidgetTester tester) async {
+  /// 110.5 More provider overrides (the phone's position).
+  final List<Override> overrides;
+
+  /// 110.5 The drawn street map's tiles, for the live taxi screens.
+  final bool mapTiles;
+
+  /// 110.5 The app's name in the build, where a screen shows it (the live
+  /// taxi map's name over the map).
+  final String? appName;
+
+  /// Opens the app as the shot says; returns it, for [close].
+  Future<TestApp> render(WidgetTester tester) async {
     final lightIcons = ValueNotifier(dark);
     addTearDown(lightIcons.dispose);
     usePhone(tester, size: size);
     seedDemoImages();
+    if (mapTiles) seedMapTiles();
     final app = TestApp(
       api: api(),
       appType: appType,
@@ -93,6 +155,8 @@ class Shot {
         ...preferences,
       },
       wrap: (app) => withStatusBar(app, lightIcons: lightIcons),
+      overrides: overrides,
+      build: appName == null ? null : (b) => _named(b, appName!),
     );
     await app.pump(tester);
     final router = app.container.read(appRouterProvider);
@@ -101,7 +165,7 @@ class Shot {
       if (loading) {
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 400));
-        return;
+        return app;
       }
       await TestApp.settle(tester, 20);
     }
@@ -114,6 +178,15 @@ class Shot {
     lightIcons.value = appWantsLightStatusBar(tester);
     await tester.pump();
     expect(tester.takeException(), isNull, reason: name);
+    return app;
+  }
+
+  /// 110.5 Closes the app after the screenshot: the live taxi screens'
+  /// polling stops with it, so no timer is left.
+  static Future<void> close(TestApp app, WidgetTester tester) async {
+    await tester.pumpWidget(const SizedBox());
+    app.container.dispose();
+    await TestApp.settle(tester, 2);
   }
 }
 
@@ -503,5 +576,67 @@ final websiteShots = <Shot>[
     api: () => DemoApi.rides(driver: true),
     appType: AppType.rides,
     after: (tester, router) async => router.go('/driver'),
+  ),
+  // 110.5 More of Studio's demos: a live taxi app (Lamha Taxi), a school
+  // (Nakhla School) and an academy with many teachers (Rawaq Academy).
+  Shot(
+    'taxi-map',
+    api: () => DemoApi.taxi(ride: false),
+    appName: 'Lamha Taxi',
+    appType: AppType.rides,
+    template: AppTemplate.bold,
+    overrides: _atTahrir,
+    mapTiles: true,
+  ),
+  Shot(
+    'taxi-ride',
+    api: DemoApi.taxi,
+    appName: 'Lamha Taxi',
+    appType: AppType.rides,
+    template: AppTemplate.bold,
+    location: '/ride/1',
+    overrides: _atTahrir,
+    mapTiles: true,
+  ),
+  Shot(
+    'taxi-driver',
+    api: () => DemoApi.taxi(driver: true),
+    appName: 'Lamha Taxi',
+    appType: AppType.rides,
+    template: AppTemplate.bold,
+    overrides: _atTahrir,
+    mapTiles: true,
+    after: (tester, router) async => router.go('/driver'),
+  ),
+  Shot('school-today', api: DemoApi.school, appType: AppType.school),
+  Shot(
+    'school-homework',
+    api: DemoApi.school,
+    appType: AppType.school,
+    location: '/school/homework',
+  ),
+  Shot(
+    'school-classroom',
+    api: DemoApi.school,
+    appType: AppType.school,
+    location: '/classroom/class/2/attendance',
+  ),
+  Shot(
+    'teachers-list',
+    api: DemoApi.teachers,
+    appType: AppType.lms,
+    location: '/teachers',
+  ),
+  Shot(
+    'teachers-teacher',
+    api: DemoApi.teachers,
+    appType: AppType.lms,
+    location: '/teachers/1',
+  ),
+  Shot(
+    'teachers-desk',
+    api: DemoApi.teachers,
+    appType: AppType.lms,
+    after: (tester, router) async => router.go('/teacher-desk'),
   ),
 ];

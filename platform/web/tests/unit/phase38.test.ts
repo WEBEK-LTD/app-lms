@@ -18,6 +18,7 @@ import { KEY, NOW, setupClient } from "./helpers";
  */
 
 interface Card {
+  source?: string;
   title: string;
   subtitle?: string | null;
   price_label?: string | null;
@@ -82,7 +83,8 @@ describe("demo apps' cards in the app's language", { timeout: 30_000 }, () => {
       const languages = layout?.published?.languages.available ?? ["en"];
       for (const lang of ["ar", "tr"].filter((l) => languages.includes(l as never))) {
         for (const card of await homeCards(app, lang)) {
-          for (const text of [card.subtitle, card.price_label, card.badge]) {
+          // 110.5 A school's news is the school's own words, as it wrote them.
+          for (const text of [card.source === "school_news" ? null : card.subtitle, card.price_label, card.badge]) {
             if (!text) continue;
             // Names of people and places stay as written (a venue, a district).
             const words = text.replace(/Kuzey Culture Centre|Main Hall|Studio 2|Zamalek|Maadi|Heliopolis|Garden City|New Cairo|Sheikh Zayed/g, "");
