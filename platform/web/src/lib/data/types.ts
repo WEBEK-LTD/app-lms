@@ -2727,6 +2727,10 @@ export interface DemoPurgeCounts {
   /** 63 Visitors' course questions (with their answers) and reviews. */
   questions: number;
   reviews: number;
+  /** Studio's demos: parcels sent, food orders and rides. */
+  shipments: number;
+  foodOrders: number;
+  rides: number;
 }
 
 // 23 News & blog apps: articles written in the dashboard

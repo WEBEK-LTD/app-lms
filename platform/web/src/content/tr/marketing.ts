@@ -43,6 +43,12 @@ export const TR_MARKETING: MarketingTranslation = {
     "delivery-send": "Bir teslimat uygulamasında paket gönderme ekranı: hizmet, alış ve teslim yeri",
     "delivery-shipment": "Yoldaki bir gönderi, kuryesi ve her aşamasıyla",
     "delivery-courier": "Aynı uygulamada bir kuryenin işleri, mesai düğmesiyle",
+    "food-restaurants": "Bir yemek siparişi uygulamasının restoranları, mutfakları ve teslimat süreleriyle",
+    "food-menu": "Yemek siparişi uygulamasında bir restoranın menüsü",
+    "food-order": "Bir yemek siparişini aşamaları ve kuryesiyle takip etmek",
+    "rides-where": "Yolculuk istemek: her araç türü ücretiyle",
+    "rides-ride": "Yoldaki bir yolculuk: sürücü, araç ve sürücüye söylenecek kod",
+    "rides-driver": "Çevrimiçi bir sürücü, sunulan bir yolculuk ve almak için kalan saniyeler",
     "studio-editor": "Yallapp Studio düzenleyicisi: solda öğeler, telefonda sayfa, sağda ayarları",
     "studio-home": "Hesabın projeleriyle Yallapp Studio ana sayfası",
     "studio-project": "Bir Studio projesinin paneli",
@@ -1203,6 +1209,30 @@ export const TR_MARKETING: MarketingTranslation = {
         "Bir tutar seçip bağış yapın: demo bağış sayfası hiçbir şey tahsil etmez",
         "Bağışınızı ve makbuzunu Bağışlarım altında bulun",
         "Bir iPhone'da bağış sayfasının tarayıcıda nasıl açıldığını görün",
+      ],
+    },
+    delivery: {
+      summary: "Kahire'de bir kargo şirketi: şehrin öbür ucuna paket gönderin, nakit ödeyin ve takip edin, sonra şirketin kuryesi olarak kendiniz teslim edin.",
+      tryThis: [
+        "Gönder'e dokunun: bir hizmet seçin, alış ve teslim noktalarını (konumunuz veya bir harita bağlantısı) belirleyin ve fiyatı görün",
+        "Nakit gönderin ve aşamalarını Gönderilerim'de takip edin",
+        "Hesap › Kurye modu'nu açın, mesaiye başlayın ve kendi paketinizi teslim edin: alındı, yolda, teslim edildi",
+      ],
+    },
+    food: {
+      summary: "Üç restorandan yemek siparişi: sipariş verin, takip edin, sonra restoranın personeli olarak alın ve kurye olarak teslim edin.",
+      tryThis: [
+        "Bir restoran açın, boyutu ve ekstralarıyla bir yemek seçin ve nakit ödeyin",
+        "Restoran sekmesinde siparişinizi gereken dakikalarla kabul edin, sonra hazır olarak işaretleyin",
+        "Hesap › Kurye modu'nda işi alıp teslim edin ve her aşamayı Siparişlerim'de görün",
+      ],
+    },
+    rides: {
+      summary: "Kahire'de bir yolculuk hizmeti: yolculuk isteyin ve önce her araç türünün ücretini görün, sonra şirketin sürücüsü olarak kendi yolculuğunuzu yapın.",
+      tryThis: [
+        "Alış ve bırakış noktalarını belirleyin, Ekonomi, Konfor ve Van'ı karşılaştırın ve nakit yolculuk isteyin",
+        "Hesap › Sürücü modu'nu açın, çevrimiçi olun ve süre bitmeden yolculuğunuzu kabul edin",
+        "Geldim'e dokunun, yolculuğunuzdaki kodla başlatın, bitirin ve sürücünüzü puanlayın",
       ],
     },
   },

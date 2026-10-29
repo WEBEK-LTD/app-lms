@@ -3274,7 +3274,29 @@ export class MemoryStore implements DataStore {
       donations: 0,
       questions: 0,
       reviews: 0,
+      shipments: 0,
+      foodOrders: 0,
+      rides: 0,
     };
+    // Studio's demos: what visitors sent, ordered and rode.
+    for (const [id, shipment] of this.shipments) {
+      if (shipment.appId === appId && old(shipment.createdAt)) {
+        this.shipments.delete(id);
+        counts.shipments++;
+      }
+    }
+    for (const [id, order] of this.foodOrders) {
+      if (order.appId === appId && old(order.createdAt)) {
+        this.foodOrders.delete(id);
+        counts.foodOrders++;
+      }
+    }
+    for (const [id, ride] of this.rides) {
+      if (ride.appId === appId && old(ride.createdAt)) {
+        this.rides.delete(id);
+        counts.rides++;
+      }
+    }
     // 28 Tickets first: a ticket of a deleted order goes with it.
     for (const [id, ticket] of this.tickets) {
       if (ticket.appId === appId && old(ticket.createdAt)) {

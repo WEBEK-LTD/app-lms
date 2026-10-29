@@ -206,6 +206,34 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     ],
     screens: ["charity-home", "charity-campaign"],
   },
+  // Yallapp Studio's demos (/demo/studio). The demo account is also the company's test courier, restaurant staff and driver.
+  delivery: {
+    summary: "A parcel company in Cairo: send a parcel across town, pay in cash and follow it, then deliver it yourself as the company's courier.",
+    tryThis: [
+      "Tap Send: choose a service, set the pickup and the drop-off (your location or a maps link) and see the price",
+      "Send it in cash and follow its stages under My shipments",
+      "Open Account › Courier mode, go on duty and deliver your own parcel: picked up, on the way, delivered",
+    ],
+    screens: ["delivery-send", "delivery-shipment", "delivery-courier"],
+  },
+  food: {
+    summary: "Food delivery from three restaurants: order, follow your order, then take it as the restaurant's staff and deliver it as the courier.",
+    tryThis: [
+      "Open a restaurant, pick a dish with its size and extras and check out in cash",
+      "In the Restaurant tab, accept your order with the minutes it needs, then mark it ready",
+      "In Account › Courier mode, take the job and deliver it, and see each stage in My orders",
+    ],
+    screens: ["food-restaurants", "food-menu", "food-order"],
+  },
+  rides: {
+    summary: "A ride service in Cairo: ask for a ride and see each car type's fare first, then take your own ride as the company's driver.",
+    tryThis: [
+      "Set the pickup and the drop-off, compare Economy, Comfort and Van, and request a ride in cash",
+      "Open Account › Driver mode, go online and accept your ride before the time runs out",
+      "Tap I've arrived, start the ride with the code your ride shows, end it and rate your driver",
+    ],
+    screens: ["rides-where", "rides-ride", "rides-driver"],
+  },
 };
 
 const PRIVACY_NOTE = "This is a demo app made by Yallapp to show what an app built with Yallapp can do. Everything in it is sample content.";
@@ -400,6 +428,63 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     shortDescription: "Support the food bank's campaigns and see where your gift goes.",
     fullDescription: `Bereket Food Bank collects and shares food with families in need in our city.\n\nFollow our campaigns, see how close each one is to its goal and give in a few taps. Every donation gets a receipt.\n\n${PRIVACY_NOTE}`,
     welcome: "Every parcel is packed by volunteers and given out at our three centres.",
+  },
+  delivery: {
+    appName: "Sahm Express",
+    shortName: "Sahm",
+    primaryColor: "#1F6FB2",
+    splashColor: "#E4EEF8",
+    secondaryColor: "#F2B544",
+    template: "bold",
+    font: "Manrope",
+    corners: "round",
+    cards: "elevated",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-delivery",
+    banner: { picture: "banner-delivery", heading: "Across Cairo, the same day", subheading: "Picked up from your door, delivered to theirs. Follow it all the way." },
+    androidPackage: "com.yallapp.demo.delivery",
+    storeTitle: "Sahm Express",
+    shortDescription: "Send parcels across Cairo and follow them to the door.",
+    fullDescription: `Sahm Express picks up your parcel and brings it across Cairo the same day.\n\nChoose a service, set the pickup and the drop-off, see the price before you send and follow every stage in the app.\n\n${PRIVACY_NOTE}`,
+    welcome: "Same-day, express and documents, anywhere in Cairo and Giza.",
+  },
+  food: {
+    appName: "Sofra Eats",
+    shortName: "Sofra",
+    primaryColor: "#D2552B",
+    splashColor: "#FCE9DE",
+    secondaryColor: "#2E7D5B",
+    template: "bold",
+    font: "Outfit",
+    corners: "round",
+    cards: "elevated",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-food",
+    banner: { picture: "banner-food", heading: "Hungry? It's on its way", subheading: "Koshary, grills and pizza from restaurants near you." },
+    androidPackage: "com.yallapp.demo.food",
+    storeTitle: "Sofra Eats",
+    shortDescription: "Order from the restaurants near you and follow your food to the door.",
+    fullDescription: `Sofra Eats brings food from the restaurants near you: koshary, grills, pizza and desserts.\n\nPick your dishes the way you like them, pay in cash and follow your order from the kitchen to your door.\n\n${PRIVACY_NOTE}`,
+    welcome: "Three kitchens, one app. Order in a few taps.",
+  },
+  rides: {
+    appName: "Masar Rides",
+    shortName: "Masar",
+    primaryColor: "#14857A",
+    splashColor: "#E0F3EF",
+    secondaryColor: "#F2B544",
+    template: "bold",
+    font: "Plus Jakarta Sans",
+    corners: "round",
+    cards: "elevated",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-rides",
+    banner: { picture: "banner-rides", heading: "Where to?", subheading: "See the fare first, follow your driver and share your ride." },
+    androidPackage: "com.yallapp.demo.rides",
+    storeTitle: "Masar Rides",
+    shortDescription: "Rides across Cairo: see the fare first and follow your driver.",
+    fullDescription: `Masar Rides takes you across Cairo: Economy, Comfort or a Van for the family.\n\nSee each fare before you ask, follow your driver on the way, share your ride and rate your driver at the end.\n\n${PRIVACY_NOTE}`,
+    welcome: "Economy, Comfort and Van, day and night.",
   },
 };
 
@@ -1302,4 +1387,128 @@ export const DEMO_CAMPAIGNS: DemoCampaign[] = [
     story:
       "<p>Teachers at two primary schools near our Karşıyaka centre told us the same thing: some children come to school without breakfast and have nothing for lunch.</p><p>With the schools' kitchens, we serve a hot lunch every school day to 200 children: soup, a main dish with bread and fruit. A day's lunch costs ₺75; a week costs ₺375.</p><p>Your donation keeps the kitchens cooking until the end of the school year.</p>",
   },
+];
+
+// Yallapp Studio's demos (/demo/studio): made-up companies in Cairo. Every
+// price is the demo company's own, as a real company would set it.
+
+/** Sahm Express: prices by distance, live tracking, its couriers in the same app. */
+export const DELIVERY_DEMO_SETTINGS = {
+  currency: "EGP" as CatalogCurrency,
+  pricing: "distance" as const,
+  fixedCents: 0,
+  baseCents: 30_00,
+  perKmCents: 6_00,
+  minCents: 40_00,
+  maxKm: 60,
+};
+
+export const DEMO_DELIVERY_SERVICES: { name: string; description: string; eta: string; extraCents: number; picture: PictureName }[] = [
+  { name: "Same day", description: "Picked up within the hour, delivered before 10 pm.", eta: "Within 6 hours", extraCents: 0, picture: "service-sameday" },
+  { name: "Express", description: "Straight from the pickup to the drop-off, no other stops.", eta: "Within 2 hours", extraCents: 45_00, picture: "service-express" },
+  { name: "Documents", description: "Papers and envelopes, signed for at the door.", eta: "Within 4 hours", extraCents: 15_00, picture: "service-documents" },
+];
+
+/** Sofra Eats: one delivery price, three restaurants open all day. */
+export const FOOD_DEMO_SETTINGS = {
+  currency: "EGP" as CatalogCurrency,
+  pricing: "fixed" as const,
+  fixedCents: 25_00,
+};
+
+export const FOOD_CUISINES = [
+  { id: "egyptian", name: "Egyptian" },
+  { id: "grill", name: "Grill" },
+  { id: "pizza", name: "Pizza" },
+  { id: "desserts", name: "Desserts" },
+];
+
+export interface DemoDish {
+  name: string;
+  description: string;
+  priceCents: number;
+  picture: PictureName;
+  popular?: boolean;
+  /** A group of choices: name, min, max, then each choice with its extra. */
+  choices?: { name: string; min: number; max: number; options: [string, number][] };
+}
+
+export interface DemoRestaurant {
+  name: string;
+  description: string;
+  cuisines: string[];
+  address: string;
+  prepMinutes: number;
+  minOrderCents: number;
+  logo: PictureName;
+  sections: { name: string; dishes: DemoDish[] }[];
+}
+
+export const DEMO_RESTAURANTS: DemoRestaurant[] = [
+  {
+    name: "Bayt El Koshary",
+    description: "Koshary, liver sandwiches and rice pudding, the way they are made at home.",
+    cuisines: ["egyptian", "desserts"],
+    address: "14 Sherif Street, Downtown Cairo",
+    prepMinutes: 15,
+    minOrderCents: 50_00,
+    logo: "dish-soup",
+    sections: [
+      {
+        name: "Mains",
+        dishes: [
+          { name: "Koshary", description: "Rice, lentils, pasta, chickpeas, crispy onions and spicy tomato sauce.", priceCents: 55_00, picture: "dish-soup", popular: true, choices: { name: "Size", min: 1, max: 1, options: [["Regular", 0], ["Large", 20_00]] } },
+          { name: "Liver sandwich", description: "Alexandrian liver with chili and garlic, in a baladi bread.", priceCents: 35_00, picture: "dish-wrap" },
+          { name: "Lentil soup", description: "With lemon and crispy bread.", priceCents: 30_00, picture: "dish-soup" },
+        ],
+      },
+      { name: "Desserts", dishes: [{ name: "Rice pudding", description: "Baked, with nuts on top.", priceCents: 25_00, picture: "dish-cheesecake" }] },
+    ],
+  },
+  {
+    name: "Sahara Grill",
+    description: "Kofta, chicken and mixed grills over charcoal, with salads and tahini.",
+    cuisines: ["grill"],
+    address: "52 Mosaddak Street, Dokki",
+    prepMinutes: 25,
+    minOrderCents: 100_00,
+    logo: "dish-burger",
+    sections: [
+      {
+        name: "Grills",
+        dishes: [
+          { name: "Mixed grill", description: "Kofta, chicken and lamb chops, with rice and salads.", priceCents: 240_00, picture: "dish-burger", popular: true, choices: { name: "Sides", min: 0, max: 2, options: [["Extra tahini", 10_00], ["Grilled vegetables", 25_00], ["Fries", 20_00]] } },
+          { name: "Kofta wrap", description: "Kofta with onions and parsley in a warm wrap.", priceCents: 85_00, picture: "dish-wrap" },
+          { name: "Chicken shish", description: "Marinated chicken skewers with garlic sauce.", priceCents: 150_00, picture: "dish-breakfast" },
+        ],
+      },
+      { name: "Drinks", dishes: [{ name: "Fresh lemonade", description: "With mint.", priceCents: 35_00, picture: "drink-juice" }] },
+    ],
+  },
+  {
+    name: "Forno Zamalek",
+    description: "Stone-baked pizza, feteer and a slice of something sweet.",
+    cuisines: ["pizza", "desserts"],
+    address: "9 Brazil Street, Zamalek",
+    prepMinutes: 20,
+    minOrderCents: 80_00,
+    logo: "dish-cheesecake",
+    sections: [
+      {
+        name: "Pizza",
+        dishes: [
+          { name: "Margherita", description: "Tomato, mozzarella and basil.", priceCents: 140_00, picture: "dish-breakfast", popular: true, choices: { name: "Size", min: 1, max: 1, options: [["Medium", 0], ["Large", 40_00]] } },
+          { name: "Sweet feteer", description: "Flaky pastry with honey and cream.", priceCents: 95_00, picture: "dish-simit" },
+        ],
+      },
+      { name: "Desserts", dishes: [{ name: "Basbousa", description: "Semolina cake with syrup.", priceCents: 45_00, picture: "dish-baklava" }] },
+    ],
+  },
+];
+
+/** Masar Rides: upfront fares, three vehicle types, the rider's code to start. */
+export const RIDES_DEMO_TYPES: { name: string; description: string; icon: string; seats: number; baseCents: number; perKmCents: number; perMinuteCents: number; minCents: number; waitPerMinuteCents: number }[] = [
+  { name: "Economy", description: "Everyday cars", icon: "directions_car", seats: 4, baseCents: 15_00, perKmCents: 7_00, perMinuteCents: 1_00, minCents: 35_00, waitPerMinuteCents: 1_00 },
+  { name: "Comfort", description: "Newer cars with more room", icon: "local_taxi", seats: 4, baseCents: 20_00, perKmCents: 9_50, perMinuteCents: 1_50, minCents: 50_00, waitPerMinuteCents: 1_50 },
+  { name: "Van", description: "For the family and the luggage", icon: "airport_shuttle", seats: 7, baseCents: 30_00, perKmCents: 12_00, perMinuteCents: 2_00, minCents: 80_00, waitPerMinuteCents: 2_00 },
 ];

@@ -9,7 +9,7 @@ import { Card, Notice, formatDateTime } from "@/components/ui";
 import { adminCan, requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { demoClient, isDownloadableBuild, listDemoApps } from "@/lib/demo/apps";
-import { DEMO_ACCOUNT, DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_SLUGS, DEMO_TYPES, demoIdOf, demoKind } from "@/lib/demo/constants";
+import { ALL_DEMO_TYPES, DEMO_ACCOUNT, DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_SLUGS, demoIdOf, demoKind } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { appUrl } from "@/lib/env";
 
@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 
 const DONE: Record<string, string> = {
   all: "The demo apps are created and up to date.",
-  ...Object.fromEntries(DEMO_TYPES.map((type) => [type, `The ${demoKind(type).name} demo is up to date.`])),
+  ...Object.fromEntries(ALL_DEMO_TYPES.map((type) => [type, `The ${demoKind(type).name} demo is up to date.`])),
   build: "The build is queued. It shows here, and on the build queue, as it runs.",
   download: "The /demo page now offers this build for download.",
   no_download: "The /demo page shows \"Coming soon\" for this app again.",
@@ -45,7 +45,7 @@ export default async function DemoAppsPage({ searchParams }: PageProps<"/admin/d
   const store = await getStore();
   const [client, apps, may, mayEdit] = await Promise.all([demoClient(store, { fresh: true }), listDemoApps(store, { fresh: true }), adminCan("demos.manage"), adminCan("clients.edit")]);
   const rows = await Promise.all(
-    DEMO_TYPES.map(async (type) => {
+    ALL_DEMO_TYPES.map(async (type) => {
       const app = apps.find((a) => demoIdOf(a) === type) ?? null;
       const builds = app ? await store.listBuildsByApp(app.id, 8) : [];
       return { type, app, builds, download: app ? (builds.find((b) => b.id === app.demoBuildId) ?? (app.demoBuildId ? await store.getBuild(app.demoBuildId) : null)) : null };

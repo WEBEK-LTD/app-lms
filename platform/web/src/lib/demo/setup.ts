@@ -17,7 +17,14 @@ import type {
   EventInput,
   HostedSettings,
   ListingInput,
+  Dish,
+  MenuSection,
+  OpeningPeriod,
+  RestaurantMenu,
+  RidesSettings,
 } from "../data/types";
+import { deliverySettingsOf } from "../delivery/settings";
+import { DEFAULT_RIDES_SETTINGS } from "../rides/settings";
 import { effectivePlans } from "../entitlements";
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "../pages/defaults";
 import { publishLayout } from "../pages/layout";
@@ -25,7 +32,7 @@ import type { LayoutBlock, LayoutContent } from "../pages/types";
 import { clearPlatformSettingsCache, platformSetting } from "../settings/platform";
 import { artPng } from "./art";
 import { addDays, localToUtc, utcToLocal } from "../bookings/time";
-import { DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_TYPES, DEMO_USER_NAME, demoIdOf, demoKind, type DemoId } from "./constants";
+import { ALL_DEMO_TYPES, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, isStudioDemo, type DemoId } from "./constants";
 import {
   ARTICLE_CATEGORIES,
   BOOKING_RULES,
@@ -44,6 +51,13 @@ import {
   EVENT_SETTINGS,
   DONATION_CURRENCY,
   DEMO_COURSES,
+  DEMO_DELIVERY_SERVICES,
+  DEMO_RESTAURANTS,
+  DELIVERY_DEMO_SETTINGS,
+  FOOD_CUISINES,
+  FOOD_DEMO_SETTINGS,
+  RIDES_DEMO_TYPES,
+  type DemoRestaurant,
   DEMO_DISHES,
   DEMO_LISTINGS,
   DEMO_PRODUCTS,
@@ -152,7 +166,12 @@ async function demoAccount(deps: DemoSetupDeps): Promise<{ client: Client; creat
   return { client, created: true };
 }
 
-function hostedSettingsFor(deps: DemoSetupDeps): HostedSettings {
+/**
+ * Studio's demos (delivery, food, rides) make the demo account the
+ * company's test courier, restaurant staff and driver too, as the store
+ * review account is: its parcels, orders and rides reach only itself.
+ */
+function hostedSettingsFor(deps: DemoSetupDeps, studio = false): HostedSettings {
   return {
     signupFields: [],
     signupAllowed: true,
@@ -160,8 +179,8 @@ function hostedSettingsFor(deps: DemoSetupDeps): HostedSettings {
     deviceLimit: 0,
     supportWhatsapp: deps.contact.whatsapp,
     termsUrl: `${deps.platformUrl}/terms`,
-    reviewPhone: null,
-    reviewCode: null,
+    reviewPhone: studio ? DEMO_SIGN_IN.e164 : null,
+    reviewCode: studio ? DEMO_SIGN_IN.code : null,
   };
 }
 
@@ -186,7 +205,9 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     backend: "hosted",
     siteUrl: null,
     connector: { kind: content },
-    hostedSettings: hostedSettingsFor(deps),
+    hostedSettings: hostedSettingsFor(deps, isStudioDemo(id)),
+    // Studio's own project types are Studio projects.
+    ...(isStudioDemo(id) ? { section: "studio" as const } : {}),
     appName: brand.appName,
     shortName: brand.shortName,
     iconAssetId,
@@ -246,6 +267,10 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
   }
 
   if (content === "catalog") await syncProducts(deps, client.id, saved, id === "restaurant");
+  // Studio's demos: a parcel company, food delivery from three restaurants, rides.
+  if (content === "deliveries") await syncDelivery(deps, client.id, saved);
+  if (content === "restaurants") await syncFood(deps, client.id, saved);
+  if (content === "rides") await syncRides(deps, saved);
   if (content === "listings") await syncListings(deps, client.id, saved);
   if (content === "articles") await syncArticles(deps, client.id, saved);
   // 27 The timetable's classes for the coming weeks (the daily job keeps them going).
@@ -573,6 +598,104 @@ async function syncCampaigns(deps: DemoSetupDeps, clientId: string, app: App): P
   for (const c of campaigns) if (!titles.has(c.title) && c.status !== "draft") await store.updateCampaign(app.id, c.id, { status: "draft" }, now);
 }
 
+/** Sahm Express: prices by distance, its services, live tracking, couriers in the same app. */
+async function syncDelivery(deps: DemoSetupDeps, clientId: string, app: App): Promise<void> {
+  const { store, now } = deps;
+  const saved = deliverySettingsOf(await store.getDeliverySettings(app.id));
+  await store.saveDeliverySettings(app.id, { ...saved, ...DELIVERY_DEMO_SETTINGS, zones: [], cash: true, card: false, tracking: "live", assignment: "open", courierApp: "same" }, now);
+  const services = await store.listDeliveryServices(app.id);
+  for (const [position, service] of DEMO_DELIVERY_SERVICES.entries()) {
+    const imageAssetId = await picture(deps, clientId, service.picture, "product", "product_image");
+    const input = { appId: app.id, name: service.name, description: service.description, imageAssetId, extraCents: service.extraCents, eta: service.eta, position: position + 1, active: true };
+    const found = services.find((s) => s.name === service.name);
+    if (found) await store.updateDeliveryService(app.id, found.id, input, now);
+    else await store.createDeliveryService(input, now);
+  }
+}
+
+/** A restaurant's menu with fixed IDs, so carts and orders keep pointing at the same dishes. */
+function demoMenu(restaurant: DemoRestaurant, pictureIds: Map<PictureName, string>): RestaurantMenu {
+  let next = 1;
+  const id = () => next++;
+  const sections: MenuSection[] = restaurant.sections.map((section) => ({
+    id: id(),
+    name: section.name,
+    dishes: section.dishes.map((dish): Dish => ({
+      id: id(),
+      name: dish.name,
+      description: dish.description,
+      imageAssetId: pictureIds.get(dish.picture) ?? null,
+      priceCents: dish.priceCents,
+      available: true,
+      popular: dish.popular ?? false,
+      choiceGroups: dish.choices
+        ? [{ id: id(), name: dish.choices.name, min: dish.choices.min, max: dish.choices.max, choices: dish.choices.options.map(([name, extraCents]) => ({ id: id(), name, extraCents, available: true })) }]
+        : [],
+    })),
+  }));
+  return { sections, nextId: next };
+}
+
+/** Sofra Eats: one delivery price, its cuisines, three restaurants open all day with their menus. */
+async function syncFood(deps: DemoSetupDeps, clientId: string, app: App): Promise<void> {
+  const { store, now } = deps;
+  const saved = deliverySettingsOf(await store.getDeliverySettings(app.id));
+  await store.saveDeliverySettings(
+    app.id,
+    { ...saved, ...FOOD_DEMO_SETTINGS, zones: [], maxKm: null, cash: true, card: false, tracking: "live", assignment: "open", courierApp: "same", cuisines: FOOD_CUISINES.map((c) => ({ ...c })), foodCourierJob: "accepted", timezone: "Africa/Cairo" },
+    now,
+  );
+  const restaurants = await store.listRestaurants(app.id);
+  const allDay: OpeningPeriod[] = (["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const).map((day) => ({ day, opens: "00:00", closes: "23:59" }));
+  for (const [position, restaurant] of DEMO_RESTAURANTS.entries()) {
+    const pictureIds = new Map<PictureName, string>();
+    for (const dish of restaurant.sections.flatMap((s) => s.dishes)) {
+      if (!pictureIds.has(dish.picture)) pictureIds.set(dish.picture, await picture(deps, clientId, dish.picture, "product", "product_image"));
+    }
+    const logoAssetId = await picture(deps, clientId, restaurant.logo, "avatar", "product_image");
+    const input = {
+      appId: app.id,
+      name: restaurant.name,
+      description: restaurant.description,
+      logoAssetId,
+      coverAssetId: null,
+      cuisines: [...restaurant.cuisines],
+      address: { address: restaurant.address, details: null, lat: null, lng: null },
+      phone: null,
+      hours: allDay,
+      prepMinutes: restaurant.prepMinutes,
+      minOrderCents: restaurant.minOrderCents,
+      maxKm: null,
+      commissionBp: 1000,
+      active: true,
+      position: position + 1,
+    };
+    const menu = demoMenu(restaurant, pictureIds);
+    const found = restaurants.find((r) => r.name === restaurant.name);
+    if (found) {
+      await store.updateRestaurant(app.id, found.id, input, now);
+      await store.saveRestaurantMenu(app.id, found.id, menu, now);
+    } else {
+      await store.createRestaurant(input, menu, now);
+    }
+  }
+}
+
+/** Masar Rides: upfront fares, three vehicle types, the rider's code to start, booking for later. */
+async function syncRides(deps: DemoSetupDeps, app: App): Promise<void> {
+  const { store, now } = deps;
+  const saved = deliverySettingsOf(await store.getDeliverySettings(app.id));
+  const rides: RidesSettings = { ...DEFAULT_RIDES_SETTINGS, ...(saved.rides ?? {}), fareMode: "upfront", scheduling: true, pin: true, cancelFreeMinutes: 2, cancelFeeCents: 0, areas: [], promos: [] };
+  await store.saveDeliverySettings(app.id, { ...saved, currency: "EGP", cash: true, card: false, courierApp: "same", timezone: "Africa/Cairo", rides }, now);
+  const types = await store.listVehicleTypes(app.id);
+  for (const [position, type] of RIDES_DEMO_TYPES.entries()) {
+    const input = { appId: app.id, ...type, imageAssetId: null, position: position + 1, active: true };
+    const found = types.find((t) => t.name === type.name);
+    if (found) await store.updateVehicleType(app.id, found.id, input, now);
+    else await store.createVehicleType(input, now);
+  }
+}
+
 function escapeHtml(text: string): string {
   return text.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
 }
@@ -623,10 +746,10 @@ async function publishPages(deps: DemoSetupDeps, clientId: string, app: App): Pr
 }
 
 /** Creates or refreshes these demo apps (all of them by default). */
-export async function setupDemoApps(deps: DemoSetupDeps, types: readonly DemoId[] = DEMO_TYPES): Promise<DemoSetupResult> {
+export async function setupDemoApps(deps: DemoSetupDeps, types: readonly DemoId[] = ALL_DEMO_TYPES): Promise<DemoSetupResult> {
   const { client, created } = await demoAccount(deps);
   const apps: DemoSetupResult["apps"] = [];
-  for (const type of DEMO_TYPES.filter((t) => types.includes(t))) {
+  for (const type of ALL_DEMO_TYPES.filter((t) => types.includes(t))) {
     const result = await setupApp(deps, client, type);
     apps.push({ type, appId: result.app.id, created: result.created });
   }

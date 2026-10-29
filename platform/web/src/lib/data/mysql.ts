@@ -4203,7 +4203,14 @@ export class MysqlStore implements DataStore {
     // 63 Visitors' questions (their answers cascade) and reviews of demo academies.
     const [questions] = await this.run((db) => db.delete(s.courseQuestions).where(and(eq(s.courseQuestions.appId, appId), lt(s.courseQuestions.createdAt, before))));
     const [reviews] = await this.run((db) => db.delete(s.courseReviews).where(and(eq(s.courseReviews.appId, appId), lt(s.courseReviews.createdAt, before))));
+    // Studio's demos: what visitors sent, ordered and rode.
+    const [shipments] = await this.run((db) => db.delete(s.shipments).where(and(eq(s.shipments.appId, appId), lt(s.shipments.createdAt, before))));
+    const [foodOrders] = await this.run((db) => db.delete(s.foodOrders).where(and(eq(s.foodOrders.appId, appId), lt(s.foodOrders.createdAt, before))));
+    const [rides] = await this.run((db) => db.delete(s.rides).where(and(eq(s.rides.appId, appId), lt(s.rides.createdAt, before))));
     return {
+      shipments: shipments.affectedRows,
+      foodOrders: foodOrders.affectedRows,
+      rides: rides.affectedRows,
       questions: questions.affectedRows,
       reviews: reviews.affectedRows,
       donations: donations.affectedRows,

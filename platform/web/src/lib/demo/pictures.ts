@@ -137,6 +137,40 @@ function parcel(dx: number, dy: number, s = 1): Shape[] {
   ];
 }
 
+/** Studio demos: a car seen from the side, moved by (dx, dy) and scaled about its centre. */
+function car(body: string, glass: string, dx = 0, dy = 0, s = 1): Shape[] {
+  const at = (x: number, y: number): [number, number] => [50 + (x - 50) * s + dx, 58 + (y - 58) * s + dy];
+  const [bx, by] = at(16, 50);
+  const [wx1, wy] = at(32, 68);
+  const [wx2] = at(68, 68);
+  return [
+    p([at(30, 50), at(38, 36), at(64, 36), at(74, 50)], body),
+    p([at(34, 49), at(40, 39), at(50, 39), at(50, 49)], glass),
+    p([at(53, 49), at(53, 39), at(62, 39), at(69, 49)], glass),
+    r(bx, by, 68 * s, 18 * s, 6 * s, body),
+    r(at(80, 54)[0], at(80, 54)[1], 4 * s, 4 * s, 2 * s, "#F2B544"),
+    c(wx1, wy, 8 * s, "#2B2950"),
+    c(wx1, wy, 3.5 * s, "#D6D2CC"),
+    c(wx2, wy, 8 * s, "#2B2950"),
+    c(wx2, wy, 3.5 * s, "#D6D2CC"),
+  ];
+}
+
+/** Studio demos: a scooter with a delivery box, moved by (dx, dy). */
+function scooter(body: string, box: string, dx = 0, dy = 0): Shape[] {
+  return [
+    r(18 + dx, 30 + dy, 26, 22, 4, box),
+    r(22 + dx, 36 + dy, 18, 3, 1.5, WHITE, 0.8),
+    p([[26 + dx, 56 + dy], [60 + dx, 56 + dy], [70 + dx, 40 + dy], [76 + dx, 40 + dy], [66 + dx, 62 + dy], [26 + dx, 62 + dy]], body),
+    r(66 + dx, 32 + dy, 4, 12, 2, body),
+    r(62 + dx, 30 + dy, 12, 3, 1.5, "#2B2950"),
+    c(30 + dx, 68 + dy, 8, "#2B2950"),
+    c(30 + dx, 68 + dy, 3.5, "#D6D2CC"),
+    c(72 + dx, 68 + dy, 8, "#2B2950"),
+    c(72 + dx, 68 + dy, 3.5, "#D6D2CC"),
+  ];
+}
+
 /** 29 A shape moved by (dx, dy). */
 function shift(shape: Shape, dx: number, dy: number): Shape {
   if (shape.kind === "poly") return { ...shape, points: shape.points.map(([x, y]) => [x + dx, y + dy] as [number, number]) };
@@ -843,6 +877,29 @@ export const PICTURES = {
     shapes: [...parcel(46, 10, 0.9), ...heart(92, 20, 0.9, "#E39B2E")],
   },
   "icon-charity": { from: "#3A8A4A", to: "#1F4F28", shapes: heart(50, 34, 1.7, WHITE) },
+
+  // Yallapp Studio's demos: a parcel company (Sahm Express), food delivery (Sofra Eats) and rides (Masar).
+  "icon-delivery": { from: "#2E7BC2", to: "#174C7E", shapes: parcel(0, -6, 0.95) },
+  "banner-delivery": {
+    from: "#DDEBF7",
+    to: "#2E7BC2",
+    shapes: [r(-80, 80, 260, 24, 0, "#174C7E", 0.35), ...parcel(36, 6, 0.8), ...parcel(70, 12, 0.6), ...stroke([[-20, 30], [20, 30]], 2, WHITE), ...stroke([[-30, 42], [16, 42]], 2, WHITE)],
+  },
+  "service-sameday": { from: "#E3EEF8", to: "#8DB8DF", shapes: [...parcel(0, -4, 0.9), c(76, 26, 12, "#F2B544"), r(75.2, 18, 1.6, 9, 0.8, WHITE), r(75.2, 25.2, 7, 1.6, 0.8, WHITE)] },
+  "service-express": { from: "#FBE8D8", to: "#E59A5C", shapes: [...parcel(8, -4, 0.85), ...stroke([[8, 46], [28, 46]], 3, WHITE), ...stroke([[4, 58], [24, 58]], 3, WHITE), ...stroke([[10, 70], [26, 70]], 3, WHITE)] },
+  "service-documents": { from: "#E6F2EA", to: "#7DB894", shapes: [r(28, 22, 44, 56, 4, WHITE), r(36, 32, 28, 4, 2, "#2F6F62"), r(36, 42, 28, 3, 1.5, "#5D6B66"), r(36, 50, 22, 3, 1.5, "#5D6B66"), r(36, 58, 26, 3, 1.5, "#5D6B66"), c(62, 68, 6, "#C24A6B")] },
+  "icon-food": { from: "#E2623A", to: "#A33716", shapes: scooter(WHITE, "#FFD7C2", 0, -4) },
+  "banner-food": {
+    from: "#FCE6DA",
+    to: "#E2623A",
+    shapes: [...plate(WHITE, "#F7F1E6", 60, 0), r(98, 44, 22, 14, 6, "#B5552A"), c(104, 50, 3, "#6E9E4F"), c(112, 48, 3, "#C8423B"), ...scooter("#2B2950", "#F2B544", -46, 10)],
+  },
+  "icon-rides": { from: "#1F9D8A", to: "#0E5C50", shapes: car(WHITE, "#BFE6DF", 0, -2, 0.95) },
+  "banner-rides": {
+    from: "#D9F1EC",
+    to: "#1F9D8A",
+    shapes: [r(-80, 78, 260, 26, 0, "#2B2950", 0.75), ...[0, 1, 2, 3, 4].map((i) => r(-60 + i * 50, 89, 24, 3, 1.5, WHITE)), ...car("#F2B544", "#2B2950", 60, 8, 0.95), c(-10, 26, 9, WHITE), ...stroke([[-10, 35], [-10, 60]], 2, WHITE)],
+  },
 } satisfies Record<string, Art>;
 
 export type PictureName = keyof typeof PICTURES;
