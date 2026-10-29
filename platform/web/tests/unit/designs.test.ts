@@ -5,7 +5,7 @@ import { ICON_NAMES } from "@/components/icon-names";
 import { ENGINES, hostedOnly, KINDS } from "@/lib/app/kinds";
 import type { AppBackend } from "@/lib/data/types";
 import { BUILT_IN_APP_DEFAULTS } from "@/lib/pages/defaults";
-import { applyDesign, blockTexts, contactFacts, designById, designFits, DESIGNS, designsFor, missingScreens, sampleTexts, type ContactFacts, type Design } from "@/lib/pages/designs";
+import { applyDesign, blockTexts, contactFacts, designById, designFits, DESIGNS, designsFor, missingScreens, sampleTexts, withoutRepeatedWelcome, type ContactFacts, type Design } from "@/lib/pages/designs";
 import { BLOCK_ICONS } from "@/lib/pages/labels";
 import { PAGE_ICONS } from "@/lib/pages/icons";
 import { blockTypesFor, categorySourcesFor, itemSourcesFor, screenOptionsFor, SOURCE_SORTS } from "@/lib/pages/sources";
@@ -190,6 +190,43 @@ describe("99.1 each design's own colours, pictures and social links", () => {
       const checked = parseLayoutContent(layout, { app: { appType: kindOfDesign(design).engine, backend: "hosted", vertical: kindOfDesign(design).vertical }, now: NOW, ownFonts: [] });
       expect(checked.ok ? null : checked.errors, design.id).toBeNull();
     }
+  });
+
+  it("110 keeps a single welcome: the banner's, without the page's own welcome heading below it", () => {
+    const homeOf = (id: string, pictures = true) => applyDesign(designById(id)!, { appName: "Nile", facts, current, now: NOW, pictureBase: pictures ? base : undefined }).pages.find((p) => p.slug === "home")!.blocks;
+    for (const [id, body] of [
+      ["restaurant-menu", "<p>Order your favorites for pickup or delivery.</p>"],
+      ["news-blog", "<p>New posts every week. Save the ones you like to read later.</p>"],
+      ["school-calm", "<p>Nile keeps families and teachers close: the timetable, homework, grades and news.</p>"],
+    ] as const) {
+      const blocks = homeOf(id);
+      expect(blocks[0], id).toMatchObject({ type: "banner", heading: "Welcome to Nile", image_url: `${base}/design-pictures/${id}-1.jpg` });
+      expect(blocks[1], id).toMatchObject({ type: "text", id: "welcome", html: body });
+      expect(blocks.length, id).toBe(homeOf(id, false).length + 1);
+      // Without the design's pictures there's no banner, and the page keeps its heading.
+      expect(homeOf(id, false)[0]!.html, id).toMatch(/^<h2>Welcome/);
+    }
+    // Another heading of their own stays, under the banner as before.
+    for (const id of ["academy-coaching", "bookings-wellness", "clinic-therapy", "rides-comfort"]) {
+      const blocks = homeOf(id);
+      expect(blocks[0], id).toMatchObject({ type: "banner" });
+      expect(blocks[1]!.html, id).toBe(homeOf(id, false)[0]!.html);
+    }
+    // And the banner stays above the festival's countdown and the appeal.
+    expect(homeOf("events-festival").slice(0, 2).map((b) => b.type)).toEqual(["banner", "countdown"]);
+    expect(homeOf("charity-appeal").slice(0, 3).map((b) => b.type)).toEqual(["banner", "notice", "countdown"]);
+  });
+
+  it("110 tells a heading that repeats the welcome", () => {
+    const text = (html: string, id = "t") => ({ id, type: "text" as const, visibility: "everyone" as const, title: null, html });
+    const notice = { id: "n", type: "notice" as const, visibility: "everyone" as const, title: null, tone: "info" as const, text: "Hi", action: null };
+    expect(withoutRepeatedWelcome([notice, text("<h2>Welcome to {app}</h2><p>Hi</p>")])).toEqual([notice, text("<p>Hi</p>")]);
+    for (const heading of ["<h2>Welcome</h2>", "<h1>Welcome!</h1>", "<h3>مرحبًا</h3>", "<h2>Hoş geldiniz</h2>"]) expect(withoutRepeatedWelcome([text(`${heading}<p>Hi</p>`)]), heading).toEqual([text("<p>Hi</p>")]);
+    // Nothing left: the block goes.
+    expect(withoutRepeatedWelcome([text("<h2>Welcome to {app}</h2>"), notice])).toEqual([notice]);
+    // Other headings, a welcome further down, or a later text block stay.
+    for (const html of ["<h2>Welcome to the market</h2><p>Hi</p>", "<h2>Coaching that fits your week</h2>", "<p>Hi</p><h2>Welcome</h2>", "<h4>Welcome</h4>"]) expect(withoutRepeatedWelcome([text(html)]), html).toEqual([text(html)]);
+    expect(withoutRepeatedWelcome([text("<p>First</p>"), text("<h2>Welcome</h2><p>Hi</p>", "u")])).toEqual([text("<p>First</p>"), text("<h2>Welcome</h2><p>Hi</p>", "u")]);
   });
 
   it("puts the business's social profiles on the Contact page, and nothing without them", () => {

@@ -53,6 +53,9 @@ export const DICTIONARY_VERSION = createHash("sha256")
   .digest("hex")
   .slice(0, 8);
 
+/** 110 What an app's name doesn't start with: an English word that starts a phrase ("our school", "the city"). */
+const ENGLISH_WORDS = /^(?:our|your|the|my|a|an|this|that|their|its)\s/;
+
 function lookup(dictionaries: Record<string, Dictionary>, text: string, lang: string): string | null {
   const dictionary = dictionaries[lang];
   if (!dictionary || !text) return null;
@@ -61,6 +64,8 @@ function lookup(dictionaries: Record<string, Dictionary>, text: string, lang: st
   for (const { regex, names, translation } of dictionary.patterns) {
     const match = regex.exec(text);
     if (!match) continue;
+    // 110 An app's name, not English words ("Welcome to our school" isn't "Welcome to {app}"): those stay untranslated.
+    if (names.some((name, i) => name === "app" && match[i + 1] !== "our app" && ENGLISH_WORDS.test(match[i + 1] ?? ""))) continue;
     let out = translation;
     names.forEach((name, i) => {
       let value = match[i + 1] ?? "";

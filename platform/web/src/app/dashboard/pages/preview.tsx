@@ -485,7 +485,10 @@ function MoreBlockPreview({ block: b, theme, bold }: { block: LayoutBlock; theme
         <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.max(1, b.stats?.length ?? 2)}, 1fr)`, gap: 6 }}>
           {(b.stats ?? []).map((s, i) => (
             <div key={i} style={{ ...theme.card, padding: 8, textAlign: "center" }}>
-              <div style={{ fontSize: 16, fontWeight: 800, color: theme.primary }}>{s.value || "0"}</div>
+              {/* 110 Its own direction, so "10+" doesn't read "+10" right to left. */}
+              <div dir="auto" data-stat-value="" style={{ fontSize: 16, fontWeight: 800, color: theme.primary }}>
+                {s.value || "0"}
+              </div>
               <Small theme={theme}>{s.label || "Label"}</Small>
             </div>
           ))}

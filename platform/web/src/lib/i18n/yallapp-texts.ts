@@ -48,9 +48,9 @@ function sampleApp(appType: App["appType"], backend: AppBackend, appName: string
   return { appType, backend, appName, template: "classic", font: "Bricolage Grotesque", brandingDoneAt: null } as unknown as App;
 }
 
-/** Whether a text has words to translate ("24/7" and "100%" don't). */
+/** Whether a text has words to translate ("24/7" and "100%" don't); 110 a unit is one too ("48 h"). */
 export function hasWords(text: string): boolean {
-  return /\p{L}{2,}/u.test(text.replace(/\{app\}/g, ""));
+  return /\p{L}/u.test(text.replace(/\{app\}/g, ""));
 }
 
 /** Every Yallapp-written page text, once each, in a stable order. */
@@ -66,7 +66,8 @@ export function yallappPageTexts(): string[] {
     }
   }
   for (const design of DESIGNS) {
-    for (const name of ["{app}", null]) {
+    // 110 With the pictures (and the welcome heading the banner repeats taken out), and without them as apps that chose a design before have it.
+    for (const [name, pictureBase] of [["{app}", "https://yallapp.test"], [null, "https://yallapp.test"], ["{app}", undefined], [null, undefined]] as const) {
       const layout = applyDesign(design, {
         appName: name,
         facts: { website: "https://example.com", email: "hello@example.com", whatsapp: "+905551112233" },
@@ -75,7 +76,7 @@ export function yallappPageTexts(): string[] {
         // 99.1 With the Social links block the Contact page gets.
         social: [{ network: "instagram", url: "https://instagram.com/example" }],
         // And the pictures, with the banner a home page without slides gets.
-        pictureBase: "https://yallapp.test",
+        pictureBase,
       });
       add(layoutTexts(layout));
     }
