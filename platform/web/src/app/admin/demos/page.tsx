@@ -9,7 +9,7 @@ import { Card, Notice, formatDateTime } from "@/components/ui";
 import { adminCan, requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { demoClient, isDownloadableBuild, listDemoApps } from "@/lib/demo/apps";
-import { ALL_DEMO_TYPES, DEMO_ACCOUNT, DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_SLUGS, demoIdOf, demoKind } from "@/lib/demo/constants";
+import { ALL_DEMO_TYPES, DEMO_ACCOUNT, DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_SLUGS, demoIdOf, demoKind, isStudioDemo } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { appUrl } from "@/lib/env";
 
@@ -18,6 +18,8 @@ export const dynamic = "force-dynamic";
 
 const DONE: Record<string, string> = {
   all: "The demo apps are created and up to date.",
+  regular: "The regular apps' demos are created and up to date.",
+  studio: "Yallapp Studio's demos are created and up to date.",
   ...Object.fromEntries(ALL_DEMO_TYPES.map((type) => [type, `The ${demoKind(type).name} demo is up to date.`])),
   build: "The build is queued. It shows here, and on the build queue, as it runs.",
   download: "The /demo page now offers this build for download.",
@@ -36,16 +38,22 @@ const ERROR: Record<string, string> = {
   invalid_config: "The build config isn't valid. Refresh the demo app and try again.",
 };
 
-/** Admin › Demo apps (roadmap 16): the apps on /demo (21 one per engine, and the clinic; 26 the café; 27 the gym; 28 the events app). */
+/**
+ * Admin › Demo apps (roadmap 16): the apps on /demo (21 one per engine, and
+ * the clinic; 26 the café; 27 the gym; 28 the events app), and apart from
+ * them Yallapp Studio's on /demo/studio (105.2.7 delivery, food delivery,
+ * rides).
+ */
 export default async function DemoAppsPage({ searchParams }: PageProps<"/admin/demos">) {
   await requireAdmin();
   const query = await searchParams;
+  const family = query.family === "studio" ? "studio" : "regular";
   const done = typeof query.done === "string" ? DONE[query.done] : undefined;
   const failed = typeof query.error === "string" ? (ERROR[query.error] ?? "That didn't work. Please try again.") : undefined;
   const store = await getStore();
   const [client, apps, may, mayEdit] = await Promise.all([demoClient(store, { fresh: true }), listDemoApps(store, { fresh: true }), adminCan("demos.manage"), adminCan("clients.edit")]);
   const rows = await Promise.all(
-    ALL_DEMO_TYPES.map(async (type) => {
+    ALL_DEMO_TYPES.filter((type) => isStudioDemo(type) === (family === "studio")).map(async (type) => {
       const app = apps.find((a) => demoIdOf(a) === type) ?? null;
       const builds = app ? await store.listBuildsByApp(app.id, 8) : [];
       return { type, app, builds, download: app ? (builds.find((b) => b.id === app.demoBuildId) ?? (app.demoBuildId ? await store.getBuild(app.demoBuildId) : null)) : null };
@@ -57,10 +65,31 @@ export default async function DemoAppsPage({ searchParams }: PageProps<"/admin/d
       <div className="flex flex-col gap-1.5">
         <h1 className="m-0 text-[28px] font-extrabold">Demo apps</h1>
         <span className="max-w-[760px] text-[15px] text-muted">
-          One app per type on the hosted API, for people to try before they pay. They&apos;re shown on{" "}
-          <Link href="/demo">the public demo page</Link>, belong to the account {DEMO_ACCOUNT.email} on the Business plan without an end date, and are left
-          out of the overview&apos;s numbers.
+          One app per type on the hosted API, for people to try before they pay. The regular apps&apos; are shown on <Link href="/demo">the public demo page</Link>,
+          Yallapp Studio&apos;s on <Link href="/demo/studio">its own demo page</Link>. They belong to the account {DEMO_ACCOUNT.email} on the Business plan without an
+          end date, and are left out of the overview&apos;s numbers.
         </span>
+      </div>
+      <div role="tablist" aria-label="Demo families" className="flex flex-wrap gap-1 border-b border-line">
+        {(
+          [
+            ["regular", "Regular apps", "/admin/demos"],
+            ["studio", "Yallapp Studio", "/admin/demos?family=studio"],
+          ] as const
+        ).map(([key, label, href]) => {
+          const on = key === family;
+          return (
+            <Link
+              key={key}
+              href={href}
+              role="tab"
+              aria-selected={on}
+              className={`flex h-10 items-center px-4 text-sm no-underline ${on ? "border-b-2 border-midnight font-bold text-ink" : "border-b-2 border-transparent text-muted"}`}
+            >
+              {label}
+            </Link>
+          );
+        })}
       </div>
 
       {done ? (
@@ -84,10 +113,17 @@ export default async function DemoAppsPage({ searchParams }: PageProps<"/admin/d
         </p>
         {may ? (
           <form action={setupDemosAction} className="flex flex-wrap items-center gap-3">
-            <input type="hidden" name="type" value="all" />
+            <input type="hidden" name="type" value={family} />
+            <input type="hidden" name="family" value={family} />
             <SubmitButton className="h-11" pendingText="Setting up the demo apps…">
               <Icon name="refresh" size={20} />
-              {client ? "Refresh all demo apps" : "Create the demo apps"}
+              {family === "studio"
+                ? rows.some((r) => r.app)
+                  ? "Refresh all of Studio's demo apps"
+                  : "Create Studio's demo apps"
+                : rows.some((r) => r.app)
+                  ? "Refresh all regular demo apps"
+                  : "Create the regular demo apps"}
             </SubmitButton>
             <span className="text-sm text-muted">Safe to run again: it updates the apps and their content, never duplicates them.</span>
           </form>
@@ -106,13 +142,14 @@ export default async function DemoAppsPage({ searchParams }: PageProps<"/admin/d
                     <h2 className="m-0 text-[19px] font-bold">{DEMO_BRANDS[type].appName}</h2>
                     <span className="text-sm text-muted">{demoKind(type).name} demo</span>
                   </div>
-                  <span className="text-sm font-semibold">{app ? (live ? "Download live" : "Coming soon on /demo") : "Not created yet"}</span>
+                  <span className="text-sm font-semibold">{app ? (live ? "Download live" : `Coming soon on ${family === "studio" ? "/demo/studio" : "/demo"}`) : "Not created yet"}</span>
                 </div>
 
                 {app ? (
                   <div className="flex flex-wrap gap-2.5">
                     {may ? (
                       <form action={setupDemosAction}>
+                        <input type="hidden" name="family" value={family} />
                         <input type="hidden" name="type" value={type} />
                         <SubmitButton variant="secondary" className="h-10 px-4 text-sm" pendingText="Refreshing…">
                           Refresh<span className="sr-only"> {DEMO_BRANDS[type].appName}</span>
@@ -121,6 +158,7 @@ export default async function DemoAppsPage({ searchParams }: PageProps<"/admin/d
                     ) : null}
                     {may ? (
                       <form action={buildDemoAction}>
+                        <input type="hidden" name="family" value={family} />
                         <input type="hidden" name="appId" value={app.id} />
                         <SubmitButton variant="secondary" className="h-10 px-4 text-sm" pendingText="Queueing…">
                           Start a build<span className="sr-only"> of {DEMO_BRANDS[type].appName}</span>
@@ -153,7 +191,7 @@ export default async function DemoAppsPage({ searchParams }: PageProps<"/admin/d
                             </span>
                             <BuildBadge status={b.status} />
                             <span className="text-muted">{formatDateTime(b.createdAt)}</span>
-                            {live?.id === b.id ? <span className="font-bold text-success">On /demo</span> : null}
+                            {live?.id === b.id ? <span className="font-bold text-success">On {family === "studio" ? "/demo/studio" : "/demo"}</span> : null}
                           </li>
                         ))}
                       </ul>
@@ -163,6 +201,7 @@ export default async function DemoAppsPage({ searchParams }: PageProps<"/admin/d
 
                 {app && may ? (
                   <form action={setDemoDownloadAction} className="flex flex-col gap-2">
+                    <input type="hidden" name="family" value={family} />
                     <input type="hidden" name="appId" value={app.id} />
                     <label htmlFor={`download-${type}`} className="text-[15px] font-bold">
                       Public download
@@ -179,7 +218,7 @@ export default async function DemoAppsPage({ searchParams }: PageProps<"/admin/d
                       <SubmitButton className="h-10 px-4 text-sm">Save<span className="sr-only"> the download of {DEMO_BRANDS[type].appName}</span></SubmitButton>
                     </div>
                     <span className="text-sm text-muted">
-                      Ready builds with an APK. Link for everyone: {appUrl()}/demo/download/{DEMO_SLUGS[type]}
+                      Ready builds with an APK, offered on {family === "studio" ? "/demo/studio" : "/demo"}. Link for everyone: {appUrl()}/demo/download/{DEMO_SLUGS[type]}
                     </span>
                   </form>
                 ) : null}

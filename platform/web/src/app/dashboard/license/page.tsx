@@ -24,6 +24,7 @@ import { effectivePlans } from "@/lib/entitlements";
 import { getSwitches } from "@/lib/switches";
 import { PlanPaymentForm } from "@/components/plan-payment-form";
 import { analyticsEventsKeepText, analyticsKeepText } from "@/components/plan-cards";
+import { licensePath } from "@/lib/studio/section";
 import { getPlans, platformSetting, yallappPlanAccount } from "@/lib/settings/platform";
 import { priceView } from "@/lib/billing/display";
 import { formatAmount } from "@/lib/billing/prices";
@@ -369,7 +370,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
                       </form>
                     )
                   ) : canPay ? (
-                    <Link href={`/dashboard/license?plan=${id}#renew`} className={`${direction > 0 ? btn.primary : btn.secondary} h-9 w-full px-3 text-sm`}>
+                    <Link href={licensePath(app, `?plan=${id}#renew`)} className={`${direction > 0 ? btn.primary : btn.secondary} h-9 w-full px-3 text-sm`}>
                       {direction > 0 && currentId ? (
                         <>
                           <Icon name="upgrade" size={18} />
@@ -426,7 +427,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
                   <span className="text-[13px] text-muted">{t("license.paidOn", { date: date(p.paidAt ?? p.createdAt) })}</span>
                 </span>
                 <span className="flex flex-wrap gap-2">
-                  <Link href={`/dashboard/license/receipts/${p.id}`} className={`${btn.secondary} h-9 px-3 text-sm`}>
+                  <Link href={licensePath(app, `/receipts/${p.id}`)} className={`${btn.secondary} h-9 px-3 text-sm`}>
                     <Icon name="receipt_long" size={18} />
                     {t("license.receipt")}
                   </Link>

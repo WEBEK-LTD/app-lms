@@ -19,6 +19,7 @@ import { packOffers, renewablePacks } from "@/lib/media/packs";
 import { featureOn, getSwitches } from "@/lib/switches";
 import { revalidatePath } from "next/cache";
 import { recordStaffChange } from "@/lib/admin/audit";
+import { licensePath } from "@/lib/studio/section";
 import { cancelScheduledPlan, scheduleDowngrade } from "@/lib/billing/plan-change";
 import { isPlan, planFitsSection, planOffered, planPriceOf } from "@/lib/plans";
 
@@ -100,7 +101,7 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
       throw e;
     }
     await sendPlanPaidMail(store, context.client, outcome);
-    redirect("/dashboard/license?payment=paid");
+    redirect(licensePath(context.app, "?payment=paid"));
   }
   if (coupon) offer = loweredOffer(offer, coupon.amountCents);
   let url: string;
@@ -182,7 +183,7 @@ export async function checkCouponAction(_: CouponState, formData: FormData): Pro
 async function contextFor(formData: FormData) {
   const context = await clientFor("billing");
   if (!context) redirect("/sign-in");
-  if (String(formData.get("appId") ?? "") !== (context.app?.id ?? "")) redirect("/dashboard/license?plan_change=switched#change-plan");
+  if (String(formData.get("appId") ?? "") !== (context.app?.id ?? "")) redirect(licensePath(context.app, "?plan_change=switched#change-plan"));
   return context;
 }
 
@@ -190,8 +191,8 @@ async function contextFor(formData: FormData) {
 export async function scheduleDowngradeAction(formData: FormData): Promise<void> {
   const context = await contextFor(formData);
   const to = String(formData.get("plan") ?? "");
-  if (!context.license || !isPlan(to) || context.client.status === "suspended") redirect("/dashboard/license#change-plan");
-  if (!planFitsSection(to, context.app?.section)) redirect("/dashboard/license?plan_change=refused#change-plan");
+  if (!context.license || !isPlan(to) || context.client.status === "suspended") redirect(licensePath(context.app, "#change-plan"));
+  if (!planFitsSection(to, context.app?.section)) redirect(licensePath(context.app, "?plan_change=refused#change-plan"));
   const store = await getStore();
   const result = await scheduleDowngrade(store, context.license, to, new Date());
   if (result.ok) {
@@ -199,7 +200,7 @@ export async function scheduleDowngradeAction(formData: FormData): Promise<void>
     await recordStaffChange(context, `Scheduled a move to the ${plans[to].name} plan when the current period ends`);
   }
   revalidatePath("/dashboard", "layout");
-  redirect(`/dashboard/license?plan_change=${result.ok ? "scheduled" : "refused"}#change-plan`);
+  redirect(licensePath(context.app, `?plan_change=${result.ok ? "scheduled" : "refused"}#change-plan`));
 }
 
 /** Keeps the current plan: drops a scheduled downgrade. */
@@ -210,7 +211,7 @@ export async function cancelScheduledPlanAction(formData: FormData): Promise<voi
     await recordStaffChange(context, "Kept the current plan (dropped a scheduled plan change)");
   }
   revalidatePath("/dashboard", "layout");
-  redirect("/dashboard/license?plan_change=kept#change-plan");
+  redirect(licensePath(context.app, "?plan_change=kept#change-plan"));
 }
 
 /** Closes an owner notice on the dashboard (13.2, 13.4). Only the client's own. */

@@ -11,7 +11,7 @@ import Link from "next/link";
 import { PLAN_FEATURES, PLAN_LIMITS, planPrice, REGULAR_PLANS, STUDIO_ONLY_FEATURES, STUDIO_PLANS, STUDIO_PLANS_SHOWN, SUPPORT_LABEL, SUPPORT_LEVELS, type Plan, type PlanInfo } from "@/lib/plans";
 import { getPlans, platformSetting, yallappBilling } from "@/lib/settings/platform";
 import { formatMoney, usdCentsOf } from "@/lib/billing/prices";
-import { getSwitches, LICENSE_FEATURE_SWITCHES, switchGroups, switchKey } from "@/lib/switches";
+import { getSwitches, isStudioSwitch, LICENSE_FEATURE_SWITCHES, switchGroups, switchKey } from "@/lib/switches";
 import { PlanAvailabilityForm, type AvailabilityGroup } from "./availability";
 import { PlanForm, PlanLimitsForm, StoragePacksForm, StudioOfferForm } from "./forms";
 import { packOffers } from "@/lib/media/packs";
@@ -129,7 +129,7 @@ export default async function PlansPage({ searchParams }: PageProps<"/admin/plan
               edited={Boolean(edits?.value[studioSelected]) && STUDIO_PLANS.indexOf(studioSelected as (typeof STUDIO_PLANS)[number]) < STUDIO_PLANS_SHOWN}
               price={priceOf(studioSelected)}
               usdAtRate={plans[studioSelected].priceCents ? usdCentsOf({ egpCents: plans[studioSelected].priceCents!, usdCents: null }, billing.egpPerUsd) : null}
-              groups={availabilityGroups(switches, studioSelected)}
+              groups={availabilityGroups(switches, studioSelected, "studio")}
               studio={{
                 offered: plans[studioSelected].offered === true,
                 named: Boolean(edits?.value[studioSelected]?.name),
@@ -195,7 +195,7 @@ export default async function PlansPage({ searchParams }: PageProps<"/admin/plan
               edited={Boolean(edits?.value[selected])}
               price={priceOf(selected)}
               usdAtRate={plans[selected].priceCents ? usdCentsOf({ egpCents: plans[selected].priceCents!, usdCents: null }, billing.egpPerUsd) : null}
-              groups={availabilityGroups(switches, selected)}
+              groups={availabilityGroups(switches, selected, "regular")}
             />
           </>
         )}
@@ -324,12 +324,12 @@ function PlanPanels({
 }
 
 // 11.5 Switches: per plan, everything but the license features.
-function availabilityGroups(switches: SwitchesSetting | null, plan: Plan): AvailabilityGroup[] {
+function availabilityGroups(switches: SwitchesSetting | null, plan: Plan, family: "regular" | "studio"): AvailabilityGroup[] {
   const licenseKeys = new Set(LICENSE_FEATURE_SWITCHES.map((f) => switchKey("feature", f)));
   return switchGroups().map((group) => ({
     title: group.title,
     items: group.items
-      .filter((item) => !licenseKeys.has(item.key))
+      .filter((item) => !licenseKeys.has(item.key) && (family === "studio" || !isStudioSwitch(item.key)))
       .map((item) => ({
         key: item.key,
         label: item.label,

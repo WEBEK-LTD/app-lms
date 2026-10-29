@@ -13,7 +13,7 @@ import { suggestedVersion } from "@/lib/builds/view";
 import { getContact } from "@/lib/contact";
 import { getStore } from "@/lib/data";
 import { isDemoApp, isDownloadableBuild } from "@/lib/demo/apps";
-import { ALL_DEMO_TYPES, demoKind, type DemoId } from "@/lib/demo/constants";
+import { ALL_DEMO_TYPES, demoKind, isStudioDemo, type DemoId } from "@/lib/demo/constants";
 import { DemoSetupError, setupDemoApps } from "@/lib/demo/setup";
 import { appUrl, encryptionKey } from "@/lib/env";
 import { clearPlatformSettingsCache } from "@/lib/settings/platform";
@@ -24,19 +24,29 @@ import { clearPlatformSettingsCache } from "@/lib/settings/platform";
  * Permission `demos.manage`; every change is in the audit log.
  */
 
-const back = (query: string) => `/admin/demos?${query}`;
+/** Back to the tab the form was on: regular apps' demos, or Studio's. */
+const back = (query: string, formData: FormData) => `/admin/demos?${formData.get("family") === "studio" ? "family=studio&" : ""}${query}`;
 
 function refresh(): void {
   clearPlatformSettingsCache();
   revalidatePath("/admin/demos");
   revalidatePath("/demo");
+  revalidatePath("/demo/studio");
 }
 
 export async function setupDemosAction(formData: FormData): Promise<void> {
   const admin = await requireAdmin("demos.manage");
   const which = String(formData.get("type") ?? "all");
-  const types = which === "all" ? ALL_DEMO_TYPES : (ALL_DEMO_TYPES as readonly string[]).includes(which) ? [which as DemoId] : null;
-  if (!types) redirect(back("error=unknown_type"));
+  // All of them, the regular apps' (on /demo) or Studio's (on /demo/studio), or one.
+  const types =
+    which === "all"
+      ? ALL_DEMO_TYPES
+      : which === "regular" || which === "studio"
+        ? ALL_DEMO_TYPES.filter((type) => isStudioDemo(type) === (which === "studio"))
+        : (ALL_DEMO_TYPES as readonly string[]).includes(which)
+          ? [which as DemoId]
+          : null;
+  if (!types) redirect(back("error=unknown_type", formData));
   const store = await getStore();
   const contact = await getContact();
   let result;
@@ -54,7 +64,7 @@ export async function setupDemosAction(formData: FormData): Promise<void> {
   } catch (error) {
     if (!(error instanceof DemoSetupError)) throw error;
     console.error("[demo]", error.message);
-    redirect(back("error=setup"));
+    redirect(back("error=setup", formData));
   }
   const names = result.apps.map((a) => `${demoKind(a.type).name}${a.created ? " (new)" : ""}`).join(", ");
   await recordAudit({
@@ -65,7 +75,7 @@ export async function setupDemosAction(formData: FormData): Promise<void> {
     summary: `${result.accountCreated ? "Created the demo account and" : "Refreshed"} the demo apps: ${names}`,
   });
   refresh();
-  redirect(back(`done=${which === "all" ? "all" : which}`));
+  redirect(back(`done=${which}`, formData));
 }
 
 /** Starts a build of a demo app through the normal pipeline. */
@@ -73,11 +83,11 @@ export async function buildDemoAction(formData: FormData): Promise<void> {
   const admin = await requireAdmin("demos.manage");
   const store = await getStore();
   const app = await store.getAppById(String(formData.get("appId") ?? ""));
-  if (!app || !(await isDemoApp(store, app))) redirect(back("error=not_demo"));
+  if (!app || !(await isDemoApp(store, app))) redirect(back("error=not_demo", formData));
   const [client, license, builds] = await Promise.all([store.getClientById(app.clientId), store.getLicenseForApp(app.clientId, app.id), store.listBuildsByApp(app.id, 1)]);
-  if (!client) redirect(back("error=not_demo"));
+  if (!client) redirect(back("error=not_demo", formData));
   const result = await queueBuild(store, { client, app, license, versionName: suggestedVersion(builds[0]) }, new Date(), assetUrl);
-  if (!result.ok) redirect(back(`error=${result.reason}`));
+  if (!result.ok) redirect(back(`error=${result.reason}`, formData));
   await startPipeline();
   await recordAudit({
     actor: admin,
@@ -87,7 +97,7 @@ export async function buildDemoAction(formData: FormData): Promise<void> {
     summary: `Started build #${result.build.number} (${result.build.versionName}) of the demo app ${appLabel(app)}`,
   });
   refresh();
-  redirect(back("done=build"));
+  redirect(back("done=build", formData));
 }
 
 /** Makes a ready build the public download on /demo, or removes the download (empty build). */
@@ -95,10 +105,10 @@ export async function setDemoDownloadAction(formData: FormData): Promise<void> {
   const admin = await requireAdmin("demos.manage");
   const store = await getStore();
   const app = await store.getAppById(String(formData.get("appId") ?? ""));
-  if (!app || !(await isDemoApp(store, app))) redirect(back("error=not_demo"));
+  if (!app || !(await isDemoApp(store, app))) redirect(back("error=not_demo", formData));
   const buildId = String(formData.get("buildId") ?? "");
   const build = buildId ? await store.getBuild(buildId) : null;
-  if (buildId && !isDownloadableBuild(app, build)) redirect(back("error=not_downloadable"));
+  if (buildId && !isDownloadableBuild(app, build)) redirect(back("error=not_downloadable", formData));
   await store.updateApp(app.id, { demoBuildId: build?.id ?? null }, new Date());
   await recordAudit({
     actor: admin,
@@ -112,5 +122,5 @@ export async function setDemoDownloadAction(formData: FormData): Promise<void> {
     after: { demoBuildId: build?.id ?? null },
   });
   refresh();
-  redirect(back(build ? "done=download" : "done=no_download"));
+  redirect(back(build ? "done=download" : "done=no_download", formData));
 }

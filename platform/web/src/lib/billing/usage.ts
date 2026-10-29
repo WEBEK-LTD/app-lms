@@ -26,7 +26,9 @@ export interface UsageInput {
 }
 
 export function planUsage(input: UsageInput): UsageRow[] {
-  const limits = input.plan?.limits;
+  // Without a plan there's nothing to measure against (its storage would read "0 B of 0 B, full"): the page asks to choose one.
+  if (!input.plan) return [];
+  const limits = input.plan.limits;
   return [
     ...(input.hosted ? [{ key: "app_users" as const, used: input.appUsers, limit: limits?.appUsers ?? null }] : []),
     { key: "languages", used: input.languages, limit: limits?.languages ?? null },

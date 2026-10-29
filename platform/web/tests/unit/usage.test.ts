@@ -12,7 +12,7 @@ describe("94.1 the plan's limits and what the app uses", () => {
       { key: "storage", used: storage.usedBytes, limit: storage.limitBytes },
     ]);
     expect(planUsage({ plan: PLAN_INFO.business, hosted: false, appUsers: 0, languages: 4, storage: { usedBytes: 0, limitBytes: null } }).map((r) => r.key)).toEqual(["languages", "storage"]);
-    expect(planUsage({ plan: null, hosted: false, appUsers: 0, languages: 2, storage: { usedBytes: 0, limitBytes: null } })[0]).toEqual({ key: "languages", used: 2, limit: null });
+    expect(planUsage({ plan: null, hosted: false, appUsers: 0, languages: 2, storage: { usedBytes: 0, limitBytes: 0 } })).toEqual([]);
   });
 
   it("says when a limit is nearly or fully used", () => {
