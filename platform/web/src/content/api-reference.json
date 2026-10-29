@@ -1239,6 +1239,179 @@
       ]
     },
     {
+      "name": "Teachers",
+      "description": "Roadmap 105.3. Academies with many teachers, on Yallapp's hosted API (`Config.instructors`). Each course may belong to one of the academy's teachers (`CourseSummary.instructor.id` is the teacher's ID; 0 for a course of the academy itself). Students browse the teachers, open a teacher's page with their courses and reviews, follow a teacher (a push when a new course of theirs is published) and rate a teacher once they are a student in one of their courses. When the academy lets people apply (`InstructorsConfig.applications`), a signed-in person can apply to teach and waits for the academy's answer. Teachers' shares are the academy's: Yallapp sets none.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/teachers",
+          "summary": "The academy's teachers",
+          "description": "Active teachers, the academy's featured ones first, then by rating. `feature_disabled` (403) when the app has no teachers (`Config.instructors` null).",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/teachers/{teacher_id}",
+          "summary": "A teacher's page",
+          "description": null,
+          "access": "optional"
+        },
+        {
+          "method": "PUT",
+          "path": "/teachers/{teacher_id}/follow",
+          "summary": "Follow a teacher",
+          "description": "The student gets a push (`new_course`) when a new course of the teacher is published.",
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/teachers/{teacher_id}/follow",
+          "summary": "Stop following a teacher",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/teachers/{teacher_id}/reviews",
+          "summary": "Students' reviews of a teacher",
+          "description": "Newest first. A review the academy hid is sent to its author only.",
+          "access": "optional"
+        },
+        {
+          "method": "PUT",
+          "path": "/teachers/{teacher_id}/reviews/mine",
+          "summary": "Rate a teacher",
+          "description": "One review per student and teacher, changed by sending it again. Only a student enrolled in one of the teacher's courses may rate them (`not_student`, 403); a teacher can't rate themselves.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/teachers/application",
+          "summary": "The signed-in person's application to teach",
+          "description": "404 when they never applied.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/teachers/application",
+          "summary": "Apply to teach",
+          "description": "Only when `InstructorsConfig.applications` is true (`feature_disabled`, 403, otherwise). The academy sees the application on its Teachers page and approves or declines it; once approved, the person is a teacher. Sending it again replaces a declined application; a pending or approved one answers `already_applied` (409).",
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
+      "name": "Teacher",
+      "description": "Roadmap 105.3. The teacher's screens. A teacher is a person the academy added on the dashboard's Teachers page by mobile number (or by email, for apps that sign in by email only), or whose application it approved; whoever signs in with that number is that teacher (`User.roles` has `teacher`). Every endpoint here answers `not_teacher` (403) to anyone else, and to teachers the academy suspended. A teacher makes courses (title, description, price, level), adds sections and lessons (a video or a PDF sent from the phone, or a video address) and sends a course for review; the academy publishes it or sends it back with a note. Lessons added to a published course are live at once. A teacher answers their students' questions through `POST /questions/{question_id}/answers` (the answer's author has `instructor` true) and sees what their courses sold and their share.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/teacher/me",
+          "summary": "The signed-in teacher",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "PATCH",
+          "path": "/teacher/me",
+          "summary": "Change the teacher's bio and subjects",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/teacher/courses",
+          "summary": "The teacher's courses",
+          "description": "Every course of the teacher, whatever its stage, newest first.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/teacher/courses",
+          "summary": "Start a course",
+          "description": "The course starts as a draft, which only the teacher and the academy see.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/teacher/courses/{course_id}",
+          "summary": "One of the teacher's courses, with its sections and lessons",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "PATCH",
+          "path": "/teacher/courses/{course_id}",
+          "summary": "Change a draft or returned course",
+          "description": "Only a `draft` or `returned` course (`not_editable`, 409, otherwise); the academy changes published ones.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/teacher/courses/{course_id}/submit",
+          "summary": "Send a course for review",
+          "description": "A `draft` or `returned` course with at least one lesson goes to the academy (`in_review`); `no_lessons` (409) without one, `not_editable` (409) at another stage.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/teacher/courses/{course_id}/sections",
+          "summary": "Add a section to a course",
+          "description": "Not while the course is `in_review` (`not_editable`, 409).",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/teacher/courses/{course_id}/lessons",
+          "summary": "Add a lesson",
+          "description": "A lesson in one of the course's sections: a video (`upload_id` of a finished upload of a video, or `video_url`, a YouTube, Vimeo or https video address), a PDF (`upload_id` of a PDF, attached to the lesson) or text only. Uploads go to the academy's Media library and count in its storage. In a published course the lesson is live at once (and students who follow the course are told, like any new lesson). Not while the course is `in_review` (`not_editable`, 409).",
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/teacher/courses/{course_id}/lessons/{lesson_id}",
+          "summary": "Remove a lesson",
+          "description": "From a `draft` or `returned` course only (`not_editable`, 409); the academy removes lessons of published courses.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/teacher/uploads",
+          "summary": "Start sending a lesson's video or PDF",
+          "description": "Videos (MP4, MOV, WebM) up to 2 GB and PDFs up to 100 MB, into the academy's Media library (413 `storage_full` when its storage is full). The app sends the file in chunks to `upload_url` as for chat uploads, calls `/complete`, then adds the lesson with `upload_id`. An upload not used in a lesson within a day is deleted.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/teacher/uploads/{upload_id}/resume",
+          "summary": "A fresh link to carry on with an upload",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/teacher/uploads/{upload_id}/complete",
+          "summary": "Finish an upload",
+          "description": "409 `incomplete` with the offset reached when part of the file is missing.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/teacher/questions",
+          "summary": "Students' questions in the teacher's courses",
+          "description": "Waiting for an answer first, then the newest. The teacher answers with `POST /questions/{question_id}/answers`, which marks the question answered.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/teacher/earnings",
+          "summary": "What the teacher's courses sold and the teacher's share",
+          "description": "Sales paid on the academy's payment page over this month, last month or this year, in `InstructorsConfig.timezone`, less refunds, with the teacher's share (`share_percent`, set by the academy) and each course's totals. The academy pays its teachers itself.",
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
       "name": "Bookings",
       "description": "Services, staff, free times and appointments, for Bookings apps. The plugin reads them from the site's booking plugin (Amelia, BookingPress or LatePoint); the booking plugin's own rules decide the free times and whether a new appointment is approved or waits for the business. Appointments are paid at the business.",
       "endpoints": [
