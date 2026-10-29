@@ -21,6 +21,8 @@ import '../../delivery/widgets/delivery_widgets.dart'
     show CallButton, PlaceRow, pointUrl;
 import '../../food/widgets/food_widgets.dart' show AmountRow, StarPicker;
 import '../../store/screens/cart_screen.dart' show isOrderReceived;
+import '../../taxi/data/taxi_providers.dart';
+import '../../taxi/widgets/taxi_map.dart';
 import '../data/rides_providers.dart';
 import '../widgets/ride_widgets.dart';
 
@@ -43,6 +45,10 @@ class _RideFollowScreenState extends ConsumerState<RideFollowScreen> {
   Timer? _timer;
   bool _busy = false;
 
+  /// 105.9 The stage a new live token was asked at (to follow the driver).
+  RideStatus? _askedFollow;
+  final _sheet = DraggableScrollableController();
+
   @override
   void initState() {
     super.initState();
@@ -57,6 +63,7 @@ class _RideFollowScreenState extends ConsumerState<RideFollowScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    _sheet.dispose();
     super.dispose();
   }
 
@@ -124,6 +131,9 @@ class _RideFollowScreenState extends ConsumerState<RideFollowScreen> {
     final l10n = context.l10n;
     final async = ref.watch(rideProvider(widget.rideId));
     final ride = async.value;
+    final bar = ride == null ? null : _actions(ride);
+    final taxi = ref.watch(taxiConfigProvider);
+    if (taxi != null && ride != null) return _taxiLayout(taxi, ride, bar);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -141,45 +151,217 @@ class _RideFollowScreenState extends ConsumerState<RideFollowScreen> {
         ),
         _ => const SkeletonDetail(),
       },
-      bottomNavigationBar: ride == null
-          ? null
-          : ride.toPay
-          ? BottomActionBar(
-              child: PrimaryButton(
-                key: const ValueKey('ride-pay'),
-                label: l10n.payNow,
-                icon: AppIcons.card,
-                loading: _busy,
-                onPressed: _pay,
+      bottomNavigationBar: bar,
+    );
+  }
+
+  /// Paying, asking again or cancelling, under the ride.
+  Widget? _actions(Ride ride) {
+    final l10n = context.l10n;
+    return ride.toPay
+        ? BottomActionBar(
+            child: PrimaryButton(
+              key: const ValueKey('ride-pay'),
+              label: l10n.payNow,
+              icon: AppIcons.card,
+              loading: _busy,
+              onPressed: _pay,
+            ),
+          )
+        : ride.status == RideStatus.noDriver
+        ? BottomActionBar(
+            child: PrimaryButton(
+              key: const ValueKey('ride-again'),
+              label: l10n.rideTryAgain,
+              icon: AppIcons.ride,
+              onPressed: () => context.go(Paths.ride),
+            ),
+          )
+        : ride.status.cancellable
+        ? BottomActionBar(
+            child: TextButton(
+              key: const ValueKey('ride-cancel'),
+              onPressed: _busy ? null : () => _cancel(ride),
+              child: Text(l10n.rideCancel),
+            ),
+          )
+        : null;
+  }
+
+  /// 105.9 A taxi app: the map with the driver's car coming (live from the
+  /// company's database when it has one, else where the ride says it is),
+  /// the dotted way to the pickup and when they arrive; the ride in a sheet.
+  Widget _taxiLayout(TaxiConfig taxi, Ride ride, Widget? bar) {
+    final l10n = context.l10n;
+    // A change of the ride's node: ask for the ride again, and for a new
+    // token when its driver isn't the one followed.
+    ref.listen(liveRideNodeProvider(widget.rideId), (before, now) {
+      final node = now.value;
+      final session = ref.read(taxiLiveProvider).value;
+      if (before?.value != null) _reload();
+      final key = node is Map ? node['driver_key'] : null;
+      if (session != null && key is String && key != session.token.follow) {
+        ref.invalidate(taxiLiveProvider);
+      }
+    });
+    final session = ref.watch(taxiLiveProvider).value;
+    if (session != null &&
+        ride.status.withDriver &&
+        session.token.follow == null &&
+        _askedFollow != ride.status) {
+      _askedFollow = ride.status;
+      Future.microtask(() => ref.invalidate(taxiLiveProvider));
+    }
+    final live = ref.watch(followedDriverProvider(widget.rideId)).value;
+    final api = ride.driverLocation;
+    final moving =
+        ride.status.withDriver && ride.status != RideStatus.completed;
+    final car = !moving
+        ? null
+        : live ??
+              (api == null
+                  ? null
+                  : NearbyTaxi(
+                      driverKey: 'driver',
+                      lat: api.lat,
+                      lng: api.lng,
+                      heading: api.heading,
+                    ));
+    final pickup = ride.pickup.located
+        ? (lat: ride.pickup.lat!, lng: ride.pickup.lng!)
+        : null;
+    final dropoff = ride.dropoff.located
+        ? (lat: ride.dropoff.lat!, lng: ride.dropoff.lng!)
+        : null;
+    final target = ride.status == RideStatus.inProgress ? dropoff : pickup;
+    final carAt = car == null ? null : (lat: car.lat, lng: car.lng);
+    final minutes = ride.status != RideStatus.accepted
+        ? null
+        : (live != null || ride.pickupMinutes == null) &&
+              carAt != null &&
+              pickup != null
+        ? driveMinutes(distanceKm(carAt, pickup))
+        : ride.pickupMinutes;
+    final fresh =
+        live != null ||
+        (moving &&
+            api != null &&
+            DateTime.now().difference(api.updatedAt) <
+                const Duration(minutes: 2));
+    // To about 100 m: the camera doesn't follow every small move.
+    double round(double v) => (v * 1000).roundToDouble() / 1000;
+    final height = MediaQuery.sizeOf(context).height;
+    return Scaffold(
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: TaxiMapView(
+              map: taxi.map,
+              focus: [
+                ?pickup,
+                if (ride.status == RideStatus.accepted && carAt != null)
+                  (lat: round(carAt.lat), lng: round(carAt.lng))
+                else
+                  ?dropoff,
+              ],
+              car: car,
+              pins: [
+                if (pickup != null)
+                  TaxiPin(
+                    TaxiPinKind.from,
+                    pickup.lat,
+                    pickup.lng,
+                    label: l10n.taxiFrom(ride.pickup.address),
+                  ),
+                if (dropoff != null)
+                  TaxiPin(
+                    TaxiPinKind.to,
+                    dropoff.lat,
+                    dropoff.lng,
+                    label: l10n.taxiTo(ride.dropoff.address),
+                  ),
+              ],
+              route:
+                  ride.status == RideStatus.accepted ||
+                      ride.status == RideStatus.arrived ||
+                      pickup == null ||
+                      dropoff == null
+                  ? const []
+                  : [pickup, dropoff],
+              approach: carAt != null && target != null
+                  ? [carAt, target]
+                  : const [],
+              padding: EdgeInsets.only(top: 120, bottom: height * 0.45),
+            ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 48,
+                    child: NavigationToolbar(
+                      leading: const AppBackButton(),
+                      middle: TaxiChip(label: l10n.rideHeading(ride.reference)),
+                      trailing: fresh
+                          ? TaxiChip(
+                              key: const ValueKey('taxi-live'),
+                              label: l10n.taxiLive,
+                              strong: true,
+                            )
+                          : null,
+                    ),
+                  ),
+                  if (minutes != null) ...[
+                    const SizedBox(height: 10),
+                    TaxiChip(
+                      key: const ValueKey('taxi-arriving'),
+                      label: l10n.taxiArrivingIn(minutes),
+                      icon: AppIcons.car,
+                    ),
+                  ],
+                ],
               ),
-            )
-          : ride.status == RideStatus.noDriver
-          ? BottomActionBar(
-              child: PrimaryButton(
-                key: const ValueKey('ride-again'),
-                label: l10n.rideTryAgain,
-                icon: AppIcons.ride,
-                onPressed: () => context.go(Paths.ride),
+            ),
+          ),
+          DraggableScrollableSheet(
+            controller: _sheet,
+            initialChildSize: 0.45,
+            minChildSize: 0.2,
+            maxChildSize: 0.92,
+            builder: (context, controller) => TaxiSheet(
+              controller: _sheet,
+              child: _RideView(
+                ride: ride,
+                onRated: _reload,
+                controller: controller,
+                onMap: true,
               ),
-            )
-          : ride.status.cancellable
-          ? BottomActionBar(
-              child: TextButton(
-                key: const ValueKey('ride-cancel'),
-                onPressed: _busy ? null : () => _cancel(ride),
-                child: Text(l10n.rideCancel),
-              ),
-            )
-          : null,
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: bar,
     );
   }
 }
 
 class _RideView extends ConsumerWidget {
-  const _RideView({required this.ride, required this.onRated});
+  const _RideView({
+    required this.ride,
+    required this.onRated,
+    this.controller,
+    this.onMap = false,
+  });
 
   final Ride ride;
   final VoidCallback onRated;
+
+  /// 105.9 In a taxi app's sheet over the map: its scrolling, and no map of
+  /// its own.
+  final ScrollController? controller;
+  final bool onMap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -218,7 +400,8 @@ class _RideView extends ConsumerWidget {
     };
     return ListView(
       key: const ValueKey('ride-view'),
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+      controller: controller,
+      padding: EdgeInsets.fromLTRB(20, onMap ? 26 : 12, 20, 24),
       children: [
         Text(
           rideStatusLabel(l10n, r.status),
@@ -379,7 +562,7 @@ class _RideView extends ConsumerWidget {
                 ],
                 if (r.status.withDriver) ...[
                   const SizedBox(height: 12),
-                  if (config.tilesUrl != null && pins.isNotEmpty)
+                  if (config.tilesUrl != null && pins.isNotEmpty && !onMap)
                     DeliveryMap(
                       key: const ValueKey('ride-map'),
                       config: config.mapConfig,

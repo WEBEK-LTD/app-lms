@@ -11,6 +11,9 @@ import { DonationsConnector } from "./donations";
 import { DeliveryConnector } from "./delivery";
 import { FoodConnector } from "./food";
 import { RidesConnector } from "./rides";
+import { TaxiConnector } from "./taxi";
+import { isTaxiApp } from "../../taxi/settings";
+import { serviceAccountOf } from "../notify";
 import { ListingsConnector, type ListingsDeps } from "./listings";
 import { platformConnector } from "./platforms";
 import "./registry";
@@ -78,7 +81,7 @@ export function connectorFor(
     delivery?: boolean;
     /** 105.1 Food delivery apps are in the app's plan. */
     food?: boolean;
-    /** 105.2 Ride apps are in the app's plan. */
+    /** 105.2 Ride apps are in the app's plan (105.9 live taxi apps: `taxi`). */
     rides?: boolean;
     /** 91.3 A customer asked to return an order. */
     onReturnRequested?: CatalogDeps["onReturnRequested"];
@@ -102,7 +105,11 @@ export function connectorFor(
   if (app.connector?.kind === "campaigns") return new DonationsConnector({ ...deps, app });
   if (app.connector?.kind === "deliveries") return new DeliveryConnector({ ...deps, app, fetcher });
   if (app.connector?.kind === "restaurants") return new FoodConnector({ ...deps, app, fetcher });
-  if (app.connector?.kind === "rides") return new RidesConnector({ ...deps, app, fetcher });
+  if (app.connector?.kind === "rides") {
+    // 105.9 A live taxi app: the rides engine with the live map.
+    if (isTaxiApp(app)) return new TaxiConnector({ ...deps, app, fetcher, key, account: serviceAccountOf(app, key), maps: { fetcher } });
+    return new RidesConnector({ ...deps, app, fetcher });
+  }
   if (app.connector?.kind === "platform") return platformConnector(app, key, deps, fetcher);
   if (app.connector?.kind === "shopify") {
     const token = shopifyToken(app, key);

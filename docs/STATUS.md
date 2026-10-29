@@ -93,6 +93,24 @@ Every fare, fee and share is the company's: Yallapp sets none. Checks:
 redocly lint, platform unit tests (with the isolation tests), tsc, eslint,
 e2e of the dashboard, flutter analyze and widget tests.
 
+Phase 105.9 (live taxi on the map) has its core: a new Studio project type
+`taxi`, Live taxi on the map, on 105.2's rides engine (its fares, drivers,
+matching and drivers' app). The company chooses its map on Maps & live:
+Google Maps with its own key, or its own OpenStreetMap tile server with
+optional search and routing servers, each with a test; and its own
+Firebase Realtime Database, with a test and the rules to paste. Riders
+open the app on a full-screen map with the free taxis around them moving,
+choose where to, see the route, the fares and how soon, and follow their
+driver coming second by second; drivers see the offer with its countdown
+over the map, and their position is written live (a driver on a ride
+leaves the cells riders look in). Without a live database the app asks
+Yallapp every five seconds. The dashboard's Live map shows the company's
+drivers (free, on a ride), the rides waiting at their pickup and the rides
+going on now, updated every five seconds. Live taxis are the Studio plan
+feature `taxi`. Still to do: 105.9.6 (Studio designs, the demo app, the
+store reviewers' notes). Checks: platform unit tests, tsc, eslint, e2e of
+the dashboard, flutter analyze and widget tests.
+
 Studio has its own demo apps on `/demo/studio`, apart from the regular
 demos on `/demo`: Sahm Express (delivery), Sofra Eats (food delivery) and
 Masar Rides (ride hailing). The team creates them with the other demos in
@@ -237,6 +255,9 @@ test environment:
 - Ride hailing apps (105.2): turn on the plan feature `rides`, with its
   price, in Admin › Plans › Yallapp Studio; the drivers' own app is the
   plan feature `courier_app`, as for couriers.
+- Live taxi apps (105.9): turn on the plan feature `taxi`, with its
+  price, in Admin › Plans › Yallapp Studio. Each company brings its own
+  map (Google key or tile server) and Firebase Realtime Database.
 - Academies with many teachers (105.3): turn on the plan feature
   `instructors`, with its price, in Admin › Plans › Yallapp Studio.
 - Schools (105.4): turn on the plan feature `school`, with its price, in

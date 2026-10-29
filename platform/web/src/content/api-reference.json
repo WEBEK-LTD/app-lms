@@ -1239,6 +1239,47 @@
       ]
     },
     {
+      "name": "Taxi",
+      "description": "Roadmap 105.9. A live taxi app (`Config.taxi`): the rides of the Rides and Driver tags, on a full-screen map where the free taxis around the rider and the rider's driver move as they move. The map is the company's choice: Google Maps with the company's own key, or OpenStreetMap from the company's tile server (`TaxiConfig.map`). Place search and routes go through Yallapp (`/taxi/places`, `/taxi/route`) when the company set them up.\n\nLive positions are in the company's own Firebase Realtime Database (`TaxiConfig.live`). The app signs in to Firebase with the custom token of `POST /taxi/live-token`, whose claims say what it may read and write, under `root` (`yallapp/<app_id>`):\n\n- `cells/<cell>/<driver_key>`: `{lat, lng, heading, type, at}`, a free online driver, in the 5-letter geohash cell of their position. Any signed-in person of the app reads them; the driver writes their own (every 2 seconds while online and free; removed when they go offline, take a ride or move to another cell, and on disconnect). `type` is the driver's vehicle type ID, `at` milliseconds since 1970. Riders read the cell they are in and the eight around it and drop drivers whose `at` is over a minute old. - `drivers/<driver_key>`: `{lat, lng, heading, at}`, written by the driver every 2 seconds while online; read by the driver and by the rider whose token follows them (claim `follow`). - `rides/<ride_id>`: `{status, driver_key, at}`, written by Yallapp at each stage of the ride; read by its rider (claim `ride`) and its driver.\n\nWithout a live database (`live` null), the app asks `GET /taxi/nearby` and `GET /me/rides/{ride_id}` every `nearby_every_seconds`. The driver's app also sends `PUT /driver/location` as in the Driver tag: rides are offered from those positions.",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/taxi/live-token",
+          "summary": "A token to sign in to the live database",
+          "description": "A Firebase custom token for the company's Firebase project (sign in with it, then use `database_url`), valid for an hour. Its claims: `app` (the app's ID), `role` (`rider` or `driver`), `driver_key` (a driver's own), `ride` and `follow` (the rider's ride that isn't over and its driver's key). Ask for a new one when it expires and when the ride changes (a driver accepted it, it ended). `feature_disabled` (403) when the app has no live database.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/taxi/nearby",
+          "summary": "The free taxis around a place",
+          "description": "The online drivers with no ride, whose position is under a minute old, within the company's matching distance of the place, nearest first, at most 30. For apps without a live database, and for the first look before the live one answers. Positions are rounded to about 10 metres.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/taxi/places",
+          "summary": "Places for where to",
+          "description": "Places matching what the rider typed, near them first, from the company's Google Maps (Places) or OpenStreetMap search server (`TaxiConfig.map.search`). A Google place comes without its position: ask `GET /taxi/places/{place_id}` when the rider picks it. `feature_disabled` (403) when the company has no search.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/taxi/places/{place_id}",
+          "summary": "A place's position",
+          "description": null,
+          "access": "optional"
+        },
+        {
+          "method": "POST",
+          "path": "/taxi/route",
+          "summary": "The route between two places",
+          "description": "The driving route, from the company's Google Maps (Routes) or OpenStreetMap routing server (`TaxiConfig.map.routes`), to draw on the map and to tell how long. `feature_disabled` (403) when the company has none: the app draws a straight line.",
+          "access": "optional"
+        }
+      ]
+    },
+    {
       "name": "Teachers",
       "description": "Roadmap 105.3. Academies with many teachers, on Yallapp's hosted API (`Config.instructors`). Each course may belong to one of the academy's teachers (`CourseSummary.instructor.id` is the teacher's ID; 0 for a course of the academy itself). Students browse the teachers, open a teacher's page with their courses and reviews, follow a teacher (a push when a new course of theirs is published) and rate a teacher once they are a student in one of their courses. When the academy lets people apply (`InstructorsConfig.applications`), a signed-in person can apply to teach and waits for the academy's answer. Teachers' shares are the academy's: Yallapp sets none.",
       "endpoints": [

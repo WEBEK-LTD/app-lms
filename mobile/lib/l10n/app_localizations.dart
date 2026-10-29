@@ -9951,6 +9951,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A score is from 0 to {max}.'**
   String classroomScoreRange(String max);
+
+  /// 105.9 How many free taxis are on the map around the rider.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No free taxis near you} =1{1 taxi near you} other{{count} taxis near you}}'**
+  String taxiNearby(int count);
+
+  /// 105.9 After the taxis near the rider: how far the nearest one is.
+  ///
+  /// In en, this message translates to:
+  /// **'the nearest {minutes} min away'**
+  String taxiNearest(int minutes);
+
+  /// 105.9 The search for where the ride starts.
+  ///
+  /// In en, this message translates to:
+  /// **'Where from?'**
+  String get taxiWhereFrom;
+
+  /// 105.9 Where the ride starts, on the map and in the sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'From: {place}'**
+  String taxiFrom(String place);
+
+  /// 105.9 Where the ride ends, on the map and in the sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'To: {place}'**
+  String taxiTo(String place);
+
+  /// 105.9 The button asking for a ride in the chosen vehicle type (Economy, Comfort).
+  ///
+  /// In en, this message translates to:
+  /// **'Request {type}'**
+  String taxiRequestType(String type);
+
+  /// 105.9 Over the map: when the driver reaches the rider.
+  ///
+  /// In en, this message translates to:
+  /// **'Arriving in {minutes} min'**
+  String taxiArrivingIn(int minutes);
+
+  /// 105.9 Over the map: the driver's position is live.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get taxiLive;
+
+  /// 105.9 The driver's switch over the map: online and taking rides.
+  ///
+  /// In en, this message translates to:
+  /// **'Available for requests'**
+  String get taxiAvailable;
+
+  /// 105.9 The place search's field.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for a place'**
+  String get taxiSearchHint;
+
+  /// 105.9 The place search found nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No places found. Try other words.'**
+  String get taxiSearchNone;
+
+  /// 105.9 In the place search: pick the place on the map instead.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose on the map'**
+  String get taxiChooseOnMap;
+
+  /// 105.9 The name of a place chosen on the map.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned on the map'**
+  String get taxiOnMap;
+
+  /// 105.9 A place from the search has no position.
+  ///
+  /// In en, this message translates to:
+  /// **'This place can\'t be used. Choose another.'**
+  String get taxiPlaceFailed;
 }
 
 class _AppLocalizationsDelegate

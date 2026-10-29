@@ -4,6 +4,7 @@ import type { DashKey, DashT } from "@/i18n/dashboard";
 import { richText } from "@/i18n/rich";
 import type { App, RideStatus } from "@/lib/data/types";
 import { hasFeature, type PlanInfo } from "@/lib/plans";
+import { isTaxiApp } from "@/lib/taxi/settings";
 
 /** 105.2 What the Rides, Drivers, Vehicle types and Ride settings pages share. */
 
@@ -46,9 +47,9 @@ export function NotRides({ title, t }: { title: string; t: DashT }) {
   );
 }
 
-/** Ride hailing isn't in the plan yet: everything can be set up, the app takes rides once it is. */
-export function RidesPlanNotice({ plan, t }: { plan: PlanInfo | null; t: DashT }) {
-  if (!plan || hasFeature(plan, "rides")) return null;
+/** Ride hailing isn't in the plan yet (105.9 live taxis: their own feature): everything can be set up, the app takes rides once it is. */
+export function RidesPlanNotice({ app, plan, t }: { app: App; plan: PlanInfo | null; t: DashT }) {
+  if (!plan || hasFeature(plan, isTaxiApp(app) ? "taxi" : "rides")) return null;
   return (
     <p role="note" className="m-0 rounded-xl bg-peach-soft px-4 py-3 text-[15px] leading-relaxed">
       {richText(t("rides.notOnPlan"), { link: (chunk) => <Link href="/dashboard/license">{chunk}</Link> })}

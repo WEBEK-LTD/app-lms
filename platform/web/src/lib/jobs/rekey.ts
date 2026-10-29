@@ -11,6 +11,7 @@ import { context as whatsappContext } from "../hosted/app-sender";
 import { context as connectorContext } from "../hosted/connectors";
 import { SERVICE_ACCOUNT_CONTEXT } from "../hosted/notify";
 import { reviewAccountContext } from "../publishing/review-account";
+import { taxiMapsKeyContext } from "../taxi/settings";
 import { settingContext } from "../settings/platform";
 import type { PlatformSettingKey } from "../data/types";
 import { recordJobRun } from "../watch/runs";
@@ -39,6 +40,8 @@ export const CONTEXT_TEMPLATES: ((id: string) => string)[] = [
   // 102 The store review account's password.
   reviewAccountContext,
   (id) => `${SERVICE_ACCOUNT_CONTEXT}:${id}`,
+  // 105.9 A live taxi company's Google Maps key.
+  taxiMapsKeyContext,
   (id) => settingContext(id as PlatformSettingKey),
   ...Object.values(signingContext),
 ];

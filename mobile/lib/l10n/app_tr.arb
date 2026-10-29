@@ -1641,5 +1641,19 @@
   "classroomMarkMissing": "Notu yaz.",
   "classroomSaveScores": "Puanları kaydet",
   "classroomScoresSaved": "Kaydedildi. Yeni puanlar öğrencilere ve ailelere bildirildi.",
-  "classroomScoreRange": "Puan 0 ile {max} arasındadır."
+  "classroomScoreRange": "Puan 0 ile {max} arasındadır.",
+  "taxiNearby": "{count, plural, =0{Yakınında boş taksi yok} =1{Yakınında 1 taksi} other{Yakınında {count} taksi}}",
+  "taxiNearest": "en yakını {minutes} dk uzakta",
+  "taxiWhereFrom": "Nereden?",
+  "taxiFrom": "Nereden: {place}",
+  "taxiTo": "Nereye: {place}",
+  "taxiRequestType": "{type} çağır",
+  "taxiArrivingIn": "{minutes} dk içinde geliyor",
+  "taxiLive": "Canlı",
+  "taxiAvailable": "Çağrılara açık",
+  "taxiSearchHint": "Bir yer ara",
+  "taxiSearchNone": "Yer bulunamadı. Başka kelimeler dene.",
+  "taxiChooseOnMap": "Haritada seç",
+  "taxiOnMap": "Haritada işaretlenen yer",
+  "taxiPlaceFailed": "Bu yer kullanılamıyor. Başka bir yer seç."
 }

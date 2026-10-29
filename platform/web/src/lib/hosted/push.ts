@@ -60,12 +60,14 @@ export interface PushResult {
 
 type Fetch = typeof fetch;
 
-function signedAssertion(account: ServiceAccount, nowSeconds: number): string {
+const MESSAGING_SCOPE = "https://www.googleapis.com/auth/firebase.messaging";
+
+function signedAssertion(account: ServiceAccount, nowSeconds: number, scope: string): string {
   const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
   const claims = Buffer.from(
     JSON.stringify({
       iss: account.client_email,
-      scope: "https://www.googleapis.com/auth/firebase.messaging",
+      scope,
       aud: "https://oauth2.googleapis.com/token",
       iat: nowSeconds,
       exp: nowSeconds + 3600,
@@ -75,19 +77,33 @@ function signedAssertion(account: ServiceAccount, nowSeconds: number): string {
   return `${header}.${claims}.${signature}`;
 }
 
-async function accessToken(account: ServiceAccount, fetcher: Fetch, now: Date): Promise<string> {
+async function accessToken(account: ServiceAccount, fetcher: Fetch, now: Date, scope = MESSAGING_SCOPE): Promise<{ token: string; expiresIn: number }> {
   const response = await fetcher("https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
       grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-      assertion: signedAssertion(account, Math.floor(now.getTime() / 1000)),
+      assertion: signedAssertion(account, Math.floor(now.getTime() / 1000), scope),
     }),
     signal: AbortSignal.timeout(10_000),
   });
-  const body = (await response.json().catch(() => ({}))) as { access_token?: string };
+  const body = (await response.json().catch(() => ({}))) as { access_token?: string; expires_in?: number };
   if (!response.ok || !body.access_token) throw new Error(`Google sign-in for push failed (HTTP ${response.status}).`);
-  return body.access_token;
+  return { token: body.access_token, expiresIn: typeof body.expires_in === "number" ? body.expires_in : 3600 };
+}
+
+/** 105.9 Access tokens by account and scope, kept until a minute before they expire (one per warm server). */
+const accessTokens = new Map<string, { token: string; until: number }>();
+
+/** 105.9 An access token of the service account for other Google APIs (the Realtime Database), reused while it lasts. */
+export async function googleAccessToken(account: ServiceAccount, scope: string, options: { fetcher?: Fetch; now?: Date } = {}): Promise<string> {
+  const now = options.now ?? new Date();
+  const key = `${account.client_email}\n${scope}`;
+  const kept = accessTokens.get(key);
+  if (kept && kept.until > now.getTime()) return kept.token;
+  const { token, expiresIn } = await accessToken(account, options.fetcher ?? fetch, now, scope);
+  accessTokens.set(key, { token, until: now.getTime() + (expiresIn - 60) * 1000 });
+  return token;
 }
 
 /** 80.1 Whether Google accepts the Firebase service account: a token for sending is asked for, nothing is sent. Throws why not. */
@@ -132,7 +148,7 @@ export async function sendPush(
     result.invalidTokens.push(...hms.invalidTokens);
   }
   if (tokens.length === 0) return result;
-  const token = await accessToken(account, fetcher, options.now ?? new Date());
+  const { token } = await accessToken(account, fetcher, options.now ?? new Date());
   const url = `https://fcm.googleapis.com/v1/projects/${encodeURIComponent(account.project_id)}/messages:send`;
   for (const deviceToken of tokens) {
     const response = await fetcher(url, {

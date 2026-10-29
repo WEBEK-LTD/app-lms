@@ -5741,5 +5741,91 @@
         "type": "String"
       }
     }
+  },
+  "taxiNearby": "{count, plural, =0{No free taxis near you} =1{1 taxi near you} other{{count} taxis near you}}",
+  "@taxiNearby": {
+    "description": "105.9 How many free taxis are on the map around the rider.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "taxiNearest": "the nearest {minutes} min away",
+  "@taxiNearest": {
+    "description": "105.9 After the taxis near the rider: how far the nearest one is.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "taxiWhereFrom": "Where from?",
+  "@taxiWhereFrom": {
+    "description": "105.9 The search for where the ride starts."
+  },
+  "taxiFrom": "From: {place}",
+  "@taxiFrom": {
+    "description": "105.9 Where the ride starts, on the map and in the sheet.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "taxiTo": "To: {place}",
+  "@taxiTo": {
+    "description": "105.9 Where the ride ends, on the map and in the sheet.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "taxiRequestType": "Request {type}",
+  "@taxiRequestType": {
+    "description": "105.9 The button asking for a ride in the chosen vehicle type (Economy, Comfort).",
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "taxiArrivingIn": "Arriving in {minutes} min",
+  "@taxiArrivingIn": {
+    "description": "105.9 Over the map: when the driver reaches the rider.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "taxiLive": "Live",
+  "@taxiLive": {
+    "description": "105.9 Over the map: the driver's position is live."
+  },
+  "taxiAvailable": "Available for requests",
+  "@taxiAvailable": {
+    "description": "105.9 The driver's switch over the map: online and taking rides."
+  },
+  "taxiSearchHint": "Search for a place",
+  "@taxiSearchHint": {
+    "description": "105.9 The place search's field."
+  },
+  "taxiSearchNone": "No places found. Try other words.",
+  "@taxiSearchNone": {
+    "description": "105.9 The place search found nothing."
+  },
+  "taxiChooseOnMap": "Choose on the map",
+  "@taxiChooseOnMap": {
+    "description": "105.9 In the place search: pick the place on the map instead."
+  },
+  "taxiOnMap": "Pinned on the map",
+  "@taxiOnMap": {
+    "description": "105.9 The name of a place chosen on the map."
+  },
+  "taxiPlaceFailed": "This place can't be used. Choose another.",
+  "@taxiPlaceFailed": {
+    "description": "105.9 A place from the search has no position."
   }
 }

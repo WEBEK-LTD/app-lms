@@ -78,7 +78,7 @@ export default async function RideSettingsPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHead title={t("rides.settings")} intro={t("rides.settingsIntro")} />
-      <RidesPlanNotice plan={plan} t={t} />
+      <RidesPlanNotice app={app} plan={plan} t={t} />
       {offeredTypes(types).length === 0 ? <TypesFirst t={t} /> : null}
       <section aria-labelledby="h-settings" className="flex max-w-[760px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-settings" className="sr-only">

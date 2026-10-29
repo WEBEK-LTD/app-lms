@@ -527,6 +527,19 @@ export const PAGE_TEXTS_TR: Record<string, string> = {
   "<h2>Welcome</h2><p>our app keeps families and teachers close: the timetable, homework, grades and news.</p>": "<h2>Hoş geldiniz</h2><p>Uygulamamız aileleri ve öğretmenleri yakın tutar: ders programı, ödevler, notlar ve duyurular.</p>",
   "Students": "Öğrenciler",
   "School office": "Okul idaresi",
+  // 105.9 Live taxi designs
+  "Taxi": "Taksi",
+  "The nearest taxi comes to you": "En yakın taksi size gelir",
+  "Ask for a taxi": "Taksi çağır",
+  "Our taxis": "Taksilerimiz",
+  "3 min": "3 dk",
+  "The nearest taxi": "En yakın taksi",
+  "Live": "Canlı",
+  "On the map": "Haritada",
+  "Ask now": "Şimdi çağır",
+  "Choose your taxi": "Taksini seç",
+  "<h2>A taxi, whenever you need one</h2><p>{app} shows you the nearest taxi and its driver on the way.</p>": "<h2>Ne zaman isterseniz taksi</h2><p>{app} size en yakın taksiyi ve yoldaki sürücüsünü gösterir.</p>",
+  "<h2>A taxi, whenever you need one</h2><p>our app shows you the nearest taxi and its driver on the way.</p>": "<h2>Ne zaman isterseniz taksi</h2><p>Uygulamamız size en yakın taksiyi ve yoldaki sürücüsünü gösterir.</p>",
 };
 
 /** Messages the hosted API answers with (errors, refusals). */
@@ -906,4 +919,15 @@ export const SERVER_MESSAGES_TR: Record<string, string> = {
   "A score is from 0 to {0}.": "Puan 0 ile {0} arasındadır.",
   "You don't teach this class.": "Bu sınıfa siz ders vermiyorsunuz.",
   "Write the message, up to 2000 characters.": "Mesajı en fazla 2000 karakterle yazın.",
+  // 105.9 Live taxi
+  "Place search isn't set up in this app.": "Bu uygulamada yer arama ayarlanmadı.",
+  "Routes aren't set up in this app.": "Bu uygulamada rotalar ayarlanmadı.",
+  "Too many requests. Please wait a moment.": "Çok fazla istek. Lütfen biraz bekleyin.",
+  "Place not found.": "Yer bulunamadı.",
+  "This app has no live database.": "Bu uygulamanın canlı veritabanı yok.",
+  "Give the place's lat and lng.": "Yerin enlem ve boylamını gönderin.",
+  "Type at least 2 letters.": "En az 2 harf yazın.",
+  "Give both places' lat and lng.": "İki yerin de enlem ve boylamını gönderin.",
+  "There's no road between these places.": "Bu yerler arasında yol yok.",
+  "The map isn't answering right now. Please try again.": "Harita şu an yanıt vermiyor. Lütfen tekrar deneyin.",
 };

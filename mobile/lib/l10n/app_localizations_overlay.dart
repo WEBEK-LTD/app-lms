@@ -6355,4 +6355,61 @@ class OverlayLocalizations extends AppLocalizations {
   String classroomScoreRange(String max) =>
       overlay.format('classroomScoreRange', {'max': max}) ??
       base.classroomScoreRange(max);
+
+  @override
+  String taxiNearby(int count) =>
+      overlay.format('taxiNearby', {'count': count}) ?? base.taxiNearby(count);
+
+  @override
+  String taxiNearest(int minutes) =>
+      overlay.format('taxiNearest', {'minutes': minutes}) ??
+      base.taxiNearest(minutes);
+
+  @override
+  String get taxiWhereFrom =>
+      overlay.text('taxiWhereFrom') ?? base.taxiWhereFrom;
+
+  @override
+  String taxiFrom(String place) =>
+      overlay.format('taxiFrom', {'place': place}) ?? base.taxiFrom(place);
+
+  @override
+  String taxiTo(String place) =>
+      overlay.format('taxiTo', {'place': place}) ?? base.taxiTo(place);
+
+  @override
+  String taxiRequestType(String type) =>
+      overlay.format('taxiRequestType', {'type': type}) ??
+      base.taxiRequestType(type);
+
+  @override
+  String taxiArrivingIn(int minutes) =>
+      overlay.format('taxiArrivingIn', {'minutes': minutes}) ??
+      base.taxiArrivingIn(minutes);
+
+  @override
+  String get taxiLive => overlay.text('taxiLive') ?? base.taxiLive;
+
+  @override
+  String get taxiAvailable =>
+      overlay.text('taxiAvailable') ?? base.taxiAvailable;
+
+  @override
+  String get taxiSearchHint =>
+      overlay.text('taxiSearchHint') ?? base.taxiSearchHint;
+
+  @override
+  String get taxiSearchNone =>
+      overlay.text('taxiSearchNone') ?? base.taxiSearchNone;
+
+  @override
+  String get taxiChooseOnMap =>
+      overlay.text('taxiChooseOnMap') ?? base.taxiChooseOnMap;
+
+  @override
+  String get taxiOnMap => overlay.text('taxiOnMap') ?? base.taxiOnMap;
+
+  @override
+  String get taxiPlaceFailed =>
+      overlay.text('taxiPlaceFailed') ?? base.taxiPlaceFailed;
 }

@@ -47,7 +47,7 @@ export default async function DriversPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHead title={t("rides.drivers")} intro={t("rides.driversIntro")} />
-      <RidesPlanNotice plan={plan} t={t} />
+      <RidesPlanNotice app={app} plan={plan} t={t} />
 
       <section aria-labelledby="h-add" className="flex max-w-[860px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <AddServiceBox title={t("rides.addDriver")} open={drivers.length === 0}>

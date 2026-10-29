@@ -7,6 +7,7 @@ import { tellDriver, tellRider } from "./notify";
 import { driverMayHave } from "./review";
 import { DRIVER_ACTIVE, MATCH_FRESH_MINUTES, rideStage, RIDER_CANCELLABLE } from "./service";
 import { ridesSettingsOf } from "./settings";
+import { publishOffer, publishRide } from "../taxi/publish";
 
 /**
  * 105.2 How a ride moves, whoever moves it (the rider, a driver, the company
@@ -39,7 +40,10 @@ async function move(deps: FlowDeps, ride: Ride, patch: RidePatch & { status: Rid
   const timeline = patch.status === ride.status && !note ? ride.timeline : [...ride.timeline, rideStage(patch.status, deps.now, by, note)];
   const full: RidePatch = { ...patch, timeline, updatedAt: deps.now };
   if (!(await deps.store.updateRide(deps.app.id, ride.id, full, { statuses: [ride.status], ...expect }))) return { ok: false, reason: "changed" };
-  return { ok: true, ride: { ...ride, ...full } as Ride };
+  const moved = { ...ride, ...full } as Ride;
+  // 105.9 A live taxi app's rider and driver see the change at once.
+  await publishRide(deps, moved);
+  return { ok: true, ride: moved };
 }
 
 /** The drivers busy now: with a ride that isn't over, or offered one that is still waiting for their answer. */
@@ -88,6 +92,7 @@ export async function offerNext(deps: FlowDeps, ride: Ride): Promise<Ride> {
     const patch: RidePatch = { offeredTo: next.driver.id, offerExpiresAt: new Date(deps.now.getTime() + rides.offerSeconds * 1000), updatedAt: deps.now };
     if (!(await deps.store.updateRide(deps.app.id, ride.id, patch, { statuses: ["searching"], offeredTo: null }))) return (await deps.store.getRide(deps.app.id, ride.id)) ?? ride;
     const offered = { ...ride, ...patch } as Ride;
+    await publishOffer(deps, offered, next.driver.id);
     await tellDriver(notifyDeps(deps), offered, next.driver, "offer");
     return offered;
   }

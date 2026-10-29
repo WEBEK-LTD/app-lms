@@ -47,7 +47,7 @@ export type StudioSource = "catalog" | "wordpress" | "shopify" | "platform" | "c
 const SOURCE_ORDER: readonly StudioSource[] = ["catalog", "wordpress", "shopify", "platform", "custom_api"];
 
 /** Kinds only Studio offers (104 a delivery company, 105.1 food delivery, 105.2 ride hailing): their content is kept in Yallapp. */
-export const STUDIO_ONLY_KINDS: ReadonlySet<string> = new Set(["delivery", "food", "rides", "instructors", "school"]);
+export const STUDIO_ONLY_KINDS: ReadonlySet<string> = new Set(["delivery", "food", "rides", "instructors", "school", "taxi"]);
 
 /** The content sources a kind's engine takes, content kept in Yallapp first. */
 export function studioSourcesFor(kind: Pick<KindInfo, "id" | "engine">): StudioSource[] {
