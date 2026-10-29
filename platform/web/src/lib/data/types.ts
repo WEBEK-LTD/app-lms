@@ -1898,6 +1898,8 @@ export interface CourseSetup {
   courses: Course[];
   /** The next ID for a category, course, topic or lesson. */
   nextId: number;
+  /** 105.3 Academies with many teachers: people may apply to teach from the app (missing: false). */
+  teachersApply?: boolean;
 }
 
 export const DEFAULT_COURSE_SETUP: CourseSetup = { currency: "TRY", categories: [], courses: [], nextId: 1 };

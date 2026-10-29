@@ -18,7 +18,7 @@ import type { BlockType, ItemSource, LayoutBlock, LayoutTab, ScreenName } from "
  */
 
 /** 20 The verticals, as stored and sent (`Config.vertical`, build config `vertical`). */
-export const APP_VERTICALS = ["restaurant", "clinic", "fitness", "charity", "services"] as const satisfies readonly AppVertical[];
+export const APP_VERTICALS = ["restaurant", "clinic", "fitness", "charity", "services", "instructors"] as const satisfies readonly AppVertical[];
 
 /** Content the client manages in the dashboard, served by the hosted API (a connector kind). */
 export type OwnContentKind = Extract<ConnectorConfig["kind"], "catalog" | "courses" | "bookings" | "listings" | "articles" | "events" | "campaigns" | "deliveries" | "restaurants" | "rides">;

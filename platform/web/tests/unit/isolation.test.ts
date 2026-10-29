@@ -81,8 +81,10 @@ async function appsOf(store: MemoryStore, client: Client, name: string, courses:
     shop: await addApp(store, client, { appType: "store", appName: `${name} shop`, connector: { kind: "catalog" }, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS } }),
     clinic: await addApp(store, client, { appType: "booking", vertical: "clinic", appName: `${name} clinic`, connector: { kind: "bookings" } }),
     gym: await addApp(store, client, { appType: "booking", vertical: "fitness", appName: `${name} gym`, connector: { kind: "bookings" }, bookingSetup: { ...DEFAULT_BOOKING_SETUP } }),
+    // 105.3 An academy with many teachers (its courses are the school's courses).
     school: await addApp(store, client, {
       appType: "lms",
+      vertical: "instructors",
       appName: `${name} school`,
       connector: { kind: "courses" },
       courseSetup: { currency: "TRY", categories: [], courses, nextId: 100 },
@@ -531,6 +533,12 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       createdAt: NOW,
       updatedAt: NOW,
     });
+    // 105.3 A teacher of the other client's academy.
+    const teacher = await store.createTeacher(
+      { appId: theirs.school.id, name: `${MARK} teacher`, phone: "+201009998888", email: null, userId: null, photoAssetId: null, bio: `${MARK} bio`, subjects: [MARK], status: "active", shareBp: 5000, featured: false },
+      NOW,
+    );
+    if (!teacher.ok) throw new Error("duplicate teacher");
     // 105.2 A ride of the other client's ride company.
     const ride = await store.createRide({
       appId: theirs.rides.id,
@@ -581,6 +589,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       updatedAt: NOW,
     });
     Object.assign(hostedIds, {
+      teacher_id: String(teacher.teacher.id),
       ride_id: String(ride.id),
       restaurant_id: String(restaurant.id),
       // Food orders are numbered apart from shop orders: their paths get this one (see hosted()).
@@ -648,7 +657,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
   function hostedKind(route: string): keyof Kinds {
     if (/^\/(me\/appointments|bookings\/services)/.test(route)) return "clinic";
     if (/^\/bookings\/classes/.test(route)) return "gym";
-    if (/^\/(courses|lessons|quizzes|questions|me\/wishlist)/.test(route)) return "school";
+    if (/^\/(courses|lessons|quizzes|questions|me\/wishlist|teachers|teacher)\b/.test(route)) return "school";
     if (/^\/news/.test(route)) return "news";
     if (/^\/(listings|me\/favorites|me\/inquiries)/.test(route)) return "estate";
     if (/^\/(events|me\/tickets)/.test(route)) return "events";
@@ -677,7 +686,8 @@ describe("79.3 one client never reaches another's data through the Owner API", (
         store,
         app,
         active: true,
-        plan: PLAN_INFO.pro,
+        // 105.3 With academies with many teachers, so their paths answer.
+        plan: { ...PLAN_INFO.pro, features: [...PLAN_INFO.pro.features, "instructors"] },
         now: NOW,
         ip: "203.0.113.9",
         secret: HOSTED_SECRET,

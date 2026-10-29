@@ -67,6 +67,9 @@ export function connectorFor(
     /** 63 A course question or review (pushes to the business's phones). */
     onQuestion?: CoursesDeps["onQuestion"];
     onReview?: CoursesDeps["onReview"];
+    /** 105.3 A teacher's students and the teacher hear of each other's questions and answers. */
+    onTeacherQuestion?: CoursesDeps["onTeacherQuestion"];
+    onTeacherAnswer?: CoursesDeps["onTeacherAnswer"];
     /** 13.1 Card payments in the app (dashboard products, courses and 28 tickets) are in the app's plan. */
     cardPayments?: boolean;
     /** 91.4 Loyalty points are in the app's plan. */

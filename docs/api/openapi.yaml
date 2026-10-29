@@ -5639,11 +5639,12 @@ paths:
       operationId: startTeacherUpload
       summary: Start sending a lesson's video or PDF
       description: |
-        Videos (MP4, MOV, WebM) up to 2 GB and PDFs up to 100 MB, into the
-        academy's Media library (413 `storage_full` when its storage is full).
-        The app sends the file in chunks to `upload_url` as for chat uploads,
-        calls `/complete`, then adds the lesson with `upload_id`. An upload
-        not used in a lesson within a day is deleted.
+        Videos (MP4, MOV, WebM) up to 5 GB and PDFs up to 200 MB, into the
+        academy's Media library (413 `storage_full` when its storage is full),
+        named with the teacher's name. The app sends the file in chunks to
+        `upload_url` as for chat uploads, calls `/complete`, then adds the
+        lesson with `upload_id`. A file not used in a lesson stays in the
+        Media library, where the academy can delete it.
       requestBody:
         required: true
         content:
@@ -5670,6 +5671,7 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 
   /teacher/uploads/{upload_id}/resume:
     post:

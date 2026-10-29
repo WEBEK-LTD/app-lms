@@ -77,3 +77,15 @@ export async function tellTeacherQuestion(deps: DeliveryNotifyDeps, teacher: Tea
   const words = QUESTION[await langOf(deps, user.id)](course.title, text);
   return deliver(deps, user.id, words, { type: "teacher_question", course_id: String(course.id), question_id: String(question.id) }, false);
 }
+
+const ANSWERED: Record<Lang, (teacher: string, course: string, text: string) => Words> = {
+  en: (teacher, course, text) => ({ title: `${teacher} answered your question`, body: course ? `${course}: ${text}` : text }),
+  ar: (teacher, course, text) => ({ title: `أجاب ${teacher} عن سؤالك`, body: course ? `${course}: ${text}` : text }),
+  tr: (teacher, course, text) => ({ title: `${teacher} sorunuzu yanıtladı`, body: course ? `${course}: ${text}` : text }),
+};
+
+/** The teacher answered a student's question: the student hears of it, as with the academy's answers. */
+export async function tellStudentAnswered(deps: DeliveryNotifyDeps, teacher: Teacher, course: Pick<Course, "id" | "title">, question: Pick<CourseQuestion, "id" | "userId">, text: string): Promise<number> {
+  const words = ANSWERED[await langOf(deps, question.userId)](teacher.name, course.title, text);
+  return deliver(deps, question.userId, words, { type: "announcement", course_id: String(course.id), question_id: String(question.id) }, false);
+}

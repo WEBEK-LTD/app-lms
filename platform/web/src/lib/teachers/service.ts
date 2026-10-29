@@ -21,9 +21,13 @@ export function isTeachersApp(app: Pick<App, "vertical" | "connector">): boolean
   return app.vertical === "instructors" && app.connector?.kind === "courses";
 }
 
-/** The teachers' endpoints answer: a teachers app on a plan with `instructors` (no plan given: tests and older callers). */
-export function teachersOn(app: Pick<App, "vertical" | "connector">, plan?: Pick<PlanInfo, "features"> | null): boolean {
-  return isTeachersApp(app) && (plan === undefined || hasFeature(plan, "instructors"));
+/**
+ * The teachers' endpoints answer: a teachers app on a plan with `instructors`
+ * (no plan given: tests and older callers). Yallapp's own demo apps have
+ * Studio's project types on any plan.
+ */
+export function teachersOn(app: Pick<App, "vertical" | "connector" | "demo">, plan?: Pick<PlanInfo, "features"> | null): boolean {
+  return isTeachersApp(app) && (plan === undefined || hasFeature(plan, "instructors") || app.demo === true);
 }
 
 /** Where a course is: a teacher's before the academy published it, else shown (`published`) or not (`hidden`). */

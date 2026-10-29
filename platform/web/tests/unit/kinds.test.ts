@@ -386,7 +386,7 @@ describe("20 app kinds registry", () => {
   });
 
   it("reads verticals and kinds", () => {
-    expect(APP_VERTICALS).toEqual(["restaurant", "clinic", "fitness", "charity", "services"]);
+    expect(APP_VERTICALS).toEqual(["restaurant", "clinic", "fitness", "charity", "services", "instructors"]);
     expect(kindOf({ appType: "booking", vertical: "services" }).id).toBe("services");
     expect(toVertical("clinic")).toBe("clinic");
     expect(toVertical("salon")).toBeNull();

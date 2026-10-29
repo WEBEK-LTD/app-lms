@@ -96,7 +96,7 @@ export function removeLesson(setup: CourseSetup, courseId: number, lessonId: num
 }
 
 export function submitForReview(setup: CourseSetup, courseId: number): CourseSetup {
-  return withCourse(setup, courseId, (c) => ({ ...c, teacherStage: "in_review", active: false }));
+  return withCourse(setup, courseId, (c) => ({ ...c, teacherStage: "in_review", reviewNote: null, active: false }));
 }
 
 /** The academy publishes a teacher's course (or shows a hidden one): students see it at once. */
