@@ -355,9 +355,9 @@ test("99.4 cards, a gallery, a location, a divider and a form; the form's answer
   const form = await add("Form");
   await expect(form.getByLabel("Send the answers to")).toHaveValue("email");
   const formId = (await blocks.last().getAttribute("id"))!.replace(/^block-/, "");
-  // The quick view draws them.
+  // The quick view draws them (110.3 the design's home has cards of its own: these are the last).
   await own.getByRole("button", { name: "Quick view", exact: true }).click();
-  for (const kind of ["cards", "gallery", "map", "form"]) await expect(own.locator(`[data-preview-${kind}]`)).toBeVisible();
+  for (const kind of ["cards", "gallery", "map", "form"]) await expect(own.locator(`[data-preview-${kind}]`).last()).toBeVisible();
   await expect(own.getByText(/^Draft saved/)).toBeVisible({ timeout: 15_000 });
   await own.getByRole("button", { name: "Publish", exact: true }).click();
   await expect(own.getByText("Published. Your app shows the new pages")).toBeVisible();
@@ -365,7 +365,7 @@ test("99.4 cards, a gallery, a location, a divider and a form; the form's answer
   const home = await (await request.get(`${api}/pages/home?platform=android`)).json();
   const types = home.blocks.map((b: { type: string }) => b.type);
   for (const type of ["cards", "gallery", "map", "divider", "form"]) expect(types, type).toContain(type);
-  expect(home.blocks.find((b: { type: string }) => b.type === "cards")).toMatchObject({ columns: 3, cards: [{ title: "Swimming" }, { title: "Robotics" }] });
+  expect(home.blocks.filter((b: { type: string }) => b.type === "cards").at(-1)).toMatchObject({ columns: 3, cards: [{ title: "Swimming" }, { title: "Robotics" }] });
 
   const send = (answers: Record<string, string>) => request.post(`${api}/forms/home/${formId}`, { data: { answers }, headers: { "x-forwarded-for": "198.51.100.99" } });
   const wrong = await send({ name: "Ayşe", email: "not an email" });
