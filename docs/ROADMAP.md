@@ -2474,12 +2474,12 @@ jobs, live position and second app.
 
 | Done | Step | Checked by |
 | --- | --- | --- |
-| [ ] | 105.2.1 Contract: `app_type` `rides`; `Config.rides`; vehicle types and estimates, rides (ask, mine, cancel, rate, share), the Driver tag (online, requests, accept, arrived, start, end, earnings); notifications; plan feature `rides` | redocly lint |
-| [ ] | 105.2.2 Platform: vehicle types, fares, areas, drivers and their documents, rides and their stages, matching by distance, live positions, cash or card, the company's share and statements, pushes (a migration) | unit tests, isolation tests |
-| [ ] | 105.2.3 Dashboard (en/ar/tr) in Studio: Rides (live map, list), Drivers (documents, approve, suspend), Vehicle types and fares, Areas, Statements, Promo codes; settings | unit tests, e2e |
-| [ ] | 105.2.4 App, rider: map home, where to, vehicle types with estimates, asking, the driver on the way, the ride, rating, history and receipts, share and SOS | flutter analyze and widget tests |
-| [ ] | 105.2.5 App, driver: online, requests with sound and countdown, the ride's stages, earnings; the driver app in the company's name (104.6) | widget tests |
-| [ ] | 105.2.6 Studio templates and sections for rides; review accounts for both roles (the reviewers' rides reach no real driver) | unit tests, e2e |
+| [x] | 105.2.1 Contract: `app_type` `rides`; `Config.rides`; vehicle types and estimates, rides (ask, mine, cancel, rate, share), the Driver tag (online, requests, accept, arrived, start, end, earnings); notifications; plan feature `rides` | redocly lint |
+| [x] | 105.2.2 Platform: vehicle types, fares, areas, drivers and their documents, rides and their stages, matching by distance, live positions, cash or card, the company's share and statements, pushes (a migration) | unit tests, isolation tests |
+| [x] | 105.2.3 Dashboard (en/ar/tr) in Studio: Rides (the drivers online now, list, give to a driver, cancel), Drivers (documents, approve, suspend), Vehicle types and fares, Statements; Ride settings with the areas and promo codes | unit tests, e2e |
+| [x] | 105.2.4 App, rider: where to (the phone's position, a maps link or the map), now or later, vehicle types with their fares and how soon, asking, the driver on the way with the car and the code, the ride, cancelling with a reason, paying a card ride, rating, my rides, sharing the ride and the emergency button | flutter analyze and widget tests |
+| [x] | 105.2.5 App, driver: online (the position sent while online with the screen open), one offer at a time with the seconds left (the push's sound), accept or decline, the ride's stages with the rider's code, the cash to collect, earnings by day, week and month; the drivers' app in the company's name (104.6: `role` driver, `.driver`, "<app> Driver", its builds, listing and Firebase files) | unit tests, widget tests |
+| [x] | 105.2.6 Studio templates and sections for rides (the welcome section; three ready-made designs: Rides, Ride offers, Ride brand); the store reviewers' notes for both roles (the review account's rides reach no real driver; in the drivers' app the review driver gets a sample ride) | unit tests, e2e |
 
 ### 105.3 Academies with many teachers (Studio project type `instructors`)
 

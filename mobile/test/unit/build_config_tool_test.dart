@@ -61,7 +61,7 @@ void main() {
     expect(
       validateBuildConfig(example()..['app_type'] = 'salon').errors.join(),
       contains(
-        '"app_type" must be one of lms, store, booking, real_estate, news, events, donations, delivery.',
+        '"app_type" must be one of lms, store, booking, real_estate, news, events, donations, delivery, food, rides.',
       ),
     );
     expect(
@@ -112,7 +112,30 @@ void main() {
     );
     expect(
       validateBuildConfig(courier..['role'] = 'driver').errors.single,
+      '"role" driver is for ride apps only.',
+    );
+    expect(
+      validateBuildConfig(courier..['role'] = 'pilot').errors.single,
       startsWith('"role" must be one of'),
+    );
+  });
+
+  test('105.1.6 and 105.2 a food company\'s courier app, a ride company\'s drivers\' app', () {
+    final food = example()
+      ..['app_type'] = 'food'
+      ..['role'] = 'courier';
+    expect(validateBuildConfig(food).isValid, isTrue);
+    expect(renderDartConfig(food), contains('appType: AppType.food,'));
+    final drivers = example()
+      ..['app_type'] = 'rides'
+      ..['role'] = 'driver';
+    expect(validateBuildConfig(drivers).isValid, isTrue);
+    expect(
+      renderDartConfig(drivers),
+      allOf(
+        contains('appType: AppType.rides,'),
+        contains('role: AppRole.driver,'),
+      ),
     );
   });
 

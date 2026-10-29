@@ -51,6 +51,7 @@ abstract class PushService {
 /// - 104 `shipment_update` opens the shipment, `courier_job` the courier's job;
 /// - 105.1 `food_order_update` opens the food order, `restaurant_order` the
 ///   restaurant's order;
+/// - 105.2 `ride_update` opens the ride, `ride_offer` the driver's screen;
 /// - 85.3 the app's own: an appointment, the classes, an event, the
 ///   memberships, the cart or My courses;
 /// - anything else opens Home.
@@ -93,6 +94,11 @@ String pushTargetLocation(Map<String, dynamic> data) {
     case 'restaurant_order':
       final food = id('food_order_id');
       return food != null ? Paths.restaurantOrder(food) : Paths.restaurantDesk;
+    case 'ride_update':
+      final ride = id('ride_id');
+      return ride != null ? Paths.rideFollow(ride) : Paths.myRides;
+    case 'ride_offer':
+      return Paths.driver;
     case 'chat':
       final conversation = '${data['conversation_id'] ?? ''}'.trim();
       if (conversation.isNotEmpty) return Paths.chatConversation(conversation);

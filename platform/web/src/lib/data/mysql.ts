@@ -24,6 +24,7 @@ import type {
   RestaurantStaffInput,
 } from "./types";
 import { dishNamesOf } from "../food/menu";
+import type { Ride, RideInput, RidePatch, RideQuery, RideStatementRow, RideStatus, VehicleType, VehicleTypeInput } from "./types";
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
@@ -2760,7 +2761,7 @@ export class MysqlStore implements DataStore {
   }
 
   async createCourier(input: CourierInput, now: Date): Promise<{ ok: true; courier: Courier } | { ok: false; reason: "duplicate" }> {
-    const values = { ...input, onDuty: false, lat: null, lng: null, locatedAt: null, createdAt: now, updatedAt: now };
+    const values = { ...input, driver: input.driver ?? null, onDuty: false, lat: null, lng: null, locatedAt: null, createdAt: now, updatedAt: now };
     try {
       const [result] = await this.run((db) => db.insert(schema.couriers).values(values));
       return { ok: true, courier: { id: Number(result.insertId), ...values } };
@@ -2793,6 +2794,16 @@ export class MysqlStore implements DataStore {
             .update(s)
             .set({ status: "pending", courierId: null, timeline: [...row.timeline, { status: "pending", at: now.toISOString(), by: "company" }], updatedAt: now })
             .where(and(eq(s.id, row.id), eq(s.status, "assigned")));
+        }
+        // 105.2 Rides they hadn't started look for another driver; the others keep the name (driver_id set to null by the foreign key).
+        const r = schema.rides;
+        await tx.update(r).set({ offeredTo: null, offerExpiresAt: null }).where(and(eq(r.appId, appId), eq(r.offeredTo, id)));
+        const unstarted = await tx.select({ id: r.id, status: r.status, timeline: r.timeline }).from(r).where(and(eq(r.appId, appId), eq(r.driverId, id), inArray(r.status, ["accepted", "arrived"])));
+        for (const row of unstarted) {
+          await tx
+            .update(r)
+            .set({ status: "searching", driverId: null, driverName: null, searchingSince: now, timeline: [...row.timeline, { status: "searching", at: now.toISOString(), by: "company" }], updatedAt: now })
+            .where(and(eq(r.id, row.id), eq(r.status, row.status)));
         }
         await tx.delete(t).where(and(eq(t.appId, appId), eq(t.id, id)));
       }),
@@ -3069,6 +3080,180 @@ export class MysqlStore implements DataStore {
       })
       .sort((a, b) => b.subtotalCents - a.subtotalCents || a.restaurantName.localeCompare(b.restaurantName));
   }
+  // 105.2 Ride hailing
+
+  async listVehicleTypes(appId: string): Promise<VehicleType[]> {
+    const t = schema.vehicleTypes;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(asc(t.position), asc(t.id)));
+  }
+
+  async getVehicleType(appId: string, id: number): Promise<VehicleType | null> {
+    const t = schema.vehicleTypes;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async createVehicleType(input: VehicleTypeInput, now: Date): Promise<VehicleType> {
+    const values = { ...input, createdAt: now, updatedAt: now };
+    const [result] = await this.run((db) => db.insert(schema.vehicleTypes).values(values));
+    return { id: Number(result.insertId), ...values };
+  }
+
+  async updateVehicleType(appId: string, id: number, patch: Partial<VehicleTypeInput>, now: Date): Promise<void> {
+    const { appId: _ignored, ...rest } = patch;
+    void _ignored;
+    const t = schema.vehicleTypes;
+    await this.run((db) => db.update(t).set({ ...rest, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async deleteVehicleType(appId: string, id: number, now: Date): Promise<void> {
+    const t = schema.vehicleTypes;
+    const c = schema.couriers;
+    await this.run((db) =>
+      db.transaction(async (tx) => {
+        // Rides keep its name (vehicle_type_id set to null by the foreign key); its drivers have none.
+        const drivers = await tx.select({ id: c.id, driver: c.driver }).from(c).where(and(eq(c.appId, appId), isNotNull(c.driver)));
+        for (const row of drivers) {
+          if (row.driver?.vehicleTypeId === id) await tx.update(c).set({ driver: { ...row.driver, vehicleTypeId: null }, updatedAt: now }).where(eq(c.id, row.id));
+        }
+        await tx.delete(t).where(and(eq(t.appId, appId), eq(t.id, id)));
+      }),
+    );
+  }
+
+  async createRide(input: RideInput): Promise<Ride> {
+    const [result] = await this.run((db) => db.insert(schema.rides).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async getRide(appId: string, id: number): Promise<Ride | null> {
+    const t = schema.rides;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async findRideByShareToken(token: string): Promise<Ride | null> {
+    if (!token) return null;
+    const t = schema.rides;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.shareToken, token)).limit(1));
+    return row ?? null;
+  }
+
+  async listRides(query: RideQuery): Promise<{ items: Ride[]; total: number }> {
+    const t = schema.rides;
+    const search = query.search?.trim() ?? "";
+    const reference = /^r-?(\d{1,15})$/i.exec(search);
+    const pattern = `%${search.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
+    const where = and(
+      eq(t.appId, query.appId),
+      query.userId !== undefined ? eq(t.userId, query.userId) : undefined,
+      query.notUserId !== undefined ? or(isNull(t.userId), ne(t.userId, query.notUserId)) : undefined,
+      query.driverId !== undefined ? eq(t.driverId, query.driverId) : undefined,
+      query.offeredTo !== undefined ? eq(t.offeredTo, query.offeredTo) : undefined,
+      query.statuses ? inArray(t.status, query.statuses) : undefined,
+      query.promoCode !== undefined ? eq(t.promoCode, query.promoCode) : undefined,
+      query.since ? gte(t.createdAt, query.since) : undefined,
+      query.until ? lt(t.createdAt, query.until) : undefined,
+      query.updatedSince ? gte(t.updatedAt, query.updatedSince) : undefined,
+      !search ? undefined : reference ? eq(t.id, Number(reference[1])) : or(like(t.riderName, pattern), like(t.riderPhone, pattern), like(t.driverName, pattern)),
+    );
+    const order = query.order === "newest" ? [desc(t.createdAt), desc(t.id)] : [asc(t.createdAt), asc(t.id)];
+    const [items, totals] = await Promise.all([
+      this.run((db) =>
+        db
+          .select()
+          .from(t)
+          .where(where)
+          .orderBy(...order)
+          .limit(query.limit)
+          .offset(query.offset),
+      ),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: totals[0]?.n ?? 0 };
+  }
+
+  async updateRide(appId: string, id: number, patch: RidePatch, expect: { statuses?: RideStatus[]; offeredTo?: number | null; driverId?: number | null } = {}): Promise<boolean> {
+    const t = schema.rides;
+    if (Object.keys(patch).length === 0) return false;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set(patch)
+        .where(
+          and(
+            eq(t.appId, appId),
+            eq(t.id, id),
+            expect.statuses ? inArray(t.status, expect.statuses) : undefined,
+            expect.offeredTo === undefined ? undefined : expect.offeredTo === null ? isNull(t.offeredTo) : eq(t.offeredTo, expect.offeredTo),
+            expect.driverId === undefined ? undefined : expect.driverId === null ? isNull(t.driverId) : eq(t.driverId, expect.driverId),
+          ),
+        ),
+    );
+    return result.affectedRows === 1;
+  }
+
+  async listDueRides(dueBy: Date, limit: number): Promise<Ride[]> {
+    const t = schema.rides;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(or(eq(t.status, "searching"), and(eq(t.status, "scheduled"), lte(t.scheduledAt, dueBy))))
+        .orderBy(asc(t.updatedAt), asc(t.id))
+        .limit(limit),
+    );
+  }
+
+  async addDriverRating(appId: string, courierId: number, stars: number, now: Date): Promise<void> {
+    const t = schema.couriers;
+    await this.run((db) =>
+      db
+        .update(t)
+        .set({
+          driver: sql`json_set(${t.driver}, '$.ratingSum', json_extract(${t.driver}, '$.ratingSum') + ${stars}, '$.ratingCount', json_extract(${t.driver}, '$.ratingCount') + 1)`,
+          updatedAt: now,
+        })
+        .where(and(eq(t.appId, appId), eq(t.id, courierId), isNotNull(t.driver))),
+    );
+  }
+
+  async rideStatement(appId: string, since: Date, until: Date): Promise<RideStatementRow[]> {
+    const t = schema.rides;
+    const rows = await this.run((db) =>
+      db
+        .select({
+          driverId: t.driverId,
+          driverName: sql<string>`max(${t.driverName})`,
+          rides: count(),
+          totalCents: sql<string>`sum(${t.finalCents})`,
+          feesCents: sql<string>`sum(${t.previousFeeCents})`,
+          commissionCents: sql<string>`sum(${t.commissionCents})`,
+          cashCents: sql<string>`sum(case when ${t.paymentMethod} = 'cash' then ${t.finalCents} else 0 end)`,
+        })
+        .from(t)
+        .where(and(eq(t.appId, appId), eq(t.status, "completed"), gte(t.createdAt, since), lt(t.createdAt, until)))
+        .groupBy(t.driverId, sql`case when ${t.driverId} is null then ${t.driverName} else '' end`),
+    );
+    return rows
+      .map((r) => {
+        const totalCents = Number(r.totalCents ?? 0);
+        const feesCents = Number(r.feesCents ?? 0);
+        const cashCents = Number(r.cashCents ?? 0);
+        return {
+          driverId: r.driverId,
+          driverName: r.driverName ?? "",
+          rides: r.rides,
+          faresCents: totalCents - feesCents,
+          cashCents,
+          cardCents: totalCents - cashCents,
+          commissionCents: Number(r.commissionCents ?? 0),
+          feesCents,
+        };
+      })
+      .sort((a, b) => b.faresCents - a.faresCents || a.driverName.localeCompare(b.driverName));
+  }
+
 
   // 10.7 Listings
 

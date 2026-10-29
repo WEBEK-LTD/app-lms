@@ -73,4 +73,19 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
     const welcome = templatesFor(kindOf("food"))[0]!.make({ brand: "#1F4E5F", source: "restaurants", w: (word) => word });
     expect(allNodes(welcome).map((n) => n.action?.screen).filter(Boolean)).toEqual(["restaurants", "food_orders", "restaurants"]);
   });
+
+  it("105.2 gives a ride company three designs that ask for a ride, its welcome section first", () => {
+    expect(templatesFor(kindOf("rides")).map((t) => t.id)).toEqual(["ride", "ride_offers", "ride_brand", "brand", "contact", "blank"]);
+    expect(sectionsFor(kindOf("rides"))[0]!.id).toBe("ride");
+    expect(sectionsFor(kindOf("food")).map((s) => s.id)).not.toContain("ride");
+    for (const template of templatesFor(kindOf("rides")).filter((t) => t.id.startsWith("ride"))) {
+      const nodes = allNodes(template.make({ brand: "#1F4E5F", source: "vehicle_types", w: (word) => word }));
+      expect(nodes.map((n) => n.action?.screen).filter(Boolean), template.id).toContain("ride");
+      const words = nodes.map((n) => n.text).filter(Boolean);
+      if (words.includes("stepsTitle")) expect(words, template.id).toEqual(expect.arrayContaining(["rideStepOne", "rideStepTwo", "rideStepThree"]));
+      expect(words, template.id).not.toContain("stepOne");
+    }
+    const welcome = templatesFor(kindOf("rides"))[0]!.make({ brand: "#1F4E5F", source: "vehicle_types", w: (word) => word });
+    expect(allNodes(welcome).map((n) => n.action?.screen).filter(Boolean)).toEqual(["ride", "my_rides", "ride"]);
+  });
 });

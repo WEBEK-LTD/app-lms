@@ -782,6 +782,39 @@ abstract class YallappApi {
     String? note,
   });
   Future<RestaurantOrder> readyRestaurantOrder(int id);
+
+  // 105.2 Ride hailing.
+  Future<RideEstimate> estimateRide(RideRequest request);
+  Future<Ride> requestRide(RideRequest request);
+  Future<Paged<Ride>> listMyRides({int page = 1, bool active = false});
+  Future<Ride> getMyRide(int id);
+  Future<Ride> cancelMyRide(int id, {RiderCancelReason? reason});
+  Future<String> payMyRide(int id);
+  Future<Ride> rateMyRide(int id, {required int driver, String? comment});
+  Future<DriverProfile> getDriver();
+  Future<DriverProfile> setDriverOnline(bool online);
+  Future<void> sendDriverLocation(
+    double lat,
+    double lng, {
+    double? accuracy,
+    double? heading,
+  });
+  Future<List<DriverRide>> listDriverOffers();
+  Future<Paged<DriverRide>> listDriverRides(
+    DriverRideScope scope, {
+    int page = 1,
+  });
+  Future<DriverRide> getDriverRide(int id);
+  Future<DriverRide> acceptDriverRide(int id);
+  Future<void> declineDriverRide(int id);
+  Future<DriverRide> moveDriverRide(
+    int id,
+    DriverStep step, {
+    String? pin,
+    DriverCancelReason? reason,
+    String? note,
+  });
+  Future<DriverEarnings> getDriverEarnings(EarningsPeriod period);
 }
 
 /// [YallappApi] over HTTP.
@@ -2273,5 +2306,158 @@ class HttpYallappApi implements YallappApi {
     '/restaurant/orders/$id/ready',
     _required,
     (data) => RestaurantOrder.fromJson(asJson(data)),
+  );
+
+  // 105.2 Ride hailing.
+
+  @override
+  Future<RideEstimate> estimateRide(RideRequest request) => _send(
+    'POST',
+    '/rides/estimate',
+    _required,
+    (data) => RideEstimate.fromJson(asJson(data)),
+    body: request.estimateJson(),
+    query: {'platform': platform.name},
+  );
+
+  @override
+  Future<Ride> requestRide(RideRequest request) => _send(
+    'POST',
+    '/rides',
+    _required,
+    (data) => Ride.fromJson(asJson(data)),
+    body: request.toJson(),
+    query: {'platform': platform.name},
+  );
+
+  @override
+  Future<Paged<Ride>> listMyRides({int page = 1, bool active = false}) => _get(
+    '/me/rides',
+    _required,
+    (json) => Paged.fromJson(json, Ride.fromJson),
+    query: {'page': page, 'per_page': 20, if (active) 'active': 'true'},
+  );
+
+  @override
+  Future<Ride> getMyRide(int id) =>
+      _get('/me/rides/$id', _required, Ride.fromJson);
+
+  @override
+  Future<Ride> cancelMyRide(int id, {RiderCancelReason? reason}) => _send(
+    'POST',
+    '/me/rides/$id/cancel',
+    _required,
+    (data) => Ride.fromJson(asJson(data)),
+    body: {'reason': reason == null ? null : snake(reason)},
+  );
+
+  @override
+  Future<String> payMyRide(int id) => _send(
+    'POST',
+    '/me/rides/$id/pay',
+    _required,
+    (data) => reqString(asJson(data), 'url'),
+  );
+
+  @override
+  Future<Ride> rateMyRide(int id, {required int driver, String? comment}) =>
+      _send(
+        'POST',
+        '/me/rides/$id/rating',
+        _required,
+        (data) => Ride.fromJson(asJson(data)),
+        body: {
+          'driver': driver,
+          'comment': (comment?.trim().isEmpty ?? true) ? null : comment!.trim(),
+        },
+      );
+
+  @override
+  Future<DriverProfile> getDriver() =>
+      _get('/driver/me', _required, DriverProfile.fromJson);
+
+  @override
+  Future<DriverProfile> setDriverOnline(bool online) => _send(
+    'PATCH',
+    '/driver/me',
+    _required,
+    (data) => DriverProfile.fromJson(asJson(data)),
+    body: {'online': online},
+  );
+
+  @override
+  Future<void> sendDriverLocation(
+    double lat,
+    double lng, {
+    double? accuracy,
+    double? heading,
+  }) => _send(
+    'PUT',
+    '/driver/location',
+    _required,
+    _ignore,
+    body: {'lat': lat, 'lng': lng, 'accuracy': ?accuracy, 'heading': ?heading},
+  );
+
+  @override
+  Future<List<DriverRide>> listDriverOffers() => _get(
+    '/driver/offers',
+    _required,
+    (json) => reqListOf(json, 'items', DriverRide.fromJson),
+  );
+
+  @override
+  Future<Paged<DriverRide>> listDriverRides(
+    DriverRideScope scope, {
+    int page = 1,
+  }) => _get(
+    '/driver/rides',
+    _required,
+    (json) => Paged.fromJson(json, DriverRide.fromJson),
+    query: {'scope': scope.name, 'page': page, 'per_page': 20},
+  );
+
+  @override
+  Future<DriverRide> getDriverRide(int id) =>
+      _get('/driver/rides/$id', _required, DriverRide.fromJson);
+
+  @override
+  Future<DriverRide> acceptDriverRide(int id) => _send(
+    'POST',
+    '/driver/rides/$id/accept',
+    _required,
+    (data) => DriverRide.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<void> declineDriverRide(int id) =>
+      _send('POST', '/driver/rides/$id/decline', _required, _ignore);
+
+  @override
+  Future<DriverRide> moveDriverRide(
+    int id,
+    DriverStep step, {
+    String? pin,
+    DriverCancelReason? reason,
+    String? note,
+  }) => _send(
+    'POST',
+    '/driver/rides/$id/status',
+    _required,
+    (data) => DriverRide.fromJson(asJson(data)),
+    body: {
+      'status': snake(step),
+      'pin': ?pin,
+      if (reason != null) 'reason': snake(reason),
+      'note': ?note,
+    },
+  );
+
+  @override
+  Future<DriverEarnings> getDriverEarnings(EarningsPeriod period) => _get(
+    '/driver/earnings',
+    _required,
+    DriverEarnings.fromJson,
+    query: {'period': period.name},
   );
 }

@@ -4223,5 +4223,583 @@
   "deskCustomer": "Customer",
   "@deskCustomer": {
     "description": "105.1 The order's customer."
+  },
+  "tabRide": "Ride",
+  "@tabRide": {
+    "description": "105.2 The tab where the rider asks for a ride."
+  },
+  "tabMyRides": "My rides",
+  "@tabMyRides": {
+    "description": "105.2 The tab with the rider's rides."
+  },
+  "tabDriver": "Driver",
+  "@tabDriver": {
+    "description": "105.2 The tab of the company's drivers."
+  },
+  "rideWhereTo": "Where to?",
+  "@rideWhereTo": {
+    "description": "105.2 The title of the screen where the rider asks for a ride."
+  },
+  "ridePickup": "Pickup",
+  "@ridePickup": {
+    "description": "105.2 Where the driver picks the rider up."
+  },
+  "rideDropoff": "Drop-off",
+  "@rideDropoff": {
+    "description": "105.2 Where the ride ends."
+  },
+  "rideMyLocation": "My location",
+  "@rideMyLocation": {
+    "description": "105.2 The pickup's address when the rider used their position."
+  },
+  "rideWhen": "When",
+  "@rideWhen": {
+    "description": "105.2 Now or later."
+  },
+  "rideNow": "Now",
+  "@rideNow": {
+    "description": "105.2 A ride now."
+  },
+  "rideLater": "Later",
+  "@rideLater": {
+    "description": "105.2 A ride booked for later."
+  },
+  "rideScheduledFor": "Pickup at {time}",
+  "@rideScheduledFor": {
+    "description": "105.2 When a booked ride picks the rider up.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "rideChooseCar": "Choose a ride",
+  "@rideChooseCar": {
+    "description": "105.2 The vehicle types with their fares."
+  },
+  "rideSignInForFares": "Sign in to see the fares.",
+  "@rideSignInForFares": {
+    "description": "105.2 Fares while signed out."
+  },
+  "rideFillPlaces": "Set the pickup and the drop-off with your location, a maps link or the map.",
+  "@rideFillPlaces": {
+    "description": "105.2 Both places need their position."
+  },
+  "rideTrip": "{km} km · about {minutes} min",
+  "@rideTrip": {
+    "description": "105.2 How far and how long a ride is.",
+    "placeholders": {
+      "km": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "rideMeteredNote": "The meter sets the final fare",
+  "@rideMeteredNote": {
+    "description": "105.2 The company charges what the meter says."
+  },
+  "rideSeats": "{seats, plural, =1{1 seat} other{{seats} seats}}",
+  "@rideSeats": {
+    "description": "105.2 A vehicle type's seats.",
+    "placeholders": {
+      "seats": {
+        "type": "int"
+      }
+    }
+  },
+  "ridePickupIn": "{minutes} min away",
+  "@ridePickupIn": {
+    "description": "105.2 How soon a driver can be at the pickup.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "rideNoneNearby": "No car nearby now",
+  "@rideNoneNearby": {
+    "description": "105.2 No online driver of this type is near."
+  },
+  "rideDiscount": "Promo code: {amount} off",
+  "@rideDiscount": {
+    "description": "105.2 The promo code's discount.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "ridePreviousFee": "Includes {amount} from your last cancelled ride",
+  "@ridePreviousFee": {
+    "description": "105.2 A cancellation fee carried into this ride.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "ridePromoCode": "Promo code (optional)",
+  "@ridePromoCode": {
+    "description": "105.2 The promo code box."
+  },
+  "rideNotes": "Note for the driver",
+  "@rideNotes": {
+    "description": "105.2 The rider's note."
+  },
+  "rideCardAfter": "You pay by card once the ride ends.",
+  "@rideCardAfter": {
+    "description": "105.2 When a card ride is paid."
+  },
+  "rideRequest": "Request a ride",
+  "@rideRequest": {
+    "description": "105.2 The button that asks for a ride now."
+  },
+  "rideBook": "Book the ride",
+  "@rideBook": {
+    "description": "105.2 The button that books a ride for later."
+  },
+  "rideScheduled": "Booked",
+  "@rideScheduled": {
+    "description": "105.2 A ride booked for later."
+  },
+  "rideSearching": "Looking for a driver",
+  "@rideSearching": {
+    "description": "105.2 The ride is offered to the drivers."
+  },
+  "rideAccepted": "Driver on the way",
+  "@rideAccepted": {
+    "description": "105.2 A driver took the ride."
+  },
+  "rideArrived": "Driver is here",
+  "@rideArrived": {
+    "description": "105.2 The driver is at the pickup."
+  },
+  "rideInProgress": "On the way",
+  "@rideInProgress": {
+    "description": "105.2 The ride has started."
+  },
+  "rideCompleted": "Completed",
+  "@rideCompleted": {
+    "description": "105.2 The ride ended."
+  },
+  "rideCancelled": "Cancelled",
+  "@rideCancelled": {
+    "description": "105.2 The ride was cancelled."
+  },
+  "rideNoDriver": "No driver found",
+  "@rideNoDriver": {
+    "description": "105.2 No driver took the ride."
+  },
+  "rideSearchingHint": "We're asking the nearest drivers.",
+  "@rideSearchingHint": {
+    "description": "105.2 While a driver is looked for."
+  },
+  "rideArrivedHint": "Your driver is waiting at the pickup.",
+  "@rideArrivedHint": {
+    "description": "105.2 The driver is at the pickup."
+  },
+  "rideNoDriverHint": "No driver took it. Try again in a few minutes.",
+  "@rideNoDriverHint": {
+    "description": "105.2 What to do when no driver took the ride."
+  },
+  "rideTryAgain": "Try again",
+  "@rideTryAgain": {
+    "description": "105.2 Asking again after no driver took the ride."
+  },
+  "rideHeading": "Ride {reference}",
+  "@rideHeading": {
+    "description": "105.2 A ride's screen title.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "ridePin": "Your code",
+  "@ridePin": {
+    "description": "105.2 The code the rider tells the driver."
+  },
+  "ridePinHint": "Tell your driver this code when you get in.",
+  "@ridePinHint": {
+    "description": "105.2 When to tell the code."
+  },
+  "rideCall": "Call",
+  "@rideCall": {
+    "description": "105.2 Calls the driver or the rider."
+  },
+  "rideDriverSeen": "Driver's position at {time}",
+  "@rideDriverSeen": {
+    "description": "105.2 When the driver's position was sent.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "rideShare": "Share the ride",
+  "@rideShare": {
+    "description": "105.2 Sends the ride's page to someone."
+  },
+  "rideShareText": "Follow my ride: {url}",
+  "@rideShareText": {
+    "description": "105.2 The text sent when sharing the ride.",
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "rideSos": "Emergency",
+  "@rideSos": {
+    "description": "105.2 The emergency button."
+  },
+  "rideSosTitle": "Emergency call",
+  "@rideSosTitle": {
+    "description": "105.2 The emergency button's question."
+  },
+  "rideSosMessage": "Call {number}? Use it only in an emergency.",
+  "@rideSosMessage": {
+    "description": "105.2 The number the emergency button calls.",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "rideSosCall": "Call now",
+  "@rideSosCall": {
+    "description": "105.2 Calls the emergency number."
+  },
+  "rideCancel": "Cancel the ride",
+  "@rideCancel": {
+    "description": "105.2 Cancels the ride."
+  },
+  "rideCancelConfirm": "Why are you cancelling?",
+  "@rideCancelConfirm": {
+    "description": "105.2 The question before cancelling a ride."
+  },
+  "rideCancelFeeNote": "Cancelling more than {minutes} min after a driver accepted costs {fee}, added to your next ride.",
+  "@rideCancelFeeNote": {
+    "description": "105.2 The company's cancellation fee.",
+    "placeholders": {
+      "fee": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "rideReasonChangedPlans": "My plans changed",
+  "@rideReasonChangedPlans": {
+    "description": "105.2 A reason to cancel."
+  },
+  "rideReasonDriverLate": "The driver is taking too long",
+  "@rideReasonDriverLate": {
+    "description": "105.2 A reason to cancel."
+  },
+  "rideReasonDriverAsked": "The driver asked me to cancel",
+  "@rideReasonDriverAsked": {
+    "description": "105.2 A reason to cancel."
+  },
+  "rideReasonWrongPlace": "Wrong pickup place",
+  "@rideReasonWrongPlace": {
+    "description": "105.2 A reason to cancel."
+  },
+  "rideReasonOther": "Something else",
+  "@rideReasonOther": {
+    "description": "105.2 A reason to cancel."
+  },
+  "rideCancelledToast": "Ride cancelled.",
+  "@rideCancelledToast": {
+    "description": "105.2 After cancelling."
+  },
+  "rideCancelledFee": "Ride cancelled. {fee} is added to your next ride.",
+  "@rideCancelledFee": {
+    "description": "105.2 After cancelling with a fee.",
+    "placeholders": {
+      "fee": {
+        "type": "String"
+      }
+    }
+  },
+  "rideCancelledByYou": "You cancelled it",
+  "@rideCancelledByYou": {
+    "description": "105.2 Who cancelled the ride."
+  },
+  "rideCancelledByCompany": "Cancelled by the company",
+  "@rideCancelledByCompany": {
+    "description": "105.2 Who cancelled the ride."
+  },
+  "rideFeeCharged": "Fee: {fee}",
+  "@rideFeeCharged": {
+    "description": "105.2 The cancellation fee charged.",
+    "placeholders": {
+      "fee": {
+        "type": "String"
+      }
+    }
+  },
+  "rideFare": "Fare",
+  "@rideFare": {
+    "description": "105.2 The fare charged."
+  },
+  "rideFareEstimate": "Estimated fare",
+  "@rideFareEstimate": {
+    "description": "105.2 The fare before the ride ends."
+  },
+  "ridePaid": "Paid. Thank you.",
+  "@ridePaid": {
+    "description": "105.2 After paying a card ride."
+  },
+  "rideRateTitle": "How was your driver?",
+  "@rideRateTitle": {
+    "description": "105.2 Rating the driver."
+  },
+  "rideRated": "You rated your driver {stars} out of 5.",
+  "@rideRated": {
+    "description": "105.2 The driver's rating.",
+    "placeholders": {
+      "stars": {
+        "type": "int"
+      }
+    }
+  },
+  "myRidesSignInTitle": "Sign in to see your rides",
+  "@myRidesSignInTitle": {
+    "description": "105.2 Rides while signed out."
+  },
+  "myRidesSignInMessage": "Your rides and their receipts show here.",
+  "@myRidesSignInMessage": {
+    "description": "105.2 Rides while signed out."
+  },
+  "loadingRides": "Loading the rides",
+  "@loadingRides": {
+    "description": "105.2 Read while the rides load."
+  },
+  "noRidesTitle": "No rides yet",
+  "@noRidesTitle": {
+    "description": "105.2 The rides list is empty."
+  },
+  "noRidesMessage": "Where would you like to go?",
+  "@noRidesMessage": {
+    "description": "105.2 The rides list is empty."
+  },
+  "driverTitle": "Driver",
+  "@driverTitle": {
+    "description": "105.2 The driver's screen title."
+  },
+  "riderView": "Rider view",
+  "@riderView": {
+    "description": "105.2 A driver switches to the riders' screens."
+  },
+  "driverMode": "Driver mode",
+  "@driverMode": {
+    "description": "105.2 Account: a driver opens the driver's screens."
+  },
+  "notDriverTitle": "For our drivers",
+  "@notDriverTitle": {
+    "description": "105.2 Someone who isn't a driver opened the driver's screen."
+  },
+  "notDriverMessage": "This screen is for the company's drivers. Ask the company to add your number.",
+  "@notDriverMessage": {
+    "description": "105.2 Someone who isn't a driver opened the driver's screen."
+  },
+  "driverOnline": "Online",
+  "@driverOnline": {
+    "description": "105.2 The switch that makes the driver available."
+  },
+  "driverOfflineHint": "Go online to get rides.",
+  "@driverOfflineHint": {
+    "description": "105.2 The driver is offline."
+  },
+  "driverToday": "{rides, plural, =0{No rides today yet} =1{1 ride today · {earned}} other{{rides} rides today · {earned}}}",
+  "@driverToday": {
+    "description": "105.2 The driver's rides today and what they made.",
+    "placeholders": {
+      "rides": {
+        "type": "int"
+      },
+      "earned": {
+        "type": "String"
+      }
+    }
+  },
+  "driverWaiting": "Waiting for a ride. Keep this screen open: your position is shared while you are online.",
+  "@driverWaiting": {
+    "description": "105.2 An online driver without a ride."
+  },
+  "driverSharing": "While you are online and this screen is open, your position is shared with the company and your rider.",
+  "@driverSharing": {
+    "description": "105.2 The driver's position is being shared."
+  },
+  "driverOffer": "New ride",
+  "@driverOffer": {
+    "description": "105.2 A ride offered to the driver."
+  },
+  "driverSecondsLeft": "{seconds} s",
+  "@driverSecondsLeft": {
+    "description": "105.2 The seconds left to take the offered ride.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "driverPickupKm": "{km} km to the pickup",
+  "@driverPickupKm": {
+    "description": "105.2 How far the pickup is.",
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "driverAccept": "Accept",
+  "@driverAccept": {
+    "description": "105.2 Takes the offered ride."
+  },
+  "driverDecline": "Decline",
+  "@driverDecline": {
+    "description": "105.2 Passes the offered ride to the next driver."
+  },
+  "driverOpenRide": "Open my current ride",
+  "@driverOpenRide": {
+    "description": "105.2 The driver's ride that isn't over."
+  },
+  "driverCurrent": "Current",
+  "@driverCurrent": {
+    "description": "105.2 The driver's rides that aren't over."
+  },
+  "driverDone": "Done",
+  "@driverDone": {
+    "description": "105.2 The driver's finished rides."
+  },
+  "driverEarnings": "Earnings",
+  "@driverEarnings": {
+    "description": "105.2 What the driver made."
+  },
+  "driverNoRides": "No rides here",
+  "@driverNoRides": {
+    "description": "105.2 A driver's list is empty."
+  },
+  "driverNoRidesMessage": "Rides you take show here.",
+  "@driverNoRidesMessage": {
+    "description": "105.2 A driver's list is empty."
+  },
+  "earningsToday": "Today",
+  "@earningsToday": {
+    "description": "105.2 Earnings over today."
+  },
+  "earningsWeek": "This week",
+  "@earningsWeek": {
+    "description": "105.2 Earnings over this week."
+  },
+  "earningsMonth": "This month",
+  "@earningsMonth": {
+    "description": "105.2 Earnings over this month."
+  },
+  "earningsRides": "Rides",
+  "@earningsRides": {
+    "description": "105.2 How many rides the driver completed."
+  },
+  "earningsFares": "Fares",
+  "@earningsFares": {
+    "description": "105.2 The fares of the driver's rides."
+  },
+  "earningsCash": "Cash collected",
+  "@earningsCash": {
+    "description": "105.2 The cash the driver collected."
+  },
+  "earningsCompany": "Company's share",
+  "@earningsCompany": {
+    "description": "105.2 The company's share of the fares."
+  },
+  "earningsEarned": "You made",
+  "@earningsEarned": {
+    "description": "105.2 What the driver made."
+  },
+  "earningsRidesCount": "{count, plural, =1{1 ride} other{{count} rides}}",
+  "@earningsRidesCount": {
+    "description": "105.2 A day's rides.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "driverArrived": "I've arrived",
+  "@driverArrived": {
+    "description": "105.2 The driver is at the pickup."
+  },
+  "driverStart": "Start the ride",
+  "@driverStart": {
+    "description": "105.2 The rider is in: the ride starts."
+  },
+  "driverEnd": "End the ride",
+  "@driverEnd": {
+    "description": "105.2 The ride ends at the drop-off."
+  },
+  "driverWaitingSince": "Waiting since {time}",
+  "@driverWaitingSince": {
+    "description": "105.2 When the driver arrived at the pickup.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "driverCollect": "Collect {amount} in cash.",
+  "@driverCollect": {
+    "description": "105.2 The cash the driver collects at the end.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "driverCardRide": "The rider pays by card in the app.",
+  "@driverCardRide": {
+    "description": "105.2 A card ride: nothing to collect."
+  },
+  "driverRider": "Rider",
+  "@driverRider": {
+    "description": "105.2 The rider's name."
+  },
+  "driverPinTitle": "Rider's code",
+  "@driverPinTitle": {
+    "description": "105.2 The code the rider tells the driver."
+  },
+  "driverPinHint": "Ask the rider for the 4-digit code in their app.",
+  "@driverPinHint": {
+    "description": "105.2 Where the code is."
+  },
+  "driverCancelTitle": "Cancel this ride?",
+  "@driverCancelTitle": {
+    "description": "105.2 The question before a driver cancels."
+  },
+  "driverNoShowAfter": "If the rider doesn't come, you can cancel {minutes} min after arriving. Otherwise the ride goes to another driver.",
+  "@driverNoShowAfter": {
+    "description": "105.2 When a driver may cancel because the rider didn't come.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "driverCancelNoShowHint": "The rider didn't come: the company's cancellation fee is charged to them.",
+  "@driverCancelNoShowHint": {
+    "description": "105.2 Cancelling because the rider didn't come."
+  },
+  "driverCantMakeIt": "I can't make it",
+  "@driverCantMakeIt": {
+    "description": "105.2 The driver gives the ride back."
+  },
+  "driverNoShow": "The rider didn't come",
+  "@driverNoShow": {
+    "description": "105.2 The driver cancels because the rider didn't come."
   }
 }

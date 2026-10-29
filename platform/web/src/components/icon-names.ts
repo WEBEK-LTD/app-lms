@@ -203,6 +203,13 @@ export const ICON_NAMES = [
   "translate",
   "two_wheeler",
   "verified_user",
+  // 105.2 Ride hailing: vehicle types and drivers.
+  "accessible",
+  "airport_shuttle",
+  "directions_bus",
+  "electric_car",
+  "electric_rickshaw",
+  "local_taxi",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];

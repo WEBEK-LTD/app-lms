@@ -59,7 +59,7 @@ export const HEADER_ICONS = ["search", "cart", "notifications", "chat", "account
 export const MAX_HEADER_ICONS = 4;
 /** 43 The languages Yallapp ships its own translations in; an app can offer any of `LOCALES` (lib/i18n/locales.ts). */
 export const LANGUAGE_CODES = BUILT_IN_LANGUAGES;
-export const ITEM_SOURCES = ["courses", "products", "services", "posts", "listings", "articles", "events", "campaigns", "delivery_services", "restaurants"] as const;
+export const ITEM_SOURCES = ["courses", "products", "services", "posts", "listings", "articles", "events", "campaigns", "delivery_services", "restaurants", "vehicle_types"] as const;
 export const BLOCK_TYPES = [
   "banner",
   "text",
@@ -123,6 +123,10 @@ export const SCREENS = [
   "restaurants",
   "food_orders",
   "restaurant",
+  // 105.2 Ride hailing
+  "ride",
+  "my_rides",
+  "driver",
 ] as const;
 export const ITEMS_LAYOUTS = ["carousel", "grid", "list"] as const;
 export const ITEMS_SORTS = ["newest", "popular", "price_asc", "price_desc"] as const;

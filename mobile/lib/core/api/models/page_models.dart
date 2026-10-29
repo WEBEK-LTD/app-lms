@@ -284,6 +284,11 @@ enum BuiltInScreen {
   restaurants,
   foodOrders,
   restaurant,
+
+  /// 105.2 Ride hailing.
+  ride,
+  myRides,
+  driver,
 }
 
 enum OpenIn { inApp, browser }
@@ -352,6 +357,9 @@ enum ItemSource {
 
   /// 105.1 A food delivery company's restaurants.
   restaurants,
+
+  /// 105.2 A ride company's vehicle types.
+  vehicleTypes,
 }
 
 /// An entry from a list source, for `item` actions.

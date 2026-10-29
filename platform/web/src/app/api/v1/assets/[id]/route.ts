@@ -15,7 +15,8 @@ export async function GET(_request: Request, { params }: RouteContext<"/api/v1/a
   const { id } = await params;
   if (!UUID.test(id)) return errorResponse(404, "not_found", "Not found.");
   const asset = await (await getStore()).getAsset(id);
-  if (!asset) return errorResponse(404, "not_found", "Not found.");
+  // 105.2 A driver's papers are the company's only (Dashboard › Drivers).
+  if (!asset || asset.kind === "driver_document") return errorResponse(404, "not_found", "Not found.");
   const file = await getBlobStore().get(asset.blobKey);
   if (!file) return errorResponse(404, "not_found", "Not found.");
   return new Response(new Uint8Array(file.data), {

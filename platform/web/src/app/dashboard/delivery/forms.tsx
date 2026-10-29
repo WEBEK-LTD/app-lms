@@ -27,7 +27,7 @@ export interface SettingsFormValues {
   courierFirebaseIos: boolean;
 }
 
-function Choices({
+export function Choices({
   legend,
   name,
   value,

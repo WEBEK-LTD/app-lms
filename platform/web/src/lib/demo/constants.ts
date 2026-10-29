@@ -50,7 +50,7 @@ export const DEMO_LICENSE_UNTIL = new Date("2099-12-31T23:59:59.999Z");
  * its own demo (a clinic and 27 a gym, on the bookings engine; 26 a café, on the store engine).
  */
 /** 104 Delivery apps have no demo yet. */
-export type DemoId = Exclude<AppType, "delivery" | "food"> | Extract<AppVertical, "clinic" | "restaurant" | "fitness">;
+export type DemoId = Exclude<AppType, "delivery" | "food" | "rides"> | Extract<AppVertical, "clinic" | "restaurant" | "fitness">;
 
 /** The kind a demo shows. */
 export function demoKind(id: DemoId): KindInfo {

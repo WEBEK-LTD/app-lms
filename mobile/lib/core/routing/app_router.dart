@@ -13,6 +13,8 @@ import '../../modules/food/food_routes.dart';
 import '../../modules/lms/lms_routes.dart';
 import '../../modules/news/news_routes.dart';
 import '../../modules/real_estate/real_estate_routes.dart';
+import '../../modules/rides/data/rides_providers.dart';
+import '../../modules/rides/rides_routes.dart';
 import '../../modules/shared/shared_routes.dart';
 import '../../modules/store/store_routes.dart';
 import '../api/models/models.dart';
@@ -78,6 +80,7 @@ final appModuleProvider = Provider<AppModule>(
     AppType.donations => donationsModule,
     AppType.delivery => deliveryModule,
     AppType.food => foodModule,
+    AppType.rides => ridesModule,
   },
 );
 
@@ -88,6 +91,8 @@ final shellTabsProvider = Provider<List<ShellTab>>((ref) {
   final module = ref.watch(appModuleProvider);
   // 104.6 The courier app: the courier's screen and the account, nothing else.
   if (ref.watch(courierAppProvider)) return courierAppTabs;
+  // 105.2 The drivers' app: the driver's screen and the account.
+  if (ref.watch(driverAppProvider)) return driverAppTabs;
   final gate = ref.watch(appGateProvider);
   final config = gate is GateReady ? gate.config : null;
   final navigation = gate is GateReady ? gate.navigation : null;
@@ -101,8 +106,12 @@ final shellTabsProvider = Provider<List<ShellTab>>((ref) {
   final restaurant = appType == AppType.food
       ? ref.watch(isRestaurantProvider)
       : null;
-  List<ShellTab> withRoles(List<ShellTab> tabs) =>
-      withRestaurantTab(withCourierTab(tabs, courier), restaurant);
+  // 105.2 Ride apps: the Driver tab for the company's drivers.
+  final driver = appType == AppType.rides ? ref.watch(isDriverProvider) : null;
+  List<ShellTab> withRoles(List<ShellTab> tabs) => withDriverTab(
+    withRestaurantTab(withCourierTab(tabs, courier), restaurant),
+    driver,
+  );
   if (navigation != null) {
     final tabs = tabsFromNavigation(navigation, module, config);
     if (tabs.length >= Navigation.minTabs &&
@@ -125,6 +134,11 @@ List<ShellTab> withCourierTab(List<ShellTab> tabs, bool? courier) =>
 /// delivery app.
 List<ShellTab> withRestaurantTab(List<ShellTab> tabs, bool? restaurant) =>
     _withRoleTab(tabs, restaurantTab, restaurant);
+
+/// 105.2 The tabs of a ride app: the Driver tab added for the company's
+/// drivers, as the Courier tab is for couriers. Null: not a ride app.
+List<ShellTab> withDriverTab(List<ShellTab> tabs, bool? driver) =>
+    _withRoleTab(tabs, driverTab, driver);
 
 List<ShellTab> _withRoleTab(List<ShellTab> tabs, ShellTab tab, bool? show) {
   if (show == null) return tabs;
@@ -199,6 +213,14 @@ void openLocation(BuildContext context, String location) {
   }
 }
 
+/// Where the app starts: 104.6 the courier's screen in a courier app, 105.2
+/// the driver's in a drivers' app.
+String _startAt(Ref ref) => ref.read(courierAppProvider)
+    ? Paths.courier
+    : ref.read(driverAppProvider)
+    ? Paths.driver
+    : Paths.home;
+
 final appRouterProvider = Provider<GoRouter>((ref) {
   final refresh = _RouterRefresh();
   ref
@@ -215,7 +237,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final module = ref.read(appModuleProvider);
   final router = GoRouter(
     navigatorKey: rootNavigatorKey,
-    initialLocation: ref.read(courierAppProvider) ? Paths.courier : Paths.home,
+    initialLocation: _startAt(ref),
     refreshListenable: refresh,
     debugLogDiagnostics: false,
     redirect: (context, state) {
@@ -232,7 +254,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             location: state.uri.toString(),
             auth: ref.read(authControllerProvider),
             guestMode: ref.read(localSettingsProvider).guestMode,
-            home: ref.read(courierAppProvider) ? Paths.courier : Paths.home,
+            home: _startAt(ref),
           );
     },
     routes: tabbedRoutes(module: module, tabs: ref.read(shellTabsProvider)),

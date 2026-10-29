@@ -18,6 +18,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../chat/data/chat_providers.dart';
 import '../../delivery/data/delivery_providers.dart';
 import '../../food/data/food_providers.dart';
+import '../../rides/data/rides_providers.dart';
 import '../../lms/downloads/download_manager.dart';
 import '../../lms/downloads/download_widgets.dart';
 
@@ -64,6 +65,10 @@ class ProfileScreen extends ConsumerWidget {
     // screens for its staff.
     final food = env.build.appType == AppType.food;
     final restaurant = ref.watch(isRestaurantProvider);
+    // 105.2 Ride apps: the rider's rides, and the driver's screens for the
+    // company's drivers.
+    final rides = env.build.appType == AppType.rides;
+    final driver = ref.watch(isDriverProvider);
     // 45 Academy apps whose students can save lessons on this phone.
     final downloads = lms && downloadsOffered(ref);
     final savedBytes = downloads
@@ -232,6 +237,13 @@ class ProfileScreen extends ConsumerWidget {
                     title: context.l10n.restaurantMode,
                     onTap: () => context.go(Paths.restaurantDesk),
                   ),
+                if (driver)
+                  SettingsTile(
+                    key: const ValueKey('account-driver'),
+                    icon: AppIcons.car,
+                    title: context.l10n.driverMode,
+                    onTap: () => context.go(Paths.driver),
+                  ),
                 if (courier)
                   SettingsTile(
                     key: const ValueKey('account-courier'),
@@ -252,6 +264,13 @@ class ProfileScreen extends ConsumerWidget {
                     icon: AppIcons.orders,
                     title: context.l10n.tabFoodOrders,
                     onTap: () => context.go(Paths.foodOrders),
+                  ),
+                if (rides && user != null && !ref.watch(driverAppProvider))
+                  SettingsTile(
+                    key: const ValueKey('account-rides'),
+                    icon: AppIcons.receipt,
+                    title: context.l10n.tabMyRides,
+                    onTap: () => context.go(Paths.myRides),
                   ),
                 if (chatHere)
                   SettingsTile(

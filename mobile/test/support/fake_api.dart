@@ -1622,4 +1622,200 @@ class FakeApi implements YallappApi {
       () => _moveRestaurantOrder(id, 'ready', 'active'),
     );
   }
+
+  // 105.2 Ride hailing.
+
+  Map<String, dynamic> rideEstimate = rideEstimateJson();
+  List<Map<String, dynamic>> rides = [rideJson()];
+  Map<String, dynamic> driver = driverJson();
+  List<Map<String, dynamic>> driverOffers = [];
+  Map<String, List<Map<String, dynamic>>> driverRides = {
+    'active': [],
+    'done': [driverRideJson(id: 9, status: 'completed')],
+  };
+  final rideRequests = <RideRequest>[];
+  final rideEstimates = <RideRequest>[];
+  final rideRatings = <({int id, int driver})>[];
+  final driverLocations = <({double lat, double lng})>[];
+  final driverMoves = <({int id, String move, String? pin})>[];
+
+  @override
+  Future<RideEstimate> estimateRide(RideRequest request) {
+    rideEstimates.add(request);
+    return _answer('estimateRide', () => RideEstimate.fromJson(rideEstimate));
+  }
+
+  @override
+  Future<Ride> requestRide(RideRequest request) {
+    rideRequests.add(request);
+    return _answer('requestRide', () {
+      final json = {
+        ...rideJson(id: rides.length + 1, status: 'searching'),
+        'scheduled_at': request.scheduledAt?.toUtc().toIso8601String(),
+        if (request.scheduledAt != null) 'status': 'scheduled',
+        'payment': {'method': request.payment.name, 'status': 'unpaid'},
+      };
+      rides = [json, ...rides];
+      return Ride.fromJson(json);
+    });
+  }
+
+  @override
+  Future<Paged<Ride>> listMyRides({int page = 1, bool active = false}) =>
+      _answer('listMyRides', () {
+        final list = [
+          for (final r in rides)
+            if (!active || rideStatusFrom(r['status']).active) r,
+        ];
+        return Paged.fromJson(pageJson(list), Ride.fromJson);
+      });
+
+  @override
+  Future<Ride> getMyRide(int id) => _answer(
+    'getMyRide',
+    () => Ride.fromJson(rides.firstWhere((r) => r['id'] == id)),
+  );
+
+  Ride _setRide(int id, Map<String, dynamic> patch) {
+    rides = [
+      for (final r in rides) r['id'] == id ? {...r, ...patch} : r,
+    ];
+    return Ride.fromJson(rides.firstWhere((r) => r['id'] == id));
+  }
+
+  @override
+  Future<Ride> cancelMyRide(int id, {RiderCancelReason? reason}) => _answer(
+    'cancelMyRide',
+    () => _setRide(id, {
+      'status': 'cancelled',
+      'cancellation': {
+        'by': 'rider',
+        'reason': reason == null ? null : snake(reason),
+        'fee_formatted': null,
+      },
+    }),
+  );
+
+  @override
+  Future<String> payMyRide(int id) =>
+      _answer('payMyRide', () => 'https://yallapp.com.tr/pay/ride-$id');
+
+  @override
+  Future<Ride> rateMyRide(int id, {required int driver, String? comment}) {
+    rideRatings.add((id: id, driver: driver));
+    return _answer(
+      'rateMyRide',
+      () => _setRide(id, {
+        'rating': {'driver': driver, 'comment': comment},
+      }),
+    );
+  }
+
+  @override
+  Future<DriverProfile> getDriver() =>
+      _answer('getDriver', () => DriverProfile.fromJson(driver));
+
+  @override
+  Future<DriverProfile> setDriverOnline(bool online) =>
+      _answer('setDriverOnline', () {
+        driver = {...driver, 'online': online};
+        return DriverProfile.fromJson(driver);
+      });
+
+  @override
+  Future<void> sendDriverLocation(
+    double lat,
+    double lng, {
+    double? accuracy,
+    double? heading,
+  }) {
+    driverLocations.add((lat: lat, lng: lng));
+    return _answer('sendDriverLocation', () {});
+  }
+
+  @override
+  Future<List<DriverRide>> listDriverOffers() => _answer(
+    'listDriverOffers',
+    () => [for (final o in driverOffers) DriverRide.fromJson(o)],
+  );
+
+  @override
+  Future<Paged<DriverRide>> listDriverRides(
+    DriverRideScope scope, {
+    int page = 1,
+  }) => _answer(
+    'listDriverRides',
+    () => Paged.fromJson(
+      pageJson(driverRides[scope.name] ?? const []),
+      DriverRide.fromJson,
+    ),
+  );
+
+  Map<String, dynamic> _driverRide(int id) => [
+    ...driverOffers,
+    ...driverRides.values.expand((r) => r),
+  ].firstWhere((r) => r['id'] == id);
+
+  DriverRide _moveDriverRide(int id, String status, String to) {
+    final ride = {..._driverRide(id), 'status': status};
+    driverOffers = [
+      for (final o in driverOffers)
+        if (o['id'] != id) o,
+    ];
+    driverRides = {
+      for (final e in driverRides.entries)
+        e.key: [
+          for (final r in e.value)
+            if (r['id'] != id) r,
+          if (e.key == to) ride,
+        ],
+    };
+    return DriverRide.fromJson(ride);
+  }
+
+  @override
+  Future<DriverRide> getDriverRide(int id) =>
+      _answer('getDriverRide', () => DriverRide.fromJson(_driverRide(id)));
+
+  @override
+  Future<DriverRide> acceptDriverRide(int id) {
+    driverMoves.add((id: id, move: 'accept', pin: null));
+    return _answer('acceptDriverRide', () {
+      driver = {...driver, 'active_ride_id': id};
+      return _moveDriverRide(id, 'accepted', 'active');
+    });
+  }
+
+  @override
+  Future<void> declineDriverRide(int id) {
+    driverMoves.add((id: id, move: 'decline', pin: null));
+    return _answer('declineDriverRide', () {
+      driverOffers = [
+        for (final o in driverOffers)
+          if (o['id'] != id) o,
+      ];
+    });
+  }
+
+  @override
+  Future<DriverRide> moveDriverRide(
+    int id,
+    DriverStep step, {
+    String? pin,
+    DriverCancelReason? reason,
+    String? note,
+  }) {
+    driverMoves.add((id: id, move: snake(step), pin: pin));
+    return _answer('moveDriverRide', () {
+      final over = step == DriverStep.completed || step == DriverStep.cancelled;
+      if (over) driver = {...driver, 'active_ride_id': null};
+      return _moveDriverRide(id, snake(step), over ? 'done' : 'active');
+    });
+  }
+
+  @override
+  Future<DriverEarnings> getDriverEarnings(EarningsPeriod period) => _answer(
+    'getDriverEarnings',
+    () => DriverEarnings.fromJson(driverEarningsJson()),
+  );
 }

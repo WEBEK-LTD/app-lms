@@ -4902,4 +4902,407 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get deskCustomer => 'Müşteri';
+
+  @override
+  String get tabRide => 'Yolculuk';
+
+  @override
+  String get tabMyRides => 'Yolculuklarım';
+
+  @override
+  String get tabDriver => 'Sürücü';
+
+  @override
+  String get rideWhereTo => 'Nereye?';
+
+  @override
+  String get ridePickup => 'Alış noktası';
+
+  @override
+  String get rideDropoff => 'Bırakış noktası';
+
+  @override
+  String get rideMyLocation => 'Konumum';
+
+  @override
+  String get rideWhen => 'Ne zaman';
+
+  @override
+  String get rideNow => 'Şimdi';
+
+  @override
+  String get rideLater => 'Daha sonra';
+
+  @override
+  String rideScheduledFor(String time) {
+    return 'Alış: $time';
+  }
+
+  @override
+  String get rideChooseCar => 'Araç seçin';
+
+  @override
+  String get rideSignInForFares => 'Ücretleri görmek için giriş yapın.';
+
+  @override
+  String get rideFillPlaces =>
+      'Alış ve bırakış noktalarını konumunuzla, bir harita bağlantısıyla veya haritada belirleyin.';
+
+  @override
+  String rideTrip(String km, int minutes) {
+    return '$km km · yaklaşık $minutes dk';
+  }
+
+  @override
+  String get rideMeteredNote => 'Son ücreti taksimetre belirler';
+
+  @override
+  String rideSeats(int seats) {
+    return '$seats koltuk';
+  }
+
+  @override
+  String ridePickupIn(int minutes) {
+    return '$minutes dk uzakta';
+  }
+
+  @override
+  String get rideNoneNearby => 'Şu an yakında araç yok';
+
+  @override
+  String rideDiscount(String amount) {
+    return 'İndirim kodu: $amount indirim';
+  }
+
+  @override
+  String ridePreviousFee(String amount) {
+    return 'Son iptal ettiğiniz yolculuktan $amount dahil';
+  }
+
+  @override
+  String get ridePromoCode => 'İndirim kodu (isteğe bağlı)';
+
+  @override
+  String get rideNotes => 'Sürücüye not';
+
+  @override
+  String get rideCardAfter => 'Yolculuk bitince kartla ödersiniz.';
+
+  @override
+  String get rideRequest => 'Yolculuk iste';
+
+  @override
+  String get rideBook => 'Yolculuğu ayır';
+
+  @override
+  String get rideScheduled => 'Ayrıldı';
+
+  @override
+  String get rideSearching => 'Sürücü aranıyor';
+
+  @override
+  String get rideAccepted => 'Sürücü yolda';
+
+  @override
+  String get rideArrived => 'Sürücü geldi';
+
+  @override
+  String get rideInProgress => 'Yolda';
+
+  @override
+  String get rideCompleted => 'Tamamlandı';
+
+  @override
+  String get rideCancelled => 'İptal edildi';
+
+  @override
+  String get rideNoDriver => 'Sürücü bulunamadı';
+
+  @override
+  String get rideSearchingHint => 'En yakın sürücülere soruyoruz.';
+
+  @override
+  String get rideArrivedHint => 'Sürücünüz alış noktasında bekliyor.';
+
+  @override
+  String get rideNoDriverHint =>
+      'Hiçbir sürücü almadı. Birkaç dakika sonra yeniden deneyin.';
+
+  @override
+  String get rideTryAgain => 'Yeniden dene';
+
+  @override
+  String rideHeading(String reference) {
+    return 'Yolculuk $reference';
+  }
+
+  @override
+  String get ridePin => 'Kodunuz';
+
+  @override
+  String get ridePinHint => 'Araca bindiğinizde bu kodu sürücüye söyleyin.';
+
+  @override
+  String get rideCall => 'Ara';
+
+  @override
+  String rideDriverSeen(String time) {
+    return 'Sürücünün $time konumu';
+  }
+
+  @override
+  String get rideShare => 'Yolculuğu paylaş';
+
+  @override
+  String rideShareText(String url) {
+    return 'Yolculuğumu takip et: $url';
+  }
+
+  @override
+  String get rideSos => 'Acil durum';
+
+  @override
+  String get rideSosTitle => 'Acil arama';
+
+  @override
+  String rideSosMessage(String number) {
+    return '$number aransın mı? Yalnızca acil durumda kullanın.';
+  }
+
+  @override
+  String get rideSosCall => 'Şimdi ara';
+
+  @override
+  String get rideCancel => 'Yolculuğu iptal et';
+
+  @override
+  String get rideCancelConfirm => 'Neden iptal ediyorsunuz?';
+
+  @override
+  String rideCancelFeeNote(String fee, int minutes) {
+    return 'Sürücü kabul ettikten $minutes dk sonra iptal etmek $fee tutar ve bir sonraki yolculuğunuza eklenir.';
+  }
+
+  @override
+  String get rideReasonChangedPlans => 'Planlarım değişti';
+
+  @override
+  String get rideReasonDriverLate => 'Sürücü çok gecikti';
+
+  @override
+  String get rideReasonDriverAsked => 'Sürücü iptal etmemi istedi';
+
+  @override
+  String get rideReasonWrongPlace => 'Yanlış alış noktası';
+
+  @override
+  String get rideReasonOther => 'Başka bir neden';
+
+  @override
+  String get rideCancelledToast => 'Yolculuk iptal edildi.';
+
+  @override
+  String rideCancelledFee(String fee) {
+    return 'Yolculuk iptal edildi. $fee bir sonraki yolculuğunuza eklenir.';
+  }
+
+  @override
+  String get rideCancelledByYou => 'Siz iptal ettiniz';
+
+  @override
+  String get rideCancelledByCompany => 'Şirket iptal etti';
+
+  @override
+  String rideFeeCharged(String fee) {
+    return 'Ücret: $fee';
+  }
+
+  @override
+  String get rideFare => 'Ücret';
+
+  @override
+  String get rideFareEstimate => 'Tahmini ücret';
+
+  @override
+  String get ridePaid => 'Ödendi. Teşekkürler.';
+
+  @override
+  String get rideRateTitle => 'Sürücünüz nasıldı?';
+
+  @override
+  String rideRated(int stars) {
+    return 'Sürücünüze 5 üzerinden $stars verdiniz.';
+  }
+
+  @override
+  String get myRidesSignInTitle => 'Yolculuklarınızı görmek için giriş yapın';
+
+  @override
+  String get myRidesSignInMessage =>
+      'Yolculuklarınız ve fişleri burada görünür.';
+
+  @override
+  String get loadingRides => 'Yolculuklar yükleniyor';
+
+  @override
+  String get noRidesTitle => 'Henüz yolculuk yok';
+
+  @override
+  String get noRidesMessage => 'Nereye gitmek istersiniz?';
+
+  @override
+  String get driverTitle => 'Sürücü';
+
+  @override
+  String get riderView => 'Yolcu görünümü';
+
+  @override
+  String get driverMode => 'Sürücü modu';
+
+  @override
+  String get notDriverTitle => 'Sürücülerimiz için';
+
+  @override
+  String get notDriverMessage =>
+      'Bu ekran şirketin sürücüleri içindir. Numaranızı eklemesini şirketten isteyin.';
+
+  @override
+  String get driverOnline => 'Çevrimiçi';
+
+  @override
+  String get driverOfflineHint => 'Yolculuk almak için çevrimiçi olun.';
+
+  @override
+  String driverToday(int rides, String earned) {
+    String _temp0 = intl.Intl.pluralLogic(
+      rides,
+      locale: localeName,
+      other: 'Bugün $rides yolculuk · $earned',
+      zero: 'Bugün henüz yolculuk yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get driverWaiting =>
+      'Yolculuk bekleniyor. Bu ekranı açık tutun: çevrimiçiyken konumunuz paylaşılır.';
+
+  @override
+  String get driverSharing =>
+      'Çevrimiçiyken ve bu ekran açıkken konumunuz şirketle ve yolcunuzla paylaşılır.';
+
+  @override
+  String get driverOffer => 'Yeni yolculuk';
+
+  @override
+  String driverSecondsLeft(int seconds) {
+    return '$seconds sn';
+  }
+
+  @override
+  String driverPickupKm(String km) {
+    return 'Alış noktasına $km km';
+  }
+
+  @override
+  String get driverAccept => 'Kabul et';
+
+  @override
+  String get driverDecline => 'Reddet';
+
+  @override
+  String get driverOpenRide => 'Mevcut yolculuğumu aç';
+
+  @override
+  String get driverCurrent => 'Güncel';
+
+  @override
+  String get driverDone => 'Biten';
+
+  @override
+  String get driverEarnings => 'Kazanç';
+
+  @override
+  String get driverNoRides => 'Burada yolculuk yok';
+
+  @override
+  String get driverNoRidesMessage => 'Aldığınız yolculuklar burada görünür.';
+
+  @override
+  String get earningsToday => 'Bugün';
+
+  @override
+  String get earningsWeek => 'Bu hafta';
+
+  @override
+  String get earningsMonth => 'Bu ay';
+
+  @override
+  String get earningsRides => 'Yolculuklar';
+
+  @override
+  String get earningsFares => 'Ücretler';
+
+  @override
+  String get earningsCash => 'Tahsil edilen nakit';
+
+  @override
+  String get earningsCompany => 'Şirketin payı';
+
+  @override
+  String get earningsEarned => 'Kazancınız';
+
+  @override
+  String earningsRidesCount(int count) {
+    return '$count yolculuk';
+  }
+
+  @override
+  String get driverArrived => 'Geldim';
+
+  @override
+  String get driverStart => 'Yolculuğu başlat';
+
+  @override
+  String get driverEnd => 'Yolculuğu bitir';
+
+  @override
+  String driverWaitingSince(String time) {
+    return '$time saatinden beri bekleniyor';
+  }
+
+  @override
+  String driverCollect(String amount) {
+    return '$amount nakit tahsil edin.';
+  }
+
+  @override
+  String get driverCardRide => 'Yolcu uygulamada kartla öder.';
+
+  @override
+  String get driverRider => 'Yolcu';
+
+  @override
+  String get driverPinTitle => 'Yolcunun kodu';
+
+  @override
+  String get driverPinHint => 'Yolcudan uygulamasındaki 4 haneli kodu isteyin.';
+
+  @override
+  String get driverCancelTitle => 'Bu yolculuk iptal edilsin mi?';
+
+  @override
+  String driverNoShowAfter(int minutes) {
+    return 'Yolcu gelmezse vardıktan $minutes dk sonra iptal edebilirsiniz. Aksi halde yolculuk başka bir sürücüye geçer.';
+  }
+
+  @override
+  String get driverCancelNoShowHint =>
+      'Yolcu gelmedi: şirketin iptal ücreti yolcudan alınır.';
+
+  @override
+  String get driverCantMakeIt => 'Gidemiyorum';
+
+  @override
+  String get driverNoShow => 'Yolcu gelmedi';
 }

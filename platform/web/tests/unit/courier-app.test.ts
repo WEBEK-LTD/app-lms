@@ -42,14 +42,19 @@ const googleServices = (...packages: string[]) =>
     client: packages.map((p) => ({ client_info: { mobilesdk_app_id: `1:123:android:${p}`, android_client_info: { package_name: p } }, api_key: [{ current_key: "k" }] })),
   });
 
-async function setup(features: ("delivery" | "courier_app" | "food")[] = ["delivery", "courier_app"], food = false) {
+async function setup(features: ("delivery" | "courier_app" | "food" | "rides")[] = ["delivery", "courier_app"], food = false, rides = false) {
   const s = await setupClient({ plan: "studio_3", activeUntil: days(60) });
   const store = s.store;
   await store.setPlatformSetting("plans", { studio_3: { ...planSettingOf(PLAN_INFO.studio_3), offered: true, features: [...PLAN_INFO.studio_3.features, ...features] } }, "test", NOW);
   clearPlatformSettingsCache();
   const client = (await store.getClientById(s.client.id))!;
   // 105.1.6 A food delivery company's app has couriers too.
-  const app: App = food ? { ...deliveryApp(client.id), appType: "food", connector: { kind: "restaurants" } } : deliveryApp(client.id);
+  // 105.2 A ride company's drivers are its couriers.
+  const app: App = food
+    ? { ...deliveryApp(client.id), appType: "food", connector: { kind: "restaurants" } }
+    : rides
+      ? { ...deliveryApp(client.id), appType: "rides", connector: { kind: "rides" }, appName: "Cairo Rides" }
+      : deliveryApp(client.id);
   await store.createApp(app);
   const license = await licenseOf(store, client.id);
   return { store, client, app, license };
@@ -137,6 +142,21 @@ describe("104.6 building the courier app", () => {
     if (!queued.ok) throw new Error(`not queued: ${queued.reason}`);
     expect(queued.build.config).toMatchObject({ app_type: "food", role: "courier", app_name: "Speedy Parcels Courier", android_package: "com.speedy.app.courier" });
     expect(validateBuildConfig(queued.build.config).ok).toBe(true);
+  });
+
+  it("105.2 builds a ride company's drivers' app the same way, as the drivers'", async () => {
+    const { store, client, app, license } = await setup(["rides", "courier_app"], false, true);
+    expect(await queueBuild(store, { client, app, license, versionName: "1.0.0", variant: "courier" }, NOW, assetUrl)).toMatchObject({ ok: false, reason: "courier_app_off" });
+    await store.saveDeliverySettings(app.id, SETTINGS, NOW);
+    const queued = await queueBuild(store, { client, app, license, versionName: "1.0.0", variant: "courier" }, NOW, assetUrl);
+    if (!queued.ok) throw new Error(`not queued: ${queued.reason}`);
+    expect(queued.build.config).toMatchObject({ app_type: "rides", role: "driver", app_name: "Cairo Rides Driver", android_package: "com.speedy.app.driver", ios_bundle_id: "com.speedy.app.driver" });
+    expect(validateBuildConfig(queued.build.config).ok).toBe(true);
+    expect(queued.build.storeListing).toMatchObject({ storeTitle: "Cairo Rides Driver", shortDescription: "For Cairo Rides's drivers: ride offers, pickups and earnings." });
+    expect(queued.build.storeListing.fullDescription).toContain("Only Cairo Rides's drivers can use it.");
+    expect(firebaseHasCourierApp(googleServices("com.speedy.app", "com.speedy.app.driver"), "com.speedy.app", "driver")).toBe(true);
+    expect(firebaseHasCourierApp(googleServices("com.speedy.app", "com.speedy.app.courier"), "com.speedy.app", "driver")).toBe(false);
+    expect(courierPlistProblem("not a plist", "com.speedy.app", "driver")).not.toBeNull();
   });
 
   it("needs the courier app on the plan", async () => {

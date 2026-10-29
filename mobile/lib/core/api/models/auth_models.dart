@@ -116,6 +116,9 @@ class User {
   /// 105.1 Works for one of the food delivery company's restaurants.
   bool get isRestaurant => roles.contains('restaurant');
 
+  /// 105.2 Drives for the ride company.
+  bool get isDriver => roles.contains('driver');
+
   Json toJson() => {
     'id': id,
     'name': name,

@@ -58,7 +58,10 @@ final foodModule = AppModule(
     BuiltInScreen.campaigns ||
     BuiltInScreen.myDonations ||
     BuiltInScreen.sendParcel ||
-    BuiltInScreen.shipments => null,
+    BuiltInScreen.shipments ||
+    BuiltInScreen.ride ||
+    BuiltInScreen.myRides ||
+    BuiltInScreen.driver => null,
   },
   routes: _pushedRoutes,
 );

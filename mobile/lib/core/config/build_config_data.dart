@@ -21,7 +21,10 @@ enum AppType {
   delivery,
 
   /// 105.1 Food delivery from many restaurants.
-  food;
+  food,
+
+  /// 105.2 Ride hailing.
+  rides;
 
   /// The value as the build config writes it (`app_type`).
   String get wire => this == realEstate ? 'real_estate' : name;
@@ -51,7 +54,7 @@ enum AppVertical {
 
 /// 104.6 Who the build is for (`role` in the build config): the customers'
 /// app, or a delivery company's second app for its couriers only.
-enum AppRole { customer, courier }
+enum AppRole { customer, courier, driver }
 
 /// Firebase settings read from the client's google-services.json or
 /// GoogleService-Info.plist by `tool/apply_config.dart`.

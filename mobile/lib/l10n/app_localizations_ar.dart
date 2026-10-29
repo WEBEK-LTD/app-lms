@@ -4961,4 +4961,425 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get deskCustomer => 'العميل';
+
+  @override
+  String get tabRide => 'مشوار';
+
+  @override
+  String get tabMyRides => 'مشاويري';
+
+  @override
+  String get tabDriver => 'السائق';
+
+  @override
+  String get rideWhereTo => 'إلى أين؟';
+
+  @override
+  String get ridePickup => 'مكان الركوب';
+
+  @override
+  String get rideDropoff => 'الوجهة';
+
+  @override
+  String get rideMyLocation => 'موقعي';
+
+  @override
+  String get rideWhen => 'متى';
+
+  @override
+  String get rideNow => 'الآن';
+
+  @override
+  String get rideLater => 'لاحقًا';
+
+  @override
+  String rideScheduledFor(String time) {
+    return 'الركوب في $time';
+  }
+
+  @override
+  String get rideChooseCar => 'اختر نوع السيارة';
+
+  @override
+  String get rideSignInForFares => 'سجّل الدخول لرؤية الأسعار.';
+
+  @override
+  String get rideFillPlaces =>
+      'حدّد مكان الركوب والوجهة بموقعك أو برابط خرائط أو على الخريطة.';
+
+  @override
+  String rideTrip(String km, int minutes) {
+    return '$km كم · نحو $minutes د';
+  }
+
+  @override
+  String get rideMeteredNote => 'العداد يحدد الأجرة النهائية';
+
+  @override
+  String rideSeats(int seats) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seats,
+      locale: localeName,
+      other: '$seats مقعدًا',
+      few: '$seats مقاعد',
+      two: 'مقعدان',
+      one: 'مقعد واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ridePickupIn(int minutes) {
+    return 'على بُعد $minutes د';
+  }
+
+  @override
+  String get rideNoneNearby => 'لا توجد سيارة قريبة الآن';
+
+  @override
+  String rideDiscount(String amount) {
+    return 'كود الخصم: خصم $amount';
+  }
+
+  @override
+  String ridePreviousFee(String amount) {
+    return 'يشمل $amount من آخر مشوار ألغيته';
+  }
+
+  @override
+  String get ridePromoCode => 'كود خصم (اختياري)';
+
+  @override
+  String get rideNotes => 'ملاحظة للسائق';
+
+  @override
+  String get rideCardAfter => 'تدفع بالبطاقة بعد انتهاء المشوار.';
+
+  @override
+  String get rideRequest => 'اطلب مشوارًا';
+
+  @override
+  String get rideBook => 'احجز المشوار';
+
+  @override
+  String get rideScheduled => 'محجوز';
+
+  @override
+  String get rideSearching => 'جارٍ البحث عن سائق';
+
+  @override
+  String get rideAccepted => 'السائق في الطريق';
+
+  @override
+  String get rideArrived => 'السائق وصل';
+
+  @override
+  String get rideInProgress => 'في الطريق';
+
+  @override
+  String get rideCompleted => 'انتهى';
+
+  @override
+  String get rideCancelled => 'أُلغي';
+
+  @override
+  String get rideNoDriver => 'لم يُعثر على سائق';
+
+  @override
+  String get rideSearchingHint => 'نعرض مشوارك على أقرب السائقين.';
+
+  @override
+  String get rideArrivedHint => 'السائق ينتظرك في مكان الركوب.';
+
+  @override
+  String get rideNoDriverHint => 'لم يقبله أي سائق. حاول مرة أخرى بعد دقائق.';
+
+  @override
+  String get rideTryAgain => 'حاول مرة أخرى';
+
+  @override
+  String rideHeading(String reference) {
+    return 'مشوار $reference';
+  }
+
+  @override
+  String get ridePin => 'كودك';
+
+  @override
+  String get ridePinHint => 'قل هذا الكود للسائق عندما تركب.';
+
+  @override
+  String get rideCall => 'اتصال';
+
+  @override
+  String rideDriverSeen(String time) {
+    return 'موقع السائق الساعة $time';
+  }
+
+  @override
+  String get rideShare => 'مشاركة المشوار';
+
+  @override
+  String rideShareText(String url) {
+    return 'تابع مشواري: $url';
+  }
+
+  @override
+  String get rideSos => 'طوارئ';
+
+  @override
+  String get rideSosTitle => 'اتصال طوارئ';
+
+  @override
+  String rideSosMessage(String number) {
+    return 'الاتصال بـ $number؟ استخدمه في حالات الطوارئ فقط.';
+  }
+
+  @override
+  String get rideSosCall => 'اتصل الآن';
+
+  @override
+  String get rideCancel => 'إلغاء المشوار';
+
+  @override
+  String get rideCancelConfirm => 'لماذا تلغي المشوار؟';
+
+  @override
+  String rideCancelFeeNote(String fee, int minutes) {
+    return 'الإلغاء بعد أكثر من $minutes د من قبول السائق يكلف $fee تُضاف إلى مشوارك التالي.';
+  }
+
+  @override
+  String get rideReasonChangedPlans => 'تغيّرت خططي';
+
+  @override
+  String get rideReasonDriverLate => 'السائق تأخر كثيرًا';
+
+  @override
+  String get rideReasonDriverAsked => 'السائق طلب مني الإلغاء';
+
+  @override
+  String get rideReasonWrongPlace => 'مكان الركوب خطأ';
+
+  @override
+  String get rideReasonOther => 'سبب آخر';
+
+  @override
+  String get rideCancelledToast => 'أُلغي المشوار.';
+
+  @override
+  String rideCancelledFee(String fee) {
+    return 'أُلغي المشوار. ستُضاف $fee إلى مشوارك التالي.';
+  }
+
+  @override
+  String get rideCancelledByYou => 'ألغيته أنت';
+
+  @override
+  String get rideCancelledByCompany => 'ألغته الشركة';
+
+  @override
+  String rideFeeCharged(String fee) {
+    return 'الرسوم: $fee';
+  }
+
+  @override
+  String get rideFare => 'الأجرة';
+
+  @override
+  String get rideFareEstimate => 'الأجرة التقديرية';
+
+  @override
+  String get ridePaid => 'تم الدفع. شكرًا لك.';
+
+  @override
+  String get rideRateTitle => 'كيف كان السائق؟';
+
+  @override
+  String rideRated(int stars) {
+    return 'قيّمت السائق $stars من 5.';
+  }
+
+  @override
+  String get myRidesSignInTitle => 'سجّل الدخول لرؤية مشاويرك';
+
+  @override
+  String get myRidesSignInMessage => 'تظهر مشاويرك وإيصالاتها هنا.';
+
+  @override
+  String get loadingRides => 'جارٍ تحميل المشاوير';
+
+  @override
+  String get noRidesTitle => 'لا توجد مشاوير بعد';
+
+  @override
+  String get noRidesMessage => 'إلى أين تريد الذهاب؟';
+
+  @override
+  String get driverTitle => 'السائق';
+
+  @override
+  String get riderView => 'شاشات الراكب';
+
+  @override
+  String get driverMode => 'وضع السائق';
+
+  @override
+  String get notDriverTitle => 'لسائقينا';
+
+  @override
+  String get notDriverMessage =>
+      'هذه الشاشة لسائقي الشركة. اطلب من الشركة إضافة رقمك.';
+
+  @override
+  String get driverOnline => 'متصل';
+
+  @override
+  String get driverOfflineHint => 'اتصل لتصلك المشاوير.';
+
+  @override
+  String driverToday(int rides, String earned) {
+    String _temp0 = intl.Intl.pluralLogic(
+      rides,
+      locale: localeName,
+      other: '$rides مشوارًا اليوم · $earned',
+      few: '$rides مشاوير اليوم · $earned',
+      two: 'مشواران اليوم · $earned',
+      one: 'مشوار واحد اليوم · $earned',
+      zero: 'لا مشاوير اليوم بعد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get driverWaiting =>
+      'في انتظار مشوار. اترك هذه الشاشة مفتوحة: يُرسل موقعك ما دمت متصلًا.';
+
+  @override
+  String get driverSharing =>
+      'ما دمت متصلًا وهذه الشاشة مفتوحة، يُرسل موقعك إلى الشركة والراكب.';
+
+  @override
+  String get driverOffer => 'مشوار جديد';
+
+  @override
+  String driverSecondsLeft(int seconds) {
+    return '$seconds ث';
+  }
+
+  @override
+  String driverPickupKm(String km) {
+    return '$km كم إلى مكان الركوب';
+  }
+
+  @override
+  String get driverAccept => 'قبول';
+
+  @override
+  String get driverDecline => 'رفض';
+
+  @override
+  String get driverOpenRide => 'افتح مشواري الحالي';
+
+  @override
+  String get driverCurrent => 'الحالية';
+
+  @override
+  String get driverDone => 'المنتهية';
+
+  @override
+  String get driverEarnings => 'الأرباح';
+
+  @override
+  String get driverNoRides => 'لا توجد مشاوير هنا';
+
+  @override
+  String get driverNoRidesMessage => 'تظهر هنا المشاوير التي تقبلها.';
+
+  @override
+  String get earningsToday => 'اليوم';
+
+  @override
+  String get earningsWeek => 'هذا الأسبوع';
+
+  @override
+  String get earningsMonth => 'هذا الشهر';
+
+  @override
+  String get earningsRides => 'المشاوير';
+
+  @override
+  String get earningsFares => 'الأجرة';
+
+  @override
+  String get earningsCash => 'النقد المحصّل';
+
+  @override
+  String get earningsCompany => 'حصة الشركة';
+
+  @override
+  String get earningsEarned => 'ربحك';
+
+  @override
+  String earningsRidesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مشوارًا',
+      few: '$count مشاوير',
+      two: 'مشواران',
+      one: 'مشوار واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get driverArrived => 'وصلت';
+
+  @override
+  String get driverStart => 'ابدأ المشوار';
+
+  @override
+  String get driverEnd => 'أنهِ المشوار';
+
+  @override
+  String driverWaitingSince(String time) {
+    return 'في الانتظار منذ $time';
+  }
+
+  @override
+  String driverCollect(String amount) {
+    return 'حصّل $amount نقدًا.';
+  }
+
+  @override
+  String get driverCardRide => 'يدفع الراكب بالبطاقة في التطبيق.';
+
+  @override
+  String get driverRider => 'الراكب';
+
+  @override
+  String get driverPinTitle => 'كود الراكب';
+
+  @override
+  String get driverPinHint =>
+      'اطلب من الراكب الكود المكوّن من 4 أرقام في تطبيقه.';
+
+  @override
+  String get driverCancelTitle => 'إلغاء هذا المشوار؟';
+
+  @override
+  String driverNoShowAfter(int minutes) {
+    return 'إذا لم يحضر الراكب يمكنك الإلغاء بعد $minutes د من وصولك. وإلا ينتقل المشوار إلى سائق آخر.';
+  }
+
+  @override
+  String get driverCancelNoShowHint =>
+      'لم يحضر الراكب: تُحتسب عليه رسوم الإلغاء التي تحددها الشركة.';
+
+  @override
+  String get driverCantMakeIt => 'لا أستطيع';
+
+  @override
+  String get driverNoShow => 'الراكب لم يحضر';
 }

@@ -73,13 +73,18 @@ const appTypes = [
   'events',
   'donations',
   'delivery',
+  // 105.1 Food delivery from many restaurants.
+  'food',
+  // 105.2 Ride hailing.
+  'rides',
 ];
 
 /// Kinds of business (`vertical` in the schema), on top of the app type.
 const verticals = ['restaurant', 'clinic', 'fitness', 'charity', 'services'];
 
-/// 104.6 `role`: the customers' app, or a delivery company's courier app.
-const roles = ['customer', 'courier'];
+/// 104.6 `role`: the customers' app, or a delivery company's courier app;
+/// 105.2 a ride company's drivers' app.
+const roles = ['customer', 'courier', 'driver'];
 
 /// The Dart `AppType` value for a schema `app_type`.
 String dartAppType(String wire) =>
@@ -185,8 +190,13 @@ ValidationResult validateBuildConfig(Object? decoded) {
   if (c.containsKey('role')) {
     if (!roles.contains(c['role'])) {
       errors.add('"role" must be one of ${roles.join(', ')}.');
-    } else if (c['role'] == 'courier' && c['app_type'] != 'delivery') {
+    } else if (c['role'] == 'courier' &&
+        c['app_type'] != 'delivery' &&
+        c['app_type'] != 'food') {
+      // 105.1.6 Food delivery companies have a courier app too.
       errors.add('"role" courier is for delivery apps only.');
+    } else if (c['role'] == 'driver' && c['app_type'] != 'rides') {
+      errors.add('"role" driver is for ride apps only.');
     }
   }
   _string(c, 'client_id', errors);

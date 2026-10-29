@@ -36,6 +36,11 @@ enum NotificationType {
   /// restaurant.
   foodOrderUpdate,
   restaurantOrder,
+
+  /// 105.2 One of the rider's rides moved on; a ride offered or given to a
+  /// driver.
+  rideUpdate,
+  rideOffer,
   unknown,
 }
 
@@ -60,6 +65,7 @@ class InboxNotification {
     this.orderId,
     this.shipmentId,
     this.foodOrderId,
+    this.rideId,
   });
 
   factory InboxNotification.fromJson(Json json) => InboxNotification(
@@ -83,6 +89,7 @@ class InboxNotification {
     orderId: optInt(json, 'order_id'),
     shipmentId: optInt(json, 'shipment_id'),
     foodOrderId: optInt(json, 'food_order_id'),
+    rideId: optInt(json, 'ride_id'),
     createdAt: reqDate(json, 'created_at'),
     read: reqBool(json, 'read'),
   );
@@ -125,6 +132,9 @@ class InboxNotification {
   /// 105.1 For a food order update or a restaurant's new order: the order.
   final int? foodOrderId;
 
+  /// 105.2 For a ride update or offer: the ride.
+  final int? rideId;
+
   Map<String, dynamic> get target => {
     'type': snake(type),
     'course_id': ?courseId,
@@ -138,6 +148,7 @@ class InboxNotification {
     'order_id': ?orderId,
     'shipment_id': ?shipmentId,
     'food_order_id': ?foodOrderId,
+    'ride_id': ?rideId,
   };
 }
 

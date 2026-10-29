@@ -17,6 +17,8 @@ export const PRIVATE_PATHS = [
   "/receipts/",
   "/oauth/",
   "/shop/",
+  // 105.2 Shared rides.
+  "/r/",
   "/pending",
   "/preview-app/",
   "/demo/download/",

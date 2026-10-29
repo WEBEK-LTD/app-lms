@@ -67,6 +67,32 @@ store reviewers' notes walk through all three roles. Checks: redocly lint, platf
 isolation tests), tsc, eslint, e2e of the dashboard, flutter analyze and
 widget tests.
 
+Phase 105.2 (ride hailing, like Uber) is complete: a new Studio project
+type, Ride hailing (no website, on Studio's plans). Riders set the pickup
+and drop-off (their position, a maps link or the map), see each vehicle
+type's fare and how soon a car can come, ride now or book for later, and
+follow the ride: the driver, the car and plate, the driver on the map, the
+code to tell the driver, sharing the ride's page, an emergency button;
+they cancel by the company's rule (a fee carried into the next ride), pay a
+card ride once it ends through the company's own gateway, and rate the
+driver. The company's drivers (added by number, with their car, photo and
+documents) get a Driver tab: online or offline, one offer at a time with the
+seconds left to take it, arrived, start (with the rider's code when the
+company asks for it), end, the cash to collect, their earnings by day, week
+and month. Rides go to the nearest free driver of the vehicle type, then
+the next one; or the company gives them out. The dashboard in Studio has
+Rides (with the drivers online now), Drivers, Vehicle types and their
+fares, Statements per driver and Ride settings (fares upfront or by the
+meter, areas, promo codes, cancelling, the company's share). Ride hailing
+is the Studio plan feature `rides`. In Studio, a ride project starts from
+one of three ready-made designs (Rides, Ride offers, Ride brand) and has its
+own welcome section; its drivers can have their own app in the company's
+name (`.driver`, as 104.6), and the store reviewers' notes walk through
+both roles (in the drivers' app the review driver gets a sample ride).
+Every fare, fee and share is the company's: Yallapp sets none. Checks:
+redocly lint, platform unit tests (with the isolation tests), tsc, eslint,
+e2e of the dashboard, flutter analyze and widget tests.
+
 Phase 103R (Yallapp Studio as the owner approved it) is complete. A
 Studio page is a tree of elements (`AppPage.studio`): rows, columns, layers,
 grids and sliders; texts, pictures, buttons, lists with the owner's own card,
@@ -158,6 +184,9 @@ test environment:
   live map. Without tiles, maps show the stages only.
 - Food delivery apps (105.1): turn on the plan feature `food`, with its
   price, in Admin › Plans › Yallapp Studio.
+- Ride hailing apps (105.2): turn on the plan feature `rides`, with its
+  price, in Admin › Plans › Yallapp Studio; the drivers' own app is the
+  plan feature `courier_app`, as for couriers.
 - Google real-time notifications use one Pub/Sub topic for every app
   (`GOOGLE_PUBSUB_PUSH_EMAIL`, `GOOGLE_PUBSUB_TOPIC`; see
   `docs/LAUNCH-CHECKLIST.md`). Each app's owner enters the topic in their own

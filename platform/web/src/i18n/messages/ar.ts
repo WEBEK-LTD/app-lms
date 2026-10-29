@@ -326,6 +326,7 @@ export const ar: Messages = {
     choiceDelivery: "التوصيل والمناديب",
     choiceCourierApp: "تطبيق ثانٍ للمناديب",
     choiceFood: "توصيل الطعام",
+    choiceRides: "توصيل الركاب",
     choiceMotion: "الحركة في المحرر",
     choiceTemplates: "القوالب",
     choicePages: "عدد صفحات Studio في كل مشروع",

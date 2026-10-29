@@ -29,7 +29,9 @@ export type AssetKind =
   // 97.2 The files of an owner's own font.
   | "font"
   // 97.3 The logo and pictures exported from a Figma file.
-  | "figma_image";
+  | "figma_image"
+  // 105.2 A driver's papers (licence, car registration): only the company sees them, never at the public address.
+  | "driver_document";
 export type AppTemplate = "classic" | "bold" | "minimal";
 
 export interface User {
@@ -176,7 +178,7 @@ export interface ScreenshotFrame {
  * donations app (29, hosted API only). What each engine is and offers is in
  * lib/app/kinds.ts.
  */
-export type AppType = "lms" | "store" | "booking" | "real_estate" | "news" | "events" | "donations" | "delivery" | "food";
+export type AppType = "lms" | "store" | "booking" | "real_estate" | "news" | "events" | "donations" | "delivery" | "food" | "rides";
 
 /** 20 The kind of business, on top of the engine: wording, defaults, the demo and marketing, never routes (lib/app/kinds.ts). */
 export type AppVertical = "restaurant" | "clinic" | "fitness" | "charity" | "services";
@@ -214,6 +216,8 @@ export type ConnectorConfig =
   | { kind: "deliveries" }
   // 105.1 Food delivery from many restaurants.
   | { kind: "restaurants" }
+  // 105.2 Ride hailing.
+  | { kind: "rides" }
   /**
    * A platform connected with keys (ikas, Ticimax, IdeaSoft, Wix, Teachable,
    * Thinkific, SimplyBook) or with OAuth through Yallapp's partner app
@@ -3024,8 +3028,10 @@ export interface DeliverySettings {
   cuisines?: Cuisine[];
   /** 105.1 Food apps: when an order's courier job is made (default `accepted`). */
   foodCourierJob?: FoodCourierJob;
-  /** 105.1 Food apps: the IANA time zone restaurants' opening hours are in (default Africa/Cairo). */
+  /** 105.1 Food apps: the IANA time zone restaurants' opening hours are in (default Africa/Cairo). 105.2 Ride apps: scheduled rides and earnings. */
   timezone?: string;
+  /** 105.2 Ride apps: how rides are priced, matched and cancelled. */
+  rides?: RidesSettings;
 }
 
 /** A service the customer chooses (same-day, express, documents), adding its own amount to the price. */
@@ -3061,16 +3067,18 @@ export interface Courier {
   active: boolean;
   /** Offered new jobs and told of them. */
   onDuty: boolean;
-  /** The last position the app sent while a job was on the way; cleared when none is. */
+  /** The last position the app sent while a job was on the way; cleared when none is. 105.2 A driver's: while online. */
   lat: number | null;
   lng: number | null;
   locatedAt: Date | null;
+  /** 105.2 Ride apps: the driver's side (null for couriers). */
+  driver?: DriverDetails | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export type CourierInput = Pick<Courier, "appId" | "name" | "phone" | "email" | "vehicle" | "active">;
-export type CourierPatch = Partial<Pick<Courier, "name" | "phone" | "email" | "vehicle" | "active" | "onDuty" | "lat" | "lng" | "locatedAt">>;
+export type CourierInput = Pick<Courier, "appId" | "name" | "phone" | "email" | "vehicle" | "active"> & Partial<Pick<Courier, "driver">>;
+export type CourierPatch = Partial<Pick<Courier, "name" | "phone" | "email" | "vehicle" | "active" | "onDuty" | "lat" | "lng" | "locatedAt" | "driver">>;
 
 export const SHIPMENT_STATUSES = ["awaiting_payment", "pending", "assigned", "picked_up", "on_the_way", "delivered", "failed", "cancelled"] as const;
 export type ShipmentStatus = (typeof SHIPMENT_STATUSES)[number];
@@ -3369,6 +3377,241 @@ export interface FoodOrderQuery {
   order: "newest" | "oldest";
   offset: number;
   limit: number;
+}
+
+// 105.2 Ride hailing
+
+export const RIDE_FARE_MODES = ["upfront", "metered"] as const;
+export type RideFareMode = (typeof RIDE_FARE_MODES)[number];
+export const RIDE_MATCHINGS = ["nearest", "dispatch"] as const;
+export type RideMatching = (typeof RIDE_MATCHINGS)[number];
+
+/** Where pickups may be: a circle on the map. */
+export interface RideArea {
+  id: string;
+  name: string;
+  lat: number;
+  lng: number;
+  radiusKm: number;
+}
+
+/** A promo code riders type: a share off the fare, at most an amount, until a date, for a number of rides. */
+export interface RidePromo {
+  code: string;
+  percentOff: number;
+  /** null: no limit. */
+  maxOffCents: number | null;
+  /** null: no end. */
+  endsAt: string | null;
+  /** How many rides may use it in all; null: no limit. Each rider once. */
+  maxRides: number | null;
+  active: boolean;
+}
+
+/** How a ride company prices, matches and cancels (`Config.rides`); every amount is the company's. */
+export interface RidesSettings {
+  fareMode: RideFareMode;
+  scheduling: boolean;
+  matching: RideMatching;
+  /** Empty: pickups anywhere. */
+  areas: RideArea[];
+  /** After a driver accepted, how long the rider may cancel for free. */
+  cancelFreeMinutes: number;
+  /** Charged after that, and for a no-show; 0 for none. */
+  cancelFeeCents: number;
+  /** How long a driver waits at the pickup before they may cancel for a no-show. */
+  noShowMinutes: number;
+  /** Waiting at the pickup is charged after this many minutes. */
+  freeWaitMinutes: number;
+  /** The rider tells the driver a 4-digit code to start. */
+  pin: boolean;
+  /** E.164; null: the phone's emergency number. */
+  emergencyPhone: string | null;
+  /** The company's share of each fare, in basis points (2000 = 20%), unless a driver has their own. */
+  commissionBp: number;
+  /** How far from the pickup an online driver may be to be offered a ride. */
+  matchRadiusKm: number;
+  /** How long each driver has to accept. */
+  offerSeconds: number;
+  /** The usual speed in town, for estimates. */
+  speedKmh: number;
+  promos: RidePromo[];
+}
+
+/** A paper of the driver's the company keeps (licence, car registration), an asset. */
+export interface DriverDocument {
+  label: string;
+  assetId: string;
+}
+
+/** A driver's side of a courier row in a ride app. */
+export interface DriverDetails {
+  photoAssetId: string | null;
+  vehicleTypeId: number | null;
+  carModel: string | null;
+  carColor: string | null;
+  plate: string | null;
+  /** The company's share of this driver's fares, in basis points; null: the company's (`RidesSettings.commissionBp`). */
+  commissionBp: number | null;
+  documents: DriverDocument[];
+  /** Degrees from north, with the last position. */
+  heading: number | null;
+  ratingSum: number;
+  ratingCount: number;
+}
+
+/** A kind of vehicle riders choose (economy, comfort, van), with its fares. */
+export interface VehicleType {
+  id: number;
+  appId: string;
+  name: string;
+  description: string | null;
+  /** A Material Symbols (Rounded) name. */
+  icon: string;
+  imageAssetId: string | null;
+  seats: number;
+  baseCents: number;
+  perKmCents: number;
+  perMinuteCents: number;
+  /** The smallest fare. */
+  minCents: number;
+  /** Per minute of waiting at the pickup after the free minutes. */
+  waitPerMinuteCents: number;
+  position: number;
+  /** Hidden from the app when false. */
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type VehicleTypeInput = Omit<VehicleType, "id" | "createdAt" | "updatedAt">;
+
+/** A vehicle type's fares, kept on each ride as they were when it was asked for. */
+export type RideFares = Pick<VehicleType, "baseCents" | "perKmCents" | "perMinuteCents" | "minCents" | "waitPerMinuteCents">;
+
+export const RIDE_STATUSES = ["scheduled", "searching", "accepted", "arrived", "in_progress", "completed", "cancelled", "no_driver"] as const;
+export type RideStatus = (typeof RIDE_STATUSES)[number];
+
+/** A stage the ride went through. `at` is an ISO string. */
+export interface RideStage {
+  status: RideStatus;
+  at: string;
+  note?: string | null;
+  by?: "rider" | "driver" | "company" | "payment" | "system";
+}
+
+export interface RideCancellation {
+  by: "rider" | "driver" | "company";
+  reason: string | null;
+  /** Charged to the rider, added to their next ride; 0 for none. */
+  feeCents: number;
+}
+
+export interface Ride {
+  id: number;
+  appId: string;
+  /** The rider; null once they deleted their account. */
+  userId: number | null;
+  riderName: string;
+  /** E.164, where the driver calls. */
+  riderPhone: string | null;
+  vehicleTypeId: number | null;
+  /** Kept when the type is deleted. */
+  vehicleTypeName: string;
+  vehicleTypeIcon: string;
+  fares: RideFares;
+  fareMode: RideFareMode;
+  pickup: ShipmentPlace;
+  dropoff: ShipmentPlace;
+  scheduledAt: Date | null;
+  /** By road, estimated. */
+  estimateKm: number;
+  estimateMinutes: number;
+  /** The fare given when asked: with the discount and any previous fee. */
+  quotedCents: number;
+  promoCode: string | null;
+  discountCents: number;
+  /** An unpaid cancellation fee of the rider's carried into this ride, and the ride it came from. */
+  previousFeeCents: number;
+  previousFeeRideId: number | null;
+  /** Once completed: the fare charged, the distance and minutes it was worked out from, the minutes waited past the free ones. */
+  finalCents: number | null;
+  /** Measured from the driver's positions during the ride. */
+  meterKm: number;
+  rideMinutes: number | null;
+  waitMinutes: number | null;
+  /** Once completed: the company's share of the fare (without the previous fee, which is all the company's). */
+  commissionBp: number | null;
+  commissionCents: number | null;
+  currency: CatalogCurrency;
+  paymentMethod: "cash" | "card";
+  paymentStatus: "unpaid" | "paid" | "refunded";
+  /** Paid by card: the catalog order of its last payment link. */
+  orderId: number | null;
+  status: RideStatus;
+  /** The code the rider tells the driver, when the company asks for one. */
+  pin: string | null;
+  notes: string | null;
+  driverId: number | null;
+  /** Kept when the driver is deleted. */
+  driverName: string | null;
+  /** The driver it is offered to now, until when; the drivers who let it go. */
+  offeredTo: number | null;
+  offerExpiresAt: Date | null;
+  declinedBy: number[];
+  /** When it was last offered to drivers (asked now, or its time came). */
+  searchingSince: Date | null;
+  cancellation: RideCancellation | null;
+  /** A cancelled ride's fee: the ride it was carried into. */
+  feeCarriedTo: number | null;
+  /** For the share link; null once the ride ended. */
+  shareToken: string | null;
+  rating: { driver: number; comment: string | null; at: string } | null;
+  timeline: RideStage[];
+  lang: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type RideInput = Omit<Ride, "id">;
+export type RidePatch = Partial<Omit<Ride, "id" | "appId" | "createdAt">>;
+
+/** Which rides a list holds. */
+export interface RideQuery {
+  appId: string;
+  userId?: number;
+  /** Not this rider's (the store review account's). */
+  notUserId?: number;
+  driverId?: number;
+  offeredTo?: number;
+  statuses?: RideStatus[];
+  promoCode?: string;
+  /** Created at or after, and before. */
+  since?: Date;
+  until?: Date;
+  /** Updated at or after. */
+  updatedSince?: Date;
+  /** The reference ("R-12"), the rider's name or number, or the driver's name. */
+  search?: string;
+  order: "newest" | "oldest";
+  offset: number;
+  limit: number;
+}
+
+/** One driver's completed rides over a period: what they drove and what the company keeps. */
+export interface RideStatementRow {
+  driverId: number | null;
+  driverName: string;
+  rides: number;
+  /** Fares without previous fees. */
+  faresCents: number;
+  /** All the driver collected in cash (previous fees too). */
+  cashCents: number;
+  /** Paid by card into the company's account. */
+  cardCents: number;
+  commissionCents: number;
+  /** Previous cancellation fees collected with these rides (the company's). */
+  feesCents: number;
 }
 
 /**

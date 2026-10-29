@@ -103,7 +103,8 @@ export async function createSampleJob(store: DataStore, app: App, settings: Deli
  * App Review Information), in English as the reviewers read them: the
  * customers' app, and the courier app when the company has one. 105.1.6 In
  * a food delivery app the same account also works for the company's first
- * restaurant, on its own orders only.
+ * restaurant, on its own orders only. 105.2 In a ride app it is a rider and,
+ * the first time it opens the driver's screens, a test driver.
  */
 export function reviewNotes(
   app: Pick<App, "appName" | "hostedSettings" | "appType">,
@@ -115,6 +116,7 @@ export function reviewNotes(
   const code = app.hostedSettings!.reviewCode!;
   const company = (app.appName ?? "").trim() || "the company";
   const signIn = `Sign in with ${login} and the code ${code} (no message is sent to it).`;
+  if (app.appType === "rides") return rideReviewNotes(app, settings, company, signIn);
   const food = app.appType === "food";
   const what = food ? "order" : "parcel";
   const courierSteps = `Turn on duty, open the job, then move it on: Picked up, On the way, Delivered (the position is shared only while ${food ? "an order" : "a parcel"} is on the way, and only while the screen is open).`;
@@ -137,6 +139,33 @@ export function reviewNotes(
       ? [
           `${courierAppNameOf(app, settings)} is for ${company}'s couriers only; customers use the ${company} app. ${signIn}`,
           `This account is a test courier. A sample job is waiting in My jobs (another appears once it is done). ${courierSteps}`,
+        ].join("\n\n")
+      : null;
+  return { customer, courier };
+}
+
+/** 105.2 The reviewers' notes of a ride app: a rider, and a test driver whose offers are this account's rides only. */
+function rideReviewNotes(
+  app: Pick<App, "appName" | "appType">,
+  settings: Pick<DeliverySettings, "courierApp" | "courierAppName">,
+  company: string,
+  signIn: string,
+): { customer: string; courier: string | null } {
+  const driverSteps = "Go online, accept the offer, then tap I've arrived, Start the ride (with the 4-digit code the rider's app shows, when there is one) and End the ride. The position is shared only while the driver is online and the screen is open.";
+  const customer = [
+    `${company} is a ride service. ${signIn}`,
+    "Set the pickup (use your location or a maps link) and the drop-off, choose a vehicle type and request a ride paid in cash. The ride's screen shows the driver, the car and the code to tell the driver; My rides lists them all.",
+    settings.courierApp === "same"
+      ? `The same account is also a test driver: Account › Driver mode shows the driver's screens, and this account's rides are offered to it only, wherever the reviewer is. ${driverSteps}`
+      : null,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+  const courier =
+    settings.courierApp === "bundle"
+      ? [
+          `${courierAppNameOf(app, settings)} is for ${company}'s drivers only; riders use the ${company} app. ${signIn}`,
+          `This account is a test driver. Once online, a sample ride is offered (another appears once it is declined or done). ${driverSteps}`,
         ].join("\n\n")
       : null;
   return { customer, courier };

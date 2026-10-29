@@ -4896,4 +4896,420 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskCustomer => 'Customer';
+
+  @override
+  String get tabRide => 'Ride';
+
+  @override
+  String get tabMyRides => 'My rides';
+
+  @override
+  String get tabDriver => 'Driver';
+
+  @override
+  String get rideWhereTo => 'Where to?';
+
+  @override
+  String get ridePickup => 'Pickup';
+
+  @override
+  String get rideDropoff => 'Drop-off';
+
+  @override
+  String get rideMyLocation => 'My location';
+
+  @override
+  String get rideWhen => 'When';
+
+  @override
+  String get rideNow => 'Now';
+
+  @override
+  String get rideLater => 'Later';
+
+  @override
+  String rideScheduledFor(String time) {
+    return 'Pickup at $time';
+  }
+
+  @override
+  String get rideChooseCar => 'Choose a ride';
+
+  @override
+  String get rideSignInForFares => 'Sign in to see the fares.';
+
+  @override
+  String get rideFillPlaces =>
+      'Set the pickup and the drop-off with your location, a maps link or the map.';
+
+  @override
+  String rideTrip(String km, int minutes) {
+    return '$km km · about $minutes min';
+  }
+
+  @override
+  String get rideMeteredNote => 'The meter sets the final fare';
+
+  @override
+  String rideSeats(int seats) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seats,
+      locale: localeName,
+      other: '$seats seats',
+      one: '1 seat',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ridePickupIn(int minutes) {
+    return '$minutes min away';
+  }
+
+  @override
+  String get rideNoneNearby => 'No car nearby now';
+
+  @override
+  String rideDiscount(String amount) {
+    return 'Promo code: $amount off';
+  }
+
+  @override
+  String ridePreviousFee(String amount) {
+    return 'Includes $amount from your last cancelled ride';
+  }
+
+  @override
+  String get ridePromoCode => 'Promo code (optional)';
+
+  @override
+  String get rideNotes => 'Note for the driver';
+
+  @override
+  String get rideCardAfter => 'You pay by card once the ride ends.';
+
+  @override
+  String get rideRequest => 'Request a ride';
+
+  @override
+  String get rideBook => 'Book the ride';
+
+  @override
+  String get rideScheduled => 'Booked';
+
+  @override
+  String get rideSearching => 'Looking for a driver';
+
+  @override
+  String get rideAccepted => 'Driver on the way';
+
+  @override
+  String get rideArrived => 'Driver is here';
+
+  @override
+  String get rideInProgress => 'On the way';
+
+  @override
+  String get rideCompleted => 'Completed';
+
+  @override
+  String get rideCancelled => 'Cancelled';
+
+  @override
+  String get rideNoDriver => 'No driver found';
+
+  @override
+  String get rideSearchingHint => 'We\'re asking the nearest drivers.';
+
+  @override
+  String get rideArrivedHint => 'Your driver is waiting at the pickup.';
+
+  @override
+  String get rideNoDriverHint =>
+      'No driver took it. Try again in a few minutes.';
+
+  @override
+  String get rideTryAgain => 'Try again';
+
+  @override
+  String rideHeading(String reference) {
+    return 'Ride $reference';
+  }
+
+  @override
+  String get ridePin => 'Your code';
+
+  @override
+  String get ridePinHint => 'Tell your driver this code when you get in.';
+
+  @override
+  String get rideCall => 'Call';
+
+  @override
+  String rideDriverSeen(String time) {
+    return 'Driver\'s position at $time';
+  }
+
+  @override
+  String get rideShare => 'Share the ride';
+
+  @override
+  String rideShareText(String url) {
+    return 'Follow my ride: $url';
+  }
+
+  @override
+  String get rideSos => 'Emergency';
+
+  @override
+  String get rideSosTitle => 'Emergency call';
+
+  @override
+  String rideSosMessage(String number) {
+    return 'Call $number? Use it only in an emergency.';
+  }
+
+  @override
+  String get rideSosCall => 'Call now';
+
+  @override
+  String get rideCancel => 'Cancel the ride';
+
+  @override
+  String get rideCancelConfirm => 'Why are you cancelling?';
+
+  @override
+  String rideCancelFeeNote(String fee, int minutes) {
+    return 'Cancelling more than $minutes min after a driver accepted costs $fee, added to your next ride.';
+  }
+
+  @override
+  String get rideReasonChangedPlans => 'My plans changed';
+
+  @override
+  String get rideReasonDriverLate => 'The driver is taking too long';
+
+  @override
+  String get rideReasonDriverAsked => 'The driver asked me to cancel';
+
+  @override
+  String get rideReasonWrongPlace => 'Wrong pickup place';
+
+  @override
+  String get rideReasonOther => 'Something else';
+
+  @override
+  String get rideCancelledToast => 'Ride cancelled.';
+
+  @override
+  String rideCancelledFee(String fee) {
+    return 'Ride cancelled. $fee is added to your next ride.';
+  }
+
+  @override
+  String get rideCancelledByYou => 'You cancelled it';
+
+  @override
+  String get rideCancelledByCompany => 'Cancelled by the company';
+
+  @override
+  String rideFeeCharged(String fee) {
+    return 'Fee: $fee';
+  }
+
+  @override
+  String get rideFare => 'Fare';
+
+  @override
+  String get rideFareEstimate => 'Estimated fare';
+
+  @override
+  String get ridePaid => 'Paid. Thank you.';
+
+  @override
+  String get rideRateTitle => 'How was your driver?';
+
+  @override
+  String rideRated(int stars) {
+    return 'You rated your driver $stars out of 5.';
+  }
+
+  @override
+  String get myRidesSignInTitle => 'Sign in to see your rides';
+
+  @override
+  String get myRidesSignInMessage => 'Your rides and their receipts show here.';
+
+  @override
+  String get loadingRides => 'Loading the rides';
+
+  @override
+  String get noRidesTitle => 'No rides yet';
+
+  @override
+  String get noRidesMessage => 'Where would you like to go?';
+
+  @override
+  String get driverTitle => 'Driver';
+
+  @override
+  String get riderView => 'Rider view';
+
+  @override
+  String get driverMode => 'Driver mode';
+
+  @override
+  String get notDriverTitle => 'For our drivers';
+
+  @override
+  String get notDriverMessage =>
+      'This screen is for the company\'s drivers. Ask the company to add your number.';
+
+  @override
+  String get driverOnline => 'Online';
+
+  @override
+  String get driverOfflineHint => 'Go online to get rides.';
+
+  @override
+  String driverToday(int rides, String earned) {
+    String _temp0 = intl.Intl.pluralLogic(
+      rides,
+      locale: localeName,
+      other: '$rides rides today · $earned',
+      one: '1 ride today · $earned',
+      zero: 'No rides today yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get driverWaiting =>
+      'Waiting for a ride. Keep this screen open: your position is shared while you are online.';
+
+  @override
+  String get driverSharing =>
+      'While you are online and this screen is open, your position is shared with the company and your rider.';
+
+  @override
+  String get driverOffer => 'New ride';
+
+  @override
+  String driverSecondsLeft(int seconds) {
+    return '$seconds s';
+  }
+
+  @override
+  String driverPickupKm(String km) {
+    return '$km km to the pickup';
+  }
+
+  @override
+  String get driverAccept => 'Accept';
+
+  @override
+  String get driverDecline => 'Decline';
+
+  @override
+  String get driverOpenRide => 'Open my current ride';
+
+  @override
+  String get driverCurrent => 'Current';
+
+  @override
+  String get driverDone => 'Done';
+
+  @override
+  String get driverEarnings => 'Earnings';
+
+  @override
+  String get driverNoRides => 'No rides here';
+
+  @override
+  String get driverNoRidesMessage => 'Rides you take show here.';
+
+  @override
+  String get earningsToday => 'Today';
+
+  @override
+  String get earningsWeek => 'This week';
+
+  @override
+  String get earningsMonth => 'This month';
+
+  @override
+  String get earningsRides => 'Rides';
+
+  @override
+  String get earningsFares => 'Fares';
+
+  @override
+  String get earningsCash => 'Cash collected';
+
+  @override
+  String get earningsCompany => 'Company\'s share';
+
+  @override
+  String get earningsEarned => 'You made';
+
+  @override
+  String earningsRidesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rides',
+      one: '1 ride',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get driverArrived => 'I\'ve arrived';
+
+  @override
+  String get driverStart => 'Start the ride';
+
+  @override
+  String get driverEnd => 'End the ride';
+
+  @override
+  String driverWaitingSince(String time) {
+    return 'Waiting since $time';
+  }
+
+  @override
+  String driverCollect(String amount) {
+    return 'Collect $amount in cash.';
+  }
+
+  @override
+  String get driverCardRide => 'The rider pays by card in the app.';
+
+  @override
+  String get driverRider => 'Rider';
+
+  @override
+  String get driverPinTitle => 'Rider\'s code';
+
+  @override
+  String get driverPinHint =>
+      'Ask the rider for the 4-digit code in their app.';
+
+  @override
+  String get driverCancelTitle => 'Cancel this ride?';
+
+  @override
+  String driverNoShowAfter(int minutes) {
+    return 'If the rider doesn\'t come, you can cancel $minutes min after arriving. Otherwise the ride goes to another driver.';
+  }
+
+  @override
+  String get driverCancelNoShowHint =>
+      'The rider didn\'t come: the company\'s cancellation fee is charged to them.';
+
+  @override
+  String get driverCantMakeIt => 'I can\'t make it';
+
+  @override
+  String get driverNoShow => 'The rider didn\'t come';
 }
