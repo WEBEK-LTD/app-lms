@@ -414,7 +414,7 @@ export const CLINIC_DESIGNS: Design[] = [
             quote("Clear prices before the treatment, and no surprises after.", "Burak T.", "Patient"),
           ]),
           hours("Opening hours", days(["sat", "sun", "mon", "tue", "wed", "thu"], "10:00", "21:00")),
-          faq("Questions", [BEFORE_YOUR_VISIT[0]!, BEFORE_YOUR_VISIT[4]!, question("Does a check-up hurt?", "No. A check-up and cleaning are gentle; tell us if anything feels uncomfortable and we stop.")]),
+          faq("Questions", [BEFORE_YOUR_VISIT[0]!, BEFORE_YOUR_VISIT[1]!, BEFORE_YOUR_VISIT[4]!, question("Does a check-up hurt?", "No. A check-up and cleaning are gentle; tell us if anything feels uncomfortable and we stop.")]),
           EMERGENCY(),
           contact(),
         ],
@@ -689,7 +689,7 @@ export const FITNESS_DESIGNS: Design[] = [
           stats([stat("1:1", "Coaching"), stat("12 weeks", "Programs")]),
           list("sessions", "Sessions", "services", "list", { seeAll: screen("services") }),
           PLANS(),
-          button("plans", "See membership plans", screen("memberships"), "outlined", "card_membership"),
+          button("see-plans", "See membership plans", screen("memberships"), "outlined", "card_membership"),
           testimonials("Results", [
             quote("Twelve weeks, eight kilos and my knee doesn't hurt any more.", "Ahmed F.", "Client"),
             quote("Kerem made a plan around my shifts. For once I didn't quit.", "Merve A.", "Client"),
@@ -839,9 +839,11 @@ export const SERVICES_DESIGNS: Design[] = [
           faq("Questions", [
             question("How do sessions work?", "We meet online or at our office for an hour. You get written notes and next steps the same day."),
             HOW_TO_BOOK,
+            LATE_CANCEL,
             PAY,
           ]),
           button("contact-page", "Contact us", page("contact"), "outlined", "mail"),
+          contact(),
         ],
       },
       aboutPage({
@@ -899,6 +901,7 @@ export const SERVICES_DESIGNS: Design[] = [
           faq("Questions", [
             question("How does a project start?", "With a free first meeting. We listen, then send you a short plan and a price."),
             question("How long does a project take?", "Most take two to six weeks. We agree the dates before we start."),
+            question("Who owns the work?", "You do. When the project is paid, every file is yours to use as you like."),
             PAY,
           ]),
           contact(),

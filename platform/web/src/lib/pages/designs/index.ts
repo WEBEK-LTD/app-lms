@@ -7,7 +7,9 @@ import COLOURS from "./colours.json";
 import { ACADEMY_DESIGNS, INSTRUCTORS_DESIGNS } from "./academy";
 import { BOOKINGS_DESIGNS, CLINIC_DESIGNS, FITNESS_DESIGNS, SERVICES_DESIGNS } from "./bookings";
 import { aboutPage, contactPage, page, PALETTES, PICTURE, tab, type Design, type Palette } from "./build";
-import { CHARITY_DESIGNS, DELIVERY_DESIGNS, EVENTS_DESIGNS, FOOD_DESIGNS, NEWS_DESIGNS, REAL_ESTATE_DESIGNS, RIDES_DESIGNS, SCHOOL_DESIGNS, TAXI_DESIGNS } from "./more";
+import { CHARITY_DESIGNS, EVENTS_DESIGNS, NEWS_DESIGNS, REAL_ESTATE_DESIGNS } from "./more";
+import { SCHOOL_DESIGNS } from "./school";
+import { DELIVERY_DESIGNS, FOOD_DESIGNS, RIDES_DESIGNS, TAXI_DESIGNS } from "./transport";
 import { RESTAURANT_DESIGNS, STORE_DESIGNS } from "./store";
 
 export type { Design } from "./build";
