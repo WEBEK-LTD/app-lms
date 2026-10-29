@@ -16,6 +16,7 @@ import { notifyAppointmentConfirmed } from "@/lib/hosted/auto-notifications";
 import { serviceAccountOf } from "@/lib/hosted/notify";
 import { recordStaffChange } from "@/lib/admin/audit";
 import type { FormState } from "@/lib/forms";
+import { askAfterOwnEntry } from "@/lib/samples/lists";
 
 /** A client whose bookings are managed in the dashboard, or a redirect. */
 async function requireBookingsApp(): Promise<ClientContext & { app: App }> {
@@ -78,10 +79,13 @@ export async function saveBookingServiceAction(_: FormState, formData: FormData)
   const parsed = parseService(v, setup);
   if (!parsed.ok) return { errors: parsed.errors, values: v };
   if (existing) {
-    await saveSetup(app, { ...setup, services: setup.services.map((s) => (s.id === existing.id ? { ...existing, ...parsed.value, imageAssetId: existing.imageAssetId } : s)) });
+    await saveSetup(app, { ...setup, services: setup.services.map((s) => (s.id === existing.id ? { ...existing, ...parsed.value, imageAssetId: existing.imageAssetId, sample: false } : s)) });
     return { ok: true, message: `Saved “${parsed.value.name}”.`, values: v };
   }
   await saveSetup(app, { ...setup, services: [...setup.services, { id: setup.nextId, ...parsed.value }], nextId: setup.nextId + 1 });
+  // 110.2 Their first own service next to the samples: the list asks whether to remove them.
+  const ask = await askAfterOwnEntry(await getStore(), app.id, "services");
+  if (ask) redirect(ask);
   return { ok: true, message: `Added “${parsed.value.name}”. Choose who provides it under Team.` };
 }
 
@@ -115,10 +119,12 @@ export async function saveBookingStaffAction(_: FormState, formData: FormData): 
   if (!parsed.ok || !profile.ok) return { errors: { ...(parsed.ok ? {} : parsed.errors), ...(profile.ok ? {} : profile.errors) }, values: v };
   const member = { ...parsed.value, ...profile.value };
   if (existing) {
-    await saveSetup(app, { ...setup, staff: setup.staff.map((s) => (s.id === existing.id ? { ...existing, ...member, imageAssetId: existing.imageAssetId } : s)) });
+    await saveSetup(app, { ...setup, staff: setup.staff.map((s) => (s.id === existing.id ? { ...existing, ...member, imageAssetId: existing.imageAssetId, sample: false } : s)) });
     return { ok: true, message: `Saved ${member.name}.`, values: v };
   }
   await saveSetup(app, { ...setup, staff: [...setup.staff, { id: setup.nextId, ...member }], nextId: setup.nextId + 1 });
+  const ask = await askAfterOwnEntry(await getStore(), app.id, "staff");
+  if (ask) redirect(ask);
   return { ok: true, message: `Added ${member.name}.` };
 }
 

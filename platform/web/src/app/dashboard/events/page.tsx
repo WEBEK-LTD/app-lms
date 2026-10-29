@@ -13,6 +13,7 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 import type { DashKey } from "@/i18n/dashboard";
 import { EventSettingsForm } from "./forms";
+import { SampleBadge, SampleEntries, type SampleQuery } from "@/components/samples";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("events.title") };
@@ -26,7 +27,7 @@ const FILTERS: { value: string; label: DashKey }[] = [
 ];
 
 /** 28 The events of an Events & tickets app, its event settings and card payments. */
-export default async function EventsPage({ searchParams }: { searchParams: Promise<{ show?: string; deleted?: string }> }) {
+export default async function EventsPage({ searchParams }: { searchParams: Promise<{ show?: string; deleted?: string } & SampleQuery> }) {
   const { app } = await requireClient("events");
   const { t, lang, num } = await dashboardText();
   if (!app || app.connector?.kind !== "events") {
@@ -39,7 +40,8 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
       </div>
     );
   }
-  const { show = "upcoming", deleted } = await searchParams;
+  const query = await searchParams;
+  const { show = "upcoming", deleted } = query;
   const now = new Date();
   const store = await getStore();
   const [data, tickets] = await Promise.all([loadEvents(store, app, now), store.countTicketPlaces(app.id, now)]);
@@ -82,6 +84,8 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
           {t("events.deleted", { title: deleted })}
         </p>
       ) : null}
+      {/* 110.2 */}
+      <SampleEntries app={app} list="events" query={query} />
       {paid && !app.catalogSettings?.payment && !app.demo ? (
         <Notice tone="warn" icon="warning">
           {richText(t("events.paidNoPayments"), { link: (chunk) => <a href="#h-payments">{chunk}</a> })}
@@ -138,6 +142,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
                           .join(" · ")}
                       </span>
                     </span>
+                    <SampleBadge sample={e.sample} />
                     {phaseOf(e, now) === "ended" ? <Badge tone="neutral">{t("events.ended")}</Badge> : null}
                     <EventStatusBadge status={e.status} t={t} />
                   </Link>

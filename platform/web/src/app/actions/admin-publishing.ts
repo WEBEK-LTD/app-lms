@@ -10,6 +10,7 @@ import type { FormState } from "@/lib/forms";
 import { notifyPublishingStatus } from "@/lib/publishing/service";
 import { isMoreStore, PUBLISHING_STATUS_LABEL, requestStores, STORE_TITLE, trackChangeProblems, trackOf } from "@/lib/publishing/steps";
 import { noteMilestones } from "@/lib/milestones/record";
+import { sampleTotal } from "@/lib/samples/lists";
 
 const ID = /^[0-9a-f-]{36}$/i;
 
@@ -41,6 +42,12 @@ export async function updatePublishingTrackAction(_: FormState, formData: FormDa
   if (!requestStores(request).includes(which)) return { message: `The client no longer wants the app on ${STORE_TITLE[which]}.`, values };
   const errors = trackChangeProblems(which, values);
   if (Object.keys(errors).length) return { errors, values };
+  // 110.2 Nothing goes to the stores while the app has sample entries.
+  if (["submitted", "in_review", "live"].includes(values.status) && values.status !== trackOf(request, which).status) {
+    const subject = await store.getAppById(request.appId);
+    const left = subject ? await sampleTotal(store, subject) : 0;
+    if (left > 0) return { message: `This app still has ${left} sample entries. The client removes them, or edits them to make them theirs, before it goes to the stores.`, values };
+  }
 
   const now = new Date();
   const before = trackOf(request, which);

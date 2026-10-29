@@ -6,8 +6,16 @@ import { parseLesson } from "./forms";
  * the dashboard's Courses pages and 58 the Owner API.
  */
 
+/** 110.2 Any change makes a sample course the owner's: it loses its `sample` mark. */
 export function withCourse(setup: CourseSetup, id: number, change: (c: Course) => Course): CourseSetup {
-  return { ...setup, courses: setup.courses.map((c) => (c.id === id ? change(c) : c)) };
+  return { ...setup, courses: setup.courses.map((c) => (c.id === id ? owned(change(c)) : c)) };
+}
+
+function owned(course: Course): Course {
+  if (!("sample" in course)) return course;
+  const { sample: _sample, ...rest } = course;
+  void _sample;
+  return rest;
 }
 
 export type LessonSave =

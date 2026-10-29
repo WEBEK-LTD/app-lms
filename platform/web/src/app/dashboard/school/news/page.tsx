@@ -10,13 +10,14 @@ import { SCHOOL_LIMITS } from "@/lib/school/forms";
 import { ConfirmButton } from "../../chat/forms";
 import { Choice, SchoolForm } from "../forms";
 import { isSchool, NotSchool, PageHead, Panel, SchoolPlanNotice } from "../parts";
+import { SampleBadge, SampleEntries, type SampleQuery } from "@/components/samples";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("school.news") };
 }
 
 /** 105.4 The school's news, to everyone, a class or one student's family; each is told in the app. */
-export default async function SchoolNewsPage() {
+export default async function SchoolNewsPage({ searchParams }: { searchParams: Promise<SampleQuery> }) {
   const { app, license } = await requireClient("settings");
   const { t } = await dashboardText();
   if (!isSchool(app)) return <NotSchool title={t("school.news")} t={t} />;
@@ -54,12 +55,17 @@ export default async function SchoolNewsPage() {
       </Panel>
 
       <Panel id="h-news" title={t("school.posted")}>
+        {/* 110.2 */}
+        <SampleEntries app={app} list="school_news" query={await searchParams} />
         {news.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("school.noNews")}</p> : null}
         <ul className="m-0 flex list-none flex-col p-0">
           {news.map((a) => (
             <li key={a.id} className="flex flex-wrap items-start gap-3 border-t border-line-soft py-3 first:border-t-0 first:pt-0">
               <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <span className="text-[15px] font-bold">{a.title}</span>
+                <span className="flex flex-wrap items-center gap-2 text-[15px] font-bold">
+                  {a.title}
+                  <SampleBadge sample={a.sample} />
+                </span>
                 <span className="text-[13px] text-muted">
                   {[audience(a), a.teacherId ? personName.get(a.teacherId) : t("school.fromSchool"), a.createdAt.toISOString().slice(0, 10)].filter(Boolean).join(" · ")}
                 </span>

@@ -2718,3 +2718,21 @@ past five a More tab with the rest, and the bar's own look.
 | [x] | 109.1 Studio's editor: the bar in the phone selected opens its panel (in place of Studio's missing Tabs page): each tab's name (in the language being edited), icon or own picture and what it opens, added (with a name), removed, moved; up to ten, past five the fifth on marked "In More". The admin's Studio plan page: one Save, Pages per project with the limits, "What's included" written from the plan's numbers when left empty (#204) | e2e |
 | [x] | 109.2 Past five tabs the app shows the first four and More (`Action.type` `more`, the name in the app's language) with the rest in `Navigation.more`, opened from the bottom of the screen and each opened on top; apps that don't know it show the first four. The tabs the app adds (Chat, a role's tab) go before More, the tab they push out into its list. Hosted API and plugin 0.4.29 | unit tests (contract checked), plugin integration test, Flutter widget tests |
 | [x] | 109.3 The bar's look (`Navigation.tab_bar`): its colour (and in dark mode), the open and other tabs' colours, corners, the space around it (a floating bar), the names' font, names always, for the open tab only or never, and the middle tab of three or five as a raised round button; in the editor's phone as in the app (the app after its next update) | unit tests, Flutter widget tests, e2e |
+
+## Phase 110: Apps quality: full templates and sample entries
+
+The owner's audit of the apps made from the ready designs (29 October): an
+app whose content is managed in Yallapp starts with empty lists, which the
+hosted API leaves out, so it looks bare. The owner approved sample entries
+that look like a ready app and are really removed, and asked for full
+templates, look fixes and more Studio demos after them.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 110.1 The audit: every design for every project type checked as an app made from it shows it, with what's empty, missing or looks off, given to the owner | owner's review |
+| [x] | 110.2 Sample entries: when a design is chosen (a Studio project's template, Studio's whole designs, Pages & look, the Branding step), each list it shows that is empty gets 6 to 8 entries with pictures, prices and three or four categories (a delivery company's services and a ride company's vehicle types: three, the settings it needs anyway), in the app's main language (English, Arabic or Turkish) and currency, each marked `sample` (migration 0102); never next to the owner's entries, nor for apps on a website or platform, nor the demo apps | unit tests |
+| [x] | 110.2 In the dashboard: a "Sample" badge on each, "You have N sample entries" with "Remove all samples" above the list (the entries go with their categories and the pictures only they used), an entry saved by the owner is theirs, the first own entry asks "Remove the samples now?" | unit tests, e2e |
+| [x] | 110.2 Nothing goes to the stores while samples are left: every build (the app's and the courier app's), "We publish for you" getting ready and the team's Submitted, In review and Live refused with what to do; the preview and the hosted API serve them as content | unit tests, e2e |
+| [ ] | 110.3 Full templates: every design's pages filled as a ready app of its kind (its sections, its other pages and their links), checked with the samples | unit tests (the page checker on every design), e2e |
+| [ ] | 110.4 Look fixes from the audit, each shown to the owner and approved before it's made | owner's approval; unit tests, e2e |
+| [ ] | 110.5 Studio demos: an academy with teachers, a school and a live taxi app on `/demo/studio` | unit tests, e2e |

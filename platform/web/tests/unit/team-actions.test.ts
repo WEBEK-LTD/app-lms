@@ -75,6 +75,8 @@ const GROUPS: { file: string; all?: unknown; only?: Expected; skip?: string[] }[
   { file: "pages", all: "settings" },
   { file: "publishing", all: "settings" },
   { file: "refunds", all: "orders", only: { refundDonationAction: "donations" } },
+  // 110.2
+  { file: "samples", all: "settings" },
   { file: "screen-protection", all: "settings" },
   { file: "translations", all: "settings" },
   { file: "updates", all: "dashboard" },

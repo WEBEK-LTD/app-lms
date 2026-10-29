@@ -17,6 +17,7 @@ import { notifyCampaignDonors, serviceAccountOf } from "@/lib/hosted/notify";
 import { imageType } from "@/lib/images";
 import { hasFeature } from "@/lib/plans";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
+import { askAfterOwnEntry } from "@/lib/samples/lists";
 
 /**
  * 29 The Campaigns and Donations pages of Charity & donations apps: campaigns
@@ -90,7 +91,8 @@ export async function saveCampaignAction(_: FormState, formData: FormData): Prom
   const publish = formData.get("intent") === "publish";
   let campaign: Campaign;
   if (existing) {
-    const patch = { ...parsed.value, imageAssetIds, ...(publish && existing.status === "draft" ? { status: "open" as const, publishedAt: existing.publishedAt ?? now } : {}) };
+    // 110.2 A sample campaign saved here is the owner's from now on.
+    const patch = { ...parsed.value, imageAssetIds, sample: false, ...(publish && existing.status === "draft" ? { status: "open" as const, publishedAt: existing.publishedAt ?? now } : {}) };
     await store.updateCampaign(app.id, existing.id, patch, now);
     campaign = { ...existing, ...patch };
   } else {
@@ -103,7 +105,9 @@ export async function saveCampaignAction(_: FormState, formData: FormData): Prom
   refresh();
   const query = new URLSearchParams({ saved: campaign.title });
   if (publish && existing?.status !== "open") query.set("published", "1");
-  redirect(`/dashboard/campaigns?${query}`);
+  // 110.2 Their first own campaign next to the samples: the list asks whether to remove them.
+  const ask = existing ? null : await askAfterOwnEntry(store, app.id, "campaigns");
+  redirect(ask ?? `/dashboard/campaigns?${query}`);
 }
 
 /** Open (publish or reopen), close, or back to a draft. */

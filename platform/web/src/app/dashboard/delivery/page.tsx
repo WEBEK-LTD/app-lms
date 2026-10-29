@@ -25,6 +25,7 @@ import { courierAppNameOf } from "@/lib/delivery/courier-app";
 import { ConfirmButton } from "../chat/forms";
 import { isDelivery, isFood, NotDelivery, PlanNotice } from "../shipments/parts";
 import { AddServiceBox, DeliverySettingsForm, ServiceForm } from "./forms";
+import { SampleBadge, SampleEntries, type SampleQuery } from "@/components/samples";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("delivery.settings") };
@@ -69,7 +70,7 @@ async function DeliveryPayments({ app }: { app: App }) {
 }
 
 /** 104 Delivery settings: prices, payment, tracking, jobs, where couriers work, services and card payments. */
-export default async function DeliverySettingsPage() {
+export default async function DeliverySettingsPage({ searchParams }: { searchParams: Promise<SampleQuery> }) {
   const { app, license } = await requireClient("settings");
   const { t } = await dashboardText();
   if (!isDelivery(app)) return <NotDelivery title={t("delivery.settings")} t={t} />;
@@ -135,6 +136,8 @@ export default async function DeliverySettingsPage() {
           </h2>
           <p className="m-0 text-[15px] text-ink-4">{t("delivery.servicesIntro")}</p>
         </div>
+        {/* 110.2 */}
+        <SampleEntries app={app} list="delivery_services" query={await searchParams} />
         {services.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("delivery.noServices")}</p> : null}
         <ul className="m-0 flex list-none flex-col p-0">
           {services.map((s, i) => (
@@ -144,6 +147,7 @@ export default async function DeliverySettingsPage() {
                   <span className="text-[15px] font-bold">{s.name}</span>
                   <span className="text-[13px] text-muted">{[s.extraCents > 0 ? `+${formatCents(s.extraCents, settings.currency)}` : null, s.eta].filter(Boolean).join(" · ")}</span>
                 </span>
+                <SampleBadge sample={s.sample} />
                 {s.active ? null : <Badge tone="neutral">{t("delivery.hidden")}</Badge>}
                 <form action={moveDeliveryServiceAction}>
                   <input type="hidden" name="id" value={s.id} />

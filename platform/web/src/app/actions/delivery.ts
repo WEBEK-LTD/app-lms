@@ -22,6 +22,7 @@ import { hostedSignInMethods } from "@/lib/hosted/sign-in-methods";
 import { imageType } from "@/lib/images";
 import { hasFeature } from "@/lib/plans";
 import type { TeamPermission } from "@/lib/team/permissions";
+import { askAfterOwnEntry } from "@/lib/samples/lists";
 
 /**
  * 104 The Shipments, Couriers and Delivery settings pages of delivery apps:
@@ -115,13 +116,17 @@ export async function saveDeliveryServiceAction(_: FormState, formData: FormData
   const removeImage = formData.get("removeImage") === "on";
   const imageAssetId = picture.assetId ?? (removeImage ? null : (existing?.imageAssetId ?? null));
   if (existing) {
-    await store.updateDeliveryService(app.id, existing.id, { ...parsed.value, imageAssetId }, now);
+    // 110.2 A sample service saved here is the owner's from now on.
+    await store.updateDeliveryService(app.id, existing.id, { ...parsed.value, imageAssetId, sample: false }, now);
   } else {
     const position = services.reduce((max, s) => Math.max(max, s.position), 0) + 1;
     await store.createDeliveryService({ appId: app.id, ...parsed.value, imageAssetId, position }, now);
   }
   await recordStaffChange(context, `${existing ? "Edited" : "Added"} the delivery service "${parsed.value.name}"`);
   refresh();
+  // 110.2 Their first own service next to the samples: the list asks whether to remove them.
+  const ask = existing ? null : await askAfterOwnEntry(store, app.id, "delivery_services");
+  if (ask) redirect(ask);
   return { ok: true, message: existing ? "Saved." : "Added. Customers choose it when they send a parcel.", values: existing ? values : {} };
 }
 

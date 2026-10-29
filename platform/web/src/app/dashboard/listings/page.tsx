@@ -14,6 +14,7 @@ import type { DashKey } from "@/i18n/dashboard";
 import { richText } from "@/i18n/rich";
 import { OfficeForm } from "./forms";
 import { propertyTypeIn, StatusBadge } from "./listing-page";
+import { SampleBadge, SampleEntries, type SampleQuery } from "@/components/samples";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("listings.title") };
@@ -27,7 +28,7 @@ const STATUS_FILTERS: { value: ListingStatus | "all"; label: DashKey }[] = [
 ];
 
 /** The properties of a Real estate app, and the office's settings. */
-export default async function ListingsPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; saved?: string }> }) {
+export default async function ListingsPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; saved?: string } & SampleQuery> }) {
   const { app } = await requireClient("catalog");
   const { t } = await dashboardText();
   if (!app || app.connector?.kind !== "listings") {
@@ -40,7 +41,8 @@ export default async function ListingsPage({ searchParams }: { searchParams: Pro
       </div>
     );
   }
-  const { q = "", status = "all", saved } = await searchParams;
+  const query = await searchParams;
+  const { q = "", status = "all", saved } = query;
   const store = await getStore();
   const [all, savedSettings, unread] = await Promise.all([
     store.listListings(app.id),
@@ -74,6 +76,8 @@ export default async function ListingsPage({ searchParams }: { searchParams: Pro
           {t("listings.saved", { title: saved })}
         </p>
       ) : null}
+      {/* 110.2 */}
+      <SampleEntries app={app} list="listings" query={query} />
       {unread > 0 ? (
         <p className="m-0 flex items-start gap-2 rounded-xl bg-peach px-4 py-3 text-[15px] text-ink-2">
           <Icon name="chat" size={20} className="text-accent" />
@@ -144,6 +148,7 @@ export default async function ListingsPage({ searchParams }: { searchParams: Pro
                         .join(" · ")}
                     </span>
                   </span>
+                  <SampleBadge sample={l.sample} />
                   {l.featured ? <Badge tone="info">{t("listings.featured")}</Badge> : null}
                   <StatusBadge status={l.status} t={t} />
                 </Link>

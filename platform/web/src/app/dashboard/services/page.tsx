@@ -13,6 +13,7 @@ import { CategoryForm, IntakeFieldForm, RulesForm, ServiceForm, StaffForm } from
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 import { formatDate } from "@/i18n/format";
+import { SampleBadge, SampleEntries, type SampleQuery } from "@/components/samples";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { app } = await requireClient("bookings");
@@ -86,7 +87,7 @@ function Card({ id, title, text, children }: { id: string; title: string; text?:
 }
 
 /** Services, team, hours and booking rules for Bookings apps without a website (21 a clinic's doctors and intake form). */
-export default async function ServicesPage() {
+export default async function ServicesPage({ searchParams }: { searchParams: Promise<SampleQuery> }) {
   const { app } = await requireClient("bookings");
   const text = await dashboardText();
   const { t, k } = text;
@@ -109,6 +110,7 @@ export default async function ServicesPage() {
   const category = new Map(setup.categories.map((c) => [c.id, c.name]));
   // 27 Classes on the timetable that aren't booked one to one.
   const onTimetable = new Set(setup.classTemplates.map((t) => t.serviceId));
+  const query = await searchParams;
 
   return (
     <div className="flex flex-col gap-6">
@@ -130,13 +132,18 @@ export default async function ServicesPage() {
       ) : null}
 
       <Card id="h-services" title={t("bookings.services")}>
+        {/* 110.2 */}
+        <SampleEntries app={app} list="services" query={query} />
         {setup.services.length ? (
           <ul className="m-0 flex list-none flex-col gap-3 p-0">
             {setup.services.map((s) => (
               <li key={s.id} className="rounded-xl border border-line">
                 <details>
                   <summary className="flex cursor-pointer flex-wrap items-center justify-between gap-2 px-4 py-3">
-                    <span className="text-[15px] font-bold">{s.name}</span>
+                    <span className="flex items-center gap-2 text-[15px] font-bold">
+                      {s.name}
+                      <SampleBadge sample={s.sample} />
+                    </span>
                     <span className="flex items-center gap-2 text-sm text-muted">
                       {t("bookings.serviceLine", { minutes: s.durationMinutes, price: money(s.priceCents) })}
                       {s.categoryId ? ` · ${category.get(s.categoryId)}` : ""}
@@ -170,6 +177,7 @@ export default async function ServicesPage() {
         title={t("bookings.team", { kind })}
         text={t("bookings.teamText", { kind })}
       >
+        <SampleEntries app={app} list="staff" query={query} />
         {setup.staff.length ? (
           <ul className="m-0 flex list-none flex-col gap-3 p-0">
             {setup.staff.map((s) => (
@@ -178,6 +186,7 @@ export default async function ServicesPage() {
                   <summary className="flex cursor-pointer flex-col gap-0.5 px-4 py-3">
                     <span className="flex flex-wrap items-center gap-2 text-[15px] font-bold">
                       {s.name}
+                      <SampleBadge sample={s.sample} />
                       {s.active ? null : <Badge tone="warn">{t("bookings.notBookable")}</Badge>}
                     </span>
                     <span className="text-[13px] text-muted">{hoursText(s, text)}</span>

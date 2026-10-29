@@ -32,6 +32,7 @@ import { stripeTestKey, validStripeKey } from "@/lib/payments/stripe";
 import { checkAccount, isPaymentProvider, PROVIDER_NAME, type PaymentAccount } from "@/lib/payments/provider";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { serviceAccountOf } from "@/lib/hosted/notify";
+import { askAfterOwnEntry } from "@/lib/samples/lists";
 
 const PRODUCT_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 const PRODUCT_IMAGES_MAX = 6;
@@ -197,11 +198,15 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
     sku: values.sku || null,
     optionGroups: optionGroups.ok && optionGroups.value.length > 0 ? optionGroups.value : null,
     variants: variants.ok ? variants.variants : null,
+    // 110.2 A sample product saved here is the owner's from now on.
+    sample: false,
   };
   if (existing) await store.updateCatalogProduct(app.id, existing.id, input, now);
   else await store.createCatalogProduct(input, now);
   refresh();
-  redirect(`/dashboard/catalog?saved=${encodeURIComponent(input.name)}`);
+  // 110.2 Their first own product next to the samples: the list asks whether to remove them.
+  const ask = existing ? null : await askAfterOwnEntry(store, app.id, "products");
+  redirect(ask ?? `/dashboard/catalog?saved=${encodeURIComponent(input.name)}`);
 }
 
 export async function deleteProductAction(formData: FormData): Promise<void> {

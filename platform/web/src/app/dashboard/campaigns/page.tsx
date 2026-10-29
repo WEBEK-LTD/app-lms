@@ -14,6 +14,7 @@ import { DonationPayments } from "./payments";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 import { itemWords } from "@/lib/hosted/pages/item-words";
+import { SampleBadge, SampleEntries, type SampleQuery } from "@/components/samples";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("donations.campaigns") };
@@ -22,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const ENDS: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", year: "numeric", timeZone: "Europe/Istanbul" };
 
 /** 29 A charity's campaigns, its card payments and how the app takes donations. */
-export default async function CampaignsPage({ searchParams }: { searchParams: Promise<{ saved?: string; published?: string; deleted?: string }> }) {
+export default async function CampaignsPage({ searchParams }: { searchParams: Promise<{ saved?: string; published?: string; deleted?: string } & SampleQuery> }) {
   const { app } = await requireClient("donations");
   const { t, lang, date } = await dashboardText();
   if (!app || app.connector?.kind !== "campaigns") {
@@ -35,7 +36,8 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
       </div>
     );
   }
-  const { saved, published, deleted } = await searchParams;
+  const query = await searchParams;
+  const { saved, published, deleted } = query;
   const store = await getStore();
   const now = new Date();
   const [campaigns, settingsRow, given] = await Promise.all([
@@ -69,6 +71,8 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
           {t("donations.deleted", { title: deleted })}
         </p>
       ) : null}
+      {/* 110.2 */}
+      <SampleEntries app={app} list="campaigns" query={query} />
 
       {!ready ? <DonationPayments app={app} currency={settings.currency} /> : null}
 
@@ -104,6 +108,7 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
                     </span>
                     {c.goalCents ? <ProgressBar value={c.raisedCents} max={c.goalCents} label={t("donations.raisedSoFar", { title: c.title })} tone="success" /> : null}
                   </span>
+                  <SampleBadge sample={c.sample} />
                   {c.featured ? <Badge tone="info">{t("donations.featured")}</Badge> : null}
                   <CampaignStatusBadge campaign={c} now={now} t={t} />
                 </Link>

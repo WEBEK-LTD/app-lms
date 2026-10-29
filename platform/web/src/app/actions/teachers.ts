@@ -19,6 +19,7 @@ import { publishCourse, returnCourse } from "@/lib/teachers/courses";
 import { parseTeacherForm, teacherShareBp } from "@/lib/teachers/forms";
 import { tellFollowers, tellTeacherReviewed } from "@/lib/teachers/notify";
 import { isTeachersApp } from "@/lib/teachers/service";
+import { askAfterOwnEntry } from "@/lib/samples/lists";
 
 /**
  * 105.3 The Teachers, Courses to review and Teacher statements pages of an
@@ -79,7 +80,7 @@ export async function saveTeacherAction(_: FormState, formData: FormData): Promi
   const { name, phone, email, bio, subjects, shareBp, featured } = parsed.value;
   if (existing) {
     // Saving an application approves it.
-    const saved = await store.updateTeacher(app.id, existing.id, { name, phone, email, bio, subjects, shareBp, featured, photoAssetId, ...(existing.status === "applied" ? { status: "active" as const, note: null } : {}) }, now);
+    const saved = await store.updateTeacher(app.id, existing.id, { name, phone, email, bio, subjects, shareBp, featured, photoAssetId, sample: false, ...(existing.status === "applied" ? { status: "active" as const, note: null } : {}) }, now);
     if (!saved.ok) return { errors: { phone: "You already have a teacher with this number or email." }, values };
   } else {
     const created = await store.createTeacher({ appId: app.id, name, phone, email, userId: null, photoAssetId, bio, subjects, status: "active", shareBp, featured }, now);
@@ -87,6 +88,9 @@ export async function saveTeacherAction(_: FormState, formData: FormData): Promi
   }
   await recordStaffChange(context, `${existing ? "Edited" : "Added"} the teacher ${name}`);
   refresh();
+  // 110.2 Their first own teacher next to the samples: the list asks whether to remove them.
+  const ask = existing ? null : await askAfterOwnEntry(store, app.id, "teachers");
+  if (ask) redirect(ask);
   return existing ? { ok: true, message: "Saved.", values } : { ok: true, message: "Added. They sign in to the app with this number and see the Teacher tab.", values: {} };
 }
 

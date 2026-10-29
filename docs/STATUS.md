@@ -4,7 +4,7 @@ The current state of the project: what is released in the code, what still
 needs checking against real services, and what a deployment needs.
 `docs/ROADMAP.md` is the plan; this file is the current state.
 
-Last updated: 28 October 2026.
+Last updated: 29 October 2026.
 
 ## Current release
 
@@ -20,6 +20,15 @@ Turkish. Its screenshots are real: the app's (`studio-cafe-home`, its dark
 version, `delivery-send`, `delivery-shipment`, `delivery-courier`) from the
 Flutter screenshot test, the dashboard's (`studio-editor`, `studio-home`,
 `studio-project`) from `tests/screens/studio.screens.ts`.
+
+Phase 110.2 (sample entries) is complete: choosing a design for an app
+whose content is kept in Yallapp fills each empty list it shows with sample
+entries (`sample` on the entries and categories, migration 0102;
+`lib/samples`), in the app's main language (English, Arabic or Turkish;
+English for others) and currency. The dashboard marks them, removes them
+with their pictures and asks after the first own entry; store builds,
+"We publish for you" and the team's store statuses wait until none are left.
+The hosted API's public JSON is unchanged (no `sample` field).
 
 Phase 104 (delivery and courier companies) steps 104.1 to 104.7 are
 complete: a new project type in Yallapp Studio, Delivery, with no website
@@ -241,6 +250,10 @@ test environment:
 - Studio pages need the app update that draws them: older apps show a
   Studio page empty. The Studio editor shows the canvas left to right; the
   app mirrors it in right-to-left languages.
+
+- 110.2 A sample category the owner renamed is still a sample: Remove all
+  samples deletes it when none of the owner's entries is in it. A gym's
+  sample classes are bookable services (no sample timetable).
 
 ## Deployment
 

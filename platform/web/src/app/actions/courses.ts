@@ -23,6 +23,7 @@ import { imageType } from "@/lib/images";
 import { appUrl, encryptionKey } from "@/lib/env";
 import { notifyNewLesson } from "@/lib/hosted/auto-notifications";
 import { parseMediaLink } from "@/lib/media/files";
+import { askAfterOwnEntry } from "@/lib/samples/lists";
 
 const COURSE_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 
@@ -91,7 +92,8 @@ export async function saveCourseAction(_: FormState, formData: FormData): Promis
   }
   const course: Course = { id: setup.nextId, ...parsed.value, imageAssetId, topics: [], createdAt: new Date().toISOString() };
   await saveSetup(app, { ...setup, courses: [...setup.courses, course], nextId: setup.nextId + 1 });
-  redirect(`/dashboard/courses/${course.id}`);
+  // 110.2 Their first own course next to the samples: the list asks whether to remove them.
+  redirect((await askAfterOwnEntry(await getStore(), app.id, "courses")) ?? `/dashboard/courses/${course.id}`);
 }
 
 export async function deleteCourseAction(formData: FormData): Promise<void> {

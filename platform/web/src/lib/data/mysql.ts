@@ -5862,6 +5862,11 @@ export class MysqlStore implements DataStore {
         db.select().from(s.listingSettings).where(eq(s.listingSettings.appId, appId)),
         // 97.2 Own fonts' files.
         db.select({ files: s.ownFonts.files }).from(s.ownFonts).where(eq(s.ownFonts.appId, appId)),
+        // 110.2 The pictures of delivery services, restaurants and their menus, teachers and vehicle types, as the memory store finds them.
+        db.select({ id: s.deliveryServices.imageAssetId }).from(s.deliveryServices).where(eq(s.deliveryServices.appId, appId)),
+        db.select({ logo: s.restaurants.logoAssetId, cover: s.restaurants.coverAssetId, menu: s.restaurants.menu }).from(s.restaurants).where(eq(s.restaurants.appId, appId)),
+        db.select({ id: s.teachers.photoAssetId }).from(s.teachers).where(eq(s.teachers.appId, appId)),
+        db.select({ id: s.vehicleTypes.imageAssetId }).from(s.vehicleTypes).where(eq(s.vehicleTypes.appId, appId)),
       ]),
     );
     return assetIdsIn(JSON.stringify(rows));

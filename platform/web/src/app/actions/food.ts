@@ -32,6 +32,7 @@ import { hostedSettings } from "@/lib/hosted/service";
 import { hostedSignInMethods } from "@/lib/hosted/sign-in-methods";
 import { imageType } from "@/lib/images";
 import type { TeamPermission } from "@/lib/team/permissions";
+import { askAfterOwnEntry } from "@/lib/samples/lists";
 
 /**
  * 105.1 The Restaurants and Food orders pages of food delivery apps: each
@@ -101,7 +102,8 @@ export async function saveRestaurantAction(_: FormState, formData: FormData): Pr
   const logoAssetId = logo.assetId ?? (formData.get("removeLogo") === "on" ? null : (existing?.logoAssetId ?? null));
   const coverAssetId = cover.assetId ?? (formData.get("removeCover") === "on" ? null : (existing?.coverAssetId ?? null));
   if (existing) {
-    await store.updateRestaurant(app.id, existing.id, { ...parsed.value, logoAssetId, coverAssetId }, now);
+    // 110.2 A sample restaurant saved here is the owner's from now on.
+    await store.updateRestaurant(app.id, existing.id, { ...parsed.value, logoAssetId, coverAssetId, sample: false }, now);
     await recordStaffChange(context, `Edited the restaurant ${parsed.value.name}`);
     refresh();
     return { ok: true, message: "Saved.", values };
@@ -110,7 +112,8 @@ export async function saveRestaurantAction(_: FormState, formData: FormData): Pr
   const created = await store.createRestaurant({ appId: app.id, ...parsed.value, logoAssetId, coverAssetId, hours: [], active: true, position }, EMPTY_MENU, now);
   await recordStaffChange(context, `Added the restaurant ${parsed.value.name}`);
   refresh();
-  redirect(`/dashboard/restaurants/${created.id}?added=1`);
+  // 110.2 Their first own restaurant next to the samples: the list asks whether to remove them.
+  redirect((await askAfterOwnEntry(store, app.id, "restaurants")) ?? `/dashboard/restaurants/${created.id}?added=1`);
 }
 
 export async function setRestaurantActiveAction(formData: FormData): Promise<void> {
@@ -149,7 +152,7 @@ export async function saveHoursAction(_: FormState, formData: FormData): Promise
   if (!restaurant) return { message: "This restaurant doesn't exist anymore." };
   const parsed = parseHoursForm(values);
   if (!parsed.ok) return { errors: parsed.errors, values };
-  await (await getStore()).updateRestaurant(context.app.id, restaurant.id, { hours: parsed.value }, new Date());
+  await (await getStore()).updateRestaurant(context.app.id, restaurant.id, { hours: parsed.value, sample: false }, new Date());
   await recordStaffChange(context, `Saved the opening hours of ${restaurant.name}`);
   refresh();
   return { ok: true, message: "Saved.", values };
@@ -163,6 +166,8 @@ async function changeMenu(context: ClientContext & { app: App }, restaurant: Res
   const changed = change(menu);
   if (!changed.ok) return changed.error;
   await store.saveRestaurantMenu(context.app.id, restaurant.id, changed.menu, new Date());
+  // 110.2 A sample restaurant whose menu is changed is the owner's from now on.
+  if (restaurant.sample) await store.updateRestaurant(context.app.id, restaurant.id, { sample: false }, new Date());
   refresh();
   return null;
 }

@@ -71,7 +71,8 @@ export async function updateProduct(ctx: OwnerContext, params: Record<string, st
   await store.updateCatalogProduct(
     app.id,
     product.id,
-    { priceCents: numbers.priceCents!, salePriceCents: numbers.salePriceCents, stock: numbers.stock, ...(has("available") ? { active: body.available as boolean } : {}) },
+    // 110.2 A sample product priced from the Business app is the owner's from now on.
+    { priceCents: numbers.priceCents!, salePriceCents: numbers.salePriceCents, stock: numbers.stock, sample: false, ...(has("available") ? { active: body.available as boolean } : {}) },
     now,
   );
   return { status: 200, body: productJson(ctx, app, (await store.getCatalogProduct(app.id, product.id))!) };

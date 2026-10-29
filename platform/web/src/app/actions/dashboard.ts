@@ -65,6 +65,8 @@ import { siteImages, siteScanDeps } from "@/lib/scan/start";
 import { appStoreKeySchema, brandingSchema, googlePlayKeySchema, listingSchema, startBuildSchema, websiteSchema } from "@/lib/validation";
 import { noteMilestones } from "@/lib/milestones/record";
 import { designFitsApp, findDesign } from "@/lib/pages/designs/catalog";
+import { seedForDesign } from "@/lib/samples/server";
+import { samplesBlockedMessage } from "@/lib/samples/lists";
 
 /** Active client with an app, or a redirect. Expired plans can still edit their setup but not build. */
 async function requireActiveClient(permission: TeamPermission): Promise<ClientContext> {
@@ -607,6 +609,8 @@ export async function saveBrandingAction(_: FormState, formData: FormData): Prom
   if (design && design.id !== context.app.design) {
     const saved = await saveDesignDraft(store, { ...context.app, ...patch }, design, now, { template: parsed.data.template, ...lookFont(parsed.data.font) }, { mode });
     if (!saved.ok) return { errors: { design: "This design couldn't be applied to your app. Choose another one." }, values };
+    // 110.2 The empty lists the design shows get sample entries.
+    if (mode === "all") await seedForDesign(store, context.app.id, saved.value.record.draft.pages, now);
     revalidatePath("/dashboard/pages");
   }
   return afterStep(context, "branding");
@@ -891,6 +895,8 @@ async function startBuild(
       invalid_config: "Some app details aren't valid. Check the app setup and try again.",
       courier_app_off: "The courier app isn't on. Choose \"In a second app in your name\" in Delivery settings, on a plan with it.",
     } as const;
+    // 110.2 Sample entries left: nothing goes to the stores.
+    if (result.reason === "samples") return { ok: false, message: samplesBlockedMessage(result.samples), versionTooLow: false };
     return { ok: false, message: messages[result.reason], versionTooLow: result.reason === "version_too_low" };
   }
   // 87.4 The automatic build that was waiting is this one now.
@@ -943,7 +949,7 @@ export async function rebuildBuildAction(_: FormState, formData: FormData): Prom
     assetUrl,
     preflightDeps(store),
   );
-  if (!result.ok) return { message: result.reason === "preflight" ? renderCheck(result.checks.find((c) => c.level === "error")!) : result.reason === "build_running" ? "A build is already in progress. You can start a new one when it finishes." : "This build can't be rebuilt as it was." };
+  if (!result.ok) return { message: result.reason === "preflight" ? renderCheck(result.checks.find((c) => c.level === "error")!) : result.reason === "samples" ? samplesBlockedMessage(result.samples) : result.reason === "build_running" ? "A build is already in progress. You can start a new one when it finishes." : "This build can't be rebuilt as it was." };
   await startPipeline();
   await recordStaffChange(context, `Rebuilt build #${from.number} as it was (build #${result.build.number})`);
   redirect(`/dashboard/builds?queued=${result.build.number}`);
@@ -1028,7 +1034,7 @@ export async function goBackToBuildAction(_: FormState, formData: FormData): Pro
   if (!result.ok) {
     return {
       ok: true,
-      message: result.reason === "build_running" ? "Settings are back as they were. A build is already in progress: start the new one when it finishes." : "Settings are back as they were. Start a new build when you're ready.",
+      message: result.reason === "samples" ? samplesBlockedMessage(result.samples) : result.reason === "build_running" ? "Settings are back as they were. A build is already in progress: start the new one when it finishes." : "Settings are back as they were. Start a new build when you're ready.",
     };
   }
   await startPipeline();

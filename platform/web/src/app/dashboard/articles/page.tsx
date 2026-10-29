@@ -14,6 +14,7 @@ import { ArticleStatusBadge } from "./article-page";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 import type { DashKey } from "@/i18n/dashboard";
+import { SampleBadge, SampleEntries, type SampleQuery } from "@/components/samples";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("articles.title") };
@@ -29,7 +30,7 @@ const STATUS_FILTERS: { value: string; label: DashKey }[] = [
 export default async function ArticlesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string; saved?: string; published?: string; breaking?: string; deleted?: string }>;
+  searchParams: Promise<{ q?: string; status?: string; saved?: string; published?: string; breaking?: string; deleted?: string } & SampleQuery>;
 }) {
   const { app } = await requireClient("catalog");
   const { t, k, date } = await dashboardText();
@@ -43,7 +44,8 @@ export default async function ArticlesPage({
       </div>
     );
   }
-  const { q = "", status = "all", saved, published, breaking, deleted } = await searchParams;
+  const query = await searchParams;
+  const { q = "", status = "all", saved, published, breaking, deleted } = query;
   const store = await getStore();
   const [all, categories, settings] = await Promise.all([store.listArticles(app.id), store.listArticleCategories(app.id), newsSettingsOf(store, app.id)]);
   const names = new Map(categories.map((c) => [c.id, c.name]));
@@ -77,6 +79,8 @@ export default async function ArticlesPage({
           {t("articles.deleted", { title: deleted })}
         </p>
       ) : null}
+      {/* 110.2 */}
+      <SampleEntries app={app} list="articles" query={query} />
 
       <section aria-labelledby="h-articles" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-articles" className="m-0 text-lg font-bold">
@@ -138,6 +142,7 @@ export default async function ArticlesPage({
                         .join(" · ")}
                     </span>
                   </span>
+                  <SampleBadge sample={a.sample} />
                   {a.featured ? <Badge tone="info">{t("articles.topStory")}</Badge> : null}
                   <ArticleStatusBadge status={a.status} t={t} />
                 </Link>

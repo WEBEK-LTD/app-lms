@@ -28,6 +28,7 @@ import {
 import { schoolToday } from "@/lib/school/service";
 import { schoolSettingsOf } from "@/lib/school/settings";
 import type { TeamPermission } from "@/lib/team/permissions";
+import { askAfterOwnEntry } from "@/lib/samples/lists";
 
 /**
  * 105.4 The school pages of school apps: classes and subjects, people and
@@ -444,6 +445,9 @@ export async function postSchoolNewsAction(_: FormState, formData: FormData): Pr
   await postAnnouncement({ store, app, now: new Date() }, { ...parsed.value, teacherId: null });
   await recordStaffChange(context, `Posted the news "${parsed.value.title}"`);
   refresh();
+  // 110.2 Their first own news next to the samples: the page asks whether to remove them.
+  const ask = await askAfterOwnEntry(store, app.id, "school_news");
+  if (ask) redirect(ask);
   return { ok: true, message: "Posted. Everyone it is for was told in the app." };
 }
 

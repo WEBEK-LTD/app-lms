@@ -23,6 +23,7 @@ import { formatDate } from "@/components/ui";
 import { CardPayments, OtherPayments } from "./payments";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
+import { SampleBadge, SampleEntries } from "@/components/samples";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { app } = await requireClient("catalog");
@@ -58,7 +59,7 @@ function fulfilmentValues(f: FulfilmentSettings): Record<string, string> {
 }
 
 /** Products (26 a restaurant's menu), categories and shop settings for apps without a website. */
-export default async function CatalogPage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
+export default async function CatalogPage({ searchParams }: { searchParams: Promise<{ saved?: string; samples?: string; samplesRemoved?: string }> }) {
   const { app, license } = await requireClient("catalog");
   const { t, num, lang } = await dashboardText();
   const kind = app?.vertical === "restaurant" ? "restaurant" : "shop";
@@ -73,7 +74,8 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
       </div>
     );
   }
-  const { saved } = await searchParams;
+  const query = await searchParams;
+  const { saved } = query;
   const store = await getStore();
   const [products, categories, coupons] = await Promise.all([store.listCatalogProducts(app.id), store.listCatalogCategories(app.id), store.listCatalogCoupons(app.id)]);
   const settings = catalogSettings(app);
@@ -112,6 +114,8 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
           {t("shop.savedName", { name: saved })}
         </p>
       ) : null}
+      {/* 110.2 */}
+      <SampleEntries app={app} list="products" query={query} />
       {!paymentsSetUp(app) ? (
         <Notice tone="warn" icon="warning">
           {richText(t("shop.noPayments", { kind }), { link: (chunk) => <a href="#h-payments">{chunk}</a> })}
@@ -152,6 +156,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
                         .join(" · ")}
                     </span>
                   </span>
+                  <SampleBadge sample={p.sample} />
                   {!p.active ? <Badge tone="neutral">{t("common.hidden")}</Badge> : p.stock === 0 ? <Badge tone="warn">{t("shop.outOfStock")}</Badge> : null}
                 </Link>
               </li>

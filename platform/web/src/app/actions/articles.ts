@@ -18,6 +18,7 @@ import { imageType } from "@/lib/images";
 import { ARTICLE_CATEGORIES_MAX, ARTICLE_IMAGE_MAX_BYTES, breakingNewsText, parseArticleForm, parseCategoryName, parseNewsSettings } from "@/lib/news/forms";
 import { hasFeature } from "@/lib/plans";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
+import { askAfterOwnEntry } from "@/lib/samples/lists";
 
 /**
  * 23 The Articles page of News & blog apps without a website: articles
@@ -105,7 +106,8 @@ export async function saveArticleAction(_: FormState, formData: FormData): Promi
   const publish = formData.get("intent") === "publish";
   let article: Article;
   if (existing) {
-    const patch = { ...parsed.value, imageAssetId, ...(publish && existing.status !== "published" ? { status: "published" as const, publishedAt: existing.publishedAt ?? now } : {}) };
+    // 110.2 A sample article saved here is the owner's from now on.
+    const patch = { ...parsed.value, imageAssetId, sample: false, ...(publish && existing.status !== "published" ? { status: "published" as const, publishedAt: existing.publishedAt ?? now } : {}) };
     await store.updateArticle(app.id, existing.id, patch, now);
     article = { ...existing, ...patch };
   } else {
@@ -120,7 +122,9 @@ export async function saveArticleAction(_: FormState, formData: FormData): Promi
   const query = new URLSearchParams({ saved: article.title });
   if (newlyPublished) query.set("published", "1");
   if (breaking) query.set("breaking", breaking);
-  redirect(`/dashboard/articles?${query}`);
+  // 110.2 Their first own article next to the samples: the list asks whether to remove them.
+  const ask = existing ? null : await askAfterOwnEntry(store, app.id, "articles");
+  redirect(ask ?? `/dashboard/articles?${query}`);
 }
 
 /** Publish (optionally as breaking news) or unpublish. */
