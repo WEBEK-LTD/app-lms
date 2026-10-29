@@ -2,7 +2,6 @@ import { activateClient } from "../admin/clients";
 import { syncClassSessions } from "../bookings/classes";
 import { ENGINES } from "../app/kinds";
 import { newApp } from "../app/setup";
-import { sha256Hex } from "../crypto/tokens";
 import type { AppPatch, DataStore } from "../data/store";
 import type {
   App,
@@ -30,7 +29,6 @@ import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "../pages/defaults";
 import { publishLayout } from "../pages/layout";
 import type { LayoutBlock, LayoutContent } from "../pages/types";
 import { clearPlatformSettingsCache, platformSetting } from "../settings/platform";
-import { artPng } from "./art";
 import { addDays, localToUtc, utcToLocal } from "../bookings/time";
 import { ALL_DEMO_TYPES, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, isStudioDemo, type DemoId } from "./constants";
 import {
@@ -80,7 +78,8 @@ import {
   STORE_SHIPPING_CENTS,
   STUDIO_HOURS,
 } from "./content";
-import { PICTURES, type PictureName } from "./pictures";
+import type { PictureName } from "./pictures";
+import { savePicture, type PictureSize } from "./picture-assets";
 
 /**
  * Creates or refreshes the demo apps (roadmap 16, the admin's Demo apps
@@ -119,35 +118,9 @@ export interface DemoSetupResult {
   apps: { type: DemoId; appId: string; created: boolean }[];
 }
 
-/** A UUID-shaped ID made from a hash, so the same picture of the same account is saved once. */
-function idFrom(text: string): string {
-  const h = sha256Hex(text);
-  return `${h.slice(0, 8)}-${h.slice(8, 12)}-5${h.slice(13, 16)}-${((Number.parseInt(h[16]!, 16) & 3) | 8).toString(16)}${h.slice(17, 20)}-${h.slice(20, 32)}`;
-}
-
-const SIZES: Record<"icon" | "banner" | "course" | "product" | "home" | "avatar", [number, number]> = {
-  icon: [1024, 1024],
-  banner: [1200, 600],
-  course: [800, 450],
-  product: [600, 600],
-  home: [800, 600],
-  avatar: [400, 400],
-};
-
-/** Pictures drawn by this server instance (about 1.5 MB for all of them), so a second run draws nothing. */
-const rendered = new Map<string, Buffer>();
-
-async function picture(deps: DemoSetupDeps, clientId: string, name: PictureName, size: keyof typeof SIZES, kind: AssetKind): Promise<string> {
-  const [width, height] = SIZES[size];
-  const id = idFrom(JSON.stringify({ v: 1, clientId, art: PICTURES[name], width, height }));
-  if (await deps.store.getAsset(id)) return id;
-  const drawn = `${name}:${width}x${height}`;
-  const png = rendered.get(drawn) ?? artPng(PICTURES[name], width, height);
-  rendered.set(drawn, png);
-  const blobKey = `assets/${clientId}/${id}.png`;
-  await deps.putBlob(blobKey, png, "image/png");
-  await deps.store.createAsset({ id, clientId, kind, blobKey, contentType: "image/png", size: png.length, createdAt: deps.now });
-  return id;
+/** The demo's pictures, saved once per account (lib/demo/picture-assets.ts). */
+async function picture(deps: DemoSetupDeps, clientId: string, name: PictureName, size: PictureSize, kind: AssetKind): Promise<string> {
+  return savePicture(deps, { clientId }, name, size, kind);
 }
 
 /** The demo account: the one the setting names, or a new one. Never someone else's. */
