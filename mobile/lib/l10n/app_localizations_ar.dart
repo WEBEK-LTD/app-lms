@@ -313,6 +313,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noFavoritesMessage => 'اضغط على القلب في أي عقار لحفظه هنا.';
 
   @override
+  String get browseListings => 'تصفّح العقارات';
+
+  @override
   String get favoritesSignInTitle => 'احفظ العقارات التي تعجبك';
 
   @override
@@ -789,7 +792,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String daysAgo(int days) {
-    return 'قبل $days أيام';
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'قبل $days يوم',
+      many: 'قبل $days يومًا',
+      few: 'قبل $days أيام',
+      two: 'قبل يومين',
+      one: 'قبل يوم',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -956,7 +968,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String tooManyAttemptsSeconds(int seconds) {
-    return 'محاولات كثيرة جدًا. حاول مرة أخرى بعد $seconds ثانية.';
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: 'محاولات كثيرة جدًا. حاول مرة أخرى بعد $seconds ثانية.',
+      few: 'محاولات كثيرة جدًا. حاول مرة أخرى بعد $seconds ثوانٍ.',
+      two: 'محاولات كثيرة جدًا. حاول مرة أخرى بعد ثانيتين.',
+      one: 'محاولات كثيرة جدًا. حاول مرة أخرى بعد ثانية واحدة.',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1063,7 +1083,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String codeFieldLabel(int length) {
-    return 'رمز التحقق، $length أرقام';
+    String _temp0 = intl.Intl.pluralLogic(
+      length,
+      locale: localeName,
+      other: 'رمز التحقق، $length رقم',
+      many: 'رمز التحقق، $length رقمًا',
+      few: 'رمز التحقق، $length أرقام',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1269,7 +1296,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String lessonsDone(int done, int total) {
-    return '$done من $total دروس';
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$done من $total درس',
+      many: '$done من $total درسًا',
+      few: '$done من $total دروس',
+      two: '$done من درسين',
+      one: '$done من درس واحد',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1507,7 +1543,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String starsCount(int stars, int count) {
-    return '$stars نجوم: $count';
+    String _temp0 = intl.Intl.pluralLogic(
+      stars,
+      locale: localeName,
+      other: '$stars نجمة: $count',
+      few: '$stars نجوم: $count',
+      two: 'نجمتان: $count',
+      one: 'نجمة واحدة: $count',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1827,7 +1871,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String attemptsUsed(int used, int allowed) {
-    return 'استُخدمت $used من $allowed محاولات';
+    String _temp0 = intl.Intl.pluralLogic(
+      allowed,
+      locale: localeName,
+      other: 'استُخدمت $used من $allowed محاولة',
+      few: 'استُخدمت $used من $allowed محاولات',
+      two: 'استُخدمت $used من محاولتين',
+      one: 'استُخدمت $used من محاولة واحدة',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -2023,7 +2075,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get searchProducts => 'ابحث في المنتجات';
 
   @override
-  String get onSale => 'عليه تخفيض';
+  String get onSale => 'تخفيضات';
 
   @override
   String get loadingProducts => 'جارٍ تحميل المنتجات';
@@ -2405,7 +2457,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String intakeTooLong(int max) {
-    return 'يُرجى استخدام $max حرفًا على الأكثر.';
+    String _temp0 = intl.Intl.pluralLogic(
+      max,
+      locale: localeName,
+      other: 'يُرجى استخدام $max حرف على الأكثر.',
+      many: 'يُرجى استخدام $max حرفًا على الأكثر.',
+      few: 'يُرجى استخدام $max أحرف على الأكثر.',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -2472,6 +2531,9 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get noSavedMessage =>
       'اضغط على علامة الحفظ في أي مقال للاحتفاظ به هنا وقراءته لاحقًا، حتى دون اتصال.';
+
+  @override
+  String get browseArticles => 'تصفّح المقالات';
 
   @override
   String get articleSave => 'حفظ المقال';
@@ -2597,7 +2659,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String orderReadyIn(int minutes) {
-    return 'جاهز خلال $minutes دقيقة تقريبًا';
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'جاهز خلال $minutes دقيقة تقريبًا',
+      few: 'جاهز خلال $minutes دقائق تقريبًا',
+      two: 'جاهز خلال دقيقتين تقريبًا',
+      one: 'جاهز خلال دقيقة تقريبًا',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -2712,6 +2782,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get classesNoneMessage => 'اختر يومًا آخر لرؤية حصصه.';
+
+  @override
+  String get classesNextClass => 'اعرض الحصة التالية';
 
   @override
   String get classesNoTimetable => 'لا توجد حصص بعد';
@@ -3076,6 +3149,9 @@ class AppLocalizationsAr extends AppLocalizations {
       'تظهر هنا التذاكر التي تحصل عليها، مع رمز QR للدخول.';
 
   @override
+  String get browseEvents => 'تصفّح الفعاليات';
+
+  @override
   String get ticketsOfflineNote =>
       'أنت غير متصل: هذه التذاكر المحفوظة على هذا الهاتف.';
 
@@ -3397,7 +3473,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String downloadsExpired(int days) {
-    return 'حُذفت دروسك المحفوظة: لم يتمكن التطبيق من التحقق من وصولك لمدة $days يومًا. اتصل بالإنترنت واحفظها مرة أخرى.';
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other:
+          'حُذفت دروسك المحفوظة: لم يتمكن التطبيق من التحقق من وصولك لمدة $days يوم. اتصل بالإنترنت واحفظها مرة أخرى.',
+      many:
+          'حُذفت دروسك المحفوظة: لم يتمكن التطبيق من التحقق من وصولك لمدة $days يومًا. اتصل بالإنترنت واحفظها مرة أخرى.',
+      few:
+          'حُذفت دروسك المحفوظة: لم يتمكن التطبيق من التحقق من وصولك لمدة $days أيام. اتصل بالإنترنت واحفظها مرة أخرى.',
+      two: 'حُذفت دروسك المحفوظة: لم يتمكن التطبيق من التحقق من وصولك لمدة يومين. اتصل بالإنترنت واحفظها مرة أخرى.',
+      one: 'حُذفت دروسك المحفوظة: لم يتمكن التطبيق من التحقق من وصولك لمدة يوم واحد. اتصل بالإنترنت واحفظها مرة أخرى.',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -3518,7 +3606,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String downloadsNote(int days) {
-    return 'تُحفظ الدروس مشفّرة داخل هذا التطبيق، ولا تظهر أبدًا في معرض الصور أو الملفات. تُحذف عندما ينتهي وصولك إلى الدورة، أو بعد $days يومًا دون اتصال.';
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other:
+          'تُحفظ الدروس مشفّرة داخل هذا التطبيق، ولا تظهر أبدًا في معرض الصور أو الملفات. تُحذف عندما ينتهي وصولك إلى الدورة، أو بعد $days يوم دون اتصال.',
+      many:
+          'تُحفظ الدروس مشفّرة داخل هذا التطبيق، ولا تظهر أبدًا في معرض الصور أو الملفات. تُحذف عندما ينتهي وصولك إلى الدورة، أو بعد $days يومًا دون اتصال.',
+      few:
+          'تُحفظ الدروس مشفّرة داخل هذا التطبيق، ولا تظهر أبدًا في معرض الصور أو الملفات. تُحذف عندما ينتهي وصولك إلى الدورة، أو بعد $days أيام دون اتصال.',
+      two: 'تُحفظ الدروس مشفّرة داخل هذا التطبيق، ولا تظهر أبدًا في معرض الصور أو الملفات. تُحذف عندما ينتهي وصولك إلى الدورة، أو بعد يومين دون اتصال.',
+      one: 'تُحفظ الدروس مشفّرة داخل هذا التطبيق، ولا تظهر أبدًا في معرض الصور أو الملفات. تُحذف عندما ينتهي وصولك إلى الدورة، أو بعد يوم واحد دون اتصال.',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -4763,7 +4863,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String foodEta(int minutes) {
-    return 'نحو $minutes دقيقة';
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'نحو $minutes دقيقة',
+      few: 'نحو $minutes دقائق',
+      two: 'نحو دقيقتين',
+      one: 'نحو دقيقة',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -4867,7 +4975,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String rateStar(int stars) {
-    return '$stars نجوم';
+    String _temp0 = intl.Intl.pluralLogic(
+      stars,
+      locale: localeName,
+      other: '$stars نجمة',
+      few: '$stars نجوم',
+      two: 'نجمتان',
+      one: 'نجمة واحدة',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -4910,7 +5026,17 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String deskToday(int count, String sales) {
-    return 'اليوم: $count طلبات · $sales';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'اليوم: $count طلب · $sales',
+      many: 'اليوم: $count طلبًا · $sales',
+      few: 'اليوم: $count طلبات · $sales',
+      two: 'اليوم: طلبان · $sales',
+      one: 'اليوم: طلب واحد · $sales',
+      zero: 'اليوم: لا طلبات · $sales',
+    );
+    return '$_temp0';
   }
 
   @override

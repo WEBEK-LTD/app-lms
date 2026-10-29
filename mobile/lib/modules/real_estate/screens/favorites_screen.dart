@@ -9,6 +9,8 @@ import '../../../core/widgets/common.dart';
 import '../data/real_estate_providers.dart';
 import '../widgets/listing_widgets.dart';
 
+import 'package:go_router/go_router.dart';
+
 /// The listings the user saved with the heart.
 class FavoritesScreen extends ConsumerWidget {
   const FavoritesScreen({super.key});
@@ -81,6 +83,9 @@ class _FavoritesList extends ConsumerWidget {
               icon: AppIcons.favorite,
               title: l10n.noFavoritesTitle,
               message: l10n.noFavoritesMessage,
+              // 110 Every empty list leads somewhere.
+              actionLabel: l10n.browseListings,
+              onAction: () => context.go(Paths.search),
             ),
           ),
         ],

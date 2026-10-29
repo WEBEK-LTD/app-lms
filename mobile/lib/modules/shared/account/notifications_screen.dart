@@ -17,6 +17,7 @@ import 'account_scaffold.dart';
 import 'order_screen.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/vertical_wording.dart';
 
 /// "5 min ago", "3 h ago", "Yesterday", then the date.
 String timeAgo(DateTime time, {DateTime? now}) {
@@ -115,6 +116,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         icon: AppIcons.notifications,
         title: context.l10n.noNotificationsTitle,
         message: context.l10n.noNotificationsMessage,
+        // 110 Every empty list leads somewhere.
+        actionLabel: context.l10n.goHome,
+        onAction: () => context.go(Paths.home),
       );
     } else {
       body = RefreshIndicator(
@@ -262,6 +266,12 @@ class OrdersScreen extends ConsumerWidget {
         icon: AppIcons.orders,
         title: context.l10n.noOrdersTitle,
         message: context.l10n.noOrdersMessage,
+        // 110 A shop's customer goes shopping (a restaurant's sees the
+        // menu); a student browses the courses.
+        actionLabel: store
+            ? context.words.startShopping
+            : context.l10n.browseCourses,
+        onAction: () => context.go(store ? Paths.shop : Paths.courses),
       );
     } else {
       body = RefreshIndicator(

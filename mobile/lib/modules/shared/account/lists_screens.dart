@@ -14,6 +14,10 @@ import 'account_scaffold.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/l10n/l10n.dart';
 
+import 'package:go_router/go_router.dart';
+
+import '../../../core/routing/paths.dart';
+
 String _date(DateTime d) => shortDate(d);
 
 /// Devices signed in to the account, with sign-out for the others.
@@ -111,6 +115,8 @@ class CertificatesScreen extends ConsumerWidget {
         icon: AppIcons.certificate,
         title: context.l10n.noCertificatesTitle,
         message: context.l10n.noCertificatesMessage,
+        actionLabel: context.l10n.browseCourses,
+        onAction: () => context.go(Paths.courses),
       ),
       AsyncData(:final value) => AppCard(
         child: Column(
@@ -235,6 +241,8 @@ class QuizResultsScreen extends ConsumerWidget {
         icon: AppIcons.quizResults,
         title: context.l10n.noQuizResultsTitle,
         message: context.l10n.noQuizResultsMessage,
+        actionLabel: context.l10n.tabMyCourses,
+        onAction: () => context.go(Paths.myCourses),
       );
     } else {
       body = NotificationListener<ScrollNotification>(
