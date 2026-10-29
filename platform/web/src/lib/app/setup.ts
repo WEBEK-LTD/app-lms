@@ -18,6 +18,7 @@ import { analyticsBuildConfig } from "../analytics/ingest";
 import { hostedApiUrl } from "../hosted/urls";
 import { yallappSignsIn } from "../hosted/sign-in-methods";
 import { hostedOnly } from "./kinds";
+import { sampleTotal } from "../samples/lists";
 
 export const SETUP_STEPS = ["app-type", "website", "branding", "listing", "publishing"] as const;
 export type SetupStep = (typeof SETUP_STEPS)[number];
@@ -258,7 +259,9 @@ export function buildHasIos(build: Pick<Build, "stages">): boolean {
 export type QueueBuildResult =
   | { ok: true; build: Build; checks: PreflightCheck[] }
   | { ok: false; reason: "setup_incomplete" | "license_inactive" | "build_running" | "version_too_low" | "invalid_config" | "courier_app_off"; errors?: ConfigError[] }
-  | { ok: false; reason: "preflight"; checks: PreflightCheck[] };
+  | { ok: false; reason: "preflight"; checks: PreflightCheck[] }
+  /** 110.2 The app still has sample entries: they're removed or made the owner's before anything goes to the stores. */
+  | { ok: false; reason: "samples"; samples: number };
 
 /** Validates the config against the schema and queues a build with a snapshot of it. `license` is the app's own. */
 export async function queueBuild(
@@ -294,6 +297,9 @@ export async function queueBuild(
   const planId = currentPlanId(license, now);
   const plan = plans[planId];
   if (!isSetupComplete(app, planId, plans)) return { ok: false, reason: "setup_incomplete" };
+  // 110.2 Every build is made for the stores (and "We publish for you" sends it there): none while sample entries are left.
+  const samples = await sampleTotal(store, app);
+  if (samples > 0) return { ok: false, reason: "samples", samples };
   const variant = input.variant ?? "app";
   // 104.6 The courier app: a delivery company (105.1.6 or a food one, 105.2 a ride company's drivers' app) that chose it, on a plan with it.
   const delivery = variant === "courier" ? deliverySettingsOf(await store.getDeliverySettings(app.id)) : null;

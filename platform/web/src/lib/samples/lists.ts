@@ -158,3 +158,8 @@ export async function askAfterOwnEntry(store: DataStore, appId: string, list: Sa
   const { samples, own } = await countList(store, app, list);
   return samples > 0 && own === 1 ? `${LIST_PAGE[list]}?samples=${list}` : null;
 }
+
+/** 110.2 Why a build for the stores can't start (the dashboard's `samples.known.blocked` in Arabic and Turkish). */
+export function samplesBlockedMessage(count: number): string {
+  return `Sample entries left: ${count}. Remove them, or edit them to make them yours, before your app goes to the stores.`;
+}

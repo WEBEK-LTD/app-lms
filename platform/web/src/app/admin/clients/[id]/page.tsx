@@ -86,6 +86,8 @@ const RERUN_FAILED: Record<string, string> = {
   build_running: "The build can't run: another build is in progress.",
   version_too_low: "The build can't run: a newer version was built since.",
   invalid_config: "The build can't run: some app details aren't valid.",
+  // 110.2
+  samples: "The build can't run: the app still has sample entries. The client removes them, or edits them to make them theirs, before it goes to the stores.",
 };
 
 const USERS_PER_PAGE = 10;

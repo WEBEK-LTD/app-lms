@@ -16,6 +16,7 @@ import type { FormState } from "@/lib/forms";
 import { encryptReviewAccount, parseReviewAccountForm, reviewSignInKind } from "@/lib/publishing/review-account";
 import { choosePublishingMode, notifyPublishingTeam } from "@/lib/publishing/service";
 import { APP_STORE_CATEGORIES, applyChecklist, canUseManagedPublishing, checklistProgress, MORE_STORES, PLAY_CATEGORIES, STORE_TITLE, withMoreStores } from "@/lib/publishing/steps";
+import { sampleTotal, samplesBlockedMessage } from "@/lib/samples/lists";
 
 /** The dashboard's current app, for an active client (or our team managing them). */
 async function requireApp(): Promise<ClientContext & { app: App }> {
@@ -35,7 +36,8 @@ const PAGE = "/dashboard/publishing";
  */
 async function saveWithReadiness(store: DataStore, context: ClientContext & { app: App }, request: PublishingRequest, now: Date): Promise<PublishingRequest> {
   const app = (await store.getAppById(context.app.id)) ?? context.app;
-  const { complete } = checklistProgress(request, app);
+  // 110.2 Not ready for the stores while sample entries are left.
+  const complete = checklistProgress(request, app).complete && (await sampleTotal(store, app)) === 0;
   const becameReady = complete && request.readyAt === null;
   const next: PublishingRequest = { ...request, readyAt: complete ? (request.readyAt ?? now) : null, updatedAt: now };
   await store.savePublishingRequest(next);
@@ -82,9 +84,15 @@ export async function savePublishingChecklistAction(_: FormState, formData: Form
   );
   await recordStaffChange(context, "Saved the publishing checklist", { checklist: request.checklist, firebaseBy: request.firebaseBy }, { checklist: saved.checklist, firebaseBy });
   revalidatePath(PAGE);
+  const app = (await store.getAppById(context.app.id)) ?? context.app;
+  const samples = await sampleTotal(store, app);
   return {
     ok: true,
-    message: saved.readyAt ? "Saved. Everything is ready: our team takes it from here." : "Saved. Tick the other steps when they're done.",
+    message: saved.readyAt
+      ? "Saved. Everything is ready: our team takes it from here."
+      : samples > 0 && checklistProgress(saved, app).complete
+        ? samplesBlockedMessage(samples)
+        : "Saved. Tick the other steps when they're done.",
   };
 }
 
