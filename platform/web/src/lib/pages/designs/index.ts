@@ -1,12 +1,12 @@
-import { isAppType, kindOf } from "../../app/kinds";
+import { isAppType, KINDS, kindOf } from "../../app/kinds";
 import type { App, AppVertical } from "../../data/types";
 import { withLook } from "../../fonts/look";
 import { safeHref } from "../html";
-import type { Action, LayoutBlock, LayoutContent, LayoutPage, LayoutTab, ScreenName, SocialProfile } from "../types";
+import { appHeader, type Action, type AppHeader, type LayoutBlock, type LayoutContent, type LayoutPage, type LayoutTab, type ScreenName, type SocialProfile } from "../types";
 import COLOURS from "./colours.json";
 import { ACADEMY_DESIGNS, INSTRUCTORS_DESIGNS } from "./academy";
 import { BOOKINGS_DESIGNS, CLINIC_DESIGNS, FITNESS_DESIGNS, SERVICES_DESIGNS } from "./bookings";
-import { aboutPage, contactPage, page, PALETTES, tab, type Design, type Palette } from "./build";
+import { aboutPage, contactPage, page, PALETTES, PICTURE, tab, type Design, type Palette } from "./build";
 import { CHARITY_DESIGNS, DELIVERY_DESIGNS, EVENTS_DESIGNS, FOOD_DESIGNS, NEWS_DESIGNS, REAL_ESTATE_DESIGNS, RIDES_DESIGNS, SCHOOL_DESIGNS, TAXI_DESIGNS } from "./more";
 import { RESTAURANT_DESIGNS, STORE_DESIGNS } from "./store";
 
@@ -23,7 +23,32 @@ export { blockTexts, sampleTexts } from "./texts";
 /** 99.1 Each built-in design's own main and second colour (also what scripts/design-pictures.py draws its pictures in). */
 const DESIGN_COLOURS: Record<string, { primary: string; secondary: string }> = COLOURS;
 
-const MENU_ICONS: Record<string, string> = { about: "info", contact: "call", offers: "local_offer" };
+/** The side menu's icon for a page (lib/pages/icons.ts PAGE_ICONS). */
+const MENU_ICONS: Record<string, string> = {
+  about: "info",
+  contact: "call",
+  offers: "local_offer",
+  // 110.3 The designs' other pages.
+  faq: "help",
+  pricing: "sell",
+  prices: "sell",
+  plans: "card_membership",
+  delivery: "local_shipping",
+  catering: "restaurant_menu",
+  doctors: "stethoscope",
+  patients: "info",
+  timetable: "schedule",
+  areas: "map",
+  valuation: "home_work",
+  visit: "directions",
+  hire: "event_available",
+  work: "volunteer_activism",
+  volunteer: "groups",
+  "how-it-works": "help",
+  join: "groups",
+  admissions: "school",
+  teach: "school",
+};
 
 export const DESIGNS: readonly Design[] = [
   ...ACADEMY_DESIGNS,
@@ -43,7 +68,21 @@ export const DESIGNS: readonly Design[] = [
   ...TAXI_DESIGNS,
   ...INSTRUCTORS_DESIGNS,
   ...SCHOOL_DESIGNS,
-].map(withCompanyPages);
+]
+  .map(withHeader)
+  .map(withCompanyPages);
+
+/**
+ * 110.3 The header of the pages in the tabs (101), so the home page shows
+ * the app's logo or name: next to the buttons in the Classic and Bold
+ * looks, in the middle in the Minimal one; search, and the cart in a shop.
+ */
+function withHeader(design: Design): Design {
+  if (design.look.header) return design;
+  const store = KINDS.find((k) => k.id === design.kind)?.engine === "store";
+  const header: AppHeader = appHeader(design.look.template === "minimal" ? "centered" : "logo", store ? ["search", "cart"] : ["search", "notifications"]);
+  return { ...design, look: { ...design.look, header } };
+}
 
 /**
  * 84.2 Every design has an About us and a Contact page besides its own
@@ -120,7 +159,7 @@ function fillBlock(block: LayoutBlock, name: string, facts: ContactFacts, now: D
   }
   const fill = (text: string, html: boolean) => text.replaceAll("{app}", html ? escapeHtml(name) : name);
   if (out.html) out.html = fill(out.html, true);
-  for (const field of ["heading", "subheading", "text", "title"] as const) {
+  for (const field of ["heading", "subheading", "text", "title", "name"] as const) {
     const value = out[field];
     if (typeof value === "string") out[field] = fill(value, false);
   }
@@ -172,6 +211,8 @@ export function applyDesign(
     show_title: p.show_title,
     updated_at: context.now.toISOString(),
     blocks: withSocial(withPictures(p.slug, p.blocks, pictures), p.slug, context.social)
+      .map((b) => withDrawnPictures(b, context.pictureBase))
+      .filter((b): b is LayoutBlock => b !== null)
       .map((b) => fillBlock(b, name, context.facts, context.now, missing))
       .filter((b): b is LayoutBlock => b !== null),
   }));
@@ -190,6 +231,23 @@ export function designPictures(design: Pick<Design, "id">, base: string | undefi
   if (!base || !DESIGN_COLOURS[design.id]) return [];
   const root = base.replace(/\/+$/, "");
   return [1, 2].map((n) => `${root}/design-pictures/${design.id}-${n}.jpg`);
+}
+
+/**
+ * 110.3 Yallapp's drawn pictures in a block (`picture:<file>`, designs/build.ts)
+ * at the platform's address; without one, people and cards show none and a
+ * photo gallery is left out.
+ */
+function withDrawnPictures(block: LayoutBlock, base: string | undefined): LayoutBlock | null {
+  const root = base ? base.replace(/\/+$/, "") : null;
+  const url = (value: string | null | undefined) => (value?.startsWith(PICTURE) ? (root ? `${root}/design-pictures/${value.slice(PICTURE.length)}` : null) : (value ?? null));
+  if (block.type === "gallery" && block.images?.some((i) => i.image_url.startsWith(PICTURE))) {
+    if (!root) return null;
+    return { ...block, images: block.images.map((i) => ({ ...i, image_url: url(i.image_url)! })) };
+  }
+  if (block.people?.some((p) => p.photo_url?.startsWith(PICTURE))) return { ...block, people: block.people.map((p) => ({ ...p, photo_url: url(p.photo_url) })) };
+  if (block.cards?.some((c) => c.image_url?.startsWith(PICTURE))) return { ...block, cards: block.cards.map((c) => ({ ...c, image_url: url(c.image_url) })) };
+  return block;
 }
 
 /** 110 A heading that says what the welcome banner says: "Welcome to {app}", or a bare "Welcome" (in Arabic and Turkish too). */
