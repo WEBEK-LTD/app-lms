@@ -94,6 +94,7 @@ test("Classes: not on the plan yet; a class and a subject added", async () => {
   await expect(own.getByText("Grade 5 A", { exact: true })).toBeVisible();
   await own.getByLabel("Subject", { exact: true }).last().fill("Mathematics");
   await own.getByRole("region", { name: "Subjects" }).getByRole("button", { name: "Add", exact: true }).click();
+  await expect(own.getByText("Saved.", { exact: true })).toBeVisible();
   await own.reload();
   await expect(own.getByRole("region", { name: "Subjects" }).getByLabel("Subject", { exact: true }).first()).toHaveValue("Mathematics");
 });
@@ -124,6 +125,7 @@ test("Timetable, attendance, a fee for the class and news", async () => {
   await own.getByLabel("Ends").fill("08:45");
   await own.getByLabel("Subject", { exact: true }).selectOption({ label: "Mathematics" });
   await own.getByRole("button", { name: "Add", exact: true }).click();
+  await expect(own.getByText("Saved.", { exact: true })).toBeVisible();
   await own.reload();
   await expect(own.getByText("08:00–08:45")).toBeVisible();
 
