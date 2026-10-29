@@ -62,10 +62,11 @@ test("a Studio shop from the Shop template starts with sample products, each mar
   await own.getByRole("radio", { name: "Store", exact: true }).check();
   await own.getByRole("radio", { name: "No website: everything from here" }).click();
   await own.getByLabel("Project name").fill(client.name);
+  await own.getByRole("radio", { name: "Shop", exact: true }).click();
+  await expect(own.getByRole("radio", { name: "Shop", exact: true })).toHaveAttribute("aria-checked", "true");
+  // The project is made with its sample products (their pictures drawn): it may take a few seconds.
   await own.getByRole("button", { name: "Next" }).click();
-  await own.getByRole("radio", { name: "Shop" }).click();
-  await own.getByRole("button", { name: "Next" }).click();
-  await expect(own).toHaveURL(/\/studio\/project$/);
+  await expect(own).toHaveURL(/\/studio\/project$/, { timeout: 30_000 });
 
   await own.goto("/dashboard/catalog");
   await expect(own).toHaveURL(/\/studio\/project\/catalog$/);
@@ -111,6 +112,8 @@ test("Builds and Publishing say the app can't go to the stores while samples are
 });
 
 test("in Arabic: the badge, the banner and the stores' guard", async () => {
+  // The dashboard's language switcher (Studio's frame has none): on the page for a new regular app.
+  await own.goto("/dashboard/app-type?new=1");
   await own.locator("[data-dashboard-languages]").getByRole("button", { name: "العربية" }).click();
   await expect(own.locator("html")).toHaveAttribute("lang", "ar");
   await own.goto("/dashboard/catalog");
@@ -121,6 +124,7 @@ test("in Arabic: the badge, the banner and the stores' guard", async () => {
   await own.goto("/dashboard/builds");
   await expect(guard(own)).toContainText("ما زال في تطبيقك إدخالات تجريبية (7).");
   await shot(own, "ar-guard");
+  await own.goto("/dashboard/app-type?new=1");
   await own.locator("[data-dashboard-languages]").getByRole("button", { name: "English" }).click();
   await expect(own.locator("html")).toHaveAttribute("lang", "en");
 });
