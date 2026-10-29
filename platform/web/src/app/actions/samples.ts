@@ -37,7 +37,7 @@ export async function removeSamplesAction(formData: FormData): Promise<void> {
   if (removed > 0) await recordStaffChange(context, `Removed ${removed} sample ${removed === 1 ? "entry" : "entries"}`);
   revalidatePath("/dashboard", "layout");
   revalidatePath("/studio", "layout");
-  redirect(`${backTo(formData.get("back"), list)}?samplesRemoved=${removed}`);
+  redirect(`${backTo(formData.get("back"), list)}?samplesRemoved=${list}.${removed}`);
 }
 
 /** 108.7 Studio's editor took a whole design: the empty lists its pages show get samples. */

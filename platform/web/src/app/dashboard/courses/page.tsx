@@ -21,6 +21,7 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 import { courseStage, isTeachersApp } from "@/lib/teachers/service";
 import { StageBadge } from "../teachers/parts";
+import { SampleBadge, SampleEntries, type SampleQuery } from "@/components/samples";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("courses.title") };
@@ -54,7 +55,7 @@ async function OfflineDownloads({ app, license }: { app: App; license: License |
 }
 
 /** Courses, categories and payments for Academy apps without a website. */
-export default async function CoursesPage() {
+export default async function CoursesPage({ searchParams }: { searchParams: Promise<SampleQuery> }) {
   const { app, license } = await requireClient("catalog");
   const { t } = await dashboardText();
   if (!app || app.connector?.kind !== "courses") {
@@ -89,6 +90,8 @@ export default async function CoursesPage() {
           {t("imports.open")}
         </Link>
       </div>
+      {/* 110.2 */}
+      <SampleEntries app={app} list="courses" query={await searchParams} />
       {paid && !app.catalogSettings?.payment ? (
         <Notice tone="warn" icon="warning">
           {richText(t("courses.paidNoPayments"), { link: (chunk) => <a href="#h-payments">{chunk}</a> })}
@@ -104,7 +107,10 @@ export default async function CoursesPage() {
             {setup.courses.map((c) => (
               <li key={c.id} className="border-t border-line-soft py-3 first:border-t-0">
                 <Link href={`/dashboard/courses/${c.id}`} className="flex flex-wrap items-center justify-between gap-2 no-underline">
-                  <span className="text-[15px] font-bold">{c.title}</span>
+                  <span className="flex items-center gap-2 text-[15px] font-bold">
+                    {c.title}
+                    <SampleBadge sample={c.sample} />
+                  </span>
                   <span className="flex items-center gap-2 text-sm text-muted">
                     {t("courses.courseLine", {
                       price: c.priceCents ? formatCents(c.priceCents, setup.currency) : t("common.free"),

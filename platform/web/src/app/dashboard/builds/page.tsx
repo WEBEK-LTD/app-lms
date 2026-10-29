@@ -43,6 +43,7 @@ import type { DashKey } from "@/i18n/dashboard";
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import { courierAppNameOf, courierBundleIdOf, courierPackageOf, hasCourierJobs, secondAppRoleOf } from "@/lib/delivery/courier-app";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
+import { SamplesStoreNotice } from "@/components/samples";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("builds.title") };
@@ -213,6 +214,8 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
         description={t("builds.intro", { app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app), plan: k(planName(plan, plans)) })}
         actions={<StartBuildForm suggestedVersion={suggestedVersion(current)} disabledReason={disabledReason} />}
       />
+      {/* 110.2 Sample entries left: nothing goes to the stores. */}
+      <SamplesStoreNotice app={app} />
 
       {started === "auto" ? (
         <Notice tone="success" icon="check_circle" role="status">

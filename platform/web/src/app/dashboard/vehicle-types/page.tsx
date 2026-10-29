@@ -15,13 +15,14 @@ import { ConfirmButton } from "../chat/forms";
 import { AddServiceBox } from "../delivery/forms";
 import { isRides, NotRides, PageHead, RidesPlanNotice } from "../rides/parts";
 import { VehicleTypeForm } from "./forms";
+import { SampleBadge, SampleEntries, type SampleQuery } from "@/components/samples";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("rides.vehicleTypes") };
 }
 
 /** 105.2 What riders choose from, each with its fares, in the company's order. */
-export default async function VehicleTypesPage() {
+export default async function VehicleTypesPage({ searchParams }: { searchParams: Promise<SampleQuery> }) {
   const { app, license } = await requireClient("settings");
   const { t } = await dashboardText();
   if (!isRides(app)) return <NotRides title={t("rides.vehicleTypes")} t={t} />;
@@ -40,6 +41,8 @@ export default async function VehicleTypesPage() {
         <h2 id="h-types" className="m-0 text-lg font-bold">
           {t("rides.vehicleTypes")}
         </h2>
+        {/* 110.2 */}
+        <SampleEntries app={app} list="vehicle_types" query={await searchParams} />
         {types.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("rides.noVehicleTypes")}</p> : null}
         <ul className="m-0 flex list-none flex-col p-0">
           {types.map((type, i) => (
@@ -56,6 +59,7 @@ export default async function VehicleTypesPage() {
                     {t("rides.fareLine", { base: money(type.baseCents), perKm: money(type.perKmCents), perMinute: money(type.perMinuteCents), min: money(type.minCents) })}
                   </span>
                 </span>
+                <SampleBadge sample={type.sample} />
                 {offered.has(type.id) ? null : <Badge tone="neutral">{t("rides.hidden")}</Badge>}
                 <form action={moveVehicleTypeAction}>
                   <input type="hidden" name="id" value={type.id} />

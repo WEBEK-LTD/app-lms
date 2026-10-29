@@ -13,13 +13,14 @@ import { DEFAULT_FOOD_TIMEZONE, restaurantState } from "@/lib/food/service";
 import { isFood, PlanNotice } from "../shipments/parts";
 import { RestaurantForm } from "./forms";
 import { NotFood, percentOf } from "./parts";
+import { SampleBadge, SampleEntries, type SampleQuery } from "@/components/samples";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("food.restaurants") };
 }
 
 /** 105.1 The company's restaurants: open now or not, their menus and staff, the company's share. */
-export default async function RestaurantsPage() {
+export default async function RestaurantsPage({ searchParams }: { searchParams: Promise<SampleQuery> }) {
   const { app, license } = await requireClient("catalog");
   const { t } = await dashboardText();
   if (!isFood(app)) return <NotFood title={t("food.restaurants")} t={t} />;
@@ -59,6 +60,8 @@ export default async function RestaurantsPage() {
         <h2 id="h-restaurants" className="m-0 text-lg font-bold">
           {t("food.restaurantCount", { count: restaurants.length })}
         </h2>
+        {/* 110.2 */}
+        <SampleEntries app={app} list="restaurants" query={await searchParams} />
         {sorted.length === 0 ? (
           <p className="m-0 text-[15px] text-muted">{t("food.noRestaurants")}</p>
         ) : (
@@ -96,6 +99,7 @@ export default async function RestaurantsPage() {
                         .join(" · ")}
                     </span>
                   </span>
+                  <SampleBadge sample={r.sample} />
                   {!r.active ? (
                     <Badge tone="warn">{t("food.paused")}</Badge>
                   ) : state.busy ? (

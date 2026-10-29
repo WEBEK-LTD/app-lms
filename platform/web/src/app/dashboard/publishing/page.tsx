@@ -49,6 +49,7 @@ import { formatList } from "@/i18n/format";
 import { dashboardText } from "@/lib/dashboard-lang";
 import type { DashKey } from "@/i18n/dashboard";
 import type { App, PublishingStatus } from "@/lib/data/types";
+import { SamplesStoreNotice } from "@/components/samples";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("publishing.title") };
@@ -122,7 +123,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
 
   // 41 Every store Yallapp publishes to.
   // 46 Links that open the app: the Play signing fingerprint and the Team ID live on their own page.
-  const header = (
+  const pageHeader = (
     <PageHeader
       title={t("publishing.title")}
       description={t("publishing.intro", { app: name })}
@@ -133,6 +134,13 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
         </Link>
       }
     />
+  );
+  // 110.2 Sample entries left: nothing goes to the stores.
+  const header = (
+    <>
+      {pageHeader}
+      <SamplesStoreNotice app={app} />
+    </>
   );
 
   const passwords = (

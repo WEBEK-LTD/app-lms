@@ -16,13 +16,14 @@ import { ConfirmButton } from "../chat/forms";
 import { AddServiceBox } from "../delivery/forms";
 import { ApplicationForm, TeacherForm } from "./forms";
 import { isTeachers, NotTeachers, PageHead, TeachersPlanNotice } from "./parts";
+import { SampleBadge, SampleEntries, type SampleQuery } from "@/components/samples";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("teachers.title") };
 }
 
 /** 105.3 The academy's teachers, their shares and applications to teach. */
-export default async function TeachersPage() {
+export default async function TeachersPage({ searchParams }: { searchParams: Promise<SampleQuery> }) {
   const { app, license } = await requireClient("catalog");
   const { t, lang } = await dashboardText();
   if (!isTeachers(app)) return <NotTeachers title={t("teachers.title")} t={t} />;
@@ -91,6 +92,8 @@ export default async function TeachersPage() {
         <h2 id="h-teachers" className="m-0 text-lg font-bold">
           {t("teachers.count", { count: teachers.length })}
         </h2>
+        {/* 110.2 */}
+        <SampleEntries app={app} list="teachers" query={await searchParams} />
         {teachers.length === 0 ? (
           <p className="m-0 text-[15px] text-muted">{t("teachers.noneYet")}</p>
         ) : (
@@ -124,6 +127,7 @@ export default async function TeachersPage() {
                           .join(" · ")}
                       </span>
                     </span>
+                    <SampleBadge sample={teacher.sample} />
                     {teacher.featured ? <Badge tone="info">{t("teachers.featuredBadge")}</Badge> : null}
                     <Badge tone={teacher.status === "active" ? "success" : "warn"}>{t(teacher.status === "active" ? "teachers.active" : "teachers.suspended")}</Badge>
                     <form action={setTeacherStatusAction}>
