@@ -42,6 +42,7 @@ const ERRORS: Record<ImportError, DashKey> = {
   empty: "studio.importEmpty",
   too_big: "studio.importTooBig",
   mixed: "studio.importMixed",
+  fig: "studio.importFigFailed",
 };
 
 /** 108.3 A drawing of an SVG drawn as a picture by the browser, twice as sharp. */

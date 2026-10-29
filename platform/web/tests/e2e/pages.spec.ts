@@ -4,6 +4,7 @@ import path from "node:path";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 import { solidPng } from "./png";
+import { zip } from "./zip";
 
 /**
  * Pages, looks and languages (roadmap 10.4, 10.6, 10.8 and 11.9): the team
@@ -688,6 +689,46 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await expect(phone.getByText("Account", { exact: true })).toHaveCount(0);
   // The token went to Figma only with these calls.
   expect(figmaTokens.slice(asked).every((tk) => tk === FIGMA_TOKEN || tk === "figd_not-the-right-token-000000")).toBe(true);
+  await own.getByRole("button", { name: "Undo" }).click();
+  await own.getByRole("button", { name: "Redo" }).click();
+  await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
+
+  // 108.5–108.6 A Sketch file: its artboard a page, the symbol a button with its text; a Figma file it can't read says what to do.
+  const sketchColor = (red: number, green: number, blue: number) => ({ _class: "color", red, green, blue, alpha: 1 });
+  const rect = (x: number, y: number, width: number, height: number) => ({ _class: "rect", x, y, width, height });
+  const sketchText = (id: string, string: string, frame: object, name: string, size: number) => ({
+    _class: "text",
+    do_objectID: id,
+    name: string,
+    frame,
+    attributedString: { string, attributes: [{ location: 0, length: string.length, attributes: { MSAttributedStringFontAttribute: { attributes: { name, size } }, MSAttributedStringColorAttribute: sketchColor(0.05, 0.05, 0.14) } }] },
+  });
+  const sketchPage = {
+    _class: "page",
+    layers: [
+      {
+        _class: "artboard",
+        name: "Bakery",
+        frame: rect(0, 0, 390, 844),
+        layers: [
+          sketchText("A", "Fresh bread daily", rect(24, 80, 300, 34), "Cairo-Bold", 24),
+          { _class: "symbolInstance", name: "Order", symbolID: "S1", frame: rect(24, 140, 342, 52), overrideValues: [{ overrideName: "T1_stringValue", value: "Order bread" }] },
+        ],
+      },
+      { _class: "symbolMaster", symbolID: "S1", name: "Button", frame: rect(0, 0, 200, 48), layers: [{ _class: "rectangle", fixedRadius: 12, frame: rect(0, 0, 200, 48), style: { fills: [{ isEnabled: true, fillType: 0, color: sketchColor(1, 0.35, 0.12) }] } }, sketchText("T1", "Label", rect(16, 12, 168, 22), "Cairo-SemiBold", 16)] },
+    ],
+  };
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await own.getByRole("menuitem", { name: "Import a design…" }).click();
+  await importing.getByLabel("Choose a file").setInputFiles({ name: "Old app.fig", mimeType: "application/octet-stream", buffer: Buffer.from("not a figma file at all") });
+  await expect(importing.getByRole("alert")).toContainText("This Figma file can't be read here");
+  await importing.getByLabel("Choose a file").setInputFiles({ name: "Bakery.sketch", mimeType: "application/zip", buffer: Buffer.from(zip({ "document.json": "{}", "meta.json": "{}", "pages/p1.json": JSON.stringify(sketchPage) })) });
+  await importing.getByRole("button", { name: "Next" }).click();
+  await expect(importing.getByText("1 page found in “Bakery.sketch”")).toBeVisible();
+  await importing.getByRole("button", { name: "Import", exact: true }).click();
+  await expect(own.getByRole("status").filter({ hasText: "The design is imported." })).toBeVisible({ timeout: 15_000 });
+  await expect(phone.getByText("Fresh bread daily")).toBeVisible();
+  await expect(phone.getByText("Order bread")).toBeVisible();
   await own.getByRole("button", { name: "Undo" }).click();
   await own.getByRole("button", { name: "Redo" }).click();
   await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
