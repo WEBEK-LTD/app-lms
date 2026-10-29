@@ -171,6 +171,51 @@ void main() {
     });
   }
 
+  testWidgets(
+    "110 initials skip the Arabic article: \"اسم العميل\" isn't \"اا\"",
+    (tester) async {
+      final api =
+          FakeApi(
+              config: configJson(
+                languages: languagesJson(available: const ['en', 'ar']),
+              ),
+            )
+            ..navigation = navigationJson()
+            ..pages = {
+              'home': appPageJson(
+                blocks: [
+                  {
+                    'id': 'q',
+                    'type': 'testimonials',
+                    'title': 'ماذا يقول عملاؤنا',
+                    'quotes': [
+                      {
+                        'text': 'خدمة رائعة.',
+                        'name': 'اسم العميل',
+                        'rating': 5,
+                      },
+                    ],
+                  },
+                  {
+                    'id': 't',
+                    'type': 'team',
+                    'title': 'فريقنا',
+                    'layout': 'list',
+                    'people': [
+                      {'name': 'محمد العلي', 'role': 'مدرب'},
+                    ],
+                  },
+                ],
+              ),
+            };
+      await contentApp(api: api, language: 'ar').pump(tester);
+      expect(tester.takeException(), isNull);
+      expect(find.text('اع'), findsOneWidget);
+      expect(find.text('مع'), findsOneWidget);
+      expect(find.text('اا'), findsNothing);
+    },
+  );
+
   // One app per test: each opens the page at another time.
   for (final (now, status, why) in [
     (monday10, 'Open now', 'Monday morning'),

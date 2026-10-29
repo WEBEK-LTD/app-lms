@@ -145,6 +145,19 @@ class _ImagePlaceholder extends StatelessWidget {
   }
 }
 
+/// 110 The letter a word of a name starts with, past an article: the
+/// Arabic "ال" ("العميل" → "ع", not "ا", so "اسم العميل" isn't "اا") and
+/// "al-" or "el-" ("al-Masri" → "M").
+String nameInitial(String word) {
+  final bare = word
+      .replaceFirst(RegExp(r'^ال(?=\p{L}{2})', unicode: true), '')
+      .replaceFirst(
+        RegExp(r'^(?:al|el)-(?=\p{L})', caseSensitive: false, unicode: true),
+        '',
+      );
+  return bare.isEmpty ? '' : bare.characters.first;
+}
+
 /// A round picture of a person, or their initials on a soft tint.
 class InitialsAvatar extends StatelessWidget {
   const InitialsAvatar({
@@ -158,12 +171,12 @@ class InitialsAvatar extends StatelessWidget {
   final String? imageUrl;
   final double size;
 
-  /// "Deniz Kaya" → "DK", "Ayşe" → "A".
+  /// "Deniz Kaya" → "DK", "Ayşe" → "A", 110 "محمد العلي" → "مع".
   static String initialsOf(String name) {
     final words = name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
     if (words.isEmpty) return '?';
-    final first = words.first.characters.first;
-    final last = words.length > 1 ? words.last.characters.first : '';
+    final first = nameInitial(words.first);
+    final last = words.length > 1 ? nameInitial(words.last) : '';
     return (first + last).toUpperCase();
   }
 

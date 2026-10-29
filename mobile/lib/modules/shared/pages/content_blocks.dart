@@ -576,7 +576,8 @@ class _Avatar extends StatelessWidget {
           (w) => w.isNotEmpty && RegExp(r'\p{L}', unicode: true).hasMatch(w),
         )
         .take(2)
-        .map((w) => w.characters.first.toUpperCase())
+        // 110 Past an article ("اسم العميل" → "اع", not "اا").
+        .map((w) => nameInitial(w).toUpperCase())
         .join();
     return ExcludeSemantics(
       child: SizedBox(
