@@ -60,7 +60,6 @@ export interface SchoolContext {
 const signIn = () => error(401, "invalid_token", "Your session has ended. Please sign in again.");
 const notMember = () => error(403, "not_school_member", "This account isn't one the school added. Ask the school to add your number.");
 const notTeacher = () => error(403, "not_teacher", "This account isn't one of the school's teachers.");
-const notFound = (what: string) => error(404, "not_found", `${what} not found.`);
 const ok = (body: unknown, status = 200): ConnectorResult => ({ status, body });
 const noContent: ConnectorResult = { status: 204 };
 const record = (value: unknown): Record<string, unknown> => (typeof value === "object" && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : {});
@@ -107,7 +106,7 @@ export async function handleSchoolRoute(ctx: SchoolContext, request: ConnectorRe
     const studentId = idOf(path[2]);
     const students = await visibleStudents(ctx.store, ctx.app, member);
     const student = students.find((s) => s.id === studentId);
-    if (!student) return notFound("Student");
+    if (!student) return error(404, "not_found", "Student not found.");
     const tail = path.slice(3).join("/");
     if (request.method === "GET" && tail === "timetable") return timetable(ctx, student);
     if (request.method === "GET" && tail === "attendance") return attendance(ctx, request, student, settings);
@@ -120,7 +119,7 @@ export async function handleSchoolRoute(ctx: SchoolContext, request: ConnectorRe
     if (request.method === "GET" && tail === "fees") return fees(ctx, student, settings);
     if (request.method === "POST" && path[3] === "fees" && path[5] === "pay" && path.length === 6) return pay(ctx, request, student, idOf(path[4]), settings);
   }
-  return notFound("Page");
+  return error(404, "not_found", "Page not found.");
 }
 
 // Students and parents
@@ -177,7 +176,7 @@ async function schoolFile(ctx: SchoolContext, id: unknown): Promise<SchoolFileRe
 
 async function submit(ctx: SchoolContext, request: ConnectorRequest, student: SchoolPerson, homeworkId: number | null, settings: SchoolSettings): Promise<ConnectorResult> {
   const homework = homeworkId !== null ? await ctx.store.getSchoolHomework(ctx.app.id, homeworkId) : null;
-  if (!homework || homework.classId !== student.classId) return notFound("Homework");
+  if (!homework || homework.classId !== student.classId) return error(404, "not_found", "Homework not found.");
   const wait = await limited(ctx, request, WRITE_LIMIT);
   if (wait) return wait;
   const body = record(request.body);
@@ -254,7 +253,7 @@ async function fees(ctx: SchoolContext, student: SchoolPerson, settings: SchoolS
 
 async function pay(ctx: SchoolContext, request: ConnectorRequest, student: SchoolPerson, feeId: number | null, settings: SchoolSettings): Promise<ConnectorResult> {
   const fee = feeId !== null ? await ctx.store.getSchoolFee(ctx.app.id, feeId) : null;
-  if (!fee || fee.studentId !== student.id || fee.status === "cancelled") return notFound("Fee");
+  if (!fee || fee.studentId !== student.id || fee.status === "cancelled") return error(404, "not_found", "Fee not found.");
   if (fee.status === "paid") return error(409, "already_paid", "This fee is paid already.");
   if (!settings.feesByCard || !canTakeCards(ctx)) return error(503, "payments_unavailable", "The school doesn't take fees by card in the app. Please pay at the school.");
   const wait = await limited(ctx, request, PAY_LIMIT);
@@ -280,19 +279,19 @@ async function uploads(ctx: SchoolContext, request: ConnectorRequest): Promise<C
   const file = /^[0-9a-f-]{36}$/.test(id) ? await ctx.store.getMediaFile(ctx.app.id, id) : null;
   const mine = file && (file.kind === "image" || file.kind === "pdf") && file.source !== "chat" ? file : null;
   if (request.method === "POST" && path.length === 4 && path[3] === "resume") {
-    if (!mine || mine.status !== "uploading") return notFound("Upload");
+    if (!mine || mine.status !== "uploading") return error(404, "not_found", "Upload not found.");
     if (!ctx.storage) return error(503, "media_unavailable", "Files can't be sent right now.");
     return ok({ id: mine.id, kind: mine.kind, upload_url: uploadUrl(ctx.storage, mine), chunk_bytes: ctx.chunkBytes, size: mine.sizeBytes });
   }
   if (request.method === "POST" && path.length === 4 && path[3] === "complete") {
-    if (!mine) return notFound("Upload");
+    if (!mine) return error(404, "not_found", "Upload not found.");
     if (mine.status === "ready") return noContent;
     if (!ctx.storage) return error(503, "media_unavailable", "Files can't be sent right now.");
     const result = await completeUpload({ store: ctx.store, storage: ctx.storage, now: request.now }, ctx.app.id, mine.id);
     if (!result.ok) return { status: 409, body: { code: "incomplete", message: result.message, ...(result.offset !== undefined ? { offset: result.offset } : {}) } };
     return noContent;
   }
-  return notFound("Page");
+  return error(404, "not_found", "Page not found.");
 }
 
 async function startSchoolUpload(ctx: SchoolContext, request: ConnectorRequest): Promise<ConnectorResult> {
@@ -361,18 +360,18 @@ async function classroomRoute(ctx: SchoolContext, request: ConnectorRequest, tea
   }
   if (path[1] === "homework" && id !== null) {
     const homework = await ctx.store.getSchoolHomework(ctx.app.id, id);
-    if (!homework || !teaching.classIds.includes(homework.classId)) return notFound("Homework");
+    if (!homework || !teaching.classIds.includes(homework.classId)) return error(404, "not_found", "Homework not found.");
     if (request.method === "GET" && path.length === 3) return homeworkDetail(ctx, homework, teaching);
     const studentId = idOf(path[4]);
     if (request.method === "PUT" && path[3] === "submissions" && path.length === 5 && studentId !== null) return mark(ctx, request, homework, studentId, teaching);
   }
   if (path[1] === "assessments" && id !== null && path[3] === "scores" && path.length === 4) {
     const assessment = await ctx.store.getSchoolAssessment(ctx.app.id, id);
-    if (!assessment || !teaching.classIds.includes(assessment.classId)) return notFound("Assessment");
+    if (!assessment || !teaching.classIds.includes(assessment.classId)) return error(404, "not_found", "Assessment not found.");
     if (request.method === "GET") return scores(ctx, assessment, teaching);
     if (request.method === "PUT") return saveScores(ctx, request, assessment, teaching);
   }
-  return notFound("Page");
+  return error(404, "not_found", "Page not found.");
 }
 
 async function classroomMe(ctx: SchoolContext, teacher: SchoolPerson, teaching: Teaching, settings: SchoolSettings): Promise<ConnectorResult> {
@@ -464,7 +463,7 @@ async function homeworkCounts(ctx: SchoolContext, list: readonly { id: number; c
 
 async function classroomHomework(ctx: SchoolContext, request: ConnectorRequest, teacher: SchoolPerson, teaching: Teaching): Promise<ConnectorResult> {
   const classId = request.query.get("class_id") ? idOf(request.query.get("class_id")!) : null;
-  if (request.query.get("class_id") && (classId === null || !teaching.classIds.includes(classId))) return notFound("Class");
+  if (request.query.get("class_id") && (classId === null || !teaching.classIds.includes(classId))) return error(404, "not_found", "School class not found.");
   const list = classId !== null ? await ctx.store.listSchoolHomework(ctx.app.id, { classId }) : await ctx.store.listSchoolHomework(ctx.app.id, { teacherId: teacher.id });
   const page = paged(request, list);
   const counts = await homeworkCounts(ctx, page.items);
@@ -524,7 +523,7 @@ async function homeworkDetail(ctx: SchoolContext, homework: Awaited<ReturnType<D
 
 async function mark(ctx: SchoolContext, request: ConnectorRequest, homework: Parameters<typeof markHomework>[1], studentId: number, teaching: Teaching): Promise<ConnectorResult> {
   const student = (await classStudentsOf(ctx, homework.classId)).find((s) => s.id === studentId);
-  if (!student) return notFound("Student");
+  if (!student) return error(404, "not_found", "Student not found.");
   const body = record(request.body);
   const value = typeof body.mark === "string" ? body.mark.trim() : "";
   if (!value || value.length > 20) return error(400, "invalid_request", "Write a mark of up to 20 characters.");
@@ -539,7 +538,7 @@ async function mark(ctx: SchoolContext, request: ConnectorRequest, homework: Par
 async function classroomAssessments(ctx: SchoolContext, request: ConnectorRequest, teacher: SchoolPerson, teaching: Teaching, settings: SchoolSettings): Promise<ConnectorResult> {
   const classParam = request.query.get("class_id");
   const classId = classParam ? idOf(classParam) : null;
-  if (classParam && (classId === null || !teaching.classIds.includes(classId))) return notFound("Class");
+  if (classParam && (classId === null || !teaching.classIds.includes(classId))) return error(404, "not_found", "School class not found.");
   const list = classId !== null ? await ctx.store.listSchoolAssessments(ctx.app.id, { classId }) : await ctx.store.listSchoolAssessments(ctx.app.id, { teacherId: teacher.id });
   const today = schoolToday(settings, request.now);
   const ordered = [...list.filter((a) => a.date >= today).sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id), ...list.filter((a) => a.date < today)];
