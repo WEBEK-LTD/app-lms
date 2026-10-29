@@ -350,6 +350,7 @@ void main() {
       -200,
       scrollable: find.byType(Scrollable).first,
     );
+    await tester.pump();
     await tester.tap(find.text('All courses'));
     await TestApp.settle(tester);
     expect(find.text('Catalog'), findsWidgets);

@@ -165,11 +165,21 @@ class AppPageView extends ConsumerWidget {
       PageBackground.tint => p.primarySoft,
       PageBackground.surface => p.surface,
     };
-    if (background == null) return list;
+    // 110 Behind the status bar: the page's background, or the bold
+    // header's colour, so nothing scrolls under the clock.
+    final chosen = pushed ? null : ref.watch(appLookProvider).header;
+    final showTitle = page.showTitle && page.title.trim().isNotEmpty;
+    final boldHeader =
+        template == AppTemplate.bold && (showTitle || chosen != null);
+    final framed = StatusBarBackdrop(
+      color: boldHeader ? p.primary : (background ?? p.background),
+      child: list,
+    );
+    if (background == null) return framed;
     return ColoredBox(
       key: ValueKey('page-background-${page.background.name}'),
       color: background,
-      child: list,
+      child: framed,
     );
   }
 }

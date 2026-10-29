@@ -87,7 +87,12 @@ class StudioPageView extends ConsumerWidget {
       color: background,
       child: Stack(
         children: [
-          Positioned.fill(child: list),
+          // 110 Without a header, nothing scrolls under the status bar.
+          Positioned.fill(
+            child: header == null
+                ? StatusBarBackdrop(color: background, child: list)
+                : list,
+          ),
           if (overlay)
             PositionedDirectional(
               top: 0,

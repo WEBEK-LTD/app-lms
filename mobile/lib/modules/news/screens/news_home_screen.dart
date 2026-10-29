@@ -28,7 +28,11 @@ class NewsHomeScreen extends ConsumerWidget {
         onRefresh: refresh,
         edgeOffset: MediaQuery.paddingOf(context).top,
         child: switch (home) {
-          AsyncData(:final value) => _Home(home: value),
+          // 110 Nothing scrolls under the status bar.
+          AsyncData(:final value) => StatusBarBackdrop(
+            color: context.palette.background,
+            child: _Home(home: value),
+          ),
           AsyncError(:final error) => ListView(
             children: [
               SizedBox(
