@@ -8,11 +8,14 @@ import { MemoryStore } from "@/lib/data/memory";
 import type { App, CatalogOrder } from "@/lib/data/types";
 import { artPng } from "@/lib/demo/art";
 import { demoDownloadBuild, isDemoApp, listDemoApps, withDemoChecked } from "@/lib/demo/apps";
+import { EMPTY_DRIVER } from "@/lib/rides/settings";
 import { placeDemoOrder } from "@/lib/demo/checkout";
 import { cleanDemoActivity, demoOfficeReply } from "@/lib/demo/cleanup";
-import { DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_LIMITS, DEMO_SIGN_IN, DEMO_TYPES, DEMO_USER_NAME, demoTypeOfSlug, STUDIO_DEMO_TYPES } from "@/lib/demo/constants";
-import { ARTICLE_CATEGORIES, CLINIC_DOCTORS, CLINIC_INTAKE, CLINIC_SERVICES, DEMO_ARTICLES, DEMO_CAMPAIGNS, DEMO_COURSES, DEMO_DELIVERY_SERVICES, DEMO_DISHES, DEMO_EVENTS, DEMO_LISTINGS, DEMO_RESTAURANTS, DEMO_PRODUCTS, DEMO_SERVICES, DEMO_STAFF, RESTAURANT_FULFILMENT, FITNESS_PLANS, FITNESS_TIMETABLE } from "@/lib/demo/content";
+import { DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_LIMITS, DEMO_SIGN_IN, DEMO_TYPES, DEMO_USER_NAME, demoIdOf, demoTypeOfSlug, STUDIO_DEMO_TYPES } from "@/lib/demo/constants";
+import { ARTICLE_CATEGORIES, CLINIC_DOCTORS, CLINIC_INTAKE, CLINIC_SERVICES, DEMO_ARTICLES, DEMO_CAMPAIGNS, DEMO_COURSES, DEMO_DELIVERY_SERVICES, DEMO_DISHES, DEMO_EVENTS, DEMO_LISTINGS, DEMO_RESTAURANTS, DEMO_PRODUCTS, DEMO_SERVICES, DEMO_STAFF, RESTAURANT_FULFILMENT, FITNESS_PLANS, FITNESS_TIMETABLE, TAXI_DEMO_DRIVERS, TAXI_DEMO_TYPES } from "@/lib/demo/content";
 import { PICTURES } from "@/lib/demo/pictures";
+import { SCHOOL_CLASSES, SCHOOL_HOMEWORK, SCHOOL_SUBJECTS, SCHOOL_TEACHERS } from "@/lib/demo/school";
+import { ACADEMY_COURSES, ACADEMY_TEACHERS } from "@/lib/demo/teachers";
 import { DemoSetupError, setupDemoApps, type DemoSetupDeps } from "@/lib/demo/setup";
 import { connectorFor } from "@/lib/hosted/connectors";
 import { LogSender } from "@/lib/hosted/otp-sender";
@@ -44,7 +47,7 @@ beforeEach(() => clearPlatformSettingsCache());
 
 // 27 Eight (28 nine, 29 ten) demo apps draw their pictures: slower when the whole suite runs at once.
 describe("creating the demo apps", { timeout: 20_000 }, () => {
-  it("makes the demo account with thirteen apps, their content, pages and a license that doesn't end", async () => {
+  it("makes the demo account with sixteen apps, their content, pages and a license that doesn't end", async () => {
     const store = new MemoryStore();
     const blobs = new Map<string, Buffer>();
     const result = await setupDemoApps(deps(store, NOW, blobs));
@@ -63,6 +66,9 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
       ["delivery", true],
       ["food", true],
       ["rides", true],
+      ["taxi", true],
+      ["school", true],
+      ["instructors", true],
     ]);
     const user = await store.getUserByEmail(DEMO_ACCOUNT.email);
     expect(user?.passwordHash).toBeNull();
@@ -70,10 +76,11 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
     expect(client.status).toBe("active");
 
     const apps = await listDemoApps(store, { fresh: true });
-    expect(apps.map((a) => a.appType)).toEqual(["lms", "store", "store", "booking", "booking", "booking", "real_estate", "news", "events", "donations", "delivery", "food", "rides"]);
+    expect(apps.map((a) => a.appType)).toEqual(["lms", "store", "store", "booking", "booking", "booking", "real_estate", "news", "events", "donations", "delivery", "food", "rides", "rides", "school", "lms"]);
     // 21 The clinic demo is the bookings engine with the clinic vertical; 26 the café the store engine with the restaurant vertical; 27 the gym the bookings engine with the fitness vertical; 29 the charity the donations engine with the charity vertical.
-    expect(apps.map((a) => a.vertical ?? null)).toEqual([null, null, "restaurant", null, "clinic", "fitness", null, null, null, "charity", null, null, null]);
-    expect(new Set(apps.map((a) => a.primaryColor)).size).toBe(13);
+    // 110.5 The live taxi app is the rides engine with the taxi vertical, the academy with many teachers the courses engine with the instructors vertical.
+    expect(apps.map((a) => a.vertical ?? null)).toEqual([null, null, "restaurant", null, "clinic", "fitness", null, null, null, "charity", null, null, null, "taxi", null, "instructors"]);
+    expect(new Set(apps.map((a) => a.primaryColor)).size).toBe(16);
     expect(new Set(apps.map((a) => a.template))).toEqual(new Set(["classic", "bold", "minimal"]));
     for (const app of apps) {
       expect(app).toMatchObject({ demo: true, backend: "hosted", publishingMode: "managed" });
@@ -85,7 +92,7 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
       expect(layout?.published?.pages[0]?.blocks.map((b) => b.id)).toContain("demo-banner");
       expect(await store.getHostedUserByPhone(app.id, DEMO_SIGN_IN.e164)).toMatchObject({ name: DEMO_USER_NAME });
     }
-    const [lms, shop, cafe, bookings, clinic, gym, homes, news, events, charity, parcels, food, rides] = apps as [App, App, App, App, App, App, App, App, App, App, App, App, App];
+    const [lms, shop, cafe, bookings, clinic, gym, homes, news, events, charity, parcels, food, rides, taxi, school, academy] = apps as [App, App, App, App, App, App, App, App, App, App, App, App, App, App, App, App];
     expect(lms.courseSetup?.courses).toHaveLength(DEMO_COURSES.length);
     expect(lms.courseSetup?.courses.some((c) => c.priceCents === 0)).toBe(true);
     expect(await store.listCatalogProducts(shop.id)).toHaveLength(DEMO_PRODUCTS.length);
@@ -146,7 +153,7 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
     }
     expect(await store.getDonationSettings(charity.id)).toEqual({ currency: "TRY", iosMode: "browser" });
     // Studio's demos: Studio projects whose demo account is also the company's courier, restaurant staff and driver.
-    for (const app of [parcels, food, rides]) {
+    for (const app of [parcels, food, rides, taxi, school, academy]) {
       expect(app.section).toBe("studio");
       expect(app.hostedSettings).toMatchObject({ reviewPhone: DEMO_SIGN_IN.e164, reviewCode: DEMO_SIGN_IN.code });
     }
@@ -163,6 +170,34 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
     expect(rides).toMatchObject({ appName: "Masar Rides", connector: { kind: "rides" } });
     expect((await store.listVehicleTypes(rides.id)).map((t) => t.name)).toEqual(["Economy", "Comfort", "Van"]);
     expect((await store.getDeliverySettings(rides.id))?.rides).toMatchObject({ fareMode: "upfront", pin: true, scheduling: true });
+    // 110.5 Lamha Taxi: three vehicle types with fares, and drivers with their cars who are never online.
+    expect(taxi).toMatchObject({ appName: "Lamha Taxi", connector: { kind: "rides" }, vertical: "taxi" });
+    expect((await store.listVehicleTypes(taxi.id)).map((t) => [t.name, t.baseCents > 0])).toEqual(TAXI_DEMO_TYPES.map((t) => [t.name, true]));
+    const drivers = await store.listCouriers(taxi.id);
+    expect(drivers.map((d) => d.name).sort()).toEqual(TAXI_DEMO_DRIVERS.map((d) => d.name).sort());
+    expect(drivers.every((d) => d.active && !d.onDuty && d.lat === null && d.driver?.vehicleTypeId && d.driver.plate && d.driver.carModel)).toBe(true);
+    expect((await store.getDeliverySettings(taxi.id))?.taxi).toMatchObject({ provider: "osm", tilesUrl: null, databaseUrl: null });
+    // 110.5 Nakhla School: its classes, subjects and timetable, and the demo number as a student, a parent and a teacher.
+    expect(school).toMatchObject({ appName: "Nakhla School", connector: { kind: "school" } });
+    expect((await store.listSchoolClasses(school.id)).map((c) => c.name)).toEqual(SCHOOL_CLASSES.map((c) => c.name));
+    expect((await store.listSchoolSubjects(school.id)).map((x) => x.name).sort()).toEqual([...SCHOOL_SUBJECTS].sort());
+    expect((await store.findSchoolPeople(school.id, { phone: DEMO_SIGN_IN.e164, email: null })).map((p) => [p.role, p.name]).sort()).toEqual([
+      ["parent", "Rania Haddad"],
+      ["student", "Lina Haddad"],
+      ["teacher", "Mona Saleh"],
+    ]);
+    expect(await store.listSchoolPeriods(school.id)).toHaveLength(SCHOOL_CLASSES.length * 5 * 5);
+    expect(await store.listSchoolHomework(school.id)).toHaveLength(SCHOOL_HOMEWORK.length);
+    expect(await store.getSchoolSettings(school.id)).toMatchObject({ timezone: "Africa/Cairo", feesByCard: true });
+    // 110.5 Rawaq Academy: seven teachers, each with their courses, and the demo number as a teacher students never see.
+    expect(academy).toMatchObject({ appName: "Rawaq Academy", connector: { kind: "courses" }, vertical: "instructors" });
+    const teachers = await store.listTeachers(academy.id);
+    expect(teachers.filter((t) => t.phone === null).map((t) => t.name).sort()).toEqual(ACADEMY_TEACHERS.map((t) => t.name).sort());
+    expect(teachers.filter((t) => t.phone === null).every((t) => t.photoAssetId && t.bio && t.shareBp === 7000)).toBe(true);
+    expect(teachers.find((t) => t.phone === DEMO_SIGN_IN.e164)).toMatchObject({ name: "Demo teacher", status: "active" });
+    expect(academy.courseSetup?.courses).toHaveLength(ACADEMY_COURSES.length);
+    expect(academy.courseSetup?.courses.every((c) => c.teacherId && teachers.find((t) => t.id === c.teacherId)?.name === c.instructorName && c.active)).toBe(true);
+    expect(academy.courseSetup?.teachersApply).toBe(true);
     // Every picture is a PNG we drew.
     for (const data of blobs.values()) expect(readPngInfo(data)).toMatchObject({ hasTransparency: false });
   });
@@ -179,14 +214,22 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
     expect(second.clientId).toBe(first.clientId);
     expect(second.apps.map((a) => a.appId)).toEqual(first.apps.map((a) => a.appId));
     expect(second.apps.every((a) => !a.created)).toBe(true);
-    expect(await store.listAppsByClient(first.clientId)).toHaveLength(13);
-    expect(await store.listLicensesByClient(first.clientId)).toHaveLength(13);
+    expect(await store.listAppsByClient(first.clientId)).toHaveLength(16);
+    expect(await store.listLicensesByClient(first.clientId)).toHaveLength(16);
     const food = second.apps.find((a) => a.type === "food")!.appId;
     expect(await store.listRestaurants(food)).toHaveLength(DEMO_RESTAURANTS.length);
     const parcels = second.apps.find((a) => a.type === "delivery")!.appId;
     expect(await store.listDeliveryServices(parcels)).toHaveLength(DEMO_DELIVERY_SERVICES.length);
     const rides = second.apps.find((a) => a.type === "rides")!.appId;
     expect(await store.listVehicleTypes(rides)).toHaveLength(3);
+    const taxi = second.apps.find((a) => a.type === "taxi")!.appId;
+    expect(await store.listCouriers(taxi)).toHaveLength(TAXI_DEMO_DRIVERS.length);
+    const school = second.apps.find((a) => a.type === "school")!.appId;
+    expect(await store.listSchoolPeople(school)).toHaveLength(SCHOOL_TEACHERS.length + SCHOOL_CLASSES.reduce((n, c) => n + c.students.length, 0) + 1);
+    expect(await store.listSchoolHomework(school)).toHaveLength(SCHOOL_HOMEWORK.length);
+    expect(await store.listSchoolFees(school)).toHaveLength(4);
+    const academy = second.apps.find((a) => a.type === "instructors")!.appId;
+    expect(await store.listTeachers(academy)).toHaveLength(ACADEMY_TEACHERS.length + 1);
     const products = await store.listCatalogProducts(shop);
     expect(products).toHaveLength(DEMO_PRODUCTS.length);
     expect(products.map((p) => p.name)).not.toContain("Changed by hand");
@@ -224,8 +267,11 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
     expect(demoTypeOfSlug("restaurant")).toBe("restaurant");
     expect(demoTypeOfSlug("food-delivery")).toBe("food");
     expect(demoTypeOfSlug("rides")).toBe("rides");
+    expect(demoTypeOfSlug("taxi")).toBe("taxi");
+    expect(demoTypeOfSlug("school")).toBe("school");
+    expect(demoTypeOfSlug("teachers")).toBe("instructors");
     expect(DEMO_TYPES).not.toContain("rides");
-    expect(STUDIO_DEMO_TYPES).toEqual(["delivery", "food", "rides"]);
+    expect(STUDIO_DEMO_TYPES).toEqual(["delivery", "food", "rides", "taxi", "school", "instructors"]);
     expect(demoTypeOfSlug("nope")).toBeNull();
   });
 });
@@ -318,6 +364,140 @@ describe("signing in to a demo app", () => {
     await go("PATCH", "/driver/me", { online: true }, token);
     const offers = await go("GET", "/driver/offers", undefined, token);
     expect((offers.body as { items: { id: number }[] }).items.map((o) => o.id)).toEqual([(asked.body as { id: number }).id]);
+  });
+
+  /** Signs in to a Studio demo with the demo number, through its connector when it has one. */
+  async function studio(type: "taxi" | "school" | "instructors") {
+    const app = (await listDemoApps(store, { fresh: true })).find((a) => demoIdOf(a) === type)!;
+    const connector = connectorFor(app, KEY, { store, assetUrl: (id) => id, platformUrl: "https://yallapp.test", rides: true }) ?? undefined;
+    const go = async (method: string, route: string, body?: unknown, token: string | null = null, query: Record<string, string> = {}) => {
+      const [path, search] = route.split("?");
+      const parts = path!.split("/").filter(Boolean);
+      const result = await handleHosted({ ...context(app), connector }, { method, path: parts, query: new URLSearchParams({ platform: "android", app_version: "1.0.0", ...Object.fromEntries(new URLSearchParams(search ?? "")), ...query }), body, token });
+      // The contract's route: an ID is named after the list before it (/school/students/{student_id}).
+      const names: Record<string, string> = { students: "student_id", homework: "homework_id", classes: "class_id", teachers: "teacher_id", courses: "course_id", fees: "fee_id", assessments: "assessment_id" };
+      expectContract(method, `/${parts.map((part, i) => (/^\d+$/.test(part) ? `{${names[parts[i - 1]!]}}` : part)).join("/")}`, result);
+      return result;
+    };
+    const requested = await go("POST", "/auth/otp/request", { country_code: DEMO_SIGN_IN.countryCode, phone: DEMO_SIGN_IN.number });
+    const signedIn = await go("POST", "/auth/otp/verify", { request_id: (requested.body as { request_id: string }).request_id, code: DEMO_SIGN_IN.code, device: DEVICE });
+    const { access_token: token, user } = signedIn.body as { access_token: string; user: { roles: string[] } };
+    return { app, go, token, roles: user.roles };
+  }
+
+  it("110.5 Lamha Taxi: taxis drive around wherever the rider is, the platform's map, and the visitor drives their own ride", async () => {
+    const { app, go, token, roles } = await studio("taxi");
+    expect(roles).toEqual(["driver"]);
+    // No map of its own: the plain ride screens until the team sets Admin › Settings › Maps.
+    const plain = (await go("GET", "/config")).body as { taxi: { map: { tiles_url: string | null; search: boolean }; live: unknown } };
+    expect(plain.taxi).toMatchObject({ map: { tiles_url: null, search: false }, live: null });
+    await store.setPlatformSetting("maps", { tilesUrl: "https://tiles.yallapp.test/{z}/{x}/{y}.png", attribution: "© OpenStreetMap contributors" }, "admin@yallapp.test", NOW);
+    clearPlatformSettingsCache();
+    const mapped = (await go("GET", "/config")).body as { taxi: { map: { tiles_url: string | null; attribution: string | null } } };
+    expect(mapped.taxi.map).toMatchObject({ tiles_url: "https://tiles.yallapp.test/{z}/{x}/{y}.png", attribution: "© OpenStreetMap contributors" });
+
+    // Anywhere in the world: the demo's drivers around the place, a little further a few seconds later.
+    for (const at of [{ lat: 30.0444, lng: 31.2357 }, { lat: 41.0082, lng: 28.9784 }, { lat: -33.86, lng: 151.21 }]) {
+      const near = (await go("GET", `/taxi/nearby?lat=${at.lat}&lng=${at.lng}`, undefined, token)).body as { items: { driver_key: string; lat: number; lng: number; heading: number | null }[] };
+      expect(near.items).toHaveLength(TAXI_DEMO_DRIVERS.length);
+      for (const taxi of near.items) {
+        expect(Math.abs(taxi.lat - at.lat)).toBeLessThan(0.025);
+        expect(Math.abs(taxi.lng - at.lng)).toBeLessThan(0.03);
+        expect(taxi.heading).not.toBeNull();
+      }
+    }
+    now = new Date(NOW.getTime() + 5000);
+    const first = ((await go("GET", "/taxi/nearby?lat=30.0444&lng=31.2357", undefined, token)).body as { items: { driver_key: string; lat: number; lng: number }[] }).items;
+    now = new Date(NOW.getTime() + 10_000);
+    const later = ((await go("GET", "/taxi/nearby?lat=30.0444&lng=31.2357", undefined, token)).body as { items: { driver_key: string; lat: number; lng: number }[] }).items;
+    const moved = first.filter((a) => later.some((b) => b.driver_key === a.driver_key && (b.lat !== a.lat || b.lng !== a.lng)));
+    expect(moved.length).toBeGreaterThan(TAXI_DEMO_DRIVERS.length / 2);
+
+    // The visitor's taxi is offered to the visitor as the test driver, never to the demo's drivers, and the test driver isn't on the map.
+    const place = (address: string, lat: number, lng: number) => ({ address, details: null, lat, lng });
+    const asked = await go("POST", "/rides", { pickup: place("Tahrir Square", 30.0444, 31.2357), dropoff: place("Cairo Tower", 30.0459, 31.2243), vehicle_type_id: (await store.listVehicleTypes(app.id))[0]!.id, payment: "cash" }, token);
+    expect(asked.status).toBe(201);
+    await go("PATCH", "/driver/me", { online: true }, token);
+    await go("PUT", "/driver/location", { lat: 30.0444, lng: 31.2357 }, token);
+    const offers = await go("GET", "/driver/offers", undefined, token);
+    expect((offers.body as { items: { id: number }[] }).items.map((o) => o.id)).toEqual([(asked.body as { id: number }).id]);
+    const near = (await go("GET", "/taxi/nearby?lat=30.0444&lng=31.2357", undefined, token)).body as { items: unknown[] };
+    expect(near.items).toHaveLength(TAXI_DEMO_DRIVERS.length);
+    expect((await store.listCouriers(app.id)).filter((c) => c.onDuty).map((c) => c.name)).toEqual(["App Review"]);
+  });
+
+  it("110.5 a live taxi app that isn't a demo shows only its drivers online now", async () => {
+    const client = (await store.listClients({ filter: "all", now: NOW }))[0]!.client;
+    const taxi: App = { ...newApp(client.id, null, NOW, "rides", "taxi"), backend: "hosted", connector: { kind: "rides" } };
+    await store.createApp(taxi);
+    await store.createCourier({ appId: taxi.id, name: "Off duty", phone: "+905321112233", email: null, vehicle: null, active: true, driver: { ...EMPTY_DRIVER } }, NOW);
+    const connector = connectorFor(taxi, KEY, { store, assetUrl: (id) => id, platformUrl: "https://yallapp.test", rides: true })!;
+    const result = await handleHosted({ ...context(taxi), connector }, { method: "GET", path: ["taxi", "nearby"], query: new URLSearchParams({ lat: "30.0444", lng: "31.2357" }), body: undefined, token: null });
+    expect(result.body).toEqual({ items: [] });
+  });
+
+  it("110.5 Nakhla School: the visitor is Lina, her mother and her class teacher, and what the teacher gives reaches Lina", async () => {
+    const { app, go, token, roles } = await studio("school");
+    expect(roles).toEqual(["student", "parent", "teacher"]);
+    const me = (await go("GET", "/school/me", undefined, token)).body as { name: string; students: { id: number; name: string; class_name: string }[] };
+    expect(me.name).toBe("Rania Haddad");
+    expect(me.students.map((s) => [s.name, s.class_name])).toEqual([
+      ["Lina Haddad", "Grade 5 A"],
+      ["Adam Haddad", "Grade 3 B"],
+    ]);
+    const [lina, adam] = me.students as [{ id: number }, { id: number }];
+    const week = (await go("GET", `/school/students/${lina.id}/timetable`, undefined, token)).body as { days: { weekday: number; lessons: unknown[] }[] };
+    expect(week.days.map((d) => [d.weekday, d.lessons.length])).toEqual([
+      [1, 5],
+      [2, 5],
+      [3, 5],
+      [4, 5],
+      [7, 5],
+    ]);
+    const grades = (await go("GET", `/school/students/${adam.id}/grades`, undefined, token)).body as { subjects: unknown[] };
+    expect(grades.subjects.length).toBeGreaterThan(0);
+    const fees = (await go("GET", `/school/students/${adam.id}/fees`, undefined, token)).body as { items: { status: string }[] };
+    expect(fees.items.map((f) => f.status).sort()).toEqual(["due", "paid"]);
+
+    // As Ms. Mona: homework for Grade 5 A, which Lina sees at once.
+    const classroom = (await go("GET", "/classroom/me", undefined, token)).body as { classes: { id: number; name: string }[] };
+    const fiveA = classroom.classes.find((c) => c.name === "Grade 5 A")!;
+    const maths = (await store.listSchoolSubjects(app.id)).find((x) => x.name === "Maths")!;
+    const given = await go("POST", "/classroom/homework", { class_id: fiveA.id, subject_id: maths.id, title: "Angles worksheet", text: "Measure the five angles.", due_on: "2026-10-14" }, token);
+    expect(given.status).toBe(201);
+    const homework = (await go("GET", `/school/students/${lina.id}/homework`, undefined, token)).body as { items: { title: string }[] };
+    expect(homework.items.map((h) => h.title)).toContain("Angles worksheet");
+
+    // The next days: the visitor's homework goes after a day; the school day is made again from that day.
+    const later = new Date(NOW.getTime() + 25 * HOUR);
+    const report = await cleanDemoActivity(store, later);
+    expect(report.deleted).toBeGreaterThanOrEqual(1);
+    const left = await store.listSchoolHomework(app.id);
+    expect(left.map((h) => h.title)).not.toContain("Angles worksheet");
+    expect(left).toHaveLength(SCHOOL_HOMEWORK.length);
+    expect(left.every((h) => h.createdAt.getTime() > NOW.getTime())).toBe(true);
+    // Run again the same day, nothing more is made.
+    expect((await cleanDemoActivity(store, new Date(later.getTime() + HOUR))).deleted).toBe(0);
+    expect((await store.listSchoolHomework(app.id)).map((h) => h.id).sort()).toEqual(left.map((h) => h.id).sort());
+  });
+
+  it("110.5 Rawaq Academy: seven teachers for students, and the visitor's own Teacher tab, cleaned after a day", async () => {
+    const { app, go, token, roles } = await studio("instructors");
+    expect(roles).toEqual(["teacher"]);
+    const list = (await go("GET", "/teachers", undefined, token)).body as { items: { name: string; courses: number }[] };
+    expect(list.items.map((t) => t.name).sort()).toEqual(ACADEMY_TEACHERS.map((t) => t.name).sort());
+    expect((await go("GET", "/teacher/me", undefined, token)).body).toMatchObject({ name: "Demo teacher" });
+    const made = await go("POST", "/teacher/courses", { title: "My first course", description: "Made in the demo." }, token);
+    expect(made.status).toBe(201);
+    await go("PATCH", "/teacher/me", { name: "Someone else", bio: "Changed" }, token);
+
+    expect(await cleanDemoActivity(store, new Date(NOW.getTime() + 2 * HOUR))).toMatchObject({ deleted: 0 });
+    const report = await cleanDemoActivity(store, new Date(NOW.getTime() + 25 * HOUR));
+    expect(report.deleted).toBeGreaterThanOrEqual(1);
+    const saved = (await store.getAppById(app.id))!;
+    expect(saved.courseSetup?.courses.map((c) => c.title)).not.toContain("My first course");
+    expect(saved.courseSetup?.courses).toHaveLength(ACADEMY_COURSES.length);
+    expect(await store.findTeacher(app.id, { phone: DEMO_SIGN_IN.e164, email: null })).toMatchObject({ name: "Demo teacher", bio: expect.stringContaining("This is you") });
   });
 
   it("refuses other numbers and wrong codes in a demo app", async () => {
@@ -451,7 +631,7 @@ describe("demo checkout and the daily clean-up", () => {
     expect((await cleanDemoActivity(store, new Date(NOW.getTime() + 2 * HOUR))).deleted).toBe(0);
 
     const report = await runDailyNotices({ store, baseUrl: "https://yallapp.test", mail: async () => undefined, now: new Date(NOW.getTime() + 25 * HOUR) });
-    expect(report.demo.apps).toBe(13);
+    expect(report.demo.apps).toBe(16);
     expect(report.demo.deleted).toBe(4); // an order, a conversation, a favorite, a device
     const left = await store.listCatalogOrders({ appId: shop.id, offset: 0, limit: 10 });
     expect(left.items.map((o) => o.id)).toEqual([fresh.id]);
