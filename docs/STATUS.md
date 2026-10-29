@@ -42,8 +42,11 @@ info, Timetable and Plans, Areas and Valuation, Visit and Hire, Our work and
 Volunteer, How it works and a page to join as a courier, driver or partner,
 Admissions). The texts are samples in the business's voice, marked in the
 editor until changed, with Arabic and Turkish in the built-in dictionary.
-The map's place is a sample (Istanbul) the owner moves to theirs; the Social
-links block still comes only from the business's own profiles.
+The map's place is a sample the owner moves to theirs: the editor and the
+draft preview show it, marked as a sample, but a published app never does
+(the hosted API's pages and the plugin's layout leave a Location block at
+the sample place out). The Social links block still comes only from the
+business's own profiles.
 
 Phase 104 (delivery and courier companies) steps 104.1 to 104.7 are
 complete: a new project type in Yallapp Studio, Delivery, with no website

@@ -195,6 +195,15 @@ export const gallery = (id: string, title: string | null, photos: (string | [str
 /** Where the business is: a sample place the owner moves to theirs (the editor marks it). */
 export const SAMPLE_PLACE = { latitude: 40.9903, longitude: 29.029 } as const;
 
+/**
+ * 110.3 A Location block still at the design's sample place: the editor and
+ * the preview show it (marked as a sample), a published app never does, so
+ * an app published unedited shows no wrong place.
+ */
+export function isSamplePlace(block: Pick<LayoutBlock, "type" | "latitude" | "longitude">): boolean {
+  return block.type === "map" && block.latitude === SAMPLE_PLACE.latitude && block.longitude === SAMPLE_PLACE.longitude;
+}
+
 export const place = (title: string | null, label: string | null = "Directions", id = "map"): LayoutBlock => ({
   ...base(id, "map", title),
   ...SAMPLE_PLACE,
