@@ -23,6 +23,7 @@ import { DRIVER_ACTIVE, rideReference } from "@/lib/rides/service";
 import { driverOf, RIDES_LIMITS } from "@/lib/rides/settings";
 import { reviewUserId } from "@/lib/delivery/review";
 import type { TeamPermission } from "@/lib/team/permissions";
+import { askAfterOwnEntry } from "@/lib/samples/lists";
 
 /**
  * 105.2 The Rides, Drivers, Vehicle types and Ride settings pages of ride
@@ -131,13 +132,17 @@ export async function saveVehicleTypeAction(_: FormState, formData: FormData): P
   if ("error" in image) return { errors: { image: image.error }, values };
   const imageAssetId = image.assetId ?? (formData.get("removeImage") === "on" ? null : (existing?.imageAssetId ?? null));
   if (existing) {
-    await store.updateVehicleType(app.id, existing.id, { ...parsed.value, imageAssetId }, now);
+    // 110.2 A sample vehicle type saved here is the owner's from now on.
+    await store.updateVehicleType(app.id, existing.id, { ...parsed.value, imageAssetId, sample: false }, now);
   } else {
     const position = types.reduce((max, t) => Math.max(max, t.position), 0) + 1;
     await store.createVehicleType({ appId: app.id, ...parsed.value, imageAssetId, position }, now);
   }
   await recordStaffChange(context, `${existing ? "Edited" : "Added"} the vehicle type "${parsed.value.name}"`);
   refresh();
+  // 110.2 Their first own vehicle type next to the samples: the list asks whether to remove them.
+  const ask = existing ? null : await askAfterOwnEntry(store, app.id, "vehicle_types");
+  if (ask) redirect(ask);
   return { ok: true, message: existing ? "Saved." : "Added. Riders choose it when they ask for a ride.", values: existing ? values : {} };
 }
 

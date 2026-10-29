@@ -15,6 +15,7 @@ import { imageType } from "@/lib/images";
 import { chosenPictures } from "@/lib/media/pictures";
 import { LISTING_IMAGE_MAX_BYTES, LISTING_IMAGES_MAX, parseListingForm, parseOfficeForm } from "@/lib/listings/forms";
 import { replyToInquiry, setListingStatus } from "@/lib/listings/office";
+import { askAfterOwnEntry } from "@/lib/samples/lists";
 
 /** An active client whose app is a Real estate app with listings in the dashboard, or a redirect. */
 async function requireListingsApp(permission: TeamPermission = "catalog"): Promise<ClientContext & { app: App }> {
@@ -87,7 +88,8 @@ export async function saveListingAction(_: FormState, formData: FormData): Promi
   }
   imageAssetIds.push(...fromMedia);
   if (existing) {
-    await store.updateListing(app.id, existing.id, { ...parsed.value, imageAssetIds }, now);
+    // 110.2 A sample listing saved here is the owner's from now on.
+    await store.updateListing(app.id, existing.id, { ...parsed.value, imageAssetIds, sample: false }, now);
   } else {
     const publish = formData.get("intent") === "publish";
     const input: ListingInput = {
@@ -101,7 +103,9 @@ export async function saveListingAction(_: FormState, formData: FormData): Promi
     await store.createListing(input, now);
   }
   refresh();
-  redirect(`/dashboard/listings?saved=${encodeURIComponent(parsed.value.title)}`);
+  // 110.2 Their first own listing next to the samples: the list asks whether to remove them.
+  const ask = existing ? null : await askAfterOwnEntry(store, app.id, "listings");
+  redirect(ask ?? `/dashboard/listings?saved=${encodeURIComponent(parsed.value.title)}`);
 }
 
 /** Publish, back to drafts, or archive. */

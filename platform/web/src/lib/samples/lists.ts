@@ -146,3 +146,15 @@ export async function samplesLeft(store: DataStore, app: App): Promise<{ list: S
 export async function sampleTotal(store: DataStore, app: App): Promise<number> {
   return (await samplesLeft(store, app)).reduce((sum, l) => sum + l.count, 0);
 }
+
+/**
+ * After the owner added an entry of their own: where to ask "Remove the
+ * samples now?" (the list's page), when it's their first one in a list that
+ * still has samples; null otherwise.
+ */
+export async function askAfterOwnEntry(store: DataStore, appId: string, list: SampleList): Promise<string | null> {
+  const app = await store.getAppById(appId);
+  if (!app || !sampleListsOf(app).includes(list)) return null;
+  const { samples, own } = await countList(store, app, list);
+  return samples > 0 && own === 1 ? `${LIST_PAGE[list]}?samples=${list}` : null;
+}

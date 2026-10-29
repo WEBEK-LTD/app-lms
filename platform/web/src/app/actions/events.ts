@@ -20,6 +20,7 @@ import { formValues, type FormState } from "@/lib/forms";
 import { serviceAccountOf } from "@/lib/hosted/notify";
 import { imageType } from "@/lib/images";
 import { hasFeature } from "@/lib/plans";
+import { askAfterOwnEntry } from "@/lib/samples/lists";
 
 /**
  * 28 The Events and Check-in pages of Events & tickets apps: events (drafts,
@@ -112,7 +113,8 @@ export async function saveEventAction(_: FormState, formData: FormData): Promise
   let event: EventRecord;
   let told = 0;
   if (existing) {
-    const patch = { ...parsed.value, imageAssetIds, ...(publish && existing.status === "draft" ? { status: "published" as const, publishedAt: existing.publishedAt ?? now } : {}) };
+    // 110.2 A sample event saved here is the owner's from now on.
+    const patch = { ...parsed.value, imageAssetIds, sample: false, ...(publish && existing.status === "draft" ? { status: "published" as const, publishedAt: existing.publishedAt ?? now } : {}) };
     await store.updateEvent(app.id, existing.id, patch, now);
     event = { ...existing, ...patch };
     // Ticket holders hear when the time, the place or the online link changes.
@@ -128,7 +130,9 @@ export async function saveEventAction(_: FormState, formData: FormData): Promise
   refresh();
   const query = new URLSearchParams({ saved: "1" });
   if (told) query.set("told", String(told));
-  redirect(`/dashboard/events/${event.id}?${query}`);
+  // 110.2 Their first own event next to the samples: the list asks whether to remove them.
+  const ask = existing ? null : await askAfterOwnEntry(store, app.id, "events");
+  redirect(ask ?? `/dashboard/events/${event.id}?${query}`);
 }
 
 /** Publish, back to draft, or cancel (its tickets are cancelled and their holders told). */
@@ -203,6 +207,8 @@ export async function saveTicketTypeAction(_: FormState, formData: FormData): Pr
     const position = types.reduce((max, t) => Math.max(max, t.position + 1), 0);
     await store.createTicketType({ ...parsed.value, appId: app.id, eventId: event.id, position }, new Date());
   }
+  // 110.2 A sample event whose tickets are changed is the owner's from now on.
+  if (event.sample) await store.updateEvent(app.id, event.id, { sample: false }, new Date());
   refresh();
   return { ok: true, message: existing ? "Saved." : `Added “${parsed.value.name}”.` };
 }
