@@ -19,6 +19,8 @@ import type { App, License } from "@/lib/data/types";
 import { CourseCategoryForm, CourseForm, CurrencyForm, OfflineDownloadsForm } from "./forms";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
+import { courseStage, isTeachersApp } from "@/lib/teachers/service";
+import { StageBadge } from "../teachers/parts";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("courses.title") };
@@ -72,6 +74,7 @@ export default async function CoursesPage() {
   const enrollments = await (await getStore()).listCourseEnrollments({ appId: app.id });
   const students = (id: number) => enrollments.filter((e) => e.courseId === id).length;
   const paid = setup.courses.some((c) => c.priceCents > 0);
+  const teacherNames = new Map(isTeachersApp(app) ? (await (await getStore()).listTeachers(app.id)).map((teacher) => [teacher.id, teacher.name]) : []);
 
   return (
     <div className="flex flex-col gap-6">
@@ -108,7 +111,15 @@ export default async function CoursesPage() {
                       lessons: lessonsOf(c).length,
                       students: students(c.id),
                     })}
-                    {c.active ? null : <Badge tone="warn">{t("common.hidden")}</Badge>}
+                    {/* 105.3 A teacher's course shows its teacher and where it is. */}
+                    {c.teacherId ? (
+                      <>
+                        {teacherNames.get(c.teacherId) ? <span>· {teacherNames.get(c.teacherId)}</span> : null}
+                        <StageBadge stage={courseStage(c)} t={t} />
+                      </>
+                    ) : c.active ? null : (
+                      <Badge tone="warn">{t("common.hidden")}</Badge>
+                    )}
                   </span>
                 </Link>
               </li>

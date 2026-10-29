@@ -107,6 +107,9 @@ export const en = {
     // 105.2 Ride hailing
     rides: "Ride hailing",
     yourRides: "Your rides",
+    // 105.3 Academies with many teachers
+    instructors: "Academy with many teachers",
+    yourAcademy: "Your academy",
     ridesList: "Rides",
     drivers: "Drivers",
     vehicleTypes: "Vehicle types",
@@ -295,6 +298,8 @@ export const ar: Messages = {
     paidOrders: "الطلبات المدفوعة",
     rides: "توصيل الركاب",
     yourRides: "رحلاتك",
+    instructors: "أكاديمية متعدّدة المدرّسين",
+    yourAcademy: "أكاديميتك",
     ridesList: "الرحلات",
     drivers: "السائقون",
     vehicleTypes: "أنواع المركبات",
@@ -481,6 +486,8 @@ export const tr: Messages = {
     paidOrders: "Ödenmiş siparişler",
     rides: "Araç çağırma",
     yourRides: "Yolculuklarınız",
+    instructors: "Çok eğitmenli akademi",
+    yourAcademy: "Akademiniz",
     ridesList: "Yolculuklar",
     drivers: "Sürücüler",
     vehicleTypes: "Araç türleri",
