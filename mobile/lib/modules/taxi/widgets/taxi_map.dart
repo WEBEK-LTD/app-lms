@@ -71,6 +71,7 @@ class _TaxiMapViewState extends ConsumerState<TaxiMapView> {
   late final TileLayer _tiles;
   bool _ready = false;
   double _height = 0;
+  double _width = 0;
 
   @override
   void initState() {
@@ -105,10 +106,12 @@ class _TaxiMapViewState extends ConsumerState<TaxiMapView> {
   /// the whole world.
   EdgeInsets get _room {
     final h = _height;
+    // About half a pin's label each side, so "From:" and "To:" show whole.
+    final side = math.min(100.0, _width * 0.3);
     return EdgeInsets.fromLTRB(
-      32,
+      side,
       math.min(widget.padding.top, h * 0.2) + 32,
-      32,
+      side,
       math.min(widget.padding.bottom, h * 0.45) + 32,
     );
   }
@@ -129,6 +132,7 @@ class _TaxiMapViewState extends ConsumerState<TaxiMapView> {
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
       _height = constraints.maxHeight;
+      _width = constraints.maxWidth;
       return _map(context);
     },
   );

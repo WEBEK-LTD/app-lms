@@ -248,8 +248,8 @@ class _RideFollowScreenState extends ConsumerState<RideFollowScreen> {
             api != null &&
             DateTime.now().difference(api.updatedAt) <
                 const Duration(minutes: 2));
-    // To about a kilometre: the camera doesn't follow every move.
-    double round(double v) => (v * 100).roundToDouble() / 100;
+    // To about 100 m: the camera doesn't follow every small move.
+    double round(double v) => (v * 1000).roundToDouble() / 1000;
     final height = MediaQuery.sizeOf(context).height;
     return Scaffold(
       body: Stack(

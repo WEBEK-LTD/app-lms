@@ -430,7 +430,7 @@ class _RideScreenState extends ConsumerState<RideScreen> {
         onClear: () => _setAt(_dropoff, null),
       ),
     ];
-    final rest = [
+    final when = [
       if (config.scheduling) ...[
         const SizedBox(height: 16),
         _SectionTitle(l10n.rideWhen),
@@ -464,6 +464,8 @@ class _RideScreenState extends ConsumerState<RideScreen> {
             ),
           ),
       ],
+    ];
+    final fares = [
       const SizedBox(height: 16),
       _SectionTitle(l10n.rideChooseCar),
       if (!signedIn)
@@ -520,6 +522,8 @@ class _RideScreenState extends ConsumerState<RideScreen> {
             style: TextStyle(fontSize: 13, color: p.textSecondary),
           ),
       ],
+    ];
+    final extras = [
       const SizedBox(height: 12),
       TextField(
         key: const ValueKey('ride-promo'),
@@ -563,12 +567,17 @@ class _RideScreenState extends ConsumerState<RideScreen> {
     ];
     final taxi = ref.watch(taxiConfigProvider);
     if (taxi != null) {
-      return _taxiLayout(taxi, config, signedIn, activeCard, places, rest);
+      // 105.9 The fares right after where from and to, then when.
+      return _taxiLayout(taxi, config, signedIn, activeCard, places, [
+        ...fares,
+        ...when,
+        ...extras,
+      ]);
     }
     final body = ListView(
       key: const ValueKey('ride-form'),
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-      children: [...activeCard, ...places, ...rest],
+      children: [...activeCard, ...places, ...when, ...fares, ...extras],
     );
     final button = BottomActionBar(
       child: PrimaryButton(
