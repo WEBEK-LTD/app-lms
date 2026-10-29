@@ -9179,8 +9179,19 @@ components:
           type: array
           minItems: 2
           maxItems: 5
-          description: The bottom tabs, left to right.
+          description: |
+            The bottom tabs, left to right. 109 When the owner has more than
+            five, the fifth is the More tab (`target.type` `more`, the label
+            in the app's language) and `more` holds the rest; an app that
+            doesn't know `more` leaves that tab out and shows the first four.
           items: { $ref: '#/components/schemas/NavTab' }
+        more:
+          type: array
+          maxItems: 6
+          default: []
+          description: 109 The tabs past the fourth when there are more than five, top to bottom in the list the More tab opens. Empty without a More tab.
+          items: { $ref: '#/components/schemas/NavTab' }
+        tab_bar: { $ref: '#/components/schemas/TabBar' }
         menu:
           type: array
           maxItems: 12
@@ -9190,6 +9201,29 @@ components:
         pages:
           type: array
           items: { $ref: '#/components/schemas/PageSummary' }
+
+    TabBar:
+      type: [object, 'null']
+      description: |
+        109 How the bottom tabs look, set by the owner; null or missing, the
+        app's usual bar. Apps that don't know it keep their usual bar. Each
+        field left out keeps the usual look for it.
+      properties:
+        background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The bar's colour; null, the app's surface colour." }
+        dark_background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: In dark mode; null, `background`, or the app's dark surface when that is null too. }
+        active: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The open tab's icon and name; null, the app's main colour." }
+        inactive: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The other tabs' icons and names; null, the app's muted text colour." }
+        radius: { type: integer, minimum: 0, maximum: 32, default: 0, description: How round the bar's corners are, in logical pixels. }
+        margin: { type: integer, minimum: 0, maximum: 24, default: 0, description: "The space around the bar, in logical pixels: 0, across the bottom of the screen; more, a floating bar." }
+        font: { type: [string, 'null'], description: "The names' font family (`StudioFont.family`); null, or one the app can't show, the app's font." }
+        labels:
+          type: string
+          enum: [always, active, never]
+          default: always
+          description: "The tabs' names: under every icon, under the open tab's only, or none (icons only)."
+        center:
+          type: [string, 'null']
+          description: "A tab's `id` drawn as a round button raised in the middle of the bar, in the app's main colour. Only when that tab is the middle one of three or five; otherwise ignored."
 
     NavTab:
       type: object
@@ -9468,7 +9502,7 @@ components:
       description: What happens on tap. The app ignores actions it does not know.
       required: [type]
       properties:
-        type: { type: string, enum: [page, screen, course, item, url] }
+        type: { type: string, enum: [page, screen, course, item, url, more], description: "109 `more`, only on the More tab (`Navigation.tabs`): opens the list of `Navigation.more`." }
         page_slug: { type: [string, 'null'], description: For `page`. }
         screen:
           type: [string, 'null']

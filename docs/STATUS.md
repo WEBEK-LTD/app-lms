@@ -249,9 +249,9 @@ test environment:
   package name.
 - Plugin 0.4.23 goes to sites once the app update with in-app purchases is
   in the stores; 0.4.24 (the header), 0.4.26 (Studio pages), 0.4.27
-  (107.2: more style on Studio pages) and 0.4.28 (107.3: new Studio
-  elements) after the
-  app update that shows them.
+  (107.2: more style on Studio pages), 0.4.28 (107.3: new Studio
+  elements) and 0.4.29 (109: the More tab and the tab bar's look) after
+  the app update that shows them.
 
 ## Planned (to agree on before any work)
 

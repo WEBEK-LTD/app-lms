@@ -29,7 +29,7 @@ class Layout_Client {
 	const INTERVAL    = 900;
 	const MAX_PAGES   = 50;
 	const MAX_BLOCKS  = 100;
-	const LAYOUT_KEYS = array( 'version', 'appearance', 'languages', 'tabs', 'menu', 'pages' );
+	const LAYOUT_KEYS = array( 'version', 'appearance', 'languages', 'tabs', 'tab_bar', 'menu', 'pages' );
 
 	/**
 	 * Settings.
@@ -210,7 +210,8 @@ class Layout_Client {
 			$blocks                              = isset( $page['blocks'] ) && is_array( $page['blocks'] ) ? $page['blocks'] : array();
 			$layout['pages'][ $index ]['blocks'] = array_slice( array_values( array_filter( $blocks, 'is_array' ) ), 0, self::MAX_BLOCKS );
 		}
-		$layout['tabs']       = array_values( array_filter( $data['tabs'], 'is_array' ) );
+		$layout['tabs']       = array_slice( array_values( array_filter( $data['tabs'], 'is_array' ) ), 0, 10 );
+		$layout['tab_bar']    = isset( $data['tab_bar'] ) && is_array( $data['tab_bar'] ) ? $data['tab_bar'] : null;
 		$layout['menu']       = isset( $data['menu'] ) && is_array( $data['menu'] ) ? array_slice( array_values( array_filter( $data['menu'], 'is_array' ) ), 0, 12 ) : array();
 		$layout['appearance'] = isset( $data['appearance'] ) && is_array( $data['appearance'] ) ? $data['appearance'] : null;
 		$layout['languages']  = isset( $data['languages'] ) && is_array( $data['languages'] ) ? $data['languages'] : null;

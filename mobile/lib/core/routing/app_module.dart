@@ -17,9 +17,21 @@ class ShellTab {
     this.pushLocation,
     this.action,
     this.iconUrl,
+    this.id,
+    this.more = const [],
   }) : assert(location != null || pushLocation != null || action != null);
 
   final IconData icon;
+
+  /// The published tab's id (`NavTab.id`), for the bar's look (the tab in
+  /// the middle); null for the app's own tabs.
+  final String? id;
+
+  /// 109 The More tab's list: the tabs past the fourth, opened on top.
+  final List<ShellTab> more;
+
+  /// 109 Whether this is the More tab.
+  bool get isMore => action?.type == PageActionType.more;
 
   /// 82.5 The owner's own icon, shown instead of [icon].
   final String? iconUrl;
@@ -34,6 +46,18 @@ class ShellTab {
 
   /// Identifies the tab's place in the router (labels may change).
   String get routeKey => location ?? 'action';
+
+  /// 109 The same tab with [entries] in its More list.
+  ShellTab withMore(List<ShellTab> entries) => ShellTab(
+    icon: icon,
+    label: label,
+    location: location,
+    pushLocation: pushLocation,
+    action: action,
+    iconUrl: iconUrl,
+    id: id,
+    more: entries,
+  );
 }
 
 /// A screen that is a bottom tab when the tabs include it, and a pushed

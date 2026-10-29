@@ -5,7 +5,8 @@ import { useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { FontPicker } from "@/components/font-picker";
 import { MediaPicker } from "@/components/media-picker";
 import type { DashKey } from "@/i18n/dashboard";
-import { IconPicker } from "@/app/dashboard/pages/controls";
+import { IconPicker, OwnIcon } from "@/app/dashboard/pages/controls";
+import { newBlockId } from "@/lib/pages/defaults";
 import type { ScreenOption } from "@/lib/pages/sources";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import {
@@ -15,14 +16,18 @@ import {
   STUDIO_HEADER_TYPES,
   STUDIO_LOOPS,
   STUDIO_PRESSES,
+  LAYOUT_LIMITS,
+  TAB_LABELS,
   type Action,
   type ItemSource,
   type LanguageCode,
+  type LayoutTab,
   type StudioHeader,
   type StudioNode,
   type StudioPage,
   type StudioSides,
   type StudioSize,
+  type TabBarStyle,
 } from "@/lib/pages/types";
 import { holdsChildren, placeOf } from "@/lib/studio/edit";
 import { newNodeId } from "@/lib/studio/elements";
@@ -40,6 +45,12 @@ interface Props {
   page: StudioPage;
   node: StudioNode | null;
   headerSelected: boolean;
+  /** 109 The bottom tabs selected: they and the bar's look are edited here. */
+  tabsSelected: boolean;
+  tabs: LayoutTab[];
+  tabBar: TabBarStyle | undefined;
+  onTabs: (tabs: LayoutTab[]) => void;
+  onTabBar: (style: TabBarStyle | undefined) => void;
   parentLabel: string;
   tab: InspectorTab;
   onTab: (tab: InspectorTab) => void;
@@ -78,8 +89,8 @@ export function Inspector(props: Props) {
   const t = useDashT();
   const { node } = props;
   const source = node?.source ?? null;
-  const title = props.headerSelected ? t("studio.header") : node ? (node.name ?? elementLabel(t, node.type, source)) : t("studio.pageBackground");
-  const icon = props.headerSelected ? "web_asset" : node ? "smart_button" : "description";
+  const title = props.tabsSelected ? t("studio.tabBar") : props.headerSelected ? t("studio.header") : node ? (node.name ?? elementLabel(t, node.type, source)) : t("studio.pageBackground");
+  const icon = props.tabsSelected ? "tab" : props.headerSelected ? "web_asset" : node ? "smart_button" : "description";
   return (
     <aside aria-label={t("studio.design")} className="flex min-h-0 flex-col bg-white text-[13px]" style={{ flex: "1 1 300px", maxWidth: 330, minWidth: 260, borderInlineStart: "1px solid var(--studio-line)" }}>
       <div className="flex items-center gap-2 px-4 py-3.5" style={{ borderBottom: "1px solid var(--studio-line)" }}>
@@ -104,7 +115,9 @@ export function Inspector(props: Props) {
         ) : null}
       </div>
       {node && !props.headerSelected ? <Tools {...props} node={node} /> : null}
-      {props.headerSelected ? (
+      {props.tabsSelected ? (
+        <TabsPanel {...props} />
+      ) : props.headerSelected ? (
         <HeaderPanel {...props} />
       ) : !node ? (
         <PagePanel {...props} />
@@ -1213,6 +1226,139 @@ function HeaderPanel(props: Props) {
             />
           </div>
         </details>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * 109 The bottom tabs, as in the dashboard's editor and more: each tab's
+ * name (in the language being edited), icon or own picture and what it
+ * opens, in order; past five, the fifth on is in the More tab. Then how the
+ * bar looks: its colours, corners, the space around it, the names' font and
+ * when they show, and a round button in the middle.
+ */
+function TabsPanel(props: Props) {
+  const t = useDashT();
+  const { tabs } = props;
+  const style = props.tabBar ?? {};
+  const setStyle = (patch: Partial<TabBarStyle>) => {
+    const next: Record<string, unknown> = { ...style, ...patch };
+    for (const key of Object.keys(next)) if (next[key] === undefined || next[key] === null || next[key] === 0 || next[key] === "always") delete next[key];
+    props.onTabBar(Object.keys(next).length ? (next as TabBarStyle) : undefined);
+  };
+  const setTab = (i: number, patch: Partial<LayoutTab>) => props.onTabs(tabs.map((x, j) => (j === i ? { ...x, ...patch } : x)));
+  const move = (i: number, by: -1 | 1) => {
+    const next = [...tabs];
+    const [tab] = next.splice(i, 1);
+    next.splice(i + by, 0, tab!);
+    props.onTabs(next);
+  };
+  const other = props.lang !== props.defaultLang;
+  const labelOf = (tab: LayoutTab) => (other ? ((tab.translations?.[props.lang]?.label as string | undefined) ?? "") : tab.label);
+  const setLabel = (i: number, label: string) => {
+    const tab = tabs[i]!;
+    if (!other) setTab(i, { label });
+    else setTab(i, { translations: { ...tab.translations, [props.lang]: { ...tab.translations?.[props.lang], label } } });
+  };
+  const add = () =>
+    props.onTabs([...tabs, { id: newBlockId("t"), label: "", icon: "star", target: props.pages[0] ? { type: "page", page_slug: props.pages[0].slug } : { type: "screen", screen: (props.screens[0]?.value ?? "account") as Action["screen"] } }]);
+  // The middle of the bar: a tab only when three or five show and it isn't More.
+  const shown = tabs.length > LAYOUT_LIMITS.shownTabs ? LAYOUT_LIMITS.shownTabs : tabs.length;
+  const middle = shown % 2 === 1 && shown >= 3 ? tabs[(shown - 1) / 2] : undefined;
+  const field = "h-[34px] w-full rounded-lg bg-white px-2.5 text-[13px]";
+  const line = { border: "1px solid var(--studio-line)" };
+  return (
+    <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="flex flex-col gap-3.5 px-4 py-3.5">
+        <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
+          {t("studio.tabBarHint")}
+        </p>
+        <ol className="m-0 flex list-none flex-col gap-2.5 p-0">
+          {tabs.map((tab, i) => (
+            <li key={tab.id} data-studio-tab-edit={tab.id} className="flex flex-col gap-2 rounded-xl p-2.5" style={line}>
+              <div className="flex items-center gap-1">
+                <b className="flex-1">{t("studio.tabN", { n: i + 1 })}</b>
+                {tabs.length > LAYOUT_LIMITS.shownTabs && i >= LAYOUT_LIMITS.shownTabs - 1 ? (
+                  <span className="rounded-full px-2 py-px text-[11px]" style={{ background: "#F4EFE6" }}>
+                    {t("studio.tabInMore")}
+                  </span>
+                ) : null}
+                <button type="button" aria-label={t("studio.tabUp", { n: i + 1 })} title={t("studio.tabUp", { n: i + 1 })} disabled={i === 0} onClick={() => move(i, -1)} className="h-7 w-7 rounded-lg border-0 bg-transparent disabled:opacity-40">
+                  <Glyph name="arrow_upward" size={16} />
+                </button>
+                <button type="button" aria-label={t("studio.tabDown", { n: i + 1 })} title={t("studio.tabDown", { n: i + 1 })} disabled={i === tabs.length - 1} onClick={() => move(i, 1)} className="h-7 w-7 rounded-lg border-0 bg-transparent disabled:opacity-40">
+                  <Glyph name="arrow_downward" size={16} />
+                </button>
+                <button
+                  type="button"
+                  aria-label={t("studio.tabRemove", { n: i + 1 })}
+                  title={t("studio.tabRemove", { n: i + 1 })}
+                  disabled={tabs.length <= LAYOUT_LIMITS.minTabs}
+                  onClick={() => props.onTabs(tabs.filter((x) => x.id !== tab.id))}
+                  className="h-7 w-7 rounded-lg border-0 bg-transparent disabled:opacity-40"
+                >
+                  <Glyph name="delete" size={16} />
+                </button>
+              </div>
+              <label className="flex flex-col gap-1">
+                <span style={{ color: "var(--studio-muted)" }}>{t("studio.tabName")}</span>
+                <input value={labelOf(tab)} placeholder={other ? tab.label : undefined} maxLength={24} onChange={(e) => setLabel(i, e.target.value)} className={field} style={line} dir={props.lang === "ar" ? "rtl" : undefined} />
+              </label>
+              <IconPicker id={`tab-${tab.id}-icon`} label={t("studio.tabIcon")} value={tab.icon} onChange={(icon) => setTab(i, { icon: icon ?? tab.icon })} />
+              <OwnIcon
+                id={`tab-${tab.id}-own-icon`}
+                value={tab.icon_url}
+                onChange={(icon_url) => {
+                  if (icon_url) setTab(i, { icon_url });
+                  else props.onTabs(tabs.map((x, j) => (j === i ? (({ icon_url: _drop, ...rest }) => (void _drop, rest))(x) : x)));
+                }}
+              />
+              <TapAction id={`tab-${tab.id}-target`} action={tab.target} onChange={(target) => target && setTab(i, { target })} pages={props.pages} sources={props.sources} screens={props.screens} pickable={props.pickable} />
+            </li>
+          ))}
+        </ol>
+        <button type="button" disabled={tabs.length >= LAYOUT_LIMITS.maxTabs} onClick={add} className="flex h-9 items-center justify-center gap-1.5 rounded-lg bg-white font-bold disabled:opacity-50" style={line}>
+          <Glyph name="add" size={18} />
+          {t("studio.addTab")}
+        </button>
+        <Rule />
+        <Heading>{t("studio.tabBarLook")}</Heading>
+        <Colors
+          palette={props.palette}
+          rows={[
+            { label: t("studio.background"), value: style.background, onChange: (background) => setStyle({ background }) },
+            { label: t("studio.tabActive"), value: style.active, onChange: (active) => setStyle({ active }) },
+            { label: t("studio.tabInactive"), value: style.inactive, onChange: (inactive) => setStyle({ inactive }) },
+          ]}
+        />
+        <details>
+          <summary className="cursor-pointer">{t("studio.inDark")}</summary>
+          <div className="flex flex-col gap-2.5 pt-2">
+            <Colors palette={props.palette} rows={[{ label: t("studio.background"), value: style.dark_background, onChange: (dark_background) => setStyle({ dark_background }) }]} />
+          </div>
+        </details>
+        <Slider label={t("studio.tabBarRadius")} value={style.radius ?? 0} min={0} max={32} onChange={(radius) => setStyle({ radius })} />
+        <Slider label={t("studio.tabBarMargin")} value={style.margin ?? 0} min={0} max={24} onChange={(margin) => setStyle({ margin })} />
+        <FontPicker id="tab-bar-font" label={t("studio.tabBarFont")} value={style.font ?? ""} labels={props.fontLabels} compact placeholder={t("studio.appFont")} onChange={(family) => setStyle({ font: family || null })} />
+        <div role="group" aria-label={t("studio.tabLabels")} className="flex flex-col gap-1.5">
+          <span style={{ color: "var(--studio-muted)" }}>{t("studio.tabLabels")}</span>
+          <div className="flex gap-1">
+            {TAB_LABELS.map((when) => {
+              const on = (style.labels ?? "always") === when;
+              return (
+                <button key={when} type="button" aria-pressed={on} onClick={() => setStyle({ labels: when })} className="h-8 flex-1 rounded-lg bg-white px-1.5 text-xs" style={on ? { border: "2px solid #3D63FF", color: "#1F3FB8", fontWeight: 700 } : line}>
+                  {t(`studio.tabLabels_${when}` as DashKey)}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        {middle ? <Check label={t("studio.tabCenter")} checked={style.center === middle.id} onChange={(on) => setStyle({ center: on ? middle.id : null })} /> : null}
+        <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
+          {middle ? `${t("studio.tabCenterHint")} ` : ""}
+          {t("studio.tabBarApp")}
+        </p>
       </div>
     </div>
   );

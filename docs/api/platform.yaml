@@ -1443,7 +1443,8 @@ components:
         tabs:
           type: array
           minItems: 2
-          maxItems: 5
+          maxItems: 10
+          description: 109 The bottom tabs, left to right. With more than five, the plugin serves the first four, a More tab and the rest in `Navigation.more` (app API).
           items:
             type: object
             required: [id, label, icon, target]
@@ -1456,6 +1457,9 @@ components:
                 type: object
                 description: '`Action` in the app API.'
               translations: { $ref: '#/components/schemas/Translations' }
+        tab_bar:
+          type: [object, 'null']
+          description: 109 How the bottom tabs look (`TabBar` in the app API), passed on as it is. Missing, the app's usual bar.
         menu:
           type: array
           maxItems: 12

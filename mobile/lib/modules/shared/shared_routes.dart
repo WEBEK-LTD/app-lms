@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/gate/app_gate.dart';
 import '../../core/routing/app_module.dart';
 import '../../core/routing/app_router.dart';
 import '../../core/routing/paths.dart';
 import '../../core/theme/app_icons.dart';
 import '../../core/theme/app_look.dart';
+import '../../core/theme/app_theme.dart';
+import '../../core/theme/fonts/remote_fonts.dart';
 import '../../core/web/web_page_screen.dart';
 import '../../core/widgets/app_nav_bar.dart';
 import '../../core/widgets/buttons.dart';
@@ -22,6 +25,7 @@ import 'account/settings_screen.dart';
 import 'auth/otp_screen.dart';
 import 'auth/sign_in_screen.dart';
 import 'auth/signup_screen.dart';
+import 'pages/more_tabs.dart';
 import 'pages/page_actions.dart';
 import 'pages/page_providers.dart';
 import 'links/link_open_screen.dart';
@@ -321,6 +325,25 @@ class MainShell extends ConsumerWidget {
                 ?.studio
                 ?.showTabs ==
             false;
+    // 109 The bar's look: its names' font when the app can show it, and
+    // the tab in the middle of three or five.
+    final tabBar = ref.watch(navigationProvider)?.tabBar;
+    final font = tabBar?.font;
+    final barFont =
+        font != null &&
+            (bundledFonts.contains(font) ||
+                ref.watch(remoteFontsProvider).contains(font))
+        ? font
+        : null;
+    final middle = tabs.length.isOdd && tabs.length >= 3
+        ? tabs.length ~/ 2
+        : null;
+    final centerIndex =
+        middle != null &&
+            tabBar?.center != null &&
+            tabs[middle].id == tabBar?.center
+        ? middle
+        : null;
     return Scaffold(
       body: shell,
       // 82.5 The side menu built in the dashboard.
@@ -331,6 +354,10 @@ class MainShell extends ConsumerWidget {
           ? null
           : AppNavBar(
               template: template,
+              // 109 The look the owner gave the bar.
+              style: tabBar,
+              fontFamily: barFont,
+              centerIndex: centerIndex,
               destinations: [
                 for (final tab in tabs)
                   NavDestination(
@@ -347,7 +374,10 @@ class MainShell extends ConsumerWidget {
               onSelected: (i) {
                 final tab = tabs[i];
                 final index = branchOf[i];
-                if (index != null) {
+                if (tab.isMore) {
+                  // 109 The tabs past the fourth.
+                  showMoreTabs(context, ref, tab.more);
+                } else if (index != null) {
                   shell.goBranch(
                     index,
                     initialLocation: index == shell.currentIndex,
