@@ -694,6 +694,13 @@
       "when": 1793226551481,
       "tag": "0098_rides",
       "breakpoints": true
+    },
+    {
+      "idx": 99,
+      "version": "5",
+      "when": 1793245617471,
+      "tag": "0099_teachers",
+      "breakpoints": true
     }
   ]
 }

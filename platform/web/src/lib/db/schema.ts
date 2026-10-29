@@ -118,6 +118,7 @@ import type { AnalyticsEventType, AnalyticsItemKind, AnalyticsMetric, InstallSto
 import type { PublishingChecklist, PublishingListing, PublishingMode, PublishingStatus, PublishingStore } from "../data/types";
 import type { AppErrorSource, MilestoneKind, ProductDay, SignupSource, TeamAlertKind, WatchedJob } from "../data/types";
 import type { NotificationAudience, NotificationCampaignStatus } from "../data/types";
+import type { TeacherStatus } from "../data/types";
 
 /**
  * MySQL schema (MySQL 8.0.13+ and MariaDB 10.3+, the usual cPanel servers).
@@ -2563,6 +2564,72 @@ export const courseReviews = mysqlTable(
     updatedAt: time("updated_at").notNull(),
   },
   (t) => [uniqueIndex("course_reviews_student_unique").on(t.appId, t.courseId, t.userId), index("course_reviews_app_idx").on(t.appId, t.createdAt)],
+);
+
+/** 105.3 An academy's teachers: added by number (or email), or applied from the app. */
+export const teachers = mysqlTable(
+  "teachers",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 80 }).notNull(),
+    phone: varchar("phone", { length: 24 }),
+    email: varchar("email", { length: 191 }),
+    userId: bigint("user_id", { mode: "number", unsigned: true }).references(() => hostedUsers.id, { onDelete: "set null" }),
+    photoAssetId: id("photo_asset_id"),
+    bio: text("bio").notNull(),
+    subjects: jsonText<string[]>("subjects").notNull(),
+    status: varchar("status", { length: 12 }).notNull().$type<TeacherStatus>(),
+    shareBp: int("share_bp").notNull(),
+    featured: boolean("featured").notNull().default(false),
+    note: varchar("note", { length: 500 }),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("teachers_app_phone_unique").on(t.appId, t.phone), uniqueIndex("teachers_app_email_unique").on(t.appId, t.email)],
+);
+
+/** 105.3 Students who follow a teacher (told of the teacher's new courses). */
+export const teacherFollows = mysqlTable(
+  "teacher_follows",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    teacherId: bigint("teacher_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => teachers.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.teacherId, t.userId] }), index("teacher_follows_user_idx").on(t.appId, t.userId)],
+);
+
+/** 105.3 Students' reviews of teachers: one per student and teacher. */
+export const teacherReviews = mysqlTable(
+  "teacher_reviews",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    teacherId: bigint("teacher_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => teachers.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    rating: int("rating").notNull(),
+    text: text("text").notNull(),
+    hidden: boolean("hidden").notNull().default(false),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("teacher_reviews_student_unique").on(t.teacherId, t.userId), index("teacher_reviews_app_idx").on(t.appId, t.createdAt)],
 );
 
 /** 63 Questions students ask in courses managed in the dashboard. */

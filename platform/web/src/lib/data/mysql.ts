@@ -50,6 +50,7 @@ import type {
   UserPatch,
 } from "./store";
 import { BuildRunningError, DuplicateEmailError } from "./store";
+import type { Teacher, TeacherInput, TeacherPatch, TeacherReview, TeacherStatus } from "./types";
 import type { Courier, CourierInput, CourierPatch, DeliveryService, DeliveryServiceInput, DeliverySettings, Shipment, ShipmentInput, ShipmentPatch, ShipmentQuery, ShipmentStatus } from "./types";
 // 51 Media and storage
 import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, StoragePackPatch } from "./types";
@@ -2739,6 +2740,165 @@ export class MysqlStore implements DataStore {
     const t = schema.deliveryServices;
     // Shipments keep its name; their service_id is set to null by the foreign key.
     await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  // 105.3 Academies with many teachers
+
+  async listTeachers(appId: string, filter: { statuses?: TeacherStatus[] } = {}): Promise<Teacher[]> {
+    const t = schema.teachers;
+    if (filter.statuses && filter.statuses.length === 0) return [];
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), filter.statuses ? inArray(t.status, filter.statuses) : undefined))
+        .orderBy(desc(t.featured), asc(t.name), asc(t.id)),
+    );
+  }
+
+  async getTeacher(appId: string, id: number): Promise<Teacher | null> {
+    const t = schema.teachers;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async findTeacher(appId: string, who: { phone: string | null; email: string | null }): Promise<Teacher | null> {
+    const t = schema.teachers;
+    const match = who.phone ? eq(t.phone, who.phone) : who.email ? eq(t.email, who.email.toLowerCase()) : null;
+    if (!match) return null;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), match)).limit(1));
+    return row ?? null;
+  }
+
+  async findTeacherByUser(appId: string, userId: number): Promise<Teacher | null> {
+    const t = schema.teachers;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.userId, userId))).limit(1));
+    return row ?? null;
+  }
+
+  async createTeacher(input: TeacherInput, now: Date): Promise<{ ok: true; teacher: Teacher } | { ok: false; reason: "duplicate" }> {
+    const values = { ...input, note: null, createdAt: now, updatedAt: now };
+    try {
+      const [result] = await this.run((db) => db.insert(schema.teachers).values(values));
+      return { ok: true, teacher: { id: Number(result.insertId), ...values } };
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return { ok: false, reason: "duplicate" };
+      throw error;
+    }
+  }
+
+  async updateTeacher(appId: string, id: number, patch: TeacherPatch, now: Date): Promise<{ ok: boolean; reason?: "duplicate" }> {
+    const t = schema.teachers;
+    try {
+      const [result] = await this.run((db) => db.update(t).set({ ...patch, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
+      return { ok: result.affectedRows === 1 };
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return { ok: false, reason: "duplicate" };
+      throw error;
+    }
+  }
+
+  async deleteTeacher(appId: string, id: number): Promise<void> {
+    // Follows and reviews go by the foreign keys.
+    const t = schema.teachers;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async setTeacherFollow(input: { appId: string; teacherId: number; userId: number; follow: boolean; now: Date }): Promise<void> {
+    const f = schema.teacherFollows;
+    if (!input.follow) {
+      await this.run((db) => db.delete(f).where(and(eq(f.appId, input.appId), eq(f.teacherId, input.teacherId), eq(f.userId, input.userId))));
+      return;
+    }
+    if (!(await this.getTeacher(input.appId, input.teacherId))) return;
+    await this.run((db) =>
+      db
+        .insert(f)
+        .values({ appId: input.appId, teacherId: input.teacherId, userId: input.userId, createdAt: input.now })
+        .onDuplicateKeyUpdate({ set: { teacherId: input.teacherId } }),
+    );
+  }
+
+  async isFollowingTeacher(appId: string, teacherId: number, userId: number): Promise<boolean> {
+    const f = schema.teacherFollows;
+    const [row] = await this.run((db) =>
+      db
+        .select({ userId: f.userId })
+        .from(f)
+        .where(and(eq(f.appId, appId), eq(f.teacherId, teacherId), eq(f.userId, userId)))
+        .limit(1),
+    );
+    return Boolean(row);
+  }
+
+  async listTeacherFollowerIds(appId: string, teacherId: number): Promise<number[]> {
+    const f = schema.teacherFollows;
+    const rows = await this.run((db) => db.select({ userId: f.userId }).from(f).where(and(eq(f.appId, appId), eq(f.teacherId, teacherId))));
+    return rows.map((r) => r.userId);
+  }
+
+  async countTeacherFollowers(appId: string): Promise<{ teacherId: number; count: number }[]> {
+    const f = schema.teacherFollows;
+    const rows = await this.run((db) => db.select({ teacherId: f.teacherId, n: count() }).from(f).where(eq(f.appId, appId)).groupBy(f.teacherId));
+    return rows.map((r) => ({ teacherId: r.teacherId, count: Number(r.n) }));
+  }
+
+  async saveTeacherReview(input: { appId: string; teacherId: number; userId: number; rating: number; text: string; now: Date }): Promise<TeacherReview> {
+    const r = schema.teacherReviews;
+    await this.run((db) =>
+      db
+        .insert(r)
+        .values({ appId: input.appId, teacherId: input.teacherId, userId: input.userId, rating: input.rating, text: input.text, hidden: false, createdAt: input.now, updatedAt: input.now })
+        .onDuplicateKeyUpdate({ set: { rating: input.rating, text: input.text, updatedAt: input.now } }),
+    );
+    const saved = await this.getTeacherReviewOf(input.appId, input.teacherId, input.userId);
+    if (!saved) throw new Error("The review wasn't saved.");
+    return saved;
+  }
+
+  async getTeacherReview(appId: string, id: number): Promise<TeacherReview | null> {
+    const r = schema.teacherReviews;
+    const [row] = await this.run((db) => db.select().from(r).where(and(eq(r.appId, appId), eq(r.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async getTeacherReviewOf(appId: string, teacherId: number, userId: number): Promise<TeacherReview | null> {
+    const r = schema.teacherReviews;
+    const [row] = await this.run((db) =>
+      db
+        .select()
+        .from(r)
+        .where(and(eq(r.appId, appId), eq(r.teacherId, teacherId), eq(r.userId, userId)))
+        .limit(1),
+    );
+    return row ?? null;
+  }
+
+  async listTeacherReviews(input: { appId: string; teacherId?: number; hidden?: boolean; offset: number; limit: number }): Promise<{ items: TeacherReview[]; total: number }> {
+    const r = schema.teacherReviews;
+    const where = and(eq(r.appId, input.appId), input.teacherId !== undefined ? eq(r.teacherId, input.teacherId) : undefined, input.hidden !== undefined ? eq(r.hidden, input.hidden) : undefined);
+    const [items, [total]] = await Promise.all([
+      this.run((db) => db.select().from(r).where(where).orderBy(desc(r.createdAt), desc(r.id)).limit(input.limit).offset(input.offset)),
+      this.run((db) => db.select({ n: count() }).from(r).where(where)),
+    ]);
+    return { items, total: Number(total?.n ?? 0) };
+  }
+
+  async countTeacherRatings(appId: string): Promise<{ teacherId: number; rating: number; count: number }[]> {
+    const r = schema.teacherReviews;
+    const rows = await this.run((db) =>
+      db
+        .select({ teacherId: r.teacherId, rating: r.rating, n: count() })
+        .from(r)
+        .where(and(eq(r.appId, appId), eq(r.hidden, false)))
+        .groupBy(r.teacherId, r.rating),
+    );
+    return rows.map((row) => ({ teacherId: row.teacherId, rating: row.rating, count: Number(row.n) }));
+  }
+
+  async updateTeacherReview(appId: string, id: number, patch: { hidden: boolean; updatedAt: Date }): Promise<void> {
+    const r = schema.teacherReviews;
+    await this.run((db) => db.update(r).set(patch).where(and(eq(r.appId, appId), eq(r.id, id))));
   }
 
   async listCouriers(appId: string): Promise<Courier[]> {
