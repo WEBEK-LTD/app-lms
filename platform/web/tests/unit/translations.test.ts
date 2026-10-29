@@ -44,6 +44,9 @@ describe("43 Yallapp's own texts in Arabic and Turkish", () => {
       const missing = texts.filter((t) => hasWords(t) && builtInText(t, lang) === null);
       expect(missing, `missing in ${lang}`).toEqual([]);
     }
+    // 110 A text without the app's name has its own entry: it isn't one that only looks like a text with a name.
+    const byPattern = texts.filter((t) => hasWords(t) && !t.includes("{") && !t.includes("our app") && !Object.hasOwn(PAGE_TEXTS_AR, t));
+    expect(byPattern).toEqual([]);
   });
 
   it("keeps placeholders and the HTML of every entry, and has no stale ones", () => {
@@ -70,6 +73,17 @@ describe("43 Yallapp's own texts in Arabic and Turkish", () => {
     expect(builtInText("<h2>Welcome to our app</h2>", "ar")).toBe("<h2>مرحبًا بك في تطبيقنا</h2>");
     expect(builtInText("<h2>Welcome to Nile &amp; Co</h2>", "tr")).toBe("<h2>Nile &amp; Co uygulamasına hoş geldiniz</h2>");
     expect(builtInText("Home", "tr")).toBe("Ana sayfa");
+    // 110 English words in the name's place are not a name: the school design's slide has its own words.
+    expect(builtInText("Welcome to our school", "ar")).toBe("مرحبًا بكم في مدرستنا");
+    expect(builtInText("Welcome to our school", "tr")).toBe("Okulumuza hoş geldiniz");
+    expect(builtInText("Welcome to the city", "ar")).toBeNull();
+    expect(builtInText("<h2>Welcome to your store</h2>", "tr")).toBeNull();
+    expect(builtInText("Welcome to The Harbour Post", "ar")).toBe("مرحبًا بك في The Harbour Post");
+    // 110 A number with a one-letter unit is a text to translate too.
+    expect(hasWords("48 h")).toBe(true);
+    expect(hasWords("24/7")).toBe(false);
+    expect(builtInText("48 h", "ar")).toBe("48 ساعة");
+    expect(builtInText("48 h", "tr")).toBe("48 sa");
     // The owner's own text, and languages without Yallapp's translations.
     expect(builtInText("Start here", "ar")).toBeNull();
     expect(builtInText("Home", "fr")).toBeNull();

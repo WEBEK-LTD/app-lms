@@ -172,6 +172,7 @@ export const PAGE_TEXTS_AR: Record<string, string> = {
   "2 years": "سنتان",
   Warranty: "الضمان",
   Delivery: "التوصيل",
+  "48 h": "48 ساعة",
   "7 days": "7 أيام",
   Returns: "الإرجاع",
   "Do products come with a warranty?": "هل تأتي المنتجات بضمان؟",
@@ -180,6 +181,7 @@ export const PAGE_TEXTS_AR: Record<string, string> = {
   "Open Orders to see where your order is.": "افتح «الطلبات» لترى أين وصل طلبك.",
   // Restaurant designs
   "<h2>Welcome to {app}</h2><p>Order your favorites for pickup or delivery.</p>": "<h2>مرحبًا بك في {app}</h2><p>اطلب أطباقك المفضلة للاستلام أو التوصيل.</p>",
+  "<p>Order your favorites for pickup or delivery.</p>": "<p>اطلب أطباقك المفضلة للاستلام أو التوصيل.</p>",
   "Our menu": "قائمتنا",
   "Our favorites": "المفضّلة لدينا",
   "Something new": "شيء جديد",
@@ -372,6 +374,7 @@ export const PAGE_TEXTS_AR: Record<string, string> = {
   "<h3>About {app}</h3><p>Write what your magazine is about and who writes it.</p>": "<h3>عن {app}</h3><p>اكتب عن موضوع مجلتك ومن يكتب فيها.</p>",
   "<h2>Welcome to {app}</h2><p>New posts every week. Save the ones you like to read later.</p>":
     "<h2>مرحبًا بك في {app}</h2><p>مقالات جديدة كل أسبوع. احفظ ما يعجبك لتقرأه لاحقًا.</p>",
+  "<p>New posts every week. Save the ones you like to read later.</p>": "<p>مقالات جديدة كل أسبوع. احفظ ما يعجبك لتقرأه لاحقًا.</p>",
   "Latest posts": "أحدث المقالات",
   "About the author": "عن الكاتب",
   Writer: "كاتب",
@@ -509,6 +512,7 @@ export const PAGE_TEXTS_AR: Record<string, string> = {
   "School news": "أخبار المدرسة",
   "My school": "مدرستي",
   "Classroom": "الفصل",
+  "Welcome to our school": "مرحبًا بكم في مدرستنا",
   "The timetable, homework, grades and news in one place": "الجدول والواجبات والدرجات والأخبار في مكان واحد",
   "How do I sign in?": "كيف أسجّل الدخول؟",
   "With the mobile number you gave the school. A parent sees each of their children.": "برقم الجوال الذي أعطيته للمدرسة. يرى ولي الأمر كل أبنائه.",
@@ -524,6 +528,8 @@ export const PAGE_TEXTS_AR: Record<string, string> = {
   "Parent": "ولي أمر",
   "<h2>Welcome</h2><p>{app} keeps families and teachers close: the timetable, homework, grades and news.</p>": "<h2>أهلًا بك</h2><p>يقرّب {app} بين الأسر والمعلّمين: الجدول والواجبات والدرجات والأخبار.</p>",
   "<h2>Welcome</h2><p>our app keeps families and teachers close: the timetable, homework, grades and news.</p>": "<h2>أهلًا بك</h2><p>يقرّب تطبيقنا بين الأسر والمعلّمين: الجدول والواجبات والدرجات والأخبار.</p>",
+  "<p>{app} keeps families and teachers close: the timetable, homework, grades and news.</p>": "<p>يقرّب {app} بين الأسر والمعلّمين: الجدول والواجبات والدرجات والأخبار.</p>",
+  "<p>our app keeps families and teachers close: the timetable, homework, grades and news.</p>": "<p>يقرّب تطبيقنا بين الأسر والمعلّمين: الجدول والواجبات والدرجات والأخبار.</p>",
   "Students": "الطلاب",
   "School office": "إدارة المدرسة",
   // 105.9 Live taxi designs

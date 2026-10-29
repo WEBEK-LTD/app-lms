@@ -3,6 +3,7 @@ import type { DataStore } from "../../data/store";
 import { ENGINES, isAppType } from "../../app/kinds";
 import type { App } from "../../data/types";
 import type { ItemSource } from "../../pages/types";
+import { offeredTypes } from "../../rides/settings";
 import { connectorFor } from "../connectors";
 import type { Connector } from "../connectors/types";
 
@@ -67,6 +68,14 @@ export async function pickableContent(
     if (engine.source === "delivery_services") {
       const services = (await deps.store.listDeliveryServices(app.id)).filter((s) => s.active);
       out.items.delivery_services = services.map((s) => ({ id: String(s.id), title: s.name }));
+    }
+    // 110 A food company's restaurants and a ride company's vehicle types the app shows.
+    if (engine.source === "restaurants") {
+      const restaurants = (await deps.store.listRestaurants(app.id)).filter((r) => r.active).slice(0, 200);
+      out.items.restaurants = restaurants.map((r) => ({ id: String(r.id), title: r.name }));
+    }
+    if (engine.source === "vehicle_types") {
+      out.items.vehicle_types = offeredTypes(await deps.store.listVehicleTypes(app.id)).map((t) => ({ id: String(t.id), title: t.name }));
     }
     return out;
   }

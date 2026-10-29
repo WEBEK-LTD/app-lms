@@ -1,19 +1,28 @@
 /// 33 Pictures of the ready-made designs (platform/web/src/lib/pages/designs)
 /// in the real app, to review them. Skipped unless run with the designs as
-/// JSON (an applied, validated `Layout` each, as the hosted API keeps them)
-/// and a folder for the pictures:
+/// JSON (an applied, validated `Layout` each, as the hosted API keeps them,
+/// with Yallapp's translations filled in) and a folder for the pictures:
 ///
 ///   flutter test test/screenshots/design_screenshots_test.dart \
 ///     --dart-define=YALLAPP_DESIGNS=/path/designs.json \
-///     --dart-define=YALLAPP_SHOTS_OUT=/path/out [--plain-name academy]
+///     --dart-define=YALLAPP_SHOTS_OUT=/path/out \
+///     [--dart-define=YALLAPP_LANG=ar] [--plain-name academy]
+///
+/// 110 platform/web/tests/unit/design-layouts-export.test.ts writes the JSON
+/// (`YALLAPP_DESIGNS_OUT=/path/designs.json npx vitest run
+/// tests/unit/design-layouts-export.test.ts`). Every design of every kind,
+/// in English, Arabic or Turkish (`YALLAPP_LANG`), with the side menu and
+/// the design's own pictures (read from `YALLAPP_PICTURES`, by default the
+/// platform's public/design-pictures). Each design gives three pictures:
+/// `<id>-<lang>-top.png`, `-mid.png` and `-more.png`, further down.
 @Tags(['screenshots'])
 library;
 
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,9 +36,19 @@ import 'support/screens.dart';
 
 const _designs = String.fromEnvironment('YALLAPP_DESIGNS');
 const _out = String.fromEnvironment('YALLAPP_SHOTS_OUT');
+const _lang = String.fromEnvironment('YALLAPP_LANG', defaultValue: 'en');
+const _pictures = String.fromEnvironment(
+  'YALLAPP_PICTURES',
+  defaultValue: '../platform/web/public/design-pictures',
+);
+
+/// Where the designs' pictures are served in the JSON (`pictureBase`).
+const _pictureHost = 'https://yallapp.test/design-pictures/';
+
+typedef _Sample = (String image, String title, String? price);
 
 /// Demo entries for each list, with the demo pictures.
-const _samples = <String, List<(String, String, String?)>>{
+const _samplesEn = <String, List<_Sample>>{
   'courses': [
     ('course-ux', 'UI Design Fundamentals', '₺450'),
     ('course-python', 'Python for Beginners', 'Free'),
@@ -81,9 +100,104 @@ const _samples = <String, List<(String, String, String?)>>{
     ('campaign-lunch', 'School lunches', '38% raised'),
     ('campaign-coats', 'Warm coats', '81% raised'),
   ],
+  'delivery_services': [
+    ('banner-store', 'Same-day delivery', null),
+    ('product-gift', 'Express (2 hours)', null),
+    ('home-studio', 'Moving small items', null),
+  ],
+  'restaurants': [
+    ('dish-burger', 'Burger House', null),
+    ('dish-breakfast', 'Sabah Breakfast', null),
+    ('dish-cheesecake', 'Sweet Corner', null),
+  ],
+  'vehicle_types': [
+    ('home-studio', 'Economy', null),
+    ('home-villa', 'Comfort', null),
+    ('home-duplex', 'Van', null),
+  ],
+  'school_news': [
+    ('article-books', 'Book fair next Thursday', null),
+    ('article-stadium', 'Sports day results', null),
+    ('article-market', 'Parents meeting on Monday', null),
+  ],
 };
 
-const _categories = {
+/// The same entries in Arabic, so an Arabic picture has no English in it.
+const _samplesAr = <String, List<_Sample>>{
+  'courses': [
+    ('course-ux', 'أساسيات تصميم الواجهات', '٤٥٠ ₺'),
+    ('course-python', 'بايثون للمبتدئين', 'مجاني'),
+    ('course-english', 'إنجليزية الأعمال', '٣٨٠ ₺'),
+    ('course-photo', 'التصوير بالهاتف', '٢٩٠ ₺'),
+  ],
+  'products': [
+    ('product-roses', 'باقة ورد أحمر', '٦٥٠ ₺'),
+    ('product-orchid', 'أوركيد أبيض', '٨٩٠ ₺'),
+    ('product-candle', 'شمعة التين', '٢٤٠ ₺'),
+    ('product-gift', 'صندوق هدايا', '٥٢٠ ₺'),
+    ('product-tulips', 'توليب الربيع', '٤٨٠ ₺'),
+    ('product-delight', 'راحة الحلقوم', '١٩٠ ₺'),
+  ],
+  'dishes': [
+    ('dish-burger', 'برجر مشوي', '٢٤٠ ج.م'),
+    ('dish-wrap', 'راب دجاج', '١٦٠ ج.م'),
+    ('drink-coffee', 'فلات وايت', '٨٥ ج.م'),
+    ('dish-soup', 'شوربة عدس', '٩٠ ج.م'),
+    ('dish-cheesecake', 'تشيز كيك', '١٢٠ ج.م'),
+    ('drink-juice', 'برتقال طازج', '٧٠ ج.م'),
+  ],
+  'services': [
+    ('service-cut', 'قص وتصفيف الشعر', '٤٥٠ ج.م'),
+    ('service-colour', 'صبغة', '١٬٢٠٠ ج.م'),
+    ('service-massage', 'مساج استرخاء', '٩٠٠ ج.م'),
+    ('service-facial', 'تنظيف البشرة', '٧٥٠ ج.م'),
+  ],
+  'listings': [
+    ('home-nile', 'شقة بإطلالة على النيل', '٨٬٥٠٠٬٠٠٠ ج.م'),
+    ('home-villa', 'فيلا بحديقة', '٢١٬٠٠٠٬٠٠٠ ج.م'),
+    ('home-duplex', 'دوبلكس في المعادي', '١٢٬٤٠٠٬٠٠٠ ج.م'),
+    ('home-studio', 'استوديو في الزمالك', '٤٬٢٥٠٬٠٠٠ ج.م'),
+  ],
+  'articles': [
+    ('article-harbour', 'خط عبّارات جديد في الميناء', null),
+    ('article-market', 'سوق السبت ينتقل إلى الساحة', null),
+    ('article-stadium', 'ليلة الديربي: ماذا تتوقع', null),
+    ('article-books', 'خمسة كتب لعطلة طويلة', null),
+  ],
+  'events': [
+    ('event-jazz', 'جاز على السطح', '٣٥٠ ₺'),
+    ('event-film', 'ليلة سينما في الهواء الطلق', 'مجاني'),
+    ('event-ceramics', 'ورشة خزف', '٦٠٠ ₺'),
+    ('event-talk', 'حديث عن التصميم', '١٥٠ ₺'),
+  ],
+  'campaigns': [
+    ('campaign-parcels', 'طرود غذائية للشتاء', 'جُمع ٦٢٪'),
+    ('campaign-lunch', 'وجبات مدرسية', 'جُمع ٣٨٪'),
+    ('campaign-coats', 'معاطف دافئة', 'جُمع ٨١٪'),
+  ],
+  'delivery_services': [
+    ('banner-store', 'توصيل في نفس اليوم', null),
+    ('product-gift', 'سريع (ساعتان)', null),
+    ('home-studio', 'نقل أغراض صغيرة', null),
+  ],
+  'restaurants': [
+    ('dish-burger', 'بيت البرجر', null),
+    ('dish-breakfast', 'فطور الصباح', null),
+    ('dish-cheesecake', 'ركن الحلويات', null),
+  ],
+  'vehicle_types': [
+    ('home-studio', 'اقتصادي', null),
+    ('home-villa', 'مريح', null),
+    ('home-duplex', 'فان', null),
+  ],
+  'school_news': [
+    ('article-books', 'معرض الكتاب الخميس القادم', null),
+    ('article-stadium', 'نتائج اليوم الرياضي', null),
+    ('article-market', 'اجتماع أولياء الأمور يوم الاثنين', null),
+  ],
+};
+
+const _categoriesEn = {
   'courses': ['Design', 'Languages', 'Business', 'Photography'],
   'products': ['Flowers', 'Gifts', 'Sweets', 'Home'],
   'dishes': ['Breakfast', 'Mains', 'Drinks', 'Desserts'],
@@ -91,18 +205,42 @@ const _categories = {
   'articles': ['City', 'Sport', 'Culture', 'Business'],
 };
 
+const _categoriesAr = {
+  'courses': ['تصميم', 'لغات', 'أعمال', 'تصوير'],
+  'products': ['ورود', 'هدايا', 'حلويات', 'المنزل'],
+  'dishes': ['فطور', 'أطباق رئيسية', 'مشروبات', 'حلويات'],
+  'services': ['شعر', 'أظافر', 'بشرة'],
+  'articles': ['المدينة', 'رياضة', 'ثقافة', 'أعمال'],
+};
+
+final _samples = _lang == 'ar' ? _samplesAr : _samplesEn;
+final _categories = _lang == 'ar' ? _categoriesAr : _categoriesEn;
+
+/// The texts of a block, a tab or an entry in [_lang], from its
+/// `translations` (as the hosted API serves them), without them.
+Map<String, dynamic> _translated(Map<String, dynamic> value) {
+  final out = {...value}..remove('translations');
+  final texts = (value['translations'] as Map?)?[_lang] as Map?;
+  for (final MapEntry(:key, :value) in (texts ?? const {}).entries) {
+    if (value is String && value.trim().isNotEmpty && out.containsKey(key)) {
+      out[key as String] = value;
+    }
+  }
+  return out;
+}
+
 /// A LayoutBlock as the hosted API serves it: lists filled, nothing empty.
 Map<String, dynamic>? _resolve(Map<String, dynamic> block, String kind) {
   final out = <String, dynamic>{};
-  for (final MapEntry(:key, :value) in block.entries) {
+  for (final MapEntry(:key, :value) in _translated(block).entries) {
     if (key == 'visibility' || key == 'query') continue;
     if ((key == 'action' || key == 'see_all') && value == null) continue;
     out[key] = value is List
         ? [
             for (final entry in value)
-              entry is Map
+              entry is Map<String, dynamic>
                   ? {
-                      for (final e in entry.entries)
+                      for (final e in _translated(entry).entries)
                         if (!(e.key == 'action' && e.value == null))
                           e.key: e.value,
                     }
@@ -115,7 +253,8 @@ Map<String, dynamic>? _resolve(Map<String, dynamic> block, String kind) {
   switch (block['type']) {
     case 'items':
       final query = block['query'] as Map<String, dynamic>;
-      final samples = _samples[list]!;
+      final samples = _samples[list];
+      if (samples == null) throw StateError('No demo entries for $list');
       final limit = (query['limit'] as int).clamp(1, samples.length);
       out['items'] = [
         for (final (i, (image, title, price)) in samples.take(limit).indexed)
@@ -127,6 +266,7 @@ Map<String, dynamic>? _resolve(Map<String, dynamic> block, String kind) {
               priceLabel: price,
             ),
             'subtitle': null,
+            'badge': null,
             'image_url': demoImage(image),
           },
       ];
@@ -148,36 +288,81 @@ AppType _appType(String engine) => switch (engine) {
   'real_estate' => AppType.realEstate,
   'news' => AppType.news,
   'events' => AppType.events,
-  _ => AppType.donations,
+  'donations' => AppType.donations,
+  'delivery' => AppType.delivery,
+  'food' => AppType.food,
+  'rides' => AppType.rides,
+  'school' => AppType.school,
+  _ => throw ArgumentError('Unknown engine $engine'),
 };
 
-DemoApi Function() _demo(String kind, Map<String, dynamic> appearance) {
+/// The demo business of the design's kind, in the design's look, under the
+/// name the JSON gives it.
+DemoApi _demo(
+  String kind,
+  String? vertical,
+  Map<String, dynamic> appearance,
+  String name,
+) {
   const primary = {
     'academy': '#0E0D24',
+    'instructors': '#0E0D24',
     'store': '#1E4D3F',
     'restaurant': '#7A2E1C',
     'bookings': '#4A2545',
+    'services': '#4A2545',
     'clinic': '#123A5C',
     'fitness': '#111827',
     'real_estate': '#1F4E5F',
     'news': '#14213D',
     'events': '#2B1B4A',
     'charity': '#2F6B3A',
+    'delivery': '#123A5C',
+    'food': '#D2552B',
+    'rides': '#14857A',
+    'taxi': '#111827',
+    'school': '#1F4E79',
   };
-  final color = primary[kind]!;
-  return switch (kind) {
-    'academy' => () => DemoApi.academy(appearance: appearance),
-    'store' => () => DemoApi.store(appearance: appearance, primary: color),
-    'restaurant' => DemoApi.restaurant,
-    'bookings' => () => DemoApi.bookings(appearance: appearance),
-    'clinic' => DemoApi.clinic,
-    'fitness' => DemoApi.fitness,
-    'real_estate' => () => DemoApi.realEstate(appearance: appearance),
-    'news' => () => DemoApi.news(appearance: appearance, primary: color),
-    'events' => () => DemoApi.events(appearance: appearance, primary: color),
-    _ => () => DemoApi.charity(appearance: appearance, primary: color),
+  final color = primary[kind] ?? '#0E0D24';
+  final api = switch (kind) {
+    'academy' || 'instructors' => DemoApi.academy(appearance: appearance),
+    'store' => DemoApi.store(appearance: appearance, primary: color),
+    'restaurant' => DemoApi.restaurant(),
+    'bookings' || 'services' => DemoApi.bookings(appearance: appearance),
+    'clinic' => DemoApi.clinic(),
+    'fitness' => DemoApi.fitness(),
+    'real_estate' => DemoApi.realEstate(appearance: appearance),
+    'news' => DemoApi.news(appearance: appearance, primary: color),
+    'events' => DemoApi.events(appearance: appearance, primary: color),
+    'charity' => DemoApi.charity(appearance: appearance, primary: color),
+    'delivery' => DemoApi.delivery(),
+    'food' => DemoApi.food(),
+    'rides' || 'taxi' => DemoApi.rides(),
+    // A school: the charity's demo with a school's config instead.
+    'school' => DemoApi.charity(appearance: appearance, primary: color),
+    _ => throw ArgumentError('No demo app for $kind'),
   };
+  final config = {...api.config, 'appearance': appearance};
+  if (vertical != null) config['vertical'] = vertical;
+  // 105.3 The academy's teachers, so the Teachers tab and links show.
+  if (kind == 'instructors') config['instructors'] = {'applications': true};
+  if (kind == 'school') {
+    config
+      ..remove('donations')
+      ..remove('vertical')
+      ..['school'] = schoolConfigJson();
+  }
+  config['branding'] = {
+    ...?(config['branding'] as Map<String, dynamic>?),
+    'primary_color': color,
+  };
+  config['site'] = {...(config['site'] as Map<String, dynamic>), 'name': name};
+  api.config = config;
+  return api;
 }
+
+/// The designs' own pictures, decoded once, by their URL in the JSON.
+final _pictureImages = <String, ui.Image>{};
 
 void main() {
   final enabled = _designs.isNotEmpty && _out.isNotEmpty;
@@ -187,7 +372,17 @@ void main() {
       : const <Map<String, dynamic>>[];
 
   setUpAll(() async {
-    if (enabled) await loadAppFonts();
+    if (!enabled) return;
+    await loadAppFonts();
+    final folder = Directory(_pictures);
+    if (!folder.existsSync()) return;
+    for (final file in folder.listSync().whereType<File>()) {
+      if (!file.path.endsWith('.jpg')) continue;
+      final codec = await ui.instantiateImageCodec(file.readAsBytesSync());
+      final frame = await codec.getNextFrame();
+      _pictureImages['$_pictureHost${file.uri.pathSegments.last}'] =
+          frame.image;
+    }
   });
 
   for (final design in designs) {
@@ -196,44 +391,75 @@ void main() {
     final appearance = design['appearance'] as Map<String, dynamic>;
     final pages = (design['pages'] as List).cast<Map<String, dynamic>>();
     final home = pages.first;
-    // The top of the home page, and further down where the new blocks are.
-    for (final (part, scroll) in [('top', 0.0), ('more', 1300.0)]) {
-      testWidgets('$id $part', (tester) async {
-        final make = _demo(kind, appearance);
+    // The top of the home page, and further down where the other blocks are.
+    for (final (part, scroll) in [
+      ('top', 0.0),
+      ('mid', 680.0),
+      ('more', 1360.0),
+    ]) {
+      testWidgets('$id $_lang $part', (tester) async {
+        // The design's pictures, as the app would download them (the cache
+        // must hold them all: they are bigger than its default size).
+        final cache = PaintingBinding.instance.imageCache
+          ..maximumSizeBytes = 1 << 30
+          ..maximumSize = 2000;
+        for (final MapEntry(:key, :value) in _pictureImages.entries) {
+          if (!key.startsWith('$_pictureHost$id-')) continue;
+          cache.putIfAbsent(
+            NetworkImage(key),
+            () => OneFrameImageStreamCompleter(
+              SynchronousFuture(ImageInfo(image: value.clone())),
+            ),
+          );
+        }
+        List<Map<String, dynamic>> tabs(String key) => [
+          for (final t in (design[key] as List? ?? const []))
+            _translated(t as Map<String, dynamic>),
+        ];
         final shot = Shot(
-          '$id-$part',
+          '$id-$_lang-$part',
           appType: _appType(design['engine'] as String),
           template: AppTemplate.values.byName(appearance['template'] as String),
+          language: _lang,
           api: () {
-            final FakeApi api = make()
-              ..config = {...make().config, 'appearance': appearance}
-              ..navigation = {
-                'version': 'design.$id',
-                'tabs': design['tabs'],
-                'pages': [
-                  for (final p in pages)
-                    {
-                      'slug': p['slug'],
-                      'title': p['title'],
-                      'updated_at': p['updated_at'],
-                    },
-                ],
-              }
-              ..pages = {
-                for (final p in pages)
-                  p['slug'] as String: {
-                    'slug': p['slug'],
-                    'title': p['title'],
-                    'updated_at': p['updated_at'],
-                    'show_title': p['show_title'],
-                    'blocks': [
-                      for (final b
-                          in (p['blocks'] as List).cast<Map<String, dynamic>>())
-                        ?_resolve(b, kind),
+            final api =
+                _demo(
+                    kind,
+                    design['vertical'] as String?,
+                    appearance,
+                    design['name'] as String,
+                  )
+                  ..navigation = {
+                    'version': 'design.$id.$_lang',
+                    'tabs': tabs('tabs'),
+                    'more': <Object>[],
+                    // The About us and Contact pages are in the side menu.
+                    'menu': tabs('menu'),
+                    'pages': [
+                      for (final p in pages)
+                        {
+                          'slug': p['slug'],
+                          'title': _translated(p)['title'],
+                          'updated_at': p['updated_at'],
+                        },
                     ],
-                  },
-              };
-            return api as DemoApi;
+                  }
+                  ..pages = {
+                    for (final p in pages)
+                      p['slug'] as String: {
+                        'slug': p['slug'],
+                        'title': _translated(p)['title'],
+                        'updated_at': p['updated_at'],
+                        'show_title': p['show_title'],
+                        'blocks': [
+                          for (final b
+                              in (p['blocks'] as List)
+                                  .cast<Map<String, dynamic>>())
+                            ?_resolve(b, kind),
+                        ],
+                      },
+                  };
+            return api as FakeApi;
           },
           after: scroll == 0
               ? null
@@ -256,7 +482,7 @@ void main() {
           final image = await boundary.toImage(pixelRatio: 2);
           final data = await image.toByteData(format: ui.ImageByteFormat.png);
           image.dispose();
-          await File('$_out/$id-$part.png')
+          await File('$_out/$id-$_lang-$part.png')
               .writeAsBytes(Uint8List.view(data!.buffer));
         });
         debugDisableShadows = true;
