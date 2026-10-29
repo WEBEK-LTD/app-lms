@@ -2911,6 +2911,20 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
   "105.4 Saves an exam's scores.": { ar: "يحفظ درجات الامتحان.", tr: "Sınavın puanlarını kaydeder." },
   "105.4 Shown after saving scores.": { ar: "يظهر بعد حفظ الدرجات.", tr: "Puanlar kaydedildikten sonra gösterilir." },
   "105.4 A score over the full mark.": { ar: "درجة أكبر من الدرجة النهائية.", tr: "Tam puandan büyük puan." },
+  "105.9 How many free taxis are on the map around the rider.": { ar: "عدد سيارات الأجرة المتاحة على الخريطة حول الراكب.", tr: "Yolcunun çevresinde haritadaki boş taksi sayısı." },
+  "105.9 After the taxis near the rider: how far the nearest one is.": { ar: "بعد عدد السيارات القريبة: كم تبعد أقربها.", tr: "Yakındaki taksilerden sonra: en yakınının ne kadar uzakta olduğu." },
+  "105.9 The search for where the ride starts.": { ar: "البحث عن مكان بدء الرحلة.", tr: "Yolculuğun başlayacağı yerin araması." },
+  "105.9 Where the ride starts, on the map and in the sheet.": { ar: "مكان بدء الرحلة، على الخريطة وفي اللوحة السفلية.", tr: "Yolculuğun başladığı yer, haritada ve alttaki panelde." },
+  "105.9 Where the ride ends, on the map and in the sheet.": { ar: "مكان انتهاء الرحلة، على الخريطة وفي اللوحة السفلية.", tr: "Yolculuğun bittiği yer, haritada ve alttaki panelde." },
+  "105.9 The button asking for a ride in the chosen vehicle type (Economy, Comfort).": { ar: "زر طلب الرحلة بنوع المركبة المختار (اقتصادي، مريح).", tr: "Seçilen araç türünde yolculuk isteme düğmesi (Ekonomi, Konfor)." },
+  "105.9 Over the map: when the driver reaches the rider.": { ar: "فوق الخريطة: متى يصل السائق إلى الراكب.", tr: "Haritanın üstünde: sürücünün yolcuya ne zaman ulaşacağı." },
+  "105.9 Over the map: the driver's position is live.": { ar: "فوق الخريطة: موقع السائق يتحدث مباشرة.", tr: "Haritanın üstünde: sürücünün konumu canlı." },
+  "105.9 The driver's switch over the map: online and taking rides.": { ar: "مفتاح السائق فوق الخريطة: متصل ويستقبل الرحلات.", tr: "Sürücünün haritanın üstündeki düğmesi: çevrimiçi ve yolculuk alıyor." },
+  "105.9 The place search's field.": { ar: "خانة البحث عن مكان.", tr: "Yer arama alanı." },
+  "105.9 The place search found nothing.": { ar: "لم يعثر البحث عن مكان على نتائج.", tr: "Yer aramasında sonuç bulunamadı." },
+  "105.9 In the place search: pick the place on the map instead.": { ar: "في البحث عن مكان: اختيار المكان من الخريطة بدلًا من ذلك.", tr: "Yer aramasında: bunun yerine yeri haritadan seçmek." },
+  "105.9 The name of a place chosen on the map.": { ar: "اسم مكان اختير من الخريطة.", tr: "Haritadan seçilen bir yerin adı." },
+  "105.9 A place from the search has no position.": { ar: "مكان من نتائج البحث بلا موقع على الخريطة.", tr: "Aramadan gelen bir yerin konumu yok." },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */
