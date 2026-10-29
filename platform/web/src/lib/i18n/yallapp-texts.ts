@@ -66,7 +66,8 @@ export function yallappPageTexts(): string[] {
     }
   }
   for (const design of DESIGNS) {
-    for (const name of ["{app}", null]) {
+    // 110 With the pictures (and the welcome heading the banner repeats taken out), and without them as apps that chose a design before have it.
+    for (const [name, pictureBase] of [["{app}", "https://yallapp.test"], [null, "https://yallapp.test"], ["{app}", undefined], [null, undefined]] as const) {
       const layout = applyDesign(design, {
         appName: name,
         facts: { website: "https://example.com", email: "hello@example.com", whatsapp: "+905551112233" },
@@ -75,7 +76,7 @@ export function yallappPageTexts(): string[] {
         // 99.1 With the Social links block the Contact page gets.
         social: [{ network: "instagram", url: "https://instagram.com/example" }],
         // And the pictures, with the banner a home page without slides gets.
-        pictureBase: "https://yallapp.test",
+        pictureBase,
       });
       add(layoutTexts(layout));
     }

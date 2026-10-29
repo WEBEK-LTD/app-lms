@@ -182,6 +182,7 @@ export const PAGE_TEXTS_TR: Record<string, string> = {
   "Open Orders to see where your order is.": "Siparişinizin nerede olduğunu görmek için Siparişler'i açın.",
   // Restaurant designs
   "<h2>Welcome to {app}</h2><p>Order your favorites for pickup or delivery.</p>": "<h2>{app} uygulamasına hoş geldiniz</h2><p>Sevdiklerinizi gel-al ya da paket servisle sipariş edin.</p>",
+  "<p>Order your favorites for pickup or delivery.</p>": "<p>Sevdiklerinizi gel-al ya da paket servisle sipariş edin.</p>",
   "Our menu": "Menümüz",
   "Our favorites": "Favorilerimiz",
   "Something new": "Yeni bir şey",
@@ -374,6 +375,7 @@ export const PAGE_TEXTS_TR: Record<string, string> = {
   "<h3>About {app}</h3><p>Write what your magazine is about and who writes it.</p>": "<h3>{app} hakkında</h3><p>Derginizin ne hakkında olduğunu ve kimlerin yazdığını anlatın.</p>",
   "<h2>Welcome to {app}</h2><p>New posts every week. Save the ones you like to read later.</p>":
     "<h2>{app} uygulamasına hoş geldiniz</h2><p>Her hafta yeni yazılar. Beğendiklerinizi sonra okumak için kaydedin.</p>",
+  "<p>New posts every week. Save the ones you like to read later.</p>": "<p>Her hafta yeni yazılar. Beğendiklerinizi sonra okumak için kaydedin.</p>",
   "Latest posts": "Son yazılar",
   "About the author": "Yazar hakkında",
   Writer: "Yazar",
@@ -527,6 +529,8 @@ export const PAGE_TEXTS_TR: Record<string, string> = {
   "Parent": "Veli",
   "<h2>Welcome</h2><p>{app} keeps families and teachers close: the timetable, homework, grades and news.</p>": "<h2>Hoş geldiniz</h2><p>{app} aileleri ve öğretmenleri yakın tutar: ders programı, ödevler, notlar ve duyurular.</p>",
   "<h2>Welcome</h2><p>our app keeps families and teachers close: the timetable, homework, grades and news.</p>": "<h2>Hoş geldiniz</h2><p>Uygulamamız aileleri ve öğretmenleri yakın tutar: ders programı, ödevler, notlar ve duyurular.</p>",
+  "<p>{app} keeps families and teachers close: the timetable, homework, grades and news.</p>": "<p>{app} aileleri ve öğretmenleri yakın tutar: ders programı, ödevler, notlar ve duyurular.</p>",
+  "<p>our app keeps families and teachers close: the timetable, homework, grades and news.</p>": "<p>Uygulamamız aileleri ve öğretmenleri yakın tutar: ders programı, ödevler, notlar ve duyurular.</p>",
   "Students": "Öğrenciler",
   "School office": "Okul idaresi",
   // 105.9 Live taxi designs
