@@ -88,4 +88,16 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
     const welcome = templatesFor(kindOf("rides"))[0]!.make({ brand: "#1F4E5F", source: "vehicle_types", w: (word) => word });
     expect(allNodes(welcome).map((n) => n.action?.screen).filter(Boolean)).toEqual(["ride", "my_rides", "ride"]);
   });
+
+  it("105.3 gives an academy with many teachers three designs that open its teachers, its welcome section first", () => {
+    expect(templatesFor(kindOf("instructors")).map((t) => t.id)).toEqual(["teachers", "teachers_offers", "teachers_brand", "brand", "contact", "blank"]);
+    expect(sectionsFor(kindOf("instructors"))[0]!.id).toBe("teachers");
+    // A plain academy has neither.
+    expect(templatesFor(kindOf("academy")).map((t) => t.id)).not.toContain("teachers");
+    expect(sectionsFor(kindOf("academy")).map((s) => s.id)).not.toContain("teachers");
+    const welcome = templatesFor(kindOf("instructors"))[0]!.make({ brand: "#1F4E5F", source: "courses", w: (word) => word });
+    expect(allNodes(welcome).map((n) => n.action?.screen).filter(Boolean)).toEqual(["teachers", "courses", "teachers"]);
+    const words = allNodes(welcome).map((n) => n.text).filter(Boolean);
+    expect(words).toEqual(expect.arrayContaining(["teachersStepOne", "teachersStepTwo", "teachersStepThree"]));
+  });
 });

@@ -47,6 +47,11 @@ final lmsModule = AppModule(
       (config?.features.wishlist ?? false)
           ? Paths.myCoursesTab('wishlist')
           : null,
+    // 105.3 An academy with many teachers: its teachers and the Teacher tab.
+    BuiltInScreen.teachers =>
+      config?.instructors != null ? Paths.teachers : null,
+    BuiltInScreen.teacher =>
+      config?.instructors != null ? Paths.teacherDesk : null,
     BuiltInScreen.account => Paths.account,
     BuiltInScreen.settings => Paths.settings,
     BuiltInScreen.notifications => Paths.notifications,

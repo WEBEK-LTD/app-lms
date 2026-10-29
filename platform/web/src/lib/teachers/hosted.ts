@@ -15,6 +15,7 @@ import type { PlanInfo } from "../plans";
 import { hitRateLimit, type RateLimitRule } from "../rate-limit";
 import { addLesson, addSection, addTeacherCourse, editableByTeacher, growableByTeacher, readCourseInput, removeLesson, submitForReview, teacherCourseJson, updateTeacherCourse } from "./courses";
 import { dayRange, EARNINGS_PERIODS, paidOrders, periodDays, statements, type EarningsPeriod } from "./earnings";
+import { isReviewTeacher } from "./review";
 import { BIO_MAX_LENGTH, coursesOf, headline, isPublished, readSubjects, sharePercent, teacherOf, teacherRating } from "./service";
 
 /**
@@ -144,7 +145,8 @@ async function listTeachers(ctx: TeachersContext, request: ConnectorRequest): Pr
   if (search.length > 100 || subject.length > 60) return error(400, "invalid_request", "The search is too long.");
   const setup = courseSetup(ctx.app);
   const ratings = await ctx.store.countTeacherRatings(ctx.app.id);
-  const active = await ctx.store.listTeachers(ctx.app.id, { statuses: ["active"] });
+  // 105.3 The store reviewers' test teacher isn't one of the academy's.
+  const active = (await ctx.store.listTeachers(ctx.app.id, { statuses: ["active"] })).filter((t) => !isReviewTeacher(ctx.app, t));
   const subjects = [...new Set(active.flatMap((t) => t.subjects))].sort((a, b) => a.localeCompare(b));
   const found = active
     .filter((t) => !search || t.name.toLowerCase().includes(search) || t.subjects.some((s) => s.toLowerCase().includes(search)))

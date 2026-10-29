@@ -2,6 +2,7 @@ import type { DataStore } from "../data/store";
 import type { App, Course, CourseSetup, HostedUser, Teacher } from "../data/types";
 import { courierWho } from "../delivery/service";
 import { hasFeature, type PlanInfo } from "../plans";
+import { reviewTeacherFor } from "./review";
 
 /**
  * 105.3 Academies with many teachers: courses managed in Yallapp (the
@@ -79,8 +80,8 @@ export function readSubjects(value: unknown, required: boolean): { ok: true; sub
  * email), else the one whose application they sent. The teacher keeps the
  * account they last used, for their answers to show in their name.
  */
-export async function teacherOf(store: DataStore, app: Pick<App, "id">, user: HostedUser, now: Date): Promise<Teacher | null> {
-  const found = (await store.findTeacher(app.id, courierWho(user))) ?? (await store.findTeacherByUser(app.id, user.id));
+export async function teacherOf(store: DataStore, app: Pick<App, "id" | "hostedSettings">, user: HostedUser, now: Date): Promise<Teacher | null> {
+  const found = (await store.findTeacher(app.id, courierWho(user))) ?? (await store.findTeacherByUser(app.id, user.id)) ?? (await reviewTeacherFor(store, app, user, now));
   if (!found || found.status !== "active") return null;
   if (found.userId !== user.id) {
     await store.updateTeacher(app.id, found.id, { userId: user.id }, now);

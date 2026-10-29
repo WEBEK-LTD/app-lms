@@ -466,6 +466,7 @@ export const PAGE_TEXTS_AR: Record<string, string> = {
   "Ride with us": "اركب معنا",
   "Ask for a ride": "اطلب رحلة",
   "Driver": "السائق",
+  "Teacher": "المعلّم",
   "Where to?": "إلى أين؟",
   "A driver comes to you in minutes": "يصلك سائق خلال دقائق",
   "5 min": "5 دقائق",

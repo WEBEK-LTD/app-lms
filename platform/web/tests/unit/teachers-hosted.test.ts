@@ -289,6 +289,31 @@ describe("105.3 academies with many teachers on the hosted API", () => {
     expect((await call("GET", "/teacher/earnings", { query: { period: "week" }, token: teacher.access_token })).status).toBe(400);
   });
 
+  it("105.3.6 makes the store review account a test teacher students never see", async () => {
+    app = { ...app, hostedSettings: { ...app.hostedSettings!, reviewPhone: "+201009990000", reviewCode: "424242" } };
+    await store.updateApp(app.id, { hostedSettings: app.hostedSettings }, now);
+    // The reviewers sign in with the fixed code; no message is sent.
+    now = new Date(now.getTime() + 61_000);
+    const requested = await call("POST", "/auth/otp/request", { body: { country_code: "+20", phone: "1009990000" } });
+    const requestId = (requested.body as { request_id: string }).request_id;
+    expect(sender.sent.has("+201009990000")).toBe(false);
+    const verified = await call("POST", "/auth/otp/verify", { body: { request_id: requestId, code: "424242", device: { ...DEVICE, id: "install-review" } } });
+    const signupToken = (verified.body as { signup_token: string }).signup_token;
+    const reviewer = (await call("POST", "/auth/register", { body: { signup_token: signupToken, name: "Reviewer", device: { ...DEVICE, id: "install-review" } } })).body as { access_token: string };
+    expect((await call("GET", "/me", { token: reviewer.access_token })).body).toMatchObject({ roles: ["teacher"] });
+    expect((await call("GET", "/teacher/me", { token: reviewer.access_token })).body).toMatchObject({ name: "App Review", share_percent: 0 });
+    // Its course waits for the academy like any other.
+    const { id } = await teacherCourse(reviewer.access_token);
+    expect((await call("POST", "/teacher/courses/{course_id}/submit", { params: [String(id)], token: reviewer.access_token })).body).toMatchObject({ stage: "in_review" });
+    // Students see the academy's teachers only.
+    const listed = (await call("GET", "/teachers")).body as { items: { name: string }[] };
+    expect(listed.items.map((t) => t.name)).toEqual(["Salma Fathy"]);
+    // Anyone else is no teacher.
+    const student = await signUp("1002220000", "Omar");
+    expect((await call("GET", "/me", { token: student.access_token })).body).not.toHaveProperty("roles");
+    expect(await store.listTeachers(app.id, { statuses: ["active"] })).toHaveLength(2);
+  });
+
   it("people apply to teach when the academy lets them, and wait for its answer", async () => {
     const person = await signUp("1004440000", "Hany");
     const body = { name: "Hany Saad", bio: "Physics teacher for twelve years.", subjects: ["Physics"] };

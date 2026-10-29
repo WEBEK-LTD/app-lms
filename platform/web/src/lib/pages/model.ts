@@ -245,6 +245,7 @@ export const SCREEN_ICONS: Partial<Record<ScreenName, string>> = {
   send_parcel: "local_shipping",
   shipments: "package_2",
   courier: "two_wheeler",
+  teachers: "groups",
 };
 
 /** Four quick links to the app's first screens, named as the editor names them. */

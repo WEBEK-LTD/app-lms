@@ -8765,7 +8765,7 @@ components:
         screen:
           type: [string, 'null']
           description: For `screen`, a built-in screen.
-          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, restaurants, food_orders, restaurant, ride, my_rides, driver, null]
+          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, restaurants, food_orders, restaurant, ride, my_rides, driver, teachers, teacher, null]
         course_id: { type: [integer, 'null'], description: For `course`. }
         item: { $ref: '#/components/schemas/ItemRef' }
         url: { type: [string, 'null'], format: uri, description: For `url`. }

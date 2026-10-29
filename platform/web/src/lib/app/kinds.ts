@@ -143,6 +143,8 @@ export interface KindInfo {
   tabs?: LayoutTab[];
   /** 27 What to tell the store reviewers about this kind (Publishing › For the store reviewers). */
   reviewNote?: string;
+  /** 105.3 Screens its app opens besides its engine's (an academy's teachers). */
+  screens?: ScreenName[];
 }
 
 const tab = (id: string, label: string, icon: string, screen: string): LayoutTab => ({ id, label, icon, target: { type: "screen", screen } as LayoutTab["target"] });
@@ -1057,7 +1059,8 @@ export const KINDS: readonly KindInfo[] = [
       },
     },
     reviewNote:
-      "This app has two roles. Students browse the academy's teachers and courses. Teachers of the academy sign in with a number the academy added and see a Teacher tab with their courses, students' questions and earnings.",
+      "This app has two roles. Students browse the academy's teachers and courses. Teachers of the academy sign in with a number the academy added and see a Teacher tab with their courses, students' questions and earnings. The review account is both: a student, and a test teacher (\"App Review\") whose Teacher tab makes a course and sends it to the academy for review. Students never see the test teacher.",
+    screens: ["teachers", "teacher"],
   },
 ];
 

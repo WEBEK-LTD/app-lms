@@ -289,6 +289,10 @@ enum BuiltInScreen {
   ride,
   myRides,
   driver,
+
+  /// 105.3 Academies with many teachers: the teachers and the Teacher tab.
+  teachers,
+  teacher,
 }
 
 enum OpenIn { inApp, browser }

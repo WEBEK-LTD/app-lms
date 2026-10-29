@@ -467,6 +467,7 @@ export const PAGE_TEXTS_TR: Record<string, string> = {
   "Ride with us": "Bizimle yolculuk edin",
   "Ask for a ride": "Araç çağır",
   "Driver": "Sürücü",
+  "Teacher": "Eğitmen",
   "Where to?": "Nereye?",
   "A driver comes to you in minutes": "Dakikalar içinde bir sürücü gelir",
   "5 min": "5 dk",

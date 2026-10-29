@@ -65,7 +65,16 @@ export type SectionWord =
   | "rideStepOne"
   | "rideStepTwo"
   | "rideStepThree"
-  | "ctaRide";
+  | "ctaRide"
+  // 105.3 Academies with many teachers.
+  | "teachersTitle"
+  | "teachersText"
+  | "teachersButton"
+  | "teachersCourses"
+  | "teachersStepOne"
+  | "teachersStepTwo"
+  | "teachersStepThree"
+  | "ctaTeachers";
 
 export interface SectionContext {
   brand: string;
@@ -528,6 +537,62 @@ export const SECTIONS: readonly SectionInfo[] = [
       ],
     }),
   },
+  {
+    // 105.3 An academy's welcome: meet its teachers, or browse the courses.
+    id: "teachers",
+    icon: "groups",
+    fits: { types: ["lms"], verticals: ["instructors"] },
+    make: (ctx) => ({
+      id: (ctx.newId ?? newNodeId)(),
+      type: "column",
+      name: ctx.w("teachersTitle"),
+      gap: 10,
+      padding: pad(22, 18),
+      margin: pad(12, 10),
+      radius: 18,
+      background: ctx.brand,
+      color: "#FFFFFF",
+      children: [
+        { id: (ctx.newId ?? newNodeId)(), type: "icon", icon: "groups", icon_size: 34, color: "#FFFFFF" },
+        text(ctx, ctx.w("teachersTitle"), { font: { size: 24, weight: 800, line_height: 1.25 } }),
+        text(ctx, ctx.w("teachersText"), { font: { size: 14 }, opacity: 0.9 }),
+        {
+          id: (ctx.newId ?? newNodeId)(),
+          type: "row",
+          gap: 8,
+          children: [
+            {
+              id: (ctx.newId ?? newNodeId)(),
+              type: "button",
+              text: ctx.w("teachersButton"),
+              width: "hug",
+              height: 42,
+              radius: 12,
+              background: "#FFFFFF",
+              color: ctx.brand,
+              font: { weight: 800, size: 14 },
+              padding: pad(0, 18),
+              action: screen("teachers"),
+              motion: { press: "shrink" },
+            },
+            {
+              id: (ctx.newId ?? newNodeId)(),
+              type: "button",
+              text: ctx.w("teachersCourses"),
+              width: "hug",
+              height: 42,
+              radius: 12,
+              border: { width: 1.5, color: "#FFFFFF" },
+              color: "#FFFFFF",
+              font: { weight: 700, size: 14 },
+              padding: pad(0, 16),
+              action: screen("courses"),
+            },
+          ],
+        },
+      ],
+    }),
+  },
 ];
 
 /** 103R.7 Whether a section or template is made for this project (or for every project). */
@@ -573,6 +638,11 @@ const RIDES: Fits = { types: ["rides"] };
 const RIDE_BUTTON: SectionContext["button"] = { word: "ctaRide", action: screen("ride") };
 const RIDE_STEPS: SectionContext["steps"] = ["rideStepOne", "rideStepTwo", "rideStepThree"];
 
+// 105.3 Academies with many teachers: the main buttons open the teachers; the steps say how students learn from them.
+const TEACHERS: Fits = { types: ["lms"], verticals: ["instructors"] };
+const TEACHERS_BUTTON: SectionContext["button"] = { word: "ctaTeachers", action: screen("teachers") };
+const TEACHERS_STEPS: SectionContext["steps"] = ["teachersStepOne", "teachersStepTwo", "teachersStepThree"];
+
 const SHOP_HEADER: StudioPage["header"] = { type: "logo_actions", buttons: ["menu", "notifications", "cart", "account"] };
 
 export const TEMPLATES: readonly TemplateInfo[] = [
@@ -594,6 +664,10 @@ export const TEMPLATES: readonly TemplateInfo[] = [
   typed("ride", "local_taxi", RIDES, ["ride", "products", "steps", "cta"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, RIDE_BUTTON, RIDE_STEPS),
   typed("ride_offers", "local_offer", RIDES, ["offer", "products", "review", "cta"], { type: "logo_center", buttons: ["menu", "notifications"] }, RIDE_BUTTON),
   typed("ride_brand", "directions_car", RIDES, ["hero", "stats", "features", "steps", "contact"], { type: "transparent", buttons: ["menu", "account"] }, RIDE_BUTTON, RIDE_STEPS),
+  // 105.3 Three ready-made designs for an academy with many teachers.
+  typed("teachers", "groups", TEACHERS, ["teachers", "products", "steps", "cta"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, TEACHERS_BUTTON, TEACHERS_STEPS),
+  typed("teachers_offers", "local_offer", TEACHERS, ["offer", "products", "review", "cta"], { type: "logo_center", buttons: ["menu", "notifications"] }, { word: "ctaLearn", action: screen("courses") }),
+  typed("teachers_brand", "school", TEACHERS, ["hero", "stats", "features", "steps", "contact"], { type: "transparent", buttons: ["menu", "account"] }, TEACHERS_BUTTON, TEACHERS_STEPS),
   // For every project.
   { id: "brand", icon: "auto_awesome", make: (ctx) => pageOf(ctx, ["hero", "stats", "features", "review", "contact"], { type: "transparent", buttons: ["menu", "account"] }) },
   { id: "contact", icon: "call", make: (ctx) => pageOf(ctx, ["contact", "form"], { type: "title_search", buttons: [] }) },

@@ -336,6 +336,7 @@ export const en = {
     choiceCourierApp: "A second app for couriers",
     choiceFood: "Food delivery",
     choiceRides: "Ride hailing",
+    choiceInstructors: "Academies with many teachers",
     choiceMotion: "Motion in the editor",
     choiceTemplates: "Templates",
     choicePages: "How many Studio pages a project has",

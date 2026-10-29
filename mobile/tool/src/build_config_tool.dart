@@ -80,7 +80,14 @@ const appTypes = [
 ];
 
 /// Kinds of business (`vertical` in the schema), on top of the app type.
-const verticals = ['restaurant', 'clinic', 'fitness', 'charity', 'services'];
+const verticals = [
+  'restaurant',
+  'clinic',
+  'fitness',
+  'charity',
+  'services',
+  'instructors',
+];
 
 /// 104.6 `role`: the customers' app, or a delivery company's courier app;
 /// 105.2 a ride company's drivers' app.

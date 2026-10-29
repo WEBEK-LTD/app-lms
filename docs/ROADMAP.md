@@ -2503,12 +2503,12 @@ publish their own courses and the academy takes a share.
 
 | Done | Step | Checked by |
 | --- | --- | --- |
-| [ ] | 105.3.1 Contract: `app_type` `instructors`; teachers (list, one), a course's teacher, follow; the Teacher tag (my courses, lessons, students' questions, earnings); plan feature `instructors` | redocly lint |
-| [ ] | 105.3.2 Platform: teachers, applications, courses owned by a teacher, course review before publishing, shares and statements (a migration) | unit tests, isolation tests |
-| [ ] | 105.3.3 Dashboard (en/ar/tr): Teachers, Applications, Courses to review, Statements per teacher | unit tests, e2e |
-| [ ] | 105.3.4 App, student: teachers, a teacher's page, follow, rate the teacher | widget tests |
-| [ ] | 105.3.5 App, teacher: the Teacher tab (my courses and lessons, add a lesson with video or PDF, questions, earnings) | widget tests |
-| [ ] | 105.3.6 Studio templates and sections; review accounts for student and teacher | unit tests, e2e |
+| [x] | 105.3.1 Contract: the vertical `instructors` on the Academy app type (the courses engine, not an app type of its own); `Config.instructors`; teachers (list, one, follow, reviews), applying to teach, a course's teacher (`Instructor.id`); the Teacher tag (profile, courses, sections and lessons, uploads, submitting, students' questions, earnings); the screens `teachers` and `teacher`; the role `teacher`; notifications `new_course`, `teacher_course`, `teacher_question`; plan feature `instructors` | redocly lint |
+| [x] | 105.3.2 Platform: teachers, follows and reviews (a migration), applications, courses owned by a teacher (draft, in review, returned, published), lesson files in the academy's Media library, the teacher's answers in their name, pushes to followers, teachers and students, shares in percent set by the academy (no default) and statements from paid orders after coupons and refunds | unit tests, isolation tests |
+| [x] | 105.3.3 Dashboard (en/ar/tr) in Studio: Teachers (add, share, featured, suspend; applications and whether people may apply), Courses to review (publish or return with a note), Teacher statements for any period; a course's teacher and stage on Courses | unit tests, e2e |
+| [x] | 105.3.4 App, student: the teachers (search, subjects, featured first), a teacher's page (about, courses, students, followers, reviews), follow, rate the teacher once in one of their courses, the course's teacher opening their page, applying to teach and the academy's answer | flutter analyze and widget tests |
+| [x] | 105.3.5 App, teacher: the Teacher tab for the academy's teachers only (their share, profile, courses with their stage, a course's details, sections and lessons with a video link, an uploaded video or PDF (sent in chunks, as chat files) or text, sending for review and the academy's note, students' questions, earnings this month, last month and this year) | widget tests |
+| [x] | 105.3.6 Studio templates and sections (the welcome section; three ready-made designs: Teachers, Course offers, Academy brand, their buttons opening the teachers); the store review account is a student and a test teacher ("App Review", no share) students never see | unit tests, e2e |
 
 ### 105.4 Schools and universities (Studio project type `school`)
 
