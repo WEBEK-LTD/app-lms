@@ -57,13 +57,14 @@ export function memberRoles(member: SchoolMember): ("student" | "parent" | "teac
   return (["student", "parent", "teacher"] as const).filter((role) => member[role] !== null);
 }
 
-/** The students the person may see: a student themselves, a parent their active children, in the order the school linked them. */
+/** The students the person may see: a student themselves, a parent their active children, in the order the school added them. */
 export async function visibleStudents(store: DataStore, app: Pick<App, "id">, member: SchoolMember): Promise<SchoolPerson[]> {
   const out: SchoolPerson[] = member.student ? [member.student] : [];
   if (member.parent) {
     const links = await store.listSchoolFamily(app.id, { parentId: member.parent.id });
     const children = await store.listSchoolPeople(app.id, { role: "student", ids: links.map((l) => l.studentId) });
-    for (const child of children) if (child.active && !out.some((s) => s.id === child.id)) out.push(child);
+    // In the order the school added them.
+    for (const child of [...children].sort((a, b) => a.id - b.id)) if (child.active && !out.some((s) => s.id === child.id)) out.push(child);
   }
   return out;
 }

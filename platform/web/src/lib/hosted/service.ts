@@ -1210,6 +1210,11 @@ export function notificationJson(n: HostedNotification, readAt: Date | null) {
     ...(n.data?.order_id ? { order_id: numberOf(n.data.order_id) } : {}),
     // 104 The shipment a shipment update or a courier's job opens.
     ...(n.data?.shipment_id ? { shipment_id: numberOf(n.data.shipment_id) } : {}),
+    // 105.1 The food order, 105.2 the ride, 105.4 the student and the homework they open.
+    ...(n.data?.food_order_id ? { food_order_id: numberOf(n.data.food_order_id) } : {}),
+    ...(n.data?.ride_id ? { ride_id: numberOf(n.data.ride_id) } : {}),
+    ...(n.data?.student_id ? { student_id: numberOf(n.data.student_id) } : {}),
+    ...(n.data?.homework_id ? { homework_id: numberOf(n.data.homework_id) } : {}),
     ...(n.articleId ? { article_id: n.articleId } : {}),
     ...(n.eventId ? { event_id: n.eventId } : {}),
     ...(n.campaignId ? { campaign_id: n.campaignId } : {}),

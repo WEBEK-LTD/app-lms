@@ -1420,84 +1420,84 @@
           "path": "/school/me",
           "summary": "Whom the signed-in person may see at the school",
           "description": "A student sees themselves; a parent each of their children, in the order the school added them. A teacher who is also a parent sees their children here too.",
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "GET",
           "path": "/school/students/{student_id}/timetable",
           "summary": "The student's class timetable for the week",
           "description": null,
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "GET",
           "path": "/school/students/{student_id}/attendance",
           "summary": "The student's attendance over a period",
           "description": "Days a teacher took attendance, newest first, with how many of each. The current term (`SchoolConfig.term`) by default, else the last 90 days.",
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "GET",
           "path": "/school/students/{student_id}/homework",
           "summary": "The homework of the student's class",
           "description": "`due`: not handed in yet, soonest due first; `done`: handed in or past due, newest first.",
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "PUT",
           "path": "/school/students/{student_id}/homework/{homework_id}/submission",
           "summary": "Hand in homework",
           "description": "By the student only (a parent gets `not_student`, 403): some text, a file (a photo or a PDF sent with `/school/uploads`), or both. It can be handed in again until the teacher marks it; after the due date it is marked late. Refused with `already_marked` (409) once marked.",
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "GET",
           "path": "/school/students/{student_id}/grades",
           "summary": "The student's scores by subject, and the exams coming up",
           "description": null,
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "GET",
           "path": "/school/students/{student_id}/fees",
           "summary": "The student's fees, due and paid",
           "description": null,
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "POST",
           "path": "/school/students/{student_id}/fees/{fee_id}/pay",
           "summary": "Pay a fee by card on the school's payment page",
           "description": "When the school takes fees by card (`SchoolConfig.fees_by_card`) and has set up its payment gateway; `payments_unavailable` (503) otherwise, and `already_paid` (409) for a fee paid. The app opens `payment_url`; once paid the fee is `paid` with its receipt.",
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "GET",
           "path": "/school/announcements",
           "summary": "The school's news for the person",
           "description": "Newest first. To the whole school, to the class of one of the person's students, or to one of them (and their family). A teacher also sees what they wrote.",
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "POST",
           "path": "/school/uploads",
           "summary": "Start sending a file for homework",
           "description": "A photo (JPEG, PNG, WebP) up to 20 MB or a PDF up to 200 MB, by a student handing in homework or a teacher giving it, into the school's Media library (413 `storage_full` when its storage is full). Sent in chunks to `upload_url` as chat files are, then `/complete`.",
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "POST",
           "path": "/school/uploads/{upload_id}/resume",
           "summary": "A fresh link to carry on with an upload",
           "description": null,
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "POST",
           "path": "/school/uploads/{upload_id}/complete",
           "summary": "Finish an upload",
           "description": "409 `incomplete` with the offset reached when part of the file is missing.",
-          "access": "public"
+          "access": "signed-in"
         }
       ]
     },
@@ -1510,98 +1510,98 @@
           "path": "/classroom/me",
           "summary": "The signed-in teacher, their classes and today's lessons",
           "description": null,
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "GET",
           "path": "/classroom/timetable",
           "summary": "The teacher's lessons for the week",
           "description": null,
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "GET",
           "path": "/classroom/classes/{class_id}/students",
           "summary": "The students of a class the teacher teaches",
           "description": null,
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "GET",
           "path": "/classroom/classes/{class_id}/attendance",
           "summary": "A class's attendance on a day",
           "description": "Every student of the class, with their mark that day (null when not taken). Today in the school's time zone by default.",
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "PUT",
           "path": "/classroom/classes/{class_id}/attendance",
           "summary": "Take a class's attendance",
           "description": "For today or a day in the last 7 (`date_out_of_range`, 400, else). Students left out keep their mark. When the school tells families (`SchoolConfig.absence_alerts`), the parents of a student newly marked absent or late get a push (`school_absence`).",
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "GET",
           "path": "/classroom/homework",
           "summary": "The homework the teacher gave",
           "description": "Newest first, of every class they teach or one (`class_id`).",
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "POST",
           "path": "/classroom/homework",
           "summary": "Give homework to a class",
           "description": "For a subject the teacher teaches in that class (`not_your_class`, 403, else). The class's students and their parents get a push (`school_homework`).",
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "GET",
           "path": "/classroom/homework/{homework_id}",
           "summary": "Homework with what each student handed in",
           "description": null,
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "PUT",
           "path": "/classroom/homework/{homework_id}/submissions/{student_id}",
           "summary": "Mark a student's homework",
           "description": "Also when nothing was handed in. The student and their parents get a push (`school_grade`).",
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "GET",
           "path": "/classroom/assessments",
           "summary": "The exams, quizzes and assignments the teacher set",
           "description": "Coming up first (soonest first), then past ones (newest first), of every class they teach or one (`class_id`).",
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "POST",
           "path": "/classroom/assessments",
           "summary": "Set an exam, a quiz or an assignment for a class",
           "description": "For a subject the teacher teaches in that class. It shows to the class's students and parents among the exams coming up.",
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "GET",
           "path": "/classroom/assessments/{assessment_id}/scores",
           "summary": "Every student of the class with their score",
           "description": null,
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "PUT",
           "path": "/classroom/assessments/{assessment_id}/scores",
           "summary": "Enter scores",
           "description": "From 0 to the assessment's `max_score`; null clears one. Students left out keep theirs. A student given a score for the first time, and their parents, get a push (`school_grade`).",
-          "access": "public"
+          "access": "signed-in"
         },
         {
           "method": "POST",
           "path": "/classroom/announcements",
           "summary": "Write to a class",
           "description": "To a class the teacher teaches; its students and their parents see it with the school's news and get a push (`school_announcement`).",
-          "access": "public"
+          "access": "signed-in"
         }
       ]
     },

@@ -149,6 +149,14 @@ const COLUMN_NAMES: Record<string, string[]> = {
   children: ["children", "child", "students", "child codes"],
 };
 
+/** A people file to start from, as the People page shows it. */
+export const PEOPLE_CSV_EXAMPLE = [
+  "role,name,phone,email,class,code,children",
+  "student,Omar Hassan,01001234567,,Grade 5 A,1023,",
+  "parent,Hassan Ali,01007654321,,,,1023",
+  "teacher,Mona Adel,01112223334,mona@example.com,,,",
+].join("\n");
+
 const ROLE_WORDS: Record<string, SchoolRole> = { student: "student", students: "student", parent: "parent", parents: "parent", teacher: "teacher", teachers: "teacher" };
 
 /**

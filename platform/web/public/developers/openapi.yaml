@@ -5917,124 +5917,6 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
-webhooks:
-  accountDeleted:
-    post:
-      tags: [Yallapp sign-in]
-      operationId: accountDeleted
-      summary: A person deleted their account (sent to the client's API)
-      x-path: /webhooks/yallapp
-      description: |
-        Roadmap 49. Sent by Yallapp to an app on its own API that Yallapp signs
-        people in to, at `<API address>/webhooks/yallapp`, when a person
-        deletes their account in the app. Yallapp has deleted the account
-        already; the client deletes what it keeps about `sub`.
-
-        The body is a Security Event Token (RFC 8417): a JWT signed with the
-        app's ES256 key, the one that signs its access tokens, checked with
-        the same key set (`GET /.well-known/jwks.json`). Its header has `typ`
-        `secevent+jwt`; its `aud` is `<app ID>:events`, never the access
-        tokens' audience, so a notice never passes as an access token. Each
-        try is signed again (`exp` 5 minutes after `iat`); `jti` stays the
-        same on every try and is also in `Yallapp-Delivery`.
-
-        Answer 2xx once it's received; repeats of a `jti` should answer 2xx
-        too. A 5xx, 408, 425 or 429 answer, no answer within 10 seconds (5 for
-        the first try) or an API that can't be reached is tried again after 1,
-        5 and 30 minutes, 2, 6, 12 and 24 hours (8 tries); any other answer
-        stops it (404 or 405: the API doesn't take notices). Redirects aren't
-        followed, and an address on a private network isn't called. The
-        notices of the last 30 days and how each went are on App sign-in › For
-        your developer, where a failed one can be sent again: it starts over
-        with the same `jti` and the same tries.
-      security: []
-      parameters:
-        - name: Yallapp-Event
-          in: header
-          required: true
-          schema: { type: string, enum: [account.deleted] }
-        - name: Yallapp-Delivery
-          in: header
-          required: true
-          description: The notice's ID, the token's `jti`.
-          schema: { type: string, format: uuid }
-      requestBody:
-        required: true
-        content:
-          application/secevent+jwt:
-            schema:
-              type: string
-              description: |
-                The signed token. Its claims: `iss` (`https://yallapp.com.tr`),
-                `aud` (`<app ID>:events`), `sub` (the person's Yallapp user ID,
-                as in their access tokens), `jti`, `iat`, `exp` and `events`
-                (`{ "account.deleted": {} }`).
-              example: eyJhbGciOiJFUzI1NiIsInR5cCI6InNlY2V2ZW50K2p3dCIsImtpZCI6Ii4uLiJ9.eyJldmVudHMiOnsiYWNjb3VudC5kZWxldGVkIjp7fX19.c2lnbmF0dXJl
-      responses:
-        '202': { description: Received. Any 2xx answer delivers the notice. }
-  storePurchase:
-    post:
-      tags: [Store billing]
-      operationId: storePurchaseNotice
-      summary: A purchase in the store gives or takes access (sent to the client's API)
-      x-path: /webhooks/yallapp
-      description: |
-        Roadmap 100. Sent to an app on its own API that Yallapp signs people
-        in to and that sells in the app, at the same address and signed the
-        same way as `account.deleted` (a Security Event Token with the app's
-        key), once Yallapp has checked a store purchase (`purchase.completed`),
-        and when Google or Apple says it was refunded, revoked or ended
-        (`purchase.revoked`) or renewed (`purchase.completed` again, with a
-        later `expires_at`). The client gives or takes the access in its own
-        system. Retries and `Yallapp-Delivery` are as for `account.deleted`;
-        the delivery log, with "Send again", is on Dashboard › In-app
-        purchases.
-
-        Roadmap 100.7. `jti` (and `Yallapp-Delivery`) is the same for every
-        try of one change of one purchase, and a new one for its next change
-        (a renewal, a refund): give or take the access once per `jti`, and
-        answer 2xx to repeats. Answer 2xx only once the access is given or
-        taken: until a `purchase.completed` is delivered, the app hears
-        `store_unavailable` and Yallapp doesn't acknowledge the purchase with
-        Google (which refunds a purchase not acknowledged within three days).
-        A notice still waiting for another try when the purchase changes
-        again is dropped, never sent late: the newer notice says how things
-        stand.
-      security: []
-      parameters:
-        - name: Yallapp-Event
-          in: header
-          required: true
-          schema: { type: string, enum: [purchase.completed, purchase.revoked] }
-        - name: Yallapp-Delivery
-          in: header
-          required: true
-          schema: { type: string, format: uuid }
-      requestBody:
-        required: true
-        content:
-          application/secevent+jwt:
-            schema:
-              type: string
-              description: |
-                The signed token. Its `events` claim is
-                `{ "purchase.completed": { … } }` or
-                `{ "purchase.revoked": { … } }`, each with `product_id`, `kind`
-                (`course` or `membership`), `item_id` (the course's or plan's
-                ID as the owner set it in the dashboard, a string: `"12"` for
-                course 12), `platform`, `transaction_id`, `expires_at`
-                (memberships) and `reason` (`refunded`, `revoked` or
-                `expired`, for `purchase.revoked`). Roadmap 100.7 adds
-                `course_ids` (the courses a membership opens, as the owner
-                listed them; `[12]` for a course), `amount` and `currency`
-                (the store price Yallapp asked for, before the store's fee and
-                the buyer's own currency; null when unknown) and `test` (a
-                store test purchase: give the access, but don't count it as a
-                sale). `sub` is the person's Yallapp user ID.
-              example: eyJhbGciOiJFUzI1NiIsInR5cCI6InNlY2V2ZW50K2p3dCIsImtpZCI6Ii4uLiJ9.eyJldmVudHMiOnsicHVyY2hhc2UuY29tcGxldGVkIjp7InByb2R1Y3RfaWQiOiJjb3Vyc2VfMTIiLCJraW5kIjoiY291cnNlIiwiaXRlbV9pZCI6IjEyIn19fQ.c2lnbmF0dXJl
-      responses:
-        '202': { description: Received. Any 2xx answer delivers the notice. }
-
   /school/me:
     get:
       tags: [School]
@@ -6651,6 +6533,124 @@ webhooks:
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
+
+webhooks:
+  accountDeleted:
+    post:
+      tags: [Yallapp sign-in]
+      operationId: accountDeleted
+      summary: A person deleted their account (sent to the client's API)
+      x-path: /webhooks/yallapp
+      description: |
+        Roadmap 49. Sent by Yallapp to an app on its own API that Yallapp signs
+        people in to, at `<API address>/webhooks/yallapp`, when a person
+        deletes their account in the app. Yallapp has deleted the account
+        already; the client deletes what it keeps about `sub`.
+
+        The body is a Security Event Token (RFC 8417): a JWT signed with the
+        app's ES256 key, the one that signs its access tokens, checked with
+        the same key set (`GET /.well-known/jwks.json`). Its header has `typ`
+        `secevent+jwt`; its `aud` is `<app ID>:events`, never the access
+        tokens' audience, so a notice never passes as an access token. Each
+        try is signed again (`exp` 5 minutes after `iat`); `jti` stays the
+        same on every try and is also in `Yallapp-Delivery`.
+
+        Answer 2xx once it's received; repeats of a `jti` should answer 2xx
+        too. A 5xx, 408, 425 or 429 answer, no answer within 10 seconds (5 for
+        the first try) or an API that can't be reached is tried again after 1,
+        5 and 30 minutes, 2, 6, 12 and 24 hours (8 tries); any other answer
+        stops it (404 or 405: the API doesn't take notices). Redirects aren't
+        followed, and an address on a private network isn't called. The
+        notices of the last 30 days and how each went are on App sign-in › For
+        your developer, where a failed one can be sent again: it starts over
+        with the same `jti` and the same tries.
+      security: []
+      parameters:
+        - name: Yallapp-Event
+          in: header
+          required: true
+          schema: { type: string, enum: [account.deleted] }
+        - name: Yallapp-Delivery
+          in: header
+          required: true
+          description: The notice's ID, the token's `jti`.
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/secevent+jwt:
+            schema:
+              type: string
+              description: |
+                The signed token. Its claims: `iss` (`https://yallapp.com.tr`),
+                `aud` (`<app ID>:events`), `sub` (the person's Yallapp user ID,
+                as in their access tokens), `jti`, `iat`, `exp` and `events`
+                (`{ "account.deleted": {} }`).
+              example: eyJhbGciOiJFUzI1NiIsInR5cCI6InNlY2V2ZW50K2p3dCIsImtpZCI6Ii4uLiJ9.eyJldmVudHMiOnsiYWNjb3VudC5kZWxldGVkIjp7fX19.c2lnbmF0dXJl
+      responses:
+        '202': { description: Received. Any 2xx answer delivers the notice. }
+  storePurchase:
+    post:
+      tags: [Store billing]
+      operationId: storePurchaseNotice
+      summary: A purchase in the store gives or takes access (sent to the client's API)
+      x-path: /webhooks/yallapp
+      description: |
+        Roadmap 100. Sent to an app on its own API that Yallapp signs people
+        in to and that sells in the app, at the same address and signed the
+        same way as `account.deleted` (a Security Event Token with the app's
+        key), once Yallapp has checked a store purchase (`purchase.completed`),
+        and when Google or Apple says it was refunded, revoked or ended
+        (`purchase.revoked`) or renewed (`purchase.completed` again, with a
+        later `expires_at`). The client gives or takes the access in its own
+        system. Retries and `Yallapp-Delivery` are as for `account.deleted`;
+        the delivery log, with "Send again", is on Dashboard › In-app
+        purchases.
+
+        Roadmap 100.7. `jti` (and `Yallapp-Delivery`) is the same for every
+        try of one change of one purchase, and a new one for its next change
+        (a renewal, a refund): give or take the access once per `jti`, and
+        answer 2xx to repeats. Answer 2xx only once the access is given or
+        taken: until a `purchase.completed` is delivered, the app hears
+        `store_unavailable` and Yallapp doesn't acknowledge the purchase with
+        Google (which refunds a purchase not acknowledged within three days).
+        A notice still waiting for another try when the purchase changes
+        again is dropped, never sent late: the newer notice says how things
+        stand.
+      security: []
+      parameters:
+        - name: Yallapp-Event
+          in: header
+          required: true
+          schema: { type: string, enum: [purchase.completed, purchase.revoked] }
+        - name: Yallapp-Delivery
+          in: header
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/secevent+jwt:
+            schema:
+              type: string
+              description: |
+                The signed token. Its `events` claim is
+                `{ "purchase.completed": { … } }` or
+                `{ "purchase.revoked": { … } }`, each with `product_id`, `kind`
+                (`course` or `membership`), `item_id` (the course's or plan's
+                ID as the owner set it in the dashboard, a string: `"12"` for
+                course 12), `platform`, `transaction_id`, `expires_at`
+                (memberships) and `reason` (`refunded`, `revoked` or
+                `expired`, for `purchase.revoked`). Roadmap 100.7 adds
+                `course_ids` (the courses a membership opens, as the owner
+                listed them; `[12]` for a course), `amount` and `currency`
+                (the store price Yallapp asked for, before the store's fee and
+                the buyer's own currency; null when unknown) and `test` (a
+                store test purchase: give the access, but don't count it as a
+                sale). `sub` is the person's Yallapp user ID.
+              example: eyJhbGciOiJFUzI1NiIsInR5cCI6InNlY2V2ZW50K2p3dCIsImtpZCI6Ii4uLiJ9.eyJldmVudHMiOnsicHVyY2hhc2UuY29tcGxldGVkIjp7InByb2R1Y3RfaWQiOiJjb3Vyc2VfMTIiLCJraW5kIjoiY291cnNlIiwiaXRlbV9pZCI6IjEyIn19fQ.c2lnbmF0dXJl
+      responses:
+        '202': { description: Received. Any 2xx answer delivers the notice. }
 
 components:
   securitySchemes:

@@ -9,7 +9,7 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import type { SchoolPerson, SchoolRole } from "@/lib/data/types";
 import { appPlan } from "@/lib/entitlements";
-import { personFormValues, SCHOOL_LIMITS } from "@/lib/school/forms";
+import { PEOPLE_CSV_EXAMPLE, personFormValues, SCHOOL_LIMITS } from "@/lib/school/forms";
 import { ConfirmButton } from "../../chat/forms";
 import { AddServiceBox } from "../../delivery/forms";
 import { Choice, SchoolForm } from "../forms";
@@ -173,7 +173,7 @@ export default async function SchoolPeoplePage({ searchParams }: { searchParams:
 
       <Panel id="h-import" title={t("school.importTitle")} intro={t("school.importIntro")}>
         <pre dir="ltr" className="m-0 overflow-x-auto rounded-xl bg-sand p-3 text-[13px] leading-relaxed">
-          {"role,name,phone,email,class,code,children\nstudent,Omar Hassan,01001234567,,Grade 5 A,1023,\nparent,Hassan Ali,01007654321,,,,1023\nteacher,Mona Adel,01112223334,mona@example.com,,,"}
+          {PEOPLE_CSV_EXAMPLE}
         </pre>
         <SchoolForm action={importSchoolPeopleAction} submit={t("school.import")} reset>
           <div className="flex flex-col gap-1.5">
