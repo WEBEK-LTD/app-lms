@@ -1,6 +1,5 @@
 import { addDays, isDate } from "../bookings/time";
 import { formatCents } from "../catalog/money";
-import { paymentsSetUp } from "../catalog/settings";
 import type { DataStore } from "../data/store";
 import { SCHOOL_ASSESSMENT_KINDS, SCHOOL_ATTENDANCE_STATUSES, type App, type SchoolAssessmentKind, type SchoolAttendanceStatus, type SchoolFileRef, type SchoolPerson, type SchoolSettings } from "../data/types";
 import { error, intParam } from "../hosted/connectors/common";
@@ -36,7 +35,7 @@ import {
   type SchoolDirectory,
   type SchoolMember,
 } from "./service";
-import { schoolCurrency, schoolSettingsOf } from "./settings";
+import { feesByCardReady, schoolCurrency, schoolSettingsOf } from "./settings";
 
 /**
  * 105.4 The hosted API's School endpoints (a student and their parents:
@@ -231,9 +230,6 @@ async function grades(ctx: SchoolContext, student: SchoolPerson, settings: Schoo
   });
 }
 
-function canTakeCards(ctx: SchoolContext): boolean {
-  return paymentsSetUp(ctx.app) && hasFeature(ctx.plan ?? null, "card_payments");
-}
 
 async function fees(ctx: SchoolContext, student: SchoolPerson, settings: SchoolSettings): Promise<ConnectorResult> {
   const all = (await ctx.store.listSchoolFees(ctx.app.id, { studentId: student.id })).filter((f) => f.status !== "cancelled");
@@ -246,7 +242,7 @@ async function fees(ctx: SchoolContext, student: SchoolPerson, settings: SchoolS
       due.reduce((sum, f) => sum + f.amountCents, 0),
       currency,
     ),
-    can_pay: settings.feesByCard && canTakeCards(ctx),
+    can_pay: feesByCardReady(ctx.app, ctx.plan, settings),
     items: [...due, ...paid].map((f) => feeJson(f, settings, ctx.platformUrl)),
   });
 }
@@ -255,7 +251,7 @@ async function pay(ctx: SchoolContext, request: ConnectorRequest, student: Schoo
   const fee = feeId !== null ? await ctx.store.getSchoolFee(ctx.app.id, feeId) : null;
   if (!fee || fee.studentId !== student.id || fee.status === "cancelled") return error(404, "not_found", "Fee not found.");
   if (fee.status === "paid") return error(409, "already_paid", "This fee is paid already.");
-  if (!settings.feesByCard || !canTakeCards(ctx)) return error(503, "payments_unavailable", "The school doesn't take fees by card in the app. Please pay at the school.");
+  if (!feesByCardReady(ctx.app, ctx.plan, settings)) return error(503, "payments_unavailable", "The school doesn't take fees by card in the app. Please pay at the school.");
   const wait = await limited(ctx, request, PAY_LIMIT);
   if (wait) return wait;
   const link = await feePayLink(ctx.store, ctx.app, fee, student, settings, request.user!.id, ctx.platformUrl, request.now);

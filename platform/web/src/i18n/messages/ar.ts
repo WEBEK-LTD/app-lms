@@ -328,6 +328,7 @@ export const ar: Messages = {
     choiceFood: "توصيل الطعام",
     choiceRides: "توصيل الركاب",
     choiceInstructors: "أكاديميات بمدرسين كثيرين",
+    choiceSchool: "مدارس للطلاب وأولياء الأمور والمعلّمين",
     choiceMotion: "الحركة في المحرر",
     choiceTemplates: "القوالب",
     choicePages: "عدد صفحات Studio في كل مشروع",

@@ -6,8 +6,7 @@ import { MEDIA_CHUNK_BYTES } from "../media/signing";
 import { handleTeachersRoute } from "../teachers/hosted";
 import { handleSchoolRoute } from "../school/hosted";
 import { memberRoles, schoolConfig, schoolMemberOf } from "../school/service";
-import { schoolOn, schoolSettingsOf } from "../school/settings";
-import { paymentsSetUp } from "../catalog/settings";
+import { feesByCardReady, schoolOn, schoolSettingsOf } from "../school/settings";
 import { notifyNewLesson } from "./auto-notifications";
 import { teacherOf, teachersOn } from "../teachers/service";
 import { reviewCourierFor } from "../delivery/review";
@@ -584,9 +583,7 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     // 105.3 Academies with many teachers
     ...(teachersOn(app, ctx.plan) ? { instructors: { applications: courseSetup(app).teachersApply === true, timezone: await appZone(ctx.store, app) } } : {}),
     // 105.4 Schools
-    ...(schoolOn(app, ctx.plan)
-      ? { school: schoolConfig(schoolSettingsOf(await ctx.store.getSchoolSettings(app.id), app), paymentsSetUp(app) && (ctx.plan === undefined || hasFeature(ctx.plan, "card_payments"))) }
-      : {}),
+    ...(schoolOn(app, ctx.plan) ? { school: await schoolConfigOf(ctx) } : {}),
     // 10.6 Looks and languages (17: the draft's, in a draft preview)
     // 43 With each language's name, direction and the owner's string pack.
     ...(await lookAndLanguages(ctx.store, app, ctx.preview?.draft ? await draftLayout(ctx.store, app, ctx.now) : undefined, ctx.plan ?? null, {
@@ -594,6 +591,12 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
       draft: Boolean(ctx.preview?.draft),
     })),
   });
+}
+
+/** 105.4 `Config.school`. */
+async function schoolConfigOf(ctx: HostedContext) {
+  const settings = schoolSettingsOf(await ctx.store.getSchoolSettings(ctx.app.id), ctx.app);
+  return schoolConfig(settings, feesByCardReady(ctx.app, ctx.plan, settings));
 }
 
 /** `Config.auth`: the owner's sign-in choices. */

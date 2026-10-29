@@ -337,6 +337,7 @@ export const en = {
     choiceFood: "Food delivery",
     choiceRides: "Ride hailing",
     choiceInstructors: "Academies with many teachers",
+    choiceSchool: "Schools for students, parents and teachers",
     choiceMotion: "Motion in the editor",
     choiceTemplates: "Templates",
     choicePages: "How many Studio pages a project has",

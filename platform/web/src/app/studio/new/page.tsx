@@ -51,6 +51,7 @@ export default async function NewStudioProjectPage({ searchParams }: PageProps<"
   const food = kindById("food");
   const ridesKind = kindById("rides");
   const instructors = kindById("instructors");
+  const school = kindById("school");
   const studioKinds = [
     delivery && offered.includes(delivery)
       ? { ...choiceOf(delivery), name: t("studio.kindDelivery"), text: t("studio.kindDeliveryText"), soon: false }
@@ -66,6 +67,10 @@ export default async function NewStudioProjectPage({ searchParams }: PageProps<"
     instructors && offered.includes(instructors)
       ? { ...choiceOf(instructors), name: t("studio.kindInstructors"), icon: "groups", text: t("studio.kindInstructorsText"), soon: false }
       : { id: "instructors", name: t("studio.kindInstructors"), icon: "groups", sources: [], text: t("studio.soon"), soon: true },
+    // 105.4
+    school && offered.includes(school)
+      ? { ...choiceOf(school), name: t("studio.kindSchool"), icon: "school", text: t("studio.kindSchoolText"), soon: false }
+      : { id: "school", name: t("studio.kindSchool"), icon: "school", sources: [], text: t("studio.soon"), soon: true },
     { id: "cars", name: t("studio.kindCars"), icon: "directions_car", sources: [], text: t("studio.soon"), soon: true },
   ];
   const problem = typeof query.error === "string" ? query.error : null;

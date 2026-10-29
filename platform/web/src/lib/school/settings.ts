@@ -1,5 +1,6 @@
 import { isTimeZone } from "../bookings/time";
 import { CATALOG_CURRENCIES } from "../catalog/money";
+import { isOwnPayment } from "../catalog/settings";
 import type { App, CatalogCurrency, SchoolSettings } from "../data/types";
 import { hasFeature, type PlanInfo } from "../plans";
 
@@ -25,4 +26,13 @@ export function schoolCurrency(settings: SchoolSettings): CatalogCurrency {
 /** Whether the app is a school whose plan has schools (Yallapp's own demo apps always do). */
 export function schoolOn(app: Pick<App, "connector" | "demo">, plan: PlanInfo | null | undefined): boolean {
   return app.connector?.kind === "school" && (plan === undefined || hasFeature(plan, "school") || app.demo === true);
+}
+
+/**
+ * Whether families can pay fees by card now: the school chose it, its own
+ * card payment account is set up (or it is a demo) and card payments are in
+ * the plan.
+ */
+export function feesByCardReady(app: Pick<App, "catalogSettings" | "demo">, plan: PlanInfo | null | undefined, settings: SchoolSettings): boolean {
+  return settings.feesByCard && (isOwnPayment(app.catalogSettings?.payment) || app.demo === true) && (plan === undefined || hasFeature(plan, "card_payments") || app.demo === true);
 }
