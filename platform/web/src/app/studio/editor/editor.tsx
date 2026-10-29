@@ -626,6 +626,8 @@ export function StudioEditor(props: StudioEditorProps) {
     onDragStartNode: (e, id) => startDrag(e, { kind: "move", id }),
     dropLabel: t("studio.dropHere"),
     tagOf,
+    // 108.1 One drag of a corner is one undo step.
+    onResize: (id, size, drag) => changePage((p) => updateNode(p, id, size), `resize:${id}:${drag}`),
   };
 
   const savedText = (() => {
@@ -943,6 +945,9 @@ function Shortcuts({ onClose }: { onClose: () => void }) {
     ["Delete", t("studio.delete")],
     ["↑ ↓", t("studio.moveArrows")],
     ["Esc", t("studio.unselect")],
+    ["⌟", t("studio.resizeCorner")],
+    ["Shift ⌟", t("studio.resizeShift")],
+    ["2× ⌟", t("studio.resizeReset")],
     ["?", t("studio.showShortcuts")],
   ];
   return (
