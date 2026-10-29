@@ -193,24 +193,9 @@ export function designPictures(design: Pick<Design, "id">, base: string | undefi
 }
 
 /**
- * 110 Whether the home page already opens with something that leads it
- * (after a search box): a slider or banner, a heading of its own (its
- * welcome), a countdown, or an urgent notice. A welcome banner above it
- * would say the same twice or push it down.
- */
-export function opensWithLead(blocks: readonly LayoutBlock[]): boolean {
-  const first = blocks[0]?.type === "search" ? blocks[1] : blocks[0];
-  if (!first) return false;
-  if (first.type === "slider" || first.type === "banner" || first.type === "countdown") return true;
-  if (first.type === "notice") return first.tone === "warning";
-  return first.type === "text" && /^\s*<h[1-3][\s>]/i.test(first.html ?? "");
-}
-
-/**
  * 99.1 The design's pictures where it has none: each slide in turn, and on
  * a home page without a slider or banner, a banner welcoming to the app at
- * its top (after a search box that leads it); 110 not on one that opens
- * with its own welcome or another lead (`opensWithLead`).
+ * its top (after a search box that leads it).
  */
 function withPictures(slug: string, blocks: LayoutBlock[], pictures: string[]): LayoutBlock[] {
   if (!pictures.length) return blocks;
@@ -219,7 +204,7 @@ function withPictures(slug: string, blocks: LayoutBlock[], pictures: string[]): 
     if (block.type !== "slider" || !block.slides) return block;
     return { ...block, slides: block.slides.map((slide) => (slide.image_url ? slide : { ...slide, image_url: pictures[next++ % pictures.length]! })) };
   });
-  if (slug !== "home" || out.some((b) => b.type === "slider" || b.type === "banner") || opensWithLead(out)) return out;
+  if (slug !== "home" || out.some((b) => b.type === "slider" || b.type === "banner")) return out;
   const banner: LayoutBlock = { id: "hero", type: "banner", visibility: "everyone", title: null, image_url: pictures[0]!, heading: "Welcome to {app}", subheading: null, aspect_ratio: null, action: null };
   const at = out[0]?.type === "search" ? 1 : 0;
   return [...out.slice(0, at), banner, ...out.slice(at)];

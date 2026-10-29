@@ -5,7 +5,7 @@ import { ICON_NAMES } from "@/components/icon-names";
 import { ENGINES, hostedOnly, KINDS } from "@/lib/app/kinds";
 import type { AppBackend } from "@/lib/data/types";
 import { BUILT_IN_APP_DEFAULTS } from "@/lib/pages/defaults";
-import { applyDesign, blockTexts, contactFacts, designById, designFits, DESIGNS, designsFor, missingScreens, opensWithLead, sampleTexts, type ContactFacts, type Design } from "@/lib/pages/designs";
+import { applyDesign, blockTexts, contactFacts, designById, designFits, DESIGNS, designsFor, missingScreens, sampleTexts, type ContactFacts, type Design } from "@/lib/pages/designs";
 import { BLOCK_ICONS } from "@/lib/pages/labels";
 import { PAGE_ICONS } from "@/lib/pages/icons";
 import { blockTypesFor, categorySourcesFor, itemSourcesFor, screenOptionsFor, SOURCE_SORTS } from "@/lib/pages/sources";
@@ -177,60 +177,19 @@ describe("99.1 each design's own colours, pictures and social links", () => {
       const layout = applyDesign(design, { appName: "Nile", facts, current, now: NOW, pictureBase: base });
       const home = layout.pages.find((p) => p.slug === "home")!;
       const hero = home.blocks.find((b) => b.type === "slider" || b.type === "banner");
-      // 110 Unless it opens with its own welcome, a countdown or an urgent notice.
-      const own = design.pages.find((p) => p.slug === "home")!.blocks;
-      expect(hero !== undefined || opensWithLead(own), design.id).toBe(true);
+      expect(hero, design.id).toBeDefined();
       for (const block of layout.pages.flatMap((p) => p.blocks)) {
         if (block.type === "banner") expect(block.image_url, design.id).toMatch(new RegExp(`^${base}/design-pictures/${design.id}-[12]\\.jpg$`));
         for (const slide of block.slides ?? []) expect(slide.image_url, design.id).toMatch(new RegExp(`^${base}/design-pictures/${design.id}-[12]\\.jpg$`));
       }
       // A banner welcoming to the app, after a search box that leads the page.
-      if (hero?.type === "banner") {
-        expect(hero.heading, design.id).toBe("Welcome to Nile");
-        expect(home.blocks.indexOf(hero), design.id).toBe(home.blocks[0]!.type === "search" ? 1 : 0);
-        expect(opensWithLead(own), design.id).toBe(false);
+      if (hero!.type === "banner") {
+        expect(hero!.heading, design.id).toBe("Welcome to Nile");
+        expect(home.blocks.indexOf(hero!), design.id).toBe(home.blocks[0]!.type === "search" ? 1 : 0);
       }
       const checked = parseLayoutContent(layout, { app: { appType: kindOfDesign(design).engine, backend: "hosted", vertical: kindOfDesign(design).vertical }, now: NOW, ownFonts: [] });
       expect(checked.ok ? null : checked.errors, design.id).toBeNull();
     }
-  });
-
-  it("110 adds no welcome banner above a home page's own welcome, countdown or urgent notice", () => {
-    const homeOf = (id: string) => applyDesign(designById(id)!, { appName: "Nile", facts, current, now: NOW, pictureBase: base }).pages.find((p) => p.slug === "home")!.blocks;
-    const welcomes = (blocks: ReturnType<typeof homeOf>) => blocks.filter((b) => (b.heading ?? "").startsWith("Welcome") || /<h2>Welcome/.test(b.html ?? "")).length;
-    // Their own welcome text leads: once, not twice.
-    for (const id of ["restaurant-menu", "news-blog", "school-calm"]) {
-      const blocks = homeOf(id);
-      expect(blocks[0], id).toMatchObject({ type: "text" });
-      expect(blocks.some((b) => b.type === "banner"), id).toBe(false);
-      expect(welcomes(blocks), id).toBe(1);
-    }
-    // A hero heading of their own leads.
-    for (const id of ["academy-coaching", "bookings-wellness", "services-consulting", "clinic-therapy", "fitness-yoga", "events-workshops", "charity-community", "delivery-business", "food-neighbourhood", "rides-comfort", "taxi-night"]) {
-      const blocks = homeOf(id);
-      expect(blocks[0], id).toMatchObject({ type: "text", id: "welcome" });
-      expect(blocks.some((b) => b.type === "banner"), id).toBe(false);
-    }
-    // The festival's countdown and the urgent appeal stay on top.
-    expect(homeOf("events-festival")[0]).toMatchObject({ type: "countdown" });
-    expect(homeOf("charity-appeal").slice(0, 2).map((b) => b.type)).toEqual(["notice", "countdown"]);
-    expect(homeOf("charity-appeal").some((b) => b.type === "banner")).toBe(false);
-    // An info notice or a list doesn't lead: those pages still get the welcome banner first.
-    for (const id of ["news-daily", "news-magazine", "clinic-family", "delivery-express"]) expect(homeOf(id)[0], id).toMatchObject({ type: "banner", heading: "Welcome to Nile" });
-    // After a search box that leads.
-    expect(homeOf("store-grocery").slice(0, 2).map((b) => b.type)).toEqual(["search", "banner"]);
-  });
-
-  it("110 tells what leads a page", () => {
-    const text = (html: string) => ({ id: "t", type: "text" as const, visibility: "everyone" as const, title: null, html });
-    const search = { id: "s", type: "search" as const, visibility: "everyone" as const, title: null, source: "products" as const, placeholder: "Search" };
-    expect(opensWithLead([text("<h2>Hello</h2><p>Hi</p>")])).toBe(true);
-    expect(opensWithLead([search, text(" <h1 class=x>Hello</h1>")])).toBe(true);
-    expect(opensWithLead([text("<p>Just words</p>")])).toBe(false);
-    expect(opensWithLead([text("<h4>Small</h4>")])).toBe(false);
-    expect(opensWithLead([{ id: "n", type: "notice", visibility: "everyone", title: null, tone: "warning", text: "Now", action: null }])).toBe(true);
-    expect(opensWithLead([{ id: "n", type: "notice", visibility: "everyone", title: null, tone: "info", text: "Now", action: null }])).toBe(false);
-    expect(opensWithLead([])).toBe(false);
   });
 
   it("puts the business's social profiles on the Contact page, and nothing without them", () => {
