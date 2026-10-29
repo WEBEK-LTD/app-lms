@@ -5385,4 +5385,336 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get ridePayCash => 'نقدًا للسائق';
+
+  @override
+  String get teachersTitle => 'المدرّسون';
+
+  @override
+  String get teachersSearch => 'ابحث عن مدرّس أو مادة';
+
+  @override
+  String get teachersEmpty => 'لا يوجد مدرّسون هنا بعد';
+
+  @override
+  String get teachersAllSubjects => 'الكل';
+
+  @override
+  String get teacherFeatured => 'مميّز';
+
+  @override
+  String teacherCourseCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count دورة',
+      many: '$count دورة',
+      few: '$count دورات',
+      two: 'دورتان',
+      one: 'دورة واحدة',
+      zero: 'لا دورات بعد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String teacherStudentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طالب',
+      many: '$count طالبًا',
+      few: '$count طلاب',
+      two: 'طالبان',
+      one: 'طالب واحد',
+      zero: 'لا طلاب',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String teacherFollowerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count متابع',
+      many: '$count متابعًا',
+      few: '$count متابعين',
+      two: 'متابعان',
+      one: 'متابع واحد',
+      zero: 'لا متابعين',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get teacherFollow => 'متابعة';
+
+  @override
+  String get teacherFollowing => 'تتابعه';
+
+  @override
+  String teacherFollowed(String name) {
+    return 'سيصلك إشعار عندما ينشر $name دورة جديدة.';
+  }
+
+  @override
+  String teacherCoursesTitle(String name) {
+    return 'دورات $name';
+  }
+
+  @override
+  String teacherRate(String name) {
+    return 'قيّم $name';
+  }
+
+  @override
+  String get teacherRateHint => 'اشترك في إحدى دوراته لتقييمه.';
+
+  @override
+  String teacherRated(String name) {
+    return 'شكرًا لتقييمك $name!';
+  }
+
+  @override
+  String get teacherYourRating => 'تقييمك';
+
+  @override
+  String get teachersSeeAll => 'عرض كل المدرّسين';
+
+  @override
+  String get teachHere => 'درّس معنا';
+
+  @override
+  String get teachIntro =>
+      'عرّف الأكاديمية بنفسك وبما ستدرّسه، وسيظهر ردّها هنا.';
+
+  @override
+  String get teachName => 'اسمك';
+
+  @override
+  String get teachBio => 'نبذة عنك';
+
+  @override
+  String get teachBioHint => 'خبرتك وما ستدرّسه';
+
+  @override
+  String get teachSubjects => 'المواد';
+
+  @override
+  String get teachSubjectsHint => 'مفصولة بفواصل، مثل: العربية، النحو';
+
+  @override
+  String get teachSend => 'إرسال الطلب';
+
+  @override
+  String get teachPending => 'أُرسل طلبك، وسترد الأكاديمية هنا.';
+
+  @override
+  String get teachApproved => 'أصبحت من مدرّسي الأكاديمية. افتح تبويب المدرّس.';
+
+  @override
+  String get teachDeclined => 'رفضت الأكاديمية طلبك.';
+
+  @override
+  String teachNote(String note) {
+    return 'ملاحظة الأكاديمية: $note';
+  }
+
+  @override
+  String get teachApplyAgain => 'تقدّم مرة أخرى';
+
+  @override
+  String get tabTeacher => 'المدرّس';
+
+  @override
+  String teacherShare(String percent) {
+    return 'نصيبك: $percent%';
+  }
+
+  @override
+  String get teacherTabCourses => 'الدورات';
+
+  @override
+  String get teacherTabQuestions => 'الأسئلة';
+
+  @override
+  String get teacherTabEarnings => 'الأرباح';
+
+  @override
+  String get teacherNewCourse => 'دورة جديدة';
+
+  @override
+  String get teacherNoCourses =>
+      'ابدأ دورتك الأولى، وأضف دروسها، ثم أرسلها إلى الأكاديمية لمراجعتها.';
+
+  @override
+  String get stageDraft => 'مسودة';
+
+  @override
+  String get stageInReview => 'لدى الأكاديمية';
+
+  @override
+  String get stageReturned => 'تحتاج إلى تعديل';
+
+  @override
+  String get stagePublished => 'منشورة';
+
+  @override
+  String get stageHidden => 'مخفية';
+
+  @override
+  String get courseFieldTitle => 'العنوان';
+
+  @override
+  String get courseFieldDescription => 'الوصف';
+
+  @override
+  String courseFieldPrice(String currency) {
+    return 'السعر ($currency)';
+  }
+
+  @override
+  String get courseFieldPriceHint => '0 لدورة مجانية';
+
+  @override
+  String get courseFieldLevel => 'المستوى';
+
+  @override
+  String get levelBeginner => 'مبتدئ';
+
+  @override
+  String get levelIntermediate => 'متوسط';
+
+  @override
+  String get levelAdvanced => 'متقدّم';
+
+  @override
+  String get courseFieldCategory => 'التصنيف';
+
+  @override
+  String get courseNoCategory => 'بلا تصنيف';
+
+  @override
+  String get courseCreate => 'إنشاء الدورة';
+
+  @override
+  String get courseSave => 'حفظ التعديلات';
+
+  @override
+  String get courseEditDetails => 'تعديل التفاصيل';
+
+  @override
+  String get courseAddSection => 'إضافة قسم';
+
+  @override
+  String get courseSectionTitle => 'عنوان القسم';
+
+  @override
+  String get courseAddLesson => 'إضافة درس';
+
+  @override
+  String get lessonFieldTitle => 'عنوان الدرس';
+
+  @override
+  String get lessonFieldText => 'نص (اختياري)';
+
+  @override
+  String get lessonFieldVideo => 'رابط الفيديو (يوتيوب أو فيميو أو رابط)';
+
+  @override
+  String get lessonPickFile => 'رفع فيديو أو PDF';
+
+  @override
+  String lessonUploading(int percent) {
+    return 'جارٍ الرفع… $percent%';
+  }
+
+  @override
+  String get lessonFieldMinutes => 'المدة بالدقائق (اختياري)';
+
+  @override
+  String get lessonFieldPreview => 'معاينة مجانية: متاح قبل الاشتراك';
+
+  @override
+  String get lessonNeedsContent => 'أضف فيديو أو ملف PDF أو نصًا.';
+
+  @override
+  String get lessonFileTooBig => 'هذا الملف كبير جدًا.';
+
+  @override
+  String get lessonFileType => 'اختر فيديو MP4 أو MOV أو WebM، أو ملف PDF.';
+
+  @override
+  String get lessonKindVideo => 'فيديو';
+
+  @override
+  String get lessonKindPdf => 'PDF';
+
+  @override
+  String get lessonKindText => 'نص';
+
+  @override
+  String get lessonRemove => 'حذف الدرس';
+
+  @override
+  String get courseSendForReview => 'إرسال للمراجعة';
+
+  @override
+  String get courseSentForReview =>
+      'أُرسلت. ستنشرها الأكاديمية أو تخبرك بما يجب تعديله.';
+
+  @override
+  String get courseInReviewNote => 'تراجع الأكاديمية هذه الدورة.';
+
+  @override
+  String get coursePublishedNote =>
+      'يرى الطلاب هذه الدورة، وتظهر الدروس الجديدة فورًا.';
+
+  @override
+  String get teacherNoQuestions => 'لا أسئلة من طلابك بعد.';
+
+  @override
+  String get questionWaiting => 'بانتظار ردّك';
+
+  @override
+  String get questionAnswered => 'تمت الإجابة';
+
+  @override
+  String get periodLastMonth => 'الشهر الماضي';
+
+  @override
+  String get periodYear => 'هذا العام';
+
+  @override
+  String teacherSold(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مبيع · $amount',
+      many: '$count مبيعًا · $amount',
+      few: '$count مبيعات · $amount',
+      two: 'بيعان · $amount',
+      one: 'بيع واحد · $amount',
+      zero: 'لم يُبع شيء',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String teacherRefunds(String amount) {
+    return 'المبالغ المستردة: $amount';
+  }
+
+  @override
+  String get teacherEarned => 'نصيبك';
+
+  @override
+  String get teacherPaidBy =>
+      'مبيعات صفحة الدفع الخاصة بالأكاديمية بعد خصم المبالغ المستردة، والأكاديمية هي من يدفع لك.';
+
+  @override
+  String get teacherEditProfile => 'تعديل ملفك';
+
+  @override
+  String get teacherProfileSaved => 'تم الحفظ.';
 }

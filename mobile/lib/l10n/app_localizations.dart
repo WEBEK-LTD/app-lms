@@ -8775,6 +8775,528 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cash to the driver'**
   String get ridePayCash;
+
+  /// 105.3 The list of the academy's teachers.
+  ///
+  /// In en, this message translates to:
+  /// **'Teachers'**
+  String get teachersTitle;
+
+  /// 105.3 The search field of the teachers' list.
+  ///
+  /// In en, this message translates to:
+  /// **'Search teachers or subjects'**
+  String get teachersSearch;
+
+  /// 105.3 The teachers' list is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No teachers here yet'**
+  String get teachersEmpty;
+
+  /// 105.3 The chip that shows teachers of every subject.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get teachersAllSubjects;
+
+  /// 105.3 A teacher the academy shows first.
+  ///
+  /// In en, this message translates to:
+  /// **'Featured'**
+  String get teacherFeatured;
+
+  /// 105.3 How many published courses a teacher has.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No courses yet} =1{1 course} other{{count} courses}}'**
+  String teacherCourseCount(int count);
+
+  /// 105.3 How many students a teacher's courses have.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 student} other{{count} students}}'**
+  String teacherStudentCount(int count);
+
+  /// 105.3 How many students follow a teacher.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 follower} other{{count} followers}}'**
+  String teacherFollowerCount(int count);
+
+  /// 105.3 Follow a teacher: hear of their new courses.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow'**
+  String get teacherFollow;
+
+  /// 105.3 The student follows this teacher (tap to stop).
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get teacherFollowing;
+
+  /// 105.3 Shown after following a teacher.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll hear when {name} publishes a new course.'**
+  String teacherFollowed(String name);
+
+  /// 105.3 The heading of a teacher's courses on their page.
+  ///
+  /// In en, this message translates to:
+  /// **'Courses by {name}'**
+  String teacherCoursesTitle(String name);
+
+  /// 105.3 The button and sheet title to rate a teacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate {name}'**
+  String teacherRate(String name);
+
+  /// 105.3 Why the student can't rate the teacher yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Join one of their courses to rate them.'**
+  String get teacherRateHint;
+
+  /// 105.3 Shown after rating a teacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks for rating {name}!'**
+  String teacherRated(String name);
+
+  /// 105.3 The student's own rating of the teacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rating'**
+  String get teacherYourRating;
+
+  /// 105.3 Opens the academy's list of teachers.
+  ///
+  /// In en, this message translates to:
+  /// **'See all teachers'**
+  String get teachersSeeAll;
+
+  /// 105.3 The account menu's item to apply to teach.
+  ///
+  /// In en, this message translates to:
+  /// **'Teach here'**
+  String get teachHere;
+
+  /// 105.3 Above the form to apply to teach.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell the academy who you are and what you\'d teach. Its answer shows here.'**
+  String get teachIntro;
+
+  /// 105.3 The applicant's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get teachName;
+
+  /// 105.3 The applicant's bio.
+  ///
+  /// In en, this message translates to:
+  /// **'About you'**
+  String get teachBio;
+
+  /// 105.3 The hint of the applicant's bio.
+  ///
+  /// In en, this message translates to:
+  /// **'Your experience, and what you would teach'**
+  String get teachBioHint;
+
+  /// 105.3 The subjects a teacher teaches.
+  ///
+  /// In en, this message translates to:
+  /// **'Subjects'**
+  String get teachSubjects;
+
+  /// 105.3 The hint of the subjects field.
+  ///
+  /// In en, this message translates to:
+  /// **'Separated by commas, like Arabic, Grammar'**
+  String get teachSubjectsHint;
+
+  /// 105.3 Sends the application to teach.
+  ///
+  /// In en, this message translates to:
+  /// **'Send application'**
+  String get teachSend;
+
+  /// 105.3 The application waits for the academy.
+  ///
+  /// In en, this message translates to:
+  /// **'Your application was sent. The academy will answer here.'**
+  String get teachPending;
+
+  /// 105.3 The academy approved the application.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re one of the academy\'s teachers. Open the Teacher tab.'**
+  String get teachApproved;
+
+  /// 105.3 The academy declined the application.
+  ///
+  /// In en, this message translates to:
+  /// **'The academy declined your application.'**
+  String get teachDeclined;
+
+  /// 105.3 The academy's note on an application or a course.
+  ///
+  /// In en, this message translates to:
+  /// **'The academy\'s note: {note}'**
+  String teachNote(String note);
+
+  /// 105.3 Apply again after a declined application.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply again'**
+  String get teachApplyAgain;
+
+  /// 105.3 The tab of the academy's teachers.
+  ///
+  /// In en, this message translates to:
+  /// **'Teacher'**
+  String get tabTeacher;
+
+  /// 105.3 The teacher's share of their courses' sales.
+  ///
+  /// In en, this message translates to:
+  /// **'Your share: {percent}%'**
+  String teacherShare(String percent);
+
+  /// 105.3 The Teacher tab's courses.
+  ///
+  /// In en, this message translates to:
+  /// **'Courses'**
+  String get teacherTabCourses;
+
+  /// 105.3 The Teacher tab's students' questions.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions'**
+  String get teacherTabQuestions;
+
+  /// 105.3 The Teacher tab's earnings.
+  ///
+  /// In en, this message translates to:
+  /// **'Earnings'**
+  String get teacherTabEarnings;
+
+  /// 105.3 Starts a new course.
+  ///
+  /// In en, this message translates to:
+  /// **'New course'**
+  String get teacherNewCourse;
+
+  /// 105.3 The teacher has no course yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Start your first course, add its lessons and send it to the academy for review.'**
+  String get teacherNoCourses;
+
+  /// 105.3 A teacher's course not sent yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get stageDraft;
+
+  /// 105.3 A teacher's course waiting for the academy's review.
+  ///
+  /// In en, this message translates to:
+  /// **'With the academy'**
+  String get stageInReview;
+
+  /// 105.3 The academy sent the course back.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs changes'**
+  String get stageReturned;
+
+  /// 105.3 Students see the course.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get stagePublished;
+
+  /// 105.3 The academy took the course out of the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get stageHidden;
+
+  /// 105.3 A course's title, as its teacher writes it.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get courseFieldTitle;
+
+  /// 105.3 A course's description.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get courseFieldDescription;
+
+  /// 105.3 A course's price in the academy's currency.
+  ///
+  /// In en, this message translates to:
+  /// **'Price ({currency})'**
+  String courseFieldPrice(String currency);
+
+  /// 105.3 The hint of a course's price.
+  ///
+  /// In en, this message translates to:
+  /// **'0 for a free course'**
+  String get courseFieldPriceHint;
+
+  /// 105.3 A course's level.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get courseFieldLevel;
+
+  /// 105.3 The beginner level.
+  ///
+  /// In en, this message translates to:
+  /// **'Beginner'**
+  String get levelBeginner;
+
+  /// 105.3 The intermediate level.
+  ///
+  /// In en, this message translates to:
+  /// **'Intermediate'**
+  String get levelIntermediate;
+
+  /// 105.3 The advanced level.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get levelAdvanced;
+
+  /// 105.3 A course's category.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get courseFieldCategory;
+
+  /// 105.3 A course without a category.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get courseNoCategory;
+
+  /// 105.3 Creates the teacher's course.
+  ///
+  /// In en, this message translates to:
+  /// **'Create course'**
+  String get courseCreate;
+
+  /// 105.3 Saves the course's details.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get courseSave;
+
+  /// 105.3 Opens the course's details to change them.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit details'**
+  String get courseEditDetails;
+
+  /// 105.3 Adds a section to the course.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a section'**
+  String get courseAddSection;
+
+  /// 105.3 A section's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Section title'**
+  String get courseSectionTitle;
+
+  /// 105.3 Adds a lesson to a section.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a lesson'**
+  String get courseAddLesson;
+
+  /// 105.3 A lesson's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson title'**
+  String get lessonFieldTitle;
+
+  /// 105.3 A lesson's text.
+  ///
+  /// In en, this message translates to:
+  /// **'Text (optional)'**
+  String get lessonFieldText;
+
+  /// 105.3 A lesson's video address.
+  ///
+  /// In en, this message translates to:
+  /// **'Video address (YouTube, Vimeo or a link)'**
+  String get lessonFieldVideo;
+
+  /// 105.3 Picks a video or a PDF from the phone for the lesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload a video or PDF'**
+  String get lessonPickFile;
+
+  /// 105.3 A lesson's file being sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading… {percent}%'**
+  String lessonUploading(int percent);
+
+  /// 105.3 A lesson's length.
+  ///
+  /// In en, this message translates to:
+  /// **'Length in minutes (optional)'**
+  String get lessonFieldMinutes;
+
+  /// 105.3 The lesson opens to everyone before they join.
+  ///
+  /// In en, this message translates to:
+  /// **'Free preview: open before joining'**
+  String get lessonFieldPreview;
+
+  /// 105.3 A lesson has nothing in it.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a video, a PDF or some text.'**
+  String get lessonNeedsContent;
+
+  /// 105.3 The picked file is over the size allowed.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is too big.'**
+  String get lessonFileTooBig;
+
+  /// 105.3 The picked file isn't a video or a PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an MP4, MOV or WebM video, or a PDF.'**
+  String get lessonFileType;
+
+  /// 105.3 A video lesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get lessonKindVideo;
+
+  /// 105.3 A lesson with a PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF'**
+  String get lessonKindPdf;
+
+  /// 105.3 A text lesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get lessonKindText;
+
+  /// 105.3 Removes a lesson from a draft course.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the lesson'**
+  String get lessonRemove;
+
+  /// 105.3 Sends the course to the academy.
+  ///
+  /// In en, this message translates to:
+  /// **'Send for review'**
+  String get courseSendForReview;
+
+  /// 105.3 Shown after sending a course for review.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent. The academy will publish it or tell you what to change.'**
+  String get courseSentForReview;
+
+  /// 105.3 The course waits for the academy.
+  ///
+  /// In en, this message translates to:
+  /// **'The academy is checking this course.'**
+  String get courseInReviewNote;
+
+  /// 105.3 The course is published.
+  ///
+  /// In en, this message translates to:
+  /// **'Students see this course. New lessons go live at once.'**
+  String get coursePublishedNote;
+
+  /// 105.3 The teacher has no students' questions.
+  ///
+  /// In en, this message translates to:
+  /// **'No questions from your students yet.'**
+  String get teacherNoQuestions;
+
+  /// 105.3 A question the teacher hasn't answered.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for you'**
+  String get questionWaiting;
+
+  /// 105.3 A question the teacher answered.
+  ///
+  /// In en, this message translates to:
+  /// **'Answered'**
+  String get questionAnswered;
+
+  /// 105.3 The earnings of last month.
+  ///
+  /// In en, this message translates to:
+  /// **'Last month'**
+  String get periodLastMonth;
+
+  /// 105.3 The earnings of this year.
+  ///
+  /// In en, this message translates to:
+  /// **'This year'**
+  String get periodYear;
+
+  /// 105.3 How many of the teacher's courses sold, and for how much.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Nothing sold} =1{1 sold · {amount}} other{{count} sold · {amount}}}'**
+  String teacherSold(int count, String amount);
+
+  /// 105.3 What was refunded of the teacher's courses.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunds: {amount}'**
+  String teacherRefunds(String amount);
+
+  /// 105.3 The teacher's share of the sales.
+  ///
+  /// In en, this message translates to:
+  /// **'Your share'**
+  String get teacherEarned;
+
+  /// 105.3 Under the teacher's earnings.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales on the academy\'s payment page, less refunds. The academy pays you.'**
+  String get teacherPaidBy;
+
+  /// 105.3 Opens the teacher's bio and subjects.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit your profile'**
+  String get teacherEditProfile;
+
+  /// 105.3 The teacher's profile was saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved.'**
+  String get teacherProfileSaved;
 }
 
 class _AppLocalizationsDelegate

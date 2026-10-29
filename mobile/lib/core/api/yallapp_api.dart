@@ -815,6 +815,51 @@ abstract class YallappApi {
     String? note,
   });
   Future<DriverEarnings> getDriverEarnings(EarningsPeriod period);
+
+  // 105.3 Academies with many teachers.
+  Future<TeacherPage> listTeachers({
+    String? search,
+    String? subject,
+    int page = 1,
+  });
+  Future<TeacherDetail> getTeacher(int id);
+  Future<void> followTeacher(int id, {required bool follow});
+  Future<Paged<TeacherReview>> listTeacherReviews(int id, {int page = 1});
+  Future<TeacherReview> rateTeacher(
+    int id, {
+    required int rating,
+    String? text,
+  });
+
+  /// Null when the person never applied.
+  Future<TeacherApplication?> getTeacherApplication();
+  Future<TeacherApplication> applyToTeach({
+    required String name,
+    required String bio,
+    required List<String> subjects,
+  });
+  Future<TeacherProfile> getTeacherMe();
+  Future<TeacherProfile> updateTeacherMe({String? bio, List<String>? subjects});
+  Future<TeacherCourses> listTeacherCourses();
+  Future<TeacherCourse> getTeacherCourse(int id);
+  Future<TeacherCourse> createTeacherCourse(TeacherCourseInput input);
+  Future<TeacherCourse> updateTeacherCourse(int id, TeacherCourseInput input);
+  Future<TeacherCourse> submitTeacherCourse(int id);
+  Future<TeacherCourse> addTeacherSection(int courseId, String title);
+  Future<TeacherCourse> addTeacherLesson(
+    int courseId,
+    TeacherLessonInput input,
+  );
+  Future<TeacherCourse> deleteTeacherLesson(int courseId, int lessonId);
+  Future<ChatUpload> startTeacherUpload({
+    required String name,
+    required int size,
+    required String type,
+  });
+  Future<ChatUpload> resumeTeacherUpload(String uploadId);
+  Future<void> completeTeacherUpload(String uploadId);
+  Future<Paged<TeacherQuestion>> listTeacherQuestions({int page = 1});
+  Future<TeacherEarnings> getTeacherEarnings(TeacherPeriod period);
 }
 
 /// [YallappApi] over HTTP.
@@ -2459,5 +2504,209 @@ class HttpYallappApi implements YallappApi {
     _required,
     DriverEarnings.fromJson,
     query: {'period': period.name},
+  );
+
+  @override
+  Future<TeacherPage> listTeachers({
+    String? search,
+    String? subject,
+    int page = 1,
+  }) => _get(
+    '/teachers',
+    _optional,
+    TeacherPage.fromJson,
+    query: {
+      if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
+      'subject': ?subject,
+      'page': page,
+      'per_page': 20,
+    },
+  );
+
+  @override
+  Future<TeacherDetail> getTeacher(int id) =>
+      _get('/teachers/$id', _optional, TeacherDetail.fromJson);
+
+  @override
+  Future<void> followTeacher(int id, {required bool follow}) => _send(
+    follow ? 'PUT' : 'DELETE',
+    '/teachers/$id/follow',
+    _required,
+    _ignore,
+  );
+
+  @override
+  Future<Paged<TeacherReview>> listTeacherReviews(int id, {int page = 1}) =>
+      _get(
+        '/teachers/$id/reviews',
+        _optional,
+        (json) => Paged.fromJson(json, TeacherReview.fromJson),
+        query: {'page': page, 'per_page': 10},
+      );
+
+  @override
+  Future<TeacherReview> rateTeacher(
+    int id, {
+    required int rating,
+    String? text,
+  }) => _send(
+    'PUT',
+    '/teachers/$id/reviews/mine',
+    _required,
+    (data) => TeacherReview.fromJson(asJson(data)),
+    body: {'rating': rating, 'text': text?.trim() ?? ''},
+  );
+
+  @override
+  Future<TeacherApplication?> getTeacherApplication() async {
+    try {
+      return await _get(
+        '/teachers/application',
+        _required,
+        TeacherApplication.fromJson,
+      );
+    } on ApiException catch (e) {
+      if (e.statusCode == 404) return null;
+      rethrow;
+    }
+  }
+
+  @override
+  Future<TeacherApplication> applyToTeach({
+    required String name,
+    required String bio,
+    required List<String> subjects,
+  }) => _send(
+    'POST',
+    '/teachers/application',
+    _required,
+    (data) => TeacherApplication.fromJson(asJson(data)),
+    body: {'name': name.trim(), 'bio': bio.trim(), 'subjects': subjects},
+  );
+
+  @override
+  Future<TeacherProfile> getTeacherMe() =>
+      _get('/teacher/me', _required, TeacherProfile.fromJson);
+
+  @override
+  Future<TeacherProfile> updateTeacherMe({
+    String? bio,
+    List<String>? subjects,
+  }) => _send(
+    'PATCH',
+    '/teacher/me',
+    _required,
+    (data) => TeacherProfile.fromJson(asJson(data)),
+    body: {'bio': ?bio, 'subjects': ?subjects},
+  );
+
+  @override
+  Future<TeacherCourses> listTeacherCourses() =>
+      _get('/teacher/courses', _required, TeacherCourses.fromJson);
+
+  @override
+  Future<TeacherCourse> getTeacherCourse(int id) =>
+      _get('/teacher/courses/$id', _required, TeacherCourse.fromJson);
+
+  @override
+  Future<TeacherCourse> createTeacherCourse(TeacherCourseInput input) => _send(
+    'POST',
+    '/teacher/courses',
+    _required,
+    (data) => TeacherCourse.fromJson(asJson(data)),
+    body: input.toJson(),
+  );
+
+  @override
+  Future<TeacherCourse> updateTeacherCourse(int id, TeacherCourseInput input) =>
+      _send(
+        'PATCH',
+        '/teacher/courses/$id',
+        _required,
+        (data) => TeacherCourse.fromJson(asJson(data)),
+        body: input.toJson(),
+      );
+
+  @override
+  Future<TeacherCourse> submitTeacherCourse(int id) => _send(
+    'POST',
+    '/teacher/courses/$id/submit',
+    _required,
+    (data) => TeacherCourse.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<TeacherCourse> addTeacherSection(int courseId, String title) => _send(
+    'POST',
+    '/teacher/courses/$courseId/sections',
+    _required,
+    (data) => TeacherCourse.fromJson(asJson(data)),
+    body: {'title': title.trim()},
+  );
+
+  @override
+  Future<TeacherCourse> addTeacherLesson(
+    int courseId,
+    TeacherLessonInput input,
+  ) => _send(
+    'POST',
+    '/teacher/courses/$courseId/lessons',
+    _required,
+    (data) => TeacherCourse.fromJson(asJson(data)),
+    body: input.toJson(),
+  );
+
+  @override
+  Future<TeacherCourse> deleteTeacherLesson(int courseId, int lessonId) =>
+      _send(
+        'DELETE',
+        '/teacher/courses/$courseId/lessons/$lessonId',
+        _required,
+        (data) => TeacherCourse.fromJson(asJson(data)),
+      );
+
+  @override
+  Future<ChatUpload> startTeacherUpload({
+    required String name,
+    required int size,
+    required String type,
+  }) => _send(
+    'POST',
+    '/teacher/uploads',
+    _required,
+    (data) => ChatUpload.fromJson(asJson(data)),
+    body: {'name': name, 'size': size, 'type': type},
+  );
+
+  @override
+  Future<ChatUpload> resumeTeacherUpload(String uploadId) => _send(
+    'POST',
+    '/teacher/uploads/${Uri.encodeComponent(uploadId)}/resume',
+    _required,
+    (data) => ChatUpload.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<void> completeTeacherUpload(String uploadId) => _send(
+    'POST',
+    '/teacher/uploads/${Uri.encodeComponent(uploadId)}/complete',
+    _required,
+    _ignore,
+  );
+
+  @override
+  Future<Paged<TeacherQuestion>> listTeacherQuestions({int page = 1}) => _get(
+    '/teacher/questions',
+    _required,
+    (json) => Paged.fromJson(json, TeacherQuestion.fromJson),
+    query: {'page': page, 'per_page': 20},
+  );
+
+  @override
+  Future<TeacherEarnings> getTeacherEarnings(TeacherPeriod period) => _get(
+    '/teacher/earnings',
+    _required,
+    TeacherEarnings.fromJson,
+    query: {'period': snake(period)},
   );
 }

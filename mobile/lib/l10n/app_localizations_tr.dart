@@ -5308,4 +5308,321 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get ridePayCash => 'Sürücüye nakit';
+
+  @override
+  String get teachersTitle => 'Eğitmenler';
+
+  @override
+  String get teachersSearch => 'Eğitmen veya konu ara';
+
+  @override
+  String get teachersEmpty => 'Burada henüz eğitmen yok';
+
+  @override
+  String get teachersAllSubjects => 'Tümü';
+
+  @override
+  String get teacherFeatured => 'Öne çıkan';
+
+  @override
+  String teacherCourseCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kurs',
+      zero: 'Henüz kurs yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String teacherStudentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count öğrenci',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String teacherFollowerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count takipçi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get teacherFollow => 'Takip et';
+
+  @override
+  String get teacherFollowing => 'Takip ediliyor';
+
+  @override
+  String teacherFollowed(String name) {
+    return '$name yeni bir kurs yayınladığında haberiniz olacak.';
+  }
+
+  @override
+  String teacherCoursesTitle(String name) {
+    return '$name kursları';
+  }
+
+  @override
+  String teacherRate(String name) {
+    return '$name eğitmenini değerlendir';
+  }
+
+  @override
+  String get teacherRateHint =>
+      'Değerlendirmek için kurslarından birine katılın.';
+
+  @override
+  String teacherRated(String name) {
+    return '$name için değerlendirmeniz için teşekkürler!';
+  }
+
+  @override
+  String get teacherYourRating => 'Değerlendirmeniz';
+
+  @override
+  String get teachersSeeAll => 'Tüm eğitmenleri gör';
+
+  @override
+  String get teachHere => 'Burada eğitmen ol';
+
+  @override
+  String get teachIntro =>
+      'Akademiye kim olduğunuzu ve ne öğreteceğinizi anlatın. Yanıtı burada görünür.';
+
+  @override
+  String get teachName => 'Adınız';
+
+  @override
+  String get teachBio => 'Hakkınızda';
+
+  @override
+  String get teachBioHint => 'Deneyiminiz ve ne öğreteceğiniz';
+
+  @override
+  String get teachSubjects => 'Konular';
+
+  @override
+  String get teachSubjectsHint => 'Virgülle ayırın, örneğin Arapça, Dilbilgisi';
+
+  @override
+  String get teachSend => 'Başvuruyu gönder';
+
+  @override
+  String get teachPending =>
+      'Başvurunuz gönderildi. Akademi burada yanıtlayacak.';
+
+  @override
+  String get teachApproved =>
+      'Artık akademinin eğitmenlerindensiniz. Eğitmen sekmesini açın.';
+
+  @override
+  String get teachDeclined => 'Akademi başvurunuzu reddetti.';
+
+  @override
+  String teachNote(String note) {
+    return 'Akademinin notu: $note';
+  }
+
+  @override
+  String get teachApplyAgain => 'Tekrar başvur';
+
+  @override
+  String get tabTeacher => 'Eğitmen';
+
+  @override
+  String teacherShare(String percent) {
+    return 'Payınız: %$percent';
+  }
+
+  @override
+  String get teacherTabCourses => 'Kurslar';
+
+  @override
+  String get teacherTabQuestions => 'Sorular';
+
+  @override
+  String get teacherTabEarnings => 'Kazançlar';
+
+  @override
+  String get teacherNewCourse => 'Yeni kurs';
+
+  @override
+  String get teacherNoCourses =>
+      'İlk kursunuzu başlatın, derslerini ekleyin ve incelemesi için akademiye gönderin.';
+
+  @override
+  String get stageDraft => 'Taslak';
+
+  @override
+  String get stageInReview => 'Akademide';
+
+  @override
+  String get stageReturned => 'Değişiklik gerekiyor';
+
+  @override
+  String get stagePublished => 'Yayında';
+
+  @override
+  String get stageHidden => 'Gizli';
+
+  @override
+  String get courseFieldTitle => 'Başlık';
+
+  @override
+  String get courseFieldDescription => 'Açıklama';
+
+  @override
+  String courseFieldPrice(String currency) {
+    return 'Fiyat ($currency)';
+  }
+
+  @override
+  String get courseFieldPriceHint => 'Ücretsiz kurs için 0';
+
+  @override
+  String get courseFieldLevel => 'Seviye';
+
+  @override
+  String get levelBeginner => 'Başlangıç';
+
+  @override
+  String get levelIntermediate => 'Orta';
+
+  @override
+  String get levelAdvanced => 'İleri';
+
+  @override
+  String get courseFieldCategory => 'Kategori';
+
+  @override
+  String get courseNoCategory => 'Yok';
+
+  @override
+  String get courseCreate => 'Kursu oluştur';
+
+  @override
+  String get courseSave => 'Değişiklikleri kaydet';
+
+  @override
+  String get courseEditDetails => 'Ayrıntıları düzenle';
+
+  @override
+  String get courseAddSection => 'Bölüm ekle';
+
+  @override
+  String get courseSectionTitle => 'Bölüm başlığı';
+
+  @override
+  String get courseAddLesson => 'Ders ekle';
+
+  @override
+  String get lessonFieldTitle => 'Ders başlığı';
+
+  @override
+  String get lessonFieldText => 'Metin (isteğe bağlı)';
+
+  @override
+  String get lessonFieldVideo => 'Video adresi (YouTube, Vimeo veya bağlantı)';
+
+  @override
+  String get lessonPickFile => 'Video veya PDF yükle';
+
+  @override
+  String lessonUploading(int percent) {
+    return 'Yükleniyor… %$percent';
+  }
+
+  @override
+  String get lessonFieldMinutes => 'Dakika olarak süre (isteğe bağlı)';
+
+  @override
+  String get lessonFieldPreview => 'Ücretsiz önizleme: katılmadan açılır';
+
+  @override
+  String get lessonNeedsContent => 'Bir video, PDF veya metin ekleyin.';
+
+  @override
+  String get lessonFileTooBig => 'Bu dosya çok büyük.';
+
+  @override
+  String get lessonFileType => 'MP4, MOV veya WebM bir video ya da PDF seçin.';
+
+  @override
+  String get lessonKindVideo => 'Video';
+
+  @override
+  String get lessonKindPdf => 'PDF';
+
+  @override
+  String get lessonKindText => 'Metin';
+
+  @override
+  String get lessonRemove => 'Dersi kaldır';
+
+  @override
+  String get courseSendForReview => 'İncelemeye gönder';
+
+  @override
+  String get courseSentForReview =>
+      'Gönderildi. Akademi yayınlayacak veya neyin değişmesi gerektiğini söyleyecek.';
+
+  @override
+  String get courseInReviewNote => 'Akademi bu kursu inceliyor.';
+
+  @override
+  String get coursePublishedNote =>
+      'Öğrenciler bu kursu görüyor. Yeni dersler hemen yayına girer.';
+
+  @override
+  String get teacherNoQuestions => 'Öğrencilerinizden henüz soru yok.';
+
+  @override
+  String get questionWaiting => 'Yanıtınızı bekliyor';
+
+  @override
+  String get questionAnswered => 'Yanıtlandı';
+
+  @override
+  String get periodLastMonth => 'Geçen ay';
+
+  @override
+  String get periodYear => 'Bu yıl';
+
+  @override
+  String teacherSold(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count satış · $amount',
+      zero: 'Satış yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String teacherRefunds(String amount) {
+    return 'İadeler: $amount';
+  }
+
+  @override
+  String get teacherEarned => 'Payınız';
+
+  @override
+  String get teacherPaidBy =>
+      'Akademinin ödeme sayfasındaki satışlar, iadeler düşülmüş olarak. Ödemenizi akademi yapar.';
+
+  @override
+  String get teacherEditProfile => 'Profilinizi düzenleyin';
+
+  @override
+  String get teacherProfileSaved => 'Kaydedildi.';
 }

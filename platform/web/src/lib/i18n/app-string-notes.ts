@@ -2361,6 +2361,441 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "يلغي السائق لأن الراكب لم يحضر.",
     tr: "Sürücü, yolcu gelmediği için iptal eder.",
   },
+  "105.3 The list of the academy's teachers.": {
+    en: "The list of the academy's teachers.",
+    ar: "قائمة مدرّسي الأكاديمية.",
+    tr: "Akademinin eğitmenlerinin listesi.",
+  },
+  "105.3 The search field of the teachers' list.": {
+    en: "The search field of the teachers' list.",
+    ar: "خانة البحث في قائمة المدرّسين.",
+    tr: "Eğitmen listesinin arama alanı.",
+  },
+  "105.3 The teachers' list is empty.": {
+    en: "The teachers' list is empty.",
+    ar: "قائمة المدرّسين فارغة.",
+    tr: "Eğitmen listesi boş.",
+  },
+  "105.3 The chip that shows teachers of every subject.": {
+    en: "The chip that shows teachers of every subject.",
+    ar: "الزر الذي يعرض مدرّسي كل المواد.",
+    tr: "Tüm konuların eğitmenlerini gösteren düğme.",
+  },
+  "105.3 A teacher the academy shows first.": {
+    en: "A teacher the academy shows first.",
+    ar: "مدرّس تعرضه الأكاديمية أولًا.",
+    tr: "Akademinin önce gösterdiği eğitmen.",
+  },
+  "105.3 How many published courses a teacher has.": {
+    en: "How many published courses a teacher has.",
+    ar: "عدد الدورات المنشورة للمدرّس.",
+    tr: "Eğitmenin yayındaki kurs sayısı.",
+  },
+  "105.3 How many students a teacher's courses have.": {
+    en: "How many students a teacher's courses have.",
+    ar: "عدد طلاب دورات المدرّس.",
+    tr: "Eğitmenin kurslarındaki öğrenci sayısı.",
+  },
+  "105.3 How many students follow a teacher.": {
+    en: "How many students follow a teacher.",
+    ar: "عدد الطلاب الذين يتابعون المدرّس.",
+    tr: "Eğitmeni takip eden öğrenci sayısı.",
+  },
+  "105.3 Follow a teacher: hear of their new courses.": {
+    en: "Follow a teacher: hear of their new courses.",
+    ar: "متابعة المدرّس لمعرفة دوراته الجديدة.",
+    tr: "Eğitmeni takip et: yeni kurslarından haberdar ol.",
+  },
+  "105.3 The student follows this teacher (tap to stop).": {
+    en: "The student follows this teacher (tap to stop).",
+    ar: "الطالب يتابع هذا المدرّس (اضغط للإلغاء).",
+    tr: "Öğrenci bu eğitmeni takip ediyor (bırakmak için dokunun).",
+  },
+  "105.3 Shown after following a teacher.": {
+    en: "Shown after following a teacher.",
+    ar: "يظهر بعد متابعة المدرّس.",
+    tr: "Bir eğitmeni takip ettikten sonra gösterilir.",
+  },
+  "105.3 The heading of a teacher's courses on their page.": {
+    en: "The heading of a teacher's courses on their page.",
+    ar: "عنوان دورات المدرّس في صفحته.",
+    tr: "Eğitmenin sayfasındaki kursların başlığı.",
+  },
+  "105.3 The button and sheet title to rate a teacher.": {
+    en: "The button and sheet title to rate a teacher.",
+    ar: "زر وعنوان نافذة تقييم المدرّس.",
+    tr: "Eğitmeni değerlendirme düğmesi ve başlığı.",
+  },
+  "105.3 Why the student can't rate the teacher yet.": {
+    en: "Why the student can't rate the teacher yet.",
+    ar: "سبب عدم قدرة الطالب على تقييم المدرّس بعد.",
+    tr: "Öğrencinin eğitmeni neden henüz değerlendiremediği.",
+  },
+  "105.3 Shown after rating a teacher.": {
+    en: "Shown after rating a teacher.",
+    ar: "يظهر بعد تقييم المدرّس.",
+    tr: "Bir eğitmeni değerlendirdikten sonra gösterilir.",
+  },
+  "105.3 The student's own rating of the teacher.": {
+    en: "The student's own rating of the teacher.",
+    ar: "تقييم الطالب للمدرّس.",
+    tr: "Öğrencinin eğitmene verdiği puan.",
+  },
+  "105.3 Opens the academy's list of teachers.": {
+    en: "Opens the academy's list of teachers.",
+    ar: "يفتح قائمة مدرّسي الأكاديمية.",
+    tr: "Akademinin eğitmen listesini açar.",
+  },
+  "105.3 The account menu's item to apply to teach.": {
+    en: "The account menu's item to apply to teach.",
+    ar: "عنصر قائمة الحساب للتقديم للتدريس.",
+    tr: "Hesap menüsünde eğitmenlik başvurusu öğesi.",
+  },
+  "105.3 Above the form to apply to teach.": {
+    en: "Above the form to apply to teach.",
+    ar: "فوق نموذج التقديم للتدريس.",
+    tr: "Eğitmenlik başvuru formunun üstünde.",
+  },
+  "105.3 The applicant's name.": {
+    en: "The applicant's name.",
+    ar: "اسم المتقدّم.",
+    tr: "Başvuranın adı.",
+  },
+  "105.3 The applicant's bio.": {
+    en: "The applicant's bio.",
+    ar: "نبذة المتقدّم.",
+    tr: "Başvuranın kendini tanıtması.",
+  },
+  "105.3 The hint of the applicant's bio.": {
+    en: "The hint of the applicant's bio.",
+    ar: "تلميح خانة النبذة.",
+    tr: "Biyografi alanının ipucu.",
+  },
+  "105.3 The subjects a teacher teaches.": {
+    en: "The subjects a teacher teaches.",
+    ar: "المواد التي يدرّسها المدرّس.",
+    tr: "Eğitmenin öğrettiği konular.",
+  },
+  "105.3 The hint of the subjects field.": {
+    en: "The hint of the subjects field.",
+    ar: "تلميح خانة المواد.",
+    tr: "Konular alanının ipucu.",
+  },
+  "105.3 Sends the application to teach.": {
+    en: "Sends the application to teach.",
+    ar: "يرسل طلب التدريس.",
+    tr: "Eğitmenlik başvurusunu gönderir.",
+  },
+  "105.3 The application waits for the academy.": {
+    en: "The application waits for the academy.",
+    ar: "الطلب بانتظار رد الأكاديمية.",
+    tr: "Başvuru akademiyi bekliyor.",
+  },
+  "105.3 The academy approved the application.": {
+    en: "The academy approved the application.",
+    ar: "وافقت الأكاديمية على الطلب.",
+    tr: "Akademi başvuruyu onayladı.",
+  },
+  "105.3 The academy declined the application.": {
+    en: "The academy declined the application.",
+    ar: "رفضت الأكاديمية الطلب.",
+    tr: "Akademi başvuruyu reddetti.",
+  },
+  "105.3 The academy's note on an application or a course.": {
+    en: "The academy's note on an application or a course.",
+    ar: "ملاحظة الأكاديمية على الطلب أو الدورة.",
+    tr: "Akademinin başvuru veya kurs hakkındaki notu.",
+  },
+  "105.3 Apply again after a declined application.": {
+    en: "Apply again after a declined application.",
+    ar: "التقديم مجددًا بعد رفض الطلب.",
+    tr: "Reddedilen başvurudan sonra tekrar başvur.",
+  },
+  "105.3 The tab of the academy's teachers.": {
+    en: "The tab of the academy's teachers.",
+    ar: "تبويب مدرّسي الأكاديمية.",
+    tr: "Akademinin eğitmenlerine ait sekme.",
+  },
+  "105.3 The teacher's share of their courses' sales.": {
+    en: "The teacher's share of their courses' sales.",
+    ar: "نصيب المدرّس من مبيعات دوراته.",
+    tr: "Eğitmenin kurs satışlarındaki payı.",
+  },
+  "105.3 The Teacher tab's courses.": {
+    en: "The Teacher tab's courses.",
+    ar: "دورات تبويب المدرّس.",
+    tr: "Eğitmen sekmesinin kursları.",
+  },
+  "105.3 The Teacher tab's students' questions.": {
+    en: "The Teacher tab's students' questions.",
+    ar: "أسئلة الطلاب في تبويب المدرّس.",
+    tr: "Eğitmen sekmesindeki öğrenci soruları.",
+  },
+  "105.3 The Teacher tab's earnings.": {
+    en: "The Teacher tab's earnings.",
+    ar: "أرباح تبويب المدرّس.",
+    tr: "Eğitmen sekmesindeki kazançlar.",
+  },
+  "105.3 Starts a new course.": {
+    en: "Starts a new course.",
+    ar: "يبدأ دورة جديدة.",
+    tr: "Yeni bir kurs başlatır.",
+  },
+  "105.3 The teacher has no course yet.": {
+    en: "The teacher has no course yet.",
+    ar: "ليست لدى المدرّس دورات بعد.",
+    tr: "Eğitmenin henüz kursu yok.",
+  },
+  "105.3 A teacher's course not sent yet.": {
+    en: "A teacher's course not sent yet.",
+    ar: "دورة لم يرسلها المدرّس بعد.",
+    tr: "Eğitmenin henüz göndermediği kurs.",
+  },
+  "105.3 A teacher's course waiting for the academy's review.": {
+    en: "A teacher's course waiting for the academy's review.",
+    ar: "دورة بانتظار مراجعة الأكاديمية.",
+    tr: "Akademinin incelemesini bekleyen kurs.",
+  },
+  "105.3 The academy sent the course back.": {
+    en: "The academy sent the course back.",
+    ar: "أعادت الأكاديمية الدورة.",
+    tr: "Akademi kursu geri gönderdi.",
+  },
+  "105.3 Students see the course.": {
+    en: "Students see the course.",
+    ar: "يرى الطلاب الدورة.",
+    tr: "Öğrenciler kursu görüyor.",
+  },
+  "105.3 The academy took the course out of the app.": {
+    en: "The academy took the course out of the app.",
+    ar: "أزالت الأكاديمية الدورة من التطبيق.",
+    tr: "Akademi kursu uygulamadan kaldırdı.",
+  },
+  "105.3 A course's title, as its teacher writes it.": {
+    en: "A course's title, as its teacher writes it.",
+    ar: "عنوان الدورة كما يكتبه المدرّس.",
+    tr: "Kursun eğitmenin yazdığı başlığı.",
+  },
+  "105.3 A course's description.": {
+    en: "A course's description.",
+    ar: "وصف الدورة.",
+    tr: "Kursun açıklaması.",
+  },
+  "105.3 A course's price in the academy's currency.": {
+    en: "A course's price in the academy's currency.",
+    ar: "سعر الدورة بعملة الأكاديمية.",
+    tr: "Kursun akademinin para birimindeki fiyatı.",
+  },
+  "105.3 The hint of a course's price.": {
+    en: "The hint of a course's price.",
+    ar: "تلميح خانة سعر الدورة.",
+    tr: "Kurs fiyatı alanının ipucu.",
+  },
+  "105.3 A course's level.": {
+    en: "A course's level.",
+    ar: "مستوى الدورة.",
+    tr: "Kursun seviyesi.",
+  },
+  "105.3 The beginner level.": {
+    en: "The beginner level.",
+    ar: "المستوى المبتدئ.",
+    tr: "Başlangıç seviyesi.",
+  },
+  "105.3 The intermediate level.": {
+    en: "The intermediate level.",
+    ar: "المستوى المتوسط.",
+    tr: "Orta seviye.",
+  },
+  "105.3 The advanced level.": {
+    en: "The advanced level.",
+    ar: "المستوى المتقدّم.",
+    tr: "İleri seviye.",
+  },
+  "105.3 A course's category.": {
+    en: "A course's category.",
+    ar: "تصنيف الدورة.",
+    tr: "Kursun kategorisi.",
+  },
+  "105.3 A course without a category.": {
+    en: "A course without a category.",
+    ar: "دورة بلا تصنيف.",
+    tr: "Kategorisi olmayan kurs.",
+  },
+  "105.3 Creates the teacher's course.": {
+    en: "Creates the teacher's course.",
+    ar: "ينشئ دورة المدرّس.",
+    tr: "Eğitmenin kursunu oluşturur.",
+  },
+  "105.3 Saves the course's details.": {
+    en: "Saves the course's details.",
+    ar: "يحفظ تفاصيل الدورة.",
+    tr: "Kurs ayrıntılarını kaydeder.",
+  },
+  "105.3 Opens the course's details to change them.": {
+    en: "Opens the course's details to change them.",
+    ar: "يفتح تفاصيل الدورة لتعديلها.",
+    tr: "Kurs ayrıntılarını değiştirmek için açar.",
+  },
+  "105.3 Adds a section to the course.": {
+    en: "Adds a section to the course.",
+    ar: "يضيف قسمًا إلى الدورة.",
+    tr: "Kursa bölüm ekler.",
+  },
+  "105.3 A section's title.": {
+    en: "A section's title.",
+    ar: "عنوان القسم.",
+    tr: "Bölümün başlığı.",
+  },
+  "105.3 Adds a lesson to a section.": {
+    en: "Adds a lesson to a section.",
+    ar: "يضيف درسًا إلى القسم.",
+    tr: "Bölüme ders ekler.",
+  },
+  "105.3 A lesson's title.": {
+    en: "A lesson's title.",
+    ar: "عنوان الدرس.",
+    tr: "Dersin başlığı.",
+  },
+  "105.3 A lesson's text.": {
+    en: "A lesson's text.",
+    ar: "نص الدرس.",
+    tr: "Dersin metni.",
+  },
+  "105.3 A lesson's video address.": {
+    en: "A lesson's video address.",
+    ar: "رابط فيديو الدرس.",
+    tr: "Dersin video adresi.",
+  },
+  "105.3 Picks a video or a PDF from the phone for the lesson.": {
+    en: "Picks a video or a PDF from the phone for the lesson.",
+    ar: "يختار فيديو أو ملف PDF من الهاتف للدرس.",
+    tr: "Ders için telefondan video veya PDF seçer.",
+  },
+  "105.3 A lesson's file being sent.": {
+    en: "A lesson's file being sent.",
+    ar: "جارٍ إرسال ملف الدرس.",
+    tr: "Dersin dosyası gönderiliyor.",
+  },
+  "105.3 A lesson's length.": {
+    en: "A lesson's length.",
+    ar: "مدة الدرس.",
+    tr: "Dersin süresi.",
+  },
+  "105.3 The lesson opens to everyone before they join.": {
+    en: "The lesson opens to everyone before they join.",
+    ar: "يُفتح الدرس للجميع قبل الاشتراك.",
+    tr: "Ders, katılmadan önce herkese açılır.",
+  },
+  "105.3 A lesson has nothing in it.": {
+    en: "A lesson has nothing in it.",
+    ar: "الدرس بلا محتوى.",
+    tr: "Dersin içeriği yok.",
+  },
+  "105.3 The picked file is over the size allowed.": {
+    en: "The picked file is over the size allowed.",
+    ar: "الملف المختار أكبر من الحجم المسموح.",
+    tr: "Seçilen dosya izin verilen boyuttan büyük.",
+  },
+  "105.3 The picked file isn't a video or a PDF.": {
+    en: "The picked file isn't a video or a PDF.",
+    ar: "الملف المختار ليس فيديو ولا PDF.",
+    tr: "Seçilen dosya video veya PDF değil.",
+  },
+  "105.3 A video lesson.": {
+    en: "A video lesson.",
+    ar: "درس فيديو.",
+    tr: "Video ders.",
+  },
+  "105.3 A lesson with a PDF.": {
+    en: "A lesson with a PDF.",
+    ar: "درس بملف PDF.",
+    tr: "PDF içeren ders.",
+  },
+  "105.3 A text lesson.": {
+    en: "A text lesson.",
+    ar: "درس نصي.",
+    tr: "Metin ders.",
+  },
+  "105.3 Removes a lesson from a draft course.": {
+    en: "Removes a lesson from a draft course.",
+    ar: "يحذف درسًا من دورة مسودة.",
+    tr: "Taslak kurstan dersi kaldırır.",
+  },
+  "105.3 Sends the course to the academy.": {
+    en: "Sends the course to the academy.",
+    ar: "يرسل الدورة إلى الأكاديمية.",
+    tr: "Kursu akademiye gönderir.",
+  },
+  "105.3 Shown after sending a course for review.": {
+    en: "Shown after sending a course for review.",
+    ar: "يظهر بعد إرسال الدورة للمراجعة.",
+    tr: "Kurs incelemeye gönderildikten sonra gösterilir.",
+  },
+  "105.3 The course waits for the academy.": {
+    en: "The course waits for the academy.",
+    ar: "الدورة بانتظار الأكاديمية.",
+    tr: "Kurs akademiyi bekliyor.",
+  },
+  "105.3 The course is published.": {
+    en: "The course is published.",
+    ar: "الدورة منشورة.",
+    tr: "Kurs yayında.",
+  },
+  "105.3 The teacher has no students' questions.": {
+    en: "The teacher has no students' questions.",
+    ar: "لا أسئلة من الطلاب للمدرّس.",
+    tr: "Eğitmene öğrenci sorusu yok.",
+  },
+  "105.3 A question the teacher hasn't answered.": {
+    en: "A question the teacher hasn't answered.",
+    ar: "سؤال لم يجب عنه المدرّس.",
+    tr: "Eğitmenin yanıtlamadığı soru.",
+  },
+  "105.3 A question the teacher answered.": {
+    en: "A question the teacher answered.",
+    ar: "سؤال أجاب عنه المدرّس.",
+    tr: "Eğitmenin yanıtladığı soru.",
+  },
+  "105.3 The earnings of last month.": {
+    en: "The earnings of last month.",
+    ar: "أرباح الشهر الماضي.",
+    tr: "Geçen ayın kazançları.",
+  },
+  "105.3 The earnings of this year.": {
+    en: "The earnings of this year.",
+    ar: "أرباح هذا العام.",
+    tr: "Bu yılın kazançları.",
+  },
+  "105.3 How many of the teacher's courses sold, and for how much.": {
+    en: "How many of the teacher's courses sold, and for how much.",
+    ar: "عدد ما بيع من دورات المدرّس وقيمته.",
+    tr: "Eğitmenin kurslarından kaç tane ve kaça satıldığı.",
+  },
+  "105.3 What was refunded of the teacher's courses.": {
+    en: "What was refunded of the teacher's courses.",
+    ar: "ما استُرد من مبيعات دورات المدرّس.",
+    tr: "Eğitmenin kurslarından iade edilen tutar.",
+  },
+  "105.3 The teacher's share of the sales.": {
+    en: "The teacher's share of the sales.",
+    ar: "نصيب المدرّس من المبيعات.",
+    tr: "Eğitmenin satışlardaki payı.",
+  },
+  "105.3 Under the teacher's earnings.": {
+    en: "Under the teacher's earnings.",
+    ar: "أسفل أرباح المدرّس.",
+    tr: "Eğitmenin kazançlarının altında.",
+  },
+  "105.3 Opens the teacher's bio and subjects.": {
+    en: "Opens the teacher's bio and subjects.",
+    ar: "يفتح نبذة المدرّس ومواده.",
+    tr: "Eğitmenin biyografisini ve konularını açar.",
+  },
+  "105.3 The teacher's profile was saved.": {
+    en: "The teacher's profile was saved.",
+    ar: "تم حفظ ملف المدرّس.",
+    tr: "Eğitmenin profili kaydedildi.",
+  },
   "105.2 Paying a ride in cash to the driver.": {
     en: "Paying a ride in cash to the driver.",
     ar: "دفع المشوار نقدًا للسائق.",

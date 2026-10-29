@@ -5315,4 +5315,324 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ridePayCash => 'Cash to the driver';
+
+  @override
+  String get teachersTitle => 'Teachers';
+
+  @override
+  String get teachersSearch => 'Search teachers or subjects';
+
+  @override
+  String get teachersEmpty => 'No teachers here yet';
+
+  @override
+  String get teachersAllSubjects => 'All';
+
+  @override
+  String get teacherFeatured => 'Featured';
+
+  @override
+  String teacherCourseCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count courses',
+      one: '1 course',
+      zero: 'No courses yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String teacherStudentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count students',
+      one: '1 student',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String teacherFollowerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count followers',
+      one: '1 follower',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get teacherFollow => 'Follow';
+
+  @override
+  String get teacherFollowing => 'Following';
+
+  @override
+  String teacherFollowed(String name) {
+    return 'You\'ll hear when $name publishes a new course.';
+  }
+
+  @override
+  String teacherCoursesTitle(String name) {
+    return 'Courses by $name';
+  }
+
+  @override
+  String teacherRate(String name) {
+    return 'Rate $name';
+  }
+
+  @override
+  String get teacherRateHint => 'Join one of their courses to rate them.';
+
+  @override
+  String teacherRated(String name) {
+    return 'Thanks for rating $name!';
+  }
+
+  @override
+  String get teacherYourRating => 'Your rating';
+
+  @override
+  String get teachersSeeAll => 'See all teachers';
+
+  @override
+  String get teachHere => 'Teach here';
+
+  @override
+  String get teachIntro =>
+      'Tell the academy who you are and what you\'d teach. Its answer shows here.';
+
+  @override
+  String get teachName => 'Your name';
+
+  @override
+  String get teachBio => 'About you';
+
+  @override
+  String get teachBioHint => 'Your experience, and what you would teach';
+
+  @override
+  String get teachSubjects => 'Subjects';
+
+  @override
+  String get teachSubjectsHint => 'Separated by commas, like Arabic, Grammar';
+
+  @override
+  String get teachSend => 'Send application';
+
+  @override
+  String get teachPending =>
+      'Your application was sent. The academy will answer here.';
+
+  @override
+  String get teachApproved =>
+      'You\'re one of the academy\'s teachers. Open the Teacher tab.';
+
+  @override
+  String get teachDeclined => 'The academy declined your application.';
+
+  @override
+  String teachNote(String note) {
+    return 'The academy\'s note: $note';
+  }
+
+  @override
+  String get teachApplyAgain => 'Apply again';
+
+  @override
+  String get tabTeacher => 'Teacher';
+
+  @override
+  String teacherShare(String percent) {
+    return 'Your share: $percent%';
+  }
+
+  @override
+  String get teacherTabCourses => 'Courses';
+
+  @override
+  String get teacherTabQuestions => 'Questions';
+
+  @override
+  String get teacherTabEarnings => 'Earnings';
+
+  @override
+  String get teacherNewCourse => 'New course';
+
+  @override
+  String get teacherNoCourses =>
+      'Start your first course, add its lessons and send it to the academy for review.';
+
+  @override
+  String get stageDraft => 'Draft';
+
+  @override
+  String get stageInReview => 'With the academy';
+
+  @override
+  String get stageReturned => 'Needs changes';
+
+  @override
+  String get stagePublished => 'Published';
+
+  @override
+  String get stageHidden => 'Hidden';
+
+  @override
+  String get courseFieldTitle => 'Title';
+
+  @override
+  String get courseFieldDescription => 'Description';
+
+  @override
+  String courseFieldPrice(String currency) {
+    return 'Price ($currency)';
+  }
+
+  @override
+  String get courseFieldPriceHint => '0 for a free course';
+
+  @override
+  String get courseFieldLevel => 'Level';
+
+  @override
+  String get levelBeginner => 'Beginner';
+
+  @override
+  String get levelIntermediate => 'Intermediate';
+
+  @override
+  String get levelAdvanced => 'Advanced';
+
+  @override
+  String get courseFieldCategory => 'Category';
+
+  @override
+  String get courseNoCategory => 'None';
+
+  @override
+  String get courseCreate => 'Create course';
+
+  @override
+  String get courseSave => 'Save changes';
+
+  @override
+  String get courseEditDetails => 'Edit details';
+
+  @override
+  String get courseAddSection => 'Add a section';
+
+  @override
+  String get courseSectionTitle => 'Section title';
+
+  @override
+  String get courseAddLesson => 'Add a lesson';
+
+  @override
+  String get lessonFieldTitle => 'Lesson title';
+
+  @override
+  String get lessonFieldText => 'Text (optional)';
+
+  @override
+  String get lessonFieldVideo => 'Video address (YouTube, Vimeo or a link)';
+
+  @override
+  String get lessonPickFile => 'Upload a video or PDF';
+
+  @override
+  String lessonUploading(int percent) {
+    return 'Uploading… $percent%';
+  }
+
+  @override
+  String get lessonFieldMinutes => 'Length in minutes (optional)';
+
+  @override
+  String get lessonFieldPreview => 'Free preview: open before joining';
+
+  @override
+  String get lessonNeedsContent => 'Add a video, a PDF or some text.';
+
+  @override
+  String get lessonFileTooBig => 'This file is too big.';
+
+  @override
+  String get lessonFileType => 'Choose an MP4, MOV or WebM video, or a PDF.';
+
+  @override
+  String get lessonKindVideo => 'Video';
+
+  @override
+  String get lessonKindPdf => 'PDF';
+
+  @override
+  String get lessonKindText => 'Text';
+
+  @override
+  String get lessonRemove => 'Remove the lesson';
+
+  @override
+  String get courseSendForReview => 'Send for review';
+
+  @override
+  String get courseSentForReview =>
+      'Sent. The academy will publish it or tell you what to change.';
+
+  @override
+  String get courseInReviewNote => 'The academy is checking this course.';
+
+  @override
+  String get coursePublishedNote =>
+      'Students see this course. New lessons go live at once.';
+
+  @override
+  String get teacherNoQuestions => 'No questions from your students yet.';
+
+  @override
+  String get questionWaiting => 'Waiting for you';
+
+  @override
+  String get questionAnswered => 'Answered';
+
+  @override
+  String get periodLastMonth => 'Last month';
+
+  @override
+  String get periodYear => 'This year';
+
+  @override
+  String teacherSold(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sold · $amount',
+      one: '1 sold · $amount',
+      zero: 'Nothing sold',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String teacherRefunds(String amount) {
+    return 'Refunds: $amount';
+  }
+
+  @override
+  String get teacherEarned => 'Your share';
+
+  @override
+  String get teacherPaidBy =>
+      'Sales on the academy\'s payment page, less refunds. The academy pays you.';
+
+  @override
+  String get teacherEditProfile => 'Edit your profile';
+
+  @override
+  String get teacherProfileSaved => 'Saved.';
 }

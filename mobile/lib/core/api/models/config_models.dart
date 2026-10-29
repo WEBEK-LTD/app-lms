@@ -9,6 +9,7 @@ import 'donation_models.dart';
 import 'delivery_models.dart';
 import 'food_models.dart';
 import 'rides_models.dart';
+import 'teachers_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
 import 'listing_models.dart';
@@ -36,6 +37,7 @@ class AppConfig {
     this.delivery,
     this.food,
     this.rides,
+    this.instructors,
     this.vertical,
     this.shareBaseUrl,
     this.chat,
@@ -62,6 +64,7 @@ class AppConfig {
     delivery: optObject(json, 'delivery', DeliveryConfig.fromJson),
     food: optObject(json, 'food', FoodConfig.fromJson),
     rides: optObject(json, 'rides', RidesConfig.fromJson),
+    instructors: optObject(json, 'instructors', InstructorsConfig.fromJson),
     vertical: AppVertical.fromWire(json['vertical']),
     shareBaseUrl: _shareBase(json['links']),
     chat: _chat(json['chat']),
@@ -172,6 +175,9 @@ class AppConfig {
 
   /// 105.2 How a ride company prices, matches and cancels rides.
   final RidesConfig? rides;
+
+  /// 105.3 An academy with many teachers: its teachers, and applying to teach.
+  final InstructorsConfig? instructors;
 
   /// The kind of business (wording and defaults only); null for none, on
   /// older servers, and for values this app doesn't know.
