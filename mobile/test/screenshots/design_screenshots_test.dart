@@ -438,8 +438,8 @@ void main() {
           final shot = Shot(
             '$name-$part',
             location: isHome ? null : '${Paths.pagePrefix}$slug',
-          // The app's own name, as its header shows it.
-          build: (b) => b.copyWith(appName: design['name'] as String),
+            // The app's own name, as its header shows it.
+            build: (b) => b.copyWith(appName: design['name'] as String),
             appType: _appType(design['engine'] as String),
             template: AppTemplate.values.byName(
               appearance['template'] as String,
