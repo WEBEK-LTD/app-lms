@@ -8397,6 +8397,10 @@ components:
                 type: array
                 description: The options chosen for this line (a dish's size or extras), as their names. Missing or empty for none.
                 items: { type: string }
+              total:
+                type: [string, 'null']
+                description: "Roadmap 110. What the line comes to (its price with its options, times its quantity), formatted. Null or missing on older servers."
+                example: ₺1,300.00
         fulfilment_status:
           type: [string, 'null']
           enum: [received, preparing, ready, out_for_delivery, completed, cancelled, null]
