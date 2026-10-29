@@ -5,7 +5,7 @@ import { kindById } from "@/lib/app/kinds";
 import { cardPlanOptions } from "@/lib/billing/card-plans";
 import { lowestPlanWith, PLAN_INFO, planFamily, planFitsSection, planOffered, plansOfFamily, plansWith, planSettingOf, hasFeature } from "@/lib/plans";
 import { projectSource } from "@/lib/studio/projects";
-import { isStudioProject, studioPathFor, studioSourcesFor } from "@/lib/studio/section";
+import { isStudioProject, licensePath, studioPathFor, studioSourcesFor } from "@/lib/studio/section";
 
 describe("103R.3 Studio's own plans", () => {
   it("keeps the two families apart", () => {
@@ -96,5 +96,14 @@ describe("103R.3 Studio's own section", () => {
     expect(projectSource({ backend: "hosted", connector: { kind: "catalog" } })).toEqual({ key: "catalog" });
     expect(projectSource({ backend: "hosted", connector: { kind: "shopify", shopDomain: "x.myshopify.com", storefrontTokenEncrypted: "e" } })).toEqual({ key: "shopify" });
     expect(projectSource({ backend: "hosted", connector: { kind: "platform", platform: "wix", settings: {}, secretsEncrypted: "e" } })).toMatchObject({ key: "platform" });
+  });
+
+  it("sends the Plan page's links to the project's own section, with their #part", () => {
+    expect(licensePath({ section: "studio" }, "?plan=studio_1#renew")).toBe("/studio/project/license?plan=studio_1#renew");
+    expect(licensePath({ section: "regular" }, "?plan=pro#renew")).toBe("/dashboard/license?plan=pro#renew");
+    expect(licensePath(null)).toBe("/dashboard/license");
+    // A dashboard address in Studio's frame: the query is kept (the #part can't be: the browser never sends it).
+    expect(studioPathFor("/dashboard/license?plan=studio_1")).toBe("/studio/project/license?plan=studio_1");
+    expect(studioPathFor("/dashboard/account")).toBeNull();
   });
 });

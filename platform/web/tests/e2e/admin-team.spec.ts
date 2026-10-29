@@ -225,3 +225,42 @@ test("the client page shows the client's app, builds and changes", async ({ requ
   await expect(changes).toContainText("Client's app changed");
   await expect(changes).toContainText("Build run again");
 });
+
+test("Yallapp Studio's own switches are on their own tab, and each tab saves only its own", async () => {
+  await owner.goto("/admin/switches");
+  await expect(owner.getByRole("tab", { name: "Regular apps", selected: true })).toBeVisible();
+  await expect(owner.getByRole("checkbox", { name: "ikas" })).toBeVisible();
+  await expect(owner.getByRole("checkbox", { name: "Ride hailing" })).toHaveCount(0);
+  // The type and the feature share the name: the type's checkbox is under App types.
+  const types = owner.getByRole("region", { name: "App types" });
+
+  await owner.getByRole("tab", { name: "Yallapp Studio" }).click();
+  await expect(owner).toHaveURL(/\/admin\/switches\?family=studio$/);
+  await expect(owner.getByRole("checkbox", { name: "ikas" })).toHaveCount(0);
+  const rides = types.getByRole("checkbox", { name: "Ride hailing" });
+  await rides.uncheck();
+  await owner.getByRole("button", { name: "Save switches" }).click();
+  await expect(owner.getByText("Switches saved.")).toBeVisible();
+
+  // Saving the regular tab keeps Studio's switch off.
+  await owner.getByRole("tab", { name: "Regular apps" }).click();
+  await owner.getByRole("checkbox", { name: "ikas" }).check();
+  await owner.getByRole("button", { name: "Save switches" }).click();
+  await expect(owner.getByText(/Switches saved\.|Nothing changed\./)).toBeVisible();
+  await owner.goto("/admin/switches?family=studio");
+  await expect(rides).not.toBeChecked();
+  await rides.check();
+  await owner.getByRole("button", { name: "Save switches" }).click();
+  await expect(owner.getByText("Switches saved.")).toBeVisible();
+});
+
+test("a regular plan's choices don't list Studio's own project types; a Studio plan's do", async () => {
+  await owner.goto("/admin/plans");
+  await expect(owner.getByRole("checkbox", { name: "Store", exact: true }).first()).toBeVisible();
+  await expect(owner.getByRole("checkbox", { name: "Ride hailing" })).toHaveCount(0);
+  await owner.getByRole("button", { name: /^Save what .+ offers$/ }).click();
+  await expect(owner.getByText(/^Saved what the .+ plan offers\.$/)).toBeVisible();
+
+  await owner.goto("/admin/plans?family=studio");
+  await expect(owner.getByRole("checkbox", { name: "Ride hailing" }).first()).toBeVisible();
+});

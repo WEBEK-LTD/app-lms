@@ -4,7 +4,7 @@ import { useActionState, useState } from "react";
 import { savePlanAction, savePlanLimitsAction, saveStoragePacksAction, removeStudioPlanAction, saveStudioOfferAction } from "@/app/actions/admin-settings";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { btn } from "@/components/ui";
-import { initialFormState } from "@/lib/forms";
+import { initialFormState, type FormState } from "@/lib/forms";
 
 export interface PlanFormValues {
   id: string;
@@ -36,7 +36,11 @@ const TEXT_LANGS = [
 ] as const;
 
 export function PlanForm({ plan }: { plan: PlanFormValues }) {
-  const [state, action] = useActionState(savePlanAction, initialFormState);
+  // Each answer is counted: React resets the form's radios after each submit, and drawn again for each answer they show the choice kept in state.
+  const [state, action] = useActionState(
+    async (previous: FormState & { round?: number }, formData: FormData) => ({ ...(await savePlanAction(previous, formData)), round: (previous.round ?? 0) + 1 }),
+    initialFormState as FormState & { round?: number },
+  );
   const v = (name: keyof PlanFormValues & string, fallback: string) => state.values?.[name] ?? fallback;
   const id = (name: string) => `${plan.id}-${name}`;
   const [pricing, setPricing] = useState(v("pricing", plan.pricing));
@@ -60,7 +64,7 @@ export function PlanForm({ plan }: { plan: PlanFormValues }) {
       {/* The choice is sent from state: React resets the form's own radios after each submit. */}
       <input type="hidden" name="pricing" value={pricing} />
       <div className="flex flex-col gap-4 rounded-xl border border-line-soft bg-sand/40 p-4">
-      <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+      <fieldset key={state.round ?? 0} className="m-0 flex flex-col gap-2 border-0 p-0">
         <legend className="mb-1 text-sm font-semibold">Price</legend>
         <div className="flex flex-wrap gap-5">
           {[

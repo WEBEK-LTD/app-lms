@@ -38,14 +38,27 @@ test("the team creates the demo apps from the admin", async () => {
   await admin.goto("/admin/demos");
   await expect(admin.getByRole("heading", { name: "Demo apps", level: 1 })).toBeVisible();
   await expect(admin.getByText(DEMO.display).first()).toBeVisible();
-  await admin.getByRole("button", { name: /Create the demo apps|Refresh all demo apps/ }).click();
-  await expect(admin.getByRole("status")).toContainText("The demo apps are created and up to date.", { timeout: 30_000 });
-  for (const name of ["Nour Academy", "Lale Flowers", "Defne Café", "Studio Nur", "Kardelen Clinic", "Pulse Studio", "Nile Homes", "The Harbour Post", "Kuzey Culture Centre", "Bereket Food Bank", "Sahm Express", "Sofra Eats", "Masar Rides"]) {
+  // The regular apps' demos and Yallapp Studio's, each on their own tab.
+  await admin.getByRole("button", { name: /Create the regular demo apps|Refresh all regular demo apps/ }).click();
+  await expect(admin.getByRole("status")).toContainText("The regular apps' demos are created and up to date.", { timeout: 30_000 });
+  for (const name of ["Nour Academy", "Lale Flowers", "Defne Café", "Studio Nur", "Kardelen Clinic", "Pulse Studio", "Nile Homes", "The Harbour Post", "Kuzey Culture Centre", "Bereket Food Bank"]) {
     await expect(admin.getByRole("heading", { name, level: 2 })).toBeVisible();
     appIds[name] = await admin.locator(`form:has(button:has-text("Start a build of ${name}")) input[name="appId"]`).inputValue();
   }
+  await expect(admin.getByRole("heading", { name: "Masar Rides", level: 2 })).toHaveCount(0);
+  await admin.getByRole("tab", { name: "Yallapp Studio" }).click();
+  await expect(admin).toHaveURL(/\/admin\/demos\?family=studio$/);
+  await admin.getByRole("button", { name: /Create Studio's demo apps|Refresh all of Studio's demo apps/ }).click();
+  await expect(admin.getByRole("status")).toContainText("Yallapp Studio's demos are created and up to date.", { timeout: 30_000 });
+  await expect(admin).toHaveURL(/family=studio/);
+  for (const name of ["Sahm Express", "Sofra Eats", "Masar Rides"]) {
+    await expect(admin.getByRole("heading", { name, level: 2 })).toBeVisible();
+    appIds[name] = await admin.locator(`form:has(button:has-text("Start a build of ${name}")) input[name="appId"]`).inputValue();
+  }
+  await expect(admin.getByRole("heading", { name: "Lale Flowers", level: 2 })).toHaveCount(0);
+  await admin.getByRole("tab", { name: "Regular apps" }).click();
   // Again: updated, not duplicated.
-  await admin.getByRole("button", { name: "Refresh all demo apps" }).click();
+  await admin.getByRole("button", { name: "Refresh all regular demo apps" }).click();
   await expect(admin.getByRole("status")).toContainText("up to date", { timeout: 30_000 });
   expect(await admin.locator(`form:has(button:has-text("Start a build of Lale Flowers")) input[name="appId"]`).inputValue()).toBe(appIds["Lale Flowers"]);
   await admin.goto("/admin/audit");

@@ -12,12 +12,13 @@ export interface SwitchGroupView {
   items: { key: string; label: string; on: boolean; offOn: string[] }[];
 }
 
-/** On/off for everyone: a ticked box is on. */
-export function SwitchesForm({ groups }: { groups: SwitchGroupView[] }) {
+/** On/off for everyone: a ticked box is on. Saves one tab's switches (regular apps' or Yallapp Studio's). */
+export function SwitchesForm({ family, groups }: { family: "regular" | "studio"; groups: SwitchGroupView[] }) {
   const [state, action] = useActionState(saveSwitchesAction, initialFormState);
   return (
     <form action={action} noValidate className="flex flex-col gap-5">
       <FormMessage message={state.message} ok={state.ok} />
+      <input type="hidden" name="family" value={family} />
       {groups.map((group) => (
         <section key={group.kind} aria-labelledby={`h-${group.kind}`} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <div className="flex flex-col gap-1">

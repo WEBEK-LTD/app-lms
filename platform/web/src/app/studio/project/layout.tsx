@@ -12,6 +12,7 @@ import { isStudioProject } from "@/lib/studio/section";
 import { pathPermission } from "@/lib/team/permissions";
 import { C, Glyph, StudioBar, StudioScreen } from "../chrome";
 import { ProjectNav, type ProjectNavGroup } from "./project-nav";
+import { StudioDashboardLinks } from "./dashboard-links";
 
 /** A dashboard address in the project's own frame. */
 const inStudio = (href: string) => href.replace(/^\/dashboard/, "/studio/project");
@@ -80,6 +81,7 @@ export default async function StudioProjectLayout({ children }: { children: Reac
   const bold = { b: (chunk: string) => <strong>{chunk}</strong> };
   return (
     <StudioScreen dir={dir} lang={lang}>
+      <StudioDashboardLinks />
       <StudioBar>
         <details className="relative">
           <summary className="flex cursor-pointer list-none items-center gap-1.5 rounded-[10px] px-3 py-1.5 text-sm" style={{ background: C.barSoft }} aria-label={t("studio.switchProject")}>
