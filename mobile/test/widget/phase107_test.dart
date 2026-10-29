@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/api/models/models.dart';
+import 'package:yallapp/modules/shared/pages/content_blocks.dart'
+    show pageClockProvider;
 
 import '../support/fake_api.dart';
 import '../support/fixtures.dart';
@@ -165,5 +167,165 @@ void main() {
     // Hidden in the app.
     expect(find.text('Coming soon'), findsNothing);
     expect(tester.takeException(), isNull);
+  });
+
+  group('107.3 new elements', () {
+    final now = DateTime.utc(2026, 11, 1, 10);
+    Map<String, dynamic> page({required String endsAt, String ended = ''}) => {
+      'body': {
+        'id': 'root',
+        'type': 'column',
+        'gap': 8,
+        'children': [
+          {
+            'id': 'faq',
+            'type': 'accordion',
+            'children': [
+              {
+                'id': 'q1',
+                'type': 'column',
+                'title': 'How long does delivery take?',
+                'children': [
+                  {'id': 'a1', 'type': 'text', 'text': 'Two to three days.'},
+                ],
+              },
+              {
+                'id': 'q2',
+                'type': 'column',
+                'title': 'Can I pay on delivery?',
+                'children': [
+                  {'id': 'a2', 'type': 'text', 'text': 'Yes, cash or card.'},
+                ],
+              },
+            ],
+          },
+          {
+            'id': 'tabs',
+            'type': 'tabs',
+            'children': [
+              {
+                'id': 'men',
+                'type': 'column',
+                'title': 'Men',
+                'children': [
+                  {'id': 'm', 'type': 'text', 'text': 'Shirts for men'},
+                ],
+              },
+              {
+                'id': 'women',
+                'type': 'column',
+                'title': 'Women',
+                'children': [
+                  {'id': 'w', 'type': 'text', 'text': 'Dresses for women'},
+                ],
+              },
+            ],
+          },
+          {'id': 'sale', 'type': 'countdown', 'ends_at': endsAt, 'text': ended},
+          {
+            'id': 'perks',
+            'type': 'bullets',
+            'text': 'Free delivery\nPay on delivery\n\nReturns in 14 days',
+          },
+        ],
+      },
+    };
+
+    TestApp appWith(Map<String, dynamic> studio) => TestApp(
+      api: FakeApi()
+        ..navigation = navigationJson()
+        ..pages = {
+          'home': {...appPageJson(blocks: []), 'studio': studio},
+        },
+      signedIn: true,
+      overrides: [pageClockProvider.overrideWithValue(() => now)],
+    );
+
+    test('reads them', () {
+      final body = AppPage.fromJson({
+        ...appPageJson(blocks: []),
+        'studio': page(endsAt: '2026-11-03T12:30:15Z'),
+      }).studio!.body;
+      expect(body.children.map((n) => n.type), [
+        StudioNodeType.accordion,
+        StudioNodeType.tabs,
+        StudioNodeType.countdown,
+        StudioNodeType.bullets,
+      ]);
+      expect(body.children[0].holdsChildren, isTrue);
+      expect(
+        body.children[0].children.first.title,
+        'How long does delivery take?',
+      );
+      expect(body.children[2].endsAt, DateTime.utc(2026, 11, 3, 12, 30, 15));
+    });
+
+    testWidgets('questions open one at a time, tabs switch, the countdown '
+        'counts and each line has its icon', (tester) async {
+      await appWith(page(endsAt: '2026-11-03T12:30:15Z')).pump(tester);
+      await TestApp.settle(tester, 10);
+
+      // Closed until tapped; one open at a time.
+      expect(find.text('Two to three days.'), findsNothing);
+      await tester.tap(find.text('How long does delivery take?'));
+      await TestApp.settle(tester, 5);
+      expect(find.text('Two to three days.'), findsOneWidget);
+      await tester.tap(find.text('Can I pay on delivery?'));
+      await TestApp.settle(tester, 5);
+      expect(find.text('Yes, cash or card.'), findsOneWidget);
+      expect(find.text('Two to three days.'), findsNothing);
+
+      // The first tab, then the second.
+      expect(find.text('Shirts for men'), findsOneWidget);
+      expect(find.text('Dresses for women'), findsNothing);
+      await tester.tap(find.byKey(const ValueKey('studio-tab-women')));
+      await TestApp.settle(tester, 5);
+      expect(find.text('Dresses for women'), findsOneWidget);
+      expect(find.text('Shirts for men'), findsNothing);
+
+      // 2 days, 2 hours, 30 minutes and 15 seconds left.
+      final clock = find.byKey(const ValueKey('studio-countdown-sale'));
+      expect(clock, findsOneWidget);
+      for (final digits in ['02', '30', '15']) {
+        expect(
+          find.descendant(of: clock, matching: find.text(digits)),
+          findsWidgets,
+        );
+      }
+
+      // Each line with its icon; the empty line left out.
+      expect(find.text('Free delivery'), findsOneWidget);
+      expect(find.text('Returns in 14 days'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('studio-node-perks')),
+          matching: find.byType(Row),
+        ),
+        findsNWidgets(3),
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('once the time is up, the owner\'s text, or nothing', (
+      tester,
+    ) async {
+      await appWith(
+        page(endsAt: '2026-10-30T00:00:00Z', ended: 'The offer ended.'),
+      ).pump(tester);
+      await TestApp.settle(tester, 10);
+      expect(find.byKey(const ValueKey('studio-countdown-sale')), findsNothing);
+      expect(find.text('The offer ended.'), findsOneWidget);
+    });
+
+    testWidgets('a past countdown without a text disappears', (tester) async {
+      await appWith(page(endsAt: '2026-10-30T00:00:00Z')).pump(tester);
+      await TestApp.settle(tester, 10);
+      expect(find.byKey(const ValueKey('studio-countdown-sale')), findsNothing);
+      expect(
+        find.byKey(const ValueKey('studio-countdown-ended-sale')),
+        findsNothing,
+      );
+      expect(tester.takeException(), isNull);
+    });
   });
 }

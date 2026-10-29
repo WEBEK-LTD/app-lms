@@ -291,7 +291,7 @@ function Layer(props: {
   const kids = holdsChildren(node) ? (node.children ?? []) : [];
   const folded = props.folded.has(node.id);
   const selected = props.selectedId === node.id;
-  const label = node.name ?? (node.type === "button" || node.type === "text" ? `${elementLabel(t, node.type, node.source)} «${(node.text ?? "").slice(0, 24)}»` : elementLabel(t, node.type, node.source));
+  const label = node.name ?? node.title ?? (node.type === "button" || node.type === "text" ? `${elementLabel(t, node.type, node.source)} «${(node.text ?? "").slice(0, 24)}»` : elementLabel(t, node.type, node.source));
   return (
     <>
       <li

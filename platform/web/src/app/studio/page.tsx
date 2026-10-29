@@ -45,7 +45,7 @@ export default async function StudioHomePage() {
     }),
   );
   const current = context.app && isStudioProject(context.app) ? context.app : null;
-  const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search") };
+  const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search"), days: t("studio.days"), hours: t("studio.hours"), minutes: t("studio.minutes"), seconds: t("studio.seconds") };
   return (
     <StudioScreen dir={dir} lang={lang}>
       <StudioBar>

@@ -1154,11 +1154,17 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
   }
   const textAlign = pick("text_align", STUDIO_TEXT_ALIGNS, "choose where the text sits.");
   if (textAlign && textAlign !== "start") node.text_align = textAlign;
-  const textual = node.type === "text" || node.type === "button" || node.type === "ratings" || node.type === "search";
+  const textual = node.type === "text" || node.type === "button" || node.type === "ratings" || node.type === "search" || node.type === "countdown" || node.type === "bullets";
   if (textual) {
-    const text = node.type === "text" && !card ? c.text(where, v.text, L.textChars, "a text") : c.optionalText(where, v.text, L.textChars, "The text");
+    const text =
+      (node.type === "text" || node.type === "bullets") && !card ? c.text(where, v.text, L.textChars, node.type === "bullets" ? "the list's lines" : "a text") : c.optionalText(where, v.text, L.textChars, node.type === "countdown" ? "The text once the time is up" : "The text");
     if (text) node.text = text;
-    const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.studio, { text: L.textChars });
+  }
+  // 107.3 A question of an accordion or a tab: its name.
+  const title = c.optionalText(where, v.title, L.titleChars, "The question or the tab's name");
+  if (title) node.title = title;
+  if (textual || title) {
+    const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.studio, { text: L.textChars, title: L.titleChars });
     if (translations) node.translations = translations;
   }
   const lines = num("max_lines", 1, 50, "the lines");
@@ -1204,6 +1210,19 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
     }
     case "row":
       if (v.scroll === true) node.scroll = true;
+      break;
+    case "countdown": {
+      // 107.3 Counts down to a moment.
+      const ends = typeof v.ends_at === "string" ? new Date(v.ends_at) : null;
+      if (!ends || Number.isNaN(ends.getTime())) bad("set when the countdown ends.");
+      else node.ends_at = ends.toISOString();
+      break;
+    }
+    case "bullets":
+      if (v.icon !== undefined && v.icon !== null && v.icon !== "") {
+        if (!(typeof v.icon === "string" && ICON_NAME.test(v.icon))) bad("choose an icon.");
+        else node.icon = v.icon;
+      }
       break;
     case "items": {
       if (!oneOf(ctx.sources, v.source)) bad("choose what the list shows.");
@@ -1284,7 +1303,7 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
     default:
       break;
   }
-  if (node.type === "button" || node.type === "icon") {
+  if (node.type === "button" || node.type === "icon" || node.type === "bullets") {
     const iconSize = num("icon_size", 8, 200, "the icon's size");
     if (iconSize && iconSize !== 24) node.icon_size = iconSize;
     const pos = pick("icon_position", ["start", "end"] as const, "choose where the icon sits.");

@@ -530,6 +530,27 @@ function withText(node: StudioNode, text: string, lang: LanguageCode, def: Langu
   return { translations };
 }
 
+/** 107.3 A question's or a tab's name, in the language being edited. */
+function titleOf(node: StudioNode, lang: LanguageCode, def: LanguageCode): string {
+  if (lang === def) return node.title ?? "";
+  return (node.translations?.[lang]?.title as string | undefined) ?? "";
+}
+
+function withTitle(node: StudioNode, title: string, lang: LanguageCode, def: LanguageCode): Partial<StudioNode> {
+  if (lang === def) return { title: title || undefined };
+  const translations = { ...(node.translations ?? {}) };
+  translations[lang] = { ...(translations[lang] ?? {}), title };
+  return { translations };
+}
+
+/** 107.3 A moment as the date and time field shows it, in the browser's time zone. */
+function localInput(iso: string | null | undefined): string {
+  const d = iso ? new Date(iso) : null;
+  if (!d || Number.isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 /** 107.1 The shapes an element can keep, width over height. */
 const RATIOS = [
   { key: "1:1", value: 1 },
@@ -543,16 +564,51 @@ function DesignTab(props: Props & { node: StudioNode }) {
   const t = useDashT();
   const { node, onChange } = props;
   const layout = holdsChildren(node);
-  const textual = node.type === "text" || node.type === "button" || node.type === "ratings" || node.type === "search";
+  const textual = node.type === "text" || node.type === "button" || node.type === "ratings" || node.type === "search" || node.type === "bullets" || node.type === "countdown";
   const alignField = textual ? "text_align" : "self_align";
   const alignValue = textual ? (node.text_align ?? "start") : (node.self_align ?? null);
+  // 107.3 A child of an accordion or tabs has a question or a tab name.
+  const holder = node.id === props.page.body.id ? null : placeOf(props.page.body, node.id)?.parent;
+  const titled = holder?.type === "accordion" || holder?.type === "tabs";
   return (
     <>
-      {textual ? (
+      {titled ? (
+        <label className="flex flex-col gap-1 font-bold">
+          {t("studio.itemTitle")}
+          <input value={titleOf(node, props.lang, props.defaultLang)} maxLength={120} onChange={(e) => onChange(withTitle(node, e.target.value, props.lang, props.defaultLang))} placeholder={props.lang === props.defaultLang ? undefined : (node.title ?? "")} className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--studio-line)" }} />
+          <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+            {t("studio.itemTitleHint")}
+          </span>
+        </label>
+      ) : null}
+      {node.type === "countdown" ? (
+        <label className="flex flex-col gap-1 font-bold">
+          {t("studio.endsAt")}
+          <input type="datetime-local" dir="ltr" value={localInput(node.ends_at)} onChange={(e) => e.target.value && onChange({ ends_at: new Date(e.target.value).toISOString() })} className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--studio-line)" }} />
+        </label>
+      ) : null}
+      {textual && node.type !== "bullets" && node.type !== "countdown" ? (
         <label className="flex flex-col gap-1 font-bold">
           {t("studio.text")}
           <textarea value={textOf(node, props.lang, props.defaultLang)} onChange={(e) => onChange(withText(node, e.target.value, props.lang, props.defaultLang))} rows={node.type === "text" ? 3 : 1} maxLength={2000} placeholder={node.type === "text" ? undefined : node.text ?? ""} className="rounded-lg px-2.5 py-1.5 font-normal" style={{ border: "1px solid var(--studio-line)" }} data-studio-text="" />
         </label>
+      ) : null}
+      {node.type === "bullets" || node.type === "countdown" ? (
+        <label className="flex flex-col gap-1 font-bold">
+          {t(node.type === "bullets" ? "studio.bulletLines" : "studio.endedText")}
+          <textarea value={textOf(node, props.lang, props.defaultLang)} onChange={(e) => onChange(withText(node, e.target.value, props.lang, props.defaultLang))} rows={node.type === "bullets" ? 4 : 2} maxLength={2000} className="rounded-lg px-2.5 py-1.5 font-normal" style={{ border: "1px solid var(--studio-line)" }} data-studio-text="" />
+          {node.type === "countdown" ? (
+            <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+              {t("studio.endedTextHint")}
+            </span>
+          ) : null}
+        </label>
+      ) : null}
+      {node.type === "bullets" ? (
+        <div className="flex flex-col gap-2">
+          <IconPicker id={`icon-${node.id}`} label={t("studio.bulletIcon")} value={node.icon ?? "check_circle"} onChange={(icon) => onChange({ icon: icon ?? undefined })} />
+          <Slider label={t("studio.iconSize")} value={node.icon_size ?? 20} min={8} max={60} onChange={(icon_size) => onChange({ icon_size })} />
+        </div>
       ) : null}
       {node.type === "image" ? (
         <div className="flex flex-col gap-2">

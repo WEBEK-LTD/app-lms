@@ -82,7 +82,18 @@ export type SectionWord =
   | "schoolStepOne"
   | "schoolStepTwo"
   | "schoolStepThree"
-  | "ctaSchool";
+  | "ctaSchool"
+  // 107.3 Questions and answers, and an offer counting down.
+  | "faqTitle"
+  | "faqOneQ"
+  | "faqOneA"
+  | "faqTwoQ"
+  | "faqTwoA"
+  | "faqThreeQ"
+  | "faqThreeA"
+  | "saleTitle"
+  | "saleText"
+  | "saleEnded";
 
 export interface SectionContext {
   brand: string;
@@ -330,6 +341,49 @@ export const SECTIONS: readonly SectionInfo[] = [
         },
       ],
     }),
+  },
+  {
+    // 107.3 Questions people ask, each answer opening under its question.
+    id: "faq",
+    icon: "unfold_more",
+    make: (ctx) => {
+      const id = () => (ctx.newId ?? newNodeId)();
+      const qa = (q: SectionWord, a: SectionWord): StudioNode => ({ id: id(), type: "column", title: ctx.w(q), padding: { top: 0, end: 0, bottom: 8, start: 0 }, children: [text(ctx, ctx.w(a), { font: { size: 14 }, opacity: 0.85 })] });
+      return {
+        id: id(),
+        type: "column",
+        gap: 6,
+        padding: pad(8, 14),
+        children: [
+          text(ctx, ctx.w("faqTitle"), { font: { size: 17, weight: 800 } }),
+          { id: id(), type: "accordion", gap: 4, children: [qa("faqOneQ", "faqOneA"), qa("faqTwoQ", "faqTwoA"), qa("faqThreeQ", "faqThreeA")] },
+        ],
+      };
+    },
+  },
+  {
+    // 107.3 An offer counting down to its end, a week from when it's added.
+    id: "sale",
+    icon: "timer",
+    make: (ctx) => {
+      const ends = new Date(Date.now() + 7 * 86_400_000);
+      ends.setUTCMinutes(0, 0, 0);
+      return {
+        id: (ctx.newId ?? newNodeId)(),
+        type: "column",
+        gap: 10,
+        padding: pad(16, 16),
+        margin: pad(8, 10),
+        radius: 18,
+        background: ctx.brand,
+        color: "#FFFFFF",
+        children: [
+          text(ctx, ctx.w("saleTitle"), { font: { size: 20, weight: 800 }, text_align: "center" }),
+          text(ctx, ctx.w("saleText"), { font: { size: 13 }, opacity: 0.9, text_align: "center" }),
+          { id: (ctx.newId ?? newNodeId)(), type: "countdown", ends_at: ends.toISOString(), text: ctx.w("saleEnded"), text_align: "center" },
+        ],
+      };
+    },
   },
   {
     id: "search",
