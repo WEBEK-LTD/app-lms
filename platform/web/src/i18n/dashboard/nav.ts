@@ -107,6 +107,11 @@ export const en = {
     // 105.2 Ride hailing
     rides: "Ride hailing",
     yourRides: "Your rides",
+    // 105.9 Live taxi on the map
+    taxi: "Live taxi on the map",
+    yourTaxis: "Your taxis",
+    mapsLive: "Maps & live",
+    liveMap: "Live map",
     // 105.3 Academies with many teachers
     instructors: "Academy with many teachers",
     yourAcademy: "Your academy",
@@ -298,6 +303,10 @@ export const ar: Messages = {
     paidOrders: "الطلبات المدفوعة",
     rides: "توصيل الركاب",
     yourRides: "رحلاتك",
+    taxi: "تاكسي مباشر على الخريطة",
+    yourTaxis: "سيارات الأجرة لديك",
+    mapsLive: "الخرائط والتحديث المباشر",
+    liveMap: "الخريطة المباشرة",
     instructors: "أكاديمية متعدّدة المدرّسين",
     yourAcademy: "أكاديميتك",
     ridesList: "الرحلات",
@@ -486,6 +495,10 @@ export const tr: Messages = {
     paidOrders: "Ödenmiş siparişler",
     rides: "Araç çağırma",
     yourRides: "Yolculuklarınız",
+    taxi: "Haritada canlı taksi",
+    yourTaxis: "Taksileriniz",
+    mapsLive: "Haritalar ve canlı konum",
+    liveMap: "Canlı harita",
     instructors: "Çok eğitmenli akademi",
     yourAcademy: "Akademiniz",
     ridesList: "Yolculuklar",

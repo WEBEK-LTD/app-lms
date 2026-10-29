@@ -34,7 +34,7 @@ export default async function VehicleTypesPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHead title={t("rides.vehicleTypes")} intro={t("rides.vehicleTypesIntro")} />
-      <RidesPlanNotice plan={plan} t={t} />
+      <RidesPlanNotice app={app} plan={plan} t={t} />
 
       <section aria-labelledby="h-types" className="flex max-w-[860px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-types" className="m-0 text-lg font-bold">

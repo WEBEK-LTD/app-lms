@@ -50,6 +50,7 @@ export default async function NewStudioProjectPage({ searchParams }: PageProps<"
   const delivery = kindById("delivery");
   const food = kindById("food");
   const ridesKind = kindById("rides");
+  const taxi = kindById("taxi");
   const instructors = kindById("instructors");
   const school = kindById("school");
   const studioKinds = [
@@ -63,6 +64,10 @@ export default async function NewStudioProjectPage({ searchParams }: PageProps<"
     ridesKind && offered.includes(ridesKind)
       ? { ...choiceOf(ridesKind), name: t("studio.kindRides"), icon: "local_taxi", text: t("studio.kindRidesText"), soon: false }
       : { id: "rides", name: t("studio.kindRides"), icon: "local_taxi", sources: [], text: t("studio.soon"), soon: true },
+    // 105.9
+    taxi && offered.includes(taxi)
+      ? { ...choiceOf(taxi), name: t("studio.kindTaxi"), icon: "map", text: t("studio.kindTaxiText"), soon: false }
+      : { id: "taxi", name: t("studio.kindTaxi"), icon: "map", sources: [], text: t("studio.soon"), soon: true },
     // 105.3
     instructors && offered.includes(instructors)
       ? { ...choiceOf(instructors), name: t("studio.kindInstructors"), icon: "groups", text: t("studio.kindInstructorsText"), soon: false }

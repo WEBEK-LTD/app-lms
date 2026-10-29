@@ -71,7 +71,7 @@ export default async function RidesPage({ searchParams }: { searchParams: Promis
   return (
     <div className="flex flex-col gap-6">
       <PageHead title={t("rides.rides")} intro={t("rides.ridesIntro")} />
-      <RidesPlanNotice plan={plan} t={t} />
+      <RidesPlanNotice app={app} plan={plan} t={t} />
       {offeredTypes(types).length === 0 ? <TypesFirst t={t} /> : null}
 
       <div className="flex flex-wrap items-end justify-between gap-3">

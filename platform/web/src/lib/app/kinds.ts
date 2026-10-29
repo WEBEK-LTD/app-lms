@@ -1109,7 +1109,6 @@ export const KINDS: readonly KindInfo[] = [
       nav: {
         label: "Your taxis",
         items: [
-          { href: "/dashboard/taxi", label: "Live map", icon: "map" },
           { href: "/dashboard/rides", label: "Rides", icon: "directions_car" },
           { href: "/dashboard/drivers", label: "Drivers", icon: "person" },
           { href: "/dashboard/vehicle-types", label: "Vehicle types", icon: "category" },
@@ -1122,7 +1121,7 @@ export const KINDS: readonly KindInfo[] = [
       users: "Riders",
       ownContent: {
         text: "Set your vehicle types and their fares, your map and your Firebase Realtime Database, and add your drivers here in the dashboard. Riders ask for a taxi on the live map and pay the driver in cash or by card into your own iyzico, Kashier, Fawaterk, Stripe or PayPal account.",
-        next: "After this step, choose your map and add your Firebase Realtime Database on the **Maps & live** page, add your vehicle types and their fares on the **Vehicle types** page, then add your drivers on the **Drivers** page; every taxi and ride shows on the **Live map**. Riders and drivers sign in to the app with",
+        next: "After this step, choose your map and add your Firebase Realtime Database on the **Maps & live** page, add your vehicle types and their fares on the **Vehicle types** page, then add your drivers on the **Drivers** page; every ride shows on the **Rides** page. Riders and drivers sign in to the app with",
       },
     },
     reviewNote:
