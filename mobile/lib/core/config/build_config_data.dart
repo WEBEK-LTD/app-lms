@@ -46,7 +46,10 @@ enum AppVertical {
   services,
 
   /// 105.3 An academy with many teachers.
-  instructors;
+  instructors,
+
+  /// 105.9 A live taxi app (the rides module on the live map).
+  taxi;
 
   /// The value as the build config and `Config` send it; anything unknown
   /// (a newer platform) is none.

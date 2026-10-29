@@ -1819,6 +1819,63 @@ class FakeApi implements YallappApi {
     () => DriverEarnings.fromJson(driverEarningsJson()),
   );
 
+  // 105.9 Live taxi on the map.
+
+  List<Map<String, dynamic>> nearbyTaxis = [];
+  List<Map<String, dynamic>> taxiPlaces = [];
+  Map<String, dynamic>? taxiRoute;
+  final List<({double lat, double lng})> nearbyAsked = [];
+
+  @override
+  Future<TaxiLiveToken> getTaxiLiveToken() => _answer(
+    'getTaxiLiveToken',
+    () => throw const ApiException(
+      code: 'feature_disabled',
+      message: 'This app has no live database.',
+      statusCode: 403,
+    ),
+  );
+
+  @override
+  Future<List<NearbyTaxi>> listNearbyTaxis(double lat, double lng) =>
+      _answer('listNearbyTaxis', () {
+        nearbyAsked.add((lat: lat, lng: lng));
+        return [for (final t in nearbyTaxis) NearbyTaxi.fromJson(t)];
+      });
+
+  @override
+  Future<List<TaxiPlace>> searchTaxiPlaces(
+    String query, {
+    double? lat,
+    double? lng,
+    String? session,
+  }) => _answer(
+    'searchTaxiPlaces',
+    () => [for (final p in taxiPlaces) TaxiPlace.fromJson(p)],
+  );
+
+  @override
+  Future<TaxiPlace> getTaxiPlace(String id, {String? session}) => _answer(
+    'getTaxiPlace',
+    () => TaxiPlace.fromJson(taxiPlaces.firstWhere((p) => p['id'] == id)),
+  );
+
+  @override
+  Future<TaxiRoute> getTaxiRoute(
+    ({double lat, double lng}) from,
+    ({double lat, double lng}) to,
+  ) => _answer('getTaxiRoute', () {
+    final route = taxiRoute;
+    if (route == null) {
+      throw const ApiException(
+        code: 'feature_disabled',
+        message: "Routes aren't set up in this app.",
+        statusCode: 403,
+      );
+    }
+    return TaxiRoute.fromJson(route);
+  });
+
   // 105.3 Academies with many teachers.
 
   List<Map<String, dynamic>> teachers = [teacherSummaryJson()];

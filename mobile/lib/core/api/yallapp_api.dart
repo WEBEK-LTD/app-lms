@@ -816,6 +816,21 @@ abstract class YallappApi {
   });
   Future<DriverEarnings> getDriverEarnings(EarningsPeriod period);
 
+  // 105.9 Live taxi on the map.
+  Future<TaxiLiveToken> getTaxiLiveToken();
+  Future<List<NearbyTaxi>> listNearbyTaxis(double lat, double lng);
+  Future<List<TaxiPlace>> searchTaxiPlaces(
+    String query, {
+    double? lat,
+    double? lng,
+    String? session,
+  });
+  Future<TaxiPlace> getTaxiPlace(String id, {String? session});
+  Future<TaxiRoute> getTaxiRoute(
+    ({double lat, double lng}) from,
+    ({double lat, double lng}) to,
+  );
+
   // 105.3 Academies with many teachers.
   Future<TeacherPage> listTeachers({
     String? search,
@@ -2574,6 +2589,60 @@ class HttpYallappApi implements YallappApi {
     _required,
     DriverEarnings.fromJson,
     query: {'period': period.name},
+  );
+
+  // 105.9 Live taxi on the map.
+
+  @override
+  Future<TaxiLiveToken> getTaxiLiveToken() => _send(
+    'POST',
+    '/taxi/live-token',
+    _required,
+    (data) => TaxiLiveToken.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<List<NearbyTaxi>> listNearbyTaxis(double lat, double lng) => _get(
+    '/taxi/nearby',
+    _optional,
+    (json) => listOf(json, 'items', NearbyTaxi.fromJson),
+    query: {'lat': lat, 'lng': lng},
+  );
+
+  @override
+  Future<List<TaxiPlace>> searchTaxiPlaces(
+    String query, {
+    double? lat,
+    double? lng,
+    String? session,
+  }) => _get(
+    '/taxi/places',
+    _optional,
+    (json) => listOf(json, 'items', TaxiPlace.fromJson),
+    query: {'q': query, 'lat': ?lat, 'lng': ?lng, 'session': ?session},
+  );
+
+  @override
+  Future<TaxiPlace> getTaxiPlace(String id, {String? session}) => _get(
+    '/taxi/places/${Uri.encodeComponent(id)}',
+    _optional,
+    TaxiPlace.fromJson,
+    query: {'session': ?session},
+  );
+
+  @override
+  Future<TaxiRoute> getTaxiRoute(
+    ({double lat, double lng}) from,
+    ({double lat, double lng}) to,
+  ) => _send(
+    'POST',
+    '/taxi/route',
+    _optional,
+    (data) => TaxiRoute.fromJson(asJson(data)),
+    body: {
+      'from': {'lat': from.lat, 'lng': from.lng},
+      'to': {'lat': to.lat, 'lng': to.lng},
+    },
   );
 
   @override
