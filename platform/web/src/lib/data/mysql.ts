@@ -1054,14 +1054,14 @@ export class MysqlStore implements DataStore {
     );
   }
 
-  async createCatalogCategory(input: { appId: string; name: string; now: Date }): Promise<CatalogCategory> {
+  async createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean }): Promise<CatalogCategory> {
     const rows = await this.run((db) =>
       db
         .select({ next: sql<number | null>`max(${schema.catalogCategories.position}) + 1` })
         .from(schema.catalogCategories)
         .where(eq(schema.catalogCategories.appId, input.appId)),
     );
-    const values = { appId: input.appId, name: input.name, position: Number(rows[0]?.next ?? 0), createdAt: input.now };
+    const values = { appId: input.appId, name: input.name, position: Number(rows[0]?.next ?? 0), sample: input.sample === true, createdAt: input.now };
     const [result] = await this.run((db) => db.insert(schema.catalogCategories).values(values));
     return { id: Number(result.insertId), ...values };
   }
@@ -3874,6 +3874,12 @@ export class MysqlStore implements DataStore {
     await this.run((db) => db.update(t).set({ ...rest, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
   }
 
+  async deleteListing(appId: string, id: number): Promise<void> {
+    // Its favorites and conversations go by the foreign keys.
+    const t = schema.listings;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
   async getListingSettings(appId: string): Promise<ListingSettings | null> {
     const t = schema.listingSettings;
     const [row] = await this.run((db) => db.select().from(t).where(eq(t.appId, appId)).limit(1));
@@ -5856,6 +5862,11 @@ export class MysqlStore implements DataStore {
         db.select().from(s.listingSettings).where(eq(s.listingSettings.appId, appId)),
         // 97.2 Own fonts' files.
         db.select({ files: s.ownFonts.files }).from(s.ownFonts).where(eq(s.ownFonts.appId, appId)),
+        // 110.2 The pictures of delivery services, restaurants and their menus, teachers and vehicle types, as the memory store finds them.
+        db.select({ id: s.deliveryServices.imageAssetId }).from(s.deliveryServices).where(eq(s.deliveryServices.appId, appId)),
+        db.select({ logo: s.restaurants.logoAssetId, cover: s.restaurants.coverAssetId, menu: s.restaurants.menu }).from(s.restaurants).where(eq(s.restaurants.appId, appId)),
+        db.select({ id: s.teachers.photoAssetId }).from(s.teachers).where(eq(s.teachers.appId, appId)),
+        db.select({ id: s.vehicleTypes.imageAssetId }).from(s.vehicleTypes).where(eq(s.vehicleTypes.appId, appId)),
       ]),
     );
     return assetIdsIn(JSON.stringify(rows));

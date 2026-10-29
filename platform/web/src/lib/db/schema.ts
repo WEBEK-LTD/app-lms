@@ -618,6 +618,8 @@ export const catalogCategories = mysqlTable(
       .references(() => apps.id, { onDelete: "cascade" }),
     name: varchar("name", { length: 80 }).notNull(),
     position: int("position").notNull(),
+    // 110.2 A sample entry (lib/samples).
+    sample: boolean("sample").notNull().default(false),
     createdAt: time("created_at").notNull(),
   },
   (t) => [index("catalog_categories_app_idx").on(t.appId)],
@@ -646,6 +648,8 @@ export const catalogProducts = mysqlTable(
     // 91.5 Variations: attributes and combinations, each with its price and stock (JSON).
     variants: jsonText<CatalogVariants>("variants"),
     salesCount: int("sales_count").notNull().default(0),
+    // 110.2 A sample entry (lib/samples).
+    sample: boolean("sample").notNull().default(false),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -995,6 +999,8 @@ export const listings = mysqlTable(
     featured: boolean("featured").notNull(),
     status: varchar("status", { length: 16 }).notNull().$type<ListingStatus>(),
     publishedAt: time("published_at"),
+    // 110.2 A sample entry (lib/samples).
+    sample: boolean("sample").notNull().default(false),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -1012,6 +1018,8 @@ export const articleCategories = mysqlTable(
       .references(() => apps.id, { onDelete: "cascade" }),
     name: varchar("name", { length: 60 }).notNull(),
     position: int("position").notNull(),
+    // 110.2 A sample entry (lib/samples).
+    sample: boolean("sample").notNull().default(false),
     createdAt: time("created_at").notNull(),
   },
   (t) => [index("article_categories_app_idx").on(t.appId, t.position)],
@@ -1033,6 +1041,8 @@ export const articles = mysqlTable(
     featured: boolean("featured").notNull(),
     status: varchar("status", { length: 16 }).notNull().$type<ArticleStatus>(),
     publishedAt: time("published_at"),
+    // 110.2 A sample entry (lib/samples).
+    sample: boolean("sample").notNull().default(false),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -1072,6 +1082,8 @@ export const events = mysqlTable(
     capacity: int("capacity"),
     status: varchar("status", { length: 16 }).notNull().$type<EventStatus>(),
     publishedAt: time("published_at"),
+    // 110.2 A sample entry (lib/samples).
+    sample: boolean("sample").notNull().default(false),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -1170,6 +1182,8 @@ export const campaigns = mysqlTable(
     raisedCents: bigint("raised_cents", { mode: "number", unsigned: true }).notNull().default(0),
     donorCount: int("donor_count").notNull().default(0),
     publishedAt: time("published_at"),
+    // 110.2 A sample entry (lib/samples).
+    sample: boolean("sample").notNull().default(false),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -1258,6 +1272,8 @@ export const deliveryServices = mysqlTable(
     eta: varchar("eta", { length: 60 }),
     position: int("position").notNull(),
     active: boolean("active").notNull(),
+    // 110.2 A sample entry (lib/samples).
+    sample: boolean("sample").notNull().default(false),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -1362,6 +1378,8 @@ export const restaurants = mysqlTable(
     // Its menu (read with the restaurant, never listed), and its dishes' names for search.
     menu: jsonText<RestaurantMenu>("menu").notNull(),
     dishNames: text("dish_names").notNull(),
+    // 110.2 A sample entry (lib/samples).
+    sample: boolean("sample").notNull().default(false),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -1452,6 +1470,8 @@ export const vehicleTypes = mysqlTable(
     waitPerMinuteCents: bigint("wait_per_minute_cents", { mode: "number", unsigned: true }).notNull(),
     position: int("position").notNull(),
     active: boolean("active").notNull(),
+    // 110.2 A sample entry (lib/samples).
+    sample: boolean("sample").notNull().default(false),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -2606,6 +2626,8 @@ export const teachers = mysqlTable(
     shareBp: int("share_bp").notNull(),
     featured: boolean("featured").notNull().default(false),
     note: varchar("note", { length: 500 }),
+    // 110.2 A sample entry (lib/samples).
+    sample: boolean("sample").notNull().default(false),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -3314,6 +3336,8 @@ export const schoolAnnouncements = mysqlTable(
     title: varchar("title", { length: 120 }).notNull(),
     body: text("body").notNull(),
     teacherId: bigint("teacher_id", { mode: "number", unsigned: true }),
+    // 110.2 A sample entry (lib/samples).
+    sample: boolean("sample").notNull().default(false),
     createdAt: time("created_at").notNull(),
   },
   (t) => [index("school_announcements_app_idx").on(t.appId, t.createdAt)],
