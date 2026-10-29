@@ -12,9 +12,11 @@ import { LogSender } from "@/lib/hosted/otp-sender";
 import type { ServiceAccount } from "@/lib/hosted/push";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
 import { DEFAULT_RIDES_SETTINGS, EMPTY_DRIVER } from "@/lib/rides/settings";
+import { liveBoard } from "@/lib/taxi/board";
 import { checkLiveDatabase, customToken, LIVE_RULES, liveDatabase, LiveError } from "@/lib/taxi/live";
 import { checkMap, decodePolyline, routeBetween, searchPlaces, thin, type MapAccess } from "@/lib/taxi/maps";
 import { databaseUrlOf, DEFAULT_TAXI_SETTINGS, googleKeyOf, isTaxiApp, maskedKey, parseTaxiForm, sealGoogleKey, taxiOn } from "@/lib/taxi/settings";
+import { fitView, project, unproject } from "@/app/dashboard/taxi/live/map";
 import { PLAN_INFO } from "@/lib/plans";
 import { expectContract } from "./contract";
 import { KEY, NOW, setupClient } from "./helpers";
@@ -408,9 +410,60 @@ describe("105.9 live taxi apps on the hosted API", () => {
     expect((await call("GET", "/taxi/places", { query: { q: "ramses" }, token: rider.access_token })).body).toMatchObject({ code: "rate_limited" });
   });
 
+  it("puts the taxis and the rides waiting on the dashboard's live map", async () => {
+    const rider = await signUp("1001112222", "Mona");
+    const omar = await driverAt("1005556666", "Omar", NEAR);
+    const sara = await driverAt("1005558888", "Sara", FAR);
+    const asked = (await call("POST", "/rides", { query: { platform: "android" }, token: rider.access_token, body: { pickup: TAHRIR, dropoff: TOWER, vehicle_type_id: economyId, payment: "cash" } })).body as { id: number };
+    const settings = settingsWith({});
+    let board = await liveBoard(store, app, settings, now);
+    expect(board.counts).toEqual({ free: 2, onRide: 0, searching: 1, today: 0 });
+    expect(board.drivers.map((d) => [d.name, d.state, d.rideId])).toEqual([
+      ["Omar", "free", null],
+      ["Sara", "free", null],
+    ]);
+    expect(board.rides).toEqual([
+      expect.objectContaining({ id: asked.id, status: "searching", riderName: "Mona", driverName: null, from: TAHRIR.address, to: TOWER.address, lat: TAHRIR.lat, lng: TAHRIR.lng, offers: 1 }),
+    ]);
+
+    await call("POST", "/driver/rides/{ride_id}/accept", { params: [String(asked.id)], token: omar.access_token });
+    board = await liveBoard(store, app, settings, now);
+    expect(board.counts).toEqual({ free: 1, onRide: 1, searching: 0, today: 0 });
+    expect(board.drivers.find((d) => d.id === omar.id)).toMatchObject({ state: "on_ride", rideId: asked.id, heading: 90 });
+    expect(board.rides).toEqual([expect.objectContaining({ id: asked.id, status: "accepted", driverName: "Omar" })]);
+
+    // Positions older than five minutes aren't on the map.
+    board = await liveBoard(store, app, settings, new Date(now.getTime() + 5 * 60_000 + 1_000));
+    expect(board.drivers).toEqual([]);
+    expect(sara.id).not.toBe(omar.id);
+  });
+
   it("waits for the plan: everything of the app answers feature_disabled", async () => {
     rides = false;
     expect((await call("GET", "/taxi/nearby", { query: { lat: "30.0444", lng: "31.2357" } })).body).toMatchObject({ code: "feature_disabled" });
     expect((await call("POST", "/rides/estimate", { body: { pickup: TAHRIR, dropoff: TOWER } })).body).toMatchObject({ code: "feature_disabled" });
+  });
+});
+
+describe("105.9 the dashboard's live map", () => {
+  it("draws the world in Web Mercator and fits every point in view", () => {
+    expect(project(0, 0, 0)).toEqual({ x: 128, y: 128 });
+    const back = unproject(...(Object.values(project(30.0444, 31.2357, 14)) as [number, number]), 14);
+    expect(back.lat).toBeCloseTo(30.0444, 6);
+    expect(back.lng).toBeCloseTo(31.2357, 6);
+    expect(fitView([], 800, 600)).toEqual({ lat: 20, lng: 20, zoom: 2 });
+    expect(fitView([NEAR], 800, 600)).toMatchObject({ zoom: 15, lat: expect.closeTo(NEAR.lat, 6), lng: expect.closeTo(NEAR.lng, 6) });
+    const both = fitView([NEAR, FAR], 800, 600);
+    for (const p of [NEAR, FAR]) {
+      const at = project(p.lat, p.lng, both.zoom);
+      const middle = project(both.lat, both.lng, both.zoom);
+      expect(Math.abs(at.x - middle.x)).toBeLessThanOrEqual(400 - 56);
+      expect(Math.abs(at.y - middle.y)).toBeLessThanOrEqual(300 - 56);
+    }
+    // One step closer and they wouldn't fit.
+    const closer = both.zoom + 1;
+    const span = project(NEAR.lat, NEAR.lng, closer).x - project(FAR.lat, FAR.lng, closer).x;
+    const tall = project(NEAR.lat, NEAR.lng, closer).y - project(FAR.lat, FAR.lng, closer).y;
+    expect(Math.abs(span) > 800 - 112 || Math.abs(tall) > 600 - 112).toBe(true);
   });
 });

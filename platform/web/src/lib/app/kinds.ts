@@ -1109,6 +1109,7 @@ export const KINDS: readonly KindInfo[] = [
       nav: {
         label: "Your taxis",
         items: [
+          { href: "/dashboard/taxi/live", label: "Live map", icon: "map" },
           { href: "/dashboard/rides", label: "Rides", icon: "directions_car" },
           { href: "/dashboard/drivers", label: "Drivers", icon: "person" },
           { href: "/dashboard/vehicle-types", label: "Vehicle types", icon: "category" },

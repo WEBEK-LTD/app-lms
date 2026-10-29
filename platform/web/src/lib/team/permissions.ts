@@ -141,6 +141,9 @@ export const DASHBOARD_PATHS: readonly (readonly [string, TeamPermission])[] = [
   ["/dashboard/drivers", "orders"],
   ["/dashboard/vehicle-types", "settings"],
   ["/dashboard/ride-settings", "settings"],
+  // 105.9 A live taxi company's live map shows its rides; its map and live database are its settings.
+  ["/dashboard/taxi/live", "orders"],
+  ["/dashboard/taxi/settings", "settings"],
   ["/dashboard/delivery", "settings"],
   ["/dashboard/notifications", "notifications"],
   ["/dashboard/preview", "dashboard"],

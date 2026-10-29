@@ -61,7 +61,7 @@ test("the company makes a Live taxi project in Yallapp Studio, apart from ride h
   await own.getByRole("button", { name: "Next" }).click();
   await expect(own).toHaveURL(/\/studio\/project$/);
   const nav = own.getByRole("navigation", { name: "Project dashboard" });
-  for (const link of ["Rides", "Drivers", "Vehicle types", "Ride settings", "Maps & live"]) {
+  for (const link of ["Live map", "Rides", "Drivers", "Vehicle types", "Ride settings", "Maps & live"]) {
     await expect(nav.getByRole("link", { name: link, exact: true })).toBeVisible();
   }
 
@@ -102,6 +102,35 @@ test("Maps & live: OpenStreetMap from the company's tile server and its Realtime
   await own.getByRole("button", { name: "Test the database" }).click();
   await expect(own.getByText("Add your app's Firebase service account first", { exact: false })).toBeVisible();
   await expect(own.getByRole("region", { name: "Database rules" }).locator("pre")).toContainText('"yallapp"');
+});
+
+test("Live map: the company's taxis and the rides now, on its own map", async () => {
+  await own.goto("/dashboard/taxi/live");
+  await expect(own).toHaveURL(/\/studio\/project\/taxi\/live$/);
+  await expect(own.getByRole("heading", { level: 1, name: "Live map" })).toBeVisible();
+  await expect(own.getByTitle("Updates every 5 seconds.")).toContainText("Live");
+  for (const [key, label] of [
+    ["free", "Free drivers"],
+    ["onRide", "On a ride"],
+    ["searching", "Waiting for a driver"],
+    ["today", "Rides completed today"],
+  ] as const) {
+    const count = own.locator(`[data-count="${key}"]`);
+    await expect(count.locator("[data-value]")).toHaveText("0");
+    await expect(count).toContainText(label);
+  }
+  await expect(own.getByText("No rides now.")).toBeVisible();
+  await expect(own.getByText("No taxi has sent its position in the last 5 minutes.")).toBeVisible();
+
+  // The company's tiles, drawn by the dashboard itself; no taxi yet, so the whole world.
+  const map = own.getByRole("region", { name: "Live map" });
+  await expect(map.locator("img").first()).toHaveAttribute("src", /^https:\/\/tiles\.lamha\.test\/2\/\d+\/\d+\.png$/);
+  await expect(own.getByText("© OpenStreetMap contributors")).toBeVisible();
+  for (const name of ["Free", "On a ride", "Ride waiting"]) await expect(own.getByRole("listitem").filter({ hasText: new RegExp(`^${name}$`) })).toBeVisible();
+  await own.getByRole("button", { name: "Zoom in" }).click();
+  await expect(map.locator("img").first()).toHaveAttribute("src", /\/3\/\d+\/\d+\.png$/);
+  await own.getByRole("button", { name: "Zoom out" }).click();
+  await expect(map.locator("img").first()).toHaveAttribute("src", /\/2\/\d+\/\d+\.png$/);
 });
 
 test("Maps & live: Google Maps with the company's own key, kept hidden", async () => {
