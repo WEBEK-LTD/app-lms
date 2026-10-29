@@ -22,12 +22,13 @@ export interface DesignTheme {
   round: number;
 }
 
+/** None has the header that lies over the page's top: on a page that doesn't start with a picture, it covers its title. */
 export const DESIGN_THEMES: readonly DesignTheme[] = [
   { id: "warm", accent: "#C2410C", background: "#FFF7ED", font: "Cairo", header: "logo_center", round: 1 },
   { id: "fresh", accent: "#15803D", background: "#F0FDF4", font: "Tajawal", header: "logo_actions", round: 1.5 },
   { id: "evening", accent: "#6D28D9", background: "#F5F3FF", font: "Rubik", header: "title_search", round: 0.6 },
   { id: "ocean", accent: "#0369A1", background: "#F0F9FF", font: "Almarai", header: "logo_actions", round: 1.2 },
-  { id: "classic", accent: "#0E0D24", background: "#FBF8F2", font: "IBM Plex Sans Arabic", header: "transparent", round: 0.8 },
+  { id: "classic", accent: "#0E0D24", background: "#FBF8F2", font: "IBM Plex Sans Arabic", header: "logo_actions", round: 0.8 },
   { id: "rose", accent: "#BE185D", background: "#FFF1F2", font: "Readex Pro", header: "logo_center", round: 1.3 },
 ];
 
