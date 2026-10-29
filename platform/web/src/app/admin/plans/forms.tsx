@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { savePlanAction, savePlanLimitsAction, saveStoragePacksAction, removeStudioPlanAction, saveStudioOfferAction } from "@/app/actions/admin-settings";
+import { useActionState, useEffect, useState } from "react";
+import { savePlanAction, savePlanLimitsAction, saveStoragePacksAction, removeStudioPlanAction, saveStudioPlanAction } from "@/app/actions/admin-settings";
+import { AvailabilityFields, type AvailabilityGroup } from "./availability";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { btn } from "@/components/ui";
 import { initialFormState, type FormState } from "@/lib/forms";
@@ -35,19 +36,35 @@ const TEXT_LANGS = [
   { code: "tr", name: "Turkish", dir: "ltr" },
 ] as const;
 
+type RoundState = FormState & { round?: number };
+
 export function PlanForm({ plan }: { plan: PlanFormValues }) {
   // Each answer is counted: React resets the form's radios after each submit, and drawn again for each answer they show the choice kept in state.
   const [state, action] = useActionState(
-    async (previous: FormState & { round?: number }, formData: FormData) => ({ ...(await savePlanAction(previous, formData)), round: (previous.round ?? 0) + 1 }),
-    initialFormState as FormState & { round?: number },
+    async (previous: RoundState, formData: FormData) => ({ ...(await savePlanAction(previous, formData)), round: (previous.round ?? 0) + 1 }),
+    initialFormState as RoundState,
   );
-  const v = (name: keyof PlanFormValues & string, fallback: string) => state.values?.[name] ?? fallback;
-  const id = (name: string) => `${plan.id}-${name}`;
-  const [pricing, setPricing] = useState(v("pricing", plan.pricing));
   return (
     <form action={action} noValidate className="flex flex-col gap-4">
       <input type="hidden" name="plan" value={plan.id} />
       <FormMessage message={state.message} ok={state.ok} />
+      <PlanTextFields plan={plan} state={state} />
+      <div className="flex justify-end">
+        <SubmitButton className="h-10" pendingText="Saving…">
+          Save plan
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** A plan's name, texts and price, in its own form or in a Studio plan's one form. */
+function PlanTextFields({ plan, state, highlightsHint = "One line per point on the pricing page." }: { plan: PlanFormValues; state: RoundState; highlightsHint?: string }) {
+  const v = (name: keyof PlanFormValues & string, fallback: string) => state.values?.[name] ?? fallback;
+  const id = (name: string) => `${plan.id}-${name}`;
+  const [pricing, setPricing] = useState(v("pricing", plan.pricing));
+  return (
+    <>
       <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
         <Field id={id("name")} label="Name" name="name" maxLength={30} defaultValue={v("name", plan.name)} error={state.errors?.name} />
         <Field id={id("tagline")} label="Tagline" name="tagline" maxLength={80} defaultValue={v("tagline", plan.tagline)} error={state.errors?.tagline} />
@@ -57,7 +74,7 @@ export function PlanForm({ plan }: { plan: PlanFormValues }) {
           What&apos;s included
         </label>
         <textarea id={id("highlights")} name="highlights" rows={4} defaultValue={v("highlights", plan.highlights)} className="input min-h-24 py-3" />
-        <span className="text-[13px] text-muted">One line per point on the pricing page.</span>
+        <span className="text-[13px] text-muted">{highlightsHint}</span>
         <FieldError id={`${id("highlights")}-error`} error={state.errors?.highlights} />
       </div>
       {/* 52 A price in pounds (charged through Kashier), shown in dollars outside Egypt; or the price text ("On request"). */}
@@ -149,12 +166,7 @@ export function PlanForm({ plan }: { plan: PlanFormValues }) {
           </details>
         );
       })}
-      <div className="flex justify-end">
-        <SubmitButton className="h-10" pendingText="Saving…">
-          Save plan
-        </SubmitButton>
-      </div>
-    </form>
+    </>
   );
 }
 
@@ -231,25 +243,36 @@ export interface PlanLimitsValues {
  * limits; empty means no limit. Team members, support, the account manager
  * and custom features are display-only: shown to clients, handled by the team.
  */
-export function PlanLimitsForm({
-  plan,
-  features,
-  limits,
-  supportLevels,
-}: {
-  plan: PlanLimitsValues;
-  features: { id: string; label: string; description: string; enforced: string }[];
-  limits: { id: "appUsers" | "languages" | "sources" | "storageGb" | "analyticsMonths"; label: string; unlimited: string; enforced: string }[];
-  supportLevels: { id: string; label: string }[];
-}) {
+export function PlanLimitsForm({ plan, features, limits, supportLevels }: LimitsProps) {
   const [state, action] = useActionState(savePlanLimitsAction, initialFormState);
-  const v = (name: string, fallback: string) => state.values?.[name] ?? fallback;
-  const checked = state.values ? (state.values.features ?? "").split(",") : plan.features;
-  const id = (name: string) => `${plan.id}-limits-${name}`;
   return (
     <form action={action} noValidate className="flex flex-col gap-4" aria-label={`${plan.name}: features and limits`}>
       <input type="hidden" name="plan" value={plan.id} />
       <FormMessage message={state.message} ok={state.ok} />
+      <PlanLimitsFields plan={plan} state={state} features={features} limits={limits} supportLevels={supportLevels} />
+      <div className="flex justify-end">
+        <SubmitButton className="h-10" pendingText="Saving…">
+          Save features and limits
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+type LimitsProps = {
+  plan: PlanLimitsValues;
+  features: { id: string; label: string; description: string; enforced: string }[];
+  limits: { id: "appUsers" | "languages" | "sources" | "storageGb" | "analyticsMonths"; label: string; unlimited: string; enforced: string }[];
+  supportLevels: { id: string; label: string }[];
+};
+
+/** A plan's features and limits; `extra`, a Studio plan's own limit, next to the others. */
+function PlanLimitsFields({ plan, state, features, limits, supportLevels, extra }: LimitsProps & { state: FormState; extra?: React.ReactNode }) {
+  const v = (name: string, fallback: string) => state.values?.[name] ?? fallback;
+  const checked = state.values ? (state.values.features ?? "").split(",") : plan.features;
+  const id = (name: string) => `${plan.id}-limits-${name}`;
+  return (
+    <>
       <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
         <legend className="mb-1 text-sm font-semibold">Features</legend>
         <div className="grid gap-2 sm:grid-cols-2">
@@ -278,6 +301,7 @@ export function PlanLimitsForm({
             small
           />
         ))}
+        {extra}
       </div>
       <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-line-soft p-3.5">
         <legend className="px-1 text-sm font-semibold">Shown to clients only (handled by the team)</legend>
@@ -306,54 +330,143 @@ export function PlanLimitsForm({
           Custom features on request
         </label>
       </fieldset>
-      <div className="flex justify-end">
-        <SubmitButton className="h-10" pendingText="Saving…">
-          Save features and limits
-        </SubmitButton>
-      </div>
-    </form>
+    </>
   );
 }
 
-/** 103R A Studio plan's card on Admin › Plans › Yallapp Studio. */
 /** 103R Whether a Studio plan is offered to Studio projects, and how many Studio pages a project on it may have. */
 export interface StudioOfferValues {
-  id: string;
-  name: string;
   offered: boolean;
-  /** Named by the team: a plan is offered with its own name. */
-  named: boolean;
   studioPages: string;
   /** Added by the team and on no license: it can be taken off the page. */
   removable: boolean;
 }
 
-export function StudioOfferForm({ plan }: { plan: StudioOfferValues }) {
-  const [state, action] = useActionState(saveStudioOfferAction, initialFormState);
-  const v = (name: "studioPages", fallback: string) => state.values?.[name] ?? fallback;
-  const offered = state.values ? state.values.offered === "on" : plan.offered;
+/**
+ * 103R A Studio plan on Admin › Plans › Yallapp Studio, in one form with
+ * one Save button that stays at the bottom of the screen: whether it's
+ * offered, its name and price, its features and limits (Pages per project
+ * with the others) and what it offers. Leaving with changes not saved asks
+ * first.
+ */
+export function StudioPlanForm({
+  id,
+  name,
+  offer,
+  texts,
+  limits,
+  groups,
+}: {
+  id: string;
+  name: string;
+  offer: StudioOfferValues;
+  texts: PlanFormValues;
+  limits: LimitsProps;
+  groups: AvailabilityGroup[];
+}) {
+  const [state, action] = useActionState(
+    async (previous: RoundState, formData: FormData) => ({ ...(await saveStudioPlanAction(previous, formData)), round: (previous.round ?? 0) + 1 }),
+    initialFormState as RoundState,
+  );
+  const [changed, setChanged] = useState(false);
+  const [round, setRound] = useState(0);
+  // A save that went through leaves nothing to save.
+  if ((state.round ?? 0) !== round) {
+    setRound(state.round ?? 0);
+    if (state.ok) setChanged(false);
+  }
+  useEffect(() => {
+    if (!changed) return;
+    const leaving = (e: BeforeUnloadEvent) => e.preventDefault();
+    // Links in the page (another plan, another tab of Admin) ask first too.
+    const clicked = (e: MouseEvent) => {
+      const link = (e.target as Element | null)?.closest?.("a[href]");
+      if (link && !window.confirm("Your changes to this plan aren't saved. Leave without saving?")) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    window.addEventListener("beforeunload", leaving);
+    document.addEventListener("click", clicked, true);
+    return () => {
+      window.removeEventListener("beforeunload", leaving);
+      document.removeEventListener("click", clicked, true);
+    };
+  }, [changed]);
+  const offered = state.values ? state.values.offered === "on" : offer.offered;
+  const panel = "flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6";
   return (
-    <form action={action} noValidate className="flex flex-col gap-3">
-      <input type="hidden" name="plan" value={plan.id} />
-      <div className="flex flex-col gap-1">
-        <h3 className="m-0 text-base font-bold">Offered to Studio projects</h3>
-        <p className="m-0 text-[13px] text-muted">Studio projects see and pay only offered plans. Name the plan and set its price first.</p>
+    <form action={action} noValidate onChange={() => setChanged(true)} className="flex flex-col gap-4" aria-label={`${name}: the plan`}>
+      <input type="hidden" name="plan" value={id} />
+      <div className={panel}>
+        <div className="flex flex-col gap-1">
+          <h3 className="m-0 text-base font-bold">Offered to Studio projects</h3>
+          <p className="m-0 text-[13px] text-muted">Studio projects see and pay only offered plans. Give the plan its own name and price first.</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+          <label className="flex h-10 cursor-pointer items-center gap-2 text-[15px] font-semibold">
+            <input key={state.round ?? 0} type="checkbox" name="offered" defaultChecked={offered} className="h-4 w-4 accent-midnight" />
+            Offered
+          </label>
+          {offer.removable ? (
+            <button type="submit" formAction={removeStudioPlanAction} className={`${btn.secondary} h-10 px-3 text-sm`}>
+              Remove plan
+            </button>
+          ) : null}
+        </div>
       </div>
-      <FormMessage message={state.message} ok={state.ok} />
-      <div className="flex flex-wrap items-end gap-x-6 gap-y-3">
-        <label className="flex h-10 cursor-pointer items-center gap-2 text-[15px] font-semibold">
-          <input type="checkbox" name="offered" defaultChecked={offered} className="h-4 w-4 accent-midnight" />
-          Offered
-        </label>
-        <Field id={`${plan.id}-studioPages`} label="Pages per project" name="studioPages" inputMode="numeric" placeholder="No limit" defaultValue={v("studioPages", plan.studioPages)} error={state.errors?.studioPages} className="w-[180px]" small />
+      <div className="grid items-start gap-4 xl:grid-cols-2">
+        <div className={panel}>
+          <div className="flex flex-col gap-1">
+            <h3 className="m-0 text-base font-bold">Name and price</h3>
+            <p className="m-0 text-[13px] text-muted">What the pricing page shows, in English and, if you like, Arabic and Turkish.</p>
+          </div>
+          <PlanTextFields
+            key={`texts-${state.ok ? (state.round ?? 0) : 0}`}
+            plan={texts}
+            state={state}
+            highlightsHint="One line per point. Empty: written from the plan's numbers when you save, and again when they change, until you write your own."
+          />
+        </div>
+        <div className={panel}>
+          <div className="flex flex-col gap-1">
+            <h3 className="m-0 text-base font-bold">Features and limits</h3>
+            <p className="m-0 text-[13px] text-muted">What each project on the plan may use. An empty limit means no limit.</p>
+          </div>
+          <PlanLimitsFields
+            key={`limits-${state.ok ? (state.round ?? 0) : 0}`}
+            {...limits}
+            state={state}
+            extra={
+              <Field
+                id={`${id}-studioPages`}
+                label="Pages per project"
+                name="studioPages"
+                inputMode="numeric"
+                placeholder="No limit"
+                defaultValue={state.values?.studioPages ?? offer.studioPages}
+                hint="1 to 20. Empty: no limit."
+                error={state.errors?.studioPages}
+                small
+              />
+            }
+          />
+        </div>
+      </div>
+      <div className={panel}>
+        <div className="flex flex-col gap-1">
+          <h3 className="m-0 text-base font-bold">What {name} offers</h3>
+          <p className="m-0 text-[13px] text-muted">Clients on this plan can choose what&apos;s ticked. Switches turn things off for everyone; the plan&apos;s features are set above.</p>
+        </div>
+        <AvailabilityFields key={`offers-${state.round ?? 0}`} groups={state.values ? groups.map((g) => ({ ...g, items: g.items.map((item) => ({ ...item, on: (state.values?.on ?? "").split(",").includes(item.key) })) })) : groups} />
+      </div>
+      <div className="sticky bottom-0 z-10 -mx-1 flex flex-wrap items-center justify-end gap-3 rounded-2xl border border-line bg-white/95 px-5 py-3 shadow-[0_-6px_18px_rgba(14,13,36,0.06)] backdrop-blur">
+        <div className="me-auto min-w-0">
+          {state.message ? <FormMessage message={state.message} ok={state.ok} /> : changed ? <span className="text-sm text-muted">Changes not saved yet.</span> : null}
+        </div>
         <SubmitButton className="h-10" pendingText="Saving…">
-          Save
+          Save plan
         </SubmitButton>
-        {plan.removable ? (
-          <button type="submit" formAction={removeStudioPlanAction} className={`${btn.secondary} h-10 px-3 text-sm`}>
-            Remove plan
-          </button>
-        ) : null}
       </div>
     </form>
   );

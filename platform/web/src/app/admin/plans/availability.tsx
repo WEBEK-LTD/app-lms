@@ -17,6 +17,18 @@ export function PlanAvailabilityForm({ plan, planName, groups }: { plan: string;
     <form action={action} noValidate className="flex flex-col gap-3">
       <input type="hidden" name="plan" value={plan} />
       <FormMessage message={state.message} ok={state.ok} />
+      <AvailabilityFields groups={groups} />
+      <SubmitButton variant="secondary" className="h-10 self-start px-4 text-sm">
+        Save what {planName} offers
+      </SubmitButton>
+    </form>
+  );
+}
+
+/** The app types, websites and features a plan offers, ticked `on`; in its own form or in a Studio plan's one form. */
+export function AvailabilityFields({ groups }: { groups: AvailabilityGroup[] }) {
+  return (
+    <>
       {groups.map((group) => (
         <fieldset key={group.title} className="m-0 flex flex-col gap-1.5 border-0 p-0">
           <legend className="mb-1 text-sm font-semibold">{group.title}</legend>
@@ -33,9 +45,6 @@ export function PlanAvailabilityForm({ plan, planName, groups }: { plan: string;
           </div>
         </fieldset>
       ))}
-      <SubmitButton variant="secondary" className="h-10 self-start px-4 text-sm">
-        Save what {planName} offers
-      </SubmitButton>
-    </form>
+    </>
   );
 }
