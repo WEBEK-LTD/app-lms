@@ -546,7 +546,8 @@ export interface DataStore {
 
   // Catalog (apps without a website)
   listCatalogCategories(appId: string): Promise<CatalogCategory[]>;
-  createCatalogCategory(input: { appId: string; name: string; now: Date }): Promise<CatalogCategory>;
+  /** 110.2 `sample`: a category made with the sample products. */
+  createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean }): Promise<CatalogCategory>;
   renameCatalogCategory(appId: string, id: number, name: string): Promise<void>;
   /** Also removes the category from its products. */
   deleteCatalogCategory(appId: string, id: number, now: Date): Promise<void>;
@@ -617,6 +618,8 @@ export interface DataStore {
   getListing(appId: string, id: number): Promise<Listing | null>;
   createListing(input: ListingInput, now: Date): Promise<Listing>;
   updateListing(appId: string, id: number, patch: Partial<ListingInput>, now: Date): Promise<void>;
+  /** 110.2 Deletes a listing with its favorites and conversations (sample listings; the office archives its own). */
+  deleteListing(appId: string, id: number): Promise<void>;
   /** The office's settings; null until saved (the defaults apply). */
   getListingSettings(appId: string): Promise<ListingSettings | null>;
   saveListingSettings(appId: string, settings: ListingSettings, now: Date): Promise<void>;

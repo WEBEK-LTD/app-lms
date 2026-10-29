@@ -899,9 +899,9 @@ export class MemoryStore implements DataStore {
       .map(clone);
   }
 
-  async createCatalogCategory(input: { appId: string; name: string; now: Date }): Promise<CatalogCategory> {
+  async createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean }): Promise<CatalogCategory> {
     const position = Math.max(0, ...[...this.catalogCategories.values()].filter((c) => c.appId === input.appId).map((c) => c.position + 1));
-    const category: CatalogCategory = { id: this.nextCatalogId++, appId: input.appId, name: input.name, position, createdAt: input.now };
+    const category: CatalogCategory = { id: this.nextCatalogId++, appId: input.appId, name: input.name, position, ...(input.sample ? { sample: true } : {}), createdAt: input.now };
     this.catalogCategories.set(category.id, clone(category));
     return category;
   }
@@ -3016,6 +3016,18 @@ export class MemoryStore implements DataStore {
   async updateListing(appId: string, id: number, patch: Partial<ListingInput>, now: Date): Promise<void> {
     const listing = this.listings.get(id);
     if (listing && listing.appId === appId) this.listings.set(id, clone({ ...listing, ...patch, appId, id, updatedAt: now }));
+  }
+
+  async deleteListing(appId: string, id: number): Promise<void> {
+    if (this.listings.get(id)?.appId !== appId) return;
+    this.listings.delete(id);
+    // Its favorites and conversations go with it, as the foreign keys take them in MySQL.
+    this.listingFavorites = this.listingFavorites.filter((f) => !(f.appId === appId && f.listingId === id));
+    for (const [key, inquiry] of this.listingInquiries) {
+      if (inquiry.appId !== appId || inquiry.listingId !== id) continue;
+      this.listingInquiries.delete(key);
+      for (const [messageKey, message] of this.listingMessages) if (message.inquiryId === key) this.listingMessages.delete(messageKey);
+    }
   }
 
   async getListingSettings(appId: string): Promise<ListingSettings | null> {
