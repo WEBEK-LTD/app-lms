@@ -509,6 +509,7 @@ export const PAGE_TEXTS_AR: Record<string, string> = {
   "School news": "أخبار المدرسة",
   "My school": "مدرستي",
   "Classroom": "الفصل",
+  "Welcome to our school": "مرحبًا بكم في مدرستنا",
   "The timetable, homework, grades and news in one place": "الجدول والواجبات والدرجات والأخبار في مكان واحد",
   "How do I sign in?": "كيف أسجّل الدخول؟",
   "With the mobile number you gave the school. A parent sees each of their children.": "برقم الجوال الذي أعطيته للمدرسة. يرى ولي الأمر كل أبنائه.",

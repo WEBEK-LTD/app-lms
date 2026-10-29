@@ -510,6 +510,7 @@ export const PAGE_TEXTS_TR: Record<string, string> = {
   "School news": "Okul haberleri",
   "My school": "Okulum",
   "Classroom": "Sınıf",
+  "Welcome to our school": "Okulumuza hoş geldiniz",
   "The timetable, homework, grades and news in one place": "Ders programı, ödevler, notlar ve duyurular tek yerde",
   "How do I sign in?": "Nasıl giriş yaparım?",
   "With the mobile number you gave the school. A parent sees each of their children.": "Okula verdiğiniz cep telefonuyla. Veli, çocuklarının her birini görür.",
