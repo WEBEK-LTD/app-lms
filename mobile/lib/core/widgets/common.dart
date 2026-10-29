@@ -145,6 +145,19 @@ class _ImagePlaceholder extends StatelessWidget {
   }
 }
 
+/// 110 The letter a word of a name starts with, past an article: the
+/// Arabic "ال" ("العميل" → "ع", not "ا", so "اسم العميل" isn't "اا") and
+/// "al-" or "el-" ("al-Masri" → "M").
+String nameInitial(String word) {
+  final bare = word
+      .replaceFirst(RegExp(r'^ال(?=\p{L}{2})', unicode: true), '')
+      .replaceFirst(
+        RegExp(r'^(?:al|el)-(?=\p{L})', caseSensitive: false, unicode: true),
+        '',
+      );
+  return bare.isEmpty ? '' : bare.characters.first;
+}
+
 /// A round picture of a person, or their initials on a soft tint.
 class InitialsAvatar extends StatelessWidget {
   const InitialsAvatar({
@@ -158,12 +171,12 @@ class InitialsAvatar extends StatelessWidget {
   final String? imageUrl;
   final double size;
 
-  /// "Deniz Kaya" → "DK", "Ayşe" → "A".
+  /// "Deniz Kaya" → "DK", "Ayşe" → "A", 110 "محمد العلي" → "مع".
   static String initialsOf(String name) {
     final words = name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
     if (words.isEmpty) return '?';
-    final first = words.first.characters.first;
-    final last = words.length > 1 ? words.last.characters.first : '';
+    final first = nameInitial(words.first);
+    final last = words.length > 1 ? nameInitial(words.last) : '';
     return (first + last).toUpperCase();
   }
 
@@ -828,9 +841,11 @@ class MessageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    // 110 Tighter on a small phone, so the button isn't under the tab bar.
+    final tight = compact || MediaQuery.sizeOf(context).height < 700;
     return Center(
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(compact ? 16 : 32),
+        padding: EdgeInsets.all(tight ? 16 : 32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -867,7 +882,7 @@ class MessageView extends StatelessWidget {
               ),
             ],
             if (actionLabel != null && onAction != null) ...[
-              const SizedBox(height: 22),
+              SizedBox(height: tight ? 16 : 22),
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 320),
                 child: PrimaryButton(label: actionLabel!, onPressed: onAction),

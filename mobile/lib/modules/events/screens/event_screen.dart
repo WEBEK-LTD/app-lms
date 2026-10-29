@@ -29,6 +29,7 @@ import '../widgets/event_widgets.dart';
 import '../widgets/order_sheet.dart';
 import '../../../core/services/review_prompt.dart';
 import '../../../core/services/share_links.dart';
+import '../../../core/format/bidi.dart';
 
 /// An event: its pictures, day and time, place (with the map) or online
 /// note, description and tickets. Free tickets are taken here; paid ones go
@@ -361,7 +362,7 @@ class _EventBodyState extends ConsumerState<_EventBody> {
                 factRow(
                   AppIcons.calendar,
                   eventWhen(event),
-                  sub: l10n.timesIn(event.timeZone.replaceAll('_', ' ')),
+                  sub: l10n.timesIn(isolate(zoneName(event.timeZone))),
                 ),
                 if (venue != null)
                   factRow(

@@ -8,13 +8,18 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/format/bidi.dart';
 
 /// "₺12,450 of ₺50,000", or "₺12,450 raised" without a goal.
 String raisedText(BuildContext context, CampaignSummary c) {
   final l10n = context.l10n;
   return c.goalFormatted == null
-      ? l10n.campaignRaised(c.raisedFormatted)
-      : l10n.campaignRaisedOf(c.raisedFormatted, c.goalFormatted!);
+      ? l10n.campaignRaised(isolate(c.raisedFormatted))
+      // 110 Each amount whole in right-to-left text ("250,000.00₺").
+      : l10n.campaignRaisedOf(
+          isolate(c.raisedFormatted),
+          isolate(c.goalFormatted!),
+        );
 }
 
 /// How far the campaign is, as a whole percent (0 without a goal).

@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/format/bidi.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/preview/preview_widgets.dart';
 import '../../../core/providers.dart';
@@ -397,6 +398,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                                         children: [
                                           Text(
                                             _dialCode,
+                                            // 110 "+90", not "90+", in
+                                            // right-to-left languages.
+                                            textDirection: TextDirection.ltr,
                                             style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w600,
@@ -704,7 +708,7 @@ class _CountrySheetState extends State<_CountrySheet> {
                   if (typed != null && RegExp(r'^\+?[0-9]+$').hasMatch(q))
                     ListTile(
                       minTileHeight: 52,
-                      title: Text(context.l10n.useCode(typed)),
+                      title: Text(context.l10n.useCode(ltrRun(typed))),
                       onTap: () => Navigator.of(context).pop(typed),
                     ),
                   for (final c in items)
@@ -716,6 +720,7 @@ class _CountrySheetState extends State<_CountrySheet> {
                       ),
                       trailing: Text(
                         c.dialCode,
+                        textDirection: TextDirection.ltr,
                         style: TextStyle(
                           color: p.textSecondary,
                           fontWeight: c.dialCode == widget.selected

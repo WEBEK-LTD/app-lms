@@ -204,11 +204,8 @@ class PrimaryButton extends StatelessWidget {
                 const SizedBox(width: 8),
               ],
               Flexible(
-                child: Text(
+                child: _ButtonText(
                   label,
-                  maxLines: 2,
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -277,16 +274,35 @@ class SecondaryButton extends StatelessWidget {
             ),
             const SizedBox(width: 6),
           ],
-          Flexible(
-            child: Text(
-              label,
-              maxLines: 2,
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
+          Flexible(child: _ButtonText(label)),
         ],
       ),
+    );
+  }
+}
+
+/// 110 A button's words: up to two lines, but one word is made a little
+/// smaller instead of broken in two ("Accep" / "t" on a small phone).
+class _ButtonText extends StatelessWidget {
+  const _ButtonText(this.label, {this.style});
+
+  final String label;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    if (label.trim().contains(RegExp(r'\s'))) {
+      return Text(
+        label,
+        maxLines: 2,
+        textAlign: TextAlign.center,
+        overflow: TextOverflow.ellipsis,
+        style: style,
+      );
+    }
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Text(label, maxLines: 1, style: style),
     );
   }
 }

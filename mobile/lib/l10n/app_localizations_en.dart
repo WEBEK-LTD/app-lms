@@ -3793,6 +3793,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatUnavailable => 'Chat isn\'t available right now.';
 
   @override
+  String get chatUploadRefused => 'The file couldn\'t be sent. Try again.';
+
+  @override
+  String get chatUploadExpired =>
+      'The link for sending the file ran out. Try again.';
+
+  @override
   String get chatPlayVoice => 'Play voice message';
 
   @override

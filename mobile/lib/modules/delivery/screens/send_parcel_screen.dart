@@ -290,27 +290,58 @@ class _SendParcelScreenState extends ConsumerState<SendParcelScreen> {
       key: const ValueKey('send-parcel'),
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
       children: [
-        ...services.maybeWhen(
-          data: (list) => list.isEmpty
-              ? const <Widget>[]
-              : [
-                  _SectionTitle(l10n.sendService),
-                  for (final s in list)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: _ServiceOption(
-                        service: s,
-                        selected: _serviceId == s.id,
-                        onTap: () {
-                          setState(() => _serviceId = s.id);
-                          _requote();
-                        },
+        // 110 The services while they load, and why they didn't with a way to
+        // ask again, instead of no section at all.
+        ...switch (services) {
+          AsyncValue(value: final list?) =>
+            list.isEmpty
+                ? const <Widget>[]
+                : [
+                    _SectionTitle(l10n.sendService),
+                    for (final s in list)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: _ServiceOption(
+                          service: s,
+                          selected: _serviceId == s.id,
+                          onTap: () {
+                            setState(() => _serviceId = s.id);
+                            _requote();
+                          },
+                        ),
                       ),
+                    const SizedBox(height: 8),
+                  ],
+          AsyncValue(error: final e?) => [
+            _SectionTitle(l10n.sendService),
+            AppCard(
+              key: const ValueKey('send-services-error'),
+              padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+              child: Row(
+                children: [
+                  AppIcon(AppIcons.error, size: 22, color: p.textSecondary),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      friendlyError(e),
+                      style: TextStyle(fontSize: 14, color: p.textBody),
                     ),
-                  const SizedBox(height: 8),
+                  ),
+                  TextButton(
+                    onPressed: () => ref.invalidate(deliveryServicesProvider),
+                    child: Text(l10n.tryAgain),
+                  ),
                 ],
-          orElse: () => const <Widget>[],
-        ),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+          _ => [
+            _SectionTitle(l10n.sendService),
+            const SkeletonBox(height: 64, radius: 16),
+            const SizedBox(height: 16),
+          ],
+        },
         _SectionTitle(l10n.sendPickup),
         PlaceEditor(
           keyPrefix: 'pickup',

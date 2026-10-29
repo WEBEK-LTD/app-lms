@@ -192,10 +192,27 @@ export function designPictures(design: Pick<Design, "id">, base: string | undefi
   return [1, 2].map((n) => `${root}/design-pictures/${design.id}-${n}.jpg`);
 }
 
+/** 110 A heading that says what the welcome banner says: "Welcome to {app}", or a bare "Welcome" (in Arabic and Turkish too). */
+const WELCOME_HEADING = /^\s*<(h[1-3])>\s*(?:Welcome to \{app\}|Welcome|مرحبًا|مرحبا|أهلًا بك|Hoş geldiniz)\s*[.!]?\s*<\/\1>\s*/i;
+
+/**
+ * 110 The page's first text block without a heading that repeats the
+ * welcome banner above it (its words stay); the block goes when nothing
+ * is left of it.
+ */
+export function withoutRepeatedWelcome(blocks: LayoutBlock[]): LayoutBlock[] {
+  const at = blocks.findIndex((b) => b.type === "text");
+  const text = blocks[at];
+  if (!text || !WELCOME_HEADING.test(text.html ?? "")) return blocks;
+  const html = (text.html ?? "").replace(WELCOME_HEADING, "");
+  return html.trim() ? blocks.map((b, i) => (i === at ? { ...b, html } : b)) : blocks.filter((_, i) => i !== at);
+}
+
 /**
  * 99.1 The design's pictures where it has none: each slide in turn, and on
  * a home page without a slider or banner, a banner welcoming to the app at
- * its top (after a search box that leads it).
+ * its top (after a search box that leads it); 110 a welcome heading of the
+ * page's own below it goes (`withoutRepeatedWelcome`).
  */
 function withPictures(slug: string, blocks: LayoutBlock[], pictures: string[]): LayoutBlock[] {
   if (!pictures.length) return blocks;
@@ -207,7 +224,8 @@ function withPictures(slug: string, blocks: LayoutBlock[], pictures: string[]): 
   if (slug !== "home" || out.some((b) => b.type === "slider" || b.type === "banner")) return out;
   const banner: LayoutBlock = { id: "hero", type: "banner", visibility: "everyone", title: null, image_url: pictures[0]!, heading: "Welcome to {app}", subheading: null, aspect_ratio: null, action: null };
   const at = out[0]?.type === "search" ? 1 : 0;
-  return [...out.slice(0, at), banner, ...out.slice(at)];
+  const rest = withoutRepeatedWelcome(out);
+  return [...rest.slice(0, at), banner, ...rest.slice(at)];
 }
 
 /** 99.1 The Contact page gets a Social links block with the business's profiles, when it has some. */

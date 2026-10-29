@@ -576,7 +576,8 @@ class _Avatar extends StatelessWidget {
           (w) => w.isNotEmpty && RegExp(r'\p{L}', unicode: true).hasMatch(w),
         )
         .take(2)
-        .map((w) => w.characters.first.toUpperCase())
+        // 110 Past an article ("اسم العميل" → "اع", not "اا").
+        .map((w) => nameInitial(w).toUpperCase())
         .join();
     return ExcludeSemantics(
       child: SizedBox(
@@ -1403,7 +1404,9 @@ class StatsView extends StatelessWidget {
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
-                    s.value,
+                    // 110 Isolated, so "10+" doesn't read "+10" right to
+                    // left; a value in words ("7 أيام") keeps its own way.
+                    '\u2068${s.value}\u2069',
                     maxLines: 1,
                     style: TextStyle(
                       fontSize: bold ? 28 : 24,
@@ -1809,6 +1812,7 @@ class _GalleryViewerState extends State<GalleryViewer> {
                   ),
                   child: Text(
                     '${_index + 1} / ${images.length}',
+                    textDirection: TextDirection.ltr,
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,

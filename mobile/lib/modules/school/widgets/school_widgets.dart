@@ -10,6 +10,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../data/school_providers.dart';
+import '../../../core/format/bidi.dart';
 
 /// 105.4 What the school's screens share.
 
@@ -230,9 +231,9 @@ class LessonRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.palette;
     final details = [
-      if (showClass) lesson.className,
-      ?lesson.teacherName,
-      if (lesson.room != null) context.l10n.schoolRoom(lesson.room!),
+      if (showClass) isolate(lesson.className),
+      if (lesson.teacherName case final t?) isolate(t),
+      if (lesson.room != null) context.l10n.schoolRoom(isolate(lesson.room!)),
     ];
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -244,6 +245,11 @@ class LessonRow extends StatelessWidget {
             child: Text(
               '${lesson.starts}–${lesson.ends}',
               textDirection: TextDirection.ltr,
+              // 110 Against the row's start in right-to-left text too, so
+              // the subject keeps its gap ("Mathematics08:00").
+              textAlign: Directionality.of(context) == TextDirection.rtl
+                  ? TextAlign.right
+                  : TextAlign.left,
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,

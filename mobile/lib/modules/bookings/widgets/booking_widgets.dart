@@ -7,10 +7,11 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/format/bidi.dart';
 
 /// "Free" or the business's formatted price.
 String bookingPriceLabel(BookingPrice price) =>
-    price.free ? currentL10n.free : price.formatted;
+    price.free ? currentL10n.free : isolate(price.formatted);
 
 /// "30 min · ₺300.00".
 String serviceFacts(ServiceSummary service, {BookingPrice? price}) =>
@@ -207,8 +208,8 @@ class AppointmentCard extends StatelessWidget {
                 Text(
                   [
                     _weekdayOf(a),
-                    a.localTime,
-                    if (staff != null) staff.name,
+                    ltrRun(a.localTime),
+                    if (staff != null) isolate(staff.name),
                   ].where((s) => s.isNotEmpty).join(' · '),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,

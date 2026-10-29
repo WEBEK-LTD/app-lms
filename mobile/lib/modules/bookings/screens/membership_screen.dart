@@ -20,6 +20,7 @@ import '../../../core/widgets/common.dart';
 import '../../store/screens/cart_screen.dart' show isOrderReceived;
 import '../data/bookings_providers.dart';
 import 'classes_screen.dart' show membershipCreditsText;
+import '../../../core/format/bidi.dart';
 
 /// 27 "My membership": the member's memberships, and the plans on sale with
 /// the hand-off to the payment page. On iOS too: a gym membership is a
@@ -284,7 +285,7 @@ class MembershipCard extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  m.planName,
+                  isolate(m.planName),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
@@ -450,7 +451,7 @@ class PlanCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  plan.name,
+                  isolate(plan.name),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -461,7 +462,7 @@ class PlanCard extends StatelessWidget {
                 Text(
                   per == null
                       ? plan.price.formatted
-                      : '${plan.price.formatted} · $per',
+                      : '${isolate(plan.price.formatted)} · $per',
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -477,7 +478,7 @@ class PlanCard extends StatelessWidget {
                     plan.description!.trim().isNotEmpty) ...[
                   const SizedBox(height: 6),
                   Text(
-                    plan.description!,
+                    isolate(plan.description!),
                     style: TextStyle(
                       fontSize: 13,
                       height: 1.5,

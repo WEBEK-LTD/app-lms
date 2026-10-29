@@ -235,7 +235,7 @@ async function listItems(pc: PageContext, source: ItemSource, query: ItemsQuery)
   if (source === "articles") return listArticles(pc, query);
   const resolver = itemResolver(source);
   if (!resolver) return null;
-  return resolver({ appId: pc.ctx.app.id, userId: pc.user ? String(pc.user.id) : null, lang: pc.lang, store: pc.ctx.store }, query);
+  return resolver({ appId: pc.ctx.app.id, userId: pc.user ? String(pc.user.id) : null, lang: pc.lang, store: pc.ctx.store, now: pc.ctx.now }, query);
 }
 
 const str = (value: unknown): string | null => (typeof value === "string" && value ? value : null);

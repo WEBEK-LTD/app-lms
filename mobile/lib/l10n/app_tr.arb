@@ -1017,6 +1017,8 @@
   "chatStorageFull": "Şu anda dosya gönderilemiyor. Yine de metin gönderebilirsiniz.",
   "chatFileType": "Bu tür bir dosya gönderilemez. Fotoğraf, video ya da PDF, Word, Excel, PowerPoint veya metin dosyası gönderin.",
   "chatUnavailable": "Sohbet şu anda kullanılamıyor.",
+  "chatUploadRefused": "Dosya gönderilemedi. Tekrar deneyin.",
+  "chatUploadExpired": "Dosyayı gönderme bağlantısının süresi doldu. Tekrar deneyin.",
   "chatPlayVoice": "Sesli mesajı oynat",
   "chatPauseVoice": "Sesli mesajı duraklat",
   "chatOpenFile": "{name} dosyasını aç",

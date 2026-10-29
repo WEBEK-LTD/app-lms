@@ -429,6 +429,8 @@ class _GalleryState extends State<_Gallery> {
                   ),
                   child: Text(
                     '${_index + 1} / ${images.length}',
+                    // 110 "1 / 4", not "4 / 1", in right-to-left text.
+                    textDirection: TextDirection.ltr,
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,

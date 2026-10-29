@@ -20,6 +20,8 @@ import '../widgets/option_sheet.dart';
 import '../widgets/product_widgets.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/services/share_links.dart';
+import '../../../core/l10n/vertical_wording.dart';
+import '../../../core/config/build_config_data.dart';
 
 /// A product: images, price, options, quantity and Add to cart.
 class ProductScreen extends ConsumerWidget {
@@ -185,6 +187,10 @@ class _ProductViewState extends ConsumerState<_ProductView> {
     );
     final price = variation?.price ?? product.summary.price;
     final stock = variation?.stockStatus ?? product.summary.stockStatus;
+    // 110 A restaurant's dish isn't "In stock"; only "Out of stock" is news.
+    final showStock =
+        stock != StockStatus.inStock ||
+        ref.watch(appVerticalProvider) != AppVertical.restaurant;
     final images = [
       if (variation?.imageUrl != null) variation!.imageUrl!,
       for (final i in product.images) i.url,
@@ -283,16 +289,17 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                         ),
                     ],
                   ),
-                Text(
-                  stockLabel(stock),
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: stock == StockStatus.outOfStock
-                        ? p.danger
-                        : p.success,
+                if (showStock)
+                  Text(
+                    stockLabel(stock),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: stock == StockStatus.outOfStock
+                          ? p.danger
+                          : p.success,
+                    ),
                   ),
-                ),
                 if (product.shortDescriptionHtml != null) ...[
                   const SizedBox(height: 12),
                   HtmlContent(html: product.shortDescriptionHtml!),

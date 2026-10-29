@@ -2776,6 +2776,14 @@
   "chatStorageFull": "Files can't be sent right now. You can still send text.",
   "chatFileType": "This kind of file can't be sent. Send a photo, a video, or a PDF, Word, Excel, PowerPoint or text file.",
   "chatUnavailable": "Chat isn't available right now.",
+  "chatUploadRefused": "The file couldn't be sent. Try again.",
+  "@chatUploadRefused": {
+    "description": "110 Chat: why a photo or file the customer is sending didn't go."
+  },
+  "chatUploadExpired": "The link for sending the file ran out. Try again.",
+  "@chatUploadExpired": {
+    "description": "110 Chat: why a photo or file the customer is sending didn't go."
+  },
   "chatPlayVoice": "Play voice message",
   "chatPauseVoice": "Pause voice message",
   "chatOpenFile": "Open {name}",

@@ -1038,7 +1038,7 @@ describe("pages on the hosted API", () => {
     const body = (await call("/pages/{slug}", { params: ["home"], headers: { "accept-language": "ar" } })).body as { blocks: Record<string, unknown>[] };
     expect(body.blocks.map((b) => b.id)).toEqual(["new", "find"]);
     expect(body.blocks[0]).toMatchObject({ items: [{ id: "7", title: "Flat in Maadi" }] });
-    expect(seen).toEqual([{ ctx: { appId: app.id, userId: null, lang: "ar", store }, query: { category_id: null, featured: false, sort: "newest", limit: 2, ids: [] } }]);
+    expect(seen).toEqual([{ ctx: { appId: app.id, userId: null, lang: "ar", store, now }, query: { category_id: null, featured: false, sort: "newest", limit: 2, ids: [] } }]);
   });
 
   it("fills listings blocks from the office's published listings", async () => {

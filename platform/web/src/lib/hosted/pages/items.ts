@@ -22,6 +22,8 @@ export interface ItemSourceContext {
   lang: string;
   /** The request's data store. */
   store: DataStore;
+  /** 110 The request's time (a restaurant open now comes first); now when left out. */
+  now?: Date;
 }
 
 export type ItemResolver = (ctx: ItemSourceContext, query: ItemsQuery) => Promise<Item[]>;
