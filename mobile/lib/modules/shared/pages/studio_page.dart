@@ -149,20 +149,41 @@ StudioNode _withChildren(StudioNode node, List<StudioNode> children) =>
       gradient: node.gradient,
       imageBackgroundUrl: node.imageBackgroundUrl,
       radius: node.radius,
+      corners: node.corners,
+      overlay: node.overlay,
       font: node.font,
     );
 
 /// What every element of a page shares: the page (a form sends its answers
 /// with it), light or dark, and inside a list's card the entry it shows.
 class StudioScope {
-  const StudioScope({required this.pageSlug, required this.dark, this.entry});
+  const StudioScope({
+    required this.pageSlug,
+    required this.dark,
+    this.entry,
+    this.uppercase = false,
+  });
 
   final String pageSlug;
   final bool dark;
   final PageItem? entry;
 
-  StudioScope withEntry(PageItem entry) =>
-      StudioScope(pageSlug: pageSlug, dark: dark, entry: entry);
+  /// 107.2 Texts in capitals, as the element holding them asked.
+  final bool uppercase;
+
+  StudioScope withEntry(PageItem entry) => StudioScope(
+    pageSlug: pageSlug,
+    dark: dark,
+    entry: entry,
+    uppercase: uppercase,
+  );
+
+  StudioScope inCapitals() => StudioScope(
+    pageSlug: pageSlug,
+    dark: dark,
+    entry: entry,
+    uppercase: true,
+  );
 }
 
 // ----------------------------------------------------------------- Header
@@ -419,6 +440,8 @@ class StudioNodeView extends ConsumerWidget {
 
   /// False for an element this phone or this person doesn't see.
   static bool shows(StudioNode node, WidgetRef ref) {
+    // 107.2 Hidden by the owner (the servers leave these out already).
+    if (node.hidden) return false;
     final platforms = node.platforms;
     if (platforms != null) {
       final ios = defaultTargetPlatform == TargetPlatform.iOS;
@@ -460,7 +483,9 @@ class StudioNodeView extends ConsumerWidget {
     final background = parseHexColor(
       dark ? (node.darkBackground ?? node.background) : node.background,
     );
-    final radius = BorderRadius.circular(node.radius);
+    final radius = _radiusOf(node).resolve(Directionality.of(context));
+    final rounded = node.radius > 0 || node.corners != null;
+    final overlay = _overlayOf(node);
     Widget child = _content(context, ref, color);
     final padding = _insets(node.padding);
     if (padding != null) child = Padding(padding: padding, child: child);
@@ -478,6 +503,13 @@ class StudioNodeView extends ConsumerWidget {
           Positioned.fill(
             child: AppNetworkImage(url: url, seed: node.id.hashCode),
           ),
+          if (overlay != null)
+            Positioned.fill(
+              child: ColoredBox(
+                key: ValueKey('studio-overlay-${node.id}'),
+                color: overlay,
+              ),
+            ),
           child,
         ],
       );
@@ -497,7 +529,7 @@ class StudioNodeView extends ConsumerWidget {
         child: child,
       );
     }
-    if (node.radius > 0 &&
+    if (rounded &&
         (node.imageBackgroundUrl != null ||
             node.type == StudioNodeType.image)) {
       child = ClipRRect(borderRadius: radius, child: child);
@@ -545,6 +577,14 @@ class StudioNodeView extends ConsumerWidget {
         !MediaQuery.disableAnimationsOf(context)) {
       child = _Moving(motion: motion, child: child);
     }
+    // 107.2 Turned, with what it holds.
+    if (node.rotation != 0) {
+      child = Transform.rotate(
+        key: ValueKey('studio-turned-${node.id}'),
+        angle: node.rotation * math.pi / 180,
+        child: child,
+      );
+    }
     final margin = _insets(node.margin);
     if (margin != null) child = Padding(padding: margin, child: child);
     return KeyedSubtree(key: ValueKey('studio-node-${node.id}'), child: child);
@@ -582,14 +622,22 @@ class StudioNodeView extends ConsumerWidget {
       fontSize: size,
       fontWeight: _weight(font?.weight),
       fontStyle: font?.italic == true ? FontStyle.italic : null,
-      decoration: font?.underline == true ? TextDecoration.underline : null,
+      decoration: _decoration(font),
       height: font?.lineHeight,
       letterSpacing: font?.letterSpacing,
     );
   }
 
-  /// The text shown: the entry's for an element bound to it in a card.
+  /// The text shown: the entry's for an element bound to it in a card; in
+  /// capitals when it or what holds it asks (107.2).
   String? _text() {
+    final text = _ownText();
+    return text != null && (scope.uppercase || node.font?.uppercase == true)
+        ? text.toUpperCase()
+        : text;
+  }
+
+  String? _ownText() {
     final entry = scope.entry;
     if (entry != null && node.bind != null) {
       return switch (node.bind!) {
@@ -712,10 +760,25 @@ class StudioNodeView extends ConsumerWidget {
           height: node.height?.fixed,
           clearPlaceholder: node.contain,
         );
+        final overlay = _overlayOf(node);
+        final shown = overlay == null
+            ? image
+            : Stack(
+                fit: StackFit.passthrough,
+                children: [
+                  image,
+                  Positioned.fill(
+                    child: ColoredBox(
+                      key: ValueKey('studio-overlay-${node.id}'),
+                      color: overlay,
+                    ),
+                  ),
+                ],
+              );
         if (node.height?.fixed == null && node.aspectRatio == null) {
-          return AspectRatio(aspectRatio: 16 / 9, child: image);
+          return AspectRatio(aspectRatio: 16 / 9, child: shown);
         }
-        return image;
+        return shown;
       case StudioNodeType.icon:
         return AppIcon(
           symbolByName(node.icon),
@@ -779,8 +842,9 @@ class StudioNodeView extends ConsumerWidget {
         if (shows(child, ref)) child,
     ];
     if (kids.isEmpty) return const SizedBox.shrink();
+    final inner = node.font?.uppercase == true ? scope.inCapitals() : scope;
     Widget view(StudioNode child) =>
-        StudioNodeView(node: child, scope: scope, parent: node);
+        StudioNodeView(node: child, scope: inner, parent: node);
     switch (node.type) {
       case StudioNodeType.stack:
         return Stack(
@@ -831,6 +895,28 @@ class StudioNodeView extends ConsumerWidget {
               row,
             ],
           ],
+        );
+      case StudioNodeType.row when node.scroll:
+        // 107.2 Scrolls sideways: each child keeps its own width.
+        final tall =
+            node.cross == StudioCross.stretch ||
+            kids.any((k) => k.height?.fill == true);
+        final strip = Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: tall
+              ? CrossAxisAlignment.stretch
+              : _cross(node.cross),
+          children: _spaced([
+            for (final child in kids)
+              _selfAlign(child, view(child), Axis.vertical),
+          ], horizontal: true),
+        );
+        return SingleChildScrollView(
+          key: ValueKey('studio-scroll-${node.id}'),
+          scrollDirection: Axis.horizontal,
+          child: tall && node.height?.fixed == null
+              ? IntrinsicHeight(child: strip)
+              : strip,
         );
       case StudioNodeType.row:
         final stretch =
@@ -950,6 +1036,34 @@ LinearGradient _linear(StudioGradient g, Color? fallback) {
     end: Alignment(dx, dy),
     colors: [from, to],
   );
+}
+
+/// 107.2 Each corner on its own, else [StudioNode.radius] for all four.
+BorderRadiusGeometry _radiusOf(StudioNode node) {
+  final k = node.corners;
+  if (k == null) return BorderRadius.circular(node.radius);
+  return BorderRadiusDirectional.only(
+    topStart: Radius.circular(k.topStart),
+    topEnd: Radius.circular(k.topEnd),
+    bottomEnd: Radius.circular(k.bottomEnd),
+    bottomStart: Radius.circular(k.bottomStart),
+  );
+}
+
+/// 107.2 The colour over the element's picture, with its strength.
+Color? _overlayOf(StudioNode node) {
+  final o = node.overlay;
+  if (o == null || o.opacity <= 0) return null;
+  return parseHexColor(o.color)?.withValues(alpha: o.opacity);
+}
+
+/// Underlined, struck through (107.2), both or neither.
+TextDecoration? _decoration(StudioFont? font) {
+  final lines = [
+    if (font?.underline == true) TextDecoration.underline,
+    if (font?.strike == true) TextDecoration.lineThrough,
+  ];
+  return lines.isEmpty ? null : TextDecoration.combine(lines);
 }
 
 List<BoxShadow>? _shadow(StudioShadow shadow) => switch (shadow) {

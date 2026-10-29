@@ -79,6 +79,8 @@ export function layoutForPlan(layout: Layout, app: App, plan: PlanInfo | null, d
       }
       const motion = hasFeature(plan, "studio_motion");
       const body = mapTree(page.studio.body, (n) => {
+        // 107.2 A hidden element stays in the editor only.
+        if (n.hidden) return null;
         if ((n.type === "items" || n.type === "categories") && (n.source === undefined || !sources.includes(n.source))) return null;
         let node = n.action && !actionAllowed(n.action, sources) ? { ...n, action: null } : n;
         // 103R Motion only with "Motion in the editor" on the plan.

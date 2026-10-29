@@ -1772,6 +1772,8 @@ class StudioFont {
     this.letterSpacing,
     this.italic = false,
     this.underline = false,
+    this.strike = false,
+    this.uppercase = false,
   });
 
   static StudioFont? tryParse(Object? value) {
@@ -1785,6 +1787,8 @@ class StudioFont {
       letterSpacing: optDouble(json, 'letter_spacing'),
       italic: boolOr(json, 'italic', false),
       underline: boolOr(json, 'underline', false),
+      strike: boolOr(json, 'strike', false),
+      uppercase: boolOr(json, 'uppercase', false),
     );
   }
 
@@ -1795,6 +1799,58 @@ class StudioFont {
   final double? letterSpacing;
   final bool italic;
   final bool underline;
+
+  /// 107.2 Struck through (an old price).
+  final bool strike;
+
+  /// 107.2 In capitals; scripts without capitals are unchanged.
+  final bool uppercase;
+}
+
+/// 107.2 Each corner rounded on its own, instead of [StudioNode.radius];
+/// logical corners.
+class StudioCorners {
+  const StudioCorners({
+    this.topStart = 0,
+    this.topEnd = 0,
+    this.bottomEnd = 0,
+    this.bottomStart = 0,
+  });
+
+  static StudioCorners? tryParse(Object? value) {
+    if (value is! Map) return null;
+    final json = asJson(value);
+    double corner(String key) =>
+        (optDouble(json, key) ?? 0).clamp(0, 500).toDouble();
+    return StudioCorners(
+      topStart: corner('top_start'),
+      topEnd: corner('top_end'),
+      bottomEnd: corner('bottom_end'),
+      bottomStart: corner('bottom_start'),
+    );
+  }
+
+  final double topStart;
+  final double topEnd;
+  final double bottomEnd;
+  final double bottomStart;
+}
+
+/// 107.2 A colour over the element's picture.
+class StudioOverlay {
+  const StudioOverlay({required this.color, required this.opacity});
+
+  static StudioOverlay? tryParse(Object? value) {
+    if (value is! Map) return null;
+    final json = asJson(value);
+    final color = optString(json, 'color');
+    final opacity = optDouble(json, 'opacity');
+    if (color == null || opacity == null) return null;
+    return StudioOverlay(color: color, opacity: opacity.clamp(0, 1).toDouble());
+  }
+
+  final String color;
+  final double opacity;
 }
 
 enum StudioEnter { none, fade, slideUp, slideDown, slideStart, slideEnd, zoom }
@@ -1877,6 +1933,9 @@ class StudioNode {
     this.gradient,
     this.imageBackgroundUrl,
     this.radius = 0,
+    this.corners,
+    this.rotation = 0,
+    this.overlay,
     this.borderColor,
     this.borderWidth = 0,
     this.shadow = StudioShadow.none,
@@ -1895,6 +1954,7 @@ class StudioNode {
     this.intervalMs = 4000,
     this.perView = 1,
     this.dots = true,
+    this.scroll = false,
     this.source,
     this.layout = ItemsLayout.grid,
     this.card,
@@ -1908,6 +1968,7 @@ class StudioNode {
     this.platforms,
     this.visibility = StudioVisibility.everyone,
     this.motion,
+    this.hidden = false,
   });
 
   /// Null for a type this app doesn't know (left out with what it holds),
@@ -1950,6 +2011,9 @@ class StudioNode {
         gradient: StudioGradient.tryParse(json['gradient']),
         imageBackgroundUrl: optString(json, 'image_background_url'),
         radius: n('radius', 0, 0, 500),
+        corners: StudioCorners.tryParse(json['corners']),
+        rotation: n('rotation', 0, -180, 180),
+        overlay: StudioOverlay.tryParse(json['overlay']),
         borderColor: optString(json, 'border_color'),
         borderWidth: n('border_width', 0, 0, 20),
         shadow: enumFrom(
@@ -1976,6 +2040,7 @@ class StudioNode {
         intervalMs: intOr(json, 'interval_ms', 4000).clamp(1500, 20000),
         perView: n('per_view', 1, 1, 4),
         dots: boolOr(json, 'dots', true),
+        scroll: boolOr(json, 'scroll', false),
         source: enumOrNull(ItemSource.values, json['source']),
         layout: enumFrom(ItemsLayout.values, json['layout'], ItemsLayout.grid),
         card: StudioNode.tryParse(json['card'], depth: depth + 1),
@@ -2000,6 +2065,7 @@ class StudioNode {
           StudioVisibility.everyone,
         ),
         motion: StudioMotion.tryParse(json['motion']),
+        hidden: boolOr(json, 'hidden', false),
       );
     } on FormatException {
       return null;
@@ -2028,6 +2094,15 @@ class StudioNode {
   final StudioGradient? gradient;
   final String? imageBackgroundUrl;
   final double radius;
+
+  /// 107.2 Each corner on its own; null, [radius] for all four.
+  final StudioCorners? corners;
+
+  /// 107.2 Degrees, clockwise.
+  final double rotation;
+
+  /// 107.2 A colour over the picture (an image, or the background picture).
+  final StudioOverlay? overlay;
   final String? borderColor;
   final double borderWidth;
   final StudioShadow shadow;
@@ -2050,6 +2125,9 @@ class StudioNode {
   final int intervalMs;
   final double perView;
   final bool dots;
+
+  /// 107.2 For a row: it scrolls sideways, its children keeping their widths.
+  final bool scroll;
   final ItemSource? source;
   final ItemsLayout layout;
 
@@ -2070,6 +2148,10 @@ class StudioNode {
   final List<StudioPlatform>? platforms;
   final StudioVisibility visibility;
   final StudioMotion? motion;
+
+  /// 107.2 Kept in the editor only; the servers leave it out, and the app
+  /// doesn't draw one that reaches it.
+  final bool hidden;
 
   bool get holdsChildren => switch (type) {
     StudioNodeType.row ||

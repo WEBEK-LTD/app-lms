@@ -313,7 +313,15 @@ function Layer(props: {
         ) : null}
         <button type="button" onClick={() => props.onSelect(node.id)} className="flex min-w-0 flex-1 items-center gap-1.5 border-0 bg-transparent p-0 text-start" style={{ color: "inherit", fontWeight: "inherit" }}>
           <Glyph name={element?.icon ?? "crop_square"} size={16} />
-          <span className="truncate">{label}</span>
+          <span className="truncate" style={node.hidden ? { opacity: 0.55 } : undefined}>
+            {label}
+          </span>
+          {node.hidden ? (
+            <span title={t("studio.hiddenInApp")} className="flex flex-none" style={{ color: "var(--studio-muted)" }}>
+              <Glyph name="visibility_off" size={15} />
+              <span className="sr-only">{t("studio.hiddenInApp")}</span>
+            </span>
+          ) : null}
         </button>
       </li>
       {folded ? null : kids.map((child) => <Layer key={child.id} {...props} node={child} depth={props.depth + 1} />)}
