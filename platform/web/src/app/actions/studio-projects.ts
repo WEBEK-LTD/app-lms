@@ -19,6 +19,7 @@ import { templatesFor, TEMPLATES, type SectionWord } from "@/lib/studio/sections
 import { studioSourcesFor, type StudioSource } from "@/lib/studio/section";
 import { appTypeOn, getSwitches } from "@/lib/switches";
 import type { TeamPermission } from "@/lib/team/permissions";
+import { seedForDesign } from "@/lib/samples/server";
 
 /** 103R.3 Yallapp Studio's own section: opening and making its projects. */
 
@@ -96,6 +97,8 @@ export async function createStudioProjectAction(formData: FormData): Promise<voi
   const saved = await saveDraft(store, app, { ...layout, pages }, now);
   // The ready-made pages then; the project is made all the same.
   if (!saved.ok) console.error("[studio] new project draft", saved.errors.slice(0, 3).join("; "));
+  // 110.2 Content kept in Yallapp: the empty lists its first page shows get sample entries.
+  else await seedForDesign(store, app.id, saved.value.draft.pages, now);
   await recordStaffChange({ ...context, app }, `Added a Studio project: ${kind.name}`, { appType: null }, { appType: kind.engine, vertical: kind.vertical, section: "studio" });
   revalidatePath("/studio", "layout");
   // Content kept in Yallapp is ready; a website, platform or API is connected next.

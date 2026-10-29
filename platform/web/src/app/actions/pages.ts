@@ -20,6 +20,7 @@ import type { LayoutContent } from "@/lib/pages/types";
 import { appPlan, effectivePlans } from "@/lib/entitlements";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import { designFitsApp, findDesign } from "@/lib/pages/designs/catalog";
+import { seedForDesign } from "@/lib/samples/server";
 
 // 10.4 The page and look editor's saves: the draft, publishing and discarding it.
 
@@ -275,6 +276,8 @@ export async function applyDesignAction(
   if (!saved.ok) return saved;
   revalidatePath("/dashboard/pages");
   if (mode === "look") return result(saved.value.record, `Your draft now has the ${design.name} design's look. Your pages stay as they are.`);
+  // 110.2 The empty lists the design shows get sample entries.
+  await seedForDesign(store, app.id, saved.value.record.draft.pages, now);
   return { ...result(saved.value.record, `Your draft now uses the ${design.name} design. Change anything you like, then publish.`), samples: saved.value.samples ?? {} };
 }
 

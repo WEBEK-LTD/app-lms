@@ -26,6 +26,8 @@ import { fontUpload, ImportDialog, type ImportChoice } from "./import-dialog";
 import { Inspector, type InspectorTab } from "./inspector";
 import { LeftPanel, elementLabel, type LeftTab, type MyTemplate } from "./left-panel";
 import { DRAG_TYPE, Glyph, STUDIO_COLORS as C, StudioMark, type DragPayload } from "./shared";
+import { seedSamplesAction } from "@/app/actions/samples";
+import { sourcesIn } from "@/lib/samples/lists";
 
 /**
  * 103R.4 Yallapp Studio's editor, as the owner approved it: the dark bar on
@@ -775,6 +777,8 @@ export function StudioEditor(props: StudioEditorProps) {
     const fitted = designPages(file, { sources: props.sources, categorySources: props.categorySources, screens: props.screens.map((s) => s.value), newId: newNodeId, pages: current.pages, languages: current.languages, pictures, now: new Date().toISOString() });
     const next = applyWholeDesign(current, fitted, mode === "project" ? file.look : undefined, { mode, openSlug: slug, pageIndex, keep, now: new Date().toISOString() });
     change(() => next);
+    // 110.2 The empty lists the design's pages show get sample entries.
+    if (mode === "project") void seedSamplesAction([...sourcesIn(fitted)]).catch(() => null);
     if (mode === "project" && !current.pages.some((p) => p.slug === slug && p.studio)) setSlug(next.pages.find((p) => p.studio)?.slug ?? slug);
     setSelectedId(null);
     setDesignsOpen(false);
