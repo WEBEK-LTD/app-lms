@@ -187,7 +187,7 @@ describe("99.1 each design's own colours, pictures and social links", () => {
         expect(hero!.heading, design.id).toBe("Welcome to Nile");
         expect(home.blocks.indexOf(hero!), design.id).toBe(home.blocks[0]!.type === "search" ? 1 : 0);
       }
-      const checked = parseLayoutContent(layout, { app: { appType: kindOfDesign(design).engine, backend: "hosted" }, now: NOW, ownFonts: [] });
+      const checked = parseLayoutContent(layout, { app: { appType: kindOfDesign(design).engine, backend: "hosted", vertical: kindOfDesign(design).vertical }, now: NOW, ownFonts: [] });
       expect(checked.ok ? null : checked.errors, design.id).toBeNull();
     }
   });

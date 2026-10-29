@@ -170,5 +170,17 @@
   "rides-comfort": {
     "primary": "#2B2D42",
     "secondary": "#C9A227"
+  },
+  "teachers-marketplace": {
+    "primary": "#22577A",
+    "secondary": "#F2A541"
+  },
+  "teachers-school": {
+    "primary": "#2D6A4F",
+    "secondary": "#7BC8A4"
+  },
+  "teachers-tutors": {
+    "primary": "#3D348B",
+    "secondary": "#FF8C42"
   }
 }
