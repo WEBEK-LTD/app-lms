@@ -495,7 +495,12 @@ class _LessonFooter extends StatelessWidget {
                   label: completed
                       ? context.l10n.completed
                       : context.l10n.markComplete,
-                  icon: completed ? AppIcons.checkCircle : AppIcons.check,
+                  // 110 On a small phone the words get the room.
+                  icon: MediaQuery.sizeOf(context).width < 360
+                      ? null
+                      : completed
+                      ? AppIcons.checkCircle
+                      : AppIcons.check,
                   height: 54,
                   loading: completing,
                   onPressed: completed ? null : onComplete,

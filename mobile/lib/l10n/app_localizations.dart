@@ -6202,6 +6202,18 @@ abstract class AppLocalizations {
   /// **'Chat isn\'t available right now.'**
   String get chatUnavailable;
 
+  /// 110 Chat: why a photo or file the customer is sending didn't go.
+  ///
+  /// In en, this message translates to:
+  /// **'The file couldn\'t be sent. Try again.'**
+  String get chatUploadRefused;
+
+  /// 110 Chat: why a photo or file the customer is sending didn't go.
+  ///
+  /// In en, this message translates to:
+  /// **'The link for sending the file ran out. Try again.'**
+  String get chatUploadExpired;
+
   /// No description provided for @chatPlayVoice.
   ///
   /// In en, this message translates to:

@@ -12,6 +12,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../data/delivery_providers.dart';
 import '../widgets/delivery_widgets.dart';
+import '../../../core/format/bidi.dart';
 
 /// 104 One job as the courier works it: where to pick it up and drop it
 /// off (with directions), who to call, the cash to collect, and the next
@@ -253,8 +254,8 @@ class _CourierJobScreenState extends ConsumerState<CourierJobScreen> {
                     Text(
                       [
                         packageSizeLabel(l10n, j.size),
-                        if (j.description != null) j.description!,
-                        if (j.service != null) j.service!,
+                        if (j.description != null) isolate(j.description!),
+                        if (j.service != null) isolate(j.service!),
                         if (j.distanceKm != null)
                           l10n.distanceKm(j.distanceKm!.toStringAsFixed(1)),
                       ].join(' · '),
@@ -263,7 +264,7 @@ class _CourierJobScreenState extends ConsumerState<CourierJobScreen> {
                     if (j.notes != null) ...[
                       const SizedBox(height: 8),
                       Text(
-                        j.notes!,
+                        isolate(j.notes!),
                         style: TextStyle(fontSize: 14, color: p.textBody),
                       ),
                     ],

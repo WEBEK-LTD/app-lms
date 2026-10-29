@@ -332,6 +332,12 @@ class PlayerControls extends StatelessWidget {
                     Expanded(
                       child: Text(
                         '${formatClock(position)} / ${formatClock(duration)}',
+                        // 110 Played, then the length, in every language.
+                        textDirection: TextDirection.ltr,
+                        textAlign:
+                            Directionality.of(context) == TextDirection.rtl
+                            ? TextAlign.right
+                            : TextAlign.left,
                         maxLines: 1,
                         overflow: TextOverflow.fade,
                         softWrap: false,

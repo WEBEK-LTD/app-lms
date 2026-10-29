@@ -3936,6 +3936,14 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('chatUnavailable') ?? base.chatUnavailable;
 
   @override
+  String get chatUploadRefused =>
+      overlay.text('chatUploadRefused') ?? base.chatUploadRefused;
+
+  @override
+  String get chatUploadExpired =>
+      overlay.text('chatUploadExpired') ?? base.chatUploadExpired;
+
+  @override
   String get chatPlayVoice =>
       overlay.text('chatPlayVoice') ?? base.chatPlayVoice;
 

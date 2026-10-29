@@ -2925,6 +2925,7 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
   "105.9 In the place search: pick the place on the map instead.": { ar: "في البحث عن مكان: اختيار المكان من الخريطة بدلًا من ذلك.", tr: "Yer aramasında: bunun yerine yeri haritadan seçmek." },
   "105.9 The name of a place chosen on the map.": { ar: "اسم مكان اختير من الخريطة.", tr: "Haritadan seçilen bir yerin adı." },
   "105.9 A place from the search has no position.": { ar: "مكان من نتائج البحث بلا موقع على الخريطة.", tr: "Aramadan gelen bir yerin konumu yok." },
+  "110 Chat: why a photo or file the customer is sending didn't go.": { ar: "المحادثة: سبب عدم إرسال صورة أو ملف يرسله العميل.", tr: "Sohbet: müşterinin gönderdiği fotoğraf veya dosyanın neden gitmediği." },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

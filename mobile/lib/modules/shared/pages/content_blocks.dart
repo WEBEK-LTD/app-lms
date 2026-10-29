@@ -1809,6 +1809,7 @@ class _GalleryViewerState extends State<GalleryViewer> {
                   ),
                   child: Text(
                     '${_index + 1} / ${images.length}',
+                    textDirection: TextDirection.ltr,
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,

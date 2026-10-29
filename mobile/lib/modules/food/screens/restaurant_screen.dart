@@ -11,6 +11,7 @@ import '../../delivery/widgets/delivery_widgets.dart' show CallButton;
 import '../data/food_providers.dart';
 import '../widgets/dish_sheet.dart';
 import 'restaurants_screen.dart' show FoodCartBar;
+import '../../../core/format/bidi.dart';
 
 /// 105.1 A restaurant: whether it takes orders now, its facts and its menu
 /// in sections. A dish opens its sheet; sold-out dishes show but can't be
@@ -212,9 +213,9 @@ class _Facts extends StatelessWidget {
       [
         l10n.restaurantMinutes(s.deliveryMinutes ?? s.prepMinutes),
         if (s.deliveryFeeFormatted != null)
-          l10n.restaurantFee(s.deliveryFeeFormatted!),
+          l10n.restaurantFee(isolate(s.deliveryFeeFormatted!)),
         if (s.minOrderFormatted != null)
-          l10n.restaurantMinOrder(s.minOrderFormatted!),
+          l10n.restaurantMinOrder(isolate(s.minOrderFormatted!)),
       ].join(' · '),
       style: TextStyle(fontSize: 13, color: context.palette.textSecondary),
     );

@@ -828,9 +828,11 @@ class MessageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    // 110 Tighter on a small phone, so the button isn't under the tab bar.
+    final tight = compact || MediaQuery.sizeOf(context).height < 700;
     return Center(
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(compact ? 16 : 32),
+        padding: EdgeInsets.all(tight ? 16 : 32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -867,7 +869,7 @@ class MessageView extends StatelessWidget {
               ),
             ],
             if (actionLabel != null && onAction != null) ...[
-              const SizedBox(height: 22),
+              SizedBox(height: tight ? 16 : 22),
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 320),
                 child: PrimaryButton(label: actionLabel!, onPressed: onAction),

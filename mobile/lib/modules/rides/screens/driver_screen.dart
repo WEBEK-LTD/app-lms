@@ -258,96 +258,104 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
         list,
       );
     }
+    // 110 The top (the driver, an offer, the tabs) scrolls away with the
+    // list, so a small phone shows it all instead of overflowing.
     return Scaffold(
       body: SafeArea(
         bottom: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            header,
-            switch (profile) {
-              AsyncValue(value: final me?) => Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-                child: AppCard(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+        child: NestedScrollView(
+          headerSliverBuilder: (context, _) => [
+            SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  header,
+                  switch (profile) {
+                    AsyncValue(value: final me?) => Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                      child: AppCard(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+                        child: Row(
                           children: [
-                            Text(
-                              me.name,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: p.text,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    me.name,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: p.text,
+                                    ),
+                                  ),
+                                  Text(
+                                    me.online
+                                        ? l10n.driverToday(
+                                            me.ridesToday,
+                                            me.earnedToday,
+                                          )
+                                        : l10n.driverOfflineHint,
+                                    key: const ValueKey('driver-today'),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: p.textSecondary,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             Text(
-                              me.online
-                                  ? l10n.driverToday(
-                                      me.ridesToday,
-                                      me.earnedToday,
-                                    )
-                                  : l10n.driverOfflineHint,
-                              key: const ValueKey('driver-today'),
+                              l10n.driverOnline,
                               style: TextStyle(
-                                fontSize: 13,
-                                color: p.textSecondary,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: p.text,
                               ),
+                            ),
+                            Switch(
+                              key: const ValueKey('driver-online'),
+                              value: me.online,
+                              onChanged: _switching ? null : _setOnline,
                             ),
                           ],
                         ),
                       ),
-                      Text(
-                        l10n.driverOnline,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: p.text,
-                        ),
+                    ),
+                    AsyncValue(error: final e?) => Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: ErrorView(
+                        error: e,
+                        onRetry: () => ref.invalidate(driverProfileProvider),
                       ),
-                      Switch(
-                        key: const ValueKey('driver-online'),
-                        value: me.online,
-                        onChanged: _switching ? null : _setOnline,
-                      ),
-                    ],
+                    ),
+                    _ => const SizedBox(height: 72),
+                  },
+                  if (waiting != null)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                      child: waiting,
+                    ),
+                  if (offerCard != null)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                      child: offerCard,
+                    ),
+                  if (openRide != null)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                      child: openRide,
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: tabBar,
                   ),
-                ),
+                  const SizedBox(height: 8),
+                ],
               ),
-              AsyncValue(error: final e?) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: ErrorView(
-                  error: e,
-                  onRetry: () => ref.invalidate(driverProfileProvider),
-                ),
-              ),
-              _ => const SizedBox(height: 72),
-            },
-            if (waiting != null)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                child: waiting,
-              ),
-            if (offerCard != null)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-                child: offerCard,
-              ),
-            if (openRide != null)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-                child: openRide,
-              ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: tabBar,
             ),
-            const SizedBox(height: 8),
-            Expanded(child: list()),
           ],
+          body: list(),
         ),
       ),
     );

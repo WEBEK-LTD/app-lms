@@ -9,6 +9,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/format/bidi.dart';
 
 /// 105.2 What the ride screens share: a ride's stage in words, its stages,
 /// the vehicle types' icons.
@@ -187,7 +188,7 @@ class RideRoute extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           child: Text(
-            text,
+            isolate(text),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 14, color: color ?? p.textBody),

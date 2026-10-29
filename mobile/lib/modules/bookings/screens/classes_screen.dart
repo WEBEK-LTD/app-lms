@@ -18,6 +18,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../data/bookings_providers.dart';
 import '../widgets/booking_widgets.dart';
+import '../../../core/format/bidi.dart';
 
 /// 27 A gym's or studio's weekly timetable: a week of day tabs, each day's
 /// classes with their coach and the spots left, and Book or Cancel.
@@ -303,7 +304,11 @@ class _DayTabs extends StatelessWidget {
                         context.shapes.button,
                       ),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        // 110 Room for the name inside the rounded edge.
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: isSelected ? p.primary : null,
                           borderRadius: BorderRadius.circular(
@@ -318,7 +323,7 @@ class _DayTabs extends StatelessWidget {
                           child: Column(
                             children: [
                               Text(
-                                shortWeekday(day),
+                                chipWeekday(day),
                                 style: TextStyle(fontSize: 12, color: fg),
                               ),
                               Text(
@@ -550,7 +555,7 @@ class MembershipSummary extends ConsumerWidget {
     final active = memberships.where((m) => m.isActive).firstOrNull;
     final text = active == null
         ? context.l10n.membershipNone
-        : '${active.planName} · ${membershipCreditsText(active)}';
+        : '${isolate(active.planName)} · ${membershipCreditsText(active)}';
     return AppCard(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       onTap: () => context.go(Paths.memberships),

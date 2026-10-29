@@ -2,6 +2,7 @@
 /// in the app's language.
 library;
 
+import 'package:flutter/widgets.dart' show StringCharacters;
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
@@ -29,7 +30,9 @@ String _format(String pattern, DateTime day) {
   final locale = currentL10n.localeName;
   // Loads every locale's date names (bundled, synchronous).
   initializeDateFormatting(locale);
-  return DateFormat(pattern, locale).format(day);
+  // 110 Latin digits in every language, like the prices, order numbers and
+  // times the app shows ("١٩ أكتوبر" next to "₺1,290" mixed two kinds).
+  return (DateFormat(pattern, locale)..useNativeDigits = false).format(day);
 }
 
 /// "Monday, 12 October".
@@ -37,6 +40,13 @@ String dayLabel(DateTime day) => _format('EEEE, d MMMM', day);
 
 /// "Mon".
 String shortWeekday(DateTime day) => _format('EEE', day);
+
+/// 110 "Mon" in a day picker's narrow chip; the one-letter form where the
+/// language's short name is a whole word (Arabic "الأربعاء": "ر").
+String chipWeekday(DateTime day) {
+  final short = shortWeekday(day);
+  return short.characters.length <= 4 ? short : _format('EEEEE', day);
+}
 
 /// 105.4 "Monday" for 1 … "Sunday" for 7 (a timetable's day).
 String weekdayName(int weekday) =>
@@ -94,4 +104,11 @@ String opensLabel(DateTime time, {DateTime? now}) {
   return sameDay
       ? clockTime(local)
       : '${shortWeekday(local)} ${clockTime(local)}';
+}
+
+/// 110 A time zone as people say it: "Istanbul" for `Europe/Istanbul`,
+/// "New York" for `America/New_York` (the city the zone is named after).
+String zoneName(String zone) {
+  final city = zone.split('/').last.replaceAll('_', ' ').trim();
+  return city.isEmpty ? zone : city;
 }

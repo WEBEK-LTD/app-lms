@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/api/models/models.dart';
+import '../../../core/format/bidi.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/routing/paths.dart';
@@ -23,9 +24,13 @@ String eventWhen(EventSummary e) {
       start.year == end.year &&
       start.month == end.month &&
       start.day == end.day;
+  // 110 The times kept in order and on one line in right-to-left text
+  // ("22:30–20:30" otherwise, cut after the dash).
   return sameDay
-      ? '${shortDayLabel(start)}, ${clockTime(start)}–${clockTime(end)}'
-      : '${shortDayLabel(start)}, ${clockTime(start)} – ${shortDayLabel(end)}, ${clockTime(end)}';
+      ? '${shortDayLabel(start)}, '
+            '${ltrRun('${clockTime(start)}\u2060–\u2060${clockTime(end)}')}'
+      : '${shortDayLabel(start)}, ${ltrRun(clockTime(start))} – '
+            '${shortDayLabel(end)}, ${ltrRun(clockTime(end))}';
 }
 
 /// The venue's name, or "Online".

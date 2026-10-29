@@ -9,6 +9,7 @@ import '../../../core/services/external_links.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/format/bidi.dart';
 
 /// 104 What the delivery screens share: a shipment's stage in words, its
 /// stages, its places with directions.
@@ -192,12 +193,12 @@ class PlaceRow extends ConsumerWidget {
                 ),
               ),
               Text(
-                place.address,
+                isolate(place.address),
                 style: TextStyle(fontSize: 15, color: p.text),
               ),
               if (place.details != null)
                 Text(
-                  place.details!,
+                  isolate(place.details!),
                   style: TextStyle(fontSize: 13, color: p.textBody),
                 ),
             ],
@@ -268,13 +269,13 @@ class ShipmentTile extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            shipment.pickup.address,
+            isolate(shipment.pickup.address),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 14, color: p.textBody),
           ),
           Text(
-            '→ ${shipment.dropoff.address}',
+            '${toArrow()} ${isolate(shipment.dropoff.address)}',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 14, color: p.textBody),
@@ -329,13 +330,13 @@ class JobTile extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            job.pickup.address,
+            isolate(job.pickup.address),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 14, color: p.textBody),
           ),
           Text(
-            '→ ${job.dropoff.address}',
+            '${toArrow()} ${isolate(job.dropoff.address)}',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 14, color: p.textBody),

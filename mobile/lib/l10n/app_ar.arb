@@ -1017,6 +1017,8 @@
   "chatStorageFull": "لا يمكن إرسال الملفات الآن، لكن يمكنك إرسال نص.",
   "chatFileType": "لا يمكن إرسال هذا النوع من الملفات. أرسل صورة أو فيديو أو ملف PDF أو Word أو Excel أو PowerPoint أو ملفًا نصيًا.",
   "chatUnavailable": "المحادثة غير متاحة الآن.",
+  "chatUploadRefused": "تعذّر إرسال الملف. حاول مرة أخرى.",
+  "chatUploadExpired": "انتهت صلاحية رابط إرسال الملف. حاول مرة أخرى.",
   "chatPlayVoice": "تشغيل الرسالة الصوتية",
   "chatPauseVoice": "إيقاف الرسالة الصوتية مؤقتًا",
   "chatOpenFile": "فتح {name}",
