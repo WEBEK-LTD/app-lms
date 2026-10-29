@@ -967,8 +967,8 @@ class Block_Resolver {
 	/**
 	 * 103R The element types of a Studio page, and those that hold others.
 	 */
-	const STUDIO_TYPES  = array( 'row', 'column', 'stack', 'grid', 'slider', 'spacer', 'text', 'image', 'button', 'icon', 'items', 'categories', 'video', 'form', 'map', 'ratings', 'search', 'divider' );
-	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider' );
+	const STUDIO_TYPES  = array( 'row', 'column', 'stack', 'grid', 'slider', 'spacer', 'accordion', 'tabs', 'text', 'image', 'button', 'icon', 'items', 'categories', 'video', 'form', 'map', 'ratings', 'search', 'divider', 'countdown', 'bullets' );
+	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider', 'accordion', 'tabs' );
 
 	/**
 	 * 103R A Studio page (`StudioPage`) for one request: its header and its tree of elements
@@ -1166,6 +1166,10 @@ class Block_Resolver {
 			$text         = sanitize_textarea_field( (string) $raw['text'] );
 			$node['text'] = '' === $text ? null : mb_substr( $text, 0, 2000 );
 		}
+		// 107.3 A question's or a tab's name.
+		if ( isset( $raw['title'] ) && is_scalar( $raw['title'] ) && '' !== trim( (string) $raw['title'] ) ) {
+			$node['title'] = mb_substr( sanitize_text_field( (string) $raw['title'] ), 0, 120 );
+		}
 		if ( isset( $raw['icon'] ) && is_string( $raw['icon'] ) && preg_match( '/^[a-z0-9_]{1,64}$/', $raw['icon'] ) ) {
 			$node['icon'] = $raw['icon'];
 		}
@@ -1187,6 +1191,19 @@ class Block_Resolver {
 				break;
 			case 'video':
 				if ( ! isset( $node['video_url'] ) ) {
+					return null;
+				}
+				break;
+			case 'countdown':
+				// 107.3 Counts down to `ends_at`, in UTC.
+				$ends = is_string( $raw['ends_at'] ?? null ) ? strtotime( $raw['ends_at'] ) : false;
+				if ( false === $ends ) {
+					return null;
+				}
+				$node['ends_at'] = gmdate( 'Y-m-d\\TH:i:s\\Z', $ends );
+				break;
+			case 'bullets':
+				if ( empty( $node['text'] ) ) {
 					return null;
 				}
 				break;

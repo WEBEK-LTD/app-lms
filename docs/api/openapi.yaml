@@ -9282,15 +9282,20 @@ components:
         Content elements: `text`, `image`, `button`, `icon`, `items` (a list
         from the app's data: products, courses, services and the rest),
         `categories` (the source's categories as chips), `video`, `form`,
-        `map`, `ratings`, `search` and `divider`. An element the app doesn't
-        know is left out with what it holds. Sides are logical: `start` is
-        the left in a left-to-right language and the right in Arabic.
+        `map`, `ratings`, `search` and `divider`. 107.3 `accordion` holds
+        questions that open one at a time (each child's `title` is its
+        question, the child its answer), `tabs` shows one child at a time
+        under a bar of their `title`s, `countdown` counts down to `ends_at`,
+        and `bullets` shows each line of `text` after an `icon`. An element
+        the app doesn't know is left out with what it holds. Sides are
+        logical: `start` is the left in a left-to-right language and the
+        right in Arabic.
       required: [id, type]
       properties:
         id: { type: string, maxLength: 64 }
         type:
           type: string
-          enum: [row, column, stack, grid, slider, spacer, text, image, button, icon, items, categories, video, form, map, ratings, search, divider]
+          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets]
         name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app." }
         children:
           type: array
@@ -9325,7 +9330,9 @@ components:
         opacity: { type: number, minimum: 0, maximum: 1, default: 1 }
         font: { $ref: '#/components/schemas/StudioFont' }
         text_align: { type: string, enum: [start, center, end], default: start }
-        text: { type: [string, 'null'], maxLength: 2000, description: "For `text` and `button` (and the `search` hint), in the language asked for." }
+        text: { type: [string, 'null'], maxLength: 2000, description: "For `text` and `button` (and the `search` hint), in the language asked for. 107.3 For `bullets`, one line each; for `countdown`, what shows once the time is up (none: the countdown hides)." }
+        title: { type: [string, 'null'], maxLength: 120, description: "107.3 For a child of `accordion` or `tabs`: its question or its tab's name, in the language asked for." }
+        ends_at: { type: [string, 'null'], format: date-time, description: "107.3 For `countdown`: when the time is up." }
         max_lines: { type: [integer, 'null'], minimum: 1, maximum: 50 }
         image_url: { type: [string, 'null'], format: uri, description: "For `image`." }
         fit: { type: string, enum: [cover, contain], default: cover }

@@ -1676,6 +1676,9 @@ enum StudioNodeType {
   grid,
   slider,
   spacer,
+  // 107.3 Questions that open, and tabs.
+  accordion,
+  tabs,
   text,
   image,
   button,
@@ -1688,6 +1691,9 @@ enum StudioNodeType {
   ratings,
   search,
   divider,
+  // 107.3 A countdown, and a list with an icon on each line.
+  countdown,
+  bullets,
 }
 
 /// 103R `StudioSize`: fill the parent's space, hug the content, or [fixed]
@@ -1943,6 +1949,8 @@ class StudioNode {
     this.font,
     this.textAlign = StudioTextAlign.start,
     this.text,
+    this.title,
+    this.endsAt,
     this.maxLines,
     this.imageUrl,
     this.contain = false,
@@ -2029,6 +2037,8 @@ class StudioNode {
           StudioTextAlign.start,
         ),
         text: optString(json, 'text'),
+        title: optString(json, 'title'),
+        endsAt: DateTime.tryParse(optString(json, 'ends_at') ?? ''),
         maxLines: optInt(json, 'max_lines'),
         imageUrl: optString(json, 'image_url'),
         contain: json['fit'] == 'contain',
@@ -2110,6 +2120,12 @@ class StudioNode {
   final StudioFont? font;
   final StudioTextAlign textAlign;
   final String? text;
+
+  /// 107.3 For a child of an accordion or tabs: its question or tab name.
+  final String? title;
+
+  /// 107.3 For a countdown: when the time is up.
+  final DateTime? endsAt;
   final int? maxLines;
   final String? imageUrl;
 
@@ -2158,7 +2174,9 @@ class StudioNode {
     StudioNodeType.column ||
     StudioNodeType.stack ||
     StudioNodeType.grid ||
-    StudioNodeType.slider => true,
+    StudioNodeType.slider ||
+    StudioNodeType.accordion ||
+    StudioNodeType.tabs => true,
     _ => false,
   };
 }

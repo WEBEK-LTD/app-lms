@@ -18,6 +18,7 @@ import '../../../core/theme/symbol_names.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import 'app_header.dart';
+import 'content_blocks.dart' show pageClockProvider;
 import 'page_actions.dart';
 import 'page_blocks.dart';
 import 'side_menu.dart';
@@ -666,6 +667,55 @@ class StudioNodeView extends ConsumerWidget {
         return _layout(context, ref);
       case StudioNodeType.slider:
         return _StudioSlider(node: node, scope: scope);
+      case StudioNodeType.accordion || StudioNodeType.tabs:
+        // 107.3 Questions that open one at a time, or one tab at a time.
+        final kids = [
+          for (final child in node.children)
+            if (shows(child, ref)) child,
+        ];
+        if (kids.isEmpty) return const SizedBox.shrink();
+        final inner = node.font?.uppercase == true ? scope.inCapitals() : scope;
+        return node.type == StudioNodeType.accordion
+            ? _StudioAccordion(node: node, kids: kids, scope: inner)
+            : _StudioTabs(node: node, kids: kids, scope: inner);
+      case StudioNodeType.countdown:
+        final ends = node.endsAt;
+        if (ends == null) return const SizedBox.shrink();
+        return _StudioCountdown(
+          node: node,
+          endsAt: ends,
+          endedText: _text(),
+          align: align,
+        );
+      case StudioNodeType.bullets:
+        final lines = [
+          for (final line in (_text() ?? '').split('\n'))
+            if (line.trim().isNotEmpty) line.trim(),
+        ];
+        if (lines.isEmpty) return const SizedBox.shrink();
+        final gap = node.gap > 0 ? node.gap : 8.0;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final (i, line) in lines.indexed) ...[
+              if (i > 0) SizedBox(height: gap),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppIcon(
+                    node.icon == null
+                        ? AppIcons.checkCircle
+                        : symbolByName(node.icon),
+                    size: node.iconSize == 24 ? 20 : node.iconSize,
+                    color: color ?? p.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(line, textAlign: align)),
+                ],
+              ),
+            ],
+          ],
+        );
       case StudioNodeType.spacer:
         return SizedBox(
           height: node.height?.fixed ?? 24,
@@ -1508,6 +1558,298 @@ class _MovingState extends State<_Moving> with TickerProviderStateMixin {
           ),
         );
       },
+    );
+  }
+}
+
+/// 107.3 Questions that open one at a time: each child's `title` is its
+/// question, the child its answer.
+class _StudioAccordion extends StatefulWidget {
+  const _StudioAccordion({
+    required this.node,
+    required this.kids,
+    required this.scope,
+  });
+
+  final StudioNode node;
+  final List<StudioNode> kids;
+  final StudioScope scope;
+
+  @override
+  State<_StudioAccordion> createState() => _StudioAccordionState();
+}
+
+class _StudioAccordionState extends State<_StudioAccordion> {
+  int? _open;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final still = MediaQuery.disableAnimationsOf(context);
+    final gap = widget.node.gap;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final (i, child) in widget.kids.indexed) ...[
+          if (i > 0 && gap > 0) SizedBox(height: gap),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: p.divider.withValues(alpha: 0.6)),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Semantics(
+                  button: true,
+                  expanded: _open == i,
+                  child: InkWell(
+                    key: ValueKey('studio-question-${child.id}'),
+                    onTap: () => setState(() => _open = _open == i ? null : i),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              _titleIn(child, widget.scope, i),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          AnimatedRotation(
+                            turns: _open == i ? 0.5 : 0,
+                            duration: still
+                                ? Duration.zero
+                                : const Duration(milliseconds: 200),
+                            child: const AppIcon(AppIcons.expand, size: 22),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                AnimatedSize(
+                  duration: still
+                      ? Duration.zero
+                      : const Duration(milliseconds: 200),
+                  alignment: AlignmentDirectional.topStart,
+                  child: _open == i
+                      ? StudioNodeView(
+                          node: child,
+                          scope: widget.scope,
+                          parent: widget.node,
+                        )
+                      : const SizedBox(width: double.infinity),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// 107.3 One child at a time under a bar of their `title`s.
+class _StudioTabs extends StatefulWidget {
+  const _StudioTabs({
+    required this.node,
+    required this.kids,
+    required this.scope,
+  });
+
+  final StudioNode node;
+  final List<StudioNode> kids;
+  final StudioScope scope;
+
+  @override
+  State<_StudioTabs> createState() => _StudioTabsState();
+}
+
+class _StudioTabsState extends State<_StudioTabs> {
+  int _shown = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final shown = _shown.clamp(0, widget.kids.length - 1);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (final (i, child) in widget.kids.indexed) ...[
+                if (i > 0) const SizedBox(width: 6),
+                Semantics(
+                  selected: i == shown,
+                  button: true,
+                  child: Material(
+                    color: i == shown
+                        ? p.primary
+                        : p.text.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(999),
+                    child: InkWell(
+                      key: ValueKey('studio-tab-${child.id}'),
+                      borderRadius: BorderRadius.circular(999),
+                      onTap: () => setState(() => _shown = i),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 7,
+                        ),
+                        child: Text(
+                          _titleIn(child, widget.scope, i),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: i == shown
+                                ? FontWeight.w700
+                                : FontWeight.w400,
+                            color: i == shown ? p.onPrimary : null,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        SizedBox(height: widget.node.gap > 0 ? widget.node.gap : 10),
+        KeyedSubtree(
+          key: ValueKey('studio-tab-panel-${widget.kids[shown].id}'),
+          child: StudioNodeView(
+            node: widget.kids[shown],
+            scope: widget.scope,
+            parent: widget.node,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// A child's question or tab name; its place when it has none.
+String _titleIn(StudioNode child, StudioScope scope, int i) {
+  final title = child.title?.trim() ?? '';
+  final shown = title.isEmpty ? '${i + 1}' : title;
+  return scope.uppercase ? shown.toUpperCase() : shown;
+}
+
+/// 107.3 Days, hours, minutes and seconds left; the owner's text once the
+/// time is up, or nothing.
+class _StudioCountdown extends ConsumerStatefulWidget {
+  const _StudioCountdown({
+    required this.node,
+    required this.endsAt,
+    required this.endedText,
+    required this.align,
+  });
+
+  final StudioNode node;
+  final DateTime endsAt;
+  final String? endedText;
+  final TextAlign align;
+
+  @override
+  ConsumerState<_StudioCountdown> createState() => _StudioCountdownState();
+}
+
+class _StudioCountdownState extends ConsumerState<_StudioCountdown> {
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final left = widget.endsAt.difference(ref.watch(pageClockProvider)());
+    if (left.isNegative || left == Duration.zero) {
+      _timer?.cancel();
+      final text = widget.endedText?.trim() ?? '';
+      if (text.isEmpty) return const SizedBox.shrink();
+      return Text(
+        text,
+        key: ValueKey('studio-countdown-ended-${widget.node.id}'),
+        textAlign: widget.align,
+      );
+    }
+    final units = [
+      (left.inDays, l10n.countdownDays),
+      (left.inHours % 24, l10n.countdownHours),
+      (left.inMinutes % 60, l10n.countdownMinutes),
+      (left.inSeconds % 60, l10n.countdownSeconds),
+    ];
+    final ink =
+        DefaultTextStyle.of(context).style.color ?? context.palette.text;
+    return Semantics(
+      label: units.map((u) => '${u.$1} ${u.$2}').join(', '),
+      excludeSemantics: true,
+      child: Row(
+        key: ValueKey('studio-countdown-${widget.node.id}'),
+        // Days on the left in every language, like a clock.
+        textDirection: TextDirection.ltr,
+        children: [
+          for (final (i, u) in units.indexed) ...[
+            if (i > 0) const SizedBox(width: 8),
+            Expanded(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: ink.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 4,
+                  ),
+                  child: Column(
+                    children: [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          u.$1.toString().padLeft(2, '0'),
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            fontFeatures: [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                      ),
+                      Text(
+                        u.$2,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: ink.withValues(alpha: 0.75),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

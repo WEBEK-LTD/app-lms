@@ -543,6 +543,33 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await expect(own.locator("[data-studio-layer]").filter({ hasText: "Hello Studio" }).getByTitle("Hidden in the app")).toBeVisible();
   await inspector.getByLabel("Hide in the app (kept here)").uncheck();
   await inspector.getByLabel("Capitals").uncheck();
+
+  // 107.3 New elements: questions that open, tabs, a countdown, a list with icons, and the questions section.
+  const unselect = () => phone.click({ position: { x: 4, y: 4 } });
+  await unselect();
+  await own.locator('[data-studio-element="accordion"]').click();
+  await expect(phone.getByText("Question 1")).toBeVisible();
+  await phone.getByText("Question 2").click();
+  await inspector.getByLabel("Its question or tab name").fill("Do you deliver?");
+  await expect(phone.getByText("Do you deliver?")).toBeVisible();
+  await unselect();
+  await own.locator('[data-studio-element="tabs"]').click();
+  await expect(phone.getByText("Tab 1")).toBeVisible();
+  await unselect();
+  await own.locator('[data-studio-element="countdown"]').click();
+  await expect(phone.locator("[data-studio-countdown]")).toBeVisible();
+  await inspector.getByLabel("Once the time is up").fill("It ended.");
+  await inspector.getByLabel("Ends at").fill("2020-01-01T10:00");
+  await expect(phone.getByText("It ended.")).toBeVisible();
+  await expect(phone.locator("[data-studio-countdown]")).toHaveCount(0);
+  await unselect();
+  await own.locator('[data-studio-element="bullets"]').click();
+  await expect(phone.getByText("Pay on delivery")).toBeVisible();
+  await unselect();
+  await own.getByRole("tab", { name: "Ready sections" }).click();
+  await own.locator('[data-studio-section="faq"]').click();
+  await expect(phone.getByText("Questions people ask")).toBeVisible();
+  await own.getByRole("tab", { name: "Elements" }).click();
   await own.getByRole("group", { name: "Header type:" }).getByRole("button", { name: "1 Logo in the middle" }).click();
   await expect(phone.locator('[data-studio-header="logo_center"]')).toBeVisible();
   await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });

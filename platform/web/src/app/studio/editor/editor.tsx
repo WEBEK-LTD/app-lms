@@ -12,7 +12,7 @@ import type { ScreenOption } from "@/lib/pages/sources";
 import { uniqueSlug } from "@/lib/pages/model";
 import { STUDIO_HEADER_TYPES, type ItemSource, type LanguageCode, type LayoutContent, type LayoutPage, type StudioHeader, type StudioNode, type StudioPage } from "@/lib/pages/types";
 import { duplicateNode, historyOf, holdsChildren, insertNode, isInside, moveNode, placeOf, pushHistory, redo, removeNode, undo, updateNode, wrapNode, type History } from "@/lib/studio/edit";
-import { elementInfo, newNode, newNodeId } from "@/lib/studio/elements";
+import { elementInfo, newNode, newNodeId, type NewText } from "@/lib/studio/elements";
 import { SECTIONS, sectionsFor, TEMPLATES, templatesFor, type ProjectKind, type SectionContext, type SectionWord, type TemplateInfo } from "@/lib/studio/sections";
 import { CLIPBOARD_KEY, forPaste, readCopied, readStyle, STYLE_CLIPBOARD_KEY, styleOf, stylePatch } from "@/lib/studio/clipboard";
 import { findNode } from "@/lib/studio/tree";
@@ -112,7 +112,7 @@ export function StudioEditor(props: StudioEditorProps) {
     activeTab: layout.tabs.find((tab) => tab.target.type === "page" && tab.target.page_slug === page?.slug)?.id ?? null,
   };
   const palette = useMemo(() => [...new Set([app.brand, layout.appearance.secondary_color, "#FFFFFF", "#0E0D24", "#F4EFE6", "#FF5A1F"].filter((c): c is string => !!c))], [app.brand, layout.appearance.secondary_color]);
-  const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search") };
+  const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search"), days: t("studio.days"), hours: t("studio.hours"), minutes: t("studio.minutes"), seconds: t("studio.seconds") };
   const kindSections = useMemo(() => sectionsFor(props.kind, { categories: props.categorySources.length > 0 }), [props.kind, props.categorySources]);
   const kindTemplates = useMemo(() => templatesFor(props.kind), [props.kind]);
   const sectionContext: SectionContext = {
@@ -120,8 +120,23 @@ export function StudioEditor(props: StudioEditorProps) {
     source,
     w: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: app.name }),
   };
-  const newText = (key: "text" | "button" | "search" | "ratings" | "field") =>
-    t(({ text: "studio.newText", button: "studio.newButton", search: "studio.search", ratings: "studio.newRatings", field: "studio.newField" } as const)[key]);
+  const newText = (key: NewText) =>
+    t(
+      (
+        {
+          text: "studio.newText",
+          button: "studio.newButton",
+          search: "studio.search",
+          ratings: "studio.newRatings",
+          field: "studio.newField",
+          question: "studio.newQuestion",
+          answer: "studio.newAnswer",
+          tab: "studio.newTab",
+          ended: "studio.newEnded",
+          bullets: "studio.newBullets",
+        } as const
+      )[key],
+    );
 
   // ——— Changes, undo and the draft saving itself ———
 
