@@ -10,6 +10,10 @@ import { hasFeature } from "@/lib/plans";
 import type { StudioTemplate } from "@/lib/data/types";
 import { loadLayout } from "@/lib/pages/layout";
 import { parseStudioPage } from "@/lib/pages/validate";
+import { getBlobStore } from "@/lib/blobs";
+import { FIGMA_IMAGE_BYTES, saveFigmaImage } from "@/lib/figma/images";
+import { assetUrl } from "@/lib/assets";
+import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 /** 103R Yallapp Studio: an account's own templates. */
 
@@ -55,4 +59,17 @@ export async function saveStudioTemplateAction(name: string, pageJson: string): 
 export async function deleteStudioTemplateAction(id: string): Promise<{ ok: boolean }> {
   const { app } = await requireStudioApp();
   return { ok: typeof id === "string" && (await (await getStore()).deleteStudioTemplate(app.clientId, id)) };
+}
+
+/** 108.2 A picture of a design brought into Studio, kept as the account's file; its address for the page. */
+export async function uploadDesignPictureAction(formData: FormData): Promise<{ ok: true; url: string } | { ok: false; error: "type" | "size" | "busy" }> {
+  const { app } = await requireStudioApp();
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) return { ok: false, error: "type" };
+  if (file.size > FIGMA_IMAGE_BYTES) return { ok: false, error: "size" };
+  const store = await getStore();
+  if (!(await hitRateLimit(store, RATE_LIMITS.designPictures, app.clientId)).allowed) return { ok: false, error: "busy" };
+  const saved = await saveFigmaImage({ store, blobs: getBlobStore(), now: new Date() }, app, Buffer.from(await file.arrayBuffer()), "design_image");
+  if (!saved.ok) return saved;
+  return { ok: true, url: assetUrl(saved.assetId) };
 }

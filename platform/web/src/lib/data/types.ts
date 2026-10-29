@@ -30,6 +30,8 @@ export type AssetKind =
   | "font"
   // 97.3 The logo and pictures exported from a Figma file.
   | "figma_image"
+  // 108.2 The pictures of a design brought into Studio (a design file, SVG, Figma, Sketch, Penpot).
+  | "design_image"
   // 105.2 A driver's papers (licence, car registration): only the company sees them, never at the public address.
   | "driver_document";
 export type AppTemplate = "classic" | "bold" | "minimal";

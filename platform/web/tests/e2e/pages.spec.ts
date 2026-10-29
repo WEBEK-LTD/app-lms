@@ -597,6 +597,50 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await expect(phone.locator('[data-studio-header="logo_center"]')).toBeVisible();
   await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
 
+  // 108.2 The page taken out as a file, then brought back as a new page, with a picture and a font of its own.
+  await own.getByRole("button", { name: /^Page: / }).click();
+  const [exported] = await Promise.all([own.waitForEvent("download"), own.getByRole("menuitem", { name: "Export this page as a file" }).click()]);
+  expect(exported.suggestedFilename()).toBe("Spring.yallapp");
+  await expect(own.getByRole("status").filter({ hasText: "The file is downloaded." })).toBeVisible();
+  const saved = JSON.parse(readFileSync((await exported.path())!, "utf8"));
+  expect(saved).toMatchObject({ format: "yallapp-design", kind: "page", pages: [{ slug: "spring", title: "Spring" }] });
+  // As a design made in another project brings them.
+  saved.pages[0].studio.body.children.push({ id: "pic", type: "image", image_url: "https://elsewhere.test/a.png", height: 120 }, { id: "brand", type: "text", text: "Harbour words", font: { family: "Harbour Sans" } });
+  saved.pictures["https://elsewhere.test/a.png"] = { type: "image/png", data: solidPng(8, 8, [255, 90, 31]).toString("base64") };
+  saved.fonts = [{ family: "Harbour Sans", files: [{ weight: null, kind: "ttf", data: OUTFIT.toString("base64") }] }];
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await own.getByRole("menuitem", { name: "Import a design…" }).click();
+  const importing = own.getByRole("dialog", { name: "Import a design" });
+  await importing.getByLabel("Choose a file").setInputFiles({ name: "notes.yallapp", mimeType: "application/json", buffer: Buffer.from("{}") });
+  await expect(importing.getByRole("alert")).toContainText("This file can't be read here.");
+  await expect(importing.getByRole("button", { name: "Next" })).toBeDisabled();
+  await importing.getByLabel("Choose a file").setInputFiles({ name: "Spring.yallapp", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(saved)) });
+  await importing.getByRole("button", { name: "Next" }).click();
+  await expect(importing.getByText("1 page found in “Spring.yallapp”")).toBeVisible();
+  await expect(importing.getByText("1 picture is saved with your project")).toBeVisible();
+  await expect(importing.getByText("In the file")).toBeVisible();
+  // A font from the file needs its licence confirmed.
+  await expect(importing.getByRole("button", { name: "Import", exact: true })).toBeDisabled();
+  await importing.getByLabel("The licence of the fonts I add allows using them in apps").check();
+  await importing.getByRole("button", { name: "Import", exact: true }).click();
+  await expect(importing).toHaveCount(0);
+  await expect(own.getByRole("status").filter({ hasText: "The design is imported." })).toBeVisible({ timeout: 15_000 });
+  // The picture is saved in this project. Without a plan the project has no Media storage for fonts: it says so, and the app's font shows.
+  await expect(own.getByRole("status").filter({ hasText: "The design is imported." })).toContainText("The font Harbour Sans couldn't be added: the app's font shows instead. Your Media storage is full.");
+  await expect(own.getByRole("status")).not.toContainText("pictures couldn't");
+  await expect(phone.getByText("Harbour words")).toBeVisible();
+  await expect(phone.locator("img").last()).toHaveAttribute("src", /\/api\/v1\/assets\//);
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await expect(own.getByRole("menuitemradio", { name: "Spring" })).toHaveCount(2);
+  await own.keyboard.press("Escape");
+  // One step undone, and done again.
+  await own.getByRole("button", { name: "Undo" }).click();
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await expect(own.getByRole("menuitemradio", { name: "Spring" })).toHaveCount(1);
+  await own.keyboard.press("Escape");
+  await own.getByRole("button", { name: "Redo" }).click();
+  await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
+
   // Before a plan the project tries everything; publishing works.
   await own.getByRole("button", { name: "Publish", exact: true }).click();
   await expect(own.getByText("Published. The app shows it the next time it opens.")).toBeVisible();

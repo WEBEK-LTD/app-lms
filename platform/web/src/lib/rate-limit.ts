@@ -57,6 +57,8 @@ export const RATE_LIMITS = {
   importRead: { name: "import:client", limit: 30, windowSeconds: 60 * 60 },
   // 97.4 Figma files read from a link, and their frames brought in.
   figmaRead: { name: "figma:client", limit: 30, windowSeconds: 60 * 60 },
+  // 108.2 Pictures of designs brought into Studio (a design file holds up to 120).
+  designPictures: { name: "design-pictures:client", limit: 400, windowSeconds: 60 * 60 },
   signInIp: { name: "sign-in:ip", limit: 30, windowSeconds: 15 * 60 },
   signInEmail: { name: "sign-in:email", limit: 8, windowSeconds: 15 * 60 },
   // 70 Codes of two-step sign-in (the website, Yallapp Business, setting it up or off), per person, like passwords per email.
