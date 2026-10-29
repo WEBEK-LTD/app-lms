@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,7 +16,10 @@ import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../food/widgets/food_widgets.dart' show AmountRow;
+import '../../delivery/data/delivery_providers.dart' show locatorProvider;
 import '../../real_estate/widgets/listing_widgets.dart' show TabHeader;
+import '../../taxi/data/taxi_providers.dart';
+import '../../taxi/widgets/taxi_map.dart';
 import '../data/rides_providers.dart';
 import '../widgets/ride_widgets.dart';
 
@@ -39,18 +43,39 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
   bool _switching = false;
   bool _answering = false;
 
+  /// 105.9 A taxi app's map: the offers' whole times, the sheet, where the
+  /// driver is before going online.
+  final _offerTotals = <int, int>{};
+  final _sheet = DraggableScrollableController();
+  TaxiSpot? _here;
+
   @override
   void initState() {
     super.initState();
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _locateStart());
   }
 
   @override
   void dispose() {
     // Sharing and asking for offers stop with the screen.
     _ticker?.cancel();
-    _sharer?.stop();
+    _sharer
+      ?..onPosition = null
+      ..stop();
+    _sheet.dispose();
     super.dispose();
+  }
+
+  /// 105.9 The driver's car on the map before their first position is sent.
+  Future<void> _locateStart() async {
+    if (!mounted ||
+        ref.read(taxiConfigProvider) == null ||
+        !ref.read(isDriverProvider)) {
+      return;
+    }
+    final p = (await ref.read(locatorProvider).current()).position;
+    if (mounted && p != null) setState(() => _here = (lat: p.lat, lng: p.lng));
   }
 
   void _tick() {
@@ -69,6 +94,10 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
     setState(() => _switching = true);
     try {
       await ref.read(yallappApiProvider).setDriverOnline(online);
+      // 105.9 Off the riders' map.
+      if (!online && ref.read(taxiConfigProvider) != null) {
+        unawaited(ref.read(driverLiveWriterProvider).clear());
+      }
       ref
         ..invalidate(driverProfileProvider)
         ..invalidate(driverOfferProvider);
@@ -166,6 +195,69 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
         ? ref.watch(driverOfferProvider).value
         : null;
     final tabs = [l10n.driverCurrent, l10n.driverDone, l10n.driverEarnings];
+    final taxi = ref.watch(taxiConfigProvider);
+    final now = DateTime.now();
+    final left = offer?.offerExpiresAt?.difference(now).inSeconds.clamp(0, 600);
+    final offerCard = offer == null
+        ? null
+        : _OfferCard(
+            offer: offer,
+            busy: _answering,
+            onAccept: () => _accept(offer),
+            onDecline: () => _decline(offer),
+            // 105.9 The whole time to take it, for the taxi app's ring.
+            total: left == null
+                ? null
+                : _offerTotals.putIfAbsent(offer.id, () => math.max(left, 1)),
+            circular: taxi != null,
+          );
+    final waiting = online
+        ? Text(
+            offer == null && me?.activeRideId == null
+                ? l10n.driverWaiting
+                : l10n.driverSharing,
+            key: const ValueKey('driver-waiting'),
+            style: TextStyle(fontSize: 13, color: p.textSecondary),
+          )
+        : null;
+    final openRide = me?.activeRideId == null
+        ? null
+        : PrimaryButton(
+            key: const ValueKey('driver-open-ride'),
+            label: l10n.driverOpenRide,
+            icon: AppIcons.ride,
+            onPressed: () => context.push(Paths.driverRide(me!.activeRideId!)),
+          );
+    final tabBar = SegmentedTabs(
+      labels: tabs,
+      selected: _tab,
+      onChanged: (i) => setState(() => _tab = i),
+    );
+    Widget list([ScrollController? controller]) => switch (_tab) {
+      0 => _RideList(
+        key: const ValueKey('driver-rides-0'),
+        scope: DriverRideScope.active,
+        controller: controller,
+      ),
+      1 => _RideList(
+        key: const ValueKey('driver-rides-1'),
+        scope: DriverRideScope.done,
+        controller: controller,
+      ),
+      _ => _Earnings(controller: controller),
+    };
+    if (taxi != null) {
+      return _taxiLayout(
+        taxi,
+        sharer,
+        profile,
+        offer,
+        offerCard,
+        openRide,
+        tabBar,
+        list,
+      );
+    }
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -234,62 +326,255 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
               ),
               _ => const SizedBox(height: 72),
             },
-            if (online)
+            if (waiting != null)
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                child: Text(
-                  offer == null && me?.activeRideId == null
-                      ? l10n.driverWaiting
-                      : l10n.driverSharing,
-                  key: const ValueKey('driver-waiting'),
-                  style: TextStyle(fontSize: 13, color: p.textSecondary),
-                ),
+                child: waiting,
               ),
-            if (offer != null)
+            if (offerCard != null)
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-                child: _OfferCard(
-                  offer: offer,
-                  busy: _answering,
-                  onAccept: () => _accept(offer),
-                  onDecline: () => _decline(offer),
-                ),
+                child: offerCard,
               ),
-            if (me?.activeRideId != null)
+            if (openRide != null)
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-                child: PrimaryButton(
-                  key: const ValueKey('driver-open-ride'),
-                  label: l10n.driverOpenRide,
-                  icon: AppIcons.ride,
-                  onPressed: () =>
-                      context.push(Paths.driverRide(me!.activeRideId!)),
-                ),
+                child: openRide,
               ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: SegmentedTabs(
-                labels: tabs,
-                selected: _tab,
-                onChanged: (i) => setState(() => _tab = i),
-              ),
+              child: tabBar,
             ),
             const SizedBox(height: 8),
-            Expanded(
-              child: switch (_tab) {
-                0 => const _RideList(
-                  key: ValueKey('driver-rides-0'),
-                  scope: DriverRideScope.active,
-                ),
-                1 => const _RideList(
-                  key: ValueKey('driver-rides-1'),
-                  scope: DriverRideScope.done,
-                ),
-                _ => const _Earnings(),
-              },
-            ),
+            Expanded(child: list()),
           ],
         ),
+      ),
+    );
+  }
+}
+
+extension on _DriverScreenState {
+  /// 105.9 A taxi app: the map with the driver's car (and an offer's pickup,
+  /// drop-off and way there), "Available for requests" on top, the offer as
+  /// a card over the map, the rest in a sheet. The driver's positions also
+  /// go to the company's live database while this screen is open.
+  Widget _taxiLayout(
+    TaxiConfig taxi,
+    DriverLocationSharer sharer,
+    AsyncValue<DriverProfile> profile,
+    DriverRide? offer,
+    Widget? offerCard,
+    Widget? openRide,
+    Widget tabBar,
+    Widget Function([ScrollController? controller]) list,
+  ) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final me = profile.value;
+    final writer = ref.watch(driverLiveWriterProvider);
+    // The live session lives while the screen is open; a new offer there
+    // means asking for it now.
+    ref.watch(taxiLiveProvider);
+    ref.listen(
+      liveOfferNodeProvider,
+      (_, _) => ref.invalidate(driverOfferProvider),
+    );
+    sharer.onPosition = (lat, lng) => writer.write(
+      lat,
+      lng,
+      vehicleTypeId: me?.vehicleTypeId,
+      free: me?.activeRideId == null && openRide == null,
+    );
+    final pickup = offer != null && offer.pickup.located
+        ? (lat: offer.pickup.lat!, lng: offer.pickup.lng!)
+        : null;
+    final dropoff = offer != null && offer.dropoff.located
+        ? (lat: offer.dropoff.lat!, lng: offer.dropoff.lng!)
+        : null;
+    final height = MediaQuery.sizeOf(context).height;
+    return Scaffold(
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: ValueListenableBuilder<NearbyTaxi?>(
+              valueListenable: writer.position,
+              builder: (context, position, _) {
+                final here = _here;
+                final car =
+                    position ??
+                    (here == null
+                        ? null
+                        : NearbyTaxi(
+                            driverKey: 'me',
+                            lat: here.lat,
+                            lng: here.lng,
+                          ));
+                final at = car == null ? null : (lat: car.lat, lng: car.lng);
+                double round(double v) => (v * 1000).roundToDouble() / 1000;
+                return TaxiMapView(
+                  map: taxi.map,
+                  focus: [
+                    if (at != null) (lat: round(at.lat), lng: round(at.lng)),
+                    ?pickup,
+                    ?dropoff,
+                  ],
+                  car: car,
+                  pins: [
+                    if (pickup != null)
+                      TaxiPin(
+                        TaxiPinKind.from,
+                        pickup.lat,
+                        pickup.lng,
+                        label: l10n.taxiFrom(offer!.pickup.address),
+                      ),
+                    if (dropoff != null)
+                      TaxiPin(
+                        TaxiPinKind.to,
+                        dropoff.lat,
+                        dropoff.lng,
+                        label: l10n.taxiTo(offer!.dropoff.address),
+                      ),
+                  ],
+                  route: pickup != null && dropoff != null
+                      ? [pickup, dropoff]
+                      : const [],
+                  approach: at != null && pickup != null
+                      ? [at, pickup]
+                      : const [],
+                  padding: EdgeInsets.only(
+                    top: 88,
+                    bottom: height * (offerCard != null ? 0.5 : 0.4),
+                  ),
+                );
+              },
+            ),
+          ),
+          DraggableScrollableSheet(
+            controller: _sheet,
+            initialChildSize: 0.4,
+            minChildSize: 0.2,
+            maxChildSize: 0.92,
+            builder: (context, controller) => TaxiSheet(
+              controller: _sheet,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 26),
+                  if (me != null && me.online)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                      child: Text(
+                        '${me.name} · '
+                        '${l10n.driverToday(me.ridesToday, me.earnedToday)}',
+                        key: const ValueKey('driver-today'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 13, color: p.textSecondary),
+                      ),
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: tabBar,
+                  ),
+                  const SizedBox(height: 8),
+                  Expanded(child: list(controller)),
+                ],
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Row(
+                children: [
+                  if (!ref.watch(driverAppProvider)) ...[
+                    SquareIconButton(
+                      key: const ValueKey('driver-rider-view'),
+                      icon: AppIcons.swap,
+                      label: l10n.riderView,
+                      bordered: false,
+                      onPressed: () => context.go(Paths.home),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
+                  Expanded(
+                    child: switch (profile) {
+                      AsyncValue(value: final me?) => AppCard(
+                        padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 10,
+                              height: 10,
+                              decoration: BoxDecoration(
+                                color: me.online ? p.success : p.textTertiary,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l10n.taxiAvailable,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w700,
+                                      color: p.text,
+                                    ),
+                                  ),
+                                  Text(
+                                    !me.online
+                                        ? l10n.driverOfflineHint
+                                        : offer == null &&
+                                              me.activeRideId == null
+                                        ? l10n.driverWaiting
+                                        : l10n.driverSharing,
+                                    key: const ValueKey('driver-waiting'),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: p.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Switch(
+                              key: const ValueKey('driver-online'),
+                              value: me.online,
+                              onChanged: _switching ? null : _setOnline,
+                            ),
+                          ],
+                        ),
+                      ),
+                      AsyncValue(error: final e?) => AppCard(
+                        padding: const EdgeInsets.all(8),
+                        child: ErrorView(
+                          error: e,
+                          onRetry: () => ref.invalidate(driverProfileProvider),
+                        ),
+                      ),
+                      _ => const SizedBox(height: 56),
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (offerCard ?? openRide case final card?)
+            Positioned(
+              left: 16,
+              right: 16,
+              bottom: 16,
+              child: SafeArea(top: false, child: card),
+            ),
+        ],
       ),
     );
   }
@@ -303,12 +588,19 @@ class _OfferCard extends StatelessWidget {
     required this.busy,
     required this.onAccept,
     required this.onDecline,
+    this.total,
+    this.circular = false,
   });
 
   final DriverRide offer;
   final bool busy;
   final VoidCallback onAccept;
   final VoidCallback onDecline;
+
+  /// 105.9 The seconds it had when it came, and the time left as a ring
+  /// (the taxi app's map).
+  final int? total;
+  final bool circular;
 
   @override
   Widget build(BuildContext context) {
@@ -342,7 +634,34 @@ class _OfferCard extends StatelessWidget {
                   ),
                 ),
               ),
-              if (left != null)
+              if (left != null && circular)
+                SizedBox(
+                  width: 52,
+                  height: 52,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      CircularProgressIndicator(
+                        value: left / math.max(total ?? left, 1),
+                        strokeWidth: 4,
+                        color: left <= 5 ? p.danger : strong,
+                        backgroundColor: muted.withValues(alpha: 0.25),
+                      ),
+                      Center(
+                        child: Text(
+                          l10n.driverSecondsLeft(left),
+                          key: const ValueKey('driver-offer-left'),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            color: left <= 5 ? p.danger : strong,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else if (left != null)
                 Text(
                   l10n.driverSecondsLeft(left),
                   key: const ValueKey('driver-offer-left'),
@@ -412,9 +731,12 @@ class _OfferCard extends StatelessWidget {
 }
 
 class _RideList extends ConsumerWidget {
-  const _RideList({super.key, required this.scope});
+  const _RideList({super.key, required this.scope, this.controller});
 
   final DriverRideScope scope;
+
+  /// 105.9 The taxi app's sheet's scrolling.
+  final ScrollController? controller;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -438,6 +760,7 @@ class _RideList extends ConsumerWidget {
       return RefreshIndicator(
         onRefresh: notifier.refresh,
         child: ListView(
+          controller: controller,
           children: [
             MessageView(
               icon: AppIcons.car,
@@ -456,6 +779,7 @@ class _RideList extends ConsumerWidget {
           return false;
         },
         child: ListView.separated(
+          controller: controller,
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
           itemCount: state.items.length,
           separatorBuilder: (_, _) => const SizedBox(height: 10),
@@ -471,7 +795,10 @@ class _RideList extends ConsumerWidget {
 
 /// What the driver made today, this week or this month.
 class _Earnings extends ConsumerStatefulWidget {
-  const _Earnings();
+  const _Earnings({this.controller});
+
+  /// 105.9 The taxi app's sheet's scrolling.
+  final ScrollController? controller;
 
   @override
   ConsumerState<_Earnings> createState() => _EarningsState();
@@ -487,6 +814,7 @@ class _EarningsState extends ConsumerState<_Earnings> {
     final async = ref.watch(driverEarningsProvider(_period));
     return ListView(
       key: const ValueKey('driver-earnings'),
+      controller: widget.controller,
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
       children: [
         SegmentedTabs(

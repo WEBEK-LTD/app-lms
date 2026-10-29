@@ -1641,5 +1641,19 @@
   "classroomMarkMissing": "اكتب الدرجة.",
   "classroomSaveScores": "حفظ الدرجات",
   "classroomScoresSaved": "تم الحفظ. أُبلغ الطلاب والأسر بالدرجات الجديدة.",
-  "classroomScoreRange": "الدرجة من 0 إلى {max}."
+  "classroomScoreRange": "الدرجة من 0 إلى {max}.",
+  "taxiNearby": "{count, plural, =0{لا توجد سيارات أجرة متاحة قربك} =1{سيارة أجرة واحدة قربك} =2{سيارتا أجرة قربك} few{{count} سيارات أجرة قربك} many{{count} سيارة أجرة قربك} other{{count} سيارة أجرة قربك}}",
+  "taxiNearest": "أقربها على بُعد {minutes} د",
+  "taxiWhereFrom": "من أين؟",
+  "taxiFrom": "من: {place}",
+  "taxiTo": "إلى: {place}",
+  "taxiRequestType": "اطلب {type}",
+  "taxiArrivingIn": "يصل خلال {minutes} د",
+  "taxiLive": "مباشر",
+  "taxiAvailable": "متاح لاستقبال الطلبات",
+  "taxiSearchHint": "ابحث عن مكان",
+  "taxiSearchNone": "لم نجد أماكن. جرّب كلمات أخرى.",
+  "taxiChooseOnMap": "اختر على الخريطة",
+  "taxiOnMap": "مكان محدد على الخريطة",
+  "taxiPlaceFailed": "لا يمكن استخدام هذا المكان. اختر مكانًا آخر."
 }

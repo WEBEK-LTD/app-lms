@@ -453,6 +453,7 @@ class DriverProfile {
     required this.name,
     this.photoUrl,
     this.vehicleTypeName,
+    this.vehicleTypeId,
     this.car = '',
     this.plate,
     this.online = false,
@@ -472,6 +473,7 @@ class DriverProfile {
       name: reqString(json, 'name'),
       photoUrl: optString(json, 'photo_url'),
       vehicleTypeName: type == null ? null : optString(type, 'name'),
+      vehicleTypeId: type == null ? null : optInt(type, 'id'),
       car: [
         optString(car, 'color'),
         optString(car, 'model'),
@@ -490,6 +492,9 @@ class DriverProfile {
   final String name;
   final String? photoUrl;
   final String? vehicleTypeName;
+
+  /// 105.9 Written with the driver's live position.
+  final int? vehicleTypeId;
   final String car;
   final String? plate;
   final bool online;

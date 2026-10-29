@@ -6004,4 +6004,65 @@ class AppLocalizationsTr extends AppLocalizations {
   String classroomScoreRange(String max) {
     return 'Puan 0 ile $max arasındadır.';
   }
+
+  @override
+  String taxiNearby(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Yakınında $count taksi',
+      one: 'Yakınında 1 taksi',
+      zero: 'Yakınında boş taksi yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taxiNearest(int minutes) {
+    return 'en yakını $minutes dk uzakta';
+  }
+
+  @override
+  String get taxiWhereFrom => 'Nereden?';
+
+  @override
+  String taxiFrom(String place) {
+    return 'Nereden: $place';
+  }
+
+  @override
+  String taxiTo(String place) {
+    return 'Nereye: $place';
+  }
+
+  @override
+  String taxiRequestType(String type) {
+    return '$type çağır';
+  }
+
+  @override
+  String taxiArrivingIn(int minutes) {
+    return '$minutes dk içinde geliyor';
+  }
+
+  @override
+  String get taxiLive => 'Canlı';
+
+  @override
+  String get taxiAvailable => 'Çağrılara açık';
+
+  @override
+  String get taxiSearchHint => 'Bir yer ara';
+
+  @override
+  String get taxiSearchNone => 'Yer bulunamadı. Başka kelimeler dene.';
+
+  @override
+  String get taxiChooseOnMap => 'Haritada seç';
+
+  @override
+  String get taxiOnMap => 'Haritada işaretlenen yer';
+
+  @override
+  String get taxiPlaceFailed => 'Bu yer kullanılamıyor. Başka bir yer seç.';
 }

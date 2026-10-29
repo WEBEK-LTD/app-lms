@@ -6094,4 +6094,68 @@ class AppLocalizationsAr extends AppLocalizations {
   String classroomScoreRange(String max) {
     return 'الدرجة من 0 إلى $max.';
   }
+
+  @override
+  String taxiNearby(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count سيارة أجرة قربك',
+      many: '$count سيارة أجرة قربك',
+      few: '$count سيارات أجرة قربك',
+      two: 'سيارتا أجرة قربك',
+      one: 'سيارة أجرة واحدة قربك',
+      zero: 'لا توجد سيارات أجرة متاحة قربك',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taxiNearest(int minutes) {
+    return 'أقربها على بُعد $minutes د';
+  }
+
+  @override
+  String get taxiWhereFrom => 'من أين؟';
+
+  @override
+  String taxiFrom(String place) {
+    return 'من: $place';
+  }
+
+  @override
+  String taxiTo(String place) {
+    return 'إلى: $place';
+  }
+
+  @override
+  String taxiRequestType(String type) {
+    return 'اطلب $type';
+  }
+
+  @override
+  String taxiArrivingIn(int minutes) {
+    return 'يصل خلال $minutes د';
+  }
+
+  @override
+  String get taxiLive => 'مباشر';
+
+  @override
+  String get taxiAvailable => 'متاح لاستقبال الطلبات';
+
+  @override
+  String get taxiSearchHint => 'ابحث عن مكان';
+
+  @override
+  String get taxiSearchNone => 'لم نجد أماكن. جرّب كلمات أخرى.';
+
+  @override
+  String get taxiChooseOnMap => 'اختر على الخريطة';
+
+  @override
+  String get taxiOnMap => 'مكان محدد على الخريطة';
+
+  @override
+  String get taxiPlaceFailed => 'لا يمكن استخدام هذا المكان. اختر مكانًا آخر.';
 }

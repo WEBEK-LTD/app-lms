@@ -128,6 +128,10 @@ class DriverLocationSharer {
 
   bool get running => _timer != null;
 
+  /// 105.9 Told each position too (a taxi app writes it to its live
+  /// database).
+  void Function(double lat, double lng)? onPosition;
+
   void start() {
     if (_timer != null) return;
     _send();
@@ -146,6 +150,7 @@ class DriverLocationSharer {
       final found = await _ref.read(locatorProvider).current();
       final p = found.position;
       if (p != null) {
+        onPosition?.call(p.lat, p.lng);
         await _ref
             .read(yallappApiProvider)
             .sendDriverLocation(p.lat, p.lng, accuracy: p.accuracy);

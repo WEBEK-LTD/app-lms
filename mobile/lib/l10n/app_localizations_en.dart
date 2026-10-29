@@ -6014,4 +6014,65 @@ class AppLocalizationsEn extends AppLocalizations {
   String classroomScoreRange(String max) {
     return 'A score is from 0 to $max.';
   }
+
+  @override
+  String taxiNearby(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count taxis near you',
+      one: '1 taxi near you',
+      zero: 'No free taxis near you',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taxiNearest(int minutes) {
+    return 'the nearest $minutes min away';
+  }
+
+  @override
+  String get taxiWhereFrom => 'Where from?';
+
+  @override
+  String taxiFrom(String place) {
+    return 'From: $place';
+  }
+
+  @override
+  String taxiTo(String place) {
+    return 'To: $place';
+  }
+
+  @override
+  String taxiRequestType(String type) {
+    return 'Request $type';
+  }
+
+  @override
+  String taxiArrivingIn(int minutes) {
+    return 'Arriving in $minutes min';
+  }
+
+  @override
+  String get taxiLive => 'Live';
+
+  @override
+  String get taxiAvailable => 'Available for requests';
+
+  @override
+  String get taxiSearchHint => 'Search for a place';
+
+  @override
+  String get taxiSearchNone => 'No places found. Try other words.';
+
+  @override
+  String get taxiChooseOnMap => 'Choose on the map';
+
+  @override
+  String get taxiOnMap => 'Pinned on the map';
+
+  @override
+  String get taxiPlaceFailed => 'This place can\'t be used. Choose another.';
 }
