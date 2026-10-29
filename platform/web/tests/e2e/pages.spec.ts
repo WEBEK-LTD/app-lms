@@ -641,6 +641,25 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await own.getByRole("button", { name: "Redo" }).click();
   await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
 
+  // 108.3 A screen exported as SVG from a design tool: a new page in rows and columns, its picture saved, the bars left out.
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await own.getByRole("menuitem", { name: "Import a design…" }).click();
+  await importing.getByLabel("Choose a file").setInputFiles({ name: "Lale home.svg", mimeType: "image/svg+xml", buffer: readFileSync(path.resolve(__dirname, "../unit/fixtures/designs/figma-home.svg")) });
+  await importing.getByRole("button", { name: "Next" }).click();
+  await expect(importing.getByText("1 page found in “Lale home.svg”")).toBeVisible();
+  await expect(importing.getByText("Google Fonts")).toBeVisible();
+  await expect(importing.getByText("1 picture is saved with your project")).toBeVisible();
+  await importing.getByRole("button", { name: "Import", exact: true }).click();
+  await expect(own.getByRole("status").filter({ hasText: "The design is imported." })).toBeVisible({ timeout: 15_000 });
+  await expect(own.getByRole("button", { name: "Page: Lale home" })).toBeVisible();
+  await expect(phone.getByText("Welcome to Lale")).toBeVisible();
+  await expect(phone.getByText("Order now")).toBeVisible();
+  await expect(phone.getByText("9:41")).toHaveCount(0);
+  // The page checker takes it: it saves.
+  await own.getByRole("button", { name: "Undo" }).click();
+  await own.getByRole("button", { name: "Redo" }).click();
+  await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
+
   // Before a plan the project tries everything; publishing works.
   await own.getByRole("button", { name: "Publish", exact: true }).click();
   await expect(own.getByText("Published. The app shows it the next time it opens.")).toBeVisible();

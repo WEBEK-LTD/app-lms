@@ -4,10 +4,11 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { uploadOwnFontAction } from "@/app/actions/pages";
 import { useDashT } from "@/components/dashboard-i18n";
 import type { DashKey } from "@/i18n/dashboard";
-import type { StudioPage } from "@/lib/pages/types";
-import { fontsIn, picturesIn, withPictures, type DesignFile, type DesignPlace } from "@/lib/studio/design-file";
+import type { Languages, StudioPage } from "@/lib/pages/types";
+import { fontsIn, picturesIn, withPictures, type DesignFile, type DesignFilePicture, type DesignPlace } from "@/lib/studio/design-file";
 import { IMPORT_FORMATS, readImport, type ImportError, type ImportRead } from "@/lib/studio/import/read";
-import { fromBase64, isFreeFont, sizeText, type OwnFontFiles } from "./design-io";
+import type { SvgVector } from "@/lib/studio/import/svg";
+import { fromBase64, isFreeFont, sizeText, toBase64, type OwnFontFiles } from "./design-io";
 import { Glyph, STUDIO_COLORS as C } from "./shared";
 
 /**
@@ -37,7 +38,28 @@ const ERRORS: Record<ImportError, DashKey> = {
   broken: "studio.importBroken",
   empty: "studio.importEmpty",
   too_big: "studio.importTooBig",
+  mixed: "studio.importMixed",
 };
+
+/** 108.3 A drawing of an SVG drawn as a picture by the browser, twice as sharp. */
+async function drawVector(vector: SvgVector): Promise<DesignFilePicture | null> {
+  const w = Math.max(1, Math.ceil(vector.w * 2));
+  const h = Math.max(1, Math.ceil(vector.h * 2));
+  if (w * h > 4096 * 4096) return null;
+  try {
+    const image = new Image();
+    image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(vector.svg)}`;
+    await image.decode();
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    canvas.getContext("2d")?.drawImage(image, 0, 0, w, h);
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
+    return blob ? { type: "image/png", data: toBase64(new Uint8Array(await blob.arrayBuffer())) } : null;
+  } catch {
+    return null;
+  }
+}
 
 export function ImportDialog(props: {
   onClose: () => void;
@@ -48,6 +70,8 @@ export function ImportDialog(props: {
   onFontsAdded: (families: string[]) => void;
   /** Whether a page is open to put the design in. */
   hasOpenPage: boolean;
+  /** The project's languages: designs from other tools are in its main one. */
+  languages: Languages;
 }) {
   const t = useDashT();
   const [read, setRead] = useState<ImportRead | null>(null);
@@ -67,11 +91,11 @@ export function ImportDialog(props: {
     return () => window.removeEventListener("keydown", onKey);
   }, [props]);
 
-  async function take(file: File | undefined) {
-    if (!file) return;
+  async function take(files: FileList | null | undefined) {
+    if (!files?.length) return;
     setBusy(true);
     setProblem(null);
-    const result = await readImport(file);
+    const result = await readImport(Array.from(files), { languages: props.languages, draw: drawVector });
     setBusy(false);
     if (!result.ok) {
       setRead(null);
@@ -121,7 +145,7 @@ export function ImportDialog(props: {
                 onDrop={(e) => {
                   e.preventDefault();
                   setOver(false);
-                  void take(e.dataTransfer.files[0]);
+                  void take(e.dataTransfer.files);
                 }}
                 className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl px-6 py-8 text-center"
                 style={{ border: `2px dashed ${over ? C.select : "#CFC9BC"}`, background: "#FBF8F2" }}
@@ -136,13 +160,14 @@ export function ImportDialog(props: {
                     </span>
                   ))}
                 </span>
-                <input ref={input} type="file" accept={IMPORT_FORMATS.join(",")} aria-label={t("studio.importChoose")} className="sr-only" onChange={(e) => void take(e.target.files?.[0])} />
+                <input ref={input} type="file" multiple accept={IMPORT_FORMATS.join(",")} aria-label={t("studio.importChoose")} className="sr-only" onChange={(e) => void take(e.target.files)} />
               </label>
               {problem ? (
                 <p role="alert" className="m-0 rounded-xl px-3 py-2" style={{ background: "#FDECEA", color: "#B3261E" }}>
                   {problem}
                 </p>
               ) : null}
+              <OwnFontBox onAdded={(family) => props.onFontsAdded([family])} />
               <p className="m-0 text-xs" style={{ color: C.muted }}>
                 {t("studio.importNote")}
               </p>
@@ -274,6 +299,11 @@ function Found(props: Parameters<typeof ImportDialog>[0] & { read: ImportRead; o
           <span className="text-xs" style={{ color: C.muted }}>
             {t("studio.importFoundHint")}
           </span>
+          {props.read.cut ? (
+            <span className="text-xs" style={{ color: "#B3261E" }}>
+              {t("studio.importCut", { count: props.read.cut })}
+            </span>
+          ) : null}
           <div className="flex flex-wrap gap-2">
             {(section ? [{ title: design.name, studio: { body: design.section! } as StudioPage }] : design.pages).map((page, i) => {
               const on = section || chosen.includes(i);
@@ -421,6 +451,71 @@ function FontTag({ state, swapped, added }: { state: FontState; swapped: boolean
       <Glyph name={ok ? "check" : state === "missing" ? "warning" : "text_fields"} size={16} />
       {label}
     </span>
+  );
+}
+
+/** 108.3 A font of the owner's own added before importing: its name, its files and its licence. */
+function OwnFontBox({ onAdded }: { onAdded: (family: string) => void }) {
+  const t = useDashT();
+  const [open, setOpen] = useState(false);
+  const [family, setFamily] = useState("");
+  const [files, setFiles] = useState<FileList | null>(null);
+  const [licence, setLicence] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+
+  async function add() {
+    if (!files?.length) return;
+    setBusy(true);
+    const form = new FormData();
+    form.set("family", family);
+    if (licence) form.set("licence", "on");
+    for (const file of Array.from(files)) form.append("files", file);
+    const r = await uploadOwnFontAction(form).catch(() => null);
+    setBusy(false);
+    if (r?.ok) {
+      onAdded(family.trim());
+      setMessage({ ok: true, text: t("studio.importFontAddedNamed", { family: family.trim() }) });
+      setFamily("");
+      setFiles(null);
+      setOpen(false);
+    } else setMessage({ ok: false, text: r ? t(`pages.ownFontErr_${r.error}` as DashKey, { file: r.file ?? "" }) : t("studio.importBroken") });
+  }
+
+  return (
+    <div className="flex flex-col gap-2.5 rounded-xl px-3 py-2.5" style={{ border: `1px solid ${C.line}` }}>
+      <div className="flex items-center gap-2.5">
+        <Glyph name="title" />
+        <div className="flex-1">
+          <b>{t("studio.importOwnFonts")}</b>
+          <div className="text-xs" style={{ color: C.muted }}>
+            {t("studio.importOwnFontsHint")}
+          </div>
+        </div>
+        {open ? null : <Button onClick={() => setOpen(true)}>{t("studio.importAddFontButton")}</Button>}
+      </div>
+      {open ? (
+        <div className="flex flex-col gap-2">
+          <input aria-label={t("studio.importFontName")} placeholder={t("studio.importFontName")} value={family} maxLength={40} onChange={(e) => setFamily(e.target.value)} className="h-9 rounded-lg px-2.5" style={{ border: `1px solid ${C.line}` }} />
+          <input type="file" multiple accept=".ttf,.otf" aria-label={t("studio.importFontFiles")} onChange={(e) => setFiles(e.target.files)} />
+          <label className="flex cursor-pointer items-start gap-1.5 text-xs">
+            <input type="checkbox" checked={licence} onChange={(e) => setLicence(e.target.checked)} className="mt-0.5 accent-[#3D63FF]" />
+            {t("studio.importFontLicence")}
+          </label>
+          <div className="flex justify-end gap-2">
+            <Button onClick={() => setOpen(false)}>{t("studio.importCancel")}</Button>
+            <Button primary disabled={busy || !family.trim() || !files?.length} onClick={() => void add()}>
+              {t("studio.importAddFontButton")}
+            </Button>
+          </div>
+        </div>
+      ) : null}
+      {message ? (
+        <span role={message.ok ? "status" : "alert"} className="text-xs" style={{ color: message.ok ? "#1F8A4C" : "#B3261E" }}>
+          {message.text}
+        </span>
+      ) : null}
+    </div>
   );
 }
 

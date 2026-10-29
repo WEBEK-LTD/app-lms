@@ -1067,6 +1067,7 @@ export function StudioEditor(props: StudioEditorProps) {
           ownFonts={ownFonts}
           onFontsAdded={(families) => setOwnFonts((list) => [...list, ...families.filter((f) => !list.some((x) => x.family === f)).map((family) => ({ family, previewUrl: "", files: [] }))])}
           hasOpenPage={!!studio}
+          languages={layout.languages}
         />
       ) : null}
     </div>
