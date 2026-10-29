@@ -4801,5 +4801,9 @@
   "driverNoShow": "The rider didn't come",
   "@driverNoShow": {
     "description": "105.2 The driver cancels because the rider didn't come."
+  },
+  "ridePayCash": "Cash to the driver",
+  "@ridePayCash": {
+    "description": "105.2 Paying a ride in cash to the driver."
   }
 }

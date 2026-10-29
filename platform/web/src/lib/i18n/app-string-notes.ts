@@ -2361,6 +2361,11 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "يلغي السائق لأن الراكب لم يحضر.",
     tr: "Sürücü, yolcu gelmediği için iptal eder.",
   },
+  "105.2 Paying a ride in cash to the driver.": {
+    en: "Paying a ride in cash to the driver.",
+    ar: "دفع المشوار نقدًا للسائق.",
+    tr: "Yolculuğu sürücüye nakit ödemek.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

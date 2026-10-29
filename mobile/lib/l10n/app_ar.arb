@@ -1444,5 +1444,6 @@
   "driverNoShowAfter": "إذا لم يحضر الراكب يمكنك الإلغاء بعد {minutes} د من وصولك. وإلا ينتقل المشوار إلى سائق آخر.",
   "driverCancelNoShowHint": "لم يحضر الراكب: تُحتسب عليه رسوم الإلغاء التي تحددها الشركة.",
   "driverCantMakeIt": "لا أستطيع",
-  "driverNoShow": "الراكب لم يحضر"
+  "driverNoShow": "الراكب لم يحضر",
+  "ridePayCash": "نقدًا للسائق"
 }

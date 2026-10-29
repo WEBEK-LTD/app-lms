@@ -284,7 +284,7 @@ class _RideScreenState extends ConsumerState<RideScreen> {
             onTap: () => context.push(Paths.rideFollow(active.id)),
             child: Row(
               children: [
-                AppIcon(AppIcons.ride, size: 26, color: p.primary),
+                AppIcon(AppIcons.ride, size: 26, color: p.onPrimarySoft),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -295,19 +295,19 @@ class _RideScreenState extends ConsumerState<RideScreen> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
-                          color: p.text,
+                          color: p.onPrimarySoft,
                         ),
                       ),
                       Text(
                         active.dropoff.address,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 13, color: p.textBody),
+                        style: TextStyle(fontSize: 13, color: p.onPrimaryMuted),
                       ),
                     ],
                   ),
                 ),
-                AppIcon(AppIcons.forward, size: 22, color: p.textSecondary),
+                AppIcon(AppIcons.forward, size: 22, color: p.onPrimaryMuted),
               ],
             ),
           ),
@@ -450,7 +450,7 @@ class _RideScreenState extends ConsumerState<RideScreen> {
           const SizedBox(height: 16),
           _SectionTitle(l10n.sendPayment),
           SegmentedTabs(
-            labels: [l10n.payCash, l10n.payCard],
+            labels: [l10n.ridePayCash, l10n.payCard],
             selected: payment == PaymentMethod.cash ? 0 : 1,
             radio: true,
             onChanged: (i) => setState(
@@ -533,6 +533,9 @@ class _VehicleOption extends StatelessWidget {
     final p = context.palette;
     final l10n = context.l10n;
     final type = option.vehicleType;
+    // A chosen type sits on the soft brand colour: its words in the colours made for it.
+    final strong = selected ? p.onPrimarySoft : p.text;
+    final muted = selected ? p.onPrimaryMuted : p.textSecondary;
     return Semantics(
       selected: selected,
       inMutuallyExclusiveGroup: true,
@@ -546,7 +549,7 @@ class _VehicleOption extends StatelessWidget {
             AppIcon(
               vehicleIcon(type.icon),
               size: 28,
-              color: selected ? p.primary : p.textSecondary,
+              color: selected ? p.onPrimarySoft : p.textSecondary,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -558,7 +561,7 @@ class _VehicleOption extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: p.text,
+                      color: strong,
                     ),
                   ),
                   Text(
@@ -568,7 +571,7 @@ class _VehicleOption extends StatelessWidget {
                           ? l10n.ridePickupIn(option.pickupMinutes!)
                           : (option.available ? null : l10n.rideNoneNearby),
                     ].whereType<String>().join(' · '),
-                    style: TextStyle(fontSize: 13, color: p.textSecondary),
+                    style: TextStyle(fontSize: 13, color: muted),
                   ),
                 ],
               ),
@@ -578,7 +581,7 @@ class _VehicleOption extends StatelessWidget {
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
-                color: p.text,
+                color: strong,
               ),
             ),
           ],

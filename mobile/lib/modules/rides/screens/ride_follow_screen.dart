@@ -499,7 +499,9 @@ class _RideView extends ConsumerWidget {
                 [
                   r.vehicleTypeName,
                   l10n.rideTrip(r.distanceKm.toStringAsFixed(1), r.minutes),
-                  r.payment == PaymentMethod.cash ? l10n.payCash : l10n.payCard,
+                  r.payment == PaymentMethod.cash
+                      ? l10n.ridePayCash
+                      : l10n.payCard,
                   if (r.payment == PaymentMethod.card)
                     r.paid ? l10n.paymentPaid : l10n.paymentUnpaid,
                 ].where((s) => s.isNotEmpty).join(' · '),

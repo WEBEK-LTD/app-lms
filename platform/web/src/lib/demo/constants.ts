@@ -49,8 +49,16 @@ export const DEMO_LICENSE_UNTIL = new Date("2099-12-31T23:59:59.999Z");
  * 21 Which demo: an engine's (its default kind), or a vertical's that has
  * its own demo (a clinic and 27 a gym, on the bookings engine; 26 a café, on the store engine).
  */
-/** 104 Delivery apps have no demo yet. */
-export type DemoId = Exclude<AppType, "delivery" | "food" | "rides"> | Extract<AppVertical, "clinic" | "restaurant" | "fitness">;
+/** The demos of Yallapp Studio's own project types (104 delivery, 105.1 food delivery, 105.2 rides), shown on /demo/studio only. */
+export type StudioDemoId = Extract<AppType, "delivery" | "food" | "rides">;
+export type DemoId = Exclude<AppType, StudioDemoId> | Extract<AppVertical, "clinic" | "restaurant" | "fitness"> | StudioDemoId;
+
+/** The engines only Studio offers (lib/studio/section.ts STUDIO_ONLY_KINDS). */
+const STUDIO_DEMO_ENGINES: readonly string[] = ["delivery", "food", "rides"];
+
+export function isStudioDemo(id: DemoId): id is StudioDemoId {
+  return STUDIO_DEMO_ENGINES.includes(id);
+}
 
 /** The kind a demo shows. */
 export function demoKind(id: DemoId): KindInfo {
@@ -62,19 +70,25 @@ export function demoKind(id: DemoId): KindInfo {
  * order. 29 An engine's default kind is the engine's demo, even with a
  * vertical (the charity is the donations engine's).
  */
-export const DEMO_TYPES: readonly DemoId[] = KINDS.filter((k) => demoSlugOfKind(k) !== null).map((k) =>
+export const ALL_DEMO_TYPES: readonly DemoId[] = KINDS.filter((k) => demoSlugOfKind(k) !== null).map((k) =>
   defaultKind(k.engine) === k ? (k.engine as DemoId) : (k.vertical as DemoId),
 );
 
-/** Each demo's address on /demo and of its download: /demo/download/<slug> (lib/app/kinds.ts). */
-export const DEMO_SLUGS = Object.fromEntries(DEMO_TYPES.map((id) => [id, demoSlugOfKind(demoKind(id))!])) as Record<DemoId, string>;
+/** The regular apps' demos, on /demo. */
+export const DEMO_TYPES: readonly DemoId[] = ALL_DEMO_TYPES.filter((id) => !isStudioDemo(id));
+
+/** Yallapp Studio's demos, on /demo/studio. */
+export const STUDIO_DEMO_TYPES: readonly StudioDemoId[] = ALL_DEMO_TYPES.filter(isStudioDemo);
+
+/** Each demo's address on /demo (or /demo/studio) and of its download: /demo/download/<slug> (lib/app/kinds.ts). */
+export const DEMO_SLUGS = Object.fromEntries(ALL_DEMO_TYPES.map((id) => [id, demoSlugOfKind(demoKind(id))!])) as Record<DemoId, string>;
 
 export function demoTypeOfSlug(slug: string): DemoId | null {
-  return DEMO_TYPES.find((id) => DEMO_SLUGS[id] === slug) ?? null;
+  return ALL_DEMO_TYPES.find((id) => DEMO_SLUGS[id] === slug) ?? null;
 }
 
 /** 21 Which demo an app is: its vertical's, when that has a demo, else its engine's. */
 export function demoIdOf(app: Pick<App, "appType"> & { vertical?: AppVertical | null }): DemoId {
   const vertical = app.vertical ?? null;
-  return vertical && (DEMO_TYPES as readonly string[]).includes(vertical) ? (vertical as DemoId) : (app.appType as DemoId);
+  return vertical && (ALL_DEMO_TYPES as readonly string[]).includes(vertical) ? (vertical as DemoId) : (app.appType as DemoId);
 }

@@ -441,4 +441,67 @@ final websiteShots = <Shot>[
     appType: AppType.delivery,
     after: (tester, router) async => router.go('/courier'),
   ),
+  // Yallapp Studio's demos: food delivery (Sofra Eats) and rides (Masar).
+  Shot('food-restaurants', api: DemoApi.food, appType: AppType.food),
+  Shot(
+    'food-menu',
+    api: DemoApi.food,
+    appType: AppType.food,
+    location: '/restaurant/1',
+  ),
+  Shot(
+    'food-order',
+    api: DemoApi.food,
+    appType: AppType.food,
+    location: '/food-order/1',
+  ),
+  Shot(
+    'rides-where',
+    api: DemoApi.rides,
+    appType: AppType.rides,
+    after: (tester, router) async {
+      Future<void> place(String prefix, String address, String at) async {
+        await tester.dragUntilVisible(
+          find.byKey(ValueKey('$prefix-paste')),
+          find.byKey(const ValueKey('ride-form')),
+          const Offset(0, -150),
+        );
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(ValueKey('$prefix-address')),
+          address,
+        );
+        await tester.tap(find.byKey(ValueKey('$prefix-paste')));
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(const ValueKey('paste-link-field')),
+          at,
+        );
+        await tester.tap(find.text('Use this place'));
+        await tester.pumpAndSettle();
+      }
+
+      await place('pickup', 'Tahrir Square', '30.0444, 31.2357');
+      await place('dropoff', 'Cairo Tower, Zamalek', '30.0459, 31.2243');
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pumpAndSettle();
+      // "When" at the top, the vehicle types under it.
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
+      await Scrollable.ensureVisible(tester.element(find.text('When')));
+      await tester.pumpAndSettle();
+    },
+  ),
+  Shot(
+    'rides-ride',
+    api: DemoApi.rides,
+    appType: AppType.rides,
+    location: '/ride/1',
+  ),
+  Shot(
+    'rides-driver',
+    api: () => DemoApi.rides(driver: true),
+    appType: AppType.rides,
+    after: (tester, router) async => router.go('/driver'),
+  ),
 ];

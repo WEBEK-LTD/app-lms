@@ -1,7 +1,7 @@
 import type { DataStore } from "../data/store";
 import type { App, Build, Client } from "../data/types";
 import { platformSetting } from "../settings/platform";
-import { DEMO_TYPES, demoIdOf, type DemoId } from "./constants";
+import { ALL_DEMO_TYPES, demoIdOf, type DemoId } from "./constants";
 
 /**
  * Finding the demo apps (roadmap 16). They belong to the account the admin's
@@ -15,12 +15,12 @@ export async function demoClient(store: DataStore, options: { fresh?: boolean } 
   return setting ? store.getClientById(setting.value.clientId) : null;
 }
 
-/** The demo apps, one per demo (21 an engine, or a kind with its own demo) at most, in the order of DEMO_TYPES. */
+/** The demo apps, one per demo (21 an engine, or a kind with its own demo; Studio's too) at most, in the registry's order. */
 export async function listDemoApps(store: DataStore, options: { fresh?: boolean } = {}): Promise<App[]> {
   const client = await demoClient(store, options);
   if (!client) return [];
   const apps = (await store.listAppsByClient(client.id)).filter((app) => app.demo === true);
-  return DEMO_TYPES.map((id) => apps.find((app) => demoIdOf(app) === id)).filter((app): app is App => app !== undefined);
+  return ALL_DEMO_TYPES.map((id) => apps.find((app) => demoIdOf(app) === id)).filter((app): app is App => app !== undefined);
 }
 
 export async function demoAppOfType(store: DataStore, id: DemoId): Promise<App | null> {

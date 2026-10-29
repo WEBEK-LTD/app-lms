@@ -163,24 +163,34 @@ class RideStagesTimeline extends StatelessWidget {
 
 /// From where to where, in two lines.
 class RideRoute extends StatelessWidget {
-  const RideRoute({super.key, required this.pickup, required this.dropoff});
+  const RideRoute({
+    super.key,
+    required this.pickup,
+    required this.dropoff,
+    this.color,
+    this.iconColor,
+  });
 
   final Place pickup;
   final Place dropoff;
+
+  /// On a coloured card: its colours instead of the page's.
+  final Color? color;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
     Widget line(IconData icon, String text) => Row(
       children: [
-        AppIcon(icon, size: 18, color: p.textSecondary),
+        AppIcon(icon, size: 18, color: iconColor ?? p.textSecondary),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
             text,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 14, color: p.textBody),
+            style: TextStyle(fontSize: 14, color: color ?? p.textBody),
           ),
         ),
       ],

@@ -205,7 +205,7 @@ describe("20 app kinds registry", () => {
     // 21 One more demo: the clinic, after Bookings. 23 The news app. 26 The café, after the shop. 27 The gym, after the clinic. 28 The events app.
     // 29 The charity, last: the donations engine's demo, its default kind.
     expect(DEMO_TYPES).toEqual(["lms", "store", "restaurant", "booking", "clinic", "fitness", "real_estate", "news", "events", "donations"]);
-    expect(DEMO_SLUGS).toEqual({ ...BEFORE.demoSlugs, clinic: "clinic", news: "news", restaurant: "restaurant", fitness: "fitness", events: "events", donations: "charity" });
+    expect(DEMO_SLUGS).toEqual({ ...BEFORE.demoSlugs, clinic: "clinic", news: "news", restaurant: "restaurant", fitness: "fitness", events: "events", donations: "charity", delivery: "delivery", food: "food-delivery", rides: "rides" });
     expect(demoTypeOfSlug("fitness")).toBe("fitness");
     expect(demoTypeOfSlug("charity")).toBe("donations");
     expect(engineOfDemoSlug("charity")).toBe("donations");

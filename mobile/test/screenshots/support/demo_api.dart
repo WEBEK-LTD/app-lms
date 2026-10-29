@@ -718,6 +718,253 @@ class DemoApi extends FakeApi {
     return api;
   }
 
+  /// Yallapp Studio's food delivery demo (Sofra Eats, as on /demo/studio):
+  /// three restaurants, a menu, and an order on its way.
+  factory DemoApi.food() {
+    final api = DemoApi._(
+      config: {
+        ...configJson(lms: null, languages: _languages),
+        'site': _site('Sofra Eats'),
+        'branding': {'logo_url': null, 'primary_color': '#D2552B'},
+        'food': {
+          ...foodConfigJson(card: false),
+          'cuisines': [
+            {'id': 'egyptian', 'name': 'Egyptian'},
+            {'id': 'grill', 'name': 'Grill'},
+            {'id': 'pizza', 'name': 'Pizza'},
+            {'id': 'desserts', 'name': 'Desserts'},
+          ],
+          'map': {'tiles_url': null, 'attribution': null},
+        },
+      },
+    );
+    Map<String, dynamic> place(
+      int id,
+      String name,
+      String logo,
+      List<String> cuisines,
+      int minutes,
+      String fee,
+      double rating,
+      int count,
+    ) => {
+      ...restaurantSummaryJson(id: id, name: name),
+      'logo_url': demoImage(logo),
+      'cuisines': cuisines,
+      'delivery_minutes': minutes,
+      'delivery_fee_formatted': fee,
+      'rating': rating,
+      'ratings_count': count,
+    };
+    api.restaurants = [
+      place(
+        1,
+        'Bayt El Koshary',
+        'dish-soup',
+        ['Egyptian', 'Desserts'],
+        25,
+        'E£25.00',
+        4.7,
+        238,
+      ),
+      place(
+        2,
+        'Sahara Grill',
+        'dish-burger',
+        ['Grill'],
+        40,
+        'E£25.00',
+        4.6,
+        164,
+      ),
+      place(
+        3,
+        'Forno Zamalek',
+        'dish-cheesecake',
+        ['Pizza', 'Desserts'],
+        35,
+        'E£25.00',
+        4.8,
+        97,
+      ),
+    ];
+    Map<String, dynamic> dish(
+      int id,
+      String name,
+      String text,
+      String price,
+      String image, {
+      bool popular = false,
+    }) => {
+      'id': id,
+      'name': name,
+      'description': text,
+      'image_url': demoImage(image),
+      'price': price,
+      'price_formatted': 'E£$price',
+      'available': true,
+      'popular': popular,
+      'choice_groups': <Object>[],
+    };
+    api.restaurantMenus = {
+      1: {
+        ...restaurantJson(),
+        ...api.restaurants[0],
+        'description': 'Koshary, liver sandwiches and rice pudding, the way they are made at home.',
+        'menu': [
+          {
+            'id': 1,
+            'name': 'Mains',
+            'dishes': [
+              dish(
+                2,
+                'Koshary',
+                'Rice, lentils, pasta, chickpeas, crispy onions and spicy tomato sauce.',
+                '55.00',
+                'dish-soup',
+                popular: true,
+              ),
+              dish(
+                3,
+                'Liver sandwich',
+                'Alexandrian liver with chili and garlic, in a baladi bread.',
+                '35.00',
+                'dish-wrap',
+              ),
+              dish(
+                4,
+                'Lentil soup',
+                'With lemon and crispy bread.',
+                '30.00',
+                'dish-soup',
+              ),
+            ],
+          },
+          {
+            'id': 5,
+            'name': 'Desserts',
+            'dishes': [
+              dish(
+                6,
+                'Rice pudding',
+                'Baked, with nuts on top.',
+                '25.00',
+                'dish-cheesecake',
+              ),
+            ],
+          },
+        ],
+      },
+    };
+    final order = foodOrderJson(status: 'on_the_way', withCourier: true);
+    api.foodOrders = [
+      {
+        ...order,
+        'reference': 'F-1048',
+        'restaurant': {
+          ...(order['restaurant'] as Map<String, dynamic>),
+          'name': 'Bayt El Koshary',
+          'logo_url': demoImage('dish-soup'),
+        },
+        'courier': {'name': 'Karim Hassan', 'phone': '+201112223334'},
+        'timeline': [
+          {'status': 'placed', 'at': '2026-10-28T09:40:00.000Z', 'note': null},
+          {
+            'status': 'accepted',
+            'at': '2026-10-28T09:42:00.000Z',
+            'note': null,
+          },
+          {'status': 'ready', 'at': '2026-10-28T09:58:00.000Z', 'note': null},
+          {
+            'status': 'picked_up',
+            'at': '2026-10-28T10:03:00.000Z',
+            'note': null,
+          },
+          {
+            'status': 'on_the_way',
+            'at': '2026-10-28T10:04:00.000Z',
+            'note': null,
+          },
+        ],
+      },
+    ];
+    return api;
+  }
+
+  /// Yallapp Studio's rides demo (Masar Rides, as on /demo/studio): the
+  /// fares before asking, a ride on its way, and a driver with an offer.
+  factory DemoApi.rides({bool driver = false}) {
+    final api = DemoApi._(
+      config: {
+        ...configJson(lms: null, languages: _languages),
+        'site': _site('Masar Rides'),
+        'branding': {'logo_url': null, 'primary_color': '#14857A'},
+        'rides': {
+          ...ridesConfigJson(card: false),
+          'vehicle_types': [
+            vehicleTypeJson(),
+            vehicleTypeJson(id: 2, name: 'Comfort', icon: 'local_taxi'),
+            vehicleTypeJson(
+              id: 3,
+              name: 'Van',
+              icon: 'airport_shuttle',
+              seats: 7,
+            ),
+          ],
+          'map': {'tiles_url': null, 'attribution': null},
+        },
+      },
+    );
+    Map<String, dynamic> option(
+      int id,
+      String name,
+      String icon,
+      int seats,
+      String fare,
+      int? minutes,
+    ) => {
+      'vehicle_type': vehicleTypeJson(
+        id: id,
+        name: name,
+        icon: icon,
+        seats: seats,
+      ),
+      'fare': fare,
+      'fare_formatted': 'E£$fare',
+      'available': minutes != null,
+      'pickup_minutes': minutes,
+    };
+    api.rideEstimate = {
+      ...rideEstimateJson(),
+      'distance_km': 6.8,
+      'minutes': 17,
+      'options': [
+        option(1, 'Economy', 'directions_car', 4, '79.00', 3),
+        option(2, 'Comfort', 'local_taxi', 4, '110.00', 6),
+        option(3, 'Van', 'airport_shuttle', 7, '150.00', 11),
+      ],
+    };
+    api.rides = [rideJson(status: 'accepted')];
+    if (driver) {
+      api.me = {
+        ...userJson(),
+        'roles': ['driver'],
+      };
+      api.driver = driverJson(online: true);
+      api.driverOffers = [
+        driverRideJson(
+          id: 7,
+          status: 'searching',
+          offerExpiresAt: DateTime.now()
+              .add(const Duration(seconds: 14))
+              .toUtc()
+              .toIso8601String(),
+        ),
+      ];
+    }
+    return api;
+  }
+
   final bool arabic;
 
   static const _languages = {

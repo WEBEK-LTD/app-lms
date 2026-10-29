@@ -93,6 +93,14 @@ Every fare, fee and share is the company's: Yallapp sets none. Checks:
 redocly lint, platform unit tests (with the isolation tests), tsc, eslint,
 e2e of the dashboard, flutter analyze and widget tests.
 
+Studio has its own demo apps on `/demo/studio`, apart from the regular
+demos on `/demo`: Sahm Express (delivery), Sofra Eats (food delivery) and
+Masar Rides (ride hailing). The team creates them with the other demos in
+Admin › Demo apps and picks their builds there; until then the page shows
+"Coming soon". Visitors sign in with the same demo number and try both
+sides: the customer, then the courier, the restaurant's staff or the
+driver. The daily clean-up removes their shipments, orders and rides.
+
 Phase 103R (Yallapp Studio as the owner approved it) is complete. A
 Studio page is a tree of elements (`AppPage.studio`): rows, columns, layers,
 grids and sliders; texts, pictures, buttons, lists with the owner's own card,

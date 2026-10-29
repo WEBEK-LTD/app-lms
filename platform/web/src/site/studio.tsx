@@ -17,6 +17,9 @@ import { planFor, screenAltFor, solutionsFor } from "@/lib/marketing-lang";
 import { planOffered, STUDIO_PLANS } from "@/lib/plans";
 import { siteMetadata } from "@/lib/seo";
 import { messagesFor, type Lang } from "@/i18n";
+import { Notice } from "@/components/ui";
+import { STUDIO_DEMO_TYPES } from "@/lib/demo/constants";
+import { DemoAppSection, DemoSignIn, demoDownloads } from "@/site/demo";
 import { localePath } from "@/i18n/paths";
 
 export function studioMetadata(lang: Lang): Metadata {
@@ -163,11 +166,14 @@ export async function StudioPage({ lang }: { lang: Lang }) {
 
 /**
  * 103R /demo/studio: what a Studio project looks like, apart from the regular
- * demo apps on /demo: a café's home page designed in the editor (light and
- * dark), a delivery company's customer and courier screens, and the editor.
+ * demo apps on /demo: Studio's own project types as demo apps to install
+ * and try with the demo number (a parcel company, food delivery, rides),
+ * then a café's home page designed in the editor (light and dark) and the
+ * editor.
  */
-export async function StudioDemoPage({ lang }: { lang: Lang }) {
-  const contact = await getVisitorContact();
+export async function StudioDemoPage({ lang, download }: { lang: Lang; download?: string | string[] }) {
+  const [contact, ready] = await Promise.all([getVisitorContact(), demoDownloads()]);
+  const demo = messagesFor(lang).demo;
   const m = messagesFor(lang).studio;
   const alt = screenAltFor(lang);
   const lp = (path: string) => localePath(lang, path);
@@ -180,6 +186,19 @@ export async function StudioDemoPage({ lang }: { lang: Lang }) {
       aside={<DeviceFrame screen="studio-cafe-home-dark" size="md" alt={alt["studio-cafe-home-dark"]} priority />}
       lang={lang}
     >
+      {/* Studio's own project types, as apps to install and try with the demo number. */}
+      <Section>
+        {download === "unavailable" ? (
+          <Notice tone="warn" icon="info" role="status">
+            {demo.unavailable}
+          </Notice>
+        ) : null}
+        <DemoSignIn lang={lang} />
+      </Section>
+      {STUDIO_DEMO_TYPES.map((type, index) => (
+        <DemoAppSection key={type} type={type} lang={lang} ready={ready[type] ?? false} tinted={index % 2 === 0} />
+      ))}
+
       <Section id="cafe">
         <div className="flex flex-wrap items-center gap-10" role="group" aria-labelledby="h-cafe">
           <div className="flex min-w-0 flex-[1_1_380px] flex-col gap-3">
@@ -199,25 +218,7 @@ export async function StudioDemoPage({ lang }: { lang: Lang }) {
         </div>
       </Section>
 
-      <Section tinted id="delivery">
-        <div className="flex flex-col gap-3" role="group" aria-labelledby="h-delivery">
-          <span className="flex items-center gap-2 text-[13px] font-bold tracking-[1px] text-accent uppercase">
-            <Icon name="local_shipping" size={20} />
-            {m.onlyStudio}
-          </span>
-          <h2 id="h-delivery" className="m-0 text-[28px] font-extrabold tracking-[-0.5px] sm:text-[34px]">
-            {m.demoDeliveryTitle}
-          </h2>
-          <p className="m-0 max-w-[720px] text-[17px] leading-relaxed text-ink-4">{m.demoDeliveryText}</p>
-        </div>
-        <div className="flex flex-wrap justify-center gap-x-5 gap-y-8">
-          {(["delivery-send", "delivery-shipment", "delivery-courier"] as const).map((screen) => (
-            <DeviceFrame key={screen} screen={screen} size="sm" alt={alt[screen]} />
-          ))}
-        </div>
-      </Section>
-
-      <Section id="editor">
+      <Section tinted id="editor">
         <SectionTitle title={m.demoEditorTitle} text={m.demoEditorText} />
         <BrowserFrame screen="studio-editor" path={DASHBOARD_PATHS["studio-editor"]} alt={alt["studio-editor"]} />
         <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]">
@@ -226,7 +227,7 @@ export async function StudioDemoPage({ lang }: { lang: Lang }) {
         </div>
       </Section>
 
-      <Section tinted>
+      <Section>
         <SectionTitle title={m.demoTryTitle} text={m.demoTryText} />
         <div className="flex flex-wrap gap-3">
           <AccountLink href={lp("/sign-up")} signedInHref="/studio/new" signedIn={m.start} className={primary}>

@@ -102,7 +102,7 @@ export interface EngineInfo {
     /** The plan feature "Card payments in the app", for this engine; null where it doesn't apply. */
     cardPayments: string | null;
   };
-  /** The demo app on /demo: /demo/download/<slug>; 104 null while the engine has none. */
+  /** The demo app on /demo (Studio-only engines' on /demo/studio): /demo/download/<slug>; null while the engine has none. */
   demo: { slug: string } | null;
 }
 
@@ -657,7 +657,8 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       iphone: null,
       cardPayments: "Take delivery payments by card, through your payment page.",
     },
-    demo: null,
+    // A Studio demo, on /demo/studio only.
+    demo: { slug: "delivery" },
   },
   // 105.1 Food delivery from many restaurants: restaurants, menus and couriers set in the dashboard, on the hosted API only.
   food: {
@@ -719,7 +720,8 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       iphone: null,
       cardPayments: "Take food orders by card, through your payment page.",
     },
-    demo: null,
+    // A Studio demo, on /demo/studio only.
+    demo: { slug: "food-delivery" },
   },
   // 105.2 Ride hailing: vehicle types, fares and drivers set in the dashboard, on the hosted API only.
   rides: {
@@ -781,7 +783,8 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       iphone: null,
       cardPayments: "Take ride fares by card, through your payment page.",
     },
-    demo: null,
+    // A Studio demo, on /demo/studio only.
+    demo: { slug: "rides" },
   },
 };
 

@@ -318,6 +318,9 @@ class _OfferCard extends StatelessWidget {
         ?.difference(DateTime.now())
         .inSeconds
         .clamp(0, 600);
+    // On the soft brand colour: words in the colours made for it.
+    final strong = p.onPrimarySoft;
+    final muted = p.onPrimaryMuted;
     return AppCard(
       key: const ValueKey('driver-offer'),
       padding: const EdgeInsets.all(16),
@@ -327,7 +330,7 @@ class _OfferCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              AppIcon(AppIcons.ride, size: 24, color: p.primary),
+              AppIcon(AppIcons.ride, size: 24, color: strong),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -335,7 +338,7 @@ class _OfferCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
-                    color: p.text,
+                    color: strong,
                   ),
                 ),
               ),
@@ -346,22 +349,29 @@ class _OfferCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: left <= 5 ? p.danger : p.text,
+                    color: left <= 5 ? p.danger : strong,
                   ),
                 ),
             ],
           ),
           const SizedBox(height: 10),
-          RideRoute(pickup: offer.pickup, dropoff: offer.dropoff),
+          RideRoute(
+            pickup: offer.pickup,
+            dropoff: offer.dropoff,
+            color: strong,
+            iconColor: muted,
+          ),
           const SizedBox(height: 8),
           Text(
             [
               if (offer.pickupKm != null)
                 l10n.driverPickupKm(offer.pickupKm!.toStringAsFixed(1)),
               l10n.rideTrip(offer.distanceKm.toStringAsFixed(1), offer.minutes),
-              offer.payment == PaymentMethod.cash ? l10n.payCash : l10n.payCard,
+              offer.payment == PaymentMethod.cash
+                  ? l10n.ridePayCash
+                  : l10n.payCard,
             ].join(' · '),
-            style: TextStyle(fontSize: 13, color: p.textSecondary),
+            style: TextStyle(fontSize: 13, color: muted),
           ),
           const SizedBox(height: 4),
           Text(
@@ -370,7 +380,7 @@ class _OfferCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w800,
-              color: p.text,
+              color: strong,
             ),
           ),
           const SizedBox(height: 12),

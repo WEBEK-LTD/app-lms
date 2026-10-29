@@ -40,7 +40,7 @@ test("the team creates the demo apps from the admin", async () => {
   await expect(admin.getByText(DEMO.display).first()).toBeVisible();
   await admin.getByRole("button", { name: /Create the demo apps|Refresh all demo apps/ }).click();
   await expect(admin.getByRole("status")).toContainText("The demo apps are created and up to date.", { timeout: 30_000 });
-  for (const name of ["Nour Academy", "Lale Flowers", "Defne Café", "Studio Nur", "Kardelen Clinic", "Pulse Studio", "Nile Homes", "The Harbour Post", "Kuzey Culture Centre", "Bereket Food Bank"]) {
+  for (const name of ["Nour Academy", "Lale Flowers", "Defne Café", "Studio Nur", "Kardelen Clinic", "Pulse Studio", "Nile Homes", "The Harbour Post", "Kuzey Culture Centre", "Bereket Food Bank", "Sahm Express", "Sofra Eats", "Masar Rides"]) {
     await expect(admin.getByRole("heading", { name, level: 2 })).toBeVisible();
     appIds[name] = await admin.locator(`form:has(button:has-text("Start a build of ${name}")) input[name="appId"]`).inputValue();
   }
@@ -104,7 +104,7 @@ test("the daily job cleans the demo apps and keeps what's newer than a day", asy
   const daily = await request.post("/api/internal/daily", { headers: { authorization: `Bearer ${E2E.internalJobSecret}` } });
   expect(daily.status()).toBe(200);
   const report = await daily.json();
-  expect(report.demo).toMatchObject({ apps: 10, deleted: 0 });
+  expect(report.demo).toMatchObject({ apps: 13, deleted: 0 });
   // 27 The gym demo's timetable is kept 8 weeks ahead.
   expect(report.classes.apps).toBeGreaterThanOrEqual(1);
   const orders = await (await request.get(`/api/app/${appIds["Lale Flowers"]}/me/orders`, { headers: { authorization: `Bearer ${token}` } })).json();
@@ -129,6 +129,20 @@ test("/demo shows the ten demos, the sign-in and Coming soon before a build is p
   await page.goto("/solutions/bookings");
   await page.getByRole("link", { name: "Try the bookings demo" }).click();
   await page.waitForURL("**/demo#bookings");
+});
+
+test("/demo/studio shows Studio's own demos apart from the regular ones", async ({ page }) => {
+  await page.goto("/demo/studio");
+  await expect(page.getByTestId("demo-phone")).toHaveText(DEMO.display);
+  await expect(page.getByTestId("demo-code")).toHaveText(DEMO.code);
+  for (const name of ["Sahm Express", "Sofra Eats", "Masar Rides"]) await expect(page.getByRole("heading", { name, level: 2 })).toBeVisible();
+  await expect(page.getByText("Coming soon", { exact: true })).toHaveCount(3);
+  // The regular demo page keeps its ten.
+  await page.goto("/demo");
+  await expect(page.getByRole("heading", { name: "Masar Rides", level: 2 })).toHaveCount(0);
+  const download = await page.request.get("/demo/download/rides", { maxRedirects: 0 });
+  expect(download.status()).toBe(303);
+  expect(download.headers().location).toContain("/demo/studio?download=unavailable");
 });
 
 // A full build and the published download are unit tested (tests/unit/demo-apps.test.ts):

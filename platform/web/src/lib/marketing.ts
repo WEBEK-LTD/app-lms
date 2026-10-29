@@ -62,6 +62,13 @@ export const APP_SCREENS = [
   "delivery-send",
   "delivery-shipment",
   "delivery-courier",
+  // Yallapp Studio's demos: food delivery and rides.
+  "food-restaurants",
+  "food-menu",
+  "food-order",
+  "rides-where",
+  "rides-ride",
+  "rides-driver",
 ] as const;
 export type AppScreen = (typeof APP_SCREENS)[number];
 
@@ -106,6 +113,12 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
   "delivery-send": "A delivery app's screen to send a parcel: the service, the pickup and the drop-off",
   "delivery-shipment": "A shipment on its way, with the courier and each stage",
   "delivery-courier": "A courier's jobs in the same app, with the on-duty switch",
+  "food-restaurants": "A food delivery app's restaurants, with their cuisines and delivery times",
+  "food-menu": "A restaurant's menu in a food delivery app",
+  "food-order": "Following a food order, with its stages and its courier",
+  "rides-where": "Asking for a ride: each car type with its fare",
+  "rides-ride": "A ride on its way: the driver, the car and the code to tell the driver",
+  "rides-driver": "A driver online, with a ride offered and the seconds left to take it",
   "studio-editor": "The Yallapp Studio editor: elements on the left, the page on the phone, its settings on the right",
   "studio-home": "Yallapp Studio's home with the account's projects",
   "studio-project": "A Studio project's dashboard",

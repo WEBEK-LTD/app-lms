@@ -13,7 +13,7 @@ import { suggestedVersion } from "@/lib/builds/view";
 import { getContact } from "@/lib/contact";
 import { getStore } from "@/lib/data";
 import { isDemoApp, isDownloadableBuild } from "@/lib/demo/apps";
-import { DEMO_TYPES, demoKind, type DemoId } from "@/lib/demo/constants";
+import { ALL_DEMO_TYPES, demoKind, type DemoId } from "@/lib/demo/constants";
 import { DemoSetupError, setupDemoApps } from "@/lib/demo/setup";
 import { appUrl, encryptionKey } from "@/lib/env";
 import { clearPlatformSettingsCache } from "@/lib/settings/platform";
@@ -35,7 +35,7 @@ function refresh(): void {
 export async function setupDemosAction(formData: FormData): Promise<void> {
   const admin = await requireAdmin("demos.manage");
   const which = String(formData.get("type") ?? "all");
-  const types = which === "all" ? DEMO_TYPES : (DEMO_TYPES as readonly string[]).includes(which) ? [which as DemoId] : null;
+  const types = which === "all" ? ALL_DEMO_TYPES : (ALL_DEMO_TYPES as readonly string[]).includes(which) ? [which as DemoId] : null;
   if (!types) redirect(back("error=unknown_type"));
   const store = await getStore();
   const contact = await getContact();

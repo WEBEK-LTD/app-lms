@@ -263,9 +263,26 @@ test("103R the Studio demo has its own page; the regular demo stays as it is", a
   await page.goto("/demo/studio");
   await expect(page.getByRole("heading", { level: 1, name: "See what a Studio project looks like" })).toBeVisible();
   await expect(page.getByRole("heading", { level: 2, name: "A café designed in Studio" })).toBeVisible();
-  await expect(page.getByRole("heading", { level: 2, name: "A delivery company" })).toBeVisible();
+  // Studio's own project types as demo apps, signed in to with the shared demo number.
+  await expect(page.getByTestId("demo-phone")).toHaveText("+1 202 555 0123");
+  for (const name of ["Sahm Express", "Sofra Eats", "Masar Rides"]) await expect(page.getByRole("heading", { level: 2, name })).toBeVisible();
   await expect(page.getByRole("heading", { level: 2, name: "The editor behind them" })).toBeVisible();
-  for (const screen of ["studio-cafe-home", "studio-cafe-home-dark", "delivery-send", "delivery-shipment", "delivery-courier", "studio-editor", "studio-home", "studio-project"]) {
+  for (const screen of [
+    "studio-cafe-home",
+    "studio-cafe-home-dark",
+    "delivery-send",
+    "delivery-shipment",
+    "delivery-courier",
+    "food-restaurants",
+    "food-menu",
+    "food-order",
+    "rides-where",
+    "rides-ride",
+    "rides-driver",
+    "studio-editor",
+    "studio-home",
+    "studio-project",
+  ]) {
     await expect(page.locator(`main img[src*="${screen}.png"]`).first()).toBeVisible();
   }
   // The Demo menu entry is marked, and the regular demo apps are a link away.
