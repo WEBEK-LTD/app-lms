@@ -2650,3 +2650,20 @@ the app draws it (and the plugin serves it to WordPress apps).
 | [x] | 107.1 The editor's own tools: copy, cut and paste elements (also to another page or project), copy and paste an element's style, move up and down and select the parent from the selected element, the shortcuts listed; options the app already draws offered: letter spacing, the lowest height, the shape (square, 4:3, 16:9…), removing a picture | unit tests, e2e |
 | [x] | 107.2 More style: turning an element, each corner rounded on its own, a colour over a picture, a row that scrolls sideways, capitals and struck-through text (old prices), hiding an element without deleting it; contract, page checker, the app, the plugin | redocly lint, unit tests, flutter analyze and widget tests, the plugin's tests, e2e |
 | [ ] | 107.3 New elements: a countdown (offers ending), questions and answers that open (accordion), tabs that switch what is under them, a list with an icon on each line; contract, page checker, the app, the plugin, the editor and its ready sections | redocly lint, unit tests, flutter analyze and widget tests, the plugin's tests, e2e |
+
+## Phase 108: Designs from anywhere, and whole designs to choose from
+
+The owner asked (29 October) that a designer working in any tool can bring
+the design into Studio, and that a project can swap its whole design for
+another from many. Asked before built: the import screen and the designs
+gallery are shown to the owner first.
+
+| | Step | Done when |
+|---|---|---|
+| [ ] | 108.1 The screens, shown to the owner first: "Import a design" in Studio's editor (a file or a link, what was found, where it goes: a new page, this page or a section, fonts it needs) and the designs gallery (many whole designs per project type, a preview of each, replace the whole project or one page) | owner's approval |
+| [ ] | 108.2 Yallapp's own design file (`.yallapp`): a page, a section or a whole project with its pictures and own fonts, exported and imported in any project of any account | unit tests, e2e |
+| [ ] | 108.3 SVG from any design tool (Figma, Adobe XD, Sketch, Penpot, Illustrator, Affinity, Canva): frames become pages or sections, laid out as rows and columns that fit every phone; texts stay texts, pictures go to Media, shapes become backgrounds, corners and borders; fonts matched to Google Fonts or the project's own (`.ttf`, `.otf` uploaded with the design) | unit tests against exported files, e2e |
+| [ ] | 108.4 A Figma link into Studio: frames read with the file's link and the client's token (used once, never kept), auto layout taken as rows and columns | unit tests against a fake Figma API, e2e |
+| [ ] | 108.5 Figma's own file (`.fig`), read on a best effort (Figma doesn't document it): when it can't be read, the screen says to use the link or SVG | unit tests |
+| [ ] | 108.6 Sketch files (`.sketch`) and Penpot files (`.penpot` and its JSON) | unit tests |
+| [ ] | 108.7 Whole designs: several per project type (all pages, the header and the look), the gallery, replacing the whole project or one page as one step that can be undone, what's published unchanged until publishing; the project's own designs saved and offered there too | unit tests (every design taken by the page checker), e2e |
