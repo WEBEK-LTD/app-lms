@@ -481,6 +481,52 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await expect(phone.getByText("Hello Studio")).toHaveCount(2);
   await own.getByRole("button", { name: "Undo" }).click();
   await expect(phone.getByText("Hello Studio")).toHaveCount(1);
+
+  // 107.1 The selected element's tools: its style copied and pasted, moved, what holds it selected.
+  const inspector = own.getByRole("complementary", { name: "Design" });
+  const tools = own.getByRole("toolbar", { name: "Copy, paste and move" });
+  await phone.getByText("Hello Studio").click();
+  await inspector.getByLabel("Lowest height").fill("77");
+  await own.keyboard.press("Escape");
+  await phone.getByText("Hello Studio").click();
+  await tools.getByRole("button", { name: "Copy style" }).click();
+  await expect(own.getByRole("status").filter({ hasText: "Style copied." })).toBeVisible();
+  // Added into the hero, after its button: moved up to the hero's top.
+  const moveUp = tools.getByRole("button", { name: "Move up" });
+  for (let i = 0; i < 5 && (await moveUp.isEnabled()); i += 1) await moveUp.click();
+  await expect(moveUp).toBeDisabled();
+  await tools.getByRole("button", { name: "Move down" }).click();
+  await expect(moveUp).toBeEnabled();
+  await tools.getByRole("button", { name: "Select what holds it" }).click();
+  await expect(tools.getByRole("button", { name: "Cut" })).toBeVisible();
+  await tools.getByRole("button", { name: "Select what holds it" }).click();
+  // The page's own element can't be copied, cut or moved; its style can.
+  await expect(tools.getByRole("button", { name: "Cut" })).toHaveCount(0);
+  await tools.getByRole("button", { name: "Paste style" }).click();
+  await expect(inspector.getByLabel("Lowest height")).toHaveValue("77");
+  await own.getByRole("button", { name: "Undo" }).click();
+  await expect(inspector.getByLabel("Lowest height")).toHaveValue("");
+  // Copied, then pasted on another page.
+  await own.keyboard.press("Escape");
+  await phone.getByText("Hello Studio").click();
+  await tools.getByRole("button", { name: "Copy", exact: true }).click();
+  await expect(own.getByRole("status").filter({ hasText: "Copied. Paste it here" })).toBeVisible();
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await own.getByLabel("Page name").fill("Summer");
+  await own.getByRole("button", { name: "Add the page" }).click();
+  await expect(own.getByRole("button", { name: "Page: Summer" })).toBeVisible();
+  await expect(phone.getByText("Hello Studio")).toHaveCount(0);
+  await own.keyboard.press("Control+v");
+  await expect(phone.getByText("Hello Studio")).toHaveCount(1);
+  await expect(own.getByRole("status").filter({ hasText: "Pasted." })).toBeVisible();
+  await own.getByRole("button", { name: "Page: Summer" }).click();
+  await own.getByRole("menuitemradio", { name: "Spring" }).click();
+  // The shortcuts, listed with ?.
+  await own.keyboard.press("Escape");
+  await own.keyboard.press("?");
+  await expect(own.getByRole("dialog", { name: "Shortcuts" })).toContainText("Ctrl Alt V");
+  await own.keyboard.press("Escape");
+  await expect(own.getByRole("dialog", { name: "Shortcuts" })).toHaveCount(0);
   await own.getByRole("group", { name: "Header type:" }).getByRole("button", { name: "1 Logo in the middle" }).click();
   await expect(phone.locator('[data-studio-header="logo_center"]')).toBeVisible();
   await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });

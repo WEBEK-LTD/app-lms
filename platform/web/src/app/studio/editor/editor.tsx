@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type MouseEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type DragEvent, type MouseEvent, type ReactNode } from "react";
 import Link from "next/link";
 import { deleteStudioTemplateAction, saveStudioTemplateAction } from "@/app/actions/studio";
 import { publishLayoutAction, saveLayoutDraftAction, type LayoutSaveResult } from "@/app/actions/pages";
@@ -14,6 +14,7 @@ import { STUDIO_HEADER_TYPES, type ItemSource, type LanguageCode, type LayoutCon
 import { duplicateNode, historyOf, holdsChildren, insertNode, isInside, moveNode, placeOf, pushHistory, redo, removeNode, undo, updateNode, wrapNode, type History } from "@/lib/studio/edit";
 import { elementInfo, newNode, newNodeId } from "@/lib/studio/elements";
 import { SECTIONS, sectionsFor, TEMPLATES, templatesFor, type ProjectKind, type SectionContext, type SectionWord, type TemplateInfo } from "@/lib/studio/sections";
+import { CLIPBOARD_KEY, forPaste, readCopied, readStyle, STYLE_CLIPBOARD_KEY, styleOf, stylePatch } from "@/lib/studio/clipboard";
 import { findNode } from "@/lib/studio/tree";
 import { Inspector, type InspectorTab } from "./inspector";
 import { LeftPanel, elementLabel, type LeftTab, type MyTemplate } from "./left-panel";
@@ -83,6 +84,9 @@ export function StudioEditor(props: StudioEditorProps) {
   const [myTemplates, setMyTemplates] = useState(props.myTemplates);
   const [pagesOpen, setPagesOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  // 107.1 Re-reads what was copied after copying here (other tabs tell through the storage event).
+  const [, setCopies] = useState(0);
   const [now, setNow] = useState(() => Date.now());
 
   const dragging = useRef<DragPayload | null>(null);
@@ -287,6 +291,88 @@ export function StudioEditor(props: StudioEditorProps) {
     setSelectedId(done.id);
   }
 
+  // ——— 107.1 Copying and pasting, also to another page or project ———
+
+  function stored(key: string): string | null {
+    try {
+      return window.localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  }
+
+  function store(key: string, value: string) {
+    try {
+      window.localStorage.setItem(key, value);
+    } catch {
+      // Private windows may refuse; copying then lasts only on this page.
+    }
+  }
+
+  const memory = useRef<{ node: string | null; style: string | null }>({ node: null, style: null });
+
+  const copiedRaw = useSyncExternalStore(onStorage, () => stored(CLIPBOARD_KEY) ?? memory.current.node ?? "", () => "");
+  const styleRaw = useSyncExternalStore(onStorage, () => stored(STYLE_CLIPBOARD_KEY) ?? memory.current.style ?? "", () => "");
+  const hasCopied = readCopied(copiedRaw) !== null;
+  const hasStyle = readStyle(styleRaw) !== null;
+
+  function copyToClipboard(cut: boolean) {
+    if (!studio || !selected || selected.id === studio.body.id) return;
+    const raw = JSON.stringify(selected);
+    memory.current.node = raw;
+    store(CLIPBOARD_KEY, raw);
+    setCopies((n) => n + 1);
+    if (cut) deleteSelected();
+    setNotice(t(cut ? "studio.cutDone" : "studio.copied"));
+  }
+
+  function pasteFromClipboard() {
+    if (!studio) return;
+    const copied = readCopied(stored(CLIPBOARD_KEY) ?? memory.current.node);
+    if (!copied) {
+      setNotice(t("studio.nothingCopied"));
+      return;
+    }
+    const node = forPaste(copied, {
+      sources: props.sources,
+      categorySources: props.categorySources,
+      pageSlugs: layout.pages.map((p) => p.slug),
+      screens: props.screens.map((s) => s.value),
+      newId: newNodeId,
+    });
+    const where = placeForNew(studio);
+    changePage((p) => insertNode(p, where.parentId, node, where.index));
+    setSelectedId(node.id);
+    setNotice(t("studio.pasted"));
+  }
+
+  function copyStyle() {
+    if (!selected) return;
+    const raw = JSON.stringify(styleOf(selected));
+    memory.current.style = raw;
+    store(STYLE_CLIPBOARD_KEY, raw);
+    setCopies((n) => n + 1);
+    setNotice(t("studio.styleCopied"));
+  }
+
+  function pasteStyle() {
+    if (!selected) return;
+    const style = readStyle(stored(STYLE_CLIPBOARD_KEY) ?? memory.current.style);
+    if (!style) {
+      setNotice(t("studio.nothingCopied"));
+      return;
+    }
+    const id = selected.id;
+    changePage((p) => updateNode(p, id, stylePatch(style)));
+    setNotice(t("studio.stylePasted"));
+  }
+
+  function selectParent() {
+    if (!studio || !selected) return;
+    const place = placeOf(studio.body, selected.id);
+    if (place) setSelectedId(place.parent.id);
+  }
+
   /** Arrows: the selected element moves before or after its neighbour. */
   function nudge(by: -1 | 1) {
     if (!studio || !selectedId) return;
@@ -297,12 +383,34 @@ export function StudioEditor(props: StudioEditorProps) {
     changePage((p) => moveNode(p, selectedId, place.parent.id, by > 0 ? to + 1 : to));
   }
 
-  // Delete, Ctrl+Z / Ctrl+Y, Ctrl+D, the arrows and Escape; never while typing in a field.
+  // Delete, Ctrl+Z / Ctrl+Y, Ctrl+D, copying and pasting, the arrows and Escape; never while typing in a field.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
       if (el && (el.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName))) return;
       const mod = e.ctrlKey || e.metaKey;
+      const key = e.key.toLowerCase();
+      // 107.1 Ctrl+Alt+C and Ctrl+Alt+V copy and paste the style; Ctrl+C, Ctrl+X and Ctrl+V the element.
+      if (mod && e.altKey && (e.code === "KeyC" || e.code === "KeyV")) {
+        e.preventDefault();
+        if (e.code === "KeyC") copyStyle();
+        else pasteStyle();
+        return;
+      }
+      if (mod && (key === "c" || key === "x") && selected && !window.getSelection()?.toString()) {
+        e.preventDefault();
+        copyToClipboard(key === "x");
+        return;
+      }
+      if (mod && key === "v") {
+        e.preventDefault();
+        pasteFromClipboard();
+        return;
+      }
+      if (!mod && e.key === "?") {
+        setShortcutsOpen((v) => !v);
+        return;
+      }
       if (mod && e.key.toLowerCase() === "z") {
         e.preventDefault();
         step(!e.shiftKey);
@@ -321,6 +429,7 @@ export function StudioEditor(props: StudioEditorProps) {
         setSelectedId(null);
         setPagesOpen(false);
         setZoomOpen(false);
+        setShortcutsOpen(false);
       } else if (selectedId && (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowRight")) {
         e.preventDefault();
         const rtl = editLang === "ar";
@@ -696,6 +805,15 @@ export function StudioEditor(props: StudioEditorProps) {
               }} pressed={dark} label={dark ? t("studio.dark") : t("studio.light")}>
               {t("studio.lightDark")}
             </Chip>
+            <div className="relative">
+              <Chip icon="keyboard" onClick={(e) => {
+                  e.stopPropagation();
+                  setShortcutsOpen((v) => !v);
+                }} label={t("studio.shortcuts")} expanded={shortcutsOpen}>
+                {t("studio.shortcuts")}
+              </Chip>
+              {shortcutsOpen ? <Shortcuts onClose={() => setShortcutsOpen(false)} /> : null}
+            </div>
           </div>
 
           <div style={{ width: frame.width * (zoom / 100), height: frame.height * (zoom / 100), flex: "none" }}>
@@ -753,6 +871,17 @@ export function StudioEditor(props: StudioEditorProps) {
             onPage={(patch) => changePage((p) => ({ ...p, ...patch }), `page:${Object.keys(patch).join(",")}`)}
             onCopy={copySelected}
             onDelete={deleteSelected}
+            tools={{
+              onCopy: () => copyToClipboard(false),
+              onCut: () => copyToClipboard(true),
+              onPaste: pasteFromClipboard,
+              onCopyStyle: copyStyle,
+              onPasteStyle: pasteStyle,
+              onMove: nudge,
+              onSelectParent: selectParent,
+              canPaste: hasCopied,
+              canPasteStyle: hasStyle,
+            }}
             onWrap={(type) => {
               if (!selected) return;
               const done = wrapNode(studio, selected.id, type, newNodeId);
@@ -774,6 +903,54 @@ export function StudioEditor(props: StudioEditorProps) {
           />
         ) : null}
       </div>
+    </div>
+  );
+}
+
+/** 107.1 Copying in another tab of the editor shows here too. */
+function onStorage(changed: () => void): () => void {
+  window.addEventListener("storage", changed);
+  return () => window.removeEventListener("storage", changed);
+}
+
+/** 107.1 The editor's keyboard shortcuts, listed. */
+function Shortcuts({ onClose }: { onClose: () => void }) {
+  const t = useDashT();
+  const rows: [string, string][] = [
+    ["Ctrl C", t("studio.copy")],
+    ["Ctrl X", t("studio.cut")],
+    ["Ctrl V", t("studio.paste")],
+    ["Ctrl D", t("studio.duplicate")],
+    ["Ctrl Alt C", t("studio.copyStyle")],
+    ["Ctrl Alt V", t("studio.pasteStyle")],
+    ["Ctrl Z", t("studio.undo")],
+    ["Ctrl Y", t("studio.redo")],
+    ["Delete", t("studio.delete")],
+    ["↑ ↓", t("studio.moveArrows")],
+    ["Esc", t("studio.unselect")],
+    ["?", t("studio.showShortcuts")],
+  ];
+  return (
+    <div role="dialog" aria-label={t("studio.shortcuts")} onClick={(e) => e.stopPropagation()} className="absolute top-full z-20 mt-1 w-[290px] rounded-xl bg-white p-3 text-[13px] shadow-[0_10px_24px_rgba(14,13,36,0.18)]" style={{ insetInlineEnd: 0, border: `1px solid ${C.line}` }}>
+      <div className="mb-2 flex items-center justify-between">
+        <span className="font-bold">{t("studio.shortcuts")}</span>
+        <button type="button" aria-label={t("studio.close")} onClick={onClose} className="flex size-7 items-center justify-center rounded-lg border-0 bg-transparent">
+          <Glyph name="close" size={18} />
+        </button>
+      </div>
+      <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5">
+        {rows.map(([keys, what]) => (
+          <div key={keys} className="contents">
+            <dt dir="ltr" className="m-0 justify-self-start rounded-md px-1.5 font-mono text-xs" style={{ background: C.ivory, border: `1px solid ${C.line}` }}>
+              {keys}
+            </dt>
+            <dd className="m-0">{what}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="mt-2 mb-0 text-xs" style={{ color: C.muted }}>
+        {t("studio.macCmd")}
+      </p>
     </div>
   );
 }
