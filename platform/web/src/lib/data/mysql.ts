@@ -4830,7 +4830,12 @@ export class MysqlStore implements DataStore {
     const [shipments] = await this.run((db) => db.delete(s.shipments).where(and(eq(s.shipments.appId, appId), lt(s.shipments.createdAt, before))));
     const [foodOrders] = await this.run((db) => db.delete(s.foodOrders).where(and(eq(s.foodOrders.appId, appId), lt(s.foodOrders.createdAt, before))));
     const [rides] = await this.run((db) => db.delete(s.rides).where(and(eq(s.rides.appId, appId), lt(s.rides.createdAt, before))));
+    // 110.5 Teachers visitors followed and rated.
+    const [teacherFollows] = await this.run((db) => db.delete(s.teacherFollows).where(and(eq(s.teacherFollows.appId, appId), lt(s.teacherFollows.createdAt, before))));
+    const [teacherReviews] = await this.run((db) => db.delete(s.teacherReviews).where(and(eq(s.teacherReviews.appId, appId), lt(s.teacherReviews.createdAt, before))));
     return {
+      teacherFollows: teacherFollows.affectedRows,
+      teacherReviews: teacherReviews.affectedRows,
       shipments: shipments.affectedRows,
       foodOrders: foodOrders.affectedRows,
       rides: rides.affectedRows,

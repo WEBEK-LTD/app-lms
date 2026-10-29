@@ -353,7 +353,7 @@ export const en = {
     homeLink: "Discover Yallapp Studio",
     demoEyebrow: "Yallapp Studio demo",
     demoTitle: "See what a Studio project looks like",
-    demoIntro: "Install the Studio demo apps (a parcel company, food delivery and rides) and try them with the demo number: as a customer, then as the company's courier, restaurant or driver. Then see a café designed in the editor. The demo apps of regular apps are on the Demo page.",
+    demoIntro: "Install the Studio demo apps (a parcel company, food delivery, rides, a live taxi app, a school and an academy with many teachers) and try them with the demo number: as a customer, a student or a parent, then as the company's courier, restaurant, driver or teacher. Then see a café designed in the editor. The demo apps of regular apps are on the Demo page.",
     demoCafeTitle: "A café designed in Studio",
     demoCafeText: "The home page was made in the Studio editor: the hero, the quick buttons, the dishes in the café's own card and its rating. In dark mode it takes the dark colors set for each element.",
     demoEditorTitle: "The editor behind them",

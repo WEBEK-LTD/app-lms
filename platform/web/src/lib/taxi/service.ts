@@ -2,6 +2,7 @@ import type { DataStore } from "../data/store";
 import type { App, Courier, DeliverySettings, RidesSettings, TaxiSettings } from "../data/types";
 import { isReviewCourier } from "../delivery/review";
 import type { ServiceAccount } from "../hosted/push";
+import { demoTaxisAround } from "../demo/taxi";
 import { exactKm } from "../rides/fares";
 import { DRIVER_ACTIVE } from "../rides/service";
 import { createTilesSession, googleTilesUrl, regionOf, sessionValid, type MapDeps } from "./maps";
@@ -24,6 +25,8 @@ export interface TaxiConfigInput {
   language: string;
   now: Date;
   maps?: MapDeps;
+  /** 110.5 Admin › Settings › Maps (the delivery apps' map), drawn by Yallapp's own demo app, which has no map of its own. */
+  platformMap?: { tilesUrl: string; attribution: string | null } | null;
 }
 
 /**
@@ -55,6 +58,10 @@ export async function taxiConfig(input: TaxiConfigInput) {
   } else if (taxi.tilesUrl) {
     tilesUrl = taxi.tilesUrl;
     attribution = taxi.attribution;
+  } else if (input.app.demo === true && input.platformMap?.tilesUrl) {
+    // Without any, the app shows the plain ride screens.
+    tilesUrl = input.platformMap.tilesUrl;
+    attribution = input.platformMap.attribution;
   }
   const google = taxi.provider === "google" && input.googleKey !== null;
   return {
@@ -81,13 +88,15 @@ const round = (n: number) => Math.round(n * 10_000) / 10_000;
 /**
  * The online drivers with no ride and a position under a minute old, within
  * the company's matching distance of the place, nearest first. The review
- * driver (store reviewers') is never shown to anyone.
+ * driver (store reviewers') is never shown to anyone. 110.5 In Yallapp's
+ * demo app, its drivers drive around the place (lib/demo/taxi.ts).
  */
 export async function nearbyTaxis(store: DataStore, app: App, rides: RidesSettings, at: { lat: number; lng: number }, now: Date) {
-  const [drivers, going] = await Promise.all([
+  const [all, going] = await Promise.all([
     store.listCouriers(app.id),
     store.listRides({ appId: app.id, statuses: DRIVER_ACTIVE, order: "oldest", offset: 0, limit: 2000 }),
   ]);
+  const drivers = app.demo === true ? demoTaxisAround(all.filter((d) => d.active && d.driver && !isReviewCourier(app, d)), at, now).map((d) => ({ ...d, onDuty: true })) : all;
   const busy = new Set(going.items.map((r) => r.driverId));
   const fresh = now.getTime() - NEARBY_FRESH_SECONDS * 1000;
   const found: { driver: Courier; km: number }[] = [];

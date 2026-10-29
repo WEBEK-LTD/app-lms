@@ -23,7 +23,8 @@ import type {
   RidesSettings,
 } from "../data/types";
 import { deliverySettingsOf } from "../delivery/settings";
-import { DEFAULT_RIDES_SETTINGS } from "../rides/settings";
+import { DEFAULT_RIDES_SETTINGS, EMPTY_DRIVER } from "../rides/settings";
+import { DEFAULT_TAXI_SETTINGS } from "../taxi/settings";
 import { effectivePlans } from "../entitlements";
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "../pages/defaults";
 import { publishLayout } from "../pages/layout";
@@ -55,6 +56,8 @@ import {
   FOOD_CUISINES,
   FOOD_DEMO_SETTINGS,
   RIDES_DEMO_TYPES,
+  TAXI_DEMO_DRIVERS,
+  TAXI_DEMO_TYPES,
   type DemoRestaurant,
   DEMO_DISHES,
   DEMO_LISTINGS,
@@ -80,6 +83,8 @@ import {
 } from "./content";
 import type { PictureName } from "./pictures";
 import { savePicture, type PictureSize } from "./picture-assets";
+import { refreshSchoolDay, syncSchoolStructure } from "./school";
+import { ACADEMY_CATEGORIES, ACADEMY_COURSES, ACADEMY_TEACHERS, syncAcademyTeachers, TEACHERS_CURRENCY } from "./teachers";
 
 /**
  * Creates or refreshes the demo apps (roadmap 16, the admin's Demo apps
@@ -203,9 +208,16 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     // Our own apps: the team publishes them, when it wants to.
     publishingMode: "managed",
   };
-  if (content === "courses") {
+  if (content === "courses" && id === "instructors") {
+    // 110.5 Rawaq Academy: seven teachers' courses, and the demo teacher's Teacher tab.
+    patch.catalogSettings = { currency: TEACHERS_CURRENCY, shippingCents: 0, freeShippingOverCents: null, payment: null };
+    patch.courseSetup = await academySetupFor(deps, client.id, app);
+  } else if (content === "courses") {
     patch.catalogSettings = { currency: COURSE_CURRENCY, shippingCents: 0, freeShippingOverCents: null, payment: null };
     patch.courseSetup = await courseSetupFor(deps, client.id, app.courseSetup);
+  } else if (content === "school") {
+    // 110.5 Nakhla School's fees, paid on the demo payment page.
+    patch.catalogSettings = { currency: "EGP", shippingCents: 0, freeShippingOverCents: null, payment: null };
   } else if (content === "catalog" && id === "restaurant") {
     // 26 The café: pickup and delivery, its hours and delivery areas.
     patch.catalogSettings = {
@@ -243,7 +255,10 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
   // Studio's demos: a parcel company, food delivery from three restaurants, rides.
   if (content === "deliveries") await syncDelivery(deps, client.id, saved);
   if (content === "restaurants") await syncFood(deps, client.id, saved);
-  if (content === "rides") await syncRides(deps, saved);
+  if (content === "rides" && id === "taxi") await syncTaxi(deps, saved);
+  else if (content === "rides") await syncRides(deps, saved);
+  // 110.5 Nakhla School: its structure and people, then its school day.
+  if (content === "school") await refreshSchoolDay(store, saved, now, { force: true, people: await syncSchoolStructure(store, saved, now) });
   if (content === "listings") await syncListings(deps, client.id, saved);
   if (content === "articles") await syncArticles(deps, client.id, saved);
   // 27 The timetable's classes for the coming weeks (the daily job keeps them going).
@@ -285,6 +300,48 @@ async function courseSetupFor(deps: DemoSetupDeps, clientId: string, previous: C
     });
   }
   return { currency: COURSE_CURRENCY, categories, courses, nextId: next };
+}
+
+/**
+ * 110.5 Rawaq Academy: the teachers (lib/demo/teachers.ts) and their courses
+ * with fixed IDs, each the course of its teacher, published; people may
+ * apply to teach. The courses the visitor made as the demo teacher are kept.
+ */
+async function academySetupFor(deps: DemoSetupDeps, clientId: string, app: App): Promise<CourseSetup> {
+  const photos = new Map<string, string>();
+  for (const t of ACADEMY_TEACHERS) photos.set(t.name, await picture(deps, clientId, t.picture, "avatar", "product_image"));
+  const teachers = await syncAcademyTeachers(deps.store, app, photos, deps.now);
+  let next = 1;
+  const categories = ACADEMY_CATEGORIES.map((name) => ({ id: next++, name }));
+  const courses: Course[] = [];
+  for (const seed of ACADEMY_COURSES) {
+    const id = next++;
+    courses.push({
+      id,
+      title: seed.title,
+      description: seed.description,
+      imageAssetId: await picture(deps, clientId, seed.picture, "course", "product_image"),
+      priceCents: seed.priceCents,
+      categoryIds: categories.filter((c) => c.name === seed.category).map((c) => c.id),
+      instructorName: seed.teacher,
+      level: seed.level,
+      active: true,
+      teacherId: teachers.get(seed.teacher) ?? null,
+      teacherStage: null,
+      createdAt: app.courseSetup?.courses.find((c) => c.id === id)?.createdAt ?? deps.now.toISOString(),
+      topics: seed.topics.map((topic) => ({
+        id: next++,
+        title: topic.title,
+        lessons: topic.lessons.map((lesson) => ({ id: next++, title: lesson.title, videoUrl: null, text: lesson.text, durationMinutes: lesson.minutes, preview: lesson.preview === true })),
+      })),
+    });
+  }
+  // The visitor's own courses (as the demo teacher) after the demo's, with new IDs; the daily job deletes them after a day.
+  const seeded = new Set(teachers.values());
+  for (const own of app.courseSetup?.courses.filter((c) => c.teacherId && !seeded.has(c.teacherId) && c.teacherStage) ?? []) {
+    courses.push({ ...own, id: next++, topics: own.topics.map((t) => ({ ...t, id: next++, lessons: t.lessons.map((l) => ({ ...l, id: next++ })) })) });
+  }
+  return { currency: TEACHERS_CURRENCY, categories, courses, nextId: next, teachersApply: true };
 }
 
 /** The studio's services and team, or (21) the clinic's, with its doctors' profiles and intake form. */
@@ -666,6 +723,43 @@ async function syncRides(deps: DemoSetupDeps, app: App): Promise<void> {
     const found = types.find((t) => t.name === type.name);
     if (found) await store.updateVehicleType(app.id, found.id, input, now);
     else await store.createVehicleType(input, now);
+  }
+}
+
+/**
+ * 110.5 Lamha Taxi: the rides engine's settings with upfront fares and the
+ * rider's code, its three vehicle types and its drivers with their cars. The
+ * map is Admin › Settings › Maps (lib/taxi/service.ts); without a live
+ * database the app asks Yallapp every few seconds.
+ */
+async function syncTaxi(deps: DemoSetupDeps, app: App): Promise<void> {
+  const { store, now } = deps;
+  const saved = deliverySettingsOf(await store.getDeliverySettings(app.id));
+  const rides: RidesSettings = { ...DEFAULT_RIDES_SETTINGS, ...(saved.rides ?? {}), fareMode: "upfront", scheduling: false, pin: true, cancelFreeMinutes: 2, cancelFeeCents: 0, areas: [], promos: [] };
+  await store.saveDeliverySettings(app.id, { ...saved, currency: "EGP", cash: true, card: false, courierApp: "same", timezone: "Africa/Cairo", rides, taxi: { ...DEFAULT_TAXI_SETTINGS } }, now);
+  const types = await store.listVehicleTypes(app.id);
+  const typeIds = new Map<string, number>();
+  for (const [position, type] of TAXI_DEMO_TYPES.entries()) {
+    const input = { appId: app.id, ...type, imageAssetId: null, position: position + 1, active: true };
+    const found = types.find((t) => t.name === type.name);
+    if (found) await store.updateVehicleType(app.id, found.id, input, now);
+    typeIds.set(type.name, found ? found.id : (await store.createVehicleType(input, now)).id);
+  }
+  for (const seed of TAXI_DEMO_DRIVERS) {
+    const found = await store.findCourier(app.id, { phone: seed.phone, email: null });
+    const driver = {
+      ...EMPTY_DRIVER,
+      ...(found?.driver ?? {}),
+      vehicleTypeId: typeIds.get(seed.type) ?? null,
+      carModel: seed.carModel,
+      carColor: seed.carColor,
+      plate: seed.plate,
+      ratingCount: seed.rides,
+      ratingSum: Math.round(seed.rating * seed.rides),
+    };
+    // Never online: they are only drawn on the riders' map, never offered a ride.
+    if (found) await store.updateCourier(app.id, found.id, { name: seed.name, active: true, onDuty: false, lat: null, lng: null, locatedAt: null, driver }, now);
+    else await store.createCourier({ appId: app.id, name: seed.name, phone: seed.phone, email: null, vehicle: null, active: true, driver }, now);
   }
 }
 
