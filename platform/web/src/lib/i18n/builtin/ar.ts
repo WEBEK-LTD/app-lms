@@ -509,6 +509,23 @@ export const PAGE_TEXTS_AR: Record<string, string> = {
   "School news": "أخبار المدرسة",
   "My school": "مدرستي",
   "Classroom": "الفصل",
+  "The timetable, homework, grades and news in one place": "الجدول والواجبات والدرجات والأخبار في مكان واحد",
+  "How do I sign in?": "كيف أسجّل الدخول؟",
+  "With the mobile number you gave the school. A parent sees each of their children.": "برقم الجوال الذي أعطيته للمدرسة. يرى ولي الأمر كل أبنائه.",
+  "How do I pay the fees?": "كيف أدفع الرسوم؟",
+  "Open My school, then Fees: pay by card in the app, or at the school.": "افتح مدرستي ثم الرسوم: ادفع بالبطاقة في التطبيق أو في المدرسة.",
+  "Every day at school, on your phone": "كل يوم في المدرسة، على هاتفك",
+  "Homework, grades and attendance as they happen": "الواجبات والدرجات والحضور أولًا بأول",
+  "Open my school": "افتح مدرستي",
+  "Latest news": "آخر الأخبار",
+  "What parents say": "ماذا يقول أولياء الأمور",
+  "Write what a parent says about your school.": "اكتب ما يقوله ولي أمر عن مدرستك.",
+  "Parent's name": "اسم ولي الأمر",
+  "Parent": "ولي أمر",
+  "<h2>Welcome</h2><p>{app} keeps families and teachers close: the timetable, homework, grades and news.</p>": "<h2>أهلًا بك</h2><p>يقرّب {app} بين الأسر والمعلّمين: الجدول والواجبات والدرجات والأخبار.</p>",
+  "<h2>Welcome</h2><p>our app keeps families and teachers close: the timetable, homework, grades and news.</p>": "<h2>أهلًا بك</h2><p>يقرّب تطبيقنا بين الأسر والمعلّمين: الجدول والواجبات والدرجات والأخبار.</p>",
+  "Students": "الطلاب",
+  "School office": "إدارة المدرسة",
 };
 
 /** Messages the hosted API answers with (errors, refusals). */

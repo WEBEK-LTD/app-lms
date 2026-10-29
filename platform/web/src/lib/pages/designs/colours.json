@@ -182,5 +182,17 @@
   "teachers-tutors": {
     "primary": "#3D348B",
     "secondary": "#FF8C42"
+  },
+  "school-classic": {
+    "primary": "#264653",
+    "secondary": "#E9C46A"
+  },
+  "school-bright": {
+    "primary": "#3A0CA3",
+    "secondary": "#FF9F1C"
+  },
+  "school-calm": {
+    "primary": "#354F52",
+    "secondary": "#84A98C"
   }
 }

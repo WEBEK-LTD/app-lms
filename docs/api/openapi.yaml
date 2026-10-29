@@ -6253,7 +6253,7 @@ webhooks:
       operationId: startSchoolUpload
       summary: Start sending a file for homework
       description: |
-        A photo (JPEG, PNG, WebP) up to 20 MB or a PDF up to 50 MB, by a
+        A photo (JPEG, PNG, WebP) up to 20 MB or a PDF up to 200 MB, by a
         student handing in homework or a teacher giving it, into the
         school's Media library (413 `storage_full` when its storage is full).
         Sent in chunks to `upload_url` as chat files are, then `/complete`.

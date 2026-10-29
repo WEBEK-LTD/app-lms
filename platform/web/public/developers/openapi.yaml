@@ -6253,7 +6253,7 @@ webhooks:
       operationId: startSchoolUpload
       summary: Start sending a file for homework
       description: |
-        A photo (JPEG, PNG, WebP) up to 20 MB or a PDF up to 50 MB, by a
+        A photo (JPEG, PNG, WebP) up to 20 MB or a PDF up to 200 MB, by a
         student handing in homework or a teacher giving it, into the
         school's Media library (413 `storage_full` when its storage is full).
         Sent in chunks to `upload_url` as chat files are, then `/complete`.
@@ -9458,8 +9458,8 @@ components:
 
     ItemSource:
       type: string
-      description: Where a list comes from. `courses` needs an LMS; `products` needs WooCommerce or a hosted store; `services` needs a bookings plugin or hosted bookings; `listings` is hosted only; `articles` are a News & blog app's articles (posts on WordPress), opened in the app, while `posts` open on the website; `events` are an Events & tickets app's upcoming events (hosted only); `campaigns` are a Charity & donations app's campaigns (hosted only); 104 `delivery_services` are a delivery company's services, each opening the send screen with it chosen (hosted only); 105.1 `restaurants` are a food app's restaurants, each opening its menu (hosted only); 105.2 `vehicle_types` are a ride app's vehicle types, each opening the ride screen with it chosen (hosted only).
-      enum: [courses, products, services, posts, listings, articles, events, campaigns, delivery_services, restaurants, vehicle_types]
+      description: Where a list comes from. `courses` needs an LMS; `products` needs WooCommerce or a hosted store; `services` needs a bookings plugin or hosted bookings; `listings` is hosted only; `articles` are a News & blog app's articles (posts on WordPress), opened in the app, while `posts` open on the website; `events` are an Events & tickets app's upcoming events (hosted only); `campaigns` are a Charity & donations app's campaigns (hosted only); 104 `delivery_services` are a delivery company's services, each opening the send screen with it chosen (hosted only); 105.1 `restaurants` are a food app's restaurants, each opening its menu (hosted only); 105.2 `vehicle_types` are a ride app's vehicle types, each opening the ride screen with it chosen (hosted only); 105.4 `school_news` is a school's news to the whole school, newest first, each opening the school's news (hosted only).
+      enum: [courses, products, services, posts, listings, articles, events, campaigns, delivery_services, restaurants, vehicle_types, school_news]
 
     Item:
       type: object

@@ -587,3 +587,83 @@ export const RIDES_DESIGNS: Design[] = [
     ],
   },
 ];
+
+const schoolTabs = [homeTab, screenTab("school", "School", "school", "school"), accountTab];
+
+/** 105.4 Schools: students, parents and teachers (teachers also get the Classroom tab in the app). */
+export const SCHOOL_DESIGNS: Design[] = [
+  {
+    id: "school-classic",
+    kind: "school",
+    name: "Classic school",
+    description: "A welcome, quick links to the timetable and the school, the school's news and questions families ask.",
+    look: { template: "classic", corners: "soft", cards: "outlined", font: "Plus Jakarta Sans", secondary_color: "#E9C46A" },
+    tabs: schoolTabs,
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          slider([slide("Welcome to our school", "The timetable, homework, grades and news in one place", screen("school"))], false),
+          quickLinks([
+            link("school", "My school", screen("school")),
+            link("notifications", "Updates", screen("notifications")),
+            link("person", "Account", screen("account")),
+          ]),
+          list("school_news", "School news", "school_news", "list", { seeAll: screen("school") }),
+          faq("Questions", [
+            question("How do I sign in?", "With the mobile number you gave the school. A parent sees each of their children."),
+            question("How do I pay the fees?", "Open My school, then Fees: pay by card in the app, or at the school."),
+          ]),
+          contact(),
+        ],
+      },
+    ],
+  },
+  {
+    id: "school-bright",
+    kind: "school",
+    name: "Bright school",
+    description: "Colourful and friendly: a big button to the school, the latest news and what parents say.",
+    look: { template: "bold", corners: "round", cards: "elevated", font: "Outfit", secondary_color: "#FF9F1C" },
+    tabs: schoolTabs,
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          slider([slide("Every day at school, on your phone", "Homework, grades and attendance as they happen", screen("school"))], false),
+          button("school", "Open my school", screen("school")),
+          list("school_news", "Latest news", "school_news", "carousel", { seeAll: screen("school") }),
+          testimonials("What parents say", [quote("Write what a parent says about your school.", "Parent's name", "Parent")]),
+          contact(),
+        ],
+      },
+    ],
+  },
+  {
+    id: "school-calm",
+    kind: "school",
+    name: "Calm school",
+    description: "Quiet and clear: a short welcome, the school's news, a few numbers and the team to talk to.",
+    look: { template: "minimal", corners: "soft", cards: "flat", font: "Manrope", secondary_color: "#84A98C" },
+    tabs: schoolTabs,
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          text("welcome", "<h2>Welcome</h2><p>{app} keeps families and teachers close: the timetable, homework, grades and news.</p>"),
+          button("school", "My school", screen("school")),
+          list("school_news", "School news", "school_news", "list", { seeAll: screen("school") }),
+          stats([stat("30+", "Teachers"), stat("600+", "Students"), stat("25", "Years")]),
+          team("Talk to us", [person("Your name", "School office")]),
+          contact(),
+        ],
+      },
+    ],
+  },
+];

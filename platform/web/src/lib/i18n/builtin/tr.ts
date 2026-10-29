@@ -510,6 +510,23 @@ export const PAGE_TEXTS_TR: Record<string, string> = {
   "School news": "Okul haberleri",
   "My school": "Okulum",
   "Classroom": "Sınıf",
+  "The timetable, homework, grades and news in one place": "Ders programı, ödevler, notlar ve duyurular tek yerde",
+  "How do I sign in?": "Nasıl giriş yaparım?",
+  "With the mobile number you gave the school. A parent sees each of their children.": "Okula verdiğiniz cep telefonuyla. Veli, çocuklarının her birini görür.",
+  "How do I pay the fees?": "Ücretleri nasıl öderim?",
+  "Open My school, then Fees: pay by card in the app, or at the school.": "Okulum'u, ardından Ücretler'i açın: uygulamada kartla ya da okulda ödeyin.",
+  "Every day at school, on your phone": "Okuldaki her gün, telefonunuzda",
+  "Homework, grades and attendance as they happen": "Ödevler, notlar ve yoklama anında",
+  "Open my school": "Okulumu aç",
+  "Latest news": "Son duyurular",
+  "What parents say": "Veliler ne diyor",
+  "Write what a parent says about your school.": "Bir velinin okulunuz hakkında söylediklerini yazın.",
+  "Parent's name": "Velinin adı",
+  "Parent": "Veli",
+  "<h2>Welcome</h2><p>{app} keeps families and teachers close: the timetable, homework, grades and news.</p>": "<h2>Hoş geldiniz</h2><p>{app} aileleri ve öğretmenleri yakın tutar: ders programı, ödevler, notlar ve duyurular.</p>",
+  "<h2>Welcome</h2><p>our app keeps families and teachers close: the timetable, homework, grades and news.</p>": "<h2>Hoş geldiniz</h2><p>Uygulamamız aileleri ve öğretmenleri yakın tutar: ders programı, ödevler, notlar ve duyurular.</p>",
+  "Students": "Öğrenciler",
+  "School office": "Okul idaresi",
 };
 
 /** Messages the hosted API answers with (errors, refusals). */
