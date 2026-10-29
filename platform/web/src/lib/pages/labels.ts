@@ -70,4 +70,6 @@ export const SCREEN_LABELS: Record<ScreenName, string> = {
   driver: "Driver",
   teachers: "Teachers",
   teacher: "Teacher",
+  school: "My school",
+  classroom: "Classroom",
 };

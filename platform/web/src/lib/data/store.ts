@@ -78,6 +78,25 @@ import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, Analyt
 import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, DonationSettings, DonationStatus } from "./types";
 // 105.3 Academies with many teachers
 import type { Teacher, TeacherInput, TeacherPatch, TeacherReview, TeacherStatus } from "./types";
+// 105.4 Schools
+import type {
+  SchoolAnnouncement,
+  SchoolAssessment,
+  SchoolAttendance,
+  SchoolClass,
+  SchoolFamilyLink,
+  SchoolFee,
+  SchoolHomework,
+  SchoolPeriod,
+  SchoolPerson,
+  SchoolPersonInput,
+  SchoolPersonPatch,
+  SchoolRole,
+  SchoolScore,
+  SchoolSettings,
+  SchoolSubject,
+  SchoolSubmission,
+} from "./types";
 // 104 Delivery and courier companies
 import type { Courier, CourierInput, CourierPatch, DeliveryService, DeliveryServiceInput, DeliverySettings, Shipment, ShipmentInput, ShipmentPatch, ShipmentQuery, ShipmentStatus } from "./types";
 import type {
@@ -782,6 +801,72 @@ export interface DataStore {
   /** The reviews everyone sees, counted per teacher and stars. */
   countTeacherRatings(appId: string): Promise<{ teacherId: number; rating: number; count: number }[]>;
   updateTeacherReview(appId: string, id: number, patch: { hidden: boolean; updatedAt: Date }): Promise<void>;
+
+  // 105.4 Schools
+  getSchoolSettings(appId: string): Promise<SchoolSettings | null>;
+  saveSchoolSettings(appId: string, settings: SchoolSettings, now: Date): Promise<void>;
+  /** In the school's order. */
+  listSchoolClasses(appId: string): Promise<SchoolClass[]>;
+  /** A new class when `id` is null; false when the class isn't the app's. */
+  saveSchoolClass(input: Pick<SchoolClass, "appId" | "name" | "grade" | "homeroomTeacherId"> & { id: number | null }, now: Date): Promise<SchoolClass | null>;
+  /** Its students stay, without a class; its timetable, homework and assessments go. */
+  deleteSchoolClass(appId: string, id: number): Promise<void>;
+  /** By name. */
+  listSchoolSubjects(appId: string): Promise<SchoolSubject[]>;
+  /** Fails (`duplicate`) when the school has a subject with this name. */
+  saveSchoolSubject(input: { appId: string; id: number | null; name: string }, now: Date): Promise<{ ok: true; subject: SchoolSubject } | { ok: false; reason: "duplicate" | "not_found" }>;
+  deleteSchoolSubject(appId: string, id: number): Promise<void>;
+  /** By name; only those of `role`, of `classId`, or with one of `ids` when given. */
+  listSchoolPeople(appId: string, filter?: { role?: SchoolRole; classId?: number; ids?: number[] }): Promise<SchoolPerson[]>;
+  getSchoolPerson(appId: string, id: number): Promise<SchoolPerson | null>;
+  /** Everyone at the school with this number (E.164) or, given only an email, this email: one per role. */
+  findSchoolPeople(appId: string, who: { phone: string | null; email: string | null }): Promise<SchoolPerson[]>;
+  /** Fails (`duplicate`) when the school has someone of the same role with the same number or email. */
+  createSchoolPerson(input: SchoolPersonInput, now: Date): Promise<{ ok: true; person: SchoolPerson } | { ok: false; reason: "duplicate" }>;
+  updateSchoolPerson(appId: string, id: number, patch: SchoolPersonPatch, now: Date): Promise<{ ok: boolean; reason?: "duplicate" }>;
+  /** Their family links, marks, submissions, scores and fees go with them. */
+  deleteSchoolPerson(appId: string, id: number): Promise<void>;
+  /** A parent's children, or a student's parents. */
+  listSchoolFamily(appId: string, filter: { parentId?: number; studentId?: number }): Promise<SchoolFamilyLink[]>;
+  /** The parent's children become exactly these. */
+  setSchoolChildren(appId: string, parentId: number, studentIds: number[]): Promise<void>;
+  /** By day and start; only a class's or a teacher's when given. */
+  listSchoolPeriods(appId: string, filter?: { classId?: number; teacherId?: number }): Promise<SchoolPeriod[]>;
+  /** A new lesson when `id` is null; null when it isn't the app's. */
+  saveSchoolPeriod(input: Omit<SchoolPeriod, "id"> & { id: number | null }): Promise<SchoolPeriod | null>;
+  deleteSchoolPeriod(appId: string, id: number): Promise<void>;
+  /** Newest day first; by class and day, or by student over days. */
+  listSchoolAttendance(appId: string, filter: { classId?: number; studentId?: number; from?: string; to?: string }): Promise<SchoolAttendance[]>;
+  /** Marks a day, one row per student and day (a new mark replaces the old). */
+  saveSchoolAttendance(rows: SchoolAttendance[]): Promise<void>;
+  /** Newest first; a class's, a teacher's, or some ids'. */
+  listSchoolHomework(appId: string, filter?: { classId?: number; classIds?: number[]; teacherId?: number }): Promise<SchoolHomework[]>;
+  getSchoolHomework(appId: string, id: number): Promise<SchoolHomework | null>;
+  createSchoolHomework(input: Omit<SchoolHomework, "id">): Promise<SchoolHomework>;
+  deleteSchoolHomework(appId: string, id: number): Promise<void>;
+  listSchoolSubmissions(appId: string, filter: { homeworkId?: number; studentId?: number; homeworkIds?: number[] }): Promise<SchoolSubmission[]>;
+  /** One per student and homework: saving again replaces it. */
+  saveSchoolSubmission(submission: SchoolSubmission): Promise<void>;
+  /** By date, newest first; a class's, some classes', or a teacher's. */
+  listSchoolAssessments(appId: string, filter?: { classId?: number; classIds?: number[]; teacherId?: number }): Promise<SchoolAssessment[]>;
+  getSchoolAssessment(appId: string, id: number): Promise<SchoolAssessment | null>;
+  createSchoolAssessment(input: Omit<SchoolAssessment, "id">): Promise<SchoolAssessment>;
+  deleteSchoolAssessment(appId: string, id: number): Promise<void>;
+  listSchoolScores(appId: string, filter: { assessmentId?: number; studentId?: number }): Promise<SchoolScore[]>;
+  /** Saves these scores; a null score removes the student's. */
+  saveSchoolScores(appId: string, assessmentId: number, rows: { studentId: number; score: number | null; note: string | null }[], now: Date): Promise<void>;
+  /** Newest first. */
+  listSchoolAnnouncements(appId: string, filter?: { offset?: number; limit?: number }): Promise<SchoolAnnouncement[]>;
+  createSchoolAnnouncement(input: Omit<SchoolAnnouncement, "id">): Promise<SchoolAnnouncement>;
+  deleteSchoolAnnouncement(appId: string, id: number): Promise<void>;
+  /** Newest first; a student's when given. */
+  listSchoolFees(appId: string, filter?: { studentId?: number; status?: SchoolFee["status"] }): Promise<SchoolFee[]>;
+  getSchoolFee(appId: string, id: number): Promise<SchoolFee | null>;
+  getSchoolFeeByReceipt(code: string): Promise<SchoolFee | null>;
+  createSchoolFee(input: Omit<SchoolFee, "id">): Promise<SchoolFee>;
+  /** Only while the fee is in one of `statuses` when given; false when it wasn't changed. */
+  updateSchoolFee(appId: string, id: number, patch: Partial<Pick<SchoolFee, "title" | "amountCents" | "dueOn" | "status" | "paidAt" | "paidBy" | "orderId" | "receiptCode" | "updatedAt">>, expect?: { statuses?: SchoolFee["status"][] }): Promise<boolean>;
+  deleteSchoolFee(appId: string, id: number): Promise<void>;
 
   // 105.1 Food delivery from many restaurants
   /** In the company's order; `q` matches the restaurant's name or a dish's. Menus aren't read. */

@@ -701,6 +701,13 @@
       "when": 1793245617471,
       "tag": "0099_teachers",
       "breakpoints": true
+    },
+    {
+      "idx": 100,
+      "version": "5",
+      "when": 1793253432719,
+      "tag": "0100_school",
+      "breakpoints": true
     }
   ]
 }

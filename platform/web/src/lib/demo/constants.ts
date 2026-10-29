@@ -51,7 +51,8 @@ export const DEMO_LICENSE_UNTIL = new Date("2099-12-31T23:59:59.999Z");
  */
 /** The demos of Yallapp Studio's own project types (104 delivery, 105.1 food delivery, 105.2 rides), shown on /demo/studio only. */
 export type StudioDemoId = Extract<AppType, "delivery" | "food" | "rides">;
-export type DemoId = Exclude<AppType, StudioDemoId> | Extract<AppVertical, "clinic" | "restaurant" | "fitness"> | StudioDemoId;
+/** 105.4 Schools have no demo yet. */
+export type DemoId = Exclude<AppType, StudioDemoId | "school"> | Extract<AppVertical, "clinic" | "restaurant" | "fitness"> | StudioDemoId;
 
 /** The engines only Studio offers (lib/studio/section.ts STUDIO_ONLY_KINDS). */
 const STUDIO_DEMO_ENGINES: readonly string[] = ["delivery", "food", "rides"];
