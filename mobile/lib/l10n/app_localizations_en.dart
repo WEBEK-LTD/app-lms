@@ -5312,4 +5312,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get driverNoShow => 'The rider didn\'t come';
+
+  @override
+  String get ridePayCash => 'Cash to the driver';
 }

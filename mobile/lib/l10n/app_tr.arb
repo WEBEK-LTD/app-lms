@@ -1444,5 +1444,6 @@
   "driverNoShowAfter": "Yolcu gelmezse vardıktan {minutes} dk sonra iptal edebilirsiniz. Aksi halde yolculuk başka bir sürücüye geçer.",
   "driverCancelNoShowHint": "Yolcu gelmedi: şirketin iptal ücreti yolcudan alınır.",
   "driverCantMakeIt": "Gidemiyorum",
-  "driverNoShow": "Yolcu gelmedi"
+  "driverNoShow": "Yolcu gelmedi",
+  "ridePayCash": "Sürücüye nakit"
 }

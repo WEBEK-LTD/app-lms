@@ -8769,6 +8769,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The rider didn\'t come'**
   String get driverNoShow;
+
+  /// 105.2 Paying a ride in cash to the driver.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash to the driver'**
+  String get ridePayCash;
 }
 
 class _AppLocalizationsDelegate

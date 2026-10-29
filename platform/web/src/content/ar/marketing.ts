@@ -65,6 +65,9 @@ export const AR_MARKETING: MarketingTranslation = {
     "Events & tickets": "فعاليات وتذاكر",
     "Charity & donations": "جمعيات خيرية وتبرعات",
     "Services & companies": "خدمات وشركات",
+    "Delivery & couriers": "توصيل وشحن",
+    "Food delivery": "توصيل طعام",
+    "Ride hailing": "نقل ركاب",
   },
   solutions: {
     academy: {

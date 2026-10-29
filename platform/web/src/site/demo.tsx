@@ -12,6 +12,7 @@ import { demoDownloadBuild, listDemoApps } from "@/lib/demo/apps";
 import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_SLUGS, DEMO_TYPES, demoIdOf, demoKind, type DemoId } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { appUrl } from "@/lib/env";
+import { solution as solutionPage } from "@/lib/marketing";
 import { demoGuideFor, kindNameFor, screenAltFor, solutionFor } from "@/lib/marketing-lang";
 import { siteMetadata } from "@/lib/seo";
 import { formatMessage, messagesFor, type Lang } from "@/i18n";
@@ -161,10 +162,13 @@ export function DemoAppSection({ type, lang, ready, tinted }: { type: DemoId; la
               <span className="text-sm text-muted">{m.onItsWay}</span>
             </div>
           )}
-          <Link href={localePath(lang, `/solutions/${kind.marketing.slug}`)} className="flex items-center gap-1.5 self-start font-bold text-midnight no-underline hover:underline">
-            {lang === "en" ? `About ${kind.name.toLowerCase()} apps` : formatMessage(lang, m.about, { apps: solution?.apps ?? kind.name })}
-            <Icon name="arrow_forward" size={20} />
-          </Link>
+          {/* Studio's project types have no solution page. */}
+          {solutionPage(kind.marketing.slug) ? (
+            <Link href={localePath(lang, `/solutions/${kind.marketing.slug}`)} className="flex items-center gap-1.5 self-start font-bold text-midnight no-underline hover:underline">
+              {lang === "en" ? `About ${kind.name.toLowerCase()} apps` : formatMessage(lang, m.about, { apps: solution?.apps ?? kind.name })}
+              <Icon name="arrow_forward" size={20} />
+            </Link>
+          ) : null}
         </div>
         <div className="flex min-w-0 flex-[1_1_320px] flex-wrap justify-center gap-5">
           {guide.screens.map((screen) => (

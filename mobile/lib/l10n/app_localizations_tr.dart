@@ -5305,4 +5305,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get driverNoShow => 'Yolcu gelmedi';
+
+  @override
+  String get ridePayCash => 'Sürücüye nakit';
 }

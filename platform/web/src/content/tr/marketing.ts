@@ -65,6 +65,9 @@ export const TR_MARKETING: MarketingTranslation = {
     "Events & tickets": "Etkinlik ve bilet",
     "Charity & donations": "Yardım ve bağış",
     "Services & companies": "Hizmetler ve şirketler",
+    "Delivery & couriers": "Teslimat ve kurye",
+    "Food delivery": "Yemek siparişi",
+    "Ride hailing": "Yolcu taşıma",
   },
   solutions: {
     academy: {

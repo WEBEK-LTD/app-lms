@@ -5382,4 +5382,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get driverNoShow => 'الراكب لم يحضر';
+
+  @override
+  String get ridePayCash => 'نقدًا للسائق';
 }

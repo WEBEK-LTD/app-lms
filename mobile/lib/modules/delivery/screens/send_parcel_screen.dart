@@ -522,6 +522,9 @@ class _ServiceOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    // A chosen service sits on the soft brand colour: its words in the colours made for it.
+    final strong = selected ? p.onPrimarySoft : p.text;
+    final muted = selected ? p.onPrimaryMuted : p.textSecondary;
     return Semantics(
       selected: selected,
       inMutuallyExclusiveGroup: true,
@@ -534,7 +537,7 @@ class _ServiceOption extends StatelessWidget {
             AppIcon(
               selected ? AppIcons.checkCircle : AppIcons.ship,
               size: 22,
-              color: selected ? p.primary : p.textSecondary,
+              color: selected ? p.onPrimarySoft : p.textSecondary,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -546,13 +549,13 @@ class _ServiceOption extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: p.text,
+                      color: strong,
                     ),
                   ),
                   if (service.eta != null || service.description != null)
                     Text(
                       service.eta ?? service.description!,
-                      style: TextStyle(fontSize: 13, color: p.textSecondary),
+                      style: TextStyle(fontSize: 13, color: muted),
                     ),
                 ],
               ),
@@ -563,7 +566,7 @@ class _ServiceOption extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: p.text,
+                  color: strong,
                 ),
               ),
           ],

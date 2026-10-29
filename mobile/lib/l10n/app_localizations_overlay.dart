@@ -5578,4 +5578,7 @@ class OverlayLocalizations extends AppLocalizations {
 
   @override
   String get driverNoShow => overlay.text('driverNoShow') ?? base.driverNoShow;
+
+  @override
+  String get ridePayCash => overlay.text('ridePayCash') ?? base.ridePayCash;
 }
