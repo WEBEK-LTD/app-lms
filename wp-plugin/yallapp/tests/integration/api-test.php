@@ -462,6 +462,17 @@ $layout = array(
 						array( 'id' => 'bad-picture', 'type' => 'image', 'image_url' => 'javascript:alert(1)' ),
 						array( 'id' => 'clip', 'type' => 'video' ),
 						array( 'id' => 'later', 'type' => 'hologram' ),
+						// 107.2 More style, and an element hidden in the app.
+						array(
+							'id'       => 'chips',
+							'type'     => 'row',
+							'scroll'   => true,
+							'rotation' => -4,
+							'corners'  => array( 'top_start' => 20, 'bottom_end' => 20 ),
+							'overlay'  => array( 'color' => '#0e0d24', 'opacity' => 0.35 ),
+							'children' => array( array( 'id' => 'old', 'type' => 'text', 'text' => 'EGP 300', 'font' => array( 'strike' => true, 'uppercase' => true ) ) ),
+						),
+						array( 'id' => 'draft', 'type' => 'text', 'text' => 'Coming soon', 'hidden' => true ),
 					),
 				),
 			),
@@ -563,7 +574,10 @@ $nodes  = $studio['body']['children'] ?? array();
 check(
 	'103R studio page',
 	'#FFFFFF' === ( $studio['background'] ?? '' ) && array( 'type' => 'title_search', 'title' => 'Lessons', 'logo_url' => null, 'buttons' => array( 'notifications' ), 'background' => null, 'color' => null, 'dark_background' => null, 'dark_color' => null ) === ( $studio['header'] ?? null )
-		&& array( 'hero', 'go', 'list' ) === array_column( $nodes, 'id' )
+		&& array( 'hero', 'go', 'list', 'chips' ) === array_column( $nodes, 'id' )
+		// Whole numbers come back without decimals: compared as numbers.
+		&& true === ( $nodes[3]['scroll'] ?? null ) && -4 == ( $nodes[3]['rotation'] ?? null ) && array( 'top_start' => 20, 'bottom_end' => 20 ) == ( $nodes[3]['corners'] ?? null )
+		&& '#0E0D24' === ( $nodes[3]['overlay']['color'] ?? '' ) && 0.35 == ( $nodes[3]['overlay']['opacity'] ?? null ) && array( 'strike' => true, 'uppercase' => true ) === ( $nodes[3]['children'][0]['font'] ?? null )
 		&& "Learn\nfaster" === ( $nodes[0]['children'][0]['text'] ?? '' ) && ! isset( $nodes[0]['children'][0]['translations'] )
 		&& 800 === ( $nodes[0]['children'][0]['font']['weight'] ?? 0 ) && 'slide_up' === ( $nodes[0]['children'][0]['motion']['enter'] ?? '' )
 		&& 'fill' === ( $nodes[1]['width'] ?? '' ) && 'courses' === ( $nodes[1]['action']['screen'] ?? '' )

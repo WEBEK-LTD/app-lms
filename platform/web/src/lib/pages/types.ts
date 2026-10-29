@@ -527,6 +527,24 @@ export interface StudioFont {
   letter_spacing?: number;
   italic?: boolean;
   underline?: boolean;
+  /** 107.2 Struck through (an old price). */
+  strike?: boolean;
+  /** 107.2 In capitals (scripts without capitals are unchanged). */
+  uppercase?: boolean;
+}
+
+/** 107.2 Each corner rounded on its own (`StudioCorners`), instead of `radius`. */
+export interface StudioCorners {
+  top_start?: number;
+  top_end?: number;
+  bottom_end?: number;
+  bottom_start?: number;
+}
+
+/** 107.2 A colour over the element's picture (`StudioOverlay`). */
+export interface StudioOverlay {
+  color: string;
+  opacity: number;
 }
 
 export interface StudioMotion {
@@ -581,6 +599,9 @@ export interface StudioNode {
   gradient?: { from: string; to: string; angle?: number } | null;
   image_background_url?: string | null;
   radius?: number;
+  corners?: StudioCorners | null;
+  rotation?: number;
+  overlay?: StudioOverlay | null;
   border_color?: string | null;
   border_width?: number;
   shadow?: StudioShadow;
@@ -599,6 +620,8 @@ export interface StudioNode {
   interval_ms?: number;
   per_view?: number;
   dots?: boolean;
+  /** 107.2 A row that scrolls sideways. */
+  scroll?: boolean;
   source?: ItemSource;
   layout?: (typeof ITEMS_LAYOUTS)[number];
   query?: ItemsQuery;
@@ -611,6 +634,8 @@ export interface StudioNode {
   platforms?: (typeof STUDIO_PLATFORMS)[number][];
   visibility?: (typeof STUDIO_VISIBILITY)[number];
   motion?: StudioMotion | null;
+  /** 107.2 Kept in the editor, never shown in the app. */
+  hidden?: boolean;
   translations?: Translations;
 }
 

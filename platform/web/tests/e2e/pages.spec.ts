@@ -527,6 +527,22 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await expect(own.getByRole("dialog", { name: "Shortcuts" })).toContainText("Ctrl Alt V");
   await own.keyboard.press("Escape");
   await expect(own.getByRole("dialog", { name: "Shortcuts" })).toHaveCount(0);
+
+  // 107.2 More style: struck through and in capitals, each corner on its own, turned, hidden in the app.
+  await phone.getByText("Hello Studio").click();
+  const hello = phone.locator('[data-studio-node]').filter({ has: own.getByText("Hello Studio", { exact: true }) }).last();
+  await inspector.getByLabel("Struck through").check();
+  await inspector.getByLabel("Capitals").check();
+  await expect(hello).toHaveCSS("text-transform", "uppercase");
+  await expect(hello).toHaveCSS("text-decoration-line", "line-through");
+  await inspector.getByLabel("Each corner on its own").check();
+  await inspector.getByLabel("Top, start").fill("30");
+  await expect(hello).toHaveCSS("border-start-start-radius", "30px");
+  await inspector.getByLabel("Hide in the app (kept here)").check();
+  await expect(hello).toHaveCSS("opacity", "0.35");
+  await expect(own.locator("[data-studio-layer]").filter({ hasText: "Hello Studio" }).getByTitle("Hidden in the app")).toBeVisible();
+  await inspector.getByLabel("Hide in the app (kept here)").uncheck();
+  await inspector.getByLabel("Capitals").uncheck();
   await own.getByRole("group", { name: "Header type:" }).getByRole("button", { name: "1 Logo in the middle" }).click();
   await expect(phone.locator('[data-studio-header="logo_center"]')).toBeVisible();
   await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });

@@ -678,6 +678,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
           <Glyph name="push_pin" size={18} />
         </button>
       </div>
+      {node.type === "row" ? <Check label={t("studio.scrollSideways")} checked={Boolean(node.scroll)} onChange={(scroll) => onChange({ scroll: scroll || undefined })} /> : null}
       {layout && node.type !== "grid" && node.type !== "stack" ? (
         <div className="grid grid-cols-2 gap-2">
           <label className="flex flex-col gap-1">
@@ -746,6 +747,12 @@ function DesignTab(props: Props & { node: StudioNode }) {
           {node.gradient ? <Slider label={t("studio.angle")} value={node.gradient.angle ?? 180} min={0} max={360} onChange={(angle) => onChange({ gradient: { ...node.gradient!, angle } })} /> : null}
         </div>
       </details>
+      {node.image_background_url || (node.type === "image" && (node.image_url || node.bind === "image")) ? (
+        <div className="flex flex-col gap-2">
+          <Colors palette={props.palette} rows={[{ label: t("studio.overlay"), value: node.overlay?.color, onChange: (color) => onChange({ overlay: color ? { color, opacity: node.overlay?.opacity ?? 0.4 } : undefined }) }]} />
+          {node.overlay ? <Slider label={t("studio.overlayStrength")} value={Math.round(node.overlay.opacity * 100)} min={5} max={95} onChange={(o) => onChange({ overlay: { ...node.overlay!, opacity: o / 100 } })} /> : null}
+        </div>
+      ) : null}
       {layout || node.type === "button" ? (
         <div className="flex flex-col gap-1.5">
           <span>{t("studio.backgroundPicture")}</span>
@@ -786,6 +793,10 @@ function DesignTab(props: Props & { node: StudioNode }) {
             <Check label={t("studio.italic")} checked={Boolean(node.font?.italic)} onChange={(italic) => onChange({ font: { ...(node.font ?? {}), italic: italic || undefined } })} />
             <Check label={t("studio.underline")} checked={Boolean(node.font?.underline)} onChange={(underline) => onChange({ font: { ...(node.font ?? {}), underline: underline || undefined } })} />
           </div>
+          <div className="flex gap-3">
+            <Check label={t("studio.strike")} checked={Boolean(node.font?.strike)} onChange={(strike) => onChange({ font: { ...(node.font ?? {}), strike: strike || undefined } })} />
+            <Check label={t("studio.uppercase")} checked={Boolean(node.font?.uppercase)} onChange={(uppercase) => onChange({ font: { ...(node.font ?? {}), uppercase: uppercase || undefined } })} />
+          </div>
           {node.type === "text" ? (
             <Box label={t("studio.maxLines")}>
               <NumberIn label={t("studio.maxLines")} value={node.max_lines ?? undefined} min={1} max={50} onChange={(max_lines) => onChange({ max_lines: max_lines ?? undefined })} />
@@ -796,7 +807,26 @@ function DesignTab(props: Props & { node: StudioNode }) {
 
       <Rule />
       <Heading>{t("studio.shape")}</Heading>
-      <Slider label={t("studio.corners")} value={node.radius ?? 0} min={0} max={60} onChange={(radius) => onChange({ radius: radius || undefined })} />
+      {node.corners ? (
+        <div className="grid grid-cols-2 gap-2">
+          {(["top_start", "top_end", "bottom_start", "bottom_end"] as const).map((corner) => (
+            <Box key={corner} label={t(`studio.corner_${corner}` as DashKey)}>
+              <NumberIn label={t(`studio.corner_${corner}` as DashKey)} value={node.corners?.[corner] ?? 0} max={500} onChange={(n) => onChange({ corners: { ...node.corners, [corner]: n || undefined } })} />
+            </Box>
+          ))}
+        </div>
+      ) : (
+              <Slider label={t("studio.corners")} value={node.radius ?? 0} min={0} max={60} onChange={(radius) => onChange({ radius: radius || undefined })} />
+      )}
+      <Check
+        label={t("studio.eachCorner")}
+        checked={Boolean(node.corners)}
+        onChange={(on) => {
+          const r = node.radius ?? 0;
+          onChange(on ? { corners: { top_start: r, top_end: r, bottom_end: r, bottom_start: r } } : { corners: undefined });
+        }}
+      />
+      <Slider label={t("studio.rotation")} value={node.rotation ?? 0} min={-180} max={180} onChange={(rotation) => onChange({ rotation: rotation || undefined })} />
       <div className="flex items-center justify-between gap-2">
         <span>{t("studio.shadow")}</span>
         <Segments
@@ -844,6 +874,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
           })}
         </span>
       </div>
+      {node.id !== props.page.body.id ? <Check label={t("studio.hideInApp")} checked={Boolean(node.hidden)} onChange={(hidden) => onChange({ hidden: hidden || undefined })} /> : null}
       <label className="flex items-center justify-between gap-2">
         {t("studio.whoSees")}
         <select value={node.visibility ?? "everyone"} onChange={(e) => onChange({ visibility: e.target.value === "everyone" ? undefined : (e.target.value as "signed_in") })} className="h-8 rounded-lg px-1.5" style={{ border: "1px solid var(--studio-line)" }}>

@@ -248,7 +248,8 @@ test environment:
   Play Console › Monetization setup; the platform finds the app by its
   package name.
 - Plugin 0.4.23 goes to sites once the app update with in-app purchases is
-  in the stores; 0.4.24 (the header) and 0.4.26 (Studio pages) after the
+  in the stores; 0.4.24 (the header), 0.4.26 (Studio pages) and 0.4.27
+  (107.2: more style on Studio pages) after the
   app update that shows them.
 
 ## Planned (to agree on before any work)

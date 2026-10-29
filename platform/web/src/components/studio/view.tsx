@@ -77,8 +77,10 @@ export function textIn(node: { text?: string | null; translations?: Record<strin
   return node.text ?? "";
 }
 
-function sizeStyle(size: StudioSize | undefined, axis: "width" | "height", parentDir: "row" | "column" | "stack" | "grid" | "slider" | null): CSSProperties {
+function sizeStyle(size: StudioSize | undefined, axis: "width" | "height", parentDir: Dir): CSSProperties {
   if (typeof size === "number") return { [axis]: size, flexShrink: 0 } as CSSProperties;
+  // 107.2 In a row that scrolls sideways, each child keeps its own width.
+  if (parentDir === "scroll" && axis === "width") return { flex: "0 0 auto" };
   const along = (parentDir === "row" && axis === "width") || (parentDir === "column" && axis === "height");
   // Across the parent, stretching keeps the margins inside it (100% would add them).
   if (size === "fill") return along ? { flex: "1 1 0", minWidth: 0, minHeight: 0 } : { alignSelf: "stretch", minWidth: 0 };
@@ -191,10 +193,28 @@ function Tag({ text }: { text: string }) {
   return <span style={{ position: "absolute", top: -22, insetInlineEnd: 0, background: "#6C8BFF", color: "#FFFFFF", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 6, whiteSpace: "nowrap", zIndex: 5 }}>{text}</span>;
 }
 
-type Dir = "row" | "column" | "stack" | "grid" | "slider" | null;
+/** The layout an element sits in; `scroll` a row that scrolls sideways (107.2). */
+type Dir = "row" | "scroll" | "column" | "stack" | "grid" | "slider" | null;
+
+/** 107.2 A colour with its strength, for CSS. */
+function tint(hex: string, opacity: number): string {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${opacity})`;
+}
+
+/** 107.2 Each corner on its own (logical corners), else the one radius. */
+function cornersStyle(node: StudioNode): CSSProperties {
+  const k = node.corners;
+  if (!k) return { borderRadius: node.radius };
+  return { borderStartStartRadius: k.top_start ?? 0, borderStartEndRadius: k.top_end ?? 0, borderEndEndRadius: k.bottom_end ?? 0, borderEndStartRadius: k.bottom_start ?? 0 };
+}
 
 function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
   const { node, dark, editing, lang, defaultLang, look, parentDir } = props;
+  // 107.2 A hidden element shows only in the editor, faded.
+  if (node.hidden && !editing) return null;
+  const overlay = node.overlay ? tint(node.overlay.color, node.overlay.opacity) : null;
+  const decoration = [node.font?.underline ? "underline" : "", node.font?.strike ? "line-through" : ""].filter(Boolean).join(" ");
   const background = (dark ? (node.dark_background ?? node.background) : node.background) ?? undefined;
   const color = (dark ? (node.dark_color ?? node.color) : node.color) ?? undefined;
   const style: CSSProperties = {
@@ -207,11 +227,12 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
     minHeight: node.min_height,
     aspectRatio: node.aspect_ratio ?? undefined,
     background: node.gradient ? `linear-gradient(${node.gradient.angle ?? 180}deg, ${node.gradient.from}, ${node.gradient.to})` : background,
-    backgroundImage: node.image_background_url ? `url("${node.image_background_url}")` : undefined,
+    backgroundImage: node.image_background_url ? `${overlay ? `linear-gradient(${overlay}, ${overlay}), ` : ""}url("${node.image_background_url}")` : undefined,
     backgroundSize: node.image_background_url ? "cover" : undefined,
     backgroundPosition: "center",
     color,
-    borderRadius: node.radius,
+    ...cornersStyle(node),
+    transform: node.rotation ? `rotate(${node.rotation}deg)` : undefined,
     border: node.border_width && node.border_color ? `${node.border_width}px solid ${node.border_color}` : undefined,
     boxShadow: node.shadow && node.shadow !== "none" ? SHADOWS[node.shadow] : undefined,
     opacity: node.opacity,
@@ -221,10 +242,11 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
     lineHeight: node.font?.line_height,
     letterSpacing: node.font?.letter_spacing,
     fontStyle: node.font?.italic ? "italic" : undefined,
-    textDecoration: node.font?.underline ? "underline" : undefined,
+    textDecoration: decoration || undefined,
+    textTransform: node.font?.uppercase ? "uppercase" : undefined,
     textAlign: node.text_align === "center" ? "center" : node.text_align === "end" ? "end" : undefined,
     alignSelf: node.self_align ? ITEMS[node.self_align] : undefined,
-    overflow: node.radius ? "hidden" : undefined,
+    overflow: node.radius || node.corners ? "hidden" : undefined,
   };
   if (parentDir === "stack") Object.assign(style, { gridArea: "1 / 1", justifySelf: node.self_align ? ITEMS[node.self_align] : "stretch", alignSelf: node.self_align ? ITEMS[node.self_align] : "stretch" });
   if (parentDir === "slider") Object.assign(style, { scrollSnapAlign: "start", flex: "0 0 auto" });
@@ -232,7 +254,8 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
   const selected = editing?.selectedId === node.id;
   const hovered = editing?.hoveredId === node.id && !selected;
   if (editing) {
-    style.outline = selected ? "2px solid #3D63FF" : hovered ? "1.5px dashed #6C8BFF" : undefined;
+    style.outline = selected ? "2px solid #3D63FF" : hovered || node.hidden ? "1.5px dashed #6C8BFF" : undefined;
+    if (node.hidden) style.opacity = 0.35;
     style.outlineOffset = selected ? 3 : 2;
     style.cursor = "pointer";
   }
@@ -307,7 +330,10 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
       case "image":
         return n.image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={n.image_url} alt="" style={{ width: "100%", height: "100%", objectFit: n.fit ?? "cover", display: "block" }} />
+          <>
+            <img src={n.image_url} alt="" style={{ width: "100%", height: "100%", objectFit: n.fit ?? "cover", display: "block" }} />
+            {overlay ? <span aria-hidden="true" data-studio-overlay="" style={{ position: "absolute", inset: 0, background: overlay }} /> : null}
+          </>
         ) : (
           <Placeholder icon="image" text={p.words.addPicture} />
         );
@@ -365,7 +391,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
 
   function Children(p: ViewProps & { node: StudioNode }) {
     const n = p.node;
-    const dir: Dir = n.type === "row" || n.type === "column" || n.type === "stack" || n.type === "grid" || n.type === "slider" ? n.type : null;
+    const dir: Dir = n.type === "row" && n.scroll ? "scroll" : n.type === "row" || n.type === "column" || n.type === "stack" || n.type === "grid" || n.type === "slider" ? n.type : null;
     const kids = n.children ?? [];
     const drop = editing?.drop?.parentId === n.id ? editing.drop.index : null;
     const out: ReactNode[] = [];
@@ -441,7 +467,7 @@ function Placeholder({ icon, text, dark, map }: { icon: string; text: string; da
 }
 
 function DropLine({ dir, label }: { dir: Dir; label: string }) {
-  const across = dir === "row" || dir === "slider";
+  const across = dir === "row" || dir === "scroll" || dir === "slider";
   return (
     <span aria-hidden="true" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, ...(across ? { width: 4, alignSelf: "stretch" } : { margin: "4px 8px" }) }}>
       <span style={{ display: "block", background: "#FF5A1F", borderRadius: 4, ...(across ? { width: 4, height: "100%" } : { height: 4, width: "100%" }) }} />
@@ -472,7 +498,7 @@ function SizeBadge({ id }: { id: string }) {
 function layoutStyle(node: StudioNode): CSSProperties {
   switch (node.type) {
     case "row":
-      return { display: "flex", flexDirection: "row", gap: node.gap, justifyContent: JUSTIFY[node.align ?? "start"], alignItems: ITEMS[node.cross ?? "stretch"] };
+      return { display: "flex", flexDirection: "row", gap: node.gap, justifyContent: JUSTIFY[node.align ?? "start"], alignItems: ITEMS[node.cross ?? "stretch"], ...(node.scroll ? { overflowX: "auto", scrollbarWidth: "none" } : {}) };
     case "column":
       return { display: "flex", flexDirection: "column", gap: node.gap, justifyContent: JUSTIFY[node.align ?? "start"], alignItems: ITEMS[node.cross ?? "stretch"] };
     case "stack":

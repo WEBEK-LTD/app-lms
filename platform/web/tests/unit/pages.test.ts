@@ -619,6 +619,17 @@ describe("pages on the hosted API", () => {
           { id: "hero", type: "stack", height: 300, background: "#1f4e5f", children: [{ id: "title", type: "text", text: "Learn faster", font: { size: 32, weight: 800 }, color: "#ffffff", translations: { ar: { text: "تعلم أسرع" } } }] },
           { id: "go", type: "button", text: "Courses", background: "#e8b04b", radius: 24, action: { type: "screen", screen: "courses" } },
           { id: "list", type: "items", source: "courses", layout: "carousel", query: { limit: 5 } },
+          // 107.2 More style, and an element hidden in the app.
+          {
+            id: "chips",
+            type: "row",
+            scroll: true,
+            rotation: -4,
+            corners: { top_start: 20, bottom_end: 20 },
+            overlay: { color: "#0e0d24", opacity: 0.35 },
+            children: [{ id: "old", type: "text", text: "EGP 300", font: { strike: true, uppercase: true } }],
+          },
+          { id: "draft", type: "text", text: "Coming soon", hidden: true },
         ],
       },
     };
@@ -636,6 +647,9 @@ describe("pages on the hosted API", () => {
     expect(go).toMatchObject({ action: { type: "screen", screen: "courses" } });
     expect((list!.items as unknown[]).length).toBeGreaterThan(0);
     expect(list).not.toHaveProperty("query");
+    expect(served.studio.body.children!.map((n) => n.id)).toEqual(["hero", "go", "list", "chips"]);
+    expect(served.studio.body.children![3]).toMatchObject({ scroll: true, rotation: -4, corners: { top_start: 20, bottom_end: 20 }, overlay: { color: "#0E0D24", opacity: 0.35 } });
+    expect(served.studio.body.children![3]!.children![0]).toMatchObject({ font: { strike: true, uppercase: true } });
     const arabic = (await call("/pages/{slug}", { params: ["home"], headers: { "accept-language": "ar" } })).body as Served;
     expect(arabic.studio.body.children![0]!.children![0]).toMatchObject({ text: "تعلم أسرع" });
     expect(arabic.studio.header.title).toBe("الدروس");

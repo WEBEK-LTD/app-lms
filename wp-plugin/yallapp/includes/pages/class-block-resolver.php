@@ -1050,7 +1050,8 @@ class Block_Resolver {
 		$raw  = Translator::apply( $raw, $language );
 		$type = (string) ( $raw['type'] ?? '' );
 		$id   = is_string( $raw['id'] ?? null ) && preg_match( '/^[A-Za-z0-9_-]{1,64}$/', $raw['id'] ) ? $raw['id'] : null;
-		if ( null === $id || ! in_array( $type, self::STUDIO_TYPES, true ) ) {
+		// 107.2 A hidden element is kept in the editor only (never the page's own).
+		if ( null === $id || ! in_array( $type, self::STUDIO_TYPES, true ) || ( $depth > 0 && true === ( $raw['hidden'] ?? false ) ) ) {
 			return null;
 		}
 		$node = array(
@@ -1073,6 +1074,7 @@ class Block_Resolver {
 			'icon_size'    => array( 8, 200 ),
 			'per_view'     => array( 1, 4 ),
 			'rating'       => array( 0, 5 ),
+			'rotation'     => array( -180, 180 ),
 		);
 		foreach ( $numbers as $field => $range ) {
 			if ( isset( $raw[ $field ] ) && is_numeric( $raw[ $field ] ) ) {
@@ -1123,6 +1125,27 @@ class Block_Resolver {
 			if ( isset( $raw[ $field ] ) && is_bool( $raw[ $field ] ) ) {
 				$node[ $field ] = $raw[ $field ];
 			}
+		}
+		// 107.2 A row that scrolls sideways, each corner on its own, a colour over the picture.
+		if ( 'row' === $type && true === ( $raw['scroll'] ?? false ) ) {
+			$node['scroll'] = true;
+		}
+		if ( is_array( $raw['corners'] ?? null ) ) {
+			$corners = array();
+			foreach ( array( 'top_start', 'top_end', 'bottom_end', 'bottom_start' ) as $corner ) {
+				if ( isset( $raw['corners'][ $corner ] ) && is_numeric( $raw['corners'][ $corner ] ) ) {
+					$corners[ $corner ] = round( max( 0, min( 500, (float) $raw['corners'][ $corner ] ) ), 1 );
+				}
+			}
+			if ( $corners ) {
+				$node['corners'] = $corners;
+			}
+		}
+		if ( isset( $raw['overlay']['color'], $raw['overlay']['opacity'] ) && null !== self::hex( $raw['overlay']['color'] ) && is_numeric( $raw['overlay']['opacity'] ) ) {
+			$node['overlay'] = array(
+				'color'   => self::hex( $raw['overlay']['color'] ),
+				'opacity' => round( max( 0, min( 1, (float) $raw['overlay']['opacity'] ) ), 2 ),
+			);
 		}
 		if ( isset( $raw['gradient']['from'], $raw['gradient']['to'] ) && null !== self::hex( $raw['gradient']['from'] ) && null !== self::hex( $raw['gradient']['to'] ) ) {
 			$node['gradient'] = array(
@@ -1290,7 +1313,7 @@ class Block_Resolver {
 				$font[ $field ] = round( max( $range[0], min( $range[1], (float) $value[ $field ] ) ), 2 );
 			}
 		}
-		foreach ( array( 'italic', 'underline' ) as $field ) {
+		foreach ( array( 'italic', 'underline', 'strike', 'uppercase' ) as $field ) {
 			if ( ! empty( $value[ $field ] ) ) {
 				$font[ $field ] = true;
 			}
