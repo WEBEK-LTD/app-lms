@@ -44,6 +44,7 @@ import { chatBusiness } from "@/lib/chat/hosted";
 import { getMediaStorage } from "@/lib/media/storage";
 import { MEDIA_CHUNK_BYTES } from "@/lib/media/signing";
 import { noteAppError } from "@/lib/watch/app-errors";
+import { isTaxiApp, taxiOn } from "@/lib/taxi/settings";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -184,8 +185,8 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
         delivery: hasFeature(plan, "delivery") || app.demo === true,
         // 105.1 Food delivery apps.
         food: hasFeature(plan, "food") || app.demo === true,
-        // 105.2 Ride apps.
-        rides: hasFeature(plan, "rides") || app.demo === true,
+        // 105.2 Ride apps; 105.9 live taxi apps (the same engine) with their own feature.
+        rides: isTaxiApp(app) ? taxiOn(app, plan) : hasFeature(plan, "rides") || app.demo === true,
         // 45 Lessons saved for offline viewing: offline mode in the plan and the owner's choice.
         downloads: hostedDownloadsOn(app, plan),
         // 51 Lesson videos from the Media library, signed for each request.

@@ -18,7 +18,7 @@ import type { BlockType, ItemSource, LayoutBlock, LayoutTab, ScreenName } from "
  */
 
 /** 20 The verticals, as stored and sent (`Config.vertical`, build config `vertical`). */
-export const APP_VERTICALS = ["restaurant", "clinic", "fitness", "charity", "services", "instructors"] as const satisfies readonly AppVertical[];
+export const APP_VERTICALS = ["restaurant", "clinic", "fitness", "charity", "services", "instructors", "taxi"] as const satisfies readonly AppVertical[];
 
 /** Content the client manages in the dashboard, served by the hosted API (a connector kind). */
 export type OwnContentKind = Extract<ConnectorConfig["kind"], "catalog" | "courses" | "bookings" | "listings" | "articles" | "events" | "campaigns" | "deliveries" | "restaurants" | "rides" | "school">;
@@ -1092,6 +1092,41 @@ export const KINDS: readonly KindInfo[] = [
     marketing: { slug: "rides", icon: "local_taxi" },
     reviewNote:
       "This app has two roles. Riders ask for a ride and follow the driver. Drivers of the company sign in with a number the company added and see a Driver tab with the rides offered to them.",
+  },
+  {
+    // 105.9 A live taxi app: the rides engine on a full-screen live map.
+    id: "taxi",
+    engine: "rides",
+    vertical: "taxi",
+    name: "Live taxi on the map",
+    description: "Riders see the free taxis around them move on the map and follow their driver second by second; your drivers get the nearest rides first.",
+    requires: "No website needed: you set your fares and drivers here in the dashboard · Your own Google Maps key or OpenStreetMap tile server, and your own Firebase Realtime Database",
+    icon: "local_taxi",
+    tile: "bg-tile-1 text-[#8A4B12]",
+    marketing: { slug: "taxi", icon: "local_taxi" },
+    categories: { play: "Maps & Navigation", appStore: "Travel" },
+    wording: {
+      nav: {
+        label: "Your taxis",
+        items: [
+          { href: "/dashboard/taxi", label: "Live map", icon: "map" },
+          { href: "/dashboard/rides", label: "Rides", icon: "directions_car" },
+          { href: "/dashboard/drivers", label: "Drivers", icon: "person" },
+          { href: "/dashboard/vehicle-types", label: "Vehicle types", icon: "category" },
+          { href: "/dashboard/rides/statement", label: "Statements", icon: "receipt_long" },
+          { href: "/dashboard/orders", label: "Paid orders", icon: "payments" },
+          { href: "/dashboard/ride-settings", label: "Ride settings", icon: "tune" },
+          { href: "/dashboard/taxi/settings", label: "Maps & live", icon: "layers" },
+        ],
+      },
+      users: "Riders",
+      ownContent: {
+        text: "Set your vehicle types and their fares, your map and your Firebase Realtime Database, and add your drivers here in the dashboard. Riders ask for a taxi on the live map and pay the driver in cash or by card into your own iyzico, Kashier, Fawaterk, Stripe or PayPal account.",
+        next: "After this step, choose your map and add your Firebase Realtime Database on the **Maps & live** page, add your vehicle types and their fares on the **Vehicle types** page, then add your drivers on the **Drivers** page; every taxi and ride shows on the **Live map**. Riders and drivers sign in to the app with",
+      },
+    },
+    reviewNote:
+      "This app has two roles. Riders see the free taxis around them on the map, ask for a taxi and follow the driver. Drivers of the company sign in with a number the company added and see a Driver tab with the rides offered to them.",
   },
   {
     // 105.4 The school engine's one kind.

@@ -74,7 +74,7 @@ async function addApp(store: MemoryStore, client: Client, app: Partial<App> & Pi
 }
 
 /** One app of each kind the Owner API serves. */
-type Kinds = Record<"shop" | "clinic" | "gym" | "school" | "news" | "estate" | "events" | "donations" | "delivery" | "food" | "rides" | "k12", App>;
+type Kinds = Record<"shop" | "clinic" | "gym" | "school" | "news" | "estate" | "events" | "donations" | "delivery" | "food" | "rides" | "k12" | "taxi", App>;
 
 async function appsOf(store: MemoryStore, client: Client, name: string, courses: CourseSetup["courses"]): Promise<Kinds> {
   return {
@@ -101,6 +101,8 @@ async function appsOf(store: MemoryStore, client: Client, name: string, courses:
     rides: await addApp(store, client, { appType: "rides", appName: `${name} rides`, connector: { kind: "rides" }, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS } }),
     // 105.4 A school for students, parents and teachers.
     k12: await addApp(store, client, { appType: "school", appName: `${name} k12`, connector: { kind: "school" }, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS } }),
+    // 105.9 A live taxi company: the rides engine on the live map.
+    taxi: await addApp(store, client, { appType: "rides", vertical: "taxi", appName: `${name} taxi`, connector: { kind: "rides" }, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS } }),
   };
 }
 
@@ -607,6 +609,8 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       fee_id: String(fee.id),
       teacher_id: String(teacher.teacher.id),
       ride_id: String(ride.id),
+      // 105.9 Places are the map provider's, nobody's own: one that names nothing of the other client.
+      place_id: "osm:N1",
       restaurant_id: String(restaurant.id),
       // Food orders are numbered apart from shop orders: their paths get this one (see hosted()).
       food_order_id: String(foodOrder.id),
@@ -682,6 +686,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     if (/^\/(food|restaurant|me\/food-orders)/.test(route)) return "food";
     if (/^\/(rides|driver|me\/rides)/.test(route)) return "rides";
     if (/^\/(school|classroom)\//.test(route)) return "k12";
+    if (/^\/taxi\//.test(route)) return "taxi";
     return "shop";
   }
 

@@ -315,6 +315,41 @@ tags:
       (`RidesConfig.driver_app`): `same`, in the company's app, shown only to
       drivers; `bundle`, in the company's second app made for drivers (build
       config `role: driver`), while its riders' app has none.
+  - name: Taxi
+    description: |
+      Roadmap 105.9. A live taxi app (`Config.taxi`): the rides of the Rides
+      and Driver tags, on a full-screen map where the free taxis around the
+      rider and the rider's driver move as they move. The map is the
+      company's choice: Google Maps with the company's own key, or
+      OpenStreetMap from the company's tile server (`TaxiConfig.map`). Place
+      search and routes go through Yallapp (`/taxi/places`, `/taxi/route`)
+      when the company set them up.
+
+      Live positions are in the company's own Firebase Realtime Database
+      (`TaxiConfig.live`). The app signs in to Firebase with the custom
+      token of `POST /taxi/live-token`, whose claims say what it may read
+      and write, under `root` (`yallapp/<app_id>`):
+
+      - `cells/<cell>/<driver_key>`: `{lat, lng, heading, type, at}`, a free
+        online driver, in the 5-letter geohash cell of their position. Any
+        signed-in person of the app reads them; the driver writes their own
+        (every 2 seconds while online and free; removed when they go
+        offline, take a ride or move to another cell, and on disconnect).
+        `type` is the driver's vehicle type ID, `at` milliseconds since
+        1970. Riders read the cell they are in and the eight around it and
+        drop drivers whose `at` is over a minute old.
+      - `drivers/<driver_key>`: `{lat, lng, heading, at}`, written by the
+        driver every 2 seconds while online; read by the driver and by the
+        rider whose token follows them (claim `follow`).
+      - `rides/<ride_id>`: `{status, driver_key, at}`, written by Yallapp at
+        each stage of the ride; read by its rider (claim `ride`) and its
+        driver.
+
+      Without a live database (`live` null), the app asks
+      `GET /taxi/nearby` and `GET /me/rides/{ride_id}` every
+      `nearby_every_seconds`. The driver's app also sends
+      `PUT /driver/location` as in the Driver tag: rides are offered from
+      those positions.
   - name: Teachers
     description: |
       Roadmap 105.3. Academies with many teachers, on Yallapp's hosted API
@@ -5248,6 +5283,154 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
 
+  /taxi/live-token:
+    post:
+      tags: [Taxi]
+      operationId: createTaxiLiveToken
+      summary: A token to sign in to the live database
+      description: |
+        A Firebase custom token for the company's Firebase project (sign in
+        with it, then use `database_url`), valid for an hour. Its claims:
+        `app` (the app's ID), `role` (`rider` or `driver`), `driver_key`
+        (a driver's own), `ride` and `follow` (the rider's ride that isn't
+        over and its driver's key). Ask for a new one when it expires and
+        when the ride changes (a driver accepted it, it ended).
+        `feature_disabled` (403) when the app has no live database.
+      responses:
+        '200':
+          description: The token
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TaxiLiveToken' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /taxi/nearby:
+    get:
+      tags: [Taxi]
+      operationId: listNearbyTaxis
+      summary: The free taxis around a place
+      description: |
+        The online drivers with no ride, whose position is under a minute
+        old, within the company's matching distance of the place, nearest
+        first, at most 30. For apps without a live database, and for the
+        first look before the live one answers. Positions are rounded to
+        about 10 metres.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - { name: lat, in: query, required: true, schema: { type: number, minimum: -90, maximum: 90 } }
+        - { name: lng, in: query, required: true, schema: { type: number, minimum: -180, maximum: 180 } }
+      responses:
+        '200':
+          description: Taxis
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TaxiNearby' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /taxi/places:
+    get:
+      tags: [Taxi]
+      operationId: searchTaxiPlaces
+      summary: Places for where to
+      description: |
+        Places matching what the rider typed, near them first, from the
+        company's Google Maps (Places) or OpenStreetMap search server
+        (`TaxiConfig.map.search`). A Google place comes without its position:
+        ask `GET /taxi/places/{place_id}` when the rider picks it.
+        `feature_disabled` (403) when the company has no search.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - { name: q, in: query, required: true, schema: { type: string, minLength: 2, maxLength: 100 } }
+        - { name: lat, in: query, schema: { type: number, minimum: -90, maximum: 90 } }
+        - { name: lng, in: query, schema: { type: number, minimum: -180, maximum: 180 } }
+        - name: session
+          in: query
+          description: The same random value for the searches of one choice (Google bills them as one).
+          schema: { type: string, maxLength: 64 }
+      responses:
+        '200':
+          description: Places
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    maxItems: 8
+                    items: { $ref: '#/components/schemas/TaxiPlace' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '502':
+          description: The map provider didn't answer (`map_unavailable`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /taxi/places/{place_id}:
+    get:
+      tags: [Taxi]
+      operationId: getTaxiPlace
+      summary: A place's position
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - { name: place_id, in: path, required: true, schema: { type: string, maxLength: 300 } }
+        - { name: session, in: query, schema: { type: string, maxLength: 64 } }
+      responses:
+        '200':
+          description: The place
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TaxiPlace' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '502':
+          description: The map provider didn't answer (`map_unavailable`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /taxi/route:
+    post:
+      tags: [Taxi]
+      operationId: getTaxiRoute
+      summary: The route between two places
+      description: |
+        The driving route, from the company's Google Maps (Routes) or
+        OpenStreetMap routing server (`TaxiConfig.map.routes`), to draw on
+        the map and to tell how long. `feature_disabled` (403) when the
+        company has none: the app draws a straight line.
+      security: [{}, { bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [from, to]
+              properties:
+                from: { $ref: '#/components/schemas/LatLng' }
+                to: { $ref: '#/components/schemas/LatLng' }
+      responses:
+        '200':
+          description: The route
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TaxiRoute' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '502':
+          description: The map provider didn't answer (`map_unavailable`), or has no route between the places (`no_route`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
   /teachers:
     get:
       tags: [Teachers]
@@ -7199,6 +7382,11 @@ components:
         food: { $ref: '#/components/schemas/FoodConfig' }
         rides: { $ref: '#/components/schemas/RidesConfig' }
         school: { $ref: '#/components/schemas/SchoolConfig' }
+        taxi:
+          description: Roadmap 105.9. Live taxi apps (rides on the live map); null or missing for other apps, which have `rides` alone.
+          oneOf:
+            - $ref: '#/components/schemas/TaxiConfig'
+            - type: 'null'
         instructors:
           description: Roadmap 105.3. Academies with many teachers; null or missing for other apps.
           oneOf:
@@ -7206,7 +7394,7 @@ components:
             - type: 'null'
         vertical:
           type: [string, 'null']
-          enum: [restaurant, clinic, fitness, charity, services, instructors, null]
+          enum: [restaurant, clinic, fitness, charity, services, instructors, taxi, null]
           description: |
             The kind of business the app is for, on top of its type (the module
             in the build): it changes wording and defaults in the app, never
@@ -11294,6 +11482,104 @@ components:
           properties:
             tiles_url: { type: [string, 'null'] }
             attribution: { type: [string, 'null'] }
+
+    TaxiConfig:
+      type: object
+      description: A live taxi app's map and live database (roadmap 105.9). Its rides are `Config.rides`.
+      required: [map, live, nearby_every_seconds]
+      properties:
+        map:
+          type: object
+          required: [provider, tiles_url, attribution, search, routes]
+          properties:
+            provider:
+              type: string
+              enum: [google, osm]
+              description: '`google`: Google Maps with the company''s key; `osm`: OpenStreetMap from the company''s tile server.'
+            tiles_url:
+              type: [string, 'null']
+              description: |
+                The map's tiles, with `{z}`, `{x}` and `{y}`: Google's 2D tiles
+                (Map Tiles API, with the company's key and a session) or the
+                company's OpenStreetMap tile server. Null while the company
+                hasn't set it up: the app shows no map behind the taxis.
+              example: 'https://tiles.example.com/{z}/{x}/{y}.png'
+            attribution: { type: [string, 'null'], description: 'Shown on the map, as the provider asks.', example: '© OpenStreetMap contributors' }
+            search: { type: boolean, description: '`GET /taxi/places` works.' }
+            routes: { type: boolean, description: '`POST /taxi/route` works.' }
+        live:
+          description: The company's Firebase Realtime Database; null without one (the app asks Yallapp every `nearby_every_seconds`).
+          oneOf:
+            - type: object
+              required: [database_url, root]
+              properties:
+                database_url: { type: string, format: uri, example: 'https://lamha-taxi-default-rtdb.firebaseio.com' }
+                root: { type: string, example: yallapp/42 }
+            - type: 'null'
+        nearby_every_seconds: { type: integer, minimum: 2, example: 5, description: 'How often to ask `GET /taxi/nearby` without a live database.' }
+
+    TaxiLiveToken:
+      type: object
+      required: [token, database_url, root, expires_at, role, driver_key, ride_id, follow]
+      properties:
+        token: { type: string, description: A Firebase custom token. }
+        database_url: { type: string, format: uri }
+        root: { type: string, example: yallapp/42 }
+        expires_at: { type: string, format: date-time }
+        role: { type: string, enum: [rider, driver] }
+        driver_key: { type: [string, 'null'], description: "The driver's own key, for a driver.", example: d17 }
+        ride_id: { type: [integer, 'null'], description: "The rider's ride that isn't over." }
+        follow: { type: [string, 'null'], description: "That ride's driver's key, once a driver accepted it." }
+
+    TaxiNearby:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          maxItems: 30
+          items:
+            type: object
+            required: [driver_key, lat, lng, heading, vehicle_type_id]
+            properties:
+              driver_key: { type: string, example: d17 }
+              lat: { type: number }
+              lng: { type: number }
+              heading: { type: [number, 'null'], description: Degrees from north. }
+              vehicle_type_id: { type: [integer, 'null'] }
+
+    TaxiPlace:
+      type: object
+      required: [id, name, address, lat, lng]
+      properties:
+        id: { type: string, description: "The provider's ID of the place (`osm:` before OpenStreetMap's)." }
+        name: { type: string, example: Mall of Egypt }
+        address: { type: [string, 'null'], example: 'Wahat Road, 6th of October' }
+        lat: { type: [number, 'null'], description: 'Null for a Google place from a search: ask `GET /taxi/places/{place_id}`.' }
+        lng: { type: [number, 'null'] }
+
+    LatLng:
+      type: object
+      required: [lat, lng]
+      properties:
+        lat: { type: number, minimum: -90, maximum: 90 }
+        lng: { type: number, minimum: -180, maximum: 180 }
+
+    TaxiRoute:
+      type: object
+      required: [distance_km, minutes, points]
+      properties:
+        distance_km: { type: number, example: 14.2 }
+        minutes: { type: integer, example: 22, description: 'Driving time, with the traffic now when the provider knows it.' }
+        points:
+          type: array
+          maxItems: 500
+          description: The route's line, `[lat, lng]` pairs.
+          items:
+            type: array
+            minItems: 2
+            maxItems: 2
+            items: { type: number }
 
     VehicleType:
       type: object

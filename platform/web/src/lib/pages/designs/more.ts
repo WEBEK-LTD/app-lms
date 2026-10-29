@@ -588,6 +588,85 @@ export const RIDES_DESIGNS: Design[] = [
   },
 ];
 
+const taxiTabs = [homeTab, screenTab("ride", "Taxi", "local_taxi", "ride"), screenTab("rides", "My rides", "receipt_long", "my_rides"), accountTab];
+
+/** 105.9 Live taxi on the map. */
+export const TAXI_DESIGNS: Design[] = [
+  {
+    id: "taxi-live",
+    kind: "taxi",
+    name: "Live taxi",
+    description: "Where to? The free taxis around you on the map, one tap to ask and your driver second by second.",
+    look: { template: "bold", corners: "round", cards: "elevated", font: "Outfit", secondary_color: "#F5B400" },
+    tabs: taxiTabs,
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          slider([slide("Where to?", "The nearest taxi comes to you", screen("ride"))], false),
+          button("ride", "Ask for a taxi", screen("ride")),
+          list("vehicle_types", "Our taxis", "vehicle_types", "list", { seeAll: screen("ride") }),
+          stats([stat("3 min", "The nearest taxi"), stat("24/7", "Day and night"), stat("Live", "On the map")]),
+          faq("Questions", [question("How do I pay?", "In cash to the driver, or by card when your ride ends.")]),
+          contact(),
+        ],
+      },
+    ],
+  },
+  {
+    id: "taxi-city",
+    kind: "taxi",
+    name: "City taxi",
+    description: "A notice for today's offer, quick links to ask and follow, and your taxis side by side.",
+    look: { template: "classic", corners: "soft", cards: "outlined", font: "Plus Jakarta Sans", secondary_color: "#FFD23F" },
+    tabs: taxiTabs,
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          notice("info", "Write today's offer or a promo code here.", "Ask now", screen("ride")),
+          quickLinks([
+            link("local_taxi", "Taxi", screen("ride")),
+            link("receipt_long", "My rides", screen("my_rides")),
+            link("notifications", "Updates", screen("notifications")),
+            link("person", "Account", screen("account")),
+          ]),
+          list("vehicle_types", "Choose your taxi", "vehicle_types", "carousel", { seeAll: screen("ride") }),
+          testimonials("What riders say", [quote("Write what a rider says about your drivers.", "Rider's name")]),
+          contact(),
+        ],
+      },
+    ],
+  },
+  {
+    id: "taxi-night",
+    kind: "taxi",
+    name: "Night taxi",
+    description: "Dark and calm: a welcome, your taxis, safety on every ride and a team to talk to.",
+    look: { template: "minimal", corners: "soft", cards: "flat", font: "Manrope", secondary_color: "#F2C14E" },
+    tabs: taxiTabs,
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          text("welcome", "<h2>A taxi, whenever you need one</h2><p>{app} shows you the nearest taxi and its driver on the way.</p>"),
+          button("ride", "Ask for a taxi", screen("ride")),
+          list("vehicle_types", "Our taxis", "vehicle_types", "list", { seeAll: screen("ride") }),
+          faq("Safety", [question("Can I share my ride?", "Yes: share the ride's link with anyone, they see the driver, the car and where it is until you arrive.")]),
+          team("Talk to us", [person("Your name", "Customer service")]),
+          contact(),
+        ],
+      },
+    ],
+  },
+];
+
 const schoolTabs = [homeTab, screenTab("school", "School", "school", "school"), accountTab];
 
 /** 105.4 Schools: students, parents and teachers (teachers also get the Classroom tab in the app). */

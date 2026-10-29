@@ -2626,6 +2626,44 @@ chalets: guests find and book a room, and use the app during their stay.
 | [ ] | 105.7.5 App, staff: reception, housekeeping and restaurant tabs | widget tests |
 | [ ] | 105.7.6 Studio templates and sections for hotels; review accounts for guest and staff (the reviewers' bookings hold no real room) | unit tests, e2e |
 
+### 105.9 Live taxi on the map (Studio project type `taxi`)
+
+A taxi company's app where everything moves on the map as it happens: the
+rider opens the app on a full-screen map with the free taxis around them
+moving, sets where to, sees the route, the fare and how soon, and follows
+the driver coming second by second. A new Studio kind on 105.2's rides
+engine (vertical `taxi`), so its fares, drivers, matching and the drivers'
+app are 105.2's; 105.2's Ride hailing kind stays as it is. Name in the
+demos: Lamha Taxi (an invented name).
+
+- **Maps, the company's choice in the dashboard**: Google Maps with the
+  company's own API key (the app draws Google's tiles through the Map Tiles
+  API; place search and routes go through Yallapp's server with the same
+  key, never shown to riders' phones beyond the tiles), or OpenStreetMap
+  with the company's tile server (OpenStreetMap's own servers aren't for
+  apps), and optionally its search (Nominatim) and routing (OSRM) servers.
+  A test button checks each.
+- **Live, on the company's own Firebase Realtime Database** (its URL in the
+  dashboard, in the Firebase project of the app's service account; a test
+  button, and the database rules to paste): the app signs in to Firebase
+  with a token Yallapp gives it; drivers write their position every two
+  seconds; riders read the free taxis in the cells around them and their
+  own driver; Yallapp writes each ride's stage. Without it, the app asks
+  Yallapp every five seconds.
+- **Dispatch**: 105.2's nearest free driver first with a countdown, then
+  the next; the time to the pickup from the route.
+- **The company**: a live map of drivers (free, on a ride) and rides
+  waiting, on the dashboard.
+
+| Done | Step | Checked by |
+| --- | --- | --- |
+| [ ] | 105.9.1 Contract: kind `taxi` (`app_type` `rides`, vertical `taxi`); `Config.taxi` (map provider, tiles, live database); `/taxi/live-token`, `/taxi/nearby`, `/taxi/places`, `/taxi/route`; plan feature `taxi` | redocly lint |
+| [ ] | 105.9.2 Platform: the kind, its settings and checks (maps key or tile server, live database), live tokens, nearby taxis, place search and routes through Yallapp, ride stages written to the live database | unit tests, isolation tests |
+| [ ] | 105.9.3 Dashboard (en/ar/tr) in Studio: Live map, Maps and live settings | unit tests, e2e |
+| [ ] | 105.9.4 App, rider (after the owner approves the look): the full-screen map with the taxis around, where to, route and fares, finding a driver, the driver coming, the ride | widget tests |
+| [ ] | 105.9.5 App, driver: online on the map, the offer with its countdown, the position written live, navigation | widget tests |
+| [ ] | 105.9.6 Studio templates and designs, the demo app, the store reviewers' notes | unit tests, e2e |
+
 ### 105.8 Car rental and laundry
 
 Each its own small step after the ones above: car rental (cars, dates,

@@ -65,14 +65,14 @@ const ADVANCE_BATCH = 50;
  * person is.
  */
 export class RidesConnector implements Connector {
-  constructor(private readonly deps: RidesDeps) {}
+  constructor(protected readonly deps: RidesDeps) {}
 
-  private async settings(): Promise<{ settings: DeliverySettings; rides: RidesSettings }> {
+  protected async settings(): Promise<{ settings: DeliverySettings; rides: RidesSettings }> {
     const settings = deliverySettingsOf(await this.deps.store.getDeliverySettings(this.deps.app.id));
     return { settings, rides: ridesSettingsOf(settings) };
   }
 
-  private async types(): Promise<VehicleType[]> {
+  protected async types(): Promise<VehicleType[]> {
     return offeredTypes(await this.deps.store.listVehicleTypes(this.deps.app.id));
   }
 
@@ -80,7 +80,7 @@ export class RidesConnector implements Connector {
     return paymentsSetUp(this.deps.app) && this.deps.cardPayments !== false;
   }
 
-  private flow(now: Date) {
+  protected flow(now: Date) {
     return { store: this.deps.store, app: this.deps.app, now };
   }
 
@@ -171,14 +171,20 @@ export class RidesConnector implements Connector {
     }
     const previous = user ? await this.unpaidFee(user) : null;
     const previousFeeCents = previous?.cancellation?.feeCents ?? 0;
-    const km = roadKm(input.pickup as { lat: number; lng: number }, input.dropoff as { lat: number; lng: number });
-    const minutes = minutesFor(km, rides.speedKmh);
+    const routed = await this.routeOf(input.pickup as { lat: number; lng: number }, input.dropoff as { lat: number; lng: number });
+    const km = routed?.km ?? roadKm(input.pickup as { lat: number; lng: number }, input.dropoff as { lat: number; lng: number });
+    const minutes = routed?.minutes ?? minutesFor(km, rides.speedKmh);
     const options = types.map((type) => {
       const fare = fareCents(type, km, minutes);
       const discount = discountCents(promo, fare);
       return { type, fareCents: fare - discount + previousFeeCents, discountCents: discount };
     });
     return { settings, rides, types, promo, previous, previousFeeCents, km, minutes, options };
+  }
+
+  /** 105.9 The driving distance and time between the places from a map provider; null: estimated from the straight line. */
+  protected async routeOf(_from: { lat: number; lng: number }, _to: { lat: number; lng: number }): Promise<{ km: number; minutes: number } | null> {
+    return null;
   }
 
   private async estimate(request: ConnectorRequest): Promise<ConnectorResult> {
@@ -381,7 +387,7 @@ export class RidesConnector implements Connector {
   // The driver
 
   /** The driver the signed-in person is, or null. Suspended drivers aren't. The store review account is a driver too. */
-  private async driverOf(user: HostedUser | null, now: Date): Promise<Courier | null> {
+  protected async driverOf(user: HostedUser | null, now: Date): Promise<Courier | null> {
     if (!user) return null;
     const found = (await this.deps.store.findCourier(this.deps.app.id, courierWho(user))) ?? (await reviewDriverFor(this.deps.store, this.deps.app, user, now));
     return found && found.active ? found : null;

@@ -194,5 +194,17 @@
   "school-calm": {
     "primary": "#354F52",
     "secondary": "#84A98C"
+  },
+  "taxi-live": {
+    "primary": "#111827",
+    "secondary": "#F5B400"
+  },
+  "taxi-city": {
+    "primary": "#1F2937",
+    "secondary": "#FFD23F"
+  },
+  "taxi-night": {
+    "primary": "#0B1020",
+    "secondary": "#F2C14E"
   }
 }

@@ -580,6 +580,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     ...(extra.food ? { food: extra.food } : {}),
     // 105.2 Ride hailing
     ...(extra.rides ? { rides: extra.rides } : {}),
+    // 105.9 Live taxi on the map
+    ...(extra.taxi ? { taxi: extra.taxi } : {}),
     // 105.3 Academies with many teachers
     ...(teachersOn(app, ctx.plan) ? { instructors: { applications: courseSetup(app).teachersApply === true, timezone: await appZone(ctx.store, app) } } : {}),
     // 105.4 Schools

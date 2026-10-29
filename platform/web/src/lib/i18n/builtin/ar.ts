@@ -526,6 +526,19 @@ export const PAGE_TEXTS_AR: Record<string, string> = {
   "<h2>Welcome</h2><p>our app keeps families and teachers close: the timetable, homework, grades and news.</p>": "<h2>أهلًا بك</h2><p>يقرّب تطبيقنا بين الأسر والمعلّمين: الجدول والواجبات والدرجات والأخبار.</p>",
   "Students": "الطلاب",
   "School office": "إدارة المدرسة",
+  // 105.9 Live taxi designs
+  "Taxi": "تاكسي",
+  "The nearest taxi comes to you": "أقرب تاكسي يأتي إليك",
+  "Ask for a taxi": "اطلب تاكسي",
+  "Our taxis": "سياراتنا",
+  "3 min": "3 دقائق",
+  "The nearest taxi": "أقرب تاكسي",
+  "Live": "مباشر",
+  "On the map": "على الخريطة",
+  "Ask now": "اطلب الآن",
+  "Choose your taxi": "اختر سيارتك",
+  "<h2>A taxi, whenever you need one</h2><p>{app} shows you the nearest taxi and its driver on the way.</p>": "<h2>تاكسي وقتما تحتاجه</h2><p>يريك {app} أقرب تاكسي وسائقه في الطريق إليك.</p>",
+  "<h2>A taxi, whenever you need one</h2><p>our app shows you the nearest taxi and its driver on the way.</p>": "<h2>تاكسي وقتما تحتاجه</h2><p>يريك تطبيقنا أقرب تاكسي وسائقه في الطريق إليك.</p>",
 };
 
 /** Messages the hosted API answers with (errors, refusals). */
@@ -905,4 +918,15 @@ export const SERVER_MESSAGES_AR: Record<string, string> = {
   "A score is from 0 to {0}.": "الدرجة من 0 إلى {0}.",
   "You don't teach this class.": "أنت لا تدرّس هذا الفصل.",
   "Write the message, up to 2000 characters.": "اكتب الرسالة، حتى 2000 حرف.",
+  // 105.9 Live taxi
+  "Place search isn't set up in this app.": "البحث عن الأماكن غير مُعد في هذا التطبيق.",
+  "Routes aren't set up in this app.": "المسارات غير مُعدة في هذا التطبيق.",
+  "Too many requests. Please wait a moment.": "طلبات كثيرة جدًا. انتظر قليلًا من فضلك.",
+  "Place not found.": "المكان غير موجود.",
+  "This app has no live database.": "لا توجد قاعدة بيانات مباشرة لهذا التطبيق.",
+  "Give the place's lat and lng.": "أرسل خط العرض وخط الطول للمكان.",
+  "Type at least 2 letters.": "اكتب حرفين على الأقل.",
+  "Give both places' lat and lng.": "أرسل خط العرض وخط الطول للمكانين.",
+  "There's no road between these places.": "لا يوجد طريق بين هذين المكانين.",
+  "The map isn't answering right now. Please try again.": "الخريطة لا تستجيب الآن. حاول مرة أخرى.",
 };

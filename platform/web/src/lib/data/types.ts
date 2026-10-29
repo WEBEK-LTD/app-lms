@@ -181,7 +181,7 @@ export interface ScreenshotFrame {
 export type AppType = "lms" | "store" | "booking" | "real_estate" | "news" | "events" | "donations" | "delivery" | "food" | "rides" | "school";
 
 /** 20 The kind of business, on top of the engine: wording, defaults, the demo and marketing, never routes (lib/app/kinds.ts). */
-export type AppVertical = "restaurant" | "clinic" | "fitness" | "charity" | "services" | "instructors";
+export type AppVertical = "restaurant" | "clinic" | "fitness" | "charity" | "services" | "instructors" | "taxi";
 
 /**
  * Where the app's content comes from: the Yallapp plugin on the client's
@@ -3049,6 +3049,30 @@ export interface DeliverySettings {
   timezone?: string;
   /** 105.2 Ride apps: how rides are priced, matched and cancelled. */
   rides?: RidesSettings;
+  /** 105.9 Live taxi apps: the map and the live database. */
+  taxi?: TaxiSettings;
+}
+
+/** 105.9 Whose map a live taxi app draws. */
+export type TaxiMapProvider = "google" | "osm";
+
+/** 105.9 A live taxi app's map and live database (Dashboard › Maps & live). */
+export interface TaxiSettings {
+  provider: TaxiMapProvider;
+  /** Google: the company's API key, sealed (`taxiMapsKeyContext`). */
+  googleKeyEncrypted: string | null;
+  /** Google: the Map Tiles API session the app's tiles use, until it expires (ISO time). */
+  googleSession: { token: string; expiresAt: string } | null;
+  /** OpenStreetMap: the company's tile server, with {z}, {x} and {y}. */
+  tilesUrl: string | null;
+  /** OpenStreetMap: what the map shows for its data and tiles. */
+  attribution: string | null;
+  /** OpenStreetMap: a Nominatim search server; null: no place search. */
+  searchUrl: string | null;
+  /** OpenStreetMap: an OSRM routing server; null: no routes. */
+  routingUrl: string | null;
+  /** The company's Firebase Realtime Database; null: the app asks Yallapp. */
+  databaseUrl: string | null;
 }
 
 /** A service the customer chooses (same-day, express, documents), adding its own amount to the price. */
