@@ -66,7 +66,7 @@ const REAL_ESTATE_QUESTIONS = [
   question("Can I hear about new homes first?", "Yes. Turn on notifications and we tell you when new homes are listed."),
 ];
 
-const HOMES_PHOTOS = ["art-home-zamalek.png", "art-home-maadi.png", "art-home-newcairo.png", "art-room-living.png", "art-room-kitchen.png", "art-room-bedroom.png", "art-home-heliopolis.png", "art-home-garden-city.png"];
+const HOMES_PHOTOS = ["art-home-zamalek.png", "art-home-maadi.png", "art-room-living.png", "art-room-kitchen.png", "art-room-bedroom.png", "art-home-garden-city.png"];
 
 const REAL_ESTATE_CONTACT = "<p>Looking to buy, rent or sell? Send us a message and the right agent will call you back the same day.</p>";
 
@@ -183,7 +183,7 @@ export const REAL_ESTATE_DESIGNS: Design[] = [
           testimonials("What tenants say", [
             quote("I booked three viewings on Saturday from my phone and signed on Monday.", "Youssef R.", "Tenant"),
             quote("The rent in the app was the rent I paid. No surprises.", "Gül S.", "Tenant"),
-            quote("They found good tenants for my flat and handle every repair.", "Mert Y.", "Owner"),
+            quote("They found good tenants for my flat and handle every repair.", "Mert Y.", "Landlord"),
           ]),
           faq("Questions", [REAL_ESTATE_QUESTIONS[0]!, REAL_ESTATE_QUESTIONS[5]!, REAL_ESTATE_QUESTIONS[1]!, REAL_ESTATE_QUESTIONS[6]!]),
           hours("Office hours", [...days(WEEKDAYS_ONLY, "09:00", "18:00"), ...days(["sat"], "10:00", "15:00")]),
@@ -285,7 +285,7 @@ export const NEWS_DESIGNS: Design[] = [
           slider([
             slide("The news as it happens", "Turn on notifications for breaking news", screen("notifications")),
             slide("Your city, every day", "Traffic, prices, schools and sport", screen("articles")),
-            slide("Save it for later", "Read your saved stories offline", screen("bookmarks")),
+            slide("Save it for later", "Find them all under Saved", screen("bookmarks")),
           ]),
           list("top-stories", "Top stories", "articles", "carousel", { featured: true, limit: 5 }),
           categories("Sections", "articles"),
@@ -410,7 +410,7 @@ const FOOD = question("Can I bring food and drinks?", "Please don't bring your o
 const ACCESS = question("Is the venue accessible?", "Yes: step-free entrances, lifts and accessible toilets. Tell us if you need a hand.");
 const TICKET_QUESTIONS = [PRINT, REFUND, FRIEND, DOORS, AGE, FOOD, ACCESS];
 
-const VENUE_PHOTOS = ["art-place-stage.png", "art-event-jazz.png", "art-event-film.png", "art-event-talk.png", "art-event-photo.png", "art-place-hall.png", "art-event-ceramics.png"];
+const VENUE_PHOTOS = ["art-place-stage.png", "art-event-jazz.png", "art-event-film.png", "art-event-talk.png", "art-event-photo.png", "art-place-hall.png"];
 
 const EVENTS_CONTACT = "<p>Questions about tickets, an event or hiring the venue? Send us a message, or visit the box office.</p>";
 

@@ -55,6 +55,7 @@ class Shot {
     this.size = shotSize,
     this.signedIn = true,
     this.loading = false,
+    this.build,
   });
 
   final String name;
@@ -76,6 +77,9 @@ class Shot {
   /// Captures the first frame after [location] opens (loading states).
   final bool loading;
 
+  /// 110.3 Changes to the build config (the app's name in the header).
+  final BuildConfigData Function(BuildConfigData build)? build;
+
   Future<void> render(WidgetTester tester) async {
     final lightIcons = ValueNotifier(dark);
     addTearDown(lightIcons.dispose);
@@ -93,6 +97,7 @@ class Shot {
         ...preferences,
       },
       wrap: (app) => withStatusBar(app, lightIcons: lightIcons),
+      build: build,
     );
     await app.pump(tester);
     final router = app.container.read(appRouterProvider);

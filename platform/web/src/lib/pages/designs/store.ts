@@ -252,7 +252,7 @@ const CAFE_SPECIALS = [
   card("Baked cheesecake", "A slice of our best seller.", "art-dish-cheesecake.png", screen("courses")),
 ];
 
-const PLACE_PHOTOS = ["art-place-cafe.png", "art-dish-breakfast.png", "art-dish-burger.png", "art-drink-coffee.png", "art-dish-cheesecake.png", "art-place-hall.png", "art-dish-soup.png", "art-drink-latte.png"];
+const PLACE_PHOTOS = ["art-place-cafe.png", "art-dish-breakfast.png", "art-drink-coffee.png", "art-dish-cheesecake.png", "art-place-hall.png", "art-drink-latte.png"];
 
 const RESTAURANT_CONTACT = "<p>Book a table, ask about a dish or plan an event: call us, write, or send us a message here.</p>";
 

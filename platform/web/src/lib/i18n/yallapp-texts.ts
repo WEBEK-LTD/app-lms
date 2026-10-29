@@ -82,7 +82,8 @@ export function yallappPageTexts(): string[] {
       add(layoutTexts(layout));
     }
   }
-  // 110.3 The About us and Contact pages a team's design gets when it has none.
+  // 99.1 The banner a home page without slides gets (a team's design), and 110.3 the About us and Contact pages it gets when it has none.
+  texts.add("Welcome to {app}");
   add(layoutTexts({ tabs: [], pages: [aboutPage(), contactPage()].map((p) => ({ ...p, updated_at: now.toISOString() })) }));
   // What a new block starts with: placeholders, titles and quick links to the app's screens.
   for (const appType of APP_TYPES) {

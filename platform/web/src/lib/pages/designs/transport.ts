@@ -335,7 +335,7 @@ export const DELIVERY_DESIGNS: Design[] = [
             [
               slide("Your shop's own couriers", "Daily pickups at a time you choose", screen("send_parcel")),
               slide("One invoice a month", "Every delivery listed", page("contact")),
-              slide("Your customers can follow it", "A link with every parcel", screen("shipments")),
+              slide("Your customers can follow it", "Every step, from pickup to their door", screen("shipments")),
             ],
             false,
           ),
@@ -546,7 +546,7 @@ export const RIDES_DESIGNS: Design[] = [
             [
               slide("Newer cars, more room", "For the ride home or to the airport", screen("ride")),
               slide("Drivers you can trust", "Checked before their first ride", page("how-it-works")),
-              slide("Book ahead", "For early flights and late dinners", screen("ride")),
+              slide("Off to the airport?", "Room for you and your bags", screen("ride")),
             ],
             false,
           ),

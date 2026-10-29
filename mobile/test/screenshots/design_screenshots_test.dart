@@ -15,6 +15,10 @@
 /// the design's own pictures (read from `YALLAPP_PICTURES`, by default the
 /// platform's public/design-pictures). Each design gives three pictures:
 /// `<id>-<lang>-top.png`, `-mid.png` and `-more.png`, further down.
+/// 110.3 `YALLAPP_PAGES` (`home,about,contact,faq`; by default `home`) names
+/// the pages to picture: another page gives `<id>-<lang>-<slug>-top.png`
+/// and `-mid.png`, opened as from the side menu (a design without it is
+/// skipped).
 @Tags(['screenshots'])
 library;
 
@@ -27,6 +31,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
+import 'package:yallapp/core/routing/paths.dart';
 
 import '../support/fake_api.dart';
 import '../support/fixtures.dart';
@@ -41,6 +46,12 @@ const _pictures = String.fromEnvironment(
   'YALLAPP_PICTURES',
   defaultValue: '../platform/web/public/design-pictures',
 );
+
+/// 110.3 The pages to picture, by slug.
+final _pageSlugs = const String.fromEnvironment(
+  'YALLAPP_PAGES',
+  defaultValue: 'home',
+).split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
 
 /// Where the designs' pictures are served in the JSON (`pictureBase`).
 const _pictureHost = 'https://yallapp.test/design-pictures/';
@@ -377,7 +388,8 @@ void main() {
     final folder = Directory(_pictures);
     if (!folder.existsSync()) return;
     for (final file in folder.listSync().whereType<File>()) {
-      if (!file.path.endsWith('.jpg')) continue;
+      // 110.3 The drawn pictures of the designs' pages are PNG files.
+      if (!file.path.endsWith('.jpg') && !file.path.endsWith('.png')) continue;
       final codec = await ui.instantiateImageCodec(file.readAsBytesSync());
       final frame = await codec.getNextFrame();
       _pictureImages['$_pictureHost${file.uri.pathSegments.last}'] =
@@ -391,102 +403,115 @@ void main() {
     final appearance = design['appearance'] as Map<String, dynamic>;
     final pages = (design['pages'] as List).cast<Map<String, dynamic>>();
     final home = pages.first;
-    // The top of the home page, and further down where the other blocks are.
-    for (final (part, scroll) in [
-      ('top', 0.0),
-      ('mid', 680.0),
-      ('more', 1360.0),
-    ]) {
-      testWidgets('$id $_lang $part', (tester) async {
-        // The design's pictures, as the app would download them (the cache
-        // must hold them all: they are bigger than its default size).
-        final cache = PaintingBinding.instance.imageCache
-          ..maximumSizeBytes = 1 << 30
-          ..maximumSize = 2000;
-        for (final MapEntry(:key, :value) in _pictureImages.entries) {
-          if (!key.startsWith('$_pictureHost$id-')) continue;
-          cache.putIfAbsent(
-            NetworkImage(key),
-            () => OneFrameImageStreamCompleter(
-              SynchronousFuture(ImageInfo(image: value.clone())),
+    for (final slug in _pageSlugs) {
+      if (!pages.any((p) => p['slug'] == slug)) continue;
+      final isHome = slug == 'home';
+      final name = isHome ? '$id-$_lang' : '$id-$_lang-$slug';
+      // The top of the page, and further down where the other blocks are.
+      for (final (part, scroll) in [
+        ('top', 0.0),
+        ('mid', 680.0),
+        if (isHome) ('more', 1360.0),
+      ]) {
+        testWidgets('$id $_lang $slug $part', (tester) async {
+          // The design's pictures, as the app would download them (the cache
+          // must hold them all: they are bigger than its default size).
+          final cache = PaintingBinding.instance.imageCache
+            ..maximumSizeBytes = 1 << 30
+            ..maximumSize = 2000;
+          for (final MapEntry(:key, :value) in _pictureImages.entries) {
+            if (!key.startsWith('$_pictureHost$id-') &&
+                !key.startsWith('${_pictureHost}art-')) {
+              continue;
+            }
+            cache.putIfAbsent(
+              NetworkImage(key),
+              () => OneFrameImageStreamCompleter(
+                SynchronousFuture(ImageInfo(image: value.clone())),
+              ),
+            );
+          }
+          List<Map<String, dynamic>> tabs(String key) => [
+            for (final t in (design[key] as List? ?? const []))
+              _translated(t as Map<String, dynamic>),
+          ];
+          final shot = Shot(
+            '$name-$part',
+            location: isHome ? null : '${Paths.pagePrefix}$slug',
+          // The app's own name, as its header shows it.
+          build: (b) => b.copyWith(appName: design['name'] as String),
+            appType: _appType(design['engine'] as String),
+            template: AppTemplate.values.byName(
+              appearance['template'] as String,
             ),
-          );
-        }
-        List<Map<String, dynamic>> tabs(String key) => [
-          for (final t in (design[key] as List? ?? const []))
-            _translated(t as Map<String, dynamic>),
-        ];
-        final shot = Shot(
-          '$id-$_lang-$part',
-          appType: _appType(design['engine'] as String),
-          template: AppTemplate.values.byName(appearance['template'] as String),
-          language: _lang,
-          api: () {
-            final api =
-                _demo(
-                    kind,
-                    design['vertical'] as String?,
-                    appearance,
-                    design['name'] as String,
-                  )
-                  ..navigation = {
-                    'version': 'design.$id.$_lang',
-                    'tabs': tabs('tabs'),
-                    'more': <Object>[],
-                    // The About us and Contact pages are in the side menu.
-                    'menu': tabs('menu'),
-                    'pages': [
+            language: _lang,
+            api: () {
+              final api =
+                  _demo(
+                      kind,
+                      design['vertical'] as String?,
+                      appearance,
+                      design['name'] as String,
+                    )
+                    ..navigation = {
+                      'version': 'design.$id.$_lang',
+                      'tabs': tabs('tabs'),
+                      'more': <Object>[],
+                      // The About us and Contact pages are in the side menu.
+                      'menu': tabs('menu'),
+                      'pages': [
+                        for (final p in pages)
+                          {
+                            'slug': p['slug'],
+                            'title': _translated(p)['title'],
+                            'updated_at': p['updated_at'],
+                          },
+                      ],
+                    }
+                    ..pages = {
                       for (final p in pages)
-                        {
+                        p['slug'] as String: {
                           'slug': p['slug'],
                           'title': _translated(p)['title'],
                           'updated_at': p['updated_at'],
+                          'show_title': p['show_title'],
+                          'blocks': [
+                            for (final b
+                                in (p['blocks'] as List)
+                                    .cast<Map<String, dynamic>>())
+                              ?_resolve(b, kind),
+                          ],
                         },
-                    ],
-                  }
-                  ..pages = {
-                    for (final p in pages)
-                      p['slug'] as String: {
-                        'slug': p['slug'],
-                        'title': _translated(p)['title'],
-                        'updated_at': p['updated_at'],
-                        'show_title': p['show_title'],
-                        'blocks': [
-                          for (final b
-                              in (p['blocks'] as List)
-                                  .cast<Map<String, dynamic>>())
-                            ?_resolve(b, kind),
-                        ],
-                      },
-                  };
-            return api as FakeApi;
-          },
-          after: scroll == 0
-              ? null
-              : (tester, router) async {
-                  await tester.drag(
-                    find.byType(Scrollable).first,
-                    Offset(0, -scroll),
-                  );
-                },
-        );
-        // Real shadows for raised cards (tests draw them as outlines).
-        debugDisableShadows = false;
-        await shot.render(tester);
-        expect(home['blocks'], isNotEmpty);
-        final boundary = tester.renderObject<RenderRepaintBoundary>(
-          find.byKey(shotKey),
-        );
-        await tester.runAsync(() async {
-          // A smaller picture than the website's: enough to review.
-          final image = await boundary.toImage(pixelRatio: 2);
-          final data = await image.toByteData(format: ui.ImageByteFormat.png);
-          image.dispose();
-          await File('$_out/$id-$_lang-$part.png')
-              .writeAsBytes(Uint8List.view(data!.buffer));
+                    };
+              return api as FakeApi;
+            },
+            after: scroll == 0
+                ? null
+                : (tester, router) async {
+                    await tester.drag(
+                      find.byType(Scrollable).first,
+                      Offset(0, -scroll),
+                    );
+                  },
+          );
+          // Real shadows for raised cards (tests draw them as outlines).
+          debugDisableShadows = false;
+          await shot.render(tester);
+          expect(home['blocks'], isNotEmpty);
+          final boundary = tester.renderObject<RenderRepaintBoundary>(
+            find.byKey(shotKey),
+          );
+          await tester.runAsync(() async {
+            // A smaller picture than the website's: enough to review.
+            final image = await boundary.toImage(pixelRatio: 2);
+            final data = await image.toByteData(format: ui.ImageByteFormat.png);
+            image.dispose();
+            await File('$_out/$name-$part.png')
+                .writeAsBytes(Uint8List.view(data!.buffer));
+          });
+          debugDisableShadows = true;
         });
-        debugDisableShadows = true;
-      });
+      }
     }
   }
 

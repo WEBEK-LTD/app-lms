@@ -127,7 +127,7 @@ export const BOOKINGS_DESIGNS: Design[] = [
           "<p>{app} opened with two chairs and one rule: listen first. Before we pick up the scissors we talk about your hair, your time in the mornings and what you'd love to change. Our stylists train every season, we use products that are kind to your hair, and we keep our prices clear. Book in the app, choose who you see and get a reminder the day before. We'll have the tea ready.</p>",
         people: { title: "Our team", list: SALON_TEAM },
         numbers: [stat("12", "Years"), stat("8,000+", "Happy clients"), stat("4.9", "Average rating")],
-        photos: { title: "Before and after", files: [["art-hair-before.png", "Before"], ["art-hair-after.png", "After"], "art-service-cut.png", "art-service-colour.png", "art-service-nails.png", "art-service-facial.png", "art-place-salon.png"] },
+        photos: { title: "Before and after", files: [["art-hair-before.png", "Before"], ["art-hair-after.png", "After"], "art-service-cut.png", "art-service-colour.png", "art-service-nails.png", "art-service-facial.png"] },
       }),
       contactPage(BOOKINGS_CONTACT, hours("Opening hours", [...days(WEEKDAYS_ONLY, "10:00", "20:00"), ...days(["sat"], "10:00", "18:00")])),
       questionsPage("<p>How booking works with us, and what to expect on the day.</p>", BOOKING_RULES),
@@ -514,7 +514,7 @@ const PLANS = () =>
     card("Personal training", "One-to-one sessions with your coach, in packs of five.", null, screen("services")),
   ]);
 
-const FITNESS_PHOTOS = ["art-place-gym.png", "art-class-spin.png", "art-class-hiit.png", "art-class-yoga.png", "art-class-pilates.png", "art-class-pt.png", "art-place-studio.png"];
+const FITNESS_PHOTOS = ["art-place-gym.png", "art-class-spin.png", "art-class-hiit.png", "art-class-yoga.png", "art-class-pilates.png", "art-class-pt.png"];
 
 const FITNESS_CONTACT = "<p>Questions about classes, plans or your membership? Ask at the desk, call us or send a message here.</p>";
 
@@ -576,7 +576,7 @@ export const FITNESS_DESIGNS: Design[] = [
           team("Our coaches", GYM_COACHES),
           stats([stat("40", "Classes a week"), stat("6", "Coaches"), stat("7 days", "A week")]),
           testimonials("Member stories", [
-            quote("I lifted my first full push-up at 45. Kerem never let me give up.", "Hakan D.", "Member"),
+            quote("I did my first full push-up at 45. Kerem never let me give up.", "Hakan D.", "Member"),
             quote("The six o'clock spin class is the best start to my day.", "Salma H.", "Member"),
             quote("Booking a class takes two taps. No more queues at the desk.", "Mert Y.", "Member"),
           ]),

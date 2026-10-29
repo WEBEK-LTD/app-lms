@@ -76,7 +76,6 @@ const FACILITIES = [
   ["art-school-art.png", "The art room"],
   ["art-school-sports.png", "The sports field"],
   ["art-school-bus.png", "The school bus"],
-  ["art-place-hall.png", "The hall"],
 ] as [string, string][];
 
 const schoolPages = () => [

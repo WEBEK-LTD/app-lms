@@ -40,7 +40,7 @@ import { aboutPage, contactPage, otherPage, questionsPage, who } from "./pages";
 const coursesTab = screenTab("courses", "Courses", "school", "courses");
 const learningTab = screenTab("learning", "My courses", "menu_book", "my_courses");
 
-const COURSE_PHOTOS = ["art-course-ux.png", "art-course-arabic.png", "art-course-excel.png", "art-course-photo.png", "art-course-marketing.png", "art-course-english.png", "art-course-python.png", "art-course-business.png"];
+const COURSE_PHOTOS = ["art-course-ux.png", "art-course-arabic.png", "art-course-photo.png", "art-course-marketing.png", "art-course-english.png", "art-course-python.png"];
 
 const START = question("How do I start a course?", "Open the course and choose Enroll. Free courses start at once; you'll find them under My courses.");
 const DEVICES = question("Can I learn on my phone and my computer?", "Yes. Sign in with the same account and your progress follows you.");
