@@ -448,7 +448,7 @@ function FontTag({ state, swapped, added }: { state: FontState; swapped: boolean
   const label = added ? t("studio.importFontAdded") : swapped && state !== "missing" ? t("studio.importFontAppFont") : t(state === "free" ? "studio.importFontFree" : state === "own" ? "studio.importFontOwn" : state === "in_file" ? "studio.importFontInFile" : "studio.importFontMissing");
   return (
     <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-xs" style={{ border: `1px solid ${C.line}`, color: ok ? "#1F8A4C" : state === "missing" ? "#B3261E" : C.muted }}>
-      <Glyph name={ok ? "check" : state === "missing" ? "warning" : "text_fields"} size={16} />
+      <Glyph name={ok ? "check" : state === "missing" ? "warning" : "title"} size={16} />
       {label}
     </span>
   );
