@@ -24,7 +24,7 @@ import {
   type StudioSides,
   type StudioSize,
 } from "@/lib/pages/types";
-import { holdsChildren } from "@/lib/studio/edit";
+import { holdsChildren, placeOf } from "@/lib/studio/edit";
 import { newNodeId } from "@/lib/studio/elements";
 import { elementLabel } from "./left-panel";
 import { Glyph } from "./shared";
@@ -48,6 +48,18 @@ interface Props {
   onPage: (patch: Partial<StudioPage>) => void;
   onCopy: () => void;
   onDelete: () => void;
+  /** 107.1 Copying, pasting and moving the selected element. */
+  tools: {
+    onCopy: () => void;
+    onCut: () => void;
+    onPaste: () => void;
+    onCopyStyle: () => void;
+    onPasteStyle: () => void;
+    onMove: (by: -1 | 1) => void;
+    onSelectParent: () => void;
+    canPaste: boolean;
+    canPasteStyle: boolean;
+  };
   onWrap: (type: "row" | "column" | "stack") => void;
   onPlayMotion: () => void;
   onSaveTemplate: (name: string) => Promise<string | null>;
@@ -82,7 +94,7 @@ export function Inspector(props: Props) {
         </div>
         {node && node.id !== props.page.body.id ? (
           <>
-            <button type="button" aria-label={t("studio.copy")} title={t("studio.copy")} onClick={props.onCopy} className="h-8 w-8 rounded-lg border-0 bg-transparent">
+            <button type="button" aria-label={t("studio.duplicate")} title={t("studio.duplicate")} onClick={props.onCopy} className="h-8 w-8 rounded-lg border-0 bg-transparent">
               <Glyph name="content_copy" size={18} />
             </button>
             <button type="button" aria-label={t("studio.delete")} title={t("studio.delete")} onClick={props.onDelete} className="h-8 w-8 rounded-lg border-0 bg-transparent">
@@ -91,6 +103,7 @@ export function Inspector(props: Props) {
           </>
         ) : null}
       </div>
+      {node && !props.headerSelected ? <Tools {...props} node={node} /> : null}
       {props.headerSelected ? (
         <HeaderPanel {...props} />
       ) : !node ? (
@@ -121,6 +134,41 @@ export function Inspector(props: Props) {
         </>
       )}
     </aside>
+  );
+}
+
+/** 107.1 Under the element's name: copy, cut and paste it or its style, move it, and go to what holds it. */
+function Tools(props: Props & { node: StudioNode }) {
+  const t = useDashT();
+  const { node, tools } = props;
+  const root = node.id === props.page.body.id;
+  const place = root ? null : placeOf(props.page.body, node.id);
+  const siblings = place?.parent.children?.length ?? 0;
+  const text = (label: string, onClick: () => void, disabled = false) => (
+    <button type="button" onClick={onClick} disabled={disabled} className="rounded-md bg-white px-2 py-0.5 disabled:opacity-40" style={{ border: "1px solid var(--studio-line)" }}>
+      {label}
+    </button>
+  );
+  const glyph = (name: string, label: string, onClick: () => void, disabled = false) => (
+    <button type="button" aria-label={label} title={label} onClick={onClick} disabled={disabled} className="flex h-7 w-7 items-center justify-center rounded-md bg-white disabled:opacity-40" style={{ border: "1px solid var(--studio-line)" }}>
+      <Glyph name={name} size={16} flip={name === "subdirectory_arrow_left"} />
+    </button>
+  );
+  return (
+    <div role="toolbar" aria-label={t("studio.tools")} className="flex flex-wrap items-center gap-1.5 px-4 py-2 text-xs" style={{ borderBottom: "1px solid var(--studio-line)" }}>
+      {root ? null : text(t("studio.copy"), tools.onCopy)}
+      {root ? null : text(t("studio.cut"), tools.onCut)}
+      {text(t("studio.paste"), tools.onPaste, !tools.canPaste)}
+      {text(t("studio.copyStyle"), tools.onCopyStyle)}
+      {text(t("studio.pasteStyle"), tools.onPasteStyle, !tools.canPasteStyle)}
+      {root ? null : (
+        <span className="flex gap-1">
+          {glyph("arrow_upward", t("studio.moveUp"), () => tools.onMove(-1), (place?.index ?? 0) === 0)}
+          {glyph("arrow_downward", t("studio.moveDown"), () => tools.onMove(1), (place?.index ?? 0) >= siblings - 1)}
+          {glyph("subdirectory_arrow_left", t("studio.selectParent"), tools.onSelectParent)}
+        </span>
+      )}
+    </div>
   );
 }
 
@@ -482,6 +530,15 @@ function withText(node: StudioNode, text: string, lang: LanguageCode, def: Langu
   return { translations };
 }
 
+/** 107.1 The shapes an element can keep, width over height. */
+const RATIOS = [
+  { key: "1:1", value: 1 },
+  { key: "4:3", value: 4 / 3 },
+  { key: "3:4", value: 3 / 4 },
+  { key: "16:9", value: 16 / 9 },
+  { key: "9:16", value: 9 / 16 },
+] as const;
+
 function DesignTab(props: Props & { node: StudioNode }) {
   const t = useDashT();
   const { node, onChange } = props;
@@ -500,7 +557,14 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {node.type === "image" ? (
         <div className="flex flex-col gap-2">
           <Heading>{t("studio.picture")}</Heading>
-          <MediaPicker kind="image" share library onPick={(url) => onChange({ image_url: url })} label={t("studio.choosePicture")} />
+          <div className="flex items-center gap-2">
+            <MediaPicker kind="image" share library onPick={(url) => onChange({ image_url: url })} label={t("studio.choosePicture")} />
+            {node.image_url ? (
+              <button type="button" onClick={() => onChange({ image_url: null })} className="rounded-md bg-white px-2 py-0.5" style={{ border: "1px solid var(--studio-line)" }}>
+                {t("studio.removePicture")}
+              </button>
+            ) : null}
+          </div>
           <Segments label={t("studio.fit")} value={node.fit ?? "cover"} onChange={(fit) => onChange({ fit })} options={[{ value: "cover", label: t("studio.fitCover") }, { value: "contain", label: t("studio.fitContain") }]} />
         </div>
       ) : null}
@@ -562,7 +626,24 @@ function DesignTab(props: Props & { node: StudioNode }) {
             <NumberIn label={t("studio.columns")} value={node.columns ?? 2} min={1} max={6} onChange={(columns) => onChange({ columns: columns ?? 2 })} />
           </Box>
         ) : null}
+        <Box label={t("studio.minHeight")}>
+          <NumberIn label={t("studio.minHeight")} value={node.min_height} max={4000} onChange={(min_height) => onChange({ min_height: min_height || undefined })} />
+        </Box>
       </div>
+      {node.type === "image" || node.type === "video" || node.type === "stack" || node.type === "map" || layout ? (
+        <div className="flex flex-col gap-1">
+          <span>{t("studio.ratio")}</span>
+          <Segments
+            label={t("studio.ratio")}
+            value={RATIOS.find((r) => node.aspect_ratio !== undefined && node.aspect_ratio !== null && Math.abs(r.value - node.aspect_ratio) < 0.01)?.key ?? "free"}
+            onChange={(key) => {
+              const ratio = RATIOS.find((r) => r.key === key);
+              onChange({ aspect_ratio: ratio ? Math.round(ratio.value * 100) / 100 : undefined, ...(ratio && typeof node.height === "number" ? { height: undefined } : {}) });
+            }}
+            options={[{ value: "free" as const, label: t("studio.ratioFree") }, ...RATIOS.map((r) => ({ value: r.key, label: r.key === "1:1" ? t("studio.ratioSquare") : r.key }))]}
+          />
+        </div>
+      ) : null}
       <div className="flex gap-1.5">
         {(
           [
@@ -700,6 +781,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
           </div>
           <Slider label={t("studio.size")} value={node.font?.size ?? 16} min={8} max={72} onChange={(size) => onChange({ font: { ...(node.font ?? {}), size } })} />
           <Slider label={t("studio.lineHeight")} value={node.font?.line_height ?? 1.4} min={0.8} max={3} step={0.05} onChange={(line_height) => onChange({ font: { ...(node.font ?? {}), line_height } })} />
+          <Slider label={t("studio.letterSpacing")} value={node.font?.letter_spacing ?? 0} min={-5} max={20} step={0.5} onChange={(letter_spacing) => onChange({ font: { ...(node.font ?? {}), letter_spacing: letter_spacing || undefined } })} />
           <div className="flex gap-3">
             <Check label={t("studio.italic")} checked={Boolean(node.font?.italic)} onChange={(italic) => onChange({ font: { ...(node.font ?? {}), italic: italic || undefined } })} />
             <Check label={t("studio.underline")} checked={Boolean(node.font?.underline)} onChange={(underline) => onChange({ font: { ...(node.font ?? {}), underline: underline || undefined } })} />

@@ -2638,3 +2638,15 @@ Sharing Studio templates for free or selling them by monthly, yearly or
 lifetime subscription; Yallapp's share 25% (taxes, payout and gateway fees
 included); payouts to the seller's bank account (SWIFT). After Studio is
 finished and tested.
+
+## Phase 107: More in Studio's editor
+
+The owner asked for more options and more that the editor can do (29
+October). Each step reaches the app too: an option is only offered once
+the app draws it (and the plugin serves it to WordPress apps).
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 107.1 The editor's own tools: copy, cut and paste elements (also to another page or project), copy and paste an element's style, move up and down and select the parent from the selected element, the shortcuts listed; options the app already draws offered: letter spacing, the lowest height, the shape (square, 4:3, 16:9…), removing a picture | unit tests, e2e |
+| [ ] | 107.2 More style: turning an element, each corner rounded on its own, a colour over a picture, a row that scrolls sideways, capitals and struck-through text (old prices), hiding an element without deleting it, the map's zoom; contract, page checker, the app, the plugin | redocly lint, unit tests, flutter analyze and widget tests, the plugin's tests, e2e |
+| [ ] | 107.3 New elements: a countdown (offers ending), questions and answers that open (accordion), tabs that switch what is under them, a list with an icon on each line; contract, page checker, the app, the plugin, the editor and its ready sections | redocly lint, unit tests, flutter analyze and widget tests, the plugin's tests, e2e |
