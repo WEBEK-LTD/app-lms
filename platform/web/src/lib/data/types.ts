@@ -2086,6 +2086,21 @@ export interface StudioTemplate {
   createdBy: string | null;
 }
 
+/** 108.7 A whole design an account keeps for its Studio projects; the design file is in the file store. */
+export interface StudioDesign {
+  id: string;
+  clientId: string;
+  name: string;
+  /** Saved from a project, or imported from a file or another tool. */
+  source: "saved" | "imported";
+  pages: number;
+  blobKey: string;
+  sizeBytes: number;
+  createdAt: Date;
+  /** Email of whoever kept it. */
+  createdBy: string | null;
+}
+
 /** 97.2 A font the owner uploaded for an app's look; its files are assets of kind "font". */
 export interface OwnFont {
   id: string;

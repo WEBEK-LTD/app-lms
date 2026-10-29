@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type DragEvent, type MouseEvent, type ReactNode } from "react";
 import Link from "next/link";
-import { deleteStudioTemplateAction, saveStudioTemplateAction, uploadDesignPictureAction } from "@/app/actions/studio";
+import { deleteStudioDesignAction, deleteStudioTemplateAction, loadStudioDesignAction, saveStudioDesignAction, saveStudioTemplateAction, uploadDesignPictureAction } from "@/app/actions/studio";
 import { publishLayoutAction, saveLayoutDraftAction, uploadOwnFontAction, type LayoutSaveResult } from "@/app/actions/pages";
 import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { StudioView, type StudioEditing, type StudioLook } from "@/components/studio/view";
@@ -16,7 +16,10 @@ import { elementInfo, newNode, newNodeId, type NewText } from "@/lib/studio/elem
 import { SECTIONS, sectionsFor, TEMPLATES, templatesFor, type ProjectKind, type SectionContext, type SectionWord, type TemplateInfo } from "@/lib/studio/sections";
 import { CLIPBOARD_KEY, forPaste, readCopied, readStyle, STYLE_CLIPBOARD_KEY, styleOf, stylePatch } from "@/lib/studio/clipboard";
 import { findNode } from "@/lib/studio/tree";
-import { DESIGN_FILE_EXTENSION, designPages, designSection, fontsIn, picturesIn, withoutFonts, writeDesignFile, type DesignFileFont, type DesignFilePicture, type DesignKind } from "@/lib/studio/design-file";
+import { DESIGN_FILE_EXTENSION, designPages, designSection, fontsIn, picturesIn, readDesignFile, withoutFonts, withPictures, writeDesignFile, type DesignFile, type DesignFileFont, type DesignFilePicture, type DesignKind } from "@/lib/studio/design-file";
+import { applyWholeDesign, designsFor, makeDesign } from "@/lib/studio/designs";
+import type { OwnDesignView } from "@/lib/studio/own-designs";
+import { DesignsGallery, type GalleryDesign } from "./designs-gallery";
 import { download, fileName, fromBase64, readFont, readPicture, type OwnFontFiles } from "./design-io";
 import { fontUpload, ImportDialog, type ImportChoice } from "./import-dialog";
 import { Inspector, type InspectorTab } from "./inspector";
@@ -60,6 +63,9 @@ export interface StudioEditorProps {
   kind: ProjectKind;
   /** 108.2 The project's own fonts, with their files (exported with a design). */
   ownFonts: OwnFontFiles[];
+  /** 108.7 The account's own whole designs, and the project type's name for the designs window. */
+  ownDesigns: OwnDesignView[];
+  kindName: string;
 }
 
 export function StudioEditor(props: StudioEditorProps) {
@@ -92,6 +98,8 @@ export function StudioEditor(props: StudioEditorProps) {
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [ownFonts, setOwnFonts] = useState(props.ownFonts);
+  const [designsOpen, setDesignsOpen] = useState(false);
+  const [ownDesigns, setOwnDesigns] = useState(props.ownDesigns);
   // 107.1 Re-reads what was copied after copying here (other tabs tell through the storage event).
   const [, setCopies] = useState(0);
   const [now, setNow] = useState(() => Date.now());
@@ -692,6 +700,19 @@ export function StudioEditor(props: StudioEditorProps) {
       }
     }
     const file = withoutFonts(design, appFont);
+    // 108.7 Kept as one of the account's own whole designs, its pictures at their saved addresses.
+    if (choice.place === "keep_mine") {
+      const kept: DesignFile = {
+        ...file,
+        pages: file.pages.map((p) => ({ ...p, studio: { ...p.studio, ...(p.studio.header ? { header: { ...p.studio.header, logo_url: p.studio.header.logo_url ? (moved.get(p.studio.header.logo_url) ?? null) : p.studio.header.logo_url } } : {}), body: withPictures(p.studio.body, moved) } })),
+        pictures: {},
+        fonts: [],
+      };
+      const r = await saveStudioDesignAction(file.name || app.name, "imported", writeDesignFile(kept)).catch(() => null);
+      if (r?.ok) setOwnDesigns((list) => [r.design, ...list]);
+      setNotice(r?.ok ? t("studio.importKept") : t(r && r.error === "plan" ? "studio.designsErrPlan" : r && r.error === "limit" ? "studio.designsErrLimit" : "studio.designsCantKeep"));
+      return;
+    }
     const now = new Date().toISOString();
     const current = latest.current;
     const fit = { sources: props.sources, categorySources: props.categorySources, screens: props.screens.map((s) => s.value), newId: newNodeId, pages: current.pages, languages: current.languages, pictures: moved, now };
@@ -721,6 +742,64 @@ export function StudioEditor(props: StudioEditorProps) {
     setNotice(
       [t("studio.importDone"), failed ? t(busy ? "studio.importBusy" : "studio.importPictureFailed", { count: failed }) : "", ...fontFailed].filter(Boolean).join(" "),
     );
+  }
+
+  // ——— 108.7 Whole designs ———
+
+  const designWords = { home: t("studio.designHome"), template: (id: string) => t(`studio.tpl_${id}` as DashKey), theme: (id: string) => t(`studio.design_${id}` as DashKey) };
+  const galleryDesigns: GalleryDesign[] = useMemo(
+    () => [
+      ...designsFor(props.kind).map((d) => ({ id: d.id, name: designWords.theme(d.theme.id), kind: "yallapp" as const, pages: d.templates.length, file: designsOpen ? makeDesign(d, sectionContext, designWords, layout.languages) : null })),
+      ...ownDesigns.map((d) => ({ id: d.id, name: d.name, kind: d.source, pages: d.pages, file: null })),
+    ],
+    // Made when the window opens, for the project as it is then.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [designsOpen, ownDesigns, props.kind],
+  );
+
+  async function loadOwnDesign(id: string): Promise<DesignFile | null> {
+    const r = await loadStudioDesignAction(id).catch(() => null);
+    if (!r?.ok) return null;
+    const read = readDesignFile(r.text);
+    return read.ok ? read.file : null;
+  }
+
+  function applyDesign(file: DesignFile, mode: "project" | "page", pageIndex: number, keep: boolean) {
+    const current = latest.current;
+    const pictures = new Map<string, string>();
+    for (const p of file.pages) for (const url of picturesIn(p.studio)) if (/^https?:\/\//.test(url)) pictures.set(url, url);
+    const fitted = designPages(file, { sources: props.sources, categorySources: props.categorySources, screens: props.screens.map((s) => s.value), newId: newNodeId, pages: current.pages, languages: current.languages, pictures, now: new Date().toISOString() });
+    const next = applyWholeDesign(current, fitted, mode === "project" ? file.look : undefined, { mode, openSlug: slug, pageIndex, keep, now: new Date().toISOString() });
+    change(() => next);
+    if (mode === "project" && !current.pages.some((p) => p.slug === slug && p.studio)) setSlug(next.pages.find((p) => p.studio)?.slug ?? slug);
+    setSelectedId(null);
+    setDesignsOpen(false);
+    setNotice(t("studio.designsApplied"));
+  }
+
+  async function saveMine(): Promise<string | null> {
+    const pages = layout.pages.filter((p) => p.studio);
+    const file = writeDesignFile({
+      kind: "project",
+      name: app.name,
+      made_at: new Date().toISOString(),
+      languages: layout.languages,
+      pages: pages.map((p) => ({ slug: p.slug, title: p.title, ...(p.translations ? { translations: p.translations } : {}), studio: p.studio! })),
+      look: { font: layout.appearance.font_family ?? layout.appearance.font, secondary_color: layout.appearance.secondary_color, tabs: layout.tabs },
+      pictures: {},
+      fonts: [],
+    });
+    const r = await saveStudioDesignAction(app.name, "saved", file).catch(() => null);
+    if (r?.ok) {
+      setOwnDesigns((list) => [r.design, ...list]);
+      return null;
+    }
+    return t(r && r.error === "plan" ? "studio.designsErrPlan" : r && r.error === "limit" ? "studio.designsErrLimit" : "studio.designsCantKeep");
+  }
+
+  async function deleteDesign(id: string) {
+    const r = await deleteStudioDesignAction(id).catch(() => null);
+    if (r?.ok) setOwnDesigns((list) => list.filter((d) => d.id !== id));
   }
 
   // ——— Labels ———
@@ -910,6 +989,8 @@ export function StudioEditor(props: StudioEditorProps) {
           onLayerDragOver={(e, node) => dropOver(e, node, true)}
           onLayerDrop={dropHere}
           drop={drop}
+          onOpenDesigns={() => setDesignsOpen(true)}
+          designsCount={designsFor(props.kind).length + ownDesigns.length}
         />
 
         <main
@@ -1060,6 +1141,23 @@ export function StudioEditor(props: StudioEditorProps) {
           />
         ) : null}
       </div>
+      {designsOpen ? (
+        <DesignsGallery
+          kindName={props.kindName}
+          designs={galleryDesigns}
+          preview={(p) => <StudioView page={p} lang={editLang} defaultLang={def} dark={false} look={look} pickable={props.pickable} words={words} />}
+          load={loadOwnDesign}
+          onApply={applyDesign}
+          onImport={() => {
+            setDesignsOpen(false);
+            setImportOpen(true);
+          }}
+          onSaveMine={saveMine}
+          onDelete={(id) => void deleteDesign(id)}
+          onClose={() => setDesignsOpen(false)}
+          hasOpenPage={!!studio}
+        />
+      ) : null}
       {importOpen ? (
         <ImportDialog
           onClose={() => setImportOpen(false)}

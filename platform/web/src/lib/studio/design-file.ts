@@ -274,7 +274,8 @@ export function readDesignFile(text: string): { ok: true; file: DesignFile } | {
 }
 
 /** Where an imported design goes. */
-export type DesignPlace = "new_pages" | "this_page" | "section";
+/** 108.7 `keep_mine`: kept as one of the account's own whole designs, the draft unchanged. */
+export type DesignPlace = "new_pages" | "this_page" | "section" | "keep_mine";
 
 export interface DesignFit extends Omit<PasteContext, "pageSlugs"> {
   /** The project's pages, to give the new ones their own addresses. */

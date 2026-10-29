@@ -1649,6 +1649,25 @@ export const studioTemplates = mysqlTable(
   (t) => [index("studio_templates_client_idx").on(t.clientId, t.createdAt)],
 );
 
+// 108.7 An account's own whole designs for Studio (saved from a project or imported): the design file is kept in the file store.
+export const studioDesigns = mysqlTable(
+  "studio_designs",
+  {
+    id: id("id").primaryKey(),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 80 }).notNull(),
+    source: varchar("source", { length: 16 }).notNull(),
+    pages: int("pages").notNull(),
+    blobKey: varchar("blob_key", { length: 191 }).notNull(),
+    sizeBytes: int("size_bytes").notNull(),
+    createdAt: time("created_at").notNull(),
+    createdBy: varchar("created_by", { length: 191 }),
+  },
+  (t) => [index("studio_designs_client_idx").on(t.clientId, t.createdAt)],
+);
+
 // 97.2 Own fonts: an app's uploaded fonts (their files are assets of kind "font").
 export const ownFonts = mysqlTable(
   "own_fonts",

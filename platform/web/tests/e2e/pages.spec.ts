@@ -733,6 +733,46 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await own.getByRole("button", { name: "Redo" }).click();
   await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
 
+  // 108.7 Whole designs: the project type's own in six looks, applied to the whole project as one step; the project kept as one of its own.
+  await own.getByRole("tab", { name: "Templates" }).click();
+  await own.getByRole("button", { name: "See all designs (6)" }).click();
+  const designs = own.getByRole("dialog", { name: "Whole designs for your project (Academy)" });
+  await expect(designs.getByRole("button", { name: "All 6" })).toBeVisible();
+  await designs.locator('[data-studio-design="yallapp-fresh"]').click();
+  await expect(designs.getByText(/^3 pages · /)).toBeVisible();
+  await expect(designs.getByLabel("Keep the texts and pictures I changed")).toBeChecked();
+  const screenBackground = () => own.locator(".studio-screen > div").first().evaluate((el) => getComputedStyle(el).backgroundColor);
+  const before = await screenBackground();
+  await designs.getByRole("button", { name: "Replace the whole project's design" }).click();
+  await expect(designs).toHaveCount(0);
+  await expect(own.getByRole("status").filter({ hasText: "The design is applied." })).toBeVisible();
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await own.getByRole("menuitemradio").first().click();
+  await expect.poll(screenBackground).toBe("rgb(240, 253, 244)");
+  await own.getByRole("button", { name: "Undo" }).click();
+  await expect.poll(screenBackground).toBe(before);
+  await own.getByRole("button", { name: "Redo" }).click();
+  await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
+  // Saved as the account's own, opened again, applied to one page, deleted.
+  await own.getByRole("button", { name: "See all designs (6)" }).click();
+  await designs.getByRole("button", { name: "Save this project as a design" }).click();
+  await expect(designs.getByRole("status")).toHaveText("Saved in “Mine”.");
+  await designs.getByRole("button", { name: "Mine 1" }).click();
+  await designs.locator("[data-studio-design]").first().click();
+  await expect(designs.getByText(/^\d+ pages · /)).toBeVisible();
+  await designs.getByRole("button", { name: "For the open page only" }).click();
+  await expect(own.getByRole("status").filter({ hasText: "The design is applied." })).toBeVisible();
+  await own.getByRole("button", { name: "See all designs (7)" }).click();
+  await designs.getByRole("button", { name: "Mine 1" }).click();
+  await designs.locator("[data-studio-design]").first().click();
+  await designs.getByRole("button", { name: /^Delete / }).click();
+  await expect(designs.getByRole("button", { name: "Mine 0" })).toBeVisible();
+  await designs.getByRole("button", { name: "Close" }).click();
+  await own.getByRole("tab", { name: "Elements" }).click();
+  await own.getByRole("button", { name: "Undo" }).click();
+  await own.getByRole("button", { name: "Redo" }).click();
+  await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
+
   // Before a plan the project tries everything; publishing works.
   await own.getByRole("button", { name: "Publish", exact: true }).click();
   await expect(own.getByText("Published. The app shows it the next time it opens.")).toBeVisible();
