@@ -167,7 +167,8 @@ export async function StudioPage({ lang }: { lang: Lang }) {
 /**
  * 103R /demo/studio: what a Studio project looks like, apart from the regular
  * demo apps on /demo: Studio's own project types as demo apps to install
- * and try with the demo number (a parcel company, food delivery, rides),
+ * and try with the demo number (a parcel company, food delivery, rides;
+ * 110.5 a live taxi app, a school and an academy with many teachers),
  * then a café's home page designed in the editor (light and dark) and the
  * editor.
  */

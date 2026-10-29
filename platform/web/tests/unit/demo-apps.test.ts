@@ -445,7 +445,7 @@ describe("signing in to a demo app", () => {
       ["Lina Haddad", "Grade 5 A"],
       ["Adam Haddad", "Grade 3 B"],
     ]);
-    const [lina, adam] = me.students as [{ id: number }, { id: number }];
+    const [lina, adam] = me.students as unknown as [{ id: number }, { id: number }];
     const week = (await go("GET", `/school/students/${lina.id}/timetable`, undefined, token)).body as { days: { weekday: number; lessons: unknown[] }[] };
     expect(week.days.map((d) => [d.weekday, d.lessons.length])).toEqual([
       [1, 5],
