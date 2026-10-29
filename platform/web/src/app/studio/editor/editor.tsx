@@ -10,6 +10,7 @@ import type { DashKey } from "@/i18n/dashboard";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import type { ScreenOption } from "@/lib/pages/sources";
 import { uniqueSlug } from "@/lib/pages/model";
+import { moreLabel } from "@/lib/pages/tab-bar";
 import { STUDIO_HEADER_TYPES, type ItemSource, type LanguageCode, type LayoutContent, type LayoutPage, type StudioHeader, type StudioNode, type StudioPage } from "@/lib/pages/types";
 import { duplicateNode, historyOf, holdsChildren, insertNode, isInside, moveNode, placeOf, pushHistory, redo, removeNode, undo, updateNode, wrapNode, type History } from "@/lib/studio/edit";
 import { elementInfo, newNode, newNodeId, type NewText } from "@/lib/studio/elements";
@@ -120,7 +121,7 @@ export function StudioEditor(props: StudioEditorProps) {
   const page = layout.pages.find((p) => p.slug === slug) ?? layout.pages[0] ?? null;
   const studio = page?.studio ?? null;
   const source = props.sources[0] ?? null;
-  const selected = studio && selectedId && selectedId !== "header" ? findNode(studio.body, selectedId) : null;
+  const selected = studio && selectedId && selectedId !== "header" && selectedId !== "tabs" ? findNode(studio.body, selectedId) : null;
   const pageTitle = (p: LayoutPage) => (editLang !== def ? (p.translations?.[editLang]?.title as string | undefined) : undefined) || p.title || p.slug;
 
   const look: StudioLook = {
@@ -130,6 +131,9 @@ export function StudioEditor(props: StudioEditorProps) {
     font: layout.appearance.font_family ?? layout.appearance.font ?? "Cairo",
     tabs: layout.tabs,
     activeTab: layout.tabs.find((tab) => tab.target.type === "page" && tab.target.page_slug === page?.slug)?.id ?? null,
+    // 109 The bar's look, and More in the language being edited.
+    tabBar: layout.tab_bar,
+    moreLabel: moreLabel(editLang),
   };
   const palette = useMemo(() => [...new Set([app.brand, layout.appearance.secondary_color, "#FFFFFF", "#0E0D24", "#F4EFE6", "#FF5A1F"].filter((c): c is string => !!c))], [app.brand, layout.appearance.secondary_color]);
   const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search"), days: t("studio.days"), hours: t("studio.hours"), minutes: t("studio.minutes"), seconds: t("studio.seconds") };
@@ -306,7 +310,7 @@ export function StudioEditor(props: StudioEditorProps) {
   }
 
   function deleteSelected() {
-    if (!studio || !selectedId) return;
+    if (!studio || !selectedId || selectedId === "tabs") return;
     if (selectedId === "header") {
       changePage((p) => ({ ...p, header: null }));
       setSelectedId(null);
@@ -320,7 +324,7 @@ export function StudioEditor(props: StudioEditorProps) {
   }
 
   function copySelected() {
-    if (!studio || !selectedId || selectedId === "header") return;
+    if (!studio || !selectedId || selectedId === "header" || selectedId === "tabs") return;
     const done = duplicateNode(studio, selectedId, newNodeId);
     if (!done) return;
     changePage(() => done.page);
@@ -806,7 +810,7 @@ export function StudioEditor(props: StudioEditorProps) {
 
   const headerNumber = (type: StudioHeader["type"]) => STUDIO_HEADER_TYPES.indexOf(type) + 1;
   const nodeLabel = (node: StudioNode) => node.name || elementLabel(t, node.type, node.source ?? source);
-  const tagOf = (node: StudioNode) => (node.id === "header" && studio?.header ? t("studio.headerType", { n: headerNumber(studio.header.type) }) : nodeLabel(node));
+  const tagOf = (node: StudioNode) => (node.id === "tabs" ? t("studio.tabBar") : node.id === "header" && studio?.header ? t("studio.headerType", { n: headerNumber(studio.header.type) }) : nodeLabel(node));
   const parentLabel = (() => {
     if (!studio || !selected) return "";
     const place = placeOf(studio.body, selected.id);
@@ -1098,6 +1102,28 @@ export function StudioEditor(props: StudioEditorProps) {
             page={studio}
             node={selected}
             headerSelected={selectedId === "header"}
+            tabsSelected={selectedId === "tabs"}
+            tabs={layout.tabs}
+            tabBar={layout.tab_bar}
+            onTabs={(tabs) =>
+              change((l) => {
+                // A round button in the middle only for a tab that's still there.
+                const center = l.tab_bar?.center;
+                if (!center || tabs.some((x) => x.id === center)) return { ...l, tabs };
+                const { center: _gone, ...style } = l.tab_bar!;
+                void _gone;
+                const { tab_bar: _old, ...rest } = l;
+                void _old;
+                return Object.keys(style).length ? { ...rest, tabs, tab_bar: style } : { ...rest, tabs };
+              }, "tabs")
+            }
+            onTabBar={(style) =>
+              change((l) => {
+                const { tab_bar: _old, ...rest } = l;
+                void _old;
+                return style ? { ...rest, tab_bar: style } : rest;
+              }, "tab_bar")
+            }
             parentLabel={parentLabel}
             tab={inspectorTab}
             onTab={setInspectorTab}

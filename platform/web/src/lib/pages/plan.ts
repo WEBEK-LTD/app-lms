@@ -54,19 +54,21 @@ function cleanBlock(block: LayoutBlock, sources: ItemSource[]): LayoutBlock {
  */
 export function layoutForPlan(layout: Layout, app: App, plan: PlanInfo | null, defaults: AppDefaultsSetting): Layout {
   const menuOf = (l: { menu?: LayoutContent["menu"] }) => (l.menu?.length ? { menu: l.menu } : {});
-  if (!plan) return withSwitches(layout, app, { appearance: layout.appearance, languages: layout.languages, tabs: layout.tabs, ...menuOf(layout), pages: layout.pages });
+  if (!plan) return withSwitches(layout, app, { appearance: layout.appearance, languages: layout.languages, tabs: layout.tabs, ...tabBarOf(layout), ...menuOf(layout), pages: layout.pages });
   const sources = allowedSources(app, plan);
-  let content: LayoutContent = { appearance: layout.appearance, languages: languagesForPlan(layout.languages, plan), tabs: layout.tabs, ...menuOf(layout), pages: layout.pages };
+  let content: LayoutContent = { appearance: layout.appearance, languages: languagesForPlan(layout.languages, plan), tabs: layout.tabs, ...tabBarOf(layout), ...menuOf(layout), pages: layout.pages };
   if (!hasFeature(plan, "page_editor")) {
-    // The ready-made pages, without a side menu.
+    // The ready-made pages, without a side menu; 109 the tab bar keeps its look.
     const ready = defaultLayout(app, defaults, app.createdAt);
-    content = { appearance: content.appearance, languages: content.languages, tabs: ready.tabs, pages: ready.pages };
+    content = { appearance: content.appearance, languages: content.languages, tabs: ready.tabs, ...tabBarOf(content), pages: ready.pages };
   }
   const menu = (content.menu ?? []).filter((t) => actionAllowed(t.target, sources));
+  const tabs = content.tabs.filter((t) => actionAllowed(t.target, sources));
   content = {
     appearance: content.appearance,
     languages: content.languages,
-    tabs: content.tabs.filter((t) => actionAllowed(t.target, sources)),
+    tabs,
+    ...tabBarOf({ tabs, tab_bar: content.tab_bar }),
     ...menuOf({ menu }),
     pages: content.pages.map((p) => {
       const page = { ...p, blocks: p.blocks.filter((b) => blockAllowed(b, sources)).map((b) => cleanBlock(b, sources)) };
@@ -97,6 +99,14 @@ export function layoutForPlan(layout: Layout, app: App, plan: PlanInfo | null, d
   return withSwitches(layout, app, content);
 }
 
+/** 109 The tab bar's look, without a middle tab that isn't one of the tabs any more. */
+function tabBarOf(l: Pick<LayoutContent, "tabs" | "tab_bar">): Pick<LayoutContent, "tab_bar"> {
+  if (!l.tab_bar) return {};
+  const { center, ...rest } = l.tab_bar;
+  const style = center && l.tabs.some((t) => t.id === center) ? { ...rest, center } : rest;
+  return Object.keys(style).length ? { tab_bar: style } : {};
+}
+
 /**
  * 83.3 The content without the features the team switched off for the app
  * (lib/app/switches.ts), as a layout: the same one when nothing changed,
@@ -125,10 +135,11 @@ function withSwitches(layout: Layout, app: Pick<App, "switches">, content: Layou
     appearance: content.appearance,
     languages: content.languages,
     tabs: content.tabs.map(noIcon),
+    ...tabBarOf(content),
     ...(menu.length ? { menu } : {}),
     pages: content.pages.map((p) => ({ ...p, blocks: p.blocks.map(block) })),
   };
-  const original = { appearance: layout.appearance, languages: layout.languages, tabs: layout.tabs, ...(layout.menu?.length ? { menu: layout.menu } : {}), pages: layout.pages };
+  const original = { appearance: layout.appearance, languages: layout.languages, tabs: layout.tabs, ...tabBarOf(layout), ...(layout.menu?.length ? { menu: layout.menu } : {}), pages: layout.pages };
   if (JSON.stringify(switched) === JSON.stringify(original)) return layout;
   return { version: `${layout.version}~${sha256Hex(JSON.stringify(switched)).slice(0, 12)}`, ...switched };
 }

@@ -10,6 +10,8 @@ class Navigation {
     required this.tabs,
     required this.pages,
     this.menu = const [],
+    this.more = const [],
+    this.tabBar,
   });
 
   /// Tabs whose target the app doesn't know are left out; [usable] says
@@ -19,6 +21,12 @@ class Navigation {
     tabs: [for (final tab in reqListOf(json, 'tabs', NavTab.tryParse)) ?tab]
         .take(maxTabs)
         .toList(),
+    more: [for (final tab in listOf(json, 'more', NavTab.tryParse)) ?tab]
+        .take(maxMore)
+        .toList(),
+    tabBar: json['tab_bar'] is Map
+        ? TabBarStyle.fromJson(asJson(json['tab_bar']))
+        : null,
     menu: [for (final entry in listOf(json, 'menu', NavTab.tryParse)) ?entry]
         .take(maxMenu)
         .toList(),
@@ -27,16 +35,80 @@ class Navigation {
 
   static const minTabs = 2;
   static const maxTabs = 5;
+  static const maxMore = 6;
   static const maxMenu = 12;
 
   final String version;
   final List<NavTab> tabs;
+
+  /// 109 The tabs past the fourth when there are more than five, in the
+  /// list the More tab (target `more`) opens.
+  final List<NavTab> more;
+
+  /// 109 How the bottom tabs look; null, the template's usual bar.
+  final TabBarStyle? tabBar;
 
   /// 82.5 The side menu, top to bottom; empty, no menu button.
   final List<NavTab> menu;
   final List<PageSummary> pages;
 
   bool get usable => tabs.length >= minTabs;
+}
+
+/// 109 When the tabs' names show under their icons.
+enum TabLabels { always, active, never }
+
+/// 109 How the bottom tabs look, set by the owner (`TabBar`); a field left
+/// out keeps the template's usual look for it.
+class TabBarStyle {
+  const TabBarStyle({
+    this.background,
+    this.darkBackground,
+    this.active,
+    this.inactive,
+    this.radius = 0,
+    this.margin = 0,
+    this.font,
+    this.labels = TabLabels.always,
+    this.center,
+  });
+
+  factory TabBarStyle.fromJson(Json json) => TabBarStyle(
+    background: _hex(json['background']),
+    darkBackground: _hex(json['dark_background']),
+    active: _hex(json['active']),
+    inactive: _hex(json['inactive']),
+    radius: (optInt(json, 'radius') ?? 0).clamp(0, 32).toDouble(),
+    margin: (optInt(json, 'margin') ?? 0).clamp(0, 24).toDouble(),
+    font: optString(json, 'font'),
+    labels: enumOrNull(TabLabels.values, json['labels']) ?? TabLabels.always,
+    center: optString(json, 'center'),
+  );
+
+  static String? _hex(Object? value) =>
+      value is String && RegExp(r'^#[0-9A-Fa-f]{6}$').hasMatch(value)
+      ? value
+      : null;
+
+  /// Colours as `#RRGGBB`; null, the template's own.
+  final String? background;
+  final String? darkBackground;
+  final String? active;
+  final String? inactive;
+
+  /// How round the bar's corners are.
+  final double radius;
+
+  /// The space around the bar: 0, across the bottom of the screen.
+  final double margin;
+
+  /// The names' font family; null, or one the app can't show, the app's.
+  final String? font;
+  final TabLabels labels;
+
+  /// A tab's id drawn as a round button raised in the middle, when it is
+  /// the middle one of three or five.
+  final String? center;
 }
 
 class NavTab {
@@ -244,7 +316,8 @@ class BlockLook {
       imageFit == BlockImageFit.cover;
 }
 
-enum PageActionType { page, screen, course, item, url }
+/// 109 `more`: the More tab, which opens the tabs past the fourth.
+enum PageActionType { page, screen, course, item, url, more }
 
 /// Built-in screens a tab, button or card can open.
 enum BuiltInScreen {

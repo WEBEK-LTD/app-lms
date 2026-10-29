@@ -59,6 +59,7 @@ import {
   STUDIO_SHADOWS,
   STUDIO_TEXT_ALIGNS,
   STUDIO_VISIBILITY,
+  TAB_LABELS,
   THEME_MODES,
   TRANSLATABLE,
   TRANSLATABLE_ENTRIES,
@@ -97,6 +98,7 @@ import {
   type LayoutContent,
   type LayoutPage,
   type LayoutTab,
+  type TabBarStyle,
   type Translations,
 } from "./types";
 
@@ -1434,6 +1436,8 @@ export function parseLayoutContent(value: unknown, options: ParseOptions): Parse
     if (tabIds.has(tab.id)) c.fail("Tabs", "two tabs have the same ID.");
     tabIds.add(tab.id);
   }
+  // 109 How the bottom tabs look.
+  const tabBar = v.tab_bar === undefined || v.tab_bar === null ? null : parseTabBar(v.tab_bar, tabs, c);
   // 82.5 The side menu: entries shaped like the tabs, none at all by default.
   const menuIn = Array.isArray(v.menu) ? v.menu : [];
   if (v.menu !== undefined && !Array.isArray(v.menu)) c.fail("Side menu", "the side menu is missing.");
@@ -1459,6 +1463,7 @@ export function parseLayoutContent(value: unknown, options: ParseOptions): Parse
       appearance,
       languages,
       tabs,
+      ...(tabBar && Object.keys(tabBar).length ? { tab_bar: tabBar } : {}),
       ...(menu.length ? { menu } : {}),
       pages,
       ...(strings && Object.keys(strings).length ? { strings } : {}),
@@ -1466,4 +1471,44 @@ export function parseLayoutContent(value: unknown, options: ParseOptions): Parse
       ...(figma ? { figma_look: figma } : {}),
     },
   };
+}
+
+/** 109 How the bottom tabs look: colours, corners, the space around, the names' font and when they show, a tab in the middle. */
+function parseTabBar(raw: unknown, tabs: LayoutTab[], c: { fail: (where: string, message: string) => void }): TabBarStyle | null {
+  if (typeof raw !== "object" || Array.isArray(raw)) {
+    c.fail("Tabs", "the tab bar's look is missing.");
+    return null;
+  }
+  const v = raw as Record<string, unknown>;
+  const out: TabBarStyle = {};
+  for (const key of ["background", "dark_background", "active", "inactive"] as const) {
+    const colour = v[key];
+    if (colour === undefined || colour === null) continue;
+    if (typeof colour === "string" && HEX.test(colour)) out[key] = colour.toUpperCase();
+    else c.fail("Tabs", "a colour of the tab bar isn't a colour.");
+  }
+  for (const [key, max] of [
+    ["radius", 32],
+    ["margin", 24],
+  ] as const) {
+    const n = v[key];
+    if (n === undefined) continue;
+    if (typeof n === "number" && Number.isInteger(n) && n >= 0 && n <= max) {
+      if (n) out[key] = n;
+    } else c.fail("Tabs", `the tab bar's ${key === "radius" ? "corners" : "space around"} must be 0 to ${max}.`);
+  }
+  if (v.font !== undefined && v.font !== null) {
+    if (typeof v.font === "string" && v.font.trim() && v.font.length <= 60) out.font = v.font.trim();
+    else c.fail("Tabs", "the tab bar's font name is too long.");
+  }
+  if (v.labels !== undefined) {
+    if (oneOf(TAB_LABELS, v.labels)) {
+      if (v.labels !== "always") out.labels = v.labels;
+    } else c.fail("Tabs", "choose when the tabs' names show.");
+  }
+  if (v.center !== undefined && v.center !== null) {
+    if (typeof v.center === "string" && tabs.some((t) => t.id === v.center)) out.center = v.center;
+    else c.fail("Tabs", "the tab in the middle isn't one of the tabs.");
+  }
+  return out;
 }

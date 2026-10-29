@@ -290,12 +290,90 @@ class Pages {
 				'updated_at' => self::date( $page['updated_at'] ?? '' ),
 			);
 		}
-		return array(
+		// 109 Up to five tabs: with more, the first four, a More tab and the rest in `more`.
+		$tabs = array_slice( array_values( array_filter( $tabs ) ), 0, 10 );
+		$more = array();
+		if ( count( $tabs ) > 5 ) {
+			$more   = array_slice( $tabs, 4 );
+			$tabs   = array_slice( $tabs, 0, 4 );
+			$tabs[] = array(
+				'id'     => 'more',
+				'label'  => self::more_label( $language ),
+				'icon'   => 'apps',
+				'target' => array( 'type' => 'more' ),
+			);
+		}
+		$navigation = array(
 			'version' => $this->version( $language ),
-			'tabs'    => array_slice( array_values( array_filter( $tabs ) ), 0, 5 ),
+			'tabs'    => $tabs,
+			'more'    => $more,
 			'menu'    => array_slice( $menu, 0, 12 ),
 			'pages'   => $pages,
 		);
+		$tab_bar    = self::tab_bar( $this->layout()['tab_bar'] ?? null );
+		if ( $tab_bar ) {
+			$navigation['tab_bar'] = $tab_bar;
+		}
+		return $navigation;
+	}
+
+	/**
+	 * 109 The More tab's name in the app's language; English for the others.
+	 *
+	 * @param string $language Language code.
+	 * @return string
+	 */
+	public static function more_label( $language ) {
+		$labels = array(
+			'en' => 'More',
+			'ar' => 'المزيد',
+			'tr' => 'Daha fazla',
+			'fr' => 'Plus',
+			'de' => 'Mehr',
+			'es' => 'Más',
+			'it' => 'Altro',
+			'pt' => 'Mais',
+			'ru' => 'Ещё',
+			'fa' => 'بیشتر',
+			'ur' => 'مزید',
+		);
+		return $labels[ $language ] ?? $labels['en'];
+	}
+
+	/**
+	 * 109 How the bottom tabs look (`TabBar`), from known fields only; null when none is set.
+	 *
+	 * @param mixed $raw The layout's tab_bar.
+	 * @return array|null
+	 */
+	public static function tab_bar( $raw ) {
+		if ( ! is_array( $raw ) ) {
+			return null;
+		}
+		$out = array();
+		foreach ( array( 'background', 'dark_background', 'active', 'inactive' ) as $key ) {
+			if ( isset( $raw[ $key ] ) && is_string( $raw[ $key ] ) && preg_match( '/^#[0-9A-Fa-f]{6}$/', $raw[ $key ] ) ) {
+				$out[ $key ] = strtoupper( $raw[ $key ] );
+			}
+		}
+		foreach ( array(
+			'radius' => 32,
+			'margin' => 24,
+		) as $key => $max ) {
+			if ( isset( $raw[ $key ] ) && is_int( $raw[ $key ] ) && $raw[ $key ] > 0 && $raw[ $key ] <= $max ) {
+				$out[ $key ] = $raw[ $key ];
+			}
+		}
+		if ( isset( $raw['font'] ) && is_string( $raw['font'] ) && '' !== trim( $raw['font'] ) ) {
+			$out['font'] = substr( sanitize_text_field( $raw['font'] ), 0, 60 );
+		}
+		if ( isset( $raw['labels'] ) && in_array( $raw['labels'], array( 'active', 'never' ), true ) ) {
+			$out['labels'] = $raw['labels'];
+		}
+		if ( isset( $raw['center'] ) && is_string( $raw['center'] ) && '' !== $raw['center'] ) {
+			$out['center'] = substr( sanitize_text_field( $raw['center'] ), 0, 40 );
+		}
+		return $out ? $out : null;
 	}
 
 	/**

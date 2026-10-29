@@ -102,9 +102,10 @@ describe("layout validation", () => {
   });
 
   it("explains what's wrong", () => {
-    expect(errorsOf(layoutWith([], { tabs: [{ id: "a", label: "A", icon: "home", target: { type: "screen", screen: "account" } }] }))).toContain("Tabs: the app needs 2 to 5 tabs.");
-    const sixTabs = Array.from({ length: 6 }, (_, i) => ({ id: `t${i}`, label: "Tab", icon: "home", target: { type: "screen", screen: "account" } }));
-    expect(errorsOf(layoutWith([], { tabs: sixTabs }))).toContain("Tabs: the app needs 2 to 5 tabs.");
+    expect(errorsOf(layoutWith([], { tabs: [{ id: "a", label: "A", icon: "home", target: { type: "screen", screen: "account" } }] }))).toContain("Tabs: the app needs 2 to 10 tabs.");
+    // 109 Up to ten: past five, the app shows four and More.
+    const sixTabs = Array.from({ length: 11 }, (_, i) => ({ id: `t${i}`, label: "Tab", icon: "home", target: { type: "screen", screen: "account" } }));
+    expect(errorsOf(layoutWith([], { tabs: sixTabs }))).toContain("Tabs: the app needs 2 to 10 tabs.");
     expect(errorsOf(layoutWith([], { tabs: [sixTabs[0], { ...sixTabs[1], icon: "Home Icon!" }] }))).toContain("Tab 2: choose an icon.");
     expect(errorsOf(layoutWith([], { tabs: [sixTabs[0], { ...sixTabs[1], target: { type: "page", page_slug: "missing" } }] }))).toContain("Tab 2: choose a page that exists.");
     const twice = layoutWith([]);
@@ -741,6 +742,7 @@ describe("pages on the hosted API", () => {
         { id: "home", label: "Home", icon: "home", target: { type: "page", page_slug: "home" } },
         { id: "account", label: "Account", icon: "person", target: { type: "screen", screen: "account" } },
       ],
+      more: [],
       menu: [],
       pages: [{ slug: "home", title: "Home", updated_at: NOW.toISOString() }],
     });
@@ -796,6 +798,43 @@ describe("pages on the hosted API", () => {
     // The usual look isn't stored, nor sent.
     expect(served.find((b) => b.id === "plain")).not.toHaveProperty("look");
     expect(served.find((b) => b.id === "links")!.links).toEqual([{ icon: "star", icon_url: icon, label: "Offers", action: { type: "page", page_slug: "home" } }]);
+  });
+
+  it("109 serves the first four tabs and More past five, the rest in its list, and the tab bar's look", async () => {
+    const screen = (id: string, s: string) => ({ id, label: s, icon: "star", target: { type: "screen", screen: s } });
+    const tabs = [
+      { id: "home", label: "Home", icon: "home", target: { type: "page", page_slug: "home" } },
+      screen("courses", "courses"),
+      screen("mine", "my_courses"),
+      screen("search", "search"),
+      screen("alerts", "notifications"),
+      screen("settings", "settings"),
+      screen("account", "account"),
+    ];
+    const tab_bar = { background: "#0e0d24", active: "#FF5A1F", radius: 16, margin: 12, font: "Cairo", labels: "active", center: "courses" };
+    expect((await publishLayout(store, app, layoutWith([], { tabs, tab_bar }), "owner@lale.test", NOW)).ok).toBe(true);
+    const nav = (await call("/pages", { headers: { "accept-language": "ar" } })).body as { tabs: { id: string; label: string; icon: string; target: unknown }[]; more: { id: string }[]; tab_bar: unknown };
+    expect(nav.tabs.map((t) => t.id)).toEqual(["home", "courses", "mine", "search", "more"]);
+    expect(nav.tabs[4]).toEqual({ id: "more", label: "المزيد", icon: "apps", target: { type: "more" } });
+    expect(nav.more.map((t) => t.id)).toEqual(["alerts", "settings", "account"]);
+    expect(nav.tab_bar).toEqual({ background: "#0E0D24", active: "#FF5A1F", radius: 16, margin: 12, font: "Cairo", labels: "active", center: "courses" });
+  });
+
+  it("109 checks the tab bar's look and keeps the usual look out of it", () => {
+    const tabs = Array.from({ length: 11 }, (_, i) => ({ id: `t${i}`, label: `Tab ${i}`, icon: "star", target: { type: "page", page_slug: "home" } }));
+    expect(errorsOf(layoutWith([], { tabs }))).toContain("Tabs: the app needs 2 to 10 tabs.");
+    expect(errorsOf(layoutWith([], { tabs: tabs.slice(0, 10) }))).toEqual([]);
+    expect(errorsOf(layoutWith([], { tab_bar: { background: "blue", radius: 40, labels: "sometimes", center: "nowhere" } }))).toEqual([
+      "Tabs: a colour of the tab bar isn't a colour.",
+      "Tabs: the tab bar's corners must be 0 to 32.",
+      "Tabs: choose when the tabs' names show.",
+      "Tabs: the tab in the middle isn't one of the tabs.",
+    ]);
+    const parsed = parse(layoutWith([], { tab_bar: { radius: 0, margin: 0, labels: "always", background: null } }));
+    expect(parsed.ok && parsed.value).not.toHaveProperty("tab_bar");
+    // A plan that leaves the middle tab out leaves out the round button, not the rest of the look.
+    const kept = parse(layoutWith([], { tab_bar: { radius: 12, center: "home" } }));
+    expect(kept.ok && kept.value.tab_bar).toEqual({ radius: 12, center: "home" });
   });
 
   it("99.3 serves the block's text position, size, corners and picture fit, the page's background and picture, and only the blocks shown now", async () => {

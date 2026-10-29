@@ -171,16 +171,28 @@ List<ShellTab> _withRoleTab(List<ShellTab> tabs, ShellTab tab, bool? show) {
       if (t.path != tab.path) t,
   ];
   if (!show) return others;
-  final at = others.isNotEmpty && others.last.path == Paths.account
-      ? others.length - 1
-      : others.length;
+  final at = _addAt(others);
   final out = [...others]..insert(at, tab);
-  if (out.length > Navigation.maxTabs) out.removeAt(at - 1);
+  if (out.length > Navigation.maxTabs) {
+    final pushed = out.removeAt(at - 1);
+    // 109 With a More tab, the tab it pushes out goes first in its list.
+    final more = out.indexWhere((t) => t.isMore);
+    if (more != -1) out[more] = out[more].withMore([pushed, ...out[more].more]);
+  }
   return out;
 }
 
+/// Where a tab the app adds goes: before Account, or 109 before More, when
+/// that is last; else at the end.
+int _addAt(List<ShellTab> tabs) =>
+    tabs.isNotEmpty && (tabs.last.path == Paths.account || tabs.last.isMore)
+    ? tabs.length - 1
+    : tabs.length;
+
 /// Turns the published tabs into shell tabs. A tab whose target this app
 /// type can't open is left out, and so is a second tab for the same screen.
+/// 109 The More tab gets the tabs past the fourth (`Navigation.more`), each
+/// opened on top.
 List<ShellTab> tabsFromNavigation(
   Navigation navigation,
   AppModule module,
@@ -189,37 +201,59 @@ List<ShellTab> tabsFromNavigation(
   final tabs = <ShellTab>[];
   final paths = <String>{};
   for (final tab in navigation.tabs) {
-    final target = tab.target;
-    final String? location = switch (target.type) {
-      PageActionType.page when target.pageSlug != null => Paths.page(
-        target.pageSlug!,
-      ),
-      PageActionType.screen when target.screen != null => module.screenLocation(
-        target.screen!,
-        config,
-      ),
-      _ => null,
-    };
-    if (target.type == PageActionType.screen && location == null) continue;
-    if (target.type == PageActionType.page && location == null) continue;
-    final path = location == null ? null : Uri.parse(location).path;
-    final asTab = path != null && module.isTabPath(path);
-    if (asTab && !paths.add(path)) continue;
-    String label(BuildContext _) => tab.label;
-    tabs.add(
-      ShellTab(
-        icon: symbolByName(tab.icon),
-        // 83.3 Unless the team switched the owner's own icons off.
-        iconUrl: config?.switchOn('own_icons') == false ? null : tab.iconUrl,
-        label: label,
-        location: asTab ? location : null,
-        // Screens that can't be a tab (settings) open on top instead.
-        pushLocation: asTab ? null : location,
-        action: location == null ? target : null,
-      ),
-    );
+    if (tab.target.type == PageActionType.more) {
+      final more = [
+        for (final entry in navigation.more)
+          ?_shellTab(entry, module, config, onTop: true),
+      ];
+      if (more.isNotEmpty) {
+        tabs.add(_shellTab(tab, module, config)!.withMore(more));
+      }
+      continue;
+    }
+    final shell = _shellTab(tab, module, config);
+    if (shell == null) continue;
+    if (shell.path != null && !paths.add(shell.path!)) continue;
+    tabs.add(shell);
   }
   return tabs;
+}
+
+/// A published tab as a shell tab, or null when this app type can't open
+/// it; [onTop], a tab in the More list, which opens its screen on top.
+ShellTab? _shellTab(
+  NavTab tab,
+  AppModule module,
+  AppConfig? config, {
+  bool onTop = false,
+}) {
+  final target = tab.target;
+  final String? location = switch (target.type) {
+    PageActionType.page when target.pageSlug != null => Paths.page(
+      target.pageSlug!,
+    ),
+    PageActionType.screen when target.screen != null => module.screenLocation(
+      target.screen!,
+      config,
+    ),
+    _ => null,
+  };
+  if (target.type == PageActionType.screen && location == null) return null;
+  if (target.type == PageActionType.page && location == null) return null;
+  final path = location == null ? null : Uri.parse(location).path;
+  final asTab = !onTop && path != null && module.isTabPath(path);
+  String label(BuildContext _) => tab.label;
+  return ShellTab(
+    icon: symbolByName(tab.icon),
+    // 83.3 Unless the team switched the owner's own icons off.
+    iconUrl: config?.switchOn('own_icons') == false ? null : tab.iconUrl,
+    label: label,
+    location: asTab ? location : null,
+    // Screens that can't be a tab (settings) open on top instead.
+    pushLocation: asTab ? null : location,
+    action: location == null ? target : null,
+    id: tab.id,
+  );
 }
 
 /// Goes to [location] when it is one of the bottom tabs, else pushes it on

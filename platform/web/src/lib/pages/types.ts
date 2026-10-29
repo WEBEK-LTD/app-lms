@@ -682,10 +682,33 @@ export interface LayoutPage {
 }
 
 /** A layout without its version: what the dashboard edits. */
+/** 109 How the bottom tabs look (`TabBar` in docs/api/openapi.yaml); a field left out keeps the usual look for it. */
+export interface TabBarStyle {
+  background?: string | null;
+  dark_background?: string | null;
+  /** The open tab's icon and name; null, the app's main colour. */
+  active?: string | null;
+  inactive?: string | null;
+  /** 0 to 32. */
+  radius?: number;
+  /** 0 to 24: 0, across the bottom of the screen; more, a floating bar. */
+  margin?: number;
+  font?: string | null;
+  labels?: TabLabels;
+  /** A tab's id, drawn as a round button raised in the middle: only when it's the middle one of three or five. */
+  center?: string | null;
+}
+
+export const TAB_LABELS = ["always", "active", "never"] as const;
+export type TabLabels = (typeof TAB_LABELS)[number];
+
 export interface LayoutContent {
   appearance: Appearance;
   languages: Languages;
+  /** 109 Up to 10: with more than five, the app shows the first four and a More tab with the rest. */
   tabs: LayoutTab[];
+  /** 109 How the bottom tabs look; missing, the app's usual bar. */
+  tab_bar?: TabBarStyle;
   /** 82.5 The side menu, shaped like the tabs; missing or empty: none. */
   menu?: LayoutTab[];
   pages: LayoutPage[];
@@ -705,7 +728,9 @@ export interface Layout extends LayoutContent {
 
 export const LAYOUT_LIMITS = {
   minTabs: 2,
-  maxTabs: 5,
+  // 109 With more than `shownTabs`, the app shows the first ones and a More tab with the rest.
+  maxTabs: 10,
+  shownTabs: 5,
   // 82.5 The side menu.
   maxMenu: 12,
   maxPages: 20,

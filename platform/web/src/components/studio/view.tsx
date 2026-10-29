@@ -4,7 +4,8 @@ import type { CSSProperties, DragEvent, MouseEvent, PointerEvent, ReactNode } fr
 import type { LanguageCode } from "@/lib/pages/types";
 import { resized } from "@/lib/studio/resize";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
-import type { LayoutTab, StudioHeader, StudioNode, StudioPage, StudioSides, StudioSize } from "@/lib/pages/types";
+import type { LayoutTab, StudioHeader, StudioNode, StudioPage, StudioSides, StudioSize, TabBarStyle } from "@/lib/pages/types";
+import { splitTabs } from "@/lib/pages/tab-bar";
 
 /**
  * 103R A Studio page drawn in the editor's phone, as the app draws it: rows,
@@ -21,6 +22,10 @@ export interface StudioLook {
   tabs: LayoutTab[];
   /** The tab whose page this is, highlighted. */
   activeTab: string | null;
+  /** 109 How the bottom tabs look; missing, the usual bar. */
+  tabBar?: TabBarStyle;
+  /** 109 The More tab's name, with more than five tabs. */
+  moreLabel?: string;
 }
 
 export interface StudioEditing {
@@ -189,21 +194,76 @@ function Header(props: ViewProps & { header: StudioHeader }) {
   );
 }
 
-function Tabs({ look, dark, lang, defaultLang }: ViewProps) {
+/**
+ * The bottom tabs as the app draws them: 109 up to five, else four and More;
+ * in the owner's colours, corners and font, floating or across the bottom,
+ * names under every tab, the open one's or none, and a tab in the middle
+ * as a raised round button. In the editor a tap selects the bar.
+ */
+function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
+  const style = look.tabBar ?? {};
+  const { shown, more } = splitTabs(look.tabs);
+  const tabs: (LayoutTab | null)[] = more.length ? [...shown, null] : shown;
+  const background = (dark ? (style.dark_background ?? style.background) : style.background) ?? (dark ? "#22203A" : "#FFFFFF");
+  const activeColour = style.active ?? look.brand;
+  const inactiveColour = style.inactive ?? (dark ? "#A7A3C2" : "#5E5B70");
+  const labels = style.labels ?? "always";
+  const middle = tabs.length % 2 === 1 && tabs.length >= 3 ? (tabs.length - 1) / 2 : -1;
+  const center = middle >= 0 && style.center && tabs[middle]?.id === style.center ? middle : -1;
+  const margin = style.margin ?? 0;
+  const radius = style.radius ?? 0;
+  const selected = editing?.selectedId === "tabs";
   return (
-    <div style={{ margin: "0 10px 12px", padding: "8px 6px", borderRadius: 18, background: dark ? "#22203A" : "#FFFFFF", boxShadow: "0 -2px 10px rgba(14,13,36,0.08)", display: "flex", justifyContent: "space-around", fontSize: 10, color: dark ? "#A7A3C2" : "#5E5B70" }}>
-      {look.tabs.map((tab) => {
-        const label = (lang !== defaultLang ? (tab.translations?.[lang]?.label as string | undefined) : undefined) ?? tab.label;
-        const active = tab.id === look.activeTab;
+    <div
+      data-studio-tabs=""
+      onClick={editing ? (e) => (e.stopPropagation(), editing.onSelect("tabs")) : undefined}
+      style={{
+        position: "relative",
+        // The usual bar sits a little in from the phone's edges.
+        margin: margin ? `0 ${margin}px ${margin}px` : "0 10px 12px",
+        padding: "8px 6px",
+        borderRadius: margin ? radius : radius || 18,
+        background,
+        boxShadow: "0 -2px 10px rgba(14,13,36,0.08)",
+        display: "flex",
+        justifyContent: "space-around",
+        alignItems: "center",
+        fontSize: 10,
+        fontFamily: style.font ? `'${style.font}', inherit` : undefined,
+        color: inactiveColour,
+        outline: selected ? "1.5px dashed #6C8BFF" : undefined,
+        outlineOffset: 2,
+        cursor: editing ? "pointer" : undefined,
+      }}
+    >
+      {tabs.map((tab, i) => {
+        const label = tab ? ((lang !== defaultLang ? (tab.translations?.[lang]?.label as string | undefined) : undefined) ?? tab.label) : (look.moreLabel ?? "More");
+        const active = tab ? tab.id === look.activeTab : false;
+        const icon = tab ? tab.icon : "apps";
+        const glyph = tab?.icon_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={tab.icon_url} alt="" style={{ width: 22, height: 22, objectFit: "contain" }} />
+        ) : (
+          <span className="material-symbols-rounded" aria-hidden="true">
+            {icon}
+          </span>
+        );
+        if (i === center) {
+          return (
+            <div key={tab?.id ?? "more"} data-studio-tab-center="" title={label} style={{ display: "flex", flex: 1, justifyContent: "center" }}>
+              <span style={{ marginTop: -26, width: 50, height: 50, borderRadius: "50%", background: activeColour, color: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(14,13,36,0.25)" }}>{glyph}</span>
+            </div>
+          );
+        }
+        const showLabel = labels === "always" || (labels === "active" && active);
         return (
-          <div key={tab.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", color: active ? look.brand : undefined, fontWeight: active ? 700 : 400 }}>
-            <span className="material-symbols-rounded" aria-hidden="true">
-              {tab.icon}
-            </span>
-            {label}
+          <div key={tab?.id ?? "more"} data-studio-tab={tab ? tab.id : "more"} title={label} style={{ display: "flex", flex: 1, flexDirection: "column", alignItems: "center", minWidth: 0, color: active ? activeColour : undefined, fontWeight: active ? 700 : 400 }}>
+            {glyph}
+            {showLabel ? <span style={{ maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span> : null}
           </div>
         );
       })}
+      {selected && editing ? <Tag text={editing.tagOf({ id: "tabs", type: "row" })} /> : null}
     </div>
   );
 }

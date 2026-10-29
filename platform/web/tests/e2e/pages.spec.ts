@@ -699,7 +699,7 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await expect(phone.locator("[data-studio-node]").filter({ hasText: /^My courses$/ }).first()).toBeVisible();
   // The photo Figma filled the box with, saved as the account's file; the tab bar left out.
   await expect(phone.locator('img[src*="/api/v1/assets/"]')).not.toHaveCount(0);
-  await expect(phone.getByText("Account", { exact: true })).toHaveCount(0);
+  await expect(phone.locator("[data-studio-node]").getByText("Account", { exact: true })).toHaveCount(0);
   // The token went to Figma only with these calls.
   expect(figmaTokens.slice(asked).every((tk) => tk === FIGMA_TOKEN || tk === "figd_not-the-right-token-000000")).toBe(true);
   await own.getByRole("button", { name: "Undo" }).click();
@@ -785,6 +785,36 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await own.getByRole("button", { name: "Undo" }).click();
   await own.getByRole("button", { name: "Redo" }).click();
   await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
+
+  // 109 The bottom tabs, edited in Studio: past five the fifth is More, and the bar takes its own look.
+  await phone.locator("[data-studio-tabs]").click();
+  const tabsPanel = own.getByRole("complementary", { name: "Design" });
+  await expect(tabsPanel.getByText("Bottom tabs", { exact: true })).toBeVisible();
+  const tabCards = tabsPanel.locator("[data-studio-tab-edit]");
+  const tabsBefore = await tabCards.count();
+  for (let i = tabsBefore; i < 7; i += 1) await tabsPanel.getByRole("button", { name: "Add a tab" }).click();
+  await expect(tabCards).toHaveCount(7);
+  await tabCards.last().getByLabel("Name").fill("Offers");
+  await expect(phone.locator("[data-studio-tab]")).toHaveCount(5);
+  await expect(phone.locator('[data-studio-tab="more"]')).toContainText("More");
+  await expect(tabCards.nth(4).getByText("In More")).toBeVisible();
+  await expect(tabCards.nth(3).getByText("In More")).toHaveCount(0);
+  // Up and down: the order is the app's.
+  await tabsPanel.getByRole("button", { name: "Move tab 7 up" }).click();
+  await expect(tabCards.nth(5).getByLabel("Name")).toHaveValue("Offers");
+  await tabsPanel.getByRole("button", { name: "Icons only" }).click();
+  // The icon only, no name under it.
+  await expect(phone.locator("[data-studio-tab]").first().locator("span")).toHaveCount(1);
+  await tabsPanel.getByLabel("Corners").fill("20");
+  await tabsPanel.getByLabel("Round button in the middle").check();
+  await expect(phone.locator("[data-studio-tab-center]")).toHaveCount(1);
+  await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
+  // Saved with the project: the look comes back.
+  await own.reload();
+  await phone.locator("[data-studio-tabs]").click();
+  await expect(tabsPanel.getByLabel("Corners")).toHaveValue("20");
+  await expect(tabsPanel.getByRole("button", { name: "Icons only" })).toHaveAttribute("aria-pressed", "true");
+  await expect(phone.locator("[data-studio-tab-center]")).toHaveCount(1);
 
   // Before a plan the project tries everything; publishing works.
   await own.getByRole("button", { name: "Publish", exact: true }).click();

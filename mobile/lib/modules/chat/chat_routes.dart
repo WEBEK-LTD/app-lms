@@ -37,13 +37,28 @@ final _chatTab = ShellTab(
   location: Paths.chat,
 );
 
+/// 109 Chat in the More list, opened on top.
+final _chatOnTop = ShellTab(
+  icon: AppIcons.chat,
+  label: (context) => context.l10n.tabChat,
+  pushLocation: Paths.chat,
+);
+
 /// The tabs with Chat added when the app has chat and the client's tabs
 /// leave room for it (at most five): before Account when Account is last.
+/// 109 With a full bar and a More tab, Chat goes first in its list.
 List<ShellTab> withChatTab(List<ShellTab> tabs, AppConfig? config) {
   if (config?.chat == null ||
-      tabs.any((t) => t.path == Paths.chat) ||
-      tabs.length >= Navigation.maxTabs) {
+      tabs.any(
+        (t) => t.path == Paths.chat || t.more.any((m) => m.path == Paths.chat),
+      )) {
     return tabs;
+  }
+  if (tabs.length >= Navigation.maxTabs) {
+    final more = tabs.indexWhere((t) => t.isMore);
+    if (more == -1) return tabs;
+    return [...tabs]
+      ..[more] = tabs[more].withMore([_chatOnTop, ...tabs[more].more]);
   }
   final at = tabs.isNotEmpty && tabs.last.path == Paths.account
       ? tabs.length - 1

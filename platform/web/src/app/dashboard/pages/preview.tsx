@@ -8,6 +8,7 @@ import { cleanBlockHtml } from "@/lib/pages/html";
 import { SOCIAL_LABELS, WEEKDAY_LABELS } from "@/lib/pages/labels";
 import { SOURCE_NAMES } from "@/lib/pages/sources";
 import { withFilledTexts } from "@/lib/pages/fill-texts";
+import { MORE_TAB_ID, moreLabel, splitTabs } from "@/lib/pages/tab-bar";
 import { translated, translatedBlock } from "@/lib/pages/translate";
 import { RTL_LANGUAGES, type Appearance, type BlockLook, type BlockSpacing, type HeaderIcon, type LanguageCode, type LayoutBlock, type LayoutContent, type LayoutPage } from "@/lib/pages/types";
 import { useOptionalDashT } from "@/components/dashboard-i18n";
@@ -752,7 +753,10 @@ export function PhonePreview({
   const theme = themeOf(appearance, app.primaryColor);
   const rtl = RTL_LANGUAGES.includes(lang);
   const filled = builtin ? withFilledTexts({ languages: layout.languages, tabs: layout.tabs, pages: pageIn ? [pageIn] : [] }, [lang], (text, l) => builtin[text]?.[l] ?? null) : null;
-  const tabs = filled ? filled.tabs : layout.tabs;
+  // 109 Past five tabs, the fifth is More (with the rest, in the app).
+  const allTabs = filled ? filled.tabs : layout.tabs;
+  const split = splitTabs(allTabs);
+  const tabs = split.more.length ? [...split.shown, { id: MORE_TAB_ID, label: moreLabel(lang), icon: "apps", target: { type: "screen" as const, screen: null } }] : allTabs;
   const page = filled ? (filled.pages[0] ?? null) : pageIn;
   const shown = page ? translated(page, lang, def) : null;
   const classic = appearance.template === "classic";

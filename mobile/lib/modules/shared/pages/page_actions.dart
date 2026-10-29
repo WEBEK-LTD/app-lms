@@ -10,6 +10,7 @@ import '../../../core/routing/app_router.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/services/external_links.dart';
 import '../../../core/web/web_page_screen.dart';
+import 'more_tabs.dart';
 
 /// Runs a tab's, button's or card's action. Actions this app type can't
 /// follow (a product in an Academy app, a post) do nothing.
@@ -52,6 +53,13 @@ void runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
           extra: WebPageArgs(url: url!, title: uri.host),
         );
       }
+    case PageActionType.more:
+      // 109 The More tab's list, when the bar has one.
+      final more = ref
+          .read(shellTabsProvider)
+          .where((t) => t.isMore)
+          .firstOrNull;
+      if (more != null) showMoreTabs(context, ref, more.more);
   }
 }
 
@@ -67,6 +75,7 @@ bool canFollowAction(
   PageActionType.item =>
     action.item != null && itemLocation(action.item!, appType) != null,
   PageActionType.page || PageActionType.screen || PageActionType.url => true,
+  PageActionType.more => true,
 };
 
 /// 38 Whether tapping [action] opens something: also a built-in screen this
