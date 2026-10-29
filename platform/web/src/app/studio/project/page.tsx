@@ -50,7 +50,7 @@ export default async function StudioProjectPage() {
         { label: t("studio.statPages"), value: number(card.pages) },
         { label: t("studio.statLanguages"), value: number(card.languages) },
       ];
-  const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search") };
+  const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search"), days: t("studio.days"), hours: t("studio.hours"), minutes: t("studio.minutes"), seconds: t("studio.seconds") };
   const box = { background: "#FFFFFF", border: `1px solid ${C.line}` };
   return (
     <>

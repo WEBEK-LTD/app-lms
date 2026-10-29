@@ -78,6 +78,8 @@ export async function handlePages(ctx: HostedContext, req: HostedRequest, user: 
 async function servedStudio(pc: PageContext, studio: StudioPage): Promise<StudioPage> {
   const def = pc.layout.languages.default;
   const body = await mapTreeAsync(studio.body, async (node) => {
+    // 107.2 A hidden element stays in the editor only.
+    if (node.hidden) return null;
     const { query, translations: _t, ...shown } = translated(node, pc.lang, def);
     void _t;
     if (node.type === "items") {

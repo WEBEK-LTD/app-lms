@@ -4,6 +4,7 @@ import path from "node:path";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 import { solidPng } from "./png";
+import { zip } from "./zip";
 
 /**
  * Pages, looks and languages (roadmap 10.4, 10.6, 10.8 and 11.9): the team
@@ -99,6 +100,8 @@ function figmaApi(req: { url?: string; headers: Record<string, string | string[]
       },
     };
   }
+  // 108.4 The pictures the file's shapes are filled with.
+  if (url.pathname === `/v1/files/${FIGMA_KEY}/images`) return { status: 200, body: { error: false, status: 200, meta: { images: { a: `${figmaBase}/render/photo-2.png` } } } };
   if (url.pathname === `/v1/images/${FIGMA_KEY}`) {
     const ids = (url.searchParams.get("ids") ?? "").split(",");
     return { status: 200, body: { err: null, images: Object.fromEntries(ids.map((id) => [id, `${figmaBase}/render/${id === "1:3" ? "logo" : "home"}-${url.searchParams.get("scale")}.png`])) } };
@@ -372,33 +375,46 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await admin.goto("/admin/plans?family=studio");
   await expect(admin.locator('[data-studio-plan="studio_1"]')).toContainText("Not offered");
   const studioPlan = admin.locator('section[aria-labelledby="h-studio_1"]');
-  // Offered with its own name only.
+  // One Save button for the whole plan, at the bottom of the screen.
+  await expect(studioPlan.getByRole("button", { name: /^Save/ })).toHaveCount(1);
+  const save = studioPlan.getByRole("button", { name: "Save plan" });
+  // Offered with its own name only; nothing is saved while a field is wrong.
   await studioPlan.getByLabel("Offered").check();
-  await studioPlan.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(studioPlan.getByText("Give the plan its name and price below first, then offer it.")).toBeVisible();
-  // Its name, texts and price, like a regular plan's.
+  await expect(studioPlan.getByText("Changes not saved yet.")).toBeVisible();
+  await save.click();
+  await expect(studioPlan.getByText("Check the fields marked below. Nothing was saved.")).toBeVisible();
+  await expect(studioPlan.getByText("Give the plan its own name before offering it.")).toBeVisible();
+  // Leaving with changes not saved asks first.
+  admin.once("dialog", (dialog) => void dialog.dismiss());
+  await admin.locator('[data-studio-plan="studio_2"]').click();
+  await expect(admin).toHaveURL(/family=studio$/);
+  // Its name, texts and price, like a regular plan's; "What's included" left empty is written from its numbers.
   await studioPlan.getByLabel("Name", { exact: true }).first().fill("Studio Start");
   await studioPlan.getByLabel("Tagline", { exact: true }).first().fill("Your first Studio project");
-  await studioPlan.getByLabel("What's included", { exact: true }).first().fill("Pages designed freely\nThe app in the stores");
   await studioPlan.getByLabel("A price").check();
   await studioPlan.getByLabel("Price in EGP").fill("500");
-  await studioPlan.getByRole("button", { name: "Save plan" }).click();
-  await expect(studioPlan.getByText("Studio Start saved. The pricing page shows it now.")).toBeVisible();
-  // Its features and limits: Studio's own and every regular one, storage included.
+  // Its features and limits, Pages per project with them: Studio's own and every regular one, storage included.
   await expect(studioPlan.getByLabel("Storage (GB)")).toHaveValue("20");
   await studioPlan.getByLabel("Motion in the editor").check();
   await studioPlan.getByLabel("Storage (GB)").fill("30");
-  await studioPlan.getByRole("button", { name: "Save features and limits" }).click();
-  await expect(studioPlan.getByText("Studio Start: features and limits saved.")).toBeVisible();
-  await studioPlan.getByLabel("Offered").check();
   await studioPlan.getByLabel("Pages per project").fill("5");
-  await studioPlan.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(studioPlan.getByText("Studio Start is offered. Studio projects can choose it now.")).toBeVisible();
+  await save.click();
+  await expect(studioPlan.getByText("Studio Start saved and offered. Studio projects can choose it now.")).toBeVisible();
+  await expect(studioPlan.getByLabel("What's included", { exact: true }).first()).toHaveValue(/^Up to 5 pages per project\n30 GB of media storage\n/);
+  await expect(studioPlan.getByLabel("What's included", { exact: true }).nth(1)).toHaveValue(/^حتى 5 صفحات لكل مشروع\n/);
   await admin.reload();
   await expect(admin.locator('[data-studio-plan="studio_1"]')).toContainText("Offered");
   await expect(studioPlan.getByLabel("Storage (GB)")).toHaveValue("30");
   await expect(studioPlan.getByLabel("Pages per project")).toHaveValue("5");
   await expect(studioPlan.getByRole("heading", { name: "What Studio Start offers" })).toBeVisible();
+  // Its numbers change: the written "What's included" follows; one the team writes stays.
+  await studioPlan.getByLabel("Pages per project").fill("8");
+  await save.click();
+  await expect(studioPlan.getByText("Studio Start saved and offered.", { exact: false })).toBeVisible();
+  await expect(studioPlan.getByLabel("What's included", { exact: true }).first()).toHaveValue(/^Up to 8 pages per project\n/);
+  await studioPlan.getByLabel("What's included", { exact: true }).first().fill("Pages designed freely\nThe app in the stores");
+  await save.click();
+  await expect(studioPlan.getByLabel("What's included", { exact: true }).first()).toHaveValue("Pages designed freely\nThe app in the stores");
   // The team adds plans past the first three, and takes off one no app is on.
   await expect(admin.locator('[data-studio-plan="studio_4"]')).toHaveCount(0);
   await admin.getByRole("button", { name: "Add a Studio plan" }).click();
@@ -410,7 +426,7 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await admin.goto("/yallapp-studio");
   const offered = admin.locator('#plans [data-plan="studio_1"]');
   await expect(offered.getByRole("heading", { level: 3, name: "Studio Start" })).toBeVisible();
-  await expect(offered).toContainText("5 Studio pages per project");
+  await expect(offered).toContainText("8 Studio pages per project");
   await expect(offered.locator("li[data-included]").filter({ hasText: "Motion in the editor" })).toHaveCount(1);
   await admin.goto("/pricing");
   await expect(admin.locator('#studio [data-plan="studio_1"]')).toContainText("Studio Start");
@@ -481,8 +497,293 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await expect(phone.getByText("Hello Studio")).toHaveCount(2);
   await own.getByRole("button", { name: "Undo" }).click();
   await expect(phone.getByText("Hello Studio")).toHaveCount(1);
+
+  // 107.1 The selected element's tools: its style copied and pasted, moved, what holds it selected.
+  const inspector = own.getByRole("complementary", { name: "Design" });
+  const tools = own.getByRole("toolbar", { name: "Copy, paste and move" });
+  await phone.getByText("Hello Studio").click();
+  await inspector.getByLabel("Lowest height").fill("77");
+  await own.keyboard.press("Escape");
+  await phone.getByText("Hello Studio").click();
+  await tools.getByRole("button", { name: "Copy style" }).click();
+  await expect(own.getByRole("status").filter({ hasText: "Style copied." })).toBeVisible();
+  // Added into the hero, after its button: moved up to the hero's top.
+  const moveUp = tools.getByRole("button", { name: "Move up" });
+  for (let i = 0; i < 5 && (await moveUp.isEnabled()); i += 1) await moveUp.click();
+  await expect(moveUp).toBeDisabled();
+  await tools.getByRole("button", { name: "Move down" }).click();
+  await expect(moveUp).toBeEnabled();
+  await tools.getByRole("button", { name: "Select what holds it" }).click();
+  await expect(tools.getByRole("button", { name: "Cut" })).toBeVisible();
+  await tools.getByRole("button", { name: "Select what holds it" }).click();
+  // The page's own element can't be copied, cut or moved; its style can.
+  await expect(tools.getByRole("button", { name: "Cut" })).toHaveCount(0);
+  await tools.getByRole("button", { name: "Paste style" }).click();
+  await expect(inspector.getByLabel("Lowest height")).toHaveValue("77");
+  await own.getByRole("button", { name: "Undo" }).click();
+  await expect(inspector.getByLabel("Lowest height")).toHaveValue("");
+  // Copied, then pasted on another page.
+  await own.keyboard.press("Escape");
+  await phone.getByText("Hello Studio").click();
+  await tools.getByRole("button", { name: "Copy", exact: true }).click();
+  await expect(own.getByRole("status").filter({ hasText: "Copied. Paste it here" })).toBeVisible();
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await own.getByLabel("Page name").fill("Summer");
+  await own.getByRole("button", { name: "Add the page" }).click();
+  await expect(own.getByRole("button", { name: "Page: Summer" })).toBeVisible();
+  await expect(phone.getByText("Hello Studio")).toHaveCount(0);
+  await own.keyboard.press("Control+v");
+  await expect(phone.getByText("Hello Studio")).toHaveCount(1);
+  await expect(own.getByRole("status").filter({ hasText: "Pasted." })).toBeVisible();
+  await own.getByRole("button", { name: "Page: Summer" }).click();
+  await own.getByRole("menuitemradio", { name: "Spring" }).click();
+  // The shortcuts, listed with ?.
+  await own.keyboard.press("Escape");
+  await own.keyboard.press("?");
+  await expect(own.getByRole("dialog", { name: "Shortcuts" })).toContainText("Ctrl Alt V");
+  await own.keyboard.press("Escape");
+  await expect(own.getByRole("dialog", { name: "Shortcuts" })).toHaveCount(0);
+
+  // 108.1 A corner of the selection dragged: smaller, one undo step; a double click gives its own size back.
+  await phone.getByText("Hello Studio").click();
+  const corner = phone.locator('[data-studio-resize="bottom-right"]').first();
+  const at = (await corner.boundingBox())!;
+  await own.mouse.move(at.x + at.width / 2, at.y + at.height / 2);
+  await own.mouse.down();
+  for (let i = 1; i <= 5; i += 1) await own.mouse.move(at.x + at.width / 2 - 20 * i, at.y + at.height / 2 + 4 * i);
+  await own.mouse.up();
+  await expect(inspector.getByRole("spinbutton", { name: "Width", exact: true })).toHaveValue(/^\d+$/);
+  const narrower = Number(await inspector.getByRole("spinbutton", { name: "Width", exact: true }).inputValue());
+  expect(narrower).toBeGreaterThan(150);
+  expect(narrower).toBeLessThan(260);
+  await expect(inspector.getByRole("spinbutton", { name: "Height", exact: true })).toHaveValue(/^\d+$/);
+  await expect(phone.locator("[data-studio-size]")).toHaveText(new RegExp(`^${narrower} ×`));
+  await own.getByRole("button", { name: "Undo" }).click();
+  await expect(inspector.getByRole("spinbutton", { name: "Width", exact: true })).toHaveCount(0);
+  await own.getByRole("button", { name: "Redo" }).click();
+  await expect(inspector.getByRole("spinbutton", { name: "Width", exact: true })).toHaveCount(1);
+  await phone.locator('[data-studio-resize="top-left"]').first().dblclick();
+  await expect(inspector.getByRole("spinbutton", { name: "Width", exact: true })).toHaveCount(0);
+  await expect(inspector.getByRole("spinbutton", { name: "Height", exact: true })).toHaveCount(0);
+  await own.keyboard.press("Escape");
+
+  // 107.2 More style: struck through and in capitals, each corner on its own, turned, hidden in the app.
+  await phone.getByText("Hello Studio").click();
+  const hello = phone.locator('[data-studio-node]').filter({ has: own.getByText("Hello Studio", { exact: true }) }).last();
+  await inspector.getByLabel("Struck through").check();
+  await inspector.getByLabel("Capitals").check();
+  await expect(hello).toHaveCSS("text-transform", "uppercase");
+  await expect(hello).toHaveCSS("text-decoration-line", "line-through");
+  await inspector.getByLabel("Each corner on its own").check();
+  await inspector.getByLabel("Top, start").fill("30");
+  await expect(hello).toHaveCSS("border-start-start-radius", "30px");
+  await inspector.getByLabel("Hide in the app (kept here)").check();
+  await expect(hello).toHaveCSS("opacity", "0.35");
+  await expect(own.locator("[data-studio-layer]").filter({ hasText: "Hello Studio" }).getByTitle("Hidden in the app")).toBeVisible();
+  await inspector.getByLabel("Hide in the app (kept here)").uncheck();
+  await inspector.getByLabel("Capitals").uncheck();
+
+  // 107.3 New elements: questions that open, tabs, a countdown, a list with icons, and the questions section.
+  const unselect = () => phone.click({ position: { x: 4, y: 4 } });
+  await unselect();
+  await own.locator('[data-studio-element="accordion"]').click();
+  await expect(phone.getByText("Question 1")).toBeVisible();
+  await phone.getByText("Question 2").click();
+  await inspector.getByLabel("Its question or tab name").fill("Do you deliver?");
+  await expect(phone.getByText("Do you deliver?")).toBeVisible();
+  await unselect();
+  await own.locator('[data-studio-element="tabs"]').click();
+  await expect(phone.getByText("Tab 1")).toBeVisible();
+  await unselect();
+  await own.locator('[data-studio-element="countdown"]').click();
+  await expect(phone.locator("[data-studio-countdown]")).toBeVisible();
+  await inspector.getByLabel("Once the time is up").fill("It ended.");
+  await inspector.getByLabel("Ends at").fill("2020-01-01T10:00");
+  await expect(phone.getByText("It ended.")).toBeVisible();
+  await expect(phone.locator("[data-studio-countdown]")).toHaveCount(0);
+  await unselect();
+  await own.locator('[data-studio-element="bullets"]').click();
+  await expect(phone.getByText("Pay on delivery")).toBeVisible();
+  await unselect();
+  await own.getByRole("tab", { name: "Ready sections" }).click();
+  await own.locator('[data-studio-section="faq"]').click();
+  await expect(phone.getByText("Questions people ask")).toBeVisible();
+  await own.getByRole("tab", { name: "Elements" }).click();
   await own.getByRole("group", { name: "Header type:" }).getByRole("button", { name: "1 Logo in the middle" }).click();
   await expect(phone.locator('[data-studio-header="logo_center"]')).toBeVisible();
+  await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
+
+  // 108.2 The page taken out as a file, then brought back as a new page, with a picture and a font of its own.
+  await own.getByRole("button", { name: /^Page: / }).click();
+  const [exported] = await Promise.all([own.waitForEvent("download"), own.getByRole("menuitem", { name: "Export this page as a file" }).click()]);
+  expect(exported.suggestedFilename()).toBe("Spring.yallapp");
+  await expect(own.getByRole("status").filter({ hasText: "The file is downloaded." })).toBeVisible();
+  const saved = JSON.parse(readFileSync((await exported.path())!, "utf8"));
+  expect(saved).toMatchObject({ format: "yallapp-design", kind: "page", pages: [{ slug: "spring", title: "Spring" }] });
+  // As a design made in another project brings them.
+  saved.pages[0].studio.body.children.push({ id: "pic", type: "image", image_url: "https://elsewhere.test/a.png", height: 120 }, { id: "brand", type: "text", text: "Harbour words", font: { family: "Harbour Sans" } });
+  saved.pictures["https://elsewhere.test/a.png"] = { type: "image/png", data: solidPng(8, 8, [255, 90, 31]).toString("base64") };
+  saved.fonts = [{ family: "Harbour Sans", files: [{ weight: null, kind: "ttf", data: OUTFIT.toString("base64") }] }];
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await own.getByRole("menuitem", { name: "Import a design…" }).click();
+  const importing = own.getByRole("dialog", { name: "Import a design" });
+  await importing.getByLabel("Choose a file").setInputFiles({ name: "notes.yallapp", mimeType: "application/json", buffer: Buffer.from("{}") });
+  await expect(importing.getByRole("alert")).toContainText("This file can't be read here.");
+  await expect(importing.getByRole("button", { name: "Next" })).toBeDisabled();
+  await importing.getByLabel("Choose a file").setInputFiles({ name: "Spring.yallapp", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(saved)) });
+  await importing.getByRole("button", { name: "Next" }).click();
+  await expect(importing.getByText("1 page found in “Spring.yallapp”")).toBeVisible();
+  await expect(importing.getByText("1 picture is saved with your project")).toBeVisible();
+  await expect(importing.getByText("In the file")).toBeVisible();
+  // A font from the file needs its licence confirmed.
+  await expect(importing.getByRole("button", { name: "Import", exact: true })).toBeDisabled();
+  await importing.getByLabel("The licence of the fonts I add allows using them in apps").check();
+  await importing.getByRole("button", { name: "Import", exact: true }).click();
+  await expect(importing).toHaveCount(0);
+  await expect(own.getByRole("status").filter({ hasText: "The design is imported." })).toBeVisible({ timeout: 15_000 });
+  // The picture is saved in this project, and the font too: without a plan the project still has its free 100 MB.
+  await expect(own.getByRole("status").filter({ hasText: "The design is imported." })).not.toContainText("couldn't be added");
+  await expect(own.getByRole("status")).not.toContainText("pictures couldn't");
+  await expect(phone.getByText("Harbour words")).toBeVisible();
+  await expect(phone.locator("img").last()).toHaveAttribute("src", /\/api\/v1\/assets\//);
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await expect(own.getByRole("menuitemradio", { name: "Spring" })).toHaveCount(2);
+  await own.keyboard.press("Escape");
+  // One step undone, and done again.
+  await own.getByRole("button", { name: "Undo" }).click();
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await expect(own.getByRole("menuitemradio", { name: "Spring" })).toHaveCount(1);
+  await own.keyboard.press("Escape");
+  await own.getByRole("button", { name: "Redo" }).click();
+  await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
+
+  // 108.3 A screen exported as SVG from a design tool: a new page in rows and columns, its picture saved, the bars left out.
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await own.getByRole("menuitem", { name: "Import a design…" }).click();
+  await importing.getByLabel("Choose a file").setInputFiles({ name: "Lale home.svg", mimeType: "image/svg+xml", buffer: readFileSync(path.resolve(__dirname, "../unit/fixtures/designs/figma-home.svg")) });
+  await importing.getByRole("button", { name: "Next" }).click();
+  await expect(importing.getByText("1 page found in “Lale home.svg”")).toBeVisible();
+  await expect(importing.getByText("Google Fonts")).toBeVisible();
+  await expect(importing.getByText("1 picture is saved with your project")).toBeVisible();
+  await importing.getByRole("button", { name: "Import", exact: true }).click();
+  await expect(own.getByRole("status").filter({ hasText: "The design is imported." })).toBeVisible({ timeout: 15_000 });
+  await expect(own.getByRole("button", { name: "Page: Lale home" })).toBeVisible();
+  await expect(phone.getByText("Welcome to Lale")).toBeVisible();
+  await expect(phone.getByText("Order now")).toBeVisible();
+  await expect(phone.getByText("9:41")).toHaveCount(0);
+  // The page checker takes it: it saves.
+  await own.getByRole("button", { name: "Undo" }).click();
+  await own.getByRole("button", { name: "Redo" }).click();
+  await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
+
+  // 108.4 A Figma link: the file read with the owner's token, a screen chosen and brought with its picture.
+  const asked = figmaTokens.length;
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await own.getByRole("menuitem", { name: "Import a design…" }).click();
+  await importing.getByRole("tab", { name: "A Figma link" }).click();
+  await importing.getByLabel("The Figma file's link").fill(`https://www.figma.com/design/${FIGMA_KEY}/Harbour-app`);
+  await importing.getByLabel("Your personal access token").fill("figd_not-the-right-token-000000");
+  await importing.getByRole("button", { name: "Read the file" }).click();
+  await expect(importing.getByRole("alert")).toContainText("Figma didn't accept this token.");
+  await importing.getByLabel("Your personal access token").fill(FIGMA_TOKEN);
+  await importing.getByRole("button", { name: "Read the file" }).click();
+  await expect(importing.getByRole("checkbox", { name: "Home" })).toHaveAttribute("aria-checked", "true");
+  await expect(importing.getByRole("checkbox", { name: "Logo" })).toHaveAttribute("aria-checked", "false");
+  await importing.getByRole("button", { name: "Next" }).click();
+  await expect(importing.getByText("1 page found in “Harbour app”")).toBeVisible({ timeout: 15_000 });
+  await expect(importing.getByText("1 picture is saved with your project")).toHaveCount(0);
+  await importing.getByRole("button", { name: "Import", exact: true }).click();
+  await expect(own.getByRole("status").filter({ hasText: "The design is imported." })).toBeVisible({ timeout: 15_000 });
+  await expect(phone.getByText("Welcome aboard")).toBeVisible();
+  // Its button, on the page (the app's tabs have one of the same name).
+  await expect(phone.locator("[data-studio-node]").filter({ hasText: /^My courses$/ }).first()).toBeVisible();
+  // The photo Figma filled the box with, saved as the account's file; the tab bar left out.
+  await expect(phone.locator('img[src*="/api/v1/assets/"]')).not.toHaveCount(0);
+  await expect(phone.getByText("Account", { exact: true })).toHaveCount(0);
+  // The token went to Figma only with these calls.
+  expect(figmaTokens.slice(asked).every((tk) => tk === FIGMA_TOKEN || tk === "figd_not-the-right-token-000000")).toBe(true);
+  await own.getByRole("button", { name: "Undo" }).click();
+  await own.getByRole("button", { name: "Redo" }).click();
+  await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
+
+  // 108.5–108.6 A Sketch file: its artboard a page, the symbol a button with its text; a Figma file it can't read says what to do.
+  const sketchColor = (red: number, green: number, blue: number) => ({ _class: "color", red, green, blue, alpha: 1 });
+  const rect = (x: number, y: number, width: number, height: number) => ({ _class: "rect", x, y, width, height });
+  const sketchText = (id: string, string: string, frame: object, name: string, size: number) => ({
+    _class: "text",
+    do_objectID: id,
+    name: string,
+    frame,
+    attributedString: { string, attributes: [{ location: 0, length: string.length, attributes: { MSAttributedStringFontAttribute: { attributes: { name, size } }, MSAttributedStringColorAttribute: sketchColor(0.05, 0.05, 0.14) } }] },
+  });
+  const sketchPage = {
+    _class: "page",
+    layers: [
+      {
+        _class: "artboard",
+        name: "Bakery",
+        frame: rect(0, 0, 390, 844),
+        layers: [
+          sketchText("A", "Fresh bread daily", rect(24, 80, 300, 34), "Cairo-Bold", 24),
+          { _class: "symbolInstance", name: "Order", symbolID: "S1", frame: rect(24, 140, 342, 52), overrideValues: [{ overrideName: "T1_stringValue", value: "Order bread" }] },
+        ],
+      },
+      { _class: "symbolMaster", symbolID: "S1", name: "Button", frame: rect(0, 0, 200, 48), layers: [{ _class: "rectangle", fixedRadius: 12, frame: rect(0, 0, 200, 48), style: { fills: [{ isEnabled: true, fillType: 0, color: sketchColor(1, 0.35, 0.12) }] } }, sketchText("T1", "Label", rect(16, 12, 168, 22), "Cairo-SemiBold", 16)] },
+    ],
+  };
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await own.getByRole("menuitem", { name: "Import a design…" }).click();
+  await importing.getByLabel("Choose a file").setInputFiles({ name: "Old app.fig", mimeType: "application/octet-stream", buffer: Buffer.from("not a figma file at all") });
+  await expect(importing.getByRole("alert")).toContainText("This Figma file can't be read here");
+  await importing.getByLabel("Choose a file").setInputFiles({ name: "Bakery.sketch", mimeType: "application/zip", buffer: Buffer.from(zip({ "document.json": "{}", "meta.json": "{}", "pages/p1.json": JSON.stringify(sketchPage) })) });
+  await importing.getByRole("button", { name: "Next" }).click();
+  await expect(importing.getByText("1 page found in “Bakery.sketch”")).toBeVisible();
+  await importing.getByRole("button", { name: "Import", exact: true }).click();
+  await expect(own.getByRole("status").filter({ hasText: "The design is imported." })).toBeVisible({ timeout: 15_000 });
+  await expect(phone.getByText("Fresh bread daily")).toBeVisible();
+  await expect(phone.getByText("Order bread")).toBeVisible();
+  await own.getByRole("button", { name: "Undo" }).click();
+  await own.getByRole("button", { name: "Redo" }).click();
+  await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
+
+  // 108.7 Whole designs: the project type's own in six looks, applied to the whole project as one step; the project kept as one of its own.
+  await own.getByRole("tab", { name: "Templates" }).click();
+  await own.getByRole("button", { name: "See all designs (6)" }).click();
+  const designs = own.getByRole("dialog", { name: "Whole designs for your project (Academy)" });
+  await expect(designs.getByRole("button", { name: "All 6" })).toBeVisible();
+  await designs.locator('[data-studio-design="yallapp-fresh"]').click();
+  await expect(designs.getByText(/^3 pages · /)).toBeVisible();
+  await expect(designs.getByLabel("Keep the texts and pictures I changed")).toBeChecked();
+  const screenBackground = () => own.locator(".studio-screen > div").first().evaluate((el) => getComputedStyle(el).backgroundColor);
+  const before = await screenBackground();
+  await designs.getByRole("button", { name: "Replace the whole project's design" }).click();
+  await expect(designs).toHaveCount(0);
+  await expect(own.getByRole("status").filter({ hasText: "The design is applied." })).toBeVisible();
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await own.getByRole("menuitemradio").first().click();
+  await expect.poll(screenBackground).toBe("rgb(240, 253, 244)");
+  await own.getByRole("button", { name: "Undo" }).click();
+  await expect.poll(screenBackground).toBe(before);
+  await own.getByRole("button", { name: "Redo" }).click();
+  await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
+  // Saved as the account's own, opened again, applied to one page, deleted.
+  await own.getByRole("button", { name: "See all designs (6)" }).click();
+  await designs.getByRole("button", { name: "Save this project as a design" }).click();
+  await expect(designs.getByRole("status")).toHaveText("Saved in “Mine”.");
+  await designs.getByRole("button", { name: "Mine 1" }).click();
+  await designs.locator("[data-studio-design]").first().click();
+  await expect(designs.getByText(/^\d+ pages · /)).toBeVisible();
+  await designs.getByRole("button", { name: "For the open page only" }).click();
+  await expect(own.getByRole("status").filter({ hasText: "The design is applied." })).toBeVisible();
+  await own.getByRole("button", { name: "See all designs (7)" }).click();
+  await designs.getByRole("button", { name: "Mine 1" }).click();
+  await designs.locator("[data-studio-design]").first().click();
+  await designs.getByRole("button", { name: /^Delete / }).click();
+  await expect(designs.getByRole("button", { name: "Mine 0" })).toBeVisible();
+  await designs.getByRole("button", { name: "Close" }).click();
+  await own.getByRole("tab", { name: "Elements" }).click();
+  await own.getByRole("button", { name: "Undo" }).click();
+  await own.getByRole("button", { name: "Redo" }).click();
   await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
 
   // Before a plan the project tries everything; publishing works.
@@ -519,8 +820,8 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   // The Studio plan isn't offered any more, for the specs that run after this one.
   await admin.goto("/admin/plans?family=studio");
   await studioPlan.getByLabel("Offered").uncheck();
-  await studioPlan.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(admin.getByText("Studio Start isn't offered. Clients don't see it.")).toBeVisible();
+  await studioPlan.getByRole("button", { name: "Save plan" }).click();
+  await expect(admin.getByText("Studio Start saved. It isn't offered: clients don't see it.")).toBeVisible();
 });
 
 test("97.3 the client brings a look from Figma, apart from the standard one", async ({ request }) => {

@@ -66,6 +66,8 @@ test("the team adds Yallapp's Kashier account, the rate, and Growth's price in p
   await growth.getByLabel("A price").check();
   await growth.getByRole("button", { name: "Save plan" }).click();
   await expect(growth.getByText("Enter the price in Egyptian pounds, or choose On request.")).toBeVisible();
+  // The choice stays after the answer.
+  await expect(growth.getByLabel("A price")).toBeChecked();
   await growth.getByLabel("Price in EGP").fill("1500");
   await growth.getByLabel("Billed").selectOption("12");
   await growth.getByRole("button", { name: "Save plan" }).click();

@@ -32,6 +32,15 @@ export function studioPathFor(path: string): string | null {
   return `/studio/project${rest}${query}`;
 }
 
+/**
+ * The app's Plan page, in its own section: a Studio project's in Studio's
+ * frame. Links keep their `#part` this way (a redirect from the dashboard's
+ * address can't: the browser never sends it).
+ */
+export function licensePath(app: Pick<App, "section"> | null | undefined, rest = ""): string {
+  return `${isStudioProject(app) ? "/studio/project/license" : "/dashboard/license"}${rest}`;
+}
+
 /** 103R.3 Where a new Studio project's content comes from, as the new project's second step offers it. */
 export type StudioSource = "catalog" | "wordpress" | "shopify" | "platform" | "custom_api";
 

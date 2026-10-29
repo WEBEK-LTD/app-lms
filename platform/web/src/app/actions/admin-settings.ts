@@ -8,7 +8,7 @@ import { getStore } from "@/lib/data";
 import type { OtpSetting, PlatformSettingKey, PlatformSettingValues, SmtpSetting, StoragePackOffer } from "@/lib/data/types";
 import { decrypt, encrypt } from "@/lib/crypto/encryption";
 import { appUrl, encryptionKey, iyzicoApiUrl, mediaBaseUrl, mediaSigningSecret, paymentApiUrls, sessionSecret, WAABEK_API_URL } from "@/lib/env";
-import type { FormState } from "@/lib/forms";
+import { initialFormState, type FormState } from "@/lib/forms";
 import { sendMail } from "@/lib/mail";
 import { parsePrice } from "@/lib/catalog/money";
 import { otpSenderFrom } from "@/lib/hosted/otp-sender";
@@ -33,6 +33,7 @@ import {
   STUDIO_PLANS_SHOWN,
   SUPPORT_LEVELS,
   type Plan,
+  type PlanFeature,
   type PlanInfo,
   type PlanLimits,
   type PlanSetting,
@@ -42,6 +43,8 @@ import {
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { validTilesUrl } from "@/lib/delivery/settings";
 import { refreshPlanSitesSoon } from "@/lib/license/refresh-soon";
+import { planHighlights, type HighlightLang } from "@/lib/plan-highlights";
+import { savePlanAvailabilityAction } from "./admin-switches";
 import { checkMediaGate, gateRequest } from "@/lib/media/check";
 import { getMediaStorage, localMediaDisk } from "@/lib/media/storage";
 import { clearPlatformSettingsCache, encryptSetting, getPlans, platformSetting, resolvedOtpSenderConfig, yallappAccountFor } from "@/lib/settings/platform";
@@ -397,11 +400,24 @@ async function revalidatePlans() {
   }
 }
 
-/** Name, texts and price of a plan. Its features and limits are kept (savePlanLimitsAction). */
-export async function savePlanAction(_: FormState, formData: FormData): Promise<FormState> {
-  const admin = await requireAdmin("plans.edit");
-  const plan = str(formData, "plan");
-  if (!isPlan(plan)) return { message: "Unknown plan." };
+interface PlanTexts {
+  name: string;
+  tagline: string;
+  highlights: string[];
+  price: string;
+  priceCents: number | null;
+  usdCents: number | null;
+  onRequest: boolean;
+  billingMonths: 1 | 12;
+  translations: PlanTranslations;
+}
+
+/**
+ * A plan's name, texts and price from its form, checked. `emptyHighlights`:
+ * "What's included" may be left empty (a Studio plan's is then written from
+ * its numbers when it's saved, saveStudioPlanAction).
+ */
+function readPlanTexts(formData: FormData, opts: { emptyHighlights?: boolean } = {}): { values: Record<string, string>; errors: Record<string, string>; texts: PlanTexts } {
   const values: Record<string, string> = {};
   for (const name of ["name", "tagline", "highlights", "price", "pricing", "egpPrice", "usdPrice", "months"]) values[name] = str(formData, name);
   // 62 The texts in Arabic and Turkish, all optional.
@@ -410,8 +426,8 @@ export async function savePlanAction(_: FormState, formData: FormData): Promise<
   if (!values.name || values.name.length > 30) errors.name = "Enter a name of up to 30 characters.";
   if (values.tagline!.length > 80) errors.tagline = "Use at most 80 characters.";
   const highlights = values.highlights!.split("\n").map((l) => l.trim()).filter(Boolean);
-  if (highlights.length === 0 || highlights.length > 10 || highlights.some((h) => h.length > 80)) {
-    errors.highlights = "Write 1 to 10 lines, each up to 80 characters.";
+  if ((highlights.length === 0 && !opts.emptyHighlights) || highlights.length > 10 || highlights.some((h) => h.length > 80)) {
+    errors.highlights = opts.emptyHighlights ? "Write up to 10 lines, each up to 80 characters, or leave it empty." : "Write 1 to 10 lines, each up to 80 characters.";
   }
   if (!values.price || values.price.length > 30) errors.price = "Enter what the pricing page shows instead of a price, like On request.";
   // 52 A price in Egyptian pounds (what is charged), and a dollar price by hand or from the rate; or "On request".
@@ -436,23 +452,42 @@ export async function savePlanAction(_: FormState, formData: FormData): Promise<
     const text = { ...(name ? { name } : {}), ...(tagline ? { tagline } : {}), ...(lines.length ? { highlights: lines } : {}), ...(price ? { price } : {}) };
     if (Object.keys(text).length) translations[lang] = text;
   }
+  return {
+    values,
+    errors,
+    texts: { name: values.name!, tagline: values.tagline!, highlights, price: values.price!, priceCents, usdCents, onRequest, billingMonths: values.months === "1" ? 1 : 12, translations },
+  };
+}
+
+/** The plan's setting with its name, texts and price. */
+function withTexts(setting: PlanSetting, texts: PlanTexts): PlanSetting {
+  const next: PlanSetting = {
+    ...setting,
+    name: texts.name,
+    tagline: texts.tagline,
+    highlights: texts.highlights,
+    price: texts.price,
+    priceCents: texts.priceCents,
+    usdCents: texts.usdCents,
+    onRequest: texts.onRequest,
+    billingMonths: texts.billingMonths,
+  };
+  if (Object.keys(texts.translations).length) next.translations = texts.translations;
+  else delete next.translations;
+  // An edit from before Phase 52 named its currency; prices are in pounds now.
+  delete next.currency;
+  return next;
+}
+
+/** Name, texts and price of a plan. Its features and limits are kept (savePlanLimitsAction). */
+export async function savePlanAction(_: FormState, formData: FormData): Promise<FormState> {
+  const admin = await requireAdmin("plans.edit");
+  const plan = str(formData, "plan");
+  if (!isPlan(plan)) return { message: "Unknown plan." };
+  const { values, errors, texts } = readPlanTexts(formData);
   if (Object.keys(errors).length) return { errors, values };
   const { saved, info } = await currentPlan(plan);
-  const setting: PlanSetting = {
-    ...planSettingOf(info),
-    name: values.name!,
-    tagline: values.tagline!,
-    highlights,
-    price: values.price!,
-    priceCents,
-    usdCents,
-    onRequest,
-    billingMonths: values.months === "1" ? 1 : 12,
-  };
-  if (Object.keys(translations).length) setting.translations = translations;
-  else delete setting.translations;
-  // An edit from before Phase 52 named its currency; prices are in pounds now.
-  delete setting.currency;
+  const setting = withTexts(planSettingOf(info), texts);
   await save("plans", { ...saved, [plan]: setting }, admin, {
     action: "plan.save",
     target: { type: "plan", id: plan },
@@ -464,34 +499,60 @@ export async function savePlanAction(_: FormState, formData: FormData): Promise<
   return { ok: true, message: `${setting.name} saved. The pricing page shows it now.` };
 }
 
+/** Whether a "What's included" is still the one written from the plan's numbers, or left empty: then it's written again from the new ones. */
+function writtenHighlights(lines: string[] | undefined, lang: HighlightLang, before: PlanInfo): boolean {
+  if (!lines?.length) return true;
+  const was = planHighlights(lang, before);
+  return lines.length === was.length && lines.every((l, i) => l === was[i]);
+}
+
 /**
- * 103R Whether a Studio plan is offered to Studio projects, and the Studio
- * pages a project on it may have. Its name, texts and price, and its
- * features and limits, are saved like a regular plan's (savePlanAction,
- * savePlanLimitsAction). Clients see and pay only offered plans.
+ * 103R A Studio plan, saved at once from its page with one button: whether
+ * it's offered to Studio projects, its name, texts and price, its features
+ * and limits with the Studio pages a project may have, and what it offers.
+ * Everything is checked first; nothing is saved while a field is wrong.
+ * "What's included" left empty, or as it was written, is written from the
+ * plan's numbers (lib/plan-highlights.ts), in Arabic and Turkish too.
+ * Clients see and pay only offered plans.
  */
-export async function saveStudioOfferAction(_: FormState, formData: FormData): Promise<FormState> {
+export async function saveStudioPlanAction(_: FormState, formData: FormData): Promise<FormState> {
   const admin = await requireAdmin("plans.edit");
   const plan = str(formData, "plan");
   if (!isPlan(plan) || planFamily(plan) !== "studio") return { message: "Unknown plan." };
   const offered = formData.get("offered") === "on";
-  const values: Record<string, string> = { offered: offered ? "on" : "", studioPages: str(formData, "studioPages") };
+  const texts = readPlanTexts(formData, { emptyHighlights: true });
+  const limits = readPlanLimits(formData, plan);
+  const values: Record<string, string> = { ...texts.values, ...limits.values, offered: offered ? "on" : "", studioPages: str(formData, "studioPages"), on: formData.getAll("on").map(String).join(",") };
+  const errors: Record<string, string> = { ...texts.errors, ...limits.errors };
   const pages = readLimit(values.studioPages!);
-  if (pages === undefined || (pages !== null && (pages < 1 || pages > 20))) return { errors: { studioPages: "Enter 1 to 20 pages, or leave it empty for no limit." }, values };
+  if (pages === undefined || (pages !== null && (pages < 1 || pages > 20))) errors.studioPages = "Enter 1 to 20 pages, or leave it empty for no limit.";
+  // Offered with its own name only.
+  if (offered && !errors.name && texts.texts.name === PLAN_INFO[plan].name) errors.name = "Give the plan its own name before offering it.";
+  if (Object.keys(errors).length) return { errors, values, message: "Check the fields marked below. Nothing was saved." };
+
   const { saved, info } = await currentPlan(plan);
-  if (offered && !saved[plan]?.name) return { message: "Give the plan its name and price below first, then offer it.", values };
-  const setting: PlanSetting = { ...planSettingOf(info), offered, limits: { ...info.limits, studioPages: pages ?? null } };
-  delete setting.currency;
+  const numbers = { features: limits.features, limits: { ...limits.limits, studioPages: pages ?? null } };
+  const written = { ...texts.texts, translations: { ...texts.texts.translations } };
+  if (writtenHighlights(texts.texts.highlights, "en", info)) written.highlights = planHighlights("en", numbers);
+  for (const lang of PLAN_TEXT_LANGS) {
+    const own = texts.texts.translations[lang];
+    if (writtenHighlights(own?.highlights, lang, info)) written.translations[lang] = { ...own, highlights: planHighlights(lang, numbers) };
+  }
+  const setting: PlanSetting = { ...withTexts(planSettingOf(info), written), offered, features: numbers.features, limits: numbers.limits };
   await save("plans", { ...saved, [plan]: setting }, admin, {
     action: "plan.save",
     target: { type: "plan", id: plan },
-    summary: offered ? `Offered the Studio plan ${info.name}` : `Stopped offering ${info.name}`,
+    summary: `Saved the Studio plan ${setting.name}${offered === Boolean(saved[plan]?.offered) ? "" : offered ? ", now offered" : ", no longer offered"}`,
     before: saved[plan] ?? null,
     after: setting,
   });
+  // What it offers, kept with the switches like a regular plan's.
+  const offers = await savePlanAvailabilityAction(initialFormState, formData);
   await revalidatePlans();
   revalidatePath("/studio", "layout");
-  return { ok: true, message: offered ? `${info.name} is offered. Studio projects can choose it now.` : `${info.name} isn't offered. Clients don't see it.`, values };
+  refreshPlanSitesSoon(plan);
+  if (!offers.ok) return { message: `${setting.name} saved, but what it offers wasn't: ${offers.message ?? "try again."}` };
+  return { ok: true, message: offered ? `${setting.name} saved and offered. Studio projects can choose it now.` : `${setting.name} saved. It isn't offered: clients don't see it.` };
 }
 
 /**
@@ -538,18 +599,10 @@ function readLimit(raw: string): number | null | undefined {
   return n <= 10_000_000 ? n : undefined;
 }
 
-/**
- * 13.1 What a plan includes: its features (enforced where PLAN_FEATURES
- * says) and limits, plus the display-only items. Apps on the plan get the
- * change at once; 47 WordPress sites on it are asked to check their license
- * now (in batches, refreshPlanSitesSoon), the rest at their next check.
- */
-export async function savePlanLimitsAction(_: FormState, formData: FormData): Promise<FormState> {
-  const admin = await requireAdmin("plans.edit");
-  const plan = str(formData, "plan");
-  if (!isPlan(plan)) return { message: "Unknown plan." };
-  const features = formData.getAll("features").map(String);
-  const values: Record<string, string> = { features: features.join(",") };
+/** A plan's features and limits from its form, checked (the Studio pages are read with whether it's offered). */
+function readPlanLimits(formData: FormData, plan: Plan): { values: Record<string, string>; errors: Record<string, string>; features: PlanFeature[]; limits: Omit<PlanLimits, "studioPages"> } {
+  const ticked = formData.getAll("features").map(String);
+  const values: Record<string, string> = { features: ticked.join(",") };
   for (const name of ["appUsers", "languages", "sources", "storageGb", "analyticsMonths", "teamMembers", "support"]) values[name] = str(formData, name);
   values.accountManager = formData.get("accountManager") === "on" ? "on" : "";
   values.customFeatures = formData.get("customFeatures") === "on" ? "on" : "";
@@ -576,12 +629,11 @@ export async function savePlanLimitsAction(_: FormState, formData: FormData): Pr
     errors.analyticsMonths = `Enter the months, from 1 to ${MAX_ANALYTICS_MONTHS}, like 12 for a year, or leave it empty to keep them until the app is deleted.`;
   } else limits.analyticsMonths = months;
   if (!SUPPORT_LEVELS.includes(values.support as SupportLevel)) errors.support = "Choose the support level.";
-  if (Object.keys(errors).length) return { errors, values };
-  const { saved, info } = await currentPlan(plan);
-  const setting: PlanSetting = {
-    ...planSettingOf(info),
+  return {
+    values,
+    errors,
     // 103R A Studio plan is always a Studio plan.
-    features: PLAN_FEATURE_IDS.filter((f) => features.includes(f) || (f === "studio" && planFamily(plan) === "studio")),
+    features: PLAN_FEATURE_IDS.filter((f) => ticked.includes(f) || (f === "studio" && planFamily(plan) === "studio")),
     limits: {
       appUsers: limits.appUsers ?? null,
       languages: limits.languages ?? null,
@@ -592,7 +644,29 @@ export async function savePlanLimitsAction(_: FormState, formData: FormData): Pr
       support: values.support as SupportLevel,
       accountManager: values.accountManager === "on",
       customFeatures: values.customFeatures === "on",
-      // 103R Set with whether a Studio plan is offered (saveStudioOfferAction).
+    },
+  };
+}
+
+/**
+ * 13.1 What a plan includes: its features (enforced where PLAN_FEATURES
+ * says) and limits, plus the display-only items. Apps on the plan get the
+ * change at once; 47 WordPress sites on it are asked to check their license
+ * now (in batches, refreshPlanSitesSoon), the rest at their next check.
+ */
+export async function savePlanLimitsAction(_: FormState, formData: FormData): Promise<FormState> {
+  const admin = await requireAdmin("plans.edit");
+  const plan = str(formData, "plan");
+  if (!isPlan(plan)) return { message: "Unknown plan." };
+  const { values, errors, features, limits } = readPlanLimits(formData, plan);
+  if (Object.keys(errors).length) return { errors, values };
+  const { saved, info } = await currentPlan(plan);
+  const setting: PlanSetting = {
+    ...planSettingOf(info),
+    features,
+    limits: {
+      ...limits,
+      // 103R Set with whether a Studio plan is offered (saveStudioPlanAction).
       ...(info.limits.studioPages !== undefined ? { studioPages: info.limits.studioPages } : {}),
     },
   };

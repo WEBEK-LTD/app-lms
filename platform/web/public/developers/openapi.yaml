@@ -9470,15 +9470,20 @@ components:
         Content elements: `text`, `image`, `button`, `icon`, `items` (a list
         from the app's data: products, courses, services and the rest),
         `categories` (the source's categories as chips), `video`, `form`,
-        `map`, `ratings`, `search` and `divider`. An element the app doesn't
-        know is left out with what it holds. Sides are logical: `start` is
-        the left in a left-to-right language and the right in Arabic.
+        `map`, `ratings`, `search` and `divider`. 107.3 `accordion` holds
+        questions that open one at a time (each child's `title` is its
+        question, the child its answer), `tabs` shows one child at a time
+        under a bar of their `title`s, `countdown` counts down to `ends_at`,
+        and `bullets` shows each line of `text` after an `icon`. An element
+        the app doesn't know is left out with what it holds. Sides are
+        logical: `start` is the left in a left-to-right language and the
+        right in Arabic.
       required: [id, type]
       properties:
         id: { type: string, maxLength: 64 }
         type:
           type: string
-          enum: [row, column, stack, grid, slider, spacer, text, image, button, icon, items, categories, video, form, map, ratings, search, divider]
+          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets]
         name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app." }
         children:
           type: array
@@ -9504,13 +9509,18 @@ components:
         gradient: { $ref: '#/components/schemas/StudioGradient' }
         image_background_url: { type: [string, 'null'], format: uri, description: "A picture behind the element, covering it." }
         radius: { type: number, minimum: 0, maximum: 500, default: 0 }
+        corners: { $ref: '#/components/schemas/StudioCorners' }
+        rotation: { type: number, minimum: -180, maximum: 180, default: 0, description: "107.2 Turned by this many degrees, clockwise; what it holds turns with it." }
+        overlay: { $ref: '#/components/schemas/StudioOverlay' }
         border_color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
         border_width: { type: number, minimum: 0, maximum: 20, default: 0 }
         shadow: { type: string, enum: [none, light, medium, strong], default: none }
         opacity: { type: number, minimum: 0, maximum: 1, default: 1 }
         font: { $ref: '#/components/schemas/StudioFont' }
         text_align: { type: string, enum: [start, center, end], default: start }
-        text: { type: [string, 'null'], maxLength: 2000, description: "For `text` and `button` (and the `search` hint), in the language asked for." }
+        text: { type: [string, 'null'], maxLength: 2000, description: "For `text` and `button` (and the `search` hint), in the language asked for. 107.3 For `bullets`, one line each; for `countdown`, what shows once the time is up (none: the countdown hides)." }
+        title: { type: [string, 'null'], maxLength: 120, description: "107.3 For a child of `accordion` or `tabs`: its question or its tab's name, in the language asked for." }
+        ends_at: { type: [string, 'null'], format: date-time, description: "107.3 For `countdown`: when the time is up." }
         max_lines: { type: [integer, 'null'], minimum: 1, maximum: 50 }
         image_url: { type: [string, 'null'], format: uri, description: "For `image`." }
         fit: { type: string, enum: [cover, contain], default: cover }
@@ -9522,6 +9532,7 @@ components:
         interval_ms: { type: integer, minimum: 1500, maximum: 20000, default: 4000 }
         per_view: { type: number, minimum: 1, maximum: 4, default: 1, description: "For `slider`, how many show at a time (1.2 peeks at the next)." }
         dots: { type: boolean, default: true, description: "For `slider`." }
+        scroll: { type: boolean, default: false, description: "107.2 For `row`: its children keep their own widths and the row scrolls sideways when they don't fit (a child sized `fill` hugs its content)." }
         source: { $ref: '#/components/schemas/ItemSource' }
         layout: { type: string, enum: [list, grid, carousel], default: grid, description: "For `items`." }
         card: { $ref: '#/components/schemas/StudioNode', description: "For `items`: the card drawn for each entry, its elements' `bind` filled from the entry. Missing, the app's own card." }
@@ -9546,6 +9557,24 @@ components:
           description: Shown on these; missing, on both.
         visibility: { type: string, enum: [everyone, signed_in, signed_out], default: everyone }
         motion: { $ref: '#/components/schemas/StudioMotion' }
+        hidden: { type: boolean, default: false, description: "107.2 Kept in the editor but never shown: the servers leave it out with what it holds, and an app that gets one doesn't draw it." }
+
+    StudioCorners:
+      type: [object, 'null']
+      description: "107.2 Each corner rounded on its own, instead of `radius`; logical corners (`top_start` is the top left in a left-to-right language). A corner left out is square."
+      properties:
+        top_start: { type: number, minimum: 0, maximum: 500 }
+        top_end: { type: number, minimum: 0, maximum: 500 }
+        bottom_end: { type: number, minimum: 0, maximum: 500 }
+        bottom_start: { type: number, minimum: 0, maximum: 500 }
+
+    StudioOverlay:
+      type: [object, 'null']
+      description: "107.2 A colour over the element's picture (an `image`, or the `image_background_url` behind what it holds), so a text on it reads well."
+      required: [color, opacity]
+      properties:
+        color: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
+        opacity: { type: number, minimum: 0, maximum: 1 }
 
     StudioSize:
       description: "103R `fill` the space the parent gives, `hug` the content, or a number of logical pixels. Missing: `fill` across a column, `hug` along a row."
@@ -9582,6 +9611,8 @@ components:
         letter_spacing: { type: number, minimum: -5, maximum: 20 }
         italic: { type: boolean }
         underline: { type: boolean }
+        strike: { type: boolean, description: "107.2 Struck through (an old price)." }
+        uppercase: { type: boolean, description: "107.2 In capitals; Arabic and other scripts without capitals are unchanged." }
 
     StudioMotion:
       type: [object, 'null']

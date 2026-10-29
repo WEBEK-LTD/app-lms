@@ -17,8 +17,8 @@ export const CORNERS = ["sharp", "soft", "round"] as const;
 export const LOOK_MODES = ["standard", "figma"] as const;
 export const CARD_STYLES = ["flat", "outlined", "elevated"] as const;
 /** 103R Yallapp Studio: the elements of a page and what they can be (`StudioNode` in the app API). */
-export const STUDIO_LAYOUT_TYPES = ["row", "column", "stack", "grid", "slider", "spacer"] as const;
-export const STUDIO_CONTENT_TYPES = ["text", "image", "button", "icon", "items", "categories", "video", "form", "map", "ratings", "search", "divider"] as const;
+export const STUDIO_LAYOUT_TYPES = ["row", "column", "stack", "grid", "slider", "spacer", "accordion", "tabs"] as const;
+export const STUDIO_CONTENT_TYPES = ["text", "image", "button", "icon", "items", "categories", "video", "form", "map", "ratings", "search", "divider", "countdown", "bullets"] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
 export const STUDIO_HEADER_TYPES = ["logo_center", "title_search", "logo_actions", "transparent"] as const;
 export const STUDIO_HEADER_BUTTONS = ["menu", "search", "cart", "notifications", "chat", "account"] as const;
@@ -50,6 +50,8 @@ export const STUDIO_LIMITS = {
   nameChars: 80,
   maxColumns: 6,
   maxFormFields: 10,
+  /** 107.3 A question's or a tab's name. */
+  titleChars: 120,
   /** The whole page as JSON. */
   maxBytes: 200 * 1024,
 } as const;
@@ -527,6 +529,24 @@ export interface StudioFont {
   letter_spacing?: number;
   italic?: boolean;
   underline?: boolean;
+  /** 107.2 Struck through (an old price). */
+  strike?: boolean;
+  /** 107.2 In capitals (scripts without capitals are unchanged). */
+  uppercase?: boolean;
+}
+
+/** 107.2 Each corner rounded on its own (`StudioCorners`), instead of `radius`. */
+export interface StudioCorners {
+  top_start?: number;
+  top_end?: number;
+  bottom_end?: number;
+  bottom_start?: number;
+}
+
+/** 107.2 A colour over the element's picture (`StudioOverlay`). */
+export interface StudioOverlay {
+  color: string;
+  opacity: number;
 }
 
 export interface StudioMotion {
@@ -581,6 +601,9 @@ export interface StudioNode {
   gradient?: { from: string; to: string; angle?: number } | null;
   image_background_url?: string | null;
   radius?: number;
+  corners?: StudioCorners | null;
+  rotation?: number;
+  overlay?: StudioOverlay | null;
   border_color?: string | null;
   border_width?: number;
   shadow?: StudioShadow;
@@ -588,6 +611,10 @@ export interface StudioNode {
   font?: StudioFont | null;
   text_align?: StudioTextAlign;
   text?: string | null;
+  /** 107.3 A child of an accordion or tabs: its question or its tab's name. */
+  title?: string | null;
+  /** 107.3 For `countdown`: when the time is up (ISO 8601). */
+  ends_at?: string | null;
   max_lines?: number | null;
   image_url?: string | null;
   fit?: StudioFit;
@@ -599,6 +626,8 @@ export interface StudioNode {
   interval_ms?: number;
   per_view?: number;
   dots?: boolean;
+  /** 107.2 A row that scrolls sideways. */
+  scroll?: boolean;
   source?: ItemSource;
   layout?: (typeof ITEMS_LAYOUTS)[number];
   query?: ItemsQuery;
@@ -611,6 +640,8 @@ export interface StudioNode {
   platforms?: (typeof STUDIO_PLATFORMS)[number][];
   visibility?: (typeof STUDIO_VISIBILITY)[number];
   motion?: StudioMotion | null;
+  /** 107.2 Kept in the editor, never shown in the app. */
+  hidden?: boolean;
   translations?: Translations;
 }
 
@@ -695,7 +726,7 @@ export const TRANSLATABLE = {
   page: ["title"],
   tab: ["label"],
   // 103R A Studio element's text, and the header's title.
-  studio: ["text"],
+  studio: ["text", "title"],
   studioHeader: ["title"],
   block: ["title", "heading", "subheading", "html", "label", "placeholder", "text", "ended_text", "note", "address", "name", "submit_label", "success_text"],
 } as const;

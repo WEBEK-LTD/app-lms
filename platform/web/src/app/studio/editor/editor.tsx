@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type MouseEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type DragEvent, type MouseEvent, type ReactNode } from "react";
 import Link from "next/link";
-import { deleteStudioTemplateAction, saveStudioTemplateAction } from "@/app/actions/studio";
-import { publishLayoutAction, saveLayoutDraftAction, type LayoutSaveResult } from "@/app/actions/pages";
+import { deleteStudioDesignAction, deleteStudioTemplateAction, loadStudioDesignAction, saveStudioDesignAction, saveStudioTemplateAction, uploadDesignPictureAction } from "@/app/actions/studio";
+import { publishLayoutAction, saveLayoutDraftAction, uploadOwnFontAction, type LayoutSaveResult } from "@/app/actions/pages";
 import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { StudioView, type StudioEditing, type StudioLook } from "@/components/studio/view";
 import type { DashKey } from "@/i18n/dashboard";
@@ -12,9 +12,16 @@ import type { ScreenOption } from "@/lib/pages/sources";
 import { uniqueSlug } from "@/lib/pages/model";
 import { STUDIO_HEADER_TYPES, type ItemSource, type LanguageCode, type LayoutContent, type LayoutPage, type StudioHeader, type StudioNode, type StudioPage } from "@/lib/pages/types";
 import { duplicateNode, historyOf, holdsChildren, insertNode, isInside, moveNode, placeOf, pushHistory, redo, removeNode, undo, updateNode, wrapNode, type History } from "@/lib/studio/edit";
-import { elementInfo, newNode, newNodeId } from "@/lib/studio/elements";
+import { elementInfo, newNode, newNodeId, type NewText } from "@/lib/studio/elements";
 import { SECTIONS, sectionsFor, TEMPLATES, templatesFor, type ProjectKind, type SectionContext, type SectionWord, type TemplateInfo } from "@/lib/studio/sections";
+import { CLIPBOARD_KEY, forPaste, readCopied, readStyle, STYLE_CLIPBOARD_KEY, styleOf, stylePatch } from "@/lib/studio/clipboard";
 import { findNode } from "@/lib/studio/tree";
+import { DESIGN_FILE_EXTENSION, designPages, designSection, fontsIn, picturesIn, readDesignFile, withoutFonts, withPictures, writeDesignFile, type DesignFile, type DesignFileFont, type DesignFilePicture, type DesignKind } from "@/lib/studio/design-file";
+import { applyWholeDesign, designsFor, makeDesign } from "@/lib/studio/designs";
+import type { OwnDesignView } from "@/lib/studio/own-designs";
+import { DesignsGallery, type GalleryDesign } from "./designs-gallery";
+import { download, fileName, fromBase64, readFont, readPicture, type OwnFontFiles } from "./design-io";
+import { fontUpload, ImportDialog, type ImportChoice } from "./import-dialog";
 import { Inspector, type InspectorTab } from "./inspector";
 import { LeftPanel, elementLabel, type LeftTab, type MyTemplate } from "./left-panel";
 import { DRAG_TYPE, Glyph, STUDIO_COLORS as C, StudioMark, type DragPayload } from "./shared";
@@ -54,6 +61,11 @@ export interface StudioEditorProps {
   studioOnPlan: boolean;
   /** 103R.7 The project's type: its own templates and sections come first. */
   kind: ProjectKind;
+  /** 108.2 The project's own fonts, with their files (exported with a design). */
+  ownFonts: OwnFontFiles[];
+  /** 108.7 The account's own whole designs, and the project type's name for the designs window. */
+  ownDesigns: OwnDesignView[];
+  kindName: string;
 }
 
 export function StudioEditor(props: StudioEditorProps) {
@@ -83,6 +95,13 @@ export function StudioEditor(props: StudioEditorProps) {
   const [myTemplates, setMyTemplates] = useState(props.myTemplates);
   const [pagesOpen, setPagesOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [ownFonts, setOwnFonts] = useState(props.ownFonts);
+  const [designsOpen, setDesignsOpen] = useState(false);
+  const [ownDesigns, setOwnDesigns] = useState(props.ownDesigns);
+  // 107.1 Re-reads what was copied after copying here (other tabs tell through the storage event).
+  const [, setCopies] = useState(0);
   const [now, setNow] = useState(() => Date.now());
 
   const dragging = useRef<DragPayload | null>(null);
@@ -90,6 +109,11 @@ export function StudioEditor(props: StudioEditorProps) {
   const edits = useRef(0);
   const lastChange = useRef<{ at: number; key: string }>({ at: 0, key: "" });
   const board = useRef<HTMLDivElement>(null);
+  // 108.2 The draft as it is now, for work that waits (an import saving its pictures).
+  const latest = useRef(history.present);
+  useEffect(() => {
+    latest.current = history.present;
+  }, [history.present]);
 
   const def = layout.languages.default;
   const editLang = layout.languages.available.includes(lang) ? lang : def;
@@ -108,7 +132,7 @@ export function StudioEditor(props: StudioEditorProps) {
     activeTab: layout.tabs.find((tab) => tab.target.type === "page" && tab.target.page_slug === page?.slug)?.id ?? null,
   };
   const palette = useMemo(() => [...new Set([app.brand, layout.appearance.secondary_color, "#FFFFFF", "#0E0D24", "#F4EFE6", "#FF5A1F"].filter((c): c is string => !!c))], [app.brand, layout.appearance.secondary_color]);
-  const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search") };
+  const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search"), days: t("studio.days"), hours: t("studio.hours"), minutes: t("studio.minutes"), seconds: t("studio.seconds") };
   const kindSections = useMemo(() => sectionsFor(props.kind, { categories: props.categorySources.length > 0 }), [props.kind, props.categorySources]);
   const kindTemplates = useMemo(() => templatesFor(props.kind), [props.kind]);
   const sectionContext: SectionContext = {
@@ -116,8 +140,23 @@ export function StudioEditor(props: StudioEditorProps) {
     source,
     w: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: app.name }),
   };
-  const newText = (key: "text" | "button" | "search" | "ratings" | "field") =>
-    t(({ text: "studio.newText", button: "studio.newButton", search: "studio.search", ratings: "studio.newRatings", field: "studio.newField" } as const)[key]);
+  const newText = (key: NewText) =>
+    t(
+      (
+        {
+          text: "studio.newText",
+          button: "studio.newButton",
+          search: "studio.search",
+          ratings: "studio.newRatings",
+          field: "studio.newField",
+          question: "studio.newQuestion",
+          answer: "studio.newAnswer",
+          tab: "studio.newTab",
+          ended: "studio.newEnded",
+          bullets: "studio.newBullets",
+        } as const
+      )[key],
+    );
 
   // ——— Changes, undo and the draft saving itself ———
 
@@ -152,6 +191,7 @@ export function StudioEditor(props: StudioEditorProps) {
   function step(back: boolean) {
     lastChange.current = { at: 0, key: "" };
     setHistory((h) => (back ? undo(h) : redo(h)));
+    setNotice(null);
     edits.current += 1;
     dirty.current = true;
     setStatus("unsaved");
@@ -287,6 +327,88 @@ export function StudioEditor(props: StudioEditorProps) {
     setSelectedId(done.id);
   }
 
+  // ——— 107.1 Copying and pasting, also to another page or project ———
+
+  function stored(key: string): string | null {
+    try {
+      return window.localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  }
+
+  function store(key: string, value: string) {
+    try {
+      window.localStorage.setItem(key, value);
+    } catch {
+      // Private windows may refuse; copying then lasts only on this page.
+    }
+  }
+
+  const memory = useRef<{ node: string | null; style: string | null }>({ node: null, style: null });
+
+  const copiedRaw = useSyncExternalStore(onStorage, () => stored(CLIPBOARD_KEY) ?? memory.current.node ?? "", () => "");
+  const styleRaw = useSyncExternalStore(onStorage, () => stored(STYLE_CLIPBOARD_KEY) ?? memory.current.style ?? "", () => "");
+  const hasCopied = readCopied(copiedRaw) !== null;
+  const hasStyle = readStyle(styleRaw) !== null;
+
+  function copyToClipboard(cut: boolean) {
+    if (!studio || !selected || selected.id === studio.body.id) return;
+    const raw = JSON.stringify(selected);
+    memory.current.node = raw;
+    store(CLIPBOARD_KEY, raw);
+    setCopies((n) => n + 1);
+    if (cut) deleteSelected();
+    setNotice(t(cut ? "studio.cutDone" : "studio.copied"));
+  }
+
+  function pasteFromClipboard() {
+    if (!studio) return;
+    const copied = readCopied(stored(CLIPBOARD_KEY) ?? memory.current.node);
+    if (!copied) {
+      setNotice(t("studio.nothingCopied"));
+      return;
+    }
+    const node = forPaste(copied, {
+      sources: props.sources,
+      categorySources: props.categorySources,
+      pageSlugs: layout.pages.map((p) => p.slug),
+      screens: props.screens.map((s) => s.value),
+      newId: newNodeId,
+    });
+    const where = placeForNew(studio);
+    changePage((p) => insertNode(p, where.parentId, node, where.index));
+    setSelectedId(node.id);
+    setNotice(t("studio.pasted"));
+  }
+
+  function copyStyle() {
+    if (!selected) return;
+    const raw = JSON.stringify(styleOf(selected));
+    memory.current.style = raw;
+    store(STYLE_CLIPBOARD_KEY, raw);
+    setCopies((n) => n + 1);
+    setNotice(t("studio.styleCopied"));
+  }
+
+  function pasteStyle() {
+    if (!selected) return;
+    const style = readStyle(stored(STYLE_CLIPBOARD_KEY) ?? memory.current.style);
+    if (!style) {
+      setNotice(t("studio.nothingCopied"));
+      return;
+    }
+    const id = selected.id;
+    changePage((p) => updateNode(p, id, stylePatch(style)));
+    setNotice(t("studio.stylePasted"));
+  }
+
+  function selectParent() {
+    if (!studio || !selected) return;
+    const place = placeOf(studio.body, selected.id);
+    if (place) setSelectedId(place.parent.id);
+  }
+
   /** Arrows: the selected element moves before or after its neighbour. */
   function nudge(by: -1 | 1) {
     if (!studio || !selectedId) return;
@@ -297,12 +419,34 @@ export function StudioEditor(props: StudioEditorProps) {
     changePage((p) => moveNode(p, selectedId, place.parent.id, by > 0 ? to + 1 : to));
   }
 
-  // Delete, Ctrl+Z / Ctrl+Y, Ctrl+D, the arrows and Escape; never while typing in a field.
+  // Delete, Ctrl+Z / Ctrl+Y, Ctrl+D, copying and pasting, the arrows and Escape; never while typing in a field.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
       if (el && (el.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName))) return;
       const mod = e.ctrlKey || e.metaKey;
+      const key = e.key.toLowerCase();
+      // 107.1 Ctrl+Alt+C and Ctrl+Alt+V copy and paste the style; Ctrl+C, Ctrl+X and Ctrl+V the element.
+      if (mod && e.altKey && (e.code === "KeyC" || e.code === "KeyV")) {
+        e.preventDefault();
+        if (e.code === "KeyC") copyStyle();
+        else pasteStyle();
+        return;
+      }
+      if (mod && (key === "c" || key === "x") && selected && !window.getSelection()?.toString()) {
+        e.preventDefault();
+        copyToClipboard(key === "x");
+        return;
+      }
+      if (mod && key === "v") {
+        e.preventDefault();
+        pasteFromClipboard();
+        return;
+      }
+      if (!mod && e.key === "?") {
+        setShortcutsOpen((v) => !v);
+        return;
+      }
       if (mod && e.key.toLowerCase() === "z") {
         e.preventDefault();
         step(!e.shiftKey);
@@ -321,6 +465,7 @@ export function StudioEditor(props: StudioEditorProps) {
         setSelectedId(null);
         setPagesOpen(false);
         setZoomOpen(false);
+        setShortcutsOpen(false);
       } else if (selectedId && (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowRight")) {
         e.preventDefault();
         const rtl = editLang === "ar";
@@ -477,6 +622,186 @@ export function StudioEditor(props: StudioEditorProps) {
     if (r.ok) setMyTemplates((list) => list.filter((x) => x.id !== id));
   }
 
+  // ——— 108.2 Designs taken out and brought in as files ———
+
+  async function exportDesign(kind: DesignKind) {
+    setPagesOpen(false);
+    const chosen = kind === "project" ? layout.pages.filter((p) => p.studio) : kind === "page" && page?.studio ? [page] : [];
+    const section = kind === "section" && selected ? selected : undefined;
+    if (!chosen.length && !section) return;
+    setNotice(t("studio.exporting"));
+    try {
+      const urls = new Set([...chosen.flatMap((p) => picturesIn(p.studio!)), ...(section ? picturesIn(null, section) : [])]);
+      const pictures: Record<string, DesignFilePicture> = {};
+      for (const url of urls) {
+        const picture = await readPicture(url);
+        if (picture) pictures[url] = picture;
+      }
+      const families = new Set([...chosen.flatMap((p) => fontsIn(p.studio!)), ...(section ? fontsIn(null, section) : [])]);
+      if (kind === "project" && layout.appearance.font_family) families.add(layout.appearance.font_family);
+      const fonts: DesignFileFont[] = [];
+      for (const own of ownFonts.filter((f) => families.has(f.family))) {
+        const font = await readFont(own);
+        if (font) fonts.push(font);
+      }
+      const name = kind === "project" ? app.name : kind === "page" && page ? pageTitle(page) : section ? nodeLabel(section) : app.name;
+      const text = writeDesignFile({
+        kind,
+        name,
+        made_at: new Date().toISOString(),
+        languages: layout.languages,
+        pages: chosen.map((p) => ({ slug: p.slug, title: p.title, ...(p.translations ? { translations: p.translations } : {}), studio: p.studio! })),
+        ...(section ? { section } : {}),
+        ...(kind === "project"
+          ? { look: { font: layout.appearance.font_family ?? layout.appearance.font, ...(layout.appearance.arabic_font ? { arabic_font: layout.appearance.arabic_font } : {}), primary_color: app.brand, secondary_color: layout.appearance.secondary_color, tabs: layout.tabs } }
+          : {}),
+        pictures,
+        fonts,
+      });
+      download(fileName(name, DESIGN_FILE_EXTENSION), text);
+      setNotice(t("studio.exported"));
+    } catch {
+      setNotice(t("studio.exportFailed"));
+    }
+  }
+
+  async function runImport(choice: ImportChoice) {
+    setImportOpen(false);
+    const section = choice.design.kind === "section";
+    const design = { ...choice.design, pages: section ? [] : choice.pages.map((i) => choice.design.pages[i]!) };
+    const urls = new Set([...design.pages.flatMap((p) => picturesIn(p.studio)), ...(design.section ? picturesIn(null, design.section) : [])]);
+    const moved = new Map<string, string>();
+    const saving = [...urls].filter((url) => design.pictures[url]);
+    let failed = 0;
+    let busy = false;
+    // Pictures already at an address (another site, or saved by the import from Figma) stay there; the page checker says which it takes.
+    for (const url of urls) if (!design.pictures[url] && /^https?:\/\//.test(url)) moved.set(url, url);
+    for (const [i, url] of saving.entries()) {
+      setNotice(t("studio.importing", { done: i, total: saving.length }));
+      const picture = design.pictures[url]!;
+      const form = new FormData();
+      form.set("file", new File([fromBase64(picture.data)], `picture.${picture.type.split("/")[1]}`, { type: picture.type }));
+      const r = busy ? null : await uploadDesignPictureAction(form).catch(() => null);
+      if (r?.ok) moved.set(url, r.url);
+      else {
+        failed += 1;
+        if (r && r.error === "busy") busy = true;
+      }
+    }
+    const appFont = new Set(choice.appFont);
+    const fontFailed: string[] = [];
+    for (const family of choice.addFonts) {
+      const form = fontUpload(design, family);
+      const r = form ? await uploadOwnFontAction(form).catch(() => null) : null;
+      if (r?.ok) setOwnFonts((list) => (list.some((f) => f.family === family) ? list : [...list, { family, previewUrl: "", files: [] }]));
+      else {
+        appFont.add(family);
+        fontFailed.push(`${t("studio.importFontFailed", { family })}${r ? ` ${t(`pages.ownFontErr_${r.error}` as DashKey, { file: r.file ?? "" })}` : ""}`);
+      }
+    }
+    const file = withoutFonts(design, appFont);
+    // 108.7 Kept as one of the account's own whole designs, its pictures at their saved addresses.
+    if (choice.place === "keep_mine") {
+      const kept: DesignFile = {
+        ...file,
+        pages: file.pages.map((p) => ({ ...p, studio: { ...p.studio, ...(p.studio.header ? { header: { ...p.studio.header, logo_url: p.studio.header.logo_url ? (moved.get(p.studio.header.logo_url) ?? null) : p.studio.header.logo_url } } : {}), body: withPictures(p.studio.body, moved) } })),
+        pictures: {},
+        fonts: [],
+      };
+      const r = await saveStudioDesignAction(file.name || app.name, "imported", writeDesignFile(kept)).catch(() => null);
+      if (r?.ok) setOwnDesigns((list) => [r.design, ...list]);
+      setNotice(r?.ok ? t("studio.importKept") : t(r && r.error === "plan" ? "studio.designsErrPlan" : r && r.error === "limit" ? "studio.designsErrLimit" : "studio.designsCantKeep"));
+      return;
+    }
+    const now = new Date().toISOString();
+    const current = latest.current;
+    const fit = { sources: props.sources, categorySources: props.categorySources, screens: props.screens.map((s) => s.value), newId: newNodeId, pages: current.pages, languages: current.languages, pictures: moved, now };
+    let next = current;
+    let opened: string | null = null;
+    if (choice.place === "new_pages") {
+      const added = designPages(file, fit);
+      opened = added[0]?.slug ?? null;
+      next = { ...current, pages: [...current.pages, ...added] };
+    } else {
+      const open = current.pages.find((p) => p.slug === slug);
+      if (!open?.studio) return;
+      let studio2: StudioPage;
+      if (choice.place === "this_page" && !section) studio2 = designPages(file, fit)[0]!.studio!;
+      else {
+        const parts = section ? [designSection(file, fit)] : file.pages.map((p) => designSection({ ...file, pages: [p] }, fit));
+        studio2 = parts.reduce((page2, node) => insertNode(page2, page2.body.id, node), open.studio);
+      }
+      next = { ...current, pages: current.pages.map((p) => (p.slug === slug ? { ...p, studio: studio2, updated_at: now } : p)) };
+    }
+    const look = choice.takeLook ? file.look : undefined;
+    if (look) next = { ...next, appearance: { ...next.appearance, ...(look.font ? { font_family: look.font } : {}), ...(look.secondary_color !== undefined ? { secondary_color: look.secondary_color } : {}) } };
+    // One change: one undo step.
+    change(() => next);
+    if (opened) setSlug(opened);
+    setSelectedId(null);
+    setNotice(
+      [t("studio.importDone"), failed ? t(busy ? "studio.importBusy" : "studio.importPictureFailed", { count: failed }) : "", ...fontFailed].filter(Boolean).join(" "),
+    );
+  }
+
+  // ——— 108.7 Whole designs ———
+
+  const designWords = { home: t("studio.designHome"), template: (id: string) => t(`studio.tpl_${id}` as DashKey), theme: (id: string) => t(`studio.design_${id}` as DashKey) };
+  const galleryDesigns: GalleryDesign[] = useMemo(
+    () => [
+      ...designsFor(props.kind).map((d) => ({ id: d.id, name: designWords.theme(d.theme.id), kind: "yallapp" as const, pages: d.templates.length, file: designsOpen ? makeDesign(d, sectionContext, designWords, layout.languages) : null })),
+      ...ownDesigns.map((d) => ({ id: d.id, name: d.name, kind: d.source, pages: d.pages, file: null })),
+    ],
+    // Made when the window opens, for the project as it is then.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [designsOpen, ownDesigns, props.kind],
+  );
+
+  async function loadOwnDesign(id: string): Promise<DesignFile | null> {
+    const r = await loadStudioDesignAction(id).catch(() => null);
+    if (!r?.ok) return null;
+    const read = readDesignFile(r.text);
+    return read.ok ? read.file : null;
+  }
+
+  function applyDesign(file: DesignFile, mode: "project" | "page", pageIndex: number, keep: boolean) {
+    const current = latest.current;
+    const pictures = new Map<string, string>();
+    for (const p of file.pages) for (const url of picturesIn(p.studio)) if (/^https?:\/\//.test(url)) pictures.set(url, url);
+    const fitted = designPages(file, { sources: props.sources, categorySources: props.categorySources, screens: props.screens.map((s) => s.value), newId: newNodeId, pages: current.pages, languages: current.languages, pictures, now: new Date().toISOString() });
+    const next = applyWholeDesign(current, fitted, mode === "project" ? file.look : undefined, { mode, openSlug: slug, pageIndex, keep, now: new Date().toISOString() });
+    change(() => next);
+    if (mode === "project" && !current.pages.some((p) => p.slug === slug && p.studio)) setSlug(next.pages.find((p) => p.studio)?.slug ?? slug);
+    setSelectedId(null);
+    setDesignsOpen(false);
+    setNotice(t("studio.designsApplied"));
+  }
+
+  async function saveMine(): Promise<string | null> {
+    const pages = layout.pages.filter((p) => p.studio);
+    const file = writeDesignFile({
+      kind: "project",
+      name: app.name,
+      made_at: new Date().toISOString(),
+      languages: layout.languages,
+      pages: pages.map((p) => ({ slug: p.slug, title: p.title, ...(p.translations ? { translations: p.translations } : {}), studio: p.studio! })),
+      look: { font: layout.appearance.font_family ?? layout.appearance.font, secondary_color: layout.appearance.secondary_color, tabs: layout.tabs },
+      pictures: {},
+      fonts: [],
+    });
+    const r = await saveStudioDesignAction(app.name, "saved", file).catch(() => null);
+    if (r?.ok) {
+      setOwnDesigns((list) => [r.design, ...list]);
+      return null;
+    }
+    return t(r && r.error === "plan" ? "studio.designsErrPlan" : r && r.error === "limit" ? "studio.designsErrLimit" : "studio.designsCantKeep");
+  }
+
+  async function deleteDesign(id: string) {
+    const r = await deleteStudioDesignAction(id).catch(() => null);
+    if (r?.ok) setOwnDesigns((list) => list.filter((d) => d.id !== id));
+  }
+
   // ——— Labels ———
 
   const headerNumber = (type: StudioHeader["type"]) => STUDIO_HEADER_TYPES.indexOf(type) + 1;
@@ -502,6 +827,8 @@ export function StudioEditor(props: StudioEditorProps) {
     onDragStartNode: (e, id) => startDrag(e, { kind: "move", id }),
     dropLabel: t("studio.dropHere"),
     tagOf,
+    // 108.1 One drag of a corner is one undo step.
+    onResize: (id, size, drag) => changePage((p) => updateNode(p, id, size), `resize:${id}:${drag}`),
   };
 
   const savedText = (() => {
@@ -549,6 +876,24 @@ export function StudioEditor(props: StudioEditorProps) {
                   <span className="min-w-0 flex-1 truncate">{pageTitle(p)}</span>
                 </button>
               ))}
+              {/* 108.2 Designs brought in and taken out as files. */}
+              <div className="mt-1 flex flex-col gap-1 pt-2" style={{ borderTop: `1px solid ${C.line}` }}>
+                {(
+                  [
+                    ["upload", t("studio.importDesign"), () => (setPagesOpen(false), setImportOpen(true)), true],
+                    ["download", t("studio.exportPage"), () => void exportDesign("page"), !!studio],
+                    ["download", t("studio.exportElement"), () => void exportDesign("section"), !!selected && selected.id !== studio?.body.id],
+                    ["download", t("studio.exportProject"), () => void exportDesign("project"), layout.pages.some((p) => p.studio)],
+                  ] as const
+                )
+                  .filter(([, , , shown]) => shown)
+                  .map(([icon, label, onClick]) => (
+                    <button key={label} type="button" role="menuitem" onClick={onClick} className="flex items-center gap-2 rounded-lg border-0 bg-transparent px-2.5 py-2 text-start">
+                      <Glyph name={icon} size={18} />
+                      <span className="min-w-0 flex-1 truncate">{label}</span>
+                    </button>
+                  ))}
+              </div>
               <form
                 className="mt-1 flex gap-1.5 pt-2"
                 style={{ borderTop: `1px solid ${C.line}` }}
@@ -644,6 +989,8 @@ export function StudioEditor(props: StudioEditorProps) {
           onLayerDragOver={(e, node) => dropOver(e, node, true)}
           onLayerDrop={dropHere}
           drop={drop}
+          onOpenDesigns={() => setDesignsOpen(true)}
+          designsCount={designsFor(props.kind).length + ownDesigns.length}
         />
 
         <main
@@ -696,6 +1043,15 @@ export function StudioEditor(props: StudioEditorProps) {
               }} pressed={dark} label={dark ? t("studio.dark") : t("studio.light")}>
               {t("studio.lightDark")}
             </Chip>
+            <div className="relative">
+              <Chip icon="keyboard" onClick={(e) => {
+                  e.stopPropagation();
+                  setShortcutsOpen((v) => !v);
+                }} label={t("studio.shortcuts")} expanded={shortcutsOpen}>
+                {t("studio.shortcuts")}
+              </Chip>
+              {shortcutsOpen ? <Shortcuts onClose={() => setShortcutsOpen(false)} /> : null}
+            </div>
           </div>
 
           <div style={{ width: frame.width * (zoom / 100), height: frame.height * (zoom / 100), flex: "none" }}>
@@ -753,6 +1109,17 @@ export function StudioEditor(props: StudioEditorProps) {
             onPage={(patch) => changePage((p) => ({ ...p, ...patch }), `page:${Object.keys(patch).join(",")}`)}
             onCopy={copySelected}
             onDelete={deleteSelected}
+            tools={{
+              onCopy: () => copyToClipboard(false),
+              onCut: () => copyToClipboard(true),
+              onPaste: pasteFromClipboard,
+              onCopyStyle: copyStyle,
+              onPasteStyle: pasteStyle,
+              onMove: nudge,
+              onSelectParent: selectParent,
+              canPaste: hasCopied,
+              canPasteStyle: hasStyle,
+            }}
             onWrap={(type) => {
               if (!selected) return;
               const done = wrapNode(studio, selected.id, type, newNodeId);
@@ -774,6 +1141,85 @@ export function StudioEditor(props: StudioEditorProps) {
           />
         ) : null}
       </div>
+      {designsOpen ? (
+        <DesignsGallery
+          kindName={props.kindName}
+          designs={galleryDesigns}
+          preview={(p) => <StudioView page={p} lang={editLang} defaultLang={def} dark={false} look={look} pickable={props.pickable} words={words} />}
+          load={loadOwnDesign}
+          onApply={applyDesign}
+          onImport={() => {
+            setDesignsOpen(false);
+            setImportOpen(true);
+          }}
+          onSaveMine={saveMine}
+          onDelete={(id) => void deleteDesign(id)}
+          onClose={() => setDesignsOpen(false)}
+          hasOpenPage={!!studio}
+        />
+      ) : null}
+      {importOpen ? (
+        <ImportDialog
+          onClose={() => setImportOpen(false)}
+          onImport={(choice) => void runImport(choice)}
+          preview={(p) => <StudioView page={p} lang={editLang} defaultLang={def} dark={false} look={look} pickable={props.pickable} words={words} />}
+          ownFonts={ownFonts}
+          onFontsAdded={(families) => setOwnFonts((list) => [...list, ...families.filter((f) => !list.some((x) => x.family === f)).map((family) => ({ family, previewUrl: "", files: [] }))])}
+          hasOpenPage={!!studio}
+          languages={layout.languages}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+/** 107.1 Copying in another tab of the editor shows here too. */
+function onStorage(changed: () => void): () => void {
+  window.addEventListener("storage", changed);
+  return () => window.removeEventListener("storage", changed);
+}
+
+/** 107.1 The editor's keyboard shortcuts, listed. */
+function Shortcuts({ onClose }: { onClose: () => void }) {
+  const t = useDashT();
+  const rows: [string, string][] = [
+    ["Ctrl C", t("studio.copy")],
+    ["Ctrl X", t("studio.cut")],
+    ["Ctrl V", t("studio.paste")],
+    ["Ctrl D", t("studio.duplicate")],
+    ["Ctrl Alt C", t("studio.copyStyle")],
+    ["Ctrl Alt V", t("studio.pasteStyle")],
+    ["Ctrl Z", t("studio.undo")],
+    ["Ctrl Y", t("studio.redo")],
+    ["Delete", t("studio.delete")],
+    ["↑ ↓", t("studio.moveArrows")],
+    ["Esc", t("studio.unselect")],
+    ["⌟", t("studio.resizeCorner")],
+    ["Shift ⌟", t("studio.resizeShift")],
+    ["2× ⌟", t("studio.resizeReset")],
+    ["?", t("studio.showShortcuts")],
+  ];
+  return (
+    <div role="dialog" aria-label={t("studio.shortcuts")} onClick={(e) => e.stopPropagation()} className="absolute top-full z-20 mt-1 w-[290px] rounded-xl bg-white p-3 text-[13px] shadow-[0_10px_24px_rgba(14,13,36,0.18)]" style={{ insetInlineEnd: 0, border: `1px solid ${C.line}` }}>
+      <div className="mb-2 flex items-center justify-between">
+        <span className="font-bold">{t("studio.shortcuts")}</span>
+        <button type="button" aria-label={t("studio.close")} onClick={onClose} className="flex size-7 items-center justify-center rounded-lg border-0 bg-transparent">
+          <Glyph name="close" size={18} />
+        </button>
+      </div>
+      <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5">
+        {rows.map(([keys, what]) => (
+          <div key={keys} className="contents">
+            <dt dir="ltr" className="m-0 justify-self-start rounded-md px-1.5 font-mono text-xs" style={{ background: C.ivory, border: `1px solid ${C.line}` }}>
+              {keys}
+            </dt>
+            <dd className="m-0">{what}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="mt-2 mb-0 text-xs" style={{ color: C.muted }}>
+        {t("studio.macCmd")}
+      </p>
     </div>
   );
 }

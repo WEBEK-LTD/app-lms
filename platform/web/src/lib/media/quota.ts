@@ -10,14 +10,17 @@ import type { PlanInfo } from "../plans";
 /** A gigabyte, as the dashboard counts it. */
 export const GB = 1024 ** 3;
 
+/** What an app has before any plan: 100 MB (storage packs come with a plan). */
+export const FREE_STORAGE_BYTES = 100 * 1024 ** 2;
+
 /** Packs that count now: until their end date. */
 export function activePacks(packs: StoragePack[], now: Date): StoragePack[] {
   return packs.filter((p) => p.activeUntil.getTime() > now.getTime());
 }
 
-/** The app's storage in bytes; null: unlimited. Without a plan (no license): nothing. */
+/** The app's storage in bytes; null: unlimited. Without a plan (no license): the free 100 MB. */
 export function storageLimitBytes(plan: Pick<PlanInfo, "limits"> | null, packs: StoragePack[], now: Date): number | null {
-  if (!plan) return 0;
+  if (!plan) return FREE_STORAGE_BYTES;
   const gb = plan.limits.storageGb;
   if (gb === null) return null;
   return (gb + activePacks(packs, now).reduce((sum, p) => sum + p.gb, 0)) * GB;

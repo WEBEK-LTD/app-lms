@@ -20,7 +20,7 @@ export function ProjectPhone({
 }: {
   home: { page: StudioPage; look: StudioLook; lang: LanguageCode } | null;
   size: "card" | "whole";
-  words: { price: string; addPicture: string; addVideo: string; send: string; search: string };
+  words: { price: string; addPicture: string; addVideo: string; send: string; search: string; days: string; hours: string; minutes: string; seconds: string };
 }) {
   const frame = size === "card" ? { width: 120, height: 170, pad: 6, radius: 18, inner: 13 } : { width: 150, height: 220, pad: 7, radius: 24, inner: 18 };
   const screenWidth = frame.width - frame.pad * 2;

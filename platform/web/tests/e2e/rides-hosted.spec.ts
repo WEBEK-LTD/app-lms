@@ -133,3 +133,12 @@ test("Ride settings are saved; Rides is empty; the app's ride routes wait for th
   expect(estimate.status()).toBe(403);
   expect((await estimate.json()).code).toBe("feature_disabled");
 });
+
+test("Studio's editor opens for the ride company, its vehicle types among the elements", async () => {
+  const failed: string[] = [];
+  own.on("pageerror", (e) => failed.push(e.message));
+  await own.goto("/studio/editor");
+  await expect(own.getByText("Vehicle types", { exact: true }).first()).toBeVisible();
+  await expect(own.getByText("This page couldn’t load")).toHaveCount(0);
+  expect(failed).toEqual([]);
+});

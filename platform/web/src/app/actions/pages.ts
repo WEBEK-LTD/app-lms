@@ -8,7 +8,9 @@ import type { App, AppLayoutRecord, SavedSection } from "@/lib/data/types";
 import { discardDraft, hasUnpublishedChanges, isDesignMode, layoutHistory, loadLayout, publishLayout, restoreLayoutVersion, saveDesignDraft, saveDraft, withoutStrings, type DesignMode, type LayoutHistoryEntry } from "@/lib/pages/layout";
 import { getBlobStore } from "@/lib/blobs";
 import { FIGMA_IMAGE_BYTES, saveFigmaImage } from "@/lib/figma/images";
-import { FIGMA_LINK_LIMITS, figmaDeps, figmaFileKey, figmaNodeId, figmaTokenLooksRight, readFigmaFile, readFigmaNodes, renderFigmaFrames, type FigmaApiError, type FigmaFileRead } from "@/lib/figma/api";
+import { FIGMA_LINK_LIMITS, figmaDeps, figmaFileKey, figmaImageFills, figmaNodeId, figmaTokenLooksRight, readFigmaFile, readFigmaNodes, renderFigmaFrames, type FigmaApiError, type FigmaFileRead } from "@/lib/figma/api";
+import { figmaFrame, withFigmaPictures, type FigmaNeeds } from "@/lib/studio/import/figma";
+import type { DesignFrame } from "@/lib/studio/import/frame";
 import { FIGMA_PAGE_LIMITS, figmaFramePage, figmaPictureNodes, figmaScreens, type FigmaImportedPage, type FigmaNode } from "@/lib/figma/pages";
 import { assetUrl } from "@/lib/assets";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
@@ -322,4 +324,59 @@ export async function saveSectionAction(name: string, blocksJson: string): Promi
 export async function deleteSectionAction(id: string): Promise<{ ok: boolean }> {
   const { app } = await requireLayoutApp();
   return { ok: typeof id === "string" && (await (await getStore()).deleteSavedSection(app.clientId, id)) };
+}
+
+/** 108.4 The most pictures and drawings brought from Figma for one import. */
+const FIGMA_STUDIO_PICTURES = 60;
+
+/**
+ * 108.4 The frames chosen in a Figma file read as screens for Studio's
+ * editor: auto layout kept as rows and columns, image fills and drawings
+ * fetched from Figma and kept as the account's files. The token is used for
+ * this call only and never saved. The editor makes them into pages.
+ */
+export async function importFigmaStudioAction(
+  link: string,
+  token: string,
+  frames: { id: string; name: string }[],
+): Promise<{ ok: true; frames: DesignFrame[]; failed: string[]; missing: number } | { ok: false; error: FigmaLinkError; retryAfterSeconds?: number }> {
+  const picked = (Array.isArray(frames) ? frames : []).filter((f) => f && typeof f.id === "string" && figmaNodeId(f.id) && typeof f.name === "string");
+  const ids = [...new Set(picked.map((f) => f.id))].slice(0, FIGMA_PAGE_LIMITS.frames);
+  const checked = await figmaCall(link, token);
+  if (!checked.ok) return checked;
+  if (!ids.length) return { ok: true, frames: [], failed: [], missing: 0 };
+  const read = await readFigmaNodes(checked.key, checked.token, ids, figmaDeps());
+  if (!read.ok) return read;
+  const needs: FigmaNeeds = { images: new Set(), renders: new Set() };
+  const screens: DesignFrame[] = [];
+  for (const id of ids) {
+    const node = read.nodes.get(id);
+    // A board of several screens gives a page for each.
+    for (const screen of node ? figmaScreens(node as FigmaNode) : []) {
+      const frame = figmaFrame(screen as unknown as Record<string, unknown>, needs);
+      if (frame && screens.length < FIGMA_PAGE_LIMITS.screens) screens.push(frame);
+    }
+  }
+  const failed = ids.filter((id) => !read.nodes.has(id)).map((id) => (picked.find((f) => f.id === id)?.name ?? id).slice(0, 120));
+  const wanted = [...needs.images, ...needs.renders];
+  const keys = wanted.slice(0, FIGMA_STUDIO_PICTURES);
+  const pictures = new Map<string, string>();
+  const deps = { store: await getStore(), blobs: getBlobStore(), now: new Date() };
+  const save = async (key: string, data: Buffer | null | undefined) => {
+    const saved = data ? await saveFigmaImage(deps, checked.app, data, "design_image") : null;
+    if (saved?.ok) pictures.set(key, assetUrl(saved.assetId));
+  };
+  const refs = keys.filter((k) => k.startsWith("figma-image:")).map((k) => k.slice("figma-image:".length));
+  if (refs.length) {
+    const fills = await figmaImageFills(checked.key, checked.token, refs, figmaDeps());
+    if (!fills.ok) return fills;
+    for (const ref of refs) await save(`figma-image:${ref}`, fills.images.get(ref));
+  }
+  const nodes = keys.filter((k) => k.startsWith("figma-render:")).map((k) => k.slice("figma-render:".length));
+  if (nodes.length) {
+    const rendered = await renderFigmaFrames(checked.key, checked.token, nodes, figmaDeps());
+    if (!rendered.ok) return rendered;
+    for (const node of nodes) await save(`figma-render:${node}`, rendered.images.get(node));
+  }
+  return { ok: true, frames: screens.map((f) => withFigmaPictures(f, pictures)), failed, missing: wanted.length - pictures.size };
 }

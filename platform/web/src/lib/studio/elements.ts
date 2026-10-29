@@ -24,6 +24,9 @@ export const ELEMENTS: readonly ElementInfo[] = [
   { type: "grid", group: "layout", icon: "grid_view", keywords: "grid columns tiles" },
   { type: "slider", group: "layout", icon: "view_carousel", keywords: "carousel slides swipe banner" },
   { type: "spacer", group: "layout", icon: "crop_free", keywords: "space gap empty" },
+  // 107.3 Questions that open, and tabs.
+  { type: "accordion", group: "layout", icon: "unfold_more", keywords: "accordion faq questions answers open collapse" },
+  { type: "tabs", group: "layout", icon: "tab", keywords: "tabs switch sections" },
   { type: "text", group: "content", icon: "title", keywords: "text title heading paragraph" },
   { type: "image", group: "content", icon: "image", keywords: "picture photo image" },
   { type: "button", group: "content", icon: "smart_button", keywords: "button action link" },
@@ -32,6 +35,9 @@ export const ELEMENTS: readonly ElementInfo[] = [
   { type: "form", group: "content", icon: "list_alt", keywords: "form contact questions" },
   { type: "map", group: "content", icon: "map", keywords: "map location place" },
   { type: "ratings", group: "content", icon: "star", keywords: "ratings stars reviews" },
+  // 107.3 A countdown to an offer's end, and a list with an icon on each line.
+  { type: "countdown", group: "content", icon: "timer", keywords: "countdown timer offer ends sale" },
+  { type: "bullets", group: "content", icon: "list", keywords: "list bullets points features checklist" },
   { type: "icon", group: "more", icon: "emoji_symbols", keywords: "icon symbol" },
   { type: "categories", group: "more", icon: "label", keywords: "categories chips tags filter" },
   { type: "search", group: "more", icon: "search", keywords: "search field" },
@@ -52,8 +58,17 @@ export function newNodeId(): string {
  * dropped. `source` is the app's main list for `items` and `categories`;
  * `brand` the app's main colour.
  */
-export function newNode(type: StudioNodeType, options: { source: ItemSource | null; brand: string; text: (key: "text" | "button" | "search" | "ratings" | "field") => string; newId?: () => string }): StudioNode {
+export type NewText = "text" | "button" | "search" | "ratings" | "field" | "question" | "answer" | "tab" | "ended" | "bullets";
+
+export function newNode(type: StudioNodeType, options: { source: ItemSource | null; brand: string; text: (key: NewText) => string; newId?: () => string; now?: Date }): StudioNode {
   const id = (options.newId ?? newNodeId)();
+  const child = (title: string, text: string): StudioNode => ({
+    id: (options.newId ?? newNodeId)(),
+    type: "column",
+    title,
+    padding: { top: 4, end: 0, bottom: 8, start: 0 },
+    children: [{ id: (options.newId ?? newNodeId)(), type: "text", text, font: { size: 14 } }],
+  });
   switch (type) {
     case "row":
       return { id, type, gap: 8, cross: "center", padding: { top: 8, end: 8, bottom: 8, start: 8 }, children: [] };
@@ -104,5 +119,17 @@ export function newNode(type: StudioNodeType, options: { source: ItemSource | nu
       return { id, type, text: options.text("search"), radius: 12, margin: { top: 8, end: 10, bottom: 8, start: 10 } };
     case "divider":
       return { id, type, height: 1, background: "#E5E0D5", margin: { top: 8, end: 10, bottom: 8, start: 10 } };
+    case "accordion":
+      return { id, type, gap: 8, padding: { top: 8, end: 16, bottom: 8, start: 16 }, children: [child(`${options.text("question")} 1`, options.text("answer")), child(`${options.text("question")} 2`, options.text("answer"))] };
+    case "tabs":
+      return { id, type, gap: 10, padding: { top: 8, end: 16, bottom: 8, start: 16 }, children: [child(`${options.text("tab")} 1`, options.text("text")), child(`${options.text("tab")} 2`, options.text("text"))] };
+    case "countdown": {
+      // A week from now, on the hour.
+      const ends = new Date((options.now ?? new Date()).getTime() + 7 * 86_400_000);
+      ends.setUTCMinutes(0, 0, 0);
+      return { id, type, ends_at: ends.toISOString(), text: options.text("ended"), radius: 14, padding: { top: 12, end: 12, bottom: 12, start: 12 }, margin: { top: 8, end: 16, bottom: 8, start: 16 } };
+    }
+    case "bullets":
+      return { id, type, text: options.text("bullets"), icon: "check_circle", icon_size: 20, gap: 8, padding: { top: 8, end: 16, bottom: 8, start: 16 } };
   }
 }

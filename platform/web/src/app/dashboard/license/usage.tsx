@@ -49,6 +49,7 @@ export function UsageSection({
         </h2>
         <p className="m-0 text-sm text-muted">{intro}</p>
       </div>
+      {rows.length || analyticsMonths !== undefined ? (
       <ul className="m-0 grid list-none gap-4 p-0 [grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr))]">
         {rows.map((row) => {
           const level = usageLevel(row);
@@ -77,6 +78,7 @@ export function UsageSection({
           </li>
         ) : null}
       </ul>
+      ) : null}
       {included.length ? (
         <div className="flex flex-col gap-2 border-t border-line-soft pt-4">
           <span className="text-sm font-semibold text-muted">{t("license.usageFeatures")}</span>

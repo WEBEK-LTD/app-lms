@@ -619,6 +619,21 @@ describe("pages on the hosted API", () => {
           { id: "hero", type: "stack", height: 300, background: "#1f4e5f", children: [{ id: "title", type: "text", text: "Learn faster", font: { size: 32, weight: 800 }, color: "#ffffff", translations: { ar: { text: "تعلم أسرع" } } }] },
           { id: "go", type: "button", text: "Courses", background: "#e8b04b", radius: 24, action: { type: "screen", screen: "courses" } },
           { id: "list", type: "items", source: "courses", layout: "carousel", query: { limit: 5 } },
+          // 107.2 More style, and an element hidden in the app.
+          {
+            id: "chips",
+            type: "row",
+            scroll: true,
+            rotation: -4,
+            corners: { top_start: 20, bottom_end: 20 },
+            overlay: { color: "#0e0d24", opacity: 0.35 },
+            children: [{ id: "old", type: "text", text: "EGP 300", font: { strike: true, uppercase: true } }],
+          },
+          { id: "draft", type: "text", text: "Coming soon", hidden: true },
+          // 107.3 Questions that open, a countdown and a list with icons.
+          { id: "faq", type: "accordion", children: [{ id: "q1", type: "column", title: "How long?", translations: { ar: { title: "قد إيه؟" } }, children: [{ id: "a1", type: "text", text: "Two days." }] }] },
+          { id: "sale", type: "countdown", ends_at: "2026-11-05T19:00:00Z", text: "It ended." },
+          { id: "perks", type: "bullets", text: "Free delivery\nPay on delivery", icon: "local_shipping" },
         ],
       },
     };
@@ -636,8 +651,14 @@ describe("pages on the hosted API", () => {
     expect(go).toMatchObject({ action: { type: "screen", screen: "courses" } });
     expect((list!.items as unknown[]).length).toBeGreaterThan(0);
     expect(list).not.toHaveProperty("query");
+    expect(served.studio.body.children!.map((n) => n.id)).toEqual(["hero", "go", "list", "chips", "faq", "sale", "perks"]);
+    expect(served.studio.body.children![4]!.children![0]).toMatchObject({ title: "How long?" });
+    expect(served.studio.body.children![5]).toMatchObject({ type: "countdown", ends_at: "2026-11-05T19:00:00.000Z" });
+    expect(served.studio.body.children![3]).toMatchObject({ scroll: true, rotation: -4, corners: { top_start: 20, bottom_end: 20 }, overlay: { color: "#0E0D24", opacity: 0.35 } });
+    expect(served.studio.body.children![3]!.children![0]).toMatchObject({ font: { strike: true, uppercase: true } });
     const arabic = (await call("/pages/{slug}", { params: ["home"], headers: { "accept-language": "ar" } })).body as Served;
     expect(arabic.studio.body.children![0]!.children![0]).toMatchObject({ text: "تعلم أسرع" });
+    expect(arabic.studio.body.children![4]!.children![0]).toMatchObject({ title: "قد إيه؟" });
     expect(arabic.studio.header.title).toBe("الدروس");
   });
 

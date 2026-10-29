@@ -11,9 +11,9 @@ import Link from "next/link";
 import { PLAN_FEATURES, PLAN_LIMITS, planPrice, REGULAR_PLANS, STUDIO_ONLY_FEATURES, STUDIO_PLANS, STUDIO_PLANS_SHOWN, SUPPORT_LABEL, SUPPORT_LEVELS, type Plan, type PlanInfo } from "@/lib/plans";
 import { getPlans, platformSetting, yallappBilling } from "@/lib/settings/platform";
 import { formatMoney, usdCentsOf } from "@/lib/billing/prices";
-import { getSwitches, LICENSE_FEATURE_SWITCHES, switchGroups, switchKey } from "@/lib/switches";
+import { getSwitches, isStudioSwitch, LICENSE_FEATURE_SWITCHES, switchGroups, switchKey } from "@/lib/switches";
 import { PlanAvailabilityForm, type AvailabilityGroup } from "./availability";
-import { PlanForm, PlanLimitsForm, StoragePacksForm, StudioOfferForm } from "./forms";
+import { PlanForm, PlanLimitsForm, StoragePacksForm, StudioPlanForm } from "./forms";
 import { packOffers } from "@/lib/media/packs";
 
 export const metadata: Metadata = { title: "Plans" };
@@ -129,10 +129,9 @@ export default async function PlansPage({ searchParams }: PageProps<"/admin/plan
               edited={Boolean(edits?.value[studioSelected]) && STUDIO_PLANS.indexOf(studioSelected as (typeof STUDIO_PLANS)[number]) < STUDIO_PLANS_SHOWN}
               price={priceOf(studioSelected)}
               usdAtRate={plans[studioSelected].priceCents ? usdCentsOf({ egpCents: plans[studioSelected].priceCents!, usdCents: null }, billing.egpPerUsd) : null}
-              groups={availabilityGroups(switches, studioSelected)}
+              groups={availabilityGroups(switches, studioSelected, "studio")}
               studio={{
                 offered: plans[studioSelected].offered === true,
-                named: Boolean(edits?.value[studioSelected]?.name),
                 studioPages: plans[studioSelected].limits.studioPages ? String(plans[studioSelected].limits.studioPages) : "",
                 removable: STUDIO_PLANS.indexOf(studioSelected as (typeof STUDIO_PLANS)[number]) >= STUDIO_PLANS_SHOWN && !plans[studioSelected].offered && !inUse.has(studioSelected),
               }}
@@ -195,7 +194,7 @@ export default async function PlansPage({ searchParams }: PageProps<"/admin/plan
               edited={Boolean(edits?.value[selected])}
               price={priceOf(selected)}
               usdAtRate={plans[selected].priceCents ? usdCentsOf({ egpCents: plans[selected].priceCents!, usdCents: null }, billing.egpPerUsd) : null}
-              groups={availabilityGroups(switches, selected)}
+              groups={availabilityGroups(switches, selected, "regular")}
             />
           </>
         )}
@@ -225,9 +224,49 @@ function PlanPanels({
   price: { main: string; usd: string | null };
   usdAtRate: number | null;
   groups: AvailabilityGroup[];
-  studio?: { offered: boolean; named: boolean; studioPages: string; removable: boolean };
+  studio?: { offered: boolean; studioPages: string; removable: boolean };
 }) {
   const panel = "flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6";
+  const texts = {
+    id,
+    name: plan.name,
+    tagline: plan.tagline,
+    highlights: plan.highlights.join("\n"),
+    price: plan.price,
+    pricing: plan.onRequest ? "request" : "price",
+    egpPrice: plan.priceCents !== null ? centsToDecimal(plan.priceCents) : "",
+    usdPrice: plan.usdCents !== null ? centsToDecimal(plan.usdCents) : "",
+    months: String(plan.billingMonths),
+    usdAtRate: usdAtRate !== null ? formatMoney({ cents: usdAtRate, currency: "USD" }) : "",
+    // 62 The team's Arabic and Turkish texts; empty ones use the built-in translation, else the English.
+    arName: plan.translations?.ar?.name ?? "",
+    arTagline: plan.translations?.ar?.tagline ?? "",
+    arHighlights: plan.translations?.ar?.highlights?.join("\n") ?? "",
+    arPrice: plan.translations?.ar?.price ?? "",
+    trName: plan.translations?.tr?.name ?? "",
+    trTagline: plan.translations?.tr?.tagline ?? "",
+    trHighlights: plan.translations?.tr?.highlights?.join("\n") ?? "",
+    trPrice: plan.translations?.tr?.price ?? "",
+  };
+  const limits = {
+    plan: {
+      id,
+      name: plan.name,
+      features: plan.features,
+      appUsers: plan.limits.appUsers === null ? "" : String(plan.limits.appUsers),
+      languages: plan.limits.languages === null ? "" : String(plan.limits.languages),
+      sources: plan.limits.sources === null ? "" : String(plan.limits.sources),
+      storageGb: plan.limits.storageGb === null ? "" : String(plan.limits.storageGb),
+      analyticsMonths: plan.limits.analyticsMonths === null ? "" : String(plan.limits.analyticsMonths),
+      teamMembers: plan.limits.teamMembers === null ? "" : String(plan.limits.teamMembers),
+      support: plan.limits.support,
+      accountManager: plan.limits.accountManager,
+      customFeatures: plan.limits.customFeatures,
+    },
+    features: family === "studio" ? PLAN_FEATURES.filter((f) => f.id !== "studio") : PLAN_FEATURES.filter((f) => !STUDIO_ONLY_FEATURES.includes(f.id)),
+    limits: PLAN_LIMITS,
+    supportLevels: SUPPORT_LEVELS.map((s) => ({ id: s, label: SUPPORT_LABEL[s] })),
+  };
   return (
     <section aria-labelledby={`h-${id}`} className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -250,86 +289,47 @@ function PlanPanels({
         ) : null}
       </div>
       {studio ? (
-        <div className={panel}>
-          <StudioOfferForm plan={{ id, name: plan.name, offered: studio.offered, named: studio.named, studioPages: studio.studioPages, removable: studio.removable }} />
-        </div>
-      ) : null}
-      <div className="grid items-start gap-4 xl:grid-cols-2">
-        <div className={panel}>
-          <div className="flex flex-col gap-1">
-            <h3 className="m-0 text-base font-bold">Name and price</h3>
-            <p className="m-0 text-[13px] text-muted">What the pricing page shows, in English and, if you like, Arabic and Turkish.</p>
+        <StudioPlanForm id={id} name={plan.name} offer={{ offered: studio.offered, studioPages: studio.studioPages, removable: studio.removable }} texts={texts} limits={limits} groups={groups} />
+      ) : (
+        <>
+          <div className="grid items-start gap-4 xl:grid-cols-2">
+            <div className={panel}>
+              <div className="flex flex-col gap-1">
+                <h3 className="m-0 text-base font-bold">Name and price</h3>
+                <p className="m-0 text-[13px] text-muted">What the pricing page shows, in English and, if you like, Arabic and Turkish.</p>
+              </div>
+              <PlanForm plan={texts} />
+            </div>
+            <div className={panel}>
+              <div className="flex flex-col gap-1">
+                <h3 className="m-0 text-base font-bold">Features and limits</h3>
+                <p className="m-0 text-[13px] text-muted">What each app on the plan may use. An empty limit means no limit.</p>
+              </div>
+              <PlanLimitsForm {...limits} />
+            </div>
           </div>
-          <PlanForm
-            plan={{
-              id,
-              name: plan.name,
-              tagline: plan.tagline,
-              highlights: plan.highlights.join("\n"),
-              price: plan.price,
-              pricing: plan.onRequest ? "request" : "price",
-              egpPrice: plan.priceCents !== null ? centsToDecimal(plan.priceCents) : "",
-              usdPrice: plan.usdCents !== null ? centsToDecimal(plan.usdCents) : "",
-              months: String(plan.billingMonths),
-              usdAtRate: usdAtRate !== null ? formatMoney({ cents: usdAtRate, currency: "USD" }) : "",
-              // 62 The team's Arabic and Turkish texts; empty ones use the built-in translation, else the English.
-              arName: plan.translations?.ar?.name ?? "",
-              arTagline: plan.translations?.ar?.tagline ?? "",
-              arHighlights: plan.translations?.ar?.highlights?.join("\n") ?? "",
-              arPrice: plan.translations?.ar?.price ?? "",
-              trName: plan.translations?.tr?.name ?? "",
-              trTagline: plan.translations?.tr?.tagline ?? "",
-              trHighlights: plan.translations?.tr?.highlights?.join("\n") ?? "",
-              trPrice: plan.translations?.tr?.price ?? "",
-            }}
-          />
-        </div>
-        <div className={panel}>
-          <div className="flex flex-col gap-1">
-            <h3 className="m-0 text-base font-bold">Features and limits</h3>
-            <p className="m-0 text-[13px] text-muted">What each app on the plan may use. An empty limit means no limit.</p>
+          <div className={panel}>
+            <div className="flex flex-col gap-1">
+              <h3 className="m-0 text-base font-bold">What {plan.name} offers</h3>
+              <p className="m-0 text-[13px] text-muted">
+                Clients on this plan can choose what&apos;s ticked. Switches turn things off for everyone; the plan&apos;s features are set above.
+              </p>
+            </div>
+            <PlanAvailabilityForm plan={id} planName={plan.name} groups={groups} />
           </div>
-          <PlanLimitsForm
-            plan={{
-              id,
-              name: plan.name,
-              features: plan.features,
-              appUsers: plan.limits.appUsers === null ? "" : String(plan.limits.appUsers),
-              languages: plan.limits.languages === null ? "" : String(plan.limits.languages),
-              sources: plan.limits.sources === null ? "" : String(plan.limits.sources),
-              storageGb: plan.limits.storageGb === null ? "" : String(plan.limits.storageGb),
-              analyticsMonths: plan.limits.analyticsMonths === null ? "" : String(plan.limits.analyticsMonths),
-              teamMembers: plan.limits.teamMembers === null ? "" : String(plan.limits.teamMembers),
-              support: plan.limits.support,
-              accountManager: plan.limits.accountManager,
-              customFeatures: plan.limits.customFeatures,
-            }}
-            features={family === "studio" ? PLAN_FEATURES.filter((f) => f.id !== "studio") : PLAN_FEATURES.filter((f) => !STUDIO_ONLY_FEATURES.includes(f.id))}
-            limits={PLAN_LIMITS}
-            supportLevels={SUPPORT_LEVELS.map((s) => ({ id: s, label: SUPPORT_LABEL[s] }))}
-          />
-        </div>
-      </div>
-      <div className={panel}>
-        <div className="flex flex-col gap-1">
-          <h3 className="m-0 text-base font-bold">What {plan.name} offers</h3>
-          <p className="m-0 text-[13px] text-muted">
-            Clients on this plan can choose what&apos;s ticked. Switches turn things off for everyone; the plan&apos;s features are set above.
-          </p>
-        </div>
-        <PlanAvailabilityForm plan={id} planName={plan.name} groups={groups} />
-      </div>
+        </>
+      )}
     </section>
   );
 }
 
 // 11.5 Switches: per plan, everything but the license features.
-function availabilityGroups(switches: SwitchesSetting | null, plan: Plan): AvailabilityGroup[] {
+function availabilityGroups(switches: SwitchesSetting | null, plan: Plan, family: "regular" | "studio"): AvailabilityGroup[] {
   const licenseKeys = new Set(LICENSE_FEATURE_SWITCHES.map((f) => switchKey("feature", f)));
   return switchGroups().map((group) => ({
     title: group.title,
     items: group.items
-      .filter((item) => !licenseKeys.has(item.key))
+      .filter((item) => !licenseKeys.has(item.key) && (family === "studio" || !isStudioSwitch(item.key)))
       .map((item) => ({
         key: item.key,
         label: item.label,

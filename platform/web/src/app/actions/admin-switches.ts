@@ -6,9 +6,9 @@ import { requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { SwitchesSetting } from "@/lib/data/types";
 import type { FormState } from "@/lib/forms";
-import { isPlan } from "@/lib/plans";
+import { isPlan, STUDIO_PLANS } from "@/lib/plans";
 import { getPlans, clearPlatformSettingsCache } from "@/lib/settings/platform";
-import { allSwitchKeys, cleanSwitches, getSwitches, LICENSE_FEATURE_SWITCHES, switchKey } from "@/lib/switches";
+import { allSwitchKeys, cleanSwitches, getSwitches, isStudioSwitch, LICENSE_FEATURE_SWITCHES, switchKey } from "@/lib/switches";
 
 /** Saves the switches and logs which ones changed. */
 async function saveSwitches(next: SwitchesSetting, before: SwitchesSetting | null, admin: { id: string; email: string }, summary: string, action: "switches.save" | "plan.availability", targetId: string) {
@@ -33,13 +33,15 @@ function describe(turnedOff: string[], turnedOn: string[]): string {
   return parts.length ? parts.join("; ") : "no change";
 }
 
-/** Everything on the Switches page: each checkbox `on` that's ticked is on for everyone. */
+/** One tab of the Switches page (regular apps' or Yallapp Studio's): each checkbox `on` that's ticked is on for everyone; the other tab's are kept. */
 export async function saveSwitchesAction(_: FormState, formData: FormData): Promise<FormState> {
   const admin = await requireAdmin("switches.edit");
   const store = await getStore();
   const before = await getSwitches(store, { fresh: true });
   const on = new Set(formData.getAll("on").map(String));
-  const off = allSwitchKeys().filter((key) => !on.has(key));
+  const studio = formData.get("family") === "studio";
+  const shown = new Set(allSwitchKeys().filter((key) => isStudioSwitch(key) === studio));
+  const off = [...(before?.off ?? []).filter((key) => !shown.has(key)), ...[...shown].filter((key) => !on.has(key))];
   const next = cleanSwitches(off, before?.offByPlan ?? {});
   const was = new Set(before?.off ?? []);
   const turnedOff = next.off.filter((k) => !was.has(k));
@@ -56,9 +58,11 @@ export async function savePlanAvailabilityAction(_: FormState, formData: FormDat
   const store = await getStore();
   const before = await getSwitches(store, { fresh: true });
   const on = new Set(formData.getAll("on").map(String));
-  // License features (push, offline downloads, automatic publishing) are set in the plan's own form.
+  // License features (push, offline downloads, automatic publishing) are set in the plan's own form; a regular plan doesn't list Studio's own switches, which stay as they were.
   const licenseKeys = new Set(LICENSE_FEATURE_SWITCHES.map((f) => switchKey("feature", f)));
-  const planOff = allSwitchKeys().filter((key) => !licenseKeys.has(key) && !on.has(key));
+  const studioPlan = (STUDIO_PLANS as readonly string[]).includes(plan);
+  const shown = new Set(allSwitchKeys().filter((key) => !licenseKeys.has(key) && (studioPlan || !isStudioSwitch(key))));
+  const planOff = [...(before?.offByPlan[plan] ?? []).filter((key) => !shown.has(key)), ...[...shown].filter((key) => !on.has(key))];
   const next = cleanSwitches(before?.off ?? [], { ...(before?.offByPlan ?? {}), [plan]: planOff });
   const was = new Set(before?.offByPlan[plan] ?? []);
   const now = new Set(next.offByPlan[plan] ?? []);

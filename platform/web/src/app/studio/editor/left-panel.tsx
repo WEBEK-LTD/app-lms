@@ -7,7 +7,7 @@ import type { ItemSource, StudioHeader, StudioNode, StudioPage } from "@/lib/pag
 import { ELEMENTS, type ElementGroup } from "@/lib/studio/elements";
 import type { SectionInfo, TemplateInfo } from "@/lib/studio/sections";
 import { holdsChildren } from "@/lib/studio/edit";
-import { Glyph, type DragPayload } from "./shared";
+import { Glyph, STUDIO_COLORS as C, type DragPayload } from "./shared";
 
 /**
  * 103R The editor's left side, as in the approved design: Elements, Ready
@@ -47,6 +47,9 @@ export function LeftPanel(props: {
   onLayerDragOver: (e: DragEvent, node: StudioNode) => void;
   onLayerDrop: (e: DragEvent) => void;
   drop: { parentId: string; index: number } | null;
+  /** 108.7 The whole designs window, and how many designs it offers. */
+  onOpenDesigns: () => void;
+  designsCount: number;
 }) {
   const t = useDashT();
   const [query, setQuery] = useState("");
@@ -153,6 +156,17 @@ export function LeftPanel(props: {
 
         {props.tab === "templates" ? (
           <div className="flex flex-col gap-2 px-3 pb-3">
+            {/* 108.7 Whole designs: every page at once. */}
+            <div className="mb-1 flex flex-col gap-1.5 rounded-xl p-2.5" style={{ background: C.ivory, border: "1px solid var(--studio-line)" }}>
+              <b className="text-[15px]">{t("studio.designsWhole")}</b>
+              <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+                {t("studio.designsWholeHint")}
+              </span>
+              <button type="button" onClick={props.onOpenDesigns} className="studio-tile flex items-center gap-2 rounded-[10px] bg-white px-3 py-2 text-start text-[13px] font-bold" style={{ border: "1px solid var(--studio-line)" }}>
+                <Glyph name="dashboard_customize" size={18} />
+                {t("studio.designsSeeAll", { count: props.designsCount })}
+              </button>
+            </div>
             <p className="m-0 text-[13px]" style={{ color: "var(--studio-muted)" }}>
               {t("studio.templatesIntro")}
             </p>
@@ -291,7 +305,7 @@ function Layer(props: {
   const kids = holdsChildren(node) ? (node.children ?? []) : [];
   const folded = props.folded.has(node.id);
   const selected = props.selectedId === node.id;
-  const label = node.name ?? (node.type === "button" || node.type === "text" ? `${elementLabel(t, node.type, node.source)} «${(node.text ?? "").slice(0, 24)}»` : elementLabel(t, node.type, node.source));
+  const label = node.name ?? node.title ?? (node.type === "button" || node.type === "text" ? `${elementLabel(t, node.type, node.source)} «${(node.text ?? "").slice(0, 24)}»` : elementLabel(t, node.type, node.source));
   return (
     <>
       <li
@@ -313,7 +327,15 @@ function Layer(props: {
         ) : null}
         <button type="button" onClick={() => props.onSelect(node.id)} className="flex min-w-0 flex-1 items-center gap-1.5 border-0 bg-transparent p-0 text-start" style={{ color: "inherit", fontWeight: "inherit" }}>
           <Glyph name={element?.icon ?? "crop_square"} size={16} />
-          <span className="truncate">{label}</span>
+          <span className="truncate" style={node.hidden ? { opacity: 0.55 } : undefined}>
+            {label}
+          </span>
+          {node.hidden ? (
+            <span title={t("studio.hiddenInApp")} className="flex flex-none" style={{ color: "var(--studio-muted)" }}>
+              <Glyph name="visibility_off" size={15} />
+              <span className="sr-only">{t("studio.hiddenInApp")}</span>
+            </span>
+          ) : null}
         </button>
       </li>
       {folded ? null : kids.map((child) => <Layer key={child.id} {...props} node={child} depth={props.depth + 1} />)}

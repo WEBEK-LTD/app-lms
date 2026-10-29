@@ -18,6 +18,7 @@ import '../../../core/theme/symbol_names.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import 'app_header.dart';
+import 'content_blocks.dart' show pageClockProvider;
 import 'page_actions.dart';
 import 'page_blocks.dart';
 import 'side_menu.dart';
@@ -149,20 +150,41 @@ StudioNode _withChildren(StudioNode node, List<StudioNode> children) =>
       gradient: node.gradient,
       imageBackgroundUrl: node.imageBackgroundUrl,
       radius: node.radius,
+      corners: node.corners,
+      overlay: node.overlay,
       font: node.font,
     );
 
 /// What every element of a page shares: the page (a form sends its answers
 /// with it), light or dark, and inside a list's card the entry it shows.
 class StudioScope {
-  const StudioScope({required this.pageSlug, required this.dark, this.entry});
+  const StudioScope({
+    required this.pageSlug,
+    required this.dark,
+    this.entry,
+    this.uppercase = false,
+  });
 
   final String pageSlug;
   final bool dark;
   final PageItem? entry;
 
-  StudioScope withEntry(PageItem entry) =>
-      StudioScope(pageSlug: pageSlug, dark: dark, entry: entry);
+  /// 107.2 Texts in capitals, as the element holding them asked.
+  final bool uppercase;
+
+  StudioScope withEntry(PageItem entry) => StudioScope(
+    pageSlug: pageSlug,
+    dark: dark,
+    entry: entry,
+    uppercase: uppercase,
+  );
+
+  StudioScope inCapitals() => StudioScope(
+    pageSlug: pageSlug,
+    dark: dark,
+    entry: entry,
+    uppercase: true,
+  );
 }
 
 // ----------------------------------------------------------------- Header
@@ -419,6 +441,8 @@ class StudioNodeView extends ConsumerWidget {
 
   /// False for an element this phone or this person doesn't see.
   static bool shows(StudioNode node, WidgetRef ref) {
+    // 107.2 Hidden by the owner (the servers leave these out already).
+    if (node.hidden) return false;
     final platforms = node.platforms;
     if (platforms != null) {
       final ios = defaultTargetPlatform == TargetPlatform.iOS;
@@ -460,7 +484,9 @@ class StudioNodeView extends ConsumerWidget {
     final background = parseHexColor(
       dark ? (node.darkBackground ?? node.background) : node.background,
     );
-    final radius = BorderRadius.circular(node.radius);
+    final radius = _radiusOf(node).resolve(Directionality.of(context));
+    final rounded = node.radius > 0 || node.corners != null;
+    final overlay = _overlayOf(node);
     Widget child = _content(context, ref, color);
     final padding = _insets(node.padding);
     if (padding != null) child = Padding(padding: padding, child: child);
@@ -478,6 +504,13 @@ class StudioNodeView extends ConsumerWidget {
           Positioned.fill(
             child: AppNetworkImage(url: url, seed: node.id.hashCode),
           ),
+          if (overlay != null)
+            Positioned.fill(
+              child: ColoredBox(
+                key: ValueKey('studio-overlay-${node.id}'),
+                color: overlay,
+              ),
+            ),
           child,
         ],
       );
@@ -497,7 +530,7 @@ class StudioNodeView extends ConsumerWidget {
         child: child,
       );
     }
-    if (node.radius > 0 &&
+    if (rounded &&
         (node.imageBackgroundUrl != null ||
             node.type == StudioNodeType.image)) {
       child = ClipRRect(borderRadius: radius, child: child);
@@ -545,6 +578,14 @@ class StudioNodeView extends ConsumerWidget {
         !MediaQuery.disableAnimationsOf(context)) {
       child = _Moving(motion: motion, child: child);
     }
+    // 107.2 Turned, with what it holds.
+    if (node.rotation != 0) {
+      child = Transform.rotate(
+        key: ValueKey('studio-turned-${node.id}'),
+        angle: node.rotation * math.pi / 180,
+        child: child,
+      );
+    }
     final margin = _insets(node.margin);
     if (margin != null) child = Padding(padding: margin, child: child);
     return KeyedSubtree(key: ValueKey('studio-node-${node.id}'), child: child);
@@ -582,14 +623,22 @@ class StudioNodeView extends ConsumerWidget {
       fontSize: size,
       fontWeight: _weight(font?.weight),
       fontStyle: font?.italic == true ? FontStyle.italic : null,
-      decoration: font?.underline == true ? TextDecoration.underline : null,
+      decoration: _decoration(font),
       height: font?.lineHeight,
       letterSpacing: font?.letterSpacing,
     );
   }
 
-  /// The text shown: the entry's for an element bound to it in a card.
+  /// The text shown: the entry's for an element bound to it in a card; in
+  /// capitals when it or what holds it asks (107.2).
   String? _text() {
+    final text = _ownText();
+    return text != null && (scope.uppercase || node.font?.uppercase == true)
+        ? text.toUpperCase()
+        : text;
+  }
+
+  String? _ownText() {
     final entry = scope.entry;
     if (entry != null && node.bind != null) {
       return switch (node.bind!) {
@@ -618,6 +667,55 @@ class StudioNodeView extends ConsumerWidget {
         return _layout(context, ref);
       case StudioNodeType.slider:
         return _StudioSlider(node: node, scope: scope);
+      case StudioNodeType.accordion || StudioNodeType.tabs:
+        // 107.3 Questions that open one at a time, or one tab at a time.
+        final kids = [
+          for (final child in node.children)
+            if (shows(child, ref)) child,
+        ];
+        if (kids.isEmpty) return const SizedBox.shrink();
+        final inner = node.font?.uppercase == true ? scope.inCapitals() : scope;
+        return node.type == StudioNodeType.accordion
+            ? _StudioAccordion(node: node, kids: kids, scope: inner)
+            : _StudioTabs(node: node, kids: kids, scope: inner);
+      case StudioNodeType.countdown:
+        final ends = node.endsAt;
+        if (ends == null) return const SizedBox.shrink();
+        return _StudioCountdown(
+          node: node,
+          endsAt: ends,
+          endedText: _text(),
+          align: align,
+        );
+      case StudioNodeType.bullets:
+        final lines = [
+          for (final line in (_text() ?? '').split('\n'))
+            if (line.trim().isNotEmpty) line.trim(),
+        ];
+        if (lines.isEmpty) return const SizedBox.shrink();
+        final gap = node.gap > 0 ? node.gap : 8.0;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final (i, line) in lines.indexed) ...[
+              if (i > 0) SizedBox(height: gap),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppIcon(
+                    node.icon == null
+                        ? AppIcons.checkCircle
+                        : symbolByName(node.icon),
+                    size: node.iconSize == 24 ? 20 : node.iconSize,
+                    color: color ?? p.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(line, textAlign: align)),
+                ],
+              ),
+            ],
+          ],
+        );
       case StudioNodeType.spacer:
         return SizedBox(
           height: node.height?.fixed ?? 24,
@@ -712,10 +810,25 @@ class StudioNodeView extends ConsumerWidget {
           height: node.height?.fixed,
           clearPlaceholder: node.contain,
         );
+        final overlay = _overlayOf(node);
+        final shown = overlay == null
+            ? image
+            : Stack(
+                fit: StackFit.passthrough,
+                children: [
+                  image,
+                  Positioned.fill(
+                    child: ColoredBox(
+                      key: ValueKey('studio-overlay-${node.id}'),
+                      color: overlay,
+                    ),
+                  ),
+                ],
+              );
         if (node.height?.fixed == null && node.aspectRatio == null) {
-          return AspectRatio(aspectRatio: 16 / 9, child: image);
+          return AspectRatio(aspectRatio: 16 / 9, child: shown);
         }
-        return image;
+        return shown;
       case StudioNodeType.icon:
         return AppIcon(
           symbolByName(node.icon),
@@ -779,8 +892,9 @@ class StudioNodeView extends ConsumerWidget {
         if (shows(child, ref)) child,
     ];
     if (kids.isEmpty) return const SizedBox.shrink();
+    final inner = node.font?.uppercase == true ? scope.inCapitals() : scope;
     Widget view(StudioNode child) =>
-        StudioNodeView(node: child, scope: scope, parent: node);
+        StudioNodeView(node: child, scope: inner, parent: node);
     switch (node.type) {
       case StudioNodeType.stack:
         return Stack(
@@ -831,6 +945,28 @@ class StudioNodeView extends ConsumerWidget {
               row,
             ],
           ],
+        );
+      case StudioNodeType.row when node.scroll:
+        // 107.2 Scrolls sideways: each child keeps its own width.
+        final tall =
+            node.cross == StudioCross.stretch ||
+            kids.any((k) => k.height?.fill == true);
+        final strip = Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: tall
+              ? CrossAxisAlignment.stretch
+              : _cross(node.cross),
+          children: _spaced([
+            for (final child in kids)
+              _selfAlign(child, view(child), Axis.vertical),
+          ], horizontal: true),
+        );
+        return SingleChildScrollView(
+          key: ValueKey('studio-scroll-${node.id}'),
+          scrollDirection: Axis.horizontal,
+          child: tall && node.height?.fixed == null
+              ? IntrinsicHeight(child: strip)
+              : strip,
         );
       case StudioNodeType.row:
         final stretch =
@@ -950,6 +1086,34 @@ LinearGradient _linear(StudioGradient g, Color? fallback) {
     end: Alignment(dx, dy),
     colors: [from, to],
   );
+}
+
+/// 107.2 Each corner on its own, else [StudioNode.radius] for all four.
+BorderRadiusGeometry _radiusOf(StudioNode node) {
+  final k = node.corners;
+  if (k == null) return BorderRadius.circular(node.radius);
+  return BorderRadiusDirectional.only(
+    topStart: Radius.circular(k.topStart),
+    topEnd: Radius.circular(k.topEnd),
+    bottomEnd: Radius.circular(k.bottomEnd),
+    bottomStart: Radius.circular(k.bottomStart),
+  );
+}
+
+/// 107.2 The colour over the element's picture, with its strength.
+Color? _overlayOf(StudioNode node) {
+  final o = node.overlay;
+  if (o == null || o.opacity <= 0) return null;
+  return parseHexColor(o.color)?.withValues(alpha: o.opacity);
+}
+
+/// Underlined, struck through (107.2), both or neither.
+TextDecoration? _decoration(StudioFont? font) {
+  final lines = [
+    if (font?.underline == true) TextDecoration.underline,
+    if (font?.strike == true) TextDecoration.lineThrough,
+  ];
+  return lines.isEmpty ? null : TextDecoration.combine(lines);
 }
 
 List<BoxShadow>? _shadow(StudioShadow shadow) => switch (shadow) {
@@ -1394,6 +1558,298 @@ class _MovingState extends State<_Moving> with TickerProviderStateMixin {
           ),
         );
       },
+    );
+  }
+}
+
+/// 107.3 Questions that open one at a time: each child's `title` is its
+/// question, the child its answer.
+class _StudioAccordion extends StatefulWidget {
+  const _StudioAccordion({
+    required this.node,
+    required this.kids,
+    required this.scope,
+  });
+
+  final StudioNode node;
+  final List<StudioNode> kids;
+  final StudioScope scope;
+
+  @override
+  State<_StudioAccordion> createState() => _StudioAccordionState();
+}
+
+class _StudioAccordionState extends State<_StudioAccordion> {
+  int? _open;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final still = MediaQuery.disableAnimationsOf(context);
+    final gap = widget.node.gap;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final (i, child) in widget.kids.indexed) ...[
+          if (i > 0 && gap > 0) SizedBox(height: gap),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: p.divider.withValues(alpha: 0.6)),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Semantics(
+                  button: true,
+                  expanded: _open == i,
+                  child: InkWell(
+                    key: ValueKey('studio-question-${child.id}'),
+                    onTap: () => setState(() => _open = _open == i ? null : i),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              _titleIn(child, widget.scope, i),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          AnimatedRotation(
+                            turns: _open == i ? 0.5 : 0,
+                            duration: still
+                                ? Duration.zero
+                                : const Duration(milliseconds: 200),
+                            child: const AppIcon(AppIcons.expand, size: 22),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                AnimatedSize(
+                  duration: still
+                      ? Duration.zero
+                      : const Duration(milliseconds: 200),
+                  alignment: AlignmentDirectional.topStart,
+                  child: _open == i
+                      ? StudioNodeView(
+                          node: child,
+                          scope: widget.scope,
+                          parent: widget.node,
+                        )
+                      : const SizedBox(width: double.infinity),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// 107.3 One child at a time under a bar of their `title`s.
+class _StudioTabs extends StatefulWidget {
+  const _StudioTabs({
+    required this.node,
+    required this.kids,
+    required this.scope,
+  });
+
+  final StudioNode node;
+  final List<StudioNode> kids;
+  final StudioScope scope;
+
+  @override
+  State<_StudioTabs> createState() => _StudioTabsState();
+}
+
+class _StudioTabsState extends State<_StudioTabs> {
+  int _shown = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final shown = _shown.clamp(0, widget.kids.length - 1);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (final (i, child) in widget.kids.indexed) ...[
+                if (i > 0) const SizedBox(width: 6),
+                Semantics(
+                  selected: i == shown,
+                  button: true,
+                  child: Material(
+                    color: i == shown
+                        ? p.primary
+                        : p.text.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(999),
+                    child: InkWell(
+                      key: ValueKey('studio-tab-${child.id}'),
+                      borderRadius: BorderRadius.circular(999),
+                      onTap: () => setState(() => _shown = i),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 7,
+                        ),
+                        child: Text(
+                          _titleIn(child, widget.scope, i),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: i == shown
+                                ? FontWeight.w700
+                                : FontWeight.w400,
+                            color: i == shown ? p.onPrimary : null,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        SizedBox(height: widget.node.gap > 0 ? widget.node.gap : 10),
+        KeyedSubtree(
+          key: ValueKey('studio-tab-panel-${widget.kids[shown].id}'),
+          child: StudioNodeView(
+            node: widget.kids[shown],
+            scope: widget.scope,
+            parent: widget.node,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// A child's question or tab name; its place when it has none.
+String _titleIn(StudioNode child, StudioScope scope, int i) {
+  final title = child.title?.trim() ?? '';
+  final shown = title.isEmpty ? '${i + 1}' : title;
+  return scope.uppercase ? shown.toUpperCase() : shown;
+}
+
+/// 107.3 Days, hours, minutes and seconds left; the owner's text once the
+/// time is up, or nothing.
+class _StudioCountdown extends ConsumerStatefulWidget {
+  const _StudioCountdown({
+    required this.node,
+    required this.endsAt,
+    required this.endedText,
+    required this.align,
+  });
+
+  final StudioNode node;
+  final DateTime endsAt;
+  final String? endedText;
+  final TextAlign align;
+
+  @override
+  ConsumerState<_StudioCountdown> createState() => _StudioCountdownState();
+}
+
+class _StudioCountdownState extends ConsumerState<_StudioCountdown> {
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final left = widget.endsAt.difference(ref.watch(pageClockProvider)());
+    if (left.isNegative || left == Duration.zero) {
+      _timer?.cancel();
+      final text = widget.endedText?.trim() ?? '';
+      if (text.isEmpty) return const SizedBox.shrink();
+      return Text(
+        text,
+        key: ValueKey('studio-countdown-ended-${widget.node.id}'),
+        textAlign: widget.align,
+      );
+    }
+    final units = [
+      (left.inDays, l10n.countdownDays),
+      (left.inHours % 24, l10n.countdownHours),
+      (left.inMinutes % 60, l10n.countdownMinutes),
+      (left.inSeconds % 60, l10n.countdownSeconds),
+    ];
+    final ink =
+        DefaultTextStyle.of(context).style.color ?? context.palette.text;
+    return Semantics(
+      label: units.map((u) => '${u.$1} ${u.$2}').join(', '),
+      excludeSemantics: true,
+      child: Row(
+        key: ValueKey('studio-countdown-${widget.node.id}'),
+        // Days on the left in every language, like a clock.
+        textDirection: TextDirection.ltr,
+        children: [
+          for (final (i, u) in units.indexed) ...[
+            if (i > 0) const SizedBox(width: 8),
+            Expanded(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: ink.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 4,
+                  ),
+                  child: Column(
+                    children: [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          u.$1.toString().padLeft(2, '0'),
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            fontFeatures: [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                      ),
+                      Text(
+                        u.$2,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: ink.withValues(alpha: 0.75),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

@@ -8,7 +8,7 @@ import { clientAccountState, longestLicense } from "../license/status";
 import type { BuildConfig } from "../build-config/types";
 import * as schema from "../db/schema";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
-import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, SavedSection, StudioTemplate, StoreProduct, StorePurchaseRecord, StorePurchaseEvent, StoreBillingItem, BillingSession } from "./types";
+import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, SavedSection, StudioTemplate, StudioDesign, StoreProduct, StorePurchaseRecord, StorePurchaseEvent, StoreBillingItem, BillingSession } from "./types";
 import type {
   FoodOrder,
   FoodOrderInput,
@@ -4069,6 +4069,30 @@ export class MysqlStore implements DataStore {
 
   async deleteStudioTemplate(clientId: string, id: string): Promise<boolean> {
     const t = schema.studioTemplates;
+    const [result] = await this.run((db) => db.delete(t).where(and(eq(t.clientId, clientId), eq(t.id, id))));
+    return result.affectedRows > 0;
+  }
+
+  // 108.7 Own whole designs
+
+  async listStudioDesigns(clientId: string): Promise<StudioDesign[]> {
+    const t = schema.studioDesigns;
+    const rows = await this.run((db) => db.select().from(t).where(eq(t.clientId, clientId)).orderBy(desc(t.createdAt)));
+    return rows.map((r) => ({ ...r, source: r.source === "imported" ? "imported" : "saved" }));
+  }
+
+  async createStudioDesign(design: StudioDesign): Promise<void> {
+    await this.run((db) => db.insert(schema.studioDesigns).values(design));
+  }
+
+  async getStudioDesign(clientId: string, id: string): Promise<StudioDesign | null> {
+    const t = schema.studioDesigns;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.clientId, clientId), eq(t.id, id))).limit(1));
+    return row ? { ...row, source: row.source === "imported" ? "imported" : "saved" } : null;
+  }
+
+  async deleteStudioDesign(clientId: string, id: string): Promise<boolean> {
+    const t = schema.studioDesigns;
     const [result] = await this.run((db) => db.delete(t).where(and(eq(t.clientId, clientId), eq(t.id, id))));
     return result.affectedRows > 0;
   }

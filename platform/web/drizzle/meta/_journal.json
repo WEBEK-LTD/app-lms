@@ -708,6 +708,13 @@
       "when": 1793253432719,
       "tag": "0100_school",
       "breakpoints": true
+    },
+    {
+      "idx": 101,
+      "version": "5",
+      "when": 1793288978577,
+      "tag": "0101_studio_designs",
+      "breakpoints": true
     }
   ]
 }

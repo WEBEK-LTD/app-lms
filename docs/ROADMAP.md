@@ -2676,3 +2676,33 @@ Sharing Studio templates for free or selling them by monthly, yearly or
 lifetime subscription; Yallapp's share 25% (taxes, payout and gateway fees
 included); payouts to the seller's bank account (SWIFT). After Studio is
 finished and tested.
+
+## Phase 107: More in Studio's editor
+
+The owner asked for more options and more that the editor can do (29
+October). Each step reaches the app too: an option is only offered once
+the app draws it (and the plugin serves it to WordPress apps).
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 107.1 The editor's own tools: copy, cut and paste elements (also to another page or project), copy and paste an element's style, move up and down and select the parent from the selected element, the shortcuts listed; options the app already draws offered: letter spacing, the lowest height, the shape (square, 4:3, 16:9…), removing a picture | unit tests, e2e |
+| [x] | 107.2 More style: turning an element, each corner rounded on its own, a colour over a picture, a row that scrolls sideways, capitals and struck-through text (old prices), hiding an element without deleting it; contract, page checker, the app, the plugin | redocly lint, unit tests, flutter analyze and widget tests, the plugin's tests, e2e |
+| [x] | 107.3 New elements: a countdown (offers ending), questions and answers that open (accordion), tabs that switch what is under them, a list with an icon on each line; contract, page checker, the app, the plugin, the editor and its ready sections | redocly lint, unit tests, flutter analyze and widget tests, the plugin's tests, e2e |
+
+## Phase 108: Designs from anywhere, and whole designs to choose from
+
+The owner asked (29 October) that a designer working in any tool can bring
+the design into Studio, and that a project can swap its whole design for
+another from many. Asked before built: the import screen and the designs
+gallery are shown to the owner first. He approved them, and resizing by
+dragging in the phone, on 29 October.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 108.1 The screens, shown to the owner first and approved (29 October) on the real editor, its look unchanged: two choices added to the Page menu, whole designs at the top of the Templates tab, the import windows over the editor. With them, as asked: an element resized by dragging a corner of its selection in the phone (a mostly sideways drag sets the width, up or down the height; Shift keeps the shape; a width reaching what holds it fills it; a double click gives it its own size back; one undo step), the dashboard and the phone's frame untouched | owner's approval; unit tests, e2e |
+| [x] | 108.2 Yallapp's own design file (`.yallapp`): a page, the selected element or a whole project (its pages, font, second colour and tabs) with its pictures and the project's own fonts inside, exported from the Page menu and imported in any project of any account through "Import a design" (the file, then what was found: the pages to take, a new page, instead of the open page or a section in it, the fonts it needs with their licence confirmed, the pictures saved with the project); texts moved to the project's languages, links between the file's pages kept, one undo step | unit tests, e2e |
+| [x] | 108.3 SVG from any design tool (Figma, Adobe XD, Sketch, Penpot, Illustrator, Affinity, Canva), one screen per file and several at once: what sits side by side becomes a row, what is stacked a column, a box with things on it holds them, a small rounded box with one text a button; texts stay texts with their fonts and colours, embedded pictures are saved with the project, drawings (paths, icons) are drawn as pictures by the browser; the status bar, home indicator and tab bar left out; right-to-left projects start from the right; fonts matched to Google Fonts or the project's own, and own fonts (`.ttf`, `.otf`) added in the import window. One shape of screen for every tool (`lib/studio/import/frame.ts`), so the next tools reuse it | unit tests against an exported file, e2e |
+| [x] | 108.4 A Figma link into Studio (the import window's second tab): the file read with the owner's personal access token (sent to Figma with these calls only, never saved), its screens chosen (up to 10, a board of several gives each), auto layout kept as rows and columns with their gaps, padding and alignment; colours, gradients, corners, borders, shadows and fonts kept; image fills fetched from Figma and drawings (vectors, icons) drawn by Figma, both saved as the account's files | unit tests against Figma's node shapes, e2e against a fake Figma API |
+| [x] | 108.5 Figma's own file (`.fig`), read on a best effort (Figma doesn't document it): the ZIP and its `canvas.fig` in Kiwi (deflate or zstd, by `fzstd` 0.1.1), its frames read by the same reader as the Figma link, its pictures from the file, drawings from their outlines, instances from their components with their texts overridden; when it can't be read, the window says to use the link or SVG | unit tests against a file made in the test, e2e |
+| [x] | 108.6 Sketch files (`.sketch`: artboards, rectangles, ovals, texts with their fonts, bitmaps, symbols with their texts overridden, shapes drawn from their points) and Penpot files (`.penpot` from Penpot 2, and a page's shapes as JSON: boards, flex layout as rows and columns, texts, pictures, paths drawn) | unit tests against files made in the test, e2e |
+| [x] | 108.7 Whole designs: the project type's own pages (its templates, a brand and a contact page) in six looks (a colour, a background, a free Arabic font, a header and how round the corners are), in the approved window opened from the top of the Templates tab: filters (all, the type's, the account's own, imported), a phone per design, the chosen one's pages; replacing the whole project's design (its Studio pages take the design's in order, keeping their addresses and names so tabs and links work; extra pages added; the font and second colour taken) or only the open page, keeping the texts and pictures that were changed, as one step that can be undone, what's published unchanged until publishing; the project saved as one of the account's own designs, and an import kept there (`studio_designs`, the file in the file store, up to 30, with own templates on the plan) | unit tests (every design for every project type taken by the page checker), e2e |

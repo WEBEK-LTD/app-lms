@@ -462,6 +462,26 @@ $layout = array(
 						array( 'id' => 'bad-picture', 'type' => 'image', 'image_url' => 'javascript:alert(1)' ),
 						array( 'id' => 'clip', 'type' => 'video' ),
 						array( 'id' => 'later', 'type' => 'hologram' ),
+						// 107.2 More style, and an element hidden in the app.
+						array(
+							'id'       => 'chips',
+							'type'     => 'row',
+							'scroll'   => true,
+							'rotation' => -4,
+							'corners'  => array( 'top_start' => 20, 'bottom_end' => 20 ),
+							'overlay'  => array( 'color' => '#0e0d24', 'opacity' => 0.35 ),
+							'children' => array( array( 'id' => 'old', 'type' => 'text', 'text' => 'EGP 300', 'font' => array( 'strike' => true, 'uppercase' => true ) ) ),
+						),
+						array( 'id' => 'draft', 'type' => 'text', 'text' => 'Coming soon', 'hidden' => true ),
+						// 107.3 Questions that open, a countdown, a list with icons; a countdown without an end is left out.
+						array(
+							'id'       => 'faq',
+							'type'     => 'accordion',
+							'children' => array( array( 'id' => 'q1', 'type' => 'column', 'title' => 'How long?', 'translations' => array( 'ar' => array( 'title' => 'قد إيه؟' ) ), 'children' => array( array( 'id' => 'a1', 'type' => 'text', 'text' => 'Two days.' ) ) ) ),
+						),
+						array( 'id' => 'sale', 'type' => 'countdown', 'ends_at' => '2026-11-05T21:00:00+02:00', 'text' => 'It ended.' ),
+						array( 'id' => 'no-end', 'type' => 'countdown' ),
+						array( 'id' => 'perks', 'type' => 'bullets', 'text' => "Free delivery\nPay on delivery", 'icon' => 'local_shipping' ),
 					),
 				),
 			),
@@ -563,7 +583,11 @@ $nodes  = $studio['body']['children'] ?? array();
 check(
 	'103R studio page',
 	'#FFFFFF' === ( $studio['background'] ?? '' ) && array( 'type' => 'title_search', 'title' => 'Lessons', 'logo_url' => null, 'buttons' => array( 'notifications' ), 'background' => null, 'color' => null, 'dark_background' => null, 'dark_color' => null ) === ( $studio['header'] ?? null )
-		&& array( 'hero', 'go', 'list' ) === array_column( $nodes, 'id' )
+		&& array( 'hero', 'go', 'list', 'chips', 'faq', 'sale', 'perks' ) === array_column( $nodes, 'id' )
+		&& 'How long?' === ( $nodes[4]['children'][0]['title'] ?? '' ) && '2026-11-05T19:00:00Z' === ( $nodes[5]['ends_at'] ?? '' ) && 'local_shipping' === ( $nodes[6]['icon'] ?? '' )
+		// Whole numbers come back without decimals: compared as numbers.
+		&& true === ( $nodes[3]['scroll'] ?? null ) && -4 == ( $nodes[3]['rotation'] ?? null ) && array( 'top_start' => 20, 'bottom_end' => 20 ) == ( $nodes[3]['corners'] ?? null )
+		&& '#0E0D24' === ( $nodes[3]['overlay']['color'] ?? '' ) && 0.35 == ( $nodes[3]['overlay']['opacity'] ?? null ) && array( 'strike' => true, 'uppercase' => true ) === ( $nodes[3]['children'][0]['font'] ?? null )
 		&& "Learn\nfaster" === ( $nodes[0]['children'][0]['text'] ?? '' ) && ! isset( $nodes[0]['children'][0]['translations'] )
 		&& 800 === ( $nodes[0]['children'][0]['font']['weight'] ?? 0 ) && 'slide_up' === ( $nodes[0]['children'][0]['motion']['enter'] ?? '' )
 		&& 'fill' === ( $nodes[1]['width'] ?? '' ) && 'courses' === ( $nodes[1]['action']['screen'] ?? '' )
@@ -571,7 +595,7 @@ check(
 	$studio
 );
 $r = call( 'GET', '/pages/offers?platform=ios', null, null, array( 'Accept-Language: ar' ) );
-check( '103R studio page in Arabic', 'تعلم أسرع' === ( $r['json']['studio']['body']['children'][0]['children'][0]['text'] ?? '' ) && 'الدروس' === ( $r['json']['studio']['header']['title'] ?? '' ), $r['json']['studio'] ?? null );
+check( '103R studio page in Arabic', 'تعلم أسرع' === ( $r['json']['studio']['body']['children'][0]['children'][0]['text'] ?? '' ) && 'الدروس' === ( $r['json']['studio']['header']['title'] ?? '' ) && 'قد إيه؟' === ( $r['json']['studio']['body']['children'][4]['children'][0]['title'] ?? '' ), $r['json']['studio'] ?? null );
 $r = call( 'GET', '/pages/offers?platform=ios' );
 check( 'second page', 200 === $r['status'] && false === $r['json']['show_title'] && 2.0 === (float) ( page_block( $r['json'], 'deal' )['aspect_ratio'] ?? 0 ) && 'https://example.org/deal' === ( page_block( $r['json'], 'deal' )['action']['url'] ?? '' ) && 'https://example.org/clip.mp4' === ( page_block( $r['json'], 'clip' )['url'] ?? '' ), $r['raw'] );
 forget_layout();

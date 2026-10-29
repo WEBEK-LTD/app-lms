@@ -30,6 +30,8 @@ export type AssetKind =
   | "font"
   // 97.3 The logo and pictures exported from a Figma file.
   | "figma_image"
+  // 108.2 The pictures of a design brought into Studio (a design file, SVG, Figma, Sketch, Penpot).
+  | "design_image"
   // 105.2 A driver's papers (licence, car registration): only the company sees them, never at the public address.
   | "driver_document";
 export type AppTemplate = "classic" | "bold" | "minimal";
@@ -2081,6 +2083,21 @@ export interface StudioTemplate {
   page: StudioPage;
   createdAt: Date;
   /** Email of whoever saved it. */
+  createdBy: string | null;
+}
+
+/** 108.7 A whole design an account keeps for its Studio projects; the design file is in the file store. */
+export interface StudioDesign {
+  id: string;
+  clientId: string;
+  name: string;
+  /** Saved from a project, or imported from a file or another tool. */
+  source: "saved" | "imported";
+  pages: number;
+  blobKey: string;
+  sizeBytes: number;
+  createdAt: Date;
+  /** Email of whoever kept it. */
   createdBy: string | null;
 }
 

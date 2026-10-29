@@ -8,6 +8,9 @@ import { getStore } from "@/lib/data";
 import { effectivePlans } from "@/lib/entitlements";
 import { appUrl, encryptionKey } from "@/lib/env";
 import { FREE_FONT_COUNT } from "@/lib/fonts/catalog";
+import { ownFontView } from "@/lib/fonts/own";
+import { kindOf } from "@/lib/app/kinds";
+import { ownDesignView } from "@/lib/studio/own-designs";
 import { pickableContent } from "@/lib/hosted/pages/pickable";
 import { loadLayout, withoutStrings } from "@/lib/pages/layout";
 import { allowedSources } from "@/lib/pages/plan";
@@ -27,7 +30,7 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
   const { app, license } = await requireClient("settings");
   // 103R.3 Studio's editor is for Studio projects; a regular app keeps the dashboard's page editor.
   if (!app || !isStudioProject(app)) redirect("/studio");
-  const { t } = await dashboardText();
+  const { t, k } = await dashboardText();
   const store = await getStore();
   const now = new Date();
   const plans = await effectivePlans(store);
@@ -36,6 +39,14 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
   const record = await loadLayout(store, app, now);
   const sources = plan ? allowedSources(app, plan) : itemSourcesFor(app);
   const query = await searchParams;
+  // 108.2 The project's own fonts, with their files: a design exported takes the ones it uses.
+  const ownFonts = await Promise.all(
+    (await store.listOwnFonts(app.id)).map(async (font) => ({
+      family: font.family,
+      previewUrl: ownFontView(font).previewUrl,
+      files: await Promise.all(font.files.map(async (f) => ({ weight: f.weight, kind: (await store.getAsset(f.assetId))?.contentType === "font/otf" ? ("otf" as const) : ("ttf" as const), url: `/api/v1/assets/${f.assetId}` }))),
+    })),
+  );
   return (
     <StudioEditor
       initial={{
@@ -56,6 +67,9 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
       // Designing works on any plan; the app gets the design with Studio on the plan (before activation, everything).
       studioOnPlan={plan ? hasFeature(plan, "studio") : true}
       kind={{ type: app.appType, vertical: app.vertical ?? null }}
+      ownFonts={ownFonts}
+      ownDesigns={(await store.listStudioDesigns(app.clientId)).map(ownDesignView)}
+      kindName={k(kindOf(app).name)}
     />
   );
 }

@@ -967,8 +967,8 @@ class Block_Resolver {
 	/**
 	 * 103R The element types of a Studio page, and those that hold others.
 	 */
-	const STUDIO_TYPES  = array( 'row', 'column', 'stack', 'grid', 'slider', 'spacer', 'text', 'image', 'button', 'icon', 'items', 'categories', 'video', 'form', 'map', 'ratings', 'search', 'divider' );
-	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider' );
+	const STUDIO_TYPES  = array( 'row', 'column', 'stack', 'grid', 'slider', 'spacer', 'accordion', 'tabs', 'text', 'image', 'button', 'icon', 'items', 'categories', 'video', 'form', 'map', 'ratings', 'search', 'divider', 'countdown', 'bullets' );
+	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider', 'accordion', 'tabs' );
 
 	/**
 	 * 103R A Studio page (`StudioPage`) for one request: its header and its tree of elements
@@ -1050,7 +1050,8 @@ class Block_Resolver {
 		$raw  = Translator::apply( $raw, $language );
 		$type = (string) ( $raw['type'] ?? '' );
 		$id   = is_string( $raw['id'] ?? null ) && preg_match( '/^[A-Za-z0-9_-]{1,64}$/', $raw['id'] ) ? $raw['id'] : null;
-		if ( null === $id || ! in_array( $type, self::STUDIO_TYPES, true ) ) {
+		// 107.2 A hidden element is kept in the editor only (never the page's own).
+		if ( null === $id || ! in_array( $type, self::STUDIO_TYPES, true ) || ( $depth > 0 && true === ( $raw['hidden'] ?? false ) ) ) {
 			return null;
 		}
 		$node = array(
@@ -1073,6 +1074,7 @@ class Block_Resolver {
 			'icon_size'    => array( 8, 200 ),
 			'per_view'     => array( 1, 4 ),
 			'rating'       => array( 0, 5 ),
+			'rotation'     => array( -180, 180 ),
 		);
 		foreach ( $numbers as $field => $range ) {
 			if ( isset( $raw[ $field ] ) && is_numeric( $raw[ $field ] ) ) {
@@ -1124,6 +1126,27 @@ class Block_Resolver {
 				$node[ $field ] = $raw[ $field ];
 			}
 		}
+		// 107.2 A row that scrolls sideways, each corner on its own, a colour over the picture.
+		if ( 'row' === $type && true === ( $raw['scroll'] ?? false ) ) {
+			$node['scroll'] = true;
+		}
+		if ( is_array( $raw['corners'] ?? null ) ) {
+			$corners = array();
+			foreach ( array( 'top_start', 'top_end', 'bottom_end', 'bottom_start' ) as $corner ) {
+				if ( isset( $raw['corners'][ $corner ] ) && is_numeric( $raw['corners'][ $corner ] ) ) {
+					$corners[ $corner ] = round( max( 0, min( 500, (float) $raw['corners'][ $corner ] ) ), 1 );
+				}
+			}
+			if ( $corners ) {
+				$node['corners'] = $corners;
+			}
+		}
+		if ( isset( $raw['overlay']['color'], $raw['overlay']['opacity'] ) && null !== self::hex( $raw['overlay']['color'] ) && is_numeric( $raw['overlay']['opacity'] ) ) {
+			$node['overlay'] = array(
+				'color'   => self::hex( $raw['overlay']['color'] ),
+				'opacity' => round( max( 0, min( 1, (float) $raw['overlay']['opacity'] ) ), 2 ),
+			);
+		}
 		if ( isset( $raw['gradient']['from'], $raw['gradient']['to'] ) && null !== self::hex( $raw['gradient']['from'] ) && null !== self::hex( $raw['gradient']['to'] ) ) {
 			$node['gradient'] = array(
 				'from'  => self::hex( $raw['gradient']['from'] ),
@@ -1142,6 +1165,10 @@ class Block_Resolver {
 		if ( isset( $raw['text'] ) && is_scalar( $raw['text'] ) ) {
 			$text         = sanitize_textarea_field( (string) $raw['text'] );
 			$node['text'] = '' === $text ? null : mb_substr( $text, 0, 2000 );
+		}
+		// 107.3 A question's or a tab's name.
+		if ( isset( $raw['title'] ) && is_scalar( $raw['title'] ) && '' !== trim( (string) $raw['title'] ) ) {
+			$node['title'] = mb_substr( sanitize_text_field( (string) $raw['title'] ), 0, 120 );
 		}
 		if ( isset( $raw['icon'] ) && is_string( $raw['icon'] ) && preg_match( '/^[a-z0-9_]{1,64}$/', $raw['icon'] ) ) {
 			$node['icon'] = $raw['icon'];
@@ -1164,6 +1191,19 @@ class Block_Resolver {
 				break;
 			case 'video':
 				if ( ! isset( $node['video_url'] ) ) {
+					return null;
+				}
+				break;
+			case 'countdown':
+				// 107.3 Counts down to `ends_at`, in UTC.
+				$ends = is_string( $raw['ends_at'] ?? null ) ? strtotime( $raw['ends_at'] ) : false;
+				if ( false === $ends ) {
+					return null;
+				}
+				$node['ends_at'] = gmdate( 'Y-m-d\\TH:i:s\\Z', $ends );
+				break;
+			case 'bullets':
+				if ( empty( $node['text'] ) ) {
 					return null;
 				}
 				break;
@@ -1290,7 +1330,7 @@ class Block_Resolver {
 				$font[ $field ] = round( max( $range[0], min( $range[1], (float) $value[ $field ] ) ), 2 );
 			}
 		}
-		foreach ( array( 'italic', 'underline' ) as $field ) {
+		foreach ( array( 'italic', 'underline', 'strike', 'uppercase' ) as $field ) {
 			if ( ! empty( $value[ $field ] ) ) {
 				$font[ $field ] = true;
 			}

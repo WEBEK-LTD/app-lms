@@ -1,9 +1,10 @@
 import type { DataStore } from "./data/store";
 import type { App, SwitchesSetting } from "./data/types";
 import { platformDefinitions } from "./hosted/connectors/registry";
-import { PLAN_FEATURE_IDS, PLAN_FEATURES, PLANS, type Plan, type PlanFeature, type PlanInfo } from "./plans";
+import { PLAN_FEATURE_IDS, PLAN_FEATURES, PLANS, STUDIO_ONLY_FEATURES, type Plan, type PlanFeature, type PlanInfo } from "./plans";
 import { platformSetting } from "./settings/platform";
 import { APP_TYPES, ENGINES, isAppType } from "./app/kinds";
+import { STUDIO_ONLY_KINDS } from "./studio/section";
 
 /**
  * Switches (roadmap 11.5): app types, websites (the Website step's choices
@@ -69,6 +70,14 @@ export function switchGroups(): { kind: SwitchKind; title: string; items: Switch
 
 export function allSwitchKeys(): string[] {
   return switchGroups().flatMap((g) => g.items.map((i) => i.key));
+}
+
+/** Switches only Yallapp Studio's projects use: its own project types, their content kept in Yallapp, and its features. */
+export function isStudioSwitch(key: string): boolean {
+  return (
+    APP_TYPES.some((type) => STUDIO_ONLY_KINDS.has(type) && (key === switchKey("app_type", type) || key === switchKey("website", ENGINES[type].ownContent.kind))) ||
+    STUDIO_ONLY_FEATURES.some((feature) => key === switchKey("feature", feature))
+  );
 }
 
 /** On for everyone, and for this plan (no plan: only the global switch counts). */

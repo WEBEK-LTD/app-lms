@@ -210,6 +210,11 @@ export const ICON_NAMES = [
   "electric_car",
   "electric_rickshaw",
   "local_taxi",
+  // 107 More in Studio's editor.
+  "content_paste",
+  "format_paint",
+  "keyboard",
+  "subdirectory_arrow_left",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];

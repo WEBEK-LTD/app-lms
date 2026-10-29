@@ -1040,6 +1040,8 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
 
   const name = c.optionalText(where, v.name, L.nameChars, "The element's name");
   if (name) node.name = name;
+  // 107.2 Hidden in the app; the page's own element always shows.
+  if (v.hidden === true && depth > 0) node.hidden = true;
 
   // Size and place.
   const width = parseSize(c, where, v.width, "the width");
@@ -1088,6 +1090,30 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
   if (picture) node.image_background_url = picture;
   const radius = num("radius", 0, L.maxRadius, "the corners");
   if (radius) node.radius = radius;
+  // 107.2 Each corner on its own, turning, and a colour over the picture.
+  if (v.corners !== undefined && v.corners !== null) {
+    const k = record(v.corners);
+    if (!k) bad("the corners aren't valid.");
+    else {
+      const corners: NonNullable<StudioNode["corners"]> = {};
+      for (const corner of ["top_start", "top_end", "bottom_end", "bottom_start"] as const) {
+        const n = studioNumber(k[corner], 0, L.maxRadius);
+        if (n !== undefined && Number.isNaN(n)) bad(`each corner must be 0 to ${L.maxRadius}.`);
+        else if (n) corners[corner] = n;
+      }
+      if (Object.keys(corners).length) node.corners = corners;
+    }
+  }
+  const rotation = num("rotation", -180, 180, "the turn");
+  if (rotation) node.rotation = rotation;
+  if (v.overlay !== undefined && v.overlay !== null) {
+    const o = record(v.overlay);
+    const color = optionalColor(c, where, o?.color, "the colour over the picture");
+    // Its strength in hundredths, as the editor's slider sets it.
+    const strength = typeof o?.opacity === "number" && Number.isFinite(o.opacity) && o.opacity >= 0 && o.opacity <= 1 ? Math.round(o.opacity * 100) / 100 : NaN;
+    if (!color || Number.isNaN(strength)) bad("the colour over the picture needs a colour and how strong it is, 0 to 1.");
+    else if (strength > 0) node.overlay = { color, opacity: strength };
+  }
   const border = num("border_width", 0, L.maxBorder, "the border");
   if (border && node.border_color) node.border_width = border;
   else delete node.border_color;
@@ -1121,16 +1147,24 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       else if (spacing !== undefined) font.letter_spacing = spacing;
       if (f.italic === true) font.italic = true;
       if (f.underline === true) font.underline = true;
+      if (f.strike === true) font.strike = true;
+      if (f.uppercase === true) font.uppercase = true;
       if (Object.keys(font).length) node.font = font;
     }
   }
   const textAlign = pick("text_align", STUDIO_TEXT_ALIGNS, "choose where the text sits.");
   if (textAlign && textAlign !== "start") node.text_align = textAlign;
-  const textual = node.type === "text" || node.type === "button" || node.type === "ratings" || node.type === "search";
+  const textual = node.type === "text" || node.type === "button" || node.type === "ratings" || node.type === "search" || node.type === "countdown" || node.type === "bullets";
   if (textual) {
-    const text = node.type === "text" && !card ? c.text(where, v.text, L.textChars, "a text") : c.optionalText(where, v.text, L.textChars, "The text");
+    const text =
+      (node.type === "text" || node.type === "bullets") && !card ? c.text(where, v.text, L.textChars, node.type === "bullets" ? "the list's lines" : "a text") : c.optionalText(where, v.text, L.textChars, node.type === "countdown" ? "The text once the time is up" : "The text");
     if (text) node.text = text;
-    const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.studio, { text: L.textChars });
+  }
+  // 107.3 A question of an accordion or a tab: its name.
+  const title = c.optionalText(where, v.title, L.titleChars, "The question or the tab's name");
+  if (title) node.title = title;
+  if (textual || title) {
+    const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.studio, { text: L.textChars, title: L.titleChars });
     if (translations) node.translations = translations;
   }
   const lines = num("max_lines", 1, 50, "the lines");
@@ -1174,6 +1208,22 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       if (v.dots === false) node.dots = false;
       break;
     }
+    case "row":
+      if (v.scroll === true) node.scroll = true;
+      break;
+    case "countdown": {
+      // 107.3 Counts down to a moment.
+      const ends = typeof v.ends_at === "string" ? new Date(v.ends_at) : null;
+      if (!ends || Number.isNaN(ends.getTime())) bad("set when the countdown ends.");
+      else node.ends_at = ends.toISOString();
+      break;
+    }
+    case "bullets":
+      if (v.icon !== undefined && v.icon !== null && v.icon !== "") {
+        if (!(typeof v.icon === "string" && ICON_NAME.test(v.icon))) bad("choose an icon.");
+        else node.icon = v.icon;
+      }
+      break;
     case "items": {
       if (!oneOf(ctx.sources, v.source)) bad("choose what the list shows.");
       node.source = v.source as ItemSource;
@@ -1253,7 +1303,7 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
     default:
       break;
   }
-  if (node.type === "button" || node.type === "icon") {
+  if (node.type === "button" || node.type === "icon" || node.type === "bullets") {
     const iconSize = num("icon_size", 8, 200, "the icon's size");
     if (iconSize && iconSize !== 24) node.icon_size = iconSize;
     const pos = pick("icon_position", ["start", "end"] as const, "choose where the icon sits.");
