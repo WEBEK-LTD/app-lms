@@ -7,7 +7,7 @@ import type { ItemSource, StudioHeader, StudioNode, StudioPage } from "@/lib/pag
 import { ELEMENTS, type ElementGroup } from "@/lib/studio/elements";
 import type { SectionInfo, TemplateInfo } from "@/lib/studio/sections";
 import { holdsChildren } from "@/lib/studio/edit";
-import { Glyph, type DragPayload } from "./shared";
+import { Glyph, STUDIO_COLORS as C, type DragPayload } from "./shared";
 
 /**
  * 103R The editor's left side, as in the approved design: Elements, Ready
@@ -47,6 +47,9 @@ export function LeftPanel(props: {
   onLayerDragOver: (e: DragEvent, node: StudioNode) => void;
   onLayerDrop: (e: DragEvent) => void;
   drop: { parentId: string; index: number } | null;
+  /** 108.7 The whole designs window, and how many designs it offers. */
+  onOpenDesigns: () => void;
+  designsCount: number;
 }) {
   const t = useDashT();
   const [query, setQuery] = useState("");
@@ -153,6 +156,17 @@ export function LeftPanel(props: {
 
         {props.tab === "templates" ? (
           <div className="flex flex-col gap-2 px-3 pb-3">
+            {/* 108.7 Whole designs: every page at once. */}
+            <div className="mb-1 flex flex-col gap-1.5 rounded-xl p-2.5" style={{ background: C.ivory, border: "1px solid var(--studio-line)" }}>
+              <b className="text-[15px]">{t("studio.designsWhole")}</b>
+              <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+                {t("studio.designsWholeHint")}
+              </span>
+              <button type="button" onClick={props.onOpenDesigns} className="studio-tile flex items-center gap-2 rounded-[10px] bg-white px-3 py-2 text-start text-[13px] font-bold" style={{ border: "1px solid var(--studio-line)" }}>
+                <Glyph name="dashboard_customize" size={18} />
+                {t("studio.designsSeeAll", { count: props.designsCount })}
+              </button>
+            </div>
             <p className="m-0 text-[13px]" style={{ color: "var(--studio-muted)" }}>
               {t("studio.templatesIntro")}
             </p>

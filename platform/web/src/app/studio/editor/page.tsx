@@ -9,6 +9,8 @@ import { effectivePlans } from "@/lib/entitlements";
 import { appUrl, encryptionKey } from "@/lib/env";
 import { FREE_FONT_COUNT } from "@/lib/fonts/catalog";
 import { ownFontView } from "@/lib/fonts/own";
+import { kindOf } from "@/lib/app/kinds";
+import { ownDesignView } from "@/lib/studio/own-designs";
 import { pickableContent } from "@/lib/hosted/pages/pickable";
 import { loadLayout, withoutStrings } from "@/lib/pages/layout";
 import { allowedSources } from "@/lib/pages/plan";
@@ -28,7 +30,7 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
   const { app, license } = await requireClient("settings");
   // 103R.3 Studio's editor is for Studio projects; a regular app keeps the dashboard's page editor.
   if (!app || !isStudioProject(app)) redirect("/studio");
-  const { t } = await dashboardText();
+  const { t, k } = await dashboardText();
   const store = await getStore();
   const now = new Date();
   const plans = await effectivePlans(store);
@@ -66,6 +68,8 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
       studioOnPlan={plan ? hasFeature(plan, "studio") : true}
       kind={{ type: app.appType, vertical: app.vertical ?? null }}
       ownFonts={ownFonts}
+      ownDesigns={(await store.listStudioDesigns(app.clientId)).map(ownDesignView)}
+      kindName={k(kindOf(app).name)}
     />
   );
 }

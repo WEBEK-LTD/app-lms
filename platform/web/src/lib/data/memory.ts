@@ -2,7 +2,7 @@ import { clientAccountState, longestLicense } from "../license/status";
 import { newId } from "../crypto/tokens";
 import { membershipActive, membershipFreezeSet, membershipToUse } from "../bookings/memberships";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
-import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, PendingPayment, SavedSection, StudioTemplate, StoreProduct, StorePurchaseRecord, StorePurchaseEvent, StoreBillingItem, BillingSession } from "./types";
+import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, PendingPayment, SavedSection, StudioTemplate, StudioDesign, StoreProduct, StorePurchaseRecord, StorePurchaseEvent, StoreBillingItem, BillingSession } from "./types";
 import type { CampaignSend, HostedCart, HostedOrderWatch, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 import type { LoyaltyEntry, LoyaltyReason } from "./types";
 import type {
@@ -3163,6 +3163,27 @@ export class MemoryStore implements DataStore {
 
   async createSavedSection(section: SavedSection): Promise<void> {
     this.savedSections.push(clone(section));
+  }
+
+  private studioDesigns: StudioDesign[] = [];
+
+  async listStudioDesigns(clientId: string): Promise<StudioDesign[]> {
+    return this.studioDesigns.filter((d) => d.clientId === clientId).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).map(clone);
+  }
+
+  async createStudioDesign(design: StudioDesign): Promise<void> {
+    this.studioDesigns.push(clone(design));
+  }
+
+  async getStudioDesign(clientId: string, id: string): Promise<StudioDesign | null> {
+    const found = this.studioDesigns.find((d) => d.clientId === clientId && d.id === id);
+    return found ? clone(found) : null;
+  }
+
+  async deleteStudioDesign(clientId: string, id: string): Promise<boolean> {
+    const before = this.studioDesigns.length;
+    this.studioDesigns = this.studioDesigns.filter((d) => !(d.clientId === clientId && d.id === id));
+    return this.studioDesigns.length < before;
   }
 
   private studioTemplates: StudioTemplate[] = [];

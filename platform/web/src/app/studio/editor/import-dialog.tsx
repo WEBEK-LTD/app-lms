@@ -365,10 +365,10 @@ function Found(props: Parameters<typeof ImportDialog>[0] & { read: ImportRead; o
           <fieldset className="m-0 flex flex-col gap-2 rounded-xl p-3" style={{ border: `1px solid ${C.line}` }}>
             <legend className="sr-only">{t("studio.importWhere")}</legend>
             <b aria-hidden="true">{t("studio.importWhere")}</b>
-            {(section ? (["section"] as const) : (["new_pages", "this_page", "section"] as const)).map((p) => (
+            {(section ? (["section"] as const) : (["new_pages", "this_page", "section", "keep_mine"] as const)).map((p) => (
               <label key={p} className="flex cursor-pointer items-center gap-1.5" style={place === p ? undefined : { color: C.muted }}>
-                <input type="radio" name="import-place" checked={place === p} disabled={p !== "new_pages" && !props.hasOpenPage} onChange={() => setPlace(p)} className="accent-[#3D63FF]" />
-                {t(p === "new_pages" ? "studio.importNewPages" : p === "this_page" ? "studio.importThisPage" : "studio.importSection")}
+                <input type="radio" name="import-place" checked={place === p} disabled={(p === "this_page" || p === "section") && !props.hasOpenPage} onChange={() => setPlace(p)} className="accent-[#3D63FF]" />
+                {t(p === "new_pages" ? "studio.importNewPages" : p === "this_page" ? "studio.importThisPage" : p === "section" ? "studio.importSection" : "studio.importKeepMine")}
               </label>
             ))}
             {place === "this_page" && chosen.length !== 1 && !section ? (
