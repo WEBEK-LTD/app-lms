@@ -50,7 +50,7 @@ export function NewProjectForm({ studioKinds, kinds, error }: { studioKinds: Stu
   const stepNames = [t("studio.step1"), t("studio.step2"), t("studio.step3")];
   const dim = (n: number) => ({ opacity: step === n ? 1 : 0.55, transition: "opacity 150ms" });
   const templateName = (id: string) => t(`studio.tpl_${id}` as DashKey);
-  const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search") };
+  const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search"), days: t("studio.days"), hours: t("studio.hours"), minutes: t("studio.minutes"), seconds: t("studio.seconds") };
   // The templates drawn small, in the dashboard's language, with the project's name.
   const pages = useMemo(
     () =>

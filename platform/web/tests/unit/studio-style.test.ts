@@ -66,3 +66,29 @@ describe("107.2 more style in Studio's pages", () => {
     expect(node(parse([{ id: "t", type: "text", text: "x", overlay: { color: "#000000", opacity: 0 } }]), "t")).not.toHaveProperty("overlay");
   });
 });
+
+describe("107.3 new elements in Studio's pages", () => {
+  it("keeps questions that open, tabs, a countdown and a list with icons", () => {
+    const r = parse([
+      {
+        id: "faq",
+        type: "accordion",
+        children: [{ id: "q1", type: "column", title: "How long?", translations: { ar: { title: "قد إيه؟" } }, children: [{ id: "a1", type: "text", text: "Two days." }] }],
+      },
+      { id: "tabs", type: "tabs", children: [{ id: "t1", type: "column", title: "Men", children: [] }] },
+      { id: "sale", type: "countdown", ends_at: "2026-11-05T21:00:00+02:00", text: "It ended." },
+      { id: "perks", type: "bullets", text: "Free delivery\nPay on delivery", icon: "local_shipping", icon_size: 22 },
+    ]);
+    expect(node(r, "q1")).toMatchObject({ title: "How long?" });
+    expect(node(r, "tabs").children!.map((c) => c.title)).toEqual(["Men"]);
+    expect(node(r, "sale")).toMatchObject({ ends_at: "2026-11-05T19:00:00.000Z", text: "It ended." });
+    expect(node(r, "perks")).toMatchObject({ icon: "local_shipping", icon_size: 22 });
+  });
+
+  it("needs the countdown's end and the list's lines", () => {
+    expect(parse([{ id: "sale", type: "countdown", text: "x" }]).ok).toBe(false);
+    expect(parse([{ id: "sale", type: "countdown", ends_at: "soon" }]).ok).toBe(false);
+    expect(parse([{ id: "perks", type: "bullets", text: "" }]).ok).toBe(false);
+    expect(parse([{ id: "q", type: "column", title: "x".repeat(121), children: [] }]).ok).toBe(false);
+  });
+});

@@ -46,7 +46,7 @@ interface ViewProps {
   pickable: Pickable;
   editing?: StudioEditing;
   /** Labels for the placeholders, in the dashboard's language. */
-  words: { price: string; addPicture: string; addVideo: string; send: string; search: string };
+  words: { price: string; addPicture: string; addVideo: string; send: string; search: string; days: string; hours: string; minutes: string; seconds: string };
 }
 
 const SHADOWS: Record<string, string> = {
@@ -75,6 +75,22 @@ export function textIn(node: { text?: string | null; translations?: Record<strin
     if (typeof t === "string" && t) return t;
   }
   return node.text ?? "";
+}
+
+/** 107.3 A question's or a tab's name in the language being edited. */
+function titleIn(node: StudioNode, lang: string, def: string): string {
+  if (lang !== def) {
+    const t = node.translations?.[lang]?.title;
+    if (typeof t === "string" && t) return t;
+  }
+  return node.title ?? "";
+}
+
+/** 107.3 What is left until `ends`: days, hours, minutes and seconds, or null once the time is up. */
+export function timeLeft(ends: string | null | undefined, now: number): [number, number, number, number] | null {
+  const left = Math.floor(((ends ? Date.parse(ends) : NaN) - now) / 1000);
+  if (!(left > 0)) return null;
+  return [Math.floor(left / 86_400), Math.floor(left / 3600) % 24, Math.floor(left / 60) % 60, left % 60];
 }
 
 function sizeStyle(size: StudioSize | undefined, axis: "width" | "height", parentDir: Dir): CSSProperties {
@@ -359,6 +375,41 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
         );
       case "divider":
         return null;
+      case "accordion":
+      case "tabs":
+        return Children(p);
+      case "countdown": {
+        const left = timeLeft(n.ends_at, Date.now());
+        if (!left) return <span style={{ display: "block", textAlign: "center" }}>{text}</span>;
+        const units = [p.words.days, p.words.hours, p.words.minutes, p.words.seconds];
+        return (
+          // Days on the left in every language, like a clock.
+          <span dir="ltr" style={{ display: "flex", gap: 8 }} data-studio-countdown="">
+            {left.map((value, i) => (
+              <span key={i} style={{ flex: "1 1 0", display: "flex", flexDirection: "column", alignItems: "center", padding: "8px 4px", borderRadius: 10, background: "rgba(127,127,127,0.14)" }}>
+                <span style={{ fontSize: 24, fontWeight: 800, fontVariantNumeric: "tabular-nums" }}>{String(value).padStart(2, "0")}</span>
+                <span style={{ fontSize: 11, opacity: 0.75 }}>{units[i]}</span>
+              </span>
+            ))}
+          </span>
+        );
+      }
+      case "bullets":
+        return (
+          <span style={{ display: "flex", flexDirection: "column", gap: n.gap ?? 8 }}>
+            {text
+              .split("\n")
+              .filter((line) => line.trim())
+              .map((line, i) => (
+                <span key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                  <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: n.icon_size ?? 20, color: n.color ? undefined : look.brand, flex: "none" }}>
+                    {n.icon ?? "check_circle"}
+                  </span>
+                  <span>{line}</span>
+                </span>
+              ))}
+          </span>
+        );
       case "categories": {
         const cats = (n.source ? p.pickable.categories[n.source] : undefined) ?? [];
         const names = cats.length ? cats.slice(0, 6).map((c) => c.name) : ["[1]", "[2]", "[3]"];
@@ -391,17 +442,49 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
 
   function Children(p: ViewProps & { node: StudioNode }) {
     const n = p.node;
-    const dir: Dir = n.type === "row" && n.scroll ? "scroll" : n.type === "row" || n.type === "column" || n.type === "stack" || n.type === "grid" || n.type === "slider" ? n.type : null;
+    const dir: Dir = n.type === "row" && n.scroll ? "scroll" : n.type === "accordion" || n.type === "tabs" ? "column" : n.type === "row" || n.type === "column" || n.type === "stack" || n.type === "grid" || n.type === "slider" ? n.type : null;
     const kids = n.children ?? [];
     const drop = editing?.drop?.parentId === n.id ? editing.drop.index : null;
     const out: ReactNode[] = [];
+    // 107.3 Tabs show the tab holding what's selected (the first otherwise); every question of an accordion shows open here, to be edited.
+    const inside = (child: StudioNode, id: string | null | undefined): boolean => !!id && (child.id === id || (child.children ?? []).some((c) => inside(c, id)) || (!!child.card && inside(child.card, id)));
+    const shownTab = n.type === "tabs" ? Math.max(0, kids.findIndex((c) => inside(c, editing?.selectedId) || inside(c, editing?.hoveredId))) : -1;
+    if (n.type === "tabs") {
+      out.push(
+        <span key="tabbar" role="presentation" style={{ display: "flex", gap: 6, overflowX: "auto", scrollbarWidth: "none" }}>
+          {kids.map((child, i) => (
+            <span
+              key={child.id}
+              onClick={editing ? (e) => (e.stopPropagation(), editing.onSelect(child.id)) : undefined}
+              style={{ padding: "6px 14px", borderRadius: 999, whiteSpace: "nowrap", fontSize: 13, fontWeight: i === shownTab ? 700 : 400, background: i === shownTab ? look.brand : "rgba(127,127,127,0.14)", color: i === shownTab ? "#FFFFFF" : undefined }}
+            >
+              {titleIn(child, lang, defaultLang) || String(i + 1)}
+            </span>
+          ))}
+        </span>,
+      );
+    }
     kids.forEach((child, i) => {
       if (drop === i) out.push(<DropLine key={`drop${i}`} dir={dir} label={editing!.dropLabel} />);
+      if (n.type === "tabs" && i !== shownTab) return;
       const width = n.type === "slider" ? { width: `${100 / (n.per_view ?? 1)}%` } : {};
+      const view = <Node {...p} node={child} parentDir={dir} />;
       out.push(
-        <div key={child.id} style={n.type === "slider" ? { ...width, flex: "0 0 auto", scrollSnapAlign: "start" } : { display: "contents" }}>
-          <Node {...p} node={child} parentDir={dir} />
-        </div>,
+        n.type === "accordion" ? (
+          <div key={child.id} style={{ display: "flex", flexDirection: "column", borderBottom: "1px solid rgba(127,127,127,0.25)", paddingBottom: 4 }}>
+            <span onClick={editing ? (e) => (e.stopPropagation(), editing.onSelect(child.id)) : undefined} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "8px 0", fontWeight: 700 }}>
+              {titleIn(child, lang, defaultLang) || String(i + 1)}
+              <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: 20, transform: "rotate(180deg)" }}>
+                expand_more
+              </span>
+            </span>
+            {view}
+          </div>
+        ) : (
+          <div key={child.id} style={n.type === "slider" ? { ...width, flex: "0 0 auto", scrollSnapAlign: "start" } : { display: "contents" }}>
+            {view}
+          </div>
+        ),
       );
     });
     if (drop !== null && drop >= kids.length) out.push(<DropLine key="dropEnd" dir={dir} label={editing!.dropLabel} />);
@@ -500,6 +583,8 @@ function layoutStyle(node: StudioNode): CSSProperties {
     case "row":
       return { display: "flex", flexDirection: "row", gap: node.gap, justifyContent: JUSTIFY[node.align ?? "start"], alignItems: ITEMS[node.cross ?? "stretch"], ...(node.scroll ? { overflowX: "auto", scrollbarWidth: "none" } : {}) };
     case "column":
+    case "accordion":
+    case "tabs":
       return { display: "flex", flexDirection: "column", gap: node.gap, justifyContent: JUSTIFY[node.align ?? "start"], alignItems: ITEMS[node.cross ?? "stretch"] };
     case "stack":
       return { display: "grid", gridTemplate: "1fr / 1fr", alignItems: ITEMS[node.cross ?? "stretch"] };
