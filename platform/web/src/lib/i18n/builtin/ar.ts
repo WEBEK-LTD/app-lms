@@ -172,6 +172,7 @@ export const PAGE_TEXTS_AR: Record<string, string> = {
   "2 years": "سنتان",
   Warranty: "الضمان",
   Delivery: "التوصيل",
+  "48 h": "48 ساعة",
   "7 days": "7 أيام",
   Returns: "الإرجاع",
   "Do products come with a warranty?": "هل تأتي المنتجات بضمان؟",

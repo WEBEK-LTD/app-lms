@@ -173,6 +173,7 @@ export const PAGE_TEXTS_TR: Record<string, string> = {
   "2 years": "2 yıl",
   Warranty: "Garanti",
   Delivery: "Teslimat",
+  "48 h": "48 sa",
   "7 days": "7 gün",
   Returns: "İade",
   "Do products come with a warranty?": "Ürünler garantili mi?",

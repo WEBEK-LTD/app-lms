@@ -79,6 +79,11 @@ describe("43 Yallapp's own texts in Arabic and Turkish", () => {
     expect(builtInText("Welcome to the city", "ar")).toBeNull();
     expect(builtInText("<h2>Welcome to your store</h2>", "tr")).toBeNull();
     expect(builtInText("Welcome to The Harbour Post", "ar")).toBe("مرحبًا بك في The Harbour Post");
+    // 110 A number with a one-letter unit is a text to translate too.
+    expect(hasWords("48 h")).toBe(true);
+    expect(hasWords("24/7")).toBe(false);
+    expect(builtInText("48 h", "ar")).toBe("48 ساعة");
+    expect(builtInText("48 h", "tr")).toBe("48 sa");
     // The owner's own text, and languages without Yallapp's translations.
     expect(builtInText("Start here", "ar")).toBeNull();
     expect(builtInText("Home", "fr")).toBeNull();

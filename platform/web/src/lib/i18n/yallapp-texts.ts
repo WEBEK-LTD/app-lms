@@ -48,9 +48,9 @@ function sampleApp(appType: App["appType"], backend: AppBackend, appName: string
   return { appType, backend, appName, template: "classic", font: "Bricolage Grotesque", brandingDoneAt: null } as unknown as App;
 }
 
-/** Whether a text has words to translate ("24/7" and "100%" don't). */
+/** Whether a text has words to translate ("24/7" and "100%" don't); 110 a unit is one too ("48 h"). */
 export function hasWords(text: string): boolean {
-  return /\p{L}{2,}/u.test(text.replace(/\{app\}/g, ""));
+  return /\p{L}/u.test(text.replace(/\{app\}/g, ""));
 }
 
 /** Every Yallapp-written page text, once each, in a stable order. */
