@@ -528,6 +528,29 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await own.keyboard.press("Escape");
   await expect(own.getByRole("dialog", { name: "Shortcuts" })).toHaveCount(0);
 
+  // 108.1 A corner of the selection dragged: smaller, one undo step; a double click gives its own size back.
+  await phone.getByText("Hello Studio").click();
+  const corner = phone.locator('[data-studio-resize="bottom-right"]').first();
+  const at = (await corner.boundingBox())!;
+  await own.mouse.move(at.x + at.width / 2, at.y + at.height / 2);
+  await own.mouse.down();
+  for (let i = 1; i <= 5; i += 1) await own.mouse.move(at.x + at.width / 2 - 20 * i, at.y + at.height / 2 + 4 * i);
+  await own.mouse.up();
+  await expect(inspector.getByRole("spinbutton", { name: "Width", exact: true })).toHaveValue(/^\d+$/);
+  const narrower = Number(await inspector.getByRole("spinbutton", { name: "Width", exact: true }).inputValue());
+  expect(narrower).toBeGreaterThan(150);
+  expect(narrower).toBeLessThan(260);
+  await expect(inspector.getByRole("spinbutton", { name: "Height", exact: true })).toHaveValue(/^\d+$/);
+  await expect(phone.locator("[data-studio-size]")).toHaveText(new RegExp(`^${narrower} ×`));
+  await own.getByRole("button", { name: "Undo" }).click();
+  await expect(inspector.getByRole("spinbutton", { name: "Width", exact: true })).toHaveCount(0);
+  await own.getByRole("button", { name: "Redo" }).click();
+  await expect(inspector.getByRole("spinbutton", { name: "Width", exact: true })).toHaveCount(1);
+  await phone.locator('[data-studio-resize="top-left"]').first().dblclick();
+  await expect(inspector.getByRole("spinbutton", { name: "Width", exact: true })).toHaveCount(0);
+  await expect(inspector.getByRole("spinbutton", { name: "Height", exact: true })).toHaveCount(0);
+  await own.keyboard.press("Escape");
+
   // 107.2 More style: struck through and in capitals, each corner on its own, turned, hidden in the app.
   await phone.getByText("Hello Studio").click();
   const hello = phone.locator('[data-studio-node]').filter({ has: own.getByText("Hello Studio", { exact: true }) }).last();

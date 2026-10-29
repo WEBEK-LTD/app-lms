@@ -1,7 +1,8 @@
 "use client";
 
-import type { CSSProperties, DragEvent, MouseEvent, ReactNode } from "react";
+import type { CSSProperties, DragEvent, MouseEvent, PointerEvent, ReactNode } from "react";
 import type { LanguageCode } from "@/lib/pages/types";
+import { resized } from "@/lib/studio/resize";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import type { LayoutTab, StudioHeader, StudioNode, StudioPage, StudioSides, StudioSize } from "@/lib/pages/types";
 
@@ -35,6 +36,8 @@ export interface StudioEditing {
   dropLabel: string;
   /** Labels on the selected element ("Header · type 3"). */
   tagOf: (node: StudioNode) => string;
+  /** 108.1 A corner of the selection dragged: the element's new size; `drag` is the same for one drag (one undo step). */
+  onResize?: (id: string, size: { width?: StudioSize; height?: StudioSize }, drag: number) => void;
 }
 
 interface ViewProps {
@@ -301,9 +304,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
       {selected && editing ? (
         <>
           {(["top", "bottom"] as const).flatMap((v) =>
-            (["insetInlineStart", "insetInlineEnd"] as const).map((h) => (
-              <span key={`${v}${h}`} aria-hidden="true" style={{ position: "absolute", [v]: -9, [h]: -9, width: 9, height: 9, background: "#FFFFFF", border: "2px solid #3D63FF", borderRadius: 2, zIndex: 6 }} />
-            )),
+            (["insetInlineStart", "insetInlineEnd"] as const).map((h) => <Corner key={`${v}${h}`} v={v} h={h} rtl={lang === "ar"} id={node.id} onResize={node.id === props.page.body.id ? undefined : editing.onResize} />),
           )}
           <SizeBadge id={node.id} />
           <Tag text={editing.tagOf(node)} />
@@ -561,6 +562,64 @@ function DropLine({ dir, label }: { dir: Dir; label: string }) {
 
 function EmptyLayout() {
   return <span aria-hidden="true" style={{ display: "block", minHeight: 44, minWidth: 44, border: "1.5px dashed #B9B3A5", borderRadius: 10, flex: "1 1 auto" }} />;
+}
+
+/**
+ * A corner of the selected element. 108.1 Dragging it resizes the element
+ * (Shift keeps its shape); a double click gives it back its own size.
+ */
+function Corner({ v, h, rtl, id, onResize }: { v: "top" | "bottom"; h: "insetInlineStart" | "insetInlineEnd"; rtl: boolean; id: string; onResize?: StudioEditing["onResize"] }) {
+  const right = (h === "insetInlineEnd") !== rtl;
+  const style: CSSProperties = { position: "absolute", [v]: -9, [h]: -9, width: 9, height: 9, background: "#FFFFFF", border: "2px solid #3D63FF", borderRadius: 2, zIndex: 6, boxSizing: "content-box" };
+  if (!onResize) return <span aria-hidden="true" style={style} />;
+  function down(e: PointerEvent<HTMLSpanElement>) {
+    const el = e.currentTarget.parentElement;
+    if (!el || e.button !== 0 || !onResize) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const box = el.getBoundingClientRect();
+    // The phone may be zoomed: its pixels, not the screen's.
+    const scale = el.offsetWidth ? box.width / el.offsetWidth : 1;
+    const holder = el.parentElement;
+    const room = holder ? holder.clientWidth - (parseFloat(getComputedStyle(holder).paddingLeft) || 0) - (parseFloat(getComputedStyle(holder).paddingRight) || 0) : 0;
+    const start = { x: e.clientX, y: e.clientY, width: el.offsetWidth, height: el.offsetHeight, room };
+    const drag = Date.now();
+    const handle = e.currentTarget;
+    handle.setPointerCapture(e.pointerId);
+    const move = (m: globalThis.PointerEvent) => {
+      const dx = ((m.clientX - start.x) / scale) * (right ? 1 : -1);
+      const dy = ((m.clientY - start.y) / scale) * (v === "bottom" ? 1 : -1);
+      const size = resized(start, { dx, dy, keepRatio: m.shiftKey });
+      if (size.width !== undefined || size.height !== undefined) onResize(id, size, drag);
+    };
+    const up = () => {
+      handle.removeEventListener("pointermove", move);
+      handle.removeEventListener("pointerup", up);
+      handle.removeEventListener("pointercancel", up);
+    };
+    handle.addEventListener("pointermove", move);
+    handle.addEventListener("pointerup", up);
+    handle.addEventListener("pointercancel", up);
+  }
+  return (
+    <span
+      aria-hidden="true"
+      data-studio-resize={`${v}-${right ? "right" : "left"}`}
+      style={{ ...style, cursor: (v === "top") === right ? "nesw-resize" : "nwse-resize", touchAction: "none" }}
+      onPointerDown={down}
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={(e) => e.stopPropagation()}
+      onDoubleClick={(e) => {
+        e.stopPropagation();
+        onResize(id, { width: undefined, height: undefined }, Date.now());
+      }}
+      draggable={false}
+      onDragStart={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+    />
+  );
 }
 
 /** The selected element's size on the screen ("306 × 46"), measured once drawn. */
