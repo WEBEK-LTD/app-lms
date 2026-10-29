@@ -142,7 +142,9 @@ class _Sections extends ConsumerWidget {
           template: template,
           onSeeAll: () => context.go(Paths.shop),
           child: SizedBox(
-            height: 76 + MediaQuery.textScalerOf(context).scale(36),
+            // 110 As tall as the names need: one line, or two when one
+            // wraps, so no blank band sits under the row.
+            height: categoryRowHeight(context, s.categories),
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),

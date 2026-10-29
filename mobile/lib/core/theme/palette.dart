@@ -69,16 +69,15 @@ class AppPalette extends ThemeExtension<AppPalette> {
   }) {
     final dark = brightness == Brightness.dark;
     final primaryIsDark = primary.computeLuminance() < 0.2;
-    // On dark backgrounds a dark brand color disappears: use Ivory instead.
-    final buttonColor = dark && primaryIsDark ? BrandColors.ivory : primary;
+    // 110 In the dark the brand colour stays when it stands out enough for
+    // buttons and chips, on the background and on cards (3:1, WCAG AA for
+    // large text and controls); a darker one is lightened, keeping its hue.
+    final buttonColor = dark ? visibleOn(primary, darkSurface) : primary;
     final onButton = buttonColor.computeLuminance() > 0.45
         ? BrandColors.midnight
         : BrandColors.white;
     final soft = dark
-        ? Color.alphaBlend(
-            primary.withValues(alpha: 0.35),
-            const Color(0xFF17162E),
-          )
+        ? Color.alphaBlend(primary.withValues(alpha: 0.35), darkSurface)
         : (primaryIsDark
               ? const Color(0xFF24223F)
               : Color.alphaBlend(
@@ -94,8 +93,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
         onPrimarySoft: BrandColors.white,
         onPrimaryMuted: const Color(0xFFC9C6DC),
         primaryTrack: const Color(0xFF34314F),
-        background: const Color(0xFF0B0A1C),
-        surface: const Color(0xFF17162E),
+        background: darkBackground,
+        surface: darkSurface,
         surfaceMuted: const Color(0xFF1D1C36),
         segment: const Color(0xFF24223F),
         border: const Color(0xFF2C2A47),
@@ -337,6 +336,23 @@ double contrastRatio(Color a, Color b) {
   final hi = la > lb ? la : lb;
   final lo = la > lb ? lb : la;
   return (hi + 0.05) / (lo + 0.05);
+}
+
+/// The dark theme's background, and its cards'.
+const darkBackground = Color(0xFF0B0A1C);
+const darkSurface = Color(0xFF17162E);
+
+/// 110 [color] as it is when it has [ratio] contrast on [background] (3:1,
+/// WCAG AA for large text and controls), else a lighter shade of it: the
+/// same hue, lighter until it has.
+Color visibleOn(Color color, Color background, {double ratio = 3}) {
+  if (contrastRatio(color, background) >= ratio) return color;
+  final hsl = HSLColor.fromColor(color);
+  for (var l = hsl.lightness; l <= 1; l += 0.02) {
+    final lighter = hsl.withLightness(l.clamp(0, 1)).toColor();
+    if (contrastRatio(lighter, background) >= ratio) return lighter;
+  }
+  return BrandColors.ivory;
 }
 
 /// [color], moved towards black or white until it has at least 4.5:1

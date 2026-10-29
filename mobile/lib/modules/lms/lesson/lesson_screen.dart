@@ -362,12 +362,11 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                 key: const ValueKey('lesson-article'),
                 padding: readablePadding(context, top: 20, bottom: 20),
                 children: [
-                  Semantics(
-                    header: true,
-                    child: Text(
-                      lesson.title,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
+                  // 110 In the direction of the lesson's text.
+                  ContentTitle(
+                    title: lesson.title,
+                    html: lesson.html ?? '',
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 14),
                   if ((lesson.html ?? '').trim().isNotEmpty ||
@@ -597,12 +596,11 @@ class _VideoLessonState extends ConsumerState<_VideoLesson> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: Semantics(
-                        header: true,
-                        child: Text(
-                          lesson.title,
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
+                      // 110 In the direction of the lesson's notes.
+                      child: ContentTitle(
+                        title: lesson.title,
+                        html: lesson.html ?? '',
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ),
                     widget.download,
