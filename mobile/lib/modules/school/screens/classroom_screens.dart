@@ -178,13 +178,16 @@ class _ClassGate extends ConsumerWidget {
           null => const NotFoundScreen(),
         },
         AsyncValue(error: final e?) => Scaffold(
-          appBar: AppBar(),
+          appBar: AppBar(leading: appBarBack(context)),
           body: ErrorView(
             error: e,
             onRetry: () => ref.invalidate(classroomMeProvider),
           ),
         ),
-        _ => Scaffold(appBar: AppBar(), body: const LoadingView()),
+        _ => Scaffold(
+          appBar: AppBar(leading: appBarBack(context)),
+          body: const LoadingView(),
+        ),
       };
 }
 
@@ -219,7 +222,7 @@ class _ClassScreenState extends ConsumerState<ClassScreen> {
     return _ClassGate(
       classId: widget.classId,
       builder: (context, klass) => Scaffold(
-        appBar: AppBar(title: Text(klass.name)),
+        appBar: AppBar(leading: appBarBack(context), title: Text(klass.name)),
         body: SafeArea(
           top: false,
           child: Column(
@@ -931,7 +934,10 @@ class _TakeAttendanceScreenState extends ConsumerState<TakeAttendanceScreen> {
           classAttendanceProvider((classId: klass.id, date: _date)),
         );
         return Scaffold(
-          appBar: AppBar(title: Text(l10n.classroomAttendanceOf(klass.name))),
+          appBar: AppBar(
+            leading: appBarBack(context),
+            title: Text(l10n.classroomAttendanceOf(klass.name)),
+          ),
           body: SafeArea(
             top: false,
             child: switch (async) {
@@ -1068,7 +1074,10 @@ class ClassroomHomeworkScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final async = ref.watch(classroomHomeworkProvider(homeworkId));
     return Scaffold(
-      appBar: AppBar(title: Text(async.value?.title ?? l10n.schoolHomework)),
+      appBar: AppBar(
+        leading: appBarBack(context),
+        title: Text(async.value?.title ?? l10n.schoolHomework),
+      ),
       body: SafeArea(
         top: false,
         child: switch (async) {
@@ -1317,7 +1326,10 @@ class _ScoresScreenState extends ConsumerState<ScoresScreen> {
     final l10n = context.l10n;
     final async = ref.watch(assessmentScoresProvider(widget.assessmentId));
     return Scaffold(
-      appBar: AppBar(title: Text(async.value?.assessment.title ?? '')),
+      appBar: AppBar(
+        leading: appBarBack(context),
+        title: Text(async.value?.assessment.title ?? ''),
+      ),
       body: SafeArea(
         top: false,
         child: switch (async) {

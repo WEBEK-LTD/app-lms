@@ -238,7 +238,10 @@ class _FoodCartScreenState extends ConsumerState<FoodCartScreen> {
     final payment = _paymentOf(config);
     if (cart.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: Text(l10n.foodCartTitle)),
+        appBar: AppBar(
+          leading: appBarBack(context),
+          title: Text(l10n.foodCartTitle),
+        ),
         body: MessageView(
           icon: AppIcons.cart,
           title: l10n.foodCartEmptyTitle,
@@ -390,7 +393,10 @@ class _FoodCartScreenState extends ConsumerState<FoodCartScreen> {
       ],
     );
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.foodCartTitle)),
+      appBar: AppBar(
+        leading: appBarBack(context),
+        title: Text(l10n.foodCartTitle),
+      ),
       body: body,
       bottomNavigationBar: BottomActionBar(
         child: PrimaryButton(

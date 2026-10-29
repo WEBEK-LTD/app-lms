@@ -136,6 +136,7 @@ class _RideFollowScreenState extends ConsumerState<RideFollowScreen> {
     if (taxi != null && ride != null) return _taxiLayout(taxi, ride, bar);
     return Scaffold(
       appBar: AppBar(
+        leading: appBarBack(context),
         title: Text(
           ride == null ? l10n.tabMyRides : l10n.rideHeading(ride.reference),
         ),

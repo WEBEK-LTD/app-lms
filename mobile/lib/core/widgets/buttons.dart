@@ -165,6 +165,17 @@ class AppBarBackButton extends StatelessWidget {
   );
 }
 
+/// 110 The leading of an [AppBar]: the app's rounded back button on a
+/// screen opened on top of another, where Material would put its own arrow
+/// (null at the bottom of a stack, and for full-screen dialogs, which keep
+/// their close button).
+Widget? appBarBack(BuildContext context) {
+  final route = ModalRoute.of(context);
+  if (route == null || !route.impliesAppBarDismissal) return null;
+  if (route is PageRoute && route.fullscreenDialog) return null;
+  return const AppBarBackButton();
+}
+
 /// The full-width primary button (Midnight with white text by default).
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({

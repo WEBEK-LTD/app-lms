@@ -158,6 +158,8 @@ class Woo_Orders {
 				'product_id' => $product_id ? $product_id : null,
 				'quantity'   => max( 1, (int) $item->get_quantity() ),
 				'image_url'  => $image ? $image : null,
+				// 110 What the line comes to, as the order page shows it.
+				'total'      => Money::plain( $order->get_formatted_line_subtotal( $item ) ),
 			);
 		}
 		$shape = array(

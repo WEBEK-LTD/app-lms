@@ -207,6 +207,7 @@ class OrderLine {
     this.quantity = 1,
     this.imageUrl,
     this.options = const [],
+    this.total,
   });
 
   factory OrderLine.fromJson(Json json) => OrderLine(
@@ -216,6 +217,7 @@ class OrderLine {
     quantity: intOr(json, 'quantity', 1),
     imageUrl: optString(json, 'image_url'),
     options: stringList(json, 'options'),
+    total: optString(json, 'total'),
   );
 
   final String name;
@@ -226,6 +228,9 @@ class OrderLine {
 
   /// 26 The chosen options' names.
   final List<String> options;
+
+  /// 110 What the line comes to, formatted; null on older servers.
+  final String? total;
 }
 
 /// 96.2 How to pay an order placed to pay by bank transfer or the shop's

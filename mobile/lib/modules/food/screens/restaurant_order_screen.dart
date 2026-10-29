@@ -159,6 +159,7 @@ class _RestaurantOrderScreenState extends ConsumerState<RestaurantOrderScreen> {
     };
     return Scaffold(
       appBar: AppBar(
+        leading: appBarBack(context),
         title: Text(
           order == null
               ? l10n.tabRestaurantDesk

@@ -321,6 +321,9 @@ class _CartScreenState extends ConsumerState<CartScreen> {
             fulfilment?.deliveryFeeFormatted != null
         ? fulfilment!.deliveryFeeFormatted
         : null;
+    // 110 The total on the bar; with a restaurant's delivery fee (not in
+    // the shop's total), the subtotal, as the summary shows it.
+    final barTotal = deliveryFee == null ? value?.total : null;
     final ready =
         value != null &&
         !quote.isLoading &&
@@ -566,10 +569,49 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                   style: TextStyle(fontSize: 13, color: p.textSecondary),
                 ),
               ),
-            PrimaryButton(
-              label: context.l10n.checkout,
-              loading: _busy,
-              onPressed: ready && !_busy ? () => _checkout(store) : null,
+            // 110 What the order comes to, next to the button.
+            Row(
+              children: [
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 150),
+                  child: Column(
+                    key: const ValueKey('cart-bar-total'),
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        barTotal != null
+                            ? context.l10n.cartTotal
+                            : context.l10n.subtotal,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 12, color: p.textSecondary),
+                      ),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Text(
+                          barTotal ?? value?.subtotal ?? '…',
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: p.text,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: PrimaryButton(
+                    label: context.l10n.checkout,
+                    loading: _busy,
+                    onPressed: ready && !_busy ? () => _checkout(store) : null,
+                  ),
+                ),
+              ],
             ),
           ],
         ),

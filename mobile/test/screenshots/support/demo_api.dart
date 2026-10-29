@@ -62,9 +62,37 @@ class DemoApi extends FakeApi {
     );
     api
       ..product = _productDetail()
-      ..cartQuote = _cartQuote();
+      ..cartQuote = _cartQuote()
+      ..order = _storeOrder();
     return api;
   }
+
+  /// 110 A shop's order on its way, with what each line comes to.
+  static Map<String, dynamic> _storeOrder() => {
+    'id': 1042,
+    'number': '1042',
+    'status': 'processing',
+    'status_label': 'Processing',
+    'total': '₺2,410.00',
+    'created_at': '2026-10-10T09:30:00Z',
+    'can_return': false,
+    'items': [
+      {
+        'name': 'Blush Rose Bouquet',
+        'product_id': 21,
+        'quantity': 1,
+        'image_url': demoImage('product-roses'),
+        'total': '₺1,290.00',
+      },
+      {
+        'name': 'Fig & Cedar Candle',
+        'product_id': 25,
+        'quantity': 2,
+        'image_url': demoImage('product-candle'),
+        'total': '₺1,120.00',
+      },
+    ],
+  };
 
   /// 26 A neighbourhood café: a menu with options, pickup or delivery, and
   /// an order on its way.
@@ -1640,6 +1668,7 @@ class DemoApi extends FakeApi {
         'quantity': 1,
         'image_url': demoImage('dish-burger'),
         'options': ['Double', 'Cheddar', 'Fries'],
+        'total': '₺560.00',
       },
       {
         'name': 'Fresh Orange Juice',
@@ -1647,6 +1676,7 @@ class DemoApi extends FakeApi {
         'quantity': 1,
         'image_url': demoImage('drink-juice'),
         'options': ['Small'],
+        'total': '₺120.00',
       },
     ],
     'fulfilment': {

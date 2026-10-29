@@ -77,6 +77,21 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
           children: [
+            // 110 Where it is, and when it was placed.
+            Row(
+              children: [
+                Flexible(child: OrderStatusChip(order: order)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    shortDate(order.createdAt),
+                    textAlign: TextAlign.end,
+                    style: TextStyle(fontSize: 13, color: p.textSecondary),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
             if (f != null) ...[
               Row(
                 children: [
@@ -145,24 +160,42 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
             for (final line in order.items)
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
-                child: Column(
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      line.quantity > 1
-                          ? l10n.lineQuantity(line.name, line.quantity)
-                          : line.name,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: p.text,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            line.quantity > 1
+                                ? l10n.lineQuantity(line.name, line.quantity)
+                                : line.name,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: p.text,
+                            ),
+                          ),
+                          if (line.options.isNotEmpty)
+                            Text(
+                              line.options.join(', '),
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: p.textSecondary,
+                              ),
+                            ),
+                        ],
                       ),
                     ),
-                    if (line.options.isNotEmpty)
+                    // 110 What the line comes to.
+                    if (line.total case final total?) ...[
+                      const SizedBox(width: 12),
                       Text(
-                        line.options.join(', '),
-                        style: TextStyle(fontSize: 13, color: p.textSecondary),
+                        total,
+                        style: TextStyle(fontSize: 15, color: p.text),
                       ),
+                    ],
                   ],
                 ),
               ),
@@ -200,11 +233,6 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
                   color: p.danger,
                 ),
               ),
-            const SizedBox(height: 8),
-            Text(
-              shortDate(order.createdAt),
-              style: TextStyle(fontSize: 13, color: p.textSecondary),
-            ),
             // 71 The receipt as a PDF, in the app's language.
             if (order.receiptUrl != null) ...[
               const SizedBox(height: 12),
@@ -231,6 +259,60 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
       title: order == null ? l10n.myOrders : l10n.orderNumber(order.number),
       scrollable: false,
       child: body,
+    );
+  }
+}
+
+/// Where an order is, as a coloured label: its step for a restaurant's order
+/// (unless refunded), else the shop's status.
+class OrderStatusChip extends StatelessWidget {
+  const OrderStatusChip({super.key, required this.order});
+
+  final Order order;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final good = order.status == OrderStatus.completed;
+    final bad = switch (order.status) {
+      OrderStatus.cancelled ||
+      OrderStatus.failed ||
+      OrderStatus.refunded => true,
+      _ => false,
+    };
+    // 26 A restaurant's order shows its step. 47 A refunded order says so,
+    // whatever step it reached.
+    final step = order.status == OrderStatus.refunded
+        ? null
+        : order.fulfilmentStatus;
+    final status = step != null
+        ? OrderSteps.label(
+            context,
+            step,
+            order.fulfilment?.type ?? FulfilmentType.pickup,
+          )
+        : order.statusLabel;
+    return Container(
+      key: const ValueKey('order-status'),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: good
+            ? p.successSoft
+            : bad
+            ? p.placeholderFor(0)
+            : p.accentSoft,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        status,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          color: good ? p.success : p.text,
+        ),
+      ),
     );
   }
 }

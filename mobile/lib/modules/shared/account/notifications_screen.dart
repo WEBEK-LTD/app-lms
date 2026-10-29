@@ -300,25 +300,6 @@ class _OrderCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
-    final good = order.status == OrderStatus.completed;
-    final bad = switch (order.status) {
-      OrderStatus.cancelled ||
-      OrderStatus.failed ||
-      OrderStatus.refunded => true,
-      _ => false,
-    };
-    // 26 A restaurant's order shows its step and opens its tracking screen.
-    // 47 A refunded order says so, whatever step it reached.
-    final step = order.status == OrderStatus.refunded
-        ? null
-        : order.fulfilmentStatus;
-    final status = step != null
-        ? OrderSteps.label(
-            context,
-            step,
-            order.fulfilment?.type ?? FulfilmentType.pickup,
-          )
-        : order.statusLabel;
     return AppCard(
       padding: const EdgeInsets.all(16),
       onTap: order.opensScreen
@@ -340,30 +321,7 @@ class _OrderCard extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Flexible(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: good
-                        ? p.successSoft
-                        : bad
-                        ? p.placeholderFor(0)
-                        : p.accentSoft,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    status,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: good ? p.success : p.text,
-                    ),
-                  ),
-                ),
-              ),
+              Flexible(child: OrderStatusChip(order: order)),
             ],
           ),
           const SizedBox(height: 8),
