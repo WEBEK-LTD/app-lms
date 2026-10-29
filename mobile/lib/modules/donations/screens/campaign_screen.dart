@@ -21,6 +21,7 @@ import '../data/donations_providers.dart';
 import '../widgets/campaign_widgets.dart';
 import '../../../core/services/review_prompt.dart';
 import '../../../core/services/share_links.dart';
+import '../../../core/format/bidi.dart';
 
 /// A campaign: its pictures, progress and story, the donation form and the
 /// latest donations.
@@ -280,8 +281,9 @@ class _DonationFormState extends ConsumerState<DonationForm> {
     final cents = centsOf(amount);
     if (cents < centsOf(c.minAmount)) {
       setState(
-        () =>
-            _error = l10n.donateMinimum(formatAmount(c.minAmount, c.currency)),
+        () => _error = l10n.donateMinimum(
+          isolate(formatAmount(c.minAmount, c.currency)),
+        ),
       );
       return null;
     }
@@ -366,7 +368,7 @@ class _DonationFormState extends ConsumerState<DonationForm> {
         ? l10n.donateOnWebsite
         : amount == null
         ? l10n.donateTitle
-        : l10n.donateButton(formatAmount(amount, c.currency));
+        : l10n.donateButton(isolate(formatAmount(amount, c.currency)));
 
     return Column(
       key: const ValueKey('donation-form'),
@@ -408,7 +410,7 @@ class _DonationFormState extends ConsumerState<DonationForm> {
             decoration: InputDecoration(
               labelText: l10n.donateOtherAmount,
               helperText: l10n.donateMinimum(
-                formatAmount(c.minAmount, c.currency),
+                isolate(formatAmount(c.minAmount, c.currency)),
               ),
               errorText: _error,
             ),

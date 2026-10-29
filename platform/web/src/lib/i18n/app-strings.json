@@ -1015,6 +1015,8 @@
 {"key":"chatStorageFull","en":"Files can't be sent right now. You can still send text.","ar":"لا يمكن إرسال الملفات الآن، لكن يمكنك إرسال نص.","tr":"Şu anda dosya gönderilemiyor. Yine de metin gönderebilirsiniz."},
 {"key":"chatFileType","en":"This kind of file can't be sent. Send a photo, a video, or a PDF, Word, Excel, PowerPoint or text file.","ar":"لا يمكن إرسال هذا النوع من الملفات. أرسل صورة أو فيديو أو ملف PDF أو Word أو Excel أو PowerPoint أو ملفًا نصيًا.","tr":"Bu tür bir dosya gönderilemez. Fotoğraf, video ya da PDF, Word, Excel, PowerPoint veya metin dosyası gönderin."},
 {"key":"chatUnavailable","en":"Chat isn't available right now.","ar":"المحادثة غير متاحة الآن.","tr":"Sohbet şu anda kullanılamıyor."},
+{"key":"chatUploadRefused","en":"The file couldn't be sent. Try again.","ar":"تعذّر إرسال الملف. حاول مرة أخرى.","tr":"Dosya gönderilemedi. Tekrar deneyin.","description":"110 Chat: why a photo or file the customer is sending didn't go."},
+{"key":"chatUploadExpired","en":"The link for sending the file ran out. Try again.","ar":"انتهت صلاحية رابط إرسال الملف. حاول مرة أخرى.","tr":"Dosyayı gönderme bağlantısının süresi doldu. Tekrar deneyin.","description":"110 Chat: why a photo or file the customer is sending didn't go."},
 {"key":"chatPlayVoice","en":"Play voice message","ar":"تشغيل الرسالة الصوتية","tr":"Sesli mesajı oynat"},
 {"key":"chatPauseVoice","en":"Pause voice message","ar":"إيقاف الرسالة الصوتية مؤقتًا","tr":"Sesli mesajı duraklat"},
 {"key":"chatOpenFile","en":"Open {name}","ar":"فتح {name}","tr":"{name} dosyasını aç","placeholders":{"name":"String"}},

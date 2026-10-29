@@ -337,7 +337,7 @@ class _MonthGrid extends StatelessWidget {
       for (var i = 0; i < 7; i++)
         Center(
           child: Text(
-            shortWeekday(DateTime(2024, 1, 1 + i)),
+            chipWeekday(DateTime(2024, 1, 1 + i)),
             maxLines: 1,
             style: TextStyle(fontSize: 12, color: p.textSecondary),
           ),

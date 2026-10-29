@@ -3852,6 +3852,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chatUnavailable => 'المحادثة غير متاحة الآن.';
 
   @override
+  String get chatUploadRefused => 'تعذّر إرسال الملف. حاول مرة أخرى.';
+
+  @override
+  String get chatUploadExpired =>
+      'انتهت صلاحية رابط إرسال الملف. حاول مرة أخرى.';
+
+  @override
   String get chatPlayVoice => 'تشغيل الرسالة الصوتية';
 
   @override

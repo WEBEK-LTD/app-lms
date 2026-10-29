@@ -6,6 +6,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/format/bidi.dart';
 
 /// 105.1 What the food screens share: an order's stage in words, its
 /// stages, a restaurant and an order in a list.
@@ -258,9 +259,9 @@ class RestaurantTile extends StatelessWidget {
       else
         l10n.restaurantMinutes(r.prepMinutes),
       if (r.deliveryFeeFormatted != null)
-        l10n.restaurantFee(r.deliveryFeeFormatted!),
+        l10n.restaurantFee(isolate(r.deliveryFeeFormatted!)),
       if (r.minOrderFormatted != null)
-        l10n.restaurantMinOrder(r.minOrderFormatted!),
+        l10n.restaurantMinOrder(isolate(r.minOrderFormatted!)),
     ];
     return Opacity(
       opacity: state == null ? 1 : 0.6,
@@ -302,6 +303,7 @@ class RestaurantTile extends StatelessWidget {
                     ),
                   const SizedBox(height: 4),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (r.rating != null) ...[
                         AppIcon(
@@ -320,7 +322,9 @@ class RestaurantTile extends StatelessWidget {
                       Expanded(
                         child: Text(
                           facts.join(' · '),
-                          maxLines: 1,
+                          // 110 Two lines on a small phone, so the delivery
+                          // fee isn't cut off.
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 13,

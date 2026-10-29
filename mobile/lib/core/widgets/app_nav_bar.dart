@@ -264,17 +264,26 @@ class AppNavBar extends StatelessWidget {
                 ),
               if (showLabel) ...[
                 SizedBox(height: minimal ? 4 : 0),
-                Text(
-                  d.label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: minimal ? 11 : 12,
-                    fontWeight: selected
-                        ? (minimal ? FontWeight.w800 : FontWeight.w700)
-                        : FontWeight.w400,
-                    color: color,
-                    fontFamily: fontFamily,
+                // 110 Each tab's name on one line inside its own tab, with a
+                // little room between neighbours ("MembershipAppointme…"
+                // ran together with five tabs on a phone).
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                  child: Text(
+                    d.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    textScaler: MediaQuery.textScalerOf(context)
+                        .clamp(maxScaleFactor: 1.3),
+                    style: TextStyle(
+                      fontSize: minimal ? 11 : 12,
+                      fontWeight: selected
+                          ? (minimal ? FontWeight.w800 : FontWeight.w700)
+                          : FontWeight.w400,
+                      color: color,
+                      fontFamily: fontFamily,
+                    ),
                   ),
                 ),
               ],

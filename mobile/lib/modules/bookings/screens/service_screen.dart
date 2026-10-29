@@ -22,6 +22,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/l10n/vertical_wording.dart';
 import '../../../core/services/review_prompt.dart';
 import '../../../core/services/share_links.dart';
+import '../../../core/format/bidi.dart';
 
 /// The `slot_taken` error: someone booked the time first.
 const slotTaken = 'slot_taken';
@@ -398,7 +399,7 @@ class _ServiceViewState extends ConsumerState<_ServiceView> {
         if (elsewhere) ...[
           const SizedBox(height: 12),
           Text(
-            context.l10n.timesIn(availability.timezone.replaceAll('_', ' ')),
+            context.l10n.timesIn(isolate(zoneName(availability.timezone))),
             style: TextStyle(fontSize: 13, color: p.textSecondary),
           ),
         ],
@@ -517,6 +518,8 @@ class _StaffChoice extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
+                // 110 A name cut short ends in "…" on its own side.
+                textDirection: directionOfText(label),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
@@ -626,7 +629,11 @@ class _DayStrip extends StatelessWidget {
                         context.shapes.button,
                       ),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        // 110 Room for the name inside the rounded edge.
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: isSelected ? p.primary : null,
                           borderRadius: BorderRadius.circular(
@@ -641,7 +648,7 @@ class _DayStrip extends StatelessWidget {
                           child: Column(
                             children: [
                               Text(
-                                date == null ? '' : shortWeekday(date),
+                                date == null ? '' : chipWeekday(date),
                                 style: TextStyle(fontSize: 12, color: fg),
                               ),
                               Text(

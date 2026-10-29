@@ -20,6 +20,7 @@ import '../../store/screens/cart_screen.dart' show isOrderReceived;
 import '../data/delivery_providers.dart';
 import '../widgets/delivery_map.dart';
 import '../widgets/delivery_widgets.dart';
+import '../../../core/format/bidi.dart';
 
 /// How often an active shipment is asked about while its screen is open.
 const followEvery = Duration(seconds: 15);
@@ -327,28 +328,31 @@ class _ShipmentView extends ConsumerWidget {
               ),
               const Divider(height: 24),
               Text(l10n.sendRecipient, style: label()),
-              Text('${s.recipientName} · ${s.recipientPhone}', style: value()),
+              Text(
+                '${isolate(s.recipientName)} · ${ltrRun(s.recipientPhone)}',
+                style: value(),
+              ),
               const SizedBox(height: 10),
               Text(l10n.sendParcelSection, style: label()),
               Text(
                 [
                   packageSizeLabel(l10n, s.size),
-                  if (s.description != null) s.description!,
-                  if (s.serviceName != null) s.serviceName!,
-                  if (s.zoneName != null) s.zoneName!,
+                  if (s.description != null) isolate(s.description!),
+                  if (s.serviceName != null) isolate(s.serviceName!),
+                  if (s.zoneName != null) isolate(s.zoneName!),
                 ].join(' · '),
                 style: value(),
               ),
               if (s.notes != null) ...[
                 const SizedBox(height: 10),
                 Text(l10n.sendNotes, style: label()),
-                Text(s.notes!, style: value()),
+                Text(isolate(s.notes!), style: value()),
               ],
               const SizedBox(height: 10),
               Text(l10n.sendPayment, style: label()),
               Text(
                 [
-                  s.priceFormatted,
+                  isolate(s.priceFormatted),
                   s.payment == PaymentMethod.cash ? l10n.payCash : l10n.payCard,
                   s.paid ? l10n.paymentPaid : l10n.paymentUnpaid,
                 ].join(' · '),

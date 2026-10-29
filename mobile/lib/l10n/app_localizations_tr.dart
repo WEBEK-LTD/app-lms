@@ -3800,6 +3800,13 @@ class AppLocalizationsTr extends AppLocalizations {
   String get chatUnavailable => 'Sohbet şu anda kullanılamıyor.';
 
   @override
+  String get chatUploadRefused => 'Dosya gönderilemedi. Tekrar deneyin.';
+
+  @override
+  String get chatUploadExpired =>
+      'Dosyayı gönderme bağlantısının süresi doldu. Tekrar deneyin.';
+
+  @override
   String get chatPlayVoice => 'Sesli mesajı oynat';
 
   @override

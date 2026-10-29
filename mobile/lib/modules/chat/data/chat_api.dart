@@ -7,6 +7,7 @@ import '../../../core/api/api_exception.dart';
 import '../../../core/api/http_client.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/api/models/json.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// The steps of a file sent in chunks through the media gate: chat files,
 /// and 105.3 a teacher's lesson videos and PDFs.
@@ -380,7 +381,7 @@ class MediaGate {
     if (status == 403 || status == 410) {
       return ApiException(
         code: ChatErrors.linkExpired,
-        message: 'The upload link expired.',
+        message: currentL10n.chatUploadExpired,
         statusCode: status,
       );
     }
@@ -431,7 +432,7 @@ class MediaGate {
     if (at == null) {
       throw ApiException(
         code: ApiException.invalidResponse,
-        message: 'The upload was refused.',
+        message: currentL10n.chatUploadRefused,
         statusCode: response.statusCode,
       );
     }
@@ -472,9 +473,9 @@ Future<String> uploadChatFile(
   while (true) {
     while (offset < file.size) {
       if (cancelled?.call() ?? false) {
-        throw const ApiException(
+        throw ApiException(
           code: ApiException.cancelled,
-          message: 'Cancelled',
+          message: currentL10n.errorCancelled,
         );
       }
       final end = offset + chunk > file.size ? file.size : offset + chunk;
