@@ -101,6 +101,25 @@ Admin › Demo apps and picks their builds there; until then the page shows
 sides: the customer, then the courier, the restaurant's staff or the
 driver. The daily clean-up removes their shipments, orders and rides.
 
+Phase 105.4 (schools) has its core: a new Studio project type `school`
+(an app type of its own, on Studio's plans as the feature `school`). The
+school adds its classes and subjects, its students, parents (linked to
+their children by the student's code) and teachers, one by one or from a
+CSV file, and the week's timetable. Teachers get a Classroom tab: today's
+lessons, their classes, taking attendance (the families of those absent or
+late are told), giving homework with files, marking what students hand
+in, exams and their scores, and writing to a class and its families.
+Students see their timetable, homework (handed in with text, a photo or a
+PDF), grades by subject, attendance, fees and news; a parent sees the same
+for each child and pays fees by card into the school's own account (or at
+the school), each payment with a receipt at `/fee-receipts/<code>`. The
+dashboard in Studio has Classes, People, Timetable, Attendance, Homework,
+Grades, Fees, News and School settings. Every amount is the school's:
+Yallapp sets none. Still to come: universities, report cards and grading
+scales, the store reviewers' accounts for the three roles. Checks: redocly
+lint, platform unit tests (with the isolation tests), tsc, eslint, e2e of
+the dashboard, flutter analyze and widget tests.
+
 Phase 105.3 (academies with many teachers, like Udemy) is complete: a new
 Studio project type, an academy whose teachers each publish their own
 courses (the Academy app type with the vertical `instructors`, on Studio's
@@ -220,6 +239,9 @@ test environment:
   plan feature `courier_app`, as for couriers.
 - Academies with many teachers (105.3): turn on the plan feature
   `instructors`, with its price, in Admin › Plans › Yallapp Studio.
+- Schools (105.4): turn on the plan feature `school`, with its price, in
+  Admin › Plans › Yallapp Studio. Fees by card need the school's own
+  payment account (School settings) and card payments in the plan.
 - Google real-time notifications use one Pub/Sub topic for every app
   (`GOOGLE_PUBSUB_PUSH_EMAIL`, `GOOGLE_PUBSUB_TOPIC`; see
   `docs/LAUNCH-CHECKLIST.md`). Each app's owner enters the topic in their own
