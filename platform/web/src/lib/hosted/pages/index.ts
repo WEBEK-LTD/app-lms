@@ -4,6 +4,7 @@ import type { App, HostedUser } from "../../data/types";
 import { servedLayout } from "../../pages/layout";
 import { etagValues } from "../../pages/plugin";
 import { itemSourcesFor } from "../../pages/sources";
+import { moreTab, splitTabs } from "../../pages/tab-bar";
 import { pickLanguage, translated, translatedBlock } from "../../pages/translate";
 import { ENTRY_LISTS, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock, type LayoutTab, type StudioNode, type StudioPage } from "../../pages/types";
 import { ConnectorError, type Connector } from "../connectors/types";
@@ -111,11 +112,15 @@ function navigation(layout: Layout, lang: LanguageCode, req: HostedRequest): Hos
   if (etagValues(req.headers?.get("if-none-match") ?? null).includes(version)) {
     return { status: 304, headers: { ...VARY, etag } };
   }
+  const split = splitTabs(layout.tabs.map((tab) => navTab(tab, lang, def)));
   return {
     status: 200,
     body: {
       version,
-      tabs: layout.tabs.map((tab) => navTab(tab, lang, def)),
+      // 109 Up to five tabs: with more, the first four, a More tab and the rest in `more`.
+      tabs: [...split.shown, ...(split.more.length ? [moreTab(lang)] : [])],
+      more: split.more,
+      ...(layout.tab_bar ? { tab_bar: layout.tab_bar } : {}),
       // 82.5 The side menu.
       menu: (layout.menu ?? []).map((entry) => navTab(entry, lang, def)),
       pages: layout.pages.map((page) => ({ slug: page.slug, title: translated(page, lang, def).title, updated_at: page.updated_at })),

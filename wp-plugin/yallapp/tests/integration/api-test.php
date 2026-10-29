@@ -528,6 +528,22 @@ check( 'english copy not reused for arabic', 200 === $r['status'], $r['status'] 
 $r = call( 'GET', '/pages?platform=android', null, null, array( 'Accept-Language: fr-FR, tr;q=0.5' ) );
 check( 'language not turned on falls back to default', 'Home' === ( $r['json']['tabs'][0]['label'] ?? '' ) && '2026-10-13T18:00:00Z.4' === ( $r['json']['version'] ?? '' ), $r['json']['tabs'] ?? null );
 
+// 109 More than five tabs: the first four, a More tab in the app's language, and the rest in `more`; the bar's look from known fields only.
+$many            = $layout;
+$many['version'] = '2026-10-29T10:00:00Z.9';
+$many['tabs']    = array();
+foreach ( array( 'home', 'courses', 'my_courses', 'search', 'notifications', 'offers', 'account' ) as $yallapp_i => $yallapp_to ) {
+	$yallapp_target = in_array( $yallapp_to, array( 'home', 'offers' ), true ) ? array( 'type' => 'page', 'page_slug' => $yallapp_to ) : array( 'type' => 'screen', 'screen' => $yallapp_to );
+	$many['tabs'][] = array( 'id' => 'tab' . $yallapp_i, 'label' => ucfirst( $yallapp_to ), 'icon' => 'star', 'target' => $yallapp_target );
+}
+$many['tab_bar'] = array( 'background' => '#0e0d24', 'radius' => 16, 'labels' => 'never', 'center' => 'tab2', 'onclick' => 'x' );
+store_layout( $many );
+$r = call( 'GET', '/pages?platform=android', null, null, array( 'Accept-Language: ar' ) );
+check( 'more than five tabs: four and More', array( 'tab0', 'tab1', 'tab2', 'tab3', 'more' ) === array_column( $r['json']['tabs'] ?? array(), 'id' ) && array( 'type' => 'more' ) === ( $r['json']['tabs'][4]['target'] ?? null ) && 'المزيد' === ( $r['json']['tabs'][4]['label'] ?? '' ), $r['json']['tabs'] ?? null );
+check( 'more than five tabs: the rest in more', array( 'tab4', 'tab5', 'tab6' ) === array_column( $r['json']['more'] ?? array(), 'id' ), $r['json']['more'] ?? null );
+check( 'the tab bar look, known fields only', array( 'background' => '#0E0D24', 'radius' => 16, 'labels' => 'never', 'center' => 'tab2' ) === ( $r['json']['tab_bar'] ?? null ), $r['json']['tab_bar'] ?? null );
+store_layout( $layout );
+
 $r    = call( 'GET', '/pages/home?platform=android', null, null, array( 'Accept-Language: ar' ) );
 $page = $r['json'];
 check( 'arabic page title', 200 === $r['status'] && 'أهلا وسهلا' === ( $page['title'] ?? '' ) && true === ( $page['show_title'] ?? null ), $r['raw'] );

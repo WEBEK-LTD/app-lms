@@ -155,7 +155,7 @@ export function draftFromScan(scan: SiteScan, defaults: AppDefaultsSetting, now:
   const linked: QuickLink[] = [];
   for (const page of pages) {
     // A tab before Account while the app has room for one; a link on the home page otherwise.
-    if (tabs.length < LAYOUT_LIMITS.maxTabs && page.title.length <= 20 && !tabs.some((t) => t.id === page.slug)) {
+    if (tabs.length < LAYOUT_LIMITS.shownTabs && page.title.length <= 20 && !tabs.some((t) => t.id === page.slug)) {
       const at = tabs.findIndex((t) => t.id === "account");
       tabs.splice(at === -1 ? tabs.length : at, 0, { id: page.slug, label: page.title, icon: page.icon, target: { type: "page", page_slug: page.slug } });
     } else if (linked.length < blockListLimits("quick_links", "links").max) {

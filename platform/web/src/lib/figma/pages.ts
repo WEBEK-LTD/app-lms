@@ -204,7 +204,7 @@ export function figmaFramePage(frame: FigmaNode): FigmaPageDraft {
         tabs = inOrder(textsIn(node))
           .map(textOf)
           .filter((label) => label.length > 0 && label.length <= 20)
-          .slice(0, LAYOUT_LIMITS.maxTabs);
+          .slice(0, LAYOUT_LIMITS.shownTabs);
       }
       return;
     }
@@ -384,7 +384,7 @@ export function addFigmaPages(
     page.blocks = blocks.slice(0, LAYOUT_LIMITS.maxBlocks);
   });
   let tabs: LayoutTab[] = layout.tabs;
-  const labels = (options.tabs ?? []).slice(0, LAYOUT_LIMITS.maxTabs);
+  const labels = (options.tabs ?? []).slice(0, LAYOUT_LIMITS.shownTabs);
   if (labels.length >= LAYOUT_LIMITS.minTabs) {
     tabs = labels.map((label) => ({
       id: newBlockId("t"),
