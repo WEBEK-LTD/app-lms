@@ -59,6 +59,12 @@ Future<TestApp> open(WidgetTester tester, FakeApi api, String path) async {
   return app;
 }
 
+/// 110 The total on the cart's bar, by the Checkout button.
+Finder onBar(Finder finder) => find.descendant(
+  of: find.byKey(const ValueKey('cart-bar-total')),
+  matching: finder,
+);
+
 void main() {
   test('the models read points, and older servers mean none', () {
     final config = StoreConfig.fromJson({
@@ -110,7 +116,9 @@ void main() {
       await open(tester, api, '/cart');
       expect(find.text('Use 250 points'), findsOneWidget);
       expect(find.text('₺25.00 off this order'), findsOneWidget);
-      expect(find.text('₺435.00'), findsOneWidget);
+      // In the summary, and on the bar by the Checkout button.
+      expect(find.text('₺435.00'), findsNWidgets(2));
+      expect(onBar(find.text('₺435.00')), findsOneWidget);
       expect(api.lastUsePoints, isFalse);
 
       await tester.tap(find.byKey(const Key('cart-use-points')));
@@ -118,7 +126,8 @@ void main() {
       expect(api.lastUsePoints, isTrue);
       expect(find.text('Points'), findsOneWidget);
       expect(find.text('−₺25.00'), findsOneWidget);
-      expect(find.text('₺410.00'), findsOneWidget);
+      expect(find.text('₺410.00'), findsNWidgets(2));
+      expect(onBar(find.text('₺410.00')), findsOneWidget);
 
       await tester.tap(find.text('Checkout'));
       await TestApp.settle(tester);
