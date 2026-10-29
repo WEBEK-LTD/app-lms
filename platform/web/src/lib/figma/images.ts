@@ -24,6 +24,8 @@ export async function saveFigmaImage(
   deps: { store: DataStore; blobs: BlobStore; now: Date },
   app: Pick<App, "clientId">,
   data: Buffer,
+  // 108.2 Also the pictures of a design brought into Studio.
+  kind: "figma_image" | "design_image" = "figma_image",
 ): Promise<{ ok: true; assetId: string } | { ok: false; error: "type" | "size" }> {
   if (data.length > FIGMA_IMAGE_BYTES) return { ok: false, error: "size" };
   const type = figmaImageType(data);
@@ -31,7 +33,7 @@ export async function saveFigmaImage(
   const id = newId();
   const blobKey = `assets/${app.clientId}/${id}.${type.extension}`;
   await deps.blobs.put(blobKey, data, type.contentType);
-  await deps.store.createAsset({ id, clientId: app.clientId, kind: "figma_image", blobKey, contentType: type.contentType, size: data.length, createdAt: deps.now });
+  await deps.store.createAsset({ id, clientId: app.clientId, kind, blobKey, contentType: type.contentType, size: data.length, createdAt: deps.now });
   return { ok: true, assetId: id };
 }
 

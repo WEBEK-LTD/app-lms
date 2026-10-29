@@ -1,0 +1,30 @@
+<svg width="390" height="844" viewBox="0 0 390 844" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g clip-path="url(#clip0_1_2)">
+<rect width="390" height="844" fill="#FBF8F2"/>
+<g id="Status Bar">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter" font-size="17" font-weight="600" letter-spacing="0em"><tspan x="33" y="33.2">9:41</tspan></text>
+<path d="M330 20H350V30H330V20Z" fill="black"/>
+</g>
+<text id="Welcome" fill="#0E0D24" xml:space="preserve" style="white-space: pre" font-family="Cairo" font-size="28" font-weight="bold" letter-spacing="0em"><tspan x="24" y="104.5">Welcome to Lale</tspan></text>
+<text fill="#5E5B70" xml:space="preserve" style="white-space: pre" font-family="Cairo" font-size="15" letter-spacing="0em"><tspan x="24" y="134.2">Fresh food from our kitchen, </tspan><tspan x="24" y="156.2">every day.</tspan></text>
+<rect id="Banner" x="24" y="176" width="342" height="180" rx="20" fill="url(#pattern0)"/>
+<text fill="white" xml:space="preserve" style="white-space: pre" font-family="Cairo" font-size="22" font-weight="bold" letter-spacing="0em"><tspan x="44" y="320.5">Summer offers</tspan></text>
+<rect id="Order button" x="24" y="380" width="342" height="52" rx="14" fill="#FF5A1F"/>
+<text fill="white" xml:space="preserve" style="white-space: pre" font-family="Cairo" font-size="16" font-weight="bold" letter-spacing="0em"><tspan x="152" y="411.2">Order now</tspan></text>
+<rect x="24" y="456" width="163" height="120" rx="16" fill="#7A2E1D"/>
+<rect x="203" y="456" width="163" height="120" rx="16" fill="#1F4E5F"/>
+<g id="Tab Bar">
+<rect y="760" width="390" height="84" fill="white"/>
+<text fill="#0E0D24" font-family="Cairo" font-size="11"><tspan x="40" y="810">Home</tspan></text>
+<text fill="#0E0D24" font-family="Cairo" font-size="11"><tspan x="170" y="810">Menu</tspan></text>
+<text fill="#0E0D24" font-family="Cairo" font-size="11"><tspan x="300" y="810">Account</tspan></text>
+</g>
+</g>
+<defs>
+<pattern id="pattern0" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image0_1_2" transform="matrix(0.001 0 0 0.0019 0 -0.1)"/>
+</pattern>
+<clipPath id="clip0_1_2"><rect width="390" height="844" fill="white"/></clipPath>
+<image id="image0_1_2" width="1000" height="600" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="/>
+</defs>
+</svg>
