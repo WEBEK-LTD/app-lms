@@ -1428,8 +1428,8 @@ class StatsView extends StatelessWidget {
           final content = Semantics(
             label: '${s.value} ${s.label}',
             excludeSemantics: true,
+            // 110 From the top, so the numbers of a row line up.
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 FittedBox(
                   fit: BoxFit.scaleDown,

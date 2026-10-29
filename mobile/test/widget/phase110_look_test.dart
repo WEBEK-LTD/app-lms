@@ -79,7 +79,7 @@ void main() {
       final shade = tester.getRect(
         find.ancestor(of: find.text(heading), matching: shades),
       );
-      expect(text.top - shade.top, greaterThanOrEqualTo(TextScrim.fade));
+      expect(text.top - shade.top, greaterThanOrEqualTo(TextScrim.defaultFade));
     }
   });
 

@@ -306,14 +306,20 @@ class StatusBarBackdrop extends StatelessWidget {
 /// above the text to dark under it, so the picture has no hard edge and the
 /// text reads on any image. Put it at the bottom of the picture's [Stack].
 class TextScrim extends StatelessWidget {
-  const TextScrim({super.key, required this.padding, required this.child});
+  const TextScrim({
+    super.key,
+    required this.padding,
+    required this.child,
+    this.fade = defaultFade,
+  });
 
   /// Around the text; the fade is added above it.
   final EdgeInsets padding;
   final Widget child;
 
   /// How far above the text the shade starts.
-  static const fade = 40.0;
+  final double fade;
+  static const defaultFade = 40.0;
 
   @override
   Widget build(BuildContext context) => DecoratedBox(

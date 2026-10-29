@@ -465,6 +465,8 @@ class _Banner extends StatelessWidget {
                       // 110 A shade fading in under the title keeps it
                       // readable on any image, with no hard edge.
                       child: TextScrim(
+                        // A short banner: a shorter fade.
+                        fade: 24,
                         padding: const EdgeInsets.fromLTRB(18, 12, 18, 14),
                         child: Row(
                           children: [
