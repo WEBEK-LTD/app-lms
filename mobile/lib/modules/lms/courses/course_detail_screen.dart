@@ -29,6 +29,7 @@ import '../downloads/download_widgets.dart';
 import '../downloads/progress_queue.dart';
 import '../lesson/content/html_content.dart';
 import '../navigation.dart';
+import '../teachers/teachers_providers.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/services/share_links.dart';
 
@@ -349,7 +350,17 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                         ),
                         if (course.instructor != null) ...[
                           const SizedBox(height: 14),
-                          _InstructorRow(instructor: course.instructor!),
+                          _InstructorRow(
+                            instructor: course.instructor!,
+                            // 105.3 A teacher's course opens the teacher's page.
+                            onTap:
+                                ref.watch(teachersOnProvider) &&
+                                    course.instructor!.id > 0
+                                ? () => context.push(
+                                    Paths.teacherPage(course.instructor!.id),
+                                  )
+                                : null,
+                          ),
                         ],
                         const SizedBox(height: 14),
                         Wrap(
@@ -486,14 +497,15 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
 }
 
 class _InstructorRow extends StatelessWidget {
-  const _InstructorRow({required this.instructor});
+  const _InstructorRow({required this.instructor, this.onTap});
 
   final Instructor instructor;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    return Row(
+    final row = Row(
       children: [
         InitialsAvatar(
           name: instructor.name,
@@ -519,6 +531,13 @@ class _InstructorRow extends StatelessWidget {
           ],
         ),
       ],
+    );
+    if (onTap == null) return row;
+    return InkWell(
+      key: const ValueKey('course-instructor'),
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: row,
     );
   }
 }

@@ -192,6 +192,10 @@ abstract final class AppIcons {
   static const car = Symbols.directions_car_rounded;
   static const sos = Symbols.sos_rounded;
   static const earnings = Symbols.account_balance_wallet_rounded;
+
+  // 105.3 Academies with many teachers.
+  static const teacher = Symbols.school_rounded;
+  static const upload = Symbols.upload_rounded;
 }
 
 /// A Material Symbols icon with an optional filled style.

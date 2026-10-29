@@ -20,11 +20,23 @@ import 'home/home_screen.dart';
 import 'lesson/lesson_screen.dart';
 import 'my_courses/my_courses_screen.dart';
 import 'quiz/quiz_screen.dart';
+import 'teachers/teach_apply_screen.dart';
+import 'teachers/teacher_course_screen.dart';
+import 'teachers/teacher_desk_screen.dart';
+import 'teachers/teachers_screen.dart';
 
 /// The Academy module: home, courses, my courses and the account as tabs,
-/// and the course, lesson, quiz and question pages.
+/// and the course, lesson, quiz and question pages. 105.3 In academies with
+/// many teachers, the teachers' pages, and for the teachers a Teacher tab
+/// (added for them only, see `withTeacherTab`).
 final lmsModule = AppModule(
-  tabPaths: {Paths.home, Paths.courses, Paths.myCourses, Paths.account},
+  tabPaths: {
+    Paths.home,
+    Paths.courses,
+    Paths.myCourses,
+    Paths.teacherDesk,
+    Paths.account,
+  },
   screens: _screens,
   defaultTabs: (_) => _defaultTabs,
   screenLocation: (screen, config) => switch (screen) {
@@ -86,8 +98,16 @@ final _defaultTabs = [
   ),
 ];
 
+/// 105.3 The Teacher tab, for the academy's teachers only.
+final teacherTab = ShellTab(
+  icon: AppIcons.teacher,
+  label: (c) => c.l10n.tabTeacher,
+  location: Paths.teacherDesk,
+);
+
 List<TabScreen> _screens() => [
   TabScreen(Paths.home, (state) => const HomeScreen()),
+  TabScreen(Paths.teacherDesk, (state) => const TeacherDeskScreen()),
   TabScreen(Paths.courses, (state) {
     final q = state.uri.queryParameters;
     return CoursesScreen(
@@ -147,6 +167,40 @@ List<TabScreen> _screens() => [
 ];
 
 List<RouteBase> _pushedRoutes() => [
+  // 105.3 The academy's teachers, applying to teach, a teacher's course.
+  GoRoute(
+    path: Paths.teachers,
+    pageBuilder: (context, state) => appPage(state, const TeachersScreen()),
+  ),
+  GoRoute(
+    path: '/teachers/:id',
+    pageBuilder: (context, state) {
+      final id = intParam(state, 'id');
+      return appPage(
+        state,
+        id == null ? const NotFoundScreen() : TeacherScreen(teacherId: id),
+      );
+    },
+  ),
+  GoRoute(
+    path: Paths.teachApply,
+    pageBuilder: (context, state) => appPage(state, const TeachApplyScreen()),
+  ),
+  GoRoute(
+    path: Paths.newTeacherCourse,
+    pageBuilder: (context, state) =>
+        appPage(state, const TeacherCourseScreen()),
+  ),
+  GoRoute(
+    path: '/teacher-course/:id',
+    pageBuilder: (context, state) {
+      final id = intParam(state, 'id');
+      return appPage(
+        state,
+        id == null ? const NotFoundScreen() : TeacherCourseScreen(courseId: id),
+      );
+    },
+  ),
   GoRoute(
     path: '/course/:id',
     pageBuilder: (context, state) {
