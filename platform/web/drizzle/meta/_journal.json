@@ -715,6 +715,13 @@
       "when": 1793288978577,
       "tag": "0101_studio_designs",
       "breakpoints": true
+    },
+    {
+      "idx": 102,
+      "version": "5",
+      "when": 1793307648349,
+      "tag": "0102_sample_entries",
+      "breakpoints": true
     }
   ]
 }

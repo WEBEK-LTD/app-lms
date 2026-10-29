@@ -1039,6 +1039,8 @@ export interface CatalogCategory {
   appId: string;
   name: string;
   position: number;
+  /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
+  sample?: boolean;
   createdAt: Date;
 }
 
@@ -1065,6 +1067,8 @@ export interface CatalogProduct {
   optionGroups?: CatalogOptionGroup[] | null;
   /** 91.5 Variations (size, colour): what the customer chooses, and each combination's price and stock; null or missing for none. */
   variants?: CatalogVariants | null;
+  /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
+  sample?: boolean;
   salesCount: number;
   createdAt: Date;
   updatedAt: Date;
@@ -1476,6 +1480,8 @@ export interface BookingRules {
 export interface BookingCategory {
   id: number;
   name: string;
+  /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
+  sample?: boolean;
 }
 
 export interface BookingService {
@@ -1488,6 +1494,8 @@ export interface BookingService {
   imageAssetId: string | null;
   color: string | null;
   active: boolean;
+  /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
+  sample?: boolean;
 }
 
 /** Opening hours of one day, like { start: "09:00", end: "17:00" }. */
@@ -1511,6 +1519,8 @@ export interface BookingStaff {
   specialties?: string[];
   languages?: string[];
   bio?: string | null;
+  /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
+  sample?: boolean;
 }
 
 /** 21 A question customers answer when booking (a clinic's intake form). */
@@ -1893,12 +1903,15 @@ export interface Course {
    */
   teacherStage?: "draft" | "in_review" | "returned" | null;
   reviewNote?: string | null;
+  /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
+  sample?: boolean;
   createdAt: string;
 }
 
 export interface CourseSetup {
   currency: CatalogCurrency;
-  categories: { id: number; name: string }[];
+  /** 110.2 `sample`: a sample category, removed with the sample courses. */
+  categories: { id: number; name: string; sample?: boolean }[];
   courses: Course[];
   /** The next ID for a category, course, topic or lesson. */
   nextId: number;
@@ -1972,6 +1985,8 @@ export interface Listing {
   status: ListingStatus;
   /** When it was first published: the app's "newest" order. */
   publishedAt: Date | null;
+  /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
+  sample?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -2785,6 +2800,8 @@ export interface Article {
   status: ArticleStatus;
   /** When it was first published: the app's "newest" order. */
   publishedAt: Date | null;
+  /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
+  sample?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -2796,6 +2813,8 @@ export interface ArticleCategory {
   appId: string;
   name: string;
   position: number;
+  /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
+  sample?: boolean;
   createdAt: Date;
 }
 
@@ -2834,6 +2853,8 @@ export interface EventRecord {
   capacity: number | null;
   status: EventStatus;
   publishedAt: Date | null;
+  /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
+  sample?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -2954,6 +2975,8 @@ export interface Campaign {
   donorCount: number;
   /** When it was first opened: the app's "newest" order. */
   publishedAt: Date | null;
+  /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
+  sample?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -3105,6 +3128,8 @@ export interface DeliveryService {
   position: number;
   /** Hidden from the app when false. */
   active: boolean;
+  /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
+  sample?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -3234,6 +3259,8 @@ export type FoodCourierJob = (typeof FOOD_COURIER_JOBS)[number];
 export interface Cuisine {
   id: string;
   name: string;
+  /** 110.2 Added with the sample restaurants, and removed with them. */
+  sample?: boolean;
 }
 
 /** A period a restaurant is open, in the app's time zone; `closes` before `opens` runs past midnight. */
@@ -3312,6 +3339,8 @@ export interface Restaurant {
   ratingSum: number;
   ratingCount: number;
   position: number;
+  /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
+  sample?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -3538,6 +3567,8 @@ export interface VehicleType {
   position: number;
   /** Hidden from the app when false. */
   active: boolean;
+  /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
+  sample?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -4488,12 +4519,14 @@ export interface Teacher {
   featured: boolean;
   /** The academy's note when it declined an application. */
   note: string | null;
+  /** 110.2 A sample teacher (lib/samples): nobody signs in as one; saving it in the dashboard makes it the owner's. */
+  sample?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export type TeacherInput = Pick<Teacher, "appId" | "name" | "phone" | "email" | "userId" | "photoAssetId" | "bio" | "subjects" | "status" | "shareBp" | "featured">;
-export type TeacherPatch = Partial<Pick<Teacher, "name" | "phone" | "email" | "userId" | "photoAssetId" | "bio" | "subjects" | "status" | "shareBp" | "featured" | "note">>;
+export type TeacherInput = Pick<Teacher, "appId" | "name" | "phone" | "email" | "userId" | "photoAssetId" | "bio" | "subjects" | "status" | "shareBp" | "featured" | "sample">;
+export type TeacherPatch = Partial<Pick<Teacher, "name" | "phone" | "email" | "userId" | "photoAssetId" | "bio" | "subjects" | "status" | "shareBp" | "featured" | "note" | "sample">>;
 
 /** A student's review of a teacher; one per student and teacher. */
 export interface TeacherReview {
@@ -4684,6 +4717,8 @@ export interface SchoolAnnouncement {
   body: string;
   /** The teacher who wrote it; null: the school. */
   teacherId: number | null;
+  /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
+  sample?: boolean;
   createdAt: Date;
 }
 
