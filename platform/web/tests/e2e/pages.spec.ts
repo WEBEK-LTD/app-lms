@@ -628,8 +628,8 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await importing.getByRole("button", { name: "Import", exact: true }).click();
   await expect(importing).toHaveCount(0);
   await expect(own.getByRole("status").filter({ hasText: "The design is imported." })).toBeVisible({ timeout: 15_000 });
-  // The picture is saved in this project. Without a plan the project has no Media storage for fonts: it says so, and the app's font shows.
-  await expect(own.getByRole("status").filter({ hasText: "The design is imported." })).toContainText("The font Harbour Sans couldn't be added: the app's font shows instead. Your Media storage is full.");
+  // The picture is saved in this project, and the font too: without a plan the project still has its free 100 MB.
+  await expect(own.getByRole("status").filter({ hasText: "The design is imported." })).not.toContainText("couldn't be added");
   await expect(own.getByRole("status")).not.toContainText("pictures couldn't");
   await expect(phone.getByText("Harbour words")).toBeVisible();
   await expect(phone.locator("img").last()).toHaveAttribute("src", /\/api\/v1\/assets\//);
