@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { uploadOwnFontAction } from "@/app/actions/pages";
+import { importFigmaStudioAction, readFigmaLinkAction, uploadOwnFontAction, type FigmaLinkError } from "@/app/actions/pages";
+import type { FigmaFileRead } from "@/lib/figma/api";
+import { newNodeId } from "@/lib/studio/elements";
+import { screensToDesign } from "@/lib/studio/import/design";
 import { useDashT } from "@/components/dashboard-i18n";
 import type { DashKey } from "@/i18n/dashboard";
 import type { Languages, StudioPage } from "@/lib/pages/types";
@@ -79,6 +82,7 @@ export function ImportDialog(props: {
   const [problem, setProblem] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [over, setOver] = useState(false);
+  const [tab, setTab] = useState<"file" | "figma">("file");
   const input = useRef<HTMLInputElement>(null);
   const dialog = useRef<HTMLDivElement>(null);
 
@@ -130,11 +134,30 @@ export function ImportDialog(props: {
 
         {step === 1 ? (
           <>
-            <div className="flex gap-1 px-5" style={{ borderBottom: `1px solid ${C.line}` }}>
-              <span className="px-3.5 py-2.5 font-bold" style={{ borderBottom: `2px solid ${C.ink}` }}>
-                {t("studio.importFromFile")}
-              </span>
+            <div role="tablist" className="flex gap-1 px-5" style={{ borderBottom: `1px solid ${C.line}` }}>
+              {(["file", "figma"] as const).map((id) => (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === id}
+                  onClick={() => setTab(id)}
+                  className="border-0 bg-transparent px-3.5 py-2.5"
+                  style={tab === id ? { borderBottom: `2px solid ${C.ink}`, fontWeight: 700, color: C.ink } : { color: C.muted, borderBottom: "2px solid transparent" }}
+                >
+                  {t(id === "file" ? "studio.importFromFile" : "studio.importFromFigma")}
+                </button>
+              ))}
             </div>
+            {tab === "figma" ? (
+              <FigmaTab
+                languages={props.languages}
+                onReady={(r) => {
+                  setRead(r);
+                  setStep(2);
+                }}
+              />
+            ) : (
             <div className="flex flex-col gap-3.5 overflow-auto p-5">
               <label
                 onDragOver={(e) => {
@@ -172,11 +195,14 @@ export function ImportDialog(props: {
                 {t("studio.importNote")}
               </p>
             </div>
+            )}
             <div className="flex justify-end gap-2 px-5 py-3.5" style={{ borderTop: `1px solid ${C.line}` }}>
               <Button onClick={props.onClose}>{t("studio.importCancel")}</Button>
-              <Button primary disabled={!read || busy} onClick={() => setStep(2)}>
-                {t("studio.importNext")}
-              </Button>
+              {tab === "file" ? (
+                <Button primary disabled={!read || busy} onClick={() => setStep(2)}>
+                  {t("studio.importNext")}
+                </Button>
+              ) : null}
             </div>
           </>
         ) : read ? (
@@ -299,6 +325,11 @@ function Found(props: Parameters<typeof ImportDialog>[0] & { read: ImportRead; o
           <span className="text-xs" style={{ color: C.muted }}>
             {t("studio.importFoundHint")}
           </span>
+          {props.read.missing ? (
+            <span className="text-xs" style={{ color: "#B3261E" }}>
+              {t("studio.importFigmaMissing", { count: props.read.missing })}
+            </span>
+          ) : null}
           {props.read.cut ? (
             <span className="text-xs" style={{ color: "#B3261E" }}>
               {t("studio.importCut", { count: props.read.cut })}
@@ -448,9 +479,126 @@ function FontTag({ state, swapped, added }: { state: FontState; swapped: boolean
   const label = added ? t("studio.importFontAdded") : swapped && state !== "missing" ? t("studio.importFontAppFont") : t(state === "free" ? "studio.importFontFree" : state === "own" ? "studio.importFontOwn" : state === "in_file" ? "studio.importFontInFile" : "studio.importFontMissing");
   return (
     <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-xs" style={{ border: `1px solid ${C.line}`, color: ok ? "#1F8A4C" : state === "missing" ? "#B3261E" : C.muted }}>
-      <Glyph name={ok ? "check" : state === "missing" ? "warning" : "text_fields"} size={16} />
+      <Glyph name={ok ? "check" : state === "missing" ? "warning" : "title"} size={16} />
       {label}
     </span>
+  );
+}
+
+const FIGMA_ERRORS: Record<FigmaLinkError, DashKey> = {
+  link: "pages.figmaErrLink",
+  token: "pages.figmaErrToken",
+  not_found: "pages.figmaErrNotFound",
+  limit: "pages.figmaErrLimit",
+  unreachable: "pages.figmaErrUnreachable",
+  too_big: "pages.figmaErrTooBig",
+  empty: "pages.figmaErrEmpty",
+  busy: "pages.figmaErrBusy",
+};
+
+/**
+ * 108.4 A Figma link: the file read with the owner's personal access token
+ * (sent for these calls only, never kept), its screens chosen, then brought
+ * with their pictures and made into pages.
+ */
+function FigmaTab({ languages, onReady }: { languages: Languages; onReady: (read: ImportRead) => void }) {
+  const t = useDashT();
+  const [link, setLink] = useState("");
+  const [token, setToken] = useState("");
+  const [file, setFile] = useState<FigmaFileRead | null>(null);
+  const [picked, setPicked] = useState<string[]>([]);
+  const [busy, setBusy] = useState<"read" | "bring" | null>(null);
+  const [problem, setProblem] = useState<string | null>(null);
+
+  const fail = (r: { error: FigmaLinkError; retryAfterSeconds?: number }) => setProblem(t(FIGMA_ERRORS[r.error], { minutes: Math.max(1, Math.ceil((r.retryAfterSeconds ?? 60) / 60)) }));
+
+  async function readFile() {
+    setBusy("read");
+    setProblem(null);
+    const r = await readFigmaLinkAction(link, token).catch(() => ({ ok: false as const, error: "unreachable" as const }));
+    setBusy(null);
+    if (!r.ok) return fail(r);
+    setFile(r.file);
+    setPicked(r.file.frames.filter((f) => !/logo|brand|mark/i.test(f.name)).slice(0, 1).map((f) => f.id));
+  }
+
+  async function bring() {
+    if (!file) return;
+    setBusy("bring");
+    setProblem(null);
+    const frames = file.frames.filter((f) => picked.includes(f.id)).map((f) => ({ id: f.id, name: f.name }));
+    const r = await importFigmaStudioAction(link, token, frames).catch(() => ({ ok: false as const, error: "unreachable" as const }));
+    setBusy(null);
+    if (!r.ok) return fail(r);
+    if (!r.frames.length) return setProblem(t("pages.figmaErrEmpty"));
+    const { design, cut } = screensToDesign({ frames: r.frames, pictures: {} }, file.name, languages, newNodeId);
+    setToken("");
+    onReady({ design, file: file.name, cut, ...(r.missing ? { missing: r.missing } : {}) });
+  }
+
+  return (
+    <div className="flex flex-col gap-3 overflow-auto p-5">
+      <label className="flex flex-col gap-1">
+        <b>{t("studio.importFigmaLink")}</b>
+        <input dir="ltr" value={link} onChange={(e) => setLink(e.target.value)} placeholder="https://www.figma.com/design/…" className="h-10 rounded-[10px] px-3" style={{ border: `1px solid ${C.line}` }} />
+      </label>
+      <label className="flex flex-col gap-1">
+        <b>{t("studio.importFigmaToken")}</b>
+        <input dir="ltr" type="password" autoComplete="off" value={token} onChange={(e) => setToken(e.target.value)} className="h-10 rounded-[10px] px-3" style={{ border: `1px solid ${C.line}` }} />
+        <span className="text-xs" style={{ color: C.muted }}>
+          {t("studio.importFigmaTokenHint")}
+        </span>
+      </label>
+      <div>
+        <Button icon="link" disabled={!link.trim() || !token.trim() || busy !== null} onClick={() => void readFile()}>
+          {busy === "read" ? t("studio.importFigmaReading") : t("studio.importFigmaRead")}
+        </Button>
+      </div>
+      {problem ? (
+        <p role="alert" className="m-0 rounded-xl px-3 py-2" style={{ background: "#FDECEA", color: "#B3261E" }}>
+          {problem}
+        </p>
+      ) : null}
+      {file ? (
+        <div className="flex flex-col gap-2">
+          <b>{t("studio.importFigmaChoose")}</b>
+          <div className="flex flex-wrap gap-2">
+            {file.frames.map((f) => {
+              const on = picked.includes(f.id);
+              return (
+                <button
+                  key={f.id}
+                  type="button"
+                  role="checkbox"
+                  aria-checked={on}
+                  onClick={() => setPicked((list) => (on ? list.filter((x) => x !== f.id) : list.length < 10 ? [...list, f.id] : list))}
+                  className="flex w-[120px] flex-col items-center gap-1.5 rounded-xl bg-white p-2"
+                  style={on ? { outline: `2px solid ${C.select}`, border: "1px solid transparent" } : { border: `1px solid ${C.line}` }}
+                >
+                  {f.thumbnail ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={f.thumbnail} alt="" className="h-[150px] w-full rounded-lg object-contain" style={{ background: C.ivory }} />
+                  ) : (
+                    <span className="flex h-[150px] w-full items-center justify-center rounded-lg" style={{ background: C.ivory }}>
+                      <Glyph name="smartphone" size={28} className="text-[#5E5B70]" />
+                    </span>
+                  )}
+                  <span className="flex w-full items-center gap-1 text-xs">
+                    <Glyph name={on ? "check_circle" : "radio_button_unchecked"} size={16} className={on ? "text-[#3D63FF]" : "text-[#5E5B70]"} />
+                    <span className="truncate">{f.name}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="flex justify-end">
+            <Button primary disabled={!picked.length || busy !== null} onClick={() => void bring()}>
+              {busy === "bring" ? t("studio.importFigmaBringing") : t("studio.importNext")}
+            </Button>
+          </div>
+        </div>
+      ) : null}
+    </div>
   );
 }
 

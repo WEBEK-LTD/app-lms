@@ -22,6 +22,8 @@ export interface ImportRead {
   file: string;
   /** Elements left out to stay within what a page can hold. */
   cut: number;
+  /** 108.4 Pictures that couldn't be brought (from Figma). */
+  missing?: number;
 }
 
 /** Draws a drawing as a picture (the browser's canvas); null when it can't. */

@@ -99,6 +99,8 @@ function figmaApi(req: { url?: string; headers: Record<string, string | string[]
       },
     };
   }
+  // 108.4 The pictures the file's shapes are filled with.
+  if (url.pathname === `/v1/files/${FIGMA_KEY}/images`) return { status: 200, body: { error: false, status: 200, meta: { images: { a: `${figmaBase}/render/photo-2.png` } } } };
   if (url.pathname === `/v1/images/${FIGMA_KEY}`) {
     const ids = (url.searchParams.get("ids") ?? "").split(",");
     return { status: 200, body: { err: null, images: Object.fromEntries(ids.map((id) => [id, `${figmaBase}/render/${id === "1:3" ? "logo" : "home"}-${url.searchParams.get("scale")}.png`])) } };
@@ -656,6 +658,36 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await expect(phone.getByText("Order now")).toBeVisible();
   await expect(phone.getByText("9:41")).toHaveCount(0);
   // The page checker takes it: it saves.
+  await own.getByRole("button", { name: "Undo" }).click();
+  await own.getByRole("button", { name: "Redo" }).click();
+  await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
+
+  // 108.4 A Figma link: the file read with the owner's token, a screen chosen and brought with its picture.
+  const asked = figmaTokens.length;
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await own.getByRole("menuitem", { name: "Import a design…" }).click();
+  await importing.getByRole("tab", { name: "A Figma link" }).click();
+  await importing.getByLabel("The Figma file's link").fill(`https://www.figma.com/design/${FIGMA_KEY}/Harbour-app`);
+  await importing.getByLabel("Your personal access token").fill("figd_not-the-right-token-000000");
+  await importing.getByRole("button", { name: "Read the file" }).click();
+  await expect(importing.getByRole("alert")).toContainText("Figma didn't accept this token.");
+  await importing.getByLabel("Your personal access token").fill(FIGMA_TOKEN);
+  await importing.getByRole("button", { name: "Read the file" }).click();
+  await expect(importing.getByRole("checkbox", { name: "Home" })).toHaveAttribute("aria-checked", "true");
+  await expect(importing.getByRole("checkbox", { name: "Logo" })).toHaveAttribute("aria-checked", "false");
+  await importing.getByRole("button", { name: "Next" }).click();
+  await expect(importing.getByText("1 page found in “Harbour app”")).toBeVisible({ timeout: 15_000 });
+  await expect(importing.getByText("1 picture is saved with your project")).toHaveCount(0);
+  await importing.getByRole("button", { name: "Import", exact: true }).click();
+  await expect(own.getByRole("status").filter({ hasText: "The design is imported." })).toBeVisible({ timeout: 15_000 });
+  await expect(phone.getByText("Welcome aboard")).toBeVisible();
+  // Its button, on the page (the app's tabs have one of the same name).
+  await expect(phone.locator("[data-studio-node]").filter({ hasText: /^My courses$/ }).first()).toBeVisible();
+  // The photo Figma filled the box with, saved as the account's file; the tab bar left out.
+  await expect(phone.locator('img[src*="/api/v1/assets/"]')).not.toHaveCount(0);
+  await expect(phone.getByText("Account", { exact: true })).toHaveCount(0);
+  // The token went to Figma only with these calls.
+  expect(figmaTokens.slice(asked).every((tk) => tk === FIGMA_TOKEN || tk === "figd_not-the-right-token-000000")).toBe(true);
   await own.getByRole("button", { name: "Undo" }).click();
   await own.getByRole("button", { name: "Redo" }).click();
   await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
