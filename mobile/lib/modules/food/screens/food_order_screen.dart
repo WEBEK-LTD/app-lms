@@ -128,6 +128,7 @@ class _FoodOrderScreenState extends ConsumerState<FoodOrderScreen> {
     final order = async.value;
     return Scaffold(
       appBar: AppBar(
+        leading: appBarBack(context),
         title: Text(
           order == null
               ? l10n.tabFoodOrders

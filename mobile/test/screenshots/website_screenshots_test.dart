@@ -22,7 +22,7 @@ void main() {
 
   for (final shot in websiteShots) {
     testWidgets(shot.name, skip: !_enabled, (tester) async {
-      await shot.render(tester);
+      final app = await shot.render(tester);
       // Captured at the phone's 3x, so the file is 1080 x 2340.
       final boundary = tester.renderObject<RenderRepaintBoundary>(
         find.byKey(shotKey),
@@ -41,6 +41,7 @@ void main() {
           expect(await goldenFileComparator.compare(png!, file), isTrue);
         }
       });
+      if (shot.mapTiles) await Shot.close(app, tester);
     });
   }
 }

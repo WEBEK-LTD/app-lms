@@ -264,6 +264,81 @@ class HeroScrim extends StatelessWidget {
   );
 }
 
+/// 110 A page that runs up to the top of the screen, with a band of [color]
+/// (the page's background, or its header's) behind the status bar, so the
+/// clock and battery never sit on text or pictures scrolling under them.
+class StatusBarBackdrop extends StatelessWidget {
+  const StatusBarBackdrop({
+    super.key,
+    required this.color,
+    required this.child,
+  });
+
+  final Color color;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final top = MediaQuery.paddingOf(context).top;
+    if (top <= 0) return child;
+    return Stack(
+      children: [
+        Positioned.fill(child: child),
+        Positioned(
+          key: const ValueKey('status-bar-backdrop'),
+          top: 0,
+          left: 0,
+          right: 0,
+          height: top,
+          child: IgnorePointer(
+            child: AnnotatedRegion<SystemUiOverlayStyle>(
+              value: overlayStyleOn(color),
+              child: ColoredBox(color: color),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 110 Text at the bottom of a picture: a shade that fades in from clear
+/// above the text to dark under it, so the picture has no hard edge and the
+/// text reads on any image. Put it at the bottom of the picture's [Stack].
+class TextScrim extends StatelessWidget {
+  const TextScrim({
+    super.key,
+    required this.padding,
+    required this.child,
+    this.fade = defaultFade,
+  });
+
+  /// Around the text; the fade is added above it.
+  final EdgeInsets padding;
+  final Widget child;
+
+  /// How far above the text the shade starts.
+  final double fade;
+  static const defaultFade = 40.0;
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+    key: const ValueKey('text-scrim'),
+    decoration: const BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [Color(0x000E0D24), Color(0xA60E0D24), Color(0xCC0E0D24)],
+        stops: [0, 0.4, 1],
+      ),
+    ),
+    child: Padding(
+      padding: padding.copyWith(top: padding.top + fade),
+      child: child,
+    ),
+  );
+}
+
 /// A rounded progress track with an Ember fill.
 class ProgressTrack extends StatelessWidget {
   const ProgressTrack({

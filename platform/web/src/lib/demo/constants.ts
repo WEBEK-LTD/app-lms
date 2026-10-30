@@ -49,16 +49,19 @@ export const DEMO_LICENSE_UNTIL = new Date("2099-12-31T23:59:59.999Z");
  * 21 Which demo: an engine's (its default kind), or a vertical's that has
  * its own demo (a clinic and 27 a gym, on the bookings engine; 26 a café, on the store engine).
  */
-/** The demos of Yallapp Studio's own project types (104 delivery, 105.1 food delivery, 105.2 rides), shown on /demo/studio only. */
-export type StudioDemoId = Extract<AppType, "delivery" | "food" | "rides">;
-/** 105.4 Schools have no demo yet. */
-export type DemoId = Exclude<AppType, StudioDemoId | "school"> | Extract<AppVertical, "clinic" | "restaurant" | "fitness"> | StudioDemoId;
+/**
+ * The demos of Yallapp Studio's own project types (104 delivery, 105.1 food
+ * delivery, 105.2 rides; 110.5 105.9 a live taxi app, 105.4 a school and
+ * 105.3 an academy with many teachers), shown on /demo/studio only.
+ */
+export type StudioDemoId = Extract<AppType, "delivery" | "food" | "rides" | "school"> | Extract<AppVertical, "taxi" | "instructors">;
+export type DemoId = Exclude<AppType, StudioDemoId> | Extract<AppVertical, "clinic" | "restaurant" | "fitness"> | StudioDemoId;
 
-/** The engines only Studio offers (lib/studio/section.ts STUDIO_ONLY_KINDS). */
-const STUDIO_DEMO_ENGINES: readonly string[] = ["delivery", "food", "rides"];
+/** The kinds only Studio offers (lib/studio/section.ts STUDIO_ONLY_KINDS). */
+const STUDIO_DEMO_KINDS: readonly string[] = ["delivery", "food", "rides", "taxi", "school", "instructors"];
 
 export function isStudioDemo(id: DemoId): id is StudioDemoId {
-  return STUDIO_DEMO_ENGINES.includes(id);
+  return STUDIO_DEMO_KINDS.includes(id);
 }
 
 /** The kind a demo shows. */

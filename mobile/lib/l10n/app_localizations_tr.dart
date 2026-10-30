@@ -300,6 +300,9 @@ class AppLocalizationsTr extends AppLocalizations {
       'Buraya kaydetmek için bir ilandaki kalbe dokunun.';
 
   @override
+  String get browseListings => 'İlanlara göz at';
+
+  @override
   String get favoritesSignInTitle => 'Beğendiğiniz evleri kaydedin';
 
   @override
@@ -2435,6 +2438,9 @@ class AppLocalizationsTr extends AppLocalizations {
       'Bir makaleyi burada tutmak ve daha sonra, bağlantı olmadan da okumak için yer imine dokunun.';
 
   @override
+  String get browseArticles => 'Makalelere göz at';
+
+  @override
   String get articleSave => 'Makaleyi kaydet';
 
   @override
@@ -2675,6 +2681,9 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get classesNoneMessage =>
       'Derslerini görmek için başka bir gün seçin.';
+
+  @override
+  String get classesNextClass => 'Sonraki derse bak';
 
   @override
   String get classesNoTimetable => 'Henüz ders yok';
@@ -3022,6 +3031,9 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get noTicketsMessage =>
       'Aldığınız biletler girişte göstereceğiniz QR koduyla burada görünür.';
+
+  @override
+  String get browseEvents => 'Etkinliklere göz at';
 
   @override
   String get ticketsOfflineNote =>

@@ -170,6 +170,10 @@
   "loadingFavorites": "Loading favorites",
   "noFavoritesTitle": "No favorites yet",
   "noFavoritesMessage": "Tap the heart on a listing to save it here.",
+  "browseListings": "Browse listings",
+  "@browseListings": {
+    "description": "Button on the empty Favorites and Messages lists of a Real estate app: opens the search."
+  },
   "favoritesSignInTitle": "Save the homes you like",
   "favoritesSignInMessage": "Sign in to keep your favorites on all your devices.",
   "messagesSignInTitle": "Talk to the office",
@@ -1586,6 +1590,10 @@
   "noArticlesFoundMessage": "Try other words or another section.",
   "noSavedTitle": "No saved articles",
   "noSavedMessage": "Tap the bookmark on an article to keep it here and read it later, even without a connection.",
+  "browseArticles": "Browse articles",
+  "@browseArticles": {
+    "description": "Button on the empty Saved list of a News app: opens the articles."
+  },
   "articleSave": "Save article",
   "articleUnsave": "Remove from saved",
   "articleSavedMessage": "Saved. Find it under Saved.",
@@ -1913,6 +1921,10 @@
     "description": "The timetable on a day without classes."
   },
   "classesNoneMessage": "Pick another day to see its classes.",
+  "classesNextClass": "See the next class",
+  "@classesNextClass": {
+    "description": "Button on a day without classes in the timetable: opens the next day of the week with a class."
+  },
   "classesNoTimetable": "No classes yet",
   "@classesNoTimetable": {
     "description": "When the business has no classes in the app."
@@ -2202,6 +2214,10 @@
   "ticketsSignInMessage": "Sign in to see your tickets and show them at the door.",
   "noTicketsTitle": "No tickets yet",
   "noTicketsMessage": "Tickets you get show here, with a QR code for the door.",
+  "browseEvents": "Browse events",
+  "@browseEvents": {
+    "description": "Button on the empty My tickets list of an Events app: opens the events."
+  },
   "ticketsOfflineNote": "You're offline: these are the tickets saved on this phone.",
   "ticketStatusValid": "Valid",
   "ticketStatusUsed": "Used",

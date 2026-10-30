@@ -34,7 +34,13 @@ class BookingsHomeScreen extends ConsumerWidget {
         onRefresh: refresh,
         edgeOffset: MediaQuery.paddingOf(context).top,
         child: switch (sections) {
-          AsyncData(:final value) => _Sections(sections: value),
+          // 110 Nothing scrolls under the status bar.
+          AsyncData(:final value) => StatusBarBackdrop(
+            color: ref.watch(appLookProvider).template == AppTemplate.bold
+                ? context.palette.primary
+                : context.palette.background,
+            child: _Sections(sections: value),
+          ),
           AsyncError(:final error) => ListView(
             children: [
               SizedBox(

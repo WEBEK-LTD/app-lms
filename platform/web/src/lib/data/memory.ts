@@ -3797,7 +3797,22 @@ export class MemoryStore implements DataStore {
       shipments: 0,
       foodOrders: 0,
       rides: 0,
+      teacherFollows: 0,
+      teacherReviews: 0,
     };
+    // 110.5 Teachers visitors followed and rated.
+    for (const [key, follow] of this.teacherFollows) {
+      if (follow.appId === appId && old(follow.createdAt)) {
+        this.teacherFollows.delete(key);
+        counts.teacherFollows++;
+      }
+    }
+    for (const [id, review] of this.teacherReviews) {
+      if (review.appId === appId && old(review.createdAt)) {
+        this.teacherReviews.delete(id);
+        counts.teacherReviews++;
+      }
+    }
     // Studio's demos: what visitors sent, ordered and rode.
     for (const [id, shipment] of this.shipments) {
       if (shipment.appId === appId && old(shipment.createdAt)) {

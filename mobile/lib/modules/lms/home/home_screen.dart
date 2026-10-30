@@ -45,7 +45,13 @@ class HomeScreen extends ConsumerWidget {
       body: RefreshIndicator(
         onRefresh: refresh,
         child: switch (sections) {
-          AsyncData(:final value) => body(value),
+          // 110 Nothing scrolls under the status bar.
+          AsyncData(:final value) => StatusBarBackdrop(
+            color: t == AppTemplate.bold
+                ? context.palette.primary
+                : context.palette.background,
+            child: body(value),
+          ),
           AsyncError(:final error) => ListView(
             children: [
               SizedBox(

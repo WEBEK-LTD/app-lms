@@ -344,7 +344,7 @@ export const tr: Messages = {
     homeLink: "Yallapp Studio'yu keşfet",
     demoEyebrow: "Yallapp Studio demosu",
     demoTitle: "Bir Studio projesinin nasıl göründüğünü gör",
-    demoIntro: "Studio demo uygulamalarını (bir kargo şirketi, yemek siparişi ve yolculuk) yükleyin ve demo numarasıyla deneyin: önce müşteri olarak, sonra şirketin kuryesi, restoranı veya sürücüsü olarak. Ardından düzenleyicide tasarlanmış bir kafeyi görün. Normal uygulamaların demo uygulamaları Demo sayfasında.",
+    demoIntro: "Studio demo uygulamalarını (bir kargo şirketi, yemek siparişi, yolculuk, haritada canlı taksi, bir okul ve çok eğitmenli bir akademi) yükleyin ve demo numarasıyla deneyin: önce müşteri, öğrenci veya veli olarak, sonra şirketin kuryesi, restoranı, sürücüsü veya eğitmeni olarak. Ardından düzenleyicide tasarlanmış bir kafeyi görün. Normal uygulamaların demo uygulamaları Demo sayfasında.",
     demoCafeTitle: "Studio'da tasarlanmış bir kafe",
     demoCafeText: "Ana sayfa Studio düzenleyicisinde yapıldı: üst bölüm, hızlı düğmeler, kafenin kendi kartındaki yemekler ve puanı. Karanlık modda her öğe için belirlenen karanlık renkleri alır.",
     demoEditorTitle: "Arkalarındaki düzenleyici",

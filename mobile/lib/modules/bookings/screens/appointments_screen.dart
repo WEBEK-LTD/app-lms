@@ -57,6 +57,9 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> {
           : MessageView(
               icon: AppIcons.appointments,
               title: words.noPastAppointments,
+              // 110 Every empty list leads somewhere.
+              actionLabel: words.bookAppointment,
+              onAction: () => context.go(Paths.services),
             );
     } else {
       list = RefreshIndicator(

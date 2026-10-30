@@ -8,6 +8,10 @@ import '../../real_estate/widgets/listing_widgets.dart' show TabHeader;
 import '../data/news_providers.dart';
 import '../widgets/article_widgets.dart';
 
+import 'package:go_router/go_router.dart';
+
+import '../../../core/routing/paths.dart';
+
 /// The Saved tab: articles the reader bookmarked, kept on this device (no
 /// account needed).
 class SavedScreen extends ConsumerWidget {
@@ -30,6 +34,9 @@ class SavedScreen extends ConsumerWidget {
                       icon: AppIcons.bookmark,
                       title: l10n.noSavedTitle,
                       message: l10n.noSavedMessage,
+                      // 110 Every empty list leads somewhere.
+                      actionLabel: l10n.browseArticles,
+                      onAction: () => context.go(Paths.articles),
                     )
                   : ListView.separated(
                       key: const ValueKey('saved-list'),

@@ -94,6 +94,9 @@ class _Conversations extends ConsumerWidget {
               icon: AppIcons.chat,
               title: l10n.noMessagesTitle,
               message: l10n.noMessagesMessage,
+              // 110 Every empty list leads somewhere.
+              actionLabel: l10n.browseListings,
+              onAction: () => context.go(Paths.search),
             ),
           ),
         ],

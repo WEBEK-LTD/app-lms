@@ -326,7 +326,8 @@ ThemeData buildAppTheme({
       ),
     ),
     progressIndicatorTheme: ProgressIndicatorThemeData(
-      color: p.isDark ? p.text : p.primary,
+      // 110 The brand colour in the dark too (lightened when too dark).
+      color: p.primary,
       linearTrackColor: p.segment,
     ),
     radioTheme: RadioThemeData(fillColor: WidgetStatePropertyAll(p.text)),

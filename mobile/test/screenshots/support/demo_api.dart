@@ -1,3 +1,4 @@
+import 'package:yallapp/core/api/models/json.dart' show snake;
 import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/core/api/yallapp_api.dart';
 import 'package:yallapp/core/format/dates.dart';
@@ -5,6 +6,7 @@ import 'package:yallapp/core/format/dates.dart';
 import '../../support/fake_api.dart';
 import '../../support/fixtures.dart';
 import 'demo_images.dart';
+import 'map_tiles.dart';
 
 /// The fake API with believable content for the website screenshots: an
 /// academy, a flower and gift shop in Istanbul, a hair and beauty studio
@@ -62,9 +64,37 @@ class DemoApi extends FakeApi {
     );
     api
       ..product = _productDetail()
-      ..cartQuote = _cartQuote();
+      ..cartQuote = _cartQuote()
+      ..order = _storeOrder();
     return api;
   }
+
+  /// 110 A shop's order on its way, with what each line comes to.
+  static Map<String, dynamic> _storeOrder() => {
+    'id': 1042,
+    'number': '1042',
+    'status': 'processing',
+    'status_label': 'Processing',
+    'total': '₺2,410.00',
+    'created_at': '2026-10-10T09:30:00Z',
+    'can_return': false,
+    'items': [
+      {
+        'name': 'Blush Rose Bouquet',
+        'product_id': 21,
+        'quantity': 1,
+        'image_url': demoImage('product-roses'),
+        'total': '₺1,290.00',
+      },
+      {
+        'name': 'Fig & Cedar Candle',
+        'product_id': 25,
+        'quantity': 2,
+        'image_url': demoImage('product-candle'),
+        'total': '₺1,120.00',
+      },
+    ],
+  };
 
   /// 26 A neighbourhood café: a menu with options, pickup or delivery, and
   /// an order on its way.
@@ -965,6 +995,658 @@ class DemoApi extends FakeApi {
     return api;
   }
 
+  /// 110.5 Yallapp Studio's live taxi demo (Lamha Taxi): the map with the
+  /// free taxis around the rider, a taxi on its way, and a driver online on
+  /// the map with an offer. The map's tiles are drawn (map_tiles.dart).
+  factory DemoApi.taxi({bool driver = false, bool ride = true}) {
+    final types = [
+      vehicleTypeJson(name: 'Taxi', icon: 'local_taxi'),
+      vehicleTypeJson(id: 2, name: 'Comfort', icon: 'directions_car'),
+      vehicleTypeJson(id: 3, name: 'XL', icon: 'airport_shuttle', seats: 6),
+    ];
+    final api = DemoApi._(
+      config: {
+        ...configJson(lms: null, languages: _languages),
+        'site': _site('Lamha Taxi'),
+        'branding': {'logo_url': null, 'primary_color': '#1C2541'},
+        'rides': {
+          ...ridesConfigJson(card: false),
+          'vehicle_types': types,
+          'map': {'tiles_url': null, 'attribution': null},
+        },
+        'taxi': {
+          'map': {
+            'provider': 'osm',
+            'tiles_url': demoTilesUrl,
+            'attribution': null,
+            'search': true,
+            'routes': true,
+          },
+          'live': null,
+          'nearby_every_seconds': 5,
+        },
+      },
+    );
+    Map<String, dynamic> taxi(
+      String key,
+      double lat,
+      double lng,
+      int heading,
+      int type,
+    ) => {
+      'driver_key': key,
+      'lat': lat,
+      'lng': lng,
+      'heading': heading,
+      'vehicle_type_id': type,
+    };
+    api.nearbyTaxis = [
+      taxi('d1', 30.0478, 31.2392, 90, 1),
+      taxi('d2', 30.0421, 31.2371, 0, 1),
+      taxi('d3', 30.0503, 31.2341, 180, 2),
+      taxi('d4', 30.0395, 31.2418, 270, 1),
+      taxi('d5', 30.0532, 31.2415, 90, 3),
+      taxi('d6', 30.0448, 31.2455, 0, 1),
+      taxi('d7', 30.0369, 31.2349, 90, 2),
+    ];
+    Map<String, dynamic> option(int id, String fare, int minutes) => {
+      'vehicle_type': types[id - 1],
+      'fare': fare,
+      'fare_formatted': 'E£$fare',
+      'available': true,
+      'pickup_minutes': minutes,
+    };
+    api.rideEstimate = {
+      ...rideEstimateJson(),
+      'distance_km': 6.4,
+      'minutes': 16,
+      'options': [
+        option(1, '85.00', 2),
+        option(2, '118.00', 4),
+        option(3, '160.00', 7),
+      ],
+    };
+    final accepted = rideJson(status: 'accepted');
+    api.rides = [
+      if (ride)
+        {
+          ...accepted,
+          'vehicle_type': {'id': 1, 'name': 'Taxi', 'icon': 'local_taxi'},
+          'pickup': {
+            'address': 'Tahrir Square',
+            'details': null,
+            'lat': 30.0444,
+            'lng': 31.2357,
+          },
+          'dropoff': {
+            'address': 'Cairo Tower, Zamalek',
+            'details': null,
+            'lat': 30.0459,
+            'lng': 31.2243,
+          },
+          'fare': '85.00',
+          'fare_formatted': 'E£85.00',
+          'driver': {
+            ...(accepted['driver'] as Map<String, dynamic>),
+            'name': 'Hany Saeed',
+            'rating': 4.9,
+            'car': {
+              'model': 'Compact sedan',
+              'color': 'White',
+              'plate': 'TX 4821',
+            },
+          },
+          'driver_location': {
+            'lat': 30.0479,
+            'lng': 31.2398,
+            'heading': 200,
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
+          },
+          'pickup_minutes': 3,
+        },
+    ];
+    api.taxiRoute = {
+      'distance_km': 2.1,
+      'minutes': 9,
+      'points': [
+        [30.0444, 31.2357],
+        [30.0437, 31.2330],
+        [30.0452, 31.2262],
+        [30.0459, 31.2243],
+      ],
+    };
+    if (driver) {
+      api.me = {
+        ...userJson(),
+        'roles': ['driver'],
+      };
+      api.driver = {
+        ...driverJson(online: true),
+        'name': 'Hany Saeed',
+        'vehicle_type': {'id': 1, 'name': 'Taxi'},
+        'car': {'model': 'Compact sedan', 'color': 'White', 'plate': 'TX 4821'},
+      };
+      final offer = driverRideJson(
+        id: 7,
+        status: 'searching',
+        offerExpiresAt: DateTime.now()
+            .add(const Duration(seconds: 14))
+            .toUtc()
+            .toIso8601String(),
+      );
+      api.driverOffers = [
+        {
+          ...offer,
+          'vehicle_type': {'id': 1, 'name': 'Taxi', 'icon': 'local_taxi'},
+          'pickup': {
+            'address': 'Talaat Harb Street',
+            'details': null,
+            'lat': 30.0489,
+            'lng': 31.2401,
+          },
+          'dropoff': {
+            'address': 'Garden City',
+            'details': null,
+            'lat': 30.0375,
+            'lng': 31.2315,
+          },
+        },
+      ];
+    }
+    return api;
+  }
+
+  /// 110.5 Yallapp Studio's school demo (Nakhla School): Lina's day, her
+  /// homework, and her class teacher taking attendance in the Classroom tab.
+  factory DemoApi.school() {
+    final api = DemoApi._(
+      config: {
+        ...configJson(lms: null, languages: _languages),
+        'site': _site('Nakhla School'),
+        'branding': {'logo_url': null, 'primary_color': '#1F4E79'},
+        'school': {
+          ...schoolConfigJson(),
+          'term': {
+            'name': 'Term 1',
+            'starts_on': '2026-09-20',
+            'ends_on': '2027-01-21',
+          },
+        },
+      },
+    );
+    Map<String, dynamic> student(int id, String name, String klass) => {
+      ...schoolStudentJson(id: id, name: name, className: klass),
+      'code': 'NS-${1000 + id * 7}',
+      'class_id': klass == 'Grade 5 A' ? 2 : 1,
+    };
+    final lina = student(11, 'Lina Haddad', 'Grade 5 A');
+    final adam = student(12, 'Adam Haddad', 'Grade 3 B');
+    api.me = {
+      ...userJson(),
+      'name': 'Rania Haddad',
+      'roles': ['student', 'parent', 'teacher'],
+    };
+    api.schoolMe = {
+      'name': 'Rania Haddad',
+      'roles': ['student', 'parent', 'teacher'],
+      'students': [lina, adam],
+    };
+    const day = [
+      ('08:00', '08:45', 'Maths', 'Mona Saleh', '12'),
+      ('08:50', '09:35', 'Arabic', 'Tarek Adel', '12'),
+      ('09:50', '10:35', 'English', 'Daniel Brooks', '12'),
+      ('10:40', '11:25', 'Science', 'Youssef Kamal', '21'),
+      ('11:45', '12:30', 'Art', 'Heba Mansour', '23'),
+    ];
+    api.timetable = {
+      'days': [
+        // Every day, so "today" always has its lessons in the screenshot.
+        for (var weekday = 1; weekday <= 7; weekday++)
+          {
+            'weekday': weekday,
+            'lessons': [
+              for (final (i, (starts, ends, subject, teacher, room))
+                  in day.indexed)
+                {
+                  'id': weekday * 10 + i,
+                  'starts': starts,
+                  'ends': ends,
+                  'subject': subject,
+                  'class_id': 2,
+                  'class_name': 'Grade 5 A',
+                  'teacher_name': teacher,
+                  'room': room,
+                },
+            ],
+          },
+      ],
+    };
+    String dueIn(int days) => DateTime.now()
+        .add(Duration(days: days))
+        .toIso8601String()
+        .substring(0, 10);
+    Map<String, dynamic> homework(
+      int id,
+      String subject,
+      String title,
+      String text,
+      int due,
+      String teacher, {
+      Map<String, dynamic>? submission,
+    }) => {
+      'id': id,
+      'subject': subject,
+      'title': title,
+      'text': text,
+      'due_on': dueIn(due),
+      'attachments': <Map<String, dynamic>>[],
+      'teacher_name': teacher,
+      'submission': submission,
+    };
+    api.homeworkDue = [
+      homework(
+        21,
+        'English',
+        'My weekend in five sentences',
+        'Write five sentences about your weekend. Use the past tense.',
+        1,
+        'Daniel Brooks',
+      ),
+      homework(
+        22,
+        'Science',
+        'Plant cells worksheet',
+        'Label the parts of the plant cell and write one line about what each part does.',
+        2,
+        'Youssef Kamal',
+      ),
+      homework(
+        23,
+        'Arabic',
+        'Read the story on pages 30 to 34',
+        'Read it aloud at home and answer the three questions at the end.',
+        3,
+        'Tarek Adel',
+      ),
+    ];
+    api.homeworkDone = [
+      homework(
+        20,
+        'Maths',
+        'Fractions: exercises 1 to 10',
+        'Page 42 of your book. Show how you worked out each one.',
+        -2,
+        'Mona Saleh',
+        submission: {
+          'text': "Done, it's in my book.",
+          'file': null,
+          'submitted_at': DateTime.now()
+              .subtract(const Duration(days: 3))
+              .toUtc()
+              .toIso8601String(),
+          'late': false,
+          'mark': '9/10',
+          'feedback': 'Very good. Look at number 7 again.',
+        },
+      ),
+    ];
+    api.studentFees = {
+      'currency': 'EGP',
+      'due_formatted': 'E£350.00',
+      'can_pay': true,
+      'items': [
+        {
+          ...schoolFeeJson(id: 41),
+          'title': 'Science museum trip',
+          'amount': '350.00',
+          'amount_formatted': 'E£350.00',
+          'due_on': dueIn(7),
+        },
+        {
+          ...schoolFeeJson(id: 42, status: 'paid'),
+          'title': 'Term 1 fees',
+          'amount': '45000.00',
+          'amount_formatted': 'E£45,000.00',
+          'paid_by': 'office',
+        },
+      ],
+    };
+    api.announcements = [
+      {
+        'id': 51,
+        'title': "Parents' evening on Thursday",
+        'body': "Teachers will meet parents in the classrooms from 17:00 to 19:30. Your child's timetable shows which room to go to.",
+        'audience': 'school',
+        'class_name': null,
+        'author': 'Nakhla School',
+        'created_at': DateTime.now()
+            .subtract(const Duration(hours: 2))
+            .toUtc()
+            .toIso8601String(),
+      },
+      {
+        'id': 52,
+        'title': 'Bring a ruler and a protractor',
+        'body': 'We start angles in Maths this week. Please bring a ruler and a protractor to every Maths lesson.',
+        'audience': 'class',
+        'class_name': 'Grade 5 A',
+        'author': 'Mona Saleh',
+        'created_at': DateTime.now()
+            .subtract(const Duration(hours: 3))
+            .toUtc()
+            .toIso8601String(),
+      },
+    ];
+    final names = [
+      'Lina Haddad',
+      'Omar Khalil',
+      'Farida Nabil',
+      'Ziad Samir',
+      'Malak Hosny',
+      'Yassin Fawzy',
+    ];
+    final marks = ['present', 'present', 'present', 'absent', 'late', null];
+    api.classAttendance = {
+      'class_id': 2,
+      'date': DateTime.now().toIso8601String().substring(0, 10),
+      'students': [
+        for (final (i, name) in names.indexed)
+          {
+            'student': student(11 + i * 2, name, 'Grade 5 A'),
+            'status': marks[i],
+            'note': null,
+          },
+      ],
+    };
+    api.classroomMe = {
+      'name': 'Mona Saleh',
+      'photo_url': null,
+      'classes': [
+        {
+          'id': 2,
+          'name': 'Grade 5 A',
+          'student_count': 6,
+          'subjects': [
+            {'id': 3, 'name': 'Maths'},
+          ],
+          'class_teacher': true,
+        },
+        {
+          'id': 3,
+          'name': 'Grade 5 B',
+          'student_count': 5,
+          'subjects': [
+            {'id': 3, 'name': 'Maths'},
+          ],
+          'class_teacher': false,
+        },
+      ],
+      'today': [
+        {
+          ...(api.timetable['days'] as List).first['lessons'].first
+              as Map<String, dynamic>,
+        },
+      ],
+    };
+    return api;
+  }
+
+  /// 110.5 Yallapp Studio's academy with many teachers (Rawaq Academy):
+  /// the teachers, a teacher's page, and a teacher's own tab.
+  factory DemoApi.teachers() {
+    final api = DemoApi._(
+      config: {
+        ...configJson(qna: true, orders: true, languages: _languages),
+        'site': _site('Rawaq Academy'),
+        'branding': {'logo_url': null, 'primary_color': '#2E5E4E'},
+        'vertical': 'instructors',
+        'instructors': {'applications': true, 'timezone': 'Africa/Cairo'},
+      },
+    );
+    Map<String, dynamic> teacher(
+      int id,
+      String name,
+      String headline,
+      List<String> subjects,
+      double rating,
+      int ratings,
+      int courses, {
+      bool featured = false,
+    }) => {
+      'id': id,
+      'name': name,
+      'avatar_url': null,
+      'headline': headline,
+      'subjects': subjects,
+      'rating': rating,
+      'rating_count': ratings,
+      'course_count': courses,
+      'featured': featured,
+    };
+    api.teachers = [
+      teacher(
+        1,
+        'Deniz Kaya',
+        'A product designer who has worked on banking and travel apps for ten years.',
+        ['UX design', 'Prototyping'],
+        4.9,
+        214,
+        1,
+        featured: true,
+      ),
+      teacher(
+        2,
+        'Hannah Clarke',
+        'An English teacher who has taught adults at work for twelve years.',
+        ['English', 'Speaking'],
+        4.8,
+        167,
+        1,
+        featured: true,
+      ),
+      teacher(
+        3,
+        'Omar Farouk',
+        'Ran a family shop for fifteen years before he started teaching.',
+        ['Excel', 'Small business'],
+        4.7,
+        302,
+        2,
+      ),
+      teacher(
+        4,
+        'Yasmin Adel',
+        'Plans social media for cafés, shops and clinics.',
+        ['Social media', 'Marketing'],
+        4.8,
+        96,
+        1,
+      ),
+      teacher(
+        5,
+        'Emre Aydın',
+        'A photographer who shoots for small shops and their websites.',
+        ['Photography', 'Product photos'],
+        4.6,
+        58,
+        1,
+      ),
+      teacher(
+        6,
+        'Mert Şahin',
+        'A data analyst who likes short code and clear charts.',
+        ['Python', 'Data analysis'],
+        4.9,
+        121,
+        1,
+      ),
+      teacher(
+        7,
+        'Salma Nasser',
+        'Teaches Arabic to beginners of every age.',
+        ['Arabic', 'Beginners'],
+        4.8,
+        74,
+        1,
+      ),
+    ];
+    api.teacherSubjects = [
+      'Arabic',
+      'Data analysis',
+      'English',
+      'Excel',
+      'Marketing',
+      'Photography',
+      'Python',
+      'UX design',
+    ];
+    api.teacher = {
+      ...api.teachers.first,
+      'bio': 'A product designer who has worked on banking and travel apps for ten years.\nTeaches design the way it is done at work: with real people and small steps.',
+      'student_count': 1240,
+      'follower_count': 386,
+      'following': true,
+      'can_review': false,
+      'my_review': null,
+      'courses': [
+        _course(
+          1,
+          'UX Design Fundamentals',
+          'Deniz Kaya',
+          'course-ux',
+          price: 'E£850',
+          lessons: 6,
+          rating: 4.9,
+          ratings: 214,
+        ),
+      ],
+    };
+    api.teacherReviews = [
+      teacherReviewJson(
+        text: 'Every lesson ends with something you can try the same day.',
+      ),
+      teacherReviewJson(
+        id: 2,
+        rating: 5,
+        text: 'Clear, patient and practical.',
+      ),
+    ];
+    api.me = {
+      ...userJson(),
+      'roles': ['teacher'],
+    };
+    api.teacherMe = {
+      'id': 2,
+      'name': 'Hannah Clarke',
+      'avatar_url': null,
+      'bio':
+          'An English teacher who has taught adults at work for twelve years.',
+      'subjects': ['English', 'Speaking'],
+      'share_percent': 70,
+      'rating': 4.8,
+      'rating_count': 167,
+      'follower_count': 214,
+      'student_count': 860,
+    };
+    api.teacherCourses = [
+      {
+        ...teacherCourseJson(
+          id: 30,
+          title: 'Everyday English Conversation',
+          stage: 'published',
+        ),
+        'description': 'Talk with more confidence at work and on your travels.',
+        'price': '620.00',
+        'price_formatted': 'E£620.00',
+        'student_count': 860,
+      },
+      {
+        ...teacherCourseJson(
+          id: 31,
+          title: 'English for Meetings',
+          stage: 'in_review',
+        ),
+        'description': 'Open a meeting, agree, disagree and sum up, politely.',
+        'price': '540.00',
+        'price_formatted': 'E£540.00',
+      },
+      {
+        ...teacherCourseJson(
+          id: 32,
+          title: 'Writing Clear Emails',
+          stage: 'draft',
+          withLesson: false,
+        ),
+        'description': 'Short emails people answer.',
+        'price': '0.00',
+        'price_formatted': 'Free',
+      },
+    ];
+    api.teacherQuestions = [
+      {
+        ...teacherQuestionJson(),
+        'course_id': 30,
+        'course_title': 'Everyday English Conversation',
+        'text': 'How do I say no politely to a colleague?',
+        'student_name': 'Karim',
+      },
+    ];
+    api.earnings = {
+      ...teacherEarningsJson(),
+      'sales': 14,
+      'sales_formatted': 'E£8,680.00',
+      'refunds_formatted': 'E£0.00',
+      'earned_formatted': 'E£6,076.00',
+      'courses': [
+        {
+          'id': 30,
+          'title': 'Everyday English Conversation',
+          'sales': 14,
+          'earned_formatted': 'E£6,076.00',
+        },
+      ],
+    };
+    return api;
+  }
+
+  // 110.5 What the school and teachers demos change of the fake API's answers.
+  Map<String, dynamic>? classroomMe;
+  List<Map<String, dynamic>>? announcements;
+  Map<String, dynamic>? earnings;
+
+  @override
+  Future<ClassroomMe> getClassroomMe() {
+    final me = classroomMe;
+    return me == null
+        ? super.getClassroomMe()
+        : Future.value(ClassroomMe.fromJson(me));
+  }
+
+  @override
+  Future<Paged<SchoolAnnouncement>> listSchoolAnnouncements({int page = 1}) {
+    final items = announcements;
+    if (items == null) return super.listSchoolAnnouncements(page: page);
+    return Future.value(
+      Paged.fromJson({
+        'items': items,
+        'page': 1,
+        'per_page': 20,
+        'total': items.length,
+        'total_pages': 1,
+      }, SchoolAnnouncement.fromJson),
+    );
+  }
+
+  @override
+  Future<TeacherEarnings> getTeacherEarnings(TeacherPeriod period) {
+    final e = earnings;
+    return e == null
+        ? super.getTeacherEarnings(period)
+        : Future.value(
+            TeacherEarnings.fromJson({...e, 'period': snake(period)}),
+          );
+  }
+
   final bool arabic;
 
   static const _languages = {
@@ -1640,6 +2322,7 @@ class DemoApi extends FakeApi {
         'quantity': 1,
         'image_url': demoImage('dish-burger'),
         'options': ['Double', 'Cheddar', 'Fries'],
+        'total': '₺560.00',
       },
       {
         'name': 'Fresh Orange Juice',
@@ -1647,6 +2330,7 @@ class DemoApi extends FakeApi {
         'quantity': 1,
         'image_url': demoImage('drink-juice'),
         'options': ['Small'],
+        'total': '₺120.00',
       },
     ],
     'fulfilment': {

@@ -42,7 +42,7 @@ const ERROR: Record<string, string> = {
  * Admin › Demo apps (roadmap 16): the apps on /demo (21 one per engine, and
  * the clinic; 26 the café; 27 the gym; 28 the events app), and apart from
  * them Yallapp Studio's on /demo/studio (105.2.7 delivery, food delivery,
- * rides).
+ * rides; 110.5 a live taxi app, a school and an academy with many teachers).
  */
 export default async function DemoAppsPage({ searchParams }: PageProps<"/admin/demos">) {
   await requireAdmin();

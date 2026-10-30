@@ -33,13 +33,19 @@ class TeacherCourseScreen extends ConsumerWidget {
     final id = courseId;
     if (id == null) {
       return Scaffold(
-        appBar: AppBar(title: Text(l10n.teacherNewCourse)),
+        appBar: AppBar(
+          leading: appBarBack(context),
+          title: Text(l10n.teacherNewCourse),
+        ),
         body: const _DetailsForm(),
       );
     }
     final async = ref.watch(teacherCourseProvider(id));
     return Scaffold(
-      appBar: AppBar(title: Text(async.value?.title ?? '')),
+      appBar: AppBar(
+        leading: appBarBack(context),
+        title: Text(async.value?.title ?? ''),
+      ),
       body: switch (async) {
         AsyncValue(value: final course?) => RefreshIndicator(
           onRefresh: () async => ref.invalidate(teacherCourseProvider(id)),

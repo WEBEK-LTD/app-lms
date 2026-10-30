@@ -8,6 +8,7 @@ import '../../../core/providers.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
+import '../../../core/widgets/buttons.dart';
 
 /// 104 A pin on the map: where the parcel starts, ends, or the courier is.
 enum MapPinKind { pickup, dropoff, courier }
@@ -155,7 +156,7 @@ class _MapPickerScreenState extends ConsumerState<MapPickerScreen> {
     final package = ref.watch(appEnvironmentProvider).build.androidPackage;
     final start = widget.start;
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
+      appBar: AppBar(leading: appBarBack(context), title: Text(widget.title)),
       body: Stack(
         children: [
           FlutterMap(

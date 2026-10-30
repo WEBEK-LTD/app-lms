@@ -1,6 +1,7 @@
 import type { DataStore } from "../data/store";
 import type { App, Courier, DeliverySettings, HostedUser, Shipment } from "../data/types";
 import { courierAppNameOf } from "./courier-app";
+import { taxiSettingsOf } from "../taxi/settings";
 import { stage } from "./service";
 
 /**
@@ -107,8 +108,8 @@ export async function createSampleJob(store: DataStore, app: App, settings: Deli
  * the first time it opens the driver's screens, a test driver.
  */
 export function reviewNotes(
-  app: Pick<App, "appName" | "hostedSettings" | "appType">,
-  settings: Pick<DeliverySettings, "courierApp" | "courierAppName" | "assignment">,
+  app: Pick<App, "appName" | "hostedSettings" | "appType"> & { vertical?: App["vertical"] },
+  settings: Pick<DeliverySettings, "courierApp" | "courierAppName" | "assignment"> & { taxi?: DeliverySettings["taxi"] },
 ): { customer: string; courier: string | null } | null {
   const who = reviewWho(app);
   if (!who) return null;
@@ -146,17 +147,31 @@ export function reviewNotes(
 
 /** 105.2 The reviewers' notes of a ride app: a rider, and a test driver whose offers are this account's rides only. */
 function rideReviewNotes(
-  app: Pick<App, "appName" | "appType">,
-  settings: Pick<DeliverySettings, "courierApp" | "courierAppName">,
+  app: Pick<App, "appName" | "appType"> & { vertical?: App["vertical"] },
+  settings: Pick<DeliverySettings, "courierApp" | "courierAppName"> & { taxi?: DeliverySettings["taxi"] },
   company: string,
   signIn: string,
 ): { customer: string; courier: string | null } {
-  const driverSteps = "Go online, accept the offer, then tap I've arrived, Start the ride (with the 4-digit code the rider's app shows, when there is one) and End the ride. The position is shared only while the driver is online and the screen is open.";
+  // 105.9.6 A live taxi app: the map with the free taxis, the countdown on the offer.
+  const taxi = app.vertical === "taxi";
+  const driverSteps = taxi
+    ? "Go online on the map, accept the offer before its countdown ends, then tap I've arrived, Start the ride (with the 4-digit code the rider's app shows, when there is one) and End the ride. The position is shared only while the driver is online and the screen is open."
+    : "Go online, accept the offer, then tap I've arrived, Start the ride (with the 4-digit code the rider's app shows, when there is one) and End the ride. The position is shared only while the driver is online and the screen is open.";
+  const map = taxiSettingsOf(settings);
+  const search = map.provider === "google" ? map.googleKeyEncrypted !== null : map.searchUrl !== null;
   const customer = [
-    `${company} is a ride service. ${signIn}`,
-    "Set the pickup (use your location or a maps link) and the drop-off, choose a vehicle type and request a ride paid in cash. The ride's screen shows the driver, the car and the code to tell the driver; My rides lists them all.",
+    taxi ? `${company} is a taxi service on a live map. ${signIn}` : `${company} is a ride service. ${signIn}`,
+    taxi
+      ? [
+          "The app opens on a map with the company's free taxis around you, moving as they drive (there may be none where the reviewer is, far from the company's drivers; that doesn't stop a request).",
+          search
+            ? "Tap Where to? and search for a place (the pickup is your location, or search for it too),"
+            : "Set the pickup (use your location or a maps link) and the drop-off,",
+          "choose a vehicle type to see its fare and ask for a taxi paid in cash. The ride's screen follows the driver on the map, with the car and the code to tell the driver; My rides lists them all.",
+        ].join(" ")
+      : "Set the pickup (use your location or a maps link) and the drop-off, choose a vehicle type and request a ride paid in cash. The ride's screen shows the driver, the car and the code to tell the driver; My rides lists them all.",
     settings.courierApp === "same"
-      ? `The same account is also a test driver: Account › Driver mode shows the driver's screens, and this account's rides are offered to it only, wherever the reviewer is. ${driverSteps}`
+      ? `The same account is also a test driver${taxi ? " that riders never see on the map" : ""}: Account › Driver mode shows the driver's screens, and this account's rides are offered to it only, wherever the reviewer is. ${driverSteps}`
       : null,
   ]
     .filter(Boolean)

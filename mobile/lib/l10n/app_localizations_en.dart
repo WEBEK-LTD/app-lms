@@ -299,6 +299,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tap the heart on a listing to save it here.';
 
   @override
+  String get browseListings => 'Browse listings';
+
+  @override
   String get favoritesSignInTitle => 'Save the homes you like';
 
   @override
@@ -2431,6 +2434,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tap the bookmark on an article to keep it here and read it later, even without a connection.';
 
   @override
+  String get browseArticles => 'Browse articles';
+
+  @override
   String get articleSave => 'Save article';
 
   @override
@@ -2669,6 +2675,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get classesNoneMessage => 'Pick another day to see its classes.';
+
+  @override
+  String get classesNextClass => 'See the next class';
 
   @override
   String get classesNoTimetable => 'No classes yet';
@@ -3016,6 +3025,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get noTicketsMessage =>
       'Tickets you get show here, with a QR code for the door.';
+
+  @override
+  String get browseEvents => 'Browse events';
 
   @override
   String get ticketsOfflineNote =>

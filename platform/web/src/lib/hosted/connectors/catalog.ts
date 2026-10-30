@@ -644,6 +644,8 @@ export class CatalogConnector implements Connector {
         quantity: l.quantity,
         image_url: l.imageAssetId ? this.deps.assetUrl(l.imageAssetId) : null,
         ...(l.options?.length ? { options: l.options.map((o) => o.name) } : {}),
+        // 110 What the line comes to.
+        total: formatCents(l.unitCents * l.quantity, order.currency),
       })),
       // 26 A restaurant's order: how it's collected and where it is.
       ...(order.fulfilment

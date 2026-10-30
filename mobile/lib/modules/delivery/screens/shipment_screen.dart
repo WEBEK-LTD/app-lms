@@ -127,6 +127,7 @@ class _ShipmentScreenState extends ConsumerState<ShipmentScreen> {
     final shipment = async.value;
     return Scaffold(
       appBar: AppBar(
+        leading: appBarBack(context),
         title: Text(
           shipment == null
               ? l10n.tabShipments

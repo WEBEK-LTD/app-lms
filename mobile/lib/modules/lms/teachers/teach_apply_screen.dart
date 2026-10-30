@@ -76,7 +76,7 @@ class _TeachApplyScreenState extends ConsumerState<TeachApplyScreen> {
     final l10n = context.l10n;
     final async = ref.watch(teacherApplicationProvider);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.teachHere)),
+      appBar: AppBar(leading: appBarBack(context), title: Text(l10n.teachHere)),
       body: switch (async) {
         AsyncValue(error: final e?) => ErrorView(
           error: e,

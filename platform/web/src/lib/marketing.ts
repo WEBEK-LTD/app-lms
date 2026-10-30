@@ -69,6 +69,16 @@ export const APP_SCREENS = [
   "rides-where",
   "rides-ride",
   "rides-driver",
+  // 110.5 And a live taxi app, a school and an academy with many teachers.
+  "taxi-map",
+  "taxi-ride",
+  "taxi-driver",
+  "school-today",
+  "school-homework",
+  "school-classroom",
+  "teachers-list",
+  "teachers-teacher",
+  "teachers-desk",
 ] as const;
 export type AppScreen = (typeof APP_SCREENS)[number];
 
@@ -119,6 +129,15 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
   "rides-where": "Asking for a ride: each car type with its fare",
   "rides-ride": "A ride on its way: the driver, the car and the code to tell the driver",
   "rides-driver": "A driver online, with a ride offered and the seconds left to take it",
+  "taxi-map": "A live taxi app opening on the map, with the free taxis around the rider",
+  "taxi-ride": "The rider following their taxi on the map, with the driver, the car and the code",
+  "taxi-driver": "A taxi driver online on the map, with a ride offered and its countdown",
+  "school-today": "A school app's day: today's lessons, homework due and the school's news",
+  "school-homework": "A student's homework, with what is due and the teacher's marks",
+  "school-classroom": "A teacher taking a class's attendance in the school app",
+  "teachers-list": "An academy's teachers, with their subjects and the featured ones first",
+  "teachers-teacher": "A teacher's page with their profile, courses and followers",
+  "teachers-desk": "A teacher's own tab: their courses with their stage, questions and earnings",
   "studio-editor": "The Yallapp Studio editor: elements on the left, the page on the phone, its settings on the right",
   "studio-home": "Yallapp Studio's home with the account's projects",
   "studio-project": "A Studio project's dashboard",

@@ -134,17 +134,35 @@ leaves the cells riders look in). Without a live database the app asks
 Yallapp every five seconds. The dashboard's Live map shows the company's
 drivers (free, on a ride), the rides waiting at their pickup and the rides
 going on now, updated every five seconds. Live taxis are the Studio plan
-feature `taxi`. Still to do: 105.9.6 (Studio designs, the demo app, the
-store reviewers' notes). Checks: platform unit tests, tsc, eslint, e2e of
-the dashboard, flutter analyze and widget tests.
+feature `taxi`. Its demo app (Lamha Taxi, 110.5) and the store reviewers'
+notes are done: Publishing walks the reviewers through the map, asking for
+a taxi and, as the test driver riders never see on the map, taking it.
+Still to do in 105.9.6: the Studio designs. Checks: platform unit tests,
+tsc, eslint, e2e of the dashboard, flutter analyze and widget tests.
 
 Studio has its own demo apps on `/demo/studio`, apart from the regular
-demos on `/demo`: Sahm Express (delivery), Sofra Eats (food delivery) and
-Masar Rides (ride hailing). The team creates them with the other demos in
-Admin › Demo apps and picks their builds there; until then the page shows
-"Coming soon". Visitors sign in with the same demo number and try both
-sides: the customer, then the courier, the restaurant's staff or the
-driver. The daily clean-up removes their shipments, orders and rides.
+demos on `/demo`: Sahm Express (delivery), Sofra Eats (food delivery),
+Masar Rides (ride hailing) and (110.5) Lamha Taxi (live taxi on the map),
+Nakhla School (school) and Rawaq Academy (an academy with many teachers).
+The team creates them with the other demos in Admin › Demo apps and picks
+their builds there; until then the page shows "Coming soon". Visitors sign
+in with the same demo number and try both sides: the customer, then the
+courier, the restaurant's staff or the driver. In Nakhla School the demo
+number is Lina (a student in Grade 5 A), her mother Rania (also Adam's, in
+Grade 3 B) and Ms. Mona, Lina's class teacher, so what the visitor gives as
+the teacher reaches Lina at once; the school day (homework, scores,
+attendance, news, fees) is dated from today and made again by the daily
+job. In Rawaq Academy seven teachers each have their published courses,
+and the demo number is one more teacher ("Demo teacher", which students
+never see) whose Teacher tab makes a course and sends it for review. In
+Lamha Taxi the demo's eight drivers (never online, never offered a ride)
+drive up and down streets around wherever the rider asks, worked out from
+the time; the map is the platform's (Admin › Settings › Maps), and without
+one the app shows the plain ride screens; there is no live database, so the
+app asks Yallapp every five seconds. The daily clean-up removes visitors'
+shipments, orders and rides, the teachers they followed and rated, the
+courses they made as the demo teacher and what they wrote as the school's
+teacher.
 
 Phase 105.4 (schools) has its core: a new Studio project type `school`
 (an app type of its own, on Studio's plans as the feature `school`). The
@@ -272,6 +290,10 @@ test environment:
 - 110.2 A sample category the owner renamed is still a sample: Remove all
   samples deletes it when none of the owner's entries is in it. A gym's
   sample classes are bookable services (no sample timetable).
+- 110.5 Files visitors upload in the Studio demos (a demo teacher's lesson
+  videos and PDFs, homework handed in with a photo) stay in the demo app's
+  Media library: the daily job doesn't remove them. Lamha Taxi shows its
+  live map only once Admin › Settings › Maps has tiles.
 
 ## Deployment
 

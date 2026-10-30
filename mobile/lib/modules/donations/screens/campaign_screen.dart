@@ -60,14 +60,31 @@ class CampaignScreen extends ConsumerWidget {
   }
 }
 
-class _CampaignBody extends ConsumerWidget {
+class _CampaignBody extends ConsumerStatefulWidget {
   const _CampaignBody({required this.campaign, required this.onRefresh});
 
   final Campaign campaign;
   final Future<void> Function() onRefresh;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_CampaignBody> createState() => _CampaignBodyState();
+}
+
+class _CampaignBodyState extends ConsumerState<_CampaignBody> {
+  /// 110 The donation being written: kept here, so the form scrolling out
+  /// of view loses nothing and the pinned button reads it.
+  late final _draft = DonationDraft(widget.campaign);
+
+  @override
+  void dispose() {
+    _draft.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final campaign = widget.campaign;
+    final onRefresh = widget.onRefresh;
     final p = context.palette;
     final l10n = context.l10n;
     final env = ref.watch(appEnvironmentProvider);
@@ -112,7 +129,7 @@ class _CampaignBody extends ConsumerWidget {
     );
 
     final html = campaign.html ?? '';
-    return RefreshIndicator(
+    final list = RefreshIndicator(
       onRefresh: onRefresh,
       child: ListView(
         key: const ValueKey('campaign'),
@@ -156,7 +173,7 @@ class _CampaignBody extends ConsumerWidget {
                 if (!campaign.isOpen)
                   _Note(text: l10n.donateClosed)
                 else if (canGive)
-                  DonationForm(campaign: campaign),
+                  DonationForm(campaign: campaign, draft: _draft),
               ],
             ),
           ),
@@ -197,6 +214,16 @@ class _CampaignBody extends ConsumerWidget {
         ],
       ),
     );
+    // 110 The Donate button stays at the bottom, as other apps' main
+    // buttons do.
+    if (!campaign.isOpen || !canGive) return list;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(child: list),
+        DonateBar(campaign: campaign, draft: _draft),
+      ],
+    );
   }
 }
 
@@ -232,144 +259,63 @@ class _Note extends StatelessWidget {
   }
 }
 
-/// Choosing an amount and giving. The donation page opens in the system
-/// browser on iPhone (App Store guideline 3.2.2), never inside the app, and
-/// inside the app on Android when the server says so.
-class DonationForm extends ConsumerStatefulWidget {
-  const DonationForm({super.key, required this.campaign});
+/// 110 What the donor chose: the amount, once or monthly, anonymous and a
+/// message. [DonationForm] edits it; [DonateBar] gives it.
+class DonationDraft extends ChangeNotifier {
+  DonationDraft(Campaign campaign) {
+    final presets = campaign.presetAmounts;
+    if (presets.isNotEmpty) preset = presets[presets.length > 1 ? 1 : 0];
+  }
 
-  final Campaign campaign;
+  final custom = TextEditingController();
+  final message = TextEditingController();
+  String? preset;
+  bool monthly = false;
+  bool anonymous = false;
+  bool busy = false;
+  String? error;
 
-  @override
-  ConsumerState<DonationForm> createState() => _DonationFormState();
-}
+  /// The amount chosen or typed, as a decimal string (null when unreadable).
+  String? get amount {
+    final typed = custom.text.trim();
+    return typed.isNotEmpty ? parseAmount(typed) : preset;
+  }
 
-class _DonationFormState extends ConsumerState<DonationForm> {
-  final _custom = TextEditingController();
-  final _message = TextEditingController();
-  String? _preset;
-  bool _monthly = false;
-  bool _anonymous = false;
-  bool _busy = false;
-  String? _error;
-
-  @override
-  void initState() {
-    super.initState();
-    final presets = widget.campaign.presetAmounts;
-    if (presets.isNotEmpty) _preset = presets[presets.length > 1 ? 1 : 0];
+  void update(VoidCallback change) {
+    change();
+    notifyListeners();
   }
 
   @override
   void dispose() {
-    _custom.dispose();
-    _message.dispose();
+    custom.dispose();
+    message.dispose();
     super.dispose();
   }
+}
 
-  Campaign get c => widget.campaign;
+/// Choosing an amount: presets, an amount of one's own, once or monthly,
+/// anonymous and a message. The button is [DonateBar], pinned below.
+class DonationForm extends ConsumerWidget {
+  const DonationForm({super.key, required this.campaign, required this.draft});
 
-  /// The chosen amount as a decimal string, or null with the reason shown.
-  String? _amount() {
-    final l10n = context.l10n;
-    final typed = _custom.text.trim();
-    final amount = typed.isNotEmpty ? parseAmount(typed) : _preset;
-    if (amount == null) {
-      setState(() => _error = l10n.donateAmountInvalid);
-      return null;
-    }
-    final cents = centsOf(amount);
-    if (cents < centsOf(c.minAmount)) {
-      setState(
-        () => _error = l10n.donateMinimum(
-          isolate(formatAmount(c.minAmount, c.currency)),
-        ),
-      );
-      return null;
-    }
-    if (!c.allowCustomAmount &&
-        !c.presetAmounts.any((p) => centsOf(p) == cents)) {
-      setState(() => _error = l10n.donateChooseOne);
-      return null;
-    }
-    setState(() => _error = null);
-    return amount;
-  }
-
-  Future<void> _donate() async {
-    final amount = _amount();
-    if (amount == null) return;
-    final l10n = context.l10n;
-    final env = ref.read(appEnvironmentProvider);
-    setState(() => _busy = true);
-    try {
-      final link = await ref
-          .read(yallappApiProvider)
-          .createDonationLink(
-            DonationRequest(
-              campaignId: c.id,
-              amount: amount,
-              monthly: _monthly,
-              anonymous: _anonymous,
-              message: _message.text,
-            ),
-          );
-      if (!mounted) return;
-      // 29 App Store guideline 3.2.2: an iPhone app never takes a donation
-      // itself, whatever the server says; the system browser does.
-      final inApp = !env.isIos && link.openIn == CheckoutTarget.inApp;
-      if (inApp) {
-        final done = await context.push<bool>(
-          Paths.web,
-          extra: WebPageArgs(
-            url: link.url,
-            title: l10n.donateTitle,
-            completesOn: isDonationDone,
-          ),
-        );
-        if (done == true && mounted) {
-          ref
-            ..invalidate(campaignProvider(c.id))
-            ..invalidate(myDonationsProvider)
-            ..invalidate(campaignsProvider);
-          showMessage(context, l10n.donateThanks);
-          // 46 A good moment to ask for a rating.
-          reportGoodMoment(ref, GoodMoment.donationMade);
-        }
-      } else {
-        final opened = await ref.read(openExternalProvider)(link.url);
-        if (!mounted) return;
-        if (!opened) {
-          showMessage(context, l10n.donateFailed);
-        } else {
-          // Back from the browser, the campaign and the history are fresh.
-          ref
-            ..invalidate(campaignProvider(c.id))
-            ..invalidate(myDonationsProvider);
-        }
-      }
-    } on ApiException catch (e) {
-      if (mounted) showMessage(context, e.message);
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
+  final Campaign campaign;
+  final DonationDraft draft;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) => ListenableBuilder(
+    listenable: draft,
+    builder: (context, _) => _form(context, ref),
+  );
+
+  Widget _form(BuildContext context, WidgetRef ref) {
+    final c = campaign;
     final p = context.palette;
     final l10n = context.l10n;
     final env = ref.watch(appEnvironmentProvider);
     final config = ref.watch(donationsConfigProvider);
     final signedIn = ref.watch(authControllerProvider).isSignedIn;
-    final typed = _custom.text.trim();
-    final amount = typed.isNotEmpty ? parseAmount(typed) : _preset;
-    final label = env.isIos
-        ? l10n.donateOnWebsite
-        : amount == null
-        ? l10n.donateTitle
-        : l10n.donateButton(isolate(formatAmount(amount, c.currency)));
-
+    final typed = draft.custom.text.trim();
     return Column(
       key: const ValueKey('donation-form'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -391,11 +337,11 @@ class _DonationFormState extends ConsumerState<DonationForm> {
               for (final preset in c.presetAmounts)
                 PillChip(
                   label: formatAmount(preset, c.currency),
-                  selected: typed.isEmpty && _preset == preset,
-                  onTap: () => setState(() {
-                    _preset = preset;
-                    _custom.clear();
-                    _error = null;
+                  selected: typed.isEmpty && draft.preset == preset,
+                  onTap: () => draft.update(() {
+                    draft.preset = preset;
+                    draft.custom.clear();
+                    draft.error = null;
                   }),
                 ),
             ],
@@ -404,35 +350,35 @@ class _DonationFormState extends ConsumerState<DonationForm> {
           const SizedBox(height: 12),
           TextField(
             key: const ValueKey('donation-amount'),
-            controller: _custom,
+            controller: draft.custom,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            onChanged: (_) => setState(() => _error = null),
+            onChanged: (_) => draft.update(() => draft.error = null),
             decoration: InputDecoration(
               labelText: l10n.donateOtherAmount,
               helperText: l10n.donateMinimum(
                 isolate(formatAmount(c.minAmount, c.currency)),
               ),
-              errorText: _error,
+              errorText: draft.error,
             ),
           ),
-        ] else if (_error != null) ...[
+        ] else if (draft.error != null) ...[
           const SizedBox(height: 8),
-          Text(_error!, style: TextStyle(fontSize: 13, color: p.danger)),
+          Text(draft.error!, style: TextStyle(fontSize: 13, color: p.danger)),
         ],
         if (config.monthly) ...[
           const SizedBox(height: 12),
           SegmentedTabs(
             labels: [l10n.donateOnce, l10n.donateMonthly],
-            selected: _monthly ? 1 : 0,
+            selected: draft.monthly ? 1 : 0,
             radio: true,
-            onChanged: (i) => setState(() => _monthly = i == 1),
+            onChanged: (i) => draft.update(() => draft.monthly = i == 1),
           ),
         ],
         const SizedBox(height: 8),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
-          value: _anonymous,
-          onChanged: (v) => setState(() => _anonymous = v),
+          value: draft.anonymous,
+          onChanged: (v) => draft.update(() => draft.anonymous = v),
           title: Text(
             l10n.donateAnonymous,
             style: TextStyle(fontSize: 15, color: p.text),
@@ -444,7 +390,7 @@ class _DonationFormState extends ConsumerState<DonationForm> {
         ),
         TextField(
           key: const ValueKey('donation-message'),
-          controller: _message,
+          controller: draft.message,
           maxLength: 280,
           minLines: 1,
           maxLines: 3,
@@ -454,17 +400,10 @@ class _DonationFormState extends ConsumerState<DonationForm> {
             hintText: l10n.donateMessageHint,
           ),
         ),
-        const SizedBox(height: 8),
-        PrimaryButton(
-          key: const ValueKey('donate-button'),
-          label: label,
-          icon: env.isIos ? AppIcons.openInNew : AppIcons.donate,
-          loading: _busy,
-          onPressed: _donate,
-        ),
-        const SizedBox(height: 10),
-        if (env.isIos)
+        if (env.isIos) ...[
+          const SizedBox(height: 8),
           _Note(text: l10n.donateOnWebsiteNote, icon: AppIcons.openInNew),
+        ],
         if (!signedIn) ...[
           const SizedBox(height: 8),
           Text(
@@ -473,6 +412,132 @@ class _DonationFormState extends ConsumerState<DonationForm> {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// 110 The Donate button, pinned at the bottom of the campaign. The donation
+/// page opens in the system browser on iPhone (App Store guideline 3.2.2),
+/// never inside the app, and inside the app on Android when the server
+/// says so.
+class DonateBar extends ConsumerWidget {
+  const DonateBar({super.key, required this.campaign, required this.draft});
+
+  final Campaign campaign;
+  final DonationDraft draft;
+
+  /// The chosen amount as a decimal string, or null with the reason shown.
+  String? _amount(BuildContext context) {
+    final c = campaign;
+    final l10n = context.l10n;
+    final amount = draft.amount;
+    if (amount == null) {
+      draft.update(() => draft.error = l10n.donateAmountInvalid);
+      return null;
+    }
+    final cents = centsOf(amount);
+    if (cents < centsOf(c.minAmount)) {
+      draft.update(
+        () => draft.error = l10n.donateMinimum(
+          isolate(formatAmount(c.minAmount, c.currency)),
+        ),
+      );
+      return null;
+    }
+    if (!c.allowCustomAmount &&
+        !c.presetAmounts.any((p) => centsOf(p) == cents)) {
+      draft.update(() => draft.error = l10n.donateChooseOne);
+      return null;
+    }
+    draft.update(() => draft.error = null);
+    return amount;
+  }
+
+  Future<void> _donate(BuildContext context, WidgetRef ref) async {
+    final c = campaign;
+    final amount = _amount(context);
+    if (amount == null) return;
+    final l10n = context.l10n;
+    final env = ref.read(appEnvironmentProvider);
+    draft.update(() => draft.busy = true);
+    try {
+      final link = await ref
+          .read(yallappApiProvider)
+          .createDonationLink(
+            DonationRequest(
+              campaignId: c.id,
+              amount: amount,
+              monthly: draft.monthly,
+              anonymous: draft.anonymous,
+              message: draft.message.text,
+            ),
+          );
+      if (!context.mounted) return;
+      // 29 App Store guideline 3.2.2: an iPhone app never takes a donation
+      // itself, whatever the server says; the system browser does.
+      final inApp = !env.isIos && link.openIn == CheckoutTarget.inApp;
+      if (inApp) {
+        final done = await context.push<bool>(
+          Paths.web,
+          extra: WebPageArgs(
+            url: link.url,
+            title: l10n.donateTitle,
+            completesOn: isDonationDone,
+          ),
+        );
+        if (done == true && context.mounted) {
+          ref
+            ..invalidate(campaignProvider(c.id))
+            ..invalidate(myDonationsProvider)
+            ..invalidate(campaignsProvider);
+          showMessage(context, l10n.donateThanks);
+          // 46 A good moment to ask for a rating.
+          reportGoodMoment(ref, GoodMoment.donationMade);
+        }
+      } else {
+        final opened = await ref.read(openExternalProvider)(link.url);
+        if (!context.mounted) return;
+        if (!opened) {
+          showMessage(context, l10n.donateFailed);
+        } else {
+          // Back from the browser, the campaign and the history are fresh.
+          ref
+            ..invalidate(campaignProvider(c.id))
+            ..invalidate(myDonationsProvider);
+        }
+      }
+    } on ApiException catch (e) {
+      if (context.mounted) showMessage(context, e.message);
+    } finally {
+      if (context.mounted) draft.update(() => draft.busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final env = ref.watch(appEnvironmentProvider);
+    return BottomActionBar(
+      child: ListenableBuilder(
+        listenable: draft,
+        builder: (context, _) {
+          final amount = draft.amount;
+          final label = env.isIos
+              ? l10n.donateOnWebsite
+              : amount == null
+              ? l10n.donateTitle
+              : l10n.donateButton(
+                  isolate(formatAmount(amount, campaign.currency)),
+                );
+          return PrimaryButton(
+            key: const ValueKey('donate-button'),
+            label: label,
+            icon: env.isIos ? AppIcons.openInNew : AppIcons.donate,
+            loading: draft.busy,
+            onPressed: () => _donate(context, ref),
+          );
+        },
+      ),
     );
   }
 }

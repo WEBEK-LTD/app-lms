@@ -51,10 +51,12 @@ test("the team creates the demo apps from the admin", async () => {
   await admin.getByRole("button", { name: /Create Studio's demo apps|Refresh all of Studio's demo apps/ }).click();
   await expect(admin.getByRole("status")).toContainText("Yallapp Studio's demos are created and up to date.", { timeout: 30_000 });
   await expect(admin).toHaveURL(/family=studio/);
-  for (const name of ["Sahm Express", "Sofra Eats", "Masar Rides"]) {
+  // 110.5 And the live taxi app, the school and the academy with many teachers.
+  for (const name of ["Sahm Express", "Sofra Eats", "Masar Rides", "Lamha Taxi", "Nakhla School", "Rawaq Academy"]) {
     await expect(admin.getByRole("heading", { name, level: 2 })).toBeVisible();
     appIds[name] = await admin.locator(`form:has(button:has-text("Start a build of ${name}")) input[name="appId"]`).inputValue();
   }
+  await expect(admin.getByText("Live taxi on the map demo")).toBeVisible();
   await expect(admin.getByRole("heading", { name: "Lale Flowers", level: 2 })).toHaveCount(0);
   await admin.getByRole("tab", { name: "Regular apps" }).click();
   // Again: updated, not duplicated.
@@ -117,7 +119,7 @@ test("the daily job cleans the demo apps and keeps what's newer than a day", asy
   const daily = await request.post("/api/internal/daily", { headers: { authorization: `Bearer ${E2E.internalJobSecret}` } });
   expect(daily.status()).toBe(200);
   const report = await daily.json();
-  expect(report.demo).toMatchObject({ apps: 13, deleted: 0 });
+  expect(report.demo).toMatchObject({ apps: 16, deleted: 0 });
   // 27 The gym demo's timetable is kept 8 weeks ahead.
   expect(report.classes.apps).toBeGreaterThanOrEqual(1);
   const orders = await (await request.get(`/api/app/${appIds["Lale Flowers"]}/me/orders`, { headers: { authorization: `Bearer ${token}` } })).json();
@@ -148,14 +150,49 @@ test("/demo/studio shows Studio's own demos apart from the regular ones", async 
   await page.goto("/demo/studio");
   await expect(page.getByTestId("demo-phone")).toHaveText(DEMO.display);
   await expect(page.getByTestId("demo-code")).toHaveText(DEMO.code);
-  for (const name of ["Sahm Express", "Sofra Eats", "Masar Rides"]) await expect(page.getByRole("heading", { name, level: 2 })).toBeVisible();
-  await expect(page.getByText("Coming soon", { exact: true })).toHaveCount(3);
+  for (const name of ["Sahm Express", "Sofra Eats", "Masar Rides", "Lamha Taxi", "Nakhla School", "Rawaq Academy"]) await expect(page.getByRole("heading", { name, level: 2 })).toBeVisible();
+  await expect(page.getByText("Coming soon", { exact: true })).toHaveCount(6);
+  // 110.5 What to try as each of the demo number's people.
+  await expect(page.locator("#taxi")).toContainText("Account › Driver mode");
+  await expect(page.locator("#school")).toContainText("In the Classroom tab");
+  await expect(page.locator("#teachers")).toContainText("In the Teacher tab");
   // The regular demo page keeps its ten.
   await page.goto("/demo");
   await expect(page.getByRole("heading", { name: "Masar Rides", level: 2 })).toHaveCount(0);
   const download = await page.request.get("/demo/download/rides", { maxRedirects: 0 });
   expect(download.status()).toBe(303);
   expect(download.headers().location).toContain("/demo/studio?download=unavailable");
+  for (const slug of ["taxi", "school", "teachers"]) {
+    const other = await page.request.get(`/demo/download/${slug}`, { maxRedirects: 0 });
+    expect(other.headers().location).toContain(`/demo/studio?download=unavailable#${slug}`);
+  }
+  // In Arabic, the new cards in Arabic.
+  await page.goto("/ar/demo/studio");
+  await expect(page.getByRole("heading", { name: "Lamha Taxi", level: 2 })).toBeVisible();
+  await expect(page.locator("#school")).toContainText("تبويب «الفصل»");
+});
+
+test("110.5 the Studio demos' people: the visitor is a student, a parent and a teacher; taxis drive around them", async ({ request }) => {
+  const signIn = async (appId: string, from: number) => {
+    const requested = await demoRequest(request, appId, DEMO.number, DEMO.countryCode, from);
+    const { request_id } = await requested.json();
+    const verified = await request.post(`/api/app/${appId}/auth/otp/verify`, { data: { request_id, code: DEMO.code, device: DEVICE }, headers: ip(from) });
+    expect(verified.status()).toBe(200);
+    return (await verified.json()) as { access_token: string; user: { roles: string[] } };
+  };
+  const auth = (token: string) => ({ authorization: `Bearer ${token}` });
+  const school = await signIn(appIds["Nakhla School"]!, 40);
+  expect(school.user.roles).toEqual(["student", "parent", "teacher"]);
+  const me = await (await request.get(`/api/app/${appIds["Nakhla School"]}/school/me`, { headers: auth(school.access_token) })).json();
+  expect(me.students.map((s: { name: string }) => s.name)).toEqual(["Lina Haddad", "Adam Haddad"]);
+  const academy = await signIn(appIds["Rawaq Academy"]!, 41);
+  expect(academy.user.roles).toEqual(["teacher"]);
+  const teachers = await (await request.get(`/api/app/${appIds["Rawaq Academy"]}/teachers`)).json();
+  expect(teachers.items).toHaveLength(7);
+  const taxi = await signIn(appIds["Lamha Taxi"]!, 42);
+  expect(taxi.user.roles).toEqual(["driver"]);
+  const near = await (await request.get(`/api/app/${appIds["Lamha Taxi"]}/taxi/nearby?lat=41.0082&lng=28.9784`, { headers: auth(taxi.access_token) })).json();
+  expect(near.items).toHaveLength(8);
 });
 
 // A full build and the published download are unit tested (tests/unit/demo-apps.test.ts):

@@ -10,6 +10,22 @@ import type { Lang } from "@/i18n/config";
  * its code names left out (tests/unit/phase62.test.ts lists those missing).
  */
 export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: string }> = {
+  "Button on the empty My tickets list of an Events app: opens the events.": {
+    ar: "زر في قائمة «تذاكري» الفارغة في تطبيق الفعاليات: يفتح الفعاليات.",
+    tr: "Etkinlik uygulamasında boş Biletlerim listesindeki düğme: etkinlikleri açar.",
+  },
+  "Button on the empty Saved list of a News app: opens the articles.": {
+    ar: "زر في قائمة المحفوظات الفارغة في تطبيق الأخبار: يفتح المقالات.",
+    tr: "Haber uygulamasında boş Kaydedilenler listesindeki düğme: makaleleri açar.",
+  },
+  "Button on the empty Favorites and Messages lists of a Real estate app: opens the search.": {
+    ar: "زر في قائمتي المفضلة والرسائل الفارغتين في تطبيق العقارات: يفتح البحث.",
+    tr: "Emlak uygulamasında boş Favoriler ve Mesajlar listelerindeki düğme: aramayı açar.",
+  },
+  "Button on a day without classes in the timetable: opens the next day of the week with a class.": {
+    ar: "زر في يوم بلا حصص في الجدول: يفتح اليوم التالي من الأسبوع الذي فيه حصة.",
+    tr: "Ders programında dersi olmayan bir gündeki düğme: haftanın ders olan bir sonraki gününü açar.",
+  },
   "101 The search button and search field in the header of the pages in the bottom tabs.": {
     en: "The search button and search field at the top of the pages in the bottom tabs.",
     ar: "زر البحث وخانة البحث أعلى الصفحات في الأزرار السفلية.",

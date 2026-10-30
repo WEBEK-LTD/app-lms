@@ -190,11 +190,27 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
             .where((c) => c.localDate == isoDate(_day))
             .toList();
         if (today.isEmpty) {
+          // 110 The next day of the week with a class, else the next week.
+          final next = [
+            for (final d in days)
+              if (d.isAfter(_day) &&
+                  list.items.any((c) => c.localDate == isoDate(d)))
+                d,
+          ].firstOrNull;
+          final canMove = addDays(_weekStart, 7).difference(_today).inDays < 56;
           return MessageView(
             icon: AppIcons.calendar,
             title: context.l10n.classesNone,
             message: context.l10n.classesNoneMessage,
             compact: true,
+            actionLabel: next != null
+                ? context.l10n.classesNextClass
+                : canMove
+                ? context.l10n.nextWeek
+                : null,
+            onAction: next != null
+                ? () => setState(() => _day = next)
+                : () => _moveWeek(1),
           );
         }
         return RefreshIndicator(
