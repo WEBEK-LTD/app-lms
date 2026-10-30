@@ -2,6 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element -- previews of uploaded files served by our own asset route */
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { UpgradeHint } from "@/components/upgrade";
 import type { Plan } from "@/lib/plans";
 import { useActionState, useRef, useState, useTransition, type ReactNode } from "react";
@@ -35,6 +36,23 @@ import { initialFormState, type FormState } from "@/lib/forms";
 import type { Appearance, LayoutContent } from "@/lib/pages/types";
 import { richText } from "@/i18n/rich";
 import { DesignThumb } from "../pages/preview";
+import { studioPathFor } from "@/lib/studio/section";
+
+/**
+ * 111 A dashboard address as this page opens it: in a Studio project's frame
+ * (`/studio/project/setup`), Studio's own page; null for a page Studio
+ * doesn't have (the account's App type).
+ */
+function useInFrame(): (href: string) => string | null {
+  const studio = /^\/(?:ar\/|tr\/)?studio\//.test(usePathname() ?? "");
+  return (href) => (studio ? studioPathFor(href) : href);
+}
+
+/** 111 The same, with the dashboard's address for a page Studio doesn't have. */
+function useHere(): (href: string) => string {
+  const inFrame = useInFrame();
+  return (href) => inFrame(href) ?? href;
+}
 
 function StepCard({ title, children, id }: { title: string; children: ReactNode; id: string }) {
   return (
@@ -47,8 +65,10 @@ function StepCard({ title, children, id }: { title: string; children: ReactNode;
   );
 }
 
-function StepActions({ back }: { back: string | null }) {
+function StepActions({ back: dashboardBack }: { back: string | null }) {
   const t = useDashT();
+  const inFrame = useInFrame();
+  const back = dashboardBack ? inFrame(dashboardBack) : null;
   return (
     <div className="flex justify-between gap-3 pt-1.5">
       {back ? (
@@ -64,6 +84,22 @@ function StepActions({ back }: { back: string | null }) {
 }
 
 const v = (state: FormState, key: string, fallback: string) => state.values?.[key] ?? fallback;
+
+/**
+ * 111 React resets a form after each answer of its action: its controlled
+ * radios, checkboxes and lists go back to how they were first drawn while the
+ * state keeps the choice (and the next save sends what the form shows). A key
+ * that changes with each answer draws them again from the state.
+ */
+function useAnswerKey(state: unknown): number {
+  const [seen, setSeen] = useState(state);
+  const [key, setKey] = useState(0);
+  if (seen !== state) {
+    setSeen(state);
+    setKey((k) => k + 1);
+  }
+  return key;
+}
 
 type Backend = WebsiteChoice;
 
@@ -335,6 +371,7 @@ export function WebsiteStep({
 }) {
   const t = useDashT();
   const known = useKnownText();
+  const here = useHere();
   const [state, action] = useActionState(saveWebsiteAction, initialFormState as WebsiteFormState);
   const [check, checkAction, checking] = useActionState(checkApiAction, { result: null });
   // 25 "Connect with …" and "Disconnect" for platforms connected through Yallapp's partner app.
@@ -459,7 +496,7 @@ export function WebsiteStep({
                 <span>
                   {richText(t("setup.otherSite", { site: activatedSite ?? "", page: known("License & plugin") }), {
                     b: (chunk) => <b dir="ltr">{chunk}</b>,
-                    license: (chunk) => <Link href="/dashboard/license">{chunk}</Link>,
+                    license: (chunk) => <Link href={here("/dashboard/license")}>{chunk}</Link>,
                   })}
                 </span>
               </span>
@@ -469,7 +506,7 @@ export function WebsiteStep({
                 <span>
                   {richText(t("setup.notConnected", { page: known("License & plugin") }), {
                     install: (chunk) => <Link href="/guides/install-plugin">{chunk}</Link>,
-                    license: (chunk) => <Link href="/dashboard/license">{chunk}</Link>,
+                    license: (chunk) => <Link href={here("/dashboard/license")}>{chunk}</Link>,
                   })}
                 </span>
               </span>
@@ -541,7 +578,7 @@ export function WebsiteStep({
                 <span className="text-sm text-ink-4">{t("setup.checkText")}</span>
               )}
               {savedWithFailedCheck ? (
-                <Link href="/dashboard/setup?step=branding" className="text-sm font-semibold">
+                <Link href={here("/dashboard/setup?step=branding")} className="text-sm font-semibold">
                   {t("setup.continueMeantime")}
                 </Link>
               ) : null}
@@ -734,6 +771,8 @@ export function BrandingStep({
   const t = useDashT();
   const known = useKnownText();
   const [state, action] = useActionState(saveBrandingAction, initialFormState);
+  // 111 The design, template and font as chosen after a save that didn't go through (and the upload's error).
+  const formKey = useAnswerKey(state);
   const [primary, setPrimary] = useState(v(state, "primaryColor", values.primaryColor));
   const [splash, setSplash] = useState(v(state, "splashColor", values.splashColor));
   const [template, setTemplate] = useState(v(state, "template", values.template));
@@ -756,7 +795,7 @@ export function BrandingStep({
   const [name, setName] = useState(v(state, "appName", values.appName));
 
   return (
-    <form action={action} noValidate className="flex flex-wrap items-start gap-6">
+    <form key={formKey} action={action} noValidate className="flex flex-wrap items-start gap-6">
       {/* Sent from state: React resets the form's own radios after each submit. */}
       <input type="hidden" name="template" value={template} />
       <input type="hidden" name="design" value={design} />
@@ -1129,6 +1168,8 @@ export function ListingStep({
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveListingAction, initialFormState);
+  // 111 The framed screenshots and the listing's language as chosen after a save that didn't go through.
+  const answerKey = useAnswerKey(state);
   const value = (key: keyof typeof values) => v(state, key, values[key]);
   const text = (name: string, fallback: string) => v(state, name, fallback);
   const [framed, setFramed] = useState(listing.framed);
@@ -1209,7 +1250,7 @@ export function ListingStep({
             <label htmlFor="f-listingLanguage" className="text-sm font-semibold">
               {t("setup.listingLanguage")}
             </label>
-            <select id="f-listingLanguage" name="listingLanguage" value={language} onChange={(event) => setLanguage(event.target.value)} className="input max-w-[320px]" aria-describedby="f-listingLanguage-hint">
+            <select key={answerKey} id="f-listingLanguage" name="listingLanguage" value={language} onChange={(event) => setLanguage(event.target.value)} className="input max-w-[320px]" aria-describedby="f-listingLanguage-hint">
               {languages.map((item) => (
                 <option key={item.code} value={item.code}>
                   {item.name}
@@ -1291,7 +1332,7 @@ export function ListingStep({
             saved={state}
           />
           <label className="flex cursor-pointer items-start gap-3">
-            <input type="checkbox" name="frameScreenshots" checked={framed} onChange={(event) => setFramed(event.target.checked)} className="mt-1 h-4 w-4 accent-midnight" />
+            <input key={answerKey} type="checkbox" name="frameScreenshots" checked={framed} onChange={(event) => setFramed(event.target.checked)} className="mt-1 h-4 w-4 accent-midnight" />
             <span className="flex flex-col gap-0.5">
               <span className="text-sm font-semibold">{t("setup.frameShots")}</span>
               <span className="text-xs text-muted">{t("setup.frameShotsText")}</span>
@@ -1478,10 +1519,11 @@ function FirebaseFields({ state, saved }: { state: FormState; saved: SavedFireba
 /** 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery (and Huawei push) and Xiaomi GetApps have their own page. */
 function MoreStoresLink() {
   const t = useDashT();
+  const here = useHere();
   return (
     <p className="m-0 flex gap-2 text-sm leading-relaxed text-ink-4">
       <Icon name="storefront" size={20} className="text-muted" />
-      <span>{richText(t("setup.moreStores"), { link: (chunk) => <Link href="/dashboard/publishing/more-stores">{chunk}</Link> })}</span>
+      <span>{richText(t("setup.moreStores"), { link: (chunk) => <Link href={here("/dashboard/publishing/more-stores")}>{chunk}</Link> })}</span>
     </p>
   );
 }
@@ -1512,18 +1554,21 @@ export function PublishingStep({
   teamPublishes?: boolean;
 }) {
   const t = useDashT();
+  const here = useHere();
   const [state, action] = useActionState(savePublishingAction, initialFormState);
+  // 111 Who publishes, as chosen after a save that didn't go through.
+  const formKey = useAnswerKey(state);
   const [mode, setMode] = useState<"managed" | "self">(teamPublishes ? "managed" : "self");
   const teamNotice = teamPublishes ? (
     <p className="m-0 flex gap-2 rounded-xl bg-success-bg px-4 py-3 text-[15px] leading-relaxed">
       <Icon name="check_circle" size={20} filled className="text-success" />
-      <span>{richText(t("setup.teamNotice"), { link: (chunk) => <Link href="/dashboard/publishing">{chunk}</Link> })}</span>
+      <span>{richText(t("setup.teamNotice"), { link: (chunk) => <Link href={here("/dashboard/publishing")}>{chunk}</Link> })}</span>
     </p>
   ) : null;
 
   if (!autoPublish) {
     return (
-      <form action={action} noValidate className="flex flex-wrap items-start gap-6">
+      <form key={formKey} action={action} noValidate className="flex flex-wrap items-start gap-6">
         <StepCard title={t("setup.publishing")} id="h-publishing">
           {teamNotice}
           <p className="m-0 text-[15px] leading-relaxed text-ink-4">{ios ? t("setup.selfPublishApps", { plan: planName }) : t("setup.selfPublishApp", { plan: planName })}</p>
@@ -1554,7 +1599,7 @@ export function PublishingStep({
           <FirebaseFields state={state} saved={saved.firebase} />
         <MoreStoresLink />
           <div className="flex justify-between gap-3 pt-1.5">
-            <Link href="/dashboard/setup?step=listing" className={`${btn.secondary} h-11`}>
+            <Link href={here("/dashboard/setup?step=listing")} className={`${btn.secondary} h-11`}>
               {t("setup.back")}
             </Link>
             <SubmitButton className="h-11">{t("setup.finish")}</SubmitButton>
@@ -1565,7 +1610,7 @@ export function PublishingStep({
   }
 
   return (
-    <form action={action} noValidate className="flex flex-wrap items-start gap-6">
+    <form key={formKey} action={action} noValidate className="flex flex-wrap items-start gap-6">
       {/* Sent from state: React resets the form's own radios after each submit. */}
       <input type="hidden" name="publishingMode" value={mode} />
       <StepCard title={t("setup.publishing")} id="h-publishing">
@@ -1598,7 +1643,7 @@ export function PublishingStep({
           (teamNotice ?? (
             <p className="m-0 flex gap-2 rounded-xl border border-line bg-sand p-4 text-[15px] leading-relaxed text-ink-4">
               <Icon name="storefront" size={20} className="text-muted" />
-              <span>{richText(t("setup.noKeys"), { link: (chunk) => <Link href="/dashboard/publishing">{chunk}</Link> })}</span>
+              <span>{richText(t("setup.noKeys"), { link: (chunk) => <Link href={here("/dashboard/publishing")}>{chunk}</Link> })}</span>
             </p>
           ))
         ) : (
@@ -1631,7 +1676,7 @@ export function PublishingStep({
         <MoreStoresLink />
 
         <div className="flex justify-between gap-3 pt-1.5">
-          <Link href="/dashboard/setup?step=listing" className={`${btn.secondary} h-11`}>
+          <Link href={here("/dashboard/setup?step=listing")} className={`${btn.secondary} h-11`}>
             {t("setup.back")}
           </Link>
           <SubmitButton className="h-11">{t("setup.saveFinish")}</SubmitButton>

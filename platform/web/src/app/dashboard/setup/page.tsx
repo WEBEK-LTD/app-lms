@@ -34,6 +34,7 @@ import { designLayout, loadLayout } from "@/lib/pages/layout";
 import { getPlans, platformSetting } from "@/lib/settings/platform";
 import { getSwitches, noWebsiteFor, websiteOf, websiteOn } from "@/lib/switches";
 import { designFitsApp, designsForApp, findDesign } from "@/lib/pages/designs/catalog";
+import { isStudioProject, studioPathFor } from "@/lib/studio/section";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("setup.title") };
@@ -85,6 +86,10 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
 
   const editableSteps = SETUP_STEPS.filter((s) => s !== "app-type") as Exclude<SetupStep, "app-type">[];
   const index = editableSteps.indexOf(step as Exclude<SetupStep, "app-type">);
+  // 111 In a Studio project's frame, its links open Studio's pages (null: a page Studio doesn't have).
+  const studio = isStudioProject(app);
+  const inFrame = (href: string): string | null => (studio ? studioPathFor(href) : href);
+  const here = (href: string): string => inFrame(href) ?? href;
   const upcoming = editableSteps.slice(index + 1);
 
   return (
@@ -92,14 +97,14 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
       <PageHeader
         title={t("setup.title")}
         actions={
-          <Link href="/dashboard/preview" className={`${btn.secondary} h-10 px-4 text-sm`}>
+          <Link href={here("/dashboard/preview")} className={`${btn.secondary} h-10 px-4 text-sm`}>
             <Icon name="visibility" size={18} />
             {t("setup.preview")}
           </Link>
         }
         description={
           <>
-            {t("setup.planLine", { app: name, plan: planName(plan, plans) })} ·{" "}
+            {t("setup.planLine", { app: name, plan: k(planName(plan, plans)) })} ·{" "}
             {complete ? (builds.length ? t("setup.completeBuilds") : t("setup.complete")) : t("setup.firstBuild")}
           </>
         }
@@ -111,7 +116,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
         </Notice>
       ) : state === "pending" && client.status === "active" ? (
         <Notice tone="warn" icon="hourglass_top">
-          {richText(t("setup.waiting", { app: name, page: k(licensePageName(app)) }), { license: (chunk) => <Link href="/dashboard/license">{chunk}</Link> })}
+          {richText(t("setup.waiting", { app: name, page: k(licensePageName(app)) }), { license: (chunk) => <Link href={here("/dashboard/license")}>{chunk}</Link> })}
         </Notice>
       ) : null}
 
@@ -123,28 +128,35 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
         {SETUP_STEPS.map((s, i) => {
           const current = s === step;
           const done = status[s];
-          const href = s === "app-type" ? "/dashboard/app-type" : `/dashboard/setup?step=${s}`;
-          return (
-            <li key={s} className="flex-none md:min-w-0">
-              <Link
-                href={href}
-                aria-current={current ? "step" : undefined}
-                className={`flex h-full items-center gap-2.5 rounded-xl bg-white text-midnight no-underline hover:text-midnight ${
-                  current ? "border-2 border-midnight px-[13px] py-[11px]" : "border border-line px-3.5 py-3 hover:border-midnight"
+          // 111 A Studio project's kind is chosen when it's made: its App type step is done, with nothing to open.
+          const href = inFrame(s === "app-type" ? "/dashboard/app-type" : `/dashboard/setup?step=${s}`);
+          const className = `flex h-full items-center gap-2.5 rounded-xl bg-white text-midnight no-underline hover:text-midnight ${
+            current ? "border-2 border-midnight px-[13px] py-[11px]" : `border border-line px-3.5 py-3${href ? " hover:border-midnight" : ""}`
+          }`;
+          const content = (
+            <>
+              <span
+                className={`flex h-7 w-7 flex-none items-center justify-center rounded-full text-[13px] font-bold ${
+                  done && !current ? "bg-success text-white" : current ? "bg-midnight text-white" : "bg-step text-muted"
                 }`}
               >
-                <span
-                  className={`flex h-7 w-7 flex-none items-center justify-center rounded-full text-[13px] font-bold ${
-                    done && !current ? "bg-success text-white" : current ? "bg-midnight text-white" : "bg-step text-muted"
-                  }`}
-                >
-                  {done && !current ? <Icon name="check" size={14} /> : i === 0 ? <Icon name="check" size={14} /> : i}
-                </span>
-                <span className={`text-sm ${current ? "font-bold" : done ? "font-semibold" : "text-muted"}`}>
-                  {k(STEP_LABEL[s])}
-                  {done ? <span className="sr-only">{t("setup.done")}</span> : null}
-                </span>
-              </Link>
+                {done && !current ? <Icon name="check" size={14} /> : i === 0 ? <Icon name="check" size={14} /> : i}
+              </span>
+              <span className={`text-sm ${current ? "font-bold" : done ? "font-semibold" : "text-muted"}`}>
+                {k(STEP_LABEL[s])}
+                {done ? <span className="sr-only">{t("setup.done")}</span> : null}
+              </span>
+            </>
+          );
+          return (
+            <li key={s} className="flex-none md:min-w-0">
+              {href ? (
+                <Link href={href} aria-current={current ? "step" : undefined} className={className}>
+                  {content}
+                </Link>
+              ) : (
+                <span className={className}>{content}</span>
+              )}
             </li>
           );
         })}
@@ -271,10 +283,11 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
         <PublishingStep
           autoPublish={managedPublishing(plan, effective)}
           ios={hasFeature(current, "ios")}
-          planName={current?.name ?? planName(plan, plans)}
+          planName={current?.name ?? k(planName(plan, plans))}
           upgrade={{
-            managed: lowestPlanWith(effective, (p) => hasFeature(p, "auto_publish"), plan),
-            ios: lowestPlanWith(effective, (p) => hasFeature(p, "ios"), plan),
+            // 111 A Studio project's plans are Studio's.
+            managed: lowestPlanWith(effective, (p) => hasFeature(p, "auto_publish"), plan, studio ? "studio" : "regular"),
+            ios: lowestPlanWith(effective, (p) => hasFeature(p, "ios"), plan, studio ? "studio" : "regular"),
           }}
           teamPublishes={app.publishingMode === "managed"}
           saved={{
@@ -293,7 +306,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
               <Icon name="link" size={22} />
               {t("setup.links")}
             </h2>
-            <Link href="/dashboard/publishing/links" className="text-sm font-semibold">
+            <Link href={here("/dashboard/publishing/links")} className="text-sm font-semibold">
               {t("setup.fingerprint")}
             </Link>
           </div>

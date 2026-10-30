@@ -9,6 +9,7 @@ import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
 import { AppDeletionForm } from "./app-deletion-form";
 import { Icon } from "./icon";
+import { isStudioProject } from "@/lib/studio/section";
 import { Notice } from "./ui";
 
 /**
@@ -50,7 +51,7 @@ export async function AppDeletion({ context, app, name }: { context: ClientConte
             <h3 className="m-0 mt-1 text-[15px] font-bold">{t("apps.whatStays")}</h3>
             <ul className="m-0 flex flex-col gap-2 ps-5 text-[15px] leading-relaxed text-ink-3">
               <li>{t("apps.staysStores")}</li>
-              <li>{richText(t("apps.staysKey"), { builds: link("/dashboard/builds") })}</li>
+              <li>{richText(t("apps.staysKey"), { builds: link(isStudioProject(app) ? "/studio/project/builds" : "/dashboard/builds") })}</li>
             </ul>
             <p className="m-0 text-[15px] text-ink-3">{t("apps.restore", { days: APP_RESTORE_DAYS })}</p>
           </div>

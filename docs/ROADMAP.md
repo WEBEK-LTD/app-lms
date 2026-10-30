@@ -2740,3 +2740,17 @@ templates, look fixes and more Studio demos after them.
 | [ ] | 110.4 Look fixes from the audit, each shown to the owner and approved before it's made | owner's approval; unit tests, e2e |
 | [x] | 110.5 Studio demos on `/demo/studio`, made by Admin › Demo apps with the others: Rawaq Academy (seven teachers with their profiles and published courses, the sample entries' in Egyptian pounds; the demo number is one more teacher, "Demo teacher", which students never see, whose Teacher tab makes a course and sends it for review), Nakhla School (three classes, seven subjects, six teachers and a Sunday-to-Thursday timetable; the demo number is Lina, a student, her mother Rania, also Adam's, and Ms. Mona, Lina's class teacher; homework, scores, attendance, news and fees dated from today) and Lamha Taxi (three vehicle types with fares, eight drivers with their cars, who drive around wherever the rider asks; the platform's map from Admin › Settings › Maps, else the plain ride screens; no live database) | unit tests, e2e |
 | [x] | 110.5 The daily job: what visitors made as the demo teacher, as the school's teacher and the teachers they followed and rated go after a day; the school's day is made again from today; the cards' texts in English, Arabic and Turkish, with screenshots drawn by the app's screenshot test (the taxi's street map too); the taxi kind's notes for the store reviewers (105.9.6) | unit tests, e2e |
+
+## Phase 111: Studio setup fixes
+
+The owner's report (30 October): in `/studio/project/setup` › Branding ›
+Design, after "Keep my pages" no other choice would stay. The setup page was
+reviewed step by step for Studio projects of every kind (academy, store,
+delivery, food, rides, taxi, school, many teachers), in English and Arabic,
+on a desktop and a phone.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 111.1 A save that doesn't go through keeps every choice on screen: React resets a form after each answer of its action, which put the design radios, the template list and the font back to how they were first drawn ("Keep my pages" for a new project) while the step kept the choice; the same for the Listing step's framed screenshots and language and the Publishing choice. The upload's own message ("Upload your app icon.") now shows, so a new project's first Branding save no longer fails without a word | e2e (`tests/e2e/studio-setup.spec.ts`) |
+| [x] | 111.2 Inside Studio every link and save of the setup stays in Studio: the steps, Preview, Plan, Back, More Android stores, Fingerprint and Team ID, the Builds page after the last step; the App type step and the Website step's Back no longer open the regular dashboard's App type (a Studio project's kind is chosen when it's made); deleting a Studio project goes back to Studio's projects | e2e |
+| [x] | 111.3 A Studio project's Publishing step offers Studio's plans, not the regular ones; "Not set" (no plan yet) in the dashboard's language; the Studio kinds' 18 designs (delivery, food, rides, taxi, many teachers, school) named and described in Arabic and Turkish in the Branding step | unit tests, e2e |

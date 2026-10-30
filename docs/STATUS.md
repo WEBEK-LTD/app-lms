@@ -21,6 +21,12 @@ version, `delivery-send`, `delivery-shipment`, `delivery-courier`) from the
 Flutter screenshot test, the dashboard's (`studio-editor`, `studio-home`,
 `studio-project`) from `tests/screens/studio.screens.ts`.
 
+Phase 111 (Studio setup fixes) is complete: in `/studio/project/setup` a
+save that doesn't go through keeps the chosen design (and the other choices)
+on screen and says why, its links and saves stay in Studio, a Studio project
+is offered Studio's plans, and the Studio kinds' designs read in Arabic and
+Turkish (`tests/e2e/studio-setup.spec.ts`).
+
 Phase 110.2 (sample entries) is complete: choosing a design for an app
 whose content is kept in Yallapp fills each empty list it shows with sample
 entries (`sample` on the entries and categories, migration 0102;
