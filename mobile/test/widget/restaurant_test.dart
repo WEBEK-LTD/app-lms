@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/core/routing/app_router.dart';
+import 'package:yallapp/modules/shared/account/order_screen.dart';
 import 'package:yallapp/modules/store/data/cart_controller.dart';
 
 import '../support/fake_api.dart';
@@ -273,8 +274,26 @@ void main() {
       'Out for delivery',
       'Completed',
     ]) {
-      expect(find.text(step), findsOneWidget, reason: step);
+      expect(
+        find.descendant(of: find.byType(OrderSteps), matching: find.text(step)),
+        findsOneWidget,
+        reason: step,
+      );
     }
+    // 110 Where it is, on a chip at the top too.
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('order-status')),
+        matching: find.text('Preparing'),
+      ),
+      findsOneWidget,
+    );
+    // 110 Below the status chip: scrolled to.
+    await tester.scrollUntilVisible(
+      find.text('₺680.00'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('Double, Cheddar'), findsOneWidget);
     expect(find.text('₺680.00'), findsOneWidget);
     expect(find.text("We'll send you a notification at each step."), findsOne);
@@ -284,7 +303,20 @@ void main() {
     api.order = restaurantOrderJson(status: 'ready', type: 'pickup');
     router.push('/account/orders/8');
     await TestApp.settle(tester);
-    expect(find.text('Ready for pickup'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(OrderSteps),
+        matching: find.text('Ready for pickup'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('order-status')),
+        matching: find.text('Ready for pickup'),
+      ),
+      findsOneWidget,
+    );
     expect(find.text('Out for delivery'), findsNothing);
     router.pop();
     api.order = restaurantOrderJson(status: 'cancelled');

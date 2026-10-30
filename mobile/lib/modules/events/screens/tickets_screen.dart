@@ -101,6 +101,9 @@ class _Wallet extends ConsumerWidget {
         icon: AppIcons.ticket,
         title: l10n.noTicketsTitle,
         message: l10n.noTicketsMessage,
+        // 110 Every empty list leads somewhere.
+        actionLabel: l10n.browseEvents,
+        onAction: () => context.go(Paths.events),
       );
     }
     final now = DateTime.now();

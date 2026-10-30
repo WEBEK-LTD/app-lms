@@ -157,6 +157,7 @@ class _DriverRideScreenState extends ConsumerState<DriverRideScreen> {
     };
     return Scaffold(
       appBar: AppBar(
+        leading: appBarBack(context),
         title: Text(
           ride == null ? l10n.driverTitle : l10n.rideHeading(ride.reference),
         ),

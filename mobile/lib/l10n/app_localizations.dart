@@ -580,6 +580,12 @@ abstract class AppLocalizations {
   /// **'Tap the heart on a listing to save it here.'**
   String get noFavoritesMessage;
 
+  /// Button on the empty Favorites and Messages lists of a Real estate app: opens the search.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse listings'**
+  String get browseListings;
+
   /// No description provided for @favoritesSignInTitle.
   ///
   /// In en, this message translates to:
@@ -4000,6 +4006,12 @@ abstract class AppLocalizations {
   /// **'Tap the bookmark on an article to keep it here and read it later, even without a connection.'**
   String get noSavedMessage;
 
+  /// Button on the empty Saved list of a News app: opens the articles.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse articles'**
+  String get browseArticles;
+
   /// No description provided for @articleSave.
   ///
   /// In en, this message translates to:
@@ -4425,6 +4437,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick another day to see its classes.'**
   String get classesNoneMessage;
+
+  /// Button on a day without classes in the timetable: opens the next day of the week with a class.
+  ///
+  /// In en, this message translates to:
+  /// **'See the next class'**
+  String get classesNextClass;
 
   /// When the business has no classes in the app.
   ///
@@ -4965,6 +4983,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tickets you get show here, with a QR code for the door.'**
   String get noTicketsMessage;
+
+  /// Button on the empty My tickets list of an Events app: opens the events.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse events'**
+  String get browseEvents;
 
   /// No description provided for @ticketsOfflineNote.
   ///

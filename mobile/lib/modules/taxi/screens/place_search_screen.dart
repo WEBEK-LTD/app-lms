@@ -10,6 +10,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
+import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../delivery/data/delivery_providers.dart'
     show LocateProblem, locatorProvider;
@@ -219,7 +220,7 @@ class _TaxiPlaceSearchScreenState extends ConsumerState<TaxiPlaceSearchScreen> {
     );
     final text = _query.text.trim();
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
+      appBar: AppBar(leading: appBarBack(context), title: Text(widget.title)),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

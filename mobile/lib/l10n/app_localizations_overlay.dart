@@ -294,6 +294,10 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('noFavoritesMessage') ?? base.noFavoritesMessage;
 
   @override
+  String get browseListings =>
+      overlay.text('browseListings') ?? base.browseListings;
+
+  @override
   String get favoritesSignInTitle =>
       overlay.text('favoritesSignInTitle') ?? base.favoritesSignInTitle;
 
@@ -2456,6 +2460,10 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('noSavedMessage') ?? base.noSavedMessage;
 
   @override
+  String get browseArticles =>
+      overlay.text('browseArticles') ?? base.browseArticles;
+
+  @override
   String get articleSave => overlay.text('articleSave') ?? base.articleSave;
 
   @override
@@ -2732,6 +2740,10 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get classesNoneMessage =>
       overlay.text('classesNoneMessage') ?? base.classesNoneMessage;
+
+  @override
+  String get classesNextClass =>
+      overlay.text('classesNextClass') ?? base.classesNextClass;
 
   @override
   String get classesNoTimetable =>
@@ -3099,6 +3111,9 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get noTicketsMessage =>
       overlay.text('noTicketsMessage') ?? base.noTicketsMessage;
+
+  @override
+  String get browseEvents => overlay.text('browseEvents') ?? base.browseEvents;
 
   @override
   String get ticketsOfflineNote =>

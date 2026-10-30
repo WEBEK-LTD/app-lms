@@ -57,7 +57,10 @@ class _TeachersScreenState extends ConsumerState<TeachersScreen> {
     final notifier = ref.read(teachersProvider(_query).notifier);
     final subjects = notifier.subjects;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.teachersTitle)),
+      appBar: AppBar(
+        leading: appBarBack(context),
+        title: Text(l10n.teachersTitle),
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -334,7 +337,10 @@ class _TeacherScreenState extends ConsumerState<TeacherScreen> {
   Widget build(BuildContext context) {
     final async = ref.watch(teacherProvider(widget.teacherId));
     return Scaffold(
-      appBar: AppBar(title: Text(async.value?.name ?? '')),
+      appBar: AppBar(
+        leading: appBarBack(context),
+        title: Text(async.value?.name ?? ''),
+      ),
       body: switch (async) {
         AsyncValue(value: final t?) => RefreshIndicator(
           onRefresh: () async {

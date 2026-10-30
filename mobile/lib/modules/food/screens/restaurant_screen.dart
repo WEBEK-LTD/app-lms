@@ -6,6 +6,7 @@ import '../../../core/format/dates.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
+import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../delivery/widgets/delivery_widgets.dart' show CallButton;
 import '../data/food_providers.dart';
@@ -65,7 +66,10 @@ class RestaurantScreen extends ConsumerWidget {
     final async = ref.watch(restaurantProvider(restaurantId));
     final restaurant = async.value;
     return Scaffold(
-      appBar: AppBar(title: Text(restaurant?.name ?? '')),
+      appBar: AppBar(
+        leading: appBarBack(context),
+        title: Text(restaurant?.name ?? ''),
+      ),
       body: switch (async) {
         AsyncValue(value: final r?) => RefreshIndicator(
           onRefresh: () async =>

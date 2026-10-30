@@ -17,6 +17,7 @@ import 'account_scaffold.dart';
 import 'order_screen.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/vertical_wording.dart';
 
 /// "5 min ago", "3 h ago", "Yesterday", then the date.
 String timeAgo(DateTime time, {DateTime? now}) {
@@ -115,6 +116,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         icon: AppIcons.notifications,
         title: context.l10n.noNotificationsTitle,
         message: context.l10n.noNotificationsMessage,
+        // 110 Every empty list leads somewhere.
+        actionLabel: context.l10n.goHome,
+        onAction: () => context.go(Paths.home),
       );
     } else {
       body = RefreshIndicator(
@@ -262,6 +266,12 @@ class OrdersScreen extends ConsumerWidget {
         icon: AppIcons.orders,
         title: context.l10n.noOrdersTitle,
         message: context.l10n.noOrdersMessage,
+        // 110 A shop's customer goes shopping (a restaurant's sees the
+        // menu); a student browses the courses.
+        actionLabel: store
+            ? context.words.startShopping
+            : context.l10n.browseCourses,
+        onAction: () => context.go(store ? Paths.shop : Paths.courses),
       );
     } else {
       body = RefreshIndicator(
@@ -300,25 +310,6 @@ class _OrderCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
-    final good = order.status == OrderStatus.completed;
-    final bad = switch (order.status) {
-      OrderStatus.cancelled ||
-      OrderStatus.failed ||
-      OrderStatus.refunded => true,
-      _ => false,
-    };
-    // 26 A restaurant's order shows its step and opens its tracking screen.
-    // 47 A refunded order says so, whatever step it reached.
-    final step = order.status == OrderStatus.refunded
-        ? null
-        : order.fulfilmentStatus;
-    final status = step != null
-        ? OrderSteps.label(
-            context,
-            step,
-            order.fulfilment?.type ?? FulfilmentType.pickup,
-          )
-        : order.statusLabel;
     return AppCard(
       padding: const EdgeInsets.all(16),
       onTap: order.opensScreen
@@ -340,30 +331,7 @@ class _OrderCard extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Flexible(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: good
-                        ? p.successSoft
-                        : bad
-                        ? p.placeholderFor(0)
-                        : p.accentSoft,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    status,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: good ? p.success : p.text,
-                    ),
-                  ),
-                ),
-              ),
+              Flexible(child: OrderStatusChip(order: order)),
             ],
           ),
           const SizedBox(height: 8),

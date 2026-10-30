@@ -28,7 +28,11 @@ class NewsHomeScreen extends ConsumerWidget {
         onRefresh: refresh,
         edgeOffset: MediaQuery.paddingOf(context).top,
         child: switch (home) {
-          AsyncData(:final value) => _Home(home: value),
+          // 110 Nothing scrolls under the status bar.
+          AsyncData(:final value) => StatusBarBackdrop(
+            color: context.palette.background,
+            child: _Home(home: value),
+          ),
           AsyncError(:final error) => ListView(
             children: [
               SizedBox(
@@ -123,7 +127,7 @@ class _Home extends ConsumerWidget {
           ),
         ],
         if (home.rails.isNotEmpty) ...[
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           SizedBox(
             height: chipRowHeight(context),
             child: ListView.separated(
@@ -145,7 +149,14 @@ class _Home extends ConsumerWidget {
         ],
         if (home.latest.isNotEmpty) ...[
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+            // 110 The app's usual space between sections: the chips and the
+            // "See all" button already have room around them.
+            padding: EdgeInsets.fromLTRB(
+              20,
+              home.rails.isNotEmpty ? 8 : 20,
+              20,
+              10,
+            ),
             child: SectionHeader(
               title: l10n.newsLatest,
               onSeeAll: () => context.go(Paths.articles),

@@ -41,7 +41,7 @@ class _SchoolPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(title)),
+    appBar: AppBar(leading: appBarBack(context), title: Text(title)),
     body: SafeArea(
       top: false,
       child: StudentGate(wanted: student, builder: builder),
@@ -989,7 +989,10 @@ class SchoolNewsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.schoolNews)),
+      appBar: AppBar(
+        leading: appBarBack(context),
+        title: Text(l10n.schoolNews),
+      ),
       body: SafeArea(
         top: false,
         child: PagedItems<SchoolAnnouncement>(

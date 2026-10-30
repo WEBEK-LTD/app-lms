@@ -4,6 +4,7 @@ import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart
 import 'package:intl/intl.dart' as intl;
 
 import '../../../../core/api/models/models.dart';
+import '../../../../core/format/bidi.dart';
 import '../../../../core/gate/app_gate.dart';
 import '../../../../core/services/external_links.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -169,6 +170,34 @@ TextDirection? contentDirection(String html) =>
       intl.TextDirection.LTR => TextDirection.ltr,
       _ => null,
     };
+
+/// 110 A title over [html], in the direction its content is written in, as
+/// the content is: an English lesson's title in an Arabic app sits on the
+/// left over its left-to-right text. Without content to tell, the title's
+/// own letters decide.
+class ContentTitle extends StatelessWidget {
+  const ContentTitle({
+    super.key,
+    required this.title,
+    required this.html,
+    this.style,
+  });
+
+  final String title;
+  final String html;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) => Directionality(
+    textDirection:
+        contentDirection(html) ??
+        directionOfText(title, fallback: Directionality.of(context)),
+    child: Semantics(
+      header: true,
+      child: Text(title, textAlign: TextAlign.start, style: style),
+    ),
+  );
+}
 
 EmbedProvider _guessProvider(String src) {
   final host = Uri.tryParse(src)?.host ?? '';

@@ -342,41 +342,43 @@ class _Banner extends ConsumerWidget {
                 if (hasText)
                   Align(
                     alignment: AlignmentDirectional.bottomStart,
-                    child: Container(
+                    child: SizedBox(
                       width: double.infinity,
-                      padding: const EdgeInsets.fromLTRB(18, 12, 18, 14),
-                      // A flat scrim keeps the text readable on any image.
-                      color: const Color(0xA60E0D24),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: align.crossAxis,
-                        children: [
-                          if (heading != null && heading.isNotEmpty)
-                            Text(
-                              heading,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: align.textAlign,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: style.template == AppTemplate.bold
-                                    ? 22
-                                    : 20,
-                                fontWeight: FontWeight.w800,
+                      // 110 A shade fading in under the text keeps it
+                      // readable on any image, with no hard edge.
+                      child: TextScrim(
+                        padding: const EdgeInsets.fromLTRB(18, 12, 18, 14),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: align.crossAxis,
+                          children: [
+                            if (heading != null && heading.isNotEmpty)
+                              Text(
+                                heading,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: align.textAlign,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: style.template == AppTemplate.bold
+                                      ? 22
+                                      : 20,
+                                  fontWeight: FontWeight.w800,
+                                ),
                               ),
-                            ),
-                          if (subheading != null && subheading.isNotEmpty)
-                            Text(
-                              subheading,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: align.textAlign,
-                              style: const TextStyle(
-                                color: Color(0xE6FFFFFF),
-                                fontSize: 14,
+                            if (subheading != null && subheading.isNotEmpty)
+                              Text(
+                                subheading,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: align.textAlign,
+                                style: const TextStyle(
+                                  color: Color(0xE6FFFFFF),
+                                  fontSize: 14,
+                                ),
                               ),
-                            ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -971,6 +973,8 @@ class _Categories extends ConsumerWidget {
         height: chipRowHeight(context),
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
+          // 110 Runs to the screen's edge, as the carousels do.
+          clipBehavior: Clip.none,
           itemCount: block.categories.length,
           separatorBuilder: (_, _) => const SizedBox(width: 8),
           itemBuilder: (context, i) {

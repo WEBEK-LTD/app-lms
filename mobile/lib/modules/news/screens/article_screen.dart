@@ -102,16 +102,15 @@ class _ArticleBody extends ConsumerWidget {
               ],
             ),
           const SizedBox(height: 6),
-          Semantics(
-            header: true,
-            child: Text(
-              article.title,
-              style: TextStyle(
-                fontSize: 24,
-                height: 1.25,
-                fontWeight: FontWeight.w800,
-                color: p.text,
-              ),
+          // 110 In the direction of the article's text.
+          ContentTitle(
+            title: article.title,
+            html: article.html ?? article.excerpt ?? '',
+            style: TextStyle(
+              fontSize: 24,
+              height: 1.25,
+              fontWeight: FontWeight.w800,
+              color: p.text,
             ),
           ),
           if (meta.isNotEmpty) ...[

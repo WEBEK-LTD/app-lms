@@ -49,6 +49,12 @@ Future<void> typeCoupon(WidgetTester tester, String code) async {
   await TestApp.settle(tester);
 }
 
+/// 110 The total on the cart's bar, by the Checkout button.
+Finder onBar(Finder finder) => find.descendant(
+  of: find.byKey(const ValueKey('cart-bar-total')),
+  matching: finder,
+);
+
 void main() {
   testWidgets('an applied coupon shows its discount and goes to the checkout', (
     tester,
@@ -65,8 +71,11 @@ void main() {
     expect(find.text('SPRING10 applied'), findsOneWidget);
     expect(find.text('−₺40.00'), findsOneWidget);
     expect(find.text('₺35.00'), findsOneWidget);
-    expect(find.text('Total'), findsOneWidget);
-    expect(find.text('₺395.00'), findsOneWidget);
+    // In the summary, and on the bar.
+    expect(find.text('Total'), findsNWidgets(2));
+    expect(find.text('₺395.00'), findsNWidgets(2));
+    expect(onBar(find.text('Total')), findsOneWidget);
+    expect(onBar(find.text('₺395.00')), findsOneWidget);
     expect(find.text('Plus shipping and taxes at checkout.'), findsNothing);
 
     await tester.tap(find.text('Checkout'));
@@ -83,7 +92,8 @@ void main() {
     await openCart(tester, api);
     api.cartQuote = couponQuote('applied', totalFinal: false);
     await typeCoupon(tester, 'SPRING10');
-    expect(find.text('₺360.00'), findsOneWidget);
+    expect(find.text('₺360.00'), findsNWidgets(2));
+    expect(onBar(find.text('₺360.00')), findsOneWidget);
     expect(find.text('Plus shipping and taxes at checkout.'), findsOneWidget);
   });
 
@@ -140,7 +150,8 @@ void main() {
     api.cartQuote = couponQuote('applied');
     await typeCoupon(tester, 'SPRING10');
     expect(find.textContaining('تم تطبيق'), findsOneWidget);
-    expect(find.text('الإجمالي'), findsOneWidget);
+    expect(find.text('الإجمالي'), findsNWidgets(2));
+    expect(onBar(find.text('الإجمالي')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

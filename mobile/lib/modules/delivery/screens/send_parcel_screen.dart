@@ -93,10 +93,14 @@ class _SendParcelScreenState extends ConsumerState<SendParcelScreen> {
     super.dispose();
   }
 
+  /// 110 The service chosen, else the first one: one is always picked.
+  int? get _service =>
+      _serviceId ?? ref.read(deliveryServicesProvider).value?.firstOrNull?.id;
+
   ShipmentRequest _request(DeliveryConfig config) => ShipmentRequest(
     pickup: _pickup.place,
     dropoff: _dropoff.place,
-    serviceId: _serviceId,
+    serviceId: _service,
     zoneId: config.pricing == DeliveryPricing.zone ? _zoneId : null,
     recipientName: _recipientName.text,
     recipientPhone: _recipientPhone.text,
@@ -303,7 +307,7 @@ class _SendParcelScreenState extends ConsumerState<SendParcelScreen> {
                         padding: const EdgeInsets.only(bottom: 8),
                         child: _ServiceOption(
                           service: s,
-                          selected: _serviceId == s.id,
+                          selected: (_serviceId ?? list.first.id) == s.id,
                           onTap: () {
                             setState(() => _serviceId = s.id);
                             _requote();

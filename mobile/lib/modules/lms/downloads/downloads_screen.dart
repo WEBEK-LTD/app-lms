@@ -11,6 +11,10 @@ import 'download_manager.dart';
 import 'download_models.dart';
 import 'download_widgets.dart';
 
+import 'package:go_router/go_router.dart';
+
+import '../../../core/routing/paths.dart';
+
 /// 45 Account › Downloads: what's saved for offline viewing, by course, with
 /// the space it takes, the transfers under way (pause, resume, cancel), the
 /// Wi-Fi only setting, and deleting a course or everything.
@@ -111,6 +115,9 @@ class _DownloadsScreenState extends ConsumerState<DownloadsScreen> {
                     icon: AppIcons.downloads,
                     title: l10n.downloadsEmptyTitle,
                     message: l10n.downloadsEmptyMessage,
+                    // 110 Lessons are saved from the student's courses.
+                    actionLabel: l10n.tabMyCourses,
+                    onAction: () => context.go(Paths.myCourses),
                   )
                 else ...[
                   for (final course in courses) ...[

@@ -214,6 +214,26 @@ class ProductCard extends StatelessWidget {
   }
 }
 
+/// 110 The height of a row of [CategoryChip]s: the picture and the names'
+/// lines (one, or two when a name wraps).
+double categoryRowHeight(BuildContext context, List<ProductCategory> list) {
+  final style = DefaultTextStyle.of(context).style
+      .merge(CategoryChip.nameStyle);
+  final scaler = MediaQuery.textScalerOf(context);
+  var text = 0.0;
+  for (final c in list) {
+    final painter = TextPainter(
+      text: TextSpan(text: c.name, style: style),
+      textDirection: Directionality.of(context),
+      textScaler: scaler,
+      maxLines: 2,
+    )..layout(maxWidth: CategoryChip.width);
+    if (painter.height > text) text = painter.height;
+    painter.dispose();
+  }
+  return 64 + 6 + text + 6;
+}
+
 /// A category as a rounded chip with its image.
 class CategoryChip extends StatelessWidget {
   const CategoryChip({
@@ -229,6 +249,9 @@ class CategoryChip extends StatelessWidget {
   /// Bold template: a rounded square picture instead of a circle.
   final bool square;
 
+  static const width = 84.0;
+  static const nameStyle = TextStyle(fontSize: 12);
+
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
@@ -240,7 +263,7 @@ class CategoryChip extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(context.shapes.card),
         child: SizedBox(
-          width: 84,
+          width: width,
           child: Column(
             children: [
               if (square)
@@ -268,7 +291,7 @@ class CategoryChip extends StatelessWidget {
                 maxLines: 2,
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 12, color: p.text),
+                style: nameStyle.copyWith(color: p.text),
               ),
             ],
           ),

@@ -249,12 +249,19 @@ class _SlideView extends ConsumerWidget {
               if (heading.isNotEmpty || subheading.isNotEmpty)
                 Align(
                   alignment: AlignmentDirectional.bottomStart,
-                  child: Container(
+                  child: SizedBox(
                     width: double.infinity,
-                    padding: const EdgeInsets.fromLTRB(20, 14, 20, 18),
-                    // A flat scrim keeps the text readable on any image.
-                    color: image == null ? null : const Color(0xA60E0D24),
-                    child: text,
+                    // 110 A shade fading in under the text keeps it readable
+                    // on any image, with no hard edge across the picture.
+                    child: image == null
+                        ? Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 14, 20, 18),
+                            child: text,
+                          )
+                        : TextScrim(
+                            padding: const EdgeInsets.fromLTRB(20, 14, 20, 18),
+                            child: text,
+                          ),
                   ),
                 ),
             ],
@@ -301,23 +308,37 @@ class QuickLinksView extends ConsumerWidget {
     ];
     if (links.isEmpty) return const SizedBox.shrink();
     final ownIcons = switchOn(ref, 'own_icons');
-    Widget tile(QuickLink link, double width) => SizedBox(
+    final labelStyle = DefaultTextStyle.of(context).style
+        .merge(quickLinkLabelStyle.copyWith(color: context.palette.text));
+    // 110 One size for every label of the block: the largest at which each
+    // label's longest word fits its tile, so no tile shrinks on its own.
+    double fontSize(double width) => [
+      for (final link in links)
+        fitWordsFontSize(link.label, labelStyle, width, scale),
+    ].reduce((a, b) => a < b ? a : b);
+    Widget tile(QuickLink link, double width, double size) => SizedBox(
       width: width,
       child: _QuickLinkTile(
         link: link,
         ownIcon: ownIcons,
         style: style,
+        labelStyle: labelStyle.copyWith(fontSize: size),
         onTap: () => runPageAction(context, ref, link.action),
       ),
     );
     if (block.style == QuickLinksStyle.row) {
+      const width = 76.0;
+      final size = fontSize(width);
       return SizedBox(
         height: 60 + 8 + scale.scale(36),
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           itemCount: links.length,
           separatorBuilder: (_, _) => const SizedBox(width: 8),
-          itemBuilder: (context, i) => tile(links[i], 76),
+          itemBuilder: (context, i) => Align(
+            alignment: Alignment.topCenter,
+            child: tile(links[i], width, size),
+          ),
         ),
       );
     }
@@ -327,25 +348,38 @@ class QuickLinksView extends ConsumerWidget {
         final columns = constraints.maxWidth >= 560 ? 6 : 4;
         final width =
             (constraints.maxWidth - spacing * (columns - 1)) / columns;
+        final size = fontSize(width);
         return Wrap(
           spacing: spacing,
           runSpacing: 14,
-          children: [for (final link in links) tile(link, width)],
+          crossAxisAlignment: WrapCrossAlignment.start,
+          children: [for (final link in links) tile(link, width, size)],
         );
       },
     );
   }
 }
 
+/// 110 The quick links' labels, before [fitWordsFontSize] makes them fit.
+const quickLinkLabelStyle = TextStyle(
+  fontSize: 12.5,
+  height: 1.25,
+  fontWeight: FontWeight.w600,
+);
+
 class _QuickLinkTile extends StatelessWidget {
   const _QuickLinkTile({
     required this.link,
     required this.style,
+    required this.labelStyle,
     required this.onTap,
     this.ownIcon = true,
   });
 
   final QuickLink link;
+
+  /// 110 The same for every tile of the block.
+  final TextStyle labelStyle;
 
   /// 83.3 The owner's own icon, unless the team switched them off.
   final bool ownIcon;
@@ -385,31 +419,12 @@ class _QuickLinkTile extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            LayoutBuilder(
-              builder: (context, box) {
-                final style = DefaultTextStyle.of(context).style.merge(
-                  TextStyle(
-                    fontSize: 12.5,
-                    height: 1.25,
-                    fontWeight: FontWeight.w600,
-                    color: p.text,
-                  ),
-                );
-                return Text(
-                  link.label,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: style.copyWith(
-                    fontSize: fitWordsFontSize(
-                      link.label,
-                      style,
-                      box.maxWidth,
-                      MediaQuery.textScalerOf(context),
-                    ),
-                  ),
-                );
-              },
+            Text(
+              link.label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: labelStyle,
             ),
           ],
         ),
@@ -1195,6 +1210,20 @@ class TeamView extends ConsumerWidget {
     VoidCallback? tap(TeamMember m) =>
         m.action == null ? null : () => runPageAction(context, ref, m.action);
     switch (block.layout) {
+      // 110 One person: their card across the row, not one card beside an
+      // empty half.
+      case ItemsLayout.carousel when block.people.length == 1:
+        final m = block.people.single;
+        return Center(
+          child: ConstrainedBox(
+            key: const ValueKey('team-single'),
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: SizedBox(
+              width: double.infinity,
+              child: _PersonCard(person: m, onTap: tap(m), bio: true),
+            ),
+          ),
+        );
       case ItemsLayout.carousel:
         final scale = MediaQuery.textScalerOf(context);
         return SizedBox(
@@ -1399,6 +1428,7 @@ class StatsView extends StatelessWidget {
           final content = Semantics(
             label: '${s.value} ${s.label}',
             excludeSemantics: true,
+            // 110 From the top, so the numbers of a row line up.
             child: Column(
               children: [
                 FittedBox(
@@ -1458,11 +1488,34 @@ class StatsView extends StatelessWidget {
           return AppCard(padding: padding, child: content);
         }
 
-        return Wrap(
-          spacing: spacing,
-          runSpacing: spacing,
+        // 110 Row by row, every card as tall as the tallest in its row
+        // (a label on two lines doesn't leave its neighbours shorter).
+        final stats = block.stats;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            for (final s in block.stats) SizedBox(width: width, child: stat(s)),
+            for (var i = 0; i < stats.length; i += columns) ...[
+              if (i > 0) const SizedBox(height: spacing),
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (
+                      var j = i;
+                      j < i + columns && j < stats.length;
+                      j++
+                    ) ...[
+                      if (j > i) const SizedBox(width: spacing),
+                      SizedBox(
+                        key: ValueKey('stat-$j'),
+                        width: width,
+                        child: stat(stats[j]),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
           ],
         );
       },

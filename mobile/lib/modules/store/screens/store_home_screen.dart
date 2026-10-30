@@ -34,7 +34,13 @@ class StoreHomeScreen extends ConsumerWidget {
         onRefresh: refresh,
         edgeOffset: MediaQuery.paddingOf(context).top,
         child: switch (sections) {
-          AsyncData(:final value) => _Sections(sections: value),
+          // 110 Nothing scrolls under the status bar.
+          AsyncData(:final value) => StatusBarBackdrop(
+            color: ref.watch(appLookProvider).template == AppTemplate.bold
+                ? context.palette.primary
+                : context.palette.background,
+            child: _Sections(sections: value),
+          ),
           AsyncError(:final error) => ListView(
             children: [
               SizedBox(
@@ -136,7 +142,9 @@ class _Sections extends ConsumerWidget {
           template: template,
           onSeeAll: () => context.go(Paths.shop),
           child: SizedBox(
-            height: 76 + MediaQuery.textScalerOf(context).scale(36),
+            // 110 As tall as the names need: one line, or two when one
+            // wraps, so no blank band sits under the row.
+            height: categoryRowHeight(context, s.categories),
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -452,38 +460,37 @@ class _Banner extends StatelessWidget {
                 if (heading.isNotEmpty)
                   Align(
                     alignment: AlignmentDirectional.bottomStart,
-                    child: Container(
+                    child: SizedBox(
                       width: double.infinity,
-                      padding: const EdgeInsetsDirectional.fromSTEB(
-                        18,
-                        12,
-                        18,
-                        14,
-                      ),
-                      // A flat scrim keeps the title readable on any image.
-                      color: const Color(0xA60E0D24),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              heading,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                                height: 1.25,
+                      // 110 A shade fading in under the title keeps it
+                      // readable on any image, with no hard edge.
+                      child: TextScrim(
+                        // A short banner: a shorter fade.
+                        fade: 24,
+                        padding: const EdgeInsets.fromLTRB(18, 12, 18, 14),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                heading,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                  height: 1.25,
+                                ),
                               ),
                             ),
-                          ),
-                          if (onTap != null)
-                            const AppIcon(
-                              AppIcons.arrowForward,
-                              size: 20,
-                              color: Colors.white,
-                            ),
-                        ],
+                            if (onTap != null)
+                              const AppIcon(
+                                AppIcons.arrowForward,
+                                size: 20,
+                                color: Colors.white,
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

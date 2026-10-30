@@ -151,6 +151,7 @@ class _CourierJobScreenState extends ConsumerState<CourierJobScreen> {
         .toList();
     return Scaffold(
       appBar: AppBar(
+        leading: appBarBack(context),
         title: Text(
           job == null ? l10n.courierTitle : l10n.jobTitle(job.reference),
         ),
