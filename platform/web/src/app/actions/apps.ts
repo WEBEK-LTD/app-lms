@@ -12,6 +12,7 @@ import { getStore } from "@/lib/data";
 import { encryptionKey, licenseRefreshTestUrl } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { refreshSiteOf } from "@/lib/license/refresh";
+import { isStudioProject } from "@/lib/studio/section";
 
 /**
  * 73 Setup › Delete this app (lib/apps/deletion.ts): the owner only (the
@@ -40,5 +41,10 @@ export async function deleteAppAction(_: FormState, formData: FormData): Promise
   });
   (await cookies()).delete(APP_COOKIE);
   revalidatePath("/dashboard", "layout");
+  // 111 A Studio project's owner goes back to Studio's projects, not the regular dashboard.
+  if (isStudioProject(app)) {
+    revalidatePath("/studio", "layout");
+    redirect("/studio");
+  }
   redirect(`/dashboard?deleted=${encodeURIComponent(result.deletion.id)}`);
 }

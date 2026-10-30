@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { ownContentSetup } from "@/lib/app/own-content";
-import { STUDIO_ONLY_KINDS } from "@/lib/studio/section";
+import { STUDIO_ONLY_KINDS, isStudioProject, studioPathFor } from "@/lib/studio/section";
 import { checkApi, type ApiCheckResult } from "@/lib/app/api-check";
 import { listingLanguages, parseListingExtras } from "@/lib/app/listing-languages";
 import { versionSettingsProblems } from "@/lib/app/version-policy";
@@ -88,6 +88,11 @@ function stepUrl(step: SetupStep): string {
   return `/dashboard/setup?step=${step}`;
 }
 
+/** 111 A dashboard address in the app's own section: a Studio project's in Studio's frame, not by way of the dashboard's. */
+function inSection(app: Pick<App, "section">, path: string): string {
+  return isStudioProject(app) ? (studioPathFor(path) ?? path) : path;
+}
+
 /**
  * After a step is saved: go to the next step, or queue the first build when
  * setup is complete. 13.1 With automatic rebuilds in the app's plan, a change
@@ -103,13 +108,14 @@ async function afterStep(context: ClientContext & { app: App }, step: SetupStep)
   const plans = await effectivePlans(store);
   const plan = context.license ? currentPlanId(context.license, now) : null;
   revalidatePath("/dashboard", "layout");
+  if (isStudioProject(app)) revalidatePath("/studio", "layout");
   if (isSetupComplete(app, plan, plans)) {
     const builds = await store.listBuildsByApp(app.id, 1);
     const last = builds[0];
     // 87.4 A change a new build would bring: the build in a few minutes, so more saves join it.
     if (last && plan && hasFeature(plans[plan], "auto_rebuild") && context.state === "active" && buildChanges(app, context.client, last, assetUrl).length > 0) {
       await scheduleAutoBuild(store, app, now);
-      redirect("/dashboard/builds?started=auto");
+      redirect(inSection(app, "/dashboard/builds?started=auto"));
     }
     if (builds.length === 0) {
       const result = await queueBuild(
@@ -120,13 +126,13 @@ async function afterStep(context: ClientContext & { app: App }, step: SetupStep)
       );
       if (result.ok) {
         await startPipeline();
-        redirect("/dashboard/builds?started=1");
+        redirect(inSection(app, "/dashboard/builds?started=1"));
       }
     }
-    if (step === "publishing") redirect("/dashboard/builds");
+    if (step === "publishing") redirect(inSection(app, "/dashboard/builds"));
   }
   const next = STEP_ORDER[STEP_ORDER.indexOf(step) + 1];
-  redirect(next ? stepUrl(next) : "/dashboard/setup");
+  redirect(inSection(app, next ? stepUrl(next) : "/dashboard/setup"));
 }
 
 /** The app switcher: the dashboard works on another of the client's apps from now on. */
@@ -816,7 +822,7 @@ export async function removeStoreKeyAction(formData: FormData): Promise<void> {
   }
   await recordStaffChange(context, `Removed a saved key or file (${String(formData.get("store") ?? "")})`);
   revalidatePath("/dashboard", "layout");
-  redirect(stepUrl("publishing"));
+  redirect(inSection(context.app, stepUrl("publishing")));
 }
 
 export interface UploadResult {
