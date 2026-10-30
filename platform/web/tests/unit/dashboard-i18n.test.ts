@@ -6,6 +6,7 @@ import { dashboardMessages, getDashT, knownMessages, knownTranslator } from "@/i
 import { richTags } from "@/i18n/rich";
 import { icuArguments, parseIcu } from "@/lib/i18n/icu";
 import { dashboardFiles, filesUnder, findHardcodedText } from "./dashboard-strings";
+import { DESIGNS } from "@/lib/pages/designs";
 
 const ROOT = join(__dirname, "../..");
 const placeholders = (message: string) => [...icuArguments(parseIcu(message)).keys()].sort();
@@ -73,6 +74,19 @@ describe("56 texts from shared code", () => {
 
   it("are only in `known` parts", () => {
     for (const key of knownMessages(dashboardMessages("en")).keys()) expect(key).toMatch(/\.known\./);
+  });
+});
+
+describe("111 the ready-made designs in the Branding step", () => {
+  it("have their names and descriptions in Arabic and Turkish", () => {
+    // Words Turkish writes the same.
+    const same = new Set(["Salon", "Blog", "Festival"]);
+    for (const lang of ["ar", "tr"] as const) {
+      const k = knownTranslator(lang);
+      for (const design of DESIGNS) {
+        for (const text of [design.name, design.description]) if (!(lang === "tr" && same.has(text))) expect(k(text), `${lang} ${design.id}`).not.toBe(text);
+      }
+    }
   });
 });
 
