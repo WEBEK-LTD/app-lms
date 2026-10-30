@@ -186,6 +186,7 @@ class BuildConfigData {
   final List<String> sitePaths;
 
   BuildConfigData copyWith({
+    String? appName,
     String? siteUrl,
     bool clearApiBaseUrl = false,
     AppTemplate? template,
@@ -202,7 +203,7 @@ class BuildConfigData {
     appType: appType ?? this.appType,
     vertical: vertical,
     role: role ?? this.role,
-    appName: appName,
+    appName: appName ?? this.appName,
     shortName: shortName,
     siteUrl: siteUrl ?? this.siteUrl,
     apiBaseUrl: clearApiBaseUrl ? null : apiBaseUrl,

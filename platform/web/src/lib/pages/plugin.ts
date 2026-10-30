@@ -7,6 +7,7 @@ import { effectivePlans, planOfLicense } from "../entitlements";
 import { withLanguageList } from "../i18n/packs";
 import { withBuiltInTexts } from "./builtin";
 import { servedAppearance, shownAppearance } from "../fonts/look";
+import { isSamplePlace } from "./designs/build";
 import { appDefaults } from "./layout";
 import { layoutForPlan } from "./plan";
 import type { Layout } from "./types";
@@ -58,8 +59,10 @@ export async function pluginLayout(store: DataStore, site: SiteInfo, ifNoneMatch
   void _mode;
   void _figma;
   const planned = withBuiltInTexts(layoutForPlan(shown, app, planOfLicense(await effectivePlans(store), license, now), await appDefaults(store)));
-  const { strings: _strings, ...rest } = planned;
+  const { strings: _strings, ...served } = planned;
   void _strings;
+  // 110.3 A Location block still at the design's sample place isn't the business's: the plugin never gets it.
+  const rest = { ...served, pages: served.pages.map((p) => (p.blocks.some(isSamplePlace) ? { ...p, blocks: p.blocks.filter((b) => !isSamplePlace(b)) } : p)) };
   // Strings are published with the pages, so a changed pack always comes with a new version.
   // 97.1 With the files of the look's free fonts, on Yallapp.
   const layout: Layout = {

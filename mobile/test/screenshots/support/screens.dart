@@ -102,6 +102,7 @@ class Shot {
     this.size = shotSize,
     this.signedIn = true,
     this.loading = false,
+    this.build,
     this.overrides = const [],
     this.mapTiles = false,
     this.appName,
@@ -125,6 +126,9 @@ class Shot {
 
   /// Captures the first frame after [location] opens (loading states).
   final bool loading;
+
+  /// 110.3 Changes to the build config (the app's name in the header).
+  final BuildConfigData Function(BuildConfigData build)? build;
 
   /// 110.5 More provider overrides (the phone's position).
   final List<Override> overrides;
@@ -156,7 +160,12 @@ class Shot {
       },
       wrap: (app) => withStatusBar(app, lightIcons: lightIcons),
       overrides: overrides,
-      build: appName == null ? null : (b) => _named(b, appName!),
+      build: appName == null && build == null
+          ? null
+          : (b) {
+              final named = appName == null ? b : _named(b, appName!);
+              return build == null ? named : build!(named);
+            },
     );
     await app.pump(tester);
     final router = app.container.read(appRouterProvider);
