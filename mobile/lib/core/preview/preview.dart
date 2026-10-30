@@ -181,8 +181,18 @@ PreviewStart previewStartFromJson(
     throw const PreviewException(PreviewProblem.unreachable);
   }
   final token = preview['api_token'];
+  final build = Map<String, dynamic>.from(config);
+  // The hosted API: the app's content, or (34) only its sign-in.
+  final hosted = [
+    if (preview['content_source'] == 'hosted') 'api_base_url',
+    'auth_base_url',
+  ];
+  for (final key in hosted) {
+    final url = build[key];
+    if (url is String) build[key] = onPageOrigin(url, platformUrl);
+  }
   return PreviewStart(
-    buildConfigFromJson(Map<String, dynamic>.from(config)),
+    buildConfigFromJson(build),
     PreviewSession(
       appId: '${preview['app_id'] ?? ''}',
       platformUrl: normalizeSiteUrl(platformUrl),
@@ -203,4 +213,23 @@ PreviewStart previewStartFromJson(
       themeMode: themeMode,
     ),
   );
+}
+
+/// 17 The platform's hosted API at the address the preview page was opened
+/// from. The platform names its hosted API at its own main address, and the
+/// page can be on another of its addresses (www or not, a domain served
+/// through a proxy, a deploy's own address): the browser then blocks every
+/// request the app makes, and the app says it couldn't connect. The page's
+/// address just answered the preview config, so it serves the API too.
+/// Addresses that aren't the hosted API's stay as they are.
+String onPageOrigin(String url, String platformUrl) {
+  final api = Uri.tryParse(url);
+  final page = Uri.tryParse(normalizeSiteUrl(platformUrl));
+  if (api == null || page == null || !api.hasAuthority || !page.hasAuthority) {
+    return url;
+  }
+  if (!api.path.startsWith('/api/app/')) return url;
+  return api
+      .replace(scheme: page.scheme, host: page.host, port: page.port)
+      .toString();
 }
