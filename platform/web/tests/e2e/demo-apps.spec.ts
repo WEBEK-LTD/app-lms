@@ -1,5 +1,6 @@
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
+import { createPreviewToken, previewAppPath, previewKey } from "../../src/lib/preview/token";
 
 /**
  * Demo apps people can try (roadmap 16): the team creates them from
@@ -65,6 +66,32 @@ test("the team creates the demo apps from the admin", async () => {
   expect(await admin.locator(`form:has(button:has-text("Start a build of Lale Flowers")) input[name="appId"]`).inputValue()).toBe(appIds["Lale Flowers"]);
   await admin.goto("/admin/audit");
   await expect(admin.getByText("the demo apps:").first()).toBeVisible();
+});
+
+// 17 Every demo app opens in the app preview: the preview link's config, then the hosted API's
+// /config and /pages answer as JSON, and the app writes no failed request to the console.
+test("every demo app runs in the app preview", async ({ browser }) => {
+  test.setTimeout(16 * 45_000);
+  const key = previewKey(E2E.signingSecret);
+  for (const [name, appId] of Object.entries(appIds)) {
+    const page = await browser.newPage({ extraHTTPHeaders: ip(170) });
+    const failures: string[] = [];
+    page.on("console", (m) => {
+      if (m.text().startsWith("Yallapp preview:")) failures.push(m.text());
+    });
+    const hosted = (path: string) => (r: { url(): string }) => new URL(r.url()).pathname === `/api/app/${appId}/${path}`;
+    const config = page.waitForResponse(hosted("config"), { timeout: 40_000 });
+    const pages = page.waitForResponse(hosted("pages"), { timeout: 40_000 });
+    await page.goto(`${previewAppPath(createPreviewToken({ appId, draft: false }, key))}&lang=en`);
+    const answer = await config;
+    expect(answer.status(), name).toBe(200);
+    expect(answer.headers()["content-type"], name).toContain("application/json");
+    expect((await answer.json()).site.name, name).toBe(name);
+    // /pages is asked only once the app is past its /config.
+    expect((await pages).status(), name).toBe(200);
+    expect(failures, name).toEqual([]);
+    await page.close();
+  }
 });
 
 test("visitors sign in with the demo number only, within limits", async ({ request }) => {
