@@ -65,6 +65,22 @@ function StepActions({ back }: { back: string | null }) {
 
 const v = (state: FormState, key: string, fallback: string) => state.values?.[key] ?? fallback;
 
+/**
+ * 111 React resets a form after each answer of its action: its controlled
+ * radios, checkboxes and lists go back to how they were first drawn while the
+ * state keeps the choice (and the next save sends what the form shows). A key
+ * that changes with each answer draws them again from the state.
+ */
+function useAnswerKey(state: unknown): number {
+  const [seen, setSeen] = useState(state);
+  const [key, setKey] = useState(0);
+  if (seen !== state) {
+    setSeen(state);
+    setKey((k) => k + 1);
+  }
+  return key;
+}
+
 type Backend = WebsiteChoice;
 
 /** A platform connected with keys, as the Website step shows it. */
@@ -734,6 +750,8 @@ export function BrandingStep({
   const t = useDashT();
   const known = useKnownText();
   const [state, action] = useActionState(saveBrandingAction, initialFormState);
+  // 111 The design, template and font as chosen after a save that didn't go through (and the upload's error).
+  const formKey = useAnswerKey(state);
   const [primary, setPrimary] = useState(v(state, "primaryColor", values.primaryColor));
   const [splash, setSplash] = useState(v(state, "splashColor", values.splashColor));
   const [template, setTemplate] = useState(v(state, "template", values.template));
@@ -756,7 +774,7 @@ export function BrandingStep({
   const [name, setName] = useState(v(state, "appName", values.appName));
 
   return (
-    <form action={action} noValidate className="flex flex-wrap items-start gap-6">
+    <form key={formKey} action={action} noValidate className="flex flex-wrap items-start gap-6">
       {/* Sent from state: React resets the form's own radios after each submit. */}
       <input type="hidden" name="template" value={template} />
       <input type="hidden" name="design" value={design} />
@@ -1129,6 +1147,8 @@ export function ListingStep({
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveListingAction, initialFormState);
+  // 111 The framed screenshots and the listing's language as chosen after a save that didn't go through.
+  const answerKey = useAnswerKey(state);
   const value = (key: keyof typeof values) => v(state, key, values[key]);
   const text = (name: string, fallback: string) => v(state, name, fallback);
   const [framed, setFramed] = useState(listing.framed);
@@ -1209,7 +1229,7 @@ export function ListingStep({
             <label htmlFor="f-listingLanguage" className="text-sm font-semibold">
               {t("setup.listingLanguage")}
             </label>
-            <select id="f-listingLanguage" name="listingLanguage" value={language} onChange={(event) => setLanguage(event.target.value)} className="input max-w-[320px]" aria-describedby="f-listingLanguage-hint">
+            <select key={answerKey} id="f-listingLanguage" name="listingLanguage" value={language} onChange={(event) => setLanguage(event.target.value)} className="input max-w-[320px]" aria-describedby="f-listingLanguage-hint">
               {languages.map((item) => (
                 <option key={item.code} value={item.code}>
                   {item.name}
@@ -1291,7 +1311,7 @@ export function ListingStep({
             saved={state}
           />
           <label className="flex cursor-pointer items-start gap-3">
-            <input type="checkbox" name="frameScreenshots" checked={framed} onChange={(event) => setFramed(event.target.checked)} className="mt-1 h-4 w-4 accent-midnight" />
+            <input key={answerKey} type="checkbox" name="frameScreenshots" checked={framed} onChange={(event) => setFramed(event.target.checked)} className="mt-1 h-4 w-4 accent-midnight" />
             <span className="flex flex-col gap-0.5">
               <span className="text-sm font-semibold">{t("setup.frameShots")}</span>
               <span className="text-xs text-muted">{t("setup.frameShotsText")}</span>
@@ -1513,6 +1533,8 @@ export function PublishingStep({
 }) {
   const t = useDashT();
   const [state, action] = useActionState(savePublishingAction, initialFormState);
+  // 111 Who publishes, as chosen after a save that didn't go through.
+  const formKey = useAnswerKey(state);
   const [mode, setMode] = useState<"managed" | "self">(teamPublishes ? "managed" : "self");
   const teamNotice = teamPublishes ? (
     <p className="m-0 flex gap-2 rounded-xl bg-success-bg px-4 py-3 text-[15px] leading-relaxed">
@@ -1523,7 +1545,7 @@ export function PublishingStep({
 
   if (!autoPublish) {
     return (
-      <form action={action} noValidate className="flex flex-wrap items-start gap-6">
+      <form key={formKey} action={action} noValidate className="flex flex-wrap items-start gap-6">
         <StepCard title={t("setup.publishing")} id="h-publishing">
           {teamNotice}
           <p className="m-0 text-[15px] leading-relaxed text-ink-4">{ios ? t("setup.selfPublishApps", { plan: planName }) : t("setup.selfPublishApp", { plan: planName })}</p>
@@ -1565,7 +1587,7 @@ export function PublishingStep({
   }
 
   return (
-    <form action={action} noValidate className="flex flex-wrap items-start gap-6">
+    <form key={formKey} action={action} noValidate className="flex flex-wrap items-start gap-6">
       {/* Sent from state: React resets the form's own radios after each submit. */}
       <input type="hidden" name="publishingMode" value={mode} />
       <StepCard title={t("setup.publishing")} id="h-publishing">
