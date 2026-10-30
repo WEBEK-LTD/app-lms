@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
+import '../api/http_client.dart' show describeFailure;
 import '../api/models/models.dart';
 import '../config/build_config.dart';
 import '../config/build_config_json.dart';
@@ -144,7 +145,8 @@ Future<PreviewStart> fetchPreview(
         validateStatus: (status) => status != null && status < 600,
       ),
     );
-  } on DioException {
+  } on DioException catch (e) {
+    debugPrint(describeFailure(e));
     throw const PreviewException(PreviewProblem.unreachable);
   }
   final status = response.statusCode ?? 0;
@@ -154,6 +156,10 @@ Future<PreviewStart> fetchPreview(
   }
   final data = response.data;
   if (status != 200 || data is! Map) {
+    debugPrint(
+      'Yallapp preview: GET ${response.requestOptions.uri.path} answered '
+      'HTTP $status${data is Map ? '' : ' without JSON'}',
+    );
     throw const PreviewException(PreviewProblem.unreachable);
   }
   return previewStartFromJson(

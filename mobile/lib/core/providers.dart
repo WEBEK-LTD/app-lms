@@ -105,6 +105,11 @@ final apiBundleProvider = Provider<ApiBundle>((ref) {
     offline: ref.read(offlineCacheProvider),
   );
   authDio.options.headers.addAll(previewHeaders);
+  // 17 In the preview, every failed request is written to the console.
+  if (env.isPreview) {
+    dio.interceptors.add(FailureLogInterceptor());
+    authDio.interceptors.add(FailureLogInterceptor());
+  }
   api = HttpYallappApi(
     dio: dio,
     refreshDio: refreshDio,
