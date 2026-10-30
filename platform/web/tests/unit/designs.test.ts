@@ -105,11 +105,13 @@ describe("ready-made designs", () => {
     const home = layout.pages[0]!.blocks;
     expect(home.find((b) => b.id === "welcome")!.html).toContain("from Ada &lt;Academy&gt;.");
     expect(home.find((b) => b.type === "countdown")!.ends_at).toBe("2026-11-11T10:00:00Z");
-    const about = layout.pages.find((p) => p.slug === "about")!;
-    expect(about.blocks.find((b) => b.type === "contact")).toMatchObject({ website: "https://brand.test", email: "hello@brand.test", whatsapp: "+20 100 123 4567", phone: null });
+    const contactPage = layout.pages.find((p) => p.slug === "contact")!;
+    expect(contactPage.blocks.find((b) => b.type === "contact")).toMatchObject({ website: "https://brand.test", email: "hello@brand.test", whatsapp: "+20 100 123 4567", phone: null });
+    // 110.3 The place on the map is named after the app.
+    expect(contactPage.blocks.find((b) => b.type === "map")).toMatchObject({ name: "Ada <Academy>" });
     // Without contact details the Contact block is left out.
     const bare = applyDesign(design, { appName: null, facts: none, current, now: NOW });
-    expect(bare.pages.find((p) => p.slug === "about")!.blocks.some((b) => b.type === "contact")).toBe(false);
+    expect(bare.pages.find((p) => p.slug === "contact")!.blocks.some((b) => b.type === "contact")).toBe(false);
     expect(bare.pages[0]!.blocks.find((b) => b.id === "welcome")!.html).toContain("from our app.");
   });
 
@@ -193,7 +195,12 @@ describe("99.1 each design's own colours, pictures and social links", () => {
   });
 
   it("110 keeps a single welcome: the banner's, without the page's own welcome heading below it", () => {
-    const homeOf = (id: string, pictures = true) => applyDesign(designById(id)!, { appName: "Nile", facts, current, now: NOW, pictureBase: pictures ? base : undefined }).pages.find((p) => p.slug === "home")!.blocks;
+    // 110.3 Every design's home has its own slides now; without them (as a team's design may be) it gets the banner.
+    const withoutSlides = (id: string): Design => {
+      const design = designById(id)!;
+      return { ...design, pages: design.pages.map((p) => ({ ...p, blocks: p.blocks.filter((b) => b.type !== "slider") })) };
+    };
+    const homeOf = (id: string, pictures = true) => applyDesign(withoutSlides(id), { appName: "Nile", facts, current, now: NOW, pictureBase: pictures ? base : undefined }).pages.find((p) => p.slug === "home")!.blocks;
     for (const [id, body] of [
       ["restaurant-menu", "<p>Order your favorites for pickup or delivery.</p>"],
       ["news-blog", "<p>New posts every week. Save the ones you like to read later.</p>"],
@@ -215,6 +222,10 @@ describe("99.1 each design's own colours, pictures and social links", () => {
     // And the banner stays above the festival's countdown and the appeal.
     expect(homeOf("events-festival").slice(0, 2).map((b) => b.type)).toEqual(["banner", "countdown"]);
     expect(homeOf("charity-appeal").slice(0, 3).map((b) => b.type)).toEqual(["banner", "notice", "countdown"]);
+    // With its slides, a home page has no banner and keeps its welcome as written.
+    const home = applyDesign(designById("restaurant-menu")!, { appName: "Nile", facts, current, now: NOW, pictureBase: base }).pages[0]!.blocks;
+    expect(home.some((b) => b.type === "banner")).toBe(false);
+    expect(home.find((b) => b.id === "welcome")!.html).toBe("<h2>Welcome to Nile</h2><p>Order your favorites for pickup or delivery.</p>");
   });
 
   it("110 tells a heading that repeats the welcome", () => {

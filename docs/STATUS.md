@@ -30,6 +30,24 @@ with their pictures and asks after the first own entry; store builds,
 "We publish for you" and the team's store statuses wait until none are left.
 The hosted API's public JSON is unchanged (no `sample` field).
 
+Phase 110.3 (full templates) is complete: each of the 52 ready-made
+designs is a whole app its owner only edits. Its home page has 8 to 12
+blocks (three slides, the kind's lists, numbers, three quotes, questions,
+a short story, contact and hours), the header of the pages in the tabs shows
+the app's logo or name, and every design has About us (story, a team of
+four with drawn pictures, numbers, six photos), Contact (map, hours, a form,
+the contact details) and Questions pages, plus its kind's own (Pricing,
+Offers and Delivery & returns, Catering, Prices, Our doctors and Patient
+info, Timetable and Plans, Areas and Valuation, Visit and Hire, Our work and
+Volunteer, How it works and a page to join as a courier, driver or partner,
+Admissions). The texts are samples in the business's voice, marked in the
+editor until changed, with Arabic and Turkish in the built-in dictionary.
+The map's place is a sample the owner moves to theirs: the editor and the
+draft preview show it, marked as a sample, but a published app never does
+(the hosted API's pages and the plugin's layout leave a Location block at
+the sample place out). The Social links block still comes only from the
+business's own profiles.
+
 Phase 104 (delivery and courier companies) steps 104.1 to 104.7 are
 complete: a new project type in Yallapp Studio, Delivery, with no website
 (a Studio project only, on Studio's plans). Customers send a

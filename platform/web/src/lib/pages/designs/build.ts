@@ -1,7 +1,9 @@
 import type {
   Action,
   Appearance,
+  Card,
   FaqEntry,
+  FormField,
   HoursPeriod,
   ItemSource,
   ItemsSort,
@@ -32,8 +34,8 @@ export interface Design {
   name: string;
   /** One line under the name. */
   description: string;
-  /** The look: the app's main color stays the owner's. */
-  look: Pick<Appearance, "template" | "corners" | "cards" | "font" | "secondary_color">;
+  /** The look: the app's main color stays the owner's; 110.3 with the header of the pages in the tabs (the app's name or logo on the home page). */
+  look: Pick<Appearance, "template" | "corners" | "cards" | "font" | "secondary_color"> & Partial<Pick<Appearance, "header">>;
   tabs: LayoutTab[];
   pages: DesignPage[];
   /** 84.2 The side menu: every design gets its About us and Contact pages there (index.ts). */
@@ -61,19 +63,19 @@ export const PALETTES: readonly Palette[] = [
   { id: "sand", name: "Sand", primary: "#7C4A1E", secondary: "#E9B872" },
 ];
 
-/** 84.2 Pages most businesses want besides the home page. */
+/** 84.2 Pages most businesses want besides the home page (110.3 the designs have their own: designs/pages.ts). */
 export const aboutPage = (): DesignPage => ({
   slug: "about",
   title: "About us",
   show_title: true,
-  blocks: [text("story", "<p>Write who you are, what you do and what makes {app} different.</p>")],
+  blocks: [text("story", "<p>We started {app} to do one thing well and do it for people we know by name. Ask us anything: we answer every message ourselves.</p>")],
 });
 
 export const contactPage = (): DesignPage => ({
   slug: "contact",
   title: "Contact",
   show_title: true,
-  blocks: [text("reach", "<p>Write how and when people can reach you.</p>"), contact("Contact us")],
+  blocks: [text("reach", "<p>Call, write or send us a message here: we answer within a working day.</p>"), contact("Contact us")],
 });
 
 export interface DesignPage {
@@ -134,8 +136,8 @@ export const link = (icon: string, label: string, action: Action): QuickLink => 
 
 export const quickLinks = (links: QuickLink[], style: "grid" | "row" = "grid", title: string | null = null): LayoutBlock => ({ ...base("quick-links", "quick_links", title), style, links });
 
-export const notice = (tone: NoticeTone, message: string, label: string | null = null, action: Action | null = null): LayoutBlock => ({
-  ...base("notice", "notice"),
+export const notice = (tone: NoticeTone, message: string, label: string | null = null, action: Action | null = null, id = "notice"): LayoutBlock => ({
+  ...base(id, "notice"),
   tone,
   text: message,
   ...(label ? { label } : {}),
@@ -155,19 +157,71 @@ export const countdown = (heading: string, days: number, endedText: string | nul
 
 export const quote = (text: string, name: string, role: string | null = null, rating: number | null = 5): Quote => ({ text, name, role, photo_url: null, rating });
 
-export const testimonials = (title: string, quotes: Quote[]): LayoutBlock => ({ ...base("testimonials", "testimonials", title), quotes });
+export const testimonials = (title: string, quotes: Quote[], id = "testimonials"): LayoutBlock => ({ ...base(id, "testimonials", title), quotes });
 
 export const question = (q: string, answer: string): FaqEntry => ({ question: q, answer });
 
-export const faq = (title: string, questions: FaqEntry[]): LayoutBlock => ({ ...base("faq", "faq", title), questions });
+export const faq = (title: string, questions: FaqEntry[], id = "faq"): LayoutBlock => ({ ...base(id, "faq", title), questions });
 
-export const person = (name: string, role: string | null, bio: string | null = null): Person => ({ name, role, bio, photo_url: null, action: null });
+/**
+ * 110.3 One of Yallapp's drawn pictures (public/design-pictures, drawn by
+ * lib/demo/design-art.ts): `picture:<file>` in a design, its address on the
+ * platform once applied (index.ts), nothing without one.
+ */
+export const PICTURE = "picture:";
+export const picture = (file: string): string => `${PICTURE}${file}`;
 
-export const team = (title: string, people: Person[], layout: "carousel" | "grid" | "list" = "carousel"): LayoutBlock => ({ ...base("team", "team", title), layout, people });
+export const person = (name: string, role: string | null, bio: string | null = null, photo: string | null = null): Person => ({ name, role, bio, photo_url: photo ? picture(photo) : null, action: null });
+
+export const team = (title: string, people: Person[], layout: "carousel" | "grid" | "list" = "carousel", id = "team"): LayoutBlock => ({ ...base(id, "team", title), layout, people });
 
 export const stat = (value: string, label: string): Stat => ({ value, label });
 
-export const stats = (values: Stat[], title: string | null = null): LayoutBlock => ({ ...base("stats", "stats", title), stats: values });
+export const stats = (values: Stat[], title: string | null = null, id = "stats"): LayoutBlock => ({ ...base(id, "stats", title), stats: values });
+
+// 110.3 Cards, photos, a place on the map and forms (99.4 blocks).
+
+export const card = (title: string, body: string | null, photo: string | null = null, action: Action | null = null): Card => ({ title, text: body, image_url: photo ? picture(photo) : null, action });
+
+export const cards = (id: string, title: string | null, list: Card[], columns: 2 | 3 = 2): LayoutBlock => ({ ...base(id, "cards", title), columns, cards: list });
+
+/** Photos (Yallapp's drawn pictures, by file), with captions or none. */
+export const gallery = (id: string, title: string | null, photos: (string | [string, string])[], columns: 2 | 3 = 3): LayoutBlock => ({
+  ...base(id, "gallery", title),
+  columns,
+  images: photos.map((p) => (typeof p === "string" ? { image_url: picture(p), caption: null } : { image_url: picture(p[0]), caption: p[1] })),
+});
+
+/** Where the business is: a sample place the owner moves to theirs (the editor marks it). */
+export const SAMPLE_PLACE = { latitude: 40.9903, longitude: 29.029 } as const;
+
+/**
+ * 110.3 A Location block still at the design's sample place: the editor and
+ * the preview show it (marked as a sample), a published app never does, so
+ * an app published unedited shows no wrong place.
+ */
+export function isSamplePlace(block: Pick<LayoutBlock, "type" | "latitude" | "longitude">): boolean {
+  return block.type === "map" && block.latitude === SAMPLE_PLACE.latitude && block.longitude === SAMPLE_PLACE.longitude;
+}
+
+export const place = (title: string | null, label: string | null = "Directions", id = "map"): LayoutBlock => ({
+  ...base(id, "map", title),
+  ...SAMPLE_PLACE,
+  name: "{app}",
+  address: null,
+  ...(label ? { label } : {}),
+});
+
+export const field = (id: string, kind: FormField["kind"], label: string, required = false): FormField => ({ id, kind, label, required, options: null });
+
+/** Answers emailed to the business. */
+export const form = (id: string, title: string, fields: FormField[], submit: string, success: string): LayoutBlock => ({
+  ...base(id, "form", title),
+  fields,
+  submit_label: submit,
+  success_text: success,
+  send_to: "email",
+});
 
 /** The same hours on several days. */
 export function days(list: Weekday[], opens: string, closes: string): HoursPeriod[] {
@@ -177,11 +231,11 @@ export function days(list: Weekday[], opens: string, closes: string): HoursPerio
 export const WEEK: Weekday[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 export const WEEKDAYS_ONLY: Weekday[] = ["mon", "tue", "wed", "thu", "fri"];
 
-export const hours = (title: string, periods: HoursPeriod[], note: string | null = null): LayoutBlock => ({ ...base("hours", "hours", title), hours: periods, closed_dates: [], note });
+export const hours = (title: string, periods: HoursPeriod[], note: string | null = null, id = "hours"): LayoutBlock => ({ ...base(id, "hours", title), hours: periods, closed_dates: [], note });
 
 /** Filled with the app's own contact details when the design is applied, and left out when it has none. */
-export const contact = (title = "Contact us"): LayoutBlock => ({
-  ...base("contact", "contact", title),
+export const contact = (title = "Contact us", id = "contact"): LayoutBlock => ({
+  ...base(id, "contact", title),
   phone: null,
   whatsapp: null,
   email: null,

@@ -1,6 +1,7 @@
 import { mapTreeAsync } from "../../studio/tree";
 import { ENGINES, isAppType } from "../../app/kinds";
 import type { App, HostedUser } from "../../data/types";
+import { isSamplePlace } from "../../pages/designs/build";
 import { servedLayout } from "../../pages/layout";
 import { etagValues } from "../../pages/plugin";
 import { itemSourcesFor } from "../../pages/sources";
@@ -159,6 +160,8 @@ function servable(app: App, connector: Connector | null | undefined, source: Ite
 async function resolveBlock(pc: PageContext, block: LayoutBlock): Promise<Record<string, unknown> | null> {
   const { ctx, user } = pc;
   if (!visible(block, user) || !shownNow(block.show, ctx.now, pc.platform, pc.lang)) return null;
+  // 110.3 A Location block still at the design's sample place shows in the draft preview only.
+  if (isSamplePlace(block) && !ctx.preview?.draft) return null;
   // 33 With the texts of its entries (slides, quotes, ...) in the language too.
   const text = translatedBlock(block, pc.lang, pc.layout.languages.default);
   const { visibility: _v, show: _s, query, ...rest } = text;

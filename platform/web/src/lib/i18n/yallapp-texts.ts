@@ -2,6 +2,7 @@ import { APP_TYPES, KINDS } from "../app/kinds";
 import type { App, AppBackend } from "../data/types";
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "../pages/defaults";
 import { applyDesign, DESIGNS } from "../pages/designs";
+import { aboutPage, contactPage } from "../pages/designs/build";
 import { SCREEN_LABELS } from "../pages/labels";
 import { newBlock } from "../pages/model";
 import { blockTypesFor, itemSourcesFor, screenOptionsFor } from "../pages/sources";
@@ -81,6 +82,9 @@ export function yallappPageTexts(): string[] {
       add(layoutTexts(layout));
     }
   }
+  // 99.1 The banner a home page without slides gets (a team's design), and 110.3 the About us and Contact pages it gets when it has none.
+  texts.add("Welcome to {app}");
+  add(layoutTexts({ tabs: [], pages: [aboutPage(), contactPage()].map((p) => ({ ...p, updated_at: now.toISOString() })) }));
   // What a new block starts with: placeholders, titles and quick links to the app's screens.
   for (const appType of APP_TYPES) {
     for (const backend of BACKENDS) {

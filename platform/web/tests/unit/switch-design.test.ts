@@ -42,13 +42,13 @@ describe("99.2 switching to another design", () => {
     const saved = await saveDesignDraft(store, app, grocery, NOW, {}, { mode: "all", keepPages: true });
     if (!saved.ok) throw new Error(saved.errors.join(" "));
     const draft = saved.value.record.draft;
-    expect(draft.pages.map((p) => p.slug)).toEqual(["home", "offers", "about", "contact", "story"]);
+    expect(draft.pages.map((p) => p.slug)).toEqual(["home", "offers", "delivery", "about", "contact", "faq", "story"]);
     expect(draft.menu?.find((m) => m.target.type === "page" && m.target.page_slug === "story")).toMatchObject({ id: "menu-story", icon: "auto_stories" });
     expect((await store.getAppById(app.id))!.design).toBe("store-grocery");
 
     // Without keeping them, the design's pages only.
     const plain = await saveDesignDraft(store, app, grocery, NOW, {}, { mode: "all" });
-    expect(plain.ok && plain.value.record.draft.pages.map((p) => p.slug)).toEqual(["home", "offers", "about", "contact"]);
+    expect(plain.ok && plain.value.record.draft.pages.map((p) => p.slug)).toEqual(["home", "offers", "delivery", "about", "contact", "faq"]);
   });
 
   it("puts a kept page without a menu entry under its title (in each language), and keeps no more pages than an app can have", () => {
