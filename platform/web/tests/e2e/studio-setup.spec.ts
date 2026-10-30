@@ -22,9 +22,10 @@ const problems: string[] = [];
 
 test.beforeAll(async ({ browser }) => {
   own = await browser.newPage({ extraHTTPHeaders });
-  // Console errors and hydration warnings (the fonts aside: this spec runs no font server).
+  // Console errors and hydration warnings. Not the fonts (this spec runs no font server), nor headless Chrome's WebGL notes on the app preview.
+  const browserNote = /was preloaded using link preload|WebGL|GL Driver Message/;
   own.on("console", (m) => {
-    if ((m.type() === "error" || m.type() === "warning") && !m.location().url.includes("/api/v1/fonts/") && !m.text().includes("was preloaded using link preload")) {
+    if ((m.type() === "error" || m.type() === "warning") && !m.location().url.includes("/api/v1/fonts/") && !browserNote.test(m.text())) {
       problems.push(`${m.type()} on ${own.url()}: ${m.text()}`);
     }
   });
@@ -251,9 +252,9 @@ test("Academy with pages of its own: another design's look only, its pages, or k
   expect(look.home).toContain("Enrollment for the new term is open");
   expect(look.tabs).toEqual(kids.tabs);
 
-  // Another design's pages and look.
+  // Another design's pages and look. (Its look only kept the pages: they are still the design's they came from.)
   await own.goto("/studio/project/setup?step=branding");
-  await expectChosen("academy-coaching");
+  await expectChosen("academy-kids");
   await designRadio("academy-online").click();
   await expect(take().getByRole("radio", { name: "Its pages and look" })).toBeChecked();
   await own.getByRole("button", { name: "Save & continue" }).click();
