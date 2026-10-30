@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import '../auth/token_manager.dart';
 import 'api_exception.dart';
@@ -148,4 +149,38 @@ class GateInterceptor extends Interceptor {
     }
     handler.next(err);
   }
+}
+
+/// 17 The app preview writes each failed request to the browser's console:
+/// its address, what failed and the status, if any. The app's screen says
+/// only that something went wrong; the console says what, for the owner
+/// and for us.
+class FailureLogInterceptor extends Interceptor {
+  FailureLogInterceptor([void Function(String message)? log])
+    : _log = log ?? debugPrint;
+
+  final void Function(String message) _log;
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    _log(describeFailure(err));
+    handler.next(err);
+  }
+}
+
+/// One line about a failed request, without its headers or body (they can
+/// hold a token).
+String describeFailure(DioException err) {
+  final options = err.requestOptions;
+  final uri = options.uri;
+  final address = '${uri.scheme}://${uri.authority}${uri.path}';
+  final status = err.response?.statusCode;
+  final inner = err.error;
+  final reason = inner == null
+      ? (err.message ?? '')
+      : '${inner.runtimeType}: ${inner is FormatException ? inner.message : inner}';
+  final short = reason.length > 300 ? '${reason.substring(0, 300)}…' : reason;
+  return 'Yallapp preview: ${options.method} $address failed '
+      '(${err.type.name}${status == null ? ', no response' : ', HTTP $status'})'
+      '${short.isEmpty ? '' : ': $short'}';
 }

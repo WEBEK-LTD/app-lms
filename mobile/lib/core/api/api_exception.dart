@@ -34,6 +34,21 @@ class ApiException implements Exception {
           code: cancelled,
           message: currentL10n.errorCancelled,
         ),
+        // The server answered, but not with the JSON it said it sent (a
+        // proxy's or host's error page, an answer cut off): Dio drops the
+        // response then. That isn't the person's connection.
+        DioExceptionType.unknown when inner is FormatException => ApiException(
+          code: invalidResponse,
+          message: currentL10n.errorInvalidResponse,
+          details: {'reason': inner.message},
+        ),
+        // The app's own request handling failed (an interceptor threw):
+        // nothing to do with the connection either.
+        DioExceptionType.unknown when inner is Error => ApiException(
+          code: appError,
+          message: currentL10n.errorGeneric,
+          details: {'reason': '$inner'},
+        ),
         _ => ApiException(
           code: networkError,
           message: currentL10n.errorNetwork,
@@ -74,6 +89,9 @@ class ApiException implements Exception {
   static const timeout = 'timeout';
   static const cancelled = 'cancelled';
   static const invalidResponse = 'invalid_response';
+
+  /// A fault in the app's own handling of a request, not the server's.
+  static const appError = 'app_error';
   static const unauthorized = 'unauthorized';
   static const maintenance = 'maintenance';
   static const licenseInactive = 'license_inactive';
