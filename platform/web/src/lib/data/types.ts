@@ -2776,6 +2776,9 @@ export interface DemoPurgeCounts {
   shipments: number;
   foodOrders: number;
   rides: number;
+  /** 110.5 The academy with many teachers: teachers visitors followed and rated. */
+  teacherFollows: number;
+  teacherReviews: number;
 }
 
 // 23 News & blog apps: articles written in the dashboard

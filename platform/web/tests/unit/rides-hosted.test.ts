@@ -4,6 +4,7 @@ import { deliverPaidOrder } from "@/lib/catalog/payment";
 import { encryptPaymentKeys } from "@/lib/catalog/settings";
 import type { MemoryStore } from "@/lib/data/memory";
 import { DEFAULT_CATALOG_SETTINGS, DEFAULT_HOSTED_SETTINGS, type App, type DeliverySettings, type Ride, type RidesSettings, type VehicleTypeInput } from "@/lib/data/types";
+import { DEFAULT_TAXI_SETTINGS } from "@/lib/taxi/settings";
 import { reviewNotes } from "@/lib/delivery/review";
 import { DEFAULT_DELIVERY_SETTINGS } from "@/lib/delivery/settings";
 import { RidesConnector } from "@/lib/hosted/connectors/rides";
@@ -501,6 +502,16 @@ describe("105.2 ride apps on the hosted API", () => {
     expect(notes.courier).toContain("Nile Rides Driver is for Nile Rides's drivers only");
     expect(notes.courier).toContain("a sample ride is offered");
     expect(reviewNotes(app, SETTINGS)!.customer).toContain("Account › Driver mode");
+    // 105.9.6 A live taxi app's notes walk through the map and both roles.
+    const taxi = reviewNotes({ ...app, vertical: "taxi" }, SETTINGS)!.customer;
+    expect(taxi).toContain("Nile Rides is a taxi service on a live map.");
+    expect(taxi).toContain("a map with the company's free taxis around you");
+    expect(taxi).toContain("Set the pickup (use your location or a maps link)");
+    expect(taxi).toContain("a test driver that riders never see on the map: Account › Driver mode");
+    expect(taxi).toContain("accept the offer before its countdown ends");
+    const searching = reviewNotes({ ...app, vertical: "taxi" }, { ...SETTINGS, taxi: { ...DEFAULT_TAXI_SETTINGS, searchUrl: "https://search.example.com" } })!.customer;
+    expect(searching).toContain("Tap Where to? and search for a place");
+    expect(reviewNotes(app, SETTINGS)!.customer).not.toContain("taxi");
   });
 
   it("refuses everything when the plan has no ride apps", async () => {

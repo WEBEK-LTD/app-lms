@@ -49,6 +49,15 @@ export const TR_MARKETING: MarketingTranslation = {
     "rides-where": "Yolculuk istemek: her araç türü ücretiyle",
     "rides-ride": "Yoldaki bir yolculuk: sürücü, araç ve sürücüye söylenecek kod",
     "rides-driver": "Çevrimiçi bir sürücü, sunulan bir yolculuk ve almak için kalan saniyeler",
+    "taxi-map": "Haritada açılan canlı bir taksi uygulaması ve yolcunun çevresindeki boş taksiler",
+    "taxi-ride": "Taksisini haritada izleyen yolcu: sürücü, araç ve kod",
+    "taxi-driver": "Haritada çevrimiçi bir taksi sürücüsü, sunulan bir yolculuk ve geri sayımı",
+    "school-today": "Bir okul uygulamasında gün: bugünün dersleri, teslimi gelen ödevler ve okulun haberleri",
+    "school-homework": "Bir öğrencinin ödevleri: teslimi gelenler ve öğretmenin notları",
+    "school-classroom": "Okul uygulamasında bir sınıfın yoklamasını alan öğretmen",
+    "teachers-list": "Bir akademinin eğitmenleri, dersleriyle ve öne çıkanlar önce",
+    "teachers-teacher": "Bir eğitmenin sayfası: tanıtımı, kursları ve takipçileri",
+    "teachers-desk": "Eğitmenin kendi sekmesi: kursları ve aşamaları, sorular ve kazançlar",
     "studio-editor": "Yallapp Studio düzenleyicisi: solda öğeler, telefonda sayfa, sağda ayarları",
     "studio-home": "Hesabın projeleriyle Yallapp Studio ana sayfası",
     "studio-project": "Bir Studio projesinin paneli",
@@ -68,6 +77,9 @@ export const TR_MARKETING: MarketingTranslation = {
     "Delivery & couriers": "Teslimat ve kurye",
     "Food delivery": "Yemek siparişi",
     "Ride hailing": "Yolcu taşıma",
+    "Live taxi on the map": "Haritada canlı taksi",
+    School: "Okul",
+    "Academy with many teachers": "Çok eğitmenli akademi",
   },
   solutions: {
     academy: {
@@ -1236,6 +1248,31 @@ export const TR_MARKETING: MarketingTranslation = {
         "Alış ve bırakış noktalarını belirleyin, Ekonomi, Konfor ve Van'ı karşılaştırın ve nakit yolculuk isteyin",
         "Hesap › Sürücü modu'nu açın, çevrimiçi olun ve süre bitmeden yolculuğunuzu kabul edin",
         "Geldim'e dokunun, yolculuğunuzdaki kodla başlatın, bitirin ve sürücünüzü puanlayın",
+      ],
+    },
+    taxi: {
+      summary: "Kahire'de haritada canlı bir taksi şirketi: çevrenizdeki boş taksilerin hareket ettiğini görün, birini çağırıp izleyin, sonra şirketin sürücüsü olarak kendi yolculuğunuzu yapın.",
+      tryThis: [
+        "Uygulamayı haritada açın ve çevrenizde hareket eden boş taksileri görün",
+        "Alış noktasını ve gideceğiniz yeri belirleyin, Taksi, Konfor ve XL'i karşılaştırın ve nakit taksi çağırın",
+        "Hesap › Sürücü modu'nu açın, çevrimiçi olun ve geri sayım bitmeden yolculuğunuzu kabul edin",
+        "Geldim'e dokunun, yolculuğunuzdaki kodla başlatın, bitirin ve sürücünüzü puanlayın",
+      ],
+    },
+    school: {
+      summary: "Kahire'de üç taraftan görülen bir okul: demo numarası öğrenci Lina, bir oğlu daha olan annesi Rania ve Lina'nın sınıf öğretmeni Mona Hanım.",
+      tryThis: [
+        "Bugünün derslerini ve haftanın programını görün, sonra Lina'nın ödevini teslim edin",
+        "Kardeşi Adam'a geçin: notları, devamı ve ödenecek bir ücret; demoda kart istenmez",
+        "Sınıf sekmesinde 5 A sınıfının yoklamasını alın, ödev verin ve notları girin, sonra Lina'nın ekranlarında görün",
+      ],
+    },
+    instructors: {
+      summary: "Yedi eğitmenin kendi kurslarını yayımladığı bir akademi: eğitmenlere göz atın, birini takip edin, sonra akademinin eğitmenlerinden biri olarak kendi kursunuzu hazırlayın.",
+      tryThis: [
+        "Eğitmenler'i açın ve bir eğitmenin sayfasını okuyun: tanıtımı, kursları ve takipçileri",
+        "Bir eğitmeni takip edin, sonra ücretsiz Excel kursuna kaydolun ya da Android'de bir kurs satın alın: demo ödeme kart istemez",
+        "Eğitmen sekmesinde bir dersi olan bir kurs hazırlayın ve inceleme için akademiye gönderin",
       ],
     },
   },

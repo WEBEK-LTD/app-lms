@@ -5,7 +5,7 @@ import { appUrl } from "@/lib/env";
 import { buildFileRedirect } from "@/lib/files";
 
 /**
- * GET /demo/download/<academy|store|restaurant|…|delivery|food-delivery|rides> (roadmap 16): the
+ * GET /demo/download/<academy|store|restaurant|…|delivery|food-delivery|rides|taxi|school|teachers> (roadmap 16): the
  * stable public link to a demo app's Android APK (the build the team chose in
  * Admin › Demo apps), redirecting to a link signed at that moment. Without a
  * download yet it goes back to /demo (Studio's demos to /demo/studio).

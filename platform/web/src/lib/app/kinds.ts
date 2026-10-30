@@ -851,7 +851,8 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       iphone: null,
       cardPayments: "Take school fees by card, through your payment page.",
     },
-    demo: null,
+    // 110.5 On /demo/studio.
+    demo: { slug: "school" },
   },
 };
 
@@ -1105,6 +1106,8 @@ export const KINDS: readonly KindInfo[] = [
     tile: "bg-tile-1 text-[#8A4B12]",
     marketing: { slug: "taxi", icon: "local_taxi" },
     categories: { play: "Maps & Navigation", appStore: "Travel" },
+    // 110.5 On /demo/studio.
+    demo: { slug: "taxi" },
     wording: {
       nav: {
         label: "Your taxis",
@@ -1125,8 +1128,9 @@ export const KINDS: readonly KindInfo[] = [
         next: "After this step, choose your map and add your Firebase Realtime Database on the **Maps & live** page, add your vehicle types and their fares on the **Vehicle types** page, then add your drivers on the **Drivers** page; every ride shows on the **Rides** page. Riders and drivers sign in to the app with",
       },
     },
+    // 105.9.6 Both roles walked through: lib/delivery/review.ts writes the steps with the review number.
     reviewNote:
-      "This app has two roles. Riders see the free taxis around them on the map, ask for a taxi and follow the driver. Drivers of the company sign in with a number the company added and see a Driver tab with the rides offered to them.",
+      "This app has two roles. Riders open the app on a map with the free taxis around them, ask for a taxi and follow the driver on the map. Drivers of the company sign in with a number the company added and see a Driver tab with the rides offered to them. The review account is both: a rider, and a test driver (\"App Review\") that riders never see on the map: its rides are offered to it only, so ask for a taxi, then open Account › Driver mode, go online and accept it.",
   },
   {
     // 105.4 The school engine's one kind.
@@ -1153,6 +1157,8 @@ export const KINDS: readonly KindInfo[] = [
     icon: "groups",
     tile: "bg-tile-4 text-[#2F6B3A]",
     marketing: { slug: "instructors", icon: "groups" },
+    // 110.5 On /demo/studio.
+    demo: { slug: "teachers" },
     wording: {
       nav: {
         label: "Your academy",

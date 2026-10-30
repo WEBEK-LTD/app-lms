@@ -234,6 +234,35 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     ],
     screens: ["rides-where", "rides-ride", "rides-driver"],
   },
+  // 110.5 More of Studio's: the demo account is also a test driver, a student, her parent and her class teacher, and the academy's demo teacher.
+  taxi: {
+    summary: "A taxi company in Cairo, live on the map: watch the free taxis move around you, ask for one and follow it, then drive your own ride as the company's driver.",
+    tryThis: [
+      "Open the app on the map and see the free taxis moving around you",
+      "Set the pickup and where to, compare Taxi, Comfort and XL, and ask for a taxi in cash",
+      "Open Account › Driver mode, go online and accept your ride before the countdown ends",
+      "Tap I've arrived, start the ride with the code your ride shows, end it and rate your driver",
+    ],
+    screens: ["taxi-map", "taxi-ride", "taxi-driver"],
+  },
+  school: {
+    summary: "A school in Cairo seen from all three sides: the demo number is Lina, a student, her mother Rania, who also has a son, and Ms. Mona, Lina's class teacher.",
+    tryThis: [
+      "See today's lessons and the week's timetable, then hand in Lina's homework",
+      "Switch to her brother Adam: his grades, his attendance and a fee to pay, with no card in the demo",
+      "In the Classroom tab, take Grade 5 A's attendance, give homework and enter scores, then see them on Lina's screens",
+    ],
+    screens: ["school-today", "school-homework", "school-classroom"],
+  },
+  instructors: {
+    summary: "An academy where seven teachers publish their own courses: browse the teachers, follow one, then make a course of your own as one of the academy's teachers.",
+    tryThis: [
+      "Open Teachers and read a teacher's page: about them, their courses and their followers",
+      "Follow a teacher, then enroll in the free Excel course or buy one on Android: the demo checkout takes no card",
+      "In the Teacher tab, make a course with a lesson and send it to the academy for review",
+    ],
+    screens: ["teachers-list", "teachers-teacher", "teachers-desk"],
+  },
 };
 
 const PRIVACY_NOTE = "This is a demo app made by Yallapp to show what an app built with Yallapp can do. Everything in it is sample content.";
@@ -485,6 +514,63 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     shortDescription: "Rides across Cairo: see the fare first and follow your driver.",
     fullDescription: `Masar Rides takes you across Cairo: Economy, Comfort or a Van for the family.\n\nSee each fare before you ask, follow your driver on the way, share your ride and rate your driver at the end.\n\n${PRIVACY_NOTE}`,
     welcome: "Economy, Comfort and Van, day and night.",
+  },
+  taxi: {
+    appName: "Lamha Taxi",
+    shortName: "Lamha",
+    primaryColor: "#1C2541",
+    splashColor: "#FFF4D1",
+    secondaryColor: "#F5B700",
+    template: "bold",
+    font: "Manrope",
+    corners: "round",
+    cards: "elevated",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-taxi",
+    banner: { picture: "banner-taxi", heading: "Your taxi, live on the map", subheading: "See the free taxis around you and follow yours to the door." },
+    androidPackage: "com.yallapp.demo.taxi",
+    storeTitle: "Lamha Taxi",
+    shortDescription: "Taxis across Cairo, live on the map: see them around you and follow yours.",
+    fullDescription: `Lamha Taxi shows the free taxis around you moving on the map, second by second.\n\nSet where you are going, see each fare before you ask, follow your driver all the way to you and pay the driver in cash.\n\n${PRIVACY_NOTE}`,
+    welcome: "Taxi, Comfort and XL across Cairo, day and night.",
+  },
+  school: {
+    appName: "Nakhla School",
+    shortName: "Nakhla",
+    primaryColor: "#1F4E79",
+    splashColor: "#E6EEF6",
+    secondaryColor: "#F2B544",
+    template: "classic",
+    font: "Plus Jakarta Sans",
+    corners: "soft",
+    cards: "outlined",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-school",
+    banner: { picture: "banner-school", heading: "The school day in one app", subheading: "Timetable, homework, grades and news for students, parents and teachers." },
+    androidPackage: "com.yallapp.demo.school",
+    storeTitle: "Nakhla School",
+    shortDescription: "Timetable, homework, grades and news for Nakhla School's families.",
+    fullDescription: `Nakhla School's app brings the school day to students, parents and teachers.\n\nStudents see their timetable, homework and grades. Parents follow each of their children, see their attendance and pay fees. Teachers take attendance, give homework and enter scores.\n\n${PRIVACY_NOTE}`,
+    welcome: "A primary school in Heliopolis, from Grade 1 to Grade 6.",
+  },
+  instructors: {
+    appName: "Rawaq Academy",
+    shortName: "Rawaq",
+    primaryColor: "#2E5E4E",
+    splashColor: "#E7F1EC",
+    secondaryColor: "#F2B544",
+    template: "classic",
+    font: "Outfit",
+    corners: "soft",
+    cards: "outlined",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-teachers",
+    banner: { picture: "banner-teachers", heading: "Learn from people who do it every day", subheading: "Seven teachers and their courses in design, business, languages and code." },
+    androidPackage: "com.yallapp.demo.teachers",
+    storeTitle: "Rawaq Academy",
+    shortDescription: "Courses from seven teachers: design, business, languages and code.",
+    fullDescription: `Rawaq Academy brings together teachers who each publish their own courses.\n\nBrowse the teachers, read about them, follow the ones you like and learn at your own pace. Every course is reviewed by the academy before it is published.\n\n${PRIVACY_NOTE}`,
+    welcome: "Seven teachers, each with their own courses. Start with a free one.",
   },
 };
 
@@ -1504,6 +1590,41 @@ export const DEMO_RESTAURANTS: DemoRestaurant[] = [
       { name: "Desserts", dishes: [{ name: "Basbousa", description: "Semolina cake with syrup.", priceCents: 45_00, picture: "dish-baklava" }] },
     ],
   },
+];
+
+/** 110.5 Lamha Taxi: three vehicle types with their fares, the rider's code to start. */
+export const TAXI_DEMO_TYPES: typeof RIDES_DEMO_TYPES = [
+  { name: "Taxi", description: "Everyday taxis with four seats", icon: "local_taxi", seats: 4, baseCents: 15_00, perKmCents: 7_50, perMinuteCents: 1_00, minCents: 35_00, waitPerMinuteCents: 1_00 },
+  { name: "Comfort", description: "Newer cars with more room", icon: "directions_car", seats: 4, baseCents: 22_00, perKmCents: 10_00, perMinuteCents: 1_50, minCents: 55_00, waitPerMinuteCents: 1_50 },
+  { name: "XL", description: "Six seats for the family and the luggage", icon: "airport_shuttle", seats: 6, baseCents: 32_00, perKmCents: 13_00, perMinuteCents: 2_00, minCents: 85_00, waitPerMinuteCents: 2_00 },
+];
+
+export interface DemoTaxiDriver {
+  name: string;
+  /** Fictional 555-01XX numbers: nobody's, and demo apps only sign in with the demo number. */
+  phone: string;
+  type: string;
+  carModel: string;
+  carColor: string;
+  plate: string;
+  rating: number;
+  rides: number;
+}
+
+/**
+ * Lamha Taxi's drivers. The demo moves them on the map around wherever the
+ * rider is (lib/demo/taxi.ts); they are never offered a ride: the demo
+ * account's rides go to its own test driver.
+ */
+export const TAXI_DEMO_DRIVERS: DemoTaxiDriver[] = [
+  { name: "Hany Saeed", phone: "+12025550131", type: "Taxi", carModel: "Compact sedan", carColor: "White", plate: "TX 4821", rating: 4.9, rides: 212 },
+  { name: "Mahmoud Fathy", phone: "+12025550132", type: "Taxi", carModel: "Compact sedan", carColor: "Silver", plate: "TX 3175", rating: 4.8, rides: 164 },
+  { name: "Sherif Nabil", phone: "+12025550133", type: "Comfort", carModel: "Family sedan", carColor: "Black", plate: "TX 9032", rating: 4.9, rides: 301 },
+  { name: "Ahmed Ramadan", phone: "+12025550134", type: "Taxi", carModel: "Hatchback", carColor: "Yellow", plate: "TX 5568", rating: 4.7, rides: 98 },
+  { name: "Waleed Hassan", phone: "+12025550135", type: "XL", carModel: "Seven-seat van", carColor: "Grey", plate: "TX 7740", rating: 4.8, rides: 143 },
+  { name: "Karim Lotfy", phone: "+12025550136", type: "Comfort", carModel: "Family sedan", carColor: "Blue", plate: "TX 2219", rating: 5, rides: 57 },
+  { name: "Mostafa Adel", phone: "+12025550137", type: "Taxi", carModel: "Compact sedan", carColor: "White", plate: "TX 6604", rating: 4.8, rides: 189 },
+  { name: "Tamer Galal", phone: "+12025550138", type: "XL", carModel: "Seven-seat van", carColor: "White", plate: "TX 8351", rating: 4.9, rides: 76 },
 ];
 
 /** Masar Rides: upfront fares, three vehicle types, the rider's code to start. */

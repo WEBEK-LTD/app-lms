@@ -2663,7 +2663,7 @@ demos: Lamha Taxi (an invented name).
 | [x] | 105.9.3 Dashboard (en/ar/tr) in Studio: Live map, Maps and live settings | unit tests, e2e |
 | [x] | 105.9.4 App, rider (after the owner approves the look): the full-screen map with the taxis around, where to, route and fares, finding a driver, the driver coming, the ride | widget tests |
 | [x] | 105.9.5 App, driver: online on the map, the offer with its countdown, the position written live, navigation | widget tests |
-| [ ] | 105.9.6 Studio templates and designs, the demo app, the store reviewers' notes | unit tests, e2e |
+| [ ] | 105.9.6 Studio templates and designs, the demo app, the store reviewers' notes. Done: the demo app (Lamha Taxi, 110.5) and the reviewers' notes, which walk through both roles (the map with the free taxis, asking for a taxi, then Account › Driver mode as the test driver riders never see on the map); still to do: the designs | unit tests, e2e |
 
 ### 105.8 Car rental and laundry
 
@@ -2735,4 +2735,5 @@ templates, look fixes and more Studio demos after them.
 | [x] | 110.2 Nothing goes to the stores while samples are left: every build (the app's and the courier app's), "We publish for you" getting ready and the team's Submitted, In review and Live refused with what to do; the preview and the hosted API serve them as content | unit tests, e2e |
 | [ ] | 110.3 Full templates: every design's pages filled as a ready app of its kind (its sections, its other pages and their links), checked with the samples | unit tests (the page checker on every design), e2e |
 | [ ] | 110.4 Look fixes from the audit, each shown to the owner and approved before it's made | owner's approval; unit tests, e2e |
-| [ ] | 110.5 Studio demos: an academy with teachers, a school and a live taxi app on `/demo/studio` | unit tests, e2e |
+| [x] | 110.5 Studio demos on `/demo/studio`, made by Admin › Demo apps with the others: Rawaq Academy (seven teachers with their profiles and published courses, the sample entries' in Egyptian pounds; the demo number is one more teacher, "Demo teacher", which students never see, whose Teacher tab makes a course and sends it for review), Nakhla School (three classes, seven subjects, six teachers and a Sunday-to-Thursday timetable; the demo number is Lina, a student, her mother Rania, also Adam's, and Ms. Mona, Lina's class teacher; homework, scores, attendance, news and fees dated from today) and Lamha Taxi (three vehicle types with fares, eight drivers with their cars, who drive around wherever the rider asks; the platform's map from Admin › Settings › Maps, else the plain ride screens; no live database) | unit tests, e2e |
+| [x] | 110.5 The daily job: what visitors made as the demo teacher, as the school's teacher and the teachers they followed and rated go after a day; the school's day is made again from today; the cards' texts in English, Arabic and Turkish, with screenshots drawn by the app's screenshot test (the taxi's street map too); the taxi kind's notes for the store reviewers (105.9.6) | unit tests, e2e |

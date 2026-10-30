@@ -171,6 +171,37 @@ function scooter(body: string, box: string, dx = 0, dy = 0): Shape[] {
   ];
 }
 
+/** 110.5 A map pin, its round head at (x, y). */
+function pin(x: number, y: number, color: string): Shape[] {
+  return [c(x, y, 9, color), p([[x - 8, y + 4], [x + 8, y + 4], [x, y + 20]], color), c(x, y, 3.5, "#F5B700")];
+}
+
+/** 110.5 A school with its flag, moved by dx. */
+function school(wall: string, door: string, accent: string, dx = 0): Shape[] {
+  return [
+    r(24 + dx, 46, 52, 34, 2, wall),
+    p([[20 + dx, 48], [50 + dx, 28], [80 + dx, 48]], wall),
+    r(49.2 + dx, 14, 1.6, 15, 0.8, wall),
+    p([[50.8 + dx, 14], [61 + dx, 17.5], [50.8 + dx, 21]], accent),
+    c(50 + dx, 42, 4, accent),
+    r(45 + dx, 62, 10, 18, 1, door),
+    r(30 + dx, 54, 9, 8, 1, accent),
+    r(61 + dx, 54, 9, 8, 1, accent),
+    r(30 + dx, 66, 9, 8, 1, accent),
+    r(61 + dx, 66, 9, 8, 1, accent),
+  ];
+}
+
+/** 110.5 An open book. */
+function book(x: number, y: number): Shape[] {
+  return [p([[x - 16, y], [x, y + 4], [x, y + 20], [x - 16, y + 16]], WHITE), p([[x, y + 4], [x + 16, y], [x + 16, y + 16], [x, y + 20]], "#F4EFE6"), r(x - 0.6, y + 4, 1.2, 16, 0.6, "#C9A24B")];
+}
+
+/** 110.5 Three people, the one in front in another colour: a group of teachers. */
+function group(color: string, front: string): Shape[] {
+  return [c(30, 44, 9, color), r(18, 56, 24, 26, 12, color), c(70, 44, 9, color), r(58, 56, 24, 26, 12, color), c(50, 38, 11, front), r(35, 52, 30, 32, 15, front)];
+}
+
 /** 29 A shape moved by (dx, dy). */
 function shift(shape: Shape, dx: number, dy: number): Shape {
   if (shape.kind === "poly") return { ...shape, points: shape.points.map(([x, y]) => [x + dx, y + dy] as [number, number]) };
@@ -900,6 +931,46 @@ export const PICTURES = {
     to: "#1F9D8A",
     shapes: [r(-80, 78, 260, 26, 0, "#2B2950", 0.75), ...[0, 1, 2, 3, 4].map((i) => r(-60 + i * 50, 89, 24, 3, 1.5, WHITE)), ...car("#F2B544", "#2B2950", 60, 8, 0.95), c(-10, 26, 9, WHITE), ...stroke([[-10, 35], [-10, 60]], 2, WHITE)],
   },
+
+  // 110.5 More of Studio's demos: a live taxi app (Lamha Taxi), a school (Nakhla School) and an academy with many teachers (Rawaq Academy).
+  "icon-taxi": { from: "#2A3560", to: "#1C2541", shapes: [r(42, 27, 16, 7, 2.5, WHITE), ...car("#F5B700", "#1C2541", 0, 0, 0.95)] },
+  "banner-taxi": {
+    from: "#FFF4D1",
+    to: "#F5B700",
+    shapes: [
+      r(-80, 78, 260, 26, 0, "#1C2541", 0.85),
+      ...[0, 1, 2, 3, 4].map((i) => r(-60 + i * 50, 89, 24, 3, 1.5, WHITE)),
+      r(82, 33, 16, 7, 2.5, WHITE),
+      ...car("#F5B700", "#1C2541", 40, 10, 0.95),
+      ...pin(-6, 22, "#1C2541"),
+      ...pin(140, 30, WHITE),
+    ],
+  },
+  "icon-school": { from: "#2C639A", to: "#1A3A5C", shapes: school(WHITE, "#1F4E79", "#F2B544") },
+  "banner-school": {
+    from: "#E6EEF6",
+    to: "#8DB0D3",
+    shapes: [ground("#7FA36B"), ...school("#1F4E79", WHITE, "#F2B544", 62), c(-12, 24, 10, "#F2B544", 0.9), ...book(118, 64)],
+  },
+  "icon-teachers": { from: "#3B7A64", to: "#24503F", shapes: group(WHITE, "#F2B544") },
+  "banner-teachers": {
+    from: "#E7F1EC",
+    to: "#2E5E4E",
+    shapes: [
+      r(56, 18, 64, 40, 4, "#24503F"),
+      r(56, 54, 64, 4, 1, "#8A5A2B"),
+      r(64, 28, 30, 3, 1.5, WHITE, 0.8),
+      r(64, 36, 40, 3, 1.5, WHITE, 0.6),
+      r(64, 44, 22, 3, 1.5, WHITE, 0.6),
+      ...group(CREAM, "#F2B544").map((x) => shift(x, 36, 26)),
+    ],
+  },
+  "teacher-hannah": { from: "#FBEAE3", to: "#E9A98F", shapes: avatar("#F1D2BC", "#C8553D", "#B9783F") },
+  "teacher-omar": { from: "#E6EEF7", to: "#A9C1DE", shapes: avatar("#C99B7D", "#25356B", "#2B2B2B") },
+  "teacher-yasmin": { from: "#FCF1DA", to: "#EDC77A", shapes: [...avatar("#D9A88A", "#D69E1E", "#3B2A1E"), p([[33, 44], [35, 26], [50, 20], [65, 26], [67, 44], [70, 66], [62, 60], [60, 34], [40, 34], [38, 60], [30, 66]], "#6B2E55")] },
+  "teacher-emre": { from: "#E3EEF8", to: "#8DB8DF", shapes: avatar("#E0B896", "#4A78A8", "#5A361E") },
+  "teacher-mert": { from: "#E2F0F6", to: "#9CC7DB", shapes: avatar("#C99B7D", "#2B6A8F", "#1E1A17") },
+  "teacher-salma": { from: "#F7E9D7", to: "#E1B582", shapes: avatar("#B98466", "#2F6B3A", "#1E1A17") },
 } satisfies Record<string, Art>;
 
 export type PictureName = keyof typeof PICTURES;

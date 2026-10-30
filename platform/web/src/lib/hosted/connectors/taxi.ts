@@ -6,6 +6,7 @@ import { customToken, driverKey, liveRoot, type LiveClaims } from "../../taxi/li
 import { canRoute, canSearch, MapError, placeById, routeBetween, searchPlaces, type MapAccess, type MapDeps, type MapPlace } from "../../taxi/maps";
 import { nearbyTaxis, taxiConfig } from "../../taxi/service";
 import { googleKeyOf, taxiSettingsOf } from "../../taxi/settings";
+import { platformSetting } from "../../settings/platform";
 import type { ServiceAccount } from "../push";
 import { error } from "./common";
 import { RidesConnector, type RidesDeps } from "./rides";
@@ -71,8 +72,7 @@ export class TaxiConnector extends RidesConnector {
   }
 
   async config() {
-    const base = await super.config();
-    const { settings } = await this.settings();
+    const [base, { settings }, maps] = await Promise.all([super.config(), this.settings(), this.taxiDeps.app.demo === true ? platformSetting(this.taxiDeps.store, "maps") : null]);
     const taxi = taxiSettingsOf(settings);
     return {
       ...base,
@@ -85,6 +85,7 @@ export class TaxiConnector extends RidesConnector {
         language: "en",
         now: new Date(),
         maps: this.taxiDeps.maps,
+        platformMap: maps?.value ?? null,
       }),
     };
   }
