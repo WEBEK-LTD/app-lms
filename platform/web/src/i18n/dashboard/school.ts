@@ -475,6 +475,17 @@ export const en = {
   noClassMatch: "No class matches your search.",
   addClassHint: "A class, its grade and its class teacher.",
   groupSubjects: "What the school teaches",
+  // The page kit: Grades, Fees and Homework.
+  statDueAmount: "Still due",
+  scoresOf: "{name}: the scores",
+  statScores: "Scores entered",
+  searchAssessments: "Search exams, quizzes and assignments",
+  noAssessmentMatch: "Nothing matches your search.",
+  statUpcoming: "{count} still due",
+  statHandedIn: "Handed in",
+  statMarked: "Marked",
+  searchHomework: "Search homework",
+  noHomeworkMatch: "No homework matches your search.",
 };
 
 export const ar: Strings<typeof en> = {
@@ -942,6 +953,17 @@ export const ar: Strings<typeof en> = {
   noClassMatch: "لا يوجد فصل يطابق بحثك.",
   addClassHint: "الفصل وصفه الدراسي ورائد الفصل.",
   groupSubjects: "ما تُدرّسه المدرسة",
+  // The page kit: Grades, Fees and Homework.
+  statDueAmount: "المستحق",
+  scoresOf: "{name}: الدرجات",
+  statScores: "الدرجات المُدخلة",
+  searchAssessments: "ابحث في الامتحانات والاختبارات والواجبات",
+  noAssessmentMatch: "لا شيء يطابق بحثك.",
+  statUpcoming: "{count} لم يحن موعدها بعد",
+  statHandedIn: "تم تسليمها",
+  statMarked: "تم تصحيحها",
+  searchHomework: "ابحث في الواجبات",
+  noHomeworkMatch: "لا يوجد واجب يطابق بحثك.",
 };
 
 export const tr: Strings<typeof en> = {
@@ -1409,4 +1431,15 @@ export const tr: Strings<typeof en> = {
   noClassMatch: "Aramanıza uyan sınıf yok.",
   addClassHint: "Sınıf, düzeyi ve sınıf öğretmeni.",
   groupSubjects: "Okulun okuttukları",
+  // The page kit: Grades, Fees and Homework.
+  statDueAmount: "Kalan borç",
+  scoresOf: "{name}: notlar",
+  statScores: "Girilen notlar",
+  searchAssessments: "Sınav, kısa sınav ve ödevlerde ara",
+  noAssessmentMatch: "Aramanıza uyan bir şey yok.",
+  statUpcoming: "{count} tanesinin süresi dolmadı",
+  statHandedIn: "Teslim edilen",
+  statMarked: "Değerlendirilen",
+  searchHomework: "Ödevlerde ara",
+  noHomeworkMatch: "Aramanıza uyan ödev yok.",
 };
