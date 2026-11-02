@@ -171,6 +171,8 @@ import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, St
 // 10.7 Listings
 // 58 Yallapp Business
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
+// 104.8.2 Yallapp Courier
+import type { CourierAccount, CourierChallenge, CourierDevice, CourierDevicePatch } from "./types";
 // 60 Team members for clients
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 // 61
@@ -229,7 +231,7 @@ export class DuplicateEmailError extends Error {
 }
 
 /** A device of a hosted-API customer: what the API may change. */
-export type HostedDevicePatch = Partial<Pick<HostedDevice, "platform" | "name" | "appVersion" | "pushToken" | "pushProvider" | "pushPreferences" | "lastSeenAt" | "language" | "country" | "appRole">>;
+export type HostedDevicePatch = Partial<Pick<HostedDevice, "platform" | "name" | "appVersion" | "pushToken" | "pushProvider" | "pushPreferences" | "lastSeenAt" | "language" | "country" | "appRole" | "courierDeviceId">>;
 
 export type ClaimResult = { ok: true; activation: Activation } | { ok: false; existing: Activation };
 
@@ -840,6 +842,8 @@ export interface DataStore {
   getCourier(appId: string, id: number): Promise<Courier | null>;
   /** The courier with this number (E.164) or, given only an email, this email. */
   findCourier(appId: string, who: { phone: string | null; email: string | null }): Promise<Courier | null>;
+  /** 104.8.2 Every company's couriers with this number or email (Yallapp Courier's companies). */
+  listCouriersByContact(who: { phone: string | null; email: string | null }): Promise<Courier[]>;
   /** Fails (`duplicate`) when the app has a courier with the same number or email. */
   createCourier(input: CourierInput, now: Date): Promise<{ ok: true; courier: Courier } | { ok: false; reason: "duplicate" }>;
   updateCourier(appId: string, id: number, patch: CourierPatch, now: Date): Promise<{ ok: boolean; reason?: "duplicate" }>;
@@ -1487,6 +1491,36 @@ export interface DataStore {
   deleteOwnerDevicesOfClient(userId: string, clientId: string): Promise<number>;
   /** 60 The devices signed in to a client, of anyone (the owner and the team): for pushes. */
   listOwnerDevicesOfClient(clientId: string): Promise<OwnerDevice[]>;
+
+  // 104.8.2 Yallapp Courier (lib/courier-hub): its accounts, devices and sign-in codes
+  getCourierAccount(id: string): Promise<CourierAccount | null>;
+  /** The account with this number (or, without one, this email). */
+  findCourierAccount(who: { phone: string | null; email: string | null }): Promise<CourierAccount | null>;
+  /** Makes the account, or returns the one made with the same number or email a moment before. */
+  createCourierAccount(account: CourierAccount): Promise<CourierAccount>;
+  updateCourierAccount(id: string, patch: Partial<Pick<CourierAccount, "lastSignInAt">>): Promise<void>;
+  createCourierDevice(device: CourierDevice): Promise<void>;
+  getCourierDevice(id: string): Promise<CourierDevice | null>;
+  /** The device whose current refresh token has this hash. */
+  findCourierDeviceByRefresh(refreshHash: string): Promise<CourierDevice | null>;
+  /** Replaces the refresh token only while it still has `oldHash` (atomic: of two renewals, one wins). */
+  rotateCourierRefresh(id: string, oldHash: string, next: { refreshHash: string; refreshExpiresAt: Date; lastSeenAt: Date }): Promise<boolean>;
+  updateCourierDevice(id: string, patch: CourierDevicePatch): Promise<void>;
+  /** An account's devices, the one used last first. */
+  listCourierDevices(accountId: string): Promise<CourierDevice[]>;
+  /** Signs the device out, with every company session it opened (their hosted devices and refresh tokens). */
+  deleteCourierDevice(id: string): Promise<void>;
+  /** Forgets a push token on every device but `exceptId`. */
+  clearCourierPushToken(token: string, exceptId: string | null): Promise<void>;
+  /** The company sessions (hosted devices, of any app) the device opened. */
+  listHostedDevicesOfCourierDevice(courierDeviceId: string): Promise<HostedDevice[]>;
+  createCourierChallenge(challenge: CourierChallenge): Promise<void>;
+  getCourierChallenge(tokenHash: string): Promise<CourierChallenge | null>;
+  /** Counts a try and returns how many there were. */
+  addCourierChallengeAttempt(tokenHash: string): Promise<number>;
+  deleteCourierChallenge(tokenHash: string): Promise<void>;
+  /** Deletes the codes that expired before `now`. */
+  purgeCourierChallenges(now: Date): Promise<void>;
 
   // 60 Team members for clients (lib/team)
   /** The client's members with their accounts, in the order they joined. */

@@ -114,7 +114,7 @@ export function parseCuisines(text: string, saved: Cuisine[]): { cuisines: Cuisi
 
 /**
  * The settings form; `saved` keeps the zones' IDs. 105.1 A food company's form has its cuisines, when courier jobs are made and its time zone.
- * 112.3 Couriers always work in the company's courier app: there's no choice of where, only its name (and its files, saved by the action).
+ * 112.3 Couriers work in the company's courier app, with its name (and its files, saved by the action); 104.8.3 or, for a delivery company, in Yallapp Courier.
  */
 export function parseDeliverySettings(form: Record<string, string>, saved: DeliverySettings, food = false): Parsed<DeliverySettings> {
   const errors: Record<string, string> = {};
@@ -143,6 +143,9 @@ export function parseDeliverySettings(form: Record<string, string>, saved: Deliv
   if (!tracking) errors.tracking = "Choose how customers follow a shipment.";
   const assignment = DELIVERY_ASSIGNMENTS.find((v) => v === str(form, "assignment"));
   if (!assignment) errors.assignment = "Choose who gives out the jobs.";
+  // 104.8.3 Where a delivery company's couriers work: their own app (the second app; `same` stays for the customers' app built before 112.3) or Yallapp Courier.
+  const couriersWork = food ? "" : str(form, "couriersWork");
+  const courierApp = !couriersWork ? saved.courierApp : couriersWork === "yallapp_courier" ? "yallapp_courier" : saved.courierApp === "yallapp_courier" ? "bundle" : saved.courierApp;
   // 104.6 The courier app's own name, when the company gives one.
   const courierAppName = str(form, "courierAppName") || null;
   if (courierAppName && courierAppName.length > DELIVERY_LIMITS.courierAppName) errors.courierAppName = `Give the courier app a name of up to ${DELIVERY_LIMITS.courierAppName} characters.`;
@@ -172,8 +175,8 @@ export function parseDeliverySettings(form: Record<string, string>, saved: Deliv
       card,
       tracking,
       assignment,
-      // 112.3 Kept as it was: `same` tells the customers' app built before 112.3 to keep the Courier tab.
-      courierApp: saved.courierApp,
+      // 112.3 Kept as it was unless (104.8.3) the company chose: `same` tells the customers' app built before 112.3 to keep the Courier tab.
+      courierApp,
       courierAppName,
       courierFirebaseIosAssetId: saved.courierFirebaseIosAssetId ?? null,
       courierIconAssetId: saved.courierIconAssetId ?? null,
