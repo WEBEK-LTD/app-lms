@@ -46,7 +46,8 @@ export function StartBuildForm({
             aria-describedby={error ? `${id}-error` : undefined}
           />
         </div>
-        <SubmitButton className="h-11" pendingText={t("builds.starting")} disabled={Boolean(disabledReason)} describedBy={disabledReason ? hint : undefined}>
+        {/* The page's one main action; the second app's next to its own card. */}
+        <SubmitButton variant={courier ? "primary" : "main"} className="h-11" pendingText={t("builds.starting")} disabled={Boolean(disabledReason)} describedBy={disabledReason ? hint : undefined}>
           {t(courier ? (driver ? "builds.driverStart" : "builds.courierStart") : "builds.startNew")}
         </SubmitButton>
       </div>
