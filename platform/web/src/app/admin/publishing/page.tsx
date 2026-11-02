@@ -10,13 +10,14 @@ import { smtpConfigured } from "@/lib/mail";
 import { reviewNotesFor } from "@/lib/publishing/review-notes";
 import { reviewSignIn } from "@/lib/publishing/review-account";
 import { reviewNotes } from "@/lib/delivery/review";
+import { courierHubSetting, hubReviewCompany, hubReviewNotes, hubReviewWho } from "@/lib/courier-hub/review";
 import { schoolReviewNotes } from "@/lib/school/review";
 import { loadUniSettings } from "@/lib/university/settings";
 import { hasCourierJobs } from "@/lib/delivery/courier-app";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { encryptionKey } from "@/lib/env";
 import { REJECTION_GUIDELINE } from "@/lib/publishing/review";
-import { REJECTION_REASONS, type PublishingStore, type App, type Client, type PublishingEvent, type PublishingRequest, type User } from "@/lib/data/types";
+import { REJECTION_REASONS, type CourierHubSetting, type PublishingStore, type App, type Client, type PublishingEvent, type PublishingRequest, type User } from "@/lib/data/types";
 import { publishingTeamEmail } from "@/lib/publishing/service";
 import {
   checklistProgress,
@@ -54,11 +55,13 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
   const query = await searchParams;
   const tab = TABS.find((t) => t.id === query.show)?.id ?? "open";
   const store = await getStore();
-  const [all, mayManage, teamEmail, smtp] = await Promise.all([
+  const [all, mayManage, teamEmail, smtp, courierHub, hubCompany] = await Promise.all([
     store.listManagedPublishingRequests(),
     adminCan("publishing.manage"),
     publishingTeamEmail(store),
     smtpConfigured(store),
+    courierHubSetting(store, { fresh: true }),
+    hubReviewCompany(store),
   ]);
   const requests = all.filter((r) => (tab === "all" ? true : tab === "live" ? isLiveEverywhere(r) : !isLiveEverywhere(r)));
   const rows = await Promise.all(
@@ -205,7 +208,50 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
       </section>
 
       {selected ? <RequestDetail row={selected} statuses={statuses} mayManage={mayManage} /> : null}
+
+      <YallappCourierListing setting={courierHub} company={hubCompany?.appName?.trim() || null} />
     </>
+  );
+}
+
+/**
+ * 104.8.3 Yallapp Courier's own listing, published from Yallapp's own store
+ * accounts: the reviewers' sign-in and notes, in English, for both stores
+ * (Admin › Settings › Yallapp Courier has the account).
+ */
+function YallappCourierListing({ setting, company }: { setting: CourierHubSetting; company: string | null }) {
+  const notes = hubReviewNotes(setting, company);
+  const who = hubReviewWho(setting);
+  return (
+    <section id="yallapp-courier" aria-labelledby="h-yallapp-courier" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
+      <div className="flex flex-col gap-1">
+        <h2 id="h-yallapp-courier" className="m-0 text-[19px] font-bold">
+          Yallapp Courier
+        </h2>
+        <p className="m-0 text-sm text-muted">
+          Yallapp&apos;s own courier app, published from Yallapp&apos;s store accounts. For Google Play (App content › App access) and the App Store (App Review Information): the same sign-in and notes.
+        </p>
+      </div>
+      {notes && who ? (
+        <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm" data-courier-hub-notes="">
+          <dt className="text-muted">User name</dt>
+          <dd className="m-0 break-all">{who.phone ?? who.email}</dd>
+          <dt className="text-muted">Fixed code</dt>
+          <dd className="m-0">
+            <details>
+              <summary className="cursor-pointer font-semibold">Show</summary>
+              <code>{setting.reviewCode}</code>
+            </details>
+          </dd>
+          <dt className="text-muted">Notes</dt>
+          <dd className="m-0 whitespace-pre-line">{notes}</dd>
+        </dl>
+      ) : (
+        <p className="m-0 text-sm font-semibold text-danger">
+          Store review account: missing. Set it in <Link href="/admin/settings/yallapp-courier">Settings › Yallapp Courier</Link>.
+        </p>
+      )}
+    </section>
   );
 }
 

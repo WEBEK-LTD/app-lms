@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { deleteCourierAction, setCourierActiveAction } from "@/app/actions/delivery";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { Badge, btn, formatDateTime } from "@/components/ui";
+import { Badge, btn, formatDateTime, Notice } from "@/components/ui";
+import { richText } from "@/i18n/rich";
+import { onYallappCourier } from "@/lib/courier-hub/access";
+import { courierAppNameOf } from "@/lib/delivery/courier-app";
+import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { ConfirmButton } from "../chat/forms";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -17,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("delivery.couriers") };
 }
 
-/** 104 The company's couriers: who they are, whether they're on duty, their jobs now. */
+/** 104 The company's couriers: who they are, whether they're on duty, their jobs now; 104.8.3 which app they work in, and when each last signed in to Yallapp Courier. */
 export default async function CouriersPage() {
   const { app, license } = await requireClient("orders");
   const { t, lang } = await dashboardText();
@@ -31,6 +36,10 @@ export default async function CouriersPage() {
     appPlan(store, license, new Date()),
   ]);
   const jobs = (id: number) => working.items.filter((s) => s.courierId === id).length;
+  // 104.8.3 Which app the couriers work in: the company's own courier app, or Yallapp Courier.
+  const settings = deliverySettingsOf(await store.getDeliverySettings(app.id));
+  const hub = onYallappCourier(app, settings);
+  const settingsLink = { link: (chunk: string) => <Link href="/dashboard/delivery">{chunk}</Link> };
 
   return (
     <div className="flex flex-col gap-6">
@@ -38,6 +47,11 @@ export default async function CouriersPage() {
         <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("delivery.couriers")}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("delivery.couriersIntro")}</p>
       </div>
+      <Notice icon={hub ? "two_wheeler" : "smartphone"}>
+        <span data-couriers-app={hub ? "yallapp_courier" : "own"}>
+          {hub ? richText(t("delivery.couriersOnHub"), settingsLink) : richText(t("delivery.couriersOnOwn", { name: courierAppNameOf(app, settings) }), settingsLink)}
+        </span>
+      </Notice>
       <PlanNotice plan={plan} t={t} app={app} />
 
       <section aria-labelledby="h-add" className="flex max-w-[760px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
@@ -72,6 +86,12 @@ export default async function CouriersPage() {
                         {t("delivery.lastSeen", { time: formatDateTime(c.locatedAt, lang) })}
                       </a>
                     ) : null}
+                    {hub ? (
+                      <span className="inline-flex items-center gap-1 text-[13px] text-muted" data-hub-sign-in>
+                        <Icon name="login" size={16} />
+                        {c.hubSignedInAt ? t("delivery.hubLastSignIn", { time: formatDateTime(c.hubSignedInAt, lang) }) : t("delivery.hubNever")}
+                      </span>
+                    ) : null}
                   </span>
                   {c.active ? <Badge tone={c.onDuty ? "success" : "neutral"}>{t(c.onDuty ? "delivery.activeNow" : "delivery.offNow")}</Badge> : <Badge tone="warn">{t("delivery.paused")}</Badge>}
                   <form action={setCourierActiveAction}>
@@ -104,7 +124,7 @@ export default async function CouriersPage() {
         <h2 id="h-how" className="m-0 text-lg font-bold">
           {t("delivery.howCouriers")}
         </h2>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("delivery.howCouriersText")}</p>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t(hub ? "delivery.howCouriersHub" : "delivery.howCouriersText")}</p>
       </section>
     </div>
   );
