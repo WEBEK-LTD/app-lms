@@ -79,10 +79,16 @@ FakeApi ridesMapApi({
   return api;
 }
 
-TestApp ridesApp(FakeApi api, {List<String>? opened}) => TestApp(
+TestApp ridesApp(
+  FakeApi api, {
+  List<String>? opened,
+  AppRole role = AppRole.customer,
+}) => TestApp(
   api: api,
   appType: AppType.rides,
   signedIn: true,
+  // 112.3 The driver's screens are in the drivers' app.
+  build: (b) => b.copyWith(role: role),
   overrides: [
     locatorProvider.overrideWithValue(FakeLocator()),
     shareRideProvider.overrideWithValue((text) async {}),
@@ -282,7 +288,7 @@ void main() {
         'active': [driverRideJson(id: 4)],
         'done': [],
       };
-    final app = ridesApp(api, opened: opened);
+    final app = ridesApp(api, opened: opened, role: AppRole.driver);
     await app.pump(tester);
     await push(app, tester, Paths.driverRide(4));
 

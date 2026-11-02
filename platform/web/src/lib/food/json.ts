@@ -28,7 +28,7 @@ export function foodConfig(settings: DeliverySettings, map: MapTilesSetting | nu
     payment: { cash: settings.cash, card: settings.card },
     tracking: settings.tracking,
     courier_job: settings.foodCourierJob ?? "accepted",
-    // 105.1.6 Where the couriers work: in this app, or in the company's courier app.
+    // 105.1.6 Where the couriers work. 112.3 Always the courier app; `same` keeps the Courier tab in the customers' app built before.
     courier_app: settings.courierApp,
     map: mapConfigJson(map),
   };

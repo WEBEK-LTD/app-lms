@@ -38,7 +38,31 @@ describe("103R.3 Studio's own plans", () => {
     // A regular app is never pointed at a Studio plan.
     expect(lowestPlanWith(plans, (p) => hasFeature(p, "studio_motion"), "starter")).toBeNull();
   });
+
+  it("112.3 gives every Studio plan the couriers' and drivers' app unless the team unticks it", () => {
+    // Every Studio plan has it until the team saves it; no regular plan has it.
+    for (const id of plansOfFamily("studio")) expect(hasFeature(PLAN_INFO[id], "courier_app")).toBe(true);
+    for (const id of plansOfFamily("regular")) expect(hasFeature(PLAN_INFO[id], "courier_app")).toBe(false);
+    // Saved now by a team that unticked it: it stays off (the team decides).
+    const off = { ...planSettingOf(PLAN_INFO.studio_1), features: [...PLAN_INFO.studio_1.features.filter((f) => f !== "courier_app"), "delivery" as const] };
+    expect(plansWith({ studio_1: off }).studio_1.features).not.toContain("courier_app");
+    // Saved before 112.3, with delivery, food, rides or taxi but not the second app: it has it until the team saves it again.
+    for (const kind of ["delivery", "food", "rides", "taxi"] as const) {
+      const before = { ...off, features: [...STUDIO_BASE, kind] };
+      delete (before as { courierAppKnown?: true }).courierAppKnown;
+      expect(plansWith({ studio_1: before }).studio_1.features).toContain("courier_app");
+    }
+    // One from before without couriers or drivers stays as it was; prices are never touched.
+    const school = { ...planSettingOf(PLAN_INFO.studio_2), features: [...STUDIO_BASE, "school" as const], priceCents: 150_000, onRequest: false };
+    delete (school as { courierAppKnown?: true }).courierAppKnown;
+    const plans = plansWith({ studio_2: school });
+    expect(plans.studio_2.features).not.toContain("courier_app");
+    expect(plans.studio_2.priceCents).toBe(150_000);
+    expect(planSettingOf(plans.studio_2).courierAppKnown).toBe(true);
+  });
 });
+
+const STUDIO_BASE = PLAN_INFO.studio_1.features.filter((f) => f !== "courier_app");
 
 describe("103R.3 paying a plan by card", () => {
   it("offers a regular app (and an account before its first app) the regular plans only, a Studio project the Studio plans the team offers", () => {

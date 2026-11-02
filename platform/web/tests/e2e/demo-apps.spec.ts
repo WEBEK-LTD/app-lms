@@ -44,7 +44,7 @@ test("the team creates the demo apps from the admin", async () => {
   await expect(admin.getByRole("status")).toContainText("The regular apps' demos are created and up to date.", { timeout: 30_000 });
   for (const name of ["Nour Academy", "Lale Flowers", "Defne Café", "Studio Nur", "Kardelen Clinic", "Pulse Studio", "Nile Homes", "The Harbour Post", "Kuzey Culture Centre", "Bereket Food Bank"]) {
     await expect(admin.getByRole("heading", { name, level: 2 })).toBeVisible();
-    appIds[name] = await admin.locator(`form:has(button:has-text("Start a build of ${name}")) input[name="appId"]`).inputValue();
+    appIds[name] = await admin.locator(`form:not(:has(input[name="variant"])):has(button:has-text("Start a build of ${name}")) input[name="appId"]`).inputValue();
   }
   await expect(admin.getByRole("heading", { name: "Masar Rides", level: 2 })).toHaveCount(0);
   await admin.getByRole("tab", { name: "Yallapp Studio" }).click();
@@ -55,7 +55,7 @@ test("the team creates the demo apps from the admin", async () => {
   // 110.5 And the live taxi app, the school and the academy with many teachers.
   for (const name of ["Sahm Express", "Sofra Eats", "Masar Rides", "Lamha Taxi", "Nakhla School", "Rawaq Academy"]) {
     await expect(admin.getByRole("heading", { name, level: 2 })).toBeVisible();
-    appIds[name] = await admin.locator(`form:has(button:has-text("Start a build of ${name}")) input[name="appId"]`).inputValue();
+    appIds[name] = await admin.locator(`form:not(:has(input[name="variant"])):has(button:has-text("Start a build of ${name}")) input[name="appId"]`).inputValue();
   }
   await expect(admin.getByText("Live taxi on the map demo")).toBeVisible();
   await expect(admin.getByRole("heading", { name: "Lale Flowers", level: 2 })).toHaveCount(0);
@@ -63,7 +63,7 @@ test("the team creates the demo apps from the admin", async () => {
   // Again: updated, not duplicated.
   await admin.getByRole("button", { name: "Refresh all regular demo apps" }).click();
   await expect(admin.getByRole("status")).toContainText("up to date", { timeout: 30_000 });
-  expect(await admin.locator(`form:has(button:has-text("Start a build of Lale Flowers")) input[name="appId"]`).inputValue()).toBe(appIds["Lale Flowers"]);
+  expect(await admin.locator(`form:not(:has(input[name="variant"])):has(button:has-text("Start a build of Lale Flowers")) input[name="appId"]`).inputValue()).toBe(appIds["Lale Flowers"]);
   await admin.goto("/admin/audit");
   await expect(admin.getByText("the demo apps:").first()).toBeVisible();
 });

@@ -275,6 +275,15 @@ void main() {
       expect((server.requests.single.data as Map)['language'], 'ar');
     });
 
+    test('112.3 with the build\'s role, when given', () async {
+      await api().setPushToken(
+        'fcm-4',
+        const NotificationPreferences(),
+        role: AppRole.driver,
+      );
+      expect((server.requests.single.data as Map)['role'], 'driver');
+    });
+
     test('85.1 without a language field when not known', () async {
       await api().setPushToken('fcm-3', const NotificationPreferences());
       expect(

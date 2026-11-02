@@ -251,12 +251,12 @@ tags:
       they have a job on the way, kept only while it is, and shown only to
       the customer of that job.
 
-      Where these screens are depends on the company's choice
-      (`DeliveryConfig.courier_app`): `same`, in the company's app, shown
-      only to couriers, who can switch between their courier screens and the
-      customer's; `bundle`, in the company's second app made for couriers
-      (build config `delivery_role: courier`), while its customer app has
-      none; `yallapp_courier`, in the shared Yallapp Courier app, while the
+      Roadmap 112.3: these screens are in the company's second app made for
+      couriers (build config `role: courier`) only; its customers' app has
+      none. `DeliveryConfig.courier_app` says where they were before:
+      `same`, in the company's app, shown only to couriers, which apps built
+      before 112.3 still do; `bundle`, in the second app;
+      `yallapp_courier`, in the shared Yallapp Courier app, while the
       company's app has none.
   - name: Food
     description: |
@@ -315,10 +315,11 @@ tags:
       offline. The rider's number is shown once the driver accepted, until
       the ride ends.
 
-      Where these screens are depends on the company's choice
-      (`RidesConfig.driver_app`): `same`, in the company's app, shown only to
-      drivers; `bundle`, in the company's second app made for drivers (build
-      config `role: driver`), while its riders' app has none.
+      Roadmap 112.3: these screens are in the company's second app made for
+      drivers (build config `role: driver`) only; its riders' app has none.
+      `RidesConfig.driver_app` says where they were before: `same`, in the
+      company's app, shown only to drivers, which apps built before 112.3
+      still do; `bundle`, in the second app.
   - name: Taxi
     description: |
       Roadmap 105.9. A live taxi app (`Config.taxi`): the rides of the Rides
@@ -1252,6 +1253,16 @@ paths:
                     part is kept), sent again when the person changes it. With the country the phone
                     signs in from (never its IP), it lets the business send a campaign to the people
                     who read a language or live in a country. Servers that don't need it ignore it.
+                role:
+                  type: string
+                  enum: [customer, courier, driver]
+                  description: >-
+                    Roadmap 112.3: which of the company's apps registered here, the build config's `role`
+                    (`customer` for the customers' app). In delivery, food, ride and taxi apps the
+                    couriers' and drivers' pushes (`courier_job`, `ride_offer`) go only to the courier
+                    or drivers' app's phones, and every other push only to the customers' app's. A phone
+                    whose app sends no role (one built before) gets them all, as before. Servers that
+                    don't need it ignore it.
       responses:
         '204': { description: Saved }
         '400': { $ref: '#/components/responses/BadRequest' }
@@ -11376,7 +11387,7 @@ components:
         courier_app:
           type: string
           enum: [same, bundle, yallapp_courier]
-          description: Where the couriers' screens are (see the Courier tag). This build shows them only when it is `same`, or when the build is the courier app (`delivery_role` courier).
+          description: Where the couriers' screens are (see the Courier tag). Since 112.3 only the courier app (build config `role` courier) shows them; an app built before shows them when it is `same`.
         map:
           type: object
           required: [tiles_url, attribution, search, routes]
@@ -11632,7 +11643,7 @@ components:
         courier_app:
           type: string
           enum: [same, bundle, yallapp_courier]
-          description: As `DeliveryConfig.courier_app` (roadmap 105.1.6). This build shows the couriers' screens only when it is `same`, or when the build is the courier app.
+          description: As `DeliveryConfig.courier_app` (roadmap 105.1.6). Since 112.3 only the courier app shows the couriers' screens; an app built before shows them when it is `same`.
         map:
           type: object
           required: [tiles_url, attribution, search, routes]
@@ -12001,7 +12012,7 @@ components:
         driver_app:
           type: string
           enum: [same, bundle]
-          description: Where the drivers' screens are (see the Driver tag). This build shows them only when it is `same`, or when the build is the drivers' app (build config `role` driver).
+          description: Where the drivers' screens are (see the Driver tag). Since 112.3 only the drivers' app (build config `role` driver) shows them; an app built before shows them when it is `same`.
         map:
           type: object
           required: [tiles_url, attribution]

@@ -2,7 +2,8 @@ import { hostedOnly } from "../app/kinds";
 import { buildConfigFor, SETUP_STEPS, STEP_LABEL, stepStatus, type SetupStep } from "../app/setup";
 import type { BuildConfig } from "../build-config/types";
 import { APP_FONTS } from "../build-config/types";
-import type { App } from "../data/types";
+import type { App, DeliverySettings } from "../data/types";
+import { courierBuildConfig } from "../delivery/courier-app";
 import { hostedApiUrl } from "../hosted/urls";
 import { yallappSignsIn } from "../hosted/sign-in-methods";
 import type { Plan, PlanInfo } from "../plans";
@@ -91,6 +92,8 @@ export function previewConfigFor(
     plans?: Record<Plan, PlanInfo>;
     /** The Yallapp plugin on the app's WordPress site has activated its license (`wordpressPluginConnected`). */
     pluginConnected: boolean;
+    /** 112.3 The second app's settings, for a token with a role (lib/preview/service.ts checks the app has that app). */
+    secondApp?: Pick<DeliverySettings, "courierAppName" | "courierFirebaseIosAssetId" | "courierIconAssetId"> | null;
   },
 ): PreviewConfig {
   const built = buildConfigFor(app, { id: app.clientId }, { name: "1.0.0", code: 1 }, options.assetUrl);
@@ -128,8 +131,13 @@ export function previewConfigFor(
   // 44 The preview never sends usage statistics.
   delete built.analytics;
   const draft = grant.draft && draftPreviewSupported(app);
+  // 112.3 The couriers' or drivers' app: its role, name and icon, from the same setup.
+  const config =
+    grant.role && options.secondApp
+      ? courierBuildConfig(built, app, options.secondApp, { android: false, iosConfigUrl: null }, options.secondApp.courierIconAssetId ? options.assetUrl(options.secondApp.courierIconAssetId) : null)
+      : built;
   return {
-    config: built,
+    config,
     preview: {
       app_id: app.id,
       expires_at: grant.expiresAt.toISOString(),

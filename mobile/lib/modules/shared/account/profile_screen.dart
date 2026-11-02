@@ -58,18 +58,20 @@ class ProfileScreen extends ConsumerWidget {
         config.features.orders &&
         (env.build.appType == AppType.events ||
             env.build.appType == AppType.booking);
-    // 104 Delivery apps: the customer's shipments, and the courier's screens
-    // for the company's couriers.
-    final delivery = env.build.appType == AppType.delivery;
-    final courier = ref.watch(isCourierProvider);
+    // 112.3 The couriers' or drivers' own app: its Courier or Driver tab and
+    // this account, none of the customer's lists.
+    final secondApp =
+        ref.watch(courierAppProvider) || ref.watch(driverAppProvider);
+    // 104 Delivery apps: the customer's shipments (112.3 the courier's
+    // screens are in the courier app only).
+    final delivery = env.build.appType == AppType.delivery && !secondApp;
     // 105.1 Food delivery apps: the customer's orders, and the restaurant's
     // screens for its staff.
-    final food = env.build.appType == AppType.food;
-    final restaurant = ref.watch(isRestaurantProvider);
-    // 105.2 Ride apps: the rider's rides, and the driver's screens for the
-    // company's drivers.
-    final rides = env.build.appType == AppType.rides;
-    final driver = ref.watch(isDriverProvider);
+    final food = env.build.appType == AppType.food && !secondApp;
+    final restaurant = ref.watch(isRestaurantProvider) && !secondApp;
+    // 105.2 Ride apps: the rider's rides (112.3 the driver's screens are in
+    // the drivers' app only).
+    final rides = env.build.appType == AppType.rides && !secondApp;
     // 105.3 Academies with many teachers: their teachers' pages, applying
     // to teach, and the teacher's screens for the teachers.
     final instructors = ref.watch(instructorsConfigProvider);
@@ -274,20 +276,6 @@ class ProfileScreen extends ConsumerWidget {
                     title: context.l10n.teachHere,
                     onTap: () => context.push(Paths.teachApply),
                   ),
-                if (driver)
-                  SettingsTile(
-                    key: const ValueKey('account-driver'),
-                    icon: AppIcons.car,
-                    title: context.l10n.driverMode,
-                    onTap: () => context.go(Paths.driver),
-                  ),
-                if (courier)
-                  SettingsTile(
-                    key: const ValueKey('account-courier'),
-                    icon: AppIcons.courier,
-                    title: context.l10n.courierMode,
-                    onTap: () => context.go(Paths.courier),
-                  ),
                 if (delivery && user != null)
                   SettingsTile(
                     key: const ValueKey('account-shipments'),
@@ -302,7 +290,7 @@ class ProfileScreen extends ConsumerWidget {
                     title: context.l10n.tabFoodOrders,
                     onTap: () => context.go(Paths.foodOrders),
                   ),
-                if (rides && user != null && !ref.watch(driverAppProvider))
+                if (rides && user != null)
                   SettingsTile(
                     key: const ValueKey('account-rides'),
                     icon: AppIcons.receipt,

@@ -43,7 +43,7 @@ Sayfayı küçük bir telefonda, büyük bir telefonda ve bir tablette, açık v
 
 ## Teslimat şirketleri
 
-Bir teslimat şirketinin projesi yalnızca Studio'da yapılır. Müşteriler alış ve teslim yeriyle bir paket gönderir, yazarken fiyatı görür, nakit ya da kendi ödeme hesabın üzerinden kartla öder ve paketi aşama aşama ya da canlı haritada takip eder. Kuryelerin aynı uygulamada işleriyle birlikte bir **Kurye** sekmesi ya da bunu içeren planlarda kendilerine ait ikinci bir uygulama alır.
+Bir teslimat şirketinin projesi yalnızca Studio'da yapılır. Müşteriler alış ve teslim yeriyle bir paket gönderir, yazarken fiyatı görür, nakit ya da kendi ödeme hesabın üzerinden kartla öder ve paketi aşama aşama ya da canlı haritada takip eder. Kuryelerin, işleriyle birlikte adına yapılmış kendi uygulamalarında çalışır; müşteri uygulaman kurye ekranlarını hiç göstermez. Yolculuk ve taksi şirketlerinin sürücüleri için de aynısı geçerli. **Derlemeler ve indirmeler** ve kurulum iki uygulamayı da gösterir; her birinin kendi derlemeleri, mağaza sayfası ve inceleyiciler için notları vardır.
 
 Projenin panelinde fiyatlarını ve müşterilerin nasıl ödeyeceğini **Teslimat ayarları**'nda belirle, kuryelerini **Kuryeler**'e ekle ve her gönderiyi **Gönderiler**'de takip et.
 

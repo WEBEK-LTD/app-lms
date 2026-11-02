@@ -47,10 +47,17 @@ FakeApi deliveryMapApi({
   return api;
 }
 
-TestApp app(FakeApi api, AppType type, {List<String>? opened}) => TestApp(
+TestApp app(
+  FakeApi api,
+  AppType type, {
+  List<String>? opened,
+  AppRole role = AppRole.customer,
+}) => TestApp(
   api: api,
   appType: type,
   signedIn: true,
+  // 112.3 The courier's screens are in the courier app.
+  build: (b) => b.copyWith(role: role),
   overrides: [
     locatorProvider.overrideWithValue(FakeLocator()),
     openExternalProvider.overrideWithValue((url) async {
@@ -126,7 +133,12 @@ void main() {
         'available': [],
         'done': [],
       };
-    final test = app(api, AppType.delivery, opened: opened);
+    final test = app(
+      api,
+      AppType.delivery,
+      opened: opened,
+      role: AppRole.courier,
+    );
     await test.pump(tester);
     await push(test, tester, Paths.courierJob(1));
 

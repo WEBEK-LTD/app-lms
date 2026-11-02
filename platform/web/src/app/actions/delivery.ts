@@ -10,17 +10,16 @@ import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
 import { SHIPMENT_STATUSES } from "@/lib/data/types";
 import { courierPlistProblem } from "@/lib/delivery/courier-app";
+import { saveSecondAppIcon } from "@/lib/delivery/second-app-icon";
 import { assignShipment, moveShipment } from "@/lib/delivery/flow";
 import { courierMayHave, reviewUserId } from "@/lib/delivery/review";
 import { parseCourierForm, parseDeliverySettings, parseServiceForm } from "@/lib/delivery/forms";
 import { COMPANY_STEPS, shipmentReference } from "@/lib/delivery/service";
 import { DELIVERY_LIMITS, deliverySettingsOf } from "@/lib/delivery/settings";
-import { appPlan } from "@/lib/entitlements";
 import { formValues, type FormState } from "@/lib/forms";
 import { hostedSettings } from "@/lib/hosted/service";
 import { hostedSignInMethods } from "@/lib/hosted/sign-in-methods";
 import { imageType } from "@/lib/images";
-import { hasFeature } from "@/lib/plans";
 import type { TeamPermission } from "@/lib/team/permissions";
 import { askAfterOwnEntry } from "@/lib/samples/lists";
 
@@ -59,9 +58,13 @@ export async function saveDeliverySettingsAction(_: FormState, formData: FormDat
   const values = formValues(formData);
   const saved = deliverySettingsOf(await store.getDeliverySettings(app.id));
   const now = new Date();
-  const plan = await appPlan(store, context.license, now);
-  const parsed = parseDeliverySettings(values, saved, hasFeature(plan, "courier_app"), app.connector?.kind === "restaurants");
+  const parsed = parseDeliverySettings(values, saved, app.connector?.kind === "restaurants");
   if (!parsed.ok) return { errors: parsed.errors, values };
+  // 112.3 The courier app's own icon.
+  const icon = await saveSecondAppIcon(store, context.client.id, formData.get("courierIcon"), now);
+  if ("error" in icon) return { errors: { courierIcon: icon.error }, values };
+  if (icon.assetId) parsed.value.courierIconAssetId = icon.assetId;
+  else if (formData.get("removeCourierIcon") === "on") parsed.value.courierIconAssetId = null;
   // 104.6 The courier iPhone app's Firebase file, checked against its bundle ID.
   const plist = formData.get("courierFirebaseIos");
   if (plist && typeof plist !== "string" && plist.size > 0) {

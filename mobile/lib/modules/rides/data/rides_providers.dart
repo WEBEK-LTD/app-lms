@@ -19,21 +19,20 @@ final ridesConfigProvider = Provider<RidesConfig>((ref) {
       : const RidesConfig();
 });
 
-/// Whether this build shows the drivers' screens: the company's app when its
-/// drivers work in it, and its drivers' app always.
-final driverScreensHereProvider = Provider<bool>((ref) {
-  final env = ref.watch(appEnvironmentProvider);
-  if (env.build.appType != AppType.rides) return false;
-  if (env.build.role == AppRole.driver) return true;
-  return ref.watch(ridesConfigProvider).driverApp == DriverApp.same;
-});
-
-/// This build is the ride company's drivers' app: the driver's screens and
-/// the account only.
+/// This build is the ride (105.9 or taxi) company's drivers' app: the
+/// driver's screens and the account only.
 final driverAppProvider = Provider<bool>((ref) {
   final build = ref.watch(appEnvironmentProvider).build;
   return build.appType == AppType.rides && build.role == AppRole.driver;
 });
+
+/// Whether this build shows the drivers' screens. 112.3 Only the company's
+/// drivers' app does: the riders' app never shows them, whatever
+/// `Config.rides.driver_app` says (`same` is for the riders' apps built
+/// before, which kept the Driver tab).
+final driverScreensHereProvider = Provider<bool>(
+  (ref) => ref.watch(driverAppProvider),
+);
 
 /// The signed-in person is one of the company's drivers, and this build
 /// shows the drivers' screens: the Driver tab is theirs only.

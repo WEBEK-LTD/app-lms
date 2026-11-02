@@ -36,6 +36,9 @@ final pushRegistrationProvider = Provider<void>((ref) {
   );
   // 85.1 Sent again when the person changes the app's language.
   final language = ref.watch(appLanguageProvider);
+  // 112.3 The build's role: the couriers' and drivers' pushes go to their
+  // own app, the customers' to the customers' app.
+  final role = ref.read(appEnvironmentProvider).build.role;
   final push = ref.read(pushServiceProvider);
 
   Future<void> send(String? token) async {
@@ -49,6 +52,7 @@ final pushRegistrationProvider = Provider<void>((ref) {
             preferences,
             provider: push.provider,
             language: language,
+            role: role,
           );
     } on ApiException {
       // Tried again on the next start or preference change.

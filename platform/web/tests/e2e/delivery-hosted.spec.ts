@@ -98,8 +98,11 @@ test("Delivery settings: not on the plan yet, one price, a service", async () =>
   await expect(own).toHaveURL(/\/studio\/project\/delivery$/);
   await expect(own.getByRole("heading", { name: "Delivery settings", level: 1 })).toBeVisible();
   await expect(own.getByText("Delivery & couriers isn't included in this app's plan yet")).toBeVisible();
-  // A second courier app isn't on the plan either.
-  await expect(own.getByText("A second app for couriers isn't in your plan.")).toBeVisible();
+  // 112.3 Couriers always work in their own app, which every Studio plan has unless the team unticks it: no choice of where.
+  await expect(own.getByRole("heading", { name: "Your couriers' app" })).toBeVisible();
+  await expect(own.getByText(`Your couriers work in their own app, ${client.name} Courier`)).toBeVisible();
+  await expect(own.getByText("The couriers' app isn't in your plan yet")).toHaveCount(0);
+  await expect(own.getByRole("radio", { name: "In your app" })).toHaveCount(0);
 
   await own.getByLabel("Price (EGP)", { exact: true }).fill("45");
   await own.getByRole("button", { name: "Save settings" }).click();
@@ -113,6 +116,31 @@ test("Delivery settings: not on the plan yet, one price, a service", async () =>
   await expect(own.getByText("Added. Customers choose it when they send a parcel.")).toBeVisible();
   await own.reload();
   await expect(own.getByText("Edit Same-day")).toBeVisible();
+});
+
+test("112.3 two apps: Builds, Setup and the preview show the customers' app and the couriers' app", async () => {
+  await own.goto("/dashboard/builds");
+  await expect(own).toHaveURL(/\/studio\/project\/builds$/);
+  const two = own.getByRole("region", { name: "Your two apps" });
+  await expect(two.locator('[data-app="customers"]')).toContainText("Customers' app");
+  await expect(two.locator('[data-app="customers"]')).toContainText(client.name);
+  await expect(two.locator('[data-app="courier"]')).toContainText("Couriers' app");
+  await expect(two.locator('[data-app="courier"]')).toContainText(`${client.name} Courier`);
+  await expect(two.getByRole("link", { name: "Notes for the stores' reviewers, for both apps" })).toHaveAttribute("href", "/studio/project/publishing#h-review");
+  // Its own builds section, on the plan.
+  await expect(own.getByRole("region", { name: "The couriers' app" })).toBeVisible();
+  await expect(own.getByText("The courier app isn't on your plan.")).toHaveCount(0);
+
+  await own.goto("/dashboard/setup?step=listing");
+  await expect(own.getByRole("region", { name: "Your two apps" }).locator('[data-app="courier"]')).toContainText(`${client.name} Courier`);
+
+  // The preview shows either app: the couriers' one with its own link.
+  await own.goto("/dashboard/preview");
+  const apps = own.locator("[data-preview-apps]");
+  await expect(apps.getByRole("button", { name: "Customers' app" })).toHaveAttribute("aria-pressed", "true");
+  await expect(own.getByTestId("app-preview")).not.toHaveAttribute("src", /\.courier\./);
+  await apps.getByRole("button", { name: "Couriers' app" }).click();
+  await expect(own.getByTestId("app-preview")).toHaveAttribute("src", /token=p1\.[0-9a-f-]+\.\d+\.[01]\.courier\./);
 });
 
 test("Couriers: one added by mobile number, then a second with the same number is refused", async () => {

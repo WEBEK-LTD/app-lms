@@ -21,7 +21,7 @@ import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { appPlan } from "@/lib/entitlements";
 import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { hasFeature } from "@/lib/plans";
-import { courierAppNameOf } from "@/lib/delivery/courier-app";
+import { courierAppNameOf, workedInCustomersApp } from "@/lib/delivery/courier-app";
 import { ConfirmButton } from "../chat/forms";
 import { isDelivery, isFood, NotDelivery, PlanNotice } from "../shipments/parts";
 import { AddServiceBox, DeliverySettingsForm, ServiceForm } from "./forms";
@@ -96,6 +96,7 @@ export default async function DeliverySettingsPage({ searchParams }: { searchPar
           currencies={CATALOG_CURRENCIES}
           bundleAllowed={bundleAllowed}
           bundleOff={richText(t("delivery.courierBundleOff"), { link: (chunk) => <Link href="/dashboard/license">{chunk}</Link> })}
+          before={workedInCustomersApp(settings)}
           settings={{
             currency: settings.currency,
             pricing: settings.pricing,
@@ -109,10 +110,10 @@ export default async function DeliverySettingsPage({ searchParams }: { searchPar
             card: settings.card,
             tracking: settings.tracking,
             assignment: settings.assignment,
-            courierApp: settings.courierApp,
             courierAppName: settings.courierAppName ?? "",
             courierAppNameDefault: courierAppNameOf(app, { courierAppName: null }),
             courierFirebaseIos: Boolean(settings.courierFirebaseIosAssetId),
+            courierIconUrl: settings.courierIconAssetId ? `/api/v1/assets/${settings.courierIconAssetId}` : null,
           }}
           food={
             isFood(app)

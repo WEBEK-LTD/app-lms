@@ -164,10 +164,16 @@ Map<String, dynamic> nearbyJson(String key) => {
   'vehicle_type_id': null,
 };
 
-TestApp taxiApp(FakeApi api, {FakeLocator? locator}) => TestApp(
+TestApp taxiApp(
+  FakeApi api, {
+  FakeLocator? locator,
+  AppRole role = AppRole.customer,
+}) => TestApp(
   api: api,
   appType: AppType.rides,
   signedIn: true,
+  // 112.3 The driver's screens are in the drivers' app only.
+  build: (b) => b.copyWith(role: role),
   overrides: [
     locatorProvider.overrideWithValue(locator ?? FakeLocator()),
     shareRideProvider.overrideWithValue((text) async {}),
@@ -535,7 +541,7 @@ void main() {
               .toIso8601String(),
         ),
       ];
-    final app = taxiApp(api);
+    final app = taxiApp(api, role: AppRole.driver);
     await app.pump(tester);
     await go(app, tester, Paths.driver);
 

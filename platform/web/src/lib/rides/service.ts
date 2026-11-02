@@ -139,6 +139,7 @@ export function ridesConfig(
     pin: rides.pin,
     emergency_phone: rides.emergencyPhone,
     // The Yallapp Courier app isn't for drivers: a company that chose it has them in its own app.
+    // 112.3 `same` now only keeps the Driver tab in the riders' app built before 112.3; apps built since show it in the drivers' app only.
     driver_app: settings.courierApp === "bundle" ? "bundle" : "same",
     map: { tiles_url: map?.tilesUrl ?? null, attribution: map?.tilesUrl ? map.attribution : null },
   };

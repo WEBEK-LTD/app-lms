@@ -573,6 +573,7 @@ export const SERVER_MESSAGES_TR: Record<string, string> = {
   "The demo account can't be changed. In your own app, people edit their details here.": "Demo hesap değiştirilemez. Kendi uygulamanızda kullanıcılar bilgilerini buradan düzenler.",
   "The minimum order for delivery is {0}.": "Teslimat için en düşük sipariş tutarı {0}.",
   "The push provider must be fcm or hms.": "Bildirim sağlayıcısı fcm ya da hms olmalıdır.",
+  "The app's role must be customer, courier or driver.": "Uygulamanın rolü customer, courier ya da driver olmalıdır.",
   "The push token is missing.": "Bildirim belirteci eksik.",
   "The request body must be JSON.": "İstek gövdesi JSON olmalıdır.",
   "The request is too large.": "İstek çok büyük.",

@@ -8,19 +8,26 @@ import { hmacSha256, safeEqual } from "../crypto/tokens";
  * signature covers all three.
  *
  * Format: `p1.<app id>.<expires, unix seconds>.<0|1 draft>.<signature>`.
+ * 112.3 A preview of a delivery, food, ride or taxi project's second app
+ * adds its role before the signature: `p1.<app id>.<expires>.<draft>.<courier|driver>.<signature>`.
  */
 
 /** How long a preview link works. */
 export const PREVIEW_TTL_SECONDS = 60 * 60;
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-const TOKEN = /^p1\.([0-9a-f-]{36})\.(\d{1,12})\.([01])\.([A-Za-z0-9_-]{43})$/;
+const TOKEN = /^p1\.([0-9a-f-]{36})\.(\d{1,12})\.([01])(?:\.(courier|driver))?\.([A-Za-z0-9_-]{43})$/;
+
+/** 112.3 Whose app the preview shows: the couriers' or drivers' second app; none, the customers'. */
+export type PreviewRole = "courier" | "driver";
 
 export interface PreviewGrant {
   appId: string;
   /** The preview shows the Pages & look draft instead of the published pages (hosted API only). */
   draft: boolean;
   expiresAt: Date;
+  /** 112.3 The second app's preview; absent: the customers' app. */
+  role?: PreviewRole;
 }
 
 export type PreviewCheck = { ok: true; grant: PreviewGrant } | { ok: false; reason: "invalid" | "expired" };
@@ -34,11 +41,11 @@ function sign(key: string, payload: string): string {
   return hmacSha256(key, `preview:${payload}`);
 }
 
-export function createPreviewToken(input: { appId: string; draft: boolean }, key: string, now: Date = new Date(), ttlSeconds = PREVIEW_TTL_SECONDS): string {
+export function createPreviewToken(input: { appId: string; draft: boolean; role?: PreviewRole }, key: string, now: Date = new Date(), ttlSeconds = PREVIEW_TTL_SECONDS): string {
   const appId = input.appId.toLowerCase();
   if (!UUID.test(appId)) throw new Error("Not an app ID");
   const expires = Math.floor(now.getTime() / 1000) + ttlSeconds;
-  const payload = `p1.${appId}.${expires}.${input.draft ? 1 : 0}`;
+  const payload = `p1.${appId}.${expires}.${input.draft ? 1 : 0}${input.role ? `.${input.role}` : ""}`;
   return `${payload}.${sign(key, payload)}`;
 }
 
@@ -46,15 +53,15 @@ export function createPreviewToken(input: { appId: string; draft: boolean }, key
 export function verifyPreviewToken(token: string | null | undefined, key: string, now: Date = new Date(), appId?: string): PreviewCheck {
   const match = TOKEN.exec((token ?? "").trim());
   if (!match) return { ok: false, reason: "invalid" };
-  const [, id, expires, draft, sig] = match as unknown as [string, string, string, string, string];
+  const [, id, expires, draft, role, sig] = match as unknown as [string, string, string, string, PreviewRole | undefined, string];
   if (!UUID.test(id)) return { ok: false, reason: "invalid" };
-  const payload = `p1.${id}.${expires}.${draft}`;
+  const payload = `p1.${id}.${expires}.${draft}${role ? `.${role}` : ""}`;
   if (!safeEqual(sig, sign(key, payload))) return { ok: false, reason: "invalid" };
   // Another app's token never works here, even while it is valid.
   if (appId !== undefined && appId.toLowerCase() !== id) return { ok: false, reason: "invalid" };
   const expiresAt = new Date(Number(expires) * 1000);
   if (expiresAt.getTime() <= now.getTime()) return { ok: false, reason: "expired" };
-  return { ok: true, grant: { appId: id, draft: draft === "1", expiresAt } };
+  return { ok: true, grant: { appId: id, draft: draft === "1", expiresAt, ...(role ? { role } : {}) } };
 }
 
 /** The header the app preview sends to the hosted API with its token. */

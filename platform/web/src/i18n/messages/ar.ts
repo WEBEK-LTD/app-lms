@@ -251,6 +251,7 @@ export const ar: Messages = {
     whatToTry: "ما يمكنك تجربته",
     qrLabel: "رمز QR لتنزيل {app} على Android",
     download: "تنزيل لنظام Android",
+    downloadSecond: "تنزيل {app} لنظام Android",
     scan: "امسح الرمز بكاميرا هاتفك، أو افتح هذه الصفحة على هاتفك. قد يطلب منك الهاتف السماح بتثبيت التطبيقات من المتصفح.",
     comingSoon: "قريبًا",
     onItsWay: "نسخة Android في الطريق.",

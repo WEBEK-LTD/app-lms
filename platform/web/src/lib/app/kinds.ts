@@ -1073,7 +1073,7 @@ export const KINDS: readonly KindInfo[] = [
     tile: "bg-tile-1 text-[#8A4B12]",
     marketing: { slug: "delivery", icon: "local_shipping" },
     reviewNote:
-      "This app has two roles. Customers send parcels and follow them. Couriers of the company sign in with a number the company added and see a Courier tab with their jobs. Use the customer review account for the customer's screens and the courier review account for the courier's.",
+      "Customers send parcels and follow them in this app. The company's couriers work in its separate courier app, which has its own store listing and notes; this app never shows the courier's screens.",
   },
   {
     // 105.1 The food engine's one kind.
@@ -1087,7 +1087,7 @@ export const KINDS: readonly KindInfo[] = [
     tile: "bg-tile-2 text-[#8A4B12]",
     marketing: { slug: "food", icon: "restaurant" },
     reviewNote:
-      "This app has three roles. Customers order food from the restaurants. A restaurant's staff sign in with a number the company added and see a Restaurant tab with its orders. Couriers see a Courier tab with their jobs.",
+      "This app has two roles. Customers order food from the restaurants. A restaurant's staff sign in with a number the company added and see a Restaurant tab with its orders. The company's couriers work in its separate courier app, which has its own store listing and notes.",
   },
   {
     // 105.2 The rides engine's one kind.
@@ -1101,7 +1101,7 @@ export const KINDS: readonly KindInfo[] = [
     tile: "bg-tile-3 text-[#8A4B12]",
     marketing: { slug: "rides", icon: "local_taxi" },
     reviewNote:
-      "This app has two roles. Riders ask for a ride and follow the driver. Drivers of the company sign in with a number the company added and see a Driver tab with the rides offered to them.",
+      "Riders ask for a ride and follow the driver in this app. The company's drivers work in its separate drivers' app, which has its own store listing and notes; this app never shows the driver's screens.",
   },
   {
     // 105.9 A live taxi app: the rides engine on a full-screen live map.
@@ -1137,9 +1137,9 @@ export const KINDS: readonly KindInfo[] = [
         next: "After this step, choose your map and add your Firebase Realtime Database on the **Maps & live** page, add your vehicle types and their fares on the **Vehicle types** page, then add your drivers on the **Drivers** page; every ride shows on the **Rides** page. Riders and drivers sign in to the app with",
       },
     },
-    // 105.9.6 Both roles walked through: lib/delivery/review.ts writes the steps with the review number.
+    // 105.9.6 Both roles walked through: lib/delivery/review.ts writes the steps with the review number; 112.3 the driver's in the drivers' app's notes.
     reviewNote:
-      "This app has two roles. Riders open the app on a map with the free taxis around them, ask for a taxi and follow the driver on the map. Drivers of the company sign in with a number the company added and see a Driver tab with the rides offered to them. The review account is both: a rider, and a test driver (\"App Review\") that riders never see on the map: its rides are offered to it only, so ask for a taxi, then open Account › Driver mode, go online and accept it.",
+      "Riders open the app on a map with the free taxis around them, ask for a taxi and follow the driver on the map. The company's drivers work in its separate drivers' app, which has its own store listing and notes; there the review account is a test driver that riders never see on the map, offered a sample ride once online.",
   },
   {
     // 105.4 The school engine's one kind.

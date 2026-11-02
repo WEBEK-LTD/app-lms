@@ -28,6 +28,7 @@ import type {
   MembershipPeriod,
   PushPreferences,
   PushProvider,
+  HostedAppRole,
   OwnerPushPreferences,
   ScheduledNotificationStatus,
   CourseQuestionStatus,
@@ -501,6 +502,8 @@ export const hostedDevices = mysqlTable(
     // 85.1 The app's language and the phone's country, for campaigns' audiences.
     language: varchar("language", { length: 8 }),
     country: varchar("country", { length: 2 }),
+    // 112.3 Which of the company's apps registered for push: customer, courier or driver; null before.
+    appRole: varchar("app_role", { length: 8 }).$type<HostedAppRole>(),
     createdAt: time("created_at").notNull(),
     lastSeenAt: time("last_seen_at").notNull(),
   },

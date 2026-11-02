@@ -23,7 +23,7 @@ export function ReviewSection({
   text: DashboardText;
   managed: boolean;
   /** 104.7 A delivery app's notes for the reviewers, and the courier app's when it has one. */
-  delivery?: { customer: string; courier: string | null; courierName: string } | null;
+  delivery?: { customer: string; courier: string | null; courierName: string; driver?: boolean } | null;
 }) {
   const { t, lang } = text;
   const kind = reviewSignInKind(app);
@@ -92,8 +92,8 @@ export function ReviewSection({
       ) : null}
       {set && delivery?.courier ? (
         <div className="flex flex-col gap-2 rounded-xl bg-sand p-4" data-review-copy="courier">
-          <h3 className="m-0 text-base font-bold">{t("publishing.reviewCourierTitle", { name: delivery.courierName })}</h3>
-          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("publishing.reviewCourierText")}</p>
+          <h3 className="m-0 text-base font-bold">{t(delivery.driver ? "publishing.reviewDriverTitle" : "publishing.reviewCourierTitle", { name: delivery.courierName })}</h3>
+          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t(delivery.driver ? "publishing.reviewDriverText" : "publishing.reviewCourierText")}</p>
           <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-[15px]">
             <dt className="font-semibold">{t("publishing.reviewDeliveryNotes")}</dt>
             <dd className="m-0 whitespace-pre-line break-words" dir="ltr" data-review-notes="courier">

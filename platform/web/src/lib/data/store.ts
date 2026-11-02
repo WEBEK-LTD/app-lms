@@ -67,6 +67,7 @@ import type { PendingPayment, PublishingEvent, PublishingRequest } from "./types
 import type { OwnerNotice, OwnerNoticeKind, OwnerNoticePatch } from "./types";
 // 16 Demo apps
 import type { DemoPurgeCounts } from "./types";
+import type { PushAudience } from "./types";
 // 23 News & blog
 import type { Article, ArticleCategory, ArticleInput, NewsSettings } from "./types";
 // 28 Events & tickets
@@ -186,7 +187,7 @@ export class DuplicateEmailError extends Error {
 }
 
 /** A device of a hosted-API customer: what the API may change. */
-export type HostedDevicePatch = Partial<Pick<HostedDevice, "platform" | "name" | "appVersion" | "pushToken" | "pushProvider" | "pushPreferences" | "lastSeenAt" | "language" | "country">>;
+export type HostedDevicePatch = Partial<Pick<HostedDevice, "platform" | "name" | "appVersion" | "pushToken" | "pushProvider" | "pushPreferences" | "lastSeenAt" | "language" | "country" | "appRole">>;
 
 export type ClaimResult = { ok: true; activation: Activation } | { ok: false; existing: Activation };
 
@@ -334,8 +335,8 @@ export interface DataStore {
   listAudienceUserIds(input: { appId: string; who: "buyers" | "students" | "members"; courseId?: number | null; now: Date }): Promise<number[]>;
   /** Signs the device out: deletes it and its refresh tokens. */
   deleteHostedDevice(appId: string, id: string): Promise<void>;
-  /** Devices with a push token: every customer's, or only these customers'. */
-  listHostedPushDevices(appId: string, userIds: number[] | null): Promise<HostedDevice[]>;
+  /** Devices with a push token: every customer's, or only these customers'. 112.3 `audience`: the customers' pushes (the default) skip the couriers' and drivers' app's devices, the second app's skip the customers' app's; devices with no role get both. */
+  listHostedPushDevices(appId: string, userIds: number[] | null, audience?: PushAudience): Promise<HostedDevice[]>;
   /** Forgets a push token Firebase reported as no longer valid. */
   clearHostedPushToken(appId: string, token: string): Promise<void>;
 

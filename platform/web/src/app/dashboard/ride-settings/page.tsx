@@ -14,6 +14,7 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
 import { FOOD_TIMEZONES } from "@/lib/delivery/forms";
+import { courierAppNameOf, workedInCustomersApp } from "@/lib/delivery/courier-app";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { appPlan } from "@/lib/entitlements";
 import { PROVIDER_NAME } from "@/lib/payments/provider";
@@ -73,7 +74,6 @@ export default async function RideSettingsPage() {
   const store = await getStore();
   const [saved, types, plan] = await Promise.all([store.getDeliverySettings(app.id), store.listVehicleTypes(app.id), appPlan(store, license, new Date())]);
   const settings = deliverySettingsOf(saved);
-  const name = (app.appName ?? "").trim();
 
   return (
     <div className="flex flex-col gap-6">
@@ -90,8 +90,10 @@ export default async function RideSettingsPage() {
           timezones={FOOD_TIMEZONES}
           bundleAllowed={hasFeature(plan, "courier_app")}
           bundleOff={richText(t("rides.driverAppBundleOff"), { link: (chunk) => <Link href="/dashboard/license">{chunk}</Link> })}
-          driverAppNameDefault={`${name.slice(0, 23)} Driver`.trim()}
+          driverAppNameDefault={courierAppNameOf(app, { courierAppName: null })}
           driverFirebaseIos={Boolean(settings.courierFirebaseIosAssetId)}
+          driverIconUrl={settings.courierIconAssetId ? `/api/v1/assets/${settings.courierIconAssetId}` : null}
+          before={workedInCustomersApp(settings)}
         />
       </section>
       {settings.card || isOwnPayment(catalogSettings(app).payment) ? <RidePayments app={app} /> : null}

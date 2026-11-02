@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { withoutDemo } from "@/lib/admin/overview";
 import { isSetupComplete, newApp, queueBuild } from "@/lib/app/setup";
 import { GET as DOWNLOAD } from "@/app/demo/download/[slug]/route";
+import { demoSecondAppBuild } from "@/lib/demo/apps";
 import { checkoutAccount } from "@/lib/catalog/settings";
 import { MemoryStore } from "@/lib/data/memory";
 import type { App, CatalogOrder } from "@/lib/data/types";
@@ -727,6 +728,36 @@ describe("building a demo app and its public download", () => {
     expect((await download("nope")).headers.get("location")).toContain("download=unavailable");
     // Another demo can't borrow it.
     expect((await download("academy")).headers.get("location")).toContain("download=unavailable");
+  });
+
+  it("112.3 builds a Studio demo's couriers' app, offered on /demo/studio next to it", async () => {
+    vi.stubEnv("APP_URL", "https://yallapp.com.tr");
+    vi.stubEnv("FILES_BASE_URL", "https://files.yallapp.com.tr");
+    vi.stubEnv("FILES_SIGNING_SECRET", "unit-files-signing-secret-0123456789abcdef");
+    const store = new MemoryStore();
+    (globalThis as { __yallappStore?: unknown }).__yallappStore = Promise.resolve(store);
+    const assets = (id: string) => `https://yallapp.com.tr/api/v1/assets/${id}`;
+    const result = await setupDemoApps({ ...deps(store), assetUrl: assets, platformUrl: "https://yallapp.com.tr" }, ["delivery", "store"]);
+    const app = (await store.getAppById(result.apps.find((a) => a.type === "delivery")!.appId))!;
+    const client = (await store.getClientById(app.clientId))!;
+    const license = await store.getLicenseForApp(client.id, app.id);
+    // On the demos' Business plan, which has no courier_app: a demo has its second app all the same.
+    const queued = await queueBuild(store, { client, app, license, versionName: "1.0.0", variant: "courier" }, NOW, assets);
+    if (!queued.ok) throw new Error(`not queued: ${queued.reason}`);
+    expect(queued.build.config).toMatchObject({ role: "courier", app_name: `${app.appName} Courier` });
+    // Never a regular demo's.
+    const shop = (await store.getAppById(result.apps.find((a) => a.type === "store")!.appId))!;
+    expect(await queueBuild(store, { client, app: shop, license: await store.getLicenseForApp(client.id, shop.id), versionName: "1.0.0", variant: "courier" }, NOW, assets)).toMatchObject({ ok: false, reason: "courier_app_off" });
+
+    const download = () => DOWNLOAD(new Request("https://yallapp.com.tr/demo/download/delivery?app=second"), { params: Promise.resolve({ slug: "delivery" }) });
+    expect((await download()).headers.get("location")).toBe("https://yallapp.com.tr/demo/studio?download=unavailable#delivery");
+    expect(await demoSecondAppBuild(store, app)).toBeNull();
+    await store.updateBuild(queued.build.id, { status: "ready", artifacts: [{ kind: "apk", url: "https://files.yallapp.com.tr/demo/sahm-courier.apk" }] }, NOW);
+    expect((await demoSecondAppBuild(store, app))?.id).toBe(queued.build.id);
+    expect((await download()).headers.get("location")).toMatch(/^https:\/\/files\.yallapp\.com\.tr\/demo\/sahm-courier\.apk\?expires=/);
+    // The customers' app's download is still the one the team chose: none yet.
+    const customers = await DOWNLOAD(new Request("https://yallapp.com.tr/demo/download/delivery"), { params: Promise.resolve({ slug: "delivery" }) });
+    expect(customers.headers.get("location")).toContain("download=unavailable");
   });
 });
 

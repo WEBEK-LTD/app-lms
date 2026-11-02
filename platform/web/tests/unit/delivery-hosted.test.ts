@@ -79,25 +79,25 @@ describe("104 delivery prices", () => {
     expect(parseZones("Maadi 45", []).error).toContain("Maadi 45");
     expect(parseZones("Maadi, 45\nmaadi, 50", []).error).toBe('"maadi" is there twice.');
     expect(zonesText(SETTINGS.zones)).toBe("Maadi, 45.00\nZamalek, 60.00");
-    const form = { currency: "EGP", pricing: "zone", zones: "Maadi, 45", cash: "on", tracking: "live", assignment: "open", courierApp: "same" };
-    const parsed = parseDeliverySettings(form, DEFAULT_DELIVERY_SETTINGS, false);
+    const form = { currency: "EGP", pricing: "zone", zones: "Maadi, 45", cash: "on", tracking: "live", assignment: "open" };
+    const parsed = parseDeliverySettings(form, DEFAULT_DELIVERY_SETTINGS);
     expect(parsed).toMatchObject({ ok: true, value: { pricing: "zone", zones: [{ name: "Maadi", cents: 45_00 }], cash: true, card: false, tracking: "live", assignment: "open" } });
-    expect(parseDeliverySettings({ ...form, cash: "" }, DEFAULT_DELIVERY_SETTINGS, false)).toMatchObject({ ok: false, errors: { cash: "Choose at least one way to pay." } });
-    expect(parseDeliverySettings({ ...form, zones: "" }, DEFAULT_DELIVERY_SETTINGS, false)).toMatchObject({ ok: false, errors: { zones: expect.any(String) } });
-    expect(parseDeliverySettings({ ...form, pricing: "distance" }, DEFAULT_DELIVERY_SETTINGS, false)).toMatchObject({ ok: false, errors: { perKm: "Enter a price." } });
-    // The second app for couriers needs it in the plan.
-    expect(parseDeliverySettings({ ...form, courierApp: "bundle" }, DEFAULT_DELIVERY_SETTINGS, false)).toMatchObject({ ok: false, errors: { courierApp: expect.any(String) } });
-    expect(parseDeliverySettings({ ...form, courierApp: "bundle" }, DEFAULT_DELIVERY_SETTINGS, true).ok).toBe(true);
-    // 104.6 Its own name, within the stores' limit; the iPhone Firebase file stays as saved.
-    expect(parseDeliverySettings({ ...form, courierApp: "bundle", courierAppName: " Speedy Riders " }, { ...DEFAULT_DELIVERY_SETTINGS, courierFirebaseIosAssetId: "plist-1" }, true)).toMatchObject({
+    expect(parseDeliverySettings({ ...form, cash: "" }, DEFAULT_DELIVERY_SETTINGS)).toMatchObject({ ok: false, errors: { cash: "Choose at least one way to pay." } });
+    expect(parseDeliverySettings({ ...form, zones: "" }, DEFAULT_DELIVERY_SETTINGS)).toMatchObject({ ok: false, errors: { zones: expect.any(String) } });
+    expect(parseDeliverySettings({ ...form, pricing: "distance" }, DEFAULT_DELIVERY_SETTINGS)).toMatchObject({ ok: false, errors: { perKm: "Enter a price." } });
+    // 112.3 Couriers always work in the courier app: no choice is read, and what was saved stays (`same` keeps the old customers' app's Courier tab).
+    expect(parseDeliverySettings({ ...form, courierApp: "yallapp_courier" }, DEFAULT_DELIVERY_SETTINGS)).toMatchObject({ ok: true, value: { courierApp: "same" } });
+    expect(parseDeliverySettings(form, { ...DEFAULT_DELIVERY_SETTINGS, courierApp: "bundle" })).toMatchObject({ ok: true, value: { courierApp: "bundle" } });
+    // 104.6 Its own name, within the stores' limit; the iPhone Firebase file and (112.3) the icon stay as saved.
+    expect(parseDeliverySettings({ ...form, courierAppName: " Speedy Riders " }, { ...DEFAULT_DELIVERY_SETTINGS, courierFirebaseIosAssetId: "plist-1", courierIconAssetId: "icon-1" })).toMatchObject({
       ok: true,
-      value: { courierAppName: "Speedy Riders", courierFirebaseIosAssetId: "plist-1" },
+      value: { courierAppName: "Speedy Riders", courierFirebaseIosAssetId: "plist-1", courierIconAssetId: "icon-1" },
     });
-    expect(parseDeliverySettings({ ...form, courierApp: "bundle", courierAppName: "x".repeat(31) }, DEFAULT_DELIVERY_SETTINGS, true)).toMatchObject({ ok: false, errors: { courierAppName: expect.any(String) } });
-    // 105.1.6 A food delivery company's couriers may have their own app too.
-    const food = { ...form, courierApp: "bundle", cuisines: "Grills", foodCourierJob: "accepted", timezone: "Africa/Cairo" };
-    expect(parseDeliverySettings(food, DEFAULT_DELIVERY_SETTINGS, true, true)).toMatchObject({ ok: true, value: { courierApp: "bundle" } });
-    expect(parseDeliverySettings(food, DEFAULT_DELIVERY_SETTINGS, false, true)).toMatchObject({ ok: false, errors: { courierApp: expect.any(String) } });
+    expect(parseDeliverySettings({ ...form, courierAppName: "x".repeat(31) }, DEFAULT_DELIVERY_SETTINGS)).toMatchObject({ ok: false, errors: { courierAppName: expect.any(String) } });
+    // 105.1 A food delivery company's own fields.
+    const food = { ...form, cuisines: "Grills", foodCourierJob: "accepted", timezone: "Africa/Cairo" };
+    expect(parseDeliverySettings(food, DEFAULT_DELIVERY_SETTINGS, true)).toMatchObject({ ok: true, value: { foodCourierJob: "accepted", timezone: "Africa/Cairo" } });
+    expect(parseDeliverySettings({ ...food, timezone: "Mars/Base" }, DEFAULT_DELIVERY_SETTINGS, true)).toMatchObject({ ok: false, errors: { timezone: expect.any(String) } });
     expect(parseServiceForm({ name: "Same-day", extra: "25", eta: "Within 4 hours", active: "on" })).toEqual({ ok: true, value: { name: "Same-day", description: null, extraCents: 25_00, eta: "Within 4 hours", active: true } });
     expect(parseCourierForm({ name: "Omar", phone: "0100 123 4567" }, "+20", false)).toEqual({ ok: true, value: { name: "Omar", phone: "+201001234567", email: null, vehicle: null } });
     expect(parseCourierForm({ name: "Omar", phone: "" }, "+20", false)).toMatchObject({ ok: false, errors: { phone: expect.any(String) } });
@@ -398,13 +398,18 @@ describe("104 delivery apps on the hosted API", () => {
     expect(notes.customer).toContain("+201009990000");
     expect(notes.customer).toContain("424242");
     expect(notes.courier).toContain("Nile Express Courier is for Nile Express's couriers only");
-    expect(reviewNotes(app, { courierApp: "same", courierAppName: null, assignment: "open" })!.courier).toBeNull();
+    // 112.3 Couriers always have their own app: its notes even for a company whose couriers were in the customers' app (`same`), and none for the shared Yallapp Courier app.
+    const before = reviewNotes(app, { courierApp: "same", courierAppName: null, assignment: "open" })!;
+    expect(before.courier).toContain("Nile Express Courier is for Nile Express's couriers only");
+    expect(before.customer).not.toContain("Courier mode");
+    expect(reviewNotes(app, { courierApp: "yallapp_courier", courierAppName: null, assignment: "open" })!.courier).toBeNull();
     expect(reviewNotes({ ...app, hostedSettings: { ...app.hostedSettings!, reviewCode: null } }, { courierApp: "same", courierAppName: null, assignment: "open" })).toBeNull();
     // 105.1.6 A food delivery app's reviewers order, take the order as the first restaurant's staff, and deliver it.
     const food = reviewNotes({ ...app, appType: "food" }, { courierApp: "same", courierAppName: null, assignment: "open" })!;
     expect(food.customer).toContain("delivers food from many restaurants");
     expect(food.customer).toContain("the Restaurant tab shows this account's orders only");
-    expect(food.customer).toContain("Courier mode shows the courier's screens with the orders this account ordered");
+    expect(food.customer).not.toContain("Courier mode");
+    expect(food.courier).toContain("A sample job is waiting in My jobs");
     expect(food.customer).not.toContain("parcel");
     expect(reviewNotes({ ...app, appType: "food" }, { courierApp: "bundle", courierAppName: null, assignment: "open" })!.courier).toContain("Nile Express Courier is for Nile Express's couriers only");
   });

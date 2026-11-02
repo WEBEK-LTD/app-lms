@@ -147,19 +147,9 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
   Widget build(BuildContext context) {
     final p = context.palette;
     final l10n = context.l10n;
-    final header = TabHeader(
-      title: l10n.driverTitle,
-      // The drivers' app has no riders' screens to go back to.
-      trailing: ref.watch(driverAppProvider)
-          ? null
-          : TextButton.icon(
-              key: const ValueKey('driver-rider-view'),
-              onPressed: () => context.go(Paths.home),
-              icon: AppIcon(AppIcons.swap, size: 18, color: p.link),
-              label: Text(l10n.riderView),
-              style: TextButton.styleFrom(foregroundColor: p.link),
-            ),
-    );
+    // 112.3 The driver's screens are in the drivers' app only, which has no
+    // riders' screens to go back to.
+    final header = TabHeader(title: l10n.driverTitle);
     if (!ref.watch(isDriverProvider)) {
       // Nothing is asked of the server for someone who isn't a driver.
       return Scaffold(
@@ -506,16 +496,6 @@ extension on _DriverScreenState {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: Row(
                 children: [
-                  if (!ref.watch(driverAppProvider)) ...[
-                    SquareIconButton(
-                      key: const ValueKey('driver-rider-view'),
-                      icon: AppIcons.swap,
-                      label: l10n.riderView,
-                      bordered: false,
-                      onPressed: () => context.go(Paths.home),
-                    ),
-                    const SizedBox(width: 10),
-                  ],
                   Expanded(
                     child: switch (profile) {
                       AsyncValue(value: final me?) => AppCard(

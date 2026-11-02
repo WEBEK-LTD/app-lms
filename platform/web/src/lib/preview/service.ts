@@ -3,6 +3,8 @@ import type { DataStore } from "../data/store";
 import { effectivePlans } from "../entitlements";
 import type { App } from "../data/types";
 import { sameSite } from "../license/site-url";
+import { hasCourierJobs, hasSecondApp, secondAppRoleOf } from "../delivery/courier-app";
+import { deliverySettingsOf } from "../delivery/settings";
 import { previewConfigFor, type PreviewConfig } from "./config";
 import { verifyPreviewToken } from "./token";
 
@@ -32,6 +34,8 @@ export async function previewConfigResult(
   const license = await store.getLicenseForApp(app.clientId, app.id);
   const plans = await effectivePlans(store);
   const plan = license ? currentPlanId(license, now) : null;
+  // 112.3 A preview of the second app: only for a project that has it, as its own role.
+  const settings = check.grant.role && hasCourierJobs(app) && secondAppRoleOf(app) === check.grant.role ? deliverySettingsOf(await store.getDeliverySettings(app.id)) : null;
   return {
     status: 200,
     body: previewConfigFor(app, check.grant, {
@@ -41,6 +45,7 @@ export async function previewConfigResult(
       plan,
       plans,
       pluginConnected: await wordpressPluginConnected(store, app),
+      secondApp: settings && hasSecondApp(app, settings) ? settings : null,
     }),
   };
 }

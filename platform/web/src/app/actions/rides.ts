@@ -10,14 +10,13 @@ import { getStore } from "@/lib/data";
 import type { App, DriverDocument } from "@/lib/data/types";
 import { courierPlistProblem } from "@/lib/delivery/courier-app";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
-import { appPlan } from "@/lib/entitlements";
 import { formValues, type FormState } from "@/lib/forms";
 import { hostedSettings } from "@/lib/hosted/service";
 import { hostedSignInMethods } from "@/lib/hosted/sign-in-methods";
 import { imageType } from "@/lib/images";
-import { hasFeature } from "@/lib/plans";
 import { assignRide, cancelByCompany } from "@/lib/rides/flow";
 import { parseDriverForm, parseRideSettings, parseVehicleTypeForm } from "@/lib/rides/forms";
+import { saveSecondAppIcon } from "@/lib/delivery/second-app-icon";
 import { driverMayHave } from "@/lib/rides/review";
 import { DRIVER_ACTIVE, rideReference } from "@/lib/rides/service";
 import { driverOf, RIDES_LIMITS } from "@/lib/rides/settings";
@@ -90,9 +89,13 @@ export async function saveRideSettingsAction(_: FormState, formData: FormData): 
   const values = formValues(formData);
   const now = new Date();
   const saved = deliverySettingsOf(await store.getDeliverySettings(app.id));
-  const plan = await appPlan(store, context.license, now);
-  const parsed = parseRideSettings(values, saved, hasFeature(plan, "courier_app"), hostedSettings(app).defaultCountryCode);
+  const parsed = parseRideSettings(values, saved, hostedSettings(app).defaultCountryCode);
   if (!parsed.ok) return { errors: parsed.errors, values };
+  // 112.3 The drivers' app's own icon.
+  const icon = await saveSecondAppIcon(store, context.client.id, formData.get("driverIcon"), now);
+  if ("error" in icon) return { errors: { driverIcon: icon.error }, values };
+  if (icon.assetId) parsed.value.courierIconAssetId = icon.assetId;
+  else if (formData.get("removeDriverIcon") === "on") parsed.value.courierIconAssetId = null;
   // The drivers' iPhone app's Firebase file, checked against its bundle ID.
   const plist = formData.get("driverFirebaseIos");
   if (plist && typeof plist !== "string" && plist.size > 0) {

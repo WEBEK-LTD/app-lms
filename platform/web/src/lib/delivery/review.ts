@@ -1,6 +1,6 @@
 import type { DataStore } from "../data/store";
 import type { App, Courier, DeliverySettings, HostedUser, Shipment } from "../data/types";
-import { courierAppNameOf } from "./courier-app";
+import { courierAppNameOf, hasSecondApp } from "./courier-app";
 import { taxiSettingsOf } from "../taxi/settings";
 import { stage } from "./service";
 
@@ -105,21 +105,23 @@ export async function createSampleJob(store: DataStore, app: App, settings: Deli
  * customers' app, and the courier app when the company has one. 105.1.6 In
  * a food delivery app the same account also works for the company's first
  * restaurant, on its own orders only. 105.2 In a ride app it is a rider and,
- * the first time it opens the driver's screens, a test driver.
+ * the first time it opens the driver's screens, a test driver. 112.3 The
+ * couriers' and drivers' screens are in their own app only: the customers'
+ * app's notes no longer send the reviewer to Courier or Driver mode.
  */
 export function reviewNotes(
   app: Pick<App, "appName" | "hostedSettings" | "appType"> & { vertical?: App["vertical"] },
   settings: Pick<DeliverySettings, "courierApp" | "courierAppName" | "assignment"> & { taxi?: DeliverySettings["taxi"] },
 ): { customer: string; courier: string | null } | null {
+  const secondApp = hasSecondApp(app, settings);
   const who = reviewWho(app);
   if (!who) return null;
   const login = who.phone ? `the phone number ${who.phone}` : `the email ${who.email}`;
   const code = app.hostedSettings!.reviewCode!;
   const company = (app.appName ?? "").trim() || "the company";
   const signIn = `Sign in with ${login} and the code ${code} (no message is sent to it).`;
-  if (app.appType === "rides") return rideReviewNotes(app, settings, company, signIn);
+  if (app.appType === "rides") return rideReviewNotes(app, settings, company, signIn, secondApp);
   const food = app.appType === "food";
-  const what = food ? "order" : "parcel";
   const courierSteps = `Turn on duty, open the job, then move it on: Picked up, On the way, Delivered (the position is shared only while ${food ? "an order" : "a parcel"} is on the way, and only while the screen is open).`;
   const customer = [
     food ? `${company} delivers food from many restaurants. ${signIn}` : `${company} delivers parcels. ${signIn}`,
@@ -129,15 +131,11 @@ export function reviewNotes(
     food
       ? "The same account is also staff of the first restaurant in the list: the Restaurant tab shows this account's orders only. Accept one with the time it needs, then mark it Ready. Setting the restaurant busy is shown but not kept, and real customers' orders never reach this account."
       : null,
-    settings.courierApp === "same"
-      ? `The same account is also a test courier: Account › Courier mode shows the courier's screens with the ${what}s this account ${food ? "ordered" : "sent"}. ${courierSteps}`
-      : null,
   ]
     .filter(Boolean)
     .join("\n\n");
-  const courier =
-    settings.courierApp === "bundle"
-      ? [
+  const courier = secondApp
+    ? [
           `${courierAppNameOf(app, settings)} is for ${company}'s couriers only; customers use the ${company} app. ${signIn}`,
           `This account is a test courier. A sample job is waiting in My jobs (another appears once it is done). ${courierSteps}`,
         ].join("\n\n")
@@ -151,6 +149,7 @@ function rideReviewNotes(
   settings: Pick<DeliverySettings, "courierApp" | "courierAppName"> & { taxi?: DeliverySettings["taxi"] },
   company: string,
   signIn: string,
+  secondApp: boolean,
 ): { customer: string; courier: string | null } {
   // 105.9.6 A live taxi app: the map with the free taxis, the countdown on the offer.
   const taxi = app.vertical === "taxi";
@@ -170,17 +169,13 @@ function rideReviewNotes(
           "choose a vehicle type to see its fare and ask for a taxi paid in cash. The ride's screen follows the driver on the map, with the car and the code to tell the driver; My rides lists them all.",
         ].join(" ")
       : "Set the pickup (use your location or a maps link) and the drop-off, choose a vehicle type and request a ride paid in cash. The ride's screen shows the driver, the car and the code to tell the driver; My rides lists them all.",
-    settings.courierApp === "same"
-      ? `The same account is also a test driver${taxi ? " that riders never see on the map" : ""}: Account › Driver mode shows the driver's screens, and this account's rides are offered to it only, wherever the reviewer is. ${driverSteps}`
-      : null,
   ]
     .filter(Boolean)
     .join("\n\n");
-  const courier =
-    settings.courierApp === "bundle"
-      ? [
+  const courier = secondApp
+    ? [
           `${courierAppNameOf(app, settings)} is for ${company}'s drivers only; riders use the ${company} app. ${signIn}`,
-          `This account is a test driver. Once online, a sample ride is offered (another appears once it is declined or done). ${driverSteps}`,
+          `This account is a test driver${taxi ? " that riders never see on the map" : ""}. Once online, a sample ride is offered (another appears once it is declined or done). ${driverSteps}`,
         ].join("\n\n")
       : null;
   return { customer, courier };

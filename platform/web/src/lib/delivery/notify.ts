@@ -1,7 +1,7 @@
 import type { Lang } from "@/i18n/config";
 import { appLang } from "../bookings/reschedule";
 import type { DataStore } from "../data/store";
-import type { App, Courier, Shipment, ShipmentStatus } from "../data/types";
+import type { App, Courier, PushAudience, Shipment, ShipmentStatus } from "../data/types";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX } from "../hosted/notify";
 import { pushTarget, sendPush, type ServiceAccount } from "../hosted/push";
 import { shipmentReference } from "./service";
@@ -79,13 +79,20 @@ const COURIER: Record<"given" | "waiting", Record<Lang, (ref: string, place: str
 export const asLang = (code: string | null | undefined): Lang | null => (code === "en" || code === "ar" || code === "tr" ? code : null);
 
 /** To the person's inbox and phones (`onlyOrders`: those that allow order updates); returns the phones reached. */
+/** 112.3 The pushes for the couriers' and drivers' own app only; every other one is the customers' app's. */
+export const SECOND_APP_PUSHES: readonly string[] = ["courier_job", "ride_offer"];
+
+/** 112.3 Whose app a push of this type is for. */
+export const pushAudienceOf = (type: string | undefined): PushAudience => (type && SECOND_APP_PUSHES.includes(type) ? "second" : "customers");
+
 export async function deliver(deps: DeliveryNotifyDeps, userId: number, words: Words, data: Record<string, string>, onlyOrders: boolean): Promise<number> {
   const { store, app, now } = deps;
   const title = words.title.slice(0, NOTIFICATION_TITLE_MAX);
   const body = words.body.slice(0, NOTIFICATION_BODY_MAX);
   const notification = await store.createHostedNotification({ appId: app.id, userId, title, body, data, createdAt: now });
   if (!deps.account) return 0;
-  const devices = (await store.listHostedPushDevices(app.id, [userId])).filter((d) => !onlyOrders || d.pushPreferences?.orders !== false);
+  // 112.3 A courier's job or a driver's offer goes to the second app's phones, the customers' updates to the customers' app's.
+  const devices = (await store.listHostedPushDevices(app.id, [userId], pushAudienceOf(data.type))).filter((d) => !onlyOrders || d.pushPreferences?.orders !== false);
   if (devices.length === 0) return 0;
   try {
     const result = await (deps.send ?? sendPush)(deps.account, devices.map(pushTarget), { title, body, data: { ...data, notification_id: String(notification.id) } }, { now });
@@ -121,7 +128,7 @@ export async function tellCouriers(deps: DeliveryNotifyDeps, shipment: Shipment,
     if (!courier.active) continue;
     const user = await courierUser(deps.store, courier);
     if (!user) continue;
-    const devices = await deps.store.listHostedPushDevices(deps.app.id, [user.id]);
+    const devices = await deps.store.listHostedPushDevices(deps.app.id, [user.id], "second");
     const lang = asLang(devices[0]?.language) ?? appLanguage;
     const words = COURIER[kind][lang](shipmentReference(shipment), shipment.pickup.address);
     pushed += await deliver(deps, user.id, words, { type: "courier_job", shipment_id: String(shipment.id) }, false);

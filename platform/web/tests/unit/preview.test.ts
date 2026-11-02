@@ -8,6 +8,7 @@ import { getStore } from "@/lib/data";
 import type { MemoryStore } from "@/lib/data/memory";
 import type { DataStore } from "@/lib/data/store";
 import { DEFAULT_HOSTED_SETTINGS, type App } from "@/lib/data/types";
+import { DEFAULT_DELIVERY_SETTINGS } from "@/lib/delivery/settings";
 import { appUrl, signingSecret } from "@/lib/env";
 import { LogSender } from "@/lib/hosted/otp-sender";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
@@ -48,6 +49,19 @@ describe("preview tokens", () => {
       expect(verifyPreviewToken(bad, KEY, NOW)).toEqual({ ok: false, reason: "invalid" });
     }
     expect(verifyPreviewToken(token, KEY, NOW).ok && verifyPreviewToken(token, KEY, NOW)).toMatchObject({ grant: { draft: true } });
+  });
+
+  it("112.3 may name the couriers' or drivers' app, which can't be taken off or changed", () => {
+    const token = createPreviewToken({ appId: APP_A, draft: false, role: "driver" }, KEY, NOW);
+    expect(verifyPreviewToken(token, KEY, NOW)).toMatchObject({ ok: true, grant: { appId: APP_A, role: "driver" } });
+    const [p, id, exp, d, role, sig] = token.split(".");
+    expect(role).toBe("driver");
+    expect(verifyPreviewToken([p, id, exp, d, sig].join("."), KEY, NOW).ok).toBe(false);
+    expect(verifyPreviewToken([p, id, exp, d, "courier", sig].join("."), KEY, NOW).ok).toBe(false);
+    expect(verifyPreviewToken([p, id, exp, d, "admin", sig].join("."), KEY, NOW).ok).toBe(false);
+    // The customers' app's token has none.
+    const customers = verifyPreviewToken(createPreviewToken({ appId: APP_A, draft: false }, KEY, NOW), KEY, NOW);
+    expect(customers.ok && customers.grant.role).toBeUndefined();
   });
 
   it("go in the preview link, URL safe", () => {
@@ -145,6 +159,33 @@ describe("preview config", () => {
     expect(previewWaitingFor({ ...chosen, backend: "setup_requested" }, false)).toBe("setup");
     expect(previewWaitingFor({ ...chosen, backend: "hosted" }, false)).toBeNull();
     expect(previewWaitingFor({ ...chosen, appType: "real_estate" }, false)).toBeNull();
+  });
+
+  it("112.3 shows a delivery or ride project's second app for its own role only", async () => {
+    const delivery: App = { ...newApp(clientId, null, NOW, "delivery"), appName: "Nile Express", backend: "hosted", connector: { kind: "deliveries" }, androidPackage: "com.nile.app", iosBundleId: "com.nile.app" };
+    await store.createApp(delivery);
+    const courier = await previewConfigResult(store, createPreviewToken({ appId: delivery.id, draft: false, role: "courier" }, KEY, NOW), NOW, options());
+    expectPlatformContract("GET", "/preview/{token}/config", courier);
+    if (courier.status !== 200) throw new Error("no config");
+    expect(courier.body.config).toMatchObject({ role: "courier", app_name: "Nile Express Courier", android_package: "com.nile.app.courier" });
+    // Its own icon when it has one.
+    await store.saveDeliverySettings(delivery.id, { ...DEFAULT_DELIVERY_SETTINGS, courierIconAssetId: "icon-9" }, NOW);
+    const withIcon = await previewConfigResult(store, createPreviewToken({ appId: delivery.id, draft: false, role: "courier" }, KEY, NOW), NOW, options());
+    expect(withIcon.status === 200 && withIcon.body.config.branding.icon_url).toBe("https://yallapp.test/api/v1/assets/icon-9");
+    // The customers' app, and a driver's token for a delivery app, show the customers' app.
+    for (const token of [createPreviewToken({ appId: delivery.id, draft: false }, KEY, NOW), createPreviewToken({ appId: delivery.id, draft: false, role: "driver" }, KEY, NOW)]) {
+      const result = await previewConfigResult(store, token, NOW, options());
+      expect(result.status === 200 && (result.body.config.role ?? "customer")).toBe("customer");
+    }
+    // A ride app's drivers' app; never for a shop.
+    const rides: App = { ...newApp(clientId, null, NOW, "rides"), appName: "Masar", backend: "hosted", connector: { kind: "rides" } };
+    await store.createApp(rides);
+    const driver = await previewConfigResult(store, createPreviewToken({ appId: rides.id, draft: false, role: "driver" }, KEY, NOW), NOW, options());
+    expect(driver.status === 200 && driver.body.config).toMatchObject({ role: "driver", app_name: "Masar Driver" });
+    const shop: App = newApp(clientId, null, NOW, "store");
+    await store.createApp(shop);
+    const none = await previewConfigResult(store, createPreviewToken({ appId: shop.id, draft: false, role: "courier" }, KEY, NOW), NOW, options());
+    expect(none.status === 200 && (none.body.config.role ?? "customer")).toBe("customer");
   });
 
   it("refuses expired, broken and other apps' tokens", async () => {

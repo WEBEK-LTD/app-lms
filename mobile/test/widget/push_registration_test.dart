@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/api/models/models.dart';
+import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/core/services/push_service.dart';
 
 import '../support/test_app.dart';
@@ -59,5 +60,24 @@ void main() {
     expect(app.api.pushTokens, [(token: 'fcm-1', provider: PushProvider.fcm)]);
     // 85.1 With the language the app shows.
     expect(app.api.pushLanguages, ['en']);
+    // 112.3 And the build's role: the customers' app.
+    expect(app.api.pushRoles, [AppRole.customer]);
+  });
+
+  // 112.3 The couriers' and drivers' pushes go to their own app.
+  testWidgets('a courier app registers its token as the courier app\'s', (
+    tester,
+  ) async {
+    final app = TestApp(
+      appType: AppType.delivery,
+      signedIn: true,
+      build: (b) => b.copyWith(role: AppRole.courier),
+      overrides: [
+        pushServiceProvider.overrideWithValue(_Push(PushProvider.fcm, 'fcm-2')),
+      ],
+    );
+    await app.pump(tester);
+    expect(app.api.pushTokens, [(token: 'fcm-2', provider: PushProvider.fcm)]);
+    expect(app.api.pushRoles, [AppRole.courier]);
   });
 }
