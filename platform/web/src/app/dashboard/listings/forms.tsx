@@ -197,7 +197,7 @@ export function ListingForm({
         </div>
       </Group>
 
-      <Group title={t("listings.price")}>
+      <Group title={t("listings.formPrice")}>
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label={t("listings.price")} name="price" inputMode="decimal" required defaultValue={v("price", listing.price)} placeholder="4250000" error={e.price} />
           <Select label={t("shop.currency")} name="currency" defaultValue={v("currency", listing.currency)} options={currencies.map((c) => ({ value: c, label: c }))} error={e.currency} />

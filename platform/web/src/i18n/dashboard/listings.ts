@@ -177,6 +177,8 @@ export const en = {
   inquiriesNoMatch: "No conversations match.",
   filterNew: "New",
   filterRead: "Read",
+  // The page kit: a form part's name (not the same as its field's).
+  formPrice: "Price and terms",
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -361,6 +363,8 @@ export const ar: Messages = {
   inquiriesNoMatch: "لا توجد محادثات مطابقة.",
   filterNew: "جديدة",
   filterRead: "مقروءة",
+  // The page kit: a form part's name (not the same as its field's).
+  formPrice: "السعر والشروط",
 };
 
 export const tr: Messages = {
@@ -541,4 +545,6 @@ export const tr: Messages = {
   inquiriesNoMatch: "Eşleşen konuşma yok.",
   filterNew: "Yeni",
   filterRead: "Okunan",
+  // The page kit: a form part's name (not the same as its field's).
+  formPrice: "Fiyat ve koşullar",
 };
