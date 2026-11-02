@@ -7721,6 +7721,7 @@ components:
         id: { type: integer }
         name: { type: string }
         count: { type: integer }
+        image_url: { type: [string, 'null'], format: uri, description: "112.4 The category's picture, when it has one (a store's categories); shown by a Studio `categories` element as pictures or circles." }
 
     Instructor:
       type: object
@@ -9820,7 +9821,8 @@ components:
         questions that open one at a time (each child's `title` is its
         question, the child its answer), `tabs` shows one child at a time
         under a bar of their `title`s, `countdown` counts down to `ends_at`,
-        and `bullets` shows each line of `text` after an `icon`. An element
+        and `bullets` shows each line of `text` after an `icon`. 112.4
+        `coupon` shows its `code` with a button that copies it. An element
         the app doesn't know is left out with what it holds. Sides are
         logical: `start` is the left in a left-to-right language and the
         right in Arabic.
@@ -9829,7 +9831,7 @@ components:
         id: { type: string, maxLength: 64 }
         type:
           type: string
-          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets]
+          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon]
         name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app." }
         children:
           type: array
@@ -9839,7 +9841,7 @@ components:
         width: { $ref: '#/components/schemas/StudioSize' }
         height: { $ref: '#/components/schemas/StudioSize' }
         min_height: { type: number, minimum: 0, maximum: 4000 }
-        aspect_ratio: { type: [number, 'null'], minimum: 0.1, maximum: 10, description: "Width over height; for pictures, videos and maps." }
+        aspect_ratio: { type: [number, 'null'], minimum: 0.1, maximum: 10, description: "Width over height; for pictures, videos and maps. 112.4 For `slider`, its slides' (instead of `height`); dots go under them." }
         padding: { $ref: '#/components/schemas/StudioSides' }
         margin: { $ref: '#/components/schemas/StudioSides' }
         gap: { type: number, minimum: 0, maximum: 200, default: 0 }
@@ -9877,7 +9879,18 @@ components:
         autoplay: { type: boolean, default: false, description: "For `video` (muted) and `slider` (every `interval_ms`)." }
         interval_ms: { type: integer, minimum: 1500, maximum: 20000, default: 4000 }
         per_view: { type: number, minimum: 1, maximum: 4, default: 1, description: "For `slider`, how many show at a time (1.2 peeks at the next)." }
-        dots: { type: boolean, default: true, description: "For `slider`." }
+        dots: { type: boolean, default: true, description: "For `slider`: whether it shows where it is (`indicator`)." }
+        indicator: { type: string, enum: [dots, progress, count], default: dots, description: "112.4 For `slider`: `dots` under the slides; `progress`, a line per slide over their bottom, the one showing filling while it waits (with `autoplay`); `count`, \"2 / 5\" over their top corner. Apps that don't know it show dots." }
+        place:
+          type: [object, 'null']
+          description: "112.4 For a child of `stack`: where it sits, in percent of the stack from its `start` (`x`) and its top (`y`); the child's own point at the same share sits there (0 its start or top, 50 its middle, 100 its end or bottom). Spots on a picture that open a product (shop the look). Null, by `self_align`."
+          required: [x, y]
+          properties:
+            x: { type: number, minimum: 0, maximum: 100 }
+            y: { type: number, minimum: 0, maximum: 100 }
+        style: { type: string, enum: [chips, tiles, pictures, circles], default: chips, description: "112.4 For `categories`: chips in a row, tiles with their counts, `pictures` in a grid of `columns` with the name over them, or `circles`, round pictures with the name under them in a row that scrolls. A category without a picture shows a colour." }
+        code: { type: [string, 'null'], minLength: 1, maxLength: 40, description: "112.4 For `coupon`: the code (letters, numbers, - and _), copied to the phone's clipboard when tapped." }
+        recent: { type: boolean, default: false, description: "112.4 For `items` of products: the products this person opened lately on this phone, newest first, kept by the app; sent with no `items`. The app leaves it out until there is one." }
         scroll: { type: boolean, default: false, description: "107.2 For `row`: its children keep their own widths and the row scrolls sideways when they don't fit (a child sized `fill` hugs its content)." }
         source: { $ref: '#/components/schemas/ItemSource' }
         layout: { type: string, enum: [list, grid, carousel], default: grid, description: "For `items`." }
@@ -9891,7 +9904,7 @@ components:
         categories:
           type: array
           maxItems: 30
-          description: For `categories`, the source's categories; a tap opens the list of that category.
+          description: For `categories`, the source's categories (112.4 with their pictures); a tap opens the list of that category.
           items: { $ref: '#/components/schemas/Category' }
         form: { $ref: '#/components/schemas/StudioForm' }
         map: { $ref: '#/components/schemas/StudioMap' }

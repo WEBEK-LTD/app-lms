@@ -39,17 +39,26 @@ class Paged<T> {
 }
 
 class Category {
-  const Category({required this.id, required this.name, required this.count});
+  const Category({
+    required this.id,
+    required this.name,
+    required this.count,
+    this.imageUrl,
+  });
 
   factory Category.fromJson(Json json) => Category(
     id: reqInt(json, 'id'),
     name: reqString(json, 'name'),
     count: reqInt(json, 'count'),
+    imageUrl: optString(json, 'image_url'),
   );
 
   final int id;
   final String name;
   final int count;
+
+  /// 112.4 Its picture, when it has one (a store's categories).
+  final String? imageUrl;
 }
 
 class Instructor {

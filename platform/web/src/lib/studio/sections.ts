@@ -1,6 +1,7 @@
 import type { AppType, AppVertical } from "../data/types";
 import type { Action, ItemSource, StudioNode, StudioPage } from "../pages/types";
 import { newNodeId } from "./elements";
+import { SLIDER_SECTIONS, STORE_SECTIONS } from "./store-sections";
 
 /**
  * 103R Ready sections (dropped onto a page whole) and page templates (a
@@ -93,7 +94,40 @@ export type SectionWord =
   | "faqThreeA"
   | "saleTitle"
   | "saleText"
-  | "saleEnded";
+  | "saleEnded"
+  // 112.4 A store's sections and the sliders.
+  | "slideNewTitle"
+  | "slideNewText"
+  | "slideOfferTitle"
+  | "slideOfferText"
+  | "bannerOne"
+  | "bannerOneText"
+  | "bannerTwo"
+  | "bannerTwoText"
+  | "bannerThree"
+  | "bannerThreeText"
+  | "flashKicker"
+  | "flashTitle"
+  | "flashEnded"
+  | "categoriesTitle"
+  | "newTitle"
+  | "bestTitle"
+  | "onSaleTitle"
+  | "dealTitle"
+  | "lookTitle"
+  | "lookText"
+  | "brandsTitle"
+  | "trustShip"
+  | "trustShipText"
+  | "trustReturn"
+  | "trustReturnText"
+  | "trustPay"
+  | "trustPayText"
+  | "trustHelp"
+  | "trustHelpText"
+  | "couponKicker"
+  | "couponTitle"
+  | "recentTitle";
 
 export interface SectionContext {
   brand: string;
@@ -105,6 +139,10 @@ export interface SectionContext {
   button?: { word: SectionWord; action: Action | null };
   /** 105.1.6 The three steps' words, as a template for the project type sets them. */
   steps?: readonly [SectionWord, SectionWord, SectionWord];
+  /** 112.4 One of Yallapp's pictures (public/design-pictures) at the platform's address; missing, none. */
+  picture?: (file: string) => string | null;
+  /** 112.4 The first entries of the app's main list (a look's spots open them). */
+  entries?: readonly { id: string }[];
 }
 
 /** 103R.7 The project types a section or template is made for; none: every type. */
@@ -711,6 +749,9 @@ export const SECTIONS: readonly SectionInfo[] = [
       ],
     }),
   },
+  // 112.4 A store's own sections, then the sliders.
+  ...STORE_SECTIONS,
+  ...SLIDER_SECTIONS,
 ];
 
 /** 103R.7 Whether a section or template is made for this project (or for every project). */
@@ -766,11 +807,15 @@ const SCHOOL: Fits = { types: ["school"] };
 const SCHOOL_BUTTON: SectionContext["button"] = { word: "ctaSchool", action: screen("school") };
 const SCHOOL_STEPS: SectionContext["steps"] = ["schoolStepOne", "schoolStepTwo", "schoolStepThree"];
 
+const STORE: Fits = { types: ["store"] };
 const SHOP_HEADER: StudioPage["header"] = { type: "logo_actions", buttons: ["menu", "notifications", "cart", "account"] };
 
 export const TEMPLATES: readonly TemplateInfo[] = [
   // 103R.7 Each project type's own templates come first in the lists.
-  typed("shop", "storefront", { types: ["store"] }, ["offer", "categories", "products", "cta"], SHOP_HEADER, { word: "cta", action: screen("cart") }),
+  // 112.4 Three for a store: a full shop, one for offers and one for looks and brands.
+  typed("shop", "storefront", STORE, ["search", "hero_slider", "category_circles", "flash_sale", "new_arrivals", "coupon", "best_sellers", "brands", "trust", "recent"], SHOP_HEADER, { word: "cta", action: screen("cart") }),
+  typed("shop_deals", "local_offer", STORE, ["banner_slider", "flash_sale", "deal", "category_pictures", "on_sale", "coupon", "trust"], SHOP_HEADER, { word: "cta", action: screen("cart") }),
+  typed("shop_looks", "checkroom", STORE, ["peek_slider", "new_arrivals", "shop_look", "brands", "split_slider", "best_sellers", "recent"], { type: "logo_center", buttons: ["menu", "search", "cart"] }, { word: "cta", action: screen("cart") }),
   typed("menu", "restaurant_menu", { types: ["store"], verticals: ["restaurant"] }, ["hero", "categories", "products", "cta"], SHOP_HEADER, { word: "cta", action: screen("cart") }),
   typed("courses", "school", { types: ["lms"] }, ["hero", "stats", "products", "review"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, { word: "ctaLearn", action: screen("courses") }),
   typed("services", "event_available", { types: ["booking"] }, ["hero", "features", "products", "review"], { type: "logo_center", buttons: ["menu", "notifications"] }, { word: "ctaBook", action: screen("services") }),
