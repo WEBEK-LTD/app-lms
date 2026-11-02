@@ -9,7 +9,10 @@ import { storageLimitBytes } from "../media/quota";
 import type { MediaStorage } from "../media/storage";
 import { hasFeature, type PlanInfo } from "../plans";
 import { hitRateLimit, type RateLimitRule } from "../rate-limit";
+import { chatAvailable } from "../chat/access";
+import { CHAT_RATE_LIMITS, memberForHostedUser, messageInput, type ChatDeps } from "../chat/service";
 import { feePayLink } from "./fees";
+import { classesOf, hoursJson, messageWindow, openSchoolConversation, schoolContacts, schoolWorld, writeToClass } from "./messages";
 import { enterScores, giveHomework, markHomework, postAnnouncement, takeAttendance } from "./flow";
 import {
   announcementFor,
@@ -55,6 +58,8 @@ export interface SchoolContext {
   /** The media server, for homework files; null: files can't be sent. */
   storage: MediaStorage | null;
   chunkBytes: number;
+  /** 113.6 Pushes for a message to a class (the chat's); null: no chat here. */
+  chat?: { onMessage?: ChatDeps["onMessage"] } | null;
 }
 
 const signIn = () => error(401, "invalid_token", "Your session has ended. Please sign in again.");
@@ -95,11 +100,16 @@ export async function handleSchoolRoute(ctx: SchoolContext, request: ConnectorRe
   const settings = schoolSettingsOf(await ctx.store.getSchoolSettings(ctx.app.id), ctx.app);
   if (path[0] === "classroom") {
     if (!member.teacher) return notTeacher();
+    // 113.6 A teacher writes to a whole class at once.
+    if (request.method === "POST" && path[1] === "classes" && path[3] === "messages" && path.length === 4) return classMessage(ctx, request, member.teacher, idOf(path[2]));
     return classroomRoute(ctx, request, member.teacher, settings);
   }
   if (memberRoles(member).length === 0) return notMember();
   const route = `${request.method} /${path.join("/")}`;
   if (route === "GET /school/me") return schoolMe(ctx, request, member);
+  // 113.6 Messages between teachers and families.
+  if (route === "GET /school/messages") return schoolMessages(ctx, request, member);
+  if (route === "POST /school/messages/conversations") return startConversation(ctx, request);
   if (route === "GET /school/announcements") return announcements(ctx, request, member);
   if (path[1] === "uploads") return uploads(ctx, request);
   if (path[1] === "students") {
@@ -658,4 +668,79 @@ async function classGradebookJson(ctx: SchoolContext, request: ConnectorRequest,
     subjects: book.subjects,
     students: book.rows.map((r) => ({ id: r.student.id, name: r.student.name, percents: r.subjects.map((s) => s.percent), overall: r.overall, attendance: r.attendance })),
   });
+}
+
+// 113.6 Messages between teachers and families (the chat's `school` conversations)
+
+const chatHere = (ctx: SchoolContext) => Boolean(ctx.chat) && chatAvailable(ctx.app, ctx.plan);
+const noChat = () => error(403, "chat_not_available", "Messages aren't available in this app.");
+
+async function schoolMessages(ctx: SchoolContext, request: ConnectorRequest, member: SchoolMember): Promise<ConnectorResult> {
+  const world = await schoolWorld(ctx.store, ctx.app);
+  const m = world.messages;
+  const on = chatHere(ctx);
+  const window = messageWindow(m, world.settings.timezone, request.now);
+  const teacher = member.teacher;
+  const broadcast = on && m.with !== "none" && m.classBroadcast && teacher !== null;
+  // The conversation with the school's office (Phase 77's), for everyone.
+  const office = on ? await ctx.store.ensureDirectConversation(ctx.app.id, (await memberForHostedUser(ctx.store, ctx.app, request.user!, request.now)).id, request.now) : null;
+  return ok({
+    enabled: on && m.with !== "none",
+    with: m.with,
+    started_by: m.startedBy,
+    hours: hoursJson(m),
+    open_now: window.open,
+    opens_at: window.opensAt?.toISOString() ?? null,
+    attachments: m.attachments,
+    admin_reads: m.adminReads,
+    class_messages: broadcast,
+    classes: broadcast
+      ? classesOf(world, teacher.id)
+          .map((id) => world.dir.classes.get(id)!)
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map((c) => ({ id: c.id, name: c.name }))
+      : [],
+    office_conversation_id: office?.id ?? null,
+    contacts: on ? await schoolContacts(ctx.store, ctx.app, world, request.user!.id, ctx.assetUrl) : [],
+  });
+}
+
+async function startConversation(ctx: SchoolContext, request: ConnectorRequest): Promise<ConnectorResult> {
+  if (!chatHere(ctx)) return noChat();
+  const body = record(request.body);
+  const personId = typeof body.person_id === "number" && Number.isSafeInteger(body.person_id) ? body.person_id : null;
+  if (personId === null) return error(400, "invalid_request", "Send the person_id of a contact.");
+  const wait = await limited(ctx, request, WRITE_LIMIT);
+  if (wait) return wait;
+  const world = await schoolWorld(ctx.store, ctx.app);
+  const opened = await openSchoolConversation(ctx.store, ctx.app, world, request.user!.id, personId, request.now);
+  if (!opened.ok) return error(opened.status, opened.code, opened.message);
+  const chatMember = await memberForHostedUser(ctx.store, ctx.app, request.user!, request.now);
+  await ctx.store.addChatParticipant(opened.value.id, chatMember.id, request.now);
+  return ok({ conversation_id: opened.value.id });
+}
+
+async function classMessage(ctx: SchoolContext, request: ConnectorRequest, teacher: SchoolPerson, classId: number | null): Promise<ConnectorResult> {
+  if (!chatHere(ctx)) return noChat();
+  if (classId === null) return error(404, "not_found", "Page not found.");
+  const body = record(request.body);
+  const to = body.to;
+  if (to !== "parents" && to !== "students" && to !== "families") return error(400, "invalid_request", "to is parents, students or families.");
+  const input = messageInput(body);
+  if (!input.ok) return error(input.status, input.code, input.message);
+  if (input.value.uploadId || !input.value.text) return error(400, "invalid_request", "A message to a class is text only.");
+  const teacherMember = await memberForHostedUser(ctx.store, ctx.app, request.user!, request.now);
+  const hit = await hitRateLimit(ctx.store, CHAT_RATE_LIMITS.send, teacherMember.id, request.now);
+  if (!hit.allowed) return { status: 429, body: { code: "rate_limited", message: "You're sending messages too fast. Wait a moment.", retry_after_seconds: hit.retryAfter } };
+  const world = await schoolWorld(ctx.store, ctx.app);
+  const result = await writeToClass({ store: ctx.store, now: request.now, onMessage: ctx.chat?.onMessage }, ctx.app, world, {
+    teacher,
+    teacherMember,
+    classId,
+    to,
+    clientId: input.value.clientId,
+    text: input.value.text,
+  });
+  if (!result.ok) return error(result.status, result.code, result.message);
+  return ok(result.value);
 }

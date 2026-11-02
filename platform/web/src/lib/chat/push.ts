@@ -109,15 +109,17 @@ export async function pushChatMessage(
     const lang = await appLang(deps.store, app.id);
     const preview = messagePreview(message, fileKind, lang);
     const group = conversation.kind === "group";
+    // 113.6 A teacher and a family: the push says who wrote; the business's phones never hear of it.
+    const school = conversation.kind === "school";
     const senderName = sender?.name ?? deps.businessName;
-    const title = group ? (conversation.title ?? deps.businessName) : deps.businessName;
+    const title = group ? (conversation.title ?? deps.businessName) : school ? senderName : deps.businessName;
     const body = group ? `${senderName}: ${preview}` : preview;
     const recipients = await recipientsOf(deps.store, conversation, message);
     const hosted = recipients.filter((m) => m.source === "hosted");
     const site = recipients.filter((m) => m.source === "wordpress");
     if (hosted.length) outcome.hosted = await pushHosted(deps, app, hosted, { title, body, conversationId: conversation.id });
     if (site.length) outcome.site = await notifySite(deps, app, site, { title, body, conversationId: conversation.id });
-    if (sender && deps.owner && !app.demo) {
+    if (sender && deps.owner && !app.demo && !school) {
       outcome.owner = await pushToOwner(
         deps.owner,
         app.clientId,

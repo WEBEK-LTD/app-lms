@@ -536,7 +536,7 @@
           "method": "GET",
           "path": "/chat/conversations",
           "summary": "The person's conversations",
-          "description": "Served by the hosted API (`Config.chat.base_url`) for every app with chat. The conversation with the business (`kind: direct`) always comes first, made on the first call; then, in an academy that turned on course groups, the group of each course the person is enrolled in, most recent message first. Students never talk to each other in private: there are only these two kinds.",
+          "description": "Served by the hosted API (`Config.chat.base_url`) for every app with chat. The conversation with the business (`kind: direct`) always comes first, made on the first call; then, in an academy that turned on course groups, the group of each course the person is enrolled in, most recent message first. Students never talk to each other in private. 113.6 In a school that allows messages, a teacher's conversations with a parent or a student (`kind: school`) follow, each with what the school allows in `school`: always a teacher and one parent or student, never two students or two parents.",
           "access": "signed-in"
         },
         {
@@ -557,7 +557,7 @@
           "method": "POST",
           "path": "/chat/conversations/{conversation_id}/messages",
           "summary": "Send a message",
-          "description": "Text (up to 4,000 characters), a finished upload (`upload_id`, from `POST /chat/uploads`), or both. `client_id` makes it safe to send again after a network error: the same `client_id` in the same conversation answers the message already made. Members the business blocked can read but not send (403 `chat_blocked`). 60 messages a minute per person.",
+          "description": "Text (up to 4,000 characters), a finished upload (`upload_id`, from `POST /chat/uploads`), or both. `client_id` makes it safe to send again after a network error: the same `client_id` in the same conversation answers the message already made. Members the business blocked can read but not send (403 `chat_blocked`). 60 messages a minute per person. 113.6 In a `school` conversation the school's rules apply: 403 `conversation_closed` (the school closed it), `messages_not_allowed` (the school doesn't allow messages between them now), `teacher_first` (only teachers write first and this one hasn't), `attachments_not_allowed` (text only); 409 `outside_hours` outside the school's messaging hours, with when one can write again in `message` (the message isn't kept to be sent later).",
           "access": "signed-in"
         },
         {
@@ -1574,6 +1574,20 @@
         },
         {
           "method": "GET",
+          "path": "/school/messages",
+          "summary": "Messages with teachers, as the school allows",
+          "description": "113.6 For every school person (student, parent, teacher): what the school allows (whom teachers write to, who writes first, the hours, files, a class at once, whether the administration reads them) and whom they can write to: a teacher the parents (and students, when allowed) of the classes they teach; a parent the teachers of their children; a student their own teachers. A conversation is opened with `POST /school/messages/conversations` and then works as any Chat conversation (`Config.chat.base_url`). Everyone also has their conversation with the school's administration (`office_conversation_id`).",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/school/messages/conversations",
+          "summary": "Open a conversation with a contact",
+          "description": "113.6 The conversation of the person and one of their contacts (`SchoolContact.person_id`), made the first time; anyone else is 404. Writing in it may still wait for the teacher to write first (`SchoolChatInfo.note`).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
           "path": "/school/students/{student_id}/timetable",
           "summary": "The student's class timetable for the week",
           "description": null,
@@ -1758,6 +1772,13 @@
           "path": "/classroom/assessments/{assessment_id}/scores",
           "summary": "Enter scores",
           "description": "From 0 to the assessment's `max_score`; null clears one. Students left out keep theirs. A student given a score for the first time, and their parents, get a push (`school_grade`).",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/classroom/classes/{class_id}/messages",
+          "summary": "Write to a whole class at once",
+          "description": "113.6 When the school allows it (`SchoolMessages.class_messages`): the same text in each one-to-one conversation of the teacher with the class's parents, students or both (`families`, as the school allows), so each answer comes back to the teacher alone; each of them gets a push. People who never signed in to the app can't be written to yet (`not_in_app`). Within the school's hours (409 `outside_hours`). The same `client_id` again sends nothing twice.",
           "access": "signed-in"
         },
         {

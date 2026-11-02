@@ -66,6 +66,9 @@ export default async function SchoolPeoplePage({ searchParams }: { searchParams:
               <Field id={`f-code${suffix}`} label={t("school.studentCode")} name="code" defaultValue={values.code} maxLength={SCHOOL_LIMITS.code} hint={t("school.studentCodeHint")} />
             </>
           ) : null}
+          {role === "teacher" ? (
+            <Field id={`f-department${suffix}`} label={t("school.department")} name="department" defaultValue={values.department} maxLength={SCHOOL_LIMITS.department} hint={t("school.departmentHint")} />
+          ) : null}
           {role === "parent" ? (
             <Field id={`f-children${suffix}`} label={t("school.children")} name="children" defaultValue={children.join(", ")} hint={t("school.childrenHint")} className="sm:col-span-2" />
           ) : null}
@@ -129,6 +132,7 @@ export default async function SchoolPeoplePage({ searchParams }: { searchParams:
                         person.email,
                         person.classId ? className.get(person.classId) : null,
                         person.code ? t("school.codeIs", { code: person.code }) : null,
+                        person.role === "teacher" && person.department ? person.department : null,
                         related.length ? (person.role === "parent" ? t("school.childrenAre", { names: related.map((s) => s.name).join(", ") }) : t("school.parentsAre", { names: related.map((s) => s.name).join(", ") })) : null,
                       ]
                         .filter(Boolean)

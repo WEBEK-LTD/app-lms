@@ -2933,12 +2933,20 @@ export const chatConversations = mysqlTable(
     businessReadId: bigint("business_read_id", { mode: "number", unsigned: true }),
     keepUntil: time("keep_until"),
     noticeFor: time("notice_for"),
+    // 113.6 A school's teacher and a parent or student; closed by the administration.
+    schoolTeacherId: bigint("school_teacher_id", { mode: "number", unsigned: true }).references(() => schoolPeople.id, { onDelete: "cascade" }),
+    schoolPersonId: bigint("school_person_id", { mode: "number", unsigned: true }).references(() => schoolPeople.id, { onDelete: "cascade" }),
+    teacherWroteAt: time("teacher_wrote_at"),
+    closedAt: time("closed_at"),
+    closedBy: varchar("closed_by", { length: 120 }),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
   (t) => [
     uniqueIndex("chat_conversations_direct_unique").on(t.appId, t.memberId),
     uniqueIndex("chat_conversations_group_unique").on(t.appId, t.courseKey),
+    uniqueIndex("chat_conversations_school_unique").on(t.appId, t.schoolTeacherId, t.schoolPersonId),
+    index("chat_conversations_school_person_idx").on(t.appId, t.schoolPersonId),
     index("chat_conversations_recent_idx").on(t.appId, t.lastMessageAt),
   ],
 );
@@ -3205,6 +3213,8 @@ export const schoolPeople = mysqlTable(
     classId: bigint("class_id", { mode: "number", unsigned: true }).references(() => schoolClasses.id, { onDelete: "set null" }),
     code: varchar("code", { length: 40 }),
     photoAssetId: id("photo_asset_id"),
+    // 113.6 A teacher's department.
+    department: varchar("department", { length: 60 }),
     active: boolean("active").notNull().default(true),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),

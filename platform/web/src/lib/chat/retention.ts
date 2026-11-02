@@ -70,6 +70,8 @@ export async function noticeExpiringChats(deps: ChatRetentionDeps): Promise<Owne
   const rows = await deps.store.listChatConversationsWithMessagesBefore(new Date(soon.getTime() - CHAT_KEEP_DAYS * DAY), 5000, { notKeptAt: soon });
   const byApp = new Map<string, { count: number; first: Date }>();
   for (const { conversation, oldest } of rows) {
+    // 113.6 Not of a school's teachers and families: those go after a year, the business can't keep them.
+    if (conversation.kind === "school") continue;
     const expires = expiresOn(oldest, conversation.keepUntil);
     if (!expires || expires.getTime() > soon.getTime()) continue;
     const seen = byApp.get(conversation.appId);

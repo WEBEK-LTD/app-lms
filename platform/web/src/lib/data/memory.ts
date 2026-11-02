@@ -2283,7 +2283,7 @@ export class MemoryStore implements DataStore {
 
   async createSchoolPerson(input: SchoolPersonInput, now: Date): Promise<{ ok: true; person: SchoolPerson } | { ok: false; reason: "duplicate" }> {
     if (this.schoolPersonTaken(input.appId, input.role, null, input.phone, input.email)) return { ok: false, reason: "duplicate" };
-    const person: SchoolPerson = { ...clone(input), id: this.nextSchoolId++, userId: null, createdAt: now, updatedAt: now };
+    const person: SchoolPerson = { department: null, ...clone(input), id: this.nextSchoolId++, userId: null, createdAt: now, updatedAt: now };
     this.schoolPeople.set(person.id, clone(person));
     return { ok: true, person };
   }
@@ -2307,6 +2307,12 @@ export class MemoryStore implements DataStore {
     for (const [key, x] of this.schoolScores) if (x.studentId === id) this.schoolScores.delete(key);
     for (const [key, f] of this.schoolFees) if (f.studentId === id) this.schoolFees.delete(key);
     for (const p of this.schoolPeriods.values()) if (p.teacherId === id) p.teacherId = null;
+    // 113.6 Their school conversations, with their messages, places and reports (the foreign keys).
+    const conversations = [...this.chatConversations.values()].filter((c) => c.kind === "school" && (c.schoolTeacherId === id || c.schoolPersonId === id)).map((c) => c.id);
+    for (const [key, m] of this.chatMessages) if (conversations.includes(m.conversationId)) this.chatMessages.delete(key);
+    for (const [key, p] of this.chatParticipants) if (conversations.includes(p.conversationId)) this.chatParticipants.delete(key);
+    for (const [key, r] of this.chatReports) if (conversations.includes(r.conversationId)) this.chatReports.delete(key);
+    for (const conversationId of conversations) this.chatConversations.delete(conversationId);
   }
 
   async listSchoolFamily(appId: string, filter: { parentId?: number; studentId?: number }): Promise<SchoolFamilyLink[]> {
@@ -4952,6 +4958,43 @@ export class MemoryStore implements DataStore {
     const conversation: ChatConversation = { id: newId(), appId: input.appId, kind: "group", memberId: null, courseKey: input.courseKey, title: input.title, imageUrl: input.imageUrl, lastMessageId: null, lastMessageAt: null, businessReadId: null, keepUntil: null, noticeFor: null, createdAt: now, updatedAt: now };
     this.chatConversations.set(conversation.id, conversation);
     return clone(conversation);
+  }
+
+  async ensureSchoolConversation(input: { appId: string; teacherId: number; personId: number }, now: Date): Promise<ChatConversation> {
+    const found = [...this.chatConversations.values()].find((c) => c.appId === input.appId && c.kind === "school" && c.schoolTeacherId === input.teacherId && c.schoolPersonId === input.personId);
+    if (found) return clone(found);
+    const conversation: ChatConversation = {
+      id: newId(),
+      appId: input.appId,
+      kind: "school",
+      memberId: null,
+      courseKey: null,
+      title: null,
+      imageUrl: null,
+      lastMessageId: null,
+      lastMessageAt: null,
+      businessReadId: null,
+      keepUntil: null,
+      noticeFor: null,
+      schoolTeacherId: input.teacherId,
+      schoolPersonId: input.personId,
+      teacherWroteAt: null,
+      closedAt: null,
+      closedBy: null,
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.chatConversations.set(conversation.id, conversation);
+    return clone(conversation);
+  }
+
+  async listSchoolConversations(appId: string, input: { personIds?: number[]; limit: number }): Promise<ChatConversation[]> {
+    const ids = input.personIds ? new Set(input.personIds) : null;
+    return [...this.chatConversations.values()]
+      .filter((c) => c.appId === appId && c.kind === "school" && (ids ? ids.has(c.schoolTeacherId ?? 0) || ids.has(c.schoolPersonId ?? 0) : c.lastMessageId !== null))
+      .sort((a, b) => (b.lastMessageId ?? 0) - (a.lastMessageId ?? 0) || b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, input.limit)
+      .map(clone);
   }
 
   async getChatConversation(appId: string, id: string): Promise<ChatConversation | null> {

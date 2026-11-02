@@ -4338,9 +4338,9 @@ export interface ChatMember {
   updatedAt: Date;
 }
 
-export type ChatConversationKind = "direct" | "group";
+export type ChatConversationKind = "direct" | "group" | "school";
 
-/** 77 A person and the business (`direct`), or a course's group. */
+/** 77 A person and the business (`direct`), or a course's group; 113.6 a school's teacher and a parent or a student (`school`). */
 export interface ChatConversation {
   id: string;
   appId: string;
@@ -4360,11 +4360,19 @@ export interface ChatConversation {
   keepUntil: Date | null;
   /** The day of the oldest message the last "deleted soon" notice was about. */
   noticeFor: Date | null;
+  /** 113.6 A school conversation's teacher and the parent or student (school people's IDs). */
+  schoolTeacherId?: number | null;
+  schoolPersonId?: number | null;
+  /** 113.6 The teacher wrote in it (a family may answer when only teachers start). */
+  teacherWroteAt?: Date | null;
+  /** 113.6 The administration closed it: read, but nothing more is sent. */
+  closedAt?: Date | null;
+  closedBy?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export type ChatConversationPatch = Partial<Pick<ChatConversation, "title" | "imageUrl" | "lastMessageId" | "lastMessageAt" | "businessReadId" | "keepUntil" | "noticeFor" | "updatedAt">>;
+export type ChatConversationPatch = Partial<Pick<ChatConversation, "title" | "imageUrl" | "lastMessageId" | "lastMessageAt" | "businessReadId" | "keepUntil" | "noticeFor" | "teacherWroteAt" | "closedAt" | "closedBy" | "updatedAt">>;
 
 /** 77 A member in a conversation, with what they read. */
 export interface ChatParticipant {
@@ -4674,6 +4682,27 @@ export interface SchoolSettings {
   absenceAlerts: boolean;
   /** Fees can be paid by card on the school's payment page. */
   feesByCard: boolean;
+  /** 113.6 Messages between teachers and families; missing: as `DEFAULT_SCHOOL_MESSAGES` (off). */
+  messages?: SchoolMessageSettings;
+}
+
+/** 113.6 Whom teachers write to and hear from in the app (the administration and its teachers always can). */
+export type SchoolMessagesWith = "none" | "parents" | "parents_students";
+export const SCHOOL_MESSAGES_WITH: readonly SchoolMessagesWith[] = ["none", "parents", "parents_students"];
+
+/** 113.6 The school's rules for messages between teachers, parents and students (lib/school/messages). */
+export interface SchoolMessageSettings {
+  with: SchoolMessagesWith;
+  /** Who may write first: the teacher only, or both sides. */
+  startedBy: "teacher" | "both";
+  /** When messages can be sent, in the school's time zone; null: at any time. Outside them a message is refused, with when it can be sent. */
+  hours: { from: number; to: number; days: number[] } | null;
+  /** A teacher may write to a whole class's parents (or students) at once; the replies come back one by one. */
+  classBroadcast: boolean;
+  /** Photos, voice messages and files, besides text. */
+  attachments: boolean;
+  /** The administration may read the conversations (the app tells everyone); else only one with a reported message. */
+  adminReads: boolean;
 }
 
 export interface SchoolClass {
@@ -4714,13 +4743,15 @@ export interface SchoolPerson {
   /** The school's own number for a student. */
   code: string | null;
   photoAssetId: string | null;
+  /** 113.6 A teacher's department ("Sciences"), for the administration's messages to it. */
+  department?: string | null;
   active: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export type SchoolPersonInput = Pick<SchoolPerson, "appId" | "role" | "name" | "phone" | "email" | "classId" | "code" | "photoAssetId" | "active">;
-export type SchoolPersonPatch = Partial<Pick<SchoolPerson, "name" | "phone" | "email" | "userId" | "classId" | "code" | "photoAssetId" | "active">>;
+export type SchoolPersonInput = Pick<SchoolPerson, "appId" | "role" | "name" | "phone" | "email" | "classId" | "code" | "photoAssetId" | "active"> & Partial<Pick<SchoolPerson, "department">>;
+export type SchoolPersonPatch = Partial<Pick<SchoolPerson, "name" | "phone" | "email" | "userId" | "classId" | "code" | "photoAssetId" | "department" | "active">>;
 
 /** A parent's child. */
 export interface SchoolFamilyLink {

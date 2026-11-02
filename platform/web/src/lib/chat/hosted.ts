@@ -2,6 +2,8 @@ import type { DataStore } from "../data/store";
 import type { App, ChatConversation, ChatMember, ChatMessage } from "../data/types";
 import type { MediaStorage } from "../media/storage";
 import type { PlanInfo } from "../plans";
+import { schoolChatHook } from "../school/messages";
+import { schoolOn } from "../school/settings";
 import { chatAvailable } from "./access";
 import {
   memberBlock,
@@ -85,6 +87,8 @@ export async function handleChatRoute(
     business: chatBusiness(ctx.app, ctx.assetUrl),
     plan: ctx.plan ?? null,
     onMessage: ctx.chat.onMessage,
+    // 113.6 A school's teachers and families.
+    ...(schoolOn(ctx.app, ctx.plan) ? { school: schoolChatHook(ctx.store, ctx.app, ctx.now, ctx.assetUrl) } : {}),
   };
   const { app } = ctx;
   const [, a, b, c] = req.path;

@@ -6056,6 +6056,56 @@ export class MysqlStore implements DataStore {
     return found!;
   }
 
+  async ensureSchoolConversation(input: { appId: string; teacherId: number; personId: number }, now: Date): Promise<ChatConversation> {
+    const conv = schema.chatConversations;
+    const find = async () =>
+      (await this.run((db) => db.select().from(conv).where(and(eq(conv.appId, input.appId), eq(conv.schoolTeacherId, input.teacherId), eq(conv.schoolPersonId, input.personId))).limit(1)))[0];
+    const found = await find();
+    if (found) return found;
+    const row = {
+      id: newId(),
+      appId: input.appId,
+      kind: "school" as const,
+      memberId: null,
+      courseKey: null,
+      title: null,
+      imageUrl: null,
+      lastMessageId: null,
+      lastMessageAt: null,
+      businessReadId: null,
+      keepUntil: null,
+      noticeFor: null,
+      schoolTeacherId: input.teacherId,
+      schoolPersonId: input.personId,
+      teacherWroteAt: null,
+      closedAt: null,
+      closedBy: null,
+      createdAt: now,
+      updatedAt: now,
+    };
+    try {
+      await this.run((db) => db.insert(conv).values(row));
+    } catch (error) {
+      // Two at once: the other one made it.
+      if (errorCode(error) !== "ER_DUP_ENTRY") throw error;
+    }
+    return (await find())!;
+  }
+
+  async listSchoolConversations(appId: string, input: { personIds?: number[]; limit: number }): Promise<ChatConversation[]> {
+    const conv = schema.chatConversations;
+    if (input.personIds && input.personIds.length === 0) return [];
+    const who = input.personIds ? or(inArray(conv.schoolTeacherId, input.personIds), inArray(conv.schoolPersonId, input.personIds)) : isNotNull(conv.lastMessageId);
+    return this.run((db) =>
+      db
+        .select()
+        .from(conv)
+        .where(and(eq(conv.appId, appId), eq(conv.kind, "school"), who))
+        .orderBy(desc(conv.lastMessageId), desc(conv.createdAt))
+        .limit(input.limit),
+    );
+  }
+
   async getChatConversation(appId: string, id: string): Promise<ChatConversation | null> {
     const conv = schema.chatConversations;
     const [row] = await this.run((db) => db.select().from(conv).where(and(eq(conv.appId, appId), eq(conv.id, id))).limit(1));

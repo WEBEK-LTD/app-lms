@@ -387,6 +387,7 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
         platformUrl: ctx.platformUrl,
         storage: ctx.chat?.storage ?? null,
         chunkBytes: ctx.chat?.chunkBytes ?? MEDIA_CHUNK_BYTES,
+        chat: ctx.chat ? { onMessage: ctx.chat.onMessage } : null,
       },
       { method: req.method, path: req.path, query: req.query, body: req.body, user: session?.user ?? null, now: ctx.now, lang: requestLanguage(req.headers?.get("accept-language")) },
     );

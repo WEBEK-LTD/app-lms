@@ -9,7 +9,9 @@ import type { App, SchoolAttendanceStatus, SchoolPerson } from "@/lib/data/types
 import { SCHOOL_ATTENDANCE_STATUSES } from "@/lib/data/types";
 import { formValues, type FormState } from "@/lib/forms";
 import { hostedSettings } from "@/lib/hosted/service";
+import { getMediaStorage } from "@/lib/media/storage";
 import { markFeePaid } from "@/lib/school/fees";
+import { removeSchoolConversations } from "@/lib/school/messages";
 import { addFee, enterScores, giveHomework, postAnnouncement, takeAttendance, tellFeePaid } from "@/lib/school/flow";
 import {
   parseAssessmentForm,
@@ -20,6 +22,7 @@ import {
   parsePeopleCsv,
   parsePeriodForm,
   parsePersonForm,
+  parseSchoolMessageSettings,
   parseSchoolSettings,
   parseScore,
   parseSubjectForm,
@@ -169,6 +172,8 @@ export async function deleteSchoolPersonAction(formData: FormData): Promise<void
   const store = await getStore();
   const person = id !== null ? await store.getSchoolPerson(context.app.id, id) : null;
   if (!person) return;
+  // 113.6 Files sent in their conversations with teachers or families go first; the conversations go with them.
+  await removeSchoolConversations({ store, storage: getMediaStorage() }, context.app, person.id);
   await store.deleteSchoolPerson(context.app.id, person.id);
   await recordStaffChange(context, `Removed the ${person.role} "${person.name}"`);
   refresh();
@@ -202,7 +207,7 @@ export async function importSchoolPeopleAction(_: FormState, formData: FormData)
     const same = people.find((p) => p.role === row.person.role && ((row.person.phone && p.phone === row.person.phone) || (row.person.email && p.email === row.person.email)));
     let person: SchoolPerson;
     // A file without a class (or a code) keeps a student's own.
-    const fields = { name: row.person.name, phone: row.person.phone, email: row.person.email, classId: row.className ? classId : (same?.classId ?? null), code: row.person.code ?? same?.code ?? null, active: true };
+    const fields = { name: row.person.name, phone: row.person.phone, email: row.person.email, classId: row.className ? classId : (same?.classId ?? null), code: row.person.code ?? same?.code ?? null, ...(row.person.department ? { department: row.person.department } : {}), active: true };
     if (same) {
       const changed = await store.updateSchoolPerson(app.id, same.id, fields, now);
       if (!changed.ok) {
@@ -467,8 +472,26 @@ export async function saveSchoolSettingsAction(_: FormState, formData: FormData)
   const values = formValues(formData);
   const parsed = parseSchoolSettings(values);
   if (!parsed.ok) return { errors: parsed.errors, values };
-  await (await getStore()).saveSchoolSettings(context.app.id, parsed.value, new Date());
+  const store = await getStore();
+  // 113.6 The messages' rules are saved on their own form.
+  const saved = await store.getSchoolSettings(context.app.id);
+  await store.saveSchoolSettings(context.app.id, { ...parsed.value, ...(saved?.messages ? { messages: saved.messages } : {}) }, new Date());
   await recordStaffChange(context, "Saved the school settings");
   refresh();
+  return { ok: true, message: "Saved. The app shows it the next time it opens.", values };
+}
+
+/** 113.6 Whom teachers may write to, who writes first, the hours, a class at once, files and whether the school reads the conversations. */
+export async function saveSchoolMessagesAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireSchoolApp();
+  const values = formValues(formData);
+  const parsed = parseSchoolMessageSettings(values);
+  if (!parsed.ok) return { errors: parsed.errors, values };
+  const store = await getStore();
+  const settings = schoolSettingsOf(await store.getSchoolSettings(context.app.id), context.app);
+  await store.saveSchoolSettings(context.app.id, { ...settings, messages: parsed.value }, new Date());
+  await recordStaffChange(context, "Saved the school's message settings");
+  refresh();
+  revalidatePath("/dashboard/chat", "layout");
   return { ok: true, message: "Saved. The app shows it the next time it opens.", values };
 }

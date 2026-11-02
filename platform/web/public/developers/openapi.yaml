@@ -1679,7 +1679,10 @@ paths:
         first, made on the first call; then, in an academy that turned on
         course groups, the group of each course the person is enrolled in,
         most recent message first. Students never talk to each other in
-        private: there are only these two kinds.
+        private. 113.6 In a school that allows messages, a teacher's
+        conversations with a parent or a student (`kind: school`) follow,
+        each with what the school allows in `school`: always a teacher and
+        one parent or student, never two students or two parents.
       responses:
         '200':
           description: Conversations
@@ -1770,7 +1773,13 @@ paths:
         again after a network error: the same `client_id` in the same
         conversation answers the message already made. Members the business
         blocked can read but not send (403 `chat_blocked`). 60 messages a
-        minute per person.
+        minute per person. 113.6 In a `school` conversation the school's
+        rules apply: 403 `conversation_closed` (the school closed it),
+        `messages_not_allowed` (the school doesn't allow messages between
+        them now), `teacher_first` (only teachers write first and this one
+        hasn't), `attachments_not_allowed` (text only); 409 `outside_hours`
+        outside the school's messaging hours, with when one can write again
+        in `message` (the message isn't kept to be sent later).
       parameters:
         - $ref: '#/components/parameters/ConversationId'
       requestBody:
@@ -1793,13 +1802,13 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403':
-          description: Chat isn't available (`chat_not_available`) or the business blocked this person (`chat_blocked`).
+          description: Chat isn't available (`chat_not_available`), the business blocked this person (`chat_blocked`), or 113.6 a school's rule (`conversation_closed`, `messages_not_allowed`, `teacher_first`, `attachments_not_allowed`).
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409':
-          description: The upload hasn't finished (`incomplete`); finish it with `/complete` first.
+          description: The upload hasn't finished (`incomplete`); finish it with `/complete` first. 113.6 Or it is outside the school's messaging hours (`outside_hours`).
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
@@ -6540,6 +6549,66 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
 
+  /school/messages:
+    get:
+      tags: [School]
+      operationId: getSchoolMessages
+      summary: Messages with teachers, as the school allows
+      description: |
+        113.6 For every school person (student, parent, teacher): what the
+        school allows (whom teachers write to, who writes first, the hours,
+        files, a class at once, whether the administration reads them) and
+        whom they can write to: a teacher the parents (and students, when
+        allowed) of the classes they teach; a parent the teachers of their
+        children; a student their own teachers. A conversation is opened
+        with `POST /school/messages/conversations` and then works as any
+        Chat conversation (`Config.chat.base_url`). Everyone also has their
+        conversation with the school's administration
+        (`office_conversation_id`).
+      responses:
+        '200':
+          description: The school's rules and the contacts
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SchoolMessages' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /school/messages/conversations:
+    post:
+      tags: [School]
+      operationId: openSchoolConversation
+      summary: Open a conversation with a contact
+      description: |
+        113.6 The conversation of the person and one of their contacts
+        (`SchoolContact.person_id`), made the first time; anyone else is
+        404. Writing in it may still wait for the teacher to write first
+        (`SchoolChatInfo.note`).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [person_id]
+              properties:
+                person_id: { type: integer }
+      responses:
+        '200':
+          description: The conversation
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [conversation_id]
+                properties:
+                  conversation_id: { type: string, format: uuid }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
   /school/students/{student_id}/timetable:
     get:
       tags: [School]
@@ -7158,6 +7227,56 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
+
+  /classroom/classes/{class_id}/messages:
+    post:
+      tags: [Classroom]
+      operationId: messageClass
+      summary: Write to a whole class at once
+      description: |
+        113.6 When the school allows it (`SchoolMessages.class_messages`):
+        the same text in each one-to-one conversation of the teacher with the
+        class's parents, students or both (`families`, as the school allows),
+        so each answer comes back to the teacher alone; each of them gets a
+        push. People who never signed in to the app can't be written to yet
+        (`not_in_app`). Within the school's hours (409 `outside_hours`).
+        The same `client_id` again sends nothing twice.
+      parameters:
+        - name: class_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [to, client_id, text]
+              properties:
+                to: { type: string, enum: [parents, students, families] }
+                client_id: { type: string, minLength: 8, maxLength: 64 }
+                text: { type: string, minLength: 1, maxLength: 4000 }
+      responses:
+        '200':
+          description: Sent
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [sent, not_in_app]
+                properties:
+                  sent: { type: integer, description: Conversations it went into. }
+                  not_in_app: { type: integer, description: People who haven't signed in to the app yet. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409':
+          description: Outside the school's messaging hours (`outside_hours`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /classroom/announcements:
     post:
@@ -8747,8 +8866,8 @@ components:
       required: [id, kind, title, image_url, last_message, unread_count, can_send, updated_at]
       properties:
         id: { type: string, format: uuid }
-        kind: { type: string, enum: [direct, group], description: '`direct`: the person and the business. `group`: a course''s group.' }
-        title: { type: string, description: "The business's name, or the course's." }
+        kind: { type: string, enum: [direct, group, school], description: '`direct`: the person and the business. `group`: a course''s group. `school` (113.6): a school''s teacher and a parent or student.' }
+        title: { type: string, description: "The business's name, or the course's; in a `school` conversation the other side's name." }
         image_url: { type: [string, 'null'], format: uri }
         course_id: { type: [string, 'null'], description: The group's course. }
         member_count: { type: integer, description: 'With `kind: group`.' }
@@ -8757,8 +8876,85 @@ components:
             - $ref: '#/components/schemas/ChatMessage'
             - type: 'null'
         unread_count: { type: integer }
-        can_send: { type: boolean, description: False while the business blocked the person. }
+        can_send: { type: boolean, description: 'False while the business blocked the person; in a `school` conversation also while `school.note` says why not.' }
+        school:
+          $ref: '#/components/schemas/SchoolChatInfo'
         updated_at: { type: string, format: date-time }
+
+    SchoolChatInfo:
+      type: object
+      description: |
+        113.6 With `kind: school`: who the other side is and what the school
+        allows. The app shows the hours and, when `admin_reads`, that the
+        school's administration can read the conversation.
+      required: [role, person_id, students, classes, note, closed, attachments, hours, opens_at, admin_reads]
+      properties:
+        role: { type: string, enum: [teacher, parent, student], description: The other side. }
+        person_id: { type: integer, description: The other side's school record. }
+        students: { type: array, items: { type: string }, description: "With a parent: the children the teacher teaches." }
+        classes: { type: array, items: { type: string } }
+        note:
+          type: [string, 'null']
+          enum: [closed, not_allowed, teacher_first, outside_hours, null]
+          description: 'Why one can''t write now: the school closed it, the school doesn''t allow it now, the teacher writes first, outside the hours (see `opens_at`); null: one can.'
+        closed: { type: boolean }
+        attachments: { type: boolean, description: 'Photos, voice messages and files allowed; false: text only.' }
+        hours: { oneOf: [{ $ref: '#/components/schemas/SchoolMessageHours' }, { type: 'null' }] }
+        opens_at: { type: [string, 'null'], format: date-time, description: 'Outside the hours: when messages can be sent again.' }
+        admin_reads: { type: boolean, description: "The school's administration may read the conversation (the app says so)." }
+
+    SchoolMessageHours:
+      type: object
+      description: 113.6 When messages can be sent, in the school's time zone (`Config.school.timezone`).
+      required: [from, to, days]
+      properties:
+        from: { type: string, example: '08:00' }
+        to: { type: string, example: '18:00' }
+        days: { type: array, items: { type: integer, minimum: 1, maximum: 7 }, description: 1 Monday … 7 Sunday. }
+
+    SchoolContact:
+      type: object
+      description: 113.6 Someone the person can write to at the school.
+      required: [person_id, role, name, photo_url, students, classes, subjects, class_teacher, conversation_id, can_write]
+      properties:
+        person_id: { type: integer }
+        role: { type: string, enum: [teacher, parent, student] }
+        name: { type: string }
+        photo_url: { type: [string, 'null'], format: uri }
+        students: { type: array, items: { type: string }, description: "A parent's children the teacher teaches; to a parent, their children this teacher teaches." }
+        classes: { type: array, items: { type: string } }
+        subjects: { type: array, items: { type: string }, description: What a teacher teaches them. }
+        class_teacher: { type: boolean, description: The teacher is the class's own teacher. }
+        conversation_id: { type: [string, 'null'], format: uuid, description: 'Their conversation (a Chat conversation of `kind: school`) once made.' }
+        can_write: { type: boolean, description: 'False when only teachers write first and this one hasn''t, or the school closed it.' }
+
+    SchoolMessages:
+      type: object
+      description: 113.6 What the school allows and whom the person can write to.
+      required: [enabled, with, started_by, hours, open_now, opens_at, attachments, admin_reads, class_messages, classes, office_conversation_id, contacts]
+      properties:
+        enabled: { type: boolean, description: The school allows messages between teachers and families (and the app has chat). }
+        with: { type: string, enum: [none, parents, parents_students], description: Whom teachers write to and hear from. }
+        started_by: { type: string, enum: [teacher, both] }
+        hours: { oneOf: [{ $ref: '#/components/schemas/SchoolMessageHours' }, { type: 'null' }] }
+        open_now: { type: boolean }
+        opens_at: { type: [string, 'null'], format: date-time }
+        attachments: { type: boolean }
+        admin_reads: { type: boolean }
+        class_messages: { type: boolean, description: This teacher may write to a whole class at once. }
+        classes:
+          type: array
+          description: With `class_messages`, the classes they can write to.
+          items:
+            type: object
+            required: [id, name]
+            properties:
+              id: { type: integer }
+              name: { type: string }
+        office_conversation_id: { type: [string, 'null'], format: uuid, description: "The person's conversation with the school's administration (`kind: direct`), at any time." }
+        contacts:
+          type: array
+          items: { $ref: '#/components/schemas/SchoolContact' }
 
     ChatMessage:
       type: object

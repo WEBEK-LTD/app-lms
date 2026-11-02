@@ -6,6 +6,7 @@ import { storageLimitBytes } from "../media/quota";
 import type { MediaStorage } from "../media/storage";
 import type { PlanInfo } from "../plans";
 import { hitRateLimit, type RateLimitRule } from "../rate-limit";
+import type { SchoolChatHook } from "../school/messages";
 import { chatGroupsOn } from "./access";
 
 /**
@@ -40,6 +41,8 @@ export interface ChatDeps {
   plan: PlanInfo | null;
   /** Tells people about a new message (pushes), best effort; never fails the send. */
   onMessage?: (input: { app: App; conversation: ChatConversation; message: ChatMessage; sender: ChatMember | null }) => Promise<void>;
+  /** 113.6 A school app's conversations of teachers and families (lib/school/messages); none: they're never shown. */
+  school?: SchoolChatHook;
 }
 
 export type ChatFailure = { ok: false; status: 400 | 403 | 404 | 409 | 413 | 429 | 503; code: string; message: string; retryAfter?: number; offset?: number };
@@ -200,13 +203,20 @@ export async function messageViews(deps: Pick<ChatDeps, "store" | "storage" | "b
   });
 }
 
-/** The conversations a member is in (theirs with the business first, made if needed; then their groups, latest first). */
+/** The conversations a member is in (theirs with the business first, made if needed; then their groups and 113.6 school conversations, latest first). */
 export async function memberConversations(deps: ChatDeps, app: App, member: ChatMember) {
   await deps.store.ensureDirectConversation(app.id, member.id, deps.now);
+  if (deps.school) await deps.school.join(member);
   const rows = await deps.store.listMemberConversations(app.id, member.id);
   const blocked = await deps.store.listChatBlocks(member.id);
   const groups = chatGroupsOn(app);
-  const visible = rows.filter((r) => r.conversation.kind === "direct" || groups);
+  const school = new Map<string, NonNullable<Awaited<ReturnType<SchoolChatHook["view"]>>>>();
+  for (const r of rows) {
+    if (r.conversation.kind !== "school" || !deps.school) continue;
+    const view = await deps.school.view(r.conversation, member);
+    if (view) school.set(r.conversation.id, view);
+  }
+  const visible = rows.filter((r) => r.conversation.kind === "direct" || (r.conversation.kind === "group" && groups) || school.has(r.conversation.id));
   visible.sort((a, b) => {
     if (a.conversation.kind !== b.conversation.kind) return a.conversation.kind === "direct" ? -1 : 1;
     return (b.conversation.lastMessageId ?? 0) - (a.conversation.lastMessageId ?? 0);
@@ -225,27 +235,35 @@ export async function memberConversations(deps: ChatDeps, app: App, member: Chat
     unreadTotal += unread;
     const last = conversation.lastMessageId !== null ? views.get(conversation.lastMessageId) : null;
     const lastHidden = last && last.sender.member_id && blocked.includes(last.sender.member_id);
+    const own = school.get(conversation.id);
     items.push({
       id: conversation.id,
       kind: conversation.kind,
-      title: conversation.kind === "direct" ? deps.business.name : (conversation.title ?? ""),
-      image_url: conversation.kind === "direct" ? deps.business.imageUrl : conversation.imageUrl,
+      title: own ? own.title : conversation.kind === "direct" ? deps.business.name : (conversation.title ?? ""),
+      image_url: own ? own.image_url : conversation.kind === "direct" ? deps.business.imageUrl : conversation.imageUrl,
       course_id: conversation.courseKey ? conversation.courseKey.split(":")[1]! : null,
       ...(conversation.kind === "group" ? { member_count: (await deps.store.listChatParticipants(conversation.id)).length } : {}),
+      ...(own ? { school: own.school } : {}),
       last_message: last && !lastHidden ? last : null,
       unread_count: unread,
-      can_send: !member.blockedAt,
+      can_send: !member.blockedAt && (!own || own.school.note === null),
       updated_at: (conversation.lastMessageAt ?? conversation.createdAt).toISOString(),
     });
   }
   return { items, unread_count: unreadTotal };
 }
 
-/** The member's conversation, or not found (a group of a course they left, or groups turned off). */
-export async function memberConversation(deps: Pick<ChatDeps, "store">, app: App, member: ChatMember, conversationId: string): Promise<ChatConversation | null> {
+/** The member's conversation, or not found (a group of a course they left, or groups turned off; 113.6 a school conversation that isn't theirs). */
+export async function memberConversation(deps: Pick<ChatDeps, "store" | "school" | "now">, app: App, member: ChatMember, conversationId: string): Promise<ChatConversation | null> {
   const conversation = await deps.store.getChatConversation(app.id, conversationId);
   if (!conversation) return null;
   if (conversation.kind === "group" && !chatGroupsOn(app)) return null;
+  if (conversation.kind === "school") {
+    // Who the sides are is checked each time, never only by a place in it.
+    if (!deps.school || !(await deps.school.side(conversation, member))) return null;
+    await deps.store.addChatParticipant(conversation.id, member.id, deps.now);
+    return conversation;
+  }
   const participant = await deps.store.getChatParticipant(conversation.id, member.id);
   return participant ? conversation : null;
 }
@@ -290,6 +308,10 @@ export async function memberSend(deps: ChatDeps, app: App, member: ChatMember, c
   if (member.blockedAt) return fail(403, "chat_blocked", "You can't send messages in this chat.");
   const input = messageInput(body);
   if (!input.ok) return input;
+  if (conversation.kind === "school") {
+    const refused = await deps.school!.refusal(conversation, member, Boolean(input.value.uploadId));
+    if (refused) return refused;
+  }
   let durationSeconds: number | null = null;
   if (input.value.uploadId) {
     const upload = await deps.store.getChatUpload(input.value.uploadId);
@@ -316,6 +338,7 @@ export async function memberSend(deps: ChatDeps, app: App, member: ChatMember, c
   });
   if (created) {
     await deps.store.setChatRead(conversation.id, member.id, message.id);
+    if (conversation.kind === "school") await deps.school!.sent(conversation, member, message);
     await notify(deps, app, conversation, message, member);
   }
   const [view] = await messageViews(deps, app, [message], { memberId: member.id });
@@ -347,7 +370,7 @@ export function messageInput(body: Record<string, unknown>, uploadField = "uploa
   return done({ clientId, text: text || null, uploadId });
 }
 
-export async function memberRead(deps: Pick<ChatDeps, "store">, app: App, member: ChatMember, conversationId: string, body: Record<string, unknown>): Promise<ChatResult<null>> {
+export async function memberRead(deps: Pick<ChatDeps, "store" | "school" | "now">, app: App, member: ChatMember, conversationId: string, body: Record<string, unknown>): Promise<ChatResult<null>> {
   const conversation = await memberConversation(deps, app, member, conversationId);
   if (!conversation) return fail(404, "not_found", "This conversation doesn't exist.");
   const id = parseMessageId(body.message_id);
