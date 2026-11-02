@@ -315,3 +315,49 @@ export async function todaysRun(store: DataStore, app: Pick<App, "id">, routeId:
   const [run] = await store.listSchoolBusRuns(app.id, { routeId, date: schoolToday(settings, now), limit: 5 }).then((runs) => runs.filter((r) => r.trip === trip));
   return run ?? null;
 }
+
+/** 113.10 How often the dashboard's live map of the buses asks again. */
+export const BUS_BOARD_EVERY_SECONDS = 15;
+
+export interface BusBoardRun {
+  run: SchoolBusRun;
+  route: SchoolBusRoute;
+  position: { lat: number; lng: number } | null;
+  stops: SchoolBusStop[];
+  riders: number;
+  boarded: number;
+  off: number;
+  absent: number;
+  driverName: string | null;
+}
+
+/** 113.10 The buses running now (today's trips not ended), for the dashboard's live map. */
+export async function busBoard(store: DataStore, app: Pick<App, "id">, settings: SchoolSettings, now: Date): Promise<BusBoardRun[]> {
+  const today = schoolToday(settings, now);
+  const [routes, running, people] = await Promise.all([store.listSchoolBusRoutes(app.id), store.listSchoolBusRuns(app.id, { status: "running" }), store.listSchoolPeople(app.id)]);
+  const name = new Map(people.map((p) => [p.id, p.name]));
+  const out: BusBoardRun[] = [];
+  for (const found of running) {
+    const run = await settleRun(store, app, found, today);
+    const route = routes.find((r) => r.id === run.routeId);
+    if (run.status !== "running" || !route) continue;
+    const [stops, riders, marks] = await Promise.all([
+      store.listSchoolBusStops(app.id, { routeId: route.id }),
+      store.listSchoolBusRiders(app.id, { routeId: route.id, trip: run.trip }),
+      store.listSchoolBusMarks(app.id, { runId: run.id }),
+    ]);
+    const position = freshPosition(run, now);
+    out.push({
+      run,
+      route,
+      position: position ? { lat: position.lat, lng: position.lng } : null,
+      stops: tripStops(stops, run.trip),
+      riders: riders.length,
+      boarded: marks.filter((m) => m.status === "boarded").length,
+      off: marks.filter((m) => m.status === "off").length,
+      absent: marks.filter((m) => m.status === "absent").length,
+      driverName: run.startedBy !== null ? (name.get(run.startedBy) ?? null) : null,
+    });
+  }
+  return out.sort((a, b) => a.route.position - b.route.position);
+}
