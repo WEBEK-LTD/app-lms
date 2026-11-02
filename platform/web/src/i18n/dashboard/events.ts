@@ -187,6 +187,11 @@ export const en = {
     zone: "Choose a time zone, like Europe/Istanbul.",
     cancelHours: "Enter a whole number of hours from 0 to {max}.",
   },
+  // The page kit: the list's search, the door and the groups.
+  toolsLabel: "More for your events",
+  checkInHint: "Check tickets at the door, on a phone",
+  search: "Search events",
+  groupSettings: "Settings and payments",
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -374,6 +379,11 @@ export const ar: Messages = {
     zone: "اختر منطقة زمنية، مثل Africa/Cairo.",
     cancelHours: "أدخل عددًا صحيحًا من الساعات من 0 إلى {max}.",
   },
+  // The page kit: the list's search, the door and the groups.
+  toolsLabel: "المزيد لفعالياتك",
+  checkInHint: "تحقّق من التذاكر عند الباب، من الهاتف",
+  search: "ابحث في الفعاليات",
+  groupSettings: "الإعدادات والمدفوعات",
 };
 
 export const tr: Messages = {
@@ -558,4 +568,9 @@ export const tr: Messages = {
     zone: "Europe/Istanbul gibi bir saat dilimi seçin.",
     cancelHours: "0 ile {max} arasında tam saat sayısı girin.",
   },
+  // The page kit: the list's search, the door and the groups.
+  toolsLabel: "Etkinlikleriniz için daha fazlası",
+  checkInHint: "Biletleri kapıda, telefondan kontrol edin",
+  search: "Etkinliklerde ara",
+  groupSettings: "Ayarlar ve ödemeler",
 };

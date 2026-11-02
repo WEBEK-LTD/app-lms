@@ -147,6 +147,8 @@ export const en = {
       unreadable: "The saved key can't be read. Add it again on the Publishing step.",
     },
   },
+  // The page kit: the numbers.
+  statSynced: "Up to date in the store",
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -296,6 +298,8 @@ export const ar: Messages = {
       unreadable: "تعذّرت قراءة المفتاح المحفوظ. أضفه مرة أخرى في خطوة النشر.",
     },
   },
+  // The page kit: the numbers.
+  statSynced: "محدَّثة في المتجر",
 };
 
 export const tr: Messages = {
@@ -443,4 +447,6 @@ export const tr: Messages = {
       unreadable: "Kayıtlı anahtar okunamıyor. Yayınlama adımında yeniden ekleyin.",
     },
   },
+  // The page kit: the numbers.
+  statSynced: "Mağazada güncel",
 };

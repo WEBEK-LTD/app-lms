@@ -160,6 +160,15 @@ export const en = {
     iosMode: "Choose how the iPhone app takes donations.",
     writeUpdate: "Write the update.",
   },
+  // The page kit: the numbers, the list's search, the links and the groups.
+  statRaised: "Raised",
+  statGoal: "Goal: {goal}",
+  toolsLabel: "More for your campaigns",
+  donationsHint: "Every donation, with an export",
+  donorsHint: "Who gave, and how much",
+  search: "Search campaigns",
+  noMatch: "No campaigns match.",
+  groupSettings: "Payments and settings",
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -318,6 +327,15 @@ export const ar: Messages = {
     iosMode: "اختر كيف يتلقى تطبيق iPhone التبرعات.",
     writeUpdate: "اكتب التحديث.",
   },
+  // The page kit: the numbers, the list's search, the links and the groups.
+  statRaised: "المبلغ المجموع",
+  statGoal: "الهدف: {goal}",
+  toolsLabel: "المزيد لحملاتك",
+  donationsHint: "كل التبرعات، مع إمكانية التصدير",
+  donorsHint: "من تبرّع، وبكم",
+  search: "ابحث في الحملات",
+  noMatch: "لا توجد حملات مطابقة.",
+  groupSettings: "المدفوعات والإعدادات",
 };
 
 export const tr: Messages = {
@@ -476,4 +494,13 @@ export const tr: Messages = {
     iosMode: "iPhone uygulamasının bağışları nasıl alacağını seçin.",
     writeUpdate: "Güncellemeyi yazın.",
   },
+  // The page kit: the numbers, the list's search, the links and the groups.
+  statRaised: "Toplanan",
+  statGoal: "Hedef: {goal}",
+  toolsLabel: "Kampanyalarınız için daha fazlası",
+  donationsHint: "Tüm bağışlar, dışa aktarmasıyla",
+  donorsHint: "Kim bağış yaptı, ne kadar",
+  search: "Kampanyalarda ara",
+  noMatch: "Eşleşen kampanya yok.",
+  groupSettings: "Ödemeler ve ayarlar",
 };

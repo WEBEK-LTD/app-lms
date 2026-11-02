@@ -1,6 +1,7 @@
 import { setOrderStatusAction } from "@/app/actions/catalog";
 import { SubmitButton } from "@/components/form";
-import { Badge, formatDateTime } from "@/components/ui";
+import { Badge, Section, formatDateTime } from "@/components/ui";
+import { Thumb } from "@/components/page-kit";
 import { formatCents } from "@/lib/catalog/money";
 import { optionsText } from "@/lib/catalog/options";
 import { orderNumber } from "@/lib/catalog/settings";
@@ -32,30 +33,28 @@ export async function AwaitingPayment({ app }: { app: App }) {
   const { t, lang } = await dashboardText();
   const now = new Date();
   return (
-    <section aria-labelledby="h-awaiting" className="flex flex-col gap-3">
-      <div className="flex max-w-[620px] flex-col gap-1">
-        <h2 id="h-awaiting" className="m-0 text-lg font-bold">
-          {t("orders.awaitingTitle")}
-        </h2>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("orders.awaitingIntro")}</p>
-      </div>
-      <ul className="m-0 flex list-none flex-col gap-3 p-0">
-        {items.map((order) => {
+    // The page kit: a flush Section, each order a row with its lines, the customer and the two steps.
+    <Section titleId="h-awaiting" title={t("orders.awaitingTitle")} description={t("orders.awaitingIntro")} flush>
+      <ul className="m-0 flex list-none flex-col p-0">
+        {items.map((order, index) => {
           const payment = order.manualPayment!;
           const due = new Date(payment.dueAt);
           return (
-            <li key={order.id} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5" data-awaiting={order.id}>
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="text-[17px] font-bold">{t("orders.orderTitle", { number: orderNumber(order), total: formatCents(order.totalCents, order.currency) })}</span>
+            <li key={order.id} className="flex flex-col gap-3 border-t border-line-soft px-5 py-4 first:border-t-0 sm:px-6" data-awaiting={order.id}>
+              <div className="flex flex-wrap items-center gap-x-3.5 gap-y-2">
+                <Thumb icon="hourglass_top" shape="square" tint={index + 3} />
+                <span className="flex min-w-0 flex-[1_1_220px] flex-col gap-0.5">
+                  <span className="text-[15px] font-bold break-words">{t("orders.orderTitle", { number: orderNumber(order), total: formatCents(order.totalCents, order.currency) })}</span>
+                  <span className="text-[13px] text-muted">
+                    {t("orders.awaitingLine", {
+                      method: payment.method === "bank_transfer" ? t("orders.bankTransfer") : payment.name,
+                      placed: formatDateTime(order.updatedAt, lang),
+                      due: formatDateTime(due, lang),
+                    })}
+                  </span>
+                </span>
                 <Badge tone="warn">{due < now ? t("orders.overdue") : t("orders.awaitingTitle")}</Badge>
               </div>
-              <span className="text-[13px] text-muted">
-                {t("orders.awaitingLine", {
-                  method: payment.method === "bank_transfer" ? t("orders.bankTransfer") : payment.name,
-                  placed: formatDateTime(order.updatedAt, lang),
-                  due: formatDateTime(due, lang),
-                })}
-              </span>
               <ul className="m-0 flex list-none flex-col gap-1 p-0 text-[15px]">
                 {order.lines.map((l, i) => (
                   <li key={i}>
@@ -65,7 +64,7 @@ export async function AwaitingPayment({ app }: { app: App }) {
                 ))}
               </ul>
               {order.customer ? (
-                <div className="flex flex-col gap-0.5 rounded-xl bg-sand p-3.5 text-[15px]">
+                <div className="flex flex-col gap-0.5 rounded-xl bg-sand px-4 py-3 text-[15px]">
                   <span className="font-semibold">{order.customer.name}</span>
                   <span>
                     <a href={`tel:${order.customer.phone}`} dir="ltr">
@@ -86,6 +85,6 @@ export async function AwaitingPayment({ app }: { app: App }) {
           );
         })}
       </ul>
-    </section>
+    </Section>
   );
 }
