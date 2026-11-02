@@ -4,8 +4,10 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/config/build_config_data.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/providers.dart';
 import 'live_channel.dart';
@@ -18,12 +20,22 @@ import 'live_channel.dart';
 /// A place on the map.
 typedef TaxiSpot = ({double lat, double lng});
 
-/// `Config.taxi` when this ride company is a live taxi app (its map's tiles
-/// are set); null: the ride screens stay as they are.
+/// `Config.taxi`: a ride app's map (105.9 live taxi apps, 112.1 ride
+/// hailing apps too), whose screens are map-first like Uber's, on a plain
+/// background while no tiles are set; null (a platform from before 112):
+/// the ride screens stay forms.
 final taxiConfigProvider = Provider<TaxiConfig?>((ref) {
   final gate = ref.watch(appGateProvider);
-  final taxi = gate is GateReady ? gate.config.taxi : null;
-  return taxi?.map.tilesUrl == null ? null : taxi;
+  return gate is GateReady ? gate.config.taxi : null;
+});
+
+/// 112.1 A live taxi app (vertical `taxi`): its words say taxis; a ride
+/// hailing app's say cars.
+final isTaxiKindProvider = Provider<bool>((ref) {
+  final gate = ref.watch(appGateProvider);
+  final vertical = gate is GateReady ? gate.config.vertical : null;
+  return (vertical ?? ref.watch(appEnvironmentProvider).build.vertical) ==
+      AppVertical.taxi;
 });
 
 /// Signed in to the company's live database, with what the token may read.
@@ -77,6 +89,36 @@ final taxiLiveProvider = FutureProvider.autoDispose<TaxiLiveSession?>((
     return null;
   }
 });
+
+/// 112 The app's map has routes (`POST /maps/route`): a ride app's
+/// (`Config.taxi`).
+final mapRoutesProvider = Provider<bool>((ref) {
+  final gate = ref.watch(appGateProvider);
+  if (gate is! GateReady) return false;
+  return gate.config.taxi?.map.routes ?? false;
+});
+
+/// To about 10 m: the same road is asked once while a car moves a little.
+TaxiSpot roundSpot(TaxiSpot s) => (
+  lat: (s.lat * 10000).roundToDouble() / 10000,
+  lng: (s.lng * 10000).roundToDouble() / 10000,
+);
+
+/// 112 The road from one place to another on the app's map, to draw: the
+/// route when the map has routes, else (or when it fails) a straight line.
+final routeLineProvider = FutureProvider.autoDispose
+    .family<List<TaxiSpot>, ({TaxiSpot from, TaxiSpot to})>((ref, ends) async {
+      final straight = [ends.from, ends.to];
+      if (!ref.watch(mapRoutesProvider)) return straight;
+      try {
+        final route = await ref
+            .read(yallappApiProvider)
+            .getTaxiRoute(ends.from, ends.to);
+        return route.points.length > 1 ? route.points : straight;
+      } on ApiException {
+        return straight;
+      }
+    });
 
 /// How long a taxi's live position counts.
 const liveStale = Duration(seconds: 60);

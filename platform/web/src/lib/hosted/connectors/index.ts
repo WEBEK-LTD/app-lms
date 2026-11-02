@@ -10,9 +10,7 @@ import { EventsConnector } from "./events";
 import { DonationsConnector } from "./donations";
 import { DeliveryConnector } from "./delivery";
 import { FoodConnector } from "./food";
-import { RidesConnector } from "./rides";
 import { TaxiConnector } from "./taxi";
-import { isTaxiApp } from "../../taxi/settings";
 import { serviceAccountOf } from "../notify";
 import { ListingsConnector, type ListingsDeps } from "./listings";
 import { platformConnector } from "./platforms";
@@ -106,9 +104,8 @@ export function connectorFor(
   if (app.connector?.kind === "deliveries") return new DeliveryConnector({ ...deps, app, fetcher });
   if (app.connector?.kind === "restaurants") return new FoodConnector({ ...deps, app, fetcher });
   if (app.connector?.kind === "rides") {
-    // 105.9 A live taxi app: the rides engine with the live map.
-    if (isTaxiApp(app)) return new TaxiConnector({ ...deps, app, fetcher, key, account: serviceAccountOf(app, key), maps: { fetcher } });
-    return new RidesConnector({ ...deps, app, fetcher });
+    // 105.9 A live taxi app: the rides engine with the live map; 112.1 ride hailing apps on the same map.
+    return new TaxiConnector({ ...deps, app, fetcher, key, account: serviceAccountOf(app, key), maps: { fetcher } });
   }
   if (app.connector?.kind === "platform") return platformConnector(app, key, deps, fetcher);
   if (app.connector?.kind === "shopify") {

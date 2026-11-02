@@ -1,8 +1,9 @@
 import type { DataStore } from "../data/store";
-import type { App, Courier, DeliverySettings, RidesSettings, TaxiSettings } from "../data/types";
+import type { App, Courier, DeliverySettings, MapTilesSetting, RidesSettings, TaxiSettings } from "../data/types";
 import { isReviewCourier } from "../delivery/review";
 import type { ServiceAccount } from "../hosted/push";
 import { demoTaxisAround } from "../demo/taxi";
+import { companyMapSet, platformMapFor, platformMapSettings } from "../maps/app-map";
 import { exactKm } from "../rides/fares";
 import { DRIVER_ACTIVE } from "../rides/service";
 import { createTilesSession, googleTilesUrl, regionOf, sessionValid, type MapDeps } from "./maps";
@@ -25,52 +26,55 @@ export interface TaxiConfigInput {
   language: string;
   now: Date;
   maps?: MapDeps;
-  /** 110.5 Admin › Settings › Maps (the delivery apps' map), drawn by Yallapp's own demo app, which has no map of its own. */
-  platformMap?: { tilesUrl: string; attribution: string | null } | null;
+  /** Admin › Settings › Maps: drawn by ride hailing apps without a map of their own (112.1) and by Yallapp's own taxi demo app (110.5). */
+  platformMap?: MapTilesSetting | null;
 }
 
 /**
  * `Config.taxi`. Google's tiles need a session, made here when the saved one
  * ends within a day and saved with the settings; a session that can't be
- * made leaves the map empty rather than the app closed.
+ * made leaves the map empty rather than the app closed. 112.1 A company
+ * without a map of its own draws the platform's when its app may
+ * (lib/maps/app-map.ts), with the platform's search and routes.
  */
 export async function taxiConfig(input: TaxiConfigInput) {
   const taxi = taxiSettingsOf(input.settings);
+  const company = companyMapSet(taxi, input.googleKey);
+  const platform = !company && platformMapFor(input.app) ? platformMapSettings(input.platformMap) : null;
   let tilesUrl: string | null = null;
   let attribution: string | null = null;
-  if (taxi.provider === "google") {
-    if (input.googleKey) {
-      let session = taxi.googleSession;
-      if (!sessionValid(session, input.now)) {
-        try {
-          const made = await createTilesSession(input.googleKey, { language: input.language, region: regionOf(input.settings.currency) }, input.maps);
-          session = { token: made.token, expiresAt: made.expiresAt.toISOString() };
-          await input.store.saveDeliverySettings(input.app.id, { ...input.settings, taxi: { ...taxi, googleSession: session } }, input.now);
-        } catch {
-          session = null;
-        }
-      }
-      if (session) {
-        tilesUrl = googleTilesUrl(input.googleKey, session.token);
-        attribution = `Map data ©${input.now.getUTCFullYear()} Google`;
+  if (company && taxi.provider === "google") {
+    let session = taxi.googleSession;
+    if (!sessionValid(session, input.now)) {
+      try {
+        const made = await createTilesSession(input.googleKey!, { language: input.language, region: regionOf(input.settings.currency) }, input.maps);
+        session = { token: made.token, expiresAt: made.expiresAt.toISOString() };
+        await input.store.saveDeliverySettings(input.app.id, { ...input.settings, taxi: { ...taxi, googleSession: session } }, input.now);
+      } catch {
+        session = null;
       }
     }
-  } else if (taxi.tilesUrl) {
+    if (session) {
+      tilesUrl = googleTilesUrl(input.googleKey!, session.token);
+      attribution = `Map data ©${input.now.getUTCFullYear()} Google`;
+    }
+  } else if (company) {
     tilesUrl = taxi.tilesUrl;
     attribution = taxi.attribution;
-  } else if (input.app.demo === true && input.platformMap?.tilesUrl) {
+  } else if (platform) {
     // Without any, the app shows the plain ride screens.
-    tilesUrl = input.platformMap.tilesUrl;
-    attribution = input.platformMap.attribution;
+    tilesUrl = platform.tilesUrl;
+    attribution = platform.attribution;
   }
-  const google = taxi.provider === "google" && input.googleKey !== null;
+  const google = company && taxi.provider === "google";
+  const osm = company ? taxi : platform;
   return {
     map: {
-      provider: taxi.provider,
+      provider: platform ? ("osm" as const) : taxi.provider,
       tiles_url: tilesUrl,
       attribution,
-      search: google || (taxi.provider === "osm" && taxi.searchUrl !== null),
-      routes: google || (taxi.provider === "osm" && taxi.routingUrl !== null),
+      search: google || (osm !== null && osm.searchUrl !== null),
+      routes: google || (osm !== null && osm.routingUrl !== null),
     },
     live: liveOf(input.app, taxi, input.account),
     nearby_every_seconds: NEARBY_EVERY_SECONDS,

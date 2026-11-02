@@ -6094,4 +6094,76 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get taxiPlaceFailed => 'This place can\'t be used. Choose another.';
+
+  @override
+  String get mapNotShown => 'Map not available';
+
+  @override
+  String get placesHome => 'Home';
+
+  @override
+  String get placesWork => 'Work';
+
+  @override
+  String get placesAddHome => 'Add home';
+
+  @override
+  String get placesAddWork => 'Add work';
+
+  @override
+  String get placesSetHome => 'Set your home';
+
+  @override
+  String get placesSetWork => 'Set your work';
+
+  @override
+  String get placesRecent => 'Recent';
+
+  @override
+  String get placesNoSearch =>
+      'Choose a saved place, your position or a maps link.';
+
+  @override
+  String get placeFromLink => 'From a maps link';
+
+  @override
+  String get rideAdjustPickup => 'Adjust the pickup on the map';
+
+  @override
+  String get rideConfirmPickup => 'Confirm pickup';
+
+  @override
+  String get rideMovePin => 'Move the map to your pickup';
+
+  @override
+  String rideCarsNearby(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cars near you',
+      one: '1 car near you',
+      zero: 'No free cars near you',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taxiDropoffIn(int minutes) {
+    return 'At the drop-off in $minutes min';
+  }
+
+  @override
+  String get rideReceipt => 'Receipt';
+
+  @override
+  String get navigateWith => 'Navigate with';
+
+  @override
+  String get navigateButton => 'Navigate';
+
+  @override
+  String get navigateToPickup => 'Navigate to the pickup';
+
+  @override
+  String get navigateToDropoff => 'Navigate to the drop-off';
 }

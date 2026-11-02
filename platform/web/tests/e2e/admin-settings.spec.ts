@@ -221,8 +221,8 @@ test("each kind of setting has its own page, listed with what's set now (95.1)",
   await page.goto("/admin/settings");
   const cards = page.locator("[data-settings-card]");
   await expect(cards).toHaveCount(9);
-  // 104 Map tiles for delivery apps: none set in the tests.
-  await expect(cards.filter({ hasText: "The map delivery apps show live tracking on." })).toContainText("Now: No map: delivery apps show the courier's position without one.");
+  // 104 Map tiles for ride, delivery and food apps (112): none set in the tests.
+  await expect(cards.filter({ hasText: "The map ride, delivery and food apps open on." })).toContainText("Now: No map: ride, delivery and food apps draw the places without one.");
   await expect(cards.filter({ hasText: "Payments" })).toContainText(/Now: .*(Kashier|iyzico|Fawaterk)/);
   await expect(cards.filter({ hasText: "Email" }).first()).toContainText("Now: Not set: emails are not sent.");
   await expect(cards.filter({ hasText: "Sign-in codes" })).toContainText("Now: Netlify variables (webhook).");

@@ -6084,4 +6084,76 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get taxiPlaceFailed => 'Bu yer kullanılamıyor. Başka bir yer seç.';
+
+  @override
+  String get mapNotShown => 'Harita kullanılamıyor';
+
+  @override
+  String get placesHome => 'Ev';
+
+  @override
+  String get placesWork => 'İş';
+
+  @override
+  String get placesAddHome => 'Ev ekle';
+
+  @override
+  String get placesAddWork => 'İş ekle';
+
+  @override
+  String get placesSetHome => 'Evini ayarla';
+
+  @override
+  String get placesSetWork => 'İş yerini ayarla';
+
+  @override
+  String get placesRecent => 'Son gidilenler';
+
+  @override
+  String get placesNoSearch =>
+      'Kayıtlı bir yer, konumun veya bir harita bağlantısı seç.';
+
+  @override
+  String get placeFromLink => 'Harita bağlantısından';
+
+  @override
+  String get rideAdjustPickup => 'Alış noktasını haritada ayarla';
+
+  @override
+  String get rideConfirmPickup => 'Alış noktasını onayla';
+
+  @override
+  String get rideMovePin => 'Haritayı alış noktana kaydır';
+
+  @override
+  String rideCarsNearby(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Yakınında $count araç',
+      one: 'Yakınında 1 araç',
+      zero: 'Yakınında boş araç yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taxiDropoffIn(int minutes) {
+    return '$minutes dk içinde varış noktasında';
+  }
+
+  @override
+  String get rideReceipt => 'Makbuz';
+
+  @override
+  String get navigateWith => 'Şununla yol tarifi al';
+
+  @override
+  String get navigateButton => 'Yol tarifi';
+
+  @override
+  String get navigateToPickup => 'Alış noktasına yol tarifi';
+
+  @override
+  String get navigateToDropoff => 'Varış noktasına yol tarifi';
 }

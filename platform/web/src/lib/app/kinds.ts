@@ -748,12 +748,15 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       nav: {
         label: "Your rides",
         items: [
+          // 112.1 Rides on the map, like a taxi company's.
+          { href: "/dashboard/taxi/live", label: "Live map", icon: "map" },
           { href: "/dashboard/rides", label: "Rides", icon: "directions_car" },
           { href: "/dashboard/drivers", label: "Drivers", icon: "person" },
           { href: "/dashboard/vehicle-types", label: "Vehicle types", icon: "category" },
           { href: "/dashboard/rides/statement", label: "Statements", icon: "receipt_long" },
           { href: "/dashboard/orders", label: "Paid orders", icon: "payments" },
           { href: "/dashboard/ride-settings", label: "Ride settings", icon: "tune" },
+          { href: "/dashboard/taxi/settings", label: "Maps & live", icon: "layers" },
         ],
       },
     },

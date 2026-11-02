@@ -5851,5 +5851,95 @@
   "taxiPlaceFailed": "This place can't be used. Choose another.",
   "@taxiPlaceFailed": {
     "description": "105.9 A place from the search has no position."
+  },
+  "mapNotShown": "Map not available",
+  "@mapNotShown": {
+    "description": "112 On a ride, delivery or food app's map without tiles: the places are drawn on a plain background."
+  },
+  "placesHome": "Home",
+  "@placesHome": {
+    "description": "112.1 The rider's saved Home place on Where to?."
+  },
+  "placesWork": "Work",
+  "@placesWork": {
+    "description": "112.1 The rider's saved Work place on Where to?."
+  },
+  "placesAddHome": "Add home",
+  "@placesAddHome": {
+    "description": "112.1 Where to?: Home isn't set yet; opens the search to set it."
+  },
+  "placesAddWork": "Add work",
+  "@placesAddWork": {
+    "description": "112.1 Where to?: Work isn't set yet; opens the search to set it."
+  },
+  "placesSetHome": "Set your home",
+  "@placesSetHome": {
+    "description": "112.1 The title of the search that sets the rider's Home."
+  },
+  "placesSetWork": "Set your work",
+  "@placesSetWork": {
+    "description": "112.1 The title of the search that sets the rider's Work."
+  },
+  "placesRecent": "Recent",
+  "@placesRecent": {
+    "description": "112.1 Above the places the rider went to last, on Where to?."
+  },
+  "placesNoSearch": "Choose a saved place, your position or a maps link.",
+  "@placesNoSearch": {
+    "description": "112.1 Where to? in an app whose map has no place search."
+  },
+  "placeFromLink": "From a maps link",
+  "@placeFromLink": {
+    "description": "112.1 The name of a place chosen with a pasted maps link."
+  },
+  "rideAdjustPickup": "Adjust the pickup on the map",
+  "@rideAdjustPickup": {
+    "description": "112.1 Button under where from and to: moves the pickup's pin on the map."
+  },
+  "rideConfirmPickup": "Confirm pickup",
+  "@rideConfirmPickup": {
+    "description": "112.1 Button: the pickup is where the pin is on the map."
+  },
+  "rideMovePin": "Move the map to your pickup",
+  "@rideMovePin": {
+    "description": "112.1 Over the map while the rider moves the pickup's pin."
+  },
+  "rideCarsNearby": "{count, plural, =0{No free cars near you} =1{1 car near you} other{{count} cars near you}}",
+  "@rideCarsNearby": {
+    "description": "112.1 How many free cars are on the map around the rider (ride hailing apps).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "taxiDropoffIn": "At the drop-off in {minutes} min",
+  "@taxiDropoffIn": {
+    "description": "112.1 Over the map during the ride: how soon the car reaches the drop-off.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "rideReceipt": "Receipt",
+  "@rideReceipt": {
+    "description": "112.1 Above a completed ride's fare, places and payment."
+  },
+  "navigateWith": "Navigate with",
+  "@navigateWith": {
+    "description": "112 Above the navigation apps a driver or courier may choose (Google Maps, Apple Maps, Waze)."
+  },
+  "navigateButton": "Navigate",
+  "@navigateButton": {
+    "description": "112 Button: opens the phone's navigation app with the way to the place."
+  },
+  "navigateToPickup": "Navigate to the pickup",
+  "@navigateToPickup": {
+    "description": "112.1 The driver's button: the way to the rider's pickup in the phone's navigation app."
+  },
+  "navigateToDropoff": "Navigate to the drop-off",
+  "@navigateToDropoff": {
+    "description": "112.1 The driver's button during the ride: the way to the drop-off in the phone's navigation app."
   }
 }

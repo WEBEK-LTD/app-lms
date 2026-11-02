@@ -43,6 +43,11 @@ export function isTaxiApp(app: Pick<App, "vertical" | "connector">): boolean {
   return app.vertical === "taxi" && app.connector?.kind === "rides";
 }
 
+/** 112.1 Any ride app (the rides engine): ride hailing and live taxis alike, on the same map and live settings. */
+export function isRideApp(app: Pick<App, "connector">): boolean {
+  return app.connector?.kind === "rides";
+}
+
 /** Its plan has live taxi apps (no plan: a check that doesn't depend on one); demos always. */
 export function taxiOn(app: Pick<App, "demo">, plan: PlanInfo | null | undefined): boolean {
   return plan === undefined || hasFeature(plan, "taxi") || app.demo === true;
@@ -111,10 +116,13 @@ export type TaxiFormValues = Partial<Record<"provider" | "googleKey" | "tilesUrl
  * The Maps & live form: the provider and its fields, and the database. A
  * Google key left empty keeps the saved one; the tile server is needed for
  * OpenStreetMap. Fields of the other provider are kept as they were.
+ * 112.1 A ride hailing app may leave the tile server empty: it then draws
+ * the platform's map ([options.tilesOptional]).
  */
 export function parseTaxiForm(
   values: TaxiFormValues,
   saved: TaxiSettings,
+  options: { tilesOptional?: boolean } = {},
 ): { ok: true; value: Omit<TaxiSettings, "googleKeyEncrypted" | "googleSession">; googleKey: string | null } | { ok: false; errors: Record<string, string> } {
   const errors: Record<string, string> = {};
   const provider: TaxiMapProvider = values.provider === "google" ? "google" : "osm";
@@ -132,8 +140,9 @@ export function parseTaxiForm(
       else googleKey = typed;
     } else if (!saved.googleKeyEncrypted) errors.googleKey = "Enter your Google Maps API key.";
   } else {
-    if (!tilesUrl) errors.tilesUrl = "Enter your tile server's address.";
-    else if (!tilesUrlOk(tilesUrl)) errors.tilesUrl = "Enter an https address with {z}, {x} and {y}, like https://tiles.example.com/{z}/{x}/{y}.png.";
+    if (!tilesUrl) {
+      if (!options.tilesOptional) errors.tilesUrl = "Enter your tile server's address.";
+    } else if (!tilesUrlOk(tilesUrl)) errors.tilesUrl = "Enter an https address with {z}, {x} and {y}, like https://tiles.example.com/{z}/{x}/{y}.png.";
     if (attribution.length > TAXI_LIMITS.attribution) errors.attribution = `Up to ${TAXI_LIMITS.attribution} characters.`;
     if (searchUrl && !serverUrlOf(searchUrl)) errors.searchUrl = "Enter your search server's https address.";
     if (routingUrl && !serverUrlOf(routingUrl)) errors.routingUrl = "Enter your routing server's https address.";
@@ -149,8 +158,8 @@ export function parseTaxiForm(
         ? { provider, tilesUrl: saved.tilesUrl, attribution: saved.attribution, searchUrl: saved.searchUrl, routingUrl: saved.routingUrl, databaseUrl: database }
         : {
             provider,
-            tilesUrl,
-            attribution: attribution || "© OpenStreetMap contributors",
+            tilesUrl: tilesUrl || null,
+            attribution: tilesUrl ? attribution || "© OpenStreetMap contributors" : null,
             searchUrl: searchUrl ? serverUrlOf(searchUrl) : null,
             routingUrl: routingUrl ? serverUrlOf(routingUrl) : null,
             databaseUrl: database,

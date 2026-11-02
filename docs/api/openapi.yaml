@@ -322,8 +322,16 @@ tags:
       rider and the rider's driver move as they move. The map is the
       company's choice: Google Maps with the company's own key, or
       OpenStreetMap from the company's tile server (`TaxiConfig.map`). Place
-      search and routes go through Yallapp (`/taxi/places`, `/taxi/route`)
-      when the company set them up.
+      search and routes go through Yallapp (`/maps/places`, `/maps/route`;
+      105.9's `/taxi/places` and `/taxi/route` are the same) when the
+      company set them up.
+
+      Roadmap 112.1. Every ride app has `Config.taxi` and these endpoints:
+      ride hailing apps (vertical not `taxi`) too, on the company's map
+      when it set one on Maps & live, else on the platform's map (tiles,
+      and its search and routing servers when set). `tiles_url` is null
+      when there's no map at all: the app keeps the same map-first screens
+      on a plain background.
 
       Live positions are in the company's own Firebase Realtime Database
       (`TaxiConfig.live`). The app signs in to Firebase with the custom
@@ -350,6 +358,16 @@ tags:
       `nearby_every_seconds`. The driver's app also sends
       `PUT /driver/location` as in the Driver tag: rides are offered from
       those positions.
+  - name: Maps
+    description: |
+      Roadmap 112. Place search and routes on the map an app draws, through
+      Yallapp, for ride, taxi, delivery and food apps: the company's own map
+      (`TaxiConfig.map`, set on Maps & live) or, for apps without one, the
+      platform's (ride hailing apps' `TaxiConfig.map`, `DeliveryConfig.map`,
+      `FoodConfig.map`). `search` and `routes` on those say whether
+      `GET /maps/places` and `POST /maps/route` work; without them the app
+      chooses places by the phone's position, a maps link or on the map, and
+      draws a straight line.
   - name: Teachers
     description: |
       Roadmap 105.3. Academies with many teachers, on Yallapp's hosted API
@@ -5335,6 +5353,8 @@ paths:
       operationId: searchTaxiPlaces
       summary: Places for where to
       description: |
+        The same as `GET /maps/places`, kept for the taxi apps built before
+        roadmap 112.
         Places matching what the rider typed, near them first, from the
         company's Google Maps (Places) or OpenStreetMap search server
         (`TaxiConfig.map.search`). A Google place comes without its position:
@@ -5405,6 +5425,112 @@ paths:
         OpenStreetMap routing server (`TaxiConfig.map.routes`), to draw on
         the map and to tell how long. `feature_disabled` (403) when the
         company has none: the app draws a straight line.
+      security: [{}, { bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [from, to]
+              properties:
+                from: { $ref: '#/components/schemas/LatLng' }
+                to: { $ref: '#/components/schemas/LatLng' }
+      responses:
+        '200':
+          description: The route
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TaxiRoute' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '502':
+          description: The map provider didn't answer (`map_unavailable`), or has no route between the places (`no_route`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /maps/places:
+    get:
+      tags: [Maps]
+      operationId: searchMapPlaces
+      summary: Places by name
+      description: |
+        Places matching what the person typed, near them first, on the
+        app's map: the company's Google Maps (Places) or OpenStreetMap
+        search server, or the platform's search server (`search` in
+        `TaxiConfig.map`, `DeliveryConfig.map`, `FoodConfig.map`). A Google
+        place comes without its position: ask `GET /maps/places/{place_id}`
+        when the person picks it. `feature_disabled` (403) when the app's map
+        has no search.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - { name: q, in: query, required: true, schema: { type: string, minLength: 2, maxLength: 100 } }
+        - { name: lat, in: query, schema: { type: number, minimum: -90, maximum: 90 } }
+        - { name: lng, in: query, schema: { type: number, minimum: -180, maximum: 180 } }
+        - name: session
+          in: query
+          description: The same random value for the searches of one choice (Google bills them as one).
+          schema: { type: string, maxLength: 64 }
+      responses:
+        '200':
+          description: Places
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    maxItems: 8
+                    items: { $ref: '#/components/schemas/TaxiPlace' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '502':
+          description: The map provider didn't answer (`map_unavailable`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /maps/places/{place_id}:
+    get:
+      tags: [Maps]
+      operationId: getMapPlace
+      summary: A place's position
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - { name: place_id, in: path, required: true, schema: { type: string, maxLength: 300 } }
+        - { name: session, in: query, schema: { type: string, maxLength: 64 } }
+      responses:
+        '200':
+          description: The place
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TaxiPlace' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '502':
+          description: The map provider didn't answer (`map_unavailable`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /maps/route:
+    post:
+      tags: [Maps]
+      operationId: getMapRoute
+      summary: The route between two places
+      description: |
+        The driving route on the app's map: the company's Google Maps
+        (Routes) or OpenStreetMap routing server, or the platform's routing
+        server (`routes` in `TaxiConfig.map`, `DeliveryConfig.map`,
+        `FoodConfig.map`), to draw on the map and to tell how long.
+        `feature_disabled` (403) when the map has no routes: the app draws a
+        straight line.
       security: [{}, { bearerAuth: [] }]
       requestBody:
         required: true
@@ -7383,7 +7509,7 @@ components:
         rides: { $ref: '#/components/schemas/RidesConfig' }
         school: { $ref: '#/components/schemas/SchoolConfig' }
         taxi:
-          description: Roadmap 105.9. Live taxi apps (rides on the live map); null or missing for other apps, which have `rides` alone.
+          description: Roadmap 105.9. Ride apps' map (live taxi apps, and 112.1 ride hailing apps too); null or missing for other apps.
           oneOf:
             - $ref: '#/components/schemas/TaxiConfig'
             - type: 'null'
@@ -11554,7 +11680,7 @@ components:
 
     TaxiConfig:
       type: object
-      description: A live taxi app's map and live database (roadmap 105.9). Its rides are `Config.rides`.
+      description: A ride app's map and live database (roadmap 105.9; 112.1 ride hailing apps too). Its rides are `Config.rides`.
       required: [map, live, nearby_every_seconds]
       properties:
         map:
@@ -11570,12 +11696,13 @@ components:
               description: |
                 The map's tiles, with `{z}`, `{x}` and `{y}`: Google's 2D tiles
                 (Map Tiles API, with the company's key and a session) or the
-                company's OpenStreetMap tile server. Null while the company
-                hasn't set it up: the app shows no map behind the taxis.
+                company's OpenStreetMap tile server; 112.1 for a ride hailing
+                app without its own, the platform's. Null while there's none:
+                the app draws the places on a plain background.
               example: 'https://tiles.example.com/{z}/{x}/{y}.png'
             attribution: { type: [string, 'null'], description: 'Shown on the map, as the provider asks.', example: '© OpenStreetMap contributors' }
-            search: { type: boolean, description: '`GET /taxi/places` works.' }
-            routes: { type: boolean, description: '`POST /taxi/route` works.' }
+            search: { type: boolean, description: '`GET /maps/places` (and `GET /taxi/places`) works.' }
+            routes: { type: boolean, description: '`POST /maps/route` (and `POST /taxi/route`) works.' }
         live:
           description: The company's Firebase Realtime Database; null without one (the app asks Yallapp every `nearby_every_seconds`).
           oneOf:

@@ -466,8 +466,8 @@ export function PartnerAppForm({
   );
 }
 
-/** 104 The map tiles delivery apps draw live tracking on. */
-export function MapsSettingForm({ tilesUrl, attribution }: { tilesUrl: string; attribution: string }) {
+/** 104 The map tiles delivery apps draw live tracking on; 112 its search and routing servers. */
+export function MapsSettingForm({ tilesUrl, attribution, searchUrl, routingUrl }: { tilesUrl: string; attribution: string; searchUrl: string; routingUrl: string }) {
   const [state, action] = useActionState(saveMapsSettingAction, initialFormState);
   return (
     <form action={action} noValidate className="flex flex-col gap-4">
@@ -489,6 +489,26 @@ export function MapsSettingForm({ tilesUrl, attribution }: { tilesUrl: string; a
         placeholder="© MapTiler © OpenStreetMap contributors"
         hint="What the provider asks to be shown on the map."
         error={state.errors?.attribution}
+      />
+      <Field
+        label="Search server (optional)"
+        name="searchUrl"
+        type="url"
+        dir="ltr"
+        defaultValue={state.values?.searchUrl ?? searchUrl}
+        placeholder="https://search.example.com"
+        hint="A Nominatim server (its /search and /lookup), so riders and customers find places by name. Without it they choose places by their position, a maps link or on the map."
+        error={state.errors?.searchUrl}
+      />
+      <Field
+        label="Routing server (optional)"
+        name="routingUrl"
+        type="url"
+        dir="ltr"
+        defaultValue={state.values?.routingUrl ?? routingUrl}
+        placeholder="https://route.example.com"
+        hint="An OSRM server (its /route/v1/driving), for the route drawn between places, its time, and ride fares by the road's distance. Without it the apps draw a straight line."
+        error={state.errors?.routingUrl}
       />
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText="Saving…">

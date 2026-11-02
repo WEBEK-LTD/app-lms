@@ -1627,6 +1627,21 @@ export const TAXI_DEMO_DRIVERS: DemoTaxiDriver[] = [
   { name: "Tamer Galal", phone: "+12025550138", type: "XL", carModel: "Seven-seat van", carColor: "White", plate: "TX 8351", rating: 4.9, rides: 76 },
 ];
 
+/**
+ * 112.1 Masar Rides' drivers with their cars: drawn around the rider on the
+ * map like Lamha Taxi's (lib/demo/taxi.ts), never offered a ride.
+ */
+export const RIDES_DEMO_DRIVERS: DemoTaxiDriver[] = [
+  { name: "Youssef Kamal", phone: "+12025550151", type: "Economy", carModel: "Compact sedan", carColor: "Silver", plate: "MS 2147", rating: 4.9, rides: 233 },
+  { name: "Omar Tarek", phone: "+12025550152", type: "Economy", carModel: "Hatchback", carColor: "White", plate: "MS 8820", rating: 4.8, rides: 151 },
+  { name: "Hossam Ali", phone: "+12025550153", type: "Comfort", carModel: "Family sedan", carColor: "Black", plate: "MS 3391", rating: 4.9, rides: 278 },
+  { name: "Mina Samir", phone: "+12025550154", type: "Economy", carModel: "Compact sedan", carColor: "Blue", plate: "MS 6012", rating: 4.7, rides: 89 },
+  { name: "Ali Mansour", phone: "+12025550155", type: "Van", carModel: "Seven-seat van", carColor: "Grey", plate: "MS 7405", rating: 4.8, rides: 132 },
+  { name: "Ramy Fouad", phone: "+12025550156", type: "Comfort", carModel: "Family sedan", carColor: "White", plate: "MS 1958", rating: 5, rides: 64 },
+  { name: "Sameh Wagdy", phone: "+12025550157", type: "Economy", carModel: "Compact sedan", carColor: "Red", plate: "MS 4476", rating: 4.8, rides: 177 },
+  { name: "Adel Fekry", phone: "+12025550158", type: "Van", carModel: "Seven-seat van", carColor: "White", plate: "MS 9033", rating: 4.9, rides: 81 },
+];
+
 /** Masar Rides: upfront fares, three vehicle types, the rider's code to start. */
 export const RIDES_DEMO_TYPES: { name: string; description: string; icon: string; seats: number; baseCents: number; perKmCents: number; perMinuteCents: number; minCents: number; waitPerMinuteCents: number }[] = [
   { name: "Economy", description: "Everyday cars", icon: "directions_car", seats: 4, baseCents: 15_00, perKmCents: 7_00, perMinuteCents: 1_00, minCents: 35_00, waitPerMinuteCents: 1_00 },

@@ -6291,4 +6291,78 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get taxiPlaceFailed => 'لا يمكن استخدام هذا المكان. اختر مكانًا آخر.';
+
+  @override
+  String get mapNotShown => 'الخريطة غير متاحة';
+
+  @override
+  String get placesHome => 'المنزل';
+
+  @override
+  String get placesWork => 'العمل';
+
+  @override
+  String get placesAddHome => 'أضف المنزل';
+
+  @override
+  String get placesAddWork => 'أضف العمل';
+
+  @override
+  String get placesSetHome => 'حدّد منزلك';
+
+  @override
+  String get placesSetWork => 'حدّد مكان عملك';
+
+  @override
+  String get placesRecent => 'الأخيرة';
+
+  @override
+  String get placesNoSearch => 'اختر مكانًا محفوظًا أو موقعك أو رابط خرائط.';
+
+  @override
+  String get placeFromLink => 'من رابط خرائط';
+
+  @override
+  String get rideAdjustPickup => 'عدّل مكان الالتقاء على الخريطة';
+
+  @override
+  String get rideConfirmPickup => 'أكّد مكان الالتقاء';
+
+  @override
+  String get rideMovePin => 'حرّك الخريطة إلى مكان الالتقاء';
+
+  @override
+  String rideCarsNearby(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count سيارة قربك',
+      many: '$count سيارة قربك',
+      few: '$count سيارات قربك',
+      two: 'سيارتان قربك',
+      one: 'سيارة واحدة قربك',
+      zero: 'لا توجد سيارات متاحة قربك',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taxiDropoffIn(int minutes) {
+    return 'الوصول إلى الوجهة خلال $minutes د';
+  }
+
+  @override
+  String get rideReceipt => 'الإيصال';
+
+  @override
+  String get navigateWith => 'التنقل باستخدام';
+
+  @override
+  String get navigateButton => 'ابدأ التنقل';
+
+  @override
+  String get navigateToPickup => 'التنقل إلى مكان الالتقاء';
+
+  @override
+  String get navigateToDropoff => 'التنقل إلى الوجهة';
 }

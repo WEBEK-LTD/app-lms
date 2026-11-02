@@ -16,6 +16,9 @@ import '../../../core/widgets/common.dart';
 import '../../delivery/widgets/delivery_map.dart';
 import '../../delivery/widgets/delivery_widgets.dart' show CallButton, PlaceRow;
 import '../../food/widgets/food_widgets.dart' show AmountRow;
+import '../../taxi/data/taxi_providers.dart';
+import '../../taxi/widgets/navigate_button.dart';
+import '../../taxi/widgets/taxi_map.dart';
 import '../data/rides_providers.dart';
 import '../widgets/ride_widgets.dart';
 
@@ -23,7 +26,8 @@ import '../widgets/ride_widgets.dart';
 const driverRideEvery = Duration(seconds: 10);
 
 /// 105.2 A ride as its driver works it: the rider, the pickup and drop-off
-/// with directions, the fare and the cash to collect; then, in order,
+/// with directions (112.1 on the map, with "Navigate" in Google Maps, Apple
+/// Maps or Waze), the fare and the cash to collect; then, in order,
 /// arrived, started (with the rider's code when the company asks for it)
 /// and ended. Cancelling before it starts: the rider didn't come (after
 /// the company's wait) or the driver can't make it.
@@ -39,6 +43,7 @@ class DriverRideScreen extends ConsumerStatefulWidget {
 class _DriverRideScreenState extends ConsumerState<DriverRideScreen> {
   Timer? _timer;
   bool _busy = false;
+  final _sheet = DraggableScrollableController();
 
   @override
   void initState() {
@@ -54,6 +59,7 @@ class _DriverRideScreenState extends ConsumerState<DriverRideScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    _sheet.dispose();
     super.dispose();
   }
 
@@ -155,6 +161,38 @@ class _DriverRideScreenState extends ConsumerState<DriverRideScreen> {
       RideStatus.inProgress => (DriverStep.completed, l10n.driverEnd),
       _ => (null, null),
     };
+    final bar = ride == null || next == null
+        ? null
+        : BottomActionBar(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                PrimaryButton(
+                  key: const ValueKey('driver-next'),
+                  label: label!,
+                  icon: switch (next) {
+                    DriverStep.arrived => AppIcons.location,
+                    DriverStep.inProgress => AppIcons.play,
+                    _ => AppIcons.flag,
+                  },
+                  loading: _busy,
+                  onPressed: () =>
+                      next == DriverStep.inProgress ? _start() : _move(next),
+                ),
+                if (ride.status != RideStatus.inProgress) ...[
+                  const SizedBox(height: 4),
+                  TextButton(
+                    key: const ValueKey('driver-cancel'),
+                    onPressed: _busy ? null : () => _cancel(ride),
+                    child: Text(l10n.rideCancel),
+                  ),
+                ],
+              ],
+            ),
+          );
+    final taxi = ref.watch(taxiConfigProvider);
+    if (taxi != null && ride != null) return _mapLayout(taxi, ride, bar);
     return Scaffold(
       appBar: AppBar(
         leading: appBarBack(context),
@@ -174,44 +212,124 @@ class _DriverRideScreenState extends ConsumerState<DriverRideScreen> {
         ),
         _ => const SkeletonDetail(),
       },
-      bottomNavigationBar: ride == null || next == null
-          ? null
-          : BottomActionBar(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  PrimaryButton(
-                    key: const ValueKey('driver-next'),
-                    label: label!,
-                    icon: switch (next) {
-                      DriverStep.arrived => AppIcons.location,
-                      DriverStep.inProgress => AppIcons.play,
-                      _ => AppIcons.flag,
-                    },
-                    loading: _busy,
-                    onPressed: () =>
-                        next == DriverStep.inProgress ? _start() : _move(next),
-                  ),
-                  if (ride.status != RideStatus.inProgress) ...[
-                    const SizedBox(height: 4),
-                    TextButton(
-                      key: const ValueKey('driver-cancel'),
-                      onPressed: _busy ? null : () => _cancel(ride),
-                      child: Text(l10n.rideCancel),
-                    ),
+      bottomNavigationBar: bar,
+    );
+  }
+
+  /// 112.1 On the map, like Uber's driver app: the driver's car, the way to
+  /// the pickup (dotted) or the trip's road to the drop-off, and the ride
+  /// in a sheet with "Navigate" in the phone's maps app.
+  Widget _mapLayout(TaxiConfig taxi, DriverRide ride, Widget? bar) {
+    final l10n = context.l10n;
+    final writer = ref.watch(driverLiveWriterProvider);
+    final pickup = ride.pickup.located
+        ? (lat: ride.pickup.lat!, lng: ride.pickup.lng!)
+        : null;
+    final dropoff = ride.dropoff.located
+        ? (lat: ride.dropoff.lat!, lng: ride.dropoff.lng!)
+        : null;
+    final onTrip = ride.status == RideStatus.inProgress;
+    final trip = pickup != null && dropoff != null
+        ? ref
+                  .watch(
+                    routeLineProvider((
+                      from: roundSpot(pickup),
+                      to: roundSpot(dropoff),
+                    )),
+                  )
+                  .value ??
+              [pickup, dropoff]
+        : const <TaxiSpot>[];
+    final height = MediaQuery.sizeOf(context).height;
+    return Scaffold(
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: ValueListenableBuilder<NearbyTaxi?>(
+              valueListenable: writer.position,
+              builder: (context, car, _) {
+                final at = car == null ? null : (lat: car.lat, lng: car.lng);
+                final target = onTrip ? dropoff : pickup;
+                double round(double v) => (v * 1000).roundToDouble() / 1000;
+                return TaxiMapView(
+                  map: taxi.map,
+                  focus: [
+                    if (at != null && ride.status.active)
+                      (lat: round(at.lat), lng: round(at.lng)),
+                    if (!onTrip) ?pickup,
+                    ?dropoff,
                   ],
-                ],
+                  car: ride.status.active ? car : null,
+                  pins: [
+                    if (pickup != null)
+                      TaxiPin(
+                        TaxiPinKind.from,
+                        pickup.lat,
+                        pickup.lng,
+                        label: l10n.taxiFrom(ride.pickup.address),
+                      ),
+                    if (dropoff != null)
+                      TaxiPin(
+                        TaxiPinKind.to,
+                        dropoff.lat,
+                        dropoff.lng,
+                        label: l10n.taxiTo(ride.dropoff.address),
+                      ),
+                  ],
+                  route: trip,
+                  approach: at != null && target != null && ride.status.active
+                      ? [at, target]
+                      : const [],
+                  padding: EdgeInsets.only(top: 88, bottom: height * 0.45),
+                );
+              },
+            ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: SizedBox(
+                height: 48,
+                child: NavigationToolbar(
+                  leading: const AppBackButton(),
+                  middle: TaxiChip(label: l10n.rideHeading(ride.reference)),
+                ),
               ),
             ),
+          ),
+          DraggableScrollableSheet(
+            controller: _sheet,
+            initialChildSize: 0.45,
+            minChildSize: 0.2,
+            maxChildSize: 0.92,
+            builder: (context, controller) => TaxiSheet(
+              controller: _sheet,
+              child: _DriverRideView(
+                ride: ride,
+                controller: controller,
+                onMap: true,
+              ),
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: bar,
     );
   }
 }
 
 class _DriverRideView extends ConsumerWidget {
-  const _DriverRideView({required this.ride});
+  const _DriverRideView({
+    required this.ride,
+    this.controller,
+    this.onMap = false,
+  });
 
   final DriverRide ride;
+
+  /// 112.1 In the sheet over the map: its scrolling, and no map of its own.
+  final ScrollController? controller;
+  final bool onMap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -232,9 +350,16 @@ class _DriverRideView extends ConsumerWidget {
       fontWeight: FontWeight.w700,
       color: p.textSecondary,
     );
+    // 112.1 Where to drive now: the pickup, then the drop-off.
+    final target = !r.status.active
+        ? null
+        : toPickup
+        ? r.pickup
+        : (r.status == RideStatus.inProgress ? r.dropoff : null);
     return ListView(
       key: const ValueKey('driver-ride-view'),
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+      controller: controller,
+      padding: EdgeInsets.fromLTRB(20, onMap ? 26 : 12, 20, 24),
       children: [
         Text(
           rideStatusLabel(l10n, r.status),
@@ -262,6 +387,15 @@ class _DriverRideView extends ConsumerWidget {
               color: p.success,
             ),
           ),
+        if (target != null && target.located) ...[
+          const SizedBox(height: 12),
+          NavigateButton(
+            key: const ValueKey('driver-navigate'),
+            lat: target.lat!,
+            lng: target.lng!,
+            label: toPickup ? l10n.navigateToPickup : l10n.navigateToDropoff,
+          ),
+        ],
         const SizedBox(height: 16),
         AppCard(
           padding: const EdgeInsets.all(16),
@@ -291,7 +425,7 @@ class _DriverRideView extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 16),
-        if (config.tilesUrl != null && pins.isNotEmpty) ...[
+        if (config.tilesUrl != null && pins.isNotEmpty && !onMap) ...[
           DeliveryMap(
             key: const ValueKey('driver-ride-map'),
             config: config.mapConfig,
