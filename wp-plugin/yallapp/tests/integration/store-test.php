@@ -256,7 +256,7 @@ $r    = call( 'GET', '/pages/home?platform=android' );
 $home = $r['json'];
 check( 'default home follows the store home settings', array( 'search', 'categories', 'featured-products', 'new-products' ) === page_block_ids( $home ), page_block_ids( $home ) );
 check( 'default home: product search', 'products' === ( page_block( $home, 'search' )['source'] ?? '' ), page_block( $home, 'search' ) );
-check( 'default home: top-level product categories', same_set( array( 'Flowers', 'Gifts' ), array_column( page_block( $home, 'categories' )['categories'] ?? array(), 'name' ) ) && array( 'id', 'name', 'count' ) === array_keys( page_block( $home, 'categories' )['categories'][0] ?? array() ), page_block( $home, 'categories' ) );
+check( 'default home: top-level product categories', same_set( array( 'Flowers', 'Gifts' ), array_column( page_block( $home, 'categories' )['categories'] ?? array(), 'name' ) ) && array( 'id', 'name', 'count', 'image_url' ) === array_keys( page_block( $home, 'categories' )['categories'][0] ?? array() ), page_block( $home, 'categories' ) );
 check( 'default home: featured products', same_set( array( (string) $seed['roses'], (string) $seed['chocolates'] ), block_item_ids( page_block( $home, 'featured-products' ) ) ), page_block( $home, 'featured-products' ) );
 check_item_shapes( 'default home: item shapes', $home );
 $items = array();
@@ -303,6 +303,29 @@ $layout   = array(
 				array( 'id' => 'course-button', 'type' => 'button', 'visibility' => 'everyone', 'label' => 'Courses', 'style' => 'text', 'action' => array( 'type' => 'course', 'course_id' => 5 ) ),
 			),
 		),
+		// 112.4 A store's Studio page: products on sale, what was seen lately, categories in pictures, a coupon and a slider.
+		array(
+			'slug'       => 'deals',
+			'title'      => 'Deals',
+			'show_title' => false,
+			'updated_at' => '2026-10-13T18:00:00Z',
+			'blocks'     => array(),
+			'studio'     => array(
+				'body' => array(
+					'id'       => 'root',
+					'type'     => 'column',
+					'children' => array(
+						array( 'id' => 'hero', 'type' => 'slider', 'indicator' => 'progress', 'aspect_ratio' => 0.8, 'children' => array( array( 'id' => 's1', 'type' => 'text', 'text' => 'New this week' ) ) ),
+						array( 'id' => 'sale', 'type' => 'items', 'source' => 'products', 'layout' => 'carousel', 'query' => array( 'on_sale' => true, 'limit' => 10 ) ),
+						array( 'id' => 'seen', 'type' => 'items', 'source' => 'products', 'recent' => true, 'query' => array( 'limit' => 10 ) ),
+						array( 'id' => 'cats', 'type' => 'categories', 'source' => 'products', 'style' => 'pictures', 'columns' => 2 ),
+						array( 'id' => 'code', 'type' => 'coupon', 'code' => 'WELCOME15' ),
+						array( 'id' => 'bad-code', 'type' => 'coupon', 'code' => 'TWO WORDS' ),
+						array( 'id' => 'look', 'type' => 'stack', 'children' => array( array( 'id' => 'spot', 'type' => 'icon', 'icon' => 'add', 'place' => array( 'x' => 50, 'y' => 66 ) ) ) ),
+					),
+				),
+			),
+		),
 	),
 );
 store_layout( $layout );
@@ -323,6 +346,13 @@ check( 'sorted by price, dearest first', ids( call( 'GET', '/store/products?orde
 check( 'category filter', same_set( ids( call( 'GET', '/store/products?category=' . $seed['gifts'] )['json']['items'] ?? array() ), array_map( 'intval', block_item_ids( page_block( $page, 'gifts' ) ) ) ), page_block( $page, 'gifts' ) );
 check( 'featured filter', same_set( array( (string) $seed['roses'], (string) $seed['chocolates'] ), block_item_ids( page_block( $page, 'featured' ) ) ), page_block( $page, 'featured' ) );
 check( 'product categories block', 'tiles' === ( page_block( $page, 'cats' )['style'] ?? '' ) && same_set( array( 'Flowers', 'Gifts' ), array_column( page_block( $page, 'cats' )['categories'] ?? array(), 'name' ) ), page_block( $page, 'cats' ) );
+$r      = call( 'GET', '/pages/deals?platform=android' );
+$studio = $r['json']['studio']['body']['children'] ?? array();
+check( '112.4 studio: the elements kept', array( 'hero', 'sale', 'seen', 'cats', 'code', 'look' ) === array_column( $studio, 'id' ), $studio );
+check( '112.4 studio: products on sale only', same_set( array( (string) $seed['roses'], (string) $seed['sunflowers'] ), array_column( $studio[1]['items'] ?? array(), 'id' ) ), $studio[1] ?? null );
+check( '112.4 studio: seen lately, filled by the app', true === ( $studio[2]['recent'] ?? null ) && array() === ( $studio[2]['items'] ?? null ) && 'products' === ( $studio[2]['source'] ?? '' ), $studio[2] ?? null );
+check( '112.4 studio: categories as pictures', 'pictures' === ( $studio[3]['style'] ?? '' ) && 2 === ( $studio[3]['columns'] ?? 0 ) && array_key_exists( 'image_url', $studio[3]['categories'][0] ?? array() ), $studio[3] ?? null );
+check( '112.4 studio: a coupon, a slider and a spot', 'WELCOME15' === ( $studio[4]['code'] ?? '' ) && 'progress' === ( $studio[0]['indicator'] ?? '' ) && array( 'x' => 50, 'y' => 66 ) == ( $studio[5]['children'][0]['place'] ?? null ), $studio );
 $r    = call( 'GET', '/pages/home?platform=ios' );
 $page = $r['json'];
 check( 'ios: no links to the cart or checkout', null === page_block( $page, 'checkout' ) && null !== page_block( $page, 'hero' ) && ! isset( page_block( $page, 'hero' )['action'] ), page_block_ids( $page ) );
