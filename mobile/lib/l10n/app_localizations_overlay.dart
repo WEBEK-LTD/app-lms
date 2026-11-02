@@ -6663,4 +6663,23 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get gradebookAbsent =>
       overlay.text('gradebookAbsent') ?? base.gradebookAbsent;
+
+  @override
+  String get liveCalendar => overlay.text('liveCalendar') ?? base.liveCalendar;
+
+  @override
+  String get liveNoneThisDay =>
+      overlay.text('liveNoneThisDay') ?? base.liveNoneThisDay;
+
+  @override
+  String liveClassesCount(int count) =>
+      overlay.format('liveClassesCount', {'count': count}) ??
+      base.liveClassesCount(count);
+
+  @override
+  String get calendarPrevious =>
+      overlay.text('calendarPrevious') ?? base.calendarPrevious;
+
+  @override
+  String get calendarNext => overlay.text('calendarNext') ?? base.calendarNext;
 }

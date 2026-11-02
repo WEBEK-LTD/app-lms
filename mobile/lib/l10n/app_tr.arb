@@ -1718,5 +1718,10 @@
   "classGradebook": "Not defteri",
   "gradebookNone": "Bu sınıfta henüz öğrenci yok.",
   "gradebookStudent": "Öğrenci",
-  "gradebookAbsent": "Gelmedi"
+  "gradebookAbsent": "Gelmedi",
+  "liveCalendar": "Takvim",
+  "liveNoneThisDay": "Bu gün canlı ders yok.",
+  "liveClassesCount": "{count, plural, other{{count} canlı ders}}",
+  "calendarPrevious": "Önceki ay",
+  "calendarNext": "Sonraki ay"
 }

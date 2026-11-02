@@ -1716,4 +1716,9 @@
 {"key":"classGradebook","en":"Gradebook","ar":"سجل الدرجات","tr":"Not defteri","description":"112.5 A class's gradebook for its teachers."},
 {"key":"gradebookNone","en":"No students in this class yet.","ar":"لا يوجد طلاب في هذا الفصل بعد.","tr":"Bu sınıfta henüz öğrenci yok.","description":"112.5 A gradebook of a class without students."},
 {"key":"gradebookStudent","en":"Student","ar":"الطالب","tr":"Öğrenci","description":"112.5 The gradebook's student column."},
-{"key":"gradebookAbsent","en":"Absent","ar":"غائب","tr":"Gelmedi","description":"112.5 The gradebook's days-absent column."}]}
+{"key":"gradebookAbsent","en":"Absent","ar":"غائب","tr":"Gelmedi","description":"112.5 The gradebook's days-absent column."},
+{"key":"liveCalendar","en":"Calendar","ar":"التقويم","tr":"Takvim","description":"112.5 The live classes' month calendar."},
+{"key":"liveNoneThisDay","en":"No live class on this day.","ar":"لا توجد حصة مباشرة في هذا اليوم.","tr":"Bu gün canlı ders yok.","description":"112.5 A calendar day without a live class."},
+{"key":"liveClassesCount","en":"{count, plural, =1{1 live class} other{{count} live classes}}","ar":"{count, plural, =1{حصة مباشرة واحدة} =2{حصتان مباشرتان} few{{count} حصص مباشرة} other{{count} حصة مباشرة}}","tr":"{count, plural, other{{count} canlı ders}}","description":"112.5 Read out for a calendar day with live classes.","placeholders":{"count":"int"}},
+{"key":"calendarPrevious","en":"Previous month","ar":"الشهر السابق","tr":"Önceki ay","description":"112.5 The calendar's button to the month before."},
+{"key":"calendarNext","en":"Next month","ar":"الشهر التالي","tr":"Sonraki ay","description":"112.5 The calendar's button to the month after."}]}

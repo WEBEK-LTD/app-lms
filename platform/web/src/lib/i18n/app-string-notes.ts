@@ -2999,6 +2999,11 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
   "112.5 A gradebook of a class without students.": { ar: "سجل درجات لفصل بلا طلاب.", tr: "Öğrencisi olmayan bir sınıfın not defteri." },
   "112.5 The gradebook's student column.": { ar: "عمود الطالب في سجل الدرجات.", tr: "Not defterinin öğrenci sütunu." },
   "112.5 The gradebook's days-absent column.": { ar: "عمود أيام الغياب في سجل الدرجات.", tr: "Not defterinin gelmediği günler sütunu." },
+  "112.5 The live classes' month calendar.": { ar: "تقويم الحصص المباشرة الشهري.", tr: "Canlı derslerin aylık takvimi." },
+  "112.5 A calendar day without a live class.": { ar: "يوم في التقويم بلا حصة مباشرة.", tr: "Canlı dersi olmayan bir takvim günü." },
+  "112.5 Read out for a calendar day with live classes.": { ar: "يُقرأ بصوت عالٍ ليوم في التقويم فيه حصص مباشرة.", tr: "Canlı dersi olan bir takvim günü için sesli okunur." },
+  "112.5 The calendar's button to the month before.": { ar: "زر التقويم للشهر السابق.", tr: "Takvimin önceki ay düğmesi." },
+  "112.5 The calendar's button to the month after.": { ar: "زر التقويم للشهر التالي.", tr: "Takvimin sonraki ay düğmesi." },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

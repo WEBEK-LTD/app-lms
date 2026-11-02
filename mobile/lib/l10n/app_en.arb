@@ -6155,5 +6155,30 @@
   "gradebookAbsent": "Absent",
   "@gradebookAbsent": {
     "description": "112.5 The gradebook's days-absent column."
+  },
+  "liveCalendar": "Calendar",
+  "@liveCalendar": {
+    "description": "112.5 The live classes' month calendar."
+  },
+  "liveNoneThisDay": "No live class on this day.",
+  "@liveNoneThisDay": {
+    "description": "112.5 A calendar day without a live class."
+  },
+  "liveClassesCount": "{count, plural, =1{1 live class} other{{count} live classes}}",
+  "@liveClassesCount": {
+    "description": "112.5 Read out for a calendar day with live classes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "calendarPrevious": "Previous month",
+  "@calendarPrevious": {
+    "description": "112.5 The calendar's button to the month before."
+  },
+  "calendarNext": "Next month",
+  "@calendarNext": {
+    "description": "112.5 The calendar's button to the month after."
   }
 }

@@ -6484,4 +6484,29 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get gradebookAbsent => 'غائب';
+
+  @override
+  String get liveCalendar => 'التقويم';
+
+  @override
+  String get liveNoneThisDay => 'لا توجد حصة مباشرة في هذا اليوم.';
+
+  @override
+  String liveClassesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count حصة مباشرة',
+      few: '$count حصص مباشرة',
+      two: 'حصتان مباشرتان',
+      one: 'حصة مباشرة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get calendarPrevious => 'الشهر السابق';
+
+  @override
+  String get calendarNext => 'الشهر التالي';
 }

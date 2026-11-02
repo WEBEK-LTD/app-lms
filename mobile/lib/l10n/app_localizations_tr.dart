@@ -6280,4 +6280,26 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get gradebookAbsent => 'Gelmedi';
+
+  @override
+  String get liveCalendar => 'Takvim';
+
+  @override
+  String get liveNoneThisDay => 'Bu gün canlı ders yok.';
+
+  @override
+  String liveClassesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count canlı ders',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get calendarPrevious => 'Önceki ay';
+
+  @override
+  String get calendarNext => 'Sonraki ay';
 }

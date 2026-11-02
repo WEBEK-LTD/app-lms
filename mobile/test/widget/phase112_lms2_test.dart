@@ -208,4 +208,22 @@ void main() {
     expect(find.text('—'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('112.5 live classes on a month\'s calendar', (tester) async {
+    usePhone(tester);
+    final api = FakeApi();
+    final app = TestApp(signedIn: true, appType: AppType.lms, api: api);
+    await app.pump(tester);
+    await push(app, tester, Paths.liveClasses);
+    await tester.tap(find.text('Calendar'));
+    await TestApp.settle(tester);
+    // The month of the first class coming, its day chosen.
+    expect(find.text('October 2026'), findsOneWidget);
+    expect(find.byKey(const ValueKey('live-17')), findsOneWidget);
+    await tapKey(tester, 'calendar-day-21');
+    expect(find.text('No live class on this day.'), findsOneWidget);
+    await tapKey(tester, 'calendar-next');
+    expect(find.text('November 2026'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

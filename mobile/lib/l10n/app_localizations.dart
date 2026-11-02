@@ -10413,6 +10413,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Absent'**
   String get gradebookAbsent;
+
+  /// 112.5 The live classes' month calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get liveCalendar;
+
+  /// 112.5 A calendar day without a live class.
+  ///
+  /// In en, this message translates to:
+  /// **'No live class on this day.'**
+  String get liveNoneThisDay;
+
+  /// 112.5 Read out for a calendar day with live classes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 live class} other{{count} live classes}}'**
+  String liveClassesCount(int count);
+
+  /// 112.5 The calendar's button to the month before.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get calendarPrevious;
+
+  /// 112.5 The calendar's button to the month after.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get calendarNext;
 }
 
 class _AppLocalizationsDelegate

@@ -6290,4 +6290,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gradebookAbsent => 'Absent';
+
+  @override
+  String get liveCalendar => 'Calendar';
+
+  @override
+  String get liveNoneThisDay => 'No live class on this day.';
+
+  @override
+  String liveClassesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count live classes',
+      one: '1 live class',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get calendarPrevious => 'Previous month';
+
+  @override
+  String get calendarNext => 'Next month';
 }
