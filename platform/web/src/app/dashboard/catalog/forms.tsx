@@ -13,6 +13,7 @@ import {
 } from "@/app/actions/catalog";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { btn } from "@/components/ui";
+import { FormActions, FormSection } from "@/components/page-kit";
 import { initialFormState } from "@/lib/forms";
 import { MediaImagesPicker } from "@/components/media-picker";
 import { useDashLang, useDashT } from "@/components/dashboard-i18n";
@@ -205,121 +206,133 @@ export function ProductForm({
   const t = useDashT();
   const [state, action] = useActionState(saveProductAction, initialFormState);
   const v = (key: keyof ProductFormValues & string, fallback: string) => state.values?.[key] ?? fallback;
+  const kind = restaurant ? "restaurant" : "shop";
   return (
-    <form action={action} noValidate className="flex flex-col gap-4">
+    <form action={action} noValidate className="flex flex-col gap-5">
       {product.id !== null ? <input type="hidden" name="id" value={product.id} /> : null}
       <FormMessage message={state.message} ok={state.ok} />
-      <Field label={t("common.name")} name="name" required maxLength={120} defaultValue={v("name", product.name)} error={state.errors?.name} />
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="f-description" className="text-sm font-semibold">
-          {t("common.description")}
-        </label>
-        <textarea
-          id="f-description"
-          name="description"
-          rows={5}
-          maxLength={5000}
-          defaultValue={v("description", product.description)}
-          className="input min-h-28 py-3"
-          aria-describedby="f-description-hint"
-        />
-        <span id="f-description-hint" className="text-[13px] text-muted">
-          {t("shop.descriptionHint")}
-        </span>
-        <FieldError id="f-description-error" error={state.errors?.description} />
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field
-          label={t("shop.priceIn", { currency })}
-          name="price"
-          inputMode="decimal"
-          required
-          defaultValue={v("price", product.price)}
-          placeholder="450.00"
-          error={state.errors?.price}
-        />
-        <Field
-          label={t("shop.salePriceIn", { currency })}
-          name="salePrice"
-          inputMode="decimal"
-          defaultValue={v("salePrice", product.salePrice)}
-          hint={t("shop.saleHint")}
-          error={state.errors?.salePrice}
-        />
-        <Field
-          label={t("shop.stock")}
-          name="stock"
-          inputMode="numeric"
-          defaultValue={v("stock", product.stock)}
-          hint={t("shop.stockHint")}
-          error={state.errors?.stock}
-        />
-        <Field label={t("shop.sku")} name="sku" maxLength={64} defaultValue={v("sku", product.sku)} hint={t("shop.skuHint")} error={state.errors?.sku} />
-      </div>
-      {categories.length > 0 ? (
-        <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-          <legend className="mb-1.5 text-sm font-semibold">{t("shop.categories")}</legend>
-          <div className="flex flex-wrap gap-x-5 gap-y-2">
-            {categories.map((c) => (
-              <label key={c.id} className="flex cursor-pointer items-center gap-2 text-[15px]">
-                <input type="checkbox" name="categoryIds" value={c.id} defaultChecked={product.categoryIds.includes(c.id)} className="h-4 w-4 accent-midnight" />
-                {c.name}
-              </label>
-            ))}
-          </div>
-        </fieldset>
-      ) : null}
-      <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
-        <legend className="mb-1.5 text-sm font-semibold">{t("shop.photos")}</legend>
-        {product.images.length > 0 ? (
-          <div className="flex flex-wrap gap-3">
-            {product.images.map((image) => (
-              <label key={image.id} className="flex flex-col items-center gap-1 text-[13px] text-muted">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={image.url} alt="" className="h-20 w-20 rounded-lg border border-line object-cover" />
-                <span className="flex items-center gap-1">
-                  <input type="checkbox" name="removeImage" value={image.id} className="h-3.5 w-3.5 accent-danger" />
-                  {t("common.remove")}
-                </span>
-              </label>
-            ))}
-          </div>
-        ) : null}
-        <input
-          type="file"
-          name="images"
-          multiple
-          accept="image/png,image/jpeg"
-          className="text-sm"
-          aria-describedby="f-images-hint"
-          aria-invalid={state.errors?.images ? true : undefined}
-        />
-        <span id="f-images-hint" className="text-[13px] text-muted">
-          {t("shop.photosHint")}
-        </span>
-        {/* 51 Or pictures already in the Media library. */}
-        <MediaImagesPicker />
-        <FieldError id="f-images-error" error={state.errors?.images} />
-      </fieldset>
-      <OptionGroupsEditor initial={product.optionGroups} currency={currency} restaurant={restaurant} error={state.errors?.optionGroups} />
-      {restaurant ? null : <VariantsEditor initial={product.variants} currency={currency} error={state.errors?.variants} />}
-      <div className="flex flex-col gap-3">
-        <Check name="active" label={t("shop.show")} hint={t("shop.showHint")} defaultChecked={product.active} />
-        <Check name="featured" label={t("shop.featured")} hint={t("shop.featuredHint")} defaultChecked={product.featured} />
-        {restaurant ? null : (
-          <Check
-            name="digital"
-            label={t("shop.digital")}
-            hint={t("shop.digitalHint")}
-            defaultChecked={product.digital}
+      {/* The page kit: the form in five parts. */}
+      <FormSection id="f-product-about" title={t("shop.formAbout", { kind })} description={t("shop.formAboutHint")}>
+        <Field label={t("common.name")} name="name" required maxLength={120} defaultValue={v("name", product.name)} error={state.errors?.name} />
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="f-description" className="text-sm font-semibold">
+            {t("common.description")}
+          </label>
+          <textarea
+            id="f-description"
+            name="description"
+            rows={5}
+            maxLength={5000}
+            defaultValue={v("description", product.description)}
+            className="input min-h-28 py-3"
+            aria-describedby="f-description-hint"
           />
-        )}
-      </div>
-      <div className="flex justify-end pt-1">
+          <span id="f-description-hint" className="text-[13px] text-muted">
+            {t("shop.descriptionHint")}
+          </span>
+          <FieldError id="f-description-error" error={state.errors?.description} />
+        </div>
+        {categories.length > 0 ? (
+          <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+            <legend className="mb-1.5 text-sm font-semibold">{t("shop.categories")}</legend>
+            <div className="flex flex-wrap gap-2">
+              {categories.map((c) => (
+                <label key={c.id} className="flex cursor-pointer items-center gap-2 rounded-full border border-line py-1.5 ps-2.5 pe-3.5 text-sm has-[:checked]:border-midnight has-[:checked]:bg-sand">
+                  <input type="checkbox" name="categoryIds" value={c.id} defaultChecked={product.categoryIds.includes(c.id)} className="h-4 w-4 accent-midnight" />
+                  {c.name}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        ) : null}
+      </FormSection>
+      <FormSection id="f-product-price" title={t("shop.formPrice")}>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field
+            label={t("shop.priceIn", { currency })}
+            name="price"
+            inputMode="decimal"
+            required
+            defaultValue={v("price", product.price)}
+            placeholder="450.00"
+            error={state.errors?.price}
+          />
+          <Field
+            label={t("shop.salePriceIn", { currency })}
+            name="salePrice"
+            inputMode="decimal"
+            defaultValue={v("salePrice", product.salePrice)}
+            hint={t("shop.saleHint")}
+            error={state.errors?.salePrice}
+          />
+          <Field
+            label={t("shop.stock")}
+            name="stock"
+            inputMode="numeric"
+            defaultValue={v("stock", product.stock)}
+            hint={t("shop.stockHint")}
+            error={state.errors?.stock}
+          />
+          <Field label={t("shop.sku")} name="sku" maxLength={64} defaultValue={v("sku", product.sku)} hint={t("shop.skuHint")} error={state.errors?.sku} />
+        </div>
+      </FormSection>
+      <FormSection id="f-product-photos" title={t("shop.photos")} description={t("shop.formPhotosHint")}>
+        <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
+          <legend className="sr-only">{t("shop.photos")}</legend>
+          {product.images.length > 0 ? (
+            <div className="flex flex-wrap gap-3">
+              {product.images.map((image) => (
+                <label key={image.id} className="flex flex-col items-center gap-1 text-[13px] text-muted">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={image.url} alt="" className="h-20 w-20 rounded-lg border border-line object-cover" />
+                  <span className="flex items-center gap-1">
+                    <input type="checkbox" name="removeImage" value={image.id} className="h-3.5 w-3.5 accent-danger" />
+                    {t("common.remove")}
+                  </span>
+                </label>
+              ))}
+            </div>
+          ) : null}
+          <input
+            type="file"
+            name="images"
+            multiple
+            accept="image/png,image/jpeg"
+            className="text-sm"
+            aria-describedby="f-images-hint"
+            aria-invalid={state.errors?.images ? true : undefined}
+          />
+          <span id="f-images-hint" className="text-[13px] text-muted">
+            {t("shop.photosHint")}
+          </span>
+          {/* 51 Or pictures already in the Media library. */}
+          <MediaImagesPicker />
+          <FieldError id="f-images-error" error={state.errors?.images} />
+        </fieldset>
+      </FormSection>
+      <FormSection id="f-product-options" title={t("shop.formOptions", { kind })} description={t("shop.formOptionsHint", { kind })}>
+        <OptionGroupsEditor initial={product.optionGroups} currency={currency} restaurant={restaurant} error={state.errors?.optionGroups} />
+        {restaurant ? null : <VariantsEditor initial={product.variants} currency={currency} error={state.errors?.variants} />}
+      </FormSection>
+      <FormSection id="f-product-show" title={t("shop.formShow")}>
+        <div className="flex flex-col gap-3">
+          <Check name="active" label={t("shop.show")} hint={t("shop.showHint")} defaultChecked={product.active} />
+          <Check name="featured" label={t("shop.featured")} hint={t("shop.featuredHint")} defaultChecked={product.featured} />
+          {restaurant ? null : (
+            <Check
+              name="digital"
+              label={t("shop.digital")}
+              hint={t("shop.digitalHint")}
+              defaultChecked={product.digital}
+            />
+          )}
+        </div>
+      </FormSection>
+      <FormActions>
         <SubmitButton className="h-11" pendingText={t("common.saving")}>
           {product.id === null ? words.add : words.save}
         </SubmitButton>
-      </div>
+      </FormActions>
     </form>
   );
 }
@@ -596,11 +609,9 @@ export function CouponForm({ currency }: { currency: string }) {
         <Field label={t("shop.couponEndsOn")} id="f-coupon-ends-on" name="endsOn" type="date" defaultValue={v.endsOn} hint={t("shop.optional")} error={e.endsOn} small />
         <Field label={t("shop.couponMaxUses")} id="f-coupon-max-uses" name="maxUses" inputMode="numeric" defaultValue={v.maxUses} hint={t("shop.couponMaxUsesHint")} error={e.maxUses} small />
       </div>
-      <div className="flex justify-end">
-        <SubmitButton variant="secondary" className="h-10">
-          {t("shop.addCoupon")}
-        </SubmitButton>
-      </div>
+      <FormActions>
+        <SubmitButton className="h-10">{t("shop.addCoupon")}</SubmitButton>
+      </FormActions>
     </form>
   );
 }

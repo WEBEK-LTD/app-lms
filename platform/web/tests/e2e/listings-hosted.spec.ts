@@ -128,8 +128,8 @@ test("the office picks Real estate, sets up the office and publishes a listing",
   await expect(own.getByRole("status")).toContainText("Saved “Studio near the university”.");
   await expect(own.getByRole("link", { name: /Studio near the university/ })).toContainText("EGP 9,000 / month");
 
-  await own.getByLabel("Status").selectOption("published");
-  await own.getByRole("button", { name: "Search" }).click();
+  // The page kit: the list's filter chips (with their counts).
+  await own.getByRole("button", { name: /^Published/ }).click();
   await expect(own.getByRole("link", { name: /Studio near the university/ })).toHaveCount(0);
   const published = own.getByRole("link", { name: /Bright apartment with a Nile view/ });
   await expect(published).toContainText("EGP 4,250,000 · Apartment · Maadi, Cairo · 185 m² · NH-1042");

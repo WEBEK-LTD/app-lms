@@ -1,11 +1,12 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element -- the event's pictures, served by our own asset route */
-import { useActionState, type ReactNode } from "react";
+import { useActionState, useId, type ReactNode } from "react";
 import { saveEventAction, saveEventSettingsAction, saveTicketTypeAction } from "@/app/actions/events";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
 import { useDashT } from "@/components/dashboard-i18n";
+import { FormActions, FormSection } from "@/components/page-kit";
 import { richText } from "@/i18n/rich";
 
 export interface EventFormValues {
@@ -28,12 +29,12 @@ export interface EventFormValues {
 }
 
 function Group({ title, hint, children }: { title: string; hint?: ReactNode; children: ReactNode }) {
+  // The page kit: the form's parts.
+  const id = useId();
   return (
-    <fieldset className="m-0 flex flex-col gap-4 border-0 border-t border-line-soft p-0 pt-5 first:border-t-0 first:pt-0">
-      <legend className="float-left mb-1 w-full text-[17px] font-bold">{title}</legend>
-      {hint ? <p className="m-0 text-[14px] text-muted">{hint}</p> : null}
+    <FormSection id={id} title={title} description={hint}>
       {children}
-    </fieldset>
+    </FormSection>
   );
 }
 
@@ -175,7 +176,7 @@ export function EventForm({
         </div>
       </Group>
 
-      <div className="flex flex-wrap justify-end gap-3 pt-1">
+      <FormActions>
         {event.draft ? (
           <>
             <SubmitButton variant="secondary" className="h-11" name="intent" value="draft" pendingText={t("common.saving")}>
@@ -190,7 +191,7 @@ export function EventForm({
             {t("events.saveEvent")}
           </SubmitButton>
         )}
-      </div>
+      </FormActions>
     </form>
   );
 }

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { rescheduleAppointmentAction } from "@/app/actions/bookings";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { btn, Notice } from "@/components/ui";
+import { btn, EmptyState, Notice, PageHeader, Section } from "@/components/ui";
 import { formatDate } from "@/i18n/format";
 import type { DashKey } from "@/i18n/dashboard";
 import { requireClient } from "@/lib/auth/session";
@@ -45,20 +45,12 @@ export default async function MoveAppointmentPage({ params, searchParams }: { pa
   const zone = bookingSetup(app).rules.timezone;
   const now = new Date();
   const current = utcToLocal(appointment.startAt, zone);
-  const back = (
-    <Link href="/dashboard/appointments" className="flex items-center gap-1 text-[15px]">
-      <Icon name="arrow_back" size={20} />
-      {t("bookings.appointments", { kind })}
-    </Link>
-  );
   const title = (
-    <div className="flex max-w-[620px] flex-col gap-2">
-      {back}
-      <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("bookings.moveTitle")}</h1>
-      <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-        {t("bookings.moveNow", { service: appointment.serviceName, staff: appointment.staffName, customer: appointment.customerName, date: current.date, time: current.time })}
-      </p>
-    </div>
+    <PageHeader
+      back={{ href: "/dashboard/appointments", label: t("bookings.appointments", { kind }) }}
+      title={t("bookings.moveTitle")}
+      description={t("bookings.moveNow", { service: appointment.serviceName, staff: appointment.staffName, customer: appointment.customerName, date: current.date, time: current.time })}
+    />
   );
   if (!canReschedule(appointment, now)) {
     return (
@@ -94,64 +86,83 @@ export default async function MoveAppointmentPage({ params, searchParams }: { pa
           {t(ERRORS[query.error]!)}
         </Notice>
       ) : null}
-      <p className="m-0 max-w-[620px] text-[15px] leading-relaxed text-ink-4">{t("bookings.moveIntro", { zone })}</p>
+      {/* The page kit: the free days in a Section, the week's links at its top, each day's times as buttons. */}
+      <Section
+        titleId="h-move-times"
+        title={t("bookings.moveRange", { from: dayLabel(first), to: dayLabel(addDays(first, DAYS - 1)) })}
+        description={t("bookings.moveIntro", { zone })}
+        actions={
+          <nav aria-label={t("bookings.moveWeeks")} className="flex flex-wrap items-center gap-2">
+            {first > today ? (
+              <Link href={link(addDays(first, -DAYS) < today ? today : addDays(first, -DAYS))} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
+                <Icon name="chevron_left" size={18} />
+                {t("bookings.movePrevious")}
+              </Link>
+            ) : null}
+            <Link href={link(addDays(first, DAYS))} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
+              {t("bookings.moveNext")}
+              <Icon name="chevron_right" size={18} />
+            </Link>
+          </nav>
+        }
+        flush
+      >
+        {times.staff.length > 1 ? (
+          <form method="get" className="flex flex-wrap items-end gap-3 border-b border-line-soft px-5 py-4 sm:px-6">
+            <input type="hidden" name="from" value={first} />
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="f-staff" className="text-sm font-semibold">
+                {t("bookings.moveWho", { kind })}
+              </label>
+              <select id="f-staff" name="staff" defaultValue={staffParam ?? ""} className="input h-11 min-w-48">
+                <option value="">{t("bookings.moveAnyone")}</option>
+                {times.staff.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button type="submit" className={`${btn.secondary} h-11`}>
+              {t("bookings.moveShow")}
+            </button>
+          </form>
+        ) : null}
 
-      {times.staff.length > 1 ? (
-        <form method="get" className="flex flex-wrap items-end gap-3">
-          <input type="hidden" name="from" value={first} />
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="f-staff" className="text-sm font-semibold">
-              {t("bookings.moveWho", { kind })}
-            </label>
-            <select id="f-staff" name="staff" defaultValue={staffParam ?? ""} className="input h-11 min-w-48">
-              <option value="">{t("bookings.moveAnyone")}</option>
-              {times.staff.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
+        {open.length === 0 ? (
+          <div className="p-5 sm:p-6">
+            <EmptyState icon="event_busy" title={t("bookings.moveNoTimes")} />
           </div>
-          <button type="submit" className={`${btn.secondary} h-11`}>
-            {t("bookings.moveShow")}
-          </button>
-        </form>
-      ) : null}
-
-      <nav aria-label={t("bookings.moveWeeks")} className="flex flex-wrap items-center gap-3 text-[15px]">
-        {first > today ? <Link href={link(addDays(first, -DAYS) < today ? today : addDays(first, -DAYS))}>{t("bookings.movePrevious")}</Link> : null}
-        <span className="text-muted">{t("bookings.moveRange", { from: dayLabel(first), to: dayLabel(addDays(first, DAYS - 1)) })}</span>
-        <Link href={link(addDays(first, DAYS))}>{t("bookings.moveNext")}</Link>
-      </nav>
-
-      {open.length === 0 ? (
-        <p className="m-0 rounded-2xl border border-line bg-white p-5 text-[15px] text-muted sm:p-6">{t("bookings.moveNoTimes")}</p>
-      ) : (
-        <ul className="m-0 flex list-none flex-col gap-3 p-0">
-          {open.map((day) => (
-            <li key={day.date} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5">
-              <h2 className="m-0 text-[17px] font-bold">{dayLabel(day.date)}</h2>
-              <div className="flex flex-wrap gap-2">
-                {day.slots.map((slot) => {
-                  const staff = staffParam ?? (slot.staffIds.includes(appointment.staffId) ? appointment.staffId : slot.staffIds[0]!);
-                  const isCurrent = slot.start.getTime() === appointment.startAt.getTime() && staff === appointment.staffId;
-                  return (
-                    <form key={slot.localTime} action={rescheduleAppointmentAction}>
-                      <input type="hidden" name="id" value={appointment.id} />
-                      <input type="hidden" name="start" value={slot.start.toISOString()} />
-                      <input type="hidden" name="staff" value={staff} />
-                      <SubmitButton variant="secondary" className="h-11 px-3.5 text-[15px]" disabled={isCurrent} pendingText={slot.localTime}>
-                        <span dir="ltr">{slot.localTime}</span>
-                        {times.staff.length > 1 && staffParam === null ? <span className="text-[13px] font-normal text-muted">{staffName.get(staff)}</span> : null}
-                      </SubmitButton>
-                    </form>
-                  );
-                })}
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+        ) : (
+          <ul className="m-0 flex list-none flex-col p-0">
+            {open.map((day) => (
+              <li key={day.date} className="flex flex-col gap-3 border-t border-line-soft px-5 py-4 first:border-t-0 sm:px-6">
+                <h3 className="m-0 flex items-center gap-2 text-[15px] font-bold">
+                  <Icon name="calendar_month" size={20} className="text-muted" />
+                  {dayLabel(day.date)}
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {day.slots.map((slot) => {
+                    const staff = staffParam ?? (slot.staffIds.includes(appointment.staffId) ? appointment.staffId : slot.staffIds[0]!);
+                    const isCurrent = slot.start.getTime() === appointment.startAt.getTime() && staff === appointment.staffId;
+                    return (
+                      <form key={slot.localTime} action={rescheduleAppointmentAction}>
+                        <input type="hidden" name="id" value={appointment.id} />
+                        <input type="hidden" name="start" value={slot.start.toISOString()} />
+                        <input type="hidden" name="staff" value={staff} />
+                        <SubmitButton variant="secondary" className="h-11 px-3.5 text-[15px]" disabled={isCurrent} pendingText={slot.localTime}>
+                          <span dir="ltr">{slot.localTime}</span>
+                          {times.staff.length > 1 && staffParam === null ? <span className="text-[13px] font-normal text-muted">{staffName.get(staff)}</span> : null}
+                        </SubmitButton>
+                      </form>
+                    );
+                  })}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Section>
     </div>
   );
 }

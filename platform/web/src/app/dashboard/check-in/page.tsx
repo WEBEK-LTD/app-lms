@@ -3,6 +3,7 @@ import Link from "next/link";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { eventSettingsOf } from "@/lib/events/service";
+import { PageHeader } from "@/components/ui";
 import { CheckIn } from "./check-in";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
@@ -18,11 +19,8 @@ export default async function CheckInPage() {
   const { t, lang } = await dashboardText();
   if (!app || app.connector?.kind !== "events") {
     return (
-      <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("events.checkIn")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          {richText(t("events.checkInNotHere"), { link: (chunk) => <Link href="/dashboard/app-type">{chunk}</Link> })}
-        </p>
+      <div className="flex flex-col gap-6">
+        <PageHeader title={t("events.checkIn")} description={richText(t("events.checkInNotHere"), { link: (chunk) => <Link href="/dashboard/app-type">{chunk}</Link> })} />
       </div>
     );
   }
@@ -35,12 +33,10 @@ export default async function CheckInPage() {
     .slice(0, 50)
     .map((e) => ({ id: e.id, label: `${e.title} · ${eventWhenIn(lang, e.startAt, settings.timeZone)}` }));
   return (
-    <div className="flex max-w-[620px] flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("events.checkIn")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("events.checkInIntro")}</p>
-      </div>
-      <section aria-label={t("events.checkTicket")} className="rounded-2xl border border-line bg-white p-5 sm:p-6">
+    <div className="flex flex-col gap-6">
+      {/* The page kit: the header with the way back to the events, then the door. */}
+      <PageHeader back={{ href: "/dashboard/events", label: t("events.title") }} title={t("events.checkIn")} description={t("events.checkInIntro")} />
+      <section aria-label={t("events.checkTicket")} className="flex max-w-[720px] min-w-0 flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <CheckIn events={open} timeZone={settings.timeZone} />
       </section>
     </div>

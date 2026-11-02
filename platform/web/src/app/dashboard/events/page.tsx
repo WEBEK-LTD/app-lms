@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
-import { Badge, Notice, btn } from "@/components/ui";
+import { Badge, EmptyState, Notice, PageHeader, Section, btn } from "@/components/ui";
+import { ItemRow, LinkCards, PageGroup, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { FilterList } from "@/components/page-kit-client";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
 import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
@@ -11,7 +13,6 @@ import { CardPayments, OtherPayments } from "../catalog/payments";
 import { EventStatusBadge, eventWhenIn } from "./event-page";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
-import type { DashKey } from "@/i18n/dashboard";
 import { EventSettingsForm } from "./forms";
 import { SampleBadge, SampleEntries, type SampleQuery } from "@/components/samples";
 
@@ -19,65 +20,41 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("events.title") };
 }
 
-const FILTERS: { value: string; label: DashKey }[] = [
-  { value: "upcoming", label: "events.comingUp" },
-  { value: "past", label: "events.past" },
-  { value: "draft", label: "events.drafts" },
-  { value: "all", label: "events.all" },
-];
-
 /** 28 The events of an Events & tickets app, its event settings and card payments. */
-export default async function EventsPage({ searchParams }: { searchParams: Promise<{ show?: string; deleted?: string } & SampleQuery> }) {
+export default async function EventsPage({ searchParams }: { searchParams: Promise<{ deleted?: string } & SampleQuery> }) {
   const { app } = await requireClient("events");
   const { t, lang, num } = await dashboardText();
   if (!app || app.connector?.kind !== "events") {
     return (
-      <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("events.title")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          {richText(t("events.notHere"), { link: (chunk) => <Link href="/dashboard/app-type">{chunk}</Link> })}
-        </p>
+      <div className="flex flex-col gap-6">
+        <PageHeader title={t("events.title")} description={richText(t("events.notHere"), { link: (chunk) => <Link href="/dashboard/app-type">{chunk}</Link> })} />
       </div>
     );
   }
   const query = await searchParams;
-  const { show = "upcoming", deleted } = query;
+  const { deleted } = query;
   const now = new Date();
   const store = await getStore();
   const [data, tickets] = await Promise.all([loadEvents(store, app, now), store.countTicketPlaces(app.id, now)]);
   const sold = new Map<number, number>();
   for (const t of tickets) sold.set(t.eventId, (sold.get(t.eventId) ?? 0) + t.count);
-  const events = data.events
-    .filter((e) =>
-      show === "all"
-        ? true
-        : show === "draft"
-          ? e.status === "draft"
-          : show === "past"
-            ? e.status !== "draft" && e.endAt.getTime() <= now.getTime()
-            : e.status !== "draft" && e.endAt.getTime() > now.getTime(),
-    )
-    .sort((a, b) => (show === "past" ? b.startAt.getTime() - a.startAt.getTime() : a.startAt.getTime() - b.startAt.getTime()));
+  // Coming up soonest first, then drafts, then past ones newest first.
+  const groupOf = (e: (typeof data.events)[number]) => (e.status === "draft" ? "draft" : e.endAt.getTime() <= now.getTime() ? "past" : "upcoming");
+  const order = { upcoming: 0, draft: 1, past: 2 } as const;
+  const events = [...data.events].sort((a, b) => order[groupOf(a)] - order[groupOf(b)] || (groupOf(a) === "past" ? b.startAt.getTime() - a.startAt.getTime() : a.startAt.getTime() - b.startAt.getTime()));
   const paid = data.types.some((t) => t.priceCents > 0);
+  const has = data.events.length > 0;
+  const addLink = (
+    <Link href="/dashboard/events/new" className={`${btn.main} h-11`}>
+      <Icon name="add" size={20} />
+      {t("events.add")}
+    </Link>
+  );
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="flex max-w-[620px] flex-col gap-2">
-          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("events.title")}</h1>
-          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("events.intro")}</p>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <Link href="/dashboard/check-in" className={`${btn.secondary} h-11`}>
-            <Icon name="qr_code_scanner" size={20} />
-            {t("events.checkIn")}
-          </Link>
-          <Link href="/dashboard/events/new" className={`${btn.primary} h-11`}>
-            <Icon name="add" size={20} />
-            {t("events.add")}
-          </Link>
-        </div>
-      </div>
+      {/* The page kit: the header and its one main action, the numbers, the door, the events, then the settings and payments. */}
+      <PageHeader title={t("events.title")} description={t("events.intro")} actions={has ? addLink : null} />
 
       {deleted ? (
         <p role="status" className="m-0 rounded-xl bg-success-bg px-4 py-3 text-[15px] font-semibold text-success">
@@ -92,79 +69,76 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
         </Notice>
       ) : null}
 
-      <section aria-labelledby="h-events" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 id="h-events" className="m-0 text-lg font-bold">
-            {t("events.count", { count: data.events.length })}
-          </h2>
-          <nav aria-label={t("events.show")} className="flex flex-wrap gap-2">
-            {FILTERS.map((f) => (
-              <Link
-                key={f.value}
-                href={`/dashboard/events?show=${f.value}`}
-                aria-current={show === f.value ? "page" : undefined}
-                className={`rounded-full border px-3 py-1.5 text-sm font-semibold no-underline ${show === f.value ? "border-midnight bg-midnight text-white" : "border-line text-midnight"}`}
-              >
-                {t(f.label)}
-              </Link>
-            ))}
-          </nav>
-        </div>
-        {data.events.length === 0 ? (
-          <p className="m-0 text-[15px] text-muted">{t("events.noEvents")}</p>
-        ) : events.length === 0 ? (
-          <p className="m-0 text-[15px] text-muted">{t("events.nothingHere")}</p>
-        ) : (
-          <ul className="m-0 flex list-none flex-col p-0">
-            {events.map((e) => {
+      {has ? (
+        <StatRow label={t("events.title")}>
+          <Stat icon="event" label={t("events.comingUp")} value={num(events.filter((e) => groupOf(e) === "upcoming").length)} />
+          <Stat icon="confirmation_number" tone="accent" label={t("events.statTickets")} value={num([...sold.values()].reduce((sum, n) => sum + n, 0))} />
+          <Stat icon="edit" tone="warn" label={t("events.drafts")} value={num(events.filter((e) => groupOf(e) === "draft").length)} />
+          <Stat icon="event_busy" tone="neutral" label={t("events.past")} value={num(events.filter((e) => groupOf(e) === "past").length)} />
+        </StatRow>
+      ) : null}
+
+      <LinkCards
+        label={t("events.toolsLabel")}
+        items={[{ href: "/dashboard/check-in", icon: "qr_code_scanner", label: t("events.checkIn"), hint: t("events.checkInHint") }]}
+      />
+
+      <Section titleId="h-events" title={t("events.count", { count: data.events.length })} flush>
+        {has ? (
+          <FilterList
+            allLabel={t("events.all")}
+            searchLabel={t("events.search")}
+            noMatch={t("events.nothingHere")}
+            filters={[
+              { value: "upcoming", label: t("events.comingUp") },
+              { value: "draft", label: t("events.drafts") },
+              { value: "past", label: t("events.past") },
+            ]}
+            items={events.map((e, i) => {
               const left = placesLeft(data, e).event;
-              return (
-                <li key={e.id} className="border-t border-line-soft first:border-t-0">
-                  <Link href={`/dashboard/events/${e.id}`} className="flex items-center gap-3 py-3 text-midnight no-underline hover:bg-sand">
-                    {e.imageAssetIds[0] ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={assetUrl(e.imageAssetIds[0])} alt="" className="h-12 w-16 shrink-0 rounded-lg object-cover" />
-                    ) : (
-                      <span className="flex h-12 w-16 shrink-0 items-center justify-center rounded-lg bg-sand text-muted">
-                        <Icon name="event" size={22} />
-                      </span>
-                    )}
-                    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                      <span className="truncate text-[15px] font-bold">{e.title}</span>
-                      <span className="truncate text-[13px] text-muted">
-                        {[
-                          eventWhenIn(lang, e.startAt, data.settings.timeZone),
-                          e.venueName ?? t("events.online"),
-                          t("events.tickets", { count: sold.get(e.id) ?? 0 }),
-                          left !== null ? t("events.left", { count: num(left) }) : null,
-                        ]
-                          .filter(Boolean)
-                          .join(" · ")}
-                      </span>
-                    </span>
-                    <SampleBadge sample={e.sample} />
-                    {phaseOf(e, now) === "ended" ? <Badge tone="neutral">{t("events.ended")}</Badge> : null}
-                    <EventStatusBadge status={e.status} t={t} />
-                  </Link>
-                </li>
-              );
+              return {
+                id: e.id,
+                text: [e.title, e.venueName].filter(Boolean).join(" "),
+                group: groupOf(e),
+                node: (
+                  <ItemRow
+                    href={`/dashboard/events/${e.id}`}
+                    media={<Thumb src={e.imageAssetIds[0] ? assetUrl(e.imageAssetIds[0]) : null} icon="event" tint={i} />}
+                    title={e.title}
+                    badges={<SampleBadge sample={e.sample} />}
+                    meta={[
+                      eventWhenIn(lang, e.startAt, data.settings.timeZone),
+                      e.venueName ?? t("events.online"),
+                      t("events.tickets", { count: sold.get(e.id) ?? 0 }),
+                      left !== null ? t("events.left", { count: num(left) }) : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                    aside={
+                      <>
+                        {phaseOf(e, now) === "ended" ? <Badge tone="neutral">{t("events.ended")}</Badge> : null}
+                        <EventStatusBadge status={e.status} t={t} />
+                      </>
+                    }
+                  />
+                ),
+              };
             })}
-          </ul>
+          />
+        ) : (
+          <div className="p-5 sm:p-6">
+            <EmptyState icon="event" title={t("events.noEvents")} action={addLink} />
+          </div>
         )}
-      </section>
+      </Section>
 
-      <section aria-labelledby="h-event-settings" className="flex max-w-[640px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <div className="flex flex-col gap-1">
-          <h2 id="h-event-settings" className="m-0 text-lg font-bold">
-            {t("events.settings")}
-          </h2>
-          <p className="m-0 text-[15px] text-ink-4">{t("events.settingsText")}</p>
-        </div>
-        <EventSettingsForm settings={data.settings} currencies={CATALOG_CURRENCIES} />
-      </section>
-
-      <CardPayments app={app} currency={data.settings.currency} />
-      <OtherPayments app={app} />
+      <PageGroup title={t("events.groupSettings")}>
+        <Section titleId="h-event-settings" title={t("events.settings")} description={t("events.settingsText")} className="max-w-[640px]">
+          <EventSettingsForm settings={data.settings} currencies={CATALOG_CURRENCIES} />
+        </Section>
+        <CardPayments app={app} currency={data.settings.currency} />
+        <OtherPayments app={app} />
+      </PageGroup>
     </div>
   );
 }

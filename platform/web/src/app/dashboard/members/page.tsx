@@ -4,7 +4,9 @@ import { cancelMembershipAction } from "@/app/actions/classes";
 import { unfreezeMembershipAction } from "@/app/actions/members";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { Badge, formatDate } from "@/components/ui";
+import { Badge, EmptyState, Notice, PageHeader, Section, formatDate } from "@/components/ui";
+import { LinkCards, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { FilterList, SheetButton } from "@/components/page-kit-client";
 import { requireClient } from "@/lib/auth/session";
 import { memberStatus } from "@/lib/bookings/door";
 import { FREEZE_AHEAD_DAYS, freezeOf, gymDayOf } from "@/lib/bookings/freeze";
@@ -32,11 +34,8 @@ export default async function MembersPage() {
   const { t, lang } = await dashboardText();
   if (!app || app.connector?.kind !== "bookings") {
     return (
-      <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("bookings.members")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          {richText(t("bookings.plansNotHere"), { link: (chunk) => <Link href="/dashboard/setup?step=website">{chunk}</Link> })}
-        </p>
+      <div className="flex flex-col gap-6">
+        <PageHeader title={t("bookings.members")} description={richText(t("bookings.plansNotHere"), { link: (chunk) => <Link href="/dashboard/setup?step=website">{chunk}</Link> })} />
       </div>
     );
   }
@@ -55,101 +54,141 @@ export default async function MembersPage() {
   const today = gymDayOf(app, now);
   const latest = addDays(today, FREEZE_AHEAD_DAYS);
 
+  const sr = { sr: (chunk: string) => <span className="sr-only">{chunk}</span> };
+  const count = (status: keyof typeof TONES) => rows.filter((m) => memberStatus(m, now) === status).length;
+  const fitness = app.vertical === "fitness";
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex max-w-[620px] flex-col gap-2">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("bookings.members")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("bookings.membersIntro")}</p>
-      </div>
+      {/* The page kit: the header and its main action, the numbers, the door and plans, adding a membership, then the members. */}
+      <PageHeader
+        title={t("bookings.members")}
+        description={t("bookings.membersIntro")}
+        actions={
+          setup.membershipPlans.length ? (
+            <SheetButton target="add-membership" icon="add">
+              {t("bookings.addMembership")}
+            </SheetButton>
+          ) : null
+        }
+      />
+
+      {rows.length ? (
+        <StatRow label={t("bookings.memberships")}>
+          <Stat icon="card_membership" tone="success" label={t("bookings.statusActive")} value={count("active")} />
+          <Stat icon="pause_circle" tone="accent" label={t("freeze.frozen")} value={count("frozen")} />
+          <Stat icon="event_busy" tone="neutral" label={t("bookings.statusEnded")} value={count("expired") + count("cancelled")} />
+        </StatRow>
+      ) : null}
+
+      <LinkCards
+        label={t("bookings.membersTools")}
+        items={[
+          ...(fitness ? [{ href: "/dashboard/members/check-in", icon: "qr_code_scanner" as const, label: t("door.title"), hint: t("bookings.checkInHint") }] : []),
+          { href: "/dashboard/memberships", icon: "card_membership", label: t("bookings.plansTitle"), hint: t("bookings.plansCount", { count: setup.membershipPlans.length }) },
+        ]}
+      />
 
       {setup.membershipPlans.length ? (
-        <section aria-labelledby="h-give" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <h2 id="h-give" className="m-0 text-lg font-bold">
-            {t("bookings.addMembership")}
-          </h2>
+        <Section id="add-membership" titleId="h-give" title={t("bookings.addMembership")} description={t("bookings.giveHint")}>
           <GiveMembershipForm plans={setup.membershipPlans} />
-        </section>
+        </Section>
       ) : (
-        <p className="m-0 text-[15px] text-ink-4">
+        <Notice tone="info" icon="info">
           {richText(t("bookings.plansFirst"), { link: (chunk) => <Link href="/dashboard/memberships">{chunk}</Link> })}
-        </p>
+        </Notice>
       )}
 
-      <section aria-labelledby="h-members" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-members" className="m-0 text-lg font-bold">
-          {t("bookings.memberships")}
-        </h2>
+      <Section titleId="h-members" title={t("bookings.memberships")} flush>
         {rows.length === 0 ? (
-          <p className="m-0 text-[15px] text-muted">{t("bookings.noMemberships")}</p>
+          <div className="p-5 sm:p-6">
+            <EmptyState icon="card_membership" title={t("bookings.noMemberships")} />
+          </div>
         ) : (
-          <ul className="m-0 flex list-none flex-col gap-3 p-0">
-            {rows.map((m) => {
+          <FilterList
+            allLabel={t("common.all")}
+            searchLabel={t("bookings.membersSearch")}
+            noMatch={t("bookings.membersNoMatch")}
+            filters={(["active", "frozen", "expired", "cancelled"] as const).map((value) => ({ value, label: t(LABELS[value]) }))}
+            items={rows.map((m, i) => {
               const user = users.get(m.userId);
               const name = user?.name ?? t("bookings.deletedAccount");
               const status = memberStatus(m, now);
               const freeze = freezeOf(m, now);
-              return (
-                <li key={m.id} className="flex flex-col gap-2 rounded-xl border border-line p-4">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="text-[15px] font-bold">
-                      {name} · {m.planName}
-                    </span>
-                    <Badge tone={TONES[status]}>{t(LABELS[status])}</Badge>
-                  </div>
-                  <span className="text-sm text-muted">
-                    {[
-                      user?.phone ?? user?.email,
-                      t("bookings.from", { date: formatDate(m.startsAt, lang) }),
-                      m.endsAt ? t("bookings.until", { date: formatDate(m.endsAt, lang) }) : t("bookings.noEnd"),
-                      m.creditsLeft === null ? t("bookings.unlimited") : t("bookings.classesLeft", { count: m.creditsLeft }),
-                      m.orderId ? t("bookings.boughtInApp") : t("bookings.addedHere"),
-                    ]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </span>
-                  {freeze ? (
-                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-sand px-3 py-2" data-testid={`frozen-${m.id}`}>
-                      <span className="flex items-center gap-2 text-sm font-semibold">
-                        <Icon name="pause_circle" size={18} />
-                        {freeze.now
-                          ? freeze.until
-                            ? t("freeze.frozenUntil", { date: day(freeze.until) })
-                            : t("freeze.frozenSince", { date: day(freeze.from) })
-                          : [t("freeze.freezesOn", { date: day(freeze.from) }), freeze.until ? t("freeze.backOn", { date: day(freeze.until) }) : null].filter(Boolean).join(" · ")}
+              return {
+                id: m.id,
+                text: [name, user?.phone, user?.email, m.planName].filter(Boolean).join(" "),
+                group: status,
+                node: (
+                  <li className="flex flex-col gap-3 border-t border-line-soft px-5 py-4 first:border-t-0 sm:px-6">
+                    <div className="flex flex-wrap items-center gap-x-3.5 gap-y-2">
+                      <Thumb icon="person" shape="round" tint={i} />
+                      <span className="flex min-w-0 flex-[1_1_220px] flex-col gap-0.5">
+                        <span className="text-[15px] font-bold break-words">
+                          {name} · {m.planName}
+                        </span>
+                        <span className="text-[13px] text-muted" dir="auto">
+                          {[
+                            user?.phone ?? user?.email,
+                            t("bookings.from", { date: formatDate(m.startsAt, lang) }),
+                            m.endsAt ? t("bookings.until", { date: formatDate(m.endsAt, lang) }) : t("bookings.noEnd"),
+                            m.creditsLeft === null ? t("bookings.unlimited") : t("bookings.classesLeft", { count: m.creditsLeft }),
+                            m.orderId ? t("bookings.boughtInApp") : t("bookings.addedHere"),
+                          ]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </span>
                       </span>
-                      <form action={unfreezeMembershipAction}>
-                        <input type="hidden" name="id" value={m.id} />
-                        <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
-                          {richText(freeze.now ? t("freeze.unfreeze", { name }) : t("freeze.removeFreeze", { name }), { sr: (chunk) => <span className="sr-only">{chunk}</span> })}
-                        </SubmitButton>
-                      </form>
+                      <Badge tone={TONES[status]}>{t(LABELS[status])}</Badge>
                     </div>
-                  ) : status === "active" ? (
-                    <details className="rounded-xl border border-line px-3.5 py-2">
-                      <summary className="flex min-h-9 cursor-pointer items-center gap-2 text-sm font-semibold">
-                        <Icon name="pause_circle" size={18} />
-                        {richText(t("freeze.freeze", { name }), { sr: (chunk) => <span className="sr-only">{chunk}</span> })}
-                      </summary>
-                      <FreezeForm id={m.id} today={today} latest={latest} />
-                    </details>
-                  ) : null}
-                  {status === "active" || status === "frozen" ? (
-                    <div className="flex flex-wrap items-end justify-between gap-3">
-                      {m.creditsLeft !== null ? <CreditsForm id={m.id} name={name} /> : <span />}
-                      <form action={cancelMembershipAction}>
-                        <input type="hidden" name="id" value={m.id} />
-                        <SubmitButton variant="danger" className="h-9 px-3 text-sm">
-                          {richText(t("bookings.endMembership", { name }), { sr: (chunk) => <span className="sr-only">{chunk}</span> })}
-                        </SubmitButton>
-                      </form>
-                    </div>
-                  ) : null}
-                </li>
-              );
+                    {freeze ? (
+                      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-sand px-4 py-2.5" data-testid={`frozen-${m.id}`}>
+                        <span className="flex items-center gap-2 text-sm font-semibold">
+                          <Icon name="pause_circle" size={18} />
+                          {freeze.now
+                            ? freeze.until
+                              ? t("freeze.frozenUntil", { date: day(freeze.until) })
+                              : t("freeze.frozenSince", { date: day(freeze.from) })
+                            : [t("freeze.freezesOn", { date: day(freeze.from) }), freeze.until ? t("freeze.backOn", { date: day(freeze.until) }) : null].filter(Boolean).join(" · ")}
+                        </span>
+                        <form action={unfreezeMembershipAction}>
+                          <input type="hidden" name="id" value={m.id} />
+                          <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+                            {richText(freeze.now ? t("freeze.unfreeze", { name }) : t("freeze.removeFreeze", { name }), sr)}
+                          </SubmitButton>
+                        </form>
+                      </div>
+                    ) : null}
+                    {status === "active" || status === "frozen" ? (
+                      <div className="flex flex-wrap items-end gap-3">
+                        {m.creditsLeft !== null ? <CreditsForm id={m.id} name={name} /> : null}
+                        {!freeze && status === "active" ? (
+                          <details className="group min-w-0 flex-[1_1_260px] rounded-xl border border-line-soft">
+                            <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 px-3.5 text-sm font-semibold [&::-webkit-details-marker]:hidden">
+                              <Icon name="pause_circle" size={18} className="text-muted" />
+                              <span className="flex-1">{richText(t("freeze.freeze", { name }), sr)}</span>
+                              <Icon name="expand_more" size={18} className="text-muted transition-transform group-open:rotate-180" />
+                            </summary>
+                            <div className="border-t border-line-soft px-3.5 pb-3.5">
+                              <FreezeForm id={m.id} today={today} latest={latest} />
+                            </div>
+                          </details>
+                        ) : null}
+                        <form action={cancelMembershipAction} className="ms-auto">
+                          <input type="hidden" name="id" value={m.id} />
+                          <SubmitButton variant="danger" className="h-9 px-3 text-sm">
+                            {richText(t("bookings.endMembership", { name }), sr)}
+                          </SubmitButton>
+                        </form>
+                      </div>
+                    ) : null}
+                  </li>
+                ),
+              };
             })}
-          </ul>
+          />
         )}
-      </section>
+      </Section>
     </div>
   );
 }
