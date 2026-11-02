@@ -1,8 +1,8 @@
 import type { DataStore } from "../data/store";
 import type { App, Courier, DeliverySettings, Shipment, ShipmentStage, ShipmentStatus } from "../data/types";
-import { encryptionKey } from "../env";
+import { courierPushServiceAccountJson, encryptionKey } from "../env";
 import { serviceAccountOf } from "../hosted/notify";
-import type { sendPush, ServiceAccount } from "../hosted/push";
+import { parseServiceAccount, type sendPush, type ServiceAccount } from "../hosted/push";
 import { tellCouriers, tellCustomer, type DeliveryNotifyDeps } from "./notify";
 import { followCourierJob } from "../food/sync";
 import { courierMayHave, reviewUserId } from "./review";
@@ -22,6 +22,8 @@ export interface FlowDeps {
   now: Date;
   /** The app's push account; read from the app when left out. */
   account?: ServiceAccount | null;
+  /** 104.8.2 Yallapp Courier's push account; read from the environment when left out. */
+  courierAccount?: ServiceAccount | null;
   send?: typeof sendPush;
 }
 
@@ -34,7 +36,17 @@ export function notifyDeps(deps: FlowDeps): DeliveryNotifyDeps {
       account = null;
     }
   }
-  return { store: deps.store, app: deps.app, now: deps.now, account, send: deps.send };
+  // 104.8.2 Only a delivery company's couriers work in Yallapp Courier.
+  const courierAccount = deps.courierAccount !== undefined ? deps.courierAccount : deps.app.appType === "delivery" ? courierPushAccount() : null;
+  return { store: deps.store, app: deps.app, now: deps.now, account, courierAccount, send: deps.send };
+}
+
+/** 104.8.2 Yallapp Courier's Firebase project (COURIER_PUSH_FIREBASE_SERVICE_ACCOUNT, else Yallapp Business's), or null. */
+export function courierPushAccount(): ServiceAccount | null {
+  const json = courierPushServiceAccountJson();
+  const account = json ? parseServiceAccount(json) : null;
+  if (json && !account) console.error("[courier-push] COURIER_PUSH_FIREBASE_SERVICE_ACCOUNT isn't a Firebase service account key");
+  return account;
 }
 
 /** 104.7 The couriers on duty who may take the shipment (the review account's go to the review courier only). */

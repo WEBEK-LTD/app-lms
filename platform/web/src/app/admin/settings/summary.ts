@@ -85,6 +85,11 @@ export function settingsSummary(settings: Map<PlatformSettingKey, PlatformSettin
     "/admin/settings/store-platforms": { now: partners === 2 ? "Salla and Zid are set." : partners === 1 ? (get("sallaApp") ? "Salla is set, Zid isn't." : "Zid is set, Salla isn't.") : "Neither is set.", attention: false },
     "/admin/settings/app-defaults": { now: get("appDefaults") ? "Set here." : "The built-in defaults.", attention: false },
     "/admin/settings/maps": { now: get("maps") ? "Set: ride, delivery and food apps show the map." : "No map: ride, delivery and food apps draw the places without one.", attention: !get("maps") },
+    // 104.8.2 Without a review account, the stores can't review Yallapp Courier.
+    "/admin/settings/yallapp-courier": {
+      now: get("courierHub")?.value.reviewCode ? "The review account is set." : "No review account yet: the stores can't review Yallapp Courier.",
+      attention: !get("courierHub")?.value.reviewCode,
+    },
     "/admin/settings/server": {
       now: rows.every((r) => r.ok) ? "Everything checks out." : `${rows.filter((r) => !r.ok).length} to check.`,
       attention: !rows.every((r) => r.ok),

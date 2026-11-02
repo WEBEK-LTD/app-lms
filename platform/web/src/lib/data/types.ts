@@ -790,6 +790,12 @@ export interface HostedDevice {
    * Null for apps built before, which get every push as they did.
    */
   appRole?: HostedAppRole | null;
+  /**
+   * 104.8.2 The Yallapp Courier device that opened this session at the
+   * company (`CourierDevice.id`): its pushes go through Yallapp Courier's
+   * Firebase project, and it ends with that device. Null for the company's own apps.
+   */
+  courierDeviceId?: string | null;
   createdAt: Date;
   lastSeenAt: Date;
 }
@@ -3384,12 +3390,14 @@ export interface Courier {
   locatedAt: Date | null;
   /** 105.2 Ride apps: the driver's side (null for couriers). */
   driver?: DriverDetails | null;
+  /** 104.8.2 When they last opened the company in Yallapp Courier; null: never. */
+  hubSignedInAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export type CourierInput = Pick<Courier, "appId" | "name" | "phone" | "email" | "vehicle" | "active"> & Partial<Pick<Courier, "driver">>;
-export type CourierPatch = Partial<Pick<Courier, "name" | "phone" | "email" | "vehicle" | "active" | "onDuty" | "lat" | "lng" | "locatedAt" | "driver">>;
+export type CourierPatch = Partial<Pick<Courier, "name" | "phone" | "email" | "vehicle" | "active" | "onDuty" | "lat" | "lng" | "locatedAt" | "driver" | "hubSignedInAt">>;
 
 export const SHIPMENT_STATUSES = ["awaiting_payment", "pending", "assigned", "picked_up", "on_the_way", "delivered", "failed", "cancelled"] as const;
 export type ShipmentStatus = (typeof SHIPMENT_STATUSES)[number];
@@ -4098,6 +4106,67 @@ export interface OwnerDevice {
 }
 
 export type OwnerDevicePatch = Partial<Pick<OwnerDevice, "name" | "appVersion" | "language" | "pushToken" | "pushProvider" | "pushPreferences" | "lastSeenAt" | "clientId">>;
+
+// 104.8.2 Yallapp Courier: one courier app for every company that picks it (lib/courier-hub)
+
+/** 104.8.2 A person signed in to Yallapp Courier with a code to their mobile number or email; the companies' couriers with it are theirs. */
+export interface CourierAccount {
+  id: string;
+  /** E.164; null for an email account. */
+  phone: string | null;
+  /** Lowercase; null for a phone account. */
+  email: string | null;
+  createdAt: Date;
+  lastSignInAt: Date;
+}
+
+/** 104.8.2 A phone signed in to Yallapp Courier: one per sign-in, with the hash of its refresh token (rotated on each use) and its push token. */
+export interface CourierDevice {
+  id: string;
+  accountId: string;
+  /** The ID the app generated for this install; the company sessions it opens use it too. */
+  deviceId: string;
+  platform: "android" | "ios";
+  name: string;
+  appVersion: string;
+  refreshHash: string;
+  refreshExpiresAt: Date;
+  pushToken: string | null;
+  pushProvider: PushProvider;
+  createdAt: Date;
+  lastSeenAt: Date;
+}
+
+export type CourierDevicePatch = Partial<Pick<CourierDevice, "platform" | "name" | "appVersion" | "pushToken" | "pushProvider" | "lastSeenAt">>;
+
+/** 104.8.2 A sign-in code sent to a number or address (kept hashed); the review account's has none. */
+export interface CourierChallenge {
+  tokenHash: string;
+  phone: string | null;
+  email: string | null;
+  codeHash: string | null;
+  attempts: number;
+  review: boolean;
+  expiresAt: Date;
+  createdAt: Date;
+}
+
+/**
+ * 104.8.2 Yallapp Courier in Admin › Settings: the stores' review account (a
+ * number or an email, with a fixed code; nothing is sent to it) and 104.8.3
+ * the app's store links once it is published.
+ */
+export interface CourierHubSetting {
+  reviewPhone: string | null;
+  reviewEmail: string | null;
+  reviewCode: string | null;
+  playUrl: string | null;
+  appStoreUrl: string | null;
+}
+
+export interface PlatformSettingValues {
+  courierHub: CourierHubSetting;
+}
 
 // 61 Notifications to an app's users sent later, and today's numbers by query.
 
