@@ -282,3 +282,52 @@ test("the app preview plays the YouTube lesson in the app's own player (72: the 
   expect(page.url()).toContain("/preview-app/");
   await context.close();
 });
+
+test("113.1 the academy sells two courses together in a bundle at its own price, and the app shows it", async ({ request }) => {
+  await own.goto("/dashboard/courses");
+  const add = own.getByRole("region", { name: "Add a course" });
+  await add.getByLabel("Title").fill("Turkish Grammar");
+  await add.getByLabel("Price (TRY)").fill("300");
+  await add.getByRole("button", { name: "Add course" }).click();
+  await expect(own.getByRole("heading", { level: 1, name: "Turkish Grammar" })).toBeVisible();
+
+  await own.goto("/dashboard/courses");
+  await own.getByRole("link", { name: "Course bundles" }).click();
+  await expect(own.getByRole("heading", { level: 1, name: "Course bundles" })).toBeVisible();
+  await expect(own.getByText("No bundles yet. Add your first one below.")).toBeVisible();
+  const form = own.getByRole("region", { name: "Add a bundle" });
+  await form.getByLabel("Title").fill("Turkish, complete");
+  await form.getByLabel(/Turkish for Beginners/).check();
+  await form.getByLabel("Bundle price (TRY)").fill("600");
+  await form.getByRole("button", { name: "Add bundle" }).click();
+  // One course isn't a bundle.
+  await expect(form.getByText("Choose at least two courses.")).toBeVisible();
+  await form.getByLabel(/Turkish Grammar/).check();
+  await form.getByRole("button", { name: "Add bundle" }).click();
+  await expect(own.getByRole("heading", { level: 1, name: "Turkish, complete" })).toBeVisible();
+  // The owner's price next to what the courses cost on their own.
+  await expect(own.locator("[data-compare-at]")).toHaveText("Its courses on their own: ₺750.00. Students save ₺150.00.");
+  await own.getByRole("link", { name: "Back to bundles" }).click();
+  await expect(own.locator("li[data-bundle]")).toContainText("2 courses · ₺600.00 instead of ₺750.00");
+
+  const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
+  expect(config.features).toMatchObject({ bundles: true });
+  const bundles = await (await request.get(`${api}/bundles`)).json();
+  expect(bundles.items).toEqual([expect.objectContaining({ title: "Turkish, complete", course_count: 2, price: expect.objectContaining({ formatted: "₺600.00" }), compare_at: expect.objectContaining({ formatted: "₺750.00" }), owned: false })]);
+  const id = bundles.items[0].id;
+  // Payments aren't set up: nothing to buy it with yet.
+  const detail = await (await request.get(`${api}/bundles/${id}?platform=android`)).json();
+  expect(detail).toMatchObject({ purchase: { action: "none" } });
+  expect(detail.courses.map((c: { title: string }) => c.title)).toEqual(["Turkish for Beginners", "Turkish Grammar"]);
+  const courses = await (await request.get(`${api}/courses`)).json();
+  const grammar = courses.items.find((c: { title: string }) => c.title === "Turkish Grammar");
+  expect(await (await request.get(`${api}/courses/${grammar.id}?platform=android`)).json()).toMatchObject({ bundles: [{ id, title: "Turkish, complete" }] });
+
+  // Hidden: off the app.
+  await own.locator("li[data-bundle] a").click();
+  await own.getByRole("region", { name: "Details" }).getByLabel("Show in the app").uncheck();
+  await own.getByRole("region", { name: "Details" }).getByRole("button", { name: "Save bundle" }).click();
+  await expect(own.getByText("Saved “Turkish, complete”.")).toBeVisible();
+  expect((await (await request.get(`${api}/bundles`)).json()).items).toEqual([]);
+  expect((await request.get(`${api}/bundles/${id}`)).status()).toBe(404);
+});

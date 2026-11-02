@@ -16,7 +16,7 @@ import type { Action, AppDefaultsSetting, ItemSource, Languages, Layout, LayoutB
  */
 
 /** The content sources the plan lets the pages list: the app's main one first. */
-export function allowedSources(app: Pick<App, "appType" | "backend">, plan: Pick<PlanInfo, "limits"> | null): ItemSource[] {
+export function allowedSources(app: Pick<App, "appType" | "backend"> & Partial<Pick<App, "connector">>, plan: Pick<PlanInfo, "limits"> | null): ItemSource[] {
   const all = itemSourcesFor(app);
   const limit = plan?.limits.sources ?? null;
   return limit === null ? all : all.slice(0, Math.max(1, limit));

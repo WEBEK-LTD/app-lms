@@ -319,7 +319,8 @@ describe("112.5 coupons for paid courses", () => {
     expect((await h.call("GET", "/courses/{course_id}", { params: ["10"], token, query: { platform: "android" } })).body).toMatchObject({ purchase: { action: "checkout", coupons: true } });
     expect((await h.call("POST", "/courses/{course_id}/coupon", { params: ["10"], token, body: { code: " welcome10 " } })).body).toMatchObject({ code: "WELCOME10", status: "applied", discount: expect.stringContaining("45"), total: expect.stringContaining("405") });
     expect((await h.call("POST", "/courses/{course_id}/coupon", { params: ["10"], token, body: { code: "NOPE" } })).body).toMatchObject({ status: "invalid", message: "This coupon doesn't exist." });
-    expect((await h.call("POST", "/courses/{course_id}/coupon", { params: ["10"], token, body: { code: "FREE" } })).body).toMatchObject({ status: "invalid" });
+    // 113.1 A coupon that takes the whole price applies: checking out with it enrols at once.
+    expect((await h.call("POST", "/courses/{course_id}/coupon", { params: ["10"], token, body: { code: "FREE" } })).body).toMatchObject({ status: "applied", free: true });
     expect((await h.call("POST", "/auth/checkout-link", { token, query: { platform: "android" }, body: { course_id: 10, coupon: "NOPE" } })).body).toMatchObject({ code: "coupon_invalid" });
     const link = await h.call("POST", "/auth/checkout-link", { token, query: { platform: "android" }, body: { course_id: 10, coupon: "welcome10" } });
     expect(link.status).toBe(200);
