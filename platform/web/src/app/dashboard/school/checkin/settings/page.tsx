@@ -24,7 +24,7 @@ const METHOD_KEYS = { qr: "school.methodQr", location: "school.methodLocation", 
 
 function TimesFields({ prefix, legend, hint, values, t }: { prefix: string; legend: string; hint?: string; values: Record<string, string>; t: DashT }) {
   return (
-    <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-line p-4">
+    <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-line-soft bg-sand p-4">
       <legend className="px-1 text-sm font-bold">{legend}</legend>
       {hint ? <p className="m-0 text-[14px] text-muted">{hint}</p> : null}
       <div className="grid gap-4 sm:grid-cols-4">
@@ -48,9 +48,10 @@ export default async function SchoolCheckinSettingsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHead title={t("school.checkinSettings")} intro={t("school.checkinSettingsIntro")} />
+      {/* The page kit: the header with the way back, the other check-in pages, then the settings in their parts. */}
+      <PageHead title={t("school.checkinSettings")} intro={t("school.checkinSettingsIntro")} back={{ href: "/dashboard/school/checkin", label: t("school.checkin") }} />
       <SchoolPlanNotice plan={plan} demo={app.demo === true} t={t} />
-      <CheckinLinks t={t} />
+      <CheckinLinks t={t} current="/dashboard/school/checkin/settings" />
       <Panel id="h-checkin-settings" title={t("school.checkinSettings")}>
         <SchoolForm action={saveCheckinSettingsAction} submit={t("school.saveCheckin")}>
           <label className="flex items-start gap-2 text-[15px]">
@@ -70,7 +71,7 @@ export default async function SchoolCheckinSettingsPage() {
             ))}
             <p className="m-0 text-[14px] text-muted">{t("school.methodsHint")}</p>
           </fieldset>
-          <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-line p-4">
+          <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-line-soft bg-sand p-4">
             <legend className="px-1 text-sm font-bold">{t("school.place")}</legend>
             <p className="m-0 text-[14px] text-muted">{t("school.placeHint")}</p>
             <div className="grid gap-4 sm:grid-cols-3">

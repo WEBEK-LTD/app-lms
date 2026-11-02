@@ -47,9 +47,20 @@ export default async function SchoolCheckinReportPage({ searchParams }: { search
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHead title={t("school.monthReport")} intro={t("school.reportIntro")} />
-      <CheckinLinks t={t} />
-      <form method="get" className="flex max-w-[860px] flex-wrap items-end gap-2">
+      {/* The page kit: the header with the way back, the other check-in pages, one person's days, then the month. */}
+      <PageHead
+        title={t("school.monthReport")}
+        intro={t("school.reportIntro")}
+        back={{ href: "/dashboard/school/checkin", label: t("school.checkin") }}
+        actions={
+          <a href={`/api/dashboard/school/checkins?${query}`} className={`${btn.secondary} h-11 px-4 text-sm`}>
+            <Icon name="download" size={18} />
+            {t("school.downloadCsv")}
+          </a>
+        }
+      />
+      <CheckinLinks t={t} current="/dashboard/school/checkin/report" />
+      <form method="get" className="flex flex-wrap items-end gap-2 rounded-2xl border border-line bg-white px-5 py-3 sm:px-6">
         <div className="flex flex-col gap-1.5">
           <label htmlFor="f-month" className="text-sm font-semibold">
             {t("school.month")}
@@ -68,22 +79,18 @@ export default async function SchoolCheckinReportPage({ searchParams }: { search
           ]}
           defaultValue={role ?? ""}
         />
-        <button type="submit" className={`${btn.secondary} h-10`}>
+        <button type="submit" className={`${btn.secondary} h-10 px-3.5 text-sm`}>
           {t("school.show")}
         </button>
-        <a href={`/api/dashboard/school/checkins?${query}`} className={`${btn.secondary} h-10 px-4 text-sm`}>
-          <Icon name="download" size={18} />
-          {t("school.downloadCsv")}
-        </a>
       </form>
 
       {one ? (
-        <Panel id="h-person" title={t("school.daysOf", { name: one.person.name, month })} intro={detail(one)}>
-          {oneDays.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("school.noDays")}</p> : null}
+        <Panel id="h-person" title={t("school.daysOf", { name: one.person.name, month })} intro={detail(one)} flush>
+          {oneDays.length === 0 ? <p className="m-0 px-5 py-4 text-[15px] text-muted sm:px-6">{t("school.noDays")}</p> : null}
           <ul className="m-0 flex list-none flex-col p-0">
             {oneDays.map((d) => (
-              <li key={d.date} className="flex flex-col gap-2 border-t border-line-soft py-3 first:border-t-0 first:pt-0">
-                <div className="flex flex-wrap items-center gap-2">
+              <li key={d.date} className="flex flex-wrap items-center gap-3 border-t border-line-soft px-5 py-3 first:border-t-0 sm:px-6">
+                <div className="flex min-w-0 flex-[1_1_320px] flex-wrap items-center gap-2">
                   <span className="flex min-w-[160px] flex-1 flex-col gap-0.5">
                     <span className="text-[15px] font-bold" dir="ltr">
                       {d.date}
@@ -105,7 +112,7 @@ export default async function SchoolCheckinReportPage({ searchParams }: { search
         {report.rows.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("school.noDays")}</p> : null}
         {report.rows.length ? (
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-[14px]">
+            <table className="w-full border-collapse text-[14px] tabular-nums">
               <thead>
                 <tr className="border-b border-line">
                   <th className={head}>{t("school.colName")}</th>
@@ -138,7 +145,9 @@ export default async function SchoolCheckinReportPage({ searchParams }: { search
                     <td className={cell}>{r.excused}</td>
                     <td className={cell}>{r.leave}</td>
                     <td className={cell}>
-                      <Link href={`/dashboard/school/checkin/report?${query}&person=${r.person.id}`}>{t("school.seeDays")}</Link>
+                      <Link href={`/dashboard/school/checkin/report?${query}&person=${r.person.id}`} className={`${btn.secondary} h-9 px-3 text-sm`}>
+                        {t("school.seeDays")}
+                      </Link>
                     </td>
                   </tr>
                 ))}
