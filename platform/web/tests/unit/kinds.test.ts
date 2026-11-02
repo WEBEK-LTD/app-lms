@@ -77,6 +77,8 @@ const BEFORE = {
     courses: [
       "Your school",
       ["/dashboard/courses", "Courses", "school"],
+      // 113.1 Several courses at one price.
+      ["/dashboard/courses/bundles", "Bundles", "inventory_2"],
       ["/dashboard/courses/questions", "Questions", "help"],
       ["/dashboard/courses/reviews", "Reviews", "star"],
       ["/dashboard/orders", "Orders", "receipt_long"],

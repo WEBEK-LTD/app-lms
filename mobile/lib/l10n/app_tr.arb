@@ -1748,5 +1748,20 @@
   "calendarNext": "Sonraki ay",
   "couponSaves": "{discount} indirim: {total} ödersin.",
   "couponContinue": "Kuponla devam et",
-  "couponWithout": "Kuponsuz devam et"
+  "couponWithout": "Kuponsuz devam et",
+  "bundles": "Paketler",
+  "bundleCourseCount": "{count, plural, =1{1 kurs} other{{count} kurs}}",
+  "bundleInsteadOf": "{price} yerine",
+  "bundlePrice": "Paket fiyatı",
+  "bundleBuy": "Paketi satın al",
+  "bundleCoursesIn": "Bu paketteki kurslar",
+  "bundleOwnedSome": "Bu kurslardan {count} tanesi zaten sende: senin kalır, paket diğerlerini ekler.",
+  "bundleOwned": "Bu paketteki her kurs senin.",
+  "bundleEnrolled": "Paketin her kursuna kaydoldun. İyi öğrenmeler!",
+  "bundleMyCourses": "Kurslarıma git",
+  "bundleAlsoIn": "Bir pakette de var",
+  "bundleNotSold": "Bu paket uygulamada satın alınamaz.",
+  "loadingBundle": "Paket yükleniyor…",
+  "couponFree": "Kupon onu ücretsiz yapıyor: hiçbir şey ödemezsin.",
+  "couponEnrollFree": "Ücretsiz kaydol"
 }
