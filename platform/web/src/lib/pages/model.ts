@@ -265,6 +265,30 @@ export function moveItem<T>(list: T[], from: number, to: number): T[] {
   return out;
 }
 
+/** 82.4 The entry with this ID moved `by` places (up is -1), in the list as it is now. */
+export function moveById<T extends { id: string }>(list: T[], id: string, by: number): T[] {
+  const at = list.findIndex((x) => x.id === id);
+  return at < 0 ? list : moveItem(list, at, at + by);
+}
+
+/**
+ * 82.4 A change a form made from `shown` (`next`), on `current`, the same
+ * thing as the draft has it now: the fields the form changed take its values,
+ * the others keep the draft's (a change made since stays).
+ */
+export function rebased<T extends object>(shown: T, next: T, current: T): T {
+  if (shown === current) return next;
+  const before = shown as Record<string, unknown>;
+  const after = next as Record<string, unknown>;
+  const out = { ...current } as Record<string, unknown>;
+  for (const key of new Set([...Object.keys(before), ...Object.keys(after)])) {
+    if (before[key] === after[key] && (key in before) === (key in after)) continue;
+    if (key in after) out[key] = after[key];
+    else delete out[key];
+  }
+  return out as T;
+}
+
 /** A copy of a page under a new address, with new block IDs. */
 export function duplicatePage(page: LayoutPage, taken: string[], now: Date): LayoutPage {
   const slug = uniqueSlug(`${page.slug}-copy`, taken);
