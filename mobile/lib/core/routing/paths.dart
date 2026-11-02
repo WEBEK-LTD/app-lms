@@ -130,6 +130,9 @@ abstract final class Paths {
   static const staffNews = '/staff/news';
   // 113.8 The school's calendar in the Staff tab (the staff's own events too).
   static const staffCalendar = '/staff/calendar';
+  // 113.12 The person's own payslips.
+  static const staffPayslips = '/staff/payslips';
+  static String staffPayslip(int id) => '/staff/payslip/$id';
 
   /// 113.10 The bus's crew: their routes and a trip; 113.11 a library book.
   static const busDuty = '$school/bus-duty';

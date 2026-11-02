@@ -12669,6 +12669,167 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hand in again'**
   String get handInAgain;
+
+  /// 113.12 Opens the person's own payslips (Staff and Classroom tabs).
+  ///
+  /// In en, this message translates to:
+  /// **'My payslips'**
+  String get staffPayslips;
+
+  /// 113.12 The payslips list is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No payslips yet. They show here once the school makes them final.'**
+  String get payslipsNone;
+
+  /// 113.12 Above the payslips: nothing is paid through the app.
+  ///
+  /// In en, this message translates to:
+  /// **'The school records salaries by hand: it pays in cash or by bank transfer and writes it down here.'**
+  String get payslipsByHand;
+
+  /// 113.12 A final payslip the school hasn't recorded as paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Not paid yet'**
+  String get payslipUnpaid;
+
+  /// 113.12 A payslip paid in part.
+  ///
+  /// In en, this message translates to:
+  /// **'Partly paid'**
+  String get payslipPartPaid;
+
+  /// 113.12 A payslip paid in full.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get payslipPaid;
+
+  /// 113.12 A payslip's net pay on the list.
+  ///
+  /// In en, this message translates to:
+  /// **'Net {amount}'**
+  String payslipNetLine(String amount);
+
+  /// 113.12 A payslip's base salary.
+  ///
+  /// In en, this message translates to:
+  /// **'Base salary'**
+  String get payslipBase;
+
+  /// 113.12 A bonus line without a name.
+  ///
+  /// In en, this message translates to:
+  /// **'Bonus'**
+  String get payslipBonus;
+
+  /// 113.12 A deduction line without a name.
+  ///
+  /// In en, this message translates to:
+  /// **'Deduction'**
+  String get payslipDeduction;
+
+  /// 113.12 A deduction for days absent, with how many.
+  ///
+  /// In en, this message translates to:
+  /// **'Absences ({count})'**
+  String payslipAbsences(int count);
+
+  /// 113.12 A deduction for coming late, with how many times.
+  ///
+  /// In en, this message translates to:
+  /// **'Late arrivals ({count})'**
+  String payslipLateness(int count);
+
+  /// 113.12 Part of an advance taken back from the pay.
+  ///
+  /// In en, this message translates to:
+  /// **'Advance taken back'**
+  String get payslipAdvance;
+
+  /// 113.12 Base, allowances and bonuses together.
+  ///
+  /// In en, this message translates to:
+  /// **'Gross'**
+  String get payslipGross;
+
+  /// 113.12 All deductions together.
+  ///
+  /// In en, this message translates to:
+  /// **'Deductions'**
+  String get payslipDeductions;
+
+  /// 113.12 What the person is paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Net pay'**
+  String get payslipNet;
+
+  /// 113.12 What the school recorded as paid so far.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get payslipPaidSoFar;
+
+  /// 113.12 What is still to be paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Left to pay'**
+  String get payslipLeft;
+
+  /// 113.12 The payments the school recorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get payslipPayments;
+
+  /// 113.12 A payment in cash, on a day.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash, {date}'**
+  String payslipCash(String date);
+
+  /// 113.12 A payment by bank transfer, on a day.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank transfer, {date}'**
+  String payslipBank(String date);
+
+  /// 113.12 The month's days at the gate on a payslip.
+  ///
+  /// In en, this message translates to:
+  /// **'{working} working days · {present} present · {absent} absent · {late} late · {leave} on leave'**
+  String payslipDays(int working, int present, int absent, int late, int leave);
+
+  /// 113.12 Opens the payslip's PDF in the app's viewer.
+  ///
+  /// In en, this message translates to:
+  /// **'View the PDF'**
+  String get payslipViewPdf;
+
+  /// 113.12 Opens the payslip's PDF outside the app, to keep it.
+  ///
+  /// In en, this message translates to:
+  /// **'Download the PDF'**
+  String get payslipDownloadPdf;
+
+  /// 113.12 The person's advances still being taken back.
+  ///
+  /// In en, this message translates to:
+  /// **'Advances'**
+  String get payslipAdvances;
+
+  /// 113.12 An advance: how much, when, each month's part and what is left.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} given on {date} · {instalment} a month · {left} left'**
+  String payslipAdvanceLine(
+    String amount,
+    String date,
+    String instalment,
+    String left,
+  );
 }
 
 class _AppLocalizationsDelegate

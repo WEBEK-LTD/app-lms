@@ -8164,4 +8164,128 @@ class OverlayLocalizations extends AppLocalizations {
 
   @override
   String get handInAgain => overlay.text('handInAgain') ?? base.handInAgain;
+
+  @override
+  String get staffPayslips =>
+      overlay.text('staffPayslips') ?? base.staffPayslips;
+
+  @override
+  String get payslipsNone => overlay.text('payslipsNone') ?? base.payslipsNone;
+
+  @override
+  String get payslipsByHand =>
+      overlay.text('payslipsByHand') ?? base.payslipsByHand;
+
+  @override
+  String get payslipUnpaid =>
+      overlay.text('payslipUnpaid') ?? base.payslipUnpaid;
+
+  @override
+  String get payslipPartPaid =>
+      overlay.text('payslipPartPaid') ?? base.payslipPartPaid;
+
+  @override
+  String get payslipPaid => overlay.text('payslipPaid') ?? base.payslipPaid;
+
+  @override
+  String payslipNetLine(String amount) =>
+      overlay.format('payslipNetLine', {'amount': amount}) ??
+      base.payslipNetLine(amount);
+
+  @override
+  String get payslipBase => overlay.text('payslipBase') ?? base.payslipBase;
+
+  @override
+  String get payslipBonus => overlay.text('payslipBonus') ?? base.payslipBonus;
+
+  @override
+  String get payslipDeduction =>
+      overlay.text('payslipDeduction') ?? base.payslipDeduction;
+
+  @override
+  String payslipAbsences(int count) =>
+      overlay.format('payslipAbsences', {'count': count}) ??
+      base.payslipAbsences(count);
+
+  @override
+  String payslipLateness(int count) =>
+      overlay.format('payslipLateness', {'count': count}) ??
+      base.payslipLateness(count);
+
+  @override
+  String get payslipAdvance =>
+      overlay.text('payslipAdvance') ?? base.payslipAdvance;
+
+  @override
+  String get payslipGross => overlay.text('payslipGross') ?? base.payslipGross;
+
+  @override
+  String get payslipDeductions =>
+      overlay.text('payslipDeductions') ?? base.payslipDeductions;
+
+  @override
+  String get payslipNet => overlay.text('payslipNet') ?? base.payslipNet;
+
+  @override
+  String get payslipPaidSoFar =>
+      overlay.text('payslipPaidSoFar') ?? base.payslipPaidSoFar;
+
+  @override
+  String get payslipLeft => overlay.text('payslipLeft') ?? base.payslipLeft;
+
+  @override
+  String get payslipPayments =>
+      overlay.text('payslipPayments') ?? base.payslipPayments;
+
+  @override
+  String payslipCash(String date) =>
+      overlay.format('payslipCash', {'date': date}) ?? base.payslipCash(date);
+
+  @override
+  String payslipBank(String date) =>
+      overlay.format('payslipBank', {'date': date}) ?? base.payslipBank(date);
+
+  @override
+  String payslipDays(
+    int working,
+    int present,
+    int absent,
+    int late,
+    int leave,
+  ) =>
+      overlay.format('payslipDays', {
+        'working': working,
+        'present': present,
+        'absent': absent,
+        'late': late,
+        'leave': leave,
+      }) ??
+      base.payslipDays(working, present, absent, late, leave);
+
+  @override
+  String get payslipViewPdf =>
+      overlay.text('payslipViewPdf') ?? base.payslipViewPdf;
+
+  @override
+  String get payslipDownloadPdf =>
+      overlay.text('payslipDownloadPdf') ?? base.payslipDownloadPdf;
+
+  @override
+  String get payslipAdvances =>
+      overlay.text('payslipAdvances') ?? base.payslipAdvances;
+
+  @override
+  String payslipAdvanceLine(
+    String amount,
+    String date,
+    String instalment,
+    String left,
+  ) =>
+      overlay.format('payslipAdvanceLine', {
+        'amount': amount,
+        'date': date,
+        'instalment': instalment,
+        'left': left,
+      }) ??
+      base.payslipAdvanceLine(amount, date, instalment, left);
 }

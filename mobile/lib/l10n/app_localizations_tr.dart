@@ -7681,4 +7681,109 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get handInAgain => 'Yeniden teslim et';
+
+  @override
+  String get staffPayslips => 'Bordrolarım';
+
+  @override
+  String get payslipsNone =>
+      'Henüz bordro yok. Okul kesinleştirdiğinde burada görünür.';
+
+  @override
+  String get payslipsByHand =>
+      'Okul maaşları elle kaydeder: nakit ya da banka havalesiyle öder ve buraya yazar.';
+
+  @override
+  String get payslipUnpaid => 'Henüz ödenmedi';
+
+  @override
+  String get payslipPartPaid => 'Kısmen ödendi';
+
+  @override
+  String get payslipPaid => 'Ödendi';
+
+  @override
+  String payslipNetLine(String amount) {
+    return 'Net $amount';
+  }
+
+  @override
+  String get payslipBase => 'Temel maaş';
+
+  @override
+  String get payslipBonus => 'Prim';
+
+  @override
+  String get payslipDeduction => 'Kesinti';
+
+  @override
+  String payslipAbsences(int count) {
+    return 'Devamsızlık ($count)';
+  }
+
+  @override
+  String payslipLateness(int count) {
+    return 'Geç kalma ($count)';
+  }
+
+  @override
+  String get payslipAdvance => 'Avans kesintisi';
+
+  @override
+  String get payslipGross => 'Brüt';
+
+  @override
+  String get payslipDeductions => 'Kesintiler';
+
+  @override
+  String get payslipNet => 'Net ödeme';
+
+  @override
+  String get payslipPaidSoFar => 'Ödenen';
+
+  @override
+  String get payslipLeft => 'Kalan';
+
+  @override
+  String get payslipPayments => 'Ödemeler';
+
+  @override
+  String payslipCash(String date) {
+    return 'Nakit, $date';
+  }
+
+  @override
+  String payslipBank(String date) {
+    return 'Banka havalesi, $date';
+  }
+
+  @override
+  String payslipDays(
+    int working,
+    int present,
+    int absent,
+    int late,
+    int leave,
+  ) {
+    return '$working iş günü · $present geldi · $absent gelmedi · $late geç · $leave izinli';
+  }
+
+  @override
+  String get payslipViewPdf => 'PDF\'i görüntüle';
+
+  @override
+  String get payslipDownloadPdf => 'PDF\'i indir';
+
+  @override
+  String get payslipAdvances => 'Avanslar';
+
+  @override
+  String payslipAdvanceLine(
+    String amount,
+    String date,
+    String instalment,
+    String left,
+  ) {
+    return '$date tarihinde $amount · ayda $instalment · kalan $left';
+  }
 }

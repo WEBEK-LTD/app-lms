@@ -57,6 +57,14 @@ Future<void> push(TestApp app, WidgetTester tester, String location) async {
 
 Future<void> tapKey(WidgetTester tester, String key) async {
   final target = find.byKey(ValueKey(key));
+  // 113.12 Entries further down a tab (below My payslips) are scrolled to.
+  if (target.evaluate().isEmpty) {
+    await tester.scrollUntilVisible(
+      target,
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+  }
   await tester.ensureVisible(target);
   await TestApp.settle(tester);
   await tester.tap(target);

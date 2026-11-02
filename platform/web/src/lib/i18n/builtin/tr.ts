@@ -981,4 +981,6 @@ export const SERVER_MESSAGES_TR: Record<string, string> = {
   "They have {0} books out already, the most the library lends at once.": "Bu kişide zaten {0} kitap var; kütüphanenin aynı anda verdiği en fazla sayı bu.",
   "Only students and the school's staff borrow books.": "Kitapları yalnızca öğrenciler ve okul personeli ödünç alır.",
   "Choose whom the book is for (person_id).": "Kitabın kimin için olduğunu seçin (person_id).",
+  // 113.12 Payslips.
+  "Payslip not found.": "Bordro bulunamadı.",
 };

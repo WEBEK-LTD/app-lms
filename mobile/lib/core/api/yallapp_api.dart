@@ -1090,6 +1090,9 @@ abstract class YallappApi {
   Future<LeaveRequest> requestLeave(LeaveInput input);
   Future<void> withdrawLeaveRequest(int id);
   Future<Paged<SchoolAnnouncement>> listStaffAnnouncements({int page = 1});
+  // 113.12 Their own payslips (recorded by hand) and advances.
+  Future<PayslipPage> listPayslips({int page = 1});
+  Future<Payslip> getPayslip(int id);
 
   // 113.6 Messages between teachers and families.
   Future<SchoolMessages> getSchoolMessages();
@@ -3729,6 +3732,20 @@ class HttpYallappApi implements YallappApi {
         (json) => Paged.fromJson(json, SchoolAnnouncement.fromJson),
         query: {'page': page, 'per_page': 20},
       );
+
+  // 113.12 Payslips.
+
+  @override
+  Future<PayslipPage> listPayslips({int page = 1}) => _get(
+    '/staff/payslips',
+    _required,
+    PayslipPage.fromJson,
+    query: {'page': page, 'per_page': 24},
+  );
+
+  @override
+  Future<Payslip> getPayslip(int id) =>
+      _get('/staff/payslips/$id', _required, Payslip.fromJson);
 
   // 113.6 Messages between teachers and families.
 
