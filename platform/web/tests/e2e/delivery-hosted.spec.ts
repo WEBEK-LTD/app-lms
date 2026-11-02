@@ -187,3 +187,22 @@ test("112.2 Live map: the couriers and the jobs, on a plain background until Yal
   await expect(own.getByRole("region", { name: "Live map" })).toBeVisible();
   await expect(own.getByText("No jobs now.")).toBeVisible();
 });
+
+test("104.8.3 Delivery settings: the couriers can work in Yallapp Courier instead, and the Couriers page says so", async () => {
+  await own.goto("/dashboard/delivery");
+  const work = own.getByRole("group", { name: "Where your couriers work" });
+  await expect(work.getByRole("radio", { name: `In your couriers' app, ${client.name} Courier` })).toBeChecked();
+  await work.getByRole("radio", { name: "In Yallapp Courier" }).check();
+  await expect(own.getByText("What your couriers do: download Yallapp Courier")).toBeVisible();
+  await expect(own.getByRole("heading", { name: "Your couriers' app" })).toBeHidden();
+  await own.getByRole("button", { name: "Save settings" }).click();
+  await expect(own.getByText("Saved. The app shows it the next time it opens.")).toBeVisible();
+  await own.reload();
+  await expect(own.getByRole("radio", { name: "In Yallapp Courier" })).toBeChecked();
+  // The prices stay as they were.
+  await expect(own.getByLabel("Price (EGP)", { exact: true })).toHaveValue("45.00");
+
+  await own.goto("/dashboard/couriers");
+  await expect(own.locator('[data-couriers-app="yallapp_courier"]')).toContainText("Your couriers work in Yallapp Courier");
+  await expect(own.locator("[data-hub-sign-in]").first()).toContainText("Not signed in to Yallapp Courier yet");
+});

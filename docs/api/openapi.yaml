@@ -258,6 +258,18 @@ tags:
       before 112.3 still do; `bundle`, in the second app;
       `yallapp_courier`, in the shared Yallapp Courier app, while the
       company's app has none.
+
+      Roadmap 104.8: `yallapp_courier` is Yallapp Courier, Yallapp's own
+      app for the couriers of every delivery company that picks it in
+      Delivery settings, with its own sign-in on the platform. The courier
+      signs in to it once with the number (or email) the company added, picks
+      the company, and Yallapp Courier opens a session at the company's hosted
+      API for them: the same tokens `POST /auth/otp/verify` gives, used with
+      these endpoints. Pushes to the company's couriers on Yallapp Courier's
+      phones (`courier_job`) come from Yallapp Courier's own Firebase project,
+      and their data also carries `app_id`, the company it is from. Such a
+      session ends (401) once the company stops using Yallapp Courier, or
+      pauses or removes the courier.
   - name: Food
     description: |
       Roadmap 105.1. Food delivery from many restaurants, on Yallapp's hosted
@@ -14326,7 +14338,7 @@ components:
         courier_app:
           type: string
           enum: [same, bundle, yallapp_courier]
-          description: Where the couriers' screens are (see the Courier tag). Since 112.3 only the courier app (build config `role` courier) shows them; an app built before shows them when it is `same`.
+          description: Where the couriers' screens are (see the Courier tag). Since 112.3 only the courier app (build config `role` courier) shows them; an app built before shows them when it is `same`. 104.8 `yallapp_courier`, the company's couriers use Yallapp Courier, and the company's apps have no courier screens.
         map:
           type: object
           required: [tiles_url, attribution, search, routes]
