@@ -128,6 +128,8 @@ abstract final class Paths {
   static const staffLeave = '/staff/leave';
   static const staffLeaveNew = '/staff/leave/new';
   static const staffNews = '/staff/news';
+  // 113.8 The school's calendar in the Staff tab (the staff's own events too).
+  static const staffCalendar = '/staff/calendar';
 
   /// 113.10 The bus's crew: their routes and a trip; 113.11 a library book.
   static const busDuty = '$school/bus-duty';

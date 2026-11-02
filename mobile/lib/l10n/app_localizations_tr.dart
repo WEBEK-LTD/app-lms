@@ -5673,6 +5673,23 @@ class AppLocalizationsTr extends AppLocalizations {
       'Okuldan çocuklarını numarana bağlamasını iste.';
 
   @override
+  String get schoolForWorkersTitle => 'Bu sekme öğrenciler ve veliler için';
+
+  @override
+  String get schoolForStaffMessage =>
+      'İş için gerekenler Personel sekmesinde: giriş ve çıkış, izinleriniz, personel duyuruları, takvim ve kütüphane.';
+
+  @override
+  String get schoolForTeachersMessage =>
+      'İş için gerekenler Sınıf sekmesinde: sınıflarınız, giriş ve çıkış, takvim ve sınavlar.';
+
+  @override
+  String get schoolOpenStaff => 'Personel\'i aç';
+
+  @override
+  String get schoolOpenClassroom => 'Sınıf\'ı aç';
+
+  @override
   String get schoolToday => 'Bugün';
 
   @override

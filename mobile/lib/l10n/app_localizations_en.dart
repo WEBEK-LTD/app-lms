@@ -5683,6 +5683,23 @@ class AppLocalizationsEn extends AppLocalizations {
       'Ask the school to link your children to your number.';
 
   @override
+  String get schoolForWorkersTitle => 'This tab is for students and parents';
+
+  @override
+  String get schoolForStaffMessage =>
+      'What you need at work is in the Staff tab: checking in and out, your leave, the staff\'s news, the calendar and the library.';
+
+  @override
+  String get schoolForTeachersMessage =>
+      'What you need at work is in the Classroom tab: your classes, checking in and out, the calendar and the exams.';
+
+  @override
+  String get schoolOpenStaff => 'Open Staff';
+
+  @override
+  String get schoolOpenClassroom => 'Open Classroom';
+
+  @override
   String get schoolToday => 'Today';
 
   @override

@@ -79,9 +79,8 @@ class ClassroomScreen extends ConsumerWidget {
                     children: [
                       // 113.2 The teacher checks in and out like everyone.
                       const CheckinCard(),
-                      // 113.10 Bus duty and 113.11 the library, for the
-                      // school's staff (113.3's Staff tab can take them).
-                      const SchoolStaffEntries(),
+                      // 113.10 Bus duty, for a bus's driver or supervisor.
+                      const BusDutyEntry(),
                       SectionHeader(title: l10n.schoolToday, size: 16),
                       const SizedBox(height: 4),
                       if (me.today.isEmpty)
@@ -207,27 +206,10 @@ class ClassroomScreen extends ConsumerWidget {
                       // 113.3 Their leave requests and the staff's news.
                       const SizedBox(height: 10),
                       const StaffTiles(),
-                      // 113.8 The school's calendar and the classes' exams.
+                      // 113.8 The school's calendar and the classes' exams;
+                      // 113.11 the library.
                       const SizedBox(height: 10),
-                      SettingsGroup(
-                        title: l10n.schoolEverything,
-                        children: [
-                          SettingsTile(
-                            key: const ValueKey('classroom-calendar'),
-                            icon: AppIcons.event,
-                            title: l10n.schoolCalendar,
-                            onTap: () =>
-                                context.push('${Paths.classroom}/calendar'),
-                          ),
-                          SettingsTile(
-                            key: const ValueKey('classroom-exams'),
-                            icon: AppIcons.quiz,
-                            title: l10n.schoolExams,
-                            onTap: () =>
-                                context.push('${Paths.classroom}/exams'),
-                          ),
-                        ],
-                      ),
+                      const SchoolStaffEntries(classroom: true),
                     ],
                   ),
                 ),
@@ -1640,22 +1622,55 @@ class ClassGradebookScreen extends ConsumerWidget {
   }
 }
 
-/// 113.10 and 113.11 The bus's crew's screens and the library, as entries
-/// for the school's teachers and staff; nothing when neither is theirs.
-class SchoolStaffEntries extends ConsumerWidget {
-  const SchoolStaffEntries({super.key});
+/// 113.10 Bus duty, high on the Classroom and Staff tabs for whoever drives
+/// or supervises one of the school's buses; nothing for anyone else.
+class BusDutyEntry extends ConsumerWidget {
+  const BusDutyEntry({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final crew = ref.watch(isBusCrewProvider);
-    final library = ref.watch(schoolConfigProvider)?.library ?? false;
-    if (!crew && !library) return const SizedBox.shrink();
+    if (!ref.watch(isBusCrewProvider)) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: SettingsGroup(
-        title: context.l10n.schoolEverything,
-        children: const [BusDutyTile(), LibraryTile()],
+        title: context.l10n.busDutyTitle,
+        children: const [BusDutyTile()],
       ),
+    );
+  }
+}
+
+/// The school's parts for those who work there: 113.8 the calendar (113.3's
+/// staff see the staff's own events on it too), a teacher's exams in the
+/// Classroom tab ([classroom]), and 113.11 the library.
+class SchoolStaffEntries extends StatelessWidget {
+  const SchoolStaffEntries({super.key, this.classroom = false});
+
+  final bool classroom;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return SettingsGroup(
+      title: l10n.schoolEverything,
+      children: [
+        SettingsTile(
+          key: ValueKey(classroom ? 'classroom-calendar' : 'staff-calendar'),
+          icon: AppIcons.event,
+          title: l10n.schoolCalendar,
+          onTap: () => context.push(
+            classroom ? '${Paths.classroom}/calendar' : Paths.staffCalendar,
+          ),
+        ),
+        if (classroom)
+          SettingsTile(
+            key: const ValueKey('classroom-exams'),
+            icon: AppIcons.quiz,
+            title: l10n.schoolExams,
+            onTap: () => context.push('${Paths.classroom}/exams'),
+          ),
+        const LibraryTile(),
+      ],
     );
   }
 }

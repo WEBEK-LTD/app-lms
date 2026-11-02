@@ -9382,6 +9382,36 @@ abstract class AppLocalizations {
   /// **'Ask the school to link your children to your number.'**
   String get schoolNoStudentsMessage;
 
+  /// 113.3 The School tab of someone who works at the school and has no student there (no child, not a student).
+  ///
+  /// In en, this message translates to:
+  /// **'This tab is for students and parents'**
+  String get schoolForWorkersTitle;
+
+  /// 113.3 The School tab of someone who works at the school and has no student there (no child, not a student). For staff who don't teach.
+  ///
+  /// In en, this message translates to:
+  /// **'What you need at work is in the Staff tab: checking in and out, your leave, the staff\'s news, the calendar and the library.'**
+  String get schoolForStaffMessage;
+
+  /// 113.3 The School tab of someone who works at the school and has no student there (no child, not a student). For teachers.
+  ///
+  /// In en, this message translates to:
+  /// **'What you need at work is in the Classroom tab: your classes, checking in and out, the calendar and the exams.'**
+  String get schoolForTeachersMessage;
+
+  /// 113.3 Opens the Staff tab from the School tab of someone who works at the school.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Staff'**
+  String get schoolOpenStaff;
+
+  /// 113.3 Opens the Classroom tab from the School tab of a teacher who has no student there.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Classroom'**
+  String get schoolOpenClassroom;
+
   /// 105.4 Today's lessons on the School and Classroom tabs.
   ///
   /// In en, this message translates to:

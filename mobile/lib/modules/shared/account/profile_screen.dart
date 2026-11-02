@@ -20,9 +20,6 @@ import '../../delivery/data/delivery_providers.dart';
 import '../../food/data/food_providers.dart';
 import '../../lms/teachers/teachers_providers.dart';
 import '../../rides/data/rides_providers.dart';
-import '../../school/data/bus_library_providers.dart';
-import '../../school/data/school_providers.dart' show isSchoolTeacherProvider;
-import '../../school/screens/bus_screens.dart' show BusDutyTile;
 import '../../lms/downloads/download_manager.dart';
 import '../../lms/downloads/download_widgets.dart';
 
@@ -79,9 +76,6 @@ class ProfileScreen extends ConsumerWidget {
     // to teach, and the teacher's screens for the teachers.
     final instructors = ref.watch(instructorsConfigProvider);
     final teacher = ref.watch(isTeacherProvider);
-    final busDuty =
-        ref.watch(isBusCrewProvider) &&
-        ref.watch(isSchoolTeacherProvider) != true;
     // 45 Academy apps whose students can save lessons on this phone.
     final downloads = lms && downloadsOffered(ref);
     final savedBytes = downloads
@@ -256,16 +250,6 @@ class ProfileScreen extends ConsumerWidget {
                       onTap: () => context.go(Paths.myCourses),
                     ),
                 ],
-              ),
-              const SizedBox(height: 18),
-            ],
-            // 113.10 A school bus's driver or supervisor who has no
-            // Classroom tab: their Bus duty screens (113.3's Staff tab can
-            // take the same tile).
-            if (busDuty) ...[
-              SettingsGroup(
-                title: context.l10n.busDutyTitle,
-                children: const [BusDutyTile()],
               ),
               const SizedBox(height: 18),
             ],

@@ -5980,6 +5980,26 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('schoolNoStudentsMessage') ?? base.schoolNoStudentsMessage;
 
   @override
+  String get schoolForWorkersTitle =>
+      overlay.text('schoolForWorkersTitle') ?? base.schoolForWorkersTitle;
+
+  @override
+  String get schoolForStaffMessage =>
+      overlay.text('schoolForStaffMessage') ?? base.schoolForStaffMessage;
+
+  @override
+  String get schoolForTeachersMessage =>
+      overlay.text('schoolForTeachersMessage') ?? base.schoolForTeachersMessage;
+
+  @override
+  String get schoolOpenStaff =>
+      overlay.text('schoolOpenStaff') ?? base.schoolOpenStaff;
+
+  @override
+  String get schoolOpenClassroom =>
+      overlay.text('schoolOpenClassroom') ?? base.schoolOpenClassroom;
+
+  @override
   String get schoolToday => overlay.text('schoolToday') ?? base.schoolToday;
 
   @override

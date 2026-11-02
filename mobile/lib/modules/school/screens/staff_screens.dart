@@ -19,11 +19,13 @@ import '../../real_estate/widgets/listing_widgets.dart' show TabHeader;
 import '../data/school_providers.dart';
 import '../widgets/school_widgets.dart';
 import 'checkin_screens.dart';
+import 'classroom_screens.dart' show BusDutyEntry, SchoolStaffEntries;
 import 'student_screens.dart' show FileTile, NewsCard;
 
 /// 113.3 The Staff tab, for the school's staff who don't teach (teachers
-/// have the same in the Classroom tab): today's check-in, their job, hours
-/// and duties, their leave requests and the staff's news.
+/// have the same in the Classroom tab): today's check-in, 113.10 bus duty
+/// for a bus's crew, their job, hours and duties, their leave requests and
+/// the staff's news, 113.8 the school's calendar and 113.11 the library.
 class StaffScreen extends ConsumerWidget {
   const StaffScreen({super.key});
 
@@ -56,9 +58,12 @@ class StaffScreen extends ConsumerWidget {
                         padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                         children: const [
                           CheckinCard(),
+                          BusDutyEntry(),
                           StaffWorkCard(),
                           SizedBox(height: 20),
                           StaffTiles(),
+                          SizedBox(height: 10),
+                          SchoolStaffEntries(),
                         ],
                       ),
                     ),

@@ -265,16 +265,26 @@ final studentCheckinsProvider = FutureProvider.autoDispose
 
 // 113.3 Teachers and staff
 
-/// The signed-in person works at the school and doesn't teach: the Staff
-/// tab is theirs (teachers have the same inside the Classroom tab). Null:
-/// not a school app.
+/// The signed-in person is on the school's staff list: the Staff tab is
+/// theirs (teachers have the same inside the Classroom tab; a teacher who
+/// is on the staff list too, like the store review account, has both).
+/// Null: not a school app.
 final isSchoolStaffProvider = Provider<bool?>((ref) {
   if (ref.watch(appEnvironmentProvider).build.appType != AppType.school) {
     return null;
   }
+  return ref.watch(authControllerProvider).user?.roles.contains('staff') ??
+      false;
+});
+
+/// 113.3 Someone who only works at the school without teaching (no class,
+/// no child of their own): the app opens on the Staff tab.
+final isSchoolStaffOnlyProvider = Provider<bool>((ref) {
+  if (ref.watch(isSchoolStaffProvider) != true) return false;
   final user = ref.watch(authControllerProvider).user;
-  return (user?.roles.contains('staff') ?? false) &&
-      !(user?.isTeacher ?? false);
+  return !(user?.isTeacher ?? false) &&
+      !(user?.isStudent ?? false) &&
+      !(user?.isParent ?? false);
 });
 
 final staffMeProvider = FutureProvider.autoDispose<StaffMe>(

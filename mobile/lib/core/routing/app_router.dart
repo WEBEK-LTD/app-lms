@@ -304,6 +304,10 @@ String _startAt(Ref ref) => ref.read(courierAppProvider)
     // 112.1 A ride app opens on the map (its Ride tab).
     : ref.read(shellTabsProvider).firstOrNull?.location == Paths.ride
     ? Paths.ride
+    // 113.3 A school's staff who don't teach and have no child there open
+    // on the Staff tab, not on a School tab without a student.
+    : ref.read(isSchoolStaffOnlyProvider)
+    ? Paths.staff
     : Paths.home;
 
 final appRouterProvider = Provider<GoRouter>((ref) {

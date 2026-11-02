@@ -235,14 +235,16 @@ void main() {
       expect(find.text('The driver starts this trip.'), findsNWidgets(2));
     });
 
-    testWidgets("bus crew who don't teach find Bus duty in Account", (
+    testWidgets("bus crew who don't teach find Bus duty in the Staff tab", (
       tester,
     ) async {
       usePhone(tester);
-      final app = schoolApp(schoolApi(roles: ['bus']));
+      final app = schoolApp(schoolApi(roles: ['staff', 'bus']));
       await app.pump(tester);
-      await go(app, tester, Paths.account);
+      await go(app, tester, Paths.staff);
       expect(find.byKey(const ValueKey('bus-duty')), findsOneWidget);
+      await go(app, tester, Paths.account);
+      expect(find.byKey(const ValueKey('bus-duty')), findsNothing);
     });
 
     testWidgets('parents have no Bus duty', (tester) async {

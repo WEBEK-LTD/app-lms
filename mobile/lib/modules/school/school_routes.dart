@@ -138,6 +138,7 @@ List<RouteBase> _pushedRoutes() => [
   _page(Paths.staffLeaveNew, const LeaveFormScreen()),
   _page(Paths.staffLeave, const LeaveScreen()),
   _page(Paths.staffNews, const StaffNewsScreen()),
+  _page(Paths.staffCalendar, const SchoolCalendarScreen(classroom: true)),
   _part('timetable', (student) => TimetableScreen(student: student)),
   _part('homework', (student) => HomeworkScreen(student: student)),
   _part('grades', (student) => GradesScreen(student: student)),

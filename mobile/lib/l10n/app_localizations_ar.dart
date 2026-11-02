@@ -5878,6 +5878,23 @@ class AppLocalizationsAr extends AppLocalizations {
   String get schoolNoStudentsMessage => 'اطلب من المدرسة ربط أبنائك برقمك.';
 
   @override
+  String get schoolForWorkersTitle => 'هذا التبويب للطلاب وأولياء الأمور';
+
+  @override
+  String get schoolForStaffMessage =>
+      'ما تحتاجه في عملك في تبويب الموظفين: تسجيل الحضور والانصراف وإجازاتك وأخبار الموظفين والتقويم والمكتبة.';
+
+  @override
+  String get schoolForTeachersMessage =>
+      'ما تحتاجه في عملك في تبويب الفصل: فصولك وتسجيل الحضور والانصراف والتقويم والامتحانات.';
+
+  @override
+  String get schoolOpenStaff => 'افتح الموظفين';
+
+  @override
+  String get schoolOpenClassroom => 'افتح الفصل';
+
+  @override
   String get schoolToday => 'اليوم';
 
   @override
