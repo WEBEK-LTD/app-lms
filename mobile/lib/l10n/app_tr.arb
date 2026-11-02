@@ -1695,5 +1695,19 @@
   "certificatePdf": "PDF'i indir",
   "certificateShare": "Sertifikayı paylaş",
   "certificateShareText": "{course} sertifikam: {url}",
-  "cohortStarts": "{cohort} · {date} başlıyor"
+  "cohortStarts": "{cohort} · {date} başlıyor",
+  "teacherTabGrading": "Ödevler",
+  "gradingToGrade": "Notlandırılacak",
+  "gradingGraded": "Notlandırıldı",
+  "gradingNone": "Notlandırılacak bir şey yok. Harika!",
+  "gradingNoneGraded": "Henüz notlandırılan bir şey yok.",
+  "gradingSentBackLabel": "Geri gönderildi",
+  "gradingScore": "Puan ({max} üzerinden)",
+  "gradingNote": "Öğrenciye not",
+  "gradingSave": "Notu kaydet",
+  "gradingSendBack": "Yeniden denemesi için geri gönder",
+  "gradingSaved": "Notlandırıldı. Öğrencin uygulamada görüyor.",
+  "gradingSentBack": "Öğrencine geri gönderildi.",
+  "gradingNeedsNote": "Geri göndermeden önce neyin değişmesi gerektiğini yaz.",
+  "gradingScoreRange": "0 ile {max} arasında bir puan gir."
 }

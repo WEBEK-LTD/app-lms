@@ -6568,4 +6568,57 @@ class OverlayLocalizations extends AppLocalizations {
   String cohortStarts(String cohort, String date) =>
       overlay.format('cohortStarts', {'cohort': cohort, 'date': date}) ??
       base.cohortStarts(cohort, date);
+
+  @override
+  String get teacherTabGrading =>
+      overlay.text('teacherTabGrading') ?? base.teacherTabGrading;
+
+  @override
+  String get gradingToGrade =>
+      overlay.text('gradingToGrade') ?? base.gradingToGrade;
+
+  @override
+  String get gradingGraded =>
+      overlay.text('gradingGraded') ?? base.gradingGraded;
+
+  @override
+  String get gradingNone => overlay.text('gradingNone') ?? base.gradingNone;
+
+  @override
+  String get gradingNoneGraded =>
+      overlay.text('gradingNoneGraded') ?? base.gradingNoneGraded;
+
+  @override
+  String get gradingSentBackLabel =>
+      overlay.text('gradingSentBackLabel') ?? base.gradingSentBackLabel;
+
+  @override
+  String gradingScore(int max) =>
+      overlay.format('gradingScore', {'max': max}) ?? base.gradingScore(max);
+
+  @override
+  String get gradingNote => overlay.text('gradingNote') ?? base.gradingNote;
+
+  @override
+  String get gradingSave => overlay.text('gradingSave') ?? base.gradingSave;
+
+  @override
+  String get gradingSendBack =>
+      overlay.text('gradingSendBack') ?? base.gradingSendBack;
+
+  @override
+  String get gradingSaved => overlay.text('gradingSaved') ?? base.gradingSaved;
+
+  @override
+  String get gradingSentBack =>
+      overlay.text('gradingSentBack') ?? base.gradingSentBack;
+
+  @override
+  String get gradingNeedsNote =>
+      overlay.text('gradingNeedsNote') ?? base.gradingNeedsNote;
+
+  @override
+  String gradingScoreRange(int max) =>
+      overlay.format('gradingScoreRange', {'max': max}) ??
+      base.gradingScoreRange(max);
 }

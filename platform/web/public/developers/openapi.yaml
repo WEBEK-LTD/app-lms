@@ -6126,6 +6126,69 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
 
+  /teacher/submissions:
+    get:
+      tags: [Teacher]
+      operationId: listTeacherSubmissions
+      summary: Assignments handed in on the teacher's courses
+      description: Roadmap 112.5. `submitted` (the default) waits for a grade, the first handed in first; `returned`, `graded` and `all` the newest first.
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string, enum: [submitted, returned, graded, all], default: submitted }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Assignments handed in
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/TeacherSubmission' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /teacher/submissions/{submission_id}/grade:
+    put:
+      tags: [Teacher]
+      operationId: gradeTeacherSubmission
+      summary: Grade an assignment, or send it back for another try
+      description: Roadmap 112.5. `grade` with a score from 0 to the assignment's highest (and a note), or `return` with a note saying what to change. The student is told in the app (`assignment_graded`).
+      parameters:
+        - name: submission_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [outcome]
+              properties:
+                outcome: { type: string, enum: [grade, return] }
+                score: { type: [integer, 'null'] }
+                feedback: { type: string, maxLength: 5000 }
+      responses:
+        '200':
+          description: The assignment as graded
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeacherSubmission' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /teacher/earnings:
     get:
       tags: [Teacher]
@@ -12357,6 +12420,31 @@ components:
         upload_url: { type: string, format: uri }
         chunk_bytes: { type: integer, example: 5242880 }
         size: { type: integer }
+
+    TeacherSubmission:
+      type: object
+      description: Roadmap 112.5. An assignment handed in on one of the teacher's courses.
+      required: [id, course_id, course_title, assignment_id, assignment_title, student_name, text, file, status, score, max_points, passed, feedback, submitted_at, graded_at, late]
+      properties:
+        id: { type: integer }
+        course_id: { type: integer }
+        course_title: { type: string }
+        assignment_id: { type: integer }
+        assignment_title: { type: string }
+        student_name: { type: string }
+        text: { type: string }
+        file:
+          oneOf:
+            - $ref: '#/components/schemas/SchoolFile'
+            - type: 'null'
+        status: { type: string, enum: [submitted, graded, returned] }
+        score: { type: [integer, 'null'] }
+        max_points: { type: integer }
+        passed: { type: [boolean, 'null'] }
+        feedback: { type: [string, 'null'] }
+        submitted_at: { type: string, format: date-time }
+        graded_at: { type: [string, 'null'], format: date-time }
+        late: { type: boolean }
 
     TeacherQuestion:
       type: object

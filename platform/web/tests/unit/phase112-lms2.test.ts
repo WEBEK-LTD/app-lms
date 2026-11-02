@@ -5,6 +5,7 @@ import { certificateLanguage, loadCertificate } from "@/lib/courses/certificates
 import { attemptQuestions, certificateCode, quizQuestionCount } from "@/lib/courses/learning";
 import { BANK_FIRST_ID, parseQuiz, questionsText, saveQuestionBank } from "@/lib/courses/quizzes";
 import type { App, CourseSetup } from "@/lib/data/types";
+import { PLAN_INFO, type PlanInfo } from "@/lib/plans";
 import { CoursesConnector } from "@/lib/hosted/connectors/courses";
 import { LogSender } from "@/lib/hosted/otp-sender";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
@@ -48,10 +49,10 @@ export function academy(): CourseSetup {
 }
 
 /** A hosted academy and a student who signs up, with calls checked against the contract. */
-export async function hostedAcademy(setup: () => CourseSetup = academy) {
+export async function hostedAcademy(setup: () => CourseSetup = academy, options: { patch?: Partial<App>; plan?: PlanInfo } = {}) {
   const { store } = await setupClient();
   const client = (await store.listClients({ filter: "all", now: NOW }))[0]!.client;
-  const app: App = { ...newApp(client.id, null, NOW, "lms"), backend: "hosted", appName: "Lale Academy", websiteDoneAt: NOW, connector: { kind: "courses" }, courseSetup: setup() };
+  const app: App = { ...newApp(client.id, null, NOW, "lms"), backend: "hosted", appName: "Lale Academy", websiteDoneAt: NOW, connector: { kind: "courses" }, courseSetup: setup(), ...options.patch };
   await store.createApp(app);
   const sender = new LogSender();
   const state = { now: NOW, app };
@@ -59,6 +60,7 @@ export async function hostedAcademy(setup: () => CourseSetup = academy) {
     store,
     app: state.app,
     active: true,
+    ...(options.plan ? { plan: options.plan } : {}),
     now: state.now,
     ip: "203.0.113.9",
     secret: "test-hosted-secret",
@@ -82,11 +84,11 @@ export async function hostedAcademy(setup: () => CourseSetup = academy) {
     expectContract(method, route, result);
     return result;
   }
-  async function signUp(phone = "5321234567", name = "Deniz Aksoy") {
+  async function signUp(phone = "5321234567", name = "Deniz Aksoy", countryCode = "+90") {
     state.now = new Date(state.now.getTime() + 61_000);
-    const requested = await call("POST", "/auth/otp/request", { body: { country_code: "+90", phone } });
+    const requested = await call("POST", "/auth/otp/request", { body: { country_code: countryCode, phone } });
     const requestId = (requested.body as { request_id: string }).request_id;
-    const verified = await call("POST", "/auth/otp/verify", { body: { request_id: requestId, code: sender.sent.get(`+90${phone}`)!, device: { ...DEVICE, id: `install-${phone}` } } });
+    const verified = await call("POST", "/auth/otp/verify", { body: { request_id: requestId, code: sender.sent.get(`${countryCode}${phone}`)!, device: { ...DEVICE, id: `install-${phone}` } } });
     const signupToken = (verified.body as { signup_token: string }).signup_token;
     const registered = await call("POST", "/auth/register", { body: { signup_token: signupToken, name, device: { ...DEVICE, id: `install-${phone}` } } });
     return registered.body as { access_token: string; refresh_token: string; user: { id: number } };
@@ -246,5 +248,54 @@ describe("112.5 cohorts: students who start together", () => {
     expect(rows.map((r) => r.cohortId)).toEqual([30]);
     const gone = { ...h.state.app.courseSetup!.courses[0]!, cohorts: [] };
     expect((await courseReport(h.store, h.state.app, gone)).map((r) => r.cohortId)).toEqual([null]);
+  });
+});
+
+describe("112.5 grading in the Teacher tab", () => {
+  it("lists the teacher's courses' assignments to grade and grades them", async () => {
+    const h = await hostedAcademy(
+      () => {
+        const setup = academy();
+        const course = setup.courses[0]!;
+        course.teacherId = 1;
+        course.topics[0]!.assignments = [{ id: 16, title: "Introduce yourself", instructions: "Write.", dueDays: null, maxPoints: 20, passPoints: 10 }];
+        // Another teacher's course and assignment.
+        setup.courses.push({ ...course, id: 50, title: "Someone else's", teacherId: 2, topics: [{ id: 51, title: "One", lessons: [], assignments: [{ id: 52, title: "Theirs", instructions: "Write.", dueDays: null, maxPoints: 10, passPoints: null }] }] });
+        return setup;
+      },
+      { patch: { vertical: "instructors" }, plan: { ...PLAN_INFO.pro, features: [...PLAN_INFO.pro.features, "instructors"] } },
+    );
+    const made = await h.store.createTeacher(
+      { appId: h.state.app.id, name: "Salma Fathy", phone: "+905329998877", email: null, userId: null, photoAssetId: null, bio: "", subjects: ["Turkish"], status: "active", shareBp: 7000, featured: false },
+      NOW,
+    );
+    if (!made.ok) throw new Error("teacher");
+    expect(made.teacher.id).toBe(1);
+    const other = await h.store.createTeacher({ appId: h.state.app.id, name: "Other", phone: "+905320000009", email: null, userId: null, photoAssetId: null, bio: "", subjects: ["X"], status: "active", shareBp: 5000, featured: false }, NOW);
+    if (!other.ok) throw new Error("teacher");
+
+    const student = await h.signUp();
+    await h.call("POST", "/courses/{course_id}/enroll", { params: ["10"], token: student.access_token });
+    await h.call("PUT", "/assignments/{assignment_id}/submission", { params: ["16"], token: student.access_token, body: { text: "Merhaba!" } });
+    await h.call("POST", "/courses/{course_id}/enroll", { params: ["50"], token: student.access_token });
+    await h.call("PUT", "/assignments/{assignment_id}/submission", { params: ["52"], token: student.access_token, body: { text: "Theirs" } });
+
+    const teacher = await h.signUp("5329998877", "Salma Fathy");
+    const waiting = (await h.call("GET", "/teacher/submissions", { token: teacher.access_token })).body as { total: number; items: { id: number }[] };
+    expect(waiting).toMatchObject({ total: 1, items: [{ assignment_title: "Introduce yourself", student_name: "Deniz Aksoy", text: "Merhaba!", status: "submitted", max_points: 20 }] });
+    const id = waiting.items[0]!.id;
+    expect((await h.call("PUT", "/teacher/submissions/{submission_id}/grade", { params: [String(id)], token: teacher.access_token, body: { outcome: "grade", score: 25 } })).status).toBe(400);
+    expect((await h.call("PUT", "/teacher/submissions/{submission_id}/grade", { params: [String(id)], token: teacher.access_token, body: { outcome: "return" } })).status).toBe(400);
+    const graded = await h.call("PUT", "/teacher/submissions/{submission_id}/grade", { params: [String(id)], token: teacher.access_token, body: { outcome: "grade", score: 18, feedback: "Güzel!" } });
+    expect(graded.body).toMatchObject({ status: "graded", score: 18, passed: true, feedback: "Güzel!" });
+    expect((await h.call("GET", "/teacher/submissions", { token: teacher.access_token })).body).toMatchObject({ total: 0 });
+    expect((await h.call("GET", "/teacher/submissions", { token: teacher.access_token, query: { status: "graded" } })).body).toMatchObject({ total: 1 });
+    expect((await h.call("GET", "/teacher/submissions", { token: teacher.access_token, query: { status: "x" } })).status).toBe(400);
+    // Another teacher's student's work isn't theirs to grade.
+    const theirs = (await h.store.listAssignmentSubmissions({ appId: h.state.app.id, assignmentId: 52 }))[0]!;
+    expect((await h.call("PUT", "/teacher/submissions/{submission_id}/grade", { params: [String(theirs.id)], token: teacher.access_token, body: { outcome: "grade", score: 5 } })).status).toBe(404);
+    expect((await h.call("GET", "/assignments/{assignment_id}", { params: ["16"], token: student.access_token })).body).toMatchObject({ submission: { status: "graded", score: 18 } });
+    // Students aren't teachers.
+    expect((await h.call("GET", "/teacher/submissions", { token: student.access_token })).status).toBe(403);
   });
 });

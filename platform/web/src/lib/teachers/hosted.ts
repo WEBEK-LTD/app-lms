@@ -2,7 +2,9 @@ import { formatCents } from "../catalog/money";
 import { readReview, REVIEW_LIMIT } from "../courses/community";
 import { courseSetup } from "../courses/setup";
 import type { DataStore } from "../data/store";
-import type { App, Course, CourseLesson, CourseSetup, HostedUser, Teacher } from "../data/types";
+import type { App, AssignmentSubmission, Course, CourseAssignment, CourseLesson, CourseSetup, HostedUser, Teacher } from "../data/types";
+import { assignmentDone, assignmentDueAt, assignmentsOf, learningStart } from "../courses/learning";
+import { parseGrade } from "../courses/grading";
 import { courierWho } from "../delivery/service";
 import { appZone } from "../analytics/zone";
 import { CoursesConnector } from "../hosted/connectors/courses";
@@ -39,6 +41,8 @@ export interface TeachersContext {
   chunkBytes: number;
   /** A lesson added to a published course: its students hear of it. */
   onNewLesson?: (course: Course, lesson: CourseLesson) => Promise<void>;
+  /** 112.5 An assignment graded or sent back: its student hears of it. */
+  onGraded?: (course: Course, assignment: CourseAssignment, submission: AssignmentSubmission) => Promise<void>;
 }
 
 const signIn = () => error(401, "invalid_token", "Your session has ended. Please sign in again.");
@@ -105,6 +109,9 @@ export async function handleTeachersRoute(ctx: TeachersContext, request: Connect
     return null;
   }
   if (n === 2 && second === "questions" && is("GET")) return questions(ctx, request, teacher);
+  // 112.5 The assignments handed in on the teacher's courses, and grading them.
+  if (n === 2 && second === "submissions" && is("GET")) return submissions(ctx, request, teacher);
+  if (n === 4 && second === "submissions" && fourth === "grade" && is("PUT")) return grade(ctx, request, teacher, Number(third));
   if (n === 2 && second === "earnings" && is("GET")) return earnings(ctx, request, teacher);
   return null;
 }
@@ -547,4 +554,73 @@ async function earnings(ctx: TeachersContext, request: ConnectorRequest, teacher
     earned_formatted: formatCents(statement!.earnedCents, c),
     courses: statement!.courses.map((row) => ({ id: row.courseId, title: row.title, sales: row.sales, earned_formatted: formatCents(Math.round((Math.max(0, row.salesCents - row.refundsCents) * statement!.shareBp) / 10_000), c) })),
   });
+}
+
+// 112.5 Assignments
+
+const SUBMISSION_FILTERS = ["submitted", "returned", "graded", "all"] as const;
+
+/** The teacher's courses' assignments, by ID, with their course. */
+function teacherAssignments(ctx: TeachersContext, teacher: Teacher): Map<number, { course: Course; assignment: CourseAssignment }> {
+  const out = new Map<number, { course: Course; assignment: CourseAssignment }>();
+  for (const course of coursesOf(courseSetup(ctx.app), teacher.id)) for (const assignment of assignmentsOf(course)) out.set(assignment.id, { course, assignment });
+  return out;
+}
+
+async function submissionJson(ctx: TeachersContext, s: AssignmentSubmission, of: { course: Course; assignment: CourseAssignment }) {
+  const [student, [enrollment]] = await Promise.all([ctx.store.getHostedUser(ctx.app.id, s.userId), ctx.store.listCourseEnrollments({ appId: ctx.app.id, userId: s.userId, courseId: of.course.id })]);
+  const due = assignmentDueAt(of.assignment, enrollment ? learningStart(of.course, enrollment) : null);
+  return {
+    id: s.id,
+    course_id: of.course.id,
+    course_title: of.course.title,
+    assignment_id: of.assignment.id,
+    assignment_title: of.assignment.title,
+    student_name: student?.name ?? "",
+    text: s.text,
+    file: s.file ? { name: s.file.name, url: mediaLink(ctx.platformUrl, s.file.fileId), kind: s.file.kind } : null,
+    status: s.status,
+    score: s.status === "graded" ? s.score : null,
+    max_points: of.assignment.maxPoints,
+    passed: s.status === "graded" ? assignmentDone(of.assignment, s) : null,
+    feedback: s.feedback,
+    submitted_at: s.submittedAt.toISOString(),
+    graded_at: s.gradedAt?.toISOString() ?? null,
+    late: due !== null && s.submittedAt.getTime() > due.getTime(),
+  };
+}
+
+async function submissions(ctx: TeachersContext, request: ConnectorRequest, teacher: Teacher): Promise<ConnectorResult> {
+  const status = request.query.get("status") ?? "submitted";
+  const filter = SUBMISSION_FILTERS.find((f) => f === status);
+  if (!filter) return error(400, "invalid_request", "status is submitted, returned, graded or all.");
+  const page = intParam(request.query, "page", 1, 10_000);
+  const perPage = intParam(request.query, "per_page", 20, 100);
+  const mine = teacherAssignments(ctx, teacher);
+  const courseIds = new Set([...mine.values()].map((x) => x.course.id));
+  const all = (await Promise.all([...courseIds].map((courseId) => ctx.store.listAssignmentSubmissions({ appId: ctx.app.id, courseId, ...(filter === "all" ? {} : { status: filter }) }))))
+    .flat()
+    .filter((x) => mine.has(x.assignmentId));
+  // Waiting ones oldest first (first handed in, first graded); the others newest first.
+  all.sort((a, b) => (filter === "submitted" ? 1 : -1) * (a.submittedAt.getTime() - b.submittedAt.getTime()));
+  const items = await Promise.all(all.slice((page - 1) * perPage, page * perPage).map((x) => submissionJson(ctx, x, mine.get(x.assignmentId)!)));
+  return ok({ page, per_page: perPage, total: all.length, total_pages: Math.max(1, Math.ceil(all.length / perPage)), items });
+}
+
+async function grade(ctx: TeachersContext, request: ConnectorRequest, teacher: Teacher, id: number): Promise<ConnectorResult> {
+  const submission = Number.isSafeInteger(id) ? await ctx.store.getAssignmentSubmission(ctx.app.id, id) : null;
+  const of = submission ? teacherAssignments(ctx, teacher).get(submission.assignmentId) : undefined;
+  if (!submission || !of) return error(404, "not_found", "Assignment not found.");
+  const body = record(request.body);
+  const outcome = body.outcome === "return" ? "return" : "grade";
+  const parsed = parseGrade({ outcome, score: body.score === undefined || body.score === null ? "" : String(body.score), feedback: typeof body.feedback === "string" ? body.feedback : "" }, of.assignment);
+  if (!parsed.ok) return error(400, "invalid_request", Object.values(parsed.errors)[0]!);
+  const graded = { ...submission, ...parsed.value, gradedAt: request.now, gradedBy: teacher.name };
+  await ctx.store.gradeAssignmentSubmission(ctx.app.id, submission.id, { ...parsed.value, gradedAt: request.now, gradedBy: teacher.name });
+  try {
+    await ctx.onGraded?.(of.course, of.assignment, graded);
+  } catch (failure) {
+    console.error("[teachers] couldn't tell the student", failure instanceof Error ? failure.message : String(failure));
+  }
+  return ok(await submissionJson(ctx, graded, of));
 }

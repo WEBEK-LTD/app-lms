@@ -1695,5 +1695,19 @@
   "certificatePdf": "تنزيل ملف PDF",
   "certificateShare": "مشاركة الشهادة",
   "certificateShareText": "شهادتي في {course}: {url}",
-  "cohortStarts": "{cohort} · تبدأ {date}"
+  "cohortStarts": "{cohort} · تبدأ {date}",
+  "teacherTabGrading": "التقييم",
+  "gradingToGrade": "بانتظار التقييم",
+  "gradingGraded": "مُقيَّمة",
+  "gradingNone": "لا شيء للتقييم. أحسنت!",
+  "gradingNoneGraded": "لم يُقيَّم شيء بعد.",
+  "gradingSentBackLabel": "أُعيد للطالب",
+  "gradingScore": "الدرجة (من {max})",
+  "gradingNote": "ملاحظة للطالب",
+  "gradingSave": "حفظ التقييم",
+  "gradingSendBack": "إعادته ليحاول مجددًا",
+  "gradingSaved": "تم التقييم. يراه طالبك في التطبيق.",
+  "gradingSentBack": "أُعيد إلى طالبك.",
+  "gradingNeedsNote": "اكتب ما يجب تغييره قبل إعادته.",
+  "gradingScoreRange": "أدخل درجة من 0 إلى {max}."
 }

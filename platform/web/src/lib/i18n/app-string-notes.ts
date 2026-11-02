@@ -2976,6 +2976,20 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
   "112.5 Shares a certificate's link.": { ar: "يشارك رابط الشهادة.", tr: "Sertifikanın bağlantısını paylaşır." },
   "112.5 The text shared with a certificate.": { ar: "النص الذي يُشارك مع الشهادة.", tr: "Sertifikayla paylaşılan metin." },
   "112.5 On a course page: the student's cohort and its first day.": { ar: "في صفحة الدورة: دفعة الطالب وأول يوم فيها.", tr: "Kurs sayfasında: öğrencinin grubu ve ilk günü." },
+  "112.5 The Teacher tab's part with the assignments to grade.": { ar: "جزء في تبويب المعلم فيه الواجبات التي تنتظر التقييم.", tr: "Öğretmen sekmesinde notlandırılacak ödevlerin bölümü." },
+  "112.5 Assignments waiting for the teacher's grade.": { ar: "واجبات تنتظر تقييم المعلم.", tr: "Öğretmenin notunu bekleyen ödevler." },
+  "112.5 Assignments the teacher graded.": { ar: "واجبات قيّمها المعلم.", tr: "Öğretmenin notlandırdığı ödevler." },
+  "112.5 No assignment waits for the teacher's grade.": { ar: "لا يوجد واجب ينتظر تقييم المعلم.", tr: "Öğretmenin notunu bekleyen ödev yok." },
+  "112.5 The teacher graded nothing yet.": { ar: "لم يقيّم المعلم شيئًا بعد.", tr: "Öğretmen henüz bir şey notlandırmadı." },
+  "112.5 An assignment the teacher sent back.": { ar: "واجب أعاده المعلم.", tr: "Öğretmenin geri gönderdiği ödev." },
+  "112.5 The score field when grading.": { ar: "خانة الدرجة عند التقييم.", tr: "Notlandırırken puan alanı." },
+  "112.5 The note field when grading.": { ar: "خانة الملاحظة عند التقييم.", tr: "Notlandırırken not alanı." },
+  "112.5 Saves an assignment's grade.": { ar: "يحفظ تقييم الواجب.", tr: "Ödevin notunu kaydeder." },
+  "112.5 Sends an assignment back to the student.": { ar: "يعيد الواجب إلى الطالب.", tr: "Ödevi öğrenciye geri gönderir." },
+  "112.5 After grading an assignment.": { ar: "بعد تقييم واجب.", tr: "Bir ödevi notlandırdıktan sonra." },
+  "112.5 After sending an assignment back.": { ar: "بعد إعادة واجب.", tr: "Bir ödevi geri gönderdikten sonra." },
+  "112.5 Sending back without a note.": { ar: "الإعادة دون ملاحظة.", tr: "Not yazmadan geri gönderme." },
+  "112.5 A score outside the assignment's range.": { ar: "درجة خارج نطاق الواجب.", tr: "Ödevin aralığı dışında bir puan." },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

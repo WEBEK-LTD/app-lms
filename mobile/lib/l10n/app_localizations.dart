@@ -10275,6 +10275,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{cohort} · starts {date}'**
   String cohortStarts(String cohort, String date);
+
+  /// 112.5 The Teacher tab's part with the assignments to grade.
+  ///
+  /// In en, this message translates to:
+  /// **'Grading'**
+  String get teacherTabGrading;
+
+  /// 112.5 Assignments waiting for the teacher's grade.
+  ///
+  /// In en, this message translates to:
+  /// **'To grade'**
+  String get gradingToGrade;
+
+  /// 112.5 Assignments the teacher graded.
+  ///
+  /// In en, this message translates to:
+  /// **'Graded'**
+  String get gradingGraded;
+
+  /// 112.5 No assignment waits for the teacher's grade.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to grade. Well done!'**
+  String get gradingNone;
+
+  /// 112.5 The teacher graded nothing yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing graded yet.'**
+  String get gradingNoneGraded;
+
+  /// 112.5 An assignment the teacher sent back.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent back'**
+  String get gradingSentBackLabel;
+
+  /// 112.5 The score field when grading.
+  ///
+  /// In en, this message translates to:
+  /// **'Score (out of {max})'**
+  String gradingScore(int max);
+
+  /// 112.5 The note field when grading.
+  ///
+  /// In en, this message translates to:
+  /// **'Note to the student'**
+  String get gradingNote;
+
+  /// 112.5 Saves an assignment's grade.
+  ///
+  /// In en, this message translates to:
+  /// **'Save the grade'**
+  String get gradingSave;
+
+  /// 112.5 Sends an assignment back to the student.
+  ///
+  /// In en, this message translates to:
+  /// **'Send back for another try'**
+  String get gradingSendBack;
+
+  /// 112.5 After grading an assignment.
+  ///
+  /// In en, this message translates to:
+  /// **'Graded. Your student sees it in the app.'**
+  String get gradingSaved;
+
+  /// 112.5 After sending an assignment back.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent back to your student.'**
+  String get gradingSentBack;
+
+  /// 112.5 Sending back without a note.
+  ///
+  /// In en, this message translates to:
+  /// **'Write what to change before sending it back.'**
+  String get gradingNeedsNote;
+
+  /// 112.5 A score outside the assignment's range.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a score from 0 to {max}.'**
+  String gradingScoreRange(int max);
 }
 
 class _AppLocalizationsDelegate

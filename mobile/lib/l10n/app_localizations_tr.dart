@@ -6202,4 +6202,51 @@ class AppLocalizationsTr extends AppLocalizations {
   String cohortStarts(String cohort, String date) {
     return '$cohort · $date başlıyor';
   }
+
+  @override
+  String get teacherTabGrading => 'Ödevler';
+
+  @override
+  String get gradingToGrade => 'Notlandırılacak';
+
+  @override
+  String get gradingGraded => 'Notlandırıldı';
+
+  @override
+  String get gradingNone => 'Notlandırılacak bir şey yok. Harika!';
+
+  @override
+  String get gradingNoneGraded => 'Henüz notlandırılan bir şey yok.';
+
+  @override
+  String get gradingSentBackLabel => 'Geri gönderildi';
+
+  @override
+  String gradingScore(int max) {
+    return 'Puan ($max üzerinden)';
+  }
+
+  @override
+  String get gradingNote => 'Öğrenciye not';
+
+  @override
+  String get gradingSave => 'Notu kaydet';
+
+  @override
+  String get gradingSendBack => 'Yeniden denemesi için geri gönder';
+
+  @override
+  String get gradingSaved => 'Notlandırıldı. Öğrencin uygulamada görüyor.';
+
+  @override
+  String get gradingSentBack => 'Öğrencine geri gönderildi.';
+
+  @override
+  String get gradingNeedsNote =>
+      'Geri göndermeden önce neyin değişmesi gerektiğini yaz.';
+
+  @override
+  String gradingScoreRange(int max) {
+    return '0 ile $max arasında bir puan gir.';
+  }
 }

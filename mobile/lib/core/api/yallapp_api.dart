@@ -904,6 +904,22 @@ abstract class YallappApi {
   Future<ChatUpload> resumeTeacherUpload(String uploadId);
   Future<void> completeTeacherUpload(String uploadId);
   Future<Paged<TeacherQuestion>> listTeacherQuestions({int page = 1});
+
+  /// 112.5 Assignments handed in on the teacher's courses: waiting for a
+  /// grade, or [graded].
+  Future<Paged<TeacherSubmission>> listTeacherSubmissions({
+    bool graded = false,
+    int page = 1,
+  });
+
+  /// 112.5 Grades an assignment ([score] and a note), or with [sendBack]
+  /// returns it for another try with a note.
+  Future<TeacherSubmission> gradeTeacherSubmission(
+    int id, {
+    bool sendBack = false,
+    int? score,
+    String feedback = '',
+  });
   Future<TeacherEarnings> getTeacherEarnings(TeacherPeriod period);
 
   // 105.4 Schools: a student and their parents.
@@ -2930,6 +2946,39 @@ class HttpYallappApi implements YallappApi {
     _required,
     (json) => Paged.fromJson(json, TeacherQuestion.fromJson),
     query: {'page': page, 'per_page': 20},
+  );
+
+  @override
+  Future<Paged<TeacherSubmission>> listTeacherSubmissions({
+    bool graded = false,
+    int page = 1,
+  }) => _get(
+    '/teacher/submissions',
+    _required,
+    (json) => Paged.fromJson(json, TeacherSubmission.fromJson),
+    query: {
+      'status': graded ? 'graded' : 'submitted',
+      'page': page,
+      'per_page': 20,
+    },
+  );
+
+  @override
+  Future<TeacherSubmission> gradeTeacherSubmission(
+    int id, {
+    bool sendBack = false,
+    int? score,
+    String feedback = '',
+  }) => _send(
+    'PUT',
+    '/teacher/submissions/$id/grade',
+    _required,
+    (data) => TeacherSubmission.fromJson(asJson(data)),
+    body: {
+      'outcome': sendBack ? 'return' : 'grade',
+      'score': ?score,
+      'feedback': feedback,
+    },
   );
 
   @override

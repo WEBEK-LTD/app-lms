@@ -6031,5 +6031,71 @@
         "type": "String"
       }
     }
+  },
+  "teacherTabGrading": "Grading",
+  "@teacherTabGrading": {
+    "description": "112.5 The Teacher tab's part with the assignments to grade."
+  },
+  "gradingToGrade": "To grade",
+  "@gradingToGrade": {
+    "description": "112.5 Assignments waiting for the teacher's grade."
+  },
+  "gradingGraded": "Graded",
+  "@gradingGraded": {
+    "description": "112.5 Assignments the teacher graded."
+  },
+  "gradingNone": "Nothing to grade. Well done!",
+  "@gradingNone": {
+    "description": "112.5 No assignment waits for the teacher's grade."
+  },
+  "gradingNoneGraded": "Nothing graded yet.",
+  "@gradingNoneGraded": {
+    "description": "112.5 The teacher graded nothing yet."
+  },
+  "gradingSentBackLabel": "Sent back",
+  "@gradingSentBackLabel": {
+    "description": "112.5 An assignment the teacher sent back."
+  },
+  "gradingScore": "Score (out of {max})",
+  "@gradingScore": {
+    "description": "112.5 The score field when grading.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "gradingNote": "Note to the student",
+  "@gradingNote": {
+    "description": "112.5 The note field when grading."
+  },
+  "gradingSave": "Save the grade",
+  "@gradingSave": {
+    "description": "112.5 Saves an assignment's grade."
+  },
+  "gradingSendBack": "Send back for another try",
+  "@gradingSendBack": {
+    "description": "112.5 Sends an assignment back to the student."
+  },
+  "gradingSaved": "Graded. Your student sees it in the app.",
+  "@gradingSaved": {
+    "description": "112.5 After grading an assignment."
+  },
+  "gradingSentBack": "Sent back to your student.",
+  "@gradingSentBack": {
+    "description": "112.5 After sending an assignment back."
+  },
+  "gradingNeedsNote": "Write what to change before sending it back.",
+  "@gradingNeedsNote": {
+    "description": "112.5 Sending back without a note."
+  },
+  "gradingScoreRange": "Enter a score from 0 to {max}.",
+  "@gradingScoreRange": {
+    "description": "112.5 A score outside the assignment's range.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
   }
 }

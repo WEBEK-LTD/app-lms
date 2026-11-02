@@ -6213,4 +6213,50 @@ class AppLocalizationsEn extends AppLocalizations {
   String cohortStarts(String cohort, String date) {
     return '$cohort · starts $date';
   }
+
+  @override
+  String get teacherTabGrading => 'Grading';
+
+  @override
+  String get gradingToGrade => 'To grade';
+
+  @override
+  String get gradingGraded => 'Graded';
+
+  @override
+  String get gradingNone => 'Nothing to grade. Well done!';
+
+  @override
+  String get gradingNoneGraded => 'Nothing graded yet.';
+
+  @override
+  String get gradingSentBackLabel => 'Sent back';
+
+  @override
+  String gradingScore(int max) {
+    return 'Score (out of $max)';
+  }
+
+  @override
+  String get gradingNote => 'Note to the student';
+
+  @override
+  String get gradingSave => 'Save the grade';
+
+  @override
+  String get gradingSendBack => 'Send back for another try';
+
+  @override
+  String get gradingSaved => 'Graded. Your student sees it in the app.';
+
+  @override
+  String get gradingSentBack => 'Sent back to your student.';
+
+  @override
+  String get gradingNeedsNote => 'Write what to change before sending it back.';
+
+  @override
+  String gradingScoreRange(int max) {
+    return 'Enter a score from 0 to $max.';
+  }
 }

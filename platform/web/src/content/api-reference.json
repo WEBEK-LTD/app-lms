@@ -1506,6 +1506,20 @@
         },
         {
           "method": "GET",
+          "path": "/teacher/submissions",
+          "summary": "Assignments handed in on the teacher's courses",
+          "description": "Roadmap 112.5. `submitted` (the default) waits for a grade, the first handed in first; `returned`, `graded` and `all` the newest first.",
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/teacher/submissions/{submission_id}/grade",
+          "summary": "Grade an assignment, or send it back for another try",
+          "description": "Roadmap 112.5. `grade` with a score from 0 to the assignment's highest (and a note), or `return` with a note saying what to change. The student is told in the app (`assignment_graded`).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
           "path": "/teacher/earnings",
           "summary": "What the teacher's courses sold and the teacher's share",
           "description": "Sales paid on the academy's payment page over this month, last month or this year, in `InstructorsConfig.timezone`, less refunds, with the teacher's share (`share_percent`, set by the academy) and each course's totals. The academy pays its teachers itself.",

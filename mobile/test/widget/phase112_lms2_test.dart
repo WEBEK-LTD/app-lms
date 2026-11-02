@@ -92,4 +92,81 @@ void main() {
     await push(app, tester, Paths.course(1));
     expect(find.textContaining('October group · starts'), findsOneWidget);
   });
+
+  testWidgets('112.5 a teacher grades an assignment in the Teacher tab', (
+    tester,
+  ) async {
+    usePhone(tester);
+    final api = FakeApi(
+      config: {
+        ...configJson(lms: null),
+        'vertical': 'instructors',
+        'instructors': {'applications': true, 'timezone': 'Africa/Cairo'},
+      },
+    );
+    api.me = {
+      ...userJson(),
+      'roles': ['teacher'],
+    };
+    api.teacherSubmissions = [
+      {
+        'id': 7,
+        'course_id': 10,
+        'course_title': 'Turkish for Beginners',
+        'assignment_id': 16,
+        'assignment_title': 'Introduce yourself',
+        'student_name': 'Deniz Aksoy',
+        'text': 'Merhaba, ben Deniz.',
+        'file': null,
+        'status': 'submitted',
+        'score': null,
+        'max_points': 20,
+        'passed': null,
+        'feedback': null,
+        'submitted_at': '2026-10-12T15:00:00Z',
+        'graded_at': null,
+        'late': false,
+      },
+    ];
+    final app = TestApp(signedIn: true, api: api);
+    await app.pump(tester);
+    app.container.read(appRouterProvider).go(Paths.teacherDesk);
+    await TestApp.settle(tester);
+    await tester.tap(find.text('Grading'));
+    await TestApp.settle(tester);
+    expect(find.text('Deniz Aksoy'), findsOneWidget);
+    await tapKey(tester, 'teacher-submission-7');
+    await tester.enterText(
+      find.descendant(
+        of: find.byKey(const ValueKey('grade-score')),
+        matching: find.byType(TextFormField),
+      ),
+      '25',
+    );
+    await tapKey(tester, 'grade-save');
+    expect(api.graded, isEmpty);
+    await tester.enterText(
+      find.descendant(
+        of: find.byKey(const ValueKey('grade-score')),
+        matching: find.byType(TextFormField),
+      ),
+      '18',
+    );
+    await tester.enterText(
+      find.descendant(
+        of: find.byKey(const ValueKey('grade-note')),
+        matching: find.byType(TextFormField),
+      ),
+      'Güzel!',
+    );
+    await tapKey(tester, 'grade-save');
+    expect(api.graded.single, (
+      id: 7,
+      sendBack: false,
+      score: 18,
+      feedback: 'Güzel!',
+    ));
+    expect(find.text('Nothing to grade. Well done!'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

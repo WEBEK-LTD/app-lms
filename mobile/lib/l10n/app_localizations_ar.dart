@@ -6407,4 +6407,50 @@ class AppLocalizationsAr extends AppLocalizations {
   String cohortStarts(String cohort, String date) {
     return '$cohort · تبدأ $date';
   }
+
+  @override
+  String get teacherTabGrading => 'التقييم';
+
+  @override
+  String get gradingToGrade => 'بانتظار التقييم';
+
+  @override
+  String get gradingGraded => 'مُقيَّمة';
+
+  @override
+  String get gradingNone => 'لا شيء للتقييم. أحسنت!';
+
+  @override
+  String get gradingNoneGraded => 'لم يُقيَّم شيء بعد.';
+
+  @override
+  String get gradingSentBackLabel => 'أُعيد للطالب';
+
+  @override
+  String gradingScore(int max) {
+    return 'الدرجة (من $max)';
+  }
+
+  @override
+  String get gradingNote => 'ملاحظة للطالب';
+
+  @override
+  String get gradingSave => 'حفظ التقييم';
+
+  @override
+  String get gradingSendBack => 'إعادته ليحاول مجددًا';
+
+  @override
+  String get gradingSaved => 'تم التقييم. يراه طالبك في التطبيق.';
+
+  @override
+  String get gradingSentBack => 'أُعيد إلى طالبك.';
+
+  @override
+  String get gradingNeedsNote => 'اكتب ما يجب تغييره قبل إعادته.';
+
+  @override
+  String gradingScoreRange(int max) {
+    return 'أدخل درجة من 0 إلى $max.';
+  }
 }

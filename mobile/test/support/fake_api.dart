@@ -2188,6 +2188,40 @@ class FakeApi implements YallappApi {
   Future<void> completeTeacherUpload(String uploadId) =>
       _answer('completeTeacherUpload', () {});
 
+  // 112.5 Grading in the Teacher tab.
+  List<Map<String, dynamic>> teacherSubmissions = [];
+  final graded = <({int id, bool sendBack, int? score, String feedback})>[];
+
+  @override
+  Future<Paged<TeacherSubmission>> listTeacherSubmissions({
+    bool graded = false,
+    int page = 1,
+  }) => _answer(
+    'listTeacherSubmissions',
+    () => _paged([
+      for (final s in teacherSubmissions)
+        if ((s['status'] == 'graded') == graded) s,
+    ], TeacherSubmission.fromJson),
+  );
+
+  @override
+  Future<TeacherSubmission> gradeTeacherSubmission(
+    int id, {
+    bool sendBack = false,
+    int? score,
+    String feedback = '',
+  }) => _answer('gradeTeacherSubmission', () {
+    graded.add((id: id, sendBack: sendBack, score: score, feedback: feedback));
+    final i = teacherSubmissions.indexWhere((s) => s['id'] == id);
+    teacherSubmissions[i] = {
+      ...teacherSubmissions[i],
+      'status': sendBack ? 'returned' : 'graded',
+      'score': score,
+      'feedback': feedback,
+    };
+    return TeacherSubmission.fromJson(teacherSubmissions[i]);
+  });
+
   @override
   Future<Paged<TeacherQuestion>> listTeacherQuestions({int page = 1}) =>
       _answer(
