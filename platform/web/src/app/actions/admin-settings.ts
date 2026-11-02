@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { recordAudit, type AuditInput } from "@/lib/admin/audit";
 import { requireAdmin, type AdminUser } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
-import type { OtpSetting, PlatformSettingKey, PlatformSettingValues, SmtpSetting, StoragePackOffer } from "@/lib/data/types";
+import type { CourierHubSetting, OtpSetting, PlatformSettingKey, PlatformSettingValues, SmtpSetting, StoragePackOffer } from "@/lib/data/types";
 import { decrypt, encrypt } from "@/lib/crypto/encryption";
 import { appUrl, encryptionKey, iyzicoApiUrl, mediaBaseUrl, mediaSigningSecret, paymentApiUrls, sessionSecret, WAABEK_API_URL } from "@/lib/env";
 import { initialFormState, type FormState } from "@/lib/forms";
@@ -42,6 +42,7 @@ import {
 } from "@/lib/plans";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { validTilesUrl } from "@/lib/delivery/settings";
+import { parseCourierHubSetting } from "@/lib/courier-hub/review";
 import { serverUrlOf } from "@/lib/taxi/settings";
 import { refreshPlanSitesSoon } from "@/lib/license/refresh-soon";
 import { planHighlights, type HighlightLang } from "@/lib/plan-highlights";
@@ -68,6 +69,7 @@ const SETTING_LABELS: Partial<Record<PlatformSettingKey, string>> = {
   zidApp: "Zid partner app",
   storagePacks: "storage packs",
   maps: "the map for ride, delivery and food apps",
+  courierHub: "Yallapp Courier",
 };
 
 /** Saves a setting (null: back to the defaults) and logs it, secrets redacted; `audit` replaces parts of the log entry. */
@@ -108,6 +110,11 @@ export async function resetPlatformSettingAction(formData: FormData): Promise<vo
   if (key === "publishing") {
     await save(key, null, admin);
     revalidatePath("/dashboard/publishing");
+  }
+  // 104.8.2 Without it, the stores' reviewers can't sign in to Yallapp Courier.
+  if (key === "courierHub") {
+    await save(key, null, admin);
+    revalidatePath("/admin/publishing");
   }
   // 25 Without the partner app, stores can't connect (connected ones can't renew their tokens).
   if (key === "sallaApp" || key === "zidApp") {
@@ -810,6 +817,21 @@ export async function checkTestCodeAction(_: FormState, formData: FormData): Pro
   return { ok: true, message: `The code is right: sign-in codes work. ${ticket.phone} got it and it was checked.` };
 }
 
+
+/** 104.8.2 Yallapp Courier: the stores' review account and (104.8.3) the app's store links. */
+export async function saveCourierHubSettingAction(_: FormState, formData: FormData): Promise<FormState> {
+  const admin = await requireAdmin("settings.edit");
+  const values = { reviewPhone: str(formData, "reviewPhone"), reviewEmail: str(formData, "reviewEmail"), reviewCode: str(formData, "reviewCode"), playUrl: str(formData, "playUrl"), appStoreUrl: str(formData, "appStoreUrl") };
+  const parsed = parseCourierHubSetting(values);
+  if (!parsed.ok) return { errors: parsed.errors, values };
+  // The fixed code stays out of the log.
+  const redact = (v: CourierHubSetting | null) => (v ? { ...v, reviewCode: v.reviewCode ? "••••••" : null } : null);
+  const before = (await platformSetting(await getStore(), "courierHub", { fresh: true }))?.value ?? null;
+  await save("courierHub", parsed.value, admin, { before: redact(before), after: redact(parsed.value) });
+  revalidatePath("/admin/publishing");
+  revalidatePath("/dashboard", "layout");
+  return { ok: true, message: "Saved. Yallapp Courier uses it at once.", values };
+}
 
 /** 104 The map tiles delivery apps draw live tracking on; 112 with the search and routing servers ride, delivery and food apps use on it. */
 export async function saveMapsSettingAction(_: FormState, formData: FormData): Promise<FormState> {

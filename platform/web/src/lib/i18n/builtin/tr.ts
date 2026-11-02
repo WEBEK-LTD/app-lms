@@ -1011,4 +1011,7 @@ export const SERVER_MESSAGES_TR: Record<string, string> = {
   "Choose whom the book is for (person_id).": "Kitabın kimin için olduğunu seçin (person_id).",
   // 113.12 Payslips.
   "Payslip not found.": "Bordro bulunamadı.",
+  // 104.8.2 Yallapp Courier.
+  "You aren't a courier of this company.": "Bu şirketin kuryesi değilsiniz.",
+  "This company paused your account. Please contact the company.": "Bu şirket hesabınızı duraklattı. Lütfen şirketle iletişime geçin.",
 };

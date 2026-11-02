@@ -26,6 +26,7 @@ import type {
 import { dishNamesOf } from "../food/menu";
 import type { Ride, RideInput, RidePatch, RideQuery, RideStatementRow, RideStatus, VehicleType, VehicleTypeInput } from "./types";
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
+import type { CourierAccount, CourierChallenge, CourierDevice, CourierDevicePatch } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
 import { candidatesIn, needsRekey } from "../crypto/rekey";
@@ -4705,8 +4706,16 @@ export class MysqlStore implements DataStore {
     return row ?? null;
   }
 
+  async listCouriersByContact(who: { phone: string | null; email: string | null }): Promise<Courier[]> {
+    const t = schema.couriers;
+    const email = who.email?.toLowerCase() ?? null;
+    const match = who.phone && email ? or(eq(t.phone, who.phone), eq(t.email, email)) : who.phone ? eq(t.phone, who.phone) : email ? eq(t.email, email) : null;
+    if (!match) return [];
+    return this.run((db) => db.select().from(t).where(match).limit(200));
+  }
+
   async createCourier(input: CourierInput, now: Date): Promise<{ ok: true; courier: Courier } | { ok: false; reason: "duplicate" }> {
-    const values = { ...input, driver: input.driver ?? null, onDuty: false, lat: null, lng: null, locatedAt: null, createdAt: now, updatedAt: now };
+    const values = { ...input, driver: input.driver ?? null, onDuty: false, lat: null, lng: null, locatedAt: null, hubSignedInAt: null, createdAt: now, updatedAt: now };
     try {
       const [result] = await this.run((db) => db.insert(schema.couriers).values(values));
       return { ok: true, courier: { id: Number(result.insertId), ...values } };
@@ -6522,6 +6531,121 @@ export class MysqlStore implements DataStore {
   async listOwnerDevicesOfClient(clientId: string): Promise<OwnerDevice[]> {
     const d = schema.ownerDevices;
     return this.run((db) => db.select().from(d).where(eq(d.clientId, clientId)));
+  }
+
+  // 104.8.2 Yallapp Courier: its accounts, devices and sign-in codes
+
+  async getCourierAccount(id: string): Promise<CourierAccount | null> {
+    const a = schema.courierAccounts;
+    const [row] = await this.run((db) => db.select().from(a).where(eq(a.id, id)).limit(1));
+    return row ?? null;
+  }
+
+  async findCourierAccount(who: { phone: string | null; email: string | null }): Promise<CourierAccount | null> {
+    const a = schema.courierAccounts;
+    const match = who.phone ? eq(a.phone, who.phone) : who.email ? eq(a.email, who.email.toLowerCase()) : null;
+    if (!match) return null;
+    const [row] = await this.run((db) => db.select().from(a).where(match).limit(1));
+    return row ?? null;
+  }
+
+  async createCourierAccount(account: CourierAccount): Promise<CourierAccount> {
+    try {
+      await this.run((db) => db.insert(schema.courierAccounts).values(account));
+      return account;
+    } catch (error) {
+      if (errorCode(error) !== "ER_DUP_ENTRY") throw error;
+      const found = await this.findCourierAccount(account);
+      if (!found) throw error;
+      return found;
+    }
+  }
+
+  async updateCourierAccount(id: string, patch: Partial<Pick<CourierAccount, "lastSignInAt">>): Promise<void> {
+    if (!Object.keys(patch).length) return;
+    await this.run((db) => db.update(schema.courierAccounts).set(patch).where(eq(schema.courierAccounts.id, id)));
+  }
+
+  async deleteCourierAccount(id: string): Promise<void> {
+    // Its devices and their company sessions go by the foreign keys' cascade.
+    await this.run((db) => db.delete(schema.courierAccounts).where(eq(schema.courierAccounts.id, id)));
+  }
+
+  async createCourierDevice(device: CourierDevice): Promise<void> {
+    await this.run((db) => db.insert(schema.courierDevices).values(device));
+  }
+
+  async getCourierDevice(id: string): Promise<CourierDevice | null> {
+    const d = schema.courierDevices;
+    const [row] = await this.run((db) => db.select().from(d).where(eq(d.id, id)).limit(1));
+    return row ?? null;
+  }
+
+  async findCourierDeviceByRefresh(refreshHash: string): Promise<CourierDevice | null> {
+    const d = schema.courierDevices;
+    const [row] = await this.run((db) => db.select().from(d).where(eq(d.refreshHash, refreshHash)).limit(1));
+    return row ?? null;
+  }
+
+  async rotateCourierRefresh(id: string, oldHash: string, next: { refreshHash: string; refreshExpiresAt: Date; lastSeenAt: Date }): Promise<boolean> {
+    const d = schema.courierDevices;
+    const [result] = await this.run((db) => db.update(d).set(next).where(and(eq(d.id, id), eq(d.refreshHash, oldHash))));
+    return result.affectedRows === 1;
+  }
+
+  async updateCourierDevice(id: string, patch: CourierDevicePatch): Promise<void> {
+    if (!Object.keys(patch).length) return;
+    await this.run((db) => db.update(schema.courierDevices).set(patch).where(eq(schema.courierDevices.id, id)));
+  }
+
+  async listCourierDevices(accountId: string): Promise<CourierDevice[]> {
+    const d = schema.courierDevices;
+    return this.run((db) => db.select().from(d).where(eq(d.accountId, accountId)).orderBy(desc(d.lastSeenAt), asc(d.id)));
+  }
+
+  async deleteCourierDevice(id: string): Promise<void> {
+    // The company sessions it opened cascade (their hosted devices, then their refresh tokens).
+    await this.run((db) => db.delete(schema.courierDevices).where(eq(schema.courierDevices.id, id)));
+  }
+
+  async clearCourierPushToken(token: string, exceptId: string | null): Promise<void> {
+    const d = schema.courierDevices;
+    await this.run((db) =>
+      db
+        .update(d)
+        .set({ pushToken: null })
+        .where(exceptId ? and(eq(d.pushToken, token), not(eq(d.id, exceptId))) : eq(d.pushToken, token)),
+    );
+  }
+
+  async listHostedDevicesOfCourierDevice(courierDeviceId: string): Promise<HostedDevice[]> {
+    const d = schema.hostedDevices;
+    return this.run((db) => db.select().from(d).where(eq(d.courierDeviceId, courierDeviceId)));
+  }
+
+  async createCourierChallenge(challenge: CourierChallenge): Promise<void> {
+    await this.run((db) => db.insert(schema.courierChallenges).values(challenge));
+  }
+
+  async getCourierChallenge(tokenHash: string): Promise<CourierChallenge | null> {
+    const c = schema.courierChallenges;
+    const [row] = await this.run((db) => db.select().from(c).where(eq(c.tokenHash, tokenHash)).limit(1));
+    return row ?? null;
+  }
+
+  async addCourierChallengeAttempt(tokenHash: string): Promise<number> {
+    const c = schema.courierChallenges;
+    await this.run((db) => db.update(c).set({ attempts: sql`${c.attempts} + 1` }).where(eq(c.tokenHash, tokenHash)));
+    const challenge = await this.getCourierChallenge(tokenHash);
+    return challenge ? challenge.attempts : Number.MAX_SAFE_INTEGER;
+  }
+
+  async deleteCourierChallenge(tokenHash: string): Promise<void> {
+    await this.run((db) => db.delete(schema.courierChallenges).where(eq(schema.courierChallenges.tokenHash, tokenHash)));
+  }
+
+  async purgeCourierChallenges(now: Date): Promise<void> {
+    await this.run((db) => db.delete(schema.courierChallenges).where(lte(schema.courierChallenges.expiresAt, now)));
   }
 
   // 60 Team members for clients
