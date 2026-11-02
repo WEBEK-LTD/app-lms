@@ -93,6 +93,50 @@ class ClassroomScreen extends ConsumerWidget {
                           ),
                         ),
                       const SizedBox(height: 20),
+                      // 113.5 The teacher's reports to the school.
+                      AppCard(
+                        key: const ValueKey('classroom-reports'),
+                        padding: const EdgeInsets.all(14),
+                        onTap: () => context.push(Paths.classroomReports),
+                        child: Row(
+                          children: [
+                            AppIcon(
+                              AppIcons.assignment,
+                              size: 24,
+                              color: p.primary,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l10n.classroomReports,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: p.text,
+                                    ),
+                                  ),
+                                  Text(
+                                    l10n.classroomReportsHint,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: p.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            AppIcon(
+                              AppIcons.forward,
+                              size: 20,
+                              color: p.textTertiary,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
                       SectionHeader(title: l10n.classroomClasses, size: 16),
                       const SizedBox(height: 4),
                       if (me.classes.isEmpty)
@@ -255,17 +299,34 @@ class _ClassScreenState extends ConsumerState<ClassScreen> {
                   ],
                 ),
               ),
-              // 112.5 The class's gradebook.
+              // 112.5 The class's gradebook; 113.5 its syllabus.
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
-                child: SecondaryButton(
-                  key: const ValueKey('class-gradebook-open'),
-                  label: l10n.classGradebook,
-                  icon: AppIcons.certificate,
-                  height: 42,
-                  onPressed: () => context.push(
-                    '${Paths.classroomClass(klass.id)}/gradebook',
-                  ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: SecondaryButton(
+                        key: const ValueKey('class-gradebook-open'),
+                        label: l10n.classGradebook,
+                        icon: AppIcons.certificate,
+                        height: 42,
+                        onPressed: () => context.push(
+                          '${Paths.classroomClass(klass.id)}/gradebook',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: SecondaryButton(
+                        key: const ValueKey('class-syllabus-open'),
+                        label: l10n.classroomSyllabus,
+                        icon: AppIcons.courses,
+                        height: 42,
+                        onPressed: () =>
+                            context.push(Paths.classSyllabus(klass.id)),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Padding(

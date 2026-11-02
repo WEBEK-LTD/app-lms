@@ -114,6 +114,10 @@ abstract final class Paths {
   static String classAttendance(int id) => '$classroom/class/$id/attendance';
   static String classroomHomework(int id) => '$classroom/homework/$id';
   static String classroomAssessment(int id) => '$classroom/assessment/$id';
+  // 113.5 A class's syllabus, and the teacher's reports to the school.
+  static String classSyllabus(int id) => '$classroom/class/$id/syllabus';
+  static const classroomReports = '$classroom/reports';
+  static String classroomReport(int id) => '$classroom/report/$id';
 
   /// 77 The chat: the conversation with the business and course groups.
   static const chat = '/chat';

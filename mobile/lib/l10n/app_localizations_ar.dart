@@ -6606,6 +6606,274 @@ class AppLocalizationsAr extends AppLocalizations {
   String get couponWithout => 'المتابعة دون قسيمة';
 
   @override
+  String get classroomSyllabus => 'المنهج';
+
+  @override
+  String get syllabusNone => 'لا يوجد منهج لهذا الفصل بعد';
+
+  @override
+  String get syllabusNoneMessage =>
+      'تكتب المدرسة منهج كل مادة، ويظهر هنا حين تفعل.';
+
+  @override
+  String syllabusCovered(int covered, int total, int percent) {
+    return 'أُنجز $covered من $total ($percent%)';
+  }
+
+  @override
+  String syllabusPlanned(int percent) {
+    return 'الخطة: $percent% حتى اليوم';
+  }
+
+  @override
+  String syllabusBehind(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'متأخر عن الخطة بـ $count درس',
+      many: 'متأخر عن الخطة بـ $count درسًا',
+      few: 'متأخر عن الخطة بـ $count دروس',
+      two: 'متأخر عن الخطة بدرسين',
+      one: 'متأخر عن الخطة بدرس واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syllabusOnPlan => 'وفق الخطة';
+
+  @override
+  String get syllabusAhead => 'متقدم على الخطة';
+
+  @override
+  String syllabusPlanNow(String topic) {
+    return 'الخطة الآن: $topic';
+  }
+
+  @override
+  String syllabusDays(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String syllabusCoveredOn(String date) {
+    return 'أُنجز في $date';
+  }
+
+  @override
+  String get syllabusNotCovered => 'لم يُنجز بعد';
+
+  @override
+  String get syllabusMarkCovered => 'تعليم كمُنجَز';
+
+  @override
+  String get syllabusUnmark => 'غير مُنجَز';
+
+  @override
+  String get syllabusCoveredDay => 'أُنجز في';
+
+  @override
+  String get syllabusNote => 'ملاحظة (اختيارية)';
+
+  @override
+  String get classroomReports => 'التقارير إلى المدرسة';
+
+  @override
+  String get classroomReportsHint =>
+      'عن طلابك وفصولك: المسودات والمُرسلة والمُعادة والمعتمدة';
+
+  @override
+  String get reportsDrafts => 'المسودات';
+
+  @override
+  String get reportsSent => 'المُرسلة';
+
+  @override
+  String get reportsReturned => 'المُعادة';
+
+  @override
+  String get reportsApproved => 'المعتمدة';
+
+  @override
+  String get reportsNone => 'لا توجد تقارير هنا';
+
+  @override
+  String get reportsWrite => 'كتابة تقرير';
+
+  @override
+  String get reportsTemplate => 'النموذج';
+
+  @override
+  String get reportsNoTemplates => 'لم تُعدّ المدرسة نماذج تقاريرها بعد.';
+
+  @override
+  String get reportsClass => 'الفصل';
+
+  @override
+  String get reportsStudent => 'الطالب';
+
+  @override
+  String get reportsSubject => 'المادة (اختيارية)';
+
+  @override
+  String get reportsNoSubject => 'بلا مادة';
+
+  @override
+  String get reportsStart => 'بدء التقرير';
+
+  @override
+  String get reportsChooseMissing =>
+      'اختر نموذجًا وفصلًا، والطالب إن كان التقرير عن طالب.';
+
+  @override
+  String get reportsSaveDraft => 'حفظ المسودة';
+
+  @override
+  String get reportsSend => 'الإرسال إلى المدرسة';
+
+  @override
+  String get reportsNoteForSchool => 'ملاحظة للمدرسة (اختيارية)';
+
+  @override
+  String get reportsDraftSaved => 'حُفظت المسودة.';
+
+  @override
+  String get reportsSentDone => 'أُرسل إلى المدرسة.';
+
+  @override
+  String get reportsDelete => 'حذف المسودة';
+
+  @override
+  String get reportsDeleteConfirm => 'حذف هذه المسودة؟';
+
+  @override
+  String get reportsDeleted => 'حُذفت المسودة.';
+
+  @override
+  String get reportsRead => 'قرأته المدرسة';
+
+  @override
+  String get reportsNotRead => 'لم يُقرأ بعد';
+
+  @override
+  String get reportsShared => 'تمت مشاركته مع أولياء الأمور';
+
+  @override
+  String get reportsFromSchool => 'المدرسة';
+
+  @override
+  String get reportsFromYou => 'أنت';
+
+  @override
+  String get reportsComments => 'التعليقات';
+
+  @override
+  String get reportsLocked =>
+      'هذا التقرير لدى المدرسة. يمكنك تعديله إن أعادته إليك.';
+
+  @override
+  String get reportsReturnedBanner =>
+      'أعادت المدرسة هذا التقرير للتعديل: اقرأ تعليقها، وعدّل التقرير وأرسله من جديد.';
+
+  @override
+  String reportsRatingOf(int value) {
+    return '$value من 5';
+  }
+
+  @override
+  String reportsPeriod(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String reportsRequiredMissing(String label) {
+    return 'املأ «$label» قبل الإرسال.';
+  }
+
+  @override
+  String get schoolReports => 'تقارير المعلمين';
+
+  @override
+  String get schoolReportsNone => 'لم تُشارَك أي تقارير بعد';
+
+  @override
+  String get schoolReportsNoneMessage =>
+      'حين تشارك المدرسة تقرير معلم عن طفلك، يظهر هنا.';
+
+  @override
+  String schoolReportsBy(String name) {
+    return 'بقلم $name';
+  }
+
+  @override
+  String get schoolReportsParentsOnly =>
+      'تشارك المدرسة هذه التقارير مع أولياء أمور الطالب.';
+
+  @override
+  String get syllabusSaved => 'تم الحفظ.';
+
+  @override
+  String get bundles => 'الحزم';
+
+  @override
+  String bundleCourseCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count دورة',
+      many: '$count دورة',
+      few: '$count دورات',
+      two: 'دورتان',
+      one: 'دورة واحدة',
+      zero: 'لا دورات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bundleInsteadOf(String price) {
+    return 'بدلًا من $price';
+  }
+
+  @override
+  String get bundlePrice => 'سعر الحزمة';
+
+  @override
+  String get bundleBuy => 'شراء الحزمة';
+
+  @override
+  String get bundleCoursesIn => 'الدورات في هذه الحزمة';
+
+  @override
+  String bundleOwnedSome(int count) {
+    return 'لديك $count من هذه الدورات بالفعل: تبقى لك، وتضيف الحزمة الباقي.';
+  }
+
+  @override
+  String get bundleOwned => 'كل دورات هذه الحزمة لك.';
+
+  @override
+  String get bundleEnrolled => 'أنت مسجّل في كل دورات الحزمة. تعلّمًا ممتعًا!';
+
+  @override
+  String get bundleMyCourses => 'الذهاب إلى دوراتي';
+
+  @override
+  String get bundleAlsoIn => 'موجودة أيضًا في حزمة';
+
+  @override
+  String get bundleNotSold => 'لا يمكن شراء هذه الحزمة في التطبيق.';
+
+  @override
+  String get loadingBundle => 'جارٍ تحميل الحزمة…';
+
+  @override
+  String get couponFree => 'القسيمة تجعلها مجانية: لن تدفع شيئًا.';
+
+  @override
+  String get couponEnrollFree => 'التسجيل مجانًا';
+
+  @override
   String get attemptAwaitingResults => 'النتيجة بعد إغلاق الامتحان';
 
   @override
@@ -6898,65 +7166,4 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get handInAgain => 'التسليم مرة أخرى';
-
-  @override
-  String get bundles => 'الحزم';
-
-  @override
-  String bundleCourseCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count دورة',
-      many: '$count دورة',
-      few: '$count دورات',
-      two: 'دورتان',
-      one: 'دورة واحدة',
-      zero: 'لا دورات',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String bundleInsteadOf(String price) {
-    return 'بدلًا من $price';
-  }
-
-  @override
-  String get bundlePrice => 'سعر الحزمة';
-
-  @override
-  String get bundleBuy => 'شراء الحزمة';
-
-  @override
-  String get bundleCoursesIn => 'الدورات في هذه الحزمة';
-
-  @override
-  String bundleOwnedSome(int count) {
-    return 'لديك $count من هذه الدورات بالفعل: تبقى لك، وتضيف الحزمة الباقي.';
-  }
-
-  @override
-  String get bundleOwned => 'كل دورات هذه الحزمة لك.';
-
-  @override
-  String get bundleEnrolled => 'أنت مسجّل في كل دورات الحزمة. تعلّمًا ممتعًا!';
-
-  @override
-  String get bundleMyCourses => 'الذهاب إلى دوراتي';
-
-  @override
-  String get bundleAlsoIn => 'موجودة أيضًا في حزمة';
-
-  @override
-  String get bundleNotSold => 'لا يمكن شراء هذه الحزمة في التطبيق.';
-
-  @override
-  String get loadingBundle => 'جارٍ تحميل الحزمة…';
-
-  @override
-  String get couponFree => 'القسيمة تجعلها مجانية: لن تدفع شيئًا.';
-
-  @override
-  String get couponEnrollFree => 'التسجيل مجانًا';
 }

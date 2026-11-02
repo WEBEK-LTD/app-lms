@@ -2957,6 +2957,135 @@ Map<String, dynamic> liveSessionJson({
   'recording_url': recordingUrl,
 };
 
+// 113.5 The syllabus and the teachers' reports.
+
+Map<String, dynamic> classSyllabusJson({int? coveredTopic, String? coveredOn}) {
+  Map<String, dynamic> topic(
+    int id,
+    String title,
+    String from,
+    String to, {
+    bool due = false,
+    bool now = false,
+  }) => {
+    'id': id,
+    'title': title,
+    'starts_on': from,
+    'ends_on': to,
+    'due': due,
+    'now': now,
+    'covered_on': id == coveredTopic ? (coveredOn ?? '2026-10-12') : null,
+    'note': null,
+  };
+  final covered = coveredTopic == null ? 0 : 1;
+  return {
+    'class_id': 3,
+    'class_name': 'Grade 5 A',
+    'grade': 'Grade 5',
+    'today': '2026-10-12',
+    'subjects': [
+      {
+        'subject_id': 7,
+        'subject': 'Mathematics',
+        'total': 3,
+        'covered': covered,
+        'due': 1,
+        'percent': covered == 0 ? 0 : 33,
+        'planned_percent': 33,
+        'behind_by': 1 - covered,
+        'status': covered == 0 ? 'behind' : 'on_plan',
+        'planned_topic': {'id': 42, 'title': 'Adding fractions'},
+        'units': [
+          {
+            'id': 4,
+            'title': 'Fractions',
+            'topics': [
+              topic(41, 'Halves', '2026-10-04', '2026-10-08', due: true),
+              topic(
+                42,
+                'Adding fractions',
+                '2026-10-11',
+                '2026-10-15',
+                now: true,
+              ),
+              topic(43, 'Subtracting fractions', '2026-10-18', '2026-10-22'),
+            ],
+          },
+        ],
+      },
+    ],
+  };
+}
+
+List<Map<String, dynamic>> reportFieldsJson() => [
+  {
+    'id': 'f1',
+    'label': 'Academic level',
+    'type': 'rating',
+    'options': <String>[],
+    'required': true,
+  },
+  {
+    'id': 'f2',
+    'label': 'Behaviour',
+    'type': 'choice',
+    'options': ['Excellent', 'Good', 'Needs support'],
+    'required': false,
+  },
+  {
+    'id': 'f3',
+    'label': 'What to do next',
+    'type': 'text',
+    'options': <String>[],
+    'required': false,
+  },
+];
+
+Map<String, dynamic> reportTemplateJson() => {
+  'id': 5,
+  'kind': 'student',
+  'name': 'End of term report',
+  'fields': reportFieldsJson(),
+};
+
+Map<String, dynamic> teacherReportJson({
+  String status = 'draft',
+  Map<String, dynamic> answers = const {},
+  List<Map<String, dynamic>> comments = const [],
+}) => {
+  'id': 21,
+  'kind': 'student',
+  'status': status,
+  'template_id': 5,
+  'template_name': 'End of term report',
+  'student': schoolStudentJson(),
+  'class_id': 3,
+  'class_name': 'Grade 5 A',
+  'subject_id': 7,
+  'subject': 'Mathematics',
+  'period': null,
+  'fields': reportFieldsJson(),
+  'answers': answers,
+  'comments': comments,
+  'read': false,
+  'shared': false,
+  'created_at': '2026-10-12T08:00:00Z',
+  'updated_at': '2026-10-12T08:00:00Z',
+  'sent_at': null,
+  'reviewed_at': null,
+};
+
+Map<String, dynamic> sharedReportJson() => {
+  'id': 21,
+  'title': 'End of term report',
+  'teacher_name': 'Mona Adel',
+  'subject': 'Mathematics',
+  'period': {'from': '2026-09-27', 'to': '2027-01-20'},
+  'fields': reportFieldsJson(),
+  'answers': {'f1': 4, 'f2': 'Good', 'f3': 'Read 20 minutes at home.'},
+  'shared_at': '2026-10-13T09:00:00Z',
+};
+
 // 113.7 Learning paths, points and badges, notes, rubrics and exams.
 
 Map<String, dynamic> learningPathJson({int id = 90, bool locked = true}) => {

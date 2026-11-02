@@ -828,6 +828,11 @@ export const ENGINES: Record<AppType, EngineInfo> = {
           { href: "/dashboard/school/grades", label: "Grades", icon: "workspace_premium" },
           // 112.5
           { href: "/dashboard/school/reports", label: "Report cards", icon: "description" },
+          // 113.5
+          { href: "/dashboard/school/syllabus", label: "Syllabus", icon: "list_alt" },
+          { href: "/dashboard/school/progress", label: "Progress", icon: "monitoring" },
+          { href: "/dashboard/school/teacher-reports", label: "Teachers' reports", icon: "mail" },
+          { href: "/dashboard/school/report-templates", label: "Report templates", icon: "content_paste" },
           { href: "/dashboard/school/fees", label: "Fees", icon: "payments" },
           { href: "/dashboard/school/news", label: "News", icon: "campaign" },
           { href: "/dashboard/school/settings", label: "School settings", icon: "tune" },

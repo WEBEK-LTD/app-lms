@@ -4969,3 +4969,119 @@ export interface SchoolFee {
   updatedAt: Date;
 }
 
+
+// 113.5 Reports between the administration and the teachers
+
+/**
+ * A unit of the syllabus of a subject in a grade (the classes' `grade`, else
+ * a class's own name); its lessons or topics are SchoolSyllabusTopic.
+ */
+export interface SchoolSyllabusUnit {
+  id: number;
+  appId: string;
+  subjectId: number;
+  grade: string;
+  title: string;
+  position: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** A lesson or topic of a unit, with the days the plan gives it (a week or another range). */
+export interface SchoolSyllabusTopic {
+  id: number;
+  appId: string;
+  unitId: number;
+  title: string;
+  /** YYYY-MM-DD. */
+  startsOn: string;
+  endsOn: string;
+  position: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** A topic a class covered, on a day; one per class and topic. */
+export interface SchoolTopicProgress {
+  appId: string;
+  classId: number;
+  topicId: number;
+  coveredOn: string;
+  note: string | null;
+  /** The teacher who marked it; null from the dashboard. */
+  teacherId: number | null;
+  updatedAt: Date;
+}
+
+export type SchoolReportKind = "student" | "class";
+export const SCHOOL_REPORT_KINDS: readonly SchoolReportKind[] = ["student", "class"];
+
+export type SchoolReportFieldType = "text" | "choice" | "rating";
+export const SCHOOL_REPORT_FIELD_TYPES: readonly SchoolReportFieldType[] = ["text", "choice", "rating"];
+
+/** A field of a report template: written text, one of the choices, or a rating from 1 to 5. */
+export interface SchoolReportField {
+  /** Stable within the template ("f1", "f2"…), the key of the answers. */
+  id: string;
+  label: string;
+  type: SchoolReportFieldType;
+  /** A choice field's choices. */
+  options: string[];
+  required: boolean;
+}
+
+/** The school's report template, for teachers' reports on a student or on a class. */
+export interface SchoolReportTemplate {
+  id: number;
+  appId: string;
+  kind: SchoolReportKind;
+  name: string;
+  fields: SchoolReportField[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** A draft, sent to the administration, sent back for changes, or approved. */
+export type SchoolReportStatus = "draft" | "sent" | "returned" | "approved";
+export const SCHOOL_REPORT_STATUSES: readonly SchoolReportStatus[] = ["draft", "sent", "returned", "approved"];
+
+/** A comment on a report: the administration's or the teacher's (when they send it again). */
+export interface SchoolReportComment {
+  by: "school" | "teacher";
+  name: string;
+  text: string;
+  at: string;
+}
+
+/** A teacher's report to the administration, on a student or on a class, written on a template. */
+export interface SchoolReport {
+  id: number;
+  appId: string;
+  kind: SchoolReportKind;
+  /** The template it was written on; its name and fields are kept with the report. */
+  templateId: number | null;
+  templateName: string;
+  fields: SchoolReportField[];
+  answers: Record<string, string | number>;
+  teacherId: number | null;
+  teacherName: string;
+  /** A student report's student. */
+  studentId: number | null;
+  /** The class it is about (a student's class when it was written). */
+  classId: number | null;
+  subjectId: number | null;
+  /** The period it covers (YYYY-MM-DD), when it has one. */
+  periodFrom: string | null;
+  periodTo: string | null;
+  status: SchoolReportStatus;
+  comments: SchoolReportComment[];
+  sentAt: Date | null;
+  /** When the administration first opened it after it was sent. */
+  readAt: Date | null;
+  /** Sent back or approved. */
+  reviewedAt: Date | null;
+  /** Shared with the student's parents (an approved student report only). */
+  sharedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}

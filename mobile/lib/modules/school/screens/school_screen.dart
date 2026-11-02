@@ -34,8 +34,10 @@ class SchoolScreen extends ConsumerWidget {
             Expanded(
               child: signedIn
                   ? StudentGate(
-                      builder: (context, me, student) =>
-                          _Overview(student: student),
+                      builder: (context, me, student) => _Overview(
+                        student: student,
+                        parent: me.roles.contains(SchoolRole.parent),
+                      ),
                     )
                   : SignInPrompt(
                       icon: AppIcons.school,
@@ -52,9 +54,12 @@ class SchoolScreen extends ConsumerWidget {
 }
 
 class _Overview extends ConsumerWidget {
-  const _Overview({required this.student});
+  const _Overview({required this.student, this.parent = false});
 
   final SchoolStudent student;
+
+  /// 113.5 Seen by a parent: the teachers' reports the school shared.
+  final bool parent;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -152,6 +157,13 @@ class _Overview extends ConsumerWidget {
                 subtitle: fees == null ? null : l10n.feesDue(fees.dueFormatted),
                 onTap: () => open('fees'),
               ),
+              if (parent)
+                SettingsTile(
+                  key: const ValueKey('school-reports'),
+                  icon: AppIcons.assignment,
+                  title: l10n.schoolReports,
+                  onTap: () => open('reports'),
+                ),
               SettingsTile(
                 key: const ValueKey('school-news'),
                 icon: AppIcons.campaignUpdate,

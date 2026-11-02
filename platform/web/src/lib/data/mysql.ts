@@ -60,6 +60,12 @@ import type {
   SchoolClass,
   SchoolFamilyLink,
   SchoolFee,
+  SchoolReport,
+  SchoolReportStatus,
+  SchoolReportTemplate,
+  SchoolSyllabusTopic,
+  SchoolSyllabusUnit,
+  SchoolTopicProgress,
   SchoolHomework,
   SchoolPeriod,
   SchoolPerson,
@@ -3397,6 +3403,200 @@ export class MysqlStore implements DataStore {
 
   async deleteSchoolFee(appId: string, id: number): Promise<void> {
     const t = schema.schoolFees;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  // 113.5 The syllabus, each class's progress, and the teachers' reports
+
+  async listSchoolSyllabusUnits(appId: string, filter: { subjectId?: number; grade?: string } = {}): Promise<SchoolSyllabusUnit[]> {
+    const t = schema.schoolSyllabusUnits;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), filter.subjectId !== undefined ? eq(t.subjectId, filter.subjectId) : undefined, filter.grade !== undefined ? eq(t.grade, filter.grade) : undefined))
+        .orderBy(asc(t.position), asc(t.id)),
+    );
+  }
+
+  async saveSchoolSyllabusUnit(input: Pick<SchoolSyllabusUnit, "appId" | "subjectId" | "grade" | "title"> & { id: number | null; position?: number }, now: Date): Promise<SchoolSyllabusUnit | null> {
+    const t = schema.schoolSyllabusUnits;
+    const subjects = schema.schoolSubjects;
+    const [subject] = await this.run((db) => db.select({ id: subjects.id }).from(subjects).where(and(eq(subjects.appId, input.appId), eq(subjects.id, input.subjectId))).limit(1));
+    if (!subject) return null;
+    const fields = { subjectId: input.subjectId, grade: input.grade, title: input.title };
+    if (input.id === null) {
+      let position = input.position;
+      if (position === undefined) {
+        const [top] = await this.run((db) =>
+          db
+            .select({ n: sql<number>`coalesce(max(${t.position}), 0)` })
+            .from(t)
+            .where(and(eq(t.appId, input.appId), eq(t.subjectId, input.subjectId), eq(t.grade, input.grade))),
+        );
+        position = Number(top?.n ?? 0) + 1;
+      }
+      const values = { appId: input.appId, ...fields, position, createdAt: now, updatedAt: now };
+      const [result] = await this.run((db) => db.insert(t).values(values));
+      return { id: Number(result.insertId), ...values };
+    }
+    const id = input.id;
+    const [found] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, input.appId), eq(t.id, id))).limit(1));
+    if (!found) return null;
+    const next = { ...found, ...fields, position: input.position ?? found.position, updatedAt: now };
+    await this.run((db) => db.update(t).set({ ...fields, position: next.position, updatedAt: now }).where(and(eq(t.appId, input.appId), eq(t.id, id))));
+    return next;
+  }
+
+  async deleteSchoolSyllabusUnit(appId: string, id: number): Promise<void> {
+    // Its topics and their progress go by the foreign keys.
+    const t = schema.schoolSyllabusUnits;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async listSchoolSyllabusTopics(appId: string, filter: { unitIds?: number[]; ids?: number[] } = {}): Promise<SchoolSyllabusTopic[]> {
+    const t = schema.schoolSyllabusTopics;
+    if ((filter.unitIds && filter.unitIds.length === 0) || (filter.ids && filter.ids.length === 0)) return [];
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), filter.unitIds ? inArray(t.unitId, filter.unitIds) : undefined, filter.ids ? inArray(t.id, filter.ids) : undefined))
+        .orderBy(asc(t.unitId), asc(t.position), asc(t.id)),
+    );
+  }
+
+  async saveSchoolSyllabusTopic(input: Pick<SchoolSyllabusTopic, "appId" | "unitId" | "title" | "startsOn" | "endsOn"> & { id: number | null; position?: number }, now: Date): Promise<SchoolSyllabusTopic | null> {
+    const t = schema.schoolSyllabusTopics;
+    const units = schema.schoolSyllabusUnits;
+    const [unit] = await this.run((db) => db.select({ id: units.id }).from(units).where(and(eq(units.appId, input.appId), eq(units.id, input.unitId))).limit(1));
+    if (!unit) return null;
+    const fields = { unitId: input.unitId, title: input.title, startsOn: input.startsOn, endsOn: input.endsOn };
+    if (input.id === null) {
+      let position = input.position;
+      if (position === undefined) {
+        const [top] = await this.run((db) => db.select({ n: sql<number>`coalesce(max(${t.position}), 0)` }).from(t).where(eq(t.unitId, input.unitId)));
+        position = Number(top?.n ?? 0) + 1;
+      }
+      const values = { appId: input.appId, ...fields, position, createdAt: now, updatedAt: now };
+      const [result] = await this.run((db) => db.insert(t).values(values));
+      return { id: Number(result.insertId), ...values };
+    }
+    const id = input.id;
+    const [found] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, input.appId), eq(t.id, id))).limit(1));
+    if (!found) return null;
+    const next = { ...found, ...fields, position: input.position ?? found.position, updatedAt: now };
+    await this.run((db) => db.update(t).set({ ...fields, position: next.position, updatedAt: now }).where(and(eq(t.appId, input.appId), eq(t.id, id))));
+    return next;
+  }
+
+  async deleteSchoolSyllabusTopic(appId: string, id: number): Promise<void> {
+    const t = schema.schoolSyllabusTopics;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async listSchoolTopicProgress(appId: string, filter: { classId?: number; topicIds?: number[] } = {}): Promise<SchoolTopicProgress[]> {
+    const t = schema.schoolTopicProgress;
+    if (filter.topicIds && filter.topicIds.length === 0) return [];
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), filter.classId !== undefined ? eq(t.classId, filter.classId) : undefined, filter.topicIds ? inArray(t.topicId, filter.topicIds) : undefined)),
+    );
+  }
+
+  async saveSchoolTopicProgress(row: SchoolTopicProgress): Promise<void> {
+    const t = schema.schoolTopicProgress;
+    await this.run((db) => db.insert(t).values(row).onDuplicateKeyUpdate({ set: { coveredOn: row.coveredOn, note: row.note, teacherId: row.teacherId, updatedAt: row.updatedAt } }));
+  }
+
+  async deleteSchoolTopicProgress(appId: string, classId: number, topicId: number): Promise<void> {
+    const t = schema.schoolTopicProgress;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.classId, classId), eq(t.topicId, topicId))));
+  }
+
+  async listSchoolReportTemplates(appId: string): Promise<SchoolReportTemplate[]> {
+    const t = schema.schoolReportTemplates;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(asc(t.kind), asc(t.name), asc(t.id)));
+  }
+
+  async getSchoolReportTemplate(appId: string, id: number): Promise<SchoolReportTemplate | null> {
+    const t = schema.schoolReportTemplates;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async saveSchoolReportTemplate(input: Pick<SchoolReportTemplate, "appId" | "kind" | "name" | "fields"> & { id: number | null }, now: Date): Promise<SchoolReportTemplate | null> {
+    const t = schema.schoolReportTemplates;
+    const fields = { kind: input.kind, name: input.name, fields: input.fields };
+    if (input.id === null) {
+      const values = { appId: input.appId, ...fields, createdAt: now, updatedAt: now };
+      const [result] = await this.run((db) => db.insert(t).values(values));
+      return { id: Number(result.insertId), ...values };
+    }
+    const id = input.id;
+    const found = await this.getSchoolReportTemplate(input.appId, id);
+    if (!found) return null;
+    await this.run((db) => db.update(t).set({ ...fields, updatedAt: now }).where(and(eq(t.appId, input.appId), eq(t.id, id))));
+    return { ...found, ...fields, updatedAt: now };
+  }
+
+  async deleteSchoolReportTemplate(appId: string, id: number): Promise<void> {
+    // Its reports keep its name and fields; their template_id goes by the foreign key.
+    const t = schema.schoolReportTemplates;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async listSchoolReports(appId: string, filter: { teacherId?: number; studentId?: number; classId?: number; statuses?: SchoolReportStatus[] } = {}): Promise<SchoolReport[]> {
+    const t = schema.schoolReports;
+    if (filter.statuses && filter.statuses.length === 0) return [];
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, appId),
+            filter.teacherId !== undefined ? eq(t.teacherId, filter.teacherId) : undefined,
+            filter.studentId !== undefined ? eq(t.studentId, filter.studentId) : undefined,
+            filter.classId !== undefined ? eq(t.classId, filter.classId) : undefined,
+            filter.statuses ? inArray(t.status, filter.statuses) : undefined,
+          ),
+        )
+        .orderBy(desc(t.updatedAt), desc(t.id)),
+    );
+  }
+
+  async getSchoolReport(appId: string, id: number): Promise<SchoolReport | null> {
+    const t = schema.schoolReports;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async createSchoolReport(input: Omit<SchoolReport, "id">): Promise<SchoolReport> {
+    const [result] = await this.run((db) => db.insert(schema.schoolReports).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async updateSchoolReport(
+    appId: string,
+    id: number,
+    patch: Partial<Pick<SchoolReport, "answers" | "subjectId" | "periodFrom" | "periodTo" | "status" | "comments" | "sentAt" | "readAt" | "reviewedAt" | "sharedAt" | "updatedAt">>,
+    expect: { statuses?: SchoolReportStatus[] } = {},
+  ): Promise<boolean> {
+    const t = schema.schoolReports;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set(patch)
+        .where(and(eq(t.appId, appId), eq(t.id, id), expect.statuses ? inArray(t.status, expect.statuses) : undefined)),
+    );
+    return result.affectedRows === 1;
+  }
+
+  async deleteSchoolReport(appId: string, id: number): Promise<void> {
+    const t = schema.schoolReports;
     await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
   }
 

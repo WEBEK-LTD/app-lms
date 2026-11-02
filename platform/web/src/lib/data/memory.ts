@@ -112,6 +112,12 @@ import type {
   SchoolClass,
   SchoolFamilyLink,
   SchoolFee,
+  SchoolReport,
+  SchoolReportStatus,
+  SchoolReportTemplate,
+  SchoolSyllabusTopic,
+  SchoolSyllabusUnit,
+  SchoolTopicProgress,
   SchoolHomework,
   SchoolPeriod,
   SchoolPerson,
@@ -2312,6 +2318,9 @@ export class MemoryStore implements DataStore {
     for (const [key, p] of this.schoolPeriods) if (p.classId === id) this.schoolPeriods.delete(key);
     for (const h of [...this.schoolHomework.values()]) if (h.classId === id) await this.deleteSchoolHomework(appId, h.id);
     for (const a of [...this.schoolAssessments.values()]) if (a.classId === id) await this.deleteSchoolAssessment(appId, a.id);
+    // 113.5 Its progress goes; its reports stay, without a class.
+    for (const [key, p] of this.schoolTopicProgress) if (p.classId === id) this.schoolTopicProgress.delete(key);
+    for (const r of this.schoolReports.values()) if (r.classId === id) r.classId = null;
   }
 
   async listSchoolSubjects(appId: string): Promise<SchoolSubject[]> {
@@ -2337,6 +2346,9 @@ export class MemoryStore implements DataStore {
     if (!found || found.appId !== appId) return;
     this.schoolSubjects.delete(id);
     for (const [key, p] of this.schoolPeriods) if (p.subjectId === id) this.schoolPeriods.delete(key);
+    // 113.5 Its syllabus goes; reports on it stay, without a subject.
+    for (const u of [...this.schoolSyllabusUnits.values()]) if (u.subjectId === id) await this.deleteSchoolSyllabusUnit(appId, u.id);
+    for (const r of this.schoolReports.values()) if (r.subjectId === id) r.subjectId = null;
   }
 
   async listSchoolPeople(appId: string, filter: { role?: SchoolRole; classId?: number; ids?: number[] } = {}): Promise<SchoolPerson[]> {
@@ -2389,6 +2401,10 @@ export class MemoryStore implements DataStore {
     for (const [key, x] of this.schoolScores) if (x.studentId === id) this.schoolScores.delete(key);
     for (const [key, f] of this.schoolFees) if (f.studentId === id) this.schoolFees.delete(key);
     for (const p of this.schoolPeriods.values()) if (p.teacherId === id) p.teacherId = null;
+    // 113.5 A student's reports go with them; a teacher's stay, with their name.
+    for (const [key, r] of this.schoolReports) if (r.studentId === id) this.schoolReports.delete(key);
+    for (const r of this.schoolReports.values()) if (r.teacherId === id) r.teacherId = null;
+    for (const p of this.schoolTopicProgress.values()) if (p.teacherId === id) p.teacherId = null;
   }
 
   async listSchoolFamily(appId: string, filter: { parentId?: number; studentId?: number }): Promise<SchoolFamilyLink[]> {
@@ -2593,6 +2609,175 @@ export class MemoryStore implements DataStore {
   async deleteSchoolFee(appId: string, id: number): Promise<void> {
     const found = this.schoolFees.get(id);
     if (found && found.appId === appId) this.schoolFees.delete(id);
+  }
+
+  // 113.5 The syllabus, each class's progress, and the teachers' reports
+
+  private schoolSyllabusUnits = new Map<number, SchoolSyllabusUnit>();
+  private schoolSyllabusTopics = new Map<number, SchoolSyllabusTopic>();
+  /** Keyed `classId:topicId`. */
+  private schoolTopicProgress = new Map<string, SchoolTopicProgress>();
+  private schoolReportTemplates = new Map<number, SchoolReportTemplate>();
+  private schoolReports = new Map<number, SchoolReport>();
+
+  async listSchoolSyllabusUnits(appId: string, filter: { subjectId?: number; grade?: string } = {}): Promise<SchoolSyllabusUnit[]> {
+    return [...this.schoolSyllabusUnits.values()]
+      .filter((u) => u.appId === appId && (filter.subjectId === undefined || u.subjectId === filter.subjectId) && (filter.grade === undefined || u.grade === filter.grade))
+      .sort((a, b) => a.position - b.position || a.id - b.id)
+      .map(clone);
+  }
+
+  async saveSchoolSyllabusUnit(input: Pick<SchoolSyllabusUnit, "appId" | "subjectId" | "grade" | "title"> & { id: number | null; position?: number }, now: Date): Promise<SchoolSyllabusUnit | null> {
+    const subject = this.schoolSubjects.get(input.subjectId);
+    if (!subject || subject.appId !== input.appId) return null;
+    if (input.id === null) {
+      const same = [...this.schoolSyllabusUnits.values()].filter((u) => u.appId === input.appId && u.subjectId === input.subjectId && u.grade === input.grade);
+      const made: SchoolSyllabusUnit = {
+        id: this.nextSchoolId++,
+        appId: input.appId,
+        subjectId: input.subjectId,
+        grade: input.grade,
+        title: input.title,
+        position: input.position ?? Math.max(0, ...same.map((u) => u.position)) + 1,
+        createdAt: now,
+        updatedAt: now,
+      };
+      this.schoolSyllabusUnits.set(made.id, clone(made));
+      return made;
+    }
+    const found = this.schoolSyllabusUnits.get(input.id);
+    if (!found || found.appId !== input.appId) return null;
+    const next: SchoolSyllabusUnit = { ...found, subjectId: input.subjectId, grade: input.grade, title: input.title, position: input.position ?? found.position, updatedAt: now };
+    this.schoolSyllabusUnits.set(found.id, clone(next));
+    return next;
+  }
+
+  async deleteSchoolSyllabusUnit(appId: string, id: number): Promise<void> {
+    const found = this.schoolSyllabusUnits.get(id);
+    if (!found || found.appId !== appId) return;
+    this.schoolSyllabusUnits.delete(id);
+    for (const t of [...this.schoolSyllabusTopics.values()]) if (t.unitId === id) await this.deleteSchoolSyllabusTopic(appId, t.id);
+  }
+
+  async listSchoolSyllabusTopics(appId: string, filter: { unitIds?: number[]; ids?: number[] } = {}): Promise<SchoolSyllabusTopic[]> {
+    return [...this.schoolSyllabusTopics.values()]
+      .filter((t) => t.appId === appId && (!filter.unitIds || filter.unitIds.includes(t.unitId)) && (!filter.ids || filter.ids.includes(t.id)))
+      .sort((a, b) => a.unitId - b.unitId || a.position - b.position || a.id - b.id)
+      .map(clone);
+  }
+
+  async saveSchoolSyllabusTopic(input: Pick<SchoolSyllabusTopic, "appId" | "unitId" | "title" | "startsOn" | "endsOn"> & { id: number | null; position?: number }, now: Date): Promise<SchoolSyllabusTopic | null> {
+    const unit = this.schoolSyllabusUnits.get(input.unitId);
+    if (!unit || unit.appId !== input.appId) return null;
+    const fields = { unitId: input.unitId, title: input.title, startsOn: input.startsOn, endsOn: input.endsOn };
+    if (input.id === null) {
+      const same = [...this.schoolSyllabusTopics.values()].filter((t) => t.unitId === input.unitId);
+      const made: SchoolSyllabusTopic = { id: this.nextSchoolId++, appId: input.appId, ...fields, position: input.position ?? Math.max(0, ...same.map((t) => t.position)) + 1, createdAt: now, updatedAt: now };
+      this.schoolSyllabusTopics.set(made.id, clone(made));
+      return made;
+    }
+    const found = this.schoolSyllabusTopics.get(input.id);
+    if (!found || found.appId !== input.appId) return null;
+    const next: SchoolSyllabusTopic = { ...found, ...fields, position: input.position ?? found.position, updatedAt: now };
+    this.schoolSyllabusTopics.set(found.id, clone(next));
+    return next;
+  }
+
+  async deleteSchoolSyllabusTopic(appId: string, id: number): Promise<void> {
+    const found = this.schoolSyllabusTopics.get(id);
+    if (!found || found.appId !== appId) return;
+    this.schoolSyllabusTopics.delete(id);
+    for (const [key, p] of this.schoolTopicProgress) if (p.topicId === id) this.schoolTopicProgress.delete(key);
+  }
+
+  async listSchoolTopicProgress(appId: string, filter: { classId?: number; topicIds?: number[] } = {}): Promise<SchoolTopicProgress[]> {
+    return [...this.schoolTopicProgress.values()]
+      .filter((p) => p.appId === appId && (filter.classId === undefined || p.classId === filter.classId) && (!filter.topicIds || filter.topicIds.includes(p.topicId)))
+      .map(clone);
+  }
+
+  async saveSchoolTopicProgress(row: SchoolTopicProgress): Promise<void> {
+    this.schoolTopicProgress.set(`${row.classId}:${row.topicId}`, clone(row));
+  }
+
+  async deleteSchoolTopicProgress(appId: string, classId: number, topicId: number): Promise<void> {
+    const key = `${classId}:${topicId}`;
+    if (this.schoolTopicProgress.get(key)?.appId === appId) this.schoolTopicProgress.delete(key);
+  }
+
+  async listSchoolReportTemplates(appId: string): Promise<SchoolReportTemplate[]> {
+    return [...this.schoolReportTemplates.values()]
+      .filter((t) => t.appId === appId)
+      .sort((a, b) => a.kind.localeCompare(b.kind) || a.name.localeCompare(b.name) || a.id - b.id)
+      .map(clone);
+  }
+
+  async getSchoolReportTemplate(appId: string, id: number): Promise<SchoolReportTemplate | null> {
+    const found = this.schoolReportTemplates.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async saveSchoolReportTemplate(input: Pick<SchoolReportTemplate, "appId" | "kind" | "name" | "fields"> & { id: number | null }, now: Date): Promise<SchoolReportTemplate | null> {
+    if (input.id === null) {
+      const made: SchoolReportTemplate = { id: this.nextSchoolId++, appId: input.appId, kind: input.kind, name: input.name, fields: clone(input.fields), createdAt: now, updatedAt: now };
+      this.schoolReportTemplates.set(made.id, clone(made));
+      return made;
+    }
+    const found = this.schoolReportTemplates.get(input.id);
+    if (!found || found.appId !== input.appId) return null;
+    const next: SchoolReportTemplate = { ...found, kind: input.kind, name: input.name, fields: clone(input.fields), updatedAt: now };
+    this.schoolReportTemplates.set(found.id, clone(next));
+    return next;
+  }
+
+  async deleteSchoolReportTemplate(appId: string, id: number): Promise<void> {
+    const found = this.schoolReportTemplates.get(id);
+    if (!found || found.appId !== appId) return;
+    this.schoolReportTemplates.delete(id);
+    for (const r of this.schoolReports.values()) if (r.templateId === id) r.templateId = null;
+  }
+
+  async listSchoolReports(appId: string, filter: { teacherId?: number; studentId?: number; classId?: number; statuses?: SchoolReportStatus[] } = {}): Promise<SchoolReport[]> {
+    return [...this.schoolReports.values()]
+      .filter(
+        (r) =>
+          r.appId === appId &&
+          (filter.teacherId === undefined || r.teacherId === filter.teacherId) &&
+          (filter.studentId === undefined || r.studentId === filter.studentId) &&
+          (filter.classId === undefined || r.classId === filter.classId) &&
+          (!filter.statuses || filter.statuses.includes(r.status)),
+      )
+      .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime() || b.id - a.id)
+      .map(clone);
+  }
+
+  async getSchoolReport(appId: string, id: number): Promise<SchoolReport | null> {
+    const found = this.schoolReports.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async createSchoolReport(input: Omit<SchoolReport, "id">): Promise<SchoolReport> {
+    const made: SchoolReport = { ...clone(input), id: this.nextSchoolId++ };
+    this.schoolReports.set(made.id, clone(made));
+    return made;
+  }
+
+  async updateSchoolReport(
+    appId: string,
+    id: number,
+    patch: Partial<Pick<SchoolReport, "answers" | "subjectId" | "periodFrom" | "periodTo" | "status" | "comments" | "sentAt" | "readAt" | "reviewedAt" | "sharedAt" | "updatedAt">>,
+    expect: { statuses?: SchoolReportStatus[] } = {},
+  ): Promise<boolean> {
+    const found = this.schoolReports.get(id);
+    if (!found || found.appId !== appId) return false;
+    if (expect.statuses && !expect.statuses.includes(found.status)) return false;
+    this.schoolReports.set(id, { ...found, ...clone(patch) });
+    return true;
+  }
+
+  async deleteSchoolReport(appId: string, id: number): Promise<void> {
+    const found = this.schoolReports.get(id);
+    if (found && found.appId === appId) this.schoolReports.delete(id);
   }
 
   // 105.3 Academies with many teachers
