@@ -5,7 +5,7 @@ import { appLanguageName } from "@/lib/i18n/language-names";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Icon } from "@/components/icon";
-import { Notice, PageHeader, btn, formatDate } from "@/components/ui";
+import { Notice, PageHeader, Section, btn, formatDate } from "@/components/ui";
 import { AppDeletion } from "@/components/app-deletion";
 import { richText } from "@/i18n/rich";
 import { TwoApps } from "@/components/two-apps";
@@ -308,37 +308,46 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
 
       {/* 46 Links that open the app: the link files' status, with "Check links". */}
       {step === "publishing" || complete ? (
-        <section aria-labelledby="h-links" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 id="h-links" className="m-0 flex items-center gap-2 text-lg font-bold">
+        <Section
+          titleId="h-links"
+          title={
+            <span className="flex items-center gap-2">
               <Icon name="link" size={22} />
               {t("setup.links")}
-            </h2>
-            <Link href={here("/dashboard/publishing/links")} className="text-sm font-semibold">
+            </span>
+          }
+          description={app.backend === "wordpress" ? t("setup.linksTextSite") : t("setup.linksText")}
+          actions={
+            <Link href={here("/dashboard/publishing/links")} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
               {t("setup.fingerprint")}
             </Link>
-          </div>
-          <p className="m-0 text-sm leading-relaxed text-ink-4">{app.backend === "wordpress" ? t("setup.linksTextSite") : t("setup.linksText")}</p>
+          }
+        >
           <CheckLinksPanel last={app.linksCheck ?? null} />
-        </section>
+        </Section>
       ) : null}
 
       {/* 73 The danger zone: the owner deletes the app. */}
       <AppDeletion context={context} app={app} name={name} />
 
       {upcoming.length ? (
-        <section aria-labelledby="h-next" className="flex flex-col gap-3">
-          <h2 id="h-next" className="m-0 text-lg font-bold">
+        <section aria-labelledby="h-next" className="flex flex-col gap-3 pt-2">
+          {/* As the page kit's group names: a small label and a rule. */}
+          <h2 id="h-next" className="m-0 flex items-center gap-3 text-xs font-bold tracking-[0.4px] text-muted uppercase">
             {t("setup.comingUp")}
+            <span aria-hidden="true" className="h-px flex-1 bg-line" />
           </h2>
-          <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
+          <ol className="m-0 grid list-none gap-3 p-0 [grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr))]">
             {upcoming.map((s) => (
-              <div key={s} className="flex flex-col gap-2 rounded-2xl border border-dashed border-line-strong bg-sand px-5 py-[18px]">
-                <span className="text-[15px] font-bold">{t("setup.stepNumber", { n: editableSteps.indexOf(s) + 1, step: k(STEP_LABEL[s]) })}</span>
-                <span className="text-sm leading-relaxed text-ink-4">{t(COMING_UP[s])}</span>
-              </div>
+              <li key={s} className="flex items-start gap-3 rounded-2xl border border-dashed border-line-strong bg-sand px-4 py-4">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-[13px] font-bold text-muted">{editableSteps.indexOf(s) + 1}</span>
+                <span className="flex min-w-0 flex-col gap-1">
+                  <span className="text-[15px] font-bold">{t("setup.stepNumber", { n: editableSteps.indexOf(s) + 1, step: k(STEP_LABEL[s]) })}</span>
+                  <span className="text-sm leading-relaxed text-ink-4">{t(COMING_UP[s])}</span>
+                </span>
+              </li>
             ))}
-          </div>
+          </ol>
         </section>
       ) : null}
     </>

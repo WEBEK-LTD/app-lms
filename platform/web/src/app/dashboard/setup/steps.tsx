@@ -70,7 +70,8 @@ function StepActions({ back: dashboardBack }: { back: string | null }) {
   const inFrame = useInFrame();
   const back = dashboardBack ? inFrame(dashboardBack) : null;
   return (
-    <div className="flex justify-between gap-3 pt-1.5">
+    // The page kit's form bar: the step's buttons in sight at the bottom while the form scrolls.
+    <div className="sticky bottom-0 z-[1] -mx-5 flex flex-wrap justify-between gap-3 border-t border-line-soft bg-white px-5 py-3 sm:-mx-6 sm:px-6">
       {back ? (
         <Link href={back} className={`${btn.secondary} h-11`}>
           {t("setup.back")}
@@ -78,7 +79,7 @@ function StepActions({ back: dashboardBack }: { back: string | null }) {
       ) : (
         <span />
       )}
-      <SubmitButton className="h-11">{t("setup.saveContinue")}</SubmitButton>
+      <SubmitButton variant="main" className="h-11">{t("setup.saveContinue")}</SubmitButton>
     </div>
   );
 }
@@ -1598,11 +1599,11 @@ export function PublishingStep({
           </UpgradeHint>
           <FirebaseFields state={state} saved={saved.firebase} />
         <MoreStoresLink />
-          <div className="flex justify-between gap-3 pt-1.5">
+          <div className="sticky bottom-0 z-[1] -mx-5 flex flex-wrap justify-between gap-3 border-t border-line-soft bg-white px-5 py-3 sm:-mx-6 sm:px-6">
             <Link href={here("/dashboard/setup?step=listing")} className={`${btn.secondary} h-11`}>
               {t("setup.back")}
             </Link>
-            <SubmitButton className="h-11">{t("setup.finish")}</SubmitButton>
+            <SubmitButton variant="main" className="h-11">{t("setup.finish")}</SubmitButton>
           </div>
         </StepCard>
       </form>
@@ -1675,11 +1676,11 @@ export function PublishingStep({
         <FirebaseFields state={state} saved={saved.firebase} />
         <MoreStoresLink />
 
-        <div className="flex justify-between gap-3 pt-1.5">
+        <div className="sticky bottom-0 z-[1] -mx-5 flex flex-wrap justify-between gap-3 border-t border-line-soft bg-white px-5 py-3 sm:-mx-6 sm:px-6">
           <Link href={here("/dashboard/setup?step=listing")} className={`${btn.secondary} h-11`}>
             {t("setup.back")}
           </Link>
-          <SubmitButton className="h-11">{t("setup.saveFinish")}</SubmitButton>
+          <SubmitButton variant="main" className="h-11">{t("setup.saveFinish")}</SubmitButton>
         </div>
       </StepCard>
     </form>
