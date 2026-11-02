@@ -113,6 +113,12 @@ List<RouteBase> _pushedRoutes() => [
   _part('timetable', (student) => TimetableScreen(student: student)),
   _part('homework', (student) => HomeworkScreen(student: student)),
   _part('grades', (student) => GradesScreen(student: student)),
+  // 112.5 The report card, and a class's gradebook for its teachers.
+  _part('report-card', (student) => ReportCardScreen(student: student)),
+  _byId(
+    '${Paths.classroom}/class/:id/gradebook',
+    (id) => ClassGradebookScreen(classId: id),
+  ),
   _part('attendance', (student) => AttendanceScreen(student: student)),
   _part('fees', (student) => FeesScreen(student: student)),
   _part('news', (student) => const SchoolNewsScreen()),

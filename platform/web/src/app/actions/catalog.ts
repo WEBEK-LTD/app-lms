@@ -306,7 +306,7 @@ export async function saveManualPaymentsAction(_: FormState, formData: FormData)
 
 /** 91.1 A coupon for the shop's customers. */
 export async function addCouponAction(_: FormState, formData: FormData): Promise<FormState> {
-  const { app } = await requireCatalogApp();
+  const { app } = await requireCatalogApp({ courses: true });
   const values = { code: str(formData, "code"), kind: str(formData, "kind"), value: str(formData, "value"), minOrder: str(formData, "minOrder"), endsOn: str(formData, "endsOn"), maxUses: str(formData, "maxUses") };
   const now = new Date();
   const parsed = parseCoupon(values, now);
@@ -318,13 +318,13 @@ export async function addCouponAction(_: FormState, formData: FormData): Promise
 }
 
 export async function setCouponActiveAction(formData: FormData): Promise<void> {
-  const { app } = await requireCatalogApp();
+  const { app } = await requireCatalogApp({ courses: true });
   await (await getStore()).setCatalogCouponActive(app.id, Number(formData.get("id")), formData.get("active") === "on");
   refresh();
 }
 
 export async function deleteCouponAction(formData: FormData): Promise<void> {
-  const { app } = await requireCatalogApp();
+  const { app } = await requireCatalogApp({ courses: true });
   await (await getStore()).deleteCatalogCoupon(app.id, Number(formData.get("id")));
   refresh();
 }

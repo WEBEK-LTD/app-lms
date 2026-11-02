@@ -194,3 +194,54 @@ class QuestionReview {
       ? accepted.join(' / ')
       : [for (final id in right) options[id] ?? id].join(', ');
 }
+
+/// 112.5 An assignment handed in on one of a teacher's courses
+/// (`TeacherSubmission`).
+class TeacherSubmission {
+  const TeacherSubmission({
+    required this.id,
+    required this.courseTitle,
+    required this.assignmentTitle,
+    required this.studentName,
+    required this.status,
+    required this.maxPoints,
+    required this.submittedAt,
+    this.text = '',
+    this.file,
+    this.score,
+    this.feedback,
+    this.late = false,
+  });
+
+  factory TeacherSubmission.fromJson(Json json) => TeacherSubmission(
+    id: reqInt(json, 'id'),
+    courseTitle: optString(json, 'course_title') ?? '',
+    assignmentTitle: reqString(json, 'assignment_title'),
+    studentName: optString(json, 'student_name') ?? '',
+    text: optString(json, 'text') ?? '',
+    file: optObject(json, 'file', SchoolFile.fromJson),
+    status: enumFrom(
+      SubmissionStatus.values,
+      json['status'],
+      SubmissionStatus.submitted,
+    ),
+    score: optInt(json, 'score'),
+    maxPoints: reqInt(json, 'max_points'),
+    feedback: optString(json, 'feedback'),
+    submittedAt: reqDate(json, 'submitted_at'),
+    late: boolOr(json, 'late', false),
+  );
+
+  final int id;
+  final String courseTitle;
+  final String assignmentTitle;
+  final String studentName;
+  final String text;
+  final SchoolFile? file;
+  final SubmissionStatus status;
+  final int? score;
+  final int maxPoints;
+  final String? feedback;
+  final DateTime submittedAt;
+  final bool late;
+}

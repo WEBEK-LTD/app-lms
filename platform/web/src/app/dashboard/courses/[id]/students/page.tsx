@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { setStudentCohortAction } from "@/app/actions/courses";
+import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { Badge, btn, formatDate } from "@/components/ui";
 import { formatCents } from "@/lib/catalog/money";
@@ -37,8 +39,13 @@ export default async function CourseStudentsPage({ params, searchParams }: PageP
   const assignments = assignmentSummaries(course, all);
   const { t, lang } = await dashboardText();
   const now = new Date();
-  const riskOnly = ((await searchParams) as { filter?: string }).filter === "at_risk";
-  const rows = riskOnly ? all.filter((r) => atRisk(r, now)) : all;
+  const query = (await searchParams) as { filter?: string; cohort?: string };
+  const riskOnly = query.filter === "at_risk";
+  // 112.5 One cohort's students.
+  const cohorts = course.cohorts ?? [];
+  const cohort = cohorts.find((c) => c.id === Number(query.cohort)) ?? null;
+  const rows = all.filter((r) => (!riskOnly || atRisk(r, now)) && (!cohort || r.cohortId === cohort.id));
+  const base = `/dashboard/courses/${course.id}/students`;
   const insights = await courseInsights(store, app, courseSetup(app), course, all, now);
   const currency = courseSetup(app).currency;
   const finished = all.filter((r) => r.completedAt).length;
@@ -103,8 +110,9 @@ export default async function CourseStudentsPage({ params, searchParams }: PageP
           {/* 112.5 Everyone, or only those at risk. */}
           <nav aria-label={t("courses.students")} className="flex flex-wrap gap-2">
             {[
-              { href: `/dashboard/courses/${course.id}/students`, on: !riskOnly, text: t("community.all") },
-              { href: `/dashboard/courses/${course.id}/students?filter=at_risk`, on: riskOnly, text: t("lms.atRiskFilter", { count: insights.atRisk }) },
+              { href: base, on: !riskOnly && !cohort, text: t("community.all") },
+              { href: `${base}?filter=at_risk`, on: riskOnly && !cohort, text: t("lms.atRiskFilter", { count: insights.atRisk }) },
+              ...cohorts.map((c) => ({ href: `${base}?cohort=${c.id}`, on: cohort?.id === c.id, text: `${c.name} (${all.filter((r) => r.cohortId === c.id).length})` })),
             ].map((tab) => (
               <Link
                 key={tab.href}
@@ -144,6 +152,27 @@ export default async function CourseStudentsPage({ params, searchParams }: PageP
                       <span className="block text-xs text-muted" dir="ltr">
                         {r.phone}
                       </span>
+                      {/* 112.5 The student's cohort, and moving them to another. */}
+                      {cohorts.length ? (
+                        <form action={setStudentCohortAction} className="mt-1 flex items-center gap-1.5" data-cohort-form={r.userId}>
+                          <input type="hidden" name="courseId" value={course.id} />
+                          <input type="hidden" name="userId" value={r.userId} />
+                          <label htmlFor={`f-cohort-${r.userId}`} className="sr-only">
+                            {t("lms.cohort")}
+                          </label>
+                          <select id={`f-cohort-${r.userId}`} name="cohortId" defaultValue={r.cohortId ? String(r.cohortId) : ""} className="input h-8 py-0 text-xs">
+                            <option value="">{t("lms.noCohort")}</option>
+                            {cohorts.map((c) => (
+                              <option key={c.id} value={c.id}>
+                                {c.name}
+                              </option>
+                            ))}
+                          </select>
+                          <SubmitButton variant="secondary" className="h-8 px-2 text-xs">
+                            {t("lms.moveToCohort")}
+                          </SubmitButton>
+                        </form>
+                      ) : null}
                       {atRisk(r, now) ? (
                         <span className="mt-1 block">
                           <Badge tone="warn">{t("lms.atRisk", { days: AT_RISK_DAYS })}</Badge>

@@ -68,6 +68,16 @@ final studentAttendanceProvider = FutureProvider.autoDispose
       (ref, id) => ref.read(yallappApiProvider).getStudentAttendance(id),
     );
 
+/// 112.5 The student's report card, and a class's gradebook for its teachers.
+final reportCardProvider = FutureProvider.autoDispose.family<ReportCard, int>(
+  (ref, id) => ref.read(yallappApiProvider).getStudentReportCard(id),
+);
+
+final classGradebookProvider = FutureProvider.autoDispose
+    .family<ClassGradebook, int>(
+      (ref, id) => ref.read(yallappApiProvider).getClassGradebook(id),
+    );
+
 final studentGradesProvider = FutureProvider.autoDispose
     .family<StudentGrades, int>(
       (ref, id) => ref.read(yallappApiProvider).getStudentGrades(id),

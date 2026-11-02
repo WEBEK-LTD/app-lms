@@ -6107,5 +6107,206 @@
         "type": "int"
       }
     }
+  },
+  "certificatePdf": "Download the PDF",
+  "@certificatePdf": {
+    "description": "112.5 Opens a certificate's PDF file."
+  },
+  "certificateShare": "Share the certificate",
+  "@certificateShare": {
+    "description": "112.5 Shares a certificate's link."
+  },
+  "certificateShareText": "My certificate for {course}: {url}",
+  "@certificateShareText": {
+    "description": "112.5 The text shared with a certificate.",
+    "placeholders": {
+      "course": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "cohortStarts": "{cohort} · starts {date}",
+  "@cohortStarts": {
+    "description": "112.5 On a course page: the student's cohort and its first day.",
+    "placeholders": {
+      "cohort": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "teacherTabGrading": "Grading",
+  "@teacherTabGrading": {
+    "description": "112.5 The Teacher tab's part with the assignments to grade."
+  },
+  "gradingToGrade": "To grade",
+  "@gradingToGrade": {
+    "description": "112.5 Assignments waiting for the teacher's grade."
+  },
+  "gradingGraded": "Graded",
+  "@gradingGraded": {
+    "description": "112.5 Assignments the teacher graded."
+  },
+  "gradingNone": "Nothing to grade. Well done!",
+  "@gradingNone": {
+    "description": "112.5 No assignment waits for the teacher's grade."
+  },
+  "gradingNoneGraded": "Nothing graded yet.",
+  "@gradingNoneGraded": {
+    "description": "112.5 The teacher graded nothing yet."
+  },
+  "gradingSentBackLabel": "Sent back",
+  "@gradingSentBackLabel": {
+    "description": "112.5 An assignment the teacher sent back."
+  },
+  "gradingScore": "Score (out of {max})",
+  "@gradingScore": {
+    "description": "112.5 The score field when grading.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "gradingNote": "Note to the student",
+  "@gradingNote": {
+    "description": "112.5 The note field when grading."
+  },
+  "gradingSave": "Save the grade",
+  "@gradingSave": {
+    "description": "112.5 Saves an assignment's grade."
+  },
+  "gradingSendBack": "Send back for another try",
+  "@gradingSendBack": {
+    "description": "112.5 Sends an assignment back to the student."
+  },
+  "gradingSaved": "Graded. Your student sees it in the app.",
+  "@gradingSaved": {
+    "description": "112.5 After grading an assignment."
+  },
+  "gradingSentBack": "Sent back to your student.",
+  "@gradingSentBack": {
+    "description": "112.5 After sending an assignment back."
+  },
+  "gradingNeedsNote": "Write what to change before sending it back.",
+  "@gradingNeedsNote": {
+    "description": "112.5 Sending back without a note."
+  },
+  "gradingScoreRange": "Enter a score from 0 to {max}.",
+  "@gradingScoreRange": {
+    "description": "112.5 A score outside the assignment's range.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "reportCard": "Report card",
+  "@reportCard": {
+    "description": "112.5 A student's report card over the term."
+  },
+  "reportPeriod": "{from} to {to}",
+  "@reportPeriod": {
+    "description": "112.5 A report card's period.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "reportOverall": "Overall",
+  "@reportOverall": {
+    "description": "112.5 The overall percent on a report card or gradebook."
+  },
+  "reportAttendance": "Attendance: {present} present, {absent} absent, {late} late, {excused} excused.",
+  "@reportAttendance": {
+    "description": "112.5 A report card's attendance line.",
+    "placeholders": {
+      "present": {
+        "type": "int"
+      },
+      "absent": {
+        "type": "int"
+      },
+      "late": {
+        "type": "int"
+      },
+      "excused": {
+        "type": "int"
+      }
+    }
+  },
+  "reportCardNone": "No scores in this term yet.",
+  "@reportCardNone": {
+    "description": "112.5 A report card without scores yet."
+  },
+  "classGradebook": "Gradebook",
+  "@classGradebook": {
+    "description": "112.5 A class's gradebook for its teachers."
+  },
+  "gradebookNone": "No students in this class yet.",
+  "@gradebookNone": {
+    "description": "112.5 A gradebook of a class without students."
+  },
+  "gradebookStudent": "Student",
+  "@gradebookStudent": {
+    "description": "112.5 The gradebook's student column."
+  },
+  "gradebookAbsent": "Absent",
+  "@gradebookAbsent": {
+    "description": "112.5 The gradebook's days-absent column."
+  },
+  "liveCalendar": "Calendar",
+  "@liveCalendar": {
+    "description": "112.5 The live classes' month calendar."
+  },
+  "liveNoneThisDay": "No live class on this day.",
+  "@liveNoneThisDay": {
+    "description": "112.5 A calendar day without a live class."
+  },
+  "liveClassesCount": "{count, plural, =1{1 live class} other{{count} live classes}}",
+  "@liveClassesCount": {
+    "description": "112.5 Read out for a calendar day with live classes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "calendarPrevious": "Previous month",
+  "@calendarPrevious": {
+    "description": "112.5 The calendar's button to the month before."
+  },
+  "calendarNext": "Next month",
+  "@calendarNext": {
+    "description": "112.5 The calendar's button to the month after."
+  },
+  "couponSaves": "{discount} off: you pay {total}.",
+  "@couponSaves": {
+    "description": "112.5 A coupon that applies to a paid course, and the price it leaves.",
+    "placeholders": {
+      "discount": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "couponContinue": "Continue with the coupon",
+  "@couponContinue": {
+    "description": "112.5 Goes to a paid course's checkout with the coupon."
+  },
+  "couponWithout": "Continue without a coupon",
+  "@couponWithout": {
+    "description": "112.5 Goes to a paid course's checkout without a coupon."
   }
 }

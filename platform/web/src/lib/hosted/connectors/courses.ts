@@ -1,10 +1,11 @@
 import { centsToDecimal, formatCents } from "../../catalog/money";
+import { couponDiscount, normalizeCouponCode } from "../../catalog/coupons";
 import { PAY_LINK_MINUTES, paymentsSetUp } from "../../catalog/settings";
 import { DOWNLOAD_CHECK_MAX, DOWNLOAD_KEEP_DAYS, DOWNLOAD_LINK_MINUTES, isVideoFile } from "../../courses/downloads";
 import { findLesson, lessonsOf, courseSetup, videoSource } from "../../courses/setup";
 import { randomToken, sha256Hex } from "../../crypto/tokens";
 import type { DataStore } from "../../data/store";
-import type { App, AssignmentSubmission, Course, CourseAssignment, CourseLesson, CourseLiveSession, CourseQuestion, CourseQuiz, CourseReview, CourseSetup, HostedUser, LessonProgress, QuizAttempt, Teacher } from "../../data/types";
+import type { App, AssignmentSubmission, Course, CourseAssignment, CourseCohort, CourseLesson, CourseLiveSession, CourseQuestion, CourseQuiz, CourseReview, CourseSetup, HostedUser, LessonProgress, QuizAttempt, Teacher } from "../../data/types";
 import { isTeachersApp, teacherOf } from "../../teachers/service";
 import {
   accessEndsAt,
@@ -27,6 +28,8 @@ import {
   liveStatus,
   quizzesOf,
   scoreQuiz,
+  attemptQuestions,
+  quizQuestionCount,
   shuffled,
   topicItems,
   waitingForPrevious,
@@ -93,6 +96,8 @@ const notYet = () => error(403, "previous_not_done", "Finish what comes before i
 const ASSIGNMENT_KINDS = MEDIA_KINDS.filter((k) => k.kind === "image" || k.kind === "pdf");
 const UPLOAD_LIMIT: RateLimitRule = { name: "course_upload", limit: 60, windowSeconds: 3600 };
 const SUBMIT_LIMIT: RateLimitRule = { name: "course_submit", limit: 60, windowSeconds: 3600 };
+/** 112.5 Coupons tried: a few an hour, so codes can't be guessed. */
+const COUPON_LIMIT: RateLimitRule = { name: "course_coupon", limit: 20, windowSeconds: 3600 };
 
 /**
  * Courses managed in the Yallapp dashboard, served like the plugin's LMS
@@ -103,6 +108,8 @@ const SUBMIT_LIMIT: RateLimitRule = { name: "course_submit", limit: 60, windowSe
  */
 export class CoursesConnector implements Connector {
   private readonly setup: CourseSetup;
+  /** 112.5 The student's cohort in each course they're in (read with their enrolments). */
+  private cohortIds = new Map<number, number | null>();
   /** 105.3 The academy's teachers by ID, read once per request in an academy with many teachers. */
   private teachers = new Map<number, Teacher>();
 
@@ -189,6 +196,8 @@ export class CoursesConnector implements Connector {
       if (request.method === "GET" && request.path.length === 2) return course ? this.detail(request, course) : noCourse();
       if (request.method === "GET" && third === "curriculum" && request.path.length === 3) return course ? this.curriculum(request, course) : noCourse();
       if (request.method === "POST" && third === "enroll" && request.path.length === 3) return this.enroll(request, course);
+      // 112.5 A coupon for a paid course, checked before buying it.
+      if (request.method === "POST" && third === "coupon" && request.path.length === 3) return this.checkCoupon(request, course);
       // 73 Start a finished course again.
       if (request.method === "POST" && third === "restart" && request.path.length === 3) return this.restart(request, course);
     }
@@ -265,6 +274,8 @@ export class CoursesConnector implements Connector {
   private async enrollments(request: ConnectorRequest): Promise<Map<number, Date>> {
     if (!request.user) return new Map();
     const rows = await this.deps.store.listCourseEnrollments({ appId: this.deps.app.id, userId: request.user.id });
+    // 112.5 Each course's cohort, for when the student's learning starts.
+    this.cohortIds = new Map(rows.map((e) => [e.courseId, e.cohortId ?? null]));
     return new Map(rows.map((e) => [e.courseId, e.enrolledAt]));
   }
 
@@ -289,6 +300,24 @@ export class CoursesConnector implements Connector {
   /** 112.5 The learner's part in one course. */
   private only(learner: Learner, courseId: number): Learner {
     return { progress: learner.progress, attempts: learner.attempts.filter((a) => a.courseId === courseId), submissions: (learner.submissions ?? []).filter((s) => s.courseId === courseId) };
+  }
+
+  /** 112.5 The student's cohort in the course, while the course still has it. */
+  private cohortOf(course: Course): CourseCohort | null {
+    const id = this.cohortIds.get(course.id);
+    return id ? ((course.cohorts ?? []).find((c) => c.id === id) ?? null) : null;
+  }
+
+  /** 112.5 When the student's learning starts: their cohort's start, else when they enrolled (drip days and due dates count from it). */
+  private startOf(course: Course, enrolledAt: Date): Date {
+    const cohort = this.cohortOf(course);
+    return cohort ? new Date(cohort.startsAt) : enrolledAt;
+  }
+
+  /** 112.5 A cohort that hasn't started yet: the course opens to its students on its first day. */
+  private notStarted(course: Course, enrolledAt: Date, now: Date): ConnectorResult | null {
+    const start = this.startOf(course, enrolledAt);
+    return start.getTime() > now.getTime() ? error(403, "not_available_yet", `This course starts on ${start.toISOString().slice(0, 10)}.`) : null;
   }
 
   /** 90.1 Whether the student's access to the course has ended. */
@@ -362,10 +391,14 @@ export class CoursesConnector implements Connector {
     const open = enrolled && !ended;
     const closed = !enrolled ? "not_enrolled" : ended ? "access_ended" : null;
     const after = at.waiting?.has(it.id) ? "previous_not_done" : null;
+    // 112.5 A cohort that hasn't started: everything but live classes waits for its first day.
+    const start = open ? this.startOf(at.course, at.enrolledAt!) : null;
+    const before = start !== null && start.getTime() > at.now.getTime();
     const base = { id: it.id, preview: false, question_count: null, duration_minutes: null as number | null, completed: itemCounts(it) && itemDone(it, at.learner) };
     if (it.kind === "lesson") {
       const l = it.lesson;
-      const opens = open ? lessonOpensAt(l, at.enrolledAt!) : null;
+      const drip = start ? lessonOpensAt(l, start) : null;
+      const opens = before ? new Date(Math.max(start!.getTime(), drip?.getTime() ?? 0)) : drip;
       const later = opens !== null && opens.getTime() > at.now.getTime();
       const reason = l.preview && !open ? null : (closed ?? (later ? "not_available_yet" : after));
       return {
@@ -379,14 +412,15 @@ export class CoursesConnector implements Connector {
         ...(later ? { available_at: opens!.toISOString() } : {}),
       };
     }
+    const startsLater = before ? { available_at: start!.toISOString() } : {};
     if (it.kind === "quiz") {
-      const reason = closed ?? after;
-      return { ...base, type: "quiz", title: it.quiz.title, duration_minutes: it.quiz.timeLimitMinutes, question_count: it.quiz.questions.length, locked: reason !== null, locked_reason: reason };
+      const reason = closed ?? (before ? "not_available_yet" : after);
+      return { ...base, ...startsLater, type: "quiz", title: it.quiz.title, duration_minutes: it.quiz.timeLimitMinutes, question_count: quizQuestionCount(at.course, it.quiz), locked: reason !== null, locked_reason: reason };
     }
     if (it.kind === "assignment") {
-      const reason = closed ?? after;
-      const due = assignmentDueAt(it.assignment, at.enrolledAt ?? null);
-      return { ...base, type: "assignment", title: it.assignment.title, locked: reason !== null, locked_reason: reason, due_at: due ? due.toISOString() : null, in_app: true };
+      const reason = closed ?? (before ? "not_available_yet" : after);
+      const due = assignmentDueAt(it.assignment, start ?? at.enrolledAt ?? null);
+      return { ...base, ...startsLater, type: "assignment", title: it.assignment.title, locked: reason !== null, locked_reason: reason, due_at: due ? due.toISOString() : null, in_app: true };
     }
     return { ...base, type: "live", title: it.live.title, duration_minutes: it.live.durationMinutes, locked: closed !== null, locked_reason: closed, starts_at: it.live.startsAt, in_app: true };
   }
@@ -474,7 +508,8 @@ export class CoursesConnector implements Connector {
         has_certificate: c.certificate === true,
         qna: true,
         categories: this.setup.categories.filter((cat) => c.categoryIds.includes(cat.id)).map((cat) => ({ ...cat, count: 0 })),
-        purchase: { action, store_product_id: storeProduct },
+        // 112.5 Coupons are taken on the payment page's checkout.
+        purchase: { action, store_product_id: storeProduct, ...(action === "checkout" ? { coupons: (await this.deps.store.listCatalogCoupons(this.deps.app.id)).some((c) => c.active) } : {}) },
         // 73 Whether a student who finished it may start it again (the owner's choice per course, on by default).
         can_restart: canRestart(c),
         // 45 The student's progress, so a finished course says so; 90.1 the certificate once earned, and when access ends.
@@ -486,7 +521,14 @@ export class CoursesConnector implements Connector {
   private async enrolledDetail(request: ConnectorRequest, c: Course, enrolledAt: Date) {
     const progress = this.progressJson(c, await this.learnerOf(request, c.id));
     const ends = accessEndsAt(c, enrolledAt);
-    return { progress, certificate_url: this.certificateFor(request, c, progress.course_completed), access_ends_at: ends ? ends.toISOString() : null };
+    const cohort = this.cohortOf(c);
+    return {
+      progress,
+      certificate_url: this.certificateFor(request, c, progress.course_completed),
+      access_ends_at: ends ? ends.toISOString() : null,
+      // 112.5 The student's cohort.
+      cohort: cohort ? { id: cohort.id, name: cohort.name, starts_at: cohort.startsAt } : null,
+    };
   }
 
   private async curriculum(request: ConnectorRequest, c: Course): Promise<ConnectorResult> {
@@ -544,7 +586,10 @@ export class CoursesConnector implements Connector {
     // 90.1 Access that ended, and a lesson that opens later.
     if (enrolledAt !== undefined && !lesson.preview) {
       if (this.ended(course, enrolledAt, request.now)) return error(403, "access_ended", "Your access to this course has ended.");
-      const opens = lessonOpensAt(lesson, enrolledAt);
+      // 112.5 A cohort's students from its first day, the drip days counted from it.
+      const waiting = this.notStarted(course, enrolledAt, request.now);
+      if (waiting) return waiting;
+      const opens = lessonOpensAt(lesson, this.startOf(course, enrolledAt));
       if (opens && opens.getTime() > request.now.getTime()) return error(403, "not_available_yet", `This lesson opens on ${opens.toISOString().slice(0, 10)}.`);
       // 112.5 A course taken in order.
       if (await this.waits(request, course, lesson.id)) return notYet();
@@ -747,10 +792,10 @@ export class CoursesConnector implements Connector {
     const enrolledAt = (await this.enrollments(request)).get(found.course.id);
     if (enrolledAt === undefined) return error(403, "not_enrolled", "Enroll in the course to take this quiz.");
     if (this.ended(found.course, enrolledAt, request.now)) return error(403, "access_ended", "Your access to this course has ended.");
-    return null;
+    return this.notStarted(found.course, enrolledAt, request.now);
   }
 
-  private resultJson(a: QuizAttempt, quiz: CourseQuiz | null, withReview = false) {
+  private resultJson(a: QuizAttempt, quiz: CourseQuiz | null, withReview = false, course: Course | null = null) {
     return {
       attempt_id: a.id,
       quiz_id: a.quizId,
@@ -759,7 +804,7 @@ export class CoursesConnector implements Connector {
       score_percent: a.scorePercent,
       finished_at: a.submittedAt?.toISOString() ?? null,
       // 112.5 Each question with the student's answer and the right one, when the quiz shows them.
-      ...(withReview && quiz?.showAnswers && a.answers ? { review: this.review(quiz, a.answers) } : {}),
+      ...(withReview && quiz?.showAnswers && a.answers ? { review: this.review({ ...quiz, questions: attemptQuestions(course ?? {}, quiz, a.id) }, a.answers) } : {}),
     };
   }
 
@@ -793,12 +838,12 @@ export class CoursesConnector implements Connector {
         id: quiz.id,
         course_id: course.id,
         title: quiz.title,
-        question_count: quiz.questions.length,
+        question_count: quizQuestionCount(course, quiz),
         time_limit_seconds: quiz.timeLimitMinutes ? quiz.timeLimitMinutes * 60 : null,
         pass_percent: quiz.passPercent,
         attempts_allowed: quiz.attemptsAllowed,
         attempts_used: submitted.length,
-        ...(submitted[0] ? { last_result: this.resultJson(submitted[0], quiz, true) } : {}),
+        ...(submitted[0] ? { last_result: this.resultJson(submitted[0], quiz, true, course) } : {}),
       },
     };
   }
@@ -830,7 +875,8 @@ export class CoursesConnector implements Connector {
         ends_at: quiz.timeLimitMinutes ? new Date(attempt.startedAt.getTime() + quiz.timeLimitMinutes * 60_000).toISOString() : null,
         // The right answers stay here: the app gets the options only.
         // 112.5 A shuffled quiz: its questions and their answers in this attempt's own order (true or false stays as it is).
-        questions: (quiz.shuffle ? shuffled(quiz.questions, `${attempt.id}`) : quiz.questions).map((q) => ({
+        // 112.5 With the questions drawn from the course's bank for this attempt.
+        questions: (quiz.shuffle ? shuffled(attemptQuestions(course, quiz, attempt.id), `${attempt.id}`) : attemptQuestions(course, quiz, attempt.id)).map((q) => ({
           id: q.id,
           type: q.type,
           title: q.text,
@@ -847,10 +893,12 @@ export class CoursesConnector implements Connector {
   private async submitAttempt(request: ConnectorRequest, found: { course: Course; quiz: CourseQuiz } | null, attemptId: number): Promise<ConnectorResult> {
     const refused = await this.mayQuiz(request, found);
     if (refused) return refused;
-    const { quiz } = found!;
+    const { course, quiz: own } = found!;
     const attempt = Number.isSafeInteger(attemptId) ? await this.deps.store.getQuizAttempt(this.deps.app.id, attemptId) : null;
-    if (!attempt || attempt.userId !== request.user!.id || attempt.quizId !== quiz.id) return error(404, "not_found", "Attempt not found.");
+    if (!attempt || attempt.userId !== request.user!.id || attempt.quizId !== own.id) return error(404, "not_found", "Attempt not found.");
     if (attempt.submittedAt) return error(409, "conflict", "This attempt was already submitted.");
+    // 112.5 Scored over this attempt's questions: the quiz's own and those drawn from the bank.
+    const quiz = { ...own, questions: attemptQuestions(course, own, attempt.id) };
     const list = (request.body as { answers?: unknown } | null)?.answers;
     if (!Array.isArray(list) || list.length > quiz.questions.length + 5) return error(400, "invalid_request", "answers must be a list, one item per question.");
     const answers: Record<string, string[]> = {};
@@ -867,7 +915,7 @@ export class CoursesConnector implements Connector {
     const result = scoreQuiz(quiz, answers);
     const saved = await this.deps.store.submitQuizAttempt(this.deps.app.id, attempt.id, { answers, scorePercent: result.scorePercent, passed: result.passed, submittedAt: request.now });
     if (!saved) return error(409, "conflict", "This attempt was already submitted.");
-    return { status: 200, body: this.resultJson({ ...attempt, answers, ...result, submittedAt: request.now }, quiz, true) };
+    return { status: 200, body: this.resultJson({ ...attempt, answers, ...result, submittedAt: request.now }, own, true, course) };
   }
 
   private async myAttempts(request: ConnectorRequest): Promise<ConnectorResult> {
@@ -888,7 +936,8 @@ export class CoursesConnector implements Connector {
     const enrolledAt = (await this.enrollments(request)).get(course.id);
     if (enrolledAt === undefined) return error(403, "not_enrolled", "Enroll in the course to open this.");
     if (this.ended(course, enrolledAt, request.now)) return error(403, "access_ended", "Your access to this course has ended.");
-    return { enrolledAt };
+    // 112.5 Due dates count from the student's cohort's start.
+    return { enrolledAt: this.startOf(course, enrolledAt) };
   }
 
   private submissionJson(s: AssignmentSubmission, a: CourseAssignment, due: Date | null) {
@@ -930,6 +979,8 @@ export class CoursesConnector implements Connector {
     const may = await this.mayWork(request, found?.course ?? null, "Assignment not found.");
     if ("status" in may) return may;
     const { course, assignment } = found!;
+    const waiting = this.notStarted(course, may.enrolledAt, request.now);
+    if (waiting) return waiting;
     if (await this.waits(request, course, assignment.id)) return notYet();
     return { status: 200, body: await this.assignmentJson(request, course, assignment, may.enrolledAt) };
   }
@@ -946,6 +997,8 @@ export class CoursesConnector implements Connector {
     const may = await this.mayWork(request, found?.course ?? null, "Assignment not found.");
     if ("status" in may) return may;
     const { course, assignment } = found!;
+    const waiting = this.notStarted(course, may.enrolledAt, request.now);
+    if (waiting) return waiting;
     if (await this.waits(request, course, assignment.id)) return notYet();
     const body = (request.body ?? {}) as Record<string, unknown>;
     const text = typeof body.text === "string" ? body.text.trim() : "";
@@ -1075,7 +1128,8 @@ export class CoursesConnector implements Connector {
       if (!enrolled.has(c.id) || c.certificate !== true) continue;
       const json = this.progressJson(c, learner);
       const url = this.certificateFor(request, c, json.course_completed);
-      if (url) items.push({ course_id: c.id, course_title: c.title, url, issued_at: json.completed_at });
+      // 112.5 With its PDF file, in the app's language.
+      if (url) items.push({ course_id: c.id, course_title: c.title, url, pdf_url: `${url}/pdf?lang=${request.lang ?? "en"}`, issued_at: json.completed_at });
     }
     return { status: 200, body: { items } };
   }
@@ -1303,6 +1357,11 @@ export class CoursesConnector implements Connector {
     if (course.priceCents === 0) return error(403, "feature_disabled", "This course is free: enroll in the app.");
     if (!this.canSell) return error(403, "feature_disabled", "This course can't be bought right now.");
     if ((await this.enrolled(request)).has(course.id)) return error(403, "feature_disabled", "You're already enrolled in this course.");
+    // 112.5 With a coupon of the academy's: the payment page charges the price less it, and a paid order counts one use.
+    const raw = (request.body as { coupon?: unknown } | null)?.coupon;
+    const coupon = raw === undefined || raw === null || raw === "" ? null : await this.courseCoupon(raw, course, request.now);
+    if (coupon && !coupon.ok) return error(400, "coupon_invalid", coupon.message);
+    const discount = coupon?.ok ? coupon.discountCents : 0;
     const token = randomToken(24);
     await this.deps.store.createCatalogOrder({
       // 96.4 The customer's language, for their receipt.
@@ -1314,7 +1373,8 @@ export class CoursesConnector implements Connector {
       lines: [{ productId: course.id, name: course.title, quantity: 1, unitCents: course.priceCents, imageAssetId: course.imageAssetId, digital: true }],
       subtotalCents: course.priceCents,
       shippingCents: 0,
-      totalCents: course.priceCents,
+      totalCents: course.priceCents - discount,
+      ...(coupon?.ok ? { couponCode: coupon.code, discountCents: discount } : {}),
       currency: this.setup.currency,
       customer: null,
       paymentId: null,
@@ -1328,6 +1388,34 @@ export class CoursesConnector implements Connector {
     return {
       status: 200,
       body: { url: payUrl(this.deps.platformUrl, token), expires_at: new Date(request.now.getTime() + PAY_LINK_MINUTES * 60_000).toISOString(), open_in: "in_app" },
+    };
+  }
+
+  /** 112.5 A coupon for a paid course: what it takes off, or why it doesn't apply (never the whole price: the payment page charges something). */
+  private async courseCoupon(raw: unknown, course: Course, now: Date): Promise<{ ok: true; code: string; discountCents: number } | { ok: false; message: string }> {
+    const code = normalizeCouponCode(raw);
+    const coupon = code ? await this.deps.store.getCatalogCouponByCode(this.deps.app.id, code) : null;
+    const check = couponDiscount(coupon, course.priceCents, this.setup.currency, now);
+    if (!check.ok) return check;
+    if (check.discountCents >= course.priceCents) return { ok: false, message: "This coupon can't be used for this course. Ask the academy to add you to it." };
+    return { ok: true, code: coupon!.code, discountCents: check.discountCents };
+  }
+
+  private async checkCoupon(request: ConnectorRequest, course: Course | null): Promise<ConnectorResult> {
+    if (!request.user) return signIn();
+    if (!course) return noCourse();
+    if (course.priceCents === 0) return error(403, "feature_disabled", "This course is free: enroll in the app.");
+    const wait = await this.limited(request, COUPON_LIMIT);
+    if (wait) return wait;
+    const raw = (request.body as { code?: unknown } | null)?.code;
+    const check = await this.courseCoupon(raw, course, request.now);
+    const { currency } = this.setup;
+    const code = typeof raw === "string" ? raw.trim().toUpperCase().slice(0, 50) : "";
+    return {
+      status: 200,
+      body: check.ok
+        ? { code: check.code, status: "applied", message: null, price: formatCents(course.priceCents, currency), discount: formatCents(check.discountCents, currency), total: formatCents(course.priceCents - check.discountCents, currency) }
+        : { code, status: "invalid", message: check.message, price: formatCents(course.priceCents, currency), discount: null, total: formatCents(course.priceCents, currency) },
     };
   }
 }

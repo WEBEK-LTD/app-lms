@@ -196,6 +196,8 @@ class CourseDetail extends CourseSummary {
     this.canRestart = false,
     this.membership,
     this.storeProductId,
+    this.cohort,
+    this.takesCoupons = false,
   });
 
   factory CourseDetail.fromJson(Json json) {
@@ -226,11 +228,13 @@ class CourseDetail extends CourseSummary {
           : CourseAbout.empty,
       progress: optObject(json, 'progress', Progress.fromJson),
       certificateUrl: optString(json, 'certificate_url'),
+      cohort: optObject(json, 'cohort', CourseCohort.fromJson),
       passwordProtected: boolOr(json, 'password_protected', false),
       websiteUrl: optString(json, 'website_url'),
       canRestart: boolOr(json, 'can_restart', false),
       membership: optObject(json, 'membership', CourseMembership.fromJson),
       storeProductId: _nonEmpty(optString(purchase, 'store_product_id')),
+      takesCoupons: boolOr(purchase, 'coupons', false),
     );
   }
 
@@ -258,6 +262,12 @@ class CourseDetail extends CourseSummary {
 
   /// 45 The student's certificate for this course, once earned.
   final String? certificateUrl;
+
+  /// 112.5 The cohort the enrolled student learns with.
+  final CourseCohort? cohort;
+
+  /// 112.5 The academy takes coupons at its checkout.
+  final bool takesCoupons;
 
   /// 62 The website asks for a password to open the course. The app never
   /// does: unless the student is in it, the course page says so and opens
@@ -378,4 +388,48 @@ class Video {
 
   bool isExpired(DateTime now) =>
       expiresAt != null && !now.isBefore(expiresAt!);
+}
+
+/// 112.5 A course's cohort: students who start together on its first day.
+class CourseCohort {
+  const CourseCohort({
+    required this.id,
+    required this.name,
+    required this.startsAt,
+  });
+
+  factory CourseCohort.fromJson(Json json) => CourseCohort(
+    id: reqInt(json, 'id'),
+    name: reqString(json, 'name'),
+    startsAt: reqDate(json, 'starts_at'),
+  );
+
+  final int id;
+  final String name;
+  final DateTime startsAt;
+}
+
+/// 112.5 What a coupon takes off a paid course (`POST /courses/{id}/coupon`).
+class CouponCheck {
+  const CouponCheck({
+    required this.code,
+    required this.applied,
+    required this.total,
+    this.message,
+    this.discount,
+  });
+
+  factory CouponCheck.fromJson(Json json) => CouponCheck(
+    code: reqString(json, 'code'),
+    applied: json['status'] == 'applied',
+    message: optString(json, 'message'),
+    discount: optString(json, 'discount'),
+    total: reqString(json, 'total'),
+  );
+
+  final String code;
+  final bool applied;
+  final String? message;
+  final String? discount;
+  final String total;
 }

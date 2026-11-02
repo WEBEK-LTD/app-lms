@@ -6475,4 +6475,133 @@ class AppLocalizationsAr extends AppLocalizations {
   String trackingArrivesIn(int minutes) {
     return 'يصل خلال $minutes د تقريبًا';
   }
+
+  @override
+  String get certificatePdf => 'تنزيل ملف PDF';
+
+  @override
+  String get certificateShare => 'مشاركة الشهادة';
+
+  @override
+  String certificateShareText(String course, String url) {
+    return 'شهادتي في $course: $url';
+  }
+
+  @override
+  String cohortStarts(String cohort, String date) {
+    return '$cohort · تبدأ $date';
+  }
+
+  @override
+  String get teacherTabGrading => 'التقييم';
+
+  @override
+  String get gradingToGrade => 'بانتظار التقييم';
+
+  @override
+  String get gradingGraded => 'مُقيَّمة';
+
+  @override
+  String get gradingNone => 'لا شيء للتقييم. أحسنت!';
+
+  @override
+  String get gradingNoneGraded => 'لم يُقيَّم شيء بعد.';
+
+  @override
+  String get gradingSentBackLabel => 'أُعيد للطالب';
+
+  @override
+  String gradingScore(int max) {
+    return 'الدرجة (من $max)';
+  }
+
+  @override
+  String get gradingNote => 'ملاحظة للطالب';
+
+  @override
+  String get gradingSave => 'حفظ التقييم';
+
+  @override
+  String get gradingSendBack => 'إعادته ليحاول مجددًا';
+
+  @override
+  String get gradingSaved => 'تم التقييم. يراه طالبك في التطبيق.';
+
+  @override
+  String get gradingSentBack => 'أُعيد إلى طالبك.';
+
+  @override
+  String get gradingNeedsNote => 'اكتب ما يجب تغييره قبل إعادته.';
+
+  @override
+  String gradingScoreRange(int max) {
+    return 'أدخل درجة من 0 إلى $max.';
+  }
+
+  @override
+  String get reportCard => 'الشهادة المدرسية';
+
+  @override
+  String reportPeriod(String from, String to) {
+    return 'من $from إلى $to';
+  }
+
+  @override
+  String get reportOverall => 'الإجمالي';
+
+  @override
+  String reportAttendance(int present, int absent, int late, int excused) {
+    return 'الحضور: حاضر $present، غائب $absent، متأخر $late، بعذر $excused.';
+  }
+
+  @override
+  String get reportCardNone => 'لا توجد درجات في هذا الفصل الدراسي بعد.';
+
+  @override
+  String get classGradebook => 'سجل الدرجات';
+
+  @override
+  String get gradebookNone => 'لا يوجد طلاب في هذا الفصل بعد.';
+
+  @override
+  String get gradebookStudent => 'الطالب';
+
+  @override
+  String get gradebookAbsent => 'غائب';
+
+  @override
+  String get liveCalendar => 'التقويم';
+
+  @override
+  String get liveNoneThisDay => 'لا توجد حصة مباشرة في هذا اليوم.';
+
+  @override
+  String liveClassesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count حصة مباشرة',
+      few: '$count حصص مباشرة',
+      two: 'حصتان مباشرتان',
+      one: 'حصة مباشرة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get calendarPrevious => 'الشهر السابق';
+
+  @override
+  String get calendarNext => 'الشهر التالي';
+
+  @override
+  String couponSaves(String discount, String total) {
+    return 'خصم $discount: تدفع $total.';
+  }
+
+  @override
+  String get couponContinue => 'المتابعة بالقسيمة';
+
+  @override
+  String get couponWithout => 'المتابعة دون قسيمة';
 }

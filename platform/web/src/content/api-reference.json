@@ -417,6 +417,13 @@
           "access": "signed-in"
         },
         {
+          "method": "POST",
+          "path": "/courses/{course_id}/coupon",
+          "summary": "Check a coupon for a paid course",
+          "description": "Roadmap 112.5. What the coupon takes off the course's price, or why it doesn't apply (`status` `invalid` with `message`). A coupon that would take the whole price doesn't apply. Up to 20 tries an hour.",
+          "access": "signed-in"
+        },
+        {
           "method": "GET",
           "path": "/me/points",
           "summary": "The customer's loyalty points",
@@ -1533,6 +1540,20 @@
         },
         {
           "method": "GET",
+          "path": "/teacher/submissions",
+          "summary": "Assignments handed in on the teacher's courses",
+          "description": "Roadmap 112.5. `submitted` (the default) waits for a grade, the first handed in first; `returned`, `graded` and `all` the newest first.",
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/teacher/submissions/{submission_id}/grade",
+          "summary": "Grade an assignment, or send it back for another try",
+          "description": "Roadmap 112.5. `grade` with a score from 0 to the assignment's highest (and a note), or `return` with a note saying what to change. The student is told in the app (`assignment_graded`).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
           "path": "/teacher/earnings",
           "summary": "What the teacher's courses sold and the teacher's share",
           "description": "Sales paid on the academy's payment page over this month, last month or this year, in `InstructorsConfig.timezone`, less refunds, with the teacher's share (`share_percent`, set by the academy) and each course's totals. The academy pays its teachers itself.",
@@ -1584,6 +1605,13 @@
           "path": "/school/students/{student_id}/grades",
           "summary": "The student's scores by subject, and the exams coming up",
           "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/school/students/{student_id}/report-card",
+          "summary": "The student's report card",
+          "description": "Roadmap 112.5. Over the school's current term (else the year so far), or `from` to `to`: the student's percent in each subject (the share of the marks of the subject's scored exams, quizzes and assignments in the period) with each score, overall, and their attendance.",
           "access": "signed-in"
         },
         {
@@ -1653,6 +1681,13 @@
           "path": "/classroom/classes/{class_id}/students",
           "summary": "The students of a class the teacher teaches",
           "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/classroom/classes/{class_id}/gradebook",
+          "summary": "A class's gradebook",
+          "description": "Roadmap 112.5. For the class's teachers, over the current term (else the year so far) or `from` to `to`: each student's percent in each subject taught, overall and attendance.",
           "access": "signed-in"
         },
         {

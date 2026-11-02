@@ -7,7 +7,7 @@ import { handleTeachersRoute } from "../teachers/hosted";
 import { handleSchoolRoute } from "../school/hosted";
 import { memberRoles, schoolConfig, schoolMemberOf } from "../school/service";
 import { feesByCardReady, schoolOn, schoolSettingsOf } from "../school/settings";
-import { notifyNewLesson } from "./auto-notifications";
+import { notifyGraded, notifyNewLesson } from "./auto-notifications";
 import { teacherOf, teachersOn } from "../teachers/service";
 import { reviewCourierFor } from "../delivery/review";
 import { reviewRestaurantFor } from "../food/review";
@@ -364,6 +364,10 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
         chunkBytes: ctx.chat?.chunkBytes ?? MEDIA_CHUNK_BYTES,
         onNewLesson: async (course, lesson) => {
           await notifyNewLesson({ store: ctx.store, key: encryptionKey(), now: ctx.now }, ctx.app, course, lesson).catch(() => undefined);
+        },
+        // 112.5 A teacher graded an assignment in the app: its student hears of it.
+        onGraded: async (course, assignment, submission) => {
+          await notifyGraded({ store: ctx.store, key: encryptionKey(), now: ctx.now }, ctx.app, course, assignment, { ...submission, gradedAt: submission.gradedAt ?? ctx.now }).catch(() => undefined);
         },
       },
       { method: req.method, path: req.path, query: req.query, body: req.body, user: session?.user ?? null, now: ctx.now, lang: requestLanguage(req.headers?.get("accept-language")) },

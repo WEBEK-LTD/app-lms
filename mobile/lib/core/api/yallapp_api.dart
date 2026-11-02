@@ -481,7 +481,11 @@ abstract class YallappApi {
   Future<void> logout();
 
   /// Android only. Callers must check the platform first.
-  Future<CheckoutLink> createCheckoutLink(int courseId);
+  /// 112.5 With a [coupon] of the academy's (courses managed in Yallapp).
+  Future<CheckoutLink> createCheckoutLink(int courseId, {String? coupon});
+
+  /// 112.5 What a coupon takes off a paid course, or why it doesn't apply.
+  Future<CouponCheck> checkCourseCoupon(int courseId, String code);
 
   /// 48 What an address on the site is: the app opened one of the site's
   /// own pages (its permalink). Plugin only; 404 elsewhere.
@@ -905,6 +909,22 @@ abstract class YallappApi {
   Future<ChatUpload> resumeTeacherUpload(String uploadId);
   Future<void> completeTeacherUpload(String uploadId);
   Future<Paged<TeacherQuestion>> listTeacherQuestions({int page = 1});
+
+  /// 112.5 Assignments handed in on the teacher's courses: waiting for a
+  /// grade, or [graded].
+  Future<Paged<TeacherSubmission>> listTeacherSubmissions({
+    bool graded = false,
+    int page = 1,
+  });
+
+  /// 112.5 Grades an assignment ([score] and a note), or with [sendBack]
+  /// returns it for another try with a note.
+  Future<TeacherSubmission> gradeTeacherSubmission(
+    int id, {
+    bool sendBack = false,
+    int? score,
+    String feedback = '',
+  });
   Future<TeacherEarnings> getTeacherEarnings(TeacherPeriod period);
 
   // 105.4 Schools: a student and their parents.
@@ -927,6 +947,12 @@ abstract class YallappApi {
     String? uploadId,
   });
   Future<StudentGrades> getStudentGrades(int studentId);
+
+  /// 112.5 The student's report card over the school's term.
+  Future<ReportCard> getStudentReportCard(int studentId);
+
+  /// 112.5 A class's gradebook over the term, for its teachers.
+  Future<ClassGradebook> getClassGradebook(int classId);
   Future<StudentFees> getStudentFees(int studentId);
 
   /// The school's payment page for the fee.
@@ -1349,7 +1375,16 @@ class HttpYallappApi implements YallappApi {
       _send('POST', '/auth/logout', _required, _ignore, account: true);
 
   @override
-  Future<CheckoutLink> createCheckoutLink(int courseId) {
+  Future<CouponCheck> checkCourseCoupon(int courseId, String code) => _send(
+    'POST',
+    '/courses/$courseId/coupon',
+    _required,
+    (data) => CouponCheck.fromJson(asJson(data)),
+    body: {'code': code},
+  );
+
+  @override
+  Future<CheckoutLink> createCheckoutLink(int courseId, {String? coupon}) {
     if (platform != DevicePlatform.android) {
       // iOS never shows or opens a purchase flow (Apple's digital goods rule).
       return Future.error(
@@ -1365,7 +1400,7 @@ class HttpYallappApi implements YallappApi {
       '/auth/checkout-link',
       _required,
       (data) => CheckoutLink.fromJson(asJson(data)),
-      body: {'course_id': courseId},
+      body: {'course_id': courseId, 'coupon': ?coupon},
       query: {'platform': platform.name},
     );
   }
@@ -2938,6 +2973,39 @@ class HttpYallappApi implements YallappApi {
   );
 
   @override
+  Future<Paged<TeacherSubmission>> listTeacherSubmissions({
+    bool graded = false,
+    int page = 1,
+  }) => _get(
+    '/teacher/submissions',
+    _required,
+    (json) => Paged.fromJson(json, TeacherSubmission.fromJson),
+    query: {
+      'status': graded ? 'graded' : 'submitted',
+      'page': page,
+      'per_page': 20,
+    },
+  );
+
+  @override
+  Future<TeacherSubmission> gradeTeacherSubmission(
+    int id, {
+    bool sendBack = false,
+    int? score,
+    String feedback = '',
+  }) => _send(
+    'PUT',
+    '/teacher/submissions/$id/grade',
+    _required,
+    (data) => TeacherSubmission.fromJson(asJson(data)),
+    body: {
+      'outcome': sendBack ? 'return' : 'grade',
+      'score': ?score,
+      'feedback': feedback,
+    },
+  );
+
+  @override
   Future<TeacherEarnings> getTeacherEarnings(TeacherPeriod period) => _get(
     '/teacher/earnings',
     _required,
@@ -2994,6 +3062,20 @@ class HttpYallappApi implements YallappApi {
     _required,
     (data) => Homework.fromJson(asJson(data)),
     body: {'text': text, 'upload_id': ?uploadId},
+  );
+
+  @override
+  Future<ReportCard> getStudentReportCard(int studentId) => _get(
+    '/school/students/$studentId/report-card',
+    _required,
+    ReportCard.fromJson,
+  );
+
+  @override
+  Future<ClassGradebook> getClassGradebook(int classId) => _get(
+    '/classroom/classes/$classId/gradebook',
+    _required,
+    ClassGradebook.fromJson,
   );
 
   @override

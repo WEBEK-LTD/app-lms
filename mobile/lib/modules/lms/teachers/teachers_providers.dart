@@ -131,6 +131,16 @@ final teacherQuestionsProvider =
       PagedState<TeacherQuestion>
     >(TeacherQuestionsController.new);
 
+/// 112.5 The first page of the assignments to grade, or graded.
+final teacherSubmissionsProvider = FutureProvider.autoDispose
+    .family<List<TeacherSubmission>, bool>(
+      (ref, graded) async =>
+          (await ref
+                  .read(yallappApiProvider)
+                  .listTeacherSubmissions(graded: graded))
+              .items,
+    );
+
 /// What the teacher's courses sold over a period, and their share.
 final teacherEarningsProvider = FutureProvider.autoDispose
     .family<TeacherEarnings, TeacherPeriod>(

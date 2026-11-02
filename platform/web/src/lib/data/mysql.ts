@@ -1989,6 +1989,12 @@ export class MysqlStore implements DataStore {
     return result.affectedRows === 1;
   }
 
+  async setEnrollmentCohort(input: { appId: string; userId: number; courseId: number; cohortId: number | null }): Promise<boolean> {
+    const t = schema.courseEnrollments;
+    const [result] = await this.run((db) => db.update(t).set({ cohortId: input.cohortId }).where(and(eq(t.appId, input.appId), eq(t.userId, input.userId), eq(t.courseId, input.courseId))));
+    return result.affectedRows > 0;
+  }
+
   async leaveCourse(appId: string, userId: number, courseId: number): Promise<boolean> {
     const t = schema.courseEnrollments;
     const [result] = await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.userId, userId), eq(t.courseId, courseId))));

@@ -255,6 +255,19 @@ class _ClassScreenState extends ConsumerState<ClassScreen> {
                   ],
                 ),
               ),
+              // 112.5 The class's gradebook.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
+                child: SecondaryButton(
+                  key: const ValueKey('class-gradebook-open'),
+                  label: l10n.classGradebook,
+                  icon: AppIcons.certificate,
+                  height: 42,
+                  onPressed: () => context.push(
+                    '${Paths.classroomClass(klass.id)}/gradebook',
+                  ),
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
                 child: SegmentedTabs(
@@ -1418,6 +1431,86 @@ class _ScoresScreenState extends ConsumerState<ScoresScreen> {
                 ref.invalidate(assessmentScoresProvider(widget.assessmentId)),
           ),
           _ => const LoadingView(),
+        },
+      ),
+    );
+  }
+}
+
+/// 112.5 A class's gradebook over the term: each student's percent per
+/// subject, overall and days absent.
+class ClassGradebookScreen extends ConsumerWidget {
+  const ClassGradebookScreen({super.key, required this.classId});
+
+  final int classId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final state = ref.watch(classGradebookProvider(classId));
+    String pct(double? v) =>
+        v == null ? '—' : '${v.toStringAsFixed(v % 1 == 0 ? 0 : 1)}%';
+    return Scaffold(
+      appBar: AppBar(
+        leading: appBarBack(context),
+        title: Text(state.value?.className ?? l10n.classGradebook),
+      ),
+      body: SafeArea(
+        top: false,
+        child: switch (state) {
+          AsyncValue(value: final book?) when book.students.isEmpty =>
+            MessageView(icon: AppIcons.certificate, title: l10n.gradebookNone),
+          AsyncValue(value: final book?) => ListView(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+            children: [
+              Text(
+                [
+                  l10n.classGradebook,
+                  book.period.term ?? '',
+                ].where((x) => x.isNotEmpty).join(' · '),
+                style: TextStyle(fontSize: 13, color: p.textSecondary),
+              ),
+              const SizedBox(height: 8),
+              SingleChildScrollView(
+                key: const ValueKey('class-gradebook'),
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  columnSpacing: 18,
+                  horizontalMargin: 0,
+                  columns: [
+                    DataColumn(label: Text(l10n.gradebookStudent)),
+                    for (final s in book.subjects) DataColumn(label: Text(s)),
+                    DataColumn(label: Text(l10n.reportOverall)),
+                    DataColumn(label: Text(l10n.gradebookAbsent)),
+                  ],
+                  rows: [
+                    for (final r in book.students)
+                      DataRow(
+                        cells: [
+                          DataCell(Text(r.name)),
+                          for (final v in r.percents) DataCell(Text(pct(v))),
+                          DataCell(
+                            Text(
+                              pct(r.overall),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          DataCell(Text('${r.attendance.absent}')),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          AsyncError(:final error) => ErrorView(
+            error: error,
+            onRetry: () => ref.invalidate(classGradebookProvider(classId)),
+          ),
+          _ => const SkeletonList(layout: SkeletonLayout.text, count: 4),
         },
       ),
     );

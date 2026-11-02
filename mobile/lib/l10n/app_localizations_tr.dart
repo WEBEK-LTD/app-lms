@@ -6268,4 +6268,131 @@ class AppLocalizationsTr extends AppLocalizations {
   String trackingArrivesIn(int minutes) {
     return 'Yaklaşık $minutes dk içinde gelir';
   }
+
+  @override
+  String get certificatePdf => 'PDF\'i indir';
+
+  @override
+  String get certificateShare => 'Sertifikayı paylaş';
+
+  @override
+  String certificateShareText(String course, String url) {
+    return '$course sertifikam: $url';
+  }
+
+  @override
+  String cohortStarts(String cohort, String date) {
+    return '$cohort · $date başlıyor';
+  }
+
+  @override
+  String get teacherTabGrading => 'Ödevler';
+
+  @override
+  String get gradingToGrade => 'Notlandırılacak';
+
+  @override
+  String get gradingGraded => 'Notlandırıldı';
+
+  @override
+  String get gradingNone => 'Notlandırılacak bir şey yok. Harika!';
+
+  @override
+  String get gradingNoneGraded => 'Henüz notlandırılan bir şey yok.';
+
+  @override
+  String get gradingSentBackLabel => 'Geri gönderildi';
+
+  @override
+  String gradingScore(int max) {
+    return 'Puan ($max üzerinden)';
+  }
+
+  @override
+  String get gradingNote => 'Öğrenciye not';
+
+  @override
+  String get gradingSave => 'Notu kaydet';
+
+  @override
+  String get gradingSendBack => 'Yeniden denemesi için geri gönder';
+
+  @override
+  String get gradingSaved => 'Notlandırıldı. Öğrencin uygulamada görüyor.';
+
+  @override
+  String get gradingSentBack => 'Öğrencine geri gönderildi.';
+
+  @override
+  String get gradingNeedsNote =>
+      'Geri göndermeden önce neyin değişmesi gerektiğini yaz.';
+
+  @override
+  String gradingScoreRange(int max) {
+    return '0 ile $max arasında bir puan gir.';
+  }
+
+  @override
+  String get reportCard => 'Karne';
+
+  @override
+  String reportPeriod(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String get reportOverall => 'Genel';
+
+  @override
+  String reportAttendance(int present, int absent, int late, int excused) {
+    return 'Devam: $present geldi, $absent gelmedi, $late geç, $excused izinli.';
+  }
+
+  @override
+  String get reportCardNone => 'Bu dönemde henüz not yok.';
+
+  @override
+  String get classGradebook => 'Not defteri';
+
+  @override
+  String get gradebookNone => 'Bu sınıfta henüz öğrenci yok.';
+
+  @override
+  String get gradebookStudent => 'Öğrenci';
+
+  @override
+  String get gradebookAbsent => 'Gelmedi';
+
+  @override
+  String get liveCalendar => 'Takvim';
+
+  @override
+  String get liveNoneThisDay => 'Bu gün canlı ders yok.';
+
+  @override
+  String liveClassesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count canlı ders',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get calendarPrevious => 'Önceki ay';
+
+  @override
+  String get calendarNext => 'Sonraki ay';
+
+  @override
+  String couponSaves(String discount, String total) {
+    return '$discount indirim: $total ödersin.';
+  }
+
+  @override
+  String get couponContinue => 'Kuponla devam et';
+
+  @override
+  String get couponWithout => 'Kuponsuz devam et';
 }

@@ -6279,4 +6279,131 @@ class AppLocalizationsEn extends AppLocalizations {
   String trackingArrivesIn(int minutes) {
     return 'Arrives in about $minutes min';
   }
+
+  @override
+  String get certificatePdf => 'Download the PDF';
+
+  @override
+  String get certificateShare => 'Share the certificate';
+
+  @override
+  String certificateShareText(String course, String url) {
+    return 'My certificate for $course: $url';
+  }
+
+  @override
+  String cohortStarts(String cohort, String date) {
+    return '$cohort · starts $date';
+  }
+
+  @override
+  String get teacherTabGrading => 'Grading';
+
+  @override
+  String get gradingToGrade => 'To grade';
+
+  @override
+  String get gradingGraded => 'Graded';
+
+  @override
+  String get gradingNone => 'Nothing to grade. Well done!';
+
+  @override
+  String get gradingNoneGraded => 'Nothing graded yet.';
+
+  @override
+  String get gradingSentBackLabel => 'Sent back';
+
+  @override
+  String gradingScore(int max) {
+    return 'Score (out of $max)';
+  }
+
+  @override
+  String get gradingNote => 'Note to the student';
+
+  @override
+  String get gradingSave => 'Save the grade';
+
+  @override
+  String get gradingSendBack => 'Send back for another try';
+
+  @override
+  String get gradingSaved => 'Graded. Your student sees it in the app.';
+
+  @override
+  String get gradingSentBack => 'Sent back to your student.';
+
+  @override
+  String get gradingNeedsNote => 'Write what to change before sending it back.';
+
+  @override
+  String gradingScoreRange(int max) {
+    return 'Enter a score from 0 to $max.';
+  }
+
+  @override
+  String get reportCard => 'Report card';
+
+  @override
+  String reportPeriod(String from, String to) {
+    return '$from to $to';
+  }
+
+  @override
+  String get reportOverall => 'Overall';
+
+  @override
+  String reportAttendance(int present, int absent, int late, int excused) {
+    return 'Attendance: $present present, $absent absent, $late late, $excused excused.';
+  }
+
+  @override
+  String get reportCardNone => 'No scores in this term yet.';
+
+  @override
+  String get classGradebook => 'Gradebook';
+
+  @override
+  String get gradebookNone => 'No students in this class yet.';
+
+  @override
+  String get gradebookStudent => 'Student';
+
+  @override
+  String get gradebookAbsent => 'Absent';
+
+  @override
+  String get liveCalendar => 'Calendar';
+
+  @override
+  String get liveNoneThisDay => 'No live class on this day.';
+
+  @override
+  String liveClassesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count live classes',
+      one: '1 live class',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get calendarPrevious => 'Previous month';
+
+  @override
+  String get calendarNext => 'Next month';
+
+  @override
+  String couponSaves(String discount, String total) {
+    return '$discount off: you pay $total.';
+  }
+
+  @override
+  String get couponContinue => 'Continue with the coupon';
+
+  @override
+  String get couponWithout => 'Continue without a coupon';
 }

@@ -9,6 +9,7 @@ import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
 import { courseSetup, lessonsOf } from "@/lib/courses/setup";
 import { getStore } from "@/lib/data";
+import { CouponsPanel } from "../catalog/coupons-panel";
 import { CardPayments, OtherPayments } from "../catalog/payments";
 import { UpgradeHint } from "@/components/upgrade";
 import { currentPlanId } from "@/lib/billing/plan-change";
@@ -180,6 +181,8 @@ export default async function CoursesPage({ searchParams }: { searchParams: Prom
       </div>
 
       <CardPayments app={app} currency={setup.currency} />
+      {/* 112.5 Coupons for the paid courses, taken on the payment page. */}
+      <CouponsPanel coupons={await (await getStore()).listCatalogCoupons(app.id)} currency={setup.currency} intro={t("lms.couponsIntro")} />
       <OtherPayments app={app} />
 
       <OfflineDownloads app={app} license={license} />

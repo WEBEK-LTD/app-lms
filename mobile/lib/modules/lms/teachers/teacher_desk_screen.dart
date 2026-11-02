@@ -15,6 +15,7 @@ import '../../food/widgets/food_widgets.dart' show AmountRow;
 import '../../real_estate/widgets/listing_widgets.dart' show TabHeader;
 import '../widgets/course_cards.dart' show RatingLabel;
 import 'teacher_widgets.dart';
+import 'teacher_grading.dart';
 import 'teachers_providers.dart';
 
 /// 105.3 The Teacher tab, for the academy's teachers only: their courses
@@ -75,6 +76,8 @@ class _TeacherDeskScreenState extends ConsumerState<TeacherDeskScreen> {
                 labels: [
                   l10n.teacherTabCourses,
                   l10n.teacherTabQuestions,
+                  // 112.5 Assignments to grade.
+                  l10n.teacherTabGrading,
                   l10n.teacherTabEarnings,
                 ],
                 selected: _tab,
@@ -86,6 +89,7 @@ class _TeacherDeskScreenState extends ConsumerState<TeacherDeskScreen> {
               child: switch (_tab) {
                 0 => const _Courses(),
                 1 => const _Questions(),
+                2 => const TeacherGrading(),
                 _ => const _Earnings(),
               },
             ),

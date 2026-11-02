@@ -552,6 +552,7 @@ class Certificate {
     required this.courseTitle,
     required this.url,
     this.issuedAt,
+    this.pdfUrl,
   });
 
   factory Certificate.fromJson(Json json) => Certificate(
@@ -559,10 +560,14 @@ class Certificate {
     courseTitle: reqString(json, 'course_title'),
     url: reqString(json, 'url'),
     issuedAt: optDate(json, 'issued_at'),
+    pdfUrl: optString(json, 'pdf_url'),
   );
 
   final int courseId;
   final String courseTitle;
   final String url;
   final DateTime? issuedAt;
+
+  /// 112.5 The certificate as a PDF file (courses managed in Yallapp).
+  final String? pdfUrl;
 }

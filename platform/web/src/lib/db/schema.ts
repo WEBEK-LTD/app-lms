@@ -902,6 +902,8 @@ export const courseEnrollments = mysqlTable(
     courseId: int("course_id").notNull(),
     source: varchar("source", { length: 16 }).notNull().$type<"free" | "paid" | "manual">(),
     enrolledAt: time("enrolled_at").notNull(),
+    /** 112.5 The course's cohort (`Course.cohorts`). */
+    cohortId: int("cohort_id"),
   },
   (t) => [primaryKey({ columns: [t.appId, t.userId, t.courseId] }), index("course_enrollments_course_idx").on(t.appId, t.courseId), index("course_enrollments_app_enrolled_idx").on(t.appId, t.enrolledAt)],
 );

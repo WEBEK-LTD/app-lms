@@ -6635,4 +6635,149 @@ class OverlayLocalizations extends AppLocalizations {
   String trackingArrivesIn(int minutes) =>
       overlay.format('trackingArrivesIn', {'minutes': minutes}) ??
       base.trackingArrivesIn(minutes);
+
+  @override
+  String get certificatePdf =>
+      overlay.text('certificatePdf') ?? base.certificatePdf;
+
+  @override
+  String get certificateShare =>
+      overlay.text('certificateShare') ?? base.certificateShare;
+
+  @override
+  String certificateShareText(String course, String url) =>
+      overlay.format('certificateShareText', {'course': course, 'url': url}) ??
+      base.certificateShareText(course, url);
+
+  @override
+  String cohortStarts(String cohort, String date) =>
+      overlay.format('cohortStarts', {'cohort': cohort, 'date': date}) ??
+      base.cohortStarts(cohort, date);
+
+  @override
+  String get teacherTabGrading =>
+      overlay.text('teacherTabGrading') ?? base.teacherTabGrading;
+
+  @override
+  String get gradingToGrade =>
+      overlay.text('gradingToGrade') ?? base.gradingToGrade;
+
+  @override
+  String get gradingGraded =>
+      overlay.text('gradingGraded') ?? base.gradingGraded;
+
+  @override
+  String get gradingNone => overlay.text('gradingNone') ?? base.gradingNone;
+
+  @override
+  String get gradingNoneGraded =>
+      overlay.text('gradingNoneGraded') ?? base.gradingNoneGraded;
+
+  @override
+  String get gradingSentBackLabel =>
+      overlay.text('gradingSentBackLabel') ?? base.gradingSentBackLabel;
+
+  @override
+  String gradingScore(int max) =>
+      overlay.format('gradingScore', {'max': max}) ?? base.gradingScore(max);
+
+  @override
+  String get gradingNote => overlay.text('gradingNote') ?? base.gradingNote;
+
+  @override
+  String get gradingSave => overlay.text('gradingSave') ?? base.gradingSave;
+
+  @override
+  String get gradingSendBack =>
+      overlay.text('gradingSendBack') ?? base.gradingSendBack;
+
+  @override
+  String get gradingSaved => overlay.text('gradingSaved') ?? base.gradingSaved;
+
+  @override
+  String get gradingSentBack =>
+      overlay.text('gradingSentBack') ?? base.gradingSentBack;
+
+  @override
+  String get gradingNeedsNote =>
+      overlay.text('gradingNeedsNote') ?? base.gradingNeedsNote;
+
+  @override
+  String gradingScoreRange(int max) =>
+      overlay.format('gradingScoreRange', {'max': max}) ??
+      base.gradingScoreRange(max);
+
+  @override
+  String get reportCard => overlay.text('reportCard') ?? base.reportCard;
+
+  @override
+  String reportPeriod(String from, String to) =>
+      overlay.format('reportPeriod', {'from': from, 'to': to}) ??
+      base.reportPeriod(from, to);
+
+  @override
+  String get reportOverall =>
+      overlay.text('reportOverall') ?? base.reportOverall;
+
+  @override
+  String reportAttendance(int present, int absent, int late, int excused) =>
+      overlay.format('reportAttendance', {
+        'present': present,
+        'absent': absent,
+        'late': late,
+        'excused': excused,
+      }) ??
+      base.reportAttendance(present, absent, late, excused);
+
+  @override
+  String get reportCardNone =>
+      overlay.text('reportCardNone') ?? base.reportCardNone;
+
+  @override
+  String get classGradebook =>
+      overlay.text('classGradebook') ?? base.classGradebook;
+
+  @override
+  String get gradebookNone =>
+      overlay.text('gradebookNone') ?? base.gradebookNone;
+
+  @override
+  String get gradebookStudent =>
+      overlay.text('gradebookStudent') ?? base.gradebookStudent;
+
+  @override
+  String get gradebookAbsent =>
+      overlay.text('gradebookAbsent') ?? base.gradebookAbsent;
+
+  @override
+  String get liveCalendar => overlay.text('liveCalendar') ?? base.liveCalendar;
+
+  @override
+  String get liveNoneThisDay =>
+      overlay.text('liveNoneThisDay') ?? base.liveNoneThisDay;
+
+  @override
+  String liveClassesCount(int count) =>
+      overlay.format('liveClassesCount', {'count': count}) ??
+      base.liveClassesCount(count);
+
+  @override
+  String get calendarPrevious =>
+      overlay.text('calendarPrevious') ?? base.calendarPrevious;
+
+  @override
+  String get calendarNext => overlay.text('calendarNext') ?? base.calendarNext;
+
+  @override
+  String couponSaves(String discount, String total) =>
+      overlay.format('couponSaves', {'discount': discount, 'total': total}) ??
+      base.couponSaves(discount, total);
+
+  @override
+  String get couponContinue =>
+      overlay.text('couponContinue') ?? base.couponContinue;
+
+  @override
+  String get couponWithout =>
+      overlay.text('couponWithout') ?? base.couponWithout;
 }

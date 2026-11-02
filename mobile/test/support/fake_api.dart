@@ -132,15 +132,37 @@ class FakeApi implements YallappApi {
   @override
   Future<void> logout() => _answer('logout', () {});
 
+  /// 112.5 The coupons the course checkout was asked with, and those that apply.
+  final checkoutCoupons = <String?>[];
+  Set<String> goodCoupons = {'WELCOME10'};
+
   @override
-  Future<CheckoutLink> createCheckoutLink(int courseId) => _answer(
-    'createCheckoutLink',
-    () => CheckoutLink.fromJson({
-      'url': 'https://your-academy.com/checkout?token=once',
-      'expires_at': '2026-10-12T09:05:00Z',
-      'open_in': 'in_app',
+  Future<CouponCheck> checkCourseCoupon(int courseId, String code) => _answer(
+    'checkCourseCoupon',
+    () => CouponCheck.fromJson({
+      'code': code.toUpperCase(),
+      'status': goodCoupons.contains(code.toUpperCase())
+          ? 'applied'
+          : 'invalid',
+      'message': goodCoupons.contains(code.toUpperCase())
+          ? null
+          : "This coupon doesn't exist.",
+      'price': '₺450.00',
+      'discount': goodCoupons.contains(code.toUpperCase()) ? '₺45.00' : null,
+      'total': goodCoupons.contains(code.toUpperCase()) ? '₺405.00' : '₺450.00',
     }),
   );
+
+  @override
+  Future<CheckoutLink> createCheckoutLink(int courseId, {String? coupon}) =>
+      _answer('createCheckoutLink', () {
+        checkoutCoupons.add(coupon);
+        return CheckoutLink.fromJson({
+          'url': 'https://your-academy.com/checkout?token=once',
+          'expires_at': '2026-10-12T09:05:00Z',
+          'open_in': 'in_app',
+        });
+      });
 
   /// 48 What `GET /links/resolve` answers, by address (none: kind null).
   final resolvedLinks = <String, Map<String, dynamic>>{};
@@ -420,8 +442,13 @@ class FakeApi implements YallappApi {
   );
 
   @override
-  Future<List<Certificate>> listCertificates() =>
-      _answer('listCertificates', () => <Certificate>[]);
+  Future<List<Certificate>> listCertificates() => _answer(
+    'listCertificates',
+    () => [for (final c in certificates) Certificate.fromJson(c)],
+  );
+
+  /// `GET /me/certificates` items (112.5 with their PDF).
+  List<Map<String, dynamic>> certificates = [];
 
   @override
   Future<List<SiteSubscription>> listSubscriptions() => _answer(
@@ -2189,6 +2216,40 @@ class FakeApi implements YallappApi {
   Future<void> completeTeacherUpload(String uploadId) =>
       _answer('completeTeacherUpload', () {});
 
+  // 112.5 Grading in the Teacher tab.
+  List<Map<String, dynamic>> teacherSubmissions = [];
+  final graded = <({int id, bool sendBack, int? score, String feedback})>[];
+
+  @override
+  Future<Paged<TeacherSubmission>> listTeacherSubmissions({
+    bool graded = false,
+    int page = 1,
+  }) => _answer(
+    'listTeacherSubmissions',
+    () => _paged([
+      for (final s in teacherSubmissions)
+        if ((s['status'] == 'graded') == graded) s,
+    ], TeacherSubmission.fromJson),
+  );
+
+  @override
+  Future<TeacherSubmission> gradeTeacherSubmission(
+    int id, {
+    bool sendBack = false,
+    int? score,
+    String feedback = '',
+  }) => _answer('gradeTeacherSubmission', () {
+    graded.add((id: id, sendBack: sendBack, score: score, feedback: feedback));
+    final i = teacherSubmissions.indexWhere((s) => s['id'] == id);
+    teacherSubmissions[i] = {
+      ...teacherSubmissions[i],
+      'status': sendBack ? 'returned' : 'graded',
+      'score': score,
+      'feedback': feedback,
+    };
+    return TeacherSubmission.fromJson(teacherSubmissions[i]);
+  });
+
   @override
   Future<Paged<TeacherQuestion>> listTeacherQuestions({int page = 1}) =>
       _answer(
@@ -2310,6 +2371,57 @@ class FakeApi implements YallappApi {
     homeworkDone = [done, ...homeworkDone];
     return Homework.fromJson(done);
   });
+
+  /// 112.5 The report card and the gradebook answered.
+  Map<String, dynamic> reportCard = {
+    'period': {'from': '2026-09-27', 'to': '2027-01-20', 'term': 'First term'},
+    'class_name': 'Grade 5 A',
+    'subjects': [
+      {
+        'subject_id': 1,
+        'name': 'Mathematics',
+        'percent': 85,
+        'scores': [
+          {
+            'title': 'Midterm',
+            'kind': 'exam',
+            'date': '2026-10-10',
+            'score': 17,
+            'max_score': 20,
+          },
+        ],
+      },
+    ],
+    'overall': 85,
+    'attendance': {'present': 40, 'absent': 1, 'late': 2, 'excused': 0},
+  };
+  Map<String, dynamic> classGradebook = {
+    'period': {'from': '2026-09-27', 'to': '2027-01-20', 'term': 'First term'},
+    'class_name': 'Grade 5 A',
+    'subjects': [
+      {'id': 1, 'name': 'Mathematics'},
+      {'id': 2, 'name': 'Arabic'},
+    ],
+    'students': [
+      {
+        'id': 11,
+        'name': 'Omar Hassan',
+        'percents': [85, null],
+        'overall': 85,
+        'attendance': {'present': 40, 'absent': 1, 'late': 2, 'excused': 0},
+      },
+    ],
+  };
+
+  @override
+  Future<ReportCard> getStudentReportCard(int studentId) =>
+      _answer('getStudentReportCard', () => ReportCard.fromJson(reportCard));
+
+  @override
+  Future<ClassGradebook> getClassGradebook(int classId) => _answer(
+    'getClassGradebook',
+    () => ClassGradebook.fromJson(classGradebook),
+  );
 
   @override
   Future<StudentGrades> getStudentGrades(int studentId) => _answer(

@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import type { AssignmentSubmission, Course, CourseAssignment, CourseLesson, CourseLiveSession, CourseQuiz, CourseSetup, CourseTopic, LessonProgress, QuizAttempt } from "../data/types";
+import type { AssignmentSubmission, Course, CourseEnrollment, CourseAssignment, CourseLesson, CourseLiveSession, CourseQuiz, CourseSetup, CourseTopic, LessonProgress, QuizAttempt } from "../data/types";
 
 /**
  * 90.1 Academies without a website: quizzes at the end of topics, files
@@ -88,6 +88,12 @@ export function findLiveSession(setup: CourseSetup, liveId: number): { course: C
   return null;
 }
 
+/** 112.5 When a student's learning starts: their cohort's first day, else when they enrolled. */
+export function learningStart(course: Pick<Course, "cohorts">, enrollment: Pick<CourseEnrollment, "enrolledAt" | "cohortId">): Date {
+  const cohort = enrollment.cohortId ? (course.cohorts ?? []).find((c) => c.id === enrollment.cohortId) : undefined;
+  return cohort ? new Date(cohort.startsAt) : enrollment.enrolledAt;
+}
+
 /** When the student's access ends; null when it doesn't. */
 export function accessEndsAt(course: Pick<Course, "accessDays">, enrolledAt: Date): Date | null {
   return course.accessDays && course.accessDays > 0 ? new Date(enrolledAt.getTime() + course.accessDays * DAY) : null;
@@ -173,6 +179,19 @@ export function shuffled<T>(items: readonly T[], seed: string): T[] {
     [out[i], out[j]] = [out[j]!, out[i]!];
   }
   return out;
+}
+
+/** 112.5 An attempt's questions: the quiz's own, then those drawn from the course's bank for it (the same each time it's asked for). */
+export function attemptQuestions(course: Pick<Course, "questionBank">, quiz: CourseQuiz, attemptId: number): CourseQuiz["questions"] {
+  const picks = quiz.bankPicks ?? 0;
+  const bank = course.questionBank ?? [];
+  if (picks <= 0 || bank.length === 0) return quiz.questions;
+  return [...quiz.questions, ...shuffled(bank, `bank:${quiz.id}:${attemptId}`).slice(0, picks)];
+}
+
+/** 112.5 How many questions an attempt has. */
+export function quizQuestionCount(course: Pick<Course, "questionBank">, quiz: CourseQuiz): number {
+  return quiz.questions.length + Math.min(quiz.bankPicks ?? 0, (course.questionBank ?? []).length);
 }
 
 /** The quizzes the student passed (any submitted attempt that passed). */

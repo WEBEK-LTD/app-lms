@@ -629,6 +629,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       // 112.5 Assignments and live classes: none on these apps either.
       assignment_id: "1",
       live_id: "1",
+      submission_id: "1",
       service_id: "1",
       class_id: "1",
       product_id: ids.product_id,

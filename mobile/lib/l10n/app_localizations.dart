@@ -10383,6 +10383,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Arrives in about {minutes} min'**
   String trackingArrivesIn(int minutes);
+
+  /// 112.5 Opens a certificate's PDF file.
+  ///
+  /// In en, this message translates to:
+  /// **'Download the PDF'**
+  String get certificatePdf;
+
+  /// 112.5 Shares a certificate's link.
+  ///
+  /// In en, this message translates to:
+  /// **'Share the certificate'**
+  String get certificateShare;
+
+  /// 112.5 The text shared with a certificate.
+  ///
+  /// In en, this message translates to:
+  /// **'My certificate for {course}: {url}'**
+  String certificateShareText(String course, String url);
+
+  /// 112.5 On a course page: the student's cohort and its first day.
+  ///
+  /// In en, this message translates to:
+  /// **'{cohort} · starts {date}'**
+  String cohortStarts(String cohort, String date);
+
+  /// 112.5 The Teacher tab's part with the assignments to grade.
+  ///
+  /// In en, this message translates to:
+  /// **'Grading'**
+  String get teacherTabGrading;
+
+  /// 112.5 Assignments waiting for the teacher's grade.
+  ///
+  /// In en, this message translates to:
+  /// **'To grade'**
+  String get gradingToGrade;
+
+  /// 112.5 Assignments the teacher graded.
+  ///
+  /// In en, this message translates to:
+  /// **'Graded'**
+  String get gradingGraded;
+
+  /// 112.5 No assignment waits for the teacher's grade.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to grade. Well done!'**
+  String get gradingNone;
+
+  /// 112.5 The teacher graded nothing yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing graded yet.'**
+  String get gradingNoneGraded;
+
+  /// 112.5 An assignment the teacher sent back.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent back'**
+  String get gradingSentBackLabel;
+
+  /// 112.5 The score field when grading.
+  ///
+  /// In en, this message translates to:
+  /// **'Score (out of {max})'**
+  String gradingScore(int max);
+
+  /// 112.5 The note field when grading.
+  ///
+  /// In en, this message translates to:
+  /// **'Note to the student'**
+  String get gradingNote;
+
+  /// 112.5 Saves an assignment's grade.
+  ///
+  /// In en, this message translates to:
+  /// **'Save the grade'**
+  String get gradingSave;
+
+  /// 112.5 Sends an assignment back to the student.
+  ///
+  /// In en, this message translates to:
+  /// **'Send back for another try'**
+  String get gradingSendBack;
+
+  /// 112.5 After grading an assignment.
+  ///
+  /// In en, this message translates to:
+  /// **'Graded. Your student sees it in the app.'**
+  String get gradingSaved;
+
+  /// 112.5 After sending an assignment back.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent back to your student.'**
+  String get gradingSentBack;
+
+  /// 112.5 Sending back without a note.
+  ///
+  /// In en, this message translates to:
+  /// **'Write what to change before sending it back.'**
+  String get gradingNeedsNote;
+
+  /// 112.5 A score outside the assignment's range.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a score from 0 to {max}.'**
+  String gradingScoreRange(int max);
+
+  /// 112.5 A student's report card over the term.
+  ///
+  /// In en, this message translates to:
+  /// **'Report card'**
+  String get reportCard;
+
+  /// 112.5 A report card's period.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} to {to}'**
+  String reportPeriod(String from, String to);
+
+  /// 112.5 The overall percent on a report card or gradebook.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall'**
+  String get reportOverall;
+
+  /// 112.5 A report card's attendance line.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance: {present} present, {absent} absent, {late} late, {excused} excused.'**
+  String reportAttendance(int present, int absent, int late, int excused);
+
+  /// 112.5 A report card without scores yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No scores in this term yet.'**
+  String get reportCardNone;
+
+  /// 112.5 A class's gradebook for its teachers.
+  ///
+  /// In en, this message translates to:
+  /// **'Gradebook'**
+  String get classGradebook;
+
+  /// 112.5 A gradebook of a class without students.
+  ///
+  /// In en, this message translates to:
+  /// **'No students in this class yet.'**
+  String get gradebookNone;
+
+  /// 112.5 The gradebook's student column.
+  ///
+  /// In en, this message translates to:
+  /// **'Student'**
+  String get gradebookStudent;
+
+  /// 112.5 The gradebook's days-absent column.
+  ///
+  /// In en, this message translates to:
+  /// **'Absent'**
+  String get gradebookAbsent;
+
+  /// 112.5 The live classes' month calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get liveCalendar;
+
+  /// 112.5 A calendar day without a live class.
+  ///
+  /// In en, this message translates to:
+  /// **'No live class on this day.'**
+  String get liveNoneThisDay;
+
+  /// 112.5 Read out for a calendar day with live classes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 live class} other{{count} live classes}}'**
+  String liveClassesCount(int count);
+
+  /// 112.5 The calendar's button to the month before.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get calendarPrevious;
+
+  /// 112.5 The calendar's button to the month after.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get calendarNext;
+
+  /// 112.5 A coupon that applies to a paid course, and the price it leaves.
+  ///
+  /// In en, this message translates to:
+  /// **'{discount} off: you pay {total}.'**
+  String couponSaves(String discount, String total);
+
+  /// 112.5 Goes to a paid course's checkout with the coupon.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with the coupon'**
+  String get couponContinue;
+
+  /// 112.5 Goes to a paid course's checkout without a coupon.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue without a coupon'**
+  String get couponWithout;
 }
 
 class _AppLocalizationsDelegate

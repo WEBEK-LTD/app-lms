@@ -114,7 +114,7 @@ const MARGIN = 50;
 const CONTENT = PAGE.width - 2 * MARGIN;
 const BOTTOM = PAGE.height - 70;
 
-type Weight = "regular" | "bold";
+export type Weight = "regular" | "bold";
 
 /**
  * Without `features`, PDFKit lays a text out word by word and puts the words
@@ -141,7 +141,8 @@ function colour(value: string | null | undefined, fallback: string): string {
   return value && /^#[0-9a-fA-F]{6}$/.test(value) ? value : fallback;
 }
 
-class Layout {
+/** The receipt's layout; 112.5 also the certificates' (lib/courses/certificate-pdf.ts). */
+export class Layout {
   readonly rtl: boolean;
   y = 0;
 
@@ -177,6 +178,12 @@ class Layout {
         width: this.doc.widthOfString(text, WHOLE_RUN),
       };
     });
+  }
+
+  /** 112.5 One line centred in `width` from the page's own `left`, its baseline at `baseline`. */
+  centeredLine(line: string, left: number, width: number, baseline: number, size: number, weight: Weight, color: string) {
+    const total = this.width(line, size, weight);
+    this.drawLine(line, left + (width - total) / 2, total, baseline, size, weight, color, "start");
   }
 
   width(line: string, size: number, weight: Weight): number {

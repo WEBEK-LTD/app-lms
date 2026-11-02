@@ -780,3 +780,139 @@ class AssessmentScores {
   final SchoolAssessment assessment;
   final List<StudentMark> students;
 }
+
+/// 112.5 A report card's or gradebook's period: the term, or the days asked for.
+class ReportPeriod {
+  const ReportPeriod({required this.from, required this.to, this.term});
+
+  factory ReportPeriod.fromJson(Json json) => ReportPeriod(
+    from: reqString(json, 'from'),
+    to: reqString(json, 'to'),
+    term: optString(json, 'term'),
+  );
+
+  final String from;
+  final String to;
+  final String? term;
+}
+
+/// 112.5 Days present, absent, late and excused.
+class AttendanceCounts {
+  const AttendanceCounts({
+    this.present = 0,
+    this.absent = 0,
+    this.late = 0,
+    this.excused = 0,
+  });
+
+  factory AttendanceCounts.fromJson(Json json) => AttendanceCounts(
+    present: intOr(json, 'present', 0),
+    absent: intOr(json, 'absent', 0),
+    late: intOr(json, 'late', 0),
+    excused: intOr(json, 'excused', 0),
+  );
+
+  final int present;
+  final int absent;
+  final int late;
+  final int excused;
+}
+
+class ReportSubject {
+  const ReportSubject({
+    required this.name,
+    this.percent,
+    this.scores = const [],
+  });
+
+  factory ReportSubject.fromJson(Json json) => ReportSubject(
+    name: reqString(json, 'name'),
+    percent: optDouble(json, 'percent'),
+    scores: listOf(
+      json,
+      'scores',
+      (s) => (
+        title: reqString(s, 'title'),
+        score: optDouble(s, 'score') ?? 0,
+        maxScore: optDouble(s, 'max_score') ?? 0,
+      ),
+    ),
+  );
+
+  final String name;
+  final double? percent;
+  final List<({String title, double score, double maxScore})> scores;
+}
+
+/// 112.5 A student's report card (`ReportCard`).
+class ReportCard {
+  const ReportCard({
+    required this.period,
+    this.className,
+    this.subjects = const [],
+    this.overall,
+    this.attendance = const AttendanceCounts(),
+  });
+
+  factory ReportCard.fromJson(Json json) => ReportCard(
+    period: ReportPeriod.fromJson(asJson(json['period'], 'period')),
+    className: optString(json, 'class_name'),
+    subjects: listOf(json, 'subjects', ReportSubject.fromJson),
+    overall: optDouble(json, 'overall'),
+    attendance: AttendanceCounts.fromJson(
+      asJson(json['attendance'], 'attendance'),
+    ),
+  );
+
+  final ReportPeriod period;
+  final String? className;
+  final List<ReportSubject> subjects;
+  final double? overall;
+  final AttendanceCounts attendance;
+}
+
+/// 112.5 A class's gradebook for its teachers (`ClassGradebook`).
+class ClassGradebook {
+  const ClassGradebook({
+    required this.period,
+    required this.className,
+    this.subjects = const [],
+    this.students = const [],
+  });
+
+  factory ClassGradebook.fromJson(Json json) => ClassGradebook(
+    period: ReportPeriod.fromJson(asJson(json['period'], 'period')),
+    className: optString(json, 'class_name') ?? '',
+    subjects: [
+      for (final s in listOf(json, 'subjects', (s) => s)) reqString(s, 'name'),
+    ],
+    students: listOf(
+      json,
+      'students',
+      (s) => (
+        name: reqString(s, 'name'),
+        percents: [
+          for (final p in (s['percents'] as List? ?? const []))
+            p is num ? p.toDouble() : null,
+        ],
+        overall: optDouble(s, 'overall'),
+        attendance: AttendanceCounts.fromJson(
+          asJson(s['attendance'], 'attendance'),
+        ),
+      ),
+    ),
+  );
+
+  final ReportPeriod period;
+  final String className;
+  final List<String> subjects;
+  final List<
+    ({
+      String name,
+      List<double?> percents,
+      double? overall,
+      AttendanceCounts attendance,
+    })
+  >
+  students;
+}
