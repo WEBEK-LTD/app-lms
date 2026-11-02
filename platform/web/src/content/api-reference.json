@@ -1240,7 +1240,7 @@
     },
     {
       "name": "Taxi",
-      "description": "Roadmap 105.9. A live taxi app (`Config.taxi`): the rides of the Rides and Driver tags, on a full-screen map where the free taxis around the rider and the rider's driver move as they move. The map is the company's choice: Google Maps with the company's own key, or OpenStreetMap from the company's tile server (`TaxiConfig.map`). Place search and routes go through Yallapp (`/taxi/places`, `/taxi/route`) when the company set them up.\n\nLive positions are in the company's own Firebase Realtime Database (`TaxiConfig.live`). The app signs in to Firebase with the custom token of `POST /taxi/live-token`, whose claims say what it may read and write, under `root` (`yallapp/<app_id>`):\n\n- `cells/<cell>/<driver_key>`: `{lat, lng, heading, type, at}`, a free online driver, in the 5-letter geohash cell of their position. Any signed-in person of the app reads them; the driver writes their own (every 2 seconds while online and free; removed when they go offline, take a ride or move to another cell, and on disconnect). `type` is the driver's vehicle type ID, `at` milliseconds since 1970. Riders read the cell they are in and the eight around it and drop drivers whose `at` is over a minute old. - `drivers/<driver_key>`: `{lat, lng, heading, at}`, written by the driver every 2 seconds while online; read by the driver and by the rider whose token follows them (claim `follow`). - `rides/<ride_id>`: `{status, driver_key, at}`, written by Yallapp at each stage of the ride; read by its rider (claim `ride`) and its driver.\n\nWithout a live database (`live` null), the app asks `GET /taxi/nearby` and `GET /me/rides/{ride_id}` every `nearby_every_seconds`. The driver's app also sends `PUT /driver/location` as in the Driver tag: rides are offered from those positions.",
+      "description": "Roadmap 105.9. A live taxi app (`Config.taxi`): the rides of the Rides and Driver tags, on a full-screen map where the free taxis around the rider and the rider's driver move as they move. The map is the company's choice: Google Maps with the company's own key, or OpenStreetMap from the company's tile server (`TaxiConfig.map`). Place search and routes go through Yallapp (`/maps/places`, `/maps/route`; 105.9's `/taxi/places` and `/taxi/route` are the same) when the company set them up.\n\nRoadmap 112.1. Every ride app has `Config.taxi` and these endpoints: ride hailing apps (vertical not `taxi`) too, on the company's map when it set one on Maps & live, else on the platform's map (tiles, and its search and routing servers when set). `tiles_url` is null when there's no map at all: the app keeps the same map-first screens on a plain background.\n\nLive positions are in the company's own Firebase Realtime Database (`TaxiConfig.live`). The app signs in to Firebase with the custom token of `POST /taxi/live-token`, whose claims say what it may read and write, under `root` (`yallapp/<app_id>`):\n\n- `cells/<cell>/<driver_key>`: `{lat, lng, heading, type, at}`, a free online driver, in the 5-letter geohash cell of their position. Any signed-in person of the app reads them; the driver writes their own (every 2 seconds while online and free; removed when they go offline, take a ride or move to another cell, and on disconnect). `type` is the driver's vehicle type ID, `at` milliseconds since 1970. Riders read the cell they are in and the eight around it and drop drivers whose `at` is over a minute old. - `drivers/<driver_key>`: `{lat, lng, heading, at}`, written by the driver every 2 seconds while online; read by the driver and by the rider whose token follows them (claim `follow`). - `rides/<ride_id>`: `{status, driver_key, at}`, written by Yallapp at each stage of the ride; read by its rider (claim `ride`) and its driver.\n\nWithout a live database (`live` null), the app asks `GET /taxi/nearby` and `GET /me/rides/{ride_id}` every `nearby_every_seconds`. The driver's app also sends `PUT /driver/location` as in the Driver tag: rides are offered from those positions.",
       "endpoints": [
         {
           "method": "POST",
@@ -1260,7 +1260,7 @@
           "method": "GET",
           "path": "/taxi/places",
           "summary": "Places for where to",
-          "description": "Places matching what the rider typed, near them first, from the company's Google Maps (Places) or OpenStreetMap search server (`TaxiConfig.map.search`). A Google place comes without its position: ask `GET /taxi/places/{place_id}` when the rider picks it. `feature_disabled` (403) when the company has no search.",
+          "description": "The same as `GET /maps/places`, kept for the taxi apps built before roadmap 112. Places matching what the rider typed, near them first, from the company's Google Maps (Places) or OpenStreetMap search server (`TaxiConfig.map.search`). A Google place comes without its position: ask `GET /taxi/places/{place_id}` when the rider picks it. `feature_disabled` (403) when the company has no search.",
           "access": "optional"
         },
         {
@@ -1275,6 +1275,33 @@
           "path": "/taxi/route",
           "summary": "The route between two places",
           "description": "The driving route, from the company's Google Maps (Routes) or OpenStreetMap routing server (`TaxiConfig.map.routes`), to draw on the map and to tell how long. `feature_disabled` (403) when the company has none: the app draws a straight line.",
+          "access": "optional"
+        }
+      ]
+    },
+    {
+      "name": "Maps",
+      "description": "Roadmap 112. Place search and routes on the map an app draws, through Yallapp, for ride, taxi, delivery and food apps: the company's own map (`TaxiConfig.map`, set on Maps & live) or, for apps without one, the platform's (ride hailing apps' `TaxiConfig.map`, `DeliveryConfig.map`, `FoodConfig.map`). `search` and `routes` on those say whether `GET /maps/places` and `POST /maps/route` work; without them the app chooses places by the phone's position, a maps link or on the map, and draws a straight line.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/maps/places",
+          "summary": "Places by name",
+          "description": "Places matching what the person typed, near them first, on the app's map: the company's Google Maps (Places) or OpenStreetMap search server, or the platform's search server (`search` in `TaxiConfig.map`, `DeliveryConfig.map`, `FoodConfig.map`). A Google place comes without its position: ask `GET /maps/places/{place_id}` when the person picks it. `feature_disabled` (403) when the app's map has no search.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/maps/places/{place_id}",
+          "summary": "A place's position",
+          "description": null,
+          "access": "optional"
+        },
+        {
+          "method": "POST",
+          "path": "/maps/route",
+          "summary": "The route between two places",
+          "description": "The driving route on the app's map: the company's Google Maps (Routes) or OpenStreetMap routing server, or the platform's routing server (`routes` in `TaxiConfig.map`, `DeliveryConfig.map`, `FoodConfig.map`), to draw on the map and to tell how long. `feature_disabled` (403) when the map has no routes: the app draws a straight line.",
           "access": "optional"
         }
       ]
