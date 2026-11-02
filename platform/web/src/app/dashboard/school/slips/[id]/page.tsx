@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteSlipAction, saveSlipAction } from "@/app/actions/school-parent";
 import { Badge, btn } from "@/components/ui";
+import { ItemRow, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { Sheet, SheetButton } from "@/components/page-kit-client";
+import { ChipLinks, ListBar } from "@/components/page-kit-c";
 import type { DashKey } from "@/i18n/dashboard";
 import { requireClient } from "@/lib/auth/session";
 import { utcToLocal } from "@/lib/bookings/time";
@@ -13,7 +15,7 @@ import { schoolToday } from "@/lib/school/service";
 import { schoolSettingsOf } from "@/lib/school/settings";
 import { ConfirmButton } from "../../../chat/forms";
 import { SchoolForm } from "../../forms";
-import { isSchool, NotSchool, Panel } from "../../parts";
+import { isSchool, NotSchool, PageHead, Panel } from "../../parts";
 import { SlipFields } from "../parts";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -52,67 +54,76 @@ export default async function SchoolSlipPage({ params, searchParams }: { params:
 
   return (
     <div className="flex flex-col gap-6">
-      <Link href="/dashboard/school/slips" className="inline-flex items-center gap-1 text-sm font-semibold no-underline">
-        {t("parents.back")}
-      </Link>
-      <div className="flex max-w-[860px] flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{slip.title}</h1>
-          <Badge tone={open ? "success" : "neutral"}>{t(open ? "parents.open" : "parents.closed")}</Badge>
-        </div>
-        <p className="m-0 text-[15px] text-muted">{[t("parents.dueLine", { date: slip.dueOn }), slipForName(slip, byClass) ?? t("schoolLife.forSchool"), slip.feeNote ? t("parents.feeIs", { note: slip.feeNote }) : null].filter(Boolean).join(" · ")}</p>
-        {slip.details ? <p className="m-0 text-[15px] leading-relaxed whitespace-pre-line text-ink-4">{slip.details}</p> : null}
-      </div>
+      {/* The page kit: the slip's header with the way back and Edit, its numbers, then the answers. */}
+      <PageHead
+        title={slip.title}
+        intro={
+          <>
+            <span className="flex flex-wrap items-center gap-2">
+              <Badge tone={open ? "success" : "neutral"}>{t(open ? "parents.open" : "parents.closed")}</Badge>
+              {[t("parents.dueLine", { date: slip.dueOn }), slipForName(slip, byClass) ?? t("schoolLife.forSchool"), slip.feeNote ? t("parents.feeIs", { note: slip.feeNote }) : null].filter(Boolean).join(" · ")}
+            </span>
+            {slip.details ? <span className="mt-1 block whitespace-pre-line">{slip.details}</span> : null}
+          </>
+        }
+        back={{ href: "/dashboard/school/slips", label: t("parents.slips") }}
+        actions={
+          <SheetButton target="edit-slip" icon="edit">
+            {t("parents.editSlip")}
+          </SheetButton>
+        }
+      />
 
-      <Panel id="h-answers" title={t("parents.answers")} intro={t("parents.counts", counts)}>
-        <nav aria-label={t("parents.answers")} className="flex flex-wrap gap-1.5">
-          {SHOWS.map((s) => (
-            <Link
-              key={s}
-              href={`/dashboard/school/slips/${slip.id}${s === "all" ? "" : `?show=${s}`}`}
-              aria-current={s === show ? "page" : undefined}
-              className={`flex h-9 items-center rounded-full border px-3.5 text-sm no-underline ${
-                s === show ? "border-midnight bg-midnight font-bold text-white hover:text-white" : "border-line bg-white text-ink-3 hover:border-midnight hover:text-midnight"
-              }`}
-            >
-              {t(SHOW_KEYS[s])}
-            </Link>
-          ))}
-        </nav>
-        {forThem.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("parents.noStudents")}</p> : null}
-        {forThem.length > 0 && shown.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("parents.noMatch")}</p> : null}
+      <StatRow label={t("parents.answers")}>
+        <Stat icon="check_circle" tone="success" label={t("parents.signedYes")} value={counts.yes} href={`/dashboard/school/slips/${slip.id}?show=yes`} />
+        <Stat icon="cancel" tone="warn" label={t("parents.declined")} value={counts.no} href={`/dashboard/school/slips/${slip.id}?show=no`} />
+        <Stat icon="hourglass_top" label={t("parents.notAnswered")} value={counts.waiting} href={`/dashboard/school/slips/${slip.id}?show=waiting`} />
+      </StatRow>
+
+      <Panel id="h-answers" title={t("parents.answers")} intro={t("parents.counts", counts)} flush>
+        <ListBar>
+          <ChipLinks
+            label={t("parents.answers")}
+            items={SHOWS.map((s) => ({
+              href: `/dashboard/school/slips/${slip.id}${s === "all" ? "" : `?show=${s}`}`,
+              label: t(SHOW_KEYS[s]),
+              count: s === "all" ? forThem.length : s === "yes" ? counts.yes : s === "no" ? counts.no : counts.waiting,
+              current: s === show,
+            }))}
+          />
+        </ListBar>
+        {forThem.length === 0 ? <p className="m-0 px-5 py-8 text-center text-[15px] text-muted sm:px-6">{t("parents.noStudents")}</p> : null}
+        {forThem.length > 0 && shown.length === 0 ? <p className="m-0 px-5 py-8 text-center text-[15px] text-muted sm:px-6">{t("parents.noMatch")}</p> : null}
         <ul className="m-0 flex list-none flex-col p-0" data-slip-answers>
-          {shown.map((student) => {
+          {shown.map((student, i) => {
             const answer = answerOf.get(student.id);
             const local = answer ? utcToLocal(answer.answeredAt, settings.timezone) : null;
             return (
-              <li key={student.id} data-student={student.id} className="flex flex-wrap items-center gap-2 border-t border-line-soft py-2.5 first:border-t-0 first:pt-0">
-                <span className="flex min-w-[180px] flex-1 flex-col gap-0.5">
-                  <Link href={`/dashboard/school/people/${student.id}`} className="text-[15px] font-bold">
-                    {student.name}
-                  </Link>
-                  <span className="text-[13px] text-muted">
-                    {[student.classId ? byClass.get(student.classId)?.name : null, answer && local ? t("parents.signedBy", { name: answer.signedName, date: `${local.date} ${local.time}` }) : null].filter(Boolean).join(" · ")}
-                  </span>
-                </span>
-                <Badge tone={!answer ? "neutral" : answer.answer === "yes" ? "success" : "danger"}>{t(!answer ? "parents.notAnswered" : answer.answer === "yes" ? "parents.signedYes" : "parents.declined")}</Badge>
-              </li>
+              <ItemRow
+                key={student.id}
+                data-student={student.id}
+                href={`/dashboard/school/people/${student.id}`}
+                media={<Thumb icon="school" shape="round" tint={i} />}
+                title={student.name}
+                meta={[student.classId ? byClass.get(student.classId)?.name : null, answer && local ? t("parents.signedBy", { name: answer.signedName, date: `${local.date} ${local.time}` }) : null].filter(Boolean).join(" · ") || null}
+                aside={<Badge tone={!answer ? "neutral" : answer.answer === "yes" ? "success" : "danger"}>{t(!answer ? "parents.notAnswered" : answer.answer === "yes" ? "parents.signedYes" : "parents.declined")}</Badge>}
+              />
             );
           })}
         </ul>
       </Panel>
 
-      <Panel id="h-edit" title={t("parents.editSlip")}>
-        <SchoolForm action={saveSlipAction} submit={t("parents.save")}>
+      <Sheet id="edit-slip" title={t("parents.editSlip")} description={slip.title}>
+        <SchoolForm action={saveSlipAction} submit={t("parents.save")} sheet>
           <SlipFields slip={slip} classes={classes} today={today} t={t} />
         </SchoolForm>
-        <form action={deleteSlipAction} className="flex justify-end">
+        <form action={deleteSlipAction} className="flex justify-start pb-4">
           <input type="hidden" name="id" value={slip.id} />
           <ConfirmButton confirm={t("parents.deleteSlip", { title: slip.title })} className={`${btn.danger} h-9 px-3.5 text-sm`}>
             {t("parents.remove")}
           </ConfirmButton>
         </form>
-      </Panel>
+      </Sheet>
     </div>
   );
 }

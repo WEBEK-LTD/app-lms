@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { answerExcuseAction } from "@/app/actions/school-parent";
 import { Badge } from "@/components/ui";
+import { Thumb } from "@/components/page-kit";
 import type { DashKey, DashT } from "@/i18n/dashboard";
 import { utcToLocal } from "@/lib/bookings/time";
 import type { SchoolExcuse, SchoolExcuseStatus, SchoolPerson } from "@/lib/data/types";
@@ -18,8 +19,9 @@ export function ExcuseItem({ excuse, student, parent, className, t, timezone }: 
   const sent = utcToLocal(excuse.createdAt, timezone).date;
   const answered = excuse.answeredAt ? utcToLocal(excuse.answeredAt, timezone).date : null;
   return (
-    <li data-excuse={excuse.id} className="flex flex-col gap-2 border-t border-line-soft py-3 first:border-t-0 first:pt-0">
-      <div className="flex flex-wrap items-center gap-2">
+    <li data-excuse={excuse.id} className="flex flex-col gap-3 border-t border-line-soft px-5 py-3.5 first:border-t-0 sm:px-6">
+      <div className="flex flex-wrap items-center gap-3">
+        <Thumb icon="event_busy" shape="round" tint={excuse.studentId} />
         <span className="flex min-w-[180px] flex-1 flex-col gap-0.5">
           {student ? (
             <Link href={`/dashboard/school/people/${student.id}`} className="text-[15px] font-bold">
@@ -41,13 +43,13 @@ export function ExcuseItem({ excuse, student, parent, className, t, timezone }: 
         <Badge tone={EXCUSE_TONES[excuse.status]}>{t(EXCUSE_KEYS[excuse.status])}</Badge>
       </div>
       {excuse.status === "pending" ? (
-        <SchoolForm action={answerExcuseAction} submit={t("parents.save")} className="rounded-xl border border-line p-3">
+        <SchoolForm action={answerExcuseAction} submit={t("parents.save")} className="rounded-xl bg-sand p-4">
           <input type="hidden" name="id" value={excuse.id} />
           <fieldset className="m-0 flex flex-wrap gap-1.5 border-0 p-0">
             <legend className="sr-only">{student?.name ?? ""}</legend>
             {(["accepted", "declined"] as const).map((a) => (
-              <label key={a} className="flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-sm has-[:checked]:border-midnight has-[:checked]:bg-sand has-[:checked]:font-bold">
-                <input type="radio" name="answer" value={a} defaultChecked={a === "accepted"} className="h-4 w-4 accent-midnight" />
+              <label key={a} className="flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-line bg-white px-3 text-sm has-[:checked]:border-midnight has-[:checked]:bg-midnight has-[:checked]:font-bold has-[:checked]:text-ivory">
+                <input type="radio" name="answer" value={a} defaultChecked={a === "accepted"} className="h-4 w-4 accent-ember" />
                 {t(a === "accepted" ? "parents.accept" : "parents.decline")}
               </label>
             ))}

@@ -166,8 +166,8 @@ export default async function SchoolStudentPage({ params }: { params: Promise<{ 
         </Sheet>
       </Panel>
 
-      <Panel id="h-student-excuses" title={t("parents.recentExcuses")}>
-        {excuses.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("parents.noExcuses")}</p> : null}
+      <Panel id="h-student-excuses" title={t("parents.recentExcuses")} flush>
+        {excuses.length === 0 ? <p className="m-0 px-5 py-4 text-[15px] text-muted sm:px-6">{t("parents.noExcuses")}</p> : null}
         <ul className="m-0 flex list-none flex-col p-0">
           {excuses.slice(0, 20).map((e) => (
             <ExcuseItem key={e.id} excuse={e} student={student} parent={e.parentId !== null ? byId.get(e.parentId) : undefined} className={className} t={t} timezone={settings.timezone} />
