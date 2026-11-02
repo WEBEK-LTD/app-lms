@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Icon } from "@/components/icon";
-import { PageHeader, formatDate } from "@/components/ui";
+import { Thumb } from "@/components/page-kit";
+import { PageHeader, ProgressBar, Section, formatDate } from "@/components/ui";
 import { appLabel } from "@/lib/app/label";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -25,58 +26,66 @@ export default async function StabilityPage() {
   const off = app.crashReports === false;
   const { t, k, num, lang } = await dashboardText();
   return (
-    <>
+    <div className="flex flex-col gap-6">
+      {/* The page kit: the header, the share without a crash, the problems as a list, then the switches. */}
       <PageHeader title={t("health.stability")} description={t("health.stabilityText", { app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app) })} />
-      <section aria-labelledby="h-crash-free" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-crash-free" className="m-0 flex items-center gap-2 text-lg font-bold">
-          <Icon name="monitoring" size={22} />
-          {t("health.crashFree")}
-        </h2>
+      <Section
+        titleId="h-crash-free"
+        title={
+          <span className="flex items-center gap-2">
+            <Icon name="monitoring" size={22} />
+            {t("health.crashFree")}
+          </span>
+        }
+      >
         {off ? (
           <p className="m-0 text-[15px] text-ink-4">{t("health.offText")}</p>
         ) : stability.crashFree === null ? (
           <p className="m-0 text-[15px] text-ink-4">{t("health.noData")}</p>
         ) : (
-          <>
-            <span className="text-[32px] leading-none font-extrabold" data-crash-free="">
-              {t("health.percent", { percent: num(stability.crashFree) })}
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <span className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${stability.crashFree >= 99 ? "bg-success-bg text-success" : "bg-warn-bg text-warn"}`}>
+              <Icon name={stability.crashFree >= 99 ? "check_circle" : "warning"} size={30} />
             </span>
-            <span className="text-sm text-muted">{t("health.sessions", { count: stability.sessions })}</span>
-          </>
+            <div className="flex min-w-0 flex-[1_1_240px] flex-col gap-2">
+              <span className="text-[32px] leading-none font-extrabold tabular-nums" data-crash-free="">
+                {t("health.percent", { percent: num(stability.crashFree) })}
+              </span>
+              <ProgressBar value={stability.crashFree} max={100} label={t("health.crashFree")} tone={stability.crashFree >= 99 ? "success" : "warn"} />
+              <span className="text-sm text-muted">{t("health.sessions", { count: stability.sessions })}</span>
+            </div>
+          </div>
         )}
-      </section>
+      </Section>
 
-      <section aria-labelledby="h-top" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-top" className="m-0 text-lg font-bold">
-          {t("health.frequent")}
-        </h2>
+      <Section titleId="h-top" title={t("health.frequent")} description={stability.top.length ? t("health.teamFixes") : undefined} flush>
         {stability.top.length === 0 ? (
-          <p className="m-0 text-[15px] text-ink-4">{t("health.noProblems")}</p>
+          <p className="m-0 flex items-center gap-2 px-5 py-5 text-[15px] text-ink-4 sm:px-6">
+            <Icon name="check_circle" size={20} className="text-success" />
+            {t("health.noProblems")}
+          </p>
         ) : (
-          <>
-            <ul className="m-0 flex list-none flex-col gap-2 p-0" data-top-crashes="">
-              {stability.top.map((issue) => (
-                <li key={issue.id} className="flex flex-col gap-0.5 border-t border-line-soft pt-2 first:border-t-0 first:pt-0">
-                  <span className="font-mono text-[13px] break-words" dir="ltr">
+          <ul className="m-0 flex list-none flex-col p-0" data-top-crashes="">
+            {stability.top.map((issue, i) => (
+              <li key={issue.id} className="flex items-start gap-3.5 border-t border-line-soft px-5 py-3.5 first:border-t-0 sm:px-6">
+                <Thumb icon="error" shape="square" tint={i} />
+                <span className="flex min-w-0 flex-col gap-0.5">
+                  <span className="font-mono text-[13px] font-semibold break-words text-midnight" dir="ltr">
                     {issue.title}
                   </span>
-                  <span className="text-xs text-muted">
+                  <span className="text-[13px] text-muted">
                     {t("health.issueLine", { count: issue.count, date: formatDate(issue.lastSeenAt, lang), version: issue.versions[issue.versions.length - 1] ?? "" })}
                   </span>
-                </li>
-              ))}
-            </ul>
-            <p className="m-0 text-sm text-muted">{t("health.teamFixes")}</p>
-          </>
+                </span>
+              </li>
+            ))}
+          </ul>
         )}
-      </section>
+      </Section>
 
-      <section aria-labelledby="h-switches" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-switches" className="m-0 text-lg font-bold">
-          {t("health.switches")}
-        </h2>
+      <Section titleId="h-switches" title={t("health.switches")}>
         <AppHealthForm reviewPrompt={app.reviewPrompt !== false} crashReports={!off} />
-      </section>
-    </>
+      </Section>
+    </div>
   );
 }

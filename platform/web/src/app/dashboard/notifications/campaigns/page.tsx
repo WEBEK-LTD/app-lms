@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
-import { btn, EmptyState, Notice } from "@/components/ui";
+import { ItemRow, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { FilterList } from "@/components/page-kit-client";
+import { btn, EmptyState, Notice, PageHeader, Section } from "@/components/ui";
 import { formatDate } from "@/i18n/format";
 import { appZone } from "@/lib/analytics/zone";
 import { utcToLocal } from "@/lib/bookings/time";
@@ -21,12 +23,14 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
   const { t, lang } = await dashboardText();
   if (!app || (app.backend !== "hosted" && app.backend !== "wordpress")) {
     return (
-      <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("campaigns.title")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          {t("notify.fromSite")} <Link href="/dashboard/setup">{t("notify.backToSetup")}</Link>
-        </p>
-      </div>
+      <PageHeader
+        title={t("campaigns.title")}
+        description={
+          <>
+            {t("notify.fromSite")} <Link href="/dashboard/setup">{t("notify.backToSetup")}</Link>
+          </>
+        }
+      />
     );
   }
   const { deleted } = await searchParams;
@@ -36,62 +40,90 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
   const stats = await campaignStats(store, app, campaigns, now);
   const weekdays = new Intl.DateTimeFormat(lang === "en" ? "en-GB" : lang, { weekday: "long", timeZone: "UTC" });
 
+  const group = (c: (typeof campaigns)[number]) => (c.status === "scheduled" || c.status === "sending" ? "waiting" : c.status === "failed" ? "stopped" : c.status);
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex max-w-[680px] flex-col gap-2">
-        <Link href="/dashboard/notifications" className="flex items-center gap-1 text-[14px] font-semibold no-underline">
-          <Icon name="arrow_back" size={18} className="rtl:rotate-180" />
-          {t("campaigns.back")}
-        </Link>
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("campaigns.title")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("campaigns.intro")}</p>
-      </div>
+      {/* The page kit: back to notifications, New campaign, the numbers, then the campaigns with search and filters. */}
+      <PageHeader
+        back={{ href: "/dashboard/notifications", label: t("campaigns.back") }}
+        title={t("campaigns.title")}
+        description={t("campaigns.intro")}
+        actions={
+          <Link href="/dashboard/notifications/campaigns/new" className={`${btn.main} h-11`}>
+            <Icon name="add" size={20} />
+            {t("campaigns.newCampaign")}
+          </Link>
+        }
+      />
       {deleted ? (
-        <div className="max-w-[680px]">
-          <Notice tone="success" icon="check_circle" role="status">
-            {t("campaigns.deleted")}
-          </Notice>
-        </div>
+        <Notice tone="success" icon="check_circle" role="status">
+          {t("campaigns.deleted")}
+        </Notice>
       ) : null}
-      <div>
-        <Link href="/dashboard/notifications/campaigns/new" className={`${btn.primary} h-11`}>
-          <Icon name="add" size={20} />
-          {t("campaigns.newCampaign")}
-        </Link>
-      </div>
-      <section aria-label={t("campaigns.title")} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
+      {campaigns.length ? (
+        <StatRow label={t("campaigns.title")}>
+          <Stat icon="campaign" label={t("campaigns.title")} value={campaigns.length} />
+          <Stat icon="schedule" tone="accent" label={t("campaigns.waiting")} value={campaigns.filter((c) => group(c) === "waiting").length} />
+          <Stat icon="check_circle" tone="success" label={t("campaigns.sent")} value={campaigns.filter((c) => c.status === "sent").length} />
+          <Stat icon="edit" label={t("campaigns.draft")} value={campaigns.filter((c) => c.status === "draft").length} />
+        </StatRow>
+      ) : null}
+      <Section
+        titleId="h-campaigns"
+        title={campaigns.length ? t("campaigns.listCount", { count: campaigns.length }) : t("campaigns.title")}
+        description={campaigns.some((c) => stats.get(c.id)?.sends) ? t("campaigns.opensNote") : undefined}
+        flush
+      >
         {campaigns.length === 0 ? (
-          <EmptyState icon="campaign" title={t("campaigns.none")}>
-            {t("campaigns.noneText")}
-          </EmptyState>
+          <div className="p-5 sm:p-6">
+            <EmptyState icon="campaign" title={t("campaigns.none")}>
+              {t("campaigns.noneText")}
+            </EmptyState>
+          </div>
         ) : (
-          <ul className="m-0 flex list-none flex-col p-0">
-            {campaigns.map((c) => {
+          <FilterList
+            allLabel={t("common.all")}
+            searchLabel={t("campaigns.search")}
+            noMatch={t("campaigns.noMatch")}
+            filters={[
+              { value: "waiting", label: t("campaigns.waiting") },
+              { value: "sent", label: t("campaigns.sent") },
+              { value: "draft", label: t("campaigns.draft") },
+              { value: "stopped", label: t("campaigns.stopped") },
+            ]}
+            items={campaigns.map((c, i) => {
               const local = c.sendAt ? utcToLocal(c.sendAt, zone) : null;
-              return (
-                <li key={c.id} className="flex flex-col gap-1 border-t border-line-soft py-3 first:border-t-0 first:pt-0">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <Link href={`/dashboard/notifications/campaigns/${c.id}`} className="text-[16px] font-bold">
-                      {c.title}
-                    </Link>
-                    <CampaignStatus campaign={c} />
-                  </div>
-                  <span className="text-[15px] text-ink-4">{c.body}</span>
-                  {c.status === "scheduled" && local ? (
-                    <span className="text-[13px] text-muted">
-                      {c.repeat === "weekly" && c.weekday !== null && c.time
-                        ? t("campaigns.weeklyOn", { day: weekdays.format(new Date(Date.UTC(1970, 0, 4 + c.weekday))), time: c.time })
-                        : t("campaigns.next", { date: formatDate(lang, c.sendAt!, { weekday: "short", day: "numeric", month: "short", timeZone: zone }), time: local.time })}
-                    </span>
-                  ) : null}
-                  {stats.get(c.id)?.sends ? <CampaignNumbers stats={stats.get(c.id)!} /> : null}
-                </li>
-              );
+              const numbers = stats.get(c.id);
+              return {
+                id: c.id,
+                text: `${c.title} ${c.body}`,
+                group: group(c),
+                node: (
+                  <ItemRow
+                    href={`/dashboard/notifications/campaigns/${c.id}`}
+                    media={<Thumb icon={c.repeat === "weekly" ? "event" : "campaign"} shape="square" tint={i} />}
+                    title={c.title}
+                    meta={<span className="line-clamp-2">{c.body}</span>}
+                    extra={
+                      c.status === "scheduled" && local ? (
+                        <span className="flex items-center gap-1 font-semibold">
+                          <Icon name="schedule" size={16} className="text-muted" />
+                          {c.repeat === "weekly" && c.weekday !== null && c.time
+                            ? t("campaigns.weeklyOn", { day: weekdays.format(new Date(Date.UTC(1970, 0, 4 + c.weekday))), time: c.time })
+                            : t("campaigns.next", { date: formatDate(lang, c.sendAt!, { weekday: "short", day: "numeric", month: "short", timeZone: zone }), time: local.time })}
+                        </span>
+                      ) : numbers?.sends ? (
+                        <CampaignNumbers stats={numbers} />
+                      ) : null
+                    }
+                    aside={<CampaignStatus campaign={c} />}
+                  />
+                ),
+              };
             })}
-          </ul>
+          />
         )}
-        {campaigns.some((c) => stats.get(c.id)?.sends) ? <p className="m-0 text-[13px] text-muted">{t("campaigns.opensNote")}</p> : null}
-      </section>
+      </Section>
     </div>
   );
 }

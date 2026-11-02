@@ -15,6 +15,9 @@ export const en = {
   addKey:
     "Notifications reach the inbox in your app. To also show them on your customers' lock screens, add the key of the same Firebase project as your app's Firebase files.",
   sent: "Sent",
+  statCustomers: "Customers signed in",
+  statPushOn: "Push on",
+  statPushOff: "Inbox only",
   nothingSent: "Nothing sent yet.",
   nothingSentText: "Your notifications show here once you send them.",
   titleLabel: "Title",
@@ -91,6 +94,9 @@ export const ar: Messages = {
   addKey:
     "تصل الإشعارات إلى صندوق الوارد في تطبيقك. لتظهر أيضًا على شاشات القفل لدى عملائك، أضف مفتاح مشروع Firebase نفسه الذي تنتمي إليه ملفات Firebase الخاصة بتطبيقك.",
   sent: "المُرسَلة",
+  statCustomers: "العملاء الذين سجّلوا الدخول",
+  statPushOn: "مفعّلة",
+  statPushOff: "صندوق الوارد فقط",
   nothingSent: "لم يُرسَل شيء بعد.",
   nothingSentText: "تظهر إشعاراتك هنا بعد إرسالها.",
   titleLabel: "العنوان",
@@ -161,6 +167,9 @@ export const tr: Messages = {
   addKey:
     "Bildirimler uygulamanızdaki gelen kutusuna ulaşır. Müşterilerinizin kilit ekranlarında da görünmeleri için, uygulamanızın Firebase dosyalarıyla aynı Firebase projesinin anahtarını ekleyin.",
   sent: "Gönderilenler",
+  statCustomers: "Oturum açan müşteriler",
+  statPushOn: "Açık",
+  statPushOff: "Yalnızca gelen kutusu",
   nothingSent: "Henüz bir şey gönderilmedi.",
   nothingSentText: "Bildirimleriniz gönderdikten sonra burada görünür.",
   titleLabel: "Başlık",

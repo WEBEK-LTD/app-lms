@@ -62,6 +62,7 @@ export const en = {
   updatesText: "Updates, announcements, maintenance notices and offers from the Yallapp team, and what happened on your account.",
   ended: "Ended",
   new: "New",
+  updatesCount: "{count, plural, one {# update} other {# updates}}",
   noUpdates: "Nothing from Yallapp yet.",
   noUpdatesText:
     "When we have news about Yallapp, planned work, new features or offers, and when something happens on your account, you'll see it here and in the bell at the top.",
@@ -265,6 +266,7 @@ export const ar: Messages = {
   updatesText: "المستجدات والإعلانات وإشعارات الصيانة والعروض من فريق Yallapp، وما حدث في حسابك.",
   ended: "انتهى",
   new: "جديد",
+  updatesCount: "{count, plural, zero {لا مستجدات} one {مستجد واحد} two {مستجدان} few {# مستجدات} many {# مستجدًا} other {# مستجد}}",
   noUpdates: "لا شيء من Yallapp بعد.",
   noUpdatesText:
     "حين تكون لدينا أخبار عن Yallapp أو أعمال مجدولة أو مزايا جديدة أو عروض، وحين يحدث شيء في حسابك، ستراه هنا وفي الجرس أعلى الصفحة.",
@@ -461,6 +463,7 @@ export const tr: Messages = {
   updatesText: "Yallapp ekibinden güncellemeler, duyurular, bakım bildirimleri ve teklifler ile hesabınızda olanlar.",
   ended: "Sona erdi",
   new: "Yeni",
+  updatesCount: "{count, plural, one {# güncelleme} other {# güncelleme}}",
   noUpdates: "Yallapp'ten henüz bir şey yok.",
   noUpdatesText:
     "Yallapp hakkında haberlerimiz, planlı çalışmalarımız, yeni özelliklerimiz ya da tekliflerimiz olduğunda ve hesabınızda bir şey olduğunda bunu burada ve üstteki zilde görürsünüz.",

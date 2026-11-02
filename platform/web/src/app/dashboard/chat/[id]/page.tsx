@@ -4,7 +4,8 @@ import { notFound, redirect } from "next/navigation";
 import { blockChatMemberAction, clearChatConversationAction, deleteChatMessageAction, keepChatConversationAction } from "@/app/actions/chat";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { Badge, btn, Notice, Section } from "@/components/ui";
+import { DetailLayout, Thumb } from "@/components/page-kit";
+import { Badge, btn, Notice, PageHeader, Section } from "@/components/ui";
 import type { DashKey } from "@/i18n/dashboard";
 import { requireClient } from "@/lib/auth/session";
 import { chatAvailable } from "@/lib/chat/access";
@@ -51,75 +52,91 @@ export default async function ChatConversationPage({ params, searchParams }: Pag
   const kept = conversation.keepUntil && expires && conversation.keepUntil.getTime() >= expires.getTime();
 
   return (
-    <div className="flex max-w-[820px] flex-col gap-6">
+    <div className="flex flex-col gap-6">
+      {/* The page kit: back to the inbox, the conversation, and what to do with it beside it (below on phones). */}
       {!before ? <AutoRefresh seconds={5} /> : null}
-      <div className="flex flex-col gap-2">
-        <Link href="/dashboard/chat" className="text-sm font-semibold">
-          {t("chat.back")}
-        </Link>
-        <h1 className="m-0 flex flex-wrap items-center gap-2 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">
-          {title}
-          {member?.blockedAt ? <Badge tone="neutral">{t("chat.blocked")}</Badge> : null}
-        </h1>
-        <p className="m-0 text-[15px] text-ink-4">
-          {conversation.kind === "group" ? `${t("chat.group")} · ${t("chat.members", { count: memberCount })}` : t("chat.person")}
-        </p>
-      </div>
+      <PageHeader
+        back={{ href: "/dashboard/chat", label: t("chat.back") }}
+        title={
+          <span className="flex flex-wrap items-center gap-2">
+            {title}
+            {member?.blockedAt ? <Badge tone="neutral">{t("chat.blocked")}</Badge> : null}
+          </span>
+        }
+        description={conversation.kind === "group" ? `${t("chat.group")} · ${t("chat.members", { count: memberCount })}` : t("chat.person")}
+      />
 
       {member?.blockedAt ? <Notice icon="block">{t("chat.blockedText", { name: member.name })}</Notice> : null}
 
-      <Section title={t("chat.messages")} titleId="h-chat-messages">
-        {page.value.has_more || before ? (
-          <nav className="flex justify-between text-sm">
-            {page.value.has_more && messages[0] ? <Link href={`/dashboard/chat/${conversation.id}?before=${messages[0].id}`}>{t("chat.older")}</Link> : <span />}
-            {before ? <Link href={`/dashboard/chat/${conversation.id}`}>{t("chat.newest")}</Link> : null}
-          </nav>
-        ) : null}
-        {messages.length === 0 ? (
-          <p className="m-0 text-[15px] text-muted">{t("chat.noMessages")}</p>
-        ) : (
-          <ol className="m-0 flex list-none flex-col gap-3 p-0">
-            {messages.map((m) => (
-              <Message key={m.id} m={m} />
-            ))}
-          </ol>
-        )}
-        {!before ? <ChatReplyForm conversationId={conversation.id} business={deps.business.name} /> : null}
-      </Section>
-
-      <Section title={t("chat.thisConversation")} titleId="h-chat-conversation">
-        {expires ? (
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <span className="text-[15px] text-ink-4">{kept ? t("chat.retentionKept", { date: date(expires) }) : t("chat.retention", { date: date(expires) })}</span>
-            <form action={keepChatConversationAction}>
+      <DetailLayout
+        main={
+          <Section title={t("chat.messages")} titleId="h-chat-messages">
+            {page.value.has_more || before ? (
+              <nav className="flex justify-between text-sm">
+                {page.value.has_more && messages[0] ? <Link href={`/dashboard/chat/${conversation.id}?before=${messages[0].id}`}>{t("chat.older")}</Link> : <span />}
+                {before ? <Link href={`/dashboard/chat/${conversation.id}`}>{t("chat.newest")}</Link> : null}
+              </nav>
+            ) : null}
+            {messages.length === 0 ? (
+              <p className="m-0 text-[15px] text-muted">{t("chat.noMessages")}</p>
+            ) : (
+              <ol className="m-0 flex list-none flex-col gap-3 p-0">
+                {messages.map((m) => (
+                  <Message key={m.id} m={m} />
+                ))}
+              </ol>
+            )}
+            {!before ? (
+              <div className="border-t border-line-soft pt-4">
+                <ChatReplyForm conversationId={conversation.id} business={deps.business.name} />
+              </div>
+            ) : null}
+          </Section>
+        }
+        side={
+          <Section
+            title={
+              <span className="flex items-center gap-3">
+                <Thumb icon={conversation.kind === "group" ? "groups" : "person"} shape="round" />
+                {t("chat.thisConversation")}
+              </span>
+            }
+            titleId="h-chat-conversation"
+          >
+            {expires ? (
+              <div className="flex flex-col items-start gap-3">
+                <span className="text-sm leading-relaxed text-ink-4">{kept ? t("chat.retentionKept", { date: date(expires) }) : t("chat.retention", { date: date(expires) })}</span>
+                <form action={keepChatConversationAction}>
+                  <input type="hidden" name="conversation" value={conversation.id} />
+                  <SubmitButton variant="secondary" className="h-9 px-3.5 text-sm" pendingText={t("chat.saving")}>
+                    <Icon name="bookmark" size={18} />
+                    {t("chat.keep")}
+                  </SubmitButton>
+                </form>
+              </div>
+            ) : null}
+            {member ? (
+              <form action={blockChatMemberAction} className={`flex flex-col items-start gap-3 ${expires ? "border-t border-line-soft pt-4" : ""}`}>
+                <input type="hidden" name="conversation" value={conversation.id} />
+                <input type="hidden" name="member" value={member.id} />
+                <input type="hidden" name="blocked" value={member.blockedAt ? "0" : "1"} />
+                <SubmitButton variant="secondary" className="h-9 px-3.5 text-sm" pendingText={t("chat.saving")}>
+                  <Icon name="block" size={18} />
+                  {member.blockedAt ? t("chat.unblock") : t("chat.block")}
+                </SubmitButton>
+              </form>
+            ) : null}
+            <form action={clearChatConversationAction} className={`flex flex-col items-start gap-3 ${expires || member ? "border-t border-line-soft pt-4" : ""}`}>
               <input type="hidden" name="conversation" value={conversation.id} />
-              <SubmitButton variant="secondary" className="h-9 px-3.5 text-sm" pendingText={t("chat.saving")}>
-                <Icon name="bookmark" size={18} />
-                {t("chat.keep")}
-              </SubmitButton>
+              <span className="text-sm leading-relaxed text-muted">{t("chat.clearText")}</span>
+              <ConfirmButton confirm={t("chat.clearConfirm")} className={`${btn.danger} h-9 px-3.5 text-sm`}>
+                <Icon name="delete" size={18} />
+                {t("chat.clear")}
+              </ConfirmButton>
             </form>
-          </div>
-        ) : null}
-        {member ? (
-          <form action={blockChatMemberAction} className="flex flex-wrap items-center justify-between gap-3 border-t border-line-soft pt-4">
-            <input type="hidden" name="conversation" value={conversation.id} />
-            <input type="hidden" name="member" value={member.id} />
-            <input type="hidden" name="blocked" value={member.blockedAt ? "0" : "1"} />
-            <SubmitButton variant="secondary" className="h-9 px-3.5 text-sm" pendingText={t("chat.saving")}>
-              <Icon name="block" size={18} />
-              {member.blockedAt ? t("chat.unblock") : t("chat.block")}
-            </SubmitButton>
-          </form>
-        ) : null}
-        <form action={clearChatConversationAction} className="flex flex-wrap items-center justify-between gap-3 border-t border-line-soft pt-4">
-          <input type="hidden" name="conversation" value={conversation.id} />
-          <span className="max-w-[520px] text-sm text-muted">{t("chat.clearText")}</span>
-          <ConfirmButton confirm={t("chat.clearConfirm")} className={`${btn.danger} h-9 px-3.5 text-sm`}>
-            <Icon name="delete" size={18} />
-            {t("chat.clear")}
-          </ConfirmButton>
-        </form>
-      </Section>
+          </Section>
+        }
+      />
     </div>
   );
 

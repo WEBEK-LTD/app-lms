@@ -1,6 +1,7 @@
 import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Stat, StatRow } from "@/components/page-kit";
 import { PageHeader } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -61,13 +62,17 @@ export default async function LanguagesPage({ searchParams }: PageProps<"/dashbo
     return { code, name: languageName(code), nativeName: localeInfo(code)?.nativeName ?? code, done: p.done, total: p.total };
   });
   const hosted = draftPreviewSupported(app);
+  const toTranslate = summaries.reduce((sum, s) => sum + Math.max(0, s.total - s.done), 0);
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        title={t("languages.title")}
-        description={t("languages.intro")}
-      />
+      {/* The page kit: the header, the numbers, then the languages and their texts. */}
+      <PageHeader title={t("languages.title")} description={t("languages.intro")} />
+      <StatRow label={t("languages.title")}>
+        <Stat icon="translate" label={t("languages.inApp")} value={languages.available.length} hint={plan?.limits.languages ? `${plan.name}: ${plan.limits.languages}` : undefined} />
+        <Stat icon="check_circle" tone="success" label={t("languages.statTranslated")} value={summaries.filter((s) => s.done >= s.total).length} />
+        <Stat icon="edit" tone={toTranslate ? "warn" : "neutral"} label={t("languages.statToTranslate")} value={toTranslate} />
+      </StatRow>
       <LanguagesEditor
         languages={{ default: languages.default, available: languages.available }}
         lang={{ code: lang, name: languageName(lang), rtl: isRtl(lang), builtIn: isBuiltInLanguage(lang), isDefault: lang === languages.default }}

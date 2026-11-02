@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Icon } from "@/components/icon";
-import { PageHeader, formatDate, formatDateTime } from "@/components/ui";
+import type { IconName } from "@/components/icon-names";
+import { PageGroup, Stat, StatRow } from "@/components/page-kit";
+import { Badge, PageHeader, btn, formatDate, formatDateTime } from "@/components/ui";
 import { appLabel } from "@/lib/app/label";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -23,18 +25,26 @@ const GROUPS: { id: "content" | "payments" | "messages" | "push" | "stores"; key
   { id: "stores", keys: ["google_play", "app_store", "galaxy", "appgallery", "xiaomi"] },
 ];
 
-const STATE_ICON: Record<IntegrationState, "check_circle" | "warning" | "radio_button_unchecked" | "pending"> = {
-  connected: "check_circle",
-  problem: "warning",
-  not_set: "radio_button_unchecked",
-  waiting: "pending",
+const STATE_TONE: Record<IntegrationState, "success" | "danger" | "neutral"> = {
+  connected: "success",
+  problem: "danger",
+  not_set: "neutral",
+  waiting: "neutral",
 };
 
-const STATE_TONE: Record<IntegrationState, string> = {
-  connected: "text-success",
-  problem: "text-danger",
-  not_set: "text-muted",
-  waiting: "text-muted",
+/** Each connection's picture on its card. */
+const KEY_ICON: Record<IntegrationKey, IconName> = {
+  website: "web",
+  payments: "credit_card",
+  whatsapp: "chat",
+  mail: "mail",
+  push: "notifications",
+  huawei_push: "notifications",
+  google_play: "android",
+  app_store: "phone_iphone",
+  galaxy: "storefront",
+  appgallery: "storefront",
+  xiaomi: "storefront",
 };
 
 /**
@@ -59,18 +69,18 @@ export default async function IntegrationsPage() {
     const heading = t(`integrations.names.${row.key}`);
     const values = { subject: row.subject ?? "", date: row.at ? formatDateTime(row.at, lang) : "" };
     return (
-      <section key={row.key} aria-labelledby={`h-${row.key}`} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5" data-integration={row.key} data-state={row.state}>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="flex flex-col gap-1">
-            <h3 id={`h-${row.key}`} className="m-0 text-base font-bold">
+      <section key={row.key} aria-labelledby={`h-${row.key}`} className="flex min-w-0 flex-col gap-3 rounded-2xl border border-line bg-white p-5" data-integration={row.key} data-state={row.state}>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${row.state === "connected" ? "bg-success-bg text-success" : row.state === "problem" ? "bg-danger-bg text-danger" : "bg-sand text-ink-3"}`}>
+            <Icon name={KEY_ICON[row.key]} size={22} />
+          </span>
+          <div className="flex min-w-0 flex-[1_1_160px] flex-col items-start gap-1">
+            <h2 id={`h-${row.key}`} className="m-0 text-base font-bold">
               {heading}
-            </h3>
-            <span className={`inline-flex items-center gap-1.5 text-sm font-semibold ${STATE_TONE[row.state]}`}>
-              <Icon name={STATE_ICON[row.state]} size={18} />
-              {t(`integrations.states.${row.state}`)}
-            </span>
+            </h2>
+            <Badge tone={STATE_TONE[row.state]}>{t(`integrations.states.${row.state}`)}</Badge>
           </div>
-          <Link href={row.href} className="text-sm font-semibold text-midnight underline underline-offset-2">
+          <Link href={row.href} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
             {row.state === "not_set" ? t("integrations.setUp") : row.testable ? t("integrations.change") : row.key === "whatsapp" || row.key === "mail" ? t("integrations.sendTest") : t("integrations.change")}
           </Link>
         </div>
@@ -101,7 +111,7 @@ export default async function IntegrationsPage() {
         ) : null}
         {row.key === "website" || row.key === "payments" || row.key === "whatsapp" || row.key === "mail" || row.key === "push" ? (
           <div className="flex flex-col gap-1.5 border-t border-line-soft pt-3">
-            <h4 className="m-0 text-sm font-bold">{t("integrations.errorsTitle")}</h4>
+            <h3 className="m-0 text-sm font-bold">{t("integrations.errorsTitle")}</h3>
             {row.errors.length === 0 ? (
               <p className="m-0 text-sm text-muted">{t("integrations.noErrors")}</p>
             ) : (
@@ -122,21 +132,25 @@ export default async function IntegrationsPage() {
     );
   };
 
+  const count = (state: IntegrationState) => rows.filter((row) => row.state === state).length;
   return (
-    <>
+    <div className="flex flex-col gap-6">
+      {/* The page kit: the header, how many are connected, then each group's connections as cards. */}
       <PageHeader title={t("integrations.title")} description={t("integrations.description", { app: name })} />
+      <StatRow label={t("integrations.title")}>
+        <Stat icon="check_circle" tone="success" label={t("integrations.states.connected")} value={count("connected")} />
+        <Stat icon="warning" tone={count("problem") ? "warn" : "neutral"} label={t("integrations.states.problem")} value={count("problem")} />
+        <Stat icon="radio_button_unchecked" label={t("integrations.states.not_set")} value={count("not_set")} />
+      </StatRow>
       {GROUPS.map((group) => {
         const items = rows.filter((row) => group.keys.includes(row.key));
         if (items.length === 0) return null;
         return (
-          <section key={group.id} aria-labelledby={`h-group-${group.id}`} className="flex flex-col gap-3">
-            <h2 id={`h-group-${group.id}`} className="m-0 text-lg font-bold">
-              {t(`integrations.groups.${group.id}`)}
-            </h2>
-            <div className="grid gap-3 lg:grid-cols-2">{items.map(card)}</div>
-          </section>
+          <PageGroup key={group.id} title={t(`integrations.groups.${group.id}`)}>
+            <div className="grid gap-4 lg:grid-cols-2">{items.map(card)}</div>
+          </PageGroup>
         );
       })}
-    </>
+    </div>
   );
 }

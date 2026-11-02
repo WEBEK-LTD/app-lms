@@ -6,7 +6,9 @@ import { deleteMediaAction, setMediaPublicAction } from "@/app/actions/media";
 import { CopyButton } from "@/components/copy-button";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { Badge, EmptyState, formatDate, Notice, PageHeader, Section } from "@/components/ui";
+import { ItemRow, Thumb } from "@/components/page-kit";
+import { SheetButton } from "@/components/page-kit-client";
+import { Badge, btn, EmptyState, formatDate, Notice, PageHeader, Section } from "@/components/ui";
 import { appLabel } from "@/lib/app/label";
 import { contextCan, requireClient } from "@/lib/auth/session";
 import { OwnerOnly } from "@/components/owner-only";
@@ -89,10 +91,18 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
   const payment = typeof query.payment === "string" ? query.payment : null;
 
   return (
-    <>
+    <div className="flex flex-col gap-6">
+      {/* The page kit: the header with Upload, the storage, the upload, the files as a list, then more storage. */}
       <PageHeader
         title={t("media.title")}
         description={t("media.intro", { app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app) })}
+        actions={
+          disabled ? null : (
+            <SheetButton target="upload" icon="upload">
+              {t("media.upload")}
+            </SheetButton>
+          )
+        }
       />
       {payment === "paid" ? (
         <Notice tone="success" icon="check_circle" role="status">
@@ -144,7 +154,7 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
         ) : null}
       </Section>
 
-      <Section titleId="h-upload" title={t("media.upload")} description={MEDIA_KINDS.map((m) => t(LIMIT_LABEL[m.kind]!, { size: formatBytes(m.maxBytes) })).join(" · ")}>
+      <Section id="upload" titleId="h-upload" title={t("media.upload")} description={MEDIA_KINDS.map((m) => t(LIMIT_LABEL[m.kind]!, { size: formatBytes(m.maxBytes) })).join(" · ")}>
         <MediaUploader appId={app.id} accept={MEDIA_ACCEPT} disabled={disabled} />
       </Section>
 
@@ -159,7 +169,7 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
                 key={f.id}
                 href={f.id === "all" ? "/dashboard/media" : `/dashboard/media?kind=${f.id}`}
                 aria-current={filter === f.id ? "page" : undefined}
-                className={`rounded-full border px-3 py-1 text-sm font-semibold no-underline ${filter === f.id ? "border-midnight bg-midnight text-white hover:text-white" : "border-line text-ink-3"}`}
+                className={`inline-flex h-9 items-center rounded-full border px-3.5 text-[13px] no-underline ${filter === f.id ? "border-midnight bg-midnight font-bold text-ivory hover:text-ivory" : "border-line bg-white text-midnight hover:border-line-strong hover:text-midnight"}`}
               >
                 {t(f.label)}
               </Link>
@@ -175,27 +185,25 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
           </div>
         ) : (
           <ul className="m-0 flex list-none flex-col p-0" aria-label={t("media.files")}>
-            {files.map((f) => {
+            {files.map((f, i) => {
               const link = mediaLink(appUrl(), f.id);
               const open = storage && f.status === "ready" ? fileUrl(storage, f, { ttlSeconds: 3600 }).url : null;
               return (
-                <li key={f.id} className="flex flex-col gap-2 border-t border-line-soft px-5 py-4 first:border-t-0 sm:px-6" data-media={f.name}>
-                  <div className="flex flex-wrap items-center gap-3">
-                    {f.kind === "image" && open ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={open} alt="" className="h-12 w-12 flex-none rounded-lg object-cover" />
+                <ItemRow
+                  key={f.id}
+                  data-media={f.name}
+                  media={
+                    f.kind === "image" && open ? (
+                      <Thumb src={open} icon="image" shape="square" />
                     ) : (
-                      <span className="flex h-12 w-12 flex-none items-center justify-center rounded-lg bg-ivory">
-                        <Icon name={f.kind === "video" ? "smart_display" : f.kind === "image" ? "image" : f.kind === "audio" ? "mic" : f.kind === "file" ? "description" : "assignment"} size={24} />
-                      </span>
-                    )}
-                    <div className="flex min-w-0 flex-[1_1_220px] flex-col gap-0.5">
-                      <span className="truncate text-[15px] font-semibold">{f.name}</span>
-                      <span className="text-[13px] text-muted">
-                        {t("media.fileLine", { kind: t(KIND_LABEL[f.kind]), size: formatBytes(f.sizeBytes), date: date(f.createdAt) })}
-                      </span>
-                    </div>
-                    {f.status === "uploading" ? (
+                      <Thumb icon={f.kind === "video" ? "smart_display" : f.kind === "image" ? "image" : f.kind === "audio" ? "mic" : f.kind === "file" ? "description" : "assignment"} shape="square" tint={i} />
+                    )
+                  }
+                  title={<span className="break-all">{f.name}</span>}
+                  meta={t("media.fileLine", { kind: t(KIND_LABEL[f.kind]), size: formatBytes(f.sizeBytes), date: date(f.createdAt) })}
+                  extra={f.status === "uploading" ? <span>{t("media.carryOn")}</span> : null}
+                  aside={
+                    f.status === "uploading" ? (
                       <Badge tone="warn">{t("media.notFinished")}</Badge>
                     ) : f.source === "chat" ? (
                       <Badge tone="neutral">{t("media.chatFile")}</Badge>
@@ -203,37 +211,36 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
                       <Badge tone="neutral">{t("media.anyone")}</Badge>
                     ) : (
                       <Badge tone="info">{t("media.lessonsOnly")}</Badge>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    {f.status === "ready" && f.source !== "chat" ? <CopyButton value={link} label={t("media.copyLink")} copiedLabel={t("common.copied")} /> : null}
-                    {open ? (
-                      <a href={open} target="_blank" rel="noopener noreferrer" className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-line-strong bg-white px-3.5 text-sm font-semibold text-midnight no-underline hover:border-midnight">
-                        <Icon name="open_in_new" size={18} />
-                        {t("media.open")}
-                      </a>
-                    ) : null}
-                    {f.status === "ready" ? <RenameForm id={f.id} name={f.name} /> : null}
-                    {f.status === "ready" && f.kind !== "image" && f.source !== "chat" ? (
-                      <form action={setMediaPublicAction}>
+                    )
+                  }
+                  actions={
+                    <>
+                      {f.status === "ready" && f.source !== "chat" ? <CopyButton value={link} label={t("media.copyLink")} copiedLabel={t("common.copied")} /> : null}
+                      {open ? (
+                        <a href={open} target="_blank" rel="noopener noreferrer" className={`${btn.secondary} h-9 px-3.5 text-sm`}>
+                          <Icon name="open_in_new" size={18} />
+                          {t("media.open")}
+                        </a>
+                      ) : null}
+                      {f.status === "ready" ? <RenameForm id={f.id} name={f.name} /> : null}
+                      {f.status === "ready" && f.kind !== "image" && f.source !== "chat" ? (
+                        <form action={setMediaPublicAction}>
+                          <input type="hidden" name="id" value={f.id} />
+                          <input type="hidden" name="public" value={f.public ? "" : "on"} />
+                          <SubmitButton variant="secondary" className="h-9 px-3.5 text-sm">
+                            {f.public ? t("media.lessonsOnly") : t("media.share")}
+                          </SubmitButton>
+                        </form>
+                      ) : null}
+                      <form action={deleteMediaAction}>
                         <input type="hidden" name="id" value={f.id} />
-                        <input type="hidden" name="public" value={f.public ? "" : "on"} />
-                        <SubmitButton variant="secondary" className="h-10 px-3 text-sm">
-                          {f.public ? t("media.lessonsOnly") : t("media.share")}
+                        <SubmitButton variant="secondary" className="h-9 px-3.5 text-sm">
+                          {f.status === "uploading" ? t("media.cancelUpload") : t("common.delete")}
                         </SubmitButton>
                       </form>
-                    ) : null}
-                    <form action={deleteMediaAction}>
-                      <input type="hidden" name="id" value={f.id} />
-                      <SubmitButton variant="secondary" className="h-10 px-3 text-sm">
-                        {f.status === "uploading" ? t("media.cancelUpload") : t("common.delete")}
-                      </SubmitButton>
-                    </form>
-                  </div>
-                  {f.status === "uploading" ? (
-                    <p className="m-0 text-[13px] text-muted">{t("media.carryOn")}</p>
-                  ) : null}
-                </li>
+                    </>
+                  }
+                />
               );
             })}
           </ul>
@@ -291,6 +298,6 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
         {client.status === "suspended" ? <p className="m-0 text-sm text-danger">{t("media.suspended")}</p> : null}
       </Section>
       )}
-    </>
+    </div>
   );
 }
