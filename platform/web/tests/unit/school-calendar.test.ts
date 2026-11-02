@@ -234,7 +234,7 @@ describe("113.8 the school's calendar, exams and behaviour on the hosted API", (
     const before = new Date("2026-10-13T13:00:00Z");
     expect(await remindExams({ store, app, now: before })).toBe(0);
     const evening = new Date("2026-10-13T15:00:00Z");
-    expect(await runSchoolReminders({ store, now: evening })).toEqual({ exams: 1 });
+    expect(await runSchoolReminders({ store, now: evening })).toEqual({ exams: 1, slips: 0 });
     expect(await remindExams({ store, app, now: evening })).toBe(0);
     expect((await titles(student.user.id))[0]).toEqual(["Mathematics exam tomorrow", "school_exam"]);
     // A new date: reminded again.

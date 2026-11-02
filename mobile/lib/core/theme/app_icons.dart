@@ -214,6 +214,11 @@ abstract final class AppIcons {
   static const library = Symbols.local_library_rounded;
   static const ebook = Symbols.menu_book_rounded;
 
+  // 113.4 The Parent tab: permission slips, absence excuses and pick-up.
+  static const family = Symbols.family_restroom_rounded;
+  static const slip = Symbols.draw_rounded;
+  static const pickup = Symbols.hail_rounded;
+
   // 112 Rides and deliveries on the map.
   static const recent = Symbols.history_rounded;
   static const navigate = Symbols.navigation_rounded;

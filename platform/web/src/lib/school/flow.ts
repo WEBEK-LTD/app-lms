@@ -5,6 +5,8 @@ import type { App, SchoolAnnouncement, SchoolAttendanceStatus, SchoolBehaviourCa
 import { notifyDeps, type FlowDeps } from "../delivery/flow";
 import { behaviourAlertsOf, signedPoints, tellsParents } from "./behaviour";
 import { dayOff, examClassIds } from "./calendar";
+import { excusedOn } from "./checkin";
+import { excusedNote } from "./parent";
 import { tellAbsence, tellAnnouncement, tellBehaviour, tellExamReminder, tellExams, tellFee, tellGrade, tellHomework, tellLeave, tellStaff, type ExamWords } from "./notify";
 import { schoolCurrency, schoolSettingsOf } from "./settings";
 
@@ -32,8 +34,14 @@ export async function takeAttendance(
 ): Promise<void> {
   const { store, app, now } = deps;
   const before = new Map((await store.listSchoolAttendance(app.id, { classId: input.classId, from: input.date, to: input.date })).map((a) => [a.studentId, a.status]));
+  // 113.4 A student whose parent's excuse the school accepted is excused, not absent.
+  const excuses = await store.listSchoolExcuses(app.id, { statuses: ["accepted"], from: input.date, to: input.date });
+  const items = input.items.map((i) => {
+    const excuse = i.status === "absent" ? excusedOn(excuses, i.student.id, input.date) : null;
+    return excuse ? { ...i, status: "excused" as const, note: i.note ?? excusedNote(excuse) } : i;
+  });
   await store.saveSchoolAttendance(
-    input.items.map((i) => ({ appId: app.id, classId: input.classId, studentId: i.student.id, date: input.date, status: i.status, note: i.note, takenBy: input.takenBy, updatedAt: now })),
+    items.map((i) => ({ appId: app.id, classId: input.classId, studentId: i.student.id, date: input.date, status: i.status, note: i.note, takenBy: input.takenBy, updatedAt: now })),
   );
   const settings = schoolSettingsOf(await store.getSchoolSettings(app.id), app);
   if (!settings.absenceAlerts) return;
@@ -41,7 +49,7 @@ export async function takeAttendance(
   const klass = (await store.listSchoolClasses(app.id)).find((c) => c.id === input.classId) ?? null;
   if (await dayOff(store, app.id, input.date, klass)) return;
   const told = notifyDeps(deps);
-  for (const item of input.items) {
+  for (const item of items) {
     if ((item.status === "absent" || item.status === "late") && before.get(item.student.id) !== item.status) {
       await safely(() => tellAbsence(told, item.student, item.status, input.date));
     }

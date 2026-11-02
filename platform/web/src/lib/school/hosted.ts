@@ -45,11 +45,9 @@ import {
   checkinDayJson,
   checkinPersonOf,
   checkinSettingsOf,
-  daysFor,
-  dayState,
-  localMinute,
+  excusedOn,
   monthReport,
-  onLeaveOn,
+  personToday,
   timesFor,
   timesJson,
   usesPlace,
@@ -64,6 +62,9 @@ import { classroomReportsRoute, studentReports } from "./reports-hosted";
 import { handleBusRoute, schoolRolesOf, studentBus } from "./bus-hosted";
 import { handleLibraryRoute } from "./library-hosted";
 import { classroomLifeRoute, registerDayOff, schoolCalendar, studentBehaviour, studentExams } from "./hosted-calendar";
+// 113.4 The parent's area.
+import { handleParentRoute } from "./parent-hosted";
+import { excusedNote } from "./parent";
 
 /**
  * 105.4 The hosted API's School endpoints (a student and their parents:
@@ -123,7 +124,7 @@ function paged<T>(request: ConnectorRequest, items: readonly T[]) {
 /** The response for a School or Classroom endpoint, or null when the path isn't one. */
 export async function handleSchoolRoute(ctx: SchoolContext, request: ConnectorRequest): Promise<ConnectorResult | null> {
   const path = request.path;
-  if (path[0] !== "school" && path[0] !== "classroom" && path[0] !== "staff") return null;
+  if (path[0] !== "school" && path[0] !== "classroom" && path[0] !== "staff" && path[0] !== "parent") return null;
   if (!request.user) return signIn();
   const member = await schoolMemberOf(ctx.store, ctx.app, request.user, request.now);
   const settings = schoolSettingsOf(await ctx.store.getSchoolSettings(ctx.app.id), ctx.app);
@@ -138,6 +139,11 @@ export async function handleSchoolRoute(ctx: SchoolContext, request: ConnectorRe
     const worker = workerOf(member);
     if (!worker) return notStaff();
     return staffRoute(ctx, request, worker, settings);
+  }
+  // 113.4 The Parent endpoints: the parent's area, for parents only.
+  if (path[0] === "parent") {
+    if (!member.parent) return memberRoles(member).length === 0 ? notMember() : error(403, "not_parent", "This account isn't one of the school's parents.");
+    return handleParentRoute(ctx, request, member.parent, settings, chatHere(ctx));
   }
   if (memberRoles(member).length === 0) return notMember();
   const route = `${request.method} /${path.join("/")}`;
@@ -204,10 +210,29 @@ async function attendance(ctx: SchoolContext, request: ConnectorRequest, student
   const to = request.query.get("to") ?? range.to;
   if (!isDate(from) || !isDate(to) || from > to) return error(400, "invalid_request", "Give the period as two dates, the first not after the second.");
   if (addDays(from, ATTENDANCE_MAX_DAYS) < to) return error(400, "invalid_request", `Ask for up to ${ATTENDANCE_MAX_DAYS} days at a time.`);
-  const rows = await ctx.store.listSchoolAttendance(ctx.app.id, { studentId: student.id, from, to });
+  const [rows, excuses] = await Promise.all([
+    ctx.store.listSchoolAttendance(ctx.app.id, { studentId: student.id, from, to }),
+    ctx.store.listSchoolExcuses(ctx.app.id, { studentId: student.id, statuses: ["accepted"], from, to }),
+  ]);
+  // 113.4 A day the school excused reads excused: an absence in the register, or a school day gone by that wasn't taken.
+  const days = rows.map((r) => {
+    const excuse = r.status === "absent" ? excusedOn(excuses, student.id, r.date) : null;
+    return excuse ? { date: r.date, status: "excused" as const, note: r.note ?? excusedNote(excuse) } : { date: r.date, status: r.status, note: r.note };
+  });
+  const taken = new Set(rows.map((r) => r.date));
+  const schoolDays = checkinSettingsOf(settings).days;
+  const today = schoolToday(settings, request.now);
+  for (const excuse of excuses) {
+    for (let date = excuse.startsOn < from ? from : excuse.startsOn; date <= excuse.endsOn && date <= to && date <= today; date = addDays(date, 1)) {
+      if (taken.has(date) || !schoolDays.includes(isoWeekday(date))) continue;
+      taken.add(date);
+      days.push({ date, status: "excused", note: excusedNote(excuse) });
+    }
+  }
+  days.sort((a, b) => b.date.localeCompare(a.date));
   const counts = { present: 0, absent: 0, late: 0, excused: 0 };
-  for (const row of rows) counts[row.status] += 1;
-  return ok({ from, to, counts, days: rows.map((r) => ({ date: r.date, status: r.status, note: r.note })) });
+  for (const day of days) counts[day.status] += 1;
+  return ok({ from, to, counts, days });
 }
 
 async function homeworkList(ctx: SchoolContext, request: ConnectorRequest, student: SchoolPerson, settings: SchoolSettings): Promise<ConnectorResult> {
@@ -756,11 +781,7 @@ async function checkinRoute(ctx: SchoolContext, request: ConnectorRequest, membe
 
 async function checkinToday(ctx: SchoolContext, request: ConnectorRequest, person: SchoolPerson, role: CheckinRole, settings: SchoolSettings): Promise<ConnectorResult> {
   const c = checkinSettingsOf(settings);
-  const today = schoolToday(settings, request.now);
-  const [row, leave] = await Promise.all([ctx.store.getSchoolCheckin(ctx.app.id, person.id, today), ctx.store.listSchoolLeave(ctx.app.id, { personId: person.id, statuses: ["approved"], from: today, to: today })]);
-  const times = timesFor(c, person, role);
-  const workDay = daysFor(c, person, role).includes(isoWeekday(today));
-  const state = dayState({ row, date: today, today, nowMinute: localMinute(request.now, settings.timezone), times, workDay, onLeave: onLeaveOn(leave, person.id, today), since: c.since });
+  const { date: today, row, times, workDay, state } = await personToday(ctx.store, ctx.app.id, settings, person, role, request.now);
   return ok({
     on: c.on,
     methods: c.methods,

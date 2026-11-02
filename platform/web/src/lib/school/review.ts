@@ -137,6 +137,8 @@ async function sampleSchoolDay(
   await store.createSchoolAnnouncement({ appId: app.id, audience: "class", classId, studentId: null, title: "Welcome to the review class", body: "This class, its lessons and its people are samples for the store review.", teacherId: teacher.id, createdAt: now });
   const fee = await store.createSchoolFee({ appId: app.id, studentId: student.id, title: "Sample fee (store review)", amountCents: 0, dueOn: today, status: "due", paidAt: null, paidBy: null, orderId: null, receiptCode: null, createdAt: now, updatedAt: now });
   await markFeePaid(store, app, fee, "office", now);
+  // 113.4 A permission slip for the parent to sign in the Parent tab.
+  await store.saveSchoolSlip({ id: null, appId: app.id, title: "Class trip (sample slip)", details: "May your child come on the class trip to the science museum?", dueOn: addDays(today, 4), feeNote: null, audience: "class", grade: null, classId }, now);
 }
 
 /**
@@ -151,8 +153,8 @@ export function schoolReviewNotes(app: Pick<App, "appName" | "hostedSettings">):
   const staff = reviewRoles().includes("staff" as SchoolRole);
   return [
     `${school} is a school's app for its students, their parents${staff ? ", its teachers and its staff" : " and its teachers"}. Sign in with ${login} and the code ${settings.reviewCode} (no message is sent to it). The school has put this one account on its list as each role at once, in a class of samples ("${REVIEW_CLASS_NAME}"), so every role can be tried without signing out:`,
-    `As a student: the School tab shows today's lessons, homework (open "Sample homework: exercises 1 to 5" and hand in a text or a photo), grades and the report card, attendance, the calendar (month or list, with Add to calendar), the exams' timetable, behaviour (merits, notes and points), fees with a receipt, and the news.`,
-    `As a parent: the same account is the parent of that student; each part of the School tab shows the child's, and the parent is told of new homework, scores, exams and behaviour notes.`,
+    `As a student: the School tab shows today's lessons, homework (open "Sample homework: exercises 1 to 5" and hand in a text or a photo), grades and the report card, attendance, the calendar (month or list, with Add to calendar), the exams' timetable, behaviour (merits, notes and points), and the news.`,
+    `As a parent: the same account is the parent of that student, so the app has a Parent tab, which only parents see: the child's day (lessons, homework due, the latest grades, behaviour), fees with a receipt, a permission slip to sign ("Class trip (sample slip)", yes or no with a name), an absence to excuse, and who picks the child up; the parent is told of new homework, scores, exams and behaviour notes.`,
     `As a teacher: the Classroom tab shows the class; take attendance, give homework, mark it, enter scores, write a merit or a note in Behaviour, and see the exams and the calendar.`,
     staff ? `As a member of staff: the same account is on the school's staff list too, so the app has a Staff tab, as the school's staff who don't teach have: checking in and out, their job and hours, leave requests (ask for a day off and withdraw it), the staff's news, the school's calendar with the staff's own events, and the library when the school has books.` : null,
     `Real students, parents and teachers of the school never see this class or what is written in it.`,

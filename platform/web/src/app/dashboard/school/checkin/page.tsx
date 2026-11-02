@@ -52,6 +52,7 @@ export default async function SchoolCheckinPage({ searchParams }: { searchParams
   const counts = (Object.keys(STATE_KEYS) as CheckinState[]).map((s) => ({ state: s, count: shown.filter((b) => b.state === s).length })).filter((x) => x.count > 0);
   const late = shown.filter((b) => b.row?.late && (b.state === "in" || b.state === "left")).length;
   const early = shown.filter((b) => b.row?.leftEarly && b.state === "left").length;
+  const pickups = board.filter((b) => b.pickup !== null && (classId === null || b.person.classId === classId));
   const link = (p: number) => `/dashboard/school/checkin?date=${date}&role=${role}${classId ? `&class=${classId}` : ""}${p > 1 ? `&page=${p}` : ""}`;
   const detail = (b: BoardRow) =>
     b.role === "student" ? (b.person.classId ? (className.get(b.person.classId) ?? null) : null) : ([b.person.jobTitle, b.person.department].filter(Boolean).join(" · ") || t(b.role === "teacher" ? "school.teacher" : "school.staff"));
@@ -86,6 +87,23 @@ export default async function SchoolCheckinPage({ searchParams }: { searchParams
           {t("school.show")}
         </button>
       </form>
+      {/* 113.4 The day's pick-up notes from the parents. */}
+      <Panel id="h-pickup-today" title={t("parents.todayPickup")} intro={pickups.length ? t("parents.todayPickupIntro") : undefined}>
+        {pickups.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("parents.noTodayPickup")}</p> : null}
+        <ul className="m-0 flex list-none flex-col gap-1 p-0" data-pickup-board>
+          {pickups.map((b) => (
+            <li key={b.person.id} className="text-[15px]" dir="auto">
+              <Link href={`/dashboard/school/people/${b.person.id}`} className="font-bold">
+                {b.person.name}
+              </Link>
+              <span className="text-muted">
+                {" · "}
+                {[detail(b), t("parents.picksUp", { who: [b.pickup!.name, b.pickup!.relation, b.pickup!.phone].filter(Boolean).join(" · ") }), b.pickup!.note].filter(Boolean).join(" · ")}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </Panel>
       <Panel
         id="h-board"
         title={t("school.boardOf", { date })}
@@ -98,10 +116,23 @@ export default async function SchoolCheckinPage({ searchParams }: { searchParams
             <li key={b.person.id} data-person={b.person.id} className="flex flex-col gap-2 border-t border-line-soft py-3 first:border-t-0 first:pt-0">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="flex min-w-[180px] flex-1 flex-col gap-0.5">
-                  <span className="text-[15px] font-bold">{b.person.name}</span>
+                  {b.role === "student" ? (
+                    <Link href={`/dashboard/school/people/${b.person.id}`} className="text-[15px] font-bold">
+                      {b.person.name}
+                    </Link>
+                  ) : (
+                    <span className="text-[15px] font-bold">{b.person.name}</span>
+                  )}
                   <span className="text-[13px] text-muted">{detail(b)}</span>
                   <DayRecord row={b.row} timezone={settings.timezone} t={t} />
                   {b.register ? <span className="text-[13px] text-muted">{t("school.register", { status: t(REGISTER_KEYS[b.register]) })}</span> : null}
+                  {/* 113.4 The parents' accepted excuse, and who picks the child up today. */}
+                  {b.excuse ? <span className="text-[13px] text-muted">{t("parents.excusedFor", { reason: b.excuse.reason })}</span> : null}
+                  {b.pickup ? (
+                    <span className="text-[13px] font-semibold" data-pickup-today>
+                      {t("parents.picksUp", { who: [b.pickup.name, b.pickup.relation, b.pickup.phone].filter(Boolean).join(" · ") })}
+                    </span>
+                  ) : null}
                 </span>
                 <Badge tone={STATE_TONES[b.state]}>{t(STATE_KEYS[b.state])}</Badge>
                 {b.row?.late && (b.state === "in" || b.state === "left") ? <Badge tone="warn">{t("school.late")}</Badge> : null}

@@ -127,6 +127,12 @@ import type {
   SchoolTopicProgress,
   SchoolHomework,
   SchoolLeave,
+  SchoolExcuse,
+  SchoolPickup,
+  SchoolPickupNote,
+  SchoolSlip,
+  SchoolSlipAnswer,
+  SchoolSlipInput,
   SchoolPeriod,
   SchoolPerson,
   SchoolPersonInput,
@@ -2357,6 +2363,8 @@ export class MemoryStore implements DataStore {
     for (const [key, e] of this.schoolEvents) if (e.classId === id) this.schoolEvents.delete(key);
     for (const [key, e] of this.schoolExams) if (e.classId === id) this.schoolExams.delete(key);
     for (const n of this.schoolBehaviour.values()) if (n.classId === id) n.classId = null;
+    // 113.4 A class's permission slips go with it, and their answers.
+    for (const slip of [...this.schoolSlips.values()]) if (slip.classId === id) await this.deleteSchoolSlip(appId, slip.id);
   }
 
   async listSchoolSubjects(appId: string): Promise<SchoolSubject[]> {
@@ -2439,6 +2447,13 @@ export class MemoryStore implements DataStore {
     for (const [key, f] of this.schoolFees) if (f.studentId === id) this.schoolFees.delete(key);
     for (const [key, c] of this.schoolCheckins) if (c.personId === id) this.schoolCheckins.delete(key);
     for (const [key, l] of this.schoolLeave) if (l.personId === id) this.schoolLeave.delete(key);
+    // 113.4 A student's answers, excuses and pick-up go with them; a parent's stay, without them.
+    for (const [key, x] of this.schoolSlipAnswers) if (x.studentId === id) this.schoolSlipAnswers.delete(key);
+    for (const x of this.schoolSlipAnswers.values()) if (x.parentId === id) x.parentId = null;
+    for (const [key, x] of this.schoolExcuses) if (x.studentId === id) this.schoolExcuses.delete(key);
+    for (const x of this.schoolExcuses.values()) if (x.parentId === id) x.parentId = null;
+    this.schoolPickups.delete(id);
+    for (const [key, x] of this.schoolPickupNotes) if (x.studentId === id) this.schoolPickupNotes.delete(key);
     for (const [key, n] of this.schoolBehaviour) if (n.studentId === id) this.schoolBehaviour.delete(key);
     for (const p of this.schoolPeriods.values()) if (p.teacherId === id) p.teacherId = null;
     // 113.5 A student's reports go with them; a teacher's stay, with their name.
@@ -2891,6 +2906,134 @@ export class MemoryStore implements DataStore {
     if (!found || found.appId !== appId || !statuses.includes(found.status)) return false;
     this.schoolLeave.set(id, { ...found, ...clone(patch) });
     return true;
+  }
+
+  // 113.4 The parent's area: permission slips, absence excuses and pick-up
+
+  private schoolSlips = new Map<number, SchoolSlip>();
+  /** Keyed `slipId:studentId`. */
+  private schoolSlipAnswers = new Map<string, SchoolSlipAnswer>();
+  private schoolExcuses = new Map<number, SchoolExcuse>();
+  /** Keyed by student. */
+  private schoolPickups = new Map<number, SchoolPickup>();
+  /** Keyed `studentId:date`. */
+  private schoolPickupNotes = new Map<string, SchoolPickupNote>();
+
+  async listSchoolSlips(appId: string, filter: { from?: string; to?: string } = {}): Promise<SchoolSlip[]> {
+    return [...this.schoolSlips.values()]
+      .filter((x) => x.appId === appId && (!filter.from || x.dueOn >= filter.from) && (!filter.to || x.dueOn <= filter.to))
+      .sort((a, b) => b.dueOn.localeCompare(a.dueOn) || b.id - a.id)
+      .map(clone);
+  }
+
+  async getSchoolSlip(appId: string, id: number): Promise<SchoolSlip | null> {
+    const found = this.schoolSlips.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async saveSchoolSlip(input: SchoolSlipInput & { id: number | null }, now: Date): Promise<SchoolSlip | null> {
+    const { id, ...fields } = input;
+    if (id === null) {
+      const made: SchoolSlip = { ...clone(fields), id: this.nextSchoolId++, remindedAt: null, createdAt: now, updatedAt: now };
+      this.schoolSlips.set(made.id, clone(made));
+      return made;
+    }
+    const found = this.schoolSlips.get(id);
+    if (!found || found.appId !== input.appId) return null;
+    const next: SchoolSlip = { ...found, ...clone(fields), remindedAt: found.dueOn !== fields.dueOn ? null : found.remindedAt, updatedAt: now };
+    this.schoolSlips.set(id, clone(next));
+    return clone(next);
+  }
+
+  async deleteSchoolSlip(appId: string, id: number): Promise<void> {
+    const found = this.schoolSlips.get(id);
+    if (!found || found.appId !== appId) return;
+    this.schoolSlips.delete(id);
+    for (const [key, x] of this.schoolSlipAnswers) if (x.slipId === id) this.schoolSlipAnswers.delete(key);
+  }
+
+  async markSchoolSlipReminded(appId: string, id: number, now: Date): Promise<boolean> {
+    const found = this.schoolSlips.get(id);
+    if (!found || found.appId !== appId || found.remindedAt !== null) return false;
+    found.remindedAt = now;
+    return true;
+  }
+
+  async listSchoolSlipAnswers(appId: string, filter: { slipId?: number; slipIds?: number[]; studentIds?: number[] }): Promise<SchoolSlipAnswer[]> {
+    return [...this.schoolSlipAnswers.values()]
+      .filter((x) => x.appId === appId && (filter.slipId === undefined || x.slipId === filter.slipId) && (!filter.slipIds || filter.slipIds.includes(x.slipId)) && (!filter.studentIds || filter.studentIds.includes(x.studentId)))
+      .sort((a, b) => a.slipId - b.slipId || a.studentId - b.studentId)
+      .map(clone);
+  }
+
+  async saveSchoolSlipAnswer(row: SchoolSlipAnswer): Promise<void> {
+    const slip = this.schoolSlips.get(row.slipId);
+    const student = this.schoolPeople.get(row.studentId);
+    // Only for a slip and a student of the same school.
+    if (!slip || slip.appId !== row.appId || !student || student.appId !== row.appId) return;
+    this.schoolSlipAnswers.set(`${row.slipId}:${row.studentId}`, clone(row));
+  }
+
+  async listSchoolExcuses(appId: string, filter: { studentId?: number; studentIds?: number[]; statuses?: SchoolExcuse["status"][]; from?: string; to?: string } = {}): Promise<SchoolExcuse[]> {
+    return [...this.schoolExcuses.values()]
+      .filter(
+        (x) =>
+          x.appId === appId &&
+          (filter.studentId === undefined || x.studentId === filter.studentId) &&
+          (!filter.studentIds || filter.studentIds.includes(x.studentId)) &&
+          (!filter.statuses || filter.statuses.includes(x.status)) &&
+          (!filter.from || x.endsOn >= filter.from) &&
+          (!filter.to || x.startsOn <= filter.to),
+      )
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .map(clone);
+  }
+
+  async getSchoolExcuse(appId: string, id: number): Promise<SchoolExcuse | null> {
+    const found = this.schoolExcuses.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async createSchoolExcuse(input: Omit<SchoolExcuse, "id">): Promise<SchoolExcuse> {
+    const made: SchoolExcuse = { ...clone(input), id: this.nextSchoolId++ };
+    this.schoolExcuses.set(made.id, clone(made));
+    return made;
+  }
+
+  async updateSchoolExcuse(appId: string, id: number, patch: Partial<Pick<SchoolExcuse, "status" | "answer" | "answeredBy" | "answeredAt" | "updatedAt">>, statuses: SchoolExcuse["status"][]): Promise<boolean> {
+    const found = this.schoolExcuses.get(id);
+    if (!found || found.appId !== appId || !statuses.includes(found.status)) return false;
+    this.schoolExcuses.set(id, { ...found, ...clone(patch) });
+    return true;
+  }
+
+  async getSchoolPickup(appId: string, studentId: number): Promise<SchoolPickup | null> {
+    const found = this.schoolPickups.get(studentId);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async saveSchoolPickup(row: SchoolPickup): Promise<void> {
+    const student = this.schoolPeople.get(row.studentId);
+    if (!student || student.appId !== row.appId) return;
+    this.schoolPickups.set(row.studentId, clone(row));
+  }
+
+  async listSchoolPickupNotes(appId: string, filter: { studentId?: number; date?: string; from?: string }): Promise<SchoolPickupNote[]> {
+    return [...this.schoolPickupNotes.values()]
+      .filter((x) => x.appId === appId && (filter.studentId === undefined || x.studentId === filter.studentId) && (!filter.date || x.date === filter.date) && (!filter.from || x.date >= filter.from))
+      .sort((a, b) => a.date.localeCompare(b.date) || a.studentId - b.studentId)
+      .map(clone);
+  }
+
+  async saveSchoolPickupNote(row: SchoolPickupNote): Promise<void> {
+    const student = this.schoolPeople.get(row.studentId);
+    if (!student || student.appId !== row.appId) return;
+    this.schoolPickupNotes.set(`${row.studentId}:${row.date}`, clone(row));
+  }
+
+  async deleteSchoolPickupNote(appId: string, studentId: number, date: string): Promise<void> {
+    const key = `${studentId}:${date}`;
+    if (this.schoolPickupNotes.get(key)?.appId === appId) this.schoolPickupNotes.delete(key);
   }
 
   // 113.10 The school bus

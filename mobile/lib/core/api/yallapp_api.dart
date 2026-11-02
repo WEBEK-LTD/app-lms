@@ -1091,6 +1091,47 @@ abstract class YallappApi {
   Future<void> withdrawLeaveRequest(int id);
   Future<Paged<SchoolAnnouncement>> listStaffAnnouncements({int page = 1});
 
+  // 113.4 The parent's area: the children, each child's day, permission
+  // slips, absence excuses and who picks the child up.
+  Future<ParentMe> getParentMe();
+  Future<ChildDay> getChildDay(int studentId);
+  Future<Paged<PermissionSlip>> listPermissionSlips({
+    int? studentId,
+    int page = 1,
+  });
+  Future<PermissionSlip> answerPermissionSlip(
+    int slipId, {
+    required int studentId,
+    required SlipAnswer answer,
+    required String signedName,
+  });
+  Future<List<AbsenceExcuse>> listAbsenceExcuses(int studentId);
+
+  /// For [startsOn] to [endsOn] (the first day when null), with a photo or
+  /// PDF ([uploadId], from `/school/uploads`).
+  Future<AbsenceExcuse> sendAbsenceExcuse(
+    int studentId, {
+    required String startsOn,
+    String? endsOn,
+    required String reason,
+    String? uploadId,
+  });
+  Future<void> withdrawAbsenceExcuse(int excuseId);
+  Future<ChildPickup> getChildPickup(int studentId);
+  Future<ChildPickup> saveChildPickup(
+    int studentId,
+    List<PickupPersonInput> people,
+  );
+  Future<ChildPickup> savePickupNote(
+    int studentId, {
+    String? date,
+    required String name,
+    String? relation,
+    String? phone,
+    String? note,
+  });
+  Future<ChildPickup> deletePickupNote(int studentId, {String? date});
+
   // 113.6 Messages between teachers and families.
   Future<SchoolMessages> getSchoolMessages();
 
@@ -3729,6 +3770,128 @@ class HttpYallappApi implements YallappApi {
         (json) => Paged.fromJson(json, SchoolAnnouncement.fromJson),
         query: {'page': page, 'per_page': 20},
       );
+
+  // 113.4 The parent's area.
+
+  @override
+  Future<ParentMe> getParentMe() =>
+      _get('/parent/me', _required, ParentMe.fromJson);
+
+  @override
+  Future<ChildDay> getChildDay(int studentId) =>
+      _get('/parent/children/$studentId/day', _required, ChildDay.fromJson);
+
+  @override
+  Future<Paged<PermissionSlip>> listPermissionSlips({
+    int? studentId,
+    int page = 1,
+  }) => _get(
+    '/parent/slips',
+    _required,
+    (json) => Paged.fromJson(json, PermissionSlip.fromJson),
+    query: {'student_id': ?studentId, 'page': page, 'per_page': 20},
+  );
+
+  @override
+  Future<PermissionSlip> answerPermissionSlip(
+    int slipId, {
+    required int studentId,
+    required SlipAnswer answer,
+    required String signedName,
+  }) => _send(
+    'POST',
+    '/parent/slips/$slipId/answers',
+    _required,
+    (data) => PermissionSlip.fromJson(asJson(data)),
+    body: {
+      'student_id': studentId,
+      'answer': answer.name,
+      'signed_name': signedName,
+    },
+  );
+
+  @override
+  Future<List<AbsenceExcuse>> listAbsenceExcuses(int studentId) => _get(
+    '/parent/children/$studentId/excuses',
+    _required,
+    (json) => listOf(json, 'items', AbsenceExcuse.fromJson),
+  );
+
+  @override
+  Future<AbsenceExcuse> sendAbsenceExcuse(
+    int studentId, {
+    required String startsOn,
+    String? endsOn,
+    required String reason,
+    String? uploadId,
+  }) => _send(
+    'POST',
+    '/parent/children/$studentId/excuses',
+    _required,
+    (data) => AbsenceExcuse.fromJson(asJson(data)),
+    body: {
+      'starts_on': startsOn,
+      'ends_on': endsOn,
+      'reason': reason,
+      'upload_id': uploadId,
+    },
+  );
+
+  @override
+  Future<void> withdrawAbsenceExcuse(int excuseId) =>
+      _send('DELETE', '/parent/excuses/$excuseId', _required, _ignore);
+
+  @override
+  Future<ChildPickup> getChildPickup(int studentId) => _get(
+    '/parent/children/$studentId/pickup',
+    _required,
+    ChildPickup.fromJson,
+  );
+
+  @override
+  Future<ChildPickup> saveChildPickup(
+    int studentId,
+    List<PickupPersonInput> people,
+  ) => _send(
+    'PUT',
+    '/parent/children/$studentId/pickup',
+    _required,
+    (data) => ChildPickup.fromJson(asJson(data)),
+    body: {
+      'people': [for (final p in people) p.toJson()],
+    },
+  );
+
+  @override
+  Future<ChildPickup> savePickupNote(
+    int studentId, {
+    String? date,
+    required String name,
+    String? relation,
+    String? phone,
+    String? note,
+  }) => _send(
+    'PUT',
+    '/parent/children/$studentId/pickup/note',
+    _required,
+    (data) => ChildPickup.fromJson(asJson(data)),
+    body: {
+      'date': date,
+      'name': name,
+      'relation': relation,
+      'phone': phone,
+      'note': note,
+    },
+  );
+
+  @override
+  Future<ChildPickup> deletePickupNote(int studentId, {String? date}) => _send(
+    'DELETE',
+    '/parent/children/$studentId/pickup/note',
+    _required,
+    (data) => ChildPickup.fromJson(asJson(data)),
+    query: {'date': ?date},
+  );
 
   // 113.6 Messages between teachers and families.
 
