@@ -6,6 +6,7 @@ export 'billing_models.dart';
 export 'bookings_models.dart';
 export 'catalog_models.dart';
 export 'chat_models.dart';
+export 'checkin_models.dart';
 export 'class_models.dart';
 export 'community_models.dart';
 export 'config_models.dart';

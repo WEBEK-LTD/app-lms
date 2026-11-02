@@ -5,15 +5,18 @@ import { redirect } from "next/navigation";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
-import type { App, SchoolAttendanceStatus, SchoolPerson } from "@/lib/data/types";
+import type { App, SchoolAttendanceStatus, SchoolCheckin, SchoolPerson } from "@/lib/data/types";
 import { SCHOOL_ATTENDANCE_STATUSES } from "@/lib/data/types";
 import { formValues, type FormState } from "@/lib/forms";
 import { hostedSettings } from "@/lib/hosted/service";
 import { markFeePaid } from "@/lib/school/fees";
-import { addFee, enterScores, giveHomework, postAnnouncement, takeAttendance, tellFeePaid } from "@/lib/school/flow";
+import { checkinSettingsOf, correctCheckin, isCheckinRole } from "@/lib/school/checkin";
+import { addFee, answerLeave, enterScores, giveHomework, postAnnouncement, takeAttendance, tellFeePaid } from "@/lib/school/flow";
 import {
   parseAssessmentForm,
+  parseCheckinSettings,
   parseClassForm,
+  parseCorrectionForm,
   parseFeeForm,
   parseHomeworkForm,
   parseNewsForm,
@@ -26,6 +29,7 @@ import {
   SCHOOL_LIMITS,
 } from "@/lib/school/forms";
 import { schoolToday } from "@/lib/school/service";
+import { parseWorkForm, STAFF_LIMITS } from "@/lib/school/staff";
 import { schoolSettingsOf } from "@/lib/school/settings";
 import type { TeamPermission } from "@/lib/team/permissions";
 import { askAfterOwnEntry } from "@/lib/samples/lists";
@@ -38,7 +42,7 @@ import { askAfterOwnEntry } from "@/lib/samples/lists";
  */
 
 const CSV_MAX_BYTES = 2 * 1024 * 1024;
-const PATHS = ["classes", "people", "timetable", "attendance", "homework", "grades", "fees", "news", "settings"];
+const PATHS = ["classes", "people", "timetable", "attendance", "homework", "grades", "fees", "news", "settings", "checkin", "staff"];
 
 async function requireSchoolApp(permission: TeamPermission = "settings"): Promise<ClientContext & { app: App }> {
   const context = await clientFor(permission);
@@ -129,8 +133,12 @@ export async function saveSchoolPersonAction(_: FormState, formData: FormData): 
   if (id !== null && !existing) return { message: "This person isn't on your list anymore." };
   const classes = await store.listSchoolClasses(app.id);
   const parsed = parsePersonForm(values, hostedSettings(app).defaultCountryCode, ids(classes), existing?.role ?? null);
-  if (!parsed.ok) return { errors: parsed.errors, values };
-  const { role, ...fields } = parsed.value;
+  // 113.3 A teacher's or staff member's job, department, working hours and duties.
+  const works = parsed.ok && (parsed.value.role === "teacher" || parsed.value.role === "staff");
+  const work = works ? parseWorkForm(values) : null;
+  if (!parsed.ok || (work && !work.ok)) return { errors: { ...(parsed.ok ? {} : parsed.errors), ...(work && !work.ok ? work.errors : {}) }, values };
+  const { role, ...person0 } = parsed.value;
+  const fields = { ...person0, ...(work?.ok ? work.value : {}) };
   let person: SchoolPerson;
   if (existing) {
     const changed = await store.updateSchoolPerson(app.id, existing.id, fields, now);
@@ -467,8 +475,91 @@ export async function saveSchoolSettingsAction(_: FormState, formData: FormData)
   const values = formValues(formData);
   const parsed = parseSchoolSettings(values);
   if (!parsed.ok) return { errors: parsed.errors, values };
-  await (await getStore()).saveSchoolSettings(context.app.id, parsed.value, new Date());
+  const store = await getStore();
+  // 113.2 The check-in settings are saved on their own page.
+  const saved = await store.getSchoolSettings(context.app.id);
+  await store.saveSchoolSettings(context.app.id, { ...parsed.value, ...(saved?.checkin ? { checkin: saved.checkin } : {}) }, new Date());
   await recordStaffChange(context, "Saved the school settings");
   refresh();
   return { ok: true, message: "Saved. The app shows it the next time it opens.", values };
+}
+
+// 113.2 Checking in and out
+
+/** Who in the dashboard made a change: their name, else their email. */
+function whoActs(context: ClientContext): string {
+  const person = context.member ?? context.staff ?? context.user;
+  return (person.name || person.email).slice(0, 191);
+}
+
+export async function saveCheckinSettingsAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireSchoolApp();
+  const { app } = context;
+  const store = await getStore();
+  const values = formValues(formData);
+  const now = new Date();
+  const settings = schoolSettingsOf(await store.getSchoolSettings(app.id), app);
+  const parsed = parseCheckinSettings(values, checkinSettingsOf(settings), schoolToday(settings, now));
+  if (!parsed.ok) return { errors: parsed.errors, values };
+  await store.saveSchoolSettings(app.id, { ...settings, checkin: parsed.value }, now);
+  await recordStaffChange(context, `Saved the check-in settings (${parsed.value.on ? "on" : "off"}, ${parsed.value.methods})`);
+  refresh();
+  return { ok: true, message: "Saved. The app shows it the next time it opens.", values };
+}
+
+/** New gate codes: every code shown before stops working at once. */
+export async function newGateCodesAction(formData: FormData): Promise<void> {
+  void formData;
+  const context = await requireSchoolApp();
+  const { app } = context;
+  const store = await getStore();
+  const settings = schoolSettingsOf(await store.getSchoolSettings(app.id), app);
+  const c = checkinSettingsOf(settings);
+  await store.saveSchoolSettings(app.id, { ...settings, checkin: { ...c, gateKey: c.gateKey + 1 } }, new Date());
+  await recordStaffChange(context, "Made new gate codes for checking in");
+  refresh();
+}
+
+/** The office's correction of a person's day, with the reason, kept on the record with who made it. */
+export async function correctCheckinAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireSchoolApp();
+  const { app } = context;
+  const store = await getStore();
+  const values = formValues(formData);
+  const now = new Date();
+  const id = idOf(formData, "personId");
+  const person = id !== null ? await store.getSchoolPerson(app.id, id) : null;
+  if (!person || !isCheckinRole(person.role)) return { message: "This person isn't on your list anymore." };
+  const settings = schoolSettingsOf(await store.getSchoolSettings(app.id), app);
+  const date = String(formData.get("date") ?? "");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date > schoolToday(settings, now)) return { message: "Days are corrected up to today." };
+  const parsed = parseCorrectionForm(values);
+  if (!parsed.ok) return { errors: parsed.errors, values };
+  const row: SchoolCheckin | null = await correctCheckin({ store, app, now }, { person, role: person.role, date, ...parsed.value, by: whoActs(context) });
+  if (!row) return { message: "Nothing changed.", values };
+  await recordStaffChange(context, `Corrected the check-in of "${person.name}" on ${date}: ${row.corrections.at(-1)!.change}`);
+  refresh();
+  return { ok: true, message: "Corrected. The reason is kept on the day's record." };
+}
+
+// 113.3 Leave requests
+
+export async function answerLeaveAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireSchoolApp();
+  const { app } = context;
+  const store = await getStore();
+  const id = idOf(formData);
+  const leave = id !== null ? await store.getSchoolLeave(app.id, id) : null;
+  if (!leave) return { message: "This request doesn't exist anymore." };
+  const status = formData.get("answer") === "approved" ? "approved" : formData.get("answer") === "refused" ? "refused" : null;
+  if (!status) return { message: "Choose to approve or refuse it." };
+  const note = String(formData.get("note") ?? "").trim();
+  if (note.length > STAFF_LIMITS.answer) return { errors: { note: `Keep it under ${STAFF_LIMITS.answer} characters.` } };
+  if (status === "refused" && !note) return { errors: { note: "Write why it is refused." } };
+  const person = await store.getSchoolPerson(app.id, leave.personId);
+  const done = await answerLeave({ store, app, now: new Date() }, leave, status, note || null, whoActs(context));
+  if (!done) return { message: "This request was answered or withdrawn already." };
+  await recordStaffChange(context, `${status === "approved" ? "Approved" : "Refused"} the leave of "${person?.name ?? "someone"}" from ${leave.startsOn} to ${leave.endsOn}`);
+  refresh();
+  return { ok: true, message: status === "approved" ? "Approved. They were told in the app." : "Refused. They were told in the app, with your note." };
 }

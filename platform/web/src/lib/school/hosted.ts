@@ -1,4 +1,4 @@
-import { addDays, isDate } from "../bookings/time";
+import { addDays, isDate, utcToLocal } from "../bookings/time";
 import { formatCents } from "../catalog/money";
 import type { DataStore } from "../data/store";
 import { SCHOOL_ASSESSMENT_KINDS, SCHOOL_ATTENDANCE_STATUSES, type App, type SchoolAssessmentKind, type SchoolAttendanceStatus, type SchoolFileRef, type SchoolPerson, type SchoolSettings } from "../data/types";
@@ -32,9 +32,28 @@ import {
   teachesSubject,
   timetableJson,
   visibleStudents,
+  workerOf,
   type SchoolDirectory,
   type SchoolMember,
 } from "./service";
+import {
+  CHECKIN_MESSAGES,
+  checkInOrOut,
+  checkinDayJson,
+  checkinPersonOf,
+  checkinSettingsOf,
+  daysFor,
+  dayState,
+  localMinute,
+  monthReport,
+  onLeaveOn,
+  timesFor,
+  timesJson,
+  usesPlace,
+  type CheckinError,
+  type CheckinRole,
+} from "./checkin";
+import { leaveJson, readLeaveInput, staffMeJson } from "./staff";
 import { feesByCardReady, schoolCurrency, schoolSettingsOf } from "./settings";
 import { classGradebook, reportPeriod, type Period } from "./report-cards";
 
@@ -55,11 +74,14 @@ export interface SchoolContext {
   /** The media server, for homework files; null: files can't be sent. */
   storage: MediaStorage | null;
   chunkBytes: number;
+  /** 113.2 The hosted API's secret, which the gate's codes are signed with. */
+  secret: string;
 }
 
 const signIn = () => error(401, "invalid_token", "Your session has ended. Please sign in again.");
 const notMember = () => error(403, "not_school_member", "This account isn't one the school added. Ask the school to add your number.");
 const notTeacher = () => error(403, "not_teacher", "This account isn't one of the school's teachers.");
+const notStaff = () => error(403, "not_staff", "This account isn't one of the school's teachers or staff.");
 const ok = (body: unknown, status = 200): ConnectorResult => ({ status, body });
 const noContent: ConnectorResult = { status: 204 };
 const record = (value: unknown): Record<string, unknown> => (typeof value === "object" && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : {});
@@ -68,6 +90,8 @@ const idOf = (value: string | undefined): number | null => (value && /^\d{1,15}$
 const UPLOAD_LIMIT: RateLimitRule = { name: "school_upload", limit: 60, windowSeconds: 3600 };
 const WRITE_LIMIT: RateLimitRule = { name: "school_write", limit: 120, windowSeconds: 3600 };
 const PAY_LIMIT: RateLimitRule = { name: "school_pay", limit: 20, windowSeconds: 3600 };
+/** 113.2 Tries at checking in or out (a wrong code counts). */
+const CHECKIN_LIMIT: RateLimitRule = { name: "school_checkin", limit: 30, windowSeconds: 3600 };
 /** Attendance can be taken for today and this many days back. */
 const ATTENDANCE_DAYS_BACK = 7;
 /** The longest attendance period asked for. */
@@ -89,7 +113,7 @@ function paged<T>(request: ConnectorRequest, items: readonly T[]) {
 /** The response for a School or Classroom endpoint, or null when the path isn't one. */
 export async function handleSchoolRoute(ctx: SchoolContext, request: ConnectorRequest): Promise<ConnectorResult | null> {
   const path = request.path;
-  if (path[0] !== "school" && path[0] !== "classroom") return null;
+  if (path[0] !== "school" && path[0] !== "classroom" && path[0] !== "staff") return null;
   if (!request.user) return signIn();
   const member = await schoolMemberOf(ctx.store, ctx.app, request.user, request.now);
   const settings = schoolSettingsOf(await ctx.store.getSchoolSettings(ctx.app.id), ctx.app);
@@ -97,10 +121,18 @@ export async function handleSchoolRoute(ctx: SchoolContext, request: ConnectorRe
     if (!member.teacher) return notTeacher();
     return classroomRoute(ctx, request, member.teacher, settings);
   }
+  // 113.3 The Staff endpoints: the school's teachers and staff.
+  if (path[0] === "staff") {
+    const worker = workerOf(member);
+    if (!worker) return notStaff();
+    return staffRoute(ctx, request, worker, settings);
+  }
   if (memberRoles(member).length === 0) return notMember();
   const route = `${request.method} /${path.join("/")}`;
   if (route === "GET /school/me") return schoolMe(ctx, request, member);
   if (route === "GET /school/announcements") return announcements(ctx, request, member);
+  // 113.2 Checking in and out.
+  if (path[1] === "checkin") return checkinRoute(ctx, request, member, settings);
   if (path[1] === "uploads") return uploads(ctx, request);
   if (path[1] === "students") {
     const studentId = idOf(path[2]);
@@ -110,6 +142,8 @@ export async function handleSchoolRoute(ctx: SchoolContext, request: ConnectorRe
     const tail = path.slice(3).join("/");
     if (request.method === "GET" && tail === "timetable") return timetable(ctx, student);
     if (request.method === "GET" && tail === "attendance") return attendance(ctx, request, student, settings);
+    // 113.2 The student's days at the gate, for them and their parents.
+    if (request.method === "GET" && tail === "checkins") return checkinHistory(ctx, request, student, "student", settings);
     if (request.method === "GET" && tail === "homework") return homeworkList(ctx, request, student, settings);
     if (request.method === "PUT" && path[3] === "homework" && path[5] === "submission" && path.length === 6) {
       if (member.student?.id !== student.id) return error(403, "not_student", "Only the student hands in their homework.");
@@ -128,7 +162,7 @@ export async function handleSchoolRoute(ctx: SchoolContext, request: ConnectorRe
 
 async function schoolMe(ctx: SchoolContext, request: ConnectorRequest, member: SchoolMember): Promise<ConnectorResult> {
   const [students, dir] = await Promise.all([visibleStudents(ctx.store, ctx.app, member), schoolDirectory(ctx.store, ctx.app.id)]);
-  const name = member.parent?.name ?? member.student?.name ?? member.teacher?.name ?? request.user!.name;
+  const name = member.parent?.name ?? member.student?.name ?? member.teacher?.name ?? member.staff?.name ?? request.user!.name;
   return ok({ name, roles: memberRoles(member), students: students.map((s) => studentJson(s, dir, ctx.assetUrl)) });
 }
 
@@ -658,4 +692,150 @@ async function classGradebookJson(ctx: SchoolContext, request: ConnectorRequest,
     subjects: book.subjects,
     students: book.rows.map((r) => ({ id: r.student.id, name: r.student.name, percents: r.subjects.map((s) => s.percent), overall: r.overall, attendance: r.attendance })),
   });
+}
+
+// 113.2 Checking in and out
+
+const CHECKIN_STATUS: Record<CheckinError, number> = {
+  checkin_off: 403,
+  not_school_day: 409,
+  too_early: 409,
+  code_needed: 400,
+  invalid_code: 400,
+  location_needed: 400,
+  outside_area: 403,
+  already_in: 409,
+  not_in: 409,
+  already_out: 409,
+};
+
+async function checkinRoute(ctx: SchoolContext, request: ConnectorRequest, member: SchoolMember, settings: SchoolSettings): Promise<ConnectorResult> {
+  const who = checkinPersonOf(member);
+  if (!who) return error(403, "not_checkin_member", "Students, teachers and staff check in; parents follow their children's days.");
+  const route = `${request.method} /${request.path.join("/")}`;
+  if (route === "GET /school/checkin") return checkinToday(ctx, request, who.person, who.role, settings);
+  if (route === "POST /school/checkin") return checkIn(ctx, request, who.person, who.role, settings);
+  if (route === "GET /school/checkin/history") return checkinHistory(ctx, request, who.person, who.role, settings);
+  return error(404, "not_found", "Page not found.");
+}
+
+async function checkinToday(ctx: SchoolContext, request: ConnectorRequest, person: SchoolPerson, role: CheckinRole, settings: SchoolSettings): Promise<ConnectorResult> {
+  const c = checkinSettingsOf(settings);
+  const today = schoolToday(settings, request.now);
+  const [row, leave] = await Promise.all([ctx.store.getSchoolCheckin(ctx.app.id, person.id, today), ctx.store.listSchoolLeave(ctx.app.id, { personId: person.id, statuses: ["approved"], from: today, to: today })]);
+  const times = timesFor(c, person, role);
+  const workDay = daysFor(c, person, role).includes(isoWeekday(today));
+  const state = dayState({ row, date: today, today, nowMinute: localMinute(request.now, settings.timezone), times, workDay, onLeave: onLeaveOn(leave, person.id, today), since: c.since });
+  return ok({
+    on: c.on,
+    methods: c.methods,
+    place: c.on && usesPlace(c) && c.place ? { lat: c.place.lat, lng: c.place.lng, radius_m: c.place.radiusM } : null,
+    role,
+    date: today,
+    school_day: workDay,
+    times: timesJson(times),
+    today: checkinDayJson(row, today, state, settings.timezone),
+  });
+}
+
+const coordinate = (value: unknown, max: number): number | null => (typeof value === "number" && Number.isFinite(value) && Math.abs(value) <= max ? value : null);
+
+async function checkIn(ctx: SchoolContext, request: ConnectorRequest, person: SchoolPerson, role: CheckinRole, settings: SchoolSettings): Promise<ConnectorResult> {
+  const body = record(request.body);
+  const action = body.action;
+  if (action !== "in" && action !== "out") return error(400, "invalid_request", "action is in or out.");
+  const code = typeof body.code === "string" && body.code.trim() ? body.code.trim().slice(0, 80) : null;
+  const lat = coordinate(body.lat, 90);
+  const lng = coordinate(body.lng, 180);
+  if ((body.lat !== undefined && body.lat !== null && lat === null) || (body.lng !== undefined && body.lng !== null && lng === null)) return error(400, "invalid_request", "lat and lng are the phone's position in degrees.");
+  const wait = await limited(ctx, request, CHECKIN_LIMIT);
+  if (wait) return wait;
+  const answer = await checkInOrOut({ store: ctx.store, app: ctx.app, now: request.now, secret: ctx.secret }, { person, role, action, code, position: lat !== null && lng !== null ? { lat, lng } : null });
+  if (!answer.ok) {
+    return { status: CHECKIN_STATUS[answer.code], body: { code: answer.code, message: CHECKIN_MESSAGES[answer.code], ...(answer.distanceM !== undefined ? { details: { distance_m: answer.distanceM } } : {}) } };
+  }
+  const state = answer.row.outAt ? "left" : "in";
+  return ok({ result: answer.result, time: utcToLocal(request.now, settings.timezone).time, day: checkinDayJson(answer.row, answer.date, state, settings.timezone) });
+}
+
+const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
+
+async function checkinHistory(ctx: SchoolContext, request: ConnectorRequest, person: SchoolPerson, role: CheckinRole, settings: SchoolSettings): Promise<ConnectorResult> {
+  const month = request.query.get("month") ?? schoolToday(settings, request.now).slice(0, 7);
+  if (!MONTH.test(month)) return error(400, "invalid_request", "month is like 2026-11.");
+  const report = await monthReport(ctx.store, ctx.app, month, request.now, { personId: person.id });
+  const row = report.rows[0];
+  const counts = { days: row?.days ?? 0, present: row?.present ?? 0, late: row?.late ?? 0, left_early: row?.leftEarly ?? 0, absent: row?.absent ?? 0, excused: row?.excused ?? 0, leave: row?.leave ?? 0 };
+  const c = checkinSettingsOf(settings);
+  return ok({
+    month,
+    role,
+    times: timesJson(timesFor(c, person, role)),
+    counts,
+    days: (report.days.get(person.id) ?? []).map((d) => checkinDayJson(d.row, d.date, d.state, settings.timezone)),
+  });
+}
+
+// 113.3 Teachers and staff
+
+const LEAVE_LIMIT: RateLimitRule = { name: "school_leave", limit: 20, windowSeconds: 3600 };
+
+async function staffRoute(ctx: SchoolContext, request: ConnectorRequest, worker: SchoolPerson, settings: SchoolSettings): Promise<ConnectorResult> {
+  const path = request.path;
+  const route = `${request.method} /${path.join("/")}`;
+  switch (route) {
+    case "GET /staff/me": {
+      const [dir, periods] = await Promise.all([schoolDirectory(ctx.store, ctx.app.id), worker.role === "teacher" ? ctx.store.listSchoolPeriods(ctx.app.id, { teacherId: worker.id }) : Promise.resolve([])]);
+      return ok(staffMeJson(worker, checkinSettingsOf(settings), timetableJson(periods, dir), ctx.assetUrl));
+    }
+    case "GET /staff/leave": {
+      const list = await ctx.store.listSchoolLeave(ctx.app.id, { personId: worker.id });
+      const page = paged(request, list);
+      return ok({ ...page, items: page.items.map((l) => leaveJson(l, ctx.platformUrl)) });
+    }
+    case "POST /staff/leave":
+      return requestLeave(ctx, request, worker, settings);
+    case "GET /staff/announcements": {
+      const [dir, all] = await Promise.all([schoolDirectory(ctx.store, ctx.app.id), ctx.store.listSchoolAnnouncements(ctx.app.id)]);
+      const page = paged(request, all.filter((a) => a.audience === "staff"));
+      return ok({ ...page, items: page.items.map((a) => announcementJson(a, dir, ctx.app.appName ?? "The school")) });
+    }
+  }
+  const id = idOf(path[2]);
+  if (path[1] === "leave" && id !== null && path.length === 3 && request.method === "DELETE") {
+    const leave = await ctx.store.getSchoolLeave(ctx.app.id, id);
+    if (!leave || leave.personId !== worker.id) return error(404, "not_found", "Leave request not found.");
+    if (leave.status === "cancelled") return noContent;
+    const changed = await ctx.store.updateSchoolLeave(ctx.app.id, leave.id, { status: "cancelled", updatedAt: request.now }, ["pending"]);
+    return changed ? noContent : error(409, "already_answered", "The school has answered this request already.");
+  }
+  return error(404, "not_found", "Page not found.");
+}
+
+async function requestLeave(ctx: SchoolContext, request: ConnectorRequest, worker: SchoolPerson, settings: SchoolSettings): Promise<ConnectorResult> {
+  const body = record(request.body);
+  const input = readLeaveInput(body, schoolToday(settings, request.now));
+  if (!input.ok) return error(400, "invalid_request", input.message);
+  let file: SchoolFileRef | null = null;
+  if (body.upload_id !== undefined && body.upload_id !== null) {
+    file = await schoolFile(ctx, body.upload_id);
+    if (!file) return error(400, "invalid_request", "This file isn't ready. Send it again.");
+  }
+  const overlapping = await ctx.store.listSchoolLeave(ctx.app.id, { personId: worker.id, statuses: ["pending", "approved"], from: input.value.startsOn, to: input.value.endsOn });
+  if (overlapping.length > 0) return error(409, "leave_overlaps", "You've asked for leave on some of these days already.");
+  const wait = await limited(ctx, request, LEAVE_LIMIT);
+  if (wait) return wait;
+  const leave = await ctx.store.createSchoolLeave({
+    appId: ctx.app.id,
+    personId: worker.id,
+    ...input.value,
+    file,
+    status: "pending",
+    answer: null,
+    answeredBy: null,
+    answeredAt: null,
+    createdAt: request.now,
+    updatedAt: request.now,
+  });
+  return ok(leaveJson(leave, ctx.platformUrl), 201);
 }

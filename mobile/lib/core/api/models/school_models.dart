@@ -1,3 +1,4 @@
+import 'checkin_models.dart';
 import 'json.dart';
 
 /// 105.4 Schools: `Config.school`, what a student and their parents see
@@ -12,6 +13,7 @@ class SchoolConfig {
     this.term,
     this.absenceAlerts = true,
     this.feesByCard = false,
+    this.checkin = const CheckinConfig(),
   });
 
   factory SchoolConfig.fromJson(Json json) => SchoolConfig(
@@ -20,6 +22,9 @@ class SchoolConfig {
     term: optObject(json, 'term', SchoolTerm.fromJson),
     absenceAlerts: boolOr(json, 'absence_alerts', true),
     feesByCard: boolOr(json, 'fees_by_card', false),
+    checkin:
+        optObject(json, 'checkin', CheckinConfig.fromJson) ??
+        const CheckinConfig(),
   );
 
   final String timezone;
@@ -29,6 +34,9 @@ class SchoolConfig {
 
   /// Families can pay fees by card in the app.
   final bool feesByCard;
+
+  /// 113.2 Checking in and out in the app; off from older servers.
+  final CheckinConfig checkin;
 }
 
 class SchoolTerm {
@@ -77,7 +85,8 @@ class SchoolStudent {
   final String? className;
 }
 
-enum SchoolRole { student, parent, teacher }
+/// 113.3 `staff`: who works at the school and doesn't teach.
+enum SchoolRole { student, parent, teacher, staff }
 
 /// `GET /school/me`: who the signed-in person is at the school, and the
 /// students they may see (themselves, or a parent's children).

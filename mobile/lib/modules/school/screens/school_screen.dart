@@ -13,6 +13,7 @@ import '../../real_estate/widgets/listing_widgets.dart'
     show SignInPrompt, TabHeader;
 import '../data/school_providers.dart';
 import '../widgets/school_widgets.dart';
+import 'checkin_screens.dart';
 
 /// 105.4 The School tab, for a student and their parents: today's lessons
 /// and each part of the school (a parent with several children picks one
@@ -35,7 +36,7 @@ class SchoolScreen extends ConsumerWidget {
               child: signedIn
                   ? StudentGate(
                       builder: (context, me, student) =>
-                          _Overview(student: student),
+                          _Overview(student: student, me: me),
                     )
                   : SignInPrompt(
                       icon: AppIcons.school,
@@ -52,9 +53,10 @@ class SchoolScreen extends ConsumerWidget {
 }
 
 class _Overview extends ConsumerWidget {
-  const _Overview({required this.student});
+  const _Overview({required this.student, required this.me});
 
   final SchoolStudent student;
+  final SchoolMe me;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -67,7 +69,8 @@ class _Overview extends ConsumerWidget {
       onRefresh: () async {
         ref
           ..invalidate(studentTimetableProvider(id))
-          ..invalidate(studentFeesProvider(id));
+          ..invalidate(studentFeesProvider(id))
+          ..invalidate(checkinTodayProvider);
       },
       child: ListView(
         key: const ValueKey('school-overview'),
@@ -111,6 +114,9 @@ class _Overview extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 20),
+          // 113.2 A student checks in and out; a parent follows it on the attendance.
+          if (me.isStudent && student.id == me.students.first.id)
+            const CheckinCard(),
           SectionHeader(
             title: l10n.schoolToday,
             onSeeAll: () => open('timetable'),

@@ -375,7 +375,8 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
     return answer ?? notFound();
   }
   // 105.4 Schools: the School endpoints (students and parents) and the Classroom endpoints (teachers).
-  if (req.path[0] === "school" || req.path[0] === "classroom") {
+  // 113.3 And the Staff endpoints (teachers and staff).
+  if (req.path[0] === "school" || req.path[0] === "classroom" || req.path[0] === "staff") {
     if (!schoolOn(ctx.app, ctx.plan)) return error(403, "feature_disabled", "This app has no school.");
     const answer = await handleSchoolRoute(
       {
@@ -387,6 +388,7 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
         platformUrl: ctx.platformUrl,
         storage: ctx.chat?.storage ?? null,
         chunkBytes: ctx.chat?.chunkBytes ?? MEDIA_CHUNK_BYTES,
+        secret: ctx.secret,
       },
       { method: req.method, path: req.path, query: req.query, body: req.body, user: session?.user ?? null, now: ctx.now, lang: requestLanguage(req.headers?.get("accept-language")) },
     );
@@ -1098,7 +1100,7 @@ async function meJson(ctx: HostedContext, user: HostedUser) {
   const kind = ctx.app.connector?.kind;
   // 105.3 In academies with many teachers, `teacher` for the academy's active teachers.
   if (kind === "courses") return teachersOn(ctx.app, ctx.plan) && (await teacherOf(ctx.store, ctx.app, user, ctx.now)) ? { ...userJson(user), roles: ["teacher"] } : userJson(user);
-  // 105.4 In schools, `student`, `parent` and `teacher` for the people the school added.
+  // 105.4 In schools, `student`, `parent` and `teacher` for the people the school added; 113.3 `staff` for its staff.
   if (kind === "school") return { ...userJson(user), roles: schoolOn(ctx.app, ctx.plan) ? memberRoles(await schoolMemberOf(ctx.store, ctx.app, user, ctx.now)) : [] };
   // 105.2 In ride apps, `driver` for the company's active drivers (and the store review account).
   if (kind === "rides") return { ...userJson(user), roles: (await isDriver({ store: ctx.store, app: ctx.app }, user, ctx.now)) ? ["driver"] : [] };

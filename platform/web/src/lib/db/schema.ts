@@ -121,7 +121,20 @@ import type { AppErrorSource, MilestoneKind, ProductDay, SignupSource, TeamAlert
 import type { NotificationAudience, NotificationCampaignStatus } from "../data/types";
 import type { TeacherStatus } from "../data/types";
 // 105.4 Schools
-import type { SchoolAssessmentKind, SchoolAttendanceStatus, SchoolFeeStatus, SchoolFileRef, SchoolRole, SchoolSettings } from "../data/types";
+import type {
+  SchoolAssessmentKind,
+  SchoolAttendanceStatus,
+  SchoolCheckin,
+  SchoolCheckinCorrection,
+  SchoolCheckinMethod,
+  SchoolFeeStatus,
+  SchoolFileRef,
+  SchoolLeaveKind,
+  SchoolLeaveStatus,
+  SchoolRole,
+  SchoolSettings,
+  SchoolWorkHours,
+} from "../data/types";
 
 /**
  * MySQL schema (MySQL 8.0.13+ and MariaDB 10.3+, the usual cPanel servers).
@@ -3206,6 +3219,11 @@ export const schoolPeople = mysqlTable(
     code: varchar("code", { length: 40 }),
     photoAssetId: id("photo_asset_id"),
     active: boolean("active").notNull().default(true),
+    // 113.3 A teacher's or staff member's job, department, working hours and duties.
+    jobTitle: varchar("job_title", { length: 80 }),
+    department: varchar("department", { length: 80 }),
+    workHours: jsonText<SchoolWorkHours>("work_hours"),
+    duties: varchar("duties", { length: 1000 }),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -3364,7 +3382,7 @@ export const schoolAnnouncements = mysqlTable(
     appId: id("app_id")
       .notNull()
       .references(() => apps.id, { onDelete: "cascade" }),
-    audience: varchar("audience", { length: 8 }).notNull().$type<"school" | "class" | "student">(),
+    audience: varchar("audience", { length: 8 }).notNull().$type<"school" | "class" | "student" | "staff">(),
     classId: bigint("class_id", { mode: "number", unsigned: true }),
     studentId: bigint("student_id", { mode: "number", unsigned: true }),
     title: varchar("title", { length: 120 }).notNull(),
@@ -3399,5 +3417,56 @@ export const schoolFees = mysqlTable(
     updatedAt: time("updated_at").notNull(),
   },
   (t) => [index("school_fees_student_idx").on(t.appId, t.studentId), uniqueIndex("school_fees_receipt_unique").on(t.receiptCode)],
+);
+
+// 113.2 Checking in and out at the gate: one row per person and day, with the office's corrections.
+export const schoolCheckins = mysqlTable(
+  "school_checkins",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    personId: bigint("person_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolPeople.id, { onDelete: "cascade" }),
+    role: varchar("role", { length: 10 }).notNull().$type<SchoolCheckin["role"]>(),
+    date: varchar("date", { length: 10 }).notNull(),
+    inAt: time("in_at"),
+    inMethod: varchar("in_method", { length: 10 }).$type<SchoolCheckinMethod>(),
+    outAt: time("out_at"),
+    outMethod: varchar("out_method", { length: 10 }).$type<SchoolCheckinMethod>(),
+    late: boolean("late").notNull().default(false),
+    leftEarly: boolean("left_early").notNull().default(false),
+    mark: varchar("mark", { length: 8 }).$type<"absent" | "excused">(),
+    corrections: jsonText<SchoolCheckinCorrection[]>("corrections").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.personId, t.date] }), index("school_checkins_app_date_idx").on(t.appId, t.date)],
+);
+
+// 113.3 Teachers' and staff's leave requests.
+export const schoolLeave = mysqlTable(
+  "school_leave",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    personId: bigint("person_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolPeople.id, { onDelete: "cascade" }),
+    kind: varchar("kind", { length: 8 }).notNull().$type<SchoolLeaveKind>(),
+    startsOn: varchar("starts_on", { length: 10 }).notNull(),
+    endsOn: varchar("ends_on", { length: 10 }).notNull(),
+    note: varchar("note", { length: 1000 }),
+    file: jsonText<SchoolFileRef>("file"),
+    status: varchar("status", { length: 10 }).notNull().$type<SchoolLeaveStatus>(),
+    answer: varchar("answer", { length: 1000 }),
+    answeredBy: varchar("answered_by", { length: 191 }),
+    answeredAt: time("answered_at"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("school_leave_app_idx").on(t.appId, t.status, t.startsOn), index("school_leave_person_idx").on(t.personId)],
 );
 

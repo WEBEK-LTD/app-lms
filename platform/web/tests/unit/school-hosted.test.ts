@@ -51,7 +51,7 @@ describe("105.4 school forms and helpers", () => {
       [3, "parent", "Hassan Ali", "+201007654321", null, ["1023", "1024"]],
       [5, "teacher", "Mona Adel", null, null, []],
     ]);
-    expect(parsed.problems).toEqual(["Line 4: the role is student, parent or teacher."]);
+    expect(parsed.problems).toEqual(["Line 4: the role is student, parent, teacher or staff."]);
     expect(parsePeopleCsv("name,phone\nOmar,0100", "+20")).toEqual({ ok: false, message: "The file needs the columns role, name, and phone or email." });
   });
 });

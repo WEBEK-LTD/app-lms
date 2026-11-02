@@ -200,6 +200,11 @@ abstract final class AppIcons {
   // 105.4 Schools.
   static const school = Symbols.school_rounded;
   static const attendance = Symbols.task_alt_rounded;
+  // 113.2 Checking in and out; 113.3 the Staff tab and leave.
+  static const checkIn = Symbols.login_rounded;
+  static const checkOut = Symbols.logout_rounded;
+  static const staffBadge = Symbols.badge_rounded;
+  static const leave = Symbols.beach_access_rounded;
 
   // 112 Rides and deliveries on the map.
   static const recent = Symbols.history_rounded;

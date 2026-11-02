@@ -2686,4 +2686,94 @@ class FakeApi implements YallappApi {
       'audience': 'class',
     });
   });
+
+  // 113.2 Checking in and out; 113.3 teachers and staff.
+
+  Map<String, dynamic> checkinToday = checkinTodayJson();
+  Map<String, dynamic> checkinMonth = checkinMonthJson();
+  Map<String, dynamic> staffMe = staffMeJson();
+  List<Map<String, dynamic>> leaveRequests = [leaveRequestJson()];
+  final checkins =
+      <({String action, String? code, double? lat, double? lng})>[];
+  final leaveAsked = <LeaveInput>[];
+  final leaveWithdrawn = <int>[];
+
+  @override
+  Future<CheckinToday> getCheckinToday() =>
+      _answer('getCheckinToday', () => CheckinToday.fromJson(checkinToday));
+
+  @override
+  Future<CheckinResult> checkIn({
+    required String action,
+    String? code,
+    double? lat,
+    double? lng,
+  }) => _answer('checkIn', () {
+    checkins.add((action: action, code: code, lat: lat, lng: lng));
+    final day = action == 'in'
+        ? checkinDayJson(state: 'in', inTime: '07:40')
+        : checkinDayJson(state: 'left', inTime: '07:40', outTime: '14:10');
+    checkinToday = {...checkinToday, 'today': day};
+    return CheckinResult.fromJson({
+      'result': action == 'in' ? 'on_time' : 'out',
+      'time': action == 'in' ? '07:40' : '14:10',
+      'day': day,
+    });
+  });
+
+  @override
+  Future<CheckinMonth> getCheckinHistory({String? month}) =>
+      _answer('getCheckinHistory', () => CheckinMonth.fromJson(checkinMonth));
+
+  @override
+  Future<CheckinMonth> getStudentCheckins(int studentId, {String? month}) =>
+      _answer('getStudentCheckins', () => CheckinMonth.fromJson(checkinMonth));
+
+  @override
+  Future<StaffMe> getStaffMe() =>
+      _answer('getStaffMe', () => StaffMe.fromJson(staffMe));
+
+  @override
+  Future<Paged<LeaveRequest>> listLeaveRequests({int page = 1}) => _answer(
+    'listLeaveRequests',
+    () => _paged(leaveRequests, LeaveRequest.fromJson),
+  );
+
+  @override
+  Future<LeaveRequest> requestLeave(LeaveInput input) =>
+      _answer('requestLeave', () {
+        leaveAsked.add(input);
+        final made = {
+          ...leaveRequestJson(id: 72),
+          'kind': input.kind.name,
+          'starts_on': input.startsOn,
+          'ends_on': input.endsOn,
+          'note': input.note,
+        };
+        leaveRequests = [made, ...leaveRequests];
+        return LeaveRequest.fromJson(made);
+      });
+
+  @override
+  Future<void> withdrawLeaveRequest(int id) =>
+      _answer('withdrawLeaveRequest', () {
+        leaveWithdrawn.add(id);
+        leaveRequests = [
+          for (final l in leaveRequests)
+            l['id'] == id ? {...l, 'status': 'cancelled'} : l,
+        ];
+      });
+
+  @override
+  Future<Paged<SchoolAnnouncement>> listStaffAnnouncements({int page = 1}) =>
+      _answer(
+        'listStaffAnnouncements',
+        () => _paged([
+          {
+            ...schoolAnnouncementJson(),
+            'title': 'Staff meeting',
+            'audience': 'staff',
+          },
+        ], SchoolAnnouncement.fromJson),
+      );
 }

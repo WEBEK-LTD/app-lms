@@ -10593,6 +10593,414 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Continue without a coupon'**
   String get couponWithout;
+
+  /// 113.2 The screen where a student, teacher or staff member checks in and out at the school.
+  ///
+  /// In en, this message translates to:
+  /// **'Check in and out'**
+  String get checkinTitle;
+
+  /// 113.2 Checks the person in at the school.
+  ///
+  /// In en, this message translates to:
+  /// **'Check in'**
+  String get checkinButton;
+
+  /// 113.2 Checks the person out of the school.
+  ///
+  /// In en, this message translates to:
+  /// **'Check out'**
+  String get checkoutButton;
+
+  /// 113.2 The card with today's check-in on the School, Classroom and Staff tabs.
+  ///
+  /// In en, this message translates to:
+  /// **'Today at school'**
+  String get checkinCardTitle;
+
+  /// 113.2 Today's state: not checked in yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not checked in yet'**
+  String get checkinStateNotYet;
+
+  /// 113.2 Today's state: at school.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked in'**
+  String get checkinStateIn;
+
+  /// 113.2 Today's state: checked out.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked out'**
+  String get checkinStateLeft;
+
+  /// 113.2 A school day without a check-in.
+  ///
+  /// In en, this message translates to:
+  /// **'Absent'**
+  String get checkinStateAbsent;
+
+  /// 113.2 A day the school excused.
+  ///
+  /// In en, this message translates to:
+  /// **'Excused'**
+  String get checkinStateExcused;
+
+  /// 113.2 A day of approved leave.
+  ///
+  /// In en, this message translates to:
+  /// **'On leave'**
+  String get checkinStateLeave;
+
+  /// 113.2 A day that isn't one of the person's school days.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a school day'**
+  String get checkinStateOff;
+
+  /// 113.2 When the person checked in.
+  ///
+  /// In en, this message translates to:
+  /// **'In at {time}'**
+  String checkinInAt(String time);
+
+  /// 113.2 When the person checked out.
+  ///
+  /// In en, this message translates to:
+  /// **'Out at {time}'**
+  String checkinOutAt(String time);
+
+  /// 113.2 Checked in after the school's late time.
+  ///
+  /// In en, this message translates to:
+  /// **'Late'**
+  String get checkinLate;
+
+  /// 113.2 Checked out before the end of the day.
+  ///
+  /// In en, this message translates to:
+  /// **'Left early'**
+  String get checkinLeftEarly;
+
+  /// 113.2 The person's school day and when late starts.
+  ///
+  /// In en, this message translates to:
+  /// **'{starts}–{ends} · late from {late}'**
+  String checkinTimes(String starts, String ends, String late);
+
+  /// 113.2 The field for the six digits shown at the school's gate.
+  ///
+  /// In en, this message translates to:
+  /// **'The gate\'s code'**
+  String get checkinCodeLabel;
+
+  /// 113.2 Under the gate's code field.
+  ///
+  /// In en, this message translates to:
+  /// **'The six digits on the school\'s screen at the gate'**
+  String get checkinCodeHint;
+
+  /// 113.2 Checks in or out with the phone's location inside the school's area.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my location'**
+  String get checkinWithLocation;
+
+  /// 113.2 When the school checks both the gate's code and the area.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school asks for the gate\'s code and your location.'**
+  String get checkinBothNote;
+
+  /// 113.2 While the phone's location is read.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding your location…'**
+  String get checkinLocating;
+
+  /// 113.2 The phone's location is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on your phone\'s location to check in.'**
+  String get checkinLocationOff;
+
+  /// 113.2 The app may not use the phone's location.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow the app to use your location to check in.'**
+  String get checkinLocationDenied;
+
+  /// 113.2 The phone's location couldn't be read.
+  ///
+  /// In en, this message translates to:
+  /// **'Your location couldn\'t be found. Try again.'**
+  String get checkinLocationFailed;
+
+  /// 113.2 A check-in on time.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked in at {time}, on time.'**
+  String checkinDoneOnTime(String time);
+
+  /// 113.2 A check-in after the school's late time.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked in at {time}: late.'**
+  String checkinDoneLate(String time);
+
+  /// 113.2 A check-out.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked out at {time}.'**
+  String checkinDoneOut(String time);
+
+  /// 113.2 A check-out before the end of the day.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked out at {time}, before the end of the day.'**
+  String checkinDoneEarly(String time);
+
+  /// 113.2 The month's days at the gate.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get checkinMonth;
+
+  /// 113.2 The month's days present.
+  ///
+  /// In en, this message translates to:
+  /// **'Present'**
+  String get checkinCountPresent;
+
+  /// 113.2 The month's days absent.
+  ///
+  /// In en, this message translates to:
+  /// **'Absent'**
+  String get checkinCountAbsent;
+
+  /// 113.2 A month without school days yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No school days this month yet.'**
+  String get checkinNoDays;
+
+  /// 113.2 A day the school's office corrected, with its reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Corrected by the school: {reason}'**
+  String checkinCorrected(String reason);
+
+  /// 113.2 The school hasn't turned on checking in.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school doesn\'t take check-ins in the app.'**
+  String get checkinOff;
+
+  /// 113.2 Today isn't one of the person's days.
+  ///
+  /// In en, this message translates to:
+  /// **'Today isn\'t one of your school days.'**
+  String get checkinNotSchoolDay;
+
+  /// 113.2 A student's days at the gate, on their attendance.
+  ///
+  /// In en, this message translates to:
+  /// **'At the gate'**
+  String get checkinAtGate;
+
+  /// 113.3 The tab of the school's staff who don't teach.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff'**
+  String get tabStaff;
+
+  /// 113.3 Someone who isn't on the school's staff opens the Staff tab.
+  ///
+  /// In en, this message translates to:
+  /// **'For the school\'s staff'**
+  String get staffNotStaff;
+
+  /// 113.3 Under the title for someone who isn't on the school's staff.
+  ///
+  /// In en, this message translates to:
+  /// **'The school adds its staff\'s numbers; they sign in with them and their work shows here.'**
+  String get staffNotStaffMessage;
+
+  /// 113.3 The person's job, hours and duties.
+  ///
+  /// In en, this message translates to:
+  /// **'Your work'**
+  String get staffWork;
+
+  /// 113.3 The days the person works.
+  ///
+  /// In en, this message translates to:
+  /// **'Days: {days}'**
+  String staffDays(String days);
+
+  /// 113.3 The hours the person works.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours: {starts}–{ends}'**
+  String staffHours(String starts, String ends);
+
+  /// 113.3 What the person does, as the school wrote it.
+  ///
+  /// In en, this message translates to:
+  /// **'Duties'**
+  String get staffDuties;
+
+  /// 113.3 The person's leave requests.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave requests'**
+  String get staffLeave;
+
+  /// 113.3 News for the school's teachers and staff only.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff news'**
+  String get staffNews;
+
+  /// 113.3 The staff's news is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No staff news yet.'**
+  String get staffNoNews;
+
+  /// 113.3 Opens the form to ask for leave.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for leave'**
+  String get leaveAsk;
+
+  /// 113.3 Sick, annual or other leave.
+  ///
+  /// In en, this message translates to:
+  /// **'Kind of leave'**
+  String get leaveKind;
+
+  /// 113.3 Sick leave.
+  ///
+  /// In en, this message translates to:
+  /// **'Sick'**
+  String get leaveSick;
+
+  /// 113.3 Annual leave.
+  ///
+  /// In en, this message translates to:
+  /// **'Annual'**
+  String get leaveAnnual;
+
+  /// 113.3 Another kind of leave.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get leaveOther;
+
+  /// 113.3 The first day of the leave.
+  ///
+  /// In en, this message translates to:
+  /// **'First day'**
+  String get leaveFirstDay;
+
+  /// 113.3 The last day of the leave.
+  ///
+  /// In en, this message translates to:
+  /// **'Last day'**
+  String get leaveLastDay;
+
+  /// 113.3 A note with the leave request.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get leaveNote;
+
+  /// 113.3 Adds a photo of a document (a doctor's note) to the leave request.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo of a document'**
+  String get leaveAddPhoto;
+
+  /// 113.3 Adds a PDF to the leave request.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF'**
+  String get leaveAddFile;
+
+  /// 113.3 Sends the leave request to the school.
+  ///
+  /// In en, this message translates to:
+  /// **'Send the request'**
+  String get leaveSend;
+
+  /// 113.3 The leave request was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent. The school answers in the app.'**
+  String get leaveSent;
+
+  /// 113.3 The person hasn't asked for leave yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No leave requests yet.'**
+  String get leaveNone;
+
+  /// 113.3 How many days a leave request is for.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String leaveDays(int count);
+
+  /// 113.3 A leave request the school hasn't answered.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get leavePending;
+
+  /// 113.3 A leave request the school approved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get leaveApproved;
+
+  /// 113.3 A leave request the school refused.
+  ///
+  /// In en, this message translates to:
+  /// **'Not approved'**
+  String get leaveRefused;
+
+  /// 113.3 A leave request the person withdrew.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawn'**
+  String get leaveCancelled;
+
+  /// 113.3 Withdraws a leave request the school hasn't answered.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw'**
+  String get leaveWithdraw;
+
+  /// 113.3 The school's note with its answer to a leave request.
+  ///
+  /// In en, this message translates to:
+  /// **'The school: {note}'**
+  String leaveSchoolNote(String note);
+
+  /// 113.3 A leave request's first and last days.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} – {to}'**
+  String leaveDates(String from, String to);
+
+  /// 113.3 The leave form's last day is before its first.
+  ///
+  /// In en, this message translates to:
+  /// **'The last day is on or after the first.'**
+  String get leaveDatesOrder;
 }
 
 class _AppLocalizationsDelegate

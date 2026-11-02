@@ -230,3 +230,79 @@ class SchoolUploads implements ChunkedUploads {
 final schoolUploadsProvider = Provider<ChunkedUploads>(
   (ref) => SchoolUploads(ref.watch(yallappApiProvider), MediaGate.standalone()),
 );
+
+// 113.2 Checking in and out
+
+/// The school takes check-ins in the app (`Config.school.checkin.on`).
+final checkinOnProvider = Provider<bool>(
+  (ref) => ref.watch(schoolConfigProvider)?.checkin.on ?? false,
+);
+
+/// The signed-in person checks in: a student, a teacher or staff (not a
+/// parent alone).
+final checksInProvider = Provider<bool>((ref) {
+  final roles = ref.watch(authControllerProvider).user?.roles ?? const [];
+  return roles.any((r) => r == 'student' || r == 'teacher' || r == 'staff');
+});
+
+final checkinTodayProvider = FutureProvider.autoDispose<CheckinToday>((ref) {
+  ref.watch(authControllerProvider.select((s) => s.user?.id));
+  return ref.read(yallappApiProvider).getCheckinToday();
+});
+
+/// The signed-in person's month (null: this month).
+final checkinHistoryProvider = FutureProvider.autoDispose
+    .family<CheckinMonth, String?>(
+      (ref, month) =>
+          ref.read(yallappApiProvider).getCheckinHistory(month: month),
+    );
+
+/// A student's month at the gate, for them and their parents.
+final studentCheckinsProvider = FutureProvider.autoDispose
+    .family<CheckinMonth, int>(
+      (ref, id) => ref.read(yallappApiProvider).getStudentCheckins(id),
+    );
+
+// 113.3 Teachers and staff
+
+/// The signed-in person works at the school and doesn't teach: the Staff
+/// tab is theirs (teachers have the same inside the Classroom tab). Null:
+/// not a school app.
+final isSchoolStaffProvider = Provider<bool?>((ref) {
+  if (ref.watch(appEnvironmentProvider).build.appType != AppType.school) {
+    return null;
+  }
+  final user = ref.watch(authControllerProvider).user;
+  return (user?.roles.contains('staff') ?? false) &&
+      !(user?.isTeacher ?? false);
+});
+
+final staffMeProvider = FutureProvider.autoDispose<StaffMe>(
+  (ref) => ref.read(yallappApiProvider).getStaffMe(),
+);
+
+/// The person's leave requests, newest first.
+class LeaveRequestsController extends PagedController<LeaveRequest> {
+  @override
+  Future<Paged<LeaveRequest>> fetch(int page) =>
+      ref.read(yallappApiProvider).listLeaveRequests(page: page);
+}
+
+final leaveRequestsProvider =
+    NotifierProvider.autoDispose<
+      LeaveRequestsController,
+      PagedState<LeaveRequest>
+    >(LeaveRequestsController.new);
+
+/// The staff's own news, newest first.
+class StaffNewsController extends PagedController<SchoolAnnouncement> {
+  @override
+  Future<Paged<SchoolAnnouncement>> fetch(int page) =>
+      ref.read(yallappApiProvider).listStaffAnnouncements(page: page);
+}
+
+final staffNewsProvider =
+    NotifierProvider.autoDispose<
+      StaffNewsController,
+      PagedState<SchoolAnnouncement>
+    >(StaffNewsController.new);

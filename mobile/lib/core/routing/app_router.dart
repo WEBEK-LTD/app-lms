@@ -117,17 +117,22 @@ final shellTabsProvider = Provider<List<ShellTab>>((ref) {
   final driver = appType == AppType.rides ? ref.watch(isDriverProvider) : null;
   // 105.3 Academies: the Teacher tab for the academy's teachers.
   final teacher = appType == AppType.lms ? ref.watch(isTeacherProvider) : null;
-  // 105.4 Schools: the Classroom tab for the school's teachers.
+  // 105.4 Schools: the Classroom tab for the school's teachers; 113.3 the
+  // Staff tab for its staff who don't teach.
   final classroom = ref.watch(isSchoolTeacherProvider);
-  List<ShellTab> withRoles(List<ShellTab> tabs) => withClassroomTab(
-    withTeacherTab(
-      withDriverTab(
-        withRestaurantTab(withCourierTab(tabs, courier), restaurant),
-        driver,
+  final staff = ref.watch(isSchoolStaffProvider);
+  List<ShellTab> withRoles(List<ShellTab> tabs) => withStaffTab(
+    withClassroomTab(
+      withTeacherTab(
+        withDriverTab(
+          withRestaurantTab(withCourierTab(tabs, courier), restaurant),
+          driver,
+        ),
+        teacher,
       ),
-      teacher,
+      classroom,
     ),
-    classroom,
+    staff,
   );
   // 112.1 Ride apps open on the map, like Uber: the Ride tab first.
   List<ShellTab> mapFirst(List<ShellTab> tabs) =>
@@ -177,6 +182,11 @@ List<ShellTab> withTeacherTab(List<ShellTab> tabs, bool? teacher) =>
 /// the Courier tab is for couriers. Null: not a school.
 List<ShellTab> withClassroomTab(List<ShellTab> tabs, bool? teacher) =>
     _withRoleTab(tabs, classroomTab, teacher);
+
+/// 113.3 The tabs of a school: the Staff tab added for its staff who don't
+/// teach, as the Classroom tab is for teachers. Null: not a school.
+List<ShellTab> withStaffTab(List<ShellTab> tabs, bool? staff) =>
+    _withRoleTab(tabs, staffTab, staff);
 
 List<ShellTab> _withRoleTab(List<ShellTab> tabs, ShellTab tab, bool? show) {
   if (show == null) return tabs;

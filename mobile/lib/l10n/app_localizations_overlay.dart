@@ -6780,4 +6780,266 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get couponWithout =>
       overlay.text('couponWithout') ?? base.couponWithout;
+
+  @override
+  String get checkinTitle => overlay.text('checkinTitle') ?? base.checkinTitle;
+
+  @override
+  String get checkinButton =>
+      overlay.text('checkinButton') ?? base.checkinButton;
+
+  @override
+  String get checkoutButton =>
+      overlay.text('checkoutButton') ?? base.checkoutButton;
+
+  @override
+  String get checkinCardTitle =>
+      overlay.text('checkinCardTitle') ?? base.checkinCardTitle;
+
+  @override
+  String get checkinStateNotYet =>
+      overlay.text('checkinStateNotYet') ?? base.checkinStateNotYet;
+
+  @override
+  String get checkinStateIn =>
+      overlay.text('checkinStateIn') ?? base.checkinStateIn;
+
+  @override
+  String get checkinStateLeft =>
+      overlay.text('checkinStateLeft') ?? base.checkinStateLeft;
+
+  @override
+  String get checkinStateAbsent =>
+      overlay.text('checkinStateAbsent') ?? base.checkinStateAbsent;
+
+  @override
+  String get checkinStateExcused =>
+      overlay.text('checkinStateExcused') ?? base.checkinStateExcused;
+
+  @override
+  String get checkinStateLeave =>
+      overlay.text('checkinStateLeave') ?? base.checkinStateLeave;
+
+  @override
+  String get checkinStateOff =>
+      overlay.text('checkinStateOff') ?? base.checkinStateOff;
+
+  @override
+  String checkinInAt(String time) =>
+      overlay.format('checkinInAt', {'time': time}) ?? base.checkinInAt(time);
+
+  @override
+  String checkinOutAt(String time) =>
+      overlay.format('checkinOutAt', {'time': time}) ?? base.checkinOutAt(time);
+
+  @override
+  String get checkinLate => overlay.text('checkinLate') ?? base.checkinLate;
+
+  @override
+  String get checkinLeftEarly =>
+      overlay.text('checkinLeftEarly') ?? base.checkinLeftEarly;
+
+  @override
+  String checkinTimes(String starts, String ends, String late) =>
+      overlay.format('checkinTimes', {
+        'starts': starts,
+        'ends': ends,
+        'late': late,
+      }) ??
+      base.checkinTimes(starts, ends, late);
+
+  @override
+  String get checkinCodeLabel =>
+      overlay.text('checkinCodeLabel') ?? base.checkinCodeLabel;
+
+  @override
+  String get checkinCodeHint =>
+      overlay.text('checkinCodeHint') ?? base.checkinCodeHint;
+
+  @override
+  String get checkinWithLocation =>
+      overlay.text('checkinWithLocation') ?? base.checkinWithLocation;
+
+  @override
+  String get checkinBothNote =>
+      overlay.text('checkinBothNote') ?? base.checkinBothNote;
+
+  @override
+  String get checkinLocating =>
+      overlay.text('checkinLocating') ?? base.checkinLocating;
+
+  @override
+  String get checkinLocationOff =>
+      overlay.text('checkinLocationOff') ?? base.checkinLocationOff;
+
+  @override
+  String get checkinLocationDenied =>
+      overlay.text('checkinLocationDenied') ?? base.checkinLocationDenied;
+
+  @override
+  String get checkinLocationFailed =>
+      overlay.text('checkinLocationFailed') ?? base.checkinLocationFailed;
+
+  @override
+  String checkinDoneOnTime(String time) =>
+      overlay.format('checkinDoneOnTime', {'time': time}) ??
+      base.checkinDoneOnTime(time);
+
+  @override
+  String checkinDoneLate(String time) =>
+      overlay.format('checkinDoneLate', {'time': time}) ??
+      base.checkinDoneLate(time);
+
+  @override
+  String checkinDoneOut(String time) =>
+      overlay.format('checkinDoneOut', {'time': time}) ??
+      base.checkinDoneOut(time);
+
+  @override
+  String checkinDoneEarly(String time) =>
+      overlay.format('checkinDoneEarly', {'time': time}) ??
+      base.checkinDoneEarly(time);
+
+  @override
+  String get checkinMonth => overlay.text('checkinMonth') ?? base.checkinMonth;
+
+  @override
+  String get checkinCountPresent =>
+      overlay.text('checkinCountPresent') ?? base.checkinCountPresent;
+
+  @override
+  String get checkinCountAbsent =>
+      overlay.text('checkinCountAbsent') ?? base.checkinCountAbsent;
+
+  @override
+  String get checkinNoDays =>
+      overlay.text('checkinNoDays') ?? base.checkinNoDays;
+
+  @override
+  String checkinCorrected(String reason) =>
+      overlay.format('checkinCorrected', {'reason': reason}) ??
+      base.checkinCorrected(reason);
+
+  @override
+  String get checkinOff => overlay.text('checkinOff') ?? base.checkinOff;
+
+  @override
+  String get checkinNotSchoolDay =>
+      overlay.text('checkinNotSchoolDay') ?? base.checkinNotSchoolDay;
+
+  @override
+  String get checkinAtGate =>
+      overlay.text('checkinAtGate') ?? base.checkinAtGate;
+
+  @override
+  String get tabStaff => overlay.text('tabStaff') ?? base.tabStaff;
+
+  @override
+  String get staffNotStaff =>
+      overlay.text('staffNotStaff') ?? base.staffNotStaff;
+
+  @override
+  String get staffNotStaffMessage =>
+      overlay.text('staffNotStaffMessage') ?? base.staffNotStaffMessage;
+
+  @override
+  String get staffWork => overlay.text('staffWork') ?? base.staffWork;
+
+  @override
+  String staffDays(String days) =>
+      overlay.format('staffDays', {'days': days}) ?? base.staffDays(days);
+
+  @override
+  String staffHours(String starts, String ends) =>
+      overlay.format('staffHours', {'starts': starts, 'ends': ends}) ??
+      base.staffHours(starts, ends);
+
+  @override
+  String get staffDuties => overlay.text('staffDuties') ?? base.staffDuties;
+
+  @override
+  String get staffLeave => overlay.text('staffLeave') ?? base.staffLeave;
+
+  @override
+  String get staffNews => overlay.text('staffNews') ?? base.staffNews;
+
+  @override
+  String get staffNoNews => overlay.text('staffNoNews') ?? base.staffNoNews;
+
+  @override
+  String get leaveAsk => overlay.text('leaveAsk') ?? base.leaveAsk;
+
+  @override
+  String get leaveKind => overlay.text('leaveKind') ?? base.leaveKind;
+
+  @override
+  String get leaveSick => overlay.text('leaveSick') ?? base.leaveSick;
+
+  @override
+  String get leaveAnnual => overlay.text('leaveAnnual') ?? base.leaveAnnual;
+
+  @override
+  String get leaveOther => overlay.text('leaveOther') ?? base.leaveOther;
+
+  @override
+  String get leaveFirstDay =>
+      overlay.text('leaveFirstDay') ?? base.leaveFirstDay;
+
+  @override
+  String get leaveLastDay => overlay.text('leaveLastDay') ?? base.leaveLastDay;
+
+  @override
+  String get leaveNote => overlay.text('leaveNote') ?? base.leaveNote;
+
+  @override
+  String get leaveAddPhoto =>
+      overlay.text('leaveAddPhoto') ?? base.leaveAddPhoto;
+
+  @override
+  String get leaveAddFile => overlay.text('leaveAddFile') ?? base.leaveAddFile;
+
+  @override
+  String get leaveSend => overlay.text('leaveSend') ?? base.leaveSend;
+
+  @override
+  String get leaveSent => overlay.text('leaveSent') ?? base.leaveSent;
+
+  @override
+  String get leaveNone => overlay.text('leaveNone') ?? base.leaveNone;
+
+  @override
+  String leaveDays(int count) =>
+      overlay.format('leaveDays', {'count': count}) ?? base.leaveDays(count);
+
+  @override
+  String get leavePending => overlay.text('leavePending') ?? base.leavePending;
+
+  @override
+  String get leaveApproved =>
+      overlay.text('leaveApproved') ?? base.leaveApproved;
+
+  @override
+  String get leaveRefused => overlay.text('leaveRefused') ?? base.leaveRefused;
+
+  @override
+  String get leaveCancelled =>
+      overlay.text('leaveCancelled') ?? base.leaveCancelled;
+
+  @override
+  String get leaveWithdraw =>
+      overlay.text('leaveWithdraw') ?? base.leaveWithdraw;
+
+  @override
+  String leaveSchoolNote(String note) =>
+      overlay.format('leaveSchoolNote', {'note': note}) ??
+      base.leaveSchoolNote(note);
+
+  @override
+  String leaveDates(String from, String to) =>
+      overlay.format('leaveDates', {'from': from, 'to': to}) ??
+      base.leaveDates(from, to);
+
+  @override
+  String get leaveDatesOrder =>
+      overlay.text('leaveDatesOrder') ?? base.leaveDatesOrder;
 }

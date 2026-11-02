@@ -743,6 +743,13 @@
       "when": 1793598520083,
       "tag": "0105_course_cohorts",
       "breakpoints": true
+    },
+    {
+      "idx": 106,
+      "version": "5",
+      "when": 1793610435044,
+      "tag": "0106_school_checkin_staff",
+      "breakpoints": true
     }
   ]
 }

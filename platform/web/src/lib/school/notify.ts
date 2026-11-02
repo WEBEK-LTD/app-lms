@@ -127,3 +127,76 @@ export async function tellAnnouncement(deps: DeliveryNotifyDeps, students: reado
   }
   return reached;
 }
+
+// 113.2 Checking in and out
+
+const CHECKIN: Record<"in" | "late" | "out" | "early", Record<Lang, (name: string, time: string) => Words>> = {
+  in: {
+    en: (name, time) => ({ title: `${name} arrived at school`, body: `${name} checked in at ${time}.` }),
+    ar: (name, time) => ({ title: `وصل ${name} إلى المدرسة`, body: `سجّل ${name} حضوره الساعة ${time}.` }),
+    tr: (name, time) => ({ title: `${name} okula geldi`, body: `${name} saat ${time} itibarıyla giriş yaptı.` }),
+  },
+  late: {
+    en: (name, time) => ({ title: `${name} arrived late`, body: `${name} checked in late, at ${time}.` }),
+    ar: (name, time) => ({ title: `وصل ${name} متأخرًا`, body: `سجّل ${name} حضوره متأخرًا الساعة ${time}.` }),
+    tr: (name, time) => ({ title: `${name} geç geldi`, body: `${name} saat ${time} itibarıyla geç giriş yaptı.` }),
+  },
+  out: {
+    en: (name, time) => ({ title: `${name} left school`, body: `${name} checked out at ${time}.` }),
+    ar: (name, time) => ({ title: `غادر ${name} المدرسة`, body: `سجّل ${name} انصرافه الساعة ${time}.` }),
+    tr: (name, time) => ({ title: `${name} okuldan çıktı`, body: `${name} saat ${time} itibarıyla çıkış yaptı.` }),
+  },
+  early: {
+    en: (name, time) => ({ title: `${name} left early`, body: `${name} checked out before the end of the day, at ${time}.` }),
+    ar: (name, time) => ({ title: `انصرف ${name} مبكرًا`, body: `سجّل ${name} انصرافه قبل نهاية اليوم الساعة ${time}.` }),
+    tr: (name, time) => ({ title: `${name} erken çıktı`, body: `${name} gün bitmeden, saat ${time} itibarıyla çıkış yaptı.` }),
+  },
+};
+
+/** A student's parents (not the student), of their check-in or check-out, late or early. */
+export async function tellCheckin(deps: DeliveryNotifyDeps, student: SchoolPerson, action: "in" | "out", time: string, flagged: boolean): Promise<number> {
+  const text = CHECKIN[action === "in" ? (flagged ? "late" : "in") : flagged ? "early" : "out"];
+  const own = await personUser(deps.store, student);
+  let reached = 0;
+  for (const user of await familyUsers(deps.store, student)) {
+    if (own && user.id === own.id) continue;
+    reached += await deliver(deps, user.id, text[await langOf(deps, user)](student.name, time), { type: "school_checkin", student_id: String(student.id) }, false);
+  }
+  return reached;
+}
+
+// 113.3 Teachers and staff
+
+/** The school's teachers and staff, of news for them only. */
+export async function tellStaff(deps: DeliveryNotifyDeps, title: string, body: string): Promise<number> {
+  const people = [...(await deps.store.listSchoolPeople(deps.app.id, { role: "teacher" })), ...(await deps.store.listSchoolPeople(deps.app.id, { role: "staff" }))].filter((p) => p.active);
+  const seen = new Set<number>();
+  let reached = 0;
+  for (const person of people) {
+    const user = await personUser(deps.store, person);
+    if (!user || seen.has(user.id)) continue;
+    seen.add(user.id);
+    reached += await deliver(deps, user.id, { title, body: body.slice(0, 180) }, { type: "school_staff" }, false);
+  }
+  return reached;
+}
+
+const LEAVE: Record<"approved" | "refused", Record<Lang, (from: string, to: string) => Words>> = {
+  approved: {
+    en: (from, to) => ({ title: "Leave approved", body: `Your leave from ${from} to ${to} was approved.` }),
+    ar: (from, to) => ({ title: "تمت الموافقة على الإجازة", body: `تمت الموافقة على إجازتك من ${from} إلى ${to}.` }),
+    tr: (from, to) => ({ title: "İzin onaylandı", body: `${from} – ${to} tarihleri arasındaki izniniz onaylandı.` }),
+  },
+  refused: {
+    en: (from, to) => ({ title: "Leave not approved", body: `Your leave from ${from} to ${to} wasn't approved. See the school's note in the app.` }),
+    ar: (from, to) => ({ title: "لم تتم الموافقة على الإجازة", body: `لم تتم الموافقة على إجازتك من ${from} إلى ${to}. اطّلع على ملاحظة المدرسة في التطبيق.` }),
+    tr: (from, to) => ({ title: "İzin onaylanmadı", body: `${from} – ${to} tarihleri arasındaki izniniz onaylanmadı. Okulun notu uygulamada.` }),
+  },
+};
+
+/** A teacher or staff member, of the school's answer to their leave request. */
+export async function tellLeave(deps: DeliveryNotifyDeps, person: SchoolPerson, status: "approved" | "refused", from: string, to: string): Promise<number> {
+  const user = await personUser(deps.store, person);
+  if (!user) return 0;
+  return deliver(deps, user.id, LEAVE[status][await langOf(deps, user)](from, to), { type: "school_leave" }, false);
+}

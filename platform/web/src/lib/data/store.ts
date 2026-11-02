@@ -86,10 +86,12 @@ import type {
   SchoolAnnouncement,
   SchoolAssessment,
   SchoolAttendance,
+  SchoolCheckin,
   SchoolClass,
   SchoolFamilyLink,
   SchoolFee,
   SchoolHomework,
+  SchoolLeave,
   SchoolPeriod,
   SchoolPerson,
   SchoolPersonInput,
@@ -884,6 +886,19 @@ export interface DataStore {
   /** Only while the fee is in one of `statuses` when given; false when it wasn't changed. */
   updateSchoolFee(appId: string, id: number, patch: Partial<Pick<SchoolFee, "title" | "amountCents" | "dueOn" | "status" | "paidAt" | "paidBy" | "orderId" | "receiptCode" | "updatedAt">>, expect?: { statuses?: SchoolFee["status"][] }): Promise<boolean>;
   deleteSchoolFee(appId: string, id: number): Promise<void>;
+  // 113.2 Checking in and out
+  /** By day (newest first) and person; one person's or some people's, one day's or a period's. */
+  listSchoolCheckins(appId: string, filter: { personId?: number; personIds?: number[]; date?: string; from?: string; to?: string }): Promise<SchoolCheckin[]>;
+  getSchoolCheckin(appId: string, personId: number, date: string): Promise<SchoolCheckin | null>;
+  /** One per person and day: saving again replaces it. */
+  saveSchoolCheckin(row: SchoolCheckin): Promise<void>;
+  // 113.3 Leave requests
+  /** Newest first; a person's, of a status, or overlapping a period. */
+  listSchoolLeave(appId: string, filter?: { personId?: number; statuses?: SchoolLeave["status"][]; from?: string; to?: string }): Promise<SchoolLeave[]>;
+  getSchoolLeave(appId: string, id: number): Promise<SchoolLeave | null>;
+  createSchoolLeave(input: Omit<SchoolLeave, "id">): Promise<SchoolLeave>;
+  /** Only while the request is in one of `statuses`; false when it wasn't changed. */
+  updateSchoolLeave(appId: string, id: number, patch: Partial<Pick<SchoolLeave, "status" | "answer" | "answeredBy" | "answeredAt" | "updatedAt">>, statuses: SchoolLeave["status"][]): Promise<boolean>;
 
   // 105.1 Food delivery from many restaurants
   /** In the company's order; `q` matches the restaurant's name or a dish's. Menus aren't read. */
