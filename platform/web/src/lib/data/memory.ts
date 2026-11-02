@@ -109,7 +109,14 @@ import type {
   SchoolAnnouncement,
   SchoolAssessment,
   SchoolAttendance,
+  SchoolCheckin,
+  SchoolBehaviourCategory,
+  SchoolBehaviourNote,
   SchoolClass,
+  SchoolEvent,
+  SchoolEventInput,
+  SchoolExam,
+  SchoolExamInput,
   SchoolFamilyLink,
   SchoolFee,
   SchoolReport,
@@ -119,6 +126,7 @@ import type {
   SchoolSyllabusUnit,
   SchoolTopicProgress,
   SchoolHomework,
+  SchoolLeave,
   SchoolPeriod,
   SchoolPerson,
   SchoolPersonInput,
@@ -128,6 +136,21 @@ import type {
   SchoolSettings,
   SchoolSubject,
   SchoolSubmission,
+} from "./types";
+// 113.10 The school bus; 113.11 the library
+import type {
+  SchoolBook,
+  SchoolBookCopy,
+  SchoolBookHold,
+  SchoolBookHoldStatus,
+  SchoolBookLoan,
+  SchoolBusMark,
+  SchoolBusRider,
+  SchoolBusRoute,
+  SchoolBusRun,
+  SchoolBusRunStatus,
+  SchoolBusStop,
+  SchoolBusTrip,
 } from "./types";
 import type { Ride, RideInput, RidePatch, RideQuery, RideStatementRow, RideStatus, VehicleType, VehicleTypeInput } from "./types";
 // 10.7 Listings
@@ -2281,6 +2304,15 @@ export class MemoryStore implements DataStore {
   private schoolScores = new Map<string, SchoolScore>();
   private schoolAnnouncements = new Map<number, SchoolAnnouncement>();
   private schoolFees = new Map<number, SchoolFee>();
+  /** 113.2 Keyed `personId:date`. */
+  private schoolCheckins = new Map<string, SchoolCheckin>();
+  /** 113.3 */
+  private schoolLeave = new Map<number, SchoolLeave>();
+  // 113.8
+  private schoolEvents = new Map<number, SchoolEvent>();
+  private schoolExams = new Map<number, SchoolExam>();
+  private schoolBehaviourCategories = new Map<number, SchoolBehaviourCategory>();
+  private schoolBehaviour = new Map<number, SchoolBehaviourNote>();
   private nextSchoolId = 1;
 
   async getSchoolSettings(appId: string): Promise<SchoolSettings | null> {
@@ -2321,6 +2353,10 @@ export class MemoryStore implements DataStore {
     // 113.5 Its progress goes; its reports stay, without a class.
     for (const [key, p] of this.schoolTopicProgress) if (p.classId === id) this.schoolTopicProgress.delete(key);
     for (const r of this.schoolReports.values()) if (r.classId === id) r.classId = null;
+    // 113.8 Its events and exams go with it; its students' behaviour stays theirs.
+    for (const [key, e] of this.schoolEvents) if (e.classId === id) this.schoolEvents.delete(key);
+    for (const [key, e] of this.schoolExams) if (e.classId === id) this.schoolExams.delete(key);
+    for (const n of this.schoolBehaviour.values()) if (n.classId === id) n.classId = null;
   }
 
   async listSchoolSubjects(appId: string): Promise<SchoolSubject[]> {
@@ -2349,6 +2385,7 @@ export class MemoryStore implements DataStore {
     // 113.5 Its syllabus goes; reports on it stay, without a subject.
     for (const u of [...this.schoolSyllabusUnits.values()]) if (u.subjectId === id) await this.deleteSchoolSyllabusUnit(appId, u.id);
     for (const r of this.schoolReports.values()) if (r.subjectId === id) r.subjectId = null;
+    for (const [key, e] of this.schoolExams) if (e.subjectId === id) this.schoolExams.delete(key);
   }
 
   async listSchoolPeople(appId: string, filter: { role?: SchoolRole; classId?: number; ids?: number[] } = {}): Promise<SchoolPerson[]> {
@@ -2377,7 +2414,7 @@ export class MemoryStore implements DataStore {
 
   async createSchoolPerson(input: SchoolPersonInput, now: Date): Promise<{ ok: true; person: SchoolPerson } | { ok: false; reason: "duplicate" }> {
     if (this.schoolPersonTaken(input.appId, input.role, null, input.phone, input.email)) return { ok: false, reason: "duplicate" };
-    const person: SchoolPerson = { ...clone(input), id: this.nextSchoolId++, userId: null, createdAt: now, updatedAt: now };
+    const person: SchoolPerson = { department: null, ...clone(input), id: this.nextSchoolId++, userId: null, createdAt: now, updatedAt: now };
     this.schoolPeople.set(person.id, clone(person));
     return { ok: true, person };
   }
@@ -2400,11 +2437,29 @@ export class MemoryStore implements DataStore {
     for (const [key, x] of this.schoolSubmissions) if (x.studentId === id) this.schoolSubmissions.delete(key);
     for (const [key, x] of this.schoolScores) if (x.studentId === id) this.schoolScores.delete(key);
     for (const [key, f] of this.schoolFees) if (f.studentId === id) this.schoolFees.delete(key);
+    for (const [key, c] of this.schoolCheckins) if (c.personId === id) this.schoolCheckins.delete(key);
+    for (const [key, l] of this.schoolLeave) if (l.personId === id) this.schoolLeave.delete(key);
+    for (const [key, n] of this.schoolBehaviour) if (n.studentId === id) this.schoolBehaviour.delete(key);
     for (const p of this.schoolPeriods.values()) if (p.teacherId === id) p.teacherId = null;
     // 113.5 A student's reports go with them; a teacher's stay, with their name.
     for (const [key, r] of this.schoolReports) if (r.studentId === id) this.schoolReports.delete(key);
     for (const r of this.schoolReports.values()) if (r.teacherId === id) r.teacherId = null;
     for (const p of this.schoolTopicProgress.values()) if (p.teacherId === id) p.teacherId = null;
+    // 113.6 Their school conversations, with their messages, places and reports (the foreign keys).
+    const conversations = [...this.chatConversations.values()].filter((c) => c.kind === "school" && (c.schoolTeacherId === id || c.schoolPersonId === id)).map((c) => c.id);
+    for (const [key, m] of this.chatMessages) if (conversations.includes(m.conversationId)) this.chatMessages.delete(key);
+    for (const [key, p] of this.chatParticipants) if (conversations.includes(p.conversationId)) this.chatParticipants.delete(key);
+    for (const [key, r] of this.chatReports) if (conversations.includes(r.conversationId)) this.chatReports.delete(key);
+    for (const conversationId of conversations) this.chatConversations.delete(conversationId);
+    // 113.10 Off the bus; 113.11 their loans and holds go.
+    for (const r of this.schoolBusRoutes.values()) {
+      if (r.driverId === id) r.driverId = null;
+      if (r.supervisorId === id) r.supervisorId = null;
+    }
+    for (const [key, r] of this.schoolBusRiders) if (r.studentId === id) this.schoolBusRiders.delete(key);
+    for (const [key, m] of this.schoolBusMarks) if (m.studentId === id) this.schoolBusMarks.delete(key);
+    for (const [key, l] of this.schoolBookLoans) if (l.personId === id) this.schoolBookLoans.delete(key);
+    for (const [key, h] of this.schoolBookHolds) if (h.personId === id) this.schoolBookHolds.delete(key);
   }
 
   async listSchoolFamily(appId: string, filter: { parentId?: number; studentId?: number }): Promise<SchoolFamilyLink[]> {
@@ -2778,6 +2833,518 @@ export class MemoryStore implements DataStore {
   async deleteSchoolReport(appId: string, id: number): Promise<void> {
     const found = this.schoolReports.get(id);
     if (found && found.appId === appId) this.schoolReports.delete(id);
+  }
+
+  async listSchoolCheckins(appId: string, filter: { personId?: number; personIds?: number[]; date?: string; from?: string; to?: string }): Promise<SchoolCheckin[]> {
+    return [...this.schoolCheckins.values()]
+      .filter(
+        (c) =>
+          c.appId === appId &&
+          (filter.personId === undefined || c.personId === filter.personId) &&
+          (!filter.personIds || filter.personIds.includes(c.personId)) &&
+          (!filter.date || c.date === filter.date) &&
+          (!filter.from || c.date >= filter.from) &&
+          (!filter.to || c.date <= filter.to),
+      )
+      .sort((a, b) => b.date.localeCompare(a.date) || a.personId - b.personId)
+      .map(clone);
+  }
+
+  async getSchoolCheckin(appId: string, personId: number, date: string): Promise<SchoolCheckin | null> {
+    const found = this.schoolCheckins.get(`${personId}:${date}`);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async saveSchoolCheckin(row: SchoolCheckin): Promise<void> {
+    const person = this.schoolPeople.get(row.personId);
+    if (!person || person.appId !== row.appId) return;
+    this.schoolCheckins.set(`${row.personId}:${row.date}`, clone(row));
+  }
+
+  async listSchoolLeave(appId: string, filter: { personId?: number; statuses?: SchoolLeave["status"][]; from?: string; to?: string } = {}): Promise<SchoolLeave[]> {
+    return [...this.schoolLeave.values()]
+      .filter(
+        (l) =>
+          l.appId === appId &&
+          (filter.personId === undefined || l.personId === filter.personId) &&
+          (!filter.statuses || filter.statuses.includes(l.status)) &&
+          (!filter.from || l.endsOn >= filter.from) &&
+          (!filter.to || l.startsOn <= filter.to),
+      )
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .map(clone);
+  }
+
+  async getSchoolLeave(appId: string, id: number): Promise<SchoolLeave | null> {
+    const found = this.schoolLeave.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async createSchoolLeave(input: Omit<SchoolLeave, "id">): Promise<SchoolLeave> {
+    const made: SchoolLeave = { ...clone(input), id: this.nextSchoolId++ };
+    this.schoolLeave.set(made.id, clone(made));
+    return made;
+  }
+
+  async updateSchoolLeave(appId: string, id: number, patch: Partial<Pick<SchoolLeave, "status" | "answer" | "answeredBy" | "answeredAt" | "updatedAt">>, statuses: SchoolLeave["status"][]): Promise<boolean> {
+    const found = this.schoolLeave.get(id);
+    if (!found || found.appId !== appId || !statuses.includes(found.status)) return false;
+    this.schoolLeave.set(id, { ...found, ...clone(patch) });
+    return true;
+  }
+
+  // 113.10 The school bus
+
+  private schoolBusRoutes = new Map<number, SchoolBusRoute>();
+  private schoolBusStops = new Map<number, SchoolBusStop>();
+  /** Keyed `studentId:trip`. */
+  private schoolBusRiders = new Map<string, SchoolBusRider>();
+  private schoolBusRuns = new Map<number, SchoolBusRun>();
+  /** Keyed `runId:studentId`. */
+  private schoolBusMarks = new Map<string, SchoolBusMark>();
+
+  async listSchoolBusRoutes(appId: string): Promise<SchoolBusRoute[]> {
+    return [...this.schoolBusRoutes.values()].filter((r) => r.appId === appId).sort((a, b) => a.position - b.position || a.id - b.id).map(clone);
+  }
+
+  async getSchoolBusRoute(appId: string, id: number): Promise<SchoolBusRoute | null> {
+    const found = this.schoolBusRoutes.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async saveSchoolBusRoute(input: Pick<SchoolBusRoute, "appId" | "name" | "plate" | "capacity" | "driverId" | "supervisorId" | "active"> & { id: number | null }, now: Date): Promise<SchoolBusRoute | null> {
+    const fields = { name: input.name, plate: input.plate, capacity: input.capacity, driverId: input.driverId, supervisorId: input.supervisorId, active: input.active };
+    if (input.id === null) {
+      const position = Math.max(0, ...[...this.schoolBusRoutes.values()].filter((r) => r.appId === input.appId).map((r) => r.position)) + 1;
+      const made: SchoolBusRoute = { id: this.nextSchoolId++, appId: input.appId, ...fields, position, createdAt: now, updatedAt: now };
+      this.schoolBusRoutes.set(made.id, clone(made));
+      return made;
+    }
+    const found = this.schoolBusRoutes.get(input.id);
+    if (!found || found.appId !== input.appId) return null;
+    const next = { ...found, ...fields, updatedAt: now };
+    this.schoolBusRoutes.set(found.id, clone(next));
+    return clone(next);
+  }
+
+  async deleteSchoolBusRoute(appId: string, id: number): Promise<void> {
+    const found = this.schoolBusRoutes.get(id);
+    if (!found || found.appId !== appId) return;
+    this.schoolBusRoutes.delete(id);
+    for (const [key, x] of this.schoolBusStops) if (x.routeId === id) this.schoolBusStops.delete(key);
+    for (const [key, x] of this.schoolBusRiders) if (x.routeId === id) this.schoolBusRiders.delete(key);
+    for (const [key, run] of this.schoolBusRuns) {
+      if (run.routeId !== id) continue;
+      this.schoolBusRuns.delete(key);
+      for (const [k, m] of this.schoolBusMarks) if (m.runId === run.id) this.schoolBusMarks.delete(k);
+    }
+  }
+
+  async listSchoolBusStops(appId: string, filter: { routeId?: number } = {}): Promise<SchoolBusStop[]> {
+    return [...this.schoolBusStops.values()]
+      .filter((x) => x.appId === appId && (filter.routeId === undefined || x.routeId === filter.routeId))
+      .sort((a, b) => a.routeId - b.routeId || a.position - b.position || a.id - b.id)
+      .map(clone);
+  }
+
+  async saveSchoolBusStop(input: Omit<SchoolBusStop, "id" | "position"> & { id: number | null }): Promise<SchoolBusStop | null> {
+    const route = this.schoolBusRoutes.get(input.routeId);
+    if (!route || route.appId !== input.appId) return null;
+    const fields = { name: input.name, lat: input.lat, lng: input.lng, morningMinute: input.morningMinute, afternoonMinute: input.afternoonMinute };
+    if (input.id === null) {
+      const position = Math.max(0, ...[...this.schoolBusStops.values()].filter((x) => x.routeId === input.routeId).map((x) => x.position)) + 1;
+      const made: SchoolBusStop = { id: this.nextSchoolId++, appId: input.appId, routeId: input.routeId, ...fields, position };
+      this.schoolBusStops.set(made.id, clone(made));
+      return made;
+    }
+    const found = this.schoolBusStops.get(input.id);
+    if (!found || found.appId !== input.appId || found.routeId !== input.routeId) return null;
+    const next = { ...found, ...fields };
+    this.schoolBusStops.set(found.id, clone(next));
+    return clone(next);
+  }
+
+  async deleteSchoolBusStop(appId: string, id: number): Promise<void> {
+    const found = this.schoolBusStops.get(id);
+    if (!found || found.appId !== appId) return;
+    this.schoolBusStops.delete(id);
+    for (const [key, x] of this.schoolBusRiders) if (x.stopId === id) this.schoolBusRiders.delete(key);
+  }
+
+  async orderSchoolBusStops(appId: string, routeId: number, stopIds: number[]): Promise<void> {
+    const stops = [...this.schoolBusStops.values()].filter((x) => x.appId === appId && x.routeId === routeId).sort((a, b) => a.position - b.position || a.id - b.id);
+    const ordered = [...stopIds.map((id) => stops.find((x) => x.id === id)).filter((x) => x !== undefined), ...stops.filter((x) => !stopIds.includes(x.id))];
+    ordered.forEach((stop, i) => (stop.position = i + 1));
+  }
+
+  async listSchoolBusRiders(appId: string, filter: { routeId?: number; stopId?: number; studentId?: number; trip?: SchoolBusTrip } = {}): Promise<SchoolBusRider[]> {
+    return [...this.schoolBusRiders.values()]
+      .filter(
+        (r) =>
+          r.appId === appId &&
+          (filter.routeId === undefined || r.routeId === filter.routeId) &&
+          (filter.stopId === undefined || r.stopId === filter.stopId) &&
+          (filter.studentId === undefined || r.studentId === filter.studentId) &&
+          (filter.trip === undefined || r.trip === filter.trip),
+      )
+      .sort((a, b) => a.studentId - b.studentId || a.trip.localeCompare(b.trip))
+      .map(clone);
+  }
+
+  async setSchoolBusRiders(appId: string, rows: { studentId: number; trip: SchoolBusTrip; stop: Pick<SchoolBusStop, "id" | "routeId"> | null }[]): Promise<void> {
+    for (const row of rows) {
+      const student = this.schoolPeople.get(row.studentId);
+      if (!student || student.appId !== appId) continue;
+      const key = `${row.studentId}:${row.trip}`;
+      if (!row.stop) {
+        this.schoolBusRiders.delete(key);
+        continue;
+      }
+      const stop = this.schoolBusStops.get(row.stop.id);
+      if (!stop || stop.appId !== appId) continue;
+      this.schoolBusRiders.set(key, { appId, studentId: row.studentId, trip: row.trip, routeId: stop.routeId, stopId: stop.id });
+    }
+  }
+
+  async listSchoolBusRuns(appId: string, filter: { routeId?: number; routeIds?: number[]; status?: SchoolBusRunStatus; date?: string; limit?: number } = {}): Promise<SchoolBusRun[]> {
+    return [...this.schoolBusRuns.values()]
+      .filter(
+        (r) =>
+          r.appId === appId &&
+          (filter.routeId === undefined || r.routeId === filter.routeId) &&
+          (!filter.routeIds || filter.routeIds.includes(r.routeId)) &&
+          (!filter.status || r.status === filter.status) &&
+          (!filter.date || r.date === filter.date),
+      )
+      .sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime() || b.id - a.id)
+      .slice(0, filter.limit ?? 10_000)
+      .map(clone);
+  }
+
+  async getSchoolBusRun(appId: string, id: number): Promise<SchoolBusRun | null> {
+    const found = this.schoolBusRuns.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async startSchoolBusRun(input: Omit<SchoolBusRun, "id">): Promise<{ run: SchoolBusRun; created: boolean }> {
+    const found = [...this.schoolBusRuns.values()].find((r) => r.appId === input.appId && r.routeId === input.routeId && r.date === input.date && r.trip === input.trip);
+    if (found) return { run: clone(found), created: false };
+    const made: SchoolBusRun = { ...clone(input), id: this.nextSchoolId++ };
+    this.schoolBusRuns.set(made.id, clone(made));
+    return { run: made, created: true };
+  }
+
+  async updateSchoolBusRun(
+    appId: string,
+    id: number,
+    patch: Partial<Pick<SchoolBusRun, "status" | "endedAt" | "startedAt" | "startedBy" | "lat" | "lng" | "locatedAt" | "passedStopIds" | "toldStopIds">>,
+    expect: { status?: SchoolBusRunStatus } = {},
+  ): Promise<boolean> {
+    const found = this.schoolBusRuns.get(id);
+    if (!found || found.appId !== appId || (expect.status && found.status !== expect.status)) return false;
+    this.schoolBusRuns.set(id, { ...found, ...clone(patch) });
+    return true;
+  }
+
+  async listSchoolBusMarks(appId: string, filter: { runId?: number; runIds?: number[]; studentId?: number }): Promise<SchoolBusMark[]> {
+    return [...this.schoolBusMarks.values()]
+      .filter((m) => m.appId === appId && (filter.runId === undefined || m.runId === filter.runId) && (!filter.runIds || filter.runIds.includes(m.runId)) && (filter.studentId === undefined || m.studentId === filter.studentId))
+      .sort((a, b) => a.runId - b.runId || a.studentId - b.studentId)
+      .map(clone);
+  }
+
+  async saveSchoolBusMark(mark: SchoolBusMark): Promise<void> {
+    const run = this.schoolBusRuns.get(mark.runId);
+    if (!run || run.appId !== mark.appId) return;
+    this.schoolBusMarks.set(`${mark.runId}:${mark.studentId}`, clone(mark));
+  }
+
+  // 113.11 The library
+
+  private schoolBooks = new Map<number, SchoolBook>();
+  private schoolBookCopies = new Map<number, SchoolBookCopy>();
+  private schoolBookLoans = new Map<number, SchoolBookLoan>();
+  private schoolBookHolds = new Map<number, SchoolBookHold>();
+
+  async listSchoolBooks(appId: string, filter: { q?: string; category?: string; ids?: number[]; limit?: number } = {}): Promise<SchoolBook[]> {
+    const q = filter.q?.trim().toLowerCase() ?? "";
+    return [...this.schoolBooks.values()]
+      .filter(
+        (b) =>
+          b.appId === appId &&
+          (!q || b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q) || (b.isbn ?? "").toLowerCase().includes(q)) &&
+          (!filter.category || (b.category ?? "").toLowerCase() === filter.category.toLowerCase()) &&
+          (!filter.ids || filter.ids.includes(b.id)),
+      )
+      .sort((a, b) => a.title.localeCompare(b.title) || a.id - b.id)
+      .slice(0, filter.limit ?? 100_000)
+      .map(clone);
+  }
+
+  async getSchoolBook(appId: string, id: number): Promise<SchoolBook | null> {
+    const found = this.schoolBooks.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async createSchoolBook(input: Omit<SchoolBook, "id">): Promise<SchoolBook> {
+    const made: SchoolBook = { ...clone(input), id: this.nextSchoolId++ };
+    this.schoolBooks.set(made.id, clone(made));
+    return made;
+  }
+
+  async updateSchoolBook(appId: string, id: number, patch: Partial<Omit<SchoolBook, "id" | "appId" | "createdAt">>): Promise<boolean> {
+    const found = this.schoolBooks.get(id);
+    if (!found || found.appId !== appId) return false;
+    this.schoolBooks.set(id, { ...found, ...clone(patch) });
+    return true;
+  }
+
+  async deleteSchoolBook(appId: string, id: number): Promise<void> {
+    const found = this.schoolBooks.get(id);
+    if (!found || found.appId !== appId) return;
+    this.schoolBooks.delete(id);
+    for (const [key, x] of this.schoolBookCopies) if (x.bookId === id) this.schoolBookCopies.delete(key);
+    for (const [key, x] of this.schoolBookLoans) if (x.bookId === id) this.schoolBookLoans.delete(key);
+    for (const [key, x] of this.schoolBookHolds) if (x.bookId === id) this.schoolBookHolds.delete(key);
+  }
+
+  async listSchoolBookCopies(appId: string, filter: { bookId?: number; bookIds?: number[] } = {}): Promise<SchoolBookCopy[]> {
+    return [...this.schoolBookCopies.values()]
+      .filter((c) => c.appId === appId && (filter.bookId === undefined || c.bookId === filter.bookId) && (!filter.bookIds || filter.bookIds.includes(c.bookId)))
+      .sort((a, b) => a.bookId - b.bookId || a.code.localeCompare(b.code) || a.id - b.id)
+      .map(clone);
+  }
+
+  async getSchoolBookCopyByCode(appId: string, code: string): Promise<SchoolBookCopy | null> {
+    const found = [...this.schoolBookCopies.values()].find((c) => c.appId === appId && c.code.toLowerCase() === code.trim().toLowerCase());
+    return found ? clone(found) : null;
+  }
+
+  async createSchoolBookCopy(input: Omit<SchoolBookCopy, "id">): Promise<{ ok: true; copy: SchoolBookCopy } | { ok: false; reason: "duplicate" }> {
+    if (await this.getSchoolBookCopyByCode(input.appId, input.code)) return { ok: false, reason: "duplicate" };
+    const copy: SchoolBookCopy = { ...clone(input), id: this.nextSchoolId++ };
+    this.schoolBookCopies.set(copy.id, clone(copy));
+    return { ok: true, copy };
+  }
+
+  async deleteSchoolBookCopy(appId: string, id: number): Promise<void> {
+    const found = this.schoolBookCopies.get(id);
+    if (!found || found.appId !== appId) return;
+    this.schoolBookCopies.delete(id);
+    for (const [key, x] of this.schoolBookLoans) if (x.copyId === id) this.schoolBookLoans.delete(key);
+    for (const h of this.schoolBookHolds.values()) if (h.copyId === id) h.copyId = null;
+  }
+
+  async listSchoolBookLoans(appId: string, filter: { bookId?: number; copyId?: number; personId?: number; personIds?: number[]; open?: boolean; limit?: number } = {}): Promise<SchoolBookLoan[]> {
+    return [...this.schoolBookLoans.values()]
+      .filter(
+        (l) =>
+          l.appId === appId &&
+          (filter.bookId === undefined || l.bookId === filter.bookId) &&
+          (filter.copyId === undefined || l.copyId === filter.copyId) &&
+          (filter.personId === undefined || l.personId === filter.personId) &&
+          (!filter.personIds || filter.personIds.includes(l.personId)) &&
+          (filter.open === undefined || (l.returnedAt === null) === filter.open),
+      )
+      .sort((a, b) => b.lentAt.getTime() - a.lentAt.getTime() || b.id - a.id)
+      .slice(0, filter.limit ?? 10_000)
+      .map(clone);
+  }
+
+  async createSchoolBookLoan(input: Omit<SchoolBookLoan, "id">): Promise<{ ok: true; loan: SchoolBookLoan } | { ok: false; reason: "on_loan" }> {
+    if ([...this.schoolBookLoans.values()].some((l) => l.copyId === input.copyId && l.returnedAt === null)) return { ok: false, reason: "on_loan" };
+    const loan: SchoolBookLoan = { ...clone(input), id: this.nextSchoolId++ };
+    this.schoolBookLoans.set(loan.id, clone(loan));
+    return { ok: true, loan };
+  }
+
+  async updateSchoolBookLoan(appId: string, id: number, patch: Partial<Pick<SchoolBookLoan, "dueOn" | "returnedAt" | "dueToldOn" | "overdueToldOn">>, expect: { open?: boolean } = {}): Promise<boolean> {
+    const found = this.schoolBookLoans.get(id);
+    if (!found || found.appId !== appId || (expect.open !== undefined && (found.returnedAt === null) !== expect.open)) return false;
+    this.schoolBookLoans.set(id, { ...found, ...clone(patch) });
+    return true;
+  }
+
+  async listDueSchoolBookLoans(dueBy: string, limit: number): Promise<SchoolBookLoan[]> {
+    return [...this.schoolBookLoans.values()]
+      .filter((l) => l.returnedAt === null && l.dueOn <= dueBy)
+      .sort((a, b) => a.dueOn.localeCompare(b.dueOn) || a.id - b.id)
+      .slice(0, limit)
+      .map(clone);
+  }
+
+  async listSchoolBookHolds(appId: string, filter: { bookId?: number; personId?: number; personIds?: number[]; statuses?: SchoolBookHoldStatus[] } = {}): Promise<SchoolBookHold[]> {
+    return [...this.schoolBookHolds.values()]
+      .filter(
+        (h) =>
+          h.appId === appId &&
+          (filter.bookId === undefined || h.bookId === filter.bookId) &&
+          (filter.personId === undefined || h.personId === filter.personId) &&
+          (!filter.personIds || filter.personIds.includes(h.personId)) &&
+          (!filter.statuses || filter.statuses.includes(h.status)),
+      )
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || a.id - b.id)
+      .map(clone);
+  }
+
+  async createSchoolBookHold(input: Omit<SchoolBookHold, "id">): Promise<SchoolBookHold> {
+    const made: SchoolBookHold = { ...clone(input), id: this.nextSchoolId++ };
+    this.schoolBookHolds.set(made.id, clone(made));
+    return made;
+  }
+
+  async updateSchoolBookHold(appId: string, id: number, patch: Partial<Pick<SchoolBookHold, "status" | "copyId" | "readyAt" | "expiresAt" | "updatedAt">>, expect: { statuses?: SchoolBookHoldStatus[] } = {}): Promise<boolean> {
+    const found = this.schoolBookHolds.get(id);
+    if (!found || found.appId !== appId || (expect.statuses && !expect.statuses.includes(found.status))) return false;
+    this.schoolBookHolds.set(id, { ...found, ...clone(patch) });
+    return true;
+  }
+
+  // 113.8 The school's calendar, the exams' timetable and behaviour
+
+  async listSchoolEvents(appId: string, filter: { from?: string; to?: string } = {}): Promise<SchoolEvent[]> {
+    return [...this.schoolEvents.values()]
+      .filter((e) => e.appId === appId && (!filter.from || e.endsOn >= filter.from) && (!filter.to || e.startsOn <= filter.to))
+      .sort((a, b) => a.startsOn.localeCompare(b.startsOn) || (a.startMinute ?? -1) - (b.startMinute ?? -1) || a.id - b.id)
+      .map(clone);
+  }
+
+  async getSchoolEvent(appId: string, id: number): Promise<SchoolEvent | null> {
+    const found = this.schoolEvents.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async saveSchoolEvent(input: SchoolEventInput & { id: number | null }, now: Date): Promise<SchoolEvent | null> {
+    const { id, ...fields } = input;
+    if (id === null) {
+      const made: SchoolEvent = { ...clone(fields), id: this.nextSchoolId++, createdAt: now, updatedAt: now };
+      this.schoolEvents.set(made.id, clone(made));
+      return made;
+    }
+    const found = this.schoolEvents.get(id);
+    if (!found || found.appId !== input.appId) return null;
+    const next: SchoolEvent = { ...found, ...clone(fields), updatedAt: now };
+    this.schoolEvents.set(id, clone(next));
+    return next;
+  }
+
+  async deleteSchoolEvent(appId: string, id: number): Promise<void> {
+    const found = this.schoolEvents.get(id);
+    if (found && found.appId === appId) this.schoolEvents.delete(id);
+  }
+
+  async listSchoolExams(appId: string, filter: { from?: string; to?: string; published?: boolean } = {}): Promise<SchoolExam[]> {
+    return [...this.schoolExams.values()]
+      .filter((e) => e.appId === appId && (!filter.from || e.date >= filter.from) && (!filter.to || e.date <= filter.to) && (filter.published === undefined || e.published === filter.published))
+      .sort((a, b) => a.date.localeCompare(b.date) || a.startMinute - b.startMinute || a.id - b.id)
+      .map(clone);
+  }
+
+  async getSchoolExam(appId: string, id: number): Promise<SchoolExam | null> {
+    const found = this.schoolExams.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async saveSchoolExam(input: SchoolExamInput & { id: number | null }, now: Date): Promise<SchoolExam | null> {
+    const { id, ...fields } = input;
+    if (id === null) {
+      const made: SchoolExam = { ...clone(fields), id: this.nextSchoolId++, published: false, publishedAt: null, remindedAt: null, createdAt: now, updatedAt: now };
+      this.schoolExams.set(made.id, clone(made));
+      return made;
+    }
+    const found = this.schoolExams.get(id);
+    if (!found || found.appId !== input.appId) return null;
+    // A new date or time: its reminder goes again.
+    const moved = found.date !== fields.date || found.startMinute !== fields.startMinute;
+    const next: SchoolExam = { ...found, ...clone(fields), remindedAt: moved ? null : found.remindedAt, updatedAt: now };
+    this.schoolExams.set(id, clone(next));
+    return clone(next);
+  }
+
+  async publishSchoolExams(appId: string, ids: number[], now: Date): Promise<SchoolExam[]> {
+    const out: SchoolExam[] = [];
+    for (const id of new Set(ids)) {
+      const found = this.schoolExams.get(id);
+      if (!found || found.appId !== appId || found.published) continue;
+      found.published = true;
+      found.publishedAt = now;
+      found.updatedAt = now;
+      out.push(clone(found));
+    }
+    return out.sort((a, b) => a.date.localeCompare(b.date) || a.startMinute - b.startMinute || a.id - b.id);
+  }
+
+  async markSchoolExamReminded(appId: string, id: number, now: Date): Promise<boolean> {
+    const found = this.schoolExams.get(id);
+    if (!found || found.appId !== appId || found.remindedAt !== null) return false;
+    found.remindedAt = now;
+    return true;
+  }
+
+  async deleteSchoolExam(appId: string, id: number): Promise<void> {
+    const found = this.schoolExams.get(id);
+    if (found && found.appId === appId) this.schoolExams.delete(id);
+  }
+
+  async listSchoolBehaviourCategories(appId: string): Promise<SchoolBehaviourCategory[]> {
+    return [...this.schoolBehaviourCategories.values()]
+      .filter((c) => c.appId === appId)
+      .sort((a, b) => a.position - b.position || a.id - b.id)
+      .map(clone);
+  }
+
+  async saveSchoolBehaviourCategory(input: Pick<SchoolBehaviourCategory, "appId" | "name" | "kind" | "points" | "active"> & { id: number | null }, now: Date): Promise<SchoolBehaviourCategory | null> {
+    const { id, ...fields } = input;
+    if (id === null) {
+      const position = Math.max(0, ...[...this.schoolBehaviourCategories.values()].filter((c) => c.appId === input.appId).map((c) => c.position)) + 1;
+      const made: SchoolBehaviourCategory = { ...fields, id: this.nextSchoolId++, position, createdAt: now };
+      this.schoolBehaviourCategories.set(made.id, clone(made));
+      return made;
+    }
+    const found = this.schoolBehaviourCategories.get(id);
+    if (!found || found.appId !== input.appId) return null;
+    const next = { ...found, ...fields };
+    this.schoolBehaviourCategories.set(id, clone(next));
+    return clone(next);
+  }
+
+  async deleteSchoolBehaviourCategory(appId: string, id: number): Promise<void> {
+    const found = this.schoolBehaviourCategories.get(id);
+    if (!found || found.appId !== appId) return;
+    this.schoolBehaviourCategories.delete(id);
+    // Its notes keep their name and points.
+    for (const n of this.schoolBehaviour.values()) if (n.categoryId === id) n.categoryId = null;
+  }
+
+  async listSchoolBehaviour(appId: string, filter: { studentId?: number; studentIds?: number[]; classId?: number; since?: Date; until?: Date } = {}): Promise<SchoolBehaviourNote[]> {
+    return [...this.schoolBehaviour.values()]
+      .filter(
+        (n) =>
+          n.appId === appId &&
+          (filter.studentId === undefined || n.studentId === filter.studentId) &&
+          (!filter.studentIds || filter.studentIds.includes(n.studentId)) &&
+          (filter.classId === undefined || n.classId === filter.classId) &&
+          (!filter.since || n.createdAt.getTime() >= filter.since.getTime()) &&
+          (!filter.until || n.createdAt.getTime() < filter.until.getTime()),
+      )
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .map(clone);
+  }
+
+  async getSchoolBehaviour(appId: string, id: number): Promise<SchoolBehaviourNote | null> {
+    const found = this.schoolBehaviour.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async createSchoolBehaviour(input: Omit<SchoolBehaviourNote, "id">): Promise<SchoolBehaviourNote> {
+    const made: SchoolBehaviourNote = { ...clone(input), id: this.nextSchoolId++ };
+    this.schoolBehaviour.set(made.id, clone(made));
+    return made;
+  }
+
+  async deleteSchoolBehaviour(appId: string, id: number): Promise<void> {
+    const found = this.schoolBehaviour.get(id);
+    if (found && found.appId === appId) this.schoolBehaviour.delete(id);
   }
 
   // 105.3 Academies with many teachers
@@ -5219,6 +5786,43 @@ export class MemoryStore implements DataStore {
     const conversation: ChatConversation = { id: newId(), appId: input.appId, kind: "group", memberId: null, courseKey: input.courseKey, title: input.title, imageUrl: input.imageUrl, lastMessageId: null, lastMessageAt: null, businessReadId: null, keepUntil: null, noticeFor: null, createdAt: now, updatedAt: now };
     this.chatConversations.set(conversation.id, conversation);
     return clone(conversation);
+  }
+
+  async ensureSchoolConversation(input: { appId: string; teacherId: number; personId: number }, now: Date): Promise<ChatConversation> {
+    const found = [...this.chatConversations.values()].find((c) => c.appId === input.appId && c.kind === "school" && c.schoolTeacherId === input.teacherId && c.schoolPersonId === input.personId);
+    if (found) return clone(found);
+    const conversation: ChatConversation = {
+      id: newId(),
+      appId: input.appId,
+      kind: "school",
+      memberId: null,
+      courseKey: null,
+      title: null,
+      imageUrl: null,
+      lastMessageId: null,
+      lastMessageAt: null,
+      businessReadId: null,
+      keepUntil: null,
+      noticeFor: null,
+      schoolTeacherId: input.teacherId,
+      schoolPersonId: input.personId,
+      teacherWroteAt: null,
+      closedAt: null,
+      closedBy: null,
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.chatConversations.set(conversation.id, conversation);
+    return clone(conversation);
+  }
+
+  async listSchoolConversations(appId: string, input: { personIds?: number[]; limit: number }): Promise<ChatConversation[]> {
+    const ids = input.personIds ? new Set(input.personIds) : null;
+    return [...this.chatConversations.values()]
+      .filter((c) => c.appId === appId && c.kind === "school" && (ids ? ids.has(c.schoolTeacherId ?? 0) || ids.has(c.schoolPersonId ?? 0) : c.lastMessageId !== null))
+      .sort((a, b) => (b.lastMessageId ?? 0) - (a.lastMessageId ?? 0) || b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, input.limit)
+      .map(clone);
   }
 
   async getChatConversation(appId: string, id: string): Promise<ChatConversation | null> {

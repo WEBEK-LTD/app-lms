@@ -28,11 +28,13 @@ export default async function SchoolNewsPage({ searchParams }: { searchParams: P
   const students = people.filter((p) => p.role === "student" && p.active);
   const toOptions = [
     { value: "school", label: t("school.everyone") },
+    // 113.3 The staff's own news.
+    { value: "staff", label: t("school.staffOnly") },
     ...classes.map((c) => ({ value: `class:${c.id}`, label: t("school.wholeClass", { name: c.name }) })),
     ...students.map((s) => ({ value: `student:${s.id}`, label: t("school.familyOf", { name: s.name }) })),
   ];
   const audience = (a: (typeof news)[number]) =>
-    a.audience === "school" ? t("school.everyone") : a.audience === "class" ? t("school.wholeClass", { name: className.get(a.classId ?? 0) ?? "—" }) : t("school.familyOf", { name: personName.get(a.studentId ?? 0) ?? "—" });
+    a.audience === "school" ? t("school.everyone") : a.audience === "staff" ? t("school.staffOnly") : a.audience === "class" ? t("school.wholeClass", { name: className.get(a.classId ?? 0) ?? "—" }) : t("school.familyOf", { name: personName.get(a.studentId ?? 0) ?? "—" });
 
   return (
     <div className="flex flex-col gap-6">

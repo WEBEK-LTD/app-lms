@@ -5980,6 +5980,26 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('schoolNoStudentsMessage') ?? base.schoolNoStudentsMessage;
 
   @override
+  String get schoolForWorkersTitle =>
+      overlay.text('schoolForWorkersTitle') ?? base.schoolForWorkersTitle;
+
+  @override
+  String get schoolForStaffMessage =>
+      overlay.text('schoolForStaffMessage') ?? base.schoolForStaffMessage;
+
+  @override
+  String get schoolForTeachersMessage =>
+      overlay.text('schoolForTeachersMessage') ?? base.schoolForTeachersMessage;
+
+  @override
+  String get schoolOpenStaff =>
+      overlay.text('schoolOpenStaff') ?? base.schoolOpenStaff;
+
+  @override
+  String get schoolOpenClassroom =>
+      overlay.text('schoolOpenClassroom') ?? base.schoolOpenClassroom;
+
+  @override
   String get schoolToday => overlay.text('schoolToday') ?? base.schoolToday;
 
   @override
@@ -6780,6 +6800,813 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get couponWithout =>
       overlay.text('couponWithout') ?? base.couponWithout;
+
+  @override
+  String get schoolCalendar =>
+      overlay.text('schoolCalendar') ?? base.schoolCalendar;
+
+  @override
+  String get schoolExams => overlay.text('schoolExams') ?? base.schoolExams;
+
+  @override
+  String get schoolBehaviour =>
+      overlay.text('schoolBehaviour') ?? base.schoolBehaviour;
+
+  @override
+  String get calendarMonth =>
+      overlay.text('calendarMonth') ?? base.calendarMonth;
+
+  @override
+  String get calendarList => overlay.text('calendarList') ?? base.calendarList;
+
+  @override
+  String get calendarNothingThisDay =>
+      overlay.text('calendarNothingThisDay') ?? base.calendarNothingThisDay;
+
+  @override
+  String get calendarNothingAhead =>
+      overlay.text('calendarNothingAhead') ?? base.calendarNothingAhead;
+
+  @override
+  String get calendarAllDay =>
+      overlay.text('calendarAllDay') ?? base.calendarAllDay;
+
+  @override
+  String get calendarDayOff =>
+      overlay.text('calendarDayOff') ?? base.calendarDayOff;
+
+  @override
+  String get calendarExamDays =>
+      overlay.text('calendarExamDays') ?? base.calendarExamDays;
+
+  @override
+  String get calendarExam => overlay.text('calendarExam') ?? base.calendarExam;
+
+  @override
+  String get calendarStaffOnly =>
+      overlay.text('calendarStaffOnly') ?? base.calendarStaffOnly;
+
+  @override
+  String calendarDays(String from, String to) =>
+      overlay.format('calendarDays', {'from': from, 'to': to}) ??
+      base.calendarDays(from, to);
+
+  @override
+  String calendarItems(int count) =>
+      overlay.format('calendarItems', {'count': count}) ??
+      base.calendarItems(count);
+
+  @override
+  String get examsComing => overlay.text('examsComing') ?? base.examsComing;
+
+  @override
+  String get examsDone => overlay.text('examsDone') ?? base.examsDone;
+
+  @override
+  String get examsNone => overlay.text('examsNone') ?? base.examsNone;
+
+  @override
+  String get examsNoneMessage =>
+      overlay.text('examsNoneMessage') ?? base.examsNoneMessage;
+
+  @override
+  String examTime(String starts, String ends, int minutes) =>
+      overlay.format('examTime', {
+        'starts': starts,
+        'ends': ends,
+        'minutes': minutes,
+      }) ??
+      base.examTime(starts, ends, minutes);
+
+  @override
+  String get behaviourPoints =>
+      overlay.text('behaviourPoints') ?? base.behaviourPoints;
+
+  @override
+  String get behaviourMerits =>
+      overlay.text('behaviourMerits') ?? base.behaviourMerits;
+
+  @override
+  String get behaviourNotes =>
+      overlay.text('behaviourNotes') ?? base.behaviourNotes;
+
+  @override
+  String get behaviourNone =>
+      overlay.text('behaviourNone') ?? base.behaviourNone;
+
+  @override
+  String get behaviourFromSchool =>
+      overlay.text('behaviourFromSchool') ?? base.behaviourFromSchool;
+
+  @override
+  String behaviourPointsValue(String points) =>
+      overlay.format('behaviourPointsValue', {'points': points}) ??
+      base.behaviourPointsValue(points);
+
+  @override
+  String get behaviourWrite =>
+      overlay.text('behaviourWrite') ?? base.behaviourWrite;
+
+  @override
+  String behaviourFor(String name) =>
+      overlay.format('behaviourFor', {'name': name}) ?? base.behaviourFor(name);
+
+  @override
+  String get behaviourCategory =>
+      overlay.text('behaviourCategory') ?? base.behaviourCategory;
+
+  @override
+  String get behaviourNoteHint =>
+      overlay.text('behaviourNoteHint') ?? base.behaviourNoteHint;
+
+  @override
+  String get behaviourSaved =>
+      overlay.text('behaviourSaved') ?? base.behaviourSaved;
+
+  @override
+  String get behaviourChooseCategory =>
+      overlay.text('behaviourChooseCategory') ?? base.behaviourChooseCategory;
+
+  @override
+  String get behaviourTakeBack =>
+      overlay.text('behaviourTakeBack') ?? base.behaviourTakeBack;
+
+  @override
+  String get behaviourTakenBack =>
+      overlay.text('behaviourTakenBack') ?? base.behaviourTakenBack;
+
+  @override
+  String get behaviourLatest =>
+      overlay.text('behaviourLatest') ?? base.behaviourLatest;
+
+  @override
+  String get behaviourNoCategories =>
+      overlay.text('behaviourNoCategories') ?? base.behaviourNoCategories;
+
+  @override
+  String classroomDayOff(String title) =>
+      overlay.format('classroomDayOff', {'title': title}) ??
+      base.classroomDayOff(title);
+
+  @override
+  String get schoolBus => overlay.text('schoolBus') ?? base.schoolBus;
+
+  @override
+  String get busMorningTrip =>
+      overlay.text('busMorningTrip') ?? base.busMorningTrip;
+
+  @override
+  String get busAfternoonTrip =>
+      overlay.text('busAfternoonTrip') ?? base.busAfternoonTrip;
+
+  @override
+  String busRouteLine(String route, String plate) =>
+      overlay.format('busRouteLine', {'route': route, 'plate': plate}) ??
+      base.busRouteLine(route, plate);
+
+  @override
+  String busYourStop(String stop, String time) =>
+      overlay.format('busYourStop', {'stop': stop, 'time': time}) ??
+      base.busYourStop(stop, time);
+
+  @override
+  String get busNotStarted =>
+      overlay.text('busNotStarted') ?? base.busNotStarted;
+
+  @override
+  String get busOnTheWay => overlay.text('busOnTheWay') ?? base.busOnTheWay;
+
+  @override
+  String busEtaMinutes(int minutes, String stop) =>
+      overlay.format('busEtaMinutes', {'minutes': minutes, 'stop': stop}) ??
+      base.busEtaMinutes(minutes, stop);
+
+  @override
+  String get busWaitingPosition =>
+      overlay.text('busWaitingPosition') ?? base.busWaitingPosition;
+
+  @override
+  String get busEnded => overlay.text('busEnded') ?? base.busEnded;
+
+  @override
+  String busOnSince(String time) =>
+      overlay.format('busOnSince', {'time': time}) ?? base.busOnSince(time);
+
+  @override
+  String busGotOffAt(String time) =>
+      overlay.format('busGotOffAt', {'time': time}) ?? base.busGotOffAt(time);
+
+  @override
+  String get busAbsentToday =>
+      overlay.text('busAbsentToday') ?? base.busAbsentToday;
+
+  @override
+  String busNoTrips(String name) =>
+      overlay.format('busNoTrips', {'name': name}) ?? base.busNoTrips(name);
+
+  @override
+  String busNoTripsMessage(String name) =>
+      overlay.format('busNoTripsMessage', {'name': name}) ??
+      base.busNoTripsMessage(name);
+
+  @override
+  String get busStops => overlay.text('busStops') ?? base.busStops;
+
+  @override
+  String get busDutyTitle => overlay.text('busDutyTitle') ?? base.busDutyTitle;
+
+  @override
+  String get busDutySubtitle =>
+      overlay.text('busDutySubtitle') ?? base.busDutySubtitle;
+
+  @override
+  String get busDriver => overlay.text('busDriver') ?? base.busDriver;
+
+  @override
+  String get busSupervisor =>
+      overlay.text('busSupervisor') ?? base.busSupervisor;
+
+  @override
+  String busStudents(int count) =>
+      overlay.format('busStudents', {'count': count}) ??
+      base.busStudents(count);
+
+  @override
+  String get busStart => overlay.text('busStart') ?? base.busStart;
+
+  @override
+  String get busOpenTrip => overlay.text('busOpenTrip') ?? base.busOpenTrip;
+
+  @override
+  String get busDone => overlay.text('busDone') ?? base.busDone;
+
+  @override
+  String get busWaitingDriver =>
+      overlay.text('busWaitingDriver') ?? base.busWaitingDriver;
+
+  @override
+  String get busNoRoutes => overlay.text('busNoRoutes') ?? base.busNoRoutes;
+
+  @override
+  String get busNoRoutesMessage =>
+      overlay.text('busNoRoutesMessage') ?? base.busNoRoutesMessage;
+
+  @override
+  String get busSharing => overlay.text('busSharing') ?? base.busSharing;
+
+  @override
+  String get busLocationOff =>
+      overlay.text('busLocationOff') ?? base.busLocationOff;
+
+  @override
+  String get busMarkOn => overlay.text('busMarkOn') ?? base.busMarkOn;
+
+  @override
+  String get busMarkOff => overlay.text('busMarkOff') ?? base.busMarkOff;
+
+  @override
+  String get busMarkAbsent =>
+      overlay.text('busMarkAbsent') ?? base.busMarkAbsent;
+
+  @override
+  String busCounts(int boarded, int off, int absent, int riders) =>
+      overlay.format('busCounts', {
+        'boarded': boarded,
+        'off': off,
+        'absent': absent,
+        'riders': riders,
+      }) ??
+      base.busCounts(boarded, off, absent, riders);
+
+  @override
+  String get busEndTrip => overlay.text('busEndTrip') ?? base.busEndTrip;
+
+  @override
+  String get busEndTitle => overlay.text('busEndTitle') ?? base.busEndTitle;
+
+  @override
+  String get busEndMessage =>
+      overlay.text('busEndMessage') ?? base.busEndMessage;
+
+  @override
+  String busTripTitle(String route, String trip) =>
+      overlay.format('busTripTitle', {'route': route, 'trip': trip}) ??
+      base.busTripTitle(route, trip);
+
+  @override
+  String get libraryTitle => overlay.text('libraryTitle') ?? base.libraryTitle;
+
+  @override
+  String get librarySearchHint =>
+      overlay.text('librarySearchHint') ?? base.librarySearchHint;
+
+  @override
+  String get libraryAll => overlay.text('libraryAll') ?? base.libraryAll;
+
+  @override
+  String libraryAvailable(int count) =>
+      overlay.format('libraryAvailable', {'count': count}) ??
+      base.libraryAvailable(count);
+
+  @override
+  String get libraryAllOut =>
+      overlay.text('libraryAllOut') ?? base.libraryAllOut;
+
+  @override
+  String get libraryEbook => overlay.text('libraryEbook') ?? base.libraryEbook;
+
+  @override
+  String get libraryNoBooks =>
+      overlay.text('libraryNoBooks') ?? base.libraryNoBooks;
+
+  @override
+  String get libraryNoBooksMessage =>
+      overlay.text('libraryNoBooksMessage') ?? base.libraryNoBooksMessage;
+
+  @override
+  String get libraryBorrowed =>
+      overlay.text('libraryBorrowed') ?? base.libraryBorrowed;
+
+  @override
+  String libraryShelf(String shelf) =>
+      overlay.format('libraryShelf', {'shelf': shelf}) ??
+      base.libraryShelf(shelf);
+
+  @override
+  String libraryCopies(int available, int copies) =>
+      overlay.format('libraryCopies', {
+        'available': available,
+        'copies': copies,
+      }) ??
+      base.libraryCopies(available, copies);
+
+  @override
+  String get libraryRead => overlay.text('libraryRead') ?? base.libraryRead;
+
+  @override
+  String get libraryReserve =>
+      overlay.text('libraryReserve') ?? base.libraryReserve;
+
+  @override
+  String get libraryReserveFor =>
+      overlay.text('libraryReserveFor') ?? base.libraryReserveFor;
+
+  @override
+  String libraryReservedReady(String date) =>
+      overlay.format('libraryReservedReady', {'date': date}) ??
+      base.libraryReservedReady(date);
+
+  @override
+  String get libraryReservedWaiting =>
+      overlay.text('libraryReservedWaiting') ?? base.libraryReservedWaiting;
+
+  @override
+  String libraryHoldReady(String name, String date) =>
+      overlay.format('libraryHoldReady', {'name': name, 'date': date}) ??
+      base.libraryHoldReady(name, date);
+
+  @override
+  String libraryHoldWaiting(String name) =>
+      overlay.format('libraryHoldWaiting', {'name': name}) ??
+      base.libraryHoldWaiting(name);
+
+  @override
+  String get libraryCancelHold =>
+      overlay.text('libraryCancelHold') ?? base.libraryCancelHold;
+
+  @override
+  String get libraryOutNow =>
+      overlay.text('libraryOutNow') ?? base.libraryOutNow;
+
+  @override
+  String libraryDue(String date) =>
+      overlay.format('libraryDue', {'date': date}) ?? base.libraryDue(date);
+
+  @override
+  String libraryOverdue(String date) =>
+      overlay.format('libraryOverdue', {'date': date}) ??
+      base.libraryOverdue(date);
+
+  @override
+  String get libraryReservedSection =>
+      overlay.text('libraryReservedSection') ?? base.libraryReservedSection;
+
+  @override
+  String get libraryReturned =>
+      overlay.text('libraryReturned') ?? base.libraryReturned;
+
+  @override
+  String libraryReturnedOn(String date) =>
+      overlay.format('libraryReturnedOn', {'date': date}) ??
+      base.libraryReturnedOn(date);
+
+  @override
+  String get libraryNoLoans =>
+      overlay.text('libraryNoLoans') ?? base.libraryNoLoans;
+
+  @override
+  String get libraryNoLoansMessage =>
+      overlay.text('libraryNoLoansMessage') ?? base.libraryNoLoansMessage;
+
+  @override
+  String libraryLoanDays(int days) =>
+      overlay.format('libraryLoanDays', {'days': days}) ??
+      base.libraryLoanDays(days);
+
+  @override
+  String get libraryAbout => overlay.text('libraryAbout') ?? base.libraryAbout;
+
+  @override
+  String get schoolMessages =>
+      overlay.text('schoolMessages') ?? base.schoolMessages;
+
+  @override
+  String get schoolMessagesWithTeachers =>
+      overlay.text('schoolMessagesWithTeachers') ??
+      base.schoolMessagesWithTeachers;
+
+  @override
+  String get schoolMessagesWithFamilies =>
+      overlay.text('schoolMessagesWithFamilies') ??
+      base.schoolMessagesWithFamilies;
+
+  @override
+  String get schoolMessagesOff =>
+      overlay.text('schoolMessagesOff') ?? base.schoolMessagesOff;
+
+  @override
+  String get schoolMessagesOffice =>
+      overlay.text('schoolMessagesOffice') ?? base.schoolMessagesOffice;
+
+  @override
+  String get schoolMessagesOfficeHint =>
+      overlay.text('schoolMessagesOfficeHint') ?? base.schoolMessagesOfficeHint;
+
+  @override
+  String get schoolMessagesTeachers =>
+      overlay.text('schoolMessagesTeachers') ?? base.schoolMessagesTeachers;
+
+  @override
+  String get schoolMessagesFamilies =>
+      overlay.text('schoolMessagesFamilies') ?? base.schoolMessagesFamilies;
+
+  @override
+  String schoolMessagesParentOf(String names) =>
+      overlay.format('schoolMessagesParentOf', {'names': names}) ??
+      base.schoolMessagesParentOf(names);
+
+  @override
+  String get schoolMessagesClassTeacher =>
+      overlay.text('schoolMessagesClassTeacher') ??
+      base.schoolMessagesClassTeacher;
+
+  @override
+  String get schoolMessagesTeacherFirst =>
+      overlay.text('schoolMessagesTeacherFirst') ??
+      base.schoolMessagesTeacherFirst;
+
+  @override
+  String schoolMessagesHours(String days, String from, String to) =>
+      overlay.format('schoolMessagesHours', {
+        'days': days,
+        'from': from,
+        'to': to,
+      }) ??
+      base.schoolMessagesHours(days, from, to);
+
+  @override
+  String schoolMessagesOpensAt(String when) =>
+      overlay.format('schoolMessagesOpensAt', {'when': when}) ??
+      base.schoolMessagesOpensAt(when);
+
+  @override
+  String get schoolMessagesClosed =>
+      overlay.text('schoolMessagesClosed') ?? base.schoolMessagesClosed;
+
+  @override
+  String get schoolMessagesNotAllowed =>
+      overlay.text('schoolMessagesNotAllowed') ?? base.schoolMessagesNotAllowed;
+
+  @override
+  String get schoolMessagesTextOnly =>
+      overlay.text('schoolMessagesTextOnly') ?? base.schoolMessagesTextOnly;
+
+  @override
+  String get schoolMessagesAdminReads =>
+      overlay.text('schoolMessagesAdminReads') ?? base.schoolMessagesAdminReads;
+
+  @override
+  String get schoolMessagesPrivate =>
+      overlay.text('schoolMessagesPrivate') ?? base.schoolMessagesPrivate;
+
+  @override
+  String get schoolMessagesNone =>
+      overlay.text('schoolMessagesNone') ?? base.schoolMessagesNone;
+
+  @override
+  String get schoolMessagesWriteClass =>
+      overlay.text('schoolMessagesWriteClass') ?? base.schoolMessagesWriteClass;
+
+  @override
+  String classMessageTitle(String name) =>
+      overlay.format('classMessageTitle', {'name': name}) ??
+      base.classMessageTitle(name);
+
+  @override
+  String get classMessageTo =>
+      overlay.text('classMessageTo') ?? base.classMessageTo;
+
+  @override
+  String get classMessageParents =>
+      overlay.text('classMessageParents') ?? base.classMessageParents;
+
+  @override
+  String get classMessageStudents =>
+      overlay.text('classMessageStudents') ?? base.classMessageStudents;
+
+  @override
+  String get classMessageFamilies =>
+      overlay.text('classMessageFamilies') ?? base.classMessageFamilies;
+
+  @override
+  String get classMessageHint =>
+      overlay.text('classMessageHint') ?? base.classMessageHint;
+
+  @override
+  String classMessageSent(int count) =>
+      overlay.format('classMessageSent', {'count': count}) ??
+      base.classMessageSent(count);
+
+  @override
+  String classMessageNotInApp(int count) =>
+      overlay.format('classMessageNotInApp', {'count': count}) ??
+      base.classMessageNotInApp(count);
+
+  @override
+  String get classMessageMissing =>
+      overlay.text('classMessageMissing') ?? base.classMessageMissing;
+
+  @override
+  String get checkinTitle => overlay.text('checkinTitle') ?? base.checkinTitle;
+
+  @override
+  String get checkinButton =>
+      overlay.text('checkinButton') ?? base.checkinButton;
+
+  @override
+  String get checkoutButton =>
+      overlay.text('checkoutButton') ?? base.checkoutButton;
+
+  @override
+  String get checkinCardTitle =>
+      overlay.text('checkinCardTitle') ?? base.checkinCardTitle;
+
+  @override
+  String get checkinStateNotYet =>
+      overlay.text('checkinStateNotYet') ?? base.checkinStateNotYet;
+
+  @override
+  String get checkinStateIn =>
+      overlay.text('checkinStateIn') ?? base.checkinStateIn;
+
+  @override
+  String get checkinStateLeft =>
+      overlay.text('checkinStateLeft') ?? base.checkinStateLeft;
+
+  @override
+  String get checkinStateAbsent =>
+      overlay.text('checkinStateAbsent') ?? base.checkinStateAbsent;
+
+  @override
+  String get checkinStateExcused =>
+      overlay.text('checkinStateExcused') ?? base.checkinStateExcused;
+
+  @override
+  String get checkinStateLeave =>
+      overlay.text('checkinStateLeave') ?? base.checkinStateLeave;
+
+  @override
+  String get checkinStateOff =>
+      overlay.text('checkinStateOff') ?? base.checkinStateOff;
+
+  @override
+  String checkinInAt(String time) =>
+      overlay.format('checkinInAt', {'time': time}) ?? base.checkinInAt(time);
+
+  @override
+  String checkinOutAt(String time) =>
+      overlay.format('checkinOutAt', {'time': time}) ?? base.checkinOutAt(time);
+
+  @override
+  String get checkinLate => overlay.text('checkinLate') ?? base.checkinLate;
+
+  @override
+  String get checkinLeftEarly =>
+      overlay.text('checkinLeftEarly') ?? base.checkinLeftEarly;
+
+  @override
+  String checkinTimes(String starts, String ends, String late) =>
+      overlay.format('checkinTimes', {
+        'starts': starts,
+        'ends': ends,
+        'late': late,
+      }) ??
+      base.checkinTimes(starts, ends, late);
+
+  @override
+  String get checkinCodeLabel =>
+      overlay.text('checkinCodeLabel') ?? base.checkinCodeLabel;
+
+  @override
+  String get checkinCodeHint =>
+      overlay.text('checkinCodeHint') ?? base.checkinCodeHint;
+
+  @override
+  String get checkinWithLocation =>
+      overlay.text('checkinWithLocation') ?? base.checkinWithLocation;
+
+  @override
+  String get checkinBothNote =>
+      overlay.text('checkinBothNote') ?? base.checkinBothNote;
+
+  @override
+  String get checkinLocating =>
+      overlay.text('checkinLocating') ?? base.checkinLocating;
+
+  @override
+  String get checkinLocationOff =>
+      overlay.text('checkinLocationOff') ?? base.checkinLocationOff;
+
+  @override
+  String get checkinLocationDenied =>
+      overlay.text('checkinLocationDenied') ?? base.checkinLocationDenied;
+
+  @override
+  String get checkinLocationFailed =>
+      overlay.text('checkinLocationFailed') ?? base.checkinLocationFailed;
+
+  @override
+  String checkinDoneOnTime(String time) =>
+      overlay.format('checkinDoneOnTime', {'time': time}) ??
+      base.checkinDoneOnTime(time);
+
+  @override
+  String checkinDoneLate(String time) =>
+      overlay.format('checkinDoneLate', {'time': time}) ??
+      base.checkinDoneLate(time);
+
+  @override
+  String checkinDoneOut(String time) =>
+      overlay.format('checkinDoneOut', {'time': time}) ??
+      base.checkinDoneOut(time);
+
+  @override
+  String checkinDoneEarly(String time) =>
+      overlay.format('checkinDoneEarly', {'time': time}) ??
+      base.checkinDoneEarly(time);
+
+  @override
+  String get checkinMonth => overlay.text('checkinMonth') ?? base.checkinMonth;
+
+  @override
+  String get checkinCountPresent =>
+      overlay.text('checkinCountPresent') ?? base.checkinCountPresent;
+
+  @override
+  String get checkinCountAbsent =>
+      overlay.text('checkinCountAbsent') ?? base.checkinCountAbsent;
+
+  @override
+  String get checkinNoDays =>
+      overlay.text('checkinNoDays') ?? base.checkinNoDays;
+
+  @override
+  String checkinCorrected(String reason) =>
+      overlay.format('checkinCorrected', {'reason': reason}) ??
+      base.checkinCorrected(reason);
+
+  @override
+  String get checkinOff => overlay.text('checkinOff') ?? base.checkinOff;
+
+  @override
+  String get checkinNotSchoolDay =>
+      overlay.text('checkinNotSchoolDay') ?? base.checkinNotSchoolDay;
+
+  @override
+  String get checkinAtGate =>
+      overlay.text('checkinAtGate') ?? base.checkinAtGate;
+
+  @override
+  String get tabStaff => overlay.text('tabStaff') ?? base.tabStaff;
+
+  @override
+  String get staffNotStaff =>
+      overlay.text('staffNotStaff') ?? base.staffNotStaff;
+
+  @override
+  String get staffNotStaffMessage =>
+      overlay.text('staffNotStaffMessage') ?? base.staffNotStaffMessage;
+
+  @override
+  String get staffWork => overlay.text('staffWork') ?? base.staffWork;
+
+  @override
+  String staffDays(String days) =>
+      overlay.format('staffDays', {'days': days}) ?? base.staffDays(days);
+
+  @override
+  String staffHours(String starts, String ends) =>
+      overlay.format('staffHours', {'starts': starts, 'ends': ends}) ??
+      base.staffHours(starts, ends);
+
+  @override
+  String get staffDuties => overlay.text('staffDuties') ?? base.staffDuties;
+
+  @override
+  String get staffLeave => overlay.text('staffLeave') ?? base.staffLeave;
+
+  @override
+  String get staffNews => overlay.text('staffNews') ?? base.staffNews;
+
+  @override
+  String get staffNoNews => overlay.text('staffNoNews') ?? base.staffNoNews;
+
+  @override
+  String get leaveAsk => overlay.text('leaveAsk') ?? base.leaveAsk;
+
+  @override
+  String get leaveKind => overlay.text('leaveKind') ?? base.leaveKind;
+
+  @override
+  String get leaveSick => overlay.text('leaveSick') ?? base.leaveSick;
+
+  @override
+  String get leaveAnnual => overlay.text('leaveAnnual') ?? base.leaveAnnual;
+
+  @override
+  String get leaveOther => overlay.text('leaveOther') ?? base.leaveOther;
+
+  @override
+  String get leaveFirstDay =>
+      overlay.text('leaveFirstDay') ?? base.leaveFirstDay;
+
+  @override
+  String get leaveLastDay => overlay.text('leaveLastDay') ?? base.leaveLastDay;
+
+  @override
+  String get leaveNote => overlay.text('leaveNote') ?? base.leaveNote;
+
+  @override
+  String get leaveAddPhoto =>
+      overlay.text('leaveAddPhoto') ?? base.leaveAddPhoto;
+
+  @override
+  String get leaveAddFile => overlay.text('leaveAddFile') ?? base.leaveAddFile;
+
+  @override
+  String get leaveSend => overlay.text('leaveSend') ?? base.leaveSend;
+
+  @override
+  String get leaveSent => overlay.text('leaveSent') ?? base.leaveSent;
+
+  @override
+  String get leaveNone => overlay.text('leaveNone') ?? base.leaveNone;
+
+  @override
+  String leaveDays(int count) =>
+      overlay.format('leaveDays', {'count': count}) ?? base.leaveDays(count);
+
+  @override
+  String get leavePending => overlay.text('leavePending') ?? base.leavePending;
+
+  @override
+  String get leaveApproved =>
+      overlay.text('leaveApproved') ?? base.leaveApproved;
+
+  @override
+  String get leaveRefused => overlay.text('leaveRefused') ?? base.leaveRefused;
+
+  @override
+  String get leaveCancelled =>
+      overlay.text('leaveCancelled') ?? base.leaveCancelled;
+
+  @override
+  String get leaveWithdraw =>
+      overlay.text('leaveWithdraw') ?? base.leaveWithdraw;
+
+  @override
+  String leaveSchoolNote(String note) =>
+      overlay.format('leaveSchoolNote', {'note': note}) ??
+      base.leaveSchoolNote(note);
+
+  @override
+  String leaveDates(String from, String to) =>
+      overlay.format('leaveDates', {'from': from, 'to': to}) ??
+      base.leaveDates(from, to);
+
+  @override
+  String get leaveDatesOrder =>
+      overlay.text('leaveDatesOrder') ?? base.leaveDatesOrder;
 
   @override
   String get classroomSyllabus =>

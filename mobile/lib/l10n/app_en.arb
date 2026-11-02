@@ -5278,6 +5278,26 @@
   "@schoolNoStudentsMessage": {
     "description": "105.4 Under the title for a parent without children linked."
   },
+  "schoolForWorkersTitle": "This tab is for students and parents",
+  "@schoolForWorkersTitle": {
+    "description": "113.3 The School tab of someone who works at the school and has no student there (no child, not a student)."
+  },
+  "schoolForStaffMessage": "What you need at work is in the Staff tab: checking in and out, your leave, the staff's news, the calendar and the library.",
+  "@schoolForStaffMessage": {
+    "description": "113.3 The School tab of someone who works at the school and has no student there (no child, not a student). For staff who don't teach."
+  },
+  "schoolForTeachersMessage": "What you need at work is in the Classroom tab: your classes, checking in and out, the calendar and the exams.",
+  "@schoolForTeachersMessage": {
+    "description": "113.3 The School tab of someone who works at the school and has no student there (no child, not a student). For teachers."
+  },
+  "schoolOpenStaff": "Open Staff",
+  "@schoolOpenStaff": {
+    "description": "113.3 Opens the Staff tab from the School tab of someone who works at the school."
+  },
+  "schoolOpenClassroom": "Open Classroom",
+  "@schoolOpenClassroom": {
+    "description": "113.3 Opens the Classroom tab from the School tab of a teacher who has no student there."
+  },
   "schoolToday": "Today",
   "@schoolToday": {
     "description": "105.4 Today's lessons on the School and Classroom tabs."
@@ -6308,6 +6328,1081 @@
   "couponWithout": "Continue without a coupon",
   "@couponWithout": {
     "description": "112.5 Goes to a paid course's checkout without a coupon."
+  },
+  "schoolCalendar": "Calendar",
+  "@schoolCalendar": {
+    "description": "113.8 The school's calendar: events, holidays and exams."
+  },
+  "schoolExams": "Exams",
+  "@schoolExams": {
+    "description": "113.8 The exams' timetable of the student's class."
+  },
+  "schoolBehaviour": "Behaviour",
+  "@schoolBehaviour": {
+    "description": "113.8 The student's merits and notes, with their points."
+  },
+  "calendarMonth": "Month",
+  "@calendarMonth": {
+    "description": "113.8 Shows the school's calendar a month at a time."
+  },
+  "calendarList": "List",
+  "@calendarList": {
+    "description": "113.8 Shows the school's calendar as a list of what is coming."
+  },
+  "calendarNothingThisDay": "Nothing on this day",
+  "@calendarNothingThisDay": {
+    "description": "113.8 A day of the school's calendar without events or exams."
+  },
+  "calendarNothingAhead": "Nothing on the calendar in the coming weeks",
+  "@calendarNothingAhead": {
+    "description": "113.8 The school's calendar list with nothing coming."
+  },
+  "calendarAllDay": "All day",
+  "@calendarAllDay": {
+    "description": "113.8 An event of the school's calendar that lasts all day."
+  },
+  "calendarDayOff": "No school",
+  "@calendarDayOff": {
+    "description": "113.8 Label of a holiday or a break on the school's calendar."
+  },
+  "calendarExamDays": "Exam days",
+  "@calendarExamDays": {
+    "description": "113.8 Label of exam days on the school's calendar."
+  },
+  "calendarExam": "Exam",
+  "@calendarExam": {
+    "description": "113.8 Label of an exam of the timetable on the school's calendar."
+  },
+  "calendarStaffOnly": "Staff",
+  "@calendarStaffOnly": {
+    "description": "113.8 An event of the school's calendar for the staff only."
+  },
+  "calendarDays": "{from} to {to}",
+  "@calendarDays": {
+    "description": "113.8 The days of an event of the school's calendar that lasts several days.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarItems": "{count, plural, =1{1 item} other{{count} items}}",
+  "@calendarItems": {
+    "description": "113.8 How many events and exams a day of the school's calendar has, for screen readers.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "examsComing": "Coming",
+  "@examsComing": {
+    "description": "113.8 The exams still to come on the exams' timetable."
+  },
+  "examsDone": "Done",
+  "@examsDone": {
+    "description": "113.8 The exams already done on the exams' timetable."
+  },
+  "examsNone": "No exams on the timetable yet",
+  "@examsNone": {
+    "description": "113.8 The exams' timetable with no exams published."
+  },
+  "examsNoneMessage": "The school publishes the exams' timetable here.",
+  "@examsNoneMessage": {
+    "description": "113.8 Under the empty exams' timetable."
+  },
+  "examTime": "{starts}–{ends} · {minutes} min",
+  "@examTime": {
+    "description": "113.8 When an exam is and how long it takes.",
+    "placeholders": {
+      "starts": {
+        "type": "String"
+      },
+      "ends": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "behaviourPoints": "Points",
+  "@behaviourPoints": {
+    "description": "113.8 The points total of a student's behaviour record."
+  },
+  "behaviourMerits": "Merits",
+  "@behaviourMerits": {
+    "description": "113.8 How many merits a student's behaviour record has."
+  },
+  "behaviourNotes": "Notes",
+  "@behaviourNotes": {
+    "description": "113.8 How many negative notes a student's behaviour record has."
+  },
+  "behaviourNone": "No merits or notes yet",
+  "@behaviourNone": {
+    "description": "113.8 A student's behaviour record with nothing in it."
+  },
+  "behaviourFromSchool": "From the school",
+  "@behaviourFromSchool": {
+    "description": "113.8 A merit or a note the school wrote, not a teacher."
+  },
+  "behaviourPointsValue": "{points} points",
+  "@behaviourPointsValue": {
+    "description": "113.8 The points of a merit (+2) or a note (-1).",
+    "placeholders": {
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "behaviourWrite": "Write a merit or a note",
+  "@behaviourWrite": {
+    "description": "113.8 Button and sheet title in the Classroom tab's class behaviour."
+  },
+  "behaviourFor": "For {name}",
+  "@behaviourFor": {
+    "description": "113.8 Whom the teacher writes a merit or a note for.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "behaviourCategory": "Category",
+  "@behaviourCategory": {
+    "description": "113.8 The school's category of a merit or a note, to choose."
+  },
+  "behaviourNoteHint": "A note for the family (optional)",
+  "@behaviourNoteHint": {
+    "description": "113.8 The words a teacher adds to a merit or a note."
+  },
+  "behaviourSaved": "Saved. The family sees it in the app.",
+  "@behaviourSaved": {
+    "description": "113.8 After a teacher wrote a merit or a note."
+  },
+  "behaviourChooseCategory": "Choose a category",
+  "@behaviourChooseCategory": {
+    "description": "113.8 A teacher sends a merit or a note without its category."
+  },
+  "behaviourTakeBack": "Take back",
+  "@behaviourTakeBack": {
+    "description": "113.8 Removes a merit or a note the teacher wrote today."
+  },
+  "behaviourTakenBack": "Taken back",
+  "@behaviourTakenBack": {
+    "description": "113.8 After a teacher took back a merit or a note."
+  },
+  "behaviourLatest": "Latest",
+  "@behaviourLatest": {
+    "description": "113.8 The class's latest merits and notes."
+  },
+  "behaviourNoCategories": "The school hasn't set behaviour categories yet",
+  "@behaviourNoCategories": {
+    "description": "113.8 A teacher opens behaviour before the school set any categories."
+  },
+  "classroomDayOff": "No school: {title}. Nobody is told of an absence on this day.",
+  "@classroomDayOff": {
+    "description": "113.8 The attendance register on a holiday or a break of the school's calendar.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "schoolBus": "School bus",
+  "@schoolBus": {
+    "description": "113.10 On the School tab: opens the child's school bus, live on the map while it runs."
+  },
+  "busMorningTrip": "Morning trip",
+  "@busMorningTrip": {
+    "description": "113.10 The bus's trip to school in the morning."
+  },
+  "busAfternoonTrip": "Afternoon trip",
+  "@busAfternoonTrip": {
+    "description": "113.10 The bus's trip home after school."
+  },
+  "busRouteLine": "{route} · {plate}",
+  "@busRouteLine": {
+    "description": "113.10 A bus route's name and its bus's plate.",
+    "placeholders": {
+      "route": {
+        "type": "String"
+      },
+      "plate": {
+        "type": "String"
+      }
+    }
+  },
+  "busYourStop": "Stop: {stop} at {time}",
+  "@busYourStop": {
+    "description": "113.10 The child's bus stop and the bus's time there.",
+    "placeholders": {
+      "stop": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "busNotStarted": "The bus hasn't left yet.",
+  "@busNotStarted": {
+    "description": "113.10 Today's trip hasn't been started by the driver."
+  },
+  "busOnTheWay": "On its way",
+  "@busOnTheWay": {
+    "description": "113.10 The bus is on its trip now."
+  },
+  "busEtaMinutes": "About {minutes} min to {stop}",
+  "@busEtaMinutes": {
+    "description": "113.10 How soon the bus reaches the child's stop.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "stop": {
+        "type": "String"
+      }
+    }
+  },
+  "busWaitingPosition": "Waiting for the bus's position…",
+  "@busWaitingPosition": {
+    "description": "113.10 The trip runs but no recent position came from the driver's phone."
+  },
+  "busEnded": "This trip has ended.",
+  "@busEnded": {
+    "description": "113.10 Today's trip was ended by the driver."
+  },
+  "busOnSince": "On the bus since {time}",
+  "@busOnSince": {
+    "description": "113.10 The child got on the bus at this time.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "busGotOffAt": "Got off at {time}",
+  "@busGotOffAt": {
+    "description": "113.10 The child got off the bus at this time.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "busAbsentToday": "Marked absent on this trip",
+  "@busAbsentToday": {
+    "description": "113.10 The driver or the supervisor marked the child absent on the trip."
+  },
+  "busNoTrips": "No bus for {name}",
+  "@busNoTrips": {
+    "description": "113.10 The child isn't on any of the school's bus routes.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "busNoTripsMessage": "The school hasn't put {name} on a bus route.",
+  "@busNoTripsMessage": {
+    "description": "113.10 Under 'No bus for …'.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "busStops": "Stops",
+  "@busStops": {
+    "description": "113.10 The trip's stops, in order."
+  },
+  "busDutyTitle": "Bus duty",
+  "@busDutyTitle": {
+    "description": "113.10 The screens of the school's bus drivers and supervisors."
+  },
+  "busDutySubtitle": "Your routes and today's trips",
+  "@busDutySubtitle": {
+    "description": "113.10 Under 'Bus duty'."
+  },
+  "busDriver": "Driver",
+  "@busDriver": {
+    "description": "113.10 The person drives the route's bus."
+  },
+  "busSupervisor": "Supervisor",
+  "@busSupervisor": {
+    "description": "113.10 The person supervises the students on the route's bus."
+  },
+  "busStudents": "{count, plural, =1{1 student} other{{count} students}}",
+  "@busStudents": {
+    "description": "113.10 How many students ride a trip.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "busStart": "Start",
+  "@busStart": {
+    "description": "113.10 Button: the driver starts the trip."
+  },
+  "busOpenTrip": "Open",
+  "@busOpenTrip": {
+    "description": "113.10 Button: opens today's trip."
+  },
+  "busDone": "Ended",
+  "@busDone": {
+    "description": "113.10 Today's trip has ended."
+  },
+  "busWaitingDriver": "The driver starts this trip.",
+  "@busWaitingDriver": {
+    "description": "113.10 Shown to the supervisor before the driver starts the trip."
+  },
+  "busNoRoutes": "No bus routes",
+  "@busNoRoutes": {
+    "description": "113.10 The person drives or supervises none of the school's buses."
+  },
+  "busNoRoutesMessage": "You don't drive or supervise any of the school's buses.",
+  "@busNoRoutesMessage": {
+    "description": "113.10 Under 'No bus routes'."
+  },
+  "busSharing": "Your phone shares the bus's position while this screen is open.",
+  "@busSharing": {
+    "description": "113.10 On the driver's trip: their phone sends the bus's position while the screen is open."
+  },
+  "busLocationOff": "Turn on location so families can see the bus.",
+  "@busLocationOff": {
+    "description": "113.10 The driver's phone couldn't read its position."
+  },
+  "busMarkOn": "On",
+  "@busMarkOn": {
+    "description": "113.10 Marks the student as on the bus."
+  },
+  "busMarkOff": "Off",
+  "@busMarkOff": {
+    "description": "113.10 Marks the student as off the bus."
+  },
+  "busMarkAbsent": "Absent",
+  "@busMarkAbsent": {
+    "description": "113.10 Marks the student as absent on the trip."
+  },
+  "busCounts": "{boarded} on · {off} off · {absent} absent · {riders} in all",
+  "@busCounts": {
+    "description": "113.10 The trip's students: on the bus, off it, absent, all.",
+    "placeholders": {
+      "boarded": {
+        "type": "int"
+      },
+      "off": {
+        "type": "int"
+      },
+      "absent": {
+        "type": "int"
+      },
+      "riders": {
+        "type": "int"
+      }
+    }
+  },
+  "busEndTrip": "End the trip",
+  "@busEndTrip": {
+    "description": "113.10 Button: the driver ends the trip."
+  },
+  "busEndTitle": "End the trip?",
+  "@busEndTitle": {
+    "description": "113.10 Asks before the trip ends."
+  },
+  "busEndMessage": "Families stop seeing the bus on the map.",
+  "@busEndMessage": {
+    "description": "113.10 Under 'End the trip?'."
+  },
+  "busTripTitle": "{route} · {trip}",
+  "@busTripTitle": {
+    "description": "113.10 A trip's title: the route and the trip.",
+    "placeholders": {
+      "route": {
+        "type": "String"
+      },
+      "trip": {
+        "type": "String"
+      }
+    }
+  },
+  "libraryTitle": "Library",
+  "@libraryTitle": {
+    "description": "113.11 The school's library: its books, to search and reserve."
+  },
+  "librarySearchHint": "Title, author or ISBN",
+  "@librarySearchHint": {
+    "description": "113.11 The library's search field."
+  },
+  "libraryAll": "All",
+  "@libraryAll": {
+    "description": "113.11 All the library's categories."
+  },
+  "libraryAvailable": "{count} on the shelf",
+  "@libraryAvailable": {
+    "description": "113.11 A book's copies free on the shelf.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryAllOut": "All copies are out",
+  "@libraryAllOut": {
+    "description": "113.11 No copy of the book is free now."
+  },
+  "libraryEbook": "E-book",
+  "@libraryEbook": {
+    "description": "113.11 The book can be read in the app."
+  },
+  "libraryNoBooks": "No books found",
+  "@libraryNoBooks": {
+    "description": "113.11 The library's search found nothing."
+  },
+  "libraryNoBooksMessage": "Try another title, author or category.",
+  "@libraryNoBooksMessage": {
+    "description": "113.11 Under 'No books found'."
+  },
+  "libraryBorrowed": "Borrowed books",
+  "@libraryBorrowed": {
+    "description": "113.11 The books the person (or their children) has out, reserved and returned."
+  },
+  "libraryShelf": "Shelf {shelf}",
+  "@libraryShelf": {
+    "description": "113.11 Where the book is in the library.",
+    "placeholders": {
+      "shelf": {
+        "type": "String"
+      }
+    }
+  },
+  "libraryCopies": "{available} of {copies} on the shelf",
+  "@libraryCopies": {
+    "description": "113.11 A book's copies free on the shelf, of all its copies.",
+    "placeholders": {
+      "available": {
+        "type": "int"
+      },
+      "copies": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryRead": "Read the e-book",
+  "@libraryRead": {
+    "description": "113.11 Button: opens the book's e-book in the app."
+  },
+  "libraryReserve": "Reserve",
+  "@libraryReserve": {
+    "description": "113.11 Button: reserves the book at the library."
+  },
+  "libraryReserveFor": "Reserve it for",
+  "@libraryReserveFor": {
+    "description": "113.11 A parent chooses which child the book is for."
+  },
+  "libraryReservedReady": "Held for you at the library until {date}.",
+  "@libraryReservedReady": {
+    "description": "113.11 The book was reserved and a copy is held now.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "libraryReservedWaiting": "Reserved. You'll be told when a copy is held for you.",
+  "@libraryReservedWaiting": {
+    "description": "113.11 The book was reserved and waits for a copy to come back."
+  },
+  "libraryHoldReady": "Held for {name} until {date}",
+  "@libraryHoldReady": {
+    "description": "113.11 A copy is held at the library for the person.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "libraryHoldWaiting": "{name} is waiting for a copy",
+  "@libraryHoldWaiting": {
+    "description": "113.11 The person reserved the book and waits for a copy.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "libraryCancelHold": "Cancel the reservation",
+  "@libraryCancelHold": {
+    "description": "113.11 Button: cancels a reservation."
+  },
+  "libraryOutNow": "Out now",
+  "@libraryOutNow": {
+    "description": "113.11 The books out on loan now."
+  },
+  "libraryDue": "Due {date}",
+  "@libraryDue": {
+    "description": "113.11 When a borrowed book goes back.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "libraryOverdue": "Overdue since {date}",
+  "@libraryOverdue": {
+    "description": "113.11 A borrowed book wasn't returned by its date.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "libraryReservedSection": "Reserved",
+  "@libraryReservedSection": {
+    "description": "113.11 The books the person reserved."
+  },
+  "libraryReturned": "Returned before",
+  "@libraryReturned": {
+    "description": "113.11 Books borrowed before and returned."
+  },
+  "libraryReturnedOn": "Returned {date}",
+  "@libraryReturnedOn": {
+    "description": "113.11 When a book came back.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "libraryNoLoans": "No books borrowed",
+  "@libraryNoLoans": {
+    "description": "113.11 Nothing borrowed or reserved yet."
+  },
+  "libraryNoLoansMessage": "Books lent at the library's desk show here with their due dates.",
+  "@libraryNoLoansMessage": {
+    "description": "113.11 Under 'No books borrowed'."
+  },
+  "libraryLoanDays": "Books are lent for {days} days.",
+  "@libraryLoanDays": {
+    "description": "113.11 How long the library lends a book.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryAbout": "About the book",
+  "@libraryAbout": {
+    "description": "113.11 The book's description."
+  },
+  "schoolMessages": "Messages",
+  "@schoolMessages": {
+    "description": "113.6 The School tab's row and the screen of messages between teachers and families."
+  },
+  "schoolMessagesWithTeachers": "With your teachers",
+  "@schoolMessagesWithTeachers": {
+    "description": "113.6 Under Messages on the School tab, for a parent or a student."
+  },
+  "schoolMessagesWithFamilies": "With your classes' families",
+  "@schoolMessagesWithFamilies": {
+    "description": "113.6 Under Messages in the Classroom tab, for a teacher."
+  },
+  "schoolMessagesOff": "Your school hasn't turned on messages between teachers and families.",
+  "@schoolMessagesOff": {
+    "description": "113.6 Messages when the school doesn't allow them."
+  },
+  "schoolMessagesOffice": "The school's administration",
+  "@schoolMessagesOffice": {
+    "description": "113.6 The row for the conversation with the school's administration."
+  },
+  "schoolMessagesOfficeHint": "Write to the school at any time.",
+  "@schoolMessagesOfficeHint": {
+    "description": "113.6 Under the school's administration in Messages."
+  },
+  "schoolMessagesTeachers": "Teachers",
+  "@schoolMessagesTeachers": {
+    "description": "113.6 The heading of the teachers one can write to."
+  },
+  "schoolMessagesFamilies": "Parents and students",
+  "@schoolMessagesFamilies": {
+    "description": "113.6 The heading of the parents and students a teacher can write to."
+  },
+  "schoolMessagesParentOf": "Parent of {names}",
+  "@schoolMessagesParentOf": {
+    "description": "113.6 Under a parent in a teacher's contacts.",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "schoolMessagesClassTeacher": "Class teacher",
+  "@schoolMessagesClassTeacher": {
+    "description": "113.6 Under a teacher who is the class's own teacher."
+  },
+  "schoolMessagesTeacherFirst": "The teacher writes first; you can answer then.",
+  "@schoolMessagesTeacherFirst": {
+    "description": "113.6 When only teachers may start a conversation."
+  },
+  "schoolMessagesHours": "Messages can be sent on {days}, {from} to {to}.",
+  "@schoolMessagesHours": {
+    "description": "113.6 The school's messaging hours.",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "schoolMessagesOpensAt": "You can write again on {when}.",
+  "@schoolMessagesOpensAt": {
+    "description": "113.6 Outside the messaging hours: when one can write again.",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "schoolMessagesClosed": "The school closed this conversation.",
+  "@schoolMessagesClosed": {
+    "description": "113.6 A conversation the school closed."
+  },
+  "schoolMessagesNotAllowed": "The school doesn't allow messages here now.",
+  "@schoolMessagesNotAllowed": {
+    "description": "113.6 A conversation the school's rules don't allow now."
+  },
+  "schoolMessagesTextOnly": "The school allows text messages only.",
+  "@schoolMessagesTextOnly": {
+    "description": "113.6 When the school doesn't allow photos and files."
+  },
+  "schoolMessagesAdminReads": "The school's administration can read this conversation.",
+  "@schoolMessagesAdminReads": {
+    "description": "113.6 The privacy note in a conversation the school may read."
+  },
+  "schoolMessagesPrivate": "This conversation is private: the school reads it only if a message in it is reported.",
+  "@schoolMessagesPrivate": {
+    "description": "113.6 The privacy note in a conversation the school doesn't read."
+  },
+  "schoolMessagesNone": "No one to write to yet.",
+  "@schoolMessagesNone": {
+    "description": "113.6 Messages without contacts."
+  },
+  "schoolMessagesWriteClass": "Write to a whole class",
+  "@schoolMessagesWriteClass": {
+    "description": "113.6 A teacher's button to write to a whole class at once."
+  },
+  "classMessageTitle": "Write to {name}",
+  "@classMessageTitle": {
+    "description": "113.6 The title of the sheet to write to a whole class.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "classMessageTo": "Send to",
+  "@classMessageTo": {
+    "description": "113.6 Whom a class message goes to."
+  },
+  "classMessageParents": "Parents",
+  "@classMessageParents": {
+    "description": "113.6 A class message to the parents."
+  },
+  "classMessageStudents": "Students",
+  "@classMessageStudents": {
+    "description": "113.6 A class message to the students."
+  },
+  "classMessageFamilies": "Parents and students",
+  "@classMessageFamilies": {
+    "description": "113.6 A class message to the parents and the students."
+  },
+  "classMessageHint": "Each one gets it on their own, and their answers come back to you only.",
+  "@classMessageHint": {
+    "description": "113.6 Under the class message: how it is sent."
+  },
+  "classMessageSent": "{count, plural, =1{Sent to 1 person.} other{Sent to {count} people.}}",
+  "@classMessageSent": {
+    "description": "113.6 After a class message.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "classMessageNotInApp": "{count, plural, =1{1 person hasn't signed in to the app yet.} other{{count} people haven't signed in to the app yet.}}",
+  "@classMessageNotInApp": {
+    "description": "113.6 After a class message: who couldn't get it yet.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "classMessageMissing": "Write the message first.",
+  "@classMessageMissing": {
+    "description": "113.6 A class message without text."
+  },
+  "checkinTitle": "Check in and out",
+  "@checkinTitle": {
+    "description": "113.2 The screen where a student, teacher or staff member checks in and out at the school."
+  },
+  "checkinButton": "Check in",
+  "@checkinButton": {
+    "description": "113.2 Checks the person in at the school."
+  },
+  "checkoutButton": "Check out",
+  "@checkoutButton": {
+    "description": "113.2 Checks the person out of the school."
+  },
+  "checkinCardTitle": "Today at school",
+  "@checkinCardTitle": {
+    "description": "113.2 The card with today's check-in on the School, Classroom and Staff tabs."
+  },
+  "checkinStateNotYet": "Not checked in yet",
+  "@checkinStateNotYet": {
+    "description": "113.2 Today's state: not checked in yet."
+  },
+  "checkinStateIn": "Checked in",
+  "@checkinStateIn": {
+    "description": "113.2 Today's state: at school."
+  },
+  "checkinStateLeft": "Checked out",
+  "@checkinStateLeft": {
+    "description": "113.2 Today's state: checked out."
+  },
+  "checkinStateAbsent": "Absent",
+  "@checkinStateAbsent": {
+    "description": "113.2 A school day without a check-in."
+  },
+  "checkinStateExcused": "Excused",
+  "@checkinStateExcused": {
+    "description": "113.2 A day the school excused."
+  },
+  "checkinStateLeave": "On leave",
+  "@checkinStateLeave": {
+    "description": "113.2 A day of approved leave."
+  },
+  "checkinStateOff": "Not a school day",
+  "@checkinStateOff": {
+    "description": "113.2 A day that isn't one of the person's school days."
+  },
+  "checkinInAt": "In at {time}",
+  "@checkinInAt": {
+    "description": "113.2 When the person checked in.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "checkinOutAt": "Out at {time}",
+  "@checkinOutAt": {
+    "description": "113.2 When the person checked out.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "checkinLate": "Late",
+  "@checkinLate": {
+    "description": "113.2 Checked in after the school's late time."
+  },
+  "checkinLeftEarly": "Left early",
+  "@checkinLeftEarly": {
+    "description": "113.2 Checked out before the end of the day."
+  },
+  "checkinTimes": "{starts}–{ends} · late from {late}",
+  "@checkinTimes": {
+    "description": "113.2 The person's school day and when late starts.",
+    "placeholders": {
+      "starts": {
+        "type": "String"
+      },
+      "ends": {
+        "type": "String"
+      },
+      "late": {
+        "type": "String"
+      }
+    }
+  },
+  "checkinCodeLabel": "The gate's code",
+  "@checkinCodeLabel": {
+    "description": "113.2 The field for the six digits shown at the school's gate."
+  },
+  "checkinCodeHint": "The six digits on the school's screen at the gate",
+  "@checkinCodeHint": {
+    "description": "113.2 Under the gate's code field."
+  },
+  "checkinWithLocation": "Use my location",
+  "@checkinWithLocation": {
+    "description": "113.2 Checks in or out with the phone's location inside the school's area."
+  },
+  "checkinBothNote": "Your school asks for the gate's code and your location.",
+  "@checkinBothNote": {
+    "description": "113.2 When the school checks both the gate's code and the area."
+  },
+  "checkinLocating": "Finding your location…",
+  "@checkinLocating": {
+    "description": "113.2 While the phone's location is read."
+  },
+  "checkinLocationOff": "Turn on your phone's location to check in.",
+  "@checkinLocationOff": {
+    "description": "113.2 The phone's location is off."
+  },
+  "checkinLocationDenied": "Allow the app to use your location to check in.",
+  "@checkinLocationDenied": {
+    "description": "113.2 The app may not use the phone's location."
+  },
+  "checkinLocationFailed": "Your location couldn't be found. Try again.",
+  "@checkinLocationFailed": {
+    "description": "113.2 The phone's location couldn't be read."
+  },
+  "checkinDoneOnTime": "Checked in at {time}, on time.",
+  "@checkinDoneOnTime": {
+    "description": "113.2 A check-in on time.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "checkinDoneLate": "Checked in at {time}: late.",
+  "@checkinDoneLate": {
+    "description": "113.2 A check-in after the school's late time.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "checkinDoneOut": "Checked out at {time}.",
+  "@checkinDoneOut": {
+    "description": "113.2 A check-out.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "checkinDoneEarly": "Checked out at {time}, before the end of the day.",
+  "@checkinDoneEarly": {
+    "description": "113.2 A check-out before the end of the day.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "checkinMonth": "This month",
+  "@checkinMonth": {
+    "description": "113.2 The month's days at the gate."
+  },
+  "checkinCountPresent": "Present",
+  "@checkinCountPresent": {
+    "description": "113.2 The month's days present."
+  },
+  "checkinCountAbsent": "Absent",
+  "@checkinCountAbsent": {
+    "description": "113.2 The month's days absent."
+  },
+  "checkinNoDays": "No school days this month yet.",
+  "@checkinNoDays": {
+    "description": "113.2 A month without school days yet."
+  },
+  "checkinCorrected": "Corrected by the school: {reason}",
+  "@checkinCorrected": {
+    "description": "113.2 A day the school's office corrected, with its reason.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "checkinOff": "Your school doesn't take check-ins in the app.",
+  "@checkinOff": {
+    "description": "113.2 The school hasn't turned on checking in."
+  },
+  "checkinNotSchoolDay": "Today isn't one of your school days.",
+  "@checkinNotSchoolDay": {
+    "description": "113.2 Today isn't one of the person's days."
+  },
+  "checkinAtGate": "At the gate",
+  "@checkinAtGate": {
+    "description": "113.2 A student's days at the gate, on their attendance."
+  },
+  "tabStaff": "Staff",
+  "@tabStaff": {
+    "description": "113.3 The tab of the school's staff who don't teach."
+  },
+  "staffNotStaff": "For the school's staff",
+  "@staffNotStaff": {
+    "description": "113.3 Someone who isn't on the school's staff opens the Staff tab."
+  },
+  "staffNotStaffMessage": "The school adds its staff's numbers; they sign in with them and their work shows here.",
+  "@staffNotStaffMessage": {
+    "description": "113.3 Under the title for someone who isn't on the school's staff."
+  },
+  "staffWork": "Your work",
+  "@staffWork": {
+    "description": "113.3 The person's job, hours and duties."
+  },
+  "staffDays": "Days: {days}",
+  "@staffDays": {
+    "description": "113.3 The days the person works.",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "staffHours": "Hours: {starts}–{ends}",
+  "@staffHours": {
+    "description": "113.3 The hours the person works.",
+    "placeholders": {
+      "starts": {
+        "type": "String"
+      },
+      "ends": {
+        "type": "String"
+      }
+    }
+  },
+  "staffDuties": "Duties",
+  "@staffDuties": {
+    "description": "113.3 What the person does, as the school wrote it."
+  },
+  "staffLeave": "Leave requests",
+  "@staffLeave": {
+    "description": "113.3 The person's leave requests."
+  },
+  "staffNews": "Staff news",
+  "@staffNews": {
+    "description": "113.3 News for the school's teachers and staff only."
+  },
+  "staffNoNews": "No staff news yet.",
+  "@staffNoNews": {
+    "description": "113.3 The staff's news is empty."
+  },
+  "leaveAsk": "Ask for leave",
+  "@leaveAsk": {
+    "description": "113.3 Opens the form to ask for leave."
+  },
+  "leaveKind": "Kind of leave",
+  "@leaveKind": {
+    "description": "113.3 Sick, annual or other leave."
+  },
+  "leaveSick": "Sick",
+  "@leaveSick": {
+    "description": "113.3 Sick leave."
+  },
+  "leaveAnnual": "Annual",
+  "@leaveAnnual": {
+    "description": "113.3 Annual leave."
+  },
+  "leaveOther": "Other",
+  "@leaveOther": {
+    "description": "113.3 Another kind of leave."
+  },
+  "leaveFirstDay": "First day",
+  "@leaveFirstDay": {
+    "description": "113.3 The first day of the leave."
+  },
+  "leaveLastDay": "Last day",
+  "@leaveLastDay": {
+    "description": "113.3 The last day of the leave."
+  },
+  "leaveNote": "Note (optional)",
+  "@leaveNote": {
+    "description": "113.3 A note with the leave request."
+  },
+  "leaveAddPhoto": "Photo of a document",
+  "@leaveAddPhoto": {
+    "description": "113.3 Adds a photo of a document (a doctor's note) to the leave request."
+  },
+  "leaveAddFile": "PDF",
+  "@leaveAddFile": {
+    "description": "113.3 Adds a PDF to the leave request."
+  },
+  "leaveSend": "Send the request",
+  "@leaveSend": {
+    "description": "113.3 Sends the leave request to the school."
+  },
+  "leaveSent": "Sent. The school answers in the app.",
+  "@leaveSent": {
+    "description": "113.3 The leave request was sent."
+  },
+  "leaveNone": "No leave requests yet.",
+  "@leaveNone": {
+    "description": "113.3 The person hasn't asked for leave yet."
+  },
+  "leaveDays": "{count, plural, =1{1 day} other{{count} days}}",
+  "@leaveDays": {
+    "description": "113.3 How many days a leave request is for.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "leavePending": "Waiting",
+  "@leavePending": {
+    "description": "113.3 A leave request the school hasn't answered."
+  },
+  "leaveApproved": "Approved",
+  "@leaveApproved": {
+    "description": "113.3 A leave request the school approved."
+  },
+  "leaveRefused": "Not approved",
+  "@leaveRefused": {
+    "description": "113.3 A leave request the school refused."
+  },
+  "leaveCancelled": "Withdrawn",
+  "@leaveCancelled": {
+    "description": "113.3 A leave request the person withdrew."
+  },
+  "leaveWithdraw": "Withdraw",
+  "@leaveWithdraw": {
+    "description": "113.3 Withdraws a leave request the school hasn't answered."
+  },
+  "leaveSchoolNote": "The school: {note}",
+  "@leaveSchoolNote": {
+    "description": "113.3 The school's note with its answer to a leave request.",
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "leaveDates": "{from} – {to}",
+  "@leaveDates": {
+    "description": "113.3 A leave request's first and last days.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "leaveDatesOrder": "The last day is on or after the first.",
+  "@leaveDatesOrder": {
+    "description": "113.3 The leave form's last day is before its first."
   },
   "classroomSyllabus": "Syllabus",
   "@classroomSyllabus": {

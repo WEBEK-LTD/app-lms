@@ -89,7 +89,14 @@ import type {
   SchoolAnnouncement,
   SchoolAssessment,
   SchoolAttendance,
+  SchoolCheckin,
+  SchoolBehaviourCategory,
+  SchoolBehaviourNote,
   SchoolClass,
+  SchoolEvent,
+  SchoolEventInput,
+  SchoolExam,
+  SchoolExamInput,
   SchoolFamilyLink,
   SchoolFee,
   SchoolReport,
@@ -99,6 +106,7 @@ import type {
   SchoolSyllabusUnit,
   SchoolTopicProgress,
   SchoolHomework,
+  SchoolLeave,
   SchoolPeriod,
   SchoolPerson,
   SchoolPersonInput,
@@ -108,6 +116,21 @@ import type {
   SchoolSettings,
   SchoolSubject,
   SchoolSubmission,
+} from "./types";
+// 113.10 The school bus; 113.11 the library
+import type {
+  SchoolBook,
+  SchoolBookCopy,
+  SchoolBookHold,
+  SchoolBookHoldStatus,
+  SchoolBookLoan,
+  SchoolBusMark,
+  SchoolBusRider,
+  SchoolBusRoute,
+  SchoolBusRun,
+  SchoolBusRunStatus,
+  SchoolBusStop,
+  SchoolBusTrip,
 } from "./types";
 // 104 Delivery and courier companies
 import type { Courier, CourierInput, CourierPatch, DeliveryService, DeliveryServiceInput, DeliverySettings, Shipment, ShipmentInput, ShipmentPatch, ShipmentQuery, ShipmentStatus } from "./types";
@@ -914,6 +937,19 @@ export interface DataStore {
   /** Only while the fee is in one of `statuses` when given; false when it wasn't changed. */
   updateSchoolFee(appId: string, id: number, patch: Partial<Pick<SchoolFee, "title" | "amountCents" | "dueOn" | "status" | "paidAt" | "paidBy" | "orderId" | "receiptCode" | "updatedAt">>, expect?: { statuses?: SchoolFee["status"][] }): Promise<boolean>;
   deleteSchoolFee(appId: string, id: number): Promise<void>;
+  // 113.2 Checking in and out
+  /** By day (newest first) and person; one person's or some people's, one day's or a period's. */
+  listSchoolCheckins(appId: string, filter: { personId?: number; personIds?: number[]; date?: string; from?: string; to?: string }): Promise<SchoolCheckin[]>;
+  getSchoolCheckin(appId: string, personId: number, date: string): Promise<SchoolCheckin | null>;
+  /** One per person and day: saving again replaces it. */
+  saveSchoolCheckin(row: SchoolCheckin): Promise<void>;
+  // 113.3 Leave requests
+  /** Newest first; a person's, of a status, or overlapping a period. */
+  listSchoolLeave(appId: string, filter?: { personId?: number; statuses?: SchoolLeave["status"][]; from?: string; to?: string }): Promise<SchoolLeave[]>;
+  getSchoolLeave(appId: string, id: number): Promise<SchoolLeave | null>;
+  createSchoolLeave(input: Omit<SchoolLeave, "id">): Promise<SchoolLeave>;
+  /** Only while the request is in one of `statuses`; false when it wasn't changed. */
+  updateSchoolLeave(appId: string, id: number, patch: Partial<Pick<SchoolLeave, "status" | "answer" | "answeredBy" | "answeredAt" | "updatedAt">>, statuses: SchoolLeave["status"][]): Promise<boolean>;
 
   // 113.5 The syllabus, each class's progress, and the teachers' reports
   /** In the plan's order; a subject's, a grade's when given. */
@@ -951,6 +987,91 @@ export interface DataStore {
     expect?: { statuses?: SchoolReportStatus[] },
   ): Promise<boolean>;
   deleteSchoolReport(appId: string, id: number): Promise<void>;
+
+  // 113.10 The school bus
+  /** In the school's order. */
+  listSchoolBusRoutes(appId: string): Promise<SchoolBusRoute[]>;
+  getSchoolBusRoute(appId: string, id: number): Promise<SchoolBusRoute | null>;
+  /** A new route (last in the order) or a change to one; null when it isn't the school's. */
+  saveSchoolBusRoute(input: Pick<SchoolBusRoute, "appId" | "name" | "plate" | "capacity" | "driverId" | "supervisorId" | "active"> & { id: number | null }, now: Date): Promise<SchoolBusRoute | null>;
+  /** Its stops, riders, trips and marks go with it. */
+  deleteSchoolBusRoute(appId: string, id: number): Promise<void>;
+  /** In the route's order. */
+  listSchoolBusStops(appId: string, filter?: { routeId?: number }): Promise<SchoolBusStop[]>;
+  /** A new stop (last on its route) or a change to one; null when it isn't the school's. */
+  saveSchoolBusStop(input: Omit<SchoolBusStop, "id" | "position"> & { id: number | null }): Promise<SchoolBusStop | null>;
+  /** Its riders go with it. */
+  deleteSchoolBusStop(appId: string, id: number): Promise<void>;
+  /** The route's stops in this order (stops left out keep their place after them). */
+  orderSchoolBusStops(appId: string, routeId: number, stopIds: number[]): Promise<void>;
+  listSchoolBusRiders(appId: string, filter?: { routeId?: number; stopId?: number; studentId?: number; trip?: SchoolBusTrip }): Promise<SchoolBusRider[]>;
+  /** Each student's stop for the trip; a null stop takes them off it. */
+  setSchoolBusRiders(appId: string, rows: { studentId: number; trip: SchoolBusTrip; stop: Pick<SchoolBusStop, "id" | "routeId"> | null }[]): Promise<void>;
+  /** Newest first. */
+  listSchoolBusRuns(appId: string, filter?: { routeId?: number; routeIds?: number[]; status?: SchoolBusRunStatus; date?: string; limit?: number }): Promise<SchoolBusRun[]>;
+  getSchoolBusRun(appId: string, id: number): Promise<SchoolBusRun | null>;
+  /** The route's trip of the day: a new one, else the one there already (`created` false). */
+  startSchoolBusRun(input: Omit<SchoolBusRun, "id">): Promise<{ run: SchoolBusRun; created: boolean }>;
+  /** Only while it is in `status` when given; false when it wasn't changed. */
+  updateSchoolBusRun(appId: string, id: number, patch: Partial<Pick<SchoolBusRun, "status" | "endedAt" | "startedAt" | "startedBy" | "lat" | "lng" | "locatedAt" | "passedStopIds" | "toldStopIds">>, expect?: { status?: SchoolBusRunStatus }): Promise<boolean>;
+  listSchoolBusMarks(appId: string, filter: { runId?: number; runIds?: number[]; studentId?: number }): Promise<SchoolBusMark[]>;
+  /** One per trip and student. */
+  saveSchoolBusMark(mark: SchoolBusMark): Promise<void>;
+
+  // 113.11 The library
+  /** By title; `q` matches the title, the author or the ISBN. */
+  listSchoolBooks(appId: string, filter?: { q?: string; category?: string; ids?: number[]; limit?: number }): Promise<SchoolBook[]>;
+  getSchoolBook(appId: string, id: number): Promise<SchoolBook | null>;
+  createSchoolBook(input: Omit<SchoolBook, "id">): Promise<SchoolBook>;
+  updateSchoolBook(appId: string, id: number, patch: Partial<Omit<SchoolBook, "id" | "appId" | "createdAt">>): Promise<boolean>;
+  /** Its copies, loans and holds go with it. */
+  deleteSchoolBook(appId: string, id: number): Promise<void>;
+  listSchoolBookCopies(appId: string, filter?: { bookId?: number; bookIds?: number[] }): Promise<SchoolBookCopy[]>;
+  /** Codes are matched without case. */
+  getSchoolBookCopyByCode(appId: string, code: string): Promise<SchoolBookCopy | null>;
+  createSchoolBookCopy(input: Omit<SchoolBookCopy, "id">): Promise<{ ok: true; copy: SchoolBookCopy } | { ok: false; reason: "duplicate" }>;
+  /** Its loans go with it. */
+  deleteSchoolBookCopy(appId: string, id: number): Promise<void>;
+  /** Newest first; `open`: not returned yet (true) or returned (false). */
+  listSchoolBookLoans(appId: string, filter?: { bookId?: number; copyId?: number; personId?: number; personIds?: number[]; open?: boolean; limit?: number }): Promise<SchoolBookLoan[]>;
+  /** False when the copy is out on another loan. */
+  createSchoolBookLoan(input: Omit<SchoolBookLoan, "id">): Promise<{ ok: true; loan: SchoolBookLoan } | { ok: false; reason: "on_loan" }>;
+  /** Only while it is open when `open` is given; false when it wasn't changed. */
+  updateSchoolBookLoan(appId: string, id: number, patch: Partial<Pick<SchoolBookLoan, "dueOn" | "returnedAt" | "dueToldOn" | "overdueToldOn">>, expect?: { open?: boolean }): Promise<boolean>;
+  /** Every school's loans not returned that are due by `dueBy` (YYYY-MM-DD), for the reminders; oldest due first. */
+  listDueSchoolBookLoans(dueBy: string, limit: number): Promise<SchoolBookLoan[]>;
+  /** Oldest first. */
+  listSchoolBookHolds(appId: string, filter?: { bookId?: number; personId?: number; personIds?: number[]; statuses?: SchoolBookHoldStatus[] }): Promise<SchoolBookHold[]>;
+  createSchoolBookHold(input: Omit<SchoolBookHold, "id">): Promise<SchoolBookHold>;
+  /** Only while it is in one of `statuses` when given; false when it wasn't changed. */
+  updateSchoolBookHold(appId: string, id: number, patch: Partial<Pick<SchoolBookHold, "status" | "copyId" | "readyAt" | "expiresAt" | "updatedAt">>, expect?: { statuses?: SchoolBookHoldStatus[] }): Promise<boolean>;
+  // 113.8 The school's calendar, the exams' timetable and behaviour
+  /** Events on any day from `from` to `to` (both YYYY-MM-DD), first first. */
+  listSchoolEvents(appId: string, filter?: { from?: string; to?: string }): Promise<SchoolEvent[]>;
+  getSchoolEvent(appId: string, id: number): Promise<SchoolEvent | null>;
+  /** Null when `id` isn't the school's. */
+  saveSchoolEvent(input: SchoolEventInput & { id: number | null }, now: Date): Promise<SchoolEvent | null>;
+  deleteSchoolEvent(appId: string, id: number): Promise<void>;
+  /** By date and time. */
+  listSchoolExams(appId: string, filter?: { from?: string; to?: string; published?: boolean }): Promise<SchoolExam[]>;
+  getSchoolExam(appId: string, id: number): Promise<SchoolExam | null>;
+  /** A new exam is a draft; a saved one keeps whether it is published. Null when `id` isn't the school's. */
+  saveSchoolExam(input: SchoolExamInput & { id: number | null }, now: Date): Promise<SchoolExam | null>;
+  /** Publishes the drafts among `ids`; returns those it published. */
+  publishSchoolExams(appId: string, ids: number[], now: Date): Promise<SchoolExam[]>;
+  /** Marks the day-before reminder sent; false when it already was (another run took it). */
+  markSchoolExamReminded(appId: string, id: number, now: Date): Promise<boolean>;
+  deleteSchoolExam(appId: string, id: number): Promise<void>;
+  /** In the school's order. */
+  listSchoolBehaviourCategories(appId: string): Promise<SchoolBehaviourCategory[]>;
+  /** Null when `id` isn't the school's. */
+  saveSchoolBehaviourCategory(input: Pick<SchoolBehaviourCategory, "appId" | "name" | "kind" | "points" | "active"> & { id: number | null }, now: Date): Promise<SchoolBehaviourCategory | null>;
+  deleteSchoolBehaviourCategory(appId: string, id: number): Promise<void>;
+  /** Newest first; written from `since` and before `until`. */
+  listSchoolBehaviour(appId: string, filter?: { studentId?: number; studentIds?: number[]; classId?: number; since?: Date; until?: Date }): Promise<SchoolBehaviourNote[]>;
+  getSchoolBehaviour(appId: string, id: number): Promise<SchoolBehaviourNote | null>;
+  createSchoolBehaviour(input: Omit<SchoolBehaviourNote, "id">): Promise<SchoolBehaviourNote>;
+  deleteSchoolBehaviour(appId: string, id: number): Promise<void>;
 
   // 105.1 Food delivery from many restaurants
   /** In the company's order; `q` matches the restaurant's name or a dish's. Menus aren't read. */
@@ -1516,6 +1637,10 @@ export interface DataStore {
   ensureDirectConversation(appId: string, memberId: string, now: Date): Promise<ChatConversation>;
   /** A course's group, made the first time; its title and picture follow the course's. */
   ensureGroupConversation(input: { appId: string; courseKey: string; title: string; imageUrl: string | null }, now: Date): Promise<ChatConversation>;
+  /** 113.6 A school's teacher and a parent or student, made the first time (of two at once, one is made). */
+  ensureSchoolConversation(input: { appId: string; teacherId: number; personId: number }, now: Date): Promise<ChatConversation>;
+  /** 113.6 The school conversations of these people (on either side); without `personIds`, the app's with a message, most recent first. */
+  listSchoolConversations(appId: string, input: { personIds?: number[]; limit: number }): Promise<ChatConversation[]>;
   getChatConversation(appId: string, id: string): Promise<ChatConversation | null>;
   updateChatConversation(id: string, patch: ChatConversationPatch): Promise<void>;
   /** The app's conversations with a message, most recent first. */

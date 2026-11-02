@@ -823,7 +823,13 @@ export const ENGINES: Record<AppType, EngineInfo> = {
           { href: "/dashboard/school/classes", label: "Classes", icon: "menu_book" },
           { href: "/dashboard/school/people", label: "People", icon: "groups" },
           { href: "/dashboard/school/timetable", label: "Timetable", icon: "calendar_month" },
+          // 113.8
+          { href: "/dashboard/school/calendar", label: "Calendar", icon: "event" },
+          { href: "/dashboard/school/exams", label: "Exams", icon: "quiz" },
           { href: "/dashboard/school/attendance", label: "Attendance", icon: "task_alt" },
+          // 113.2 Checking in and out at the gate; 113.3 teachers and staff.
+          { href: "/dashboard/school/checkin", label: "Check-in", icon: "qr_code_2" },
+          { href: "/dashboard/school/staff", label: "Staff", icon: "support_agent" },
           { href: "/dashboard/school/homework", label: "Homework", icon: "assignment" },
           { href: "/dashboard/school/grades", label: "Grades", icon: "workspace_premium" },
           // 112.5
@@ -833,7 +839,12 @@ export const ENGINES: Record<AppType, EngineInfo> = {
           { href: "/dashboard/school/progress", label: "Progress", icon: "monitoring" },
           { href: "/dashboard/school/teacher-reports", label: "Teachers' reports", icon: "mail" },
           { href: "/dashboard/school/report-templates", label: "Report templates", icon: "content_paste" },
+          // 113.8
+          { href: "/dashboard/school/behaviour", label: "Behaviour", icon: "emoji_events" },
           { href: "/dashboard/school/fees", label: "Fees", icon: "payments" },
+          // 113.10 and 113.11
+          { href: "/dashboard/school/bus", label: "Buses & routes", icon: "directions_bus" },
+          { href: "/dashboard/school/library", label: "Library", icon: "bookmark" },
           { href: "/dashboard/school/news", label: "News", icon: "campaign" },
           { href: "/dashboard/school/settings", label: "School settings", icon: "tune" },
         ],

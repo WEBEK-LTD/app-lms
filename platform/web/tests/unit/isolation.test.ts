@@ -634,6 +634,24 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       createdAt: NOW,
       updatedAt: NOW,
     });
+    // 113.2 Their student's day at the gate; 113.3 a member of their staff and their leave request.
+    await store.saveSchoolCheckin({ appId: k12, personId: theirStudent.person.id, role: "student", date: "2026-10-20", inAt: NOW, inMethod: "qr", outAt: null, outMethod: null, late: false, leftEarly: false, mark: null, corrections: [{ at: NOW.toISOString(), by: MARK, reason: MARK, change: MARK }], updatedAt: NOW });
+    const theirStaff = await store.createSchoolPerson({ appId: k12, role: "staff", name: `${MARK} nurse`, phone: "+201007775555", email: null, classId: null, code: null, photoAssetId: null, active: true, jobTitle: MARK }, NOW);
+    if (!theirStaff.ok) throw new Error("staff");
+    const leave = await store.createSchoolLeave({ appId: k12, personId: theirStaff.person.id, kind: "sick", startsOn: "2026-10-20", endsOn: "2026-10-21", note: MARK, file: null, status: "pending", answer: null, answeredBy: null, answeredAt: null, createdAt: NOW, updatedAt: NOW });
+    // 113.10 Their bus route, its stop, a trip running; 113.11 their book and a hold of it.
+    const busRoute = (await store.saveSchoolBusRoute({ id: null, appId: k12, name: `${MARK} route`, plate: MARK, capacity: 20, driverId: null, supervisorId: null, active: true }, NOW))!;
+    const busStop = (await store.saveSchoolBusStop({ id: null, appId: k12, routeId: busRoute.id, name: `${MARK} stop`, lat: 30.05, lng: 31.24, morningMinute: 420, afternoonMinute: null }))!;
+    await store.setSchoolBusRiders(k12, [{ studentId: theirStudent.person.id, trip: "morning", stop: busStop }]);
+    const busRun = (await store.startSchoolBusRun({ appId: k12, routeId: busRoute.id, trip: "morning", date: "2026-10-20", status: "running", startedAt: NOW, endedAt: null, startedBy: null, lat: 30.05, lng: 31.24, locatedAt: NOW, passedStopIds: [], toldStopIds: [] })).run;
+    const book = await store.createSchoolBook({ appId: k12, title: `${MARK} book`, author: MARK, isbn: null, coverAssetId: null, shelf: MARK, category: MARK, language: null, description: MARK, file: null, createdAt: NOW, updatedAt: NOW });
+    await store.createSchoolBookCopy({ appId: k12, bookId: book.id, code: MARK, note: null, createdAt: NOW });
+    const bookHold = await store.createSchoolBookHold({ appId: k12, bookId: book.id, personId: theirStudent.person.id, status: "waiting", copyId: null, readyAt: null, expiresAt: null, createdAt: NOW, updatedAt: NOW });
+    // 113.8 Their calendar, exams' timetable and a merit on their student.
+    await store.saveSchoolEvent({ id: null, appId: k12, kind: "event", title: `${MARK} event`, notes: MARK, startsOn: "2026-10-12", endsOn: "2026-10-12", startMinute: null, endMinute: null, place: MARK, audience: "school", grade: null, classId: null }, NOW);
+    const theirExam = (await store.saveSchoolExam({ id: null, appId: k12, classId: theirClass.id, grade: null, subjectId: theirSubject.subject.id, date: "2026-10-14", startMinute: 540, durationMinutes: 60, room: MARK, notes: MARK }, NOW))!;
+    await store.publishSchoolExams(k12, [theirExam.id], NOW);
+    const theirNote = await store.createSchoolBehaviour({ appId: k12, studentId: theirStudent.person.id, classId: theirClass.id, categoryId: null, categoryName: `${MARK} category`, kind: "positive", points: 2, note: MARK, teacherId: null, createdAt: NOW });
     Object.assign(hostedIds, {
       student_id: String(theirStudent.person.id),
       homework_id: String(homework.id),
@@ -641,6 +659,13 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       fee_id: String(fee.id),
       topic_id: String(theirTopic.id),
       report_id: String(theirReport.id),
+      leave_id: String(leave.id),
+      route_id: String(busRoute.id),
+      run_id: String(busRun.id),
+      book_id: String(book.id),
+      hold_id: String(bookHold.id),
+      // 113.8 A behaviour note shares `note_id` with 113.7's lesson notes: its paths get this one (see hosted()).
+      behaviour_note_id: String(theirNote.id),
       teacher_id: String(teacher.teacher.id),
       ride_id: String(ride.id),
       // 105.9 Places are the map provider's, nobody's own: one that names nothing of the other client.
@@ -729,7 +754,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     if (/^\/(delivery|courier|me\/shipments)/.test(route)) return "delivery";
     if (/^\/(food|restaurant|me\/food-orders)/.test(route)) return "food";
     if (/^\/(rides|driver|me\/rides)/.test(route)) return "rides";
-    if (/^\/(school|classroom)\//.test(route)) return "k12";
+    if (/^\/(school|classroom|staff)\//.test(route)) return "k12";
     if (/^\/taxi\//.test(route)) return "taxi";
     return "shop";
   }
@@ -742,7 +767,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     // 105.4 At a school: its student, a parent and a teacher with a class of their own, so the paths go past who they are.
     if (app.connector?.kind === "school") {
       const klass = (await store.saveSchoolClass({ appId: app.id, id: null, name: "Mine", grade: null, homeroomTeacherId: null }, NOW))!;
-      for (const role of ["student", "parent", "teacher"] as const) {
+      for (const role of ["student", "parent", "teacher", "staff"] as const) {
         const made = await store.createSchoolPerson({ appId: app.id, role, name: "Intruder", phone: user.phone, email: null, classId: role === "student" ? klass.id : null, code: null, photoAssetId: null, active: true }, NOW);
         if (made.ok && role === "teacher") await store.saveSchoolClass({ appId: app.id, id: klass.id, name: "Mine", grade: null, homeroomTeacherId: made.person.id }, NOW);
       }
@@ -753,7 +778,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
 
   async function hosted(app: App, method: string, route: string, token: string | null, body: unknown = {}) {
     const food = hostedKind(route) === "food";
-    const concrete = route.replace(/\{(\w+)\}/g, (_, name: string) => hostedIds[food && name === "order_id" ? "food_order_id" : name]!);
+    const concrete = route.replace(/\{(\w+)\}/g, (_, name: string) => hostedIds[food && name === "order_id" ? "food_order_id" : name === "note_id" && route.startsWith("/classroom/behaviour") ? "behaviour_note_id" : name]!);
     const assetUrl = (id: string) => `https://yallapp.test/a/${id}`;
     return handleHosted(
       {

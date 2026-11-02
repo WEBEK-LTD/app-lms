@@ -20,6 +20,7 @@ import '../../lms/teachers/teacher_widgets.dart' show LabeledField;
 import '../../store/screens/cart_screen.dart' show isOrderReceived;
 import '../data/school_providers.dart';
 import '../widgets/school_widgets.dart';
+import 'checkin_screens.dart' show StudentGateDays;
 
 /// 105.4 Each part of a student's school, for them and their parents: the
 /// week's timetable, homework (handed in by the student), grades,
@@ -702,8 +703,9 @@ class _Attendance extends ConsumerWidget {
     final l10n = context.l10n;
     return switch (ref.watch(studentAttendanceProvider(studentId))) {
       AsyncValue(value: final attendance?) => RefreshIndicator(
-        onRefresh: () async =>
-            ref.invalidate(studentAttendanceProvider(studentId)),
+        onRefresh: () async => ref
+          ..invalidate(studentAttendanceProvider(studentId))
+          ..invalidate(studentCheckinsProvider(studentId)),
         child: ListView(
           key: const ValueKey('school-attendance'),
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
@@ -777,6 +779,8 @@ class _Attendance extends ConsumerWidget {
                   ],
                 ),
               ),
+            // 113.2 The student's days at the gate, apart from the class register.
+            StudentGateDays(studentId: studentId),
           ],
         ),
       ),

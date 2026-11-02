@@ -1069,6 +1069,85 @@ abstract class YallappApi {
 
   /// The teachers' reports the school shared with a student's parents.
   Future<List<SharedReport>> listSharedReports(int studentId);
+
+  // 113.2 Checking in and out at the school.
+  Future<CheckinToday> getCheckinToday();
+
+  /// [action] `in` or `out`, with the gate's [code], the phone's position,
+  /// or both, as the school's methods ask.
+  Future<CheckinResult> checkIn({
+    required String action,
+    String? code,
+    double? lat,
+    double? lng,
+  });
+  Future<CheckinMonth> getCheckinHistory({String? month});
+  Future<CheckinMonth> getStudentCheckins(int studentId, {String? month});
+
+  // 113.3 The school's teachers and staff.
+  Future<StaffMe> getStaffMe();
+  Future<Paged<LeaveRequest>> listLeaveRequests({int page = 1});
+  Future<LeaveRequest> requestLeave(LeaveInput input);
+  Future<void> withdrawLeaveRequest(int id);
+  Future<Paged<SchoolAnnouncement>> listStaffAnnouncements({int page = 1});
+
+  // 113.6 Messages between teachers and families.
+  Future<SchoolMessages> getSchoolMessages();
+
+  /// The conversation with a contact (a Chat conversation), made the first time.
+  Future<String> openSchoolConversation(int personId);
+
+  /// The same text to each parent (or student) of a class, one by one.
+  Future<({int sent, int notInApp})> messageClass(
+    int classId, {
+    required ClassAudience to,
+    required String clientId,
+    required String text,
+  });
+
+  // 113.10 The school bus: a family's view, and the bus's crew.
+  Future<List<StudentBusTrip>> getStudentBus(int studentId);
+  Future<List<BusCrewRoute>> listBusCrewRoutes();
+  Future<BusRun> startBusRun(int routeId, BusTrip trip);
+  Future<BusRun> getBusRun(int runId);
+  Future<void> sendBusLocation(
+    int runId,
+    double lat,
+    double lng, {
+    double? accuracy,
+  });
+  Future<BusRider> markBusRider(int runId, int studentId, BusMarkStatus status);
+  Future<BusRun> endBusRun(int runId);
+
+  // 113.11 The library.
+  Future<LibraryBookPage> listLibraryBooks({
+    String? query,
+    String? category,
+    int page = 1,
+  });
+  Future<LibraryBookDetail> getLibraryBook(int bookId);
+  Future<LibraryHold> holdLibraryBook(int bookId, {int? personId});
+  Future<void> cancelLibraryHold(int holdId);
+  Future<LibraryLoans> listLibraryLoans({int? personId});
+
+  // 113.8 The calendar, the exams' timetable and behaviour.
+  /// The calendar the person sees from [from] to [to], or one student's.
+  Future<SchoolCalendar> getSchoolCalendar({
+    required String from,
+    required String to,
+    int? studentId,
+  });
+  Future<ExamLists> getStudentExams(int studentId);
+  Future<StudentBehaviour> getStudentBehaviour(int studentId, {int page = 1});
+  Future<ExamLists> listClassroomExams({int? classId});
+  Future<List<BehaviourCategory>> listBehaviourCategories();
+  Future<ClassBehaviour> getClassBehaviour(int classId, {int? studentId});
+  Future<BehaviourNote> writeBehaviour({
+    required int studentId,
+    required int categoryId,
+    String? note,
+  });
+  Future<void> deleteBehaviour(int noteId);
 }
 
 /// [YallappApi] over HTTP.
@@ -3577,4 +3656,289 @@ class HttpYallappApi implements YallappApi {
     _required,
     (json) => reqListOf(json, 'items', SharedReport.fromJson),
   );
+
+  // 113.2 Checking in and out.
+
+  @override
+  Future<CheckinToday> getCheckinToday() =>
+      _get('/school/checkin', _required, CheckinToday.fromJson);
+
+  @override
+  Future<CheckinResult> checkIn({
+    required String action,
+    String? code,
+    double? lat,
+    double? lng,
+  }) => _send(
+    'POST',
+    '/school/checkin',
+    _required,
+    (data) => CheckinResult.fromJson(asJson(data)),
+    body: {'action': action, 'code': ?code, 'lat': ?lat, 'lng': ?lng},
+  );
+
+  @override
+  Future<CheckinMonth> getCheckinHistory({String? month}) => _get(
+    '/school/checkin/history',
+    _required,
+    CheckinMonth.fromJson,
+    query: {'month': ?month},
+  );
+
+  @override
+  Future<CheckinMonth> getStudentCheckins(int studentId, {String? month}) =>
+      _get(
+        '/school/students/$studentId/checkins',
+        _required,
+        CheckinMonth.fromJson,
+        query: {'month': ?month},
+      );
+
+  // 113.3 Teachers and staff.
+
+  @override
+  Future<StaffMe> getStaffMe() =>
+      _get('/staff/me', _required, StaffMe.fromJson);
+
+  @override
+  Future<Paged<LeaveRequest>> listLeaveRequests({int page = 1}) => _get(
+    '/staff/leave',
+    _required,
+    (json) => Paged.fromJson(json, LeaveRequest.fromJson),
+    query: {'page': page, 'per_page': 20},
+  );
+
+  @override
+  Future<LeaveRequest> requestLeave(LeaveInput input) => _send(
+    'POST',
+    '/staff/leave',
+    _required,
+    (data) => LeaveRequest.fromJson(asJson(data)),
+    body: input.toJson(),
+  );
+
+  @override
+  Future<void> withdrawLeaveRequest(int id) =>
+      _send('DELETE', '/staff/leave/$id', _required, _ignore);
+
+  @override
+  Future<Paged<SchoolAnnouncement>> listStaffAnnouncements({int page = 1}) =>
+      _get(
+        '/staff/announcements',
+        _required,
+        (json) => Paged.fromJson(json, SchoolAnnouncement.fromJson),
+        query: {'page': page, 'per_page': 20},
+      );
+
+  // 113.6 Messages between teachers and families.
+
+  @override
+  Future<SchoolMessages> getSchoolMessages() =>
+      _get('/school/messages', _required, SchoolMessages.fromJson);
+
+  @override
+  Future<String> openSchoolConversation(int personId) => _send(
+    'POST',
+    '/school/messages/conversations',
+    _required,
+    (data) => reqString(asJson(data), 'conversation_id'),
+    body: {'person_id': personId},
+  );
+
+  @override
+  Future<({int sent, int notInApp})> messageClass(
+    int classId, {
+    required ClassAudience to,
+    required String clientId,
+    required String text,
+  }) =>
+      _send('POST', '/classroom/classes/$classId/messages', _required, (data) {
+        final json = asJson(data);
+        return (
+          sent: intOr(json, 'sent', 0),
+          notInApp: intOr(json, 'not_in_app', 0),
+        );
+      }, body: {'to': to.name, 'client_id': clientId, 'text': text});
+
+  // 113.10 The school bus.
+
+  @override
+  Future<List<StudentBusTrip>> getStudentBus(int studentId) => _get(
+    '/school/students/$studentId/bus',
+    _required,
+    (json) => listOf(json, 'items', StudentBusTrip.fromJson),
+  );
+
+  @override
+  Future<List<BusCrewRoute>> listBusCrewRoutes() => _get(
+    '/school/bus/routes',
+    _required,
+    (json) => listOf(json, 'items', BusCrewRoute.fromJson),
+  );
+
+  @override
+  Future<BusRun> startBusRun(int routeId, BusTrip trip) => _send(
+    'POST',
+    '/school/bus/routes/$routeId/runs',
+    _required,
+    (data) => BusRun.fromJson(asJson(data)),
+    body: {'trip': trip.name},
+  );
+
+  @override
+  Future<BusRun> getBusRun(int runId) =>
+      _get('/school/bus/runs/$runId', _required, BusRun.fromJson);
+
+  @override
+  Future<void> sendBusLocation(
+    int runId,
+    double lat,
+    double lng, {
+    double? accuracy,
+  }) => _send(
+    'PUT',
+    '/school/bus/runs/$runId/location',
+    _required,
+    _ignore,
+    body: {'lat': lat, 'lng': lng, 'accuracy': ?accuracy},
+  );
+
+  @override
+  Future<BusRider> markBusRider(
+    int runId,
+    int studentId,
+    BusMarkStatus status,
+  ) => _send(
+    'PUT',
+    '/school/bus/runs/$runId/riders/$studentId',
+    _required,
+    (data) => BusRider.fromJson(asJson(data)),
+    body: {'status': status.name},
+  );
+
+  @override
+  Future<BusRun> endBusRun(int runId) => _send(
+    'POST',
+    '/school/bus/runs/$runId/end',
+    _required,
+    (data) => BusRun.fromJson(asJson(data)),
+  );
+
+  // 113.11 The library.
+
+  @override
+  Future<LibraryBookPage> listLibraryBooks({
+    String? query,
+    String? category,
+    int page = 1,
+  }) => _get(
+    '/school/library/books',
+    _required,
+    LibraryBookPage.fromJson,
+    query: {
+      if (query != null && query.isNotEmpty) 'q': query,
+      if (category != null && category.isNotEmpty) 'category': category,
+      'page': page,
+    },
+  );
+
+  @override
+  Future<LibraryBookDetail> getLibraryBook(int bookId) => _get(
+    '/school/library/books/$bookId',
+    _required,
+    LibraryBookDetail.fromJson,
+  );
+
+  @override
+  Future<LibraryHold> holdLibraryBook(int bookId, {int? personId}) => _send(
+    'POST',
+    '/school/library/books/$bookId/hold',
+    _required,
+    (data) => LibraryHold.fromJson(asJson(data)),
+    body: {'person_id': ?personId},
+  );
+
+  @override
+  Future<void> cancelLibraryHold(int holdId) =>
+      _send('DELETE', '/school/library/holds/$holdId', _required, _ignore);
+
+  @override
+  Future<LibraryLoans> listLibraryLoans({int? personId}) => _get(
+    '/school/library/loans',
+    _required,
+    LibraryLoans.fromJson,
+    query: {'person_id': ?personId},
+  );
+
+  // 113.8 The calendar, the exams' timetable and behaviour.
+
+  @override
+  Future<SchoolCalendar> getSchoolCalendar({
+    required String from,
+    required String to,
+    int? studentId,
+  }) => _get(
+    '/school/calendar',
+    _required,
+    SchoolCalendar.fromJson,
+    query: {'from': from, 'to': to, 'student_id': ?studentId},
+  );
+
+  @override
+  Future<ExamLists> getStudentExams(int studentId) =>
+      _get('/school/students/$studentId/exams', _required, ExamLists.fromJson);
+
+  @override
+  Future<StudentBehaviour> getStudentBehaviour(int studentId, {int page = 1}) =>
+      _get(
+        '/school/students/$studentId/behaviour',
+        _required,
+        StudentBehaviour.fromJson,
+        query: {'page': page, 'per_page': 50},
+      );
+
+  @override
+  Future<ExamLists> listClassroomExams({int? classId}) => _get(
+    '/classroom/exams',
+    _required,
+    ExamLists.fromJson,
+    query: {'class_id': ?classId},
+  );
+
+  @override
+  Future<List<BehaviourCategory>> listBehaviourCategories() => _get(
+    '/classroom/behaviour/categories',
+    _required,
+    (json) => listOf(json, 'items', BehaviourCategory.fromJson),
+  );
+
+  @override
+  Future<ClassBehaviour> getClassBehaviour(int classId, {int? studentId}) =>
+      _get(
+        '/classroom/classes/$classId/behaviour',
+        _required,
+        ClassBehaviour.fromJson,
+        query: {'student_id': ?studentId},
+      );
+
+  @override
+  Future<BehaviourNote> writeBehaviour({
+    required int studentId,
+    required int categoryId,
+    String? note,
+  }) => _send(
+    'POST',
+    '/classroom/behaviour',
+    _required,
+    (data) => BehaviourNote.fromJson(asJson(data)),
+    body: {
+      'student_id': studentId,
+      'category_id': categoryId,
+      if (note != null && note.trim().isNotEmpty) 'note': note.trim(),
+    },
+  );
+
+  @override
+  Future<void> deleteBehaviour(int noteId) =>
+      _send('DELETE', '/classroom/behaviour/$noteId', _required, _ignore);
 }

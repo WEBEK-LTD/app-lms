@@ -63,6 +63,13 @@ IconData _iconFor(NotificationType type) => switch (type) {
   NotificationType.schoolFee => AppIcons.cash,
   NotificationType.schoolReport ||
   NotificationType.schoolReportShared => AppIcons.assignment,
+  NotificationType.schoolCheckin => AppIcons.checkIn,
+  NotificationType.schoolStaff => AppIcons.staffBadge,
+  NotificationType.schoolLeave => AppIcons.leave,
+  NotificationType.schoolExam => AppIcons.quiz,
+  NotificationType.schoolBehaviour => AppIcons.star,
+  NotificationType.schoolBus => AppIcons.bus,
+  NotificationType.schoolLibrary => AppIcons.library,
   NotificationType.announcement ||
   NotificationType.unknown => AppIcons.notifications,
 };

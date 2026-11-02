@@ -19,6 +19,18 @@ export function schoolSettingsOf(saved: SchoolSettings | null, app?: Pick<App, "
   return { timezone: zone, currency, term: null, absenceAlerts: true, feesByCard: false, ...(saved ?? {}) };
 }
 
+/** The School settings page's own fields. */
+export type SchoolMainSettings = Pick<SchoolSettings, "timezone" | "currency" | "term" | "absenceAlerts" | "feesByCard">;
+
+/**
+ * 113 The School settings page saved over what is saved: the parts other
+ * pages keep in the settings (113.2 check-in, 113.6 messages, 113.8
+ * behaviour, 113.10 the bus, 113.11 the library, and any later one) stay.
+ */
+export function withMainSettings(saved: SchoolSettings | null, main: SchoolMainSettings): SchoolSettings {
+  return { ...(saved ?? {}), ...main };
+}
+
 export function schoolCurrency(settings: SchoolSettings): CatalogCurrency {
   return (CATALOG_CURRENCIES as string[]).includes(settings.currency) ? (settings.currency as CatalogCurrency) : "EGP";
 }

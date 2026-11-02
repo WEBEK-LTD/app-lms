@@ -1,4 +1,5 @@
 import 'json.dart';
+import 'school_models.dart';
 
 /// 77 Chat with the business and, in academies, course groups
 /// (`Config.chat`). Missing when the app's plan has no chat or the owner
@@ -58,7 +59,8 @@ class ChatSession {
   final String baseUrl;
 }
 
-enum ChatConversationKind { direct, group }
+/// 113.6 `school`: a school's teacher and a parent or student.
+enum ChatConversationKind { direct, group, school }
 
 class ChatConversation {
   const ChatConversation({
@@ -72,6 +74,7 @@ class ChatConversation {
     this.courseId,
     this.memberCount,
     this.lastMessage,
+    this.school,
   });
 
   factory ChatConversation.fromJson(Json json) => ChatConversation(
@@ -89,6 +92,7 @@ class ChatConversation {
     unreadCount: intOr(json, 'unread_count', 0),
     canSend: boolOr(json, 'can_send', true),
     updatedAt: reqDate(json, 'updated_at'),
+    school: optObject(json, 'school', ChatSchoolInfo.fromJson),
   );
 
   final String id;
@@ -106,7 +110,56 @@ class ChatConversation {
   final bool canSend;
   final DateTime updatedAt;
 
+  /// 113.6 With [ChatConversationKind.school]: what the school allows.
+  final ChatSchoolInfo? school;
+
   bool get isGroup => kind == ChatConversationKind.group;
+  bool get isSchool => kind == ChatConversationKind.school && school != null;
+}
+
+/// 113.6 Why one can't write in a school conversation now.
+enum ChatSchoolNote { closed, notAllowed, teacherFirst, outsideHours }
+
+/// 113.6 A school conversation's other side and the school's rules (`SchoolChatInfo`).
+class ChatSchoolInfo {
+  const ChatSchoolInfo({
+    required this.role,
+    this.students = const [],
+    this.classes = const [],
+    this.note,
+    this.closed = false,
+    this.attachments = false,
+    this.hours,
+    this.opensAt,
+    this.adminReads = false,
+  });
+
+  factory ChatSchoolInfo.fromJson(Json json) => ChatSchoolInfo(
+    role: enumFrom(SchoolRole.values, json['role'], SchoolRole.teacher),
+    students: stringList(json, 'students'),
+    classes: stringList(json, 'classes'),
+    note: enumOrNull(ChatSchoolNote.values, json['note']),
+    closed: boolOr(json, 'closed', false),
+    attachments: boolOr(json, 'attachments', false),
+    hours: optObject(json, 'hours', SchoolMessageHours.fromJson),
+    opensAt: optDate(json, 'opens_at'),
+    adminReads: boolOr(json, 'admin_reads', false),
+  );
+
+  /// The other side.
+  final SchoolRole role;
+  final List<String> students;
+  final List<String> classes;
+  final ChatSchoolNote? note;
+  final bool closed;
+
+  /// Photos, voice messages and files; false: text only.
+  final bool attachments;
+  final SchoolMessageHours? hours;
+  final DateTime? opensAt;
+
+  /// The school's administration may read the conversation.
+  final bool adminReads;
 }
 
 class ChatConversations {

@@ -2686,6 +2686,91 @@ Map<String, dynamic> schoolMeJson({List<String> roles = const ['parent']}) => {
   ],
 };
 
+/// 113.6 What the school allows and whom a parent (or a teacher) can write to.
+Map<String, dynamic> schoolMessagesJson({
+  bool enabled = true,
+  bool teacher = false,
+  String startedBy = 'teacher',
+  bool openNow = true,
+  bool adminReads = false,
+  bool classMessages = false,
+}) => {
+  'enabled': enabled,
+  'with': enabled ? 'parents_students' : 'none',
+  'started_by': startedBy,
+  'hours': {
+    'from': '08:00',
+    'to': '18:00',
+    'days': [1, 2, 3, 4, 7],
+  },
+  'open_now': openNow,
+  'opens_at': openNow ? null : '2026-10-18T05:00:00.000Z',
+  'attachments': false,
+  'admin_reads': adminReads,
+  'class_messages': classMessages,
+  'classes': classMessages
+      ? [
+          {'id': 3, 'name': 'Grade 5 A'},
+        ]
+      : [],
+  'office_conversation_id': 'c0a8e0f2-0000-4000-8000-000000000001',
+  'contacts': !enabled
+      ? []
+      : teacher
+      ? [
+          {
+            'person_id': 21,
+            'role': 'parent',
+            'name': 'Hassan Ali',
+            'photo_url': null,
+            'students': ['Omar Hassan'],
+            'classes': ['Grade 5 A'],
+            'subjects': [],
+            'class_teacher': false,
+            'conversation_id': null,
+            'can_write': true,
+          },
+          {
+            'person_id': 11,
+            'role': 'student',
+            'name': 'Omar Hassan',
+            'photo_url': null,
+            'students': [],
+            'classes': ['Grade 5 A'],
+            'subjects': [],
+            'class_teacher': false,
+            'conversation_id': null,
+            'can_write': true,
+          },
+        ]
+      : [
+          {
+            'person_id': 5,
+            'role': 'teacher',
+            'name': 'Mona Adel',
+            'photo_url': null,
+            'students': ['Omar Hassan'],
+            'classes': ['Grade 5 A'],
+            'subjects': ['Mathematics'],
+            'class_teacher': false,
+            'conversation_id': 'c0a8e0f2-0000-4000-8000-000000000003',
+            'can_write': true,
+          },
+          {
+            'person_id': 6,
+            'role': 'teacher',
+            'name': 'Karim Said',
+            'photo_url': null,
+            'students': ['Laila Hassan'],
+            'classes': ['Grade 3 B'],
+            'subjects': [],
+            'class_teacher': true,
+            'conversation_id': null,
+            'can_write': startedBy == 'both',
+          },
+        ],
+};
+
 Map<String, dynamic> schoolLessonJson({
   int id = 1,
   String subject = 'Mathematics',
@@ -3084,6 +3169,264 @@ Map<String, dynamic> sharedReportJson() => {
   'fields': reportFieldsJson(),
   'answers': {'f1': 4, 'f2': 'Good', 'f3': 'Read 20 minutes at home.'},
   'shared_at': '2026-10-13T09:00:00Z',
+};
+
+// 113.2 Checking in and out; 113.3 teachers and staff.
+
+Map<String, dynamic> checkinTimesJson({String starts = '07:30'}) => {
+  'starts': starts,
+  'late_from': '08:00',
+  'ends': '14:00',
+  'early_before': '13:45',
+};
+
+Map<String, dynamic> checkinDayJson({
+  String date = '2026-10-12',
+  String state = 'not_yet',
+  String? inTime,
+  String? outTime,
+  bool late = false,
+  bool leftEarly = false,
+  List<Map<String, dynamic>> corrections = const [],
+}) => {
+  'date': date,
+  'state': state,
+  'in_at': inTime == null ? null : '${date}T05:00:00Z',
+  'in_time': inTime,
+  'in_method': inTime == null ? null : 'qr',
+  'out_at': outTime == null ? null : '${date}T11:00:00Z',
+  'out_time': outTime,
+  'out_method': outTime == null ? null : 'location',
+  'late': late,
+  'left_early': leftEarly,
+  'corrections': corrections,
+};
+
+Map<String, dynamic> checkinTodayJson({
+  String methods = 'either',
+  String role = 'student',
+  bool on = true,
+  bool schoolDay = true,
+  Map<String, dynamic>? today,
+}) => {
+  'on': on,
+  'methods': methods,
+  'place': methods == 'qr'
+      ? null
+      : {'lat': 30.0444, 'lng': 31.2357, 'radius_m': 150},
+  'role': role,
+  'date': '2026-10-12',
+  'school_day': schoolDay,
+  'times': checkinTimesJson(),
+  'today': today ?? checkinDayJson(),
+};
+
+Map<String, dynamic> checkinMonthJson() => {
+  'month': '2026-10',
+  'role': 'student',
+  'times': checkinTimesJson(),
+  'counts': {
+    'days': 8,
+    'present': 6,
+    'late': 2,
+    'left_early': 1,
+    'absent': 1,
+    'excused': 1,
+    'leave': 0,
+  },
+  'days': [
+    checkinDayJson(
+      date: '2026-10-11',
+      state: 'left',
+      inTime: '08:10',
+      outTime: '14:05',
+      late: true,
+      corrections: [
+        {
+          'at': '2026-10-11T12:00:00Z',
+          'reason': 'Came after the bell',
+          'change': 'In 07:50 → 08:10',
+        },
+      ],
+    ),
+    checkinDayJson(date: '2026-10-08', state: 'absent'),
+  ],
+};
+
+Map<String, dynamic> staffMeJson({String role = 'staff'}) => {
+  'name': 'Samir Fawzy',
+  'photo_url': null,
+  'role': role,
+  'job_title': 'Nurse',
+  'department': 'Clinic',
+  'work_hours': {
+    'days': [1, 2, 3, 4, 7],
+    'starts': '09:00',
+    'ends': '17:00',
+  },
+  'days': [1, 2, 3, 4, 7],
+  'times': checkinTimesJson(starts: '09:00'),
+  'duties': 'First aid and the morning check.',
+  'timetable': {'days': <Object>[]},
+};
+
+Map<String, dynamic> leaveRequestJson({
+  int id = 71,
+  String status = 'pending',
+  String? answer,
+}) => {
+  'id': id,
+  'kind': 'sick',
+  'starts_on': '2026-10-13',
+  'ends_on': '2026-10-14',
+  'days': 2,
+  'note': 'Flu',
+  'file': null,
+  'status': status,
+  'answer': answer,
+  'answered_at': answer == null ? null : '2026-10-12T10:00:00Z',
+  'created_at': '2026-10-12T08:00:00Z',
+};
+
+// 113.8 The school's calendar, the exams' timetable and behaviour.
+
+String _isoDay(DateTime d) =>
+    '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+/// Today (the phone's) and [days] after it, as YYYY-MM-DD.
+String isoDayFromToday([int days = 0]) {
+  final now = DateTime.now();
+  return _isoDay(DateTime(now.year, now.month, now.day + days));
+}
+
+Map<String, dynamic> schoolEventJson({
+  int id = 41,
+  String kind = 'event',
+  String title = 'Science fair',
+  String? startsOn,
+  String? endsOn,
+  bool allDay = false,
+}) => {
+  'id': id,
+  'kind': kind,
+  'title': title,
+  'notes': 'Parents are welcome.',
+  'starts_on': startsOn ?? isoDayFromToday(),
+  'ends_on': endsOn ?? startsOn ?? isoDayFromToday(),
+  'all_day': allDay,
+  'starts': allDay ? null : '09:00',
+  'ends': allDay ? null : '12:00',
+  'place': 'The school hall',
+  'audience': 'school',
+  'for_name': null,
+};
+
+Map<String, dynamic> schoolExamJson({
+  int id = 51,
+  String subject = 'Mathematics',
+  String? date,
+}) => {
+  'id': id,
+  'subject': subject,
+  'class_id': 3,
+  'class_name': 'Grade 5 A',
+  'grade': 'Grade 5',
+  'date': date ?? isoDayFromToday(),
+  'starts': '09:00',
+  'ends': '10:00',
+  'duration_minutes': 60,
+  'room': 'B2',
+  'notes': 'Units 1 to 3. Bring a ruler.',
+  'published': true,
+};
+
+Map<String, dynamic> schoolCalendarJson() => {
+  'from': isoDayFromToday(-31),
+  'to': isoDayFromToday(31),
+  'events': [
+    schoolEventJson(),
+    schoolEventJson(
+      id: 42,
+      kind: 'holiday',
+      title: 'Mid-term break',
+      startsOn: isoDayFromToday(),
+      endsOn: isoDayFromToday(),
+      allDay: true,
+    ),
+  ],
+  'exams': [schoolExamJson()],
+};
+
+Map<String, dynamic> examListsJson() => {
+  'upcoming': [schoolExamJson()],
+  'past': [
+    schoolExamJson(id: 52, subject: 'English', date: isoDayFromToday(-7)),
+  ],
+};
+
+Map<String, dynamic> behaviourNoteJson({
+  int id = 61,
+  String kind = 'positive',
+  String category = 'Helping others',
+  int points = 2,
+  int studentId = 11,
+  String? teacherName = 'Mona Adel',
+}) => {
+  'id': id,
+  'student_id': studentId,
+  'student_name': 'Omar Hassan',
+  'class_name': 'Grade 5 A',
+  'kind': kind,
+  'category': category,
+  'points': points,
+  'note': 'Helped a classmate.',
+  'teacher_name': teacherName,
+  'created_at': DateTime.now().toUtc().toIso8601String(),
+};
+
+Map<String, dynamic> studentBehaviourJson() => {
+  'page': 1,
+  'per_page': 50,
+  'total': 2,
+  'total_pages': 1,
+  'points': 1,
+  'positive_count': 1,
+  'negative_count': 1,
+  'items': [
+    behaviourNoteJson(),
+    behaviourNoteJson(
+      id: 62,
+      kind: 'negative',
+      category: 'Late to class',
+      points: -1,
+      teacherName: null,
+    ),
+  ],
+};
+
+List<Map<String, dynamic>> behaviourCategoriesJson() => [
+  {'id': 71, 'name': 'Helping others', 'kind': 'positive', 'points': 2},
+  {'id': 72, 'name': 'Late to class', 'kind': 'negative', 'points': -1},
+];
+
+Map<String, dynamic> classBehaviourJson() => {
+  'class_id': 3,
+  'class_name': 'Grade 5 A',
+  'students': [
+    {
+      'student': schoolStudentJson(),
+      'points': 2,
+      'positive_count': 1,
+      'negative_count': 0,
+    },
+    {
+      'student': schoolStudentJson(id: 13, name: 'Youssef Samir'),
+      'points': -1,
+      'positive_count': 0,
+      'negative_count': 1,
+    },
+  ],
+  'recent': [behaviourNoteJson()],
 };
 
 // 113.7 Learning paths, points and badges, notes, rubrics and exams.

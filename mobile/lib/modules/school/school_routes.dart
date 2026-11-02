@@ -9,18 +9,26 @@ import '../../core/theme/app_icons.dart';
 import '../shared/account/profile_screen.dart';
 import '../shared/shared_routes.dart';
 import 'screens/classroom_reports_screens.dart';
+import 'screens/checkin_screens.dart';
+import 'screens/bus_screens.dart';
+import 'screens/calendar_screens.dart';
 import 'screens/classroom_screens.dart';
+import 'screens/messages_screen.dart';
+import 'screens/library_screens.dart';
 import 'screens/school_screen.dart';
 import 'screens/shared_reports_screen.dart';
+import 'screens/staff_screens.dart';
 import 'screens/student_screens.dart';
 
 /// 105.4 The School module (hosted API): the school and the account as
 /// tabs, for students and parents (a parent switches between their
 /// children), and each part of it as a page; for the school's teachers a
 /// Classroom tab (added for them only, see `withClassroomTab`) with their
-/// classes, attendance, homework and scores.
+/// classes, attendance, homework and scores. 113.2 Checking in and out for
+/// students, teachers and staff; 113.3 a Staff tab for the staff who don't
+/// teach (added for them only, see `withStaffTab`).
 final schoolModule = AppModule(
-  tabPaths: {Paths.school, Paths.classroom, Paths.account},
+  tabPaths: {Paths.school, Paths.classroom, Paths.staff, Paths.account},
   screens: _screens,
   defaultTabs: (_) => _defaultTabs,
   screenLocation: (screen, config) => switch (screen) {
@@ -81,9 +89,17 @@ final classroomTab = ShellTab(
   location: Paths.classroom,
 );
 
+/// 113.3 The Staff tab, for the school's staff who don't teach.
+final staffTab = ShellTab(
+  icon: AppIcons.staffBadge,
+  label: (c) => c.l10n.tabStaff,
+  location: Paths.staff,
+);
+
 List<TabScreen> _screens() => [
   TabScreen(Paths.school, (state) => const SchoolScreen()),
   TabScreen(Paths.classroom, (state) => const ClassroomScreen()),
+  TabScreen(Paths.staff, (state) => const StaffScreen()),
   TabScreen(
     Paths.account,
     (state) => const ProfileScreen(),
@@ -111,7 +127,18 @@ GoRoute _part(String part, Widget Function(int? student) build) => GoRoute(
   ),
 );
 
+GoRoute _page(String path, Widget screen) => GoRoute(
+  path: path,
+  pageBuilder: (context, state) => appPage(state, screen),
+);
+
 List<RouteBase> _pushedRoutes() => [
+  // 113.2 Checking in and out; 113.3 leave and the staff's news.
+  _page(Paths.checkin, const CheckinScreen()),
+  _page(Paths.staffLeaveNew, const LeaveFormScreen()),
+  _page(Paths.staffLeave, const LeaveScreen()),
+  _page(Paths.staffNews, const StaffNewsScreen()),
+  _page(Paths.staffCalendar, const SchoolCalendarScreen(classroom: true)),
   _part('timetable', (student) => TimetableScreen(student: student)),
   _part('homework', (student) => HomeworkScreen(student: student)),
   _part('grades', (student) => GradesScreen(student: student)),
@@ -124,6 +151,40 @@ List<RouteBase> _pushedRoutes() => [
   _part('attendance', (student) => AttendanceScreen(student: student)),
   _part('fees', (student) => FeesScreen(student: student)),
   _part('news', (student) => const SchoolNewsScreen()),
+  // 113.6 Messages with teachers and families.
+  _part('messages', (student) => const SchoolMessagesScreen()),
+  // 113.10 The child's bus, and the bus's crew; 113.11 the library.
+  _part('bus', (student) => StudentBusScreen(student: student)),
+  _part('library', (student) => const LibraryScreen()),
+  _part('library-loans', (student) => const LibraryLoansScreen()),
+  _byId(
+    '${Paths.school}/library/book/:id',
+    (id) => LibraryBookScreen(bookId: id),
+  ),
+  GoRoute(
+    path: Paths.busDuty,
+    pageBuilder: (context, state) => appPage(state, const BusDutyScreen()),
+  ),
+  _byId('${Paths.busDuty}/run/:id', (id) => BusRunScreen(runId: id)),
+  // 113.8 The calendar, the exams' timetable and behaviour; the teacher's
+  // calendar and exams, and a class's behaviour.
+  _part('calendar', (student) => SchoolCalendarScreen(student: student)),
+  _part('exams', (student) => SchoolExamsScreen(student: student)),
+  _part('behaviour', (student) => BehaviourScreen(student: student)),
+  GoRoute(
+    path: '${Paths.classroom}/calendar',
+    pageBuilder: (context, state) =>
+        appPage(state, const SchoolCalendarScreen(classroom: true)),
+  ),
+  GoRoute(
+    path: '${Paths.classroom}/exams',
+    pageBuilder: (context, state) =>
+        appPage(state, const SchoolExamsScreen(classroom: true)),
+  ),
+  _byId(
+    '${Paths.classroom}/class/:id/behaviour',
+    (id) => ClassBehaviourScreen(classId: id),
+  ),
   _byId(
     '${Paths.classroom}/class/:id/attendance',
     (id) => TakeAttendanceScreen(classId: id),
