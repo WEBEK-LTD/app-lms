@@ -20,6 +20,7 @@ S = [
 ("areaAppUsers", "App users", "مستخدمو التطبيق", "Uygulama kullanıcıları"),
 ("areaAnalytics", "Analytics", "الإحصاءات", "Analiz"),
 ("areaNotifications", "Notifications to app users", "الإشعارات لمستخدمي التطبيق", "Uygulama kullanıcılarına bildirimler"),
+("areaSalaries", "Salaries (schools)", "الرواتب (المدارس)", "Maaşlar (okullar)"),
 ("everything", "Everything", "كل شيء", "Her şey"),
 ("allApps", "All apps", "كل التطبيقات", "Tüm uygulamalar"),
 # Businesses
