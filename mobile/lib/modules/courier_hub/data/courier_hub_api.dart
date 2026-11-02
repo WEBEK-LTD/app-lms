@@ -108,6 +108,11 @@ abstract class CourierHubApi {
   /// sessions it opened.
   Future<void> setPushToken(String? token, PushProvider provider);
 
+  /// Deletes the Yallapp Courier account (`DELETE /me`): every phone is
+  /// signed out and every company session ends; the companies keep their
+  /// own couriers' lists.
+  Future<void> deleteAccount();
+
   Future<List<CourierCompany>> listCompanies();
 
   /// The company's hosted session (as the hosted `POST /auth/otp/verify`
@@ -207,6 +212,10 @@ class HttpCourierHubApi implements CourierHubApi {
     _ignore,
     body: {'token': token, 'provider': provider.name},
   );
+
+  @override
+  Future<void> deleteAccount() =>
+      _send('DELETE', '/me', AuthMode.required, _ignore);
 
   @override
   Future<List<CourierCompany>> listCompanies() => _send(

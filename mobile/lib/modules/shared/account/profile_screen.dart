@@ -17,6 +17,7 @@ import '../../../core/widgets/common.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../chat/data/chat_providers.dart';
 import '../../courier_hub/data/courier_hub.dart';
+import '../../courier_hub/screens/companies_screen.dart' show deleteHubAccount;
 import '../../delivery/data/delivery_providers.dart';
 import '../../food/data/food_providers.dart';
 import '../../lms/teachers/teachers_providers.dart';
@@ -383,11 +384,24 @@ class ProfileScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 18),
             AppCard(
-              child: SettingsTile(
-                icon: AppIcons.logout,
-                title: context.l10n.logOut,
-                destructive: true,
-                onTap: () => _signOut(context, ref),
+              child: Column(
+                children: [
+                  SettingsTile(
+                    icon: AppIcons.logout,
+                    title: context.l10n.logOut,
+                    destructive: true,
+                    onTap: () => _signOut(context, ref),
+                  ),
+                  // 104.8.4 Yallapp Courier's own account (the stores ask for it).
+                  if (hub != null)
+                    SettingsTile(
+                      key: const ValueKey('account-hub-delete'),
+                      icon: AppIcons.delete,
+                      title: context.l10n.hubDeleteAccount,
+                      destructive: true,
+                      onTap: () => deleteHubAccount(context, hub.deleteAccount),
+                    ),
+                ],
               ),
             ),
           ],

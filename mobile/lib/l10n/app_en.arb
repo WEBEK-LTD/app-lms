@@ -9160,5 +9160,17 @@
         "type": "String"
       }
     }
+  },
+  "hubDeleteAccount": "Delete my Yallapp Courier account",
+  "@hubDeleteAccount": {
+    "description": "104.8.4 Account and the list of companies: deletes the Yallapp Courier account."
+  },
+  "hubDeleteAccountTitle": "Delete your Yallapp Courier account?",
+  "@hubDeleteAccountTitle": {
+    "description": "104.8.4 Title of the question before deleting the Yallapp Courier account."
+  },
+  "hubDeleteAccountMessage": "You'll be signed out on every phone and your sessions at every company will end. Each company keeps its own records of your deliveries: ask the company to remove you there.",
+  "@hubDeleteAccountMessage": {
+    "description": "104.8.4 What deleting the Yallapp Courier account does."
   }
 }

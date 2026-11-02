@@ -140,7 +140,10 @@ submission, never into this file.
 > directions. It reaches no real customer or courier.
 >
 > Account › Switch company goes back to the list of companies; Account ›
-> Log out signs out of the app and every company on the phone.
+> Log out signs out of the app and every company on the phone. Account ›
+> Delete my Yallapp Courier account deletes the account (also under the
+> list of companies): every phone is signed out and every company session
+> ends.
 >
 > Location: the app asks for the location only while a parcel is on the way
 > and its job is open on the screen, so the customer can see where it is. It
@@ -157,7 +160,8 @@ submission, never into this file.
   location (only while a parcel is on the way and its job is open; shared
   with that company's customer for that parcel), a device ID and push token
   (notifications). Nothing is sold or used for ads or tracking.
-- Encrypted in transit; the courier can sign out at any time.
+- Encrypted in transit; the courier can sign out, or delete the account in
+  the app (Account › Delete my Yallapp Courier account), at any time.
 - Privacy policy: Yallapp's privacy page on the website.
 
 ## Still open (for the owner)
@@ -165,11 +169,11 @@ submission, never into this file.
 - **Publishing**, together with the owner, from Yallapp's own Google Play and
   Apple accounts: the store entries, Yallapp Courier's Firebase project and
   its app files in the build config, signing, the first upload.
-- **Deleting the account in the app** (the App Store asks for it when an app
-  has accounts): the Courier API has no call for it yet. Today a company's
-  Account › Settings › Delete account deletes the person at that company
-  only. Decide between a Courier API call that deletes the Yallapp Courier
-  account and its company sessions, or a link to the website's account
-  deletion page.
+- ~~Deleting the account in the app~~: done. **Account › Delete my Yallapp
+  Courier account** (also under the list of companies, for someone no
+  company has added yet) asks first, then deletes it (Courier API
+  `DELETE /me`): every phone is signed out and every company session ends.
+  The companies keep their own couriers' lists and shipments; the person
+  asks a company to remove them there.
 - **Store screenshots and the feature graphic** (Yallapp's brand files are in
   `brand/stores/`).

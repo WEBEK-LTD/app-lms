@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/api/api_exception.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
@@ -9,6 +10,28 @@ import '../../real_estate/widgets/listing_widgets.dart' show TabHeader;
 import '../data/courier_hub.dart';
 import '../data/courier_hub_api.dart';
 import '../widgets/company_widgets.dart';
+
+/// 104.8.4 Asks, then deletes the Yallapp Courier account ([delete]); a
+/// failure is shown and nothing changes.
+Future<void> deleteHubAccount(
+  BuildContext context,
+  Future<void> Function() delete,
+) async {
+  final ok = await confirmAction(
+    context,
+    title: context.l10n.hubDeleteAccountTitle,
+    message: context.l10n.hubDeleteAccountMessage,
+    confirmLabel: context.l10n.deleteAccount,
+    destructive: true,
+  );
+  if (!ok || !context.mounted) return;
+  final messenger = ScaffoldMessenger.maybeOf(context);
+  try {
+    await delete();
+  } on ApiException catch (e) {
+    messenger?.showSnackBar(SnackBar(content: Text(e.message)));
+  }
+}
 
 /// 104.8.4 The companies the person delivers for on Yallapp Courier
 /// (`GET /companies`): one tap opens its courier screens. None yet: what to
@@ -114,6 +137,18 @@ class CompaniesScreen extends ConsumerWidget {
                 ),
               ),
             Expanded(child: body),
+            // The account can be deleted without any company too.
+            SafeArea(
+              top: false,
+              child: Center(
+                child: TextButton(
+                  key: const ValueKey('hub-delete-account'),
+                  onPressed: () => deleteHubAccount(context, hub.deleteAccount),
+                  style: TextButton.styleFrom(foregroundColor: p.danger),
+                  child: Text(l10n.hubDeleteAccount),
+                ),
+              ),
+            ),
           ],
         ),
       ),

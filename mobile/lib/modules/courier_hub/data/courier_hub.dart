@@ -113,6 +113,7 @@ class CourierHubLink {
     required this.companies,
     required this.switchCompany,
     required this.signOut,
+    required this.deleteAccount,
   });
 
   final CourierCompany company;
@@ -123,6 +124,9 @@ class CourierHubLink {
 
   /// Ends Yallapp Courier and every company session on this phone.
   final Future<void> Function() signOut;
+
+  /// Deletes the Yallapp Courier account, then as [signOut].
+  final Future<void> Function() deleteAccount;
 
   bool get canSwitch => companies.length > 1;
 }
@@ -421,6 +425,7 @@ class CourierHub extends Notifier<HubState> {
             companies: _companies,
             switchCompany: switchCompany,
             signOut: signOut,
+            deleteAccount: deleteAccount,
           ),
         ),
         ...ref.read(courierCompanyOverridesProvider)(company),
@@ -450,6 +455,19 @@ class CourierHub extends Notifier<HubState> {
       await _api.signOut();
     } on ApiException {
       // Offline or already ended: signed out here anyway.
+    }
+    await _endLocally();
+  }
+
+  /// Deletes the Yallapp Courier account (`DELETE /me`), then forgets
+  /// everything here as [signOut] does. A failure other than an ended
+  /// session is the caller's to show.
+  Future<void> deleteAccount() async {
+    try {
+      await _api.deleteAccount();
+    } on ApiException catch (e) {
+      // 401: the session had already ended; nothing is left to delete here.
+      if (!e.isUnauthorized) rethrow;
     }
     await _endLocally();
   }

@@ -8664,4 +8664,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String hubOpening(String company) {
     return 'جارٍ فتح $company…';
   }
+
+  @override
+  String get hubDeleteAccount => 'حذف حسابي في Yallapp Courier';
+
+  @override
+  String get hubDeleteAccountTitle => 'حذف حسابك في Yallapp Courier؟';
+
+  @override
+  String get hubDeleteAccountMessage =>
+      'سيُسجَّل خروجك على كل الهواتف وستنتهي جلساتك في كل الشركات. تحتفظ كل شركة بسجلاتها الخاصة عن توصيلاتك، فاطلب من الشركة إزالتك لديها.';
 }

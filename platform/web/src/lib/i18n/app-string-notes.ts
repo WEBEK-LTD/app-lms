@@ -3515,6 +3515,9 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
   "104.8.4 Account: back to the list of companies.": { ar: "الحساب: العودة إلى قائمة الشركات.", tr: "Hesap: şirket listesine döner." },
   "104.8.4 Confirms signing out of Yallapp Courier.": { ar: "يؤكد تسجيل الخروج من Yallapp Courier.", tr: "Yallapp Courier'dan çıkışı onaylar." },
   "104.8.4 While a company's courier screens open.": { ar: "أثناء فتح شاشات المندوب في الشركة.", tr: "Şirketin kurye ekranları açılırken." },
+  "104.8.4 Account and the list of companies: deletes the Yallapp Courier account.": { ar: "الحساب وقائمة الشركات: يحذف حساب Yallapp Courier.", tr: "Hesap ve şirket listesi: Yallapp Courier hesabını siler." },
+  "104.8.4 Title of the question before deleting the Yallapp Courier account.": { ar: "عنوان السؤال قبل حذف حساب Yallapp Courier.", tr: "Yallapp Courier hesabını silmeden önceki sorunun başlığı." },
+  "104.8.4 What deleting the Yallapp Courier account does.": { ar: "ما يفعله حذف حساب Yallapp Courier.", tr: "Yallapp Courier hesabını silmenin ne yaptığı." },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

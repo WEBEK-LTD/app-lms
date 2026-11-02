@@ -86,6 +86,17 @@ class _HubApi implements CourierHubApi {
   @override
   Future<void> signOut() async => calls.add('signOut');
 
+  /// Thrown by the next `deleteAccount`, then cleared.
+  ApiException? deleteFailure;
+
+  @override
+  Future<void> deleteAccount() async {
+    calls.add('deleteAccount');
+    final failure = deleteFailure;
+    deleteFailure = null;
+    if (failure != null) throw failure;
+  }
+
   @override
   Future<void> setPushToken(String? token, PushProvider provider) async {
     calls.add('setPushToken');
@@ -562,5 +573,63 @@ void main() {
       findsOne,
     );
     expect(await hub.store('app-swift').read(), isNull);
+  });
+
+  testWidgets('deleting the Yallapp Courier account from Account', (
+    tester,
+  ) async {
+    final hub = _Hub(companies: [_swift, _nile]);
+    await hub.pump(tester);
+    await tester.tap(find.text('Swift Parcels'));
+    await _settle(tester);
+    await tester.tap(find.text('Account'));
+    await _settle(tester);
+    final delete = find.byKey(const ValueKey('account-hub-delete'));
+    await tester.scrollUntilVisible(delete, 200);
+    await tester.tap(delete);
+    await _settle(tester);
+    // It says what happens, before anything does.
+    expect(find.text('Delete your Yallapp Courier account?'), findsOneWidget);
+    expect(find.textContaining('signed out on every phone'), findsOneWidget);
+    expect(find.textContaining('ask the company to remove you'), findsOne);
+    expect(hub.api.count('deleteAccount'), 0);
+
+    // A failure says why and keeps everything.
+    hub.api.deleteFailure = const ApiException(
+      code: 'network_error',
+      message: 'No connection.',
+    );
+    await tester.tap(find.text('Delete account'));
+    await _settle(tester);
+    expect(find.text('No connection.'), findsOneWidget);
+    expect(hub.openCompany, 'app-swift');
+    expect(await hub.tokens.read(), isNotNull);
+    // The message goes away by itself.
+    await tester.pump(const Duration(seconds: 5));
+    await _settle(tester);
+
+    await tester.tap(delete);
+    await _settle(tester);
+    await tester.tap(find.text('Delete account'));
+    await _settle(tester);
+    expect(hub.api.count('deleteAccount'), 2);
+    expect(hub.state, isA<HubSignedOut>());
+    expect(await hub.tokens.read(), isNull);
+    expect(await hub.store('app-swift').read(), isNull);
+    // The company's own account deletion was not used.
+    expect(hub.companyApi('app-swift').count('deleteMe'), 0);
+    expect(find.text('Welcome'), findsOneWidget);
+  });
+
+  testWidgets('the account can be deleted without any company', (tester) async {
+    final hub = _Hub(companies: []);
+    await hub.pump(tester);
+    await tester.tap(find.byKey(const ValueKey('hub-delete-account')));
+    await _settle(tester);
+    await tester.tap(find.text('Delete account'));
+    await _settle(tester);
+    expect(hub.api.count('deleteAccount'), 1);
+    expect(hub.state, isA<HubSignedOut>());
+    expect(await hub.tokens.read(), isNull);
   });
 }

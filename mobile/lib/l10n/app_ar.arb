@@ -2276,5 +2276,8 @@
   "hubCompanyGroup": "الشركة",
   "hubSwitchCompany": "تبديل الشركة",
   "hubSignOutMessage": "سيُسجَّل خروجك من Yallapp Courier ومن كل الشركات على هذا الهاتف.",
-  "hubOpening": "جارٍ فتح {company}…"
+  "hubOpening": "جارٍ فتح {company}…",
+  "hubDeleteAccount": "حذف حسابي في Yallapp Courier",
+  "hubDeleteAccountTitle": "حذف حسابك في Yallapp Courier؟",
+  "hubDeleteAccountMessage": "سيُسجَّل خروجك على كل الهواتف وستنتهي جلساتك في كل الشركات. تحتفظ كل شركة بسجلاتها الخاصة عن توصيلاتك، فاطلب من الشركة إزالتك لديها."
 }

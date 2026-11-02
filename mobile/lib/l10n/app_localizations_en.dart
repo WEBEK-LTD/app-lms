@@ -8417,4 +8417,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String hubOpening(String company) {
     return 'Opening $company…';
   }
+
+  @override
+  String get hubDeleteAccount => 'Delete my Yallapp Courier account';
+
+  @override
+  String get hubDeleteAccountTitle => 'Delete your Yallapp Courier account?';
+
+  @override
+  String get hubDeleteAccountMessage =>
+      'You\'ll be signed out on every phone and your sessions at every company will end. Each company keeps its own records of your deliveries: ask the company to remove you there.';
 }

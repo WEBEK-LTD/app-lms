@@ -2276,5 +2276,8 @@
   "hubCompanyGroup": "Şirket",
   "hubSwitchCompany": "Şirket değiştir",
   "hubSignOutMessage": "Bu telefonda Yallapp Courier'dan ve tüm şirketlerden çıkış yapılacak.",
-  "hubOpening": "{company} açılıyor…"
+  "hubOpening": "{company} açılıyor…",
+  "hubDeleteAccount": "Yallapp Courier hesabımı sil",
+  "hubDeleteAccountTitle": "Yallapp Courier hesabınız silinsin mi?",
+  "hubDeleteAccountMessage": "Tüm telefonlarda çıkış yapılacak ve tüm şirketlerdeki oturumlarınız sona erecek. Her şirket teslimatlarınızla ilgili kendi kayıtlarını tutar: sizi oradan kaldırmasını şirketten isteyin."
 }

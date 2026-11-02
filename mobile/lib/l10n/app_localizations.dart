@@ -13771,6 +13771,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Opening {company}…'**
   String hubOpening(String company);
+
+  /// 104.8.4 Account and the list of companies: deletes the Yallapp Courier account.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my Yallapp Courier account'**
+  String get hubDeleteAccount;
+
+  /// 104.8.4 Title of the question before deleting the Yallapp Courier account.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your Yallapp Courier account?'**
+  String get hubDeleteAccountTitle;
+
+  /// 104.8.4 What deleting the Yallapp Courier account does.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll be signed out on every phone and your sessions at every company will end. Each company keeps its own records of your deliveries: ask the company to remove you there.'**
+  String get hubDeleteAccountMessage;
 }
 
 class _AppLocalizationsDelegate

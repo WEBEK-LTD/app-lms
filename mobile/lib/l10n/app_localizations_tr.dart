@@ -8395,4 +8395,14 @@ class AppLocalizationsTr extends AppLocalizations {
   String hubOpening(String company) {
     return '$company açılıyor…';
   }
+
+  @override
+  String get hubDeleteAccount => 'Yallapp Courier hesabımı sil';
+
+  @override
+  String get hubDeleteAccountTitle => 'Yallapp Courier hesabınız silinsin mi?';
+
+  @override
+  String get hubDeleteAccountMessage =>
+      'Tüm telefonlarda çıkış yapılacak ve tüm şirketlerdeki oturumlarınız sona erecek. Her şirket teslimatlarınızla ilgili kendi kayıtlarını tutar: sizi oradan kaldırmasını şirketten isteyin.';
 }

@@ -8900,4 +8900,16 @@ class OverlayLocalizations extends AppLocalizations {
   String hubOpening(String company) =>
       overlay.format('hubOpening', {'company': company}) ??
       base.hubOpening(company);
+
+  @override
+  String get hubDeleteAccount =>
+      overlay.text('hubDeleteAccount') ?? base.hubDeleteAccount;
+
+  @override
+  String get hubDeleteAccountTitle =>
+      overlay.text('hubDeleteAccountTitle') ?? base.hubDeleteAccountTitle;
+
+  @override
+  String get hubDeleteAccountMessage =>
+      overlay.text('hubDeleteAccountMessage') ?? base.hubDeleteAccountMessage;
 }
