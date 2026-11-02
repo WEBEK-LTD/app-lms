@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import type { Lang } from "@/i18n/config";
 import { formatDate as formatIn } from "@/i18n/format";
 import { Icon } from "./icon";
@@ -14,6 +15,8 @@ export const btn = {
     "inline-flex items-center justify-center gap-2 rounded-[10px] px-4 text-[15px] font-semibold text-midnight no-underline hover:bg-white/60 hover:text-midnight",
   danger:
     "inline-flex items-center justify-center gap-2 rounded-[10px] border border-danger bg-white px-5 text-[15px] font-semibold text-danger no-underline hover:bg-danger-bg disabled:opacity-60",
+  /** A page's one main action, in Ember as Studio's "New project" (the text stays dark in both themes). */
+  main: "inline-flex items-center justify-center gap-2 rounded-xl bg-ember px-5 text-[15px] font-extrabold text-[#0e0d24] no-underline shadow-[0_1px_0_rgba(14,13,36,0.08)] hover:bg-[#ff7a45] hover:text-[#0e0d24] disabled:cursor-not-allowed disabled:opacity-60",
 };
 
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
@@ -29,16 +32,25 @@ export function PageHeader({
   description,
   actions,
   eyebrow,
+  back,
 }: {
   title: ReactNode;
   description?: ReactNode;
   actions?: ReactNode;
   /** A small line above the title, like the app's name. */
   eyebrow?: ReactNode;
+  /** The page above this one, as a small link over the title. */
+  back?: { href: string; label: ReactNode };
 }) {
   return (
     <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
       <div className="flex min-w-0 max-w-[720px] flex-[1_1_320px] flex-col gap-1.5">
+        {back ? (
+          <Link href={back.href} className="flex w-fit items-center gap-1 text-sm font-semibold text-muted no-underline hover:text-midnight">
+            <Icon name="arrow_back" size={18} />
+            {back.label}
+          </Link>
+        ) : null}
         {eyebrow ? <span className="text-sm font-semibold text-muted">{eyebrow}</span> : null}
         <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{title}</h1>
         {description ? <div className="m-0 text-[15px] leading-relaxed text-ink-4">{description}</div> : null}

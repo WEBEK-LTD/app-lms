@@ -285,6 +285,8 @@ test("the app preview plays the YouTube lesson in the app's own player (72: the 
 
 test("113.1 the academy sells two courses together in a bundle at its own price, and the app shows it", async ({ request }) => {
   await own.goto("/dashboard/courses");
+  // With courses on the page, the form opens from the header's button.
+  await own.getByRole("button", { name: "Add a course" }).click();
   const add = own.getByRole("region", { name: "Add a course" });
   await add.getByLabel("Title").fill("Turkish Grammar");
   await add.getByLabel("Price (TRY)").fill("300");

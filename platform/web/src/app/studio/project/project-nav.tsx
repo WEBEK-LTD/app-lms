@@ -22,6 +22,11 @@ function isCurrent(href: string, path: string, step: string | null): boolean {
 export function ProjectNav({ label, groups }: { label: string; groups: ProjectNavGroup[] }) {
   const path = usePathname();
   const step = useSearchParams().get("step");
+  // The page and the one under it (Courses and Bundles) both match: the closer one is open.
+  const current = groups
+    .flatMap((group) => group.items)
+    .filter((item) => isCurrent(item.href, path, step))
+    .reduce<string | null>((best, item) => (best === null || item.href.length > best.length ? item.href : best), null);
   return (
     <nav aria-label={label} className="box-border flex max-w-[260px] min-w-[220px] flex-[1_1_240px] flex-col gap-0.5 bg-white px-2.5 py-3.5 text-sm" style={{ borderInlineEnd: `1px solid ${C.line}` }}>
       {groups.map((group, g) => (
@@ -32,7 +37,7 @@ export function ProjectNav({ label, groups }: { label: string; groups: ProjectNa
             </div>
           ) : null}
           {group.items.map((item) => {
-            const on = isCurrent(item.href, path, step);
+            const on = item.href === current;
             return (
               <Link
                 key={item.href}
