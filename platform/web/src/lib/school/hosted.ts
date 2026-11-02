@@ -36,6 +36,7 @@ import {
   timetableJson,
   visibleStudents,
   workerOf,
+  NO_MEMBER,
   type SchoolDirectory,
   type SchoolMember,
 } from "./service";
@@ -68,6 +69,7 @@ import { classroomLifeRoute, registerDayOff, schoolCalendar, studentBehaviour, s
 import { handleParentRoute } from "./parent-hosted";
 import { excusedNote } from "./parent";
 import { universityClassroomRoute, universityStudentRoute } from "../university/hosted";
+import { loadUniSettings, universityOn } from "../university/settings";
 
 /**
  * 105.4 The hosted API's School endpoints (a student and their parents:
@@ -187,6 +189,8 @@ export async function handleSchoolRoute(ctx: SchoolContext, request: ConnectorRe
     if (request.method === "GET" && tail === "report-card") return reportCard(ctx, request, student, settings);
     // 113.5 The teachers' reports the school shared with the student's parents.
     if (request.method === "GET" && tail === "reports") return studentReports(ctx, member, student);
+    // The fees are the parents' (the owner's decision, 2 November); a university's students pay their own.
+    if (path[3] === "fees" && !(await mayHandleFees(ctx, member, student))) return error(403, "not_parent", "The school's fees are for the student's parents.");
     if (request.method === "GET" && tail === "fees") return fees(ctx, student, settings);
     // 113.10 The student's bus, live while it runs.
     if (request.method === "GET" && tail === "bus") return studentBus(ctx, student, settings);
@@ -326,6 +330,12 @@ async function grades(ctx: SchoolContext, student: SchoolPerson, settings: Schoo
   });
 }
 
+
+/** A student's fees are seen and paid by their parents; at a university (113.9), by the student too. */
+async function mayHandleFees(ctx: SchoolContext, member: SchoolMember, student: SchoolPerson): Promise<boolean> {
+  if (member.parent && (await visibleStudents(ctx.store, ctx.app, { ...NO_MEMBER, parent: member.parent })).some((c) => c.id === student.id)) return true;
+  return member.student?.id === student.id && universityOn(ctx.app, ctx.plan, await loadUniSettings(ctx.store, ctx.app.id));
+}
 
 async function fees(ctx: SchoolContext, student: SchoolPerson, settings: SchoolSettings): Promise<ConnectorResult> {
   const all = (await ctx.store.listSchoolFees(ctx.app.id, { studentId: student.id })).filter((f) => f.status !== "cancelled");

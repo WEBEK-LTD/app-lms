@@ -307,6 +307,9 @@ describe("113.8 the school's calendar, exams and behaviour on the hosted API", (
     expect(((await call("GET", "/school/students/{student_id}/attendance", { params: [id], token: reviewer.access_token })).body as { days: unknown[] }).days).toHaveLength(5);
     expect(((await call("GET", "/school/students/{student_id}/fees", { params: [id], token: reviewer.access_token })).body as { items: { status: string }[] }).items).toEqual([expect.objectContaining({ status: "paid" })]);
     expect(((await call("GET", "/school/students/{student_id}/exams", { params: [id], token: reviewer.access_token })).body as { upcoming: unknown[] }).upcoming).toHaveLength(1);
+    // 113.12 A sample payslip of last month, for nothing, in My payslips.
+    const payslips = (await call("GET", "/staff/payslips", { token: reviewer.access_token })).body as { items: { month: string; net: { amount: string }; status: string }[] };
+    expect(payslips.items).toEqual([expect.objectContaining({ net: expect.objectContaining({ amount: "0.00" }), status: "paid" })]);
     expect(((await call("GET", "/school/students/{student_id}/behaviour", { params: [id], token: reviewer.access_token })).body as { total: number }).total).toBe(2);
     const calendar = (await call("GET", "/school/calendar", { token: reviewer.access_token, query: { student_id: id } })).body as { events: { title: string }[]; exams: unknown[] };
     expect(calendar.events.map((e) => e.title)).toEqual(["Class trip (sample)", "Day off (sample)"]);
