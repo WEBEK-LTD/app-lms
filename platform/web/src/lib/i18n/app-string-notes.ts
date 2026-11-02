@@ -3499,6 +3499,22 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
   "113.9 Shown once the advisor sent it back.": { ar: "يظهر بعد أن يعيد المرشد التسجيل.", tr: "Danışman geri gönderince gösterilir." },
   "113.9 A lecturer without advisees.": { ar: "محاضر بلا طلاب في الإرشاد.", tr: "Danışmanlık öğrencisi olmayan öğretim üyesi." },
   "113.9 Shown once a lecture's attendance is saved.": { ar: "يظهر بعد حفظ حضور المحاضرة.", tr: "Dersin yoklaması kaydedilince gösterilir." },
+  "104.8.4 Yallapp Courier's sign-in: what to sign in with.": { ar: "شاشة تسجيل الدخول في Yallapp Courier: بماذا يسجّل المندوب دخوله.", tr: "Yallapp Courier girişi: neyle giriş yapılacağı." },
+  "104.8.4 Yallapp Courier: the list of the companies the person delivers for.": { ar: "Yallapp Courier: قائمة الشركات التي يوصّل لها الشخص.", tr: "Yallapp Courier: kişinin teslimat yaptığı şirketlerin listesi." },
+  "104.8.4 Under the title of the list of companies.": { ar: "تحت عنوان قائمة الشركات.", tr: "Şirket listesinin başlığının altında." },
+  "104.8.4 No company has added the person as a courier yet.": { ar: "لم تُضِف أي شركة الشخص مندوبًا بعد.", tr: "Henüz hiçbir şirket kişiyi kurye olarak eklemedi." },
+  "104.8.4 What to do when no company has added the person yet.": { ar: "ما يفعله الشخص حين لم تُضِفه أي شركة بعد.", tr: "Henüz hiçbir şirket eklemediğinde kişinin ne yapacağı." },
+  "104.8.4 Loads the list of companies again.": { ar: "يحمّل قائمة الشركات مرة أخرى.", tr: "Şirket listesini yeniden yükler." },
+  "104.8.4 How many jobs wait for a courier at a company.": { ar: "عدد المهام التي تنتظر مندوبًا في الشركة.", tr: "Bir şirkette kurye bekleyen iş sayısı." },
+  "104.8.4 The courier is off duty at a company.": { ar: "المندوب خارج الخدمة في الشركة.", tr: "Kurye bu şirkette görev dışı." },
+  "104.8.4 The company paused this courier.": { ar: "أوقفت الشركة هذا المندوب مؤقتًا.", tr: "Şirket bu kuryeyi duraklattı." },
+  "104.8.4 A paused courier tried to open the company.": { ar: "حاول مندوب موقوف مؤقتًا فتح الشركة.", tr: "Duraklatılmış bir kurye şirketi açmaya çalıştı." },
+  "104.8.4 The company is no longer on the person's list.": { ar: "لم تعد الشركة في قائمة الشخص.", tr: "Şirket artık kişinin listesinde değil." },
+  "104.8.4 The company ended the courier's session.": { ar: "أنهت الشركة جلسة المندوب.", tr: "Şirket kuryenin oturumunu sonlandırdı." },
+  "104.8.4 Account: the company the courier's screens are on.": { ar: "الحساب: الشركة التي تعمل عليها شاشات المندوب.", tr: "Hesap: kurye ekranlarının açık olduğu şirket." },
+  "104.8.4 Account: back to the list of companies.": { ar: "الحساب: العودة إلى قائمة الشركات.", tr: "Hesap: şirket listesine döner." },
+  "104.8.4 Confirms signing out of Yallapp Courier.": { ar: "يؤكد تسجيل الخروج من Yallapp Courier.", tr: "Yallapp Courier'dan çıkışı onaylar." },
+  "104.8.4 While a company's courier screens open.": { ar: "أثناء فتح شاشات المندوب في الشركة.", tr: "Şirketin kurye ekranları açılırken." },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

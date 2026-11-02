@@ -8348,4 +8348,73 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get uniAttendanceSaved => 'Attendance saved.';
+
+  @override
+  String get hubSignInIntro =>
+      'Sign in with the mobile number or email address the company you deliver for added.';
+
+  @override
+  String get hubCompaniesTitle => 'Your companies';
+
+  @override
+  String get hubCompaniesIntro =>
+      'Pick the company you\'re delivering for now.';
+
+  @override
+  String get hubNoCompaniesTitle => 'No companies yet';
+
+  @override
+  String get hubNoCompaniesMessage =>
+      'No company has added your number or email as a courier on Yallapp Courier yet. Ask the company you deliver for to add it, then check again.';
+
+  @override
+  String get hubCheckAgain => 'Check again';
+
+  @override
+  String hubJobsWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count jobs waiting',
+      one: '1 job waiting',
+      zero: 'No jobs waiting',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get hubOffDuty => 'Off duty';
+
+  @override
+  String get hubPaused => 'Paused by the company';
+
+  @override
+  String hubPausedMessage(String company) {
+    return '$company has paused you as a courier. Ask them to turn you back on.';
+  }
+
+  @override
+  String hubCompanyGone(String company) {
+    return '$company isn\'t one of your companies any more.';
+  }
+
+  @override
+  String hubSessionEnded(String company) {
+    return 'Your session at $company ended. Open it again from the list.';
+  }
+
+  @override
+  String get hubCompanyGroup => 'Company';
+
+  @override
+  String get hubSwitchCompany => 'Switch company';
+
+  @override
+  String get hubSignOutMessage =>
+      'You\'ll be signed out of Yallapp Courier and every company on this phone.';
+
+  @override
+  String hubOpening(String company) {
+    return 'Opening $company…';
+  }
 }

@@ -172,11 +172,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   }
 
   Future<void> _pickCountry() async {
-    final picked = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => _CountrySheet(selected: _dialCode),
-    );
+    final picked = await pickCountryCode(context, _dialCode);
     if (picked != null) setState(() => _dialCode = picked);
   }
 
@@ -277,7 +273,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                           const AppBackButton(),
                           const SizedBox(width: 12),
                         ],
-                        _Logo(url: logo, name: config.site.name),
+                        SignInLogo(url: logo, name: config.site.name),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
@@ -365,101 +361,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      // The code button is as tall as the number field.
-                      IntrinsicHeight(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Semantics(
-                              button: true,
-                              label: context.l10n.chooseCountryCode(_dialCode),
-                              excludeSemantics: true,
-                              child: Material(
-                                color: p.surface,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                    context.shapes.r(14),
-                                  ),
-                                  side: BorderSide(color: p.inputBorder),
-                                ),
-                                clipBehavior: Clip.antiAlias,
-                                child: InkWell(
-                                  onTap: _pickCountry,
-                                  child: ConstrainedBox(
-                                    constraints: const BoxConstraints(
-                                      minHeight: 56,
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 14,
-                                      ),
-                                      child: Row(
-                                        textDirection: TextDirection.ltr,
-                                        children: [
-                                          Text(
-                                            _dialCode,
-                                            // 110 "+90", not "90+", in
-                                            // right-to-left languages.
-                                            textDirection: TextDirection.ltr,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                              color: p.text,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 6),
-                                          AppIcon(
-                                            AppIcons.expand,
-                                            size: 18,
-                                            color: p.text,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: TextField(
-                                controller: _phone,
-                                keyboardType: TextInputType.phone,
-                                textInputAction: TextInputAction.send,
-                                // Numbers read left to right in every language.
-                                textDirection: TextDirection.ltr,
-                                autofillHints: const [
-                                  AutofillHints.telephoneNumberNational,
-                                ],
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.allow(
-                                    RegExp(r'[0-9 ]'),
-                                  ),
-                                  LengthLimitingTextInputFormatter(18),
-                                ],
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  letterSpacing: 1,
-                                  color: p.text,
-                                ),
-                                decoration: InputDecoration(
-                                  hintText: context.l10n.mobileNumber,
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      context.shapes.r(14),
-                                    ),
-                                    borderSide: BorderSide(
-                                      color: p.text,
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                ),
-                                onChanged: (_) => setState(() => _error = null),
-                                onSubmitted: (_) => _send(),
-                              ),
-                            ),
-                          ],
-                        ),
+                      PhoneNumberField(
+                        controller: _phone,
+                        dialCode: _dialCode,
+                        onPickCountry: _pickCountry,
+                        onChanged: (_) => setState(() => _error = null),
+                        onSubmitted: (_) => _send(),
                       ),
                     ],
                     if (_error != null) ...[
@@ -494,7 +401,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     ),
                     const Spacer(),
                     const SizedBox(height: 24),
-                    _LegalLine(site: config.site),
+                    LegalLine(
+                      terms: config.site.termsUrl,
+                      privacy: config.site.privacyUrl,
+                    ),
                   ],
                 ),
               ),
@@ -540,8 +450,105 @@ class InlineError extends StatelessWidget {
   }
 }
 
-class _Logo extends StatelessWidget {
-  const _Logo({required this.url, required this.name});
+/// The country code button and the mobile number, as tall as each other.
+/// 104.8.4 Yallapp Courier's sign-in has them too.
+class PhoneNumberField extends StatelessWidget {
+  const PhoneNumberField({
+    super.key,
+    required this.controller,
+    required this.dialCode,
+    required this.onPickCountry,
+    this.onChanged,
+    this.onSubmitted,
+  });
+
+  final TextEditingController controller;
+  final String dialCode;
+  final VoidCallback onPickCountry;
+  final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Semantics(
+            button: true,
+            label: context.l10n.chooseCountryCode(dialCode),
+            excludeSemantics: true,
+            child: Material(
+              color: p.surface,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(context.shapes.r(14)),
+                side: BorderSide(color: p.inputBorder),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: onPickCountry,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 56),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    child: Row(
+                      textDirection: TextDirection.ltr,
+                      children: [
+                        Text(
+                          dialCode,
+                          // 110 "+90", not "90+", in
+                          // right-to-left languages.
+                          textDirection: TextDirection.ltr,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: p.text,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        AppIcon(AppIcons.expand, size: 18, color: p.text),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: TextField(
+              controller: controller,
+              keyboardType: TextInputType.phone,
+              textInputAction: TextInputAction.send,
+              // Numbers read left to right in every language.
+              textDirection: TextDirection.ltr,
+              autofillHints: const [AutofillHints.telephoneNumberNational],
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')),
+                LengthLimitingTextInputFormatter(18),
+              ],
+              style: TextStyle(fontSize: 18, letterSpacing: 1, color: p.text),
+              decoration: InputDecoration(
+                hintText: context.l10n.mobileNumber,
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(context.shapes.r(14)),
+                  borderSide: BorderSide(color: p.text, width: 1.5),
+                ),
+              ),
+              onChanged: onChanged,
+              onSubmitted: onSubmitted,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The app's logo, else its initials, at the top of the sign-in screen.
+class SignInLogo extends StatelessWidget {
+  const SignInLogo({super.key, required this.url, required this.name});
   final String? url;
   final String name;
 
@@ -585,15 +592,17 @@ class _Logo extends StatelessWidget {
   }
 }
 
-class _LegalLine extends StatefulWidget {
-  const _LegalLine({required this.site});
-  final SiteInfo site;
+/// "By continuing, you agree to…" with the terms and the privacy policy.
+class LegalLine extends StatefulWidget {
+  const LegalLine({super.key, this.terms, this.privacy});
+  final String? terms;
+  final String? privacy;
 
   @override
-  State<_LegalLine> createState() => _LegalLineState();
+  State<LegalLine> createState() => _LegalLineState();
 }
 
-class _LegalLineState extends State<_LegalLine> {
+class _LegalLineState extends State<LegalLine> {
   final _recognizers = <TapGestureRecognizer>[];
 
   @override
@@ -645,8 +654,8 @@ class _LegalLineState extends State<_LegalLine> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    final terms = widget.site.termsUrl;
-    final privacy = widget.site.privacyUrl;
+    final terms = widget.terms;
+    final privacy = widget.privacy;
     if (terms == null && privacy == null) return const SizedBox.shrink();
     for (final r in _recognizers) {
       r.dispose();
@@ -661,6 +670,14 @@ class _LegalLineState extends State<_LegalLine> {
     );
   }
 }
+
+/// The country code picker under the mobile number; null when closed.
+Future<String?> pickCountryCode(BuildContext context, String selected) =>
+    showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => _CountrySheet(selected: selected),
+    );
 
 class _CountrySheet extends StatefulWidget {
   const _CountrySheet({required this.selected});

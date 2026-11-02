@@ -90,6 +90,7 @@ class BuildConfigData {
     this.appType = AppType.lms,
     this.vertical,
     this.role = AppRole.customer,
+    this.courierHub = false,
     required this.appName,
     required this.shortName,
     required this.siteUrl,
@@ -126,6 +127,12 @@ class BuildConfigData {
 
   /// 104.6 [AppRole.courier]: the courier app, with the courier's screens only.
   final AppRole role;
+
+  /// 104.8.4 Yallapp Courier (`courier_hub`): Yallapp's own courier app for
+  /// every company that picks it. It signs in to Yallapp Courier
+  /// ([apiBaseUrl], the Courier API) and opens each company's courier
+  /// screens on that company's hosted API ([courierCompanyBuild]).
+  final bool courierHub;
   final String appName;
   final String shortName;
 
@@ -192,6 +199,7 @@ class BuildConfigData {
     AppTemplate? template,
     AppType? appType,
     AppRole? role,
+    bool? courierHub,
     String? analyticsUrl,
     String? analyticsKey,
     String? appId,
@@ -203,6 +211,7 @@ class BuildConfigData {
     appType: appType ?? this.appType,
     vertical: vertical,
     role: role ?? this.role,
+    courierHub: courierHub ?? this.courierHub,
     appName: appName ?? this.appName,
     shortName: shortName,
     siteUrl: siteUrl ?? this.siteUrl,

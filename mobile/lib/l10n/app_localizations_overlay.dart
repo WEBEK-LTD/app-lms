@@ -8833,4 +8833,71 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get uniAttendanceSaved =>
       overlay.text('uniAttendanceSaved') ?? base.uniAttendanceSaved;
+
+  @override
+  String get hubSignInIntro =>
+      overlay.text('hubSignInIntro') ?? base.hubSignInIntro;
+
+  @override
+  String get hubCompaniesTitle =>
+      overlay.text('hubCompaniesTitle') ?? base.hubCompaniesTitle;
+
+  @override
+  String get hubCompaniesIntro =>
+      overlay.text('hubCompaniesIntro') ?? base.hubCompaniesIntro;
+
+  @override
+  String get hubNoCompaniesTitle =>
+      overlay.text('hubNoCompaniesTitle') ?? base.hubNoCompaniesTitle;
+
+  @override
+  String get hubNoCompaniesMessage =>
+      overlay.text('hubNoCompaniesMessage') ?? base.hubNoCompaniesMessage;
+
+  @override
+  String get hubCheckAgain =>
+      overlay.text('hubCheckAgain') ?? base.hubCheckAgain;
+
+  @override
+  String hubJobsWaiting(int count) =>
+      overlay.format('hubJobsWaiting', {'count': count}) ??
+      base.hubJobsWaiting(count);
+
+  @override
+  String get hubOffDuty => overlay.text('hubOffDuty') ?? base.hubOffDuty;
+
+  @override
+  String get hubPaused => overlay.text('hubPaused') ?? base.hubPaused;
+
+  @override
+  String hubPausedMessage(String company) =>
+      overlay.format('hubPausedMessage', {'company': company}) ??
+      base.hubPausedMessage(company);
+
+  @override
+  String hubCompanyGone(String company) =>
+      overlay.format('hubCompanyGone', {'company': company}) ??
+      base.hubCompanyGone(company);
+
+  @override
+  String hubSessionEnded(String company) =>
+      overlay.format('hubSessionEnded', {'company': company}) ??
+      base.hubSessionEnded(company);
+
+  @override
+  String get hubCompanyGroup =>
+      overlay.text('hubCompanyGroup') ?? base.hubCompanyGroup;
+
+  @override
+  String get hubSwitchCompany =>
+      overlay.text('hubSwitchCompany') ?? base.hubSwitchCompany;
+
+  @override
+  String get hubSignOutMessage =>
+      overlay.text('hubSignOutMessage') ?? base.hubSignOutMessage;
+
+  @override
+  String hubOpening(String company) =>
+      overlay.format('hubOpening', {'company': company}) ??
+      base.hubOpening(company);
 }

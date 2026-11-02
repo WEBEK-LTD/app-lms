@@ -16,6 +16,8 @@ import 'core/providers.dart';
 import 'core/services/crash_reporter.dart';
 import 'core/services/push_service.dart';
 import 'core/storage/local_settings.dart';
+import 'modules/courier_hub/courier_hub_app.dart';
+import 'modules/courier_hub/data/courier_hub.dart';
 
 void main() {
   // 46 Errors that no other handler caught go to the crash reports.
@@ -42,6 +44,9 @@ Future<void> _start() async {
   final push = await choosePushService(environment.build, environment.platform);
   await push.init();
   final crashes = await _crashReporter(environment, preferences);
+  // 104.8.4 Yallapp Courier: its sign-in and companies, then a company's
+  // courier screens.
+  final hub = environment.build.courierHub;
 
   runApp(
     ProviderScope(
@@ -51,8 +56,9 @@ Future<void> _start() async {
         appEnvironmentProvider.overrideWithValue(environment),
         pushServiceProvider.overrideWithValue(push),
         crashReporterProvider.overrideWithValue(crashes),
+        if (hub) ...courierHubRootOverrides,
       ],
-      child: const YallappApp(),
+      child: hub ? const YallappCourierApp() : const YallappApp(),
     ),
   );
 }

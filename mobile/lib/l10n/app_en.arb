@@ -9071,5 +9071,94 @@
   "uniAttendanceSaved": "Attendance saved.",
   "@uniAttendanceSaved": {
     "description": "113.9 Shown once a lecture's attendance is saved."
+  },
+  "hubSignInIntro": "Sign in with the mobile number or email address the company you deliver for added.",
+  "@hubSignInIntro": {
+    "description": "104.8.4 Yallapp Courier's sign-in: what to sign in with."
+  },
+  "hubCompaniesTitle": "Your companies",
+  "@hubCompaniesTitle": {
+    "description": "104.8.4 Yallapp Courier: the list of the companies the person delivers for."
+  },
+  "hubCompaniesIntro": "Pick the company you're delivering for now.",
+  "@hubCompaniesIntro": {
+    "description": "104.8.4 Under the title of the list of companies."
+  },
+  "hubNoCompaniesTitle": "No companies yet",
+  "@hubNoCompaniesTitle": {
+    "description": "104.8.4 No company has added the person as a courier yet."
+  },
+  "hubNoCompaniesMessage": "No company has added your number or email as a courier on Yallapp Courier yet. Ask the company you deliver for to add it, then check again.",
+  "@hubNoCompaniesMessage": {
+    "description": "104.8.4 What to do when no company has added the person yet."
+  },
+  "hubCheckAgain": "Check again",
+  "@hubCheckAgain": {
+    "description": "104.8.4 Loads the list of companies again."
+  },
+  "hubJobsWaiting": "{count, plural, =0{No jobs waiting} =1{1 job waiting} other{{count} jobs waiting}}",
+  "@hubJobsWaiting": {
+    "description": "104.8.4 How many jobs wait for a courier at a company.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "hubOffDuty": "Off duty",
+  "@hubOffDuty": {
+    "description": "104.8.4 The courier is off duty at a company."
+  },
+  "hubPaused": "Paused by the company",
+  "@hubPaused": {
+    "description": "104.8.4 The company paused this courier."
+  },
+  "hubPausedMessage": "{company} has paused you as a courier. Ask them to turn you back on.",
+  "@hubPausedMessage": {
+    "description": "104.8.4 A paused courier tried to open the company.",
+    "placeholders": {
+      "company": {
+        "type": "String"
+      }
+    }
+  },
+  "hubCompanyGone": "{company} isn't one of your companies any more.",
+  "@hubCompanyGone": {
+    "description": "104.8.4 The company is no longer on the person's list.",
+    "placeholders": {
+      "company": {
+        "type": "String"
+      }
+    }
+  },
+  "hubSessionEnded": "Your session at {company} ended. Open it again from the list.",
+  "@hubSessionEnded": {
+    "description": "104.8.4 The company ended the courier's session.",
+    "placeholders": {
+      "company": {
+        "type": "String"
+      }
+    }
+  },
+  "hubCompanyGroup": "Company",
+  "@hubCompanyGroup": {
+    "description": "104.8.4 Account: the company the courier's screens are on."
+  },
+  "hubSwitchCompany": "Switch company",
+  "@hubSwitchCompany": {
+    "description": "104.8.4 Account: back to the list of companies."
+  },
+  "hubSignOutMessage": "You'll be signed out of Yallapp Courier and every company on this phone.",
+  "@hubSignOutMessage": {
+    "description": "104.8.4 Confirms signing out of Yallapp Courier."
+  },
+  "hubOpening": "Opening {company}…",
+  "@hubOpening": {
+    "description": "104.8.4 While a company's courier screens open.",
+    "placeholders": {
+      "company": {
+        "type": "String"
+      }
+    }
   }
 }
