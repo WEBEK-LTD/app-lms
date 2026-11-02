@@ -37,6 +37,7 @@ import {
 } from "./service";
 import { feesByCardReady, schoolCurrency, schoolSettingsOf } from "./settings";
 import { classGradebook, reportPeriod, type Period } from "./report-cards";
+import { universityClassroomRoute, universityStudentRoute } from "../university/hosted";
 
 /**
  * 105.4 The hosted API's School endpoints (a student and their parents:
@@ -55,6 +56,8 @@ export interface SchoolContext {
   /** The media server, for homework files; null: files can't be sent. */
   storage: MediaStorage | null;
   chunkBytes: number;
+  /** 113.9 The hosted API's secret, for the transcript's signed address; none: no PDF address. */
+  secret?: string;
 }
 
 const signIn = () => error(401, "invalid_token", "Your session has ended. Please sign in again.");
@@ -95,6 +98,8 @@ export async function handleSchoolRoute(ctx: SchoolContext, request: ConnectorRe
   const settings = schoolSettingsOf(await ctx.store.getSchoolSettings(ctx.app.id), ctx.app);
   if (path[0] === "classroom") {
     if (!member.teacher) return notTeacher();
+    // 113.9 A university's lecturers and advisors.
+    if (path[1] === "university") return universityClassroomRoute(ctx, request, member.teacher);
     return classroomRoute(ctx, request, member.teacher, settings);
   }
   if (memberRoles(member).length === 0) return notMember();
@@ -107,6 +112,8 @@ export async function handleSchoolRoute(ctx: SchoolContext, request: ConnectorRe
     const students = await visibleStudents(ctx.store, ctx.app, member);
     const student = students.find((s) => s.id === studentId);
     if (!student) return error(404, "not_found", "Student not found.");
+    // 113.9 The student's university: program, registration, results and transcript.
+    if (path[3] === "university") return universityStudentRoute(ctx, request, member, student);
     const tail = path.slice(3).join("/");
     if (request.method === "GET" && tail === "timetable") return timetable(ctx, student);
     if (request.method === "GET" && tail === "attendance") return attendance(ctx, request, student, settings);

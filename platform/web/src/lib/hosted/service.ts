@@ -5,6 +5,7 @@ import { encryptionKey } from "../env";
 import { MEDIA_CHUNK_BYTES } from "../media/signing";
 import { handleTeachersRoute } from "../teachers/hosted";
 import { handleSchoolRoute } from "../school/hosted";
+import { loadUniSettings, universityOn } from "../university/settings";
 import { memberRoles, schoolConfig, schoolMemberOf } from "../school/service";
 import { feesByCardReady, schoolOn, schoolSettingsOf } from "../school/settings";
 import { notifyGraded, notifyNewLesson } from "./auto-notifications";
@@ -387,6 +388,8 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
         platformUrl: ctx.platformUrl,
         storage: ctx.chat?.storage ?? null,
         chunkBytes: ctx.chat?.chunkBytes ?? MEDIA_CHUNK_BYTES,
+        // 113.9 For the transcript's signed address.
+        secret: ctx.secret,
       },
       { method: req.method, path: req.path, query: req.query, body: req.body, user: session?.user ?? null, now: ctx.now, lang: requestLanguage(req.headers?.get("accept-language")) },
     );
@@ -604,7 +607,9 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
 /** 105.4 `Config.school`. */
 async function schoolConfigOf(ctx: HostedContext) {
   const settings = schoolSettingsOf(await ctx.store.getSchoolSettings(ctx.app.id), ctx.app);
-  return schoolConfig(settings, feesByCardReady(ctx.app, ctx.plan, settings));
+  // 113.9 Whether the school is a university: the app shows its university screens.
+  const university = universityOn(ctx.app, ctx.plan, await loadUniSettings(ctx.store, ctx.app.id));
+  return { ...schoolConfig(settings, feesByCardReady(ctx.app, ctx.plan, settings)), university };
 }
 
 /** `Config.auth`: the owner's sign-in choices. */

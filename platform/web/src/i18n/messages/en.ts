@@ -340,6 +340,8 @@ export const en = {
     choiceRides: "Ride hailing",
     choiceInstructors: "Academies with many teachers",
     choiceSchool: "Schools for students, parents and teachers",
+    // 113.9
+    choiceUniversity: "Universities: registration, results and the GPA",
     choiceMotion: "Motion in the editor",
     choiceTemplates: "Templates",
     choicePages: "How many Studio pages a project has",

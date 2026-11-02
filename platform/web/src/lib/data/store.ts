@@ -100,6 +100,8 @@ import type {
   SchoolSubject,
   SchoolSubmission,
 } from "./types";
+// 113.9 Universities
+import type { UniAttendance, UniCourse, UniDepartment, UniEnrolment, UniEnrolmentStatus, UniFaculty, UniProgram, UniRegistration, UniRegistrationStatus, UniSection, UniSettings, UniStudent, UniTerm } from "./types";
 // 104 Delivery and courier companies
 import type { Courier, CourierInput, CourierPatch, DeliveryService, DeliveryServiceInput, DeliverySettings, Shipment, ShipmentInput, ShipmentPatch, ShipmentQuery, ShipmentStatus } from "./types";
 import type {
@@ -1555,4 +1557,57 @@ export interface DataStore {
   listCellsToRekey(input: { currentKeyId: string; after: string | null; limit: number }): Promise<{ cells: RekeyCell[]; next: string | null }>;
   /** Writes the cell's new text, unless it changed since it was listed. */
   updateRekeyedCell(cell: RekeyCell, text: string): Promise<boolean>;
+
+  // 113.9 Universities (lib/university)
+  getUniSettings(appId: string): Promise<UniSettings | null>;
+  saveUniSettings(appId: string, settings: UniSettings, now: Date): Promise<void>;
+  /** By name. */
+  listUniFaculties(appId: string): Promise<UniFaculty[]>;
+  /** Null when the faculty to edit isn't the app's. */
+  saveUniFaculty(input: Pick<UniFaculty, "appId" | "name" | "code"> & { id: number | null }, now: Date): Promise<UniFaculty | null>;
+  /** Its departments go with it. */
+  deleteUniFaculty(appId: string, id: number): Promise<void>;
+  /** By name. */
+  listUniDepartments(appId: string): Promise<UniDepartment[]>;
+  saveUniDepartment(input: Pick<UniDepartment, "appId" | "facultyId" | "name" | "code"> & { id: number | null }, now: Date): Promise<UniDepartment | null>;
+  /** Its programs go with it; its courses stay without a department. */
+  deleteUniDepartment(appId: string, id: number): Promise<void>;
+  /** By name. */
+  listUniPrograms(appId: string): Promise<UniProgram[]>;
+  saveUniProgram(input: Omit<UniProgram, "id" | "createdAt" | "updatedAt"> & { id: number | null }, now: Date): Promise<UniProgram | null>;
+  /** Its students stay without a program. */
+  deleteUniProgram(appId: string, id: number): Promise<void>;
+  /** By code. */
+  listUniCourses(appId: string): Promise<UniCourse[]>;
+  /** Fails (`duplicate`) when another course has the code. */
+  saveUniCourse(
+    input: Omit<UniCourse, "id" | "createdAt" | "updatedAt"> & { id: number | null },
+    now: Date,
+  ): Promise<{ ok: true; course: UniCourse } | { ok: false; reason: "duplicate" | "not_found" }>;
+  /** Its sections and their students go with it. */
+  deleteUniCourse(appId: string, id: number): Promise<void>;
+  /** The latest first. */
+  listUniTerms(appId: string): Promise<UniTerm[]>;
+  saveUniTerm(input: Omit<UniTerm, "id" | "createdAt"> & { id: number | null }, now: Date): Promise<UniTerm | null>;
+  /** Its sections, registrations and their students go with it. */
+  deleteUniTerm(appId: string, id: number): Promise<void>;
+  /** By the course's id, then the section's code. */
+  listUniSections(appId: string, filter?: { termId?: number; courseId?: number; lecturerId?: number; ids?: number[] }): Promise<UniSection[]>;
+  getUniSection(appId: string, id: number): Promise<UniSection | null>;
+  saveUniSection(input: Omit<UniSection, "id" | "createdAt" | "updatedAt"> & { id: number | null }, now: Date): Promise<UniSection | null>;
+  deleteUniSection(appId: string, id: number): Promise<void>;
+  listUniStudents(appId: string, filter?: { studentIds?: number[]; advisorId?: number; programId?: number }): Promise<UniStudent[]>;
+  /** Adds or replaces the student's row. */
+  saveUniStudent(row: UniStudent): Promise<void>;
+  listUniRegistrations(appId: string, filter: { termId?: number; studentId?: number; studentIds?: number[]; status?: UniRegistrationStatus }): Promise<UniRegistration[]>;
+  /** Adds or replaces the row of the term and student. */
+  saveUniRegistration(row: UniRegistration): Promise<void>;
+  /** In the order they were added. */
+  listUniEnrolments(appId: string, filter: { termId?: number; sectionId?: number; sectionIds?: number[]; studentId?: number; statuses?: UniEnrolmentStatus[] }): Promise<UniEnrolment[]>;
+  /** Null when the student has a row in the section already. */
+  createUniEnrolment(input: Omit<UniEnrolment, "id">): Promise<UniEnrolment | null>;
+  updateUniEnrolment(appId: string, id: number, patch: Partial<Pick<UniEnrolment, "status" | "addedBy" | "addedAt" | "droppedAt" | "grade" | "mark" | "gradedAt">>, now: Date): Promise<boolean>;
+  listUniAttendance(appId: string, filter: { sectionId?: number; studentId?: number; from?: string; to?: string }): Promise<UniAttendance[]>;
+  /** Adds or replaces each row (one per section, student and day). */
+  saveUniAttendance(rows: UniAttendance[]): Promise<void>;
 }

@@ -22,6 +22,7 @@ function choiceLabels(lang: Lang): Record<string, { label: string; icon: IconNam
     rides: { label: m.choiceRides, icon: "directions_car" },
     instructors: { label: m.choiceInstructors, icon: "groups" },
     school: { label: m.choiceSchool, icon: "school" },
+    university: { label: m.choiceUniversity, icon: "apartment" },
     studio_motion: { label: m.choiceMotion, icon: "touch_app" },
     studio_templates: { label: m.choiceTemplates, icon: "dashboard_customize" },
   };
