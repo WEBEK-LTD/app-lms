@@ -282,11 +282,13 @@ test("113.5 The syllabus written and imported; the class behind the plan, then a
   const syllabus = own.getByRole("region", { name: "Mathematics · Grade 5" });
   await expect(syllabus.getByText("No units yet.", { exact: false })).toBeVisible();
   await syllabus.getByLabel("Unit", { exact: true }).fill("Fractions");
-  await syllabus.locator("details", { hasText: "Add a unit" }).getByRole("button", { name: "Add", exact: true }).click();
+  // The first unit's form is in place in the syllabus (later ones open from the header's button).
+  await syllabus.getByRole("region", { name: "Add a unit" }).getByRole("button", { name: "Add", exact: true }).click();
   await expect(own.getByText("Saved.", { exact: true })).toBeVisible();
   await own.reload();
   await expect(syllabus.getByText("Unit 1: Fractions")).toBeVisible();
-  const addTopic = syllabus.locator("details", { hasText: "Add a lesson or topic" });
+  // A unit's first lesson is added in place in the unit.
+  const addTopic = syllabus.getByRole("region", { name: "Add a lesson or topic" });
   await addTopic.getByLabel("Lesson or topic").fill("Halves");
   await addTopic.getByLabel("Planned from").fill("2025-09-07");
   await addTopic.getByLabel("To", { exact: true }).fill("2025-09-11");
@@ -332,7 +334,7 @@ test("113.5 Report templates and the teachers' reports", async () => {
   const template = students.locator('[data-template="Student report"]');
   await expect(template.locator("[data-field]")).toHaveCount(5);
   await expect(template.locator('[data-field="Behaviour"]')).toContainText("A rating from 1 to 5");
-  await template.locator("summary", { hasText: "Add a field" }).click();
+  await template.getByRole("button", { name: "Add a field" }).click();
   await template.getByLabel("Label").fill("Homework");
   await template.getByLabel("Type").selectOption({ label: "A choice" });
   await template.getByLabel("Choices (for a choice)").fill("Always\nSometimes\nRarely");
