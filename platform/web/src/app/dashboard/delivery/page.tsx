@@ -22,6 +22,7 @@ import { appPlan } from "@/lib/entitlements";
 import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { hasFeature } from "@/lib/plans";
 import { courierAppNameOf, workedInCustomersApp } from "@/lib/delivery/courier-app";
+import { courierHubSetting } from "@/lib/courier-hub/review";
 import { ConfirmButton } from "../chat/forms";
 import { isDelivery, isFood, NotDelivery, PlanNotice } from "../shipments/parts";
 import { AddServiceBox, DeliverySettingsForm, ServiceForm } from "./forms";
@@ -69,7 +70,7 @@ async function DeliveryPayments({ app }: { app: App }) {
   );
 }
 
-/** 104 Delivery settings: prices, payment, tracking, jobs, where couriers work, services and card payments. */
+/** 104 Delivery settings: prices, payment, tracking, jobs, where couriers work (104.8.3 their own app or Yallapp Courier), services and card payments. */
 export default async function DeliverySettingsPage({ searchParams }: { searchParams: Promise<SampleQuery> }) {
   const { app, license } = await requireClient("settings");
   const { t } = await dashboardText();
@@ -79,6 +80,9 @@ export default async function DeliverySettingsPage({ searchParams }: { searchPar
   const settings = deliverySettingsOf(saved);
   const money = (cents: number) => (cents > 0 ? centsToDecimal(cents) : "");
   const bundleAllowed = hasFeature(plan, "courier_app");
+  // 104.8.3 A delivery company's couriers may work in Yallapp Courier instead (not a food company's).
+  const links = await courierHubSetting(store);
+  const hub = app.appType !== "delivery" ? null : { company: (app.appName ?? "").trim() || t("emails.yourAppName"), play: links.playUrl, appStore: links.appStoreUrl };
 
   return (
     <div className="flex flex-col gap-6">
@@ -114,7 +118,9 @@ export default async function DeliverySettingsPage({ searchParams }: { searchPar
             courierAppNameDefault: courierAppNameOf(app, { courierAppName: null }),
             courierFirebaseIos: Boolean(settings.courierFirebaseIosAssetId),
             courierIconUrl: settings.courierIconAssetId ? `/api/v1/assets/${settings.courierIconAssetId}` : null,
+            couriersWork: settings.courierApp === "yallapp_courier" ? "yallapp_courier" : "own",
           }}
+          hub={hub}
           food={
             isFood(app)
               ? {

@@ -1,0 +1,425 @@
+openapi: 3.1.0
+info:
+  title: Yallapp Courier API
+  version: 1.0.0
+  summary: What Yallapp Courier, the one courier app for every delivery company that picks it, calls on the platform.
+  description: |
+    Roadmap 104.8. The server side of "Yallapp Courier": Yallapp's own app
+    for the couriers of the delivery companies (Yallapp Studio's Delivery &
+    couriers projects) that chose it in Delivery settings › where couriers
+    work (`DeliveryConfig.courier_app` `yallapp_courier` in openapi.yaml).
+    Not published on the public developer pages.
+
+    - **Accounts.** A person signs in with a 6-digit code sent to their
+      mobile number or email address. The code goes out through Yallapp's
+      own sender (Admin › Settings › Sign-in codes) and email server, never a
+      company's, in the name "Yallapp Courier". The first sign-in makes the
+      account. An account is only a number or an address: what it can do
+      comes from the companies that added it as a courier.
+    - **Tokens.** Sign-in gives a short-lived access token (15 minutes) and a
+      refresh token (60 days, renewed each time it is used: send the newest
+      one; the one sent stops working). The server keeps the refresh token
+      only as a hash. Each sign-in is a device of its own; the same install
+      signing in again replaces its old sign-in, and past 10 phones the one
+      used longest ago is signed out.
+    - **Companies.** `GET /companies` lists the companies the person is a
+      courier of: every delivery project whose Delivery settings › where
+      couriers work is Yallapp Courier, whose plan is active and has
+      `delivery`, and where a courier (active or paused) has the account's
+      mobile number (or, for an email account, its address). A company that
+      added the person but uses its own courier app is not listed.
+    - **A company's session.** `POST /companies/{app_id}/session` gives the
+      company's own hosted API tokens, exactly as the hosted API's
+      `POST /auth/otp/verify` answers them, for the person's account at that
+      company (found by the number or email, made the first time). From then
+      on the app calls the company's hosted API (`api_base_url`, see
+      openapi.yaml) with them: `GET /courier/me`, `GET /courier/jobs` and the
+      rest of the Courier tag, and renews them with its `POST /auth/refresh`.
+      The session's device is marked as Yallapp Courier's. It ends at its
+      next call (401 `invalid_token`) once the company stops using Yallapp
+      Courier, or pauses or removes the courier; the app then shows the
+      companies again.
+    - **Pushes.** `PUT /me/push-token` registers the phone's Firebase token
+      with Yallapp Courier; it is copied to every company session this phone
+      opened (the hosted API's `PUT /me/push-token` keeps working for those
+      sessions too). The companies' pushes to their couriers (`courier_job`,
+      with `shipment_id`) reach these phones from Yallapp Courier's own
+      Firebase project, and their `data` also carries `app_id`, the company
+      it is from, so the app opens that company's job.
+    - **Sign-out.** `POST /auth/sign-out` ends the phone's sign-in and every
+      company session it opened.
+    - **Store review.** Admin › Settings › Yallapp Courier has a review
+      number (or email) and a fixed code. Signing in with them sends nothing,
+      and the account's one company is Yallapp Studio's demo delivery
+      company, where it is a test courier with a sample job (roadmap 104.7).
+    - **Errors** are `{code, message}`, as on the hosted API; `message` is
+      safe to show, in the request's `Accept-Language` when Yallapp has it
+      (English, Arabic or Turkish). 429 adds `retry_after_seconds` and
+      `Retry-After`.
+  license:
+    name: Proprietary, Yallapp
+    url: https://yallapp.com.tr
+  contact:
+    name: Yallapp
+    email: info@yallapp.com.tr
+servers:
+  - url: https://{platform}/api/courier/v1
+    variables:
+      platform:
+        default: yallapp.com.tr
+        description: The platform's host name.
+security:
+  - bearerAuth: []
+tags:
+  - name: Auth
+    description: |
+      Sign in with a code, renew the tokens, sign out. The hosted API's
+      limits: one code a minute and 5 an hour per number or address, 30 an
+      hour per IP, 60 checks per IP in 15 minutes; renewing, 60 per IP in 10
+      minutes. The review number skips the per-number limits (30 an hour in
+      all).
+  - name: Account
+    description: The phone's push token.
+  - name: Companies
+    description: The companies the person is a courier of, and a session at one.
+
+paths:
+  /auth/otp/request:
+    post:
+      tags: [Auth]
+      operationId: requestCode
+      summary: Send a sign-in code
+      description: |
+        Sends a 6-digit code to the mobile number (international, with its
+        `+`) or the email address. It works for 5 minutes. The review number
+        or address gets no message: its code is the fixed one.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  required: [phone]
+                  properties:
+                    phone: { type: string, example: '+201001234567' }
+                - type: object
+                  required: [email]
+                  properties:
+                    email: { type: string, format: email, example: courier@example.com }
+      responses:
+        '200':
+          description: The code was sent
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [request_id, expires_in]
+                properties:
+                  request_id: { type: string, description: 'Sent back with the code to `POST /auth/otp/verify`.' }
+                  expires_in: { type: integer, description: 'Seconds the code works for.', example: 300 }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '502': { $ref: '#/components/responses/ProviderError' }
+
+  /auth/otp/verify:
+    post:
+      tags: [Auth]
+      operationId: verifyCode
+      summary: Sign in with the code
+      description: |
+        Checks the code and signs the phone in: the account of that number
+        or address, made the first time. A wrong, expired or used-up code
+        (5 tries) answers 400 `invalid_code`.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [request_id, code, device]
+              properties:
+                request_id: { type: string }
+                code: { type: string, example: '123456' }
+                device: { $ref: '#/components/schemas/Device' }
+      responses:
+        '200':
+          description: Signed in
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+        '400':
+          description: The code is wrong or expired (`invalid_code`), or the device is missing (`invalid_request`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      operationId: refreshTokens
+      summary: Renew the tokens
+      description: |
+        Gives a new access token and a new refresh token; the refresh token
+        sent stops working. One that expired, was used already, or whose
+        phone was signed out answers 401 `invalid_token`: sign in again.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token: { type: string }
+      responses:
+        '200':
+          description: New tokens
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /auth/sign-out:
+    post:
+      tags: [Auth]
+      operationId: signOut
+      summary: Sign out this phone
+      description: Ends this phone's sign-in and every company session it opened (their tokens stop working).
+      responses:
+        '204': { description: Signed out }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/push-token:
+    put:
+      tags: [Account]
+      operationId: setPushToken
+      summary: Register the phone for pushes
+      description: |
+        The phone's Firebase token for Yallapp Courier, or null to stop its
+        pushes. It is copied to every company session this phone opened, and
+        to the ones it opens later. A token moves with the install: another
+        phone that had it no longer gets pushes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token: { type: [string, 'null'], maxLength: 512 }
+                provider: { type: string, enum: [fcm], default: fcm }
+      responses:
+        '204': { description: Saved }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me:
+    delete:
+      tags: [Account]
+      operationId: deleteAccount
+      summary: Delete the Yallapp Courier account
+      description: |
+        Deletes the account, as the stores ask apps to let people do: every
+        phone signed in to it is signed out and every company session it
+        opened ends. The companies keep their own couriers' list and
+        shipments; the person asks a company to remove them there. Signing
+        in again with the same number or email makes a new account.
+      responses:
+        '204': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /companies:
+    get:
+      tags: [Companies]
+      operationId: listCompanies
+      summary: The companies the person is a courier of
+      description: |
+        Every delivery company on Yallapp Courier, on an active plan with
+        `delivery`, where a courier (active or paused) has the account's
+        number or email, in the order they added the person. Empty when
+        there is none (the app then says to ask the company to add this
+        number).
+      responses:
+        '200':
+          description: The companies
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Company' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /companies/{app_id}/session:
+    post:
+      tags: [Companies]
+      operationId: openCompany
+      summary: A session at one company
+      description: |
+        The company's hosted API tokens for the person's account there (made
+        the first time, with the courier's name), exactly as the hosted API's
+        `POST /auth/otp/verify` answers them; `user.roles` has `courier`. The
+        app then calls `api_base_url` with them and renews them with that
+        API's `POST /auth/refresh`. The session's device is marked as
+        Yallapp Courier's (its pushes come from Yallapp Courier's project, with
+        `app_id`) and carries this phone's push token. Opening it again on the
+        same phone renews it.
+      parameters:
+        - name: app_id
+          in: path
+          required: true
+          description: A company from `GET /companies`.
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [device]
+              properties:
+                device: { $ref: '#/components/schemas/Device' }
+      responses:
+        '200':
+          description: The company's session
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CompanySession' }
+        '400':
+          description: The device is missing (`invalid_device`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403':
+          description: The company paused this courier (`not_courier`); it stays in `GET /companies` with `paused` true. Or the person's account at the company is signed in on as many phones as the company allows (`device_limit_reached`, as on the hosted API).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '404':
+          description: Not one of the person's companies (`not_found`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: The access token from sign-in or refresh (15 minutes).
+
+  responses:
+    BadRequest:
+      description: The request is invalid (`invalid_request`).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unauthorized:
+      description: Missing, expired or revoked token (`invalid_token`).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    TooManyRequests:
+      description: Rate limit reached (`rate_limited`). `retry_after_seconds` says when to try again.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ProviderError:
+      description: The code couldn't be sent (`provider_error`); try again.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          description: Stable machine-readable code.
+          examples:
+            - invalid_request
+            - invalid_code
+            - invalid_device
+            - invalid_token
+            - rate_limited
+            - provider_error
+            - not_found
+            - not_courier
+            - device_limit_reached
+        message: { type: string, description: "Safe to show, in the request's language when Yallapp has it." }
+        retry_after_seconds: { type: integer, description: With `rate_limited`. }
+
+    Device:
+      type: object
+      required: [id, platform]
+      properties:
+        id: { type: string, maxLength: 64, description: 'The ID the app made for this install; the company sessions it opens use it too.' }
+        platform: { type: string, enum: [android, ios] }
+        name: { type: string, maxLength: 100, example: Pixel 8 }
+        app_version: { type: string, maxLength: 20, example: 1.0.0 }
+
+    Session:
+      type: object
+      required: [access_token, refresh_token, expires_in, account]
+      properties:
+        access_token: { type: string }
+        refresh_token: { type: string }
+        expires_in: { type: integer, description: 'Seconds the access token works for.', example: 900 }
+        account:
+          type: object
+          required: [id, phone, email]
+          properties:
+            id: { type: string, format: uuid }
+            phone: { type: [string, 'null'], example: '+201001234567' }
+            email: { type: [string, 'null'] }
+
+    Company:
+      type: object
+      required: [app_id, name, logo_url, primary_color, api_base_url, on_duty, jobs_waiting, paused]
+      properties:
+        app_id: { type: string, format: uuid }
+        name: { type: string, example: Nile Express }
+        logo_url: { type: [string, 'null'], description: "The company's logo, else its app icon." }
+        primary_color: { type: string, pattern: '^#[0-9A-Fa-f]{6}$', example: '#1E3A8A' }
+        api_base_url: { type: string, description: "The company's hosted API, for the session's tokens.", example: 'https://yallapp.com.tr/api/app/0b6f3f0e-3c1a-4e0a-9d8b-2f1e5c7a9b10' }
+        on_duty: { type: boolean }
+        jobs_waiting:
+          type: integer
+          description: The jobs given to the courier still to do, and, when the company lets couriers take jobs and they are on duty, those waiting for a courier.
+        paused: { type: boolean, description: 'The company paused the courier: no session until it resumes them.' }
+
+    CompanySession:
+      type: object
+      description: The hosted API's session (openapi.yaml, `POST /auth/otp/verify`).
+      required: [access_token, refresh_token, expires_in, user]
+      properties:
+        access_token: { type: string }
+        refresh_token: { type: string }
+        expires_in: { type: integer, example: 900 }
+        user:
+          type: object
+          required: [id, name, phone, email, roles]
+          properties:
+            id: { type: integer }
+            name: { type: string }
+            phone: { type: [string, 'null'] }
+            email: { type: [string, 'null'] }
+            city: { type: [string, 'null'] }
+            avatar_url: { type: [string, 'null'] }
+            roles:
+              type: array
+              items: { type: string }
+              example: [courier]

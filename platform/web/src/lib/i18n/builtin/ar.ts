@@ -1010,4 +1010,7 @@ export const SERVER_MESSAGES_AR: Record<string, string> = {
   "Choose whom the book is for (person_id).": "اختر لمن الكتاب (person_id).",
   // 113.12 Payslips.
   "Payslip not found.": "لم نجد قسيمة الراتب.",
+  // 104.8.2 Yallapp Courier.
+  "You aren't a courier of this company.": "لست مندوبًا لدى هذه الشركة.",
+  "This company paused your account. Please contact the company.": "أوقفت هذه الشركة حسابك مؤقتًا. يُرجى التواصل مع الشركة.",
 };

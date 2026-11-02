@@ -27,6 +27,15 @@ export interface SettingsFormValues {
   courierFirebaseIos: boolean;
   /** 112.3 The courier app's own icon, if it has one. */
   courierIconUrl: string | null;
+  /** 104.8.3 Where the couriers work: their own app ("own") or Yallapp Courier. */
+  couriersWork: string;
+}
+
+/** 104.8.3 Yallapp Courier, offered to delivery companies: the company's name and the app's store links once published. */
+export interface HubOffer {
+  company: string;
+  play: string | null;
+  appStore: string | null;
 }
 
 /**
@@ -166,6 +175,7 @@ export function DeliverySettingsForm({
   bundleOff,
   before,
   food,
+  hub,
 }: {
   settings: SettingsFormValues;
   currencies: readonly string[];
@@ -175,10 +185,14 @@ export function DeliverySettingsForm({
   /** 112.3 The couriers worked in the customers' app until now. */
   before: boolean;
   food?: FoodSettingsValues;
+  /** 104.8.3 Delivery companies may choose Yallapp Courier instead of their own courier app. */
+  hub?: HubOffer | null;
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveDeliverySettingsAction, initialFormState);
   const value = (key: Exclude<keyof SettingsFormValues, "cash" | "card" | "courierFirebaseIos" | "courierIconUrl">) => state.values?.[key] ?? settings[key];
+  const [work, setWork] = useState(value("couriersWork"));
+  const onHub = Boolean(hub) && work === "yallapp_courier";
   const checked = (key: "cash" | "card") => (state.values ? state.values[key] === "on" : settings[key]);
   const [pricing, setPricing] = useState(value("pricing"));
   const [currency, setCurrency] = useState(value("currency"));
@@ -276,16 +290,56 @@ export function DeliverySettingsForm({
         />
       </div>
 
-      <SecondAppFields
-        title={t("delivery.courierApp")}
-        text={t("delivery.courierAppText", { name: value("courierAppName") || settings.courierAppNameDefault })}
-        off={bundleAllowed ? null : bundleOff}
-        before={before ? t("delivery.courierAppBefore", { name: value("courierAppName") || settings.courierAppNameDefault }) : null}
-        name={{ field: "courierAppName", label: t("delivery.courierAppName"), hint: t("delivery.courierAppNameHint", { name: settings.courierAppNameDefault }), value: value("courierAppName"), placeholder: settings.courierAppNameDefault }}
-        icon={{ field: "courierIcon", label: t("delivery.courierIcon"), hint: t("delivery.courierIconHint"), saved: t("delivery.courierIconSaved"), remove: t("delivery.courierIconRemove"), url: settings.courierIconUrl }}
-        plist={{ field: "courierFirebaseIos", label: t("delivery.courierFirebaseIos"), hint: t(settings.courierFirebaseIos ? "delivery.courierFirebaseIosSaved" : "delivery.courierFirebaseIosHint") }}
-        errors={state.errors}
-      />
+      {hub ? (
+        <section className="flex flex-col gap-4 border-t border-line-soft pt-5" data-couriers-work>
+          <Choices
+            legend={t("delivery.couriersWork")}
+            name="couriersWork"
+            value={work}
+            onChange={setWork}
+            options={[
+              { value: "own", label: t("delivery.workOwn", { name: value("courierAppName") || settings.courierAppNameDefault }), hint: t("delivery.workOwnHint") },
+              { value: "yallapp_courier", label: t("delivery.workHub"), hint: t("delivery.workHubHint") },
+            ]}
+          />
+          {onHub ? (
+            <Notice icon="two_wheeler" role="status">
+              <span className="flex flex-col gap-2">
+                <span>{t("delivery.hubSteps", { company: hub.company })}</span>
+                {hub.play || hub.appStore ? (
+                  <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    {t("delivery.hubGet")}
+                    {hub.play ? (
+                      <a href={hub.play} target="_blank" rel="noopener noreferrer" className="font-semibold">
+                        {t("delivery.hubPlay")}
+                      </a>
+                    ) : null}
+                    {hub.appStore ? (
+                      <a href={hub.appStore} target="_blank" rel="noopener noreferrer" className="font-semibold">
+                        {t("delivery.hubAppStore")}
+                      </a>
+                    ) : null}
+                  </span>
+                ) : null}
+              </span>
+            </Notice>
+          ) : null}
+        </section>
+      ) : null}
+
+      {/* 104.8.3 Hidden, not removed, on Yallapp Courier: the courier app's name stays as saved. */}
+      <div hidden={onHub}>
+        <SecondAppFields
+          title={t("delivery.courierApp")}
+          text={t("delivery.courierAppText", { name: value("courierAppName") || settings.courierAppNameDefault })}
+          off={bundleAllowed ? null : bundleOff}
+          before={before ? t("delivery.courierAppBefore", { name: value("courierAppName") || settings.courierAppNameDefault }) : null}
+          name={{ field: "courierAppName", label: t("delivery.courierAppName"), hint: t("delivery.courierAppNameHint", { name: settings.courierAppNameDefault }), value: value("courierAppName"), placeholder: settings.courierAppNameDefault }}
+          icon={{ field: "courierIcon", label: t("delivery.courierIcon"), hint: t("delivery.courierIconHint"), saved: t("delivery.courierIconSaved"), remove: t("delivery.courierIconRemove"), url: settings.courierIconUrl }}
+          plist={{ field: "courierFirebaseIos", label: t("delivery.courierFirebaseIos"), hint: t(settings.courierFirebaseIos ? "delivery.courierFirebaseIosSaved" : "delivery.courierFirebaseIosHint") }}
+          errors={state.errors}
+        />
+      </div>
 
       {food ? (
         <section className="flex flex-col gap-5 border-t border-line-soft pt-5">
