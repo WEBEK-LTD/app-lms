@@ -5,7 +5,8 @@ import { DOWNLOAD_CHECK_MAX, DOWNLOAD_KEEP_DAYS, DOWNLOAD_LINK_MINUTES, isVideoF
 import { findLesson, lessonsOf, courseSetup, videoSource } from "../../courses/setup";
 import { randomToken, sha256Hex } from "../../crypto/tokens";
 import type { DataStore } from "../../data/store";
-import type { App, AssignmentSubmission, Course, CourseAssignment, CourseCohort, CourseLesson, CourseLiveSession, CourseQuestion, CourseQuiz, CourseReview, CourseSetup, HostedUser, LessonProgress, QuizAttempt, Teacher } from "../../data/types";
+import { bundleCourses, compareAtCents, orderBundle, shownBundles } from "../../courses/bundles";
+import type { App, AssignmentSubmission, CatalogOrderLine, Course, CourseBundle, CourseAssignment, CourseCohort, CourseLesson, CourseLiveSession, CourseQuestion, CourseQuiz, CourseReview, CourseSetup, HostedUser, LessonProgress, QuizAttempt, Teacher } from "../../data/types";
 import { isTeachersApp, teacherOf } from "../../teachers/service";
 import {
   accessEndsAt,
@@ -98,6 +99,13 @@ const UPLOAD_LIMIT: RateLimitRule = { name: "course_upload", limit: 60, windowSe
 const SUBMIT_LIMIT: RateLimitRule = { name: "course_submit", limit: 60, windowSeconds: 3600 };
 /** 112.5 Coupons tried: a few an hour, so codes can't be guessed. */
 const COUPON_LIMIT: RateLimitRule = { name: "course_coupon", limit: 20, windowSeconds: 3600 };
+/** 113.1 The payment ID of an order a coupon made free: nothing was charged. */
+export const FREE_COUPON_PAYMENT_ID = "coupon";
+const noBundle = () => error(404, "not_found", "Bundle not found.");
+
+/** 113.1 What a checkout or a coupon is for: a course, or a bundle with its published courses. */
+type Sale = { kind: "course"; course: Course } | { kind: "bundle"; bundle: CourseBundle; courses: Course[] };
+const priceOf = (sale: Sale) => (sale.kind === "course" ? sale.course.priceCents : sale.bundle.priceCents);
 
 /**
  * Courses managed in the Yallapp dashboard, served like the plugin's LMS
@@ -149,6 +157,8 @@ export class CoursesConnector implements Connector {
         downloads: this.deps.downloads === true,
         // 96.3 The student's course orders, with their receipts (the app shows them on Android, where courses are sold).
         orders: true,
+        // 113.1 Course bundles shown in the app.
+        bundles: shownBundles(this.setup).length > 0,
       },
       purchases: { enroll_button: this.canSell, free_enrollment: true },
     };
@@ -183,6 +193,9 @@ export class CoursesConnector implements Connector {
         return this.myLiveSessions(request);
       case "POST /course-uploads":
         return this.startCourseUpload(request);
+      // 113.1
+      case "GET /bundles":
+        return this.bundles(request);
     }
     const [first, second, third] = request.path;
     if (first === "me" && second === "wishlist" && third) return error(403, "feature_disabled", "Wishlists aren't available in this app.");
@@ -197,9 +210,15 @@ export class CoursesConnector implements Connector {
       if (request.method === "GET" && third === "curriculum" && request.path.length === 3) return course ? this.curriculum(request, course) : noCourse();
       if (request.method === "POST" && third === "enroll" && request.path.length === 3) return this.enroll(request, course);
       // 112.5 A coupon for a paid course, checked before buying it.
-      if (request.method === "POST" && third === "coupon" && request.path.length === 3) return this.checkCoupon(request, course);
+      if (request.method === "POST" && third === "coupon" && request.path.length === 3) return course ? this.checkCoupon(request, { kind: "course", course }) : noCourse();
       // 73 Start a finished course again.
       if (request.method === "POST" && third === "restart" && request.path.length === 3) return this.restart(request, course);
+    }
+    // 113.1 A bundle, and a coupon for it.
+    if (first === "bundles" && second) {
+      const bundle = this.bundle(Number(second));
+      if (request.method === "GET" && request.path.length === 2) return bundle ? this.bundleDetail(request, bundle) : noBundle();
+      if (request.method === "POST" && third === "coupon" && request.path.length === 3) return bundle ? this.checkCoupon(request, this.bundleSale(bundle)) : noBundle();
     }
     if (first === "questions" && second) {
       if (request.method === "GET" && request.path.length === 2) return this.thread(request, Number(second));
@@ -340,10 +359,76 @@ export class CoursesConnector implements Connector {
 
   // Mapping
 
-  private price(c: Course) {
+  private price(c: Pick<Course, "priceCents">) {
     if (c.priceCents === 0) return { is_free: true, amount: null, sale_amount: null, currency: null, formatted: null };
     const { currency } = this.setup;
     return { is_free: false, amount: centsToDecimal(c.priceCents), sale_amount: null, currency, formatted: formatCents(c.priceCents, currency) };
+  }
+
+  // 113.1 Bundles
+
+  /** A bundle the app shows. */
+  private bundle(id: number): CourseBundle | null {
+    return Number.isSafeInteger(id) ? (shownBundles(this.setup).find((b) => b.id === id) ?? null) : null;
+  }
+
+  private bundleSale(bundle: CourseBundle): Sale {
+    return { kind: "bundle", bundle, courses: bundleCourses(this.setup, bundle) };
+  }
+
+  /** `Bundle`: its price, and what its courses cost on their own ("compare at", when more). */
+  private bundleJson(bundle: CourseBundle, enrolled: Set<number>) {
+    const courses = bundleCourses(this.setup, bundle);
+    const compare = compareAtCents(courses);
+    const owned = courses.filter((c) => enrolled.has(c.id)).length;
+    return {
+      id: bundle.id,
+      title: bundle.title,
+      image_url: bundle.imageAssetId ? this.deps.assetUrl(bundle.imageAssetId) : null,
+      course_count: courses.length,
+      price: this.price(bundle),
+      compare_at: compare > bundle.priceCents ? this.price({ priceCents: compare }) : null,
+      owned_count: owned,
+      owned: owned === courses.length,
+    };
+  }
+
+  /** 100.3 The store product that sells the bundle on this platform, when it's ready there. */
+  private async bundleStoreProduct(bundle: CourseBundle, platform: string | null): Promise<string | null> {
+    if (this.deps.storeBilling !== true || (platform !== "android" && platform !== "ios")) return null;
+    const product = await this.deps.store.getStoreProduct(this.deps.app.id, productIdFor("bundle", bundle.id));
+    return product && readyIn(product, platform) ? product.productId : null;
+  }
+
+  /** The shown bundles that hold a course (`CourseDetail.bundles`). */
+  private bundlesWith(courseId: number, enrolled: Set<number>) {
+    return shownBundles(this.setup)
+      .filter((b) => bundleCourses(this.setup, b).some((c) => c.id === courseId))
+      .map((b) => this.bundleJson(b, enrolled));
+  }
+
+  private async bundles(request: ConnectorRequest): Promise<ConnectorResult> {
+    const enrolled = await this.enrolled(request);
+    return { status: 200, body: { items: shownBundles(this.setup).map((b) => this.bundleJson(b, enrolled)) } };
+  }
+
+  private async bundleDetail(request: ConnectorRequest, bundle: CourseBundle): Promise<ConnectorResult> {
+    const enrolled = await this.enrolled(request);
+    const json = this.bundleJson(bundle, enrolled);
+    const ios = request.query.get("platform") === "ios";
+    const storeProduct = json.owned ? null : await this.bundleStoreProduct(bundle, request.query.get("platform"));
+    // Like a course's: bought in the store, else on the academy's payment page (Android only).
+    const action = json.owned ? "owned" : storeProduct ? "store" : !ios && this.canSell ? "checkout" : "none";
+    const ratings = await this.ratings();
+    return {
+      status: 200,
+      body: {
+        ...json,
+        description_html: descriptionHtml(bundle.description),
+        courses: bundleCourses(this.setup, bundle).map((c) => this.summary(c, enrolled, ratings)),
+        purchase: { action, store_product_id: storeProduct, ...(action === "checkout" ? { coupons: (await this.deps.store.listCatalogCoupons(this.deps.app.id)).some((c) => c.active) } : {}) },
+      },
+    };
   }
 
   private async ratings(): Promise<Ratings> {
@@ -514,6 +599,8 @@ export class CoursesConnector implements Connector {
         can_restart: canRestart(c),
         // 45 The student's progress, so a finished course says so; 90.1 the certificate once earned, and when access ends.
         ...(enrolled.has(c.id) ? await this.enrolledDetail(request, c, enrollments.get(c.id)!) : {}),
+        // 113.1 The bundles it is in.
+        bundles: this.bundlesWith(c.id, enrolled),
       },
     };
   }
@@ -1347,33 +1434,54 @@ export class CoursesConnector implements Connector {
     }
   }
 
-  /** Android only: an order for a paid course, paid on the payment page; paying enrols the student. */
+  /**
+   * Android only: an order for a paid course (113.1 or a bundle), paid on the
+   * payment page; paying enrols the student. 113.1 A coupon that takes the
+   * whole price enrols them at once, with no payment: the order is paid at 0
+   * and completed, and counts one use of the coupon.
+   */
   private async checkoutLink(request: ConnectorRequest): Promise<ConnectorResult> {
     if (!request.user) return signIn();
     const platform = request.query.get("platform");
     if (platform !== "android") return error(403, "purchase_not_allowed", "Courses can't be bought in the iPhone app.");
-    const course = this.course(Number((request.body as { course_id?: unknown } | null)?.course_id));
-    if (!course) return noCourse();
-    if (course.priceCents === 0) return error(403, "feature_disabled", "This course is free: enroll in the app.");
-    if (!this.canSell) return error(403, "feature_disabled", "This course can't be bought right now.");
-    if ((await this.enrolled(request)).has(course.id)) return error(403, "feature_disabled", "You're already enrolled in this course.");
+    const body = request.body as { course_id?: unknown; bundle_id?: unknown; coupon?: unknown } | null;
+    let sale: Sale;
+    if (body?.bundle_id !== undefined && body?.bundle_id !== null) {
+      const bundle = this.bundle(Number(body.bundle_id));
+      if (!bundle) return noBundle();
+      sale = this.bundleSale(bundle);
+    } else {
+      const course = this.course(Number(body?.course_id));
+      if (!course) return noCourse();
+      if (course.priceCents === 0) return error(403, "feature_disabled", "This course is free: enroll in the app.");
+      sale = { kind: "course", course };
+    }
+    if (!this.canSell) return error(403, "feature_disabled", sale.kind === "course" ? "This course can't be bought right now." : "This bundle can't be bought right now.");
+    const enrolled = await this.enrolled(request);
+    if (sale.kind === "course" && enrolled.has(sale.course.id)) return error(403, "feature_disabled", "You're already enrolled in this course.");
+    if (sale.kind === "bundle" && sale.courses.every((c) => enrolled.has(c.id))) return error(403, "feature_disabled", "You're already enrolled in every course in this bundle.");
     // 112.5 With a coupon of the academy's: the payment page charges the price less it, and a paid order counts one use.
-    const raw = (request.body as { coupon?: unknown } | null)?.coupon;
-    const coupon = raw === undefined || raw === null || raw === "" ? null : await this.courseCoupon(raw, course, request.now);
+    const raw = body?.coupon;
+    const coupon = raw === undefined || raw === null || raw === "" ? null : await this.saleCoupon(raw, sale, request.now);
     if (coupon && !coupon.ok) return error(400, "coupon_invalid", coupon.message);
+    const price = priceOf(sale);
     const discount = coupon?.ok ? coupon.discountCents : 0;
+    const line: CatalogOrderLine =
+      sale.kind === "course"
+        ? { productId: sale.course.id, name: sale.course.title, quantity: 1, unitCents: price, imageAssetId: sale.course.imageAssetId, digital: true }
+        : { productId: sale.bundle.id, name: sale.bundle.title, quantity: 1, unitCents: price, imageAssetId: sale.bundle.imageAssetId, digital: true, bundle: orderBundle(sale.courses, enrolled) };
     const token = randomToken(24);
-    await this.deps.store.createCatalogOrder({
+    const order = await this.deps.store.createCatalogOrder({
       // 96.4 The customer's language, for their receipt.
       lang: request.lang ?? null,
       appId: this.deps.app.id,
       tokenHash: sha256Hex(token),
       userId: request.user.id,
       status: "pending",
-      lines: [{ productId: course.id, name: course.title, quantity: 1, unitCents: course.priceCents, imageAssetId: course.imageAssetId, digital: true }],
-      subtotalCents: course.priceCents,
+      lines: [line],
+      subtotalCents: price,
       shippingCents: 0,
-      totalCents: course.priceCents - discount,
+      totalCents: price - discount,
       ...(coupon?.ok ? { couponCode: coupon.code, discountCents: discount } : {}),
       currency: this.setup.currency,
       customer: null,
@@ -1385,37 +1493,42 @@ export class CoursesConnector implements Connector {
       itemTransactionIds: null,
       payoutApprovedAt: null,
     });
-    return {
-      status: 200,
-      body: { url: payUrl(this.deps.platformUrl, token), expires_at: new Date(request.now.getTime() + PAY_LINK_MINUTES * 60_000).toISOString(), open_in: "in_app" },
-    };
+    const link = { url: payUrl(this.deps.platformUrl, token), expires_at: new Date(request.now.getTime() + PAY_LINK_MINUTES * 60_000).toISOString(), open_in: "in_app" as const };
+    if (order.totalCents > 0) return { status: 200, body: link };
+    // 113.1 Free with the coupon: enrolled now. The link shows the order as received (for apps from before 113.1, which open it).
+    const courseIds = sale.kind === "course" ? [sale.course.id] : sale.courses.map((c) => c.id);
+    await this.deps.store.payCatalogOrder(this.deps.app.id, order.id, FREE_COUPON_PAYMENT_ID, request.now);
+    const used = coupon?.ok ? await this.deps.store.getCatalogCouponByCode(this.deps.app.id, coupon.code) : null;
+    if (used) await this.deps.store.useCatalogCoupon(this.deps.app.id, used.id);
+    for (const courseId of courseIds) await this.deps.store.enrollInCourse({ appId: this.deps.app.id, userId: request.user.id, courseId, source: "free", enrolledAt: request.now });
+    await this.deps.store.updateCatalogOrder(this.deps.app.id, order.id, { status: "completed", updatedAt: request.now });
+    return { status: 200, body: { ...link, enrolled: true, course_ids: courseIds } };
   }
 
-  /** 112.5 A coupon for a paid course: what it takes off, or why it doesn't apply (never the whole price: the payment page charges something). */
-  private async courseCoupon(raw: unknown, course: Course, now: Date): Promise<{ ok: true; code: string; discountCents: number } | { ok: false; message: string }> {
+  /** 112.5 A coupon for a paid course (113.1 or a bundle): what it takes off, or why it doesn't apply; 113.1 all of it makes it free. */
+  private async saleCoupon(raw: unknown, sale: Sale, now: Date): Promise<{ ok: true; code: string; discountCents: number } | { ok: false; message: string }> {
     const code = normalizeCouponCode(raw);
     const coupon = code ? await this.deps.store.getCatalogCouponByCode(this.deps.app.id, code) : null;
-    const check = couponDiscount(coupon, course.priceCents, this.setup.currency, now);
+    const check = couponDiscount(coupon, priceOf(sale), this.setup.currency, now);
     if (!check.ok) return check;
-    if (check.discountCents >= course.priceCents) return { ok: false, message: "This coupon can't be used for this course. Ask the academy to add you to it." };
     return { ok: true, code: coupon!.code, discountCents: check.discountCents };
   }
 
-  private async checkCoupon(request: ConnectorRequest, course: Course | null): Promise<ConnectorResult> {
+  private async checkCoupon(request: ConnectorRequest, sale: Sale): Promise<ConnectorResult> {
     if (!request.user) return signIn();
-    if (!course) return noCourse();
-    if (course.priceCents === 0) return error(403, "feature_disabled", "This course is free: enroll in the app.");
+    if (sale.kind === "course" && sale.course.priceCents === 0) return error(403, "feature_disabled", "This course is free: enroll in the app.");
     const wait = await this.limited(request, COUPON_LIMIT);
     if (wait) return wait;
     const raw = (request.body as { code?: unknown } | null)?.code;
-    const check = await this.courseCoupon(raw, course, request.now);
+    const check = await this.saleCoupon(raw, sale, request.now);
     const { currency } = this.setup;
+    const price = priceOf(sale);
     const code = typeof raw === "string" ? raw.trim().toUpperCase().slice(0, 50) : "";
     return {
       status: 200,
       body: check.ok
-        ? { code: check.code, status: "applied", message: null, price: formatCents(course.priceCents, currency), discount: formatCents(check.discountCents, currency), total: formatCents(course.priceCents - check.discountCents, currency) }
-        : { code, status: "invalid", message: check.message, price: formatCents(course.priceCents, currency), discount: null, total: formatCents(course.priceCents, currency) },
+        ? { code: check.code, status: "applied", message: null, price: formatCents(price, currency), discount: formatCents(check.discountCents, currency), total: formatCents(price - check.discountCents, currency), free: check.discountCents >= price }
+        : { code, status: "invalid", message: check.message, price: formatCents(price, currency), discount: null, total: formatCents(price, currency), free: false },
     };
   }
 }

@@ -319,11 +319,12 @@ export async function startPaidMemberships(store: DataStore, app: App, order: Ca
   await store.updateCatalogOrder(app.id, order.id, { status: "completed", updatedAt: now });
 }
 
-/** A paid course order enrols its student in its courses (apps whose courses are managed in the dashboard). */
+/** A paid course order enrols its student in its courses (apps whose courses are managed in the dashboard); 113.1 a bundle's line, in each of its courses (one they're in already stays as it is). */
 export async function enrollPaidCourses(store: DataStore, app: App, order: CatalogOrder, now: Date): Promise<void> {
   if (app.connector?.kind !== "courses" || order.userId === null) return;
   for (const line of order.lines) {
-    await store.enrollInCourse({ appId: app.id, userId: order.userId, courseId: line.productId, source: "paid", enrolledAt: now });
+    const courseIds = line.bundle ? line.bundle.courses.map((c) => c.courseId) : [line.productId];
+    for (const courseId of courseIds) await store.enrollInCourse({ appId: app.id, userId: order.userId, courseId, source: "paid", enrolledAt: now });
   }
   // Nothing to deliver: the order is done once the student is in.
   await store.updateCatalogOrder(app.id, order.id, { status: "completed", updatedAt: now });

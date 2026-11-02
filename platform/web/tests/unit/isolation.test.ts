@@ -621,6 +621,8 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       upload_id: randomUUID(),
       order_id: ids.order_id,
       course_id: "10",
+      // 113.1 Bundles: none on these apps (each path answers not found).
+      bundle_id: "1",
       question_id: ids.question_id,
       lesson_id: "12",
       // Quizzes, services and classes: none on these apps (each path still answers nothing).

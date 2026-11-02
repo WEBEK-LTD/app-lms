@@ -30,6 +30,7 @@ import '../downloads/progress_queue.dart';
 import '../lesson/content/html_content.dart';
 import '../navigation.dart';
 import '../teachers/teachers_providers.dart';
+import '../widgets/bundle_cards.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/services/share_links.dart';
 
@@ -142,6 +143,12 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
           .read(yallappApiProvider)
           .createCheckoutLink(course.id, coupon: coupon);
       if (!mounted) return;
+      // 113.1 A coupon made it free: enrolled already, nothing to pay.
+      if (link.enrolled) {
+        invalidateCourse(ref, course.id);
+        showMessage(context, context.l10n.enrolledMessage);
+        return;
+      }
       final rules = ref.read(appConfigProvider).purchases;
       final inApp =
           link.openIn == CheckoutTarget.inApp &&
@@ -419,6 +426,25 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                               ),
                           ],
                         ),
+                        // 113.1 The bundles it's in, while one isn't the student's.
+                        if (course.bundles.any((b) => !b.owned)) ...[
+                          const SizedBox(height: 16),
+                          Text(
+                            l10n.bundleAlsoIn,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: p.text,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          for (final bundle in course.bundles.where(
+                            (b) => !b.owned,
+                          )) ...[
+                            BundleCard(bundle: bundle),
+                            const SizedBox(height: 8),
+                          ],
+                        ],
                         if (finished) ...[
                           const SizedBox(height: 16),
                           CourseCompletedBanner(
@@ -1416,12 +1442,16 @@ class CourseCompletedBanner extends StatelessWidget {
   }
 }
 
-/// 112.5 Before a paid course's checkout: a coupon checked (with the price
-/// it leaves), or none. Pops `(code: …)`; null when closed.
+/// 112.5 Before a paid course's checkout (113.1 or a bundle's): a coupon
+/// checked (with the price it leaves), or none. Pops `(code: …)`; null when
+/// closed. 113.1 One that takes the whole price says so, and "Enroll for
+/// free" goes on without a payment.
 class CouponSheet extends ConsumerStatefulWidget {
-  const CouponSheet({super.key, required this.courseId});
+  const CouponSheet({super.key, this.courseId, this.bundleId})
+    : assert((courseId == null) != (bundleId == null));
 
-  final int courseId;
+  final int? courseId;
+  final int? bundleId;
 
   @override
   ConsumerState<CouponSheet> createState() => _CouponSheetState();
@@ -1443,9 +1473,10 @@ class _CouponSheetState extends ConsumerState<CouponSheet> {
     if (code.isEmpty) return;
     setState(() => _busy = true);
     try {
-      final check = await ref
-          .read(yallappApiProvider)
-          .checkCourseCoupon(widget.courseId, code);
+      final api = ref.read(yallappApiProvider);
+      final check = widget.bundleId != null
+          ? await api.checkBundleCoupon(widget.bundleId!, code)
+          : await api.checkCourseCoupon(widget.courseId!, code);
       if (mounted) setState(() => _check = check);
     } on ApiException catch (e) {
       if (mounted) showMessage(context, e.message);
@@ -1501,7 +1532,9 @@ class _CouponSheetState extends ConsumerState<CouponSheet> {
               if (check != null) ...[
                 const SizedBox(height: 8),
                 Text(
-                  check.applied
+                  check.applied && check.free
+                      ? l10n.couponFree
+                      : check.applied
                       ? l10n.couponSaves(check.discount ?? '', check.total)
                       : (check.message ?? ''),
                   style: TextStyle(
@@ -1513,7 +1546,9 @@ class _CouponSheetState extends ConsumerState<CouponSheet> {
               const SizedBox(height: 16),
               PrimaryButton(
                 key: const ValueKey('coupon-continue'),
-                label: check?.applied == true
+                label: check?.applied == true && check!.free
+                    ? l10n.couponEnrollFree
+                    : check?.applied == true
                     ? l10n.couponContinue
                     : l10n.couponWithout,
                 height: 52,
