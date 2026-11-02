@@ -104,7 +104,7 @@ test("Chat: the administration writes to a department; the teachers' conversatio
   await expect(views.getByRole("link", { name: "Teachers", exact: true })).toHaveAttribute("aria-current", "page");
   await expect(views.getByRole("link", { name: "Teachers and families" })).toBeVisible();
   const write = own.getByRole("region", { name: "Write to your teachers and staff" });
-  await write.getByLabel("To", { exact: true }).selectOption({ label: "Department: Sciences" });
+  await write.getByRole("combobox", { name: "To", exact: true }).selectOption("department:Sciences");
   await write.getByLabel("Message").fill("Staff meeting at 2 today.");
   await write.getByRole("button", { name: "Send" }).click();
   // Mona hasn't signed in to the app yet.
