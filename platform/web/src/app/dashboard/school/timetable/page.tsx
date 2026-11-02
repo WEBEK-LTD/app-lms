@@ -125,7 +125,7 @@ export default async function SchoolTimetablePage({ searchParams }: { searchPara
                                 {t("school.delete")}
                               </ConfirmButton>
                             </form>
-                            <Sheet id={`lesson-${period.id}`} title={t("school.editLesson")} description={`${t(key)} · ${timeOf(period.startMinute)}–${timeOf(period.endMinute)}`}>
+                            <Sheet id={`lesson-${period.id}`} title={t("school.editLesson")} description={`${subjectName.get(period.subjectId) ?? "—"} · ${t(key)}`}>
                               <SchoolForm action={saveSchoolPeriodAction} submit={t("school.save")} sheet>
                                 <input type="hidden" name="id" value={period.id} />
                                 <input type="hidden" name="classId" value={klass.id} />

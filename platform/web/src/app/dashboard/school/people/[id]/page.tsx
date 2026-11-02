@@ -100,7 +100,7 @@ export default async function SchoolStudentPage({ params }: { params: Promise<{ 
         </ul>
         {pickup && updated ? <p className="m-0 border-t border-line-soft px-5 py-3 text-[13px] text-muted sm:px-6">{t("parents.updatedBy", { by: pickup.updatedBy ?? "—", date: updated })}</p> : null}
         {canAddPerson ? (
-          <Sheet id="new-pickup" title={t("parents.addPerson")} description={t("parents.pickupIntro")}>
+          <Sheet id="new-pickup" title={t("parents.addPerson")}>
             <SchoolForm action={addPickupPersonAction} submit={t("parents.add")} reset sheet>
               <input type="hidden" name="studentId" value={student.id} />
               <div className="grid gap-4 sm:grid-cols-2">
@@ -152,7 +152,7 @@ export default async function SchoolStudentPage({ params }: { params: Promise<{ 
             />
           ))}
         </ul>
-        <Sheet id="new-pickup-note" title={t("parents.addNote")} description={t("parents.pickupNotesIntro")}>
+        <Sheet id="new-pickup-note" title={t("parents.addNote")}>
           <SchoolForm action={savePickupNoteAction} submit={t("parents.save")} reset sheet>
             <input type="hidden" name="studentId" value={student.id} />
             <div className="grid gap-4 sm:grid-cols-2">
