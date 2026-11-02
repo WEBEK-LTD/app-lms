@@ -196,6 +196,8 @@ class AuthController extends Notifier<AuthState> {
       await ref.read(sharedPreferencesProvider).remove(ticketWalletKey);
       // 63 And their member codes.
       await ref.read(sharedPreferencesProvider).remove(membershipWalletKey);
+      // 112.1 And their Home, Work and recent places.
+      await ref.read(sharedPreferencesProvider).remove(savedPlacesKey);
     } on Object {
       // No preferences (tests without them): nothing was kept.
     }

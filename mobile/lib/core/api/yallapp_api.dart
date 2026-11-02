@@ -2707,7 +2707,8 @@ class HttpYallappApi implements YallappApi {
     double? lng,
     String? session,
   }) => _get(
-    '/taxi/places',
+    // 112 The map's places, for every app with a map (105.9's `/taxi/places`).
+    '/maps/places',
     _optional,
     (json) => listOf(json, 'items', TaxiPlace.fromJson),
     query: {'q': query, 'lat': ?lat, 'lng': ?lng, 'session': ?session},
@@ -2715,7 +2716,7 @@ class HttpYallappApi implements YallappApi {
 
   @override
   Future<TaxiPlace> getTaxiPlace(String id, {String? session}) => _get(
-    '/taxi/places/${Uri.encodeComponent(id)}',
+    '/maps/places/${Uri.encodeComponent(id)}',
     _optional,
     TaxiPlace.fromJson,
     query: {'session': ?session},
@@ -2727,7 +2728,7 @@ class HttpYallappApi implements YallappApi {
     ({double lat, double lng}) to,
   ) => _send(
     'POST',
-    '/taxi/route',
+    '/maps/route',
     _optional,
     (data) => TaxiRoute.fromJson(asJson(data)),
     body: {

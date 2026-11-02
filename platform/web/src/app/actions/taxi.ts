@@ -12,11 +12,11 @@ import { formValues, type FormState } from "@/lib/forms";
 import { serviceAccountOf } from "@/lib/hosted/notify";
 import { checkLiveDatabase, liveDatabase, LiveError } from "@/lib/taxi/live";
 import { checkMap, regionOf, type MapCheck } from "@/lib/taxi/maps";
-import { googleKeyOf, isTaxiApp, parseTaxiForm, sealGoogleKey, taxiSettingsOf, type TaxiFormValues } from "@/lib/taxi/settings";
+import { googleKeyOf, isRideApp, isTaxiApp, parseTaxiForm, sealGoogleKey, taxiSettingsOf, type TaxiFormValues } from "@/lib/taxi/settings";
 import type { TeamPermission } from "@/lib/team/permissions";
 
 /**
- * 105.9 The Maps & live page of live taxi apps: the company's map (its
+ * 105.9 The Maps & live page of ride apps (112.1: ride hailing too): the company's map (its
  * Google key, or its OpenStreetMap servers) and its Firebase Realtime
  * Database, each with a test.
  */
@@ -25,7 +25,7 @@ async function requireTaxiApp(permission: TeamPermission): Promise<ClientContext
   const context = await clientFor(permission);
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
-  if (!context.app || !isTaxiApp(context.app)) redirect("/dashboard");
+  if (!context.app || !isRideApp(context.app)) redirect("/dashboard");
   return context as ClientContext & { app: App };
 }
 
@@ -41,7 +41,7 @@ export async function saveTaxiSettingsAction(_: FormState, formData: FormData): 
   const now = new Date();
   const settings = deliverySettingsOf(await store.getDeliverySettings(app.id));
   const saved = taxiSettingsOf(settings);
-  const parsed = parseTaxiForm(values as TaxiFormValues, saved);
+  const parsed = parseTaxiForm(values as TaxiFormValues, saved, { tilesOptional: !isTaxiApp(app) });
   // The key is never echoed back.
   const { googleKey: _typed, ...shown } = values;
   if (!parsed.ok) return { errors: parsed.errors, values: shown };

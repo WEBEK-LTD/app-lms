@@ -6550,4 +6550,89 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get quizReviewWrong =>
       overlay.text('quizReviewWrong') ?? base.quizReviewWrong;
+
+  @override
+  String get mapNotShown => overlay.text('mapNotShown') ?? base.mapNotShown;
+
+  @override
+  String get placesHome => overlay.text('placesHome') ?? base.placesHome;
+
+  @override
+  String get placesWork => overlay.text('placesWork') ?? base.placesWork;
+
+  @override
+  String get placesAddHome =>
+      overlay.text('placesAddHome') ?? base.placesAddHome;
+
+  @override
+  String get placesAddWork =>
+      overlay.text('placesAddWork') ?? base.placesAddWork;
+
+  @override
+  String get placesSetHome =>
+      overlay.text('placesSetHome') ?? base.placesSetHome;
+
+  @override
+  String get placesSetWork =>
+      overlay.text('placesSetWork') ?? base.placesSetWork;
+
+  @override
+  String get placesRecent => overlay.text('placesRecent') ?? base.placesRecent;
+
+  @override
+  String get placesNoSearch =>
+      overlay.text('placesNoSearch') ?? base.placesNoSearch;
+
+  @override
+  String get placeFromLink =>
+      overlay.text('placeFromLink') ?? base.placeFromLink;
+
+  @override
+  String get rideAdjustPickup =>
+      overlay.text('rideAdjustPickup') ?? base.rideAdjustPickup;
+
+  @override
+  String get rideConfirmPickup =>
+      overlay.text('rideConfirmPickup') ?? base.rideConfirmPickup;
+
+  @override
+  String get rideMovePin => overlay.text('rideMovePin') ?? base.rideMovePin;
+
+  @override
+  String rideCarsNearby(int count) =>
+      overlay.format('rideCarsNearby', {'count': count}) ??
+      base.rideCarsNearby(count);
+
+  @override
+  String taxiDropoffIn(int minutes) =>
+      overlay.format('taxiDropoffIn', {'minutes': minutes}) ??
+      base.taxiDropoffIn(minutes);
+
+  @override
+  String get rideReceipt => overlay.text('rideReceipt') ?? base.rideReceipt;
+
+  @override
+  String get navigateWith => overlay.text('navigateWith') ?? base.navigateWith;
+
+  @override
+  String get navigateButton =>
+      overlay.text('navigateButton') ?? base.navigateButton;
+
+  @override
+  String get navigateToPickup =>
+      overlay.text('navigateToPickup') ?? base.navigateToPickup;
+
+  @override
+  String get navigateToDropoff =>
+      overlay.text('navigateToDropoff') ?? base.navigateToDropoff;
+
+  @override
+  String trackingOnTheWayFrom(String place) =>
+      overlay.format('trackingOnTheWayFrom', {'place': place}) ??
+      base.trackingOnTheWayFrom(place);
+
+  @override
+  String trackingArrivesIn(int minutes) =>
+      overlay.format('trackingArrivesIn', {'minutes': minutes}) ??
+      base.trackingArrivesIn(minutes);
 }

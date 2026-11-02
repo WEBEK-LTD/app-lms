@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -170,6 +171,9 @@ class LocationSharer {
   Timer? _timer;
   bool _sending = false;
 
+  /// 112.2 The last position sent, for the courier's own map.
+  final position = ValueNotifier<({double lat, double lng})?>(null);
+
   bool get running => _timer != null;
 
   void start() {
@@ -190,6 +194,7 @@ class LocationSharer {
       final found = await _ref.read(locatorProvider).current();
       final p = found.position;
       if (p != null) {
+        position.value = (lat: p.lat, lng: p.lng);
         await _ref
             .read(yallappApiProvider)
             .sendCourierLocation(p.lat, p.lng, accuracy: p.accuracy);
@@ -204,6 +209,9 @@ class LocationSharer {
 
 final locationSharerProvider = Provider.autoDispose<LocationSharer>((ref) {
   final sharer = LocationSharer(ref);
-  ref.onDispose(sharer.stop);
+  ref.onDispose(() {
+    sharer.stop();
+    sharer.position.dispose();
+  });
   return sharer;
 });

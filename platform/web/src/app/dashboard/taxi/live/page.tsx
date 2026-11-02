@@ -8,7 +8,9 @@ import { encryptionKey } from "@/lib/env";
 import { DEFAULT_RIDES_TIMEZONE } from "@/lib/rides/settings";
 import { liveBoard } from "@/lib/taxi/board";
 import { taxiConfig } from "@/lib/taxi/service";
-import { googleKeyOf, isTaxiApp, taxiSettingsOf } from "@/lib/taxi/settings";
+import { platformMapFor } from "@/lib/maps/app-map";
+import { platformSetting } from "@/lib/settings/platform";
+import { googleKeyOf, isRideApp, taxiSettingsOf } from "@/lib/taxi/settings";
 import { RidesPlanNotice } from "../../rides/parts";
 import { LiveBoardView } from "./view";
 
@@ -18,11 +20,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const dynamic = "force-dynamic";
 
-/** 105.9 The live map: the company's taxis where they are, the rides waiting at their pickup, and the rides going on now. */
+/** 105.9 The live map (112.1 ride hailing apps too, on the platform's map until they set their own): the company's taxis where they are, the rides waiting at their pickup, and the rides going on now. */
 export default async function LiveMapPage() {
   const { app, license } = await requireClient("orders");
   const { t, lang } = await dashboardText();
-  if (!app || !isTaxiApp(app)) {
+  if (!app || !isRideApp(app)) {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
         <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("taxi.liveMap")}</h1>
@@ -32,7 +34,7 @@ export default async function LiveMapPage() {
   }
   const store = await getStore();
   const now = new Date();
-  const [saved, plan] = await Promise.all([store.getDeliverySettings(app.id), appPlan(store, license, now)]);
+  const [saved, plan, platformMap] = await Promise.all([store.getDeliverySettings(app.id), appPlan(store, license, now), platformMapFor(app) ? platformSetting(store, "maps") : null]);
   const settings = deliverySettingsOf(saved);
   const taxi = taxiSettingsOf(settings);
   let googleKey: string | null = null;
@@ -45,7 +47,7 @@ export default async function LiveMapPage() {
   }
   const [board, config] = await Promise.all([
     liveBoard(store, app, settings, now),
-    taxiConfig({ store, app, settings, googleKey, account: null, language: lang, now }),
+    taxiConfig({ store, app, settings, googleKey, account: null, language: lang, now, platformMap: platformMap?.value ?? null }),
   ]);
   return (
     <LiveBoardView

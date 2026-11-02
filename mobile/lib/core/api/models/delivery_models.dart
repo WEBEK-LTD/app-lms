@@ -45,6 +45,8 @@ class DeliveryConfig {
     this.courierApp = CourierApp.same,
     this.tilesUrl,
     this.attribution,
+    this.search = false,
+    this.routes = false,
   });
 
   factory DeliveryConfig.fromJson(Json json) {
@@ -78,6 +80,8 @@ class DeliveryConfig {
       ),
       tilesUrl: optString(map, 'tiles_url'),
       attribution: optString(map, 'attribution'),
+      search: boolOr(map, 'search', false),
+      routes: boolOr(map, 'routes', false),
     );
   }
 
@@ -94,6 +98,10 @@ class DeliveryConfig {
   /// The live map's tiles; null: the courier's position without a map.
   final String? tilesUrl;
   final String? attribution;
+
+  /// 112.2 `GET /maps/places` and `POST /maps/route` work on this map.
+  final bool search;
+  final bool routes;
 
   /// Both places need their coordinates (pricing by distance).
   bool get needsCoordinates => pricing == DeliveryPricing.distance;

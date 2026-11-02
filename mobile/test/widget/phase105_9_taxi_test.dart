@@ -97,6 +97,7 @@ FakeApi taxiApi({
   final api = FakeApi(
     config: {
       ...configJson(lms: null),
+      if (taxi) 'vertical': 'taxi',
       'rides': {
         ...ridesConfigJson(),
         'map': {'tiles_url': null, 'attribution': null},
@@ -471,25 +472,22 @@ void main() {
     await closeApp(app, tester);
   });
 
-  testWidgets('105.9 without search, the sheet holds the usual places', (
-    tester,
-  ) async {
+  testWidgets('112.1 without search, "Where to?" offers the saved places, '
+      'a maps link and the map', (tester) async {
     usePhone(tester);
     final api = taxiApi(search: false);
     final app = taxiApp(api);
     await app.pump(tester);
     await go(app, tester, Paths.ride);
     expect(find.byKey(const ValueKey('taxi-map')), findsOneWidget);
-    expect(find.byKey(const ValueKey('taxi-where-to')), findsNothing);
-    expect(find.byKey(const ValueKey('pickup-address')), findsOneWidget);
-    // Filled with where the rider is.
-    expect(
-      tester
-          .widget<TextField>(find.byKey(const ValueKey('pickup-address')))
-          .controller!
-          .text,
-      'My location',
-    );
+    expect(find.byKey(const ValueKey('pickup-address')), findsNothing);
+    await tapKey(tester, 'taxi-where-to');
+    expect(find.byKey(const ValueKey('taxi-search-field')), findsNothing);
+    expect(find.byKey(const ValueKey('taxi-search-off')), findsOneWidget);
+    expect(find.byKey(const ValueKey('taxi-search-home')), findsOneWidget);
+    expect(find.byKey(const ValueKey('taxi-search-link')), findsOneWidget);
+    expect(find.byKey(const ValueKey('taxi-search-map')), findsOneWidget);
+    expect(api.count('searchTaxiPlaces'), 0);
     await closeApp(app, tester);
   });
 

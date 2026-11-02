@@ -200,6 +200,10 @@ abstract final class AppIcons {
   // 105.4 Schools.
   static const school = Symbols.school_rounded;
   static const attendance = Symbols.task_alt_rounded;
+
+  // 112 Rides and deliveries on the map.
+  static const recent = Symbols.history_rounded;
+  static const navigate = Symbols.navigation_rounded;
 }
 
 /// A Material Symbols icon with an optional filled style.

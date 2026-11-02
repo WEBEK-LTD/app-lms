@@ -42,6 +42,7 @@ import {
 } from "@/lib/plans";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { validTilesUrl } from "@/lib/delivery/settings";
+import { serverUrlOf } from "@/lib/taxi/settings";
 import { refreshPlanSitesSoon } from "@/lib/license/refresh-soon";
 import { planHighlights, type HighlightLang } from "@/lib/plan-highlights";
 import { savePlanAvailabilityAction } from "./admin-switches";
@@ -66,7 +67,7 @@ const SETTING_LABELS: Partial<Record<PlatformSettingKey, string>> = {
   sallaApp: "Salla partner app",
   zidApp: "Zid partner app",
   storagePacks: "storage packs",
-  maps: "map tiles for delivery apps",
+  maps: "the map for ride, delivery and food apps",
 };
 
 /** Saves a setting (null: back to the defaults) and logs it, secrets redacted; `audit` replaces parts of the log entry. */
@@ -810,12 +811,16 @@ export async function checkTestCodeAction(_: FormState, formData: FormData): Pro
 }
 
 
-/** 104 The map tiles delivery apps draw live tracking on. */
+/** 104 The map tiles delivery apps draw live tracking on; 112 with the search and routing servers ride, delivery and food apps use on it. */
 export async function saveMapsSettingAction(_: FormState, formData: FormData): Promise<FormState> {
   const admin = await requireAdmin("settings.edit");
-  const values = { tilesUrl: str(formData, "tilesUrl"), attribution: str(formData, "attribution") };
+  const values = { tilesUrl: str(formData, "tilesUrl"), attribution: str(formData, "attribution"), searchUrl: str(formData, "searchUrl"), routingUrl: str(formData, "routingUrl") };
   if (!validTilesUrl(values.tilesUrl)) return { errors: { tilesUrl: "Enter an https address with {z}, {x} and {y}." }, values };
   if (values.attribution.length > 200) return { errors: { attribution: "Keep it under 200 characters." }, values };
-  await save("maps", { tilesUrl: values.tilesUrl, attribution: values.attribution || null }, admin);
-  return { ok: true, message: "Saved. Delivery apps with live tracking show the map the next time they open.", values };
+  const searchUrl = values.searchUrl ? serverUrlOf(values.searchUrl) : null;
+  if (values.searchUrl && !searchUrl) return { errors: { searchUrl: "Enter the search server's https address, without ? or #." }, values };
+  const routingUrl = values.routingUrl ? serverUrlOf(values.routingUrl) : null;
+  if (values.routingUrl && !routingUrl) return { errors: { routingUrl: "Enter the routing server's https address, without ? or #." }, values };
+  await save("maps", { tilesUrl: values.tilesUrl, attribution: values.attribution || null, searchUrl, routingUrl }, admin);
+  return { ok: true, message: "Saved. Ride, delivery and food apps show the map the next time they open.", values };
 }

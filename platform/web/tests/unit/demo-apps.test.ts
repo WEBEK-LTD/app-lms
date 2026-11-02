@@ -12,7 +12,7 @@ import { EMPTY_DRIVER } from "@/lib/rides/settings";
 import { placeDemoOrder } from "@/lib/demo/checkout";
 import { cleanDemoActivity, demoOfficeReply } from "@/lib/demo/cleanup";
 import { DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_LIMITS, DEMO_SIGN_IN, DEMO_TYPES, DEMO_USER_NAME, demoIdOf, demoTypeOfSlug, STUDIO_DEMO_TYPES } from "@/lib/demo/constants";
-import { ARTICLE_CATEGORIES, CLINIC_DOCTORS, CLINIC_INTAKE, CLINIC_SERVICES, DEMO_ARTICLES, DEMO_CAMPAIGNS, DEMO_COURSES, DEMO_DELIVERY_SERVICES, DEMO_DISHES, DEMO_EVENTS, DEMO_LISTINGS, DEMO_RESTAURANTS, DEMO_PRODUCTS, DEMO_SERVICES, DEMO_STAFF, RESTAURANT_FULFILMENT, FITNESS_PLANS, FITNESS_TIMETABLE, TAXI_DEMO_DRIVERS, TAXI_DEMO_TYPES } from "@/lib/demo/content";
+import { ARTICLE_CATEGORIES, CLINIC_DOCTORS, CLINIC_INTAKE, CLINIC_SERVICES, DEMO_ARTICLES, DEMO_CAMPAIGNS, DEMO_COURSES, DEMO_DELIVERY_SERVICES, DEMO_DISHES, DEMO_EVENTS, DEMO_LISTINGS, DEMO_RESTAURANTS, DEMO_PRODUCTS, DEMO_SERVICES, DEMO_STAFF, RESTAURANT_FULFILMENT, FITNESS_PLANS, FITNESS_TIMETABLE, RIDES_DEMO_DRIVERS, TAXI_DEMO_DRIVERS, TAXI_DEMO_TYPES } from "@/lib/demo/content";
 import { PICTURES } from "@/lib/demo/pictures";
 import { SCHOOL_CLASSES, SCHOOL_HOMEWORK, SCHOOL_SUBJECTS, SCHOOL_TEACHERS } from "@/lib/demo/school";
 import { ACADEMY_COURSES, ACADEMY_TEACHERS } from "@/lib/demo/teachers";
@@ -367,7 +367,7 @@ describe("signing in to a demo app", () => {
   });
 
   /** Signs in to a Studio demo with the demo number, through its connector when it has one. */
-  async function studio(type: "taxi" | "school" | "instructors") {
+  async function studio(type: "taxi" | "school" | "instructors" | "rides") {
     const app = (await listDemoApps(store, { fresh: true })).find((a) => demoIdOf(a) === type)!;
     const connector = connectorFor(app, KEY, { store, assetUrl: (id) => id, platformUrl: "https://yallapp.test", rides: true }) ?? undefined;
     const go = async (method: string, route: string, body?: unknown, token: string | null = null, query: Record<string, string> = {}) => {
@@ -388,7 +388,7 @@ describe("signing in to a demo app", () => {
   it("110.5 Lamha Taxi: taxis drive around wherever the rider is, the platform's map, and the visitor drives their own ride", async () => {
     const { app, go, token, roles } = await studio("taxi");
     expect(roles).toEqual(["driver"]);
-    // No map of its own: the plain ride screens until the team sets Admin › Settings › Maps.
+    // No map of its own: the map-first screens on a plain background until the team sets Admin › Settings › Maps.
     const plain = (await go("GET", "/config")).body as { taxi: { map: { tiles_url: string | null; search: boolean }; live: unknown } };
     expect(plain.taxi).toMatchObject({ map: { tiles_url: null, search: false }, live: null });
     await store.setPlatformSetting("maps", { tilesUrl: "https://tiles.yallapp.test/{z}/{x}/{y}.png", attribution: "© OpenStreetMap contributors" }, "admin@yallapp.test", NOW);
@@ -424,6 +424,19 @@ describe("signing in to a demo app", () => {
     const near = (await go("GET", "/taxi/nearby?lat=30.0444&lng=31.2357", undefined, token)).body as { items: unknown[] };
     expect(near.items).toHaveLength(TAXI_DEMO_DRIVERS.length);
     expect((await store.listCouriers(app.id)).filter((c) => c.onDuty).map((c) => c.name)).toEqual(["App Review"]);
+  });
+
+  it("112.1 Masar Rides: on the platform's map like Lamha Taxi, its cars around wherever the rider is", async () => {
+    const { go, token } = await studio("rides");
+    // Without the platform's map: the same map-first screens, on a plain background.
+    expect(((await go("GET", "/config")).body as { taxi: { map: { tiles_url: string | null } } }).taxi.map.tiles_url).toBeNull();
+    await store.setPlatformSetting("maps", { tilesUrl: "https://tiles.yallapp.test/{z}/{x}/{y}.png", attribution: "© OpenStreetMap contributors", routingUrl: "https://route.yallapp.test" }, "admin@yallapp.test", NOW);
+    clearPlatformSettingsCache();
+    const mapped = (await go("GET", "/config")).body as { taxi: { map: { tiles_url: string | null; routes: boolean; search: boolean } } };
+    expect(mapped.taxi.map).toMatchObject({ tiles_url: "https://tiles.yallapp.test/{z}/{x}/{y}.png", routes: true, search: false });
+    const near = (await go("GET", "/taxi/nearby?lat=41.0082&lng=28.9784", undefined, token)).body as { items: { lat: number }[] };
+    expect(near.items).toHaveLength(RIDES_DEMO_DRIVERS.length);
+    expect(near.items.every((c) => Math.abs(c.lat - 41.0082) < 0.025)).toBe(true);
   });
 
   it("110.5 a live taxi app that isn't a demo shows only its drivers online now", async () => {

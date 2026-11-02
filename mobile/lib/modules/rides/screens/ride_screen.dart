@@ -26,6 +26,7 @@ import '../../real_estate/widgets/listing_widgets.dart'
 import '../../shared/pages/app_header.dart'
     show headerIconOpens, openHeaderIcon;
 import '../../shared/pages/side_menu.dart' show SideMenuButton;
+import '../../taxi/data/saved_places.dart';
 import '../../taxi/data/taxi_providers.dart';
 import '../../taxi/screens/place_search_screen.dart';
 import '../../taxi/widgets/taxi_map.dart';
@@ -62,6 +63,10 @@ class _RideScreenState extends ConsumerState<RideScreen> {
   List<TaxiSpot> _route = const [];
   int _routeGeneration = 0;
   final _sheet = DraggableScrollableController();
+
+  /// 112.1 Moving the pickup's pin on the map: the map's middle while it moves.
+  bool _adjusting = false;
+  TaxiSpot? _center;
 
   @override
   void initState() {
@@ -198,10 +203,72 @@ class _RideScreenState extends ConsumerState<RideScreen> {
       ),
     );
     if (choice == null || !mounted) return;
-    fields.address.text = choice.name;
-    fields.details.text = choice.address ?? '';
-    _setAt(fields, (lat: choice.lat, lng: choice.lng));
-    if (!from) _sizeSheet(0.62);
+    _use(
+      fields,
+      SavedPlace(
+        name: choice.name,
+        address: choice.address,
+        lat: choice.lat,
+        lng: choice.lng,
+      ),
+    );
+  }
+
+  /// 112.1 A place for where from or to; where to is kept as a recent one.
+  void _use(PlaceFields fields, SavedPlace place) {
+    final from = identical(fields, _pickup);
+    fields.address.text = place.name;
+    fields.details.text = place.address ?? '';
+    _setAt(fields, (lat: place.lat, lng: place.lng));
+    if (!from) {
+      ref.read(savedPlacesProvider.notifier).went(place);
+      _sizeSheet(0.62);
+    }
+  }
+
+  /// 112.1 Home or Work set now: kept, and where to.
+  Future<void> _setSaved(SavedPlaceKind kind, TaxiConfig taxi) async {
+    final l10n = context.l10n;
+    final choice = await Navigator.of(context).push<TaxiChoice>(
+      MaterialPageRoute(
+        builder: (_) => TaxiPlaceSearchScreen(
+          title: kind == SavedPlaceKind.home
+              ? l10n.placesSetHome
+              : l10n.placesSetWork,
+          map: taxi.map,
+          near: _pickup.at ?? _here,
+          myLocation: true,
+          saving: kind,
+        ),
+      ),
+    );
+    if (choice == null || !mounted) return;
+    _use(
+      _dropoff,
+      SavedPlace(
+        name: choice.name,
+        address: choice.address,
+        lat: choice.lat,
+        lng: choice.lng,
+      ),
+    );
+  }
+
+  /// 112.1 Moving the map under the pickup's pin, then confirming it.
+  void _adjustPickup() => setState(() {
+    _adjusting = true;
+    _center = _pickup.at ?? _here;
+  });
+
+  void _cancelAdjust() => setState(() => _adjusting = false);
+
+  void _confirmPickup() {
+    final at = _center;
+    setState(() => _adjusting = false);
+    if (at == null) return;
+    _pickup.address.text = context.l10n.taxiOnMap;
+    _pickup.details.clear();
+    _setAt(_pickup, at);
   }
 
   void _sizeSheet(double size) {
@@ -620,8 +687,7 @@ extension on _RideScreenState {
   ) {
     final l10n = context.l10n;
     final from = _pickup.at, to = _dropoff.at;
-    final search = taxi.map.search;
-    final chosen = !search || to != null;
+    final chosen = to != null;
     final spot = from ?? _here;
     // About 100 m: the rider moving a little keeps the same listeners.
     double round(double v) => (v * 1000).roundToDouble() / 1000;
@@ -640,31 +706,49 @@ extension on _RideScreenState {
         .where((o) => o.vehicleType.id == _typeId)
         .firstOrNull;
     final height = MediaQuery.sizeOf(context).height;
-    // The sheet's size: "Where to?", the fares, or the whole form.
-    final size = !search
-        ? 0.5
-        : to == null
-        ? 0.34
-        : 0.62;
+    final saved = ref.watch(savedPlacesProvider);
+    // The sheet's size: "Where to?" with the saved places, or the fares.
+    final size = to == null ? 0.4 : 0.62;
     final sheet = [
       ...activeCard,
-      if (!search) ...[
-        ...places,
-        const SizedBox(height: 12),
-        _NearbyLine(taxis: taxis, at: spot),
-      ] else if (to == null) ...[
+      if (to == null) ...[
         _WhereTo(onTap: () => _search(_dropoff, taxi)),
         const SizedBox(height: 12),
         _NearbyLine(taxis: taxis, at: spot),
-      ] else
+        const SizedBox(height: 4),
+        _SavedPlaces(
+          places: saved,
+          onPlace: (place) => _use(_dropoff, place),
+          onAdd: (kind) => _setSaved(kind, taxi),
+        ),
+      ] else ...[
         _TaxiPlaces(
           from: _pickup.address.text,
           to: _dropoff.address.text,
           onFrom: () => _search(_pickup, taxi),
           onTo: () => _search(_dropoff, taxi),
         ),
+        if (taxi.map.tilesUrl != null)
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton.icon(
+              key: const ValueKey('ride-adjust-pickup'),
+              onPressed: _adjustPickup,
+              icon: AppIcon(
+                AppIcons.pinDrop,
+                size: 18,
+                color: context.palette.link,
+              ),
+              label: Text(l10n.rideAdjustPickup),
+              style: TextButton.styleFrom(
+                foregroundColor: context.palette.link,
+              ),
+            ),
+          ),
+      ],
       if (chosen) ...[const SizedBox(height: 4), ...rest],
     ];
+    if (_adjusting) return _adjustLayout(taxi);
     final notifications = headerIconOpens(ref, HeaderIcon.notifications);
     return Scaffold(
       body: Stack(
@@ -704,7 +788,7 @@ extension on _RideScreenState {
               child: SizedBox(
                 height: 48,
                 child: NavigationToolbar(
-                  leading: search && to != null
+                  leading: to != null
                       ? AppBackButton(onPressed: _clearDropoff)
                       : const SideMenuButton(),
                   middle: const TaxiAppChip(),
@@ -759,6 +843,166 @@ extension on _RideScreenState {
               ),
             )
           : null,
+    );
+  }
+}
+
+extension on _RideScreenState {
+  /// 112.1 Moving the pickup: the map under a pin in its middle, then
+  /// "Confirm pickup".
+  Widget _adjustLayout(TaxiConfig taxi) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final start = _pickup.at ?? _here;
+    return Scaffold(
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: TaxiMapView(
+              key: const ValueKey('ride-adjust-map'),
+              map: taxi.map,
+              focus: [?start],
+              me: _here,
+              onCenter: (at) => _center = at,
+            ),
+          ),
+          IgnorePointer(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 40),
+                child: AppIcon(
+                  AppIcons.pinDrop,
+                  key: const ValueKey('ride-adjust-pin'),
+                  size: 44,
+                  color: p.primary,
+                  filled: true,
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Row(
+                children: [
+                  AppBackButton(onPressed: _cancelAdjust),
+                  const SizedBox(width: 10),
+                  Expanded(child: TaxiChip(label: l10n.rideMovePin)),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: BottomActionBar(
+        child: PrimaryButton(
+          key: const ValueKey('ride-confirm-pickup'),
+          label: l10n.rideConfirmPickup,
+          icon: AppIcons.myLocation,
+          onPressed: _confirmPickup,
+        ),
+      ),
+    );
+  }
+}
+
+/// 112.1 Home, Work and the recent places under "Where to?": one tap sets
+/// where to; an unset Home or Work opens the search to set it.
+class _SavedPlaces extends StatelessWidget {
+  const _SavedPlaces({
+    required this.places,
+    required this.onPlace,
+    required this.onAdd,
+  });
+
+  final SavedPlaces places;
+  final ValueChanged<SavedPlace> onPlace;
+  final ValueChanged<SavedPlaceKind> onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    Widget row(
+      String key,
+      IconData icon,
+      String title,
+      String? subtitle,
+      VoidCallback onTap,
+    ) => InkWell(
+      key: ValueKey(key),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: p.surfaceMuted,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: AppIcon(icon, size: 20, color: p.text),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: p.text,
+                    ),
+                  ),
+                  if (subtitle != null)
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 13, color: p.textSecondary),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    Widget saved(SavedPlaceKind kind) {
+      final place = places.of(kind);
+      final home = kind == SavedPlaceKind.home;
+      return row(
+        'ride-saved-${kind.name}',
+        home ? AppIcons.home : AppIcons.work,
+        home ? l10n.placesHome : l10n.placesWork,
+        place == null
+            ? (home ? l10n.placesAddHome : l10n.placesAddWork)
+            : (place.address ?? place.name),
+        place == null ? () => onAdd(kind) : () => onPlace(place),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        saved(SavedPlaceKind.home),
+        saved(SavedPlaceKind.work),
+        for (final (i, place) in places.recent.take(3).indexed)
+          row(
+            'ride-recent-$i',
+            AppIcons.recent,
+            place.name,
+            place.address,
+            () => onPlace(place),
+          ),
+      ],
     );
   }
 }
@@ -818,15 +1062,15 @@ class _WhereTo extends StatelessWidget {
 }
 
 /// 105.9 How many free taxis are around and how far the nearest is (at
-/// about 25 km/h in town).
-class _NearbyLine extends StatelessWidget {
+/// about 25 km/h in town); 112.1 cars in a ride hailing app.
+class _NearbyLine extends ConsumerWidget {
   const _NearbyLine({required this.taxis, required this.at});
 
   final List<NearbyTaxi> taxis;
   final TaxiSpot? at;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
     final l10n = context.l10n;
     final here = at;
@@ -844,7 +1088,9 @@ class _NearbyLine extends StatelessWidget {
         Expanded(
           child: Text(
             [
-              l10n.taxiNearby(taxis.length),
+              ref.watch(isTaxiKindProvider)
+                  ? l10n.taxiNearby(taxis.length)
+                  : l10n.rideCarsNearby(taxis.length),
               if (nearest != null) l10n.taxiNearest(driveMinutes(nearest)),
             ].join(' · '),
             key: const ValueKey('taxi-nearby'),

@@ -22,6 +22,7 @@ export function TaxiSettingsForm({
   mapTest,
   liveTest,
   rules,
+  platformNote = null,
 }: {
   values: Record<string, string>;
   /** The saved Google key, masked. */
@@ -29,6 +30,8 @@ export function TaxiSettingsForm({
   mapTest: ReactNode;
   liveTest: ReactNode;
   rules: string;
+  /** 112.1 A ride hailing app: Yallapp's map until the company sets its own. */
+  platformNote?: string | null;
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveTaxiSettingsAction, initialFormState);
@@ -44,6 +47,11 @@ export function TaxiSettingsForm({
             </h2>
             <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("taxi.mapIntro")}</p>
           </div>
+          {platformNote ? (
+            <p role="note" className="m-0 rounded-xl bg-sand px-4 py-3 text-[15px] leading-relaxed" data-platform-map>
+              {platformNote}
+            </p>
+          ) : null}
           <Choices
             legend={t("taxi.provider")}
             name="provider"

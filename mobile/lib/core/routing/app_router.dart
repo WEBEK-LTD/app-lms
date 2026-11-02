@@ -126,15 +126,26 @@ final shellTabsProvider = Provider<List<ShellTab>>((ref) {
     ),
     classroom,
   );
+  // 112.1 Ride apps open on the map, like Uber: the Ride tab first.
+  List<ShellTab> mapFirst(List<ShellTab> tabs) =>
+      appType == AppType.rides ? rideTabFirst(tabs) : tabs;
   if (navigation != null) {
     final tabs = tabsFromNavigation(navigation, module, config);
     if (tabs.length >= Navigation.minTabs &&
         tabs.any((t) => t.location != null)) {
-      return withRoles(withChatTab(tabs, config));
+      return withRoles(mapFirst(withChatTab(tabs, config)));
     }
   }
-  return withRoles(withChatTab(module.defaultTabs(config), config));
+  return withRoles(mapFirst(withChatTab(module.defaultTabs(config), config)));
 });
+
+/// 112.1 A ride app's tabs with the Ride tab (the map) first, where the app
+/// opens; the others keep their order. Without a Ride tab, as they are.
+List<ShellTab> rideTabFirst(List<ShellTab> tabs) {
+  final at = tabs.indexWhere((t) => t.location == Paths.ride);
+  if (at <= 0) return tabs;
+  return [tabs[at], ...tabs.sublist(0, at), ...tabs.sublist(at + 1)];
+}
 
 /// 104 The tabs of a delivery app: the Courier tab added for couriers
 /// (before Account, in place of the tab before it when the bar is full),
@@ -277,6 +288,9 @@ String _startAt(Ref ref) => ref.read(courierAppProvider)
     ? Paths.courier
     : ref.read(driverAppProvider)
     ? Paths.driver
+    // 112.1 A ride app opens on the map (its Ride tab).
+    : ref.read(shellTabsProvider).firstOrNull?.location == Paths.ride
+    ? Paths.ride
     : Paths.home;
 
 final appRouterProvider = Provider<GoRouter>((ref) {

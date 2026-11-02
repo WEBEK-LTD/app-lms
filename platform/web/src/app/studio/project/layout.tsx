@@ -39,6 +39,8 @@ export default async function StudioProjectLayout({ children }: { children: Reac
           {
             label: t("studio.navDelivery"),
             items: [
+              // 112.2 The couriers and jobs on the map.
+              item("/dashboard/delivery/live", t("studio.navLiveMap"), "map"),
               item("/dashboard/shipments", t("studio.navShipments"), "package_2"),
               item("/dashboard/couriers", t("studio.navCouriers"), "two_wheeler"),
               item("/dashboard/orders", t("studio.navPaidOrders"), "receipt_long"),

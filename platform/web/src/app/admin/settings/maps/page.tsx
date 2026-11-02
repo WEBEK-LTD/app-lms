@@ -11,7 +11,7 @@ import { SavedBy, Section } from "../parts";
 export const metadata: Metadata = { title: "Maps · Settings" };
 export const dynamic = "force-dynamic";
 
-/** 104 Settings › Maps: the map tiles delivery apps draw live tracking on. */
+/** 104 Settings › Maps: the map tiles delivery apps draw live tracking on; 112 ride hailing apps without their own map and food apps too, with its search and routing servers. */
 export default async function MapsSettingsPage() {
   const { adminRole } = await requireAdmin();
   const settings = await platformSettings(await getStore(), { fresh: true });
@@ -21,10 +21,10 @@ export default async function MapsSettingsPage() {
       <Section
         id="h-maps"
         title="Map tiles"
-        text="Delivery apps with live tracking show where the courier is on this map. Until it's set, they show the courier's position with a button that opens the phone's maps app. OpenStreetMap's own tile servers don't allow use in apps: use a provider such as MapTiler, Stadia Maps or Thunderforest, on a plan that fits the apps' traffic."
+        text="Ride hailing apps without a map of their own open on this map (riders, drivers and the trip), and delivery and food apps show the courier, the pickup, the drop-off and the route on it; Studio's demo apps use it too. Until it's set, the apps draw the places on a plain background and open the phone's maps app for directions. OpenStreetMap's own tile, search and routing servers don't allow use in apps: use a provider such as MapTiler, Stadia Maps or Thunderforest, on a plan that fits the apps' traffic."
       >
-        <SavedBy setting={maps} settingKey="maps" reset="Remove the map" fallback="no map: apps show the position without one." />
-        <MapsSettingForm tilesUrl={maps?.value.tilesUrl ?? ""} attribution={maps?.value.attribution ?? ""} />
+        <SavedBy setting={maps} settingKey="maps" reset="Remove the map" fallback="no map: apps draw the places without one." />
+        <MapsSettingForm tilesUrl={maps?.value.tilesUrl ?? ""} attribution={maps?.value.attribution ?? ""} searchUrl={maps?.value.searchUrl ?? ""} routingUrl={maps?.value.routingUrl ?? ""} />
       </Section>
     </ReadOnly>
   );
