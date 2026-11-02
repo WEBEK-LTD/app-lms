@@ -217,6 +217,11 @@ export default async function PayslipPage({ params }: { params: Promise<{ id: st
           ))}
         </ul>
         {payslip.payments.length ? <p className="m-0 text-[15px] font-semibold">{t("salaries.paidLeft", { paid: fmt(payslip.paidCents), left: fmt(left) })}</p> : null}
+        {left <= 0 && payslip.payments.length ? (
+          <p role="status" className="m-0 text-[15px] text-muted">
+            {t("salaries.paidInFull")}
+          </p>
+        ) : null}
         {left > 0 && (payslip.status !== "draft" || !locked) ? (
           <AddServiceBox title={t("salaries.recordPayment")} open={payslip.status === "final"}>
             <SchoolForm action={recordPaymentAction} submit={t("salaries.recordPaid")} reset>
