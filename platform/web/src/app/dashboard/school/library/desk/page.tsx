@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Stat, StatRow } from "@/components/page-kit";
 import Link from "next/link";
 import { lendBookAction, returnBookAction, returnLoanAction } from "@/app/actions/school-library";
 import { Field } from "@/components/form";
@@ -47,7 +48,7 @@ export default async function LibraryDeskPage() {
   const loanRow = (loan: SchoolBookLoan) => {
     const who = person.get(loan.personId);
     return (
-      <li key={loan.id} className="flex flex-wrap items-center gap-3 border-t border-line-soft py-2.5 first:border-t-0 first:pt-0">
+      <li key={loan.id} className="flex flex-wrap items-center gap-3 border-t border-line-soft px-5 py-3 first:border-t-0 sm:px-6">
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
           <Link href={`/dashboard/school/library/${loan.bookId}`} className="text-[15px] font-semibold no-underline">
             {title.get(loan.bookId) ?? "—"}
@@ -74,7 +75,13 @@ export default async function LibraryDeskPage() {
     <div className="flex flex-col gap-6">
       <PageHead title={t("library.desk")} intro={t("library.deskIntro", { days: library.loanDays, max: library.maxLoans })} back={{ href: "/dashboard/school/library", label: t("library.title") }} />
 
-      <div className="grid max-w-[860px] gap-5 md:grid-cols-2">
+      {/* The page kit: the desk's numbers, lending and taking back side by side, then the lists. */}
+      <StatRow label={t("library.desk")}>
+        <Stat icon="bookmark" tone="success" label={t("library.toCollect")} value={ready.length} />
+        <Stat icon="warning" tone={overdue.length ? "warn" : "neutral"} label={t("library.overdueTitle")} value={overdue.length} />
+        <Stat icon="logout" tone="accent" label={t("library.outNow")} value={out.length} />
+      </StatRow>
+      <div className="grid gap-5 md:grid-cols-2">
         <Panel id="h-lend" title={t("library.lend")}>
           <SchoolForm action={lendBookAction} submit={t("library.lendButton")} reset>
             <Field id="f-lend-who" label={t("library.who")} name="who" hint={t("library.whoHint")} autoComplete="off" required />
@@ -88,11 +95,11 @@ export default async function LibraryDeskPage() {
         </Panel>
       </div>
 
-      <Panel id="h-ready" title={t("library.toCollect")} intro={t("library.toCollectIntro")}>
-        {ready.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("library.noneToCollect")}</p> : null}
+      <Panel id="h-ready" title={t("library.toCollect")} intro={t("library.toCollectIntro")} flush>
+        {ready.length === 0 ? <p className="m-0 px-5 py-4 text-[15px] text-muted sm:px-6">{t("library.noneToCollect")}</p> : null}
         <ul className="m-0 flex list-none flex-col p-0" data-ready>
           {ready.map((h) => (
-            <li key={h.id} className="flex flex-wrap items-center gap-3 border-t border-line-soft py-2.5 first:border-t-0 first:pt-0">
+            <li key={h.id} className="flex flex-wrap items-center gap-3 border-t border-line-soft px-5 py-3 first:border-t-0 sm:px-6">
               <span className="min-w-0 flex-1 text-[15px]">
                 <b>{title.get(h.bookId) ?? "—"}</b> · {person.get(h.personId)?.name ?? "—"}
               </span>
@@ -102,15 +109,15 @@ export default async function LibraryDeskPage() {
         </ul>
       </Panel>
 
-      <Panel id="h-overdue" title={t("library.overdueTitle")}>
-        {overdue.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("library.noneOverdue")}</p> : null}
+      <Panel id="h-overdue" title={t("library.overdueTitle")} flush>
+        {overdue.length === 0 ? <p className="m-0 px-5 py-4 text-[15px] text-muted sm:px-6">{t("library.noneOverdue")}</p> : null}
         <ul className="m-0 flex list-none flex-col p-0" data-overdue>
           {overdue.map(loanRow)}
         </ul>
       </Panel>
 
-      <Panel id="h-out" title={t("library.outNow")}>
-        {out.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("library.noneOut")}</p> : null}
+      <Panel id="h-out" title={t("library.outNow")} flush>
+        {out.length === 0 ? <p className="m-0 px-5 py-4 text-[15px] text-muted sm:px-6">{t("library.noneOut")}</p> : null}
         <ul className="m-0 flex list-none flex-col p-0" data-out>
           {out.map(loanRow)}
         </ul>

@@ -45,11 +45,11 @@ export default async function LibraryPersonPage({ params }: PageProps<"/dashboar
     <div className="flex flex-col gap-6">
       <PageHead title={person.name} intro={t("library.personIntro", { out: current.length, total: loans.length })} back={{ href: "/dashboard/school/library/desk", label: t("library.desk") }} />
 
-      <Panel id="h-person-out" title={t("library.outNow")}>
-        {current.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("library.noneOut")}</p> : null}
+      <Panel id="h-person-out" title={t("library.outNow")} flush>
+        {current.length === 0 ? <p className="m-0 px-5 py-4 text-[15px] text-muted sm:px-6">{t("library.noneOut")}</p> : null}
         <ul className="m-0 flex list-none flex-col p-0" data-person-out>
           {current.map((loan) => (
-            <li key={loan.id} className="flex flex-wrap items-center gap-3 border-t border-line-soft py-2.5 first:border-t-0 first:pt-0">
+            <li key={loan.id} className="flex flex-wrap items-center gap-3 border-t border-line-soft px-5 py-3 first:border-t-0 sm:px-6">
               <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <Link href={`/dashboard/school/library/${loan.bookId}`} className="text-[15px] font-semibold no-underline">
                   {title.get(loan.bookId) ?? "—"}
@@ -70,11 +70,11 @@ export default async function LibraryPersonPage({ params }: PageProps<"/dashboar
         </ul>
       </Panel>
 
-      <Panel id="h-person-holds" title={t("library.holds")}>
-        {live.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("library.noHolds")}</p> : null}
+      <Panel id="h-person-holds" title={t("library.holds")} flush>
+        {live.length === 0 ? <p className="m-0 px-5 py-4 text-[15px] text-muted sm:px-6">{t("library.noHolds")}</p> : null}
         <ul className="m-0 flex list-none flex-col p-0">
           {live.map((h) => (
-            <li key={h.id} className="flex flex-wrap items-center gap-3 border-t border-line-soft py-2.5 first:border-t-0 first:pt-0">
+            <li key={h.id} className="flex flex-wrap items-center gap-3 border-t border-line-soft px-5 py-3 first:border-t-0 sm:px-6">
               <span className="min-w-0 flex-1 text-[15px] font-semibold">{title.get(h.bookId) ?? "—"}</span>
               {h.status === "ready" && h.expiresAt ? (
                 <Badge tone="info">{t("library.readyUntil", { code: h.copyId ? (code.get(h.copyId) ?? "") : "", date: day(h.expiresAt) })}</Badge>
@@ -86,11 +86,11 @@ export default async function LibraryPersonPage({ params }: PageProps<"/dashboar
         </ul>
       </Panel>
 
-      <Panel id="h-person-history" title={t("library.history")}>
-        {past.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("library.noLoans")}</p> : null}
+      <Panel id="h-person-history" title={t("library.history")} flush>
+        {past.length === 0 ? <p className="m-0 px-5 py-4 text-[15px] text-muted sm:px-6">{t("library.noLoans")}</p> : null}
         <ul className="m-0 flex list-none flex-col p-0" data-person-history>
           {past.map((loan) => (
-            <li key={loan.id} className="flex flex-wrap items-center gap-3 border-t border-line-soft py-2.5 first:border-t-0 first:pt-0">
+            <li key={loan.id} className="flex flex-wrap items-center gap-3 border-t border-line-soft px-5 py-3 first:border-t-0 sm:px-6">
               <Link href={`/dashboard/school/library/${loan.bookId}`} className="min-w-0 flex-1 text-[15px] font-semibold no-underline">
                 {title.get(loan.bookId) ?? "—"}
               </Link>
