@@ -99,6 +99,7 @@ export const en = {
   saving: "Saving…",
   // 113.6 A school: its teachers, and their conversations with families
   teachers: "Teachers",
+  teacherBadge: "Teacher",
   schoolConversations: "Teachers and families",
   writeTeachers: "Write to your teachers",
   writeTeachersIntro: "Your message goes into each teacher's own conversation with the school, where they answer you. Teachers who haven't signed in to the app yet get it once they do: write again then.",
@@ -235,6 +236,7 @@ export const ar: Messages = {
   saving: "جارٍ الحفظ…",
   // 113.6 المدرسة: معلموها ومحادثاتهم مع الأسر
   teachers: "المعلمون",
+  teacherBadge: "معلم",
   schoolConversations: "المعلمون والأسر",
   writeTeachers: "راسل معلميك",
   writeTeachersIntro: "تصل رسالتك إلى محادثة كل معلم مع المدرسة، ويرد عليك فيها. المعلمون الذين لم يسجلوا الدخول إلى التطبيق بعد لا تصلهم: راسلهم مرة أخرى بعد دخولهم.",
@@ -368,6 +370,7 @@ export const tr: Messages = {
   saving: "Kaydediliyor…",
   // 113.6 Okul: öğretmenleri ve ailelerle konuşmaları
   teachers: "Öğretmenler",
+  teacherBadge: "Öğretmen",
   schoolConversations: "Öğretmenler ve aileler",
   writeTeachers: "Öğretmenlerinize yazın",
   writeTeachersIntro: "Mesajınız her öğretmenin okulla kendi konuşmasına gider ve size orada yanıt verir. Uygulamaya henüz giriş yapmamış öğretmenlere ulaşmaz: giriş yaptıklarında yeniden yazın.",

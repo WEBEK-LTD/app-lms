@@ -6395,4 +6395,122 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get couponWithout => 'Kuponsuz devam et';
+
+  @override
+  String get schoolMessages => 'Mesajlar';
+
+  @override
+  String get schoolMessagesWithTeachers => 'Öğretmenlerinizle';
+
+  @override
+  String get schoolMessagesWithFamilies => 'Sınıflarınızın aileleriyle';
+
+  @override
+  String get schoolMessagesOff =>
+      'Okulunuz öğretmenler ve aileler arasında mesajlaşmayı açmadı.';
+
+  @override
+  String get schoolMessagesOffice => 'Okul yönetimi';
+
+  @override
+  String get schoolMessagesOfficeHint => 'Okula istediğiniz zaman yazın.';
+
+  @override
+  String get schoolMessagesTeachers => 'Öğretmenler';
+
+  @override
+  String get schoolMessagesFamilies => 'Veliler ve öğrenciler';
+
+  @override
+  String schoolMessagesParentOf(String names) {
+    return '$names velisi';
+  }
+
+  @override
+  String get schoolMessagesClassTeacher => 'Sınıf öğretmeni';
+
+  @override
+  String get schoolMessagesTeacherFirst =>
+      'İlk öğretmen yazar; sonra yanıt verebilirsiniz.';
+
+  @override
+  String schoolMessagesHours(String days, String from, String to) {
+    return 'Mesajlar $days günleri $from ile $to arasında gönderilebilir.';
+  }
+
+  @override
+  String schoolMessagesOpensAt(String when) {
+    return '$when tarihinde yeniden yazabilirsiniz.';
+  }
+
+  @override
+  String get schoolMessagesClosed => 'Okul bu konuşmayı kapattı.';
+
+  @override
+  String get schoolMessagesNotAllowed =>
+      'Okul şu anda burada mesajlaşmaya izin vermiyor.';
+
+  @override
+  String get schoolMessagesTextOnly =>
+      'Okul yalnızca metin mesajlarına izin veriyor.';
+
+  @override
+  String get schoolMessagesAdminReads =>
+      'Okul yönetimi bu konuşmayı okuyabilir.';
+
+  @override
+  String get schoolMessagesPrivate =>
+      'Bu konuşma gizlidir: okul onu yalnızca içindeki bir mesaj bildirilirse okur.';
+
+  @override
+  String get schoolMessagesNone => 'Henüz yazılacak kimse yok.';
+
+  @override
+  String get schoolMessagesWriteClass => 'Bir sınıfın tamamına yazın';
+
+  @override
+  String classMessageTitle(String name) {
+    return '$name sınıfına yazın';
+  }
+
+  @override
+  String get classMessageTo => 'Kime';
+
+  @override
+  String get classMessageParents => 'Veliler';
+
+  @override
+  String get classMessageStudents => 'Öğrenciler';
+
+  @override
+  String get classMessageFamilies => 'Veliler ve öğrenciler';
+
+  @override
+  String get classMessageHint =>
+      'Herkes ayrı ayrı alır ve yanıtları yalnızca size döner.';
+
+  @override
+  String classMessageSent(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kişiye gönderildi.',
+      one: '1 kişiye gönderildi.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String classMessageNotInApp(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kişi uygulamaya henüz giriş yapmadı.',
+      one: '1 kişi uygulamaya henüz giriş yapmadı.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get classMessageMissing => 'Önce mesajı yazın.';
 }

@@ -2686,6 +2686,91 @@ Map<String, dynamic> schoolMeJson({List<String> roles = const ['parent']}) => {
   ],
 };
 
+/// 113.6 What the school allows and whom a parent (or a teacher) can write to.
+Map<String, dynamic> schoolMessagesJson({
+  bool enabled = true,
+  bool teacher = false,
+  String startedBy = 'teacher',
+  bool openNow = true,
+  bool adminReads = false,
+  bool classMessages = false,
+}) => {
+  'enabled': enabled,
+  'with': enabled ? 'parents_students' : 'none',
+  'started_by': startedBy,
+  'hours': {
+    'from': '08:00',
+    'to': '18:00',
+    'days': [1, 2, 3, 4, 7],
+  },
+  'open_now': openNow,
+  'opens_at': openNow ? null : '2026-10-18T05:00:00.000Z',
+  'attachments': false,
+  'admin_reads': adminReads,
+  'class_messages': classMessages,
+  'classes': classMessages
+      ? [
+          {'id': 3, 'name': 'Grade 5 A'},
+        ]
+      : [],
+  'office_conversation_id': 'c0a8e0f2-0000-4000-8000-000000000001',
+  'contacts': !enabled
+      ? []
+      : teacher
+      ? [
+          {
+            'person_id': 21,
+            'role': 'parent',
+            'name': 'Hassan Ali',
+            'photo_url': null,
+            'students': ['Omar Hassan'],
+            'classes': ['Grade 5 A'],
+            'subjects': [],
+            'class_teacher': false,
+            'conversation_id': null,
+            'can_write': true,
+          },
+          {
+            'person_id': 11,
+            'role': 'student',
+            'name': 'Omar Hassan',
+            'photo_url': null,
+            'students': [],
+            'classes': ['Grade 5 A'],
+            'subjects': [],
+            'class_teacher': false,
+            'conversation_id': null,
+            'can_write': true,
+          },
+        ]
+      : [
+          {
+            'person_id': 5,
+            'role': 'teacher',
+            'name': 'Mona Adel',
+            'photo_url': null,
+            'students': ['Omar Hassan'],
+            'classes': ['Grade 5 A'],
+            'subjects': ['Mathematics'],
+            'class_teacher': false,
+            'conversation_id': 'c0a8e0f2-0000-4000-8000-000000000003',
+            'can_write': true,
+          },
+          {
+            'person_id': 6,
+            'role': 'teacher',
+            'name': 'Karim Said',
+            'photo_url': null,
+            'students': ['Laila Hassan'],
+            'classes': ['Grade 3 B'],
+            'subjects': [],
+            'class_teacher': true,
+            'conversation_id': null,
+            'can_write': startedBy == 'both',
+          },
+        ],
+};
+
 Map<String, dynamic> schoolLessonJson({
   int id = 1,
   String subject = 'Mathematics',

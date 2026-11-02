@@ -69,6 +69,20 @@ abstract final class ChatErrors {
 
   /// The media gate refused a chunk (403 or 410: ask for a fresh link).
   static const linkExpired = 'upload_link_expired';
+
+  // 113.6 A school's rules in its teachers' conversations with families.
+  static const closed = 'conversation_closed';
+  static const teacherFirst = 'teacher_first';
+  static const notAllowed = 'messages_not_allowed';
+  static const textOnly = 'attachments_not_allowed';
+  static const outsideHours = 'outside_hours';
+  static const school = {
+    closed,
+    teacherFirst,
+    notAllowed,
+    textOnly,
+    outsideHours,
+  };
 }
 
 /// A chat token from the WordPress site (`POST /chat/session`): kept until a

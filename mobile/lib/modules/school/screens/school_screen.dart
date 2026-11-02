@@ -13,6 +13,7 @@ import '../../real_estate/widgets/listing_widgets.dart'
     show SignInPrompt, TabHeader;
 import '../data/school_providers.dart';
 import '../widgets/school_widgets.dart';
+import 'messages_screen.dart' show SchoolMessagesTile;
 
 /// 105.4 The School tab, for a student and their parents: today's lessons
 /// and each part of the school (a parent with several children picks one
@@ -158,6 +159,8 @@ class _Overview extends ConsumerWidget {
                 title: l10n.schoolNews,
                 onTap: () => open('news'),
               ),
+              // 113.6 Messages with the teachers (moves with 113.4's Parent tab).
+              const SchoolMessagesTile(teacher: false),
             ],
           ),
         ],

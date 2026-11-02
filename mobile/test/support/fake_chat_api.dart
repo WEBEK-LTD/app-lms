@@ -15,6 +15,9 @@ Map<String, dynamic> chatConfigJson({
 
 const businessConversation = 'c0a8e0f2-0000-4000-8000-000000000001';
 const groupConversation = 'c0a8e0f2-0000-4000-8000-000000000002';
+
+/// 113.6 A teacher's conversation with a parent.
+const schoolConversation = 'c0a8e0f2-0000-4000-8000-000000000003';
 const meMember = '0f9a0000-0000-4000-8000-0000000000aa';
 const otherMember = '0f9a0000-0000-4000-8000-0000000000bb';
 
@@ -50,7 +53,21 @@ Map<String, dynamic> chatMessageJson({
 
 /// An in-memory chat: the business's conversation and one course group.
 class FakeChatApi implements ChatApi {
-  FakeChatApi({this.groups = true, this.canSend = true}) {
+  FakeChatApi({this.groups = true, this.canSend = true, this.school}) {
+    if (school != null) {
+      threads[schoolConversation] = [
+        ChatMessage.fromJson(
+          chatMessageJson(
+            id: 3,
+            conversation: schoolConversation,
+            sender: 'member',
+            memberId: otherMember,
+            name: 'Mona Adel',
+            text: 'Omar did well in mathematics today.',
+          ),
+        ),
+      ];
+    }
     threads[businessConversation] = [
       ChatMessage.fromJson(
         chatMessageJson(id: 1, text: 'Welcome! Ask us anything.'),
@@ -72,6 +89,9 @@ class FakeChatApi implements ChatApi {
 
   final bool groups;
   bool canSend;
+
+  /// 113.6 The school's rules in [schoolConversation]; null: none.
+  ChatSchoolInfo? school;
   int unreadCount = 1;
   int pollAfter = 5;
   int _next = 100;
@@ -115,6 +135,18 @@ class FakeChatApi implements ChatApi {
       (m) => !blocked.contains(m.sender.memberId),
     );
     final group = id == groupConversation;
+    if (id == schoolConversation) {
+      return ChatConversation(
+        id: id,
+        kind: ChatConversationKind.school,
+        title: 'Mona Adel',
+        lastMessage: list.lastOrNull,
+        unreadCount: 0,
+        canSend: canSend && school?.note == null,
+        updatedAt: DateTime.utc(2026, 10, 20),
+        school: school,
+      );
+    }
     return ChatConversation(
       id: id,
       kind: group ? ChatConversationKind.group : ChatConversationKind.direct,
@@ -135,6 +167,7 @@ class FakeChatApi implements ChatApi {
       items: [
         _conversation(businessConversation),
         if (groups) _conversation(groupConversation),
+        if (school != null) _conversation(schoolConversation),
       ],
       unreadCount: unreadCount,
     ),

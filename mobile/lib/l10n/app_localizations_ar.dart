@@ -6604,4 +6604,120 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get couponWithout => 'المتابعة دون قسيمة';
+
+  @override
+  String get schoolMessages => 'الرسائل';
+
+  @override
+  String get schoolMessagesWithTeachers => 'مع معلميك';
+
+  @override
+  String get schoolMessagesWithFamilies => 'مع أسر فصولك';
+
+  @override
+  String get schoolMessagesOff =>
+      'لم تفعّل مدرستك الرسائل بين المعلمين والأسر.';
+
+  @override
+  String get schoolMessagesOffice => 'إدارة المدرسة';
+
+  @override
+  String get schoolMessagesOfficeHint => 'راسل المدرسة في أي وقت.';
+
+  @override
+  String get schoolMessagesTeachers => 'المعلمون';
+
+  @override
+  String get schoolMessagesFamilies => 'أولياء الأمور والطلاب';
+
+  @override
+  String schoolMessagesParentOf(String names) {
+    return 'ولي أمر $names';
+  }
+
+  @override
+  String get schoolMessagesClassTeacher => 'معلم الفصل';
+
+  @override
+  String get schoolMessagesTeacherFirst =>
+      'يبدأ المعلم المراسلة، ويمكنك الرد بعدها.';
+
+  @override
+  String schoolMessagesHours(String days, String from, String to) {
+    return 'يمكن إرسال الرسائل أيام $days، من $from إلى $to.';
+  }
+
+  @override
+  String schoolMessagesOpensAt(String when) {
+    return 'يمكنك الكتابة مرة أخرى يوم $when.';
+  }
+
+  @override
+  String get schoolMessagesClosed => 'أغلقت المدرسة هذه المحادثة.';
+
+  @override
+  String get schoolMessagesNotAllowed => 'لا تسمح المدرسة بالرسائل هنا الآن.';
+
+  @override
+  String get schoolMessagesTextOnly => 'تسمح المدرسة بالرسائل النصية فقط.';
+
+  @override
+  String get schoolMessagesAdminReads =>
+      'تستطيع إدارة المدرسة قراءة هذه المحادثة.';
+
+  @override
+  String get schoolMessagesPrivate =>
+      'هذه المحادثة خاصة: لا تقرؤها المدرسة إلا إذا أُبلغ عن رسالة فيها.';
+
+  @override
+  String get schoolMessagesNone => 'لا يوجد من تراسله بعد.';
+
+  @override
+  String get schoolMessagesWriteClass => 'راسل فصلًا كاملًا';
+
+  @override
+  String classMessageTitle(String name) {
+    return 'راسل $name';
+  }
+
+  @override
+  String get classMessageTo => 'أرسل إلى';
+
+  @override
+  String get classMessageParents => 'أولياء الأمور';
+
+  @override
+  String get classMessageStudents => 'الطلاب';
+
+  @override
+  String get classMessageFamilies => 'أولياء الأمور والطلاب';
+
+  @override
+  String get classMessageHint =>
+      'يتلقاها كل واحد على حدة، وتعود ردودهم إليك وحدك.';
+
+  @override
+  String classMessageSent(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'أُرسلت إلى $count أشخاص.',
+      one: 'أُرسلت إلى شخص واحد.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String classMessageNotInApp(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count أشخاص لم يسجلوا الدخول إلى التطبيق بعد.',
+      one: 'شخص واحد لم يسجل الدخول إلى التطبيق بعد.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get classMessageMissing => 'اكتب الرسالة أولًا.';
 }

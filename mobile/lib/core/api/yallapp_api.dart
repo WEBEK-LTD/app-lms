@@ -1002,6 +1002,20 @@ abstract class YallappApi {
     required String title,
     required String body,
   });
+
+  // 113.6 Messages between teachers and families.
+  Future<SchoolMessages> getSchoolMessages();
+
+  /// The conversation with a contact (a Chat conversation), made the first time.
+  Future<String> openSchoolConversation(int personId);
+
+  /// The same text to each parent (or student) of a class, one by one.
+  Future<({int sent, int notInApp})> messageClass(
+    int classId, {
+    required ClassAudience to,
+    required String clientId,
+    required String text,
+  });
 }
 
 /// [YallappApi] over HTTP.
@@ -3274,4 +3288,34 @@ class HttpYallappApi implements YallappApi {
     (data) => SchoolAnnouncement.fromJson(asJson(data)),
     body: {'class_id': classId, 'title': title, 'body': body},
   );
+
+  // 113.6 Messages between teachers and families.
+
+  @override
+  Future<SchoolMessages> getSchoolMessages() =>
+      _get('/school/messages', _required, SchoolMessages.fromJson);
+
+  @override
+  Future<String> openSchoolConversation(int personId) => _send(
+    'POST',
+    '/school/messages/conversations',
+    _required,
+    (data) => reqString(asJson(data), 'conversation_id'),
+    body: {'person_id': personId},
+  );
+
+  @override
+  Future<({int sent, int notInApp})> messageClass(
+    int classId, {
+    required ClassAudience to,
+    required String clientId,
+    required String text,
+  }) =>
+      _send('POST', '/classroom/classes/$classId/messages', _required, (data) {
+        final json = asJson(data);
+        return (
+          sent: intOr(json, 'sent', 0),
+          notInApp: intOr(json, 'not_in_app', 0),
+        );
+      }, body: {'to': to.name, 'client_id': clientId, 'text': text});
 }

@@ -230,3 +230,12 @@ class SchoolUploads implements ChunkedUploads {
 final schoolUploadsProvider = Provider<ChunkedUploads>(
   (ref) => SchoolUploads(ref.watch(yallappApiProvider), MediaGate.standalone()),
 );
+
+/// 113.6 What the school allows and whom the person can write to; again
+/// each time Messages opens.
+final schoolMessagesProvider = FutureProvider.autoDispose<SchoolMessages>((
+  ref,
+) {
+  ref.watch(authControllerProvider.select((s) => s.user?.id));
+  return ref.read(yallappApiProvider).getSchoolMessages();
+});

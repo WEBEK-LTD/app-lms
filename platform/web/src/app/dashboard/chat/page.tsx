@@ -308,6 +308,7 @@ export default async function ChatPage({ searchParams }: PageProps<"/dashboard/c
                         <span className={`flex items-center gap-2 truncate text-[15px] ${c.unread_count > 0 ? "font-extrabold" : "font-bold"}`}>
                           <span className="truncate">{c.title || t("chat.group")}</span>
                           {c.kind === "group" && c.member_count !== undefined ? <span className="text-[13px] font-normal text-muted">{t("chat.members", { count: c.member_count })}</span> : null}
+                          {c.member && teacherMembers.has(c.member.id) ? <Badge tone="info">{t("chat.teacherBadge")}</Badge> : null}
                           {c.member?.blocked ? <Badge tone="neutral">{t("chat.blocked")}</Badge> : null}
                         </span>
                         <span className="truncate text-[13px] text-muted">{preview(c.last_message)}</span>

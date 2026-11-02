@@ -2686,4 +2686,41 @@ class FakeApi implements YallappApi {
       'audience': 'class',
     });
   });
+
+  // 113.6 Messages between teachers and families.
+
+  Map<String, dynamic> schoolMessages = schoolMessagesJson();
+  final openedWith = <int>[];
+  String openedConversation = 'c0a8e0f2-0000-4000-8000-000000000003';
+  final classMessagesSent =
+      <({int classId, ClassAudience to, String clientId, String text})>[];
+
+  @override
+  Future<SchoolMessages> getSchoolMessages() => _answer(
+    'getSchoolMessages',
+    () => SchoolMessages.fromJson(schoolMessages),
+  );
+
+  @override
+  Future<String> openSchoolConversation(int personId) =>
+      _answer('openSchoolConversation', () {
+        openedWith.add(personId);
+        return openedConversation;
+      });
+
+  @override
+  Future<({int sent, int notInApp})> messageClass(
+    int classId, {
+    required ClassAudience to,
+    required String clientId,
+    required String text,
+  }) => _answer('messageClass', () {
+    classMessagesSent.add((
+      classId: classId,
+      to: to,
+      clientId: clientId,
+      text: text,
+    ));
+    return (sent: 2, notInApp: 1);
+  });
 }

@@ -9,6 +9,7 @@ import '../../core/theme/app_icons.dart';
 import '../shared/account/profile_screen.dart';
 import '../shared/shared_routes.dart';
 import 'screens/classroom_screens.dart';
+import 'screens/messages_screen.dart';
 import 'screens/school_screen.dart';
 import 'screens/student_screens.dart';
 
@@ -122,6 +123,8 @@ List<RouteBase> _pushedRoutes() => [
   _part('attendance', (student) => AttendanceScreen(student: student)),
   _part('fees', (student) => FeesScreen(student: student)),
   _part('news', (student) => const SchoolNewsScreen()),
+  // 113.6 Messages with teachers and families.
+  _part('messages', (student) => const SchoolMessagesScreen()),
   _byId(
     '${Paths.classroom}/class/:id/attendance',
     (id) => TakeAttendanceScreen(classId: id),

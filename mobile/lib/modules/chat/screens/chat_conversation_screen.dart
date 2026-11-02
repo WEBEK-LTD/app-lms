@@ -13,6 +13,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import '../../school/screens/messages_screen.dart' show hoursNote;
 import '../data/chat_api.dart';
 import '../data/chat_media.dart';
 import '../data/chat_providers.dart';
@@ -149,6 +150,21 @@ class _ChatConversationScreenState
       _schedule(page.pollAfterSeconds);
     } on Object catch (e) {
       if (mounted) setState(() => _error = e);
+    }
+  }
+
+  /// 113.6 The conversation again (a school's rules changed what one can send).
+  Future<void> _refreshConversation() async {
+    try {
+      final list = await _api?.conversations();
+      final fresh = list?.items.where((c) => c.id == _id).firstOrNull;
+      if (fresh == null || !mounted) return;
+      setState(() {
+        _conversation = fresh;
+        _canSend = fresh.canSend;
+      });
+    } on Object {
+      // Kept as it was.
     }
   }
 
@@ -306,8 +322,15 @@ class _ChatConversationScreenState
         ChatErrors.storageFull => l10n.chatStorageFull,
         'invalid_request' when out.file != null && out.uploadId == null =>
           l10n.chatFileType,
+        // 113.6 A school's rules.
+        ChatErrors.closed => l10n.schoolMessagesClosed,
+        ChatErrors.teacherFirst => l10n.schoolMessagesTeacherFirst,
+        ChatErrors.notAllowed => l10n.schoolMessagesNotAllowed,
+        ChatErrors.textOnly => l10n.schoolMessagesTextOnly,
+        ChatErrors.outsideHours => e.message,
         _ => null,
       };
+      if (ChatErrors.school.contains(e.code)) unawaited(_refreshConversation());
       setState(() {
         if (e.code == ChatErrors.blocked || e.code == ChatErrors.notAvailable) {
           _canSend = false;
@@ -623,6 +646,21 @@ class _ChatConversationScreenState
                                     color: p.text,
                                   ),
                                 ),
+                                if (conversation.isSchool &&
+                                    _schoolLine(
+                                      context,
+                                      conversation.school!,
+                                    ).isNotEmpty)
+                                  Text(
+                                    _schoolLine(context, conversation.school!),
+                                    key: const ValueKey('chat-school-line'),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: p.textSecondary,
+                                    ),
+                                  ),
                                 if (conversation.isGroup)
                                   Text(
                                     conversation.memberCount == null
@@ -650,6 +688,9 @@ class _ChatConversationScreenState
               ),
             ),
           ),
+          // 113.6 Whether the school reads the conversation, and its hours.
+          if (conversation != null && conversation.isSchool)
+            _SchoolBanner(info: conversation.school!),
           Expanded(child: _body(context)),
           if (_loaded) _composer(context),
         ],
@@ -723,10 +764,16 @@ class _ChatConversationScreenState
   Widget _composer(BuildContext context) {
     final p = context.palette;
     final l10n = context.l10n;
+    final school = _conversation?.isSchool ?? false
+        ? _conversation!.school
+        : null;
     if (!_canSend) {
       return BottomActionBar(
         child: Text(
-          l10n.chatCantSend,
+          school?.note != null
+              ? _schoolNote(context, school!)
+              : l10n.chatCantSend,
+          key: const ValueKey('chat-cant-send'),
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 14, color: p.textSecondary),
         ),
@@ -772,16 +819,19 @@ class _ChatConversationScreenState
       );
     }
     final typed = _text.text.trim().isNotEmpty;
+    // 113.6 A school that allows text only: no files and no voice messages.
+    final files = school == null || school.attachments;
     return BottomActionBar(
-      padding: const EdgeInsets.fromLTRB(8, 10, 16, 12),
+      padding: EdgeInsets.fromLTRB(files ? 8 : 16, 10, 16, 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          IconButton(
-            tooltip: l10n.chatAttach,
-            onPressed: _attach,
-            icon: AppIcon(AppIcons.attachment, color: p.text),
-          ),
+          if (files)
+            IconButton(
+              tooltip: l10n.chatAttach,
+              onPressed: _attach,
+              icon: AppIcon(AppIcons.attachment, color: p.text),
+            ),
           Expanded(
             child: TextField(
               controller: _text,
@@ -797,15 +847,108 @@ class _ChatConversationScreenState
           ),
           const SizedBox(width: 8),
           SquareIconButton(
-            icon: typed ? AppIcons.send : AppIcons.mic,
-            label: typed ? l10n.send : l10n.chatRecord,
+            icon: typed || !files ? AppIcons.send : AppIcons.mic,
+            label: typed || !files ? l10n.send : l10n.chatRecord,
             size: 50,
             radius: context.shapes.button,
             background: p.primary,
             foreground: p.onPrimary,
             bordered: false,
-            onPressed: typed ? _sendText : _startRecording,
+            onPressed: typed
+                ? _sendText
+                : files
+                ? _startRecording
+                : null,
           ),
+        ],
+      ),
+    );
+  }
+
+  /// 113.6 Who the other side is: a parent's children, a class.
+  String _schoolLine(BuildContext context, ChatSchoolInfo info) {
+    final l10n = context.l10n;
+    return [
+      if (info.role == SchoolRole.parent && info.students.isNotEmpty)
+        l10n.schoolMessagesParentOf(info.students.join(', '))
+      else
+        ...info.students,
+      ...info.classes,
+    ].join(' · ');
+  }
+
+  /// 113.6 Why one can't write now.
+  String _schoolNote(BuildContext context, ChatSchoolInfo info) {
+    final l10n = context.l10n;
+    return switch (info.note) {
+      ChatSchoolNote.closed => l10n.schoolMessagesClosed,
+      ChatSchoolNote.teacherFirst => l10n.schoolMessagesTeacherFirst,
+      ChatSchoolNote.notAllowed => l10n.schoolMessagesNotAllowed,
+      ChatSchoolNote.outsideHours when info.hours != null => hoursNote(
+        context,
+        info.hours!,
+        opensAt: info.opensAt,
+      ),
+      _ => l10n.chatCantSend,
+    };
+  }
+}
+
+/// 113.6 A school conversation's note: whether the school's administration
+/// reads it, and when messages can be sent.
+class _SchoolBanner extends StatelessWidget {
+  const _SchoolBanner({required this.info});
+
+  final ChatSchoolInfo info;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final hours = info.hours;
+    return Container(
+      key: const ValueKey('chat-school-note'),
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      color: p.surfaceMuted,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AppIcon(
+                info.adminReads ? AppIcons.info : AppIcons.lock,
+                size: 16,
+                color: p.textSecondary,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  info.adminReads
+                      ? l10n.schoolMessagesAdminReads
+                      : l10n.schoolMessagesPrivate,
+                  style: TextStyle(fontSize: 12, color: p.textSecondary),
+                ),
+              ),
+            ],
+          ),
+          if (hours != null && info.note != ChatSchoolNote.outsideHours) ...[
+            const SizedBox(height: 4),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppIcon(AppIcons.schedule, size: 16, color: p.textSecondary),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    hoursNote(context, hours),
+                    style: TextStyle(fontSize: 12, color: p.textSecondary),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
