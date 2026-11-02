@@ -912,8 +912,8 @@ test("112.4 a store project starts from a full shop, with a store's sections and
 
   // Shop the look: spots on the picture, each placed in percent.
   await own.locator('[data-studio-section="shop_look"]').click();
-  // The full shop has one already: the one just added is the last.
-  await expect(phone.getByText("Shop the look").last()).toBeVisible();
+  // Its title and its layer's name both read so.
+  await expect(phone.getByText("Shop the look").first()).toBeVisible();
   const spot = phone.locator('[data-studio-node][style*="position: absolute"]').first();
   await spot.click();
   await expect(inspector.getByLabel("Place on the picture")).toBeChecked();
@@ -932,7 +932,7 @@ test("112.4 a store project starts from a full shop, with a store's sections and
 
   // A list of products on sale only.
   await own.locator('[data-studio-section="on_sale"]').click();
-  await expect(phone.getByText("On sale now")).toBeVisible();
+  await expect(phone.getByText("On sale now").first()).toBeVisible();
   await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
 
   // The page checker takes it all: published.
