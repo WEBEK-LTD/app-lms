@@ -7,7 +7,7 @@ import { getBlobStore } from "@/lib/blobs";
 import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
 import { parseCourse } from "@/lib/courses/forms";
 import { saveLesson, withCourse } from "@/lib/courses/edit";
-import { deleteQuiz, saveQuiz } from "@/lib/courses/quizzes";
+import { deleteQuiz, saveQuestionBank, saveQuiz } from "@/lib/courses/quizzes";
 import { courseSetup } from "@/lib/courses/setup";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
@@ -197,7 +197,7 @@ export async function saveQuizAction(_: FormState, formData: FormData): Promise<
   const { app } = await requireCoursesApp();
   const courseId = Number(formData.get("courseId"));
   const topicId = Number(formData.get("topicId"));
-  const v = values(formData, ["id", "title", "passPercent", "attemptsAllowed", "timeLimit", "questions"]);
+  const v = values(formData, ["id", "title", "passPercent", "attemptsAllowed", "timeLimit", "questions", "bankPicks"]);
   // 112.5
   v.shuffle = formData.get("shuffle") === "on" ? "on" : "";
   v.showAnswers = formData.get("showAnswers") === "on" ? "on" : "";
@@ -350,4 +350,14 @@ export async function addStudentsAction(_: FormState, formData: FormData): Promi
   if (!unknown.length) return { ok: true, message: counted };
   // The numbers that haven't signed in yet stay in the box, to try again later.
   return { message: `Added ${added}, already enrolled ${already}. Not signed in to your app yet: ${unknown.slice(0, 20).join(", ")}.`, values: { phones: unknown.join("\n") } };
+}
+
+/** 112.5 The course's question bank, which its quizzes draw from at random. */
+export async function saveQuestionBankAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { app } = await requireCoursesApp();
+  const text = String(formData.get("bank") ?? "");
+  const saved = saveQuestionBank(courseSetup(app), Number(formData.get("courseId")), text);
+  if (!saved.ok) return { errors: { bank: saved.error }, values: { bank: text } };
+  await saveSetup(app, saved.setup);
+  return { ok: true, message: `Saved ${saved.count} questions.`, values: { bank: text } };
 }

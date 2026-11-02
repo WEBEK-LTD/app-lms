@@ -113,10 +113,10 @@ test("90.1 the academy adds a lesson with a file, a quiz, a certificate and acce
 
   await curriculum.getByText("Add a quiz to Hello").click();
   await curriculum.getByLabel("Quiz title").fill("Check yourself");
-  await curriculum.getByLabel("Questions").fill("Q: Merhaba means\n* Hello");
+  await curriculum.getByLabel("Questions", { exact: true }).fill("Q: Merhaba means\n* Hello");
   await curriculum.getByRole("button", { name: "Add quiz" }).click();
   await expect(curriculum.getByText("“Merhaba means” needs at least two answers.")).toBeVisible();
-  await curriculum.getByLabel("Questions").fill("Q: Merhaba means\n* Hello\n- Goodbye");
+  await curriculum.getByLabel("Questions", { exact: true }).fill("Q: Merhaba means\n* Hello\n- Goodbye");
   await curriculum.getByRole("button", { name: "Add quiz" }).click();
   await expect(curriculum.getByText("1 question · pass mark 70%")).toBeVisible();
 });

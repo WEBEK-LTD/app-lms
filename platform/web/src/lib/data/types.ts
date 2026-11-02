@@ -1860,6 +1860,8 @@ export interface CourseQuiz {
   shuffle?: boolean;
   /** 112.5 After submitting, the student sees each question with their answer and the right one. */
   showAnswers?: boolean;
+  /** 112.5 This many questions drawn at random from the course's question bank for each attempt, besides its own. */
+  bankPicks?: number;
 }
 
 /** 112.5 An assignment in a section: the student hands in a text, a file or both, and the teacher grades it. */
@@ -1941,6 +1943,8 @@ export interface Course {
   sequential?: boolean;
   /** 112.5 The certificate's signature line: the name (and title) of who signs it. */
   certificateSigner?: string | null;
+  /** 112.5 Questions the course's quizzes draw from at random (`CourseQuiz.bankPicks`); IDs from 1001. */
+  questionBank?: CourseQuizQuestion[];
   /** 105.3 The academy's teacher whose course it is; missing or null: the academy's own. */
   teacherId?: number | null;
   /**

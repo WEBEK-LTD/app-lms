@@ -82,7 +82,10 @@ export function parseQuiz(v: Record<string, string>): Parsed<Omit<CourseQuiz, "i
   if (attempts !== null && (!Number.isInteger(attempts) || attempts < 1 || attempts > 50)) errors.attemptsAllowed = "Enter 1 to 50 attempts, or leave it empty for no limit.";
   const minutes = (v.timeLimit ?? "").trim() === "" ? null : Number(v.timeLimit);
   if (minutes !== null && (!Number.isInteger(minutes) || minutes < 1 || minutes > 600)) errors.timeLimit = "Enter 1 to 600 minutes, or leave it empty for no time limit.";
-  const parsed = parseQuestions(v.questions ?? "");
+  // 112.5 Questions from the course's bank; then the quiz's own may be none.
+  const picks = (v.bankPicks ?? "").trim() === "" ? 0 : Number(v.bankPicks);
+  if (!Number.isInteger(picks) || picks < 0 || picks > QUIZ_LIMITS.questions) errors.bankPicks = `Enter 0 to ${QUIZ_LIMITS.questions} questions, or leave it empty.`;
+  const parsed = picks > 0 && !(v.questions ?? "").trim() ? { questions: [] } : parseQuestions(v.questions ?? "");
   if ("error" in parsed) errors.questions = parsed.error;
   if (Object.keys(errors).length) return { ok: false, errors };
   return {
@@ -96,8 +99,30 @@ export function parseQuiz(v: Record<string, string>): Parsed<Omit<CourseQuiz, "i
       // 112.5
       shuffle: v.shuffle === "on",
       showAnswers: v.showAnswers === "on",
+      ...(picks > 0 ? { bankPicks: picks } : {}),
     },
   };
+}
+
+/** 112.5 The bank's questions start at this ID, apart from a quiz's own (1, 2, …). */
+export const BANK_FIRST_ID = 1001;
+export const BANK_LIMIT = 300;
+
+/** 112.5 A course's question bank as the owner writes it (the quizzes' format); empty clears it. */
+export function saveQuestionBank(setup: CourseSetup, courseId: number, text: string): { ok: true; setup: CourseSetup; count: number } | { ok: false; error: string } {
+  if (!setup.courses.some((c) => c.id === courseId)) return { ok: false, error: "This course no longer exists." };
+  if (!text.trim()) return { ok: true, setup: withCourse(setup, courseId, (c) => ({ ...c, questionBank: [] })), count: 0 };
+  // Many more questions than a quiz: each block is read with the quiz's rules.
+  const blocks = text.split(/\r?\n(?=\s*q\s*[:.)-])/i);
+  const questions: CourseQuizQuestion[] = [];
+  for (const block of blocks) {
+    if (!block.trim()) continue;
+    const parsed = parseQuestions(block);
+    if ("error" in parsed) return { ok: false, error: parsed.error };
+    for (const q of parsed.questions) questions.push({ ...q, id: BANK_FIRST_ID + questions.length });
+  }
+  if (questions.length > BANK_LIMIT) return { ok: false, error: `Use at most ${BANK_LIMIT} questions.` };
+  return { ok: true, setup: withCourse(setup, courseId, (c) => ({ ...c, questionBank: questions })), count: questions.length };
 }
 
 export type QuizSave = { ok: true; setup: CourseSetup; quiz: CourseQuiz; added: boolean } | { ok: false; message?: string; errors?: Record<string, string> };

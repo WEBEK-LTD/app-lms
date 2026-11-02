@@ -175,6 +175,19 @@ export function shuffled<T>(items: readonly T[], seed: string): T[] {
   return out;
 }
 
+/** 112.5 An attempt's questions: the quiz's own, then those drawn from the course's bank for it (the same each time it's asked for). */
+export function attemptQuestions(course: Pick<Course, "questionBank">, quiz: CourseQuiz, attemptId: number): CourseQuiz["questions"] {
+  const picks = quiz.bankPicks ?? 0;
+  const bank = course.questionBank ?? [];
+  if (picks <= 0 || bank.length === 0) return quiz.questions;
+  return [...quiz.questions, ...shuffled(bank, `bank:${quiz.id}:${attemptId}`).slice(0, picks)];
+}
+
+/** 112.5 How many questions an attempt has. */
+export function quizQuestionCount(course: Pick<Course, "questionBank">, quiz: CourseQuiz): number {
+  return quiz.questions.length + Math.min(quiz.bankPicks ?? 0, (course.questionBank ?? []).length);
+}
+
 /** The quizzes the student passed (any submitted attempt that passed). */
 export function passedQuizzes(attempts: readonly QuizAttempt[]): Set<number> {
   return new Set(attempts.filter((a) => a.passed).map((a) => a.quizId));

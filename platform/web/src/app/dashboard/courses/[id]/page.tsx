@@ -17,7 +17,7 @@ import { topicItems, type TopicItem } from "@/lib/courses/learning";
 import { AssignmentForm, LiveForm, StudentsForm, TopicTitleForm } from "../builder-forms";
 import type { DashT } from "@/i18n/dashboard";
 import { questionsText } from "@/lib/courses/quizzes";
-import { CourseForm, LessonForm, QuizForm, StudentForm, TopicForm } from "../forms";
+import { CourseForm, LessonForm, QuestionBankForm, QuizForm, StudentForm, TopicForm } from "../forms";
 import { setCourseTeacherAction } from "@/app/actions/teachers";
 import { courseStage, isTeachersApp } from "@/lib/teachers/service";
 import { ReviewForm } from "../../teachers/forms";
@@ -55,6 +55,7 @@ function quizValues(q: CourseQuiz): Record<string, string> {
     questions: questionsText(q),
     shuffle: q.shuffle ? "on" : "",
     showAnswers: q.showAnswers ? "on" : "",
+    bankPicks: q.bankPicks ? String(q.bankPicks) : "",
   };
 }
 
@@ -93,7 +94,10 @@ function itemMeta(it: TopicItem, t: DashT, zone: string): string {
       ...(l.attachments?.length ? [t("courses.filesMeta", { count: l.attachments.length })] : []),
     ].join(" · ");
   }
-  if (it.kind === "quiz") return t("courses.quizMeta", { questions: it.quiz.questions.length, pass: it.quiz.passPercent });
+  if (it.kind === "quiz") {
+    const meta = t("courses.quizMeta", { questions: it.quiz.questions.length, pass: it.quiz.passPercent });
+    return it.quiz.bankPicks ? `${meta} · ${t("lms.bankPicksMeta", { count: it.quiz.bankPicks })}` : meta;
+  }
   if (it.kind === "assignment") return t("lms.assignmentMeta", { points: it.assignment.maxPoints });
   const { date, time } = localParts(it.live.startsAt, zone);
   return t("lms.liveMeta", { date, time, minutes: it.live.durationMinutes });
@@ -323,6 +327,22 @@ export default async function CoursePage({ params }: PageProps<"/dashboard/cours
           );
         })}
         <TopicForm courseId={course.id} />
+      </section>
+
+      {/* 112.5 The question bank the quizzes draw from. */}
+      <section aria-labelledby="h-bank" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+        <div className="flex flex-col gap-1">
+          <h2 id="h-bank" className="m-0 text-lg font-bold">
+            {t("lms.bankTitle")} <span className="font-normal text-muted">{(course.questionBank ?? []).length}</span>
+          </h2>
+          <p className="m-0 text-sm leading-relaxed text-muted">{t("lms.bankIntro")}</p>
+        </div>
+        <details className="rounded-lg bg-sand p-3" open={(course.questionBank ?? []).length > 0}>
+          <summary className="cursor-pointer text-[15px] font-semibold">{t("lms.editBank")}</summary>
+          <div className="pt-3">
+            <QuestionBankForm courseId={course.id} current={questionsText({ questions: course.questionBank ?? [] })} />
+          </div>
+        </details>
       </section>
 
       <section aria-labelledby="h-students" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">

@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { newApp } from "@/lib/app/setup";
 import { renderCertificatePdf } from "@/lib/courses/certificate-pdf";
 import { certificateLanguage, loadCertificate } from "@/lib/courses/certificates";
-import { certificateCode } from "@/lib/courses/learning";
+import { attemptQuestions, certificateCode, quizQuestionCount } from "@/lib/courses/learning";
+import { BANK_FIRST_ID, parseQuiz, questionsText, saveQuestionBank } from "@/lib/courses/quizzes";
 import type { App, CourseSetup } from "@/lib/data/types";
 import { CoursesConnector } from "@/lib/hosted/connectors/courses";
 import { LogSender } from "@/lib/hosted/otp-sender";
@@ -128,5 +129,60 @@ describe("112.5 the certificate as a PDF file", () => {
     expect(certificateLanguage("tr", "ar")).toBe("tr");
     expect(certificateLanguage(null, "ar-EG,ar;q=0.9")).toBe("ar");
     expect(certificateLanguage("de", "fr")).toBe("en");
+  });
+});
+
+describe("112.5 a question bank per course", () => {
+  const bankText = ["Q: bir", "* 1", "- 2", "", "Q: iki", "* 2", "- 3", "", "Q: üç", "* 3", "- 4", "", "Q: Thank you?", "= Teşekkürler"].join("\n");
+
+  it("reads the bank in the quizzes' format, and a quiz may be the bank alone", () => {
+    const saved = saveQuestionBank(academy(), 10, bankText);
+    if (!saved.ok) throw new Error(saved.error);
+    const bank = saved.setup.courses[0]!.questionBank!;
+    expect(bank.map((q) => q.id)).toEqual([BANK_FIRST_ID, BANK_FIRST_ID + 1, BANK_FIRST_ID + 2, BANK_FIRST_ID + 3]);
+    expect(bank[3]).toMatchObject({ type: "short_answer", accepted: ["Teşekkürler"] });
+    expect(questionsText({ questions: bank })).toBe(bankText);
+    expect(saveQuestionBank(academy(), 10, "Q: alone\n* yes")).toMatchObject({ ok: false });
+    expect(saveQuestionBank(academy(), 99, bankText)).toMatchObject({ ok: false });
+    expect(parseQuiz({ title: "Numbers", questions: "", bankPicks: "2" })).toMatchObject({ ok: true, value: { questions: [], bankPicks: 2 } });
+    expect(parseQuiz({ title: "Numbers", questions: "" })).toMatchObject({ ok: false, errors: { questions: expect.any(String) } });
+    expect(parseQuiz({ title: "Numbers", questions: "", bankPicks: "99" })).toMatchObject({ ok: false, errors: { bankPicks: expect.any(String) } });
+  });
+
+  it("draws the same questions for an attempt each time, different ones across attempts", () => {
+    const saved = saveQuestionBank(academy(), 10, bankText);
+    if (!saved.ok) throw new Error(saved.error);
+    const course = saved.setup.courses[0]!;
+    const quiz = { id: 15, title: "Numbers", passPercent: 50, attemptsAllowed: null, timeLimitMinutes: null, bankPicks: 2, questions: [] };
+    expect(attemptQuestions(course, quiz, 7).map((q) => q.id)).toEqual(attemptQuestions(course, quiz, 7).map((q) => q.id));
+    expect(attemptQuestions(course, quiz, 7)).toHaveLength(2);
+    const sets = new Set(Array.from({ length: 12 }, (_, i) => attemptQuestions(course, quiz, i + 1).map((q) => q.id).sort().join(",")));
+    expect(sets.size).toBeGreaterThan(1);
+    expect(quizQuestionCount(course, { ...quiz, bankPicks: 10 })).toBe(4);
+  });
+
+  it("asks and scores an attempt's own questions on the hosted API", async () => {
+    const h = await hostedAcademy(() => {
+      const setup = academy();
+      const saved = saveQuestionBank(setup, 10, bankText);
+      if (!saved.ok) throw new Error(saved.error);
+      const course = saved.setup.courses[0]!;
+      course.topics[0]!.quizzes = [{ id: 15, title: "Numbers", passPercent: 100, attemptsAllowed: null, timeLimitMinutes: null, bankPicks: 3, showAnswers: true, questions: [{ id: 1, text: "sıfır", type: "single_choice", options: [{ id: "a", text: "0", correct: true }, { id: "b", text: "1", correct: false }] }] }];
+      return saved.setup;
+    });
+    const { access_token: token } = await h.signUp();
+    await h.call("POST", "/courses/{course_id}/enroll", { params: ["10"], token });
+    expect((await h.call("GET", "/quizzes/{quiz_id}", { params: ["15"], token })).body).toMatchObject({ question_count: 4 });
+    const attempt = (await h.call("POST", "/quizzes/{quiz_id}/attempts", { params: ["15"], token })).body as { id: number; questions: { id: number; type: string; options: { id: string; label: string }[] }[] };
+    expect(attempt.questions).toHaveLength(4);
+    expect(attempt.questions[0]!.id).toBe(1);
+    const bank = h.state.app.courseSetup!.courses[0]!.questionBank!;
+    const answers = attempt.questions.map((q) => {
+      const question = q.id === 1 ? { type: "single_choice", options: [{ id: "a", correct: true }], accepted: [] } : bank.find((b) => b.id === q.id)!;
+      return question.type === "short_answer" ? { question_id: q.id, text: "teşekkürler" } : { question_id: q.id, option_ids: question.options.filter((o) => o.correct).map((o) => o.id) };
+    });
+    const result = await h.call("POST", "/quizzes/{quiz_id}/attempts/{attempt_id}/submit", { params: ["15", String(attempt.id)], token, body: { answers } });
+    expect(result.body).toMatchObject({ status: "passed", score_percent: 100 });
+    expect(((result.body as { review: { question_id: number }[] }).review).map((r) => r.question_id)).toEqual(attempt.questions.map((q) => q.id));
   });
 });

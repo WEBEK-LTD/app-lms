@@ -27,6 +27,8 @@ import {
   liveStatus,
   quizzesOf,
   scoreQuiz,
+  attemptQuestions,
+  quizQuestionCount,
   shuffled,
   topicItems,
   waitingForPrevious,
@@ -381,7 +383,7 @@ export class CoursesConnector implements Connector {
     }
     if (it.kind === "quiz") {
       const reason = closed ?? after;
-      return { ...base, type: "quiz", title: it.quiz.title, duration_minutes: it.quiz.timeLimitMinutes, question_count: it.quiz.questions.length, locked: reason !== null, locked_reason: reason };
+      return { ...base, type: "quiz", title: it.quiz.title, duration_minutes: it.quiz.timeLimitMinutes, question_count: quizQuestionCount(at.course, it.quiz), locked: reason !== null, locked_reason: reason };
     }
     if (it.kind === "assignment") {
       const reason = closed ?? after;
@@ -750,7 +752,7 @@ export class CoursesConnector implements Connector {
     return null;
   }
 
-  private resultJson(a: QuizAttempt, quiz: CourseQuiz | null, withReview = false) {
+  private resultJson(a: QuizAttempt, quiz: CourseQuiz | null, withReview = false, course: Course | null = null) {
     return {
       attempt_id: a.id,
       quiz_id: a.quizId,
@@ -759,7 +761,7 @@ export class CoursesConnector implements Connector {
       score_percent: a.scorePercent,
       finished_at: a.submittedAt?.toISOString() ?? null,
       // 112.5 Each question with the student's answer and the right one, when the quiz shows them.
-      ...(withReview && quiz?.showAnswers && a.answers ? { review: this.review(quiz, a.answers) } : {}),
+      ...(withReview && quiz?.showAnswers && a.answers ? { review: this.review({ ...quiz, questions: attemptQuestions(course ?? {}, quiz, a.id) }, a.answers) } : {}),
     };
   }
 
@@ -793,12 +795,12 @@ export class CoursesConnector implements Connector {
         id: quiz.id,
         course_id: course.id,
         title: quiz.title,
-        question_count: quiz.questions.length,
+        question_count: quizQuestionCount(course, quiz),
         time_limit_seconds: quiz.timeLimitMinutes ? quiz.timeLimitMinutes * 60 : null,
         pass_percent: quiz.passPercent,
         attempts_allowed: quiz.attemptsAllowed,
         attempts_used: submitted.length,
-        ...(submitted[0] ? { last_result: this.resultJson(submitted[0], quiz, true) } : {}),
+        ...(submitted[0] ? { last_result: this.resultJson(submitted[0], quiz, true, course) } : {}),
       },
     };
   }
@@ -830,7 +832,8 @@ export class CoursesConnector implements Connector {
         ends_at: quiz.timeLimitMinutes ? new Date(attempt.startedAt.getTime() + quiz.timeLimitMinutes * 60_000).toISOString() : null,
         // The right answers stay here: the app gets the options only.
         // 112.5 A shuffled quiz: its questions and their answers in this attempt's own order (true or false stays as it is).
-        questions: (quiz.shuffle ? shuffled(quiz.questions, `${attempt.id}`) : quiz.questions).map((q) => ({
+        // 112.5 With the questions drawn from the course's bank for this attempt.
+        questions: (quiz.shuffle ? shuffled(attemptQuestions(course, quiz, attempt.id), `${attempt.id}`) : attemptQuestions(course, quiz, attempt.id)).map((q) => ({
           id: q.id,
           type: q.type,
           title: q.text,
@@ -847,10 +850,12 @@ export class CoursesConnector implements Connector {
   private async submitAttempt(request: ConnectorRequest, found: { course: Course; quiz: CourseQuiz } | null, attemptId: number): Promise<ConnectorResult> {
     const refused = await this.mayQuiz(request, found);
     if (refused) return refused;
-    const { quiz } = found!;
+    const { course, quiz: own } = found!;
     const attempt = Number.isSafeInteger(attemptId) ? await this.deps.store.getQuizAttempt(this.deps.app.id, attemptId) : null;
-    if (!attempt || attempt.userId !== request.user!.id || attempt.quizId !== quiz.id) return error(404, "not_found", "Attempt not found.");
+    if (!attempt || attempt.userId !== request.user!.id || attempt.quizId !== own.id) return error(404, "not_found", "Attempt not found.");
     if (attempt.submittedAt) return error(409, "conflict", "This attempt was already submitted.");
+    // 112.5 Scored over this attempt's questions: the quiz's own and those drawn from the bank.
+    const quiz = { ...own, questions: attemptQuestions(course, own, attempt.id) };
     const list = (request.body as { answers?: unknown } | null)?.answers;
     if (!Array.isArray(list) || list.length > quiz.questions.length + 5) return error(400, "invalid_request", "answers must be a list, one item per question.");
     const answers: Record<string, string[]> = {};
@@ -867,7 +872,7 @@ export class CoursesConnector implements Connector {
     const result = scoreQuiz(quiz, answers);
     const saved = await this.deps.store.submitQuizAttempt(this.deps.app.id, attempt.id, { answers, scorePercent: result.scorePercent, passed: result.passed, submittedAt: request.now });
     if (!saved) return error(409, "conflict", "This attempt was already submitted.");
-    return { status: 200, body: this.resultJson({ ...attempt, answers, ...result, submittedAt: request.now }, quiz, true) };
+    return { status: 200, body: this.resultJson({ ...attempt, answers, ...result, submittedAt: request.now }, own, true, course) };
   }
 
   private async myAttempts(request: ConnectorRequest): Promise<ConnectorResult> {

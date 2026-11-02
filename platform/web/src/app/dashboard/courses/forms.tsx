@@ -10,6 +10,7 @@ import {
   saveLessonAction,
   saveOfflineDownloadsAction,
   saveQuizAction,
+  saveQuestionBankAction,
 } from "@/app/actions/courses";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
@@ -283,6 +284,18 @@ export function QuizForm({ courseId, topicId, current, submit }: { courseId: num
           small
         />
       </div>
+      {/* 112.5 Questions drawn from the course's bank for each attempt. */}
+      <Field
+        label={t("lms.bankPicks")}
+        name="bankPicks"
+        id={`${key}-bank`}
+        inputMode="numeric"
+        defaultValue={v.bankPicks}
+        hint={t("lms.bankPicksHint")}
+        error={e.bankPicks}
+        className="sm:max-w-[320px]"
+        small
+      />
       <TextArea id={`${key}-questions`} label={t("courses.questions")} name="questions" value={v.questions} rows={8} error={e.questions} hint={`${t("courses.questionsHint")} ${t("lms.shortAnswerHint")}`} />
       {/* 112.5 */}
       <div className="flex flex-col gap-2">
@@ -360,6 +373,25 @@ export function OfflineDownloadsForm({ current, wordpress, disabled }: { current
           </SubmitButton>
         </div>
       )}
+    </form>
+  );
+}
+
+/** 112.5 The course's question bank, in the quizzes' format. */
+export function QuestionBankForm({ courseId, current }: { courseId: number; current: string }) {
+  const t = useDashT();
+  const [state, action] = useActionState(saveQuestionBankAction, initialFormState);
+  const value = state.values?.bank ?? current;
+  return (
+    <form action={action} noValidate className="flex flex-col gap-3">
+      <FormMessage message={state.message} ok={state.ok} />
+      <input type="hidden" name="courseId" value={courseId} />
+      <TextArea id={`f-bank-${courseId}`} label={t("lms.bankQuestions")} name="bank" value={value} rows={10} error={state.errors?.bank} hint={`${t("courses.questionsHint")} ${t("lms.shortAnswerHint")}`} />
+      <div className="flex justify-end">
+        <SubmitButton className="h-10" pendingText={t("common.saving")}>
+          {t("lms.saveBank")}
+        </SubmitButton>
+      </div>
     </form>
   );
 }
