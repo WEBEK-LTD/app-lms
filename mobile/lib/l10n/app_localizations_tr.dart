@@ -6397,6 +6397,282 @@ class AppLocalizationsTr extends AppLocalizations {
   String get couponWithout => 'Kuponsuz devam et';
 
   @override
+  String get attemptAwaitingResults => 'Sonuç sınav kapanınca';
+
+  @override
+  String get learningPaths => 'Öğrenme yolları';
+
+  @override
+  String get noLearningPaths => 'Henüz öğrenme yolu yok';
+
+  @override
+  String pathProgress(int done, int total) {
+    return '$total kursun $done tanesi tamamlandı';
+  }
+
+  @override
+  String get pathInOrder => 'Bu kursları sırayla alın';
+
+  @override
+  String get pathLocked => 'Önceki kurstan sonra açılır';
+
+  @override
+  String get courseDoneLabel => 'Tamamlandı';
+
+  @override
+  String get prerequisitesTitle => 'Önce bu kursları bitirin';
+
+  @override
+  String get prerequisitesHint => 'Onları tamamlayınca kaydolabilirsiniz.';
+
+  @override
+  String finalScore(int score) {
+    return 'Final puanı: %$score';
+  }
+
+  @override
+  String finalScoreNeeded(int score, int min) {
+    return 'Final puanı: %$score · tamamlamak için %$min gerekli';
+  }
+
+  @override
+  String get achievementsTitle => 'Puanlar ve rozetler';
+
+  @override
+  String pointsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count puan',
+      one: '1 puan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String streakDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count günlük seri',
+      one: '1 günlük seri',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bestStreak(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'En uzun seri: $count gün',
+      one: 'En uzun seri: 1 gün',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get badgesTitle => 'Rozetler';
+
+  @override
+  String get badgeNotYet => 'Henüz değil';
+
+  @override
+  String get badgeFirstLesson => 'İlk ders';
+
+  @override
+  String get badgeFirstQuiz => 'İlk geçilen sınav';
+
+  @override
+  String get badgePerfectQuiz => 'Tam puanlı sınav';
+
+  @override
+  String get badgeFirstAssignment => 'İlk ödev';
+
+  @override
+  String get badgeStreak7 => '7 günlük seri';
+
+  @override
+  String get badgeCourseCompleted => 'Kurs tamamlandı';
+
+  @override
+  String get badgePathCompleted => 'Yol tamamlandı';
+
+  @override
+  String get badgePoints500 => '500 puan';
+
+  @override
+  String get leaderboardTitle => 'Liderlik tablosu';
+
+  @override
+  String get leaderboardCourse => 'Kurs';
+
+  @override
+  String get leaderboardCohort => 'Grubum';
+
+  @override
+  String leaderboardRank(int rank, int total) {
+    return '$total kişi arasında $rank. sıradasınız';
+  }
+
+  @override
+  String get leaderboardEmpty => 'Liderlik tablosunda henüz kimse yok';
+
+  @override
+  String get leaderboardPrivacy =>
+      'Yalnızca adlar ve soyadının baş harfi görünür.';
+
+  @override
+  String get leaderboardYou => 'Siz';
+
+  @override
+  String get myNotes => 'Notlarım';
+
+  @override
+  String get notesTitle => 'Notlar';
+
+  @override
+  String get notesPrivate => 'Notlarınızı yalnızca siz görebilirsiniz.';
+
+  @override
+  String get noNotes => 'Henüz not yok';
+
+  @override
+  String get noteHint => 'Kendinize bir not yazın';
+
+  @override
+  String get addNote => 'Not ekle';
+
+  @override
+  String noteAt(String time) {
+    return '$time anında';
+  }
+
+  @override
+  String get editNote => 'Notu düzenle';
+
+  @override
+  String get deleteNote => 'Notu sil';
+
+  @override
+  String get bookmarkLesson => 'Yer imi ekle';
+
+  @override
+  String get removeBookmark => 'Yer imini kaldır';
+
+  @override
+  String get bookmarksTitle => 'Yer imleri';
+
+  @override
+  String get lessonDiscussion => 'Tartışma';
+
+  @override
+  String discussionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count soru',
+      one: '1 soru',
+      zero: 'Henüz soru yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get askAboutLesson => 'Bu ders hakkında sorun';
+
+  @override
+  String get pinnedLabel => 'Sabitlendi';
+
+  @override
+  String get pinQuestion => 'Sabitle';
+
+  @override
+  String get unpinQuestion => 'Sabitlemeyi kaldır';
+
+  @override
+  String get deleteQuestion => 'Soruyu sil';
+
+  @override
+  String get deleteAnswer => 'Cevabı sil';
+
+  @override
+  String get deleteConfirm => 'Silinsin mi? Bu geri alınamaz.';
+
+  @override
+  String get examLabel => 'Sınav';
+
+  @override
+  String examOpensAt(String time) {
+    return 'Açılış: $time';
+  }
+
+  @override
+  String examClosesAt(String time) {
+    return 'Kapanış: $time';
+  }
+
+  @override
+  String get examNotOpen => 'Bu sınav henüz açılmadı';
+
+  @override
+  String get examClosed => 'Bu sınav kapandı';
+
+  @override
+  String get examResume => 'Sınava dön';
+
+  @override
+  String examResultsAt(String time) {
+    return 'Sonucunuz $time tarihinde görünür';
+  }
+
+  @override
+  String get examTimeUp => 'Süre doldu: cevaplarınız çok geç geldi.';
+
+  @override
+  String get examTimedHint => 'Uygulamadan çıksanız da süre işler.';
+
+  @override
+  String get rubricTitle => 'Değerlendirme ölçütleri';
+
+  @override
+  String rubricPoints(int points, int max) {
+    return '$points / $max';
+  }
+
+  @override
+  String rubricLevelPoints(String level, int points) {
+    return '$level · $points';
+  }
+
+  @override
+  String get rubricChooseAll => 'Her ölçüt için bir düzey seçin';
+
+  @override
+  String rubricTotal(int score, int max) {
+    return 'Puan: $score / $max';
+  }
+
+  @override
+  String tryOf(int attempt, int total) {
+    return 'Deneme $attempt / $total';
+  }
+
+  @override
+  String triesLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kez daha teslim edebilirsiniz.',
+      one: 'Bir kez daha teslim edebilirsiniz.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get handInAgain => 'Yeniden teslim et';
+
+  @override
   String get bundles => 'Paketler';
 
   @override

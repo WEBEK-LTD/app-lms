@@ -124,6 +124,9 @@ const symbolsByName = <String, IconData>{
   'two_wheeler': Symbols.two_wheeler_rounded,
   // 105.2 Ride hailing.
   'local_taxi': Symbols.local_taxi_rounded,
+  // 113.7 The badges of points and badges.
+  'task_alt': Symbols.task_alt_rounded,
+  'route': Symbols.route_rounded,
 };
 
 /// Shown for a name the app doesn't have.

@@ -614,10 +614,44 @@ abstract class YallappApi {
 
   Future<ReviewPage> listReviews(int courseId, {int page = 1});
   Future<Review> saveMyReview(int courseId, {required int rating, String text});
-  Future<Paged<CourseQuestion>> listQuestions(int courseId, {int page = 1});
-  Future<CourseQuestion> askQuestion(int courseId, String text);
+
+  /// 113.7 With [lessonId], that lesson's discussion (pinned first).
+  Future<Paged<CourseQuestion>> listQuestions(
+    int courseId, {
+    int page = 1,
+    int? lessonId,
+  });
+
+  /// 113.7 With [lessonId], under that lesson.
+  Future<CourseQuestion> askQuestion(
+    int courseId,
+    String text, {
+    int? lessonId,
+  });
   Future<QuestionThread> getQuestion(int questionId);
   Future<QuestionAnswer> answerQuestion(int questionId, String text);
+
+  /// 113.7 The course's teacher pins a question; its author or the teacher
+  /// deletes it, or an answer.
+  Future<void> pinQuestion(int questionId, {required bool pinned});
+  Future<void> deleteQuestion(int questionId);
+  Future<void> deleteAnswer(int questionId, int answerId);
+
+  // 113.7 Learning paths, points and badges, notes and bookmarks.
+  Future<List<LearningPath>> listLearningPaths();
+  Future<LearningPath> getLearningPath(int pathId);
+  Future<Achievements> getAchievements();
+  Future<Leaderboard> getLeaderboard(int courseId, {bool cohort = false});
+  Future<CourseNotes> listCourseNotes(int courseId);
+  Future<LessonNotes> listLessonNotes(int lessonId);
+  Future<LessonNote> addLessonNote(
+    int lessonId,
+    String text, {
+    int? positionSeconds,
+  });
+  Future<LessonNote> editLessonNote(int noteId, String text);
+  Future<void> deleteLessonNote(int noteId);
+  Future<void> setLessonBookmark(int lessonId, {required bool on});
 
   Future<List<StoreHomeSection>> getStoreHome();
   Future<List<ProductCategory>> listProductCategories();
@@ -931,6 +965,7 @@ abstract class YallappApi {
     bool sendBack = false,
     int? score,
     String feedback = '',
+    Map<int, int>? rubric,
   });
   Future<TeacherEarnings> getTeacherEarnings(TeacherPeriod period);
 
@@ -1842,21 +1877,115 @@ class HttpYallappApi implements YallappApi {
   );
 
   @override
-  Future<Paged<CourseQuestion>> listQuestions(int courseId, {int page = 1}) =>
-      _get(
-        '/courses/$courseId/questions',
-        _required,
-        (json) => Paged.fromJson(json, CourseQuestion.fromJson),
-        query: {'page': page, 'per_page': 20},
-      );
+  Future<Paged<CourseQuestion>> listQuestions(
+    int courseId, {
+    int page = 1,
+    int? lessonId,
+  }) => _get(
+    '/courses/$courseId/questions',
+    _required,
+    (json) => Paged.fromJson(json, CourseQuestion.fromJson),
+    query: {'page': page, 'per_page': 20, 'lesson_id': ?lessonId},
+  );
 
   @override
-  Future<CourseQuestion> askQuestion(int courseId, String text) => _send(
+  Future<CourseQuestion> askQuestion(
+    int courseId,
+    String text, {
+    int? lessonId,
+  }) => _send(
     'POST',
     '/courses/$courseId/questions',
     _required,
     (data) => CourseQuestion.fromJson(asJson(data)),
+    body: {'text': text.trim(), 'lesson_id': ?lessonId},
+  );
+
+  @override
+  Future<void> pinQuestion(int questionId, {required bool pinned}) => _send(
+    'PUT',
+    '/questions/$questionId/pin',
+    _required,
+    _ignore,
+    body: {'pinned': pinned},
+  );
+
+  @override
+  Future<void> deleteQuestion(int questionId) =>
+      _send('DELETE', '/questions/$questionId', _required, _ignore);
+
+  @override
+  Future<void> deleteAnswer(int questionId, int answerId) => _send(
+    'DELETE',
+    '/questions/$questionId/answers/$answerId',
+    _required,
+    _ignore,
+  );
+
+  @override
+  Future<List<LearningPath>> listLearningPaths() => _get(
+    '/learning-paths',
+    _optional,
+    (json) => reqListOf(json, 'items', LearningPath.fromJson),
+  );
+
+  @override
+  Future<LearningPath> getLearningPath(int pathId) =>
+      _get('/learning-paths/$pathId', _optional, LearningPath.fromJson);
+
+  @override
+  Future<Achievements> getAchievements() =>
+      _get('/me/achievements', _required, Achievements.fromJson);
+
+  @override
+  Future<Leaderboard> getLeaderboard(int courseId, {bool cohort = false}) =>
+      _get(
+        '/courses/$courseId/leaderboard',
+        _required,
+        Leaderboard.fromJson,
+        query: {'scope': cohort ? 'cohort' : 'course'},
+      );
+
+  @override
+  Future<CourseNotes> listCourseNotes(int courseId) =>
+      _get('/courses/$courseId/notes', _required, CourseNotes.fromJson);
+
+  @override
+  Future<LessonNotes> listLessonNotes(int lessonId) =>
+      _get('/lessons/$lessonId/notes', _required, LessonNotes.fromJson);
+
+  @override
+  Future<LessonNote> addLessonNote(
+    int lessonId,
+    String text, {
+    int? positionSeconds,
+  }) => _send(
+    'POST',
+    '/lessons/$lessonId/notes',
+    _required,
+    (data) => LessonNote.fromJson(asJson(data)),
+    body: {'text': text.trim(), 'position_seconds': ?positionSeconds},
+  );
+
+  @override
+  Future<LessonNote> editLessonNote(int noteId, String text) => _send(
+    'PATCH',
+    '/notes/$noteId',
+    _required,
+    (data) => LessonNote.fromJson(asJson(data)),
     body: {'text': text.trim()},
+  );
+
+  @override
+  Future<void> deleteLessonNote(int noteId) =>
+      _send('DELETE', '/notes/$noteId', _required, _ignore);
+
+  @override
+  Future<void> setLessonBookmark(int lessonId, {required bool on}) => _send(
+    on ? 'PUT' : 'DELETE',
+    '/lessons/$lessonId/bookmark',
+    _required,
+    _ignore,
   );
 
   @override
@@ -3034,6 +3163,7 @@ class HttpYallappApi implements YallappApi {
     bool sendBack = false,
     int? score,
     String feedback = '',
+    Map<int, int>? rubric,
   }) => _send(
     'PUT',
     '/teacher/submissions/$id/grade',
@@ -3043,6 +3173,9 @@ class HttpYallappApi implements YallappApi {
       'outcome': sendBack ? 'return' : 'grade',
       'score': ?score,
       'feedback': feedback,
+      // 113.7 The level chosen for each rubric criterion.
+      if (rubric != null && rubric.isNotEmpty)
+        'rubric': {for (final e in rubric.entries) '${e.key}': e.value},
     },
   );
 

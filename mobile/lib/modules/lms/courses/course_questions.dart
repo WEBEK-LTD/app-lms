@@ -13,6 +13,7 @@ import '../../../core/widgets/common.dart';
 import '../../shared/account/account_scaffold.dart';
 import '../data/lms_providers.dart';
 import 'community_widgets.dart';
+import '../learning/learning_providers.dart' show lessonDiscussionProvider;
 import '../../../core/l10n/l10n.dart';
 
 /// The course page's Q&A tab for enrolled students: ask the instructor,
@@ -77,7 +78,7 @@ class CourseQuestionsTab extends ConsumerWidget {
             compact: true,
           ),
         for (final q in state.items) ...[
-          _QuestionCard(
+          QuestionCard(
             question: q,
             onTap: () => context.push(Paths.question(q.id)),
           ),
@@ -99,21 +100,62 @@ class CourseQuestionsTab extends ConsumerWidget {
   }
 }
 
-class _QuestionCard extends StatelessWidget {
-  const _QuestionCard({required this.question, required this.onTap});
+class QuestionCard extends StatelessWidget {
+  const QuestionCard({
+    super.key,
+    required this.question,
+    required this.onTap,
+    this.showLesson = true,
+  });
 
   final CourseQuestion question;
   final VoidCallback onTap;
 
+  /// 113.7 Says which lesson it's under (the course's list).
+  final bool showLesson;
+
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final lesson = question.lessonTitle;
     return AppCard(
+      key: ValueKey('question-${question.id}'),
       padding: const EdgeInsets.all(14),
       onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 113.7 Pinned by the teacher, and the lesson it's under.
+          if (question.pinned || (showLesson && lesson != null))
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                children: [
+                  if (question.pinned) ...[
+                    AppIcon(AppIcons.pin, size: 14, color: p.primary),
+                    const SizedBox(width: 4),
+                    Text(
+                      context.l10n.pinnedLabel,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: p.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  if (showLesson && lesson != null)
+                    Expanded(
+                      child: Text(
+                        lesson,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 12, color: p.textSecondary),
+                      ),
+                    ),
+                ],
+              ),
+            ),
           PersonLine(
             person: question.author,
             time: question.createdAt,
@@ -185,6 +227,54 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
     }
   }
 
+  /// 113.7 The lists the question is in, after it changed.
+  void _refresh(CourseQuestion question) {
+    ref.invalidate(questionThreadProvider(widget.questionId));
+    if (question.courseId != null) {
+      ref
+        ..invalidate(courseQuestionsProvider(question.courseId!))
+        ..invalidate(lessonDiscussionProvider);
+    }
+  }
+
+  Future<void> _pin(CourseQuestion question) async {
+    try {
+      await ref
+          .read(yallappApiProvider)
+          .pinQuestion(question.id, pinned: !question.pinned);
+      _refresh(question);
+    } on ApiException catch (e) {
+      if (mounted) showMessage(context, e.message);
+    }
+  }
+
+  Future<void> _delete(
+    CourseQuestion question, {
+    QuestionAnswer? answer,
+  }) async {
+    final l10n = context.l10n;
+    final ok = await confirmAction(
+      context,
+      title: answer == null ? l10n.deleteQuestion : l10n.deleteAnswer,
+      message: l10n.deleteConfirm,
+      confirmLabel: answer == null ? l10n.deleteQuestion : l10n.deleteAnswer,
+    );
+    if (!ok || !mounted) return;
+    try {
+      final api = ref.read(yallappApiProvider);
+      if (answer == null) {
+        await api.deleteQuestion(question.id);
+        _refresh(question);
+        if (mounted) Navigator.of(context).maybePop();
+      } else {
+        await api.deleteAnswer(question.id, answer.id);
+        _refresh(question);
+      }
+    } on ApiException catch (e) {
+      if (mounted) showMessage(context, e.message);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final thread = ref.watch(questionThreadProvider(widget.questionId));
@@ -244,6 +334,45 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
                     style: TextStyle(fontSize: 16, height: 1.5, color: p.text),
                   ),
                   if (value.question.hidden) const HiddenNote(top: 8),
+                  // 113.7 The teacher pins; its author or the teacher deletes.
+                  if (value.canModerate || value.canDelete)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Wrap(
+                        spacing: 8,
+                        children: [
+                          if (value.canModerate)
+                            TextButton.icon(
+                              key: const ValueKey('question-pin'),
+                              onPressed: () => _pin(value.question),
+                              icon: AppIcon(
+                                AppIcons.pin,
+                                size: 18,
+                                color: p.primary,
+                              ),
+                              label: Text(
+                                value.question.pinned
+                                    ? context.l10n.unpinQuestion
+                                    : context.l10n.pinQuestion,
+                              ),
+                            ),
+                          if (value.canDelete)
+                            TextButton.icon(
+                              key: const ValueKey('question-delete'),
+                              onPressed: () => _delete(value.question),
+                              icon: AppIcon(
+                                AppIcons.delete,
+                                size: 18,
+                                color: p.danger,
+                              ),
+                              label: Text(
+                                context.l10n.deleteQuestion,
+                                style: TextStyle(color: p.danger),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -285,6 +414,18 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
                       ),
                     ),
                     if (a.hidden) const HiddenNote(top: 6),
+                    if (a.canDelete)
+                      Align(
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: TextButton(
+                          key: ValueKey('answer-delete-${a.id}'),
+                          onPressed: () => _delete(value.question, answer: a),
+                          child: Text(
+                            context.l10n.deleteAnswer,
+                            style: TextStyle(color: p.danger),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),

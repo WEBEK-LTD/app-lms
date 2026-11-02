@@ -237,7 +237,7 @@ describe("offline lessons and a finished course on the hosted API (45)", () => {
     for (const id of ["12", "13"]) await call("POST", "/lessons/{lesson_id}/complete", { params: [id], token });
     now = new Date(now.getTime() + 600_000);
     const last = await call("POST", "/lessons/{lesson_id}/complete", { params: ["14"], token });
-    expect(last.body).toEqual({ course_id: 10, completed_items: 3, total_items: 3, percent: 100, course_completed: true, completed_at: now.toISOString() });
+    expect(last.body).toEqual({ course_id: 10, completed_items: 3, total_items: 3, percent: 100, course_completed: true, completed_at: now.toISOString(), complete_when: "all", final_score: null, min_final_score: null });
     expect((await call("GET", "/courses/{course_id}", { params: ["10"], token })).body).toMatchObject({
       purchase: { action: "continue" },
       progress: { course_completed: true, completed_at: now.toISOString() },

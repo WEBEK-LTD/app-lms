@@ -124,3 +124,24 @@ export async function setReviewHiddenAction(formData: FormData): Promise<void> {
   }
   revalidatePath("/dashboard/courses/reviews");
 }
+
+// 113.7 The lessons' discussions: pinned first in the app, or deleted.
+
+export async function setQuestionPinnedAction(formData: FormData): Promise<void> {
+  const { context, store, question } = await ownQuestion(formData);
+  if (question) await store.setCourseQuestionPinned(context.app.id, question.id, formData.get("pinned") === "1");
+  revalidatePath("/dashboard/courses/questions", "layout");
+}
+
+export async function deleteQuestionAction(formData: FormData): Promise<void> {
+  const { context, store, question } = await ownQuestion(formData);
+  if (question) await store.deleteCourseQuestion(context.app.id, question.id);
+  revalidatePath("/dashboard/courses/questions", "layout");
+  redirect("/dashboard/courses/questions");
+}
+
+export async function deleteAnswerAction(formData: FormData): Promise<void> {
+  const { context, store, question } = await ownQuestion(formData);
+  if (question) await store.deleteCourseAnswer(context.app.id, question.id, Number(formData.get("answerId")));
+  revalidatePath("/dashboard/courses/questions", "layout");
+}

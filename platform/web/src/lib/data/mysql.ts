@@ -121,6 +121,9 @@ import type {
   LessonProgress,
   QuizAttempt,
   AssignmentSubmission,
+  AssignmentSubmissionInput,
+  LessonBookmark,
+  LessonNote,
   CatalogCoupon,
   PlatformSettingKey,
   PlatformSettingValues,
@@ -1876,8 +1879,9 @@ export class MysqlStore implements DataStore {
   }
 
   async createCourseQuestion(input: CourseQuestionInput): Promise<CourseQuestion> {
-    const [result] = await this.run((db) => db.insert(schema.courseQuestions).values({ ...input, hidden: false }));
-    return { ...input, hidden: false, id: Number(result.insertId), answerCount: 0 };
+    const row = { ...input, lessonId: input.lessonId ?? null, pinned: false, hidden: false };
+    const [result] = await this.run((db) => db.insert(schema.courseQuestions).values(row));
+    return { ...row, id: Number(result.insertId), answerCount: 0 };
   }
 
   /** 63 A question's columns with its answers counted (a deleted student's answers go with their account; 64 hidden ones aren't counted). */
@@ -1908,6 +1912,7 @@ export class MysqlStore implements DataStore {
     status?: CourseQuestionStatus;
     hidden?: boolean;
     viewerId?: number;
+    lessonId?: number | null;
     order: "created" | "updated";
     offset: number;
     limit: number;
@@ -1921,8 +1926,11 @@ export class MysqlStore implements DataStore {
       input.hidden !== undefined ? eq(q.hidden, input.hidden) : undefined,
       // 64 A student sees the shown questions and their own.
       input.viewerId !== undefined ? or(eq(q.hidden, false), eq(q.userId, input.viewerId)) : undefined,
+      // 113.7 A lesson's discussion, or the course's own questions.
+      input.lessonId === undefined ? undefined : input.lessonId === null ? isNull(q.lessonId) : eq(q.lessonId, input.lessonId),
     );
-    const order = input.order === "created" ? [desc(q.createdAt), desc(q.id)] : [desc(q.updatedAt), desc(q.id)];
+    // 113.7 Pinned ones first in the app's lists.
+    const order = input.order === "created" ? [desc(q.pinned), desc(q.createdAt), desc(q.id)] : [desc(q.updatedAt), desc(q.id)];
     const [items, [total]] = await Promise.all([
       this.run((db) =>
         db
@@ -1960,6 +1968,27 @@ export class MysqlStore implements DataStore {
     if (!found) return false;
     await this.run((db) => db.update(q).set({ hidden }).where(and(eq(q.appId, appId), eq(q.id, id))));
     return true;
+  }
+
+  async setCourseQuestionPinned(appId: string, id: number, pinned: boolean): Promise<boolean> {
+    const q = schema.courseQuestions;
+    const [found] = await this.run((db) => db.select({ id: q.id }).from(q).where(and(eq(q.appId, appId), eq(q.id, id))).limit(1));
+    if (!found) return false;
+    await this.run((db) => db.update(q).set({ pinned }).where(and(eq(q.appId, appId), eq(q.id, id))));
+    return true;
+  }
+
+  async deleteCourseQuestion(appId: string, id: number): Promise<boolean> {
+    const q = schema.courseQuestions;
+    // Its answers go with it (the foreign key).
+    const [result] = await this.run((db) => db.delete(q).where(and(eq(q.appId, appId), eq(q.id, id))));
+    return result.affectedRows > 0;
+  }
+
+  async deleteCourseAnswer(appId: string, questionId: number, id: number): Promise<boolean> {
+    const a = schema.courseAnswers;
+    const [result] = await this.run((db) => db.delete(a).where(and(eq(a.appId, appId), eq(a.questionId, questionId), eq(a.id, id))));
+    return result.affectedRows > 0;
   }
 
   async setCourseAnswerHidden(appId: string, questionId: number, id: number, hidden: boolean): Promise<boolean> {
@@ -2035,13 +2064,13 @@ export class MysqlStore implements DataStore {
     );
   }
 
-  async listLessonProgress(input: { appId: string; userId: number; courseId?: number }): Promise<LessonProgress[]> {
+  async listLessonProgress(input: { appId: string; userId?: number; courseId?: number }): Promise<LessonProgress[]> {
     const t = schema.lessonProgress;
     return this.run((db) =>
       db
         .select()
         .from(t)
-        .where(and(eq(t.appId, input.appId), eq(t.userId, input.userId), input.courseId !== undefined ? eq(t.courseId, input.courseId) : undefined)),
+        .where(and(eq(t.appId, input.appId), input.userId !== undefined ? eq(t.userId, input.userId) : undefined, input.courseId !== undefined ? eq(t.courseId, input.courseId) : undefined)),
     );
   }
 
@@ -2087,15 +2116,28 @@ export class MysqlStore implements DataStore {
     return result.affectedRows;
   }
 
-  async saveAssignmentSubmission(input: Omit<AssignmentSubmission, "id">): Promise<AssignmentSubmission> {
+  async saveAssignmentSubmission(given: AssignmentSubmissionInput): Promise<AssignmentSubmission> {
     const t = schema.assignmentSubmissions;
+    const input = { ...given, attempt: given.attempt ?? 1, rubric: given.rubric ?? null };
     // One row per student and assignment: handing in again keeps its ID.
     await this.run((db) =>
       db
         .insert(t)
         .values(input)
         .onDuplicateKeyUpdate({
-          set: { text: input.text, file: input.file, status: input.status, score: input.score, feedback: input.feedback, submittedAt: input.submittedAt, gradedAt: input.gradedAt, gradedBy: input.gradedBy },
+          set: {
+            text: input.text,
+            file: input.file,
+            status: input.status,
+            score: input.score,
+            feedback: input.feedback,
+            submittedAt: input.submittedAt,
+            gradedAt: input.gradedAt,
+            gradedBy: input.gradedBy,
+            // 113.7
+            attempt: input.attempt,
+            rubric: input.rubric,
+          },
         }),
     );
     const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, input.appId), eq(t.assignmentId, input.assignmentId), eq(t.userId, input.userId))).limit(1));
@@ -2127,7 +2169,7 @@ export class MysqlStore implements DataStore {
     );
   }
 
-  async gradeAssignmentSubmission(appId: string, id: number, grade: Pick<AssignmentSubmission, "status" | "score" | "feedback" | "gradedAt" | "gradedBy">): Promise<boolean> {
+  async gradeAssignmentSubmission(appId: string, id: number, grade: Pick<AssignmentSubmission, "status" | "score" | "feedback" | "gradedAt" | "gradedBy"> & { rubric?: AssignmentSubmission["rubric"] }): Promise<boolean> {
     const t = schema.assignmentSubmissions;
     const [result] = await this.run((db) => db.update(t).set(grade).where(and(eq(t.appId, appId), eq(t.id, id))));
     return result.affectedRows > 0;
@@ -2137,6 +2179,70 @@ export class MysqlStore implements DataStore {
     const t = schema.assignmentSubmissions;
     const [result] = await this.run((db) => db.delete(t).where(and(eq(t.appId, input.appId), eq(t.userId, input.userId), eq(t.courseId, input.courseId))));
     return result.affectedRows;
+  }
+
+  // 113.7 Notes and bookmarks
+
+  async createLessonNote(input: Omit<LessonNote, "id">): Promise<LessonNote> {
+    const [result] = await this.run((db) => db.insert(schema.lessonNotes).values(input));
+    return { ...input, id: Number(result.insertId) };
+  }
+
+  async getLessonNote(appId: string, id: number): Promise<LessonNote | null> {
+    const t = schema.lessonNotes;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async listLessonNotes(input: { appId: string; userId: number; courseId?: number; lessonId?: number }): Promise<LessonNote[]> {
+    const t = schema.lessonNotes;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, input.appId),
+            eq(t.userId, input.userId),
+            input.courseId !== undefined ? eq(t.courseId, input.courseId) : undefined,
+            input.lessonId !== undefined ? eq(t.lessonId, input.lessonId) : undefined,
+          ),
+        )
+        .orderBy(asc(t.createdAt), asc(t.id))
+        .limit(2000),
+    );
+  }
+
+  async updateLessonNote(appId: string, id: number, patch: Pick<LessonNote, "text" | "updatedAt">): Promise<boolean> {
+    const t = schema.lessonNotes;
+    const [result] = await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id))));
+    return result.affectedRows > 0;
+  }
+
+  async deleteLessonNote(appId: string, id: number): Promise<boolean> {
+    const t = schema.lessonNotes;
+    const [result] = await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+    return result.affectedRows > 0;
+  }
+
+  async setLessonBookmark(input: Omit<LessonBookmark, "createdAt"> & { on: boolean; now: Date }): Promise<void> {
+    const t = schema.lessonBookmarks;
+    if (input.on) {
+      await this.run((db) => db.insert(t).ignore().values({ appId: input.appId, userId: input.userId, courseId: input.courseId, lessonId: input.lessonId, createdAt: input.now }));
+      return;
+    }
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, input.appId), eq(t.userId, input.userId), eq(t.lessonId, input.lessonId))));
+  }
+
+  async listLessonBookmarks(input: { appId: string; userId: number; courseId?: number }): Promise<LessonBookmark[]> {
+    const t = schema.lessonBookmarks;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, input.appId), eq(t.userId, input.userId), input.courseId !== undefined ? eq(t.courseId, input.courseId) : undefined))
+        .orderBy(desc(t.createdAt)),
+    );
   }
 
   async deleteLessonProgress(input: { appId: string; userId: number; courseId: number }): Promise<number> {

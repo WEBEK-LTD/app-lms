@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { setAnswerHiddenAction, setQuestionHiddenAction } from "@/app/actions/course-community";
+import { deleteAnswerAction, deleteQuestionAction, setAnswerHiddenAction, setQuestionHiddenAction, setQuestionPinnedAction } from "@/app/actions/course-community";
+import { findLesson } from "@/lib/courses/setup";
 import { SubmitButton } from "@/components/form";
 import { Badge } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
@@ -31,6 +32,7 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
   const ids = [question.userId, ...answers.flatMap((a) => (a.userId === null ? [] : [a.userId]))];
   const users = new Map((await Promise.all([...new Set(ids)].map((u) => store.getHostedUser(app.id, u)))).filter((u) => u !== null).map((u) => [u.id, u]));
   const course = courseSetup(app).courses.find((c) => c.id === question.courseId);
+  const lesson = question.lessonId ? findLesson(courseSetup(app), question.lessonId) : null;
   const { t, date } = await dashboardText();
   const when = (at: Date) => t("listings.utc", { time: date(at, WHEN) });
   const student = t("community.student");
@@ -44,6 +46,8 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
         </Link>
         <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{users.get(question.userId)?.name ?? student}</h1>
         <p className="m-0 text-[15px] text-ink-4">{t("community.inCourse", { course: course?.title ?? t("community.deletedCourse") })}</p>
+        {/* 113.7 A lesson's discussion. */}
+        {lesson ? <p className="m-0 text-[14px] text-muted">{t("learning.inLesson", { lesson: lesson.lesson.title })}</p> : null}
       </div>
       <section aria-label={t("community.questions")} className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <ol className="m-0 flex list-none flex-col gap-3 p-0" data-testid="question-thread">
@@ -51,17 +55,34 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
             <span className="flex flex-wrap items-center gap-2 text-[13px] font-semibold text-muted">
               {users.get(question.userId)?.name ?? student} · {when(question.createdAt)}
               {question.hidden ? <Badge tone="neutral">{t("community.hiddenBadge")}</Badge> : null}
+              {question.pinned ? <Badge tone="info">{t("learning.pinned")}</Badge> : null}
             </span>
             <p className="m-0 whitespace-pre-wrap text-[15px]">{question.text}</p>
             {question.hidden ? <p className="m-0 text-[13px] text-muted">{t("community.questionHidden")}</p> : null}
             {/* 64 Hidden from others; its author still sees it. */}
-            <form action={setQuestionHiddenAction} className="flex justify-end">
-              <input type="hidden" name="id" value={question.id} />
-              <input type="hidden" name="hidden" value={question.hidden ? "0" : "1"} />
-              <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
-                {question.hidden ? t("community.showQuestion") : t("community.hideQuestion")}
-              </SubmitButton>
-            </form>
+            <div className="flex flex-wrap justify-end gap-2">
+              {/* 113.7 Pinned first in the app, or deleted with its answers. */}
+              <form action={setQuestionPinnedAction}>
+                <input type="hidden" name="id" value={question.id} />
+                <input type="hidden" name="pinned" value={question.pinned ? "0" : "1"} />
+                <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+                  {question.pinned ? t("learning.unpin") : t("learning.pin")}
+                </SubmitButton>
+              </form>
+              <form action={setQuestionHiddenAction}>
+                <input type="hidden" name="id" value={question.id} />
+                <input type="hidden" name="hidden" value={question.hidden ? "0" : "1"} />
+                <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+                  {question.hidden ? t("community.showQuestion") : t("community.hideQuestion")}
+                </SubmitButton>
+              </form>
+              <form action={deleteQuestionAction}>
+                <input type="hidden" name="id" value={question.id} />
+                <SubmitButton variant="danger" className="h-9 px-3 text-sm">
+                  {t("learning.deleteQuestion")}
+                </SubmitButton>
+              </form>
+            </div>
           </li>
           {answers.map((a) => {
             const name = a.userId === null ? t("community.you") : (users.get(a.userId)?.name ?? student);
@@ -76,16 +97,26 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
                   {a.hidden ? <Badge tone="neutral">{t("community.hiddenBadge")}</Badge> : null}
                 </span>
                 <p className="m-0 whitespace-pre-wrap text-[15px]">{a.text}</p>
-                {a.userId !== null ? (
-                  <form action={setAnswerHiddenAction} className="flex justify-end">
+                <div className="flex flex-wrap justify-end gap-2">
+                  {a.userId !== null ? (
+                    <form action={setAnswerHiddenAction}>
+                      <input type="hidden" name="id" value={question.id} />
+                      <input type="hidden" name="answerId" value={a.id} />
+                      <input type="hidden" name="hidden" value={a.hidden ? "0" : "1"} />
+                      <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+                        {richText(a.hidden ? t("community.showAnswer", { name }) : t("community.hideAnswer", { name }), sr)}
+                      </SubmitButton>
+                    </form>
+                  ) : null}
+                  {/* 113.7 */}
+                  <form action={deleteAnswerAction}>
                     <input type="hidden" name="id" value={question.id} />
                     <input type="hidden" name="answerId" value={a.id} />
-                    <input type="hidden" name="hidden" value={a.hidden ? "0" : "1"} />
                     <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
-                      {richText(a.hidden ? t("community.showAnswer", { name }) : t("community.hideAnswer", { name }), sr)}
+                      {richText(t("learning.deleteAnswer", { name }), sr)}
                     </SubmitButton>
                   </form>
-                ) : null}
+                </div>
               </li>
             );
           })}

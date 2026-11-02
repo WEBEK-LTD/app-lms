@@ -6782,6 +6782,273 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('couponWithout') ?? base.couponWithout;
 
   @override
+  String get attemptAwaitingResults =>
+      overlay.text('attemptAwaitingResults') ?? base.attemptAwaitingResults;
+
+  @override
+  String get learningPaths =>
+      overlay.text('learningPaths') ?? base.learningPaths;
+
+  @override
+  String get noLearningPaths =>
+      overlay.text('noLearningPaths') ?? base.noLearningPaths;
+
+  @override
+  String pathProgress(int done, int total) =>
+      overlay.format('pathProgress', {'done': done, 'total': total}) ??
+      base.pathProgress(done, total);
+
+  @override
+  String get pathInOrder => overlay.text('pathInOrder') ?? base.pathInOrder;
+
+  @override
+  String get pathLocked => overlay.text('pathLocked') ?? base.pathLocked;
+
+  @override
+  String get courseDoneLabel =>
+      overlay.text('courseDoneLabel') ?? base.courseDoneLabel;
+
+  @override
+  String get prerequisitesTitle =>
+      overlay.text('prerequisitesTitle') ?? base.prerequisitesTitle;
+
+  @override
+  String get prerequisitesHint =>
+      overlay.text('prerequisitesHint') ?? base.prerequisitesHint;
+
+  @override
+  String finalScore(int score) =>
+      overlay.format('finalScore', {'score': score}) ?? base.finalScore(score);
+
+  @override
+  String finalScoreNeeded(int score, int min) =>
+      overlay.format('finalScoreNeeded', {'score': score, 'min': min}) ??
+      base.finalScoreNeeded(score, min);
+
+  @override
+  String get achievementsTitle =>
+      overlay.text('achievementsTitle') ?? base.achievementsTitle;
+
+  @override
+  String pointsCount(int count) =>
+      overlay.format('pointsCount', {'count': count}) ??
+      base.pointsCount(count);
+
+  @override
+  String streakDays(int count) =>
+      overlay.format('streakDays', {'count': count}) ?? base.streakDays(count);
+
+  @override
+  String bestStreak(int count) =>
+      overlay.format('bestStreak', {'count': count}) ?? base.bestStreak(count);
+
+  @override
+  String get badgesTitle => overlay.text('badgesTitle') ?? base.badgesTitle;
+
+  @override
+  String get badgeNotYet => overlay.text('badgeNotYet') ?? base.badgeNotYet;
+
+  @override
+  String get badgeFirstLesson =>
+      overlay.text('badgeFirstLesson') ?? base.badgeFirstLesson;
+
+  @override
+  String get badgeFirstQuiz =>
+      overlay.text('badgeFirstQuiz') ?? base.badgeFirstQuiz;
+
+  @override
+  String get badgePerfectQuiz =>
+      overlay.text('badgePerfectQuiz') ?? base.badgePerfectQuiz;
+
+  @override
+  String get badgeFirstAssignment =>
+      overlay.text('badgeFirstAssignment') ?? base.badgeFirstAssignment;
+
+  @override
+  String get badgeStreak7 => overlay.text('badgeStreak7') ?? base.badgeStreak7;
+
+  @override
+  String get badgeCourseCompleted =>
+      overlay.text('badgeCourseCompleted') ?? base.badgeCourseCompleted;
+
+  @override
+  String get badgePathCompleted =>
+      overlay.text('badgePathCompleted') ?? base.badgePathCompleted;
+
+  @override
+  String get badgePoints500 =>
+      overlay.text('badgePoints500') ?? base.badgePoints500;
+
+  @override
+  String get leaderboardTitle =>
+      overlay.text('leaderboardTitle') ?? base.leaderboardTitle;
+
+  @override
+  String get leaderboardCourse =>
+      overlay.text('leaderboardCourse') ?? base.leaderboardCourse;
+
+  @override
+  String get leaderboardCohort =>
+      overlay.text('leaderboardCohort') ?? base.leaderboardCohort;
+
+  @override
+  String leaderboardRank(int rank, int total) =>
+      overlay.format('leaderboardRank', {'rank': rank, 'total': total}) ??
+      base.leaderboardRank(rank, total);
+
+  @override
+  String get leaderboardEmpty =>
+      overlay.text('leaderboardEmpty') ?? base.leaderboardEmpty;
+
+  @override
+  String get leaderboardPrivacy =>
+      overlay.text('leaderboardPrivacy') ?? base.leaderboardPrivacy;
+
+  @override
+  String get leaderboardYou =>
+      overlay.text('leaderboardYou') ?? base.leaderboardYou;
+
+  @override
+  String get myNotes => overlay.text('myNotes') ?? base.myNotes;
+
+  @override
+  String get notesTitle => overlay.text('notesTitle') ?? base.notesTitle;
+
+  @override
+  String get notesPrivate => overlay.text('notesPrivate') ?? base.notesPrivate;
+
+  @override
+  String get noNotes => overlay.text('noNotes') ?? base.noNotes;
+
+  @override
+  String get noteHint => overlay.text('noteHint') ?? base.noteHint;
+
+  @override
+  String get addNote => overlay.text('addNote') ?? base.addNote;
+
+  @override
+  String noteAt(String time) =>
+      overlay.format('noteAt', {'time': time}) ?? base.noteAt(time);
+
+  @override
+  String get editNote => overlay.text('editNote') ?? base.editNote;
+
+  @override
+  String get deleteNote => overlay.text('deleteNote') ?? base.deleteNote;
+
+  @override
+  String get bookmarkLesson =>
+      overlay.text('bookmarkLesson') ?? base.bookmarkLesson;
+
+  @override
+  String get removeBookmark =>
+      overlay.text('removeBookmark') ?? base.removeBookmark;
+
+  @override
+  String get bookmarksTitle =>
+      overlay.text('bookmarksTitle') ?? base.bookmarksTitle;
+
+  @override
+  String get lessonDiscussion =>
+      overlay.text('lessonDiscussion') ?? base.lessonDiscussion;
+
+  @override
+  String discussionCount(int count) =>
+      overlay.format('discussionCount', {'count': count}) ??
+      base.discussionCount(count);
+
+  @override
+  String get askAboutLesson =>
+      overlay.text('askAboutLesson') ?? base.askAboutLesson;
+
+  @override
+  String get pinnedLabel => overlay.text('pinnedLabel') ?? base.pinnedLabel;
+
+  @override
+  String get pinQuestion => overlay.text('pinQuestion') ?? base.pinQuestion;
+
+  @override
+  String get unpinQuestion =>
+      overlay.text('unpinQuestion') ?? base.unpinQuestion;
+
+  @override
+  String get deleteQuestion =>
+      overlay.text('deleteQuestion') ?? base.deleteQuestion;
+
+  @override
+  String get deleteAnswer => overlay.text('deleteAnswer') ?? base.deleteAnswer;
+
+  @override
+  String get deleteConfirm =>
+      overlay.text('deleteConfirm') ?? base.deleteConfirm;
+
+  @override
+  String get examLabel => overlay.text('examLabel') ?? base.examLabel;
+
+  @override
+  String examOpensAt(String time) =>
+      overlay.format('examOpensAt', {'time': time}) ?? base.examOpensAt(time);
+
+  @override
+  String examClosesAt(String time) =>
+      overlay.format('examClosesAt', {'time': time}) ?? base.examClosesAt(time);
+
+  @override
+  String get examNotOpen => overlay.text('examNotOpen') ?? base.examNotOpen;
+
+  @override
+  String get examClosed => overlay.text('examClosed') ?? base.examClosed;
+
+  @override
+  String get examResume => overlay.text('examResume') ?? base.examResume;
+
+  @override
+  String examResultsAt(String time) =>
+      overlay.format('examResultsAt', {'time': time}) ??
+      base.examResultsAt(time);
+
+  @override
+  String get examTimeUp => overlay.text('examTimeUp') ?? base.examTimeUp;
+
+  @override
+  String get examTimedHint =>
+      overlay.text('examTimedHint') ?? base.examTimedHint;
+
+  @override
+  String get rubricTitle => overlay.text('rubricTitle') ?? base.rubricTitle;
+
+  @override
+  String rubricPoints(int points, int max) =>
+      overlay.format('rubricPoints', {'points': points, 'max': max}) ??
+      base.rubricPoints(points, max);
+
+  @override
+  String rubricLevelPoints(String level, int points) =>
+      overlay.format('rubricLevelPoints', {'level': level, 'points': points}) ??
+      base.rubricLevelPoints(level, points);
+
+  @override
+  String get rubricChooseAll =>
+      overlay.text('rubricChooseAll') ?? base.rubricChooseAll;
+
+  @override
+  String rubricTotal(int score, int max) =>
+      overlay.format('rubricTotal', {'score': score, 'max': max}) ??
+      base.rubricTotal(score, max);
+
+  @override
+  String tryOf(int attempt, int total) =>
+      overlay.format('tryOf', {'attempt': attempt, 'total': total}) ??
+      base.tryOf(attempt, total);
+
+  @override
+  String triesLeft(int count) =>
+      overlay.format('triesLeft', {'count': count}) ?? base.triesLeft(count);
+
+  @override
+  String get handInAgain => overlay.text('handInAgain') ?? base.handInAgain;
+
+  @override
   String get bundles => overlay.text('bundles') ?? base.bundles;
 
   @override
