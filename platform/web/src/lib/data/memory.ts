@@ -1566,6 +1566,13 @@ export class MemoryStore implements DataStore {
       .map(clone);
   }
 
+  async setEnrollmentCohort(input: { appId: string; userId: number; courseId: number; cohortId: number | null }): Promise<boolean> {
+    const found = this.courseEnrollments.find((e) => e.appId === input.appId && e.userId === input.userId && e.courseId === input.courseId);
+    if (!found) return false;
+    found.cohortId = input.cohortId;
+    return true;
+  }
+
   async saveLessonProgress(input: LessonProgress): Promise<void> {
     const key = `${input.appId}:${input.userId}:${input.lessonId}`;
     const saved = this.lessonProgress.get(key);

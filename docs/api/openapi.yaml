@@ -7825,6 +7825,18 @@ components:
               type: [string, 'null']
               format: date-time
               description: Roadmap 90.1. For an enrolled student, when their access ends (as `MyCourse.access_ends_at`).
+            cohort:
+              type: [object, 'null']
+              description: >-
+                Roadmap 112.5. For an enrolled student, the cohort they learn with: drip days and due
+                dates count from its first day, and the course's lessons, quizzes and assignments open
+                on it (`locked_reason` `not_available_yet` with `available_at` until then). Null
+                without one; missing on older servers.
+              required: [id, name, starts_at]
+              properties:
+                id: { type: integer }
+                name: { type: string, example: October group }
+                starts_at: { type: string, format: date-time }
             membership:
               type: [object, 'null']
               description: >-

@@ -729,6 +729,13 @@
       "when": 1793586274565,
       "tag": "0103_assignment_submissions",
       "breakpoints": true
+    },
+    {
+      "idx": 104,
+      "version": "5",
+      "when": 1793590541341,
+      "tag": "0104_course_cohorts",
+      "breakpoints": true
     }
   ]
 }

@@ -17,6 +17,7 @@ import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
 import { initialFormState } from "@/lib/forms";
 import { MediaPickButton } from "@/components/media-picker";
 import { useDashT } from "@/components/dashboard-i18n";
+import { CohortSelect } from "./builder-forms";
 
 function Check({ name, label, checked }: { name: string; label: string; checked: boolean }) {
   return (
@@ -314,7 +315,7 @@ export function QuizForm({ courseId, topicId, current, submit }: { courseId: num
   );
 }
 
-export function StudentForm({ courseId }: { courseId: number }) {
+export function StudentForm({ courseId, cohorts = [] }: { courseId: number; cohorts?: { id: number; name: string }[] }) {
   const t = useDashT();
   const [state, action] = useActionState(addStudentAction, initialFormState);
   return (
@@ -331,6 +332,8 @@ export function StudentForm({ courseId }: { courseId: number }) {
           className="min-w-[220px] flex-1"
           small
         />
+        {/* 112.5 Into a cohort. */}
+        <CohortSelect id={`f-student-cohort-${courseId}`} cohorts={cohorts} />
         <SubmitButton variant="secondary" className="h-11">
           {t("courses.addStudentButton")}
         </SubmitButton>

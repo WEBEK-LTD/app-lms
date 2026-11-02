@@ -396,6 +396,15 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                                 l10n.certificate,
                                 icon: AppIcons.certificate,
                               ),
+                            // 112.5 The student's cohort and its first day.
+                            if (course.cohort != null)
+                              _MetaChip(
+                                l10n.cohortStarts(
+                                  course.cohort!.name,
+                                  shortDate(course.cohort!.startsAt),
+                                ),
+                                icon: AppIcons.group,
+                              ),
                           ],
                         ),
                         if (finished) ...[

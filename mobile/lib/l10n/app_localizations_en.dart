@@ -6208,4 +6208,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String certificateShareText(String course, String url) {
     return 'My certificate for $course: $url';
   }
+
+  @override
+  String cohortStarts(String cohort, String date) {
+    return '$cohort · starts $date';
+  }
 }

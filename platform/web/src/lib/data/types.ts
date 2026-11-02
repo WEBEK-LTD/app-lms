@@ -1943,6 +1943,8 @@ export interface Course {
   sequential?: boolean;
   /** 112.5 The certificate's signature line: the name (and title) of who signs it. */
   certificateSigner?: string | null;
+  /** 112.5 Groups of students who start together: drip days and due dates count from the cohort's start. */
+  cohorts?: CourseCohort[];
   /** 112.5 Questions the course's quizzes draw from at random (`CourseQuiz.bankPicks`); IDs from 1001. */
   questionBank?: CourseQuizQuestion[];
   /** 105.3 The academy's teacher whose course it is; missing or null: the academy's own. */
@@ -1971,6 +1973,13 @@ export interface CourseSetup {
 }
 
 export const DEFAULT_COURSE_SETUP: CourseSetup = { currency: "TRY", categories: [], courses: [], nextId: 1 };
+
+/** 112.5 A cohort: its name and when it starts (midnight of its first day in the app's time zone). */
+export interface CourseCohort {
+  id: number;
+  name: string;
+  startsAt: string;
+}
 
 /** 112.5 What a student handed in for an assignment, and its grade: one per student and assignment. */
 export type AssignmentStatus = "submitted" | "graded" | "returned";
@@ -2001,6 +2010,8 @@ export interface CourseEnrollment {
   /** How they got in: a free course, a payment (order number), or our client adding them. */
   source: "free" | "paid" | "manual";
   enrolledAt: Date;
+  /** 112.5 The course's cohort the student learns with (`Course.cohorts`); missing or null: none. */
+  cohortId?: number | null;
 }
 
 export interface LessonProgress {

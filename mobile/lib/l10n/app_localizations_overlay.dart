@@ -6563,4 +6563,9 @@ class OverlayLocalizations extends AppLocalizations {
   String certificateShareText(String course, String url) =>
       overlay.format('certificateShareText', {'course': course, 'url': url}) ??
       base.certificateShareText(course, url);
+
+  @override
+  String cohortStarts(String cohort, String date) =>
+      overlay.format('cohortStarts', {'cohort': cohort, 'date': date}) ??
+      base.cohortStarts(cohort, date);
 }

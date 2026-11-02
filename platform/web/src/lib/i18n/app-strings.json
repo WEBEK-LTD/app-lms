@@ -1692,4 +1692,5 @@
 {"key":"quizReviewWrong","en":"Wrong","ar":"خاطئة","tr":"Yanlış","description":"112.5 Read out for a question answered wrong."},
 {"key":"certificatePdf","en":"Download the PDF","ar":"تنزيل ملف PDF","tr":"PDF'i indir","description":"112.5 Opens a certificate's PDF file."},
 {"key":"certificateShare","en":"Share the certificate","ar":"مشاركة الشهادة","tr":"Sertifikayı paylaş","description":"112.5 Shares a certificate's link."},
-{"key":"certificateShareText","en":"My certificate for {course}: {url}","ar":"شهادتي في {course}: {url}","tr":"{course} sertifikam: {url}","description":"112.5 The text shared with a certificate.","placeholders":{"course":"String","url":"String"}}]}
+{"key":"certificateShareText","en":"My certificate for {course}: {url}","ar":"شهادتي في {course}: {url}","tr":"{course} sertifikam: {url}","description":"112.5 The text shared with a certificate.","placeholders":{"course":"String","url":"String"}},
+{"key":"cohortStarts","en":"{cohort} · starts {date}","ar":"{cohort} · تبدأ {date}","tr":"{cohort} · {date} başlıyor","description":"112.5 On a course page: the student's cohort and its first day.","placeholders":{"cohort":"String","date":"String"}}]}

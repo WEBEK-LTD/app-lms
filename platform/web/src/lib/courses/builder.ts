@@ -1,5 +1,5 @@
 import { isDate, localToUtc, utcToLocal } from "../bookings/time";
-import type { CourseAssignment, CourseAttachment, CourseLiveSession, CourseSetup, CourseTopic } from "../data/types";
+import type { CourseAssignment, CourseAttachment, CourseCohort, CourseLiveSession, CourseSetup, CourseTopic } from "../data/types";
 import { withCourse } from "./edit";
 import { moveTopicItem } from "./learning";
 
@@ -192,4 +192,29 @@ export function saveLive(setup: CourseSetup, courseId: number, topicId: number, 
 export function liveValues(l: CourseLiveSession, zone: string): Values {
   const { date, time } = localParts(l.startsAt, zone);
   return { id: String(l.id), title: l.title, date, time, duration: String(l.durationMinutes), meetingUrl: l.meetingUrl, notes: l.notes, recordingUrl: l.recordingUrl ?? "" };
+}
+
+// Cohorts
+
+/** 112.5 Adds a cohort to a course (or with `v.id` saves one): a name and its first day in the app's time zone. */
+export function saveCohort(setup: CourseSetup, courseId: number, v: Values, zone: string): ItemSave<CourseCohort> {
+  const course = setup.courses.find((c) => c.id === courseId);
+  if (!course) return { ok: false, message: "This course no longer exists." };
+  const errors: Record<string, string> = {};
+  const name = (v.name ?? "").trim();
+  if (name.length < 1 || name.length > 60) errors.name = "Enter a name of up to 60 characters.";
+  const startsAt = localInstant((v.startsOn ?? "").trim(), "", zone);
+  if (!startsAt) errors.startsOn = "Choose the day it starts.";
+  if (Object.keys(errors).length) return { ok: false, errors };
+  const id = v.id ? Number(v.id) : null;
+  const list = course.cohorts ?? [];
+  if (id !== null && !list.some((c) => c.id === id)) return { ok: false, message: "This cohort no longer exists." };
+  const cohort: CourseCohort = { id: id ?? setup.nextId, name, startsAt: startsAt! };
+  const next = withCourse(setup, courseId, (c) => ({ ...c, cohorts: id === null ? [...list, cohort] : list.map((x) => (x.id === id ? cohort : x)) }));
+  return { ok: true, setup: id === null ? { ...next, nextId: setup.nextId + 1 } : next, item: cohort, added: id === null };
+}
+
+/** Its students stay in the course, without a cohort. */
+export function deleteCohort(setup: CourseSetup, courseId: number, cohortId: number): CourseSetup {
+  return withCourse(setup, courseId, (c) => ({ ...c, cohorts: (c.cohorts ?? []).filter((x) => x.id !== cohortId) }));
 }

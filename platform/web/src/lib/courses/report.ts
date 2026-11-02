@@ -49,6 +49,8 @@ export interface StudentProgress {
   quizzes: QuizResult[];
   /** 112.5 */
   assignments: AssignmentResult[];
+  /** 112.5 Their cohort, while the course has it. */
+  cohortId: number | null;
   /** 112.5 The lessons they opened (a saved position or completed) and completed, for the course's insights. */
   startedLessons: number[];
   completedLessons: number[];
@@ -103,6 +105,7 @@ export async function courseReport(store: DataStore, app: Pick<App, "id">, cours
           passed: of.some((a) => a.passed),
         };
       }),
+      cohortId: enrollment.cohortId && (course.cohorts ?? []).some((c) => c.id === enrollment.cohortId) ? enrollment.cohortId : null,
       startedLessons: [...progress.values()].map((p) => p.lessonId),
       completedLessons: [...progress.values()].filter((p) => p.completedAt).map((p) => p.lessonId),
       assignments: assignments.map((a) => {

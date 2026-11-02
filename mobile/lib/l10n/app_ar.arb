@@ -1694,5 +1694,6 @@
   "quizReviewWrong": "خاطئة",
   "certificatePdf": "تنزيل ملف PDF",
   "certificateShare": "مشاركة الشهادة",
-  "certificateShareText": "شهادتي في {course}: {url}"
+  "certificateShareText": "شهادتي في {course}: {url}",
+  "cohortStarts": "{cohort} · تبدأ {date}"
 }

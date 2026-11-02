@@ -10269,6 +10269,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'My certificate for {course}: {url}'**
   String certificateShareText(String course, String url);
+
+  /// 112.5 On a course page: the student's cohort and its first day.
+  ///
+  /// In en, this message translates to:
+  /// **'{cohort} · starts {date}'**
+  String cohortStarts(String cohort, String date);
 }
 
 class _AppLocalizationsDelegate

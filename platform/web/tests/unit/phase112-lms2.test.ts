@@ -9,7 +9,10 @@ import { CoursesConnector } from "@/lib/hosted/connectors/courses";
 import { LogSender } from "@/lib/hosted/otp-sender";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
 import { expectContract } from "./contract";
-import { NOW, setupClient } from "./helpers";
+import { days, NOW, setupClient } from "./helpers";
+import { deleteCohort, saveCohort } from "@/lib/courses/builder";
+import { courseReport } from "@/lib/courses/report";
+import { learningStart } from "@/lib/courses/learning";
 
 /**
  * 112.5, round 2: the certificate as a PDF file, the question bank, cohorts,
@@ -184,5 +187,64 @@ describe("112.5 a question bank per course", () => {
     const result = await h.call("POST", "/quizzes/{quiz_id}/attempts/{attempt_id}/submit", { params: ["15", String(attempt.id)], token, body: { answers } });
     expect(result.body).toMatchObject({ status: "passed", score_percent: 100 });
     expect(((result.body as { review: { question_id: number }[] }).review).map((r) => r.question_id)).toEqual(attempt.questions.map((q) => q.id));
+  });
+});
+
+describe("112.5 cohorts: students who start together", () => {
+  const withCohort = () => {
+    const setup = academy();
+    const course = setup.courses[0]!;
+    course.cohorts = [{ id: 30, name: "October group", startsAt: days(10).toISOString() }];
+    course.topics[0]!.lessons.push({ id: 13, title: "Numbers", videoUrl: null, text: "Bir", durationMinutes: 5, preview: false, dripDays: 3 });
+    course.topics[0]!.assignments = [{ id: 16, title: "Introduce yourself", instructions: "Write.", dueDays: 7, maxPoints: 20, passPoints: null }];
+    return setup;
+  };
+
+  it("adds and deletes cohorts, their first day in the app's time zone", () => {
+    expect(saveCohort(academy(), 10, { name: "", startsOn: "" }, "Africa/Cairo")).toMatchObject({ ok: false, errors: { name: expect.any(String), startsOn: expect.any(String) } });
+    const saved = saveCohort(academy(), 10, { name: "October group", startsOn: "2026-10-20" }, "Africa/Cairo");
+    expect(saved).toMatchObject({ ok: true, item: { id: 40, startsAt: "2026-10-19T21:00:00.000Z" } });
+    if (!saved.ok) throw new Error("not saved");
+    expect(deleteCohort(saved.setup, 10, 40).courses[0]!.cohorts).toEqual([]);
+    const course = withCohort().courses[0]!;
+    expect(learningStart(course, { enrolledAt: NOW, cohortId: 30 })).toEqual(days(10));
+    expect(learningStart(course, { enrolledAt: NOW, cohortId: 99 })).toEqual(NOW);
+    expect(learningStart(course, { enrolledAt: NOW })).toEqual(NOW);
+  });
+
+  it("opens the course on the cohort's first day and counts drip days and due dates from it", async () => {
+    const h = await hostedAcademy(withCohort);
+    const session = await h.signUp();
+    const { access_token: token, user } = session;
+    await h.call("POST", "/courses/{course_id}/enroll", { params: ["10"], token });
+    await h.store.setEnrollmentCohort({ appId: h.state.app.id, userId: user.id, courseId: 10, cohortId: 30 });
+    expect((await h.call("GET", "/courses/{course_id}", { params: ["10"], token })).body).toMatchObject({ cohort: { id: 30, name: "October group", starts_at: days(10).toISOString() } });
+    const items = ((await h.call("GET", "/courses/{course_id}/curriculum", { params: ["10"], token })).body as { topics: { items: Record<string, unknown>[] }[] }).topics[0]!.items;
+    expect(items).toMatchObject([
+      { id: 12, locked: true, locked_reason: "not_available_yet", available_at: days(10).toISOString() },
+      { id: 13, locked: true, locked_reason: "not_available_yet", available_at: days(13).toISOString() },
+      { id: 16, type: "assignment", locked: true, locked_reason: "not_available_yet", available_at: days(10).toISOString(), due_at: days(17).toISOString() },
+    ]);
+    expect((await h.call("GET", "/lessons/{lesson_id}", { params: ["12"], token })).body).toMatchObject({ code: "not_available_yet" });
+    expect((await h.call("GET", "/assignments/{assignment_id}", { params: ["16"], token })).body).toMatchObject({ code: "not_available_yet" });
+
+    // The cohort's first day: the first lesson opens, the drip lesson three days later.
+    h.state.now = new Date(days(10).getTime() + 60_000);
+    const refreshed = (await h.call("POST", "/auth/refresh", { body: { refresh_token: session.refresh_token } })).body as { access_token: string };
+    expect((await h.call("GET", "/lessons/{lesson_id}", { params: ["12"], token: refreshed.access_token })).body).toMatchObject({ id: 12 });
+    expect((await h.call("GET", "/lessons/{lesson_id}", { params: ["13"], token: refreshed.access_token })).body).toMatchObject({ code: "not_available_yet" });
+    expect((await h.call("GET", "/assignments/{assignment_id}", { params: ["16"], token: refreshed.access_token })).body).toMatchObject({ due_at: days(17).toISOString() });
+  });
+
+  it("puts each student's cohort in the gradebook", async () => {
+    const h = await hostedAcademy(withCohort);
+    const { access_token: token, user } = await h.signUp();
+    await h.call("POST", "/courses/{course_id}/enroll", { params: ["10"], token });
+    expect(await h.store.setEnrollmentCohort({ appId: h.state.app.id, userId: user.id, courseId: 10, cohortId: 30 })).toBe(true);
+    expect(await h.store.setEnrollmentCohort({ appId: h.state.app.id, userId: 999, courseId: 10, cohortId: 30 })).toBe(false);
+    const rows = await courseReport(h.store, h.state.app, h.state.app.courseSetup!.courses[0]!);
+    expect(rows.map((r) => r.cohortId)).toEqual([30]);
+    const gone = { ...h.state.app.courseSetup!.courses[0]!, cohorts: [] };
+    expect((await courseReport(h.store, h.state.app, gone)).map((r) => r.cohortId)).toEqual([null]);
   });
 });

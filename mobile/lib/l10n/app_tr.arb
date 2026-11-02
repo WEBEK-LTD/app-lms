@@ -1694,5 +1694,6 @@
   "quizReviewWrong": "Yanlış",
   "certificatePdf": "PDF'i indir",
   "certificateShare": "Sertifikayı paylaş",
-  "certificateShareText": "{course} sertifikam: {url}"
+  "certificateShareText": "{course} sertifikam: {url}",
+  "cohortStarts": "{cohort} · {date} başlıyor"
 }

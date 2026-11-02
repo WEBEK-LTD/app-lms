@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import type { AssignmentSubmission, Course, CourseAssignment, CourseLesson, CourseLiveSession, CourseQuiz, CourseSetup, CourseTopic, LessonProgress, QuizAttempt } from "../data/types";
+import type { AssignmentSubmission, Course, CourseEnrollment, CourseAssignment, CourseLesson, CourseLiveSession, CourseQuiz, CourseSetup, CourseTopic, LessonProgress, QuizAttempt } from "../data/types";
 
 /**
  * 90.1 Academies without a website: quizzes at the end of topics, files
@@ -86,6 +86,12 @@ export function findLiveSession(setup: CourseSetup, liveId: number): { course: C
     if (live) return { course, live };
   }
   return null;
+}
+
+/** 112.5 When a student's learning starts: their cohort's first day, else when they enrolled. */
+export function learningStart(course: Pick<Course, "cohorts">, enrollment: Pick<CourseEnrollment, "enrolledAt" | "cohortId">): Date {
+  const cohort = enrollment.cohortId ? (course.cohorts ?? []).find((c) => c.id === enrollment.cohortId) : undefined;
+  return cohort ? new Date(cohort.startsAt) : enrollment.enrolledAt;
 }
 
 /** When the student's access ends; null when it doesn't. */

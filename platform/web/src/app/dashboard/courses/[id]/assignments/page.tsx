@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Icon } from "@/components/icon";
 import { Badge } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
-import { assignmentDueAt, assignmentsOf } from "@/lib/courses/learning";
+import { assignmentDueAt, assignmentsOf, learningStart } from "@/lib/courses/learning";
 import { courseSetup } from "@/lib/courses/setup";
 import { getStore } from "@/lib/data";
 import type { AssignmentStatus } from "@/lib/data/types";
@@ -40,7 +40,8 @@ export default async function CourseAssignmentsPage({ params, searchParams }: Pa
   const shown = filter === "all" ? all : all.filter((s) => s.status === filter);
   // Waiting ones oldest first (first handed in, first graded); the others newest first.
   if (filter === "submitted") shown.reverse();
-  const enrolled = new Map((await store.listCourseEnrollments({ appId: app.id, courseId: course.id })).map((e) => [e.userId, e.enrolledAt]));
+  // 112.5 Due dates count from the student's cohort's start.
+  const enrolled = new Map((await store.listCourseEnrollments({ appId: app.id, courseId: course.id })).map((e) => [e.userId, learningStart(course, e)]));
   const users = new Map((await Promise.all([...new Set(shown.map((s) => s.userId))].map((uid) => store.getHostedUser(app.id, uid)))).filter((u) => u !== null).map((u) => [u.id, u]));
   const label: Record<(typeof FILTERS)[number], string> = { submitted: t("lms.waitingGrade"), returned: t("lms.sentBack"), graded: t("lms.graded"), all: t("community.all") };
   const status: Record<AssignmentStatus, { text: string; tone: "info" | "neutral" | "success" }> = {

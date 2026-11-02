@@ -6402,4 +6402,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String certificateShareText(String course, String url) {
     return 'شهادتي في $course: $url';
   }
+
+  @override
+  String cohortStarts(String cohort, String date) {
+    return '$cohort · تبدأ $date';
+  }
 }

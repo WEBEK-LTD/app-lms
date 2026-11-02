@@ -511,6 +511,8 @@ export interface DataStore {
   /** Enrols once; false when they already were. */
   enrollInCourse(input: CourseEnrollment): Promise<boolean>;
   listCourseEnrollments(input: { appId: string; userId?: number; courseId?: number }): Promise<CourseEnrollment[]>;
+  /** 112.5 Puts an enrolled student in one of the course's cohorts (null: none); false when they aren't enrolled. */
+  setEnrollmentCohort(input: { appId: string; userId: number; courseId: number; cohortId: number | null }): Promise<boolean>;
   /** Saves a lesson's video position, and marks it complete when `completedAt` is given (never un-completes). */
   saveLessonProgress(input: LessonProgress): Promise<void>;
   listLessonProgress(input: { appId: string; userId: number; courseId?: number }): Promise<LessonProgress[]>;

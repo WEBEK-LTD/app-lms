@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { deleteCourseAction, deleteItemAction, deleteLessonAction, deleteQuizAction, deleteTopicAction, moveItemAction, moveTopicAction } from "@/app/actions/courses";
+import { deleteCohortAction, deleteCourseAction, deleteItemAction, deleteLessonAction, deleteQuizAction, deleteTopicAction, moveItemAction, moveTopicAction } from "@/app/actions/courses";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { formatDate } from "@/components/ui";
@@ -14,7 +14,7 @@ import type { CourseLesson, CourseQuiz } from "@/lib/data/types";
 import { appZone } from "@/lib/analytics/zone";
 import { assignmentValues, liveValues, localParts } from "@/lib/courses/builder";
 import { topicItems, type TopicItem } from "@/lib/courses/learning";
-import { AssignmentForm, LiveForm, StudentsForm, TopicTitleForm } from "../builder-forms";
+import { AssignmentForm, CohortForm, LiveForm, StudentsForm, TopicTitleForm } from "../builder-forms";
 import type { DashT } from "@/i18n/dashboard";
 import { questionsText } from "@/lib/courses/quizzes";
 import { CourseForm, LessonForm, QuestionBankForm, QuizForm, StudentForm, TopicForm } from "../forms";
@@ -120,6 +120,7 @@ export default async function CoursePage({ params }: PageProps<"/dashboard/cours
   const stage = courseStage(course);
   // 112.5 Days and times in the app's time zone; assignments waiting for a grade.
   const zone = await appZone(store, app);
+  const cohortName = new Map((course.cohorts ?? []).map((c) => [c.id, c.name]));
   const toGrade = (await store.listAssignmentSubmissions({ appId: app.id, courseId: course.id, status: "submitted" })).length;
 
   return (
@@ -329,6 +330,38 @@ export default async function CoursePage({ params }: PageProps<"/dashboard/cours
         <TopicForm courseId={course.id} />
       </section>
 
+      {/* 112.5 Cohorts: students who start together. */}
+      <section aria-labelledby="h-cohorts" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+        <div className="flex flex-col gap-1">
+          <h2 id="h-cohorts" className="m-0 text-lg font-bold">
+            {t("lms.cohorts")} <span className="font-normal text-muted">{(course.cohorts ?? []).length}</span>
+          </h2>
+          <p className="m-0 text-sm leading-relaxed text-muted">{t("lms.cohortsIntro")}</p>
+        </div>
+        {(course.cohorts ?? []).length ? (
+          <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px]">
+            {(course.cohorts ?? []).map((cohort) => (
+              <li key={cohort.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line-soft px-3 py-2" data-cohort={cohort.id}>
+                <span>
+                  <span className="font-semibold">{cohort.name}</span>{" "}
+                  <span className="text-muted">
+                    {t("lms.cohortLine", { date: localParts(cohort.startsAt, zone).date, count: enrollments.filter((e) => e.cohortId === cohort.id).length })}
+                  </span>
+                </span>
+                <form action={deleteCohortAction}>
+                  <input type="hidden" name="courseId" value={course.id} />
+                  <input type="hidden" name="cohortId" value={cohort.id} />
+                  <SubmitButton variant="secondary" className="h-8 px-3 text-[13px]">
+                    {t("lms.deleteCohort")}
+                  </SubmitButton>
+                </form>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        <CohortForm courseId={course.id} />
+      </section>
+
       {/* 112.5 The question bank the quizzes draw from. */}
       <section aria-labelledby="h-bank" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-col gap-1">
@@ -380,6 +413,7 @@ export default async function CoursePage({ params }: PageProps<"/dashboard/cours
                 </span>
                 <span className="text-muted">
                   {s.source === "paid" ? t("courses.paid") : s.source === "manual" ? t("courses.addedByYou") : t("common.free")} · {formatDate(s.enrolledAt, lang)}
+                  {s.cohortId && cohortName.get(s.cohortId) ? ` · ${cohortName.get(s.cohortId)}` : ""}
                 </span>
               </li>
             ))}
@@ -387,12 +421,12 @@ export default async function CoursePage({ params }: PageProps<"/dashboard/cours
         ) : (
           <p className="m-0 text-[15px] text-muted">{t("courses.noStudents")}</p>
         )}
-        <StudentForm courseId={course.id} />
+        <StudentForm courseId={course.id} cohorts={course.cohorts ?? []} />
         {/* 112.5 Many at once. */}
         <details className="rounded-lg bg-sand p-3">
           <summary className="cursor-pointer text-[15px] font-semibold">{t("lms.addStudents")}</summary>
           <div className="pt-3">
-            <StudentsForm courseId={course.id} />
+            <StudentsForm courseId={course.id} cohorts={course.cohorts ?? []} />
           </div>
         </details>
       </section>

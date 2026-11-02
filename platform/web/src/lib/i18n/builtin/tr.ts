@@ -519,6 +519,7 @@ export const SERVER_MESSAGES_TR: Record<string, string> = {
   "You've used every attempt at this quiz.": "Bu sınavdaki tüm deneme haklarınızı kullandınız.",
   "Attempt not found.": "Deneme bulunamadı.",
   // 112.5 Assignments, live classes and courses taken in order.
+  "This course starts on {0}.": "Bu kurs {0} tarihinde başlıyor.",
   "Finish what comes before it in the course first.": "Önce kursta bundan önce geleni bitirin.",
   "A written answer's text must be text.": "Yazılı cevap metin olmalıdır.",
   "Enroll in the course to open this.": "Bunu açmak için kursa kaydolun.",

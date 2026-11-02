@@ -6197,4 +6197,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String certificateShareText(String course, String url) {
     return '$course sertifikam: $url';
   }
+
+  @override
+  String cohortStarts(String cohort, String date) {
+    return '$cohort · $date başlıyor';
+  }
 }

@@ -25,7 +25,7 @@ import { notifyNewLesson } from "@/lib/hosted/auto-notifications";
 import { parseMediaLink } from "@/lib/media/files";
 import { askAfterOwnEntry } from "@/lib/samples/lists";
 import { appZone } from "@/lib/analytics/zone";
-import { deleteItem, moveItem, moveTopic, renameTopic, saveAssignment, saveLive } from "@/lib/courses/builder";
+import { deleteCohort, deleteItem, moveItem, moveTopic, renameTopic, saveAssignment, saveCohort, saveLive } from "@/lib/courses/builder";
 import { findAssignment } from "@/lib/courses/learning";
 import { parseGrade, parsePhones } from "@/lib/courses/grading";
 import { notifyGraded } from "@/lib/hosted/auto-notifications";
@@ -223,7 +223,7 @@ export async function addStudentAction(_: FormState, formData: FormData): Promis
   const store = await getStore();
   const user = await store.getHostedUserByPhone(app.id, phone.e164);
   if (!user) return { errors: { phone: "No one with this number has signed in to your app yet." }, values: { phone: phoneText } };
-  const added = await store.enrollInCourse({ appId: app.id, userId: user.id, courseId, source: "manual", enrolledAt: new Date() });
+  const added = await store.enrollInCourse({ appId: app.id, userId: user.id, courseId, source: "manual", enrolledAt: new Date(), ...cohortChoice(app, courseId, formData) });
   revalidatePath(`/dashboard/courses/${courseId}`);
   return { ok: true, message: added ? `${user.name} can now open this course.` : `${user.name} was already enrolled.` };
 }
@@ -342,7 +342,7 @@ export async function addStudentsAction(_: FormState, formData: FormData): Promi
   for (const phone of phones.value) {
     const user = await store.getHostedUserByPhone(app.id, phone.e164);
     if (!user) unknown.push(phone.text);
-    else if (await store.enrollInCourse({ appId: app.id, userId: user.id, courseId, source: "manual", enrolledAt: new Date() })) added++;
+    else if (await store.enrollInCourse({ appId: app.id, userId: user.id, courseId, source: "manual", enrolledAt: new Date(), ...cohortChoice(app, courseId, formData) })) added++;
     else already++;
   }
   revalidatePath(`/dashboard/courses/${courseId}`);
@@ -360,4 +360,36 @@ export async function saveQuestionBankAction(_: FormState, formData: FormData): 
   if (!saved.ok) return { errors: { bank: saved.error }, values: { bank: text } };
   await saveSetup(app, saved.setup);
   return { ok: true, message: `Saved ${saved.count} questions.`, values: { bank: text } };
+}
+
+// 112.5 Cohorts: students who start together.
+
+/** The cohort chosen when adding students, when the course has it. */
+function cohortChoice(app: App, courseId: number, formData: FormData): { cohortId?: number } {
+  const id = Number(formData.get("cohortId"));
+  const course = courseSetup(app).courses.find((c) => c.id === courseId);
+  return id && (course?.cohorts ?? []).some((c) => c.id === id) ? { cohortId: id } : {};
+}
+
+export async function saveCohortAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { app } = await requireCoursesApp();
+  const v = values(formData, ["id", "name", "startsOn"]);
+  const saved = saveCohort(courseSetup(app), Number(formData.get("courseId")), v, await appZone(await getStore(), app));
+  if (!saved.ok) return saved.errors ? { errors: saved.errors, values: v } : { message: saved.message };
+  await saveSetup(app, saved.setup);
+  return { ok: true, message: saved.added ? `Added “${saved.item.name}”.` : `Saved “${saved.item.name}”.` };
+}
+
+export async function deleteCohortAction(formData: FormData): Promise<void> {
+  const { app } = await requireCoursesApp();
+  await saveSetup(app, deleteCohort(courseSetup(app), Number(formData.get("courseId")), Number(formData.get("cohortId"))));
+}
+
+/** Moves an enrolled student to a cohort of the course, or out of one. */
+export async function setStudentCohortAction(formData: FormData): Promise<void> {
+  const { app } = await requireCoursesApp();
+  const courseId = Number(formData.get("courseId"));
+  const chosen = cohortChoice(app, courseId, formData);
+  await (await getStore()).setEnrollmentCohort({ appId: app.id, userId: Number(formData.get("userId")), courseId, cohortId: chosen.cohortId ?? null });
+  revalidatePath(`/dashboard/courses/${courseId}`, "layout");
 }

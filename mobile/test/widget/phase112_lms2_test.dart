@@ -7,6 +7,7 @@ import 'package:yallapp/core/services/external_links.dart';
 import 'package:yallapp/core/services/share_links.dart';
 
 import '../support/fake_api.dart';
+import '../support/fixtures.dart';
 import '../support/test_app.dart';
 
 /// 112.5, round 2: the certificate's PDF and sharing it, the question bank,
@@ -70,5 +71,25 @@ void main() {
     expect(opened, ['$url/pdf?lang=en']);
     await tapKey(tester, 'certificate-share-10');
     expect(shared, ['My certificate for Turkish for Beginners: $url']);
+  });
+
+  testWidgets('112.5 a course page shows the student\'s cohort', (
+    tester,
+  ) async {
+    usePhone(tester);
+    final api = FakeApi(
+      course: {
+        ...courseDetailJson(enrolled: true),
+        'cohort': {
+          'id': 30,
+          'name': 'October group',
+          'starts_at': '2026-10-20T00:00:00Z',
+        },
+      },
+    );
+    final app = TestApp(signedIn: true, appType: AppType.lms, api: api);
+    await app.pump(tester);
+    await push(app, tester, Paths.course(1));
+    expect(find.textContaining('October group · starts'), findsOneWidget);
   });
 }

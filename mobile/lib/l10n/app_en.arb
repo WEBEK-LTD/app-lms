@@ -6019,5 +6019,17 @@
         "type": "String"
       }
     }
+  },
+  "cohortStarts": "{cohort} · starts {date}",
+  "@cohortStarts": {
+    "description": "112.5 On a course page: the student's cohort and its first day.",
+    "placeholders": {
+      "cohort": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
   }
 }

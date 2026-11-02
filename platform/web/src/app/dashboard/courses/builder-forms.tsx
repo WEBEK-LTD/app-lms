@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { addStudentsAction, gradeSubmissionAction, renameTopicAction, saveAssignmentAction, saveLiveAction } from "@/app/actions/courses";
+import { addStudentsAction, gradeSubmissionAction, renameTopicAction, saveAssignmentAction, saveCohortAction, saveLiveAction } from "@/app/actions/courses";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { MediaPickButton } from "@/components/media-picker";
 import { useDashT } from "@/components/dashboard-i18n";
@@ -155,13 +155,54 @@ export function GradeForm({ submissionId, maxPoints, current }: { submissionId: 
   );
 }
 
-export function StudentsForm({ courseId }: { courseId: number }) {
+/** 112.5 Which cohort students added join (none by default). */
+export function CohortSelect({ id, cohorts, value }: { id: string; cohorts: { id: number; name: string }[]; value?: string }) {
+  const t = useDashT();
+  if (!cohorts.length) return null;
+  return (
+    <div className="flex min-w-[180px] flex-col gap-1.5">
+      <label htmlFor={id} className="text-sm font-semibold">
+        {t("lms.cohort")}
+      </label>
+      <select id={id} name="cohortId" defaultValue={value ?? ""} className="input input-sm">
+        <option value="">{t("lms.noCohort")}</option>
+        {cohorts.map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.name}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+/** 112.5 A new cohort: its name and first day. */
+export function CohortForm({ courseId }: { courseId: number }) {
+  const t = useDashT();
+  const [state, action] = useActionState(saveCohortAction, initialFormState);
+  return (
+    <form action={action} noValidate className="flex flex-col gap-2" key={state.ok ? state.message : "form"}>
+      <input type="hidden" name="courseId" value={courseId} />
+      <div className="flex flex-wrap items-end gap-3">
+        <Field label={t("lms.cohortName")} name="name" id={`f-cohort-name-${courseId}`} placeholder={t("lms.cohortPlaceholder")} defaultValue={state.values?.name} error={state.errors?.name} className="min-w-[200px] flex-1" small />
+        <Field label={t("lms.cohortStarts")} name="startsOn" id={`f-cohort-start-${courseId}`} type="date" defaultValue={state.values?.startsOn} error={state.errors?.startsOn} small />
+        <SubmitButton variant="secondary" className="h-11">
+          {t("lms.addCohort")}
+        </SubmitButton>
+      </div>
+      <FormMessage message={state.message} ok={state.ok} />
+    </form>
+  );
+}
+
+export function StudentsForm({ courseId, cohorts = [] }: { courseId: number; cohorts?: { id: number; name: string }[] }) {
   const t = useDashT();
   const [state, action] = useActionState(addStudentsAction, initialFormState);
   return (
     <form action={action} noValidate className="flex flex-col gap-2" key={state.ok ? state.message : JSON.stringify(state.values ?? {})}>
       <input type="hidden" name="courseId" value={courseId} />
       <TextArea id={`f-students-${courseId}`} label={t("lms.addStudents")} name="phones" value={state.values?.phones} rows={4} error={state.errors?.phones} hint={t("lms.addStudentsHint")} />
+      <CohortSelect id={`f-students-cohort-${courseId}`} cohorts={cohorts} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <FormMessage message={state.message} ok={state.ok} />
         <SubmitButton variant="secondary" className="h-11">
